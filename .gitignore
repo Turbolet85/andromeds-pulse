@@ -1,0 +1,68 @@
+# --- Andromeda planning artifacts ---
+.andromeda/
+
+# --- Rust ---
+# Build output
+target/
+
+# rustfmt backups
+**/*.rs.bk
+
+# Cargo.lock policy: COMMIT for binary crates (reproducible builds);
+# pulse-app is the binary root, so Cargo.lock IS committed.
+# (Do NOT add Cargo.lock to .gitignore.)
+
+# --- Tauri ---
+# Updater Minisign keys (NEVER commit private keys)
+*.key
+~/.tauri/*.key
+**/.tauri/*.key
+src-tauri/target/
+
+# --- Node / webview frontend ---
+node_modules/
+dist/
+build/
+.next/
+coverage/
+.parcel-cache/
+.turbo/
+.vite/
+
+# Frontend env files
+.env
+.env.local
+.env.*.local
+
+# --- IDE ---
+*.iml
+.idea/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json.example
+.fleet/
+
+# --- macOS ---
+.DS_Store
+
+# --- Windows ---
+Thumbs.db
+Desktop.ini
+
+# --- Code-signing certificates ---
+*.p12
+*.pem
+*.cer
+*.pfx
+
+# --- Test artifacts ---
+proptest-regressions/*.txt.bk
+.test-logs/
+
+# --- Andromeda-pulse runtime data (when accidentally created in repo) ---
+~/.andromeda-pulse/
+.andromeda-pulse/
+
+# --- Claude Code local settings ---
+.claude/settings.local.json
+.claude/backup/

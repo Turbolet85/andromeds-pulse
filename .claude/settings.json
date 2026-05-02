@@ -1,0 +1,42 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Edit|MultiEdit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash -c 'path=$(jq -r \".tool_input.file_path\" <<< \"$CLAUDE_TOOL_INPUT\"); if echo \"$path\" | grep -qE \"^(dist|build|\\\\.next|node_modules|coverage|target|vendor)/\"; then echo \"Blocked: attempting to edit generated directory\"; exit 1; fi'"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit|MultiEdit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash -c 'case \"$CLAUDE_FILE_PATH\" in *.rs) rustfmt \"$CLAUDE_FILE_PATH\" 2>/dev/null || true ;; esac'"
+          },
+          {
+            "type": "command",
+            "command": "bash -c 'case \"$CLAUDE_FILE_PATH\" in *.rs) (cd \"$(git rev-parse --show-toplevel 2>/dev/null || pwd)\" && cargo clippy --fix --allow-dirty --workspace --all-targets --all-features -- -D warnings 2>&1 | tail -50) ;; esac'"
+          },
+          {
+            "type": "command",
+            "command": "bash -c 'case \"$CLAUDE_FILE_PATH\" in *.ts|*.tsx|*.js|*.jsx) (cd \"$(dirname $(find . -maxdepth 4 -name package.json -path \"*/ui/*\" | head -1) 2>/dev/null)\" 2>/dev/null && npx --no-install prettier --write \"$CLAUDE_FILE_PATH\" 2>/dev/null) || true ;; esac'"
+          },
+          {
+            "type": "command",
+            "command": "bash -c 'case \"$CLAUDE_FILE_PATH\" in *.ts|*.tsx|*.js|*.jsx) (cd \"$(dirname $(find . -maxdepth 4 -name package.json -path \"*/ui/*\" | head -1) 2>/dev/null)\" 2>/dev/null && npx --no-install eslint --fix \"$CLAUDE_FILE_PATH\" 2>/dev/null) || true ;; esac'"
+          },
+          {
+            "type": "command",
+            "command": "bash -c 'case \"$CLAUDE_FILE_PATH\" in *.ts|*.tsx) (cd \"$(dirname $(find . -maxdepth 4 -name tsconfig.json -path \"*/ui/*\" | head -1) 2>/dev/null)\" 2>/dev/null && npx --no-install tsc --noEmit 2>&1 | tail -30) || true ;; esac'"
+          }
+        ]
+      }
+    ]
+  }
+}
