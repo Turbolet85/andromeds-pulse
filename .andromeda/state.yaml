@@ -1,21 +1,21 @@
-schema_version: 1
-last_wrap: 2026-05-03T20:39:20Z
-last_reconcile: 2026-05-03T20:39:20Z
+schema_version: 2
+last_wrap: 2026-05-03T23:22:08Z
+last_reconcile: 2026-05-03T23:22:08Z
 
 last_completed_chunk:
-  route_index: 11
-  title: "Iconography registry — custom SVG glyphs (aperture/telescope/constellation-grid/star/circular-pulse) registered as React components at src/components/icons/"
+  route_index: 12
+  title: "Contrast verification harness — design tokens + colorjs.io + per-pair JSON emission against design plan §Color Palette ratios"
   epoch: 1
-  committed_at: 2026-05-03T18:56:50Z
-  commit_sha: ffec9d1
-  commit_subject: "feat(foundation): iconography registry + React 19 + Vite minimal scaffold (chunk #11)"
+  committed_at: 2026-05-03T23:22:08Z
+  commit_sha: pending
+  commit_subject: "feat(foundation): contrast verification harness + spec-amendment retroactive backfill (chunk #12)"
 
 in_progress: null
 
 plan_freshness:
   arch_mtime: 2026-05-02T06:52:58Z
   security_mtime: 2026-05-02T10:05:55Z
-  design_mtime: 2026-05-02T15:53:22Z
+  design_mtime: 2026-05-03T21:52:16Z
   layout_mtime: 2026-05-02T15:53:22Z
   tests_mtime: 2026-05-03T20:24:05Z
   obs_mtime: 2026-05-02T20:14:28Z
@@ -24,11 +24,56 @@ plan_freshness:
   input_mtime: 2026-05-02T06:52:58Z
 
 living_artifact_freshness:
-  dep_tree_reconciled_at: 2026-05-03T20:39:20Z
-  api_surface_reconciled_at: 2026-05-03T20:39:20Z
-  most_recent_code_mtime: 2026-05-03T18:46:05Z
+  dep_tree_reconciled_at: 2026-05-03T23:22:08Z
+  api_surface_reconciled_at: 2026-05-03T23:22:08Z
+  most_recent_code_mtime: 2026-05-03T18:00:23Z
   reconcile_failed: false
 
-drift_warnings: []
+drift_warnings:
+  - drift_id: D5
+    description: "Spec amendment pending propagation: 2026-05-03T21-30-00Z-lift-accent (design-system.md edited; \"2026-05-03 — Lift --color-accent from #8B2E3B to #C7556A\")"
+    severity: info
+    remediation_hint: "/andromeda-setup-project --delta (see .andromeda/runs/2026-05-03T21-30-00-spec-amendment-lift-accent/amendment.md)"
+  - drift_id: D5
+    description: "test-plan.md regenerated since last setup-project (mtime 2026-05-03T20:24:05Z > CLAUDE.md mtime 2026-05-03T11:21:36Z); no matching active amendment (carries over from session 10's pragmatic delta-rerun)"
+    severity: warning
+    remediation_hint: "/andromeda-setup-project (full re-derive) OR investigate edit source"
 
-session_count: 10
+spec_amendments:
+  active:
+    - amendment_id: 2026-05-03T21-30-00Z-lift-accent
+      plans:
+        - path: design-system.md
+          sections:
+            - Color Palette Core Colors
+            - Color Palette Semantic Colors
+            - Color Palette Border Progression
+            - Surface desktop-webview Tokens
+            - Anti-Patterns Universal Bans
+            - Downstream Readiness
+            - Design Decisions Log
+          decisions_log_section: "2026-05-03 — Lift --color-accent from #8B2E3B to #C7556A"
+      trigger:
+        chunk: 12
+        phase: 9
+        harness: "npm run verify:contrast"
+      authority:
+        winning_plan: a11y-plan.md
+        winning_tier: Standard
+        losing_plan: design-system.md
+        losing_concern: palette-aesthetic
+        rationale: "WCAG SC 1.4.11 3:1 non-text minimum trumps Alert Burgundy hex specificity"
+      impl_files_synced:
+        - pulse-app/ui/src/styles/tokens.css
+        - pulse-app/ui/src/contrast/pairs.mjs
+      expected_propagation:
+        - .claude/docs/design-summary.md
+      marker_path: .andromeda/runs/2026-05-03T21-30-00-spec-amendment-lift-accent/amendment.md
+      applied_at: 2026-05-03T21:30:00Z
+      noted_by_run: .andromeda/runs/2026-05-03T23-22-08-wrap-session-11/
+      propagated_by_run: null
+      archived_by_run: null
+      verification_status: clean
+  archive: []
+
+session_count: 11

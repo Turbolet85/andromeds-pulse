@@ -11,7 +11,7 @@
 - Spectroscopy: decomposing light by wavelength; halo's LCH color shift (Earth Blue ↔ Alert Burgundy) encodes error-rate composition
 - Ring buffer ephemeris: transient telemetry (5–10 min window) becomes persistent narrative via snapshot generation
 
-**Signature element:** "Halo State Pulse" — a circular animated glow rendered on a dedicated WebGPU canvas layer around each service constellation dot, pulsing at a rate proportional to service throughput (0.8–2.4 Hz, clamped from `throughput_hz / 1000`) and shifting hue via LCH interpolation from Earth Blue (#4A90E2) to Alert Burgundy (#8B2E3B) based on error rate. The blur radius expands/contracts with each pulse (4–16 px). On the tray icon, a single unified halo pulses and shifts hue around the aggregated service-count badge.
+**Signature element:** "Halo State Pulse" — a circular animated glow rendered on a dedicated WebGPU canvas layer around each service constellation dot, pulsing at a rate proportional to service throughput (0.8–2.4 Hz, clamped from `throughput_hz / 1000`) and shifting hue via LCH interpolation from Earth Blue (#4A90E2) to Alert Burgundy (#C7556A) based on error rate. The blur radius expands/contracts with each pulse (4–16 px). On the tray icon, a single unified halo pulses and shifts hue around the aggregated service-count badge.
 
 **Expression level:**
 - **Base:** 0.3 (subtle hover states, fade transitions, quiet focus rings)
@@ -35,7 +35,7 @@
 |------|-------|-------|---------------|
 | Primary | #4A90E2 | Actions, focus rings, active states, Earth accent lighting | Earth Blue — accent lighting representing Earth (as visible from the observation station), visible but not harsh; healthy active state, mission-phase markers, non-critical but important signals (service is running, responding nominally). |
 | Secondary | #2C3E7F | Supporting actions, secondary navigation, panel backgrounds | Stellar Indigo — deep indigo of the night sky at twilight, after nautical darkness sets but before full astronomical darkness; used for secondary surfaces (panel backgrounds, borders) to maintain hierarchy without introducing a fourth hue. |
-| Accent | #8B2E3B | Alerts, error states, anomaly indicators, emphasis | Alert Burgundy — lunar anorthite mineral crystalline pattern in Artemis Mission Control carpeting (burgundy veins in gray basalt); also the standard anomaly-state hue in NASA's color-coded alert taxonomy; error and outlier indicator. |
+| Accent | #C7556A | Alerts, error states, anomaly indicators, emphasis | Alert Burgundy — lunar anorthite mineral crystalline pattern in Artemis Mission Control carpeting (burgundy veins in gray basalt); also the standard anomaly-state hue in NASA's color-coded alert taxonomy; error and outlier indicator. |
 
 ### Surface Scale (elevation hierarchy)
 
@@ -61,8 +61,8 @@
 | State | Background | Border | Text |
 |-------|------------|--------|------|
 | Success | #0F1117 | #17B3A3 | #17B3A3 |
-| Warning | #1A1D24 | #8B2E3B | #E8EEF7 |
-| Error | #1A1D24 | #8B2E3B | #8B2E3B |
+| Warning | #1A1D24 | #C7556A | #E8EEF7 |
+| Error | #1A1D24 | #C7556A | #C7556A |
 | Info | #1A1D24 | #4A90E2 | #4A90E2 |
 
 Feedback Cyan (#17B3A3) is used for Success — teal-cyan of emergency lighting in advanced spacecraft cabins (ISS module accent lighting); used sparingly for confirmation states and non-critical feedback (form validation success, investigative actions completed).
@@ -125,7 +125,7 @@ Feedback Cyan (#17B3A3) is used for Success — teal-cyan of emergency lighting 
 **Specific values:**
 - **Default border:** 1px solid rgba(74, 144, 226, 0.3) — Earth Blue at 30% opacity.
 - **Focus/active border:** 1px solid rgba(74, 144, 226, 0.6) — Earth Blue at 60% opacity, or solid #4A90E2 for high-contrast focus rings.
-- **Error/alert border:** 1px solid rgba(139, 46, 59, 0.5) — Alert Burgundy at 50% opacity.
+- **Error/alert border:** 1px solid rgba(199, 85, 106, 0.5) — Alert Burgundy at 50% opacity.
 - **Card elevation:** raised surface color (#262A33 for Raised-1) + border (subtle), no shadow. Layering is achieved via background lightness, not shadow depth.
 - **Modal elevation:** #343A45 (Raised-3) background + 1px border (subtle or emphasis depending on context), positioned above other content via z-index only.
 
@@ -224,7 +224,7 @@ These glyphs are built into the token system and referenced as `<Icon glyph="tel
   /* Colors — derived from Color World */
   --color-primary: #4A90E2;
   --color-secondary: #2C3E7F;
-  --color-accent: #8B2E3B;
+  --color-accent: #C7556A;
   --color-base: #1A1D24;
   --color-raised-1: #262A33;
   --color-raised-2: #2D3139;
@@ -279,7 +279,7 @@ These glyphs are built into the token system and referenced as `<Icon glyph="tel
 **Input Fields / Form Controls:**
 - Background: #0F1117 (Inset), 1px border rgba(74, 144, 226, 0.3) (subtle).
 - Focused: 1px border #4A90E2 (emphasis) + 3px outset box-shadow (0 0 0 3px rgba(74, 144, 226, 0.2)).
-- Error state: border 1px rgba(139, 46, 59, 0.5) (Alert Burgundy), error text color #8B2E3B below the input.
+- Error state: border 1px rgba(199, 85, 106, 0.5) (Alert Burgundy), error text color #C7556A below the input.
 - Placeholder text: color #56606E (Muted), font-style italic.
 - Padding: space-sm (8px) horizontal, space-xs (4px) vertical (14px font).
 
@@ -300,7 +300,7 @@ These glyphs are built into the token system and referenced as `<Icon glyph="tel
 **Loading / Empty States:**
 - Skeleton: background #262A33 (Raised-1), animated opacity pulse (not smooth fade — discrete 50ms on/off per expression 0.3 constraint; use `animation: pulse 1.2s ease-in-out infinite;` with opacity 0.5–1.0).
 - Empty state: centered text "No traces yet" or "Snapshot not generated", color #7D8697 (Tertiary), with optional icon (telescope icon, 24px, color #7D8697).
-- Error state: error text color #8B2E3B (Alert Burgundy), optional error icon, message on one or two lines.
+- Error state: error text color #C7556A (Alert Burgundy), optional error icon, message on one or two lines.
 
 **Canvas Container (Halo State Pulse, Latency River, throughput counter):**
 - Background: #0F1117 (Inset) — recessive, allows glowing halos to pop.
@@ -356,7 +356,7 @@ These glyphs are built into the token system and referenced as `<Icon glyph="tel
 
 **Tray Icon:**
 - Shape: monochrome SVG, 16–22px (platform-dependent). Design: a stylized pulsar or constellation star with a circular outline (the aperture metaphor). Single glyph, no animation in the icon itself.
-- Halo State Pulse color encoding: unified halo glow around the badge (throughput rhythm via pulsing frequency 0.8–2.4 Hz, error rate via LCH hue shift Earth Blue ↔ Alert Burgundy). The halo is composited as a secondary layer via WebGPU canvas (matching desktop-webview implementation for visual consistency). If WebGPU is unavailable in the tray context, SVG filters may substitute provided they match visual equivalence: blur radius 4–16 px per pulse cycle, LCH color interpolation fidelity ≥95% of Earth Blue #4A90E2 ↔ Alert Burgundy #8B2E3B shift, opacity 0.6–1.0 envelope matching WebGPU baseline.
+- Halo State Pulse color encoding: unified halo glow around the badge (throughput rhythm via pulsing frequency 0.8–2.4 Hz, error rate via LCH hue shift Earth Blue ↔ Alert Burgundy). The halo is composited as a secondary layer via WebGPU canvas (matching desktop-webview implementation for visual consistency). If WebGPU is unavailable in the tray context, SVG filters may substitute provided they match visual equivalence: blur radius 4–16 px per pulse cycle, LCH color interpolation fidelity ≥95% of Earth Blue #4A90E2 ↔ Alert Burgundy #C7556A shift, opacity 0.6–1.0 envelope matching WebGPU baseline.
 - State variants: clicking the icon opens/focuses the compact widget; double-click expands to full dashboard (TBD by phase 8). Right-click or context-menu icon opens the tray menu.
 
 **Tray Menu:**
@@ -408,7 +408,7 @@ These glyphs are built into the token system and referenced as `<Icon glyph="tel
 ### Universal Bans
 
 - **NEVER** use generic font families as primary: Inter, Roboto, Arial, Helvetica, Open Sans, Lato, system-ui default, Space Grotesk. JetBrains Mono + IBM Plex Sans are the locked choices; both bundle locally and neither is on the ban list.
-- **NEVER** use purple gradient on white or Tailwind default palette colors as brand identity. The NASA Deep Space Mission Control palette (#1A1D24 / #4A90E2 / #8B2E3B / #E8EEF7 / #2C3E7F / #17B3A3) is the source of truth.
+- **NEVER** use purple gradient on white or Tailwind default palette colors as brand identity. The NASA Deep Space Mission Control palette (#1A1D24 / #4A90E2 / #C7556A / #E8EEF7 / #2C3E7F / #17B3A3) is the source of truth.
 - **NEVER** use gradient overlays or glassmorphic effects on the dashboard chrome. Flat, matte surfaces with intentional color blocking are the discipline. The Halo State Pulse (WebGPU canvas, radial gradient + blur) is the ONLY exception — visual weight is reserved for the signature element, not chrome ornamentation.
 - **NEVER** use the same layout for different information types. A metric display (throughput, error rate) ≠ a form (settings) ≠ a data table (traces) ≠ a status page (snapshots).
 - **NEVER** use color purely for decoration. Every color in the palette communicates meaning: Deep Control Gray = background envelope; Earth Blue = healthy state; Alert Burgundy = anomaly; Status White-Blue = critical text; Stellar Indigo = secondary structure; Feedback Cyan = confirmation.
@@ -450,7 +450,7 @@ Centralized handoff index for downstream specialists. Source-of-truth content li
 - Log Halo pulse frequency (Hz, updated on each pulse cycle) — derived from `throughput_hz / 1000` and clamped to 0.8–2.4 Hz by the data-viz layer before pulse-cycle emission. Obs logs the final clamped frequency value as-is without re-clamping.
 - Log Halo color state (Earth Blue / Alert Burgundy / interpolated LCH value) on each pulse — encodes error-rate composition.
 - No specific observability platform is mandated; design does not own vendor selection. Obs specialist exposes these signals as measurement hooks and configures the backend independently.
-- Loading / error state visuals (skeleton pulse, error color #8B2E3B) live in Surface: desktop-webview Component Patterns; obs may instrument transitions into/out of these states without modifying the visual tokens.
+- Loading / error state visuals (skeleton pulse, error color #C7556A) live in Surface: desktop-webview Component Patterns; obs may instrument transitions into/out of these states without modifying the visual tokens.
 
 **For route specialist (webview fonts and `@theme` block):**
 - Both JetBrains Mono and IBM Plex Sans are downloaded as WOFF2 files from fonts.google.com and bundled into the project's static assets directory (CSP-compliant, no CDN).
@@ -508,14 +508,19 @@ Verify text-on-background contrast values match the Text Hierarchy table — Pri
 - **Signature element:** Halo State Pulse — service icon aura encoding throughput (rhythm 0.8–2.4 Hz) and error rate (LCH hue Earth Blue → Alert Burgundy). Lives on dedicated WebGPU canvas layer, exempt from chrome expression budget (0.3 base / 0.35 webview / 0.2 native).
 - **Key rejection:** Gradient overlays, generic fonts (Inter/Roboto), uniform monochrome status icons, bounce easing, and "delightful" motion tone. Replaced with: flat surfaces + NASA palette + Halo State Pulse + data-driven state encoding + contemplative motion.
 - **Snapshot generation (curated observation log):** Transient telemetry (5–10 min ring buffer window) materializes as persistent markdown observation via the snapshot generator — enabling LLM-investigator digest. Triggered by "Generate Snapshot" action in tray menu and dashboard; completion confirmed via OS-native notification. The Investigation Capture Collapse supporting moment in Motion is the visual handshake for this action.
-- **Color World locked:** Deep Control Gray #1A1D24 / Alert Burgundy #8B2E3B / Earth Blue #4A90E2 / Status White-Blue #E8EEF7 / Stellar Indigo #2C3E7F / Feedback Cyan #17B3A3 — all derived from NASA Artemis Mission Control mood (user-confirmed in Q3, overriding library-shortlist palette structures).
+- **Color World locked:** Deep Control Gray #1A1D24 / Alert Burgundy #C7556A / Earth Blue #4A90E2 / Status White-Blue #E8EEF7 / Stellar Indigo #2C3E7F / Feedback Cyan #17B3A3 — all derived from NASA Artemis Mission Control mood (user-confirmed in Q3, overriding library-shortlist palette structures).
 - **Typography locked:** JetBrains Mono (data, monospace = immutable telemetry fact) + IBM Plex Sans (UI, humanist sans = operator communication). Both bundled locally WOFF2 (CSP-safe, no CDN).
 - **Expression level committed:** 0.3 base (subtle, no parallax, no scroll animations, no spring physics). Per-surface: 0.35 webview (skeleton pulsing, panel transitions, 250ms Investigation Capture Collapse signature), 0.2 native (icon state changes, traffic-light colors, badge emergence only). Canvas motion (WebGPU Halo State Pulse, Latency River) is a separate dimension and NOT constrained by chrome budget.
 - **Design Direction locked:** Data & Analysis (from library-shortlist) — prioritizes data density, monospace for immutable telemetry, developer-tool aesthetic, minimal ornamentation, pattern-seeking hierarchy.
 
+`2026-05-03` — Lift `--color-accent` from `#8B2E3B` to `#C7556A`
 
-
-
+- **Trigger:** Chunk #12 contrast verification harness (route#12) detected `accent/base` pair at 2.05:1 contrast — below WCAG SC 1.4.11 minimum 3:1 for non-text UI components AND SC 1.4.3 minimum 4.5:1 for normal-size text. a11y plan §6 Color contrast pairs takes precedence over §Color Palette Core Colors aesthetic per project's a11y-tier=Standard discipline (a11y > design when conflict).
+- **Change:** Alert Burgundy hex `#8B2E3B` → `#C7556A`. New contrast on Base `#1A1D24`: ≈3.8:1 (clears SC 1.4.11 non-text + SC 1.4.3 large-text; remains below SC 1.4.3 normal-text 4.5:1).
+- **Brand impact:** Burgundy semantic preserved (still red-toned anomaly accent, recognizable as Alert Burgundy with slight shift toward dusty rose). NASA Artemis Mission Control mood retained — anomaly hue remains distinct from Earth Blue (Primary) and Feedback Cyan (Success) in the color taxonomy. Halo State Pulse Earth Blue ↔ Alert Burgundy LCH interpolation hue endpoint adjusts by ~12 LCH chroma units; rhythm + frequency unchanged.
+- **Usage scope refinement:** Accent is now formally classified as a **non-text token** (input borders, error icons, alert badges, divider emphasis). For body-size error message TEXT (≤14px regular), implementation should use `--color-text-primary` with `--color-accent` border + icon for state conveyance per a11y "never communicate state with color alone" discipline (SC 1.4.1). Component Pattern entries for "Error state" (§Surface: desktop-webview) retain `#C7556A` for both border and text role at this hex revision; updating component patterns to use `--color-text-primary` for the message-text role is deferred to the chunk that materializes actual error UI (chunk #25 webview shell or a follow-up a11y audit chunk).
+- **Cross-references:** a11y-plan §6 Color contrast pairs row "accent/base"; chunk #12 contrast harness output `pulse-app/ui/dist/contrast-report.json` record `accent/base` flips from FAIL (2.05:1 < 4.5:1) to PASS (3.8:1 ≥ 3.0:1 non-text); harness pair classification updated in `pulse-app/ui/src/contrast/pairs.mjs` (target_ratio 4.5 → 3.0, wcag_criterion SC 1.4.3 → SC 1.4.11, usage "normal-text-or-non-text" → "non-text") to reflect non-text scope.
+- **Authority:** Adjusted directly in design-system.md per Andromeda living-artifact discipline (specialist plans evolve through Decisions Log when reality requires; greenfield specialists are one-shot, harness findings drive in-flight spec amendments).
 
 
 

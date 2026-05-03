@@ -1,82 +1,116 @@
 # Session Handoff
 
-**Last Updated:** 2026-05-03T20:39:20Z
+**Last Updated:** 2026-05-03T23:22:08Z
 **Branch:** main
 **Session End Status:** clean
-**Last Commit:** 1909038 chore(setup-project): propagate Vitest к Tier 2/3 distillations + state.yaml mtime refresh
+**Last Commit:** (pending — wrap commit composed in Phase 10 of this run)
 
 ## Current State
 
-- **Last completed chunk:** route#11 "Iconography registry — custom SVG glyphs (aperture/telescope/constellation-grid/star/circular-pulse) registered as React components at src/components/icons/" (committed at 2026-05-03T18:56:50Z в commit ffec9d1)
-- **Next chunk:** route#12 "Contrast verification harness — design tokens + colorjs.io + per-pair JSON emission against design plan §Color Palette ratios"
-- **In-progress phase:** no active phase (phase-8 implemented + committed; phase-9 not yet planned)
-- **Phase artifacts present:** `.andromeda/phases/{phase-1..phase-8}/{combined.md, research.md, plan.md}` + audit trails per phase under `.andromeda/runs/`
+- **Last completed chunk:** route#12 "Contrast verification harness — design tokens + colorjs.io + per-pair JSON emission against design plan §Color Palette ratios" (committed in this wrap)
+- **Next chunk:** route#13 "A11y dev stack install — axe-core/playwright 4.11 + Lighthouse 12 + pa11y 9 + react-aria-components 1.17 + focus-trap-react 12 + tabbable 6.4 + eslint-plugin-jsx-a11y 6.10"
+- **In-progress phase:** no active phase (phase-9 implemented + committed in this wrap; phase-10 not yet planned)
+- **Phase artifacts present:** `.andromeda/phases/{phase-1..phase-9}/{combined.md, research.md, plan.md}` + audit trails per phase under `.andromeda/runs/`
 
 ## Andromeda State Detection (states A-L)
 
-⚠️ F — Pending phase planning: chunk #12 listed in route §2 but no `.andromeda/phases/phase-9/` directory exists yet (normal workflow signal — next session begins with `/andromeda-phase`).
+⚠️ F — Pending phase planning: chunk #13 listed in route §2 but no `.andromeda/phases/phase-10/` directory exists yet (normal workflow signal — next session begins with `/andromeda-phase`).
 
-All other states (A, B, C, D, E, G, H, I, J, K, L) — no warnings. State J cleared this wrap (state.yaml.plan_freshness.tests_mtime advanced to 2026-05-03T20:24:05Z to match actual test-plan.md mtime, via setup-project rerun commit 1909038). State K cleared (living artifacts METADATA timestamps refreshed at 20:39:20Z; LIVING blocks unchanged because no Rust deps changed and no Rust public API surface changed).
+ℹ️ J-pending-propagation — Specialist plan freshness mismatch: design-system.md edited via spec amendment "2026-05-03T21-30-00Z-lift-accent" (Decisions Log: 2026-05-03 — Lift --color-accent from #8B2E3B to #C7556A); Tier 2/3 distillations need delta-rerun. Remediation: `/andromeda-setup-project --delta`.
+
+⚠️ J-generic — Specialist plan freshness mismatch: test-plan.md mtime newer than CLAUDE.md mtime (carries over from session 10's pragmatic delta which preserved CLAUDE.md byte-identical). No matching active amendment. Remediation: `/andromeda-setup-project` (full re-derive) OR investigate.
+
+All other states (A, B, C, D, E, G, H, I, K, L) — clear.
 
 ## Drift Detection (6 dimensions)
 
-No drift detected. **D3 cleared this wrap** (Vitest is now consistently enumerated в test-plan.md §1+§4 + tests-summary.md Test pyramid + testing.md Framework — all three tiers aligned post-setup-project commit 1909038). **D5 cleared** (state.yaml.plan_freshness.tests_mtime now matches actual test-plan.md mtime; no upstream-newer-than-CLAUDE.md mismatch). D1, D2, D4, D6 — all clear (no code mtime drift; reconcile produced byte-identical output to existing LIVING blocks; no specialist plan modified outside test-plan.md edit; state.yaml.last_completed_chunk.route_index=11 matches latest chunk-progression commits).
+ℹ️ D5 — Spec amendment pending propagation: 2026-05-03T21-30-00Z-lift-accent (design-system.md edited; "2026-05-03 — Lift --color-accent from #8B2E3B to #C7556A"). Remediation: `/andromeda-setup-project --delta` (see `.andromeda/runs/2026-05-03T21-30-00-spec-amendment-lift-accent/amendment.md`).
+
+⚠️ D5 — test-plan.md regenerated since last setup-project (mtime 2026-05-03T20:24:05Z > CLAUDE.md mtime 2026-05-03T11:21:36Z). No matching active amendment. Remediation: `/andromeda-setup-project` (full re-derive) OR investigate edit source. (Carries over from session 10's pragmatic delta-rerun which preserved CLAUDE.md byte-identical despite editing test-plan.md.)
+
+D1, D2, D3, D4, D6 — no drift detected.
+
+## Spec Amendments (this session)
+
+- **Plan(s):** `.andromeda/design-system.md` (Color Palette Core Colors / Color Palette Semantic Colors / Color Palette Border Progression / Surface desktop-webview Tokens / Anti-Patterns Universal Bans / Downstream Readiness / Design Decisions Log)
+- **Decisions Log:** §Design Decisions Log — 2026-05-03 — Lift `--color-accent` from `#8B2E3B` to `#C7556A`
+- **Trigger:** chunk #12 phase #9 (`npm run verify:contrast`)
+- **Authority resolution:** a11y-tier=Standard > design-palette aesthetic (WCAG SC 1.4.11 3:1 non-text minimum trumps Alert Burgundy hex specificity)
+- **Lifecycle:** applied 2026-05-03T21:30:00Z | noted 2026-05-03T23:22:08Z (this wrap) | propagated null | archived null
+- **Marker:** `.andromeda/runs/2026-05-03T21-30-00-spec-amendment-lift-accent/amendment.md`
+- **Verification:** clean (orphan-grep returns 1 match in Decisions Log entry only; harness re-run exit 0; tests baseline preserved)
+
+This is the FIRST USE CASE of the new spec-amendment-protocol formalized this session — backfilled retroactively from session 11's ad-hoc Variant 3 application + recognized by Phase 6 D5 amendment-aware classification + acked via Phase 8 lifecycle progression (noted_by_run set).
 
 ## Key Decisions This Session
 
-- **Discussed D3 drift resolution options** triggered at end of chunk #11 wrap (Vitest in pulse-app/ui/package.json devDeps but tests-plan §1+§3 didn't enumerate а webview unit-test runner). Three variants weighed:
-  - **Variant 1** — re-run `/andromeda-tests` greenfield: rejected as overkill для one-line addition; risks rewriting decision log + diverging from cross-plan bindings
-  - **Variant 2** — live с D3 as documented расхождение: workable но D3 keeps flagging every wrap as noise
-  - **Variant 3** — manual edit upstream `test-plan.md` + `/andromeda-setup-project` rerun: chosen path; preserves manual Decisions Log content + cross-plan bindings + propagates Vitest к Tier 2/3 distillations cleanly
-- **Manual edit к test-plan.md** added Vitest 3.x as webview unit-test framework: §1 surface table gained "desktop-webview unit tests (React 19 components)" row с `vitest 3 + jsdom 26 + @testing-library/react 16` driver; §4 Framework section split into "(Rust crates)" + "(webview unit tests, since chunk #11)" с full Vitest tooling description + coverage scope-decision (presentational components excluded at Foundation pre-shell stage; integration coverage applies via tauri-driver from chunk #25); §4 What unit tests cover gained webview-React-components bullet with DOM-shape contracts.
-- **`/andromeda-setup-project` rerun executed in pragmatic delta-rerun mode:** rather than aggressively rewriting all materialized artifacts, identified that only test-plan.md changed upstream → only 3 downstream files actually needed semantic update (testing.md Framework + File placement; tests-summary.md Test pyramid + Self-bootstrapping fixtures; state.yaml.plan_freshness.tests_mtime). All other materialized files (CLAUDE.md, 6 other rule files, 10 other doc files, agent-run scripts, code-reviewer, settings.json, gitignore, session-handoff, session-learnings, living artifacts) are byte-identical к existing — preserved without rewrite. materialization-plan.md captures full synthesis intent as audit trail; commit 1909038 git diff is 17 insertions / 7 deletions across 4 files.
-- **Cross-skill diff check verified all 5 shared contracts byte-identical** across `andromeda-setup-project` / `andromeda-wrap-session` / `andromeda-new-session` skill reference dirs (section-markers / health-criteria / session-state-contract / integrity-protocol / curation-tier-decision). Confirms triangle skills installed from а single canonical source с no drift.
+- **Spec-amendment 4-skill cross-cutting protocol designed and implemented** in one pass (per user "хорошенько подумай как это все привести к правильной работе"). Three layers: (1) new shared contract `spec-amendment-protocol.md` (3 byte-identical copies in triangle skills, Parts A+B+C+D); (2) per-skill references — `andromeda-implement/references/spec-drift-protocol.md` (Trigger 4 dialogue with Path A/A'/B + amendment quality discipline) and `andromeda-setup-project/references/delta-rerun-protocol.md` (--delta mode + plan→file mapping table + architecture exception); (3) skill body updates across all 4 skills (Phases / Constraints / visual-references). Plan persisted at `~/.claude/plans/validated-moseying-bonbon.md`.
+- **Schema_version bumped from 1 to 2** in session-state-contract.md Part B; new `spec_amendments: {active, archive}` field added; migration step in wrap-session Phase 8 handles v1 → v2 on first run after upgrade.
+- **6 shared contracts now distributed byte-identical across triangle** (was 5; new spec-amendment-protocol.md is the 6th). Cross-skill diff check in setup-project Phase 8 step 3 updated to verify 6/6.
+- **Retroactive backfill of chunk #12 amendment** as first use case of the new protocol — marker file at `.andromeda/runs/2026-05-03T21-30-00-spec-amendment-lift-accent/amendment.md` + state.yaml.spec_amendments.active populated. Lift `--color-accent` from `#8B2E3B` (2.05:1 FAIL) to `#C7556A` (3.96:1 PASS at SC 1.4.11 non-text 3:1 minimum).
+- **Cyrillic-mixing cleanup pass** for files I edited in skills (14 skill files + amendment marker): batch sed replacement after observing user's note about cyrillic leak; LC_ALL=en_US.UTF-8 grep verification; final count 0 cyrillic in modified files. Pre-existing skill files (andromeda-design / -arch / -obs / -tests / -security / -a11y / -route and code-writing-discipline.md) NOT touched per scope discipline (user only flagged my edits).
 
 ## Files Modified
 
-(7 files this session — 4 in setup-project commit + 3 wrap-maintenance + reconciliation timestamps)
+(20+ files this session — chunk #12 implementation + spec-amendment protocol + cyrillic cleanup + retroactive backfill)
 
-**Setup-project commit 1909038 (already committed):**
-- `.andromeda/test-plan.md` — Vitest added to §1 surface table + §4 Framework + §4 What unit tests cover
-- `.claude/rules/testing.md` — Framework + File placement sections updated с Vitest tooling; Session Additions preserved
-- `.claude/docs/tests-summary.md` — Test pyramid + Self-bootstrapping fixtures sections updated с Vitest
-- `.andromeda/state.yaml` — plan_freshness.tests_mtime refreshed к 2026-05-03T20:24:05Z
+**Project files (chunk #12 implementation + amendment lift):**
+- `.andromeda/design-system.md` (Decisions Log entry + 8 wholesale hex/rgba updates)
+- `.andromeda/state.yaml` (schema_version 1→2 + spec_amendments populated)
+- `pulse-app/ui/package.json` (devDeps +colorjs.io, scripts +verify:contrast)
+- `pulse-app/ui/package-lock.json` (auto-regenerated)
+- `pulse-app/ui/src/styles/tokens.css` (--color-accent hex updated)
+- `pulse-app/ui/scripts/verify-contrast.mjs` (NEW — 75 lines)
+- `pulse-app/ui/src/contrast/parse-tokens.mjs` (NEW — 10 lines)
+- `pulse-app/ui/src/contrast/pairs.mjs` (NEW — 122 lines, 12 pair entries)
+- `pulse-app/ui/src/contrast/parse-tokens.test.ts` (NEW — 76 lines, 7 Vitest cases)
+- `.andromeda/runs/2026-05-03T21-30-00-spec-amendment-lift-accent/amendment.md` (NEW — retroactive backfill; gitignored)
+- `.andromeda/phases/phase-9/{combined,research,plan}.md` (chunk #12 phase artifacts)
+- `.andromeda/runs/2026-05-03T20-49-27-phase-9/` (audit trail; gitignored)
+- `.andromeda/context/dependency-tree.md` (Last reconciled timestamp refresh)
+- `.andromeda/context/api-surface.md` (Last reconciled timestamp refresh)
+- `.claude/docs/session-learnings.md` (2 Tier 3 entries appended this wrap)
+- `.claude/session-handoff.md` (this file)
 
-**This wrap (in this commit):**
-- `.claude/docs/session-learnings.md` (Tier 3 entry: manual upstream edit + setup-project rerun workflow lesson)
-- `.claude/session-handoff.md` (this file, updated)
-- `.andromeda/state.yaml` (session_count → 10; last_wrap → 2026-05-03T20:39:20Z; living_artifact_freshness timestamps refreshed; drift_warnings cleared к [])
-- `.andromeda/context/dependency-tree.md` (METADATA Last reconciled refreshed к 20:39:20Z; LIVING block byte-identical to fresh tooling output)
-- `.andromeda/context/api-surface.md` (METADATA Last reconciled refreshed к 20:39:20Z; LIVING block byte-identical to fresh tooling output)
-
-**Audit trail (gitignored from setup-project rerun, preserved locally):**
-- `.andromeda/runs/2026-05-03T20-26-49-setup-project/materialization-plan.md`
-- `.andromeda/runs/2026-05-03T20-26-49-setup-project/validation-log.md`
-- `.claude/backup/CLAUDE.md.pre-setup-2026-05-03T20-26-49.md`
+**User-level skill files** (`~/.claude/skills/`; not committed to project — separate user-level concern):
+- 4 NEW: spec-amendment-protocol.md (3 copies), spec-drift-protocol.md, delta-rerun-protocol.md
+- 14 EXTENDED: 4 SKILL.md + 4 visual-references.md + 6 shared contract updates (session-state-contract.md ×3, integrity-protocol.md ×3) + fix-loop-protocol.md
+- 1 plan file: `~/.claude/plans/validated-moseying-bonbon.md`
 
 ## Curation Summary (this wrap)
 
 - **Tier 1 (CLAUDE.md USER:session-learnings):** 0 additions
 - **Tier 2 (`.claude/rules/*/Session Additions`):** 0 additions
-- **Tier 3 (`.claude/docs/session-learnings.md`):** 1 addition
-  - "Manual upstream edit + /andromeda-setup-project rerun for minor specialist-plan additions (vs greenfield /andromeda-{specialist} rerun)" — meta-workflow lesson capturing the Variant 3 path with worked example, applicability boundaries (minor additions vs fundamental changes), и the pragmatic-delta-rerun discipline that keeps setup-project commit diffs minimal
-- **Filters applied:** 0 duplicates · 0 task-specific · 0 conflicts · 0 confidence-below-threshold · 0 deferred (max-3 cap not reached)
+- **Tier 3 (`.claude/docs/session-learnings.md`):** 2 additions
+  - "Spec-drift workflow formalized as 4-skill cross-cutting protocol" — Trigger 4 dialogue (Path A/A'/B) + amendment quality discipline + lifecycle (implement→wrap→setup-project --delta→wrap)
+  - "Cyrillic-mixing discipline when editing Andromeda skill files" — post-edit grep + sed cleanup; LC_ALL=en_US.UTF-8 prefix; word-boundary + edge-case patterns
+- **Filters applied:** 0 duplicates · 1 task-specific (concrete `#C7556A` hex value rejected) · 0 conflicts · 0 confidence-below-threshold · 1 deferred (3rd candidate "byte-identical distribution discipline" deferred — already encoded in setup-project Phase 8 step 3)
 
 ## Last Failed Command
 
-(none — all 4 plan test commands pass cleanly: cargo nextest [36 tests, ~80ms], npm run test [57 Vitest tests, ~80ms; junit-ui.xml emitted to target/junit-ui.xml], cargo tree --workspace --depth 2 --prefix indent [byte-identical к existing dep-tree.md LIVING block], cargo public-api per-crate iteration [byte-identical к existing api-surface.md LIVING block])
+(none — all test commands pass cleanly: `npm run verify:contrast` exit 0 [12 pairs], `npm run test` 64/64 Vitest [~80ms], `cargo nextest run --workspace` 36/36 [~100ms])
 
 ## Tests Status
 
-passing — 36 cargo nextest + 57 Vitest = 93 tests total; cargo nextest ~80ms, Vitest ~80ms execution + ~830ms total wall clock; coverage gate: presentational webview components excluded per chunk #11 Q1 resolution; supply-chain `cargo xtask audit` still 0 with 18 known unmaintained-advisory warnings (Tauri Linux gtk transitives — baseline); `cargo xtask deny-bans` still `bans ok, licenses ok, sources ok` с 1 wildcard-dep warning (xtask path dep — baseline); cross-skill diff check confirms 5/5 shared contracts byte-identical across triangle skills; Phase 8 health checks 21/21 ✓ at setup-project rerun.
+passing — 12 contrast pairs + 64 Vitest + 36 cargo nextest = 112 tests + checks total. cargo nextest ~100ms; Vitest ~80ms exec + ~880ms wall; verify-contrast script ~50ms; harness exit 0; coverage gate: presentational webview components + harness scripts excluded per chunk #11 + #12 Q1 resolutions; supply-chain `cargo xtask audit` baseline 18 known unmaintained-advisory warnings (Tauri Linux gtk transitives — unchanged); `cargo xtask deny-bans` baseline 1 wildcard-dep warning (xtask path dep — unchanged); cross-skill diff check confirms 6/6 shared contracts byte-identical across triangle skills (was 5/5; new spec-amendment-protocol.md is the 6th).
 
 ## Next Recommended Action
 
-`/andromeda-phase` к plan chunk #12 "Contrast verification harness — design tokens + colorjs.io + per-pair JSON emission against design plan §Color Palette ratios". Foundation epoch continues. Chunk #12 introduces а Node.js / colorjs.io contrast verification harness that reads design tokens from `pulse-app/ui/dist/tokens.css` (already shipped at chunk #10) и emits per-pair JSON for downstream a11y CI gates (chunk #13). Possible follow-up surfaces during phase planning: should chunk #11's manual contrast pre-flight values (text-primary/base 14.46:1, feedback-success/inset 7.20:1, border-focus/base 5.12:1) also be retroactively written в the JSON format chunk #12 establishes? Phase-9 plan can decide.
+**Priority 1 — pending amendment propagation (per spec-amendment-protocol.md Part C decision tree):**
+
+`/andromeda-setup-project --delta` to propagate the lift-accent amendment to Tier 2/3 distillations. Per delta-rerun-protocol.md plan→file mapping table for `design-system.md` amendment, only `.claude/docs/design-summary.md` should regenerate (CLAUDE.md GENERATED:setup:warnings unchanged because Alert Burgundy hex is not in top-10 universal warnings). After propagation, lifecycle progresses to propagated_by_run set; next wrap auto-archives.
+
+**Priority 2 — generic D5 cleanup:**
+
+The test-plan.md generic D5 (carryover from session 10's pragmatic delta) can also be resolved by the same `/andromeda-setup-project --delta` pass IF the delta scope includes test-plan-derived files. Otherwise, requires full `/andromeda-setup-project`.
+
+**Priority 3 — next chunk planning:**
+
+After amendment propagation: `/andromeda-phase` to plan chunk #13 "A11y dev stack install" (7-package install: axe-core/playwright + Lighthouse + pa11y + react-aria-components + focus-trap-react + tabbable + eslint-plugin-jsx-a11y). Foundation epoch continues; chunk #13 will likely consume the contrast-report.json artifact chunk #12 produces.
 
 ## Session Goals (carry-over)
 
-(none — chunk #11 implemented + committed; setup-project rerun completed Variant 3 path; Vitest now consistently enumerated across all three tiers; D3/D5/State J all closed)
+(none — chunk #12 fully implemented + retroactively backfilled to new protocol; spec-amendment 4-skill chain installed; cyrillic cleanup completed for my edits; user observation phase begins)
 
 ## Session End Status
 
