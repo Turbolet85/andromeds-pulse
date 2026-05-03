@@ -1,14 +1,14 @@
 schema_version: 1
-last_wrap: 2026-05-03T17:36:33Z
-last_reconcile: 2026-05-03T17:36:33Z
+last_wrap: 2026-05-03T18:56:50Z
+last_reconcile: 2026-05-03T18:56:50Z
 
 last_completed_chunk:
-  route_index: 10
-  title: "Design tokens bundle — Tailwind v4 @theme NASA palette (colors + spacing + radius + motion tokens) + IBM Plex Sans + JetBrains Mono WOFF2 bundled local CSP-safe"
+  route_index: 11
+  title: "Iconography registry — custom SVG glyphs (aperture/telescope/constellation-grid/star/circular-pulse) registered as React components at src/components/icons/"
   epoch: 1
-  committed_at: 2026-05-03T17:36:33Z
-  commit_sha: 0000010
-  commit_subject: "feat(foundation): design tokens bundle + WOFF2 fonts + reduced-motion override (chunk #10)"
+  committed_at: 2026-05-03T18:56:50Z
+  commit_sha: 0000011
+  commit_subject: "feat(foundation): iconography registry + React 19 + Vite minimal scaffold (chunk #11)"
 
 in_progress: null
 
@@ -24,11 +24,15 @@ plan_freshness:
   input_mtime: 2026-05-02T06:52:58Z
 
 living_artifact_freshness:
-  dep_tree_reconciled_at: 2026-05-03T17:36:33Z
-  api_surface_reconciled_at: 2026-05-03T17:36:33Z
-  most_recent_code_mtime: 2026-05-03T17:28:30Z
+  dep_tree_reconciled_at: 2026-05-03T18:56:50Z
+  api_surface_reconciled_at: 2026-05-03T18:56:50Z
+  most_recent_code_mtime: 2026-05-03T18:46:05Z
   reconcile_failed: false
 
-drift_warnings: []
+drift_warnings:
+  - drift_id: D3
+    description: "Vitest 3.x added to pulse-app/ui/package.json devDeps as chunk #11 Q1 resolution but tests-plan §1 surface table + §3 framework list don't yet enumerate a webview unit-test runner"
+    severity: warning
+    remediation_hint: "Re-run /andromeda-tests to update test-plan.md with Vitest as the JS unit-test framework, OR accept as Q1 resolution documented at .claude/rules/frontend.md Session Addition + .claude/docs/session-learnings.md (decision: minimal React+Vite at chunk #11 vs full stack at chunk #25)"
 
-session_count: 8
+session_count: 9
