@@ -17,7 +17,7 @@ The palette is derived from the user-confirmed Color World; library-shortlist pa
 **Core:**
 - `--color-primary` `#4A90E2` — Earth Blue (actions, focus rings, active states, healthy state)
 - `--color-secondary` `#2C3E7F` — Stellar Indigo (panel backgrounds, secondary nav)
-- `--color-accent` `#8B2E3B` — Alert Burgundy (alerts, errors, anomaly indicators)
+- `--color-accent` `#C7556A` — Alert Burgundy (alerts, errors, anomaly indicators); lifted from #8B2E3B per design-system.md Decisions Log 2026-05-03 (a11y SC 1.4.11 non-text 3:1 minimum). Now classified as non-text token (border / icon / large-text emphasis); body-size error text should use `--color-text-primary` paired with `--color-accent` border + icon per a11y "never color alone" discipline.
 
 **Surface scale (borders-only depth strategy):**
 - `--color-base` `#1A1D24` — Deep Control Gray (page/app background)

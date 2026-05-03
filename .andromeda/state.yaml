@@ -71,7 +71,7 @@ spec_amendments:
       marker_path: .andromeda/runs/2026-05-03T21-30-00-spec-amendment-lift-accent/amendment.md
       applied_at: 2026-05-03T21:30:00Z
       noted_by_run: .andromeda/runs/2026-05-03T23-22-08-wrap-session-11/
-      propagated_by_run: null
+      propagated_by_run: .andromeda/runs/2026-05-03T23-35-00-setup-project-delta/
       archived_by_run: null
       verification_status: clean
   archive: []

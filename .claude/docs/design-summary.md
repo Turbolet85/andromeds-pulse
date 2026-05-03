@@ -13,7 +13,7 @@ _Distilled from `.andromeda/design-system.md` + `.andromeda/layout-templates.md`
 ## Signature element: Halo State Pulse
 WebGPU shader-driven circular animated glow rendered on a dedicated canvas layer around each service constellation dot:
 - **Frequency:** 0.8–2.4 Hz (proportional to throughput, clamped from `throughput_hz / 1000`).
-- **Hue:** LCH interpolation Earth Blue (`#4A90E2`) ↔ Alert Burgundy (`#8B2E3B`) based on error rate.
+- **Hue:** LCH interpolation Earth Blue (`#4A90E2`) ↔ Alert Burgundy (`#C7556A`) based on error rate.
 - **Blur radius:** 4–16 px envelope per pulse cycle.
 - **Tray icon variant:** unified halo around aggregated service-count badge.
 - **Reduced motion (`prefers-reduced-motion: reduce`):** degrades to static glow; hue still updates per error rate.
@@ -25,7 +25,7 @@ WebGPU shader-driven circular animated glow rendered on a dedicated canvas layer
 |---|---|---|
 | Primary | `#4A90E2` | Earth Blue (actions, focus, healthy state) |
 | Secondary | `#2C3E7F` | Stellar Indigo (panel backgrounds, secondary nav) |
-| Accent | `#8B2E3B` | Alert Burgundy (errors, anomaly) |
+| Accent | `#C7556A` | Alert Burgundy (errors, anomaly) |
 | Success | `#17B3A3` | Feedback Cyan (ISS-cabin lighting) |
 | Base | `#1A1D24` | Deep Control Gray (page background) |
 | Raised-1 / 2 / 3 | `#262A33` / `#2D3139` / `#343A45` | Cards / popovers / modals |
@@ -49,7 +49,7 @@ WebGPU shader-driven circular animated glow rendered on a dedicated canvas layer
 ## Depth strategy: borders-only
 - Default border `1px solid rgba(74, 144, 226, 0.3)` (Earth Blue 30%).
 - Focus border `1px solid #4A90E2` + `box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.2)`.
-- Error border `1px solid rgba(139, 46, 59, 0.5)`.
+- Error border `1px solid rgba(199, 85, 106, 0.5)`.
 - NO shadows on dark surfaces (flatten into darkness, lose psychological weight).
 - Modal elevation via `Raised-3` background + 1px border + z-index only.
 
