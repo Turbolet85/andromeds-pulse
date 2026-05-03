@@ -14,14 +14,16 @@ Path-scoped rules for Rust source + colocated test modules + webview frontend te
 **Authoritative source:** `.andromeda/test-plan.md` §3 (Test Harness Contract) + §6 (E2E P1–P7) + §10 (Quality Gates) + §11 (Anti-Patterns). Tier=Standard.
 
 ## Framework
-- **Unit tests:** `cargo test` (libtest, rustc 1.85+) + `cargo-nextest` 0.9.x for per-process isolation (port-binding tests need this).
+- **Unit tests (Rust):** `cargo test` (libtest, rustc 1.85+) + `cargo-nextest` 0.9.x for per-process isolation (port-binding tests need this).
+- **Unit tests (webview, since chunk #11):** `vitest` 3.x with `jsdom` 26 environment + `@testing-library/react` 16 for DOM-shape assertions on React 19 components. Co-located `*.test.tsx` adjacent to source under `pulse-app/ui/src/`. Emits JUnit XML to `target/junit-ui.xml` (matches `cargo-nextest --message-format junit` shape) for agent-driven discipline. Coverage gate scope: presentational components (e.g., `pulse-app/ui/src/components/icons/`) explicitly EXCLUDED at Foundation pre-shell stage; integration coverage applies via `tauri-driver` E2E from chunk #25 (webview shell). `vitest.config.mjs` lives at `pulse-app/ui/vitest.config.mjs` with `setupFiles: ["./src/test-setup.ts"]` registering `@testing-library/react` `afterEach(cleanup)`.
 - **Integration tests:** `cargo nextest run --filter-expr 'integration'` with `#[tokio::test(flavor = "multi_thread")]` for concurrent OTLP ingest tests.
 - **E2E desktop-webview:** `tauri-driver` 2.x + WebdriverIO 9.x via `mocha` (headless `xvfb-run` on Linux; native macOS/Windows). Canvas pixel inspection is OUT of agent-driven scope (assert IPC contract instead).
 - **E2E TauRPC IPC:** `tauri::test::mock_builder()` + `get_ipc_response()` (in-process, fast).
 - **E2E OTLP gRPC:** `tonic` 0.14.5 native client → loopback `:4317`. **OTLP HTTP:** `reqwest` 0.12.x async + `axum-test` 18.7.0 → loopback `:4318`. **MCP sidecar:** `tokio::process::Command` + JSON-RPC 2.0 `serde_json` framing.
 
 ## File placement
-- Co-located `#[cfg(test)] mod tests { … }` within each crate's `src/` (no separate `tests/` directory per arch convention).
+- **Rust:** co-located `#[cfg(test)] mod tests { … }` within each crate's `src/` (no separate `tests/` directory per arch convention).
+- **Webview:** co-located `*.test.tsx` adjacent to source under `pulse-app/ui/src/`. Vitest discovers via `include: ["src/**/*.{test,spec}.{ts,tsx}"]` per `pulse-app/ui/vitest.config.mjs`.
 - Test fixtures (pre-compiled WASM Component Model binaries): `tests/fixtures/plugins/` (committed to repo, shared read-only per suite).
 - Property-based regression files: `proptest-regressions/` (committed for replay).
 

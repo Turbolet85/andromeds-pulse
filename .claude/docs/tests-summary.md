@@ -51,7 +51,8 @@ JSON-per-line; fields: `timestamp` (ISO-8601), `level`, `target`, `message`, `fi
 ## Test pyramid (Standard tier)
 | Level | Coverage | Tools |
 |---|---|---|
-| Unit | ≥75% line / ≥70% branch / ≥85% function | `cargo test` + `cargo-nextest` 0.9 |
+| Unit (Rust) | ≥75% line / ≥70% branch / ≥85% function | `cargo test` + `cargo-nextest` 0.9 |
+| Unit (webview, since chunk #11) | Presentational components (e.g., icons/) EXCLUDED at Foundation pre-shell stage; integration coverage via tauri-driver from chunk #25 | `vitest` 3 + `jsdom` 26 + `@testing-library/react` 16 |
 | Integration | All Standard Contracts + boundary types | `tauri::test::mock_builder()` + `tonic` 0.14.5 + `axum-test` 18.7 + `duckdb-rs` 1.5 |
 | E2E | All 7 critical paths | `tauri-driver` 2.x + `WebdriverIO` 9.x + `mocha` (headless `xvfb-run` Linux; native macOS/Windows) |
 | Property | Selective per trigger | `proptest` 1.10 |
@@ -65,6 +66,7 @@ JSON-per-line; fields: `timestamp` (ISO-8601), `level`, `target`, `message`, `fi
 - Fixture composition: `rstest` 0.26.1 with `#[fixture]`.
 - Per-test isolation: `tempfile::TempDir` + `ANDROMEDA_PULSE_DATA_DIR=$TMPDIR/test-$$`.
 - WASM plugin fixtures: pre-compiled minimal Component Model `.wasm` binaries in `tests/fixtures/plugins/` (committed read-only).
+- **Webview unit-test fixtures (since chunk #11):** Vitest's default test pool + `@testing-library/react` `render()` per test; `afterEach(cleanup)` registered via `pulse-app/ui/src/test-setup.ts`. Parameterized cases via `describe.each(...)` / `it.each(...)` (mirrors `rstest` parameterization at the JS layer). DOM-shape assertions only (no Percy/Chromatic; no visual diff per agent-driven discipline).
 
 ## Quality gates (CI)
 - Coverage ≥75% line / ≥70% branch / ≥85% function via `cargo-llvm-cov` 0.8.5.

@@ -52,6 +52,7 @@ boundary tests / mocks._
 | Surface | Driver | Signal | Boundary | Notes |
 |---------|--------|--------|----------|-------|
 | **desktop-webview (React 19 + Tauri 2)** | tauri-driver (Tauri CLI test harness) with WebDriver protocol | WebView window handle obtained; IPC command responses JSON-parseable; WebGPU canvas rendering asserted via pixel inspection or frame buffer read (structured stdout from tauri-driver) | single-surface (webview only; Tauri native integration tested separately) | Headless or headful depending on CI runner (Windows / macOS / Linux have native webview engines WKWebView/WebView2/GTK WebKit); tauri-driver requires `TAURI_TESTING_ENABLED` and `TAURI_PRIVATE_URI` for automated control. |
+| **desktop-webview unit tests (React 19 components)** | `vitest` 3.x with `jsdom` 26 environment + `@testing-library/react` 16 (in `pulse-app/ui/`) | Vitest emits JUnit XML to `target/junit-ui.xml` (matches `cargo-nextest --message-format junit` shape); DOM-shape assertions only (no visual diff per agent-driven discipline); `npm run test` exit code 0 = all pass | single-surface (component-level only; full webview integration covered by tauri-driver row above) | Landed chunk #11 (Q1 resolution: minimal React + Vite + Vitest tooling at chunk #11 vs deferring full stack to chunk #25 webview shell). Co-located `*.test.tsx` adjacent to source (e.g., `pulse-app/ui/src/components/icons/Icon.test.tsx`); Vitest discovers via `include: ["src/**/*.{test,spec}.{ts,tsx}"]`. |
 | **desktop-native (Tauri tray icon + context menu)** | tauri-driver + platform-specific ATI: Windows/macOS/Linux tray detection | Tray menu state (visibility, menu items) asserted via native accessibility tree or IPC liveness (`health` command returns subsystem states); notification delivery to Notification Center / Action Center / freedesktop verifiable via OS notification spy (platform-dependent fixture). | cross-surface (tray icon state tied to webview visibility toggle; notifications driven by snapshot completion event) | Tauri 2 tray + notification plugins are cross-platform wrappers; tray menu click simulation requires platform-specific ATI (xdotool + AT-SPI on Linux, AppleScript/XCUITest on macOS, pywinauto on Windows); notifications testable via IPC event capture (Channel API). |
 | **OTLP/gRPC receiver (`:4317`)** | gRPC client library (tonic client, or language-native gRPC stub) | Server responds to TraceService.Export / MetricsService.Export / LogsService.Export with status OK (gRPC Code::OK); agent observes via exit code + structured gRPC error metadata; payload delivery asserted via DuckDB buffer query. | single-surface (receiver only; no client-side persistence or upstream integration tested here) | Loopback-only binding on 127.0.0.1:4317; test client must speak proper gRPC with protobuf wire format; oversized messages must trigger DefaultBodyLimit rejection (asserted via gRPC Code::ResourceExhausted). |
 | **OTLP/HTTP receiver (`:4318`)** | HTTP client (curl / httpie / language-native HTTP library) | Server responds HTTP 200 OK to POST `/v1/traces` / `/v1/metrics` / `/v1/logs` with JSON or protobuf request; agent observes via exit code + response body (empty on success or error JSON on failure); payload delivery asserted via DuckDB buffer query. | single-surface (receiver only) | Loopback-only binding on 127.0.0.1:4318; must validate DefaultBodyLimit rejection of oversized payloads (HTTP 413 Payload Too Large or equivalent); must validate Host-header allowlist (reject non-localhost Host: headers per DNS-rebinding mitigation). |
@@ -412,14 +413,18 @@ kill -TERM $PID 2>/dev/null
 
 ## 4. Unit Test Strategy
 
-**Framework:** `cargo test` (libtest bundled with rustc 1.85+) + `cargo-nextest` 0.9.x (per-process isolation)
+**Framework (Rust crates):** `cargo test` (libtest bundled with rustc 1.85+) + `cargo-nextest` 0.9.x (per-process isolation)
+
+**Framework (webview unit tests, since chunk #11):** `vitest` 3.x with `jsdom` 26 environment + `@testing-library/react` 16 for DOM-shape assertions on React 19 components. Landed chunk #11 as Q1 resolution: minimal React + Vite + Vitest tooling at chunk #11 (full stack — TanStack Router, shadcn/ui, react-aria-components, motion/react — defers to chunks #13/#15/#25 per route §2). Emits JUnit XML to `target/junit-ui.xml` (matches `cargo-nextest --message-format junit` shape) for agent-driven discipline; `vitest.config.mjs` lives at `pulse-app/ui/vitest.config.mjs` with `setupFiles: ["./src/test-setup.ts"]` registering `@testing-library/react` `afterEach(cleanup)`.
 
 **Coverage tool:** `cargo-llvm-cov` 0.8.5 (LLVM source-based coverage, cross-platform on all 3 CI matrix runners)
 
-**Coverage target:** ≥ 75% line coverage, ≥ 70% branch coverage, ≥ 85% function coverage (Standard tier per Section 10)
+**Coverage target:** ≥ 75% line coverage, ≥ 70% branch coverage, ≥ 85% function coverage (Standard tier per Section 10). Webview presentational components (e.g., `pulse-app/ui/src/components/icons/`) explicitly EXCLUDED from this gate at Foundation pre-shell stage; integration coverage applies when `tauri-driver` E2E lands at chunk #25 (webview shell). Scope decision documented per chunk #11 plan acceptance criterion.
 
 **Conventions:**
-- **Test file location:** co-located `#[cfg(test)] mod tests { … }` within each crate's source (ingest, buffer, viz, ui-bridge, snapshot, workspace-detector, plugins, mcp-server)
+- **Test file location:**
+  - **Rust:** co-located `#[cfg(test)] mod tests { … }` within each crate's source (ingest, buffer, viz, ui-bridge, snapshot, workspace-detector, plugins, mcp-server)
+  - **Webview:** co-located `*.test.tsx` adjacent to source under `pulse-app/ui/src/`
 - **Test function naming:** `#[test] fn test_<entity>_<scenario>()` (e.g., `#[test] fn test_trace_span_builder_with_12_byte_span_id_rejects()`)
 - **Test grouping:** flat functions per module (no nested describe blocks; Rust convention is flat)
 
@@ -448,6 +453,7 @@ fn test_ingest_accepts_valid_span(mock_span: TraceSpan) { /* … */ }
 - **workspace-detector crate:** `.andromeda/` marker detection; VCS metadata parsing; path canonicalization
 - **plugins crate:** WASM Component Model component loading; WIT contract binding validation; capability check (negative test: attempt disallowed import)
 - **mcp-server crate:** JSON-RPC 2.0 frame parsing; tool call routing; schema validation; feature-gate build verification
+- **webview React components (pulse-app/ui/src/components/):** DOM-shape contracts (`svg` `viewBox` / `aria-*` attrs / `focusable` / `className` passthrough); decorative-vs-meaningful ARIA flip pattern (icon defaults to `aria-hidden="true"`; `aria-label` override flips to `role="img"`); `currentColor` propagation (no hardcoded hex); size prop pass-through (16/20/24 grid); dispatcher-vs-named-component output equivalence (`<Icon glyph="aperture" />` matches `<Aperture />`); banned-element grep (no inline SVG `<animate>` / `<animateTransform>` / `<animateMotion>` / `<set>` / gradient / filter)
 
 **What unit tests do NOT cover** (handled at integration/E2E):
 - Full OTLP ingest → buffer → query roundtrip (integration)
