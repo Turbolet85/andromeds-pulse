@@ -1,0 +1,76 @@
+[graph]
+all-features = true
+
+[advisories]
+db-urls = ["https://github.com/rustsec/advisory-db"]
+yanked = "warn"
+ignore = []
+
+[licenses]
+allow = [
+    "MIT",
+    "Apache-2.0",
+    "Apache-2.0 WITH LLVM-exception",
+    "BSD-2-Clause",
+    "BSD-3-Clause",
+    "ISC",
+    "Unicode-DFS-2016",
+    "Unicode-3.0",
+    "MPL-2.0",
+    "CC0-1.0",
+    "Zlib",
+]
+confidence-threshold = 0.93
+
+[bans]
+multiple-versions = "deny"
+wildcards = "warn"
+highlight = "all"
+allow = []
+deny = []
+# Known-benign duplicates from the Tauri 2.11 ecosystem dep tree.
+# Reviewed at chunk #2 scaffold; not in scope for tightening here.
+# The tonic 0.14 ↔ opentelemetry-otlp 0.31 (tonic 0.13) duplicate is
+# explicitly NOT in this list — when ingest body lands (route#16+), the
+# `bans` check catches it per security plan §Dependency Security.
+skip = [
+    { crate = "base64" },
+    { crate = "bitflags" },
+    { crate = "getrandom" },
+    { crate = "hashbrown" },
+    { crate = "heck" },
+    { crate = "indexmap" },
+    { crate = "phf" },
+    { crate = "phf_generator" },
+    { crate = "phf_macros" },
+    { crate = "phf_shared" },
+    { crate = "png" },
+    { crate = "proc-macro-crate" },
+    { crate = "r-efi" },
+    { crate = "serde_spanned" },
+    { crate = "syn" },
+    { crate = "thiserror" },
+    { crate = "thiserror-impl" },
+    { crate = "toml" },
+    { crate = "toml_datetime" },
+    { crate = "toml_edit" },
+    { crate = "windows-link" },
+    { crate = "windows-sys" },
+    { crate = "windows-targets" },
+    { crate = "windows_aarch64_gnullvm" },
+    { crate = "windows_aarch64_msvc" },
+    { crate = "windows_i686_gnu" },
+    { crate = "windows_i686_msvc" },
+    { crate = "windows_x86_64_gnu" },
+    { crate = "windows_x86_64_gnullvm" },
+    { crate = "windows_x86_64_msvc" },
+    { crate = "winnow" },
+    { crate = "wit-bindgen" },
+]
+skip-tree = []
+
+[sources]
+unknown-registry = "warn"
+unknown-git = "warn"
+allow-registry = ["https://github.com/rust-lang/crates.io-index"]
+allow-git = []

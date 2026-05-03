@@ -1,0 +1,8 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "identifier": "notification",
+  "description": "OS notification capability — outbound emit only (no notification-action callbacks re-entering IPC). Permissions empty at chunk #2 scaffold; populated when tauri-plugin-notification lands.",
+  "local": true,
+  "windows": ["compact-widget", "main"],
+  "permissions": []
+}

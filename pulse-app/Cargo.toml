@@ -1,0 +1,30 @@
+[package]
+name = "pulse-app"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[[bin]]
+name = "pulse-app"
+path = "src/main.rs"
+
+[dependencies]
+tokio.workspace = true
+tracing.workspace = true
+tauri.workspace = true
+
+[dependencies.mcp-server-crate]
+package = "mcp-server"
+version = "0.1.0"
+path = "../crates/mcp-server"
+optional = true
+
+[build-dependencies]
+tauri-build.workspace = true
+
+[features]
+default = []
+mcp-server = ["dep:mcp-server-crate"]
+otap-ingest = []

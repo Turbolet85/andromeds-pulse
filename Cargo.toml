@@ -1,0 +1,39 @@
+[workspace]
+resolver = "2"
+members = [
+    "crates/ingest",
+    "crates/buffer",
+    "crates/viz",
+    "crates/ui-bridge",
+    "crates/snapshot",
+    "crates/workspace-detector",
+    "crates/plugins",
+    "crates/mcp-server",
+    "pulse-app",
+    "xtask",
+]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.85"
+license = "MIT"
+repository = "https://github.com/turbolet85/andromeda-pulse"
+authors = ["andromeda-pulse contributors"]
+
+[workspace.dependencies]
+tokio = { version = "1", features = ["full"] }
+serde = { version = "1", features = ["derive"] }
+thiserror = "2"
+anyhow = "1"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["json", "env-filter"] }
+tracing-appender = "0.2"
+tracing-error = "0.2"
+tauri = { version = "2.11", features = [] }
+tauri-build = { version = "2.6", features = [] }
+
+[profile.release]
+lto = "thin"
+codegen-units = 1
+strip = true

@@ -1,0 +1,8 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "identifier": "plugin-fs",
+  "description": "Plugin filesystem capability — host's read of canonicalized ~/.andromeda-pulse/plugins/ only; NEVER widened to webview JavaScript / write / execute scope. Permissions empty at chunk #2 scaffold; populated when wasmtime plugin loader lands (Epoch 7).",
+  "local": true,
+  "windows": [],
+  "permissions": []
+}

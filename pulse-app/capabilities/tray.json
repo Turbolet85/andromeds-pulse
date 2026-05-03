@@ -1,0 +1,8 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "identifier": "tray",
+  "description": "Tray icon capability — outbound emit only (no webview-side input handlers / tray-menu IPC re-entry). Permissions empty at chunk #2 scaffold; populated as tray menu lands.",
+  "local": true,
+  "windows": ["compact-widget", "main"],
+  "permissions": []
+}

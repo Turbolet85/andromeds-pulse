@@ -1,8 +1,14 @@
 schema_version: 1
-last_wrap: null
+last_wrap: 2026-05-03T07:05:00Z
 last_reconcile: null
 
-last_completed_chunk: null
+last_completed_chunk:
+  route_index: 2
+  title: "Tauri 2 scaffold + capability JSON files — pulse-app/ + tauri.conf.json + 5 capabilities + bundle id com.andromeda.pulse"
+  epoch: 1
+  committed_at: 2026-05-03T07:05:00Z
+  commit_sha: pending
+  commit_subject: "chore(scaffold): Cargo workspace + Tauri 2 binary (route chunks #1-#2)"
 
 in_progress: null
 
@@ -20,9 +26,17 @@ plan_freshness:
 living_artifact_freshness:
   dep_tree_reconciled_at: null
   api_surface_reconciled_at: null
-  most_recent_code_mtime: null
+  most_recent_code_mtime: 2026-05-03T07:00:00Z
   reconcile_failed: false
 
-drift_warnings: []
+drift_warnings:
+  - drift_id: D1
+    description: "Code newer than dep-tree.md — first implementation wrap"
+    severity: warning
+    remediation_hint: "Expected after first implementation; reconciliation harness lands at route#4-#5"
+  - drift_id: D2
+    description: "Code newer than api-surface.md — first implementation wrap"
+    severity: warning
+    remediation_hint: "Expected after first implementation; reconciliation harness lands at route#4-#5"
 
-session_count: 0
+session_count: 1
