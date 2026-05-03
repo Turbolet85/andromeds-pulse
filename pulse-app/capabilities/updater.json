@@ -1,8 +1,8 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
   "identifier": "updater",
-  "description": "Updater capability — bound to tauri-plugin-updater flow only; NEVER exposed to webview JavaScript. Permissions empty at chunk #2 scaffold; populated when tauri-plugin-updater lands and the Minisign Ed25519 keypair is generated (route#3).",
+  "description": "Updater capability — bound to tauri-plugin-updater flow only; NEVER exposed to webview JavaScript. Tauri updater Minisign Ed25519 verification cannot be disabled.",
   "local": true,
   "windows": [],
-  "permissions": []
+  "permissions": ["updater:default"]
 }

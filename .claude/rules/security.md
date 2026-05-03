@@ -80,3 +80,5 @@ Universal security requirements. Apply to all files in this project. This rule f
 
 ## Session Additions
 _This section is owned by `/wrap-session`. setup-project preserves content added here on re-run. See `section-markers.md` for the convention._
+
+- 2026-05-03: Each Tauri major + minor-version bump introduces new transitive duplicate crates that fail `cargo deny check bans` with `multiple-versions = "deny"`. Extend `deny.toml [bans] skip` list with one-line provenance comments per duplicate; do NOT relax the `multiple-versions` setting. Tauri 2.10 → tauri-plugin-updater 2.10 added 4 new known-benign duplicates: `jni`, `jni-sys`, `redox_syscall`, `windows_i686_gnullvm`. The `tonic 0.14 ↔ 0.13` check (security plan §Dependency Security anchor) MUST stay outside the skip list — it's the canary for the OTLP-receiver / opentelemetry-otlp duplicate.

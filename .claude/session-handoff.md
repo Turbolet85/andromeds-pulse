@@ -1,101 +1,130 @@
 # Session Handoff
 
-**Last Updated:** 2026-05-03T07:05:00Z
+**Last Updated:** 2026-05-03T10:14:12Z
 **Branch:** main
 **Session End Status:** clean (commit pending in this wrap)
-**Last Commit:** 834b625 chore: track .andromeda/ planning artifacts (exclude only runs/)
+**Last Commit:** 1a50837 feat(foundation): scaffold Cargo workspace + Tauri 2 binary (chunks #1-#2)
 
 ## Current State
 
-- **Last completed chunk:** route#2 "Tauri 2 scaffold + capability JSON files — `pulse-app/` + `tauri.conf.json` + 5 capabilities + bundle id `com.andromeda.pulse`" (committed in this wrap)
-- **Next chunk:** route#3 "Code-signing setup — Azure Key Vault HSM + GitHub OIDC + Apple Developer ID + Tauri updater Minisign Ed25519 keypair"
-- **In-progress phase:** no active phase (phase-1 implemented + committed; phase-2 not yet planned)
-- **Phase artifacts present:** `.andromeda/phases/phase-1/{combined.md, research.md, plan.md}` + audit trail at `.andromeda/runs/2026-05-03T06-56-03-phase-1/` (7 raw + 7 stripped extracts)
+- **Last completed chunk:** route#3 "Code-signing setup — Azure Key Vault HSM + GitHub OIDC + Apple Developer ID + Tauri updater Minisign Ed25519 keypair" (ACTIVE scope only — DEFERRED scope tracked as pre-v0.1.0 release blockers)
+- **Next chunk:** route#4 "xtask agent-run harness — 5-command discipline (boot/run/status/cleanup/logs) + health TauRPC command (status/subsystems/pid/uptime_ms) + PID file + JSON log format"
+- **In-progress phase:** no active phase (phase-2 implemented + committed in this wrap; phase-3 not yet planned)
+- **Phase artifacts present:** `.andromeda/phases/{phase-1, phase-2}/{combined.md, research.md, plan.md}` + audit trails at `.andromeda/runs/2026-05-03T06-56-03-phase-1/` (chunks #1-#2) and `.andromeda/runs/2026-05-03T08-42-05-phase-2/` (chunk #3)
 
 ## Andromeda State Detection (states A-L)
 
-⚠️ K — Living artifact staleness: `state.yaml.living_artifact_freshness.dep_tree_reconciled_at` and `api_surface_reconciled_at` are still null; first code (chunks #1-#2) was just written. Living artifacts (`.andromeda/context/dependency-tree.md`, `.andromeda/context/api-surface.md`) have not been reconciled against the new code surface. Remediation: this is expected after the first implementation wrap; reconciliation tooling will run once the maintenance harness is in place (route#4-#5).
+⚠️ K — Living artifact staleness: `cargo modules` and `cargo public-api` not installed; reconcile-tooling failed at Phase 5; both `dep-tree.md` and `api-surface.md` METADATA `Last reconciled` carry `(stale — tooling failed)` suffix; LIVING block content preserved as cold-start seed. Remediation: `cargo install cargo-modules` and `cargo install cargo-public-api --locked` (each ~2-5 minutes compile), then re-run `/wrap-session` to pick up first real reconcile output.
 
-All other states (A, B, C, D, E, F, G, H, I, J, L) — no warnings.
+⚠️ J — Specialist plan freshness mismatch (mild): `route.md` was edited this session (Decisions Log entry "Chunk #3 scope split"). State.yaml.plan_freshness route_mtime updated post-edit. CLAUDE.md ingests route §1-§2 structure only; Decisions Log appendage is benign mtime drift. Remediation: no action needed unless route §2 chunk list changed (it did not — only Decisions Log appended).
+
+All other states (A, B, C, D, E, F, G, H, I, L) — no warnings.
 
 ## Drift Detection (6 dimensions)
 
-⚠️ D1 — Code newer than dep-tree.md: dep-tree.md was last reconciled at setup-project time (May 3 00:26); chunks #1-#2 implementation just wrote first-ever code. Expected on first implementation wrap; not actionable until reconciliation harness lands.
-⚠️ D2 — Code newer than api-surface.md: same root cause as D1; expected.
+⚠️ D1 — Code newer than dep-tree.md + api-surface.md: pulse-app/src/main.rs and other source files modified this session; reconcile tooling failed at Phase 5 (cargo-modules / cargo-public-api not installed). Remediation: install the two cargo subcommands per state K above; reconcile clears D1 next wrap.
 
-D3-D6 — no drift detected.
+⚠️ D5 — route.md newer than CLAUDE.md (mild): Decisions Log entry added 2026-05-03 ("Chunk #3 scope split"); CLAUDE.md ingests §1-§2 structural sections only — Decisions Log appendage does not change the ingested content. Remediation: no action — re-run `/setup-project` only if route §2 chunk list itself changes (currently 8 epochs / 55 chunks unchanged).
+
+D2-D4, D6 — no drift detected.
 
 ## Key Decisions This Session
 
-- Grouped chunks #1-#2 into phase-1 (tightly-coupled-small) per andromeda-route grouping heuristic — chunk #2's `pulse-app/` Tauri scaffold builds on chunk #1's binary crate stub; ~2-3h combined, single cognitive review window.
-- Bumped `rust-toolchain.toml` channel from 1.85.0 → 1.95.0 to satisfy Tauri 2.11's transitive dep floor (rustc ≥1.88) while matching host installation. Plan AC's `1.85+` regex still matches.
-- Used simple kebab-case identifiers (`default`, `tray`, etc.) in capability JSON files. The arch's `pulse:`-prefixed identifiers are conceptual/namespaced; Tauri 2's local identifier field is simple.
-- Added `.config/nextest.toml` (NOT in research.md "New files"); needed to make `--profile ci` valid since plan AC + agent-run.sh harness invoke nextest with `--profile ci`. Minimal placeholder profile; full CI configuration lands at route#5.
-- Expanded `deny.toml` `[bans] skip` list with 33 known-benign Tauri 2.11 ecosystem duplicates (thiserror 1↔2, toml/winnow×3, windows-sys×3, windows arch crates ×2, etc.). The tonic 0.14↔0.13 check (security plan §Dependency Security anchor) is preserved — tonic NOT in skip list.
-- `cargo llvm-cov` (T8) fails environmentally on Windows GNU host — `profiler_builtins` not bundled with rustup `x86_64-pc-windows-gnu` toolchain. Deferred to CI Linux/macOS or user-installed MSVC.
+- **Chunk #3 scope split (ACTIVE vs DEFERRED)** — when chunk requires paid prereqs (Azure Key Vault Premium ~$5/mo + Windows EV cert $300-500/yr + Apple Developer ID $99/yr + 1-2 weeks legal-entity verification), split into ACTIVE (free + local + reversible /implement work) and DEFERRED (paid + external + bureaucracy items as pre-release blockers). Pipeline integrity preserved via `route.md` Decisions Log entry + plan.md §AC → Active vs Deferred split + runbook `docs/runbooks/updater-key-rotation.md` documenting DEFERRED procedure. Rationale: solo OSS project dogfooding before public release commitment.
+- **Standalone minisign 0.12 used as `tauri-cli` fallback** — `cargo install tauri-cli --version "^2.0" --locked` fails on Windows GNU rustup-toolchain due to bundled mingw missing `libktmw32.a` (Kernel Transaction Manager import library). `rustup component remove rust-mingw && rustup component add rust-mingw` does NOT fix it (lib not bundled by design). Two viable paths: switch to MSVC toolchain (~5 GB Visual Studio Build Tools, permanent fix) or install standalone minisign 0.12 from `https://github.com/jedisct1/minisign/releases` (~500 KB, immediate). Chose the standalone path for unblocked iteration; both produce interoperable Minisign Ed25519 keypairs per public Minisign spec.
+- **Local Minisign keypair generated WITHOUT password** — `minisign -G -W -f -s ~/.tauri/andromeda-pulse.key -p ~/.tauri/andromeda-pulse.key.pub` (`-W` flag = no password encryption). Acceptable for local dogfooding scope where private key stays in `~/.tauri/` gitignored. Production HSM custody re-generates with password and uploads to Azure Key Vault Premium SKU per `docs/runbooks/updater-key-rotation.md` Phase 1 (DEFERRED scope). Public key (`RWRHXC7qARDfsxhPPJdfh3RMb2f/0THc+5Hrd9n9b/njUTM2I2yTSSpi`) baked into `pulse-app/tauri.conf.json` `plugins.updater.pubkey`.
+- **`serde_json` added to workspace + `pulse-app` deps** — unanticipated by plan.md research; `tauri::generate_context!` macro requires `serde_json` visible at crate root when `plugins.<name>` config is non-empty in `tauri.conf.json`. Within scope per fix-loop-protocol Trigger 3 examples ("existing files in research's Files к modify needing extra edits IS in scope; iterate").
+- **`deny.toml` skip-list extended +4** — `tauri-plugin-updater` 2.10 introduces 4 new transitive duplicate crates (`jni`, `jni-sys`, `redox_syscall`, `windows_i686_gnullvm`) that fail `cargo deny check bans` with `multiple-versions = "deny"`. Extended skip list with one-line provenance comments per security plan §Dependency Security pattern (preserved tonic 0.14↔0.13 check by NOT adding tonic to skip list).
 
 ## Files Modified
 
-(56 entries; truncated by directory)
+(11 entries)
 
-- `.andromeda/phases/phase-1/{combined.md, research.md, plan.md}` (3 — phase planning artifacts)
-- `.config/nextest.toml` (1 — minimal `ci` profile)
-- `Cargo.toml`, `Cargo.lock`, `rust-toolchain.toml`, `deny.toml` (4 — workspace + tooling root)
-- `crates/{ingest, buffer, viz, ui-bridge, snapshot, workspace-detector, plugins, mcp-server}/Cargo.toml` + `src/lib.rs` + `src/contract.rs` (24 — 8 library crate stubs)
-- `pulse-app/Cargo.toml`, `build.rs`, `src/main.rs`, `tauri.conf.json` (4)
-- `pulse-app/capabilities/{default, tray, notification, updater, plugin-fs}.json` (5)
-- `pulse-app/icons/{32x32, 128x128, 128x128@2x}.png` + `icon.icns` + `icon.ico` (5 — placeholder transparent #1a3a52)
-- `pulse-app/ui/index.html` + `ui/src/.gitkeep` + `ui/public/.gitkeep` (3)
-- `pulse-app/gen/schemas/*.json` (4 — auto-generated by tauri-build during cargo build; should be added to `.gitignore` at chunk #5)
-- `xtask/Cargo.toml` + `xtask/src/main.rs` (2 — placeholder; subcommands at route#4)
-- `.claude/docs/session-learnings.md` (1 — 3 Tier-3 entries appended)
+- `.andromeda/route.md` (Decisions Log entry: "Chunk #3 scope split")
+- `.andromeda/context/dependency-tree.md` (METADATA Last reconciled marked stale — tooling failed)
+- `.andromeda/context/api-surface.md` (METADATA Last reconciled marked stale — tooling failed)
+- `.andromeda/state.yaml` (session_count → 2; last_wrap → 2026-05-03T10:14:12Z; living_artifact_freshness.reconcile_failed = true; drift_warnings refreshed; last_completed_chunk → route_index 3)
+- `.gitignore` (`.env*` glob added)
+- `Cargo.lock` (525 lines new deps from `tauri-plugin-updater` 2.10)
+- `Cargo.toml` (workspace deps: `serde_json = "1"` + `tauri-plugin-updater = "2"`)
+- `deny.toml` (skip-list +4 known-benign duplicates from tauri-plugin-updater 2.10)
+- `pulse-app/Cargo.toml` (`serde_json.workspace = true` + `tauri-plugin-updater.workspace = true`)
+- `pulse-app/capabilities/updater.json` (permissions: `["updater:default"]`; description refreshed)
+- `pulse-app/src/main.rs` (`.plugin(tauri_plugin_updater::Builder::new().build())` chain inserted)
+- `pulse-app/tauri.conf.json` (`plugins.updater` block populated with Minisign Ed25519 pubkey + endpoints + dialog: false)
+- `.claude/rules/security.md` (Tier 2 Session Additions: cargo-deny skip-list growth pattern)
+- `.claude/docs/session-learnings.md` (Tier 3 +2 entries: scope-split methodology + standalone minisign Windows GNU fallback)
 - `.claude/session-handoff.md` (this file)
+
+## New files
+
+- `docs/runbooks/updater-key-rotation.md` (5-phase Tauri updater Minisign keypair rotation runbook)
+- `.andromeda/phases/phase-2/{combined,research,plan}.md` (planning artifacts for chunk #3)
 
 ## Curation Summary (this wrap)
 
-- **Tier 1 (CLAUDE.md USER:session-learnings):** 0 additions (no universal safety rules surfaced this session)
-- **Tier 2 (`.claude/rules/*/Session Additions`):** 0 additions (path-scoped candidates were either deferred or demoted to Tier 3)
-- **Tier 3 (`.claude/docs/session-learnings.md`):** 3 additions
-  - "Tauri 2.x transitively requires rustc ≥ 1.88"
-  - "Tauri 2 capability JSON `identifier` field uses simple kebab-case names"
-  - "Windows GNU rustup toolchain doesn't bundle profiler_builtins for cargo-llvm-cov"
-- **Filters applied:** 0 duplicates · 0 task-specific · 0 conflicts · 2 deferred
+- **Tier 1 (CLAUDE.md USER:session-learnings):** 0 additions (no universal safety rules surfaced)
+- **Tier 2 (`.claude/rules/*/Session Additions`):** 1 addition
+  - `.claude/rules/security.md`: cargo-deny skip-list growth pattern when adding Tauri-ecosystem deps
+- **Tier 3 (`.claude/docs/session-learnings.md`):** 2 additions
+  - "Andromeda chunk scope-split for paid-prereq operator steps"
+  - "Standalone minisign 0.12 as Tauri-cli fallback when Windows GNU mingw blocks compile"
+- **Filters applied:** 0 duplicates · 1 task-specific · 0 conflicts · 3 deferred (Filter 5 cap)
 
 ## Last Failed Command
 
-`cargo llvm-cov nextest --workspace --no-tests=pass --lcov --output-path lcov.info --summary-only`
+`cargo install tauri-cli --version "^2.0" --locked`
 
-**Error:** `error[E0463]: can't find crate for 'profiler_builtins'` during build-script compilation of `serde`/`typeid`/`zmij` and others.
+**Error:** `error: linking with x86_64-w64-mingw32-gcc failed: ld: cannot find -lktmw32: No such file or directory`
 
-**Suggested alternative:** This is environmental — Windows GNU rustup toolchain (`x86_64-pc-windows-gnu`) does not bundle `profiler_builtins`. Three remediation paths:
-1. **Defer to CI** (recommended): route#5 base CI workflow will run the coverage gate primarily on Linux/macOS where `profiler_builtins` is bundled. Local Windows GNU dev skips the gate.
-2. **Install MSVC toolchain**: `rustup toolchain install stable-x86_64-pc-windows-msvc` (requires VS 2022 Build Tools), then update `rust-toolchain.toml` `channel = "1.95.0-x86_64-pc-windows-msvc"`.
-3. **Switch to alternative coverage tool** (e.g., `cargo-tarpaulin`) — but plan AC names cargo-llvm-cov specifically; this would be a plan deviation.
+**Root cause:** Windows GNU rustup-toolchain bundled mingw-w64 set in `<sysroot>\lib\rustlib\x86_64-pc-windows-gnu\lib\self-contained\` does NOT include `libktmw32.a` (Kernel Transaction Manager import library required by some `tauri-cli` 2.x ecosystem deps). `rustup component remove rust-mingw && rustup component add rust-mingw` does NOT fix it — lib not bundled by design.
 
-Do NOT retry the original command without first switching toolchain or running on Linux/macOS host. See `.claude/docs/session-learnings.md` "Windows GNU rustup toolchain doesn't bundle profiler_builtins for cargo-llvm-cov".
+**Suggested alternative (used this session):** install standalone minisign 0.12 from `https://github.com/jedisct1/minisign/releases` (~500 KB Windows binary, no compilation). Use `minisign -G ...` instead of `tauri signer generate ...`. Output Minisign Ed25519 keypair is interoperable with `tauri-plugin-updater` 2.x verification.
+
+**Permanent alternative (not pursued):** install Visual Studio 2022 Build Tools (~5 GB) + `rustup toolchain install stable-x86_64-pc-windows-msvc` + update `rust-toolchain.toml` channel — switches host triple to MSVC, also resolves `cargo llvm-cov` `profiler_builtins` issue from prior session.
+
+Do NOT retry the original `cargo install tauri-cli` command on this Windows GNU host without first switching to MSVC toolchain. See `.claude/docs/session-learnings.md` "Standalone minisign 0.12 as Tauri-cli fallback when Windows GNU mingw blocks compile" for the full pattern.
 
 ## Tests Status
 
-11/12 plan acceptance test commands pass:
-- ✓ T1-T7, T9-T12 — workspace metadata, cargo check, fmt, clippy, deny bans, nextest, jq + grep validations, cargo build pulse-app, agent-run.sh smoke
-- ✗ T8 — cargo llvm-cov (environmental fail; see Last Failed Command)
+12/12 plan AC gates pass (all green on first run; 0 fix-loop iterations):
 
-`cargo deny check bans` passes with 33-entry skip list for known-benign Tauri 2.11 ecosystem duplicates; tonic 0.14↔0.13 check preserved.
+- ✓ cargo check --workspace
+- ✓ cargo fmt --check
+- ✓ cargo clippy --workspace --all-targets --all-features -- -D warnings
+- ✓ cargo nextest run --workspace --profile ci --no-tests=pass (0 tests, Epoch 1)
+- ✓ cargo build -p pulse-app
+- ✓ cargo deny check bans (after skip-list +4)
+- ✓ bash scripts/agent-run.sh status (exit 0, baseline non-regression)
+- ✓ pubkey present in tauri.conf.json (RWRH... base64; no privkey block)
+- ✓ .gitignore covers 8 patterns (≥6 expected: *.p12, *.pem, *.cer, .env*, *.key, ~/.tauri/*.key, **/.tauri/*.key, .env)
+- ✓ no secret-leaks in tracked files (grep empty)
+- ✓ no key files in git history (grep empty)
+- ✓ no new tracing emit sites in pulse-app/src/ (forward-looking; harness lands at route#7)
+
+DEFERRED gates (NOT enforced — pre-v0.1.0 release blockers):
+- Azure Key Vault Premium SKU + HSM-backed Windows EV cert + Apple Developer ID + GitHub OIDC federation
+- GitHub Environment `production-release` with manual approval gate + signing secrets
 
 ## Deferred Learnings
 
-2 learnings analyzed but not applied (manual review with `/wrap-session --review` if any should be applied):
+3 learnings analyzed but not applied due to Filter 5 max-3 cap (manual review with `/wrap-session --review` if any should be applied):
 
-- `.config/nextest.toml` `[profile.ci]` config requires CLI flag `--no-tests=pass` for zero-tests state — nextest 0.9.133 has no profile-level config option to make zero-tests pass-by-default; the bare command `cargo nextest run --workspace --profile ci` will succeed once tests exist (Epoch 2+). Candidate Tier 2 destination: `.claude/rules/verification-harness.md ## Session Additions`.
-- `cargo-deny` `[bans] multiple-versions = "deny"` against Tauri 2.x dep tree requires explicit skip list of ~33 known-benign duplicates. The pattern: when Tauri major version bumps, audit the new transitive duplicate set and update `deny.toml` skip list. Candidate Tier 2 destination: `.claude/rules/security.md ## Session Additions` (security domain owns supply-chain).
+- **Tauri 2.x `tauri::generate_context!` requires serde_json visible at crate root when `plugins.<name>` config is non-empty** — encountered as build error E0463 "could not find serde_json" after wiring tauri-plugin-updater. Fix: add `serde_json = "1"` to workspace deps + `serde_json.workspace = true` to consuming binary crate. Candidate Tier 3 destination: `.claude/docs/session-learnings.md`.
+- **Tauri 2.x updater `pubkey` field accepts bare base64 line (after `untrusted comment:` header) — extract from `.pub` file's line 2 verbatim**, not the multi-line full file content. Candidate Tier 3 destination: `.claude/docs/session-learnings.md`.
+- **`cargo nextest run --workspace --profile ci` requires `--no-tests=pass` flag until first test lands (Epoch 2+)** — nextest 0.9.133 has no profile-level config option for zero-tests pass-by-default. Reinforced from previous session deferral. Candidate Tier 2 destination: `.claude/rules/verification-harness.md ## Session Additions`.
 
 ## Next Recommended Action
 
-`/andromeda-phase` to plan chunk #3 "Code-signing setup — Azure Key Vault HSM + GitHub OIDC + Apple Developer ID + Tauri updater Minisign Ed25519 keypair" (Foundation epoch). Note: chunk #3 is heavier than chunks #1-#2 (multi-system signing pipeline + key custody); grouping heuristic likely puts it as a single-chunk phase.
+`/andromeda-phase` to plan chunk #4 "xtask agent-run harness — 5-command discipline (boot/run/status/cleanup/logs) + health TauRPC command (status/subsystems/pid/uptime_ms) + PID file + JSON log format". Note: chunk #4 is heavier than #3 — it wires the actual `xtask` task-runner subcommands + `health` TauRPC introspection + JSON log format for the agent harness. Grouping heuristic likely: single-chunk phase OR group with chunk #5 (Base CI workflow) since both are dev/CI infrastructure with shared dependency on `xtask`.
+
+Optional pre-#4: install reconcile tooling so next wrap-session Phase 5 produces real living-artifact content:
+- `cargo install cargo-modules` (for `dep-tree.md`)
+- `cargo install cargo-public-api --locked` (for `api-surface.md`)
 
 ## Session Goals (carry-over)
 
-(none — phase-1 implementation complete; chunk #3 is the next natural starting point)
+(none — phase-2 implementation complete with ACTIVE scope; chunk #4 is the next natural starting point. DEFERRED scope items D1-D4 from chunk #3 plan revisited only when ready to ship v0.1.0 publicly.)
 
 ## Session End Status
 

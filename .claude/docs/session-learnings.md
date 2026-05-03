@@ -8,6 +8,38 @@ _This file is entirely wrap-session's territory. `/setup-project` creates it if 
 
 ---
 
+## 2026-05-03 — Andromeda chunk scope-split for paid-prereq operator steps
+
+When a route chunk's full scope requires paid external accounts (e.g., chunk #3 code-signing wants Azure Key Vault Premium ~$5/month + Windows EV cert from DigiCert/GlobalSign $300-500/year + Apple Developer ID $99/year + 1-2 weeks of legal-entity verification) but the project is in dogfooding/iteration phase, **split chunk scope** rather than skip the chunk or pay prematurely.
+
+The pattern: `plan.md` divides Implementation Steps + Acceptance Criteria into **ACTIVE** (free + local + reversible work that `/andromeda-implement` runs now — e.g., generate Minisign keypair locally, add deps, edit `tauri.conf.json`, write rotation runbook) and **DEFERRED** (paid + external + bureaucracy items that become pre-v0.1.0 release blockers — Azure Key Vault provisioning, EV cert enrollment, Apple Developer ID, GitHub Environment with secrets). DEFERRED items are tracked in `plan.md §Acceptance Criteria → Deferred` + the runbook describing operator procedure + a `route.md` Decisions Log entry recording the scope-split rationale.
+
+Pipeline integrity is preserved: `state.yaml.last_completed_chunk.route_index` advances when ACTIVE scope lands; DEFERRED items are explicit pre-release blockers tracked across artifacts (not lost). This is better than (a) skipping the chunk entirely (breaks route progression heuristics + state.yaml continuity) or (b) running paid prereqs before the project demonstrates value (premature commitment).
+
+Apply when: chunk has clear paid-vs-free dependency split AND project is in pre-public-release dogfooding phase AND user explicitly states preference to defer paid commitments. Don't apply when: chunk's value depends entirely on paid prereqs (rare for solo OSS projects).
+
+See: `.andromeda/route.md` Decisions Log 2026-05-03 entry "Chunk #3 scope split"; `.andromeda/phases/phase-2/plan.md` §Acceptance Criteria → Active vs Deferred; `docs/runbooks/updater-key-rotation.md` as DEFERRED procedure document.
+
+---
+
+## 2026-05-03 — Standalone minisign 0.12 as Tauri-cli fallback when Windows GNU mingw blocks compile
+
+The rustup `x86_64-pc-windows-gnu` toolchain bundles a minimal mingw-w64 set in `<sysroot>\lib\rustlib\x86_64-pc-windows-gnu\lib\self-contained\` that does NOT include `libktmw32.a` (Windows Kernel Transaction Manager API import library). Modern Tauri 2.x ecosystem crates link transitively against `ktmw32` so `cargo install tauri-cli --version "^2.0" --locked` fails with `ld: cannot find -lktmw32`.
+
+**Refreshing rust-mingw component does NOT fix it** — `rustup component remove rust-mingw && rustup component add rust-mingw` re-downloads the same minimal libset; `libktmw32.a` is not bundled by design.
+
+Two viable paths:
+- **MSVC switch (permanent fix)**: install Visual Studio 2022 Build Tools (~5 GB) + `rustup toolchain install stable-x86_64-pc-windows-msvc` + update `rust-toolchain.toml` channel to MSVC variant. Also resolves the `profiler_builtins` issue for `cargo llvm-cov` (separate Tier-3 entry from previous session). ~30 minutes including download.
+- **Standalone minisign 0.12** (jedisct1, Frank Denis): download `minisign-0.12-win64.zip` from `https://github.com/jedisct1/minisign/releases` (~500 KB), unpack `x86_64/minisign.exe` into `~/.cargo/bin/` (already in PATH), use `minisign -G -W -f -s ~/.tauri/{name}.key -p ~/.tauri/{name}.key.pub` for no-password keypair (the `-W` flag = "do not encrypt secret key with a password" — acceptable for local dogfooding scope where private key stays in `~/.tauri/` gitignored; production HSM custody re-generates with password before public release).
+
+Both `tauri signer generate` and standalone `minisign -G` produce **interoperable Minisign Ed25519 keypairs** — the tools both follow the public Minisign spec (`https://jedisct1.github.io/minisign/`). The verbatim base64 line from the `.pub` file (line 2, after `untrusted comment:` header) goes into `tauri.conf.json plugins.updater.pubkey` regardless of which tool generated it; `tauri-plugin-updater 2.x` accepts and verifies signatures from either.
+
+Implication: when blocked on `cargo install tauri-cli` due to Windows GNU mingw limitations, the standalone-minisign fallback unblocks keypair generation without committing to the heavyweight MSVC switch. Document in the chunk's runbook that production-ready key custody re-generates the keypair WITH a password and uploads private + password to the production secrets manager (Azure Key Vault Premium SKU per security plan §Code-signing key custody).
+
+See: `.andromeda/security-plan.md` §Code-signing key custody; `docs/runbooks/updater-key-rotation.md` Phase 1 (operator-side keypair generation); `pulse-app/tauri.conf.json` `plugins.updater.pubkey` field; previous Tier-3 entry "Windows GNU rustup toolchain doesn't bundle profiler_builtins for cargo-llvm-cov" (related rustup-toolchain limitation pattern).
+
+---
+
 ## 2026-05-03 — Tauri 2.x transitively requires rustc ≥ 1.88
 
 The architecture's security plan pins minimum rustc to 1.85 for Edition 2024 security-positive defaults (`unsafe_op_in_unsafe_fn`, tightened `if let` temporary scopes, `static mut` reference denial). Tauri 2.11.0's transitive dependency tree (`darling 0.23` requires 1.88, `plist 1.9` requires 1.88, `serde_with 3.19` requires 1.88, `time 0.3.47` requires 1.88, `icu_* 2.2` requires 1.86, `icu_normalizer_data 2.2` requires 1.86) pushes the effective floor to rustc 1.88+ for any project that compiles Tauri 2.

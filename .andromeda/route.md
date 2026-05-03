@@ -185,3 +185,11 @@ Obs CI gates + log aggregation — zero-panic verification, heartbeat-stall dete
 - **By:** {`/andromeda-route` re-run | manual edit by {who}}
 
 (Append at bottom; do not modify historical entries.)
+
+---
+
+`2026-05-03` — Chunk #3 scope split (active vs. deferred-to-pre-release)
+- **Decision:** Chunk #3 "Code-signing setup" is split into ACTIVE scope (free + local + reversible: Minisign keypair generation locally, in-repo wiring of `tauri-plugin-updater` 2.x, `tauri.conf.json` pubkey bake-in, capability JSON populate, `.gitignore` tightening, key-rotation runbook) and DEFERRED scope (paid + external-account: Azure Key Vault Premium SKU, DigiCert/GlobalSign EV cert, Apple Developer ID enrollment, GitHub OIDC federation trust, GitHub Environment `production-release` with secrets). /andromeda-implement executes ACTIVE only; DEFERRED tracked in `.andromeda/phases/phase-2/plan.md` §Acceptance Criteria → Deferred + the new runbook at `docs/runbooks/updater-key-rotation.md`. Pipeline integrity preserved: state.yaml.last_completed_chunk advances to 3 once ACTIVE lands; DEFERRED items become pre-v0.1.0 release blockers.
+- **Rationale:** User decision (turbolet85, solo OSS project) to dogfood + debug locally before committing to ~$400-600/year of certificates + EV legal-entity verification (1-2 weeks of bureaucracy). Local development + own-machine debugging does NOT need signed/notarized binaries or trusted-publisher attestation; OS warnings ("Unknown publisher") are acceptable for solo dev. Signed releases become required only at v0.1.0 public ship — at which point DEFERRED scope is executed against the same runbook.
+- **Impact:** Chunk #3 scope at /implement tightened (10 in-repo edits + 1 new runbook + 1 local Minisign keypair generation). DEFERRED items (Azure Key Vault, EV cert, Apple Dev ID, GitHub Environment with secrets) explicitly tracked as pre-v0.1.0 release blockers in plan.md + runbook. No downstream chunk dependency disrupted: route#46 (release.yml + signing automation) is unchanged in plan but its execution requires DEFERRED items resolved first. Route §2 chunk count + ordering unchanged (still 55 chunks).
+- **By:** Manual edit by user (turbolet85) during /andromeda-phase Phase 6 review of phase-2.

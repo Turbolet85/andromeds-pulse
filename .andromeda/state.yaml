@@ -1,14 +1,22 @@
 schema_version: 1
-last_wrap: 2026-05-03T07:05:00Z
-last_reconcile: null
+last_wrap: 2026-05-03T10:14:12Z
+last_reconcile: 2026-05-03T08:42:05Z
 
 last_completed_chunk:
-  route_index: 2
-  title: "Tauri 2 scaffold + capability JSON files — pulse-app/ + tauri.conf.json + 5 capabilities + bundle id com.andromeda.pulse"
+  route_index: 3
+  title: "Code-signing setup — Azure Key Vault HSM + GitHub OIDC + Apple Developer ID + Tauri updater Minisign Ed25519 keypair"
   epoch: 1
-  committed_at: 2026-05-03T07:05:00Z
+  committed_at: 2026-05-03T10:14:12Z
   commit_sha: pending
-  commit_subject: "chore(scaffold): Cargo workspace + Tauri 2 binary (route chunks #1-#2)"
+  commit_subject: "feat(foundation): code-signing scaffolding for chunk #3 (ACTIVE scope; DEFERRED tracked)"
+  scope_split: true
+  deferred_items:
+    - "Azure Key Vault Premium SKU + HSM-backed Windows EV cert (DigiCert/GlobalSign)"
+    - "Apple Developer ID enrollment ($99/yr)"
+    - "GitHub OIDC federation trust to Azure managed identity"
+    - "GitHub Environment `production-release` with manual approval gate + signing secrets"
+  deferred_blocker_for: "v0.1.0 public release"
+  deferred_runbook: "docs/runbooks/updater-key-rotation.md"
 
 in_progress: null
 
@@ -20,23 +28,24 @@ plan_freshness:
   tests_mtime: 2026-05-02T17:18:33Z
   obs_mtime: 2026-05-02T20:14:28Z
   a11y_mtime: 2026-05-02T21:45:23Z
-  route_mtime: 2026-05-02T22:25:48Z
+  route_mtime: 2026-05-03T08:43:34Z
   input_mtime: 2026-05-02T06:52:58Z
 
 living_artifact_freshness:
   dep_tree_reconciled_at: null
   api_surface_reconciled_at: null
-  most_recent_code_mtime: 2026-05-03T07:00:00Z
-  reconcile_failed: false
+  most_recent_code_mtime: 2026-05-03T10:00:00Z
+  reconcile_failed: true
+  reconcile_failed_reason: "cargo-modules and cargo-public-api not installed; install via `cargo install cargo-modules` and `cargo install cargo-public-api --locked` (each ~2-5 min compile)"
 
 drift_warnings:
   - drift_id: D1
-    description: "Code newer than dep-tree.md — first implementation wrap"
+    description: "Code newer than dep-tree.md + api-surface.md (Δ ~hours; reconcile failed because tooling not installed)"
     severity: warning
-    remediation_hint: "Expected after first implementation; reconciliation harness lands at route#4-#5"
-  - drift_id: D2
-    description: "Code newer than api-surface.md — first implementation wrap"
+    remediation_hint: "Install cargo-modules + cargo-public-api per state K above; reconcile clears D1 next wrap"
+  - drift_id: D5
+    description: "route.md newer than CLAUDE.md (Decisions Log entry added 2026-05-03; CLAUDE.md ingests §1-§2 structural sections only — Decisions Log appendage is benign mtime drift)"
     severity: warning
-    remediation_hint: "Expected after first implementation; reconciliation harness lands at route#4-#5"
+    remediation_hint: "No action — re-run /setup-project only if route §2 chunk list itself changes (currently 8 epochs / 55 chunks unchanged)"
 
-session_count: 1
+session_count: 2

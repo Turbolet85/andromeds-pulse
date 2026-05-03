@@ -43,5 +43,13 @@
       "icons/icon.ico"
     ]
   },
-  "plugins": {}
+  "plugins": {
+    "updater": {
+      "endpoints": [
+        "https://github.com/turbolet85/andromeda-pulse/releases/latest/download/latest.json"
+      ],
+      "pubkey": "RWRHXC7qARDfsxhPPJdfh3RMb2f/0THc+5Hrd9n9b/njUTM2I2yTSSpi",
+      "dialog": false
+    }
+  }
 }

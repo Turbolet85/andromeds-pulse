@@ -39,6 +39,7 @@ coverage/
 .env
 .env.local
 .env.*.local
+.env*
 
 # --- IDE ---
 *.iml
