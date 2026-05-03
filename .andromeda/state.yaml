@@ -1,14 +1,14 @@
 schema_version: 1
-last_wrap: 2026-05-03T11:05:00Z
-last_reconcile: 2026-05-03T11:05:00Z
+last_wrap: 2026-05-03T13:25:00Z
+last_reconcile: 2026-05-03T13:24:25Z
 
 last_completed_chunk:
-  route_index: 4
-  title: "xtask agent-run harness — 5-command discipline (boot/run/status/cleanup/logs) + health TauRPC command (status/subsystems/pid/uptime_ms) + PID file + JSON log format"
+  route_index: 6
+  title: "Supply-chain CI gates + secret-scanning — cargo-audit/deny/auditable + Dependabot + gitleaks + GitHub Environment production-release"
   epoch: 1
-  committed_at: 2026-05-03T10:56:57Z
-  commit_sha: 6b7821b
-  commit_subject: "feat(foundation): xtask agent-run harness + health TauRPC + JSON log subscriber (chunk #4)"
+  committed_at: 2026-05-03T13:25:00Z
+  commit_sha: 6d313df
+  commit_subject: "feat(foundation): base CI workflow + supply-chain gates + secret-scanning (chunks #5-#6)"
 
 in_progress: null
 
@@ -20,19 +20,15 @@ plan_freshness:
   tests_mtime: 2026-05-02T17:18:33Z
   obs_mtime: 2026-05-02T20:14:28Z
   a11y_mtime: 2026-05-02T21:45:23Z
-  route_mtime: 2026-05-03T08:43:34Z
+  route_mtime: 2026-05-03T09:23:34Z
   input_mtime: 2026-05-02T06:52:58Z
 
 living_artifact_freshness:
-  dep_tree_reconciled_at: 2026-05-03T11:05:00Z
-  api_surface_reconciled_at: 2026-05-03T11:05:00Z
-  most_recent_code_mtime: 2026-05-03T10:52:00Z
+  dep_tree_reconciled_at: 2026-05-03T13:24:25Z
+  api_surface_reconciled_at: 2026-05-03T13:24:25Z
+  most_recent_code_mtime: 2026-05-03T13:12:30Z
   reconcile_failed: false
 
-drift_warnings:
-  - drift_id: D5
-    description: "route.md newer than CLAUDE.md (Decisions Log entry from phase-2 wrap; CLAUDE.md ingests §1-§2 structural sections only — Decisions Log appendage is benign mtime drift)"
-    severity: warning
-    remediation_hint: "No action — re-run /setup-project only if route §2 chunk list itself changes (currently 8 epochs / 55 chunks unchanged)"
+drift_warnings: []
 
-session_count: 4
+session_count: 5

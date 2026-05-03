@@ -1,0 +1,9 @@
+# Per security plan §Bootstrap phases secret-scanning-ci-gate: gitleaks runs
+# pre-commit AND per-PR. The pre-commit `rev` here MUST match the gitleaks
+# CLI release that .github/workflows/secret-scan.yml's gitleaks-action wraps —
+# both invocations resolve to the same tool release.
+repos:
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.30.1
+    hooks:
+      - id: gitleaks

@@ -1,0 +1,33 @@
+version: 2
+
+updates:
+  - package-ecosystem: "cargo"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 10
+    commit-message:
+      prefix: "chore(deps)"
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 10
+    commit-message:
+      prefix: "chore(deps)"
+
+  # npm ecosystem pre-stub for chunk #13 a11y dev stack (axe-core / lighthouse /
+  # pa11y / colorjs.io / focus-trap-react / tabbable / react-aria-components /
+  # eslint-plugin-jsx-a11y / motion). pulse-app/ui/ does not yet contain a
+  # package.json — Dependabot tolerates missing manifest until chunk #13 lands.
+  - package-ecosystem: "npm"
+    directory: "/pulse-app/ui"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 10
+    commit-message:
+      prefix: "chore(deps)"

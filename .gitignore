@@ -65,6 +65,8 @@ Desktop.ini
 # --- Test artifacts ---
 proptest-regressions/*.txt.bk
 .test-logs/
+# cargo-llvm-cov output (workspace-root lcov.info from `cargo xtask test:coverage`)
+lcov.info
 
 # --- Andromeda-pulse runtime data (when accidentally created in repo) ---
 ~/.andromeda-pulse/

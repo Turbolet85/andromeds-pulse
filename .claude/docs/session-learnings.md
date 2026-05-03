@@ -8,6 +8,38 @@ _This file is entirely wrap-session's territory. `/setup-project` creates it if 
 
 ---
 
+## 2026-05-03 — Workspace feature unification reactivates Tauri across all test binaries; Windows requires MSVC toolchain for `cargo nextest run --workspace`
+
+The chunk #4 ui-bridge feature-gating fix (`default = ["taurpc-runtime"]` + xtask consumes with `default-features = false`) **only resolves single-package builds** (`cargo run -p xtask`, `cargo build -p xtask`). For workspace-wide test discovery (`cargo nextest run --workspace` — which is what the test-plan §3 5-command harness mandates), Cargo's **feature unification** reactivates `taurpc-runtime` across the entire build:
+
+1. `pulse-app/Cargo.toml` declares `ui-bridge = { path = "../crates/ui-bridge" }` — without `default-features = false`, so pulse-app activates ui-bridge's `taurpc-runtime` feature.
+2. Cargo unifies features across all workspace members during a workspace build → ui-bridge is built **once** with `taurpc-runtime` active.
+3. That single ui-bridge rlib (linked against tauri / wry / webview2-com / tao) is consumed by every workspace member that depends on ui-bridge — including xtask, despite xtask's `default-features = false` declaration.
+4. Result: xtask's **test binary** (built by `cargo nextest run --workspace`) links Tauri DLLs.
+
+On Windows GNU rustup-toolchain hosts, the resulting test binaries fail at startup with `STATUS_ENTRYPOINT_NOT_FOUND` (0xC0000139). The root cause is **NOT a WebView2 DLL search path issue** — it's a GNU vs MSVC ABI mismatch in WinRT API-set linkage. Tauri's wry / tao / webview2-com crates expect MSVC calling conventions for some Windows API-set imports (`api-ms-win-core-winrt-error-l1-1-0.dll`, etc.). MingW GCC linker resolves these symbols, but the resulting binary's import table doesn't match the actual procs available in the system DLLs at runtime.
+
+**Fix — local dev parity with CI**: switch rustup `default-host` to MSVC. Per-user setting in `~/.rustup/settings.toml`, **NOT in the repo** (`rust-toolchain.toml` continues to pin `channel = "1.95.0"` which now resolves to the MSVC variant on this host).
+
+Prerequisites:
+
+1. **Visual Studio 2022 Build Tools** with the **Desktop development with C++** workload (~5-7GB). Download installer: `https://aka.ms/vs/17/release/vs_BuildTools.exe`. Run as admin; check the workload checkbox; install. (`winget install Microsoft.VisualStudio.2022.BuildTools` works on hosts with winget; not all Windows installs ship it.)
+2. **WebView2 Runtime** — typically pre-installed on Windows 10/11 via Edge browser. Verify presence via registry `HKLM:\SOFTWARE\WOW6432Node\Microsoft\EdgeUpdate\ClientState\{F3017226-FE2A-4295-8BDF-00C3A9A7E4C5}` (the Evergreen Runtime GUID).
+3. `rustup toolchain install stable-x86_64-pc-windows-msvc` (~100MB).
+4. `rustup set default-host x86_64-pc-windows-msvc`.
+5. `cargo clean` to drop GNU build artifacts (~10GB freed after switch in this project's case).
+
+After the switch, `cargo xtask test` (workspace nextest) succeeds locally — 10 binaries / 0 tests in Foundation epoch state. CI matrix runners (`windows-latest` = MSVC + WebView2 Runtime preinstalled, `macos-latest`, `ubuntu-22.04`) already have this configuration; the toolchain switch is purely about local dev parity.
+
+Adjacent learnings (still valid for their original scopes — these don't replace, they complement):
+
+- chunk #4 entry "Tauri-dependent crates fail xtask runtime on Windows GNU; feature-gate the runtime to allow type-only consumers" — feature-gating fixes `cargo run -p xtask` (single-package, no workspace unification). Does NOT fix workspace test discovery; that requires the MSVC switch above.
+- "Windows GNU rustup toolchain doesn't bundle profiler_builtins for cargo-llvm-cov" — the same MSVC switch resolves both blocks (profiler_builtins available in MSVC std + workspace-wide nextest succeeds).
+
+See: `.andromeda/phases/phase-4/plan.md` Implementation notes (re: NEXTEST_EXPERIMENTAL_LIBTEST_JSON env requirement); `xtask/src/main.rs` `run_cargo_nextest()`; chunk #4 wrap entries on ui-bridge feature-gating + cargo-llvm-cov profiler_builtins.
+
+---
+
 ## 2026-05-03 — Tauri-dependent crates fail xtask runtime on Windows GNU; feature-gate the runtime to allow type-only consumers
 
 Any binary that transitively depends on the `tauri` crate links against WebView2 / DirectX / etc. Windows DLLs at link time. On Windows GNU rustup-toolchain hosts without WebView2 installed (or any DLL load-path issue), the resulting binary fails at startup with `STATUS_ENTRYPOINT_NOT_FOUND` (exit code `0xc0000139`) — **even if the binary never actually invokes any Tauri runtime code**. This blocks shared-crate designs where the data types live alongside the procedure implementation: an `xtask` binary that imports `ui-bridge` for `HealthEnvelope` (a pure data type) inherits the tauri DLL deps and crashes.

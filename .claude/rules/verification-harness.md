@@ -94,3 +94,5 @@ The status endpoint MUST NOT include sensitive data (no env vars, no secrets, no
 
 ## Session Additions
 _This section is owned by `/wrap-session`. setup-project preserves content added here on re-run._
+
+- 2026-05-03: cargo-nextest 0.9.x gates `--message-format libtest-json` behind the `NEXTEST_EXPERIMENTAL_LIBTEST_JSON=1` env var. Any xtask wrapper that invokes nextest with libtest-json output (e.g., `cargo xtask test`) MUST set this env in the spawned `tokio::process::Command` before exec — otherwise nextest exits with "libtest JSON output is an experimental feature" error before any test discovery runs. CI workflow steps that invoke `cargo xtask test` inherit the env from xtask's spawn; no need to set at workflow / step level. See `xtask/src/main.rs` `run_cargo_nextest()` `cmd.env(...)` call.

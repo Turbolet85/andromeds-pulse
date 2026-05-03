@@ -14,11 +14,13 @@ allow = [
     "BSD-2-Clause",
     "BSD-3-Clause",
     "ISC",
-    "Unicode-DFS-2016",
     "Unicode-3.0",
     "MPL-2.0",
     "CC0-1.0",
     "Zlib",
+    # Community Data License Agreement Permissive 2.0 — permissive, MIT-compatible.
+    # Pulled in transitively via webpki-root-certs (Mozilla CA bundle) → rustls-platform-verifier → reqwest → tauri (route#6, 2026-05-03).
+    "CDLA-Permissive-2.0",
 ]
 confidence-threshold = 0.93
 
@@ -27,7 +29,15 @@ multiple-versions = "deny"
 wildcards = "warn"
 highlight = "all"
 allow = []
-deny = []
+deny = [
+    # canary: catch tonic <0.14 transitive duplicate (the OTLP-receiver
+    # ↔ opentelemetry-otlp 0.31 (pinned tonic 0.13) mismatch flagged in
+    # arch §Established Decisions [Backend Framework — OTLP receiver]
+    # caveat + §Inherited Defaults open-question). When ingest body
+    # lands (route#16+), this entry surfaces the duplicate as a build
+    # failure per security plan §Dependency Security Pinning.
+    { name = "tonic", version = "<0.14" },
+]
 # Known-benign duplicates from the Tauri 2.11 ecosystem dep tree.
 # Reviewed at chunk #2 scaffold; not in scope for tightening here.
 # The tonic 0.14 ↔ opentelemetry-otlp 0.31 (tonic 0.13) duplicate is

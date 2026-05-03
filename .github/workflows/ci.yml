@@ -1,0 +1,203 @@
+name: ci
+
+on:
+  pull_request: {}
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+env:
+  ANDROMEDA_PULSE_DATA_DIR: ${{ runner.temp }}/andromeda-pulse-ci-data
+  SERVICE_NAME: com.andromeda.pulse
+  DEPLOYMENT_ENVIRONMENT: production
+  CI_RUN_ID: ${{ github.run_id }}
+  GIT_COMMIT_SHA: ${{ github.sha }}
+  CARGO_TERM_COLOR: always
+
+jobs:
+  lint-test-build:
+    name: lint / test / build (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-22.04, macos-latest, windows-latest]
+    steps:
+      - name: Harden runner
+        uses: step-security/harden-runner@a5ad31d6a139d249332a2605b85202e8c0b78450 # v2.19.1
+        with:
+          egress-policy: audit
+
+      - name: Checkout
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+
+      - name: Install Rust toolchain (respects rust-toolchain.toml)
+        uses: dtolnay/rust-toolchain@29eef336d9b2848a0b548edc03f92a220660cdb8 # stable
+
+      - name: Cache cargo
+        uses: Swatinem/rust-cache@23869a5bd66c73db3c0ac40331f3206eb23791dc # v2.9.1
+        with:
+          shared-key: ${{ runner.os }}-cargo
+
+      - name: Install cargo-nextest + cargo-llvm-cov
+        uses: taiki-e/install-action@db5fb34fa772531a3ece57ca434f579eb334e0fb # v2.75.30
+        with:
+          tool: cargo-nextest,cargo-llvm-cov
+
+      - name: cargo fmt --check
+        run: cargo fmt --check
+
+      - name: cargo clippy --workspace --all-targets --all-features -- -D warnings
+        run: cargo clippy --workspace --all-targets --all-features -- -D warnings
+
+      - name: cargo xtask test (no-tests=pass at Foundation epoch)
+        run: cargo xtask test
+
+      - name: cargo build --workspace --release
+        run: cargo build --workspace --release
+
+      - name: cargo build --features mcp-server (Linux only)
+        if: runner.os == 'Linux'
+        run: cargo build --workspace --release --features mcp-server
+
+      - name: Boot pulse-app smoke (Linux only)
+        if: runner.os == 'Linux'
+        continue-on-error: true
+        run: |
+          bash scripts/agent-run.sh boot
+          bash scripts/agent-run.sh status
+          bash scripts/agent-run.sh cleanup
+
+      - name: cargo xtask ci-gates
+        run: cargo xtask ci-gates
+
+      - name: Upload logs artifact
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: logs-${{ runner.os }}
+          path: ${{ env.ANDROMEDA_PULSE_DATA_DIR }}/logs/
+          if-no-files-found: ignore
+          retention-days: 14
+
+      - name: Upload nextest junit artifact
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: nextest-${{ runner.os }}
+          path: target/nextest/**/junit.xml
+          if-no-files-found: ignore
+          retention-days: 14
+
+      - name: Upload criterion bench artifact (deferred; non-blocking)
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: criterion-${{ runner.os }}
+          path: target/criterion/
+          if-no-files-found: ignore
+          retention-days: 14
+
+  supply-chain:
+    name: supply-chain (audit + deny + auditable)
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Harden runner
+        uses: step-security/harden-runner@a5ad31d6a139d249332a2605b85202e8c0b78450 # v2.19.1
+        with:
+          egress-policy: audit
+
+      - name: Checkout
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@29eef336d9b2848a0b548edc03f92a220660cdb8 # stable
+
+      - name: Cache cargo
+        uses: Swatinem/rust-cache@23869a5bd66c73db3c0ac40331f3206eb23791dc # v2.9.1
+        with:
+          shared-key: ubuntu-22.04-cargo
+
+      - name: cargo audit (RustSec advisory DB)
+        uses: rustsec/audit-check@69366f33c96575abad1ee0dba8212993eecbe998 # v2.0.0
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: cargo deny check bans licenses sources
+        uses: EmbarkStudios/cargo-deny-action@a4d2d701318fdc1c6ae17ba8cea8f329c5110eb2 # v2.0.17
+
+      - name: Install cargo-auditable
+        uses: taiki-e/install-action@db5fb34fa772531a3ece57ca434f579eb334e0fb # v2.75.30
+        with:
+          tool: cargo-auditable
+
+      - name: cargo auditable build smoke (workspace release)
+        run: cargo auditable build --workspace --release
+
+  coverage:
+    name: coverage gate (line ≥75% / branch ≥70% / function ≥85%)
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Harden runner
+        uses: step-security/harden-runner@a5ad31d6a139d249332a2605b85202e8c0b78450 # v2.19.1
+        with:
+          egress-policy: audit
+
+      - name: Checkout
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@29eef336d9b2848a0b548edc03f92a220660cdb8 # stable
+
+      - name: Cache cargo
+        uses: Swatinem/rust-cache@23869a5bd66c73db3c0ac40331f3206eb23791dc # v2.9.1
+        with:
+          shared-key: ubuntu-22.04-cargo
+
+      - name: Install cargo-nextest + cargo-llvm-cov
+        uses: taiki-e/install-action@db5fb34fa772531a3ece57ca434f579eb334e0fb # v2.75.30
+        with:
+          tool: cargo-nextest,cargo-llvm-cov
+
+      - name: cargo xtask test:coverage
+        run: cargo xtask test:coverage
+
+      - name: Enforce coverage thresholds
+        run: |
+          set -euo pipefail
+          if [ ! -f lcov.info ]; then
+            echo "::error::lcov.info missing — coverage gate cannot evaluate"
+            exit 1
+          fi
+          line_total=$(awk -F: '/^LF:/{s+=$2} END{print s+0}' lcov.info)
+          line_hit=$(awk -F: '/^LH:/{s+=$2} END{print s+0}' lcov.info)
+          branch_total=$(awk -F: '/^BRF:/{s+=$2} END{print s+0}' lcov.info)
+          branch_hit=$(awk -F: '/^BRH:/{s+=$2} END{print s+0}' lcov.info)
+          fn_total=$(awk -F: '/^FNF:/{s+=$2} END{print s+0}' lcov.info)
+          fn_hit=$(awk -F: '/^FNH:/{s+=$2} END{print s+0}' lcov.info)
+          if [ "$line_total" -eq 0 ] && [ "$fn_total" -eq 0 ]; then
+            echo "Coverage gate: 0 lines / 0 functions tracked (Foundation epoch — gate trivially passes; activates at chunk #15 first tests)"
+            exit 0
+          fi
+          line_pct=$(awk -v h="$line_hit" -v t="$line_total" 'BEGIN { if (t==0) print "100.0"; else printf "%.1f", (h/t)*100 }')
+          branch_pct=$(awk -v h="$branch_hit" -v t="$branch_total" 'BEGIN { if (t==0) print "100.0"; else printf "%.1f", (h/t)*100 }')
+          fn_pct=$(awk -v h="$fn_hit" -v t="$fn_total" 'BEGIN { if (t==0) print "100.0"; else printf "%.1f", (h/t)*100 }')
+          echo "Line:     ${line_hit}/${line_total} = ${line_pct}% (threshold 75%)"
+          echo "Branch:   ${branch_hit}/${branch_total} = ${branch_pct}% (threshold 70%)"
+          echo "Function: ${fn_hit}/${fn_total} = ${fn_pct}% (threshold 85%)"
+          fail=0
+          awk -v pct="$line_pct"   'BEGIN { exit (pct + 0 < 75.0) }' || { echo "::error::line coverage ${line_pct}% < 75%"; fail=1; }
+          awk -v pct="$branch_pct" 'BEGIN { exit (pct + 0 < 70.0) }' || { echo "::error::branch coverage ${branch_pct}% < 70%"; fail=1; }
+          awk -v pct="$fn_pct"     'BEGIN { exit (pct + 0 < 85.0) }' || { echo "::error::function coverage ${fn_pct}% < 85%"; fail=1; }
+          [ $fail -eq 0 ]
+
+      - name: Upload coverage artifact
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: coverage-linux
+          path: lcov.info
+          if-no-files-found: ignore
+          retention-days: 14
