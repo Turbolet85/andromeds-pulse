@@ -1,8 +1,12 @@
 use std::path::{Path, PathBuf};
+use std::sync::Arc;
 use std::{env, fs};
 
-use ui_bridge::health::{HealthApi, HealthApiImpl, record_start};
+use ui_bridge::health::{
+    HealthApi, HealthApiImpl, HeartbeatState, record_start, register_heartbeat_state,
+};
 
+mod heartbeat;
 mod observability;
 
 fn resolve_data_dir() -> PathBuf {
@@ -72,9 +76,16 @@ fn main() {
     record_start();
     write_pid_file(&data_dir);
 
+    let heartbeat_state = Arc::new(HeartbeatState::new());
+    register_heartbeat_state(heartbeat_state.clone());
+
     tauri::Builder::default()
         .plugin(tauri_plugin_updater::Builder::new().build())
         .invoke_handler(taurpc::create_ipc_handler(HealthApiImpl.into_handler()))
+        .setup(move |_app| {
+            let _heartbeat_handles = heartbeat::spawn(heartbeat_state);
+            Ok(())
+        })
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

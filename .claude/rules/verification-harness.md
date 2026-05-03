@@ -30,16 +30,18 @@ These two contracts are **byte-bound**: the test harness consumes the obs harnes
 {
   "status": "ok" | "degraded" | "unhealthy",
   "subsystems": {
-    "otlp_grpc_receiver": { "status": "initialized" | "error", "error_msg": null | "string" },
-    "otlp_http_receiver": { "status": "initialized" | "error", "error_msg": null | "string" },
-    "buffer": { "status": "ready" | "error", "rows_ingested": N, "retention_seconds": N },
-    "ingest_channel": { "status": "ready" | "error", "broadcast_subscribers": N }
+    "otlp_grpc_receiver": { "status": "initialized" | "error", "error_msg": null | "string", "last_tick_at": null | "ISO-8601" },
+    "otlp_http_receiver": { "status": "initialized" | "error", "error_msg": null | "string", "last_tick_at": null | "ISO-8601" },
+    "buffer": { "status": "ready" | "error", "rows_ingested": N, "retention_seconds": N, "last_tick_at": null | "ISO-8601" },
+    "ingest_channel": { "status": "ready" | "error", "broadcast_subscribers": N, "last_tick_at": null | "ISO-8601" },
+    "viz": { "status": "ready" | "error", "last_tick_at": null | "ISO-8601" },
+    "plugins": { "status": "ready" | "error", "last_tick_at": null | "ISO-8601" }
   },
   "uptime_ms": N,
   "pid": N
 }
 ```
-**Agent reads:** `status == "ok"`, all `subsystems.*.status` non-error, `subsystems.buffer.rows_ingested` increments after ingest, `subsystems.ingest_channel.broadcast_subscribers >= 1` if streams active, `pid` matches spawned process.
+**Agent reads:** `status == "ok"`, all `subsystems.*.status` non-error, `subsystems.buffer.rows_ingested` increments after ingest, `subsystems.ingest_channel.broadcast_subscribers >= 1` if streams active, `subsystems.{ingest_channel,buffer,viz,plugins}.last_tick_at` advances within ≤45s windows for stall detection per obs-plan §3 heartbeat ticks, `pid` matches spawned process.
 
 The status endpoint MUST NOT include sensitive data (no env vars, no secrets, no per-user data). It is exposed via `health` TauRPC command per arch §Standard Contracts.
 

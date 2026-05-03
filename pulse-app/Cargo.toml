@@ -23,6 +23,10 @@ tauri-plugin-updater.workspace = true
 taurpc.workspace = true
 strict-path.workspace = true
 ui-bridge = { path = "../crates/ui-bridge" }
+ingest = { path = "../crates/ingest" }
+buffer = { path = "../crates/buffer" }
+viz = { path = "../crates/viz" }
+plugins = { path = "../crates/plugins" }
 
 [dependencies.mcp-server-crate]
 package = "mcp-server"

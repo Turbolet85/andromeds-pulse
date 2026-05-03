@@ -2690,8 +2690,11 @@ dependencies = [
 name = "pulse-app"
 version = "0.1.0"
 dependencies = [
+ "buffer",
  "chrono",
+ "ingest",
  "mcp-server",
+ "plugins",
  "serde_json",
  "strict-path",
  "tauri",
@@ -2704,6 +2707,7 @@ dependencies = [
  "tracing-error",
  "tracing-subscriber",
  "ui-bridge",
+ "viz",
 ]
 
 [[package]]

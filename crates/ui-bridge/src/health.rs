@@ -1,4 +1,4 @@
-use std::sync::OnceLock;
+use std::sync::{Arc, Mutex, OnceLock};
 use std::time::Instant;
 
 use chrono::{DateTime, Utc};
@@ -8,9 +8,54 @@ use serde::{Deserialize, Serialize};
 use crate::contract::AppError;
 
 static APP_START: OnceLock<Instant> = OnceLock::new();
+static HEARTBEAT_STATE: OnceLock<Arc<HeartbeatState>> = OnceLock::new();
 
 pub fn record_start() {
     let _ = APP_START.set(Instant::now());
+}
+
+#[derive(Debug, Default)]
+pub struct HeartbeatState {
+    ingest: Mutex<Option<DateTime<Utc>>>,
+    buffer: Mutex<Option<DateTime<Utc>>>,
+    viz: Mutex<Option<DateTime<Utc>>>,
+    plugins: Mutex<Option<DateTime<Utc>>>,
+}
+
+impl HeartbeatState {
+    pub fn new() -> Self {
+        Self::default()
+    }
+
+    pub fn record_ingest(&self, ts: DateTime<Utc>) {
+        *self.ingest.lock().unwrap() = Some(ts);
+    }
+    pub fn record_buffer(&self, ts: DateTime<Utc>) {
+        *self.buffer.lock().unwrap() = Some(ts);
+    }
+    pub fn record_viz(&self, ts: DateTime<Utc>) {
+        *self.viz.lock().unwrap() = Some(ts);
+    }
+    pub fn record_plugins(&self, ts: DateTime<Utc>) {
+        *self.plugins.lock().unwrap() = Some(ts);
+    }
+
+    pub fn last_ingest(&self) -> Option<DateTime<Utc>> {
+        *self.ingest.lock().unwrap()
+    }
+    pub fn last_buffer(&self) -> Option<DateTime<Utc>> {
+        *self.buffer.lock().unwrap()
+    }
+    pub fn last_viz(&self) -> Option<DateTime<Utc>> {
+        *self.viz.lock().unwrap()
+    }
+    pub fn last_plugins(&self) -> Option<DateTime<Utc>> {
+        *self.plugins.lock().unwrap()
+    }
+}
+
+pub fn register_heartbeat_state(state: Arc<HeartbeatState>) {
+    let _ = HEARTBEAT_STATE.set(state);
 }
 
 #[cfg_attr(feature = "taurpc-runtime", derive(specta::Type))]
@@ -26,6 +71,7 @@ pub enum HealthStatus {
 pub struct SubsystemStatus {
     pub status: String,
     pub error_msg: Option<String>,
+    pub last_tick_at: Option<DateTime<Utc>>,
 }
 
 impl SubsystemStatus {
@@ -33,6 +79,7 @@ impl SubsystemStatus {
         Self {
             status: "initialized".to_string(),
             error_msg: None,
+            last_tick_at: None,
         }
     }
 }
@@ -44,6 +91,8 @@ pub struct SubsystemStatuses {
     pub otlp_http_receiver: SubsystemStatus,
     pub buffer: SubsystemStatus,
     pub ingest_channel: SubsystemStatus,
+    pub viz: SubsystemStatus,
+    pub plugins: SubsystemStatus,
 }
 
 impl SubsystemStatuses {
@@ -53,6 +102,8 @@ impl SubsystemStatuses {
             otlp_http_receiver: SubsystemStatus::initialized(),
             buffer: SubsystemStatus::initialized(),
             ingest_channel: SubsystemStatus::initialized(),
+            viz: SubsystemStatus::initialized(),
+            plugins: SubsystemStatus::initialized(),
         }
     }
 }
@@ -73,10 +124,18 @@ pub fn current_health() -> HealthEnvelope {
         .map(|start| start.elapsed().as_millis() as u64)
         .unwrap_or(0);
 
+    let mut subsystems = SubsystemStatuses::placeholders();
+    if let Some(state) = HEARTBEAT_STATE.get() {
+        subsystems.ingest_channel.last_tick_at = state.last_ingest();
+        subsystems.buffer.last_tick_at = state.last_buffer();
+        subsystems.viz.last_tick_at = state.last_viz();
+        subsystems.plugins.last_tick_at = state.last_plugins();
+    }
+
     HealthEnvelope {
         status: HealthStatus::Ok,
         checked_at: Utc::now(),
-        subsystems: SubsystemStatuses::placeholders(),
+        subsystems,
         pid: std::process::id(),
         uptime_ms,
     }
@@ -104,3 +163,70 @@ mod runtime {
 
 #[cfg(feature = "taurpc-runtime")]
 pub use runtime::{HealthApi, HealthApiImpl};
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn subsystem_status_initialized_has_no_tick() {
+        let s = SubsystemStatus::initialized();
+        assert_eq!(s.status, "initialized");
+        assert!(s.error_msg.is_none());
+        assert!(s.last_tick_at.is_none());
+    }
+
+    #[test]
+    fn placeholders_includes_six_subsystems_with_no_ticks() {
+        let p = SubsystemStatuses::placeholders();
+        assert!(p.otlp_grpc_receiver.last_tick_at.is_none());
+        assert!(p.otlp_http_receiver.last_tick_at.is_none());
+        assert!(p.buffer.last_tick_at.is_none());
+        assert!(p.ingest_channel.last_tick_at.is_none());
+        assert!(p.viz.last_tick_at.is_none());
+        assert!(p.plugins.last_tick_at.is_none());
+    }
+
+    #[test]
+    fn heartbeat_state_records_and_reads_per_module() {
+        let state = HeartbeatState::new();
+        assert!(state.last_ingest().is_none());
+        assert!(state.last_buffer().is_none());
+        assert!(state.last_viz().is_none());
+        assert!(state.last_plugins().is_none());
+
+        let now = Utc::now();
+        state.record_ingest(now);
+        state.record_buffer(now);
+        state.record_viz(now);
+        state.record_plugins(now);
+
+        assert_eq!(state.last_ingest(), Some(now));
+        assert_eq!(state.last_buffer(), Some(now));
+        assert_eq!(state.last_viz(), Some(now));
+        assert_eq!(state.last_plugins(), Some(now));
+    }
+
+    #[test]
+    fn current_health_includes_six_subsystems_when_no_state_registered() {
+        let envelope = current_health();
+        assert!(
+            envelope
+                .subsystems
+                .otlp_grpc_receiver
+                .last_tick_at
+                .is_none()
+        );
+        assert!(
+            envelope
+                .subsystems
+                .otlp_http_receiver
+                .last_tick_at
+                .is_none()
+        );
+        assert!(envelope.subsystems.buffer.last_tick_at.is_none());
+        assert!(envelope.subsystems.ingest_channel.last_tick_at.is_none());
+        assert!(envelope.subsystems.viz.last_tick_at.is_none());
+        assert!(envelope.subsystems.plugins.last_tick_at.is_none());
+    }
+}

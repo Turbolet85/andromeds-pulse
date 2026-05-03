@@ -7,8 +7,8 @@ use tracing::Subscriber;
 use tracing::field::{Field, Visit};
 use tracing_appender::non_blocking::WorkerGuard;
 use tracing_error::{ErrorLayer, SpanTrace};
-use tracing_subscriber::fmt::FormatEvent;
 use tracing_subscriber::fmt::FmtContext;
+use tracing_subscriber::fmt::FormatEvent;
 use tracing_subscriber::fmt::format::Writer;
 use tracing_subscriber::layer::SubscriberExt;
 use tracing_subscriber::registry::LookupSpan;
@@ -107,7 +107,15 @@ impl AllowList {
         // obs-plan §8 per-module allowlists
         by_target.insert(
             "ingest",
-            ["span_count", "service"].iter().copied().collect(),
+            [
+                "span_count",
+                "service",
+                "buffer_capacity_pct",
+                "broadcast_subscribers",
+            ]
+            .iter()
+            .copied()
+            .collect(),
         );
         by_target.insert(
             "buffer",
@@ -116,6 +124,7 @@ impl AllowList {
                 "eviction_count",
                 "memory_bytes",
                 "retention_window_seconds",
+                "retention_window_active",
             ]
             .iter()
             .copied()
@@ -134,6 +143,15 @@ impl AllowList {
             .copied()
             .collect(),
         );
+        // obs-plan §3 plugins.tick (workspace crate name is `plugins` plural,
+        // distinct from the `plugin` singular target above — both coexist).
+        by_target.insert(
+            "plugins",
+            ["loaded_count", "active_invocations"]
+                .iter()
+                .copied()
+                .collect(),
+        );
         by_target.insert(
             "snapshot",
             [
@@ -149,10 +167,17 @@ impl AllowList {
         );
         by_target.insert(
             "viz",
-            ["query_id", "param_count", "row_count", "latency_ms"]
-                .iter()
-                .copied()
-                .collect(),
+            [
+                "query_id",
+                "param_count",
+                "row_count",
+                "latency_ms",
+                "query_latency_ms",
+                "subscribers_active",
+            ]
+            .iter()
+            .copied()
+            .collect(),
         );
         by_target.insert(
             "workspace-detector",
@@ -704,6 +729,114 @@ mod tests {
             tracing::info!(target: "ingest.tick", span_count = 7_i64, "heartbeat");
         });
         assert_eq!(lines[0]["fields"]["span_count"], 7);
+    }
+
+    #[test]
+    fn scrubber_passes_ingest_tick_obs_plan_fields() {
+        let defaults = make_defaults(None, None);
+        let lines = capture_json_lines(defaults, || {
+            tracing::info!(
+                target: "ingest.tick",
+                span_count = 12_u64,
+                buffer_capacity_pct = 0.42_f64,
+                broadcast_subscribers = 3_u64,
+                "heartbeat",
+            );
+        });
+        let fields = &lines[0]["fields"];
+        assert_eq!(fields["span_count"], 12);
+        assert_eq!(fields["buffer_capacity_pct"], 0.42);
+        assert_eq!(fields["broadcast_subscribers"], 3);
+    }
+
+    #[test]
+    fn scrubber_passes_buffer_tick_obs_plan_fields() {
+        let defaults = make_defaults(None, None);
+        let lines = capture_json_lines(defaults, || {
+            tracing::info!(
+                target: "buffer.tick",
+                rows_ingested = 1024_u64,
+                retention_window_active = true,
+                eviction_count = 7_u64,
+                "heartbeat",
+            );
+        });
+        let fields = &lines[0]["fields"];
+        assert_eq!(fields["rows_ingested"], 1024);
+        assert_eq!(fields["retention_window_active"], true);
+        assert_eq!(fields["eviction_count"], 7);
+    }
+
+    #[test]
+    fn scrubber_passes_viz_tick_obs_plan_fields() {
+        let defaults = make_defaults(None, None);
+        let lines = capture_json_lines(defaults, || {
+            tracing::info!(
+                target: "viz.tick",
+                query_latency_ms = 18.5_f64,
+                subscribers_active = 2_u64,
+                "heartbeat",
+            );
+        });
+        let fields = &lines[0]["fields"];
+        assert_eq!(fields["query_latency_ms"], 18.5);
+        assert_eq!(fields["subscribers_active"], 2);
+    }
+
+    #[test]
+    fn scrubber_passes_plugins_tick_obs_plan_fields() {
+        let defaults = make_defaults(None, None);
+        let lines = capture_json_lines(defaults, || {
+            tracing::info!(
+                target: "plugins.tick",
+                loaded_count = 4_u64,
+                active_invocations = 1_u64,
+                "heartbeat",
+            );
+        });
+        let fields = &lines[0]["fields"];
+        assert_eq!(fields["loaded_count"], 4);
+        assert_eq!(fields["active_invocations"], 1);
+    }
+
+    #[test]
+    fn scrubber_redacts_non_allowlisted_field_on_each_tick_target() {
+        let defaults = make_defaults(None, None);
+        for target in ["ingest.tick", "buffer.tick", "viz.tick", "plugins.tick"] {
+            let lines = capture_json_lines(defaults.clone(), || match target {
+                "ingest.tick" => {
+                    tracing::info!(target: "ingest.tick", attribute_value = "secret-leak", "heartbeat");
+                }
+                "buffer.tick" => {
+                    tracing::info!(target: "buffer.tick", query_param = "DROP TABLE", "heartbeat");
+                }
+                "viz.tick" => {
+                    tracing::info!(target: "viz.tick", attribute_value = "leaks", "heartbeat");
+                }
+                "plugins.tick" => {
+                    tracing::info!(target: "plugins.tick", plugin_path = "/secret/path.wasm", "heartbeat");
+                }
+                _ => unreachable!(),
+            });
+            assert_eq!(lines.len(), 1, "expected one line for {target}");
+            let fields = &lines[0]["fields"];
+            for (k, v) in fields.as_object().unwrap() {
+                if matches!(
+                    k.as_str(),
+                    "service.name"
+                        | "service.version"
+                        | "deployment.environment"
+                        | "ci.run.id"
+                        | "git.commit.sha"
+                ) {
+                    continue;
+                }
+                assert_eq!(
+                    v, "<redacted>",
+                    "field {k} should be redacted for target {target}"
+                );
+            }
+        }
     }
 
     #[test]
