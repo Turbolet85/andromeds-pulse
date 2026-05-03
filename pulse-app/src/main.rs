@@ -1,16 +1,9 @@
 use std::path::{Path, PathBuf};
 use std::{env, fs};
 
-use tracing_appender::non_blocking::WorkerGuard;
-use tracing_error::ErrorLayer;
-use tracing_subscriber::layer::SubscriberExt;
-use tracing_subscriber::util::SubscriberInitExt;
-use tracing_subscriber::{EnvFilter, fmt};
-
 use ui_bridge::health::{HealthApi, HealthApiImpl, record_start};
 
-const SERVICE_NAME: &str = "com.andromeda.pulse";
-const DEPLOYMENT_ENVIRONMENT: &str = "production";
+mod observability;
 
 fn resolve_data_dir() -> PathBuf {
     if let Ok(p) = env::var("ANDROMEDA_PULSE_DATA_DIR") {
@@ -25,7 +18,7 @@ fn resolve_data_dir() -> PathBuf {
             return PathBuf::from(home)
                 .join("Library")
                 .join("Application Support")
-                .join(SERVICE_NAME);
+                .join("com.andromeda.pulse");
         }
     } else if let Ok(xdg) = env::var("XDG_CONFIG_HOME") {
         return PathBuf::from(xdg).join("andromeda-pulse");
@@ -33,64 +26,6 @@ fn resolve_data_dir() -> PathBuf {
         return PathBuf::from(home).join(".andromeda-pulse");
     }
     env::temp_dir().join("andromeda-pulse")
-}
-
-fn init_tracing(data_dir: &Path) -> WorkerGuard {
-    let logs_dir = data_dir.join("logs");
-    fs::create_dir_all(&logs_dir).expect("failed to create logs dir");
-
-    let file_appender = tracing_appender::rolling::daily(&logs_dir, "agent-latest.jsonl");
-    let (non_blocking, guard) = tracing_appender::non_blocking(file_appender);
-
-    let env_filter = EnvFilter::try_from_env("ANDROMEDA_PULSE_LOG_LEVEL")
-        .or_else(|_| EnvFilter::try_from_default_env())
-        .unwrap_or_else(|_| EnvFilter::new("info"));
-
-    let json_layer = fmt::layer()
-        .json()
-        .with_writer(non_blocking)
-        .with_target(true)
-        .with_current_span(true)
-        .with_span_list(false);
-
-    tracing_subscriber::registry()
-        .with(env_filter)
-        .with(json_layer)
-        .with(ErrorLayer::default())
-        .init();
-
-    tracing::info!(
-        target: "app.boot.tracing.init",
-        service_name = SERVICE_NAME,
-        service_version = env!("CARGO_PKG_VERSION"),
-        deployment_environment = DEPLOYMENT_ENVIRONMENT,
-        log_dir = ?logs_dir,
-        "tracing subscriber initialized",
-    );
-
-    guard
-}
-
-fn install_panic_hook() {
-    std::panic::set_hook(Box::new(|info| {
-        let location = info
-            .location()
-            .map(|loc| format!("{}:{}", loc.file(), loc.line()))
-            .unwrap_or_else(|| "unknown".to_string());
-        let msg = info
-            .payload()
-            .downcast_ref::<&str>()
-            .copied()
-            .or_else(|| info.payload().downcast_ref::<String>().map(|s| s.as_str()))
-            .unwrap_or("(non-string panic payload)");
-        tracing::error!(
-            target: "app.panic.fatal",
-            panic_message = %msg,
-            location = %location,
-            spantrace = ?tracing_error::SpanTrace::capture(),
-            "panic captured",
-        );
-    }));
 }
 
 fn write_pid_file(data_dir: &Path) {
@@ -133,8 +68,7 @@ fn write_pid_file(data_dir: &Path) {
 
 fn main() {
     let data_dir = resolve_data_dir();
-    let _guard = init_tracing(&data_dir);
-    install_panic_hook();
+    let _guard = observability::init(&data_dir);
     record_start();
     write_pid_file(&data_dir);
 

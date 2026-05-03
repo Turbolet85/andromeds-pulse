@@ -1,14 +1,14 @@
 schema_version: 1
-last_wrap: 2026-05-03T13:25:00Z
-last_reconcile: 2026-05-03T13:24:25Z
+last_wrap: 2026-05-03T15:16:59Z
+last_reconcile: 2026-05-03T15:16:59Z
 
 last_completed_chunk:
-  route_index: 6
-  title: "Supply-chain CI gates + secret-scanning — cargo-audit/deny/auditable + Dependabot + gitleaks + GitHub Environment production-release"
+  route_index: 8
+  title: "PII scrubbing rules wire — span attribute scrubber + log formatter Layer + Sentry before_send pattern (if enabled)"
   epoch: 1
-  committed_at: 2026-05-03T13:25:00Z
-  commit_sha: 6d313df
-  commit_subject: "feat(foundation): base CI workflow + supply-chain gates + secret-scanning (chunks #5-#6)"
+  committed_at: 2026-05-03T15:16:59Z
+  commit_sha: 0000008
+  commit_subject: "feat(foundation): tracing self-observation harness + PII scrubbing wire (chunks #7-#8)"
 
 in_progress: null
 
@@ -24,11 +24,11 @@ plan_freshness:
   input_mtime: 2026-05-02T06:52:58Z
 
 living_artifact_freshness:
-  dep_tree_reconciled_at: 2026-05-03T13:24:25Z
-  api_surface_reconciled_at: 2026-05-03T13:24:25Z
-  most_recent_code_mtime: 2026-05-03T13:12:30Z
+  dep_tree_reconciled_at: 2026-05-03T15:16:59Z
+  api_surface_reconciled_at: 2026-05-03T15:16:59Z
+  most_recent_code_mtime: 2026-05-03T15:15:39Z
   reconcile_failed: false
 
 drift_warnings: []
 
-session_count: 5
+session_count: 6
