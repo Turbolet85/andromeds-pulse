@@ -1,0 +1,82 @@
+@import "tailwindcss";
+
+@theme static {
+  --color-primary: #4A90E2;
+  --color-secondary: #2C3E7F;
+  --color-accent: #8B2E3B;
+  --color-base: #1A1D24;
+  --color-raised-1: #262A33;
+  --color-raised-2: #2D3139;
+  --color-raised-3: #343A45;
+  --color-inset: #0F1117;
+  --color-text-primary: #E8EEF7;
+  --color-text-secondary: #B4BCCB;
+  --color-text-tertiary: #7D8697;
+  --color-text-muted: #56606E;
+  --color-feedback-success: #17B3A3;
+
+  --spacing-micro: 2px;
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+
+  --font-display: 'IBM Plex Sans', sans-serif;
+  --font-body: 'IBM Plex Sans', sans-serif;
+  --font-code: 'JetBrains Mono', monospace;
+
+  --duration-fast: 150ms;
+  --duration-standard: 200ms;
+  --easing-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --easing-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+
+  --border-focus: #4A90E2;
+  --target-button-min: 44px;
+  --target-input-min: 24px;
+  --duration-investigation-collapse: 350ms;
+}
+
+@font-face {
+  font-family: 'IBM Plex Sans';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/IBMPlexSans-Regular.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'IBM Plex Sans';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('/fonts/IBMPlexSans-Medium.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'IBM Plex Sans';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('/fonts/IBMPlexSans-SemiBold.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/JetBrainsMono-Regular.woff2') format('woff2');
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --duration-fast: 0ms;
+    --duration-standard: 0ms;
+    --duration-investigation-collapse: 0ms;
+  }
+}

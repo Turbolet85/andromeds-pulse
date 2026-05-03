@@ -1,14 +1,14 @@
 schema_version: 1
-last_wrap: 2026-05-03T16:31:52Z
-last_reconcile: 2026-05-03T16:31:52Z
+last_wrap: 2026-05-03T17:36:33Z
+last_reconcile: 2026-05-03T17:36:33Z
 
 last_completed_chunk:
-  route_index: 9
-  title: "Heartbeat ticks mechanism — long-running subsystem tick interval (10–30s) + {module}.tick event format for ingest/buffer/viz/plugins"
+  route_index: 10
+  title: "Design tokens bundle — Tailwind v4 @theme NASA palette (colors + spacing + radius + motion tokens) + IBM Plex Sans + JetBrains Mono WOFF2 bundled local CSP-safe"
   epoch: 1
-  committed_at: 2026-05-03T16:31:52Z
-  commit_sha: 0000009
-  commit_subject: "feat(foundation): heartbeat ticks mechanism (chunk #9)"
+  committed_at: 2026-05-03T17:36:33Z
+  commit_sha: 0000010
+  commit_subject: "feat(foundation): design tokens bundle + WOFF2 fonts + reduced-motion override (chunk #10)"
 
 in_progress: null
 
@@ -24,11 +24,11 @@ plan_freshness:
   input_mtime: 2026-05-02T06:52:58Z
 
 living_artifact_freshness:
-  dep_tree_reconciled_at: 2026-05-03T16:31:52Z
-  api_surface_reconciled_at: 2026-05-03T16:31:52Z
-  most_recent_code_mtime: 2026-05-03T16:30:00Z
+  dep_tree_reconciled_at: 2026-05-03T17:36:33Z
+  api_surface_reconciled_at: 2026-05-03T17:36:33Z
+  most_recent_code_mtime: 2026-05-03T17:28:30Z
   reconcile_failed: false
 
 drift_warnings: []
 
-session_count: 7
+session_count: 8

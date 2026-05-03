@@ -8,6 +8,31 @@ _This file is entirely wrap-session's territory. `/setup-project` creates it if 
 
 ---
 
+## 2026-05-03 — Node 24 `execFileSync` rejects npm `.cmd` shims on Windows (CVE-2024-27980 hardening)
+
+Node.js since the CVE-2024-27980 batch (Node 18.18.1, 20.5.1, 21.0.0+, all 22.x / 23.x / 24.x) refuses to spawn `.cmd` / `.bat` files via `child_process.spawnSync` / `execFileSync` without `shell: true` — this prevents argument-injection via crafted .cmd path arguments. The error surface is opaque: `EINVAL` with `status: null`, `signal: null`, `stdout: undefined`, `stderr: undefined` — NOT a "file not found" or "permission denied" message that would point at the .cmd file directly. Easy to misdiagnose as a Tailwind / build-tool config error instead of a Node platform behavior.
+
+Symptom in this project: `pulse-app/ui/scripts/build.mjs` initially used `execFileSync(node_modules/.bin/tailwindcss.cmd, [args], { stdio: 'inherit' })` — silent EINVAL crash. The `.cmd` wrapper is just `node ../../@tailwindcss/cli/dist/index.mjs %*` so the workaround is: bypass the wrapper and invoke node directly with the `.mjs` entry path. Snippet from build.mjs:
+
+```js
+const tailwindEntry = join(ROOT, "node_modules", "@tailwindcss", "cli", "dist", "index.mjs");
+execFileSync(process.execPath, [tailwindEntry, "-i", SRC, "-o", OUT, "--minify"], {
+  stdio: "inherit",
+  cwd: ROOT,
+});
+```
+
+Three viable fixes for any future build/test/util script that invokes npm-installed CLI tools from Node on Windows:
+1. **Direct .mjs invocation** (used here) — read the `.cmd` wrapper to find the actual entry point under `node_modules/<pkg>/dist/<entry>.mjs`, call `node` on it. Cleanest; no shell semantics; deterministic argument quoting.
+2. **`shell: true`** — `execFileSync(cmd, args, { shell: true })` lets cmd.exe interpret the argument list. Works but reintroduces shell-quoting concerns the CVE hardening was meant to prevent.
+3. **`process.platform === 'win32'` switch** — branch to `.cmd` on Windows, dotless name on POSIX. Conceptually correct but requires `shell: true` on Windows anyway.
+
+Does NOT apply to: `npm run <script>` from a terminal (that path goes through cmd.exe directly, not Node spawn), Bash invocation of `.cmd` from Git Bash (uses MSYS exec), or POSIX hosts (no `.cmd` wrapper exists; `node_modules/.bin/<name>` is a symlink to the `.mjs`/`.js` entry). Applies specifically to: Node-script-spawning-npm-CLI-tool on Windows.
+
+See: `pulse-app/ui/scripts/build.mjs` (Tailwind v4 invocation pattern); CVE-2024-27980 advisory; `node_modules/.bin/tailwindcss.cmd` (the wrapper that reveals the actual entry path).
+
+---
+
 ## 2026-05-03 — Workspace feature unification reactivates Tauri across all test binaries; Windows requires MSVC toolchain for `cargo nextest run --workspace`
 
 The chunk #4 ui-bridge feature-gating fix (`default = ["taurpc-runtime"]` + xtask consumes with `default-features = false`) **only resolves single-package builds** (`cargo run -p xtask`, `cargo build -p xtask`). For workspace-wide test discovery (`cargo nextest run --workspace` — which is what the test-plan §3 5-command harness mandates), Cargo's **feature unification** reactivates `taurpc-runtime` across the entire build:

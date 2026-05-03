@@ -116,3 +116,5 @@ NEVER use organic curves. Mixed strategy: most chrome at sm/md; only badges + to
 
 ## Session Additions
 _This section is owned by `/wrap-session`. setup-project preserves content added here on re-run._
+
+- 2026-05-03: Tailwind v4 `@theme` directive tree-shakes unused theme tokens by default — only emits CSS custom properties for tokens referenced by utility classes scanned in HTML/JS sources. For design-token registry chunks where utility class usage hasn't materialized yet (e.g., chunk #10 lands tokens before chunk #25 React shell consumes them), the `@theme static { ... }` modifier is REQUIRED to force emission of all theme variables to `:root` regardless of usage. Without `static`, `npm run build:css` succeeds silently but compiled CSS contains only Tailwind's defaults — no NASA palette, no a11y tokens, no `getComputedStyle('--token-name')` reads will resolve. Pair with `@import "tailwindcss"` at the top of the input file to enable Tailwind v4 directive processing. See `pulse-app/ui/src/styles/tokens.css` lines 1-3.

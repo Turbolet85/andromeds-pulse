@@ -1,0 +1,15 @@
+{
+  "name": "andromeda-pulse-ui",
+  "version": "0.1.0",
+  "private": true,
+  "description": "andromeda-pulse webview tokens + assets (Tailwind v4 @theme NASA palette + bundled WOFF2 fonts)",
+  "license": "MIT",
+  "scripts": {
+    "build:css": "node scripts/build.mjs",
+    "dev:css": "tailwindcss -i src/styles/tokens.css -o dist/tokens.css --watch"
+  },
+  "devDependencies": {
+    "@tailwindcss/cli": "^4.1.0",
+    "tailwindcss": "^4.1.0"
+  }
+}

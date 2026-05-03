@@ -4,7 +4,8 @@
   "version": "0.1.0",
   "identifier": "com.andromeda.pulse",
   "build": {
-    "frontendDist": "ui"
+    "frontendDist": "ui/dist",
+    "beforeBuildCommand": "cd ui && npm install && npm run build:css"
   },
   "app": {
     "windows": [
