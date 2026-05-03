@@ -1,5 +1,8 @@
 # --- Andromeda planning artifacts ---
-.andromeda/
+# Track plans (architecture, 6 specialist plans, route, project.yaml, state.yaml,
+# context/ living artifacts) — they are the source of truth for the CLAUDE.md ecosystem.
+# Exclude only the audit-trail run directories (ephemeral; large; per-pipeline-invocation).
+.andromeda/runs/
 
 # --- Rust ---
 # Build output

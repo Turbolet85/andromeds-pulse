@@ -1,0 +1,28 @@
+schema_version: 1
+last_wrap: null
+last_reconcile: null
+
+last_completed_chunk: null
+
+in_progress: null
+
+plan_freshness:
+  arch_mtime: 2026-05-02T06:52:58Z
+  security_mtime: 2026-05-02T10:05:55Z
+  design_mtime: 2026-05-02T15:53:22Z
+  layout_mtime: 2026-05-02T15:53:22Z
+  tests_mtime: 2026-05-02T17:18:33Z
+  obs_mtime: 2026-05-02T20:14:28Z
+  a11y_mtime: 2026-05-02T21:45:23Z
+  route_mtime: 2026-05-02T22:25:48Z
+  input_mtime: 2026-05-02T06:52:58Z
+
+living_artifact_freshness:
+  dep_tree_reconciled_at: null
+  api_surface_reconciled_at: null
+  most_recent_code_mtime: null
+  reconcile_failed: false
+
+drift_warnings: []
+
+session_count: 0

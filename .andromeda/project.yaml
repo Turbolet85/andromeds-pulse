@@ -1,0 +1,13 @@
+name: andromeda-pulse
+created: 2026-05-02T06:52:00Z
+description: "Universal local OpenTelemetry desktop dashboard with always-visible glance widget and one-click token-efficient AI-debug snapshot; Tauri 2 + Rust + DuckDB + WebGPU + WASM Component Model + optional rmcp MCP server."
+architecture: architecture.md
+security_plan: security-plan.md
+input: input.md
+design_system: design-system.md
+layout_templates: layout-templates.md
+test_plan: test-plan.md
+obs_plan: obs-plan.md
+a11y_plan: a11y-plan.md
+route: route.md
+scopes: {}
