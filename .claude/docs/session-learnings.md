@@ -8,6 +8,63 @@ _This file is entirely wrap-session's territory. `/setup-project` creates it if 
 
 ---
 
+## 2026-05-03 — Tauri-dependent crates fail xtask runtime on Windows GNU; feature-gate the runtime to allow type-only consumers
+
+Any binary that transitively depends on the `tauri` crate links against WebView2 / DirectX / etc. Windows DLLs at link time. On Windows GNU rustup-toolchain hosts without WebView2 installed (or any DLL load-path issue), the resulting binary fails at startup with `STATUS_ENTRYPOINT_NOT_FOUND` (exit code `0xc0000139`) — **even if the binary never actually invokes any Tauri runtime code**. This blocks shared-crate designs where the data types live alongside the procedure implementation: an `xtask` binary that imports `ui-bridge` for `HealthEnvelope` (a pure data type) inherits the tauri DLL deps and crashes.
+
+**Solution**: split runtime vs. types via Cargo features.
+
+```toml
+# crates/ui-bridge/Cargo.toml
+[features]
+default = ["taurpc-runtime"]
+taurpc-runtime = ["dep:taurpc", "dep:tauri", "dep:specta", "dep:tokio"]
+
+[dependencies]
+thiserror.workspace = true
+serde.workspace = true
+chrono.workspace = true
+taurpc = { workspace = true, optional = true }
+tauri = { workspace = true, optional = true }
+specta = { workspace = true, optional = true }
+tokio = { workspace = true, optional = true }
+```
+
+Source code uses `#[cfg(feature = "taurpc-runtime")]` to gate the `#[taurpc::procedures]` trait and resolver impl, leaving the data types (`HealthEnvelope`, `AppError`, `SubsystemStatus`, etc.) compiled unconditionally.
+
+```toml
+# xtask/Cargo.toml — non-Tauri binary consumes types only
+[dependencies]
+ui-bridge = { path = "../crates/ui-bridge", default-features = false }
+```
+
+The pulse-app binary keeps default features (taurpc-runtime enabled) so the procedure trait + resolver are available for `taurpc::create_ipc_handler(...)` registration in the Tauri Builder chain.
+
+The `#[cfg_attr(feature = "taurpc-runtime", derive(specta::Type))]` pattern lets data types acquire the `specta::Type` derive only when the runtime feature is active — required for taurpc procedure parameter/return types but useless for type-only consumers.
+
+This is also the cleanest architectural split — types belong in the contract module, runtime belongs in the runtime module.
+
+See: `.andromeda/phases/phase-3/plan.md` Implementation note 1; `crates/ui-bridge/Cargo.toml`; `crates/ui-bridge/src/health.rs` `#[cfg(feature = "taurpc-runtime")] mod runtime`.
+
+---
+
+## 2026-05-03 — Cargo alias for `cargo xtask <subcommand>` shortcut
+
+Without an alias, `cargo xtask harness:status` fails with "no such command: xtask" because cargo doesn't know `xtask` is a workspace member shortcut. The fix is `.cargo/config.toml` (project-root):
+
+```toml
+[alias]
+xtask = "run --quiet --package xtask --"
+```
+
+After this, `cargo xtask <subcommand>` works equivalently to `cargo run --package xtask -- <subcommand>` from any directory inside the project. The `--quiet` flag suppresses Cargo's "Compiling … / Finished …" output so the subcommand's stdout (e.g. JSON envelope from `harness:status`) is the only thing on the pipe — important for `jq` / shell-script chains.
+
+The agent-run scripts (`scripts/agent-run.{sh,ps1}`) invoke `cargo xtask harness:status` and depend on this alias being present.
+
+See: `.cargo/config.toml`; `xtask/src/main.rs` clap dispatcher; `scripts/agent-run.sh` `status` case body.
+
+---
+
 ## 2026-05-03 — Andromeda chunk scope-split for paid-prereq operator steps
 
 When a route chunk's full scope requires paid external accounts (e.g., chunk #3 code-signing wants Azure Key Vault Premium ~$5/month + Windows EV cert from DigiCert/GlobalSign $300-500/year + Apple Developer ID $99/year + 1-2 weeks of legal-entity verification) but the project is in dogfooding/iteration phase, **split chunk scope** rather than skip the chunk or pay prematurely.

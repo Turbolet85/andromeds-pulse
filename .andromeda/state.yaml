@@ -1,22 +1,14 @@
 schema_version: 1
-last_wrap: 2026-05-03T10:14:12Z
-last_reconcile: 2026-05-03T08:42:05Z
+last_wrap: 2026-05-03T10:56:57Z
+last_reconcile: 2026-05-03T10:53:00Z
 
 last_completed_chunk:
-  route_index: 3
-  title: "Code-signing setup — Azure Key Vault HSM + GitHub OIDC + Apple Developer ID + Tauri updater Minisign Ed25519 keypair"
+  route_index: 4
+  title: "xtask agent-run harness — 5-command discipline (boot/run/status/cleanup/logs) + health TauRPC command (status/subsystems/pid/uptime_ms) + PID file + JSON log format"
   epoch: 1
-  committed_at: 2026-05-03T10:14:12Z
+  committed_at: 2026-05-03T10:56:57Z
   commit_sha: pending
-  commit_subject: "feat(foundation): code-signing scaffolding for chunk #3 (ACTIVE scope; DEFERRED tracked)"
-  scope_split: true
-  deferred_items:
-    - "Azure Key Vault Premium SKU + HSM-backed Windows EV cert (DigiCert/GlobalSign)"
-    - "Apple Developer ID enrollment ($99/yr)"
-    - "GitHub OIDC federation trust to Azure managed identity"
-    - "GitHub Environment `production-release` with manual approval gate + signing secrets"
-  deferred_blocker_for: "v0.1.0 public release"
-  deferred_runbook: "docs/runbooks/updater-key-rotation.md"
+  commit_subject: "feat(foundation): xtask agent-run harness + health TauRPC + JSON log subscriber (chunk #4)"
 
 in_progress: null
 
@@ -34,18 +26,18 @@ plan_freshness:
 living_artifact_freshness:
   dep_tree_reconciled_at: null
   api_surface_reconciled_at: null
-  most_recent_code_mtime: 2026-05-03T10:00:00Z
+  most_recent_code_mtime: 2026-05-03T10:52:00Z
   reconcile_failed: true
   reconcile_failed_reason: "cargo-modules and cargo-public-api not installed; install via `cargo install cargo-modules` and `cargo install cargo-public-api --locked` (each ~2-5 min compile)"
 
 drift_warnings:
   - drift_id: D1
-    description: "Code newer than dep-tree.md + api-surface.md (Δ ~hours; reconcile failed because tooling not installed)"
+    description: "Code newer than dep-tree.md + api-surface.md (chunks #3-#4 implementation; reconcile failed because tooling not installed)"
     severity: warning
     remediation_hint: "Install cargo-modules + cargo-public-api per state K above; reconcile clears D1 next wrap"
   - drift_id: D5
-    description: "route.md newer than CLAUDE.md (Decisions Log entry added 2026-05-03; CLAUDE.md ingests §1-§2 structural sections only — Decisions Log appendage is benign mtime drift)"
+    description: "route.md newer than CLAUDE.md (Decisions Log entry from phase-2 wrap; CLAUDE.md ingests §1-§2 structural sections only — Decisions Log appendage is benign mtime drift)"
     severity: warning
     remediation_hint: "No action — re-run /setup-project only if route §2 chunk list itself changes (currently 8 epochs / 55 chunks unchanged)"
 
-session_count: 2
+session_count: 3

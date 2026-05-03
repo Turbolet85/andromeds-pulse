@@ -71,6 +71,11 @@ skip = [
     { crate = "jni" },
     { crate = "jni-sys" },
     { crate = "redox_syscall" },
+    # taurpc 0.7 + specta 2.0.0-rc.22 transitive deps (route#4, 2026-05-03)
+    { crate = "ctor" },
+    { crate = "windows-core" },
+    { crate = "windows-result" },
+    { crate = "windows-strings" },
 ]
 skip-tree = []
 
