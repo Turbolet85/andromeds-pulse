@@ -1,9 +1,9 @@
 # Session Handoff
 
-**Last Updated:** 2026-05-03T10:56:57Z
+**Last Updated:** 2026-05-03T11:05:00Z
 **Branch:** main
-**Session End Status:** clean (commit pending in this wrap)
-**Last Commit:** 1dbb38a feat(foundation): code-signing scaffolding (chunk #3 ACTIVE scope)
+**Session End Status:** clean
+**Last Commit:** 6b7821b feat(foundation): xtask agent-run harness + health TauRPC + JSON log subscriber (chunk #4)
 
 ## Current State
 
@@ -14,19 +14,15 @@
 
 ## Andromeda State Detection (states A-L)
 
-⚠️ K — Living artifact staleness: `cargo modules` and `cargo public-api` still not installed; reconcile-tooling failed at Phase 5; both `dep-tree.md` and `api-surface.md` METADATA `Last reconciled` carry `(stale — tooling failed)` suffix. Remediation: `cargo install cargo-modules` and `cargo install cargo-public-api --locked` to clear.
-
 ⚠️ J — Specialist plan freshness mild mismatch: `route.md` was edited at phase-2 wrap (Decisions Log entry "Chunk #3 scope split"); CLAUDE.md ingests route §1-§2 structure only — Decisions Log appendage is benign mtime drift. Remediation: no action needed unless route §2 chunk list changes.
 
-All other states (A, B, C, D, E, F, G, H, I, L) — no warnings.
+All other states (A, B, C, D, E, F, G, H, I, K, L) — no warnings. State K cleared at 2026-05-03T11:05:00Z reconcile after `cargo install cargo-modules` + `cargo install cargo-public-api --locked` + `rustup toolchain install nightly`.
 
 ## Drift Detection (6 dimensions)
 
-⚠️ D1 — Code newer than dep-tree.md + api-surface.md: pulse-app/src/main.rs and ui-bridge/src/{contract,health}.rs all written this session; reconcile tooling failed (cargo-modules / cargo-public-api not installed). Remediation: install the two cargo subcommands; reconcile clears D1 next wrap.
-
 ⚠️ D5 — route.md newer than CLAUDE.md (mild, carried over): Decisions Log entry from phase-2 wrap (chunk #3 scope split). CLAUDE.md ingests §1-§2 structural sections only. Remediation: no action unless route §2 chunk list changes.
 
-D2-D4, D6 — no drift detected.
+D1, D2-D4, D6 — no drift detected. D1 cleared at reconcile (2026-05-03T11:05:00Z): both `dep-tree.md` (cargo tree --workspace --depth 2 output) and `api-surface.md` (per-crate cargo public-api iteration) now reflect actual code state.
 
 ## Key Decisions This Session
 
