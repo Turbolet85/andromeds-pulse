@@ -72,6 +72,10 @@ pulse-app/ui/playwright-report/
 pulse-app/ui/test-results/
 pulse-app/ui/.lighthouseci/
 pulse-app/ui/pa11y-results/
+# Screen-reader manual-pass JSONL output (chunk #14 scaffold; redundant
+# under pulse-app/ui/test-results/ above but listed explicitly for
+# discoverability of the dedicated SR sub-dir)
+pulse-app/ui/test-results/a11y-sr/
 
 # --- Andromeda-pulse runtime data (when accidentally created in repo) ---
 ~/.andromeda-pulse/

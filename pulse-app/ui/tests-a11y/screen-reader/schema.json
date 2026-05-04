@@ -1,0 +1,124 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://andromeda-pulse.invalid/schemas/a11y-sr-pass.json",
+  "title": "Screen Reader Manual-Pass Record",
+  "description": "JSON Schema for one screen-reader manual-pass record emitted to pulse-app/ui/test-results/a11y-sr/<sr>-<surface>-<ISO-date>.jsonl. Aligned to obs-plan.md §3 Log format JSON schema + §6 Required fields binding contract; extends a11y-plan.md §3 Structured Violation JSON Schema with SR-specific fields. Documentation-only — no runtime validator installed at chunk #14.",
+  "type": "object",
+  "required": ["timestamp", "level", "target", "message", "fields"],
+  "additionalProperties": false,
+  "properties": {
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 timestamp of the assertion record."
+    },
+    "level": {
+      "type": "string",
+      "enum": ["info", "warn", "error"],
+      "description": "Per obs-plan §6 Log levels mapping: info on pass, warn on partial, error on fail."
+    },
+    "target": {
+      "type": "string",
+      "pattern": "^a11y\\.screen_reader\\.pass\\.[a-z_]+$",
+      "description": "{module}.{operation} convention per obs-plan §2 Naming. Surface suffix is snake_case enumerated; no high-cardinality at this level."
+    },
+    "message": {
+      "type": "string",
+      "description": "Single-line summary of the assertion (e.g., 'P2 dialog title announcement verified'). Multi-line forbidden per obs-plan §11 Logs anti-pattern."
+    },
+    "fields": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "surface",
+        "surface_kind",
+        "screen_reader",
+        "navigation_mode",
+        "wcag_sc",
+        "critical_path",
+        "status",
+        "tool"
+      ],
+      "properties": {
+        "surface": {
+          "type": "string",
+          "enum": [
+            "desktop-webview/compact-widget",
+            "desktop-webview/full-dashboard/traces",
+            "desktop-webview/full-dashboard/metrics",
+            "desktop-webview/full-dashboard/logs",
+            "desktop-webview/full-dashboard/snapshots",
+            "desktop-webview/full-dashboard/settings",
+            "desktop-native/tray-icon",
+            "desktop-native/tray-menu",
+            "desktop-native/notifications"
+          ],
+          "description": "Per layout-templates.md §Surface vocabulary; verbatim, no abbreviation, no pluralization changes."
+        },
+        "surface_kind": {
+          "type": "string",
+          "enum": ["webview", "os-native"],
+          "description": "webview = React/Tauri webview ARIA tree; os-native = OS accessibility API (NSStatusItem / NotifyIcon / AppIndicator)."
+        },
+        "screen_reader": {
+          "type": "string",
+          "enum": ["NVDA", "VoiceOver", "Orca"],
+          "description": "Per a11y-plan §3 Screen Reader Test Pattern fixed pairings."
+        },
+        "navigation_mode": {
+          "type": "string",
+          "enum": ["browse_mode", "vo_rotor", "caret_mode"],
+          "description": "Per a11y-plan §7 Per-surface SR test pattern table: NVDA browse mode arrow keys / VoiceOver VO+arrow rotor / Orca arrow keys caret mode."
+        },
+        "wcag_sc": {
+          "type": "string",
+          "pattern": "^SC \\d+\\.\\d+\\.\\d+$",
+          "description": "WCAG 2.1 Success Criterion identifier (e.g., 'SC 4.1.2', 'SC 1.4.3', 'SC 2.4.3')."
+        },
+        "critical_path": {
+          "type": "string",
+          "enum": ["P1", "P2", "P3", "P4", "P5", "P6", "P7"],
+          "description": "Per a11y-plan §3 Critical paths table P1-P7."
+        },
+        "status": {
+          "type": "string",
+          "enum": ["pass", "fail", "blocked", "partial"],
+          "description": "pass = announcement matches expected; fail = mismatch; blocked = surface not yet implemented (chunks #25/#28/#33/#36/#37/#38); partial = announcement present but not exact match."
+        },
+        "tool": {
+          "type": "string",
+          "const": "manual",
+          "description": "Per a11y-plan §3 Structured Violation JSON Schema; manual SR pass is tool='manual' (axe-core / pa11y / Lighthouse use their respective tool names)."
+        },
+        "sr_announcement_expected": {
+          "type": "string",
+          "description": "Single-line expected SR announcement string. Multi-line announcements MUST use '\\n' escapes per obs-plan §11 Logs anti-pattern."
+        },
+        "sr_announcement_actual": {
+          "type": "string",
+          "description": "Single-line observed SR announcement string. Multi-line MUST use '\\n' escapes."
+        },
+        "selector": {
+          "type": "string",
+          "description": "Optional CSS selector or DOM identifier for the asserted element."
+        },
+        "metadata": {
+          "type": "object",
+          "description": "Optional nested metadata; high-cardinality fields (per-tester-name, per-run-UUID, reduced-motion variant flag) live here, NEVER at the top-level target.",
+          "properties": {
+            "run_id": {
+              "type": "string",
+              "format": "uuid",
+              "description": "Optional per-run UUID for cross-record correlation within a single pass session."
+            },
+            "reduced_motion": {
+              "type": "boolean",
+              "description": "true when the run was performed under prefers-reduced-motion: reduce per design-system §Motion + a11y-plan §SC 2.3.3."
+            }
+          },
+          "additionalProperties": true
+        }
+      }
+    }
+  }
+}

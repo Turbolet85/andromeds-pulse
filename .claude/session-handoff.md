@@ -1,103 +1,130 @@
 # Session Handoff
 
-**Last Updated:** 2026-05-04T18:28:26Z
+**Last Updated:** 2026-05-04T20:11:05Z
 **Branch:** main
 **Session End Status:** clean
-**Last Commit:** (pending — wrap commit composed in Phase 10 of this run; chunk #13 A11y dev stack install shipped this session)
+**Last Commit:** (pending — wrap commit composed in Phase 10 of this run; chunk #14 SR test spec scaffold + obs-plan PII-grep clarification amendment shipped this session)
 
 ## Current State
 
-- **Last completed chunk:** route#13 "A11y dev stack install — axe-core/playwright 4.11 + Lighthouse 12 + pa11y 9 + react-aria-components 1.17 + focus-trap-react 12 + tabbable 6.4 + eslint-plugin-jsx-a11y 6.10" (committed this wrap; SHA pending Phase 10 amend)
-- **Next chunk:** route#14 "A11y screen reader test spec scaffold — NVDA/VoiceOver/Orca per-surface fixtures + structured JSON output per manual pass"
+- **Last completed chunk:** route#14 "A11y screen reader test spec scaffold — NVDA/VoiceOver/Orca per-surface fixtures + structured JSON output per manual pass" (committed this wrap; SHA pending Phase 10 amend)
+- **Next chunk:** route#15 "Motion tokens library install — motion/react useReducedMotion hook + Tailwind v4 motion-reduce variants + canvas frame loop wiring"
 - **In-progress phase:** no active phase
-- **Phase artifacts present:** `.andromeda/phases/{phase-1..phase-10}/{combined.md, research.md, plan.md}` + audit trails per phase under `.andromeda/runs/`
+- **Phase artifacts present:** `.andromeda/phases/{phase-1..phase-11}/{combined.md, research.md, plan.md}` + audit trails per phase under `.andromeda/runs/`
 
 ## Andromeda State Detection (states A-L)
 
-⚠️ F — Pending phase planning: chunk #14 listed in route §2 but no `.andromeda/phases/phase-11/` directory exists yet (normal workflow signal — next session begins with `/andromeda-phase`).
+⚠️ F — Pending phase planning: chunk #15 listed in route §2 but no `.andromeda/phases/phase-12/` directory exists yet (normal workflow signal — next session begins with `/andromeda-phase`).
 
-⚠️ J-generic — Specialist plan freshness mismatch: `design-system.md` mtime 2026-05-03T21:52:16Z > CLAUDE.md mtime 2026-05-03T13:21:36Z. Residual from session 11 lift-accent amendment archive — amendment lifecycle complete (in `state.yaml.spec_amendments.archive`), but CLAUDE.md mtime was not refreshed by setup-project --delta. Age = 1 wrap. Remediation: `/andromeda-setup-project` (touches CLAUDE.md mtime even if content byte-identical).
+ℹ️ J-pending-propagation — Specialist plan freshness mismatch: `obs-plan.md` mtime 2026-05-04T20:03:43Z > CLAUDE.md mtime 2026-05-03T11:21:36Z. Matches active amendment `2026-05-04T20-02-04-clarify-pii-grep-ui-vocab` with `propagated_by_run=null`. Severity downgraded to info per spec-amendment-protocol.md Part C decision tree. Remediation: `/andromeda-setup-project --delta` (will set propagated_by_run path + regenerate obs-summary.md if affected).
 
-⚠️ J-generic — Specialist plan freshness mismatch: `test-plan.md` mtime 2026-05-03T20:24:05Z > CLAUDE.md mtime 2026-05-03T13:21:36Z (carries over from session 10's pragmatic delta-rerun). Age = 3 wraps (first observed in session 10; observed again this session 13). At-threshold but not yet stale (>3 wraps escalates next session). Remediation: `/andromeda-setup-project` (full re-derive) OR investigate edit source.
+⚠️ J-generic — Specialist plan freshness mismatch: `design-system.md` mtime 2026-05-03T21:52:16Z > CLAUDE.md mtime 2026-05-03T11:21:36Z. Residual from session 11 lift-accent amendment archive — amendment lifecycle complete (in `state.yaml.spec_amendments.archive`), but CLAUDE.md mtime was not refreshed by setup-project --delta. Age = 2 wraps (first observed session 13; observed sessions 13+14). Remediation: `/andromeda-setup-project` (touches CLAUDE.md mtime even if content byte-identical).
+
+⚠⚠ J-generic (stale, 4 wraps unresolved) — Specialist plan freshness mismatch: `test-plan.md` mtime 2026-05-03T20:24:05Z > CLAUDE.md mtime 2026-05-03T11:21:36Z (carries over from session 10's pragmatic delta-rerun). first_observed=session 10, last_observed=session 14. Age = 4 wraps — STALE per session-state-contract.md Fix 2 escalation. Strongly recommend: `/andromeda-setup-project` (full re-derive) this session OR investigate edit source.
 
 All other states (A, B, C, D, E, G, H, I, K, L) — clear.
 
 ## Drift Detection (6 dimensions)
 
-⚠️ D5 — `design-system.md` mtime newer than CLAUDE.md mtime (residual after lift-accent amendment archive; no active amendment matches). first_observed_session_count=13, last_observed_session_count=13. Remediation: `/andromeda-setup-project` to refresh CLAUDE.md mtime.
+ℹ️ D5 — `obs-plan.md` regenerated this session via Path A spec amendment (clarify-pii-grep-ui-vocab); severity downgraded to info per amendment-aware classification (Part C); pending propagation. first_observed_session_count=14, last_observed_session_count=14. Remediation: `/andromeda-setup-project --delta` to propagate amendment to obs-summary.md (Tier 3) if surfaced.
 
-⚠️ D5 — `test-plan.md` mtime newer than CLAUDE.md mtime (carryover from session 10's pragmatic delta-rerun); no matching active amendment. first_observed_session_count=10, last_observed_session_count=13 (age=3 — at-threshold but not yet stale). Remediation: `/andromeda-setup-project` (full re-derive) OR investigate edit source.
+⚠️ D5 — `design-system.md` mtime newer than CLAUDE.md mtime (residual after lift-accent amendment archive; no active amendment matches). first_observed_session_count=13, last_observed_session_count=14. Age=2 wraps (not yet stale). Remediation: `/andromeda-setup-project` to refresh CLAUDE.md mtime.
 
-D1, D2, D3, D4, D6 — no drift detected (D1 cleared by Phase 5 reconcile timestamp refresh; D2 was no-op replace; D3 workspace 10 crates intact + tracing/nextest/Vitest libraries present; D4 no cross-plan contradictions; D6 will self-clear next wrap when last_completed_chunk=13 is verified in git log).
+⚠⚠ D5 (stale, 4 wraps unresolved) — `test-plan.md` mtime newer than CLAUDE.md mtime (carryover from session 10's pragmatic delta-rerun); no matching active amendment. first_observed_session_count=10, last_observed_session_count=14. Strongly recommend: `/andromeda-setup-project` (full re-derive) this session to clear.
+
+D1, D2, D3, D4, D6 — no drift detected (D1 cleared by Phase 5 reconcile timestamp refresh; D2 was no-op; D3 workspace 10 crates intact + tracing/nextest/Vitest libraries present; D4 amendment preserves cross-plan consistency by design; D6 will self-clear next wrap when last_completed_chunk=14 is verified in git log).
 
 ## Spec Amendments (this session)
 
-(none this session — chunk #13 was clean implementation with no Trigger 4 spec drift; lift-accent archive from prior session carries forward as historical record in state.yaml.spec_amendments.archive[])
+**Active (1):**
+
+- **Amendment ID:** `2026-05-04T20-02-04-clarify-pii-grep-ui-vocab`
+- **Plan(s):** `.andromeda/obs-plan.md` §12 Obs Decisions Log
+- **Decisions Log:** §12 — "2026-05-04 — Clarify PII grep heuristic UI-vocabulary exemption"
+- **Trigger:** chunk #14 phase #11 via `plan.md test command 9 obs PII grep`
+- **Authority resolution:** a11y-plan.md tier=Standard (winning) > obs-plan §11 PII grep heuristic (losing concern: pii-grep-heuristic-overspecified). a11y-plan §3 P2 mandates SR fixture document UI label "Token budget" verbatim; obs-plan §11 PII Vectors target REAL secret leakage, not UI-label vocabulary. Amendment clarifies obs-plan §11 intent without changing underlying Vectors 1-6.
+- **Lifecycle:** applied 2026-05-04T20:02:04Z | noted 2026-05-04T20:11:05Z (this wrap) | propagated null | archived null
+- **Verification:** clean (clarification-only amendment; no value migration; orphan-grep N/A)
+- **Marker:** `.andromeda/runs/2026-05-04T20-02-04-spec-amendment-clarify-pii-grep-ui-vocab/amendment.md`
+- **Next workflow signal:** `/andromeda-setup-project --delta` (will set propagated_by_run path + regenerate Tier 3 obs-summary.md if affected) → next `/andromeda-wrap-session` (will set archived_at + move entry to archive list)
+
+**Archived this session:** 0 (lift-accent from session 12 carries forward as historical record in state.yaml.spec_amendments.archive[])
 
 ## Key Decisions This Session
 
-- **Chunk #13 single-chunk plan with scope-expansion disclosure**: chunk title abbreviates 7 a11y packages; functional install requires 15 (5 ESLint companion packages because eslint-plugin-jsx-a11y is functionally inert without ESLint base + recommended-config extension per a11y-plan §11; @playwright/test peer for @axe-core/playwright; axe-core standalone per a11y rule file). Plan.md surfaced expansion explicitly at Phase 6 user review; user approved.
-- **react-aria-components vs shadcn/ui layering resolved at planning time**: existing `frontend.md` rule + `a11y.md` rule + a11y-plan §12 Decisions Log already resolve — shadcn/ui (Radix UI) is the chrome substrate; react-aria-components is the supplementary ARIA primitive layer for Dialog/Tabs/Form inputs (chunks #25+). They coexist; never mix react-aria with @headlessui. No spec amendment needed.
-- **xtask test:a11y placeholder reserved**: full activation deferred to chunk #25 (webview shell) + chunk #46 (CI gate); current implementation prints deferred message + exits 0 to satisfy CI matrix consistency. xtask lint is functional (delegates to npm run lint).
-- **ESLint flat config layered structure**: js.configs.recommended → tseslint.configs.recommended (spread; it's an ARRAY) → files-scoped block with React + Hooks + jsx-a11y rules. Custom Icon registry scoped out of jsx-a11y/alt-text via `{ elements: ['img'], img: ['NextImage'] }` — without scoping, rule defaults false-positive on token-registered Icon component (design-system §Iconography).
-- **All 8 test commands green on first run, zero fix-loop iterations**: cargo nextest 36/36, Vitest 64/64, contrast 12/12, ESLint clean, cargo deny clean, both xtask wrappers exit 0, exclusivity invariants verified.
+- **Trigger 4 → Path A applied for obs-plan §12 PII-grep clarification**: chunk #14 implement Phase 2 surfaced 12 false-positive matches in obs PII grep (literal word "token" matching "token budget" UI label per a11y-plan P2). Path A' (fix impl by removing "token" from fixtures) was BLOCKED by a11y-plan P2 mandate; Path B (defer) would leave stale ambiguity each wrap; Path A (amend obs-plan §12 Decisions Log to clarify UI-vocabulary exemption) preserves a11y-plan P2 + sets clean precedent for chunks #25+/#37/#39 UI vocabulary + chunk #46 a11y CI gate grep refinement. User approved Path A; amendment applied per spec-drift-protocol §A1-A8 with `impl_files_synced: []` (clarification-only) + verification_status=clean (orphan-grep N/A for clarification amendment).
+- **Single-chunk plan for #14 (vs grouping with #15)**: chunk #14's cognitive depth (3 surfaces × 3 SRs × P1-P7 × 9-step sequence + JSON schema + manual-pass tooling) spans tests+a11y multi-domain coordination; matches Tideline chunk #12 heuristic exemplar ("Sufficient depth alone; UI-pre-implementation surface area"). Chunk #15 (motion tokens install) gets its own phase next.
+- **Documentation-only schema.json (no runtime validator dependency)**: chunk #14 ships JSON Schema (draft 2020-12) as documentation only; no `ajv` / equivalent installed. Per security plan dependency-add gate + research.md Open Questions recommendation. Downstream chunk #46 (a11y CI gate + violation-JSON regression) may add a runtime validator if regression diff requires programmatic validation.
+- **`.gitignore` redundant explicit entry preserved**: `pulse-app/ui/test-results/a11y-sr/` added under "Test artifacts" section despite being functionally covered by parent `pulse-app/ui/test-results/`. Documentation-only redundancy for discoverability of the dedicated SR sub-dir; sub-comment explains. Acceptable per plan step 7.
+- **Wrap-session ordering decision (consultation)**: user asked sequencing; recommended canonical Sequential order (implement → wrap → setup-project → wrap-archive) over Skip-wrap variant; suggested full setup-project (not --delta) at next session to also clear pre-existing D5 design-system + test-plan staleness (test-plan now stale at age=4 wraps).
 
 ## Files Modified
 
-(7 files this session — chunk #13 + curation + reconcile)
+(11 files this session — chunk #14 + amendment + curation + reconcile)
 
-**Code files (chunk #13):**
-- `.gitignore` — 4 a11y output paths appended under "Test artifacts" section
-- `pulse-app/ui/package.json` — 3 scripts (lint / lint:a11y / test:a11y placeholder) + 12 devDependencies + 3 dependencies
-- `pulse-app/ui/package-lock.json` — regenerated by npm install (483 packages added)
-- `xtask/src/main.rs` — Lint + TestA11y subcommands + run_npm_script + test_a11y_placeholder helpers (clap-derive enum + match dispatch + 2 async fn body)
-- `pulse-app/ui/eslint.config.mjs` (NEW) — ESLint 9 flat config: js.recommended + tseslint.recommended (spread) + files-scoped React/Hooks/jsx-a11y + Icon scope-out for jsx-a11y/alt-text
-- `pulse-app/ui/playwright.config.ts` (NEW) — skeleton; testIgnore: ['**/*'] until chunk #25
+**Code files (chunk #14):**
+- `.gitignore` — 1 line + 3-line sub-comment appended under "Test artifacts" section (`pulse-app/ui/test-results/a11y-sr/`)
+- `pulse-app/ui/package.json` — `test:a11y` script message updated (added chunk #14 SR scaffold path; behavior unchanged)
+- `xtask/src/main.rs` — `test_a11y_placeholder()` println message updated (added chunk #14 SR scaffold path; signature + return value unchanged)
+- `pulse-app/ui/tests-a11y/screen-reader/README.md` (NEW) — top-level orientation; 9 surface inventory; supplemental-not-sole-gate disclaimer; output path; activation status table; source authorities
+- `pulse-app/ui/tests-a11y/screen-reader/schema.json` (NEW) — JSON Schema (draft 2020-12) for SR-pass JSONL output; 7 enumerated fields; documentation-only
+- `pulse-app/ui/tests-a11y/screen-reader/a11y-sr-nvda.md` (NEW) — NVDA 2025.3 + Chrome on Windows manual-pass spec; 7 Critical Paths × 9-step sequence + JSON sample + defects checklist + Custom Icon glyph names + reduced-motion variant
+- `pulse-app/ui/tests-a11y/screen-reader/a11y-sr-voiceover.md` (NEW) — VoiceOver + Safari on macOS 15.3+ manual-pass spec; same structure with macOS-specific deltas (VO+arrow rotor; traffic-lights left)
+- `pulse-app/ui/tests-a11y/screen-reader/a11y-sr-orca.md` (NEW) — Orca 48.x + Firefox on Linux manual-pass spec; same structure with Linux-specific deltas (caret mode; AppIndicator/StatusNotifier)
+
+**Spec amendment files (Trigger 4 → Path A):**
+- `.andromeda/obs-plan.md` — appended Decisions Log entry §12 dated 2026-05-04 ("Clarify PII grep heuristic UI-vocabulary exemption"; 6 fields per spec-amendment-protocol Part A schema)
+- `.andromeda/state.yaml` — `spec_amendments.active` appended new entry; will be advanced to last_completed_chunk=14 + session_count=14 + plan_freshness mtimes refreshed + drift_warnings reconciled with first_observed tracking via Phase 8
+
+**Amendment audit trail (gitignored — `.andromeda/runs/`):**
+- `.andromeda/runs/2026-05-04T20-02-04-spec-amendment-clarify-pii-grep-ui-vocab/amendment.md` (NEW) — 5.5 KB marker file per spec-amendment-protocol Part A schema with full Identity / Plans amended / Implementation files synced / Expected propagation / Lifecycle / Verification / Cross-references sections
+
+**Phase artifacts (committed for audit):**
+- `.andromeda/phases/phase-11/{combined.md, research.md, plan.md}` (NEW) — Phase 11 planning artifacts for chunk #14 (215 + 66 + 220 lines)
 
 **Wrap-session maintenance:**
-- `.andromeda/context/dependency-tree.md` — Last reconciled timestamp refreshed (LIVING content unchanged; cargo tree byte-identical)
-- `.andromeda/context/api-surface.md` — Last reconciled timestamp refreshed (chunk #13 npm-only; no Rust crate API changes; xtask not in api-surface scope)
-- `.claude/docs/session-learnings.md` — 1 NEW Tier 3 entry: "ESLint 9 flat config layered structure for pulse-app/ui"
-- `.andromeda/state.yaml` — last_wrap + last_reconcile + last_completed_chunk advanced to 13 + plan_freshness mtimes refreshed + drift_warnings reconciled with first_observed tracking + session_count 12→13
-- `.andromeda/phases/phase-10/{combined.md, research.md, plan.md}` — phase planning artifacts (untracked previously; committed this wrap as audit trail)
+- `.andromeda/context/dependency-tree.md` — Last reconciled timestamp refreshed (LIVING content unchanged; cargo tree byte-identical for chunk #14 npm-only)
+- `.andromeda/context/api-surface.md` — Last reconciled timestamp refreshed (chunk #14 webview-side scaffold + xtask private-fn message string change; no Rust public API changes)
 - `.claude/session-handoff.md` — this file
+- (No `.claude/docs/session-learnings.md` entries added — see Curation Summary below)
 
 ## Curation Summary (this wrap)
 
 - **Tier 1 (CLAUDE.md USER:session-learnings):** 0 additions
 - **Tier 2 (`.claude/rules/*/Session Additions`):** 0 additions
-- **Tier 3 (`.claude/docs/session-learnings.md`):** 1 addition
-  - "ESLint 9 flat config layered structure for pulse-app/ui" (confidence 0.7 — specific technical detail with context + multiple distinct sub-aspects covered + new dep ecosystem in project)
-- **Filters applied:** 4 candidates rejected (1 dedup-equivalent, 0 task-specific, 0 conflicts, 3 confidence-below-threshold including: "working-dir persistence between Bash tool calls" 0.5 — meta about agent tooling not project rule; "npm ls exit 1 on absent package" 0.5 — borderline npm convention; "scope-expansion pattern for chunk-title abbreviation" 0.4 — too workflow-specific without explicit user emphasis); 0 deferred (cap not hit).
+- **Tier 3 (`.claude/docs/session-learnings.md`):** 0 additions
+- **Filters applied:** ~6 candidates rejected — primary learnings (PII grep UI-vocab exemption; Path A clarification-only amendment with `impl_files_synced: []`; wrap-vs-setup-project ordering) all captured durably elsewhere (obs-plan §12 Decisions Log, amendment marker, fixture README, spec-amendment-protocol Part D); session generated rich documentation but no novel rules requiring CLAUDE.md ecosystem promotion.
 
 ## Last Failed Command
 
-(none — all test commands pass cleanly: cargo nextest 36/36, npm test 64/64 Vitest, npm run typecheck clean, npm run lint exit 0, npm run verify:contrast 12 pairs, cargo deny check bans/licenses/sources ok, cargo xtask lint + test:a11y both exit 0)
+(none — all test commands pass cleanly: cargo nextest 36/36, npm test 64/64 Vitest, npm run typecheck clean, npm run lint exit 0, npm run verify:contrast 12 pairs, cargo deny check bans/licenses/sources ok, cargo xtask lint + test:a11y both exit 0. The obs PII grep emits 12 false-positive matches that are documented per amendment as UI-vocabulary exemption — implementation IS correct per all specialist plans; the literal grep heuristic is over-broad against legitimate "token budget" UI vocabulary mandated by a11y-plan P2.)
 
 ## Tests Status
 
-passing — 36 cargo nextest + 64 Vitest + 12 contrast pairs + 0 ESLint errors = 112 tests + 1 lint gate = 113 checks total. cargo nextest ~104ms; Vitest ~887ms wall; verify-contrast script ~50ms; npm run lint <500ms.
+passing — 36 cargo nextest + 64 Vitest + 12 contrast pairs + 0 ESLint errors = 112 tests + 1 lint gate = 113 checks total. cargo nextest ~104ms; Vitest ~875ms wall; verify-contrast script ~50ms; npm run lint <500ms.
 
 ## Next Recommended Action
 
-**Priority 1 — next chunk planning:**
+**Priority 1 — `/andromeda-setup-project` (FULL re-derive, not --delta):**
 
-`/andromeda-phase` to plan chunk #14 "A11y screen reader test spec scaffold — NVDA/VoiceOver/Orca per-surface fixtures + structured JSON output per manual pass". Foundation epoch continues; chunk #14 will likely consume the a11y dev stack from chunk #13 (axe-core for automated runs + react-aria-components for ARIA primitive references in fixtures). Chunk #14 + #15 (Motion tokens library install) close out the Foundation epoch's a11y/motion bootstrap cluster.
+Single command kills three birds:
+1. Propagates the new `clarify-pii-grep-ui-vocab` amendment to `.claude/docs/obs-summary.md` (sets `propagated_by_run` path on the active amendment)
+2. Refreshes CLAUDE.md mtime → clears D5 for `design-system.md` (residual from lift-accent archive, age=2 wraps)
+3. Refreshes CLAUDE.md mtime → clears D5 for `test-plan.md` (carryover from session 10, age=4 wraps STALE — escalating warning)
 
-**Priority 2 — D5 drift cleanup (deferred but at-threshold):**
+Full re-derive (vs `--delta`) handles ALL three D5 entries in one pass; `--delta` would only handle the obs-plan amendment + leave the two pre-existing D5 entries pending. Given test-plan is already at stale-drift threshold, this is the natural cleanup window.
 
-The `test-plan.md` generic D5 reaches age=3 wraps after this session's increment. At session 14 it will escalate to ⚠⚠ stale-drift treatment per session-state-contract.md. To preempt: run `/andromeda-setup-project` (full re-derive) to refresh CLAUDE.md mtime + clear both D5 entries (design-system.md + test-plan.md). User may defer if other priorities; system will surface escalated warning at session 14.
+**Priority 2 — `/andromeda-phase` for chunk #15:**
 
-**Priority 3 — observe v2.1 protocol behavior in production:**
+`/andromeda-phase` to plan chunk #15 "Motion tokens library install — motion/react useReducedMotion hook + Tailwind v4 motion-reduce variants + canvas frame loop wiring". Foundation epoch closing — chunk #15 is the last Foundation chunk; chunk #16 starts Epoch 2 (Ingest pipeline) with the OTLP gRPC receiver.
 
-This wrap is the first FULL non-meta-development cycle on the v2.1 protocol (chunk implementation + tests + curation + reconcile + drift + handoff + commit). Subsequent wraps validate behavior across more sessions:
-- stale-drift escalation will fire at session 14 if test-plan D5 persists (planned remediation: setup-project re-run)
-- SHA-fixup amend (Phase 10 step 4) lands its first production execution this wrap
-- ESLint Tier 3 entry adds the first session-learnings entry from a normal implementation cycle (post-meta-development phase)
+**Priority 3 — `/andromeda-wrap-session` after Priority 1 + 2:**
+
+Next wrap will: (a) set `archived_at` on the clarify-pii-grep amendment → move to archive list; (b) clear all 3 D5 entries (assuming Priority 1 ran); (c) set last_completed_chunk to 15 (assuming Priority 2 implemented).
 
 ## Session Goals (carry-over)
 
-(none — chunk #13 fully implemented + tests green + curation applied + reconcile complete; ready for `/andromeda-phase` to plan chunk #14 next session)
+(none — chunk #14 fully implemented + tests green + amendment lifecycle initiated + curation applied + reconcile complete; ready for `/andromeda-setup-project` (Priority 1) or direct `/andromeda-phase` for chunk #15 next session)
 
 ## Session End Status
 

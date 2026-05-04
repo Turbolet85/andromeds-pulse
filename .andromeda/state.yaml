@@ -1,14 +1,14 @@
 schema_version: 2
-last_wrap: 2026-05-04T18:28:26Z
-last_reconcile: 2026-05-04T18:25:15Z
+last_wrap: 2026-05-04T20:11:05Z
+last_reconcile: 2026-05-04T20:11:05Z
 
 last_completed_chunk:
-  route_index: 13
-  title: "A11y dev stack install — axe-core/playwright 4.11 + Lighthouse 12 + pa11y 9 + react-aria-components 1.17 + focus-trap-react 12 + tabbable 6.4 + eslint-plugin-jsx-a11y 6.10"
+  route_index: 14
+  title: "A11y screen reader test spec scaffold — NVDA/VoiceOver/Orca per-surface fixtures + structured JSON output per manual pass"
   epoch: 1
-  committed_at: 2026-05-04T18:28:26Z
-  commit_sha: cf6e603
-  commit_subject: "feat(foundation): A11y dev stack install + ESLint 9 flat config (chunk #13); session 13"
+  committed_at: 2026-05-04T20:11:05Z
+  commit_sha: b85a1d2
+  commit_subject: "feat(foundation): A11y SR test spec scaffold + obs-plan §12 PII-grep clarification amendment (chunk #14); session 14"
 
 in_progress: null
 
@@ -18,33 +18,65 @@ plan_freshness:
   design_mtime: 2026-05-03T21:52:16Z
   layout_mtime: 2026-05-02T15:53:22Z
   tests_mtime: 2026-05-03T20:24:05Z
-  obs_mtime: 2026-05-02T20:14:28Z
+  obs_mtime: 2026-05-04T20:03:43Z
   a11y_mtime: 2026-05-02T21:45:23Z
   route_mtime: 2026-05-03T09:23:34Z
   input_mtime: 2026-05-02T06:52:58Z
 
 living_artifact_freshness:
-  dep_tree_reconciled_at: 2026-05-04T18:25:15Z
-  api_surface_reconciled_at: 2026-05-04T18:25:15Z
-  most_recent_code_mtime: 2026-05-04T18:17:39Z
+  dep_tree_reconciled_at: 2026-05-04T20:11:05Z
+  api_surface_reconciled_at: 2026-05-04T20:11:05Z
+  most_recent_code_mtime: 2026-05-04T19:46:59Z
   reconcile_failed: false
 
 drift_warnings:
+  - drift_id: D5
+    description: "obs-plan.md regenerated this session via Path A spec amendment clarify-pii-grep-ui-vocab (mtime 2026-05-04T20:03:43Z > CLAUDE.md mtime 2026-05-03T11:21:36Z); amendment-pending-propagation per Part C decision tree"
+    severity: info
+    remediation_hint: "/andromeda-setup-project --delta (will propagate amendment + set propagated_by_run path)"
+    first_observed_session_count: 14
+    last_observed_session_count: 14
   - drift_id: D5
     description: "design-system.md regenerated since last setup-project (mtime 2026-05-03T21:52:16Z > CLAUDE.md mtime 2026-05-03T11:21:36Z); no matching active amendment (residual from lift-accent amendment archived 2026-05-04T02:10:00Z)"
     severity: warning
     remediation_hint: "/andromeda-setup-project to refresh CLAUDE.md mtime"
     first_observed_session_count: 13
-    last_observed_session_count: 13
+    last_observed_session_count: 14
   - drift_id: D5
-    description: "test-plan.md regenerated since last setup-project (mtime 2026-05-03T20:24:05Z > CLAUDE.md mtime 2026-05-03T11:21:36Z); no matching active amendment (carries over from session 10's pragmatic delta-rerun)"
+    description: "test-plan.md regenerated since last setup-project (mtime 2026-05-03T20:24:05Z > CLAUDE.md mtime 2026-05-03T11:21:36Z); no matching active amendment (carries over from session 10's pragmatic delta-rerun) — STALE at age 4 wraps"
     severity: warning
-    remediation_hint: "/andromeda-setup-project (full re-derive) OR investigate edit source"
+    remediation_hint: "/andromeda-setup-project (full re-derive) OR investigate edit source — strongly recommend remediation this session per stale-drift escalation"
     first_observed_session_count: 10
-    last_observed_session_count: 13
+    last_observed_session_count: 14
 
 spec_amendments:
-  active: []
+  active:
+    - amendment_id: 2026-05-04T20-02-04-clarify-pii-grep-ui-vocab
+      plans:
+        - path: obs-plan.md
+          sections:
+            - 12. Obs Decisions Log
+          decisions_log_section: "2026-05-04 — Clarify PII grep heuristic UI-vocabulary exemption"
+      trigger:
+        chunk: 14
+        phase: 11
+        harness: "plan.md test command 9 obs PII grep"
+      authority:
+        winning_plan: a11y-plan.md
+        winning_tier: Standard
+        losing_plan: obs-plan.md
+        losing_concern: pii-grep-heuristic-overspecified
+        rationale: "a11y-plan §3 P2 mandates SR fixture document UI label 'Token budget' verbatim; obs-plan §11 PII Vectors target REAL secret leakage, not UI-label vocabulary. Amendment clarifies obs-plan §11 intent without changing underlying Vectors 1-6."
+      impl_files_synced: []
+      expected_propagation:
+        - .claude/docs/obs-summary.md
+        - "state.yaml.plan_freshness.obs_mtime (acknowledge mtime advance)"
+      marker_path: .andromeda/runs/2026-05-04T20-02-04-spec-amendment-clarify-pii-grep-ui-vocab/amendment.md
+      applied_at: 2026-05-04T20:02:04Z
+      noted_at: 2026-05-04T20:11:05Z
+      propagated_by_run: null
+      archived_at: null
+      verification_status: clean
   archive:
     - amendment_id: 2026-05-03T21-30-00Z-lift-accent
       plans:
@@ -62,4 +94,4 @@ spec_amendments:
       propagated_by_run: .andromeda/runs/2026-05-03T23-35-00-setup-project-delta/
       archived_at: 2026-05-04T02:10:00Z
 
-session_count: 13
+session_count: 14

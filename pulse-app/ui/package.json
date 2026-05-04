@@ -12,7 +12,7 @@
     "verify:contrast": "node scripts/verify-contrast.mjs",
     "lint": "eslint .",
     "lint:a11y": "eslint . --rule 'jsx-a11y/alt-text: error' --rule 'jsx-a11y/anchor-has-content: error' --rule 'jsx-a11y/aria-props: error' --rule 'jsx-a11y/aria-role: error' --rule 'jsx-a11y/role-has-required-aria-props: error'",
-    "test:a11y": "node -e \"console.log('a11y test suite deferred to chunk #25 webview shell + chunk #46 CI gate; chunk #13 install-only'); process.exit(0)\""
+    "test:a11y": "node -e \"console.log('a11y test suite deferred to chunk #25 webview shell + chunk #46 CI gate; chunk #13 install-only; chunk #14 SR manual-pass scaffold at pulse-app/ui/tests-a11y/screen-reader/'); process.exit(0)\""
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.11.0",
