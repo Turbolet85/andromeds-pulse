@@ -85,6 +85,8 @@ Every P1–P7 must emit parent + child spans with the `{module}.{operation}` nam
 | 5 | NEVER log DuckDB query parameter values — `query_id` + `param_count` + `param_types: ["string","timestamp"]`. |
 | 6 | NEVER log raw env-var path values — sanitize to canonicalized basename only. |
 
+> **Vectors 1-6 scope clarification (per obs-plan §12 Decisions Log entry 2026-05-04 "Clarify PII grep heuristic UI-vocabulary exemption"):** the vectors above forbid LEAKAGE of real OTLP attribute values, real plugin paths, real DuckDB query parameter values, MCP response bodies, clipboard contents, and updater URL query strings. They do NOT forbid the literal word "token" / "password" / "api_key" in UI-label documentation (e.g., "Token budget" Investigation modal slider per a11y-plan §3 P2; "API key field" / "Password reset" UX flow text). PII grep heuristics in CI tests (e.g., chunk #46 a11y CI gate + violation-JSON regression) MUST distinguish literal secret formats (`Bearer [a-zA-Z0-9]{40,}`, `password=[^\s]+`, `AKIA[0-9A-Z]{16}`, `sk-[a-zA-Z0-9]{40,}`, `ghp_[a-zA-Z0-9]{36}`, `xox[baprs]-[0-9a-zA-Z-]{10,}`) from UI-label terminology that legitimately contains secret-format keywords.
+
 ## Frontend bridge
 `web-vitals` 5.x callbacks (LCP / CLS / INP / FCP / TTFB) + WebGPU frame timing → TauRPC `telemetry.frontend.record_*` → backend `tracing::info!(target: "metric.{name}", ...)`. NO browser OTel SDK linked. Single JSON file is the unified self-observation surface.
 
