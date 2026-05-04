@@ -1,14 +1,14 @@
 schema_version: 2
-last_wrap: 2026-05-04T20:11:05Z
-last_reconcile: 2026-05-04T20:11:05Z
+last_wrap: 2026-05-04T21:43:31Z
+last_reconcile: 2026-05-04T21:43:31Z
 
 last_completed_chunk:
-  route_index: 14
-  title: "A11y screen reader test spec scaffold — NVDA/VoiceOver/Orca per-surface fixtures + structured JSON output per manual pass"
+  route_index: 15
+  title: "Motion tokens library install — motion/react useReducedMotion hook + Tailwind v4 motion-reduce variants + canvas frame loop wiring"
   epoch: 1
-  committed_at: 2026-05-04T20:11:05Z
-  commit_sha: b85a1d2
-  commit_subject: "feat(foundation): A11y SR test spec scaffold + obs-plan §12 PII-grep clarification amendment (chunk #14); session 14"
+  committed_at: 2026-05-04T21:43:31Z
+  commit_sha: c76dabb
+  commit_subject: "feat(foundation): motion@12 install + useReducedMotion hook + canvas frame-loop scaffold (chunk #15); session 15"
 
 in_progress: null
 
@@ -24,59 +24,15 @@ plan_freshness:
   input_mtime: 2026-05-02T06:52:58Z
 
 living_artifact_freshness:
-  dep_tree_reconciled_at: 2026-05-04T20:11:05Z
-  api_surface_reconciled_at: 2026-05-04T20:11:05Z
-  most_recent_code_mtime: 2026-05-04T19:46:59Z
+  dep_tree_reconciled_at: 2026-05-04T21:43:31Z
+  api_surface_reconciled_at: 2026-05-04T21:43:31Z
+  most_recent_code_mtime: 2026-05-04T21:38:37Z
   reconcile_failed: false
 
-drift_warnings:
-  - drift_id: D5
-    description: "obs-plan.md regenerated this session via Path A spec amendment clarify-pii-grep-ui-vocab (mtime 2026-05-04T20:03:43Z > CLAUDE.md mtime 2026-05-03T11:21:36Z); amendment-pending-propagation per Part C decision tree"
-    severity: info
-    remediation_hint: "/andromeda-setup-project --delta (will propagate amendment + set propagated_by_run path)"
-    first_observed_session_count: 14
-    last_observed_session_count: 14
-  - drift_id: D5
-    description: "design-system.md regenerated since last setup-project (mtime 2026-05-03T21:52:16Z > CLAUDE.md mtime 2026-05-03T11:21:36Z); no matching active amendment (residual from lift-accent amendment archived 2026-05-04T02:10:00Z)"
-    severity: warning
-    remediation_hint: "/andromeda-setup-project to refresh CLAUDE.md mtime"
-    first_observed_session_count: 13
-    last_observed_session_count: 14
-  - drift_id: D5
-    description: "test-plan.md regenerated since last setup-project (mtime 2026-05-03T20:24:05Z > CLAUDE.md mtime 2026-05-03T11:21:36Z); no matching active amendment (carries over from session 10's pragmatic delta-rerun) — STALE at age 4 wraps"
-    severity: warning
-    remediation_hint: "/andromeda-setup-project (full re-derive) OR investigate edit source — strongly recommend remediation this session per stale-drift escalation"
-    first_observed_session_count: 10
-    last_observed_session_count: 14
+drift_warnings: []
 
 spec_amendments:
-  active:
-    - amendment_id: 2026-05-04T20-02-04-clarify-pii-grep-ui-vocab
-      plans:
-        - path: obs-plan.md
-          sections:
-            - 12. Obs Decisions Log
-          decisions_log_section: "2026-05-04 — Clarify PII grep heuristic UI-vocabulary exemption"
-      trigger:
-        chunk: 14
-        phase: 11
-        harness: "plan.md test command 9 obs PII grep"
-      authority:
-        winning_plan: a11y-plan.md
-        winning_tier: Standard
-        losing_plan: obs-plan.md
-        losing_concern: pii-grep-heuristic-overspecified
-        rationale: "a11y-plan §3 P2 mandates SR fixture document UI label 'Token budget' verbatim; obs-plan §11 PII Vectors target REAL secret leakage, not UI-label vocabulary. Amendment clarifies obs-plan §11 intent without changing underlying Vectors 1-6."
-      impl_files_synced: []
-      expected_propagation:
-        - .claude/docs/obs-summary.md
-        - "state.yaml.plan_freshness.obs_mtime (acknowledge mtime advance)"
-      marker_path: .andromeda/runs/2026-05-04T20-02-04-spec-amendment-clarify-pii-grep-ui-vocab/amendment.md
-      applied_at: 2026-05-04T20:02:04Z
-      noted_at: 2026-05-04T20:11:05Z
-      propagated_by_run: .andromeda/runs/2026-05-04T20-42-30-setup-project/
-      archived_at: null
-      verification_status: clean
+  active: []
   archive:
     - amendment_id: 2026-05-03T21-30-00Z-lift-accent
       plans:
@@ -93,5 +49,14 @@ spec_amendments:
         - "2026-05-03 — Lift --color-accent from #8B2E3B to #C7556A"
       propagated_by_run: .andromeda/runs/2026-05-03T23-35-00-setup-project-delta/
       archived_at: 2026-05-04T02:10:00Z
+    - amendment_id: 2026-05-04T20-02-04-clarify-pii-grep-ui-vocab
+      plans:
+        - path: obs-plan.md
+          sections:
+            - 12. Obs Decisions Log
+      decisions_log_sections:
+        - "2026-05-04 — Clarify PII grep heuristic UI-vocabulary exemption"
+      propagated_by_run: .andromeda/runs/2026-05-04T20-42-30-setup-project/
+      archived_at: 2026-05-04T21:43:31Z
 
-session_count: 14
+session_count: 15

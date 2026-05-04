@@ -344,7 +344,7 @@ async fn run_npm_script(script: &str, extra: Vec<String>) -> Result<ExitCode> {
 
 fn test_a11y_placeholder() -> Result<ExitCode> {
     println!(
-        "xtask test:a11y: deferred to chunk #25 webview shell + chunk #46 CI gate (chunk #13 install-only; chunk #14 SR manual-pass scaffold at pulse-app/ui/tests-a11y/screen-reader/)"
+        "xtask test:a11y: deferred to chunk #25 webview shell + chunk #46 CI gate (chunk #13 install-only; chunk #14 SR manual-pass scaffold at pulse-app/ui/tests-a11y/screen-reader/; chunk #15 motion library + useReducedMotion hook at pulse-app/ui/src/hooks/)"
     );
     Ok(ExitCode::SUCCESS)
 }
