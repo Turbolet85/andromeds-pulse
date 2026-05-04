@@ -1,13 +1,13 @@
 schema_version: 2
-last_wrap: 2026-05-03T23:22:08Z
-last_reconcile: 2026-05-03T23:22:08Z
+last_wrap: 2026-05-04T02:10:00Z
+last_reconcile: 2026-05-04T02:10:00Z
 
 last_completed_chunk:
   route_index: 12
   title: "Contrast verification harness — design tokens + colorjs.io + per-pair JSON emission against design plan §Color Palette ratios"
   epoch: 1
   committed_at: 2026-05-03T23:22:08Z
-  commit_sha: pending
+  commit_sha: bb6d2c5
   commit_subject: "feat(foundation): contrast verification harness + spec-amendment retroactive backfill (chunk #12)"
 
 in_progress: null
@@ -24,23 +24,28 @@ plan_freshness:
   input_mtime: 2026-05-02T06:52:58Z
 
 living_artifact_freshness:
-  dep_tree_reconciled_at: 2026-05-03T23:22:08Z
-  api_surface_reconciled_at: 2026-05-03T23:22:08Z
+  dep_tree_reconciled_at: 2026-05-04T02:10:00Z
+  api_surface_reconciled_at: 2026-05-04T02:10:00Z
   most_recent_code_mtime: 2026-05-03T18:00:23Z
   reconcile_failed: false
 
 drift_warnings:
   - drift_id: D5
-    description: "Spec amendment pending propagation: 2026-05-03T21-30-00Z-lift-accent (design-system.md edited; \"2026-05-03 — Lift --color-accent from #8B2E3B to #C7556A\")"
+    description: "Spec amendment propagated; will archive at end of this wrap: 2026-05-03T21-30-00Z-lift-accent (design-system.md)"
     severity: info
-    remediation_hint: "/andromeda-setup-project --delta (see .andromeda/runs/2026-05-03T21-30-00-spec-amendment-lift-accent/amendment.md)"
+    remediation_hint: "(automatic — wrap-session Phase 8 will archive; transient — clears next wrap)"
+    first_observed_session_count: 12
+    last_observed_session_count: 12
   - drift_id: D5
     description: "test-plan.md regenerated since last setup-project (mtime 2026-05-03T20:24:05Z > CLAUDE.md mtime 2026-05-03T11:21:36Z); no matching active amendment (carries over from session 10's pragmatic delta-rerun)"
     severity: warning
     remediation_hint: "/andromeda-setup-project (full re-derive) OR investigate edit source"
+    first_observed_session_count: 10
+    last_observed_session_count: 12
 
 spec_amendments:
-  active:
+  active: []
+  archive:
     - amendment_id: 2026-05-03T21-30-00Z-lift-accent
       plans:
         - path: design-system.md
@@ -52,28 +57,9 @@ spec_amendments:
             - Anti-Patterns Universal Bans
             - Downstream Readiness
             - Design Decisions Log
-          decisions_log_section: "2026-05-03 — Lift --color-accent from #8B2E3B to #C7556A"
-      trigger:
-        chunk: 12
-        phase: 9
-        harness: "npm run verify:contrast"
-      authority:
-        winning_plan: a11y-plan.md
-        winning_tier: Standard
-        losing_plan: design-system.md
-        losing_concern: palette-aesthetic
-        rationale: "WCAG SC 1.4.11 3:1 non-text minimum trumps Alert Burgundy hex specificity"
-      impl_files_synced:
-        - pulse-app/ui/src/styles/tokens.css
-        - pulse-app/ui/src/contrast/pairs.mjs
-      expected_propagation:
-        - .claude/docs/design-summary.md
-      marker_path: .andromeda/runs/2026-05-03T21-30-00-spec-amendment-lift-accent/amendment.md
-      applied_at: 2026-05-03T21:30:00Z
-      noted_by_run: .andromeda/runs/2026-05-03T23-22-08-wrap-session-11/
+      decisions_log_sections:
+        - "2026-05-03 — Lift --color-accent from #8B2E3B to #C7556A"
       propagated_by_run: .andromeda/runs/2026-05-03T23-35-00-setup-project-delta/
-      archived_by_run: null
-      verification_status: clean
-  archive: []
+      archived_at: 2026-05-04T02:10:00Z
 
-session_count: 11
+session_count: 12
