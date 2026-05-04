@@ -67,6 +67,11 @@ proptest-regressions/*.txt.bk
 .test-logs/
 # cargo-llvm-cov output (workspace-root lcov.info from `cargo xtask test:coverage`)
 lcov.info
+# A11y / Playwright / Lighthouse / pa11y output directories
+pulse-app/ui/playwright-report/
+pulse-app/ui/test-results/
+pulse-app/ui/.lighthouseci/
+pulse-app/ui/pa11y-results/
 
 # --- Andromeda-pulse runtime data (when accidentally created in repo) ---
 ~/.andromeda-pulse/

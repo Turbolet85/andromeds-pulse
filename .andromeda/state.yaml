@@ -1,14 +1,14 @@
 schema_version: 2
-last_wrap: 2026-05-04T02:10:00Z
-last_reconcile: 2026-05-04T02:10:00Z
+last_wrap: 2026-05-04T18:28:26Z
+last_reconcile: 2026-05-04T18:25:15Z
 
 last_completed_chunk:
-  route_index: 12
-  title: "Contrast verification harness — design tokens + colorjs.io + per-pair JSON emission against design plan §Color Palette ratios"
+  route_index: 13
+  title: "A11y dev stack install — axe-core/playwright 4.11 + Lighthouse 12 + pa11y 9 + react-aria-components 1.17 + focus-trap-react 12 + tabbable 6.4 + eslint-plugin-jsx-a11y 6.10"
   epoch: 1
-  committed_at: 2026-05-03T23:22:08Z
-  commit_sha: bb6d2c5
-  commit_subject: "feat(foundation): contrast verification harness + spec-amendment retroactive backfill (chunk #12)"
+  committed_at: 2026-05-04T18:28:26Z
+  commit_sha: cf6e603
+  commit_subject: "feat(foundation): A11y dev stack install + ESLint 9 flat config (chunk #13); session 13"
 
 in_progress: null
 
@@ -24,24 +24,24 @@ plan_freshness:
   input_mtime: 2026-05-02T06:52:58Z
 
 living_artifact_freshness:
-  dep_tree_reconciled_at: 2026-05-04T02:10:00Z
-  api_surface_reconciled_at: 2026-05-04T02:10:00Z
-  most_recent_code_mtime: 2026-05-03T18:00:23Z
+  dep_tree_reconciled_at: 2026-05-04T18:25:15Z
+  api_surface_reconciled_at: 2026-05-04T18:25:15Z
+  most_recent_code_mtime: 2026-05-04T18:17:39Z
   reconcile_failed: false
 
 drift_warnings:
   - drift_id: D5
-    description: "Spec amendment propagated; will archive at end of this wrap: 2026-05-03T21-30-00Z-lift-accent (design-system.md)"
-    severity: info
-    remediation_hint: "(automatic — wrap-session Phase 8 will archive; transient — clears next wrap)"
-    first_observed_session_count: 12
-    last_observed_session_count: 12
+    description: "design-system.md regenerated since last setup-project (mtime 2026-05-03T21:52:16Z > CLAUDE.md mtime 2026-05-03T11:21:36Z); no matching active amendment (residual from lift-accent amendment archived 2026-05-04T02:10:00Z)"
+    severity: warning
+    remediation_hint: "/andromeda-setup-project to refresh CLAUDE.md mtime"
+    first_observed_session_count: 13
+    last_observed_session_count: 13
   - drift_id: D5
     description: "test-plan.md regenerated since last setup-project (mtime 2026-05-03T20:24:05Z > CLAUDE.md mtime 2026-05-03T11:21:36Z); no matching active amendment (carries over from session 10's pragmatic delta-rerun)"
     severity: warning
     remediation_hint: "/andromeda-setup-project (full re-derive) OR investigate edit source"
     first_observed_session_count: 10
-    last_observed_session_count: 12
+    last_observed_session_count: 13
 
 spec_amendments:
   active: []
@@ -62,4 +62,4 @@ spec_amendments:
       propagated_by_run: .andromeda/runs/2026-05-03T23-35-00-setup-project-delta/
       archived_at: 2026-05-04T02:10:00Z
 
-session_count: 12
+session_count: 13

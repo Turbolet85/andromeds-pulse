@@ -8,6 +8,18 @@ _This file is entirely wrap-session's territory. `/setup-project` creates it if 
 
 ---
 
+## 2026-05-04 — ESLint 9 flat config layered structure for pulse-app/ui
+
+`pulse-app/ui/eslint.config.mjs` (created chunk #13) layers in this order: `ignores` block → `@eslint/js` `js.configs.recommended` → `typescript-eslint` `tseslint.configs.recommended` SPREAD with `...` (it's an ARRAY of configs, not a single object — common footgun) → files-scoped block extending `eslint-plugin-react` `flat.recommended.rules` + `eslint-plugin-react-hooks` (rules-of-hooks: error, exhaustive-deps: warn) + `eslint-plugin-jsx-a11y` `flatConfigs.recommended.rules` → final files-scoped block adding Node globals for `scripts/` + config files. `react/react-in-jsx-scope` is OFF (React 19 + JSX runtime `react-jsx` makes the rule obsolete).
+
+Custom `<Icon glyph="..."/>` components in `pulse-app/ui/src/components/icons/` (chunk #11 deliverable, design-system §Iconography) MUST be scoped out of `jsx-a11y/alt-text` via `{ elements: ['img'], img: ['NextImage'] }` — the rule defaults check Image-named components and false-positive on the project's token-registered Icon registry; without scoping, `npm run lint` errors on every Icon usage. The Icon registry is a design-system convention (icons clarify, not decorate), not raster images.
+
+Companion stack installed at chunk #13: `eslint@^9.x` + `typescript-eslint@^8.x` (metapackage with parser+plugin+configs) + `eslint-plugin-react@^7.37.0` + `eslint-plugin-react-hooks@^5.0.0` + `eslint-plugin-jsx-a11y@^6.10.0` + `globals@^15.0.0`. The chunk title's "7 a11y packages" abbreviation hides this 5-package ESLint companion expansion required because installing `eslint-plugin-jsx-a11y` without ESLint base + recommended-config extension is functionally inert (a11y-plan §11 anti-pattern). Pattern: when chunk titles abbreviate by ecosystem name, expect implicit-peer expansion in the implement scope; surface in plan.md scope-expansion disclosure at Phase 6 user review rather than discovering during /implement.
+
+See: `pulse-app/ui/eslint.config.mjs` (canonical structure); `pulse-app/ui/package.json` devDependencies (companion stack); a11y-plan.md §11 anti-pattern banning lint-only-without-runtime; phase-10/plan.md "Implementation notes" §Scope-expansion disclosure.
+
+---
+
 ## 2026-05-04 — Honest provenance principle for Andromeda state schemas
 
 When adding a new field to a shared contract that tracks "which skill performed action X and when", the field's TYPE should match what the writing skill actually produces, not what the schema author imagined. The Iteration 1 spec-amendment-protocol designed `state.yaml.spec_amendments.active[].noted_by_run` and `archived_by_run` as path-strings on the assumption that every lifecycle stage maps to a run-dir. Iteration 2 first-cycle live test exposed the lie: `/andromeda-wrap-session` does NOT create run-dirs (unlike `/andromeda-phase` and `/andromeda-setup-project --delta` which DO). The synthetic path `/andromeda-runs/2026-05-03T23-22-08-wrap-session-11/` was fabricated to fit the schema; no such directory existed on disk. Renamed to `noted_at` and `archived_at` (ISO timestamps) in v2.1; `propagated_by_run` STAYS as path because setup-project --delta creates a real run-dir with materialization-plan-delta.md as audit trail.

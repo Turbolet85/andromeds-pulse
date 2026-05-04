@@ -42,6 +42,22 @@ enum Cmd {
         about = "obs SLO gates: zero-spans + zero-panic + heartbeat-gap (perf-budget deferred)"
     )]
     CiGates,
+    #[command(
+        name = "lint",
+        about = "npm run lint (ESLint flat config in pulse-app/ui/)"
+    )]
+    Lint {
+        #[arg(trailing_var_arg = true)]
+        extra: Vec<String>,
+    },
+    #[command(
+        name = "test:a11y",
+        about = "a11y harness placeholder (full activation at chunk #25 webview shell + chunk #46 CI gate)"
+    )]
+    TestA11y {
+        #[arg(trailing_var_arg = true)]
+        extra: Vec<String>,
+    },
 }
 
 #[tokio::main]
@@ -54,6 +70,8 @@ async fn main() -> ExitCode {
         Cmd::Audit => run_cargo("audit", &[]).await,
         Cmd::DenyBans => run_cargo("deny", &["check", "bans", "licenses", "sources"]).await,
         Cmd::CiGates => run_ci_gates().await,
+        Cmd::Lint { extra } => run_npm_script("lint", extra).await,
+        Cmd::TestA11y { extra: _ } => test_a11y_placeholder(),
     };
     match result {
         Ok(code) => code,
@@ -296,6 +314,39 @@ async fn invoke_heartbeat_check(log_files: &[PathBuf]) -> Result<bool> {
             .await?
     };
     Ok(status.success())
+}
+
+async fn run_npm_script(script: &str, extra: Vec<String>) -> Result<ExitCode> {
+    let workspace_root = Path::new(env!("CARGO_MANIFEST_DIR"))
+        .parent()
+        .context("xtask manifest has no workspace parent")?
+        .to_path_buf();
+    let cwd = workspace_root.join("pulse-app").join("ui");
+    let npm = if cfg!(target_os = "windows") {
+        "npm.cmd"
+    } else {
+        "npm"
+    };
+    let mut cmd = tokio::process::Command::new(npm);
+    cmd.current_dir(&cwd).arg("run").arg(script);
+    if !extra.is_empty() {
+        cmd.arg("--");
+        for arg in extra {
+            cmd.arg(arg);
+        }
+    }
+    let status = cmd
+        .status()
+        .await
+        .with_context(|| format!("failed to spawn `npm run {script}` in {}", cwd.display()))?;
+    Ok(status_to_code(status))
+}
+
+fn test_a11y_placeholder() -> Result<ExitCode> {
+    println!(
+        "xtask test:a11y: deferred to chunk #25 webview shell + chunk #46 CI gate (chunk #13 install-only)"
+    );
+    Ok(ExitCode::SUCCESS)
 }
 
 fn status_to_code(status: std::process::ExitStatus) -> ExitCode {
