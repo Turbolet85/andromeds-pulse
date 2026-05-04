@@ -1,13 +1,34 @@
+use std::net::SocketAddr;
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
 use std::{env, fs};
 
+use ingest::state::IngestState;
 use ui_bridge::health::{
-    HealthApi, HealthApiImpl, HeartbeatState, record_start, register_heartbeat_state,
+    BindStatus, HealthApi, HealthApiImpl, HeartbeatState, record_start, register_heartbeat_state,
 };
 
 mod heartbeat;
 mod observability;
+
+const ENV_OTLP_GRPC_PORT: &str = "ANDROMEDA_PULSE_OTLP_GRPC_PORT";
+
+fn resolve_grpc_port() -> u16 {
+    match env::var(ENV_OTLP_GRPC_PORT) {
+        Ok(raw) => match raw.parse::<u16>() {
+            Ok(port) => port,
+            Err(_) => {
+                tracing::warn!(
+                    target: "app.boot.otlp.grpc.port",
+                    raw_len = raw.len(),
+                    "invalid port value; falling back to default"
+                );
+                ingest::grpc::DEFAULT_GRPC_PORT
+            }
+        },
+        Err(_) => ingest::grpc::DEFAULT_GRPC_PORT,
+    }
+}
 
 fn resolve_data_dir() -> PathBuf {
     if let Ok(p) = env::var("ANDROMEDA_PULSE_DATA_DIR") {
@@ -79,11 +100,50 @@ fn main() {
     let heartbeat_state = Arc::new(HeartbeatState::new());
     register_heartbeat_state(heartbeat_state.clone());
 
+    let ingest_state = Arc::new(IngestState::new());
+    let port = resolve_grpc_port();
+    let addr = SocketAddr::from(([127, 0, 0, 1], port));
+
     tauri::Builder::default()
         .plugin(tauri_plugin_updater::Builder::new().build())
         .invoke_handler(taurpc::create_ipc_handler(HealthApiImpl.into_handler()))
         .setup(move |_app| {
-            let _heartbeat_handles = heartbeat::spawn(heartbeat_state);
+            let bind_announcer = Arc::clone(&heartbeat_state);
+            let grpc_state = Arc::clone(&ingest_state);
+            tauri::async_runtime::spawn(async move {
+                match ingest::grpc::try_bind(addr).await {
+                    Ok(listener) => {
+                        bind_announcer.record_otlp_grpc_bind(BindStatus::Ok);
+                        tracing::info!(
+                            target: "app.boot.otlp.grpc.bind",
+                            bind_address = %addr,
+                            "OTLP gRPC receiver bound"
+                        );
+                        if let Err(e) = ingest::grpc::serve_on(listener, grpc_state).await {
+                            let reason = format!("{}", e);
+                            bind_announcer
+                                .record_otlp_grpc_bind(BindStatus::Failed(reason.clone()));
+                            tracing::error!(
+                                target: "app.boot.otlp.grpc.bind",
+                                reason = %reason,
+                                bind_address = %addr,
+                                "OTLP gRPC server stopped"
+                            );
+                        }
+                    }
+                    Err(e) => {
+                        let reason = format!("{}", e);
+                        bind_announcer.record_otlp_grpc_bind(BindStatus::Failed(reason.clone()));
+                        tracing::error!(
+                            target: "app.boot.otlp.grpc.bind",
+                            reason = %reason,
+                            bind_address = %addr,
+                            "bind failed"
+                        );
+                    }
+                }
+            });
+            let _heartbeat_handles = heartbeat::spawn(heartbeat_state, ingest_state);
             Ok(())
         })
         .run(tauri::generate_context!())

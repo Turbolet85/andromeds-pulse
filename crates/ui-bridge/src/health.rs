@@ -14,12 +14,19 @@ pub fn record_start() {
     let _ = APP_START.set(Instant::now());
 }
 
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum BindStatus {
+    Ok,
+    Failed(String),
+}
+
 #[derive(Debug, Default)]
 pub struct HeartbeatState {
     ingest: Mutex<Option<DateTime<Utc>>>,
     buffer: Mutex<Option<DateTime<Utc>>>,
     viz: Mutex<Option<DateTime<Utc>>>,
     plugins: Mutex<Option<DateTime<Utc>>>,
+    otlp_grpc_bind: Mutex<Option<BindStatus>>,
 }
 
 impl HeartbeatState {
@@ -39,6 +46,9 @@ impl HeartbeatState {
     pub fn record_plugins(&self, ts: DateTime<Utc>) {
         *self.plugins.lock().unwrap() = Some(ts);
     }
+    pub fn record_otlp_grpc_bind(&self, status: BindStatus) {
+        *self.otlp_grpc_bind.lock().unwrap() = Some(status);
+    }
 
     pub fn last_ingest(&self) -> Option<DateTime<Utc>> {
         *self.ingest.lock().unwrap()
@@ -51,6 +61,9 @@ impl HeartbeatState {
     }
     pub fn last_plugins(&self) -> Option<DateTime<Utc>> {
         *self.plugins.lock().unwrap()
+    }
+    pub fn otlp_grpc_bind(&self) -> Option<BindStatus> {
+        self.otlp_grpc_bind.lock().unwrap().clone()
     }
 }
 
@@ -125,15 +138,32 @@ pub fn current_health() -> HealthEnvelope {
         .unwrap_or(0);
 
     let mut subsystems = SubsystemStatuses::placeholders();
+    let mut overall_ok = true;
     if let Some(state) = HEARTBEAT_STATE.get() {
         subsystems.ingest_channel.last_tick_at = state.last_ingest();
         subsystems.buffer.last_tick_at = state.last_buffer();
         subsystems.viz.last_tick_at = state.last_viz();
         subsystems.plugins.last_tick_at = state.last_plugins();
+        match state.otlp_grpc_bind() {
+            Some(BindStatus::Ok) => {
+                subsystems.otlp_grpc_receiver.status = "ok".to_string();
+                subsystems.otlp_grpc_receiver.last_tick_at = state.last_ingest();
+            }
+            Some(BindStatus::Failed(reason)) => {
+                subsystems.otlp_grpc_receiver.status = "bind_failed".to_string();
+                subsystems.otlp_grpc_receiver.error_msg = Some(reason);
+                overall_ok = false;
+            }
+            None => {}
+        }
     }
 
     HealthEnvelope {
-        status: HealthStatus::Ok,
+        status: if overall_ok {
+            HealthStatus::Ok
+        } else {
+            HealthStatus::Degraded
+        },
         checked_at: Utc::now(),
         subsystems,
         pid: std::process::id(),
@@ -228,5 +258,23 @@ mod tests {
         assert!(envelope.subsystems.ingest_channel.last_tick_at.is_none());
         assert!(envelope.subsystems.viz.last_tick_at.is_none());
         assert!(envelope.subsystems.plugins.last_tick_at.is_none());
+    }
+
+    #[test]
+    fn heartbeat_state_otlp_bind_slot_starts_empty() {
+        let state = HeartbeatState::new();
+        assert_eq!(state.otlp_grpc_bind(), None);
+    }
+
+    #[test]
+    fn heartbeat_state_records_otlp_bind_ok_and_failed() {
+        let state = HeartbeatState::new();
+        state.record_otlp_grpc_bind(BindStatus::Ok);
+        assert_eq!(state.otlp_grpc_bind(), Some(BindStatus::Ok));
+        state.record_otlp_grpc_bind(BindStatus::Failed("address in use".to_string()));
+        assert_eq!(
+            state.otlp_grpc_bind(),
+            Some(BindStatus::Failed("address in use".to_string()))
+        );
     }
 }

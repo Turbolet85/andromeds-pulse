@@ -23,6 +23,7 @@ authors = ["andromeda-pulse contributors"]
 
 [workspace.dependencies]
 tokio = { version = "1", features = ["full"] }
+tokio-stream = { version = "0.1", features = ["net"] }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 thiserror = "2"
@@ -39,6 +40,23 @@ specta = { version = "=2.0.0-rc.22", features = ["chrono"] }
 strict-path = "0.2"
 chrono = { version = "0.4", features = ["serde"] }
 clap = { version = "4", features = ["derive"] }
+
+# Ingest pipeline (route#16 — Epoch 2 opens). Pinning rationale:
+# - tonic 0.14 + prost 0.14: arch §Stack + §Established Decisions [Backend Framework — OTLP receiver].
+# - OTLP wire format via vendored .proto + tonic-build codegen (crates/ingest/proto/ +
+#   crates/ingest/build.rs). opentelemetry-proto 0.31 was rejected at /implement time because
+#   it has `opentelemetry` + `opentelemetry_sdk` as direct (non-feature-gated) dependencies,
+#   contradicting obs-plan §12 user-pivot ("NO OTel SDK in self-observation runtime") +
+#   CLAUDE.md universal invariant. Vendored proto path is the strict-spec-compliance fix.
+tonic = { version = "0.14", features = ["transport", "router", "server", "codegen"] }
+tonic-prost = "0.14"
+tonic-build = "0.14"
+tonic-prost-build = "0.14"
+protoc-bin-vendored = "3"
+prost = "0.14"
+tempfile = "3"
+rstest = "0.26"
+proptest = "1.10"
 
 [profile.release]
 lto = "thin"

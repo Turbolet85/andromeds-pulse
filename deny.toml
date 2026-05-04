@@ -86,6 +86,10 @@ skip = [
     { crate = "windows-core" },
     { crate = "windows-result" },
     { crate = "windows-strings" },
+    # tonic-prost-build 0.14 build-dep stack pulls foldhash 0.1 via hashbrown / petgraph;
+    # tauri-utils / dom_query pull foldhash 0.2. Both transitive, both build-time only,
+    # benign per route#16 (2026-05-04).
+    { crate = "foldhash" },
 ]
 skip-tree = []
 

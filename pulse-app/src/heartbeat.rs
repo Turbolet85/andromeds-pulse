@@ -2,25 +2,29 @@ use std::sync::Arc;
 use std::time::Duration;
 
 use chrono::Utc;
+use ingest::state::IngestState;
 use tokio::task::JoinHandle;
 use ui_bridge::health::HeartbeatState;
 
 const TICK_INTERVAL_SECS: u64 = 15;
 
-pub(crate) fn spawn(state: Arc<HeartbeatState>) -> Vec<JoinHandle<()>> {
+pub(crate) fn spawn(
+    state: Arc<HeartbeatState>,
+    ingest_state: Arc<IngestState>,
+) -> Vec<JoinHandle<()>> {
     vec![
-        tokio::spawn(run_ingest(state.clone())),
+        tokio::spawn(run_ingest(state.clone(), ingest_state)),
         tokio::spawn(run_buffer(state.clone())),
         tokio::spawn(run_viz(state.clone())),
         tokio::spawn(run_plugins(state)),
     ]
 }
 
-async fn run_ingest(state: Arc<HeartbeatState>) {
+async fn run_ingest(state: Arc<HeartbeatState>, ingest_state: Arc<IngestState>) {
     let mut interval = tokio::time::interval(Duration::from_secs(TICK_INTERVAL_SECS));
     loop {
         interval.tick().await;
-        emit_ingest_tick(&state);
+        emit_ingest_tick(&state, &ingest_state);
     }
 }
 
@@ -48,8 +52,8 @@ async fn run_plugins(state: Arc<HeartbeatState>) {
     }
 }
 
-fn emit_ingest_tick(state: &HeartbeatState) {
-    let payload = ingest::contract::heartbeat_payload();
+fn emit_ingest_tick(state: &HeartbeatState, ingest_state: &IngestState) {
+    let payload = ingest::contract::heartbeat_payload(ingest_state);
     state.record_ingest(Utc::now());
     tracing::info!(
         target: "ingest.tick",
@@ -143,7 +147,8 @@ mod tests {
     #[test]
     fn emit_ingest_tick_emits_target_and_fields() {
         let state = HeartbeatState::new();
-        let lines = capture_lines(|| emit_ingest_tick(&state));
+        let ingest_state = IngestState::new();
+        let lines = capture_lines(|| emit_ingest_tick(&state, &ingest_state));
         assert_eq!(lines.len(), 1);
         assert_eq!(lines[0]["target"], "ingest.tick");
         let fields = &lines[0]["fields"];
@@ -151,6 +156,15 @@ mod tests {
         assert!(fields.get("buffer_capacity_pct").is_some());
         assert!(fields.get("broadcast_subscribers").is_some());
         assert!(state.last_ingest().is_some());
+    }
+
+    #[test]
+    fn emit_ingest_tick_reflects_real_span_count_from_ingest_state() {
+        let state = HeartbeatState::new();
+        let ingest_state = IngestState::new();
+        ingest_state.record_spans(7);
+        let lines = capture_lines(|| emit_ingest_tick(&state, &ingest_state));
+        assert_eq!(lines[0]["fields"]["span_count"], 7);
     }
 
     #[test]
@@ -193,7 +207,8 @@ mod tests {
     #[tokio::test]
     async fn spawn_returns_four_handles_and_aborts_cleanly() {
         let state = Arc::new(HeartbeatState::new());
-        let handles = spawn(state);
+        let ingest_state = Arc::new(IngestState::new());
+        let handles = spawn(state, ingest_state);
         assert_eq!(handles.len(), 4);
         for handle in handles {
             handle.abort();

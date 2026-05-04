@@ -8,6 +8,16 @@ _This file is entirely wrap-session's territory. `/setup-project` creates it if 
 
 ---
 
+## 2026-05-04 — tonic 0.14 split `prost` integration into separate `tonic-prost` crate
+
+The `tonic = "0.13"` legacy pattern bundled prost message support into the main `tonic` crate via the `prost` feature. `tonic = "0.14"` removed that feature — the available features are `_tls-any, channel, codegen, default, deflate, gzip, router, server, tls-aws-lc, tls-native-roots, tls-ring, tls-webpki-roots, transport, zstd` (no `prost`). Adding `tonic = { version = "0.14", features = ["prost"] }` errors with `package 'ingest' depends on 'tonic' with feature 'prost' but 'tonic' does not have that feature.` The migration: depend on `tonic-prost = "0.14"` separately for the `ProstCodec` runtime + change feature set to `["transport", "router", "server", "codegen"]` (or whatever subset needed). Same story for build dependencies: `tonic-build = "0.14"` is the general gRPC service codegen crate; `tonic-prost-build = "0.14"` is the prost-message codegen crate — both are required when invoking `tonic_prost_build::configure().compile_protos(...)` from `build.rs`. The `tonic-prost-build` crate also pulls in `prost-build` 0.14 transitively, which requires `protoc` on PATH (or a vendored binary via `protoc-bin-vendored = "3"`).
+
+This split is part of the broader tonic 0.14 modularization (see also `tonic-types`, `tonic-reflection`, `tonic-health` as separate crates). Future Rust crates in this project that consume tonic should reference the workspace dep set committed at chunk #16: `tonic.workspace = true` + `tonic-prost.workspace = true` for runtime; `tonic-build.workspace = true` + `tonic-prost-build.workspace = true` + `protoc-bin-vendored.workspace = true` for build-deps.
+
+See: `crates/ingest/Cargo.toml` `[dependencies]` + `[build-dependencies]`; `crates/ingest/build.rs` (codegen invocation + vendored-protoc setup); workspace `Cargo.toml` `[workspace.dependencies]` Ingest pipeline section.
+
+---
+
 ## 2026-05-04 — ESLint 9 flat config layered structure for pulse-app/ui
 
 `pulse-app/ui/eslint.config.mjs` (created chunk #13) layers in this order: `ignores` block → `@eslint/js` `js.configs.recommended` → `typescript-eslint` `tseslint.configs.recommended` SPREAD with `...` (it's an ARRAY of configs, not a single object — common footgun) → files-scoped block extending `eslint-plugin-react` `flat.recommended.rules` + `eslint-plugin-react-hooks` (rules-of-hooks: error, exhaustive-deps: warn) + `eslint-plugin-jsx-a11y` `flatConfigs.recommended.rules` → final files-scoped block adding Node globals for `scripts/` + config files. `react/react-in-jsx-scope` is OFF (React 19 + JSX runtime `react-jsx` makes the rule obsolete).

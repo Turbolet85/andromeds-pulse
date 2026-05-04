@@ -104,7 +104,10 @@ impl AllowList {
     fn production() -> Self {
         let mut by_target: HashMap<&'static str, HashSet<&'static str>> = HashMap::new();
 
-        // obs-plan §8 per-module allowlists
+        // obs-plan §8 per-module allowlists. The `ingest` entry covers heartbeat
+        // (`ingest.tick`) AND gRPC boundary spans (target = "ingest::grpc" via
+        // `#[tracing::instrument]` module-path default; resolved through
+        // for_target's split('.') / split("::") fallbacks).
         by_target.insert(
             "ingest",
             [
@@ -112,6 +115,16 @@ impl AllowList {
                 "service",
                 "buffer_capacity_pct",
                 "broadcast_subscribers",
+                "rpc.system",
+                "rpc.service",
+                "rpc.method",
+                "traceparent",
+                "latency_ms",
+                "method",
+                "status",
+                "attributes_count",
+                "service_name_tag",
+                "trace_ids",
             ]
             .iter()
             .copied()
@@ -235,6 +248,28 @@ impl AllowList {
                 .collect(),
         );
         by_target.insert("app.boot.ci-fields", ["reason"].iter().copied().collect());
+        by_target.insert(
+            "app.boot.otlp.grpc.bind",
+            ["bind_address", "reason"].iter().copied().collect(),
+        );
+        by_target.insert(
+            "app.boot.otlp.grpc.port",
+            ["raw_len"].iter().copied().collect(),
+        );
+        // chunk #18 invariant violation scaffold; allowlist now so future
+        // populated events pass scrubbing without further allowlist edits.
+        by_target.insert(
+            "ingest.grpc.parse.error",
+            [
+                "span_field_invalid",
+                "expected_length",
+                "actual_length",
+                "rejection_reason",
+            ]
+            .iter()
+            .copied()
+            .collect(),
+        );
         by_target.insert(
             "app.panic.fatal",
             ["panic_message", "location", "spantrace"]

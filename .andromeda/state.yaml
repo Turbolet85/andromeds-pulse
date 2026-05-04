@@ -1,14 +1,14 @@
 schema_version: 2
-last_wrap: 2026-05-04T21:43:31Z
-last_reconcile: 2026-05-04T21:43:31Z
+last_wrap: 2026-05-04T23:55:00Z
+last_reconcile: 2026-05-04T23:55:00Z
 
 last_completed_chunk:
-  route_index: 15
-  title: "Motion tokens library install — motion/react useReducedMotion hook + Tailwind v4 motion-reduce variants + canvas frame loop wiring"
-  epoch: 1
-  committed_at: 2026-05-04T21:43:31Z
-  commit_sha: c76dabb
-  commit_subject: "feat(foundation): motion@12 install + useReducedMotion hook + canvas frame-loop scaffold (chunk #15); session 15"
+  route_index: 16
+  title: "OTLP gRPC receiver — tonic 0.14 :4317 bound 127.0.0.1, TraceService/MetricsService/LogsService, .max_decoding_message_size 8MB"
+  epoch: 2
+  committed_at: 2026-05-04T23:55:00Z
+  commit_sha: 0d478a4
+  commit_subject: "feat(ingest): OTLP gRPC receiver — tonic 0.14 :4317 + 3 OTLP services + 8MB decode caps + bind status (chunk #16); session 16"
 
 in_progress: null
 
@@ -24,9 +24,9 @@ plan_freshness:
   input_mtime: 2026-05-02T06:52:58Z
 
 living_artifact_freshness:
-  dep_tree_reconciled_at: 2026-05-04T21:43:31Z
-  api_surface_reconciled_at: 2026-05-04T21:43:31Z
-  most_recent_code_mtime: 2026-05-04T21:38:37Z
+  dep_tree_reconciled_at: 2026-05-04T23:55:00Z
+  api_surface_reconciled_at: 2026-05-04T23:55:00Z
+  most_recent_code_mtime: 2026-05-04T23:55:00Z
   reconcile_failed: false
 
 drift_warnings: []
@@ -59,4 +59,4 @@ spec_amendments:
       propagated_by_run: .andromeda/runs/2026-05-04T20-42-30-setup-project/
       archived_at: 2026-05-04T21:43:31Z
 
-session_count: 15
+session_count: 16
