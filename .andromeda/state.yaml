@@ -1,14 +1,14 @@
 schema_version: 2
-last_wrap: 2026-05-05T18:50:32Z
-last_reconcile: 2026-05-05T18:50:32Z
+last_wrap: 2026-05-05T22:30:00Z
+last_reconcile: 2026-05-05T22:30:00Z
 
 last_completed_chunk:
-  route_index: 18
-  title: "Ingest channel + post-decode invariants — tokio mpsc backpressure, span_id 8 / trace_id 16 / attribute bounds, AppError::Ingest variant"
+  route_index: 19
+  title: "Rate limiting + port-override validation — tower_governor coarse + per-source-port + ANDROMEDA_PULSE_OTLP_*_PORT TryFrom<u16>"
   epoch: 2
-  committed_at: 2026-05-05T18:50:32Z
-  commit_sha: 3e0bcd6
-  commit_subject: "feat(ingest): ingest channel + post-decode invariants — tokio mpsc + invariants module + AppError::Ingest From impl + ingest_channel health slot (chunk #18); session 18"
+  committed_at: 2026-05-05T22:30:00Z
+  commit_sha: 840d9e7
+  commit_subject: "feat(ingest): rate limiting + port-override validation — tower_governor 0.8 + OtlpPort TryFrom<u16> + GlobalKeyExtractor (chunk #19); session 19"
 
 in_progress: null
 
@@ -24,9 +24,9 @@ plan_freshness:
   input_mtime: 2026-05-02T06:52:58Z
 
 living_artifact_freshness:
-  dep_tree_reconciled_at: 2026-05-05T18:50:32Z
-  api_surface_reconciled_at: 2026-05-05T18:50:32Z
-  most_recent_code_mtime: 2026-05-05T18:50:32Z
+  dep_tree_reconciled_at: 2026-05-05T22:30:00Z
+  api_surface_reconciled_at: 2026-05-05T22:30:00Z
+  most_recent_code_mtime: 2026-05-05T22:30:00Z
   reconcile_failed: false
 
 drift_warnings: []
@@ -59,4 +59,4 @@ spec_amendments:
       propagated_by_run: .andromeda/runs/2026-05-04T20-42-30-setup-project/
       archived_at: 2026-05-04T21:43:31Z
 
-session_count: 18
+session_count: 19

@@ -8,6 +8,28 @@ _This file is entirely wrap-session's territory. `/setup-project` creates it if 
 
 ---
 
+## 2026-05-05 — `governor` crate uses real-time clock; not mockable via `tokio::time::pause()`
+
+The `governor` crate (used transitively by `tower_governor` 0.8 for OTLP receiver rate limiting per route#19) uses a `quanta`-backed monotonic clock (`governor::clock::DefaultClock` → `QuantaInstant`) for token-bucket replenishment. This clock is independent of tokio's runtime clock; calling `tokio::time::pause()` + `tokio::time::advance(Duration)` does NOT freeze or fast-forward governor's view of time. Rate-limit window assertions therefore cannot use the testing.md "use `tokio::time::pause()` for time-sensitive tests" pattern — saturation/recovery tests must use real-time short sleep with bounded windows.
+
+The chunk #19 `crates/ingest/tests/rate_limit.rs` integration tests use `TIGHT_PERIOD = Duration::from_millis(100)` + `TIGHT_BURST_SIZE = 2` + `RECOVERY_WAIT = Duration::from_millis(250)` — total real-time wall cost ~250-400ms per test, comfortably bounded. The testing.md "NEVER `sleep(N)` for sync" rule applies to event-waiting synchronization (poll for state change); time-elapsed-behavior testing on a real-clock-backed library is a distinct use case where real time IS the canonical signal. Document the deviation in the test file's module docstring; do NOT add the testing.md rule's `tokio = { features = ["test-util"] }` dev-dep just for governor tests — the feature flag wouldn't help.
+
+If a future external middleware library exposes a `Clock` trait or `governor::clock::FakeRelativeClock` becomes accessible through `tower_governor`'s public API, prefer that path; until then, real-time bounded windows are the working pattern. Pattern generalizes to any future timing test against a non-tokio-clock library.
+
+---
+
+## 2026-05-05 — Sibling-isolation grep gates over-specified when permitted DAG edge exists
+
+Plan acceptance criteria of the form `cargo tree -p {sibling_crate} | grep {dep} returns empty` are too coarse when the workspace has a permitted sibling-DAG edge. Concrete case (chunk #19): the criterion `cargo tree -p ui-bridge | grep tower_governor returns empty` was unachievable given the existing `ui-bridge → ingest` sibling dep edge (chunk #18's `From<IngestError> for AppError` impl in `crates/ui-bridge/src/contract.rs` per arch §Conventions Error response schema (Tauri IPC) From-impl-as-contract). Since `ingest` carries `tower_governor` as a direct dep, the whole-tree grep MUST match transitively through ui-bridge → ingest → tower_governor.
+
+The intent (no DIRECT tower_governor dep on ui-bridge) is captured better by:
+- `cargo tree -p ui-bridge --depth 1 | grep tower_governor` returns empty (only direct deps), OR
+- `grep tower_governor crates/ui-bridge/Cargo.toml` returns empty (declaration check).
+
+Both succeed for chunk #19's actual implementation (tower_governor declared only in `crates/ingest/Cargo.toml`). When future plans assert sibling-isolation, prefer one of these forms. The whole-tree grep is appropriate ONLY when the sibling pair has NO permitted dep edge between them. Document the edge in plan.md "Files к leave untouched" or research.md "Conventions to follow" section to make the constraint visible at planning time.
+
+---
+
 ## 2026-05-05 — `tokio::sync::mpsc::Sender::capacity()` returns FREE slots, not used
 
 The Tokio mpsc bounded-channel `Sender::capacity()` method returns the number of currently-available slots (free count), NOT the number of queued messages (used count). This is opposite of what most "capacity" mental models suggest — a bounded channel built with `mpsc::channel(1024)` reports `capacity() == 1024` when empty and `capacity() == 0` when full. To compute "% used" for instrumentation (the obs-plan §3 `buffer_capacity_pct` field on the `ingest.tick` heartbeat carries this), the formula is `(total - sender.capacity()) / total * 100.0`, where `total` is the original constructor argument (NOT exposed by the Sender directly — must be tracked by the caller). The chunk #18 `IngestSender` wrapper at `crates/ingest/src/channel.rs` stores the constructor capacity alongside the inner sender exactly because the Tokio API doesn't surface it; without that snapshot, capacity_pct calculation is impossible.

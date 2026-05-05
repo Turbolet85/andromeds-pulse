@@ -4,6 +4,7 @@ use std::sync::Arc;
 use std::{env, fs};
 
 use ingest::channel::{IngestSender, build_channel};
+use ingest::contract::{Error as IngestError, OtlpPort};
 use ingest::state::IngestState;
 use ui_bridge::health::{
     BindStatus, HealthApi, HealthApiImpl, HeartbeatState, IngestChannelStatus, record_start,
@@ -16,37 +17,44 @@ mod observability;
 const ENV_OTLP_GRPC_PORT: &str = "ANDROMEDA_PULSE_OTLP_GRPC_PORT";
 const ENV_OTLP_HTTP_PORT: &str = "ANDROMEDA_PULSE_OTLP_HTTP_PORT";
 
-fn resolve_grpc_port() -> u16 {
-    match env::var(ENV_OTLP_GRPC_PORT) {
-        Ok(raw) => match raw.parse::<u16>() {
-            Ok(port) => port,
-            Err(_) => {
-                tracing::warn!(
-                    target: "app.boot.otlp.grpc.port",
-                    raw_len = raw.len(),
-                    "invalid port value; falling back to default"
-                );
-                ingest::grpc::DEFAULT_GRPC_PORT
-            }
-        },
-        Err(_) => ingest::grpc::DEFAULT_GRPC_PORT,
-    }
+fn resolve_grpc_port() -> Result<OtlpPort, IngestError> {
+    resolve_port(ENV_OTLP_GRPC_PORT, ingest::grpc::DEFAULT_GRPC_PORT)
 }
 
-fn resolve_http_port() -> u16 {
-    match env::var(ENV_OTLP_HTTP_PORT) {
-        Ok(raw) => match raw.parse::<u16>() {
-            Ok(port) => port,
-            Err(_) => {
-                tracing::warn!(
-                    target: "app.boot.otlp.http.port",
-                    raw_len = raw.len(),
-                    "invalid port value; falling back to default"
-                );
-                ingest::http::DEFAULT_HTTP_PORT
-            }
-        },
-        Err(_) => ingest::http::DEFAULT_HTTP_PORT,
+fn resolve_http_port() -> Result<OtlpPort, IngestError> {
+    resolve_port(ENV_OTLP_HTTP_PORT, ingest::http::DEFAULT_HTTP_PORT)
+}
+
+fn resolve_port(env_var_name: &'static str, default: u16) -> Result<OtlpPort, IngestError> {
+    let raw = match env::var(env_var_name) {
+        Ok(r) => r,
+        Err(_) => {
+            return OtlpPort::try_from(default);
+        }
+    };
+    let parsed: u16 = match raw.parse::<u16>() {
+        Ok(p) => p,
+        Err(_) => {
+            tracing::warn!(
+                target: "config.load.port_validation",
+                env_var_name = env_var_name,
+                reject_reason = "unparseable",
+                "OTLP port env var rejected; receiver will not start",
+            );
+            return Err(IngestError::InvalidPort { value: raw });
+        }
+    };
+    match OtlpPort::try_from(parsed) {
+        Ok(p) => Ok(p),
+        Err(e) => {
+            tracing::warn!(
+                target: "config.load.port_validation",
+                env_var_name = env_var_name,
+                reject_reason = "out_of_range",
+                "OTLP port env var rejected; receiver will not start",
+            );
+            Err(e)
+        }
     }
 }
 
@@ -125,10 +133,30 @@ fn main() {
     let ingest_sender: Arc<IngestSender> = Arc::new(ingest_sender);
     heartbeat_state.record_ingest_channel(IngestChannelStatus::Ok { capacity_pct: 0.0 });
 
-    let grpc_port = resolve_grpc_port();
-    let grpc_addr = SocketAddr::from(([127, 0, 0, 1], grpc_port));
-    let http_port = resolve_http_port();
-    let http_addr = SocketAddr::from(([127, 0, 0, 1], http_port));
+    let grpc_addr = match resolve_grpc_port() {
+        Ok(p) => Some(SocketAddr::from(([127, 0, 0, 1], p.value()))),
+        Err(_) => {
+            heartbeat_state.record_otlp_grpc_bind(BindStatus::Failed("invalid_port".to_string()));
+            tracing::error!(
+                target: "app.boot.otlp.grpc.bind",
+                reason = "invalid_port",
+                "OTLP gRPC port validation rejected env-var override; receiver will not start"
+            );
+            None
+        }
+    };
+    let http_addr = match resolve_http_port() {
+        Ok(p) => Some(SocketAddr::from(([127, 0, 0, 1], p.value()))),
+        Err(_) => {
+            heartbeat_state.record_otlp_http_bind(BindStatus::Failed("invalid_port".to_string()));
+            tracing::error!(
+                target: "app.boot.otlp.http.bind",
+                reason = "invalid_port",
+                "OTLP HTTP port validation rejected env-var override; receiver will not start"
+            );
+            None
+        }
+    };
 
     tauri::Builder::default()
         .plugin(tauri_plugin_updater::Builder::new().build())
@@ -141,21 +169,34 @@ fn main() {
                     // The DuckDB Arrow appender lands in Epoch 3 chunk #20.
                 }
             });
-            let grpc_announcer = Arc::clone(&heartbeat_state);
-            let grpc_state = Arc::clone(&ingest_state);
-            let grpc_sender = Arc::clone(&ingest_sender);
-            tauri::async_runtime::spawn(async move {
-                match ingest::grpc::try_bind(grpc_addr).await {
-                    Ok(listener) => {
-                        grpc_announcer.record_otlp_grpc_bind(BindStatus::Ok);
-                        tracing::info!(
-                            target: "app.boot.otlp.grpc.bind",
-                            bind_address = %grpc_addr,
-                            "OTLP gRPC receiver bound"
-                        );
-                        if let Err(e) =
-                            ingest::grpc::serve_on(listener, grpc_state, grpc_sender).await
-                        {
+            if let Some(grpc_addr) = grpc_addr {
+                let grpc_announcer = Arc::clone(&heartbeat_state);
+                let grpc_state = Arc::clone(&ingest_state);
+                let grpc_sender = Arc::clone(&ingest_sender);
+                tauri::async_runtime::spawn(async move {
+                    match ingest::grpc::try_bind(grpc_addr).await {
+                        Ok(listener) => {
+                            grpc_announcer.record_otlp_grpc_bind(BindStatus::Ok);
+                            tracing::info!(
+                                target: "app.boot.otlp.grpc.bind",
+                                bind_address = %grpc_addr,
+                                "OTLP gRPC receiver bound"
+                            );
+                            if let Err(e) =
+                                ingest::grpc::serve_on(listener, grpc_state, grpc_sender).await
+                            {
+                                let reason = format!("{}", e);
+                                grpc_announcer
+                                    .record_otlp_grpc_bind(BindStatus::Failed(reason.clone()));
+                                tracing::error!(
+                                    target: "app.boot.otlp.grpc.bind",
+                                    reason = %reason,
+                                    bind_address = %grpc_addr,
+                                    "OTLP gRPC server stopped"
+                                );
+                            }
+                        }
+                        Err(e) => {
                             let reason = format!("{}", e);
                             grpc_announcer
                                 .record_otlp_grpc_bind(BindStatus::Failed(reason.clone()));
@@ -163,37 +204,40 @@ fn main() {
                                 target: "app.boot.otlp.grpc.bind",
                                 reason = %reason,
                                 bind_address = %grpc_addr,
-                                "OTLP gRPC server stopped"
+                                "bind failed"
                             );
                         }
                     }
-                    Err(e) => {
-                        let reason = format!("{}", e);
-                        grpc_announcer.record_otlp_grpc_bind(BindStatus::Failed(reason.clone()));
-                        tracing::error!(
-                            target: "app.boot.otlp.grpc.bind",
-                            reason = %reason,
-                            bind_address = %grpc_addr,
-                            "bind failed"
-                        );
-                    }
-                }
-            });
-            let http_announcer = Arc::clone(&heartbeat_state);
-            let http_state = Arc::clone(&ingest_state);
-            let http_sender = Arc::clone(&ingest_sender);
-            tauri::async_runtime::spawn(async move {
-                match ingest::http::try_bind(http_addr).await {
-                    Ok(listener) => {
-                        http_announcer.record_otlp_http_bind(BindStatus::Ok);
-                        tracing::info!(
-                            target: "app.boot.otlp.http.bind",
-                            bind_address = %http_addr,
-                            "OTLP HTTP receiver bound"
-                        );
-                        if let Err(e) =
-                            ingest::http::serve_on(listener, http_state, http_sender).await
-                        {
+                });
+            }
+            if let Some(http_addr) = http_addr {
+                let http_announcer = Arc::clone(&heartbeat_state);
+                let http_state = Arc::clone(&ingest_state);
+                let http_sender = Arc::clone(&ingest_sender);
+                tauri::async_runtime::spawn(async move {
+                    match ingest::http::try_bind(http_addr).await {
+                        Ok(listener) => {
+                            http_announcer.record_otlp_http_bind(BindStatus::Ok);
+                            tracing::info!(
+                                target: "app.boot.otlp.http.bind",
+                                bind_address = %http_addr,
+                                "OTLP HTTP receiver bound"
+                            );
+                            if let Err(e) =
+                                ingest::http::serve_on(listener, http_state, http_sender).await
+                            {
+                                let reason = format!("{}", e);
+                                http_announcer
+                                    .record_otlp_http_bind(BindStatus::Failed(reason.clone()));
+                                tracing::error!(
+                                    target: "app.boot.otlp.http.bind",
+                                    reason = %reason,
+                                    bind_address = %http_addr,
+                                    "OTLP HTTP server stopped"
+                                );
+                            }
+                        }
+                        Err(e) => {
                             let reason = format!("{}", e);
                             http_announcer
                                 .record_otlp_http_bind(BindStatus::Failed(reason.clone()));
@@ -201,26 +245,119 @@ fn main() {
                                 target: "app.boot.otlp.http.bind",
                                 reason = %reason,
                                 bind_address = %http_addr,
-                                "OTLP HTTP server stopped"
+                                "bind failed"
                             );
                         }
                     }
-                    Err(e) => {
-                        let reason = format!("{}", e);
-                        http_announcer.record_otlp_http_bind(BindStatus::Failed(reason.clone()));
-                        tracing::error!(
-                            target: "app.boot.otlp.http.bind",
-                            reason = %reason,
-                            bind_address = %http_addr,
-                            "bind failed"
-                        );
-                    }
-                }
-            });
+                });
+            }
             let _heartbeat_handles =
                 heartbeat::spawn(heartbeat_state, ingest_state, Arc::clone(&ingest_sender));
             Ok(())
         })
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    // SAFETY: env::set_var / remove_var are unsafe in Rust 2024 edition because
+    // they race with concurrent threads' env reads. cargo-nextest gives us
+    // per-process test isolation (per .claude/rules/testing.md §Framework), and
+    // each test uses a unique env-var name so there is no overlap with sibling
+    // tests sharing the same process. Calls are scoped narrowly and the env
+    // var is removed at end-of-test.
+
+    #[test]
+    fn resolve_port_unset_env_returns_default() {
+        const TEST_ENV: &str = "ANDROMEDA_PULSE_TEST_PORT_UNSET";
+        unsafe {
+            std::env::remove_var(TEST_ENV);
+        }
+        let result = resolve_port(TEST_ENV, 4317);
+        let port = result.expect("unset env returns default port");
+        assert_eq!(port.value(), 4317);
+    }
+
+    #[test]
+    fn resolve_port_unparseable_env_returns_invalid_port_err() {
+        const TEST_ENV: &str = "ANDROMEDA_PULSE_TEST_PORT_UNPARSEABLE";
+        unsafe {
+            std::env::set_var(TEST_ENV, "not-a-number");
+        }
+        let result = resolve_port(TEST_ENV, 4317);
+        unsafe {
+            std::env::remove_var(TEST_ENV);
+        }
+        assert!(matches!(result, Err(IngestError::InvalidPort { .. })));
+    }
+
+    #[test]
+    fn resolve_port_overflow_env_returns_invalid_port_err() {
+        const TEST_ENV: &str = "ANDROMEDA_PULSE_TEST_PORT_OVERFLOW";
+        unsafe {
+            std::env::set_var(TEST_ENV, "99999");
+        }
+        let result = resolve_port(TEST_ENV, 4317);
+        unsafe {
+            std::env::remove_var(TEST_ENV);
+        }
+        assert!(matches!(result, Err(IngestError::InvalidPort { .. })));
+    }
+
+    #[test]
+    fn resolve_port_privileged_env_returns_invalid_port_err() {
+        const TEST_ENV: &str = "ANDROMEDA_PULSE_TEST_PORT_PRIVILEGED";
+        unsafe {
+            std::env::set_var(TEST_ENV, "80");
+        }
+        let result = resolve_port(TEST_ENV, 4317);
+        unsafe {
+            std::env::remove_var(TEST_ENV);
+        }
+        assert!(matches!(result, Err(IngestError::InvalidPort { .. })));
+    }
+
+    #[test]
+    fn resolve_port_zero_env_returns_invalid_port_err() {
+        const TEST_ENV: &str = "ANDROMEDA_PULSE_TEST_PORT_ZERO";
+        unsafe {
+            std::env::set_var(TEST_ENV, "0");
+        }
+        let result = resolve_port(TEST_ENV, 4317);
+        unsafe {
+            std::env::remove_var(TEST_ENV);
+        }
+        assert!(matches!(result, Err(IngestError::InvalidPort { .. })));
+    }
+
+    #[test]
+    fn resolve_port_valid_non_privileged_returns_ok() {
+        const TEST_ENV: &str = "ANDROMEDA_PULSE_TEST_PORT_VALID";
+        unsafe {
+            std::env::set_var(TEST_ENV, "9000");
+        }
+        let result = resolve_port(TEST_ENV, 4317);
+        unsafe {
+            std::env::remove_var(TEST_ENV);
+        }
+        let port = result.expect("non-privileged port must pass");
+        assert_eq!(port.value(), 9000);
+    }
+
+    #[test]
+    fn resolve_port_spec_default_via_env_returns_ok() {
+        const TEST_ENV: &str = "ANDROMEDA_PULSE_TEST_PORT_SPEC_DEFAULT";
+        unsafe {
+            std::env::set_var(TEST_ENV, "4318");
+        }
+        let result = resolve_port(TEST_ENV, 4317);
+        unsafe {
+            std::env::remove_var(TEST_ENV);
+        }
+        let port = result.expect("spec-default 4318 via env must pass");
+        assert_eq!(port.value(), 4318);
+    }
 }

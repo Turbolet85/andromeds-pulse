@@ -323,6 +323,28 @@ impl AllowList {
                 .copied()
                 .collect(),
         );
+        // chunk #19 rate-limit + port-validation events. Vector-6 generalization:
+        // port-validation logs the env-var NAME + reject category only, never
+        // the raw user-controlled value (per security plan §Logging + obs-plan
+        // §11 Vector 6).
+        by_target.insert(
+            "config.load.port_validation",
+            ["env_var_name", "reject_reason"].iter().copied().collect(),
+        );
+        by_target.insert(
+            "ingest.grpc.rate_limit.rejected",
+            ["quota_window_seconds", "reject_reason"]
+                .iter()
+                .copied()
+                .collect(),
+        );
+        by_target.insert(
+            "ingest.http.rate_limit.rejected",
+            ["quota_window_seconds", "reject_reason"]
+                .iter()
+                .copied()
+                .collect(),
+        );
         by_target.insert(
             "app.panic.fatal",
             ["panic_message", "location", "spantrace"]
@@ -1008,6 +1030,92 @@ mod tests {
         assert!(
             al.for_target("unknown.module.target").is_none(),
             "unknown target redacts everything"
+        );
+    }
+
+    #[test]
+    fn scrubber_passes_port_validation_fields() {
+        let defaults = make_defaults(None, None);
+        let lines = capture_json_lines(defaults, || {
+            tracing::warn!(
+                target: "config.load.port_validation",
+                env_var_name = "ANDROMEDA_PULSE_OTLP_GRPC_PORT",
+                reject_reason = "out_of_range",
+                "OTLP port env var rejected",
+            );
+        });
+        let fields = &lines[0]["fields"];
+        assert_eq!(fields["env_var_name"], "ANDROMEDA_PULSE_OTLP_GRPC_PORT");
+        assert_eq!(fields["reject_reason"], "out_of_range");
+    }
+
+    #[test]
+    fn scrubber_redacts_non_allowlisted_port_validation_field() {
+        let defaults = make_defaults(None, None);
+        let lines = capture_json_lines(defaults, || {
+            tracing::warn!(
+                target: "config.load.port_validation",
+                env_var_name = "ANDROMEDA_PULSE_OTLP_GRPC_PORT",
+                raw_value = "99999",
+                "OTLP port env var rejected",
+            );
+        });
+        let fields = &lines[0]["fields"];
+        assert_eq!(fields["env_var_name"], "ANDROMEDA_PULSE_OTLP_GRPC_PORT");
+        assert_eq!(
+            fields["raw_value"], "<redacted>",
+            "raw env-var value MUST NOT leak through scrubber per Vector 6"
+        );
+    }
+
+    #[test]
+    fn scrubber_passes_grpc_rate_limit_fields() {
+        let defaults = make_defaults(None, None);
+        let lines = capture_json_lines(defaults, || {
+            tracing::warn!(
+                target: "ingest.grpc.rate_limit.rejected",
+                quota_window_seconds = 5_u64,
+                reject_reason = "rate_limit_exceeded",
+                "OTLP gRPC rate limit hit",
+            );
+        });
+        let fields = &lines[0]["fields"];
+        assert_eq!(fields["quota_window_seconds"], 5);
+        assert_eq!(fields["reject_reason"], "rate_limit_exceeded");
+    }
+
+    #[test]
+    fn scrubber_passes_http_rate_limit_fields() {
+        let defaults = make_defaults(None, None);
+        let lines = capture_json_lines(defaults, || {
+            tracing::warn!(
+                target: "ingest.http.rate_limit.rejected",
+                quota_window_seconds = 3_u64,
+                reject_reason = "rate_limit_exceeded",
+                "OTLP HTTP rate limit hit",
+            );
+        });
+        let fields = &lines[0]["fields"];
+        assert_eq!(fields["quota_window_seconds"], 3);
+        assert_eq!(fields["reject_reason"], "rate_limit_exceeded");
+    }
+
+    #[test]
+    fn scrubber_redacts_non_allowlisted_rate_limit_field() {
+        let defaults = make_defaults(None, None);
+        let lines = capture_json_lines(defaults, || {
+            tracing::warn!(
+                target: "ingest.grpc.rate_limit.rejected",
+                quota_window_seconds = 5_u64,
+                client_ip = "127.0.0.1",
+                "OTLP gRPC rate limit hit",
+            );
+        });
+        let fields = &lines[0]["fields"];
+        assert_eq!(fields["quota_window_seconds"], 5);
+        assert_eq!(
+            fields["client_ip"], "<redacted>",
+            "client_ip MUST NOT leak per obs-plan §11 cardinality discipline"
         );
     }
 

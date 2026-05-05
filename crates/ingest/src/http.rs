@@ -1,5 +1,6 @@
 use std::net::SocketAddr;
 use std::sync::Arc;
+use std::time::Duration;
 
 use axum::body::Bytes;
 use axum::extract::{DefaultBodyLimit, State};
@@ -9,6 +10,9 @@ use axum::routing::post;
 use axum::{Router, http};
 use http::{HeaderMap, HeaderValue, StatusCode};
 use prost::Message;
+use tower_governor::GovernorLayer;
+use tower_governor::governor::GovernorConfigBuilder;
+use tower_governor::key_extractor::GlobalKeyExtractor;
 use tower_http::cors::CorsLayer;
 use tower_http::trace::TraceLayer;
 
@@ -31,6 +35,13 @@ use crate::state::IngestState;
 pub const DEFAULT_HTTP_PORT: u16 = 4318;
 pub const MAX_DECODING_BODY_SIZE: usize = 8 * 1024 * 1024;
 const PROTOBUF_CONTENT_TYPE: &str = "application/x-protobuf";
+
+/// Coarse-global rate-limit for OTLP HTTP ingestion. Same shape as gRPC:
+/// ~1.2ms replenishment ≈ 833 req/sec ≈ 50_000 req/min sustained, 1000-token
+/// burst. Per security plan §API Security row 1 + arch §Conventions
+/// Configuration units (no new env var).
+pub const OTLP_HTTP_RATE_LIMIT_BURST_SIZE: u32 = 1000;
+pub const OTLP_HTTP_RATE_LIMIT_PERIOD: Duration = Duration::from_micros(1200);
 
 #[derive(Clone)]
 struct AppState {
@@ -57,6 +68,26 @@ pub async fn serve_on(
     state: Arc<IngestState>,
     sender: Arc<IngestSender>,
 ) -> Result<(), Error> {
+    serve_on_with_rate_limit(
+        listener,
+        state,
+        sender,
+        OTLP_HTTP_RATE_LIMIT_PERIOD,
+        OTLP_HTTP_RATE_LIMIT_BURST_SIZE,
+    )
+    .await
+}
+
+/// Serve with a parameterized rate-limit (period + burst). Used by tests to
+/// drive saturation in tight windows; production uses `serve_on` which fixes
+/// the production constants.
+pub async fn serve_on_with_rate_limit(
+    listener: tokio::net::TcpListener,
+    state: Arc<IngestState>,
+    sender: Arc<IngestSender>,
+    rate_limit_period: Duration,
+    rate_limit_burst_size: u32,
+) -> Result<(), Error> {
     let port = listener
         .local_addr()
         .map(|a| a.port())
@@ -65,7 +96,7 @@ pub async fn serve_on(
         ingest: state,
         sender,
     };
-    let router = build_router(app_state, port);
+    let router = build_router(app_state, port, rate_limit_period, rate_limit_burst_size);
     axum::serve(listener, router.into_make_service())
         .await
         .map_err(|e| Error::ServeFailed {
@@ -73,12 +104,39 @@ pub async fn serve_on(
         })
 }
 
-fn build_router(state: AppState, port: u16) -> Router {
+fn build_router(
+    state: AppState,
+    port: u16,
+    rate_limit_period: Duration,
+    rate_limit_burst_size: u32,
+) -> Router {
     let allowed_hosts: Arc<Vec<String>> = Arc::new(vec![
         format!("127.0.0.1:{port}"),
         format!("localhost:{port}"),
         format!("[::1]:{port}"),
     ]);
+
+    let governor_config = GovernorConfigBuilder::default()
+        .key_extractor(GlobalKeyExtractor)
+        .period(rate_limit_period)
+        .burst_size(rate_limit_burst_size)
+        .finish()
+        .expect("rate-limit config must be valid (non-zero period + non-zero burst)");
+    let governor_layer: GovernorLayer<_, _, axum::body::Body> = GovernorLayer::new(governor_config)
+        .error_handler(|err| {
+            let wait_time = match &err {
+                tower_governor::GovernorError::TooManyRequests { wait_time, .. } => *wait_time,
+                _ => 0,
+            };
+            tracing::warn!(
+                target: "ingest.http.rate_limit.rejected",
+                quota_window_seconds = wait_time,
+                reject_reason = "rate_limit_exceeded",
+                "OTLP HTTP rate limit hit",
+            );
+            err.into()
+        });
+
     Router::new()
         .route("/v1/traces", post(handle_traces))
         .route("/v1/metrics", post(handle_metrics))
@@ -86,6 +144,7 @@ fn build_router(state: AppState, port: u16) -> Router {
         .with_state(state)
         .layer(CorsLayer::new())
         .layer(DefaultBodyLimit::max(MAX_DECODING_BODY_SIZE))
+        .layer(governor_layer)
         .layer({
             let allowed = Arc::clone(&allowed_hosts);
             middleware::from_fn(move |req, next| {
