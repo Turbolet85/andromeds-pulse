@@ -8,6 +8,26 @@ _This file is entirely wrap-session's territory. `/setup-project` creates it if 
 
 ---
 
+## 2026-05-05 — `tokio::sync::mpsc::Sender::capacity()` returns FREE slots, not used
+
+The Tokio mpsc bounded-channel `Sender::capacity()` method returns the number of currently-available slots (free count), NOT the number of queued messages (used count). This is opposite of what most "capacity" mental models suggest — a bounded channel built with `mpsc::channel(1024)` reports `capacity() == 1024` when empty and `capacity() == 0` when full. To compute "% used" for instrumentation (the obs-plan §3 `buffer_capacity_pct` field on the `ingest.tick` heartbeat carries this), the formula is `(total - sender.capacity()) / total * 100.0`, where `total` is the original constructor argument (NOT exposed by the Sender directly — must be tracked by the caller). The chunk #18 `IngestSender` wrapper at `crates/ingest/src/channel.rs` stores the constructor capacity alongside the inner sender exactly because the Tokio API doesn't surface it; without that snapshot, capacity_pct calculation is impossible.
+
+Implication for future channel-introspection code: any wrapper around `tokio::sync::mpsc::Sender` that wants to report "fullness" must capture the constructor capacity at build time. `Sender::max_capacity()` does NOT exist on stable as of tokio 1.x; only `capacity()` (free) and `len()`-style methods on the receiver side exist. The wrapper-with-snapshot pattern from `ingest::channel::IngestSender` generalizes to any future bounded mpsc that needs introspection.
+
+See: `crates/ingest/src/channel.rs::IngestSender::capacity_pct`; tokio docs `tokio::sync::mpsc::Sender::capacity` (returns free, not used).
+
+---
+
+## 2026-05-05 — ui-bridge → ingest sibling crate dep is permitted because the From impl IS the declared contract
+
+Arch §Cross-cutting Patterns "Module dependency direction" states the workspace dep graph is a DAG with `pulse-app` as the only root, AND "no library crate depends on a sibling unless its declared contract requires it". Chunk #18 introduced `ingest = { path = "../ingest" }` to `crates/ui-bridge/Cargo.toml` — the only sibling-crate edge in the workspace as of session 18. The justification: `From<ingest::contract::Error> for AppError` impl lives in `crates/ui-bridge/src/contract.rs` because arch §Conventions "Error response schema (Tauri IPC)" mandates that `From` impls collapsing module-internal `thiserror` enums to `serde`-friendly `AppError` variants live in the bridge crate (where `AppError` is owned). The From impl IS the declared contract that the dependency edge serves; without it, ui-bridge cannot perform the boundary conversion `pulse-app/src/main.rs` (and future TauRPC procedure call-sites) need.
+
+Future-self gotcha when reading `crates/ui-bridge/Cargo.toml` and wondering "wait, why does ui-bridge depend on ingest?" — the answer is the From impl. The same pattern would apply if/when `From<buffer::Error> for AppError` or `From<viz::Error> for AppError` becomes necessary (Epoch 3 buffer chunk lands a similar impl). Each new module-error-to-AppError conversion adds a sibling-dep edge from ui-bridge to that module's crate; the DAG-discipline language permits this as "declared contract" exception.
+
+See: `crates/ui-bridge/Cargo.toml` `[dependencies] ingest = { path = "../ingest" }`; `crates/ui-bridge/src/contract.rs::From<IngestError> for AppError`; arch.md §Cross-cutting Patterns + §Conventions "Error response schema (Tauri IPC)".
+
+---
+
 ## 2026-05-05 — axum 0.8 + tonic 0.14 share tower 0.5 + hyper 1 cleanly (no transitive deny duplicate)
 
 When chunk #17 introduced `axum = "0.8"` + `tower = "0.5"` + `tower-http = "0.6"` alongside the existing `tonic = "0.14"` + `tokio-stream` + `tonic-prost` ingest stack, the expected risk was that `cargo deny check bans` (`multiple-versions = "deny"`) would fire on a transitive `tower 0.4 vs 0.5` or `hyper 0.14 vs 1` duplicate. It did not — the resolved dep graph contains exactly one `tower 0.5` + one `hyper 1` + one `http 1` shared across both receivers. axum 0.8 and tonic 0.14 are version-aligned by design (both target hyper 1 + tower 0.5 + http 1 simultaneously). The pre-existing `deny.toml [bans] skip` list (with the chunk #16 `foldhash` provenance entry) did not need extension for chunk #17.

@@ -3,9 +3,11 @@ use std::path::{Path, PathBuf};
 use std::sync::Arc;
 use std::{env, fs};
 
+use ingest::channel::{IngestSender, build_channel};
 use ingest::state::IngestState;
 use ui_bridge::health::{
-    BindStatus, HealthApi, HealthApiImpl, HeartbeatState, record_start, register_heartbeat_state,
+    BindStatus, HealthApi, HealthApiImpl, HeartbeatState, IngestChannelStatus, record_start,
+    register_heartbeat_state,
 };
 
 mod heartbeat;
@@ -119,6 +121,10 @@ fn main() {
     register_heartbeat_state(heartbeat_state.clone());
 
     let ingest_state = Arc::new(IngestState::new());
+    let (ingest_sender, ingest_receiver) = build_channel();
+    let ingest_sender: Arc<IngestSender> = Arc::new(ingest_sender);
+    heartbeat_state.record_ingest_channel(IngestChannelStatus::Ok { capacity_pct: 0.0 });
+
     let grpc_port = resolve_grpc_port();
     let grpc_addr = SocketAddr::from(([127, 0, 0, 1], grpc_port));
     let http_port = resolve_http_port();
@@ -128,8 +134,16 @@ fn main() {
         .plugin(tauri_plugin_updater::Builder::new().build())
         .invoke_handler(taurpc::create_ipc_handler(HealthApiImpl.into_handler()))
         .setup(move |_app| {
+            tauri::async_runtime::spawn(async move {
+                let mut rx = ingest_receiver;
+                while rx.recv().await.is_some() {
+                    // Placeholder consumer: drains batches to keep mpsc capacity recovering.
+                    // The DuckDB Arrow appender lands in Epoch 3 chunk #20.
+                }
+            });
             let grpc_announcer = Arc::clone(&heartbeat_state);
             let grpc_state = Arc::clone(&ingest_state);
+            let grpc_sender = Arc::clone(&ingest_sender);
             tauri::async_runtime::spawn(async move {
                 match ingest::grpc::try_bind(grpc_addr).await {
                     Ok(listener) => {
@@ -139,7 +153,9 @@ fn main() {
                             bind_address = %grpc_addr,
                             "OTLP gRPC receiver bound"
                         );
-                        if let Err(e) = ingest::grpc::serve_on(listener, grpc_state).await {
+                        if let Err(e) =
+                            ingest::grpc::serve_on(listener, grpc_state, grpc_sender).await
+                        {
                             let reason = format!("{}", e);
                             grpc_announcer
                                 .record_otlp_grpc_bind(BindStatus::Failed(reason.clone()));
@@ -165,6 +181,7 @@ fn main() {
             });
             let http_announcer = Arc::clone(&heartbeat_state);
             let http_state = Arc::clone(&ingest_state);
+            let http_sender = Arc::clone(&ingest_sender);
             tauri::async_runtime::spawn(async move {
                 match ingest::http::try_bind(http_addr).await {
                     Ok(listener) => {
@@ -174,7 +191,9 @@ fn main() {
                             bind_address = %http_addr,
                             "OTLP HTTP receiver bound"
                         );
-                        if let Err(e) = ingest::http::serve_on(listener, http_state).await {
+                        if let Err(e) =
+                            ingest::http::serve_on(listener, http_state, http_sender).await
+                        {
                             let reason = format!("{}", e);
                             http_announcer
                                 .record_otlp_http_bind(BindStatus::Failed(reason.clone()));
@@ -198,7 +217,8 @@ fn main() {
                     }
                 }
             });
-            let _heartbeat_handles = heartbeat::spawn(heartbeat_state, ingest_state);
+            let _heartbeat_handles =
+                heartbeat::spawn(heartbeat_state, ingest_state, Arc::clone(&ingest_sender));
             Ok(())
         })
         .run(tauri::generate_context!())

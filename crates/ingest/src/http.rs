@@ -12,6 +12,7 @@ use prost::Message;
 use tower_http::cors::CorsLayer;
 use tower_http::trace::TraceLayer;
 
+use crate::channel::{Batch, IngestSender};
 use crate::contract::Error;
 use crate::grpc::proto::opentelemetry::proto::collector::logs::v1::{
     ExportLogsServiceRequest, ExportLogsServiceResponse,
@@ -22,6 +23,9 @@ use crate::grpc::proto::opentelemetry::proto::collector::metrics::v1::{
 use crate::grpc::proto::opentelemetry::proto::collector::trace::v1::{
     ExportTraceServiceRequest, ExportTraceServiceResponse,
 };
+use crate::invariants::{
+    validate_resource_logs, validate_resource_metrics, validate_resource_spans,
+};
 use crate::state::IngestState;
 
 pub const DEFAULT_HTTP_PORT: u16 = 4318;
@@ -31,6 +35,7 @@ const PROTOBUF_CONTENT_TYPE: &str = "application/x-protobuf";
 #[derive(Clone)]
 struct AppState {
     ingest: Arc<IngestState>,
+    sender: Arc<IngestSender>,
 }
 
 /// Bind a TCP listener on `addr`. Splitting bind from serve allows callers
@@ -50,12 +55,16 @@ pub async fn try_bind(addr: SocketAddr) -> Result<tokio::net::TcpListener, Error
 pub async fn serve_on(
     listener: tokio::net::TcpListener,
     state: Arc<IngestState>,
+    sender: Arc<IngestSender>,
 ) -> Result<(), Error> {
     let port = listener
         .local_addr()
         .map(|a| a.port())
         .unwrap_or(DEFAULT_HTTP_PORT);
-    let app_state = AppState { ingest: state };
+    let app_state = AppState {
+        ingest: state,
+        sender,
+    };
     let router = build_router(app_state, port);
     axum::serve(listener, router.into_make_service())
         .await
@@ -150,6 +159,20 @@ async fn handle_traces(State(state): State<AppState>, headers: HeaderMap, body: 
     };
     let span_count = count_spans(&payload);
     tracing::Span::current().record("span_count", span_count);
+    if let Err(e) = validate_resource_spans(&payload.resource_spans) {
+        log_invariant(&e);
+        tracing::Span::current().record("status_code", 400);
+        return StatusCode::BAD_REQUEST.into_response();
+    }
+    if state
+        .sender
+        .try_send(Batch::Spans(payload.resource_spans))
+        .is_err()
+    {
+        log_channel_full();
+        tracing::Span::current().record("status_code", 503);
+        return StatusCode::SERVICE_UNAVAILABLE.into_response();
+    }
     state.ingest.record_spans(span_count);
     tracing::Span::current().record("status_code", 200);
     encode_protobuf_response(&ExportTraceServiceResponse::default())
@@ -199,6 +222,20 @@ async fn handle_metrics(
     };
     let dp_count = count_metric_data_points(&payload);
     tracing::Span::current().record("span_count", dp_count);
+    if let Err(e) = validate_resource_metrics(&payload.resource_metrics) {
+        log_invariant(&e);
+        tracing::Span::current().record("status_code", 400);
+        return StatusCode::BAD_REQUEST.into_response();
+    }
+    if state
+        .sender
+        .try_send(Batch::Metrics(payload.resource_metrics))
+        .is_err()
+    {
+        log_channel_full();
+        tracing::Span::current().record("status_code", 503);
+        return StatusCode::SERVICE_UNAVAILABLE.into_response();
+    }
     state.ingest.record_metric_data_points(dp_count);
     tracing::Span::current().record("status_code", 200);
     encode_protobuf_response(&ExportMetricsServiceResponse::default())
@@ -244,6 +281,20 @@ async fn handle_logs(State(state): State<AppState>, headers: HeaderMap, body: By
     };
     let log_count = count_log_records(&payload);
     tracing::Span::current().record("span_count", log_count);
+    if let Err(e) = validate_resource_logs(&payload.resource_logs) {
+        log_invariant(&e);
+        tracing::Span::current().record("status_code", 400);
+        return StatusCode::BAD_REQUEST.into_response();
+    }
+    if state
+        .sender
+        .try_send(Batch::Logs(payload.resource_logs))
+        .is_err()
+    {
+        log_channel_full();
+        tracing::Span::current().record("status_code", 503);
+        return StatusCode::SERVICE_UNAVAILABLE.into_response();
+    }
     state.ingest.record_log_records(log_count);
     tracing::Span::current().record("status_code", 200);
     encode_protobuf_response(&ExportLogsServiceResponse::default())
@@ -315,6 +366,34 @@ fn count_log_records(req: &ExportLogsServiceRequest) -> u64 {
 
 fn sanitize_error(e: &(impl std::fmt::Display + ?Sized)) -> String {
     format!("{}", e)
+}
+
+fn log_invariant(e: &Error) {
+    if let Error::InvariantViolation {
+        kind,
+        expected,
+        actual,
+    } = e
+    {
+        tracing::error!(
+            target: "ingest.http.parse.error",
+            span_field_invalid = *kind,
+            expected_length = *expected as u64,
+            actual_length = *actual as u64,
+            rejection_reason = "post_decode_invariant",
+            "OTLP invariant violation",
+        );
+    }
+}
+
+fn log_channel_full() {
+    tracing::warn!(
+        target: "ingest.channel.full",
+        channel_name = "ingest",
+        capacity_pct = 100.0,
+        rejection_reason = "saturated",
+        "ingest channel saturated",
+    );
 }
 
 #[cfg(test)]

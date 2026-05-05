@@ -23,8 +23,11 @@ async fn start_test_http_server() -> (SocketAddr, Arc<IngestState>, tokio::task:
         .expect("bind on ephemeral loopback port must succeed in test");
     let bound = listener.local_addr().expect("listener has local_addr");
     let state_clone = Arc::clone(&state);
+    let (sender, mut receiver) = ingest::channel::build_channel();
+    let sender = Arc::new(sender);
+    tokio::spawn(async move { while receiver.recv().await.is_some() {} });
     let handle = tokio::spawn(async move {
-        let _ = ingest::http::serve_on(listener, state_clone).await;
+        let _ = ingest::http::serve_on(listener, state_clone, sender).await;
     });
     // Best-effort wait for the server's accept loop to be ready before clients connect.
     tokio::time::sleep(Duration::from_millis(50)).await;

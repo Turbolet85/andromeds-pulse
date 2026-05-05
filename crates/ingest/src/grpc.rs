@@ -4,7 +4,11 @@ use std::sync::Arc;
 use tonic::transport::Server;
 use tonic::{Request, Response, Status};
 
+use crate::channel::{Batch, IngestSender};
 use crate::contract::Error;
+use crate::invariants::{
+    validate_resource_logs, validate_resource_metrics, validate_resource_spans,
+};
 use crate::state::IngestState;
 
 pub const MAX_DECODING_MESSAGE_SIZE: usize = 8 * 1024 * 1024;
@@ -85,16 +89,19 @@ use proto::opentelemetry::proto::collector::trace::v1::{
 #[derive(Clone)]
 struct TraceServiceImpl {
     state: Arc<IngestState>,
+    sender: Arc<IngestSender>,
 }
 
 #[derive(Clone)]
 struct MetricsServiceImpl {
     state: Arc<IngestState>,
+    sender: Arc<IngestSender>,
 }
 
 #[derive(Clone)]
 struct LogsServiceImpl {
     state: Arc<IngestState>,
+    sender: Arc<IngestSender>,
 }
 
 #[tonic::async_trait]
@@ -122,6 +129,12 @@ impl TraceService for TraceServiceImpl {
             count_spans(&payload)
         };
         tracing::Span::current().record("span_count", span_count);
+        if let Err(e) = validate_resource_spans(&payload.resource_spans) {
+            return Err(reject_invariant(e));
+        }
+        if let Err(e) = self.sender.try_send(Batch::Spans(payload.resource_spans)) {
+            return Err(reject_channel(e));
+        }
         self.state.record_spans(span_count);
         Ok(Response::new(ExportTraceServiceResponse::default()))
     }
@@ -152,6 +165,15 @@ impl MetricsService for MetricsServiceImpl {
             count_metric_data_points(&payload)
         };
         tracing::Span::current().record("span_count", dp_count);
+        if let Err(e) = validate_resource_metrics(&payload.resource_metrics) {
+            return Err(reject_invariant(e));
+        }
+        if let Err(e) = self
+            .sender
+            .try_send(Batch::Metrics(payload.resource_metrics))
+        {
+            return Err(reject_channel(e));
+        }
         self.state.record_metric_data_points(dp_count);
         Ok(Response::new(ExportMetricsServiceResponse::default()))
     }
@@ -182,6 +204,12 @@ impl LogsService for LogsServiceImpl {
             count_log_records(&payload)
         };
         tracing::Span::current().record("span_count", log_count);
+        if let Err(e) = validate_resource_logs(&payload.resource_logs) {
+            return Err(reject_invariant(e));
+        }
+        if let Err(e) = self.sender.try_send(Batch::Logs(payload.resource_logs)) {
+            return Err(reject_channel(e));
+        }
         self.state.record_log_records(log_count);
         Ok(Response::new(ExportLogsServiceResponse::default()))
     }
@@ -242,6 +270,36 @@ fn sanitize_error(e: &(impl std::fmt::Display + ?Sized)) -> String {
     format!("{}", e)
 }
 
+fn reject_invariant(e: Error) -> Status {
+    if let Error::InvariantViolation {
+        kind,
+        expected,
+        actual,
+    } = e
+    {
+        tracing::error!(
+            target: "ingest.grpc.parse.error",
+            span_field_invalid = kind,
+            expected_length = expected as u64,
+            actual_length = actual as u64,
+            rejection_reason = "post_decode_invariant",
+            "OTLP invariant violation",
+        );
+    }
+    Status::invalid_argument("invalid OTLP payload")
+}
+
+fn reject_channel(_e: Error) -> Status {
+    tracing::warn!(
+        target: "ingest.channel.full",
+        channel_name = "ingest",
+        capacity_pct = 100.0,
+        rejection_reason = "saturated",
+        "ingest channel saturated",
+    );
+    Status::resource_exhausted("ingest channel saturated")
+}
+
 /// Bind a TCP listener on `addr`. Splitting bind from serve allows callers
 /// (e.g., pulse-app/src/main.rs) to record `BindStatus::Ok` to the health
 /// envelope as soon as the listener accepts before serve_on enters its
@@ -260,14 +318,17 @@ pub async fn try_bind(addr: SocketAddr) -> Result<tokio::net::TcpListener, Error
 pub async fn serve_on(
     listener: tokio::net::TcpListener,
     state: Arc<IngestState>,
+    sender: Arc<IngestSender>,
 ) -> Result<(), Error> {
     let trace_svc = TraceServiceImpl {
         state: Arc::clone(&state),
+        sender: Arc::clone(&sender),
     };
     let metrics_svc = MetricsServiceImpl {
         state: Arc::clone(&state),
+        sender: Arc::clone(&sender),
     };
-    let logs_svc = LogsServiceImpl { state };
+    let logs_svc = LogsServiceImpl { state, sender };
 
     let incoming = tokio_stream::wrappers::TcpListenerStream::new(listener);
 

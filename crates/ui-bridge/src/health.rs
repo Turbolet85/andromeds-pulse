@@ -20,6 +20,12 @@ pub enum BindStatus {
     Failed(String),
 }
 
+#[derive(Debug, Clone, PartialEq)]
+pub enum IngestChannelStatus {
+    Ok { capacity_pct: f64 },
+    Saturated { capacity_pct: f64 },
+}
+
 #[derive(Debug, Default)]
 pub struct HeartbeatState {
     ingest: Mutex<Option<DateTime<Utc>>>,
@@ -28,6 +34,7 @@ pub struct HeartbeatState {
     plugins: Mutex<Option<DateTime<Utc>>>,
     otlp_grpc_bind: Mutex<Option<BindStatus>>,
     otlp_http_bind: Mutex<Option<BindStatus>>,
+    ingest_channel: Mutex<Option<IngestChannelStatus>>,
 }
 
 impl HeartbeatState {
@@ -53,6 +60,9 @@ impl HeartbeatState {
     pub fn record_otlp_http_bind(&self, status: BindStatus) {
         *self.otlp_http_bind.lock().unwrap() = Some(status);
     }
+    pub fn record_ingest_channel(&self, status: IngestChannelStatus) {
+        *self.ingest_channel.lock().unwrap() = Some(status);
+    }
 
     pub fn last_ingest(&self) -> Option<DateTime<Utc>> {
         *self.ingest.lock().unwrap()
@@ -71,6 +81,9 @@ impl HeartbeatState {
     }
     pub fn otlp_http_bind(&self) -> Option<BindStatus> {
         self.otlp_http_bind.lock().unwrap().clone()
+    }
+    pub fn ingest_channel_status(&self) -> Option<IngestChannelStatus> {
+        self.ingest_channel.lock().unwrap().clone()
     }
 }
 
@@ -171,6 +184,20 @@ pub fn current_health() -> HealthEnvelope {
             Some(BindStatus::Failed(reason)) => {
                 subsystems.otlp_http_receiver.status = "bind_failed".to_string();
                 subsystems.otlp_http_receiver.error_msg = Some(reason);
+                overall_ok = false;
+            }
+            None => {}
+        }
+        match state.ingest_channel_status() {
+            Some(IngestChannelStatus::Ok { .. }) => {
+                subsystems.ingest_channel.status = "ok".to_string();
+                subsystems.ingest_channel.last_tick_at = state.last_ingest();
+            }
+            Some(IngestChannelStatus::Saturated { capacity_pct }) => {
+                subsystems.ingest_channel.status = "saturated".to_string();
+                subsystems.ingest_channel.error_msg =
+                    Some(format!("capacity {} %", capacity_pct as u64));
+                subsystems.ingest_channel.last_tick_at = state.last_ingest();
                 overall_ok = false;
             }
             None => {}
@@ -327,6 +354,54 @@ mod tests {
         assert_eq!(
             envelope.subsystems.otlp_http_receiver.error_msg,
             Some("port in use".to_string())
+        );
+    }
+
+    #[test]
+    fn heartbeat_state_ingest_channel_slot_starts_empty() {
+        let state = HeartbeatState::new();
+        assert_eq!(state.ingest_channel_status(), None);
+    }
+
+    #[test]
+    fn heartbeat_state_records_ingest_channel_ok_and_saturated() {
+        let state = HeartbeatState::new();
+        state.record_ingest_channel(IngestChannelStatus::Ok { capacity_pct: 12.5 });
+        assert_eq!(
+            state.ingest_channel_status(),
+            Some(IngestChannelStatus::Ok { capacity_pct: 12.5 })
+        );
+        state.record_ingest_channel(IngestChannelStatus::Saturated {
+            capacity_pct: 100.0,
+        });
+        assert_eq!(
+            state.ingest_channel_status(),
+            Some(IngestChannelStatus::Saturated {
+                capacity_pct: 100.0
+            })
+        );
+    }
+
+    #[test]
+    fn current_health_degrades_on_ingest_channel_saturated() {
+        let state = Arc::new(HeartbeatState::new());
+        state.record_otlp_grpc_bind(BindStatus::Ok);
+        state.record_otlp_http_bind(BindStatus::Ok);
+        state.record_ingest_channel(IngestChannelStatus::Saturated {
+            capacity_pct: 100.0,
+        });
+        register_heartbeat_state(state);
+        let envelope = current_health();
+        assert!(matches!(envelope.status, HealthStatus::Degraded));
+        assert_eq!(envelope.subsystems.ingest_channel.status, "saturated");
+        assert!(
+            envelope
+                .subsystems
+                .ingest_channel
+                .error_msg
+                .as_deref()
+                .unwrap_or("")
+                .contains("100")
         );
     }
 }

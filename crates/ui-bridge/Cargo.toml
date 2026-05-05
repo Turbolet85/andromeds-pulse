@@ -14,9 +14,13 @@ taurpc-runtime = ["dep:taurpc", "dep:tauri", "dep:specta", "dep:tokio"]
 thiserror.workspace = true
 serde.workspace = true
 chrono.workspace = true
+ingest = { path = "../ingest" }
 
 # Tauri / TauRPC runtime — gated so xtask + downstream type consumers can opt out.
 taurpc = { workspace = true, optional = true }
 tauri = { workspace = true, optional = true }
 specta = { workspace = true, optional = true }
 tokio = { workspace = true, optional = true }
+
+[dev-dependencies]
+serde_json.workspace = true

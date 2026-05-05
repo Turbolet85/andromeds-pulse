@@ -1,5 +1,6 @@
 use thiserror::Error;
 
+use crate::channel::IngestSender;
 use crate::state::IngestState;
 
 #[derive(Debug, Error)]
@@ -10,6 +11,14 @@ pub enum Error {
     ServeFailed { reason: String },
     #[error("invalid OTLP gRPC port value: {value}")]
     InvalidPort { value: String },
+    #[error("OTLP invariant violation: {kind}")]
+    InvariantViolation {
+        kind: &'static str,
+        expected: usize,
+        actual: usize,
+    },
+    #[error("ingest channel saturated")]
+    ChannelFull,
 }
 
 #[derive(Debug, Clone, Copy, Default)]
@@ -19,14 +28,11 @@ pub struct IngestHeartbeat {
     pub broadcast_subscribers: u32,
 }
 
-pub fn heartbeat_payload(state: &IngestState) -> IngestHeartbeat {
+pub fn heartbeat_payload(state: &IngestState, sender: &IngestSender) -> IngestHeartbeat {
     let snap = state.snapshot();
     IngestHeartbeat {
         span_count: snap.span_count,
-        // Buffer capacity tracking lands in chunk #18 (mpsc backpressure observation).
-        // Receiver-only chunk #16 reports null-equivalent 0.0 placeholder per
-        // obs-plan §3 Heartbeat ticks "placeholder is acceptable, the tick MUST still fire".
-        buffer_capacity_pct: 0.0,
+        buffer_capacity_pct: sender.capacity_pct(),
         broadcast_subscribers: snap.broadcast_subscribers,
     }
 }
@@ -34,12 +40,14 @@ pub fn heartbeat_payload(state: &IngestState) -> IngestHeartbeat {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::channel::build_channel;
 
     #[test]
     fn heartbeat_payload_reflects_recorded_spans() {
         let state = IngestState::new();
         state.record_spans(42);
-        let h = heartbeat_payload(&state);
+        let (sender, _rx) = build_channel();
+        let h = heartbeat_payload(&state, &sender);
         assert_eq!(h.span_count, 42);
         assert_eq!(h.buffer_capacity_pct, 0.0);
         assert_eq!(h.broadcast_subscribers, 0);
@@ -48,8 +56,44 @@ mod tests {
     #[test]
     fn heartbeat_payload_default_state_is_all_zero() {
         let state = IngestState::new();
-        let h = heartbeat_payload(&state);
+        let (sender, _rx) = build_channel();
+        let h = heartbeat_payload(&state, &sender);
         assert_eq!(h.span_count, 0);
         assert_eq!(h.broadcast_subscribers, 0);
+    }
+
+    #[test]
+    fn heartbeat_payload_reflects_live_channel_capacity() {
+        let state = IngestState::new();
+        let (sender, mut rx) = crate::channel::build_channel_with_capacity(4);
+        // Fill 2 of 4 slots; receiver hasn't drained.
+        sender
+            .try_send(crate::channel::Batch::Spans(Vec::new()))
+            .expect("send within capacity");
+        sender
+            .try_send(crate::channel::Batch::Spans(Vec::new()))
+            .expect("send within capacity");
+        let h = heartbeat_payload(&state, &sender);
+        assert!(h.buffer_capacity_pct > 0.0);
+        assert!(h.buffer_capacity_pct <= 100.0);
+        // Drain to keep rx alive across assertion (would otherwise drop).
+        while rx.try_recv().is_ok() {}
+    }
+
+    #[test]
+    fn invariant_violation_error_carries_kind_and_lengths() {
+        let e = Error::InvariantViolation {
+            kind: "trace_id_length",
+            expected: 16,
+            actual: 8,
+        };
+        let s = format!("{e}");
+        assert!(s.contains("trace_id_length"));
+    }
+
+    #[test]
+    fn channel_full_error_displays_constant_string() {
+        let e = Error::ChannelFull;
+        assert_eq!(format!("{e}"), "ingest channel saturated");
     }
 }

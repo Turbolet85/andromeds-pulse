@@ -308,6 +308,21 @@ impl AllowList {
                 .copied()
                 .collect(),
         );
+        // chunk #18 mpsc channel events
+        by_target.insert(
+            "ingest.channel.send",
+            ["channel_name", "capacity_pct", "subscribers"]
+                .iter()
+                .copied()
+                .collect(),
+        );
+        by_target.insert(
+            "ingest.channel.full",
+            ["channel_name", "capacity_pct", "rejection_reason"]
+                .iter()
+                .copied()
+                .collect(),
+        );
         by_target.insert(
             "app.panic.fatal",
             ["panic_message", "location", "spantrace"]
