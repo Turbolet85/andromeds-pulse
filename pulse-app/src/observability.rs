@@ -125,6 +125,17 @@ impl AllowList {
                 "attributes_count",
                 "service_name_tag",
                 "trace_ids",
+                "http.method",
+                "http.route",
+                "http.status_code",
+                "content_type",
+                "route",
+                "body_size_bytes",
+                "limit_bytes",
+                "http_response_code",
+                "status_code",
+                "host_header_rejected",
+                "expected_host_class",
             ]
             .iter()
             .copied()
@@ -256,6 +267,14 @@ impl AllowList {
             "app.boot.otlp.grpc.port",
             ["raw_len"].iter().copied().collect(),
         );
+        by_target.insert(
+            "app.boot.otlp.http.bind",
+            ["bind_address", "reason"].iter().copied().collect(),
+        );
+        by_target.insert(
+            "app.boot.otlp.http.port",
+            ["raw_len"].iter().copied().collect(),
+        );
         // chunk #18 invariant violation scaffold; allowlist now so future
         // populated events pass scrubbing without further allowlist edits.
         by_target.insert(
@@ -269,6 +288,25 @@ impl AllowList {
             .iter()
             .copied()
             .collect(),
+        );
+        by_target.insert(
+            "ingest.http.parse.error",
+            [
+                "span_field_invalid",
+                "expected_length",
+                "actual_length",
+                "rejection_reason",
+            ]
+            .iter()
+            .copied()
+            .collect(),
+        );
+        by_target.insert(
+            "ingest.http.body_size.exceeded",
+            ["body_size_bytes", "limit_bytes", "http_response_code"]
+                .iter()
+                .copied()
+                .collect(),
         );
         by_target.insert(
             "app.panic.fatal",

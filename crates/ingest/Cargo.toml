@@ -14,6 +14,11 @@ tonic.workspace = true
 tonic-prost.workspace = true
 prost.workspace = true
 tracing.workspace = true
+axum.workspace = true
+tower.workspace = true
+tower-http.workspace = true
+bytes.workspace = true
+http.workspace = true
 
 [build-dependencies]
 tonic-build.workspace = true
@@ -24,3 +29,5 @@ protoc-bin-vendored.workspace = true
 tempfile.workspace = true
 rstest.workspace = true
 proptest.workspace = true
+axum-test.workspace = true
+reqwest.workspace = true

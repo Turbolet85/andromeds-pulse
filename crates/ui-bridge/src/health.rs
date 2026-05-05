@@ -27,6 +27,7 @@ pub struct HeartbeatState {
     viz: Mutex<Option<DateTime<Utc>>>,
     plugins: Mutex<Option<DateTime<Utc>>>,
     otlp_grpc_bind: Mutex<Option<BindStatus>>,
+    otlp_http_bind: Mutex<Option<BindStatus>>,
 }
 
 impl HeartbeatState {
@@ -49,6 +50,9 @@ impl HeartbeatState {
     pub fn record_otlp_grpc_bind(&self, status: BindStatus) {
         *self.otlp_grpc_bind.lock().unwrap() = Some(status);
     }
+    pub fn record_otlp_http_bind(&self, status: BindStatus) {
+        *self.otlp_http_bind.lock().unwrap() = Some(status);
+    }
 
     pub fn last_ingest(&self) -> Option<DateTime<Utc>> {
         *self.ingest.lock().unwrap()
@@ -64,6 +68,9 @@ impl HeartbeatState {
     }
     pub fn otlp_grpc_bind(&self) -> Option<BindStatus> {
         self.otlp_grpc_bind.lock().unwrap().clone()
+    }
+    pub fn otlp_http_bind(&self) -> Option<BindStatus> {
+        self.otlp_http_bind.lock().unwrap().clone()
     }
 }
 
@@ -152,6 +159,18 @@ pub fn current_health() -> HealthEnvelope {
             Some(BindStatus::Failed(reason)) => {
                 subsystems.otlp_grpc_receiver.status = "bind_failed".to_string();
                 subsystems.otlp_grpc_receiver.error_msg = Some(reason);
+                overall_ok = false;
+            }
+            None => {}
+        }
+        match state.otlp_http_bind() {
+            Some(BindStatus::Ok) => {
+                subsystems.otlp_http_receiver.status = "ok".to_string();
+                subsystems.otlp_http_receiver.last_tick_at = state.last_ingest();
+            }
+            Some(BindStatus::Failed(reason)) => {
+                subsystems.otlp_http_receiver.status = "bind_failed".to_string();
+                subsystems.otlp_http_receiver.error_msg = Some(reason);
                 overall_ok = false;
             }
             None => {}
@@ -275,6 +294,39 @@ mod tests {
         assert_eq!(
             state.otlp_grpc_bind(),
             Some(BindStatus::Failed("address in use".to_string()))
+        );
+    }
+
+    #[test]
+    fn heartbeat_state_otlp_http_bind_slot_starts_empty() {
+        let state = HeartbeatState::new();
+        assert_eq!(state.otlp_http_bind(), None);
+    }
+
+    #[test]
+    fn heartbeat_state_records_otlp_http_bind_ok_and_failed() {
+        let state = HeartbeatState::new();
+        state.record_otlp_http_bind(BindStatus::Ok);
+        assert_eq!(state.otlp_http_bind(), Some(BindStatus::Ok));
+        state.record_otlp_http_bind(BindStatus::Failed("address in use".to_string()));
+        assert_eq!(
+            state.otlp_http_bind(),
+            Some(BindStatus::Failed("address in use".to_string()))
+        );
+    }
+
+    #[test]
+    fn current_health_degrades_on_http_bind_failure() {
+        let state = Arc::new(HeartbeatState::new());
+        state.record_otlp_grpc_bind(BindStatus::Ok);
+        state.record_otlp_http_bind(BindStatus::Failed("port in use".to_string()));
+        register_heartbeat_state(state);
+        let envelope = current_health();
+        assert!(matches!(envelope.status, HealthStatus::Degraded));
+        assert_eq!(envelope.subsystems.otlp_http_receiver.status, "bind_failed");
+        assert_eq!(
+            envelope.subsystems.otlp_http_receiver.error_msg,
+            Some("port in use".to_string())
         );
     }
 }

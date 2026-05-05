@@ -8,6 +8,39 @@ _This file is entirely wrap-session's territory. `/setup-project` creates it if 
 
 ---
 
+## 2026-05-05 — axum 0.8 + tonic 0.14 share tower 0.5 + hyper 1 cleanly (no transitive deny duplicate)
+
+When chunk #17 introduced `axum = "0.8"` + `tower = "0.5"` + `tower-http = "0.6"` alongside the existing `tonic = "0.14"` + `tokio-stream` + `tonic-prost` ingest stack, the expected risk was that `cargo deny check bans` (`multiple-versions = "deny"`) would fire on a transitive `tower 0.4 vs 0.5` or `hyper 0.14 vs 1` duplicate. It did not — the resolved dep graph contains exactly one `tower 0.5` + one `hyper 1` + one `http 1` shared across both receivers. axum 0.8 and tonic 0.14 are version-aligned by design (both target hyper 1 + tower 0.5 + http 1 simultaneously). The pre-existing `deny.toml [bans] skip` list (with the chunk #16 `foldhash` provenance entry) did not need extension for chunk #17.
+
+Implication for future Epoch 2-4 chunks: when adding HTTP/web infrastructure crates that need to coexist with the OTLP/gRPC stack, prefer versions that target hyper 1 + tower 0.5 + http 1 to maintain this clean unification. The `tonic <0.14` deny canary at `deny.toml [bans] deny` continues to enforce the original OTLP-receiver invariant — that line is the canonical anchor for "we use the tonic 0.14 + hyper 1 + tower 0.5 stack only".
+
+Note: `cargo check` output during chunk #17 showed `Checking reqwest v0.13.3` AND `Checking reqwest v0.12.28` (12.x added directly as dev-dep for HTTP integration tests; 13.x pulled transitively by tauri-plugin-updater 2.10's HTTP client). `cargo deny check bans` did NOT fire — the resolver appears to have a tolerance carve-out for dev-dep duplicates that don't enter the production binary's link graph (or the duplicate is benign for this skip-list configuration). No action required.
+
+See: `Cargo.toml` `[workspace.dependencies]` Ingest pipeline + OTLP HTTP receiver sections (route#16 + route#17 dep blocks); `deny.toml` `[bans] deny tonic <0.14` canary (security plan §Dependency Security Pinning).
+
+---
+
+## 2026-05-05 — `axum::Router::layer` chains apply outermost-LAST (each .layer() call wraps the previous)
+
+`Router::new().route(...).layer(L1).layer(L2).layer(L3)` produces a service stack where on the request side, L3 runs first (outermost), then L2, then L1, then the handler; on the response side, the reverse. Each `.layer()` call WRAPS the previous layer, so the LAST `.layer()` chained becomes the OUTERMOST middleware. Without understanding this, middleware ordering goes wrong — e.g., placing `DefaultBodyLimit` BEFORE the Host-header allowlist in code-order means the body-limit check runs INSIDE (closer to handler) and the host check runs OUTSIDE (rejects first). The intuitive reading is reversed.
+
+For the OTLP HTTP receiver at `crates/ingest/src/http.rs::build_router`, the desired security ordering is: tracing instrumentation outermost (so all rejected requests still emit boundary spans for observability), then Host-header allowlist (reject DNS-rebinding attempts before body read), then DefaultBodyLimit (reject oversize bodies before parsing — the JFrog axum-core advisory anchor), then CORS default-deny innermost. The matching code-order in build_router is:
+
+```
+.layer(CorsLayer::new())                  // innermost — applied first when entering
+.layer(DefaultBodyLimit::max(8 * 1024 * 1024))  // wraps CORS
+.layer(middleware::from_fn(host_header_check))  // wraps body-limit
+.layer(TraceLayer::new_for_http())        // outermost — wraps everything
+```
+
+This is the inverse of how readers naturally scan the code, so worth documenting as a future-self gotcha. The pattern matches `tower::ServiceBuilder` (which chains layers in semantic outer-to-inner order via `.layer()` calls; same trap, different syntax).
+
+Implication for future axum middleware additions: when adding a new layer, check the ordering by tracing one request through: which layer should run first → put it LAST in the `.layer()` chain. Add a brief code comment if ordering matters semantically (e.g., "// security: host check before body parse to short-circuit DNS rebinding").
+
+See: `crates/ingest/src/http.rs::build_router` (chunk #17 layer stack); axum 0.8 docs `Router::layer` semantics; `tower::ServiceBuilder` ordering (same convention).
+
+---
+
 ## 2026-05-04 — tonic 0.14 split `prost` integration into separate `tonic-prost` crate
 
 The `tonic = "0.13"` legacy pattern bundled prost message support into the main `tonic` crate via the `prost` feature. `tonic = "0.14"` removed that feature — the available features are `_tls-any, channel, codegen, default, deflate, gzip, router, server, tls-aws-lc, tls-native-roots, tls-ring, tls-webpki-roots, transport, zstd` (no `prost`). Adding `tonic = { version = "0.14", features = ["prost"] }` errors with `package 'ingest' depends on 'tonic' with feature 'prost' but 'tonic' does not have that feature.` The migration: depend on `tonic-prost = "0.14"` separately for the `ProstCodec` runtime + change feature set to `["transport", "router", "server", "codegen"]` (or whatever subset needed). Same story for build dependencies: `tonic-build = "0.14"` is the general gRPC service codegen crate; `tonic-prost-build = "0.14"` is the prost-message codegen crate — both are required when invoking `tonic_prost_build::configure().compile_protos(...)` from `build.rs`. The `tonic-prost-build` crate also pulls in `prost-build` 0.14 transitively, which requires `protoc` on PATH (or a vendored binary via `protoc-bin-vendored = "3"`).

@@ -12,6 +12,7 @@ mod heartbeat;
 mod observability;
 
 const ENV_OTLP_GRPC_PORT: &str = "ANDROMEDA_PULSE_OTLP_GRPC_PORT";
+const ENV_OTLP_HTTP_PORT: &str = "ANDROMEDA_PULSE_OTLP_HTTP_PORT";
 
 fn resolve_grpc_port() -> u16 {
     match env::var(ENV_OTLP_GRPC_PORT) {
@@ -27,6 +28,23 @@ fn resolve_grpc_port() -> u16 {
             }
         },
         Err(_) => ingest::grpc::DEFAULT_GRPC_PORT,
+    }
+}
+
+fn resolve_http_port() -> u16 {
+    match env::var(ENV_OTLP_HTTP_PORT) {
+        Ok(raw) => match raw.parse::<u16>() {
+            Ok(port) => port,
+            Err(_) => {
+                tracing::warn!(
+                    target: "app.boot.otlp.http.port",
+                    raw_len = raw.len(),
+                    "invalid port value; falling back to default"
+                );
+                ingest::http::DEFAULT_HTTP_PORT
+            }
+        },
+        Err(_) => ingest::http::DEFAULT_HTTP_PORT,
     }
 }
 
@@ -101,43 +119,80 @@ fn main() {
     register_heartbeat_state(heartbeat_state.clone());
 
     let ingest_state = Arc::new(IngestState::new());
-    let port = resolve_grpc_port();
-    let addr = SocketAddr::from(([127, 0, 0, 1], port));
+    let grpc_port = resolve_grpc_port();
+    let grpc_addr = SocketAddr::from(([127, 0, 0, 1], grpc_port));
+    let http_port = resolve_http_port();
+    let http_addr = SocketAddr::from(([127, 0, 0, 1], http_port));
 
     tauri::Builder::default()
         .plugin(tauri_plugin_updater::Builder::new().build())
         .invoke_handler(taurpc::create_ipc_handler(HealthApiImpl.into_handler()))
         .setup(move |_app| {
-            let bind_announcer = Arc::clone(&heartbeat_state);
+            let grpc_announcer = Arc::clone(&heartbeat_state);
             let grpc_state = Arc::clone(&ingest_state);
             tauri::async_runtime::spawn(async move {
-                match ingest::grpc::try_bind(addr).await {
+                match ingest::grpc::try_bind(grpc_addr).await {
                     Ok(listener) => {
-                        bind_announcer.record_otlp_grpc_bind(BindStatus::Ok);
+                        grpc_announcer.record_otlp_grpc_bind(BindStatus::Ok);
                         tracing::info!(
                             target: "app.boot.otlp.grpc.bind",
-                            bind_address = %addr,
+                            bind_address = %grpc_addr,
                             "OTLP gRPC receiver bound"
                         );
                         if let Err(e) = ingest::grpc::serve_on(listener, grpc_state).await {
                             let reason = format!("{}", e);
-                            bind_announcer
+                            grpc_announcer
                                 .record_otlp_grpc_bind(BindStatus::Failed(reason.clone()));
                             tracing::error!(
                                 target: "app.boot.otlp.grpc.bind",
                                 reason = %reason,
-                                bind_address = %addr,
+                                bind_address = %grpc_addr,
                                 "OTLP gRPC server stopped"
                             );
                         }
                     }
                     Err(e) => {
                         let reason = format!("{}", e);
-                        bind_announcer.record_otlp_grpc_bind(BindStatus::Failed(reason.clone()));
+                        grpc_announcer.record_otlp_grpc_bind(BindStatus::Failed(reason.clone()));
                         tracing::error!(
                             target: "app.boot.otlp.grpc.bind",
                             reason = %reason,
-                            bind_address = %addr,
+                            bind_address = %grpc_addr,
+                            "bind failed"
+                        );
+                    }
+                }
+            });
+            let http_announcer = Arc::clone(&heartbeat_state);
+            let http_state = Arc::clone(&ingest_state);
+            tauri::async_runtime::spawn(async move {
+                match ingest::http::try_bind(http_addr).await {
+                    Ok(listener) => {
+                        http_announcer.record_otlp_http_bind(BindStatus::Ok);
+                        tracing::info!(
+                            target: "app.boot.otlp.http.bind",
+                            bind_address = %http_addr,
+                            "OTLP HTTP receiver bound"
+                        );
+                        if let Err(e) = ingest::http::serve_on(listener, http_state).await {
+                            let reason = format!("{}", e);
+                            http_announcer
+                                .record_otlp_http_bind(BindStatus::Failed(reason.clone()));
+                            tracing::error!(
+                                target: "app.boot.otlp.http.bind",
+                                reason = %reason,
+                                bind_address = %http_addr,
+                                "OTLP HTTP server stopped"
+                            );
+                        }
+                    }
+                    Err(e) => {
+                        let reason = format!("{}", e);
+                        http_announcer.record_otlp_http_bind(BindStatus::Failed(reason.clone()));
+                        tracing::error!(
+                            target: "app.boot.otlp.http.bind",
+                            reason = %reason,
+                            bind_address = %http_addr,
                             "bind failed"
                         );
                     }

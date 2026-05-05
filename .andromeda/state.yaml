@@ -1,14 +1,14 @@
 schema_version: 2
-last_wrap: 2026-05-04T23:55:00Z
-last_reconcile: 2026-05-04T23:55:00Z
+last_wrap: 2026-05-05T17:01:39Z
+last_reconcile: 2026-05-05T17:01:39Z
 
 last_completed_chunk:
-  route_index: 16
-  title: "OTLP gRPC receiver — tonic 0.14 :4317 bound 127.0.0.1, TraceService/MetricsService/LogsService, .max_decoding_message_size 8MB"
+  route_index: 17
+  title: "OTLP HTTP receiver — axum 0.8 :4318 bound 127.0.0.1, POST /v1/{traces,metrics,logs}, DefaultBodyLimit + Host-header allowlist + CORS deny"
   epoch: 2
-  committed_at: 2026-05-04T23:55:00Z
-  commit_sha: 0d478a4
-  commit_subject: "feat(ingest): OTLP gRPC receiver — tonic 0.14 :4317 + 3 OTLP services + 8MB decode caps + bind status (chunk #16); session 16"
+  committed_at: 2026-05-05T17:01:39Z
+  commit_sha: c8f50d3
+  commit_subject: "feat(ingest): OTLP HTTP receiver — axum 0.8 :4318 + 3 POST handlers + 8MB DefaultBodyLimit + Host-header allowlist + CORS deny (chunk #17); session 17"
 
 in_progress: null
 
@@ -24,9 +24,9 @@ plan_freshness:
   input_mtime: 2026-05-02T06:52:58Z
 
 living_artifact_freshness:
-  dep_tree_reconciled_at: 2026-05-04T23:55:00Z
-  api_surface_reconciled_at: 2026-05-04T23:55:00Z
-  most_recent_code_mtime: 2026-05-04T23:55:00Z
+  dep_tree_reconciled_at: 2026-05-05T17:01:39Z
+  api_surface_reconciled_at: 2026-05-05T17:01:39Z
+  most_recent_code_mtime: 2026-05-05T17:01:39Z
   reconcile_failed: false
 
 drift_warnings: []
@@ -59,4 +59,4 @@ spec_amendments:
       propagated_by_run: .andromeda/runs/2026-05-04T20-42-30-setup-project/
       archived_at: 2026-05-04T21:43:31Z
 
-session_count: 16
+session_count: 17
