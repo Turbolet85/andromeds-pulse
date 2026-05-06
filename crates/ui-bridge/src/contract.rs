@@ -3,6 +3,7 @@ use thiserror::Error;
 
 use buffer::Error as BufferError;
 use ingest::contract::Error as IngestError;
+use viz::Error as VizError;
 
 #[cfg_attr(feature = "taurpc-runtime", derive(specta::Type))]
 #[derive(Debug, Clone, Error, Serialize, Deserialize)]
@@ -62,6 +63,26 @@ impl From<BufferError> for AppError {
         };
         AppError::Storage {
             message: message.to_string(),
+        }
+    }
+}
+
+impl From<VizError> for AppError {
+    fn from(e: VizError) -> Self {
+        match e {
+            VizError::QueryFailed { .. } => AppError::Storage {
+                message: "viz query failed".to_string(),
+            },
+            VizError::InvalidArgument { field, .. } => AppError::Validation {
+                field,
+                reason: "invalid query argument".to_string(),
+            },
+            VizError::ConnectionLost => AppError::Storage {
+                message: "viz connection lost".to_string(),
+            },
+            VizError::Decode { .. } => AppError::Storage {
+                message: "viz row decode failed".to_string(),
+            },
         }
     }
 }
@@ -219,6 +240,78 @@ mod tests {
             }
             other => panic!("expected AppError::Storage, got {other:?}"),
         }
+    }
+
+    #[test]
+    fn from_viz_query_failed_collapses_to_constant_message_no_leak() {
+        let e = AppError::from(VizError::QueryFailed {
+            reason: "duckdb internal error 0xdeadbeef at /tmp/secret 1.10502".to_string(),
+        });
+        match e {
+            AppError::Storage { message } => {
+                assert_eq!(message, "viz query failed");
+                assert!(!message.contains("duckdb"));
+                assert!(!message.contains("0xdeadbeef"));
+                assert!(!message.contains("/tmp/"));
+                assert!(!message.contains("1.10502"));
+            }
+            other => panic!("expected AppError::Storage, got {other:?}"),
+        }
+    }
+
+    #[test]
+    fn from_viz_invalid_argument_preserves_field_strips_reason_internals() {
+        let e = AppError::from(VizError::InvalidArgument {
+            field: "limit".to_string(),
+            reason: "above max 1000 see /usr/local/lib/duckdb 1.10502".to_string(),
+        });
+        match e {
+            AppError::Validation { field, reason } => {
+                assert_eq!(field, "limit");
+                assert_eq!(reason, "invalid query argument");
+                assert!(!reason.contains("/usr/local"));
+                assert!(!reason.contains("1.10502"));
+            }
+            other => panic!("expected AppError::Validation, got {other:?}"),
+        }
+    }
+
+    #[test]
+    fn from_viz_connection_lost_collapses_to_constant_message() {
+        let e = AppError::from(VizError::ConnectionLost);
+        match e {
+            AppError::Storage { message } => assert_eq!(message, "viz connection lost"),
+            other => panic!("expected AppError::Storage, got {other:?}"),
+        }
+    }
+
+    #[test]
+    fn from_viz_decode_collapses_to_constant_message_no_struct_name_leak() {
+        let e = AppError::from(VizError::Decode {
+            reason: "row::get failed at /home/user/code/viz.rs:42 0xdeadbeef".to_string(),
+        });
+        match e {
+            AppError::Storage { message } => {
+                assert_eq!(message, "viz row decode failed");
+                assert!(!message.contains("/home/"));
+                assert!(!message.contains(".rs:"));
+                assert!(!message.contains("0xdeadbeef"));
+                assert!(!message.contains("Error::"));
+            }
+            other => panic!("expected AppError::Storage, got {other:?}"),
+        }
+    }
+
+    #[test]
+    fn from_viz_query_failed_serializes_to_stable_sanitized_shape() {
+        let e = AppError::from(VizError::QueryFailed {
+            reason: "raw duckdb error".to_string(),
+        });
+        let s = serde_json::to_string(&e).expect("serializes");
+        let v: serde_json::Value = serde_json::from_str(&s).expect("parses back");
+        assert_eq!(v["kind"], "storage");
+        assert_eq!(v["message"], "viz query failed");
+        assert!(!s.contains("duckdb"));
     }
 
     #[test]

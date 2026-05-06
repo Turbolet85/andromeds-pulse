@@ -16,6 +16,7 @@ serde.workspace = true
 chrono.workspace = true
 ingest = { path = "../ingest" }
 buffer = { path = "../buffer" }
+viz = { path = "../viz" }
 
 # Tauri / TauRPC runtime — gated so xtask + downstream type consumers can opt out.
 taurpc = { workspace = true, optional = true }

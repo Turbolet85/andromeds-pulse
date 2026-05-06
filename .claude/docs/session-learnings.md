@@ -8,6 +8,48 @@ _This file is entirely wrap-session's territory. `/setup-project` creates it if 
 
 ---
 
+## 2026-05-06 — TauRPC trait+impl pairs belong in the binary crate, not in producer library crates (cargo feature-unification cycle)
+
+When a TauRPC API is exposed by a library crate's content (viz query types + Error, future scope-crate types, etc.), the natural Rust instinct is to colocate the `#[taurpc::procedures] pub trait Api` + `#[taurpc::resolvers] impl Api for ApiImpl` with the data types in the same library crate. This works for `ui-bridge` because ui-bridge OWNS the `AppError` type that procedures return — the trait can be feature-gated and reference AppError directly (see `crates/ui-bridge/src/health.rs::runtime` mod under `#[cfg(feature = "taurpc-runtime")]`).
+
+For peer library crates (viz, future scope crates), procedures still must return `Result<T, AppError>` per arch §Conventions. AppError lives in ui-bridge. So the producer's runtime module needs ui-bridge as a dep. Meanwhile ui-bridge already depends on the producer for `From<ProducerError> for AppError` (per the chunk #18 sibling-dep precedent already documented in this file). This APPEARS solvable via cargo features:
+
+- viz declares feature `taurpc-runtime` → activates optional dep on `ui-bridge`
+- ui-bridge → declares dep on `viz` with `default-features = false` (no `taurpc-runtime` active)
+
+Cargo's feature unification breaks this: when pulse-app activates viz's `taurpc-runtime` feature, the unification rule requires EVERY copy of viz across the workspace to share the same feature set. ui-bridge's viz copy thus also gets `taurpc-runtime` active → that viz copy depends on ui-bridge → ui-bridge depends on viz-with-`taurpc-runtime` → CYCLE. Cargo rejects.
+
+Resolution (chunk #22 implement-time deviation from plan): place the TauRPC trait+impl pairs in the binary crate at `pulse-app/src/{name}_routers.rs`. The binary crate already depends on every library crate; the routers module imports types from the producer crate (`use viz::{TracesQueryArgs, ...}`) and constructs the impl with the orchestration handles (`Arc<Mutex<Connection>>` + `Arc<ProducerState>`) the binary already holds. Producer crate stays cycle-free with no `taurpc-runtime` feature. ui-bridge keeps the unconditional `From<ProducerError> for AppError` impl. Mirrors how `pulse-app/src/main.rs` already orchestrates the existing HealthApi (which colocates with its data types in ui-bridge — colocation works for ui-bridge specifically because ui-bridge owns AppError).
+
+Future scope-arch additions of new TauRPC routers in producer crates should default to placing trait+impl in pulse-app from the start, NOT in the producer crate behind a `taurpc-runtime` feature. Plan templates that propose feature-gated cycles need an implement-time verification step (cargo check the workspace under both feature configurations) before assuming cargo will resolve.
+
+See: `pulse-app/src/viz_routers.rs` (TracesApi/MetricsApi/LogsApi triplet); chunk #22 plan.md step 5 (planned `crates/viz/src/runtime.rs`) deviated to actual `pulse-app/src/viz_routers.rs`; sibling pattern at `crates/ui-bridge/src/health.rs::runtime` works ONLY because ui-bridge owns AppError.
+
+---
+
+## 2026-05-06 — taurpc::procedures macro needs serde + specta crates at the call-site crate, plus specta::Type on every touched type
+
+The `#[taurpc::procedures(path = "...")]` attribute macro (taurpc 0.7) emits code that references `taurpc::serde::Serialize`, `specta::Type`, and `specta::function::specta_fn::SpectaFn` directly by path. At macro expansion, these paths resolve via the call-site crate's `[dependencies]` — having `taurpc` in `[dependencies]` is NOT enough. The compiler errors are misleading because they point at the attribute macro line, not the missing dep:
+
+- `error[E0463]: can't find crate for `serde`` (note: `this error originates in the derive macro `taurpc::serde::Serialize``) → add `serde.workspace = true` to the call-site crate
+- `error[E0433]: cannot find module or crate `specta``  → add `specta.workspace = true` to the call-site crate
+- `error[E0277]: the trait bound `MyType: specta::Type` is not satisfied` (note: `required for `MyType` to implement `FunctionArg``) → derive `specta::Type` on every argument and result type of every procedure
+
+For pulse-app (the binary crate that hosts TauRPC trait+impl pairs per the cycle-break pattern), this meant adding `serde.workspace = true` + `specta.workspace = true` to `[dependencies]` even though pulse-app doesn't directly use the `serde` or `specta` types — they're invoked entirely via taurpc's emitted macro paths.
+
+For producer library crates (viz, future scope crates), every public type crossing a TauRPC procedure surface must derive `specta::Type` — typically alongside `serde::{Serialize, Deserialize}`. Generic wrapper types like `PaginatedResponse<T>` need `T: specta::Type` bound on the type parameter (Rust derives this automatically via `#[derive(specta::Type)]` on the generic struct, but the bound becomes part of the public API — every concrete instantiation must satisfy it).
+
+Two derive strategies, both seen in this workspace:
+
+- **Conditional (ui-bridge precedent):** `#[cfg_attr(feature = "taurpc-runtime", derive(specta::Type))]` — gates the derive to feature-active builds. Used by `HealthEnvelope`/`HealthStatus`/`SubsystemStatus`. Useful when the type is occasionally used outside taurpc contexts and the specta dep cost is unwanted in those builds.
+- **Unconditional (chunk #22 viz precedent):** `#[derive(serde::Serialize, serde::Deserialize, specta::Type)]` always. Simpler when the producer crate has no `taurpc-runtime` feature (because trait+impl lives in pulse-app per the cycle-break pattern). Cost: specta becomes a hard dep of viz and any crate that depends on viz.
+
+Choose conditional when the producer crate may be reused in non-taurpc contexts (mcp-server hypothetically, or stdlib-only consumers). Choose unconditional when the producer is in this workspace's pure TauRPC-IPC pipeline only.
+
+See: `crates/viz/src/query.rs` derives (TracesQueryArgs/MetricsQueryArgs/LogsQueryArgs/PaginatedResponse/TraceRow/MetricRow/LogRow); `pulse-app/Cargo.toml` `[dependencies] serde.workspace = true; specta.workspace = true`; chunk #22 fix-loop iterations 2 + 3.
+
+---
+
 ## 2026-05-06 — Extract async helper from periodic-task loop body for unit-testability
 
 When an async task wraps a periodic loop with `tokio::time::interval(...).tick().await` + `tokio::task::spawn_blocking(...)` calls inside, unit tests using `tokio::time::pause()` + `tokio::time::advance()` reliably race with the spawn_blocking thread + the test's `handle.abort()`. The chunk #21 retention task hit this: `run_retention(conn, state, retention_seconds)` spawned blocking DuckDB DELETE work whose completion didn't reliably reach the `state.record_eviction(rows)` call before the abort fired, leaving `state.eviction_count = 0` in tests despite rows being physically evicted.

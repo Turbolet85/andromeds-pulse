@@ -14,9 +14,13 @@ use ui_bridge::health::{
     BindStatus, BufferConnectionStatus, HealthApi, HealthApiImpl, HeartbeatState,
     IngestChannelStatus, record_start, register_heartbeat_state,
 };
+use viz::VizState;
 
 mod heartbeat;
 mod observability;
+mod viz_routers;
+
+use viz_routers::{LogsApi, LogsApiImpl, MetricsApi, MetricsApiImpl, TracesApi, TracesApiImpl};
 
 const ENV_OTLP_GRPC_PORT: &str = "ANDROMEDA_PULSE_OTLP_GRPC_PORT";
 const ENV_OTLP_HTTP_PORT: &str = "ANDROMEDA_PULSE_OTLP_HTTP_PORT";
@@ -177,6 +181,7 @@ fn main() {
     let buffer_state = Arc::new(BufferState::new());
     let buffer_conn = init_buffer(&heartbeat_state);
     let retention_seconds = resolve_retention_seconds();
+    let viz_state = Arc::new(VizState::new());
 
     let grpc_addr = match resolve_grpc_port() {
         Ok(p) => Some(SocketAddr::from(([127, 0, 0, 1], p.value()))),
@@ -203,9 +208,18 @@ fn main() {
         }
     };
 
+    let invoke_router = match buffer_conn.as_ref() {
+        Some(conn) => taurpc::Router::new()
+            .merge(HealthApiImpl.into_handler())
+            .merge(TracesApiImpl::new(Arc::clone(conn), Arc::clone(&viz_state)).into_handler())
+            .merge(MetricsApiImpl::new(Arc::clone(conn), Arc::clone(&viz_state)).into_handler())
+            .merge(LogsApiImpl::new(Arc::clone(conn), Arc::clone(&viz_state)).into_handler()),
+        None => taurpc::Router::new().merge(HealthApiImpl.into_handler()),
+    };
+
     tauri::Builder::default()
         .plugin(tauri_plugin_updater::Builder::new().build())
-        .invoke_handler(taurpc::create_ipc_handler(HealthApiImpl.into_handler()))
+        .invoke_handler(invoke_router.into_handler())
         .setup(move |_app| {
             match buffer_conn {
                 Some(conn) => {
@@ -320,6 +334,7 @@ fn main() {
                 Arc::clone(&ingest_sender),
                 Arc::clone(&buffer_state),
                 retention_seconds,
+                Arc::clone(&viz_state),
             );
             Ok(())
         })

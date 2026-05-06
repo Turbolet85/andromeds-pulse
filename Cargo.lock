@@ -3922,7 +3922,9 @@ dependencies = [
  "ingest",
  "mcp-server",
  "plugins",
+ "serde",
  "serde_json",
+ "specta",
  "strict-path",
  "tauri",
  "tauri-build",
@@ -6220,6 +6222,7 @@ dependencies = [
  "taurpc",
  "thiserror 2.0.18",
  "tokio",
+ "viz",
 ]
 
 [[package]]
@@ -6388,7 +6391,17 @@ checksum = "0b928f33d975fc6ad9f86c8f283853ad26bdd5b10b7f1542aa2fa15e2289105a"
 name = "viz"
 version = "0.1.0"
 dependencies = [
+ "chrono",
+ "duckdb",
+ "rstest",
+ "serde",
+ "serde_json",
+ "specta",
+ "tempfile",
  "thiserror 2.0.18",
+ "tokio",
+ "tracing",
+ "tracing-error",
 ]
 
 [[package]]

@@ -8,6 +8,7 @@ use ingest::channel::IngestSender;
 use ingest::state::IngestState;
 use tokio::task::JoinHandle;
 use ui_bridge::health::HeartbeatState;
+use viz::VizState;
 
 const TICK_INTERVAL_SECS: u64 = 15;
 
@@ -17,11 +18,12 @@ pub(crate) fn spawn(
     ingest_sender: Arc<IngestSender>,
     buffer_state: Arc<BufferState>,
     retention_seconds: u64,
+    viz_state: Arc<VizState>,
 ) -> Vec<JoinHandle<()>> {
     vec![
         tokio::spawn(run_ingest(state.clone(), ingest_state, ingest_sender)),
         tokio::spawn(run_buffer(state.clone(), buffer_state, retention_seconds)),
-        tokio::spawn(run_viz(state.clone())),
+        tokio::spawn(run_viz(state.clone(), viz_state)),
         tokio::spawn(run_plugins(state)),
     ]
 }
@@ -51,11 +53,11 @@ async fn run_buffer(
     }
 }
 
-async fn run_viz(state: Arc<HeartbeatState>) {
+async fn run_viz(state: Arc<HeartbeatState>, viz_state: Arc<VizState>) {
     let mut interval = tokio::time::interval(Duration::from_secs(TICK_INTERVAL_SECS));
     loop {
         interval.tick().await;
-        emit_viz_tick(&state);
+        emit_viz_tick(&state, &viz_state);
     }
 }
 
@@ -127,8 +129,8 @@ fn emit_buffer_tick(
     }
 }
 
-fn emit_viz_tick(state: &HeartbeatState) {
-    let payload = viz::contract::heartbeat_payload();
+fn emit_viz_tick(state: &HeartbeatState, viz_state: &VizState) {
+    let payload = viz::contract::heartbeat_payload(viz_state);
     state.record_viz(Utc::now());
     tracing::info!(
         target: "viz.tick",
@@ -359,13 +361,35 @@ mod tests {
     #[test]
     fn emit_viz_tick_emits_target_and_fields() {
         let state = HeartbeatState::new();
-        let lines = capture_lines(|| emit_viz_tick(&state));
+        let viz_state = VizState::new();
+        let lines = capture_lines(|| emit_viz_tick(&state, &viz_state));
         assert_eq!(lines.len(), 1);
         assert_eq!(lines[0]["target"], "viz.tick");
         let fields = &lines[0]["fields"];
         assert!(fields.get("query_latency_ms").is_some());
         assert!(fields.get("subscribers_active").is_some());
         assert!(state.last_viz().is_some());
+    }
+
+    #[test]
+    fn emit_viz_tick_reflects_real_query_latency_avg() {
+        let state = HeartbeatState::new();
+        let viz_state = VizState::new();
+        viz_state.record_query_latency_ms(50);
+        viz_state.record_query_latency_ms(150);
+        let lines = capture_lines(|| emit_viz_tick(&state, &viz_state));
+        assert_eq!(lines[0]["fields"]["query_latency_ms"], 100.0);
+    }
+
+    #[test]
+    fn emit_viz_tick_reflects_real_subscribers_count() {
+        let state = HeartbeatState::new();
+        let viz_state = VizState::new();
+        viz_state.inc_subscribers();
+        viz_state.inc_subscribers();
+        viz_state.inc_subscribers();
+        let lines = capture_lines(|| emit_viz_tick(&state, &viz_state));
+        assert_eq!(lines[0]["fields"]["subscribers_active"], 3);
     }
 
     #[test]
@@ -387,7 +411,8 @@ mod tests {
         let (sender, _rx) = build_channel();
         let sender = Arc::new(sender);
         let buffer_state = Arc::new(BufferState::new());
-        let handles = spawn(state, ingest_state, sender, buffer_state, 600);
+        let viz_state = Arc::new(VizState::new());
+        let handles = spawn(state, ingest_state, sender, buffer_state, 600, viz_state);
         assert_eq!(handles.len(), 4);
         for handle in handles {
             handle.abort();

@@ -1,14 +1,14 @@
 schema_version: 2
-last_wrap: 2026-05-06T18:30:00Z
-last_reconcile: 2026-05-06T18:30:00Z
+last_wrap: 2026-05-06T21:11:34Z
+last_reconcile: 2026-05-06T21:11:34Z
 
 last_completed_chunk:
-  route_index: 21
-  title: "Retention task + buffer.tick heartbeat — periodic DELETE WHERE ts < cutoff via ANDROMEDA_PULSE_RETENTION_SECONDS, eviction_count + memory_bytes ticks"
+  route_index: 22
+  title: "Query routers (traces/metrics/logs) — viz crate prepared statements (no format-string SQL), query_id + param_count anonymized logging"
   epoch: 3
-  committed_at: 2026-05-06T18:30:00Z
-  commit_sha: 9eee494
-  commit_subject: "feat(buffer): retention task + buffer.tick heartbeat — DELETE WHERE ts < cutoff via ANDROMEDA_PULSE_RETENTION_SECONDS + 6-field tick + 2 metric.buffer.* events + BufferConnectionStatus widening (chunk #21); session 21"
+  committed_at: 2026-05-06T21:11:34Z
+  commit_sha: 26f0859
+  commit_subject: "feat(viz): query routers (traces/metrics/logs) — viz crate prepared statements + query_id/param_count anonymized logging + From<VizError> for AppError sanitization + viz_state heartbeat parameterization (chunk #22); session 22"
 
 in_progress: null
 
@@ -24,9 +24,9 @@ plan_freshness:
   input_mtime: 2026-05-02T06:52:58Z
 
 living_artifact_freshness:
-  dep_tree_reconciled_at: 2026-05-06T18:30:00Z
-  api_surface_reconciled_at: 2026-05-06T18:30:00Z
-  most_recent_code_mtime: 2026-05-06T18:30:00Z
+  dep_tree_reconciled_at: 2026-05-06T21:11:34Z
+  api_surface_reconciled_at: 2026-05-06T21:11:34Z
+  most_recent_code_mtime: 2026-05-06T21:11:34Z
   reconcile_failed: false
 
 drift_warnings: []
@@ -59,4 +59,4 @@ spec_amendments:
       propagated_by_run: .andromeda/runs/2026-05-04T20-42-30-setup-project/
       archived_at: 2026-05-04T21:43:31Z
 
-session_count: 21
+session_count: 22

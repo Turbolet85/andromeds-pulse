@@ -33,6 +33,12 @@ pub enum BufferConnectionStatus {
     RetentionFailed(String),
 }
 
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum VizQueryStatus {
+    Ok,
+    QueryFailed(String),
+}
+
 #[derive(Debug, Default)]
 pub struct HeartbeatState {
     ingest: Mutex<Option<DateTime<Utc>>>,
@@ -43,6 +49,7 @@ pub struct HeartbeatState {
     otlp_http_bind: Mutex<Option<BindStatus>>,
     ingest_channel: Mutex<Option<IngestChannelStatus>>,
     buffer_connection: Mutex<Option<BufferConnectionStatus>>,
+    viz_query: Mutex<Option<VizQueryStatus>>,
 }
 
 impl HeartbeatState {
@@ -74,6 +81,9 @@ impl HeartbeatState {
     pub fn record_buffer_connection(&self, status: BufferConnectionStatus) {
         *self.buffer_connection.lock().unwrap() = Some(status);
     }
+    pub fn record_viz_query(&self, status: VizQueryStatus) {
+        *self.viz_query.lock().unwrap() = Some(status);
+    }
 
     pub fn last_ingest(&self) -> Option<DateTime<Utc>> {
         *self.ingest.lock().unwrap()
@@ -98,6 +108,9 @@ impl HeartbeatState {
     }
     pub fn buffer_connection(&self) -> Option<BufferConnectionStatus> {
         self.buffer_connection.lock().unwrap().clone()
+    }
+    pub fn viz_query(&self) -> Option<VizQueryStatus> {
+        self.viz_query.lock().unwrap().clone()
     }
 }
 
@@ -228,6 +241,17 @@ pub fn current_health() -> HealthEnvelope {
             Some(BufferConnectionStatus::RetentionFailed(reason)) => {
                 subsystems.buffer.status = "retention_failed".to_string();
                 subsystems.buffer.error_msg = Some(reason);
+                overall_ok = false;
+            }
+            None => {}
+        }
+        match state.viz_query() {
+            Some(VizQueryStatus::Ok) => {
+                subsystems.viz.status = "ok".to_string();
+            }
+            Some(VizQueryStatus::QueryFailed(reason)) => {
+                subsystems.viz.status = "query_failed".to_string();
+                subsystems.viz.error_msg = Some(reason);
                 overall_ok = false;
             }
             None => {}
@@ -481,6 +505,44 @@ mod tests {
         assert_eq!(
             envelope.subsystems.buffer.error_msg,
             Some("buffer retention sweep failed".to_string())
+        );
+    }
+
+    #[test]
+    fn heartbeat_state_viz_query_slot_starts_empty() {
+        let state = HeartbeatState::new();
+        assert_eq!(state.viz_query(), None);
+    }
+
+    #[test]
+    fn heartbeat_state_records_viz_query_ok_and_failed() {
+        let state = HeartbeatState::new();
+        state.record_viz_query(VizQueryStatus::Ok);
+        assert_eq!(state.viz_query(), Some(VizQueryStatus::Ok));
+        state.record_viz_query(VizQueryStatus::QueryFailed(
+            "duckdb prepare error".to_string(),
+        ));
+        assert_eq!(
+            state.viz_query(),
+            Some(VizQueryStatus::QueryFailed(
+                "duckdb prepare error".to_string()
+            ))
+        );
+    }
+
+    #[test]
+    fn current_health_degrades_on_viz_query_failure() {
+        let state = Arc::new(HeartbeatState::new());
+        state.record_otlp_grpc_bind(BindStatus::Ok);
+        state.record_otlp_http_bind(BindStatus::Ok);
+        state.record_viz_query(VizQueryStatus::QueryFailed("viz query failed".to_string()));
+        register_heartbeat_state(state);
+        let envelope = current_health();
+        assert!(matches!(envelope.status, HealthStatus::Degraded));
+        assert_eq!(envelope.subsystems.viz.status, "query_failed");
+        assert_eq!(
+            envelope.subsystems.viz.error_msg,
+            Some("viz query failed".to_string())
         );
     }
 

@@ -195,10 +195,15 @@ impl AllowList {
             [
                 "query_id",
                 "param_count",
+                "param_types",
                 "row_count",
+                "row_count_returned",
                 "latency_ms",
                 "query_latency_ms",
                 "subscribers_active",
+                "time_window_seconds",
+                "traceparent",
+                "filter_count",
             ]
             .iter()
             .copied()
@@ -417,6 +422,39 @@ impl AllowList {
         by_target.insert(
             "metric.buffer.evicted_span_count",
             ["value", "retention_window_seconds"]
+                .iter()
+                .copied()
+                .collect(),
+        );
+        // chunk #22 viz query routers — error path + per-query metric events.
+        // Specific entries take precedence over the `viz` prefix-strip fallback.
+        by_target.insert(
+            "viz.query.error",
+            ["error_type", "duration_ms", "spantrace"]
+                .iter()
+                .copied()
+                .collect(),
+        );
+        // metric.trace.* events emit from inside viz.query.traces; service_name
+        // is the documented obs-plan §5 cardinality exemption (query-time scope
+        // only, not time-series-stored).
+        by_target.insert(
+            "metric.trace.latency_percentiles",
+            [
+                "value",
+                "service_name",
+                "p50_ms",
+                "p95_ms",
+                "p99_ms",
+                "max_ms",
+            ]
+            .iter()
+            .copied()
+            .collect(),
+        );
+        by_target.insert(
+            "metric.trace.error_count",
+            ["value", "service_name", "error_type"]
                 .iter()
                 .copied()
                 .collect(),
@@ -1501,6 +1539,220 @@ mod tests {
         assert_eq!(
             fields["raw_value"], "<redacted>",
             "raw env-var value MUST NOT leak per Vector 6"
+        );
+    }
+
+    // chunk #22 viz.query.* + metric.trace.* + extended viz allowlist
+    // tests. Five pass / five redact pairs mirroring chunk #20/#21 precedent.
+
+    #[test]
+    fn scrubber_passes_viz_query_traces_fields() {
+        let defaults = make_defaults(None, None);
+        let lines = capture_json_lines(defaults, || {
+            tracing::info!(
+                target: "viz.query.traces",
+                query_id = "viz.query.traces",
+                param_count = 3_u64,
+                param_types = "i64,i64,i64",
+                time_window_seconds = 60_u64,
+                row_count = 42_u64,
+                latency_ms = 18_u64,
+                "viz traces query completed",
+            );
+        });
+        let fields = &lines[0]["fields"];
+        assert_eq!(fields["query_id"], "viz.query.traces");
+        assert_eq!(fields["param_count"], 3);
+        assert_eq!(fields["param_types"], "i64,i64,i64");
+        assert_eq!(fields["time_window_seconds"], 60);
+        assert_eq!(fields["row_count"], 42);
+        assert_eq!(fields["latency_ms"], 18);
+    }
+
+    #[test]
+    fn scrubber_redacts_non_allowlisted_viz_query_traces_field() {
+        let defaults = make_defaults(None, None);
+        let lines = capture_json_lines(defaults, || {
+            tracing::info!(
+                target: "viz.query.traces",
+                query_id = "viz.query.traces",
+                service_filter_value = "user-controlled-payload",
+                raw_sql = "SELECT * FROM spans WHERE service = 'leak'",
+                "viz traces query completed",
+            );
+        });
+        let fields = &lines[0]["fields"];
+        assert_eq!(fields["query_id"], "viz.query.traces");
+        assert_eq!(
+            fields["service_filter_value"], "<redacted>",
+            "user-controlled parameter value MUST NOT leak per Vector 5"
+        );
+        assert_eq!(
+            fields["raw_sql"], "<redacted>",
+            "raw SQL MUST NOT leak per Vector 5"
+        );
+    }
+
+    #[test]
+    fn scrubber_passes_viz_query_error_fields() {
+        let defaults = make_defaults(None, None);
+        let lines = capture_json_lines(defaults, || {
+            tracing::error!(
+                target: "viz.query.error",
+                error_type = "query_failed",
+                duration_ms = 12_u64,
+                spantrace = "captured",
+                "viz query failed",
+            );
+        });
+        let fields = &lines[0]["fields"];
+        assert_eq!(fields["error_type"], "query_failed");
+        assert_eq!(fields["duration_ms"], 12);
+        assert_eq!(fields["spantrace"], "captured");
+    }
+
+    #[test]
+    fn scrubber_redacts_non_allowlisted_viz_query_error_field() {
+        let defaults = make_defaults(None, None);
+        let lines = capture_json_lines(defaults, || {
+            tracing::error!(
+                target: "viz.query.error",
+                error_type = "query_failed",
+                raw_duckdb_text = "internal error 0xdeadbeef at /tmp/secret",
+                "viz query failed",
+            );
+        });
+        let fields = &lines[0]["fields"];
+        assert_eq!(fields["error_type"], "query_failed");
+        assert_eq!(
+            fields["raw_duckdb_text"], "<redacted>",
+            "raw DuckDB error text MUST NOT leak"
+        );
+    }
+
+    #[test]
+    fn scrubber_passes_metric_trace_latency_percentiles_fields() {
+        let defaults = make_defaults(None, None);
+        let lines = capture_json_lines(defaults, || {
+            tracing::info!(
+                target: "metric.trace.latency_percentiles",
+                value = 18_u64,
+                service_name = "test-service",
+                p50_ms = 10_u64,
+                p95_ms = 50_u64,
+                p99_ms = 100_u64,
+                max_ms = 200_u64,
+                "trace latency",
+            );
+        });
+        let fields = &lines[0]["fields"];
+        assert_eq!(fields["value"], 18);
+        assert_eq!(fields["service_name"], "test-service");
+        assert_eq!(fields["p50_ms"], 10);
+        assert_eq!(fields["p99_ms"], 100);
+    }
+
+    #[test]
+    fn scrubber_redacts_non_allowlisted_metric_trace_latency_percentiles_field() {
+        let defaults = make_defaults(None, None);
+        let lines = capture_json_lines(defaults, || {
+            tracing::info!(
+                target: "metric.trace.latency_percentiles",
+                value = 18_u64,
+                trace_id = "secret-trace-id",
+                client_ip = "127.0.0.1",
+                "trace latency",
+            );
+        });
+        let fields = &lines[0]["fields"];
+        assert_eq!(fields["value"], 18);
+        assert_eq!(
+            fields["trace_id"], "<redacted>",
+            "trace_id MUST NOT leak per cardinality discipline"
+        );
+        assert_eq!(fields["client_ip"], "<redacted>", "client_ip MUST NOT leak");
+    }
+
+    #[test]
+    fn scrubber_passes_metric_trace_error_count_fields() {
+        let defaults = make_defaults(None, None);
+        let lines = capture_json_lines(defaults, || {
+            tracing::info!(
+                target: "metric.trace.error_count",
+                value = 5_u64,
+                service_name = "test-service",
+                error_type = "query_failed",
+                "trace error counter",
+            );
+        });
+        let fields = &lines[0]["fields"];
+        assert_eq!(fields["value"], 5);
+        assert_eq!(fields["service_name"], "test-service");
+        assert_eq!(fields["error_type"], "query_failed");
+    }
+
+    #[test]
+    fn scrubber_redacts_non_allowlisted_metric_trace_error_count_field() {
+        let defaults = make_defaults(None, None);
+        let lines = capture_json_lines(defaults, || {
+            tracing::info!(
+                target: "metric.trace.error_count",
+                value = 5_u64,
+                error_message_text = "duckdb internal 0xdeadbeef",
+                "trace error counter",
+            );
+        });
+        let fields = &lines[0]["fields"];
+        assert_eq!(fields["value"], 5);
+        assert_eq!(
+            fields["error_message_text"], "<redacted>",
+            "raw error message MUST NOT leak"
+        );
+    }
+
+    #[test]
+    fn scrubber_passes_extended_viz_allowlist_fields() {
+        let defaults = make_defaults(None, None);
+        let lines = capture_json_lines(defaults, || {
+            tracing::info!(
+                target: "viz.query.metrics",
+                query_id = "viz.query.metrics",
+                param_count = 3_u64,
+                param_types = "i64,i64,i64",
+                time_window_seconds = 60_u64,
+                traceparent = "00-0123456789abcdef0123456789abcdef-0123456789abcdef-01",
+                filter_count = 1_u64,
+                "viz metrics query completed",
+            );
+        });
+        let fields = &lines[0]["fields"];
+        assert_eq!(fields["param_types"], "i64,i64,i64");
+        assert_eq!(fields["time_window_seconds"], 60);
+        assert!(fields["traceparent"].is_string());
+        assert_eq!(fields["filter_count"], 1);
+    }
+
+    #[test]
+    fn scrubber_redacts_query_parameter_value_on_viz_target() {
+        let defaults = make_defaults(None, None);
+        let lines = capture_json_lines(defaults, || {
+            tracing::info!(
+                target: "viz.query.logs",
+                query_id = "viz.query.logs",
+                cursor_value = "' OR 1=1 --",
+                attribute_value = "secret-attribute",
+                "viz logs query completed",
+            );
+        });
+        let fields = &lines[0]["fields"];
+        assert_eq!(fields["query_id"], "viz.query.logs");
+        assert_eq!(
+            fields["cursor_value"], "<redacted>",
+            "cursor_value MUST NOT leak per Vector 5"
+        );
+        assert_eq!(
+            fields["attribute_value"], "<redacted>",
+            "OTLP attribute_value MUST NOT leak per Vector 1"
         );
     }
 
