@@ -1,6 +1,7 @@
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
+use buffer::Error as BufferError;
 use ingest::contract::Error as IngestError;
 
 #[cfg_attr(feature = "taurpc-runtime", derive(specta::Type))]
@@ -44,6 +45,21 @@ impl From<IngestError> for AppError {
             IngestError::ChannelFull => "ingest channel saturated",
         };
         AppError::Ingest {
+            message: message.to_string(),
+        }
+    }
+}
+
+impl From<BufferError> for AppError {
+    fn from(e: BufferError) -> Self {
+        let message = match e {
+            BufferError::Init { .. } => "buffer init failed",
+            BufferError::SchemaCreate { .. } => "buffer schema create failed",
+            BufferError::Append { .. } => "buffer Arrow append failed",
+            BufferError::ConnectionLost => "buffer connection lost",
+            BufferError::InvalidBatch { .. } => "buffer received invalid batch",
+        };
+        AppError::Storage {
             message: message.to_string(),
         }
     }
@@ -120,6 +136,70 @@ mod tests {
         match e {
             AppError::Ingest { message } => assert_eq!(message, "invalid OTLP port configuration"),
             other => panic!("expected AppError::Ingest, got {other:?}"),
+        }
+    }
+
+    #[test]
+    fn from_buffer_init_collapses_to_constant_message_no_struct_name_leak() {
+        let e = AppError::from(BufferError::Init {
+            reason: "open_in_memory error at /tmp/secret 1.10502".to_string(),
+        });
+        match e {
+            AppError::Storage { message } => {
+                assert_eq!(message, "buffer init failed");
+                assert!(!message.contains("/tmp/"));
+                assert!(!message.contains("1.10502"));
+            }
+            other => panic!("expected AppError::Storage, got {other:?}"),
+        }
+    }
+
+    #[test]
+    fn from_buffer_schema_create_collapses_to_constant_message() {
+        let e = AppError::from(BufferError::SchemaCreate {
+            reason: "DDL parse failed at line 3".to_string(),
+        });
+        match e {
+            AppError::Storage { message } => assert_eq!(message, "buffer schema create failed"),
+            other => panic!("expected AppError::Storage, got {other:?}"),
+        }
+    }
+
+    #[test]
+    fn from_buffer_append_collapses_to_constant_message() {
+        let e = AppError::from(BufferError::Append {
+            reason: "duckdb internal error 0xdeadbeef".to_string(),
+        });
+        match e {
+            AppError::Storage { message } => {
+                assert_eq!(message, "buffer Arrow append failed");
+                assert!(!message.contains("duckdb"));
+                assert!(!message.contains("0xdeadbeef"));
+            }
+            other => panic!("expected AppError::Storage, got {other:?}"),
+        }
+    }
+
+    #[test]
+    fn from_buffer_connection_lost_collapses_to_constant_message() {
+        let e = AppError::from(BufferError::ConnectionLost);
+        match e {
+            AppError::Storage { message } => assert_eq!(message, "buffer connection lost"),
+            other => panic!("expected AppError::Storage, got {other:?}"),
+        }
+    }
+
+    #[test]
+    fn from_buffer_invalid_batch_collapses_to_constant_message() {
+        let e = AppError::from(BufferError::InvalidBatch {
+            kind: "spans_empty",
+        });
+        match e {
+            AppError::Storage { message } => {
+                assert_eq!(message, "buffer received invalid batch");
+                assert!(!message.contains("spans_empty"));
+            }
+            other => panic!("expected AppError::Storage, got {other:?}"),
         }
     }
 

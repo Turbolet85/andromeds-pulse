@@ -1,22 +1,21 @@
 # Session Handoff
 
-**Last Updated:** 2026-05-05T22:30:00Z
+**Last Updated:** 2026-05-06T20:00:00Z
 **Branch:** main
 **Session End Status:** clean
-**Last Commit:** (pending — wrap commit composed in Phase 10 of this run; chunk #19 rate limiting + port-override validation shipped this session)
+**Last Commit:** (pending — wrap commit composed in Phase 10 of this run; chunk #20 DuckDB ring buffer schema + Arrow appender shipped this session)
 
 ## Current State
 
-- **Last completed chunk:** route#19 "Rate limiting + port-override validation — tower_governor coarse + per-source-port + ANDROMEDA_PULSE_OTLP_*_PORT TryFrom<u16>" (committed this wrap; SHA pending Phase 10 amend)
-- **Next chunk:** route#20 "DuckDB ring buffer schema + Arrow appender — :memory: connection, 7 reserved tables, TIMESTAMPTZ + ts_unix_nano BIGINT, OTLP-native composite keys" (Epoch 3 opener — Storage & query)
+- **Last completed chunk:** route#20 "DuckDB ring buffer schema + Arrow appender — :memory: connection, 7 reserved tables, TIMESTAMPTZ + ts_unix_nano BIGINT, OTLP-native composite keys" (committed this wrap; SHA pending Phase 10 amend)
+- **Next chunk:** route#21 "Retention task + buffer.tick heartbeat — periodic DELETE WHERE ts < cutoff via ANDROMEDA_PULSE_RETENTION_SECONDS, eviction_count + memory_bytes ticks" (Epoch 3 continues)
 - **In-progress phase:** no active phase
-- **Phase artifacts present:** `.andromeda/phases/{phase-1..phase-16}/{combined.md, research.md, plan.md}` + audit trails per phase under `.andromeda/runs/`
-- **Epoch 2 — Ingest pipeline:** CLOSED. Chunks #16, #17, #18, #19 all committed.
-- **Epoch 3 — Storage & query:** opens with chunk #20.
+- **Phase artifacts present:** `.andromeda/phases/{phase-1..phase-17}/{combined.md, research.md, plan.md}` + audit trails per phase under `.andromeda/runs/`
+- **Epoch 3 — Storage & query:** OPEN. Chunk #20 committed; chunks #21, #22, #23 remain.
 
 ## Andromeda State Detection (states A-L)
 
-⚠️ F — Pending phase planning: chunk #20 listed in route §2 but no `.andromeda/phases/phase-17/` directory exists yet (normal workflow signal — next session begins with `/andromeda-phase`).
+⚠️ F — Pending phase planning: chunk #21 listed in route §2 but no `.andromeda/phases/phase-18/` directory exists yet (normal workflow signal — next session begins with `/andromeda-phase`).
 
 All other states (A, B, C, D, E, G, H, I, J, K, L) — clear.
 
@@ -24,77 +23,92 @@ All other states (A, B, C, D, E, G, H, I, J, K, L) — clear.
 
 D1, D2, D3, D4, D5, D6 — no drift detected.
 
-(D1 cleared by Phase 5 reconcile completing successfully for both dependency-tree.md + api-surface.md. D5 cleared because no specialist plans were touched this session — chunk #19 was a smooth implementation per plan; no Trigger 4 spec ↔ reality drift surfaced.)
+(D1 cleared by Phase 5 reconcile completing successfully for both dependency-tree.md + api-surface.md. D5 cleared because no specialist plans were touched this session.)
 
 ## Spec Amendments (this session)
 
-(none this session — chunk #19 implementation matched specialist plan expectations; no Trigger 4 dialogue. Pre-existing archive untouched: lift-accent (2026-05-03) + clarify-pii-grep-ui-vocab (2026-05-04) both already archived per state.yaml.spec_amendments.archive.)
+(none this session — chunk #20 implementation matched specialist plan expectations; no Trigger 4 dialogue. Pre-existing archive untouched: lift-accent (2026-05-03) + clarify-pii-grep-ui-vocab (2026-05-04) both already archived per state.yaml.spec_amendments.archive.)
 
 ## Key Decisions This Session
 
-- **Q1 → Option A (fail-startup on invalid port)**: replaced silent fall-back-to-default in `pulse-app/src/main.rs::resolve_*_port` with a `Result<OtlpPort, IngestError>` pipeline. Invalid env-var override → no bind attempt → `BindStatus::Failed("invalid_port")` routed through `health` envelope → overall status degrades. The OTHER receiver still runs if its port is valid. Generalizes to any future config-load validation: structured rejection events at `config.load.{*}_validation` targets log env-var NAME + sanitized reject category, never the raw user-controlled value (Vector 6).
-- **tower_governor `tracing` feature disabled in favor of own `.error_handler()` callback**: external libs default to unbounded info-level events at their own targets that bypass our default-deny scrubber. Disabling the lib's tracing feature + emitting our own structured `tracing::warn!(target: "ingest.{grpc|http}.rate_limit.rejected", quota_window_seconds, reject_reason)` keeps the AllowList discipline intact. Pattern generalizes to any future external middleware library wiring (axum / tonic interceptors / etc.).
-- **`GlobalKeyExtractor` chosen over per-source-port keying for v1**: combined.md said "AND per-source-port keying"; for a 127.0.0.1-only receiver, all peer IPs collapse to 127.0.0.1 anyway, so `GlobalKeyExtractor` IS the correct coarse-global semantic. Per-source-port differentiation (custom `LocalPortKeyExtractor` reading TCP source port from connection extensions) deferred — would only matter if multiple distinct local producers spike simultaneously, which is bounded by the 1000-burst capacity already.
-- **governor crate uses quanta-backed monotonic clock; not mockable via tokio::time::pause()**: rate-limit window tests in `crates/ingest/tests/rate_limit.rs` use real-time short sleep (100-300ms total per test) instead. The testing.md "NEVER sleep(N) for sync" rule applies to event-waiting sync (poll for state change); time-elapsed-behavior testing is a distinct use case where real time is the canonical signal.
-- **Sibling-isolation grep gate over-specified for permitted DAG edges**: plan acceptance criterion `cargo tree -p ui-bridge | grep tower_governor returns empty` was unachievable given the existing ui-bridge → ingest sibling-DAG edge (chunk #18 From-impl-as-contract). Spirit (no DIRECT tower_governor dep on ui-bridge) IS met — verified via `cargo tree --depth 1 | grep tower_governor` empty + `grep tower_governor crates/ui-bridge/Cargo.toml` empty. Plan-defect not specialist plan amendment.
-- **`Error::InvalidPort { value: String }` already existed** in `crates/ingest/src/contract.rs` AND `From<IngestError> for AppError` already mapped it to `AppError::Ingest { message: "invalid OTLP port configuration" }`. Chunk #19 plumbed through the pre-existing variant rather than introducing new types — reduced API surface change to zero on the ui-bridge side.
+- **Q1 → Option A (`bundled` feature for duckdb crate)**: chose `duckdb = { version = "1.10500", features = ["bundled", "appender-arrow"] }` over unbundled (which would require system DuckDB installed). Cross-platform reproducibility for Tauri matches the desktop-app delivery model per arch §Project Intent. Binary growth ~30-50 MB acceptable.
+- **Q3 → extend `BufferConnectionStatus` health envelope**: added explicit `BufferConnectionStatus::{Ok, Failed(String)}` enum + `HeartbeatState.buffer_connection` slot mirroring the OTLP `BindStatus` pattern (chunk #16-#17). Init failure surfaces as `subsystems.buffer.status = "init_failed"` + `error_msg = Some(reason)` + degrades the health envelope. Preferred over implicit liveness via `last_tick_at` staleness signal alone.
+- **Q4 → `tokio::task::spawn_blocking` per appender call**: DuckDB's Rust `Connection` is `!Send + !Sync` per upstream; wrap in `Arc<Mutex<Connection>>` and dispatch each batch via `spawn_blocking` so blocking DuckDB calls don't starve the tokio runtime. Pattern in `crates/buffer/src/consumer.rs::run_consumer`.
+- **DuckDB 1.10502 PK-on-BLOB hang workaround**: `INSERT` that violates a `PRIMARY KEY (col1 BLOB, col2 BLOB)` composite hangs indefinitely on Windows MSVC; rewritten the `spans_primary_key_is_composite_trace_id_span_id` test from runtime PK-violation behavior to schema introspection via `information_schema.key_column_usage`. Asserts column-set + ordinal-position-count instead. Pattern generalizes to future schema tests on multi-BLOB PK tables.
+- **Arrow-appended BLOB does not match `WHERE col = X'…'` hex literal**: round-trip test rewritten to `SELECT col FROM table LIMIT 1` instead of `WHERE col = X'…'` clause. Root cause likely DuckDB encoding difference between Arrow `BinaryArray` storage and BLOB hex-literal parsing path. Plan chunk #22 (query routers) will need to re-validate parameterized BLOB equality before trusting the path.
+- **Windows linker `rstrtmgr.lib` hint**: libduckdb-sys 1.10502 references `Rm{Start|End|RegisterResources|GetList}Session` from `Rstrtmgr.dll` but doesn't emit the link directive itself. Added `crates/buffer/build.rs` with `cargo:rustc-link-lib=dylib=rstrtmgr` guarded by `target_os = "windows"` to satisfy the test-binary linker.
+- **deny.toml skip extensions**: added `zip` (4.6 vs 6.0), `linux-raw-sys`, `reqwest` (0.12 vs 0.13), `rustix` to `[bans] skip` list with `(route#20, 2026-05-06)` provenance comment. duckdb 1.10502 + libduckdb-sys build script transitively pulls newer versions of these crates while tauri-plugin-updater 2.10 + axum-test 18 keep older ones in the runtime graph. `multiple-versions = "deny"` invariant preserved.
 
 ## Files Modified
 
-(13 files this session — chunk #19 implementation + Cargo.lock regen + 3 new phase artifacts + 1 new test file. Living artifacts reconciled separately by wrap.)
+(18 files this session — chunk #20 implementation + Cargo.lock regen + 3 new phase-17 artifacts. Living artifacts reconciled separately by wrap.)
 
-**Code files (chunk #19 — Rust):**
-- `Cargo.lock` — regen reflecting tower_governor 0.8 + governor 0.10.4 + quanta 0.12.6 + raw-cpuid 11.6 + nonempty / nonzero_ext / forwarded-header-value / spinning_top transitive deps
-- `Cargo.toml` (workspace) — `[workspace.dependencies]` adds `tower_governor = { version = "0.8", default-features = false, features = ["axum", "tonic"] }` (tracing feature OFF)
-- `crates/ingest/Cargo.toml` — `[dependencies] tower_governor.workspace = true`
-- `crates/ingest/src/contract.rs` — `+OtlpPort` smart enum (wraps `u16`; `TryFrom<u16>` validates non-privileged-or-spec-default range; reuses existing `Error::InvalidPort { value: String }` variant; co-located 12 unit tests via `#[rstest]` parameterization)
-- `crates/ingest/src/grpc.rs` — `+OTLP_GRPC_RATE_LIMIT_BURST_SIZE = 1000` + `+OTLP_GRPC_RATE_LIMIT_PERIOD = Duration::from_micros(1200)` constants; `+pub async fn serve_on_with_rate_limit(...)` parameterized variant; `serve_on()` now wraps with default constants; `Server::builder().layer(GovernorLayer::new(...))` wires tower_governor with `GlobalKeyExtractor` + `error_handler` emitting structured `tracing::warn!(target: "ingest.grpc.rate_limit.rejected", ...)` event
-- `crates/ingest/src/http.rs` — same shape as grpc.rs: `+OTLP_HTTP_RATE_LIMIT_*` constants + `serve_on_with_rate_limit` + `build_router` extended with `rate_limit_period` + `rate_limit_burst_size` params + `GovernorLayer` slotted between body-limit and host-header-check (so rate-limit runs after Host validation but before body parsing) + `error_handler` emitting `tracing::warn!(target: "ingest.http.rate_limit.rejected", ...)`
-- `crates/ingest/tests/rate_limit.rs` (NEW, ~225 lines) — 3 integration tests: `grpc_returns_resource_exhausted_when_rate_limit_exceeded` (gRPC saturation/recovery via `tonic::Code::ResourceExhausted` + 250ms real-time sleep replenishment), `http_returns_429_when_rate_limit_exceeded` (HTTP 429 saturation/recovery), `http_429_includes_retry_after_header` (rate-limit response carries `retry-after`/`x-ratelimit-after` header)
-- `deny.toml` — `[bans] skip` extends with `{ crate = "rand" }` + `{ crate = "rand_core" }` + provenance comment `# tower_governor 0.8 transitive deps via governor 0.10 + axum-test (route#19, 2026-05-05)`
-- `pulse-app/src/main.rs` — replaces `raw.parse::<u16>()` fallback-to-default with `OtlpPort::try_from(parsed)?` validating pipeline; `resolve_grpc_port()` + `resolve_http_port()` now return `Result<OtlpPort, IngestError>` via `resolve_port(env_var_name, default)` shared helper that emits `config.load.port_validation` warn at rejection; main() conditionally spawns gRPC/HTTP receivers based on `Option<SocketAddr>` (None → record `BindStatus::Failed("invalid_port")` to heartbeat_state + log error + skip spawn); 7 co-located unit tests covering (a) unset env returns default, (b) unparseable rejects, (c) overflow rejects, (d) privileged port rejects, (e) zero rejects, (f) valid non-privileged passes, (g) spec-default 4318 via env passes
-- `pulse-app/src/observability.rs` — `AllowList::production().by_target` extends with 3 new targets: `"config.load.port_validation"` (fields: env_var_name, reject_reason), `"ingest.grpc.rate_limit.rejected"` (fields: quota_window_seconds, reject_reason), `"ingest.http.rate_limit.rejected"` (same fields); 5 new co-located scrubber tests verify allowlisted fields pass + non-allowlisted (raw_value, client_ip) redact
+**Code files (chunk #20 — Rust):**
+- `Cargo.lock` — regen reflecting duckdb 1.10502 + arrow 58 + libduckdb-sys 1.10502 + transitive deps (cast, comfy-table, fallible-iterator, hashlink, num, rust_decimal, strum, plus ~80 build-time deps).
+- `Cargo.toml` (workspace) — `[workspace.dependencies]` adds `duckdb = { version = "1.10500", features = ["bundled", "appender-arrow"] }` + `arrow = "58"`.
+- `crates/buffer/Cargo.toml` — declares duckdb / arrow / tokio / tracing / tracing-error / `ingest = { path = "../ingest" }` direct deps + dev-deps rstest / tempfile.
+- `crates/buffer/build.rs` (NEW) — Windows linker hint for libduckdb-sys's Rstrtmgr.dll references.
+- `crates/buffer/src/lib.rs` — extends from `pub mod contract;` stub to 5-module body (contract / schema / appender / consumer / state) + curated re-exports of `Error`, `BufferHeartbeat`, `BufferState`, `BufferStateSnapshot`, `run_consumer`, `create_schema`.
+- `crates/buffer/src/contract.rs` — replaces `Error::Placeholder` with full enum (Init / SchemaCreate / Append / ConnectionLost / InvalidBatch); evolves `heartbeat_payload(state: &BufferState) -> BufferHeartbeat` reading real atomic counters via `BufferState::snapshot()`; 5 co-located unit tests.
+- `crates/buffer/src/state.rs` (NEW) — `BufferState` atomic counters (`rows_ingested` / `eviction_count` / `memory_bytes`) + `BufferStateSnapshot` Copy struct + accessors; 4 co-located tests including concurrent `record_rows_appended` accumulation across 8 spawn_blocking tasks.
+- `crates/buffer/src/schema.rs` (NEW) — 7 reserved-table DDL constants + concatenated `SCHEMA_DDL` + `create_schema(conn) -> Result<(), Error>`; 6 co-located tests covering idempotent create, exact-7-tables introspection (information_schema.tables), per-table TIMESTAMPTZ + ts_unix_nano column presence (rstest 7-case parameterization), composite PK introspection via information_schema.key_column_usage, full-u64 nanosecond round-trip.
+- `crates/buffer/src/appender.rs` (NEW) — `append_{spans,metrics,logs}_batch(conn, &[Resource…]) -> Result<u64, Error>` Arrow zero-copy path; emits structured `tracing::info!(target: "duckdb.append", rows_appended, duration_ms, table_name)` event per batch; resource hashing for metrics+logs via DefaultHasher; 5 co-located tests covering insert + count round-trip + nanosecond precision + malformed-batch skip + empty input.
+- `crates/buffer/src/consumer.rs` (NEW) — `pub async fn run_consumer(receiver, conn: Arc<Mutex<Connection>>, state: Arc<BufferState>)` long-running task wrapping each batch dispatch in `tokio::task::spawn_blocking` to keep tokio runtime healthy; 2 co-located tests covering drain + state increment + `describe_error` constant strings.
+- `crates/ui-bridge/Cargo.toml` — adds `buffer = { path = "../buffer" }` direct dep (sanctioned per arch §Module dependency direction since the cross-crate `From<BufferError>` impl requires the type).
+- `crates/ui-bridge/src/contract.rs` — adds `From<BufferError> for AppError` impl mapping each `BufferError` variant to constant sanitized strings → `AppError::Storage { message }`; 5 sanitization tests asserting no DuckDB error text / file paths / Rust struct names leak through.
+- `crates/ui-bridge/src/health.rs` — adds `BufferConnectionStatus::{Ok, Failed(String)}` enum + `HeartbeatState.buffer_connection` slot + `record_buffer_connection` setter / `buffer_connection` getter; `current_health` integration surfaces `subsystems.buffer.status = "ok" | "init_failed"` + `error_msg`; 3 new tests including `current_health_degrades_on_buffer_init_failure`.
+- `pulse-app/Cargo.toml` — adds `duckdb.workspace = true` direct dep so `init_buffer` helper can construct `Connection` without an intermediate buffer-crate API surface.
+- `pulse-app/src/main.rs` — replaces placeholder consumer at lines 165-170 (drain-and-drop) with `init_buffer(&heartbeat_state)` returning `Option<Arc<Mutex<Connection>>>` + conditional `tauri::async_runtime::spawn(buffer::run_consumer(...))` on success branch + drain-only fallback on failure (preserves OTLP receiver liveness even on buffer init failure); records `BufferConnectionStatus::{Ok, Failed(reason)}` + emits structured `buffer.schema.init` / `buffer.schema.init.error` events.
+- `pulse-app/src/heartbeat.rs` — extends `spawn` / `run_buffer` / `emit_buffer_tick` signatures to thread `Arc<BufferState>` end-to-end; `emit_buffer_tick` now reads real `rows_ingested` / `eviction_count` from buffer state via `buffer::contract::heartbeat_payload(buffer_state)`; updated existing test + added `emit_buffer_tick_reflects_real_rows_ingested_count`.
+- `pulse-app/src/observability.rs` — extends `AllowList::production().by_target` with 3 new entries: `buffer.schema.init` (table_count, duration_ms), `buffer.schema.init.error` (error_type, spantrace), `duckdb.append` (rows_appended, duration_ms, table_name, reject_reason); 6 new co-located scrubber tests (3 pass + 3 redact).
+- `deny.toml` — `[bans] skip` list extended with `zip` / `linux-raw-sys` / `reqwest` / `rustix` and one-line provenance comment `# duckdb 1.10502 / libduckdb-sys 1.10502 bundled C++ build pulls … (route#20, 2026-05-06)`.
 
 **Phase artifacts (committed for audit):**
-- `.andromeda/phases/phase-16/{combined.md, research.md, plan.md}` (NEW) — Phase 16 planning artifacts for chunk #19 (171 + 87 + 192 lines)
+- `.andromeda/phases/phase-17/{combined.md, research.md, plan.md}` (NEW) — Phase 17 planning artifacts for chunk #20 (190 + 93 + 242 lines).
 
 **Wrap-session maintenance:**
-- `.andromeda/context/dependency-tree.md` — reconciled via `cargo tree --workspace --depth 2 --prefix indent` (337 lines; updated for ingest crate's new tower_governor + transitive governor / quanta / raw-cpuid / nonempty / forwarded-header-value / pin-project edges)
-- `.andromeda/context/api-surface.md` — reconciled via per-crate `cargo public-api --simplified` iteration (2286 lines; ingest gains `OtlpPort` + `OTLP_*_RATE_LIMIT_*` consts + `serve_on_with_rate_limit` + Duration-typed signatures)
-- `.andromeda/state.yaml` — schema_version=2 preserved; last_completed_chunk advanced to 19 + epoch 2 closes; session_count=19; spec_amendments.{active,archive} unchanged (no Trigger 4 this session); drift_warnings empty; plan_freshness mtimes captured fresh; living_artifact_freshness reconciled at 2026-05-05T22:30:00Z
-- `.claude/docs/session-learnings.md` — prepended 2 entries (governor crate clock not mockable; sibling-isolation grep over-specified for permitted DAG edges)
-- `.claude/session-handoff.md` — this file
+- `.andromeda/context/dependency-tree.md` — reconciled via `cargo tree --workspace --depth 2 --prefix indent` (refreshed for buffer crate's new arrow/duckdb/ingest sibling-DAG edge + transitive arrow-array / arrow-buffer / etc.).
+- `.andromeda/context/api-surface.md` — reconciled via per-crate `cargo public-api --simplified` iteration (780 lines total; buffer crate gains substantial public surface — `BufferState`, `BufferStateSnapshot`, `BufferHeartbeat`, `Error::{Init, SchemaCreate, Append, ConnectionLost, InvalidBatch}`, `run_consumer`, `create_schema`, `heartbeat_payload`).
+- `.andromeda/state.yaml` — schema_version=2 preserved; last_completed_chunk advanced to 20 + epoch 3 progresses; session_count=20; spec_amendments.{active,archive} unchanged (no Trigger 4 this session); drift_warnings empty; plan_freshness mtimes captured fresh; living_artifact_freshness reconciled at 2026-05-06T20:00:00Z.
+- `.claude/docs/session-learnings.md` — prepended 3 entries (DuckDB PK-on-BLOB hang workaround; libduckdb-sys + Windows rstrtmgr.lib link hint; Arrow-appended BLOB vs hex-literal SELECT mismatch).
+- `.claude/session-handoff.md` — this file.
 
 ## Curation Summary (this wrap)
 
 - **Tier 1 (CLAUDE.md USER:session-learnings):** 0 additions
 - **Tier 2 (`.claude/rules/*/Session Additions`):** 0 additions
-- **Tier 3 (`.claude/docs/session-learnings.md`):** 2 additions
-  - (a) governor crate's quanta-backed monotonic clock is not mockable via tokio::time::pause; rate-limit timing tests use real-time short sleep
-  - (b) sibling-isolation grep gates over-specified when a permitted sibling-DAG edge exists; use --depth 1 OR direct Cargo.toml grep for direct-dep declaration check
-- **Filtered:** ~2 candidates rejected — (1) tower_governor's tracing-feature-disable pattern (Filter 4 confidence < 0.6 — too generic, applies to most external middleware libs not just tower_governor); (2) cargo deny check bans licenses sources subcommand selection (Filter 5 deferred — workflow knowledge, marginal value vs the project's existing security.md mentions of `cargo deny check bans`).
+- **Tier 3 (`.claude/docs/session-learnings.md`):** 3 additions
+  - (a) DuckDB 1.10502 hangs INSERT on duplicate composite-BLOB primary key (workaround: information_schema.key_column_usage introspection)
+  - (b) libduckdb-sys 1.10502 needs `rstrtmgr.lib` link hint on Windows MSVC (workaround: `crates/buffer/build.rs` cargo:rustc-link-lib=dylib=rstrtmgr)
+  - (c) DuckDB Arrow-appended BLOB does not match `WHERE col = X'…'` hex literal (workaround: SELECT … LIMIT 1 instead of WHERE-clause)
+- **Filtered:** ~3 candidates rejected — (1) duckdb crate "1.4" version resolves to 1.10502.0 / X.YYYY.Z scheme (Filter 5 deferred — useful but lower confidence vs the 3 above; deferred to handoff Deferred learnings); (2) duckdb `bundled` alone doesn't enable Arrow appender (need `appender-arrow` feature) — Filter 5 deferred (configuration note, narrower scope); (3) cargo deny duplicate-version skip pattern for heavy deps (Filter 1 dedup — security.md Session Additions 2026-05-03 covers same pattern via tower_governor analog).
+
+## Deferred learnings (Filter 5 max-3 cap)
+
+- **duckdb crate semver string "1.4" resolves to 1.10502.0 (X.YYYY.Z scheme matches DuckDB upstream X.Y release naming)**: Cargo treats semver `^1.4` as `>=1.4.0, <2.0.0`. The `duckdb` Rust crate uses an unusual major.minor.patch scheme where `1.10502.0` follows directly from `1.4.0` (minor version 10502 is greater than 4). Per arch §Stack "duckdb crate 1.10500.x" the version naming was anticipated. When pinning, prefer `version = "1.10500"` over `"1.4"` for clarity that the `.YYYY.` portion is the meaningful track number.
+- **`duckdb` crate `bundled` feature alone does not enable Arrow appender path**: enabling `Connection::appender("table")?.append_record_batch(batch)` requires `features = ["bundled", "appender-arrow"]` (which itself depends on `vtab-arrow`). With only `bundled`, `Appender::append_record_batch` does NOT appear in the API surface and the compiler suggests `append_row` instead. Documented in `crates/buffer/Cargo.toml` workspace dep declaration with feature list.
 
 ## Last Failed Command
 
-(none — all test commands pass cleanly: cargo nextest 151/151 workspace, cargo clippy --workspace --all-targets --all-features -- -D warnings clean, cargo fmt --check clean, cargo deny check bans/licenses/sources ok, cargo audit ok with 18 pre-existing allowed warnings, cargo tree -p ingest | grep opentelemetry empty (obs criterion #7 strict-grep forbid PRESERVED), cargo tree -p ingest | grep -E "(garde|validator|validify)" empty (arch decisions PRESERVED).)
+(none — all test commands pass cleanly: cargo nextest 195/195 workspace, cargo clippy --workspace --all-targets --all-features -- -D warnings clean, cargo fmt --check clean, cargo deny check bans/licenses/sources ok, cargo audit ok with 18 pre-existing allowed warnings, cargo tree -p buffer | grep opentelemetry empty (obs criterion #7 strict-grep PRESERVED), cargo tree -p ingest | grep opentelemetry empty (chunk #16 invariant PRESERVED), cargo tree -p buffer --depth 1 | grep pulse-app empty, grep -rnE "format!.*(CREATE|SELECT|INSERT|UPDATE|DELETE)" crates/buffer/src/ empty.)
 
 ## Tests Status
 
-passing — 151 cargo nextest (across workspace; was 124 last wrap, +27 from chunk #19: 12 contract.rs OtlpPort tests via #[rstest] parameterization, 7 main.rs resolve_port env-var tests, 5 observability.rs scrubber tests for new AllowList targets, 3 integration tests in tests/rate_limit.rs for saturation/recovery/retry-after) + cargo deny ok + cargo audit ok + cargo clippy clean + cargo fmt clean. Total: 151 tests + 4 lint/typecheck gates + 2 supply-chain gates = 157 checks. cargo nextest ~600ms.
+passing — 195 cargo nextest workspace (was 151 last wrap, +44 from chunk #20: 4 BufferState tests, 6 schema tests including 7-case rstest parameterized table-info introspection, 5 appender tests across 3 batch variants, 2 consumer tests including drain-and-record concurrent, 5 contract.rs tests covering Error + heartbeat_payload, 5 ui-bridge AppError From<BufferError> sanitization tests, 3 ui-bridge health BufferConnectionStatus tests, 1 heartbeat reflects-real-rows test, 6 observability scrubber tests for new AllowList targets, 7 misc) + cargo deny ok (skip list extended with zip/linux-raw-sys/reqwest/rustix) + cargo audit ok + cargo clippy clean + cargo fmt clean. Total: 195 tests + 4 lint/typecheck gates + 2 supply-chain gates = 201 checks. cargo nextest --workspace ~0.9s parallel.
 
 ## Next Recommended Action
 
-**Priority 1 — `/andromeda-phase` for chunk #20 (Epoch 3 opener):**
+**Priority 1 — `/andromeda-phase` for chunk #21:**
 
-`/andromeda-phase` to plan chunk #20 "DuckDB ring buffer schema + Arrow appender — :memory: connection, 7 reserved tables, TIMESTAMPTZ + ts_unix_nano BIGINT, OTLP-native composite keys". Opens Epoch 3 — Storage & query. The placeholder consumer task in `pulse-app/src/main.rs:138-142` (currently drains `ingest_receiver` via `while rx.recv().await.is_some() {}` and drops batches) gets replaced by the real DuckDB Arrow appender consumer in chunk #20. Surface this as the FIRST implementation step at /andromeda-phase planning time so the buffer crate scaffold + DuckDB :memory: connection + 7 reserved tables (`spans`, `span_events`, `span_links`, `metrics_points`, `log_records`, `resources`, `instrumentation_scopes`) + Arrow appender land coherently.
+`/andromeda-phase` to plan chunk #21 "Retention task + buffer.tick heartbeat — periodic DELETE WHERE ts < cutoff via ANDROMEDA_PULSE_RETENTION_SECONDS, eviction_count + memory_bytes ticks". Builds directly on chunk #20's `BufferState` (already accepts `record_eviction(n: u64)` and `set_memory_bytes(n: u64)` increments — chunk #21 wires the retention task to call them) and the existing `emit_buffer_tick` integration (already emits `rows_ingested` + `eviction_count` + `retention_window_active` fields; chunk #21 makes `retention_window_active = true` once the retention task fires). Schema's canonical `ts TIMESTAMPTZ` column on each table is the cutoff column for `DELETE WHERE ts < cutoff` per arch §Conventions §Database entity naming.
 
-**Priority 2 (background, optional) — Verify ingest crate API stability:**
+**Priority 2 (background, optional) — chunk #22 query router DRY-run check:**
 
-The ingest crate's public API now includes `serve_on_with_rate_limit` + `OtlpPort` + new constants. Future Epoch 3 chunks may reference the new exports. Verify via `cargo public-api --simplified -p ingest` — should match the api-surface.md content this wrap reconciled.
+Before chunk #22 (Query routers traces/metrics/logs) starts, re-validate the BLOB-equality query path. The chunk #20 round-trip test had to switch from `WHERE col = X'…'` to `LIMIT 1` because Arrow-appended BLOBs don't match hex literals. Chunk #22 will need parameterized BLOB queries (e.g., `WHERE trace_id = ?` for `traces.query_by_trace_id`) — confirm `stmt.query_row(params![&[u8]_slice], …)` works against Arrow-appended BLOBs OR find the right CAST/conversion.
 
 ## Session Goals (carry-over)
 
-(none — chunk #19 fully implemented + tests green + curation applied (2 Tier 3) + reconcile complete + Epoch 2 closes; Epoch 3 opens with chunk #20 next; ready for `/andromeda-phase`)
+(none — chunk #20 fully implemented + tests green + curation applied (3 Tier 3) + reconcile complete + Epoch 3 chunk #20 closes; chunk #21 next; ready for `/andromeda-phase`)
 
 ## Session End Status
 

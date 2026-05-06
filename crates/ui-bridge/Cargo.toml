@@ -15,6 +15,7 @@ thiserror.workspace = true
 serde.workspace = true
 chrono.workspace = true
 ingest = { path = "../ingest" }
+buffer = { path = "../buffer" }
 
 # Tauri / TauRPC runtime — gated so xtask + downstream type consumers can opt out.
 taurpc = { workspace = true, optional = true }

@@ -345,6 +345,27 @@ impl AllowList {
                 .copied()
                 .collect(),
         );
+        // chunk #20 buffer crate boot + Arrow appender events
+        by_target.insert(
+            "buffer.schema.init",
+            ["table_count", "duration_ms"].iter().copied().collect(),
+        );
+        by_target.insert(
+            "buffer.schema.init.error",
+            ["error_type", "spantrace"].iter().copied().collect(),
+        );
+        by_target.insert(
+            "duckdb.append",
+            [
+                "rows_appended",
+                "duration_ms",
+                "table_name",
+                "reject_reason",
+            ]
+            .iter()
+            .copied()
+            .collect(),
+        );
         by_target.insert(
             "app.panic.fatal",
             ["panic_message", "location", "spantrace"]
@@ -1116,6 +1137,118 @@ mod tests {
         assert_eq!(
             fields["client_ip"], "<redacted>",
             "client_ip MUST NOT leak per obs-plan §11 cardinality discipline"
+        );
+    }
+
+    #[test]
+    fn scrubber_passes_buffer_schema_init_fields() {
+        let defaults = make_defaults(None, None);
+        let lines = capture_json_lines(defaults, || {
+            tracing::info!(
+                target: "buffer.schema.init",
+                table_count = 7_u64,
+                duration_ms = 12_u64,
+                "ring buffer schema created",
+            );
+        });
+        let fields = &lines[0]["fields"];
+        assert_eq!(fields["table_count"], 7);
+        assert_eq!(fields["duration_ms"], 12);
+    }
+
+    #[test]
+    fn scrubber_redacts_non_allowlisted_buffer_schema_init_field() {
+        let defaults = make_defaults(None, None);
+        let lines = capture_json_lines(defaults, || {
+            tracing::info!(
+                target: "buffer.schema.init",
+                table_count = 7_u64,
+                raw_ddl = "CREATE TABLE secrets (...)",
+                "ring buffer schema created",
+            );
+        });
+        let fields = &lines[0]["fields"];
+        assert_eq!(fields["table_count"], 7);
+        assert_eq!(
+            fields["raw_ddl"], "<redacted>",
+            "raw DDL MUST NOT leak per security plan §Anti-Patterns Logging"
+        );
+    }
+
+    #[test]
+    fn scrubber_passes_buffer_schema_init_error_fields() {
+        let defaults = make_defaults(None, None);
+        let lines = capture_json_lines(defaults, || {
+            tracing::error!(
+                target: "buffer.schema.init.error",
+                error_type = "schema_create",
+                spantrace = "captured",
+                "DuckDB schema creation failed",
+            );
+        });
+        let fields = &lines[0]["fields"];
+        assert_eq!(fields["error_type"], "schema_create");
+        assert_eq!(fields["spantrace"], "captured");
+    }
+
+    #[test]
+    fn scrubber_redacts_non_allowlisted_buffer_schema_init_error_field() {
+        let defaults = make_defaults(None, None);
+        let lines = capture_json_lines(defaults, || {
+            tracing::error!(
+                target: "buffer.schema.init.error",
+                error_type = "schema_create",
+                raw_duckdb_error_text = "internal error 0xdeadbeef",
+                "DuckDB schema creation failed",
+            );
+        });
+        let fields = &lines[0]["fields"];
+        assert_eq!(fields["error_type"], "schema_create");
+        assert_eq!(
+            fields["raw_duckdb_error_text"], "<redacted>",
+            "raw DuckDB error text MUST NOT leak"
+        );
+    }
+
+    #[test]
+    fn scrubber_passes_duckdb_append_fields() {
+        let defaults = make_defaults(None, None);
+        let lines = capture_json_lines(defaults, || {
+            tracing::info!(
+                target: "duckdb.append",
+                rows_appended = 100_u64,
+                duration_ms = 4_u64,
+                table_name = "spans",
+                "Arrow appender wrote rows",
+            );
+        });
+        let fields = &lines[0]["fields"];
+        assert_eq!(fields["rows_appended"], 100);
+        assert_eq!(fields["duration_ms"], 4);
+        assert_eq!(fields["table_name"], "spans");
+    }
+
+    #[test]
+    fn scrubber_redacts_non_allowlisted_duckdb_append_field() {
+        let defaults = make_defaults(None, None);
+        let lines = capture_json_lines(defaults, || {
+            tracing::info!(
+                target: "duckdb.append",
+                rows_appended = 100_u64,
+                raw_otlp_payload = "secret_data_attribute_value",
+                attribute_value = "leak",
+                "Arrow appender wrote rows",
+            );
+        });
+        let fields = &lines[0]["fields"];
+        assert_eq!(fields["rows_appended"], 100);
+        assert_eq!(
+            fields["raw_otlp_payload"], "<redacted>",
+            "raw OTLP payload MUST NOT leak per Vector 1"
+        );
+        assert_eq!(
+            fields["attribute_value"], "<redacted>",
+            "OTLP attribute value MUST NOT leak per Vector 1"
         );
     }
 

@@ -1,6 +1,7 @@
 use std::sync::Arc;
 use std::time::Duration;
 
+use buffer::BufferState;
 use chrono::Utc;
 use ingest::channel::IngestSender;
 use ingest::state::IngestState;
@@ -13,10 +14,11 @@ pub(crate) fn spawn(
     state: Arc<HeartbeatState>,
     ingest_state: Arc<IngestState>,
     ingest_sender: Arc<IngestSender>,
+    buffer_state: Arc<BufferState>,
 ) -> Vec<JoinHandle<()>> {
     vec![
         tokio::spawn(run_ingest(state.clone(), ingest_state, ingest_sender)),
-        tokio::spawn(run_buffer(state.clone())),
+        tokio::spawn(run_buffer(state.clone(), buffer_state)),
         tokio::spawn(run_viz(state.clone())),
         tokio::spawn(run_plugins(state)),
     ]
@@ -34,11 +36,11 @@ async fn run_ingest(
     }
 }
 
-async fn run_buffer(state: Arc<HeartbeatState>) {
+async fn run_buffer(state: Arc<HeartbeatState>, buffer_state: Arc<BufferState>) {
     let mut interval = tokio::time::interval(Duration::from_secs(TICK_INTERVAL_SECS));
     loop {
         interval.tick().await;
-        emit_buffer_tick(&state);
+        emit_buffer_tick(&state, &buffer_state);
     }
 }
 
@@ -74,8 +76,8 @@ fn emit_ingest_tick(
     );
 }
 
-fn emit_buffer_tick(state: &HeartbeatState) {
-    let payload = buffer::contract::heartbeat_payload();
+fn emit_buffer_tick(state: &HeartbeatState, buffer_state: &BufferState) {
+    let payload = buffer::contract::heartbeat_payload(buffer_state);
     state.record_buffer(Utc::now());
     tracing::info!(
         target: "buffer.tick",
@@ -183,7 +185,8 @@ mod tests {
     #[test]
     fn emit_buffer_tick_emits_target_and_fields() {
         let state = HeartbeatState::new();
-        let lines = capture_lines(|| emit_buffer_tick(&state));
+        let buffer_state = BufferState::new();
+        let lines = capture_lines(|| emit_buffer_tick(&state, &buffer_state));
         assert_eq!(lines.len(), 1);
         assert_eq!(lines[0]["target"], "buffer.tick");
         let fields = &lines[0]["fields"];
@@ -191,6 +194,15 @@ mod tests {
         assert!(fields.get("retention_window_active").is_some());
         assert!(fields.get("eviction_count").is_some());
         assert!(state.last_buffer().is_some());
+    }
+
+    #[test]
+    fn emit_buffer_tick_reflects_real_rows_ingested_count() {
+        let state = HeartbeatState::new();
+        let buffer_state = BufferState::new();
+        buffer_state.record_rows_appended(11);
+        let lines = capture_lines(|| emit_buffer_tick(&state, &buffer_state));
+        assert_eq!(lines[0]["fields"]["rows_ingested"], 11);
     }
 
     #[test]
@@ -223,7 +235,8 @@ mod tests {
         let ingest_state = Arc::new(IngestState::new());
         let (sender, _rx) = build_channel();
         let sender = Arc::new(sender);
-        let handles = spawn(state, ingest_state, sender);
+        let buffer_state = Arc::new(BufferState::new());
+        let handles = spawn(state, ingest_state, sender, buffer_state);
         assert_eq!(handles.len(), 4);
         for handle in handles {
             handle.abort();

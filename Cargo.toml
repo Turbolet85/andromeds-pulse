@@ -79,6 +79,16 @@ reqwest = { version = "0.12", default-features = false, features = ["json", "rus
 # Per security plan §API Security row 1 + §Dependency Security Pinning.
 tower_governor = { version = "0.8", default-features = false, features = ["axum", "tonic"] }
 
+# Storage engine (route#20 — Epoch 3 Storage & query opens).
+# DuckDB 1.5.x via `duckdb` crate 1.4.x with `bundled` feature (statically
+# links DuckDB C++; cross-platform reproducible Tauri build, no system dep).
+# Arrow zero-copy interchange via the `duckdb` crate's `Appender::append_record_batch`
+# path — `arrow` crate version pin must match the version `duckdb` re-exports.
+# Per arch §Stack and Technologies + §Established Decisions [Database]
+# + §Established Decisions [ORM/Migrations] (none — direct SQL via Connection + Appender).
+duckdb = { version = "1.10500", features = ["bundled", "appender-arrow"] }
+arrow = "58"
+
 [profile.release]
 lto = "thin"
 codegen-units = 1

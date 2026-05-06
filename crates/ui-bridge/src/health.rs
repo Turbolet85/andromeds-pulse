@@ -26,6 +26,12 @@ pub enum IngestChannelStatus {
     Saturated { capacity_pct: f64 },
 }
 
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum BufferConnectionStatus {
+    Ok,
+    Failed(String),
+}
+
 #[derive(Debug, Default)]
 pub struct HeartbeatState {
     ingest: Mutex<Option<DateTime<Utc>>>,
@@ -35,6 +41,7 @@ pub struct HeartbeatState {
     otlp_grpc_bind: Mutex<Option<BindStatus>>,
     otlp_http_bind: Mutex<Option<BindStatus>>,
     ingest_channel: Mutex<Option<IngestChannelStatus>>,
+    buffer_connection: Mutex<Option<BufferConnectionStatus>>,
 }
 
 impl HeartbeatState {
@@ -63,6 +70,9 @@ impl HeartbeatState {
     pub fn record_ingest_channel(&self, status: IngestChannelStatus) {
         *self.ingest_channel.lock().unwrap() = Some(status);
     }
+    pub fn record_buffer_connection(&self, status: BufferConnectionStatus) {
+        *self.buffer_connection.lock().unwrap() = Some(status);
+    }
 
     pub fn last_ingest(&self) -> Option<DateTime<Utc>> {
         *self.ingest.lock().unwrap()
@@ -84,6 +94,9 @@ impl HeartbeatState {
     }
     pub fn ingest_channel_status(&self) -> Option<IngestChannelStatus> {
         self.ingest_channel.lock().unwrap().clone()
+    }
+    pub fn buffer_connection(&self) -> Option<BufferConnectionStatus> {
+        self.buffer_connection.lock().unwrap().clone()
     }
 }
 
@@ -198,6 +211,17 @@ pub fn current_health() -> HealthEnvelope {
                 subsystems.ingest_channel.error_msg =
                     Some(format!("capacity {} %", capacity_pct as u64));
                 subsystems.ingest_channel.last_tick_at = state.last_ingest();
+                overall_ok = false;
+            }
+            None => {}
+        }
+        match state.buffer_connection() {
+            Some(BufferConnectionStatus::Ok) => {
+                subsystems.buffer.status = "ok".to_string();
+            }
+            Some(BufferConnectionStatus::Failed(reason)) => {
+                subsystems.buffer.status = "init_failed".to_string();
+                subsystems.buffer.error_msg = Some(reason);
                 overall_ok = false;
             }
             None => {}
@@ -379,6 +403,46 @@ mod tests {
             Some(IngestChannelStatus::Saturated {
                 capacity_pct: 100.0
             })
+        );
+    }
+
+    #[test]
+    fn heartbeat_state_buffer_connection_slot_starts_empty() {
+        let state = HeartbeatState::new();
+        assert_eq!(state.buffer_connection(), None);
+    }
+
+    #[test]
+    fn heartbeat_state_records_buffer_connection_ok_and_failed() {
+        let state = HeartbeatState::new();
+        state.record_buffer_connection(BufferConnectionStatus::Ok);
+        assert_eq!(state.buffer_connection(), Some(BufferConnectionStatus::Ok));
+        state.record_buffer_connection(BufferConnectionStatus::Failed(
+            "init: open_in_memory".into(),
+        ));
+        assert_eq!(
+            state.buffer_connection(),
+            Some(BufferConnectionStatus::Failed(
+                "init: open_in_memory".into()
+            ))
+        );
+    }
+
+    #[test]
+    fn current_health_degrades_on_buffer_init_failure() {
+        let state = Arc::new(HeartbeatState::new());
+        state.record_otlp_grpc_bind(BindStatus::Ok);
+        state.record_otlp_http_bind(BindStatus::Ok);
+        state.record_buffer_connection(BufferConnectionStatus::Failed(
+            "schema_create_failed".to_string(),
+        ));
+        register_heartbeat_state(state);
+        let envelope = current_health();
+        assert!(matches!(envelope.status, HealthStatus::Degraded));
+        assert_eq!(envelope.subsystems.buffer.status, "init_failed");
+        assert_eq!(
+            envelope.subsystems.buffer.error_msg,
+            Some("schema_create_failed".to_string())
         );
     }
 

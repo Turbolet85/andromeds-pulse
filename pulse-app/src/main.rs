@@ -1,14 +1,18 @@
 use std::net::SocketAddr;
 use std::path::{Path, PathBuf};
-use std::sync::Arc;
+use std::sync::{Arc, Mutex};
+use std::time::Instant;
 use std::{env, fs};
 
+use buffer::{BufferState, create_schema, run_consumer};
+use duckdb::Connection;
 use ingest::channel::{IngestSender, build_channel};
 use ingest::contract::{Error as IngestError, OtlpPort};
 use ingest::state::IngestState;
+use tracing_error::SpanTrace;
 use ui_bridge::health::{
-    BindStatus, HealthApi, HealthApiImpl, HeartbeatState, IngestChannelStatus, record_start,
-    register_heartbeat_state,
+    BindStatus, BufferConnectionStatus, HealthApi, HealthApiImpl, HeartbeatState,
+    IngestChannelStatus, record_start, register_heartbeat_state,
 };
 
 mod heartbeat;
@@ -133,6 +137,9 @@ fn main() {
     let ingest_sender: Arc<IngestSender> = Arc::new(ingest_sender);
     heartbeat_state.record_ingest_channel(IngestChannelStatus::Ok { capacity_pct: 0.0 });
 
+    let buffer_state = Arc::new(BufferState::new());
+    let buffer_conn = init_buffer(&heartbeat_state);
+
     let grpc_addr = match resolve_grpc_port() {
         Ok(p) => Some(SocketAddr::from(([127, 0, 0, 1], p.value()))),
         Err(_) => {
@@ -162,13 +169,25 @@ fn main() {
         .plugin(tauri_plugin_updater::Builder::new().build())
         .invoke_handler(taurpc::create_ipc_handler(HealthApiImpl.into_handler()))
         .setup(move |_app| {
-            tauri::async_runtime::spawn(async move {
-                let mut rx = ingest_receiver;
-                while rx.recv().await.is_some() {
-                    // Placeholder consumer: drains batches to keep mpsc capacity recovering.
-                    // The DuckDB Arrow appender lands in Epoch 3 chunk #20.
+            match buffer_conn {
+                Some(conn) => {
+                    tauri::async_runtime::spawn(run_consumer(
+                        ingest_receiver,
+                        conn,
+                        Arc::clone(&buffer_state),
+                    ));
                 }
-            });
+                None => {
+                    // Buffer init failed; the health envelope is already degraded
+                    // (BufferConnectionStatus::Failed recorded in init_buffer).
+                    // Drain the receiver to keep the OTLP ingest path live so
+                    // chunk #16/#17 receivers don't cascade into channel saturation.
+                    tauri::async_runtime::spawn(async move {
+                        let mut rx = ingest_receiver;
+                        while rx.recv().await.is_some() {}
+                    });
+                }
+            }
             if let Some(grpc_addr) = grpc_addr {
                 let grpc_announcer = Arc::clone(&heartbeat_state);
                 let grpc_state = Arc::clone(&ingest_state);
@@ -251,12 +270,55 @@ fn main() {
                     }
                 });
             }
-            let _heartbeat_handles =
-                heartbeat::spawn(heartbeat_state, ingest_state, Arc::clone(&ingest_sender));
+            let _heartbeat_handles = heartbeat::spawn(
+                heartbeat_state,
+                ingest_state,
+                Arc::clone(&ingest_sender),
+                Arc::clone(&buffer_state),
+            );
             Ok(())
         })
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
+}
+
+fn init_buffer(heartbeat_state: &Arc<HeartbeatState>) -> Option<Arc<Mutex<Connection>>> {
+    let start = Instant::now();
+    let conn = match Connection::open_in_memory() {
+        Ok(c) => c,
+        Err(_) => {
+            heartbeat_state
+                .record_buffer_connection(BufferConnectionStatus::Failed("open_in_memory".into()));
+            tracing::error!(
+                target: "buffer.schema.init.error",
+                error_type = "open_in_memory_failed",
+                spantrace = ?SpanTrace::capture(),
+                "DuckDB :memory: connection open failed",
+            );
+            return None;
+        }
+    };
+    if create_schema(&conn).is_err() {
+        heartbeat_state.record_buffer_connection(BufferConnectionStatus::Failed(
+            "schema_create_failed".into(),
+        ));
+        tracing::error!(
+            target: "buffer.schema.init.error",
+            error_type = "schema_create",
+            spantrace = ?SpanTrace::capture(),
+            "DuckDB schema creation failed",
+        );
+        return None;
+    }
+    heartbeat_state.record_buffer_connection(BufferConnectionStatus::Ok);
+    let duration_ms = start.elapsed().as_millis() as u64;
+    tracing::info!(
+        target: "buffer.schema.init",
+        table_count = 7_u64,
+        duration_ms = duration_ms,
+        "ring buffer schema created",
+    );
+    Some(Arc::new(Mutex::new(conn)))
 }
 
 #[cfg(test)]

@@ -8,6 +8,38 @@ _This file is entirely wrap-session's territory. `/setup-project` creates it if 
 
 ---
 
+## 2026-05-06 — DuckDB 1.10502 hangs `INSERT` on duplicate composite-BLOB primary key
+
+The `duckdb` crate 1.10502.0 (DuckDB 1.5 bundled C++) on Windows MSVC enters an unbounded loop when an `INSERT` would violate a `PRIMARY KEY (col1 BLOB, col2 BLOB)` composite. The first insert succeeds; the duplicate insert never returns from `Connection::execute()` / `execute_batch()` — observed via cargo nextest's `SLOW [>2400.000s]` reports on the chunk #20 buffer crate `spans` table (composite PK over `trace_id BLOB(16)` + `span_id BLOB(8)`). Single-INSERT into the same table works fine, both via SQL `INSERT … VALUES (X'…')` and via the Arrow appender (`Connection::appender("spans")?.append_record_batch(...)`). Only the PK-violation path on multi-column BLOB PK hangs. Workaround: assert composite-PK structure via schema introspection (`information_schema.key_column_usage` filtered to `table_schema = 'main' AND table_name = '<table>'`, asserting `column_name` set + `ordinal_position` count) instead of behavioral runtime PK-violation tests.
+
+The chunk #20 schema test `spans_primary_key_is_composite_trace_id_span_id` originally inserted-then-duplicated; rewritten to query `key_column_usage` and assert (a) exactly 2 columns in PK, (b) names contain `trace_id` AND `span_id`. Pattern generalizes to any future schema test that needs to assert composite PK on BLOB-typed columns: prefer information_schema introspection over behavioral PK-violation paths until DuckDB upstream confirms / fixes the issue. Rust `cargo nextest` reports SLOW indefinitely without timeout; use cargo nextest's per-test slow-timeout config or kill the test binary manually. Direct `target/debug/deps/buffer-{hash}.exe` invocation reproduces the hang outside nextest, ruling out test-runner parallelism as cause.
+
+See: `crates/buffer/src/schema.rs::tests::spans_primary_key_is_composite_trace_id_span_id`; `information_schema.key_column_usage` filter discipline; chunk #20 fix-loop iteration #6.
+
+---
+
+## 2026-05-06 — libduckdb-sys 1.10502 needs `rstrtmgr.lib` link hint on Windows MSVC
+
+The `libduckdb-sys` crate 1.10502.0 (DuckDB C++ build) on the `x86_64-pc-windows-msvc` target references Restart Manager APIs (`RmStartSession` / `RmEndSession` / `RmRegisterResources` / `RmGetList` from `Rstrtmgr.dll`) inside `duckdb::AdditionalLockInfo` but does NOT emit the corresponding `rstrtmgr.lib` link directive from its own `build.rs` for downstream test-binary linkage. Linking the consumer crate's lib succeeds (the symbols stay unresolved-but-tolerated until binary link), but the test binary link step fails with `LNK2019 unresolved external symbol` for all four symbols. Workaround: add a `build.rs` to the consuming crate that emits `cargo:rustc-link-lib=dylib=rstrtmgr` when `CARGO_CFG_TARGET_OS == "windows"`. The chunk #20 buffer crate ships `crates/buffer/build.rs` with exactly this guard.
+
+Pattern generalizes to any future workspace crate that takes `duckdb` (or any libduckdb-sys-bundled dep) as a direct or transitive dep with bundled C++ on Windows MSVC. The Linux + macOS targets do not need this — Restart Manager is Windows-specific. Diagnostic shape: `error: linking with link.exe failed: exit code: 1120` followed by `LNK2019 unresolved external symbol Rm{Start|End|RegisterResources|GetList}Session`. If a future libduckdb-sys version fixes its own `build.rs` to emit the link directive (would manifest as `print-cargo:rustc-link-lib=dylib=rstrtmgr` in `cargo build -vv` for libduckdb-sys), the workaround can be removed.
+
+See: `crates/buffer/build.rs`; chunk #20 fix-loop iteration #5.
+
+---
+
+## 2026-05-06 — DuckDB Arrow-appended BLOB does not match `WHERE col = X'…'` hex literal
+
+When the `duckdb` crate Arrow appender (`Connection::appender("table")?.append_record_batch(record_batch)?`) inserts a `BLOB` column from an `arrow::array::BinaryArray`, the resulting stored bytes do NOT match a `WHERE col = X'…'` hex BLOB literal in subsequent SELECT queries — the SELECT returns `QueryReturnedNoRows` even though `SELECT COUNT(*) FROM table` reports the row IS present. SQL-INSERT'd BLOB literals (`INSERT … VALUES (X'…', …)`) and SELECT WHERE hex-literal pairings DO match each other; Arrow-appended BLOB and hex-literal SELECT do NOT. Root cause unverified but consistent with the Arrow → DuckDB BLOB conversion using a different internal storage encoding (e.g., length-prefixed inline vs out-of-line variable-length representation) that the hex-literal-based equality check doesn't normalize across.
+
+Workaround for round-trip tests: don't use `WHERE col = X'…'` on Arrow-appended BLOBs. Read back via `SELECT col, … FROM table ORDER BY ts_unix_nano LIMIT 1` (or LIMIT N + collect rows) and assert on the OTHER columns (timestamps, integer IDs, varchar names). Equality via parameter binding (`stmt.query_row(params![&[u8]_slice], …)`) was NOT tested as workaround — separately known to hang per the chunk #20 PK-on-BLOB issue, so it can't isolate the encoding question. The chunk #20 `append_spans_batch_round_trips_nanosecond_precision` test uses LIMIT 1 + `row.get::<_, i64>(0)` for `ts_unix_nano` exactly because of this constraint.
+
+Implication: any future query router (chunk #22+) that needs to filter spans by `trace_id` BLOB (e.g., `traces.query_by_trace_id`) must validate Arrow-appended BLOBs match the parameter-binding path before assuming `WHERE col = ?` works. Likely the proper path is `WHERE col = CAST(? AS BLOB)` or DuckDB's specific BLOB binding in the duckdb crate's prepared-statement API. Plan chunk #22 acceptance criteria should explicitly probe this before relying on parameterized BLOB queries.
+
+See: `crates/buffer/src/appender.rs::tests::append_spans_batch_round_trips_nanosecond_precision`; chunk #20 fix-loop iteration #7.
+
+---
+
 ## 2026-05-05 — `governor` crate uses real-time clock; not mockable via `tokio::time::pause()`
 
 The `governor` crate (used transitively by `tower_governor` 0.8 for OTLP receiver rate limiting per route#19) uses a `quanta`-backed monotonic clock (`governor::clock::DefaultClock` → `QuantaInstant`) for token-bucket replenishment. This clock is independent of tokio's runtime clock; calling `tokio::time::pause()` + `tokio::time::advance(Duration)` does NOT freeze or fast-forward governor's view of time. Rate-limit window assertions therefore cannot use the testing.md "use `tokio::time::pause()` for time-sensitive tests" pattern — saturation/recovery tests must use real-time short sleep with bounded windows.
