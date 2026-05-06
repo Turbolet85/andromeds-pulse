@@ -60,6 +60,10 @@ impl From<BufferError> for AppError {
             BufferError::ConnectionLost => "buffer connection lost",
             BufferError::InvalidBatch { .. } => "buffer received invalid batch",
             BufferError::Retention { .. } => "buffer retention sweep failed",
+            BufferError::BroadcastEncode { .. } => "buffer broadcast encode failed",
+            BufferError::BroadcastSizeCapExceeded { .. } => {
+                "buffer broadcast payload exceeded size cap"
+            }
         };
         AppError::Storage {
             message: message.to_string(),
@@ -220,6 +224,37 @@ mod tests {
             AppError::Storage { message } => {
                 assert_eq!(message, "buffer received invalid batch");
                 assert!(!message.contains("spans_empty"));
+            }
+            other => panic!("expected AppError::Storage, got {other:?}"),
+        }
+    }
+
+    #[test]
+    fn from_buffer_broadcast_encode_collapses_to_constant_message_no_reason_leak() {
+        let e = AppError::from(BufferError::BroadcastEncode {
+            reason: "ArrowError::IpcError at /tmp/secret 0xdeadbeef".to_string(),
+        });
+        match e {
+            AppError::Storage { message } => {
+                assert_eq!(message, "buffer broadcast encode failed");
+                assert!(!message.contains("ArrowError"));
+                assert!(!message.contains("/tmp/"));
+                assert!(!message.contains("0xdeadbeef"));
+            }
+            other => panic!("expected AppError::Storage, got {other:?}"),
+        }
+    }
+
+    #[test]
+    fn from_buffer_broadcast_size_cap_collapses_to_constant_message_no_byte_count_leak() {
+        let e = AppError::from(BufferError::BroadcastSizeCapExceeded {
+            payload_bytes: 9_999_999,
+        });
+        match e {
+            AppError::Storage { message } => {
+                assert_eq!(message, "buffer broadcast payload exceeded size cap");
+                assert!(!message.contains("9999999"));
+                assert!(!message.contains("9_999_999"));
             }
             other => panic!("expected AppError::Storage, got {other:?}"),
         }

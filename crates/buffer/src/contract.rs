@@ -16,6 +16,10 @@ pub enum Error {
     InvalidBatch { kind: &'static str },
     #[error("buffer retention sweep failed: {reason}")]
     Retention { reason: String },
+    #[error("buffer broadcast encode failed: {reason}")]
+    BroadcastEncode { reason: String },
+    #[error("buffer broadcast payload exceeded size cap: {payload_bytes} bytes")]
+    BroadcastSizeCapExceeded { payload_bytes: usize },
 }
 
 #[derive(Debug, Clone, Copy, Default)]

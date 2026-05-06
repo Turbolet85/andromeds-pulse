@@ -13,6 +13,7 @@ tracing.workspace = true
 tracing-error.workspace = true
 duckdb.workspace = true
 arrow.workspace = true
+bytes.workspace = true
 
 # Sanctioned sibling-DAG edge: the `Batch` enum is the cross-crate hand-off
 # contract from ingest → buffer (per arch §Established Decisions

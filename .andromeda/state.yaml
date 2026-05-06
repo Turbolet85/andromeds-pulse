@@ -1,14 +1,14 @@
 schema_version: 2
-last_wrap: 2026-05-06T21:11:34Z
-last_reconcile: 2026-05-06T21:11:34Z
+last_wrap: 2026-05-06T22:49:18Z
+last_reconcile: 2026-05-06T22:49:18Z
 
 last_completed_chunk:
-  route_index: 22
-  title: "Query routers (traces/metrics/logs) — viz crate prepared statements (no format-string SQL), query_id + param_count anonymized logging"
+  route_index: 23
+  title: "Broadcast fan-out + Tauri Channel API — tokio broadcast → pulse://stream/{spans,metrics,logs} binary Arrow IPC + _trace_context metadata + size cap"
   epoch: 3
-  committed_at: 2026-05-06T21:11:34Z
-  commit_sha: 26f0859
-  commit_subject: "feat(viz): query routers (traces/metrics/logs) — viz crate prepared statements + query_id/param_count anonymized logging + From<VizError> for AppError sanitization + viz_state heartbeat parameterization (chunk #22); session 22"
+  committed_at: 2026-05-06T22:49:18Z
+  commit_sha: 774848a
+  commit_subject: "feat(buffer): broadcast fan-out + Tauri Channel API — tokio broadcast → pulse://stream/{spans,metrics,logs} binary Arrow IPC + 8MB size cap + StreamsApi TauRPC procedures + ingest.tick broadcast_subscribers gauge (chunk #23); session 23"
 
 in_progress: null
 
@@ -24,12 +24,18 @@ plan_freshness:
   input_mtime: 2026-05-02T06:52:58Z
 
 living_artifact_freshness:
-  dep_tree_reconciled_at: 2026-05-06T21:11:34Z
-  api_surface_reconciled_at: 2026-05-06T21:11:34Z
-  most_recent_code_mtime: 2026-05-06T21:11:34Z
+  dep_tree_reconciled_at: 2026-05-06T22:49:18Z
+  api_surface_reconciled_at: 2026-05-06T22:49:18Z
+  most_recent_code_mtime: 2026-05-06T22:49:18Z
   reconcile_failed: false
 
-drift_warnings: []
+drift_warnings:
+  - drift_id: D3
+    description: "chunk #23 introduced `streams.{subscribe_spans, subscribe_metrics, subscribe_logs}` TauRPC procedures via pulse-app/src/streams.rs, but arch §Occupied Resources Tauri IPC routes list does NOT include `streams.*` namespace"
+    severity: warning
+    remediation_hint: "Options: (a) defer to chunk #27 xtask capability-drift check (recommended — natural carry); (b) re-run /andromeda-arch to incorporate new namespace (heavy); (c) add /andromeda-route Decisions Log entry without re-deriving arch (lightest formal capture)"
+    first_observed_session_count: 23
+    last_observed_session_count: 23
 
 spec_amendments:
   active: []
@@ -59,4 +65,4 @@ spec_amendments:
       propagated_by_run: .andromeda/runs/2026-05-04T20-42-30-setup-project/
       archived_at: 2026-05-04T21:43:31Z
 
-session_count: 22
+session_count: 23

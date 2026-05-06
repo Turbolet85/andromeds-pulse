@@ -23,6 +23,7 @@ specta.workspace = true
 tauri.workspace = true
 tauri-plugin-updater.workspace = true
 taurpc.workspace = true
+bytes.workspace = true
 strict-path.workspace = true
 duckdb.workspace = true
 ui-bridge = { path = "../crates/ui-bridge" }

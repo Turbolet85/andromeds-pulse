@@ -4,7 +4,7 @@ use std::sync::{Arc, Mutex};
 use std::time::Instant;
 use std::{env, fs};
 
-use buffer::{BufferState, create_schema, run_consumer, run_retention};
+use buffer::{BroadcastSenders, BufferState, create_schema, run_consumer, run_retention};
 use duckdb::Connection;
 use ingest::channel::{IngestSender, build_channel};
 use ingest::contract::{Error as IngestError, OtlpPort};
@@ -18,8 +18,10 @@ use viz::VizState;
 
 mod heartbeat;
 mod observability;
+mod streams;
 mod viz_routers;
 
+use streams::{StreamsApi, StreamsApiImpl};
 use viz_routers::{LogsApi, LogsApiImpl, MetricsApi, MetricsApiImpl, TracesApi, TracesApiImpl};
 
 const ENV_OTLP_GRPC_PORT: &str = "ANDROMEDA_PULSE_OTLP_GRPC_PORT";
@@ -182,6 +184,7 @@ fn main() {
     let buffer_conn = init_buffer(&heartbeat_state);
     let retention_seconds = resolve_retention_seconds();
     let viz_state = Arc::new(VizState::new());
+    let broadcast_senders: Arc<BroadcastSenders> = Arc::new(buffer::broadcast::create());
 
     let grpc_addr = match resolve_grpc_port() {
         Ok(p) => Some(SocketAddr::from(([127, 0, 0, 1], p.value()))),
@@ -213,8 +216,11 @@ fn main() {
             .merge(HealthApiImpl.into_handler())
             .merge(TracesApiImpl::new(Arc::clone(conn), Arc::clone(&viz_state)).into_handler())
             .merge(MetricsApiImpl::new(Arc::clone(conn), Arc::clone(&viz_state)).into_handler())
-            .merge(LogsApiImpl::new(Arc::clone(conn), Arc::clone(&viz_state)).into_handler()),
-        None => taurpc::Router::new().merge(HealthApiImpl.into_handler()),
+            .merge(LogsApiImpl::new(Arc::clone(conn), Arc::clone(&viz_state)).into_handler())
+            .merge(StreamsApiImpl::new(Arc::clone(&broadcast_senders)).into_handler()),
+        None => taurpc::Router::new()
+            .merge(HealthApiImpl.into_handler())
+            .merge(StreamsApiImpl::new(Arc::clone(&broadcast_senders)).into_handler()),
     };
 
     tauri::Builder::default()
@@ -227,6 +233,7 @@ fn main() {
                         ingest_receiver,
                         Arc::clone(&conn),
                         Arc::clone(&buffer_state),
+                        Arc::clone(&broadcast_senders),
                     ));
                     tauri::async_runtime::spawn(run_retention(
                         Arc::clone(&conn),
@@ -335,6 +342,7 @@ fn main() {
                 Arc::clone(&buffer_state),
                 retention_seconds,
                 Arc::clone(&viz_state),
+                Arc::clone(&broadcast_senders),
             );
             Ok(())
         })

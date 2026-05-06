@@ -639,6 +639,7 @@ name = "buffer"
 version = "0.1.0"
 dependencies = [
  "arrow",
+ "bytes",
  "duckdb",
  "ingest",
  "rstest",
@@ -3917,6 +3918,7 @@ name = "pulse-app"
 version = "0.1.0"
 dependencies = [
  "buffer",
+ "bytes",
  "chrono",
  "duckdb",
  "ingest",

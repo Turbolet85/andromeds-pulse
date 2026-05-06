@@ -1,4 +1,5 @@
 use std::sync::Arc;
+#[cfg(test)]
 use std::time::Instant;
 
 use arrow::array::{BinaryArray, Int32Array, Int64Array, StringArray, TimestampMicrosecondArray};
@@ -17,9 +18,9 @@ fn timestamp_tz_type() -> DataType {
     DataType::Timestamp(TimeUnit::Microsecond, Some(TS_TZ_UTC.into()))
 }
 
-pub(crate) fn append_spans_batch(conn: &Connection, batch: &[ResourceSpans]) -> Result<u64, Error> {
-    let start = Instant::now();
-
+pub(crate) fn build_spans_record_batch(
+    batch: &[ResourceSpans],
+) -> Result<Option<RecordBatch>, Error> {
     let mut trace_ids: Vec<Vec<u8>> = Vec::new();
     let mut span_ids: Vec<Vec<u8>> = Vec::new();
     let mut tss: Vec<i64> = Vec::new();
@@ -42,9 +43,8 @@ pub(crate) fn append_spans_batch(conn: &Connection, batch: &[ResourceSpans]) -> 
         }
     }
 
-    let row_count = trace_ids.len() as u64;
-    if row_count == 0 {
-        return Ok(0);
+    if trace_ids.is_empty() {
+        return Ok(None);
     }
 
     let trace_id_array = BinaryArray::from_iter_values(trace_ids.iter().map(|v| v.as_slice()));
@@ -72,36 +72,12 @@ pub(crate) fn append_spans_batch(conn: &Connection, batch: &[ResourceSpans]) -> 
         reason: format!("record_batch(spans): {}", short_err(&e.to_string())),
     })?;
 
-    let mut appender = conn.appender("spans").map_err(|e| Error::Append {
-        reason: format!("appender(spans): {}", short_err(&e.to_string())),
-    })?;
-    appender
-        .append_record_batch(record_batch)
-        .map_err(|e| Error::Append {
-            reason: format!("append_record_batch(spans): {}", short_err(&e.to_string())),
-        })?;
-    appender.flush().map_err(|e| Error::Append {
-        reason: format!("flush(spans): {}", short_err(&e.to_string())),
-    })?;
-
-    let duration_ms = start.elapsed().as_millis() as u64;
-    tracing::info!(
-        target: "duckdb.append",
-        rows_appended = row_count,
-        duration_ms = duration_ms,
-        table_name = "spans",
-        "Arrow appender wrote rows",
-    );
-
-    Ok(row_count)
+    Ok(Some(record_batch))
 }
 
-pub(crate) fn append_metrics_batch(
-    conn: &Connection,
+pub(crate) fn build_metrics_record_batch(
     batch: &[ResourceMetrics],
-) -> Result<u64, Error> {
-    let start = Instant::now();
-
+) -> Result<Option<RecordBatch>, Error> {
     let mut metric_names: Vec<String> = Vec::new();
     let mut tss: Vec<i64> = Vec::new();
     let mut ts_unix_nanos: Vec<i64> = Vec::new();
@@ -126,9 +102,8 @@ pub(crate) fn append_metrics_batch(
         }
     }
 
-    let row_count = metric_names.len() as u64;
-    if row_count == 0 {
-        return Ok(0);
+    if metric_names.is_empty() {
+        return Ok(None);
     }
 
     let metric_name_array = StringArray::from(metric_names);
@@ -160,36 +135,12 @@ pub(crate) fn append_metrics_batch(
         ),
     })?;
 
-    let mut appender = conn.appender("metrics_points").map_err(|e| Error::Append {
-        reason: format!("appender(metrics_points): {}", short_err(&e.to_string())),
-    })?;
-    appender
-        .append_record_batch(record_batch)
-        .map_err(|e| Error::Append {
-            reason: format!(
-                "append_record_batch(metrics_points): {}",
-                short_err(&e.to_string())
-            ),
-        })?;
-    appender.flush().map_err(|e| Error::Append {
-        reason: format!("flush(metrics_points): {}", short_err(&e.to_string())),
-    })?;
-
-    let duration_ms = start.elapsed().as_millis() as u64;
-    tracing::info!(
-        target: "duckdb.append",
-        rows_appended = row_count,
-        duration_ms = duration_ms,
-        table_name = "metrics_points",
-        "Arrow appender wrote rows",
-    );
-
-    Ok(row_count)
+    Ok(Some(record_batch))
 }
 
-pub(crate) fn append_logs_batch(conn: &Connection, batch: &[ResourceLogs]) -> Result<u64, Error> {
-    let start = Instant::now();
-
+pub(crate) fn build_logs_record_batch(
+    batch: &[ResourceLogs],
+) -> Result<Option<RecordBatch>, Error> {
     let mut tss: Vec<i64> = Vec::new();
     let mut ts_unix_nanos: Vec<i64> = Vec::new();
     let mut resource_hashes: Vec<Vec<u8>> = Vec::new();
@@ -208,9 +159,8 @@ pub(crate) fn append_logs_batch(conn: &Connection, batch: &[ResourceLogs]) -> Re
         }
     }
 
-    let row_count = tss.len() as u64;
-    if row_count == 0 {
-        return Ok(0);
+    if tss.is_empty() {
+        return Ok(None);
     }
 
     let ts_array = TimestampMicrosecondArray::from(tss).with_timezone(TS_TZ_UTC);
@@ -239,20 +189,87 @@ pub(crate) fn append_logs_batch(conn: &Connection, batch: &[ResourceLogs]) -> Re
         reason: format!("record_batch(log_records): {}", short_err(&e.to_string())),
     })?;
 
-    let mut appender = conn.appender("log_records").map_err(|e| Error::Append {
-        reason: format!("appender(log_records): {}", short_err(&e.to_string())),
+    Ok(Some(record_batch))
+}
+
+pub(crate) fn append_record_batch_to_table(
+    conn: &Connection,
+    table_name: &'static str,
+    record_batch: RecordBatch,
+) -> Result<u64, Error> {
+    let row_count = record_batch.num_rows() as u64;
+    let mut appender = conn.appender(table_name).map_err(|e| Error::Append {
+        reason: format!("appender({table_name}): {}", short_err(&e.to_string())),
     })?;
     appender
         .append_record_batch(record_batch)
         .map_err(|e| Error::Append {
             reason: format!(
-                "append_record_batch(log_records): {}",
+                "append_record_batch({table_name}): {}",
                 short_err(&e.to_string())
             ),
         })?;
     appender.flush().map_err(|e| Error::Append {
-        reason: format!("flush(log_records): {}", short_err(&e.to_string())),
+        reason: format!("flush({table_name}): {}", short_err(&e.to_string())),
     })?;
+    Ok(row_count)
+}
+
+// Convenience wrappers used by appender's own tests. After chunk #23, the
+// production path is consumer::dispatch_batch which calls build_*_record_batch
+// + append_record_batch_to_table directly so the same RecordBatch can be
+// reused for broadcast emission. These wrappers preserve the chunk #20 test
+// surface without re-emerging in the production call graph.
+#[cfg(test)]
+pub(crate) fn append_spans_batch(conn: &Connection, batch: &[ResourceSpans]) -> Result<u64, Error> {
+    let start = Instant::now();
+    let Some(record_batch) = build_spans_record_batch(batch)? else {
+        return Ok(0);
+    };
+    let row_count = append_record_batch_to_table(conn, "spans", record_batch)?;
+
+    let duration_ms = start.elapsed().as_millis() as u64;
+    tracing::info!(
+        target: "duckdb.append",
+        rows_appended = row_count,
+        duration_ms = duration_ms,
+        table_name = "spans",
+        "Arrow appender wrote rows",
+    );
+
+    Ok(row_count)
+}
+
+#[cfg(test)]
+pub(crate) fn append_metrics_batch(
+    conn: &Connection,
+    batch: &[ResourceMetrics],
+) -> Result<u64, Error> {
+    let start = Instant::now();
+    let Some(record_batch) = build_metrics_record_batch(batch)? else {
+        return Ok(0);
+    };
+    let row_count = append_record_batch_to_table(conn, "metrics_points", record_batch)?;
+
+    let duration_ms = start.elapsed().as_millis() as u64;
+    tracing::info!(
+        target: "duckdb.append",
+        rows_appended = row_count,
+        duration_ms = duration_ms,
+        table_name = "metrics_points",
+        "Arrow appender wrote rows",
+    );
+
+    Ok(row_count)
+}
+
+#[cfg(test)]
+pub(crate) fn append_logs_batch(conn: &Connection, batch: &[ResourceLogs]) -> Result<u64, Error> {
+    let start = Instant::now();
+    let Some(record_batch) = build_logs_record_batch(batch)? else {
+        return Ok(0);
+    };
+    let row_count = append_record_batch_to_table(conn, "log_records", record_batch)?;
 
     let duration_ms = start.elapsed().as_millis() as u64;
     tracing::info!(
@@ -480,6 +497,34 @@ mod tests {
         let conn = fresh_conn_with_schema();
         let count = append_spans_batch(&conn, &[]).expect("empty append");
         assert_eq!(count, 0);
+    }
+
+    #[test]
+    fn build_spans_record_batch_returns_some_for_valid_input() {
+        let batch = wrap_spans(vec![span_with_ids(
+            vec![1u8; 16],
+            vec![1u8; 8],
+            1_700_000_000_000_000_000,
+        )]);
+        let result = build_spans_record_batch(&batch).expect("build");
+        let rb = result.expect("must be Some for valid input");
+        assert_eq!(rb.num_rows(), 1);
+        assert_eq!(rb.num_columns(), 4);
+    }
+
+    #[test]
+    fn build_spans_record_batch_returns_none_for_empty_input() {
+        let result = build_spans_record_batch(&[]).expect("build");
+        assert!(result.is_none(), "empty input must return None");
+    }
+
+    #[test]
+    fn build_spans_record_batch_returns_none_when_all_spans_malformed() {
+        let mut malformed = span_with_ids(vec![], vec![], 0);
+        malformed.start_time_unix_nano = 1;
+        let batch = wrap_spans(vec![malformed]);
+        let result = build_spans_record_batch(&batch).expect("build");
+        assert!(result.is_none(), "all-malformed input must return None");
     }
 
     fn make_resource(service: &str) -> Resource {

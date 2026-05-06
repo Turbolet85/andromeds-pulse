@@ -459,6 +459,54 @@ impl AllowList {
                 .copied()
                 .collect(),
         );
+        // chunk #23 broadcast fan-out + Tauri Channel API. Per-target entries
+        // for the 5 new event surfaces (tauri.channel.emit success span +
+        // size_exceeded error variant + emit.error encode-failure variant +
+        // lag warn variant + per-stream broadcast subscriber gauge).
+        // Specific entries take precedence over the `tauri` prefix-strip
+        // fallback (which has no entry — stays default-deny outside this list).
+        by_target.insert(
+            "tauri.channel.emit",
+            [
+                "channel_name",
+                "arrow_schema",
+                "row_count",
+                "payload_size_bytes",
+                "schema_match",
+                "traceparent",
+                "duration_ms",
+            ]
+            .iter()
+            .copied()
+            .collect(),
+        );
+        by_target.insert(
+            "tauri.channel.emit.size_exceeded",
+            [
+                "channel_name",
+                "payload_size_bytes",
+                "limit_bytes",
+                "error_type",
+            ]
+            .iter()
+            .copied()
+            .collect(),
+        );
+        by_target.insert(
+            "tauri.channel.emit.error",
+            ["channel_name", "error_type", "duration_ms", "spantrace"]
+                .iter()
+                .copied()
+                .collect(),
+        );
+        by_target.insert(
+            "tauri.channel.lag",
+            ["channel_name", "dropped_count"].iter().copied().collect(),
+        );
+        by_target.insert(
+            "metric.ingest.channel.broadcast_subscribers",
+            ["value", "channel_name"].iter().copied().collect(),
+        );
         by_target.insert(
             "app.panic.fatal",
             ["panic_message", "location", "spantrace"]
@@ -1753,6 +1801,216 @@ mod tests {
         assert_eq!(
             fields["attribute_value"], "<redacted>",
             "OTLP attribute_value MUST NOT leak per Vector 1"
+        );
+    }
+
+    // chunk #23 tauri.channel.* + metric.ingest.channel.broadcast_subscribers
+    // tests. Five pass / five redact pairs mirroring chunks #20/#21/#22 precedent.
+
+    #[test]
+    fn scrubber_passes_tauri_channel_emit_fields() {
+        let defaults = make_defaults(None, None);
+        let lines = capture_json_lines(defaults, || {
+            tracing::info!(
+                target: "tauri.channel.emit",
+                channel_name = "pulse://stream/spans",
+                arrow_schema = "trace_id,span_id,ts,ts_unix_nano",
+                row_count = 5_u64,
+                payload_size_bytes = 1024_u64,
+                schema_match = true,
+                traceparent = "00-0123456789abcdef0123456789abcdef-0123456789abcdef-01",
+                duration_ms = 2_u64,
+                "Arrow IPC payload emitted",
+            );
+        });
+        let fields = &lines[0]["fields"];
+        assert_eq!(fields["channel_name"], "pulse://stream/spans");
+        assert_eq!(fields["row_count"], 5);
+        assert_eq!(fields["payload_size_bytes"], 1024);
+        assert_eq!(fields["schema_match"], true);
+        assert_eq!(fields["duration_ms"], 2);
+    }
+
+    #[test]
+    fn scrubber_redacts_non_allowlisted_tauri_channel_emit_field() {
+        let defaults = make_defaults(None, None);
+        let lines = capture_json_lines(defaults, || {
+            tracing::info!(
+                target: "tauri.channel.emit",
+                channel_name = "pulse://stream/spans",
+                row_count = 5_u64,
+                attribute_value = "secret-attr-leak",
+                raw_payload_first_bytes = "secret-row-content",
+                "Arrow IPC payload emitted",
+            );
+        });
+        let fields = &lines[0]["fields"];
+        assert_eq!(fields["channel_name"], "pulse://stream/spans");
+        assert_eq!(fields["row_count"], 5);
+        assert_eq!(
+            fields["attribute_value"], "<redacted>",
+            "OTLP attribute value MUST NOT leak per Vector 1"
+        );
+        assert_eq!(
+            fields["raw_payload_first_bytes"], "<redacted>",
+            "raw payload bytes MUST NOT leak per Vector 1"
+        );
+    }
+
+    #[test]
+    fn scrubber_passes_tauri_channel_emit_size_exceeded_fields() {
+        let defaults = make_defaults(None, None);
+        let lines = capture_json_lines(defaults, || {
+            tracing::error!(
+                target: "tauri.channel.emit.size_exceeded",
+                channel_name = "pulse://stream/spans",
+                payload_size_bytes = 9_999_999_u64,
+                limit_bytes = 8_388_608_u64,
+                error_type = "size_exceeded",
+                "Arrow IPC payload exceeded broadcast size cap",
+            );
+        });
+        let fields = &lines[0]["fields"];
+        assert_eq!(fields["channel_name"], "pulse://stream/spans");
+        assert_eq!(fields["payload_size_bytes"], 9_999_999);
+        assert_eq!(fields["limit_bytes"], 8_388_608);
+        assert_eq!(fields["error_type"], "size_exceeded");
+    }
+
+    #[test]
+    fn scrubber_redacts_non_allowlisted_tauri_channel_emit_size_exceeded_field() {
+        let defaults = make_defaults(None, None);
+        let lines = capture_json_lines(defaults, || {
+            tracing::error!(
+                target: "tauri.channel.emit.size_exceeded",
+                channel_name = "pulse://stream/spans",
+                payload_size_bytes = 9_999_999_u64,
+                offending_row_text = "secret-row-content",
+                "Arrow IPC payload exceeded broadcast size cap",
+            );
+        });
+        let fields = &lines[0]["fields"];
+        assert_eq!(fields["payload_size_bytes"], 9_999_999);
+        assert_eq!(
+            fields["offending_row_text"], "<redacted>",
+            "row content MUST NOT leak"
+        );
+    }
+
+    #[test]
+    fn scrubber_passes_tauri_channel_emit_error_fields() {
+        let defaults = make_defaults(None, None);
+        let lines = capture_json_lines(defaults, || {
+            tracing::error!(
+                target: "tauri.channel.emit.error",
+                channel_name = "pulse://stream/metrics",
+                error_type = "encode_failed",
+                duration_ms = 3_u64,
+                spantrace = "captured",
+                "Arrow IPC encode failed",
+            );
+        });
+        let fields = &lines[0]["fields"];
+        assert_eq!(fields["channel_name"], "pulse://stream/metrics");
+        assert_eq!(fields["error_type"], "encode_failed");
+        assert_eq!(fields["duration_ms"], 3);
+        assert_eq!(fields["spantrace"], "captured");
+    }
+
+    #[test]
+    fn scrubber_redacts_non_allowlisted_tauri_channel_emit_error_field() {
+        let defaults = make_defaults(None, None);
+        let lines = capture_json_lines(defaults, || {
+            tracing::error!(
+                target: "tauri.channel.emit.error",
+                channel_name = "pulse://stream/metrics",
+                error_type = "encode_failed",
+                arrow_internal_text = "ArrowError::IpcError at /private 0xdeadbeef",
+                "Arrow IPC encode failed",
+            );
+        });
+        let fields = &lines[0]["fields"];
+        assert_eq!(fields["error_type"], "encode_failed");
+        assert_eq!(
+            fields["arrow_internal_text"], "<redacted>",
+            "raw library error text MUST NOT leak"
+        );
+    }
+
+    #[test]
+    fn scrubber_passes_tauri_channel_lag_fields() {
+        let defaults = make_defaults(None, None);
+        let lines = capture_json_lines(defaults, || {
+            tracing::warn!(
+                target: "tauri.channel.lag",
+                channel_name = "pulse://stream/logs",
+                dropped_count = 42_u64,
+                "broadcast receiver lagged",
+            );
+        });
+        let fields = &lines[0]["fields"];
+        assert_eq!(fields["channel_name"], "pulse://stream/logs");
+        assert_eq!(fields["dropped_count"], 42);
+    }
+
+    #[test]
+    fn scrubber_redacts_non_allowlisted_tauri_channel_lag_field() {
+        let defaults = make_defaults(None, None);
+        let lines = capture_json_lines(defaults, || {
+            tracing::warn!(
+                target: "tauri.channel.lag",
+                channel_name = "pulse://stream/logs",
+                dropped_count = 42_u64,
+                lost_trace_ids = "id1,id2,id3",
+                "broadcast receiver lagged",
+            );
+        });
+        let fields = &lines[0]["fields"];
+        assert_eq!(fields["dropped_count"], 42);
+        assert_eq!(
+            fields["lost_trace_ids"], "<redacted>",
+            "lost trace identifiers MUST NOT leak per Vector 1"
+        );
+    }
+
+    #[test]
+    fn scrubber_passes_metric_ingest_channel_broadcast_subscribers_fields() {
+        let defaults = make_defaults(None, None);
+        let lines = capture_json_lines(defaults, || {
+            tracing::info!(
+                target: "metric.ingest.channel.broadcast_subscribers",
+                value = 3_u64,
+                channel_name = "pulse://stream/spans",
+                "broadcast subscriber gauge",
+            );
+        });
+        let fields = &lines[0]["fields"];
+        assert_eq!(fields["value"], 3);
+        assert_eq!(fields["channel_name"], "pulse://stream/spans");
+    }
+
+    #[test]
+    fn scrubber_redacts_non_allowlisted_metric_ingest_channel_broadcast_subscribers_field() {
+        let defaults = make_defaults(None, None);
+        let lines = capture_json_lines(defaults, || {
+            tracing::info!(
+                target: "metric.ingest.channel.broadcast_subscribers",
+                value = 3_u64,
+                channel_name = "pulse://stream/spans",
+                client_ip = "127.0.0.1",
+                subscriber_session_id = "abc-secret",
+                "broadcast subscriber gauge",
+            );
+        });
+        let fields = &lines[0]["fields"];
+        assert_eq!(fields["value"], 3);
+        assert_eq!(
+            fields["client_ip"], "<redacted>",
+            "client_ip MUST NOT leak per cardinality discipline"
+        );
+        assert_eq!(
+            fields["subscriber_session_id"], "<redacted>",
+            "session id MUST NOT leak per cardinality discipline"
         );
     }
 

@@ -8,6 +8,62 @@ _This file is entirely wrap-session's territory. `/setup-project` creates it if 
 
 ---
 
+## 2026-05-06 — RecordBatch reuse refactor: extract `build_*_record_batch` from `append_*_batch` to enable fan-out
+
+When a producer crate needs to emit the same Arrow `RecordBatch` data to multiple sinks (e.g., chunk #23: DuckDB persist via `Connection::appender(...).append_record_batch(...)` AND tokio broadcast emit via Arrow IPC StreamWriter byte stream), refactor any existing single-sink `append_*_batch(conn, proto_input) -> Result<u64, Error>` function into two pieces:
+
+1. **Builder:** `build_*_record_batch(proto_input) -> Result<Option<RecordBatch>, Error>` — does the proto → Vec<column-wise> → RecordBatch::try_new construction; returns `None` for zero-row inputs (matches existing semantic of "0 rows = no-op").
+2. **Persister:** `append_record_batch_to_table(conn, table_name: &'static str, batch: RecordBatch) -> Result<u64, Error>` — does the DuckDB `appender(table_name).append_record_batch(batch).flush()` work; returns row count from `batch.num_rows()`.
+
+The original `append_*_batch` becomes a thin compose layer (`build → append → tracing log`). Caller for chunk #23-style fan-out flows (`crates/buffer/src/consumer.rs::dispatch_batch`) bypasses the wrapper entirely: build once, encode for broadcast (via `crate::broadcast::encode_*(&record_batch)`), append the (cloned) RecordBatch to DuckDB, emit broadcast bytes if encode-Ok and append-Ok.
+
+Coordination invariant: encode happens BEFORE append (so encode failure aborts the whole flow), but emit happens AFTER append (so subscribers only see durably-stored data). RecordBatch::clone is cheap (Arc bump on the underlying buffers), so the build → clone → append + clone → encode pattern is roughly O(1) extra overhead.
+
+Side effect: with the production path going through builders + writer directly, the old wrappers `append_*_batch` may become unused in production code (only the co-located tests still call them). See the cfg(test) gating learning below for the workflow follow-up.
+
+See: `crates/buffer/src/appender.rs::build_spans_record_batch / build_metrics_record_batch / build_logs_record_batch / append_record_batch_to_table`; `crates/buffer/src/consumer.rs::dispatch_batch` chunk #23 fan-out path.
+
+---
+
+## 2026-05-06 — `#[cfg(test)]` gating of test-only API wrappers after refactor (dead-code under -D warnings)
+
+When extracting a public-API function into helpers + a thin wrapper, the wrapper may end up unused by production code (only co-located tests call it). Rust's `dead_code` lint will fire, and clippy's `-D warnings` gate will reject the build. Solution: gate the wrapper with `#[cfg(test)]`. The wrapper preserves existing test ergonomics + signature; production path bypasses it via the helpers.
+
+Same gating applies to imports newly needed only in test paths. The chunk #23 buffer/appender refactor moved `Instant::now()` calls from the production wrappers into cfg(test)-only territory; the `use std::time::Instant` import then needed `#[cfg(test)]` too:
+
+```rust
+use std::sync::Arc;
+#[cfg(test)]
+use std::time::Instant;
+```
+
+Diagnostic shape: `warning: function 'append_spans_batch' is never used` + `warning: unused import: 'std::time::Instant'`. Without gating, both fire as warnings under default rustc, which clippy promotes to errors via `-D warnings`.
+
+Pattern generalizes to refactor-time discipline: when extracting helpers from existing API, audit whether the OLD entry-point (and its imports) is still called from production. If only tests call it, gate with `#[cfg(test)]`. If genuinely unused (no callers anywhere), delete it outright (per CLAUDE.md "no half-finished implementations / TODO panics" guidance) — keeping it cfg(test)-gated is the right move only if tests legitimately need the compose layer.
+
+See: `crates/buffer/src/appender.rs` chunk #23 — `append_{spans,metrics,logs}_batch` wrappers cfg(test)-gated after extraction; `Instant` import gated; chunk #23 fix-loop iteration #2.
+
+---
+
+## 2026-05-06 — TauRPC + tokio broadcast + Tauri Channel API binary-payload forwarding pattern
+
+The chunk #23 push-stream surface (`pulse://stream/{spans,metrics,logs}`) wires three components:
+
+1. **`tokio::sync::broadcast::Sender<bytes::Bytes>`** in the producer crate (buffer): one Sender per stream, capacity 128. After successful DuckDB append, encode the RecordBatch via `arrow::ipc::writer::StreamWriter` to a `bytes::Bytes` payload (with 8 MB cap check), then call `senders.{spans|metrics|logs}.send(bytes)`. SendError when no subscribers — silently drop via `let _ = sender.send(...)`.
+2. **TauRPC `#[taurpc::procedures(path = "streams")]`** in the binary crate (`pulse-app/src/streams.rs`) with 3 procedures `subscribe_{spans,metrics,logs}(channel: tauri::ipc::Channel<Vec<u8>>) -> Result<(), AppError>`. Tauri 2.11 + taurpc 0.7 accepts `Channel<Vec<u8>>` as a procedure parameter without special handling; webview creates a Channel via `new Channel<Uint8Array>()`, passes it as the procedure arg, and the procedure stores the handle.
+3. **Forwarding task** spawned at procedure entry: clone the relevant `broadcast::Sender`, call `.subscribe()` to get a `Receiver`, then `tokio::spawn(forward_loop(stream_name, receiver, channel))`. The loop: `match receiver.recv().await { Ok(bytes) => { /* size cap re-check, payload = bytes.to_vec(), channel.send(payload), tracing::info! tauri.channel.emit */ }, Err(Lagged(n)) => tracing::warn! tauri.channel.lag, Err(Closed) => break }`. Channel send error (webview disconnect) → break loop, exit task, drop Receiver, decrement subscriber count via `Sender::receiver_count()` natural decay.
+
+Two notable trip-ups during impl:
+
+- **`bytes::Bytes` does NOT implement Serialize**, so `Channel<bytes::Bytes>` doesn't compile. Use `Channel<Vec<u8>>` and convert via `bytes.to_vec()` at the send site. Trade-off: one Vec allocation per emission per subscriber. For 3 subscribers × 10k events/sec ≈ 30k allocs/sec — acceptable within tokio scheduling overhead headroom; revisit only if profiling shows hot-path cost.
+- **Subscriber count tracking** lives in `IngestState.broadcast_subscribers` (chunk #18 precedent — single AtomicU32 representing total across streams). Per-tick heartbeat polls `broadcast_senders.{spans|metrics|logs}.receiver_count()` and sums into `IngestState.set_broadcast_subscribers(total_subs as u32)` before emitting `ingest.tick`. Per-stream visibility achieved via separate `metric.ingest.channel.broadcast_subscribers` events with enumerated `channel_name` field — does NOT use unbounded labels per obs cardinality discipline.
+
+Pattern is reusable for any future scope-arch chunk that needs binary push from backend to webview without JSON-stringify tax. Avoid `tauri::Manager::emit(event_name, payload)` for bulk binary data — emit serializes to JSON regardless of T (Vec<u8> becomes a JSON array of u8s).
+
+See: `pulse-app/src/streams.rs` (TauRPC trait + StreamsApiImpl + forward_loop); `crates/buffer/src/broadcast.rs` (Sender trio + encoders + cap); `pulse-app/src/heartbeat.rs::emit_ingest_tick` (subscriber-count poll); chunk #23 plan.md §Implementation Steps 8 + research.md "Open questions".
+
+---
+
 ## 2026-05-06 — TauRPC trait+impl pairs belong in the binary crate, not in producer library crates (cargo feature-unification cycle)
 
 When a TauRPC API is exposed by a library crate's content (viz query types + Error, future scope-crate types, etc.), the natural Rust instinct is to colocate the `#[taurpc::procedures] pub trait Api` + `#[taurpc::resolvers] impl Api for ApiImpl` with the data types in the same library crate. This works for `ui-bridge` because ui-bridge OWNS the `AppError` type that procedures return — the trait can be feature-gated and reference AppError directly (see `crates/ui-bridge/src/health.rs::runtime` mod under `#[cfg(feature = "taurpc-runtime")]`).

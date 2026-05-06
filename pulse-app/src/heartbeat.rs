@@ -2,7 +2,7 @@ use std::sync::Arc;
 use std::sync::atomic::{AtomicU64, Ordering};
 use std::time::Duration;
 
-use buffer::BufferState;
+use buffer::{BroadcastSenders, BufferState};
 use chrono::Utc;
 use ingest::channel::IngestSender;
 use ingest::state::IngestState;
@@ -19,9 +19,15 @@ pub(crate) fn spawn(
     buffer_state: Arc<BufferState>,
     retention_seconds: u64,
     viz_state: Arc<VizState>,
+    broadcast_senders: Arc<BroadcastSenders>,
 ) -> Vec<JoinHandle<()>> {
     vec![
-        tokio::spawn(run_ingest(state.clone(), ingest_state, ingest_sender)),
+        tokio::spawn(run_ingest(
+            state.clone(),
+            ingest_state,
+            ingest_sender,
+            broadcast_senders,
+        )),
         tokio::spawn(run_buffer(state.clone(), buffer_state, retention_seconds)),
         tokio::spawn(run_viz(state.clone(), viz_state)),
         tokio::spawn(run_plugins(state)),
@@ -32,11 +38,12 @@ async fn run_ingest(
     state: Arc<HeartbeatState>,
     ingest_state: Arc<IngestState>,
     ingest_sender: Arc<IngestSender>,
+    broadcast_senders: Arc<BroadcastSenders>,
 ) {
     let mut interval = tokio::time::interval(Duration::from_secs(TICK_INTERVAL_SECS));
     loop {
         interval.tick().await;
-        emit_ingest_tick(&state, &ingest_state, &ingest_sender);
+        emit_ingest_tick(&state, &ingest_state, &ingest_sender, &broadcast_senders);
     }
 }
 
@@ -73,7 +80,13 @@ fn emit_ingest_tick(
     state: &HeartbeatState,
     ingest_state: &IngestState,
     ingest_sender: &IngestSender,
+    broadcast_senders: &BroadcastSenders,
 ) {
+    let total_subs = broadcast_senders.spans.receiver_count()
+        + broadcast_senders.metrics.receiver_count()
+        + broadcast_senders.logs.receiver_count();
+    ingest_state.set_broadcast_subscribers(total_subs as u32);
+
     let payload = ingest::contract::heartbeat_payload(ingest_state, ingest_sender);
     state.record_ingest(Utc::now());
     tracing::info!(
@@ -82,6 +95,30 @@ fn emit_ingest_tick(
         buffer_capacity_pct = payload.buffer_capacity_pct,
         broadcast_subscribers = payload.broadcast_subscribers,
         "heartbeat",
+    );
+
+    // Per-stream gauge events (chunk #23) — channel_name label enumerated to the
+    // three reserved stream names per arch §Occupied Resources Tauri IPC events.
+    emit_broadcast_gauge(
+        buffer::STREAM_NAME_SPANS,
+        broadcast_senders.spans.receiver_count(),
+    );
+    emit_broadcast_gauge(
+        buffer::STREAM_NAME_METRICS,
+        broadcast_senders.metrics.receiver_count(),
+    );
+    emit_broadcast_gauge(
+        buffer::STREAM_NAME_LOGS,
+        broadcast_senders.logs.receiver_count(),
+    );
+}
+
+fn emit_broadcast_gauge(channel_name: &'static str, value: usize) {
+    tracing::info!(
+        target: "metric.ingest.channel.broadcast_subscribers",
+        value = value as u64,
+        channel_name = channel_name,
+        "broadcast subscriber gauge",
     );
 }
 
@@ -203,8 +240,9 @@ mod tests {
         let state = HeartbeatState::new();
         let ingest_state = IngestState::new();
         let (sender, _rx) = build_channel();
-        let lines = capture_lines(|| emit_ingest_tick(&state, &ingest_state, &sender));
-        assert_eq!(lines.len(), 1);
+        let senders = buffer::broadcast::create();
+        let lines = capture_lines(|| emit_ingest_tick(&state, &ingest_state, &sender, &senders));
+        assert!(!lines.is_empty());
         assert_eq!(lines[0]["target"], "ingest.tick");
         let fields = &lines[0]["fields"];
         assert!(fields.get("span_count").is_some());
@@ -218,9 +256,46 @@ mod tests {
         let state = HeartbeatState::new();
         let ingest_state = IngestState::new();
         let (sender, _rx) = build_channel();
+        let senders = buffer::broadcast::create();
         ingest_state.record_spans(7);
-        let lines = capture_lines(|| emit_ingest_tick(&state, &ingest_state, &sender));
+        let lines = capture_lines(|| emit_ingest_tick(&state, &ingest_state, &sender, &senders));
         assert_eq!(lines[0]["fields"]["span_count"], 7);
+    }
+
+    #[test]
+    fn emit_ingest_tick_reflects_real_broadcast_subscriber_sum() {
+        let state = HeartbeatState::new();
+        let ingest_state = IngestState::new();
+        let (sender, _rx) = build_channel();
+        let senders = buffer::broadcast::create();
+        let _r1 = senders.spans.subscribe();
+        let _r2 = senders.metrics.subscribe();
+        let _r3 = senders.metrics.subscribe();
+        let _r4 = senders.logs.subscribe();
+        let lines = capture_lines(|| emit_ingest_tick(&state, &ingest_state, &sender, &senders));
+        assert_eq!(lines[0]["fields"]["broadcast_subscribers"], 4);
+    }
+
+    #[test]
+    fn emit_ingest_tick_emits_per_stream_broadcast_subscribers_gauges() {
+        let state = HeartbeatState::new();
+        let ingest_state = IngestState::new();
+        let (sender, _rx) = build_channel();
+        let senders = buffer::broadcast::create();
+        let _r = senders.spans.subscribe();
+        let lines = capture_lines(|| emit_ingest_tick(&state, &ingest_state, &sender, &senders));
+
+        let gauges: Vec<_> = lines
+            .iter()
+            .filter(|l| l["target"] == "metric.ingest.channel.broadcast_subscribers")
+            .collect();
+        assert_eq!(gauges.len(), 3, "one gauge per stream");
+
+        let span_gauge = gauges
+            .iter()
+            .find(|g| g["fields"]["channel_name"] == "pulse://stream/spans")
+            .expect("spans gauge");
+        assert_eq!(span_gauge["fields"]["value"], 1);
     }
 
     #[test]
@@ -412,7 +487,16 @@ mod tests {
         let sender = Arc::new(sender);
         let buffer_state = Arc::new(BufferState::new());
         let viz_state = Arc::new(VizState::new());
-        let handles = spawn(state, ingest_state, sender, buffer_state, 600, viz_state);
+        let senders = Arc::new(buffer::broadcast::create());
+        let handles = spawn(
+            state,
+            ingest_state,
+            sender,
+            buffer_state,
+            600,
+            viz_state,
+            senders,
+        );
         assert_eq!(handles.len(), 4);
         for handle in handles {
             handle.abort();

@@ -148,6 +148,8 @@ fn describe_error(e: &Error) -> &'static str {
         Error::ConnectionLost => "connection_lost",
         Error::InvalidBatch { .. } => "invalid_batch",
         Error::Retention { .. } => "retention_failed",
+        Error::BroadcastEncode { .. } => "broadcast_encode_failed",
+        Error::BroadcastSizeCapExceeded { .. } => "broadcast_size_cap_exceeded",
     }
 }
 
