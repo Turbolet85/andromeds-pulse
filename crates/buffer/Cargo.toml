@@ -22,3 +22,8 @@ ingest = { path = "../ingest" }
 [dev-dependencies]
 rstest.workspace = true
 tempfile.workspace = true
+# `test-util` enables `tokio::time::pause()` + `tokio::time::advance(...)` for
+# deterministic retention-window tests (chunk #21). Production `tokio.workspace`
+# above keeps the `["full"]` feature set; only test builds gain `test-util`
+# (per testing rule Session Addition 2026-05-03).
+tokio = { workspace = true, features = ["test-util"] }

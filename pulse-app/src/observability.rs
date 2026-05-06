@@ -149,6 +149,7 @@ impl AllowList {
                 "memory_bytes",
                 "retention_window_seconds",
                 "retention_window_active",
+                "eviction_count_since_last_tick",
             ]
             .iter()
             .copied()
@@ -365,6 +366,60 @@ impl AllowList {
             .iter()
             .copied()
             .collect(),
+        );
+        // chunk #21 retention sweep events. Direct-target lookup wins over the
+        // `buffer` prefix-strip fallback per for_target resolver order.
+        by_target.insert(
+            "buffer.retention.sweep",
+            [
+                "query_id",
+                "param_count",
+                "param_types",
+                "rows_evicted",
+                "duration_ms",
+                "cutoff_ts_unix_nano",
+                "table_name",
+            ]
+            .iter()
+            .copied()
+            .collect(),
+        );
+        by_target.insert(
+            "buffer.retention.sweep.error",
+            ["error_type", "duration_ms", "spantrace", "table_name"]
+                .iter()
+                .copied()
+                .collect(),
+        );
+        // chunk #21 retention env-var validation event (mirrors
+        // config.load.port_validation precedent — name + reject category only,
+        // never the raw user-controlled value per security plan §Logging
+        // Vector 6).
+        by_target.insert(
+            "config.load.retention_seconds",
+            ["env_var_name", "reject_reason"].iter().copied().collect(),
+        );
+        // chunk #21 metric.buffer.* events. Specific entries take precedence
+        // over the generic `metric` prefix-strip fallback (which only allows
+        // value/unit/module).
+        by_target.insert(
+            "metric.buffer.memory_bytes",
+            [
+                "value",
+                "retention_window_seconds",
+                "rows_active",
+                "eviction_count_since_last_tick",
+            ]
+            .iter()
+            .copied()
+            .collect(),
+        );
+        by_target.insert(
+            "metric.buffer.evicted_span_count",
+            ["value", "retention_window_seconds"]
+                .iter()
+                .copied()
+                .collect(),
         );
         by_target.insert(
             "app.panic.fatal",
@@ -1249,6 +1304,203 @@ mod tests {
         assert_eq!(
             fields["attribute_value"], "<redacted>",
             "OTLP attribute value MUST NOT leak per Vector 1"
+        );
+    }
+
+    // chunk #21 retention sweep + metric.buffer.* + config.load.retention_seconds
+    // tests. Five pass / five redact pairs mirroring the chunk #20 precedent above.
+
+    #[test]
+    fn scrubber_passes_buffer_retention_sweep_fields() {
+        let defaults = make_defaults(None, None);
+        let lines = capture_json_lines(defaults, || {
+            tracing::info!(
+                target: "buffer.retention.sweep",
+                query_id = "buffer.retention.sweep",
+                param_count = 1_u64,
+                param_types = "timestamp",
+                rows_evicted = 42_u64,
+                duration_ms = 12_u64,
+                cutoff_ts_unix_nano = 1_700_000_000_000_000_000_i64,
+                "retention sweep completed",
+            );
+        });
+        let fields = &lines[0]["fields"];
+        assert_eq!(fields["query_id"], "buffer.retention.sweep");
+        assert_eq!(fields["param_count"], 1);
+        assert_eq!(fields["param_types"], "timestamp");
+        assert_eq!(fields["rows_evicted"], 42);
+        assert_eq!(fields["duration_ms"], 12);
+        assert_eq!(fields["cutoff_ts_unix_nano"], 1_700_000_000_000_000_000_i64);
+    }
+
+    #[test]
+    fn scrubber_redacts_non_allowlisted_buffer_retention_sweep_field() {
+        let defaults = make_defaults(None, None);
+        let lines = capture_json_lines(defaults, || {
+            tracing::info!(
+                target: "buffer.retention.sweep",
+                query_id = "buffer.retention.sweep",
+                raw_sql = "DELETE FROM spans WHERE ts < ...",
+                "retention sweep completed",
+            );
+        });
+        let fields = &lines[0]["fields"];
+        assert_eq!(fields["query_id"], "buffer.retention.sweep");
+        assert_eq!(
+            fields["raw_sql"], "<redacted>",
+            "raw SQL MUST NOT leak per security plan §Anti-Patterns Logging Vector 5"
+        );
+    }
+
+    #[test]
+    fn scrubber_passes_buffer_retention_sweep_error_fields() {
+        let defaults = make_defaults(None, None);
+        let lines = capture_json_lines(defaults, || {
+            tracing::error!(
+                target: "buffer.retention.sweep.error",
+                error_type = "connection_lost",
+                duration_ms = 5_u64,
+                spantrace = "captured",
+                "retention sweep failed",
+            );
+        });
+        let fields = &lines[0]["fields"];
+        assert_eq!(fields["error_type"], "connection_lost");
+        assert_eq!(fields["duration_ms"], 5);
+        assert_eq!(fields["spantrace"], "captured");
+    }
+
+    #[test]
+    fn scrubber_redacts_non_allowlisted_buffer_retention_sweep_error_field() {
+        let defaults = make_defaults(None, None);
+        let lines = capture_json_lines(defaults, || {
+            tracing::error!(
+                target: "buffer.retention.sweep.error",
+                error_type = "execute_failed",
+                raw_duckdb_text = "internal error 0xdeadbeef at /tmp/secret",
+                "retention sweep failed",
+            );
+        });
+        let fields = &lines[0]["fields"];
+        assert_eq!(fields["error_type"], "execute_failed");
+        assert_eq!(
+            fields["raw_duckdb_text"], "<redacted>",
+            "raw DuckDB error text MUST NOT leak"
+        );
+    }
+
+    #[test]
+    fn scrubber_passes_metric_buffer_memory_bytes_fields() {
+        let defaults = make_defaults(None, None);
+        let lines = capture_json_lines(defaults, || {
+            tracing::info!(
+                target: "metric.buffer.memory_bytes",
+                value = 4096_u64,
+                retention_window_seconds = 600_u64,
+                rows_active = 16_u64,
+                eviction_count_since_last_tick = 0_u64,
+                "buffer memory gauge",
+            );
+        });
+        let fields = &lines[0]["fields"];
+        assert_eq!(fields["value"], 4096);
+        assert_eq!(fields["retention_window_seconds"], 600);
+        assert_eq!(fields["rows_active"], 16);
+        assert_eq!(fields["eviction_count_since_last_tick"], 0);
+    }
+
+    #[test]
+    fn scrubber_redacts_non_allowlisted_metric_buffer_memory_bytes_field() {
+        let defaults = make_defaults(None, None);
+        let lines = capture_json_lines(defaults, || {
+            tracing::info!(
+                target: "metric.buffer.memory_bytes",
+                value = 4096_u64,
+                client_ip = "127.0.0.1",
+                trace_id = "abcdef",
+                "buffer memory gauge",
+            );
+        });
+        let fields = &lines[0]["fields"];
+        assert_eq!(fields["value"], 4096);
+        assert_eq!(
+            fields["client_ip"], "<redacted>",
+            "high-cardinality field MUST NOT leak per obs-plan §11"
+        );
+        assert_eq!(
+            fields["trace_id"], "<redacted>",
+            "trace_id MUST NOT leak per obs-plan §11 cardinality discipline"
+        );
+    }
+
+    #[test]
+    fn scrubber_passes_metric_buffer_evicted_span_count_fields() {
+        let defaults = make_defaults(None, None);
+        let lines = capture_json_lines(defaults, || {
+            tracing::info!(
+                target: "metric.buffer.evicted_span_count",
+                value = 12_u64,
+                retention_window_seconds = 600_u64,
+                "buffer eviction counter",
+            );
+        });
+        let fields = &lines[0]["fields"];
+        assert_eq!(fields["value"], 12);
+        assert_eq!(fields["retention_window_seconds"], 600);
+    }
+
+    #[test]
+    fn scrubber_redacts_non_allowlisted_metric_buffer_evicted_span_count_field() {
+        let defaults = make_defaults(None, None);
+        let lines = capture_json_lines(defaults, || {
+            tracing::info!(
+                target: "metric.buffer.evicted_span_count",
+                value = 12_u64,
+                evicted_trace_ids = "leak,leak,leak",
+                "buffer eviction counter",
+            );
+        });
+        let fields = &lines[0]["fields"];
+        assert_eq!(fields["value"], 12);
+        assert_eq!(
+            fields["evicted_trace_ids"], "<redacted>",
+            "evicted-row identifiers MUST NOT leak per Vector 1"
+        );
+    }
+
+    #[test]
+    fn scrubber_passes_config_load_retention_seconds_fields() {
+        let defaults = make_defaults(None, None);
+        let lines = capture_json_lines(defaults, || {
+            tracing::warn!(
+                target: "config.load.retention_seconds",
+                env_var_name = "ANDROMEDA_PULSE_RETENTION_SECONDS",
+                reject_reason = "out_of_range",
+                "retention seconds env var rejected",
+            );
+        });
+        let fields = &lines[0]["fields"];
+        assert_eq!(fields["env_var_name"], "ANDROMEDA_PULSE_RETENTION_SECONDS");
+        assert_eq!(fields["reject_reason"], "out_of_range");
+    }
+
+    #[test]
+    fn scrubber_redacts_non_allowlisted_config_load_retention_seconds_field() {
+        let defaults = make_defaults(None, None);
+        let lines = capture_json_lines(defaults, || {
+            tracing::warn!(
+                target: "config.load.retention_seconds",
+                env_var_name = "ANDROMEDA_PULSE_RETENTION_SECONDS",
+                raw_value = "999999",
+                "retention seconds env var rejected",
+            );
+        });
+        let fields = &lines[0]["fields"];
+        assert_eq!(fields["env_var_name"], "ANDROMEDA_PULSE_RETENTION_SECONDS");
+        assert_eq!(
+            fields["raw_value"], "<redacted>",
+            "raw env-var value MUST NOT leak per Vector 6"
         );
     }
 

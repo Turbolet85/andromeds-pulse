@@ -8,6 +8,47 @@ _This file is entirely wrap-session's territory. `/setup-project` creates it if 
 
 ---
 
+## 2026-05-06 — Extract async helper from periodic-task loop body for unit-testability
+
+When an async task wraps a periodic loop with `tokio::time::interval(...).tick().await` + `tokio::task::spawn_blocking(...)` calls inside, unit tests using `tokio::time::pause()` + `tokio::time::advance()` reliably race with the spawn_blocking thread + the test's `handle.abort()`. The chunk #21 retention task hit this: `run_retention(conn, state, retention_seconds)` spawned blocking DuckDB DELETE work whose completion didn't reliably reach the `state.record_eviction(rows)` call before the abort fired, leaving `state.eviction_count = 0` in tests despite rows being physically evicted.
+
+Resolution: extract the loop body (one tick worth of work) into a separately-callable async helper. For chunk #21:
+
+```rust
+pub async fn run_retention(conn, state, retention_seconds) {
+    let mut interval = tokio::time::interval(...);
+    interval.tick().await;  // skip immediate first tick
+    loop {
+        interval.tick().await;
+        run_one_sweep(&conn, &state, retention_seconds).await;
+    }
+}
+
+pub(crate) async fn run_one_sweep(conn, state, retention_seconds) {
+    // spawn_blocking + state updates + tracing — full sweep deterministic on `.await`
+}
+```
+
+Tests then call `run_one_sweep(&conn, &state, 60).await` directly — no paused clock, no interval orchestration, no abort race. The behavior is exactly one sweep + state record + tracing event, which is what the test wants to verify. The smoke test `run_retention_can_be_spawned_and_aborted_cleanly` covers the wrapper-loop's spawn/abort lifecycle as a separate concern.
+
+Pattern generalizes to any async task that wraps a periodic body. The `pub(crate)` visibility on `run_one_sweep` keeps the abstraction from leaking into the public surface while still being testable from co-located `mod tests`.
+
+See: `crates/buffer/src/retention.rs::run_one_sweep`; chunk #21 fix-loop iteration #1.
+
+---
+
+## 2026-05-06 — `memory_bytes` heuristic: `rows_active * 256` over `pragma_database_size()` parsing
+
+DuckDB's `pragma_database_size()` returns multiple columns (`database_name`, `database_size`, `block_size`, `total_blocks`, `used_blocks`, `free_blocks`, `wal_size`, `memory_usage`, `memory_limit`) where the size-shaped columns (`database_size`, `wal_size`, `memory_usage`, `memory_limit`) are STRINGS like `"0 bytes"`, `"1.2 KiB"`, `"1.0 GiB"`. Parsing them requires unit-string matching (KiB / MiB / GiB / TiB) and float-to-bytes conversion. For a `memory_bytes` heartbeat gauge tracked at 15s cadence, the parse cost + the inherent imprecision of the human-readable formatting argues for a simpler heuristic.
+
+Chunk #21 chose: `memory_bytes = (rows_ingested - eviction_count) * 256` where 256 is an empirical bytes-per-row estimate (composite BLOB PK + 2 timestamp columns + a few attribute columns averages around this range across the 7 reserved tables). This is monotonic with row count, requires no DuckDB pragma parse, and tracks well-enough with actual buffer memory for SLO purposes (the `metric.buffer.memory_bytes` ≤ 512 MB SLO is a coarse upper bound, not a precise accounting).
+
+If a future need surfaces precise byte accounting (e.g., chunk-level memory profiling for performance regression CI), revisit by parsing `pragma_database_size().memory_usage` — but expect to invest in a unit-string parser that handles all DuckDB-emitted size formats.
+
+See: `crates/buffer/src/retention.rs::run_one_sweep` (`set_memory_bytes(rows_active.saturating_mul(BYTES_PER_ROW_ESTIMATE))`); chunk #21 plan §Implementation notes "memory_bytes measurement source".
+
+---
+
 ## 2026-05-06 — DuckDB 1.10502 hangs `INSERT` on duplicate composite-BLOB primary key
 
 The `duckdb` crate 1.10502.0 (DuckDB 1.5 bundled C++) on Windows MSVC enters an unbounded loop when an `INSERT` would violate a `PRIMARY KEY (col1 BLOB, col2 BLOB)` composite. The first insert succeeds; the duplicate insert never returns from `Connection::execute()` / `execute_batch()` — observed via cargo nextest's `SLOW [>2400.000s]` reports on the chunk #20 buffer crate `spans` table (composite PK over `trace_id BLOB(16)` + `span_id BLOB(8)`). Single-INSERT into the same table works fine, both via SQL `INSERT … VALUES (X'…')` and via the Arrow appender (`Connection::appender("spans")?.append_record_batch(...)`). Only the PK-violation path on multi-column BLOB PK hangs. Workaround: assert composite-PK structure via schema introspection (`information_schema.key_column_usage` filtered to `table_schema = 'main' AND table_name = '<table>'`, asserting `column_name` set + `ordinal_position` count) instead of behavioral runtime PK-violation tests.

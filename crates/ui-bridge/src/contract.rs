@@ -58,6 +58,7 @@ impl From<BufferError> for AppError {
             BufferError::Append { .. } => "buffer Arrow append failed",
             BufferError::ConnectionLost => "buffer connection lost",
             BufferError::InvalidBatch { .. } => "buffer received invalid batch",
+            BufferError::Retention { .. } => "buffer retention sweep failed",
         };
         AppError::Storage {
             message: message.to_string(),
@@ -198,6 +199,23 @@ mod tests {
             AppError::Storage { message } => {
                 assert_eq!(message, "buffer received invalid batch");
                 assert!(!message.contains("spans_empty"));
+            }
+            other => panic!("expected AppError::Storage, got {other:?}"),
+        }
+    }
+
+    #[test]
+    fn from_buffer_retention_collapses_to_constant_message_no_struct_name_leak() {
+        let e = AppError::from(BufferError::Retention {
+            reason: "execute: internal duckdb 0xdeadbeef at /tmp/secret 1.10502".to_string(),
+        });
+        match e {
+            AppError::Storage { message } => {
+                assert_eq!(message, "buffer retention sweep failed");
+                assert!(!message.contains("0xdeadbeef"));
+                assert!(!message.contains("/tmp/"));
+                assert!(!message.contains("1.10502"));
+                assert!(!message.contains("execute:"));
             }
             other => panic!("expected AppError::Storage, got {other:?}"),
         }

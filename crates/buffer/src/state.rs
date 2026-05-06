@@ -1,10 +1,14 @@
-use std::sync::atomic::{AtomicU64, Ordering};
+use std::sync::atomic::{AtomicBool, AtomicU64, Ordering};
 
 #[derive(Debug, Default)]
 pub struct BufferState {
     rows_ingested: AtomicU64,
     eviction_count: AtomicU64,
     memory_bytes: AtomicU64,
+    // Latching sentinel — flipped to true after the first successful retention
+    // sweep completes; never resets. Distinguishes "buffer has been alive
+    // long enough for retention to fire at least once" from "first-tick state".
+    retention_window_active: AtomicBool,
 }
 
 #[derive(Debug, Clone, Copy, Default)]
@@ -12,6 +16,7 @@ pub struct BufferStateSnapshot {
     pub rows_ingested: u64,
     pub eviction_count: u64,
     pub memory_bytes: u64,
+    pub retention_window_active: bool,
 }
 
 impl BufferState {
@@ -24,6 +29,7 @@ impl BufferState {
             rows_ingested: self.rows_ingested.load(Ordering::Relaxed),
             eviction_count: self.eviction_count.load(Ordering::Relaxed),
             memory_bytes: self.memory_bytes.load(Ordering::Relaxed),
+            retention_window_active: self.retention_window_active.load(Ordering::Relaxed),
         }
     }
 
@@ -37,6 +43,10 @@ impl BufferState {
 
     pub fn set_memory_bytes(&self, n: u64) {
         self.memory_bytes.store(n, Ordering::Relaxed);
+    }
+
+    pub fn mark_retention_active(&self) {
+        self.retention_window_active.store(true, Ordering::Relaxed);
     }
 }
 
@@ -52,6 +62,7 @@ mod tests {
         assert_eq!(snap.rows_ingested, 0);
         assert_eq!(snap.eviction_count, 0);
         assert_eq!(snap.memory_bytes, 0);
+        assert!(!snap.retention_window_active);
     }
 
     #[test]
@@ -72,6 +83,28 @@ mod tests {
         assert_eq!(snap.rows_ingested, 1);
         assert_eq!(snap.eviction_count, 2);
         assert_eq!(snap.memory_bytes, 3);
+    }
+
+    #[test]
+    fn retention_window_active_starts_false() {
+        let s = BufferState::new();
+        assert!(!s.snapshot().retention_window_active);
+    }
+
+    #[test]
+    fn mark_retention_active_flips_to_true() {
+        let s = BufferState::new();
+        s.mark_retention_active();
+        assert!(s.snapshot().retention_window_active);
+    }
+
+    #[test]
+    fn mark_retention_active_is_idempotent() {
+        let s = BufferState::new();
+        s.mark_retention_active();
+        s.mark_retention_active();
+        s.mark_retention_active();
+        assert!(s.snapshot().retention_window_active);
     }
 
     #[tokio::test(flavor = "multi_thread", worker_threads = 4)]

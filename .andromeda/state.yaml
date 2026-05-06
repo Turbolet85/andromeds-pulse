@@ -1,14 +1,14 @@
 schema_version: 2
-last_wrap: 2026-05-06T20:00:00Z
-last_reconcile: 2026-05-06T20:00:00Z
+last_wrap: 2026-05-06T18:30:00Z
+last_reconcile: 2026-05-06T18:30:00Z
 
 last_completed_chunk:
-  route_index: 20
-  title: "DuckDB ring buffer schema + Arrow appender — :memory: connection, 7 reserved tables, TIMESTAMPTZ + ts_unix_nano BIGINT, OTLP-native composite keys"
+  route_index: 21
+  title: "Retention task + buffer.tick heartbeat — periodic DELETE WHERE ts < cutoff via ANDROMEDA_PULSE_RETENTION_SECONDS, eviction_count + memory_bytes ticks"
   epoch: 3
-  committed_at: 2026-05-06T20:00:00Z
-  commit_sha: dad9d02
-  commit_subject: "feat(buffer): DuckDB :memory: ring buffer + Arrow appender — duckdb 1.10502 + arrow 58 + 7 reserved tables + From<BufferError> for AppError + BufferConnectionStatus health envelope (chunk #20); session 20"
+  committed_at: 2026-05-06T18:30:00Z
+  commit_sha: 9eee494
+  commit_subject: "feat(buffer): retention task + buffer.tick heartbeat — DELETE WHERE ts < cutoff via ANDROMEDA_PULSE_RETENTION_SECONDS + 6-field tick + 2 metric.buffer.* events + BufferConnectionStatus widening (chunk #21); session 21"
 
 in_progress: null
 
@@ -24,9 +24,9 @@ plan_freshness:
   input_mtime: 2026-05-02T06:52:58Z
 
 living_artifact_freshness:
-  dep_tree_reconciled_at: 2026-05-06T20:00:00Z
-  api_surface_reconciled_at: 2026-05-06T20:00:00Z
-  most_recent_code_mtime: 2026-05-06T20:00:00Z
+  dep_tree_reconciled_at: 2026-05-06T18:30:00Z
+  api_surface_reconciled_at: 2026-05-06T18:30:00Z
+  most_recent_code_mtime: 2026-05-06T18:30:00Z
   reconcile_failed: false
 
 drift_warnings: []
@@ -59,4 +59,4 @@ spec_amendments:
       propagated_by_run: .andromeda/runs/2026-05-04T20-42-30-setup-project/
       archived_at: 2026-05-04T21:43:31Z
 
-session_count: 20
+session_count: 21

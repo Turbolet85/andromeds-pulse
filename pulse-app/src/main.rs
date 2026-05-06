@@ -4,7 +4,7 @@ use std::sync::{Arc, Mutex};
 use std::time::Instant;
 use std::{env, fs};
 
-use buffer::{BufferState, create_schema, run_consumer};
+use buffer::{BufferState, create_schema, run_consumer, run_retention};
 use duckdb::Connection;
 use ingest::channel::{IngestSender, build_channel};
 use ingest::contract::{Error as IngestError, OtlpPort};
@@ -20,6 +20,43 @@ mod observability;
 
 const ENV_OTLP_GRPC_PORT: &str = "ANDROMEDA_PULSE_OTLP_GRPC_PORT";
 const ENV_OTLP_HTTP_PORT: &str = "ANDROMEDA_PULSE_OTLP_HTTP_PORT";
+const ENV_RETENTION_SECONDS: &str = "ANDROMEDA_PULSE_RETENTION_SECONDS";
+
+// Retention bounds per security plan §Input Validation row "Configuration values":
+// reject out-of-range rather than silently clamping. Default fallback per arch
+// §Inherited Defaults (300–600s default range) — chunk #21 picks 600 (upper).
+const RETENTION_SECONDS_MIN: u64 = 60;
+const RETENTION_SECONDS_MAX: u64 = 86_400;
+const RETENTION_SECONDS_DEFAULT: u64 = 600;
+
+fn resolve_retention_seconds() -> u64 {
+    let raw = match env::var(ENV_RETENTION_SECONDS) {
+        Ok(r) => r,
+        Err(_) => return RETENTION_SECONDS_DEFAULT,
+    };
+    let parsed: u64 = match raw.parse::<u64>() {
+        Ok(p) => p,
+        Err(_) => {
+            tracing::warn!(
+                target: "config.load.retention_seconds",
+                env_var_name = ENV_RETENTION_SECONDS,
+                reject_reason = "unparseable",
+                "retention seconds env var rejected; falling back to default",
+            );
+            return RETENTION_SECONDS_DEFAULT;
+        }
+    };
+    if !(RETENTION_SECONDS_MIN..=RETENTION_SECONDS_MAX).contains(&parsed) {
+        tracing::warn!(
+            target: "config.load.retention_seconds",
+            env_var_name = ENV_RETENTION_SECONDS,
+            reject_reason = "out_of_range",
+            "retention seconds env var rejected; falling back to default",
+        );
+        return RETENTION_SECONDS_DEFAULT;
+    }
+    parsed
+}
 
 fn resolve_grpc_port() -> Result<OtlpPort, IngestError> {
     resolve_port(ENV_OTLP_GRPC_PORT, ingest::grpc::DEFAULT_GRPC_PORT)
@@ -139,6 +176,7 @@ fn main() {
 
     let buffer_state = Arc::new(BufferState::new());
     let buffer_conn = init_buffer(&heartbeat_state);
+    let retention_seconds = resolve_retention_seconds();
 
     let grpc_addr = match resolve_grpc_port() {
         Ok(p) => Some(SocketAddr::from(([127, 0, 0, 1], p.value()))),
@@ -173,15 +211,21 @@ fn main() {
                 Some(conn) => {
                     tauri::async_runtime::spawn(run_consumer(
                         ingest_receiver,
-                        conn,
+                        Arc::clone(&conn),
                         Arc::clone(&buffer_state),
+                    ));
+                    tauri::async_runtime::spawn(run_retention(
+                        Arc::clone(&conn),
+                        Arc::clone(&buffer_state),
+                        retention_seconds,
                     ));
                 }
                 None => {
                     // Buffer init failed; the health envelope is already degraded
-                    // (BufferConnectionStatus::Failed recorded in init_buffer).
+                    // (BufferConnectionStatus::InitFailed recorded in init_buffer).
                     // Drain the receiver to keep the OTLP ingest path live so
                     // chunk #16/#17 receivers don't cascade into channel saturation.
+                    // Retention task is also skipped — no connection to sweep.
                     tauri::async_runtime::spawn(async move {
                         let mut rx = ingest_receiver;
                         while rx.recv().await.is_some() {}
@@ -275,6 +319,7 @@ fn main() {
                 ingest_state,
                 Arc::clone(&ingest_sender),
                 Arc::clone(&buffer_state),
+                retention_seconds,
             );
             Ok(())
         })
@@ -287,8 +332,9 @@ fn init_buffer(heartbeat_state: &Arc<HeartbeatState>) -> Option<Arc<Mutex<Connec
     let conn = match Connection::open_in_memory() {
         Ok(c) => c,
         Err(_) => {
-            heartbeat_state
-                .record_buffer_connection(BufferConnectionStatus::Failed("open_in_memory".into()));
+            heartbeat_state.record_buffer_connection(BufferConnectionStatus::InitFailed(
+                "open_in_memory".into(),
+            ));
             tracing::error!(
                 target: "buffer.schema.init.error",
                 error_type = "open_in_memory_failed",
@@ -299,7 +345,7 @@ fn init_buffer(heartbeat_state: &Arc<HeartbeatState>) -> Option<Arc<Mutex<Connec
         }
     };
     if create_schema(&conn).is_err() {
-        heartbeat_state.record_buffer_connection(BufferConnectionStatus::Failed(
+        heartbeat_state.record_buffer_connection(BufferConnectionStatus::InitFailed(
             "schema_create_failed".into(),
         ));
         tracing::error!(
@@ -421,5 +467,90 @@ mod tests {
         }
         let port = result.expect("spec-default 4318 via env must pass");
         assert_eq!(port.value(), 4318);
+    }
+
+    // resolve_retention_seconds tests (chunk #21). Same `unsafe { std::env::set_var }`
+    // discipline as resolve_port tests above — cargo-nextest gives per-process
+    // isolation, each test uses a distinct fixture by removing/setting the
+    // same env var (ANDROMEDA_PULSE_RETENTION_SECONDS) within a narrow scope.
+
+    #[test]
+    fn resolve_retention_seconds_unset_returns_default() {
+        unsafe {
+            std::env::remove_var(ENV_RETENTION_SECONDS);
+        }
+        assert_eq!(resolve_retention_seconds(), RETENTION_SECONDS_DEFAULT);
+    }
+
+    #[test]
+    fn resolve_retention_seconds_unparseable_falls_back_to_default() {
+        unsafe {
+            std::env::set_var(ENV_RETENTION_SECONDS, "not-a-number");
+        }
+        let result = resolve_retention_seconds();
+        unsafe {
+            std::env::remove_var(ENV_RETENTION_SECONDS);
+        }
+        assert_eq!(result, RETENTION_SECONDS_DEFAULT);
+    }
+
+    #[test]
+    fn resolve_retention_seconds_below_min_falls_back_to_default() {
+        unsafe {
+            std::env::set_var(ENV_RETENTION_SECONDS, "30");
+        }
+        let result = resolve_retention_seconds();
+        unsafe {
+            std::env::remove_var(ENV_RETENTION_SECONDS);
+        }
+        assert_eq!(result, RETENTION_SECONDS_DEFAULT);
+    }
+
+    #[test]
+    fn resolve_retention_seconds_above_max_falls_back_to_default() {
+        unsafe {
+            std::env::set_var(ENV_RETENTION_SECONDS, "999999");
+        }
+        let result = resolve_retention_seconds();
+        unsafe {
+            std::env::remove_var(ENV_RETENTION_SECONDS);
+        }
+        assert_eq!(result, RETENTION_SECONDS_DEFAULT);
+    }
+
+    #[test]
+    fn resolve_retention_seconds_in_range_returns_parsed_value() {
+        unsafe {
+            std::env::set_var(ENV_RETENTION_SECONDS, "300");
+        }
+        let result = resolve_retention_seconds();
+        unsafe {
+            std::env::remove_var(ENV_RETENTION_SECONDS);
+        }
+        assert_eq!(result, 300);
+    }
+
+    #[test]
+    fn resolve_retention_seconds_at_min_boundary_returns_min() {
+        unsafe {
+            std::env::set_var(ENV_RETENTION_SECONDS, "60");
+        }
+        let result = resolve_retention_seconds();
+        unsafe {
+            std::env::remove_var(ENV_RETENTION_SECONDS);
+        }
+        assert_eq!(result, RETENTION_SECONDS_MIN);
+    }
+
+    #[test]
+    fn resolve_retention_seconds_at_max_boundary_returns_max() {
+        unsafe {
+            std::env::set_var(ENV_RETENTION_SECONDS, "86400");
+        }
+        let result = resolve_retention_seconds();
+        unsafe {
+            std::env::remove_var(ENV_RETENTION_SECONDS);
+        }
+        assert_eq!(result, RETENTION_SECONDS_MAX);
     }
 }

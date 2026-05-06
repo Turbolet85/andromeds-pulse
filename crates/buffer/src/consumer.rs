@@ -72,6 +72,7 @@ fn describe_error(e: &Error) -> &'static str {
         Error::Append { .. } => "append_failed",
         Error::ConnectionLost => "connection_lost",
         Error::InvalidBatch { .. } => "invalid_batch",
+        Error::Retention { .. } => "retention_failed",
     }
 }
 
@@ -160,6 +161,10 @@ mod tests {
         assert_eq!(
             describe_error(&Error::InvalidBatch { kind: "x" }),
             "invalid_batch"
+        );
+        assert_eq!(
+            describe_error(&Error::Retention { reason: "x".into() }),
+            "retention_failed"
         );
     }
 }

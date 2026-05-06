@@ -29,7 +29,8 @@ pub enum IngestChannelStatus {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum BufferConnectionStatus {
     Ok,
-    Failed(String),
+    InitFailed(String),
+    RetentionFailed(String),
 }
 
 #[derive(Debug, Default)]
@@ -219,8 +220,13 @@ pub fn current_health() -> HealthEnvelope {
             Some(BufferConnectionStatus::Ok) => {
                 subsystems.buffer.status = "ok".to_string();
             }
-            Some(BufferConnectionStatus::Failed(reason)) => {
+            Some(BufferConnectionStatus::InitFailed(reason)) => {
                 subsystems.buffer.status = "init_failed".to_string();
+                subsystems.buffer.error_msg = Some(reason);
+                overall_ok = false;
+            }
+            Some(BufferConnectionStatus::RetentionFailed(reason)) => {
+                subsystems.buffer.status = "retention_failed".to_string();
                 subsystems.buffer.error_msg = Some(reason);
                 overall_ok = false;
             }
@@ -417,13 +423,27 @@ mod tests {
         let state = HeartbeatState::new();
         state.record_buffer_connection(BufferConnectionStatus::Ok);
         assert_eq!(state.buffer_connection(), Some(BufferConnectionStatus::Ok));
-        state.record_buffer_connection(BufferConnectionStatus::Failed(
+        state.record_buffer_connection(BufferConnectionStatus::InitFailed(
             "init: open_in_memory".into(),
         ));
         assert_eq!(
             state.buffer_connection(),
-            Some(BufferConnectionStatus::Failed(
+            Some(BufferConnectionStatus::InitFailed(
                 "init: open_in_memory".into()
+            ))
+        );
+    }
+
+    #[test]
+    fn heartbeat_state_records_buffer_connection_retention_failed() {
+        let state = HeartbeatState::new();
+        state.record_buffer_connection(BufferConnectionStatus::RetentionFailed(
+            "retention sweep prepare failed".into(),
+        ));
+        assert_eq!(
+            state.buffer_connection(),
+            Some(BufferConnectionStatus::RetentionFailed(
+                "retention sweep prepare failed".into()
             ))
         );
     }
@@ -433,7 +453,7 @@ mod tests {
         let state = Arc::new(HeartbeatState::new());
         state.record_otlp_grpc_bind(BindStatus::Ok);
         state.record_otlp_http_bind(BindStatus::Ok);
-        state.record_buffer_connection(BufferConnectionStatus::Failed(
+        state.record_buffer_connection(BufferConnectionStatus::InitFailed(
             "schema_create_failed".to_string(),
         ));
         register_heartbeat_state(state);
@@ -443,6 +463,24 @@ mod tests {
         assert_eq!(
             envelope.subsystems.buffer.error_msg,
             Some("schema_create_failed".to_string())
+        );
+    }
+
+    #[test]
+    fn current_health_degrades_on_buffer_retention_failure() {
+        let state = Arc::new(HeartbeatState::new());
+        state.record_otlp_grpc_bind(BindStatus::Ok);
+        state.record_otlp_http_bind(BindStatus::Ok);
+        state.record_buffer_connection(BufferConnectionStatus::RetentionFailed(
+            "buffer retention sweep failed".to_string(),
+        ));
+        register_heartbeat_state(state);
+        let envelope = current_health();
+        assert!(matches!(envelope.status, HealthStatus::Degraded));
+        assert_eq!(envelope.subsystems.buffer.status, "retention_failed");
+        assert_eq!(
+            envelope.subsystems.buffer.error_msg,
+            Some("buffer retention sweep failed".to_string())
         );
     }
 
