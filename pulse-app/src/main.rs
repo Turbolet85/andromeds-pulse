@@ -20,6 +20,7 @@ mod heartbeat;
 mod observability;
 mod streams;
 mod viz_routers;
+mod window;
 
 use streams::{StreamsApi, StreamsApiImpl};
 use viz_routers::{LogsApi, LogsApiImpl, MetricsApi, MetricsApiImpl, TracesApi, TracesApiImpl};
@@ -171,6 +172,7 @@ fn main() {
     let _guard = observability::init(&data_dir);
     record_start();
     write_pid_file(&data_dir);
+    window::emit_boot_spans();
 
     let heartbeat_state = Arc::new(HeartbeatState::new());
     register_heartbeat_state(heartbeat_state.clone());
@@ -225,8 +227,10 @@ fn main() {
 
     tauri::Builder::default()
         .plugin(tauri_plugin_updater::Builder::new().build())
+        .on_window_event(window::on_window_event)
         .invoke_handler(invoke_router.into_handler())
-        .setup(move |_app| {
+        .setup(move |app| {
+            window::show_compact_widget(app);
             match buffer_conn {
                 Some(conn) => {
                     tauri::async_runtime::spawn(run_consumer(

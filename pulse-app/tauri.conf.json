@@ -15,7 +15,7 @@
         "width": 480,
         "height": 270,
         "alwaysOnTop": true,
-        "resizable": false,
+        "resizable": true,
         "decorations": false,
         "visible": false
       },

@@ -507,6 +507,55 @@ impl AllowList {
             "metric.ingest.channel.broadcast_subscribers",
             ["value", "channel_name"].iter().copied().collect(),
         );
+        // chunk #24 webview shell — boot-time platform detection spans + close→
+        // minimize-to-tray transition + tray-boundary surfaces. Tray events
+        // register here at chunk #24 (default-deny coverage); first emissions
+        // land at chunk #32 when the actual tray icon + menu plumbing arrives.
+        by_target.insert(
+            "app.boot.webview.init",
+            ["webview_backend"].iter().copied().collect(),
+        );
+        by_target.insert(
+            "app.boot.gpu.check",
+            ["gpu_available", "wgpu_backend"]
+                .iter()
+                .copied()
+                .collect(),
+        );
+        by_target.insert(
+            "app.boot.tray.init",
+            ["tray_api"].iter().copied().collect(),
+        );
+        by_target.insert(
+            "app.boot.window.show",
+            ["label", "error_kind", "error_msg"]
+                .iter()
+                .copied()
+                .collect(),
+        );
+        by_target.insert(
+            "ui.layout.transition",
+            ["layout_mode_from", "layout_mode_to", "tray_visible"]
+                .iter()
+                .copied()
+                .collect(),
+        );
+        by_target.insert(
+            "tray.visibility.toggle",
+            ["tray_visible"].iter().copied().collect(),
+        );
+        by_target.insert(
+            "tray.menu.interaction",
+            ["menu_item"].iter().copied().collect(),
+        );
+        by_target.insert(
+            "tray.notification.dismiss",
+            ["notification_id"].iter().copied().collect(),
+        );
+        by_target.insert(
+            "tray.notification.action",
+            ["notification_id", "action"].iter().copied().collect(),
+        );
         by_target.insert(
             "app.panic.fatal",
             ["panic_message", "location", "spantrace"]
@@ -2012,6 +2061,214 @@ mod tests {
             fields["subscriber_session_id"], "<redacted>",
             "session id MUST NOT leak per cardinality discipline"
         );
+    }
+
+    // chunk #24 webview shell — boot detection spans + close→tray transition
+    // + tray-boundary surfaces. Five pass / five redact pairs mirroring
+    // chunks #20/#21/#22/#23 precedent.
+
+    #[test]
+    fn scrubber_passes_app_boot_webview_init_fields() {
+        let defaults = make_defaults(None, None);
+        let lines = capture_json_lines(defaults, || {
+            tracing::info!(
+                target: "app.boot.webview.init",
+                webview_backend = "WebView2",
+                "webview backend detected at boot",
+            );
+        });
+        assert_eq!(lines[0]["fields"]["webview_backend"], "WebView2");
+    }
+
+    #[test]
+    fn scrubber_redacts_non_allowlisted_app_boot_webview_init_field() {
+        let defaults = make_defaults(None, None);
+        let lines = capture_json_lines(defaults, || {
+            tracing::info!(
+                target: "app.boot.webview.init",
+                webview_backend = "WebView2",
+                user_agent_string = "Mozilla/5.0 (raw secret context)",
+                "webview backend detected at boot",
+            );
+        });
+        let fields = &lines[0]["fields"];
+        assert_eq!(fields["webview_backend"], "WebView2");
+        assert_eq!(
+            fields["user_agent_string"], "<redacted>",
+            "raw user-agent string MUST NOT leak per Vector 1 cardinality discipline"
+        );
+    }
+
+    #[test]
+    fn scrubber_passes_app_boot_gpu_check_fields() {
+        let defaults = make_defaults(None, None);
+        let lines = capture_json_lines(defaults, || {
+            tracing::info!(
+                target: "app.boot.gpu.check",
+                gpu_available = true,
+                wgpu_backend = "metal",
+                "GPU adapter check",
+            );
+        });
+        let fields = &lines[0]["fields"];
+        assert_eq!(fields["gpu_available"], true);
+        assert_eq!(fields["wgpu_backend"], "metal");
+    }
+
+    #[test]
+    fn scrubber_redacts_non_allowlisted_app_boot_gpu_check_field() {
+        let defaults = make_defaults(None, None);
+        let lines = capture_json_lines(defaults, || {
+            tracing::info!(
+                target: "app.boot.gpu.check",
+                gpu_available = false,
+                wgpu_backend = "vulkan",
+                adapter_vendor_id = "0xDEADBEEF",
+                "GPU adapter check",
+            );
+        });
+        let fields = &lines[0]["fields"];
+        assert_eq!(fields["wgpu_backend"], "vulkan");
+        assert_eq!(
+            fields["adapter_vendor_id"], "<redacted>",
+            "raw adapter identifiers MUST NOT leak (cardinality discipline)"
+        );
+    }
+
+    #[test]
+    fn scrubber_passes_app_boot_tray_init_fields() {
+        let defaults = make_defaults(None, None);
+        let lines = capture_json_lines(defaults, || {
+            tracing::info!(
+                target: "app.boot.tray.init",
+                tray_api = "AppIndicator",
+                "tray API selected at boot",
+            );
+        });
+        assert_eq!(lines[0]["fields"]["tray_api"], "AppIndicator");
+    }
+
+    #[test]
+    fn scrubber_passes_ui_layout_transition_fields() {
+        let defaults = make_defaults(None, None);
+        let lines = capture_json_lines(defaults, || {
+            tracing::info!(
+                target: "ui.layout.transition",
+                layout_mode_from = "main",
+                layout_mode_to = "hidden",
+                tray_visible = true,
+                "window close→minimize-to-tray",
+            );
+        });
+        let fields = &lines[0]["fields"];
+        assert_eq!(fields["layout_mode_from"], "main");
+        assert_eq!(fields["layout_mode_to"], "hidden");
+        assert_eq!(fields["tray_visible"], true);
+    }
+
+    #[test]
+    fn scrubber_redacts_non_allowlisted_ui_layout_transition_field() {
+        let defaults = make_defaults(None, None);
+        let lines = capture_json_lines(defaults, || {
+            tracing::info!(
+                target: "ui.layout.transition",
+                layout_mode_from = "compact-widget",
+                layout_mode_to = "hidden",
+                tray_visible = true,
+                window_title = "instrumented-app: secret-customer-name",
+                "window close→minimize-to-tray",
+            );
+        });
+        let fields = &lines[0]["fields"];
+        assert_eq!(fields["layout_mode_from"], "compact-widget");
+        assert_eq!(
+            fields["window_title"], "<redacted>",
+            "user-app window title MUST NOT leak per Vector 1 (titles can carry instrumented-app names)"
+        );
+    }
+
+    #[test]
+    fn scrubber_passes_app_boot_window_show_fields() {
+        let defaults = make_defaults(None, None);
+        let lines = capture_json_lines(defaults, || {
+            tracing::warn!(
+                target: "app.boot.window.show",
+                label = "compact-widget",
+                error_kind = "show_failed",
+                error_msg = "device not ready",
+                "failed to show compact-widget window",
+            );
+        });
+        let fields = &lines[0]["fields"];
+        assert_eq!(fields["label"], "compact-widget");
+        assert_eq!(fields["error_kind"], "show_failed");
+        assert_eq!(fields["error_msg"], "device not ready");
+    }
+
+    #[test]
+    fn scrubber_redacts_non_allowlisted_app_boot_window_show_field() {
+        let defaults = make_defaults(None, None);
+        let lines = capture_json_lines(defaults, || {
+            tracing::warn!(
+                target: "app.boot.window.show",
+                label = "compact-widget",
+                error_kind = "not_found",
+                user_home_path = "/home/alice/private",
+                "compact-widget window not registered",
+            );
+        });
+        let fields = &lines[0]["fields"];
+        assert_eq!(fields["label"], "compact-widget");
+        assert_eq!(
+            fields["user_home_path"], "<redacted>",
+            "absolute user paths MUST NOT leak per security plan §Logging Vector 2"
+        );
+    }
+
+    #[test]
+    fn scrubber_passes_tray_visibility_toggle_fields() {
+        let defaults = make_defaults(None, None);
+        let lines = capture_json_lines(defaults, || {
+            tracing::info!(
+                target: "tray.visibility.toggle",
+                tray_visible = true,
+                "tray icon shown",
+            );
+        });
+        assert_eq!(lines[0]["fields"]["tray_visible"], true);
+    }
+
+    #[test]
+    fn scrubber_redacts_non_allowlisted_tray_visibility_toggle_field() {
+        let defaults = make_defaults(None, None);
+        let lines = capture_json_lines(defaults, || {
+            tracing::info!(
+                target: "tray.visibility.toggle",
+                tray_visible = true,
+                clipboard_snippet = "secret-text-from-user",
+                "tray icon shown",
+            );
+        });
+        let fields = &lines[0]["fields"];
+        assert_eq!(fields["tray_visible"], true);
+        assert_eq!(
+            fields["clipboard_snippet"], "<redacted>",
+            "clipboard contents MUST NOT leak per security plan §Logging Vector 4"
+        );
+    }
+
+    #[test]
+    fn allowlist_resolver_picks_chunk24_targets() {
+        let al = AllowList::production();
+        assert!(al.for_target("app.boot.webview.init").is_some());
+        assert!(al.for_target("app.boot.gpu.check").is_some());
+        assert!(al.for_target("app.boot.tray.init").is_some());
+        assert!(al.for_target("app.boot.window.show").is_some());
+        assert!(al.for_target("ui.layout.transition").is_some());
+        assert!(al.for_target("tray.visibility.toggle").is_some());
+        assert!(al.for_target("tray.menu.interaction").is_some());
+        assert!(al.for_target("tray.notification.dismiss").is_some());
+        assert!(al.for_target("tray.notification.action").is_some());
     }
 
     #[test]
