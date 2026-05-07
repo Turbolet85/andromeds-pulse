@@ -1,14 +1,14 @@
 schema_version: 2
-last_wrap: 2026-05-07T18:45:40Z
-last_reconcile: 2026-05-07T18:45:40Z
+last_wrap: 2026-05-07T19:55:00Z
+last_reconcile: 2026-05-07T19:55:00Z
 
 last_completed_chunk:
-  route_index: 25
-  title: "TauRPC routers + TypeScript bindings — derive macros generate .d.ts per crate router, tsc --noEmit gate"
+  route_index: 26
+  title: "AppError serde enum + From impls — Validation/NotFound/Internal/Plugin/Storage/Ingest with sanitization (no stack traces / paths)"
   epoch: 4
-  committed_at: 2026-05-07T18:45:40Z
-  commit_sha: 77bd642
-  commit_subject: "feat(ui-bridge): TauRPC routers + TypeScript bindings — taurpc 0.7 export_to + Specta BigIntExportBehavior::Number + tsc --noEmit gate via xtask Typecheck + CI lint stage extension (chunk #25); session 25"
+  committed_at: 2026-05-07T19:55:00Z
+  commit_sha: 8839093
+  commit_subject: "feat(ui-bridge): AppError From-impl matrix + tracing emission — 4 placeholder From impls (snapshot/plugins/workspace-detector/mcp-server) + tracing::warn! at every conversion boundary + 6 ui-bridge.error.* AllowList entries (chunk #26); session 26"
 
 in_progress: null
 
@@ -24,18 +24,18 @@ plan_freshness:
   input_mtime: 2026-05-02T06:52:58Z
 
 living_artifact_freshness:
-  dep_tree_reconciled_at: 2026-05-07T18:45:40Z
-  api_surface_reconciled_at: 2026-05-07T18:45:40Z
-  most_recent_code_mtime: 2026-05-07T18:45:40Z
+  dep_tree_reconciled_at: 2026-05-07T19:55:00Z
+  api_surface_reconciled_at: 2026-05-07T19:55:00Z
+  most_recent_code_mtime: 2026-05-07T19:55:00Z
   reconcile_failed: false
 
 drift_warnings:
   - drift_id: D3
     description: "chunk #23 introduced `streams.{subscribe_spans, subscribe_metrics, subscribe_logs}` TauRPC procedures via pulse-app/src/streams.rs, but arch §Occupied Resources Tauri IPC routes list does NOT include `streams.*` namespace"
     severity: warning
-    remediation_hint: "Options: (a) defer to chunk #27 xtask capability-drift check (recommended — natural carry); (b) re-run /andromeda-arch to incorporate new namespace (heavy); (c) add /andromeda-route Decisions Log entry without re-deriving arch (lightest formal capture)"
+    remediation_hint: "Defer to chunk #27 xtask capability-drift check (resolution venue — closes Epoch 4); if #27 doesn't address, next wrap surfaces with stale-drift escalation (age > 3 wraps)"
     first_observed_session_count: 23
-    last_observed_session_count: 25
+    last_observed_session_count: 26
 
 spec_amendments:
   active: []
@@ -65,4 +65,4 @@ spec_amendments:
       propagated_by_run: .andromeda/runs/2026-05-04T20-42-30-setup-project/
       archived_at: 2026-05-04T21:43:31Z
 
-session_count: 25
+session_count: 26

@@ -6218,14 +6218,20 @@ dependencies = [
  "buffer",
  "chrono",
  "ingest",
+ "mcp-server",
+ "plugins",
+ "rstest",
  "serde",
  "serde_json",
+ "snapshot",
  "specta",
  "tauri",
  "taurpc",
  "thiserror 2.0.18",
  "tokio",
+ "tracing",
  "viz",
+ "workspace-detector",
 ]
 
 [[package]]

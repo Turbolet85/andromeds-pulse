@@ -235,6 +235,58 @@ impl AllowList {
             .copied()
             .collect(),
         );
+        // chunk #26 — module-boundary error events emitted from
+        // crates/ui-bridge/src/contract.rs From<E> for AppError impls per
+        // obs-plan §10 module-boundary error logging. Each variant is a
+        // separate entry so for_target() exact-match lookup wins over the
+        // split('.').next() fallback to "ui-bridge" (which has the
+        // unrelated procedure-level field set above). Allowed fields cover
+        // the conversion-site triple (error_category / source_kind /
+        // source_crate) plus the per-variant structured handle the
+        // downstream React UI binds against (field for Validation /
+        // plugin_id for Plugin / resource for NotFound).
+        by_target.insert(
+            "ui-bridge.error.validation",
+            ["error_category", "source_kind", "source_crate", "field"]
+                .iter()
+                .copied()
+                .collect(),
+        );
+        by_target.insert(
+            "ui-bridge.error.not_found",
+            ["error_category", "source_kind", "source_crate", "resource"]
+                .iter()
+                .copied()
+                .collect(),
+        );
+        by_target.insert(
+            "ui-bridge.error.internal",
+            ["error_category", "source_kind", "source_crate"]
+                .iter()
+                .copied()
+                .collect(),
+        );
+        by_target.insert(
+            "ui-bridge.error.plugin",
+            ["error_category", "source_kind", "source_crate", "plugin_id"]
+                .iter()
+                .copied()
+                .collect(),
+        );
+        by_target.insert(
+            "ui-bridge.error.storage",
+            ["error_category", "source_kind", "source_crate"]
+                .iter()
+                .copied()
+                .collect(),
+        );
+        by_target.insert(
+            "ui-bridge.error.ingest",
+            ["error_category", "source_kind", "source_crate"]
+                .iter()
+                .copied()
+                .collect(),
+        );
         by_target.insert(
             "mcp-server",
             [
@@ -1235,6 +1287,58 @@ mod tests {
         assert!(
             al.for_target("unknown.module.target").is_none(),
             "unknown target redacts everything"
+        );
+    }
+
+    #[test]
+    fn allowlist_for_target_resolves_ui_bridge_error_namespace() {
+        // chunk #26: From<E> for AppError impls in crates/ui-bridge/src/contract.rs
+        // emit tracing::warn! at target "ui-bridge.error.{variant}". Each variant
+        // MUST resolve to its own per-variant entry with `error_category`,
+        // `source_kind`, `source_crate` allowed (plus per-variant structured
+        // handle: `field` for validation, `plugin_id` for plugin, `resource`
+        // for not_found). Without these, default-deny redacts the conversion
+        // event payload and the obs-plan §10 module-boundary error logging
+        // contract is silently violated.
+        let al = AllowList::production();
+        for variant in [
+            "ui-bridge.error.validation",
+            "ui-bridge.error.not_found",
+            "ui-bridge.error.internal",
+            "ui-bridge.error.plugin",
+            "ui-bridge.error.storage",
+            "ui-bridge.error.ingest",
+        ] {
+            let set = al
+                .for_target(variant)
+                .unwrap_or_else(|| panic!("expected per-variant entry for {variant}"));
+            for required in ["error_category", "source_kind", "source_crate"] {
+                assert!(
+                    set.contains(required),
+                    "{variant} must permit `{required}`",
+                );
+            }
+        }
+        let validation = al
+            .for_target("ui-bridge.error.validation")
+            .expect("validation entry");
+        assert!(
+            validation.contains("field"),
+            "ui-bridge.error.validation must permit `field` for aria-describedby binding"
+        );
+        let plugin = al
+            .for_target("ui-bridge.error.plugin")
+            .expect("plugin entry");
+        assert!(
+            plugin.contains("plugin_id"),
+            "ui-bridge.error.plugin must permit `plugin_id`"
+        );
+        let not_found = al
+            .for_target("ui-bridge.error.not_found")
+            .expect("not_found entry");
+        assert!(
+            not_found.contains("resource"),
+            "ui-bridge.error.not_found must permit `resource`"
         );
     }
 

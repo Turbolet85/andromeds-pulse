@@ -14,9 +14,14 @@ taurpc-runtime = ["dep:taurpc", "dep:tauri", "dep:specta", "dep:tokio"]
 thiserror.workspace = true
 serde.workspace = true
 chrono.workspace = true
+tracing.workspace = true
 ingest = { path = "../ingest" }
 buffer = { path = "../buffer" }
 viz = { path = "../viz" }
+snapshot = { path = "../snapshot" }
+plugins = { path = "../plugins" }
+workspace-detector = { path = "../workspace-detector" }
+mcp-server = { path = "../mcp-server" }
 
 # Tauri / TauRPC runtime — gated so xtask + downstream type consumers can opt out.
 taurpc = { workspace = true, optional = true }
@@ -26,3 +31,4 @@ tokio = { workspace = true, optional = true }
 
 [dev-dependencies]
 serde_json.workspace = true
+rstest.workspace = true
