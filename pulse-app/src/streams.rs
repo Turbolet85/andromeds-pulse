@@ -8,6 +8,9 @@ use tauri::ipc::Channel;
 use tokio::sync::broadcast;
 use ui_bridge::AppError;
 
+// D3 drift carry-over (chunk #23): the `streams.*` namespace is not yet listed
+// in arch §Occupied Resources Tauri IPC routes. Resolution at chunk #27 xtask
+// capability-drift; chunk #25 surfaces the typed binding without proactive fix.
 #[taurpc::procedures(path = "streams")]
 pub trait StreamsApi {
     async fn subscribe_spans(channel: Channel<Vec<u8>>) -> Result<(), AppError>;

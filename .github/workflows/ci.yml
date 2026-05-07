@@ -52,6 +52,18 @@ jobs:
       - name: cargo clippy --workspace --all-targets --all-features -- -D warnings
         run: cargo clippy --workspace --all-targets --all-features -- -D warnings
 
+      - name: Setup Node
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '22'
+
+      - name: npm ci (pulse-app/ui)
+        working-directory: pulse-app/ui
+        run: npm ci
+
+      - name: cargo xtask typecheck (tsc --noEmit against TauRPC bindings)
+        run: cargo xtask typecheck
+
       - name: cargo xtask test (no-tests=pass at Foundation epoch)
         run: cargo xtask test
 

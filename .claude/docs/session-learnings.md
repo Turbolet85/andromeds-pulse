@@ -8,6 +8,73 @@ _This file is entirely wrap-session's territory. `/setup-project` creates it if 
 
 ---
 
+## 2026-05-07 — taurpc 0.7 binding emission is RUNTIME in dev mode, requires tokio runtime + proper cwd
+
+The `#[taurpc::procedures(export_to = "...")]` macro arg does NOT cause emission at build time. Emission triggers when `Router::into_handler()` is called per `taurpc-0.7.1/src/lib.rs`:
+
+```rust
+pub fn into_handler(self) -> impl Fn(Invoke<R>) -> bool {
+    if tauri::is_dev() {
+        if let Some(export_path) = self.export_path { export_types(...); }
+    }
+    ...
+}
+```
+
+Two compile-time gates that must both align:
+1. `tauri::is_dev()` is `pub const fn = !cfg!(feature = "custom-protocol")`. Debug builds (`cargo run`, `cargo nextest`, `cargo build`) → custom-protocol OFF → is_dev()=true → emit. Release/bundled builds (`cargo tauri build`) set custom-protocol → is_dev()=false → no emit. So local dev + tests both emit; production bundles do not.
+2. `Router::merge(handler)` calls `handler.spawn()` which the `#[taurpc::resolvers]` macro generates as `tokio::spawn(async move { ... })` (per `taurpc-macros-0.7.1/src/generator.rs:329`). This panics with `there is no reactor running, must be called from the context of a Tokio 1.x runtime` if invoked outside a tokio context. Implication: `fn main()` (non-async, no `#[tokio::main]`) cannot call `Router::new().merge(...)` at top-level — the spawn fires before `tauri::Builder::default().run()` initializes its runtime. This is why `cargo run --bin pulse-app` panics on Windows pre-emission: bare `fn main()` + Tauri 2's `tauri::async_runtime` not yet active. Workaround for emission: drive Router construction from `#[tokio::test]` (test runtime active); for production main(), `cargo tauri dev` sets up runtime before invoking the binary entry. agent-run.sh `boot` is gated `if: runner.os == 'Linux'` partly because of this.
+
+Single-file emission semantics: `Router::merge` collects EVERY merged handler's args/types/fns into one `args_map_json` + `fns_map` + `types` collection. `Router::into_handler()` calls `export_types()` ONCE with the accumulated state, writing one merged TS file covering all routers. EXPORT_PATH last-set-wins across merges (per `Router::merge`: `if H::EXPORT_PATH.is_some() { self.export_path = H::EXPORT_PATH; }`). So putting `export_to` on a single procedures macro (e.g., the root `HealthApi`) is sufficient and idiomatic — subsequent `merge()` calls don't need their own `export_to`.
+
+Path resolution: relative to runtime cwd. `cargo nextest -p pulse-app` runs with cwd=`pulse-app/`; `cargo tauri dev` from the app dir same. Picked path `ui/src/bindings/index.ts` for chunk #25 (relative to pulse-app/), works for both. `cargo run --bin pulse-app` from workspace root would expect a different path — incompatible without changing convention.
+
+See: `pulse-app/src/main.rs::emit_taurpc_bindings` test (drives runtime emission); `crates/ui-bridge/src/health.rs::runtime` mod (root procedures with `export_to = "ui/src/bindings/index.ts"`); chunk #25 fix-loop iteration #2 root cause; taurpc-0.7.1/src/lib.rs:295-310 (Router::into_handler emission gate); taurpc-0.7.1/src/lib.rs:308 (`tauri::is_dev()` definition).
+
+---
+
+## 2026-05-07 — Specta TypeScript export requires explicit BigInt config or fails-by-default for u64/i64
+
+`specta-typescript = "0.0.9"` (transitively pulled by taurpc 0.7) ships a default `BigIntExportBehavior::Fail` config that REJECTS any `i64`/`u64`/`i128`/`u128` BigInt fields with the diagnostic `"Specta configuration forbids exporting BigInt types (i64, u64, i128, u128) because we don't know if your se/deserializer supports it"`. Default-build TauRPC binding emission therefore panics on the first BigInt-typed field (e.g., `HealthEnvelope.uptime_ms: u64`, `TraceRow.ts_unix_nano: i64`).
+
+Resolution requires explicit `Router::export_config()`:
+
+```rust
+use specta_typescript::{BigIntExportBehavior, Typescript};
+
+let router = taurpc::Router::<tauri::Wry>::new()
+    .export_config(Typescript::default().bigint(BigIntExportBehavior::Number))
+    .merge(...)
+```
+
+Three behavior choices, each with trade-offs:
+
+- `BigIntExportBehavior::Number` — emit as TS `number`. Acceptable up to 2^53 (`Number.MAX_SAFE_INTEGER`). Loses precision for nanosecond timestamps (current ~2^61), millisecond × very-long-running counters, and any future cardinality-large counter. Picked for chunk #25's binding scaffold; suitable when consumers don't need precision past 2^53.
+- `BigIntExportBehavior::BigInt` — emit as TS `bigint`. Preserves precision but JSON.stringify/parse won't round-trip natively (BigInt isn't standard-JSON-serializable). Webview consumers must handle the bigint↔string conversion at I/O boundaries.
+- `BigIntExportBehavior::String` — emit as TS `string`. Safest; consumers convert via `BigInt(str)`. Annoying for fields that are obviously numeric (e.g., uptime_ms in milliseconds).
+
+`specta-typescript` is a TRANSITIVE dep of taurpc 0.7 (see taurpc-0.7.1/Cargo.toml deps), but the public API for `BigIntExportBehavior` lives ONLY in `specta-typescript` proper — taurpc's `pub use specta_typescript::Typescript` doesn't re-export the enum. So the consumer crate (pulse-app) must add `specta-typescript = "0.0.9"` directly to `[dependencies]` to access the enum at the call site. Workspace dep already has `taurpc = "0.7"` + `specta = "=2.0.0-rc.22"` (with `chrono` feature); chunk #25 added `specta-typescript = "0.0.9"` as a peer.
+
+Naming gotcha for ts_unix_nano fields: TraceRow/MetricRow/LogRow all carry `ts_unix_nano: i64` (nanoseconds since epoch). With `Number` mapping, current Unix nanoseconds (~2^61) lose ~10 bits of precision in JSON parse — webview "trace at 12:34:56.789..." displays drift by ~1 ms per second elapsed. Documented inline at the helper site for chunk #25; later chunks should switch to BigInt or String for nanosecond-sensitive consumers.
+
+See: `pulse-app/src/main.rs::taurpc_export_config` helper (chunk #25); chunk #25 fix-loop iteration #2 (initial test panicked with "BigInt types forbidden"); specta-typescript-0.0.9/src/typescript.rs:26 (`BigIntExportBehavior` enum); specta-typescript-0.0.9/src/lib.rs:249-256 (per-variant rendering).
+
+---
+
+## 2026-05-07 — npm `taurpc` package versioning is INDEPENDENT of the Rust crate `taurpc` versioning
+
+The Rust crate `taurpc = "0.7"` (current 0.7.1) and the npm package `taurpc` (current 1.8.1) ship from the same upstream repo (MatsDK/TauRPC) but use DIFFERENT semver streams. The README's frontend-install instruction `pnpm install taurpc` is version-agnostic on purpose; users must look up the latest npm version separately.
+
+Pitfall: if you blindly mirror the Rust crate version to the npm package (`taurpc@^0.7.1` in package.json), npm rejects with `ETARGET / No matching version found for taurpc@^0.7.1`. The npm package never published 0.x — the lowest npm version is 1.0.0. Use `^1.x.y` on the npm side; treat the crate version and npm version as separate dimensions.
+
+Compatibility envelope: each crate version corresponds to some npm version that emits compatible `BOILERPLATE_TS_IMPORT` (`import { createTauRPCProxy as createProxy, type InferCommandOutput } from 'taurpc'`). That import must resolve to a `taurpc` npm package that exports those names. Until taurpc 0.x has a major release, npm 1.x.y likely tracks the same boilerplate shape — but no formal compatibility matrix exists. Verify by reading the npm package's exports and matching against the BOILERPLATE_TS_IMPORT in `taurpc-0.{x}.y/src/export.rs`.
+
+For chunk #25: `taurpc = "0.7"` (workspace Cargo.toml) + `taurpc": "^1.8.1"` (pulse-app/ui/package.json devDependencies) — both compatible at session 25.
+
+See: `pulse-app/ui/package.json` chunk #25 (devDependencies entry); chunk #25 fix-loop iteration #1 (`npm install ^0.7.1` rejected); npm `taurpc` view command (`npm view taurpc versions --json`) confirms 1.x stream only.
+
+---
+
 ## 2026-05-06 — RecordBatch reuse refactor: extract `build_*_record_batch` from `append_*_batch` to enable fan-out
 
 When a producer crate needs to emit the same Arrow `RecordBatch` data to multiple sinks (e.g., chunk #23: DuckDB persist via `Connection::appender(...).append_record_batch(...)` AND tokio broadcast emit via Arrow IPC StreamWriter byte stream), refactor any existing single-sink `append_*_batch(conn, proto_input) -> Result<u64, Error>` function into two pieces:

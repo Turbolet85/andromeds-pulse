@@ -25,6 +25,16 @@ mod window;
 use streams::{StreamsApi, StreamsApiImpl};
 use viz_routers::{LogsApi, LogsApiImpl, MetricsApi, MetricsApiImpl, TracesApi, TracesApiImpl};
 
+// Specta TypeScript export config for TauRPC binding emission. `Number`
+// represents `u64`/`i64` BigInt types as JS `number` (precision loss above
+// 2^53). Acceptable for chunk #25's binding scaffold; webview consumers
+// requiring nanosecond-precision `ts_unix_nano` (TraceRow / MetricRow /
+// LogRow) should switch this to `BigInt` or `String` and convert at the
+// consumer call site.
+fn taurpc_export_config() -> specta_typescript::Typescript {
+    specta_typescript::Typescript::default().bigint(specta_typescript::BigIntExportBehavior::Number)
+}
+
 const ENV_OTLP_GRPC_PORT: &str = "ANDROMEDA_PULSE_OTLP_GRPC_PORT";
 const ENV_OTLP_HTTP_PORT: &str = "ANDROMEDA_PULSE_OTLP_HTTP_PORT";
 const ENV_RETENTION_SECONDS: &str = "ANDROMEDA_PULSE_RETENTION_SECONDS";
@@ -215,12 +225,14 @@ fn main() {
 
     let invoke_router = match buffer_conn.as_ref() {
         Some(conn) => taurpc::Router::new()
+            .export_config(taurpc_export_config())
             .merge(HealthApiImpl.into_handler())
             .merge(TracesApiImpl::new(Arc::clone(conn), Arc::clone(&viz_state)).into_handler())
             .merge(MetricsApiImpl::new(Arc::clone(conn), Arc::clone(&viz_state)).into_handler())
             .merge(LogsApiImpl::new(Arc::clone(conn), Arc::clone(&viz_state)).into_handler())
             .merge(StreamsApiImpl::new(Arc::clone(&broadcast_senders)).into_handler()),
         None => taurpc::Router::new()
+            .export_config(taurpc_export_config())
             .merge(HealthApiImpl.into_handler())
             .merge(StreamsApiImpl::new(Arc::clone(&broadcast_senders)).into_handler()),
     };
@@ -579,5 +591,41 @@ mod tests {
             std::env::remove_var(ENV_RETENTION_SECONDS);
         }
         assert_eq!(result, RETENTION_SECONDS_MAX);
+    }
+
+    // Bindings emission test (chunk #25). taurpc 0.7 emits TS bindings at
+    // `Router::into_handler()` call time when `tauri::is_dev()` returns true
+    // (which is `!cfg!(feature = "custom-protocol")`, true in test builds).
+    // The emission target path on the HealthApi `#[taurpc::procedures]` macro
+    // is `ui/src/bindings/index.ts` — relative to the test runtime cwd, which
+    // is `pulse-app/` for `cargo nextest -p pulse-app`. The merged router
+    // here mirrors the production wiring in `main()` (when buffer init OK).
+    // `#[tokio::test]` provides the runtime context taurpc::TauRpcHandler::spawn()
+    // requires.
+    #[tokio::test]
+    async fn emit_taurpc_bindings() {
+        let conn = Arc::new(Mutex::new(
+            Connection::open_in_memory().expect("in-memory DuckDB"),
+        ));
+        let viz_state = Arc::new(VizState::new());
+        let broadcast_senders: Arc<BroadcastSenders> = Arc::new(buffer::broadcast::create());
+
+        let router: taurpc::Router<tauri::Wry> = taurpc::Router::new()
+            .export_config(taurpc_export_config())
+            .merge(HealthApiImpl.into_handler())
+            .merge(TracesApiImpl::new(Arc::clone(&conn), Arc::clone(&viz_state)).into_handler())
+            .merge(MetricsApiImpl::new(Arc::clone(&conn), Arc::clone(&viz_state)).into_handler())
+            .merge(LogsApiImpl::new(Arc::clone(&conn), Arc::clone(&viz_state)).into_handler())
+            .merge(StreamsApiImpl::new(Arc::clone(&broadcast_senders)).into_handler());
+
+        // into_handler() triggers export_types() in dev mode.
+        let _handler = router.into_handler();
+
+        let bindings_path = std::path::Path::new("ui/src/bindings/index.ts");
+        assert!(
+            bindings_path.exists(),
+            "bindings file not emitted at {bindings_path:?} (cwd={:?})",
+            std::env::current_dir().ok()
+        );
     }
 }

@@ -1,14 +1,14 @@
 schema_version: 2
-last_wrap: 2026-05-07T17:43:27Z
-last_reconcile: 2026-05-07T17:43:27Z
+last_wrap: 2026-05-07T18:45:40Z
+last_reconcile: 2026-05-07T18:45:40Z
 
 last_completed_chunk:
-  route_index: 24
-  title: "Tauri webview shell — WebView2/WKWebView, frameless + custom titlebar with drag region, close→minimize-to-tray policy"
+  route_index: 25
+  title: "TauRPC routers + TypeScript bindings — derive macros generate .d.ts per crate router, tsc --noEmit gate"
   epoch: 4
-  committed_at: 2026-05-07T17:43:27Z
-  commit_sha: a748660
-  commit_subject: "feat(webview): Tauri webview shell — frameless + custom titlebar + close→tray + boot detection spans (chunk #24); session 24"
+  committed_at: 2026-05-07T18:45:40Z
+  commit_sha: 77bd642
+  commit_subject: "feat(ui-bridge): TauRPC routers + TypeScript bindings — taurpc 0.7 export_to + Specta BigIntExportBehavior::Number + tsc --noEmit gate via xtask Typecheck + CI lint stage extension (chunk #25); session 25"
 
 in_progress: null
 
@@ -24,9 +24,9 @@ plan_freshness:
   input_mtime: 2026-05-02T06:52:58Z
 
 living_artifact_freshness:
-  dep_tree_reconciled_at: 2026-05-07T17:43:27Z
-  api_surface_reconciled_at: 2026-05-07T17:43:27Z
-  most_recent_code_mtime: 2026-05-07T17:43:27Z
+  dep_tree_reconciled_at: 2026-05-07T18:45:40Z
+  api_surface_reconciled_at: 2026-05-07T18:45:40Z
+  most_recent_code_mtime: 2026-05-07T18:45:40Z
   reconcile_failed: false
 
 drift_warnings:
@@ -35,7 +35,7 @@ drift_warnings:
     severity: warning
     remediation_hint: "Options: (a) defer to chunk #27 xtask capability-drift check (recommended — natural carry); (b) re-run /andromeda-arch to incorporate new namespace (heavy); (c) add /andromeda-route Decisions Log entry without re-deriving arch (lightest formal capture)"
     first_observed_session_count: 23
-    last_observed_session_count: 24
+    last_observed_session_count: 25
 
 spec_amendments:
   active: []
@@ -65,4 +65,4 @@ spec_amendments:
       propagated_by_run: .andromeda/runs/2026-05-04T20-42-30-setup-project/
       archived_at: 2026-05-04T21:43:31Z
 
-session_count: 24
+session_count: 25

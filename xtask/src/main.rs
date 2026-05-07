@@ -51,6 +51,14 @@ enum Cmd {
         extra: Vec<String>,
     },
     #[command(
+        name = "typecheck",
+        about = "npm run typecheck (tsc --noEmit in pulse-app/ui/) — gates webview against TauRPC-generated bindings"
+    )]
+    Typecheck {
+        #[arg(trailing_var_arg = true)]
+        extra: Vec<String>,
+    },
+    #[command(
         name = "test:a11y",
         about = "a11y harness placeholder (full activation at chunk #25 webview shell + chunk #46 CI gate)"
     )]
@@ -71,6 +79,7 @@ async fn main() -> ExitCode {
         Cmd::DenyBans => run_cargo("deny", &["check", "bans", "licenses", "sources"]).await,
         Cmd::CiGates => run_ci_gates().await,
         Cmd::Lint { extra } => run_npm_script("lint", extra).await,
+        Cmd::Typecheck { extra } => run_npm_script("typecheck", extra).await,
         Cmd::TestA11y { extra: _ } => test_a11y_placeholder(),
     };
     match result {

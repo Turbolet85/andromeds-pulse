@@ -127,7 +127,10 @@ mod tests {
     #[test]
     fn detect_webview_backend_returns_enumerated_value() {
         let v = detect_webview_backend();
-        assert!(matches!(v, "WebView2" | "WKWebView" | "GTKWebKit" | "Unknown"));
+        assert!(matches!(
+            v,
+            "WebView2" | "WKWebView" | "GTKWebKit" | "Unknown"
+        ));
     }
 
     #[test]

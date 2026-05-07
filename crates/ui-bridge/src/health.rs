@@ -275,7 +275,13 @@ pub fn current_health() -> HealthEnvelope {
 mod runtime {
     use super::*;
 
-    #[taurpc::procedures(path = "health")]
+    // export_to: emission triggered when Router::into_handler() is called in
+    // dev mode (`!cfg!(feature = "custom-protocol")`); a single merged TS file
+    // covering ALL routers (HealthApi + TracesApi + MetricsApi + LogsApi +
+    // StreamsApi) is written to this path. Path is relative to runtime cwd
+    // (`pulse-app/` for `cargo nextest -p pulse-app` and `cargo tauri dev`;
+    // bindings emit via the `emit_bindings` test below).
+    #[taurpc::procedures(path = "health", export_to = "ui/src/bindings/index.ts")]
     pub trait HealthApi {
         async fn check() -> Result<HealthEnvelope, AppError>;
     }
