@@ -90,9 +90,24 @@ GitHub Actions matrix (Linux/macOS/Windows × Rust stable):
 - NEVER tolerate flake — quarantine and fix immediately.
 - NEVER ship release with known test failures.
 - NEVER include "human verifies canvas" steps — pixel inspection out of agent-driven scope.
-- NEVER allow OTLP self-dialing — negative test must assert prevention.
+- ~~NEVER allow OTLP self-dialing — negative test must assert prevention.~~ **DEPRECATED 2026-05-08** — by-construction-satisfied per obs-plan.md `2026-05-02 — Phase 3.5 pivot to tracing-only self-observation` (no OTel SDK in self-observation runtime → no exporter to misconfigure → no `ANDROMEDA_OBSERVER_URL`-shaped variable exists → trigger is unimplementable). The architectural "must-never-exist" guard for `ANDROMEDA_OBSERVER_URL` remains in `gotchas.md` §Self-observation. Per amendment `2026-05-08T17-28-26Z-deprecate-self-otlp-loop-test`.
 - NEVER dump raw OTLP JSON as snapshot — assertion requires dedup count + anomaly markers + p50/p95/p99 aggregates.
 - NEVER skip post-`prost` invariant negative tests.
 - NEVER assert receiver bound to `0.0.0.0` succeeds.
+
+## Pending coverage triggers (deferred to next `/andromeda-tests` re-run)
+
+The following test triggers are documented but not yet implemented; they are deferred to the next `/andromeda-tests` re-run rather than processed via delta-rerun, because each requires dedicated harness design (xtask test command + fixture pattern) beyond cross-reference scope.
+
+**PII vector test gaps** (security plan §Logging vectors 2/3/4/6 currently lack triggers; test plan covers vector 5 only):
+- `security-vector-coverage: AppError sanitization` — assert IPC error response excludes stack traces / file paths / Rust struct names / library versions; grep on `agent-latest.jsonl` after IPC error
+- `security-vector-coverage: Plugin path basename only` — load plugin with symlink chain → assert resolved path NOT in logs, only basename
+- `security-vector-coverage: MCP response body redaction` — call `query_traces` via MCP → assert `result_content` NOT in `agent-latest.jsonl`, only `result_type` + `result_count` metadata
+- `security-vector-coverage: Path env var canonicalization log redaction` — set `ANDROMEDA_PULSE_PLUGIN_DIR=../../etc/passwd` → assert canonicalization rejects + logs only basename
+- Per amendment `2026-05-08T17-28-27Z-document-pii-vector-test-gaps`.
+
+**Capability widening static analysis gap** (security plan §API Anti-Patterns 3 NEVER-widen bans; current xtask capability-drift only checks TauRPC↔capability sync, not permission widening):
+- `security-vector-coverage: Capability widening static analysis` — xtask test parses each `pulse-app/capabilities/*.json` and asserts: (a) `pulse:notification` contains only outbound emit permissions (no input handlers); (b) `pulse:tray` contains only outbound menu/icon permissions (no incoming-event handlers); (c) `pulse:plugin-fs` permissions limited to read of resolved plugin dir, no write/delete/execute, never exposed to webview JavaScript. Test fails with named permission and capability on widening detection.
+- Per amendment `2026-05-08T17-28-29Z-document-capability-widening-test-gap`.
 
 Full plan: `.andromeda/test-plan.md`.

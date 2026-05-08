@@ -60,6 +60,7 @@ W3C `traceparent` (HTTP) and gRPC `grpc-trace-bin` extracted at receiver entry; 
 - 100ms for realtime throughput counter (animation source).
 - Format: `tracing::info!(target: "{module}.tick", span_count=N, buffer_capacity_pct=M, broadcast_subscribers=X, ...)`.
 - **Stall threshold:** missing tick for >45s = stall signal. CI fails build via `xtask/ci/heartbeat-gap-check.sh`.
+- **Heartbeat ticks vs TauRPC `health` command:** these are TWO DIFFERENT liveness mechanisms; both must remain. Ticks = asynchronous emission for retroactive analysis (was the subsystem alive during this window?); `health` IPC = synchronous probe for active liveness (used for boot readiness polling per `tests-summary.md` §Test harness contract — poll every 500ms up to 10s, plus runtime health checks). Implementations MUST NOT replace tick emission with `health`-only state, MUST NOT treat absence of tick as failure of `health` (or vice versa). No shared state between the two paths required. Per amendment `2026-05-08T17-28-28Z-cross-ref-heartbeat-vs-health`.
 
 ## Critical paths (P1–P7 — must-trace)
 Every P1–P7 must emit parent + child spans with the `{module}.{operation}` naming convention. Trace context propagated end-to-end via traceparent field. See obs-plan §1 critical paths table for required spans + log fields per path.

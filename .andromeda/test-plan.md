@@ -892,6 +892,7 @@ _Skipped for Standard tier + Minimal security tier (no compliance triggers in te
 - **Rationale:** Skipping this trigger silently would lose the agent-driven invariant; documenting deprecation here keeps the audit trail intact. If a future scope re-introduces an outbound OTLP observer surface, this entry should be revisited.
 - **Impact:** Coverage trigger remains in §1 for historical context but should be marked DEPRECATED in next `/andromeda-tests` re-run. /andromeda-implement should treat this trigger as no-op rather than generating dead test code.
 - **By:** Manual edit, cross-plan rot reconciliation
+- **Amendment record:** `.andromeda/runs/2026-05-08T17-28-26-spec-amendment-deprecate-self-otlp-loop-test/amendment.md`
 
 **2026-05-08** — Document missing PII vector test coverage (security plan vectors 2/3/4/6)
 - **Decision:** The §1 Coverage triggers table contains `security-vector-coverage: DuckDB SQL injection prevention` (covers vector 5) but does not have explicit triggers for security-plan.md §Logging vectors 2 (sanitized AppError errors), 3 (plugin path basename only), 4 (MCP response bodies never logged), 6 (path env var canonicalization). Vector 4 in particular is the indirect-prompt-injection surface for MCP tool responses — security-plan.md §Logging Anti-Patterns explicitly bans logging MCP response bodies, but no test asserts the ban via grep on `agent-latest.jsonl` after MCP invocation.
@@ -902,6 +903,7 @@ _Skipped for Standard tier + Minimal security tier (no compliance triggers in te
   - `security-vector-coverage: MCP response body redaction` — call `query_traces` via MCP → assert `result_content` NOT in agent-latest.jsonl, only `result_type` + `result_count` metadata
   - `security-vector-coverage: Path env var canonicalization log redaction` — set `ANDROMEDA_PULSE_PLUGIN_DIR=../../etc/passwd` → assert canonicalization rejects + logs only basename
 - **By:** Manual edit, cross-plan rot reconciliation
+- **Amendment record:** `.andromeda/runs/2026-05-08T17-28-27-spec-amendment-document-pii-vector-test-gaps/amendment.md`
 
 **2026-05-08** — Document missing capability-widening static analysis tests
 - **Decision:** Security-plan.md §API Anti-Patterns contains 3 explicit "NEVER widen" bans for capabilities `pulse:notification`, `pulse:tray`, `pulse:plugin-fs`. Current test plan §1 covers `Tauri IPC capability gating` for runtime IPC rejection but does not cover capability JSON static analysis. The xtask drift check (security-plan §API Security row) currently verifies TauRPC procedures vs capabilities/ JSON sync; it does not check for forbidden permission widening on the 3 named capabilities.
@@ -909,6 +911,7 @@ _Skipped for Standard tier + Minimal security tier (no compliance triggers in te
 - **Impact:** Recommended new trigger for next `/andromeda-tests` re-run:
   - `security-vector-coverage: Capability widening static analysis` — xtask test that parses each `pulse-app/capabilities/*.json` and asserts: (a) `pulse:notification` contains only outbound emit permissions (no input handlers); (b) `pulse:tray` contains only outbound menu/icon permissions (no incoming-event handlers); (c) `pulse:plugin-fs` permissions limited to read of resolved plugin dir, no write/delete/execute, never exposed to webview JavaScript. Test fails with named permission and capability on widening detection.
 - **By:** Manual edit, cross-plan rot reconciliation
+- **Amendment record:** `.andromeda/runs/2026-05-08T17-28-29-spec-amendment-document-capability-widening-test-gap/amendment.md`
 
 
 

@@ -32,7 +32,7 @@ Per security plan §Bootstrap phases:
 3. `secret-management-init` — Azure Key Vault Premium SKU (HSM-RSA Windows EV) + GitHub OIDC federation; Tauri updater Minisign Ed25519 keypair generation; private keys never leave Vault.
 4. `secret-scanning-ci-gate` — pre-commit + per-PR (gitleaks or trufflehog SHA-pinned). `.gitignore` covers `*.p12`, `*.pem`, `*.cer`, `.env*`, `*.key`, `~/.tauri/*.key`.
 5. `error-sanitization-wire` — `AppError` boundary collapse; `tonic::Status` for OTLP; JSON-RPC 2.0 error object for MCP. No stack traces / paths / library versions / Rust struct names leak.
-6. `logging-redaction-wire` — `opentelemetry-stdout` to `~/.andromeda-pulse/logs/`; snapshot/clipboard/MCP-tool-response paths apply attribute-value redaction.
+6. `logging-redaction-wire` — `tracing-subscriber::fmt::Layer::json()` writing to `~/.andromeda-pulse/logs/agent-latest.jsonl` (canonical self-observation surface per obs-plan §3 `2026-05-02 — Phase 3.5 pivot to tracing-only self-observation`; legacy `opentelemetry-stdout` references in security-plan.md §Data Protection / §Bootstrap phases bodies are obsolete-but-equivalent — both produce JSON-per-line at the same path; functionally identical; no security-posture change). Snapshot/clipboard/MCP-tool-response paths apply attribute-value redaction. Per amendment `2026-05-08T17-28-25Z-reconcile-otel-stdout-references`.
 7. `dep-security-ci-gate` — `cargo audit` + `cargo deny check` + `Cargo.lock` integrity + `xtask capability-drift` + `step-security/harden-runner` (SHA-pinned, egress-policy: audit then promote to block).
 
 ## Top anti-patterns (universal — see `.claude/rules/security.md` for full list)

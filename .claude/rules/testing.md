@@ -63,10 +63,24 @@ Path-scoped rules for Rust source + colocated test modules + webview frontend te
 - NEVER share mutable state across parallel tests — each test gets `TempDir` + in-memory DuckDB.
 
 ## Project-specific bans (andromeda-pulse)
-- NEVER allow OTLP self-dialing — negative test asserts product cannot be configured to dial own `:4317`/`:4318`.
+- ~~NEVER allow OTLP self-dialing — negative test asserts product cannot be configured to dial own `:4317`/`:4318`.~~ **DEPRECATED** — by-construction-satisfied per obs-plan.md `2026-05-02 — Phase 3.5 pivot to tracing-only self-observation`: no OTel SDK in self-observation runtime → no exporter to misconfigure → no `ANDROMEDA_OBSERVER_URL`-shaped configuration surface exists → trigger is unimplementable. `/andromeda-implement` MUST treat this trigger as no-op (do NOT generate dead test code). The `ANDROMEDA_OBSERVER_URL` "must never exist" architectural guard remains in `gotchas.md` §Self-observation. Per amendment `2026-05-08T17-28-26Z-deprecate-self-otlp-loop-test` (`.andromeda/runs/2026-05-08T17-28-26-spec-amendment-deprecate-self-otlp-loop-test/amendment.md`).
 - NEVER assert "raw OTLP JSON dump" passes as snapshot — must show dedup count + anomaly markers + p50/p95/p99 aggregates.
 - NEVER skip post-`prost` invariant negative tests — span_id != 8 bytes / trace_id != 16 bytes must reject without panic.
 - NEVER assert receiver bound to non-loopback succeeds — security model invariant.
+
+## Pending coverage triggers (deferred to next `/andromeda-tests` re-run)
+The following test triggers are documented as required-but-not-yet-implemented; they are deferred to the next `/andromeda-tests` re-run with this rule file as input. /andromeda-implement should NOT generate placeholder tests for these triggers; instead, the triggers require dedicated harness design (xtask test command + fixture pattern) that exceeds delta-rerun scope.
+
+- **PII vector test gaps** (security plan §Logging vectors 2/3/4/6 lack explicit triggers; test plan currently only covers vector 5):
+  - `security-vector-coverage: AppError sanitization` — IPC error response must not contain stack traces, file paths, Rust struct names, or library versions; assert via grep on `~/.andromeda-pulse/logs/agent-latest.jsonl` after IPC error
+  - `security-vector-coverage: Plugin path basename only` — load plugin with symlink chain → assert resolved path NOT in logs, only basename
+  - `security-vector-coverage: MCP response body redaction` — call `query_traces` via MCP → assert `result_content` NOT in agent-latest.jsonl, only `result_type` + `result_count` metadata
+  - `security-vector-coverage: Path env var canonicalization log redaction` — set `ANDROMEDA_PULSE_PLUGIN_DIR=../../etc/passwd` → assert canonicalization rejects + logs only basename
+  - Per amendment `2026-05-08T17-28-27Z-document-pii-vector-test-gaps` (`.andromeda/runs/2026-05-08T17-28-27-spec-amendment-document-pii-vector-test-gaps/amendment.md`).
+
+- **Capability widening static analysis gap** (security plan §API Anti-Patterns 3 NEVER-widen bans; current xtask capability-drift only checks TauRPC↔capability sync, not permission widening):
+  - `security-vector-coverage: Capability widening static analysis` — xtask test that parses each `pulse-app/capabilities/*.json` and asserts: (a) `pulse:notification` contains only outbound emit permissions (no input handlers); (b) `pulse:tray` contains only outbound menu/icon permissions (no incoming-event handlers); (c) `pulse:plugin-fs` permissions limited to read of resolved plugin dir, no write/delete/execute, never exposed to webview JavaScript. Test fails with named permission and capability on widening detection.
+  - Per amendment `2026-05-08T17-28-29Z-document-capability-widening-test-gap` (`.andromeda/runs/2026-05-08T17-28-29-spec-amendment-document-capability-widening-test-gap/amendment.md`).
 
 ## Running tests
 - **Single crate:** `cargo nextest run --filter-expr 'package(ingest)'`

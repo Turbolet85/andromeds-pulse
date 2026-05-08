@@ -452,6 +452,7 @@ _Records key decisions during plan generation + manual additions between phase l
 - **Rationale:** Cross-plan rot caught during cross-plan review. Skill discipline says specialist plans evolve through Decisions Log; this entry serves as the cross-reference rather than rewriting §Data Protection / §Bootstrap phases bodies (those rewrites belong in `/andromeda-security` re-run if/when needed).
 - **Impact:** No behavioral change. §Logging redaction rules apply unchanged to the `tracing` JSON output. PII vectors 1-6 enforcement unchanged.
 - **By:** Manual edit, cross-plan rot reconciliation
+- **Amendment record:** `.andromeda/runs/2026-05-08T17-28-25-spec-amendment-reconcile-otel-stdout-references/amendment.md`
 
 **Subsequent entry format (for manual additions or re-runs):**
 

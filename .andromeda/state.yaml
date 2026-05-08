@@ -56,7 +56,141 @@ drift_warnings:
     last_observed_session_count: 27
 
 spec_amendments:
-  active: []
+  active:
+    - amendment_id: 2026-05-08T17-28-25Z-reconcile-otel-stdout-references
+      plans:
+        - path: security-plan.md
+          sections:
+            - Security Decisions Log
+          decisions_log_section: "2026-05-08 — Reconcile self-observation references with obs Phase 3.5 pivot"
+      trigger:
+        chunk: 27
+        phase: null
+        harness: "session 27 cross-plan rot reconciliation (out-of-band manual edit; not a chunk harness)"
+      authority:
+        winning_plan: obs-plan.md
+        winning_tier: Standard
+        losing_plan: security-plan.md
+        losing_concern: legacy-otel-stdout-references
+        rationale: "obs-plan.md 2026-05-02 Phase 3.5 pivot dropped OTel SDK from self-runtime; security-plan.md §Data Protection / §Bootstrap phases legacy `opentelemetry-stdout` references are obsolete-but-equivalent (functionally identical JSON-per-line output at same path)"
+      impl_files_synced: []
+      expected_propagation:
+        - .claude/docs/security-summary.md
+        - .claude/rules/observability.md
+      marker_path: .andromeda/runs/2026-05-08T17-28-25-spec-amendment-reconcile-otel-stdout-references/amendment.md
+      applied_at: 2026-05-08T17:28:25Z
+      noted_at: null
+      propagated_by_run: .andromeda/runs/2026-05-08T18-43-08-setup-project-delta/
+      archived_at: null
+      verification_status: clean
+
+    - amendment_id: 2026-05-08T17-28-26Z-deprecate-self-otlp-loop-test
+      plans:
+        - path: test-plan.md
+          sections:
+            - Test Decisions Log
+          decisions_log_section: "2026-05-08 — Deprecate self-OTLP-loop negative test (Section 1 coverage triggers + P5 critical path)"
+      trigger:
+        chunk: 27
+        phase: null
+        harness: "session 27 cross-plan rot reconciliation (out-of-band manual edit; not a chunk harness)"
+      authority:
+        winning_plan: obs-plan.md
+        winning_tier: Standard
+        losing_plan: test-plan.md
+        losing_concern: unimplementable-negative-test
+        rationale: "obs-plan.md 2026-05-02 Phase 3.5 pivot eliminated outbound OTel exporter; test-plan §1 trigger `security-vector-coverage: No self-OTLP dialing` describes a configuration surface that does not exist; trigger is by-construction-satisfied"
+      impl_files_synced: []
+      expected_propagation:
+        - .claude/docs/tests-summary.md
+      marker_path: .andromeda/runs/2026-05-08T17-28-26-spec-amendment-deprecate-self-otlp-loop-test/amendment.md
+      applied_at: 2026-05-08T17:28:25Z
+      noted_at: null
+      propagated_by_run: .andromeda/runs/2026-05-08T18-43-08-setup-project-delta/
+      archived_at: null
+      verification_status: clean
+
+    - amendment_id: 2026-05-08T17-28-27Z-document-pii-vector-test-gaps
+      plans:
+        - path: test-plan.md
+          sections:
+            - Test Decisions Log
+          decisions_log_section: "2026-05-08 — Document missing PII vector test coverage (security plan vectors 2/3/4/6)"
+      trigger:
+        chunk: 27
+        phase: null
+        harness: "session 27 cross-plan rot reconciliation (Pattern 2 — security ban without test trigger)"
+      authority:
+        winning_plan: security-plan.md
+        winning_tier: Minimal
+        losing_plan: test-plan.md
+        losing_concern: missing-test-coverage
+        rationale: "security-plan.md §Logging Anti-Patterns vectors 2 (AppError sanitization), 3 (plugin path basename), 4 (MCP response body redaction), 6 (path env var canonicalization) are explicit NEVER-LOG bans; test-plan §1 currently only covers vector 5 (DuckDB SQL injection) — 4 missing triggers documented for /andromeda-tests re-run"
+      impl_files_synced: []
+      expected_propagation:
+        - .claude/docs/tests-summary.md
+        - .claude/rules/testing.md
+      marker_path: .andromeda/runs/2026-05-08T17-28-27-spec-amendment-document-pii-vector-test-gaps/amendment.md
+      applied_at: 2026-05-08T17:28:25Z
+      noted_at: null
+      propagated_by_run: .andromeda/runs/2026-05-08T18-43-08-setup-project-delta/
+      archived_at: null
+      verification_status: clean
+
+    - amendment_id: 2026-05-08T17-28-28Z-cross-ref-heartbeat-vs-health
+      plans:
+        - path: obs-plan.md
+          sections:
+            - 12. Obs Decisions Log
+          decisions_log_section: "2026-05-08 — Cross-reference heartbeat ticks vs health command semantics"
+      trigger:
+        chunk: 27
+        phase: null
+        harness: "session 27 cross-plan rot reconciliation (vocabulary drift between obs §3 ticks and tests §3 health-poll)"
+      authority:
+        winning_plan: obs-plan.md
+        winning_tier: Standard
+        losing_plan: vocabulary-ambiguity
+        losing_concern: tick-vs-health-conflation-risk
+        rationale: "Heartbeat ticks (asynchronous emission, 15s interval, stall >45s for retroactive analysis) and TauRPC `health` command (synchronous TauRPC procedure for active liveness probing) are complementary — not redundant. Both must remain; implementations should NOT replace tick emission with health-only state."
+      impl_files_synced: []
+      expected_propagation:
+        - .claude/docs/obs-summary.md
+        - .claude/rules/observability.md
+      marker_path: .andromeda/runs/2026-05-08T17-28-28-spec-amendment-cross-ref-heartbeat-vs-health/amendment.md
+      applied_at: 2026-05-08T17:28:25Z
+      noted_at: null
+      propagated_by_run: .andromeda/runs/2026-05-08T18-43-08-setup-project-delta/
+      archived_at: null
+      verification_status: clean
+
+    - amendment_id: 2026-05-08T17-28-29Z-document-capability-widening-test-gap
+      plans:
+        - path: test-plan.md
+          sections:
+            - Test Decisions Log
+          decisions_log_section: "2026-05-08 — Document missing capability-widening static analysis tests"
+      trigger:
+        chunk: 27
+        phase: null
+        harness: "session 27 cross-plan rot reconciliation (security ban without test trigger; static analysis category)"
+      authority:
+        winning_plan: security-plan.md
+        winning_tier: Minimal
+        losing_plan: test-plan.md
+        losing_concern: missing-static-analysis-trigger
+        rationale: "security-plan.md §API Anti-Patterns 3 NEVER-widen bans (`pulse:notification`, `pulse:tray`, `pulse:plugin-fs`) require static analysis on capability JSON; runtime IPC rejection (chunk #27 xtask capability-drift) is insufficient because by the time IPC rejection fires, the widening has already been deployed"
+      impl_files_synced: []
+      expected_propagation:
+        - .claude/docs/tests-summary.md
+        - .claude/rules/security.md
+      marker_path: .andromeda/runs/2026-05-08T17-28-29-spec-amendment-document-capability-widening-test-gap/amendment.md
+      applied_at: 2026-05-08T17:28:25Z
+      noted_at: null
+      propagated_by_run: .andromeda/runs/2026-05-08T18-43-08-setup-project-delta/
+      archived_at: null
+      verification_status: clean
+
   archive:
     - amendment_id: 2026-05-03T21-30-00Z-lift-accent
       plans:

@@ -721,3 +721,4 @@ std::panic::set_hook(Box::new(|info| {
 - **Rationale:** Cross-plan vocabulary drift detected during cross-plan review (obs uses "heartbeat tick / 15s / stall 45s"; tests uses "health poll / 500ms / 10s timeout"). No actual conflict — two different mechanisms — but no cross-reference existed to make this explicit.
 - **Impact:** Both mechanisms remain. /andromeda-implement should produce code where: subsystem tasks emit `tracing::info!(target: "{module}.tick", ...)` every 15s (independent of `health` invocations); `health` TauRPC handler returns synchronous snapshot of subsystem state (independent of tick history). No shared state between the two paths required.
 - **By:** Manual edit, cross-plan rot reconciliation
+- **Amendment record:** `.andromeda/runs/2026-05-08T17-28-28-spec-amendment-cross-ref-heartbeat-vs-health/amendment.md`
