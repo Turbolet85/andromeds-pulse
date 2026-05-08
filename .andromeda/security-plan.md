@@ -447,6 +447,12 @@ _Records key decisions during plan generation + manual additions between phase l
   - **Snapshot / clipboard / MCP tool response surfaces are documented OTLP-attribute leakage paths** — addressed via user-facing warnings + visible clipboard-write event + README documentation rather than attempted sanitization (the data is what the user instrumented). Surfaced as documented behavior, not a defect.
   - **No hot key rotation path for the Tauri updater Minisign keypair without a transitional release** — runbook required before v0.1.0 ships.
 
+`2026-05-08` — Reconcile self-observation references with obs Phase 3.5 pivot
+- **Decision:** This security plan still references `opentelemetry-stdout` exporter destination in §Data Protection (logs medium) and §Bootstrap phases `logging-redaction-wire` bullet. Per obs-plan.md Decisions Log entry `2026-05-02 — User review (Phase 3.5, iteration 1) — pivot to tracing-only self-observation, drop OTel SDK from self-runtime`, the product no longer links an OTel SDK into self-observation runtime. Self-observation is `tracing` 0.1 + `tracing-subscriber` 0.3 JSON formatter writing to `~/.andromeda-pulse/logs/agent-latest.jsonl`. The legacy `opentelemetry-stdout` references in this plan are obsolete but functionally equivalent (both produce JSON-per-line at the same path) and do not change the security posture. Marked here for audit trail; downstream phase loop should treat `tracing-subscriber` JSON formatter as the canonical self-observation surface.
+- **Rationale:** Cross-plan rot caught during cross-plan review. Skill discipline says specialist plans evolve through Decisions Log; this entry serves as the cross-reference rather than rewriting §Data Protection / §Bootstrap phases bodies (those rewrites belong in `/andromeda-security` re-run if/when needed).
+- **Impact:** No behavioral change. §Logging redaction rules apply unchanged to the `tracing` JSON output. PII vectors 1-6 enforcement unchanged.
+- **By:** Manual edit, cross-plan rot reconciliation
+
 **Subsequent entry format (for manual additions or re-runs):**
 
 `{YYYY-MM-DD}` — {short title of decision}

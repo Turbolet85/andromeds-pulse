@@ -1,3 +1,12 @@
+// `capability_drift_tests` mod is followed by `test_a11y_placeholder` and
+// `status_to_code` helpers; clippy::items_after_test_module flags this as a
+// "restriction" lint, but reorganizing this file's helper layout for a single
+// chunk's tests yields churn without correctness benefit. The tests are
+// `#[cfg(test)]` and excluded from release builds; non-test items after them
+// stay accessible to the rest of the file unchanged.
+#![allow(clippy::items_after_test_module)]
+
+use std::collections::{BTreeMap, BTreeSet};
 use std::path::{Path, PathBuf};
 use std::process::ExitCode;
 use std::{env, fs};
@@ -66,6 +75,11 @@ enum Cmd {
         #[arg(trailing_var_arg = true)]
         extra: Vec<String>,
     },
+    #[command(
+        name = "capability-drift",
+        about = "diff TauRPC procedures (from pulse-app/ui/src/bindings/index.ts) vs arch §Occupied Resources expected procedure list"
+    )]
+    CapabilityDrift,
 }
 
 #[tokio::main]
@@ -81,6 +95,7 @@ async fn main() -> ExitCode {
         Cmd::Lint { extra } => run_npm_script("lint", extra).await,
         Cmd::Typecheck { extra } => run_npm_script("typecheck", extra).await,
         Cmd::TestA11y { extra: _ } => test_a11y_placeholder(),
+        Cmd::CapabilityDrift => capability_drift().await,
     };
     match result {
         Ok(code) => code,
@@ -349,6 +364,275 @@ async fn run_npm_script(script: &str, extra: Vec<String>) -> Result<ExitCode> {
         .await
         .with_context(|| format!("failed to spawn `npm run {script}` in {}", cwd.display()))?;
     Ok(status_to_code(status))
+}
+
+// EXPECTED_PROCEDURES tracks the TauRPC procedure surface arch §Occupied
+// Resources Tauri IPC routes legitimizes for the current commit. New chunks
+// extend this list as their crates ship. Future-deferred procedures
+// (snapshot.*, plugins.*, mcp.*, workspace.*) commented out until their
+// owning chunks land — uncommenting prematurely produces "missing" drift
+// noise that hides real drift. mcp.* additionally gated by --features
+// mcp-server at the binary level.
+const EXPECTED_PROCEDURES: &[&str] = &[
+    "app_info",
+    "health",
+    "ready",
+    "get_settings",
+    "update_settings",
+    "traces.query",
+    "metrics.query",
+    "logs.query",
+    // future-deferred (per epoch landing):
+    // "snapshot.generate", "snapshot.list_recent", "snapshot.copy_to_clipboard",
+    // "plugins.list", "plugins.reload", "plugins.invoke",
+    // "mcp.status", "mcp.start", "mcp.stop",
+    // "workspace.detect", "workspace.list",
+];
+
+async fn capability_drift() -> Result<ExitCode> {
+    let workspace_root = Path::new(env!("CARGO_MANIFEST_DIR"))
+        .parent()
+        .context("xtask manifest has no workspace parent")?
+        .to_path_buf();
+    let bindings_path = workspace_root
+        .join("pulse-app")
+        .join("ui")
+        .join("src")
+        .join("bindings")
+        .join("index.ts");
+    let bindings_content = fs::read_to_string(&bindings_path)
+        .with_context(|| format!("read bindings file at {}", bindings_path.display()))?;
+
+    let discovered = parse_bindings(&bindings_content)
+        .context("parse ARGS_MAP from bindings.ts (taurpc emission shape may have changed)")?;
+    let expected: BTreeSet<String> = EXPECTED_PROCEDURES.iter().map(|s| s.to_string()).collect();
+
+    let missing: BTreeSet<String> = expected.difference(&discovered).cloned().collect();
+    let extra: BTreeSet<String> = discovered.difference(&expected).cloned().collect();
+
+    let drift_state = if missing.is_empty() && extra.is_empty() {
+        "clean"
+    } else {
+        "drifted"
+    };
+
+    let report_dir = workspace_root.join("target").join("capability-drift");
+    fs::create_dir_all(&report_dir).context("create capability-drift report dir")?;
+    let report_path = report_dir.join("report.json");
+
+    let top_5_drifted: Vec<&String> = missing.iter().chain(extra.iter()).take(5).collect();
+    let report = serde_json::json!({
+        "drift_state": drift_state,
+        "missing_count": missing.len(),
+        "extra_count": extra.len(),
+        "missing": missing.iter().collect::<Vec<_>>(),
+        "extra": extra.iter().collect::<Vec<_>>(),
+        "discovered": discovered.iter().collect::<Vec<_>>(),
+        "expected": expected.iter().collect::<Vec<_>>(),
+        "generated_at": chrono::Utc::now().to_rfc3339(),
+    });
+    fs::write(&report_path, serde_json::to_string_pretty(&report)?)
+        .context("write drift report")?;
+
+    // Structured event line to stdout matching the obs §3 JSON schema. xtask
+    // does not init a tracing subscriber (per implementation notes); the JSON
+    // line is the agent-tailable surface.
+    let event = serde_json::json!({
+        "timestamp": chrono::Utc::now().to_rfc3339(),
+        "level": if drift_state == "clean" { "INFO" } else { "WARN" },
+        "target": "xtask.capability_drift",
+        "message": "capability drift check complete",
+        "fields": {
+            "missing_count": missing.len(),
+            "extra_count": extra.len(),
+            "drift_state": drift_state,
+            "top_5_drifted_names": top_5_drifted,
+        },
+    });
+    println!("{}", serde_json::to_string(&event)?);
+
+    eprintln!(
+        "capability-drift: {drift_state} ({} missing, {} extra)",
+        missing.len(),
+        extra.len()
+    );
+    if !missing.is_empty() {
+        let names: Vec<&str> = missing.iter().map(|s| s.as_str()).collect();
+        eprintln!("  missing: {names:?}");
+    }
+    if !extra.is_empty() {
+        let names: Vec<&str> = extra.iter().map(|s| s.as_str()).collect();
+        eprintln!("  extra: {names:?}");
+    }
+    eprintln!("  report: {}", report_path.display());
+
+    if drift_state == "clean" {
+        Ok(ExitCode::SUCCESS)
+    } else {
+        Ok(ExitCode::FAILURE)
+    }
+}
+
+// Parse the ARGS_MAP line from a taurpc-emitted bindings.ts file. Format:
+//   const ARGS_MAP = { 'health':'{"check":[]}', 'streams':'{"subscribe_spans":[...]}' }
+// Outer is a JS object literal: single-quoted keys → single-quoted values
+// where each value is a stringified JSON method-map. Inner JSON uses double
+// quotes; outer single quotes delimit. Procedure identifiers are restricted
+// to [A-Za-z0-9_] so single quotes only ever delimit, never appear inside
+// identifiers. Returns the flat (router.method or method) procedure set.
+pub(crate) fn parse_bindings(bindings_content: &str) -> Result<BTreeSet<String>> {
+    let args_map_line = bindings_content
+        .lines()
+        .map(str::trim_start)
+        .find_map(|line| line.strip_prefix("const ARGS_MAP = "))
+        .context("ARGS_MAP line not found in bindings.ts")?;
+    let rhs = args_map_line.trim_end_matches(';').trim();
+    let inner = rhs.trim_start_matches('{').trim_end_matches('}').trim();
+
+    let bytes = inner.as_bytes();
+    let mut idx = 0usize;
+    let mut discovered = BTreeSet::new();
+
+    while idx < bytes.len() {
+        while idx < bytes.len() && (bytes[idx].is_ascii_whitespace() || bytes[idx] == b',') {
+            idx += 1;
+        }
+        if idx >= bytes.len() {
+            break;
+        }
+        if bytes[idx] != b'\'' {
+            bail!("expected `'` at offset {idx} in ARGS_MAP body");
+        }
+        idx += 1;
+        let router_start = idx;
+        while idx < bytes.len() && bytes[idx] != b'\'' {
+            idx += 1;
+        }
+        if idx >= bytes.len() {
+            bail!("unterminated router key");
+        }
+        let router = std::str::from_utf8(&bytes[router_start..idx])
+            .context("router key not utf-8")?
+            .to_string();
+        idx += 1; // consume closing `'`
+
+        while idx < bytes.len() && bytes[idx].is_ascii_whitespace() {
+            idx += 1;
+        }
+        if idx >= bytes.len() || bytes[idx] != b':' {
+            bail!("expected `:` after router key `{router}`");
+        }
+        idx += 1;
+        while idx < bytes.len() && bytes[idx].is_ascii_whitespace() {
+            idx += 1;
+        }
+        if idx >= bytes.len() || bytes[idx] != b'\'' {
+            bail!("expected `'` for methods_json of router `{router}`");
+        }
+        idx += 1;
+        let methods_start = idx;
+        while idx < bytes.len() && bytes[idx] != b'\'' {
+            idx += 1;
+        }
+        if idx >= bytes.len() {
+            bail!("unterminated methods_json for router `{router}`");
+        }
+        let methods_json =
+            std::str::from_utf8(&bytes[methods_start..idx]).context("methods_json not utf-8")?;
+        idx += 1; // consume closing `'`
+
+        let methods: BTreeMap<String, Vec<String>> = serde_json::from_str(methods_json)
+            .with_context(|| format!("parse methods_json for `{router}`: {methods_json}"))?;
+        for method_name in methods.keys() {
+            if router.is_empty() {
+                discovered.insert(method_name.clone());
+            } else {
+                discovered.insert(format!("{router}.{method_name}"));
+            }
+        }
+    }
+    Ok(discovered)
+}
+
+#[cfg(test)]
+mod capability_drift_tests {
+    use super::*;
+
+    #[test]
+    fn parse_bindings_extracts_namespaced_procedures() {
+        let bindings = "// header\nconst ARGS_MAP = { 'health':'{\"check\":[]}', 'traces':'{\"query\":[\"args\"]}' }\nexport type Foo = ...";
+        let discovered = parse_bindings(bindings).expect("parses");
+        assert!(discovered.contains("health.check"));
+        assert!(discovered.contains("traces.query"));
+        assert_eq!(discovered.len(), 2);
+    }
+
+    #[test]
+    fn parse_bindings_handles_streams_router() {
+        let bindings = "const ARGS_MAP = { 'streams':'{\"subscribe_logs\":[\"channel\"],\"subscribe_metrics\":[\"channel\"],\"subscribe_spans\":[\"channel\"]}' }";
+        let discovered = parse_bindings(bindings).expect("parses");
+        assert!(discovered.contains("streams.subscribe_logs"));
+        assert!(discovered.contains("streams.subscribe_metrics"));
+        assert!(discovered.contains("streams.subscribe_spans"));
+        assert_eq!(discovered.len(), 3);
+    }
+
+    #[test]
+    fn parse_bindings_handles_top_level_procedures_via_empty_router() {
+        // Hypothetical chunk #27 emission shape: top-level procedures may emit
+        // under an empty router string. Verify the parser handles this.
+        let bindings = "const ARGS_MAP = { '':'{\"app_info\":[],\"health\":[]}' }";
+        let discovered = parse_bindings(bindings).expect("parses");
+        assert!(discovered.contains("app_info"));
+        assert!(discovered.contains("health"));
+        assert_eq!(discovered.len(), 2);
+    }
+
+    #[test]
+    fn parse_bindings_missing_args_map_returns_err() {
+        let bindings = "// only header here, no ARGS_MAP\nexport type Foo = ...";
+        let result = parse_bindings(bindings);
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn expected_procedures_includes_chunk_27_introspection_envelope() {
+        let expected: BTreeSet<&str> = EXPECTED_PROCEDURES.iter().copied().collect();
+        for proc in [
+            "app_info",
+            "health",
+            "ready",
+            "get_settings",
+            "update_settings",
+        ] {
+            assert!(
+                expected.contains(proc),
+                "EXPECTED_PROCEDURES must include {proc}"
+            );
+        }
+    }
+
+    #[test]
+    fn drift_detected_when_extra_procedure_present() {
+        // Synthetic ARGS_MAP: introduces `streams.subscribe_spans` not in the
+        // expected list (D3 carry-over scenario).
+        let bindings = "const ARGS_MAP = { 'health':'{\"check\":[]}', 'streams':'{\"subscribe_spans\":[\"channel\"]}' }";
+        let discovered = parse_bindings(bindings).expect("parses");
+        let expected: BTreeSet<String> = ["health.check"].iter().map(|s| s.to_string()).collect();
+        let extra: BTreeSet<String> = discovered.difference(&expected).cloned().collect();
+        assert!(extra.contains("streams.subscribe_spans"));
+    }
+
+    #[test]
+    fn drift_clean_when_sets_match() {
+        let bindings = "const ARGS_MAP = { 'health':'{\"check\":[]}' }";
+        let discovered = parse_bindings(bindings).expect("parses");
+        let expected: BTreeSet<String> = ["health.check"].iter().map(|s| s.to_string()).collect();
+        let missing: BTreeSet<String> = expected.difference(&discovered).cloned().collect();
+        let extra: BTreeSet<String> = discovered.difference(&expected).cloned().collect();
+        assert!(missing.is_empty());
+        assert!(extra.is_empty());
+    }
 }
 
 fn test_a11y_placeholder() -> Result<ExitCode> {

@@ -11,8 +11,8 @@ use ingest::contract::{Error as IngestError, OtlpPort};
 use ingest::state::IngestState;
 use tracing_error::SpanTrace;
 use ui_bridge::health::{
-    BindStatus, BufferConnectionStatus, HealthApi, HealthApiImpl, HeartbeatState,
-    IngestChannelStatus, record_start, register_heartbeat_state,
+    BindStatus, BufferConnectionStatus, HeartbeatState, IngestChannelStatus, IntrospectionApi,
+    IntrospectionApiImpl, record_start, register_heartbeat_state,
 };
 use viz::VizState;
 
@@ -223,17 +223,29 @@ fn main() {
         }
     };
 
+    // features array surfaces in `app_info.features`; populated from compile-time
+    // cfg!() checks. mcp-server is the only known opt-in feature at chunk #27.
+    #[cfg(feature = "mcp-server")]
+    let features: Vec<String> = vec!["mcp-server".to_string()];
+    #[cfg(not(feature = "mcp-server"))]
+    let features: Vec<String> = Vec::new();
+    let introspection_impl = IntrospectionApiImpl::new(
+        data_dir.clone(),
+        features,
+        Some(Arc::clone(&broadcast_senders)),
+    );
+
     let invoke_router = match buffer_conn.as_ref() {
         Some(conn) => taurpc::Router::new()
             .export_config(taurpc_export_config())
-            .merge(HealthApiImpl.into_handler())
+            .merge(introspection_impl.clone().into_handler())
             .merge(TracesApiImpl::new(Arc::clone(conn), Arc::clone(&viz_state)).into_handler())
             .merge(MetricsApiImpl::new(Arc::clone(conn), Arc::clone(&viz_state)).into_handler())
             .merge(LogsApiImpl::new(Arc::clone(conn), Arc::clone(&viz_state)).into_handler())
             .merge(StreamsApiImpl::new(Arc::clone(&broadcast_senders)).into_handler()),
         None => taurpc::Router::new()
             .export_config(taurpc_export_config())
-            .merge(HealthApiImpl.into_handler())
+            .merge(introspection_impl.clone().into_handler())
             .merge(StreamsApiImpl::new(Arc::clone(&broadcast_senders)).into_handler()),
     };
 
@@ -609,10 +621,13 @@ mod tests {
         ));
         let viz_state = Arc::new(VizState::new());
         let broadcast_senders: Arc<BroadcastSenders> = Arc::new(buffer::broadcast::create());
+        let data_dir = std::env::temp_dir().join("andromeda-pulse-bindings-test");
+        let introspection_impl =
+            IntrospectionApiImpl::new(data_dir, vec![], Some(Arc::clone(&broadcast_senders)));
 
         let router: taurpc::Router<tauri::Wry> = taurpc::Router::new()
             .export_config(taurpc_export_config())
-            .merge(HealthApiImpl.into_handler())
+            .merge(introspection_impl.into_handler())
             .merge(TracesApiImpl::new(Arc::clone(&conn), Arc::clone(&viz_state)).into_handler())
             .merge(MetricsApiImpl::new(Arc::clone(&conn), Arc::clone(&viz_state)).into_handler())
             .merge(LogsApiImpl::new(Arc::clone(&conn), Arc::clone(&viz_state)).into_handler())

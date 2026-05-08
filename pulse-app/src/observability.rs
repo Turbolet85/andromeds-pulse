@@ -287,6 +287,103 @@ impl AllowList {
                 .copied()
                 .collect(),
         );
+        // chunk #27 — top-level introspection procedure events emitted by the
+        // crates/ui-bridge/src/health.rs::IntrospectionApi resolvers per
+        // obs-plan §3 IPC boundaries + §6 boundary-call wrappers TauRPC row.
+        // Each procedure is a separate exact-match entry so for_target()
+        // wins over the split('.').next() fallback to "ui-bridge" (which has
+        // the generic procedure-level field set above without the
+        // per-procedure result-shape handles).
+        by_target.insert(
+            "ui-bridge.app_info",
+            [
+                "method_name",
+                "argument_digest",
+                "result_type",
+                "latency_ms",
+                "name",
+                "version",
+                "rust_version",
+                "tauri_version",
+                "build_profile",
+            ]
+            .iter()
+            .copied()
+            .collect(),
+        );
+        by_target.insert(
+            "ui-bridge.health",
+            [
+                "method_name",
+                "argument_digest",
+                "result_type",
+                "latency_ms",
+                "status",
+                "subsystems",
+            ]
+            .iter()
+            .copied()
+            .collect(),
+        );
+        by_target.insert(
+            "ui-bridge.ready",
+            [
+                "method_name",
+                "argument_digest",
+                "result_type",
+                "latency_ms",
+                "ready",
+                "duckdb_connection",
+                "ingest_mpsc_capacity_pct",
+                "broadcast_subscribers",
+                "plugins_loaded",
+                "mcp_server_enabled",
+            ]
+            .iter()
+            .copied()
+            .collect(),
+        );
+        by_target.insert(
+            "ui-bridge.get_settings",
+            [
+                "method_name",
+                "argument_digest",
+                "result_type",
+                "latency_ms",
+            ]
+            .iter()
+            .copied()
+            .collect(),
+        );
+        by_target.insert(
+            "ui-bridge.update_settings",
+            [
+                "method_name",
+                "argument_digest",
+                "result_type",
+                "latency_ms",
+                "setting_keys_changed",
+            ]
+            .iter()
+            .copied()
+            .collect(),
+        );
+        // chunk #27 — xtask capability-drift gate. Emitted by the xtask binary
+        // when the drift check runs; pulse-app does not currently emit at
+        // this target but the entry is registered for forward-compat in case
+        // a future inline drift surface lands.
+        by_target.insert(
+            "xtask.capability_drift",
+            [
+                "missing_count",
+                "extra_count",
+                "drift_state",
+                "top_5_drifted_names",
+            ]
+            .iter()
+            .copied()
+            .collect(),
+        );
         by_target.insert(
             "mcp-server",
             [
@@ -1313,10 +1410,7 @@ mod tests {
                 .for_target(variant)
                 .unwrap_or_else(|| panic!("expected per-variant entry for {variant}"));
             for required in ["error_category", "source_kind", "source_crate"] {
-                assert!(
-                    set.contains(required),
-                    "{variant} must permit `{required}`",
-                );
+                assert!(set.contains(required), "{variant} must permit `{required}`",);
             }
         }
         let validation = al
@@ -1340,6 +1434,83 @@ mod tests {
             not_found.contains("resource"),
             "ui-bridge.error.not_found must permit `resource`"
         );
+    }
+
+    #[test]
+    fn allowlist_for_target_resolves_introspection_namespace() {
+        // chunk #27: IntrospectionApi resolvers in crates/ui-bridge/src/health.rs
+        // emit tracing::info! at target "ui-bridge.{procedure}". Each procedure
+        // MUST resolve to its own per-procedure entry containing `method_name`
+        // and `result_type` (the boundary-call wrapper field set per obs-plan
+        // §6) plus per-procedure structured handles. Without exact-match
+        // entries, the resolver's split('.').next() fallback collapses these
+        // to the bare `ui-bridge` entry whose field set differs.
+        let al = AllowList::production();
+        for procedure in [
+            "ui-bridge.app_info",
+            "ui-bridge.health",
+            "ui-bridge.ready",
+            "ui-bridge.get_settings",
+            "ui-bridge.update_settings",
+        ] {
+            let set = al
+                .for_target(procedure)
+                .unwrap_or_else(|| panic!("expected per-procedure entry for {procedure}"));
+            for required in ["method_name", "result_type"] {
+                assert!(
+                    set.contains(required),
+                    "{procedure} must permit `{required}`",
+                );
+            }
+        }
+        let app_info = al.for_target("ui-bridge.app_info").expect("app_info entry");
+        for required in [
+            "name",
+            "version",
+            "rust_version",
+            "tauri_version",
+            "build_profile",
+        ] {
+            assert!(
+                app_info.contains(required),
+                "ui-bridge.app_info must permit `{required}`"
+            );
+        }
+        let ready = al.for_target("ui-bridge.ready").expect("ready entry");
+        for required in [
+            "ready",
+            "duckdb_connection",
+            "ingest_mpsc_capacity_pct",
+            "broadcast_subscribers",
+            "plugins_loaded",
+            "mcp_server_enabled",
+        ] {
+            assert!(
+                ready.contains(required),
+                "ui-bridge.ready must permit `{required}`"
+            );
+        }
+        let update_settings = al
+            .for_target("ui-bridge.update_settings")
+            .expect("update_settings entry");
+        assert!(
+            update_settings.contains("setting_keys_changed"),
+            "ui-bridge.update_settings must permit `setting_keys_changed`"
+        );
+        let drift = al
+            .for_target("xtask.capability_drift")
+            .expect("xtask capability_drift entry");
+        for required in [
+            "missing_count",
+            "extra_count",
+            "drift_state",
+            "top_5_drifted_names",
+        ] {
+            assert!(
+                drift.contains(required),
+                "xtask.capability_drift must permit `{required}`"
+            );
+        }
     }
 
     #[test]

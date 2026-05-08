@@ -13,7 +13,7 @@ tracing.workspace = true
 tracing-error.workspace = true
 duckdb.workspace = true
 serde.workspace = true
-specta.workspace = true
+specta = { workspace = true, features = ["derive"] }
 chrono.workspace = true
 
 [dev-dependencies]

@@ -6227,8 +6227,10 @@ dependencies = [
  "specta",
  "tauri",
  "taurpc",
+ "tempfile",
  "thiserror 2.0.18",
  "tokio",
+ "toml 0.8.2",
  "tracing",
  "viz",
  "workspace-detector",
@@ -7382,6 +7384,7 @@ name = "xtask"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "chrono",
  "clap",
  "serde_json",
  "tokio",

@@ -6,6 +6,8 @@ type TAURI_CHANNEL<T> = (response: T) => void
 
 export type AppError = { kind: "validation"; field: string; reason: string } | { kind: "not_found"; resource: string } | { kind: "internal"; message: string } | { kind: "plugin"; plugin_id: string; message: string } | { kind: "storage"; message: string } | { kind: "ingest"; message: string }
 
+export type AppInfo = { name: string; version: string; rust_version: string; tauri_version: string; features: string[]; build_profile: string }
+
 export type HealthEnvelope = { status: HealthStatus; checked_at: string; subsystems: SubsystemStatuses; pid: number; uptime_ms: number }
 
 export type HealthStatus = "ok" | "degraded"
@@ -20,16 +22,30 @@ export type MetricsQueryArgs = { time_window_seconds: number; limit: number; cur
 
 export type PaginatedResponse<T> = { items: T[]; total: number; next_cursor: string | null }
 
+export type ReadyChecks = { duckdb_connection: string; ingest_mpsc_capacity_pct: number; broadcast_subscribers: number; plugins_loaded: number; mcp_server_enabled: boolean }
+
+export type ReadyEnvelope = { ready: boolean; checked_at: string; checks: ReadyChecks }
+
+export type Settings = { theme?: Theme; widget_position?: WidgetPosition; retention_seconds?: number; mcp_server_enabled?: boolean; notifications_enabled?: boolean }
+
 export type SubsystemStatus = { status: string; error_msg: string | null; last_tick_at: string | null }
 
 export type SubsystemStatuses = { otlp_grpc_receiver: SubsystemStatus; otlp_http_receiver: SubsystemStatus; buffer: SubsystemStatus; ingest_channel: SubsystemStatus; viz: SubsystemStatus; plugins: SubsystemStatus }
+
+export type Theme = "dark" | "light" | "auto"
 
 export type TraceRow = { trace_id: string; span_id: string; ts_unix_nano: number }
 
 export type TracesQueryArgs = { time_window_seconds: number; limit: number; cursor: string | null }
 
-const ARGS_MAP = { 'health':'{"check":[]}', 'logs':'{"query":["args"]}', 'metrics':'{"query":["args"]}', 'streams':'{"subscribe_logs":["channel"],"subscribe_metrics":["channel"],"subscribe_spans":["channel"]}', 'traces':'{"query":["args"]}' }
-export type Router = { "health": {check: () => Promise<HealthEnvelope>},
+export type WidgetPosition = "top-left" | "top-right" | "bottom-left" | "bottom-right"
+
+const ARGS_MAP = { '':'{"app_info":[],"get_settings":[],"health":[],"ready":[],"update_settings":["settings"]}', 'logs':'{"query":["args"]}', 'metrics':'{"query":["args"]}', 'streams':'{"subscribe_logs":["channel"],"subscribe_metrics":["channel"],"subscribe_spans":["channel"]}', 'traces':'{"query":["args"]}' }
+export type Router = { "": {app_info: () => Promise<AppInfo>, 
+get_settings: () => Promise<Settings>, 
+health: () => Promise<HealthEnvelope>, 
+ready: () => Promise<ReadyEnvelope>, 
+update_settings: (settings: Settings) => Promise<null>},
 "logs": {query: (args: LogsQueryArgs) => Promise<PaginatedResponse<LogRow>>},
 "metrics": {query: (args: MetricsQueryArgs) => Promise<PaginatedResponse<MetricRow>>},
 "streams": {subscribe_logs: (channel: TAURI_CHANNEL<number[]>) => Promise<null>, 

@@ -1,3 +1,4 @@
+use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
@@ -38,6 +39,117 @@ impl AppError {
             message: message.into(),
         }
     }
+}
+
+// ===== Introspection contracts (chunk #27) =====
+//
+// `app_info`/`health`/`ready`/`get_settings`/`update_settings` per arch §Standard
+// Contracts. JSON envelopes carry only token-free semantic fields per
+// design-system §Self-Validation Protocol "Token Test"; values map to design
+// tokens at render-time, not at wire-time.
+
+#[cfg_attr(feature = "taurpc-runtime", derive(specta::Type))]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+pub struct AppInfo {
+    pub name: String,
+    pub version: String,
+    pub rust_version: String,
+    pub tauri_version: String,
+    pub features: Vec<String>,
+    pub build_profile: String,
+}
+
+#[cfg_attr(feature = "taurpc-runtime", derive(specta::Type))]
+#[derive(Debug, Clone, Copy, Default, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(rename_all = "lowercase")]
+pub enum Theme {
+    // Locked default per design-system §Decisions Log 2026-05-02 "Color World locked".
+    #[default]
+    Dark,
+    Light,
+    Auto,
+}
+
+#[cfg_attr(feature = "taurpc-runtime", derive(specta::Type))]
+#[derive(Debug, Clone, Copy, Default, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(rename_all = "kebab-case")]
+pub enum WidgetPosition {
+    TopLeft,
+    #[default]
+    TopRight,
+    BottomLeft,
+    BottomRight,
+}
+
+#[cfg_attr(feature = "taurpc-runtime", derive(specta::Type))]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+pub struct Settings {
+    #[serde(default)]
+    pub theme: Theme,
+    #[serde(default)]
+    pub widget_position: WidgetPosition,
+    #[serde(default = "default_retention_seconds")]
+    pub retention_seconds: u64,
+    #[serde(default)]
+    pub mcp_server_enabled: bool,
+    #[serde(default = "default_notifications_enabled")]
+    pub notifications_enabled: bool,
+}
+
+fn default_retention_seconds() -> u64 {
+    600
+}
+
+fn default_notifications_enabled() -> bool {
+    true
+}
+
+impl Default for Settings {
+    fn default() -> Self {
+        Self {
+            theme: Theme::default(),
+            widget_position: WidgetPosition::default(),
+            retention_seconds: default_retention_seconds(),
+            mcp_server_enabled: false,
+            notifications_enabled: default_notifications_enabled(),
+        }
+    }
+}
+
+// retention_seconds bounds match pulse-app/src/main.rs::resolve_retention_seconds
+// (60..=86400) per arch §Inherited Defaults retention range + security plan
+// §Input Validation row "Configuration values".
+pub const RETENTION_SECONDS_MIN: u64 = 60;
+pub const RETENTION_SECONDS_MAX: u64 = 86_400;
+
+impl Settings {
+    pub fn validate(&self) -> Result<(), AppError> {
+        if !(RETENTION_SECONDS_MIN..=RETENTION_SECONDS_MAX).contains(&self.retention_seconds) {
+            return Err(AppError::Validation {
+                field: "retention_seconds".to_string(),
+                reason: "out of range".to_string(),
+            });
+        }
+        Ok(())
+    }
+}
+
+#[cfg_attr(feature = "taurpc-runtime", derive(specta::Type))]
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ReadyChecks {
+    pub duckdb_connection: String,
+    pub ingest_mpsc_capacity_pct: u32,
+    pub broadcast_subscribers: u32,
+    pub plugins_loaded: u32,
+    pub mcp_server_enabled: bool,
+}
+
+#[cfg_attr(feature = "taurpc-runtime", derive(specta::Type))]
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ReadyEnvelope {
+    pub ready: bool,
+    pub checked_at: DateTime<Utc>,
+    pub checks: ReadyChecks,
 }
 
 impl From<IngestError> for AppError {
@@ -872,5 +984,169 @@ mod tests {
                     && *level == tracing::Level::WARN),
             "expected WARN at ui-bridge.error.internal; got {events:?}"
         );
+    }
+
+    // ===== Chunk #27 introspection contracts =====
+
+    #[test]
+    fn settings_default_theme_is_dark() {
+        let s = Settings::default();
+        assert_eq!(s.theme, Theme::Dark);
+    }
+
+    #[test]
+    fn settings_default_widget_position_is_top_right() {
+        let s = Settings::default();
+        assert_eq!(s.widget_position, WidgetPosition::TopRight);
+    }
+
+    #[test]
+    fn settings_default_retention_seconds_is_600() {
+        let s = Settings::default();
+        assert_eq!(s.retention_seconds, 600);
+    }
+
+    #[test]
+    fn settings_default_notifications_enabled_true_mcp_disabled() {
+        let s = Settings::default();
+        assert!(s.notifications_enabled);
+        assert!(!s.mcp_server_enabled);
+    }
+
+    #[test]
+    fn settings_round_trips_through_serde() {
+        let s = Settings {
+            theme: Theme::Auto,
+            widget_position: WidgetPosition::BottomLeft,
+            retention_seconds: 300,
+            mcp_server_enabled: true,
+            notifications_enabled: false,
+        };
+        let json = serde_json::to_string(&s).expect("serializes");
+        let parsed: Settings = serde_json::from_str(&json).expect("parses back");
+        assert_eq!(parsed, s);
+    }
+
+    #[test]
+    fn theme_serializes_lowercase() {
+        assert_eq!(serde_json::to_string(&Theme::Dark).unwrap(), "\"dark\"");
+        assert_eq!(serde_json::to_string(&Theme::Light).unwrap(), "\"light\"");
+        assert_eq!(serde_json::to_string(&Theme::Auto).unwrap(), "\"auto\"");
+    }
+
+    #[test]
+    fn widget_position_serializes_kebab_case() {
+        assert_eq!(
+            serde_json::to_string(&WidgetPosition::TopLeft).unwrap(),
+            "\"top-left\""
+        );
+        assert_eq!(
+            serde_json::to_string(&WidgetPosition::BottomRight).unwrap(),
+            "\"bottom-right\""
+        );
+    }
+
+    #[test]
+    fn settings_validate_accepts_in_range_retention() {
+        let s = Settings {
+            retention_seconds: 600,
+            ..Settings::default()
+        };
+        assert!(s.validate().is_ok());
+    }
+
+    #[test]
+    fn settings_validate_rejects_below_min_retention() {
+        let s = Settings {
+            retention_seconds: 30,
+            ..Settings::default()
+        };
+        match s.validate() {
+            Err(AppError::Validation { field, reason }) => {
+                assert_eq!(field, "retention_seconds");
+                assert_eq!(reason, "out of range");
+            }
+            other => panic!("expected Validation error, got {other:?}"),
+        }
+    }
+
+    #[test]
+    fn settings_validate_rejects_above_max_retention() {
+        let s = Settings {
+            retention_seconds: 1_000_000,
+            ..Settings::default()
+        };
+        match s.validate() {
+            Err(AppError::Validation { field, .. }) => {
+                assert_eq!(field, "retention_seconds");
+            }
+            other => panic!("expected Validation error, got {other:?}"),
+        }
+    }
+
+    #[test]
+    fn settings_partial_deserialize_uses_defaults_for_missing_fields() {
+        let json = r#"{"theme":"light"}"#;
+        let s: Settings = serde_json::from_str(json).expect("parses");
+        assert_eq!(s.theme, Theme::Light);
+        assert_eq!(s.widget_position, WidgetPosition::TopRight);
+        assert_eq!(s.retention_seconds, 600);
+        assert!(s.notifications_enabled);
+    }
+
+    #[test]
+    fn app_info_serializes_with_required_fields() {
+        let info = AppInfo {
+            name: "andromeda-pulse".to_string(),
+            version: "0.1.0".to_string(),
+            rust_version: "1.85".to_string(),
+            tauri_version: "2.11".to_string(),
+            features: vec!["mcp-server".to_string()],
+            build_profile: "release".to_string(),
+        };
+        let v: serde_json::Value =
+            serde_json::from_str(&serde_json::to_string(&info).unwrap()).unwrap();
+        for key in [
+            "name",
+            "version",
+            "rust_version",
+            "tauri_version",
+            "features",
+            "build_profile",
+        ] {
+            assert!(v.get(key).is_some(), "AppInfo JSON missing key {key}");
+        }
+        assert_eq!(v["name"], "andromeda-pulse");
+    }
+
+    #[test]
+    fn ready_envelope_serializes_with_required_fields() {
+        let now = Utc::now();
+        let env = ReadyEnvelope {
+            ready: true,
+            checked_at: now,
+            checks: ReadyChecks {
+                duckdb_connection: "ok".to_string(),
+                ingest_mpsc_capacity_pct: 5,
+                broadcast_subscribers: 2,
+                plugins_loaded: 0,
+                mcp_server_enabled: false,
+            },
+        };
+        let v: serde_json::Value =
+            serde_json::from_str(&serde_json::to_string(&env).unwrap()).unwrap();
+        assert_eq!(v["ready"], true);
+        for key in [
+            "duckdb_connection",
+            "ingest_mpsc_capacity_pct",
+            "broadcast_subscribers",
+            "plugins_loaded",
+            "mcp_server_enabled",
+        ] {
+            assert!(
+                v["checks"].get(key).is_some(),
+                "ReadyEnvelope.checks JSON missing key {key}"
+            );
+        }
     }
 }

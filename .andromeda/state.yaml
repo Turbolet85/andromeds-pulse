@@ -1,41 +1,59 @@
 schema_version: 2
-last_wrap: 2026-05-07T19:55:00Z
-last_reconcile: 2026-05-07T19:55:00Z
+last_wrap: 2026-05-08T17:30:00Z
+last_reconcile: 2026-05-08T17:30:00Z
 
 last_completed_chunk:
-  route_index: 26
-  title: "AppError serde enum + From impls — Validation/NotFound/Internal/Plugin/Storage/Ingest with sanitization (no stack traces / paths)"
+  route_index: 27
+  title: "IPC introspection + capability-drift check — app_info/health/ready/get_settings/update_settings + xtask diff procedures vs capabilities/ JSON"
   epoch: 4
-  committed_at: 2026-05-07T19:55:00Z
-  commit_sha: 8839093
-  commit_subject: "feat(ui-bridge): AppError From-impl matrix + tracing emission — 4 placeholder From impls (snapshot/plugins/workspace-detector/mcp-server) + tracing::warn! at every conversion boundary + 6 ui-bridge.error.* AllowList entries (chunk #26); session 26"
+  committed_at: 2026-05-08T17:30:00Z
+  commit_sha: ac4d827
+  commit_subject: "feat(ui-bridge,xtask): IPC introspection envelope + xtask capability-drift gate — top-level IntrospectionApi (app_info/health/ready/get_settings/update_settings) + xtask drift check surfacing D3 streams.* (chunk #27); session 27 closes Epoch 4"
 
 in_progress: null
 
 plan_freshness:
   arch_mtime: 2026-05-02T06:52:58Z
-  security_mtime: 2026-05-02T10:05:55Z
+  security_mtime: 2026-05-08T16:47:20Z
   design_mtime: 2026-05-03T21:52:16Z
   layout_mtime: 2026-05-02T15:53:22Z
-  tests_mtime: 2026-05-03T20:24:05Z
-  obs_mtime: 2026-05-04T20:03:43Z
+  tests_mtime: 2026-05-08T16:47:59Z
+  obs_mtime: 2026-05-08T16:47:26Z
   a11y_mtime: 2026-05-02T21:45:23Z
   route_mtime: 2026-05-03T09:23:34Z
   input_mtime: 2026-05-02T06:52:58Z
 
 living_artifact_freshness:
-  dep_tree_reconciled_at: 2026-05-07T19:55:00Z
-  api_surface_reconciled_at: 2026-05-07T19:55:00Z
-  most_recent_code_mtime: 2026-05-07T19:55:00Z
+  dep_tree_reconciled_at: 2026-05-08T17:30:00Z
+  api_surface_reconciled_at: 2026-05-08T17:30:00Z
+  most_recent_code_mtime: 2026-05-08T17:30:00Z
   reconcile_failed: false
 
 drift_warnings:
   - drift_id: D3
     description: "chunk #23 introduced `streams.{subscribe_spans, subscribe_metrics, subscribe_logs}` TauRPC procedures via pulse-app/src/streams.rs, but arch §Occupied Resources Tauri IPC routes list does NOT include `streams.*` namespace"
     severity: warning
-    remediation_hint: "Defer to chunk #27 xtask capability-drift check (resolution venue — closes Epoch 4); if #27 doesn't address, next wrap surfaces with stale-drift escalation (age > 3 wraps)"
+    remediation_hint: "Now mechanically detected by chunk #27 xtask capability-drift (returns exit 1 with 3 extras). Resolution: either /andromeda-scope-arch to legitimize streams.* in arch §Occupied Resources, OR revert chunk #23 streams.rs registration. Age 4 wraps — stale-drift escalation activates next session per session-state-contract.md v2.1."
     first_observed_session_count: 23
-    last_observed_session_count: 26
+    last_observed_session_count: 27
+  - drift_id: D5
+    description: "obs-plan.md regenerated since last setup-project — manual edit (2026-05-08 Decisions Log entry: heartbeat ticks vs health command semantics cross-reference)"
+    severity: warning
+    remediation_hint: "/andromeda-setup-project (full re-derive) OR investigate edit source. User-authored manual edit; no /implement-driven amendment marker. Defer if /andromeda-phase chunk #28 is more time-sensitive."
+    first_observed_session_count: 27
+    last_observed_session_count: 27
+  - drift_id: D5
+    description: "security-plan.md regenerated since last setup-project — manual edit (2026-05-08 Decisions Log entry: reconcile self-observation references with obs Phase 3.5 pivot)"
+    severity: warning
+    remediation_hint: "/andromeda-setup-project (full re-derive) OR investigate edit source. User-authored manual edit; functionally equivalent to existing security posture (legacy opentelemetry-stdout vs tracing-subscriber JSON — no behavioral change)."
+    first_observed_session_count: 27
+    last_observed_session_count: 27
+  - drift_id: D5
+    description: "test-plan.md regenerated since last setup-project — manual edit (2026-05-08 Decisions Log entry: deprecate self-OTLP-loop negative test per obs §3 pivot)"
+    severity: warning
+    remediation_hint: "/andromeda-setup-project (full re-derive) OR investigate edit source. User-authored manual edit; trigger by-construction-satisfied (no exporter to misconfigure) — flagged for next /andromeda-tests re-run to mark DEPRECATED in §1 coverage triggers."
+    first_observed_session_count: 27
+    last_observed_session_count: 27
 
 spec_amendments:
   active: []
@@ -65,4 +83,4 @@ spec_amendments:
       propagated_by_run: .andromeda/runs/2026-05-04T20-42-30-setup-project/
       archived_at: 2026-05-04T21:43:31Z
 
-session_count: 26
+session_count: 27

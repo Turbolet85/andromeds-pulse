@@ -41,6 +41,7 @@ specta-typescript = "0.0.9"
 strict-path = "0.2"
 chrono = { version = "0.4", features = ["serde"] }
 clap = { version = "4", features = ["derive"] }
+toml = "0.8"
 
 # Ingest pipeline (route#16 — Epoch 2 opens). Pinning rationale:
 # - tonic 0.14 + prost 0.14: arch §Stack + §Established Decisions [Backend Framework — OTLP receiver].

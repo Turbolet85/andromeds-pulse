@@ -5,7 +5,7 @@ use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 
 #[cfg(feature = "taurpc-runtime")]
-use crate::contract::AppError;
+use crate::contract::{AppError, AppInfo, ReadyChecks, ReadyEnvelope, Settings};
 
 static APP_START: OnceLock<Instant> = OnceLock::new();
 static HEARTBEAT_STATE: OnceLock<Arc<HeartbeatState>> = OnceLock::new();
@@ -274,31 +274,221 @@ pub fn current_health() -> HealthEnvelope {
 #[cfg(feature = "taurpc-runtime")]
 mod runtime {
     use super::*;
+    use std::fs;
+    use std::path::PathBuf;
 
     // export_to: emission triggered when Router::into_handler() is called in
     // dev mode (`!cfg!(feature = "custom-protocol")`); a single merged TS file
-    // covering ALL routers (HealthApi + TracesApi + MetricsApi + LogsApi +
-    // StreamsApi) is written to this path. Path is relative to runtime cwd
-    // (`pulse-app/` for `cargo nextest -p pulse-app` and `cargo tauri dev`;
-    // bindings emit via the `emit_bindings` test below).
-    #[taurpc::procedures(path = "health", export_to = "ui/src/bindings/index.ts")]
-    pub trait HealthApi {
-        async fn check() -> Result<HealthEnvelope, AppError>;
+    // covering ALL routers (IntrospectionApi + TracesApi + MetricsApi +
+    // LogsApi + StreamsApi) is written to this path. Path is relative to
+    // runtime cwd (`pulse-app/` for `cargo nextest -p pulse-app` and
+    // `cargo tauri dev`).
+    //
+    // Top-level procedures (no `path = "..."`): `app_info`, `health`,
+    // `ready`, `get_settings`, `update_settings` — the cross-cutting envelope
+    // per arch §Conventions "Endpoint naming" + §Occupied Resources Tauri
+    // IPC routes.
+    #[taurpc::procedures(export_to = "ui/src/bindings/index.ts")]
+    pub trait IntrospectionApi {
+        async fn app_info() -> Result<AppInfo, AppError>;
+        async fn health() -> Result<HealthEnvelope, AppError>;
+        async fn ready() -> Result<ReadyEnvelope, AppError>;
+        async fn get_settings() -> Result<Settings, AppError>;
+        async fn update_settings(settings: Settings) -> Result<(), AppError>;
     }
 
+    // Settings persistence path: data_dir/config.toml per arch §Occupied
+    // Resources Filesystem locations. Resolution belongs to the binary
+    // (`pulse-app/src/main.rs::resolve_data_dir()`); ui-bridge receives the
+    // resolved path via constructor to avoid taking an env-resolution dep.
+    const CONFIG_FILE: &str = "config.toml";
+
     #[derive(Clone)]
-    pub struct HealthApiImpl;
+    pub struct IntrospectionApiImpl {
+        data_dir: PathBuf,
+        features: Vec<String>,
+        broadcast_senders: Option<std::sync::Arc<buffer::BroadcastSenders>>,
+    }
+
+    impl IntrospectionApiImpl {
+        pub fn new(
+            data_dir: PathBuf,
+            features: Vec<String>,
+            broadcast_senders: Option<std::sync::Arc<buffer::BroadcastSenders>>,
+        ) -> Self {
+            Self {
+                data_dir,
+                features,
+                broadcast_senders,
+            }
+        }
+
+        fn config_path(&self) -> PathBuf {
+            self.data_dir.join(CONFIG_FILE)
+        }
+
+        fn broadcast_subscribers_count(&self) -> u32 {
+            match &self.broadcast_senders {
+                Some(s) => {
+                    (s.spans.receiver_count()
+                        + s.metrics.receiver_count()
+                        + s.logs.receiver_count()) as u32
+                }
+                None => 0,
+            }
+        }
+    }
 
     #[taurpc::resolvers]
-    impl HealthApi for HealthApiImpl {
-        async fn check(self) -> Result<HealthEnvelope, AppError> {
+    impl IntrospectionApi for IntrospectionApiImpl {
+        async fn app_info(self) -> Result<AppInfo, AppError> {
+            tracing::info!(
+                target: "ui-bridge.app_info",
+                method_name = "app_info",
+                result_type = "AppInfo",
+                "introspection invoked",
+            );
+            Ok(AppInfo {
+                name: "andromeda-pulse".to_string(),
+                version: env!("CARGO_PKG_VERSION").to_string(),
+                rust_version: env!("CARGO_PKG_RUST_VERSION").to_string(),
+                // Keep in sync with workspace tauri dep version (Cargo.toml line 35).
+                tauri_version: "2.11".to_string(),
+                features: self.features.clone(),
+                build_profile: if cfg!(debug_assertions) {
+                    "debug".to_string()
+                } else {
+                    "release".to_string()
+                },
+            })
+        }
+
+        async fn health(self) -> Result<HealthEnvelope, AppError> {
+            tracing::info!(
+                target: "ui-bridge.health",
+                method_name = "health",
+                result_type = "HealthEnvelope",
+                "introspection invoked",
+            );
             Ok(current_health())
+        }
+
+        async fn ready(self) -> Result<ReadyEnvelope, AppError> {
+            tracing::info!(
+                target: "ui-bridge.ready",
+                method_name = "ready",
+                result_type = "ReadyEnvelope",
+                "introspection invoked",
+            );
+            let envelope = current_health();
+            // checks fields mirror obs-plan §3 heartbeat tick contract so passive
+            // ticks + active probe stay schema-identical. Buffer connection
+            // collapses to a sanitized one-liner string per arch §Standard
+            // Contracts ready envelope examples.
+            let duckdb_connection = match envelope.subsystems.buffer.status.as_str() {
+                "ok" => "ok".to_string(),
+                "init_failed" => "init_failed".to_string(),
+                "retention_failed" => "retention_failed".to_string(),
+                _ => "init_in_progress".to_string(),
+            };
+            let ingest_mpsc_capacity_pct = HEARTBEAT_STATE
+                .get()
+                .and_then(|s| s.ingest_channel_status())
+                .map(|s| match s {
+                    IngestChannelStatus::Ok { capacity_pct } => capacity_pct as u32,
+                    IngestChannelStatus::Saturated { capacity_pct } => capacity_pct as u32,
+                })
+                .unwrap_or(0);
+            let mcp_server_enabled = self.features.iter().any(|f| f == "mcp-server");
+            let checks = ReadyChecks {
+                duckdb_connection,
+                ingest_mpsc_capacity_pct,
+                broadcast_subscribers: self.broadcast_subscribers_count(),
+                // plugins_loaded stays 0 until plugins crate ships the real
+                // host-loaded count surface (Epoch 7).
+                plugins_loaded: 0,
+                mcp_server_enabled,
+            };
+            let ready =
+                matches!(envelope.status, HealthStatus::Ok) && checks.duckdb_connection == "ok";
+            Ok(ReadyEnvelope {
+                ready,
+                checked_at: envelope.checked_at,
+                checks,
+            })
+        }
+
+        async fn get_settings(self) -> Result<Settings, AppError> {
+            tracing::info!(
+                target: "ui-bridge.get_settings",
+                method_name = "get_settings",
+                result_type = "Settings",
+                "introspection invoked",
+            );
+            let path = self.config_path();
+            match fs::read_to_string(&path) {
+                Ok(content) => match toml::from_str::<Settings>(&content) {
+                    Ok(s) => Ok(s),
+                    Err(_) => Err(AppError::Storage {
+                        message: "settings file unparseable".to_string(),
+                    }),
+                },
+                Err(e) if e.kind() == std::io::ErrorKind::NotFound => Ok(Settings::default()),
+                Err(_) => Err(AppError::Storage {
+                    message: "settings read failed".to_string(),
+                }),
+            }
+        }
+
+        async fn update_settings(self, settings: Settings) -> Result<(), AppError> {
+            // Per obs-plan §8 default-deny + Vector 6 path sanitizer: only
+            // key names emit on the structured event, never values. Allowed
+            // keys are bounded by the Settings struct shape (no
+            // user-controllable arbitrary keys).
+            tracing::info!(
+                target: "ui-bridge.update_settings",
+                method_name = "update_settings",
+                result_type = "()",
+                setting_keys_changed = "theme,widget_position,retention_seconds,mcp_server_enabled,notifications_enabled",
+                "introspection invoked",
+            );
+            settings.validate()?;
+            let path = self.config_path();
+            let parent = path.parent().ok_or_else(|| AppError::Storage {
+                message: "settings path has no parent".to_string(),
+            })?;
+            if fs::create_dir_all(parent).is_err() {
+                return Err(AppError::Storage {
+                    message: "settings dir create failed".to_string(),
+                });
+            }
+            let serialized = match toml::to_string(&settings) {
+                Ok(s) => s,
+                Err(_) => {
+                    return Err(AppError::Storage {
+                        message: "settings serialize failed".to_string(),
+                    });
+                }
+            };
+            // Atomic write: tmp + rename to avoid partial-write windows.
+            let tmp = path.with_extension("toml.tmp");
+            if fs::write(&tmp, &serialized).is_err() {
+                return Err(AppError::Storage {
+                    message: "settings write failed".to_string(),
+                });
+            }
+            if fs::rename(&tmp, &path).is_err() {
+                return Err(AppError::Storage {
+                    message: "settings rename failed".to_string(),
+                });
+            }
+            Ok(())
         }
     }
 }
 
 #[cfg(feature = "taurpc-runtime")]
-pub use runtime::{HealthApi, HealthApiImpl};
+pub use runtime::{IntrospectionApi, IntrospectionApiImpl};
 
 #[cfg(test)]
 mod tests {
@@ -573,5 +763,168 @@ mod tests {
                 .unwrap_or("")
                 .contains("100")
         );
+    }
+}
+
+#[cfg(test)]
+#[cfg(feature = "taurpc-runtime")]
+mod introspection_tests {
+    use super::*;
+    use crate::contract::{Settings, Theme, WidgetPosition};
+    use std::path::PathBuf;
+
+    fn make_impl(data_dir: PathBuf, features: Vec<String>) -> IntrospectionApiImpl {
+        IntrospectionApiImpl::new(data_dir, features, None)
+    }
+
+    #[tokio::test]
+    async fn app_info_returns_andromeda_pulse_name_and_compile_time_versions() {
+        let dir = tempfile::tempdir().expect("tempdir");
+        let api = make_impl(dir.path().to_path_buf(), vec!["mcp-server".to_string()]);
+        let info = api.app_info().await.expect("app_info ok");
+        assert_eq!(info.name, "andromeda-pulse");
+        assert!(!info.version.is_empty());
+        assert!(!info.rust_version.is_empty());
+        assert!(!info.tauri_version.is_empty());
+        assert!(
+            info.features.iter().any(|f| f == "mcp-server"),
+            "features should contain mcp-server when constructor passes it"
+        );
+    }
+
+    #[tokio::test]
+    async fn health_returns_envelope_with_six_subsystems() {
+        let dir = tempfile::tempdir().expect("tempdir");
+        let api = make_impl(dir.path().to_path_buf(), vec![]);
+        let env = api.health().await.expect("health ok");
+        let v = serde_json::to_value(&env).expect("serializes");
+        assert!(v["status"].is_string());
+        assert!(v["checked_at"].is_string());
+        for subsystem in [
+            "otlp_grpc_receiver",
+            "otlp_http_receiver",
+            "buffer",
+            "ingest_channel",
+            "viz",
+            "plugins",
+        ] {
+            assert!(
+                v["subsystems"][subsystem].is_object(),
+                "health envelope missing subsystem {subsystem}"
+            );
+        }
+    }
+
+    #[tokio::test]
+    async fn ready_returns_envelope_with_required_check_keys() {
+        let dir = tempfile::tempdir().expect("tempdir");
+        let api = make_impl(dir.path().to_path_buf(), vec![]);
+        let env = api.ready().await.expect("ready ok");
+        let v = serde_json::to_value(&env).expect("serializes");
+        assert!(v["ready"].is_boolean());
+        assert!(v["checked_at"].is_string());
+        for key in [
+            "duckdb_connection",
+            "ingest_mpsc_capacity_pct",
+            "broadcast_subscribers",
+            "plugins_loaded",
+            "mcp_server_enabled",
+        ] {
+            assert!(
+                v["checks"].get(key).is_some(),
+                "ready envelope checks missing key {key}"
+            );
+        }
+    }
+
+    #[tokio::test]
+    async fn ready_reports_mcp_server_enabled_from_features() {
+        let dir = tempfile::tempdir().expect("tempdir");
+        let api = make_impl(dir.path().to_path_buf(), vec!["mcp-server".to_string()]);
+        let env = api.ready().await.expect("ready ok");
+        assert!(env.checks.mcp_server_enabled);
+    }
+
+    #[tokio::test]
+    async fn get_settings_returns_default_when_config_file_missing() {
+        let dir = tempfile::tempdir().expect("tempdir");
+        let api = make_impl(dir.path().to_path_buf(), vec![]);
+        let s = api.get_settings().await.expect("get_settings ok");
+        assert_eq!(s, Settings::default());
+    }
+
+    #[tokio::test]
+    async fn update_settings_persists_to_config_toml_and_get_returns_round_trip() {
+        let dir = tempfile::tempdir().expect("tempdir");
+        let new_settings = Settings {
+            theme: Theme::Light,
+            widget_position: WidgetPosition::BottomLeft,
+            retention_seconds: 300,
+            mcp_server_enabled: true,
+            notifications_enabled: false,
+        };
+
+        let api1 = make_impl(dir.path().to_path_buf(), vec![]);
+        api1.update_settings(new_settings.clone())
+            .await
+            .expect("update_settings ok");
+
+        // Confirm config.toml exists at expected path under data_dir.
+        assert!(dir.path().join("config.toml").exists());
+
+        let api2 = make_impl(dir.path().to_path_buf(), vec![]);
+        let read = api2.get_settings().await.expect("get_settings ok");
+        assert_eq!(read, new_settings);
+    }
+
+    #[tokio::test]
+    async fn update_settings_rejects_below_min_retention_with_validation_error() {
+        let dir = tempfile::tempdir().expect("tempdir");
+        let api = make_impl(dir.path().to_path_buf(), vec![]);
+        let bad = Settings {
+            retention_seconds: 30,
+            ..Settings::default()
+        };
+        let result = api.update_settings(bad).await;
+        match result {
+            Err(crate::contract::AppError::Validation { field, .. }) => {
+                assert_eq!(field, "retention_seconds");
+            }
+            other => panic!("expected Validation error, got {other:?}"),
+        }
+    }
+
+    #[tokio::test]
+    async fn update_settings_rejects_above_max_retention() {
+        let dir = tempfile::tempdir().expect("tempdir");
+        let api = make_impl(dir.path().to_path_buf(), vec![]);
+        let bad = Settings {
+            retention_seconds: 1_000_000,
+            ..Settings::default()
+        };
+        let result = api.update_settings(bad).await;
+        assert!(matches!(
+            result,
+            Err(crate::contract::AppError::Validation { .. })
+        ));
+    }
+
+    #[tokio::test]
+    async fn get_settings_returns_storage_error_when_config_unparseable() {
+        let dir = tempfile::tempdir().expect("tempdir");
+        std::fs::write(
+            dir.path().join("config.toml"),
+            "this is = not valid toml }}}}}",
+        )
+        .expect("write garbage");
+        let api = make_impl(dir.path().to_path_buf(), vec![]);
+        let result = api.get_settings().await;
+        match result {
+            Err(crate::contract::AppError::Storage { message }) => {
+                assert!(message.contains("settings"));
+                assert!(!message.contains('/'), "no path leak in error message");
+            }
+            other => panic!("expected Storage error, got {other:?}"),
+        }
     }
 }

@@ -8,6 +8,36 @@ _This file is entirely wrap-session's territory. `/setup-project` creates it if 
 
 ---
 
+## 2026-05-08 — taurpc 0.7 emits no-path procedures under empty-string router key in bindings.ts
+
+When `#[taurpc::procedures]` is declared WITHOUT a `path = "..."` attribute (top-level procedures per arch §Conventions "Endpoint naming" cross-cutting envelope), taurpc 0.7 emits the procedures into bindings.ts with an empty-string router key. Concretely, for the chunk #27 `IntrospectionApi { app_info, health, ready, get_settings, update_settings }` (no path attribute), the emitted ARGS_MAP line is:
+
+```
+const ARGS_MAP = { '':'{"app_info":[],"get_settings":[],"health":[],"ready":[],"update_settings":["settings"]}', ... }
+```
+
+And the Router type:
+
+```typescript
+export type Router = { "": {app_info: () => Promise<AppInfo>, ... }, "logs": { ... }, ... }
+```
+
+This contrasts with `#[taurpc::procedures(path = "X")]` which emits `'X':'{"method":[...]}` (router key is the path string). Both forms coexist in the same merged ARGS_MAP — the bindings.ts shows the union of all routers' methods including any top-level (`''` key) methods.
+
+Consequences for downstream consumers:
+
+1. **xtask capability-drift parser** (chunk #27 `xtask::parse_bindings`): the parser must handle empty-string router keys. When the outer key is `''`, methods are stored as bare `method_name` (top-level); when non-empty, as `router.method` (dotted). The parser at `xtask/src/main.rs::parse_bindings` walks the JS-style object literal byte-by-byte (single-quoted outer delimiters, double-quoted inner JSON) and treats empty router-key strings as the top-level case via `if router.is_empty() { discovered.insert(method_name.clone()) } else { discovered.insert(format!("{router}.{method_name}")) }`.
+
+2. **TS consumers** (e.g., `pulse-app/ui/src/bindings/bindings.test.ts`): top-level procedures are accessed as `Router[""]["health"]()`, NOT `Router["health"]()`. The Router type has 5 keys for chunk #27's wired routers: `'' | 'logs' | 'metrics' | 'streams' | 'traces'`. Type assertions like `keyof Router = ""|"logs"|...` need to include the empty string as a valid key.
+
+3. **Drift-check expected list**: the `EXPECTED_PROCEDURES` constant in xtask treats top-level procedures as bare names (e.g., `"app_info"`) and namespaced procedures as dotted (e.g., `"traces.query"`). This matches the parser's flattened output.
+
+Discovered chunk #27: the IntrospectionApi was implemented with no `path` attribute (rejecting the chunk #25 precedent of `path = "health"` with `check()` method) to conform to arch §Standard Contracts which lists `app_info`/`health`/`ready`/`get_settings`/`update_settings` as top-level cross-cutting envelope procedures. Verified via `emit_taurpc_bindings` test regenerating bindings.ts. The empty-string router key is a stable taurpc 0.7 emission contract — future top-level procedure additions can rely on this shape; future drift-check parser changes should keep the empty-router-as-top-level handling.
+
+See: `crates/ui-bridge/src/health.rs::runtime` mod (chunk #27 `IntrospectionApi` declaration without `path`), `xtask/src/main.rs::parse_bindings + capability_drift_tests::parse_bindings_handles_top_level_procedures_via_empty_router`, `pulse-app/ui/src/bindings/index.ts` ARGS_MAP line (canonical artifact), `pulse-app/ui/src/bindings/bindings.test.ts` "Router top-level (empty key)" test. Complements the 2026-05-07 entry below ("taurpc 0.7 binding emission is RUNTIME in dev mode") which covers the WHEN of emission; this entry covers the SHAPE of emission for the no-path case.
+
+---
+
 ## 2026-05-07 — taurpc 0.7 binding emission is RUNTIME in dev mode, requires tokio runtime + proper cwd
 
 The `#[taurpc::procedures(export_to = "...")]` macro arg does NOT cause emission at build time. Emission triggers when `Router::into_handler()` is called per `taurpc-0.7.1/src/lib.rs`:

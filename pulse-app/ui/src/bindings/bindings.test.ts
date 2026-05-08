@@ -1,28 +1,46 @@
 import { describe, expect, it } from "vitest";
 import type {
   AppError,
+  AppInfo,
   HealthEnvelope,
   HealthStatus,
   LogsQueryArgs,
   MetricsQueryArgs,
   PaginatedResponse,
+  ReadyChecks,
+  ReadyEnvelope,
   Router,
+  Settings,
+  Theme,
   TraceRow,
   TracesQueryArgs,
+  WidgetPosition,
 } from "./index";
 import { createTauRPCProxy } from "./index";
 
-describe("TauRPC bindings (chunk #25)", () => {
-  it("exports Router type with all 5 routers", () => {
+describe("TauRPC bindings (chunk #25 + #27)", () => {
+  it("exports Router type with 5 routers (top-level introspection + per-crate)", () => {
     type RouterKeys = keyof Router;
     const expected: RouterKeys[] = [
-      "health",
+      "",
       "logs",
       "metrics",
       "streams",
       "traces",
     ];
     expect(expected.length).toBe(5);
+  });
+
+  it("Router top-level (empty key) carries the chunk #27 introspection envelope", () => {
+    type TopLevel = keyof Router[""];
+    const procedures: TopLevel[] = [
+      "app_info",
+      "get_settings",
+      "health",
+      "ready",
+      "update_settings",
+    ];
+    expect(procedures.length).toBe(5);
   });
 
   it("HealthEnvelope shape matches arch §Standard Contracts", () => {
@@ -82,5 +100,67 @@ describe("TauRPC bindings (chunk #25)", () => {
 
   it("createTauRPCProxy is exported and callable to build the typed proxy", () => {
     expect(typeof createTauRPCProxy).toBe("function");
+  });
+
+  it("AppInfo carries name + version + build profile per arch §Standard Contracts", () => {
+    const info: AppInfo = {
+      name: "andromeda-pulse",
+      version: "0.1.0",
+      rust_version: "1.85",
+      tauri_version: "2.11",
+      features: ["mcp-server"],
+      build_profile: "release",
+    };
+    expect(info.name).toBe("andromeda-pulse");
+    expect(info.features).toContain("mcp-server");
+  });
+
+  it("Theme is a literal union of dark | light | auto", () => {
+    const dark: Theme = "dark";
+    const light: Theme = "light";
+    const auto: Theme = "auto";
+    expect([dark, light, auto]).toEqual(["dark", "light", "auto"]);
+  });
+
+  it("WidgetPosition is a literal union of the 4 snap-to-edge corners", () => {
+    const tl: WidgetPosition = "top-left";
+    const tr: WidgetPosition = "top-right";
+    const bl: WidgetPosition = "bottom-left";
+    const br: WidgetPosition = "bottom-right";
+    expect([tl, tr, bl, br]).toEqual([
+      "top-left",
+      "top-right",
+      "bottom-left",
+      "bottom-right",
+    ]);
+  });
+
+  it("Settings exposes all chunk #27 minimum-viable fields with default-aware optionality", () => {
+    const partial: Settings = { theme: "light" };
+    expect(partial.theme).toBe("light");
+    const full: Settings = {
+      theme: "dark",
+      widget_position: "top-right",
+      retention_seconds: 600,
+      mcp_server_enabled: false,
+      notifications_enabled: true,
+    };
+    expect(full.retention_seconds).toBe(600);
+  });
+
+  it("ReadyEnvelope checks mirror obs-plan §3 heartbeat tick contract", () => {
+    const ready: ReadyEnvelope = {
+      ready: true,
+      checked_at: "2026-05-08T04:00:00.000Z",
+      checks: {
+        duckdb_connection: "ok",
+        ingest_mpsc_capacity_pct: 5,
+        broadcast_subscribers: 2,
+        plugins_loaded: 0,
+        mcp_server_enabled: false,
+      },
+    };
+    const checks: ReadyChecks = ready.checks;
+    expect(checks.broadcast_subscribers).toBe(2);
   });
 });

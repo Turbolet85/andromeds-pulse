@@ -67,6 +67,9 @@ jobs:
       - name: cargo xtask test (no-tests=pass at Foundation epoch)
         run: cargo xtask test
 
+      - name: cargo xtask capability-drift (TauRPC procedures vs arch §Occupied Resources)
+        run: cargo xtask capability-drift
+
       - name: cargo build --workspace --release
         run: cargo build --workspace --release
 
@@ -109,6 +112,15 @@ jobs:
         with:
           name: criterion-${{ runner.os }}
           path: target/criterion/
+          if-no-files-found: ignore
+          retention-days: 14
+
+      - name: Upload capability-drift report
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: capability-drift-${{ runner.os }}
+          path: target/capability-drift/report.json
           if-no-files-found: ignore
           retention-days: 14
 
