@@ -12,9 +12,10 @@ export function createFrameLoop(options: FrameLoopOptions): FrameLoopHandle {
 
   const tick = (timestamp: DOMHighResTimeStamp): void => {
     options.onFrame(timestamp);
-    // TODO(chunk #25): replace with TauRPC telemetry.frontend.record_frame_ms
+    // TODO(chunk #29): replace with TauRPC telemetry.frontend.record_frame_ms
     // call once the backend handler signature is defined per obs-plan §12
-    // Open questions; chunk #15 ships the wiring substrate only.
+    // Open questions; chunk #15 ships the wiring substrate only, chunk #28
+    // wires the canvas substrate, chunk #29 lands the per-frame metric resolver.
     rafId = requestAnimationFrame(tick);
   };
 

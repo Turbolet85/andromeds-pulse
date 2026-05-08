@@ -668,6 +668,18 @@ impl AllowList {
             "app.boot.gpu.check",
             ["gpu_available", "wgpu_backend"].iter().copied().collect(),
         );
+        by_target.insert(
+            "metric.webgpu.frame_duration_ms",
+            [
+                "duration_ms",
+                "wgpu_backend",
+                "webview_backend",
+                "timing_method",
+            ]
+            .iter()
+            .copied()
+            .collect(),
+        );
         by_target.insert("app.boot.tray.init", ["tray_api"].iter().copied().collect());
         by_target.insert(
             "app.boot.window.show",
@@ -1509,6 +1521,29 @@ mod tests {
             assert!(
                 drift.contains(required),
                 "xtask.capability_drift must permit `{required}`"
+            );
+        }
+    }
+
+    #[test]
+    fn allowlist_for_target_resolves_metric_webgpu_frame_duration_ms() {
+        // chunk #28: WebGPU canvas substrate emits per-frame timing via
+        // TauRPC telemetry.frontend.record_frame_ms (resolver lands chunk #29);
+        // the metric event itself rides at target "metric.webgpu.frame_duration_ms"
+        // with bounded enum labels per obs-plan §5 cardinality discipline.
+        let al = AllowList::production();
+        let frame = al
+            .for_target("metric.webgpu.frame_duration_ms")
+            .expect("metric.webgpu.frame_duration_ms entry");
+        for required in [
+            "duration_ms",
+            "wgpu_backend",
+            "webview_backend",
+            "timing_method",
+        ] {
+            assert!(
+                frame.contains(required),
+                "metric.webgpu.frame_duration_ms must permit `{required}`"
             );
         }
     }

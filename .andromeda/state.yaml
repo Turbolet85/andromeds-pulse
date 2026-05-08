@@ -1,196 +1,44 @@
 schema_version: 2
-last_wrap: 2026-05-08T17:30:00Z
-last_reconcile: 2026-05-08T17:30:00Z
+last_wrap: 2026-05-08T20:15:15Z
+last_reconcile: 2026-05-08T20:15:15Z
 
 last_completed_chunk:
-  route_index: 27
-  title: "IPC introspection + capability-drift check — app_info/health/ready/get_settings/update_settings + xtask diff procedures vs capabilities/ JSON"
-  epoch: 4
-  committed_at: 2026-05-08T17:30:00Z
-  commit_sha: ac4d827
-  commit_subject: "feat(ui-bridge,xtask): IPC introspection envelope + xtask capability-drift gate — top-level IntrospectionApi (app_info/health/ready/get_settings/update_settings) + xtask drift check surfacing D3 streams.* (chunk #27); session 27 closes Epoch 4"
+  route_index: 28
+  title: "WebGPU canvas + WGSL render pipeline — navigator.gpu adapter, render shaders for trace timeline / flamegraph / metrics charts, fallback message"
+  epoch: 5
+  committed_at: 2026-05-08T20:15:15Z
+  commit_sha: 842e045
+  commit_subject: "feat(webgpu): WebGPU canvas + WGSL render pipeline — navigator.gpu adapter detection (graceful-degrade fallback) + 3 shader factories aligned to viz routers (traces/metrics/logs) + semantic <region> wrapper + reduced-motion gate (chunk #28); session 28 opens Epoch 5"
 
 in_progress: null
 
 plan_freshness:
   arch_mtime: 2026-05-02T06:52:58Z
-  security_mtime: 2026-05-08T16:47:20Z
+  security_mtime: 2026-05-08T18:00:11Z
   design_mtime: 2026-05-03T21:52:16Z
   layout_mtime: 2026-05-02T15:53:22Z
-  tests_mtime: 2026-05-08T16:47:59Z
-  obs_mtime: 2026-05-08T16:47:26Z
+  tests_mtime: 2026-05-08T18:00:27Z
+  obs_mtime: 2026-05-08T18:00:16Z
   a11y_mtime: 2026-05-02T21:45:23Z
   route_mtime: 2026-05-03T09:23:34Z
   input_mtime: 2026-05-02T06:52:58Z
 
 living_artifact_freshness:
-  dep_tree_reconciled_at: 2026-05-08T17:30:00Z
-  api_surface_reconciled_at: 2026-05-08T17:30:00Z
-  most_recent_code_mtime: 2026-05-08T17:30:00Z
+  dep_tree_reconciled_at: 2026-05-08T20:15:15Z
+  api_surface_reconciled_at: 2026-05-08T20:15:15Z
+  most_recent_code_mtime: 2026-05-08T20:15:15Z
   reconcile_failed: false
 
 drift_warnings:
   - drift_id: D3
     description: "chunk #23 introduced `streams.{subscribe_spans, subscribe_metrics, subscribe_logs}` TauRPC procedures via pulse-app/src/streams.rs, but arch §Occupied Resources Tauri IPC routes list does NOT include `streams.*` namespace"
     severity: warning
-    remediation_hint: "Now mechanically detected by chunk #27 xtask capability-drift (returns exit 1 with 3 extras). Resolution: either /andromeda-scope-arch to legitimize streams.* in arch §Occupied Resources, OR revert chunk #23 streams.rs registration. Age 4 wraps — stale-drift escalation activates next session per session-state-contract.md v2.1."
+    remediation_hint: "Now mechanically detected by chunk #27 xtask capability-drift (returns exit 1 with 3 extras). Resolution: either /andromeda-scope-arch to legitimize streams.* in arch §Occupied Resources, OR revert chunk #23 streams.rs registration. STALE-DRIFT (age 5 wraps) — strongly recommend resolving this session per session-state-contract.md v2.1."
     first_observed_session_count: 23
-    last_observed_session_count: 27
-  - drift_id: D5
-    description: "obs-plan.md regenerated since last setup-project — manual edit (2026-05-08 Decisions Log entry: heartbeat ticks vs health command semantics cross-reference)"
-    severity: warning
-    remediation_hint: "/andromeda-setup-project (full re-derive) OR investigate edit source. User-authored manual edit; no /implement-driven amendment marker. Defer if /andromeda-phase chunk #28 is more time-sensitive."
-    first_observed_session_count: 27
-    last_observed_session_count: 27
-  - drift_id: D5
-    description: "security-plan.md regenerated since last setup-project — manual edit (2026-05-08 Decisions Log entry: reconcile self-observation references with obs Phase 3.5 pivot)"
-    severity: warning
-    remediation_hint: "/andromeda-setup-project (full re-derive) OR investigate edit source. User-authored manual edit; functionally equivalent to existing security posture (legacy opentelemetry-stdout vs tracing-subscriber JSON — no behavioral change)."
-    first_observed_session_count: 27
-    last_observed_session_count: 27
-  - drift_id: D5
-    description: "test-plan.md regenerated since last setup-project — manual edit (2026-05-08 Decisions Log entry: deprecate self-OTLP-loop negative test per obs §3 pivot)"
-    severity: warning
-    remediation_hint: "/andromeda-setup-project (full re-derive) OR investigate edit source. User-authored manual edit; trigger by-construction-satisfied (no exporter to misconfigure) — flagged for next /andromeda-tests re-run to mark DEPRECATED in §1 coverage triggers."
-    first_observed_session_count: 27
-    last_observed_session_count: 27
+    last_observed_session_count: 28
 
 spec_amendments:
-  active:
-    - amendment_id: 2026-05-08T17-28-25Z-reconcile-otel-stdout-references
-      plans:
-        - path: security-plan.md
-          sections:
-            - Security Decisions Log
-          decisions_log_section: "2026-05-08 — Reconcile self-observation references with obs Phase 3.5 pivot"
-      trigger:
-        chunk: 27
-        phase: null
-        harness: "session 27 cross-plan rot reconciliation (out-of-band manual edit; not a chunk harness)"
-      authority:
-        winning_plan: obs-plan.md
-        winning_tier: Standard
-        losing_plan: security-plan.md
-        losing_concern: legacy-otel-stdout-references
-        rationale: "obs-plan.md 2026-05-02 Phase 3.5 pivot dropped OTel SDK from self-runtime; security-plan.md §Data Protection / §Bootstrap phases legacy `opentelemetry-stdout` references are obsolete-but-equivalent (functionally identical JSON-per-line output at same path)"
-      impl_files_synced: []
-      expected_propagation:
-        - .claude/docs/security-summary.md
-        - .claude/rules/observability.md
-      marker_path: .andromeda/runs/2026-05-08T17-28-25-spec-amendment-reconcile-otel-stdout-references/amendment.md
-      applied_at: 2026-05-08T17:28:25Z
-      noted_at: null
-      propagated_by_run: .andromeda/runs/2026-05-08T18-43-08-setup-project-delta/
-      archived_at: null
-      verification_status: clean
-
-    - amendment_id: 2026-05-08T17-28-26Z-deprecate-self-otlp-loop-test
-      plans:
-        - path: test-plan.md
-          sections:
-            - Test Decisions Log
-          decisions_log_section: "2026-05-08 — Deprecate self-OTLP-loop negative test (Section 1 coverage triggers + P5 critical path)"
-      trigger:
-        chunk: 27
-        phase: null
-        harness: "session 27 cross-plan rot reconciliation (out-of-band manual edit; not a chunk harness)"
-      authority:
-        winning_plan: obs-plan.md
-        winning_tier: Standard
-        losing_plan: test-plan.md
-        losing_concern: unimplementable-negative-test
-        rationale: "obs-plan.md 2026-05-02 Phase 3.5 pivot eliminated outbound OTel exporter; test-plan §1 trigger `security-vector-coverage: No self-OTLP dialing` describes a configuration surface that does not exist; trigger is by-construction-satisfied"
-      impl_files_synced: []
-      expected_propagation:
-        - .claude/docs/tests-summary.md
-      marker_path: .andromeda/runs/2026-05-08T17-28-26-spec-amendment-deprecate-self-otlp-loop-test/amendment.md
-      applied_at: 2026-05-08T17:28:25Z
-      noted_at: null
-      propagated_by_run: .andromeda/runs/2026-05-08T18-43-08-setup-project-delta/
-      archived_at: null
-      verification_status: clean
-
-    - amendment_id: 2026-05-08T17-28-27Z-document-pii-vector-test-gaps
-      plans:
-        - path: test-plan.md
-          sections:
-            - Test Decisions Log
-          decisions_log_section: "2026-05-08 — Document missing PII vector test coverage (security plan vectors 2/3/4/6)"
-      trigger:
-        chunk: 27
-        phase: null
-        harness: "session 27 cross-plan rot reconciliation (Pattern 2 — security ban without test trigger)"
-      authority:
-        winning_plan: security-plan.md
-        winning_tier: Minimal
-        losing_plan: test-plan.md
-        losing_concern: missing-test-coverage
-        rationale: "security-plan.md §Logging Anti-Patterns vectors 2 (AppError sanitization), 3 (plugin path basename), 4 (MCP response body redaction), 6 (path env var canonicalization) are explicit NEVER-LOG bans; test-plan §1 currently only covers vector 5 (DuckDB SQL injection) — 4 missing triggers documented for /andromeda-tests re-run"
-      impl_files_synced: []
-      expected_propagation:
-        - .claude/docs/tests-summary.md
-        - .claude/rules/testing.md
-      marker_path: .andromeda/runs/2026-05-08T17-28-27-spec-amendment-document-pii-vector-test-gaps/amendment.md
-      applied_at: 2026-05-08T17:28:25Z
-      noted_at: null
-      propagated_by_run: .andromeda/runs/2026-05-08T18-43-08-setup-project-delta/
-      archived_at: null
-      verification_status: clean
-
-    - amendment_id: 2026-05-08T17-28-28Z-cross-ref-heartbeat-vs-health
-      plans:
-        - path: obs-plan.md
-          sections:
-            - 12. Obs Decisions Log
-          decisions_log_section: "2026-05-08 — Cross-reference heartbeat ticks vs health command semantics"
-      trigger:
-        chunk: 27
-        phase: null
-        harness: "session 27 cross-plan rot reconciliation (vocabulary drift between obs §3 ticks and tests §3 health-poll)"
-      authority:
-        winning_plan: obs-plan.md
-        winning_tier: Standard
-        losing_plan: vocabulary-ambiguity
-        losing_concern: tick-vs-health-conflation-risk
-        rationale: "Heartbeat ticks (asynchronous emission, 15s interval, stall >45s for retroactive analysis) and TauRPC `health` command (synchronous TauRPC procedure for active liveness probing) are complementary — not redundant. Both must remain; implementations should NOT replace tick emission with health-only state."
-      impl_files_synced: []
-      expected_propagation:
-        - .claude/docs/obs-summary.md
-        - .claude/rules/observability.md
-      marker_path: .andromeda/runs/2026-05-08T17-28-28-spec-amendment-cross-ref-heartbeat-vs-health/amendment.md
-      applied_at: 2026-05-08T17:28:25Z
-      noted_at: null
-      propagated_by_run: .andromeda/runs/2026-05-08T18-43-08-setup-project-delta/
-      archived_at: null
-      verification_status: clean
-
-    - amendment_id: 2026-05-08T17-28-29Z-document-capability-widening-test-gap
-      plans:
-        - path: test-plan.md
-          sections:
-            - Test Decisions Log
-          decisions_log_section: "2026-05-08 — Document missing capability-widening static analysis tests"
-      trigger:
-        chunk: 27
-        phase: null
-        harness: "session 27 cross-plan rot reconciliation (security ban without test trigger; static analysis category)"
-      authority:
-        winning_plan: security-plan.md
-        winning_tier: Minimal
-        losing_plan: test-plan.md
-        losing_concern: missing-static-analysis-trigger
-        rationale: "security-plan.md §API Anti-Patterns 3 NEVER-widen bans (`pulse:notification`, `pulse:tray`, `pulse:plugin-fs`) require static analysis on capability JSON; runtime IPC rejection (chunk #27 xtask capability-drift) is insufficient because by the time IPC rejection fires, the widening has already been deployed"
-      impl_files_synced: []
-      expected_propagation:
-        - .claude/docs/tests-summary.md
-        - .claude/rules/security.md
-      marker_path: .andromeda/runs/2026-05-08T17-28-29-spec-amendment-document-capability-widening-test-gap/amendment.md
-      applied_at: 2026-05-08T17:28:25Z
-      noted_at: null
-      propagated_by_run: .andromeda/runs/2026-05-08T18-43-08-setup-project-delta/
-      archived_at: null
-      verification_status: clean
-
+  active: []
   archive:
     - amendment_id: 2026-05-03T21-30-00Z-lift-accent
       plans:
@@ -216,5 +64,50 @@ spec_amendments:
         - "2026-05-04 — Clarify PII grep heuristic UI-vocabulary exemption"
       propagated_by_run: .andromeda/runs/2026-05-04T20-42-30-setup-project/
       archived_at: 2026-05-04T21:43:31Z
+    - amendment_id: 2026-05-08T17-28-25Z-reconcile-otel-stdout-references
+      plans:
+        - path: security-plan.md
+          sections:
+            - Security Decisions Log
+      decisions_log_sections:
+        - "2026-05-08 — Reconcile self-observation references with obs Phase 3.5 pivot"
+      propagated_by_run: .andromeda/runs/2026-05-08T18-43-08-setup-project-delta/
+      archived_at: 2026-05-08T20:15:15Z
+    - amendment_id: 2026-05-08T17-28-26Z-deprecate-self-otlp-loop-test
+      plans:
+        - path: test-plan.md
+          sections:
+            - Test Decisions Log
+      decisions_log_sections:
+        - "2026-05-08 — Deprecate self-OTLP-loop negative test (Section 1 coverage triggers + P5 critical path)"
+      propagated_by_run: .andromeda/runs/2026-05-08T18-43-08-setup-project-delta/
+      archived_at: 2026-05-08T20:15:15Z
+    - amendment_id: 2026-05-08T17-28-27Z-document-pii-vector-test-gaps
+      plans:
+        - path: test-plan.md
+          sections:
+            - Test Decisions Log
+      decisions_log_sections:
+        - "2026-05-08 — Document missing PII vector test coverage (security plan vectors 2/3/4/6)"
+      propagated_by_run: .andromeda/runs/2026-05-08T18-43-08-setup-project-delta/
+      archived_at: 2026-05-08T20:15:15Z
+    - amendment_id: 2026-05-08T17-28-28Z-cross-ref-heartbeat-vs-health
+      plans:
+        - path: obs-plan.md
+          sections:
+            - 12. Obs Decisions Log
+      decisions_log_sections:
+        - "2026-05-08 — Cross-reference heartbeat ticks vs health command semantics"
+      propagated_by_run: .andromeda/runs/2026-05-08T18-43-08-setup-project-delta/
+      archived_at: 2026-05-08T20:15:15Z
+    - amendment_id: 2026-05-08T17-28-29Z-document-capability-widening-test-gap
+      plans:
+        - path: test-plan.md
+          sections:
+            - Test Decisions Log
+      decisions_log_sections:
+        - "2026-05-08 — Document missing capability-widening static analysis tests"
+      propagated_by_run: .andromeda/runs/2026-05-08T18-43-08-setup-project-delta/
+      archived_at: 2026-05-08T20:15:15Z
 
-session_count: 27
+session_count: 28

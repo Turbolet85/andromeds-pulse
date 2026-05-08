@@ -14,6 +14,12 @@ vi.mock("./hooks/use-window-controls", () => ({
   }),
 }));
 
+// Stub the canvas substrate — App shell tests assert layout landmarks; the
+// WebGPU adapter resolution is exercised in canvas/CanvasContainer.test.tsx.
+vi.mock("./canvas/CanvasContainer", () => ({
+  CanvasContainer: () => <section role="region" aria-label="Telemetry visualization canvas" />,
+}));
+
 describe("App — shell composition", () => {
   it("renders both <header> (titlebar) and <main> landmarks", () => {
     render(<App />);

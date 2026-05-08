@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { CanvasContainer } from "./canvas/CanvasContainer";
 import { Titlebar } from "./components/Titlebar";
 
 // Desktop-webview shell composition (chunk #24). Top-level layout: custom
@@ -26,7 +27,7 @@ export function App() {
           minHeight: "calc(100vh - 32px)",
         }}
       >
-        {/* Canvas + downstream surfaces land in chunks #28+ */}
+        <CanvasContainer ariaLabel="Telemetry visualization canvas" />
       </main>
       <div
         role="status"
