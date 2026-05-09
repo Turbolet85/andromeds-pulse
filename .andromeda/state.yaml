@@ -38,7 +38,68 @@ drift_warnings:
     last_observed_session_count: 28
 
 spec_amendments:
-  active: []
+  active:
+    - amendment_id: 2026-05-08T21-00-00-obs-pivot-security-bodies
+      plans:
+        - path: security-plan.md
+          sections:
+            - Data Protection
+            - Bootstrap phases
+            - Logging & Monitoring
+            - Security Decisions Log
+          decisions_log_section: "2026-05-08 — Annotate body deprecation: §Data Protection / §Bootstrap / §Logging opentelemetry-stdout refs"
+      trigger:
+        chunk: null
+        phase: null
+        harness: "user-driven via /andromeda-evolve"
+      authority:
+        winning_plan: security-plan.md
+        winning_tier: null
+        losing_plan: null
+        losing_concern: deprecated-body-content-needing-visibility-annotation
+        rationale: "Type 5 deprecation flag (Path 1 uniform scope). Adds `> **DEPRECATED**` annotations at §Data Protection (line 154), §Bootstrap phases (line 239), §Logging & Monitoring (line 330). Body preserved for audit trail. Extends prior 2026-05-08T17-28-25Z reconcile amendment (DL only). Body rewrite reserved for /andromeda-security re-run."
+      impl_files_synced: []
+      expected_propagation:
+        - .claude/rules/security.md
+        - .claude/rules/observability.md
+        - .claude/docs/security-summary.md
+        - .claude/docs/obs-summary.md
+        - CLAUDE.md GENERATED:setup:warnings
+      marker_path: .andromeda/runs/2026-05-08T21-00-00-spec-amendment-obs-pivot-security-bodies/amendment.md
+      applied_at: 2026-05-08T21:00:00Z
+      noted_at: null
+      propagated_by_run: .andromeda/runs/2026-05-09T01-00-00-setup-project-delta/
+      archived_at: null
+      verification_status: clean
+
+    - amendment_id: 2026-05-08T21-00-00-obs-pivot-test-bodies
+      plans:
+        - path: test-plan.md
+          sections:
+            - 1. Test Scope Summary
+            - Test Anti-Patterns (Project-specific)
+            - 12. Test Decisions Log
+          decisions_log_section: "2026-05-08 — Annotate body deprecation: §1 self-observation loop prevention triggers + §Anti-Patterns OTLP self-dialing row"
+      trigger:
+        chunk: null
+        phase: null
+        harness: "user-driven via /andromeda-evolve"
+      authority:
+        winning_plan: test-plan.md
+        winning_tier: null
+        losing_plan: null
+        losing_concern: deprecated-body-content-needing-visibility-annotation
+        rationale: "Type 5 deprecation flag (Path 1 uniform scope). Adds `**[DEPRECATED]**` table-row prefixes at §1 trigger rows (lines 48, 255) + `> **DEPRECATED**` blockquote inside §Anti-Patterns bullet (line 866). Body preserved for audit trail. Extends prior 2026-05-08T17-28-26Z deprecate-self-otlp-loop-test amendment (DL only)."
+      impl_files_synced: []
+      expected_propagation:
+        - .claude/rules/testing.md
+        - .claude/docs/tests-summary.md
+      marker_path: .andromeda/runs/2026-05-08T21-00-00-spec-amendment-obs-pivot-test-bodies/amendment.md
+      applied_at: 2026-05-08T21:00:00Z
+      noted_at: null
+      propagated_by_run: .andromeda/runs/2026-05-09T01-00-00-setup-project-delta/
+      archived_at: null
+      verification_status: clean
   archive:
     - amendment_id: 2026-05-03T21-30-00Z-lift-accent
       plans:

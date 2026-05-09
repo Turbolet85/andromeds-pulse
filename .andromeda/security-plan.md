@@ -151,7 +151,11 @@ For Minimal tier, the at-rest controls reduce to:
 - **DuckDB ring buffer:** in-memory `:memory:` connection (`pulse_buffer`) with no persistent disk database per Established Decisions Telemetry Retention Surface; encryption is N/A and DuckDB encryption CVE-2025-64429 is not applicable. Ring buffer cutoff via periodic `DELETE FROM <table> WHERE ts < now() - INTERVAL '<retention> minutes'` (per Conventions Database entity naming).
 - **Snapshot files (`~/.andromeda-pulse/snapshots/`):** persisted as plaintext markdown under the per-platform data dir; access control inherits OS user permissions. Snapshots can incidentally contain PII/secrets harvested from instrumented OTLP attributes — see §Logging & Monitoring snapshot/clipboard hygiene note and §Code Patterns anti-patterns.
 - **Config (`~/.andromeda-pulse/config.toml`):** plaintext under user data dir; Established Decisions explicitly note this app does not store secrets in `config.toml`. No encryption.
-- **Logs (`~/.andromeda-pulse/logs/`):** `opentelemetry-stdout`/file exporter destination per Cross-cutting Patterns Self-observation; redaction rules in §Logging & Monitoring apply.
+- **Logs (`~/.andromeda-pulse/logs/`):**
+
+  > **DEPRECATED (2026-05-08):** see Decisions Log entry "2026-05-08 — Annotate body deprecation: §Data Protection / §Bootstrap / §Logging opentelemetry-stdout refs". The `opentelemetry-stdout` reference below is superseded by obs-plan §12 Phase 3.5 pivot (no OTel SDK in self-runtime); `tracing-subscriber` JSON formatter at `~/.andromeda-pulse/logs/agent-latest.jsonl` is the canonical self-observation surface. Body preserved for audit trail.
+
+  `opentelemetry-stdout`/file exporter destination per Cross-cutting Patterns Self-observation; redaction rules in §Logging & Monitoring apply.
 - **Plugins (`~/.andromeda-pulse/plugins/`):** WASM bytes; integrity not signed in v1 per Established Decisions Plugin Distribution Channel. Documented as a residual risk in §Security Decisions Log.
 
 **Data lifecycle:**
@@ -236,7 +240,11 @@ combine, setup-project may add stack-specific intermediate steps.
 - **secret-management-init:** Wire Azure Key Vault Premium SKU (HSM-backed RSA for the EV signing key) + GitHub OIDC federation — no long-lived Azure service principal secret stored in GitHub Actions secrets per security-research §Azure Key Vault OIDC. Generate Tauri updater Minisign Ed25519 keypair via `tauri signer generate -w ~/.tauri/andromeda-pulse.key`; commit only the public key into `tauri.conf.json`; store the private key in Azure Key Vault next to the EV signing cert; expose to `release.yml` as `TAURI_SIGNING_PRIVATE_KEY` + `TAURI_SIGNING_PRIVATE_KEY_PASSWORD` GitHub Actions secrets.
 - **secret-scanning-ci-gate:** Wire a secret-scanning step into `ci.yml` per pre-commit + per-PR hooks per §Secret Management anti-patterns. Tool selection (e.g., `gitleaks` for first-party rule-config maintenance, or `trufflehog` if verifier-class HTTP probing of detected candidates is needed) is not pinned by security-research and is owned by setup-project at materialization time; whichever tool is picked MUST be referenced by 40-char commit SHA per security-research §Pin GitHub Actions by SHA + Dependabot (NEVER `@latest` or `@v2`). Add `.gitignore` entries for `*.p12`, `*.pem`, `*.cer`, `.env*`, `*.key`, and `~/.tauri/*.key`.
 - **error-sanitization-wire:** Wire boundary error sanitization per §Error Handling. Module-internal `thiserror` 2.x enums collapse to `serde`-friendly `AppError::{Validation, NotFound, Internal, Plugin, Storage, Ingest}` at the TauRPC bridge per Conventions Error response schema (Tauri IPC). OTLP-receiver errors collapse to `tonic::Status` codes + `Status` proto in HTTP response body per the OTLP spec. MCP errors use standard JSON-RPC 2.0 error object per Conventions. No stack traces / file paths / Rust struct names leak across any of these boundaries.
-- **logging-redaction-wire:** Wire logger redact paths per §Logging & Monitoring. Self-observation uses `opentelemetry-stdout` to `~/.andromeda-pulse/logs/` per Cross-cutting Patterns. Snapshot/clipboard/MCP-tool-response paths must apply attribute-value redaction for incidentally captured secrets per the snapshot/clipboard hygiene note.
+- **logging-redaction-wire:**
+
+  > **DEPRECATED (2026-05-08):** see Decisions Log entry "2026-05-08 — Annotate body deprecation: §Data Protection / §Bootstrap / §Logging opentelemetry-stdout refs". The `opentelemetry-stdout` reference below is superseded by obs-plan §12 Phase 3.5 pivot; `tracing-subscriber` JSON formatter is the canonical self-observation primitive. Body preserved for audit trail.
+
+  Wire logger redact paths per §Logging & Monitoring. Self-observation uses `opentelemetry-stdout` to `~/.andromeda-pulse/logs/` per Cross-cutting Patterns. Snapshot/clipboard/MCP-tool-response paths must apply attribute-value redaction for incidentally captured secrets per the snapshot/clipboard hygiene note.
 - **dep-security-ci-gate:** Wire `cargo audit` + `cargo deny check bans licenses sources` + `Cargo.lock` integrity check into `ci.yml` matrix per §Dependency Security CI integration. Wire the `xtask` capability-drift check (TauRPC procedures vs `pulse-app/capabilities/` JSON) per §API Security TauRPC capability authorization. Wire `step-security/harden-runner` pinned by 40-char commit SHA (resolve current SHA at bootstrap time from the latest stable release tag and record as `step-security/harden-runner@<40-char-SHA> # vX.Y.Z` in the workflow file — NEVER write `@v2` per §Security Anti-Patterns § Secrets) as the first step of every job in `ci.yml`/`release.yml`/`update-channels.yml` with `egress-policy: audit` initially per security-research §StepSecurity harden-runner; promote to `block` with allowlist after a clean audit window. Apply the same SHA-pinning convention (`<owner>/<repo>@<40-char-SHA> # <version-comment>`) to every third-party Action including `EmbarkStudios/cargo-deny-action` and `actions-rust-lang/audit` per security-research §Pin GitHub Actions by SHA + Dependabot. Dependabot opens PRs that bump the SHA + comment together.
 - **supply-chain-signing-init:** SKIP for Minimal tier — Standard-tier sigstore intermediate-build signing is deferred per §Dependency Security note. The Minisign updater signing + Azure Key Vault EV + Apple Developer ID notarization paths are wired by **secret-management-init** above (they are load-bearing even at Minimal tier and not optional for distribution).
 
@@ -326,6 +334,8 @@ _[INCLUDED for Minimal tier as a focused subset because (a) Self-observation dis
 - MCP tool response bodies
 - Tauri updater download URL query strings (could contain auth tokens in a future scope)
 - Anything matching the §Secret Management "What counts as secret" list
+
+> **DEPRECATED (2026-05-08):** see Decisions Log entry "2026-05-08 — Annotate body deprecation: §Data Protection / §Bootstrap / §Logging opentelemetry-stdout refs". The `opentelemetry-stdout` reference in the paragraph below is superseded by obs-plan §12 Phase 3.5 pivot; `tracing-subscriber` is the sole self-observation primitive (no OTel SDK linked). Body preserved for audit trail.
 
 **Log format:** structured (JSON) via `tracing` + `tracing-subscriber` (the Rust ecosystem standard that pairs with `opentelemetry-stdout` exporter per Cross-cutting Patterns); consistent fields per the obs plan's eventual schema. Field redaction is applied at the subscriber layer, not at log call sites.
 
@@ -453,6 +463,17 @@ _Records key decisions during plan generation + manual additions between phase l
 - **Impact:** No behavioral change. §Logging redaction rules apply unchanged to the `tracing` JSON output. PII vectors 1-6 enforcement unchanged.
 - **By:** Manual edit, cross-plan rot reconciliation
 - **Amendment record:** `.andromeda/runs/2026-05-08T17-28-25-spec-amendment-reconcile-otel-stdout-references/amendment.md`
+
+`2026-05-08` — Annotate body deprecation: §Data Protection / §Bootstrap / §Logging opentelemetry-stdout refs
+
+- **Decision:** Add inline `> **DEPRECATED (2026-05-08):**` blockquote annotations inside the 3 deprecated body sites referencing `opentelemetry-stdout`:
+  - §Data Protection logs medium row (line 154) — annotation as indented sub-paragraph inside the bullet
+  - §Bootstrap phases logging-redaction-wire bullet (line 239) — same pattern
+  - §Logging & Monitoring "Log format" paragraph (line 330) — standalone blockquote ABOVE the paragraph
+- **Rationale:** Extends prior `2026-05-08T17-28-25Z-reconcile-otel-stdout-references` amendment (Decisions Log entry only) by adding visible body deprecation markers. Without annotation, future readers — and grep-based audit tools — see stale guidance with no inline cue. Body content preserved verbatim for audit trail; deprecation annotation is purely additive. Body content rewrite to align with current reality (text replacement of `opentelemetry-stdout` → `tracing-subscriber`) is reserved for a future `/andromeda-security` re-run, which has full authority to regenerate plan body content; /andromeda-evolve operates only at annotation level (per output-templates.md anti-pattern: "DO NOT modify the plan body content for Type 1/2/3/4 amendments. Only Type 5 deprecation is allowed to add a body annotation").
+- **Impact:** No behavioral change. §Data Protection / §Bootstrap / §Logging body content preserved; new readers see deprecation notice at each site. PII vectors 1-6 enforcement unchanged. Tier 2/3 distillations need re-derivation (`/andromeda-setup-project --delta` will regenerate `.claude/rules/security.md`, `.claude/rules/observability.md`, `.claude/docs/security-summary.md`, `.claude/docs/obs-summary.md`). architecture.md §Established Decisions [Self-Observation] (line 64) + §Cross-cutting Patterns Self-observation discipline (line 283) ALSO have stale refs but are out of /andromeda-evolve scope; tracked for separate `/andromeda-arch` follow-up.
+- **By:** /andromeda-evolve (user-driven Type 5 deprecation annotation, Path 1 uniform scope)
+- **Amendment record:** `.andromeda/runs/2026-05-08T21-00-00-spec-amendment-obs-pivot-security-bodies/amendment.md`
 
 **Subsequent entry format (for manual additions or re-runs):**
 
