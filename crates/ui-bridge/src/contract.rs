@@ -94,6 +94,8 @@ pub struct Settings {
     pub mcp_server_enabled: bool,
     #[serde(default = "default_notifications_enabled")]
     pub notifications_enabled: bool,
+    #[serde(default = "default_always_on_top")]
+    pub always_on_top: bool,
 }
 
 fn default_retention_seconds() -> u64 {
@@ -101,6 +103,13 @@ fn default_retention_seconds() -> u64 {
 }
 
 fn default_notifications_enabled() -> bool {
+    true
+}
+
+// Mirrors tauri.conf.json compact-widget `alwaysOnTop: true` boot-default
+// per chunk #2 scaffold; runtime apply_widget_settings honors persisted
+// override in pulse-app/src/window.rs after window show.
+fn default_always_on_top() -> bool {
     true
 }
 
@@ -112,6 +121,7 @@ impl Default for Settings {
             retention_seconds: default_retention_seconds(),
             mcp_server_enabled: false,
             notifications_enabled: default_notifications_enabled(),
+            always_on_top: default_always_on_top(),
         }
     }
 }
@@ -131,6 +141,19 @@ impl Settings {
             });
         }
         Ok(())
+    }
+
+    // Boot-time settings load: silent fallback to default on file-not-found
+    // OR parse error so boot does not abort. IPC path
+    // (IntrospectionApiImpl::get_settings) surfaces parse errors as
+    // Storage AppError to the caller; this path is for the binary's own
+    // startup sequence where there is no caller to surface to.
+    pub fn load_from_data_dir(data_dir: &std::path::Path) -> Self {
+        let path = data_dir.join("config.toml");
+        std::fs::read_to_string(&path)
+            .ok()
+            .and_then(|content| toml::from_str::<Settings>(&content).ok())
+            .unwrap_or_default()
     }
 }
 
@@ -1021,10 +1044,17 @@ mod tests {
             retention_seconds: 300,
             mcp_server_enabled: true,
             notifications_enabled: false,
+            always_on_top: false,
         };
         let json = serde_json::to_string(&s).expect("serializes");
         let parsed: Settings = serde_json::from_str(&json).expect("parses back");
         assert_eq!(parsed, s);
+    }
+
+    #[test]
+    fn settings_default_always_on_top_is_true() {
+        let s = Settings::default();
+        assert!(s.always_on_top);
     }
 
     #[test]
@@ -1092,6 +1122,7 @@ mod tests {
         assert_eq!(s.widget_position, WidgetPosition::TopRight);
         assert_eq!(s.retention_seconds, 600);
         assert!(s.notifications_enabled);
+        assert!(s.always_on_top);
     }
 
     #[test]

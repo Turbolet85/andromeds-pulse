@@ -1,14 +1,14 @@
 schema_version: 2
-last_wrap: 2026-05-09T12:40:00Z
-last_reconcile: 2026-05-09T12:40:00Z
+last_wrap: 2026-05-09T14:02:00Z
+last_reconcile: 2026-05-09T13:59:55Z
 
 last_completed_chunk:
-  route_index: 29
-  title: "WGSL compute aggregation + 10k spans/sec budget — compute shaders for time-series aggregation, frame_duration_ms metric event, reduced-motion respect"
+  route_index: 30
+  title: "Compact widget shell — quarter-screen window, snap-to-edge per-display memory, always-on-top toggle, custom titlebar"
   epoch: 5
-  committed_at: 2026-05-09T11:30:00Z
-  commit_sha: 3c55a5e
-  commit_subject: "feat(ui-bridge,webgpu): WGSL compute aggregation + telemetry.frontend.record_frame_ms — TauRPC dotted-namespace resolver + 6 chunk #29 substrate files (chunk #29); session 30"
+  committed_at: 2026-05-09T14:02:00Z
+  commit_sha: 367ad48
+  commit_subject: "feat(ui-bridge,pulse-app): compact widget shell — Settings.always_on_top + apply_widget_settings + per-display snap (chunk #30); session 33"
 
 in_progress: null
 
@@ -24,9 +24,9 @@ plan_freshness:
   input_mtime: 2026-05-02T06:52:58Z
 
 living_artifact_freshness:
-  dep_tree_reconciled_at: 2026-05-09T12:40:00Z
-  api_surface_reconciled_at: 2026-05-09T12:40:00Z
-  most_recent_code_mtime: 2026-05-09T11:30:00Z
+  dep_tree_reconciled_at: 2026-05-09T13:59:55Z
+  api_surface_reconciled_at: 2026-05-09T13:59:55Z
+  most_recent_code_mtime: 2026-05-09T13:47:42Z
   reconcile_failed: false
 
 drift_warnings: []
@@ -149,4 +149,4 @@ spec_amendments:
       archived_at: 2026-05-09T11:55:00Z
       flag_used: --allow-arch-registry
 
-session_count: 32
+session_count: 33

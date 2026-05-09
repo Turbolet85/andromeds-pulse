@@ -690,10 +690,16 @@ impl AllowList {
         );
         by_target.insert(
             "ui.layout.transition",
-            ["layout_mode_from", "layout_mode_to", "tray_visible"]
-                .iter()
-                .copied()
-                .collect(),
+            [
+                "layout_mode_from",
+                "layout_mode_to",
+                "tray_visible",
+                "always_on_top",
+                "duration_ms",
+            ]
+            .iter()
+            .copied()
+            .collect(),
         );
         by_target.insert(
             "tray.visibility.toggle",
@@ -1544,6 +1550,31 @@ mod tests {
             assert!(
                 frame.contains(required),
                 "metric.webgpu.frame_duration_ms must permit `{required}`"
+            );
+        }
+    }
+
+    #[test]
+    fn allowlist_for_target_resolves_ui_layout_transition_to_expanded_field_set() {
+        // chunk #30: apply_widget_settings extends the existing chunk #24
+        // ui.layout.transition allowlist with always_on_top + duration_ms
+        // beyond the original layout_mode_from / layout_mode_to / tray_visible
+        // triplet. Without these, default-deny redacts the new fields and
+        // the apply-settings observability contract silently regresses.
+        let al = AllowList::production();
+        let entry = al
+            .for_target("ui.layout.transition")
+            .expect("ui.layout.transition entry");
+        for required in [
+            "layout_mode_from",
+            "layout_mode_to",
+            "tray_visible",
+            "always_on_top",
+            "duration_ms",
+        ] {
+            assert!(
+                entry.contains(required),
+                "ui.layout.transition must permit `{required}`"
             );
         }
     }

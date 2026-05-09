@@ -10,6 +10,7 @@ use ingest::channel::{IngestSender, build_channel};
 use ingest::contract::{Error as IngestError, OtlpPort};
 use ingest::state::IngestState;
 use tracing_error::SpanTrace;
+use ui_bridge::Settings;
 use ui_bridge::health::{
     BindStatus, BufferConnectionStatus, HeartbeatState, IngestChannelStatus, IntrospectionApi,
     IntrospectionApiImpl, record_start, register_heartbeat_state,
@@ -258,6 +259,8 @@ fn main() {
         .invoke_handler(invoke_router.into_handler())
         .setup(move |app| {
             window::show_compact_widget(app);
+            let settings = Settings::load_from_data_dir(&data_dir);
+            window::apply_widget_settings(app, &settings);
             match buffer_conn {
                 Some(conn) => {
                     tauri::async_runtime::spawn(run_consumer(

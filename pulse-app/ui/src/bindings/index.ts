@@ -28,7 +28,7 @@ export type ReadyChecks = { duckdb_connection: string; ingest_mpsc_capacity_pct:
 
 export type ReadyEnvelope = { ready: boolean; checked_at: string; checks: ReadyChecks }
 
-export type Settings = { theme?: Theme; widget_position?: WidgetPosition; retention_seconds?: number; mcp_server_enabled?: boolean; notifications_enabled?: boolean }
+export type Settings = { theme?: Theme; widget_position?: WidgetPosition; retention_seconds?: number; mcp_server_enabled?: boolean; notifications_enabled?: boolean; always_on_top?: boolean }
 
 export type SubsystemStatus = { status: string; error_msg: string | null; last_tick_at: string | null }
 

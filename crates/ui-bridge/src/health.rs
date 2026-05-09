@@ -449,7 +449,7 @@ mod runtime {
                 target: "ui-bridge.update_settings",
                 method_name = "update_settings",
                 result_type = "()",
-                setting_keys_changed = "theme,widget_position,retention_seconds,mcp_server_enabled,notifications_enabled",
+                setting_keys_changed = "theme,widget_position,retention_seconds,mcp_server_enabled,notifications_enabled,always_on_top",
                 "introspection invoked",
             );
             settings.validate()?;
@@ -862,6 +862,7 @@ mod introspection_tests {
             retention_seconds: 300,
             mcp_server_enabled: true,
             notifications_enabled: false,
+            always_on_top: false,
         };
 
         let api1 = make_impl(dir.path().to_path_buf(), vec![]);
