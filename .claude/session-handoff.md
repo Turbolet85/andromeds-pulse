@@ -1,151 +1,123 @@
 # Session Handoff
 
-**Last Updated:** 2026-05-09T19:50:49Z
+**Last Updated:** 2026-05-09T20:25:30Z
 **Branch:** main
-**Session End Status:** clean (chunk #32 implementation green; tests passing 729; commit pending Phase 10)
-**Last Commit:** (pending — wrap commit composed in Phase 10 of this run; closes session 36 — chunk #32 compact widget infographics + footer)
+**Session End Status:** clean (Tokio runtime panic fix verified end-to-end; tests 729/729 passing; commit pending Phase 10)
+**Last Commit:** (pending — wrap commit composed in Phase 10 of this run; closes session 37 — Tokio runtime fix at pulse-app boot)
 
 ## Current State
 
-- **Last completed chunk:** route#32 "Compact widget infographics + footer — service constellation aggregated badge, ingest/error/retention footer band, glance-readable from 2m" (epoch 5; chunk implementation in this wrap commit)
+- **Last completed chunk:** route#32 "Compact widget infographics + footer — service constellation aggregated badge, ingest/error/retention footer band, glance-readable from 2m" (epoch 5; committed 2026-05-09T19:50:49Z as b66016c — state.yaml.commit_sha refreshed from orphaned f340c7e to live HEAD reference this wrap)
 - **Next chunk:** route#33 "Full dashboard shell + tab nav — resizable window, tabs for Traces/Metrics/Logs/Snapshots/Settings, TanStack Router routable views, Cmd+K palette"
 - **In-progress phase:** none
-- **Phase artifacts present:** `.andromeda/phases/{phase-1..phase-29}/{combined.md, research.md, plan.md}` (phase-29 from this session chunk #32; next /andromeda-phase plans phase-30 for chunk #33)
-- **Epoch 5 — Visualization surfaces: open.** Substrate (#28+#29) + compact widget shell (#30) + signature element (#31 Halo) + compact widget infographics + footer (#32) shipped. Chunk #33 next (full dashboard shell + tab nav — TanStack Router introduction).
+- **Phase artifacts present:** `.andromeda/phases/{phase-1..phase-29}/{combined.md, research.md, plan.md}` (phase-29 closed chunk #32; next /andromeda-phase plans phase-30 for chunk #33)
+- **Epoch 5 — Visualization surfaces: open.** Substrate (#28+#29) + compact widget shell (#30) + Halo signature element (#31) + compact widget infographics + footer (#32) shipped. Chunk #33 (TanStack Router intro + dashboard shell) next.
 
 ## Andromeda State Detection (states A-L)
 
-(All states A-L clear this wrap. Project ecosystem fully synchronized: arch §Occupied Resources canonical with implementation; CLAUDE.md mtime current; spec_amendments stable [no new amendments this session]; chunk #32 implementation complete + tests green; no in-progress phase.)
+⚠️ F — Pending phase planning: route lists chunk #33 but `.andromeda/phases/phase-30/` does not exist. Remediation: /andromeda-phase to plan chunk #33.
+⚠️ J-generic — Specialist plan freshness mismatch: test-plan.md mtime 2026-05-09T16:08:01Z is newer than state.yaml.plan_freshness.tests_mtime 2026-05-09T16:00:54Z by ~7m. spec_amendments.active=[]. Likely benign re-capture timing artifact from the boot-smoke-discipline amendment cycle (already archived). Phase 8 re-captures plan_freshness this wrap, which clears the J-generic for next session. Remediation: automatic.
 
 ## Drift Detection (6 dimensions)
 
-(No drift detected this wrap. State.yaml drift_warnings persisted as empty. D1-D6 all clear after Phase 5 reconcile + Phase 6 detection.)
+⚠️ D3 — arch §Occupied Resources lists `streams.subscribe_{spans,metrics,logs}` + `telemetry.frontend.record_frame_ms` (per Type 6 amendments archived 2026-05-09T11:55:00Z), but `xtask/src/main.rs::EXPECTED_PROCEDURES` (~lines 376-390) doesn't enumerate them. `cargo xtask capability-drift` exits 1 with 4 extras. Carry-over narrative across sessions 31-36 (state.yaml.drift_warnings was empty in those wraps; first persisted this wrap). Remediation: extend EXPECTED_PROCEDURES — code-only fix.
+
+⚠️ D5 — test-plan.md mtime (2026-05-09T16:08:01Z) > CLAUDE.md mtime (2026-05-09T14:35:56Z) by ~1h 32m. spec_amendments.active=[] → Case 3 generic per spec-amendment-protocol.md Part C. Likely benign: the archived `2026-05-09T16-00-54-smoke-check-boot-discipline` amendment scoped to test-plan.md Decisions Log + testing.md Tier 2 only — no Tier 1 surface affected, so CLAUDE.md correctly NOT regenerated. Mtime heuristic produces false positive here. Remediation: accept as benign OR /andromeda-setup-project full re-derive to refresh CLAUDE.md mtime.
 
 ## Spec Amendments (this session)
 
-(none this session — no Trigger 4 spec amendments authored during /andromeda-implement; chunk #32 implementation green per scope without spec ↔ reality drift detection)
+(none this session — no Trigger 4 spec amendments authored. The Tokio runtime fix is a pure code bugfix that didn't require specialist plan amendment; spec-drift not triggered.)
 
-state.yaml.spec_amendments.active: empty (unchanged from session 35 close)
-state.yaml.spec_amendments.archive: 12 entries (unchanged from session 35 close)
+state.yaml.spec_amendments.active: empty (unchanged from session 36 close)
+state.yaml.spec_amendments.archive: 12 entries (unchanged from session 36 close)
 
 ## Key Decisions This Session
 
-- **Multi-skill flow this session: /andromeda-new-session → /andromeda-phase → /andromeda-implement → /andromeda-wrap-session.** Standard 4-skill chunk-implementation cycle. Chunk #32 (compact widget infographics + footer) materialized end-to-end with zero fix-loop iterations, all 8 gates green first try.
+- **Multi-skill flow this session: /andromeda-new-session → manual fix work → /andromeda-wrap-session.** Session 37 was a single-purpose targeted bugfix (Priority 1 carry-over from sessions 34/35), not a chunk-implementation cycle. /andromeda-phase + /andromeda-implement skipped because the work scope was a 6-line edit to `pulse-app/src/main.rs::main()` with zero specialist plan touchpoints.
 
-- **Sub-agent quota fallback during /andromeda-phase Phase 1:** 4 of 7 specialist sub-agents (security/design/layouts/tests) returned successfully via Agent tool spawn; 3 remaining (obs/a11y/arch) hit Claude Code's per-account usage quota mid-spawn (resets 21:00 Europe/Vienna). Orchestrator-direct fallback used the same focus guides + specialist plans + chunk context to author obs/a11y/arch extracts inline; full audit trail preserved at `.andromeda/runs/2026-05-09T16-36-26-phase-29/` with all 7 raw + 7 stripped extracts. All 7 extracts passed per-extract + aggregate validation. This was a one-time deviation due to external quota limit, not a process violation.
+- **Tokio runtime fix root cause confirmed via reproduce + log inspection:** `cargo run --bin pulse-app` reliably exits 101 with `app.panic.fatal` JSON line at `~/.andromeda-pulse/logs/agent-latest.jsonl.{date}` containing `location: "crates\\ui-bridge\\src\\health.rs:291"` and `panic_message: "there is no reactor running, must be called from the context of a Tokio 1.x runtime"`. Line 291 in health.rs is the `#[taurpc::procedures(export_to = "ui/src/bindings/index.ts")]` macro on `IntrospectionApi`; the macro expansion's spawn fails because sync `fn main()` provides no tokio runtime context. The chunk #25 `emit_taurpc_bindings` test (lines 624-652) explicitly comments "`#[tokio::test]` provides the runtime context taurpc::TauRpcHandler::spawn() requires" — the test masks the production-only panic.
 
-- **Window-label routing introduced as the canonical pattern for window-aware webview UI splitting.** Chunk #32 added `useWindowLabel()` hook (lazy initializer + try/catch + bounded enum sanitizer mirroring Rust-side `sanitize_window_label`) + App.tsx split into router (`compact-widget` → `<CompactWidget>`, otherwise → `<Dashboard>`). Pattern documented at Tier 2 in `.claude/rules/frontend.md` §Session Additions for future surfaces (e.g., a future tray-icon labeled-webview-window in chunk #36 territory will extend this enum without API churn).
+- **Canonical fix per Tauri 2.11 rustdoc:** build a multi-thread tokio runtime, enter it via `runtime.enter()`, share with Tauri via `tauri::async_runtime::set(tokio::runtime::Handle::current())`. Documented at `D:/dev/rust/cargo/registry/src/.../tauri-2.11.0/src/async_runtime.rs:240` (the `set` doc comment example). Saved as a Tier 3 reference learning at `.claude/docs/session-learnings.md` for future taurpc-related entry-point work.
 
-- **AggregatedBadgeCanvas via composition, not API extension.** Chunk #32 wraps chunk #31's `<HaloCanvas>` in a `position: relative` parent with a sibling absolutely-positioned overlay `<div role="status" aria-label="...">`, satisfying chunk #31's portability acceptance ("portable enough for compact-widget aggregated-badge consumption") without touching HaloCanvas's 3-prop contract. Future tray-icon wrapping can compose differently (smaller container + SVG-filter fallback) without HaloCanvas API churn — same compositional principle.
+- **End-to-end verification post-fix:** binary boots through full lifecycle (PID file → webview backend WebView2 → DX12 GPU adapter → tray API NotifyIcon → ring buffer schema → no panic → WebGPU `metric.webgpu.frame_duration_ms` flowing → heartbeat ticks across plugins/buffer/ingest/viz → buffer + broadcast subscriber gauges). All 729 tests still pass (302 webview + 427 Rust).
 
-- **Synthetic data simulator split by cadence:** `useSyntheticHaloInput` (250ms, fast — for HaloCanvas pulse rhythm + LCH hue smoothness) + `useSyntheticWidgetMetrics` (1000ms, SR-friendly — for footer numeric display). Two hooks rather than one shared simulator; rationale documented inline. Real binding via `streams.subscribe_metrics` Arrow IPC parser deferred to chunks #34/#35 alongside other broadcast subscribers; simulator anchors via `data-testid="halo-input-simulator"` mark the replacement points.
+- **Carry-over Priority 1 cleared:** the original failed command `npx @tauri-apps/cli dev` should now succeed against this binary. Chunks #33-#35 (TanStack Router introduction + real broadcast subscriber wiring) can boot through the full Tauri runtime.
 
-- **Capability JSON unchanged.** `pulse-app/capabilities/default.json` byte-identical to chunk #31 baseline. `getCurrentWebviewWindow().label` is part of Tauri's `core:webview:default` permission group, which `core:default` (already in `default.json`) grants. No new capability JSON entry needed; no triple-binding (security ↔ tests/CI ↔ arch capability-drift) trigger fires.
+- **Living artifact api-surface.md format-divergent observation:** the LIVING block content (300 hand-curated lines with aligned fields + chunk annotations + omitted impl boilerplate) doesn't match raw `cargo +nightly public-api --simplified` output (3808 lines including all auto-derived `impl Send / Freeze / Debug` boilerplate). Previous wraps refreshed the timestamp without overwriting the curation. This wrap follows the same pragma since session 37's only code change is binary-only (`pulse-app/src/main.rs`) — library API surface is genuinely unchanged. Future cleanup task: align api-surface.md METADATA Tooling field to match the actual curation pipeline OR re-curate from fresh tooling output (deferred — out of scope for this wrap).
 
 ## Files Modified
 
-(Files modified across this session through this wrap commit. Last wrap was 2026-05-09T16:25:20Z; session 36 starts after that.)
+(Files modified this session through this wrap commit. Last wrap was 2026-05-09T19:50:49Z; session 37 starts after that.)
 
 **Implementation files (this wrap commit):**
-- `pulse-app/ui/src/App.tsx` — converted to window-label router (was chunk #31 shell composition)
-- `pulse-app/ui/src/App.test.tsx` — extended for window-label routing tests + child component sentinels
-- `pulse-app/ui/src/hooks/use-window-label.ts` — Tauri 2 window-label detection hook (NEW)
-- `pulse-app/ui/src/hooks/use-window-label.test.tsx` — 7 tests covering all 4 paths (NEW)
-- `pulse-app/ui/src/hooks/use-synthetic-widget-metrics.ts` — 1000ms cadence WidgetMetrics simulator (NEW)
-- `pulse-app/ui/src/hooks/use-synthetic-widget-metrics.test.ts` — 7 tests covering bounds + cleanup (NEW)
-- `pulse-app/ui/src/hooks/use-synthetic-halo-input.ts` — 250ms cadence HaloInput simulator (NEW; extracted from chunk #31 App.tsx body)
-- `pulse-app/ui/src/hooks/use-synthetic-halo-input.test.ts` — 4 tests (NEW)
-- `pulse-app/ui/src/widget/widget-types.ts` — `WidgetMetrics` interface + `ERROR_RATE_ACCENT_THRESHOLD` constant + 5 pure-function formatters (NEW)
-- `pulse-app/ui/src/widget/widget-types.test.ts` — 39 table-driven formatter tests (NEW)
-- `pulse-app/ui/src/widget/AggregatedBadgeCanvas.tsx` — wraps HaloCanvas + bottom-right overlay badge (NEW)
-- `pulse-app/ui/src/widget/AggregatedBadgeCanvas.test.tsx` — 7 tests covering composition + ARIA semantics (NEW)
-- `pulse-app/ui/src/widget/FooterBand.tsx` — `<footer role="status" aria-live="polite">` with 3 metrics + accent threshold (NEW)
-- `pulse-app/ui/src/widget/FooterBand.test.tsx` — 14 tests covering live-region semantics + threshold + tokens (NEW)
-- `pulse-app/ui/src/widget/CompactWidget.tsx` — top-level compact-widget surface (NEW)
-- `pulse-app/ui/src/widget/CompactWidget.test.tsx` — 7 tests covering 3-band wireframe + props flow + tabbable focus-set assertion (NEW)
-- `pulse-app/ui/src/dashboard/Dashboard.tsx` — extracted main-window content (NEW; from chunk #31 App.tsx body)
-- `pulse-app/ui/src/dashboard/Dashboard.test.tsx` — 4 tests (NEW)
+- `pulse-app/src/main.rs` — added 6-line tokio runtime + `tauri::async_runtime::set` block at the top of `fn main()` with explanatory comment
 
 **Curation files (this wrap commit):**
-- `.claude/rules/testing.md` — §Session Additions gained 2 entries (vi.mock @tauri-apps/api/webviewWindow + tabbable focus-set assertion)
-- `.claude/rules/frontend.md` — §Session Additions gained 1 entry (useWindowLabel pattern)
+- `.claude/docs/session-learnings.md` — Tier 3 entry "2026-05-09 — taurpc 0.7 `Router::into_handler()` requires tokio runtime in scope" prepended above the existing "2026-05-08 — taurpc 0.7 emits no-path procedures" entry
 
 **Living artifacts (this wrap commit, refresh-only):**
-- `.andromeda/context/dependency-tree.md` — Last reconciled timestamp refresh to 2026-05-09T19:50:49Z (LIVING block byte-identical — no Rust deps changes this session)
-- `.andromeda/context/api-surface.md` — same
-
-**Plan artifacts (committed; tracked):**
-- `.andromeda/phases/phase-29/combined.md` — phase 29 merged 7 specialist extracts (NEW)
-- `.andromeda/phases/phase-29/research.md` — phase 29 codebase research (NEW)
-- `.andromeda/phases/phase-29/plan.md` — phase 29 plan (NEW)
+- `.andromeda/context/dependency-tree.md` — Last reconciled timestamp refresh to 2026-05-09T20:25:30Z (LIVING block byte-identical to fresh tooling output — no Rust dep changes this session)
+- `.andromeda/context/api-surface.md` — Last reconciled timestamp refresh to 2026-05-09T20:25:30Z (LIVING block hand-curated; format-divergent from raw tooling but library APIs genuinely unchanged this session — see Key Decisions deferred cleanup note)
 
 **This wrap commit (will be staged):**
 - `.claude/session-handoff.md` — this file (full overwrite)
-- `.andromeda/state.yaml` — schema_version=2 preserved; last_wrap → 2026-05-09T19:50:49Z; session_count → 36; last_completed_chunk advanced to route#32; spec_amendments unchanged; drift_warnings → []
+- `.andromeda/state.yaml` — schema_version=2 preserved; last_wrap → 2026-05-09T20:25:30Z; last_reconcile → 2026-05-09T20:25:30Z; session_count → 37; last_completed_chunk.commit_sha → b66016c (corrects orphan f340c7e); plan_freshness re-captured; living_artifact_freshness updated; drift_warnings populated with D3 + D5 entries (first_observed_session_count = 37 baseline); spec_amendments unchanged
 
-**Audit-trail run-dirs (gitignored, forensic-disk only):**
-- `.andromeda/runs/2026-05-09T16-36-26-phase-29/` — 7 raw + 7 stripped specialist extracts from /andromeda-phase Phase 1 (4 sub-agent / 3 orchestrator-direct due to quota fallback)
+**Stray cleanup (not staged):**
+- Removed `D:/dev/projects/andromeda-pulse/ui/` directory created by `cargo run --bin pulse-app` invoked from workspace-root cwd (the `#[taurpc::procedures(export_to = "ui/src/bindings/index.ts")]` macro emits to a path relative to runtime cwd; running from `pulse-app/` cwd lands in the correct `pulse-app/ui/...` location; chunk #25 test runs via `cargo nextest -p pulse-app` which sets cwd to `pulse-app/`)
 
 ## Curation Summary (this wrap)
 
 - **Tier 1 (CLAUDE.md USER:session-learnings):** 0 additions
-- **Tier 2 (`.claude/rules/*/Session Additions`):** 3 additions
-  - `.claude/rules/testing.md` (+2): vi.mock @tauri-apps/api/webviewWindow pattern; tabbable() focus-set assertion
-  - `.claude/rules/frontend.md` (+1): useWindowLabel pattern (lazy initializer + try/catch + bounded enum)
-- **Tier 3 (`.claude/docs/session-learnings.md`):** 0 additions
-- **Filtered:** 0 duplicates + 3 task-specific (Andromeda skill chain meta + simulator-cadence-split rationale + composition-over-API decision rationale) + 0 conflicts + 1 deferred (`<dl>/<dt>/<dd>` live-region semantic structure — confidence 0.65, deferred via max-3 cap; revisit when more tier-2 a11y entries warrant a batch update)
+- **Tier 2 (`.claude/rules/*/Session Additions`):** 0 additions
+- **Tier 3 (`.claude/docs/session-learnings.md`):** 1 addition
+  - 2026-05-09 — taurpc 0.7 `Router::into_handler()` requires tokio runtime in scope; sync `fn main()` panics at boot
+- **Filtered:** 0 duplicates + 2 task-specific (J-generic 7-min discrepancy notes + multi-skill flow meta) + 0 conflicts + 1 deferred (cwd-relative binding emission gotcha — confidence 0.65, not load-bearing for the curated set; can revisit if recurrent)
 
 ## Last Failed Command
 
-(carry-over from session 34/35 — NOT addressed this session; status unchanged)
-
-**Command:** `npx @tauri-apps/cli dev` (Phase 2b runtime smoke check from /andromeda-implement; surfaced in session 34)
-**Error:** `error: process didn't exit successfully: D:\dev\projects\andromeda-pulse\target\debug\pulse-app.exe (exit code: 101)` — Rust panic at boot
-**Panic:** `crates/ui-bridge/src/health.rs:291` — "there is no reactor running, must be called from the context of a Tokio 1.x runtime"
-**Status:** still pending — chunk #27/#30 territory; chunk #32 implementation was webview-only (per test-plan §12 amendment exempt from Phase 2b smoke gate), so no Rust code changes touched the panic. Per session 34/35 handoff Priority 1, fix this before chunk #32-territory boot is needed (which is approximately when chunk #34/#35 land real broadcast subscribers requiring Tauri runtime to actually launch).
+(none — the carry-over panic from sessions 34/35 is now fixed and verified end-to-end this session)
 
 ## Tests Status
 
-passing — 729 tests (302 webview + 427 Rust), zero failures, ~5.5s combined. Verified at /andromeda-implement Phase 2 close + re-verified at /andromeda-wrap-session Phase 2.
+passing — 729 tests (302 webview + 427 Rust), zero failures. Verified twice: post-fix Rust nextest run (1.500s) + webview vitest run (2.73s).
 
-**Runtime smoke (Phase 2b):** – not run (chunk #32 webview-only exempt per test-plan §12 2026-05-09 amendment).
+**Runtime smoke (Phase 2b, per test-plan §12 amendment 2026-05-09 boot-smoke discipline):** ✓ binary boots cleanly through full Tauri lifecycle for ~8 seconds without panic. Heartbeats firing, gauges emitting, WebGPU rendering. Boot-smoke gate passes.
 
-**capability-drift gate:** drifted with 4 extras (chunk #31 baseline preserved exactly per chunk #32 acceptance criterion; carry-over D3 unchanged).
+**capability-drift gate:** still drifted with 4 extras (chunk #31 baseline preserved exactly per chunk #32 acceptance criterion; D3 carry-over now persisted to state.yaml.drift_warnings — see Drift Detection above).
 
 ## Next Recommended Action
 
-**Priority 1 (BLOCKING for full runtime; CARRY-OVER from session 34/35) — fix `crates/ui-bridge/src/health.rs:291` Tokio runtime panic:**
-
-Same as session 35 handoff. The chunk #27/#30 commits shipped a latent panic that prevents the binary from booting. Before chunks #34/#35 (which need real binding to broadcast subscribers + presumably actual Tauri runtime), this should be addressed so future smoke checks succeed. Investigation paths per session 34 handoff carried forward verbatim.
+**Priority 1 (cleared this session):** the Tokio runtime panic at `crates/ui-bridge/src/health.rs:291` is fixed. The original failed command `npx @tauri-apps/cli dev` should now succeed.
 
 **Priority 2 — `/andromeda-phase` for chunk #33 (full dashboard shell + tab nav):**
 
-Chunk #33 introduces TanStack Router + tab navigation for the full dashboard window — substantial alone (per chunk #32 phase-29 plan grouping rationale). Per the new test-plan §12 boot-smoke discipline (2026-05-09 amendment): chunk #33 likely WILL touch boot/setup paths (TanStack Router setup may live in `pulse-app/ui/src/main.tsx` or App.tsx, both of which propagate into the Tauri webview boot sequence). Phase planning should include the smoke gate per the amendment.
+Chunk #33 introduces TanStack Router + tab navigation for the full dashboard window — substantial alone (per chunk #32 phase-29 plan grouping rationale). Per test-plan §12 boot-smoke discipline (2026-05-09 amendment): chunk #33 likely WILL touch boot/setup paths (TanStack Router setup typically lands in `pulse-app/ui/src/main.tsx` or `App.tsx`, both of which propagate into the Tauri webview boot sequence). Phase planning should include the smoke gate per the amendment.
 
-**Priority 3 (background, NOT blocking, carry-over from session 31/32/33/34/35) — extend xtask EXPECTED_PROCEDURES:**
+**Priority 3 (background, NOT blocking) — extend xtask EXPECTED_PROCEDURES (D3 carry-over):**
 
-Same as session 35. The xtask capability-drift gate's hardcoded EXPECTED_PROCEDURES list at `xtask/src/main.rs:376-390` does NOT include the 4 procedures (3 streams.* + 1 telemetry.frontend.*). `cargo xtask capability-drift` continues to exit 1 with 4 extras. Resolution remains user-driven follow-up.
+Edit `xtask/src/main.rs:376-390` to add 4 hardcoded entries: `streams.subscribe_logs`, `streams.subscribe_metrics`, `streams.subscribe_spans`, `telemetry.frontend.record_frame_ms`. These are already canonicalized in arch §Occupied Resources via Type 6 amendments (archived). After the edit, `cargo xtask capability-drift` should exit 0. Remains user-driven follow-up; can land in chunk #33's phase or as a standalone xtask housekeeping commit.
+
+**Priority 4 (informational, deferred) — D5 generic mtime heuristic noise:**
+
+The boot-smoke-discipline amendment is a recurring source of D5 noise: it left test-plan.md mtime > CLAUDE.md mtime without Tier 1 propagation. The mtime heuristic doesn't distinguish "amendment scoped to lower tiers only" from "real CLAUDE.md staleness". Optional remediation: /andromeda-setup-project full re-derive to refresh CLAUDE.md mtime (overkill); accepting as benign is reasonable until the next legitimate Tier 1 surface change naturally re-touches CLAUDE.md.
 
 ## Session Goals (carry-over)
 
-- **(carry-over from session 34/35) Fix `crates/ui-bridge/src/health.rs:291` Tokio runtime panic** — surfaced by chunk #31 smoke check; blocks app boot. Priority 1 above. NOT addressed this session (chunk #32 exempt from Phase 2b smoke per test-plan §12 amendment).
-- **(carry-over from session 31/32/33/34/35) Extend xtask EXPECTED_PROCEDURES** to include `streams.subscribe_logs`, `streams.subscribe_metrics`, `streams.subscribe_spans`, `telemetry.frontend.record_frame_ms` — 4 hardcoded entries to add to `xtask/src/main.rs:376-390`. Priority 3 above. NOT addressed this session.
+- **(carry-over from sessions 34/35) Fix `crates/ui-bridge/src/health.rs:291` Tokio runtime panic** — ✓ DONE this session.
+- **(carry-over from sessions 31-36) Extend xtask EXPECTED_PROCEDURES** to include `streams.subscribe_logs|metrics|spans` + `telemetry.frontend.record_frame_ms` — NOT addressed this session (out of scope for the targeted bugfix). See Priority 3 above.
 
 ## Deferred decisions (Trigger 4 → Path B carry-over)
 
-(none this session — no Trigger 4 spec amendments authored; chunk #32 implementation green per scope without drift detection)
+(none this session — no Trigger 4 spec amendments authored)
 
 ## Deferred learnings (filtered out from Phase 4 curation per Filter 5 max-3 cap)
 
 These candidates surfaced during Phase 3 curation analysis but were filtered:
 
 **Filter 2 task-specificity (REJECTED):**
-- Process-meta about Andromeda skill chain quota-fallback (4-of-7 sub-agent quota → orchestrator-direct fallback) — not codebase-relevant; belongs in Andromeda skill documentation
-- Synthetic simulator cadence-split rationale (250ms + 1000ms) — specific to chunks #31/#32; replacement when real broadcast subscriber lands in chunks #34/#35
-- AggregatedBadgeCanvas composition-over-API-extension architectural decision rationale — specific to one component pair (HaloCanvas + AggregatedBadgeCanvas); not a generalizable rule
+- The 7m discrepancy between state.yaml.plan_freshness.tests_mtime (16:00:54) and current test-plan.md mtime (16:08:01) — a likely wrap-session re-capture timing artifact from session 36's Phase 8 ordering. Specific to one wrap's race condition; not a generalizable rule.
+- Multi-skill flow meta (skipping /andromeda-phase + /andromeda-implement for a targeted single-purpose bugfix Sessions like this one) — process meta about Andromeda skill chain orchestration; belongs in Andromeda skill documentation, not project curation.
 
 **Filter 5 max-3 cap (DEFERRED):**
-- `<dl>/<dt>/<dd>` semantic structure for label/value pairs in `<footer role="status">` live regions — confidence 0.65, useful a11y pattern but didn't make the top-3 cut this wrap. Revisit when more Tier 2 a11y entries warrant a batch update (e.g., when chunks #34/#35 introduce additional live-region surfaces and the pattern proves itself across 2-3 components).
-
-## Session End Status
-Completed normally at 2026-05-09 21:50:49 UTC
+- The cwd-relative binding emission gotcha: `#[taurpc::procedures(export_to = "ui/src/bindings/index.ts")]` emits to a path relative to runtime cwd, so `cargo run --bin pulse-app` from workspace root creates a stray `ui/` while `cargo nextest -p pulse-app` (cwd=pulse-app/) lands correctly. Confidence 0.65, narrow operational gotcha; saved here in case it recurs. If it becomes a recurring stray-dir source, consider adding `/ui/` to .gitignore as a defensive measure OR pinning the macro path to a workspace-rooted absolute path.

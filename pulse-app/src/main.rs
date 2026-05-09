@@ -180,6 +180,19 @@ fn write_pid_file(data_dir: &Path) {
 }
 
 fn main() {
+    // taurpc's `Router::into_handler()` spawns a background handler-manager
+    // task during binding emission and requires a tokio runtime in scope, but
+    // Tauri's Builder doesn't establish one until `.run()` (which happens
+    // after the router is constructed). Build + enter our own runtime first
+    // and hand it to Tauri via `async_runtime::set` so taurpc's pre-`run()`
+    // spawns and Tauri's setup-closure spawns share a single runtime.
+    let runtime = tokio::runtime::Builder::new_multi_thread()
+        .enable_all()
+        .build()
+        .expect("failed to build tokio runtime");
+    let _enter = runtime.enter();
+    tauri::async_runtime::set(tokio::runtime::Handle::current());
+
     let data_dir = resolve_data_dir();
     let _guard = observability::init(&data_dir);
     record_start();

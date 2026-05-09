@@ -8,6 +8,36 @@ _This file is entirely wrap-session's territory. `/setup-project` creates it if 
 
 ---
 
+## 2026-05-09 — taurpc 0.7 `Router::into_handler()` requires tokio runtime in scope; sync `fn main()` panics at boot
+
+`taurpc::procedures`-decorated traits expand into a handler that, when materialized via `Router::into_handler()`, spawns a background handler-manager task during binding emission (taurpc 0.7's mechanism for emitting the merged TS `bindings/index.ts` in dev mode). The spawn requires a tokio runtime to be the **current** runtime in scope (thread-local). In sync `fn main()`, no runtime is current — Tauri's `Builder::run()` only establishes one inside `.run()`, after the router has already been constructed and passed via `.invoke_handler(invoke_router.into_handler())`. The result is a panic at boot reported at the `#[taurpc::procedures]` macro line of the FIRST handler whose `.into_handler()` is called (e.g., `crates/ui-bridge/src/health.rs:291` — the IntrospectionApi macro — for the chunk #27 wiring).
+
+Panic message: `there is no reactor running, must be called from the context of a Tokio 1.x runtime`. The boot panic hook captures it as a JSON line at `~/.andromeda-pulse/logs/agent-latest.jsonl.{date}` with target `app.panic.fatal` and field `location: "crates\\ui-bridge\\src\\health.rs:291"`.
+
+The chunk #25 `emit_taurpc_bindings` test masks this in the test fixture because `#[tokio::test]` runs the test inside a tokio runtime — that's why the test passes despite production main() panicking.
+
+**Canonical fix** (per Tauri 2.11 `tauri::async_runtime::set` rustdoc example at `D:/dev/rust/cargo/registry/src/.../tauri-2.11.0/src/async_runtime.rs:240`): build a multi-thread tokio runtime, enter it via `runtime.enter()`, then call `tauri::async_runtime::set(tokio::runtime::Handle::current())` so Tauri's setup-closure spawns and the pre-`run()` taurpc binding-emission spawns share a single runtime. Must run BEFORE the Tauri Builder is constructed.
+
+```rust
+fn main() {
+    let runtime = tokio::runtime::Builder::new_multi_thread()
+        .enable_all()
+        .build()
+        .expect("failed to build tokio runtime");
+    let _enter = runtime.enter();
+    tauri::async_runtime::set(tokio::runtime::Handle::current());
+    // ... rest of main: observability::init, router construction, Builder::run() ...
+}
+```
+
+Drop order matters: `_enter` (the entered guard) must drop before `runtime` (the owned Runtime). Local variable declaration order achieves this — Rust drops in reverse declaration order, so `_enter` (declared after) drops first.
+
+`tauri::async_runtime::set` panics if called twice — boot must call it exactly once, before any Tauri/taurpc API. Subsequent `tauri::async_runtime::spawn` and the lazy global `RUNTIME` static both consume the handle we provided.
+
+See: `pulse-app/src/main.rs::main()` runtime entry block (the canonical implementation), this protocol's complement entry below from 2026-05-08 ("taurpc 0.7 emits no-path procedures...") which covers the SHAPE of bindings emission while this entry covers the RUNTIME prerequisite for emission to happen at all.
+
+---
+
 ## 2026-05-08 — taurpc 0.7 emits no-path procedures under empty-string router key in bindings.ts
 
 When `#[taurpc::procedures]` is declared WITHOUT a `path = "..."` attribute (top-level procedures per arch §Conventions "Endpoint naming" cross-cutting envelope), taurpc 0.7 emits the procedures into bindings.ts with an empty-string router key. Concretely, for the chunk #27 `IntrospectionApi { app_info, health, ready, get_settings, update_settings }` (no path attribute), the emitted ARGS_MAP line is:

@@ -1,14 +1,14 @@
 schema_version: 2
-last_wrap: 2026-05-09T19:50:49Z
-last_reconcile: 2026-05-09T19:50:49Z
+last_wrap: 2026-05-09T20:25:30Z
+last_reconcile: 2026-05-09T20:25:30Z
 
 last_completed_chunk:
   route_index: 32
   title: "Compact widget infographics + footer — service constellation aggregated badge, ingest/error/retention footer band, glance-readable from 2m"
   epoch: 5
   committed_at: 2026-05-09T19:50:49Z
-  commit_sha: f340c7e
-  commit_subject: "feat(widget): compact widget infographics + footer — service constellation badge + ingest/error/retention band (chunk #32); session 36"
+  commit_sha: b66016c
+  commit_subject: "feat(widget): compact widget infographics + footer — service constellation aggregated badge + ingest/error/retention footer band (chunk #32); session 36"
 
 in_progress: null
 
@@ -17,19 +17,31 @@ plan_freshness:
   security_mtime: 2026-05-08T21:18:36Z
   design_mtime: 2026-05-03T21:52:16Z
   layout_mtime: 2026-05-02T15:53:22Z
-  tests_mtime: 2026-05-09T16:00:54Z
+  tests_mtime: 2026-05-09T16:08:01Z
   obs_mtime: 2026-05-08T18:00:16Z
   a11y_mtime: 2026-05-02T21:45:23Z
   route_mtime: 2026-05-03T09:23:34Z
   input_mtime: 2026-05-02T06:52:58Z
 
 living_artifact_freshness:
-  dep_tree_reconciled_at: 2026-05-09T19:50:49Z
-  api_surface_reconciled_at: 2026-05-09T19:50:49Z
-  most_recent_code_mtime: 2026-05-09T19:30:00Z
+  dep_tree_reconciled_at: 2026-05-09T20:25:30Z
+  api_surface_reconciled_at: 2026-05-09T20:25:30Z
+  most_recent_code_mtime: 2026-05-09T20:18:04Z
   reconcile_failed: false
 
-drift_warnings: []
+drift_warnings:
+  - drift_id: D3
+    description: "arch §Occupied Resources lists streams.subscribe_{spans,metrics,logs} + telemetry.frontend.record_frame_ms (per Type 6 amendments archived 2026-05-09T11:55:00Z) but xtask/src/main.rs::EXPECTED_PROCEDURES (~lines 376-390) doesn't enumerate them; cargo xtask capability-drift exits 1 with 4 extras"
+    severity: warning
+    remediation_hint: "Extend xtask/src/main.rs::EXPECTED_PROCEDURES to add 4 hardcoded entries (streams.subscribe_{spans,metrics,logs} + telemetry.frontend.record_frame_ms); arch entries are canonical (Type 6 archived). Code-only fix."
+    first_observed_session_count: 37
+    last_observed_session_count: 37
+  - drift_id: D5
+    description: "test-plan.md mtime 2026-05-09T16:08:01Z > CLAUDE.md mtime 2026-05-09T14:35:56Z by ~1h32m. spec_amendments.active=[] → Case 3 generic per spec-amendment-protocol.md Part C. Likely benign: archived 2026-05-09T16-00-54-smoke-check-boot-discipline amendment scoped to test-plan.md Decisions Log + .claude/rules/testing.md Tier 2 only — no Tier 1 surface affected, so CLAUDE.md correctly NOT regenerated. Mtime heuristic produces false positive here."
+    severity: warning
+    remediation_hint: "Accept as benign (archived amendment correctly limited Tier 1 propagation) OR /andromeda-setup-project full re-derive to refresh CLAUDE.md mtime."
+    first_observed_session_count: 37
+    last_observed_session_count: 37
 
 spec_amendments:
   active: []
@@ -159,4 +171,4 @@ spec_amendments:
       propagated_by_run: .andromeda/runs/2026-05-09T16-11-10-setup-project-delta/
       archived_at: 2026-05-09T16:25:20Z
 
-session_count: 36
+session_count: 37
