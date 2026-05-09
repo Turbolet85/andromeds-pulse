@@ -1,6 +1,6 @@
 schema_version: 2
-last_wrap: 2026-05-09T11:55:00Z
-last_reconcile: 2026-05-09T11:55:00Z
+last_wrap: 2026-05-09T12:40:00Z
+last_reconcile: 2026-05-09T12:40:00Z
 
 last_completed_chunk:
   route_index: 29
@@ -13,41 +13,23 @@ last_completed_chunk:
 in_progress: null
 
 plan_freshness:
-  arch_mtime: 2026-05-09T11:50:00Z
-  security_mtime: 2026-05-09T01:00:00Z
+  arch_mtime: 2026-05-09T12:13:13Z
+  security_mtime: 2026-05-08T21:18:36Z
   design_mtime: 2026-05-03T21:52:16Z
   layout_mtime: 2026-05-02T15:53:22Z
-  tests_mtime: 2026-05-09T01:00:00Z
+  tests_mtime: 2026-05-08T21:20:07Z
   obs_mtime: 2026-05-08T18:00:16Z
   a11y_mtime: 2026-05-02T21:45:23Z
   route_mtime: 2026-05-03T09:23:34Z
   input_mtime: 2026-05-02T06:52:58Z
 
 living_artifact_freshness:
-  dep_tree_reconciled_at: 2026-05-09T11:55:00Z
-  api_surface_reconciled_at: 2026-05-09T11:55:00Z
+  dep_tree_reconciled_at: 2026-05-09T12:40:00Z
+  api_surface_reconciled_at: 2026-05-09T12:40:00Z
   most_recent_code_mtime: 2026-05-09T11:30:00Z
   reconcile_failed: false
 
-drift_warnings:
-  - drift_id: D5
-    description: "security-plan.md mtime (2026-05-09T01:00:00Z) > CLAUDE.md mtime (2026-05-04T22:44:32Z) — generic plan-freshness mismatch (no active spec_amendment match; the 2026-05-08 obs-pivot amendments archived prior session)"
-    severity: warning
-    remediation_hint: "/andromeda-setup-project (full re-derive) to advance CLAUDE.md mtime past plan mtime; OR investigate manual edit source if unexpected"
-    first_observed_session_count: 30
-    last_observed_session_count: 31
-  - drift_id: D5
-    description: "test-plan.md mtime (2026-05-09T01:00:00Z) > CLAUDE.md mtime (2026-05-04T22:44:32Z) — generic plan-freshness mismatch (no active spec_amendment match)"
-    severity: warning
-    remediation_hint: "/andromeda-setup-project (full re-derive) to advance CLAUDE.md mtime past plan mtime"
-    first_observed_session_count: 30
-    last_observed_session_count: 31
-  - drift_id: D5
-    description: "obs-plan.md mtime (2026-05-08T18:00:16Z) > CLAUDE.md mtime (2026-05-04T22:44:32Z) — generic plan-freshness mismatch (no active spec_amendment match)"
-    severity: warning
-    remediation_hint: "/andromeda-setup-project (full re-derive) to advance CLAUDE.md mtime past plan mtime"
-    first_observed_session_count: 30
-    last_observed_session_count: 31
+drift_warnings: []
 
 spec_amendments:
   active: []
@@ -167,4 +149,4 @@ spec_amendments:
       archived_at: 2026-05-09T11:55:00Z
       flag_used: --allow-arch-registry
 
-session_count: 31
+session_count: 32
