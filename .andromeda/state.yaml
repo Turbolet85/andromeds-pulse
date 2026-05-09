@@ -1,13 +1,13 @@
 schema_version: 2
-last_wrap: 2026-05-09T15:33:39Z
-last_reconcile: 2026-05-09T15:33:39Z
+last_wrap: 2026-05-09T16:25:20Z
+last_reconcile: 2026-05-09T16:25:20Z
 
 last_completed_chunk:
   route_index: 31
   title: "Halo State Pulse signature element — WebGPU pulse 0.8-2.4 Hz from throughput/1000, LCH Earth Blue↔Alert Burgundy per error rate, 4-16px blur per cycle, reduced-motion static-glow"
   epoch: 5
   committed_at: 2026-05-09T15:33:39Z
-  commit_sha: 649bc0f
+  commit_sha: 581b9fb
   commit_subject: "feat(halo): Halo State Pulse signature element (chunk #31); session 34"
 
 in_progress: null
@@ -17,49 +17,22 @@ plan_freshness:
   security_mtime: 2026-05-08T21:18:36Z
   design_mtime: 2026-05-03T21:52:16Z
   layout_mtime: 2026-05-02T15:53:22Z
-  tests_mtime: 2026-05-08T21:20:07Z
+  tests_mtime: 2026-05-09T16:00:54Z
   obs_mtime: 2026-05-08T18:00:16Z
   a11y_mtime: 2026-05-02T21:45:23Z
   route_mtime: 2026-05-03T09:23:34Z
   input_mtime: 2026-05-02T06:52:58Z
 
 living_artifact_freshness:
-  dep_tree_reconciled_at: 2026-05-09T15:33:39Z
-  api_surface_reconciled_at: 2026-05-09T15:33:39Z
+  dep_tree_reconciled_at: 2026-05-09T16:25:20Z
+  api_surface_reconciled_at: 2026-05-09T16:25:20Z
   most_recent_code_mtime: 2026-05-09T15:20:00Z
   reconcile_failed: false
 
 drift_warnings: []
 
 spec_amendments:
-  active:
-    - amendment_id: 2026-05-09T16-00-54-smoke-check-boot-discipline
-      plans:
-        - path: test-plan.md
-          sections:
-            - 3. Test Harness Contract
-            - 12. Test Decisions Log
-          decisions_log_section: "2026-05-09 — Document gap: §3 Test Harness Contract does not yet require runtime smoke check for boot-path-touching chunks"
-      trigger:
-        chunk: null
-        phase: null
-        harness: "user-driven via /andromeda-evolve"
-      authority:
-        winning_plan: test-plan.md
-        winning_tier: null
-        losing_plan: null
-        losing_concern: null
-        rationale: "User identified missing boot-smoke-gate coverage in §3 Test Harness Contract, surfaced empirically by chunk #31 Phase 2b smoke check catching chunk #27/#30 latent panic at crates/ui-bridge/src/health.rs:291. Documented gap rather than silent omission; implementation discipline applies in /andromeda-phase plan authoring going forward."
-      impl_files_synced: []
-      expected_propagation:
-        - .claude/rules/testing.md
-        - .claude/docs/tests-summary.md
-      marker_path: .andromeda/runs/2026-05-09T16-00-54-spec-amendment-smoke-check-boot-discipline/amendment.md
-      applied_at: 2026-05-09T16:00:54Z
-      noted_at: null
-      propagated_by_run: .andromeda/runs/2026-05-09T16-11-10-setup-project-delta/
-      archived_at: null
-      verification_status: clean
+  active: []
   archive:
     - amendment_id: 2026-05-03T21-30-00Z-lift-accent
       plans:
@@ -175,5 +148,15 @@ spec_amendments:
       propagated_by_run: .andromeda/runs/2026-05-09T11-50-00-setup-project-delta/
       archived_at: 2026-05-09T11:55:00Z
       flag_used: --allow-arch-registry
+    - amendment_id: 2026-05-09T16-00-54-smoke-check-boot-discipline
+      plans:
+        - path: test-plan.md
+          sections:
+            - 3. Test Harness Contract
+            - 12. Test Decisions Log
+      decisions_log_sections:
+        - "2026-05-09 — Document gap: §3 Test Harness Contract does not yet require runtime smoke check for boot-path-touching chunks"
+      propagated_by_run: .andromeda/runs/2026-05-09T16-11-10-setup-project-delta/
+      archived_at: 2026-05-09T16:25:20Z
 
-session_count: 34
+session_count: 35
