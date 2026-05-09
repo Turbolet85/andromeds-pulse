@@ -1,6 +1,6 @@
 schema_version: 2
-last_wrap: 2026-05-08T20:15:15Z
-last_reconcile: 2026-05-08T20:15:15Z
+last_wrap: 2026-05-09T01:30:00Z
+last_reconcile: 2026-05-09T01:30:00Z
 
 last_completed_chunk:
   route_index: 28
@@ -10,22 +10,26 @@ last_completed_chunk:
   commit_sha: 842e045
   commit_subject: "feat(webgpu): WebGPU canvas + WGSL render pipeline — navigator.gpu adapter detection (graceful-degrade fallback) + 3 shader factories aligned to viz routers (traces/metrics/logs) + semantic <region> wrapper + reduced-motion gate (chunk #28); session 28 opens Epoch 5"
 
-in_progress: null
+in_progress:
+  phase: 26
+  chunks: [29]
+  artifacts: [combined.md, research.md, plan.md]
+  started_at: 2026-05-09T00:15:00Z
 
 plan_freshness:
   arch_mtime: 2026-05-02T06:52:58Z
-  security_mtime: 2026-05-08T18:00:11Z
+  security_mtime: 2026-05-09T01:00:00Z
   design_mtime: 2026-05-03T21:52:16Z
   layout_mtime: 2026-05-02T15:53:22Z
-  tests_mtime: 2026-05-08T18:00:27Z
+  tests_mtime: 2026-05-09T01:00:00Z
   obs_mtime: 2026-05-08T18:00:16Z
   a11y_mtime: 2026-05-02T21:45:23Z
   route_mtime: 2026-05-03T09:23:34Z
   input_mtime: 2026-05-02T06:52:58Z
 
 living_artifact_freshness:
-  dep_tree_reconciled_at: 2026-05-08T20:15:15Z
-  api_surface_reconciled_at: 2026-05-08T20:15:15Z
+  dep_tree_reconciled_at: 2026-05-09T01:30:00Z
+  api_surface_reconciled_at: 2026-05-09T01:30:00Z
   most_recent_code_mtime: 2026-05-08T20:15:15Z
   reconcile_failed: false
 
@@ -33,73 +37,12 @@ drift_warnings:
   - drift_id: D3
     description: "chunk #23 introduced `streams.{subscribe_spans, subscribe_metrics, subscribe_logs}` TauRPC procedures via pulse-app/src/streams.rs, but arch §Occupied Resources Tauri IPC routes list does NOT include `streams.*` namespace"
     severity: warning
-    remediation_hint: "Now mechanically detected by chunk #27 xtask capability-drift (returns exit 1 with 3 extras). Resolution: either /andromeda-scope-arch to legitimize streams.* in arch §Occupied Resources, OR revert chunk #23 streams.rs registration. STALE-DRIFT (age 5 wraps) — strongly recommend resolving this session per session-state-contract.md v2.1."
+    remediation_hint: "Now mechanically detected by chunk #27 xtask capability-drift (returns exit 1 with 3 extras). Resolution: either /andromeda-scope-arch to legitimize streams.* in arch §Occupied Resources (ideally alongside chunk #29's planned `telemetry.*` namespace — single arch update for both), OR revert chunk #23 streams.rs registration. STALE-DRIFT (age 6 wraps) — strongly recommend resolving this session per session-state-contract.md v2.1."
     first_observed_session_count: 23
-    last_observed_session_count: 28
+    last_observed_session_count: 29
 
 spec_amendments:
-  active:
-    - amendment_id: 2026-05-08T21-00-00-obs-pivot-security-bodies
-      plans:
-        - path: security-plan.md
-          sections:
-            - Data Protection
-            - Bootstrap phases
-            - Logging & Monitoring
-            - Security Decisions Log
-          decisions_log_section: "2026-05-08 — Annotate body deprecation: §Data Protection / §Bootstrap / §Logging opentelemetry-stdout refs"
-      trigger:
-        chunk: null
-        phase: null
-        harness: "user-driven via /andromeda-evolve"
-      authority:
-        winning_plan: security-plan.md
-        winning_tier: null
-        losing_plan: null
-        losing_concern: deprecated-body-content-needing-visibility-annotation
-        rationale: "Type 5 deprecation flag (Path 1 uniform scope). Adds `> **DEPRECATED**` annotations at §Data Protection (line 154), §Bootstrap phases (line 239), §Logging & Monitoring (line 330). Body preserved for audit trail. Extends prior 2026-05-08T17-28-25Z reconcile amendment (DL only). Body rewrite reserved for /andromeda-security re-run."
-      impl_files_synced: []
-      expected_propagation:
-        - .claude/rules/security.md
-        - .claude/rules/observability.md
-        - .claude/docs/security-summary.md
-        - .claude/docs/obs-summary.md
-        - CLAUDE.md GENERATED:setup:warnings
-      marker_path: .andromeda/runs/2026-05-08T21-00-00-spec-amendment-obs-pivot-security-bodies/amendment.md
-      applied_at: 2026-05-08T21:00:00Z
-      noted_at: null
-      propagated_by_run: .andromeda/runs/2026-05-09T01-00-00-setup-project-delta/
-      archived_at: null
-      verification_status: clean
-
-    - amendment_id: 2026-05-08T21-00-00-obs-pivot-test-bodies
-      plans:
-        - path: test-plan.md
-          sections:
-            - 1. Test Scope Summary
-            - Test Anti-Patterns (Project-specific)
-            - 12. Test Decisions Log
-          decisions_log_section: "2026-05-08 — Annotate body deprecation: §1 self-observation loop prevention triggers + §Anti-Patterns OTLP self-dialing row"
-      trigger:
-        chunk: null
-        phase: null
-        harness: "user-driven via /andromeda-evolve"
-      authority:
-        winning_plan: test-plan.md
-        winning_tier: null
-        losing_plan: null
-        losing_concern: deprecated-body-content-needing-visibility-annotation
-        rationale: "Type 5 deprecation flag (Path 1 uniform scope). Adds `**[DEPRECATED]**` table-row prefixes at §1 trigger rows (lines 48, 255) + `> **DEPRECATED**` blockquote inside §Anti-Patterns bullet (line 866). Body preserved for audit trail. Extends prior 2026-05-08T17-28-26Z deprecate-self-otlp-loop-test amendment (DL only)."
-      impl_files_synced: []
-      expected_propagation:
-        - .claude/rules/testing.md
-        - .claude/docs/tests-summary.md
-      marker_path: .andromeda/runs/2026-05-08T21-00-00-spec-amendment-obs-pivot-test-bodies/amendment.md
-      applied_at: 2026-05-08T21:00:00Z
-      noted_at: null
-      propagated_by_run: .andromeda/runs/2026-05-09T01-00-00-setup-project-delta/
-      archived_at: null
-      verification_status: clean
+  active: []
   archive:
     - amendment_id: 2026-05-03T21-30-00Z-lift-accent
       plans:
@@ -170,5 +113,28 @@ spec_amendments:
         - "2026-05-08 — Document missing capability-widening static analysis tests"
       propagated_by_run: .andromeda/runs/2026-05-08T18-43-08-setup-project-delta/
       archived_at: 2026-05-08T20:15:15Z
+    - amendment_id: 2026-05-08T21-00-00-obs-pivot-security-bodies
+      plans:
+        - path: security-plan.md
+          sections:
+            - Data Protection
+            - Bootstrap phases
+            - Logging & Monitoring
+            - Security Decisions Log
+      decisions_log_sections:
+        - "2026-05-08 — Annotate body deprecation: §Data Protection / §Bootstrap / §Logging opentelemetry-stdout refs"
+      propagated_by_run: .andromeda/runs/2026-05-09T01-00-00-setup-project-delta/
+      archived_at: 2026-05-09T01:30:00Z
+    - amendment_id: 2026-05-08T21-00-00-obs-pivot-test-bodies
+      plans:
+        - path: test-plan.md
+          sections:
+            - 1. Test Scope Summary
+            - Test Anti-Patterns (Project-specific)
+            - 12. Test Decisions Log
+      decisions_log_sections:
+        - "2026-05-08 — Annotate body deprecation: §1 self-observation loop prevention triggers + §Anti-Patterns OTLP self-dialing row"
+      propagated_by_run: .andromeda/runs/2026-05-09T01-00-00-setup-project-delta/
+      archived_at: 2026-05-09T01:30:00Z
 
-session_count: 28
+session_count: 29

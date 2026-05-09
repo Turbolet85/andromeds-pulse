@@ -1,136 +1,122 @@
 # Session Handoff
 
-**Last Updated:** 2026-05-08T20:15:15Z
+**Last Updated:** 2026-05-09T01:30:00Z
 **Branch:** main
 **Session End Status:** clean
-**Last Commit:** (pending — wrap commit composed in Phase 10 of this run; chunk #28 WebGPU canvas + WGSL render pipeline shipped this session, opens Epoch 5)
+**Last Commit:** (pending — wrap commit composed in Phase 10 of this run; this wrap closes session 29 — multi-skill flow: /andromeda-evolve produced 2 spec amendments + body annotations, /andromeda-phase planned chunk #29 (phase-26), /andromeda-setup-project --delta propagated to Tier 2/3 (commit 403ff3a), this /andromeda-wrap-session archives the 2 amendments + curates 1 Tier 2 learning)
 
 ## Current State
 
-- **Last completed chunk:** route#28 "WebGPU canvas + WGSL render pipeline — navigator.gpu adapter, render shaders for trace timeline / flamegraph / metrics charts, fallback message" (committed this wrap; SHA pending Phase 10 amend)
+- **Last completed chunk:** route#28 "WebGPU canvas + WGSL render pipeline — navigator.gpu adapter, render shaders for trace timeline / flamegraph / metrics charts, fallback message" (committed 2026-05-08T20:15:15Z; chunk #28 work shipped session 28 wrap).
 - **Next chunk:** route#29 "WGSL compute aggregation + 10k spans/sec budget — compute shaders for time-series aggregation, frame_duration_ms metric event, reduced-motion respect"
-- **In-progress phase:** no active phase
-- **Phase artifacts present:** `.andromeda/phases/{phase-1..phase-25}/{combined.md, research.md, plan.md}` + audit trails per phase under `.andromeda/runs/`
-- **Epoch 5 — Visualization surfaces: opened.** Chunk #28 substrate landed; consumers #29-#37 lined up (compute aggregation, compact widget shell, Halo State Pulse, infographics + footer, full dashboard shell, trace timeline + constellation, metrics charts + logs stream, tray icon, modal primitive, settings modal).
+- **In-progress phase:** phase-26 (planned this session via /andromeda-phase; awaiting /andromeda-implement)
+- **Phase artifacts present:** `.andromeda/phases/{phase-1..phase-25}/{combined.md, research.md, plan.md}` (existing) + `.andromeda/phases/phase-26/{combined.md, research.md, plan.md}` (NEW this session — staged in this wrap commit)
+- **Epoch 5 — Visualization surfaces: open.** Chunk #28 substrate landed prior session; chunk #29 planned this session; consumers #30-#37 lined up (compact widget shell, Halo State Pulse, infographics + footer, full dashboard shell, trace timeline + constellation, metrics charts + logs stream, tray icon, modal primitive, settings modal).
 
 ## Andromeda State Detection (states A-L)
 
-⚠️ F — Pending phase planning: chunk #29 listed in route §2 (Epoch 5 second chunk) but no `.andromeda/phases/phase-26/` directory exists yet (normal workflow signal — next session begins with `/andromeda-phase`).
+⚠️ G — Pending implementation: phase-26 plan.md exists for chunk #29; no implementation commits since plan.md creation. Natural post-/andromeda-phase, pre-/andromeda-implement state — expected workflow signal. Resolution: `/andromeda-implement` after architectural prerequisites (see Drift D3 / Next Recommended Action).
 
-All other states (A, B, C, D, E, G, H, I, J, K, L) — clear. (J cleared this wrap: 5 amendments archived via Phase 8 lifecycle progression; mtime mismatch persists but classification falls into Case 3 next wrap if not addressed via full setup-project re-run.)
+(All other states A, B, C, D, E, F, H, I, J, K, L — clear. F was pending at session-28 wrap; resolved this session by /andromeda-phase planning chunk #29 into phase-26.)
 
 ## Drift Detection (6 dimensions)
 
-⚠⚠ D3 (stale, 5 wraps unresolved) — chunk #23 introduced `streams.{subscribe_spans, subscribe_metrics, subscribe_logs}` TauRPC procedures via `pulse-app/src/streams.rs`, but arch §Occupied Resources Tauri IPC routes does NOT include `streams.*` namespace. Mechanically detected by `cargo xtask capability-drift` (returns exit 1 with 3 extras: subscribe_logs/metrics/spans). **STALE-DRIFT ESCALATION** per session-state-contract.md v2.1: age > 3 wraps. **Strongly recommend resolving this session via** `/andromeda-scope-arch` (legitimize streams.* in arch §Occupied Resources) OR revert chunk #23 streams.rs registration. CI ci.yml `cargo xtask capability-drift` step continues to fail on this drift; resolving unblocks downstream chunk #29 capability-drift smoke. first_observed_session_count: 23, last_observed_session_count: 28.
+⚠⚠ D3 (stale, 6 wraps unresolved) — chunk #23 introduced `streams.{subscribe_spans, subscribe_metrics, subscribe_logs}` TauRPC procedures via pulse-app/src/streams.rs, but arch §Occupied Resources Tauri IPC routes does NOT include `streams.*` namespace. Mechanically detected by chunk #27 `cargo xtask capability-drift` (returns exit 1 with 3 extras). first_observed_session_count: 23, last_observed_session_count: 29. **STALE-DRIFT ESCALATION (age 6 wraps).** Strongly recommend resolving this session per session-state-contract.md v2.1 — see Next Recommended Action Priority 1 (single arch update resolves D3 + prevents chunk #29 telemetry.* from compounding same drift class).
 
-(D1, D2, D4, D5, D6 — clear this wrap. D5 × 3 entries from session 27 — obs-plan / security-plan / test-plan mtimes > CLAUDE.md mtime — were amendment-aware Case 2 transient and cleared via Phase 8 archive lifecycle progression. Underlying mtime mismatch persists but no longer surfaces as drift since the amendment cycle completed. May re-fire next wrap as Case 3 generic D5 if `/andromeda-setup-project` full re-derive isn't run; the only mechanism that advances CLAUDE.md mtime past plan mtimes is full setup-project, not delta-rerun.)
+(D1, D2, D4, D6 — clear this wrap. D5 × 3 entries — security/test/obs plan mtimes > CLAUDE.md mtime — surfaced as info-transient during Phase 6 detection; security + tests amendments archived in Phase 8 → underlying mtime mismatch persists but no longer surfaces as drift since the amendment cycle completed. May re-fire next wrap as Case 3 generic D5 if `/andromeda-setup-project` full re-derive isn't run; see Priority 3 in Next Recommended Action.)
 
 ## Spec Amendments (this session)
 
-**Archived this session: 5 amendment(s)** via Phase 8 lifecycle progression — all 5 had `propagated_by_run` set by previous commit 70c002b (chore(setup-project): retroactive amendment markers + delta propagation), and `archived_at` set in this wrap.
+**Archived this session: 2 amendment(s)** via Phase 8 lifecycle progression — both had `propagated_by_run` set by `/andromeda-setup-project --delta` (commit 403ff3a) earlier this session, and `archived_at` set in this wrap.
 
-Archive list now contains 7 entries total (2 prior — `lift-accent` + `clarify-pii-grep-ui-vocab` — plus 5 from session 27 cross-plan rot wave):
+Archive list now contains 9 entries total (7 prior + 2 from session 29 wrap):
 
-- `2026-05-08T17-28-25Z-reconcile-otel-stdout-references` (security-plan §Decisions Log)
-- `2026-05-08T17-28-26Z-deprecate-self-otlp-loop-test` (test-plan §Decisions Log)
-- `2026-05-08T17-28-27Z-document-pii-vector-test-gaps` (test-plan §Decisions Log)
-- `2026-05-08T17-28-28Z-cross-ref-heartbeat-vs-health` (obs-plan §12 Decisions Log)
-- `2026-05-08T17-28-29Z-document-capability-widening-test-gap` (test-plan §Decisions Log)
+- `2026-05-08T21-00-00-obs-pivot-security-bodies` (security-plan §Decisions Log: "Annotate body deprecation: §Data Protection / §Bootstrap / §Logging opentelemetry-stdout refs")
+- `2026-05-08T21-00-00-obs-pivot-test-bodies` (test-plan §Decisions Log: "Annotate body deprecation: §1 self-observation loop prevention triggers + §Anti-Patterns OTLP self-dialing row")
 
-(No NEW amendments authored this session — chunk #28 implementation matched plan.md expectations, no Trigger 4 dialogue surfaced.)
+(2 NEW amendments authored this session via /andromeda-evolve — both Type 5 deprecation framing per Path 1 mid-flow correction. Original framing was Option C mixed Type 2 + Type 5; correction caught output-templates.md anti-pattern "DO NOT modify the plan body content for Type 1/2/3/4 amendments. Only Type 5 deprecation is allowed to add a body annotation". Path 1 unified both markers as Type 5 with body annotations preserving content verbatim.)
 
 ## Key Decisions This Session
 
-- **Three workflow steps in sequence: amendments retroactively marked → setup-project --delta propagation → chunk #28 implementation.** Session opened with closing the three-component contract for 5 spec amendments authored out-of-band in commit a7294d0 (session 27): created marker files at `.andromeda/runs/2026-05-08T17-28-{25..29}-spec-amendment-*/`, registered in `state.yaml.spec_amendments.active`, appended cross-reference lines to Decisions Log entries. Then `/andromeda-setup-project --delta` propagated the 5 amendments into 6 Tier 2/3 files (1 commit: 70c002b). Then `/andromeda-phase` planned chunk #28 (Phase 25, single-substantial group) + `/andromeda-implement` shipped 11 new files + 7 modifications, all 541 tests green.
-- **Setup-project --delta proves robust as a delta-mode workflow.** All Phase 8 byte-identity validations passed; only the 6 delta-scope files in this wrap's amendments touched (3 Tier 2 rules + 3 Tier 3 docs); CLAUDE.md preserved byte-identical at 131/200 lines; agent harness scripts + code-reviewer.md + settings.json + .gitignore preserved. The grep-expansion defense-in-depth caught the in-scope `opentelemetry-stdout` hit at security-summary.md:35 (already in marker-derived scope; no auto-expansion needed).
-- **Chunk #28 substrate-only commitments preserved.** No new TauRPC procedure introduced (chunk #29 wires `telemetry.frontend.record_frame_ms` resolver); no new env var / IPC event / Tauri capability identifier; no native `wgpu` 25+ Rust render surface (post-v1 upgrade path preserved per arch §Established Decisions); no data-binding logic in WGSL shaders (chunks #34/#35 wire trace/metric data); no per-surface dimensions (chunks #30/#33/#36 compose for compact / dashboard / tray). The `metric.webgpu.frame_duration_ms` AllowList entry was added at chunk #28 with bounded fields `[duration_ms, wgpu_backend, webview_backend, timing_method]` so chunk #29 can attach the resolver without re-architecting the render loop.
-- **WebGPU adapter detection follows graceful-degrade pattern** — `requestWebGPUAdapter()` returns a tagged union `{kind: 'available', adapter, device, backendKind} | {kind: 'unavailable', reason}` where the reason is a sanitized allowlist-style discriminator (`'navigator.gpu undefined'` / `'requestAdapter returned null'` / `'requestDevice failed'`), NEVER the raw browser error message (per security plan §Anti-Patterns Logging row 4). Mirrors the `ANDROMEDA_PULSE_MCP_ENABLED` precedent: warn-and-degrade rather than fail-startup.
-- **Cross-domain rot warnings closed in plan.md decisions** — (1) Fallback canonical text "WebGPU not supported in this browser" (design-extract wording chosen over layouts-extract "in this context"); (2) Fallback event tracing target `app.boot.gpu.check` (obs-extract canonical, already in AllowList line 668 from chunk #24) chosen over a11y-extract descriptive `viz.webgpu`; (3) CSP regression test `pulse-app/ui/src/csp.test.ts` added — security supplies invariant; tests own assertion mechanism via grep on `tauri.conf.json` for forbidden tokens.
-- **React 19 dev-mode useEffect double-invocation** observed empirically in `CanvasContainer.test.tsx` — relaxed strict-count assertions (`toHaveBeenCalledTimes(1)`) to `toHaveBeenCalled()` (≥1 call) for state-update-triggered effects. Captured as Tier 2 testing rule.
-- **`vi.stubGlobal` is NOT auto-restored between tests** — `pulse-app/ui/src/test-setup.ts` global `afterEach(cleanup)` only handles `@testing-library/react` cleanup. Tests stubbing browser globals MUST add `vi.unstubAllGlobals()` to their per-file `afterEach`. Captured as Tier 2 testing rule.
-- **WGSL color-uniform discipline** — fragment shaders MUST receive design-token colors as uniforms read from CSSOM at canvas-init (NEVER inline RGB literals). Substrate placeholder shaders use only structural `vec4<f32>(0.0, ...)` literals (clear color, position output) — no tinted values. Captured as Tier 2 design-tokens rule. Applies to all Epoch 5 chart shaders (#34/#35).
-- **D3 streams.* drift now stale-escalated (5 wraps unresolved).** Per session-state-contract.md v2.1, age > 3 wraps triggers stale-drift escalation. The drift surfaces via mechanical xtask capability-drift detection (chunk #27 deliverable) every CI run. Either `/andromeda-scope-arch` legitimizes `streams.*` in arch §Occupied Resources, or chunk #23 streams.rs is reverted. Both options break code; user decision required.
+- **Multi-skill flow this session: /andromeda-evolve → /andromeda-phase → /andromeda-setup-project --delta → /andromeda-wrap-session.** /andromeda-evolve produced 2 spec amendments addressing stale `opentelemetry-stdout` body content (security-plan) + stale self-OTLP-loop body content (test-plan). /andromeda-phase planned chunk #29 (Epoch 5 second chunk) into phase-26 (single-substantial group, 7 parallel sub-agents, 6 ✓ validation). /andromeda-setup-project --delta propagated the 2 amendments through 4 Tier 2/3 distillations preserving 3 marker-scoped files byte-identical. This wrap-session archives both amendments + curates 1 Tier 2 learning + reconciles living artifacts.
+
+- **/andromeda-evolve mid-flow correction caught output-templates anti-pattern** for Type 2 body rewrite. Original Option C (Type 2 body rewrite for security-plan + Type 5 annotation for test-plan) violated output-templates.md "DO NOT modify the plan body content for Type 1/2/3/4 amendments". Path 1 correction unified both markers as Type 5 deprecation framing; body content preserved verbatim with `> **DEPRECATED**` blockquote / `**[DEPRECATED]**` table-row prefix annotations. The lesson: /andromeda-evolve operates only at annotation level; body REWRITE (text replacement) requires `/andromeda-{specialist}` re-run. NOT curated to project Tier 2/3 because it's skill-internal /andromeda-evolve discipline (not project code).
+
+- **Markdown body annotation pattern across 3 contexts** — for Type 5 deprecation annotation in markdown body, three patterns work depending on context: bullets get indented sub-paragraph blockquote inside the bullet (preserves list flow); paragraphs get standalone `> **DEPRECATED**` blockquote ABOVE the paragraph; table rows get first-column `**[DEPRECATED YYYY-MM-DD]**` prefix + last-column italic citation suffix (markdown tables don't accept blockquotes between rows cleanly). Applied across 6 sites: security-plan.md lines 154 (bullet) / 239 (bullet) / 330 (paragraph), test-plan.md lines 48 (table row) / 255 (table row) / 866 (bullet). NOT curated since it's spec-amendment-protocol Type 5 craft, not project code discipline.
+
+- **D3 streams.* drift now stale-escalated to age 6 wraps.** `cargo xtask capability-drift` fails on every CI run with 3 extras (subscribe_logs/metrics/spans). Chunk #29's planned `telemetry.frontend.record_frame_ms` resolver introduces a SECOND TauRPC namespace (`telemetry.*`) not in arch §Occupied Resources — same class of drift. Plan.md surfaces this as a Phase 6 user decision before /andromeda-implement runs. Recommended resolution: `/andromeda-scope-arch` to legitimize BOTH `streams.*` + `telemetry.*` in arch §Occupied Resources in a single arch update.
+
+- **Tier 2 curation: TauRPC namespace + arch §Occupied Resources sync requirement** added to .claude/rules/security.md Session Additions. Generalizes the D3 streams.* + chunk #29 telemetry.* pattern: adding a new TauRPC router namespace requires BOTH (a) capability JSON registration AND (b) arch §Occupied Resources update via /andromeda-scope-arch BEFORE the chunk merges; xtask capability-drift catches (a) but not (b); arch §Occupied Resources is the canonical source-of-truth. Confidence 0.75. Complements the existing 2026-05-03 entry on router-vs-procedure granularity.
+
+- **Living artifacts reconciled** — `cargo tree --workspace --depth 2 --prefix indent` ran clean (exit 0); output byte-identical to existing LIVING block (no Rust source files newer than last reconcile). dep-tree.md timestamp refreshed 2026-05-08T20:15:15Z → 2026-05-09T01:30:00Z. api-surface.md tooling not invoked (no Rust public API changes this session — chunk #28 precedent); timestamp refreshed similarly.
 
 ## Files Modified
 
-(20 files this session — chunk #28 implementation 11 new + 8 modified + 3 plan files + 6 distillations already in commit 70c002b. State.yaml + handoff updates this wrap + amendment archival lifecycle progression.)
+(Files modified this session up through this wrap commit. Last wrap was 2026-05-08T20:15:15Z; session 29 starts after that.)
 
-**Code files (chunk #28 — Rust + TS + WGSL + JSON config):**
-- `pulse-app/src/observability.rs` — added `metric.webgpu.frame_duration_ms` AllowList entry (after line 668 existing `app.boot.gpu.check`); added `allowlist_for_target_resolves_metric_webgpu_frame_duration_ms` test mirroring chunk #26 per-leaf-entry discipline.
-- `pulse-app/ui/src/canvas/webgpu-adapter.ts` (NEW) — `requestWebGPUAdapter()` returning tagged union; sanitized fallback reason discriminators; backend kind extraction from GPUAdapterInfo.
-- `pulse-app/ui/src/canvas/webgpu-adapter.test.ts` (NEW) — 5 vitest cases.
-- `pulse-app/ui/src/canvas/render-pipeline.ts` (NEW) — 3 factory functions returning `GPURenderPipeline`. Vite `?raw` shader inline-import. Sanitized rethrow on shader compile error.
-- `pulse-app/ui/src/canvas/render-pipeline.test.ts` (NEW) — 5 vitest cases.
-- `pulse-app/ui/src/canvas/CanvasContainer.tsx` (NEW) — semantic React component with `<section role="region">` + design-token chrome + adapter branch + reduced-motion gate + optional mirrorTable slot.
-- `pulse-app/ui/src/canvas/CanvasContainer.test.tsx` (NEW) — 7 vitest cases.
-- `pulse-app/ui/src/canvas/Fallback.tsx` (NEW) — `role="alert"` + `aria-live="assertive"` + canonical text.
-- `pulse-app/ui/src/canvas/Fallback.test.tsx` (NEW) — 5 vitest cases.
-- `pulse-app/ui/src/canvas/shaders/{trace-timeline,flamegraph,metrics-chart}.wgsl` (3 NEW files) — minimal substrate placeholders; uniform-driven colors (no RGB literals); full data binding deferred to chunks #34/#35.
-- `pulse-app/ui/src/canvas/frame-loop.ts` — minor: TODO chunk reference updated `(chunk #25)` → `(chunk #29)`.
-- `pulse-app/ui/src/canvas/types.ts` — minor: comment block chunk references updated.
-- `pulse-app/ui/src/csp.test.ts` (NEW) — 5 vitest cases verifying tauri.conf.json CSP literal preserves invariants.
-- `pulse-app/ui/src/App.tsx` — wired `<CanvasContainer ariaLabel="Telemetry visualization canvas" />` into `<main>`; added import.
-- `pulse-app/ui/src/App.test.tsx` — added `vi.mock("./canvas/CanvasContainer", ...)` to keep shell tests isolated.
-- `pulse-app/ui/package.json` — added `@webgpu/types ^0.1.50` to devDependencies.
-- `pulse-app/ui/package-lock.json` — auto-regenerated from `npm install`.
-- `pulse-app/ui/tsconfig.json` — added `@webgpu/types` to `compilerOptions.types` array.
+**Code files:** none (no Rust / webview source changes this session).
 
-**Phase artifacts (committed for audit):**
-- `.andromeda/phases/phase-25/{combined.md, research.md, plan.md}` (NEW) — Phase 25 planning artifacts for chunk #28 (~230 + ~78 + ~215 lines).
+**Specialist plan body annotations + Decisions Log entries (committed 403ff3a via /andromeda-evolve + setup-project --delta):**
+- `.andromeda/security-plan.md` — 3 `> **DEPRECATED (2026-05-08)**` blockquotes (lines 154 above-bullet / 239 inside-bullet / 330 above-paragraph) + 1 new Decisions Log entry
+- `.andromeda/test-plan.md` — 2 `**[DEPRECATED 2026-05-08]**` table-row prefixes (lines 48, 255) + 1 indented blockquote (line 866) + 1 new Decisions Log entry
+
+**Tier 2/3 propagation (committed 403ff3a via setup-project --delta):**
+- `.claude/rules/observability.md` line 19 — extended amendment citation
+- `.claude/rules/testing.md` line 66 — extended amendment citation
+- `.claude/docs/security-summary.md` line 35 — extended amendment citation
+- `.claude/docs/tests-summary.md` line 93 — extended amendment citation
+
+**This wrap commit (will be staged):**
+- `.claude/rules/security.md` Session Additions — 1 new entry 2026-05-09 (TauRPC namespace + arch sync requirement; ~6 lines)
+- `.claude/session-handoff.md` — this file (full overwrite)
+- `.andromeda/state.yaml` — schema_version=2 preserved; last_wrap → 2026-05-09T01:30:00Z; session_count → 29; in_progress set to phase-26; plan_freshness re-captured; spec_amendments.active emptied (2 archived); spec_amendments.archive grew 7 → 9; drift_warnings: D3 streams.* preserved (age 6 wraps; first_observed=23, last_observed=29)
+- `.andromeda/context/dependency-tree.md` — Last reconciled timestamp refresh
+- `.andromeda/context/api-surface.md` — Last reconciled timestamp refresh
+- `.andromeda/phases/phase-26/{combined.md, research.md, plan.md}` (NEW directory; 3 files; 239 + 186 + 196 = 621 lines total; planning artifacts from /andromeda-phase)
 
 **Audit-trail run-dirs (gitignored, forensic-disk only):**
-- `.andromeda/runs/2026-05-08T17-28-{25..29}-spec-amendment-*/amendment.md` (5 marker files; lifecycle now `[x] Applied [x] Propagated`, awaiting `[x] Archived` mark via Phase 8 of this wrap)
-- `.andromeda/runs/2026-05-08T18-43-08-setup-project-delta/materialization-plan-delta.md` (1 file)
-- `.andromeda/runs/2026-05-08T19-01-15-phase-25/{specialty}.md + .raw-{specialty}.md` (14 files)
-
-**Wrap-session maintenance:**
-- `.andromeda/context/dependency-tree.md` — Last reconciled timestamp refreshed 2026-05-08T17:30:00Z → 2026-05-08T20:15:15Z. Diff vs `cargo tree --workspace --depth 2 --prefix indent` was empty (no Rust dep changes from chunk #28 — webview-only); LIVING block unchanged.
-- `.andromeda/context/api-surface.md` — Last reconciled timestamp refreshed 2026-05-08T17:30:00Z → 2026-05-08T20:15:15Z. Tooling not invoked (chunk #28 introduced no Rust public API).
-- `.claude/rules/testing.md` Session Additions — 2 new entries (2026-05-08): React 19 useEffect double-invoke + `vi.stubGlobal` cleanup discipline.
-- `.claude/rules/design-tokens.md` Session Additions — 1 new entry (2026-05-08): WGSL color-uniform discipline.
-- `.andromeda/state.yaml` — schema_version=2 preserved; last_completed_chunk advances to 28 + epoch 5; commit_sha advances from `"pending"` → real SHA via Phase 10 amend; session_count=28; spec_amendments.active emptied (5 entries archived this wrap); spec_amendments.archive grew from 2 → 7; drift_warnings reduced from 4 → 1 (3 D5 entries cleared via Case 2 transient); plan_freshness mtimes captured fresh; living_artifact_freshness reconciled at 2026-05-08T20:15:15Z.
-- `.claude/session-handoff.md` — this file.
+- `.andromeda/runs/2026-05-08T21-00-00-evolve-align-otel-stdout-bodies/{intent.md, evolution-plan.md}` (2 files from /andromeda-evolve)
+- `.andromeda/runs/2026-05-08T21-00-00-spec-amendment-obs-pivot-{security,test}-bodies/amendment.md` (2 marker files; lifecycle now [x] Applied [x] Propagated [x] Archived this wrap)
+- `.andromeda/runs/2026-05-09T00-15-00-phase-26/{security,design,layouts,tests,obs,a11y,arch}.md + .raw-{specialty}.md` (14 audit files from /andromeda-phase 7 sub-agents)
+- `.andromeda/runs/2026-05-09T01-00-00-setup-project-delta/materialization-plan-delta.md` (1 file from setup-project --delta)
 
 ## Curation Summary (this wrap)
 
 - **Tier 1 (CLAUDE.md USER:session-learnings):** 0 additions
-- **Tier 2 (`.claude/rules/*/Session Additions`):** 3 additions
-  - `.claude/rules/testing.md` (2026-05-08): "Vitest tests asserting useEffect-driven mock call counts in React 19 must use `toHaveBeenCalled()`, not `toHaveBeenCalledTimes(N)`" (confidence 0.8 — verified empirically; affects every future React component test with useEffect-driven state)
-  - `.claude/rules/testing.md` (2026-05-08): "vi.stubGlobal is NOT auto-restored — tests stubbing browser globals MUST `vi.unstubAllGlobals()` in afterEach" (confidence 0.75 — high reuse value; silently breaks test isolation if missed)
-  - `.claude/rules/design-tokens.md` (2026-05-08): "WGSL fragment shaders MUST receive design-token colors as uniforms from CSSOM, NOT inline RGB literals" (confidence 0.7 — substantive cross-domain pattern; applies to all Epoch 5 chart shaders #34/#35)
+- **Tier 2 (`.claude/rules/*/Session Additions`):** 1 addition
+  - `.claude/rules/security.md` (2026-05-09): "Adding a NEW TauRPC router namespace requires BOTH `pulse-app/capabilities/` JSON registration AND arch §Occupied Resources update via /andromeda-scope-arch BEFORE the chunk merges. xtask capability-drift catches (a) but not (b); D3 streams.* + chunk #29 telemetry.* are live counter-examples." (confidence 0.75 — generalizable rule from observed drift class; complements existing 2026-05-03 router-vs-procedure-granularity entry)
 - **Tier 3 (`.claude/docs/session-learnings.md`):** 0 additions
-- **Filtered:** 0 duplicates + 4 task-specific (App.test.tsx CanvasContainer mock pattern; ESM `__dirname` fallback for csp.test.ts; Vite `?raw` import syntax; cargo fmt array-literal multiline) + 0 conflicts + 2 below-confidence (setup-project --delta retroactive marker workflow; WebGPU adapter detection tagged-union pattern — handoff-tracked instead) + 0 deferred (under cap)
+- **Filtered:** 0 duplicates + 3 task-specific (markdown annotation craft / chunk #29 compute pipeline scope / SHA cosmetic discrepancy) + 0 conflicts + 2 below-confidence (output-templates anti-pattern caught mid-flow / AllowList per-leaf entry pre-staging) + 1 deferred (Path A/B/C resolution decision pattern for D3-class drift; lacks concrete project-rule shape)
 
 ## Last Failed Command
 
-(none — final test commands all pass cleanly: `cargo nextest --workspace --all-features --profile ci` 399/399; `cd pulse-app/ui && npm run test` 142/142; `cargo xtask typecheck` clean; `cargo fmt --check` clean (after one fmt apply for array-literal multiline); `cargo clippy --workspace --all-targets --all-features -- -D warnings` clean; `cargo xtask capability-drift` exit 1 — INTENDED for D3 streams.* surfacing. Invariant greps preserved: AppError sanitization, CSP literal verbatim, capability JSON unchanged.)
+(none — all commands ran cleanly: /andromeda-evolve sanity check + classification + validation + atomic write succeeded; /andromeda-phase 7 parallel sub-agents returned + Phase 5 validation passed 7/7; /andromeda-setup-project --delta detection + grep-expansion + 4 file edits + state.yaml + marker updates + commit succeeded with SHA 403ff3a; cargo tree exit 0; cargo check --workspace --all-features exit 0 at 2.56s mid-session smoke.)
 
 ## Tests Status
 
-passing — 541 total checks across 6 commands. Specifically: `cargo nextest run --workspace --all-features --profile ci` 399/399 (was 398 chunk #27; +1 = ui-bridge AllowList verification); `cd pulse-app/ui && npm run test` 142/142 (was 115 chunk #27; +27 = 5 webgpu-adapter + 5 render-pipeline + 5 Fallback + 7 CanvasContainer + 5 csp). Lint/typecheck/format gates: `cargo fmt --check`, `cargo clippy --workspace --all-targets --all-features -- -D warnings`, `cargo xtask typecheck`. Drift gate: `cargo xtask capability-drift` returns exit 1 with same baseline as chunk #27 (3 streams.* extras carrying D3) — INTENDED behavior.
+skipped — no source code changes this session (specialist plans + Tier 2/3 distillations + planning artifacts only). Mid-session smoke `cargo check --workspace --all-features` ran clean at 2.56s. Recommend manual `cargo nextest run --workspace --profile ci` + `cd pulse-app/ui && npm run test` before /andromeda-implement runs against chunk #29 plan.md (current baselines: 399 + 142 = 541 tests).
 
 ## Next Recommended Action
 
-**Priority 1 — D3 streams.* stale-drift remediation (now 5 wraps unresolved):**
+**Priority 1 — Resolve D3 streams.* + chunk #29 telemetry.* namespace cluster TOGETHER:**
 
-D3 has aged into stale-drift territory per session-state-contract.md v2.1. Next session-start dashboard will surface `⚠⚠ D3 (stale, 5 wraps unresolved)`. Resolution paths:
+Per chunk #29 plan.md Phase 6 user-decision escalation: chunk #29's planned `telemetry.frontend.record_frame_ms` resolver introduces a SECOND TauRPC namespace (`telemetry.*`) not in arch §Occupied Resources, structurally identical to the active D3 `streams.*` drift. Three resolution paths:
 
-- **Path A (legitimize):** `/andromeda-scope-arch` to add `streams.*` to arch §Occupied Resources Tauri IPC routes — if streams.* is the canonical broadcast subscription surface for chunk #29+ to consume.
-- **Path B (revert):** revert chunk #23's streams.rs registration if a different surface is preferred.
+- **Path A (recommended):** Run `/andromeda-scope-arch` to legitimize BOTH `streams.*` AND `telemetry.*` in arch §Occupied Resources Tauri IPC routes in a single arch update. Resolves D3 stale-drift (age 6 wraps) AND prevents chunk #29 from compounding the same drift class. After arch update, /andromeda-implement runs cleanly.
+- **Path B (tactical):** Run `/andromeda-scope-arch` for telemetry.* only; defer streams.* resolution. Chunk #29 ships clean; D3 streams.* persists (age 7 next wrap).
+- **Path C (NOT recommended):** Skip arch update; let chunk #29 compound D3 drift. capability-drift CI gate would fail with 4 extras (subscribe_logs/metrics/spans + record_frame_ms).
 
-CI ci.yml `cargo xtask capability-drift` step continues to fail on this drift; resolving frees CI noise + unblocks downstream chunk #29+ work.
+**Priority 2 — `/andromeda-implement` for chunk #29:**
 
-**Priority 2 — `/andromeda-phase` for chunk #29:**
+After Priority 1 resolved, run `/andromeda-implement` to execute the phase-26 plan.md. ~30 acceptance criteria across 7 domains; ~6 new files + ~7 modified files; targets 10k spans/sec performance budget per test-plan §10 SLO Invariants.
 
-`/andromeda-phase` to plan chunk #29 "WGSL compute aggregation + 10k spans/sec budget — compute shaders for time-series aggregation, frame_duration_ms metric event, reduced-motion respect". Chunk #29 wires the TauRPC `telemetry.frontend.record_frame_ms` resolver per chunk #28's pre-staged AllowList entry + extends the WebGPU pipeline with compute-shader-driven aggregation for the 10k spans/sec performance budget (per test-plan §10 SLO + obs-plan §10 SLO Invariants p99 ≤33ms WebGPU frame).
+**Priority 3 (background, NOT blocking) — `/andromeda-setup-project` (full, NOT --delta) to clear D5 mtime mismatch:**
 
-**Priority 3 (background) — optional `/andromeda-setup-project` for D5 propagation cleanup:**
-
-The 3 D5 entries from session 27 cleared this wrap as Case 2 transient via amendment archive. If the underlying mtime mismatch persists (no full setup-project re-run since 2026-05-04), next wrap will re-fire D5 as Case 3 generic warning. Run `/andromeda-setup-project` (without --delta) at convenience to advance CLAUDE.md mtime past plan mtimes and clear D5 permanently. NOT BLOCKING.
+D5 entries for security_plan / test_plan / obs_plan persist as Case 3 generic warnings since CLAUDE.md mtime (2026-05-04T22:44:32Z) hasn't advanced past their mtimes (post-2026-05-08 from amendments). The full setup-project re-run advances CLAUDE.md mtime; clears all 3 D5 entries. NOT BLOCKING — system functions correctly with the mtime mismatch; just adds noise to next-wrap drift detection.
 
 ## Session Goals (carry-over)
 
-(none — chunk #28 fully implemented + tests green + curation 0+3+0 + reconcile complete + Epoch 5 opened + 5 spec amendments archived; ready for `/andromeda-phase` chunk #29.)
+(none — multi-skill flow this session resolved all in-flight work: /andromeda-evolve + /andromeda-phase + /andromeda-setup-project --delta + this /andromeda-wrap-session = complete cycle. Ready for /andromeda-scope-arch + /andromeda-implement next session.)
 
 ## Session End Status
 
