@@ -1,16 +1,17 @@
-// Main-window content extracted from chunk #31 App.tsx body. The full
-// dashboard surface keeps the chunks #28/#29 CanvasContainer substrate +
-// chunk #31 HaloCanvas peer composition; chunk #33 (Full dashboard shell +
-// tab nav) layers TanStack Router + tabs on top.
+// Full dashboard surface — chunk #33 shell. Wraps TanStack Router around the
+// root layout (Titlebar / SkipToMain / TabNav / Outlet / FooterStatusBar /
+// CommandPalette) and surfaces the synthetic HaloInput stream from App.tsx
+// to TracesRoute via React context.
 //
-// Visually-hidden shell-status announcer (`role="status" aria-live="polite"`)
-// stays here because the compact-widget surface uses FooterBand as its
-// richer status surface — App.tsx is now a clean window-label router with
-// no status surfaces of its own.
+// Per layouts §Wireframe — Full dashboard, the existing CanvasContainer +
+// HaloCanvas peer composition (chunks #28/#29 substrate + #31 Halo signature)
+// relocates into TracesRoute; subsequent chunks (#34/#35/#38) fill the
+// other 4 tab routes.
 
-import { CanvasContainer } from "../canvas/CanvasContainer";
-import { HaloCanvas } from "../halo/HaloCanvas";
-import { Titlebar } from "../components/Titlebar";
+import { useMemo } from "react";
+import { RouterProvider } from "@tanstack/react-router";
+import { createDashboardRouter } from "./router";
+import { HaloInputProvider } from "./halo-input-context";
 import type { HaloInput } from "../halo/halo-types";
 
 interface DashboardProps {
@@ -18,51 +19,10 @@ interface DashboardProps {
 }
 
 export function Dashboard({ haloInput }: DashboardProps) {
+  const router = useMemo(() => createDashboardRouter(), []);
   return (
-    <>
-      <Titlebar />
-      <main
-        id="main-content"
-        tabIndex={-1}
-        style={{
-          background: "var(--color-base)",
-          color: "var(--color-text-primary)",
-          fontFamily: "var(--font-body)",
-          minHeight: "calc(100vh - 32px)",
-          display: "flex",
-          gap: "var(--spacing-md)",
-        }}
-      >
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <CanvasContainer ariaLabel="Telemetry visualization canvas" />
-        </div>
-        <div
-          style={{ flex: "0 0 240px", minWidth: 0 }}
-          data-testid="halo-input-simulator"
-        >
-          <HaloCanvas
-            ariaLabel="Application status indicator"
-            throughputHz={haloInput.throughputHz}
-            errorRate={haloInput.errorRate}
-          />
-        </div>
-      </main>
-      <div
-        role="status"
-        aria-live="polite"
-        id="shell-status"
-        style={{
-          position: "absolute",
-          width: 1,
-          height: 1,
-          margin: -1,
-          padding: 0,
-          overflow: "hidden",
-          clip: "rect(0, 0, 0, 0)",
-          whiteSpace: "nowrap",
-          border: 0,
-        }}
-      />
-    </>
+    <HaloInputProvider value={haloInput}>
+      <RouterProvider router={router} />
+    </HaloInputProvider>
   );
 }

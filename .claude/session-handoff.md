@@ -1,111 +1,159 @@
 # Session Handoff
 
-**Last Updated:** 2026-05-09T20:25:30Z
+**Last Updated:** 2026-05-09T21:38:00Z
 **Branch:** main
-**Session End Status:** clean (Tokio runtime panic fix verified end-to-end; tests 729/729 passing; commit pending Phase 10)
-**Last Commit:** (pending — wrap commit composed in Phase 10 of this run; closes session 37 — Tokio runtime fix at pulse-app boot)
+**Session End Status:** clean (chunk #33 Full dashboard shell + tab nav implemented + verified; tests 790/790 passing; commit pending Phase 10)
+**Last Commit:** (pending — wrap commit composed in Phase 10 of this run; closes session 38 — chunk #33 Full dashboard shell)
 
 ## Current State
 
-- **Last completed chunk:** route#32 "Compact widget infographics + footer — service constellation aggregated badge, ingest/error/retention footer band, glance-readable from 2m" (epoch 5; committed 2026-05-09T19:50:49Z as b66016c — state.yaml.commit_sha refreshed from orphaned f340c7e to live HEAD reference this wrap)
-- **Next chunk:** route#33 "Full dashboard shell + tab nav — resizable window, tabs for Traces/Metrics/Logs/Snapshots/Settings, TanStack Router routable views, Cmd+K palette"
+- **Last completed chunk:** route#33 "Full dashboard shell + tab nav — resizable window, tabs for Traces/Metrics/Logs/Snapshots/Settings, TanStack Router routable views, Cmd+K palette" (epoch 5; commit pending — Phase 10 wrap will tag this session's accumulated changes)
+- **Next chunk:** route#34 "Trace timeline + per-service constellation — sortable trace data table (Trace ID/Service/Latency/Error), constellation map with per-service Halo dots"
 - **In-progress phase:** none
-- **Phase artifacts present:** `.andromeda/phases/{phase-1..phase-29}/{combined.md, research.md, plan.md}` (phase-29 closed chunk #32; next /andromeda-phase plans phase-30 for chunk #33)
-- **Epoch 5 — Visualization surfaces: open.** Substrate (#28+#29) + compact widget shell (#30) + Halo signature element (#31) + compact widget infographics + footer (#32) shipped. Chunk #33 (TanStack Router intro + dashboard shell) next.
+- **Phase artifacts present:** `.andromeda/phases/{phase-1..phase-30}/{combined.md, research.md, plan.md}` (phase-30 closed chunk #33 this session; next /andromeda-phase plans phase-31 for chunk #34)
+- **Epoch 5 — Visualization surfaces: open.** Substrate (#28+#29) + compact widget shell (#30) + Halo signature element (#31) + compact widget infographics + footer (#32) + full dashboard shell + tab nav (#33) shipped. Chunk #34 (Traces tab content — trace data table + per-service constellation map) next.
 
 ## Andromeda State Detection (states A-L)
 
-⚠️ F — Pending phase planning: route lists chunk #33 but `.andromeda/phases/phase-30/` does not exist. Remediation: /andromeda-phase to plan chunk #33.
-⚠️ J-generic — Specialist plan freshness mismatch: test-plan.md mtime 2026-05-09T16:08:01Z is newer than state.yaml.plan_freshness.tests_mtime 2026-05-09T16:00:54Z by ~7m. spec_amendments.active=[]. Likely benign re-capture timing artifact from the boot-smoke-discipline amendment cycle (already archived). Phase 8 re-captures plan_freshness this wrap, which clears the J-generic for next session. Remediation: automatic.
+⚠️ F — Pending phase planning (forward-looking): after this wrap commits chunk #33, route lists chunk #34 but `.andromeda/phases/phase-31/` does not exist. Remediation: /andromeda-phase to plan chunk #34.
+
+(All other states A-L clear post-wrap. Specifically: state J (specialist plan freshness mismatch) will clear next session because Phase 8 re-captures plan_freshness; state K (living artifact staleness) clear because Phase 5 reconciled both artifacts this wrap; states A-E + G-I + L all clear.)
 
 ## Drift Detection (6 dimensions)
 
-⚠️ D3 — arch §Occupied Resources lists `streams.subscribe_{spans,metrics,logs}` + `telemetry.frontend.record_frame_ms` (per Type 6 amendments archived 2026-05-09T11:55:00Z), but `xtask/src/main.rs::EXPECTED_PROCEDURES` (~lines 376-390) doesn't enumerate them. `cargo xtask capability-drift` exits 1 with 4 extras. Carry-over narrative across sessions 31-36 (state.yaml.drift_warnings was empty in those wraps; first persisted this wrap). Remediation: extend EXPECTED_PROCEDURES — code-only fix.
+⚠️ D3 — arch §Occupied Resources lists `streams.subscribe_{spans,metrics,logs}` + `telemetry.frontend.record_frame_ms` (per Type 6 amendments archived 2026-05-09T11:55:00Z), but `xtask/src/main.rs::EXPECTED_PROCEDURES` (~lines 376-390) doesn't enumerate them. `cargo xtask capability-drift` exits 1 with 4 extras (chunk #32 baseline preserved per chunk #33 acceptance criterion AC-S1). Carry-over narrative across sessions 31-38. Remediation: extend `EXPECTED_PROCEDURES` — code-only fix. (first_observed: session 37; last_observed: session 38; age 1 wrap)
 
-⚠️ D5 — test-plan.md mtime (2026-05-09T16:08:01Z) > CLAUDE.md mtime (2026-05-09T14:35:56Z) by ~1h 32m. spec_amendments.active=[] → Case 3 generic per spec-amendment-protocol.md Part C. Likely benign: the archived `2026-05-09T16-00-54-smoke-check-boot-discipline` amendment scoped to test-plan.md Decisions Log + testing.md Tier 2 only — no Tier 1 surface affected, so CLAUDE.md correctly NOT regenerated. Mtime heuristic produces false positive here. Remediation: accept as benign OR /andromeda-setup-project full re-derive to refresh CLAUDE.md mtime.
+⚠️ D5 — test-plan.md mtime 2026-05-09T16:08:01Z > CLAUDE.md mtime 2026-05-09T14:35:56Z by ~3.5h. spec_amendments.active=[] → Case 3 generic per spec-amendment-protocol.md Part C. Likely benign: archived 2026-05-09T16-00-54 boot-smoke-discipline amendment scoped to test-plan.md Decisions Log + .claude/rules/testing.md Tier 2 only — no Tier 1 surface affected, so CLAUDE.md correctly NOT regenerated. Mtime heuristic produces false positive here. (first_observed: session 37; last_observed: session 38; age 1 wrap)
+
+(D1 / D2 / D4 / D6 clear this wrap.)
 
 ## Spec Amendments (this session)
 
-(none this session — no Trigger 4 spec amendments authored. The Tokio runtime fix is a pure code bugfix that didn't require specialist plan amendment; spec-drift not triggered.)
+(none this session — no Trigger 4 spec amendments authored. Chunk #33 implementation hit a few normal in-scope test/lint fix iterations but no spec ↔ reality drift.)
 
-state.yaml.spec_amendments.active: empty (unchanged from session 36 close)
-state.yaml.spec_amendments.archive: 12 entries (unchanged from session 36 close)
+state.yaml.spec_amendments.active: empty (unchanged from session 37 close)
+state.yaml.spec_amendments.archive: 12 entries (unchanged from session 37 close)
 
 ## Key Decisions This Session
 
-- **Multi-skill flow this session: /andromeda-new-session → manual fix work → /andromeda-wrap-session.** Session 37 was a single-purpose targeted bugfix (Priority 1 carry-over from sessions 34/35), not a chunk-implementation cycle. /andromeda-phase + /andromeda-implement skipped because the work scope was a 6-line edit to `pulse-app/src/main.rs::main()` with zero specialist plan touchpoints.
+- **Chunk #33 implementation strategy: webview-only — zero new TauRPC procedures + zero capability JSON edits + zero arch §Occupied Resources additions.** Tab state lives in TanStack Router URL state (no Settings struct extension this chunk). Cmd+Shift+P compact↔full toggle uses `getAllWebviewWindows()` / `webview.show()` / `webview.hide()` directly (covered by `core:default` permission group; no new TauRPC namespace needed). Capability-drift baseline preserved exactly at chunk #32's 4 D3 carry-over extras.
 
-- **Tokio runtime fix root cause confirmed via reproduce + log inspection:** `cargo run --bin pulse-app` reliably exits 101 with `app.panic.fatal` JSON line at `~/.andromeda-pulse/logs/agent-latest.jsonl.{date}` containing `location: "crates\\ui-bridge\\src\\health.rs:291"` and `panic_message: "there is no reactor running, must be called from the context of a Tokio 1.x runtime"`. Line 291 in health.rs is the `#[taurpc::procedures(export_to = "ui/src/bindings/index.ts")]` macro on `IntrospectionApi`; the macro expansion's spawn fails because sync `fn main()` provides no tokio runtime context. The chunk #25 `emit_taurpc_bindings` test (lines 624-652) explicitly comments "`#[tokio::test]` provides the runtime context taurpc::TauRpcHandler::spawn() requires" — the test masks the production-only panic.
+- **Two helper modules added beyond plan scope (`dashboard-types.ts` + `halo-input-context.tsx`).** dashboard-types.ts: bounded enums (`TabId`, `TABS` array, `PaletteItem`) consumed by ≥4 files (router + TabNav + CommandPalette + use-keyboard-shortcuts). halo-input-context.tsx: small React Context bridge surfacing the synthetic HaloInput stream from App.tsx → TracesRoute (avoids tying haloInput to TanStack Router's per-call context machinery). Both small/focused/used by ≥3 files; not abstraction-for-its-own-sake.
 
-- **Canonical fix per Tauri 2.11 rustdoc:** build a multi-thread tokio runtime, enter it via `runtime.enter()`, share with Tauri via `tauri::async_runtime::set(tokio::runtime::Handle::current())`. Documented at `D:/dev/rust/cargo/registry/src/.../tauri-2.11.0/src/async_runtime.rs:240` (the `set` doc comment example). Saved as a Tier 3 reference learning at `.claude/docs/session-learnings.md` for future taurpc-related entry-point work.
+- **CanvasContainer + HaloCanvas relocated from Dashboard root into TracesRoute** per layout-templates.md §Wireframe — Full dashboard which places hero canvas region INSIDE each tab's content area. Dashboard.tsx now wraps RouterProvider + HaloInputProvider only; rootRoute's component renders the shell (Titlebar + SkipToMain + TabNav + RouterOutlet + FooterStatusBar + StatusLiveRegion + CommandPalette).
 
-- **End-to-end verification post-fix:** binary boots through full lifecycle (PID file → webview backend WebView2 → DX12 GPU adapter → tray API NotifyIcon → ring buffer schema → no panic → WebGPU `metric.webgpu.frame_duration_ms` flowing → heartbeat ticks across plugins/buffer/ingest/viz → buffer + broadcast subscriber gauges). All 729 tests still pass (302 webview + 427 Rust).
+- **Implementation route choice: TanStack Router manual `createRouter` API (no Vite plugin).** 5 routes only, type-safe enough without codegen, easier to test via `createMemoryHistory`. The optional `@tanstack/router-vite-plugin` is available if route count grows.
 
-- **Carry-over Priority 1 cleared:** the original failed command `npx @tauri-apps/cli dev` should now succeed against this binary. Chunks #33-#35 (TanStack Router introduction + real broadcast subscriber wiring) can boot through the full Tauri runtime.
+- **Cmd+K palette uses canonical WAI-ARIA APG combobox pattern: keydown handler on the `<input role="combobox">`, NOT on the wrapping `<div role="dialog">`.** Lint discovery this session — eslint-plugin-jsx-a11y flags `role="dialog"` as non-interactive AND the combobox pattern keeps focus on the input (Down/Up navigates listbox via `aria-activedescendant`, no actual focus movement). Curated as Tier 2 a11y rule this wrap.
 
-- **Living artifact api-surface.md format-divergent observation:** the LIVING block content (300 hand-curated lines with aligned fields + chunk annotations + omitted impl boilerplate) doesn't match raw `cargo +nightly public-api --simplified` output (3808 lines including all auto-derived `impl Send / Freeze / Debug` boilerplate). Previous wraps refreshed the timestamp without overwriting the curation. This wrap follows the same pragma since session 37's only code change is binary-only (`pulse-app/src/main.rs`) — library API surface is genuinely unchanged. Future cleanup task: align api-surface.md METADATA Tooling field to match the actual curation pipeline OR re-curate from fresh tooling output (deferred — out of scope for this wrap).
+- **focus-trap-react in jsdom requires `tabbableOptions.displayCheck: 'none'`** to bypass tabbable's visibility check — jsdom returns 0×0 boundingClientRect for all elements (no layout). Without it, FocusTrap throws "Your focus-trap must have at least one container with at least one tabbable node in it" on mount. Curated as Tier 2 testing rule this wrap. Production WebView2 / WKWebView is unaffected.
+
+- **Vitest `vi.mock` factories hoist to top of file BEFORE other top-level vars resolve**, so external variables referenced inside the factory closure must live in `vi.hoisted(() => ({ ... }))`. Failing pattern triggered `ReferenceError: Cannot access 'showFn' before initialization` at chunk #33's use-keyboard-shortcuts.test.ts. Working pattern uses `const mocks = vi.hoisted(...)` + destructure-after for conventional naming. Curated as Tier 2 testing rule this wrap.
+
+- **Tauri dev HMR rebuild loop observation (PRE-EXISTING gotcha, unrelated to chunk #33):** `npx @tauri-apps/cli dev` triggers continuous rebuilds because taurpc emits TS bindings during `Router::into_handler()` in dev mode → file change watched by Tauri → rebuild → loop. Each cycle DOES boot cleanly through the full lifecycle (PID file → WebView2 → DX12 GPU → NotifyIcon tray → OTLP receivers bound on 127.0.0.1:4317/:4318); zero `app.panic.fatal` events during chunk #33 boot smoke. Production builds don't have this issue (bindings emit at test time only). Future housekeeping: add `pulse-app/ui/src/bindings/index.ts` to a Tauri dev `watchExclude` if the noise becomes a debugging blocker. Filtered out from curation (operational-context, not a directive).
 
 ## Files Modified
 
-(Files modified this session through this wrap commit. Last wrap was 2026-05-09T19:50:49Z; session 37 starts after that.)
+(All files in this commit. Wrap session 38 = chunk #33 implementation.)
 
-**Implementation files (this wrap commit):**
-- `pulse-app/src/main.rs` — added 6-line tokio runtime + `tauri::async_runtime::set` block at the top of `fn main()` with explanatory comment
+**Implementation files (new):**
+- `pulse-app/ui/src/dashboard/dashboard-types.ts` — bounded enums (TabId, TABS, PaletteItem)
+- `pulse-app/ui/src/dashboard/halo-input-context.tsx` — React Context bridge for synthetic HaloInput
+- `pulse-app/ui/src/dashboard/router.tsx` — TanStack Router config (5 routes + rootRoute shell)
+- `pulse-app/ui/src/dashboard/SkipToMain.tsx` — visually-hidden skip-to-main link (WCAG SC 2.4.1)
+- `pulse-app/ui/src/dashboard/TabNav.tsx` — WAI-ARIA tablist with 5 tabs + roving tabindex
+- `pulse-app/ui/src/dashboard/CommandPalette.tsx` — Cmd+K dialog + combobox + listbox + focus trap
+- `pulse-app/ui/src/dashboard/StatusLiveRegion.tsx` — polite aria-live region with announce() context
+- `pulse-app/ui/src/dashboard/FooterStatusBar.tsx` — footer status-bar layout slot
+- `pulse-app/ui/src/dashboard/use-keyboard-shortcuts.ts` — global Cmd+K / Cmd+Shift+P / Esc handler
+- `pulse-app/ui/src/dashboard/routes/{Traces,Metrics,Logs,Snapshots,Settings}Route.tsx` — 5 route components
 
-**Curation files (this wrap commit):**
-- `.claude/docs/session-learnings.md` — Tier 3 entry "2026-05-09 — taurpc 0.7 `Router::into_handler()` requires tokio runtime in scope" prepended above the existing "2026-05-08 — taurpc 0.7 emits no-path procedures" entry
+**Test files (new):**
+- `pulse-app/ui/src/dashboard/router.test.tsx` (12 tests)
+- `pulse-app/ui/src/dashboard/SkipToMain.test.tsx` (2 tests)
+- `pulse-app/ui/src/dashboard/TabNav.test.tsx` (9 tests)
+- `pulse-app/ui/src/dashboard/CommandPalette.test.tsx` (9 tests)
+- `pulse-app/ui/src/dashboard/StatusLiveRegion.test.tsx` (3 tests)
+- `pulse-app/ui/src/dashboard/FooterStatusBar.test.tsx` (2 tests)
+- `pulse-app/ui/src/dashboard/use-keyboard-shortcuts.test.ts` (6 tests)
+- `pulse-app/ui/src/dashboard/routes/{Traces,Metrics,Logs,Snapshots,Settings}Route.test.tsx` (4+3+3+3+3 = 16 tests)
 
-**Living artifacts (this wrap commit, refresh-only):**
-- `.andromeda/context/dependency-tree.md` — Last reconciled timestamp refresh to 2026-05-09T20:25:30Z (LIVING block byte-identical to fresh tooling output — no Rust dep changes this session)
-- `.andromeda/context/api-surface.md` — Last reconciled timestamp refresh to 2026-05-09T20:25:30Z (LIVING block hand-curated; format-divergent from raw tooling but library APIs genuinely unchanged this session — see Key Decisions deferred cleanup note)
+Total new tests: 61 (363 webview total = 302 baseline + 61 new)
+
+**Implementation files (modified):**
+- `pulse-app/ui/src/dashboard/Dashboard.tsx` — refactored to RouterProvider wrapper + HaloInputProvider
+- `pulse-app/ui/src/dashboard/Dashboard.test.tsx` — rewritten to assert new shell shape
+- `pulse-app/ui/package.json` — added `@tanstack/react-router` + `@testing-library/user-event`
+- `pulse-app/ui/package-lock.json` — regenerated
+- `pulse-app/ui/src/bindings/index.ts` — auto-regenerated by taurpc; ARGS_MAP byte-identical to chunk #32
+
+**Curation files (this wrap):**
+- `.claude/rules/testing.md` Session Additions — 2 entries (vi.hoisted + focus-trap displayCheck)
+- `.claude/rules/a11y.md` Session Additions — 1 entry (dialog+combobox keydown placement)
+
+**Living artifacts (refresh-only):**
+- `.andromeda/context/dependency-tree.md` — Last reconciled timestamp refreshed (no Rust dep changes)
+- `.andromeda/context/api-surface.md` — Last reconciled timestamp refreshed (no public-API changes; bindings byte-identical)
+
+**Phase artifacts:**
+- `.andromeda/phases/phase-30/{combined.md, research.md, plan.md}`
+- `.andromeda/runs/2026-05-09T20-41-08-phase-30/` (7 raw + 7 stripped sub-agent extracts)
 
 **This wrap commit (will be staged):**
 - `.claude/session-handoff.md` — this file (full overwrite)
-- `.andromeda/state.yaml` — schema_version=2 preserved; last_wrap → 2026-05-09T20:25:30Z; last_reconcile → 2026-05-09T20:25:30Z; session_count → 37; last_completed_chunk.commit_sha → b66016c (corrects orphan f340c7e); plan_freshness re-captured; living_artifact_freshness updated; drift_warnings populated with D3 + D5 entries (first_observed_session_count = 37 baseline); spec_amendments unchanged
-
-**Stray cleanup (not staged):**
-- Removed `D:/dev/projects/andromeda-pulse/ui/` directory created by `cargo run --bin pulse-app` invoked from workspace-root cwd (the `#[taurpc::procedures(export_to = "ui/src/bindings/index.ts")]` macro emits to a path relative to runtime cwd; running from `pulse-app/` cwd lands in the correct `pulse-app/ui/...` location; chunk #25 test runs via `cargo nextest -p pulse-app` which sets cwd to `pulse-app/`)
+- `.andromeda/state.yaml` — schema_version=2 preserved; last_wrap → 2026-05-09T21:38:00Z; last_completed_chunk → route#33 (commit_sha "pending" then SHA-fixup amend Phase 10 step 4); session_count → 38; plan_freshness re-captured; living_artifact_freshness updated; drift_warnings persisted with first_observed/last_observed tracking; spec_amendments unchanged
 
 ## Curation Summary (this wrap)
 
 - **Tier 1 (CLAUDE.md USER:session-learnings):** 0 additions
-- **Tier 2 (`.claude/rules/*/Session Additions`):** 0 additions
-- **Tier 3 (`.claude/docs/session-learnings.md`):** 1 addition
-  - 2026-05-09 — taurpc 0.7 `Router::into_handler()` requires tokio runtime in scope; sync `fn main()` panics at boot
-- **Filtered:** 0 duplicates + 2 task-specific (J-generic 7-min discrepancy notes + multi-skill flow meta) + 0 conflicts + 1 deferred (cwd-relative binding emission gotcha — confidence 0.65, not load-bearing for the curated set; can revisit if recurrent)
+- **Tier 2 (`.claude/rules/*/Session Additions`):** 3 additions
+  - testing.md — Vitest vi.mock factory hoisting + vi.hoisted() pattern (confidence 0.9)
+  - testing.md — focus-trap-react in jsdom requires tabbableOptions.displayCheck:'none' (confidence 0.8)
+  - a11y.md — dialog+combobox onKeyDown placement + tablist tabIndex={-1} for jsx-a11y (confidence 0.8)
+- **Tier 3 (`.claude/docs/session-learnings.md`):** 0 additions
+- **Filtered:** 4 task-specific (TanStack Router as new dep / Tauri HMR loop noise / TanStack beforeLoad redirect specifics / activeTabId pattern; all paraphrased-from-implicit) + 0 duplicates + 0 conflicts + 2 deferred (FocusTrap named-import workaround for verbatimModuleSyntax; tabIndex={-1} on tablist as standalone — already covered tangentially in the curated a11y entry)
 
 ## Last Failed Command
 
-(none — the carry-over panic from sessions 34/35 is now fixed and verified end-to-end this session)
+(none — chunk #33 implementation hit normal in-scope test failures during fix-loop iterations but all resolved cleanly without leaving any stuck command)
 
 ## Tests Status
 
-passing — 729 tests (302 webview + 427 Rust), zero failures. Verified twice: post-fix Rust nextest run (1.500s) + webview vitest run (2.73s).
+passing — 790 tests (363 webview + 427 Rust), zero failures. Verified twice this session: post-implementation Phase 2 + this wrap's Phase 2 verification (vitest 3.67s + nextest 1.46s).
 
-**Runtime smoke (Phase 2b, per test-plan §12 amendment 2026-05-09 boot-smoke discipline):** ✓ binary boots cleanly through full Tauri lifecycle for ~8 seconds without panic. Heartbeats firing, gauges emitting, WebGPU rendering. Boot-smoke gate passes.
+**Runtime smoke (Phase 2b, per test-plan §12 boot-smoke discipline):** ✓ binary boots cleanly through full Tauri lifecycle (PID file → WebView2 → DX12 GPU → NotifyIcon tray → OTLP gRPC + HTTP receivers bound on 127.0.0.1:4317/:4318) for ≥8 seconds without panic. Multiple HMR rebuild cycles observed during the 45s smoke window — each cycle completed a clean boot. Zero `app.panic.fatal` events during the chunk #33 boot window (21:35+).
 
-**capability-drift gate:** still drifted with 4 extras (chunk #31 baseline preserved exactly per chunk #32 acceptance criterion; D3 carry-over now persisted to state.yaml.drift_warnings — see Drift Detection above).
+**capability-drift gate:** still drifted with 4 carry-over extras (chunk #32 baseline preserved exactly per chunk #33 AC-S1; D3 carry-over now persisted to state.yaml.drift_warnings with first_observed=37 last_observed=38).
 
 ## Next Recommended Action
 
-**Priority 1 (cleared this session):** the Tokio runtime panic at `crates/ui-bridge/src/health.rs:291` is fixed. The original failed command `npx @tauri-apps/cli dev` should now succeed.
+**Priority 1 — `/andromeda-phase` for chunk #34 (Trace timeline + per-service constellation):**
 
-**Priority 2 — `/andromeda-phase` for chunk #33 (full dashboard shell + tab nav):**
+Chunk #34 fills the Traces tab content with a sortable trace data table (Trace ID / Service / Latency / Error) + a constellation map showing per-service Halo dots. Per session-handoff Drift D3 + Priority 3 below: chunk #34 may be a good vehicle for landing the xtask EXPECTED_PROCEDURES extension since chunk #34 will likely consume `traces.*` query routers + `streams.subscribe_*` subscriptions (the procedures arch already legitimized but xtask hasn't enumerated). Coupling the cleanup with the consuming chunk avoids a standalone xtask housekeeping commit while addressing the D3 drift.
 
-Chunk #33 introduces TanStack Router + tab navigation for the full dashboard window — substantial alone (per chunk #32 phase-29 plan grouping rationale). Per test-plan §12 boot-smoke discipline (2026-05-09 amendment): chunk #33 likely WILL touch boot/setup paths (TanStack Router setup typically lands in `pulse-app/ui/src/main.tsx` or `App.tsx`, both of which propagate into the Tauri webview boot sequence). Phase planning should include the smoke gate per the amendment.
+Chunk #34 boot path classification: probably webview-only like chunk #33 (TracesRoute extends with new components consuming existing TauRPC procedures); boot-smoke gate likely applies if any new boot-path code introduced.
 
-**Priority 3 (background, NOT blocking) — extend xtask EXPECTED_PROCEDURES (D3 carry-over):**
+**Priority 2 (informational) — D5 generic mtime heuristic noise:**
 
-Edit `xtask/src/main.rs:376-390` to add 4 hardcoded entries: `streams.subscribe_logs`, `streams.subscribe_metrics`, `streams.subscribe_spans`, `telemetry.frontend.record_frame_ms`. These are already canonicalized in arch §Occupied Resources via Type 6 amendments (archived). After the edit, `cargo xtask capability-drift` should exit 0. Remains user-driven follow-up; can land in chunk #33's phase or as a standalone xtask housekeeping commit.
+D5 carries over (test-plan.md mtime > CLAUDE.md mtime). Same benign analysis as previous wrap: archived boot-smoke-discipline amendment scoped to lower tiers; CLAUDE.md correctly not regenerated. Mtime heuristic false positive. Optional `/andromeda-setup-project` full re-derive to refresh CLAUDE.md mtime; accepting as benign is reasonable. Will continue carrying as-is until a legitimate Tier 1 surface change naturally re-touches CLAUDE.md.
 
-**Priority 4 (informational, deferred) — D5 generic mtime heuristic noise:**
+**Priority 3 (background, NOT blocking) — D3 carry-over remediation candidates:**
 
-The boot-smoke-discipline amendment is a recurring source of D5 noise: it left test-plan.md mtime > CLAUDE.md mtime without Tier 1 propagation. The mtime heuristic doesn't distinguish "amendment scoped to lower tiers only" from "real CLAUDE.md staleness". Optional remediation: /andromeda-setup-project full re-derive to refresh CLAUDE.md mtime (overkill); accepting as benign is reasonable until the next legitimate Tier 1 surface change naturally re-touches CLAUDE.md.
+`xtask/src/main.rs:376-390` EXPECTED_PROCEDURES still missing 4 entries:
+- `streams.subscribe_logs`
+- `streams.subscribe_metrics`
+- `streams.subscribe_spans`
+- `telemetry.frontend.record_frame_ms`
+
+Two paths:
+- (a) Couple with chunk #34 (which will consume these procedures heavily) — single commit addresses both new feature + cleanup.
+- (b) Standalone xtask housekeeping commit before chunk #34 — clean separation.
+
+User-driven follow-up. Per session-handoff Priority 3 from session 37: same recommendation; coupling with #34 is preferred to avoid driveby commits.
 
 ## Session Goals (carry-over)
 
-- **(carry-over from sessions 34/35) Fix `crates/ui-bridge/src/health.rs:291` Tokio runtime panic** — ✓ DONE this session.
-- **(carry-over from sessions 31-36) Extend xtask EXPECTED_PROCEDURES** to include `streams.subscribe_logs|metrics|spans` + `telemetry.frontend.record_frame_ms` — NOT addressed this session (out of scope for the targeted bugfix). See Priority 3 above.
+- **(carry-over from sessions 31-37) Extend xtask EXPECTED_PROCEDURES** to include `streams.subscribe_logs|metrics|spans` + `telemetry.frontend.record_frame_ms` — NOT addressed this session (chunk #33 was webview-only; xtask is in `crates/` boundary). See Priority 3 above.
 
 ## Deferred decisions (Trigger 4 → Path B carry-over)
 
@@ -116,8 +164,11 @@ The boot-smoke-discipline amendment is a recurring source of D5 noise: it left t
 These candidates surfaced during Phase 3 curation analysis but were filtered:
 
 **Filter 2 task-specificity (REJECTED):**
-- The 7m discrepancy between state.yaml.plan_freshness.tests_mtime (16:00:54) and current test-plan.md mtime (16:08:01) — a likely wrap-session re-capture timing artifact from session 36's Phase 8 ordering. Specific to one wrap's race condition; not a generalizable rule.
-- Multi-skill flow meta (skipping /andromeda-phase + /andromeda-implement for a targeted single-purpose bugfix Sessions like this one) — process meta about Andromeda skill chain orchestration; belongs in Andromeda skill documentation, not project curation.
+- TanStack Router added as a new dep at version ^1.169.2 — fact about state, not a directive; rule files cite specific versions only when version-conditional. Chunk #34+ will naturally interact with the dep; no rule needed.
+- Tauri dev HMR rebuild loop with taurpc bindings — pre-existing operational gotcha, not chunk #33-introduced. Future housekeeping commit could add `watchExclude` for `pulse-app/ui/src/bindings/index.ts`; until then it's noise during smoke checks but not blocking.
+- TanStack Router `beforeLoad: () => { throw redirect({ to: '/traces' }) }` for index route redirect — narrow library-specific pattern; useful but task-specific to chunk #33's setup, not a generalizable rule.
+- pathnameToTabId derivation pattern (split('/') + match against TAB_IDS bounded enum) — internal pattern of chunk #33's router.tsx; narrow scope.
 
 **Filter 5 max-3 cap (DEFERRED):**
-- The cwd-relative binding emission gotcha: `#[taurpc::procedures(export_to = "ui/src/bindings/index.ts")]` emits to a path relative to runtime cwd, so `cargo run --bin pulse-app` from workspace root creates a stray `ui/` while `cargo nextest -p pulse-app` (cwd=pulse-app/) lands correctly. Confidence 0.65, narrow operational gotcha; saved here in case it recurs. If it becomes a recurring stray-dir source, consider adding `/ui/` to .gitignore as a defensive measure OR pinning the macro path to a workspace-rooted absolute path.
+- focus-trap-react v12 default export deprecated — use named `{ FocusTrap }` import for verbatimModuleSyntax compat. Confidence 0.6, narrow TypeScript-config-specific gotcha; covered tangentially by future TypeScript style guidance.
+- Adding `tabIndex={-1}` to `<div role="tablist">` satisfies eslint-plugin-jsx-a11y's `interactive-supports-focus` rule without breaking roving tabindex. Confidence 0.6, narrow lint-compliance pattern; covered tangentially by the curated a11y dialog+combobox entry which also discusses tablist tabIndex.
