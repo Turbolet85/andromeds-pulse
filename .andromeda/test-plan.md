@@ -926,6 +926,18 @@ _Skipped for Standard tier + Minimal security tier (no compliance triggers in te
 - **By:** /andromeda-evolve (user-driven Type 5 deprecation annotation, Path 1 uniform scope)
 - **Amendment record:** `.andromeda/runs/2026-05-08T21-00-00-spec-amendment-obs-pivot-test-bodies/amendment.md`
 
+**2026-05-09** — Document gap: §3 Test Harness Contract does not yet require runtime smoke check for boot-path-touching chunks
+
+- **Decision:** When a chunk's plan touches `pulse-app/src/main.rs`, `crates/ui-bridge/src/`, `pulse-app/src-tauri/tauri.conf.json`, OR `pulse-app/capabilities/*.json` (the boot/setup paths), the chunk's `## Test Commands` section MUST include a runtime smoke gate: `cd pulse-app && npx @tauri-apps/cli dev` with a 60-second timeout, watching stdout for boot-completion signals (`Local:` / `ready in` / `Compiled successfully`) before SIGTERM. Latent boot panics — like the chunk #27/#30 panic at `crates/ui-bridge/src/health.rs:291` ("there is no reactor running, must be called from the context of a Tokio 1.x runtime") — go undetected through compile + unit tests + lint + typecheck + fmt + clippy + deny + verify:contrast + capability-drift, surfacing only when a downstream chunk's smoke gate runs against the latent code. The 5-command harness discipline (boot/run/status/cleanup/logs) covers in-process verification but does not catch trait-level binding-emission panics that fire at boot in non-Tokio context.
+- **Rationale:** Surfaced empirically via chunk #31 implementation (Halo State Pulse signature element). Chunk #31's plan included `npx @tauri-apps/cli dev` as Phase 2b smoke check (per /andromeda-implement protocol's Phase 2b runtime smoke), which surfaced a chunk #27/#30 panic that had been latent in commit 19bfbf2. Chunks #27, #28, #29, #30 did NOT gate on smoke and shipped with the panic undetected through 4 wrap cycles. Without a per-chunk smoke gate at the introducing chunk, latent boot panics accumulate as carry-overs that block downstream runtime testing.
+- **Impact:**
+  - Recommended new coverage trigger for next `/andromeda-tests` re-run:
+    - `boot-smoke-coverage: per-chunk Tauri dev smoke gate` — chunks touching boot/setup paths (`pulse-app/src/main.rs`, `crates/ui-bridge/src/`, `pulse-app/src-tauri/tauri.conf.json`, `pulse-app/capabilities/*.json`) MUST include `npx @tauri-apps/cli dev` (60s timeout; boot-completion signal detection) in their Test Commands. Smoke check classification per `andromeda-implement/references/runtime-failure-patterns.md` (capability-drift → /andromeda-scope-arch; Tauri JSON → /andromeda-arch; etc.). On Phase 2b smoke failure, chunk surfaces "green per scope; runtime blocked" variant rather than blocking commit.
+  - `/andromeda-phase` plan authoring should now apply this discipline immediately for chunks #32+ that touch boot/setup paths. The chunk #32 plan (compact widget infographics + footer) touches webview UI only — not boot paths — so it is exempt; but a future chunk modifying `pulse-app/src/main.rs` or `crates/ui-bridge/src/` should include the smoke gate per this discipline.
+  - Tier 2/3 distillations regenerate via `/andromeda-setup-project --delta`: `.claude/rules/testing.md` body (above §Session Additions, which is preserved verbatim; the existing 2026-05-09 §Session Additions "Smoke check gating value" entry is the lower-tier echo of this Tier-1 amendment) + `.claude/docs/tests-summary.md` specialist summary.
+- **By:** /andromeda-evolve (user-driven Type 3 documented gap addition)
+- **Amendment record:** `.andromeda/runs/2026-05-09T16-00-54-spec-amendment-smoke-check-boot-discipline/amendment.md`
+
 
 
 

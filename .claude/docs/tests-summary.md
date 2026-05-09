@@ -110,4 +110,8 @@ The following test triggers are documented but not yet implemented; they are def
 - `security-vector-coverage: Capability widening static analysis` — xtask test parses each `pulse-app/capabilities/*.json` and asserts: (a) `pulse:notification` contains only outbound emit permissions (no input handlers); (b) `pulse:tray` contains only outbound menu/icon permissions (no incoming-event handlers); (c) `pulse:plugin-fs` permissions limited to read of resolved plugin dir, no write/delete/execute, never exposed to webview JavaScript. Test fails with named permission and capability on widening detection.
 - Per amendment `2026-05-08T17-28-29Z-document-capability-widening-test-gap`.
 
+**Boot smoke check gap** (chunks touching boot/setup paths lack runtime smoke gating; chunk #27/#30 latent panic at `crates/ui-bridge/src/health.rs:291` went undetected through 4 wrap cycles before chunk #31's Phase 2b smoke gate caught it):
+- `boot-smoke-coverage: per-chunk Tauri dev smoke gate` — chunks touching `pulse-app/src/main.rs`, `crates/ui-bridge/src/`, `pulse-app/src-tauri/tauri.conf.json`, OR `pulse-app/capabilities/*.json` MUST include `npx @tauri-apps/cli dev` (60s timeout; boot-completion signal detection: `Local:` / `ready in` / `Compiled successfully`) in their Test Commands. On Phase 2b smoke failure, chunk surfaces "green per scope; runtime blocked" variant per /andromeda-implement Phase 3 — chunk implementation commits as-is; runtime blocker addressed via suggested redirect skill OR follow-up chunk.
+- Per amendment `2026-05-09T16-00-54Z-smoke-check-boot-discipline`.
+
 Full plan: `.andromeda/test-plan.md`.

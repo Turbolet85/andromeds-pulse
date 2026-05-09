@@ -32,7 +32,34 @@ living_artifact_freshness:
 drift_warnings: []
 
 spec_amendments:
-  active: []
+  active:
+    - amendment_id: 2026-05-09T16-00-54-smoke-check-boot-discipline
+      plans:
+        - path: test-plan.md
+          sections:
+            - 3. Test Harness Contract
+            - 12. Test Decisions Log
+          decisions_log_section: "2026-05-09 — Document gap: §3 Test Harness Contract does not yet require runtime smoke check for boot-path-touching chunks"
+      trigger:
+        chunk: null
+        phase: null
+        harness: "user-driven via /andromeda-evolve"
+      authority:
+        winning_plan: test-plan.md
+        winning_tier: null
+        losing_plan: null
+        losing_concern: null
+        rationale: "User identified missing boot-smoke-gate coverage in §3 Test Harness Contract, surfaced empirically by chunk #31 Phase 2b smoke check catching chunk #27/#30 latent panic at crates/ui-bridge/src/health.rs:291. Documented gap rather than silent omission; implementation discipline applies in /andromeda-phase plan authoring going forward."
+      impl_files_synced: []
+      expected_propagation:
+        - .claude/rules/testing.md
+        - .claude/docs/tests-summary.md
+      marker_path: .andromeda/runs/2026-05-09T16-00-54-spec-amendment-smoke-check-boot-discipline/amendment.md
+      applied_at: 2026-05-09T16:00:54Z
+      noted_at: null
+      propagated_by_run: .andromeda/runs/2026-05-09T16-11-10-setup-project-delta/
+      archived_at: null
+      verification_status: clean
   archive:
     - amendment_id: 2026-05-03T21-30-00Z-lift-accent
       plans:
