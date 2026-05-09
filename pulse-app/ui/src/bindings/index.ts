@@ -8,6 +8,8 @@ export type AppError = { kind: "validation"; field: string; reason: string } | {
 
 export type AppInfo = { name: string; version: string; rust_version: string; tauri_version: string; features: string[]; build_profile: string }
 
+export type FrameDurationInput = { duration_ms: number; wgpu_backend: WgpuBackend; webview_backend: WebviewBackend; timing_method: TimingMethod }
+
 export type HealthEnvelope = { status: HealthStatus; checked_at: string; subsystems: SubsystemStatuses; pid: number; uptime_ms: number }
 
 export type HealthStatus = "ok" | "degraded"
@@ -34,13 +36,19 @@ export type SubsystemStatuses = { otlp_grpc_receiver: SubsystemStatus; otlp_http
 
 export type Theme = "dark" | "light" | "auto"
 
+export type TimingMethod = "cpu" | "gpu"
+
 export type TraceRow = { trace_id: string; span_id: string; ts_unix_nano: number }
 
 export type TracesQueryArgs = { time_window_seconds: number; limit: number; cursor: string | null }
 
+export type WebviewBackend = "webview2" | "wkwebview" | "gtkwebkit"
+
+export type WgpuBackend = "vulkan" | "metal" | "dx12"
+
 export type WidgetPosition = "top-left" | "top-right" | "bottom-left" | "bottom-right"
 
-const ARGS_MAP = { '':'{"app_info":[],"get_settings":[],"health":[],"ready":[],"update_settings":["settings"]}', 'logs':'{"query":["args"]}', 'metrics':'{"query":["args"]}', 'streams':'{"subscribe_logs":["channel"],"subscribe_metrics":["channel"],"subscribe_spans":["channel"]}', 'traces':'{"query":["args"]}' }
+const ARGS_MAP = { '':'{"app_info":[],"get_settings":[],"health":[],"ready":[],"update_settings":["settings"]}', 'logs':'{"query":["args"]}', 'metrics':'{"query":["args"]}', 'streams':'{"subscribe_logs":["channel"],"subscribe_metrics":["channel"],"subscribe_spans":["channel"]}', 'telemetry.frontend':'{"record_frame_ms":["input"]}', 'traces':'{"query":["args"]}' }
 export type Router = { "": {app_info: () => Promise<AppInfo>, 
 get_settings: () => Promise<Settings>, 
 health: () => Promise<HealthEnvelope>, 
@@ -51,6 +59,7 @@ update_settings: (settings: Settings) => Promise<null>},
 "streams": {subscribe_logs: (channel: TAURI_CHANNEL<number[]>) => Promise<null>, 
 subscribe_metrics: (channel: TAURI_CHANNEL<number[]>) => Promise<null>, 
 subscribe_spans: (channel: TAURI_CHANNEL<number[]>) => Promise<null>},
+"telemetry.frontend": {record_frame_ms: (input: FrameDurationInput) => Promise<null>},
 "traces": {query: (args: TracesQueryArgs) => Promise<PaginatedResponse<TraceRow>>} };
 
 

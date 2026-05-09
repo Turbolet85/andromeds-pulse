@@ -14,6 +14,7 @@ use ui_bridge::health::{
     BindStatus, BufferConnectionStatus, HeartbeatState, IngestChannelStatus, IntrospectionApi,
     IntrospectionApiImpl, record_start, register_heartbeat_state,
 };
+use ui_bridge::telemetry::{TelemetryApi, TelemetryApiImpl};
 use viz::VizState;
 
 mod heartbeat;
@@ -242,11 +243,13 @@ fn main() {
             .merge(TracesApiImpl::new(Arc::clone(conn), Arc::clone(&viz_state)).into_handler())
             .merge(MetricsApiImpl::new(Arc::clone(conn), Arc::clone(&viz_state)).into_handler())
             .merge(LogsApiImpl::new(Arc::clone(conn), Arc::clone(&viz_state)).into_handler())
-            .merge(StreamsApiImpl::new(Arc::clone(&broadcast_senders)).into_handler()),
+            .merge(StreamsApiImpl::new(Arc::clone(&broadcast_senders)).into_handler())
+            .merge(TelemetryApiImpl::new().into_handler()),
         None => taurpc::Router::new()
             .export_config(taurpc_export_config())
             .merge(introspection_impl.clone().into_handler())
-            .merge(StreamsApiImpl::new(Arc::clone(&broadcast_senders)).into_handler()),
+            .merge(StreamsApiImpl::new(Arc::clone(&broadcast_senders)).into_handler())
+            .merge(TelemetryApiImpl::new().into_handler()),
     };
 
     tauri::Builder::default()
@@ -631,7 +634,8 @@ mod tests {
             .merge(TracesApiImpl::new(Arc::clone(&conn), Arc::clone(&viz_state)).into_handler())
             .merge(MetricsApiImpl::new(Arc::clone(&conn), Arc::clone(&viz_state)).into_handler())
             .merge(LogsApiImpl::new(Arc::clone(&conn), Arc::clone(&viz_state)).into_handler())
-            .merge(StreamsApiImpl::new(Arc::clone(&broadcast_senders)).into_handler());
+            .merge(StreamsApiImpl::new(Arc::clone(&broadcast_senders)).into_handler())
+            .merge(TelemetryApiImpl::new().into_handler());
 
         // into_handler() triggers export_types() in dev mode.
         let _handler = router.into_handler();

@@ -2440,6 +2440,49 @@ mod tests {
     }
 
     #[test]
+    fn scrubber_passes_metric_webgpu_frame_duration_ms_fields() {
+        let defaults = make_defaults(None, None);
+        let lines = capture_json_lines(defaults, || {
+            tracing::info!(
+                target: "metric.webgpu.frame_duration_ms",
+                duration_ms = 16.7,
+                wgpu_backend = "vulkan",
+                webview_backend = "webview2",
+                timing_method = "cpu",
+                "frame duration recorded",
+            );
+        });
+        let fields = &lines[0]["fields"];
+        assert_eq!(fields["duration_ms"], 16.7);
+        assert_eq!(fields["wgpu_backend"], "vulkan");
+        assert_eq!(fields["webview_backend"], "webview2");
+        assert_eq!(fields["timing_method"], "cpu");
+    }
+
+    #[test]
+    fn scrubber_redacts_non_allowlisted_metric_webgpu_frame_duration_ms_field() {
+        let defaults = make_defaults(None, None);
+        let lines = capture_json_lines(defaults, || {
+            tracing::info!(
+                target: "metric.webgpu.frame_duration_ms",
+                duration_ms = 33.0,
+                wgpu_backend = "metal",
+                webview_backend = "wkwebview",
+                timing_method = "gpu",
+                trace_id = "0xDEADBEEF000000000000000000000000",
+                "frame duration recorded",
+            );
+        });
+        let fields = &lines[0]["fields"];
+        assert_eq!(fields["duration_ms"], 33.0);
+        assert_eq!(fields["wgpu_backend"], "metal");
+        assert_eq!(
+            fields["trace_id"], "<redacted>",
+            "raw trace_id MUST NOT leak per Vector 6 cardinality discipline"
+        );
+    }
+
+    #[test]
     fn scrubber_passes_app_boot_tray_init_fields() {
         let defaults = make_defaults(None, None);
         let lines = capture_json_lines(defaults, || {

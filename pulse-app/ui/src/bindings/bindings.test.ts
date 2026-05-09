@@ -18,17 +18,24 @@ import type {
 } from "./index";
 import { createTauRPCProxy } from "./index";
 
-describe("TauRPC bindings (chunk #25 + #27)", () => {
-  it("exports Router type with 5 routers (top-level introspection + per-crate)", () => {
+describe("TauRPC bindings (chunks #25 + #27 + #29)", () => {
+  it("exports Router type with 6 routers (top-level introspection + per-crate + telemetry.frontend)", () => {
     type RouterKeys = keyof Router;
     const expected: RouterKeys[] = [
       "",
       "logs",
       "metrics",
       "streams",
+      "telemetry.frontend",
       "traces",
     ];
-    expect(expected.length).toBe(5);
+    expect(expected.length).toBe(6);
+  });
+
+  it("Router exposes telemetry.frontend.record_frame_ms (chunk #29)", () => {
+    type TelemetryFrontend = keyof Router["telemetry.frontend"];
+    const procedures: TelemetryFrontend[] = ["record_frame_ms"];
+    expect(procedures).toEqual(["record_frame_ms"]);
   });
 
   it("Router top-level (empty key) carries the chunk #27 introspection envelope", () => {

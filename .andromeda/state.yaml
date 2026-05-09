@@ -1,20 +1,16 @@
 schema_version: 2
-last_wrap: 2026-05-09T01:30:00Z
-last_reconcile: 2026-05-09T01:30:00Z
+last_wrap: 2026-05-09T11:30:00Z
+last_reconcile: 2026-05-09T11:30:00Z
 
 last_completed_chunk:
-  route_index: 28
-  title: "WebGPU canvas + WGSL render pipeline — navigator.gpu adapter, render shaders for trace timeline / flamegraph / metrics charts, fallback message"
+  route_index: 29
+  title: "WGSL compute aggregation + 10k spans/sec budget — compute shaders for time-series aggregation, frame_duration_ms metric event, reduced-motion respect"
   epoch: 5
-  committed_at: 2026-05-08T20:15:15Z
-  commit_sha: 842e045
-  commit_subject: "feat(webgpu): WebGPU canvas + WGSL render pipeline — navigator.gpu adapter detection (graceful-degrade fallback) + 3 shader factories aligned to viz routers (traces/metrics/logs) + semantic <region> wrapper + reduced-motion gate (chunk #28); session 28 opens Epoch 5"
+  committed_at: 2026-05-09T11:30:00Z
+  commit_sha: d0a3143
+  commit_subject: "feat(ui-bridge,webgpu): WGSL compute aggregation + telemetry.frontend.record_frame_ms — TelemetryApi TauRPC trait (path = telemetry.frontend) + FrameDurationInput smart enum types + range-validated f64 + aggregation.wgsl substrate + compute-pipeline.ts factory + frame-metrics.ts TauRPC bridge + CanvasContainer integration (chunk #29); session 30"
 
-in_progress:
-  phase: 26
-  chunks: [29]
-  artifacts: [combined.md, research.md, plan.md]
-  started_at: 2026-05-09T00:15:00Z
+in_progress: null
 
 plan_freshness:
   arch_mtime: 2026-05-02T06:52:58Z
@@ -28,18 +24,42 @@ plan_freshness:
   input_mtime: 2026-05-02T06:52:58Z
 
 living_artifact_freshness:
-  dep_tree_reconciled_at: 2026-05-09T01:30:00Z
-  api_surface_reconciled_at: 2026-05-09T01:30:00Z
-  most_recent_code_mtime: 2026-05-08T20:15:15Z
+  dep_tree_reconciled_at: 2026-05-09T11:30:00Z
+  api_surface_reconciled_at: 2026-05-09T11:30:00Z
+  most_recent_code_mtime: 2026-05-09T11:30:00Z
   reconcile_failed: false
 
 drift_warnings:
   - drift_id: D3
     description: "chunk #23 introduced `streams.{subscribe_spans, subscribe_metrics, subscribe_logs}` TauRPC procedures via pulse-app/src/streams.rs, but arch §Occupied Resources Tauri IPC routes list does NOT include `streams.*` namespace"
     severity: warning
-    remediation_hint: "Now mechanically detected by chunk #27 xtask capability-drift (returns exit 1 with 3 extras). Resolution: either /andromeda-scope-arch to legitimize streams.* in arch §Occupied Resources (ideally alongside chunk #29's planned `telemetry.*` namespace — single arch update for both), OR revert chunk #23 streams.rs registration. STALE-DRIFT (age 6 wraps) — strongly recommend resolving this session per session-state-contract.md v2.1."
+    remediation_hint: "STALE-DRIFT (age 7 wraps). Resolution: /andromeda-scope-arch to legitimize streams.* in arch §Occupied Resources (ideally alongside chunk #29's telemetry.frontend.* — single arch update for both)."
     first_observed_session_count: 23
-    last_observed_session_count: 29
+    last_observed_session_count: 30
+  - drift_id: D3
+    description: "chunk #29 introduced `telemetry.frontend.record_frame_ms` TauRPC procedure via crates/ui-bridge/src/telemetry.rs (taurpc path = `telemetry.frontend`), but arch §Occupied Resources Tauri IPC routes list does NOT include `telemetry.*` namespace"
+    severity: warning
+    remediation_hint: "Resolution: /andromeda-scope-arch to legitimize telemetry.frontend.* in arch §Occupied Resources (ideally alongside the active D3 streams.* drift — single arch update for both)."
+    first_observed_session_count: 30
+    last_observed_session_count: 30
+  - drift_id: D5
+    description: "security-plan.md mtime (2026-05-09T01:00:00Z) > CLAUDE.md mtime (2026-05-04T22:44:32Z) — generic plan-freshness mismatch (no active spec_amendment match; the 2026-05-08 obs-pivot amendments archived last session)"
+    severity: warning
+    remediation_hint: "/andromeda-setup-project (full re-derive) to advance CLAUDE.md mtime past plan mtime; OR investigate manual edit source if unexpected"
+    first_observed_session_count: 30
+    last_observed_session_count: 30
+  - drift_id: D5
+    description: "test-plan.md mtime (2026-05-09T01:00:00Z) > CLAUDE.md mtime (2026-05-04T22:44:32Z) — generic plan-freshness mismatch (no active spec_amendment match)"
+    severity: warning
+    remediation_hint: "/andromeda-setup-project (full re-derive) to advance CLAUDE.md mtime past plan mtime"
+    first_observed_session_count: 30
+    last_observed_session_count: 30
+  - drift_id: D5
+    description: "obs-plan.md mtime (2026-05-08T18:00:16Z) > CLAUDE.md mtime (2026-05-04T22:44:32Z) — generic plan-freshness mismatch (no active spec_amendment match)"
+    severity: warning
+    remediation_hint: "/andromeda-setup-project (full re-derive) to advance CLAUDE.md mtime past plan mtime"
+    first_observed_session_count: 30
+    last_observed_session_count: 30
 
 spec_amendments:
   active: []
@@ -137,4 +157,4 @@ spec_amendments:
       propagated_by_run: .andromeda/runs/2026-05-09T01-00-00-setup-project-delta/
       archived_at: 2026-05-09T01:30:00Z
 
-session_count: 29
+session_count: 30

@@ -11,12 +11,35 @@ vi.mock("./render-pipeline", () => ({
   createMetricsChartPipeline: vi.fn().mockReturnValue({}),
 }));
 
+vi.mock("./compute-pipeline", () => ({
+  createAggregationComputePipeline: vi
+    .fn()
+    .mockReturnValue({ kind: "created", pipeline: {} as GPUComputePipeline }),
+}));
+
+vi.mock("./frame-metrics", () => ({
+  recordFrameMs: vi.fn().mockResolvedValue(undefined),
+  detectWebviewBackend: vi.fn().mockReturnValue("webview2"),
+  normalizeWgpuBackend: vi.fn().mockImplementation((value: string) => {
+    if (value === "metal" || value === "dx12") {
+      return value;
+    }
+    return "vulkan";
+  }),
+}));
+
 const { useReducedMotion } = await import("../hooks/use-reduced-motion");
 const renderPipelineModule = await import("./render-pipeline");
+const computePipelineModule = await import("./compute-pipeline");
+const frameMetricsModule = await import("./frame-metrics");
 const { CanvasContainer } = await import("./CanvasContainer");
 
 function stubGpuAvailable() {
-  const fakeDevice = {} as GPUDevice;
+  const fakeDevice = {
+    queue: {
+      onSubmittedWorkDone: vi.fn().mockResolvedValue(undefined),
+    },
+  } as unknown as GPUDevice;
   const fakeAdapter = {
     requestDevice: vi.fn().mockResolvedValue(fakeDevice),
     info: { backend: "vulkan" },
@@ -25,9 +48,9 @@ function stubGpuAvailable() {
     gpu: {
       requestAdapter: vi.fn().mockResolvedValue(fakeAdapter),
     },
+    userAgent: "Mozilla/5.0 ... Edg/120.0.0.0",
   });
 
-  // Stub HTMLCanvasElement.getContext for the WebGPU context configuration.
   HTMLCanvasElement.prototype.getContext = vi.fn().mockReturnValue({
     configure: vi.fn(),
   }) as unknown as typeof HTMLCanvasElement.prototype.getContext;
@@ -44,6 +67,12 @@ describe("CanvasContainer — semantic wrapper + adapter branch + reduced-motion
     vi.mocked(renderPipelineModule.createTraceTimelinePipeline).mockClear();
     vi.mocked(renderPipelineModule.createFlamegraphPipeline).mockClear();
     vi.mocked(renderPipelineModule.createMetricsChartPipeline).mockClear();
+    vi.mocked(computePipelineModule.createAggregationComputePipeline).mockClear();
+    vi.mocked(computePipelineModule.createAggregationComputePipeline).mockReturnValue({
+      kind: "created",
+      pipeline: {} as GPUComputePipeline,
+    });
+    vi.mocked(frameMetricsModule.recordFrameMs).mockClear();
   });
 
   it("renders <section role='region'> wrapper with the provided aria-label", async () => {
@@ -62,16 +91,15 @@ describe("CanvasContainer — semantic wrapper + adapter branch + reduced-motion
     expect(region.style.padding).toBe("var(--spacing-md)");
   });
 
-  it("renders <canvas> when WebGPU adapter is available + initializes 3 render pipelines", async () => {
+  it("renders <canvas> when WebGPU adapter is available + initializes 3 render pipelines + compute pipeline", async () => {
     stubGpuAvailable();
     const { container } = render(<CanvasContainer ariaLabel="Telemetry chart" />);
-    // React 19 dev / strict double-invokes useEffect on mount; assert factories
-    // were called rather than exact count to stay robust.
     await waitFor(() => {
       expect(renderPipelineModule.createTraceTimelinePipeline).toHaveBeenCalled();
     });
     expect(renderPipelineModule.createFlamegraphPipeline).toHaveBeenCalled();
     expect(renderPipelineModule.createMetricsChartPipeline).toHaveBeenCalled();
+    expect(computePipelineModule.createAggregationComputePipeline).toHaveBeenCalled();
     expect(container.querySelector("canvas")).not.toBeNull();
     expect(screen.queryByRole("alert")).toBeNull();
   });
@@ -95,6 +123,20 @@ describe("CanvasContainer — semantic wrapper + adapter branch + reduced-motion
     expect(renderPipelineModule.createTraceTimelinePipeline).not.toHaveBeenCalled();
     expect(renderPipelineModule.createFlamegraphPipeline).not.toHaveBeenCalled();
     expect(renderPipelineModule.createMetricsChartPipeline).not.toHaveBeenCalled();
+    expect(computePipelineModule.createAggregationComputePipeline).not.toHaveBeenCalled();
+  });
+
+  it("renders <Fallback> when the compute pipeline fails (chunk #29 substrate failure)", async () => {
+    stubGpuAvailable();
+    vi.mocked(computePipelineModule.createAggregationComputePipeline).mockReturnValue({
+      kind: "failed",
+      reason: "compute pipeline creation failed",
+    });
+    const { container } = render(<CanvasContainer ariaLabel="Telemetry chart" />);
+    await waitFor(() => {
+      expect(screen.getByRole("alert")).toBeDefined();
+    });
+    expect(container.querySelector("canvas")).toBeNull();
   });
 
   it("respects prefers-reduced-motion: reduce by suppressing the rAF loop (onReducedMotionFrame branch)", async () => {
@@ -105,12 +147,25 @@ describe("CanvasContainer — semantic wrapper + adapter branch + reduced-motion
     await waitFor(() => {
       expect(renderPipelineModule.createTraceTimelinePipeline).toHaveBeenCalled();
     });
-    // The createFrameLoop reduced-motion branch invokes onReducedMotionFrame
-    // exactly once on start() and does NOT call requestAnimationFrame per
-    // pulse-app/ui/src/canvas/frame-loop.ts. Verify the rAF queue is not
-    // touched after the initial render-pipeline init useEffect runs.
     expect(rafSpy).not.toHaveBeenCalled();
     rafSpy.mockRestore();
+  });
+
+  it("invokes recordFrameMs from the reduced-motion static-paint branch (stable 4-field shape)", async () => {
+    vi.mocked(useReducedMotion).mockReturnValue(true);
+    stubGpuAvailable();
+    render(<CanvasContainer ariaLabel="Telemetry chart" />);
+    await waitFor(() => {
+      expect(frameMetricsModule.recordFrameMs).toHaveBeenCalled();
+    });
+    const call = vi.mocked(frameMetricsModule.recordFrameMs).mock.calls[0][0];
+    expect(Object.keys(call).sort()).toEqual([
+      "duration_ms",
+      "timing_method",
+      "webview_backend",
+      "wgpu_backend",
+    ]);
+    expect(call.duration_ms).toBe(0);
   });
 
   it("renders the optional mirrorTable slot when provided (chart-text DOM mirror per a11y plan)", async () => {
