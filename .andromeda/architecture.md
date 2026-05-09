@@ -163,6 +163,8 @@
 - **Tauri IPC routes (TauRPC procedures)**:
   - `app_info`, `health`, `ready`, `get_settings`, `update_settings` — top-level (ui-bridge crate)
   - `traces.*`, `metrics.*`, `logs.*` — query routers (viz crate)
+  - `streams.subscribe_spans`, `streams.subscribe_metrics`, `streams.subscribe_logs` — pulse-app crate (Tauri Channel<Vec<u8>> binding to `buffer::BroadcastSenders` for binary Arrow IPC; chunk #23) — see §Architecture Registry Updates 2026-05-09
+  - `telemetry.frontend.record_frame_ms` — ui-bridge crate (`FrameDurationInput` → `metric.webgpu.frame_duration_ms` tracing event per obs-plan §11 Frontend bridge; chunk #29) — see §Architecture Registry Updates 2026-05-09
   - `snapshot.generate`, `snapshot.list_recent`, `snapshot.copy_to_clipboard` — snapshot crate
   - `plugins.list`, `plugins.reload`, `plugins.invoke` — plugins crate
   - `mcp.status`, `mcp.start`, `mcp.stop` — mcp-server crate (only when `--features mcp-server`)
@@ -327,4 +329,38 @@ andromeda-pulse/
 ## Existing Scopes
 
 None — new project. Scopes will be added via `/andromeda-scope-arch`.
+
+## Architecture Registry Updates
+
+_This section accumulates entries from `/andromeda-evolve --allow-arch-registry` invocations that legitimize implementation reality in the registry sections of this document (typically §Occupied Resources). Entries are NOT specialist-plan Decisions Log entries — they record arch-level acknowledgments of code that landed via /andromeda-implement chunks before /andromeda-arch could update the canonical registry list. Entry format mirrors specialist-plan Decisions Log conventions (`### {YYYY-MM-DD} — {title}`). Cleanup convention: this section is preserved across /andromeda-arch re-runs as audit trail; never deleted._
+
+### 2026-05-09 — Acknowledge streams.* namespace in §Occupied Resources (--allow-arch-registry)
+
+**Section affected:** §Occupied Resources Tauri IPC routes
+
+**Registry additions:**
+
+- `streams.subscribe_spans` — implemented at `pulse-app/src/streams.rs:16` (chunk #23)
+- `streams.subscribe_metrics` — implemented at `pulse-app/src/streams.rs:17` (chunk #23)
+- `streams.subscribe_logs` — implemented at `pulse-app/src/streams.rs:18` (chunk #23)
+
+**Authority:** /andromeda-evolve with `--allow-arch-registry` flag (narrow Refuse 1 exception for arch registry sections; full audit trail in amendment marker). Check 7 verified purely additive / registry section / code evidence resolved / no new architectural concept.
+
+**Rationale:** Code reality at the cited file already implements these 3 TauRPC procedures via `#[taurpc::procedures(path = "streams")]`; arch §Occupied Resources had not acknowledged the streams.* namespace since chunk #23 landed (D3 stale drift, age 7 wraps in state.yaml.drift_warnings). This entry brings arch into alignment with implementation reality. Capability-drift class (D3) — chunk #23 added implementation without arch update; this amendment closes the gap. Sibling amendment legitimizes telemetry.frontend.* simultaneously.
+
+**Amendment record:** `.andromeda/runs/2026-05-09T11-45-00-spec-amendment-legitimize-streams-namespace/amendment.md`
+
+### 2026-05-09 — Acknowledge telemetry.frontend.* namespace in §Occupied Resources (--allow-arch-registry)
+
+**Section affected:** §Occupied Resources Tauri IPC routes
+
+**Registry additions:**
+
+- `telemetry.frontend.record_frame_ms` — implemented at `crates/ui-bridge/src/telemetry.rs:99` (chunk #29)
+
+**Authority:** /andromeda-evolve with `--allow-arch-registry` flag. Check 7 verified purely additive / registry section / code evidence resolved / no new architectural concept.
+
+**Rationale:** Code reality at the cited file implements the `record_frame_ms` resolver via `#[taurpc::procedures(path = "telemetry.frontend")]` (3-segment dotted-namespace, validated this session per .claude/rules/frontend.md Session Additions 2026-05-09); arch §Occupied Resources had not acknowledged the telemetry.* namespace since chunk #29 landed (D3 NEW this wrap). Closes capability-drift gap. Sibling amendment legitimizes streams.* simultaneously.
+
+**Amendment record:** `.andromeda/runs/2026-05-09T11-45-00-spec-amendment-legitimize-telemetry-namespace/amendment.md`
 

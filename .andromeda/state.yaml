@@ -62,7 +62,71 @@ drift_warnings:
     last_observed_session_count: 30
 
 spec_amendments:
-  active: []
+  active:
+    - amendment_id: 2026-05-09T11-45-00Z-legitimize-streams-namespace
+      plans:
+        - path: architecture.md
+          sections:
+            - Occupied Resources
+            - Architecture Registry Updates
+          decisions_log_section: "2026-05-09 — Acknowledge streams.* namespace in §Occupied Resources (--allow-arch-registry)"
+      trigger:
+        chunk: null
+        phase: null
+        harness: "user-driven via /andromeda-evolve"
+      authority:
+        winning_plan: pulse-app/src/streams.rs
+        winning_tier: implementation
+        losing_plan: architecture.md
+        losing_concern: registry-section-stale-vs-implementation-reality
+        rationale: "Code at pulse-app/src/streams.rs:14-19 implements StreamsApi via taurpc path = streams; arch §Occupied Resources had not acknowledged since chunk #23. Adding to registry brings arch into alignment. Authorized via --allow-arch-registry flag (Check 7 ✓)."
+      impl_files_synced: []
+      expected_propagation: []
+      marker_path: .andromeda/runs/2026-05-09T11-45-00-spec-amendment-legitimize-streams-namespace/amendment.md
+      applied_at: 2026-05-09T11:45:00Z
+      noted_at: null
+      propagated_by_run: .andromeda/runs/2026-05-09T11-50-00-setup-project-delta/
+      archived_at: null
+      verification_status: clean
+      flag_used: --allow-arch-registry
+      registry_section: "§Occupied Resources"
+      registry_additions:
+        - streams.subscribe_spans
+        - streams.subscribe_metrics
+        - streams.subscribe_logs
+      code_evidence:
+        - pulse-app/src/streams.rs
+    - amendment_id: 2026-05-09T11-45-00Z-legitimize-telemetry-namespace
+      plans:
+        - path: architecture.md
+          sections:
+            - Occupied Resources
+            - Architecture Registry Updates
+          decisions_log_section: "2026-05-09 — Acknowledge telemetry.frontend.* namespace in §Occupied Resources (--allow-arch-registry)"
+      trigger:
+        chunk: null
+        phase: null
+        harness: "user-driven via /andromeda-evolve"
+      authority:
+        winning_plan: crates/ui-bridge/src/telemetry.rs
+        winning_tier: implementation
+        losing_plan: architecture.md
+        losing_concern: registry-section-stale-vs-implementation-reality
+        rationale: "Code at crates/ui-bridge/src/telemetry.rs:97-99 implements TelemetryApi via taurpc path = telemetry.frontend; arch §Occupied Resources had not acknowledged since chunk #29. Adding to registry brings arch into alignment. Authorized via --allow-arch-registry flag (Check 7 ✓)."
+      impl_files_synced: []
+      expected_propagation: []
+      marker_path: .andromeda/runs/2026-05-09T11-45-00-spec-amendment-legitimize-telemetry-namespace/amendment.md
+      applied_at: 2026-05-09T11:45:00Z
+      noted_at: null
+      propagated_by_run: .andromeda/runs/2026-05-09T11-50-00-setup-project-delta/
+      archived_at: null
+      verification_status: clean
+      flag_used: --allow-arch-registry
+      registry_section: "§Occupied Resources"
+      registry_additions:
+        - telemetry.frontend.record_frame_ms
+      code_evidence:
+        - crates/ui-bridge/src/telemetry.rs
   archive:
     - amendment_id: 2026-05-03T21-30-00Z-lift-accent
       plans:
