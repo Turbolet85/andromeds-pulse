@@ -1,19 +1,19 @@
 schema_version: 2
-last_wrap: 2026-05-09T11:30:00Z
-last_reconcile: 2026-05-09T11:30:00Z
+last_wrap: 2026-05-09T11:55:00Z
+last_reconcile: 2026-05-09T11:55:00Z
 
 last_completed_chunk:
   route_index: 29
   title: "WGSL compute aggregation + 10k spans/sec budget — compute shaders for time-series aggregation, frame_duration_ms metric event, reduced-motion respect"
   epoch: 5
   committed_at: 2026-05-09T11:30:00Z
-  commit_sha: d0a3143
-  commit_subject: "feat(ui-bridge,webgpu): WGSL compute aggregation + telemetry.frontend.record_frame_ms — TelemetryApi TauRPC trait (path = telemetry.frontend) + FrameDurationInput smart enum types + range-validated f64 + aggregation.wgsl substrate + compute-pipeline.ts factory + frame-metrics.ts TauRPC bridge + CanvasContainer integration (chunk #29); session 30"
+  commit_sha: 3c55a5e
+  commit_subject: "feat(ui-bridge,webgpu): WGSL compute aggregation + telemetry.frontend.record_frame_ms — TauRPC dotted-namespace resolver + 6 chunk #29 substrate files (chunk #29); session 30"
 
 in_progress: null
 
 plan_freshness:
-  arch_mtime: 2026-05-02T06:52:58Z
+  arch_mtime: 2026-05-09T11:50:00Z
   security_mtime: 2026-05-09T01:00:00Z
   design_mtime: 2026-05-03T21:52:16Z
   layout_mtime: 2026-05-02T15:53:22Z
@@ -24,109 +24,33 @@ plan_freshness:
   input_mtime: 2026-05-02T06:52:58Z
 
 living_artifact_freshness:
-  dep_tree_reconciled_at: 2026-05-09T11:30:00Z
-  api_surface_reconciled_at: 2026-05-09T11:30:00Z
+  dep_tree_reconciled_at: 2026-05-09T11:55:00Z
+  api_surface_reconciled_at: 2026-05-09T11:55:00Z
   most_recent_code_mtime: 2026-05-09T11:30:00Z
   reconcile_failed: false
 
 drift_warnings:
-  - drift_id: D3
-    description: "chunk #23 introduced `streams.{subscribe_spans, subscribe_metrics, subscribe_logs}` TauRPC procedures via pulse-app/src/streams.rs, but arch §Occupied Resources Tauri IPC routes list does NOT include `streams.*` namespace"
-    severity: warning
-    remediation_hint: "STALE-DRIFT (age 7 wraps). Resolution: /andromeda-scope-arch to legitimize streams.* in arch §Occupied Resources (ideally alongside chunk #29's telemetry.frontend.* — single arch update for both)."
-    first_observed_session_count: 23
-    last_observed_session_count: 30
-  - drift_id: D3
-    description: "chunk #29 introduced `telemetry.frontend.record_frame_ms` TauRPC procedure via crates/ui-bridge/src/telemetry.rs (taurpc path = `telemetry.frontend`), but arch §Occupied Resources Tauri IPC routes list does NOT include `telemetry.*` namespace"
-    severity: warning
-    remediation_hint: "Resolution: /andromeda-scope-arch to legitimize telemetry.frontend.* in arch §Occupied Resources (ideally alongside the active D3 streams.* drift — single arch update for both)."
-    first_observed_session_count: 30
-    last_observed_session_count: 30
   - drift_id: D5
-    description: "security-plan.md mtime (2026-05-09T01:00:00Z) > CLAUDE.md mtime (2026-05-04T22:44:32Z) — generic plan-freshness mismatch (no active spec_amendment match; the 2026-05-08 obs-pivot amendments archived last session)"
+    description: "security-plan.md mtime (2026-05-09T01:00:00Z) > CLAUDE.md mtime (2026-05-04T22:44:32Z) — generic plan-freshness mismatch (no active spec_amendment match; the 2026-05-08 obs-pivot amendments archived prior session)"
     severity: warning
     remediation_hint: "/andromeda-setup-project (full re-derive) to advance CLAUDE.md mtime past plan mtime; OR investigate manual edit source if unexpected"
     first_observed_session_count: 30
-    last_observed_session_count: 30
+    last_observed_session_count: 31
   - drift_id: D5
     description: "test-plan.md mtime (2026-05-09T01:00:00Z) > CLAUDE.md mtime (2026-05-04T22:44:32Z) — generic plan-freshness mismatch (no active spec_amendment match)"
     severity: warning
     remediation_hint: "/andromeda-setup-project (full re-derive) to advance CLAUDE.md mtime past plan mtime"
     first_observed_session_count: 30
-    last_observed_session_count: 30
+    last_observed_session_count: 31
   - drift_id: D5
     description: "obs-plan.md mtime (2026-05-08T18:00:16Z) > CLAUDE.md mtime (2026-05-04T22:44:32Z) — generic plan-freshness mismatch (no active spec_amendment match)"
     severity: warning
     remediation_hint: "/andromeda-setup-project (full re-derive) to advance CLAUDE.md mtime past plan mtime"
     first_observed_session_count: 30
-    last_observed_session_count: 30
+    last_observed_session_count: 31
 
 spec_amendments:
-  active:
-    - amendment_id: 2026-05-09T11-45-00Z-legitimize-streams-namespace
-      plans:
-        - path: architecture.md
-          sections:
-            - Occupied Resources
-            - Architecture Registry Updates
-          decisions_log_section: "2026-05-09 — Acknowledge streams.* namespace in §Occupied Resources (--allow-arch-registry)"
-      trigger:
-        chunk: null
-        phase: null
-        harness: "user-driven via /andromeda-evolve"
-      authority:
-        winning_plan: pulse-app/src/streams.rs
-        winning_tier: implementation
-        losing_plan: architecture.md
-        losing_concern: registry-section-stale-vs-implementation-reality
-        rationale: "Code at pulse-app/src/streams.rs:14-19 implements StreamsApi via taurpc path = streams; arch §Occupied Resources had not acknowledged since chunk #23. Adding to registry brings arch into alignment. Authorized via --allow-arch-registry flag (Check 7 ✓)."
-      impl_files_synced: []
-      expected_propagation: []
-      marker_path: .andromeda/runs/2026-05-09T11-45-00-spec-amendment-legitimize-streams-namespace/amendment.md
-      applied_at: 2026-05-09T11:45:00Z
-      noted_at: null
-      propagated_by_run: .andromeda/runs/2026-05-09T11-50-00-setup-project-delta/
-      archived_at: null
-      verification_status: clean
-      flag_used: --allow-arch-registry
-      registry_section: "§Occupied Resources"
-      registry_additions:
-        - streams.subscribe_spans
-        - streams.subscribe_metrics
-        - streams.subscribe_logs
-      code_evidence:
-        - pulse-app/src/streams.rs
-    - amendment_id: 2026-05-09T11-45-00Z-legitimize-telemetry-namespace
-      plans:
-        - path: architecture.md
-          sections:
-            - Occupied Resources
-            - Architecture Registry Updates
-          decisions_log_section: "2026-05-09 — Acknowledge telemetry.frontend.* namespace in §Occupied Resources (--allow-arch-registry)"
-      trigger:
-        chunk: null
-        phase: null
-        harness: "user-driven via /andromeda-evolve"
-      authority:
-        winning_plan: crates/ui-bridge/src/telemetry.rs
-        winning_tier: implementation
-        losing_plan: architecture.md
-        losing_concern: registry-section-stale-vs-implementation-reality
-        rationale: "Code at crates/ui-bridge/src/telemetry.rs:97-99 implements TelemetryApi via taurpc path = telemetry.frontend; arch §Occupied Resources had not acknowledged since chunk #29. Adding to registry brings arch into alignment. Authorized via --allow-arch-registry flag (Check 7 ✓)."
-      impl_files_synced: []
-      expected_propagation: []
-      marker_path: .andromeda/runs/2026-05-09T11-45-00-spec-amendment-legitimize-telemetry-namespace/amendment.md
-      applied_at: 2026-05-09T11:45:00Z
-      noted_at: null
-      propagated_by_run: .andromeda/runs/2026-05-09T11-50-00-setup-project-delta/
-      archived_at: null
-      verification_status: clean
-      flag_used: --allow-arch-registry
-      registry_section: "§Occupied Resources"
-      registry_additions:
-        - telemetry.frontend.record_frame_ms
-      code_evidence:
-        - crates/ui-bridge/src/telemetry.rs
+  active: []
   archive:
     - amendment_id: 2026-05-03T21-30-00Z-lift-accent
       plans:
@@ -220,5 +144,27 @@ spec_amendments:
         - "2026-05-08 — Annotate body deprecation: §1 self-observation loop prevention triggers + §Anti-Patterns OTLP self-dialing row"
       propagated_by_run: .andromeda/runs/2026-05-09T01-00-00-setup-project-delta/
       archived_at: 2026-05-09T01:30:00Z
+    - amendment_id: 2026-05-09T11-45-00Z-legitimize-streams-namespace
+      plans:
+        - path: architecture.md
+          sections:
+            - Occupied Resources
+            - Architecture Registry Updates
+      decisions_log_sections:
+        - "2026-05-09 — Acknowledge streams.* namespace in §Occupied Resources (--allow-arch-registry)"
+      propagated_by_run: .andromeda/runs/2026-05-09T11-50-00-setup-project-delta/
+      archived_at: 2026-05-09T11:55:00Z
+      flag_used: --allow-arch-registry
+    - amendment_id: 2026-05-09T11-45-00Z-legitimize-telemetry-namespace
+      plans:
+        - path: architecture.md
+          sections:
+            - Occupied Resources
+            - Architecture Registry Updates
+      decisions_log_sections:
+        - "2026-05-09 — Acknowledge telemetry.frontend.* namespace in §Occupied Resources (--allow-arch-registry)"
+      propagated_by_run: .andromeda/runs/2026-05-09T11-50-00-setup-project-delta/
+      archived_at: 2026-05-09T11:55:00Z
+      flag_used: --allow-arch-registry
 
-session_count: 30
+session_count: 31
