@@ -174,15 +174,22 @@ mod tests {
         let ts_str = format_timestamp_us(ts_us);
         let mut stmt = guard
             .prepare(
-                "INSERT INTO spans (trace_id, span_id, ts, ts_unix_nano) VALUES (?, ?, ?::TIMESTAMPTZ, ?)",
+                "INSERT INTO spans (trace_id, span_id, ts, ts_unix_nano, service_name, end_time_unix_nano, status_code) \
+                 VALUES (?, ?, ?::TIMESTAMPTZ, ?, '', ?, 0)",
             )
             .expect("prepare insert");
         let trace_blob = vec![trace_id; 16];
         let span_blob = vec![span_id; 8];
         let trace_param: &[u8] = trace_blob.as_slice();
         let span_param: &[u8] = span_blob.as_slice();
-        stmt.execute(duckdb::params![trace_param, span_param, ts_str, ts_ns])
-            .expect("insert span");
+        stmt.execute(duckdb::params![
+            trace_param,
+            span_param,
+            ts_str,
+            ts_ns,
+            ts_ns
+        ])
+        .expect("insert span");
     }
 
     fn format_timestamp_us(ts_us: i64) -> String {

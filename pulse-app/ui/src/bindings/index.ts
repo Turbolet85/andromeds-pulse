@@ -38,7 +38,7 @@ export type Theme = "dark" | "light" | "auto"
 
 export type TimingMethod = "cpu" | "gpu"
 
-export type TraceRow = { trace_id: string; span_id: string; ts_unix_nano: number }
+export type TraceRow = { trace_id: string; span_id: string; ts_unix_nano: number; service: string; duration_ms: number; error_count: number }
 
 export type TracesQueryArgs = { time_window_seconds: number; limit: number; cursor: string | null }
 

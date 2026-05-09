@@ -6,8 +6,10 @@ use arrow::array::{BinaryArray, Int32Array, Int64Array, StringArray, TimestampMi
 use arrow::datatypes::{DataType, Field, Schema, TimeUnit};
 use arrow::record_batch::RecordBatch;
 use duckdb::Connection;
+use ingest::grpc::proto::opentelemetry::proto::common::v1::any_value;
 use ingest::grpc::proto::opentelemetry::proto::logs::v1::ResourceLogs;
 use ingest::grpc::proto::opentelemetry::proto::metrics::v1::{ResourceMetrics, metric};
+use ingest::grpc::proto::opentelemetry::proto::resource::v1::Resource;
 use ingest::grpc::proto::opentelemetry::proto::trace::v1::ResourceSpans;
 
 use crate::contract::Error;
@@ -25,8 +27,12 @@ pub(crate) fn build_spans_record_batch(
     let mut span_ids: Vec<Vec<u8>> = Vec::new();
     let mut tss: Vec<i64> = Vec::new();
     let mut ts_unix_nanos: Vec<i64> = Vec::new();
+    let mut service_names: Vec<String> = Vec::new();
+    let mut end_time_unix_nanos: Vec<i64> = Vec::new();
+    let mut status_codes: Vec<i32> = Vec::new();
 
     for rs in batch {
+        let service_name = extract_service_name(rs.resource.as_ref());
         for ss in &rs.scope_spans {
             for span in &ss.spans {
                 if span.trace_id.is_empty() || span.span_id.is_empty() {
@@ -39,6 +45,10 @@ pub(crate) fn build_spans_record_batch(
                 let ns = span.start_time_unix_nano as i64;
                 tss.push(ns / 1_000);
                 ts_unix_nanos.push(ns);
+                service_names.push(service_name.clone());
+                end_time_unix_nanos.push(span.end_time_unix_nano as i64);
+                // OTLP Status.code: 0 Unset, 1 Ok, 2 Error per spec.
+                status_codes.push(span.status.as_ref().map(|s| s.code).unwrap_or(0));
             }
         }
     }
@@ -51,12 +61,18 @@ pub(crate) fn build_spans_record_batch(
     let span_id_array = BinaryArray::from_iter_values(span_ids.iter().map(|v| v.as_slice()));
     let ts_array = TimestampMicrosecondArray::from(tss).with_timezone(TS_TZ_UTC);
     let ts_unix_nano_array = Int64Array::from(ts_unix_nanos);
+    let service_name_array = StringArray::from(service_names);
+    let end_time_unix_nano_array = Int64Array::from(end_time_unix_nanos);
+    let status_code_array = Int32Array::from(status_codes);
 
     let schema = Arc::new(Schema::new(vec![
         Field::new("trace_id", DataType::Binary, false),
         Field::new("span_id", DataType::Binary, false),
         Field::new("ts", timestamp_tz_type(), false),
         Field::new("ts_unix_nano", DataType::Int64, false),
+        Field::new("service_name", DataType::Utf8, false),
+        Field::new("end_time_unix_nano", DataType::Int64, false),
+        Field::new("status_code", DataType::Int32, false),
     ]));
 
     let record_batch = RecordBatch::try_new(
@@ -66,6 +82,9 @@ pub(crate) fn build_spans_record_batch(
             Arc::new(span_id_array),
             Arc::new(ts_array),
             Arc::new(ts_unix_nano_array),
+            Arc::new(service_name_array),
+            Arc::new(end_time_unix_nano_array),
+            Arc::new(status_code_array),
         ],
     )
     .map_err(|e| Error::Append {
@@ -73,6 +92,21 @@ pub(crate) fn build_spans_record_batch(
     })?;
 
     Ok(Some(record_batch))
+}
+
+fn extract_service_name(resource: Option<&Resource>) -> String {
+    let Some(r) = resource else {
+        return String::new();
+    };
+    for kv in &r.attributes {
+        if kv.key == "service.name"
+            && let Some(av) = &kv.value
+            && let Some(any_value::Value::StringValue(s)) = &av.value
+        {
+            return s.clone();
+        }
+    }
+    String::new()
 }
 
 pub(crate) fn build_metrics_record_batch(
@@ -509,7 +543,61 @@ mod tests {
         let result = build_spans_record_batch(&batch).expect("build");
         let rb = result.expect("must be Some for valid input");
         assert_eq!(rb.num_rows(), 1);
-        assert_eq!(rb.num_columns(), 4);
+        assert_eq!(rb.num_columns(), 7);
+    }
+
+    #[test]
+    fn build_spans_record_batch_extracts_service_name_from_resource() {
+        let span = span_with_ids(vec![1u8; 16], vec![1u8; 8], 1_700_000_000_000_000_000);
+        let batch = vec![ResourceSpans {
+            resource: Some(make_resource("svc-traces")),
+            scope_spans: vec![ScopeSpans {
+                scope: None,
+                spans: vec![span],
+                schema_url: String::new(),
+            }],
+            schema_url: String::new(),
+        }];
+        let conn = fresh_conn_with_schema();
+        append_spans_batch(&conn, &batch).expect("append");
+        let service: String = conn
+            .query_row("SELECT service_name FROM spans LIMIT 1", [], |r| r.get(0))
+            .expect("service_name read");
+        assert_eq!(service, "svc-traces");
+    }
+
+    #[test]
+    fn build_spans_record_batch_writes_end_time_and_status_code() {
+        let mut span = span_with_ids(vec![5u8; 16], vec![5u8; 8], 1_700_000_000_000_000_000);
+        span.end_time_unix_nano = 1_700_000_000_005_000_000; // +5ms
+        span.status = Some(
+            ingest::grpc::proto::opentelemetry::proto::trace::v1::Status {
+                code: 2, // Error per OTLP spec
+                message: String::new(),
+            },
+        );
+        let conn = fresh_conn_with_schema();
+        append_spans_batch(&conn, &wrap_spans(vec![span])).expect("append");
+        let (end_ns, status_code): (i64, i32) = conn
+            .query_row(
+                "SELECT end_time_unix_nano, status_code FROM spans LIMIT 1",
+                [],
+                |r| Ok((r.get(0)?, r.get(1)?)),
+            )
+            .expect("read");
+        assert_eq!(end_ns, 1_700_000_000_005_000_000);
+        assert_eq!(status_code, 2);
+    }
+
+    #[test]
+    fn build_spans_record_batch_handles_missing_resource_as_empty_service() {
+        let span = span_with_ids(vec![6u8; 16], vec![6u8; 8], 1_700_000_000_000_000_000);
+        let conn = fresh_conn_with_schema();
+        append_spans_batch(&conn, &wrap_spans(vec![span])).expect("append");
+        let service: String = conn
+            .query_row("SELECT service_name FROM spans LIMIT 1", [], |r| r.get(0))
+            .expect("service_name read");
+        assert_eq!(service, "");
     }
 
     #[test]

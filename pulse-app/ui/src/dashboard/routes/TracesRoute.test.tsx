@@ -1,68 +1,108 @@
-import { describe, expect, it, vi } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { render, screen, waitFor } from "@testing-library/react";
+import type { TraceRow } from "../../bindings";
+import { __setProxyForTest } from "./traces/use-traces";
 import { TracesRoute } from "./TracesRoute";
-import { HaloInputProvider } from "../halo-input-context";
 
-vi.mock("../../canvas/CanvasContainer", () => ({
-  CanvasContainer: ({ ariaLabel }: { ariaLabel: string }) => (
-    <section aria-label={ariaLabel} data-testid="canvas-container-stub" />
-  ),
-}));
-
-vi.mock("../../halo/HaloCanvas", () => ({
-  HaloCanvas: ({ ariaLabel, throughputHz, errorRate }: { ariaLabel: string; throughputHz: number; errorRate: number }) => (
+vi.mock("./traces/ConstellationCanvas", () => ({
+  ConstellationCanvas: ({
+    services,
+  }: {
+    services: ReadonlyArray<{ serviceName: string }>;
+  }) => (
     <section
-      aria-label={ariaLabel}
-      data-testid="halo-canvas-stub"
-      data-throughput={throughputHz}
-      data-error-rate={errorRate}
+      aria-label="Service constellation"
+      data-testid="constellation-canvas-stub"
+      data-service-count={services.length}
     />
   ),
 }));
 
-const haloInput = { throughputHz: 1234, errorRate: 0.05 };
+vi.mock("./traces/TraceTable", () => ({
+  TraceTable: ({ rows }: { rows: ReadonlyArray<TraceRow> }) => (
+    <div data-testid="trace-table-stub" data-row-count={rows.length} />
+  ),
+}));
+
+const sampleRows: TraceRow[] = [
+  {
+    trace_id: "deadbeef",
+    span_id: "00000001",
+    ts_unix_nano: 1_700_000_000_000,
+    service: "svc-a",
+    duration_ms: 5,
+    error_count: 0,
+  },
+  {
+    trace_id: "feedface",
+    span_id: "00000002",
+    ts_unix_nano: 1_700_000_000_001,
+    service: "svc-b",
+    duration_ms: 12,
+    error_count: 1,
+  },
+];
+
+afterEach(() => {
+  __setProxyForTest(null);
+  vi.clearAllMocks();
+});
+
+function setupProxyWithRows(rows: TraceRow[]) {
+  const queryFn = vi.fn().mockResolvedValue({
+    items: rows,
+    total: rows.length,
+    next_cursor: null,
+  });
+  __setProxyForTest({ traces: { query: queryFn } } as never);
+  return queryFn;
+}
 
 describe("TracesRoute", () => {
-  it("renders <section> with id='tabpanel-traces' (Outlet target)", () => {
-    render(
-      <HaloInputProvider value={haloInput}>
-        <TracesRoute />
-      </HaloInputProvider>,
-    );
+  it("renders <section> with id='tabpanel-traces' (Outlet target)", async () => {
+    setupProxyWithRows([]);
+    render(<TracesRoute />);
     const section = screen.getByTestId("route-traces");
     expect(section.tagName).toBe("SECTION");
     expect(section.getAttribute("id")).toBe("tabpanel-traces");
   });
 
-  it("includes a single h1 heading with route label", () => {
-    render(
-      <HaloInputProvider value={haloInput}>
-        <TracesRoute />
-      </HaloInputProvider>,
-    );
+  it("includes a single h1 heading with route label", async () => {
+    setupProxyWithRows([]);
+    render(<TracesRoute />);
     const heading = screen.getByRole("heading", { name: /traces/i, level: 1 });
     expect(heading).toBeDefined();
   });
 
-  it("mounts CanvasContainer with telemetry visualization aria-label", () => {
-    render(
-      <HaloInputProvider value={haloInput}>
-        <TracesRoute />
-      </HaloInputProvider>,
+  it("renders ConstellationCanvas hero ABOVE TraceTable in DOM order", async () => {
+    setupProxyWithRows(sampleRows);
+    render(<TracesRoute />);
+    await waitFor(() =>
+      expect(screen.getByTestId("trace-table-stub").getAttribute("data-row-count")).toBe("2"),
     );
-    expect(
-      screen.getByRole("region", { name: "Telemetry visualization canvas" }),
-    ).toBeDefined();
+    const constellation = screen.getByTestId("constellation-canvas-stub");
+    const table = screen.getByTestId("trace-table-stub");
+    // Bitmask: DOCUMENT_POSITION_FOLLOWING = 4 → constellation is followed by table.
+    expect(constellation.compareDocumentPosition(table)).toBe(
+      Node.DOCUMENT_POSITION_FOLLOWING,
+    );
   });
 
-  it("mounts HaloCanvas with status-indicator aria-label + haloInput propagated", () => {
-    render(
-      <HaloInputProvider value={haloInput}>
-        <TracesRoute />
-      </HaloInputProvider>,
-    );
-    const halo = screen.getByTestId("halo-canvas-stub");
-    expect(halo.getAttribute("data-throughput")).toBe("1234");
-    expect(halo.getAttribute("data-error-rate")).toBe("0.05");
+  it("forwards aggregated services to ConstellationCanvas", async () => {
+    setupProxyWithRows(sampleRows);
+    render(<TracesRoute />);
+    await waitFor(() => {
+      expect(
+        screen.getByTestId("constellation-canvas-stub").getAttribute("data-service-count"),
+      ).toBe("2");
+    });
+  });
+
+  it("forwards rows to TraceTable", async () => {
+    setupProxyWithRows(sampleRows);
+    render(<TracesRoute />);
+    await waitFor(() => {
+      expect(screen.getByTestId("trace-table-stub").getAttribute("data-row-count")).toBe("2");
+    });
   });
 });

@@ -1,0 +1,227 @@
+import { useMemo, useState } from "react";
+import type { TraceRow } from "../../../bindings";
+import { useStatusAnnouncer } from "../../StatusLiveRegion";
+import {
+  COLUMN_LABEL,
+  DIRECTION_LABEL,
+  SORT_STATE_NONE,
+  type SortColumn,
+  type SortState,
+  nextSortState,
+  sortRows,
+} from "./sort";
+
+interface TraceTableProps {
+  rows: readonly TraceRow[];
+  isLoading: boolean;
+}
+
+const COLUMNS: readonly { id: SortColumn; label: string }[] = [
+  { id: "trace_id", label: "Trace ID" },
+  { id: "service", label: "Service" },
+  { id: "duration_ms", label: "Latency" },
+  { id: "error_count", label: "Error" },
+];
+
+export function TraceTable({ rows, isLoading }: TraceTableProps) {
+  const [sortState, setSortState] = useState<SortState>(SORT_STATE_NONE);
+  const announce = useStatusAnnouncer();
+
+  const sorted = useMemo(() => sortRows(rows, sortState), [rows, sortState]);
+
+  const handleSort = (column: SortColumn): void => {
+    setSortState((prev) => {
+      const next = nextSortState(prev, column);
+      if (next.direction === "none") {
+        announce(`Cleared sort on ${COLUMN_LABEL[column]}`);
+      } else {
+        announce(`Sorted by ${COLUMN_LABEL[column]}, ${DIRECTION_LABEL[next.direction]}`);
+      }
+      return next;
+    });
+  };
+
+  return (
+    <div
+      style={{
+        background: "var(--color-raised-1)",
+        border: "1px solid rgba(74, 144, 226, 0.3)",
+        borderRadius: "var(--radius-md)",
+        padding: "var(--spacing-md)",
+      }}
+      data-testid="trace-table-card"
+    >
+      <table
+        data-testid="trace-table"
+        style={{
+          width: "100%",
+          borderCollapse: "collapse",
+          fontFamily: "var(--font-body)",
+          fontSize: "12px",
+        }}
+      >
+        <thead style={{ background: "var(--color-base)" }}>
+          <tr>
+            {COLUMNS.map((col) => (
+              <th
+                key={col.id}
+                scope="col"
+                aria-sort={ariaSortFor(sortState, col.id)}
+                style={{
+                  textAlign: col.id === "duration_ms" ? "right" : "left",
+                  padding: "var(--spacing-sm)",
+                  color: "var(--color-text-primary)",
+                  fontWeight: 600,
+                  borderBottom: "1px solid rgba(74, 144, 226, 0.3)",
+                }}
+              >
+                <button
+                  type="button"
+                  onClick={() => handleSort(col.id)}
+                  style={{
+                    background: "transparent",
+                    border: 0,
+                    color: "inherit",
+                    font: "inherit",
+                    fontWeight: "inherit",
+                    cursor: "pointer",
+                    padding: 0,
+                  }}
+                  data-testid={`sort-${col.id}`}
+                >
+                  {col.label}
+                  <SortIndicator state={sortState} column={col.id} />
+                </button>
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {isLoading && rows.length === 0 ? (
+            <tr>
+              <td
+                colSpan={COLUMNS.length}
+                style={{
+                  padding: "var(--spacing-md)",
+                  color: "var(--color-text-tertiary)",
+                  textAlign: "center",
+                }}
+                data-testid="trace-table-loading"
+              >
+                Loading…
+              </td>
+            </tr>
+          ) : sorted.length === 0 ? (
+            <tr>
+              <td
+                colSpan={COLUMNS.length}
+                style={{
+                  padding: "var(--spacing-md)",
+                  color: "var(--color-text-tertiary)",
+                  textAlign: "center",
+                }}
+                data-testid="trace-table-empty"
+              >
+                No traces yet
+              </td>
+            </tr>
+          ) : (
+            sorted.map((row) => (
+              <TraceRowView key={`${row.trace_id}-${row.span_id}`} row={row} />
+            ))
+          )}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+function ariaSortFor(state: SortState, column: SortColumn): "ascending" | "descending" | "none" {
+  if (state.column !== column || state.direction === "none") return "none";
+  return state.direction === "asc" ? "ascending" : "descending";
+}
+
+function SortIndicator({ state, column }: { state: SortState; column: SortColumn }) {
+  if (state.column !== column || state.direction === "none") {
+    return null;
+  }
+  return (
+    <span
+      aria-hidden="true"
+      style={{ marginLeft: 4, color: "var(--color-primary)" }}
+      data-testid={`sort-indicator-${column}`}
+    >
+      {state.direction === "asc" ? "▲" : "▼"}
+    </span>
+  );
+}
+
+function TraceRowView({ row }: { row: TraceRow }) {
+  const isError = row.error_count > 0;
+  return (
+    <tr
+      data-testid="trace-row"
+      style={{
+        borderBottom: "1px solid rgba(74, 144, 226, 0.1)",
+      }}
+    >
+      <td
+        style={{
+          padding: "var(--spacing-sm)",
+          fontFamily: "var(--font-code)",
+          fontVariantNumeric: "tabular-nums",
+          color: "var(--color-text-primary)",
+        }}
+      >
+        {truncateHex(row.trace_id)}
+      </td>
+      <td
+        style={{
+          padding: "var(--spacing-sm)",
+          color: "var(--color-text-primary)",
+        }}
+      >
+        {row.service === "" ? "(unknown)" : row.service}
+      </td>
+      <td
+        style={{
+          padding: "var(--spacing-sm)",
+          fontFamily: "var(--font-code)",
+          fontVariantNumeric: "tabular-nums",
+          color: "var(--color-text-primary)",
+          textAlign: "right",
+        }}
+      >
+        {row.duration_ms} ms
+      </td>
+      <td
+        style={{
+          padding: "var(--spacing-sm)",
+          color: "var(--color-text-primary)",
+          ...(isError
+            ? {
+                borderLeft: "3px solid var(--color-accent)",
+              }
+            : {}),
+        }}
+        data-testid={isError ? "trace-row-error" : "trace-row-ok"}
+      >
+        {isError ? (
+          <span data-testid="trace-error-cell">
+            <span aria-hidden="true" style={{ marginRight: 4 }}>
+              ✗
+            </span>
+            {row.error_count}
+          </span>
+        ) : (
+          <span style={{ color: "var(--color-text-tertiary)" }}>0</span>
+        )}
+      </td>
+    </tr>
+  );
+}
+
+function truncateHex(hex: string): string {
+  if (hex.length <= 16) return hex;
+  return `${hex.slice(0, 8)}…${hex.slice(-4)}`;
+}

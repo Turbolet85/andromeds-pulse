@@ -10,7 +10,8 @@ use crate::state::VizState;
 pub const LIMIT_MAX: u32 = 1_000;
 pub const LIMIT_DEFAULT: u32 = 100;
 
-const SELECT_TRACES: &str = "SELECT trace_id, span_id, ts_unix_nano FROM spans \
+const SELECT_TRACES: &str = "SELECT trace_id, span_id, ts_unix_nano, service_name, end_time_unix_nano, status_code \
+     FROM spans \
      WHERE ts_unix_nano >= ? AND ts_unix_nano < ? \
      ORDER BY ts_unix_nano DESC, trace_id LIMIT ?";
 
@@ -62,6 +63,10 @@ pub struct TraceRow {
     pub trace_id: String,
     pub span_id: String,
     pub ts_unix_nano: i64,
+    pub service: String,
+    pub duration_ms: u64,
+    // 0 (Unset) | 1 (Ok) → 0; 2 (Error) → 1, per OTLP Status.code spec.
+    pub error_count: u32,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, specta::Type)]
@@ -114,7 +119,17 @@ pub fn query_traces(
                 let trace_id_blob: Vec<u8> = row.get(0)?;
                 let span_id_blob: Vec<u8> = row.get(1)?;
                 let ts_unix_nano: i64 = row.get(2)?;
-                Ok((trace_id_blob, span_id_blob, ts_unix_nano))
+                let service: String = row.get(3)?;
+                let end_time_unix_nano: i64 = row.get(4)?;
+                let status_code: i32 = row.get(5)?;
+                Ok((
+                    trace_id_blob,
+                    span_id_blob,
+                    ts_unix_nano,
+                    service,
+                    end_time_unix_nano,
+                    status_code,
+                ))
             },
         )
         .map_err(|e| Error::QueryFailed {
@@ -123,13 +138,18 @@ pub fn query_traces(
 
     let mut items: Vec<TraceRow> = Vec::new();
     for row in rows {
-        let (trace_id_blob, span_id_blob, ts_unix_nano) = row.map_err(|e| Error::Decode {
-            reason: format!("row: {}", short_err(&e.to_string())),
-        })?;
+        let (trace_id_blob, span_id_blob, ts_unix_nano, service, end_time_unix_nano, status_code) =
+            row.map_err(|e| Error::Decode {
+                reason: format!("row: {}", short_err(&e.to_string())),
+            })?;
+        let duration_ns = end_time_unix_nano.saturating_sub(ts_unix_nano).max(0);
         items.push(TraceRow {
             trace_id: hex_encode(&trace_id_blob),
             span_id: hex_encode(&span_id_blob),
             ts_unix_nano,
+            service,
+            duration_ms: (duration_ns / 1_000_000) as u64,
+            error_count: if status_code == 2 { 1 } else { 0 },
         });
     }
 
@@ -403,6 +423,9 @@ mod tests {
                 span_id BLOB NOT NULL,
                 ts TIMESTAMPTZ NOT NULL,
                 ts_unix_nano BIGINT NOT NULL,
+                service_name VARCHAR NOT NULL,
+                end_time_unix_nano BIGINT NOT NULL,
+                status_code INTEGER NOT NULL,
                 PRIMARY KEY (trace_id, span_id)
             );
             CREATE TABLE IF NOT EXISTS metrics_points (
@@ -425,13 +448,33 @@ mod tests {
     }
 
     fn seed_span(conn: &Arc<Mutex<Connection>>, trace_id: u8, span_id: u8, ts_ns: i64) {
+        seed_span_full(conn, trace_id, span_id, ts_ns, "", ts_ns + 1_000_000, 0);
+    }
+
+    fn seed_span_full(
+        conn: &Arc<Mutex<Connection>>,
+        trace_id: u8,
+        span_id: u8,
+        ts_ns: i64,
+        service: &str,
+        end_ns: i64,
+        status_code: i32,
+    ) {
         let guard = conn.lock().expect("lock");
         let trace_blob: Vec<u8> = vec![trace_id; 16];
         let span_blob: Vec<u8> = vec![span_id; 8];
         guard
             .execute(
-                "INSERT INTO spans (trace_id, span_id, ts, ts_unix_nano) VALUES (?, ?, '2026-05-06T00:00:00Z'::TIMESTAMPTZ, ?)",
-                duckdb::params![trace_blob.as_slice(), span_blob.as_slice(), ts_ns],
+                "INSERT INTO spans (trace_id, span_id, ts, ts_unix_nano, service_name, end_time_unix_nano, status_code) \
+                 VALUES (?, ?, '2026-05-06T00:00:00Z'::TIMESTAMPTZ, ?, ?, ?, ?)",
+                duckdb::params![
+                    trace_blob.as_slice(),
+                    span_blob.as_slice(),
+                    ts_ns,
+                    service,
+                    end_ns,
+                    status_code,
+                ],
             )
             .expect("insert span");
     }
@@ -534,6 +577,83 @@ mod tests {
         assert_eq!(resp.next_cursor, None);
         assert!(resp.items[0].ts_unix_nano > resp.items[1].ts_unix_nano);
         assert!(resp.items[1].ts_unix_nano > resp.items[2].ts_unix_nano);
+    }
+
+    #[test]
+    fn query_traces_populates_service_duration_error_count() {
+        let conn = open_in_memory_with_schema();
+        let now = now_ns();
+        // 5ms span, status_code=2 (Error per OTLP)
+        seed_span_full(
+            &conn,
+            1,
+            1,
+            now - 1_000_000,
+            "svc-a",
+            now - 1_000_000 + 5_000_000,
+            2,
+        );
+        // 0ms span, status_code=1 (Ok per OTLP)
+        seed_span_full(&conn, 2, 2, now - 2_000_000, "svc-b", now - 2_000_000, 1);
+
+        let state = VizState::new();
+        let resp = query_traces(
+            &conn,
+            &state,
+            &TracesQueryArgs {
+                time_window_seconds: 60,
+                limit: 10,
+                cursor: None,
+            },
+        )
+        .expect("query");
+        assert_eq!(resp.items.len(), 2);
+        // Newest first (svc-a at -1ms older offset).
+        assert_eq!(resp.items[0].service, "svc-a");
+        assert_eq!(resp.items[0].duration_ms, 5);
+        assert_eq!(resp.items[0].error_count, 1);
+        assert_eq!(resp.items[1].service, "svc-b");
+        assert_eq!(resp.items[1].duration_ms, 0);
+        assert_eq!(resp.items[1].error_count, 0);
+    }
+
+    #[test]
+    fn query_traces_clamps_negative_duration_to_zero() {
+        // Defensive: end_time before start (malformed OTLP); duration_ms must
+        // not panic or overflow.
+        let conn = open_in_memory_with_schema();
+        let now = now_ns();
+        seed_span_full(&conn, 4, 4, now - 1_000_000, "svc-c", now - 5_000_000, 0);
+        let state = VizState::new();
+        let resp = query_traces(
+            &conn,
+            &state,
+            &TracesQueryArgs {
+                time_window_seconds: 60,
+                limit: 10,
+                cursor: None,
+            },
+        )
+        .expect("query");
+        assert_eq!(resp.items.len(), 1);
+        assert_eq!(resp.items[0].duration_ms, 0);
+    }
+
+    #[test]
+    fn trace_row_round_trips_through_serde_with_new_fields() {
+        let row = TraceRow {
+            trace_id: "deadbeef".to_string(),
+            span_id: "cafebabe".to_string(),
+            ts_unix_nano: 1_700_000_000_000_000_000,
+            service: "svc-x".to_string(),
+            duration_ms: 42,
+            error_count: 1,
+        };
+        let s = serde_json::to_string(&row).expect("serialize");
+        let parsed: TraceRow = serde_json::from_str(&s).expect("deserialize");
+        assert_eq!(parsed.service, "svc-x");
+        assert_eq!(parsed.duration_ms, 42);
+        assert_eq!(parsed.error_count, 1);
     }
 
     #[test]

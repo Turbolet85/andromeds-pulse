@@ -8,6 +8,23 @@ _This file is entirely wrap-session's territory. `/setup-project` creates it if 
 
 ---
 
+## 2026-05-10 — Buffer schema extension cross-crate ripple pattern
+
+When extending a viz query response struct (e.g., `TraceRow`, `MetricRow`, `LogRow`) with new fields backed by DuckDB columns, the change ripples across **5 distinct edit sites in 4 files** — anything less leaves the workspace incoherent. Verified at chunk #34 when `TraceRow` extended from 3 fields to 6 (added `service`, `duration_ms`, `error_count`):
+
+1. **`crates/buffer/src/schema.rs`** — both `CREATE_SPANS` const AND the duplicated DDL inside the `SCHEMA_DDL` `concat!()` block. The two strings are intentionally synchronized; the `ddl_constants_match_concatenated_schema` test catches drift between them. Add new columns to both.
+2. **`crates/buffer/src/appender.rs`** — `build_spans_record_batch()` Arrow Schema (the `Field::new(...)` list) AND the per-row population loop AND the helper that extracts the new field from OTLP proto (e.g., `extract_service_name(resource: Option<&Resource>)` for service.name attribute lookup). Column count assertion in `build_spans_record_batch_returns_some_for_valid_input` test must update from old N to new N.
+3. **`crates/buffer/src/retention.rs`** — the test-only `seed_span()` helper's `INSERT INTO spans (...) VALUES (...)` SQL must include the new columns OR the test inserts will fail with `NOT NULL constraint failed: spans.{new_col}`. Same for `crates/buffer/src/schema.rs::ts_unix_nano_round_trips_full_u64_precision` test which has its own inline INSERT.
+4. **`crates/viz/src/query.rs`** — `SELECT_TRACES` SQL constant (add new columns to projection) + `query_traces` row-decode (`row.get(N)` for each new column) + `TraceRow` struct definition + per-row construction site + the test helper `seed_span()` and `seed_span_full()` AND the inline test schema in `open_in_memory_with_schema()` (which mirrors a subset of the production buffer schema).
+
+The TauRPC bindings file `pulse-app/ui/src/bindings/index.ts` auto-regenerates from `cargo build` via specta derive — no manual edit. Verify by `grep TraceRow pulse-app/ui/src/bindings/index.ts` after build.
+
+Failure mode if any site is missed: production builds fine but tests fail at runtime with one of: (a) `NOT NULL constraint failed: spans.{col}` from any test that inserts spans without populating the new columns; (b) row decode panic if SELECT projects N+K columns but the row-decode reads N; (c) Arrow `RecordBatch::try_new` shape mismatch if Schema has K fields but value-arrays Vec has N. Discovery typically surfaces via `cargo nextest run -p buffer` failing first (touches the schema directly), then `cargo nextest run -p viz` (touches the row decode).
+
+This applies to chunks #35 (`MetricRow` extension if metrics-charts surface needs additional columns from `metrics_points` table) and downstream — the same ripple pattern recurs across `MetricRow` / `LogRow` shape changes. Schema-extending chunks should expect ~250 LoC across these 4 files plus 6 new tests for the new column population paths.
+
+---
+
 ## 2026-05-09 — taurpc 0.7 `Router::into_handler()` requires tokio runtime in scope; sync `fn main()` panics at boot
 
 `taurpc::procedures`-decorated traits expand into a handler that, when materialized via `Router::into_handler()`, spawns a background handler-manager task during binding emission (taurpc 0.7's mechanism for emitting the merged TS `bindings/index.ts` in dev mode). The spawn requires a tokio runtime to be the **current** runtime in scope (thread-local). In sync `fn main()`, no runtime is current — Tauri's `Builder::run()` only establishes one inside `.run()`, after the router has already been constructed and passed via `.invoke_handler(invoke_router.into_handler())`. The result is a panic at boot reported at the `#[taurpc::procedures]` macro line of the FIRST handler whose `.into_handler()` is called (e.g., `crates/ui-bridge/src/health.rs:291` — the IntrospectionApi macro — for the chunk #27 wiring).

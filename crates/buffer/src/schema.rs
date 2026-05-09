@@ -28,6 +28,9 @@ CREATE TABLE IF NOT EXISTS spans (
     span_id BLOB NOT NULL,
     ts TIMESTAMPTZ NOT NULL,
     ts_unix_nano BIGINT NOT NULL,
+    service_name VARCHAR NOT NULL,
+    end_time_unix_nano BIGINT NOT NULL,
+    status_code INTEGER NOT NULL,
     PRIMARY KEY (trace_id, span_id)
 );";
 
@@ -99,6 +102,9 @@ const SCHEMA_DDL: &str = concat!(
     span_id BLOB NOT NULL,
     ts TIMESTAMPTZ NOT NULL,
     ts_unix_nano BIGINT NOT NULL,
+    service_name VARCHAR NOT NULL,
+    end_time_unix_nano BIGINT NOT NULL,
+    status_code INTEGER NOT NULL,
     PRIMARY KEY (trace_id, span_id)
 );",
     "CREATE TABLE IF NOT EXISTS span_events (
@@ -292,8 +298,8 @@ mod tests {
         // Nanosecond precision boundary: a value DuckDB's TIMESTAMPTZ column
         // (microsecond precision) cannot represent losslessly.
         conn.execute_batch(
-            "INSERT INTO spans (trace_id, span_id, ts, ts_unix_nano) VALUES \
-             (X'07070707070707070707070707070707', X'0808080808080808', '2026-05-06T00:00:00Z'::TIMESTAMPTZ, 1700000000123456789);",
+            "INSERT INTO spans (trace_id, span_id, ts, ts_unix_nano, service_name, end_time_unix_nano, status_code) VALUES \
+             (X'07070707070707070707070707070707', X'0808080808080808', '2026-05-06T00:00:00Z'::TIMESTAMPTZ, 1700000000123456789, '', 1700000000123456789, 0);",
         )
         .expect("insert must succeed");
 

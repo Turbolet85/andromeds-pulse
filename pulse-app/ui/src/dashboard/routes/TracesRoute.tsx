@@ -1,18 +1,24 @@
-// Traces route — primary screen for the full dashboard. Hosts the existing
-// CanvasContainer (chunks #28/#29 WebGPU substrate) + HaloCanvas (chunk #31)
-// peer composition relocated from chunk #31's Dashboard root per layout-
-// templates.md §Wireframe — Full dashboard which places the hero canvas
-// region inside each tab's content area.
-//
-// haloInput flows from App.tsx → HaloInputProvider → useHaloInput here. Real
-// telemetry binding via streams.subscribe_metrics deferred to chunks #34/#35.
+// Traces route — primary screen for the full dashboard. Wireframe stack
+// per layout-templates.md §Wireframe — Full dashboard (Traces primary
+// screen): per-service constellation map (hero region) → sortable trace
+// data table (main region). Both consume the existing `traces.*` query
+// router (chunk #25) + the existing `streams.subscribe_spans` Channel
+// (chunk #23) — zero new TauRPC procedures introduced this chunk.
 
-import { CanvasContainer } from "../../canvas/CanvasContainer";
-import { HaloCanvas } from "../../halo/HaloCanvas";
-import { useHaloInput } from "../halo-input-context";
+import { ConstellationCanvas } from "./traces/ConstellationCanvas";
+import { TraceTable } from "./traces/TraceTable";
+import { useConstellationData } from "./traces/use-constellation-data";
+import { useTraces } from "./traces/use-traces";
+
+const QUERY_WINDOW_SECONDS = 60;
+const QUERY_LIMIT = 100;
 
 export function TracesRoute() {
-  const haloInput = useHaloInput();
+  const { rows, isLoading } = useTraces({
+    timeWindowSeconds: QUERY_WINDOW_SECONDS,
+    limit: QUERY_LIMIT,
+  });
+  const services = useConstellationData(rows, { windowSeconds: QUERY_WINDOW_SECONDS });
   return (
     <section
       id="tabpanel-traces"
@@ -37,27 +43,8 @@ export function TracesRoute() {
       >
         Traces
       </h1>
-      <div
-        style={{
-          display: "flex",
-          gap: "var(--spacing-md)",
-          minHeight: 0,
-        }}
-      >
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <CanvasContainer ariaLabel="Telemetry visualization canvas" />
-        </div>
-        <div
-          style={{ flex: "0 0 240px", minWidth: 0 }}
-          data-testid="halo-input-simulator"
-        >
-          <HaloCanvas
-            ariaLabel="Application status indicator"
-            throughputHz={haloInput.throughputHz}
-            errorRate={haloInput.errorRate}
-          />
-        </div>
-      </div>
+      <ConstellationCanvas services={services} />
+      <TraceTable rows={rows} isLoading={isLoading} />
     </section>
   );
 }
