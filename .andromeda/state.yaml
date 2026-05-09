@@ -1,14 +1,14 @@
 schema_version: 2
-last_wrap: 2026-05-09T16:25:20Z
-last_reconcile: 2026-05-09T16:25:20Z
+last_wrap: 2026-05-09T19:50:49Z
+last_reconcile: 2026-05-09T19:50:49Z
 
 last_completed_chunk:
-  route_index: 31
-  title: "Halo State Pulse signature element — WebGPU pulse 0.8-2.4 Hz from throughput/1000, LCH Earth Blue↔Alert Burgundy per error rate, 4-16px blur per cycle, reduced-motion static-glow"
+  route_index: 32
+  title: "Compact widget infographics + footer — service constellation aggregated badge, ingest/error/retention footer band, glance-readable from 2m"
   epoch: 5
-  committed_at: 2026-05-09T15:33:39Z
-  commit_sha: 581b9fb
-  commit_subject: "feat(halo): Halo State Pulse signature element (chunk #31); session 34"
+  committed_at: 2026-05-09T19:50:49Z
+  commit_sha: f340c7e
+  commit_subject: "feat(widget): compact widget infographics + footer — service constellation badge + ingest/error/retention band (chunk #32); session 36"
 
 in_progress: null
 
@@ -24,9 +24,9 @@ plan_freshness:
   input_mtime: 2026-05-02T06:52:58Z
 
 living_artifact_freshness:
-  dep_tree_reconciled_at: 2026-05-09T16:25:20Z
-  api_surface_reconciled_at: 2026-05-09T16:25:20Z
-  most_recent_code_mtime: 2026-05-09T15:20:00Z
+  dep_tree_reconciled_at: 2026-05-09T19:50:49Z
+  api_surface_reconciled_at: 2026-05-09T19:50:49Z
+  most_recent_code_mtime: 2026-05-09T19:30:00Z
   reconcile_failed: false
 
 drift_warnings: []
@@ -159,4 +159,4 @@ spec_amendments:
       propagated_by_run: .andromeda/runs/2026-05-09T16-11-10-setup-project-delta/
       archived_at: 2026-05-09T16:25:20Z
 
-session_count: 35
+session_count: 36

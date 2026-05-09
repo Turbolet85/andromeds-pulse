@@ -1,86 +1,116 @@
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import { App } from "./App";
+import { useWindowLabel } from "./hooks/use-window-label";
 
-vi.mock("./hooks/use-platform", () => ({
-  usePlatform: () => "windows" as const,
+vi.mock("./hooks/use-window-label", () => ({
+  useWindowLabel: vi.fn().mockReturnValue("main"),
 }));
 
-vi.mock("./hooks/use-window-controls", () => ({
-  useWindowControls: () => ({
-    minimize: vi.fn().mockResolvedValue(undefined),
-    maximize: vi.fn().mockResolvedValue(undefined),
-    close: vi.fn().mockResolvedValue(undefined),
+vi.mock("./hooks/use-synthetic-halo-input", () => ({
+  useSyntheticHaloInput: () => ({ throughputHz: 1000, errorRate: 0.5 }),
+}));
+
+vi.mock("./hooks/use-synthetic-widget-metrics", () => ({
+  useSyntheticWidgetMetrics: () => ({
+    serviceCount: 24,
+    throughputHz: 1234,
+    errorRate: 0.012,
+    retentionUsedSeconds: 480,
+    retentionMaxSeconds: 600,
   }),
 }));
 
-// Stub the canvas substrate — App shell tests assert layout landmarks; the
-// WebGPU adapter resolution is exercised in canvas/CanvasContainer.test.tsx.
-vi.mock("./canvas/CanvasContainer", () => ({
-  CanvasContainer: ({ ariaLabel }: { ariaLabel: string }) => (
-    <section aria-label={ariaLabel} />
+vi.mock("./widget/CompactWidget", () => ({
+  CompactWidget: ({
+    metrics,
+  }: {
+    metrics: {
+      serviceCount: number;
+      throughputHz: number;
+      errorRate: number;
+      retentionUsedSeconds: number;
+      retentionMaxSeconds: number;
+    };
+  }) => (
+    <div
+      data-testid="compact-widget-stub"
+      data-service-count={metrics.serviceCount}
+      data-throughput-hz={metrics.throughputHz}
+      data-error-rate={metrics.errorRate}
+      data-retention-used={metrics.retentionUsedSeconds}
+      data-retention-max={metrics.retentionMaxSeconds}
+    />
   ),
 }));
 
-// Stub HaloCanvas similarly — App shell tests assert composition; the WebGPU
-// adapter + halo pipeline + reduced-motion gate are exercised in
-// halo/HaloCanvas.test.tsx.
-vi.mock("./halo/HaloCanvas", () => ({
-  HaloCanvas: ({ ariaLabel }: { ariaLabel: string; throughputHz: number; errorRate: number }) => (
-    <section aria-label={ariaLabel} />
+vi.mock("./dashboard/Dashboard", () => ({
+  Dashboard: ({
+    haloInput,
+  }: {
+    haloInput: { throughputHz: number; errorRate: number };
+  }) => (
+    <div
+      data-testid="dashboard-stub"
+      data-throughput-hz={haloInput.throughputHz}
+      data-error-rate={haloInput.errorRate}
+    />
   ),
 }));
 
-describe("App — shell composition", () => {
-  it("renders both <header> (titlebar) and <main> landmarks", () => {
+afterEach(() => {
+  vi.mocked(useWindowLabel).mockReset();
+  vi.mocked(useWindowLabel).mockReturnValue("main");
+});
+
+describe("App — window-label routing", () => {
+  it("renders <CompactWidget> when window-label is 'compact-widget'", () => {
+    vi.mocked(useWindowLabel).mockReturnValue("compact-widget");
     render(<App />);
-    expect(screen.getByRole("banner").tagName).toBe("HEADER");
-    expect(screen.getByRole("main").tagName).toBe("MAIN");
+    expect(screen.getByTestId("compact-widget-stub")).toBeDefined();
+    expect(screen.queryByTestId("dashboard-stub")).toBeNull();
   });
 
-  it("the <main> element has id='main-content' for skip-link target (a11y plan §5)", () => {
+  it("renders <Dashboard> when window-label is 'main'", () => {
+    vi.mocked(useWindowLabel).mockReturnValue("main");
     render(<App />);
-    const main = screen.getByRole("main");
-    expect(main.getAttribute("id")).toBe("main-content");
+    expect(screen.getByTestId("dashboard-stub")).toBeDefined();
+    expect(screen.queryByTestId("compact-widget-stub")).toBeNull();
   });
 
-  it("the <main> element is focusable via tabIndex=-1 (focus restoration target)", () => {
+  it("renders <Dashboard> when window-label is 'unknown' (jsdom fallback)", () => {
+    vi.mocked(useWindowLabel).mockReturnValue("unknown");
     render(<App />);
-    const main = screen.getByRole("main");
-    expect(main.getAttribute("tabindex")).toBe("-1");
+    expect(screen.getByTestId("dashboard-stub")).toBeDefined();
+    expect(screen.queryByTestId("compact-widget-stub")).toBeNull();
+  });
+});
+
+describe("App — props flow to children", () => {
+  it("forwards WidgetMetrics to <CompactWidget>", () => {
+    vi.mocked(useWindowLabel).mockReturnValue("compact-widget");
+    render(<App />);
+    const widget = screen.getByTestId("compact-widget-stub");
+    expect(widget.dataset.serviceCount).toBe("24");
+    expect(widget.dataset.throughputHz).toBe("1234");
+    expect(widget.dataset.errorRate).toBe("0.012");
+    expect(widget.dataset.retentionUsed).toBe("480");
+    expect(widget.dataset.retentionMax).toBe("600");
   });
 
-  it("renders a polite live-region status announcer", () => {
+  it("forwards HaloInput to <Dashboard>", () => {
+    vi.mocked(useWindowLabel).mockReturnValue("main");
     render(<App />);
-    const status = screen.getByRole("status");
-    expect(status.getAttribute("aria-live")).toBe("polite");
-    expect(status.getAttribute("id")).toBe("shell-status");
+    const dashboard = screen.getByTestId("dashboard-stub");
+    expect(dashboard.dataset.throughputHz).toBe("1000");
+    expect(dashboard.dataset.errorRate).toBe("0.5");
   });
+});
 
+describe("App — document title", () => {
   it("sets document.title to 'andromeda-pulse' on mount (SC 2.4.2)", () => {
     document.title = "previous-stub";
     render(<App />);
     expect(document.title).toBe("andromeda-pulse");
-  });
-
-  it("renders both CanvasContainer and HaloCanvas regions inside <main>", () => {
-    render(<App />);
-    expect(
-      screen.getByRole("region", { name: "Telemetry visualization canvas" }),
-    ).toBeDefined();
-    expect(
-      screen.getByRole("region", { name: "Application status indicator" }),
-    ).toBeDefined();
-  });
-
-  it("starts a synthetic Halo input simulator interval on mount + clears on unmount", () => {
-    const setIntervalSpy = vi.spyOn(globalThis, "setInterval");
-    const clearIntervalSpy = vi.spyOn(globalThis, "clearInterval");
-    const { unmount } = render(<App />);
-    expect(setIntervalSpy).toHaveBeenCalled();
-    unmount();
-    expect(clearIntervalSpy).toHaveBeenCalled();
-    setIntervalSpy.mockRestore();
-    clearIntervalSpy.mockRestore();
   });
 });
