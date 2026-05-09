@@ -128,7 +128,6 @@ export function CanvasContainer({ ariaLabel, mirrorTable }: CanvasContainerProps
 
   return (
     <section
-      role="region"
       aria-label={ariaLabel}
       style={{
         background: "var(--color-inset)",

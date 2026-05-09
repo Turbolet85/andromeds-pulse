@@ -17,7 +17,18 @@ vi.mock("./hooks/use-window-controls", () => ({
 // Stub the canvas substrate — App shell tests assert layout landmarks; the
 // WebGPU adapter resolution is exercised in canvas/CanvasContainer.test.tsx.
 vi.mock("./canvas/CanvasContainer", () => ({
-  CanvasContainer: () => <section role="region" aria-label="Telemetry visualization canvas" />,
+  CanvasContainer: ({ ariaLabel }: { ariaLabel: string }) => (
+    <section aria-label={ariaLabel} />
+  ),
+}));
+
+// Stub HaloCanvas similarly — App shell tests assert composition; the WebGPU
+// adapter + halo pipeline + reduced-motion gate are exercised in
+// halo/HaloCanvas.test.tsx.
+vi.mock("./halo/HaloCanvas", () => ({
+  HaloCanvas: ({ ariaLabel }: { ariaLabel: string; throughputHz: number; errorRate: number }) => (
+    <section aria-label={ariaLabel} />
+  ),
 }));
 
 describe("App — shell composition", () => {
@@ -50,5 +61,26 @@ describe("App — shell composition", () => {
     document.title = "previous-stub";
     render(<App />);
     expect(document.title).toBe("andromeda-pulse");
+  });
+
+  it("renders both CanvasContainer and HaloCanvas regions inside <main>", () => {
+    render(<App />);
+    expect(
+      screen.getByRole("region", { name: "Telemetry visualization canvas" }),
+    ).toBeDefined();
+    expect(
+      screen.getByRole("region", { name: "Application status indicator" }),
+    ).toBeDefined();
+  });
+
+  it("starts a synthetic Halo input simulator interval on mount + clears on unmount", () => {
+    const setIntervalSpy = vi.spyOn(globalThis, "setInterval");
+    const clearIntervalSpy = vi.spyOn(globalThis, "clearInterval");
+    const { unmount } = render(<App />);
+    expect(setIntervalSpy).toHaveBeenCalled();
+    unmount();
+    expect(clearIntervalSpy).toHaveBeenCalled();
+    setIntervalSpy.mockRestore();
+    clearIntervalSpy.mockRestore();
   });
 });

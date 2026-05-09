@@ -1,14 +1,14 @@
 schema_version: 2
-last_wrap: 2026-05-09T14:02:00Z
-last_reconcile: 2026-05-09T13:59:55Z
+last_wrap: 2026-05-09T15:33:39Z
+last_reconcile: 2026-05-09T15:33:39Z
 
 last_completed_chunk:
-  route_index: 30
-  title: "Compact widget shell — quarter-screen window, snap-to-edge per-display memory, always-on-top toggle, custom titlebar"
+  route_index: 31
+  title: "Halo State Pulse signature element — WebGPU pulse 0.8-2.4 Hz from throughput/1000, LCH Earth Blue↔Alert Burgundy per error rate, 4-16px blur per cycle, reduced-motion static-glow"
   epoch: 5
-  committed_at: 2026-05-09T14:02:00Z
-  commit_sha: 367ad48
-  commit_subject: "feat(ui-bridge,pulse-app): compact widget shell — Settings.always_on_top + apply_widget_settings + per-display snap (chunk #30); session 33"
+  committed_at: 2026-05-09T15:33:39Z
+  commit_sha: 649bc0f
+  commit_subject: "feat(halo): Halo State Pulse signature element (chunk #31); session 34"
 
 in_progress: null
 
@@ -24,9 +24,9 @@ plan_freshness:
   input_mtime: 2026-05-02T06:52:58Z
 
 living_artifact_freshness:
-  dep_tree_reconciled_at: 2026-05-09T13:59:55Z
-  api_surface_reconciled_at: 2026-05-09T13:59:55Z
-  most_recent_code_mtime: 2026-05-09T13:47:42Z
+  dep_tree_reconciled_at: 2026-05-09T15:33:39Z
+  api_surface_reconciled_at: 2026-05-09T15:33:39Z
+  most_recent_code_mtime: 2026-05-09T15:20:00Z
   reconcile_failed: false
 
 drift_warnings: []
@@ -149,4 +149,4 @@ spec_amendments:
       archived_at: 2026-05-09T11:55:00Z
       flag_used: --allow-arch-registry
 
-session_count: 33
+session_count: 34
