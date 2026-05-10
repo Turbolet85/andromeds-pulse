@@ -8,6 +8,32 @@ _This file is entirely wrap-session's territory. `/setup-project` creates it if 
 
 ---
 
+## 2026-05-10 — Wrap-pattern consumer visibility: `pub fn` in `pub(crate) mod` for re-export through contract module (chunk #41 corollary to chunks #39/#40)
+
+The chunk #40 session-learnings entry below distinguished primitives that EXTEND `curate()` (operating on raw `&[SpanRecord]`, kept `pub(crate) fn`) from consumers that WRAP `curate()`'s output (operating on `CurationOutput`). Chunk #41 (markdown formatter) is the FIRST chunk to land a wrapping consumer, and the visibility shape needs adjusting from the chunk #40 pattern: a wrapping consumer that will be called from outside the snapshot crate (e.g., chunk #43 `snapshot.generate` IPC; chunk #46 MCP `generate_snapshot` `#[tool]`) MUST declare its public function as `pub fn` (not `pub(crate) fn`) inside the `pub(crate) mod` sibling module. Re-exporting `pub(crate) fn` via `pub use crate::markdown::format_markdown;` in the public `contract.rs` fails to compile with `error[E0364]: pub(crate) item ... cannot be re-exported outside`.
+
+**Pattern for wrap-vs-extend:**
+- EXTEND-curate primitives (call-site internal, e.g., `aggregation::aggregate_metrics` / `attribute_filter::filter_attributes`): stay `pub(crate) fn` in `pub(crate) mod`. Called only by `curate()`, never re-exported.
+- WRAP-CurationOutput consumers (call-site external, e.g., `markdown::format_markdown`): declare as `pub fn` in `pub(crate) mod`. The mod itself stays `pub(crate)` so the only reachable path is via `pub use` re-export from `pub mod contract`. Effective external surface: `snapshot::contract::format_markdown`.
+
+This preserves the arch §Conventions "only the contract module exposes pub types" rule while allowing wrap-pattern consumers to be reachable across the crate boundary. The mod's `pub(crate)` visibility prevents direct `snapshot::markdown::format_markdown` access; only the contract-mediated path works. Apply to chunk #46 MCP tool wrapper and any future substrate-consumer chunks.
+
+The companion types (`MarkdownReport` / `TruncationState` / `FormatError` / `TokenBudget`) live in `contract.rs` directly (not re-exported) per the existing "pub types in contract.rs" convention; only the orchestrator function (`format_markdown`) needs the re-export-from-sibling-mod pattern. Naming the sibling mod `markdown` (not `format` or `formatter`) keeps the dotted-name `snapshot::contract::format_markdown` parallel to `snapshot::contract::curate` — both verbs, both action-oriented, both top-level entry points to the crate's logical pipelines.
+
+---
+
+## 2026-05-10 — Substrate enum variant naming alignment with already-shipped IPC enum (chunk #41 TokenBudget mirrors chunk #38 SnapshotPreset)
+
+Chunk #41 introduced `TokenBudget { Conservative / Balanced / Detailed }` in `crates/snapshot/src/token_budget.rs`. Three sub-agents in /andromeda-phase Phase 1 suggested DIFFERENT vocabularies: design proposed `Compact / Balanced / Detailed`; security proposed `TenK / TwentyFiveK / FiftyK`; arch proposed `Compact10k / Balanced25k / Generous50k`. The pre-existing `ui-bridge::contract::SnapshotPreset` shipped at chunk #38 already uses `Conservative / Balanced / Detailed`. Chunk #41 aligned with ui-bridge to enable a trivial future `From<SnapshotPreset> for TokenBudget` impl by-name match (`Conservative ↔ Conservative`, `Balanced ↔ Balanced`, `Detailed ↔ Detailed`) when chunk #43 IPC wiring lands.
+
+**Decision rule for substrate-vs-IPC enum naming:** when a substrate type (algorithmic primitive in a `crates/{substrate}` workspace crate) will eventually map to an already-shipped IPC type (TauRPC procedure arg in `crates/ui-bridge`), align the variant names verbatim. Avoid parallel vocabularies (`TenK/TwentyFiveK` vs `Conservative/Balanced/Detailed`) even when the parallel form is more "self-documenting" — the cost of cross-readability + future-impl simplicity outweighs the loss of explicit-numeric naming. Documented values (10_000 / 25_000 / 50_000) live in `as_token_count()` const fn so the IPC variant name doesn't need to encode the numeric.
+
+This reverses the natural intuition that substrate (close to numeric implementation) "should" use numeric naming (`TenK`), and IPC (close to user) "should" use semantic naming (`Conservative`). The opposite preserves naming alignment, which is the more valuable cross-cutting invariant. Apply to any future substrate type whose IPC counterpart already exists (e.g., a future `TraceWindow` substrate enum should match `TraceQueryWindow` IPC enum verbatim if/when introduced).
+
+**Phase 1 sub-agent guidance:** when arch + design + security extracts disagree on naming, the orchestrator's Phase 3 codebase research is the tie-breaker — read `crates/ui-bridge/src/contract.rs` (or equivalent IPC-side public surface) for already-shipped enum names BEFORE Phase 4 plan synthesis picks one. The plan should EXPLICITLY name the choice + cite the ui-bridge precedent in `## Implementation Steps` step 1, so /implement doesn't silently pick from a sub-agent suggestion that diverges.
+
+---
+
 ## 2026-05-10 — Algorithmic-substrate chunks: primitives EXTEND `curate()` rather than wrap its output (chunk #40 refinement of chunk #39 entry)
 
 The chunk #39 session-learnings entry below anticipated chunk #40 + #41 would "wrap `curate(...)` outputs without modifying the snapshot crate" — both as downstream CONSUMERS. In practice, chunk #40 (aggregate_metrics + filter_attributes) had to EXTEND `curate()` itself: the new primitives operate on raw `&[SpanRecord]` (not `CurationOutput`), so they belong inside the orchestrator as new pipeline stages, not as wrappers around its return value. CurationOutput grew with `aggregation: AggregationResult` + `kept_attribute_count: usize` + `dropped_attribute_count: usize` (each `#[serde(default)]` to preserve chunk #39 round-trip serde compatibility), and `curate()`'s body was reordered to: `filter_attributes(spans) → dedupe_spans(filtered.spans) → aggregate_metrics(deduped) → detect_anomalies(deduped) → extract_critical_path(deduped)`.

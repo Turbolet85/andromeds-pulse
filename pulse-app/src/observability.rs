@@ -775,6 +775,57 @@ impl AllowList {
             ["value", "unit", "module"].iter().copied().collect(),
         );
 
+        // chunk #41 — markdown formatter span + budget validation + perf-budget
+        // metric. Dotted targets registered explicitly so for_target() exact-match
+        // wins over the snapshot crate-level fallback (which would silently
+        // redact markdown_size_bytes / budget_token_limit / budget_exceeded /
+        // truncated_*_count) per .claude/rules/observability.md Session
+        // Addition 2026-05-07.
+        by_target.insert(
+            "snapshot.render.markdown",
+            [
+                "markdown_size_bytes",
+                "section_count",
+                "token_count_actual",
+                "budget_token_limit",
+                "anomaly_marker_count",
+                "critical_path_span_count",
+                "truncated_span_count",
+                "truncated_attribute_count",
+                "duration_ms",
+            ]
+            .iter()
+            .copied()
+            .collect(),
+        );
+        by_target.insert(
+            "snapshot.token.count.validate",
+            [
+                "token_count_actual",
+                "token_budget_limit",
+                "budget_exceeded",
+                "duration_ms",
+            ]
+            .iter()
+            .copied()
+            .collect(),
+        );
+        by_target.insert(
+            "metric.snapshot.token_count_ms",
+            [
+                "value",
+                "duration_ms",
+                "token_budget",
+                "time_range_minutes",
+                "token_count_actual",
+                "dedup_count",
+                "budget_exceeded",
+            ]
+            .iter()
+            .copied()
+            .collect(),
+        );
+
         Self { by_target }
     }
 
@@ -1717,6 +1768,164 @@ mod tests {
             assert_eq!(
                 fields[forbidden], "<redacted>",
                 "field `{forbidden}` MUST be redacted at snapshot.curate.aggregate target (default-deny via snapshot fall-through)",
+            );
+        }
+    }
+
+    #[test]
+    fn allowlist_for_target_resolves_snapshot_render_markdown_field_set() {
+        // chunk #41: markdown formatter emits at `snapshot.render.markdown`
+        // target. Registered explicitly so for_target() exact-match wins over
+        // the `snapshot` crate-level fallback (which would silently redact
+        // `markdown_size_bytes` / `budget_token_limit` / `truncated_*_count`)
+        // per .claude/rules/observability.md Session Addition 2026-05-07.
+        let al = AllowList::production();
+        let set = al
+            .for_target("snapshot.render.markdown")
+            .expect("snapshot.render.markdown entry");
+        for required in [
+            "markdown_size_bytes",
+            "section_count",
+            "token_count_actual",
+            "budget_token_limit",
+            "anomaly_marker_count",
+            "critical_path_span_count",
+            "truncated_span_count",
+            "truncated_attribute_count",
+            "duration_ms",
+        ] {
+            assert!(
+                set.contains(required),
+                "snapshot.render.markdown must permit `{required}`",
+            );
+        }
+    }
+
+    #[test]
+    fn allowlist_for_target_resolves_snapshot_token_count_validate_field_set() {
+        let al = AllowList::production();
+        let set = al
+            .for_target("snapshot.token.count.validate")
+            .expect("snapshot.token.count.validate entry");
+        for required in [
+            "token_count_actual",
+            "token_budget_limit",
+            "budget_exceeded",
+            "duration_ms",
+        ] {
+            assert!(
+                set.contains(required),
+                "snapshot.token.count.validate must permit `{required}`",
+            );
+        }
+    }
+
+    #[test]
+    fn allowlist_for_target_resolves_metric_snapshot_token_count_ms_field_set() {
+        let al = AllowList::production();
+        let set = al
+            .for_target("metric.snapshot.token_count_ms")
+            .expect("metric.snapshot.token_count_ms entry");
+        for required in [
+            "value",
+            "duration_ms",
+            "token_budget",
+            "time_range_minutes",
+            "token_count_actual",
+            "dedup_count",
+            "budget_exceeded",
+        ] {
+            assert!(
+                set.contains(required),
+                "metric.snapshot.token_count_ms must permit `{required}`",
+            );
+        }
+    }
+
+    #[test]
+    fn scrubber_redacts_non_allowlisted_snapshot_render_markdown_field() {
+        // chunk #41: markdown formatter emits at `snapshot.render.markdown`;
+        // security plan §Logging Vectors 1 + 4 demand markdown body contents
+        // + raw OTLP attribute values + citation anchor labels MUST be
+        // redacted. The `target:` argument to tracing macros must be a
+        // `&'static str` literal (macro expands to `static __CALLSITE`), so
+        // each target gets its own test rather than a for-loop.
+        let defaults = make_defaults(None, None);
+        let lines = capture_json_lines(defaults, || {
+            tracing::warn!(
+                target: "snapshot.render.markdown",
+                duration_ms = 100_u64,
+                markdown_body = "# title\nsecret content",
+                citation_anchor_label = "user-name=alice",
+                attribute_value = "secret-token",
+                raw_attribute_value = "Bearer abc",
+                service_name_raw = "checkout-prod",
+                snapshot_file_content = "## Anomaly\nSensitive",
+                raw_span_name = "POST /pay",
+                "format event",
+            );
+        });
+        let fields = &lines[0]["fields"];
+        assert_eq!(fields["duration_ms"], 100);
+        for forbidden in [
+            "markdown_body",
+            "citation_anchor_label",
+            "attribute_value",
+            "raw_attribute_value",
+            "service_name_raw",
+            "snapshot_file_content",
+            "raw_span_name",
+        ] {
+            assert_eq!(
+                fields[forbidden], "<redacted>",
+                "field `{forbidden}` MUST be redacted at snapshot.render.markdown target",
+            );
+        }
+    }
+
+    #[test]
+    fn scrubber_redacts_non_allowlisted_snapshot_token_count_validate_field() {
+        let defaults = make_defaults(None, None);
+        let lines = capture_json_lines(defaults, || {
+            tracing::warn!(
+                target: "snapshot.token.count.validate",
+                token_count_actual = 12_345_u64,
+                markdown_body = "# title\nsecret content",
+                attribute_value = "secret-token",
+                raw_attribute_value = "Bearer abc",
+                "validate event",
+            );
+        });
+        let fields = &lines[0]["fields"];
+        assert_eq!(fields["token_count_actual"], 12345);
+        for forbidden in ["markdown_body", "attribute_value", "raw_attribute_value"] {
+            assert_eq!(
+                fields[forbidden], "<redacted>",
+                "field `{forbidden}` MUST be redacted at snapshot.token.count.validate target",
+            );
+        }
+    }
+
+    #[test]
+    fn scrubber_redacts_non_allowlisted_metric_snapshot_token_count_ms_field() {
+        let defaults = make_defaults(None, None);
+        let lines = capture_json_lines(defaults, || {
+            tracing::info!(
+                target: "metric.snapshot.token_count_ms",
+                value = 42.0_f64,
+                duration_ms = 42_u64,
+                markdown_body = "# title\nsecret content",
+                attribute_value = "secret-token",
+                snapshot_file_content = "## Anomaly\nSensitive",
+                "metric event",
+            );
+        });
+        let fields = &lines[0]["fields"];
+        assert_eq!(fields["duration_ms"], 42);
+        for forbidden in ["markdown_body", "attribute_value", "snapshot_file_content"] {
+            assert_eq!(
+                fields[forbidden], "<redacted>",
+                "field `{forbidden}` MUST be redacted at metric.snapshot.token_count_ms target",
             );
         }
     }

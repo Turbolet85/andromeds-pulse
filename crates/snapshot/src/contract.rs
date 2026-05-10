@@ -11,6 +11,9 @@ use crate::attribute_filter::filter_attributes;
 use crate::critical_path::extract_critical_path;
 use crate::dedupe::dedupe_spans;
 
+pub use crate::markdown::format_markdown;
+pub use crate::token_budget::TokenBudget;
+
 // Attribute value byte cap — any kept attribute value longer than this is
 // truncated with U+2026 ellipsis sentinel before emission. Defends against
 // runaway values (e.g., 1 MB stack-trace embedded in an `error` attribute)
@@ -124,6 +127,46 @@ pub enum Error {
     OrphanParentSpan { parent: [u8; 8] },
     #[error("latency distribution degenerate: {reason}")]
     LatencyDistributionDegenerate { reason: &'static str },
+}
+
+// chunk #41 — markdown formatter truncation tracking. None = full input fit
+// budget; Applied = phase B/C truncation occurred с reported drop counts.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Default)]
+#[serde(rename_all = "snake_case")]
+pub enum TruncationState {
+    #[default]
+    None,
+    Applied {
+        dropped_span_count: usize,
+        dropped_attribute_count: usize,
+    },
+}
+
+// chunk #41 — markdown formatter output envelope. Carries the rendered
+// markdown body + size + budget + truncation state so downstream consumers
+// (chunk #43 snapshot.generate IPC, chunk #46 MCP generate_snapshot) can
+// route truncation-state to UI aria-live regions per a11y plan §7.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, Default)]
+pub struct MarkdownReport {
+    pub markdown: String,
+    pub token_count: usize,
+    pub budget: TokenBudget,
+    pub truncation_state: TruncationState,
+}
+
+// chunk #41 — formatter-internal error enum. Distinct from snapshot::Error
+// (which covers curate() input validity) so the existing exhaustive match
+// in `From<SnapshotError> for AppError` at ui-bridge stays untouched until
+// chunk #43 IPC wiring lands.
+#[derive(Debug, Error, PartialEq, Eq)]
+pub enum FormatError {
+    #[error("token budget exceeded: actual={actual_tokens}, budget={budget_tokens}")]
+    BudgetExceeded {
+        budget_tokens: usize,
+        actual_tokens: usize,
+    },
+    #[error("anchor encoding failed: {reason}")]
+    AnchorEncodingFailed { reason: &'static str },
 }
 
 /// Run filter_attributes → dedupe → aggregate → anomaly detection →
@@ -339,5 +382,61 @@ mod tests {
         assert!(out.dedup_count >= 1);
         assert_eq!(out.input_row_count, 2);
         assert_eq!(out.output_row_count, 1);
+    }
+
+    #[test]
+    fn truncation_state_default_is_none() {
+        assert_eq!(TruncationState::default(), TruncationState::None);
+    }
+
+    #[test]
+    fn truncation_state_round_trips_through_serde() {
+        for state in [
+            TruncationState::None,
+            TruncationState::Applied {
+                dropped_span_count: 5,
+                dropped_attribute_count: 12,
+            },
+        ] {
+            let json = serde_json::to_string(&state).expect("serializes");
+            let parsed: TruncationState = serde_json::from_str(&json).expect("parses");
+            assert_eq!(parsed, state);
+        }
+    }
+
+    #[test]
+    fn markdown_report_round_trips_through_serde() {
+        let report = MarkdownReport {
+            markdown: "# title\n## section\nbody\n".to_string(),
+            token_count: 8,
+            budget: TokenBudget::Balanced,
+            truncation_state: TruncationState::Applied {
+                dropped_span_count: 5,
+                dropped_attribute_count: 12,
+            },
+        };
+        let json = serde_json::to_string(&report).expect("serializes");
+        let parsed: MarkdownReport = serde_json::from_str(&json).expect("parses");
+        assert_eq!(parsed, report);
+    }
+
+    #[test]
+    fn markdown_report_default_uses_balanced_budget_and_none_truncation() {
+        let r = MarkdownReport::default();
+        assert_eq!(r.budget, TokenBudget::Balanced);
+        assert_eq!(r.truncation_state, TruncationState::None);
+        assert!(r.markdown.is_empty());
+        assert_eq!(r.token_count, 0);
+    }
+
+    #[test]
+    fn format_error_budget_exceeded_display_contains_actual_and_budget() {
+        let e = FormatError::BudgetExceeded {
+            budget_tokens: 10_000,
+            actual_tokens: 12_345,
+        };
+        let s = format!("{e}");
+        assert!(s.contains("10000"));
+        assert!(s.contains("12345"));
     }
 }
