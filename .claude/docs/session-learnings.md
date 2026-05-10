@@ -8,6 +8,24 @@ _This file is entirely wrap-session's territory. `/setup-project` creates it if 
 
 ---
 
+## 2026-05-10 — Algorithmic-substrate chunks: keep primitives call-site-agnostic for shared TauRPC + MCP consumption (chunk #39)
+
+When a chunk introduces pure-function primitives that multiple downstream surfaces will consume (e.g., the `crates/snapshot` curation primitives at chunk #39 — `dedupe_spans` / `detect_anomalies` / `extract_critical_path` — which feed BOTH chunk #41 TauRPC `snapshot.generate` AND chunk #46 MCP `generate_snapshot` `#[tool]` method per route.md §3 Decisions Log "Snapshot pipeline shared with MCP"), design the public API to be call-site-agnostic. Specifically:
+
+1. **No framework imports in the substrate layer** — primitives in `crates/snapshot/src/{dedupe,anomaly,critical_path}.rs` have zero `taurpc::*`, `tauri::*`, `rmcp::*`, `specta::Type` imports. Public API accepts plain Rust types: `&[SpanRecord]`, returns `Result<CurationOutput, Error>`. Framework wrapping happens at the boundary chunks (#41 TauRPC resolver, #46 MCP tool wrapper).
+
+2. **Cross-bridge data shape is `serde::Serialize` + `serde::Deserialize` only at chunk #39** — `specta::Type` derive deferred to whichever boundary chunk crosses TauRPC first. Snapshot crate stays pre-bridge (no `taurpc-runtime` feature; no `specta` dep). Verified at chunk #39: zero new TauRPC procedures introduced; `cargo xtask capability-drift` clean by-construction (security ↔ tests/CI ↔ arch capability-drift triple binding NOT triggered per `.claude/rules/security.md` Session Additions 2026-05-09 first entry).
+
+3. **Internal modules are `pub(crate)`; public surface is the contract module only** — `crates/snapshot/src/lib.rs` re-exports only `pub mod contract;`; new sibling modules declared as `pub(crate) mod {dedupe,anomaly,critical_path};`. Only types in `contract.rs` (e.g., `SpanRecord` / `CurationOutput` / `AnomalyKind` / `AnomalyMarker` / `CriticalPathStep`) participate in the public API. This keeps the substrate's internal evolution loose while pinning the cross-crate contract.
+
+4. **Deterministic outputs via explicit `sort_by_key` — no `HashMap` iteration without sort** — `dedupe_spans` collects into `HashMap<(service_name, name, duration_bucket), SpanRecord>` for the dedup pass but materializes via `into_values().collect::<Vec<_>>()` followed by `.sort_by(|a, b| ...)` on a stable composite key (service, name, span_id) before return. `detect_anomalies` orchestrator concats sub-detector outputs and `sort_by_key(|m| (Reverse(m.severity), kind_ordinal, first_id))` for severity-descending byte-identical output across repeated invocations. `extract_critical_path` uses `prefer_longer_or_lex` tie-breaker (longer total wins; ties broken by lexicographic span_id first-step) to ensure the same DAG yields the same path on every run.
+
+This pattern decouples shared substrate from any single caller. When the bridge chunks (#41 / #46) land, they wrap `crate::contract::curate(...)` independently — each one converts its own input format (TauRPC arg shape via specta, MCP arg shape via rmcp `#[tool]` macro) to `Vec<SpanRecord>` at the boundary and serializes `CurationOutput` back through its own framework. The substrate is invariant to the choice.
+
+Apply to future algorithmic-substrate chunks (e.g., chunk #40 aggregation + low-signal drop, which extends the same pattern with metric percentile computation; chunk #41 markdown formatter, which is a SECOND consumer alongside future MCP tool — both wrap `curate(...)` outputs without modifying the snapshot crate). The discipline floor is: if chunk introduces functions called by multiple downstream IPC surfaces, audit the imports and reject any framework type leaking into the substrate.
+
+---
+
 ## 2026-05-10 — Plan-vs-IPC reality check at /andromeda-implement Phase 1 (chunk #38)
 
 When a chunk plan asserts that a TauRPC procedure exists (e.g., the chunk #38 plan invoked `taurpc.plugins.list()` for the plugin-manager UI section), `/andromeda-implement` Phase 1 should verify the procedure's existence via `pulse-app/ui/src/bindings/index.ts` (the Specta-generated TauRPC bindings — single source of truth for what's actually wireable from webview) BEFORE writing form code that depends on it. The plan is authored upstream of the bindings; if a chunk would need an unrendered procedure, that's an out-of-scope problem (the procedure belongs to a future epoch / chunk) and should degrade to a placeholder rather than expand scope.

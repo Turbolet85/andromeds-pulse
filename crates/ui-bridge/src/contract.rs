@@ -320,13 +320,24 @@ impl From<VizError> for AppError {
 
 impl From<SnapshotError> for AppError {
     fn from(e: SnapshotError) -> Self {
-        let message = match e {
-            SnapshotError::Placeholder => "snapshot: placeholder error",
+        let (message, source_kind) = match e {
+            SnapshotError::EmptyInput => ("snapshot: empty input", "empty_input"),
+            SnapshotError::InvalidSpanRecord { .. } => {
+                ("snapshot: invalid span record", "invalid_span_record")
+            }
+            SnapshotError::OrphanParentSpan { .. } => (
+                "snapshot: orphan parent span reference",
+                "orphan_parent_span",
+            ),
+            SnapshotError::LatencyDistributionDegenerate { .. } => (
+                "snapshot: latency distribution degenerate",
+                "latency_distribution_degenerate",
+            ),
         };
         tracing::warn!(
             target: "ui-bridge.error.internal",
             error_category = "internal",
-            source_kind = "placeholder",
+            source_kind = source_kind,
             source_crate = "snapshot",
             "{}",
             message
@@ -800,16 +811,69 @@ mod tests {
     // ===== Placeholder From-impl tests =====
 
     #[test]
-    fn from_snapshot_placeholder_collapses_to_constant_message_no_leak() {
-        let e = AppError::from(SnapshotError::Placeholder);
+    fn from_snapshot_empty_input_collapses_to_constant_message() {
+        let e = AppError::from(SnapshotError::EmptyInput);
+        match e {
+            AppError::Internal { message } => assert_eq!(message, "snapshot: empty input"),
+            other => panic!("expected AppError::Internal, got {other:?}"),
+        }
+    }
+
+    #[test]
+    fn from_snapshot_invalid_span_record_collapses_to_constant_message_no_kind_leak() {
+        let e = AppError::from(SnapshotError::InvalidSpanRecord {
+            kind: "negative_duration",
+        });
         match e {
             AppError::Internal { message } => {
-                assert_eq!(message, "snapshot: placeholder error");
-                assert!(!message.contains('/'));
-                assert!(!message.contains("::"));
+                assert_eq!(message, "snapshot: invalid span record");
+                assert!(!message.contains("negative_duration"));
             }
             other => panic!("expected AppError::Internal, got {other:?}"),
         }
+    }
+
+    #[test]
+    fn from_snapshot_orphan_parent_span_collapses_to_constant_message_no_id_leak() {
+        let e = AppError::from(SnapshotError::OrphanParentSpan { parent: [0xCA; 8] });
+        match e {
+            AppError::Internal { message } => {
+                assert_eq!(message, "snapshot: orphan parent span reference");
+                assert!(!message.contains("CA"));
+                assert!(!message.contains("ca"));
+            }
+            other => panic!("expected AppError::Internal, got {other:?}"),
+        }
+    }
+
+    #[test]
+    fn from_snapshot_latency_degenerate_collapses_to_constant_message_no_reason_leak() {
+        let e = AppError::from(SnapshotError::LatencyDistributionDegenerate {
+            reason: "all_durations_equal",
+        });
+        match e {
+            AppError::Internal { message } => {
+                assert_eq!(message, "snapshot: latency distribution degenerate");
+                assert!(!message.contains("all_durations_equal"));
+            }
+            other => panic!("expected AppError::Internal, got {other:?}"),
+        }
+    }
+
+    #[rstest]
+    #[case(SnapshotError::EmptyInput)]
+    #[case(SnapshotError::InvalidSpanRecord { kind: "negative_duration" })]
+    #[case(SnapshotError::OrphanParentSpan { parent: [0xCA; 8] })]
+    #[case(SnapshotError::LatencyDistributionDegenerate { reason: "all_durations_equal" })]
+    fn from_snapshot_serializes_to_internal_kind_with_no_leak(#[case] e: SnapshotError) {
+        let app = AppError::from(e);
+        let s = serde_json::to_string(&app).expect("serializes");
+        let v: serde_json::Value = serde_json::from_str(&s).expect("parses back");
+        assert_eq!(v["kind"], "internal");
+        assert!(s.starts_with("{\"kind\":\"internal\","));
+        // Sanitization: no path separators, no Rust struct path syntax.
+        assert!(!s.contains('/'));
+        assert!(!s.contains("::"));
     }
 
     #[test]
@@ -984,9 +1048,9 @@ mod tests {
     }
 
     #[test]
-    fn from_snapshot_placeholder_emits_tracing_warn_at_internal_target() {
+    fn from_snapshot_emits_tracing_warn_at_internal_target() {
         let events = capture(|| {
-            let _ = AppError::from(SnapshotError::Placeholder);
+            let _ = AppError::from(SnapshotError::EmptyInput);
         });
         assert!(
             events

@@ -185,6 +185,16 @@ impl AllowList {
                 "dedup_count",
                 "time_range_start",
                 "time_range_end",
+                "input_row_count",
+                "output_row_count",
+                "latency_outlier_count",
+                "error_cluster_count",
+                "cardinality_spike_count",
+                "critical_path_span_count",
+                "total_span_count",
+                "orphan_parent_count",
+                "duration_ms",
+                "anomaly_markers_count",
             ]
             .iter()
             .copied()
@@ -1575,6 +1585,81 @@ mod tests {
             assert!(
                 entry.contains(required),
                 "ui.layout.transition must permit `{required}`"
+            );
+        }
+    }
+
+    #[test]
+    fn allowlist_for_target_resolves_snapshot_curate_field_set() {
+        // chunk #39: curation primitives in `crates/snapshot/{dedupe,anomaly,
+        // critical_path}.rs` instrument as `snapshot.curate.{operation}` and
+        // emit per-pipeline counts (input_row_count / output_row_count /
+        // dedup_count / latency_outlier_count / error_cluster_count /
+        // cardinality_spike_count / critical_path_span_count / total_span_count
+        // / orphan_parent_count / anomaly_markers_count / duration_ms). For_target
+        // resolves these via split('.').next() fallback to the `snapshot` entry,
+        // so the entry must permit ALL fields used across the curation pipeline
+        // OR default-deny silently redacts them and obs-plan §3 P2 + §8
+        // snapshot whitelist contract regresses.
+        let al = AllowList::production();
+        for target in [
+            "snapshot.curate.dedup",
+            "snapshot.curate.anomaly_detect",
+            "snapshot.curate.critical_path_extract",
+            "snapshot.curate.full_pipeline",
+        ] {
+            let set = al
+                .for_target(target)
+                .unwrap_or_else(|| panic!("expected snapshot entry resolution for {target}"));
+            for required in [
+                "input_row_count",
+                "output_row_count",
+                "dedup_count",
+                "latency_outlier_count",
+                "error_cluster_count",
+                "cardinality_spike_count",
+                "critical_path_span_count",
+                "total_span_count",
+                "orphan_parent_count",
+                "anomaly_markers_count",
+                "duration_ms",
+            ] {
+                assert!(
+                    set.contains(required),
+                    "{target} must permit `{required}` (snapshot allowlist coverage)",
+                );
+            }
+        }
+    }
+
+    #[test]
+    fn scrubber_redacts_non_allowlisted_snapshot_curate_field() {
+        // chunk #39: per security plan §Logging Vector 1, raw OTLP attribute
+        // values (service_name / span attributes / span content) MUST be
+        // redacted at the formatter layer. The snapshot allowlist only
+        // permits scalar counts + categorical bounds; non-allowlisted fields
+        // like `service_name`, `attributes`, `query_text` MUST be stripped
+        // even though they would semantically resolve via split('.').next() to
+        // the `snapshot` entry.
+        let defaults = make_defaults(None, None);
+        let lines = capture_json_lines(defaults, || {
+            tracing::warn!(
+                target: "snapshot.curate.dedup",
+                dedup_count = 5_u64,
+                service_name = "checkout",
+                attributes = "{\"user_id\": \"abc\"}",
+                query_text = "SELECT * FROM spans",
+                "dedup complete",
+            );
+        });
+        let fields = &lines[0]["fields"];
+        // Allowlisted field present.
+        assert_eq!(fields["dedup_count"], 5);
+        // Non-allowlisted fields redacted to "<redacted>" sentinel.
+        for forbidden in ["service_name", "attributes", "query_text"] {
+            assert_eq!(
+                fields[forbidden], "<redacted>",
+                "field `{forbidden}` MUST be redacted per obs-plan Vector 1+5 + snapshot allowlist (default-deny)",
             );
         }
     }
