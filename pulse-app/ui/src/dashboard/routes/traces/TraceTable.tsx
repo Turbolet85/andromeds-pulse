@@ -1,5 +1,7 @@
 import { useMemo, useState } from "react";
 import type { TraceRow } from "../../../bindings";
+import { InvestigateButton } from "../../../components/InvestigateButton";
+import { useInvestigation } from "../../../hooks/use-investigation";
 import { useStatusAnnouncer } from "../../StatusLiveRegion";
 import {
   COLUMN_LABEL,
@@ -26,6 +28,7 @@ const COLUMNS: readonly { id: SortColumn; label: string }[] = [
 export function TraceTable({ rows, isLoading }: TraceTableProps) {
   const [sortState, setSortState] = useState<SortState>(SORT_STATE_NONE);
   const announce = useStatusAnnouncer();
+  const { openInvestigation } = useInvestigation();
 
   const sorted = useMemo(() => sortRows(rows, sortState), [rows, sortState]);
 
@@ -127,7 +130,11 @@ export function TraceTable({ rows, isLoading }: TraceTableProps) {
             </tr>
           ) : (
             sorted.map((row) => (
-              <TraceRowView key={`${row.trace_id}-${row.span_id}`} row={row} />
+              <TraceRowView
+                key={`${row.trace_id}-${row.span_id}`}
+                row={row}
+                onInvestigate={openInvestigation}
+              />
             ))
           )}
         </tbody>
@@ -156,11 +163,22 @@ function SortIndicator({ state, column }: { state: SortState; column: SortColumn
   );
 }
 
-function TraceRowView({ row }: { row: TraceRow }) {
+function TraceRowView({
+  row,
+  onInvestigate,
+}: {
+  row: TraceRow;
+  onInvestigate: (trigger: HTMLElement | null) => void;
+}) {
   const isError = row.error_count > 0;
+  const traceLabel = truncateHex(row.trace_id);
   return (
     <tr
       data-testid="trace-row"
+      onContextMenu={(event) => {
+        event.preventDefault();
+        onInvestigate(event.currentTarget);
+      }}
       style={{
         borderBottom: "1px solid rgba(74, 144, 226, 0.1)",
       }}
@@ -173,7 +191,7 @@ function TraceRowView({ row }: { row: TraceRow }) {
           color: "var(--color-text-primary)",
         }}
       >
-        {truncateHex(row.trace_id)}
+        {traceLabel}
       </td>
       <td
         style={{
@@ -198,6 +216,10 @@ function TraceRowView({ row }: { row: TraceRow }) {
         style={{
           padding: "var(--spacing-sm)",
           color: "var(--color-text-primary)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          gap: "var(--spacing-sm)",
           ...(isError
             ? {
                 borderLeft: "3px solid var(--color-accent)",
@@ -216,6 +238,15 @@ function TraceRowView({ row }: { row: TraceRow }) {
         ) : (
           <span style={{ color: "var(--color-text-tertiary)" }}>0</span>
         )}
+        <InvestigateButton
+          variant="trace-row-inline"
+          aria-label={`Investigate trace ${traceLabel}`}
+          onClick={(event) => {
+            event.stopPropagation();
+            onInvestigate(event.currentTarget);
+          }}
+          data-testid="trace-row-investigate"
+        />
       </td>
     </tr>
   );

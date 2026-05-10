@@ -8,6 +8,38 @@ _This file is entirely wrap-session's territory. `/setup-project` creates it if 
 
 ---
 
+## 2026-05-10 — TauRPC routers live in `crates/ui-bridge/`, not in substrate crates (chunk #42 architectural convention)
+
+The plan for chunk #42 prescribed adding the placeholder `SnapshotApi` TauRPC procedure to `crates/snapshot/src/ipc.rs`, mirroring how the procedure path `snapshot.generate` is reserved at arch §Occupied Resources to the snapshot crate. At `/implement` Phase 1 review the substrate-pollution cost showed clearly: snapshot crate would need `taurpc` + `specta` features behind a `taurpc-runtime` flag (mirroring ui-bridge's pattern), would either need its own `From<SnapshotError> for AppError` impl mirroring ui-bridge's existing one OR a new internal `SnapshotIpcError` enum, and would need new `#[cfg_attr(feature = "taurpc-runtime", derive(specta::Type))]` on every contract type that crosses the bridge (`MarkdownReport` etc.). Chunks #39/#40/#41 deliberately kept the snapshot crate as pure-Rust substrate (no IPC deps, no Tauri runtime); breaking that for a placeholder swap-in was a high cost.
+
+Resolution: the router lives in `crates/ui-bridge/src/snapshot_ipc.rs` instead, following the existing convention (`telemetry.rs` chunk #29 + `health.rs` chunks #27/introspection). ui-bridge already depends on snapshot, already owns `AppError` + `SnapshotPreset` (specta-derived since chunk #38), and already centralizes all TauRPC routers mounted by `pulse-app/src/main.rs`. The placeholder uses `Result<(), AppError>` (no MarkdownReport crossing the bridge yet; chunk #43 will refine to return real data when it wires workspace.detect + clipboard).
+
+**Pattern for future chunks introducing TauRPC procedures whose path is reserved to a substrate crate:**
+- Substrate crate exposes pure-Rust contract types (`SpanRecord` / `MarkdownReport` / `CurationOutput` etc.) without specta derives.
+- ui-bridge crate hosts the TauRPC procedure trait + impl in a sibling module (e.g., `snapshot_ipc.rs`, `plugins_ipc.rs`, `mcp_ipc.rs`).
+- ui-bridge re-exports `pub use snapshot_ipc::{SnapshotApi, SnapshotApiImpl}` cfg-gated by `taurpc-runtime`.
+- pulse-app mounts via `use ui_bridge::snapshot_ipc::{SnapshotApi, SnapshotApiImpl};` then `.merge(SnapshotApiImpl::new().into_handler())` in all 3 router branches.
+- xtask `EXPECTED_PROCEDURES` is extended with `"<router>.<method>"` per security.md Session Additions 2026-05-10 (couple D3 cleanup with consuming code).
+- Capability JSON unchanged (router-level granularity via `core:default` per security.md Session Additions 2026-05-03).
+
+Arch's §Occupied Resources Tauri IPC routes list reserves PATHS (`snapshot.generate`, etc.); it does NOT constrain WHERE the resolver code lives in Rust source. The router-location convention is project-style, established by chunk precedent, and now documented here. Chunks #43 (snapshot.{list_recent,copy_to_clipboard}), #44+ (plugins.*), #46 (mcp.*), and #47 (workspace.*) should follow this pattern unless a specific reason (e.g., the procedure requires substrate-internal state that ui-bridge can't access) forces the router into the substrate crate.
+
+Anchors: `crates/ui-bridge/src/lib.rs:3-19` (module list + cfg-gated re-exports), `crates/ui-bridge/src/snapshot_ipc.rs` (chunk #42 placeholder), `crates/ui-bridge/src/telemetry.rs:93-134` (canonical pattern reference), `pulse-app/src/main.rs:19-20, 263, 268, 658` (3-branch mount).
+
+---
+
+## 2026-05-10 — Placeholder TauRPC IPC return type: prefer `Result<(), AppError>` over the eventual data type when bindings aren't specta-ready (chunk #42 substrate-vs-bindings reality)
+
+When wiring a placeholder TauRPC procedure that will swap in a real return value in a later chunk, the return type signature must satisfy specta::Type at chunk-introduction time — even though the placeholder body never produces the value. If the eventual return type lives in a substrate crate without specta derives (e.g., `snapshot::contract::MarkdownReport` chunk #41), adding specta to the substrate crate just to satisfy the placeholder is substrate pollution. Using `Result<(), AppError>` for the placeholder sidesteps the bindings constraint cleanly: `()` is always specta-friendly (serializes as `null`), the placeholder always returns `Err(AppError::Internal { ... })`, and the webview can call `await proxy.snapshot.generate(preset)` then `.catch(rawErr => ...)` to render the placeholder error.
+
+Chunk #43 will refine the signature to `Result<MarkdownReport, AppError>` once it needs to surface real curation output. At that point, two options exist: (a) add `#[cfg_attr(feature = "ipc-bindings", derive(specta::Type))]` to MarkdownReport in the snapshot crate (modest substrate concession, gated behind a feature so xtask-style consumers can still skip the dep), OR (b) define an `IpcMarkdownReport` in ui-bridge that mirrors the substrate type with specta derives + a `From<MarkdownReport> for IpcMarkdownReport` conversion. Option (a) is simpler if you accept the feature-gate; option (b) keeps substrate purest.
+
+Corollary to chunk #41's "substrate-vs-IPC enum naming alignment" learning: there, TokenBudget (snapshot crate) and SnapshotPreset (ui-bridge crate) were aligned by-name (Conservative/Balanced/Detailed). Chunk #42 leverages that alignment: the placeholder accepts `SnapshotPreset` (already specta-derived in ui-bridge) directly, no `From<SnapshotPreset> for TokenBudget` conversion needed yet because the placeholder body doesn't reach the snapshot crate. Chunk #43 will need the conversion. The naming alignment from chunk #41 makes that future conversion trivial (by-name match), which is why the naming-alignment discipline pays off chunks later.
+
+Anchor: `crates/ui-bridge/src/snapshot_ipc.rs:11` (`async fn generate(preset: SnapshotPreset) -> Result<(), AppError>;`).
+
+---
+
 ## 2026-05-10 — Wrap-pattern consumer visibility: `pub fn` in `pub(crate) mod` for re-export through contract module (chunk #41 corollary to chunks #39/#40)
 
 The chunk #40 session-learnings entry below distinguished primitives that EXTEND `curate()` (operating on raw `&[SpanRecord]`, kept `pub(crate) fn`) from consumers that WRAP `curate()`'s output (operating on `CurationOutput`). Chunk #41 (markdown formatter) is the FIRST chunk to land a wrapping consumer, and the visibility shape needs adjusting from the chunk #40 pattern: a wrapping consumer that will be called from outside the snapshot crate (e.g., chunk #43 `snapshot.generate` IPC; chunk #46 MCP `generate_snapshot` `#[tool]`) MUST declare its public function as `pub fn` (not `pub(crate) fn`) inside the `pub(crate) mod` sibling module. Re-exporting `pub(crate) fn` via `pub use crate::markdown::format_markdown;` in the public `contract.rs` fails to compile with `error[E0364]: pub(crate) item ... cannot be re-exported outside`.

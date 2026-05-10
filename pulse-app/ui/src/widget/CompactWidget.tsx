@@ -2,10 +2,17 @@
 // window per layout-templates.md §Surface: desktop-webview / Wireframe —
 // Compact widget. Three-band wireframe: titlebar (chunk #30) at top / canvas
 // with Halo-overlaid aggregated badge (chunk #32 §Step 5) in the middle /
-// footer band (chunk #32 §Step 6) at bottom. Read-only — no new focusable
-// interactive elements; the titlebar gear remains the only tab stop.
+// footer band (chunk #32 §Step 6) at bottom. Chunk #42 adds an Investigate
+// telescope icon button to the titlebar (per layout-templates.md §Wireframe —
+// Compact widget IA notes); the titlebar gear + Investigate button are the
+// two tab stops on this surface.
 
 import { Titlebar } from "../components/Titlebar";
+import { InvestigationModalForm } from "../dashboard/InvestigationModalForm";
+import {
+  InvestigationProvider,
+  useInvestigation,
+} from "../hooks/use-investigation";
 import { AggregatedBadgeCanvas } from "./AggregatedBadgeCanvas";
 import { FooterBand } from "./FooterBand";
 import type { WidgetMetrics } from "./widget-types";
@@ -16,8 +23,18 @@ interface CompactWidgetProps {
 
 export function CompactWidget({ metrics }: CompactWidgetProps) {
   return (
+    <InvestigationProvider>
+      <CompactWidgetContents metrics={metrics} />
+    </InvestigationProvider>
+  );
+}
+
+function CompactWidgetContents({ metrics }: CompactWidgetProps) {
+  const { open, openInvestigation, closeInvestigation, triggerRef } =
+    useInvestigation();
+  return (
     <>
-      <Titlebar />
+      <Titlebar onInvestigateClick={openInvestigation} />
       <main
         id="main-content"
         tabIndex={-1}
@@ -44,6 +61,11 @@ export function CompactWidget({ metrics }: CompactWidgetProps) {
           retentionMaxSeconds={metrics.retentionMaxSeconds}
         />
       </main>
+      <InvestigationModalForm
+        open={open}
+        onClose={closeInvestigation}
+        triggerRef={triggerRef}
+      />
     </>
   );
 }

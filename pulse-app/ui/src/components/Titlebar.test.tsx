@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { Titlebar } from "./Titlebar";
 
 vi.mock("../hooks/use-platform", () => ({
@@ -71,5 +72,27 @@ describe("Titlebar — semantic HTML + drag region + ARIA", () => {
     const { container } = render(<Titlebar />);
     const appIcon = container.querySelector(".titlebar__app-icon");
     expect(appIcon?.getAttribute("aria-hidden")).toBe("true");
+  });
+
+  it("does NOT render the Investigate button when onInvestigateClick is undefined", () => {
+    render(<Titlebar />);
+    expect(screen.queryByTestId("titlebar-investigate")).toBeNull();
+  });
+
+  it("renders the Investigate button with aria-label when onInvestigateClick is provided", () => {
+    render(<Titlebar onInvestigateClick={() => {}} />);
+    const btn = screen.getByTestId("titlebar-investigate");
+    expect(btn.tagName).toBe("BUTTON");
+    expect(btn.getAttribute("aria-label")).toBe("Investigate");
+  });
+
+  it("clicking the Investigate button forwards the trigger element to onInvestigateClick", async () => {
+    const onInvestigateClick = vi.fn();
+    const user = userEvent.setup();
+    render(<Titlebar onInvestigateClick={onInvestigateClick} />);
+    const btn = screen.getByTestId("titlebar-investigate");
+    await user.click(btn);
+    expect(onInvestigateClick).toHaveBeenCalledTimes(1);
+    expect(onInvestigateClick).toHaveBeenCalledWith(btn);
   });
 });

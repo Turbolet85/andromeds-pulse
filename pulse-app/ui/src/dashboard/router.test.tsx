@@ -8,6 +8,7 @@ import {
   pathnameToTabId,
 } from "./router";
 import { HaloInputProvider } from "./halo-input-context";
+import { InvestigationProvider } from "../hooks/use-investigation";
 
 vi.mock("../components/Titlebar", () => ({
   Titlebar: ({ title }: { title?: string }) => (
@@ -40,7 +41,9 @@ function renderRouterAt(path: string) {
   return {
     ...render(
       <HaloInputProvider value={haloInput}>
-        <RouterProvider router={router} />
+        <InvestigationProvider>
+          <RouterProvider router={router} />
+        </InvestigationProvider>
       </HaloInputProvider>,
     ),
     router,

@@ -1,14 +1,14 @@
 schema_version: 2
-last_wrap: 2026-05-10T19:30:00Z
-last_reconcile: 2026-05-10T19:30:00Z
+last_wrap: 2026-05-10T20:39:33Z
+last_reconcile: 2026-05-10T20:36:44Z
 
 last_completed_chunk:
-  route_index: 41
-  title: "Markdown formatter + token budget — hierarchical markdown with citation anchors, 10k/25k/50k budget enforcement, smart truncation prioritizing anomalies"
+  route_index: 42
+  title: "Investigate trigger + capture collapse — button on widget/main/context-menu/trace-row + 350ms scale+opacity supporting moment + aria-busy/aria-live"
   epoch: 6
-  committed_at: 2026-05-10T19:30:00Z
-  commit_sha: 8dd4d1e
-  commit_subject: "feat(snapshot): markdown formatter + token budget (Conservative/Balanced/Detailed + smart truncation prioritizing anomalies) (chunk #41); session 49"
+  committed_at: 2026-05-10T20:39:33Z
+  commit_sha: c685982
+  commit_subject: "feat(investigate): trigger + capture collapse — Investigate button across 4 surfaces + InvestigationModalForm + placeholder snapshot.generate IPC (chunk #42); session 50"
 
 in_progress: null
 
@@ -24,9 +24,9 @@ plan_freshness:
   input_mtime: 2026-05-02T06:52:58Z
 
 living_artifact_freshness:
-  dep_tree_reconciled_at: 2026-05-10T19:30:00Z
-  api_surface_reconciled_at: 2026-05-10T19:30:00Z
-  most_recent_code_mtime: 2026-05-10T19:13:06Z
+  dep_tree_reconciled_at: 2026-05-10T20:36:44Z
+  api_surface_reconciled_at: 2026-05-10T20:36:44Z
+  most_recent_code_mtime: 2026-05-10T20:36:00Z
   reconcile_failed: false
 
 drift_warnings: []
@@ -177,4 +177,4 @@ spec_amendments:
       propagated_by_run: .andromeda/runs/2026-05-10T12-57-12-setup-project-delta/
       archived_at: 2026-05-10T13:04:13Z
 
-session_count: 49
+session_count: 50

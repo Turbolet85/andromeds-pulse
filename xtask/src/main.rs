@@ -384,10 +384,11 @@ const EXPECTED_PROCEDURES: &[&str] = &[
     "streams.subscribe_logs",
     "streams.subscribe_metrics",
     "streams.subscribe_spans",
+    "snapshot.generate",
     "telemetry.frontend.record_frame_ms",
     "traces.query",
     // future-deferred (per epoch landing):
-    // "snapshot.generate", "snapshot.list_recent", "snapshot.copy_to_clipboard",
+    // "snapshot.list_recent", "snapshot.copy_to_clipboard",
     // "plugins.list", "plugins.reload", "plugins.invoke",
     // "mcp.status", "mcp.start", "mcp.stop",
     // "workspace.detect", "workspace.list",

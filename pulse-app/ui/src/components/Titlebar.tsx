@@ -1,3 +1,4 @@
+import { forwardRef, useImperativeHandle, useRef } from "react";
 import { Icon } from "./icons";
 import { usePlatform } from "../hooks/use-platform";
 import { WindowControls } from "./WindowControls";
@@ -8,6 +9,16 @@ interface TitlebarProps {
   // (chunk #31 will pass `${appName} — ${view}` once routing arrives).
   title?: string;
   onSettingsClick?: () => void;
+  // chunk #42 — Investigate trigger placement on the compact-widget titlebar
+  // per layout-templates.md §Wireframe — Compact widget IA notes ("actionable
+  // element belongs in titlebar segment"). When undefined, the button is not
+  // rendered (preserves chunk #24 default shape for surfaces without an
+  // Investigate flow).
+  onInvestigateClick?: (trigger: HTMLElement | null) => void;
+}
+
+export interface TitlebarHandle {
+  investigateButton: HTMLButtonElement | null;
 }
 
 // Frameless custom titlebar for the desktop-webview surface (chunk #24).
@@ -22,10 +33,25 @@ interface TitlebarProps {
 // Per a11y plan §7 Landmark roles: wrapped in <header>; window-control
 // buttons + settings button are native <button> with aria-label per §11
 // "semantic HTML first". Drag region carries no tabindex per §11 Keyboard.
-export function Titlebar({ title = "andromeda-pulse", onSettingsClick }: TitlebarProps) {
-  const platform = usePlatform();
+export const Titlebar = forwardRef<TitlebarHandle, TitlebarProps>(
+  function Titlebar(
+    { title = "andromeda-pulse", onSettingsClick, onInvestigateClick },
+    ref,
+  ) {
+    const platform = usePlatform();
+    const investigateRef = useRef<HTMLButtonElement | null>(null);
 
-  return (
+    useImperativeHandle(
+      ref,
+      () => ({
+        get investigateButton() {
+          return investigateRef.current;
+        },
+      }),
+      [],
+    );
+
+    return (
     <header
       className="titlebar"
       data-tauri-drag-region
@@ -62,6 +88,29 @@ export function Titlebar({ title = "andromeda-pulse", onSettingsClick }: Titleba
         {title}
       </span>
       <span className="titlebar__grow" data-tauri-drag-region style={{ flex: 1 }} />
+      {onInvestigateClick ? (
+        <button
+          ref={investigateRef}
+          type="button"
+          aria-label="Investigate"
+          onClick={(event) => onInvestigateClick(event.currentTarget)}
+          className="titlebar__investigate motion-reduce:transition-none motion-reduce:duration-0"
+          data-testid="titlebar-investigate"
+          style={{
+            background: "transparent",
+            border: 0,
+            color: "var(--color-text-secondary)",
+            cursor: "pointer",
+            padding: "var(--spacing-xs)",
+            minWidth: "var(--target-input-min)",
+            minHeight: "var(--target-input-min)",
+            transitionDuration: "var(--duration-fast)",
+            transitionTimingFunction: "var(--easing-out)",
+          }}
+        >
+          <Icon glyph="telescope" size={20} aria-hidden="true" />
+        </button>
+      ) : null}
       <button
         type="button"
         aria-label="Open settings"
@@ -84,4 +133,4 @@ export function Titlebar({ title = "andromeda-pulse", onSettingsClick }: Titleba
       <WindowControls platform={platform} />
     </header>
   );
-}
+});

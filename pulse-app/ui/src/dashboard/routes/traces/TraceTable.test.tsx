@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import type { TraceRow } from "../../../bindings";
+import { InvestigationProvider } from "../../../hooks/use-investigation";
 import { StatusLiveRegionProvider } from "../../StatusLiveRegion";
 import { TraceTable } from "./TraceTable";
 
@@ -25,7 +26,9 @@ function row(overrides: Partial<TraceRow>): TraceRow {
 function renderWithProvider(rows: TraceRow[], isLoading = false) {
   return render(
     <StatusLiveRegionProvider>
-      <TraceTable rows={rows} isLoading={isLoading} />
+      <InvestigationProvider>
+        <TraceTable rows={rows} isLoading={isLoading} />
+      </InvestigationProvider>
     </StatusLiveRegionProvider>,
   );
 }

@@ -825,6 +825,19 @@ impl AllowList {
             .copied()
             .collect(),
         );
+        // chunk #42 — placeholder Investigate trigger surface. Emitted by
+        // crates/ui-bridge/src/snapshot_ipc.rs::SnapshotApiImpl::generate
+        // until chunk #43 wires real workspace.detect + clipboard + dual
+        // .json/.md write. Explicit per-leaf entry so for_target() exact
+        // match wins over the `snapshot` crate-level fallback (which carries
+        // unrelated curation fields).
+        by_target.insert(
+            "snapshot.generate.request",
+            ["budget", "result_kind", "message"]
+                .iter()
+                .copied()
+                .collect(),
+        );
 
         Self { by_target }
     }
@@ -1926,6 +1939,50 @@ mod tests {
             assert_eq!(
                 fields[forbidden], "<redacted>",
                 "field `{forbidden}` MUST be redacted at metric.snapshot.token_count_ms target",
+            );
+        }
+    }
+
+    #[test]
+    fn allowlist_for_target_resolves_snapshot_generate_request_field_set() {
+        let al = AllowList::production();
+        let set = al
+            .for_target("snapshot.generate.request")
+            .expect("snapshot.generate.request entry");
+        for required in ["budget", "result_kind", "message"] {
+            assert!(
+                set.contains(required),
+                "snapshot.generate.request must permit `{required}`",
+            );
+        }
+    }
+
+    #[test]
+    fn scrubber_redacts_non_allowlisted_snapshot_generate_request_field() {
+        let defaults = make_defaults(None, None);
+        let lines = capture_json_lines(defaults, || {
+            tracing::warn!(
+                target: "snapshot.generate.request",
+                budget = "balanced",
+                result_kind = "placeholder",
+                message = "Investigate not yet wired (lands chunk #43)",
+                clipboard_content = "secret data",
+                snapshot_file_content = "## Anomaly\nSensitive",
+                raw_attribute_value = "Bearer abc",
+                "Investigate trigger reached placeholder",
+            );
+        });
+        let fields = &lines[0]["fields"];
+        assert_eq!(fields["budget"], "balanced");
+        assert_eq!(fields["result_kind"], "placeholder");
+        for forbidden in [
+            "clipboard_content",
+            "snapshot_file_content",
+            "raw_attribute_value",
+        ] {
+            assert_eq!(
+                fields[forbidden], "<redacted>",
+                "field `{forbidden}` MUST be redacted at snapshot.generate.request target",
             );
         }
     }

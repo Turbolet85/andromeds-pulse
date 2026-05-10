@@ -12,6 +12,11 @@ import { useMemo } from "react";
 import { RouterProvider } from "@tanstack/react-router";
 import { createDashboardRouter } from "./router";
 import { HaloInputProvider } from "./halo-input-context";
+import { InvestigationModalForm } from "./InvestigationModalForm";
+import {
+  InvestigationProvider,
+  useInvestigation,
+} from "../hooks/use-investigation";
 import type { HaloInput } from "../halo/halo-types";
 
 interface DashboardProps {
@@ -22,7 +27,21 @@ export function Dashboard({ haloInput }: DashboardProps) {
   const router = useMemo(() => createDashboardRouter(), []);
   return (
     <HaloInputProvider value={haloInput}>
-      <RouterProvider router={router} />
+      <InvestigationProvider>
+        <RouterProvider router={router} />
+        <DashboardInvestigationModal />
+      </InvestigationProvider>
     </HaloInputProvider>
+  );
+}
+
+function DashboardInvestigationModal() {
+  const { open, closeInvestigation, triggerRef } = useInvestigation();
+  return (
+    <InvestigationModalForm
+      open={open}
+      onClose={closeInvestigation}
+      triggerRef={triggerRef}
+    />
   );
 }

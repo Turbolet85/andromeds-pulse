@@ -52,7 +52,7 @@ export type WgpuBackend = "vulkan" | "metal" | "dx12"
 
 export type WidgetPosition = "top-left" | "top-right" | "bottom-left" | "bottom-right"
 
-const ARGS_MAP = { '':'{"app_info":[],"get_settings":[],"health":[],"ready":[],"update_settings":["settings"]}', 'logs':'{"query":["args"]}', 'metrics':'{"query":["args"]}', 'streams':'{"subscribe_logs":["channel"],"subscribe_metrics":["channel"],"subscribe_spans":["channel"]}', 'telemetry.frontend':'{"record_frame_ms":["input"]}', 'traces':'{"query":["args"]}' }
+const ARGS_MAP = { '':'{"app_info":[],"get_settings":[],"health":[],"ready":[],"update_settings":["settings"]}', 'logs':'{"query":["args"]}', 'metrics':'{"query":["args"]}', 'snapshot':'{"generate":["preset"]}', 'streams':'{"subscribe_logs":["channel"],"subscribe_metrics":["channel"],"subscribe_spans":["channel"]}', 'telemetry.frontend':'{"record_frame_ms":["input"]}', 'traces':'{"query":["args"]}' }
 export type Router = { "": {app_info: () => Promise<AppInfo>, 
 get_settings: () => Promise<Settings>, 
 health: () => Promise<HealthEnvelope>, 
@@ -60,6 +60,7 @@ ready: () => Promise<ReadyEnvelope>,
 update_settings: (settings: Settings) => Promise<null>},
 "logs": {query: (args: LogsQueryArgs) => Promise<PaginatedResponse<LogRow>>},
 "metrics": {query: (args: MetricsQueryArgs) => Promise<PaginatedResponse<MetricRow>>},
+"snapshot": {generate: (preset: SnapshotPreset) => Promise<null>},
 "streams": {subscribe_logs: (channel: TAURI_CHANNEL<number[]>) => Promise<null>, 
 subscribe_metrics: (channel: TAURI_CHANNEL<number[]>) => Promise<null>, 
 subscribe_spans: (channel: TAURI_CHANNEL<number[]>) => Promise<null>},

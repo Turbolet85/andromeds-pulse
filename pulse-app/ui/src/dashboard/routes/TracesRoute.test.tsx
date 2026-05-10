@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { render, screen, waitFor } from "@testing-library/react";
 import type { TraceRow } from "../../bindings";
+import { InvestigationProvider } from "../../hooks/use-investigation";
 import { __setProxyForTest } from "./traces/use-traces";
 import { TracesRoute } from "./TracesRoute";
 
@@ -61,7 +62,11 @@ function setupProxyWithRows(rows: TraceRow[]) {
 describe("TracesRoute", () => {
   it("renders <section> with id='tabpanel-traces' (Outlet target)", async () => {
     setupProxyWithRows([]);
-    render(<TracesRoute />);
+    render(
+      <InvestigationProvider>
+        <TracesRoute />
+      </InvestigationProvider>,
+    );
     const section = screen.getByTestId("route-traces");
     expect(section.tagName).toBe("SECTION");
     expect(section.getAttribute("id")).toBe("tabpanel-traces");
@@ -69,14 +74,22 @@ describe("TracesRoute", () => {
 
   it("includes a single h1 heading with route label", async () => {
     setupProxyWithRows([]);
-    render(<TracesRoute />);
+    render(
+      <InvestigationProvider>
+        <TracesRoute />
+      </InvestigationProvider>,
+    );
     const heading = screen.getByRole("heading", { name: /traces/i, level: 1 });
     expect(heading).toBeDefined();
   });
 
   it("renders ConstellationCanvas hero ABOVE TraceTable in DOM order", async () => {
     setupProxyWithRows(sampleRows);
-    render(<TracesRoute />);
+    render(
+      <InvestigationProvider>
+        <TracesRoute />
+      </InvestigationProvider>,
+    );
     await waitFor(() =>
       expect(screen.getByTestId("trace-table-stub").getAttribute("data-row-count")).toBe("2"),
     );
@@ -90,7 +103,11 @@ describe("TracesRoute", () => {
 
   it("forwards aggregated services to ConstellationCanvas", async () => {
     setupProxyWithRows(sampleRows);
-    render(<TracesRoute />);
+    render(
+      <InvestigationProvider>
+        <TracesRoute />
+      </InvestigationProvider>,
+    );
     await waitFor(() => {
       expect(
         screen.getByTestId("constellation-canvas-stub").getAttribute("data-service-count"),
@@ -100,7 +117,11 @@ describe("TracesRoute", () => {
 
   it("forwards rows to TraceTable", async () => {
     setupProxyWithRows(sampleRows);
-    render(<TracesRoute />);
+    render(
+      <InvestigationProvider>
+        <TracesRoute />
+      </InvestigationProvider>,
+    );
     await waitFor(() => {
       expect(screen.getByTestId("trace-table-stub").getAttribute("data-row-count")).toBe("2");
     });
