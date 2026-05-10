@@ -3933,6 +3933,7 @@ dependencies = [
  "tauri-build",
  "tauri-plugin-updater",
  "taurpc",
+ "thiserror 2.0.18",
  "tokio",
  "tracing",
  "tracing-appender",

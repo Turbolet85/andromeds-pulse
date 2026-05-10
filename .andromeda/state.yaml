@@ -1,14 +1,14 @@
 schema_version: 2
-last_wrap: 2026-05-10T11:30:00Z
-last_reconcile: 2026-05-10T11:10:00Z
+last_wrap: 2026-05-10T12:58:00Z
+last_reconcile: 2026-05-10T12:58:00Z
 
 last_completed_chunk:
-  route_index: 35
-  title: "Metrics charts + logs stream — time-series WebGPU compute aggregation, log stream with span correlation + severity colors + search/filter UI"
+  route_index: 36
+  title: "Tray icon + native menu — monochrome SVG glyph (NSStatusItem/NotifyIcon/AppIndicator), unified Halo overlay, OS-native menu Open/Snapshot/MCP/Quit"
   epoch: 5
-  committed_at: 2026-05-10T11:15:00Z
-  commit_sha: a011dff
-  commit_subject: "feat(metrics-logs): metrics charts + log stream + buffer schema extension (value/data_point_kind/body/severity_text/trace_id/span_id) + .taurignore HMR fix (chunk #35); session 40"
+  committed_at: 2026-05-10T12:58:00Z
+  commit_sha: 2be180b
+  commit_subject: "feat(tray): OS-native tray icon + 5-item menu (chunk #36); session 42"
 
 in_progress: null
 
@@ -24,9 +24,9 @@ plan_freshness:
   input_mtime: 2026-05-02T06:52:58Z
 
 living_artifact_freshness:
-  dep_tree_reconciled_at: 2026-05-10T11:10:00Z
-  api_surface_reconciled_at: 2026-05-10T11:10:00Z
-  most_recent_code_mtime: 2026-05-10T11:15:00Z
+  dep_tree_reconciled_at: 2026-05-10T12:58:00Z
+  api_surface_reconciled_at: 2026-05-10T12:58:00Z
+  most_recent_code_mtime: 2026-05-10T12:58:00Z
   reconcile_failed: false
 
 drift_warnings: []
@@ -159,4 +159,4 @@ spec_amendments:
       propagated_by_run: .andromeda/runs/2026-05-09T16-11-10-setup-project-delta/
       archived_at: 2026-05-09T16:25:20Z
 
-session_count: 41
+session_count: 42

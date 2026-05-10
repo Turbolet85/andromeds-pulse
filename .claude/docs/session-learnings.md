@@ -8,6 +8,18 @@ _This file is entirely wrap-session's territory. `/setup-project` creates it if 
 
 ---
 
+## 2026-05-10 — Tauri 2 tray-icon implementation discipline (chunk #36)
+
+Three gotchas surfaced at chunk #36 introducing the OS-native tray surface (`pulse-app/src/tray.rs` + tauri::tray::TrayIconBuilder + tauri::menu builders). Verified on Tauri 2.11.0 / tauri-cli 2.11.1.
+
+**(a) `tray-icon` Cargo feature is NOT in Tauri 2.11 default features.** The default feature set per `cargo metadata` is `["wry", "compression", "common-controls-v6", "dynamic-acl", "x11", "dbus"]`; `tray-icon` is opt-in. Without the feature, `tauri::tray::TrayIconBuilder` and `tauri::menu::*` are not in scope and compile fails with "use of undeclared module". Must explicitly add `tauri = { workspace = true, features = ["tray-icon"] }` to consumer crate's `Cargo.toml` (override at the crate level, NOT in the workspace's `[workspace.dependencies]` — the latter would force every consumer to pull tray-icon even if they don't need it). Verify available features via `cargo metadata --format-version 1 | python -c 'import json,sys; m=json.load(sys.stdin); ts=[p for p in m["packages"] if p["name"]=="tauri" and p["version"].startswith("2.")]; print(ts[0]["features"] if ts else "none")'`.
+
+**(b) Programmatic monochrome icon construction sidesteps PNG-decoder build deps.** `tauri::image::Image::new(rgba: &'static [u8], width: u32, height: u32)` accepts raw RGBA bytes — no `image-png` or `image-ico` features needed (those features pull the `image` crate transitively, ~30 deps). For a static line-based glyph, build 32×32 RGBA in code (one byte per channel; lit pixels = 255-255-255-255, transparent = 0-0-0-0; distance-from-center / arc-coordinate logic produces aperture/circular-pulse motifs in ~30 lines), then `Vec::leak()` for 'static lifetime (~4KB negligible alloc for app lifetime). Pattern: `let pixels = build_glyph_pixels(); let leaked: &'static [u8] = pixels.leak(); tauri::image::Image::new(leaked, 32, 32)`. Avoids external rasterization tooling AND reduces the build-time feature surface. Useful when the design intent is a simple line-based glyph that can be expressed as basic geometry (circle outline, concentric arcs, center dot — all computable from `(x-cx)² + (y-cy)²` distance + threshold checks).
+
+**(c) `TrayIcon` is RAII: caller MUST `app.manage(tray_icon)` to keep it alive.** Dropping the `TrayIcon<R>` handle returned by `TrayIconBuilder::build(app)?` causes the OS-native tray icon to immediately disappear. The setup-closure pattern is `let tray = tray::setup_tray(...)?; app.manage(tray);` — `app.manage()` requires `use tauri::Manager;` in scope (easy to miss; cargo error is "no method named manage found for mutable reference `&mut tauri::App`" with hint to import `tauri::Manager` trait). Same lifetime-ownership shape as `TrayIconBuilder::menu(&menu)` — menu and tray handles both managed via Tauri State for app-lifetime persistence. Stored handles are not retrieved by user code afterward (one-time setup); the `app.manage()` call's only purpose is to extend lifetime past the setup closure return.
+
+---
+
 ## 2026-05-10 — Buffer schema extension cross-crate ripple pattern
 
 When extending a viz query response struct (e.g., `TraceRow`, `MetricRow`, `LogRow`) with new fields backed by DuckDB columns, the change ripples across **5 distinct edit sites in 4 files** — anything less leaves the workspace incoherent. Verified at chunk #34 when `TraceRow` extended from 3 fields to 6 (added `service`, `duration_ms`, `error_count`):

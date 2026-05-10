@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Tray icon glyph (chunk #36) — monochrome circular-pulse aperture motif.
+  Coherent with pulse-app/ui/src/components/icons/CircularPulse.tsx.
+  Line-based: outer circle + concentric arcs + center dot. No fills,
+  gradients, or shadows. currentColor adapts to OS-tray-bar tint
+  (template-image flag on macOS; system status-bar tint on Windows/Linux).
+
+  Runtime use: pulse-app/src/tray.rs constructs an equivalent 32x32 RGBA
+  bitmap programmatically via build_glyph_pixels() (avoids PNG decoder
+  dependency on the `image-png` Tauri feature). This SVG is the design
+  source-of-truth; future enhancement may swap to compile-time rasterized
+  PNG once a tooling pipeline is in place.
+-->
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  width="24"
+  height="24"
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="1.5"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+  role="img"
+  aria-label="andromeda-pulse"
+>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M 7 12 A 5 5 0 0 1 17 12" />
+  <path d="M 9.5 12 A 2.5 2.5 0 0 0 14.5 12" />
+  <circle cx="12" cy="12" r="0.8" fill="currentColor" stroke="none" />
+</svg>

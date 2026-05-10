@@ -9,6 +9,7 @@ use duckdb::Connection;
 use ingest::channel::{IngestSender, build_channel};
 use ingest::contract::{Error as IngestError, OtlpPort};
 use ingest::state::IngestState;
+use tauri::Manager;
 use tracing_error::SpanTrace;
 use ui_bridge::Settings;
 use ui_bridge::health::{
@@ -21,6 +22,7 @@ use viz::VizState;
 mod heartbeat;
 mod observability;
 mod streams;
+mod tray;
 mod viz_routers;
 mod window;
 
@@ -274,6 +276,8 @@ fn main() {
             window::show_compact_widget(app);
             let settings = Settings::load_from_data_dir(&data_dir);
             window::apply_widget_settings(app, &settings);
+            let tray_icon = tray::setup_tray(app.handle(), Arc::clone(&broadcast_senders))?;
+            app.manage(tray_icon);
             match buffer_conn {
                 Some(conn) => {
                     tauri::async_runtime::spawn(run_consumer(
