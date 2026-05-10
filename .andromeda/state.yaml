@@ -1,5 +1,5 @@
 schema_version: 2
-last_wrap: 2026-05-10T11:15:00Z
+last_wrap: 2026-05-10T11:30:00Z
 last_reconcile: 2026-05-10T11:10:00Z
 
 last_completed_chunk:
@@ -29,13 +29,7 @@ living_artifact_freshness:
   most_recent_code_mtime: 2026-05-10T11:15:00Z
   reconcile_failed: false
 
-drift_warnings:
-  - drift_id: D5
-    description: "test-plan.md mtime 2026-05-09T16:08:01Z > CLAUDE.md mtime 2026-05-09T14:35:56Z by ~1.5h. spec_amendments.active=[] → Case 3 generic per spec-amendment-protocol.md Part C. Likely benign: archived 2026-05-09T16-00-54-smoke-check-boot-discipline amendment scoped to test-plan.md Decisions Log + .claude/rules/testing.md Tier 2 only — no Tier 1 surface affected, so CLAUDE.md correctly NOT regenerated. Mtime heuristic produces false positive here."
-    severity: warning
-    remediation_hint: "Accept as benign (archived amendment correctly limited Tier 1 propagation) OR /andromeda-setup-project full re-derive to refresh CLAUDE.md mtime."
-    first_observed_session_count: 37
-    last_observed_session_count: 40
+drift_warnings: []
 
 spec_amendments:
   active: []
@@ -165,4 +159,4 @@ spec_amendments:
       propagated_by_run: .andromeda/runs/2026-05-09T16-11-10-setup-project-delta/
       archived_at: 2026-05-09T16:25:20Z
 
-session_count: 40
+session_count: 41
