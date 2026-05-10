@@ -135,6 +135,7 @@ mod tests {
             start_time_unix_nano: 1_000_000_000,
             end_time_unix_nano: 1_000_000_000 + duration_ns,
             status_code: 1,
+            attributes: Vec::new(),
         }
     }
 
@@ -236,6 +237,7 @@ mod tests {
             start_time_unix_nano: 2_000_000_000,
             end_time_unix_nano: 1_000_000_000,
             status_code: 1,
+            attributes: Vec::new(),
         };
         let path = extract_critical_path(std::slice::from_ref(&weird));
         assert_eq!(path.len(), 1);

@@ -195,6 +195,17 @@ impl AllowList {
                 "orphan_parent_count",
                 "duration_ms",
                 "anomaly_markers_count",
+                // chunk #40 — aggregation + attribute_filter primitives in
+                // crates/snapshot/{aggregation,attribute_filter}.rs.
+                "metric_input_count",
+                "metric_output_count",
+                "service_count",
+                "kept_attribute_count",
+                "dropped_attribute_count",
+                "p50_ms",
+                "p95_ms",
+                "p99_ms",
+                "max_ms",
             ]
             .iter()
             .copied()
@@ -1601,12 +1612,21 @@ mod tests {
         // so the entry must permit ALL fields used across the curation pipeline
         // OR default-deny silently redacts them and obs-plan §3 P2 + §8
         // snapshot whitelist contract regresses.
+        //
+        // chunk #40: aggregation + attribute_filter primitives extend the
+        // namespace with `snapshot.curate.aggregate` + `snapshot.curate.attribute_filter`
+        // targets emitting metric_input_count / metric_output_count /
+        // service_count / kept_attribute_count / dropped_attribute_count /
+        // p50_ms / p95_ms / p99_ms / max_ms. Same fall-through resolution
+        // path; same `snapshot` entry must permit them.
         let al = AllowList::production();
         for target in [
             "snapshot.curate.dedup",
             "snapshot.curate.anomaly_detect",
             "snapshot.curate.critical_path_extract",
             "snapshot.curate.full_pipeline",
+            "snapshot.curate.aggregate",
+            "snapshot.curate.attribute_filter",
         ] {
             let set = al
                 .for_target(target)
@@ -1623,6 +1643,15 @@ mod tests {
                 "orphan_parent_count",
                 "anomaly_markers_count",
                 "duration_ms",
+                "metric_input_count",
+                "metric_output_count",
+                "service_count",
+                "kept_attribute_count",
+                "dropped_attribute_count",
+                "p50_ms",
+                "p95_ms",
+                "p99_ms",
+                "max_ms",
             ] {
                 assert!(
                     set.contains(required),
@@ -1660,6 +1689,34 @@ mod tests {
             assert_eq!(
                 fields[forbidden], "<redacted>",
                 "field `{forbidden}` MUST be redacted per obs-plan Vector 1+5 + snapshot allowlist (default-deny)",
+            );
+        }
+    }
+
+    #[test]
+    fn scrubber_redacts_non_allowlisted_snapshot_aggregate_field() {
+        // chunk #40: aggregation primitive emits at `snapshot.curate.aggregate`
+        // target which resolves via fall-through to the `snapshot` allowlist
+        // entry. Non-allowlisted fields (raw attribute values that may
+        // incidentally carry secrets per security plan §Logging Vector 1)
+        // MUST be redacted by the JsonFieldVisitor.
+        let defaults = make_defaults(None, None);
+        let lines = capture_json_lines(defaults, || {
+            tracing::warn!(
+                target: "snapshot.curate.aggregate",
+                p99_ms = 42_u64,
+                attribute_value = "secret-token",
+                attribute_key = "user.id",
+                raw_metric_payload = "{\"a\":1}",
+                "aggregation complete",
+            );
+        });
+        let fields = &lines[0]["fields"];
+        assert_eq!(fields["p99_ms"], 42);
+        for forbidden in ["attribute_value", "attribute_key", "raw_metric_payload"] {
+            assert_eq!(
+                fields[forbidden], "<redacted>",
+                "field `{forbidden}` MUST be redacted at snapshot.curate.aggregate target (default-deny via snapshot fall-through)",
             );
         }
     }

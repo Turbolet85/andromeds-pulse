@@ -1,14 +1,14 @@
 schema_version: 2
-last_wrap: 2026-05-10T17:02:20Z
-last_reconcile: 2026-05-10T16:57:39Z
+last_wrap: 2026-05-10T18:01:57Z
+last_reconcile: 2026-05-10T18:01:57Z
 
 last_completed_chunk:
-  route_index: 39
-  title: "Curation primitives — dedupe identical spans, anomaly highlight (latency outliers / error correlation / cardinality spikes), critical-path extraction"
+  route_index: 40
+  title: "Aggregation + low-signal drop — p50/p95/p99/max metric aggregation, drop verbose attributes (keep service.name/request_id/error)"
   epoch: 6
-  committed_at: 2026-05-10T17:02:20Z
-  commit_sha: 47520b0
-  commit_subject: "feat(snapshot): curation primitives (dedupe / anomaly highlight / critical-path extraction) (chunk #39); session 47"
+  committed_at: 2026-05-10T18:01:57Z
+  commit_sha: eb7c100
+  commit_subject: "feat(snapshot): aggregation + low-signal drop (p50/p95/p99/max + attribute allowlist) (chunk #40); session 48"
 
 in_progress: null
 
@@ -24,9 +24,9 @@ plan_freshness:
   input_mtime: 2026-05-02T06:52:58Z
 
 living_artifact_freshness:
-  dep_tree_reconciled_at: 2026-05-10T16:57:39Z
-  api_surface_reconciled_at: 2026-05-10T16:57:39Z
-  most_recent_code_mtime: 2026-05-10T16:55:10Z
+  dep_tree_reconciled_at: 2026-05-10T18:01:57Z
+  api_surface_reconciled_at: 2026-05-10T18:01:57Z
+  most_recent_code_mtime: 2026-05-10T17:50:32Z
   reconcile_failed: false
 
 drift_warnings: []
@@ -177,4 +177,4 @@ spec_amendments:
       propagated_by_run: .andromeda/runs/2026-05-10T12-57-12-setup-project-delta/
       archived_at: 2026-05-10T13:04:13Z
 
-session_count: 47
+session_count: 48

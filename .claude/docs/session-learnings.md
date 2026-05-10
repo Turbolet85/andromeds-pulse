@@ -8,6 +8,20 @@ _This file is entirely wrap-session's territory. `/setup-project` creates it if 
 
 ---
 
+## 2026-05-10 — Algorithmic-substrate chunks: primitives EXTEND `curate()` rather than wrap its output (chunk #40 refinement of chunk #39 entry)
+
+The chunk #39 session-learnings entry below anticipated chunk #40 + #41 would "wrap `curate(...)` outputs without modifying the snapshot crate" — both as downstream CONSUMERS. In practice, chunk #40 (aggregate_metrics + filter_attributes) had to EXTEND `curate()` itself: the new primitives operate on raw `&[SpanRecord]` (not `CurationOutput`), so they belong inside the orchestrator as new pipeline stages, not as wrappers around its return value. CurationOutput grew with `aggregation: AggregationResult` + `kept_attribute_count: usize` + `dropped_attribute_count: usize` (each `#[serde(default)]` to preserve chunk #39 round-trip serde compatibility), and `curate()`'s body was reordered to: `filter_attributes(spans) → dedupe_spans(filtered.spans) → aggregate_metrics(deduped) → detect_anomalies(deduped) → extract_critical_path(deduped)`.
+
+**Refined boundary:** primitives that operate on RAW SpanRecord (or any pre-curation input) extend `curate()` as new pipeline stages. Primitives that operate on CurationOutput (e.g., chunk #41 markdown formatter, chunk #46 MCP tool) wrap `curate(...)` at the call site. The dividing line is whether the primitive needs raw input access vs curated output access.
+
+**Constraint that forces wiring (not allow_dead_code):** `cargo clippy --workspace --all-targets --all-features -- -D warnings` rejects any `pub(crate) fn` not called by non-test code. Marking new primitives `#[allow(dead_code)]` is a smell signaling "this substrate has no caller yet" — accept only when downstream chunk genuinely defers consumption to a separate crate (e.g., mcp-server `#[tool]` wrapper landing several chunks later). For same-crate primitives that the next chunk in the same epoch will wrap, default to wiring through `curate()` so the workspace stays clippy-clean from chunk landing.
+
+**Pattern in `curate()` instrument fields:** when extending the orchestrator with new pipeline stages, append the stage's count fields to `curate()`'s `#[tracing::instrument(skip_all, fields(...))]` field list (e.g., `kept_attribute_count`, `dropped_attribute_count` from filter_attributes) AND record them on the early-return path so empty input still emits the full allowlisted field set. Aggregate's percentile fields stay in `aggregate_metrics`'s own #[instrument] (which emits at `snapshot::aggregation` and resolves via `split('::').next()` fall-through to the `snapshot` allowlist entry).
+
+**Pattern for SpanRecord field extension:** adding `attributes: Vec<(String, String)>` (or any new field) to a chunk-#39-public type requires (a) `#[serde(default)]` on the new field for serde backward-compat; (b) updating ALL test fixture struct literals in same-crate sibling files (`dedupe.rs` / `anomaly.rs` / `critical_path.rs` / `contract.rs`) — Rust struct literal syntax doesn't honor serde defaults. Mechanical chore, but high-touch (4 files modified for a 1-field extension).
+
+---
+
 ## 2026-05-10 — Algorithmic-substrate chunks: keep primitives call-site-agnostic for shared TauRPC + MCP consumption (chunk #39)
 
 When a chunk introduces pure-function primitives that multiple downstream surfaces will consume (e.g., the `crates/snapshot` curation primitives at chunk #39 — `dedupe_spans` / `detect_anomalies` / `extract_critical_path` — which feed BOTH chunk #41 TauRPC `snapshot.generate` AND chunk #46 MCP `generate_snapshot` `#[tool]` method per route.md §3 Decisions Log "Snapshot pipeline shared with MCP"), design the public API to be call-site-agnostic. Specifically:

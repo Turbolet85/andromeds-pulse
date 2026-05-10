@@ -245,6 +245,7 @@ mod tests {
             start_time_unix_nano: 1_000_000_000,
             end_time_unix_nano: 1_000_000_000 + duration_ns,
             status_code: status,
+            attributes: Vec::new(),
         }
     }
 
