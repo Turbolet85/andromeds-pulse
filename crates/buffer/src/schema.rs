@@ -63,6 +63,8 @@ CREATE TABLE IF NOT EXISTS metrics_points (
     ts TIMESTAMPTZ NOT NULL,
     ts_unix_nano BIGINT NOT NULL,
     resource_hash BLOB NOT NULL,
+    value DOUBLE NOT NULL DEFAULT 0.0,
+    data_point_kind INTEGER NOT NULL DEFAULT 0,
     PRIMARY KEY (metric_name, ts_unix_nano, resource_hash)
 );";
 
@@ -73,6 +75,10 @@ CREATE TABLE IF NOT EXISTS log_records (
     ts_unix_nano BIGINT NOT NULL,
     resource_hash BLOB NOT NULL,
     severity_number INTEGER NOT NULL,
+    body VARCHAR NOT NULL DEFAULT '',
+    severity_text VARCHAR NOT NULL DEFAULT '',
+    trace_id BLOB NOT NULL DEFAULT X'',
+    span_id BLOB NOT NULL DEFAULT X'',
     PRIMARY KEY (ts_unix_nano, resource_hash, severity_number)
 );";
 
@@ -128,6 +134,8 @@ const SCHEMA_DDL: &str = concat!(
     ts TIMESTAMPTZ NOT NULL,
     ts_unix_nano BIGINT NOT NULL,
     resource_hash BLOB NOT NULL,
+    value DOUBLE NOT NULL DEFAULT 0.0,
+    data_point_kind INTEGER NOT NULL DEFAULT 0,
     PRIMARY KEY (metric_name, ts_unix_nano, resource_hash)
 );",
     "CREATE TABLE IF NOT EXISTS log_records (
@@ -135,6 +143,10 @@ const SCHEMA_DDL: &str = concat!(
     ts_unix_nano BIGINT NOT NULL,
     resource_hash BLOB NOT NULL,
     severity_number INTEGER NOT NULL,
+    body VARCHAR NOT NULL DEFAULT '',
+    severity_text VARCHAR NOT NULL DEFAULT '',
+    trace_id BLOB NOT NULL DEFAULT X'',
+    span_id BLOB NOT NULL DEFAULT X'',
     PRIMARY KEY (ts_unix_nano, resource_hash, severity_number)
 );",
     "CREATE TABLE IF NOT EXISTS resources (

@@ -14,11 +14,11 @@ export type HealthEnvelope = { status: HealthStatus; checked_at: string; subsyst
 
 export type HealthStatus = "ok" | "degraded"
 
-export type LogRow = { ts_unix_nano: number; resource_hash: string; severity_number: number }
+export type LogRow = { ts_unix_nano: number; resource_hash: string; severity_number: number; body: string; severity_text: string; trace_id: string; span_id: string }
 
 export type LogsQueryArgs = { time_window_seconds: number; limit: number; cursor: string | null }
 
-export type MetricRow = { metric_name: string; ts_unix_nano: number; resource_hash: string }
+export type MetricRow = { metric_name: string; ts_unix_nano: number; resource_hash: string; value: number; data_point_kind: number }
 
 export type MetricsQueryArgs = { time_window_seconds: number; limit: number; cursor: string | null }
 

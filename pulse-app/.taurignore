@@ -1,0 +1,18 @@
+# Tauri 2 dev-watcher exclude list. Patterns here are NOT triggered for
+# rebuild during `tauri dev`. Per Tauri 2 docs `.taurignore` follows
+# `.gitignore` syntax.
+#
+# Why this exists:
+# pulse-app/src/main.rs production router calls `taurpc::Router::new()
+# .export_config(taurpc_export_config()).into_handler()` which writes
+# `ui/src/bindings/index.ts` at every binary launch. Without this exclude,
+# Tauri's dev watcher fires on the auto-regenerated file → kills the app
+# → rebuilds → new binary regenerates again → infinite HMR loop. The
+# binary itself boots cleanly; only dev-mode usability is broken.
+#
+# Bindings are regenerated on demand via:
+#   cargo nextest run -p pulse-app emit_taurpc_bindings
+#
+# (see `pulse-app/src/main.rs::tests::emit_taurpc_bindings`).
+
+ui/src/bindings/

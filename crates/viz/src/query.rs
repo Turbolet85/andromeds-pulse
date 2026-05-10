@@ -15,11 +15,13 @@ const SELECT_TRACES: &str = "SELECT trace_id, span_id, ts_unix_nano, service_nam
      WHERE ts_unix_nano >= ? AND ts_unix_nano < ? \
      ORDER BY ts_unix_nano DESC, trace_id LIMIT ?";
 
-const SELECT_METRICS: &str = "SELECT metric_name, ts_unix_nano, resource_hash FROM metrics_points \
+const SELECT_METRICS: &str = "SELECT metric_name, ts_unix_nano, resource_hash, value, data_point_kind \
+     FROM metrics_points \
      WHERE ts_unix_nano >= ? AND ts_unix_nano < ? \
      ORDER BY ts_unix_nano DESC, metric_name LIMIT ?";
 
-const SELECT_LOGS: &str = "SELECT ts_unix_nano, resource_hash, severity_number FROM log_records \
+const SELECT_LOGS: &str = "SELECT ts_unix_nano, resource_hash, severity_number, body, severity_text, trace_id, span_id \
+     FROM log_records \
      WHERE ts_unix_nano >= ? AND ts_unix_nano < ? \
      ORDER BY ts_unix_nano DESC, severity_number LIMIT ?";
 
@@ -74,6 +76,9 @@ pub struct MetricRow {
     pub metric_name: String,
     pub ts_unix_nano: i64,
     pub resource_hash: String,
+    pub value: f64,
+    // 0=Gauge, 1=Sum, 2=Histogram, 3=ExponentialHistogram, 4=Summary per OTLP `metric::Data`.
+    pub data_point_kind: u8,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, specta::Type)]
@@ -81,6 +86,11 @@ pub struct LogRow {
     pub ts_unix_nano: i64,
     pub resource_hash: String,
     pub severity_number: i32,
+    pub body: String,
+    pub severity_text: String,
+    // Hex-encoded; empty string when log has no span correlation.
+    pub trace_id: String,
+    pub span_id: String,
 }
 
 pub fn query_traces(
@@ -216,7 +226,15 @@ pub fn query_metrics(
                 let metric_name: String = row.get(0)?;
                 let ts_unix_nano: i64 = row.get(1)?;
                 let resource_hash_blob: Vec<u8> = row.get(2)?;
-                Ok((metric_name, ts_unix_nano, resource_hash_blob))
+                let value: f64 = row.get(3)?;
+                let data_point_kind: i32 = row.get(4)?;
+                Ok((
+                    metric_name,
+                    ts_unix_nano,
+                    resource_hash_blob,
+                    value,
+                    data_point_kind,
+                ))
             },
         )
         .map_err(|e| Error::QueryFailed {
@@ -225,13 +243,16 @@ pub fn query_metrics(
 
     let mut items: Vec<MetricRow> = Vec::new();
     for row in rows {
-        let (metric_name, ts_unix_nano, resource_hash_blob) = row.map_err(|e| Error::Decode {
-            reason: format!("row: {}", short_err(&e.to_string())),
-        })?;
+        let (metric_name, ts_unix_nano, resource_hash_blob, value, data_point_kind) =
+            row.map_err(|e| Error::Decode {
+                reason: format!("row: {}", short_err(&e.to_string())),
+            })?;
         items.push(MetricRow {
             metric_name,
             ts_unix_nano,
             resource_hash: hex_encode(&resource_hash_blob),
+            value,
+            data_point_kind: data_point_kind.clamp(0, u8::MAX as i32) as u8,
         });
     }
 
@@ -294,7 +315,19 @@ pub fn query_logs(
                 let ts_unix_nano: i64 = row.get(0)?;
                 let resource_hash_blob: Vec<u8> = row.get(1)?;
                 let severity_number: i32 = row.get(2)?;
-                Ok((ts_unix_nano, resource_hash_blob, severity_number))
+                let body: String = row.get(3)?;
+                let severity_text: String = row.get(4)?;
+                let trace_id_blob: Vec<u8> = row.get(5)?;
+                let span_id_blob: Vec<u8> = row.get(6)?;
+                Ok((
+                    ts_unix_nano,
+                    resource_hash_blob,
+                    severity_number,
+                    body,
+                    severity_text,
+                    trace_id_blob,
+                    span_id_blob,
+                ))
             },
         )
         .map_err(|e| Error::QueryFailed {
@@ -303,14 +336,25 @@ pub fn query_logs(
 
     let mut items: Vec<LogRow> = Vec::new();
     for row in rows {
-        let (ts_unix_nano, resource_hash_blob, severity_number) =
-            row.map_err(|e| Error::Decode {
-                reason: format!("row: {}", short_err(&e.to_string())),
-            })?;
+        let (
+            ts_unix_nano,
+            resource_hash_blob,
+            severity_number,
+            body,
+            severity_text,
+            trace_id_blob,
+            span_id_blob,
+        ) = row.map_err(|e| Error::Decode {
+            reason: format!("row: {}", short_err(&e.to_string())),
+        })?;
         items.push(LogRow {
             ts_unix_nano,
             resource_hash: hex_encode(&resource_hash_blob),
             severity_number,
+            body,
+            severity_text,
+            trace_id: hex_encode(&trace_id_blob),
+            span_id: hex_encode(&span_id_blob),
         });
     }
 
@@ -433,6 +477,8 @@ mod tests {
                 ts TIMESTAMPTZ NOT NULL,
                 ts_unix_nano BIGINT NOT NULL,
                 resource_hash BLOB NOT NULL,
+                value DOUBLE NOT NULL DEFAULT 0.0,
+                data_point_kind INTEGER NOT NULL DEFAULT 0,
                 PRIMARY KEY (metric_name, ts_unix_nano, resource_hash)
             );
             CREATE TABLE IF NOT EXISTS log_records (
@@ -440,11 +486,59 @@ mod tests {
                 ts_unix_nano BIGINT NOT NULL,
                 resource_hash BLOB NOT NULL,
                 severity_number INTEGER NOT NULL,
+                body VARCHAR NOT NULL DEFAULT '',
+                severity_text VARCHAR NOT NULL DEFAULT '',
+                trace_id BLOB NOT NULL DEFAULT X'',
+                span_id BLOB NOT NULL DEFAULT X'',
                 PRIMARY KEY (ts_unix_nano, resource_hash, severity_number)
             );",
         )
         .expect("create_schema");
         Arc::new(Mutex::new(conn))
+    }
+
+    fn seed_metric_full(
+        conn: &Arc<Mutex<Connection>>,
+        name: &str,
+        ts_ns: i64,
+        value: f64,
+        kind: i32,
+    ) {
+        let guard = conn.lock().expect("lock");
+        let resource_hash: Vec<u8> = vec![2u8; 16];
+        guard
+            .execute(
+                "INSERT INTO metrics_points (metric_name, ts, ts_unix_nano, resource_hash, value, data_point_kind) VALUES (?, '2026-05-06T00:00:00Z'::TIMESTAMPTZ, ?, ?, ?, ?)",
+                duckdb::params![name, ts_ns, resource_hash.as_slice(), value, kind],
+            )
+            .expect("insert metric");
+    }
+
+    fn seed_log_full(
+        conn: &Arc<Mutex<Connection>>,
+        ts_ns: i64,
+        severity: i32,
+        severity_text: &str,
+        body: &str,
+        trace_id: &[u8],
+        span_id: &[u8],
+    ) {
+        let guard = conn.lock().expect("lock");
+        let resource_hash: Vec<u8> = vec![1u8; 16];
+        guard
+            .execute(
+                "INSERT INTO log_records (ts, ts_unix_nano, resource_hash, severity_number, body, severity_text, trace_id, span_id) VALUES ('2026-05-06T00:00:00Z'::TIMESTAMPTZ, ?, ?, ?, ?, ?, ?, ?)",
+                duckdb::params![
+                    ts_ns,
+                    resource_hash.as_slice(),
+                    severity,
+                    body,
+                    severity_text,
+                    trace_id,
+                    span_id,
+                ],
+            )
+            .expect("insert log");
     }
 
     fn seed_span(conn: &Arc<Mutex<Connection>>, trace_id: u8, span_id: u8, ts_ns: i64) {
@@ -787,6 +881,33 @@ mod tests {
     }
 
     #[test]
+    fn query_metrics_populates_value_and_kind() {
+        let conn = open_in_memory_with_schema();
+        let now = now_ns();
+        seed_metric_full(&conn, "cpu", now - 1_000_000, 42.0, 0);
+        seed_metric_full(&conn, "lat", now - 2_000_000, 7.5, 1);
+        let state = VizState::new();
+        let resp = query_metrics(
+            &conn,
+            &state,
+            &MetricsQueryArgs {
+                time_window_seconds: 60,
+                limit: 10,
+                cursor: None,
+            },
+        )
+        .expect("query");
+        assert_eq!(resp.items.len(), 2);
+        // Newest first per ORDER BY ts_unix_nano DESC.
+        assert_eq!(resp.items[0].metric_name, "cpu");
+        assert_eq!(resp.items[0].value, 42.0);
+        assert_eq!(resp.items[0].data_point_kind, 0); // Gauge
+        assert_eq!(resp.items[1].metric_name, "lat");
+        assert_eq!(resp.items[1].value, 7.5);
+        assert_eq!(resp.items[1].data_point_kind, 1); // Sum
+    }
+
+    #[test]
     fn query_logs_returns_seeded_rows() {
         let conn = open_in_memory_with_schema();
         let now = now_ns();
@@ -805,6 +926,71 @@ mod tests {
         .expect("query");
         assert_eq!(resp.items.len(), 2);
         assert_eq!(resp.total, 2);
+    }
+
+    #[test]
+    fn query_logs_populates_body_severity_text_and_correlation_ids() {
+        let conn = open_in_memory_with_schema();
+        let now = now_ns();
+        seed_log_full(
+            &conn,
+            now - 1_000_000,
+            17,
+            "ERROR",
+            "connection refused",
+            &[3u8; 16],
+            &[4u8; 8],
+        );
+        let state = VizState::new();
+        let resp = query_logs(
+            &conn,
+            &state,
+            &LogsQueryArgs {
+                time_window_seconds: 60,
+                limit: 10,
+                cursor: None,
+            },
+        )
+        .expect("query");
+        assert_eq!(resp.items.len(), 1);
+        assert_eq!(resp.items[0].body, "connection refused");
+        assert_eq!(resp.items[0].severity_text, "ERROR");
+        assert_eq!(resp.items[0].trace_id, "03".repeat(16));
+        assert_eq!(resp.items[0].span_id, "04".repeat(8));
+    }
+
+    #[test]
+    fn metric_row_round_trips_through_serde_with_new_fields() {
+        let row = MetricRow {
+            metric_name: "cpu.usage".to_string(),
+            ts_unix_nano: 1_700_000_000_000_000_000,
+            resource_hash: "deadbeef".to_string(),
+            value: 7.5,
+            data_point_kind: 1,
+        };
+        let s = serde_json::to_string(&row).expect("serialize");
+        let parsed: MetricRow = serde_json::from_str(&s).expect("deserialize");
+        assert_eq!(parsed.value, 7.5);
+        assert_eq!(parsed.data_point_kind, 1);
+    }
+
+    #[test]
+    fn log_row_round_trips_through_serde_with_new_fields() {
+        let row = LogRow {
+            ts_unix_nano: 1_700_000_000_000_000_000,
+            resource_hash: "cafebabe".to_string(),
+            severity_number: 17,
+            body: "boom".to_string(),
+            severity_text: "ERROR".to_string(),
+            trace_id: "0102030405060708090a0b0c0d0e0f10".to_string(),
+            span_id: "0102030405060708".to_string(),
+        };
+        let s = serde_json::to_string(&row).expect("serialize");
+        let parsed: LogRow = serde_json::from_str(&s).expect("deserialize");
+        assert_eq!(parsed.body, "boom");
+        assert_eq!(parsed.severity_text, "ERROR");
+        assert_eq!(parsed.trace_id.len(), 32);
+        assert_eq!(parsed.span_id.len(), 16);
     }
 
     #[test]

@@ -1,10 +1,14 @@
-// Metrics route stub. Empty-state placeholder per design plan §Component
-// Patterns Loading / Empty States: centered telescope icon + tone-appropriate
-// message. Content lands in chunk #35 (Metrics charts + logs stream).
+import { MetricsChart } from "./metrics/MetricsChart";
+import { useMetrics } from "./metrics/use-metrics";
 
-import { Icon } from "../../components/icons";
+const QUERY_WINDOW_SECONDS = 60;
+const QUERY_LIMIT = 100;
 
 export function MetricsRoute() {
+  const { rows } = useMetrics({
+    timeWindowSeconds: QUERY_WINDOW_SECONDS,
+    limit: QUERY_LIMIT,
+  });
   return (
     <section
       id="tabpanel-metrics"
@@ -29,39 +33,7 @@ export function MetricsRoute() {
       >
         Metrics
       </h1>
-      <EmptyState message="No metrics yet — chunk #35 fills this view" />
+      <MetricsChart rows={rows} windowSeconds={QUERY_WINDOW_SECONDS} />
     </section>
-  );
-}
-
-interface EmptyStateProps {
-  message: string;
-}
-
-function EmptyState({ message }: EmptyStateProps) {
-  return (
-    <div
-      data-testid="route-empty-state"
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
-        gap: "var(--spacing-sm)",
-        padding: "var(--spacing-xl)",
-        color: "var(--color-text-tertiary)",
-      }}
-    >
-      <Icon glyph="telescope" size={24} aria-label="" />
-      <p
-        style={{
-          margin: 0,
-          fontFamily: "var(--font-body)",
-          fontSize: "14px",
-        }}
-      >
-        {message}
-      </p>
-    </div>
   );
 }

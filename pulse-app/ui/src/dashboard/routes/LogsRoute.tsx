@@ -1,10 +1,17 @@
-// Logs route stub. Empty-state placeholder per design plan §Component
-// Patterns Loading / Empty States. Content lands in chunk #35 (Metrics charts
-// + logs stream).
+import { LogFilter } from "./logs/LogFilter";
+import { LogTable } from "./logs/LogTable";
+import { useLogFilter } from "./logs/use-log-filter";
+import { useLogs } from "./logs/use-logs";
 
-import { Icon } from "../../components/icons";
+const QUERY_WINDOW_SECONDS = 60;
+const QUERY_LIMIT = 100;
 
 export function LogsRoute() {
+  const { rows, isLoading } = useLogs({
+    timeWindowSeconds: QUERY_WINDOW_SECONDS,
+    limit: QUERY_LIMIT,
+  });
+  const filter = useLogFilter(rows);
   return (
     <section
       id="tabpanel-logs"
@@ -29,39 +36,12 @@ export function LogsRoute() {
       >
         Logs
       </h1>
-      <EmptyState message="No logs yet — chunk #35 fills this view" />
+      <LogFilter
+        state={filter.state}
+        onSearchChange={filter.setSearchQuery}
+        onToggleTier={filter.toggleTier}
+      />
+      <LogTable rows={filter.filteredRows} isLoading={isLoading} />
     </section>
-  );
-}
-
-interface EmptyStateProps {
-  message: string;
-}
-
-function EmptyState({ message }: EmptyStateProps) {
-  return (
-    <div
-      data-testid="route-empty-state"
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
-        gap: "var(--spacing-sm)",
-        padding: "var(--spacing-xl)",
-        color: "var(--color-text-tertiary)",
-      }}
-    >
-      <Icon glyph="telescope" size={24} aria-label="" />
-      <p
-        style={{
-          margin: 0,
-          fontFamily: "var(--font-body)",
-          fontSize: "14px",
-        }}
-      >
-        {message}
-      </p>
-    </div>
   );
 }

@@ -87,14 +87,12 @@ describe("router — route resolution", () => {
     expect(screen.getByRole("heading", { name: /traces/i, level: 1 })).toBeDefined();
   });
 
-  it("/metrics renders MetricsRoute empty-state", async () => {
+  it("/metrics renders MetricsRoute", async () => {
     renderRouterAt("/metrics");
     await waitFor(() => {
       expect(screen.getByTestId("route-metrics")).toBeDefined();
     });
-    expect(
-      screen.getByText(/no metrics yet — chunk #35 fills this view/i),
-    ).toBeDefined();
+    expect(screen.getByRole("heading", { name: /metrics/i, level: 1 })).toBeDefined();
   });
 
   it("/logs renders LogsRoute empty-state", async () => {

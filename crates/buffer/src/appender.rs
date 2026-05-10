@@ -2,13 +2,17 @@ use std::sync::Arc;
 #[cfg(test)]
 use std::time::Instant;
 
-use arrow::array::{BinaryArray, Int32Array, Int64Array, StringArray, TimestampMicrosecondArray};
+use arrow::array::{
+    BinaryArray, Float64Array, Int32Array, Int64Array, StringArray, TimestampMicrosecondArray,
+};
 use arrow::datatypes::{DataType, Field, Schema, TimeUnit};
 use arrow::record_batch::RecordBatch;
 use duckdb::Connection;
-use ingest::grpc::proto::opentelemetry::proto::common::v1::any_value;
+use ingest::grpc::proto::opentelemetry::proto::common::v1::{AnyValue, any_value};
 use ingest::grpc::proto::opentelemetry::proto::logs::v1::ResourceLogs;
-use ingest::grpc::proto::opentelemetry::proto::metrics::v1::{ResourceMetrics, metric};
+use ingest::grpc::proto::opentelemetry::proto::metrics::v1::{
+    NumberDataPoint, ResourceMetrics, metric, number_data_point,
+};
 use ingest::grpc::proto::opentelemetry::proto::resource::v1::Resource;
 use ingest::grpc::proto::opentelemetry::proto::trace::v1::ResourceSpans;
 
@@ -116,6 +120,8 @@ pub(crate) fn build_metrics_record_batch(
     let mut tss: Vec<i64> = Vec::new();
     let mut ts_unix_nanos: Vec<i64> = Vec::new();
     let mut resource_hashes: Vec<Vec<u8>> = Vec::new();
+    let mut values: Vec<f64> = Vec::new();
+    let mut kinds: Vec<i32> = Vec::new();
 
     for rm in batch {
         let resource_hash = hash_resource(rm);
@@ -130,6 +136,8 @@ pub(crate) fn build_metrics_record_batch(
                         &mut tss,
                         &mut ts_unix_nanos,
                         &mut resource_hashes,
+                        &mut values,
+                        &mut kinds,
                     );
                 }
             }
@@ -145,12 +153,16 @@ pub(crate) fn build_metrics_record_batch(
     let ts_unix_nano_array = Int64Array::from(ts_unix_nanos);
     let resource_hash_array =
         BinaryArray::from_iter_values(resource_hashes.iter().map(|v| v.as_slice()));
+    let value_array = Float64Array::from(values);
+    let kind_array = Int32Array::from(kinds);
 
     let schema = Arc::new(Schema::new(vec![
         Field::new("metric_name", DataType::Utf8, false),
         Field::new("ts", timestamp_tz_type(), false),
         Field::new("ts_unix_nano", DataType::Int64, false),
         Field::new("resource_hash", DataType::Binary, false),
+        Field::new("value", DataType::Float64, false),
+        Field::new("data_point_kind", DataType::Int32, false),
     ]));
 
     let record_batch = RecordBatch::try_new(
@@ -160,6 +172,8 @@ pub(crate) fn build_metrics_record_batch(
             Arc::new(ts_array),
             Arc::new(ts_unix_nano_array),
             Arc::new(resource_hash_array),
+            Arc::new(value_array),
+            Arc::new(kind_array),
         ],
     )
     .map_err(|e| Error::Append {
@@ -179,6 +193,10 @@ pub(crate) fn build_logs_record_batch(
     let mut ts_unix_nanos: Vec<i64> = Vec::new();
     let mut resource_hashes: Vec<Vec<u8>> = Vec::new();
     let mut severities: Vec<i32> = Vec::new();
+    let mut bodies: Vec<String> = Vec::new();
+    let mut severity_texts: Vec<String> = Vec::new();
+    let mut trace_ids: Vec<Vec<u8>> = Vec::new();
+    let mut span_ids: Vec<Vec<u8>> = Vec::new();
 
     for rl in batch {
         let resource_hash = hash_resource_logs(rl);
@@ -189,6 +207,10 @@ pub(crate) fn build_logs_record_batch(
                 ts_unix_nanos.push(ns);
                 resource_hashes.push(resource_hash.clone());
                 severities.push(log.severity_number);
+                bodies.push(extract_log_body(log.body.as_ref()));
+                severity_texts.push(log.severity_text.clone());
+                trace_ids.push(log.trace_id.clone());
+                span_ids.push(log.span_id.clone());
             }
         }
     }
@@ -202,12 +224,20 @@ pub(crate) fn build_logs_record_batch(
     let resource_hash_array =
         BinaryArray::from_iter_values(resource_hashes.iter().map(|v| v.as_slice()));
     let severity_array = Int32Array::from(severities);
+    let body_array = StringArray::from(bodies);
+    let severity_text_array = StringArray::from(severity_texts);
+    let trace_id_array = BinaryArray::from_iter_values(trace_ids.iter().map(|v| v.as_slice()));
+    let span_id_array = BinaryArray::from_iter_values(span_ids.iter().map(|v| v.as_slice()));
 
     let schema = Arc::new(Schema::new(vec![
         Field::new("ts", timestamp_tz_type(), false),
         Field::new("ts_unix_nano", DataType::Int64, false),
         Field::new("resource_hash", DataType::Binary, false),
         Field::new("severity_number", DataType::Int32, false),
+        Field::new("body", DataType::Utf8, false),
+        Field::new("severity_text", DataType::Utf8, false),
+        Field::new("trace_id", DataType::Binary, false),
+        Field::new("span_id", DataType::Binary, false),
     ]));
 
     let record_batch = RecordBatch::try_new(
@@ -217,6 +247,10 @@ pub(crate) fn build_logs_record_batch(
             Arc::new(ts_unix_nano_array),
             Arc::new(resource_hash_array),
             Arc::new(severity_array),
+            Arc::new(body_array),
+            Arc::new(severity_text_array),
+            Arc::new(trace_id_array),
+            Arc::new(span_id_array),
         ],
     )
     .map_err(|e| Error::Append {
@@ -224,6 +258,24 @@ pub(crate) fn build_logs_record_batch(
     })?;
 
     Ok(Some(record_batch))
+}
+
+fn extract_log_body(body: Option<&AnyValue>) -> String {
+    let Some(av) = body else {
+        return String::new();
+    };
+    match &av.value {
+        Some(any_value::Value::StringValue(s)) => s.clone(),
+        _ => String::new(),
+    }
+}
+
+fn extract_data_point_value(p: &NumberDataPoint) -> f64 {
+    match &p.value {
+        Some(number_data_point::Value::AsInt(i)) => *i as f64,
+        Some(number_data_point::Value::AsDouble(d)) => *d,
+        None => 0.0,
+    }
 }
 
 pub(crate) fn append_record_batch_to_table(
@@ -317,6 +369,11 @@ pub(crate) fn append_logs_batch(conn: &Connection, batch: &[ResourceLogs]) -> Re
     Ok(row_count)
 }
 
+// data_point_kind discriminants per OTLP `metric::Data` enum order:
+// Gauge=0, Sum=1, Histogram=2, ExponentialHistogram=3, Summary=4. Histogram
+// / ExponentialHistogram / Summary points have no scalar `value` shape; we
+// encode 0.0 as placeholder (future scope: extend with bucket aggregates).
+#[allow(clippy::too_many_arguments)]
 fn collect_metric_points(
     name: &str,
     data: &metric::Data,
@@ -325,6 +382,8 @@ fn collect_metric_points(
     tss: &mut Vec<i64>,
     ts_unix_nanos: &mut Vec<i64>,
     resource_hashes: &mut Vec<Vec<u8>>,
+    values: &mut Vec<f64>,
+    kinds: &mut Vec<i32>,
 ) {
     match data {
         metric::Data::Gauge(g) => {
@@ -333,10 +392,14 @@ fn collect_metric_points(
                     name,
                     p.time_unix_nano as i64,
                     resource_hash,
+                    extract_data_point_value(p),
+                    0,
                     metric_names,
                     tss,
                     ts_unix_nanos,
                     resource_hashes,
+                    values,
+                    kinds,
                 );
             }
         }
@@ -346,10 +409,14 @@ fn collect_metric_points(
                     name,
                     p.time_unix_nano as i64,
                     resource_hash,
+                    extract_data_point_value(p),
+                    1,
                     metric_names,
                     tss,
                     ts_unix_nanos,
                     resource_hashes,
+                    values,
+                    kinds,
                 );
             }
         }
@@ -359,10 +426,14 @@ fn collect_metric_points(
                     name,
                     p.time_unix_nano as i64,
                     resource_hash,
+                    0.0,
+                    2,
                     metric_names,
                     tss,
                     ts_unix_nanos,
                     resource_hashes,
+                    values,
+                    kinds,
                 );
             }
         }
@@ -372,10 +443,14 @@ fn collect_metric_points(
                     name,
                     p.time_unix_nano as i64,
                     resource_hash,
+                    0.0,
+                    3,
                     metric_names,
                     tss,
                     ts_unix_nanos,
                     resource_hashes,
+                    values,
+                    kinds,
                 );
             }
         }
@@ -385,29 +460,40 @@ fn collect_metric_points(
                     name,
                     p.time_unix_nano as i64,
                     resource_hash,
+                    0.0,
+                    4,
                     metric_names,
                     tss,
                     ts_unix_nanos,
                     resource_hashes,
+                    values,
+                    kinds,
                 );
             }
         }
     }
 }
 
+#[allow(clippy::too_many_arguments)]
 fn push_metric_row(
     name: &str,
     ts_ns: i64,
     resource_hash: &[u8],
+    value: f64,
+    kind: i32,
     metric_names: &mut Vec<String>,
     tss: &mut Vec<i64>,
     ts_unix_nanos: &mut Vec<i64>,
     resource_hashes: &mut Vec<Vec<u8>>,
+    values: &mut Vec<f64>,
+    kinds: &mut Vec<i32>,
 ) {
     metric_names.push(name.to_string());
     tss.push(ts_ns / 1_000);
     ts_unix_nanos.push(ts_ns);
     resource_hashes.push(resource_hash.to_vec());
+    values.push(value);
+    kinds.push(kind);
 }
 
 fn hash_resource(rm: &ResourceMetrics) -> Vec<u8> {
@@ -696,5 +782,155 @@ mod tests {
             .query_row("SELECT COUNT(*) FROM log_records", [], |row| row.get(0))
             .expect("count");
         assert_eq!(actual, 1);
+    }
+
+    #[test]
+    fn build_metrics_record_batch_extracts_value_and_kind() {
+        let conn = fresh_conn_with_schema();
+        let batch = vec![ResourceMetrics {
+            resource: Some(make_resource("svc-vk")),
+            scope_metrics: vec![ScopeMetrics {
+                scope: None,
+                metrics: vec![
+                    Metric {
+                        name: "cpu.usage".into(),
+                        description: String::new(),
+                        unit: String::new(),
+                        metadata: Vec::new(),
+                        data: Some(metric::Data::Gauge(Gauge {
+                            data_points: vec![NumberDataPoint {
+                                attributes: Vec::new(),
+                                start_time_unix_nano: 0,
+                                time_unix_nano: 1_700_000_000_000_000_000,
+                                exemplars: Vec::new(),
+                                flags: 0,
+                                value: Some(number_data_point::Value::AsInt(42)),
+                            }],
+                        })),
+                    },
+                    Metric {
+                        name: "request.duration_ms".into(),
+                        description: String::new(),
+                        unit: String::new(),
+                        metadata: Vec::new(),
+                        data: Some(metric::Data::Sum(
+                            ingest::grpc::proto::opentelemetry::proto::metrics::v1::Sum {
+                                data_points: vec![NumberDataPoint {
+                                    attributes: Vec::new(),
+                                    start_time_unix_nano: 0,
+                                    time_unix_nano: 1_700_000_000_000_000_001,
+                                    exemplars: Vec::new(),
+                                    flags: 0,
+                                    value: Some(number_data_point::Value::AsDouble(7.5)),
+                                }],
+                                aggregation_temporality: 0,
+                                is_monotonic: false,
+                            },
+                        )),
+                    },
+                ],
+                schema_url: String::new(),
+            }],
+            schema_url: String::new(),
+        }];
+
+        append_metrics_batch(&conn, &batch).expect("append");
+
+        let rows: Vec<(String, f64, i32)> = conn
+            .prepare(
+                "SELECT metric_name, value, data_point_kind FROM metrics_points \
+                 ORDER BY ts_unix_nano",
+            )
+            .expect("prepare")
+            .query_map([], |r| Ok((r.get(0)?, r.get(1)?, r.get(2)?)))
+            .expect("query")
+            .map(|r| r.expect("row"))
+            .collect();
+
+        assert_eq!(rows.len(), 2);
+        assert_eq!(rows[0].0, "cpu.usage");
+        assert_eq!(rows[0].1, 42.0);
+        assert_eq!(rows[0].2, 0); // Gauge
+        assert_eq!(rows[1].0, "request.duration_ms");
+        assert_eq!(rows[1].1, 7.5);
+        assert_eq!(rows[1].2, 1); // Sum
+    }
+
+    #[test]
+    fn build_logs_record_batch_extracts_body_and_severity_text() {
+        let conn = fresh_conn_with_schema();
+        let batch = vec![ResourceLogs {
+            resource: Some(make_resource("svc-c")),
+            scope_logs: vec![ScopeLogs {
+                scope: None,
+                log_records: vec![LogRecord {
+                    time_unix_nano: 1_700_000_000_000_000_000,
+                    observed_time_unix_nano: 0,
+                    severity_number: 17,
+                    severity_text: "ERROR".into(),
+                    body: Some(AnyValue {
+                        value: Some(any_value::Value::StringValue("connection refused".into())),
+                    }),
+                    attributes: Vec::new(),
+                    dropped_attributes_count: 0,
+                    flags: 0,
+                    trace_id: Vec::new(),
+                    span_id: Vec::new(),
+                    event_name: String::new(),
+                }],
+                schema_url: String::new(),
+            }],
+            schema_url: String::new(),
+        }];
+
+        append_logs_batch(&conn, &batch).expect("append");
+
+        let (body, severity_text): (String, String) = conn
+            .query_row(
+                "SELECT body, severity_text FROM log_records LIMIT 1",
+                [],
+                |r| Ok((r.get(0)?, r.get(1)?)),
+            )
+            .expect("read");
+        assert_eq!(body, "connection refused");
+        assert_eq!(severity_text, "ERROR");
+    }
+
+    #[test]
+    fn build_logs_record_batch_extracts_trace_id_and_span_id_for_correlation() {
+        let conn = fresh_conn_with_schema();
+        let batch = vec![ResourceLogs {
+            resource: Some(make_resource("svc-d")),
+            scope_logs: vec![ScopeLogs {
+                scope: None,
+                log_records: vec![LogRecord {
+                    time_unix_nano: 1_700_000_000_000_000_000,
+                    observed_time_unix_nano: 0,
+                    severity_number: 9,
+                    severity_text: "INFO".into(),
+                    body: None,
+                    attributes: Vec::new(),
+                    dropped_attributes_count: 0,
+                    flags: 0,
+                    trace_id: vec![3u8; 16],
+                    span_id: vec![4u8; 8],
+                    event_name: String::new(),
+                }],
+                schema_url: String::new(),
+            }],
+            schema_url: String::new(),
+        }];
+
+        append_logs_batch(&conn, &batch).expect("append");
+
+        let (trace_id, span_id): (Vec<u8>, Vec<u8>) = conn
+            .query_row(
+                "SELECT trace_id, span_id FROM log_records LIMIT 1",
+                [],
+                |r| Ok((r.get(0)?, r.get(1)?)),
+            )
+            .expect("read");
+        assert_eq!(trace_id, vec![3u8; 16]);
+        assert_eq!(span_id, vec![4u8; 8]);
     }
 }
