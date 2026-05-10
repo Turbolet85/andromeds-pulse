@@ -1,0 +1,10 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "identifier": "clipboard",
+  "description": "Clipboard write capability — outbound only (write-text). Chunk #43 snapshot copy-to-clipboard surface. Per security plan §Logging clipboard hygiene the clipboard-write step emits a non-suppressible 'X bytes copied' visible signal via pulse://stream/snapshot-progress event. NEVER add clipboard-manager:allow-read-text or allow-read-image — clipboard read would let the webview exfiltrate user clipboard contents (separate threat surface; would need its own capability with stated rationale).",
+  "local": true,
+  "windows": ["compact-widget", "main"],
+  "permissions": [
+    "clipboard-manager:allow-write-text"
+  ]
+}

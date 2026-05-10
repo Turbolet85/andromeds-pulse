@@ -87,7 +87,7 @@ export function InvestigationModalForm({
 
     const start = async () => {
       try {
-        await getClient().snapshot.generate(preset);
+        await getClient().snapshot.generate(preset, null);
         if (cancelled) return;
         setPhase("result");
         setStatusMessage("Investigation snapshot ready");

@@ -24,6 +24,8 @@ export type MetricsQueryArgs = { time_window_seconds: number; limit: number; cur
 
 export type PaginatedResponse<T> = { items: T[]; total: number; next_cursor: string | null }
 
+export type PresetPromptDto = { id: string; label: string }
+
 export type ReadyChecks = { duckdb_connection: string; ingest_mpsc_capacity_pct: number; broadcast_subscribers: number; plugins_loaded: number; mcp_server_enabled: boolean }
 
 export type ReadyEnvelope = { ready: boolean; checked_at: string; checks: ReadyChecks }
@@ -33,6 +35,8 @@ export type Settings = { theme?: Theme; widget_position?: WidgetPosition; retent
 export type SnapshotFormat = "markdown" | "json"
 
 export type SnapshotPreset = "conservative" | "balanced" | "detailed"
+
+export type SnapshotResultDto = { token_count: number; markdown_path_basename: string; json_path_basename: string; preset_prompts: PresetPromptDto[]; byte_count: number; dedup_count: number }
 
 export type SubsystemStatus = { status: string; error_msg: string | null; last_tick_at: string | null }
 
@@ -52,7 +56,9 @@ export type WgpuBackend = "vulkan" | "metal" | "dx12"
 
 export type WidgetPosition = "top-left" | "top-right" | "bottom-left" | "bottom-right"
 
-const ARGS_MAP = { '':'{"app_info":[],"get_settings":[],"health":[],"ready":[],"update_settings":["settings"]}', 'logs':'{"query":["args"]}', 'metrics':'{"query":["args"]}', 'snapshot':'{"generate":["preset"]}', 'streams':'{"subscribe_logs":["channel"],"subscribe_metrics":["channel"],"subscribe_spans":["channel"]}', 'telemetry.frontend':'{"record_frame_ms":["input"]}', 'traces':'{"query":["args"]}' }
+export type WorkspaceContextDto = { root_basename: string; project_name: string | null; vcs_type: string | null; vcs_root_basename: string | null; has_andromeda_marker: boolean }
+
+const ARGS_MAP = { '':'{"app_info":[],"get_settings":[],"health":[],"ready":[],"update_settings":["settings"]}', 'logs':'{"query":["args"]}', 'metrics':'{"query":["args"]}', 'snapshot':'{"generate":["preset","workspace_root"]}', 'streams':'{"subscribe_logs":["channel"],"subscribe_metrics":["channel"],"subscribe_spans":["channel"]}', 'telemetry.frontend':'{"record_frame_ms":["input"]}', 'traces':'{"query":["args"]}', 'workspace':'{"detect":["candidate_root"]}' }
 export type Router = { "": {app_info: () => Promise<AppInfo>, 
 get_settings: () => Promise<Settings>, 
 health: () => Promise<HealthEnvelope>, 
@@ -60,12 +66,13 @@ ready: () => Promise<ReadyEnvelope>,
 update_settings: (settings: Settings) => Promise<null>},
 "logs": {query: (args: LogsQueryArgs) => Promise<PaginatedResponse<LogRow>>},
 "metrics": {query: (args: MetricsQueryArgs) => Promise<PaginatedResponse<MetricRow>>},
-"snapshot": {generate: (preset: SnapshotPreset) => Promise<null>},
+"snapshot": {generate: (preset: SnapshotPreset, workspaceRoot: string | null) => Promise<SnapshotResultDto>},
 "streams": {subscribe_logs: (channel: TAURI_CHANNEL<number[]>) => Promise<null>, 
 subscribe_metrics: (channel: TAURI_CHANNEL<number[]>) => Promise<null>, 
 subscribe_spans: (channel: TAURI_CHANNEL<number[]>) => Promise<null>},
 "telemetry.frontend": {record_frame_ms: (input: FrameDurationInput) => Promise<null>},
-"traces": {query: (args: TracesQueryArgs) => Promise<PaginatedResponse<TraceRow>>} };
+"traces": {query: (args: TracesQueryArgs) => Promise<PaginatedResponse<TraceRow>>},
+"workspace": {detect: (candidateRoot: string) => Promise<WorkspaceContextDto>} };
 
 
 export const createTauRPCProxy = () => createProxy<Router>(ARGS_MAP)

@@ -825,18 +825,68 @@ impl AllowList {
             .copied()
             .collect(),
         );
-        // chunk #42 — placeholder Investigate trigger surface. Emitted by
-        // crates/ui-bridge/src/snapshot_ipc.rs::SnapshotApiImpl::generate
-        // until chunk #43 wires real workspace.detect + clipboard + dual
-        // .json/.md write. Explicit per-leaf entry so for_target() exact
-        // match wins over the `snapshot` crate-level fallback (which carries
-        // unrelated curation fields).
+        // chunk #42 — Investigate trigger surface; chunk #43 extends with
+        // success-path fields when the resolver actually completes the
+        // curate→write→clipboard→notify pipeline (token_count,
+        // dual_file_paths_basenames, preset_prompts_count). Explicit per-leaf
+        // entry so for_target() exact match wins over the `snapshot`
+        // crate-level fallback (which carries unrelated curation fields).
         by_target.insert(
             "snapshot.generate.request",
-            ["budget", "result_kind", "message"]
+            [
+                "budget",
+                "result_kind",
+                "message",
+                "token_count",
+                "dual_file_paths_basenames",
+                "preset_prompts_count",
+            ]
+            .iter()
+            .copied()
+            .collect(),
+        );
+
+        // chunk #43 — clipboard write site emits a non-suppressible
+        // "X bytes copied" event per security plan §Logging clipboard
+        // hygiene. Only `byte_count` + `success` + (optional)
+        // `dual_file_paths_basenames` are permitted; clipboard payload
+        // text and snapshot file contents are redacted by default-deny.
+        by_target.insert(
+            "snapshot.clipboard.write",
+            ["byte_count", "success", "dual_file_paths_basenames"]
                 .iter()
                 .copied()
                 .collect(),
+        );
+
+        // chunk #43 — notification dispatch site. Only the enum-valued
+        // `notification_kind` + boolean `dispatch_success` are permitted;
+        // toast body text could carry preset-prompt strings in future
+        // iterations and is redacted by default-deny.
+        by_target.insert(
+            "snapshot.notification.dispatch",
+            ["notification_kind", "dispatch_success"]
+                .iter()
+                .copied()
+                .collect(),
+        );
+
+        // chunk #43 — workspace.detect resolver emission per obs-plan
+        // §4 Scenario P7. All path fields are basenames only; raw
+        // workspace path values + VCS metadata content NEVER appear.
+        by_target.insert(
+            "workspace.detect",
+            [
+                "workspace_root_basename",
+                "project_name",
+                "vcs_type",
+                "vcs_root_basename",
+                "marker_present",
+                "detection_latency_ms",
+            ]
+            .iter()
+            .copied()
+            .collect(),
         );
 
         Self { by_target }
@@ -1949,7 +1999,14 @@ mod tests {
         let set = al
             .for_target("snapshot.generate.request")
             .expect("snapshot.generate.request entry");
-        for required in ["budget", "result_kind", "message"] {
+        for required in [
+            "budget",
+            "result_kind",
+            "message",
+            "token_count",
+            "dual_file_paths_basenames",
+            "preset_prompts_count",
+        ] {
             assert!(
                 set.contains(required),
                 "snapshot.generate.request must permit `{required}`",
@@ -1983,6 +2040,134 @@ mod tests {
             assert_eq!(
                 fields[forbidden], "<redacted>",
                 "field `{forbidden}` MUST be redacted at snapshot.generate.request target",
+            );
+        }
+    }
+
+    // chunk #43 — paired tests for snapshot.clipboard.write per-leaf entry
+    #[test]
+    fn allowlist_for_target_resolves_snapshot_clipboard_write_field_set() {
+        let al = AllowList::production();
+        let set = al
+            .for_target("snapshot.clipboard.write")
+            .expect("snapshot.clipboard.write entry");
+        for required in ["byte_count", "success", "dual_file_paths_basenames"] {
+            assert!(
+                set.contains(required),
+                "snapshot.clipboard.write must permit `{required}`",
+            );
+        }
+    }
+
+    #[test]
+    fn scrubber_redacts_non_allowlisted_snapshot_clipboard_write_field() {
+        let defaults = make_defaults(None, None);
+        let lines = capture_json_lines(defaults, || {
+            tracing::info!(
+                target: "snapshot.clipboard.write",
+                byte_count = 1234_u64,
+                success = true,
+                clipboard_content = "secret canary payload",
+                raw_markdown = "## Anomaly\nSensitive",
+                "clipboard write event",
+            );
+        });
+        let fields = &lines[0]["fields"];
+        assert_eq!(fields["byte_count"], 1234);
+        assert_eq!(fields["success"], true);
+        for forbidden in ["clipboard_content", "raw_markdown"] {
+            assert_eq!(
+                fields[forbidden], "<redacted>",
+                "field `{forbidden}` MUST be redacted at snapshot.clipboard.write target",
+            );
+        }
+    }
+
+    // chunk #43 — paired tests for snapshot.notification.dispatch per-leaf entry
+    #[test]
+    fn allowlist_for_target_resolves_snapshot_notification_dispatch_field_set() {
+        let al = AllowList::production();
+        let set = al
+            .for_target("snapshot.notification.dispatch")
+            .expect("snapshot.notification.dispatch entry");
+        for required in ["notification_kind", "dispatch_success"] {
+            assert!(
+                set.contains(required),
+                "snapshot.notification.dispatch must permit `{required}`",
+            );
+        }
+    }
+
+    #[test]
+    fn scrubber_redacts_non_allowlisted_snapshot_notification_dispatch_field() {
+        let defaults = make_defaults(None, None);
+        let lines = capture_json_lines(defaults, || {
+            tracing::info!(
+                target: "snapshot.notification.dispatch",
+                notification_kind = "snapshot_ready",
+                dispatch_success = true,
+                toast_body = "Snapshot ready | 2.5k tokens, secret-canary",
+                preset_prompt_text = "Diagnose latency outlier",
+                "notification dispatched",
+            );
+        });
+        let fields = &lines[0]["fields"];
+        assert_eq!(fields["notification_kind"], "snapshot_ready");
+        assert_eq!(fields["dispatch_success"], true);
+        for forbidden in ["toast_body", "preset_prompt_text"] {
+            assert_eq!(
+                fields[forbidden], "<redacted>",
+                "field `{forbidden}` MUST be redacted at snapshot.notification.dispatch target",
+            );
+        }
+    }
+
+    // chunk #43 — paired tests for workspace.detect per-leaf entry
+    #[test]
+    fn allowlist_for_target_resolves_workspace_detect_field_set() {
+        let al = AllowList::production();
+        let set = al
+            .for_target("workspace.detect")
+            .expect("workspace.detect entry");
+        for required in [
+            "workspace_root_basename",
+            "project_name",
+            "vcs_type",
+            "vcs_root_basename",
+            "marker_present",
+            "detection_latency_ms",
+        ] {
+            assert!(
+                set.contains(required),
+                "workspace.detect must permit `{required}`",
+            );
+        }
+    }
+
+    #[test]
+    fn scrubber_redacts_non_allowlisted_workspace_detect_field() {
+        let defaults = make_defaults(None, None);
+        let lines = capture_json_lines(defaults, || {
+            tracing::info!(
+                target: "workspace.detect",
+                workspace_root_basename = "example",
+                project_name = "example",
+                vcs_type = "git",
+                marker_present = true,
+                detection_latency_ms = 5_u64,
+                workspace_root = "/tmp/secret-canary/example",
+                vcs_commit_message = "fix: secret canary commit",
+                "workspace detected",
+            );
+        });
+        let fields = &lines[0]["fields"];
+        assert_eq!(fields["workspace_root_basename"], "example");
+        assert_eq!(fields["project_name"], "example");
+        assert_eq!(fields["vcs_type"], "git");
+        for forbidden in ["workspace_root", "vcs_commit_message"] {
+            assert_eq!(
+                fields[forbidden], "<redacted>",
+                "field `{forbidden}` MUST be redacted at workspace.detect target",
             );
         }
     }

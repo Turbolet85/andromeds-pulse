@@ -1,8 +1,13 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
   "identifier": "notification",
-  "description": "OS notification capability — outbound emit only (no notification-action callbacks re-entering IPC). Permissions empty at chunk #2 scaffold; populated when tauri-plugin-notification lands.",
+  "description": "OS notification capability — outbound emit only (allow-notify + allow-show + permission-status). NEVER includes notification:allow-register-action-types or notification:allow-register-listener (those are input-event handlers banned by security plan §Anti-Patterns API row 6 without a separately-named capability + stated rationale).",
   "local": true,
   "windows": ["compact-widget", "main"],
-  "permissions": []
+  "permissions": [
+    "notification:allow-notify",
+    "notification:allow-show",
+    "notification:allow-is-permission-granted",
+    "notification:allow-request-permission"
+  ]
 }

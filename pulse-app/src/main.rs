@@ -18,6 +18,7 @@ use ui_bridge::health::{
 };
 use ui_bridge::snapshot_ipc::{SnapshotApi, SnapshotApiImpl};
 use ui_bridge::telemetry::{TelemetryApi, TelemetryApiImpl};
+use ui_bridge::workspace_ipc::{WorkspaceApi, WorkspaceApiImpl};
 use viz::VizState;
 
 mod heartbeat;
@@ -262,17 +263,21 @@ fn main() {
             .merge(LogsApiImpl::new(Arc::clone(conn), Arc::clone(&viz_state)).into_handler())
             .merge(StreamsApiImpl::new(Arc::clone(&broadcast_senders)).into_handler())
             .merge(TelemetryApiImpl::new().into_handler())
-            .merge(SnapshotApiImpl::new().into_handler()),
+            .merge(SnapshotApiImpl::new().into_handler())
+            .merge(WorkspaceApiImpl::new().into_handler()),
         None => taurpc::Router::new()
             .export_config(taurpc_export_config())
             .merge(introspection_impl.clone().into_handler())
             .merge(StreamsApiImpl::new(Arc::clone(&broadcast_senders)).into_handler())
             .merge(TelemetryApiImpl::new().into_handler())
-            .merge(SnapshotApiImpl::new().into_handler()),
+            .merge(SnapshotApiImpl::new().into_handler())
+            .merge(WorkspaceApiImpl::new().into_handler()),
     };
 
     tauri::Builder::default()
         .plugin(tauri_plugin_updater::Builder::new().build())
+        .plugin(tauri_plugin_clipboard_manager::init())
+        .plugin(tauri_plugin_notification::init())
         .on_window_event(window::on_window_event)
         .invoke_handler(invoke_router.into_handler())
         .setup(move |app| {
@@ -659,7 +664,8 @@ mod tests {
             .merge(LogsApiImpl::new(Arc::clone(&conn), Arc::clone(&viz_state)).into_handler())
             .merge(StreamsApiImpl::new(Arc::clone(&broadcast_senders)).into_handler())
             .merge(TelemetryApiImpl::new().into_handler())
-            .merge(SnapshotApiImpl::new().into_handler());
+            .merge(SnapshotApiImpl::new().into_handler())
+            .merge(WorkspaceApiImpl::new().into_handler());
 
         // into_handler() triggers export_types() in dev mode.
         let _handler = router.into_handler();

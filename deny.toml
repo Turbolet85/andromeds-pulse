@@ -21,6 +21,9 @@ allow = [
     # Community Data License Agreement Permissive 2.0 — permissive, MIT-compatible.
     # Pulled in transitively via webpki-root-certs (Mozilla CA bundle) → rustls-platform-verifier → reqwest → tauri (route#6, 2026-05-03).
     "CDLA-Permissive-2.0",
+    # Boost Software License 1.0 — OSI-approved, MIT-compatible permissive.
+    # Pulled in transitively via clipboard-win + error-code → tauri-plugin-clipboard-manager 2 (chunk #43, 2026-05-11).
+    "BSL-1.0",
 ]
 confidence-threshold = 0.93
 
@@ -103,6 +106,9 @@ skip = [
     { crate = "linux-raw-sys" },
     { crate = "reqwest" },
     { crate = "rustix" },
+    # tauri-plugin-notification 2 transitive (notify-rust 4 → zbus_names 4) pulls
+    # quick-xml 0.39 alongside tauri's existing 0.37 (chunk #43, 2026-05-11).
+    { crate = "quick-xml" },
 ]
 skip-tree = []
 

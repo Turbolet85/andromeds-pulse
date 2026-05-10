@@ -24,6 +24,8 @@ specta.workspace = true
 specta-typescript.workspace = true
 tauri = { workspace = true, features = ["tray-icon"] }
 tauri-plugin-updater.workspace = true
+tauri-plugin-clipboard-manager.workspace = true
+tauri-plugin-notification.workspace = true
 taurpc.workspace = true
 bytes.workspace = true
 strict-path.workspace = true
@@ -33,6 +35,8 @@ ingest = { path = "../crates/ingest" }
 buffer = { path = "../crates/buffer" }
 viz = { path = "../crates/viz" }
 plugins = { path = "../crates/plugins" }
+snapshot = { path = "../crates/snapshot" }
+workspace-detector = { path = "../crates/workspace-detector" }
 
 [dependencies.mcp-server-crate]
 package = "mcp-server"

@@ -387,11 +387,12 @@ const EXPECTED_PROCEDURES: &[&str] = &[
     "snapshot.generate",
     "telemetry.frontend.record_frame_ms",
     "traces.query",
+    "workspace.detect",
     // future-deferred (per epoch landing):
     // "snapshot.list_recent", "snapshot.copy_to_clipboard",
     // "plugins.list", "plugins.reload", "plugins.invoke",
     // "mcp.status", "mcp.start", "mcp.stop",
-    // "workspace.detect", "workspace.list",
+    // "workspace.list",
 ];
 
 async fn capability_drift() -> Result<ExitCode> {

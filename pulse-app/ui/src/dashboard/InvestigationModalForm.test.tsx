@@ -75,7 +75,7 @@ describe("InvestigationModalForm", () => {
     );
     expect(dialog.getAttribute("aria-busy")).toBe("false");
     expect(generate).toHaveBeenCalled();
-    expect(generate).toHaveBeenCalledWith("balanced");
+    expect(generate).toHaveBeenCalledWith("balanced", null);
   });
 
   it("renders role=alert with sanitized placeholder message after capture", async () => {
@@ -108,7 +108,7 @@ describe("InvestigationModalForm", () => {
 
     await waitFor(() => expect(generate).toHaveBeenCalled(), { timeout: 1000 });
     const elapsed = Date.now() - renderStart;
-    expect(generate).toHaveBeenCalledWith("balanced");
+    expect(generate).toHaveBeenCalledWith("balanced", null);
     expect(elapsed).toBeLessThan(200);
   });
 
@@ -133,6 +133,6 @@ describe("InvestigationModalForm", () => {
     render(<PresetHarness />);
 
     await waitFor(() => expect(generate).toHaveBeenCalled(), { timeout: 2000 });
-    expect(generate).toHaveBeenCalledWith("conservative");
+    expect(generate).toHaveBeenCalledWith("conservative", null);
   });
 });

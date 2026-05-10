@@ -1,16 +1,25 @@
 schema_version: 2
-last_wrap: 2026-05-10T20:39:33Z
-last_reconcile: 2026-05-10T20:36:44Z
+last_wrap: 2026-05-10T22:55:00Z
+last_reconcile: 2026-05-10T22:53:31Z
 
 last_completed_chunk:
   route_index: 42
   title: "Investigate trigger + capture collapse — button on widget/main/context-menu/trace-row + 350ms scale+opacity supporting moment + aria-busy/aria-live"
   epoch: 6
   committed_at: 2026-05-10T20:39:33Z
-  commit_sha: c685982
+  commit_sha: 7d348b5
   commit_subject: "feat(investigate): trigger + capture collapse — Investigate button across 4 surfaces + InvestigationModalForm + placeholder snapshot.generate IPC (chunk #42); session 50"
 
-in_progress: null
+in_progress:
+  phase: 40
+  chunks: [43]
+  status: implemented-partial
+  artifacts:
+    - .andromeda/phases/phase-40/combined.md
+    - .andromeda/phases/phase-40/research.md
+    - .andromeda/phases/phase-40/plan.md
+  started_at: 2026-05-10T20:50:30Z
+  notes: "Chunk #43 substrate (workspace-detector activation 5 files) + IPC contract (workspace_ipc.rs + refined snapshot_ipc.rs signature + 3 new IPC DTO types) + capability JSON (notification.json populated + clipboard.json created) + xtask EXPECTED_PROCEDURES extension + AllowList scrubber extension landed; plan steps 10-14 (PresetPromptList component + InvestigationModalForm result-state UI overhaul + bindings UI consumer updates + standalone PII negative-canary integration test + full Tauri runtime integration via AppHandle injection) deferred to follow-up. Existing phase-40/plan.md remains the authoritative reference; deferred steps are well-bounded by the IPC contract this session established."
 
 plan_freshness:
   arch_mtime: 2026-05-09T12:13:13Z
@@ -24,12 +33,18 @@ plan_freshness:
   input_mtime: 2026-05-02T06:52:58Z
 
 living_artifact_freshness:
-  dep_tree_reconciled_at: 2026-05-10T20:36:44Z
-  api_surface_reconciled_at: 2026-05-10T20:36:44Z
-  most_recent_code_mtime: 2026-05-10T20:36:00Z
+  dep_tree_reconciled_at: 2026-05-10T22:53:31Z
+  api_surface_reconciled_at: 2026-05-10T22:53:31Z
+  most_recent_code_mtime: 2026-05-10T22:50:00Z
   reconcile_failed: false
 
-drift_warnings: []
+drift_warnings:
+  - drift_id: D3
+    description: "pulse:clipboard capability identifier added to pulse-app/capabilities/clipboard.json (chunk #43) but not yet listed in arch.md §Occupied Resources Tauri capability identifiers reserved set (current: pulse:default, pulse:tray, pulse:notification, pulse:updater, pulse:plugin-fs)"
+    severity: warning
+    remediation_hint: "/andromeda-evolve --allow-arch-registry to add pulse:clipboard to arch §Occupied Resources Tauri capability identifiers (Type 6 arch registry; mirrors 2026-05-09 streams.* + telemetry.* additive precedent)"
+    first_observed_session_count: 51
+    last_observed_session_count: 51
 
 spec_amendments:
   active: []
@@ -177,4 +192,4 @@ spec_amendments:
       propagated_by_run: .andromeda/runs/2026-05-10T12-57-12-setup-project-delta/
       archived_at: 2026-05-10T13:04:13Z
 
-session_count: 50
+session_count: 51

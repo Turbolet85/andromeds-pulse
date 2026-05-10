@@ -205,6 +205,42 @@ pub struct ReadyEnvelope {
     pub checks: ReadyChecks,
 }
 
+// ===== Chunk #43 IPC DTOs =====
+//
+// `snapshot.generate` returns `SnapshotResultDto` with basename-only paths
+// (full paths NEVER cross the bridge per security plan §Logging hygiene).
+// `workspace.detect` returns `WorkspaceContextDto` with the same discipline.
+// `PresetPromptDto` carries the 4 preset prompt {id, label} pairs the UI
+// renders inside the InvestigationModalForm result region.
+
+#[cfg_attr(feature = "taurpc-runtime", derive(specta::Type))]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+pub struct PresetPromptDto {
+    pub id: String,
+    pub label: String,
+}
+
+#[cfg_attr(feature = "taurpc-runtime", derive(specta::Type))]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+pub struct SnapshotResultDto {
+    pub token_count: u64,
+    pub markdown_path_basename: String,
+    pub json_path_basename: String,
+    pub preset_prompts: Vec<PresetPromptDto>,
+    pub byte_count: u64,
+    pub dedup_count: u64,
+}
+
+#[cfg_attr(feature = "taurpc-runtime", derive(specta::Type))]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+pub struct WorkspaceContextDto {
+    pub root_basename: String,
+    pub project_name: Option<String>,
+    pub vcs_type: Option<String>,
+    pub vcs_root_basename: Option<String>,
+    pub has_andromeda_marker: bool,
+}
+
 impl From<IngestError> for AppError {
     fn from(e: IngestError) -> Self {
         let (message, source_kind) = match e {
@@ -369,19 +405,45 @@ impl From<PluginsError> for AppError {
 
 impl From<WorkspaceDetectorError> for AppError {
     fn from(e: WorkspaceDetectorError) -> Self {
-        let message = match e {
-            WorkspaceDetectorError::Placeholder => "workspace-detector: placeholder error",
-        };
-        tracing::warn!(
-            target: "ui-bridge.error.internal",
-            error_category = "internal",
-            source_kind = "placeholder",
-            source_crate = "workspace-detector",
-            "{}",
-            message
-        );
-        AppError::Internal {
-            message: message.to_string(),
+        match e {
+            WorkspaceDetectorError::PathTraversalRejected { .. } => {
+                tracing::warn!(
+                    target: "ui-bridge.error.validation",
+                    error_category = "validation",
+                    source_kind = "path_traversal_rejected",
+                    source_crate = "workspace-detector",
+                    "workspace candidate path rejected"
+                );
+                AppError::Validation {
+                    field: "candidate_root".to_string(),
+                    reason: "path traversal rejected".to_string(),
+                }
+            }
+            WorkspaceDetectorError::CanonicalizationFailed { .. } => {
+                tracing::warn!(
+                    target: "ui-bridge.error.validation",
+                    error_category = "validation",
+                    source_kind = "canonicalization_failed",
+                    source_crate = "workspace-detector",
+                    "workspace candidate canonicalization failed"
+                );
+                AppError::Validation {
+                    field: "candidate_root".to_string(),
+                    reason: "canonicalization failed".to_string(),
+                }
+            }
+            WorkspaceDetectorError::IoFailure(_) => {
+                tracing::warn!(
+                    target: "ui-bridge.error.storage",
+                    error_category = "storage",
+                    source_kind = "io_failure",
+                    source_crate = "workspace-detector",
+                    "workspace detection IO failure"
+                );
+                AppError::Storage {
+                    message: "workspace detection IO failure".to_string(),
+                }
+            }
         }
     }
 }
@@ -890,15 +952,51 @@ mod tests {
     }
 
     #[test]
-    fn from_workspace_detector_placeholder_collapses_to_constant_message_no_leak() {
-        let e = AppError::from(WorkspaceDetectorError::Placeholder);
+    fn from_workspace_detector_path_traversal_collapses_to_validation_no_leak() {
+        let e = AppError::from(WorkspaceDetectorError::PathTraversalRejected {
+            reason: "candidate /tmp/secret/../escape escapes parent".to_string(),
+        });
         match e {
-            AppError::Internal { message } => {
-                assert_eq!(message, "workspace-detector: placeholder error");
+            AppError::Validation { field, reason } => {
+                assert_eq!(field, "candidate_root");
+                assert_eq!(reason, "path traversal rejected");
+                assert!(!reason.contains('/'));
+                assert!(!reason.contains("::"));
+            }
+            other => panic!("expected AppError::Validation, got {other:?}"),
+        }
+    }
+
+    #[test]
+    fn from_workspace_detector_canonicalization_failed_collapses_to_validation_no_leak() {
+        let e = AppError::from(WorkspaceDetectorError::CanonicalizationFailed {
+            reason: "candidate /home/user/.secret-file path does not exist".to_string(),
+        });
+        match e {
+            AppError::Validation { field, reason } => {
+                assert_eq!(field, "candidate_root");
+                assert_eq!(reason, "canonicalization failed");
+                assert!(!reason.contains('/'));
+                assert!(!reason.contains("::"));
+            }
+            other => panic!("expected AppError::Validation, got {other:?}"),
+        }
+    }
+
+    #[test]
+    fn from_workspace_detector_io_failure_collapses_to_storage_no_leak() {
+        let e = AppError::from(WorkspaceDetectorError::IoFailure(std::io::Error::new(
+            std::io::ErrorKind::PermissionDenied,
+            "filesystem permission denied at /secret-canary",
+        )));
+        match e {
+            AppError::Storage { message } => {
+                assert_eq!(message, "workspace detection IO failure");
                 assert!(!message.contains('/'));
                 assert!(!message.contains("::"));
+                assert!(!message.contains("secret-canary"));
             }
-            other => panic!("expected AppError::Internal, got {other:?}"),
+            other => panic!("expected AppError::Storage, got {other:?}"),
         }
     }
 
@@ -1076,16 +1174,34 @@ mod tests {
     }
 
     #[test]
-    fn from_workspace_detector_placeholder_emits_tracing_warn_at_internal_target() {
+    fn from_workspace_detector_path_traversal_emits_tracing_warn_at_validation_target() {
         let events = capture(|| {
-            let _ = AppError::from(WorkspaceDetectorError::Placeholder);
+            let _ = AppError::from(WorkspaceDetectorError::PathTraversalRejected {
+                reason: "test".to_string(),
+            });
         });
         assert!(
             events
                 .iter()
-                .any(|(target, level)| target == "ui-bridge.error.internal"
+                .any(|(target, level)| target == "ui-bridge.error.validation"
                     && *level == tracing::Level::WARN),
-            "expected WARN at ui-bridge.error.internal; got {events:?}"
+            "expected WARN at ui-bridge.error.validation; got {events:?}"
+        );
+    }
+
+    #[test]
+    fn from_workspace_detector_io_failure_emits_tracing_warn_at_storage_target() {
+        let events = capture(|| {
+            let _ = AppError::from(WorkspaceDetectorError::IoFailure(std::io::Error::other(
+                "test",
+            )));
+        });
+        assert!(
+            events
+                .iter()
+                .any(|(target, level)| target == "ui-bridge.error.storage"
+                    && *level == tracing::Level::WARN),
+            "expected WARN at ui-bridge.error.storage; got {events:?}"
         );
     }
 
