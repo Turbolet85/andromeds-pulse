@@ -306,7 +306,10 @@ mod tests {
     #[test]
     fn build_glyph_pixels_returns_32x32_rgba_buffer() {
         let pixels = build_glyph_pixels();
-        assert_eq!(pixels.len(), (TRAY_GLYPH_SIZE * TRAY_GLYPH_SIZE * 4) as usize);
+        assert_eq!(
+            pixels.len(),
+            (TRAY_GLYPH_SIZE * TRAY_GLYPH_SIZE * 4) as usize
+        );
     }
 
     #[test]
@@ -347,10 +350,10 @@ mod tests {
         let cy = (size - 1) / 2;
         let r = 13;
         let cardinals = [
-            (cx, cy.saturating_sub(r)),    // top
-            (cx, cy + r),                  // bottom
-            (cx.saturating_sub(r), cy),    // left
-            (cx + r, cy),                  // right
+            (cx, cy.saturating_sub(r)), // top
+            (cx, cy + r),               // bottom
+            (cx.saturating_sub(r), cy), // left
+            (cx + r, cy),               // right
         ];
         for (x, y) in cardinals {
             let idx = (y * size + x) * 4;

@@ -1,14 +1,14 @@
 schema_version: 2
-last_wrap: 2026-05-10T12:58:00Z
-last_reconcile: 2026-05-10T12:58:00Z
+last_wrap: 2026-05-10T12:26:15Z
+last_reconcile: 2026-05-10T12:26:15Z
 
 last_completed_chunk:
-  route_index: 36
-  title: "Tray icon + native menu — monochrome SVG glyph (NSStatusItem/NotifyIcon/AppIndicator), unified Halo overlay, OS-native menu Open/Snapshot/MCP/Quit"
+  route_index: 37
+  title: "Modal primitive scaffold — overlay card layout (color-raised-3 bg + subtle border + radius-lg padding), close button, focus trap + aria-busy/aria-live hooks"
   epoch: 5
-  committed_at: 2026-05-10T12:58:00Z
-  commit_sha: 2be180b
-  commit_subject: "feat(tray): OS-native tray icon + 5-item menu (chunk #36); session 42"
+  committed_at: 2026-05-10T12:26:15Z
+  commit_sha: 7b3924c
+  commit_subject: "feat(modal): Modal primitive scaffold (chunk #37); session 43"
 
 in_progress: null
 
@@ -24,9 +24,9 @@ plan_freshness:
   input_mtime: 2026-05-02T06:52:58Z
 
 living_artifact_freshness:
-  dep_tree_reconciled_at: 2026-05-10T12:58:00Z
-  api_surface_reconciled_at: 2026-05-10T12:58:00Z
-  most_recent_code_mtime: 2026-05-10T12:58:00Z
+  dep_tree_reconciled_at: 2026-05-10T12:26:15Z
+  api_surface_reconciled_at: 2026-05-10T12:26:15Z
+  most_recent_code_mtime: 2026-05-10T12:26:15Z
   reconcile_failed: false
 
 drift_warnings: []
@@ -159,4 +159,4 @@ spec_amendments:
       propagated_by_run: .andromeda/runs/2026-05-09T16-11-10-setup-project-delta/
       archived_at: 2026-05-09T16:25:20Z
 
-session_count: 42
+session_count: 43
