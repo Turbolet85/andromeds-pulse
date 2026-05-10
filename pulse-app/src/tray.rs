@@ -25,7 +25,7 @@ use std::sync::Arc;
 use buffer::BroadcastSenders;
 use tauri::menu::{Menu, MenuBuilder, MenuItemBuilder, PredefinedMenuItem};
 use tauri::tray::{TrayIcon, TrayIconBuilder};
-use tauri::{AppHandle, Manager, Runtime};
+use tauri::{AppHandle, Emitter, Manager, Runtime};
 use thiserror::Error;
 use tracing::{info, warn};
 
@@ -53,6 +53,11 @@ const MENU_ID_SNAPSHOT: &str = "snapshot";
 const MENU_ID_MCP_TOGGLE: &str = "mcp_toggle";
 const MENU_ID_OPEN_SETTINGS: &str = "open_settings";
 const MENU_ID_QUIT: &str = "quit";
+
+// Tauri event the tray emits on "Open Settings" menu activation. Webview
+// listens via `@tauri-apps/api/event::listen` (chunk #38) and navigates
+// the router to /settings on receipt.
+const TRAY_EVENT_OPEN_SETTINGS: &str = "tray://open-settings";
 
 const TRAY_GLYPH_SIZE: u32 = 32;
 
@@ -211,11 +216,21 @@ fn handle_menu_event<R: Runtime>(app: &AppHandle<R>, menu_id: &str) {
             focus_or_show_window(app, COMPACT_WIDGET_LABEL);
         }
         MENU_ID_OPEN_SETTINGS => {
-            // Chunk #38 (Settings modal) replaces the /settings stub route
-            // with the actual form. For chunk #36 we focus the main window;
-            // navigation to /settings happens webview-side via TanStack
-            // Router based on the URL fragment / chunk #33's router stub.
+            // Chunk #38 wires tray "Open Settings" -> webview navigates to
+            // /settings via the `tray://open-settings` Tauri event.
+            // Webview listener in pulse-app/ui/src/dashboard/Dashboard.tsx
+            // calls router.navigate({ to: "/settings" }) on receipt; on
+            // /settings the SettingsRoute renders SettingsModalForm.
             focus_or_show_window(app, MAIN_WINDOW_LABEL);
+            if let Err(e) = app.emit(TRAY_EVENT_OPEN_SETTINGS, ()) {
+                warn!(
+                    target: "tray.menu.interaction",
+                    menu_item = "open_settings",
+                    error_kind = "emit_failed",
+                    error_msg = %e,
+                    "failed to emit tray://open-settings event",
+                );
+            }
         }
         #[cfg(feature = "mcp-server")]
         MENU_ID_MCP_TOGGLE => {

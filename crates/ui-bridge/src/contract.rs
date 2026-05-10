@@ -81,6 +81,30 @@ pub enum WidgetPosition {
     BottomRight,
 }
 
+// Token-budget preset per arch §Established Decisions [Snapshot Curation Default]:
+// Balanced (25k tokens) is the default; Conservative (10k) and Detailed (50k)
+// flank it. Budget is derived from preset enum at snapshot.generate time;
+// no separate u32 field — Custom budget can be added when a concrete need
+// emerges (likely epoch 6 chunks #39-#43 once snapshot.generate lands).
+#[cfg_attr(feature = "taurpc-runtime", derive(specta::Type))]
+#[derive(Debug, Clone, Copy, Default, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(rename_all = "snake_case")]
+pub enum SnapshotPreset {
+    Conservative,
+    #[default]
+    Balanced,
+    Detailed,
+}
+
+#[cfg_attr(feature = "taurpc-runtime", derive(specta::Type))]
+#[derive(Debug, Clone, Copy, Default, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(rename_all = "lowercase")]
+pub enum SnapshotFormat {
+    #[default]
+    Markdown,
+    Json,
+}
+
 #[cfg_attr(feature = "taurpc-runtime", derive(specta::Type))]
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct Settings {
@@ -96,6 +120,10 @@ pub struct Settings {
     pub notifications_enabled: bool,
     #[serde(default = "default_always_on_top")]
     pub always_on_top: bool,
+    #[serde(default)]
+    pub snapshot_preset: SnapshotPreset,
+    #[serde(default)]
+    pub snapshot_format: SnapshotFormat,
 }
 
 fn default_retention_seconds() -> u64 {
@@ -122,6 +150,8 @@ impl Default for Settings {
             mcp_server_enabled: false,
             notifications_enabled: default_notifications_enabled(),
             always_on_top: default_always_on_top(),
+            snapshot_preset: SnapshotPreset::default(),
+            snapshot_format: SnapshotFormat::default(),
         }
     }
 }
@@ -1045,10 +1075,60 @@ mod tests {
             mcp_server_enabled: true,
             notifications_enabled: false,
             always_on_top: false,
+            snapshot_preset: SnapshotPreset::Detailed,
+            snapshot_format: SnapshotFormat::Json,
         };
         let json = serde_json::to_string(&s).expect("serializes");
         let parsed: Settings = serde_json::from_str(&json).expect("parses back");
         assert_eq!(parsed, s);
+    }
+
+    #[test]
+    fn settings_default_snapshot_preset_is_balanced() {
+        let s = Settings::default();
+        assert_eq!(s.snapshot_preset, SnapshotPreset::Balanced);
+    }
+
+    #[test]
+    fn settings_default_snapshot_format_is_markdown() {
+        let s = Settings::default();
+        assert_eq!(s.snapshot_format, SnapshotFormat::Markdown);
+    }
+
+    #[test]
+    fn snapshot_preset_serializes_snake_case() {
+        assert_eq!(
+            serde_json::to_string(&SnapshotPreset::Conservative).unwrap(),
+            "\"conservative\""
+        );
+        assert_eq!(
+            serde_json::to_string(&SnapshotPreset::Balanced).unwrap(),
+            "\"balanced\""
+        );
+        assert_eq!(
+            serde_json::to_string(&SnapshotPreset::Detailed).unwrap(),
+            "\"detailed\""
+        );
+    }
+
+    #[test]
+    fn snapshot_format_serializes_lowercase() {
+        assert_eq!(
+            serde_json::to_string(&SnapshotFormat::Markdown).unwrap(),
+            "\"markdown\""
+        );
+        assert_eq!(
+            serde_json::to_string(&SnapshotFormat::Json).unwrap(),
+            "\"json\""
+        );
+    }
+
+    #[test]
+    fn settings_partial_deserialize_uses_defaults_for_missing_snapshot_fields() {
+        let json = r#"{"theme":"light"}"#;
+        let s: Settings = serde_json::from_str(json).expect("parses");
+        assert_eq!(s.snapshot_preset, SnapshotPreset::Balanced);
+        assert_eq!(s.snapshot_format, SnapshotFormat::Markdown);
     }
 
     #[test]

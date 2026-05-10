@@ -1,10 +1,17 @@
-// Settings route stub. Empty-state placeholder per design plan §Component
-// Patterns Loading / Empty States. Form content lands in chunk #38 (Settings
-// modal form — theme/widget-position/retention/MCP-toggle/snapshot-preset).
+// Settings route (chunk #38) — renders the SettingsModalForm with open=true.
+// The modal closing (Esc, close button, Save success, Cancel) navigates back
+// to /traces (the default tab). The route preserves its <section> +
+// aria-labelledby <h1> wrapper so the tab panel structure stays valid even
+// while the modal is open over it.
 
-import { Icon } from "../../components/icons";
+import { useRef } from "react";
+import { useNavigate } from "@tanstack/react-router";
+import { SettingsModalForm } from "./SettingsModalForm";
 
 export function SettingsRoute() {
+  const navigate = useNavigate();
+  const triggerRef = useRef<HTMLElement | null>(null);
+
   return (
     <section
       id="tabpanel-settings"
@@ -29,39 +36,13 @@ export function SettingsRoute() {
       >
         Settings
       </h1>
-      <EmptyState message="Settings form lands in chunk #38" />
-    </section>
-  );
-}
-
-interface EmptyStateProps {
-  message: string;
-}
-
-function EmptyState({ message }: EmptyStateProps) {
-  return (
-    <div
-      data-testid="route-empty-state"
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
-        gap: "var(--spacing-sm)",
-        padding: "var(--spacing-xl)",
-        color: "var(--color-text-tertiary)",
-      }}
-    >
-      <Icon glyph="aperture" size={24} aria-label="" />
-      <p
-        style={{
-          margin: 0,
-          fontFamily: "var(--font-body)",
-          fontSize: "14px",
+      <SettingsModalForm
+        open={true}
+        onClose={() => {
+          void navigate({ to: "/traces" });
         }}
-      >
-        {message}
-      </p>
-    </div>
+        triggerRef={triggerRef}
+      />
+    </section>
   );
 }

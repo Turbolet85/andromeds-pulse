@@ -8,6 +8,16 @@ _This file is entirely wrap-session's territory. `/setup-project` creates it if 
 
 ---
 
+## 2026-05-10 — Plan-vs-IPC reality check at /andromeda-implement Phase 1 (chunk #38)
+
+When a chunk plan asserts that a TauRPC procedure exists (e.g., the chunk #38 plan invoked `taurpc.plugins.list()` for the plugin-manager UI section), `/andromeda-implement` Phase 1 should verify the procedure's existence via `pulse-app/ui/src/bindings/index.ts` (the Specta-generated TauRPC bindings — single source of truth for what's actually wireable from webview) BEFORE writing form code that depends on it. The plan is authored upstream of the bindings; if a chunk would need an unrendered procedure, that's an out-of-scope problem (the procedure belongs to a future epoch / chunk) and should degrade to a placeholder rather than expand scope.
+
+Verified at chunk #38: plan section called for `plugins.list` + `plugins.reload` invocation; bindings revealed neither exists yet (`plugins.*` namespace is epoch 7 chunk #43+ territory). Adding the procedures in chunk #38 would have triggered the security ↔ tests/CI ↔ arch capability-drift triple binding the plan was specifically structured to avoid (per `.claude/rules/security.md` Session Additions 2026-05-09). Resolution: render plugin-manager section as a static placeholder (`<section><h3>Plugin manager</h3><p>Plugin discovery + reload UI lands in epoch 7 alongside the plugins.list IPC surface.</p></section>`) and adjust the chunk's tab-order spec to drop the plan's plugin-manager-reload entry. Acceptance criteria still pass; section heading + placeholder text preserved for downstream-chunk visibility.
+
+Pattern: at Phase 1 step 1, before writing TS code for a planned IPC invocation, grep `pulse-app/ui/src/bindings/index.ts` for the procedure name. If absent, surface as scope deviation in Phase 1 banner ("Note re plan vs reality: …") and degrade to placeholder. Capability-drift gate (`cargo xtask capability-drift`) in Phase 2 confirms no new TauRPC namespaces were introduced. The placeholder is deliberately verbose ("lands in epoch 7 alongside plugins.list") so downstream chunks discover it via grep and can replace it with the real UI.
+
+---
+
 ## 2026-05-10 — Tauri 2 tray-icon implementation discipline (chunk #36)
 
 Three gotchas surfaced at chunk #36 introducing the OS-native tray surface (`pulse-app/src/tray.rs` + tauri::tray::TrayIconBuilder + tauri::menu builders). Verified on Tauri 2.11.0 / tauri-cli 2.11.1.

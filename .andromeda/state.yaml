@@ -1,14 +1,14 @@
 schema_version: 2
-last_wrap: 2026-05-10T13:21:12Z
-last_reconcile: 2026-05-10T13:21:12Z
+last_wrap: 2026-05-10T15:34:00Z
+last_reconcile: 2026-05-10T15:34:00Z
 
 last_completed_chunk:
-  route_index: 37
-  title: "Modal primitive scaffold — overlay card layout (color-raised-3 bg + subtle border + radius-lg padding), close button, focus trap + aria-busy/aria-live hooks"
+  route_index: 38
+  title: "Settings modal form — theme/widget-position/retention/MCP-toggle/snapshot-preset+budget+format/plugin-manager + keyboard nav + focus trap"
   epoch: 5
-  committed_at: 2026-05-10T12:26:15Z
-  commit_sha: c8785c8
-  commit_subject: "feat(modal): Modal primitive scaffold (chunk #37); session 43"
+  committed_at: 2026-05-10T15:34:00Z
+  commit_sha: 7af361e
+  commit_subject: "feat(settings): Settings modal form composing Modal primitive (chunk #38); session 46"
 
 in_progress: null
 
@@ -24,9 +24,9 @@ plan_freshness:
   input_mtime: 2026-05-02T06:52:58Z
 
 living_artifact_freshness:
-  dep_tree_reconciled_at: 2026-05-10T13:21:12Z
-  api_surface_reconciled_at: 2026-05-10T13:21:12Z
-  most_recent_code_mtime: 2026-05-10T13:21:12Z
+  dep_tree_reconciled_at: 2026-05-10T15:34:00Z
+  api_surface_reconciled_at: 2026-05-10T15:34:00Z
+  most_recent_code_mtime: 2026-05-10T15:34:00Z
   reconcile_failed: false
 
 drift_warnings: []
@@ -177,4 +177,4 @@ spec_amendments:
       propagated_by_run: .andromeda/runs/2026-05-10T12-57-12-setup-project-delta/
       archived_at: 2026-05-10T13:04:13Z
 
-session_count: 45
+session_count: 46

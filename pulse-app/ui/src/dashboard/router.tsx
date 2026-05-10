@@ -20,6 +20,7 @@ import {
 } from "@tanstack/react-router";
 import type { RouterHistory } from "@tanstack/react-router";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { listen } from "@tauri-apps/api/event";
 import { CommandPalette } from "./CommandPalette";
 import {
   StatusLiveRegionProvider,
@@ -81,6 +82,30 @@ function DashboardShell() {
     const main = document.getElementById("main-content");
     main?.focus({ preventScroll: true });
   }, [pathname, activeTabLabel, announce]);
+
+  useEffect(() => {
+    let cancelled = false;
+    let unlisten: (() => void) | null = null;
+    void listen<void>("tray://open-settings", () => {
+      void navigate({ to: "/settings" });
+    })
+      .then((u) => {
+        if (cancelled) {
+          u();
+          return;
+        }
+        unlisten = u;
+      })
+      .catch(() => {
+        // listen() throws when running outside Tauri (e.g., in jsdom tests
+        // without __TAURI_INTERNALS__); silently ignore — tray events are
+        // not relevant outside the desktop runtime.
+      });
+    return () => {
+      cancelled = true;
+      unlisten?.();
+    };
+  }, [navigate]);
 
   const onSelectTab = useCallback(
     (tabId: TabId) => {

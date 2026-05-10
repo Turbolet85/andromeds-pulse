@@ -770,7 +770,7 @@ mod tests {
 #[cfg(feature = "taurpc-runtime")]
 mod introspection_tests {
     use super::*;
-    use crate::contract::{Settings, Theme, WidgetPosition};
+    use crate::contract::{Settings, SnapshotFormat, SnapshotPreset, Theme, WidgetPosition};
     use std::path::PathBuf;
 
     fn make_impl(data_dir: PathBuf, features: Vec<String>) -> IntrospectionApiImpl {
@@ -863,6 +863,8 @@ mod introspection_tests {
             mcp_server_enabled: true,
             notifications_enabled: false,
             always_on_top: false,
+            snapshot_preset: SnapshotPreset::Detailed,
+            snapshot_format: SnapshotFormat::Json,
         };
 
         let api1 = make_impl(dir.path().to_path_buf(), vec![]);
