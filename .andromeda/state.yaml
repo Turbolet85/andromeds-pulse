@@ -1,6 +1,6 @@
 schema_version: 2
-last_wrap: 2026-05-10T13:04:13Z
-last_reconcile: 2026-05-10T13:04:13Z
+last_wrap: 2026-05-10T13:21:12Z
+last_reconcile: 2026-05-10T13:21:12Z
 
 last_completed_chunk:
   route_index: 37
@@ -24,18 +24,12 @@ plan_freshness:
   input_mtime: 2026-05-02T06:52:58Z
 
 living_artifact_freshness:
-  dep_tree_reconciled_at: 2026-05-10T13:04:13Z
-  api_surface_reconciled_at: 2026-05-10T13:04:13Z
-  most_recent_code_mtime: 2026-05-10T13:04:13Z
+  dep_tree_reconciled_at: 2026-05-10T13:21:12Z
+  api_surface_reconciled_at: 2026-05-10T13:21:12Z
+  most_recent_code_mtime: 2026-05-10T13:21:12Z
   reconcile_failed: false
 
-drift_warnings:
-  - drift_id: D5
-    description: "test-plan.md regenerated since last setup-project (mtime advanced via /andromeda-evolve Decisions Log edits 2026-05-10T12:41:03Z); 2 amendments matched + propagated this session — Case 2 info-transient per spec-amendment-protocol.md Part C; will likely re-fire as Case 3 generic warning at next wrap because CLAUDE.md mtime did not advance from --delta cycle (operational triggers aren't Tier 1 surface)"
-    severity: info
-    remediation_hint: "(automatic — amendments archived this Phase 8); next wrap may need /andromeda-setup-project full re-derive OR accept cosmetic-mtime warning"
-    first_observed_session_count: 44
-    last_observed_session_count: 44
+drift_warnings: []
 
 spec_amendments:
   active: []
@@ -183,4 +177,4 @@ spec_amendments:
       propagated_by_run: .andromeda/runs/2026-05-10T12-57-12-setup-project-delta/
       archived_at: 2026-05-10T13:04:13Z
 
-session_count: 44
+session_count: 45
