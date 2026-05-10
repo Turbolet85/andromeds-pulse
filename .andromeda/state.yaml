@@ -32,7 +32,59 @@ living_artifact_freshness:
 drift_warnings: []
 
 spec_amendments:
-  active: []
+  active:
+    - amendment_id: 2026-05-10T12-41-03Z-mandate-standard-chunk-gates
+      plans:
+        - path: test-plan.md
+          sections:
+            - "12. Test Decisions Log"
+          decisions_log_section: "2026-05-10 — Document gap: chunk plans MUST include standard gate baseline regardless of chunk scope"
+      trigger:
+        chunk: null
+        phase: null
+        harness: "user-driven via /andromeda-evolve"
+      authority:
+        winning_plan: test-plan.md
+        winning_tier: null
+        losing_plan: null
+        losing_concern: null
+        rationale: "User identified chunk-plan gate-set inconsistency surfaced at chunk #37 wrap; gap doc to anchor /andromeda-tests re-run + plan-template fix."
+      impl_files_synced: []
+      expected_propagation:
+        - .claude/rules/testing.md
+        - .claude/docs/tests-summary.md
+      marker_path: .andromeda/runs/2026-05-10T12-41-03-spec-amendment-mandate-standard-chunk-gates/amendment.md
+      applied_at: 2026-05-10T12:41:03Z
+      noted_at: null
+      propagated_by_run: .andromeda/runs/2026-05-10T12-57-12-setup-project-delta/
+      archived_at: null
+      verification_status: clean
+    - amendment_id: 2026-05-10T12-41-03Z-mandate-living-artifact-tooling-rerun
+      plans:
+        - path: test-plan.md
+          sections:
+            - "12. Test Decisions Log"
+          decisions_log_section: "2026-05-10 — Document gap: wrap-session Phase 5 reconcile MUST rerun tooling unconditionally; no skip-on-webview-only optimization"
+      trigger:
+        chunk: null
+        phase: null
+        harness: "user-driven via /andromeda-evolve"
+      authority:
+        winning_plan: test-plan.md
+        winning_tier: null
+        losing_plan: null
+        losing_concern: null
+        rationale: "User identified api-surface.md LIVING block staleness (12x pub-decl discrepancy vs fresh tooling) as wrap-session Phase 5 skip-optimization regression; gap doc to anchor protocol-level fix."
+      impl_files_synced: []
+      expected_propagation:
+        - .claude/rules/testing.md
+        - .claude/docs/tests-summary.md
+      marker_path: .andromeda/runs/2026-05-10T12-41-03-spec-amendment-mandate-living-artifact-tooling-rerun/amendment.md
+      applied_at: 2026-05-10T12:41:03Z
+      noted_at: null
+      propagated_by_run: .andromeda/runs/2026-05-10T12-57-12-setup-project-delta/
+      archived_at: null
+      verification_status: clean
   archive:
     - amendment_id: 2026-05-03T21-30-00Z-lift-accent
       plans:
