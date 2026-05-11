@@ -6,7 +6,7 @@
 <!-- GENERATED:setup:overview start -->
 Cross-platform Tauri 2 desktop dashboard for local OpenTelemetry — receives OTLP telemetry from any local app, visualizes traces/metrics/logs in a GPU-accelerated webview, runs as a quarter-screen always-visible glance widget plus a full expanded dashboard, and one-click "Investigate" generates a token-efficient curated markdown snapshot for paste-to-AI debug sessions. Optional rmcp MCP stdio sidecar lets AI agents query telemetry directly. Public OSS (MIT) on GitHub Releases.
 
-**Stack:** Rust 2024 / rustc 1.85+ + Tauri 2.x (single-process modular monolith, 8 library crates + `pulse-app` binary + `xtask`) — `tonic` 0.14 OTLP/gRPC `:4317`, `axum` 0.8 OTLP/HTTP `:4318` on `hyper` 1 + `tower`, DuckDB 1.5 in-memory ring buffer with Apache Arrow zero-copy, React 19 + Tailwind v4 + WebGPU/WGSL webview via TauRPC, `wasmtime` 25+ Component Model plugins, `rmcp` (feature-gated) MCP sidecar.
+**Stack:** Rust 2024 / rustc 1.85+ + Tauri 2.x (single-process modular monolith, 8 library crates + `pulse-app` binary + `xtask`) — `tonic` 0.14 OTLP/gRPC `:4317`, `axum` 0.8 OTLP/HTTP `:4318` on `hyper` 1 + `tower`, DuckDB 1.5 in-memory ring buffer with Apache Arrow zero-copy, React 19 + Tailwind v4 + WebGPU/WGSL webview via TauRPC, `wasmtime` 25+ Component Model plugins (current pin 43.0.2 — chunk #45 upgrade per security audit), `rmcp` (feature-gated) MCP sidecar.
 
 **Key directories:**
 - `crates/` — 8 library crates (`ingest` / `buffer` / `viz` / `ui-bridge` / `snapshot` / `workspace-detector` / `plugins` / `mcp-server`)
@@ -24,7 +24,7 @@ Cross-platform Tauri 2 desktop dashboard for local OpenTelemetry — receives OT
 - **`ui-bridge`** — TauRPC routers + `AppError` `serde`-friendly enum at the bridge + IPC introspection (`app_info` / `health` / `ready` / `get_settings` / `update_settings`).
 - **`snapshot`** — curated markdown generator (dedup / anomaly highlight / critical-path extraction / p50/p95/p99 / token budget 10k/25k/50k); `snapshot.{generate,list_recent,copy_to_clipboard}`.
 - **`workspace-detector`** — host project context (`.andromeda/` marker + VCS metadata); `workspace.{detect,list}`.
-- **`plugins`** — `wasmtime` 25+ Component Model host with WIT capability-scoping; loader from `~/.andromeda-pulse/plugins/`; `plugins.{list,reload,invoke}`.
+- **`plugins`** — `wasmtime` 25+ Component Model host with WIT capability-scoping; loader from `~/.andromeda-pulse/plugins/`; `plugins.{list,reload,invoke}`. Chunk #45 substrate: Engine + Config posture (Cranelift on x86_64; epoch_interruption(true)) + WIT for 3 categories (custom-dashboard/data-transform/snapshot-template).
 - **`mcp-server`** — `rmcp` stdio sidecar (feature-gated `--features mcp-server`); `query_traces` / `query_metrics` / `query_logs` / `generate_snapshot` `#[tool]` methods; `mcp.{status,start,stop}`.
 - **`pulse-app`** — Tauri 2 binary crate; tokio runtime owner; `pulse-app/capabilities/` JSON files; bundle id `com.andromeda.pulse`.
 - **`xtask`** — cargo-xtask: release / sign / notarize / changelog + agent-run 5-command harness (boot/run/status/cleanup/logs).
@@ -49,7 +49,7 @@ Cross-platform Tauri 2 desktop dashboard for local OpenTelemetry — receives OT
 | Topic | Source |
 |---|---|
 | Architecture overview + Established Decisions | `.andromeda/architecture.md` |
-| Roadmap (8 epochs / 55 chunks) | `.andromeda/route.md` |
+| Roadmap (8 epochs / 56 chunks) | `.andromeda/route.md` |
 | Workspace crates + Occupied Resources (ports / IPC routes / env vars / tables / capabilities) | `.andromeda/architecture.md` §Inherited Defaults / §Occupied Resources |
 | Standard Contracts (`app_info` / `health` / `ready` envelopes; OTLP / MCP / IPC error schemas) | `.andromeda/architecture.md` §Standard Contracts |
 | Threat model + tier (Minimal) + data classifications | `.andromeda/security-plan.md` §Threat Model Summary |
