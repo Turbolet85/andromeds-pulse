@@ -1,0 +1,54 @@
+package andromeda:custom-dashboard@0.1.0;
+
+/// Custom dashboard plugin category — author-emitted UI surfaces rendered
+/// in the host webview.
+///
+/// **Accessibility obligations** (WCAG 2.1 AA + SC 2.3.3 AAA). Plugin authors
+/// MUST honor these when implementing the `render` export; downstream chunks
+/// (loader / invoke / re-emit) enforce mechanically.
+///
+/// - **Semantic HTML first.** Plugin output uses native semantic elements
+///   (`<button>`, `<nav>`, `<section>`, etc.); ARIA roles ONLY on
+///   non-native elements. Anti-pattern: ARIA role on `<div>` when
+///   `<button>` would suffice (a11y-plan §11 Anti-Patterns ARIA row 1).
+///
+/// - **Reduced motion respect.** Plugin frame loops MUST honor the
+///   host-provided `a11y-state.reduced-motion` bool. The host detects
+///   `prefers-reduced-motion: reduce` once and passes the state to all
+///   render calls. Anti-pattern: plugin runs independent matchMedia
+///   query / overrides preference / ignores reduced-motion entirely
+///   (a11y-plan §11 Anti-Patterns Motion + SC 2.3.3 AAA escalation).
+///
+/// - **No keyboard traps.** Plugin UI MUST NOT trap keyboard focus or
+///   steal focus from the host webview. Plugin-emitted modals / dialogs
+///   MUST honor host focus-trap-react patterns. Anti-pattern: plugin
+///   captures Tab key globally (a11y-plan §11 Anti-Patterns Keyboard
+///   row 1 + §5 Focus trap + SC 2.1.2).
+///
+/// - **Contrast.** Plugin UI MUST meet SC 1.4.3 4.5:1 minimum via host
+///   design tokens (`--color-text-primary` / `--color-base` etc.).
+///   Anti-pattern: hardcoded RGB literals that bypass token discipline
+///   (a11y-plan §6 Visual Design Verification).
+///
+/// **Reduced-motion guard:** this world does NOT expose a host import
+/// for disabling / overriding / forcing motion preference. The reduced-
+/// motion contract is universal; no plugin category may exempt itself.
+world custom-dashboard {
+    /// Host-provided viewport bounds for the plugin's render surface.
+    record viewport {
+        width: u32,
+        height: u32,
+    }
+
+    /// Read-only accessibility state from the host webview. Plugins MUST
+    /// consume this rather than detect preferences independently.
+    record a11y-state {
+        /// True if the host detected `prefers-reduced-motion: reduce`.
+        reduced-motion: bool,
+    }
+
+    /// Plugin's render entry point. Called by the host on every frame
+    /// the dashboard surface needs to repaint. Plugin returns no result;
+    /// host-side DOM-emission mechanism is established by chunk #47+.
+    export render: func(viewport: viewport, a11y: a11y-state);
+}

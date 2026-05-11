@@ -109,6 +109,17 @@ skip = [
     # tauri-plugin-notification 2 transitive (notify-rust 4 → zbus_names 4) pulls
     # quick-xml 0.39 alongside tauri's existing 0.37 (chunk #43, 2026-05-11).
     { crate = "quick-xml" },
+    # wasmtime 43+ + wat 1 transitive build/runtime deps (chunk #45, 2026-05-11):
+    # redox_users (tempfile's transitive variant vs. Tauri's tracing/zbus chain);
+    # wasm-encoder (wasmtime 43 internal vs. wat 1.248 lifter);
+    # fixedbitset (cranelift-codegen 0.130 vs. older variants pulled by other crates);
+    # petgraph (cranelift-codegen 0.130 vs. wasm-compose / wit-parser);
+    # target-lexicon (wasmtime 43 internal vs. tauri-utils older variant).
+    { crate = "redox_users" },
+    { crate = "wasm-encoder" },
+    { crate = "fixedbitset" },
+    { crate = "petgraph" },
+    { crate = "target-lexicon" },
 ]
 skip-tree = []
 

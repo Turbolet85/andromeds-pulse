@@ -1,0 +1,22 @@
+package andromeda:snapshot-template@0.1.0;
+
+/// Snapshot-template plugin category — **non-UI**. Emits curated markdown
+/// for paste-to-AI workflows; no DOM emission imports.
+///
+/// **Accessibility:** not applicable at this boundary. The snapshot-template
+/// category output is markdown text consumed by the user via clipboard /
+/// file paste into an AI debug session; not rendered as host UI. A11y
+/// obligations attach to UI-emitting categories only (custom-dashboard).
+///
+/// **Security posture:** plugin receives a JSON-serialized `SnapshotInput`
+/// (curation primitives output from `crates/snapshot/`) and returns markdown
+/// text bounded by the host's token budget (10k / 25k / 50k per snapshot-plan
+/// §Token Budget). Output is NEVER logged verbatim — clipboard hygiene per
+/// security plan §Logging Vector 5.
+world snapshot-template {
+    /// Plugin's render entry point. Called by the host when the user
+    /// invokes Investigate via the curation pipeline. `input` is a
+    /// JSON-encoded SnapshotInput; `output` on success is markdown text
+    /// within token budget; `error` on failure is a sanitized one-liner.
+    export render: func(input: string) -> result<string, string>;
+}

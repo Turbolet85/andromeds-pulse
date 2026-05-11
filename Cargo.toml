@@ -93,6 +93,21 @@ tower_governor = { version = "0.8", default-features = false, features = ["axum"
 duckdb = { version = "1.10500", features = ["bundled", "appender-arrow"] }
 arrow = "58"
 
+# Plugin host runtime (route#45 — Epoch 7 Plugin runtime + MCP server opens).
+# wasmtime 25+ with WASM Component Model per arch §Stack and Technologies + §Established
+# Decisions [Plugin Runtime]. Cranelift backend stays default on x86_64 (security plan
+# §Anti-Patterns Data Protection row 1 — CVE-2026-34941 + CVE-2026-35195 cluster).
+# epoch_interruption(true) is required substrate (security plan §API Security row
+# "Plugin host capability sandbox"); attaches per-Store ResourceLimiter at chunk #46.
+# `wat` dev-dep used in tests to compile WAT text → WASM bytes for fixture Components
+# (no committed .wasm binaries this chunk; sidesteps build-time WAT toolchain dep).
+# wasmtime 43+ pins the patched line per cargo audit at chunk #45 implementation
+# (wasmtime 25.0.x line is unmaintained — RUSTSEC-2025-0046 / -0118 + RUSTSEC-2026-0020/-0021/-0085..-0096
+# all unpatched on 25.x; solutions specify >=24.0.7 OR >=36.0.7 OR >=42.0.2 OR >=43.0.1).
+# Route spec is "wasmtime 25+" (minimum); 43+ satisfies and brings full patch coverage.
+wasmtime = { version = "43", features = ["component-model"] }
+wat = "1"
+
 [profile.release]
 lto = "thin"
 codegen-units = 1

@@ -1,20 +1,20 @@
 schema_version: 2
-last_wrap: 2026-05-11T16:35:00Z
-last_reconcile: 2026-05-11T16:35:00Z
+last_wrap: 2026-05-11T18:45:00Z
+last_reconcile: 2026-05-11T18:45:00Z
 
 last_completed_chunk:
-  route_index: 44
-  title: "Snapshot.generate runtime + result-state UI — AppHandle injection for clipboard/notification/event-emit + InvestigationModalForm result UI + PresetPromptList + PII negative-canary E2E (chunk #43 follow-up)"
-  epoch: 6
-  committed_at: 2026-05-11T16:35:00Z
-  commit_sha: 1b824c9
-  commit_subject: "feat(snapshot+investigate): chunk #44 — runtime body + result UI (close Epoch 6); session 53"
+  route_index: 45
+  title: "wasmtime Component Model + WIT — wasmtime 25+ Cranelift-on-x86_64, 3 plugin categories (custom-dashboard/data-transform/snapshot-template), epoch_interruption"
+  epoch: 7
+  committed_at: 2026-05-11T18:45:00Z
+  commit_sha: 5268c00
+  commit_subject: "feat(plugins): chunk #45 — wasmtime Component Model + WIT substrate (open Epoch 7); session 54"
 
 in_progress: null
 
 plan_freshness:
   arch_mtime: 2026-05-11T00:19:13Z
-  security_mtime: 2026-05-08T21:18:36Z
+  security_mtime: 2026-05-11T18:33:00Z
   design_mtime: 2026-05-03T21:52:16Z
   layout_mtime: 2026-05-02T15:53:22Z
   tests_mtime: 2026-05-10T12:55:51Z
@@ -24,27 +24,58 @@ plan_freshness:
   input_mtime: 2026-05-02T06:52:58Z
 
 living_artifact_freshness:
-  dep_tree_reconciled_at: 2026-05-11T16:35:00Z
-  api_surface_reconciled_at: 2026-05-11T16:35:00Z
-  most_recent_code_mtime: 2026-05-11T16:30:00Z
+  dep_tree_reconciled_at: 2026-05-11T18:35:00Z
+  api_surface_reconciled_at: 2026-05-11T18:40:00Z
+  most_recent_code_mtime: 2026-05-11T18:32:40Z
   reconcile_failed: false
 
 drift_warnings:
+  - drift_id: D5
+    description: "security-plan.md mtime (2026-05-11T18:33:00Z) > CLAUDE.md mtime (last full /setup-project at session 50, 2026-05-10T13:36:39Z). Matches active spec amendment 2026-05-11T17-50-00Z-reconcile-max-wasm-http-fields-size per spec-amendment-protocol.md Part C Case 1 (propagated_by_run=null). Amendment applied this session via chunk #45 Trigger 4 Path A (max_wasm_http_fields_size reconciliation)."
+    severity: info
+    remediation_hint: "/andromeda-setup-project --delta to propagate Tier 2/3 distillations (specifically .claude/docs/gotchas.md:22 stale orphan flagged during /implement orphan-grep)."
+    first_observed_session_count: 54
+    last_observed_session_count: 54
   - drift_id: D5
     description: "arch.md mtime (2026-05-11T00:19:13Z) > CLAUDE.md mtime (last full /setup-project at session 50, 2026-05-10T13:36:39Z). Residual from session 52 /evolve --allow-arch-registry + /setup-project --delta flow (delta refreshes Tier 2/3 but not CLAUDE.md mtime). Amendment 2026-05-11T00-15-00-acknowledge-pulse-clipboard-capability is archived (full lifecycle complete in session 52). Generic D5 per spec-amendment-protocol.md Part C Case 3 (no active amendment match)."
     severity: warning
     remediation_hint: "/andromeda-setup-project (full re-derive) to refresh CLAUDE.md mtime, OR accept as cosmetic (CLAUDE.md @import directives resolve at read-time so semantic content is current)."
     first_observed_session_count: 53
-    last_observed_session_count: 53
+    last_observed_session_count: 54
   - drift_id: D5
     description: "route.md mtime (2026-05-11T00:12:06Z) > CLAUDE.md mtime (last full /setup-project at session 50, 2026-05-10T13:36:39Z). Residual from session 52 /evolve --allow-route-append + /setup-project --delta flow. Amendment 2026-05-10T23-30-00-append-chunk-43-followup is archived (full lifecycle complete in session 52). Generic D5 per spec-amendment-protocol.md Part C Case 3."
     severity: warning
     remediation_hint: "/andromeda-setup-project (full re-derive) to refresh CLAUDE.md mtime, OR accept as cosmetic."
     first_observed_session_count: 53
-    last_observed_session_count: 53
+    last_observed_session_count: 54
 
 spec_amendments:
-  active: []
+  active:
+    - amendment_id: 2026-05-11T17-50-00Z-reconcile-max-wasm-http-fields-size
+      plans:
+        - path: security-plan.md
+          sections:
+            - "§Input Validation (Plugin host inputs row annotation)"
+            - "§API Security (Plugin host capability sandbox row annotation)"
+            - "§Security Decisions Log"
+      decisions_log_sections:
+        - "2026-05-11 — Reconcile `max_wasm_http_fields_size` reference: not a wasmtime::Config method"
+      trigger: "chunk #45 (Phase 42) /andromeda-implement Phase 2 fix-loop; `cargo check -p plugins --all-targets` E0599 at crates/plugins/src/engine.rs:58"
+      authority: "wasmtime 25.x API reality > security plan forward-looking API name; rationale: method doesn't exist on wasmtime::Config in chosen wasmtime version; canonical bound moved to MAX_WASM_HTTP_FIELDS_SIZE_BYTES const at substrate level; enforcement seam at wasi-http context construction site in chunks #46+"
+      impl_files_synced:
+        - crates/plugins/src/engine.rs
+      expected_propagation:
+        - ".claude/docs/gotchas.md (Tier 3 — line 22 stale wasmtime::Config method reference)"
+        - ".claude/rules/security.md (verify no body change needed via grep at delta-rerun time)"
+        - ".claude/docs/security-summary.md (Tier 3 — refresh if it surfaces wasmtime Config method by name)"
+      marker_path: .andromeda/runs/2026-05-11T17-50-00-spec-amendment-reconcile-max-wasm-http-fields-size/amendment.md
+      applied_at: 2026-05-11T17:50:00Z
+      noted_at: 2026-05-11T18:45:00Z
+      propagated_by_run: null
+      archived_at: null
+      verification_status: applied-pending-propagation
+      verification_orphans:
+        - ".claude/docs/gotchas.md:22 (Tier 3 distillation — expected cleanup by next /andromeda-setup-project --delta run)"
   archive:
     - amendment_id: 2026-05-03T21-30-00Z-lift-accent
       plans:
@@ -211,4 +242,4 @@ spec_amendments:
       archived_at: 2026-05-11T00:35:00Z
       flag_used: --allow-route-append
 
-session_count: 53
+session_count: 54

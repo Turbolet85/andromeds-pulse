@@ -1,0 +1,23 @@
+package andromeda:data-transform@0.1.0;
+
+/// Data-transform plugin category — **non-UI**. Transforms Arrow record
+/// batches in-process; no DOM emission imports.
+///
+/// **Accessibility:** not applicable at this boundary. The data-transform
+/// category does not return user-visible UI; output is binary Arrow IPC
+/// consumed by host curation primitives or downstream plugin categories.
+/// A11y obligations attach to UI-emitting categories only (custom-dashboard).
+///
+/// **Security posture:** input + output byte sequences are bounded 8 MB
+/// at the host boundary; plugin-returned bytes are NEVER logged verbatim
+/// (per security plan §Logging Vector 4 + obs-plan §11 Project-specific
+/// row 3). Plugins receive zero host imports beyond what their WIT
+/// declares — capability-scoped sandboxing per arch §Design Philosophy.
+world data-transform {
+    /// Plugin's transform entry point. Called by the host for each batch
+    /// of OTLP-ingested data needing transformation. `input` is Arrow IPC
+    /// bytes (≤8 MB enforced at host); `output` on success is transformed
+    /// Arrow IPC bytes (≤8 MB enforced before re-emit on Tauri Channel);
+    /// `error` on failure is a sanitized one-liner (no full stack traces).
+    export transform: func(input: list<u8>) -> result<list<u8>, string>;
+}

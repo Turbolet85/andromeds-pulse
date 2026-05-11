@@ -386,20 +386,41 @@ impl From<SnapshotError> for AppError {
 
 impl From<PluginsError> for AppError {
     fn from(e: PluginsError) -> Self {
-        let message = match e {
-            PluginsError::Placeholder => "plugins: placeholder error",
+        // Chunk #45 substrate maps all PluginsError variants к AppError::Internal
+        // because no IPC consumer exists yet (no `plugins.*` TauRPC procedure).
+        // Chunk #47 IPC binding will refactor to `AppError::Plugin { plugin_id,
+        // message }` when the loader / invoke routes introduce plugin_id at
+        // the call site. The intermediate Internal mapping keeps the boundary
+        // sanitized (no stack traces / paths / library versions cross over)
+        // while preserving the existing `ui-bridge.error.internal` tracing
+        // target — per `.claude/rules/security.md` 2026-05-07 Session Addition,
+        // a new dotted sub-namespace (`ui-bridge.error.plugin`) requires an
+        // explicit `AllowList::production()` entry; chunk #45 substrate defers
+        // that to chunk #47 IPC binding when the actual procedure lands.
+        let (source_kind, message) = match e {
+            PluginsError::Placeholder => ("placeholder", "plugins: placeholder error".to_string()),
+            PluginsError::EngineInit { reason } => (
+                "engine_init",
+                format!("plugins: engine init failed: {reason}"),
+            ),
+            PluginsError::WitLoad { plugin_id, reason } => (
+                "wit_load",
+                format!("plugins: wit load failed for `{plugin_id}`: {reason}"),
+            ),
+            PluginsError::ComponentInstantiate { plugin_id, reason } => (
+                "component_instantiate",
+                format!("plugins: component instantiate failed for `{plugin_id}`: {reason}"),
+            ),
         };
         tracing::warn!(
             target: "ui-bridge.error.internal",
             error_category = "internal",
-            source_kind = "placeholder",
+            source_kind = source_kind,
             source_crate = "plugins",
             "{}",
             message
         );
-        AppError::Internal {
-            message: message.to_string(),
-        }
+        AppError::Internal { message }
     }
 }
 
