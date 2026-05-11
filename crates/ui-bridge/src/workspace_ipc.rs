@@ -25,7 +25,10 @@ fn ctx_to_dto(ctx: WorkspaceContext) -> WorkspaceContextDto {
         .and_then(|v| v.vcs_root.file_name())
         .and_then(|s| s.to_str())
         .map(|s| s.to_string());
-    let vcs_type = ctx.vcs.as_ref().map(|v| vcs_type_label(v.vcs_type).to_string());
+    let vcs_type = ctx
+        .vcs
+        .as_ref()
+        .map(|v| vcs_type_label(v.vcs_type).to_string());
 
     WorkspaceContextDto {
         root_basename,
@@ -133,7 +136,11 @@ mod tests {
         assert!(dto.has_andromeda_marker);
         // Verify no full path leaks in either field
         assert!(!dto.root_basename.contains("secret-dir-canary"));
-        assert!(!dto.vcs_root_basename.unwrap_or_default().contains("secret-dir-canary"));
+        assert!(
+            !dto.vcs_root_basename
+                .unwrap_or_default()
+                .contains("secret-dir-canary")
+        );
     }
 
     #[cfg(feature = "taurpc-runtime")]

@@ -1,11 +1,16 @@
 import { useEffect, useState, type RefObject } from "react";
 import { useReducedMotion } from "motion/react";
+import { writeText } from "@tauri-apps/plugin-clipboard-manager";
 import { Modal } from "../components/Modal";
+import { PresetPromptList } from "../components/PresetPromptList";
+import { Icon } from "../components/icons";
 import {
   createTauRPCProxy,
   type AppError,
   type SnapshotPreset,
+  type SnapshotResultDto,
 } from "../bindings";
+import { PRESET_PROMPTS, type PresetPrompt } from "./preset-prompts";
 
 type Phase = "idle" | "capturing" | "result" | "error";
 
@@ -68,6 +73,7 @@ export function InvestigationModalForm({
   const [phase, setPhase] = useState<Phase>("idle");
   const [statusMessage, setStatusMessage] = useState<string>("");
   const [errorMessage, setErrorMessage] = useState<string>("");
+  const [result, setResult] = useState<SnapshotResultDto | null>(null);
   const reducedMotion = useReducedMotion();
 
   useEffect(() => {
@@ -75,11 +81,13 @@ export function InvestigationModalForm({
       setPhase("idle");
       setStatusMessage("");
       setErrorMessage("");
+      setResult(null);
       return;
     }
     setPhase("capturing");
     setStatusMessage("Investigation snapshot capturing");
     setErrorMessage("");
+    setResult(null);
 
     let cancelled = false;
     let timer: ReturnType<typeof setTimeout> | null = null;
@@ -87,10 +95,13 @@ export function InvestigationModalForm({
 
     const start = async () => {
       try {
-        await getClient().snapshot.generate(preset, null);
+        const dto = await getClient().snapshot.generate(preset, null);
         if (cancelled) return;
+        setResult(dto);
         setPhase("result");
-        setStatusMessage("Investigation snapshot ready");
+        setStatusMessage(
+          `Snapshot copied to clipboard (${dto.byte_count} characters)`,
+        );
       } catch (rawErr: unknown) {
         if (cancelled) return;
         const sanitized = appErrorMessage(toAppError(rawErr));
@@ -113,9 +124,18 @@ export function InvestigationModalForm({
     };
   }, [open, preset, reducedMotion]);
 
+  const handlePresetPick = async (prompt: PresetPrompt) => {
+    try {
+      await writeText(prompt.template);
+      setStatusMessage(`Prompt '${prompt.label}' copied to clipboard`);
+    } catch {
+      setStatusMessage(`Failed to copy '${prompt.label}' to clipboard`);
+    }
+  };
+
   const busy = phase === "capturing";
   const liveLevel: "polite" | "assertive" =
-    phase === "error" || phase === "result" ? "assertive" : "polite";
+    phase === "error" ? "assertive" : "polite";
 
   return (
     <Modal
@@ -169,18 +189,77 @@ export function InvestigationModalForm({
             {errorMessage}
           </div>
         ) : null}
-        {phase === "result" ? (
-          <p
-            data-testid="investigation-ready-text"
-            style={{
-              fontFamily: "var(--font-body)",
-              fontSize: "14px",
-              color: "var(--color-text-primary)",
-              margin: 0,
-            }}
-          >
-            Snapshot ready.
-          </p>
+        {phase === "result" && result !== null ? (
+          <>
+            <div
+              data-testid="investigation-success-badge"
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "var(--spacing-xs)",
+                border: "1px solid #17B3A3",
+                background: "var(--color-inset)",
+                borderRadius: "var(--radius-sm)",
+                padding: "var(--spacing-sm)",
+                color: "var(--color-text-primary)",
+                fontFamily: "var(--font-body)",
+                fontSize: "14px",
+                fontWeight: 500,
+              }}
+            >
+              <Icon glyph="telescope" size={20} aria-hidden="true" />
+              <span>Snapshot ready</span>
+            </div>
+            <dl
+              data-testid="investigation-file-paths"
+              style={{
+                display: "grid",
+                gridTemplateColumns: "auto 1fr",
+                columnGap: "var(--spacing-sm)",
+                rowGap: "var(--spacing-xs)",
+                margin: 0,
+                fontFamily: "var(--font-body)",
+                fontSize: "12px",
+                color: "var(--color-text-secondary)",
+              }}
+            >
+              <dt>markdown</dt>
+              <dd
+                style={{
+                  margin: 0,
+                  fontFamily: "var(--font-code)",
+                  fontVariantNumeric: "tabular-nums",
+                }}
+              >
+                {result.markdown_path_basename}
+              </dd>
+              <dt>json</dt>
+              <dd
+                style={{
+                  margin: 0,
+                  fontFamily: "var(--font-code)",
+                  fontVariantNumeric: "tabular-nums",
+                }}
+              >
+                {result.json_path_basename}
+              </dd>
+              <dt>tokens</dt>
+              <dd
+                style={{
+                  margin: 0,
+                  fontFamily: "var(--font-code)",
+                  fontVariantNumeric: "tabular-nums",
+                  color: "var(--color-text-primary)",
+                }}
+              >
+                {result.token_count}
+              </dd>
+            </dl>
+            <PresetPromptList
+              prompts={PRESET_PROMPTS}
+              onPick={handlePresetPick}
+            />
+          </>
         ) : null}
       </div>
     </Modal>

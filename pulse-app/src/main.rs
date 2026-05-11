@@ -16,18 +16,19 @@ use ui_bridge::health::{
     BindStatus, BufferConnectionStatus, HeartbeatState, IngestChannelStatus, IntrospectionApi,
     IntrospectionApiImpl, record_start, register_heartbeat_state,
 };
-use ui_bridge::snapshot_ipc::{SnapshotApi, SnapshotApiImpl};
 use ui_bridge::telemetry::{TelemetryApi, TelemetryApiImpl};
 use ui_bridge::workspace_ipc::{WorkspaceApi, WorkspaceApiImpl};
 use viz::VizState;
 
 mod heartbeat;
 mod observability;
+mod snapshot_runtime;
 mod streams;
 mod tray;
 mod viz_routers;
 mod window;
 
+use snapshot_runtime::{SnapshotApi, SnapshotApiImpl};
 use streams::{StreamsApi, StreamsApiImpl};
 use viz_routers::{LogsApi, LogsApiImpl, MetricsApi, MetricsApiImpl, TracesApi, TracesApiImpl};
 
@@ -254,6 +255,14 @@ fn main() {
         Some(Arc::clone(&broadcast_senders)),
     );
 
+    // Chunk #44: SnapshotApiImpl constructed BEFORE the router build so the
+    // sibling clone (snapshot_impl_for_setup) can survive into the setup
+    // closure to populate AppHandle. The Arc<OnceLock<AppHandle<Wry>>> is
+    // shared between clones; setup populates once, resolver reads on every
+    // IPC call.
+    let snapshot_impl = SnapshotApiImpl::new(buffer_conn.clone(), data_dir.clone());
+    let snapshot_impl_for_setup = snapshot_impl.clone();
+
     let invoke_router = match buffer_conn.as_ref() {
         Some(conn) => taurpc::Router::new()
             .export_config(taurpc_export_config())
@@ -263,14 +272,14 @@ fn main() {
             .merge(LogsApiImpl::new(Arc::clone(conn), Arc::clone(&viz_state)).into_handler())
             .merge(StreamsApiImpl::new(Arc::clone(&broadcast_senders)).into_handler())
             .merge(TelemetryApiImpl::new().into_handler())
-            .merge(SnapshotApiImpl::new().into_handler())
+            .merge(snapshot_impl.clone().into_handler())
             .merge(WorkspaceApiImpl::new().into_handler()),
         None => taurpc::Router::new()
             .export_config(taurpc_export_config())
             .merge(introspection_impl.clone().into_handler())
             .merge(StreamsApiImpl::new(Arc::clone(&broadcast_senders)).into_handler())
             .merge(TelemetryApiImpl::new().into_handler())
-            .merge(SnapshotApiImpl::new().into_handler())
+            .merge(snapshot_impl.clone().into_handler())
             .merge(WorkspaceApiImpl::new().into_handler()),
     };
 
@@ -281,6 +290,13 @@ fn main() {
         .on_window_event(window::on_window_event)
         .invoke_handler(invoke_router.into_handler())
         .setup(move |app| {
+            // Chunk #44: populate the deferred AppHandle into SnapshotApiImpl.
+            // Setup runs after invoke_handler is locked, but the Arc<OnceLock>
+            // shared between snapshot_impl (in router) and snapshot_impl_for_setup
+            // (this closure) means the resolver sees the handle on every
+            // subsequent IPC call.
+            snapshot_impl_for_setup.set_app_handle(app.handle().clone());
+
             window::show_compact_widget(app);
             let settings = Settings::load_from_data_dir(&data_dir);
             window::apply_widget_settings(app, &settings);
@@ -653,8 +669,13 @@ mod tests {
         let viz_state = Arc::new(VizState::new());
         let broadcast_senders: Arc<BroadcastSenders> = Arc::new(buffer::broadcast::create());
         let data_dir = std::env::temp_dir().join("andromeda-pulse-bindings-test");
-        let introspection_impl =
-            IntrospectionApiImpl::new(data_dir, vec![], Some(Arc::clone(&broadcast_senders)));
+        let introspection_impl = IntrospectionApiImpl::new(
+            data_dir.clone(),
+            vec![],
+            Some(Arc::clone(&broadcast_senders)),
+        );
+
+        let snapshot_impl = SnapshotApiImpl::new(Some(Arc::clone(&conn)), data_dir.clone());
 
         let router: taurpc::Router<tauri::Wry> = taurpc::Router::new()
             .export_config(taurpc_export_config())
@@ -664,7 +685,7 @@ mod tests {
             .merge(LogsApiImpl::new(Arc::clone(&conn), Arc::clone(&viz_state)).into_handler())
             .merge(StreamsApiImpl::new(Arc::clone(&broadcast_senders)).into_handler())
             .merge(TelemetryApiImpl::new().into_handler())
-            .merge(SnapshotApiImpl::new().into_handler())
+            .merge(snapshot_impl.into_handler())
             .merge(WorkspaceApiImpl::new().into_handler());
 
         // into_handler() triggers export_types() in dev mode.

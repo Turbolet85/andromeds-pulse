@@ -47,6 +47,9 @@ optional = true
 [build-dependencies]
 tauri-build.workspace = true
 
+[dev-dependencies]
+tempfile.workspace = true
+
 [features]
 default = []
 mcp-server = ["dep:mcp-server-crate"]

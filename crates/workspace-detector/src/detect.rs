@@ -58,8 +58,7 @@ pub fn detect(candidate_root: &Path) -> Result<WorkspaceContext, Error> {
 
 fn path_contains_traversal(path: &Path) -> bool {
     use std::path::Component;
-    path.components()
-        .any(|c| matches!(c, Component::ParentDir))
+    path.components().any(|c| matches!(c, Component::ParentDir))
 }
 
 #[cfg(test)]
@@ -77,10 +76,7 @@ mod tests {
     #[test]
     fn rejects_nonexistent_candidate_with_canonicalization_failed() {
         let result = detect(Path::new("/nonexistent-path-that-should-never-exist-xyz"));
-        assert!(matches!(
-            result,
-            Err(Error::CanonicalizationFailed { .. })
-        ));
+        assert!(matches!(result, Err(Error::CanonicalizationFailed { .. })));
     }
 
     #[test]

@@ -8,6 +8,30 @@ _This file is entirely wrap-session's territory. `/setup-project` creates it if 
 
 ---
 
+## 2026-05-11 — Deferred AppHandle injection via Arc<OnceLock<AppHandle<Wry>>> for TauRPC resolvers needing Tauri runtime APIs
+
+**Problem:** TauRPC routers are built BEFORE Tauri's setup closure runs. In `pulse-app/src/main.rs`, the chain `tauri::Builder::default()...invoke_handler(invoke_router.into_handler())...setup(move |app| { ... })` constructs and merges resolver impls into the router at builder-build time; the `app: &App` (and thus `app.handle()`) is only available inside the setup closure, which fires later during `.run()`. This means a resolver's `Impl::new(...)` cannot capture `AppHandle` at construction.
+
+**Pattern:** For resolvers needing AppHandle access (clipboard write via `app.clipboard().write_text(...)`, OS notification dispatch via `app.notification().builder()...show()`, real-time push event emit via `app.emit("pulse://stream/X", payload)`), use a deferred-injection pattern via `Arc<OnceLock<AppHandle<Wry>>>`:
+
+1. The `Impl` struct holds `app_handle: Arc<OnceLock<AppHandle<Wry>>>` (std::sync::OnceLock; std is sufficient for set-once-read-many semantics).
+2. `Impl::new(...)` creates a fresh empty OnceLock wrapped in Arc; struct derives `Clone`.
+3. Before merging into the router, clone the impl for the setup closure: `let snapshot_impl = SnapshotApiImpl::new(...); let snapshot_impl_for_setup = snapshot_impl.clone();`. The clone shares the SAME Arc (cheap reference bump; no OnceLock duplication).
+4. Inside the setup closure (after `move |app|`): `snapshot_impl_for_setup.set_app_handle(app.handle().clone());`. The `set_app_handle` method does `let _ = self.app_handle.set(handle);` (ignore the `Result<(), AppHandle>` from `OnceLock::set` — second-call is no-op).
+5. Resolver methods check `self.app_handle.get()` at every call — `Some(handle)` after setup completes, `None` only during the (small) window between router-merge and setup-closure-fire.
+
+**Reference implementation:** `pulse-app/src/snapshot_runtime.rs::SnapshotApiImpl` (chunk #44). The AppHandle-dependent operations are best-effort: on `None` they're skipped + `success=false` is emitted in the canonical tracing target (e.g., `snapshot.clipboard.write` with `success=false`). Partial completion is visible via the per-target success flag rather than silent ignore.
+
+**Concrete runtime parameter:** use `AppHandle<Wry>` (NOT generic `AppHandle<R: Runtime>`) since `pulse-app`'s `tauri::Builder::default()` produces `Wry`. Generic-over-Runtime would require all resolvers + main.rs setup to thread `R: Runtime` as a type parameter, adding cognitive weight for no real benefit (pulse-app has no multi-runtime support).
+
+**Distinguishes from `pulse-app/src/viz_routers.rs` precedent:** viz_routers resolvers (`TracesApiImpl` / `MetricsApiImpl` / `LogsApiImpl`) hold `conn: Arc<Mutex<Connection>>` + `state: Arc<VizState>` — both AVAILABLE at router-build time (buffer connection initialized synchronously before router build via `init_buffer()` in `main.rs`). They don't need deferred injection. The OnceLock pattern is specifically for runtime-only handles produced by the Tauri builder lifecycle.
+
+**Anti-pattern:** late-merging the resolver into the router from within setup. That fights Tauri's builder API — at setup time the builder's `invoke_handler` slot is already locked + the router is already merged into the handler. The OnceLock pattern keeps router construction at builder-build time + populates the runtime dependency at setup time — clean separation matching the actual lifecycle order.
+
+**Generalizes to:** chunks #46-#49 MCP-server resolver (`pulse-app/src/mcp_runtime.rs`-equivalent will need AppHandle for `mcp.status`/`mcp.start`/`mcp.stop` lifecycle); any future plugin runtime resolver needing `app.emit()` for real-time push events.
+
+---
+
 ## 2026-05-11 — Auto-mode classifier blocks ~/.claude/skills/ self-modification without explicit Bash permission rule (Claude Code harness safety)
 
 When Claude attempts to Edit/Write any file under `~/.claude/skills/`, the Claude Code auto-mode classifier flags the action as "Self-modification: editing the agent's own skill files... without explicit user authorization to modify skill internals." Even if the conversation explicitly authorizes the change at user-decision level (e.g., the user said "yes — modify the skill files"), the classifier doesn't have visibility into conversation context; it sees raw file edits to ~/.claude/skills/ and applies the safety boundary.
