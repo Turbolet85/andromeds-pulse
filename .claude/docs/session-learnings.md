@@ -8,6 +8,51 @@ _This file is entirely wrap-session's territory. `/setup-project` creates it if 
 
 ---
 
+## 2026-05-11 — Trigger 4 marker `expected_propagation` discipline: grep-expansion finds Tier 2/3 orphans the table misses
+
+**Discovery:** chunk #45 Trigger 4 amendment (`2026-05-11T17-50-00Z-reconcile-max-wasm-http-fields-size`) reconciled a forward-looking security plan API name (`wasmtime::Config::max_wasm_http_fields_size`) with wasmtime reality. The marker's `expected_propagation` list (populated by `/andromeda-implement` Trigger 4 from the hard-coded plan→file mapping table baseline per `delta-rerun-protocol.md`) cited 3 candidate orphans: `.claude/docs/gotchas.md` (Tier 3), `.claude/rules/security.md` (Tier 2, advisory "verify no body change needed via grep"), and `.claude/docs/security-summary.md` (Tier 3, advisory "refresh if it surfaces wasmtime Config method by name"). At `/andromeda-setup-project --delta` time, the grep-expansion defense-in-depth (per `delta-rerun-protocol.md` step 8) found that `.claude/rules/security.md:32` DID contain a stale citation requiring identical body annotation — the marker's "verify no body change" advisory turned out to require a body change. The amendment marker's `expected_propagation` was undercount by one file; the grep caught it.
+
+**Lesson for future Trigger 4 dialogues:** when `/andromeda-implement` Phase 2 surfaces a Trigger 4 spec drift and applies Path A, populate the marker's `expected_propagation` field by running a project-rooted grep on the amended value across all Tier 2/3 + CLAUDE.md AT MARKER-AUTHORING TIME, not just from the hard-coded mapping table baseline. The mapping table is coarse approximation (e.g., "security-plan.md amended → Tier 2 security.md, Tier 3 security-summary.md"); per-amendment grep finds the actual orphan set + downstream files unforeseen by the table. Pattern from this discovery:
+
+```bash
+# At /implement Trigger 4 marker-authoring time, before writing
+# expected_propagation:
+LC_ALL=en_US.UTF-8 grep -rnE '{amended-value}' .claude/ CLAUDE.md
+```
+
+Each grep hit becomes a candidate for `expected_propagation` (excluding acceptable matches per delta-rerun-protocol.md step 8: `.andromeda/runs/*/amendment.md` audit-trail citations + `.claude/docs/session-learnings.md` historical Decisions Log references). The marker authoring overhead is small (one grep, ~1s) and removes the need for setup-project --delta to act as a safety net.
+
+**Cross-references:**
+- `delta-rerun-protocol.md` step 8 "Grep-expansion (defense-in-depth — NEW v2.1)" — the safety net that caught the orphan this session
+- `spec-amendment-protocol.md` Part A — marker file `expected_propagation` field schema
+- Pattern recurs whenever Trigger 4 dialogues fire — chunks #46-#49 plugin host implementations may surface similar drifts
+
+---
+
+## 2026-05-11 — wasmtime version-pin policy: "library X version N+" route specs interpret as minimum-compatible, not pin-to-N.x
+
+**Pattern:** when a route §2 chunk text spec says "library X version N+" (e.g., `wasmtime 25+` per route#45 spec), interpret N+ as **"minimum compatible version supporting the feature set"**, NOT "pin to N.x". At `/andromeda-implement` time, check `cargo audit` post-add and bump forward to the latest patched line as needed.
+
+**Concrete observation from chunk #45:** the spec said "wasmtime 25+". Initial pin at workspace dep was `wasmtime = { version = "25", features = ["component-model"] }` which resolved to wasmtime 25.0.3. Post-add `cargo audit` flagged 15 RUSTSEC advisories (RUSTSEC-2025-0046, -0118; RUSTSEC-2026-0020/-0021/-0085 through -0096) all unpatched on the 25.0.x line. wasmtime maintainers patch backward to 24.x and forward to 36/42/43 but skip 25.x entirely. Solutions universally specify `>=24.0.7 OR >=36.0.7 OR >=42.0.2 OR >=43.0.1`. Resolution: bumped to `wasmtime = { version = "43", features = ["component-model"] }` to satisfy the "25+" minimum with full patch coverage.
+
+**Generalization:** any major dep where the named-version minor line is abandoned. Verify post-add via:
+
+```bash
+cargo audit  # flags RUSTSEC advisories
+# If 1+ advisories cite the resolved version with solution >=N.x for N > current:
+#   bump workspace Cargo.toml to >=N.x (latest patched stable)
+#   cargo audit must return 0 vulnerabilities before proceeding
+```
+
+The route §2 chunk text uses "+" intentionally: it documents the feature-set baseline (Component Model in wasmtime 25+, async-component-model in wasmtime ~32+, etc.) without committing to the specific line. Pinning to N.x without auditing risks shipping known-vulnerable transitive deps.
+
+**Cross-references:**
+- chunk #45 implementation: workspace Cargo.toml comment block documents the version-pin rationale + April 2026 advisory cluster
+- security-plan.md §Dependency Security Pinning — anchors the cargo-audit gate
+- This pattern complements the existing "cargo deny check bans multi-versions = deny" canary discipline (deny.toml [bans] skip list with provenance comments per dup) — both gates fire on supply-chain regressions but for different reasons (audit = CVE; deny = duplicate-version)
+
+---
+
 ## 2026-05-11 — Deferred AppHandle injection via Arc<OnceLock<AppHandle<Wry>>> for TauRPC resolvers needing Tauri runtime APIs
 
 **Problem:** TauRPC routers are built BEFORE Tauri's setup closure runs. In `pulse-app/src/main.rs`, the chain `tauri::Builder::default()...invoke_handler(invoke_router.into_handler())...setup(move |app| { ... })` constructs and merges resolver impls into the router at builder-build time; the `app: &App` (and thus `app.handle()`) is only available inside the setup closure, which fires later during `.run()`. This means a resolver's `Impl::new(...)` cannot capture `AppHandle` at construction.
