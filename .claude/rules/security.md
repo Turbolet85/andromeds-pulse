@@ -29,7 +29,7 @@ Universal security requirements. Apply to all files in this project. This rule f
 
 ## Plugin host + WASM sandbox
 - WASM Component Model guests receive ONLY host imports declared in their WIT — no syscalls, file, or socket access unless explicitly granted.
-- `wasmtime::Config` MUST set `epoch_interruption(true)` for plugin call timeouts (2-3× faster than fuel) + `max_wasm_http_fields_size` per April 2026 advisory cluster CVE-2026-27572.
+- `wasmtime::Config` MUST set `epoch_interruption(true)` for plugin call timeouts (2-3× faster than fuel). The canonical wasi-http header field-size bound is the `MAX_WASM_HTTP_FIELDS_SIZE_BYTES` const in `crates/plugins/src/engine.rs` (chunk #45 substrate; CVE-2026-27572 anchor); actual enforcement attaches via `wasmtime_wasi_http::WasiHttpCtxBuilder::max_field_size` (or equivalent) when wasi-http imports are introduced in subsequent chunks (#46+). Per security-plan.md §Security Decisions Log 2026-05-11 — `Config::max_wasm_http_fields_size` is NOT a method on `wasmtime::Config` in any wasmtime version; the bound lives at the wasi-http context, not the Config struct.
 - Per-Store `wasmtime::ResourceLimiter` MUST cap memory (e.g., 64 MB), tables, instances.
 - Cranelift backend on x86_64 MUST stay enabled — was the unaffected configuration for April 2026 Critical sandbox escapes (CVE-2026-34941, CVE-2026-35195). NEVER add a non-Cranelift wasmtime feature flag on x86_64 builds.
 - NEVER use the `wasmtime::Linker` to expose host functions outside the WIT contract — bypasses capability scoping.

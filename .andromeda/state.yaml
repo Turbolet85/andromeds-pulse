@@ -71,9 +71,9 @@ spec_amendments:
       marker_path: .andromeda/runs/2026-05-11T17-50-00-spec-amendment-reconcile-max-wasm-http-fields-size/amendment.md
       applied_at: 2026-05-11T17:50:00Z
       noted_at: 2026-05-11T18:45:00Z
-      propagated_by_run: null
+      propagated_by_run: .andromeda/runs/2026-05-11T19-00-00-setup-project-delta/
       archived_at: null
-      verification_status: applied-pending-propagation
+      verification_status: propagated
       verification_orphans:
         - ".claude/docs/gotchas.md:22 (Tier 3 distillation — expected cleanup by next /andromeda-setup-project --delta run)"
   archive:

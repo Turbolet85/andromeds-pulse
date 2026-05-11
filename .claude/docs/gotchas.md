@@ -19,7 +19,7 @@ Architecture's Stack table specified `rustc 1.84+` initially, but Edition 2024 c
 ## `wasmtime` Cranelift on x86_64 (April 2026 advisory)
 - Cranelift backend on x86_64 was the **unaffected configuration** for the two Critical sandbox escapes (CVE-2026-34941, CVE-2026-35195) per Bytecode Alliance advisory.
 - A future "use the experimental Winch backend" change would re-introduce the exposure. NEVER add a non-Cranelift wasmtime feature flag on x86_64 builds without re-checking the April 2026 advisory cluster.
-- `Config::max_wasm_http_fields_size` MUST be set per April 2026 CVE-2026-27572 (wasi-http header explosion).
+- wasi-http header field-size bound: canonical value is `MAX_WASM_HTTP_FIELDS_SIZE_BYTES` const in `crates/plugins/src/engine.rs` (chunk #45 substrate; CVE-2026-27572 anchor preserved). Actual enforcement attaches via `wasmtime_wasi_http::WasiHttpCtxBuilder::max_field_size` when wasi-http imports are introduced in chunks #46+. `Config::max_wasm_http_fields_size` is NOT a wasmtime::Config method (verified empirically at wasmtime 25 and 43 via E0599 compile error); per security-plan.md §Security Decisions Log 2026-05-11.
 
 ## OTLP HTTP `:4318` "localhost is not a security boundary"
 - Loopback-only binding does NOT defend against DNS rebinding from arbitrary websites (browser `fetch('http://localhost:4318/v1/traces', ...)`).
