@@ -47,7 +47,83 @@ drift_warnings:
     last_observed_session_count: 51
 
 spec_amendments:
-  active: []
+  active:
+    - amendment_id: 2026-05-11T00-15-00-acknowledge-pulse-clipboard-capability
+      plans:
+        - path: architecture.md
+          sections:
+            - "§Occupied Resources"
+            - "§Architecture Registry Updates"
+          decisions_log_section: "2026-05-11 — Acknowledge `pulse:clipboard` in §Occupied Resources (--allow-arch-registry)"
+      trigger:
+        chunk: null
+        phase: null
+        harness: "user-driven via /andromeda-evolve"
+      authority:
+        winning_plan: "pulse-app/capabilities/clipboard.json (code reality)"
+        winning_tier: implementation
+        losing_plan: architecture.md
+        losing_concern: registry-section-stale-vs-implementation-reality
+        rationale: "Code at pulse-app/capabilities/clipboard.json implements pulse:clipboard (chunk #43 commit 6e2d398); arch §Occupied Resources had not acknowledged."
+      impl_files_synced: []
+      expected_propagation: []
+      marker_path: .andromeda/runs/2026-05-11T00-15-00-spec-amendment-acknowledge-pulse-clipboard-capability/amendment.md
+      applied_at: 2026-05-11T00:15:00Z
+      noted_at: null
+      propagated_by_run: .andromeda/runs/2026-05-11T00-30-00-setup-project-delta/
+      archived_at: null
+      verification_status: clean
+      flag_used: --allow-arch-registry
+      registry_section: "§Occupied Resources Tauri capability identifiers"
+      registry_additions:
+        - pulse:clipboard
+      code_evidence:
+        - pulse-app/capabilities/clipboard.json
+    - amendment_id: 2026-05-10T23-30-00-append-chunk-43-followup
+      plans:
+        - path: route.md
+          sections:
+            - "§2 Roadmap (Epoch 6)"
+            - "§3 Decisions Log"
+          decisions_log_section: "2026-05-11 — Append chunk #44 for Snapshot.generate runtime + Investigation result-state UI (--allow-route-append)"
+      trigger:
+        chunk: null
+        phase: null
+        harness: "user-driven via /andromeda-evolve"
+      authority:
+        winning_plan: state.yaml.in_progress.chunks (pipeline reality)
+        winning_tier: pipeline state
+        losing_plan: route.md
+        losing_concern: chunk-list-stale-vs-pipeline-reality
+        rationale: "Chunk #43 partial implementation (commit 6e2d398) deferred steps 10-14; adding chunk #44 brings route into alignment with pipeline reality."
+      impl_files_synced: []
+      expected_propagation: []
+      marker_path: .andromeda/runs/2026-05-10T23-30-00-spec-amendment-append-chunk-43-followup/amendment.md
+      applied_at: 2026-05-10T23:30:00Z
+      noted_at: null
+      propagated_by_run: .andromeda/runs/2026-05-11T00-30-00-setup-project-delta/
+      archived_at: null
+      verification_status: clean
+      flag_used: --allow-route-append
+      route_section_modified: "Epoch 6 — Snapshot & Investigate"
+      chunks_added:
+        - position: 44
+          text: "Snapshot.generate runtime + result-state UI — AppHandle injection for clipboard/notification/event-emit + InvestigationModalForm result UI + PresetPromptList + PII negative-canary E2E (chunk #43 follow-up)"
+      chunks_renumbered:
+        - { old_position: 44, new_position: 45, text_excerpt: "wasmtime Component Model + WIT" }
+        - { old_position: 45, new_position: 46, text_excerpt: "Capability sandbox + ResourceLimiter" }
+        - { old_position: 46, new_position: 47, text_excerpt: "Plugin loader + IPC routers" }
+        - { old_position: 47, new_position: 48, text_excerpt: "rmcp stdio sidecar + double-gate" }
+        - { old_position: 48, new_position: 49, text_excerpt: "MCP tool methods + IPC routers" }
+        - { old_position: 49, new_position: 50, text_excerpt: "End-to-end test pass" }
+        - { old_position: 50, new_position: 51, text_excerpt: "Smoke tests + tauri-driver matrix" }
+        - { old_position: 51, new_position: 52, text_excerpt: "Release pipeline + signing automation" }
+        - { old_position: 52, new_position: 53, text_excerpt: "Distribution channels" }
+        - { old_position: 53, new_position: 54, text_excerpt: "A11y audit + perf SLO + violation-JSON regression" }
+        - { old_position: 54, new_position: 55, text_excerpt: "Flakiness quarantine + quality gate enforcement" }
+        - { old_position: 55, new_position: 56, text_excerpt: "Obs CI gates + log aggregation" }
+      motivation: "Chunk #43 partial implementation (commit 6e2d398, session 51) deferred steps 10-14 per /implement Phase 3 surfacing; adding chunk #44 closes Epoch 6 logically + enables wrap-session to advance last_completed_chunk cleanly when substrate-DONE recognition lands."
+      confirmed_shift: false
   archive:
     - amendment_id: 2026-05-03T21-30-00Z-lift-accent
       plans:

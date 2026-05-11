@@ -197,7 +197,7 @@
   - `ANDROMEDA_PULSE_MCP_ENABLED` — `true|false` (only honored when binary built with `--features mcp-server`). When set to `true` against a binary built without the feature, startup logs a warning at `warn` level naming the missing feature flag and proceeds with MCP disabled (rather than failing to start), so a misconfigured environment variable does not block the rest of the app.
   - `ANDROMEDA_PULSE_PLUGIN_DIR` — override `~/.andromeda-pulse/plugins/`
   - `RUST_LOG` — honored as fallback for log level filter
-- **Tauri capability identifiers (reserved at arch level)**: `pulse:default`, `pulse:tray`, `pulse:notification`, `pulse:updater`, `pulse:plugin-fs` — concrete capability JSON files live in `pulse-app/capabilities/`.
+- **Tauri capability identifiers (reserved at arch level)**: `pulse:default`, `pulse:tray`, `pulse:notification`, `pulse:updater`, `pulse:plugin-fs`, `pulse:clipboard` — concrete capability JSON files live in `pulse-app/capabilities/`. See §Architecture Registry Updates 2026-05-11 for `pulse:clipboard` chunk #43 acknowledgment.
 - **Updater channel**: `latest.json` published to GitHub Releases under the canonical repository; updater public key is shipped baked into the Tauri config.
 - **Bundle artifact names** (per release): `andromeda-pulse_<version>_x64-setup.msi`, `andromeda-pulse_<version>_x64.dmg`, `andromeda-pulse_<version>_aarch64.dmg`, `andromeda-pulse_<version>_amd64.AppImage`, `andromeda-pulse_<version>_amd64.deb`.
 - **Docker volumes**: N/A — no Docker.
@@ -363,4 +363,18 @@ _This section accumulates entries from `/andromeda-evolve --allow-arch-registry`
 **Rationale:** Code reality at the cited file implements the `record_frame_ms` resolver via `#[taurpc::procedures(path = "telemetry.frontend")]` (3-segment dotted-namespace, validated this session per .claude/rules/frontend.md Session Additions 2026-05-09); arch §Occupied Resources had not acknowledged the telemetry.* namespace since chunk #29 landed (D3 NEW this wrap). Closes capability-drift gap. Sibling amendment legitimizes streams.* simultaneously.
 
 **Amendment record:** `.andromeda/runs/2026-05-09T11-45-00-spec-amendment-legitimize-telemetry-namespace/amendment.md`
+
+### 2026-05-11 — Acknowledge `pulse:clipboard` in §Occupied Resources (--allow-arch-registry)
+
+**Section affected:** §Occupied Resources Tauri capability identifiers
+
+**Registry additions:**
+
+- `pulse:clipboard` — implemented at `pulse-app/capabilities/clipboard.json` (chunk #43, partial commit 6e2d398, session 51)
+
+**Authority:** /andromeda-evolve with `--allow-arch-registry` flag (narrow Refuse 1 exception for arch registry sections; full audit trail in amendment marker). Check 7 verified purely additive / registry section / code evidence resolved / no new architectural concept (section had 5 prior entries; this is the 6th).
+
+**Rationale:** Code reality at the cited file implements the `pulse:clipboard` capability with `clipboard-manager:allow-write-text` permission scope (write-only outbound; NEVER allow-read-* per security plan §Anti-Patterns API row 6 — clipboard read is exfiltration surface needing separately-named capability). arch §Occupied Resources Tauri capability identifiers had not acknowledged the new identifier (D3 capability-drift class — NEW this wrap; surfaced in session 51 wrap-session Phase 6 detection per session-handoff.md Drift Detection block). Adding `pulse:clipboard` to the reserved list brings arch into alignment with implementation reality + clears the D3 drift_warning at next wrap-session re-detection. Mirrors 2026-05-09 streams.* + telemetry.* additive precedent.
+
+**Amendment record:** `.andromeda/runs/2026-05-11T00-15-00-spec-amendment-acknowledge-pulse-clipboard-capability/amendment.md`
 
