@@ -8,6 +8,71 @@ _This file is entirely wrap-session's territory. `/setup-project` creates it if 
 
 ---
 
+## 2026-05-11 — Auto-mode classifier blocks ~/.claude/skills/ self-modification without explicit Bash permission rule (Claude Code harness safety)
+
+When Claude attempts to Edit/Write any file under `~/.claude/skills/`, the Claude Code auto-mode classifier flags the action as "Self-modification: editing the agent's own skill files... without explicit user authorization to modify skill internals." Even if the conversation explicitly authorizes the change at user-decision level (e.g., the user said "yes — modify the skill files"), the classifier doesn't have visibility into conversation context; it sees raw file edits to ~/.claude/skills/ and applies the safety boundary.
+
+The classifier is structurally correct here: skill files control Claude's behavior, and modifying them affects ALL future sessions across all projects. This is a system-level safety boundary (not conversation-level), and the safe default is to require explicit per-file or per-skill-glob permission rules.
+
+**Workaround for legitimate skill modifications:** add a permission rule via `/permissions` command in Claude Code, OR directly in `~/.claude/settings.json`:
+
+```json
+{
+  "permissions": {
+    "allow": [
+      "Edit(~/.claude/skills/andromeda-evolve/**)"
+    ]
+  }
+}
+```
+
+Or more narrowly, just the specific files needed:
+
+```json
+{
+  "permissions": {
+    "allow": [
+      "Edit(~/.claude/skills/andromeda-evolve/SKILL.md)",
+      "Edit(~/.claude/skills/andromeda-evolve/references/refuse-taxonomy.md)",
+      ...
+    ]
+  }
+}
+```
+
+Verified at session 52 wrap when extending /andromeda-evolve to add `--allow-route-append` flag. First 4 SKILL.md edits hit the classifier denial (2 succeeded for non-rule-changing edits to Invocation + Setup; 2 denied for narrow exception clause + flag MUST/MUST NOT additions which materially weakened a refuse rule). After user added permission rule via /permissions interactive command, all 4 denied edits succeeded on retry + the 4 reference file edits + the dogfood pass artifacts all wrote without further denial.
+
+**Lesson for future skill-modification work:** before attempting any Edit on `~/.claude/skills/`, surface to user that explicit authorization is required AND rendering the suggested permission rule text. Don't attempt the Edit first and treat denial as a surprise — the denial is the classifier doing its job, not an error.
+
+Anchors: `~/.claude/skills/andromeda-evolve/SKILL.md` Refuse 6 narrow exception clause (added session 52 after permission rule landed); `~/.claude/skills/andromeda-evolve/references/{refuse-taxonomy,classification-taxonomy,validation-checks,output-templates}.md` (4 reference files updated for Type 7 + Check 8 + Refuse 6 Exception subsection).
+
+---
+
+## 2026-05-11 — Andromeda skill suite supports surgical extension via flag-pattern mirroring (--allow-route-append added to /evolve as Type 7 mirror of --allow-arch-registry Type 6)
+
+When a felt friction surfaces in an existing Andromeda skill mid-session (today: /andromeda-evolve refuses ALL route.md modifications via Refuse 6, but the user wants to add a chunk to capture deferred work — a legitimate additive operation that doesn't restructure), the project's dual-purpose nature (building andromeda-pulse + debugging Andromeda skill suite) means the friction can be resolved via skill extension within the same session before continuing project work, rather than deferred to a separate skill-versioning workflow.
+
+**Pattern: flag-pattern mirroring.** When extending a skill to permit a narrow exception to an existing refuse category, mirror the design of an existing flag exception. /andromeda-evolve already had `--allow-arch-registry` (narrow Refuse 1 exception for arch.md registry-section additions). Adding `--allow-route-append` (narrow Refuse 6 exception for route.md additive chunk insertion) followed the EXACT same template:
+
+- Flag in Invocation section + Setup parsing
+- MUST NOT clause for the broader refuse + narrow exception clause
+- Flag-specific MUST clauses (parsing + validation activation + marker requirement)
+- Flag-specific MUST NOT clauses (don't extend semantics / don't downgrade verification rigor / don't permit modifying existing content / etc.)
+- New refuse template variant (additive-variant) + Exception subsection (verification rules) in refuse-taxonomy.md
+- New Type N section in classification-taxonomy.md (Type 7 mirrors Type 6)
+- New Check N in validation-checks.md (Check 8 mirrors Check 7)
+- New marker template variant + Decisions Log entry template + state.yaml entry additions in output-templates.md
+
+The symmetry is the safety: design-by-mirror means future readers can trust that the new exception has equivalent narrowness to the proven one. Documented sub-checks of Check 8 (8.1-8.7) all mirror Check 7's sub-checks (7.1-7.4) extended for route's additional concerns (in-progress chunk shift confirmation at 8.4; chunk text format at 8.5; motivation grounding at 8.6; Decisions Log entry well-formedness at 8.7 vs Check 7's simpler 4-sub-check structure).
+
+**Pattern: dogfood validation immediately after skill change.** After extending /andromeda-evolve with `--allow-route-append`, the immediate next step was to dogfood the new flag for today's actual problem (chunk #43 follow-up addition). This validated the skill end-to-end — flag parsing through marker generation through state.yaml entry through arch/route edit — in the same session that introduced the flag, surfacing any design issues immediately rather than at next-session re-use time. End result: chunk #44 added cleanly to route.md Epoch 6; state.yaml.spec_amendments.active gained a Type 7 entry; second invocation later in the same session (`/andromeda-evolve --allow-arch-registry` for pulse:clipboard) used the same skill suite to land a Type 6 amendment, validating that the two flags are genuinely independent + combinable.
+
+**Lesson for future Andromeda skill work:** when a skill needs a narrow exception, look for an existing flag-exception pattern in the same skill (or sibling skills) that you can mirror. The design symmetry is both a safety mechanism + a documentation aid (future reader sees Type N+1 and immediately knows it follows Type N's verification discipline).
+
+Anchors: `~/.claude/skills/andromeda-evolve/SKILL.md` (Invocation/Setup/MUST/MUST NOT clauses for both flags); refuse-taxonomy.md §Refuse 1 Exception + §Refuse 6 Exception (mirrored design); classification-taxonomy.md §Type 6 + §Type 7 (mirrored structure); validation-checks.md Check 7 + Check 8 (mirrored sub-check pattern); output-templates.md Type 6 marker variant + Type 7 marker variant (mirrored field additions).
+
+---
+
 ## 2026-05-11 — Epoch-closer chunks combining substrate activation + IPC promotion + plugin runtime + UI need pre-route splitting (chunk #43 over-scope observation)
 
 Chunk #43 — "Workspace path detection + clipboard + notification — workspace.detect (.andromeda/ marker) + dual .json/.md + 4 preset prompts + 'Snapshot ready' toast" — was authored by /andromeda-route as a single epoch-closing chunk and validated through /andromeda-phase as "single-substantial" with 38 acceptance criteria across 7 domains. /andromeda-implement Phase 2 surfaced that the 14-step plan covered FOUR distinct concerns simultaneously: (a) substrate activation (workspace-detector crate from `pub mod contract;` stub to fully populated 5-file crate with detect/marker/vcs); (b) IPC contract promotion (snapshot.generate refined return type from `Result<(), AppError>` to `Result<SnapshotResultDto, AppError>` + new workspace.detect TauRPC procedure + 3 new IPC DTO types in ui-bridge::contract); (c) plugin runtime integration (tauri-plugin-clipboard-manager + tauri-plugin-notification deps + AppHandle injection through TauRPC resolver for clipboard.write / notification.dispatch / pulse://stream/snapshot-progress event emit); (d) webview UI surface (PresetPromptList component + InvestigationModalForm result-state UI overhaul + provider-context wrap audit + bindings consumer updates). Each concern is a substantial multi-file change; combining all four exceeds reasonable single-/implement budget.
