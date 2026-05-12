@@ -388,12 +388,14 @@ const EXPECTED_PROCEDURES: &[&str] = &[
     "plugins.list",
     "plugins.reload",
     "plugins.invoke",
+    "mcp.status",
+    "mcp.start",
+    "mcp.stop",
     "telemetry.frontend.record_frame_ms",
     "traces.query",
     "workspace.detect",
     // future-deferred (per epoch landing):
     // "snapshot.list_recent", "snapshot.copy_to_clipboard",
-    // "mcp.status", "mcp.start", "mcp.stop",
     // "workspace.list",
 ];
 
@@ -627,6 +629,17 @@ mod capability_drift_tests {
             assert!(
                 expected.contains(proc),
                 "EXPECTED_PROCEDURES must include {proc} (chunk #47 plugins router)"
+            );
+        }
+    }
+
+    #[test]
+    fn expected_procedures_includes_mcp_namespace_at_chunk_49() {
+        let expected: BTreeSet<&str> = EXPECTED_PROCEDURES.iter().copied().collect();
+        for proc in ["mcp.status", "mcp.start", "mcp.stop"] {
+            assert!(
+                expected.contains(proc),
+                "EXPECTED_PROCEDURES must include {proc} (chunk #49 mcp router)"
             );
         }
     }

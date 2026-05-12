@@ -51,6 +51,9 @@ pub(crate) struct AllowList {
 impl AllowList {
     pub(crate) fn for_mcp_server() -> Self {
         let mut by_target: HashMap<&'static str, HashSet<&'static str>> = HashMap::new();
+        // Chunk #48 baseline (feature gate + framing) + chunk #49 extensions
+        // (tool dispatch fields). New sub-targets like mcp.tools.call.request
+        // cascade via split('.').next() → "mcp" so a single entry covers them.
         by_target.insert(
             "mcp",
             [
@@ -64,6 +67,13 @@ impl AllowList {
                 "result_type",
                 "result_count",
                 "duration_ms",
+                // Chunk #49 — tool dispatch fields
+                "tool_name",
+                "query_id",
+                "param_count",
+                "traceparent",
+                "error_detail",
+                "tool_name_unknown",
             ]
             .iter()
             .copied()
@@ -72,6 +82,15 @@ impl AllowList {
         by_target.insert(
             "app.panic.fatal",
             ["message", "location", "spantrace"]
+                .iter()
+                .copied()
+                .collect(),
+        );
+        // Chunk #49 — per-tool latency metric event (cardinality bounded к 4
+        // enumerated tool names per obs plan §5 Metric label cardinality discipline).
+        by_target.insert(
+            "metric.mcp.tool_call_duration_ms",
+            ["value", "method", "result_count"]
                 .iter()
                 .copied()
                 .collect(),
@@ -323,6 +342,40 @@ mod tests {
     fn allowlist_redacts_unknown_target() {
         let al = AllowList::for_mcp_server();
         assert!(al.for_target("unknown.target.name").is_none());
+    }
+
+    #[test]
+    fn allowlist_for_mcp_tools_call_request_cascades_to_mcp_via_split() {
+        let al = AllowList::for_mcp_server();
+        let set = al
+            .for_target("mcp.tools.call.request")
+            .expect("split('.').next() resolves to mcp");
+        assert!(set.contains("tool_name"));
+        assert!(set.contains("traceparent"));
+        assert!(set.contains("duration_ms"));
+    }
+
+    #[test]
+    fn allowlist_for_mcp_tools_call_response_includes_chunk_49_fields() {
+        let al = AllowList::for_mcp_server();
+        let set = al
+            .for_target("mcp.tools.call.response")
+            .expect("split('.').next() resolves to mcp");
+        assert!(set.contains("result_type"));
+        assert!(set.contains("result_count"));
+        assert!(set.contains("duration_ms"));
+        assert!(set.contains("tool_name"));
+    }
+
+    #[test]
+    fn allowlist_for_metric_mcp_tool_call_duration_ms_allows_value_and_method() {
+        let al = AllowList::for_mcp_server();
+        let set = al
+            .for_target("metric.mcp.tool_call_duration_ms")
+            .expect("exact-match");
+        assert!(set.contains("value"));
+        assert!(set.contains("method"));
+        assert!(set.contains("result_count"));
     }
 
     #[test]

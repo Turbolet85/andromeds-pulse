@@ -16,6 +16,10 @@ tracing-subscriber.workspace = true
 tracing-appender.workspace = true
 tracing-error.workspace = true
 chrono.workspace = true
+duckdb.workspace = true
+buffer = { path = "../buffer" }
+viz = { path = "../viz" }
+snapshot = { path = "../snapshot" }
 rmcp = { workspace = true, optional = true }
 
 [features]

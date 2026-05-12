@@ -592,6 +592,12 @@ impl From<McpServerError> for AppError {
             McpServerError::TracingInit { .. } => {
                 ("mcp-server: tracing subscriber init failed", "tracing_init")
             }
+            McpServerError::ToolDispatchFailed { .. } => {
+                ("mcp-server: tool dispatch failed", "tool_dispatch_failed")
+            }
+            McpServerError::ToolArgsInvalid { .. } => {
+                ("mcp-server: tool arguments invalid", "tool_args_invalid")
+            }
         };
         tracing::warn!(
             target: "ui-bridge.error.internal",
@@ -1305,6 +1311,41 @@ mod tests {
                 assert_eq!(message, "mcp-server: JSON-RPC framing error");
                 assert!(!message.contains("::"));
                 assert!(!message.contains("secret"));
+            }
+            other => panic!("expected AppError::Internal, got {other:?}"),
+        }
+    }
+
+    #[test]
+    fn from_mcp_server_tool_dispatch_failed_collapses_to_constant_message_no_leak() {
+        let e = AppError::from(McpServerError::ToolDispatchFailed {
+            tool_name: "query_traces".into(),
+            reason: "buffer empty at /private/secret-canary path crate::Foo".into(),
+        });
+        match e {
+            AppError::Internal { message } => {
+                assert_eq!(message, "mcp-server: tool dispatch failed");
+                assert!(!message.contains('/'));
+                assert!(!message.contains("::"));
+                assert!(!message.contains("secret-canary"));
+            }
+            other => panic!("expected AppError::Internal, got {other:?}"),
+        }
+    }
+
+    #[test]
+    fn from_mcp_server_tool_args_invalid_collapses_to_constant_message_no_leak() {
+        let e = AppError::from(McpServerError::ToolArgsInvalid {
+            tool_name: "generate_snapshot".into(),
+            reason: "missing token_budget at /home/user/secret-canary crate::Bar v0.1.0".into(),
+        });
+        match e {
+            AppError::Internal { message } => {
+                assert_eq!(message, "mcp-server: tool arguments invalid");
+                assert!(!message.contains('/'));
+                assert!(!message.contains("::"));
+                assert!(!message.contains("secret-canary"));
+                assert!(!message.contains("v0.1.0"));
             }
             other => panic!("expected AppError::Internal, got {other:?}"),
         }

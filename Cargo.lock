@@ -3564,11 +3564,14 @@ checksum = "47e1ffaa40ddd1f3ed91f717a33c8c0ee23fff369e3aa8772b9605cc1d22f4c3"
 name = "mcp-server"
 version = "0.1.0"
 dependencies = [
+ "buffer",
  "chrono",
+ "duckdb",
  "rmcp",
  "rstest",
  "serde",
  "serde_json",
+ "snapshot",
  "tempfile",
  "thiserror 2.0.18",
  "tokio",
@@ -3576,6 +3579,7 @@ dependencies = [
  "tracing-appender",
  "tracing-error",
  "tracing-subscriber",
+ "viz",
 ]
 
 [[package]]

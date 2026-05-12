@@ -1,17 +1,27 @@
 use std::env;
 use std::path::PathBuf;
 use std::process::ExitCode;
+use std::sync::{Arc, Mutex};
 
+use duckdb::Connection;
 use mcp_server::feature_gate::{GateState, validate_double_gate};
 use mcp_server::jsonrpc::{
-    CODE_METHOD_NOT_FOUND, empty_tools_list, error, initialize_result, parse_request, success,
+    CODE_INTERNAL_ERROR, CODE_INVALID_PARAMS, CODE_METHOD_NOT_FOUND, error, initialize_result,
+    parse_request, success, tools_list_with_4_tools,
 };
+use mcp_server::tools::{ALL_TOOL_NAMES, dispatch_tool};
 use mcp_server::tracing_setup;
 use serde_json::{Value, json};
 use tokio::io::{AsyncBufReadExt, AsyncWriteExt, BufReader};
+use viz::state::VizState;
 
 #[cfg(feature = "mcp-server")]
 use rmcp as _;
+
+struct SidecarContext {
+    conn: Arc<Mutex<Connection>>,
+    viz_state: VizState,
+}
 
 fn resolve_data_dir() -> PathBuf {
     if let Ok(p) = env::var("ANDROMEDA_PULSE_DATA_DIR") {
@@ -36,6 +46,13 @@ fn resolve_data_dir() -> PathBuf {
     env::temp_dir().join("andromeda-pulse")
 }
 
+fn init_buffer_connection() -> Result<Arc<Mutex<Connection>>, String> {
+    let conn =
+        Connection::open_in_memory().map_err(|e| format!("duckdb open_in_memory failed: {e}"))?;
+    buffer::schema::create_schema(&conn).map_err(|e| format!("buffer schema init failed: {e}"))?;
+    Ok(Arc::new(Mutex::new(conn)))
+}
+
 fn main() -> ExitCode {
     let data_dir = resolve_data_dir();
     let _guard = match tracing_setup::init(&data_dir) {
@@ -50,6 +67,22 @@ fn main() -> ExitCode {
 
     match validate_double_gate() {
         GateState::Enabled => {
+            let conn = match init_buffer_connection() {
+                Ok(c) => c,
+                Err(e) => {
+                    tracing::error!(
+                        target: "mcp.boot.buffer.init",
+                        reason = "buffer_init_failed",
+                        error_detail = %e,
+                        "ephemeral buffer init failed; sidecar aborting",
+                    );
+                    return ExitCode::from(1);
+                }
+            };
+            let ctx = SidecarContext {
+                conn,
+                viz_state: VizState::new(),
+            };
             let runtime = match tokio::runtime::Builder::new_current_thread()
                 .enable_all()
                 .build()
@@ -65,7 +98,7 @@ fn main() -> ExitCode {
                     return ExitCode::from(1);
                 }
             };
-            match runtime.block_on(run_stdio_loop()) {
+            match runtime.block_on(run_stdio_loop(&ctx)) {
                 Ok(()) => ExitCode::SUCCESS,
                 Err(e) => {
                     tracing::error!(
@@ -82,7 +115,7 @@ fn main() -> ExitCode {
     }
 }
 
-async fn run_stdio_loop() -> Result<(), std::io::Error> {
+async fn run_stdio_loop(ctx: &SidecarContext) -> Result<(), std::io::Error> {
     let stdin = tokio::io::stdin();
     let mut reader = BufReader::new(stdin).lines();
     let mut stdout = tokio::io::stdout();
@@ -92,7 +125,7 @@ async fn run_stdio_loop() -> Result<(), std::io::Error> {
             None => return Ok(()),
             Some(line) if line.trim().is_empty() => continue,
             Some(line) => {
-                let response_bytes = dispatch_line(&line);
+                let response_bytes = dispatch_line(ctx, &line);
                 if let Some(bytes) = response_bytes {
                     stdout.write_all(&bytes).await?;
                     stdout.write_all(b"\n").await?;
@@ -103,7 +136,7 @@ async fn run_stdio_loop() -> Result<(), std::io::Error> {
     }
 }
 
-fn dispatch_line(line: &str) -> Option<Vec<u8>> {
+fn dispatch_line(ctx: &SidecarContext, line: &str) -> Option<Vec<u8>> {
     let req = match parse_request(line) {
         Ok(r) => r,
         Err(e) => {
@@ -136,17 +169,16 @@ fn dispatch_line(line: &str) -> Option<Vec<u8>> {
             serde_json::to_vec(&resp).ok()
         }
         "tools/list" => {
-            let resp = success(id, empty_tools_list());
-            serde_json::to_vec(&resp).ok()
-        }
-        "tools/call" => {
-            let resp = error(
-                id,
-                CODE_METHOD_NOT_FOUND,
-                "tools not yet registered; chunk #48 substrate only",
+            let resp = success(id, tools_list_with_4_tools());
+            tracing::info!(
+                target: "mcp.tools.list.response",
+                result_type = "tools_array",
+                result_count = ALL_TOOL_NAMES.len() as u64,
+                "tools/list returned canonical tool set",
             );
             serde_json::to_vec(&resp).ok()
         }
+        "tools/call" => dispatch_tools_call(ctx, id, &req.params),
         "ping" => {
             let resp = success(id, json!({}));
             serde_json::to_vec(&resp).ok()
@@ -166,6 +198,56 @@ fn dispatch_line(line: &str) -> Option<Vec<u8>> {
     );
 
     body
+}
+
+fn dispatch_tools_call(ctx: &SidecarContext, id: Value, params: &Option<Value>) -> Option<Vec<u8>> {
+    let params = match params {
+        Some(p) => p,
+        None => {
+            let resp = error(id, CODE_INVALID_PARAMS, "tools/call requires params object");
+            return serde_json::to_vec(&resp).ok();
+        }
+    };
+    let tool_name = match params.get("name").and_then(|v| v.as_str()) {
+        Some(n) => n.to_string(),
+        None => {
+            let resp = error(
+                id,
+                CODE_INVALID_PARAMS,
+                "tools/call params.name missing or not string",
+            );
+            return serde_json::to_vec(&resp).ok();
+        }
+    };
+    let empty_args = Value::Object(Default::default());
+    let arguments = params.get("arguments").unwrap_or(&empty_args);
+
+    tracing::info!(
+        target: "mcp.tools.call.request",
+        tool_name = %tool_name,
+        params_count = count_params(arguments),
+        "tool dispatch begin",
+    );
+
+    match dispatch_tool(&ctx.conn, &ctx.viz_state, &tool_name, arguments) {
+        Ok(value) => {
+            let resp = success(id, value);
+            serde_json::to_vec(&resp).ok()
+        }
+        Err(e) => {
+            let code = match e {
+                mcp_server::contract::Error::ToolArgsInvalid { .. } => CODE_INVALID_PARAMS,
+                mcp_server::contract::Error::ToolDispatchFailed { ref reason, .. }
+                    if reason == "unknown tool" =>
+                {
+                    CODE_METHOD_NOT_FOUND
+                }
+                _ => CODE_INTERNAL_ERROR,
+            };
+            let resp = error(id, code, e.to_string());
+            serde_json::to_vec(&resp).ok()
+        }
+    }
 }
 
 fn count_params(v: &Value) -> u64 {

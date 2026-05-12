@@ -116,6 +116,68 @@ pub fn empty_tools_list() -> Value {
     json!({ "tools": [] })
 }
 
+// Per chunk #49: enumerate the 4 #[tool] methods exposed by the rmcp
+// sidecar. Schema follows the MCP `Tool` shape (name + description +
+// inputSchema). Input schemas are JSON Schema draft-07 fragments;
+// `additionalProperties: false` rejects unknown args при `tools/call`.
+pub fn tools_list_with_4_tools() -> Value {
+    json!({
+        "tools": [
+            {
+                "name": "query_traces",
+                "description": "Query recent OTLP traces from the in-memory buffer. Returns paginated trace rows with trace_id, span_id, service, duration_ms, error_count.",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "time_window_seconds": { "type": "integer", "minimum": 1, "default": 300 },
+                        "limit": { "type": "integer", "minimum": 1, "maximum": 1000, "default": 100 },
+                        "cursor": { "type": "string" }
+                    },
+                    "additionalProperties": false
+                }
+            },
+            {
+                "name": "query_metrics",
+                "description": "Query recent OTLP metric points from the in-memory buffer. Returns paginated metric rows with metric_name, ts_unix_nano, value, data_point_kind.",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "time_window_seconds": { "type": "integer", "minimum": 1, "default": 300 },
+                        "limit": { "type": "integer", "minimum": 1, "maximum": 1000, "default": 100 },
+                        "cursor": { "type": "string" }
+                    },
+                    "additionalProperties": false
+                }
+            },
+            {
+                "name": "query_logs",
+                "description": "Query recent OTLP log records from the in-memory buffer. Returns paginated log rows with severity, body, trace correlation.",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "time_window_seconds": { "type": "integer", "minimum": 1, "default": 300 },
+                        "limit": { "type": "integer", "minimum": 1, "maximum": 1000, "default": 100 },
+                        "cursor": { "type": "string" }
+                    },
+                    "additionalProperties": false
+                }
+            },
+            {
+                "name": "generate_snapshot",
+                "description": "Generate a curated markdown snapshot of recent telemetry. Pipeline: dedupe → anomaly highlight → critical path → p50/p95/p99 aggregates → token-budget markdown. Token budget snaps to Conservative (10k), Balanced (25k), or Detailed (50k) preset.",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "token_budget": { "type": "integer", "minimum": 1000, "default": 25000 },
+                        "time_window_seconds": { "type": "integer", "minimum": 1, "default": 300 }
+                    },
+                    "additionalProperties": false
+                }
+            }
+        ]
+    })
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -241,5 +303,48 @@ mod tests {
         let r = empty_tools_list();
         assert!(r["tools"].is_array());
         assert_eq!(r["tools"].as_array().expect("array").len(), 0);
+    }
+
+    #[test]
+    fn tools_list_with_4_tools_returns_4_named_tools() {
+        let r = tools_list_with_4_tools();
+        let arr = r["tools"].as_array().expect("array");
+        assert_eq!(arr.len(), 4);
+        let names: Vec<&str> = arr
+            .iter()
+            .map(|t| t["name"].as_str().expect("name"))
+            .collect();
+        assert!(names.contains(&"query_traces"));
+        assert!(names.contains(&"query_metrics"));
+        assert!(names.contains(&"query_logs"));
+        assert!(names.contains(&"generate_snapshot"));
+    }
+
+    #[test]
+    fn tools_list_with_4_tools_each_has_description_and_input_schema() {
+        let r = tools_list_with_4_tools();
+        for tool in r["tools"].as_array().expect("array") {
+            assert!(tool["description"].as_str().is_some());
+            assert!(tool["inputSchema"]["type"].as_str() == Some("object"));
+            assert!(tool["inputSchema"]["additionalProperties"].as_bool() == Some(false));
+        }
+    }
+
+    #[test]
+    fn tools_list_with_4_tools_query_schemas_share_time_window_property() {
+        let r = tools_list_with_4_tools();
+        for name in ["query_traces", "query_metrics", "query_logs"] {
+            let tool = r["tools"]
+                .as_array()
+                .expect("array")
+                .iter()
+                .find(|t| t["name"] == name)
+                .unwrap_or_else(|| panic!("tool {name} present"));
+            let props = tool["inputSchema"]["properties"]
+                .as_object()
+                .expect("props object");
+            assert!(props.contains_key("time_window_seconds"));
+            assert!(props.contains_key("limit"));
+        }
     }
 }
