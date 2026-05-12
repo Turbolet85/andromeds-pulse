@@ -30,6 +30,7 @@ taurpc.workspace = true
 bytes.workspace = true
 strict-path.workspace = true
 duckdb.workspace = true
+wasmtime.workspace = true
 ui-bridge = { path = "../crates/ui-bridge" }
 ingest = { path = "../crates/ingest" }
 buffer = { path = "../crates/buffer" }
@@ -49,6 +50,7 @@ tauri-build.workspace = true
 
 [dev-dependencies]
 tempfile.workspace = true
+wat.workspace = true
 
 [features]
 default = []

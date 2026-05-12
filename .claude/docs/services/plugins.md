@@ -51,8 +51,9 @@ Hosts the WASM Component Model plugin runtime via `wasmtime` 25+. Capability-sco
 - **Component loader substrate (chunk #45):** `crates/plugins/src/wit_loader.rs` (Component bytes loader + 8 MB size cap + empty Linker constructor)
 - **Sandbox + ResourceLimiter (chunk #46):** `crates/plugins/src/sandbox.rs` (`ResourceLimiterState` + per-Store memory / tables / instances caps + `store_for_category`)
 - **Capability dispatch (chunk #46):** `crates/plugins/src/capability.rs` (per-category `Linker<ResourceLimiterState>` constructor; today returns empty Linker per category since all 3 WIT files declare zero host imports)
-- **Contract module:** `crates/plugins/src/contract.rs` (`Error` enum + `PluginCategory` enum + `PluginsHeartbeat` stub)
-- **Plugin loader (chunk #47 — planned):** `crates/plugins/src/loader.rs` (filesystem scan + canonicalize + `plugins.list/reload/invoke` IPC)
+- **Contract module:** `crates/plugins/src/contract.rs` (`Error` enum + `PluginCategory` enum + `PluginsHeartbeat` registry-driven payload)
+- **Plugin loader (chunk #47):** `crates/plugins/src/loader.rs` (filesystem scan + canonicalize + `PluginRegistry` + `discover_plugins` + per-category subdirectory layout)
+- **Plugin TauRPC router (chunk #47):** `pulse-app/src/plugins_router.rs` (`plugins.{list,reload,invoke}` resolvers + DTOs; capability-handshake-only invoke at chunk #47 — full export invocation deferred to a future chunk with `wasmtime::component::bindgen!`)
 - **WIT definitions:** `crates/plugins/wit/{custom-dashboard.wit,data-transform.wit,snapshot-template.wit}`
 - **Tests:** colocated `#[cfg(test)] mod tests { … }` per source file + `wat::parse_str(...)` test-time WASM Component fixture generation (no committed `.wasm` binaries)
 

@@ -1,5 +1,7 @@
 use thiserror::Error;
 
+use crate::loader::PluginRegistry;
+
 #[derive(Debug, Error)]
 pub enum Error {
     #[error("placeholder")]
@@ -58,11 +60,32 @@ pub enum Error {
         capability_name: String,
         reason: String,
     },
+
+    /// Plugin directory canonicalization or confinement failed at boot.
+    /// Fires when `ANDROMEDA_PULSE_PLUGIN_DIR` (or the resolved per-platform
+    /// default) cannot be canonicalized OR canonicalization reveals a
+    /// traversal escape. `reason` is a sanitized one-liner (no full paths
+    /// per security plan §Logging Vector 6 / CWE-22 anchor).
+    #[error("plugin path canonicalization failed: {reason}")]
+    PathCanonicalizationFailed { reason: String },
+
+    /// Filesystem read of a discovered plugin file failed after
+    /// canonicalization succeeded. `plugin_id` carries the basename
+    /// (NEVER full path per security plan §Logging Vector 3); `reason`
+    /// is sanitized.
+    #[error("plugin load failed for `{plugin_id}`: {reason}")]
+    LoadFailed { plugin_id: String, reason: String },
+
+    /// `plugins.invoke` called with a `plugin_id` not present in the
+    /// in-memory registry. `plugin_id` is the basename as supplied by
+    /// the caller (typed identifier; no full path).
+    #[error("plugin `{plugin_id}` not found in registry")]
+    NotFound { plugin_id: String },
 }
 
 /// Plugin category taxonomy per route#45 (Epoch 7 opener). Names map
 /// 1:1 to WIT schema files under `crates/plugins/wit/` (kebab-case).
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum PluginCategory {
     /// UI-emitting category — plugin authors honor WCAG 2.1 AA + SC 2.3.3 AAA
     /// obligations per `crates/plugins/wit/custom-dashboard.wit` doc-comments.
@@ -99,8 +122,20 @@ pub struct PluginsHeartbeat {
     pub active_invocations: u32,
 }
 
-pub fn heartbeat_payload() -> PluginsHeartbeat {
-    PluginsHeartbeat::default()
+/// Heartbeat payload for `plugins.tick`. `loaded_count` is the size of
+/// the registry; `active_invocations` is the cumulative-since-boot
+/// counter exposed by the registry's `AtomicU32`. Both fields are within
+/// the `plugins` AllowList registry entry (per
+/// `pulse-app/src/observability.rs:171-179`).
+///
+/// Chunk #45 substrate shipped a parameter-less stub returning all-zeros;
+/// chunk #47 loader makes both fields meaningful by passing the live
+/// registry.
+pub fn heartbeat_payload(registry: &PluginRegistry) -> PluginsHeartbeat {
+    PluginsHeartbeat {
+        loaded_count: registry.loaded_count(),
+        active_invocations: registry.active_invocations(),
+    }
 }
 
 #[cfg(test)]
@@ -109,7 +144,8 @@ mod tests {
 
     #[test]
     fn heartbeat_payload_is_callable() {
-        let h = heartbeat_payload();
+        let registry = PluginRegistry::empty();
+        let h = heartbeat_payload(&registry);
         assert_eq!(h.loaded_count, 0);
         assert_eq!(h.active_invocations, 0);
     }
@@ -168,5 +204,36 @@ mod tests {
         assert!(msg.contains("custom-dashboard"));
         assert!(msg.contains("host:logging/log"));
         assert!(msg.contains("not declared in WIT"));
+    }
+
+    #[test]
+    fn path_canonicalization_failed_displays_reason() {
+        let e = Error::PathCanonicalizationFailed {
+            reason: "candidate path does not exist".to_string(),
+        };
+        let msg = e.to_string();
+        assert!(msg.contains("plugin path canonicalization failed"));
+        assert!(msg.contains("candidate path does not exist"));
+    }
+
+    #[test]
+    fn load_failed_displays_plugin_id_and_reason() {
+        let e = Error::LoadFailed {
+            plugin_id: "test-plugin.wasm".to_string(),
+            reason: "permission denied".to_string(),
+        };
+        let msg = e.to_string();
+        assert!(msg.contains("test-plugin.wasm"));
+        assert!(msg.contains("permission denied"));
+    }
+
+    #[test]
+    fn not_found_displays_plugin_id() {
+        let e = Error::NotFound {
+            plugin_id: "missing-plugin".to_string(),
+        };
+        let msg = e.to_string();
+        assert!(msg.contains("missing-plugin"));
+        assert!(msg.contains("not found"));
     }
 }

@@ -22,12 +22,14 @@ use viz::VizState;
 
 mod heartbeat;
 mod observability;
+mod plugins_router;
 mod snapshot_runtime;
 mod streams;
 mod tray;
 mod viz_routers;
 mod window;
 
+use plugins_router::{PluginsApi, PluginsApiImpl};
 use snapshot_runtime::{SnapshotApi, SnapshotApiImpl};
 use streams::{StreamsApi, StreamsApiImpl};
 use viz_routers::{LogsApi, LogsApiImpl, MetricsApi, MetricsApiImpl, TracesApi, TracesApiImpl};
@@ -263,6 +265,44 @@ fn main() {
     let snapshot_impl = SnapshotApiImpl::new(buffer_conn.clone(), data_dir.clone());
     let snapshot_impl_for_setup = snapshot_impl.clone();
 
+    // Chunk #47: plugin host wiring. Engine is constructed at boot (shared
+    // across all plugin operations); plugin dir is resolved + canonicalized
+    // (missing-dir is non-fatal — boot proceeds with empty registry); initial
+    // discovery populates the registry. The registry Mutex is shared with
+    // the heartbeat task via Arc::clone.
+    let plugin_engine = Arc::new(plugins::engine::build_engine().expect("plugin engine builds"));
+    let plugin_dir_raw = plugins::loader::resolve_plugin_dir();
+    let canonical_plugin_dir = match plugins::loader::canonicalize_plugin_dir(&plugin_dir_raw) {
+        Ok(p) => p,
+        Err(e) => {
+            tracing::warn!(
+                target: "plugin.load.boot",
+                error_msg = %e,
+                "plugin dir canonicalization failed; plugin host disabled this boot",
+            );
+            plugin_dir_raw.clone()
+        }
+    };
+    let canonical_plugin_dir = Arc::new(canonical_plugin_dir);
+    let initial_plugins =
+        plugins::loader::discover_plugins(&plugin_engine, canonical_plugin_dir.as_path())
+            .unwrap_or_else(|e| {
+                tracing::warn!(
+                    target: "plugin.load.boot",
+                    error_msg = %e,
+                    "plugin discovery failed at boot; registry starts empty",
+                );
+                Vec::new()
+            });
+    let mut boot_registry = plugins::loader::PluginRegistry::empty();
+    boot_registry.replace_plugins(initial_plugins);
+    let plugins_registry = Arc::new(Mutex::new(boot_registry));
+    let plugins_impl = PluginsApiImpl::new(
+        Arc::clone(&plugin_engine),
+        Arc::clone(&plugins_registry),
+        Arc::clone(&canonical_plugin_dir),
+    );
+
     let invoke_router = match buffer_conn.as_ref() {
         Some(conn) => taurpc::Router::new()
             .export_config(taurpc_export_config())
@@ -273,14 +313,16 @@ fn main() {
             .merge(StreamsApiImpl::new(Arc::clone(&broadcast_senders)).into_handler())
             .merge(TelemetryApiImpl::new().into_handler())
             .merge(snapshot_impl.clone().into_handler())
-            .merge(WorkspaceApiImpl::new().into_handler()),
+            .merge(WorkspaceApiImpl::new().into_handler())
+            .merge(plugins_impl.clone().into_handler()),
         None => taurpc::Router::new()
             .export_config(taurpc_export_config())
             .merge(introspection_impl.clone().into_handler())
             .merge(StreamsApiImpl::new(Arc::clone(&broadcast_senders)).into_handler())
             .merge(TelemetryApiImpl::new().into_handler())
             .merge(snapshot_impl.clone().into_handler())
-            .merge(WorkspaceApiImpl::new().into_handler()),
+            .merge(WorkspaceApiImpl::new().into_handler())
+            .merge(plugins_impl.clone().into_handler()),
     };
 
     tauri::Builder::default()
@@ -418,6 +460,7 @@ fn main() {
                 retention_seconds,
                 Arc::clone(&viz_state),
                 Arc::clone(&broadcast_senders),
+                Arc::clone(&plugins_registry),
             );
             Ok(())
         })
@@ -677,6 +720,21 @@ mod tests {
 
         let snapshot_impl = SnapshotApiImpl::new(Some(Arc::clone(&conn)), data_dir.clone());
 
+        // Chunk #47: PluginsApiImpl participates in the emit so the bindings.ts
+        // ARGS_MAP includes plugins.list / reload / invoke; xtask capability-drift
+        // depends on this emission to verify EXPECTED_PROCEDURES sync.
+        let plugin_engine = Arc::new(
+            plugins::engine::build_engine().expect("plugin engine builds for bindings test"),
+        );
+        let plugins_registry = Arc::new(Mutex::new(plugins::loader::PluginRegistry::empty()));
+        let canonical_plugin_dir =
+            Arc::new(std::env::temp_dir().join("andromeda-pulse-plugins-bindings-test"));
+        let plugins_impl = PluginsApiImpl::new(
+            Arc::clone(&plugin_engine),
+            Arc::clone(&plugins_registry),
+            Arc::clone(&canonical_plugin_dir),
+        );
+
         let router: taurpc::Router<tauri::Wry> = taurpc::Router::new()
             .export_config(taurpc_export_config())
             .merge(introspection_impl.into_handler())
@@ -686,7 +744,8 @@ mod tests {
             .merge(StreamsApiImpl::new(Arc::clone(&broadcast_senders)).into_handler())
             .merge(TelemetryApiImpl::new().into_handler())
             .merge(snapshot_impl.into_handler())
-            .merge(WorkspaceApiImpl::new().into_handler());
+            .merge(WorkspaceApiImpl::new().into_handler())
+            .merge(plugins_impl.into_handler());
 
         // into_handler() triggers export_types() in dev mode.
         let _handler = router.into_handler();

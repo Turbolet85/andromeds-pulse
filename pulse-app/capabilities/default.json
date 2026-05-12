@@ -1,7 +1,7 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
   "identifier": "default",
-  "description": "Default capability for compact widget + main dashboard webviews. Grants core IPC permissions used by tauri-plugin-updater + TauRPC handlers (cross-cutting envelope: health, app_info, ready, get_settings, update_settings per arch §Standard Contracts). Per-procedure granularity is not enforced at capability level — TauRPC dispatches all router methods through a single invoke handler; xtask capability-drift gate (route#22) introspects the router and asserts router-level coverage.",
+  "description": "Default capability for compact widget + main dashboard webviews. Grants core IPC permissions used by tauri-plugin-updater + TauRPC handlers (cross-cutting envelope: health, app_info, ready, get_settings, update_settings per arch §Standard Contracts). Per-procedure granularity is not enforced at capability level — TauRPC dispatches all router methods through a single invoke handler; xtask capability-drift gate (route#22) introspects the router and asserts router-level coverage. Per chunk #47 also covers plugins.{list,reload,invoke} (router-level coverage per CLAUDE.md Session Additions 2026-05-03 TauRPC capability rule).",
   "local": true,
   "windows": ["compact-widget", "main"],
   "permissions": [

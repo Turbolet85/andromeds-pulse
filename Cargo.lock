@@ -4742,6 +4742,8 @@ dependencies = [
  "tracing-subscriber",
  "ui-bridge",
  "viz",
+ "wasmtime",
+ "wat",
  "workspace-detector",
 ]
 

@@ -8,6 +8,40 @@ _This file is entirely wrap-session's territory. `/setup-project` creates it if 
 
 ---
 
+## 2026-05-12 — strict-path workspace dep is declared-but-unused; std::fs::canonicalize + manual traversal-check is the actual codebase precedent
+
+**Discovery:** Phase 3 codebase research at chunk #47 specified `strict_path::PathBoundary::try_new(plugin_dir)` for plugin-dir canonicalization, citing the `workspace-detector` crate as the precedent (its `Cargo.toml:12` declares `strict-path.workspace = true`). At /implement time, a grep over the workspace (`strict_path::`) returned zero hits in any source file — only research.md + plan.md mention it. The `workspace-detector` crate's `detect.rs:31,59` actually uses `candidate_root.canonicalize()` directly + a manual `path_contains_traversal(path)` helper (checks `Component::ParentDir` in `path.components()`). The `strict-path` workspace dep is declared in `Cargo.toml` workspace.dependencies (line 43) + activated in `crates/workspace-detector/Cargo.toml:12` but never `use`d.
+
+**Resolution at chunk #47:** followed the actual codebase precedent (manual canonicalize + traversal check). Did NOT add `strict-path.workspace = true` to `crates/plugins/Cargo.toml`. Same security intent (path canonicalization + confinement per security plan §Input Validation row "Plugin host inputs" + §Code Patterns anti-pattern row 2 CWE-22 defense); just a different mechanism. The `loader::canonicalize_plugin_dir(plugin_dir)` fn mirrors `workspace_detector::detect::detect` traversal+canonicalize pattern.
+
+**Implications for future security-path canonicalization work in this codebase:**
+
+- The "use strict-path" guidance in security-plan.md §Bootstrap phases `input-validation-library-install` is aspirational — the crate is on the workspace dep tree but no consumer actually exercises it. Either: (a) refactor `workspace-detector` to actually use `strict-path::PathBoundary::try_new` (then plugins can follow that precedent), or (b) document the manual-canonicalize-plus-traversal-check pattern as the canonical precedent and remove the dead `strict-path` dep declarations.
+- The `path_contains_traversal` helper (literally 3 lines: `use std::path::Component; path.components().any(|c| matches!(c, Component::ParentDir))`) is a stable, dep-free pattern that every consumer can replicate cheaply. Adding `strict-path::PathBoundary` brings a workspace dep + a less-familiar API surface; the cost only pays off if strict-path's symlink-chain TOCTOU defenses are needed.
+- chunk #47's loader rejects `ANDROMEDA_PULSE_PLUGIN_DIR=/tmp/foo/../escape` via the `path_contains_traversal` ParentDir check BEFORE calling `canonicalize()`; verified via `loader::tests::canonicalize_plugin_dir_rejects_traversal` rstest.
+
+**Cross-references:**
+- `crates/plugins/src/loader.rs:155-178` chunk #47 canonicalize fn
+- `crates/workspace-detector/src/detect.rs:21-62` precedent
+- security-plan.md §Bootstrap phases `input-validation-library-install` — strict-path declared install target
+
+---
+
+## 2026-05-12 — pulse-app DTOs use unconditional `derive(specta::Type)`; only ui-bridge gates it via `taurpc-runtime` feature
+
+**Discovery:** chunk #47 plugins_router.rs DTOs (`PluginDto` / `PluginListEnvelope` / `PluginInvokeResult`) initially used the `#[cfg_attr(feature = "taurpc-runtime", derive(specta::Type))]` pattern copied from `crates/ui-bridge/src/contract.rs::AppError`. The build failed at `taurpc::procedures` macro expansion: `the trait bound: Result<PluginListEnvelope, AppError>: FunctionResult<_> is not satisfied`. Root cause: `pulse-app/Cargo.toml` does NOT have a `taurpc-runtime` feature defined — the cfg-attr gate was always-false in pulse-app context, so specta::Type was never derived. ui-bridge defines the feature (`[features] taurpc-runtime = ["dep:taurpc", "dep:tauri", "dep:specta", "dep:tokio"]` with `default = ["taurpc-runtime"]`) precisely so xtask can opt out of the Tauri runtime; pulse-app has no such opt-out need (it's the binary crate that always builds with Tauri).
+
+**Resolution at chunk #47:** changed all three DTOs to `#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, specta::Type)]` (unconditional). Also added `wasmtime.workspace = true` to pulse-app/Cargo.toml `[dependencies]` (the router uses `wasmtime::Engine` directly) and `wat.workspace = true` to `[dev-dependencies]` (the router's tests use `wat::parse_str` for fixture components — same pattern as `crates/plugins/src/wit_loader.rs` chunk #45 substrate).
+
+**Pattern for future pulse-app TauRPC DTOs:** put the DTO either (a) in `crates/ui-bridge/src/contract.rs` (with `#[cfg_attr(feature = "taurpc-runtime", derive(specta::Type))]` matching the existing precedent — preferred when the DTO needs to be referenced by xtask too) OR (b) in `pulse-app/src/{module}.rs` with unconditional `#[derive(specta::Type)]` (when the DTO is pulse-app-internal, like the chunk-47 plugins router DTOs which don't need to cross into xtask). The cfg-attr feature gate is a ui-bridge thing only — copying it into pulse-app modules silently strips the derive and produces the confusing "FunctionResult not satisfied" trait-bound error at macro-expansion time.
+
+**Cross-references:**
+- `pulse-app/src/plugins_router.rs:26-49` chunk #47 DTOs
+- `crates/ui-bridge/Cargo.toml:9-11` `taurpc-runtime` feature definition
+- `pulse-app/Cargo.toml:53-56` features (no taurpc-runtime)
+
+---
+
 ## 2026-05-12 — wasmtime 43 ResourceLimiter trait surface + closure-coercion in Store::limiter
 
 **Pattern:** chunk #46 implementation pinned down the wasmtime 43 `ResourceLimiter` trait surface for per-Store sandboxing. Useful reference for chunks #47-#49 + any future plugin-host extension that attaches per-instantiation resource caps.

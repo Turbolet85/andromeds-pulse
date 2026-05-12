@@ -386,62 +386,145 @@ impl From<SnapshotError> for AppError {
 
 impl From<PluginsError> for AppError {
     fn from(e: PluginsError) -> Self {
-        // Chunk #45 substrate maps all PluginsError variants к AppError::Internal
-        // because no IPC consumer exists yet (no `plugins.*` TauRPC procedure).
-        // Chunk #47 IPC binding will refactor to `AppError::Plugin { plugin_id,
-        // message }` when the loader / invoke routes introduce plugin_id at
-        // the call site. The intermediate Internal mapping keeps the boundary
-        // sanitized (no stack traces / paths / library versions cross over)
-        // while preserving the existing `ui-bridge.error.internal` tracing
-        // target — per `.claude/rules/security.md` 2026-05-07 Session Addition,
-        // a new dotted sub-namespace (`ui-bridge.error.plugin`) requires an
-        // explicit `AllowList::production()` entry; chunk #45 substrate defers
-        // that to chunk #47 IPC binding when the actual procedure lands.
-        let (source_kind, message) = match e {
-            PluginsError::Placeholder => ("placeholder", "plugins: placeholder error".to_string()),
-            PluginsError::EngineInit { reason } => (
-                "engine_init",
-                format!("plugins: engine init failed: {reason}"),
-            ),
-            PluginsError::WitLoad { plugin_id, reason } => (
-                "wit_load",
-                format!("plugins: wit load failed for `{plugin_id}`: {reason}"),
-            ),
-            PluginsError::ComponentInstantiate { plugin_id, reason } => (
-                "component_instantiate",
-                format!("plugins: component instantiate failed for `{plugin_id}`: {reason}"),
-            ),
+        // Chunk #47 IPC binding rebinds plugin_id-bearing variants to
+        // `AppError::Plugin { plugin_id, message }` (the architecture-declared
+        // plugin error variant) and emits at the `ui-bridge.error.plugin`
+        // tracing target (pre-provisioned in `pulse-app/src/observability.rs`
+        // AllowList registry per chunk #26). Variants without plugin_id
+        // (`Placeholder` / `EngineInit`) continue routing through
+        // `AppError::Internal`. `PathCanonicalizationFailed` is a config-time
+        // validation failure routed through `AppError::Validation` (mirrors
+        // workspace-detector `CanonicalizationFailed` mapping).
+        match e {
+            PluginsError::Placeholder => {
+                let message = "plugins: placeholder error".to_string();
+                tracing::warn!(
+                    target: "ui-bridge.error.internal",
+                    error_category = "internal",
+                    source_kind = "placeholder",
+                    source_crate = "plugins",
+                    "{}",
+                    message
+                );
+                AppError::Internal { message }
+            }
+            PluginsError::EngineInit { reason } => {
+                let message = format!("plugins: engine init failed: {reason}");
+                tracing::warn!(
+                    target: "ui-bridge.error.internal",
+                    error_category = "internal",
+                    source_kind = "engine_init",
+                    source_crate = "plugins",
+                    "{}",
+                    message
+                );
+                AppError::Internal { message }
+            }
+            PluginsError::PathCanonicalizationFailed { reason } => {
+                let _ = reason;
+                tracing::warn!(
+                    target: "ui-bridge.error.validation",
+                    error_category = "validation",
+                    source_kind = "path_canonicalization_failed",
+                    source_crate = "plugins",
+                    field = "plugin_dir",
+                    "plugin dir canonicalization failed"
+                );
+                AppError::Validation {
+                    field: "plugin_dir".to_string(),
+                    reason: "path canonicalization failed".to_string(),
+                }
+            }
+            PluginsError::WitLoad { plugin_id, reason } => {
+                let message = format!("wit load failed: {reason}");
+                tracing::warn!(
+                    target: "ui-bridge.error.plugin",
+                    error_category = "plugin",
+                    source_kind = "wit_load",
+                    source_crate = "plugins",
+                    plugin_id = %plugin_id,
+                    "{}",
+                    message
+                );
+                AppError::Plugin { plugin_id, message }
+            }
+            PluginsError::ComponentInstantiate { plugin_id, reason } => {
+                let message = format!("component instantiate failed: {reason}");
+                tracing::warn!(
+                    target: "ui-bridge.error.plugin",
+                    error_category = "plugin",
+                    source_kind = "component_instantiate",
+                    source_crate = "plugins",
+                    plugin_id = %plugin_id,
+                    "{}",
+                    message
+                );
+                AppError::Plugin { plugin_id, message }
+            }
             PluginsError::ResourceLimitExceeded {
                 plugin_id,
                 limit_kind,
                 requested,
                 configured_cap,
-            } => (
-                "resource_limit_exceeded",
-                format!(
-                    "plugins: resource limit exceeded for `{plugin_id}`: {limit_kind} requested {requested}, cap {configured_cap}"
-                ),
-            ),
+            } => {
+                let message = format!(
+                    "resource limit exceeded: {limit_kind} requested {requested}, cap {configured_cap}"
+                );
+                tracing::warn!(
+                    target: "ui-bridge.error.plugin",
+                    error_category = "plugin",
+                    source_kind = "resource_limit_exceeded",
+                    source_crate = "plugins",
+                    plugin_id = %plugin_id,
+                    "{}",
+                    message
+                );
+                AppError::Plugin { plugin_id, message }
+            }
             PluginsError::CapabilityRejected {
                 plugin_id,
                 capability_name,
                 reason,
-            } => (
-                "capability_rejected",
-                format!(
-                    "plugins: capability rejected for `{plugin_id}` capability `{capability_name}`: {reason}"
-                ),
-            ),
-        };
-        tracing::warn!(
-            target: "ui-bridge.error.internal",
-            error_category = "internal",
-            source_kind = source_kind,
-            source_crate = "plugins",
-            "{}",
-            message
-        );
-        AppError::Internal { message }
+            } => {
+                let message = format!("capability rejected: `{capability_name}`: {reason}");
+                tracing::warn!(
+                    target: "ui-bridge.error.plugin",
+                    error_category = "plugin",
+                    source_kind = "capability_rejected",
+                    source_crate = "plugins",
+                    plugin_id = %plugin_id,
+                    "{}",
+                    message
+                );
+                AppError::Plugin { plugin_id, message }
+            }
+            PluginsError::LoadFailed { plugin_id, reason } => {
+                let message = format!("load failed: {reason}");
+                tracing::warn!(
+                    target: "ui-bridge.error.plugin",
+                    error_category = "plugin",
+                    source_kind = "load_failed",
+                    source_crate = "plugins",
+                    plugin_id = %plugin_id,
+                    "{}",
+                    message
+                );
+                AppError::Plugin { plugin_id, message }
+            }
+            PluginsError::NotFound { plugin_id } => {
+                let message = "plugin not found in registry".to_string();
+                tracing::warn!(
+                    target: "ui-bridge.error.plugin",
+                    error_category = "plugin",
+                    source_kind = "not_found",
+                    source_crate = "plugins",
+                    plugin_id = %plugin_id,
+                    "{}",
+                    message
+                );
+                AppError::Plugin { plugin_id, message }
+            }
+        }
     }
 }
 
@@ -994,7 +1077,7 @@ mod tests {
     }
 
     #[test]
-    fn from_plugins_resource_limit_exceeded_collapses_to_internal_no_leak() {
+    fn from_plugins_resource_limit_exceeded_collapses_to_plugin_no_leak() {
         let e = AppError::from(PluginsError::ResourceLimitExceeded {
             plugin_id: "data-transform".to_string(),
             limit_kind: "memory-bytes".to_string(),
@@ -1002,28 +1085,28 @@ mod tests {
             configured_cap: 67_108_864,
         });
         match e {
-            AppError::Internal { message } => {
-                assert!(message.contains("data-transform"));
+            AppError::Plugin { plugin_id, message } => {
+                assert_eq!(plugin_id, "data-transform");
                 assert!(message.contains("memory-bytes"));
                 assert!(message.contains("67108865"));
                 assert!(message.contains("67108864"));
                 assert!(!message.contains('/'));
                 assert!(!message.contains("::"));
             }
-            other => panic!("expected AppError::Internal, got {other:?}"),
+            other => panic!("expected AppError::Plugin, got {other:?}"),
         }
     }
 
     #[test]
-    fn from_plugins_capability_rejected_collapses_to_internal_no_leak() {
+    fn from_plugins_capability_rejected_collapses_to_plugin_no_leak() {
         let e = AppError::from(PluginsError::CapabilityRejected {
             plugin_id: "custom-dashboard".to_string(),
             capability_name: "host:logging/log".to_string(),
             reason: "not declared in WIT".to_string(),
         });
         match e {
-            AppError::Internal { message } => {
-                assert!(message.contains("custom-dashboard"));
+            AppError::Plugin { plugin_id, message } => {
+                assert_eq!(plugin_id, "custom-dashboard");
                 assert!(message.contains("host:logging/log"));
                 assert!(message.contains("not declared in WIT"));
                 // `host:logging/log` legitimately contains '/' as part of the
@@ -1031,7 +1114,89 @@ mod tests {
                 // Rust struct names (`::` separators) MUST NOT appear.
                 assert!(!message.contains("::"));
             }
-            other => panic!("expected AppError::Internal, got {other:?}"),
+            other => panic!("expected AppError::Plugin, got {other:?}"),
+        }
+    }
+
+    #[test]
+    fn from_plugins_wit_load_collapses_to_plugin_no_leak() {
+        let e = AppError::from(PluginsError::WitLoad {
+            plugin_id: "snapshot-template".to_string(),
+            reason: "schema parse failed at /tmp/wit/foo.wit".to_string(),
+        });
+        match e {
+            AppError::Plugin { plugin_id, message } => {
+                assert_eq!(plugin_id, "snapshot-template");
+                assert!(message.contains("wit load failed"));
+                // Reason carries the upstream sanitized one-liner; full path
+                // is upstream's responsibility to scrub via
+                // engine::sanitize_wasmtime_error before reaching this fn.
+                assert!(!message.contains("::"));
+            }
+            other => panic!("expected AppError::Plugin, got {other:?}"),
+        }
+    }
+
+    #[test]
+    fn from_plugins_component_instantiate_collapses_to_plugin_no_leak() {
+        let e = AppError::from(PluginsError::ComponentInstantiate {
+            plugin_id: "data-transform".to_string(),
+            reason: "invalid wasm magic bytes".to_string(),
+        });
+        match e {
+            AppError::Plugin { plugin_id, message } => {
+                assert_eq!(plugin_id, "data-transform");
+                assert!(message.contains("component instantiate failed"));
+                assert!(!message.contains("::"));
+            }
+            other => panic!("expected AppError::Plugin, got {other:?}"),
+        }
+    }
+
+    #[test]
+    fn from_plugins_load_failed_collapses_to_plugin_no_leak() {
+        let e = AppError::from(PluginsError::LoadFailed {
+            plugin_id: "test-plugin.wasm".to_string(),
+            reason: "permission denied".to_string(),
+        });
+        match e {
+            AppError::Plugin { plugin_id, message } => {
+                assert_eq!(plugin_id, "test-plugin.wasm");
+                assert!(message.contains("load failed"));
+                assert!(!message.contains('/'));
+                assert!(!message.contains("::"));
+            }
+            other => panic!("expected AppError::Plugin, got {other:?}"),
+        }
+    }
+
+    #[test]
+    fn from_plugins_not_found_collapses_to_plugin_constant_message() {
+        let e = AppError::from(PluginsError::NotFound {
+            plugin_id: "missing-plugin".to_string(),
+        });
+        match e {
+            AppError::Plugin { plugin_id, message } => {
+                assert_eq!(plugin_id, "missing-plugin");
+                assert_eq!(message, "plugin not found in registry");
+            }
+            other => panic!("expected AppError::Plugin, got {other:?}"),
+        }
+    }
+
+    #[test]
+    fn from_plugins_path_canonicalization_failed_collapses_to_validation() {
+        let e = AppError::from(PluginsError::PathCanonicalizationFailed {
+            reason: "dir does not exist at /home/secret".to_string(),
+        });
+        match e {
+            AppError::Validation { field, reason } => {
+                assert_eq!(field, "plugin_dir");
+                assert_eq!(reason, "path canonicalization failed");
+                assert!(!reason.contains('/'));
+                assert!(!reason.contains("::"));
+            }
+            other => panic!("expected AppError::Validation, got {other:?}"),
         }
     }
 
@@ -1258,7 +1423,7 @@ mod tests {
     }
 
     #[test]
-    fn from_plugins_resource_limit_exceeded_emits_tracing_warn_at_internal_target() {
+    fn from_plugins_resource_limit_exceeded_emits_tracing_warn_at_plugin_target() {
         let events = capture(|| {
             let _ = AppError::from(PluginsError::ResourceLimitExceeded {
                 plugin_id: "data-transform".to_string(),
@@ -1270,14 +1435,14 @@ mod tests {
         assert!(
             events
                 .iter()
-                .any(|(target, level)| target == "ui-bridge.error.internal"
+                .any(|(target, level)| target == "ui-bridge.error.plugin"
                     && *level == tracing::Level::WARN),
-            "expected WARN at ui-bridge.error.internal; got {events:?}"
+            "expected WARN at ui-bridge.error.plugin; got {events:?}"
         );
     }
 
     #[test]
-    fn from_plugins_capability_rejected_emits_tracing_warn_at_internal_target() {
+    fn from_plugins_capability_rejected_emits_tracing_warn_at_plugin_target() {
         let events = capture(|| {
             let _ = AppError::from(PluginsError::CapabilityRejected {
                 plugin_id: "custom-dashboard".to_string(),
@@ -1288,9 +1453,58 @@ mod tests {
         assert!(
             events
                 .iter()
-                .any(|(target, level)| target == "ui-bridge.error.internal"
+                .any(|(target, level)| target == "ui-bridge.error.plugin"
                     && *level == tracing::Level::WARN),
-            "expected WARN at ui-bridge.error.internal; got {events:?}"
+            "expected WARN at ui-bridge.error.plugin; got {events:?}"
+        );
+    }
+
+    #[test]
+    fn from_plugins_load_failed_emits_tracing_warn_at_plugin_target() {
+        let events = capture(|| {
+            let _ = AppError::from(PluginsError::LoadFailed {
+                plugin_id: "echo.wasm".to_string(),
+                reason: "permission denied".to_string(),
+            });
+        });
+        assert!(
+            events
+                .iter()
+                .any(|(target, level)| target == "ui-bridge.error.plugin"
+                    && *level == tracing::Level::WARN),
+            "expected WARN at ui-bridge.error.plugin; got {events:?}"
+        );
+    }
+
+    #[test]
+    fn from_plugins_not_found_emits_tracing_warn_at_plugin_target() {
+        let events = capture(|| {
+            let _ = AppError::from(PluginsError::NotFound {
+                plugin_id: "missing".to_string(),
+            });
+        });
+        assert!(
+            events
+                .iter()
+                .any(|(target, level)| target == "ui-bridge.error.plugin"
+                    && *level == tracing::Level::WARN),
+            "expected WARN at ui-bridge.error.plugin; got {events:?}"
+        );
+    }
+
+    #[test]
+    fn from_plugins_path_canonicalization_failed_emits_tracing_warn_at_validation_target() {
+        let events = capture(|| {
+            let _ = AppError::from(PluginsError::PathCanonicalizationFailed {
+                reason: "candidate does not exist".to_string(),
+            });
+        });
+        assert!(
+            events
+                .iter()
+                .any(|(target, level)| target == "ui-bridge.error.validation"
+                    && *level == tracing::Level::WARN),
+            "expected WARN at ui-bridge.error.validation; got {events:?}"
         );
     }
 

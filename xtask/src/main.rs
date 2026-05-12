@@ -369,10 +369,10 @@ async fn run_npm_script(script: &str, extra: Vec<String>) -> Result<ExitCode> {
 // EXPECTED_PROCEDURES tracks the TauRPC procedure surface arch §Occupied
 // Resources Tauri IPC routes legitimizes for the current commit. New chunks
 // extend this list as their crates ship. Future-deferred procedures
-// (snapshot.*, plugins.*, mcp.*, workspace.*) commented out until their
-// owning chunks land — uncommenting prematurely produces "missing" drift
-// noise that hides real drift. mcp.* additionally gated by --features
-// mcp-server at the binary level.
+// (other snapshot/workspace verbs, mcp.*) commented out until their owning
+// chunks land — uncommenting prematurely produces "missing" drift noise
+// that hides real drift. mcp.* additionally gated by --features mcp-server
+// at the binary level.
 const EXPECTED_PROCEDURES: &[&str] = &[
     "app_info",
     "health",
@@ -385,12 +385,14 @@ const EXPECTED_PROCEDURES: &[&str] = &[
     "streams.subscribe_metrics",
     "streams.subscribe_spans",
     "snapshot.generate",
+    "plugins.list",
+    "plugins.reload",
+    "plugins.invoke",
     "telemetry.frontend.record_frame_ms",
     "traces.query",
     "workspace.detect",
     // future-deferred (per epoch landing):
     // "snapshot.list_recent", "snapshot.copy_to_clipboard",
-    // "plugins.list", "plugins.reload", "plugins.invoke",
     // "mcp.status", "mcp.start", "mcp.stop",
     // "workspace.list",
 ];
@@ -614,6 +616,17 @@ mod capability_drift_tests {
             assert!(
                 expected.contains(proc),
                 "EXPECTED_PROCEDURES must include {proc}"
+            );
+        }
+    }
+
+    #[test]
+    fn expected_procedures_includes_plugins_namespace_at_chunk_47() {
+        let expected: BTreeSet<&str> = EXPECTED_PROCEDURES.iter().copied().collect();
+        for proc in ["plugins.list", "plugins.reload", "plugins.invoke"] {
+            assert!(
+                expected.contains(proc),
+                "EXPECTED_PROCEDURES must include {proc} (chunk #47 plugins router)"
             );
         }
     }

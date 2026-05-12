@@ -1,14 +1,14 @@
 schema_version: 2
-last_wrap: 2026-05-12T04:16:00Z
-last_reconcile: 2026-05-12T04:16:00Z
+last_wrap: 2026-05-12T19:55:00Z
+last_reconcile: 2026-05-12T19:55:00Z
 
 last_completed_chunk:
-  route_index: 46
-  title: "Capability sandbox + ResourceLimiter — per-Store memory cap 64MB / table / instance, capability-scoped WIT host imports, basename-only path logging"
+  route_index: 47
+  title: "Plugin loader + IPC routers — strict-path canonicalize from ~/.andromeda-pulse/plugins/, plugins.list/reload/invoke + xtask drift check, built-in templates"
   epoch: 7
-  committed_at: 2026-05-12T04:16:00Z
-  commit_sha: 8515261
-  commit_subject: "feat(plugins): chunk #46 — capability sandbox + ResourceLimiter (Epoch 7 continues); session 56"
+  committed_at: 2026-05-12T19:55:00Z
+  commit_sha: 262fb59
+  commit_subject: "feat(plugins): chunk #47 — plugin loader + IPC routers (Epoch 7 continues); session 57"
 
 in_progress: null
 
@@ -24,9 +24,9 @@ plan_freshness:
   input_mtime: 2026-05-02T06:52:58Z
 
 living_artifact_freshness:
-  dep_tree_reconciled_at: 2026-05-12T04:16:00Z
-  api_surface_reconciled_at: 2026-05-12T04:16:00Z
-  most_recent_code_mtime: 2026-05-11T20:10:48Z
+  dep_tree_reconciled_at: 2026-05-12T19:55:00Z
+  api_surface_reconciled_at: 2026-05-12T19:55:00Z
+  most_recent_code_mtime: 2026-05-12T19:32:08Z
   reconcile_failed: false
 
 drift_warnings: []
@@ -210,4 +210,4 @@ spec_amendments:
       propagated_by_run: .andromeda/runs/2026-05-11T19-00-00-setup-project-delta/
       archived_at: 2026-05-11T19:25:00Z
 
-session_count: 56
+session_count: 57

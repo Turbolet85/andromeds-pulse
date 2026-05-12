@@ -1,4 +1,5 @@
 use std::sync::Arc;
+use std::sync::Mutex;
 use std::sync::atomic::{AtomicU64, Ordering};
 use std::time::Duration;
 
@@ -6,12 +7,14 @@ use buffer::{BroadcastSenders, BufferState};
 use chrono::Utc;
 use ingest::channel::IngestSender;
 use ingest::state::IngestState;
+use plugins::loader::PluginRegistry;
 use tokio::task::JoinHandle;
 use ui_bridge::health::HeartbeatState;
 use viz::VizState;
 
 const TICK_INTERVAL_SECS: u64 = 15;
 
+#[allow(clippy::too_many_arguments)]
 pub(crate) fn spawn(
     state: Arc<HeartbeatState>,
     ingest_state: Arc<IngestState>,
@@ -20,6 +23,7 @@ pub(crate) fn spawn(
     retention_seconds: u64,
     viz_state: Arc<VizState>,
     broadcast_senders: Arc<BroadcastSenders>,
+    plugins_registry: Arc<Mutex<PluginRegistry>>,
 ) -> Vec<JoinHandle<()>> {
     vec![
         tokio::spawn(run_ingest(
@@ -30,7 +34,7 @@ pub(crate) fn spawn(
         )),
         tokio::spawn(run_buffer(state.clone(), buffer_state, retention_seconds)),
         tokio::spawn(run_viz(state.clone(), viz_state)),
-        tokio::spawn(run_plugins(state)),
+        tokio::spawn(run_plugins(state, plugins_registry)),
     ]
 }
 
@@ -68,11 +72,11 @@ async fn run_viz(state: Arc<HeartbeatState>, viz_state: Arc<VizState>) {
     }
 }
 
-async fn run_plugins(state: Arc<HeartbeatState>) {
+async fn run_plugins(state: Arc<HeartbeatState>, plugins_registry: Arc<Mutex<PluginRegistry>>) {
     let mut interval = tokio::time::interval(Duration::from_secs(TICK_INTERVAL_SECS));
     loop {
         interval.tick().await;
-        emit_plugins_tick(&state);
+        emit_plugins_tick(&state, &plugins_registry);
     }
 }
 
@@ -177,8 +181,15 @@ fn emit_viz_tick(state: &HeartbeatState, viz_state: &VizState) {
     );
 }
 
-fn emit_plugins_tick(state: &HeartbeatState) {
-    let payload = plugins::contract::heartbeat_payload();
+fn emit_plugins_tick(state: &HeartbeatState, plugins_registry: &Arc<Mutex<PluginRegistry>>) {
+    // Brief lock; payload computation is cheap (size + atomic load).
+    // If the lock is poisoned, fall back to an empty payload so the tick
+    // still emits — heartbeat-stall CI gate cares about presence-of-tick
+    // more than payload accuracy on a poisoned mutex.
+    let payload = match plugins_registry.lock() {
+        Ok(registry) => plugins::contract::heartbeat_payload(&registry),
+        Err(_) => Default::default(),
+    };
     state.record_plugins(Utc::now());
     tracing::info!(
         target: "plugins.tick",
@@ -470,13 +481,28 @@ mod tests {
     #[test]
     fn emit_plugins_tick_emits_target_and_fields() {
         let state = HeartbeatState::new();
-        let lines = capture_lines(|| emit_plugins_tick(&state));
+        let registry = Arc::new(Mutex::new(PluginRegistry::empty()));
+        let lines = capture_lines(|| emit_plugins_tick(&state, &registry));
         assert_eq!(lines.len(), 1);
         assert_eq!(lines[0]["target"], "plugins.tick");
         let fields = &lines[0]["fields"];
         assert!(fields.get("loaded_count").is_some());
         assert!(fields.get("active_invocations").is_some());
+        assert_eq!(fields["loaded_count"], 0);
+        assert_eq!(fields["active_invocations"], 0);
         assert!(state.last_plugins().is_some());
+    }
+
+    #[test]
+    fn emit_plugins_tick_reflects_registry_invocation_counter() {
+        let state = HeartbeatState::new();
+        let registry = PluginRegistry::empty();
+        registry.record_invocation();
+        registry.record_invocation();
+        registry.record_invocation();
+        let registry = Arc::new(Mutex::new(registry));
+        let lines = capture_lines(|| emit_plugins_tick(&state, &registry));
+        assert_eq!(lines[0]["fields"]["active_invocations"], 3);
     }
 
     #[tokio::test]
@@ -488,6 +514,7 @@ mod tests {
         let buffer_state = Arc::new(BufferState::new());
         let viz_state = Arc::new(VizState::new());
         let senders = Arc::new(buffer::broadcast::create());
+        let plugins_registry = Arc::new(Mutex::new(PluginRegistry::empty()));
         let handles = spawn(
             state,
             ingest_state,
@@ -496,6 +523,7 @@ mod tests {
             600,
             viz_state,
             senders,
+            plugins_registry,
         );
         assert_eq!(handles.len(), 4);
         for handle in handles {

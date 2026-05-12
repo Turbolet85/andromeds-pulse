@@ -1,21 +1,21 @@
 # Session Handoff
 
-**Last Updated:** 2026-05-12T04:16:00Z
+**Last Updated:** 2026-05-12T19:55:00Z
 **Branch:** main
-**Session End Status:** clean (chunk #46 implemented + all gates green + Phase 2b smoke verified no boot panic)
-**Last Commit:** (pending — wrap commit composed in Phase 10 of this run; closes session 56)
+**Session End Status:** clean (chunk #47 implemented + all gates green + Phase 2b boot verified user-screenshot-confirmed)
+**Last Commit:** (pending — wrap commit composed in Phase 10 of this run; closes session 57)
 
 ## Current State
 
-- **Last completed chunk:** route#46 "Capability sandbox + ResourceLimiter — per-Store memory cap 64MB / table / instance, capability-scoped WIT host imports, basename-only path logging" (Epoch 7 — Plugin runtime + MCP server)
-- **Next chunk:** route#47 "Plugin loader + IPC routers — strict-path canonicalize from ~/.andromeda-pulse/plugins/, plugins.list/reload/invoke + xtask drift check, built-in templates" (Epoch 7 continues)
-- **In-progress phase:** none — chunk #46 substrate + sandbox landed this session; phase-43 artifacts archived (combined.md + research.md + plan.md)
-- **Phase artifacts present:** `.andromeda/phases/{phase-1..phase-43}/{combined.md, research.md, plan.md}` (phase-43 from this session)
-- **Epoch 7 — Plugin runtime + MCP server: 2 of 5 chunks closed (#45 substrate + #46 sandbox; #47-#49 pending).** Total route §2 chunk count: 56 (unchanged).
+- **Last completed chunk:** route#47 "Plugin loader + IPC routers — strict-path canonicalize from ~/.andromeda-pulse/plugins/, plugins.list/reload/invoke + xtask drift check, built-in templates" (Epoch 7 — Plugin runtime + MCP server)
+- **Next chunk:** route#48 "rmcp stdio sidecar + double-gate — andromeda-pulse-mcp binary --features mcp-server + ANDROMEDA_PULSE_MCP_ENABLED runtime gate, JSON-RPC 2.0, stderr-forced-JSON" (Epoch 7 continues)
+- **In-progress phase:** none — chunk #47 loader + router + xtask drift + plugin-templates landed this session; phase-44 artifacts archived (combined.md + research.md + plan.md)
+- **Phase artifacts present:** `.andromeda/phases/{phase-1..phase-44}/{combined.md, research.md, plan.md}` (phase-44 from this session)
+- **Epoch 7 — Plugin runtime + MCP server: 3 of 5 chunks closed (#45 substrate + #46 sandbox + #47 loader; #48-#49 pending).** Total route §2 chunk count: 56 (unchanged).
 
 ## Andromeda State Detection (states A-K)
 
-⚠️ **E — Pending phase planning**: chunk #47 next; no `.andromeda/phases/phase-44/` directory yet. Remediation: `/andromeda-phase` to plan chunk #47.
+⚠️ **E — Pending phase planning**: chunk #48 next; no `.andromeda/phases/phase-45/` directory yet. Remediation: `/andromeda-phase` to plan chunk #48.
 
 (A, B, C, D, F, G, H, I, J, K all clean post-wrap.)
 
@@ -23,100 +23,104 @@
 
 **No drift detected this wrap.**
 
-- D1 (living artifact staleness): cleared by Phase 5 reconcile — dep-tree.md + api-surface.md reconciled 2026-05-12T04:16:00Z, after the latest code mtime (2026-05-11T20:10:48Z).
-- D2 (wrong content): clean — Phase 5 tooling output captured cleanly; api-surface.md LIVING content REWRITTEN this wrap per v2.1 format-mismatch reconciliation (removed 824 lines of build-status noise that polluted prior LIVING content; net 5526 → 4715 lines after format fix + chunk #46 public-API additions).
-- D3 (plan-to-code): clean — arch §Workspace crates LOCKED list (10 members) matches Cargo.toml workspace.members.
-- D4 (plan-to-plan): clean.
-- D5 (plan-to-CLAUDE.md mtime): clean — all 9 upstream mtimes ≤ CLAUDE.md mtime (CLAUDE.md updated 2026-05-11T19:17Z via session 55's full setup-project re-derive).
-- D6 (route chunk progression): clean post-wrap — state.yaml.last_completed_chunk advances to chunk #46 with this wrap's commit SHA.
+- D1 (living artifact staleness): cleared by Phase 5 reconcile — dep-tree.md + api-surface.md both reconciled 2026-05-12T19:55:00Z with fresh tooling output reflecting chunk #47 delta (+2 lines on dep-tree.md pulse-app block; +30 lines on api-surface.md plugins crate block).
+- D2 (wrong content): clean — Phase 5 tooling output captured cleanly; both artifacts updated atomically with stdout-only content.
+- D3 (plan-to-code): clean — arch §Workspace crates LOCKED list (10 members) matches Cargo.toml workspace.members; `plugins.list`/`plugins.reload`/`plugins.invoke` present in bindings.ts; `cargo xtask capability-drift` exits 0.
+- D4 (plan-to-plan): clean — no spec amendments this session.
+- D5 (plan-to-CLAUDE.md mtime): clean — no upstream (arch + 6 specialist plans + route + input) regenerated this session; all upstream mtimes ≤ CLAUDE.md mtime (CLAUDE.md updated 2026-05-11T19:17Z via session 55's full setup-project re-derive).
+- D6 (route chunk progression): clean post-wrap — state.yaml.last_completed_chunk advances to chunk #47 with this wrap's commit SHA.
 
 ## Spec Amendments (this session)
 
-(none this session — chunk #46 implementation surfaced no Trigger 4 spec ↔ reality drift; sandbox + capability files extended the chunk #45 substrate cleanly per security plan §API Security row "Plugin host capability sandbox" + §Security Decisions Log 2026-05-02 / 2026-05-11.)
+(none this session — chunk #47 implementation surfaced no Trigger 4 spec ↔ reality drift; the strict-path workspace-dep "declared but unused" observation is documented in session-learnings as a Tier 3 entry, not amendment-worthy because the security plan's strict-path reference is aspirational rather than mandate-form, and the workspace-detector precedent of manual canonicalize+traversal-check satisfies the same security intent.)
 
-state.yaml.spec_amendments.active: 0 entries (clean — last active amendment archived in session 55 wrap).
-state.yaml.spec_amendments.archive: 17 entries (unchanged from session 55).
+state.yaml.spec_amendments.active: 0 entries (unchanged from session 56 — clean lifecycle).
+state.yaml.spec_amendments.archive: 17 entries (unchanged from session 56).
 
 ## Key Decisions This Session
 
-- **Single-chunk phase 43 plan**: chunk #46 grouped alone per grouping heuristic — "single-substantial" reason. Estimated ≥3h, touches plugins crate engine/sandbox/host modules + obs logging discipline, cross-cuts security (ResourceLimiter bounds) + arch (capability discipline) + obs (basename-only logging). Grouping with chunk #47 (loader + IPC + xtask + templates) would breach cognitive review window.
+- **Single-chunk phase 44 plan**: chunk #47 grouped alone per "single-substantial" heuristic — estimated ≥3h, touches plugins crate + ui-bridge + pulse-app/capabilities/ + xtask + plugins-examples/, cross-cuts security (strict-path canonicalize) + arch (TauRPC namespace, AppError::Plugin rebind) + obs (plugins.tick heartbeat activation). Grouping with chunk #48 (rmcp stdio sidecar) would breach cognitive review window.
 
-- **Open questions resolved at plan time (all per plan §Implementation notes recommendations):**
-  1. **Per-category caps uniform** — 64 MB memory / 1000 tables / 100 instances across all 3 categories at chunk #46; per-category differentiation deferred to a future chunk if usage profiling exposes need.
-  2. **Field allowlist via in-message formatting** — ResourceLimiter cap-rejection details formatted into the existing 5-field allowed `error_msg` per the `plugin` AllowList registry entry at `pulse-app/src/observability.rs:158-170`; AllowList extension deferred.
-  3. **Heartbeat tick deferred** — `plugins.tick` 15s emitter waits for chunk #47 (loader makes `loaded_count` meaningful); `heartbeat_payload()` stub at `contract.rs:69-71` continues to return defaults.
-  4. **`AppError::Plugin` rebind deferred** — new `plugins::contract::Error` variants (`ResourceLimitExceeded` + `CapabilityRejected`) route through existing `AppError::Internal` path; rebind to `AppError::Plugin` lands at chunk #47 per the existing comment at `crates/ui-bridge/src/contract.rs:387-399`.
+- **Research-time correction at /implement (Open Q5 strict-path API)**: grep over project source confirmed `strict_path::` is not used in any *.rs file — only declared in `crates/workspace-detector/Cargo.toml:12` + Cargo.toml workspace.dependencies line 43 as dead deps. workspace-detector's `detect.rs:21-62` uses `std::fs::canonicalize` + manual `path_contains_traversal` (3-line ParentDir check) instead. Decision: chunk #47 loader follows the ACTUAL codebase precedent (manual canonicalize + traversal check), NOT the speculative `strict_path::PathBoundary` API in research.md. Same security intent (path canonicalization + CWE-22 confinement); no new dep needed.
 
-- **Phase 2b smoke check pattern (Tauri 2 silent boot)** verified: pulse-app.exe started at t=11s post-compile, ran silently for 84s of 95s window, no `panicked at` / `app.panic.fatal` in stdout/stderr. Phase 2b skill's "60s reached without crash → SUCCESS" interpretation is correct for Tauri 2 native runtime which does NOT emit Vite-style boot-completion signals. Cold-compile first-attempt timed out at 60s budget (build reached 778/779 then killed by cleanup); warm-cache second attempt finished in 11s.
+- **WIT export-name correction**: research.md guessed `snapshot-template` export as `render-template`; actual WIT at `crates/plugins/wit/snapshot-template.wit` declares `render` (matching custom-dashboard's export name). `loader::declared_exports()` reflects the real WIT — `custom-dashboard`: `["render"]`, `data-transform`: `["transform"]`, `snapshot-template`: `["render"]`. Tests parametrize on these.
 
-- **api-surface.md LIVING block rewrite** — prior LIVING content had build-status messages ("Compiling proc-macro2", "Finished `dev` profile") mixed with API surface text (5526 lines, build noise interleaved); fresh tooling output captured stdout-only (4702 lines, clean `pub mod`/`pub fn`/`impl` declarations). Per v2.1 format-mismatch reconciliation discipline (when fresh tooling output diverges from LIVING block by significant content delta, Phase 5 MUST overwrite LIVING block with fresh stdout). Net: 5526 → 4715 lines (-14.7%).
+- **`plugins.invoke` capability-handshake-only semantics**: chunk #47 validates the requested capability name matches one of the plugin's category WIT exports and returns success/rejection — no actual `wasmtime::component::Instance::call` invocation. Full export invocation requires `wasmtime::component::bindgen!` per-category type generation; deferred to a future chunk. Documented in plan.md §Implementation notes + chunk #47 invoke fn doc-comment.
 
-- **State I commit-SHA drift (carried from session 55 wrap)** auto-resolves this wrap: state.yaml.last_completed_chunk advances from chunk #45 (SHA 5268c00 — orphan, not reachable from HEAD) to chunk #46 with this wrap's commit SHA. The stale chunk #45 SHA was historical artifact from a pre-rewrite state; advancing to chunk #46 makes it moot.
+- **active_invocations counter placement**: `registry.record_invocation()` fires AFTER lock acquisition but BEFORE the find() check — so not-found invocations also count toward the cumulative counter. Test expectation set to 3 (all 3 invokes increment regardless of outcome). Matches the security-relevant signal of "plugin host activity".
+
+- **emit_taurpc_bindings test = 4th binding**: fix-loop iteration #4 caught a confusing capability-drift "missing: 3" diagnosis. Root cause: the test in `pulse-app/src/main.rs::tests::emit_taurpc_bindings` triggers the bindings.ts emission via `Router::into_handler()` in dev mode — production router's contents don't matter for emission; only the test's router does. Without adding `plugins_impl.clone().into_handler()` to the test's `.merge(...)` chain, bindings.ts omits plugins.* even though EXPECTED_PROCEDURES is correct. Curated to `.claude/rules/security.md` Session Additions 2026-05-12 as a Tier 2 rule (extending the 2026-05-09 triple-binding cluster to a quadruple).
+
+- **specta::Type unconditional in pulse-app DTOs**: fix-loop iteration #2. ui-bridge uses `#[cfg_attr(feature = "taurpc-runtime", derive(specta::Type))]` for AppError because xtask consumes it without taurpc; pulse-app has no `taurpc-runtime` feature (binary always builds with Tauri), so DTOs in pulse-app should use unconditional `#[derive(specta::Type)]`. Documented in session-learnings Tier 3 entry.
 
 ## Files Modified
 
 This wrap's commit:
 
-**NEW files (5):**
-- `crates/plugins/src/sandbox.rs` (228 lines — `ResourceLimiterState` struct + `impl ResourceLimiter` + per-cap defaults + compile-time bound assertions + `store_for_category` + 11 colocated rstest cases)
-- `crates/plugins/src/capability.rs` (64 lines — `linker_for_category` per-category Linker constructor + 3 rstest cases)
-- `.andromeda/phases/phase-43/combined.md` (~180 lines — 7 specialist extracts merged + cross-domain reconciliation + Step 8 rot scan clean)
-- `.andromeda/phases/phase-43/research.md` (~70 lines — 11 files inspected + 7 patterns + 7 conventions + 4 open questions)
-- `.andromeda/phases/phase-43/plan.md` (~290 lines — 25 acceptance criteria + 8 implementation steps + 9 test commands)
+**NEW files (9):**
+- `crates/plugins/src/loader.rs` (~470 lines — `PluginRegistry` + `LoadedPlugin` + `resolve_plugin_dir` + `canonicalize_plugin_dir` + `discover_plugins` + `declared_exports` + 17 rstest cases)
+- `pulse-app/src/plugins_router.rs` (~320 lines — `PluginsApi` trait + `PluginsApiImpl` + 3 DTOs + `#[taurpc::resolvers]` impl + 7 tokio tests)
+- `plugins-examples/README.md` + `plugins-examples/{custom-dashboard,data-transform,snapshot-template}-example/README.md` (4 template scaffolds)
+- `.andromeda/phases/phase-44/combined.md` (223 lines)
+- `.andromeda/phases/phase-44/research.md` (120 lines)
+- `.andromeda/phases/phase-44/plan.md` (341 lines)
 
-**MODIFIED files (10):**
-- `crates/plugins/src/lib.rs` — `pub mod capability; pub mod sandbox;` added (alphabetical order: capability < contract < engine < sandbox < wit_loader)
-- `crates/plugins/src/contract.rs` — `Error::ResourceLimitExceeded { plugin_id, limit_kind, requested, configured_cap }` + `Error::CapabilityRejected { plugin_id, capability_name, reason }` variants added; 2 round-trip Display tests added
-- `crates/plugins/src/wit_loader.rs` — `sandbox_with_undeclared_import_fails_at_link_time` rstest added (3 cases, defense-in-depth over chunk #45 negative-canary using sandbox::store_for_category + capability::linker_for_category instead of bare Store + empty Linker<()>)
-- `crates/plugins/src/engine.rs` — module-level doc-comment updated to cite chunk #46 sandbox + capability extension (no functional change to `build_engine` / `sanitize_wasmtime_error`)
-- `crates/ui-bridge/src/contract.rs` — 2 new match arms in `From<PluginsError> for AppError` impl (`ResourceLimitExceeded` + `CapabilityRejected` route through existing `AppError::Internal` path per chunk #47-defer comment); 4 new tests (round-trip + tracing-warn emission for each variant)
-- `.claude/docs/services/plugins.md` — service-doc "Entry points for modification" updated to reflect current shape (engine.rs / wit_loader.rs substrate / sandbox.rs + capability.rs chunk #46 / loader+invoke+router still chunk #47)
-- `.andromeda/context/dependency-tree.md` — Last reconciled timestamp refresh (LIVING block content byte-identical to session 55 baseline at 310 lines; chunk #46 added zero new workspace dependencies)
-- `.andromeda/context/api-surface.md` — LIVING block rewritten (5526 → 4715 lines) per v2.1 format-mismatch reconciliation; new public items from chunk #46 captured (sandbox + capability modules + 2 Error variants)
-- `.andromeda/state.yaml` — session_count 55 → 56; last_wrap + last_reconcile refreshed; last_completed_chunk advanced to chunk #46; in_progress cleared; plan_freshness mtimes re-captured; drift_warnings cleared (empty list); living_artifact_freshness fields refreshed
-- `.claude/docs/session-learnings.md` — 2 new Tier 3 entries prepended (wasmtime 43 ResourceLimiter trait surface + Phase 2b Tauri 2 silent boot)
+**MODIFIED files (14):**
+- `crates/plugins/src/contract.rs` — 3 new Error variants + Hash derive on PluginCategory + refactored heartbeat_payload signature + 3 new round-trip Display tests
+- `crates/plugins/src/lib.rs` — `pub mod loader;` added
+- `crates/ui-bridge/src/contract.rs` — `From<PluginsError> for AppError` refactored: plugin_id-bearing variants route through `AppError::Plugin`; PathCanonicalizationFailed routes through `AppError::Validation`; tracing target switched to `ui-bridge.error.plugin`; 5 new round-trip + 5 new tracing-target tests
+- `pulse-app/Cargo.toml` — `wasmtime.workspace = true` + `wat.workspace = true` (dev-dep) added
+- `pulse-app/src/main.rs` — `mod plugins_router;` + pre-router construction of plugin_engine + canonical_plugin_dir + plugins_registry + plugins_impl; merged into router; `heartbeat::spawn` call extended; `emit_taurpc_bindings` test extended with PluginsApiImpl merge
+- `pulse-app/src/heartbeat.rs` — `run_plugins` + `emit_plugins_tick` accept `Arc<Mutex<PluginRegistry>>`; `spawn` signature extended + `#[allow(clippy::too_many_arguments)]`
+- `pulse-app/capabilities/plugin-fs.json` + `default.json` — descriptions updated for chunk #47 actualization (no permissions change)
+- `xtask/src/main.rs` — 3 plugins.* entries uncommented in EXPECTED_PROCEDURES + 1 new test
+- `.claude/docs/services/plugins.md` — loader.rs + plugins_router.rs added to Entry points; chunk #47 status landed
+- `.andromeda/context/dependency-tree.md` — fresh cargo tree output captured (310 → 312 lines; pulse-app gains wasmtime + wat direct deps)
+- `.andromeda/context/api-surface.md` — fresh cargo +nightly public-api output captured (4715 → 4745 lines; +30 lines plugins crate public API delta from loader::* + 3 new Error variants + heartbeat_payload signature change)
+- `.andromeda/state.yaml` — session_count 56 → 57; last_wrap/last_reconcile refreshed; last_completed_chunk advanced to chunk #47; drift_warnings empty; plan_freshness mtimes re-captured
+- `.claude/rules/security.md` — 1 new Tier 2 entry (emit_taurpc_bindings 4th binding)
+- `.claude/docs/session-learnings.md` — 2 new Tier 3 entries (strict-path dead-dep + specta::Type unconditional pulse-app)
 - `.claude/session-handoff.md` — full overwrite (this file)
+- `Cargo.lock` + `pulse-app/ui/src/bindings/index.ts` — auto-regenerated
 
 **Audit trail (gitignored — `.andromeda/runs/`):**
-- `.andromeda/runs/2026-05-11T19-36-59-phase-43/{.raw-{specialty}.md × 7, {specialty}.md × 7}` — phase 43 sub-agent raw + stripped extracts
+- `.andromeda/runs/2026-05-12T08-00-00-phase-44/{.raw-{specialty}.md × 7, {specialty}.md × 7}` — phase 44 sub-agent raw + stripped extracts
 
 ## Curation Summary (this wrap)
 
-- **Tier 1 (CLAUDE.md USER:session-learnings):** 0 additions (no universal safety rules surfaced this session — chunk #46 patterns are plugin-host scope)
-- **Tier 2 (`.claude/rules/*/Session Additions`):** 0 additions
-- **Tier 3 (`.claude/docs/session-learnings.md`):** 2 additions:
-  1. "wasmtime 43 ResourceLimiter trait surface + closure-coercion in Store::limiter" (confidence 0.75)
-  2. "Phase 2b smoke check: Tauri 2 native runtime boots silently + cold-compile budget interaction" (confidence 0.7)
-- **Filtered:** 0 duplicates + 0 task-specific + 0 conflicts + 1 deferred (chunk #45 SHA self-heal observation deferred — operational note, not actionable pattern; subsumed by v2.1 Fix 3 SHA-fixup amend discipline already in skill)
+- **Tier 1 (CLAUDE.md USER:session-learnings):** 0 additions
+- **Tier 2 (`.claude/rules/*/Session Additions`):** 1 addition to security.md ("emit_taurpc_bindings test = 4th binding"; confidence 0.85)
+- **Tier 3 (`.claude/docs/session-learnings.md`):** 2 additions ("strict-path dead-dep observation"; "pulse-app DTOs unconditional specta::Type"; both confidence 0.75)
+- **Filtered:** 0 duplicates + 0 task-specific + 0 conflicts + 1 deferred (Tauri silent-boot pattern; already in 2026-05-12 session-learnings) + 1 below-threshold (chunk #47 capability-handshake-only deferral; already in plan.md)
 
 ## Last Failed Command
 
-(none — all session 56 operations succeeded: phase planning + implementation + 638/638 workspace tests + 96.86% coverage + fmt + clippy + capability-drift + Cranelift + audit + deny + Phase 2b smoke booted clean.)
+(none — all session 57 operations succeeded.)
 
 ## Tests Status
 
-passing — 638/638 Rust workspace tests including 38/38 in plugins crate (23 new chunk #46 tests added this session: sandbox 11 + capability 3 + wit_loader 3 sandbox-stack integration + contract 2 round-trip + ui-bridge 4 From-impl extension = 23 net additions; net workspace 612 → 638 reflects this delta plus integration via dep crates).
+passing — 678/678 Rust workspace tests (+40 vs session 56's 638 baseline reflecting chunk #47 test additions: loader 17 + plugins_router 7 + contract 4 + ui-bridge 10 + xtask 1 + heartbeat 1 = 40 net).
 
-Coverage gates from chunk #45 baseline sustained: plugins crate 96.86% line / 97.73% function (well above ≥75 line / ≥85 function thresholds per test-plan §10 Standard tier).
+Coverage gates sustained: workspace TOTAL 87.28% line / 87.86% function (above ≥75 line / ≥85 function thresholds per test-plan §10 Standard tier). Chunk #47 per-file: `crates/plugins/src/contract.rs` 100% / 100%; `crates/plugins/src/loader.rs` 91.67% / 92.50%; `pulse-app/src/plugins_router.rs` 83.20% / 80.65%; `pulse-app/src/heartbeat.rs` 96.24% / 96.83%.
 
-Phase 2b runtime smoke: ✓ pulse-app.exe booted at t=11s post-compile; ran silently for 84s of 95s smoke window; no `panicked at` / `app.panic.fatal` in stdout/stderr; cleanly killed by cargo.exe cascade termination at smoke window end. The known chunk #30 latent panic at `crates/ui-bridge/src/health.rs:291` (per session-learnings 2026-05-09) did NOT fire during the 95s window — either resolved in a later chunk OR only fires when a specific TauRPC procedure is called (not at simple app startup).
+Phase 2b runtime smoke: ✓ pulse-app booted, compact widget rendered with Halo State Pulse, no `panicked at` / `app.panic.fatal`; user-screenshot-confirmed at 2026-05-12T19:45Z.
 
 ## Next Recommended Action
 
-**Priority 1 — `/andromeda-phase` for chunk #47 (Epoch 7 continues):**
+**Priority 1 — `/andromeda-phase` for chunk #48 (Epoch 7 continues):**
 
-route#47 "Plugin loader + IPC routers — strict-path canonicalize from ~/.andromeda-pulse/plugins/, plugins.list/reload/invoke + xtask drift check, built-in templates". Builds on chunk #46 sandbox: introduces filesystem plugin loader + 3 TauRPC procedures (plugins.list/reload/invoke) + per-procedure capability JSON entries + xtask EXPECTED_PROCEDURES update + built-in plugin templates. New TauRPC namespace means `/andromeda-scope-arch` may be needed first to legitimize `plugins.*` namespace in arch §Occupied Resources Tauri IPC routes per CLAUDE.md Session Additions 2026-05-09 entry (security.md). Consider running `/andromeda-scope-arch` BEFORE `/andromeda-phase` if the new IPC namespace will be controversial.
+route#48 "rmcp stdio sidecar + double-gate — andromeda-pulse-mcp binary --features mcp-server + ANDROMEDA_PULSE_MCP_ENABLED runtime gate, JSON-RPC 2.0, stderr-forced-JSON". Introduces the rmcp sidecar as a separate binary crate (`andromeda-pulse-mcp`) gated by `--features mcp-server` at compile-time + `ANDROMEDA_PULSE_MCP_ENABLED=true` env var at runtime (double-gate per security plan §MCP feature double-gate). Stdout reserved for JSON-RPC 2.0 framing; stderr forced-JSON (per obs plan + universal anti-pattern row 7). `mcp.{status,start,stop}` namespace already pre-enumerated in arch §Occupied Resources — likely no `/andromeda-scope-arch` run required.
 
-**No outstanding remediation items** — D1-D6 clean, state E expected (pending phase-44 planning is normal for chunk-completion wrap), no active spec amendments, no stale drifts. Clean session-start state for the next /andromeda-new-session invocation.
+**No outstanding remediation items** — D1-D6 clean, state E expected (pending phase-45 planning is normal for chunk-completion wrap), no active spec amendments, no stale drifts. Clean session-start state for the next /andromeda-new-session invocation.
 
 ## Session Goals (carry-over)
 
-(none — session 56 user goal achieved: chunk #46 capability sandbox + ResourceLimiter implemented + all gates green + Phase 2b smoke verified.)
+(none — session 57 user goal achieved: chunk #47 plugin loader + IPC routers + xtask drift gate + plugin-examples scaffolds implemented + all gates green + Phase 2b smoke verified.)
 
 ## Deferred decisions (Trigger 4 to Path B carry-over)
 
-(none — no Trigger 4 dialogues this session; chunk #46 implementation surfaced no spec ↔ reality drift.)
+(none — no Trigger 4 dialogues this session.)
 
 ## Deferred learnings (filtered out from Phase 4 curation)
 
-(1 deferred — chunk #45 SHA self-heal observation: an operational note rather than an actionable learning. Already covered by v2.1 Fix 3 SHA-fixup amend discipline in /andromeda-wrap-session Phase 10. Recording here for completeness; no separate entry needed in session-learnings.md.)
+(2 deferred: (a) Tauri silent boot pattern verification — duplicate of 2026-05-12 session-learnings from session 56; (b) chunk #47 capability-handshake-only deferral — already in plan.md §Implementation notes.)

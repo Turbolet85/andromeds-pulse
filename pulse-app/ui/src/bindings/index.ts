@@ -24,6 +24,12 @@ export type MetricsQueryArgs = { time_window_seconds: number; limit: number; cur
 
 export type PaginatedResponse<T> = { items: T[]; total: number; next_cursor: string | null }
 
+export type PluginDto = { id: string; basename: string; category: string; byte_count: number }
+
+export type PluginInvokeResult = { plugin_id: string; capability: string; allowed: boolean }
+
+export type PluginListEnvelope = { items: PluginDto[]; total: number; next_cursor: string | null }
+
 export type PresetPromptDto = { id: string; label: string }
 
 export type ReadyChecks = { duckdb_connection: string; ingest_mpsc_capacity_pct: number; broadcast_subscribers: number; plugins_loaded: number; mcp_server_enabled: boolean }
@@ -58,7 +64,7 @@ export type WidgetPosition = "top-left" | "top-right" | "bottom-left" | "bottom-
 
 export type WorkspaceContextDto = { root_basename: string; project_name: string | null; vcs_type: string | null; vcs_root_basename: string | null; has_andromeda_marker: boolean }
 
-const ARGS_MAP = { '':'{"app_info":[],"get_settings":[],"health":[],"ready":[],"update_settings":["settings"]}', 'logs':'{"query":["args"]}', 'metrics':'{"query":["args"]}', 'snapshot':'{"generate":["preset","workspace_root"]}', 'streams':'{"subscribe_logs":["channel"],"subscribe_metrics":["channel"],"subscribe_spans":["channel"]}', 'telemetry.frontend':'{"record_frame_ms":["input"]}', 'traces':'{"query":["args"]}', 'workspace':'{"detect":["candidate_root"]}' }
+const ARGS_MAP = { '':'{"app_info":[],"get_settings":[],"health":[],"ready":[],"update_settings":["settings"]}', 'logs':'{"query":["args"]}', 'metrics':'{"query":["args"]}', 'plugins':'{"invoke":["plugin_id","capability"],"list":[],"reload":[]}', 'snapshot':'{"generate":["preset","workspace_root"]}', 'streams':'{"subscribe_logs":["channel"],"subscribe_metrics":["channel"],"subscribe_spans":["channel"]}', 'telemetry.frontend':'{"record_frame_ms":["input"]}', 'traces':'{"query":["args"]}', 'workspace':'{"detect":["candidate_root"]}' }
 export type Router = { "": {app_info: () => Promise<AppInfo>, 
 get_settings: () => Promise<Settings>, 
 health: () => Promise<HealthEnvelope>, 
@@ -66,6 +72,9 @@ ready: () => Promise<ReadyEnvelope>,
 update_settings: (settings: Settings) => Promise<null>},
 "logs": {query: (args: LogsQueryArgs) => Promise<PaginatedResponse<LogRow>>},
 "metrics": {query: (args: MetricsQueryArgs) => Promise<PaginatedResponse<MetricRow>>},
+"plugins": {invoke: (pluginId: string, capability: string) => Promise<PluginInvokeResult>, 
+list: () => Promise<PluginListEnvelope>, 
+reload: () => Promise<PluginListEnvelope>},
 "snapshot": {generate: (preset: SnapshotPreset, workspaceRoot: string | null) => Promise<SnapshotResultDto>},
 "streams": {subscribe_logs: (channel: TAURI_CHANNEL<number[]>) => Promise<null>, 
 subscribe_metrics: (channel: TAURI_CHANNEL<number[]>) => Promise<null>, 
