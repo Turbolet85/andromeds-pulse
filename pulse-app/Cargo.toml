@@ -54,5 +54,5 @@ wat.workspace = true
 
 [features]
 default = []
-mcp-server = ["dep:mcp-server-crate"]
+mcp-server = ["dep:mcp-server-crate", "mcp-server-crate/mcp-server"]
 otap-ingest = []

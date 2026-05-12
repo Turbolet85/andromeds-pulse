@@ -1,14 +1,14 @@
 schema_version: 2
-last_wrap: 2026-05-12T19:55:00Z
-last_reconcile: 2026-05-12T19:55:00Z
+last_wrap: 2026-05-12T19:15:00Z
+last_reconcile: 2026-05-12T19:14:43Z
 
 last_completed_chunk:
-  route_index: 47
-  title: "Plugin loader + IPC routers — strict-path canonicalize from ~/.andromeda-pulse/plugins/, plugins.list/reload/invoke + xtask drift check, built-in templates"
+  route_index: 48
+  title: "rmcp stdio sidecar + double-gate — andromeda-pulse-mcp binary --features mcp-server + ANDROMEDA_PULSE_MCP_ENABLED runtime gate, JSON-RPC 2.0, stderr-forced-JSON"
   epoch: 7
-  committed_at: 2026-05-12T19:55:00Z
-  commit_sha: 262fb59
-  commit_subject: "feat(plugins): chunk #47 — plugin loader + IPC routers (Epoch 7 continues); session 57"
+  committed_at: 2026-05-12T19:15:00Z
+  commit_sha: 96b9025
+  commit_subject: "feat(mcp-server): chunk #48 — rmcp stdio sidecar + double-gate (Epoch 7 continues); session 58"
 
 in_progress: null
 
@@ -24,9 +24,9 @@ plan_freshness:
   input_mtime: 2026-05-02T06:52:58Z
 
 living_artifact_freshness:
-  dep_tree_reconciled_at: 2026-05-12T19:55:00Z
-  api_surface_reconciled_at: 2026-05-12T19:55:00Z
-  most_recent_code_mtime: 2026-05-12T19:32:08Z
+  dep_tree_reconciled_at: 2026-05-12T19:14:43Z
+  api_surface_reconciled_at: 2026-05-12T19:14:43Z
+  most_recent_code_mtime: 2026-05-12T19:14:00Z
   reconcile_failed: false
 
 drift_warnings: []
@@ -210,4 +210,4 @@ spec_amendments:
       propagated_by_run: .andromeda/runs/2026-05-11T19-00-00-setup-project-delta/
       archived_at: 2026-05-11T19:25:00Z
 
-session_count: 57
+session_count: 58

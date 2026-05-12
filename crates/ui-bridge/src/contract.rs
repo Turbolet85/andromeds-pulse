@@ -575,13 +575,28 @@ impl From<WorkspaceDetectorError> for AppError {
 
 impl From<McpServerError> for AppError {
     fn from(e: McpServerError) -> Self {
-        let message = match e {
-            McpServerError::Placeholder => "mcp-server: placeholder error",
+        let (message, source_kind) = match e {
+            McpServerError::FeatureNotEnabled { .. } => (
+                "mcp-server: feature not enabled at compile time",
+                "feature_not_enabled",
+            ),
+            McpServerError::EnvVarDisabled => (
+                "mcp-server: sidecar disabled (env var unset or not truthy)",
+                "env_var_disabled",
+            ),
+            McpServerError::RmcpInit { .. } => ("mcp-server: rmcp server init failed", "rmcp_init"),
+            McpServerError::JsonRpcFraming { .. } => {
+                ("mcp-server: JSON-RPC framing error", "json_rpc_framing")
+            }
+            McpServerError::Io { .. } => ("mcp-server: I/O error during sidecar run", "io"),
+            McpServerError::TracingInit { .. } => {
+                ("mcp-server: tracing subscriber init failed", "tracing_init")
+            }
         };
         tracing::warn!(
             target: "ui-bridge.error.internal",
             error_category = "internal",
-            source_kind = "placeholder",
+            source_kind = source_kind,
             source_crate = "mcp-server",
             "{}",
             message
@@ -1250,13 +1265,46 @@ mod tests {
     }
 
     #[test]
-    fn from_mcp_server_placeholder_collapses_to_constant_message_no_leak() {
-        let e = AppError::from(McpServerError::Placeholder);
+    fn from_mcp_server_env_var_disabled_collapses_to_constant_message_no_leak() {
+        let e = AppError::from(McpServerError::EnvVarDisabled);
         match e {
             AppError::Internal { message } => {
-                assert_eq!(message, "mcp-server: placeholder error");
+                assert_eq!(
+                    message,
+                    "mcp-server: sidecar disabled (env var unset or not truthy)"
+                );
                 assert!(!message.contains('/'));
                 assert!(!message.contains("::"));
+            }
+            other => panic!("expected AppError::Internal, got {other:?}"),
+        }
+    }
+
+    #[test]
+    fn from_mcp_server_rmcp_init_collapses_to_constant_message_no_leak() {
+        let e = AppError::from(McpServerError::RmcpInit {
+            detail: "stdio transport unavailable at /private/path/secret-canary".into(),
+        });
+        match e {
+            AppError::Internal { message } => {
+                assert_eq!(message, "mcp-server: rmcp server init failed");
+                assert!(!message.contains('/'));
+                assert!(!message.contains("secret-canary"));
+            }
+            other => panic!("expected AppError::Internal, got {other:?}"),
+        }
+    }
+
+    #[test]
+    fn from_mcp_server_json_rpc_framing_collapses_to_constant_message_no_leak() {
+        let e = AppError::from(McpServerError::JsonRpcFraming {
+            detail: "parse error at crate::module::Type secret".into(),
+        });
+        match e {
+            AppError::Internal { message } => {
+                assert_eq!(message, "mcp-server: JSON-RPC framing error");
+                assert!(!message.contains("::"));
+                assert!(!message.contains("secret"));
             }
             other => panic!("expected AppError::Internal, got {other:?}"),
         }
@@ -1541,9 +1589,25 @@ mod tests {
     }
 
     #[test]
-    fn from_mcp_server_placeholder_emits_tracing_warn_at_internal_target() {
+    fn from_mcp_server_env_var_disabled_emits_tracing_warn_at_internal_target() {
         let events = capture(|| {
-            let _ = AppError::from(McpServerError::Placeholder);
+            let _ = AppError::from(McpServerError::EnvVarDisabled);
+        });
+        assert!(
+            events
+                .iter()
+                .any(|(target, level)| target == "ui-bridge.error.internal"
+                    && *level == tracing::Level::WARN),
+            "expected WARN at ui-bridge.error.internal; got {events:?}"
+        );
+    }
+
+    #[test]
+    fn from_mcp_server_io_error_emits_tracing_warn_at_internal_target() {
+        let events = capture(|| {
+            let _ = AppError::from(McpServerError::Io {
+                source: std::io::Error::new(std::io::ErrorKind::BrokenPipe, "stdin closed"),
+            });
         });
         assert!(
             events

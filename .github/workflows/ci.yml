@@ -77,6 +77,10 @@ jobs:
         if: runner.os == 'Linux'
         run: cargo build --workspace --release --features mcp-server
 
+      - name: cargo nextest run --features mcp-server (Linux only)
+        if: runner.os == 'Linux'
+        run: cargo nextest run --workspace --features mcp-server --profile ci --no-tests=pass
+
       - name: Boot pulse-app smoke (Linux only)
         if: runner.os == 'Linux'
         continue-on-error: true

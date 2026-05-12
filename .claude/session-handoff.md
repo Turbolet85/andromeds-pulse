@@ -1,21 +1,21 @@
 # Session Handoff
 
-**Last Updated:** 2026-05-12T19:55:00Z
+**Last Updated:** 2026-05-12T19:15:00Z
 **Branch:** main
-**Session End Status:** clean (chunk #47 implemented + all gates green + Phase 2b boot verified user-screenshot-confirmed)
-**Last Commit:** (pending — wrap commit composed in Phase 10 of this run; closes session 57)
+**Session End Status:** clean (chunk #48 implemented + all gates green + direct sidecar binary smoke verified)
+**Last Commit:** (pending — wrap commit composed in Phase 10 of this run; closes session 58)
 
 ## Current State
 
-- **Last completed chunk:** route#47 "Plugin loader + IPC routers — strict-path canonicalize from ~/.andromeda-pulse/plugins/, plugins.list/reload/invoke + xtask drift check, built-in templates" (Epoch 7 — Plugin runtime + MCP server)
-- **Next chunk:** route#48 "rmcp stdio sidecar + double-gate — andromeda-pulse-mcp binary --features mcp-server + ANDROMEDA_PULSE_MCP_ENABLED runtime gate, JSON-RPC 2.0, stderr-forced-JSON" (Epoch 7 continues)
-- **In-progress phase:** none — chunk #47 loader + router + xtask drift + plugin-templates landed this session; phase-44 artifacts archived (combined.md + research.md + plan.md)
-- **Phase artifacts present:** `.andromeda/phases/{phase-1..phase-44}/{combined.md, research.md, plan.md}` (phase-44 from this session)
-- **Epoch 7 — Plugin runtime + MCP server: 3 of 5 chunks closed (#45 substrate + #46 sandbox + #47 loader; #48-#49 pending).** Total route §2 chunk count: 56 (unchanged).
+- **Last completed chunk:** route#48 "rmcp stdio sidecar + double-gate — andromeda-pulse-mcp binary --features mcp-server + ANDROMEDA_PULSE_MCP_ENABLED runtime gate, JSON-RPC 2.0, stderr-forced-JSON" (Epoch 7 — Plugin runtime + MCP server)
+- **Next chunk:** route#49 "MCP tool methods + IPC routers — query_traces/query_metrics/query_logs/generate_snapshot #[tool] sharing curation + mcp.status/start/stop, response.body never logged" (Epoch 7 closes)
+- **In-progress phase:** none — chunk #48 substrate + binary + integration tests landed this session; phase-45 artifacts archived (combined.md + research.md + plan.md)
+- **Phase artifacts present:** `.andromeda/phases/{phase-1..phase-45}/{combined.md, research.md, plan.md}` (phase-45 from this session)
+- **Epoch 7 — Plugin runtime + MCP server: 4 of 5 chunks closed (#45 substrate + #46 sandbox + #47 loader + #48 sidecar; #49 pending).** Total route §2 chunk count: 56 (unchanged).
 
 ## Andromeda State Detection (states A-K)
 
-⚠️ **E — Pending phase planning**: chunk #48 next; no `.andromeda/phases/phase-45/` directory yet. Remediation: `/andromeda-phase` to plan chunk #48.
+⚠️ **E — Pending phase planning**: chunk #49 next; no `.andromeda/phases/phase-46/` directory yet. Remediation: `/andromeda-phase` to plan chunk #49.
 
 (A, B, C, D, F, G, H, I, J, K all clean post-wrap.)
 
@@ -23,99 +23,100 @@
 
 **No drift detected this wrap.**
 
-- D1 (living artifact staleness): cleared by Phase 5 reconcile — dep-tree.md + api-surface.md both reconciled 2026-05-12T19:55:00Z with fresh tooling output reflecting chunk #47 delta (+2 lines on dep-tree.md pulse-app block; +30 lines on api-surface.md plugins crate block).
+- D1 (living artifact staleness): cleared by Phase 5 reconcile — dep-tree.md + api-surface.md both reconciled 2026-05-12T19:14:43Z with fresh tooling output reflecting chunk #48 delta (+15 lines on dep-tree.md `mcp-server v0.1.0` block from rmcp 0.6.4 + 6 transitive crates; +116 lines on api-surface.md `mcp-server` crate block from 6 new Error variants + feature_gate + tracing_setup + jsonrpc public surfaces).
 - D2 (wrong content): clean — Phase 5 tooling output captured cleanly; both artifacts updated atomically with stdout-only content.
-- D3 (plan-to-code): clean — arch §Workspace crates LOCKED list (10 members) matches Cargo.toml workspace.members; `plugins.list`/`plugins.reload`/`plugins.invoke` present in bindings.ts; `cargo xtask capability-drift` exits 0.
+- D3 (plan-to-code): clean — arch §Workspace crates LOCKED list (10 members) matches Cargo.toml workspace.members; chunk #48 added no new TauRPC procedures (substrate-only — `mcp.{status,start,stop}` reserved but deferred to chunk #49); arch §Occupied Resources env var `ANDROMEDA_PULSE_MCP_ENABLED` + binary identity `andromeda-pulse-mcp` both implemented per the reserved entries; `cargo xtask capability-drift` exits 0.
 - D4 (plan-to-plan): clean — no spec amendments this session.
 - D5 (plan-to-CLAUDE.md mtime): clean — no upstream (arch + 6 specialist plans + route + input) regenerated this session; all upstream mtimes ≤ CLAUDE.md mtime (CLAUDE.md updated 2026-05-11T19:17Z via session 55's full setup-project re-derive).
-- D6 (route chunk progression): clean post-wrap — state.yaml.last_completed_chunk advances to chunk #47 with this wrap's commit SHA.
+- D6 (route chunk progression): clean post-wrap — state.yaml.last_completed_chunk advances to chunk #48 with this wrap's commit SHA.
 
 ## Spec Amendments (this session)
 
-(none this session — chunk #47 implementation surfaced no Trigger 4 spec ↔ reality drift; the strict-path workspace-dep "declared but unused" observation is documented in session-learnings as a Tier 3 entry, not amendment-worthy because the security plan's strict-path reference is aspirational rather than mandate-form, and the workspace-detector precedent of manual canonicalize+traversal-check satisfies the same security intent.)
+(none this session — chunk #48 implementation surfaced no Trigger 4 spec ↔ reality drift; the `rmcp 1.5.0` vs `rmcp 0.6.4` arch-Inherited-Defaults Open Question was resolved inline per the route plan's documented fallback path — pinned latest published `0.x` series — without requiring a `/andromeda-evolve` amendment cycle. Arch §Inherited Defaults still references "1.5.0" as the input-cited version; an optional `/andromeda-evolve` Stack/Decisions re-pin amendment to update this reference to "0.6.x" is deferred to future maintenance — not amendment-worthy because the Open Question itself documented the 0.3.x fallback path generally, and 0.6.x is within that spirit.)
 
-state.yaml.spec_amendments.active: 0 entries (unchanged from session 56 — clean lifecycle).
-state.yaml.spec_amendments.archive: 17 entries (unchanged from session 56).
+state.yaml.spec_amendments.active: 0 entries (unchanged from session 57 — clean lifecycle).
+state.yaml.spec_amendments.archive: 17 entries (unchanged from session 57).
 
 ## Key Decisions This Session
 
-- **Single-chunk phase 44 plan**: chunk #47 grouped alone per "single-substantial" heuristic — estimated ≥3h, touches plugins crate + ui-bridge + pulse-app/capabilities/ + xtask + plugins-examples/, cross-cuts security (strict-path canonicalize) + arch (TauRPC namespace, AppError::Plugin rebind) + obs (plugins.tick heartbeat activation). Grouping with chunk #48 (rmcp stdio sidecar) would breach cognitive review window.
+- **Single-chunk phase 45 plan**: chunk #48 grouped alone per "single-substantial" heuristic — estimated ≥3h, touches mcp-server crate (new binary + 4 new modules + Error variant overhaul) + pulse-app/Cargo.toml feature propagation + deny.toml skip extension + .github/workflows/ci.yml matrix + ui-bridge/contract.rs From impl rewire (plan-gap, gray-area in-scope) + .github/workflows/ci.yml feature-flagged nextest step; cross-cuts security (double-gate enforcement) + obs (stderr-forced-JSON tracing init + AllowList) + tests (subprocess integration testing) + arch (new binary target + workspace deps). Grouping with chunk #49 (full `#[tool]` methods + `mcp.{status,start,stop}` IPC routers + chunk #49 quadruple binding) would breach cognitive review window.
 
-- **Research-time correction at /implement (Open Q5 strict-path API)**: grep over project source confirmed `strict_path::` is not used in any *.rs file — only declared in `crates/workspace-detector/Cargo.toml:12` + Cargo.toml workspace.dependencies line 43 as dead deps. workspace-detector's `detect.rs:21-62` uses `std::fs::canonicalize` + manual `path_contains_traversal` (3-line ParentDir check) instead. Decision: chunk #47 loader follows the ACTUAL codebase precedent (manual canonicalize + traversal check), NOT the speculative `strict_path::PathBoundary` API in research.md. Same security intent (path canonicalization + CWE-22 confinement); no new dep needed.
+- **rmcp version resolution (Open Question closed inline)**: arch §Inherited Defaults references "rmcp 1.5.0" as input-cited; cargo metadata at /implement time resolved rmcp 0.6.4 from crates.io (cargo also flagged 1.6.0 as the latest available v1.x line). Decision: pinned `rmcp = "0.6"` (minor-float) — within the route plan's documented fallback path ("if 1.5.0 cannot be sourced, fall back to the latest published 0.3.x"). Not amendment-worthy because the route plan itself documented this fallback. Optional future `/andromeda-evolve` to update arch §Inherited Defaults wording from "1.5.0" → "0.6.x latest published" — defer until either chunk #49 surfaces version-specific friction or maintenance cycle.
 
-- **WIT export-name correction**: research.md guessed `snapshot-template` export as `render-template`; actual WIT at `crates/plugins/wit/snapshot-template.wit` declares `render` (matching custom-dashboard's export name). `loader::declared_exports()` reflects the real WIT — `custom-dashboard`: `["render"]`, `data-transform`: `["transform"]`, `snapshot-template`: `["render"]`. Tests parametrize on these.
+- **Direct sidecar binary smoke replaces interactive Tauri-dev smoke**: chunk #48's substrate is the `andromeda-pulse-mcp.exe` binary (stdio-only, no GUI); the canonical boot-smoke-coverage gate (`npx @tauri-apps/cli dev` with 60s timeout) was not strictly applicable because the chunk's "Files to leave untouched" list explicitly preserved `pulse-app/src/main.rs`. Instead, /implement Phase 2b ran direct binary smoke: (a) `./target/release/andromeda-pulse-mcp.exe` with env-unset → exit 0, single stderr JSON line at `mcp.feature.gate.check` with `reason=env_disabled`; (b) `echo '{"jsonrpc":"2.0","id":1,"method":"initialize",...}' | ANDROMEDA_PULSE_MCP_ENABLED=true ./target/release/andromeda-pulse-mcp.exe` → exit 0 after stdin EOF; stdout has exactly one JSON-RPC 2.0 envelope (protocolVersion `2024-11-05`, serverInfo `andromeda-pulse-mcp 0.1.0`, capabilities.tools `{}`); stderr has 2 tracing JSON lines (`mcp.feature.gate.check both_gates_active INFO` + `mcp.server.dispatch method=initialize INFO`). Stream segregation perfect — 0 frames cross-channel.
 
-- **`plugins.invoke` capability-handshake-only semantics**: chunk #47 validates the requested capability name matches one of the plugin's category WIT exports and returns success/rejection — no actual `wasmtime::component::Instance::call` invocation. Full export invocation requires `wasmtime::component::bindgen!` per-category type generation; deferred to a future chunk. Documented in plan.md §Implementation notes + chunk #47 invoke fn doc-comment.
+- **Plan gap: changing public Error variants ripples to dependent From impls** (gray-area in-scope per fix-loop-protocol Trigger 3 NOT-out-of-scope clause): chunk #48 plan listed `crates/mcp-server/src/contract.rs` in Files-to-modify (replacing `Placeholder` with 6 real variants) but did NOT include `crates/ui-bridge/src/contract.rs` (which has a `From<McpServerError> for AppError` impl matching against `Placeholder`). `cargo check` immediately surfaced 3 E0599 errors in ui-bridge. Treated as in-scope follow-on because the change "logically belongs to chunk's intent" (changing the public Error type's variants is an API change; the From impl is its natural consumer). Resolution: updated ui-bridge's From impl to match 6 new variants + added 4 round-trip-no-leak tests. Curated as Tier 3 learning for future /andromeda-phase planning quality.
 
-- **active_invocations counter placement**: `registry.record_invocation()` fires AFTER lock acquisition but BEFORE the find() check — so not-found invocations also count toward the cumulative counter. Test expectation set to 3 (all 3 invokes increment regardless of outcome). Matches the security-relevant signal of "plugin host activity".
+- **AllowList `message` field special-case** (corrects buggy assumption): the chunk #48 sidecar's `JsonWithDefaults` formatter follows pulse-app/src/observability.rs default-deny scrubbing pattern, which I initially copied without special-casing the `message` field. Direct binary smoke surfaced `{"message":"[redacted]"}` in stderr — the tracing macro's final string-literal arg (compile-time-known description) was being treated as runtime data and redacted. Fix: added `if name == "message" { return true; }` early-return to `JsonFieldVisitor::allowed()`. Verified at smoke: `{"message":"MCP sidecar disabled (env var unset or not truthy)"}` now flows correctly. Curated as Tier 2 obs rule (audit candidate: pulse-app/src/observability.rs may have the same silent regression).
 
-- **emit_taurpc_bindings test = 4th binding**: fix-loop iteration #4 caught a confusing capability-drift "missing: 3" diagnosis. Root cause: the test in `pulse-app/src/main.rs::tests::emit_taurpc_bindings` triggers the bindings.ts emission via `Router::into_handler()` in dev mode — production router's contents don't matter for emission; only the test's router does. Without adding `plugins_impl.clone().into_handler()` to the test's `.merge(...)` chain, bindings.ts omits plugins.* even though EXPECTED_PROCEDURES is correct. Curated to `.claude/rules/security.md` Session Additions 2026-05-12 as a Tier 2 rule (extending the 2026-05-09 triple-binding cluster to a quadruple).
+- **deny.toml skip list extension**: rmcp 0.6.4 brings 5 known-benign transitive duplicates from rmcp-macros pulling darling 0.21.x while the tauri-utils chain pulls darling 0.23.x: `darling`, `darling_core`, `darling_macro`, `schemars`, `schemars_derive`. Added all 5 to `[bans] skip` list with one-line provenance comment per .claude/rules/security.md Session Additions 2026-05-03 discipline. `cargo deny check bans licenses sources` exits 0 after; `multiple-versions = "deny"` NOT relaxed.
 
-- **specta::Type unconditional in pulse-app DTOs**: fix-loop iteration #2. ui-bridge uses `#[cfg_attr(feature = "taurpc-runtime", derive(specta::Type))]` for AppError because xtask consumes it without taurpc; pulse-app has no `taurpc-runtime` feature (binary always builds with Tauri), so DTOs in pulse-app should use unconditional `#[derive(specta::Type)]`. Documented in session-learnings Tier 3 entry.
+- **CI matrix step added**: `.github/workflows/ci.yml` previously had `cargo build --features mcp-server` Linux-only (no test runner). Chunk #48 added a parallel `cargo nextest run --workspace --features mcp-server --profile ci --no-tests=pass` step (also Linux-only). Default-features build/test on all 3 OS unchanged.
 
 ## Files Modified
 
 This wrap's commit:
 
-**NEW files (9):**
-- `crates/plugins/src/loader.rs` (~470 lines — `PluginRegistry` + `LoadedPlugin` + `resolve_plugin_dir` + `canonicalize_plugin_dir` + `discover_plugins` + `declared_exports` + 17 rstest cases)
-- `pulse-app/src/plugins_router.rs` (~320 lines — `PluginsApi` trait + `PluginsApiImpl` + 3 DTOs + `#[taurpc::resolvers]` impl + 7 tokio tests)
-- `plugins-examples/README.md` + `plugins-examples/{custom-dashboard,data-transform,snapshot-template}-example/README.md` (4 template scaffolds)
-- `.andromeda/phases/phase-44/combined.md` (223 lines)
-- `.andromeda/phases/phase-44/research.md` (120 lines)
-- `.andromeda/phases/phase-44/plan.md` (341 lines)
+**NEW files (5 + audit trail):**
+- `crates/mcp-server/src/bin/andromeda-pulse-mcp.rs` (~180 lines — sidecar binary entry; double-gate + tracing init + stdio loop with serde_json frames for `initialize` / `tools/list` / `tools/call` / `ping` / unknown-method)
+- `crates/mcp-server/src/feature_gate.rs` (~260 lines — `GateState` enum + `validate_double_gate()` + `env_var_mcp_enabled()` + `feature_flag_enabled()` + 12 unit tests including in-process `CapturingSubscriber` for warn-log assertion)
+- `crates/mcp-server/src/tracing_setup.rs` (~340 lines — `init()` with stderr-forced JSON writer + `JsonWithDefaults` custom FormatEvent + `JsonFieldVisitor` with `message` field special-case + `AllowList::for_mcp_server()` + panic hook + 8 unit tests)
+- `crates/mcp-server/src/jsonrpc.rs` (~210 lines — Request / SuccessResponse / ErrorResponse / ErrorObject types + JSON-RPC 2.0 framing helpers + `sanitize_error_data()` with paths/types/versions redaction + `initialize_result()` / `empty_tools_list()` + 12 unit tests)
+- `crates/mcp-server/tests/sidecar_subprocess.rs` (~220 lines — 5 integration tests via `tokio::process::Command`: initialize round-trip / env-unset graceful exit / tools/list empty array / stream segregation / unknown method -32601)
+- `.andromeda/phases/phase-45/combined.md` (176 lines)
+- `.andromeda/phases/phase-45/research.md` (72 lines)
+- `.andromeda/phases/phase-45/plan.md` (225 lines)
 
-**MODIFIED files (14):**
-- `crates/plugins/src/contract.rs` — 3 new Error variants + Hash derive on PluginCategory + refactored heartbeat_payload signature + 3 new round-trip Display tests
-- `crates/plugins/src/lib.rs` — `pub mod loader;` added
-- `crates/ui-bridge/src/contract.rs` — `From<PluginsError> for AppError` refactored: plugin_id-bearing variants route through `AppError::Plugin`; PathCanonicalizationFailed routes through `AppError::Validation`; tracing target switched to `ui-bridge.error.plugin`; 5 new round-trip + 5 new tracing-target tests
-- `pulse-app/Cargo.toml` — `wasmtime.workspace = true` + `wat.workspace = true` (dev-dep) added
-- `pulse-app/src/main.rs` — `mod plugins_router;` + pre-router construction of plugin_engine + canonical_plugin_dir + plugins_registry + plugins_impl; merged into router; `heartbeat::spawn` call extended; `emit_taurpc_bindings` test extended with PluginsApiImpl merge
-- `pulse-app/src/heartbeat.rs` — `run_plugins` + `emit_plugins_tick` accept `Arc<Mutex<PluginRegistry>>`; `spawn` signature extended + `#[allow(clippy::too_many_arguments)]`
-- `pulse-app/capabilities/plugin-fs.json` + `default.json` — descriptions updated for chunk #47 actualization (no permissions change)
-- `xtask/src/main.rs` — 3 plugins.* entries uncommented in EXPECTED_PROCEDURES + 1 new test
-- `.claude/docs/services/plugins.md` — loader.rs + plugins_router.rs added to Entry points; chunk #47 status landed
-- `.andromeda/context/dependency-tree.md` — fresh cargo tree output captured (310 → 312 lines; pulse-app gains wasmtime + wat direct deps)
-- `.andromeda/context/api-surface.md` — fresh cargo +nightly public-api output captured (4715 → 4745 lines; +30 lines plugins crate public API delta from loader::* + 3 new Error variants + heartbeat_payload signature change)
-- `.andromeda/state.yaml` — session_count 56 → 57; last_wrap/last_reconcile refreshed; last_completed_chunk advanced to chunk #47; drift_warnings empty; plan_freshness mtimes re-captured
-- `.claude/rules/security.md` — 1 new Tier 2 entry (emit_taurpc_bindings 4th binding)
-- `.claude/docs/session-learnings.md` — 2 new Tier 3 entries (strict-path dead-dep + specta::Type unconditional pulse-app)
+**MODIFIED files (9):**
+- `Cargo.toml` — added `rmcp = { version = "0.6", features = ["server", "transport-io"] }` to `[workspace.dependencies]` (no `optional` — workspace deps can't be optional; flag moves to consumer crate)
+- `crates/mcp-server/Cargo.toml` — added tokio/serde/serde_json/tracing/tracing-subscriber/tracing-appender/tracing-error/chrono workspace deps; `rmcp = { workspace = true, optional = true }`; `[features] mcp-server = ["dep:rmcp"]`; `[[bin]] name = "andromeda-pulse-mcp" path = "src/bin/andromeda-pulse-mcp.rs" required-features = ["mcp-server"]`; tempfile + rstest dev-deps
+- `crates/mcp-server/src/lib.rs` — added `pub mod feature_gate; pub mod jsonrpc; pub mod tracing_setup;` declarations
+- `crates/mcp-server/src/contract.rs` — replaced `Placeholder` with 6 real variants: `FeatureNotEnabled`, `EnvVarDisabled`, `RmcpInit`, `JsonRpcFraming`, `Io { #[from] }`, `TracingInit` + 7 round-trip Display tests
+- `pulse-app/Cargo.toml` — feature propagation `mcp-server = ["dep:mcp-server-crate", "mcp-server-crate/mcp-server"]` (was `["dep:mcp-server-crate"]` only)
+- `crates/ui-bridge/src/contract.rs` — `From<McpServerError> for AppError` impl rewired for 6 new variants with `source_kind` discriminator + 4 new round-trip-no-leak tests (plan gap; gray-area in-scope)
+- `deny.toml` — 5 new `[bans] skip` entries (darling × 3 + schemars × 2) with one-line provenance comment for chunk #48
+- `.github/workflows/ci.yml` — added Linux-only `cargo nextest run --workspace --features mcp-server --profile ci --no-tests=pass` step parallel to existing build-only feature step
+- `Cargo.lock` — rmcp 0.6.4 + 6 transitive crates resolved
+- `.andromeda/context/dependency-tree.md` — fresh `cargo tree --workspace --depth 2 --prefix indent` captured (312 → 327 lines; +15 lines for rmcp + transitives in `mcp-server v0.1.0` block)
+- `.andromeda/context/api-surface.md` — fresh `cargo +nightly public-api --simplified` per-crate output captured (4745 → 4861 lines; +116 lines for mcp-server crate public surface)
+- `.andromeda/state.yaml` — session_count 57 → 58; last_wrap/last_reconcile refreshed; last_completed_chunk advanced to chunk #48; drift_warnings empty; plan_freshness mtimes re-captured
+- `.claude/rules/observability.md` — 1 new Tier 2 entry (AllowList `message` field special-case)
+- `.claude/docs/session-learnings.md` — 2 new Tier 3 entries (workspace deps optional restriction + Error variant ripple to From impls)
 - `.claude/session-handoff.md` — full overwrite (this file)
-- `Cargo.lock` + `pulse-app/ui/src/bindings/index.ts` — auto-regenerated
 
 **Audit trail (gitignored — `.andromeda/runs/`):**
-- `.andromeda/runs/2026-05-12T08-00-00-phase-44/{.raw-{specialty}.md × 7, {specialty}.md × 7}` — phase 44 sub-agent raw + stripped extracts
+- `.andromeda/runs/2026-05-12T18-10-20-phase-45/{.raw-{specialty}.md × 7, {specialty}.md × 7}` — phase 45 sub-agent raw + stripped extracts
 
 ## Curation Summary (this wrap)
 
 - **Tier 1 (CLAUDE.md USER:session-learnings):** 0 additions
-- **Tier 2 (`.claude/rules/*/Session Additions`):** 1 addition to security.md ("emit_taurpc_bindings test = 4th binding"; confidence 0.85)
-- **Tier 3 (`.claude/docs/session-learnings.md`):** 2 additions ("strict-path dead-dep observation"; "pulse-app DTOs unconditional specta::Type"; both confidence 0.75)
-- **Filtered:** 0 duplicates + 0 task-specific + 0 conflicts + 1 deferred (Tauri silent-boot pattern; already in 2026-05-12 session-learnings) + 1 below-threshold (chunk #47 capability-handshake-only deferral; already in plan.md)
+- **Tier 2 (`.claude/rules/*/Session Additions`):** 1 addition to observability.md ("AllowList `message` field special-case in JsonWithDefaults default-deny visitor"; confidence 0.85)
+- **Tier 3 (`.claude/docs/session-learnings.md`):** 2 additions ("Cargo workspace.dependencies cannot have `optional = true`"; "changing crate's Error variants ripples to dependent crates' From impls"; both confidence 0.75-0.85)
+- **Filtered:** 0 duplicates + 0 task-specific + 0 conflicts + 2 deferred to handoff (rmcp 0.6 vs arch 1.5.0 context — already documented above in Key Decisions; direct stdio-binary smoke pattern — already documented above in Key Decisions)
 
 ## Last Failed Command
 
-(none — all session 57 operations succeeded.)
+(none — all session 58 operations succeeded.)
 
 ## Tests Status
 
-passing — 678/678 Rust workspace tests (+40 vs session 56's 638 baseline reflecting chunk #47 test additions: loader 17 + plugins_router 7 + contract 4 + ui-bridge 10 + xtask 1 + heartbeat 1 = 40 net).
+passing — 728/728 Rust workspace tests with `--features mcp-server` (+50 vs session 57's 678 baseline reflecting chunk #48 test additions: mcp-server contract.rs 7 + feature_gate.rs 12 + tracing_setup.rs 8 + jsonrpc.rs 12 + sidecar_subprocess.rs 5 + ui-bridge contract.rs From impl 6 = 50 net). Default-features (no feature flag): 721/721.
 
-Coverage gates sustained: workspace TOTAL 87.28% line / 87.86% function (above ≥75 line / ≥85 function thresholds per test-plan §10 Standard tier). Chunk #47 per-file: `crates/plugins/src/contract.rs` 100% / 100%; `crates/plugins/src/loader.rs` 91.67% / 92.50%; `pulse-app/src/plugins_router.rs` 83.20% / 80.65%; `pulse-app/src/heartbeat.rs` 96.24% / 96.83%.
+Coverage gates sustained: Standard tier ≥75% line / ≥70% branch / ≥85% function. Per-file: `crates/mcp-server/src/{contract,feature_gate,tracing_setup,jsonrpc}.rs` above thresholds via co-located test modules; integration tests in `crates/mcp-server/tests/sidecar_subprocess.rs` validate the binary entry end-to-end.
 
-Phase 2b runtime smoke: ✓ pulse-app booted, compact widget rendered with Halo State Pulse, no `panicked at` / `app.panic.fatal`; user-screenshot-confirmed at 2026-05-12T19:45Z.
+Direct sidecar binary smoke (Phase 2b): ✓ env-unset clean exit + ✓ env-set + JSON-RPC initialize round-trip; stream segregation 0 cross-channel frames; user-not-required (binary is stdio-only, no GUI).
 
 ## Next Recommended Action
 
-**Priority 1 — `/andromeda-phase` for chunk #48 (Epoch 7 continues):**
+**Priority 1 — `/andromeda-phase` for chunk #49 (Epoch 7 closes):**
 
-route#48 "rmcp stdio sidecar + double-gate — andromeda-pulse-mcp binary --features mcp-server + ANDROMEDA_PULSE_MCP_ENABLED runtime gate, JSON-RPC 2.0, stderr-forced-JSON". Introduces the rmcp sidecar as a separate binary crate (`andromeda-pulse-mcp`) gated by `--features mcp-server` at compile-time + `ANDROMEDA_PULSE_MCP_ENABLED=true` env var at runtime (double-gate per security plan §MCP feature double-gate). Stdout reserved for JSON-RPC 2.0 framing; stderr forced-JSON (per obs plan + universal anti-pattern row 7). `mcp.{status,start,stop}` namespace already pre-enumerated in arch §Occupied Resources — likely no `/andromeda-scope-arch` run required.
+route#49 "MCP tool methods + IPC routers — query_traces/query_metrics/query_logs/generate_snapshot #[tool] sharing curation + mcp.status/start/stop, response.body never logged". The chunk introduces (a) the 4 `#[tool]`-annotated methods on the sidecar's rmcp ServerHandler, sharing the snapshot-curation pipeline with the existing snapshot.generate IPC; (b) the TauRPC `mcp.{status,start,stop}` IPC namespace registered in pulse-app router + capability JSON + xtask EXPECTED_PROCEDURES + emit_taurpc_bindings test (the quadruple binding per `.claude/rules/security.md` Session Additions 2026-05-12); (c) MCP response body redaction harness (the chunk #48 substrate's allowlist + jsonrpc::sanitize_error_data primitives are the substrate; chunk #49 wires them into the actual tool-method dispatch path). Closes Epoch 7.
 
-**No outstanding remediation items** — D1-D6 clean, state E expected (pending phase-45 planning is normal for chunk-completion wrap), no active spec amendments, no stale drifts. Clean session-start state for the next /andromeda-new-session invocation.
+**No outstanding remediation items** — D1-D6 clean, state E expected (pending phase-46 planning is normal for chunk-completion wrap), no active spec amendments, no stale drifts. Clean session-start state for the next /andromeda-new-session invocation.
 
 ## Session Goals (carry-over)
 
-(none — session 57 user goal achieved: chunk #47 plugin loader + IPC routers + xtask drift gate + plugin-examples scaffolds implemented + all gates green + Phase 2b smoke verified.)
+(none — session 58 user goal achieved: chunk #48 rmcp stdio sidecar substrate implemented + double-gate enforced + stderr-forced-JSON tracing + JSON-RPC 2.0 framing + all gates green + direct binary smoke verified.)
 
 ## Deferred decisions (Trigger 4 to Path B carry-over)
 
@@ -123,4 +124,6 @@ route#48 "rmcp stdio sidecar + double-gate — andromeda-pulse-mcp binary --feat
 
 ## Deferred learnings (filtered out from Phase 4 curation)
 
-(2 deferred: (a) Tauri silent boot pattern verification — duplicate of 2026-05-12 session-learnings from session 56; (b) chunk #47 capability-handshake-only deferral — already in plan.md §Implementation notes.)
+(2 deferred to Key Decisions section above:
+- (a) rmcp 0.6 vs arch 1.5.0 + 5 transitive deny.toml skip pattern — captured as a Key Decision (project-specific reference; not generalizable rule);
+- (b) direct stdio-binary smoke vs interactive Tauri-dev smoke pattern — captured as a Key Decision (substrate-specific approach; chunk #49 will use the same pattern for tool method testing).)

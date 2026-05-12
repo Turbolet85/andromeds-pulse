@@ -93,6 +93,17 @@ tower_governor = { version = "0.8", default-features = false, features = ["axum"
 duckdb = { version = "1.10500", features = ["bundled", "appender-arrow"] }
 arrow = "58"
 
+# rmcp stdio sidecar (route#48 — Epoch 7 Plugin runtime + MCP server continues).
+# Per arch §Established Decisions [MCP Server Surface] + §Inherited Defaults
+# "API style — external MCP" Open Question reconciliation: input-cited
+# "rmcp 1.5.0" not sourceable on crates.io (likely confused with MCP spec
+# version 2024-11-05 / 1.5.0 protocol), so chunk #48 pins the latest published
+# 0.x line (`0.6`). `optional = true` per arch §Cross-cutting Patterns
+# "Feature-gate hygiene" — rmcp only enters the build graph under
+# `--features mcp-server`. Feature set kept minimal: `server` (the
+# ServerHandler-side traits) + `transport-io` (stdio transport).
+rmcp = { version = "0.6", features = ["server", "transport-io"] }
+
 # Plugin host runtime (route#45 — Epoch 7 Plugin runtime + MCP server opens).
 # wasmtime 25+ with WASM Component Model per arch §Stack and Technologies + §Established
 # Decisions [Plugin Runtime]. Cranelift backend stays default on x86_64 (security plan

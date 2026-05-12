@@ -8,6 +8,38 @@ _This file is entirely wrap-session's territory. `/setup-project` creates it if 
 
 ---
 
+## 2026-05-12 — Cargo workspace.dependencies cannot have `optional = true`; the optional flag belongs at the consumer crate's [dependencies] table
+
+**Discovery:** chunk #48 first attempt declared `rmcp = { version = "0.6", optional = true, features = [...] }` in workspace `Cargo.toml [workspace.dependencies]`. cargo metadata immediately rejected the manifest with `error: failed to parse manifest at ...Cargo.toml; Caused by: rmcp is optional, but workspace dependencies cannot be optional`. Cargo's workspace dep mechanism propagates feature flags to consumers via `feature-name = ["dep:foo"]` at the consumer side, but `optional` itself is a per-consumer property — the workspace dep is the version pin + the dep "template", consumers opt into it via `[dependencies] foo.workspace = true, optional = true`.
+
+**Resolution at chunk #48:** moved the `optional = true` from workspace.dependencies to `crates/mcp-server/Cargo.toml [dependencies] rmcp = { workspace = true, optional = true }`. Workspace Cargo.toml just has `rmcp = { version = "0.6", features = ["server", "transport-io"] }` (no optional). The feature wiring then works:
+- `crates/mcp-server/Cargo.toml [features] mcp-server = ["dep:rmcp"]` — opts rmcp in when feature active
+- `pulse-app/Cargo.toml [features] mcp-server = ["dep:mcp-server-crate", "mcp-server-crate/mcp-server"]` — propagates pulse-app's `mcp-server` feature down to the crate's `mcp-server` feature
+
+**Pattern for future feature-gated workspace deps:** workspace.dependencies declares version + default features ONLY. Per-consumer `[dependencies]` table has the `optional = true` flag + the `features = [...]` extension list. The feature plumbing crosses two levels (consumer-crate feature → workspace-crate feature via `pkg-name/feature-name` syntax). Easy to forget because workspace deps usually look like `foo.workspace = true` (no flags), and `optional` feels like a version-pin property at first glance.
+
+**Cross-references:**
+- `Cargo.toml` workspace.dependencies (rmcp pin, no `optional`)
+- `crates/mcp-server/Cargo.toml` (rmcp consumer with `optional = true`)
+- `pulse-app/Cargo.toml` (feature propagation via `mcp-server-crate/mcp-server`)
+
+---
+
+## 2026-05-12 — changing a workspace crate's public Error enum variants ripples to dependent crates' `From<E> for AppError` impls; phase research must include those consumers
+
+**Discovery:** chunk #48 plan listed `crates/mcp-server/src/contract.rs` in "Files to modify" (replacing the `Placeholder` variant with 6 real variants: `FeatureNotEnabled`, `EnvVarDisabled`, `RmcpInit`, `JsonRpcFraming`, `Io`, `TracingInit`). The plan's "Files to leave untouched" list did NOT mention `crates/ui-bridge/src/contract.rs`, but `cargo check --workspace` immediately surfaced `error[E0599]: no variant or associated item named 'Placeholder' found for enum 'mcp_server::contract::Error'` in 3 spots in `ui-bridge/src/contract.rs` (the `From<McpServerError> for AppError` impl + 2 tests). The plan was incomplete here: changing a crate's public type variant set is an API change that ripples to all consumers, and the obvious one was the ui-bridge `From` impl.
+
+**Resolution at chunk #48:** treated as gray-area in-scope per fix-loop-protocol Trigger 3 NOT-out-of-scope clause ("New file needs creation that plan/research didn't predict but logically belongs to chunk's intent"). Updated `ui-bridge/src/contract.rs::From<McpServerError> for AppError` to match all 6 new variants (mapping each to `AppError::Internal { message }` with sanitized constant strings + `source_kind` discriminator for tracing); added round-trip-no-leak tests for each variant; updated `from_mcp_server_..._emits_tracing_warn_at_internal_target` test. Iteration succeeded.
+
+**Pattern for future /andromeda-phase planning:** when a chunk plan lists `crates/X/src/contract.rs` in Files-to-modify and the change touches the public Error enum variants (or any `pub` type's variants / fields), Phase 3 codebase research SHOULD include a grep step for `From<X{Whatever}Error>` impls across the workspace + add those From-impl files to Files-to-modify. The chunk #48 plan's research found `ui-bridge` had `error_category = "internal"` allowlist entries (chunk #26 binding), so the From impl WAS findable — research scope just didn't anticipate the API-change ripple. Future plans changing public type variants in any `crates/*/src/contract.rs` should include the grep + From-impl modifier list expansion.
+
+**Cross-references:**
+- `crates/mcp-server/src/contract.rs` chunk #48 — 6 new Error variants replacing Placeholder
+- `crates/ui-bridge/src/contract.rs::From<McpServerError> for AppError` — updated From impl + 4 new tests
+- fix-loop-protocol Trigger 3 NOT-out-of-scope clause ("logically belongs to chunk's intent")
+
+---
+
 ## 2026-05-12 — strict-path workspace dep is declared-but-unused; std::fs::canonicalize + manual traversal-check is the actual codebase precedent
 
 **Discovery:** Phase 3 codebase research at chunk #47 specified `strict_path::PathBoundary::try_new(plugin_dir)` for plugin-dir canonicalization, citing the `workspace-detector` crate as the precedent (its `Cargo.toml:12` declares `strict-path.workspace = true`). At /implement time, a grep over the workspace (`strict_path::`) returned zero hits in any source file — only research.md + plan.md mention it. The `workspace-detector` crate's `detect.rs:31,59` actually uses `candidate_root.canonicalize()` directly + a manual `path_contains_traversal(path)` helper (checks `Component::ParentDir` in `path.components()`). The `strict-path` workspace dep is declared in `Cargo.toml` workspace.dependencies (line 43) + activated in `crates/workspace-detector/Cargo.toml:12` but never `use`d.

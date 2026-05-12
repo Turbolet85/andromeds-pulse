@@ -120,6 +120,17 @@ skip = [
     { crate = "fixedbitset" },
     { crate = "petgraph" },
     { crate = "target-lexicon" },
+    # rmcp 0.6.4 transitive deps under --features mcp-server (chunk #48, 2026-05-12):
+    # rmcp-macros pulls darling 0.21.x; tauri-utils/serde_with pulls darling 0.23.x.
+    # Both ecosystems are stable; bumping rmcp to 0.7+ (when published) may close
+    # the darling gap. schemars 1.x duplicate similarly stems from rmcp 0.6 vs the
+    # tauri-utils transitive chain. Build-time only via proc-macro crates; no
+    # runtime impact.
+    { crate = "darling" },
+    { crate = "darling_core" },
+    { crate = "darling_macro" },
+    { crate = "schemars" },
+    { crate = "schemars_derive" },
 ]
 skip-tree = []
 
