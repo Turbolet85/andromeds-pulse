@@ -8,6 +8,87 @@ _This file is entirely wrap-session's territory. `/setup-project` creates it if 
 
 ---
 
+## 2026-05-12 — wasmtime 43 ResourceLimiter trait surface + closure-coercion in Store::limiter
+
+**Pattern:** chunk #46 implementation pinned down the wasmtime 43 `ResourceLimiter` trait surface for per-Store sandboxing. Useful reference for chunks #47-#49 + any future plugin-host extension that attaches per-instantiation resource caps.
+
+**Trait API (synchronous variant; async limiter has its own `ResourceLimiterAsync` trait):**
+
+```rust
+impl wasmtime::ResourceLimiter for MyState {
+    fn memory_growing(&mut self, _current: usize, desired: usize, _maximum: Option<usize>) -> wasmtime::Result<bool> {
+        Ok(desired <= self.mem_cap)
+    }
+    fn table_growing(&mut self, _current: usize, desired: usize, _maximum: Option<usize>) -> wasmtime::Result<bool> {
+        Ok(desired <= self.tables_cap)
+    }
+    fn instances(&self) -> usize { self.instances_cap }
+    fn tables(&self) -> usize { self.tables_cap }
+    fn memories(&self) -> usize { self.memories_cap }
+    // memory_grow_failed + table_grow_failed have defaults that propagate the wasmtime Error;
+    // override only when custom logging is needed at the failure site.
+}
+```
+
+Key points:
+- All sizes are `usize` (NOT `u32` as in pre-25.x wasmtime versions). Tests asserting on cap rejection should compare `desired > self.mem_max` (both `usize`).
+- `wasmtime::Result<T>` is `anyhow::Result<T>` via wasmtime's prelude.
+- The basic `ResourceLimiter` is **NOT** required to be `Send + Sync`. Only the async variant (`ResourceLimiterAsync` for use with `Store::async`/wasmtime's async runtime) imposes those bounds. For chunk #46's synchronous host, plain `impl ResourceLimiter for State` suffices.
+- Default implementations exist for `instances/tables/memories` returning 10_000 — sandbox tightens these explicitly via custom returns.
+
+**Store attach pattern + closure coercion:**
+
+```rust
+let mut store = Store::new(&engine, state);
+store.limiter(|state| state as &mut dyn ResourceLimiter);
+```
+
+The explicit `as &mut dyn ResourceLimiter` coercion is needed at the closure-return boundary. Without it (`store.limiter(|state| state)`), Rust may fail to infer the unsizing coercion from `&mut Self` (concrete type) to `&mut dyn ResourceLimiter` (trait object). The explicit cast lets type inference resolve; the runtime cost is zero (it's just a coercion).
+
+**Cross-references:**
+- `crates/plugins/src/sandbox.rs` chunk #46 implementation
+- security-plan.md §API Security row "Plugin host capability sandbox" — anchors the 64 MB / tables / instances bounds
+- April 2026 advisory cluster (CVE-2026-27572 + 6 others) — resource bounds requirement orthogonal to capability scoping
+
+---
+
+## 2026-05-12 — Phase 2b smoke check: Tauri 2 native runtime boots silently + cold-compile budget interaction
+
+**Discovery:** chunk #46 Phase 2b smoke check (per /andromeda-implement Phase 2b discipline) attempted `npx @tauri-apps/cli dev` boot to verify the chunk's changes don't break runtime. Two observations worth recording for future Phase 2b runs:
+
+**1. Tauri 2 native runtime does NOT emit Vite-style boot-completion signals.**
+
+The Phase 2b skill polls for `Local:` / `ready in` / `Compiled successfully` / `App listening` strings as boot-success markers. These are Vite / webpack / generic dev-server signals — they fire BEFORE Tauri's Rust binary starts. Tauri 2's Rust binary itself, once `tauri::Builder::default()...run()` completes setup, runs silently with no stdout output. So the smoke check's polling won't detect a successful Tauri-only boot; it will hit the 60s timeout without seeing the signal.
+
+Skill's "60s reached without exit → kill process; treat as SUCCESS (process didn't crash; assume booted cleanly without emitting a recognized ready signal)" interpretation is correct for Tauri 2 native runtime. Expect smoke check log to show:
+
+```
+Running `D:\...\target\debug\pulse-app.exe`
+{silence — process running}
+```
+
+This pattern is normal for Tauri 2 (and likely Tauri 3+). A panic at boot would surface as `panicked at` or `app.panic.fatal` line in the log; absence of those during the 60-95s smoke window = boot successful.
+
+**2. Cold-compile budget exceeds 60s on first run.**
+
+First-run `npx @tauri-apps/cli dev` triggers a cold cargo compile of pulse-app + workspace deps; depending on dep graph this takes 2-5+ minutes on Windows / Linux / macOS. The skill's 60s smoke budget is sized for **incremental compiles** (warm cache). Cold-compile attempts time out mid-build, leaving:
+
+```
+   Compiling pulse-app v0.1.0 (...)
+    Building [=====================>] 778/779: pulse-a…
+```
+
+Mitigation: orphan-process cleanup (taskkill / pkill of cargo + node + andromeda-pulse) between attempts, then retry — incremental compile finishes in ~10-15s with warm cache. Chunk #46 smoke succeeded on the second attempt after cleanup (compile finished at t=11s, binary ran silently for the remaining 84s of 95s window).
+
+For Phase 2b skill robustness, consider: (a) warming cache via `cargo build -p pulse-app` BEFORE invoking the timed smoke, (b) extending the budget when no recent `pulse-app.exe` exists, (c) explicitly classifying "compile-budget-exceeded" as separate from "boot-failed" so the report distinguishes "couldn't smoke-test (env)" from "smoke-tested + failed".
+
+**Cross-references:**
+- /andromeda-implement Phase 2b smoke check protocol — anchors the 60s budget + boot-signal polling
+- session-learnings.md 2026-05-09 "Adding `npx @tauri-apps/cli dev` to a chunk's Test Commands..." — context for why we run Phase 2b in the first place
+- chunk #30 (session-learnings 2026-05-09) latent panic at `crates/ui-bridge/src/health.rs:291` did NOT fire during chunk #46's Phase 2b 95s smoke window — either resolved in a later chunk OR the panic only fires when a specific TauRPC procedure is called (not at simple app startup). Worth re-checking when chunks #47-#49 add new TauRPC procedures that might exercise the previously-uncovered code path.
+
+---
+
 ## 2026-05-11 — Trigger 4 marker `expected_propagation` discipline: grep-expansion finds Tier 2/3 orphans the table misses
 
 **Discovery:** chunk #45 Trigger 4 amendment (`2026-05-11T17-50-00Z-reconcile-max-wasm-http-fields-size`) reconciled a forward-looking security plan API name (`wasmtime::Config::max_wasm_http_fields_size`) with wasmtime reality. The marker's `expected_propagation` list (populated by `/andromeda-implement` Trigger 4 from the hard-coded plan→file mapping table baseline per `delta-rerun-protocol.md`) cited 3 candidate orphans: `.claude/docs/gotchas.md` (Tier 3), `.claude/rules/security.md` (Tier 2, advisory "verify no body change needed via grep"), and `.claude/docs/security-summary.md` (Tier 3, advisory "refresh if it surfaces wasmtime Config method by name"). At `/andromeda-setup-project --delta` time, the grep-expansion defense-in-depth (per `delta-rerun-protocol.md` step 8) found that `.claude/rules/security.md:32` DID contain a stale citation requiring identical body annotation — the marker's "verify no body change" advisory turned out to require a body change. The amendment marker's `expected_propagation` was undercount by one file; the grep caught it.

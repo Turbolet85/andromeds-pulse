@@ -47,13 +47,14 @@ Hosts the WASM Component Model plugin runtime via `wasmtime` 25+. Capability-sco
 - **Cranelift x86_64 lock** — adding a non-Cranelift wasmtime feature flag re-introduces April 2026 sandbox-escape exposure. CI build-time check on `cargo tree -p wasmtime | grep -q "cranelift"`.
 
 ## Entry points for modification
-- **Host runtime:** `crates/plugins/src/host.rs` (wasmtime `Engine` + `Store` + `ResourceLimiter`)
-- **Plugin loader:** `crates/plugins/src/loader.rs` (filesystem scan + canonicalize + instantiate)
-- **Capability check:** `crates/plugins/src/capability.rs` (WIT-declared imports validation)
-- **Invoke pipeline:** `crates/plugins/src/invoke.rs` (input prep + epoch deadline + output validation)
+- **Engine substrate (chunk #45):** `crates/plugins/src/engine.rs` (`wasmtime::Engine` + `Config::epoch_interruption(true)` + Cranelift default on x86_64 + `MAX_WASM_HTTP_FIELDS_SIZE_BYTES`)
+- **Component loader substrate (chunk #45):** `crates/plugins/src/wit_loader.rs` (Component bytes loader + 8 MB size cap + empty Linker constructor)
+- **Sandbox + ResourceLimiter (chunk #46):** `crates/plugins/src/sandbox.rs` (`ResourceLimiterState` + per-Store memory / tables / instances caps + `store_for_category`)
+- **Capability dispatch (chunk #46):** `crates/plugins/src/capability.rs` (per-category `Linker<ResourceLimiterState>` constructor; today returns empty Linker per category since all 3 WIT files declare zero host imports)
+- **Contract module:** `crates/plugins/src/contract.rs` (`Error` enum + `PluginCategory` enum + `PluginsHeartbeat` stub)
+- **Plugin loader (chunk #47 — planned):** `crates/plugins/src/loader.rs` (filesystem scan + canonicalize + `plugins.list/reload/invoke` IPC)
 - **WIT definitions:** `crates/plugins/wit/{custom-dashboard.wit,data-transform.wit,snapshot-template.wit}`
-- **TauRPC router:** `crates/plugins/src/router.rs`
-- **Tests:** colocated + `tests/fixtures/plugins/` for pre-compiled minimal Component Model `.wasm` binaries
+- **Tests:** colocated `#[cfg(test)] mod tests { … }` per source file + `wat::parse_str(...)` test-time WASM Component fixture generation (no committed `.wasm` binaries)
 
 ## Testing this service
 - **Unit tests:** `cargo nextest run --filter-expr 'package(plugins)'`

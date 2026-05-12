@@ -1,32 +1,32 @@
 schema_version: 2
-last_wrap: 2026-05-11T19:25:00Z
-last_reconcile: 2026-05-11T19:25:00Z
+last_wrap: 2026-05-12T04:16:00Z
+last_reconcile: 2026-05-12T04:16:00Z
 
 last_completed_chunk:
-  route_index: 45
-  title: "wasmtime Component Model + WIT — wasmtime 25+ Cranelift-on-x86_64, 3 plugin categories (custom-dashboard/data-transform/snapshot-template), epoch_interruption"
+  route_index: 46
+  title: "Capability sandbox + ResourceLimiter — per-Store memory cap 64MB / table / instance, capability-scoped WIT host imports, basename-only path logging"
   epoch: 7
-  committed_at: 2026-05-11T18:45:00Z
-  commit_sha: 5268c00
-  commit_subject: "feat(plugins): chunk #45 — wasmtime Component Model + WIT substrate (open Epoch 7); session 54"
+  committed_at: 2026-05-12T04:16:00Z
+  commit_sha: 8515261
+  commit_subject: "feat(plugins): chunk #46 — capability sandbox + ResourceLimiter (Epoch 7 continues); session 56"
 
 in_progress: null
 
 plan_freshness:
   arch_mtime: 2026-05-11T00:19:13Z
-  security_mtime: 2026-05-11T18:33:00Z
+  security_mtime: 2026-05-11T17:53:00Z
   design_mtime: 2026-05-03T21:52:16Z
   layout_mtime: 2026-05-02T15:53:22Z
-  tests_mtime: 2026-05-11T19:25:00Z
+  tests_mtime: 2026-05-10T12:55:51Z
   obs_mtime: 2026-05-08T18:00:16Z
   a11y_mtime: 2026-05-02T21:45:23Z
   route_mtime: 2026-05-11T00:12:06Z
   input_mtime: 2026-05-02T06:52:58Z
 
 living_artifact_freshness:
-  dep_tree_reconciled_at: 2026-05-11T19:25:00Z
-  api_surface_reconciled_at: 2026-05-11T19:25:00Z
-  most_recent_code_mtime: 2026-05-11T18:32:40Z
+  dep_tree_reconciled_at: 2026-05-12T04:16:00Z
+  api_surface_reconciled_at: 2026-05-12T04:16:00Z
+  most_recent_code_mtime: 2026-05-11T20:10:48Z
   reconcile_failed: false
 
 drift_warnings: []
@@ -210,4 +210,4 @@ spec_amendments:
       propagated_by_run: .andromeda/runs/2026-05-11T19-00-00-setup-project-delta/
       archived_at: 2026-05-11T19:25:00Z
 
-session_count: 55
+session_count: 56

@@ -19,8 +19,12 @@
 //!   non-Cranelift wasmtime feature flag (security plan §Anti-Patterns
 //!   Data Protection row 1; CVE-2026-34941 + CVE-2026-35195 cluster).
 //!
-//! Subsequent chunks (#46 sandbox, #47 loader) extend this same Config
-//! builder rather than re-instantiate the Engine.
+//! Chunk #46 (sandbox + capability) extends this substrate by attaching
+//! a per-Store `wasmtime::ResourceLimiter` via `crates/plugins/src/sandbox.rs`
+//! and a per-category `Linker` constructor via
+//! `crates/plugins/src/capability.rs` — the Engine remains shared,
+//! sandboxing applies per-instantiation at the `Store` level. Chunk
+//! #47 (loader) extends further.
 
 use std::time::Instant;
 

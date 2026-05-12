@@ -411,6 +411,27 @@ impl From<PluginsError> for AppError {
                 "component_instantiate",
                 format!("plugins: component instantiate failed for `{plugin_id}`: {reason}"),
             ),
+            PluginsError::ResourceLimitExceeded {
+                plugin_id,
+                limit_kind,
+                requested,
+                configured_cap,
+            } => (
+                "resource_limit_exceeded",
+                format!(
+                    "plugins: resource limit exceeded for `{plugin_id}`: {limit_kind} requested {requested}, cap {configured_cap}"
+                ),
+            ),
+            PluginsError::CapabilityRejected {
+                plugin_id,
+                capability_name,
+                reason,
+            } => (
+                "capability_rejected",
+                format!(
+                    "plugins: capability rejected for `{plugin_id}` capability `{capability_name}`: {reason}"
+                ),
+            ),
         };
         tracing::warn!(
             target: "ui-bridge.error.internal",
@@ -973,6 +994,48 @@ mod tests {
     }
 
     #[test]
+    fn from_plugins_resource_limit_exceeded_collapses_to_internal_no_leak() {
+        let e = AppError::from(PluginsError::ResourceLimitExceeded {
+            plugin_id: "data-transform".to_string(),
+            limit_kind: "memory-bytes".to_string(),
+            requested: 67_108_865,
+            configured_cap: 67_108_864,
+        });
+        match e {
+            AppError::Internal { message } => {
+                assert!(message.contains("data-transform"));
+                assert!(message.contains("memory-bytes"));
+                assert!(message.contains("67108865"));
+                assert!(message.contains("67108864"));
+                assert!(!message.contains('/'));
+                assert!(!message.contains("::"));
+            }
+            other => panic!("expected AppError::Internal, got {other:?}"),
+        }
+    }
+
+    #[test]
+    fn from_plugins_capability_rejected_collapses_to_internal_no_leak() {
+        let e = AppError::from(PluginsError::CapabilityRejected {
+            plugin_id: "custom-dashboard".to_string(),
+            capability_name: "host:logging/log".to_string(),
+            reason: "not declared in WIT".to_string(),
+        });
+        match e {
+            AppError::Internal { message } => {
+                assert!(message.contains("custom-dashboard"));
+                assert!(message.contains("host:logging/log"));
+                assert!(message.contains("not declared in WIT"));
+                // `host:logging/log` legitimately contains '/' as part of the
+                // WIT-style identifier; the leak ban targets filesystem paths.
+                // Rust struct names (`::` separators) MUST NOT appear.
+                assert!(!message.contains("::"));
+            }
+            other => panic!("expected AppError::Internal, got {other:?}"),
+        }
+    }
+
+    #[test]
     fn from_workspace_detector_path_traversal_collapses_to_validation_no_leak() {
         let e = AppError::from(WorkspaceDetectorError::PathTraversalRejected {
             reason: "candidate /tmp/secret/../escape escapes parent".to_string(),
@@ -1184,6 +1247,43 @@ mod tests {
     fn from_plugins_placeholder_emits_tracing_warn_at_internal_target() {
         let events = capture(|| {
             let _ = AppError::from(PluginsError::Placeholder);
+        });
+        assert!(
+            events
+                .iter()
+                .any(|(target, level)| target == "ui-bridge.error.internal"
+                    && *level == tracing::Level::WARN),
+            "expected WARN at ui-bridge.error.internal; got {events:?}"
+        );
+    }
+
+    #[test]
+    fn from_plugins_resource_limit_exceeded_emits_tracing_warn_at_internal_target() {
+        let events = capture(|| {
+            let _ = AppError::from(PluginsError::ResourceLimitExceeded {
+                plugin_id: "data-transform".to_string(),
+                limit_kind: "memory-bytes".to_string(),
+                requested: 67_108_865,
+                configured_cap: 67_108_864,
+            });
+        });
+        assert!(
+            events
+                .iter()
+                .any(|(target, level)| target == "ui-bridge.error.internal"
+                    && *level == tracing::Level::WARN),
+            "expected WARN at ui-bridge.error.internal; got {events:?}"
+        );
+    }
+
+    #[test]
+    fn from_plugins_capability_rejected_emits_tracing_warn_at_internal_target() {
+        let events = capture(|| {
+            let _ = AppError::from(PluginsError::CapabilityRejected {
+                plugin_id: "custom-dashboard".to_string(),
+                capability_name: "host:logging/log".to_string(),
+                reason: "not declared in WIT".to_string(),
+            });
         });
         assert!(
             events

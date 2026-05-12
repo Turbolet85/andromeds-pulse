@@ -226,4 +226,43 @@ mod tests {
              (capability-scoping by construction)"
         );
     }
+
+    /// Chunk #46 sandbox-stack integration test. Mirrors
+    /// `component_with_undeclared_import_fails_to_instantiate` above but
+    /// uses the per-category `Store` (via `sandbox::store_for_category`,
+    /// with `ResourceLimiter` attached) and per-category `Linker` (via
+    /// `capability::linker_for_category`, empty by construction today
+    /// for all 3 categories). Verifies chunk #46 does NOT regress the
+    /// chunk #45 capability-scoping guarantee — defense in depth across
+    /// the two layers.
+    #[rstest]
+    #[case(PluginCategory::CustomDashboard)]
+    #[case(PluginCategory::DataTransform)]
+    #[case(PluginCategory::SnapshotTemplate)]
+    fn sandbox_with_undeclared_import_fails_at_link_time(#[case] category: PluginCategory) {
+        use crate::capability::linker_for_category;
+        use crate::sandbox::store_for_category;
+
+        let engine = build_engine().expect("engine must build");
+        let wat = r#"
+            (component
+              (import "host:undeclared/foo" (instance $h
+                (export "bar" (func))))
+            )
+        "#;
+        let bytes = wat::parse_str(wat).expect("undeclared-import WAT must parse");
+        let component = load_component(&engine, "sandbox-negative-canary", &bytes)
+            .expect("Component bytes parse cleanly; only instantiation should fail");
+
+        let mut store = store_for_category(&engine, category);
+        let linker = linker_for_category(&engine, category);
+        let result = linker.instantiate(&mut store, &component);
+        assert!(
+            result.is_err(),
+            "sandboxed Store + capability::linker_for_category({}) MUST reject \
+             Component with undeclared host import (defense in depth over \
+             chunk #45 empty Linker<()> negative-canary)",
+            category.as_str()
+        );
+    }
 }

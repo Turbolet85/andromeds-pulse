@@ -25,6 +25,39 @@ pub enum Error {
     /// `reason` is sanitized.
     #[error("component instantiate failed for plugin `{plugin_id}`: {reason}")]
     ComponentInstantiate { plugin_id: String, reason: String },
+
+    /// Per-Store `wasmtime::ResourceLimiter` denied a resource grow
+    /// request. `plugin_id` carries the requesting plugin identity
+    /// (typically a category identifier at chunk #46; basename of the
+    /// loaded WASM at chunk #47+). `limit_kind` is a kebab-case marker
+    /// from `{"memory-bytes", "tables", "instances"}` for serde-friendly
+    /// Display. Chunk #46 emits the rejection via `tracing::error!` at
+    /// `plugin.resource_limit.rejection`; this variant exists as the
+    /// typed path for chunk #47+ IPC consumers.
+    #[error(
+        "resource limit exceeded for plugin `{plugin_id}`: {limit_kind} requested {requested}, cap {configured_cap}"
+    )]
+    ResourceLimitExceeded {
+        plugin_id: String,
+        limit_kind: String,
+        requested: u64,
+        configured_cap: u64,
+    },
+
+    /// A WIT-declared capability check rejected an attempted invocation.
+    /// Today's 3 WIT files declare zero host imports so this variant is
+    /// unreached at chunk #46 — it lays down the rejection path so future
+    /// chunks introducing host imports can populate without re-amending
+    /// the enum. `plugin_id` + `capability_name` + `reason` are
+    /// sanitized one-liners.
+    #[error(
+        "capability rejected for plugin `{plugin_id}` capability `{capability_name}`: {reason}"
+    )]
+    CapabilityRejected {
+        plugin_id: String,
+        capability_name: String,
+        reason: String,
+    },
 }
 
 /// Plugin category taxonomy per route#45 (Epoch 7 opener). Names map
@@ -98,5 +131,42 @@ mod tests {
         assert!(all.contains(&PluginCategory::CustomDashboard));
         assert!(all.contains(&PluginCategory::DataTransform));
         assert!(all.contains(&PluginCategory::SnapshotTemplate));
+    }
+
+    #[test]
+    fn resource_limit_exceeded_displays_all_fields() {
+        let e = Error::ResourceLimitExceeded {
+            plugin_id: "data-transform".to_string(),
+            limit_kind: "memory-bytes".to_string(),
+            requested: 67_108_865,
+            configured_cap: 67_108_864,
+        };
+        let msg = e.to_string();
+        assert!(
+            msg.contains("data-transform"),
+            "message must carry plugin_id"
+        );
+        assert!(
+            msg.contains("memory-bytes"),
+            "message must carry limit_kind"
+        );
+        assert!(msg.contains("67108865"), "message must carry requested");
+        assert!(
+            msg.contains("67108864"),
+            "message must carry configured_cap"
+        );
+    }
+
+    #[test]
+    fn capability_rejected_displays_all_fields() {
+        let e = Error::CapabilityRejected {
+            plugin_id: "custom-dashboard".to_string(),
+            capability_name: "host:logging/log".to_string(),
+            reason: "not declared in WIT".to_string(),
+        };
+        let msg = e.to_string();
+        assert!(msg.contains("custom-dashboard"));
+        assert!(msg.contains("host:logging/log"));
+        assert!(msg.contains("not declared in WIT"));
     }
 }
