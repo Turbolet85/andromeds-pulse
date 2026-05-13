@@ -20,33 +20,17 @@ use ui_bridge::telemetry::{TelemetryApi, TelemetryApiImpl};
 use ui_bridge::workspace_ipc::{WorkspaceApi, WorkspaceApiImpl};
 use viz::VizState;
 
-mod heartbeat;
-#[cfg(feature = "mcp-server")]
-mod mcp_router;
-mod observability;
-mod plugins_router;
-mod snapshot_runtime;
-mod streams;
-mod tray;
-mod viz_routers;
-mod window;
+use pulse_app::taurpc_export_config;
+use pulse_app::{heartbeat, observability, tray, window};
 
 #[cfg(feature = "mcp-server")]
-use mcp_router::{McpApi, McpApiImpl};
-use plugins_router::{PluginsApi, PluginsApiImpl};
-use snapshot_runtime::{SnapshotApi, SnapshotApiImpl};
-use streams::{StreamsApi, StreamsApiImpl};
-use viz_routers::{LogsApi, LogsApiImpl, MetricsApi, MetricsApiImpl, TracesApi, TracesApiImpl};
-
-// Specta TypeScript export config for TauRPC binding emission. `Number`
-// represents `u64`/`i64` BigInt types as JS `number` (precision loss above
-// 2^53). Acceptable for chunk #25's binding scaffold; webview consumers
-// requiring nanosecond-precision `ts_unix_nano` (TraceRow / MetricRow /
-// LogRow) should switch this to `BigInt` or `String` and convert at the
-// consumer call site.
-fn taurpc_export_config() -> specta_typescript::Typescript {
-    specta_typescript::Typescript::default().bigint(specta_typescript::BigIntExportBehavior::Number)
-}
+use pulse_app::mcp_router::{McpApi, McpApiImpl};
+use pulse_app::plugins_router::{PluginsApi, PluginsApiImpl};
+use pulse_app::snapshot_runtime::{SnapshotApi, SnapshotApiImpl};
+use pulse_app::streams::{StreamsApi, StreamsApiImpl};
+use pulse_app::viz_routers::{
+    LogsApi, LogsApiImpl, MetricsApi, MetricsApiImpl, TracesApi, TracesApiImpl,
+};
 
 const ENV_OTLP_GRPC_PORT: &str = "ANDROMEDA_PULSE_OTLP_GRPC_PORT";
 const ENV_OTLP_HTTP_PORT: &str = "ANDROMEDA_PULSE_OTLP_HTTP_PORT";
@@ -343,15 +327,9 @@ fn main() {
             let base = taurpc::Router::new()
                 .export_config(taurpc_export_config())
                 .merge(introspection_impl.clone().into_handler())
-                .merge(
-                    TracesApiImpl::new(Arc::clone(conn), Arc::clone(&viz_state)).into_handler(),
-                )
-                .merge(
-                    MetricsApiImpl::new(Arc::clone(conn), Arc::clone(&viz_state)).into_handler(),
-                )
-                .merge(
-                    LogsApiImpl::new(Arc::clone(conn), Arc::clone(&viz_state)).into_handler(),
-                )
+                .merge(TracesApiImpl::new(Arc::clone(conn), Arc::clone(&viz_state)).into_handler())
+                .merge(MetricsApiImpl::new(Arc::clone(conn), Arc::clone(&viz_state)).into_handler())
+                .merge(LogsApiImpl::new(Arc::clone(conn), Arc::clone(&viz_state)).into_handler())
                 .merge(StreamsApiImpl::new(Arc::clone(&broadcast_senders)).into_handler())
                 .merge(TelemetryApiImpl::new().into_handler())
                 .merge(snapshot_impl.clone().into_handler())
@@ -800,9 +778,7 @@ mod tests {
             let base = taurpc::Router::new()
                 .export_config(taurpc_export_config())
                 .merge(introspection_impl.into_handler())
-                .merge(
-                    TracesApiImpl::new(Arc::clone(&conn), Arc::clone(&viz_state)).into_handler(),
-                )
+                .merge(TracesApiImpl::new(Arc::clone(&conn), Arc::clone(&viz_state)).into_handler())
                 .merge(
                     MetricsApiImpl::new(Arc::clone(&conn), Arc::clone(&viz_state)).into_handler(),
                 )

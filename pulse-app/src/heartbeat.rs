@@ -15,7 +15,7 @@ use viz::VizState;
 const TICK_INTERVAL_SECS: u64 = 15;
 
 #[allow(clippy::too_many_arguments)]
-pub(crate) fn spawn(
+pub fn spawn(
     state: Arc<HeartbeatState>,
     ingest_state: Arc<IngestState>,
     ingest_sender: Arc<IngestSender>,

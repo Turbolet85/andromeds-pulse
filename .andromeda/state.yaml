@@ -1,14 +1,14 @@
 schema_version: 2
-last_wrap: 2026-05-12T20:30:00Z
-last_reconcile: 2026-05-12T20:30:00Z
+last_wrap: 2026-05-13T01:00:00Z
+last_reconcile: 2026-05-13T01:00:00Z
 
 last_completed_chunk:
-  route_index: 49
-  title: "MCP tool methods + IPC routers — query_traces/query_metrics/query_logs/generate_snapshot #[tool] sharing curation + mcp.status/start/stop, response.body never logged"
-  epoch: 7
-  committed_at: 2026-05-12T20:30:00Z
-  commit_sha: 8858f46
-  commit_subject: "feat(mcp-server): chunk #49 — MCP tool methods + IPC routers (Epoch 7 closes); session 59"
+  route_index: 50
+  title: "End-to-end test pass — synthetic OTLP via :4317/:4318 + TauRPC roundtrip + Channels + MCP subprocess + plugin lifecycle + workspace detection (P1-P7)"
+  epoch: 8
+  committed_at: 2026-05-13T01:00:00Z
+  commit_sha: 3305bf2
+  commit_subject: "feat(tests): chunk #50 — E2E test pass P1-P7 (Epoch 8 opens); session 60"
 
 in_progress: null
 
@@ -24,9 +24,9 @@ plan_freshness:
   input_mtime: 2026-05-02T06:52:58Z
 
 living_artifact_freshness:
-  dep_tree_reconciled_at: 2026-05-12T20:30:00Z
-  api_surface_reconciled_at: 2026-05-12T20:30:00Z
-  most_recent_code_mtime: 2026-05-12T20:30:00Z
+  dep_tree_reconciled_at: 2026-05-13T01:00:00Z
+  api_surface_reconciled_at: 2026-05-13T01:00:00Z
+  most_recent_code_mtime: 2026-05-13T01:00:00Z
   reconcile_failed: false
 
 drift_warnings: []
@@ -210,4 +210,4 @@ spec_amendments:
       propagated_by_run: .andromeda/runs/2026-05-11T19-00-00-setup-project-delta/
       archived_at: 2026-05-11T19:25:00Z
 
-session_count: 59
+session_count: 60

@@ -1070,7 +1070,7 @@ pub(crate) fn install_panic_hook() {
     }));
 }
 
-pub(crate) fn init(data_dir: &Path) -> WorkerGuard {
+pub fn init(data_dir: &Path) -> WorkerGuard {
     let logs_dir = data_dir.join("logs");
     fs::create_dir_all(&logs_dir).expect("failed to create logs dir");
     set_logs_dir_permissions(&logs_dir);

@@ -6,6 +6,11 @@ rust-version.workspace = true
 license.workspace = true
 repository.workspace = true
 
+[lib]
+name = "pulse_app"
+path = "src/lib.rs"
+test = false
+
 [[bin]]
 name = "pulse-app"
 path = "src/main.rs"
@@ -51,6 +56,11 @@ tauri-build.workspace = true
 [dev-dependencies]
 tempfile.workspace = true
 wat.workspace = true
+tonic.workspace = true
+prost.workspace = true
+reqwest.workspace = true
+arrow.workspace = true
+assert_fs.workspace = true
 
 [features]
 default = []

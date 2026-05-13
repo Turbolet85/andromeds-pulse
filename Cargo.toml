@@ -61,6 +61,7 @@ prost = "0.14"
 tempfile = "3"
 rstest = "0.26"
 proptest = "1.10"
+assert_fs = "1.1"
 
 # OTLP HTTP receiver (route#17 — Epoch 2 Ingest pipeline continues).
 # axum 0.8 on hyper 1 + tower per arch §Stack + §Established Decisions

@@ -18,6 +18,14 @@ export type LogRow = { ts_unix_nano: number; resource_hash: string; severity_num
 
 export type LogsQueryArgs = { time_window_seconds: number; limit: number; cursor: string | null }
 
+export type McpServerState = "enabled" | "disabled" | "unavailable"
+
+export type McpStartResult = { state: McpServerState; pid: number | null }
+
+export type McpStatusDto = { state: McpServerState; sidecar_running: boolean; pid: number | null }
+
+export type McpStopResult = { state: McpServerState }
+
 export type MetricRow = { metric_name: string; ts_unix_nano: number; resource_hash: string; value: number; data_point_kind: number }
 
 export type MetricsQueryArgs = { time_window_seconds: number; limit: number; cursor: string | null }
@@ -64,13 +72,16 @@ export type WidgetPosition = "top-left" | "top-right" | "bottom-left" | "bottom-
 
 export type WorkspaceContextDto = { root_basename: string; project_name: string | null; vcs_type: string | null; vcs_root_basename: string | null; has_andromeda_marker: boolean }
 
-const ARGS_MAP = { '':'{"app_info":[],"get_settings":[],"health":[],"ready":[],"update_settings":["settings"]}', 'logs':'{"query":["args"]}', 'metrics':'{"query":["args"]}', 'plugins':'{"invoke":["plugin_id","capability"],"list":[],"reload":[]}', 'snapshot':'{"generate":["preset","workspace_root"]}', 'streams':'{"subscribe_logs":["channel"],"subscribe_metrics":["channel"],"subscribe_spans":["channel"]}', 'telemetry.frontend':'{"record_frame_ms":["input"]}', 'traces':'{"query":["args"]}', 'workspace':'{"detect":["candidate_root"]}' }
+const ARGS_MAP = { '':'{"app_info":[],"get_settings":[],"health":[],"ready":[],"update_settings":["settings"]}', 'logs':'{"query":["args"]}', 'mcp':'{"start":[],"status":[],"stop":[]}', 'metrics':'{"query":["args"]}', 'plugins':'{"invoke":["plugin_id","capability"],"list":[],"reload":[]}', 'snapshot':'{"generate":["preset","workspace_root"]}', 'streams':'{"subscribe_logs":["channel"],"subscribe_metrics":["channel"],"subscribe_spans":["channel"]}', 'telemetry.frontend':'{"record_frame_ms":["input"]}', 'traces':'{"query":["args"]}', 'workspace':'{"detect":["candidate_root"]}' }
 export type Router = { "": {app_info: () => Promise<AppInfo>, 
 get_settings: () => Promise<Settings>, 
 health: () => Promise<HealthEnvelope>, 
 ready: () => Promise<ReadyEnvelope>, 
 update_settings: (settings: Settings) => Promise<null>},
 "logs": {query: (args: LogsQueryArgs) => Promise<PaginatedResponse<LogRow>>},
+"mcp": {start: () => Promise<McpStartResult>, 
+status: () => Promise<McpStatusDto>, 
+stop: () => Promise<McpStopResult>},
 "metrics": {query: (args: MetricsQueryArgs) => Promise<PaginatedResponse<MetricRow>>},
 "plugins": {invoke: (pluginId: string, capability: string) => Promise<PluginInvokeResult>, 
 list: () => Promise<PluginListEnvelope>, 
