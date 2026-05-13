@@ -6,6 +6,9 @@
 // stay accessible to the rest of the file unchanged.
 #![allow(clippy::items_after_test_module)]
 
+mod bundle_format;
+mod smoke;
+
 use std::collections::{BTreeMap, BTreeSet};
 use std::path::{Path, PathBuf};
 use std::process::ExitCode;
@@ -14,6 +17,8 @@ use std::{env, fs};
 use anyhow::{Context, Result, bail};
 use clap::{Parser, Subcommand};
 use serde_json::Value;
+
+use crate::bundle_format::BundleFormat;
 
 #[derive(Parser)]
 #[command(name = "xtask", about = "andromeda-pulse task runner")]
@@ -80,6 +85,16 @@ enum Cmd {
         about = "diff TauRPC procedures (from pulse-app/ui/src/bindings/index.ts) vs arch §Occupied Resources expected procedure list"
     )]
     CapabilityDrift,
+    #[command(
+        name = "smoke",
+        about = "install-launch-ingest-query smoke per bundle format (chunk #51)"
+    )]
+    Smoke {
+        #[arg(long, value_name = "PATH")]
+        bundle: PathBuf,
+        #[arg(long, value_enum)]
+        format: BundleFormat,
+    },
 }
 
 #[tokio::main]
@@ -96,6 +111,7 @@ async fn main() -> ExitCode {
         Cmd::Typecheck { extra } => run_npm_script("typecheck", extra).await,
         Cmd::TestA11y { extra: _ } => test_a11y_placeholder(),
         Cmd::CapabilityDrift => capability_drift().await,
+        Cmd::Smoke { bundle, format } => smoke::run_smoke(&bundle, format).await,
     };
     match result {
         Ok(code) => code,

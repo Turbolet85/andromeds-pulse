@@ -1,14 +1,14 @@
 schema_version: 2
-last_wrap: 2026-05-13T01:00:00Z
-last_reconcile: 2026-05-13T01:00:00Z
+last_wrap: 2026-05-13T17:12:22Z
+last_reconcile: 2026-05-13T17:12:22Z
 
 last_completed_chunk:
-  route_index: 50
-  title: "End-to-end test pass — synthetic OTLP via :4317/:4318 + TauRPC roundtrip + Channels + MCP subprocess + plugin lifecycle + workspace detection (P1-P7)"
+  route_index: 51
+  title: "Smoke tests + tauri-driver matrix — install-launch-ingest-query smoke per .msi/.dmg/.AppImage/.deb, tauri-driver headful for tray + window state P5 (scope narrowed per /implement Path A': smoke harness shipped; tauri-driver headful matrix deferred к follow-on)"
   epoch: 8
-  committed_at: 2026-05-13T01:00:00Z
-  commit_sha: 3305bf2
-  commit_subject: "feat(tests): chunk #50 — E2E test pass P1-P7 (Epoch 8 opens); session 60"
+  committed_at: 2026-05-13T17:12:22Z
+  commit_sha: 5162f72
+  commit_subject: "feat(xtask): chunk #51 — install-launch-ingest-query smoke harness (Epoch 8 continues; tauri-driver headful matrix deferred к follow-on per /implement Path A'); session 61"
 
 in_progress: null
 
@@ -24,9 +24,9 @@ plan_freshness:
   input_mtime: 2026-05-02T06:52:58Z
 
 living_artifact_freshness:
-  dep_tree_reconciled_at: 2026-05-13T01:00:00Z
-  api_surface_reconciled_at: 2026-05-13T01:00:00Z
-  most_recent_code_mtime: 2026-05-13T01:00:00Z
+  dep_tree_reconciled_at: 2026-05-13T17:12:22Z
+  api_surface_reconciled_at: 2026-05-13T17:12:22Z
+  most_recent_code_mtime: 2026-05-13T17:12:22Z
   reconcile_failed: false
 
 drift_warnings: []
@@ -210,4 +210,4 @@ spec_amendments:
       propagated_by_run: .andromeda/runs/2026-05-11T19-00-00-setup-project-delta/
       archived_at: 2026-05-11T19:25:00Z
 
-session_count: 60
+session_count: 61

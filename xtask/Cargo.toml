@@ -17,3 +17,11 @@ clap = { workspace = true, features = ["derive"] }
 serde_json.workspace = true
 tokio = { workspace = true, features = ["macros", "process", "rt-multi-thread"] }
 ui-bridge = { path = "../crates/ui-bridge", default-features = false }
+# Smoke harness deps (chunk #51) — install-launch-ingest-query smoke per
+# bundle format. `ingest` provides the OTLP proto types к build synthetic
+# Export requests; `prost` encodes them; `reqwest` POSTs to the bundle's
+# `:4318/v1/traces` HTTP receiver; `tempfile` scopes per-run data dir.
+ingest = { path = "../crates/ingest" }
+prost = { workspace = true }
+reqwest = { workspace = true }
+tempfile = { workspace = true }
