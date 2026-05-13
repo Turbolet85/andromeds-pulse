@@ -1,14 +1,14 @@
 schema_version: 2
-last_wrap: 2026-05-13T17:12:22Z
-last_reconcile: 2026-05-13T17:12:22Z
+last_wrap: 2026-05-13T17:54:10Z
+last_reconcile: 2026-05-13T17:54:10Z
 
 last_completed_chunk:
-  route_index: 51
-  title: "Smoke tests + tauri-driver matrix — install-launch-ingest-query smoke per .msi/.dmg/.AppImage/.deb, tauri-driver headful for tray + window state P5 (scope narrowed per /implement Path A': smoke harness shipped; tauri-driver headful matrix deferred к follow-on)"
+  route_index: 52
+  title: "Release pipeline + signing automation — release.yml tauri-action + Azure Key Vault EV + Apple Developer ID notarization + Tauri updater Minisign + latest.json (ACTIVE scope per /implement Path A mirroring chunk #3 split: workflow file + runbook timestamps + 4 config-validation tests landed; DEFERRED — Azure Key Vault + EV cert + Apple Developer Program + GitHub OIDC + Environment secret population — stays operator-driven pre-v0.1.0 release blockers)"
   epoch: 8
-  committed_at: 2026-05-13T17:12:22Z
-  commit_sha: 5162f72
-  commit_subject: "feat(xtask): chunk #51 — install-launch-ingest-query smoke harness (Epoch 8 continues; tauri-driver headful matrix deferred к follow-on per /implement Path A'); session 61"
+  committed_at: 2026-05-13T17:54:10Z
+  commit_sha: df4a862
+  commit_subject: "feat(release): chunk #52 — release pipeline + signing automation ACTIVE scope (Epoch 8 continues; DEFERRED paid + external-account work tracked in runbooks per chunk #3 precedent); session 62"
 
 in_progress: null
 
@@ -24,9 +24,9 @@ plan_freshness:
   input_mtime: 2026-05-02T06:52:58Z
 
 living_artifact_freshness:
-  dep_tree_reconciled_at: 2026-05-13T17:12:22Z
-  api_surface_reconciled_at: 2026-05-13T17:12:22Z
-  most_recent_code_mtime: 2026-05-13T17:12:22Z
+  dep_tree_reconciled_at: 2026-05-13T17:54:10Z
+  api_surface_reconciled_at: 2026-05-13T17:54:10Z
+  most_recent_code_mtime: 2026-05-13T17:54:10Z
   reconcile_failed: false
 
 drift_warnings: []
@@ -210,4 +210,4 @@ spec_amendments:
       propagated_by_run: .andromeda/runs/2026-05-11T19-00-00-setup-project-delta/
       archived_at: 2026-05-11T19:25:00Z
 
-session_count: 61
+session_count: 62

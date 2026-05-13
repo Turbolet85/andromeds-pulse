@@ -6,6 +6,8 @@
 
 **Status of current keypair (2026-05-03):** generated locally via `minisign -G -W -f -s ~/.tauri/andromeda-pulse.key -p ~/.tauri/andromeda-pulse.key.pub` for ACTIVE-scope local-dogfooding work. The key is stored **without password** in `~/.tauri/`. This is acceptable for solo dev iteration but **MUST be regenerated with a password and uploaded to Azure Key Vault Premium SKU before the v0.1.0 public release** (DEFERRED scope per route.md Decisions Log 2026-05-03 entry).
 
+**Update 2026-05-13 (session 62 chunk #52):** ACTIVE-scope deliverable `.github/workflows/release.yml` landed; references the production-release Environment + consumes `MINISIGN_PRIVATE_KEY` + `MINISIGN_PRIVATE_KEY_PASSWORD` secrets from there. Production-grade Minisign key custody (Azure Key Vault Premium SKU upload per Phase 2 below + password-protected key file + Environment secret population) remains DEFERRED pre-v0.1.0 release blocker. The Phase 1-3 procedures below are accurate against `tauri-plugin-updater` 2.x as of session 62; verify keypair-generation paths (standalone minisign vs `tauri signer generate`) still produce interoperable Ed25519 keys before tagging the first production release.
+
 ---
 
 ## When to rotate

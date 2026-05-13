@@ -1,0 +1,211 @@
+# Release pipeline (chunk #52). Tag-push triggered (v*) workflow that builds
+# + signs + notarizes + publishes all 4 bundle formats per route §3
+# Decisions Log entry "2026-05-03 — Chunk #3 scope split":
+#
+#   ACTIVE (this file): release.yml workflow shape + matrix + Environment
+#                       scoping + bundle SHA-256 emission for chunk #53.
+#   DEFERRED (operator-driven, pre-v0.1.0 release blockers tracked in
+#             docs/runbooks/production-release-environment.md +
+#             docs/runbooks/updater-key-rotation.md):
+#     1. Azure Key Vault Premium SKU + EV signing certificate (DigiCert/
+#        GlobalSign HSM-RSA only).
+#     2. Apple Developer Program enrollment + Developer ID Application /
+#        Installer certificates + App Store Connect API key for notarytool.
+#     3. GitHub OIDC federation trust between this repo and Azure managed
+#        identity (no long-lived AZURE_CREDENTIALS secret).
+#     4. GitHub Environment `production-release` secret population per
+#        runbook §DEFERRED scope (Items 1-4).
+#
+# The workflow cannot execute а signed release until DEFERRED-scope secrets
+# are populated. Re-run dependabot (config in .github/dependabot.yml
+# github-actions ecosystem) to verify all SHA pins are current before
+# tagging the first production release.
+
+name: release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: read
+
+env:
+  ANDROMEDA_PULSE_DATA_DIR: ${{ runner.temp }}/andromeda-pulse-release-data
+  SERVICE_NAME: com.andromeda.pulse
+  DEPLOYMENT_ENVIRONMENT: production
+  CI_RUN_ID: ${{ github.run_id }}
+  GIT_COMMIT_SHA: ${{ github.sha }}
+  CARGO_TERM_COLOR: always
+
+jobs:
+  publish-bundle:
+    name: build + sign + notarize + publish (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    # Environment scoping gates this job behind manual approval per
+    # production-release-environment.md §Verify (chunk #6). Signing secrets
+    # are bound to this Environment only — PR-time ci.yml has no access.
+    environment: production-release
+    permissions:
+      # Per-job elevation (workflow-level remains `contents: read`):
+      # contents: write — upload bundle artifacts to GitHub Release.
+      # id-token: write — OIDC federation to Azure for Key Vault access.
+      contents: write
+      id-token: write
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-22.04, macos-latest, windows-latest]
+    steps:
+      - name: Harden runner
+        uses: step-security/harden-runner@a5ad31d6a139d249332a2605b85202e8c0b78450 # v2.19.1
+        with:
+          egress-policy: audit
+
+      - name: Checkout
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+
+      - name: Install Rust toolchain (respects rust-toolchain.toml)
+        uses: dtolnay/rust-toolchain@29eef336d9b2848a0b548edc03f92a220660cdb8 # stable
+
+      - name: Cache cargo
+        uses: Swatinem/rust-cache@23869a5bd66c73db3c0ac40331f3206eb23791dc # v2.9.1
+        with:
+          shared-key: ${{ runner.os }}-cargo-release
+
+      - name: Setup Node
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '22'
+
+      - name: npm ci (pulse-app/ui)
+        working-directory: pulse-app/ui
+        run: npm ci
+
+      - name: Install cargo-auditable
+        # cargo-auditable wraps the production build so shipped bundles
+        # embed dependency tree as a JSON section for post-release CVE
+        # scanning via `cargo audit bin <bundle>` (security plan §Dependency
+        # Security + §Bootstrap phases `dep-security-ci-gate`).
+        uses: taiki-e/install-action@db5fb34fa772531a3ece57ca434f579eb334e0fb # v2.75.30
+        with:
+          tool: cargo-auditable
+
+      - name: Azure login (OIDC federation — Windows only)
+        # OIDC federation eliminates long-lived Azure service principal
+        # secrets per security plan §Secret Management Storage. The
+        # federation trust is configured one-time on Azure mapping
+        # `repo:turbolet85/andromeda-pulse:environment:production-release` к
+        # the managed identity. Tauri-action consumes Azure Key Vault HSM-
+        # backed EV certificate via AzureSignTool during the Windows build.
+        if: runner.os == 'Windows'
+        uses: azure/login@a65d910e8af0140c8b9d4e5b1c4a3b2d8e7f6a5c # v2 (pre-release placeholder — dependabot validates)
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: tauri-action build + sign + publish
+        # tauri-action builds bundles per `pulse-app/tauri.conf.json`
+        # `bundle.targets: "all"` (emits .msi/.dmg/.AppImage/.deb), signs
+        # via platform-specific signing chain (Azure Key Vault EV on
+        # Windows, Apple Developer ID + notarytool on macOS, unsigned on
+        # Linux), then emits Tauri updater `latest.json` Minisign Ed25519
+        # signature and uploads bundle artifacts + signatures + latest.json
+        # к the GitHub Release as а draft (per arch §Established Decisions
+        # [Deployment / Release Pipeline] + security plan §Code Signing).
+        uses: tauri-apps/tauri-action@e3d5c6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3 # v0.5.x (pre-release placeholder — dependabot validates)
+        env:
+          # Tauri updater Minisign keypair (private key + password от
+          # production-release Environment per runbook §DEFERRED scope
+          # item 3). Public key already baked into tauri.conf.json by chunk
+          # #3 ACTIVE scope; signature verification cannot be disabled per
+          # security plan §Data Protection "Updater integrity in transit".
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.MINISIGN_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.MINISIGN_PRIVATE_KEY_PASSWORD }}
+          # macOS notarization (per runbook §DEFERRED scope item 2). The
+          # `notarytool` flow uses an App Store Connect API key + .p12
+          # certificate; tauri-action handles the codesign + notarize +
+          # staple steps automatically when these env vars are present.
+          APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE_P12_BASE64 }}
+          APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
+          APPLE_SIGNING_IDENTITY: ${{ secrets.APPLE_DEVELOPER_ID_APPLICATION }}
+          APPLE_INSTALLER_SIGNING_IDENTITY: ${{ secrets.APPLE_DEVELOPER_ID_INSTALLER }}
+          APPLE_API_KEY_ID: ${{ secrets.APPLE_NOTARY_KEY_ID }}
+          APPLE_API_KEY: ${{ secrets.APPLE_NOTARY_KEY_BASE64 }}
+          APPLE_API_ISSUER: ${{ secrets.APPLE_NOTARY_ISSUER_ID }}
+          # Windows EV signing via Azure Key Vault HSM-RSA certificate
+          # (per runbook §DEFERRED scope item 1). AzureSignTool reads the
+          # cert reference from Vault; private key never leaves HSM per
+          # security plan §Anti-Patterns Data Protection row 4.
+          AZURE_KEY_VAULT_NAME: ${{ secrets.AZURE_KEY_VAULT_NAME }}
+          AZURE_KEY_VAULT_CERT_NAME: ${{ secrets.AZURE_KEY_VAULT_CERT_NAME }}
+        with:
+          tagName: ${{ github.ref_name }}
+          releaseName: 'andromeda-pulse ${{ github.ref_name }}'
+          releaseBody: 'See CHANGELOG.md for details.'
+          # Draft-first protects against accidental publish of broken
+          # bundles. Maintainer manually publishes after smoke harness
+          # cross-run from chunk #51 + manual install + launch verification.
+          releaseDraft: true
+          prerelease: false
+
+      - name: Emit bundle SHA-256 hashes
+        # Input to chunk #53 update-channels.yml (Homebrew tap + Scoop
+        # manifest) — distribution-channel manifests embed bundle SHA-256
+        # for integrity verification at install time. Per security plan
+        # §Dependency Security CI integration (channel-removal incidents).
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p target/release-artifacts
+          out="target/release-artifacts/${{ runner.os }}-sha256.txt"
+          if [ "${{ runner.os }}" = "Linux" ]; then
+            find target/release/bundle -type f \( -name '*.AppImage' -o -name '*.deb' \) -print0 \
+              | xargs -0 -I{} sha256sum {} > "$out" || true
+          elif [ "${{ runner.os }}" = "macOS" ]; then
+            find target/release/bundle -type f -name '*.dmg' -print0 \
+              | xargs -0 -I{} shasum -a 256 {} > "$out" || true
+          elif [ "${{ runner.os }}" = "Windows" ]; then
+            powershell -NoProfile -Command "Get-ChildItem -Recurse -Path target/release/bundle -Include *.msi | ForEach-Object { '{0}  {1}' -f (Get-FileHash -Algorithm SHA256 \$_.FullName).Hash.ToLower(), \$_.FullName }" > "$out" || true
+          fi
+          echo "SHA-256 manifest:"
+          cat "$out" || echo "(no bundles found)"
+
+      - name: Upload logs artifact
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: logs-${{ runner.os }}
+          path: ${{ env.ANDROMEDA_PULSE_DATA_DIR }}/logs/
+          if-no-files-found: ignore
+          retention-days: 14
+
+      - name: Upload bundle SHA-256 artifact
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: sha256-${{ runner.os }}
+          path: target/release-artifacts/${{ runner.os }}-sha256.txt
+          if-no-files-found: ignore
+          retention-days: 14
+
+      - name: Upload tauri-action artifacts (bundle copies for chunk #51 smoke)
+        # Mirror the GitHub Release upload as а workflow artifact so chunk
+        # #51's `cargo xtask smoke --bundle <path> --format <fmt>` can
+        # cross-validate signed production bundles via `gh run download`
+        # without needing к re-fetch от GitHub Releases API.
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: bundles-${{ runner.os }}
+          path: |
+            target/release/bundle/**/*.msi
+            target/release/bundle/**/*.dmg
+            target/release/bundle/**/*.AppImage
+            target/release/bundle/**/*.deb
+            target/release/bundle/**/latest.json
+            target/release/bundle/**/*.sig
+          if-no-files-found: ignore
+          retention-days: 14

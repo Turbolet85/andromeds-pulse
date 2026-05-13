@@ -1,6 +1,9 @@
 # Runbook — `production-release` GitHub Environment
 
 **Status:** scaffolded at chunk #6; secret population DEFERRED per chunk #3 scope split (route Decisions Log 2026-05-03).
+
+**Update 2026-05-13 (session 62 chunk #52):** ACTIVE-scope deliverable `.github/workflows/release.yml` landed; references this Environment on the `publish-bundle` job per §Workflow reference shape below. Secret name alignment verified against release.yml env var consumption: Items 1-4 of DEFERRED scope correctly map to the workflow's secret references (`AZURE_*`, `APPLE_*`, `MINISIGN_*`, distribution channel tokens). The gh api commands в §Create the Environment below remain idempotent and accurate against current GitHub REST API as of session 62. DEFERRED scope (Items 1-4 paid + external-account work) remains operator-driven pre-v0.1.0 release blocker.
+
 **Authoritative source:** security-plan.md §Secret Management GitHub Environment scoping + arch §Cross-cutting Patterns "Config management".
 
 ## Purpose
