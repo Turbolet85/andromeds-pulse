@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-14T09:36:11Z",
+  "total_tuple_count": 0,
+  "per_surface": {
+    "compact-widget": [],
+    "dashboard-traces": [],
+    "dashboard-metrics": [],
+    "dashboard-logs": [],
+    "dashboard-snapshots": [],
+    "dashboard-settings": [],
+    "tray-icon-halo": []
+  }
+}

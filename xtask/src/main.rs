@@ -74,7 +74,7 @@ enum Cmd {
     },
     #[command(
         name = "test:a11y",
-        about = "a11y harness placeholder (full activation at chunk #25 webview shell + chunk #46 CI gate)"
+        about = "npm run test:a11y --prefix pulse-app/ui — axe-core + Lighthouse + pa11y + colorjs.io + Playwright + aggregator + regression detector orchestrator chain"
     )]
     TestA11y {
         #[arg(trailing_var_arg = true)]
@@ -95,6 +95,11 @@ enum Cmd {
         #[arg(long, value_enum)]
         format: BundleFormat,
     },
+    #[command(
+        name = "perf:slo-load",
+        about = "10k spans/sec sustained-load test + post-test metric.webgpu.frame_duration_ms p99 ≤33ms + metric.buffer.memory_bytes max ≤512MB gate"
+    )]
+    PerfSloLoad,
 }
 
 #[tokio::main]
@@ -109,9 +114,10 @@ async fn main() -> ExitCode {
         Cmd::CiGates => run_ci_gates().await,
         Cmd::Lint { extra } => run_npm_script("lint", extra).await,
         Cmd::Typecheck { extra } => run_npm_script("typecheck", extra).await,
-        Cmd::TestA11y { extra: _ } => test_a11y_placeholder(),
+        Cmd::TestA11y { extra } => run_npm_script("test:a11y", extra).await,
         Cmd::CapabilityDrift => capability_drift().await,
         Cmd::Smoke { bundle, format } => smoke::run_smoke(&bundle, format).await,
+        Cmd::PerfSloLoad => run_perf_slo_load().await,
     };
     match result {
         Ok(code) => code,
@@ -268,7 +274,22 @@ async fn run_ci_gates() -> Result<ExitCode> {
         }
     }
 
-    println!("ci-gates: perf-budget DEFERRED (activates with first criterion bench)");
+    // Perf-budget gate: shell out to xtask/ci/perf-slo-check.{sh,ps1} per
+    // chunk #54 activation. The script tails `agent-latest.jsonl` for
+    // `metric.webgpu.frame_duration_ms` events, computes p99 ≤33ms, and
+    // checks `metric.buffer.memory_bytes` max ≤512MB. Missing script or
+    // empty event stream maps к NEUTRAL (pre-perf-instrumentation states).
+    match invoke_perf_slo_check(&log_files).await {
+        Ok(true) => println!("ci-gates: perf-budget PASS"),
+        Ok(false) => {
+            eprintln!("::error::ci-gates: perf-budget FAIL");
+            return Ok(ExitCode::FAILURE);
+        }
+        Err(e) => {
+            eprintln!("ci-gates: perf-budget script unavailable ({e:#}) — treating as NEUTRAL");
+        }
+    }
+
     Ok(ExitCode::SUCCESS)
 }
 
@@ -354,6 +375,71 @@ async fn invoke_heartbeat_check(log_files: &[PathBuf]) -> Result<bool> {
             .await?
     };
     Ok(status.success())
+}
+
+async fn invoke_perf_slo_check(log_files: &[PathBuf]) -> Result<bool> {
+    let workspace_root = Path::new(env!("CARGO_MANIFEST_DIR"))
+        .parent()
+        .context("xtask manifest has no workspace parent")?
+        .to_path_buf();
+    let script = if cfg!(target_os = "windows") {
+        workspace_root
+            .join("xtask")
+            .join("ci")
+            .join("perf-slo-check.ps1")
+    } else {
+        workspace_root
+            .join("xtask")
+            .join("ci")
+            .join("perf-slo-check.sh")
+    };
+    if !script.exists() {
+        bail!("perf-slo-check script missing at {}", script.display());
+    }
+    let primary_log = log_files
+        .last()
+        .context("no log file to pass to perf-slo-check script")?;
+    let status = if cfg!(target_os = "windows") {
+        tokio::process::Command::new("pwsh")
+            .args(["-NoProfile", "-File"])
+            .arg(&script)
+            .arg(primary_log)
+            .status()
+            .await?
+    } else {
+        tokio::process::Command::new("bash")
+            .arg(&script)
+            .arg(primary_log)
+            .status()
+            .await?
+    };
+    Ok(status.success())
+}
+
+async fn run_perf_slo_load() -> Result<ExitCode> {
+    // 10k spans/sec sustained-load test runs the perf_slo_10k_spans
+    // integration test via cargo-nextest; post-test p99 / max gates fire
+    // via run_ci_gates() (invoked as а separate xtask step in CI).
+    let mut cmd = tokio::process::Command::new("cargo");
+    cmd.env("NEXTEST_EXPERIMENTAL_LIBTEST_JSON", "1");
+    cmd.args([
+        "nextest",
+        "run",
+        "-p",
+        "pulse-app",
+        "--test",
+        "perf_slo_10k_spans",
+        "--profile",
+        "ci",
+        "--no-tests=pass",
+        "--message-format",
+        "libtest-json",
+    ]);
+    let status = cmd
+        .status()
+        .await
+        .context("failed to spawn `cargo nextest run --test perf_slo_10k_spans`")?;
+    Ok(status_to_code(status))
 }
 
 async fn run_npm_script(script: &str, extra: Vec<String>) -> Result<ExitCode> {
@@ -681,13 +767,6 @@ mod capability_drift_tests {
         assert!(missing.is_empty());
         assert!(extra.is_empty());
     }
-}
-
-fn test_a11y_placeholder() -> Result<ExitCode> {
-    println!(
-        "xtask test:a11y: deferred to chunk #25 webview shell + chunk #46 CI gate (chunk #13 install-only; chunk #14 SR manual-pass scaffold at pulse-app/ui/tests-a11y/screen-reader/; chunk #15 motion library + useReducedMotion hook at pulse-app/ui/src/hooks/)"
-    );
-    Ok(ExitCode::SUCCESS)
 }
 
 fn status_to_code(status: std::process::ExitStatus) -> ExitCode {

@@ -1,14 +1,14 @@
 schema_version: 2
-last_wrap: 2026-05-14T09:25:41Z
-last_reconcile: 2026-05-14T09:25:41Z
+last_wrap: 2026-05-14T11:04:21Z
+last_reconcile: 2026-05-14T11:04:21Z
 
 last_completed_chunk:
-  route_index: 53
-  title: "Distribution channels — Homebrew tap + Scoop manifest via update-channels.yml triggered on release.yml completion (ACTIVE scope per /implement Path A mirroring chunks #3 + #52 split: update-channels.yml workflow + 7 manifest-validation tests + runbook DEFERRED Items 5-6 landed; DEFERRED — external tap/bucket repo bootstrap + PAT provisioning с `pull_request: write` scope + Environment secret population — stays operator-driven pre-v0.1.0 release blockers)"
+  route_index: 54
+  title: "A11y audit + perf SLO + violation-JSON regression — WCAG 2.1 AA (axe/Lighthouse/pa11y) + SC 2.3.3 AAA prefers-reduced-motion + 10k spans/sec ≥30 fps + per-surface tuple regression (ACTIVE scope per /implement: long-deferred placeholders activated — `xtask test:a11y` substrate stub → real npm orchestrator chain; xtask `perf:slo-load` subcommand + Rust 10k spans/sec sustained-load test; `.github/workflows/ci.yml` extended in-place with 6 new steps; workflow self-lint mirroring chunk #53's `distribution_manifests.rs` shape)"
   epoch: 8
-  committed_at: 2026-05-14T09:25:41Z
-  commit_sha: b6197db
-  commit_subject: "feat(release): chunk #53 — distribution channels (Homebrew tap + Scoop manifest via update-channels.yml; Epoch 8 continues; DEFERRED operator-driven Items 5-6 added per chunk #52 precedent); session 63"
+  committed_at: 2026-05-14T11:04:21Z
+  commit_sha: b3b7727
+  commit_subject: "feat(a11y): chunk #54 — a11y audit + perf SLO + violation-JSON regression substrate (Epoch 8 continues; xtask placeholders activated; ci.yml extended in-place; perf SLO load test + jq p99/max gate); session 64"
 
 in_progress: null
 
@@ -24,9 +24,9 @@ plan_freshness:
   input_mtime: 2026-05-02T06:52:58Z
 
 living_artifact_freshness:
-  dep_tree_reconciled_at: 2026-05-14T09:25:41Z
-  api_surface_reconciled_at: 2026-05-14T09:25:41Z
-  most_recent_code_mtime: 2026-05-14T09:25:41Z
+  dep_tree_reconciled_at: 2026-05-14T11:04:21Z
+  api_surface_reconciled_at: 2026-05-14T11:04:21Z
+  most_recent_code_mtime: 2026-05-14T11:04:21Z
   reconcile_failed: false
 
 drift_warnings: []
@@ -210,4 +210,4 @@ spec_amendments:
       propagated_by_run: .andromeda/runs/2026-05-11T19-00-00-setup-project-delta/
       archived_at: 2026-05-11T19:25:00Z
 
-session_count: 63
+session_count: 64
