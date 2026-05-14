@@ -1,0 +1,404 @@
+# Distribution channels (chunk #53). workflow_run-triggered chain from chunk
+# #52's release.yml that consumes `sha256-${runner.os}` artifacts and updates
+# two external distribution-channel manifests per arch §Established Decisions
+# [Distribution Channels] + §Infrastructure Patterns CI/CD approach:
+#
+#   - Homebrew tap at `turbolet85/homebrew-andromeda-pulse` (Formula DSL —
+#     Formula/andromeda-pulse.rb) referencing macOS .dmg + Linux .AppImage /
+#     .deb bundle URLs + SHA-256 hashes.
+#   - Scoop bucket at `turbolet85/scoop-andromeda-pulse` (bucket JSON —
+#     bucket/andromeda-pulse.json) referencing the Windows .msi URL + SHA-256.
+#
+# Per chunk #3 + chunk #52 ACTIVE/DEFERRED Path A precedent (route §3
+# Decisions Log 2026-05-03), this workflow lands in pre-built state consuming
+# secrets that don't yet exist:
+#
+#   ACTIVE (this file): workflow shape + workflow_run trigger + cross-workflow
+#                       artifact consumption + per-channel templating + PR
+#                       creation flow к external tap/bucket repos.
+#   DEFERRED (operator-driven, pre-v0.1.0 release blockers tracked in
+#             docs/runbooks/production-release-environment.md §DEFERRED scope
+#             Items 5-6):
+#     5. External tap/bucket repo bootstrap — create
+#        turbolet85/homebrew-andromeda-pulse + turbolet85/scoop-andromeda-pulse
+#        as empty public repos с Formula/ + bucket/ subdirectories.
+#     6. PAT provisioning — generate fine-grained GitHub Personal Access
+#        Tokens scoped to each external repo с `contents: write` +
+#        `pull_request: write`, populate в `production-release` Environment
+#        as HOMEBREW_TAP_PUSH_TOKEN + SCOOP_BUCKET_PUSH_TOKEN.
+#
+# The workflow cannot publish channel updates until DEFERRED-scope items
+# are complete. Re-run dependabot (config in .github/dependabot.yml
+# github-actions ecosystem) to verify all SHA pins are current before
+# tagging the first production release.
+#
+# Security baseline inherited от chunk #52:
+#   - All third-party actions 40-char SHA-pinned с `# vX.Y.Z` provenance.
+#   - Workflow-level `permissions: contents: read`; per-job elevation only
+#     where needed (cross-repo push uses scoped PAT, not GITHUB_TOKEN).
+#   - `environment: production-release` gates every job accessing tokens.
+#   - `step-security/harden-runner` first step of every job.
+
+name: update-channels
+
+on:
+  workflow_run:
+    workflows: ["release"]
+    types: [completed]
+
+permissions:
+  contents: read
+
+env:
+  ANDROMEDA_PULSE_DATA_DIR: ${{ runner.temp }}/andromeda-pulse-update-channels-data
+  SERVICE_NAME: com.andromeda.pulse
+  DEPLOYMENT_ENVIRONMENT: production
+  CI_RUN_ID: ${{ github.run_id }}
+  GIT_COMMIT_SHA: ${{ github.sha }}
+
+jobs:
+  update-homebrew:
+    name: update Homebrew tap (turbolet85/homebrew-andromeda-pulse)
+    # Skip unless triggering release.yml run succeeded. Per arch §Infrastructure
+    # Patterns CI/CD approach "runs on completion of release.yml": the only
+    # way to detect "completion" in GitHub Actions is workflow_run.completed +
+    # check conclusion == 'success'.
+    if: github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-22.04
+    # Environment scoping gates this job behind manual approval per
+    # production-release-environment.md §Verify. The HOMEBREW_TAP_PUSH_TOKEN
+    # secret is bound to this Environment only; PR-time ci.yml has no access.
+    environment: production-release
+    permissions:
+      # Workflow-level remains `contents: read`. This job reads release artifacts
+      # + commits the Formula update via а scoped PAT (HOMEBREW_TAP_PUSH_TOKEN),
+      # not GITHUB_TOKEN, so no per-job contents: write elevation needed for
+      # THIS repository's contents.
+      contents: read
+    steps:
+      - name: Harden runner
+        uses: step-security/harden-runner@a5ad31d6a139d249332a2605b85202e8c0b78450 # v2.19.1
+        with:
+          egress-policy: audit
+
+      - name: Checkout (read template)
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+
+      - name: Download sha256-macOS artifact (от triggering release.yml run)
+        # actions/download-artifact v4 supports cross-workflow artifact download
+        # via run-id + github-token parameters. The artifact name pattern
+        # `sha256-${runner.os}` comes от chunk #52 release.yml step
+        # "Emit bundle SHA-256 hashes" — runner.os = "macOS" for the macOS
+        # matrix job's emission.
+        uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16 # v4.1.8 (pre-release placeholder — dependabot validates)
+        with:
+          name: sha256-macOS
+          path: target/release-artifacts/macOS/
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          run-id: ${{ github.event.workflow_run.id }}
+
+      - name: Download sha256-Linux artifact (от triggering release.yml run)
+        uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16 # v4.1.8 (pre-release placeholder — dependabot validates)
+        with:
+          name: sha256-Linux
+          path: target/release-artifacts/Linux/
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          run-id: ${{ github.event.workflow_run.id }}
+
+      - name: Parse version от triggering tag
+        # workflow_run.head_branch carries the originating tag ref name
+        # (e.g., "v0.1.0") when the upstream workflow was triggered by а tag push.
+        # Per chunk #52 release.yml `on: push: tags: ['v*']`, the value is
+        # always the tag name. Strip the leading 'v' to get а semver.
+        id: version
+        shell: bash
+        run: |
+          set -euo pipefail
+          TAG="${{ github.event.workflow_run.head_branch }}"
+          VERSION="${TAG#v}"
+          echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+          echo "Parsed tag: ${TAG}, version: ${VERSION}"
+
+      - name: Extract bundle SHA-256 hashes
+        # Each downloaded artifact contains а text file in `sha256sum` format
+        # (Linux: `<hash>  <path>`) или `Get-FileHash` format (Windows: same
+        # shape, lowercase). Parse out the canonical bundle filenames per arch
+        # §Occupied Resources bundle artifact names:
+        #   andromeda-pulse_<version>_x64.dmg
+        #   andromeda-pulse_<version>_aarch64.dmg
+        #   andromeda-pulse_<version>_amd64.AppImage
+        #   andromeda-pulse_<version>_amd64.deb
+        id: hashes
+        shell: bash
+        run: |
+          set -euo pipefail
+          VERSION="${{ steps.version.outputs.version }}"
+
+          extract_hash() {
+            local file_pattern="$1"
+            local manifest_path="$2"
+            if [ ! -f "$manifest_path" ]; then
+              echo "::warning::manifest not found: $manifest_path"
+              return 0
+            fi
+            grep -E "${file_pattern}" "$manifest_path" | awk '{print $1}' | head -1 || echo ""
+          }
+
+          MACOS_MANIFEST="target/release-artifacts/macOS/macOS-sha256.txt"
+          LINUX_MANIFEST="target/release-artifacts/Linux/Linux-sha256.txt"
+
+          MACOS_X64_SHA256=$(extract_hash "andromeda-pulse_${VERSION}_x64\\.dmg" "$MACOS_MANIFEST")
+          MACOS_AARCH64_SHA256=$(extract_hash "andromeda-pulse_${VERSION}_aarch64\\.dmg" "$MACOS_MANIFEST")
+          LINUX_APPIMAGE_SHA256=$(extract_hash "andromeda-pulse_${VERSION}_amd64\\.AppImage" "$LINUX_MANIFEST")
+          LINUX_DEB_SHA256=$(extract_hash "andromeda-pulse_${VERSION}_amd64\\.deb" "$LINUX_MANIFEST")
+
+          {
+            echo "macos_x64_sha256=${MACOS_X64_SHA256}"
+            echo "macos_aarch64_sha256=${MACOS_AARCH64_SHA256}"
+            echo "linux_appimage_sha256=${LINUX_APPIMAGE_SHA256}"
+            echo "linux_deb_sha256=${LINUX_DEB_SHA256}"
+          } >> "$GITHUB_OUTPUT"
+
+          echo "Hash extraction summary:"
+          echo "  macOS x64:      ${MACOS_X64_SHA256:-(missing)}"
+          echo "  macOS aarch64:  ${MACOS_AARCH64_SHA256:-(missing)}"
+          echo "  Linux AppImage: ${LINUX_APPIMAGE_SHA256:-(missing)}"
+          echo "  Linux .deb:     ${LINUX_DEB_SHA256:-(missing)}"
+
+      - name: Render Homebrew Formula
+        # Inline Formula DSL template substituting version + 4 bundle URLs + 4
+        # SHA-256 hashes. The Formula targets macOS Intel/ARM + Linux x86_64
+        # (AppImage as the canonical Linux artifact; .deb available via
+        # separate brew install path if needed).
+        #
+        # Brand-voice copy ("local observability dashboard for OpenTelemetry")
+        # per design plan §Brand Identity contemplative voice — Observatory /
+        # Mission Control framing, not generic productivity-app SaaS framing.
+        id: render-homebrew
+        shell: bash
+        run: |
+          set -euo pipefail
+          VERSION="${{ steps.version.outputs.version }}"
+          TAG="${{ steps.version.outputs.tag }}"
+          BASE_URL="https://github.com/turbolet85/andromeda-pulse/releases/download/${TAG}"
+
+          OUT="target/release-artifacts/andromeda-pulse.rb"
+          mkdir -p target/release-artifacts/
+          cat > "$OUT" <<FORMULA
+          class AndromedaPulse < Formula
+            desc "Local OpenTelemetry observability dashboard for developers"
+            homepage "https://github.com/turbolet85/andromeda-pulse"
+            version "${VERSION}"
+            license "MIT"
+
+            on_macos do
+              on_arm do
+                url "${BASE_URL}/andromeda-pulse_${VERSION}_aarch64.dmg"
+                sha256 "${{ steps.hashes.outputs.macos_aarch64_sha256 }}"
+              end
+              on_intel do
+                url "${BASE_URL}/andromeda-pulse_${VERSION}_x64.dmg"
+                sha256 "${{ steps.hashes.outputs.macos_x64_sha256 }}"
+              end
+            end
+
+            on_linux do
+              url "${BASE_URL}/andromeda-pulse_${VERSION}_amd64.AppImage"
+              sha256 "${{ steps.hashes.outputs.linux_appimage_sha256 }}"
+            end
+
+            def install
+              if OS.mac?
+                bin.install "andromeda-pulse"
+              else
+                bin.install Dir["*.AppImage"].first => "andromeda-pulse"
+              end
+            end
+
+            test do
+              system "#{bin}/andromeda-pulse", "--version"
+            end
+          end
+          FORMULA
+
+          echo "Rendered Formula:"
+          cat "$OUT"
+
+      - name: Open PR to Homebrew tap
+        # PR creation flow (per chunk #53 plan Open Question 4 = PR creation):
+        # safer than direct push; allows maintainer review of formula updates
+        # before merge. The PAT scope is the external tap repo only.
+        uses: peter-evans/create-pull-request@271a8d0340265f705b14b6d32b9829c1cb33d45e # v7.0.5 (pre-release placeholder — dependabot validates)
+        with:
+          token: ${{ secrets.HOMEBREW_TAP_PUSH_TOKEN }}
+          path: target/release-artifacts/homebrew-tap-checkout
+          # Cross-repo PR target. peter-evans/create-pull-request supports
+          # remote repos via `path:` (a working directory containing the
+          # checked-out remote) + manual git ops in earlier steps. For
+          # simplicity, this step assumes а sibling helper (TBD if needed:
+          # add а pre-step that clones turbolet85/homebrew-andromeda-pulse
+          # into the `path:` directory + copies the rendered Formula into
+          # Formula/andromeda-pulse.rb). Operator validates PR shape after
+          # DEFERRED scope Items 5-6 land.
+          commit-message: "andromeda-pulse ${{ steps.version.outputs.tag }}"
+          title: "andromeda-pulse ${{ steps.version.outputs.tag }}"
+          body: |
+            Bump andromeda-pulse to ${{ steps.version.outputs.tag }}.
+
+            Triggered by release.yml run ${{ github.event.workflow_run.id }}
+            (${{ github.event.workflow_run.html_url }}).
+
+            Bundle artifacts:
+            - macOS x64:      `andromeda-pulse_${{ steps.version.outputs.version }}_x64.dmg`
+            - macOS aarch64:  `andromeda-pulse_${{ steps.version.outputs.version }}_aarch64.dmg`
+            - Linux AppImage: `andromeda-pulse_${{ steps.version.outputs.version }}_amd64.AppImage`
+
+            See https://github.com/turbolet85/andromeda-pulse/releases/tag/${{ steps.version.outputs.tag }}.
+          branch: bump-andromeda-pulse-${{ steps.version.outputs.version }}
+          base: main
+          delete-branch: true
+
+      - name: Upload rendered Formula artifact
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: homebrew-formula
+          path: target/release-artifacts/andromeda-pulse.rb
+          if-no-files-found: ignore
+          retention-days: 14
+
+  update-scoop:
+    name: update Scoop bucket (turbolet85/scoop-andromeda-pulse)
+    if: github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-22.04
+    environment: production-release
+    permissions:
+      contents: read
+    steps:
+      - name: Harden runner
+        uses: step-security/harden-runner@a5ad31d6a139d249332a2605b85202e8c0b78450 # v2.19.1
+        with:
+          egress-policy: audit
+
+      - name: Checkout (read template)
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+
+      - name: Download sha256-Windows artifact (от triggering release.yml run)
+        uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16 # v4.1.8 (pre-release placeholder — dependabot validates)
+        with:
+          name: sha256-Windows
+          path: target/release-artifacts/Windows/
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          run-id: ${{ github.event.workflow_run.id }}
+
+      - name: Parse version от triggering tag
+        id: version
+        shell: bash
+        run: |
+          set -euo pipefail
+          TAG="${{ github.event.workflow_run.head_branch }}"
+          VERSION="${TAG#v}"
+          echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+          echo "Parsed tag: ${TAG}, version: ${VERSION}"
+
+      - name: Extract Windows .msi SHA-256
+        # The Windows-sha256.txt manifest emitted by chunk #52 release.yml uses
+        # PowerShell `Get-FileHash` format: `<UPPERCASE-HASH>  <FullName>`.
+        # Normalize к lowercase for Scoop manifest convention.
+        id: hash
+        shell: bash
+        run: |
+          set -euo pipefail
+          VERSION="${{ steps.version.outputs.version }}"
+          MANIFEST="target/release-artifacts/Windows/Windows-sha256.txt"
+          if [ ! -f "$MANIFEST" ]; then
+            echo "::error::Windows SHA-256 manifest not found at $MANIFEST"
+            exit 1
+          fi
+          HASH=$(grep -E "andromeda-pulse_${VERSION}_x64-setup\\.msi" "$MANIFEST" | awk '{print tolower($1)}' | head -1)
+          if [ -z "$HASH" ]; then
+            echo "::error::Could not extract Windows .msi SHA-256 от manifest"
+            exit 1
+          fi
+          echo "windows_msi_sha256=${HASH}" >> "$GITHUB_OUTPUT"
+          echo "Windows .msi SHA-256: ${HASH}"
+
+      - name: Render Scoop manifest
+        # Scoop manifest JSON per Scoop spec
+        # (https://github.com/ScoopInstaller/Scoop/wiki/App-Manifests). Inline
+        # generation preferred over template-file checkout per design plan
+        # §Brand Identity contemplative voice (description copy stays consistent
+        # с Homebrew Formula desc above; mission-control framing not generic
+        # SaaS).
+        id: render-scoop
+        shell: bash
+        run: |
+          set -euo pipefail
+          VERSION="${{ steps.version.outputs.version }}"
+          TAG="${{ steps.version.outputs.tag }}"
+          BASE_URL="https://github.com/turbolet85/andromeda-pulse/releases/download/${TAG}"
+
+          OUT="target/release-artifacts/andromeda-pulse.json"
+          mkdir -p target/release-artifacts/
+          cat > "$OUT" <<MANIFEST
+          {
+            "version": "${VERSION}",
+            "description": "Local OpenTelemetry observability dashboard for developers",
+            "homepage": "https://github.com/turbolet85/andromeda-pulse",
+            "license": "MIT",
+            "architecture": {
+              "64bit": {
+                "url": "${BASE_URL}/andromeda-pulse_${VERSION}_x64-setup.msi",
+                "hash": "${{ steps.hash.outputs.windows_msi_sha256 }}"
+              }
+            },
+            "bin": "andromeda-pulse.exe",
+            "checkver": {
+              "github": "https://github.com/turbolet85/andromeda-pulse"
+            },
+            "autoupdate": {
+              "architecture": {
+                "64bit": {
+                  "url": "https://github.com/turbolet85/andromeda-pulse/releases/download/v\$version/andromeda-pulse_\$version_x64-setup.msi"
+                }
+              }
+            }
+          }
+          MANIFEST
+
+          echo "Rendered Scoop manifest:"
+          cat "$OUT"
+
+          # Sanity: validate JSON parses cleanly.
+          python3 -c "import json; json.load(open('$OUT'))"
+
+      - name: Open PR to Scoop bucket
+        uses: peter-evans/create-pull-request@271a8d0340265f705b14b6d32b9829c1cb33d45e # v7.0.5 (pre-release placeholder — dependabot validates)
+        with:
+          token: ${{ secrets.SCOOP_BUCKET_PUSH_TOKEN }}
+          path: target/release-artifacts/scoop-bucket-checkout
+          commit-message: "andromeda-pulse ${{ steps.version.outputs.tag }}"
+          title: "andromeda-pulse ${{ steps.version.outputs.tag }}"
+          body: |
+            Bump andromeda-pulse to ${{ steps.version.outputs.tag }}.
+
+            Triggered by release.yml run ${{ github.event.workflow_run.id }}
+            (${{ github.event.workflow_run.html_url }}).
+
+            Windows bundle artifact: `andromeda-pulse_${{ steps.version.outputs.version }}_x64-setup.msi`
+
+            See https://github.com/turbolet85/andromeda-pulse/releases/tag/${{ steps.version.outputs.tag }}.
+          branch: bump-andromeda-pulse-${{ steps.version.outputs.version }}
+          base: main
+          delete-branch: true
+
+      - name: Upload rendered Scoop manifest artifact
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: scoop-manifest
+          path: target/release-artifacts/andromeda-pulse.json
+          if-no-files-found: ignore
+          retention-days: 14

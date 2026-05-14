@@ -24,6 +24,10 @@ beforeEach(() => {
   // context so MetricsChart's render path runs through to recordFrameMs.
   vi.spyOn(HTMLCanvasElement.prototype, "getContext").mockImplementation(
     () =>
+      // `as never` satisfies all `getContext` overload returns (the union now
+      // includes `GPUCanvasContext` since @types/web added WebGPU; а narrower
+      // cast picks one overload and fails the others). `never` is the bottom
+      // type, assignable to every overload's return.
       ({
         clearRect: vi.fn(),
         strokeStyle: "",
@@ -32,7 +36,7 @@ beforeEach(() => {
         moveTo: vi.fn(),
         lineTo: vi.fn(),
         stroke: vi.fn(),
-      }) as unknown as CanvasRenderingContext2D,
+      }) as never,
   );
 });
 afterEach(() => {
@@ -53,7 +57,7 @@ function mockAdapter(kind: "available" | "unavailable"): void {
           device: fakeDevice as never,
           backendKind: "dx12",
         }
-      : { kind: "unavailable", reason: "no-gpu" },
+      : { kind: "unavailable", reason: "navigator.gpu undefined" },
   );
 }
 
