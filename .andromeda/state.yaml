@@ -1,14 +1,14 @@
 schema_version: 2
-last_wrap: 2026-05-14T11:04:21Z
-last_reconcile: 2026-05-14T11:04:21Z
+last_wrap: 2026-05-14T12:15:42Z
+last_reconcile: 2026-05-14T12:15:42Z
 
 last_completed_chunk:
-  route_index: 54
-  title: "A11y audit + perf SLO + violation-JSON regression — WCAG 2.1 AA (axe/Lighthouse/pa11y) + SC 2.3.3 AAA prefers-reduced-motion + 10k spans/sec ≥30 fps + per-surface tuple regression (ACTIVE scope per /implement: long-deferred placeholders activated — `xtask test:a11y` substrate stub → real npm orchestrator chain; xtask `perf:slo-load` subcommand + Rust 10k spans/sec sustained-load test; `.github/workflows/ci.yml` extended in-place with 6 new steps; workflow self-lint mirroring chunk #53's `distribution_manifests.rs` shape)"
+  route_index: 56
+  title: "Obs CI gates + log aggregation — zero-panic verification, heartbeat-stall detection (>45s gap), perf-budget p99 (snapshot ≤500ms / frame ≤33ms), criterion bench artifacts (ACTIVE scope per /implement: snapshot p99 ≤500ms aggregation added к existing perf-slo-check.{sh,ps1}; criterion bench regression detection via new xtask/ci/criterion-regression-check.{sh,ps1}; .github/workflows/ci.yml extended in-place с PR-only base-branch criterion baseline download + criterion-regression invocation; obs subscriber default fields verified already-present substrate; Epoch 8 — Polish & ship closes 7/7 chunks done)"
   epoch: 8
-  committed_at: 2026-05-14T11:04:21Z
-  commit_sha: b3b7727
-  commit_subject: "feat(a11y): chunk #54 — a11y audit + perf SLO + violation-JSON regression substrate (Epoch 8 continues; xtask placeholders activated; ci.yml extended in-place; perf SLO load test + jq p99/max gate); session 64"
+  committed_at: 2026-05-14T12:15:42Z
+  commit_sha: 734442d
+  commit_subject: "feat(ci): chunks #55+#56 — flakiness quality gate enforcement + obs CI gates + log aggregation (Epoch 8 closes; 6 new xtask/ci/*-check.{sh,ps1} scripts + 12 new workflow self-lint tests + 3 ci.yml step extensions); session 65"
 
 in_progress: null
 
@@ -24,9 +24,9 @@ plan_freshness:
   input_mtime: 2026-05-02T06:52:58Z
 
 living_artifact_freshness:
-  dep_tree_reconciled_at: 2026-05-14T11:04:21Z
-  api_surface_reconciled_at: 2026-05-14T11:04:21Z
-  most_recent_code_mtime: 2026-05-14T11:04:21Z
+  dep_tree_reconciled_at: 2026-05-14T12:15:42Z
+  api_surface_reconciled_at: 2026-05-14T12:15:42Z
+  most_recent_code_mtime: 2026-05-14T12:15:42Z
   reconcile_failed: false
 
 drift_warnings: []
@@ -210,4 +210,4 @@ spec_amendments:
       propagated_by_run: .andromeda/runs/2026-05-11T19-00-00-setup-project-delta/
       archived_at: 2026-05-11T19:25:00Z
 
-session_count: 64
+session_count: 65

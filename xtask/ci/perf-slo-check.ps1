@@ -69,4 +69,40 @@ if ($memSamples.Count -eq 0) {
     }
 }
 
+# Chunk #56 snapshot p99 gate: aggregate metric.snapshot.token_count_ms
+# events; p99 fields.duration_ms ≤500ms per obs-plan §10 row 1.
+$snapshotSamples = New-Object System.Collections.Generic.List[double]
+Get-Content -LiteralPath $logPath -Encoding UTF8 | ForEach-Object {
+    $line = $_.Trim()
+    if ([string]::IsNullOrEmpty($line)) { return }
+    try {
+        $rec = $line | ConvertFrom-Json -ErrorAction Stop
+    } catch {
+        return
+    }
+    if ($rec.target -eq "metric.snapshot.token_count_ms") {
+        $val = $rec.fields.duration_ms
+        if ($null -ne $val) {
+            [void]$snapshotSamples.Add([double]$val)
+        }
+    }
+}
+
+if ($snapshotSamples.Count -eq 0) {
+    Write-Host "perf-slo-check: zero snapshot.token_count_ms events; NEUTRAL (no snapshot generation during load OR observability not subscribed)"
+} else {
+    $sorted = $snapshotSamples | Sort-Object
+    $count = $sorted.Count
+    $idx = [int]([math]::Ceiling($count * 0.99)) - 1
+    if ($idx -lt 0) { $idx = 0 }
+    if ($idx -ge $count) { $idx = $count - 1 }
+    $p99 = $sorted[$idx]
+    if ($p99 -le 500.0) {
+        Write-Host "perf-slo-check: snapshot.token_count_ms p99 = ${p99}ms ≤ 500ms (PASS; n=$count)"
+    } else {
+        Write-Error "perf-slo-check: snapshot.token_count_ms p99 = ${p99}ms > 500ms (FAIL; n=$count)"
+        exit 1
+    }
+}
+
 exit 0

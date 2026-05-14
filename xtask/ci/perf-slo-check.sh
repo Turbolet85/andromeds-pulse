@@ -55,4 +55,23 @@ else
     fi
 fi
 
+# Chunk #56 snapshot p99 gate: aggregate `metric.snapshot.token_count_ms`
+# events; p99 .fields.duration_ms ≤500ms per obs-plan §10 row 1.
+SNAPSHOT_SAMPLES=$(jq -r '. | select(.target == "metric.snapshot.token_count_ms") | .fields.duration_ms' "$LOG" 2>/dev/null | grep -v '^null$' | sort -n)
+SNAPSHOT_COUNT=$(echo "$SNAPSHOT_SAMPLES" | grep -c . || true)
+
+if [ "$SNAPSHOT_COUNT" -eq 0 ]; then
+    echo "perf-slo-check: zero snapshot.token_count_ms events; NEUTRAL (no snapshot generation during load OR observability not subscribed)"
+else
+    SNAPSHOT_P99_IDX=$(awk -v n="$SNAPSHOT_COUNT" 'BEGIN { printf "%d", (n * 99 + 99) / 100 }')
+    [ "$SNAPSHOT_P99_IDX" -gt "$SNAPSHOT_COUNT" ] && SNAPSHOT_P99_IDX="$SNAPSHOT_COUNT"
+    SNAPSHOT_P99=$(echo "$SNAPSHOT_SAMPLES" | sed -n "${SNAPSHOT_P99_IDX}p")
+    if awk -v p="$SNAPSHOT_P99" 'BEGIN { exit (p + 0 > 500.0) }'; then
+        echo "perf-slo-check: snapshot.token_count_ms p99 = ${SNAPSHOT_P99}ms ≤ 500ms (PASS; n=${SNAPSHOT_COUNT})"
+    else
+        echo "::error::perf-slo-check: snapshot.token_count_ms p99 = ${SNAPSHOT_P99}ms > 500ms (FAIL; n=${SNAPSHOT_COUNT})" >&2
+        exit 1
+    fi
+fi
+
 exit 0
