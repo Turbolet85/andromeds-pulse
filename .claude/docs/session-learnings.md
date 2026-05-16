@@ -8,6 +8,45 @@ _This file is entirely wrap-session's territory. `/setup-project` creates it if 
 
 ---
 
+## 2026-05-16 (session 67) — Proposal 4 IMPLEMENTED: `--allow-route-append` Form 2 (terminal new epoch + first chunk) + first dogfood invocation observations
+
+**Implementation context:** Session 66 conversation surfaced the gap that pulse v0.2.0's 33 prospective chunks #57-#89 don't fit semantically into existing Epoch 8 ("Polish & ship" — v0.1.0 finalization scope). Original Check 8.2 refused new epoch creation under `--allow-route-append` even with flag. User proposed (verbatim): "разрешим --allow-route-append добавлять epoch но только последней записью и обязательно вместе с первым чанком эпохи" → two restrictions ensuring position-stability + non-empty body.
+
+**Files modified at `~/.claude/skills/andromeda-evolve/`** (user-level skill, propagates across all Andromeda projects on this machine):
+
+- `SKILL.md` — `--allow-route-append` MUST/MUST NOT clauses extended; new "Flag-specific terminal-epoch rules" subsection с §1 mechanical update spec.
+- `references/refuse-taxonomy.md` — Refuse 6 Exception subsection extended to document Form 1 (chunk append к existing epoch, original case) + Form 2 (terminal new epoch creation).
+- `references/classification-taxonomy.md` — Type 7 Definition extended; Form 2 examples + Form 2-specific marker fields documented (`new_epoch_created` / `new_epoch_title` / `new_epoch_position` / `epoch_boundary_rationale` / `scope_summary_updates`).
+- `references/validation-checks.md` — Check 8.1 + 8.2 updated; new Check 8.2.5 (terminal-position-only) + Check 8.2.6 (non-empty body); severity table + failure shape + anti-patterns extended.
+- `references/output-templates.md` — Type 7 marker template Flag authorization block + state.yaml entry additions extended с Form 2 fields.
+
+**Deferred follow-ups** (recorded in `docs/andromeda-improvements.md` Proposal 4 — pre-existing gap, not blocker):
+
+- `spec-amendment-protocol.md` (×3 byte-identical copies in triangle skills) Type 7 schema documentation never had Form 1 spec; extending к Form 2 now would require coordinated 3-copy update + Phase 8 byte-identity check verification.
+- `example-runs.md` Form 2 happy-path example.
+- `delta-rerun-protocol.md` Type 7 permit path Form 2 sub-case explicit documentation (functionally same as Form 1 — empty `expected_propagation` → lifecycle progression only).
+
+**First Form 2 invocation observations (chunk #57 widget real-data binding, this session):**
+
+1. **Skill phases telescoped under established context.** Standard evolve invocation runs Phase 1a-c dialog (sanity check + clarifying questions + classification confirmation). Here, dialog answers were already established through session 66 conversation (chunk text + epoch name + boundary rationale all pre-discussed). Telescoping к direct Phase 4-6 artifact construction was appropriate given full context. Future Form 2 invocations through fresh sessions (after `/clear`) should run full phase progression for clean audit trail — the telescoping shortcut is **session-continuity-only**.
+
+2. **Pre-existing §1 staleness preserved by strict mechanical interpretation.** route.md §1 displayed "Total chunks: 55" prior к this evolve (stale by 1 vs actual §2 count of 56, from chunk #44 amendment session 51 which didn't include §1 update). Form 2 mechanical update applied strictly +1: 55 → 56. Result: §1 still stale by 1 vs §2 actual count (now 57). Acceptable per Proposal 4 strict spec ("Total chunks: {old N} → {new N+M}"); pre-existing drift NOT this amendment's job к fix. Will resolve at next `/andromeda-route` re-generation or manual edit.
+
+3. **`Originating chunk` field N/A for cycle-start chunks.** Type 7 marker template asks for originating chunk reference (the in-progress or recently-completed chunk that motivated the append). For chunk #57 (FIRST chunk of pulse v0.2.0 cycle), no prior chunk motivated it — the motivation lives entirely в external planning material (`docs/v0_2_0/pulse-v0_2_0-route.md`) + validation report (`.andromeda/scope-validation/widget-state-validation-report-2026-05-14.md`). Marker reads `N/A — first chunk of pulse v0.2.0 cycle`. Per Check 8.6 motivation grounding spec, citing external planning material is acceptable concrete grounding (not abstract "future work"). Future Form 2 invocations starting new sub-phases (Epochs 10+) within v0.2.0 cycle will similarly cite v0.2.0 planning material rather than prior in-progress chunks.
+
+4. **Wrap-session Phase 10 SHA-fixup amend creates dangling commit_sha by design.** Observed in session 66 (commit_sha=9abc8a5 set post-amend), this session 67 continuation, and session 65 retrospectively (handoff explicitly noted "previous session 64's state.yaml.commit_sha=b3b7727 dangling"). Mechanism: Phase 8 sets commit_sha=`pending` placeholder anticipating amend; Phase 10 commits (SHA=X); Phase 10.4 sets commit_sha=X then `git commit --amend` (new SHA=Y because tree changed); state.yaml inside Y references X (now dangling — not reachable from HEAD). Each wrap-session creates State H for the next new-session check. Per protocol, "self-clears next wrap" — but self-clearing means setting to new pre-amend SHA (which itself becomes dangling). Persistent oscillation; new-session State H detection should treat dangling commit_sha as expected post-amend artifact, not unresolved drift. Documented now so future agents don't waste time chasing this as a real drift.
+
+**Cross-references:**
+
+- Amendment marker: `.andromeda/runs/2026-05-16T13-21-56-spec-amendment-create-epoch-9-chunk-57/amendment.md`
+- Evolution plan: `.andromeda/runs/2026-05-16T13-21-56-evolve-create-epoch-9-chunk-57/evolution-plan.md`
+- Proposal 4 documentation: `docs/andromeda-improvements.md` Proposal 4 (Status: IMPLEMENTED)
+- Implementation commit: 963974f
+- Subsequent chunk #57 invocation: route.md commit (pending — this wrap)
+- Earlier related entry: `2026-05-16 — /andromeda-evolve flag scope limits surfaced during first dogfood after-MVP planning analysis` (immediately below) — describes the original gap; this entry documents how it was closed.
+
+---
+
 ## 2026-05-16 — /andromeda-evolve flag scope limits surfaced during first dogfood after-MVP planning analysis (pulse v0.2.0 — 33 chunks #57-#89)
 
 **Discovery context:** First time in Andromeda's history that we're planning evolution past the v0.1.0 MVP boundary in a real project. Pulse v0.1.0 closed at route 56/56 (Epoch 8 done, commit `de35e82`, session 65). The user prepared 4 dense planning docs in `pulse-evolve-docs/` (vision + capability-spec v2 60 P-XXX + distillation-arch v3 6-layer pipeline + v0.2.0-route v2 33 chunks). The route doc's stated approach: "evolve-driven chunk appends (Type 7 route-append), no `/andromeda-scope-arch` ceremony."
