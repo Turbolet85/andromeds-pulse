@@ -32,7 +32,41 @@ living_artifact_freshness:
 drift_warnings: []
 
 spec_amendments:
-  active: []
+  active:
+    - amendment_id: 2026-05-16T14-48-08-append-chunk-58-curation-crate
+      plans:
+        - path: route.md
+          sections:
+            - "§2 Roadmap (Epoch 9 body)"
+            - "§3 Decisions Log"
+          decisions_log_section: "2026-05-16 — Append chunk #58 curation crate extraction (--allow-route-append)"
+      trigger:
+        chunk: null
+        phase: null
+        harness: "user-driven via /andromeda-evolve"
+      authority:
+        winning_plan: route.md
+        winning_tier: pipeline state
+        losing_plan: route.md
+        losing_concern: chunk-list-stale-vs-pipeline-reality
+        rationale: "Pulse v0.2.0 capability spec P-010/P-012/P-018 prerequisite (chunk #58 curation crate extraction); route §2 Epoch 9 had not registered."
+      impl_files_synced: []
+      expected_propagation: []
+      marker_path: .andromeda/runs/2026-05-16T14-48-08-spec-amendment-append-chunk-58-curation-crate/amendment.md
+      applied_at: 2026-05-16T14:48:08Z
+      noted_at: null
+      propagated_by_run: .andromeda/runs/2026-05-16T15-04-39-setup-project-delta/
+      archived_at: null
+      verification_status: clean
+      flag_used: --allow-route-append
+      form: 1
+      route_section_modified: "Epoch 9 — Foundation v0.2.0"
+      chunks_added:
+        - position: 58
+          text: "Curation crate extraction — Create `crates/curation/`, move `dedupe`, `anomaly` (latency outliers / error correlation / cardinality spikes), `critical_path`, `aggregation` modules from snapshot; pub-ify primitives via `curation::contract` re-exports; snapshot crate's external surface unchanged"
+      chunks_renumbered: []
+      motivation: "prerequisite infrastructure for capabilities P-010 / P-012 / P-018 per pulse v0.2.0 capability spec (algorithmic detection logic needs reusable curation primitives); refactor-only; parallel-safe with chunk #57"
+      confirmed_shift: false
   archive:
     - amendment_id: 2026-05-16T13-21-56-create-epoch-9-chunk-57
       plans:
