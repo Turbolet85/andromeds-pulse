@@ -72,6 +72,7 @@ Cross-platform Tauri 2 desktop dashboard for local OpenTelemetry — receives OT
 | Session learnings (curated) + handoff (state across sessions) | `.claude/docs/session-learnings.md` + `.claude/session-handoff.md` |
 | Andromeda post-MVP workflow (4 patterns + drift table + decision tree per chunk + skill mechanics refs) | `.claude/docs/andromeda-after-mvp-playbook.md` |
 | Andromeda improvement proposals + dogfood friction log (where to record pipeline gaps as they surface during chunk work) | `docs/andromeda-improvements.md` |
+| Pulse v0.2.0 planning material (vision, capability spec, distillation pipeline architecture, 33-chunk route plan) | `docs/v0_2_0/` |
 <!-- GENERATED:setup:pointer-table end -->
 
 ## Workflow

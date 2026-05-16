@@ -21,7 +21,7 @@ Some after-MVP work requires additions to architecture.md structural sections �
 - `/andromeda-arch` re-plan — greenfield, regenerates everything; overkill for a single decision addition. Also, arch is intentionally write-once per its skill description.
 - Manual `arch.md` edit — works, but breaks Andromeda's core audit-trail discipline (no marker file, no `state.yaml` entry, no formal Decisions Log entry mandated, no setup-project propagation tracking).
 
-In pulse v0.2.0 plan (`pulse-evolve-docs/pulse-v0_2_0-route.md`), at least 3 chunks require structural arch additions:
+In pulse v0.2.0 plan (`docs/v0_2_0/pulse-v0_2_0-route.md`), at least 3 chunks require structural arch additions:
 
 - **Chunk #69 (corpus scaffold)** — adds new architectural concept (encryption at rest + OS keychain integration + persistent SQLite corpus). The arch §Telemetry Retention Surface section explicitly says "persistent disk storage is reserved for the heavier backends and is out of scope" — this decision needs to be amended.
 - **Chunk #74 (LLM runtime + hardware profile)** — adds new entry to §Stack (chosen runtime: `mistralrs` or `candle` per Pre-D1 resolution) and corresponding §Established Decisions rationale entry.
@@ -112,7 +112,7 @@ Decision 2026-05-16: defer. This proposal exists so the idea isn't lost in chat 
 **Cross-references:**
 
 - Originated in session 66 conversation (chat history not committed; high-level decisions captured in this session's `.claude/session-handoff.md` "Key Decisions" section).
-- Pulse v0.2.0 chunks needing this: #69 (corpus encryption + keychain), #74 (LLM runtime decision per Pre-D1), #84 (MCP positioning) per `pulse-evolve-docs/pulse-v0_2_0-route.md`.
+- Pulse v0.2.0 chunks needing this: #69 (corpus encryption + keychain), #74 (LLM runtime decision per Pre-D1), #84 (MCP positioning) per `docs/v0_2_0/pulse-v0_2_0-route.md`.
 - Precedent flag mechanisms: `~/.claude/skills/andromeda-evolve/references/refuse-taxonomy.md` §Refuse 1 Exception (`--allow-arch-registry`) and §Refuse 6 Exception (`--allow-route-append`).
 - Companion playbook: `.claude/docs/andromeda-after-mvp-playbook.md` Pattern 4.
 

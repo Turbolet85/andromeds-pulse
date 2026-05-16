@@ -84,3 +84,5 @@ pulse-app/ui/test-results/a11y-sr/
 # --- Claude Code local settings ---
 .claude/settings.local.json
 .claude/backup/
+# Runtime PID lock file (scheduled tasks; ephemeral; per-session)
+.claude/scheduled_tasks.lock

@@ -28,7 +28,7 @@ Greenfield skills (`/andromeda-arch`, `/andromeda-route`, 6 specialist commands)
 
 - **Past v0.1.0 MVP:** route §2 56/56 chunks done; Epochs 1-8 closed (commit `de35e82`, 2026-05-14).
 - **Targeting v0.2.0:** new chunks #57+ added via evolve flow (one at a time).
-- **External v0.2.0 plan docs:** `pulse-evolve-docs/` contains capability-spec / distillation-architecture / route v2 + vision (33 prospective chunks, 2 blocking decisions: Pre-D1 LLM runtime choice, Pre-D2 Drain Rust spike). These are PLANNING references — they don't directly drive the Andromeda pipeline until absorbed into specialist plans + arch + route via evolve amendments or manual edits.
+- **External v0.2.0 plan docs:** `docs/v0_2_0/` contains capability-spec / distillation-architecture / route v2 + vision (33 prospective chunks, 2 blocking decisions: Pre-D1 LLM runtime choice, Pre-D2 Drain Rust spike). These are PLANNING references — they don't directly drive the Andromeda pipeline until absorbed into specialist plans + arch + route via evolve amendments or manual edits.
 
 ---
 
@@ -293,7 +293,7 @@ Full skill details in `~/.claude/skills/andromeda-*/`:
 
 (Drop this section in template — pulse-specific; future projects substitute their own context.)
 
-Pulse v0.2.0 plan lives in `pulse-evolve-docs/`. 33 chunks #57-#89 across 12 sub-phases. Reference details:
+Pulse v0.2.0 plan lives in `docs/v0_2_0/`. 33 chunks #57-#89 across 12 sub-phases. Reference details:
 
 - `pulse-vision-and-backlog.md` — product soul, three pillars (application + skill + model), roadmap to v2.0
 - `pulse-capability-spec.md` — 60 P-XXX capabilities formal contract (across 11 categories)
