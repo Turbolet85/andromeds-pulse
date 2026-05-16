@@ -243,4 +243,72 @@ Sequence: implement Proposal 2 first (file template), then Proposal 3 (pointer e
 
 ---
 
+## Status: IMPLEMENTED — 2026-05-16 (session 66, commit pending) — first meta-Andromeda enhancement landed via dogfood
+
+### Proposal 4 — Extend `--allow-route-append` to permit terminal-position new epoch creation + first chunk(s)
+
+**Problem (surfaced during session 66 chunk #57 planning):**
+
+When attempting to start pulse v0.2.0 chunk #57 (Widget real-data binding) via `/andromeda-evolve --allow-route-append`, immediately hit a structural blocker:
+
+- pulse route §2 currently has 8 epochs, all closed (chunks #1-#56). Epoch 8 = "Polish & ship" (semantically about v0.1.0 finalization).
+- pulse v0.2.0's 33 prospective chunks (#57-#89) belong to NEW conceptual phases (Foundation v0.2.0, Algorithmic detection, Log templates, Service lifecycle, Corpus, Digest pipeline, LLM interpretation, UI surfaces, Output channels, Operations, Reflection, Finalization).
+- Squeezing chunks #57+ into Epoch 8 ("Polish & ship") is semantically wrong — they're new feature work, not polish.
+- Original Check 8.2 refused new epoch creation under `--allow-route-append` even with flag (new epoch was /andromeda-route territory).
+- /andromeda-route is greenfield-only — does not re-derive existing route; just regenerates from scratch.
+
+Result: chunks #57+ had no automated route-registration path. Manual route.md edit + setup full mode was the only option — breaking the core Andromeda audit-trail discipline at exactly the moment the project transitions from MVP to evolution mode.
+
+**User-proposed design (2026-05-16 session 66 conversation):**
+
+> "давай знаешь как поступим разрешим --allow-route-append добавлять epoch но только последней записью и обязательно вместе с первым чанком эпохи"
+
+(Translation: "let's allow `--allow-route-append` to add an epoch but only as the last entry and obligatorily together with the first chunk of the epoch")
+
+Two-property restriction:
+1. **Terminal-position only** — new epoch MUST appear after all existing epochs in route.md §2 (position K = max(existing K) + 1). No mid-route insertion (would shift existing positions = restructuring).
+2. **Non-empty body** — new epoch creation MUST be accompanied by ≥1 chunk in the same evolve invocation. Empty placeholder epochs refused.
+
+Combined, these restrictions:
+- Preserve position-stability for completed and in-progress chunks (terminal position doesn't shift anything).
+- Prevent accumulation of dead epoch headings (every epoch in route.md has at least one motivating chunk).
+- Maintain atomic-discipline (epoch + first chunk land together in one Phase 6 atomic write).
+
+**Implementation (this commit):**
+
+Modified user-level skill files in `~/.claude/skills/andromeda-evolve/`:
+
+| File | Changes |
+|---|---|
+| `SKILL.md` | Updated `--allow-route-append` MUST/MUST NOT clauses to permit terminal-position new epoch + ≥1 chunk; added "Flag-specific terminal-epoch rules" subsection with mechanical §1 update specification (Total chunks + Epochs count lines auto-update). |
+| `references/refuse-taxonomy.md` | Extended Refuse 6 Exception subsection to describe Form 1 (existing-epoch append, original case) + Form 2 (terminal new epoch creation). Restrictions list explicitly carves out mid-route epoch insertion vs terminal append. |
+| `references/classification-taxonomy.md` | Type 7 Definition section now explicitly documents both Forms. Added Form 2 examples (v0.2.0 evolution epoch, major feature line, post-stabilization category). Added Form 2-specific marker fields: `new_epoch_created` / `new_epoch_title` / `new_epoch_position` / `scope_summary_updates`. |
+| `references/validation-checks.md` | Check 8.1 (purely additive) extended — §1 mechanical count line updates permitted under Form 2 only. Check 8.2 (insertion target) now matches Form 1 OR Form 2. Added Check 8.2.5 (Form 2 — terminal-position only; refuses mid-route epoch insertion). Added Check 8.2.6 (Form 2 — non-empty body; refuses empty epoch placeholder). Severity table + failure shape + anti-patterns extended accordingly. |
+| `references/output-templates.md` | Type 7 marker template Flag authorization block extended with Form 2 fields (`new_epoch_created` / `new_epoch_title` / `new_epoch_position` / `epoch_boundary_rationale` / `scope_summary_updates`). state.yaml entry additions section updated with Form 2 yaml structure including the new fields. |
+
+**Files NOT touched (intentional scope limit):**
+
+- `references/example-runs.md` — adding a Form 2 happy-path example deferred. Existing Type 7 example continues to apply to Form 1; Form 2 testing in pulse v0.2.0 chunk #57 cycle will provide first real example.
+- `~/.claude/skills/andromeda-{setup-project, wrap-session, new-session}/references/spec-amendment-protocol.md` (×3 byte-identical copies) — formal Part B schema for Type 7 fields was not documented even for Form 1 (pre-existing gap). Extending it now would require coordinated 3-copy update + Phase 8 byte-identity verification. Deferred as separate follow-up. Functional implementation works without spec-amendment-protocol.md schema documentation because output-templates.md drives marker + state.yaml format; setup-project --delta reads marker (not strict schema enforcement). Acknowledged limitation.
+- `references/delta-rerun-protocol.md` — Type 7 permit path semantics unchanged. Route.md still has no Tier 2/3 dependents per plan→file mapping table; Form 2 doesn't change that. Delta scope for both Form 1 and Form 2 is typically empty (lifecycle progression only).
+
+**Validation:**
+
+This proposal was implemented INLINE during session 66 conversation to unblock pulse v0.2.0 chunk #57 evolve cycle. The implementation IS the dogfood test: chunk #57 evolve (immediately after this commit) will exercise Form 2 (Epoch 9 — Foundation v0.2.0 + chunk #57 as first member). If chunk #57 evolve cycle succeeds, Proposal 4 design is validated. If it surfaces additional friction, append Proposal 5+ here documenting refinements.
+
+**Follow-up gaps for future enhancement sessions:**
+
+1. **spec-amendment-protocol.md Part B Type 7 schema documentation** (×3 byte-identical copies in triangle skills) — Form 1 AND Form 2 fields should be formally documented in the canonical contract. Currently lives only in output-templates.md.
+2. **example-runs.md Form 2 happy-path example** — add canonical case study showing v0.2.0-style new epoch creation.
+3. **delta-rerun-protocol.md Type 7 permit path** — explicitly document Form 2 sub-case (epoch creation contributing nothing to delta scope; lifecycle progression only).
+
+**Cross-references:**
+
+- User design proposal: session 66 chat conversation (not committed; high-level idea captured in this Proposal 4 body).
+- Triggering need: pulse v0.2.0 chunk #57 (Widget real-data binding) cannot fit semantically into existing Epoch 8 "Polish & ship".
+- Companion patterns: Pattern 1 (existing arch-registry flag) and Pattern 4 (manual arch edits, no flag yet) per `.claude/docs/andromeda-after-mvp-playbook.md`.
+- Implementation commit: `{this commit SHA — filled at commit time}`.
+
+---
+
 _(Subsequent proposals appended below in chronological order. Each proposal has its own `## Status:` heading and `### Proposal N — title` subheading for navigability.)_

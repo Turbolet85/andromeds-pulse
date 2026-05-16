@@ -63,28 +63,55 @@ Greenfield skills (`/andromeda-arch`, `/andromeda-route`, 6 specialist commands)
 
 ---
 
-### Pattern 2 — Route chunk append
+### Pattern 2 — Route chunk append (two forms)
 
-**Use when:** new chunk needs to be added to an existing epoch in `route.md` §2 — typically follow-up to partial chunk, deferred scope, or dependency surfaced by specialist plan amendment.
+**Use when:** new chunk needs to be added to `route.md` §2 — either to existing epoch (Form 1) or as first member of a new terminal-position epoch (Form 2). Form 2 added 2026-05-16 per `docs/andromeda-improvements.md` Proposal 4 (IMPLEMENTED).
+
+**Form 1 — chunk append to existing epoch:**
 
 ```
 /andromeda-evolve --allow-route-append
-  → Phase 1c dialog: which Epoch K, new chunk text, motivation (in-progress chunk ref / amendment_id / concrete trigger)
+  → Phase 1c dialog: which Epoch K, new chunk text, motivation
   → Phase 3 Check 8: additive / existing epoch / position-stable / motivation grounded / format conforms / Decisions Log well-formed
-  → Phase 6 atomic write:
-      • marker file with Type 7 fields (route_section_modified, chunks_added, motivation)
-      • `route.md` §2 insertion in epoch body
-      • `route.md` §3 Decisions Log entry (with `By: /andromeda-evolve --allow-route-append (Type 7)`)
-      • state.yaml.spec_amendments.active
+  → Phase 6 atomic write: marker + route.md §2 insertion + §3 Decisions Log entry + state.yaml.spec_amendments.active
 
-/andromeda-setup-project --delta
-  → Per plan→file mapping table: route.md has NO Tier 2/3 dependents (route is meta)
-  → Phase 9 lifecycle progression only
-
+/andromeda-setup-project --delta → lifecycle progression only (route has no Tier 2/3 dependents)
 /andromeda-wrap-session → archives
 ```
 
-**Constraints (Check 8):** purely additive (no chunk text modification / no deletion / no reordering) / existing epoch only (new epoch creation refused even with flag) / insertion point > `state.yaml.last_completed_chunk.route_index` (no shifting completed chunks) / motivation grounded (concrete trigger required — abstract "future scope" refused) / chunk text ≤25 words single line / §3 Decisions Log entry has Decision/Rationale/Impact/By fields.
+**Form 2 — terminal-position new epoch + first chunk(s):**
+
+```
+/andromeda-evolve --allow-route-append
+  → Phase 1c dialog: new epoch name (K = max+1), epoch boundary rationale, first chunk(s) text, motivation
+  → Phase 3 Check 8: additive / new terminal epoch / NON-EMPTY body (≥1 chunk) / terminal-position / position-stable / motivation grounded / format conforms / Decisions Log well-formed
+  → Phase 6 atomic write:
+      • marker (Type 7 Form 2 fields: new_epoch_created=true, new_epoch_title, new_epoch_position, epoch_boundary_rationale, scope_summary_updates)
+      • route.md §1 mechanical update: "Total chunks: N→N+M", "Epochs: N→N+1"
+      • route.md §2 appended `### Epoch K — {name}` heading + ≥1 chunk in body
+      • route.md §3 Decisions Log entry citing epoch creation
+      • state.yaml.spec_amendments.active
+
+/andromeda-setup-project --delta → lifecycle progression only
+/andromeda-wrap-session → archives
+```
+
+**Constraints (Check 8) — both forms:**
+- Purely additive — no chunk text modification, no deletion, no reordering, no existing epoch heading rename.
+- Insertion point > `state.yaml.last_completed_chunk.route_index` (no shifting completed chunks).
+- Motivation grounded — concrete trigger (in-progress chunk ref OR amendment_id OR concrete trigger); abstract "future scope" refused.
+- Chunk text ≤25 words single line.
+- §3 Decisions Log entry has Decision / Rationale / Impact / By fields.
+
+**Form 1 additional:** insertion target is EXISTING epoch heading.
+
+**Form 2 additional:**
+- New epoch position is terminal — K = max(existing K) + 1 (mid-route insertion refused).
+- New epoch body non-empty — ≥1 chunk in same evolve invocation (empty placeholder refused).
+- Motivation cites WHY existing epochs don't fit semantically.
+- §1 mechanical updates ONLY to "Total chunks" + "Epochs" count lines; other §1 metrics (Drilldown depth / Hierarchy mode / Ordering principle) stay stale until next /andromeda-route re-generation.
+
+**Use Form 2 when:** new chunks belong to a conceptually distinct phase that doesn't fit existing epoch semantics (e.g., post-MVP v0.2.0 feature work that doesn't belong in v0.1.0's "Polish & ship" Epoch 8).
 
 ---
 
@@ -196,9 +223,13 @@ This chunk modifies:
 │   → Pattern 3 × N (split into multiple /evolve runs, each ≤3 plans)
 │
 ├── Adds chunk to route.md §2 existing epoch?
-│   → Pattern 2 (/evolve --allow-route-append + setup --delta)
+│   → Pattern 2 Form 1 (/evolve --allow-route-append + setup --delta)
 │
-└── Adds NEW epoch to route.md?
+├── Adds NEW terminal-position epoch + ≥1 chunk to route.md?
+│   → Pattern 2 Form 2 (/evolve --allow-route-append + setup --delta)
+│     New epoch K = max(existing) + 1; non-empty body required.
+│
+└── Adds NEW mid-route epoch (between existing epochs)?
     → MANUAL route.md edit (insert new ### Epoch K — {name} heading + chunks)
        + manual §3 Decisions Log entry
        + setup full mode (route has no Tier 2/3 dependents but full setup re-checks consistency)
@@ -225,7 +256,7 @@ This chunk modifies:
 |---|---|---|---|
 | (none) | Type 1-5 specialist plan amendments | arch.md body / route.md changes / impl code / >3 plan touches | Types 1-5 |
 | `--allow-arch-registry` | Purely additive entries to arch.md §Occupied Resources / §Workspace / §Capability Registry | §Established Decisions / §Stack / §Cross-cutting / §Project Intent / §Design Philosophy / modifications | Type 6 |
-| `--allow-route-append` | New chunks in existing route.md §2 epochs | Chunk modification / deletion / reordering / new epoch creation | Type 7 |
+| `--allow-route-append` | Form 1: new chunks in existing route.md §2 epochs. Form 2: terminal new epoch + ≥1 chunk in body. | Chunk modification / deletion / reordering / mid-route epoch creation / empty epoch creation / existing epoch heading rename / §1 modifications beyond Total chunks + Epochs auto-update | Type 7 |
 | `--allow-arch-decision` (PROPOSED) | Purely additive entries to §Established Decisions / §Stack / §Cross-cutting Patterns | §Project Intent / §Design Philosophy / modifications / new sections | Type 8 (future) |
 | `--dry-run` | Show proposed artifacts without writing | — | Combinable with any classification |
 
