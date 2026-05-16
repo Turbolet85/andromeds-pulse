@@ -658,6 +658,7 @@ const EXPECTED_PROCEDURES: &[&str] = &[
     "ready",
     "get_settings",
     "update_settings",
+    "connection.current_state",
     "logs.query",
     "metrics.query",
     "streams.subscribe_logs",
@@ -921,6 +922,15 @@ mod capability_drift_tests {
                 "EXPECTED_PROCEDURES must include {proc} (chunk #49 mcp router)"
             );
         }
+    }
+
+    #[test]
+    fn expected_procedures_includes_connection_namespace_at_chunk_59() {
+        let expected: BTreeSet<&str> = EXPECTED_PROCEDURES.iter().copied().collect();
+        assert!(
+            expected.contains("connection.current_state"),
+            "EXPECTED_PROCEDURES must include connection.current_state (chunk #59 connection router)"
+        );
     }
 
     #[test]

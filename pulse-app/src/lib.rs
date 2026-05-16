@@ -1,3 +1,4 @@
+pub mod connection_router;
 pub mod heartbeat;
 #[cfg(feature = "mcp-server")]
 pub mod mcp_router;

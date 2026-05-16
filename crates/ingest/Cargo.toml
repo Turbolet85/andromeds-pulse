@@ -6,6 +6,15 @@ rust-version.workspace = true
 license.workspace = true
 repository.workspace = true
 
+# Chunk #59 — `taurpc-runtime` feature gates the optional specta dep used to
+# derive `specta::Type` on `ConnectionState` / `ConnectionStatePayload` /
+# `Severity` / `ReceiverFailureReason` so they can cross the TauRPC bridge.
+# Default-on mirrors ui-bridge's pattern; downstream consumers needing a
+# lean ingest crate without specta can opt out via `default-features = false`.
+[features]
+default = ["taurpc-runtime"]
+taurpc-runtime = ["dep:specta"]
+
 [dependencies]
 thiserror.workspace = true
 tokio.workspace = true
@@ -20,6 +29,20 @@ tower-http.workspace = true
 tower_governor.workspace = true
 bytes.workspace = true
 http.workspace = true
+# Chunk #59 — connection state machine + LastIngestTracker timestamp use
+# chrono::Utc to source unix nanos at hot-path record_* call sites.
+chrono.workspace = true
+# Chunk #59 — ConnectionStatePayload is serialized into the
+# pulse://stream/connection-state broadcast and the connection.current_state
+# TauRPC response; serde derives required.
+serde.workspace = true
+# Chunk #59 — optional specta::Type derive for cross-bridge types; gated by
+# the `taurpc-runtime` feature (default-on for pulse-app consumption). The
+# `derive` feature must be added explicitly: workspace dep declares only
+# `features = ["chrono"]`, and ui-bridge's specta::Type derives work only
+# because `dep:taurpc` (its sibling) transitively activates `specta/derive`.
+# Ingest does NOT depend on taurpc, so it activates `derive` directly.
+specta = { workspace = true, optional = true, features = ["derive"] }
 
 [build-dependencies]
 tonic-build.workspace = true
@@ -32,3 +55,13 @@ rstest.workspace = true
 proptest.workspace = true
 axum-test.workspace = true
 reqwest.workspace = true
+# Chunk #59 — FSM poller tests use tokio::time::pause() / advance() which
+# requires the `test-util` feature; workspace `features = ["full"]` does NOT
+# include it (per .claude/rules/testing.md Session Additions 2026-05-03).
+tokio = { workspace = true, features = ["test-util"] }
+# Chunk #59 — connection state-transition tracing event tests use the
+# in-process CapturingSubscriber pattern (per .claude/rules/testing.md
+# Session Additions 2026-05-07 + 2026-05-09).
+tracing-subscriber.workspace = true
+# Chunk #59 — payload serialization tests assert JSON shape via serde_json.
+serde_json.workspace = true

@@ -8,6 +8,20 @@ _This file is entirely wrap-session's territory. `/setup-project` creates it if 
 
 ---
 
+## 2026-05-16 (session 72) — `specta = { features = ["chrono"] }` workspace dep does NOT include `derive` feature; consuming crate must activate `derive` explicitly OR transitively via `dep:taurpc`
+
+**Context:** chunk #59 added `#[cfg_attr(feature = "taurpc-runtime", derive(specta::Type))]` to 4 types in `crates/ingest/src/connection.rs` (ConnectionState / Severity / ReceiverFailureReason / ConnectionStatePayload). Mirrored the ui-bridge gating pattern: ingest `[features] taurpc-runtime = ["dep:specta"]` + `specta = { workspace = true, optional = true }`. First compile produced `error[E0433]: cannot find Type in specta ... note: found an item that was configured out — the item is gated behind the "derive" feature`.
+
+**Discipline:** The workspace dep is declared at root `Cargo.toml:42` as `specta = { version = "=2.0.0-rc.22", features = ["chrono"] }` — only `chrono` feature, NOT `derive`. ui-bridge's `derive(specta::Type)` compiles BECAUSE `ui-bridge`'s `taurpc-runtime = ["dep:taurpc", "dep:tauri", "dep:specta", "dep:tokio"]` activates `dep:taurpc` alongside `dep:specta`, and `taurpc` itself transitively activates `specta/derive`. So ui-bridge gets `derive` for free as a side-effect of also depending on taurpc.
+
+The ingest crate does NOT depend on taurpc (would invert the workspace-boundary direction). So when activating `dep:specta` alone, the `derive` feature must be added explicitly at the consuming crate's Cargo.toml: `specta = { workspace = true, optional = true, features = ["derive"] }`. Workspace + consumer features unify additively, so this combines workspace `chrono` with consumer `derive` into the final feature set `{chrono, derive}`.
+
+**Generalization:** ANY future workspace crate adding `specta::Type` derive that does NOT also depend on taurpc must activate `features = ["derive"]` explicitly. Two viable options at the workspace-Cargo.toml level if this gotcha recurs frequently: (a) bump workspace dep to `features = ["chrono", "derive"]` (one-time fix; minor build-time cost for crates that don't use derive); (b) keep status quo + document the activator-side override (current path). Option (a) is cleaner but is a workspace-level decision; option (b) is consumer-side and works without disturbing existing crates. Confidence 0.85 — empirically verified; reproducible across any non-taurpc crate; ui-bridge precedent informs the activation pattern.
+
+**When applicable:** Adding `derive(specta::Type)` to types in any workspace crate that does NOT also depend on taurpc (i.e., NOT `ui-bridge` or `pulse-app`). Current candidates: `crates/ingest` (chunk #59), and future-hypothetical crates that need cross-bridge types for new TauRPC namespaces.
+
+---
+
 ## 2026-05-16 (session 71) — "No clarifying questions" autonomous directive applies to intent-clarification, NOT filesystem-write confirmation
 
 **Context:** session 71 invoked `/andromeda-evolve --allow-route-append` with the user's system-reminder directive "work without stopping for clarifying questions. When you'd normally pause to check, make the reasonable call and continue; they'll redirect if needed." The skill's Phase 1b sanity check + Phase 1c deep dialogue normally ask the user "what do you want to change?" — those ARE clarifying-intent questions, correctly skipped per directive (inferred chunk #59 from `docs/v0_2_0/pulse-v0_2_0-route.md` as the reasonable call). But the skill's Phase 5 user review is structurally different: it shows the full proposed marker + Decisions Log entry + state.yaml fragment + diff against route.md, and requires explicit yes/cancel BEFORE writing those irreversible artifacts.

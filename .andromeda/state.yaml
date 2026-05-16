@@ -1,14 +1,14 @@
 schema_version: 2
-last_wrap: 2026-05-16T20:31:34Z
-last_reconcile: 2026-05-16T20:00:00Z
+last_wrap: 2026-05-16T21:55:00Z
+last_reconcile: 2026-05-16T21:50:00Z
 
 last_completed_chunk:
-  route_index: 58
-  title: "Curation crate extraction — Create `crates/curation/`, move `dedupe`, `anomaly` (latency outliers / error correlation / cardinality spikes), `critical_path`, `aggregation` modules from snapshot; pub-ify primitives via `curation::contract` re-exports; snapshot crate's external surface unchanged"
+  route_index: 59
+  title: "Connection state machine — LastIngestTracker atomic in ingest hot path; 1-2s poller emits Listening/Receiving/Idle/Stalled/ReceiverFailed states to pulse://stream/connection-state; connection.current_state TauRPC; receiver panic-hook wired (capabilities P-001 through P-004)"
   epoch: 9
-  committed_at: 2026-05-16T16:59:47Z
-  commit_sha: 1be7314
-  commit_subject: "feat(curation): chunk #58 - curation crate extraction (Epoch 9 Foundation v0.2.0 second chunk); session 70"
+  committed_at: 2026-05-16T21:55:00Z
+  commit_sha: dea8c26
+  commit_subject: "feat(connection): chunk #59 — connection state machine (Epoch 9 Foundation v0.2.0 third chunk); session 72"
 
 in_progress: null
 
@@ -24,12 +24,18 @@ plan_freshness:
   input_mtime: 2026-05-02T06:52:58Z
 
 living_artifact_freshness:
-  dep_tree_reconciled_at: 2026-05-16T20:00:00Z
-  api_surface_reconciled_at: 2026-05-16T20:00:00Z
-  most_recent_code_mtime: 2026-05-16T18:11:16Z
+  dep_tree_reconciled_at: 2026-05-16T21:45:00Z
+  api_surface_reconciled_at: 2026-05-16T21:50:00Z
+  most_recent_code_mtime: 2026-05-16T21:35:00Z
   reconcile_failed: false
 
-drift_warnings: []
+drift_warnings:
+  - drift_id: D3-chunk-59-connection-namespace
+    description: "Chunk #59 introduced `connection.current_state` TauRPC procedure + `pulse://stream/connection-state` broadcast topic; arch §Occupied Resources Tauri IPC routes does NOT yet list either. Implementation green per scope (capability-drift clean via xtask EXPECTED_PROCEDURES + emit_taurpc_bindings); arch registry acknowledgment pending."
+    severity: warning
+    remediation_hint: "/andromeda-evolve --allow-arch-registry Type 6 amendment to add `connection.current_state` to arch §Occupied Resources Tauri IPC routes + `pulse://stream/connection-state` to broadcast events list. Lifecycle matches session 51 pulse:clipboard + sessions 67/69/71 chunk #57/#58/#59 route-registry precedents."
+    first_observed_session_count: 72
+    last_observed_session_count: 72
 
 spec_amendments:
   active: []
@@ -255,4 +261,4 @@ spec_amendments:
       propagated_by_run: .andromeda/runs/2026-05-11T19-00-00-setup-project-delta/
       archived_at: 2026-05-11T19:25:00Z
 
-session_count: 71
+session_count: 72

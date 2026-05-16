@@ -246,6 +246,49 @@ impl AllowList {
             .copied()
             .collect(),
         );
+        // Chunk #59 — connection state machine emits at three targets:
+        // - `connection.tick` (15s heartbeat sibling, via the .tick suffix-strip
+        //   resolver → "connection" entry)
+        // - `connection.state.transition` (1-2s poller, on state change only)
+        // - `connection.current_state.request` (TauRPC handler instrument span)
+        // Each non-tick target needs an explicit per-leaf entry per the
+        // .claude/rules/observability.md Session Addition 2026-05-07
+        // dotted-target resolver discipline (resolver does NOT fall back from
+        // sub-namespace to crate-name; absent entry redacts ALL fields).
+        by_target.insert(
+            "connection",
+            [
+                "state",
+                "last_span_ago_ms",
+                "severity",
+                "from_state",
+                "to_state",
+                "trigger_reason",
+            ]
+            .iter()
+            .copied()
+            .collect(),
+        );
+        by_target.insert(
+            "connection.state.transition",
+            [
+                "from_state",
+                "to_state",
+                "last_span_ago_ms",
+                "trigger_reason",
+                "severity",
+            ]
+            .iter()
+            .copied()
+            .collect(),
+        );
+        by_target.insert(
+            "connection.current_state.request",
+            ["state", "last_span_ago_ms", "severity"]
+                .iter()
+                .copied()
+                .collect(),
+        );
         by_target.insert(
             "viz",
             [

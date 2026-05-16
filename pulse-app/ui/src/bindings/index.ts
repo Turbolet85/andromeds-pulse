@@ -8,6 +8,23 @@ export type AppError = { kind: "validation"; field: string; reason: string } | {
 
 export type AppInfo = { name: string; version: string; rust_version: string; tauri_version: string; features: string[]; build_profile: string }
 
+/**
+ * 5-state connection lifecycle FSM. `#[serde(tag = "state")]` discriminator
+ * gives the TauRPC TypeScript binding a discriminated union the compiler
+ * enforces exhaustive `switch` on — preserves a11y SC 1.4.1 not-color-alone
+ * affordance at the wire boundary (per a11y plan §6 + plan.md §A11y row).
+ */
+export type ConnectionState = { state: "Listening" } | { state: "Receiving" } | { state: "Idle" } | { state: "Stalled" } | { state: "ReceiverFailed" }
+
+/**
+ * Wire payload for the `pulse://stream/connection-state` broadcast topic
+ * AND the `connection.current_state` TauRPC procedure response. Carries
+ * only semantic state + lag + sanitized reason — NO presentation fields
+ * (`displayColor` / `iconGlyph` / `cssClass` are forbidden per design
+ * plan extract).
+ */
+export type ConnectionStatePayload = { state: ConnectionState; last_span_ago_ms: number; severity: Severity; message: string | null; reason: ReceiverFailureReason | null }
+
 export type FrameDurationInput = { duration_ms: number; wgpu_backend: WgpuBackend; webview_backend: WebviewBackend; timing_method: TimingMethod }
 
 export type HealthEnvelope = { status: HealthStatus; checked_at: string; subsystems: SubsystemStatuses; pid: number; uptime_ms: number }
@@ -17,14 +34,6 @@ export type HealthStatus = "ok" | "degraded"
 export type LogRow = { ts_unix_nano: number; resource_hash: string; severity_number: number; body: string; severity_text: string; trace_id: string; span_id: string }
 
 export type LogsQueryArgs = { time_window_seconds: number; limit: number; cursor: string | null }
-
-export type McpServerState = "enabled" | "disabled" | "unavailable"
-
-export type McpStartResult = { state: McpServerState; pid: number | null }
-
-export type McpStatusDto = { state: McpServerState; sidecar_running: boolean; pid: number | null }
-
-export type McpStopResult = { state: McpServerState }
 
 export type MetricRow = { metric_name: string; ts_unix_nano: number; resource_hash: string; value: number; data_point_kind: number }
 
@@ -44,7 +53,21 @@ export type ReadyChecks = { duckdb_connection: string; ingest_mpsc_capacity_pct:
 
 export type ReadyEnvelope = { ready: boolean; checked_at: string; checks: ReadyChecks }
 
+/**
+ * Closed-enum failure reason. Carries NO file-path / line-number /
+ * library-version / Rust-struct-name content — satisfies security plan
+ * §Anti-Patterns §Logging row 1 + a11y plan §8 plain-language commitment.
+ */
+export type ReceiverFailureReason = "bind_failed" | "stale_heartbeat" | "receiver_panicked"
+
 export type Settings = { theme?: Theme; widget_position?: WidgetPosition; retention_seconds?: number; mcp_server_enabled?: boolean; notifications_enabled?: boolean; always_on_top?: boolean; snapshot_preset?: SnapshotPreset; snapshot_format?: SnapshotFormat }
+
+/**
+ * Severity hint enabling future webview `aria-live` polite-vs-assertive
+ * selection without re-deriving severity from state-enum string matching
+ * (per a11y plan §7 Live regions table).
+ */
+export type Severity = "info" | "warning" | "critical"
 
 export type SnapshotFormat = "markdown" | "json"
 
@@ -72,16 +95,14 @@ export type WidgetPosition = "top-left" | "top-right" | "bottom-left" | "bottom-
 
 export type WorkspaceContextDto = { root_basename: string; project_name: string | null; vcs_type: string | null; vcs_root_basename: string | null; has_andromeda_marker: boolean }
 
-const ARGS_MAP = { '':'{"app_info":[],"get_settings":[],"health":[],"ready":[],"update_settings":["settings"]}', 'logs':'{"query":["args"]}', 'mcp':'{"start":[],"status":[],"stop":[]}', 'metrics':'{"query":["args"]}', 'plugins':'{"invoke":["plugin_id","capability"],"list":[],"reload":[]}', 'snapshot':'{"generate":["preset","workspace_root"]}', 'streams':'{"subscribe_logs":["channel"],"subscribe_metrics":["channel"],"subscribe_spans":["channel"]}', 'telemetry.frontend':'{"record_frame_ms":["input"]}', 'traces':'{"query":["args"]}', 'workspace':'{"detect":["candidate_root"]}' }
+const ARGS_MAP = { '':'{"app_info":[],"get_settings":[],"health":[],"ready":[],"update_settings":["settings"]}', 'connection':'{"current_state":[]}', 'logs':'{"query":["args"]}', 'metrics':'{"query":["args"]}', 'plugins':'{"invoke":["plugin_id","capability"],"list":[],"reload":[]}', 'snapshot':'{"generate":["preset","workspace_root"]}', 'streams':'{"subscribe_logs":["channel"],"subscribe_metrics":["channel"],"subscribe_spans":["channel"]}', 'telemetry.frontend':'{"record_frame_ms":["input"]}', 'traces':'{"query":["args"]}', 'workspace':'{"detect":["candidate_root"]}' }
 export type Router = { "": {app_info: () => Promise<AppInfo>, 
 get_settings: () => Promise<Settings>, 
 health: () => Promise<HealthEnvelope>, 
 ready: () => Promise<ReadyEnvelope>, 
 update_settings: (settings: Settings) => Promise<null>},
+"connection": {current_state: () => Promise<ConnectionStatePayload>},
 "logs": {query: (args: LogsQueryArgs) => Promise<PaginatedResponse<LogRow>>},
-"mcp": {start: () => Promise<McpStartResult>, 
-status: () => Promise<McpStatusDto>, 
-stop: () => Promise<McpStopResult>},
 "metrics": {query: (args: MetricsQueryArgs) => Promise<PaginatedResponse<MetricRow>>},
 "plugins": {invoke: (pluginId: string, capability: string) => Promise<PluginInvokeResult>, 
 list: () => Promise<PluginListEnvelope>, 

@@ -1,4 +1,5 @@
 pub mod channel;
+pub mod connection;
 pub mod contract;
 pub mod grpc;
 pub mod http;

@@ -6,6 +6,10 @@ use std::time::Duration;
 use buffer::{BroadcastSenders, BufferState};
 use chrono::Utc;
 use ingest::channel::IngestSender;
+use ingest::connection::{
+    ConnectionState, ReceiverBindStatus, compute_state, last_span_ago_ms, severity_label,
+    state_label,
+};
 use ingest::state::IngestState;
 use plugins::loader::PluginRegistry;
 use tokio::task::JoinHandle;
@@ -24,17 +28,19 @@ pub fn spawn(
     viz_state: Arc<VizState>,
     broadcast_senders: Arc<BroadcastSenders>,
     plugins_registry: Arc<Mutex<PluginRegistry>>,
+    bind_status: Arc<dyn ReceiverBindStatus>,
 ) -> Vec<JoinHandle<()>> {
     vec![
         tokio::spawn(run_ingest(
             state.clone(),
-            ingest_state,
+            Arc::clone(&ingest_state),
             ingest_sender,
             broadcast_senders,
         )),
         tokio::spawn(run_buffer(state.clone(), buffer_state, retention_seconds)),
         tokio::spawn(run_viz(state.clone(), viz_state)),
-        tokio::spawn(run_plugins(state, plugins_registry)),
+        tokio::spawn(run_plugins(state.clone(), plugins_registry)),
+        tokio::spawn(run_connection(state, ingest_state, bind_status)),
     ]
 }
 
@@ -77,6 +83,23 @@ async fn run_plugins(state: Arc<HeartbeatState>, plugins_registry: Arc<Mutex<Plu
     loop {
         interval.tick().await;
         emit_plugins_tick(&state, &plugins_registry);
+    }
+}
+
+// Chunk #59 — connection state heartbeat. 15s sibling cadence (matches
+// ingest.tick / buffer.tick / viz.tick / plugins.tick) emitting a periodic
+// snapshot of current connection-state. The 1-2s FSM detector loop in
+// crates/ingest/src/connection.rs::start_poller emits transition events
+// ONLY on state changes — that's a separate concern, NOT this heartbeat.
+async fn run_connection(
+    _state: Arc<HeartbeatState>,
+    ingest_state: Arc<IngestState>,
+    bind_status: Arc<dyn ReceiverBindStatus>,
+) {
+    let mut interval = tokio::time::interval(Duration::from_secs(TICK_INTERVAL_SECS));
+    loop {
+        interval.tick().await;
+        emit_connection_tick(&ingest_state, bind_status.as_ref());
     }
 }
 
@@ -197,6 +220,32 @@ fn emit_plugins_tick(state: &HeartbeatState, plugins_registry: &Arc<Mutex<Plugin
         active_invocations = payload.active_invocations,
         "heartbeat",
     );
+}
+
+fn emit_connection_tick(ingest_state: &IngestState, bind_status: &dyn ReceiverBindStatus) {
+    let now_nanos = chrono::Utc::now().timestamp_nanos_opt().unwrap_or(0);
+    let last = ingest_state.last_ingest_at_nanos();
+    let failed = bind_status.any_receiver_failed();
+    let state = compute_state(last, now_nanos, failed);
+    let lag = last_span_ago_ms(last, now_nanos);
+    let severity = severity_for_state(state);
+    tracing::info!(
+        target: "connection.tick",
+        state = state_label(state),
+        last_span_ago_ms = lag,
+        severity = severity_label(severity),
+        "heartbeat",
+    );
+}
+
+fn severity_for_state(state: ConnectionState) -> ingest::connection::Severity {
+    match state {
+        ConnectionState::Listening | ConnectionState::Receiving | ConnectionState::Idle => {
+            ingest::connection::Severity::Info
+        }
+        ConnectionState::Stalled => ingest::connection::Severity::Warning,
+        ConnectionState::ReceiverFailed => ingest::connection::Severity::Critical,
+    }
 }
 
 #[cfg(test)]
@@ -506,7 +555,17 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn spawn_returns_four_handles_and_aborts_cleanly() {
+    async fn spawn_returns_five_handles_and_aborts_cleanly() {
+        use std::sync::atomic::AtomicBool;
+        struct StubBindStatus;
+        impl ReceiverBindStatus for StubBindStatus {
+            fn any_receiver_failed(&self) -> bool {
+                false
+            }
+        }
+        // Suppress dead-code lint on AtomicBool import path consistency:
+        let _ = AtomicBool::new(false);
+
         let state = Arc::new(HeartbeatState::new());
         let ingest_state = Arc::new(IngestState::new());
         let (sender, _rx) = build_channel();
@@ -515,6 +574,7 @@ mod tests {
         let viz_state = Arc::new(VizState::new());
         let senders = Arc::new(buffer::broadcast::create());
         let plugins_registry = Arc::new(Mutex::new(PluginRegistry::empty()));
+        let bind_status: Arc<dyn ReceiverBindStatus> = Arc::new(StubBindStatus);
         let handles = spawn(
             state,
             ingest_state,
@@ -524,11 +584,61 @@ mod tests {
             viz_state,
             senders,
             plugins_registry,
+            bind_status,
         );
-        assert_eq!(handles.len(), 4);
+        assert_eq!(handles.len(), 5);
         for handle in handles {
             handle.abort();
             let _ = handle.await;
         }
+    }
+
+    // Chunk #59 — connection.tick emission tests.
+
+    struct StubBindStatusFalse;
+    impl ReceiverBindStatus for StubBindStatusFalse {
+        fn any_receiver_failed(&self) -> bool {
+            false
+        }
+    }
+
+    struct StubBindStatusTrue;
+    impl ReceiverBindStatus for StubBindStatusTrue {
+        fn any_receiver_failed(&self) -> bool {
+            true
+        }
+    }
+
+    #[test]
+    fn emit_connection_tick_listening_when_no_ingest_and_bind_ok() {
+        let ingest_state = IngestState::new();
+        let bind = StubBindStatusFalse;
+        let lines = capture_lines(|| emit_connection_tick(&ingest_state, &bind));
+        assert_eq!(lines.len(), 1);
+        assert_eq!(lines[0]["target"], "connection.tick");
+        let fields = &lines[0]["fields"];
+        assert_eq!(fields["state"], "Listening");
+        assert_eq!(fields["last_span_ago_ms"], 0);
+        assert_eq!(fields["severity"], "info");
+    }
+
+    #[test]
+    fn emit_connection_tick_receiving_after_ingest_recent() {
+        let ingest_state = IngestState::new();
+        ingest_state.record_spans(1);
+        let bind = StubBindStatusFalse;
+        let lines = capture_lines(|| emit_connection_tick(&ingest_state, &bind));
+        assert_eq!(lines[0]["fields"]["state"], "Receiving");
+        assert_eq!(lines[0]["fields"]["severity"], "info");
+    }
+
+    #[test]
+    fn emit_connection_tick_receiver_failed_when_bind_failed() {
+        let ingest_state = IngestState::new();
+        ingest_state.record_spans(1);
+        let bind = StubBindStatusTrue;
+        let lines = capture_lines(|| emit_connection_tick(&ingest_state, &bind));
+        assert_eq!(lines[0]["fields"]["state"], "ReceiverFailed");
+        assert_eq!(lines[0]["fields"]["severity"], "critical");
     }
 }

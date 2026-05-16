@@ -7,6 +7,7 @@ use std::{env, fs};
 use buffer::{BroadcastSenders, BufferState, create_schema, run_consumer, run_retention};
 use duckdb::Connection;
 use ingest::channel::{IngestSender, build_channel};
+use ingest::connection::{self, ConnectionBroadcast, ReceiverBindStatus};
 use ingest::contract::{Error as IngestError, OtlpPort};
 use ingest::state::IngestState;
 use tauri::Manager;
@@ -23,6 +24,7 @@ use viz::VizState;
 use pulse_app::taurpc_export_config;
 use pulse_app::{heartbeat, observability, tray, window};
 
+use pulse_app::connection_router::{ConnectionApi, ConnectionApiImpl, HeartbeatBindStatus};
 #[cfg(feature = "mcp-server")]
 use pulse_app::mcp_router::{McpApi, McpApiImpl};
 use pulse_app::plugins_router::{PluginsApi, PluginsApiImpl};
@@ -228,6 +230,18 @@ fn main() {
     let viz_state = Arc::new(VizState::new());
     let broadcast_senders: Arc<BroadcastSenders> = Arc::new(buffer::broadcast::create());
 
+    // Chunk #59 — connection state machine substrate. The poller (spawned in
+    // setup closure below) reads `ingest_state.last_ingest_at_nanos()` and
+    // bind status from `heartbeat_state` via the `HeartbeatBindStatus`
+    // adapter; transitions broadcast on `pulse://stream/connection-state`.
+    // The TauRPC procedure `connection.current_state` reads the same atomic
+    // for point queries.
+    let connection_broadcast = Arc::new(ConnectionBroadcast::new());
+    let bind_status: Arc<dyn ReceiverBindStatus> =
+        Arc::new(HeartbeatBindStatus::new(Arc::clone(&heartbeat_state)));
+    let connection_impl =
+        ConnectionApiImpl::new(Arc::clone(&ingest_state), Arc::clone(&bind_status));
+
     let grpc_addr = match resolve_grpc_port() {
         Ok(p) => Some(SocketAddr::from(([127, 0, 0, 1], p.value()))),
         Err(_) => {
@@ -334,7 +348,8 @@ fn main() {
                 .merge(TelemetryApiImpl::new().into_handler())
                 .merge(snapshot_impl.clone().into_handler())
                 .merge(WorkspaceApiImpl::new().into_handler())
-                .merge(plugins_impl.clone().into_handler());
+                .merge(plugins_impl.clone().into_handler())
+                .merge(connection_impl.clone().into_handler());
             #[cfg(feature = "mcp-server")]
             let base = base.merge(mcp_impl.clone().into_handler());
             base
@@ -347,7 +362,8 @@ fn main() {
                 .merge(TelemetryApiImpl::new().into_handler())
                 .merge(snapshot_impl.clone().into_handler())
                 .merge(WorkspaceApiImpl::new().into_handler())
-                .merge(plugins_impl.clone().into_handler());
+                .merge(plugins_impl.clone().into_handler())
+                .merge(connection_impl.clone().into_handler());
             #[cfg(feature = "mcp-server")]
             let base = base.merge(mcp_impl.clone().into_handler());
             base
@@ -481,15 +497,26 @@ fn main() {
                     }
                 });
             }
+            // Chunk #59 — connection-state FSM detector loop. 1-second tick
+            // reading IngestState atomic + bind status; broadcasts payload on
+            // pulse://stream/connection-state ONLY when state changes. Separate
+            // concern from the 15s heartbeat tick task below (which emits the
+            // periodic `connection.tick` event regardless of state change).
+            tauri::async_runtime::spawn(connection::start_poller(
+                Arc::clone(&ingest_state),
+                Arc::clone(&bind_status),
+                Arc::clone(&connection_broadcast),
+            ));
             let _heartbeat_handles = heartbeat::spawn(
                 heartbeat_state,
-                ingest_state,
+                Arc::clone(&ingest_state),
                 Arc::clone(&ingest_sender),
                 Arc::clone(&buffer_state),
                 retention_seconds,
                 Arc::clone(&viz_state),
                 Arc::clone(&broadcast_senders),
                 Arc::clone(&plugins_registry),
+                Arc::clone(&bind_status),
             );
             Ok(())
         })
@@ -764,6 +791,20 @@ mod tests {
             Arc::clone(&canonical_plugin_dir),
         );
 
+        // Chunk #59: ConnectionApiImpl participates in the emit so bindings.ts
+        // ARGS_MAP includes connection.current_state (quadruple-binding 4th slot
+        // per .claude/rules/security.md Session Additions 2026-05-12).
+        let connection_ingest = Arc::new(IngestState::new());
+        struct TestBindStatus;
+        impl ingest::connection::ReceiverBindStatus for TestBindStatus {
+            fn any_receiver_failed(&self) -> bool {
+                false
+            }
+        }
+        let connection_bind: Arc<dyn ingest::connection::ReceiverBindStatus> =
+            Arc::new(TestBindStatus);
+        let connection_impl = ConnectionApiImpl::new(connection_ingest, connection_bind);
+
         // Chunk #49: McpApiImpl participates in the emit so the bindings.ts
         // ARGS_MAP includes mcp.status / mcp.start / mcp.stop (4th binding
         // per .claude/rules/security.md Session Additions 2026-05-12).
@@ -787,7 +828,8 @@ mod tests {
                 .merge(TelemetryApiImpl::new().into_handler())
                 .merge(snapshot_impl.into_handler())
                 .merge(WorkspaceApiImpl::new().into_handler())
-                .merge(plugins_impl.into_handler());
+                .merge(plugins_impl.into_handler())
+                .merge(connection_impl.into_handler());
             #[cfg(feature = "mcp-server")]
             let base = base.merge(mcp_impl.into_handler());
             base
