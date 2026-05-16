@@ -6,6 +6,7 @@ members = [
     "crates/viz",
     "crates/ui-bridge",
     "crates/snapshot",
+    "crates/curation",
     "crates/workspace-detector",
     "crates/plugins",
     "crates/mcp-server",

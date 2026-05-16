@@ -8,6 +8,49 @@ _This file is entirely wrap-session's territory. `/setup-project` creates it if 
 
 ---
 
+## 2026-05-16 (session 70) — Rust `pub use` re-export requires `pub` source items even when re-exporting from `pub(crate)` modules
+
+**Context:** chunk #58 "Curation crate extraction" — first crate-extraction refactor in pulse. The contract module pattern uses `pub use crate::dedupe::dedupe_spans;` (etc.) to expose 4 primitive functions through `curation::contract`. Initial implementation kept the source items as `pub(crate) fn dedupe_spans(...)` reasoning that the dedupe module itself is `pub(crate)` so external access is already blocked at the module level — the `pub use` re-export was meant to be the canonical external path.
+
+**Failure mode:** `cargo check --workspace --all-targets` failed with E0364:
+
+```
+error[E0364]: `extract_critical_path` is only public within the crate, and cannot be re-exported outside
+ --> crates/curation/src/contract.rs:7:9
+  |
+7 | pub use crate::critical_path::extract_critical_path;
+  |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+```
+
+Rust's visibility rule: `pub use X;` requires X to have visibility at least as wide as the re-export's intended visibility (here `pub`). A `pub(crate) fn` cannot be `pub use`-re-exported as `pub` regardless of the parent module's visibility — the source item's own visibility is what bounds the re-export.
+
+**Fix:** elevate the 4 primitive functions from `pub(crate) fn` to `pub fn` in their respective files (dedupe.rs, anomaly.rs, critical_path.rs, aggregation.rs). The modules themselves stay `pub(crate)` (declared in lib.rs), so external code STILL cannot access `curation::dedupe::dedupe_spans` directly — only through `curation::contract::dedupe_spans` via the re-export. Net effect: external surface is the same as the original intent; only the source-item visibility had to widen to satisfy Rust's re-export rule.
+
+**Same rule applies to struct fields (separate trap):** `pub use crate::dedupe::DedupResult;` requires DedupResult to be `pub struct`, AND if external callers need to access its fields (e.g., `let dedup = dedupe_spans(...); dedup.unique_spans` from snapshot::contract::curate()), each field must also be `pub`. Initial impl had `pub(crate) struct DedupResult { pub(crate) unique_spans: ... }` which compiled the re-export but failed at the field access site with "field is private" — the struct itself was `pub` via re-export, but field visibility didn't propagate. Fix: elevate fields to `pub`.
+
+**Generalization for any future Rust crate-extraction in pulse:** when designing a `contract` module for a new crate that exposes primitives moved from another crate, both the primitive functions AND the result types AND the result-type fields must all be `pub` from the start. The parent module being `pub(crate)` provides the external-access-blocking; the items themselves need `pub` to participate in the `pub use` re-export chain. Don't try to lock down at the item level expecting module visibility to compensate.
+
+**References:** `crates/curation/src/{dedupe,anomaly,critical_path,aggregation}.rs` `pub fn` signatures; `crates/curation/src/dedupe.rs::DedupResult` `pub` field set; `crates/curation/src/contract.rs:5-8` `pub use` re-export chain.
+
+---
+
+## 2026-05-16 (session 70) — "Refactor-only" chunk descriptions often hide type-relocation work; phase research surfaces this
+
+**Context:** chunk #58 spec text reads: "Curation crate extraction — Create `crates/curation/`, move `dedupe`, `anomaly` (latency outliers / error correlation / cardinality spikes), `critical_path`, `aggregation` modules from snapshot; pub-ify primitives via `curation::contract` re-exports; snapshot crate's external surface unchanged". The description focuses on FUNCTIONS being moved (4 primitive fns) and says external surface preservation. It does NOT mention the SHARED TYPES (SpanRecord, AnomalyKind, AnomalyMarker, CriticalPathStep, CurationOutput, ServicePercentiles, AggregationResult) that the moved fns USE — those types lived in `snapshot::contract.rs` lines 33-109 alongside other snapshot-only types (AttributeFilterResult, Error, TruncationState, MarkdownReport, FormatError, curate() orchestrator).
+
+**Hidden complexity surfaced by Phase 3 research:** the cross-module grep `use crate::contract::(SpanRecord|AnomalyKind|...)` matched in all 4 modules being moved AND in `attribute_filter.rs` (which stays). This proved that:
+
+1. Shared types MUST move with the primitives — otherwise the moved modules in curation crate would `use crate::contract::SpanRecord` looking for SpanRecord in `curation::contract`, but if SpanRecord stays in `snapshot::contract`, curation can't import from snapshot (would violate DAG: snapshot → curation, never the reverse).
+2. snapshot's other modules (attribute_filter, markdown) ALSO import the shared types from `crate::contract` — they need those types to still resolve.
+
+**Resolution:** Shared types follow the primitives to curation::contract; snapshot::contract becomes a thin re-export module via `pub use curation::contract::{SpanRecord, AnomalyKind, AnomalyMarker, CriticalPathStep, CurationOutput, ServicePercentiles, AggregationResult};` — preserves all external import paths AND lets snapshot's other modules continue using `crate::contract::SpanRecord`. snapshot::contract.rs went from 442 lines → 271 lines; the moved types are now sourced from curation but accessible via either path.
+
+**Generalization:** when planning a "refactor-only" chunk that moves PRIMITIVES between crates, Phase 3 research SHOULD grep for cross-module type imports in both directions (the moved files' `use crate::contract::*` chain + the residual files' `use crate::contract::*` chain). The "moved primitives need their argument/return types" reality is often hidden in chunk spec text that says "external surface unchanged" — the SHARED TYPES are part of that surface even when they don't appear as separate primitives. Phase 4 plan should explicitly enumerate the shared-type relocation alongside the primitive relocation.
+
+**References:** `crates/curation/src/contract.rs:11-95` (moved types); `crates/snapshot/src/contract.rs:7-15` (pub use re-export chain); `.andromeda/phases/phase-54/research.md` §Files inspected (the research that surfaced this).
+
+---
+
 ## 2026-05-16 (session 68) — First `/andromeda-setup-project --delta` dogfood + grep-expansion auto-add saves marker `expected_propagation` undercount
 
 **Context:** This was the first real-world invocation of `/andromeda-setup-project --delta` (Type 7 permit path for the chunk #57 evolve amendment from session 67). Validates the protocol design + surfaces an instructive data point about marker authoring precision.

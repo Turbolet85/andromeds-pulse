@@ -443,3 +443,83 @@ Alternative: independently before chunk #59 lands. Each additional Form 1 amendm
 ---
 
 _(Subsequent proposals appended below in chronological order. Each proposal has its own `## Status:` heading and `### Proposal N — title` subheading for navigability.)_
+
+---
+
+## Status: PROPOSED — 2026-05-16 (session 70)
+
+### Proposal 7 — Type 6 narrative-cascade visibility (arch.md structural section count lines)
+
+**Problem:**
+
+`/andromeda-evolve --allow-arch-registry` (Type 6 amendments) registers a new item in a registry section (e.g., `§Occupied Resources` Cargo workspace crate names list). The flag is narrowly scoped to registry-section additions only — structural sections like `§Design Philosophy` and `§Inherited Defaults` and `§Cross-cutting Patterns` remain refused per Check 7.2.
+
+But arch.md narrative content in structural sections often references the SAME count that the registry list contains. For pulse:
+
+- `§Design Philosophy` paragraph 2 says: "eight library crates linked into the pulse-app Tauri binary (ten workspace members total: eight library crates + the pulse-app binary + the xtask task-runner crate)." After chunk #58 added curation crate, this is stale — should be "nine library crates ... eleven workspace members".
+- Same arch.md self-documents the tradeoff: "Occupied Resources is the canonical workspace-member list; any claim of a count word elsewhere refers back to it." So arch.md ACKNOWLEDGES the staleness risk but Type 6 flag mechanics give no automated path to keep narrative counts synced.
+
+Two dogfood instances so far:
+
+1. **2026-05-11 chunk #43 / pulse:clipboard amendment** — added a Tauri capability identifier to `§Occupied Resources` capability registry. arch.md `§Cross-cutting Patterns` "Webview IPC capability policy" narrative paragraph cites the capability set (`pulse:default`, `pulse:tray`, `pulse:notification`, `pulse:updater`, `pulse:plugin-fs`) — adding `pulse:clipboard` to the registry made this narrative incomplete (missing `pulse:clipboard`). Not fixed at the time.
+2. **2026-05-16 chunk #58 / curation amendment** — added a workspace crate name to `§Occupied Resources` Cargo workspace crate names list. arch.md `§Design Philosophy` + `§Inherited Defaults` narrative count lines became stale ("eight" / "ten" — should be "nine" / "eleven"). Not fixed at this session — surfaced as warning in `/andromeda-setup-project --delta` materialization-plan-delta.md "Out-of-Type-6 staleness surfaced" subsection but accepted as deferred per arch.md's own "Occupied Resources is canonical" tradeoff documentation.
+
+The recurring pattern: Type 6 registry additions cascade to arch.md structural narrative numbers. Type 6 flag can't fix that. Result: stale narrative counts accumulate one per amendment.
+
+**Proposal:**
+
+Extend `/andromeda-evolve --allow-arch-registry` Check 7 to detect arch.md narrative count lines that reference the registry section's content, AND either:
+
+- **Option A — auto-update narrative count lines mechanically** (preferred): when the registry addition increments a count visible in narrative sections (e.g., "N library crates" / "N workspace members" / "N capability identifiers"), apply a mechanical regex-replace in those narrative sections too. Document the auto-update in the marker's Plans amended block + Decisions Log entry.
+
+- **Option B — surface as strict warning** (fallback): if auto-update is too aggressive for some narrative idioms, at least surface the inconsistency clearly: "arch.md §Design Philosophy paragraph 2 references count N; registry section now has N+1 entries; either accept narrative staleness OR run /andromeda-arch to re-derive narrative."
+
+The current materialization-plan-delta.md "Out-of-Type-6 staleness surfaced" subsection (from session 70) is a manual ad-hoc version of Option B; making it a built-in evolve Check would standardize the audit trail and prevent silent compounding.
+
+**Design:**
+
+Option A implementation:
+
+1. At `/andromeda-evolve --allow-arch-registry` Check 7 time, after verifying the registry section addition (Check 7.1-7.4), scan arch.md narrative sections (§Design Philosophy / §Inherited Defaults / §Cross-cutting Patterns / §Project Intent — the structural sections refused by Check 7.2) for count-reference patterns.
+2. Count-reference patterns for pulse: `(\d+|eight|nine|ten|eleven|...) (library crates|workspace members|capability identifiers|TauRPC procedures|...)` — regex matches the count noun phrase used in narrative.
+3. For each matched count, compare against the post-amendment registry count.
+4. If mismatch:
+   - **If count is in numeric form ("8")**: mechanical replace to new value. Atomic edit alongside Phase 6 registry-section write.
+   - **If count is in word form ("eight")**: surface as warning ("arch.md §X line N: 'eight library crates' may be stale; word-form auto-replace not attempted; verify manually or run /andromeda-arch"). Word forms are higher-risk for false positives.
+5. Document in marker's Plans amended block:
+   ```
+   - Narrative-cascade auto-update:
+     - §Design Philosophy paragraph 2: "8 library crates ... 10 workspace members" -> "9 library crates ... 11 workspace members"
+   ```
+6. Decisions Log entry includes "Narrative-cascade updates applied" subsection.
+
+Option B implementation:
+
+1. Same scan as Option A.
+2. For ALL mismatches (numeric + word form): surface as Check 7 warning (NOT failure — Check 7 still passes). Render in materialization-plan-delta.md "Narrative-cascade staleness" subsection.
+3. Phase 7 user review shows the warnings; user can decide accept-and-defer OR cancel-and-fix-via-/andromeda-arch.
+
+**Implementation cost:**
+
+| File | Change | Lines |
+|---|---|---|
+| `andromeda-evolve/SKILL.md` | Phase 3 step 7 - narrative-cascade detection sub-step | ~15 |
+| `andromeda-evolve/references/validation-checks.md` | Check 7 extension - narrative-cascade sub-check | ~30 |
+| `andromeda-evolve/references/output-templates.md` | Type 6 marker variant - Plans amended block narrative-cascade addition | ~20 |
+| `andromeda-evolve/references/refuse-taxonomy.md` | Refuse 1 Exception narrative-cascade clarification | ~10 |
+
+**Total:** ~75 lines across 4 files. Option B (surface-only) would be ~half that.
+
+**When to do:**
+
+Bundle with Proposal 5 + 6 (Type 7 expected_propagation pre-populate + Form 1 §1 auto-update). All three are about marker-authoring correctness across the evolve flag variants. One ~2-hour focused meta-Andromeda session can implement all three.
+
+Alternative timing: defer until the next Type 6 amendment surfaces this gap again. Each future arch §Occupied Resources addition that affects a narrative count compounds the staleness by +1; deferring cost grows linearly.
+
+**Cross-references:**
+
+- Recurring pattern evidence: arch.md `§Architecture Registry Updates` 2026-05-11 (pulse:clipboard) + 2026-05-16 (curation) - both registry additions cascaded to structural narrative sections that the Type 6 flag could not update.
+- Companion improvements: Proposal 5 (Type 7 expected_propagation pre-populate) + Proposal 6 (Form 1 §1 auto-update). All three are about marker-authoring correctness for the flag-variants.
+- Triggering chunks: chunk #43 (session 51) + chunk #58 (session 70) - Type 6 amendments accumulating narrative-section staleness across multiple wraps.
+- Related artifact: `.andromeda/runs/2026-05-16T16-34-14-setup-project-delta/materialization-plan-delta.md` "Out-of-Type-6 staleness surfaced" subsection documents the current ad-hoc manual surface-pattern.
+- Current state: state.yaml.spec_amendments.archive contains the chunk #58 amendment (archived this session) with `flag_used: --allow-arch-registry` - preserves audit trail for future readers studying this proposal's context.

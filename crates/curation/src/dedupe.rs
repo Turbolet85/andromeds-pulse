@@ -11,11 +11,11 @@ use crate::contract::SpanRecord;
 // preserves variation across order-of-magnitude latency differences.
 const DURATION_BUCKET_NS: i64 = 100_000_000;
 
-pub(crate) struct DedupResult {
-    pub(crate) unique_spans: Vec<SpanRecord>,
-    pub(crate) dedup_count: usize,
-    pub(crate) input_row_count: usize,
-    pub(crate) output_row_count: usize,
+pub struct DedupResult {
+    pub unique_spans: Vec<SpanRecord>,
+    pub dedup_count: usize,
+    pub input_row_count: usize,
+    pub output_row_count: usize,
 }
 
 #[instrument(
@@ -27,7 +27,7 @@ pub(crate) struct DedupResult {
         duration_ms = tracing::field::Empty,
     ),
 )]
-pub(crate) fn dedupe_spans(spans: &[SpanRecord]) -> DedupResult {
+pub fn dedupe_spans(spans: &[SpanRecord]) -> DedupResult {
     let started = Instant::now();
     let input_row_count = spans.len();
 

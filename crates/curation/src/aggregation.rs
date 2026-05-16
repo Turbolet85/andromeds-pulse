@@ -18,7 +18,7 @@ use crate::contract::{AggregationResult, ServicePercentiles, SpanRecord};
         duration_ms = tracing::field::Empty,
     ),
 )]
-pub(crate) fn aggregate_metrics(spans: &[SpanRecord]) -> AggregationResult {
+pub fn aggregate_metrics(spans: &[SpanRecord]) -> AggregationResult {
     let started = Instant::now();
     let span = tracing::Span::current();
 

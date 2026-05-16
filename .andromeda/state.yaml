@@ -1,19 +1,19 @@
 schema_version: 2
-last_wrap: 2026-05-16T15:18:11Z
-last_reconcile: 2026-05-16T15:18:11Z
+last_wrap: 2026-05-16T16:59:47Z
+last_reconcile: 2026-05-16T18:11:16Z
 
 last_completed_chunk:
-  route_index: 57
-  title: "Widget real-data binding — delete use-synthetic-widget-metrics.ts; wire CompactWidget.tsx + FooterBand.tsx to real streams.subscribe_metrics; Halo retains errorRate/throughputHz shape (refactored in chunk #81)"
+  route_index: 58
+  title: "Curation crate extraction — Create `crates/curation/`, move `dedupe`, `anomaly` (latency outliers / error correlation / cardinality spikes), `critical_path`, `aggregation` modules from snapshot; pub-ify primitives via `curation::contract` re-exports; snapshot crate's external surface unchanged"
   epoch: 9
-  committed_at: 2026-05-16T14:25:00Z
-  commit_sha: fc76c4c
-  commit_subject: "feat(ui): chunk #57 — widget real-data binding (delete use-synthetic-widget-metrics + wire CompactWidget/FooterBand to streams.subscribe_metrics; Epoch 9 Foundation v0.2.0 opens; first webview consumer of streams.* Channel API); session 68"
+  committed_at: 2026-05-16T16:59:47Z
+  commit_sha: 1be7314
+  commit_subject: "feat(curation): chunk #58 - curation crate extraction (Epoch 9 Foundation v0.2.0 second chunk); session 70"
 
 in_progress: null
 
 plan_freshness:
-  arch_mtime: 2026-05-11T00:19:13Z
+  arch_mtime: 2026-05-16T16:15:00Z
   security_mtime: 2026-05-11T17:53:00Z
   design_mtime: 2026-05-03T21:52:16Z
   layout_mtime: 2026-05-02T15:53:22Z
@@ -24,49 +24,27 @@ plan_freshness:
   input_mtime: 2026-05-02T06:52:58Z
 
 living_artifact_freshness:
-  dep_tree_reconciled_at: 2026-05-16T15:18:11Z
-  api_surface_reconciled_at: 2026-05-16T15:18:11Z
-  most_recent_code_mtime: 2026-05-16T14:08:00Z
+  dep_tree_reconciled_at: 2026-05-16T18:11:16Z
+  api_surface_reconciled_at: 2026-05-16T18:11:16Z
+  most_recent_code_mtime: 2026-05-16T18:11:16Z
   reconcile_failed: false
 
 drift_warnings: []
 
 spec_amendments:
-  active:
+  active: []
+  archive:
     - amendment_id: 2026-05-16T16-15-00-acknowledge-curation-crate
       plans:
         - path: architecture.md
           sections:
             - "§Occupied Resources"
             - "§Architecture Registry Updates"
-          decisions_log_section: "2026-05-16 — Acknowledge `curation` crate in §Occupied Resources (--allow-arch-registry)"
-      trigger:
-        chunk: 58
-        phase: null
-        harness: "user-driven via /andromeda-evolve"
-      authority:
-        winning_plan: null
-        winning_tier: implementation
-        losing_plan: architecture.md
-        losing_concern: registry-section-stale-vs-implementation-reality
-        rationale: "Chunk #58 created crates/curation workspace member; arch §Occupied Resources had not acknowledged. Type 6 D3-class registry catch-up."
-      impl_files_synced: []
-      expected_propagation: []
-      marker_path: .andromeda/runs/2026-05-16T16-15-00-spec-amendment-acknowledge-curation-crate/amendment.md
-      applied_at: 2026-05-16T16:15:00Z
-      noted_at: null
+      decisions_log_sections:
+        - "2026-05-16 — Acknowledge `curation` crate in §Occupied Resources (--allow-arch-registry)"
       propagated_by_run: .andromeda/runs/2026-05-16T16-34-14-setup-project-delta/
-      archived_at: null
-      verification_status: clean
+      archived_at: 2026-05-16T16:59:47Z
       flag_used: --allow-arch-registry
-      registry_section: "§Occupied Resources"
-      registry_additions:
-        - curation
-      code_evidence:
-        - crates/curation/Cargo.toml
-        - crates/curation/src/lib.rs
-        - Cargo.toml
-  archive:
     - amendment_id: 2026-05-16T14-48-08-append-chunk-58-curation-crate
       plans:
         - path: route.md
@@ -266,4 +244,4 @@ spec_amendments:
       propagated_by_run: .andromeda/runs/2026-05-11T19-00-00-setup-project-delta/
       archived_at: 2026-05-11T19:25:00Z
 
-session_count: 69
+session_count: 70

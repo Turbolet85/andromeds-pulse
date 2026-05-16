@@ -30,7 +30,7 @@ pub(crate) const CARDINALITY_SPIKE_MULTIPLIER: f64 = 2.0;
         duration_ms = tracing::field::Empty,
     ),
 )]
-pub(crate) fn detect_anomalies(spans: &[SpanRecord]) -> Vec<AnomalyMarker> {
+pub fn detect_anomalies(spans: &[SpanRecord]) -> Vec<AnomalyMarker> {
     let started = Instant::now();
 
     let latency = detect_latency_outliers(spans, LATENCY_OUTLIER_Z_THRESHOLD);

@@ -196,12 +196,47 @@ impl AllowList {
                 "duration_ms",
                 "anomaly_markers_count",
                 // chunk #40 — aggregation + attribute_filter primitives in
-                // crates/snapshot/{aggregation,attribute_filter}.rs.
+                // crates/snapshot/{aggregation,attribute_filter}.rs (attribute_filter
+                // stays in snapshot per chunk #58; aggregation moved to curation).
                 "metric_input_count",
                 "metric_output_count",
                 "service_count",
                 "kept_attribute_count",
                 "dropped_attribute_count",
+                "p50_ms",
+                "p95_ms",
+                "p99_ms",
+                "max_ms",
+            ]
+            .iter()
+            .copied()
+            .collect(),
+        );
+        // chunk #58 — curation crate extraction. Moved modules
+        // (crates/curation/src/{dedupe,anomaly,critical_path,aggregation}.rs)
+        // emit #[tracing::instrument] spans at default module-path targets
+        // (`curation::dedupe`, `curation::anomaly`, etc.). for_target() falls
+        // through via split("::").next() → "curation" entry. Field set
+        // covers union across the 4 primitives; mirrors the snapshot crate's
+        // shape per .claude/rules/observability.md Session Addition 2026-05-03
+        // singular-vs-plural discipline.
+        by_target.insert(
+            "curation",
+            [
+                "input_row_count",
+                "output_row_count",
+                "dedup_count",
+                "latency_outlier_count",
+                "error_cluster_count",
+                "cardinality_spike_count",
+                "critical_path_span_count",
+                "total_span_count",
+                "orphan_parent_count",
+                "anomaly_markers_count",
+                "duration_ms",
+                "metric_input_count",
+                "metric_output_count",
+                "service_count",
                 "p50_ms",
                 "p95_ms",
                 "p99_ms",
@@ -1770,6 +1805,53 @@ mod tests {
                 assert!(
                     set.contains(required),
                     "{target} must permit `{required}` (snapshot allowlist coverage)",
+                );
+            }
+        }
+    }
+
+    #[test]
+    fn allowlist_for_target_resolves_curation_field_set() {
+        // chunk #58: curation primitives (dedupe / anomaly / critical_path /
+        // aggregation) moved from crates/snapshot к crates/curation. The
+        // #[tracing::instrument] decorators emit spans at default module-path
+        // targets `curation::dedupe`, `curation::anomaly`, etc. for_target
+        // resolves via split("::").next() fall-through к the `curation`
+        // entry, which MUST permit the union of fields emitted across the
+        // 4 primitives or default-deny silently redacts them.
+        let al = AllowList::production();
+        for target in [
+            "curation::dedupe",
+            "curation::anomaly",
+            "curation::critical_path",
+            "curation::aggregation",
+        ] {
+            let set = al
+                .for_target(target)
+                .unwrap_or_else(|| panic!("expected curation entry resolution for {target}"));
+            for required in [
+                "input_row_count",
+                "output_row_count",
+                "dedup_count",
+                "latency_outlier_count",
+                "error_cluster_count",
+                "cardinality_spike_count",
+                "critical_path_span_count",
+                "total_span_count",
+                "orphan_parent_count",
+                "anomaly_markers_count",
+                "duration_ms",
+                "metric_input_count",
+                "metric_output_count",
+                "service_count",
+                "p50_ms",
+                "p95_ms",
+                "p99_ms",
+                "max_ms",
+            ] {
+                assert!(
+                    set.contains(required),
+                    "{target} must permit `{required}` (curation allowlist coverage)",
                 );
             }
         }

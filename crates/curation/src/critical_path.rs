@@ -15,7 +15,7 @@ use crate::contract::{CriticalPathStep, SpanRecord};
         duration_ms = tracing::field::Empty,
     ),
 )]
-pub(crate) fn extract_critical_path(spans: &[SpanRecord]) -> Vec<CriticalPathStep> {
+pub fn extract_critical_path(spans: &[SpanRecord]) -> Vec<CriticalPathStep> {
     let started = Instant::now();
     let total_span_count = spans.len();
     let span = tracing::Span::current();
