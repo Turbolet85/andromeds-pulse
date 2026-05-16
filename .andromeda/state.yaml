@@ -1,14 +1,14 @@
 schema_version: 2
-last_wrap: 2026-05-16T22:31:55Z
-last_reconcile: 2026-05-16T22:31:55Z
+last_wrap: 2026-05-16T23:35:08Z
+last_reconcile: 2026-05-16T23:28:56Z
 
 last_completed_chunk:
-  route_index: 59
-  title: "Connection state machine — LastIngestTracker atomic in ingest hot path; 1-2s poller emits Listening/Receiving/Idle/Stalled/ReceiverFailed states to pulse://stream/connection-state; connection.current_state TauRPC; receiver panic-hook wired (capabilities P-001 through P-004)"
+  route_index: 60
+  title: "Triage crate scaffold + attention cue contract types — Create `crates/triage/` with module skeletons (baseline, pattern, cue, digest, interpretation, incident, lifecycle); define contract types in `triage::contract` (AttentionCue, CueKind, CueScope, PriorityTier, Severity, Incident, IncidentStatus, EvidenceRefs, Digest, DigestKind) per P-019 + P-021"
   epoch: 9
-  committed_at: 2026-05-16T21:55:00Z
-  commit_sha: dea8c26
-  commit_subject: "feat(connection): chunk #59 — connection state machine (Epoch 9 Foundation v0.2.0 third chunk); session 72"
+  committed_at: 2026-05-16T23:35:08Z
+  commit_sha: e1eb168
+  commit_subject: "feat(triage): chunk #60 — triage crate scaffold + attention cue contract types (Epoch 9 Foundation v0.2.0 fourth chunk); session 74"
 
 in_progress: null
 
@@ -24,12 +24,18 @@ plan_freshness:
   input_mtime: 2026-05-02T06:52:58Z
 
 living_artifact_freshness:
-  dep_tree_reconciled_at: 2026-05-16T22:31:55Z
-  api_surface_reconciled_at: 2026-05-16T22:31:55Z
-  most_recent_code_mtime: 2026-05-16T21:35:00Z
+  dep_tree_reconciled_at: 2026-05-16T23:28:56Z
+  api_surface_reconciled_at: 2026-05-16T23:28:56Z
+  most_recent_code_mtime: 2026-05-16T23:15:24Z
   reconcile_failed: false
 
-drift_warnings: []
+drift_warnings:
+  - drift_id: D3-triage-crate-not-in-arch
+    description: "`triage` workspace member present in code (cargo metadata = 12 packages) but missing from arch.md §Occupied Resources Cargo workspace crate names reserved list (still enumerates 11 names; excludes `triage`). Pending Type 6 `/andromeda-evolve --allow-arch-registry` amendment + `/andromeda-setup-project --delta` propagation cascade — mirrors chunk #58 (curation) precedent at 2026-05-16 §Architecture Registry Updates."
+    severity: warning
+    remediation_hint: "/andromeda-evolve --allow-arch-registry to add `triage` + `pulse-v0_2_0-route` to arch; then /andromeda-setup-project --delta to propagate; D3 self-clears next wrap"
+    first_observed_session_count: 74
+    last_observed_session_count: 74
 
 spec_amendments:
   active: []
@@ -278,4 +284,4 @@ spec_amendments:
       propagated_by_run: .andromeda/runs/2026-05-11T19-00-00-setup-project-delta/
       archived_at: 2026-05-11T19:25:00Z
 
-session_count: 73
+session_count: 74
