@@ -8,6 +8,50 @@ _This file is entirely wrap-session's territory. `/setup-project` creates it if 
 
 ---
 
+## 2026-05-16 — /andromeda-evolve flag scope limits surfaced during first dogfood after-MVP planning analysis (pulse v0.2.0 — 33 chunks #57-#89)
+
+**Discovery context:** First time in Andromeda's history that we're planning evolution past the v0.1.0 MVP boundary in a real project. Pulse v0.1.0 closed at route 56/56 (Epoch 8 done, commit `de35e82`, session 65). The user prepared 4 dense planning docs in `pulse-evolve-docs/` (vision + capability-spec v2 60 P-XXX + distillation-arch v3 6-layer pipeline + v0.2.0-route v2 33 chunks). The route doc's stated approach: "evolve-driven chunk appends (Type 7 route-append), no `/andromeda-scope-arch` ceremony."
+
+**Limits encountered when mapping 33-chunk plan against `/andromeda-evolve` mechanics** (reading `~/.claude/skills/andromeda-evolve/references/refuse-taxonomy.md` + `classification-taxonomy.md` + `validation-checks.md`):
+
+1. **Refuse 4 — >3 specialist plan touches per invocation is hard-refused.** Approximately 5-7 chunks из 33 (e.g., #67 Drain → arch + test + obs + security = 4; #74 LLM runtime → arch + test + security + obs = 4; #78/#79/#87 UI surfaces → design + layout + a11y + test = 4) exceed this limit. Each such chunk needs 2 separate evolve runs (split by plan).
+
+2. **Check 7.2 — `--allow-arch-registry` ONLY permits §Occupied Resources / §Workspace / §Capability Registry list-style sections.** §Established Decisions, §Cross-cutting Patterns, §Stack, §Project Intent, §Design Philosophy stay REFUSED even with the flag. Pulse v0.2.0 plan has 2-3 chunks that explicitly want §Established Decisions amendments:
+   - Chunk #74: "§Established Decisions: LLM runtime choice with rationale"
+   - Chunk #84: "§Established Decisions: MCP is one of three equal-tier output channels"
+   - Chunk #69: introduces new architectural concept (encryption at rest + OS keychain + persistent SQLite) — Check 7.4 "no new architectural concept" triggers WARNING/FAIL
+   
+   These require **manual arch.md edits**, not evolve flags.
+
+3. **Check 8.2 — `--allow-route-append` ONLY permits chunks-within-existing-epoch.** New epoch creation stays REFUSED. Pulse v0.2.0 plan's 12 "phases" (Phase 0 Foundation → Phase 12 Finalization) do not map to existing Andromeda Epochs 1-8 (all closed). Either all 33 chunks shoehorn into Epoch 8 (Polish & ship — semantically wrong) OR new Epoch 9+ creation requires manual route.md edit.
+
+4. **Check 8.6 — Type 7 motivation must be GROUNDED.** Acceptable: in-progress chunk reference, specialist plan amendment_id, concrete trigger. Abstract "future scope" / "external design doc" → FAIL. Until pulse-capability-spec / distillation-arch contents are absorbed into specialist plans (via manual edits + setup-project --delta), chunks #57+ lack grounding sources acceptable to Check 8.6.
+
+**Workflow correction** (user-confirmed):
+
+Greenfield skills are write-once by design. `/andromeda-scope-arch` and `/andromeda-scope-route` are mentioned in arch.md §Project Intent + route SKILL.md as redirect targets ("scopes will be added via /andromeda-scope-arch"), but the skill folders themselves do NOT exist in `~/.claude/skills/` — they were intentionally NOT implemented because they would over-complicate the pipeline. The actual after-MVP evolution workflow is:
+
+```
+/andromeda-evolve (where Refuse 1-6 + Check 7-8 pass)
+     +
+manual edits to arch.md / specialist plans (where evolve refuses)
+     +
+/andromeda-setup-project --delta (propagates to Tier 2/3 + CLAUDE.md ecosystem)
+     +
+per-chunk: /andromeda-phase → /andromeda-implement → /andromeda-wrap-session
+```
+
+**This is the first dogfood iteration of after-MVP work in Andromeda.** Each pulse v0.2.0 chunk landing is also a pattern-development exercise — friction encountered + workarounds applied are observations to capture in subsequent wrap-sessions for refining a reusable pattern. Goal beyond pulse: distill an "after-MVP evolution playbook" that future Andromeda projects can follow without rediscovering these limits.
+
+**Cross-references:**
+- `~/.claude/skills/andromeda-evolve/references/refuse-taxonomy.md` §Refuse 4 (cascade danger), §Refuse 1 Exception (arch registry), §Refuse 6 Exception (route append)
+- `~/.claude/skills/andromeda-evolve/references/validation-checks.md` Check 7 (Arch registry verification), Check 8 (Route append verification)
+- `~/.claude/skills/andromeda-evolve/references/classification-taxonomy.md` Type 6 (Architecture registry update), Type 7 (Route registry update)
+- `.andromeda/architecture.md` §Project Intent ("Scopes will be added via /andromeda-scope-arch" — referenced but unimplemented)
+- `pulse-evolve-docs/pulse-v0_2_0-route.md` (the 33-chunk plan triggering this analysis)
+
+---
+
 ## 2026-05-12 — Cargo workspace.dependencies cannot have `optional = true`; the optional flag belongs at the consumer crate's [dependencies] table
 
 **Discovery:** chunk #48 first attempt declared `rmcp = { version = "0.6", optional = true, features = [...] }` in workspace `Cargo.toml [workspace.dependencies]`. cargo metadata immediately rejected the manifest with `error: failed to parse manifest at ...Cargo.toml; Caused by: rmcp is optional, but workspace dependencies cannot be optional`. Cargo's workspace dep mechanism propagates feature flags to consumers via `feature-name = ["dep:foo"]` at the consumer side, but `optional` itself is a per-consumer property — the workspace dep is the version pin + the dep "template", consumers opt into it via `[dependencies] foo.workspace = true, optional = true`.
