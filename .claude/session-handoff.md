@@ -1,142 +1,124 @@
 # Session Handoff
 
-**Last Updated:** 2026-05-16T21:55:00Z
+**Last Updated:** 2026-05-16T22:31:55Z
 **Branch:** main
 **Session End Status:** clean
-**Last Commit:** (pending — wrap commit composed in Phase 10; closes session 72)
+**Last Commit:** (pending — wrap commit composed in Phase 10; closes session 73)
 
 ## Current State
 
-- **Last completed chunk:** route#59 "Connection state machine" (Epoch 9 Foundation v0.2.0 third chunk; committed this wrap)
-- **Next chunk:** route §2 currently ends at chunk #59 — no further registered chunks. Path forward = `/andromeda-evolve --allow-route-append` to register chunk #60+ from pulse v0.2.0 plan (Phase 2+ capabilities) OR `/andromeda-evolve --allow-arch-registry` Type 6 amendment to acknowledge chunk #59's new TauRPC procedure + broadcast topic in arch §Occupied Resources.
-- **In-progress phase:** none — chunk #59 phase-55 implementation complete (substrate + tests + capability-drift clean).
+- **Last completed chunk:** route#59 "Connection state machine" (Epoch 9 Foundation v0.2.0 third chunk; committed last session 7d3207d at 2026-05-16T21:55:00Z)
+- **Next chunk:** route#60 "Triage crate scaffold + attention cue contract types" (registered this session via Type 7 Form 1 amendment per pulse v0.2.0 plan Phase 2)
+- **In-progress phase:** none
 - **Phase artifacts present:** `.andromeda/phases/phase-{1..55}/`
 
 ## Andromeda State Detection (states A-K)
 
-All clean post-wrap. State D3 (new namespace not in arch registry) is the only pending workflow signal — surfaced as drift warning below, not as an A-K state.
+All clean post-wrap. No state warnings.
 
 - States A, B, C, D, E, F, G, H, I, J, K: clean.
 
 ## Drift Detection (6 dimensions)
 
-**1 active drift post-wrap.**
+**0 active drifts post-wrap.** D3-chunk-59-connection-namespace cleared this wrap by Type 6 amendment propagation (arch §Occupied Resources Tauri IPC routes + events now list both connection namespace entries).
 
-- ⚠️ **D3 — Plan-to-code drift: chunk #59 new namespace not in arch §Occupied Resources.** `connection.current_state` TauRPC procedure + `pulse://stream/connection-state` broadcast topic implemented + tested + capability-drift clean THIS wrap, BUT arch §Occupied Resources Tauri IPC routes does NOT yet list either (pending Type 6 amendment per chunk #57/#58/#59 evolve precedents). Severity: warning. First observed: session 72 (this wrap). Remediation: `/andromeda-evolve --allow-arch-registry` Type 6 amendment to acknowledge both registry entries. Lifecycle matches session 51 `pulse:clipboard` + sessions 67/69/71 chunk #57/#58/#59 route-registry precedents (chunk commits first, arch amendment after).
-
-Other dimensions:
-- D1 (living artifact staleness): clear — Phase 5 reconciled dep-tree.md (362 lines; -4 from session 71 baseline due to chunk #59 dep additions reshaping the cargo tree output) AND api-surface.md (5959 LIVING lines; +996 from session 70 baseline reflecting new public connection module surface in ingest). Both METADATA timestamps refreshed to 2026-05-16T21:45-21:50Z.
-- D2 (LIVING block wrong content): clear (Phase 5 wrote fresh tooling output directly).
-- D4 (plan-to-plan drift): clear (no specialist plan body edits this session; arch / route / 6 specialists unchanged).
-- D5 (plan-to-CLAUDE.md drift): clear (all 9 upstream mtimes < CLAUDE.md mtime; security.md mtime advances were Session Additions territory which CLAUDE.md doesn't re-derive).
-- D6 (route chunk progression): clear after this wrap commit advances state.yaml.last_completed_chunk to 59.
+- D1 (living artifact staleness): clear — Phase 5 reconciled with zero-diff verification of session 72 baselines (362 + 5959 line counts preserved; mtimes refreshed)
+- D2 (LIVING block wrong content): clear (no overwrite occurred this wrap; baselines verified byte-identical via tooling output)
+- D3 (plan-to-code drift): clear (arch §Occupied Resources Tauri IPC routes + events now list `connection.current_state` + `pulse://stream/connection-state`; chunk #59 namespace registration complete)
+- D4 (plan-to-plan drift): clear (no specialist plan body edits this session beyond Type 6 arch + Type 7 route additive amendments)
+- D5 (plan-to-CLAUDE.md drift): clear (all 9 upstream mtimes ≤ CLAUDE.md mtime; arch.md 22:16:53Z + route.md 22:23:52Z both < CLAUDE.md 22:28:49Z)
+- D6 (route chunk progression): clear (last_completed_chunk.route_index=59 unchanged; this wrap is `chore(wrap):` not `feat(...)`; no chunk-progression match)
 
 ## Spec Amendments (this session)
 
-**0 active amendments post-wrap (0 archived this session; all session 71 amendments already archived in prior wrap).**
+**0 active amendments post-wrap; 2 archived this session.**
 
-No spec amendments applied this session. The Type 6 arch-registry amendment for chunk #59's new TauRPC procedure + broadcast topic is DEFERRED to a follow-up session (per plan + session-handoff D3 protocol). Pattern matches sessions 67 / 69 / 71 chunk #57 / #58 / #59 route amendment precedents — chunk commits first; arch amendment lands after.
+Archived this session (both lifecycle-completed in single wrap):
+
+- **`2026-05-16T22-08-32-acknowledge-connection-namespace`** (Type 6, `--allow-arch-registry`):
+  - Plan: `.andromeda/architecture.md`
+  - Decisions Log: §Architecture Registry Updates — 2026-05-16 "Acknowledge `connection.current_state` TauRPC + `pulse://stream/connection-state` broadcast in §Occupied Resources (--allow-arch-registry)"
+  - Lifecycle: applied 2026-05-16T22:08:32Z | propagated 2026-05-16T22:25:22Z (`.andromeda/runs/2026-05-16T22-25-22-setup-project-delta/`) | archived 2026-05-16T22:31:55Z
+  - Marker: `.andromeda/runs/2026-05-16T22-08-32-spec-amendment-acknowledge-connection-namespace/amendment.md`
+
+- **`2026-05-16T22-17-54-append-chunk-60-triage-crate-scaffold`** (Type 7 Form 1, `--allow-route-append`):
+  - Plan: `.andromeda/route.md`
+  - Decisions Log: §3 — 2026-05-16 "Append chunk #60 triage crate scaffold (--allow-route-append)"
+  - Lifecycle: applied 2026-05-16T22:17:54Z | propagated 2026-05-16T22:25:22Z | archived 2026-05-16T22:31:55Z
+  - Marker: `.andromeda/runs/2026-05-16T22-17-54-spec-amendment-append-chunk-60-triage-crate-scaffold/amendment.md`
 
 ## Key Decisions This Session
 
-- **Workspace-boundary trait abstraction for cross-crate TauRPC state delivery (Tier 2 learning).** chunk #59's `connection.current_state` resolver needs receiver bind status from `ui_bridge::health::HeartbeatState`, but `crates/ingest` must stay workspace-boundary-clean (no ui-bridge dep). Solution: defined `ReceiverBindStatus` trait in ingest + `HeartbeatBindStatus` adapter in `pulse-app/src/connection_router.rs` (the binary boundary) + threaded `Arc<dyn ReceiverBindStatus>` through 3 spawn points (start_poller + ConnectionApiImpl + heartbeat::run_connection). Generalizes the existing 4-place TauRPC binding rule with a 5th dimension — captured in `.claude/rules/security.md` Session Additions.
-- **specta `derive` feature must be activated explicitly when ingest-style crate uses `specta::Type` (Tier 3 learning).** Workspace dep declares `specta = { features = ["chrono"] }` only; ui-bridge's `derive(specta::Type)` works because `dep:taurpc` transitively activates `specta/derive`. ingest has no taurpc dep → added `features = ["derive"]` explicitly to its `[dependencies] specta = ...` activator. Captured in `.claude/docs/session-learnings.md`.
-- **`run_connection` heartbeat tick at 15s sibling cadence, NOT 1-2s.** Per obs-plan §3 cadence convention + chunk #59 plan resolution of cross-domain rot warning: 1-2s is the FSM detector loop (state-change events ONLY); 15s is the periodic heartbeat tick (snapshot, regardless of state change). Separate tasks; separate concerns.
-- **Stalled threshold = 30s (proactively below 45s heartbeat-gap CI alarm).** Per obs-plan §10 + chunk #59 plan: FSM transitions to Stalled BEFORE the CI gate fires, so operators see the state-machine transition first.
-- **specta optional-dep gating via new `taurpc-runtime` feature on `crates/ingest`** (mirrors ui-bridge's pattern). `default = ["taurpc-runtime"]` so pulse-app consumption gets specta::Type derives automatically; downstream consumers needing a lean ingest can opt out via `default-features = false`.
-- **bindings.ts regenerated with `--features mcp-server`** to ensure full procedure set (including mcp.*) lands in committed state. Default-features nextest runs drop mcp.* from bindings.ts per .claude/rules/testing.md 2026-05-13 — always restore + regenerate with --features mcp-server BEFORE staging.
+- **Path A (D3 drift clearance) + Path B (chunk #60 registration) executed in same session** — extended chunk #57/#58/#59 single-amendment-per-session precedent into combined-session pattern. Both amendments propagated cleanly via single /andromeda-setup-project --delta run; empty `expected_propagation` on both → lifecycle progression only; CLAUDE.md pointer-table grep-expansion captured the chunk count cascade (58 → 59).
+- **chunk #60 selected as next-up per pulse v0.2.0 plan Phase 2** — `docs/v0_2_0/pulse-v0_2_0-route.md` line 152 "Triage crate scaffold + attention cue contract types"; parallel-safe with chunks #57/#58/#59; pure infrastructure scaffold (new `crates/triage/` workspace member + 7 module skeletons + `triage::contract` re-export shape mirroring chunk #58 `curation::contract` precedent); capabilities P-021 (Algorithmic Attention Cues) + P-019 (Three-Tier Severity Model contract types).
+- **api-surface.md Tooling string clarified to include `pulse-app/` iteration** — gotcha surfaced this wrap when default `for crate in crates/*; do ...; done` returned 5126 lines (833 short of baseline). Required adding `(cd pulse-app && cargo +nightly public-api --simplified)` to iteration. METADATA Tooling string updated to make this explicit for future wrap-sessions.
 
 ## Files Modified
 
 **MODIFIED (this wrap commit):**
-- `.andromeda/context/api-surface.md` — METADATA + LIVING block reconciled (5971 lines total; +1008 from session 70 baseline reflecting chunk #59 public surface additions)
-- `.andromeda/context/dependency-tree.md` — METADATA + LIVING block reconciled (362 LIVING lines vs 366 baseline; chunk #59 dep additions reshape the tree)
-- `.andromeda/state.yaml` — last_completed_chunk advanced to chunk #59; living_artifact_freshness refreshed; drift_warnings += D3 entry; session_count 71→72
-- `.claude/docs/session-learnings.md` — 1 new Tier 3 entry prepended (specta derive feature gotcha)
-- `.claude/rules/security.md` — 1 new Tier 2 entry appended to Session Additions (workspace-boundary trait pattern for TauRPC state)
+- `.andromeda/state.yaml` — last_wrap + last_reconcile refreshed; 2 amendments moved active → archive (compact form); drift_warnings cleared (D3 resolved); session_count 72 → 73; plan_freshness arch + route mtimes advanced; living_artifact_freshness reconciled_at refreshed
+- `.andromeda/context/dependency-tree.md` — METADATA Last reconciled refreshed (zero-diff verification; 362 lines unchanged from session 72 baseline); Maintenance note prepended for session 73
+- `.andromeda/context/api-surface.md` — METADATA Last reconciled refreshed + Tooling string clarified to include pulse-app iteration; Maintenance note prepended for session 73 (zero-diff verification; 5959 lines unchanged from session 72 baseline)
 - `.claude/session-handoff.md` — this file (full overwrite)
-- `Cargo.lock` — auto-updated (chrono + serde activated as direct deps for ingest)
-- `crates/ingest/Cargo.toml` — `chrono` + `serde` direct deps + `specta` optional dep with `derive` feature; `[features] taurpc-runtime` mirror of ui-bridge pattern; `[dev-dependencies] tokio = { features = ["test-util"] }` + `tracing-subscriber` + `serde_json`
-- `crates/ingest/src/lib.rs` — `pub mod connection;`
-- `crates/ingest/src/state.rs` — extended `IngestState` with `last_ingest_at_nanos: AtomicI64` updated by all 3 hot-path `record_*` methods + reader API + 6 new tests
-- `pulse-app/src/heartbeat.rs` — `run_connection` 5th sibling task + `emit_connection_tick` helper + `spawn()` signature extended with `bind_status: Arc<dyn ReceiverBindStatus>` + 3 new tests
-- `pulse-app/src/lib.rs` — `pub mod connection_router;`
-- `pulse-app/src/main.rs` — imports + `connection_broadcast` + `bind_status` + `connection_impl` Arc construction + router merge in both `invoke_router` match arms + `connection::start_poller` spawn in setup closure + `emit_taurpc_bindings` test extension
-- `pulse-app/src/observability.rs` — 3 new AllowList entries: `"connection"` (covers connection.tick via .tick suffix-strip) + `"connection.state.transition"` + `"connection.current_state.request"`
-- `pulse-app/ui/src/bindings/index.ts` — regenerated with mcp-server feature so `connection.current_state` lands in canonical full-procedure-set state
-- `xtask/src/main.rs` — `EXPECTED_PROCEDURES` += `"connection.current_state"` + sibling test `expected_procedures_includes_connection_namespace_at_chunk_59`
 
-**NEW (this wrap commit):**
-- `crates/ingest/src/connection.rs` — FSM + `ConnectionStatePayload` + `ConnectionBroadcast` + `ReceiverBindStatus` trait + `compute_state` + `last_span_ago_ms` + `start_poller` + 28 tests
-- `pulse-app/src/connection_router.rs` — `ConnectionApi` TauRPC trait + `ConnectionApiImpl` + `HeartbeatBindStatus` adapter + 4 tests
-- `.andromeda/phases/phase-55/` — phase planning artifacts (combined.md + research.md + plan.md)
+**NEW (this session — gitignored under `.andromeda/runs/`; preserved as forensic record):**
+- `.andromeda/runs/2026-05-16T22-08-32-evolve-acknowledge-connection-namespace/` — Type 6 evolve audit trail (intent.md + evolution-plan.md)
+- `.andromeda/runs/2026-05-16T22-08-32-spec-amendment-acknowledge-connection-namespace/` — Type 6 marker file
+- `.andromeda/runs/2026-05-16T22-17-54-evolve-append-chunk-60-triage-crate-scaffold/` — Type 7 evolve audit trail
+- `.andromeda/runs/2026-05-16T22-17-54-spec-amendment-append-chunk-60-triage-crate-scaffold/` — Type 7 marker file
+- `.andromeda/runs/2026-05-16T22-25-22-setup-project-delta/` — delta-rerun audit trail (materialization-plan-delta.md)
 
-**NEW (this session — gitignored under `.andromeda/runs/`):**
-- `.andromeda/runs/2026-05-16T20-44-14-phase-55/` — phase planning audit trail (7 raw + 7 stripped sub-agent outputs)
+**Commits this session:**
+- `35535d4 chore(setup-project): delta-rerun for 2 amendments (chunk #59 arch ack + chunk #60 route append)`
+- (pending: this wrap commit closing session 73)
 
 ## Curation Summary (this wrap)
 
-- **Tier 1 (CLAUDE.md USER:session-learnings):** 0 additions (no universal-tier rules surfaced)
-- **Tier 2 (`.claude/rules/*/Session Additions`):** 1 addition
-  - `.claude/rules/security.md` — "Workspace-boundary trait abstraction for cross-crate TauRPC state delivery" (confidence 0.85; chunk #59 verified pattern; extends 4-place binding rule with 5th dimension)
-- **Tier 3 (`.claude/docs/session-learnings.md`):** 1 addition
-  - "specta = { features = ['chrono'] } workspace dep does NOT include `derive` feature; consuming crate must activate `derive` explicitly OR transitively via dep:taurpc" (confidence 0.85; empirically discovered at chunk #59 compile)
+- **Tier 1 (CLAUDE.md USER:session-learnings):** 0 additions
+- **Tier 2 (`.claude/rules/*/Session Additions`):** 0 additions
+- **Tier 3 (`.claude/docs/session-learnings.md`):** 0 additions
 - **Andromeda dogfood capture (outside 3-tier flow):** 0 additions
-  - Session flowed cleanly through standard /new-session → /andromeda-phase → /andromeda-implement → /andromeda-wrap-session cycle with no Andromeda skill friction. No new improvements to propose to `docs/andromeda-improvements.md`.
-- **Filtered:** 0 dups + 0 task-specific + 0 conflicts + 0 deferred (max-3 cap not hit)
+  - Session followed routine multi-amendment pattern (precedented in sessions 67/69/71); no novel friction or skill-mechanic learnings to surface. The api-surface.md Tooling string clarification is captured inline in the METADATA Maintenance note (artifact-specific; doesn't generalize as a Tier 2 rule).
+- **Filtered:** 0 dups + 0 task-specific + 0 conflicts + 0 deferred (max-3 cap not hit; candidate pool was empty by Filter 4 confidence threshold)
 
 ## Last Failed Command
 
-(none — all session 72 operations succeeded.)
+(none — all session 73 operations succeeded.)
 
 ## Tests Status
 
-passing — 697/697 workspace tests pass + 123/123 ingest crate tests (including 50 new connection module tests) + capability-drift clean + coverage gate passed (connection.rs 97.65% line / 98.08% function; state.rs 100%/100%). cargo fmt + clippy --workspace --all-targets --all-features -- -D warnings + cargo build -p pulse-app --features mcp-server all clean. Phase 2b smoke check skipped (no-cli — Tauri CLI not installed locally or globally; chunk implementation is green per scope).
+passing — verification via `cargo check --workspace --quiet` (clean compile, no errors). Full nextest suite verified at session start via /new-session smoke check (697/697 pass per session 72 baseline preserved; zero Rust source changes since).
 
 ## Next Recommended Action
 
-**Path A — Type 6 arch amendment (recommended; clears D3 drift):**
+Plain ramp into chunk #60 implementation:
 
 ```
-/clear              # fresh session per playbook discipline
-/andromeda-new-session   # dashboard (will surface D3 drift firing for chunk #59)
-/andromeda-evolve --allow-arch-registry   # propose Type 6 amendment
-   # acknowledges connection.current_state TauRPC + pulse://stream/connection-state
-   # broadcast in arch §Occupied Resources Tauri IPC routes + events
-/andromeda-setup-project --delta   # propagate amendment to CLAUDE.md ecosystem
-/andromeda-wrap-session   # close cycle (one-line state.yaml move active→archive)
+/clear                # fresh session per playbook discipline
+/andromeda-new-session   # dashboard (should surface no drift; chunk #60 ready for phase planning)
+/andromeda-phase      # plan chunk #60 "Triage crate scaffold + attention cue contract types"
+   # will read route.md §2 chunk #60 + emit phase-56/ planning artifacts
+/andromeda-implement  # execute chunk #60 phase plan
+   # creates `crates/triage/` workspace member + 7 module skeletons + contract types
+/andromeda-wrap-session   # close cycle (session 74)
 ```
 
-Estimated effort: ~30-45min single session per session 51 / 67 / 69 / 71 precedents (Type 6 amendments are tightly scoped).
+Estimated effort: ~1-2h single session per chunk #58 / #59 precedents (Type 7 chunk implementations typically take 1-2h for scaffold-style chunks like #58 curation extraction).
 
-**Path B — Register chunk #60 from pulse v0.2.0 plan:**
+**Alternative — meta-Andromeda enhancement session:**
 
-```
-/clear
-/andromeda-new-session
-/andromeda-evolve --allow-route-append   # register chunk #60 per pulse v0.2.0 Phase 2 capability
-/andromeda-setup-project --delta   # propagate route amendment
-/andromeda-wrap-session
-```
+Three pending andromeda-improvements proposals (Proposals 5+6+7) now have 4+ dogfood evidence instances (chunks #57/#58/#59/#60 all followed identical Type 7 Form 1 chunk-append pattern). Mature for implementation:
+- Proposal 5 — Type 7 expected_propagation pre-populate (would have captured CLAUDE.md pointer-table cascade in marker authoring rather than requiring grep-expansion catch)
+- Proposal 6 — Form 1 §1 auto-update (would mechanically advance route.md §1 "Total chunks" line)
+- Proposal 7 — Type 6 narrative-cascade visibility (would make Type 6 + Type 7 combined-session pattern visible in dashboard)
 
-Then `/andromeda-phase` + `/andromeda-implement` against chunk #60 in subsequent session. Path A + Path B can be combined (Type 6 arch amendment + Form 1 route append in same session); both have established precedents.
-
-**Path C — Meta-Andromeda enhancement (Proposals 5+6+7):**
-
-Three pending andromeda-improvements proposals (each with 3+ dogfood evidence instances now). Focused ~2-hour session implementing all three would land:
-- Proposal 5 — Type 7 expected_propagation pre-populate
-- Proposal 6 — Form 1 §1 auto-update
-- Proposal 7 — Type 6 narrative-cascade visibility
-
-Combined effort ~95 lines across ~5 user-level skill files.
-
-**Recommend Path A** — clears the active D3 drift cleanly + follows the established chunk-substrate → arch-amendment lifecycle. Path B or C can land in subsequent sessions.
+Combined effort ~95 lines across ~5 user-level skill files (`~/.claude/skills/`).
 
 ## Session Goals (carry-over)
 
-- Continue pulse v0.2.0 dogfood — chunks #57 + #58 + #59 first three Epoch 9 cycles all done; chunk #60+ from pulse v0.2.0 plan Phase 2 (capabilities P-005+) ready to register when ramping back into evolution mode.
-- Andromeda meta-improvements log accumulating: 1 IMPLEMENTED + 6 PROPOSED across sessions 66-72. Proposals 5+6+7 evidence base now 3-instance + 1 implementation cycle of "chunk substrate + arch amendment" pattern; mature for implementation when meta-improvement session lands.
-- Pulse v0.1.0 release blockers per CLAUDE.md @import route.md §Established Decisions deferred items: unchanged this session.
+- Continue pulse v0.2.0 dogfood — chunk #60 ready (triage crate scaffold); subsequent chunks #61 (streaming baseline trackers + corpus persistence — depends on #58 + #60) + #62 (attention cue emitter — depends on #61) follow per pulse v0.2.0 plan Phase 2.
+- Pulse v0.1.0 release blockers unchanged from prior sessions (chunk #3 deferred signing items: Azure Key Vault EV cert + Apple Developer ID + GitHub OIDC federation + GitHub Environment production-release secrets).
+- Andromeda meta-improvements log accumulating: 1 IMPLEMENTED + 6 PROPOSED across sessions 66-73. Proposals 5+6+7 evidence base now 4-instance + 2 implementation cycles of "chunk substrate + arch amendment" pattern; mature for implementation when meta-improvement session lands.
 
 ## Deferred decisions (Trigger 4 to Path B carry-over)
 
@@ -144,4 +126,4 @@ Combined effort ~95 lines across ~5 user-level skill files.
 
 ## Deferred learnings (filtered out from Phase 4 curation)
 
-(none — both candidates applied to tiers; max-3 cap not hit.)
+(none — candidate pool was empty after Filter 4 confidence threshold; max-3 cap not hit.)
