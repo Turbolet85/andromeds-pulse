@@ -178,7 +178,7 @@
   - Binary name: `andromeda-pulse` (Linux/macOS), `andromeda-pulse.exe` (Windows)
   - Binary crate name: `pulse-app`
   - rmcp sidecar binary (when feature enabled): `andromeda-pulse-mcp`
-- **Cargo workspace crate names**: `ingest`, `buffer`, `viz`, `ui-bridge`, `snapshot`, `curation`, `workspace-detector`, `plugins`, `mcp-server`, `pulse-app`, `xtask` — these names are reserved at the workspace level and cannot be reused by scopes.
+- **Cargo workspace crate names**: `ingest`, `buffer`, `viz`, `ui-bridge`, `snapshot`, `curation`, `triage`, `workspace-detector`, `plugins`, `mcp-server`, `pulse-app`, `xtask` — these names are reserved at the workspace level and cannot be reused by scopes.
 - **DuckDB database / schema names**:
   - In-memory database identity: `pulse_buffer` (single in-memory `:memory:` DuckDB connection, schema `main`)
   - Reserved tables: `spans`, `span_events`, `span_links`, `metrics_points`, `log_records`, `resources`, `instrumentation_scopes`
@@ -329,7 +329,7 @@ andromeda-pulse/
 
 ## Existing Scopes
 
-None — new project. Scopes will be added via `/andromeda-scope-arch`.
+- **`pulse-v0_2_0-route`** — Pulse v0.2.0 evolution scope. Defined at `docs/v0_2_0/pulse-v0_2_0-route.md`. Active scope drives Epoch 9 (Foundation v0.2.0) work: chunks #57 (widget real-data binding) → #58 (curation crate extraction) → #59 (connection state machine) → #60 (triage crate scaffold + attention cue contract types) → subsequent v0.2.0 chunks (#61+ streaming baseline trackers / #62 attention cue emitter / #63 restart event detector / etc.). Registered 2026-05-16 per chunk #60 substrate landing (session 74 wrap commit `589225f` — see §Architecture Registry Updates 2026-05-16). Supporting documents: `docs/v0_2_0/pulse-capability-spec.md` (capability spec P-001 through P-060+), `docs/v0_2_0/pulse-distillation-architecture.md` (L1-L4 layered pipeline), `docs/v0_2_0/pulse-vision-and-backlog.md` (product framing + backlog).
 
 ## Architecture Registry Updates
 
@@ -407,4 +407,19 @@ _This section accumulates entries from `/andromeda-evolve --allow-arch-registry`
 **Rationale:** Chunk #59 implementation introduces (a) the `connection.current_state` TauRPC procedure via `#[taurpc::procedures(path = "connection")]` declared at `pulse-app/src/connection_router.rs:46`, returning `ConnectionStatePayload` from `crates/ingest::connection::compute_state()`, AND (b) the `pulse://stream/connection-state` broadcast topic emitted by `ConnectionBroadcast::send` on FSM state transitions (Listening / Receiving / Idle / Stalled / ReceiverFailed) declared at `crates/ingest/src/connection.rs:25`. arch §Occupied Resources Tauri IPC routes + Tauri IPC events sections had not yet acknowledged either entry (D3 capability-drift class — chunk #59 added implementation without arch update; this amendment closes the gap). Mirrors 2026-05-09 streams.* + telemetry.* additive precedent + 2026-05-11 pulse:clipboard precedent + 2026-05-16 curation crate precedent.
 
 **Amendment record:** `.andromeda/runs/2026-05-16T22-08-32-spec-amendment-acknowledge-connection-namespace/amendment.md`
+
+### 2026-05-16 — Acknowledge `triage` crate in §Occupied Resources + register `pulse-v0_2_0-route` as first §Existing Scopes entry (--allow-arch-registry)
+
+**Section affected:** §Occupied Resources Cargo workspace crate names + §Existing Scopes
+
+**Registry additions:**
+
+- `triage` — implemented at `crates/triage/Cargo.toml` + `crates/triage/src/lib.rs` + root `Cargo.toml` workspace members (chunk #60 "Triage crate scaffold + attention cue contract types" — route §2 Epoch 9 Foundation v0.2.0 fourth chunk; committed session 74 commit `589225f`)
+- `pulse-v0_2_0-route` — first registered scope; defined at `docs/v0_2_0/pulse-v0_2_0-route.md`; drives Epoch 9 (Foundation v0.2.0) chunks #57+
+
+**Authority:** /andromeda-evolve with `--allow-arch-registry` flag (narrow Refuse 1 exception for arch registry sections; full audit trail in amendment marker). Check 7 verified purely additive / registry section / code evidence resolved / Check 7.4 first-entry WARNING surfaced for §Existing Scopes (section exists with placeholder; user-confirmed via flag invocation per session 74 handoff intent — `pulse-v0_2_0-route` is the first scope registered since project began).
+
+**Rationale:** Chunk #60 implementation creates new workspace member `crates/triage/` (12th workspace crate; arch §Occupied Resources Cargo workspace crate names had not yet acknowledged the new reserved name — D3 capability-drift class). Separately, chunk #60 introduces the first registered scope `pulse-v0_2_0-route` (per route §3 Decisions Log 2026-05-16 entry: "Arch registry delta: +1 crate `triage`, first registered scope `pulse-v0_2_0-route` in §Existing Scopes"). The `pulse-v0_2_0-route` scope-defining document `docs/v0_2_0/pulse-v0_2_0-route.md` landed prior to chunk #57 via pulse v0.2.0 planning; chunks #57-#60 have been implemented within this scope but arch §Existing Scopes was never formally updated to register it. This amendment closes both gaps in one coordinated cycle. Mirrors 2026-05-16 curation crate precedent (single Type 6 amendment per chunk) + extends with first-ever scope registration (Check 7.4 first-entry case; placeholder text replaced).
+
+**Amendment record:** `.andromeda/runs/2026-05-16T23-39-39-spec-amendment-acknowledge-triage-crate-and-scope/amendment.md`
 
