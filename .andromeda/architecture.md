@@ -177,7 +177,7 @@
   - Binary name: `andromeda-pulse` (Linux/macOS), `andromeda-pulse.exe` (Windows)
   - Binary crate name: `pulse-app`
   - rmcp sidecar binary (when feature enabled): `andromeda-pulse-mcp`
-- **Cargo workspace crate names**: `ingest`, `buffer`, `viz`, `ui-bridge`, `snapshot`, `workspace-detector`, `plugins`, `mcp-server`, `pulse-app`, `xtask` — these names are reserved at the workspace level and cannot be reused by scopes.
+- **Cargo workspace crate names**: `ingest`, `buffer`, `viz`, `ui-bridge`, `snapshot`, `curation`, `workspace-detector`, `plugins`, `mcp-server`, `pulse-app`, `xtask` — these names are reserved at the workspace level and cannot be reused by scopes.
 - **DuckDB database / schema names**:
   - In-memory database identity: `pulse_buffer` (single in-memory `:memory:` DuckDB connection, schema `main`)
   - Reserved tables: `spans`, `span_events`, `span_links`, `metrics_points`, `log_records`, `resources`, `instrumentation_scopes`
@@ -377,4 +377,18 @@ _This section accumulates entries from `/andromeda-evolve --allow-arch-registry`
 **Rationale:** Code reality at the cited file implements the `pulse:clipboard` capability with `clipboard-manager:allow-write-text` permission scope (write-only outbound; NEVER allow-read-* per security plan §Anti-Patterns API row 6 — clipboard read is exfiltration surface needing separately-named capability). arch §Occupied Resources Tauri capability identifiers had not acknowledged the new identifier (D3 capability-drift class — NEW this wrap; surfaced in session 51 wrap-session Phase 6 detection per session-handoff.md Drift Detection block). Adding `pulse:clipboard` to the reserved list brings arch into alignment with implementation reality + clears the D3 drift_warning at next wrap-session re-detection. Mirrors 2026-05-09 streams.* + telemetry.* additive precedent.
 
 **Amendment record:** `.andromeda/runs/2026-05-11T00-15-00-spec-amendment-acknowledge-pulse-clipboard-capability/amendment.md`
+
+### 2026-05-16 — Acknowledge `curation` crate in §Occupied Resources (--allow-arch-registry)
+
+**Section affected:** §Occupied Resources Cargo workspace crate names
+
+**Registry additions:**
+
+- `curation` — implemented at `crates/curation/Cargo.toml` + `crates/curation/src/lib.rs` + root `Cargo.toml` workspace members (chunk #58 "Curation crate extraction" — route §2 Epoch 9 Foundation v0.2.0)
+
+**Authority:** /andromeda-evolve with `--allow-arch-registry` flag (narrow Refuse 1 exception for arch registry sections; full audit trail in amendment marker). Check 7 verified purely additive / registry section / code evidence resolved / no new architectural concept (section had 10 prior entries; this is the 11th).
+
+**Rationale:** Chunk #58 implementation extracts curation primitives (dedupe / anomaly / critical_path / aggregation) from the snapshot crate into a new `crates/curation/` workspace crate. arch §Occupied Resources "Cargo workspace crate names" had not yet acknowledged the new reserved name (D3 capability-drift class — chunk #58 added the workspace member without arch update; this amendment closes the gap). Mirrors 2026-05-11 `pulse:clipboard` precedent + 2026-05-09 `streams.*` / `telemetry.*` precedents.
+
+**Amendment record:** `.andromeda/runs/2026-05-16T16-15-00-spec-amendment-acknowledge-curation-crate/amendment.md`
 
