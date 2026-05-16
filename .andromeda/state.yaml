@@ -1,14 +1,14 @@
 schema_version: 2
-last_wrap: 2026-05-16T13:27:06Z
-last_reconcile: 2026-05-16T13:27:06Z
+last_wrap: 2026-05-16T14:25:00Z
+last_reconcile: 2026-05-16T14:25:00Z
 
 last_completed_chunk:
-  route_index: 56
-  title: "Obs CI gates + log aggregation — zero-panic verification, heartbeat-stall detection (>45s gap), perf-budget p99 (snapshot ≤500ms / frame ≤33ms), criterion bench artifacts (ACTIVE scope per /implement: snapshot p99 ≤500ms aggregation added к existing perf-slo-check.{sh,ps1}; criterion bench regression detection via new xtask/ci/criterion-regression-check.{sh,ps1}; .github/workflows/ci.yml extended in-place с PR-only base-branch criterion baseline download + criterion-regression invocation; obs subscriber default fields verified already-present substrate; Epoch 8 — Polish & ship closes 7/7 chunks done)"
-  epoch: 8
-  committed_at: 2026-05-14T12:15:42Z
-  commit_sha: b6f06dd
-  commit_subject: "feat(ci): chunks #55+#56 — flakiness quality gate enforcement + obs CI gates + log aggregation (Epoch 8 closes; 6 new xtask/ci/*-check.{sh,ps1} scripts + 12 new workflow self-lint tests + 3 ci.yml step extensions); session 65"
+  route_index: 57
+  title: "Widget real-data binding — delete use-synthetic-widget-metrics.ts; wire CompactWidget.tsx + FooterBand.tsx to real streams.subscribe_metrics; Halo retains errorRate/throughputHz shape (refactored in chunk #81)"
+  epoch: 9
+  committed_at: 2026-05-16T14:25:00Z
+  commit_sha: b079e43
+  commit_subject: "feat(ui): chunk #57 — widget real-data binding (delete use-synthetic-widget-metrics + wire CompactWidget/FooterBand to streams.subscribe_metrics; Epoch 9 Foundation v0.2.0 opens; first webview consumer of streams.* Channel API); session 68"
 
 in_progress: null
 
@@ -24,21 +24,16 @@ plan_freshness:
   input_mtime: 2026-05-02T06:52:58Z
 
 living_artifact_freshness:
-  dep_tree_reconciled_at: 2026-05-16T13:27:06Z
-  api_surface_reconciled_at: 2026-05-16T13:27:06Z
-  most_recent_code_mtime: 2026-05-14T12:15:42Z
+  dep_tree_reconciled_at: 2026-05-16T14:25:00Z
+  api_surface_reconciled_at: 2026-05-16T14:25:00Z
+  most_recent_code_mtime: 2026-05-16T14:08:00Z
   reconcile_failed: false
 
-drift_warnings:
-  - drift_id: D5
-    description: "Spec amendment lifecycle: route.md (Decisions Log entry '2026-05-16 — Create Epoch 9 — Foundation v0.2.0 + chunk #57 widget real-data binding (--allow-route-append Form 2)'). Status: applied + noted this wrap; propagated_by_run=null."
-    severity: info
-    remediation_hint: "/andromeda-setup-project --delta (Type 7 permit path; will propagate then mark archived at next wrap)"
-    first_observed_session_count: 67
-    last_observed_session_count: 67
+drift_warnings: []
 
 spec_amendments:
-  active:
+  active: []
+  archive:
     - amendment_id: 2026-05-16T13-21-56-create-epoch-9-chunk-57
       plans:
         - path: route.md
@@ -46,42 +41,11 @@ spec_amendments:
             - "§1 Route Scope Summary (Total chunks + Epochs lines)"
             - "§2 Roadmap (NEW Epoch 9 — Foundation v0.2.0)"
             - "§3 Route Decisions Log"
-          decisions_log_section: "2026-05-16 — Create Epoch 9 — Foundation v0.2.0 + chunk #57 widget real-data binding (--allow-route-append Form 2)"
-      trigger:
-        chunk: null
-        phase: null
-        harness: "user-driven via /andromeda-evolve"
-      authority:
-        winning_plan: "docs/v0_2_0/pulse-v0_2_0-route.md"
-        winning_tier: external-planning-material
-        losing_plan: ".andromeda/route.md"
-        losing_concern: epoch-boundary-stale-vs-v0.2.0-scope
-        rationale: "Pulse moves from v0.1.0 MVP to v0.2.0 evolution mode; no existing epoch fits the 33-chunk v0.2.0 plan semantically. Terminal Epoch 9 Foundation v0.2.0 hosts first v0.2.0 chunk. Authorized via Form 2 (Proposal 4 IMPLEMENTED)."
-      impl_files_synced: []
-      expected_propagation: []
-      marker_path: .andromeda/runs/2026-05-16T13-21-56-spec-amendment-create-epoch-9-chunk-57/amendment.md
-      applied_at: 2026-05-16T13:21:56Z
-      noted_at: 2026-05-16T13:27:06Z
+      decisions_log_sections:
+        - "2026-05-16 — Create Epoch 9 — Foundation v0.2.0 + chunk #57 widget real-data binding (--allow-route-append Form 2)"
       propagated_by_run: .andromeda/runs/2026-05-16T13-45-00-setup-project-delta/
-      archived_at: null
-      verification_status: clean
+      archived_at: 2026-05-16T14:25:00Z
       flag_used: --allow-route-append
-      form: 2
-      route_section_modified: "Epoch 9 — Foundation v0.2.0 (NEW)"
-      chunks_added:
-        - position: 57
-          text: "Widget real-data binding — delete use-synthetic-widget-metrics.ts; wire CompactWidget.tsx + FooterBand.tsx to real streams.subscribe_metrics; Halo retains errorRate/throughputHz shape (refactored in chunk #81)"
-      chunks_renumbered: []
-      motivation: "Pulse v0.2.0 plan (docs/v0_2_0/pulse-v0_2_0-route.md) chunk #57 entry + widget-state-validation-report-2026-05-14.md finding (synthetic data survived past chunks #34/#35 deferred wiring). First chunk of pulse v0.2.0 evolution cycle."
-      confirmed_shift: false
-      new_epoch_created: true
-      new_epoch_title: "Epoch 9 — Foundation v0.2.0"
-      new_epoch_position: 9
-      epoch_boundary_rationale: "Existing Epoch 8 (Polish & ship) semantically scoped to v0.1.0 finalization; pulse v0.2.0 introduces new conceptual scope (three pillars + 60 P-XXX capabilities + 6-layer distillation pipeline) which doesn't fit. New terminal Epoch 9 mirrors original Epoch 1 Foundation naming convention."
-      scope_summary_updates:
-        - "Total chunks: 55 → 56"
-        - "Epochs: 8 (Foundation, Ingest pipeline, Storage & query, Webview shell + TauRPC bridge, Visualization surfaces, Snapshot & Investigate, Plugin runtime + MCP server, Polish & ship) → 9 (..., Polish & ship, Foundation v0.2.0)"
-  archive:
     - amendment_id: 2026-05-03T21-30-00Z-lift-accent
       plans:
         - path: design-system.md
@@ -258,4 +222,4 @@ spec_amendments:
       propagated_by_run: .andromeda/runs/2026-05-11T19-00-00-setup-project-delta/
       archived_at: 2026-05-11T19:25:00Z
 
-session_count: 67
+session_count: 68

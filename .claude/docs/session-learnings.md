@@ -8,6 +8,62 @@ _This file is entirely wrap-session's territory. `/setup-project` creates it if 
 
 ---
 
+## 2026-05-16 (session 68) — First `/andromeda-setup-project --delta` dogfood + grep-expansion auto-add saves marker `expected_propagation` undercount
+
+**Context:** This was the first real-world invocation of `/andromeda-setup-project --delta` (Type 7 permit path for the chunk #57 evolve amendment from session 67). Validates the protocol design + surfaces an instructive data point about marker authoring precision.
+
+**Amendment processed:** `2026-05-16T13-21-56-create-epoch-9-chunk-57` — `flag_used: --allow-route-append` (Form 2 terminal new epoch + first chunk), `expected_propagation: []` (empty per marker), `Trigger: user-driven evolution via /andromeda-evolve`. Plan→file mapping table baseline for the `route.md` row is "(no direct Tier 2/3 dependents; route is meta — chunk progression)" — so marker's empty list is consistent with the table.
+
+**Grep-expansion (Detection step 8 defense-in-depth) saved the day.** Per `delta-rerun-protocol.md` §Grep-expansion, after assembling the initial delta scope from marker `expected_propagation` ∪ plan→file mapping table baseline, the protocol greps for primary "before" values from the marker's `## Plans amended → Before → After` section across `.claude/` + `CLAUDE.md` (excluding `.andromeda/runs/`). The session 67 marker's Before lines included `§1 Epochs: 8 → 9`. Grep for `8 epochs` found 1 stale hit in `CLAUDE.md:52` pointer-table row `| Roadmap (8 epochs / 56 chunks) |` — undercount NOT predicted by the marker's `expected_propagation: []` OR the plan→file mapping table's `route.md` row.
+
+**Resolution applied:** Auto-added CLAUDE.md к delta scope per protocol step ("If the path is NOT in the delta scope: auto-add к delta scope. Record the file in materialization-plan-delta.md under а separate subsection 'From Setup-detected stale-value grep matches'"). Phase 1 narrow edit к CLAUDE.md:52 changed `8 epochs` → `9 epochs`. Phase 8 validated byte-identity on the remaining ~30 preserved files; cyrillic check clean; cross-skill diff verified spec-amendment-protocol.md md5 identical across 3 skill copies.
+
+**Audit trail for protocol hardening (recorded in materialization-plan-delta.md):** "marker's `expected_propagation: []` was undercount; CLAUDE.md pointer-table description references route.md §1 epoch count. Future Type 7 --allow-route-append amendments that touch §1 Route Scope Summary should include `CLAUDE.md (GENERATED:setup:pointer-table)` in expected_propagation." The grep-expansion design IS the safety net for marker authoring oversight (per delta-rerun-protocol.md §Anti-patterns bullet 7: "DO NOT trust marker `expected_propagation` blindly — always run grep-expansion as defense-in-depth"). This invocation validates that design empirically — the protocol caught what the marker author missed.
+
+**Lifecycle progression:** state.yaml.spec_amendments.active[0].propagated_by_run set к `.andromeda/runs/2026-05-16T13-45-00-setup-project-delta/`; marker file Lifecycle status checkboxes updated к `[x] Noted` + `[x] Propagated`. Commit `3a6714d` on main; 2 files changed (CLAUDE.md + state.yaml), 2 insertions + 2 deletions. Wrap-session Phase 8 (this session) will move the amendment from `active` к `archive`.
+
+**Pattern recurs:** any future Form 2 amendment whose §1 Route Scope Summary update implicitly cascades к CLAUDE.md pointer-table descriptions will exhibit the same marker undercount. Long-term fix: enhance `/andromeda-evolve` Type 7 marker authoring to pre-emptively grep for chunk/epoch-count strings in `.claude/` + `CLAUDE.md` before populating `expected_propagation`. Short-term fix: trust the grep-expansion fallback (which already works) + don't manually-author markers that bypass the protocol's defense-in-depth.
+
+**Cross-references:**
+
+- Run directory: `.andromeda/runs/2026-05-16T13-45-00-setup-project-delta/materialization-plan-delta.md` (audit-trail subsection "From Setup-detected stale-value grep matches" documents the CLAUDE.md auto-add)
+- Triangle contract: `references/delta-rerun-protocol.md` §Grep-expansion (Detection step 8) + §Anti-patterns bullet 7
+- Spec-amendment-protocol.md byte-identity verified across 3 skill copies (Phase 8 cross-skill diff)
+
+---
+
+## 2026-05-16 (session 68) — Phase 2b runtime smoke check 60s/90s timeout misaligned with Windows cold-cache Tauri rebuild cost (~120s+ for ~780-crate debug build)
+
+**Observation:** chunk #57 implementation Phase 2b runtime smoke (via `/andromeda-implement`'s unconditional best-effort smoke check) timed out at link stage 779/780 builds when running `timeout 90 npx @tauri-apps/cli dev` on Windows from a cold (post-cargo-clean-like) cache state. The implement spec's 60s timeout (extended к 90s here) was insufficient for the cold-cache full Tauri compile cycle.
+
+**Symptom shape:** rustc reaches the final link step (`pulse-app` bin), invokes link.exe with ~257 object files + ~310 library archives, link.exe is mid-process when SIGTERM fires from the timeout wrapper → exit code 143 (terminated by signal). The build was ~99% complete; with another 5-15s, the boot signal would have fired. The link-stage timing dominates because pulse-app at this scale carries large transitive dep closures (wasmtime 43.0.2 + duckdb 1.10502.0 + tauri 2.11 + tokio + ~700 transitive crates).
+
+**Cost breakdown (Windows MSVC, NVMe-backed cargo cache, M2 Pro-class CPU equivalent):**
+- Cold incremental rebuild: ~90-120s к reach link stage when starting from clean post-test target/
+- Link.exe step alone: ~15-30s (writing 70MB+ debug binary)
+- Vite dev server boot: ~10-15s (after Rust link succeeds)
+- WebView2 init + ready signal: ~5-10s
+- **Total cold smoke cycle on Windows: ~120-180s typically; 60s budget never sufficient**
+
+**Implications for implement spec:**
+- The current Phase 2b timeout (60s per spec; clamped к practical 90s in this session) is calibrated for warm-CI-cache environments where rustc has reuseable .rlib outputs. For local dev runs after a fresh `cargo nextest` (which rebuilds with different feature combos than `tauri dev`'s no-default-features path), the cache miss forces a near-full rebuild.
+- Workable mitigations: (a) extend timeout к 180s for Windows hosts (spec amendment); (b) pre-warm the dev profile via `cargo build --no-default-features` before invoking smoke (adds explicit warm-up step); (c) classify timeout-during-link as `skipped (environmental: cold-cache)` rather than `failure` (current behavior — implement Phase 3 surfacing already treats it as environmental, not chunk-implementation fault).
+- Phase 2b's value proposition holds (catches latent boot panics not visible in unit tests, e.g., chunk #27/#30 health.rs reactor panic surfaced at chunk #31 smoke gate). But the value is contingent on the smoke actually completing — а 60s timeout that always times out on Windows-cold-cache provides zero signal.
+
+**Chunk #57's specific posture:** plan explicitly noted "Boot-smoke gate NOT required for this chunk" per test-plan §12 Decisions Log 2026-05-09 boot-smoke-coverage scope (webview-only chunks bypass boot smoke). The implement-skill Phase 2b ran anyway (unconditional best-effort) and surfaced the environmental timeout. Chunk green per scope validated by 661/661 Rust + 518/518 webview + clippy + capability-drift; smoke skip documented as environmental, not chunk regression.
+
+**Pre-warm pattern for future Windows-local smoke (if Phase 2b spec doesn't expand timeout):**
+
+```powershell
+cd D:\dev\projects\andromeda-pulse
+cargo build --no-default-features --bin pulse-app  # warm-up; ~90s cold, ~15s warm
+timeout 120 npx @tauri-apps/cli dev                 # link is already cached
+```
+
+Apply when manually verifying a chunk's runtime behavior on Windows after `/andromeda-implement` skipped its Phase 2b smoke due to timeout. Not chunk-specific; documents the environment constraint для future Windows-host implement runs.
+
+---
+
 ## 2026-05-16 (session 67) — Proposal 4 IMPLEMENTED: `--allow-route-append` Form 2 (terminal new epoch + first chunk) + first dogfood invocation observations
 
 **Implementation context:** Session 66 conversation surfaced the gap that pulse v0.2.0's 33 prospective chunks #57-#89 don't fit semantically into existing Epoch 8 ("Polish & ship" — v0.1.0 finalization scope). Original Check 8.2 refused new epoch creation under `--allow-route-append` even with flag. User proposed (verbatim): "разрешим --allow-route-append добавлять epoch но только последней записью и обязательно вместе с первым чанком эпохи" → two restrictions ensuring position-stability + non-empty body.

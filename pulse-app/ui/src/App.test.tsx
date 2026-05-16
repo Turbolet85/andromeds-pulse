@@ -11,8 +11,8 @@ vi.mock("./hooks/use-synthetic-halo-input", () => ({
   useSyntheticHaloInput: () => ({ throughputHz: 1000, errorRate: 0.5 }),
 }));
 
-vi.mock("./hooks/use-synthetic-widget-metrics", () => ({
-  useSyntheticWidgetMetrics: () => ({
+vi.mock("./hooks/use-widget-metrics", () => ({
+  useWidgetMetrics: () => ({
     serviceCount: 24,
     throughputHz: 1234,
     errorRate: 0.012,

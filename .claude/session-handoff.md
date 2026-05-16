@@ -1,130 +1,124 @@
 # Session Handoff
 
-**Last Updated:** 2026-05-16T13:27:06Z
+**Last Updated:** 2026-05-16T14:25:00Z
 **Branch:** main
-**Session End Status:** clean (continuation of session 66 chat without /clear — wraps as session 67. 4 commits in chat post-session-66-wrap: meta-Andromeda docs + hygiene + Proposal 4 IMPLEMENTED + chunk #57 evolve marker. 1 active spec amendment pending propagation. Tests 661/661 passing.)
-**Last Commit:** (pending — wrap commit composed in Phase 10; closes session 67)
+**Session End Status:** clean (chunk #57 implementation green per scope; first Epoch 9 chunk; first webview consumer of streams.* Channel API; tests 661/661 Rust + 518/518 webview passing)
+**Last Commit:** (pending — wrap commit composed in Phase 10; closes session 68)
 
 ## Current State
 
-- **Last completed chunk:** route#56 "Obs CI gates + log aggregation" (Epoch 8; committed session 65 as `de35e82`)
-- **Next chunk:** route#57 "Widget real-data binding" (Epoch 9 — Foundation v0.2.0 — NEW; registered this session via /andromeda-evolve --allow-route-append Form 2; NOT yet implemented)
-- **In-progress phase:** none — chunk #57 evolve landed marker only; /andromeda-phase + /andromeda-implement not yet run
-- **Phase artifacts present:** `.andromeda/phases/phase-{1..52}/` (phase-52 last from session 65; no phase-53+ yet)
+- **Last completed chunk:** route#57 "Widget real-data binding" (Epoch 9 — Foundation v0.2.0; committed this session)
+- **Next chunk:** route#58 (TBD — pulse v0.2.0 plan `docs/v0_2_0/pulse-v0_2_0-route.md` lists 33 prospective chunks #57-#89; chunk #58 selection requires user decision OR re-run of /andromeda-evolve --allow-route-append for next-chunk registration)
+- **In-progress phase:** none — chunk #57 fully implemented + tested
+- **Phase artifacts present:** `.andromeda/phases/phase-{1..53}/` (phase-53 closes this session)
 
 ## Andromeda State Detection (states A-K)
 
-All A-K clean post-wrap except minor D6/H residue (expected oscillation per Phase 10 SHA-fixup amend cycle).
+All A-K clean post-wrap (D5 amendment-pending fully resolved this session via /andromeda-setup-project --delta + Phase 8 archive).
 
-- **State H** (route chunk drift): self-clearing pattern continues. state.yaml.commit_sha was 9abc8a5 (session 66 amend SHA, dangling); this wrap will set it к new wrap SHA via Phase 10 amend. Per session 67 Tier 3 learning #4 — dangling commit_sha is expected post-amend artifact, not unresolved drift.
+- **State H** (route chunk drift): self-clearing pattern continues. state.yaml.commit_sha was b6f06dd (session 65 amend SHA, dangling); this wrap will set it к new wrap SHA via Phase 10 amend. Per session 67 Tier 3 learning #4 — dangling commit_sha is expected post-amend artifact, not unresolved drift.
 - States A, B, C, D, E, F, G, I, J, K: clean.
 
 ## Drift Detection (6 dimensions)
 
-**1 amendment-pending drift detected — info severity per amendment-aware classification.**
+**0 active drifts post-wrap (D5 cleared this session via amendment archive lifecycle).**
 
-- **ℹ️ D5 — Spec amendment lifecycle: route.md (Decisions Log: "2026-05-16 — Create Epoch 9 — Foundation v0.2.0 + chunk #57 widget real-data binding (--allow-route-append Form 2)"). Status: applied + noted (this wrap), awaiting propagated.** Remediation: `/andromeda-setup-project --delta` (propagation pending; will mark `propagated_by_run` + advance к archive-pending state at NEXT wrap).
-- D1 (living artifact staleness): cleared by Phase 5 reconcile.
-- D2 (LIVING block wrong content): clean (no diff between fresh tooling and existing).
-- D3 (plan-to-code): clean — no `crates/*` code changes this session; route/state.yaml-only modifications.
+- D1 (living artifact staleness): cleared by Phase 5 reconcile (both context/ artifacts refreshed timestamps + session 68 notes; LIVING blocks byte-identical к session 67 baseline since chunk #57 made zero `crates/*` changes).
+- D2 (LIVING block wrong content): clean (no diff between fresh tooling output and existing).
+- D3 (plan-to-code): clean — no `crates/*` code changes this session; no new TauRPC procedure; no new Cargo.toml deps; no capability JSON edits.
 - D4 (plan-to-plan): clean — no specialist plan body modifications.
-- D6 (route chunk progression): clean per standard detection (no commit message matches `^feat({module}): chunk #{N+1}` pattern; all session commits are meta-Andromeda or wrap-related).
+- **D5 (Spec amendment lifecycle): CLEARED this wrap.** Chunk #57 evolve amendment (`2026-05-16T13-21-56-create-epoch-9-chunk-57`) completed full lifecycle this session: applied (session 67) → noted (session 67) → propagated (this session via /andromeda-setup-project --delta commit 3a6714d) → archived (this wrap Phase 8). Now in state.yaml.spec_amendments.archive (compact form preserves audit trail). drift_warnings list empty post-Phase-8.
+- D6 (route chunk progression): chunk #57 commits THIS WRAP — state.yaml.last_completed_chunk.route_index advances to 57 anticipating commit per Phase 8 spec (commit_sha=`pending` placeholder, amended in Phase 10.4).
 
 ## Spec Amendments (this session)
 
-**1 active amendment applied this session (Type 7 Form 2):**
+**0 active amendments post-wrap (1 archived this session).**
 
-- **Plan(s):** `.andromeda/route.md` (§1 Route Scope Summary, §2 Roadmap NEW Epoch 9, §3 Route Decisions Log)
-- **Decisions Log:** §3 — 2026-05-16 — "Create Epoch 9 — Foundation v0.2.0 + chunk #57 widget real-data binding (--allow-route-append Form 2)"
-- **Trigger:** user-driven evolution via /andromeda-evolve (no chunk/phase/harness)
-- **Authority resolution:** external-planning-material (docs/v0_2_0/pulse-v0_2_0-route.md) > epoch-boundary-stale-vs-v0.2.0-scope (.andromeda/route.md)
-- **Lifecycle:** applied 2026-05-16T13:21:56Z | noted 2026-05-16T13:27:06Z (this wrap Phase 8) | propagated null (pending /andromeda-setup-project --delta) | archived null (after propagated, next wrap)
-- **Marker:** `.andromeda/runs/2026-05-16T13-21-56-spec-amendment-create-epoch-9-chunk-57/amendment.md`
-- **Form 2 fields:** new_epoch_created=true / new_epoch_title="Epoch 9 — Foundation v0.2.0" / new_epoch_position=9 / scope_summary_updates=[Total chunks 55→56, Epochs 8→9]
+Archived this session: 1 amendment — `2026-05-16T13-21-56-create-epoch-9-chunk-57` (Type 7 Form 2 chunk-#57 evolve). Full lifecycle completed across sessions 67-68: applied 2026-05-16T13:21:56Z → noted 2026-05-16T13:27:06Z → propagated 2026-05-16T13:45:00Z (via /andromeda-setup-project --delta; first real-world dogfood) → archived 2026-05-16T14:25:00Z (this wrap). See state.yaml.spec_amendments.archive for compact-form record + audit trail at `.andromeda/runs/2026-05-16T13-21-56-spec-amendment-create-epoch-9-chunk-57/amendment.md`.
 
 ## Key Decisions This Session
 
-- **Greenfield skills are write-once intentional design choice.** User clarified (verbatim): "я думал добавить их [`/andromeda-scope-arch` + `/andromeda-scope-route`] но потом понял что это слишком сильно усложняет пайплайн и отказался от этой идеи в пользу постепенного расширения через evolve." So manual edits + setup --delta is THE intentional after-MVP pattern, not a gap waiting to be filled with new skills.
-- **Audit-trail discipline must apply к arch changes too.** User stated: "я просто не хочу никаих незадокументированых изменений в arch." This drove Proposal 1 (`--allow-arch-decision` flag, deferred) and Proposal 4 (`--allow-route-append` Form 2, IMPLEMENTED this session). Pattern: when manual edit feels needed, FIRST consider whether a narrow flag extension is warranted к preserve audit trail.
-- **Proposal 4 design + implementation in same session.** Form 2 (terminal new epoch + ≥1 chunk) extension к `--allow-route-append`. Two-property restriction (terminal-position + non-empty body) preserves position-stability and prevents accumulation of dead epoch headings. ~7 files modified at user-level `~/.claude/skills/andromeda-evolve/`. Validated immediately via chunk #57 invocation (first Form 2 dogfood test) — all 9 Check 8 sub-checks pass.
-- **Setup-project should generate `.claude/docs/andromeda-after-mvp-playbook.md` from template** (Proposal 2 deferred). User additional remark: "и кстати в таком случае надо чтоб setup-project тоже этот файл по шаблону генерировал, чтоб сохранить этот паттерн для других проектов" — playbook becomes part of setup-project's `.claude/docs/` generation set (preserve-if-exists discipline mirrors session-learnings.md).
-- **Continuation-session wrap vs cleaned-session wrap:** this wrap (session 67) is a continuation of session 66 chat without `/clear`. Telescoped skill phases (evolve Phase 1-3 dialog skipped because context established) appropriate given session-continuity. Future Form 2 invocations through fresh sessions (after `/clear`) should run full phase progression for clean audit trail.
+- **Chunk #57 implementation posture — minimum-viable aggregation + deferred-к-#81 contract.** The chunk wires real `streams.subscribe_metrics` subscription но computes minimum-viable WidgetMetrics from raw payload counts (no Arrow IPC decode; no `apache-arrow` JS dep). `throughputHz` from rolling 1s payload counter; `errorRate` / `serviceCount` / `retentionUsedSeconds` stay at 0 pre-chunk-#81 (documented in hook module doc). `retentionMaxSeconds` from `get_settings()` poll on mount. Aggregation refactor will land in chunk #81 per route §2 Epoch 9 entry "Halo retains errorRate/throughputHz shape (refactored in chunk #81)."
+- **taurpc proxy callback-arg auto-wraps to Channel<T>.** Discovered via taurpc/dist/index.js:71-91 `handleProxyCall`: `if (typeof arg == "function") { const channel = new Channel(); channel.onmessage = arg; args_object[arg_name] = channel; }`. For `streams.subscribe_*` consumers, passing a plain `(payload: number[]) => void` callback is sufficient — no manual `Channel` instantiation needed. Recorded as Tier 2 entry to frontend.md Session Additions for future webview Channel consumer chunks.
+- **First /andromeda-setup-project --delta dogfood validates grep-expansion design.** Marker's `expected_propagation: []` was undercount (CLAUDE.md pointer-table description references epoch count, not predicted by plan→file mapping table's `route.md` row). Grep-expansion (Detection step 8 defense-in-depth) auto-detected `8 epochs` stale value in CLAUDE.md:52 + added к delta scope. Pattern validates the protocol's defense-in-depth design — recorded as Tier 3 session-learnings entry.
+- **Phase 2b runtime smoke 60s/90s timeout misaligned с Windows cold-cache Tauri rebuild cost.** Chunk #57's smoke check timed out at link stage 779/780 builds (~99% done; needed ~30s more). Documented as Tier 3 entry — environmental constraint specific to Windows + cold cache; for future smoke attempts on Windows, pre-warm via `cargo build --no-default-features --bin pulse-app` before invoking smoke.
 
 ## Files Modified
 
 **MODIFIED (committed this wrap):**
-- `.andromeda/route.md` — §1 mechanical Total chunks + Epochs auto-update; §2 NEW Epoch 9 + chunk #57; §3 new Decisions Log entry
-- `.andromeda/state.yaml` — spec_amendments.active +1 entry (chunk #57 evolve); noted_at set по Phase 8 lifecycle progression; session_count 66 → 67; commit_sha via Phase 10 amend
-- `.andromeda/context/dependency-tree.md` — METADATA timestamp + session 67 maintenance note (zero LIVING delta)
-- `.andromeda/context/api-surface.md` — METADATA timestamp + session 67 maintenance note (zero LIVING delta)
-- `.claude/docs/session-learnings.md` — Tier 3 entry prepended ("Proposal 4 IMPLEMENTED + first Form 2 invocation observations")
+- `pulse-app/ui/src/App.tsx` — chunk #57 callsite swap (synthetic → real hook) + comment update
+- `pulse-app/ui/src/App.test.tsx` — vi.mock target swap
+- `.claude/rules/frontend.md` — Session Additions: taurpc callback auto-wrap pattern (2026-05-16)
+- `.claude/docs/session-learnings.md` — 2 Tier 3 entries prepended (--delta first dogfood; Windows smoke timeout cost)
+- `.andromeda/context/dependency-tree.md` — METADATA timestamp refresh + session 68 note (zero LIVING delta)
+- `.andromeda/context/api-surface.md` — METADATA timestamp refresh + session 68 note (zero LIVING delta)
+- `.andromeda/state.yaml` — top-level fields + last_completed_chunk advance to 57 + drift_warnings empty + spec_amendments active→archive transition + session_count 67→68 + commit_sha pending (amended Phase 10.4)
 - `.claude/session-handoff.md` — this file (full overwrite)
 
-**Committed earlier in chat (post-session-66-wrap, pre-session-67-wrap):**
-- 6f2bb57 — chore(wrap): session 66 — State H clear + after-MVP pattern learnings (session 66 wrap itself)
-- 2d67609 — docs: andromeda post-MVP playbook + improvements log (meta-Andromeda dogfood)
-- bf09429 — chore: hygiene — relocate v0.2.0 planning docs + commit validation report + gitignore lock
-- 963974f — feat(andromeda): Proposal 4 IMPLEMENTED — --allow-route-append Form 2 (terminal new epoch + first chunk)
+**DELETED (chunk #57):**
+- `pulse-app/ui/src/hooks/use-synthetic-widget-metrics.ts`
+- `pulse-app/ui/src/hooks/use-synthetic-widget-metrics.test.ts`
 
-**Audit trail (gitignored — `.andromeda/runs/`):**
-- `.andromeda/runs/2026-05-16T13-21-56-spec-amendment-create-epoch-9-chunk-57/amendment.md` — Type 7 Form 2 marker
-- `.andromeda/runs/2026-05-16T13-21-56-evolve-create-epoch-9-chunk-57/evolution-plan.md` — evolve run summary
+**NEW (chunk #57):**
+- `pulse-app/ui/src/hooks/use-widget-metrics.ts` — real-data subscription hook (first webview consumer of streams.* Channel API)
+- `pulse-app/ui/src/hooks/use-widget-metrics.test.ts` — co-located Vitest covering subscribe/throughput/retention/cleanup/deferred-fields
+
+**Committed earlier in chat (this session, pre-wrap):**
+- 3a6714d — chore(setup-project): delta-rerun for 1 amendment (chunk #57 evolve)
+
+**Phase artifacts (gitignored — `.andromeda/runs/`):**
+- `.andromeda/runs/2026-05-16T13-45-00-setup-project-delta/materialization-plan-delta.md` — first /andromeda-setup-project --delta dogfood run audit trail
+- `.andromeda/runs/2026-05-16T14-00-00-phase-53/` — 7 raw + 7 stripped sub-agent extracts (chunk #57 planning)
+
+**Phase artifacts (committed — `.andromeda/phases/`):**
+- `.andromeda/phases/phase-53/combined.md` (188 lines)
+- `.andromeda/phases/phase-53/research.md` (69 lines)
+- `.andromeda/phases/phase-53/plan.md` (232 lines)
 
 ## Curation Summary (this wrap)
 
-- **Tier 1 (CLAUDE.md USER:session-learnings):** 0 additions (existing session 66 Tier 1 entry already covers after-MVP path universal rule; nothing new universal к add)
-- **Tier 2 (`.claude/rules/*/Session Additions`):** 0 additions
-- **Tier 3 (`.claude/docs/session-learnings.md`):** 1 addition — "Proposal 4 IMPLEMENTED + first Form 2 invocation observations" (confidence 0.9; covers Form 2 spec + 4 invocation observations including telescoping discipline, §1 staleness handling, Originating chunk N/A for cycle-start, Phase 10 amend oscillation)
-- **Filtered:** 0 duplicates + 0 task-specific + 0 conflicts + 0 deferred (well under max-3 cap)
+- **Tier 1 (CLAUDE.md USER:session-learnings):** 0 additions (existing session 66 Tier 1 entry on after-MVP path remains canonical universal rule; chunk #57's specific implementation lessons are Tier 2/3 scope)
+- **Tier 2 (`.claude/rules/*/Session Additions`):** 1 addition — frontend.md "taurpc proxy auto-wraps callback function args into Channel<T>" (2026-05-16; confidence 0.9; webview-scoped pattern для future Channel consumer chunks)
+- **Tier 3 (`.claude/docs/session-learnings.md`):** 2 additions — "First /andromeda-setup-project --delta dogfood + grep-expansion catches CLAUDE.md staleness" (confidence 0.8; Andromeda meta-process insight) + "Phase 2b runtime smoke check 60s/90s timeout misaligned with Windows cold-cache Tauri rebuild cost" (confidence 0.85; environmental constraint)
+- **Filtered:** 0 duplicates + 0 task-specific + 0 conflicts + 1 deferred (chunk #57 minimum-viable-aggregation pattern — confidence 0.7, redundant с the implementation context already captured in plan.md + research.md; defer permanently)
 
 ## Last Failed Command
 
-(none — all session 67 operations succeeded. Tests 661/661 pass; bindings.ts not regenerated by nextest this run, no restore needed.)
+(none — all session 68 operations succeeded. Smoke check timeout was environmental, not a command failure; documented as Tier 3 learning.)
 
 ## Tests Status
 
-passing — 661/661 Rust workspace tests с default features (`cargo nextest run --workspace --profile ci`). Webview tests not re-run this session (no UI code changes; last verified session 65 at 516/516).
+passing — 661/661 Rust workspace tests via `cargo nextest run --workspace --profile ci` + 518/518 webview tests via `npm run test --prefix pulse-app/ui` (Vitest). Webview test count delta: synthetic test deleted (-7 tests) + use-widget-metrics.test.ts new (+9 tests) = +2 net (516 → 518 baseline → 518 actual). Both verified twice this session: once in /implement Phase 2 (initial green) + once in /wrap-session Phase 2 (re-verify post-implementation).
 
 ## Next Recommended Action
 
-**Highest priority — propagate the chunk #57 evolve amendment:**
+**For continuing pulse v0.2.0 development (highest priority — chunk #58 next):**
+
+Chunk #58 selection requires a decision: pulse v0.2.0 plan (`docs/v0_2_0/pulse-v0_2_0-route.md`) lists 33 prospective chunks but only chunk #57 is currently registered in `.andromeda/route.md` §2 Epoch 9. Path forward:
 
 ```
-/andromeda-setup-project --delta
+/andromeda-evolve --allow-route-append
 ```
 
-This will:
-- Read state.yaml.spec_amendments.active (1 entry: chunk #57 evolve amendment)
-- Verify flag_used=`--allow-route-append` + Trigger matches /andromeda-evolve signature → Type 7 permit path
-- Process expected_propagation (empty for this amendment — route additions don't cascade through Tier 2/3 per plan→file table)
-- Set propagated_by_run = current --delta run-dir path
-- Commit (lifecycle progression only; minimal delta — likely just state.yaml change)
-
-After --delta succeeds:
-- D5 amendment-pending drift clears (Case 2 transient — propagated + awaiting archive)
-- Next wrap-session Phase 8 will archive (move к archive list compact form)
-
-**After amendment propagation — chunk #57 cycle:**
+User reviews next-chunk candidate from `docs/v0_2_0/pulse-v0_2_0-route.md` + registers via Form 1 (chunk added к existing Epoch 9) OR Form 2 (new Epoch 10+ if scope-distinct). Then standard cycle:
 
 ```
 /clear              # fresh session per playbook discipline
 /andromeda-new-session   # dashboard
-/andromeda-phase    # plan chunk #57
+/andromeda-phase    # plan chunk #58
 /andromeda-implement     # execute
 /andromeda-wrap-session  # close chunk cycle
 ```
 
-Chunk #57 scope (per route.md §2 Epoch 9 entry): delete `pulse-app/ui/src/hooks/use-synthetic-widget-metrics.ts`; wire `CompactWidget.tsx` + `FooterBand.tsx` к real `streams.subscribe_metrics` TauRPC consumer; Halo retains errorRate/throughputHz shape (refactored later in chunk #81).
-
 **Secondary considerations:**
-- **Pre-D1 (LLM runtime — mistralrs vs candle):** still pending. Not blocker для chunks #57-#73 (none use LLM). Schedule research session before chunk #74 (Hardware profile detection + model loading) approaches.
-- **Pre-D2 (Drain Rust spike):** same — not blocker для chunks #57-#66.
+- **Pre-D1 (LLM runtime — mistralrs vs candle):** still pending. Not blocker для chunks #58-#73 (none use LLM). Schedule research session before chunk #74 (Hardware profile detection + model loading) approaches.
+- **Pre-D2 (Drain Rust spike):** same — not blocker до chunk #66.
 - **Proposal 1 (`--allow-arch-decision` flag):** deferred (per Proposal 1 user preference 2026-05-16). Revisit when first chunk requiring structural arch change (#69 / #74 / #84) approaches.
 
 ## Session Goals (carry-over)
 
-- Continue pulse v0.2.0 dogfood — capture per-chunk friction в session-learnings; distill into refined playbook + improvements log after several chunks landed.
-- Validate that chunk #57 implementation cycle works smoothly on the foundation Proposal 4 laid.
+- Continue pulse v0.2.0 dogfood — chunk #57 was the first cycle; capture per-chunk friction в session-learnings; distill into refined playbook + improvements log after several chunks landed.
+- Form 2 dogfood successful per session 67 + 68 combined — Proposal 4 implementation validated through full evolve → setup-project --delta → phase → implement → wrap cycle.
 
 ## Deferred decisions (Trigger 4 to Path B carry-over)
 
@@ -132,4 +126,4 @@ Chunk #57 scope (per route.md §2 Epoch 9 entry): delete `pulse-app/ui/src/hooks
 
 ## Deferred learnings (filtered out from Phase 4 curation)
 
-(none — 1 Tier 3 candidate applied; 0 lower-confidence candidates filtered.)
+- Chunk #57 minimum-viable-aggregation pattern + deferred-к-future-chunk contract: confidence 0.7; deferred permanently (the pattern is captured in `pulse-app/ui/src/hooks/use-widget-metrics.ts` module doc + phase-53/plan.md §Implementation notes; redundant к re-record as session-learnings entry).
