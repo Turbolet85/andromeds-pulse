@@ -1,6 +1,6 @@
 schema_version: 2
-last_wrap: 2026-05-16T16:59:47Z
-last_reconcile: 2026-05-16T18:11:16Z
+last_wrap: 2026-05-16T20:31:34Z
+last_reconcile: 2026-05-16T20:00:00Z
 
 last_completed_chunk:
   route_index: 58
@@ -20,19 +20,20 @@ plan_freshness:
   tests_mtime: 2026-05-10T12:55:51Z
   obs_mtime: 2026-05-08T18:00:16Z
   a11y_mtime: 2026-05-02T21:45:23Z
-  route_mtime: 2026-05-16T15:03:11Z
+  route_mtime: 2026-05-16T20:38:57Z
   input_mtime: 2026-05-02T06:52:58Z
 
 living_artifact_freshness:
-  dep_tree_reconciled_at: 2026-05-16T18:11:16Z
-  api_surface_reconciled_at: 2026-05-16T18:11:16Z
+  dep_tree_reconciled_at: 2026-05-16T20:00:00Z
+  api_surface_reconciled_at: 2026-05-16T20:00:00Z
   most_recent_code_mtime: 2026-05-16T18:11:16Z
   reconcile_failed: false
 
 drift_warnings: []
 
 spec_amendments:
-  active:
+  active: []
+  archive:
     - amendment_id: 2026-05-16T18-47-57-append-chunk-59-connection-state-machine
       plans:
         - path: route.md
@@ -41,34 +42,9 @@ spec_amendments:
             - "§3 Decisions Log"
       decisions_log_sections:
         - "2026-05-16 — Append chunk #59 connection state machine (--allow-route-append)"
-      trigger:
-        chunk: null
-        phase: null
-        harness: "user-driven via /andromeda-evolve"
-      authority:
-        winning_plan: docs/v0_2_0/pulse-v0_2_0-route.md
-        winning_tier: pipeline state
-        losing_plan: route.md
-        losing_concern: chunk-list-stale-vs-pipeline-reality
-        rationale: "v0.2.0 plan Phase 1 identifies chunk #59 as next dependency-driven step (capabilities P-001-P-004); adding to Epoch 9 brings route into alignment so /implement has a structural target."
-      impl_files_synced: []
-      expected_propagation: []
-      marker_path: .andromeda/runs/2026-05-16T18-47-57-spec-amendment-append-chunk-59-connection-state-machine/amendment.md
-      applied_at: 2026-05-16T18:47:57Z
-      noted_at: null
       propagated_by_run: .andromeda/runs/2026-05-16T19-56-44-setup-project-delta/
-      archived_at: null
-      verification_status: clean
+      archived_at: 2026-05-16T20:31:34Z
       flag_used: --allow-route-append
-      form: 1
-      route_section_modified: "Epoch 9 — Foundation v0.2.0"
-      chunks_added:
-        - position: 59
-          text: "Connection state machine — LastIngestTracker atomic in ingest hot path; 1-2s poller emits Listening/Receiving/Idle/Stalled/ReceiverFailed states to pulse://stream/connection-state; connection.current_state TauRPC; receiver panic-hook wired (capabilities P-001 through P-004)"
-      chunks_renumbered: []
-      motivation: "docs/v0_2_0/pulse-v0_2_0-route.md Phase 1 prospective chunk #59 + capability spec P-001-P-004"
-      confirmed_shift: false
-  archive:
     - amendment_id: 2026-05-16T16-15-00-acknowledge-curation-crate
       plans:
         - path: architecture.md
@@ -279,4 +255,4 @@ spec_amendments:
       propagated_by_run: .andromeda/runs/2026-05-11T19-00-00-setup-project-delta/
       archived_at: 2026-05-11T19:25:00Z
 
-session_count: 70
+session_count: 71
