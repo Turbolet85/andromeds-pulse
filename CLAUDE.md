@@ -70,6 +70,8 @@ Cross-platform Tauri 2 desktop dashboard for local OpenTelemetry — receives OT
 | Stack / commands / conventions / gotchas / workflow | `.claude/docs/{topic}.md` |
 | Path-scoped rules (security / testing / observability / a11y / verification-harness / design-tokens / frontend) | `.claude/rules/{rule}.md` |
 | Session learnings (curated) + handoff (state across sessions) | `.claude/docs/session-learnings.md` + `.claude/session-handoff.md` |
+| Andromeda post-MVP workflow (4 patterns + drift table + decision tree per chunk + skill mechanics refs) | `.claude/docs/andromeda-after-mvp-playbook.md` |
+| Andromeda improvement proposals + dogfood friction log (where to record pipeline gaps as they surface during chunk work) | `docs/andromeda-improvements.md` |
 <!-- GENERATED:setup:pointer-table end -->
 
 ## Workflow
