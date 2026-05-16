@@ -311,4 +311,135 @@ This proposal was implemented INLINE during session 66 conversation to unblock p
 
 ---
 
+## Status: PROPOSED — 2026-05-16 (session 69)
+
+### Proposal 5 — Type 7 evolve markers should pre-populate `expected_propagation: [CLAUDE.md]` when chunk count appears in pointer-table
+
+**Problem:**
+
+The pulse v0.2.0 dogfood has now run two consecutive `/andromeda-evolve --allow-route-append` invocations (chunk #57 session 67-68 Form 2, chunk #58 session 69 Form 1). Both produced markers with `expected_propagation: []` per the Type 7 baseline ("route additions typically don't cascade Tier 2/3"). Both then required `/andromeda-setup-project --delta` Detection step 8 grep-expansion (defense-in-depth) to catch the CLAUDE.md pointer-table chunk-count staleness:
+
+- Session 67-68 (chunk #57): grep caught `CLAUDE.md:52` `(8 epochs / 55 chunks)` → `(9 epochs / 56 chunks)`.
+- Session 69 (chunk #58): grep caught `CLAUDE.md:52` `(9 epochs / 56 chunks)` → `(9 epochs / 57 chunks)`.
+
+Two-out-of-two is a strong signal that the marker's empty `expected_propagation` is undercount whenever the route's chunk count or epoch count is cited in CLAUDE.md pointer-table. The defense-in-depth grep is the safety net; relying on it indefinitely accumulates "almost-missed" cases and obscures the fact that the marker authoring path knows enough at write time to populate the cascade properly.
+
+Recurring evidence is captured directly in this session's `.andromeda/runs/2026-05-16T15-04-39-setup-project-delta/materialization-plan-delta.md` audit-trail subsection "From Setup-detected stale-value grep matches (NOT in marker `expected_propagation`)".
+
+**Proposal:**
+
+Extend `/andromeda-evolve` Phase 4 step 2 (marker construction) to detect Type 7 chunk additions that affect CLAUDE.md pointer-table chunk count or epoch count, and pre-populate `expected_propagation: [CLAUDE.md]` accordingly.
+
+Detection logic at evolve Phase 4 step 2:
+
+1. If amendment is Type 7 (`flag_used: --allow-route-append`):
+2. Grep `CLAUDE.md` for the pattern matching the pointer-table chunk-count cite — e.g., `\(\d+ epochs / \d+ chunks\)` or project-customized variant.
+3. If pattern found AND amendment's `chunks_added` non-empty (Form 1 or Form 2 chunk addition) OR `new_epoch_created: true` (Form 2 epoch addition):
+4. Pre-populate `expected_propagation` to include `CLAUDE.md` (specifically the GENERATED:setup:pointer-table block).
+
+This makes the marker self-describing about its full propagation surface, removing reliance on setup-project's grep-expansion safety net for the most common pointer-table cascade.
+
+**Design:**
+
+The plan→file mapping table baseline in `delta-rerun-protocol.md` could ALSO be extended as an alternative path (add a row "route.md (when affecting chunk count or epoch count cited in pointer-table) → CLAUDE.md GENERATED:setup:pointer-table"). But per-marker detection is more precise — it only fires when grep finds an actual cite in CLAUDE.md, not a blanket assumption that may not match every project's pointer-table format.
+
+Both layers (per-marker detection + grep-expansion defense-in-depth) keep the existing safety net intact while reducing how often it has to fire. Grep-expansion remains for cases the per-marker detection misses (unusual cite formats, new sections that future setup-project versions introduce, project-specific pointer-table phrasings).
+
+**Implementation cost:**
+
+| File | Change | Lines |
+|---|---|---|
+| `andromeda-evolve/SKILL.md` | Phase 4 step 2 — add pointer-table-grep step для Type 7 markers | ~15 |
+| `andromeda-evolve/references/output-templates.md` | Type 7 marker variant — `expected_propagation` pre-populate logic + example | ~25 |
+| `andromeda-setup-project/references/delta-rerun-protocol.md` | Plan→file table — add row for route chunk-count cascade (optional alternative path) | ~10 |
+| (`spec-amendment-protocol.md` does NOT need changes — schema unchanged; only authoring logic shifts) | — | 0 |
+
+**Total:** ~50 lines across 3 files. Small-effort enhancement; high-value because it eliminates the most common "expected_propagation undercount" pattern surfaced via consecutive dogfood evidence.
+
+**When to do:**
+
+Now-soon. Two consecutive dogfood Type 7 amendments hitting the same gap is enough signal to act; waiting for chunk #59 to make it "three-in-a-row" buys no additional insight. Bundling with Proposal 6 (Form 1 §1 staleness) makes sense since both touch Type 7 marker authoring correctness — one meta-Andromeda enhancement session covers both.
+
+**Cross-references:**
+
+- Recurring pattern evidence: session 68 wrap Tier 3 entry "First /andromeda-setup-project --delta dogfood validates grep-expansion design" + session 69 setup-project --delta materialization-plan-delta.md "SECOND consecutive --delta run with same pattern" note.
+- Companion improvement: Proposal 6 (Form 1 §1 staleness) — different aspect of same Type 7 marker-authoring correctness theme.
+- Triggering chunks: #57 (session 67-68, Form 2) + #58 (session 69, Form 1) — both Form 1 AND Form 2 surfaced the same pointer-table cascade gap, so the proposed pre-populate logic applies к both forms.
+- Related skill mechanism: `delta-rerun-protocol.md` §Detection step 8 grep-expansion (the defense-in-depth safety net this proposal would shift load off of).
+
+---
+
+## Status: PROPOSED — 2026-05-16 (session 69)
+
+### Proposal 6 — Form 1 chunk-append should auto-update `§1 Total chunks` line (mirror Form 2 mechanical behavior)
+
+**Problem:**
+
+`/andromeda-evolve --allow-route-append` Form 1 (chunk append to existing epoch) currently does NOT auto-update route.md §1 "Route Scope Summary → Total chunks" count line. Only Form 2 (terminal new epoch creation) mechanically auto-updates §1 per the explicit Proposal 4 spec.
+
+This asymmetry creates accumulating §1 staleness as Form 1 amendments land over time:
+
+- Chunk #44 amendment (2026-05-11, Form 1): left §1 stale at "Total chunks: 55" while §2 contained 56. Documented in amendment Decisions Log: "§1 Route Scope Summary 'Total chunks: 55' becomes stale; will refresh at next /andromeda-route or via manual edit."
+- Chunk #57 amendment (2026-05-16, Form 2): mechanically bumped §1 к "Total chunks: 55 → 56" (Form 2 auto-update; ALSO carried the pre-existing chunk-#44 staleness forward by NOT correcting к 56 → 57).
+- Chunk #58 amendment (2026-05-16, Form 1, this session): leaves §1 at "Total chunks: 56" while §2 is now 57. Same staleness pattern as chunk #44 repeats.
+
+Pattern: every Form 1 amendment compounds §1 staleness by +1. Each amendment's Decisions Log explicitly documents the staleness as "intentional pending next `/andromeda-route` re-generation or manual edit", which treats user vigilance as the safety net — a known-bad workaround.
+
+The asymmetry between Form 1 and Form 2 has no clear rationale. Both forms add chunks, and §1 "Total chunks: N" is a derived count over §2. Mechanically bumping +1 is safe for either form. The original Proposal 4 spec's restriction ("§1 mechanical update only on Form 2") was likely a conservative scope-limit at design time, not a load-bearing invariant.
+
+**Proposal:**
+
+Extend Form 1's mechanical auto-update к ALSO touch §1 "Total chunks: N" line, mirroring Form 2's behavior for this specific line. Keep "Epochs: N (...)" line untouched in Form 1 (no epoch creation, so no Epochs line change needed — Form 2 still owns that auto-update).
+
+Concretely, evolve Phase 6 atomic write для Form 1:
+
+- Currently: insert chunk + `↓` separator into §2 epoch body + append Decisions Log entry к §3.
+- Add: edit §1 "Total chunks: N" → "Total chunks: N+M" where M = chunks added (typically 1; can be >1 for multi-chunk Form 1 batches).
+
+Form 2 behavior unchanged (already auto-updates both Total chunks + Epochs lines).
+
+**Design:**
+
+This is a one-line mechanical edit at Phase 6 atomic write time. Pattern matches Form 2's existing implementation:
+
+- Read §1 "Total chunks: N" line via regex `^- \*\*Total chunks:\*\* (\d+)$`.
+- Substitute N → N+M.
+- Atomic write.
+
+**Edge case — pre-existing §1 staleness:** if §1 chunk count differs from §2 count BEFORE this amendment (e.g., current state where §1=56 but §2=57 expected after chunk #58 amendment), the auto-update implementation could choose between two policies:
+
+- **Policy A — strict mechanical:** §1 = §1 + M (preserves pre-existing staleness; cleanly mechanical; doesn't surprise user).
+- **Policy B — corrective:** §1 = count(§2) + M after recount (catches up multiple prior Form 1 amendments at once; corrective drift fix; less mechanical, more "smart").
+
+Recommend Policy A (strict mechanical) for consistency with Form 2 + simpler reasoning. Pre-existing staleness can be corrected separately via `/andromeda-route` re-run when it accumulates beyond comfort.
+
+Decisions Log Impact field text changes: drop the "(§1 Route Scope Summary 'Total chunks: N' remains stale pending next /andromeda-route re-generation OR manual edit ... Form 1 mechanical interpretation does NOT auto-update §1)" language. Replace with simple "§1 Total chunks: N → N+M (Form 1 mechanical auto-update)".
+
+**Implementation cost:**
+
+| File | Change | Lines |
+|---|---|---|
+| `andromeda-evolve/SKILL.md` | Phase 6 step 4 — extend Form 1 atomic write to touch §1 Total chunks | ~10 |
+| `andromeda-evolve/references/output-templates.md` | Type 7 marker variant — Form 1 Plans amended block + Decisions Log entry template updates | ~20 |
+| `andromeda-evolve/references/refuse-taxonomy.md` | §Refuse 6 Exception → Form 1 specification — extend "purely additive" scope к include §1 Total chunks mechanical edit | ~10 |
+| `andromeda-evolve/references/validation-checks.md` | Check 8.1 (purely additive) clarification — Form 1 §1 mechanical edit permitted | ~5 |
+
+**Total:** ~45 lines across 4 files. Small-effort mechanical fix; high-value because it eliminates a recurring "intentional staleness" workaround that compounds with every Form 1 amendment.
+
+**When to do:**
+
+Bundle with Proposal 5 (Type 7 expected_propagation pre-populate) — both are about Type 7 marker authoring correctness; one meta-Andromeda enhancement session covers both. Combined effort: ~95 lines across ~5 distinct files, well within a single ~1 hour focused session.
+
+Alternative: independently before chunk #59 lands. Each additional Form 1 amendment compounds §1 staleness by +1; defer cost grows linearly. Once landed, the §1 vs §2 sync invariant becomes always-true after each evolve invocation again.
+
+**Cross-references:**
+
+- Recurring pattern evidence: route.md §3 Decisions Log entries для chunks #44 + #58 — both explicitly document intentional §1 staleness as known workaround in the Impact field.
+- Companion improvement: Proposal 5 (Type 7 expected_propagation pre-populate) — different aspect of same authoring-correctness theme.
+- Triggering chunks: chunk #44 (session 51) + chunk #58 (session 69) — Form 1 amendments accumulating §1 staleness across multiple wraps.
+- Related spec: Proposal 4 (Form 2 mechanism) intentionally restricted §1 auto-update к Form 2; this proposal revisits that restriction with two-amendment evidence base.
+- Current state.yaml.spec_amendments.archive[0] entry (chunk #58 amendment): preserves audit trail of this session's exact staleness instance for future readers.
+
+---
+
 _(Subsequent proposals appended below in chronological order. Each proposal has its own `## Status:` heading and `### Proposal N — title` subheading for navigability.)_
