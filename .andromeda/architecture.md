@@ -169,9 +169,10 @@
   - `plugins.list`, `plugins.reload`, `plugins.invoke` — plugins crate
   - `mcp.status`, `mcp.start`, `mcp.stop` — mcp-server crate (only when `--features mcp-server`)
   - `workspace.detect`, `workspace.list` — workspace-detector crate
+  - `connection.current_state` — pulse-app crate (`ConnectionApiImpl` returning `ConnectionStatePayload` from `crates/ingest::connection::compute_state()`; chunk #59) — see §Architecture Registry Updates 2026-05-16
 - **External HTTP routes (OTLP HTTP)**: `POST /v1/traces`, `POST /v1/metrics`, `POST /v1/logs` on `:4318`.
 - **MCP stdio surface**: standard MCP `initialize`, `tools/list`, `tools/call`, `notifications/*` over stdin/stdout when the rmcp sidecar is started.
-- **Tauri IPC events (broadcast channels)**: `pulse://stream/spans`, `pulse://stream/metrics`, `pulse://stream/logs`, `pulse://stream/snapshot-progress`, `pulse://stream/plugin-events`.
+- **Tauri IPC events (broadcast channels)**: `pulse://stream/spans`, `pulse://stream/metrics`, `pulse://stream/logs`, `pulse://stream/snapshot-progress`, `pulse://stream/plugin-events`, `pulse://stream/connection-state` (chunk #59 — see §Architecture Registry Updates 2026-05-16).
 - **Process / service identity**:
   - Tauri app bundle identifier: `com.andromeda.pulse`
   - Binary name: `andromeda-pulse` (Linux/macOS), `andromeda-pulse.exe` (Windows)
@@ -391,4 +392,19 @@ _This section accumulates entries from `/andromeda-evolve --allow-arch-registry`
 **Rationale:** Chunk #58 implementation extracts curation primitives (dedupe / anomaly / critical_path / aggregation) from the snapshot crate into a new `crates/curation/` workspace crate. arch §Occupied Resources "Cargo workspace crate names" had not yet acknowledged the new reserved name (D3 capability-drift class — chunk #58 added the workspace member without arch update; this amendment closes the gap). Mirrors 2026-05-11 `pulse:clipboard` precedent + 2026-05-09 `streams.*` / `telemetry.*` precedents.
 
 **Amendment record:** `.andromeda/runs/2026-05-16T16-15-00-spec-amendment-acknowledge-curation-crate/amendment.md`
+
+### 2026-05-16 — Acknowledge `connection.current_state` TauRPC + `pulse://stream/connection-state` broadcast in §Occupied Resources (--allow-arch-registry)
+
+**Section affected:** §Occupied Resources Tauri IPC routes + Tauri IPC events (broadcast channels)
+
+**Registry additions:**
+
+- `connection.current_state` — implemented at `pulse-app/src/connection_router.rs:46` (chunk #59 "Connection state machine" — route §2 Epoch 9 Foundation v0.2.0 third chunk)
+- `pulse://stream/connection-state` — implemented at `crates/ingest/src/connection.rs:25` (chunk #59 "Connection state machine" — route §2 Epoch 9 Foundation v0.2.0 third chunk)
+
+**Authority:** /andromeda-evolve with `--allow-arch-registry` flag (narrow Refuse 1 exception for arch registry sections; full audit trail in amendment marker). Check 7 verified purely additive / registry section / code evidence resolved / no new architectural concept (Tauri IPC routes had 8 prior nested bullets; Tauri IPC events had 5 prior inline entries — additive only).
+
+**Rationale:** Chunk #59 implementation introduces (a) the `connection.current_state` TauRPC procedure via `#[taurpc::procedures(path = "connection")]` declared at `pulse-app/src/connection_router.rs:46`, returning `ConnectionStatePayload` from `crates/ingest::connection::compute_state()`, AND (b) the `pulse://stream/connection-state` broadcast topic emitted by `ConnectionBroadcast::send` on FSM state transitions (Listening / Receiving / Idle / Stalled / ReceiverFailed) declared at `crates/ingest/src/connection.rs:25`. arch §Occupied Resources Tauri IPC routes + Tauri IPC events sections had not yet acknowledged either entry (D3 capability-drift class — chunk #59 added implementation without arch update; this amendment closes the gap). Mirrors 2026-05-09 streams.* + telemetry.* additive precedent + 2026-05-11 pulse:clipboard precedent + 2026-05-16 curation crate precedent.
+
+**Amendment record:** `.andromeda/runs/2026-05-16T22-08-32-spec-amendment-acknowledge-connection-namespace/amendment.md`
 
