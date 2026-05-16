@@ -1,6 +1,6 @@
 schema_version: 2
-last_wrap: 2026-05-16T23:35:08Z
-last_reconcile: 2026-05-16T23:28:56Z
+last_wrap: 2026-05-16T23:52:50Z
+last_reconcile: 2026-05-16T23:52:50Z
 
 last_completed_chunk:
   route_index: 60
@@ -13,7 +13,7 @@ last_completed_chunk:
 in_progress: null
 
 plan_freshness:
-  arch_mtime: 2026-05-16T22:16:53Z
+  arch_mtime: 2026-05-16T23:43:02Z
   security_mtime: 2026-05-11T17:53:00Z
   design_mtime: 2026-05-03T21:52:16Z
   layout_mtime: 2026-05-02T15:53:22Z
@@ -24,21 +24,16 @@ plan_freshness:
   input_mtime: 2026-05-02T06:52:58Z
 
 living_artifact_freshness:
-  dep_tree_reconciled_at: 2026-05-16T23:28:56Z
-  api_surface_reconciled_at: 2026-05-16T23:28:56Z
+  dep_tree_reconciled_at: 2026-05-16T23:52:50Z
+  api_surface_reconciled_at: 2026-05-16T23:52:50Z
   most_recent_code_mtime: 2026-05-16T23:15:24Z
   reconcile_failed: false
 
-drift_warnings:
-  - drift_id: D3-triage-crate-not-in-arch
-    description: "`triage` workspace member present in code (cargo metadata = 12 packages) but missing from arch.md §Occupied Resources Cargo workspace crate names reserved list (still enumerates 11 names; excludes `triage`). Pending Type 6 `/andromeda-evolve --allow-arch-registry` amendment + `/andromeda-setup-project --delta` propagation cascade — mirrors chunk #58 (curation) precedent at 2026-05-16 §Architecture Registry Updates."
-    severity: warning
-    remediation_hint: "/andromeda-evolve --allow-arch-registry to add `triage` + `pulse-v0_2_0-route` to arch; then /andromeda-setup-project --delta to propagate; D3 self-clears next wrap"
-    first_observed_session_count: 74
-    last_observed_session_count: 74
+drift_warnings: []
 
 spec_amendments:
-  active:
+  active: []
+  archive:
     - amendment_id: 2026-05-16T23-39-39-acknowledge-triage-crate-and-scope
       plans:
         - path: architecture.md
@@ -46,36 +41,11 @@ spec_amendments:
             - "§Occupied Resources Cargo workspace crate names"
             - "§Existing Scopes"
             - "§Architecture Registry Updates"
-          decisions_log_section: "2026-05-16 — Acknowledge `triage` crate in §Occupied Resources + register `pulse-v0_2_0-route` as first §Existing Scopes entry (--allow-arch-registry)"
-      trigger:
-        chunk: null
-        phase: null
-        harness: "user-driven via /andromeda-evolve"
-      authority:
-        winning_plan: null
-        winning_tier: implementation
-        losing_plan: architecture.md
-        losing_concern: registry-section-stale-vs-implementation-reality
-        rationale: "Chunk #60 adds `crates/triage` workspace member (12th) + introduces first registered scope `pulse-v0_2_0-route`. Arch §Occupied Resources Cargo workspace crate names + §Existing Scopes both stale vs reality. Authorized via --allow-arch-registry flag (Check 7 verified)."
-      impl_files_synced: []
-      expected_propagation: []
-      marker_path: .andromeda/runs/2026-05-16T23-39-39-spec-amendment-acknowledge-triage-crate-and-scope/amendment.md
-      applied_at: 2026-05-16T23:39:39Z
-      noted_at: null
+      decisions_log_sections:
+        - "2026-05-16 — Acknowledge `triage` crate in §Occupied Resources + register `pulse-v0_2_0-route` as first §Existing Scopes entry (--allow-arch-registry)"
       propagated_by_run: .andromeda/runs/2026-05-16T23-47-09-setup-project-delta/
-      archived_at: null
-      verification_status: clean
+      archived_at: 2026-05-16T23:52:50Z
       flag_used: --allow-arch-registry
-      registry_section: "§Occupied Resources Cargo workspace crate names + §Existing Scopes"
-      registry_additions:
-        - "`triage` (to §Occupied Resources Cargo workspace crate names)"
-        - "`pulse-v0_2_0-route` (to §Existing Scopes — first entry; placeholder replaced)"
-      code_evidence:
-        - crates/triage/Cargo.toml
-        - crates/triage/src/lib.rs
-        - Cargo.toml
-        - docs/v0_2_0/pulse-v0_2_0-route.md
-  archive:
     - amendment_id: 2026-05-16T22-17-54-append-chunk-60-triage-crate-scaffold
       plans:
         - path: route.md
@@ -320,4 +290,4 @@ spec_amendments:
       propagated_by_run: .andromeda/runs/2026-05-11T19-00-00-setup-project-delta/
       archived_at: 2026-05-11T19:25:00Z
 
-session_count: 74
+session_count: 75
