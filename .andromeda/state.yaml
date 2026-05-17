@@ -1,13 +1,13 @@
 schema_version: 2
-last_wrap: 2026-05-16T23:52:50Z
-last_reconcile: 2026-05-16T23:52:50Z
+last_wrap: 2026-05-17T00:16:07Z
+last_reconcile: 2026-05-17T00:14:41Z
 
 last_completed_chunk:
   route_index: 60
   title: "Triage crate scaffold + attention cue contract types — Create `crates/triage/` with module skeletons (baseline, pattern, cue, digest, interpretation, incident, lifecycle); define contract types in `triage::contract` (AttentionCue, CueKind, CueScope, PriorityTier, Severity, Incident, IncidentStatus, EvidenceRefs, Digest, DigestKind) per P-019 + P-021"
   epoch: 9
   committed_at: 2026-05-16T23:35:08Z
-  commit_sha: e1eb168
+  commit_sha: 589225f
   commit_subject: "feat(triage): chunk #60 — triage crate scaffold + attention cue contract types (Epoch 9 Foundation v0.2.0 fourth chunk); session 74"
 
 in_progress: null
@@ -20,54 +20,31 @@ plan_freshness:
   tests_mtime: 2026-05-10T12:55:51Z
   obs_mtime: 2026-05-08T18:00:16Z
   a11y_mtime: 2026-05-02T21:45:23Z
-  route_mtime: 2026-05-16T22:23:52Z
+  route_mtime: 2026-05-17T00:06:39Z
   input_mtime: 2026-05-02T06:52:58Z
 
 living_artifact_freshness:
-  dep_tree_reconciled_at: 2026-05-16T23:52:50Z
-  api_surface_reconciled_at: 2026-05-16T23:52:50Z
+  dep_tree_reconciled_at: 2026-05-17T00:14:41Z
+  api_surface_reconciled_at: 2026-05-17T00:14:41Z
   most_recent_code_mtime: 2026-05-16T23:15:24Z
   reconcile_failed: false
 
 drift_warnings: []
 
 spec_amendments:
-  active:
+  active: []
+  archive:
     - amendment_id: 2026-05-17T00-02-12-append-chunk-61-streaming-baseline-trackers
       plans:
         - path: route.md
           sections:
             - "§2 Roadmap (Epoch 9 body)"
             - "§3 Decisions Log"
-          decisions_log_section: "2026-05-17 — Append chunk #61 streaming baseline trackers + corpus persistence (--allow-route-append)"
-      trigger:
-        chunk: null
-        phase: null
-        harness: "user-driven via /andromeda-evolve"
-      authority:
-        winning_plan: docs/v0_2_0/pulse-v0_2_0-route.md
-        winning_tier: pipeline-state
-        losing_plan: route.md
-        losing_concern: chunk-list-stale-vs-pipeline-reality
-        rationale: "Pulse v0.2.0 plan Phase 2 line 165 declares chunk #61 (Streaming baseline trackers + corpus persistence) as L1b foundation depending on #58 (curation) + #60 (triage scaffold; landed session 74 commit 589225f). Capabilities P-009 + P-011. Adding new chunk #61 in Epoch 9 brings route into alignment with pipeline reality. Authorized via /andromeda-evolve --allow-route-append flag (narrow Refuse 6 exception); Check 8 verified purely additive / existing epoch / position-stable / motivation grounded / Decisions Log entry well-formed."
-      impl_files_synced: []
-      expected_propagation: []
-      marker_path: .andromeda/runs/2026-05-17T00-02-12-spec-amendment-append-chunk-61-streaming-baseline-trackers/amendment.md
-      applied_at: 2026-05-17T00:02:12Z
-      noted_at: null
+      decisions_log_sections:
+        - "2026-05-17 — Append chunk #61 streaming baseline trackers + corpus persistence (--allow-route-append)"
       propagated_by_run: .andromeda/runs/2026-05-17T00-08-34-setup-project-delta/
-      archived_at: null
-      verification_status: clean
+      archived_at: 2026-05-17T00:16:07Z
       flag_used: --allow-route-append
-      form: 1
-      route_section_modified: "Epoch 9 — Foundation v0.2.0"
-      chunks_added:
-        - position: 61
-          text: "Streaming baseline trackers + corpus persistence — EwmaTracker per service (5-min window) + per-operation t-digest pair (current/previous, swap-on-tick) for streaming p50/p95/p99 + per-service RollingWindow<u32>; corpus persist every 60s + on-shutdown; service identity drop on empty service.name; capabilities P-009 + P-011; workspace deps: +tdigest +dashmap +bincode"
-      chunks_renumbered: []
-      motivation: "Pulse v0.2.0 plan (docs/v0_2_0/pulse-v0_2_0-route.md line 165, Phase 2 — Algorithmic detection layer) declares chunk #61 as L1b streaming distillation foundation with explicit dependencies on chunk #58 (curation; session 70) + chunk #60 (triage scaffold; session 74 commit 589225f). Capabilities P-009 + P-011 required before subsequent v0.2.0 algorithmic detection chunks (#62 attention cue emitter, #63 restart event detector)."
-      confirmed_shift: false
-  archive:
     - amendment_id: 2026-05-16T23-39-39-acknowledge-triage-crate-and-scope
       plans:
         - path: architecture.md
@@ -324,4 +301,4 @@ spec_amendments:
       propagated_by_run: .andromeda/runs/2026-05-11T19-00-00-setup-project-delta/
       archived_at: 2026-05-11T19:25:00Z
 
-session_count: 75
+session_count: 76
