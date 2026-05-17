@@ -208,7 +208,7 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: cargo deny check bans licenses sources
-        uses: EmbarkStudios/cargo-deny-action@a4d2d701318fdc1c6ae17ba8cea8f329c5110eb2 # v2.0.17
+        uses: EmbarkStudios/cargo-deny-action@91bf2b620e09e18d6eb78b92e7861937469acedb # v2.0.17
 
       - name: Install cargo-auditable
         uses: taiki-e/install-action@db5fb34fa772531a3ece57ca434f579eb334e0fb # v2.75.30
