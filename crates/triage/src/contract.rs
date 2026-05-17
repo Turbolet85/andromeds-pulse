@@ -5,6 +5,17 @@
 
 use serde::{Deserialize, Serialize};
 
+// Chunk #61 — streaming baseline trackers + corpus persistence.
+// Re-export public-API types from `triage::baseline` so future chunks (#62
+// attention cue emitter, #63 restart event detector) import one shape per
+// arch §Conventions "Module visibility discipline" + chunks #58/#60 precedent.
+pub use crate::baseline::{
+    BaselineError, BaselineState, BootstrapResult, DEFAULT_ALPHA_5MIN_WINDOW,
+    DEFAULT_MAX_SIZE_BYTES, DEFAULT_PERSIST_INTERVAL_NANOS, DEFAULT_SERVICE_COUNT_CAP,
+    PersistStats, SCHEMA_VERSION, STATE_AGE_THRESHOLD_NANOS, bootstrap_state, persist_on_shutdown,
+    resolve_corpus_path, run_persist_cycle, run_persist_loop,
+};
+
 /// Kind of detected condition emitted as an attention cue. Bounded
 /// enumeration; future kinds are added explicitly (no `Other(String)`
 /// catch-all). Variants serialize as snake_case strings.

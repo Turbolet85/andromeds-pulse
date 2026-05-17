@@ -967,6 +967,62 @@ impl AllowList {
             .collect(),
         );
 
+        // Chunk #61 — triage baseline trackers + corpus persistence
+        // (Epoch 9 Foundation v0.2.0 fifth chunk; capabilities P-009 + P-011).
+        // All 7 new tracing target leaves; field shape per route §3 chunk #61
+        // Decisions Log + obs-plan §5 metric naming + plan.md §AllowList step 8.
+        // PII discipline (per security plan §Anti-Patterns § Logging row 1 +
+        // CLAUDE.md universal invariant): no `service.name` / `span_id` /
+        // `trace_id` / `operation_name` / raw corpus path fields admitted.
+        by_target.insert(
+            "triage.baseline.tick",
+            [
+                "value",
+                "service_id_count",
+                "tdigest_centroid_count",
+                "dropped_count",
+            ]
+            .iter()
+            .copied()
+            .collect(),
+        );
+        by_target.insert(
+            "triage.baseline.persist",
+            [
+                "service_id_count",
+                "state_size_bytes",
+                "duration_ms",
+                "persist_kind",
+                "corpus_basename",
+            ]
+            .iter()
+            .copied()
+            .collect(),
+        );
+        by_target.insert(
+            "triage.baseline.persist.error",
+            ["error_category", "duration_ms"].iter().copied().collect(),
+        );
+        by_target.insert(
+            "triage.service_id_missing",
+            ["dropped_count"].iter().copied().collect(),
+        );
+        by_target.insert(
+            "metric.baseline.ewma_short_window_size",
+            ["value", "service_id_count"].iter().copied().collect(),
+        );
+        by_target.insert(
+            "pipeline.l1b.persist_count_total",
+            ["value", "duration_ms", "persist_kind", "state_size_bytes"]
+                .iter()
+                .copied()
+                .collect(),
+        );
+        by_target.insert(
+            "pipeline.l1b.bootstrap_count_total",
+            ["value", "kind"].iter().copied().collect(),
+        );
+
         Self { by_target }
     }
 

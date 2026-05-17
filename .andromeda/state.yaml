@@ -1,14 +1,14 @@
 schema_version: 2
-last_wrap: 2026-05-17T00:16:07Z
-last_reconcile: 2026-05-17T00:14:41Z
+last_wrap: 2026-05-17T01:20:26Z
+last_reconcile: 2026-05-17T01:20:26Z
 
 last_completed_chunk:
-  route_index: 60
-  title: "Triage crate scaffold + attention cue contract types — Create `crates/triage/` with module skeletons (baseline, pattern, cue, digest, interpretation, incident, lifecycle); define contract types in `triage::contract` (AttentionCue, CueKind, CueScope, PriorityTier, Severity, Incident, IncidentStatus, EvidenceRefs, Digest, DigestKind) per P-019 + P-021"
+  route_index: 61
+  title: "Streaming baseline trackers + corpus persistence — EwmaTracker per service (5-min window) + per-operation t-digest pair (current/previous, swap-on-tick) for streaming p50/p95/p99 + per-service RollingWindow<u32>; corpus persist every 60s + on-shutdown; service identity drop on empty service.name; capabilities P-009 + P-011; workspace deps: +tdigest +dashmap +bincode"
   epoch: 9
-  committed_at: 2026-05-16T23:35:08Z
-  commit_sha: 589225f
-  commit_subject: "feat(triage): chunk #60 — triage crate scaffold + attention cue contract types (Epoch 9 Foundation v0.2.0 fourth chunk); session 74"
+  committed_at: 2026-05-17T01:20:26Z
+  commit_sha: 0576340
+  commit_subject: "feat(triage): chunk #61 — streaming baseline trackers + corpus persistence (Epoch 9 Foundation v0.2.0 fifth chunk); session 77"
 
 in_progress: null
 
@@ -24,9 +24,9 @@ plan_freshness:
   input_mtime: 2026-05-02T06:52:58Z
 
 living_artifact_freshness:
-  dep_tree_reconciled_at: 2026-05-17T00:14:41Z
-  api_surface_reconciled_at: 2026-05-17T00:14:41Z
-  most_recent_code_mtime: 2026-05-16T23:15:24Z
+  dep_tree_reconciled_at: 2026-05-17T01:20:26Z
+  api_surface_reconciled_at: 2026-05-17T01:20:26Z
+  most_recent_code_mtime: 2026-05-17T01:10:38Z
   reconcile_failed: false
 
 drift_warnings: []
@@ -301,4 +301,4 @@ spec_amendments:
       propagated_by_run: .andromeda/runs/2026-05-11T19-00-00-setup-project-delta/
       archived_at: 2026-05-11T19:25:00Z
 
-session_count: 76
+session_count: 77

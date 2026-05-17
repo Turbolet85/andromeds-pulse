@@ -10,8 +10,15 @@ repository.workspace = true
 serde.workspace = true
 thiserror.workspace = true
 tracing.workspace = true
+# Chunk #61 — streaming baseline trackers + corpus persistence.
+tdigest.workspace = true
+dashmap.workspace = true
+bincode.workspace = true
+strict-path.workspace = true
+tokio.workspace = true
 
 [dev-dependencies]
 proptest.workspace = true
 rstest.workspace = true
 serde_json.workspace = true
+tempfile.workspace = true

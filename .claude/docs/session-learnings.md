@@ -8,6 +8,84 @@ _This file is entirely wrap-session's territory. `/setup-project` creates it if 
 
 ---
 
+## 2026-05-17 (session 77) — `#[allow(dead_code)]` impl-block pattern for chunk-substrate primitives consumed by future chunks
+
+**Context:** chunk #61 implementation delivered three callable + testable algorithm primitives (`EwmaTracker`, `RollingWindow<T>`, `TDigestPair`) in `crates/triage/src/baseline/{ewma,rolling_window,tdigest_pair}.rs`. Each primitive type exposes `pub` accessor methods (`alpha()` / `samples()` / `last_update_nanos()` for EwmaTracker; `len()` / `capacity()` / `iter()` / `sum()` / `mean()` for RollingWindow; `samples_current()` / `centroid_count()` for TDigestPair) that are exercised by `#[cfg(test)] mod tests` blocks but NOT called by the lib (non-test) code path. `BaselineState`'s public API (`error_rate(service)` / `latency_percentile(service, op, q)` / `total_centroid_count()`) intentionally does NOT drill into the primitives' internal accessors — it exposes only aggregate query semantics for chunk #62 (attention cue emitter) к consume. Result: `cargo clippy --workspace --all-targets --all-features -- -D warnings` reported 5 `clippy::dead_code` errors across lib build (`methods samples, last_update_nanos, alpha never used` etc.) blocking the standard gate baseline.
+
+**Discipline:** When a chunk delivers `pub` accessor methods on substrate types as **future-API surface** for a downstream consumer chunk (route number known + named, NOT speculative), add `#[allow(dead_code)]` к the **impl block** (not the type) with a comment naming the consuming chunk:
+
+```rust
+// Chunk #61 deliverable: callable + testable primitives for chunk #62
+// attention cue emitter. Accessor methods (samples / last_update_nanos /
+// alpha) exercised via tests; allow(dead_code) signals future API surface
+// для emitter + percentile-snapshot consumers.
+#[allow(dead_code)]
+impl EwmaTracker { ... }
+```
+
+This is preferable к: (a) silently deleting unused methods (deletes verified-tested future API); (b) `#[allow(dead_code)]` at the type level (overscoped — applies to ALL items including private internals); (c) calling the methods from lib code with `let _ = x.alpha();` (creates false coupling that's harder к refactor).
+
+**Pre-emptive method removal:** if a method is unused in BOTH lib AND tests, delete it outright (`RollingWindow::is_empty()`, `TDigestPair::samples()` + `last_swap_nanos()` were deleted at chunk #61 cleanup). The `#[allow(dead_code)]` exception applies only к the lib-vs-tests asymmetry — both consumer in tests + future-consumer-chunk-named.
+
+**Verified:** chunk #61 `crates/triage/src/baseline/{ewma.rs,rolling_window.rs,tdigest_pair.rs}` — 3 impl-level `#[allow(dead_code)]` annotations + 3 method deletions cleared the gate. Total lib-side surface = methods used + future-chunk surface; both intentional, none accidental. Confidence 0.78 — pattern resolves a real-and-recurring clippy posture conflict; future infrastructure chunks (any chunk delivering primitives + persistence + state types for downstream chunks к consume) will encounter the same shape. Applies generally — not chunk-#61-specific.
+
+**When applicable:** any chunk delivering substrate primitives (algorithm types, persistence layer, IPC contract types) where:
+- Methods are public surface к support testability OR future-chunk consumption
+- The current chunk's own lib code does NOT call those accessors (BaselineState-style aggregator-only API)
+- Future chunk is route-named (not speculative; concretely chunk #N+1 in route §2)
+
+Currently chunk #62 (attention cue emitter), chunk #63 (restart event detector), AND future v0.2.0 chunks #64-#88 that consume triage::baseline primitives are the named consumers. Once chunk #62 ships, the `#[allow(dead_code)]` annotations may be revisited — methods called from chunk #62's code path become lib-used + allow becomes redundant.
+
+---
+
+## 2026-05-17 (session 77) — Custom `mod foo_serde` pattern for `AtomicI64` / `AtomicU32` field round-trip through `bincode`
+
+**Context:** chunk #61 implementation introduced `BaselineState` (`crates/triage/src/baseline/mod.rs`) as the corpus-persistence aggregator. The struct holds DashMap<String, ServiceBaseline> / DashMap<String, OperationBaseline> (serde-supported via `dashmap` `serde` feature) PLUS two atomic fields: `persisted_at_unix_nanos: AtomicI64` (must round-trip through bincode so bootstrap-on-startup can compute state age) AND `drops_since_last_tick: AtomicU32` (per-tick counter; runtime-only, no round-trip needed). `AtomicI64` / `AtomicU32` do NOT implement `serde::Serialize` / `Deserialize` by default — naive `#[derive(Serialize, Deserialize)]` on the parent struct fails compile.
+
+**Discipline:** Two patterns coexist в the same struct:
+
+1. **Round-trip atomic via `#[serde(with = "mod_name")]`:** define a module containing free `serialize::<S>` + `deserialize::<'de, D>` functions; annotate the field. The module uses `value.load(Ordering::Relaxed)` for the serialize side + `AtomicI64::new(n)` for the deserialize side. Memory ordering is Relaxed because the persistence boundary is not synchronizing with other threads' atomic ops (the field is single-writer at persist-time + single-reader at bootstrap-time; consistency across persist boundaries is sufficient).
+
+   ```rust
+   mod atomic_i64_serde {
+       use std::sync::atomic::{AtomicI64, Ordering};
+       use serde::{Deserialize, Deserializer, Serializer};
+       pub fn serialize<S: Serializer>(value: &AtomicI64, serializer: S) -> Result<S::Ok, S::Error> {
+           serializer.serialize_i64(value.load(Ordering::Relaxed))
+       }
+       pub fn deserialize<'de, D: Deserializer<'de>>(deserializer: D) -> Result<AtomicI64, D::Error> {
+           let n = i64::deserialize(deserializer)?;
+           Ok(AtomicI64::new(n))
+       }
+   }
+
+   #[derive(Debug, Serialize, Deserialize)]
+   pub struct BaselineState {
+       #[serde(with = "atomic_i64_serde")]
+       persisted_at_unix_nanos: AtomicI64,
+       // ...
+   }
+   ```
+
+2. **Skip + Default-reset for runtime-only atomic via `#[serde(skip)]`:** for atomics that have no semantic value across persistence boundaries (per-tick counters, in-memory caches), use `#[serde(skip)]` AND ensure `Default::default()` produces the desired initial state (typically zero). The atomic field MUST implement `Default` OR the parent struct's `Default` impl must explicitly initialize it.
+
+   ```rust
+   #[derive(Debug, Serialize, Deserialize)]
+   pub struct BaselineState {
+       // ...
+       #[serde(skip)]
+       drops_since_last_tick: AtomicU32,  // resets to 0 on load
+   }
+   ```
+
+**Generalization:** any struct that mixes "across-boundary durable state" + "runtime-only counter state" benefits from the dual pattern. The `mod foo_serde` form is verbose but reusable: define once per atomic type, reuse across multiple fields (BaselineState had one AtomicI64 field; future struct might have several — single module serves all).
+
+**Verified:** `crates/triage/src/baseline/mod.rs::atomic_i64_serde` + `BaselineState::{persisted_at_unix_nanos, drops_since_last_tick}` fields; round-trip integration test (`run_persist_cycle_round_trip_preserves_service_state`) confirms `persisted_at_unix_nanos = 5_000` survives serialize → write к disk → read → deserialize. Confidence 0.80 — empirically verified; standard Rust serde idiom for non-derive types; documented in serde docs.
+
+**When applicable:** any future workspace crate persisting state containing atomic fields (e.g., next chunks may add per-service rolling counters that need both atomic concurrency on hot path + bincode persistence on tick). Mechanically: write the helper module once + reuse `#[serde(with = "atomic_i64_serde")]` across all fields of the same atomic type. Pairs naturally with `dashmap` `serde` feature (DashMap fields serialize natively when feature enabled).
+
+---
+
 ## 2026-05-16 (session 72) — `specta = { features = ["chrono"] }` workspace dep does NOT include `derive` feature; consuming crate must activate `derive` explicitly OR transitively via `dep:taurpc`
 
 **Context:** chunk #59 added `#[cfg_attr(feature = "taurpc-runtime", derive(specta::Type))]` to 4 types in `crates/ingest/src/connection.rs` (ConnectionState / Severity / ReceiverFailureReason / ConnectionStatePayload). Mirrored the ui-bridge gating pattern: ingest `[features] taurpc-runtime = ["dep:specta"]` + `specta = { workspace = true, optional = true }`. First compile produced `error[E0433]: cannot find Type in specta ... note: found an item that was configured out — the item is gated behind the "derive" feature`.
