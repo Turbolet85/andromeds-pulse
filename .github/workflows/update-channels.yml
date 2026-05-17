@@ -229,7 +229,7 @@ jobs:
         # PR creation flow (per chunk #53 plan Open Question 4 = PR creation):
         # safer than direct push; allows maintainer review of formula updates
         # before merge. The PAT scope is the external tap repo only.
-        uses: peter-evans/create-pull-request@271a8d0340265f705b14b6d32b9829c1cb33d45e # v7.0.5 (pre-release placeholder — dependabot validates)
+        uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v7.0.5 (pre-release placeholder — dependabot validates)
         with:
           token: ${{ secrets.HOMEBREW_TAP_PUSH_TOKEN }}
           path: target/release-artifacts/homebrew-tap-checkout
@@ -375,7 +375,7 @@ jobs:
           python3 -c "import json; json.load(open('$OUT'))"
 
       - name: Open PR to Scoop bucket
-        uses: peter-evans/create-pull-request@271a8d0340265f705b14b6d32b9829c1cb33d45e # v7.0.5 (pre-release placeholder — dependabot validates)
+        uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v7.0.5 (pre-release placeholder — dependabot validates)
         with:
           token: ${{ secrets.SCOOP_BUCKET_PUSH_TOKEN }}
           path: target/release-artifacts/scoop-bucket-checkout
