@@ -1,111 +1,118 @@
 # Session Handoff
 
-**Last Updated:** 2026-05-17T13:05:00Z
+**Last Updated:** 2026-05-17T14:35:00Z
 **Branch:** main
 **Session End Status:** clean
-**Last Commit:** (pending — wrap commit composed this Phase 10; closes session 81 + chunk #63 implementation; Type 6 amendment for pulse://stream/restart-events deferred to next session per route §63 "Anticipated arch surface" + chunk #62 precedent)
+**Last Commit:** (pending — wrap commit composed this Phase 10; closes session 82 + spec-only meta-Andromeda cycle: P8+P9 Phase 1 implementation in skill files + retroactive compact-format refactor in pulse + Type 6 amendment for pulse://stream/restart-events + /setup-project --delta propagation; commit_sha populated post-commit via Phase 10 SHA-fixup amend)
 
 ## Current State
 
-- **Last completed chunk:** route#63 "Restart event detector + dual-condition bypass — `crates/triage/pattern` RestartDetector emits restart events to `pulse://stream/restart-events`; `crates/triage/cue` suppresses cues during restart windows EXCEPT for dual-condition magnitude bypass (P-057)..." (will be committed in this wrap; commit_sha populated post-commit via Phase 10 SHA-fixup amend)
-- **Next chunk:** route#64 (not yet registered in route §2; v0.2.0 plan Phase 2 line 208 calls for "Activity floor learning + corpus persistence" but route-append pending)
+- **Last completed chunk:** route#63 "Restart event detector + dual-condition bypass — `crates/triage/pattern` RestartDetector emits restart events to `pulse://stream/restart-events`; `crates/triage/cue` suppresses cues during restart windows EXCEPT for dual-condition magnitude bypass (P-057)..." (unchanged from session 81; this session was spec-only meta-Andromeda work, no chunk advancement)
+- **Next chunk:** route#64 (still not yet registered in route §2; v0.2.0 plan Phase 2 line 208 calls for "Activity floor learning + corpus persistence"; route-append pending — recommended next session)
 - **In-progress phase:** none
-- **Phase artifacts present:** `.andromeda/phases/phase-{1..59}/` (phase-59 = chunk #63 plan + combined + research from this session)
+- **Phase artifacts present:** `.andromeda/phases/phase-{1..59}/` (phase-59 = chunk #63 plan from session 81; no new phase planned this session)
 
 ## Andromeda State Detection (states A-K)
 
-- States A, B, C, D, E, F, G, H, I, J, K: all clean post-wrap.
-- **State H specifically resolved this wrap:** state.yaml.last_completed_chunk.route_index advanced from 62 → 63 (chunk #63 implementation commit landing this wrap).
-- **State J specifically refreshed this wrap:** living artifacts dep-tree.md + api-surface.md reconciled at 2026-05-17T13:00:00Z. Dep-tree zero-diff (378 lines, no new workspace deps); api-surface +228 lines (6517 → 6745 from chunk #63 pattern module public surface + Thresholds extension + Suppression types).
+- States A, B, D, E, F, G, H, J, K: clean post-wrap.
+- ℹ️ **State C (architecture staleness):** arch.md mtime > CLAUDE.md mtime (arch.md modified this session for retroactive refactor + Type 6 amendment edits). Remediation: standard `/setup-project --delta` cycle just landed (`ac09308`) processed the Type 6 amendment via lifecycle progression; refactor portions are cosmetic with no Tier 1 surface change required. **Same signal as D5 for arch.md (info severity, amendment-matched).**
+- ⚠️ **State I (specialist plan freshness mismatch):** state.yaml.plan_freshness captures from session 81 wrap (2026-05-17T13:20:00Z) are now older than arch.md / route.md actual mtimes (modified this session). Remediation: state.yaml.plan_freshness re-captured at this wrap Phase 8 (resolved before commit). Will clear at next new-session re-detection.
 
 ## Drift Detection (6 dimensions)
 
-**1 active drift post-wrap (D3):**
+**2 active drift post-wrap:**
 
-- ⚠️ D3 (plan-to-code drift): arch §Occupied Resources Tauri IPC events sub-section does NOT yet acknowledge `pulse://stream/restart-events` broadcast topic introduced this session at `crates/triage/src/pattern/broadcast.rs:8`. Remediation: run `/andromeda-evolve --allow-arch-registry` to land the Type 6 amendment (mirrors chunk #62 `pulse://stream/attention-cues` 2026-05-17 precedent at arch §Architecture Registry Updates entry dated 2026-05-17). First observed this session (session_count 81); will clear after Type 6 amendment + /andromeda-setup-project --delta cascade.
-- D1 (living artifact staleness): clear — reconciled this wrap.
-- D2 (LIVING block wrong content): clear — Phase 5 succeeded.
-- D4 (plan-to-plan drift): clear — no specialist plan body edits this session.
-- D5 (plan-to-CLAUDE.md drift): clear — no upstream plan mtime > CLAUDE.md mtime this session.
-- D6 (route chunk progression): clear post-Phase-8 (state.yaml.last_completed_chunk advanced 62→63).
+- ℹ️ **D5 (plan-to-CLAUDE.md drift — arch.md):** arch.md mtime > CLAUDE.md mtime due to Type 6 amendment for `pulse://stream/restart-events` (commit `ac09308`). **Amendment-aware classification:** matched amendment `2026-05-17T14-15-00-acknowledge-restart-events-broadcast` was archived this wrap Phase 8 (propagated_by_run set + archived_at set). Severity downgraded to **info** (transient — clears at this Phase 8 archive). Remediation: automatic (next new-session re-detection after archival will re-evaluate; if mtime gap persists without active amendment match, re-fires as warning — accepted intentional staleness for the cosmetic refactor portions).
+- ⚠️ **D5 (plan-to-CLAUDE.md drift — route.md):** route.md mtime > CLAUDE.md mtime due to retroactive compact-format refactor (§1 Total chunks 58→63 staleness fix + §2 Epoch 9 chunks #57-#63 word-tightening + §3 Decisions Log 8 verbose → compact entries). **No matching active spec_amendment** — refactor was cosmetic with no /andromeda-evolve amendment record. Severity: **warning**. Remediation options: (a) accept intentional staleness (cosmetic refactor doesn't change Tier 1 surface; CLAUDE.md @-imports route.md so the actual @-import resolves new content at runtime — staleness is mtime-only, not content-semantic); (b) run `/andromeda-setup-project` (full re-derive) to clear the mtime gap by regenerating CLAUDE.md from current upstream state. First observed session 82 (current = 82, age 0 — fresh, not stale per Fix 2 dedup discipline).
+- D1 / D2 / D3 / D4 / D6: clear.
 
 ## Spec Amendments (this session)
 
-(none this session — chunk #63 impl commit only; Type 6 amendment for `pulse://stream/restart-events` arch acknowledgment is next session's `/andromeda-evolve --allow-arch-registry` job per anticipated arch surface in route §3 chunk #63 entry).
+Archived this session: 1 amendment.
+
+- **Amendment ID:** `2026-05-17T14-15-00-acknowledge-restart-events-broadcast`
+- **Plan(s):** `.andromeda/architecture.md` (§Occupied Resources Tauri IPC events broadcast channels + §Architecture Registry Updates)
+- **Decisions Log:** §Architecture Registry Updates — 2026-05-17 — "Acknowledge `pulse://stream/restart-events` (--allow-arch-registry)"
+- **Trigger:** user-driven evolution via /andromeda-evolve --allow-arch-registry (no chunk/phase/harness)
+- **Authority resolution:** implementation (`crates/triage/src/pattern/broadcast.rs:8` STREAM_NAME_RESTART_EVENTS) > architecture.md registry-section-stale-vs-implementation-reality
+- **Flag used:** `--allow-arch-registry` (Type 6 permit path)
+- **Lifecycle:** applied 2026-05-17T14:15:00Z | noted 2026-05-17T14:35:00Z (this wrap Phase 8) | propagated 2026-05-17T14:20:00Z (`/andromeda-setup-project --delta` run `.andromeda/runs/2026-05-17T14-20-00-setup-project-delta/`) | archived 2026-05-17T14:35:00Z (this wrap Phase 8)
+- **Marker:** `.andromeda/runs/2026-05-17T14-15-00-spec-amendment-acknowledge-restart-events-broadcast/amendment.md`
+
+The amendment closes the D3 drift_warning carried from session 81 (chunk #63 implementation declared `pulse://stream/restart-events` broadcast topic; arch §Occupied Resources Tauri IPC events sub-section now acknowledges).
 
 ## Key Decisions This Session
 
-- **Pattern module restructure: pattern.rs stub → pattern/ directory** with 3 sibling files (broadcast.rs / detector.rs / suppression.rs) mirroring the `cue/` and `baseline/` module shape from chunks #60-#62. Module visibility kept `pub(crate)`; public surface re-exported via `triage::contract`.
-- **`SuppressionState` ownership: pattern/** (L1b tier per Research §Open question 1 recommendation). Justification: state tracks restart windows derived from RestartDetector output; cue::evaluate consumes via SuppressionParams built at tick time from Thresholds. Preserves cue → pattern direction inside `crates/triage/`.
-- **`Thresholds` extension over sibling `SuppressionConfig`** (per Research §Open question 2 recommendation). 6 new fields on `Thresholds` (magnitude_bypass_multiplier / absolute_bypass_error_rate / absolute_bypass_latency_ms / restart_gap_threshold_seconds / restart_suppression_window_seconds / suppression_persistence_cutoff_seconds). Minimizes wiring churn; preserves single-config-root for chunks #62 + #63 logic. Hot-reload deferred to chunk #86.
-- **`dual_condition_bypass` signature change** to accept `&Thresholds` parameter (replaces hardcoded 10.0 / 0.05 / 1000.0 literals at `cue/classify.rs:35`). Behavior preserved at default Thresholds.
-- **CompositeSpanObserver pattern at pulse-app boundary** for observer fan-out (`pulse-app/src/restart_observer.rs`). Wraps `Vec<Arc<dyn SpanObserver>>` and dispatches to each. Boot wiring now passes `Arc::new(CompositeSpanObserver::new(vec![baseline_adapter, restart_adapter]))` as the single span_observer to `run_consumer`. Avoids modifying buffer crate signature; preserves arch §Cross-cutting Module dependency direction.
-- **`RestartDetector` heartbeat at 15s (separate from cue emitter's 1s evaluation tick)** — per `.claude/rules/observability.md` heartbeat-ticks-every-15s rule. Detection happens INLINE at observe_span time (hot path), not on a cadence; the tick task is heartbeat-only. Two distinct cadences in `crates/triage/`: 1s evaluation (cue emitter) and 15s heartbeat (restart detector).
-- **Bypass scenario 8×/3% is NEGATIVE-bypass** per chunk spec OR-semantics (magnitude=8 < 10 multiplier AND absolute=0.03 < 0.05 threshold — neither dual-condition met). Encoded as `bypass_scenario_8x_3pct_does_not_bypass_suppression` test asserting cue IS suppressed during active window. Positive bypass scenarios: 12×/4% (Relative) and 6×/7% (Absolute).
+- **P8+P9 Phase 1 implementation in skill files** (~/.claude/skills/andromeda-evolve/) — compact Decisions Log entry templates (5-content-line Type 6, 4-content-bullet Type 7) + Check 7.6 / Check 8.5-ack-required / Check 8.8 conformance + §2 Roadmap chunk text 25-word guidance. User selected WARNING + canonical template strictness (low-friction adoption with escape hatches) for both format-conformance checks; Check 8.5 elevated from quiet WARNING to Phase 5 ack-required.
+- **Retroactive compact-format refactor in pulse** — applied the new templates to all 7 existing Type 6 entries in arch.md §Architecture Registry Updates + 8 existing Type 7 entries in route.md §3 Decisions Log + 7 Epoch 9 chunks in route.md §2 (word-tightening with `(detail in pulse-v0_2_0-route §N)` citation pattern). Marker files at `.andromeda/runs/*-spec-amendment-*` untouched (audit-trail snapshots preserved per user selection). §1 Total chunks 58→63 staleness fix included in same pass.
+- **Type 6 amendment cycle for pulse://stream/restart-events** — /andromeda-evolve --allow-arch-registry authored the first compact Type 6 entry going forward (8th total in arch.md §Architecture Registry Updates); Check 7.6 conformance returned clean; Check 7.5 narrative-cascade scan also clean.
+- **/setup-project --delta with bundled commit pattern** — working tree carried 3 streams of uncommitted work (refactor + status updates + amendment writes). Bundled into single commit `ac09308` with comprehensive message documenting both delta-rerun (primary) + bundled prior work (secondary). Deviates from strict "delta-scoped files only" discipline but maintains audit-trail clarity. Surfaced as Proposal 10 for protocol enhancement.
+- **Compact-format marker ↔ Decisions Log entry duality validated via dogfood** — first practical exercise of the new templates against real content (7 retroactive + 1 greenfield); information-flow design works as intended (marker = audit snapshot, Decisions Log entry = quick-scan summary, Marker pointer = full audit detail handle).
 
 ## Files Modified
 
-**NEW (5):**
-- `crates/triage/src/pattern/mod.rs` (42 lines)
-- `crates/triage/src/pattern/broadcast.rs` (170 lines; 8 tests)
-- `crates/triage/src/pattern/detector.rs` (310 lines; 14 tests inc PII negative-canary)
-- `crates/triage/src/pattern/suppression.rs` (410 lines; 18 tests inc rstest 3 bypass scenarios)
-- `pulse-app/src/restart_observer.rs` (150 lines; 4 tests)
+**Modified this session (committed in `ac09308`):**
+- `.andromeda/architecture.md` (7 verbose Type 6 → compact entries + 1 new compact entry for chunk #63 + §Occupied Resources inline list update)
+- `.andromeda/route.md` (§1 Total chunks 58→63 + §2 Epoch 9 chunks #57-#63 word-tightening + §3 8 verbose Type 7 → compact entries)
+- `.andromeda/state.yaml` (spec_amendments.active +1 entry with propagated_by_run set)
+- `docs/andromeda-improvements.md` (P8/P9 status updates: PROPOSED → PHASE 1 IMPLEMENTED; Phase 2 still PROPOSED)
 
-**MODIFIED (12):**
-- `crates/triage/src/pattern.rs` — DELETED (3-line stub replaced by pattern/ directory)
-- `crates/triage/src/cue/mod.rs` — extended pub use thresholds (+6 DEFAULT_* re-exports) + 2 new TARGET_CUE_SUPPRESSION_* consts
-- `crates/triage/src/cue/thresholds.rs` — Thresholds +6 fields + Default extension + validate() rejections + compile-time const block + 7 new tests
-- `crates/triage/src/cue/classify.rs` — dual_condition_bypass signature gains &Thresholds + 2 new override tests
-- `crates/triage/src/cue/evaluate.rs` — 2 call sites threaded with thresholds param
-- `crates/triage/src/cue/emitter.rs` — run_one_emit_cycle + start_emitter signature change (suppression_state + restart_broadcast); per-cue suppression_check + per-bypass-trigger metric emit; 3 new integration tests
-- `crates/triage/src/contract.rs` — added 6 DEFAULT_* re-exports + pattern re-export block
-- `pulse-app/src/lib.rs` — registered restart_observer module
-- `pulse-app/src/main.rs` — imports + Arc handles construction + CompositeSpanObserver wrapping + start_emitter args + spawn start_restart_detector
-- `pulse-app/src/observability.rs` — 6 new AllowList entries (triage.pattern.{tick,restart_detect,restart_emit} + triage.cue.{suppression_check,suppression_bypass} + metric.pipeline.l2.magnitude_bypass_triggered_total)
-- `docs/andromeda-improvements.md` — Proposal 8 carry-over from session 80 (uncommitted at that wrap; folded into this wrap)
-- `pulse-app/ui/src/bindings/index.ts` — regenerated with --features mcp-server (canonical state restored per testing.md 2026-05-17 procedure; identical to HEAD post-regen — no diff against committed state)
+**Modified this wrap (to be committed in wrap commit):**
+- `.andromeda/state.yaml` (lifecycle progression: amendment archived; plan_freshness re-capture; drift_warnings refreshed; session_count 81 → 82)
+- `.claude/session-handoff.md` (this file; session 82 handoff)
+- `.claude/docs/session-learnings.md` (2 new Tier 3 entries — bundled --delta pattern + compact-format duality validation)
+- `docs/andromeda-improvements.md` (Proposal 10 PROPOSED — non-delta-scoped uncommitted detection)
+- `.andromeda/context/dependency-tree.md` (Last reconciled 14:30Z + session 82 zero-diff note)
+- `.andromeda/context/api-surface.md` (Last reconciled 14:30Z + session 82 zero-diff note)
 
-**Already committed prior to this wrap:** (none; this is the chunk #63 impl wrap)
+**Skill files** (outside pulse repo, in `~/.claude/skills/andromeda-evolve/`):
+- `references/output-templates.md` (P8 Phase 1 + P9 Phase 1(b) compact templates + §2 chunk text guidance)
+- `references/validation-checks.md` (Check 7.6 + Check 8.5 update + Check 8.8)
+- `SKILL.md` (Phase 3/4/5/7 references to new checks + compact templates)
+- `references/refuse-taxonomy.md` (compact-format canonical status clarifications)
+- `references/dialog-templates.md` (Phase 5 ack-required warnings section)
 
 ## Curation Summary (this wrap)
 
 - **Tier 1 (CLAUDE.md USER:session-learnings):** 0 additions
-- **Tier 2 (`.claude/rules/*/Session Additions`):** 1 addition (observability.md — CompositeSpanObserver + SuppressionParams patterns for cross-module composition at pulse-app boundary preserving arch DAG direction)
-- **Tier 3 (`.claude/docs/session-learnings.md`):** 0 additions
-- **Filtered:** 4 dups (Eq+f64 already in chunk #60 contract.rs comment; doc_lazy_continuation variant already in testing.md 2026-05-14; bindings.ts recovery already in testing.md 2026-05-17; AllowList exact-match already in observability.md 2026-05-07) + 3 task-specific (bypass test scenarios specific to chunk #63; derive_bypass_reason defensive fallback design choice; 8×/3% negative-bypass assertion specific to test grid) + 0 conflicts + 0 deferred
+- **Tier 2 (`.claude/rules/*/Session Additions`):** 0 additions
+- **Tier 3 (`.claude/docs/session-learnings.md`):** 2 additions
+  - Bundled --delta commit pattern when prior uncommitted refactor exists (confidence 0.75)
+  - Compact-format marker ↔ Decisions Log entry duality validated via dogfood (confidence 0.80)
+- **Filtered:** 1 dedup (P8/P9 first dogfood candidate overlapped with existing 2026-05-17 "Dogfood Andromeda improvements via next pending cascade" Tier 3 entry — same principle at higher abstraction) + 0 task-specific + 0 conflicts + 0 deferred (within max-3 cap)
+
+## Andromeda pipeline improvements proposed (this session)
+
+1 new proposal in `docs/andromeda-improvements.md`:
+
+- **Proposal 10 — `/andromeda-setup-project --delta` should detect non-delta-scoped uncommitted work and surface guidance.** Status: PROPOSED — 2026-05-17 (session 82). Triggered by this session's bundled commit pattern; proposes Phase 9 enhancement with three resolution modes (bundle / halt / explicit --bundle-uncommitted flag).
 
 ## Last Failed Command
 
-(none — all session 81 operations succeeded; pipeline ran clean through /andromeda-new-session → /andromeda-phase → /andromeda-implement → /andromeda-wrap-session)
+(none — all session 82 operations succeeded; pipeline ran clean through /andromeda-new-session → plan mode 1 → P8+P9 Phase 1 skill implementation → plan mode 2 → retroactive refactor → /andromeda-evolve --allow-arch-registry → /andromeda-setup-project --delta → /andromeda-wrap-session)
 
 ## Tests Status
 
-passing — 866/866 nextest tests; cargo fmt --check clean; cargo clippy --workspace --all-targets --all-features -- -D warnings clean; cargo xtask capability-drift clean (after bindings.ts regen with --features mcp-server per testing.md 2026-05-17 procedure); cargo deny check bans/licenses/sources clean; cargo audit 19 allowed warnings (no new advisories); cargo build -p pulse-app binary clean in 25.86s (Phase 2b proxy smoke).
+passing — 166/166 triage tests this session (smoke); 866/866 from session 81 baseline unchanged (this session was spec-only, zero Rust source changes). `cargo tree --workspace --depth 2 --prefix indent` rerun 378 lines (zero-diff vs session 81); per-crate `cargo +nightly public-api --simplified` rerun 6723 lines (vs 6745 session 81 baseline; -22 build-chatter delta only per session 80 precedent annotation; substantive public API surface byte-identical).
 
 ## Next Recommended Action
 
 ```
-/andromeda-evolve --allow-arch-registry
+/andromeda-evolve --allow-route-append
 ```
 
-To land the Type 6 amendment acknowledging `pulse://stream/restart-events` in arch §Occupied Resources Tauri IPC events (broadcast channels) sub-section. Mirrors:
-- 2026-05-09 streams.* / telemetry.* precedent
-- 2026-05-11 pulse:clipboard precedent
-- 2026-05-16 curation crate + connection.* + triage crate + first scope registration precedents
-- 2026-05-17 pulse://stream/attention-cues precedent (chunk #62)
-
-Anticipated amendment marker: `.andromeda/runs/{ISO}-spec-amendment-acknowledge-restart-events-broadcast/amendment.md`. Followed by `/andromeda-setup-project --delta` to propagate to CLAUDE.md (no pointer-table cascade expected since chunk count unchanged; only arch §Occupied Resources delta).
+To register chunk #64 ("Activity floor learning + corpus persistence" per pulse v0.2.0 plan Phase 2 line 208) before next /andromeda-phase. This is the natural continuation of pulse v0.2.0 Epoch 9 algorithmic detection layer (depends on chunk #61 baseline trackers + chunk #62 cue emitter + chunk #63 restart detector — all complete).
 
 **Alternative paths:**
-- `/andromeda-evolve --allow-route-append` to register chunk #64 ("Activity floor learning + corpus persistence" per pulse v0.2.0 plan Phase 2 line 208) before next /andromeda-phase
-- Continue Andromeda meta-improvements work (4 PROPOSED: P1 / P2 / P3 / P7; P8 new this session — see docs/andromeda-improvements.md)
+- `/andromeda-setup-project` (full re-derive, without --delta) — would clear the D5 mtime gap by regenerating CLAUDE.md from current upstream state. Useful if D5 warning persistence is annoying. Trade-off: more expensive than --delta (full Tier 1-3 regen); only changes CLAUDE.md mtime (no semantic content change since arch/route refactor was cosmetic).
+- Continue Andromeda meta-improvements work (5 PROPOSED remaining: P1 / P2 / P3 / P7 / P10; P10 new this session).
+- Pulse v0.1.0 release blockers unchanged (chunk #3 deferred signing items).
 
 ## Session Goals (carry-over)
 
 - Continue pulse v0.2.0 dogfood — chunk #64 "Activity floor learning + corpus persistence" pending route-append; then implementation.
 - Pulse v0.1.0 release blockers unchanged from prior sessions (chunk #3 deferred signing items).
-- Andromeda meta-improvements log: 3 IMPLEMENTED (P4 / P5 / P6) + 5 PROPOSED (P1 / P2 / P3 / P7 / P8). P8 new this session (carry-over from session 80; finally committing this wrap).
+- Andromeda meta-improvements log: 5 IMPLEMENTED (P4 / P5 / P6 / P8 Phase 1 / P9 Phase 1) + 5 PROPOSED (P1 / P2 / P3 / P7 / P10). P10 new this session; P8/P9 Phase 2 still deferred (sliding-window demotion + Epoch 1-8 archival).
 
 ## Deferred decisions (Trigger 4 to Path B carry-over)
 
@@ -113,10 +120,7 @@ Anticipated amendment marker: `.andromeda/runs/{ISO}-spec-amendment-acknowledge-
 
 ## Deferred learnings (filtered out from Phase 4 curation)
 
-- **8×/3% bypass scenario is NEGATIVE-bypass** per chunk spec OR-semantics. Already encoded in `pattern/suppression.rs::tests::bypass_scenario_8x_3pct_does_not_bypass_suppression` + `dual_condition_bypass_scenarios_during_active_restart_window` rstest case. Inline at the chunk-spec interpretation; not a generalizable lesson.
-- **`derive_bypass_reason` defensive fallback** for inconsistent caller (suppression_bypassed=true under mid-flight config-reload mismatch) defaults to `BypassReason::Relative` (more operator-visible). Chunk-specific design choice; documented in `pattern/suppression.rs::derive_bypass_reason` body comment.
-- **`pub use` of items not used internally trips `unused_imports` under `-D warnings`** — reaffirms a generalizable Rust discipline (don't re-export from multiple modules; pick a single source of truth). Below-threshold for separate Tier 3 entry; encoded by my drop of `BROADCAST_CAPACITY` from `pattern/mod.rs` pub use in favor of cue's existing re-export.
-- **`Eq` not derivable on types containing f64 fields** — Rust language fact, already documented in chunk #60 `contract.rs` AttentionCue impl-block comment about IEEE 754. Reaffirmed for SuppressionOutcome (PartialEq only) — not a new learning.
+- **P8/P9 Phase 1 first dogfood landed cleanly** (confidence 0.80) — Token overlap >0.7 with existing 2026-05-17 "Dogfood Andromeda improvements via next pending cascade" Tier 3 entry. That entry captures the principle "sequence improvement landing + first dogfood cascade in same session" at higher abstraction; my candidate would be a specific P8/P9 instance. The new compact-format duality entry (added this wrap) captures the unique design-validation insight from this session without restating the bundling principle.
 
 ## Session End Status
 Pending wrap commit (this Phase 10).

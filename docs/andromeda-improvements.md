@@ -593,3 +593,70 @@ Phase 2 (deferred until post-v1.0 ship): Epoch 1-8 collapse to archival form. Th
 - Phase 2: post-v1.0 ship (when Epoch 1-8 reference frequency naturally drops; Epoch 9 still actively referenced)
 
 **Cross-references:** Sibling to Proposal 8 (arch.md §Architecture Registry Updates compaction) — same theme of "post-MVP artifact growth needing strategic compaction" but route.md higher-frequency-read so larger cognitive ROI per tightened entry. Session 79 user observation, route.md current state 277 lines / 7 §3 entries / 7 Epoch 9 chunks.
+
+## Status: PROPOSED — 2026-05-17 (session 82)
+
+### Proposal 10 — `/andromeda-setup-project --delta` should detect non-delta-scoped uncommitted work and surface guidance
+
+**Problem:**
+
+`/andromeda-setup-project --delta` protocol assumes a clean working tree at invocation time — the only uncommitted changes should be the delta-scoped files derived from pending spec amendments. Phase 9 says "stage only delta-scoped files (per materialization-plan-delta.md 'Files touched') + state.yaml + marker files (with updated lifecycle status) + run-dir".
+
+But the practical reality of multi-task sessions is that uncommitted work accumulates between commit boundaries. Session 82 dogfood example: between the prior wrap commit (`61ca564` session 81 chunk #63 wrap) and the `/setup-project --delta` invocation, the working tree carried THREE distinct uncommitted streams:
+
+1. P8+P9 Phase 1 retroactive compact-format refactor (arch.md 7 verbose → compact entries + route.md §1 staleness fix + §2 Epoch 9 word-tightening + §3 8 verbose → compact entries) — cosmetic refactor pass executed in plan mode earlier in session
+2. `docs/andromeda-improvements.md` Proposal 8/9 status updates (PROPOSED → PHASE 1 IMPLEMENTED) — companion to skill changes landed at `~/.claude/skills/andromeda-evolve/`
+3. The `/evolve --allow-arch-registry` amendment writes (arch.md §Occupied Resources inline list + new §Architecture Registry Updates entry + state.yaml +1 entry)
+
+Only stream (3) is "delta-scoped". Streams (1) and (2) are non-delta work that happened to be uncommitted at /delta invocation time.
+
+The protocol's "stage only delta-scoped files" assumes single-task sessions. In multi-task sessions, splitting via `git add -p` is technically possible but RISKY for compounded edits to the same file — session 82's arch.md had BOTH retroactive refactor edits AND the new Type 6 amendment edits; both touched §Architecture Registry Updates but in different ways (refactor rewrote 7 historical entries; amendment appended an 8th). Interactive splitting risks misattributing edits across two commits.
+
+**Proposal:**
+
+Extend `/andromeda-setup-project --delta` Phase 9 to detect non-delta-scoped uncommitted files BEFORE the commit step, and surface guidance for the user to choose between three resolutions:
+
+- **(A) Bundle into one commit (default if user accepts):** stage all uncommitted files; compose commit message that documents both streams (delta-rerun primary + bundled secondary). Add a `## Bundled uncommitted work` subsection to the commit message body listing the non-delta files + heuristic categorization (e.g., "cosmetic refactor" / "status update" / "unknown").
+
+- **(B) Halt with diagnostic + manual split:** display the non-delta files with file paths + brief diff stats; suggest the user run `git stash` to isolate delta-scoped work, commit /delta cleanly, then unstash + commit the rest separately. Useful when the user wants clean two-commit history.
+
+- **(C) Explicit `--bundle-uncommitted` flag (advanced):** user pre-authorizes bundling; skill skips the prompt and bundles directly with `## Bundled uncommitted work` subsection. Useful for autonomous-execution flows where pausing for prompts is expensive.
+
+Default behavior without flag: prompt user at Phase 9 (interactive resolution); autonomous-execution directive in effect → default to (A) with explicit logging.
+
+**Design:**
+
+Phase 9 step (new, inserted before existing `git add` step):
+
+1. Compute delta-scoped file list from `materialization-plan-delta.md` "Files touched (delta scope)" section + state.yaml + marker files + run-dir contents.
+2. Compute non-delta uncommitted files: `git diff --name-only HEAD` minus delta-scoped list.
+3. If non-delta list is empty: proceed with standard /delta commit (no change).
+4. If non-delta list is non-empty:
+   - Render diagnostic listing the non-delta files + diff stats per file
+   - Prompt user: `Bundle into /delta commit? (Y/N/manual-split)` (default Y)
+   - On Y: stage all uncommitted files; compose comprehensive commit message with `## Bundled uncommitted work` subsection
+   - On N: halt; user resolves manually
+   - On manual-split: render `git stash` + commit + unstash + commit sequence guidance; halt for user execution
+5. Record the bundling decision in `materialization-plan-delta.md` audit trail.
+
+**Implementation cost estimate:**
+
+| File | Change | Lines |
+|---|---|---|
+| `andromeda-setup-project/SKILL.md` | Phase 9 — add detection + prompt + bundle logic | ~30 |
+| `andromeda-setup-project/references/delta-rerun-protocol.md` | Add "Non-delta uncommitted detection" subsection + "Bundled uncommitted commit message variant" subsection | ~50 |
+| `andromeda-setup-project/references/visual-references.md` | Phase 9 bundle-prompt template | ~15 |
+
+**Total:** ~95 lines across 3 files. Small-effort enhancement; high-value because it eliminates a recurring "what do I do with my non-delta uncommitted work" friction at /delta invocation time.
+
+**When to do:**
+
+Now-soon. Session 82's bundled commit was the first observed instance + the rationale was documented inline in the commit message body + surfaced in the post-Phase-9 report. But the friction will recur whenever a session has multiple task streams (common in dogfood multi-improvement sessions like 82). Each future occurrence costs the agent (and user) cognitive overhead deciding between split vs bundle without skill-level guidance.
+
+Alternative timing: defer until the second observed instance to confirm the pattern recurs. But pulse v0.2.0's remaining 26 chunks each could trigger multi-stream sessions when amendments cascade across multiple skill files; the proposal becomes increasingly valuable as the project moves through Epoch 9.
+
+**Cross-references:**
+
+- Triggering session: session 82 (`/andromeda-setup-project --delta` invocation, commit `ac09308`) — first observed bundled-uncommitted scenario in pulse v0.2.0 dogfood
+- Related companion in session-learnings.md (Tier 3): "2026-05-17 (session 82) — Bundled `--delta` commit when prior uncommitted refactor exists" (workflow-lesson framing of same friction; this proposal is the skill-mechanic-enhancement framing)
+- Sibling proposals: Proposal 5 (Type 7 expected_propagation pre-populate) + Proposal 6 (Form 1 §1 mechanical update) — same theme of "/andromeda-evolve + /andromeda-setup-project --delta authoring-time correctness"; this proposal extends the theme to /delta commit-time correctness

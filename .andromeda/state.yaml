@@ -1,6 +1,6 @@
 schema_version: 2
-last_wrap: 2026-05-17T13:20:00Z
-last_reconcile: 2026-05-17T13:20:00Z
+last_wrap: 2026-05-17T14:35:00Z
+last_reconcile: 2026-05-17T14:30:00Z
 
 last_completed_chunk:
   route_index: 63
@@ -13,32 +13,39 @@ last_completed_chunk:
 in_progress: null
 
 plan_freshness:
-  arch_mtime: 2026-05-17T10:59:26Z
+  arch_mtime: 2026-05-17T14:23:42Z
   security_mtime: 2026-05-11T17:53:00Z
   design_mtime: 2026-05-03T21:52:16Z
   layout_mtime: 2026-05-02T15:53:22Z
   tests_mtime: 2026-05-10T12:55:51Z
   obs_mtime: 2026-05-08T18:00:16Z
   a11y_mtime: 2026-05-02T21:45:23Z
-  route_mtime: 2026-05-17T11:23:55Z
+  route_mtime: 2026-05-17T14:09:18Z
   input_mtime: 2026-05-02T06:52:58Z
 
 living_artifact_freshness:
-  dep_tree_reconciled_at: 2026-05-17T13:20:00Z
-  api_surface_reconciled_at: 2026-05-17T13:20:00Z
+  dep_tree_reconciled_at: 2026-05-17T14:30:00Z
+  api_surface_reconciled_at: 2026-05-17T14:30:00Z
   most_recent_code_mtime: 2026-05-17T13:18:22Z
   reconcile_failed: false
 
 drift_warnings:
-  - drift_id: D3
-    description: "arch.md §Occupied Resources Tauri IPC events (broadcast channels) sub-section does not yet acknowledge `pulse://stream/restart-events` introduced this session at `crates/triage/src/pattern/broadcast.rs:8` (chunk #63 impl)"
+  - drift_id: D5
+    description: "arch.md mtime advanced > CLAUDE.md mtime via Type 6 amendment for pulse://stream/restart-events (commit ac09308) + retroactive compact-format refactor of 7 historical Type 6 entries in §Architecture Registry Updates. Amendment-aware classification: matched amendment 2026-05-17T14-15-00-acknowledge-restart-events-broadcast archived this wrap; refactor portion (cosmetic, no Tier 1 surface change) is intentional staleness."
+    severity: info
+    remediation_hint: "Amendment archived (automatic this wrap Phase 8); refactor portion is mtime-only staleness with no semantic CLAUDE.md surface change. If gap clearing desired: run /andromeda-setup-project (full re-derive without --delta) to regenerate CLAUDE.md from current upstream state."
+    first_observed_session_count: 82
+    last_observed_session_count: 82
+  - drift_id: D5
+    description: "route.md mtime advanced > CLAUDE.md mtime via retroactive compact-format refactor (§1 Total chunks 58→63 staleness fix + §2 Epoch 9 chunks #57-#63 word-tightening + §3 Decisions Log 8 verbose Type 7 → compact entries). No matching active spec_amendment — refactor was cosmetic with no /andromeda-evolve amendment record."
     severity: warning
-    remediation_hint: "Run /andromeda-evolve --allow-arch-registry to land Type 6 amendment (mirrors chunk #62 pulse://stream/attention-cues 2026-05-17 precedent at arch §Architecture Registry Updates)"
-    first_observed_session_count: 81
-    last_observed_session_count: 81
+    remediation_hint: "Accept intentional staleness (CLAUDE.md @-imports route.md → @-import resolves new content at runtime; staleness is mtime-only, not content-semantic), OR run /andromeda-setup-project (full re-derive without --delta) to clear the mtime gap by regenerating CLAUDE.md."
+    first_observed_session_count: 82
+    last_observed_session_count: 82
 
 spec_amendments:
-  active:
+  active: []
+  archive:
     - amendment_id: 2026-05-17T14-15-00-acknowledge-restart-events-broadcast
       plans:
         - path: architecture.md
@@ -47,26 +54,9 @@ spec_amendments:
             - "§Architecture Registry Updates"
       decisions_log_sections:
         - "2026-05-17 — Acknowledge `pulse://stream/restart-events` (--allow-arch-registry)"
-      trigger:
-        chunk: null
-        phase: null
-        harness: "user-driven via /andromeda-evolve --allow-arch-registry"
-      authority:
-        winning_plan: null
-        winning_tier: implementation
-        losing_plan: architecture.md
-        losing_concern: registry-section-stale-vs-implementation-reality
-        rationale: "Chunk #63 implementation declared STREAM_NAME_RESTART_EVENTS at crates/triage/src/pattern/broadcast.rs:8; arch §Occupied Resources had not acknowledged. Check 7 verified clean."
-      impl_files_synced: []
-      expected_propagation: []
-      marker_path: .andromeda/runs/2026-05-17T14-15-00-spec-amendment-acknowledge-restart-events-broadcast/amendment.md
-      applied_at: 2026-05-17T14:15:00Z
-      noted_at: null
       propagated_by_run: .andromeda/runs/2026-05-17T14-20-00-setup-project-delta/
-      archived_at: null
+      archived_at: 2026-05-17T14:35:00Z
       flag_used: --allow-arch-registry
-      verification_status: clean
-  archive:
     - amendment_id: 2026-05-17T11-02-16-append-chunk-63-restart-event-detector
       plans:
         - path: route.md
@@ -369,4 +359,4 @@ spec_amendments:
       propagated_by_run: .andromeda/runs/2026-05-11T19-00-00-setup-project-delta/
       archived_at: 2026-05-11T19:25:00Z
 
-session_count: 81
+session_count: 82

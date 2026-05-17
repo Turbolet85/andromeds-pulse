@@ -8,6 +8,34 @@ _This file is entirely wrap-session's territory. `/setup-project` creates it if 
 
 ---
 
+## 2026-05-17 (session 82) — Bundled `--delta` commit when prior uncommitted refactor exists (confidence 0.75)
+
+When `/andromeda-setup-project --delta` is invoked with a working tree that carries uncommitted work BEYOND the delta scope (e.g., a prior cosmetic refactor pass that wasn't committed yet, status updates from earlier planning, etc.), the strict protocol guidance "stage only delta-scoped files" doesn't map cleanly. Splitting via `git add -p` is technically possible but risky for compounded edits to the same file (e.g., arch.md had BOTH retroactive refactor edits AND new Type 6 amendment edits this session — both touched §Architecture Registry Updates but in different ways).
+
+**Pragmatic pattern:** bundle into one commit with a comprehensive message that documents both streams (primary = delta-rerun; secondary = bundled prior work). The commit message body should clearly separate "delta-rerun (this session's primary work)" from "bundled work (this session, pre-/delta)". Project history precedent: `2dded9f` + `c836aae` both bundle multiple amendment cascades in single setup-project --delta commits.
+
+**Trade-off:** deviates from the strict per-protocol "delta-scoped files only" discipline, but maintains audit-trail clarity via the comprehensive commit message. Surface the bundling explicitly in the post-Phase-9 report so the user can choose to split via `git reset HEAD~1 && git add -p ...` if they prefer cleaner two-commit history.
+
+**When to split into separate commits instead:** when the prior uncommitted work touches DIFFERENT files than the delta scope (no shared file edits → clean `git add <specific files>` per commit; no interactive splitting needed). The current session bundled because arch.md had both stream edits — splitting required interactive staging which is error-prone.
+
+Generalizes to any future `/andromeda-setup-project --delta` invocation where the working tree carries multi-stream uncommitted work. Companion to Proposal 10 in `docs/andromeda-improvements.md` (which proposes protocol-level enhancement for detection + guidance).
+
+---
+
+## 2026-05-17 (session 82) — Compact-format marker ↔ Decisions Log entry duality validated via dogfood (confidence 0.80)
+
+P8 Phase 1 + P9 Phase 1 (landed in skill files at `~/.claude/skills/andromeda-evolve/` earlier this session) introduced compact Decisions Log entry templates: 5-content-line for Type 6 (arch.md §Architecture Registry Updates), 4-content-bullet for Type 7 (route.md §3). Verbose detail relocates from the inline Decisions Log entry to the amendment marker file at `.andromeda/runs/{ISO}-spec-amendment-{slug}/amendment.md`, with the Decisions Log entry citing the marker via `**Marker:**` field.
+
+**Dogfood validation this session:** the retroactive refactor pass exercised compact form across 7 historical Type 6 entries + 8 historical Type 7 entries (a comprehensive replay of the templates against real content); then the new Type 6 amendment for `pulse://stream/restart-events` (chunk #63 D3 drift remediation) authored a fresh 8th compact entry going forward. All entries fit the canonical templates without ack-required deviations (Check 7.6 / Check 8.8 returned clean).
+
+**Information-flow design:** marker file is the audit-trail snapshot (verbose Authority paragraph + multi-sentence Rationale + detailed Impact analysis + Check sub-results table); Decisions Log entry is the quick-scan summary (Section / Added / Rationale / Marker for Type 6; Insert / Why / Mechanical / Marker for Type 7). The duality is intentional — Decisions Log entries appear inline in canonical specs (arch.md / route.md) so they must be glanceable; marker files live in run-dirs so verbose detail doesn't bloat the specs.
+
+**Reader pattern:** scanning the Decisions Log gives the gist + flag citation + chunk reference + marker path. Following `**Marker:**` to the marker file gives the full audit detail when needed. This pattern preserves the audit trail without polluting glance-readability. Apply to ANY future /andromeda-evolve amendment authored under the compact template (Type 6 via --allow-arch-registry, Type 7 via --allow-route-append).
+
+**Skill-internal record:** the compact templates live in `~/.claude/skills/andromeda-evolve/references/output-templates.md` §Family default — Type 6 / Family default — Type 7. The verbose pre-P8/P9 templates are preserved in HTML comment blocks for historical reference but new entries MUST use the compact form.
+
+---
+
 ## 2026-05-17 (session 79) — EWMA convergence in N-sample tests is misleading at production alpha (confidence 0.85)
 
 When writing unit tests against `crates/triage/src/baseline/EwmaTracker` (alpha=0.00333, 5-min window), seeding strategies that assume "N errors in M samples → N/M error rate" produce wildly incorrect EWMA values at typical test scale (100 samples). With alpha=0.00333, a single initial error observation sets EWMA=1.0; 99 subsequent non-error observations decay it via `value = 0.99667 * value` к ~0.717 — STILL above any sub-50% threshold. Tests asserting "1 error in 100 → below 3% threshold" fail because actual EWMA is ~71% NOT 1%. Discovered at chunk #62 cue emitter tests (`evaluate_thresholds_low_error_rate_does_not_emit_cue` + `evaluate_thresholds_classification_flips_when_multiplier_raised` both failed on first run).
