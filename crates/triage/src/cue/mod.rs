@@ -28,12 +28,13 @@ pub use broadcast::{
 };
 pub use classify::{classify_priority, dual_condition_bypass};
 pub use emitter::{run_one_emit_cycle, start_emitter};
-pub use evaluate::evaluate_thresholds;
+pub use evaluate::{evaluate_service_went_silent, evaluate_thresholds};
 pub use thresholds::{
     DEFAULT_ABSOLUTE_BYPASS_ERROR_RATE, DEFAULT_ABSOLUTE_BYPASS_LATENCY_MS,
-    DEFAULT_BASE_ERROR_RATE, DEFAULT_BASE_LATENCY_MS, DEFAULT_ERROR_RATE_MULTIPLIER,
-    DEFAULT_LATENCY_MULTIPLIER, DEFAULT_LATENCY_PERCENTILE, DEFAULT_MAGNITUDE_BYPASS_MULTIPLIER,
-    DEFAULT_MIN_PERSISTENCE_SECONDS, DEFAULT_RESTART_GAP_THRESHOLD_SECONDS,
+    DEFAULT_BASE_ERROR_RATE, DEFAULT_BASE_LATENCY_MS, DEFAULT_BOOTSTRAP_WINDOW_SECONDS,
+    DEFAULT_ERROR_RATE_MULTIPLIER, DEFAULT_LATENCY_MULTIPLIER, DEFAULT_LATENCY_PERCENTILE,
+    DEFAULT_MAGNITUDE_BYPASS_MULTIPLIER, DEFAULT_MIN_PERSISTENCE_SECONDS,
+    DEFAULT_QUIET_DURATION_PERCENTILE, DEFAULT_RESTART_GAP_THRESHOLD_SECONDS,
     DEFAULT_RESTART_SUPPRESSION_WINDOW_SECONDS, DEFAULT_SUPPRESSION_PERSISTENCE_CUTOFF_SECONDS,
     DEFAULT_TICK_INTERVAL, MIN_EWMA_SAMPLES, Thresholds, ThresholdsError,
 };
@@ -52,3 +53,16 @@ pub(crate) const TARGET_CUE_SUPPRESSION_CHECK: &str = "triage.cue.suppression_ch
 /// surgical suppression via dual-condition bypass (P-057). Paired with
 /// the `metric.pipeline.l2.magnitude_bypass_triggered_total` metric stream.
 pub(crate) const TARGET_CUE_SUPPRESSION_BYPASS: &str = "triage.cue.suppression_bypass";
+
+/// Per-tick aggregate evaluation event for chunk #64 ServiceWentSilent
+/// gating. Fields cover counts only (services_tracked / services_in_bootstrap
+/// / services_ready / silence_cues_emitted) — no per-service identifiers
+/// per chunk #62/#63 PII discipline (`service.name` is OTLP-attribute-
+/// derived user-content; never logged in self-observation events).
+pub(crate) const TARGET_SERVICE_WENT_SILENT_EVALUATE: &str =
+    "triage.baseline.service_went_silent.evaluate";
+
+/// Per-tick activity-floor bootstrap-state gauge for chunk #64. Aggregate
+/// only — fields cover learning/ready counts and total tracked services.
+pub(crate) const TARGET_METRIC_BOOTSTRAP_STATE: &str =
+    "metric.triage.activity_floor.bootstrap_state";

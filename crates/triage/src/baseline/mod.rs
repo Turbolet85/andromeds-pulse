@@ -13,6 +13,7 @@
 //! deferred to chunk #62; this chunk delivers callable + testable primitives
 //! only.
 
+mod activity_floor;
 mod corpus;
 mod error;
 mod ewma;
@@ -27,6 +28,10 @@ use std::time::Duration;
 use dashmap::DashMap;
 use serde::{Deserialize, Serialize};
 
+pub use activity_floor::{
+    ActivityFloor, BOOTSTRAP_WINDOW_SECONDS, BUCKET_COUNT, BUCKET_INTERVAL_SECONDS, BootstrapState,
+    WINDOW_DURATION_SECONDS,
+};
 #[cfg(test)]
 pub(crate) use corpus::load_state;
 pub use corpus::{
@@ -47,11 +52,24 @@ pub(crate) const TARGET_SERVICE_ID_MISSING: &str = "triage.service_id_missing";
 pub(crate) const TARGET_METRIC_EWMA_SHORT_WINDOW: &str = "metric.baseline.ewma_short_window_size";
 pub(crate) const TARGET_PIPELINE_L1B_PERSIST_TOTAL: &str = "pipeline.l1b.persist_count_total";
 pub(crate) const TARGET_PIPELINE_L1B_BOOTSTRAP_TOTAL: &str = "pipeline.l1b.bootstrap_count_total";
+pub const TARGET_SERVICE_CAP_EXCEEDED: &str = "triage.baseline.service_cap_exceeded";
+
+/// In-process cardinality cap for per-service tracking (chunk #64 service
+/// cap enforcement). Mirrors the existing corpus-load-time
+/// `DEFAULT_SERVICE_COUNT_CAP` value so corpus persistence (deferred to
+/// chunk #69 wire-up) does not surface a separate ceiling. Per security
+/// extract: bounds OTLP-attribute-derived `service.name` cardinality to
+/// prevent OOM under malicious or buggy instrumented hosts.
+pub const ACTIVITY_FLOOR_SERVICE_CAP: usize = DEFAULT_SERVICE_COUNT_CAP;
 
 pub const DEFAULT_ALPHA_5MIN_WINDOW: f64 = 0.00333;
 pub const DEFAULT_PERSIST_INTERVAL_NANOS: i64 = 60_000_000_000;
 pub const STATE_AGE_THRESHOLD_NANOS: i64 = 3_600_000_000_000;
 pub(crate) const DEFAULT_ACTIVITY_WINDOW_CAPACITY: usize = 300;
+
+const _: () = {
+    assert!(ACTIVITY_FLOOR_SERVICE_CAP > 0);
+};
 
 /// OTLP Status.code = 2 means Error per OTLP Trace v1 spec.
 const STATUS_CODE_ERROR: u8 = 2;
@@ -75,6 +93,8 @@ mod atomic_i64_serde {
 struct ServiceBaseline {
     error_rate_ewma: EwmaTracker,
     activity_window: RollingWindow<u32>,
+    #[serde(default)]
+    activity_floor: ActivityFloor,
 }
 
 #[derive(Debug, Default, Serialize, Deserialize)]
@@ -97,6 +117,8 @@ pub struct BaselineState {
     persisted_at_unix_nanos: AtomicI64,
     #[serde(skip)]
     drops_since_last_tick: AtomicU32,
+    #[serde(skip)]
+    service_cap_exceeded_since_last_tick: AtomicU32,
 }
 
 impl Default for BaselineState {
@@ -113,6 +135,7 @@ impl BaselineState {
             operations: DashMap::new(),
             persisted_at_unix_nanos: AtomicI64::new(0),
             drops_since_last_tick: AtomicU32::new(0),
+            service_cap_exceeded_since_last_tick: AtomicU32::new(0),
         }
     }
 
@@ -141,10 +164,23 @@ impl BaselineState {
         self.drops_since_last_tick.swap(0, Ordering::Relaxed)
     }
 
+    /// Drain + return the count of spans dropped this tick due to the
+    /// service-name cardinality cap (chunk #64 P-013 in-process bound on
+    /// `service.name` cardinality). Mirrors `drain_drops_since_last_tick`
+    /// pattern.
+    pub fn drain_service_cap_exceeded_since_last_tick(&self) -> u32 {
+        self.service_cap_exceeded_since_last_tick
+            .swap(0, Ordering::Relaxed)
+    }
+
     /// Per-spec entry point. Drops spans с empty service.name (increments
     /// `drops_since_last_tick`; aggregate warn fires from per-tick emitter).
     /// Updates the service's error-rate EWMA + per-second activity bucket +
-    /// the (service, operation) tuple's latency t-digest.
+    /// activity-floor histogram (chunk #64) + the (service, operation)
+    /// tuple's latency t-digest. Enforces the chunk #64 per-instance
+    /// `service.name` cardinality cap (`ACTIVITY_FLOOR_SERVICE_CAP`); spans
+    /// for new services after the cap is reached are dropped + counted
+    /// (aggregate warn fires from per-tick emitter).
     pub fn observe_span(
         &self,
         service_name: &str,
@@ -158,6 +194,14 @@ impl BaselineState {
             return;
         }
 
+        if !self.services.contains_key(service_name)
+            && self.services.len() >= ACTIVITY_FLOOR_SERVICE_CAP
+        {
+            self.service_cap_exceeded_since_last_tick
+                .fetch_add(1, Ordering::Relaxed);
+            return;
+        }
+
         let error_observation = if status_code == STATUS_CODE_ERROR {
             1.0
         } else {
@@ -166,6 +210,7 @@ impl BaselineState {
         let mut svc = self.services.entry(service_name.to_string()).or_default();
         svc.error_rate_ewma.observe(error_observation, now_nanos);
         svc.activity_window.push(1);
+        svc.activity_floor.observe(now_nanos);
         drop(svc);
 
         if !operation_name.is_empty() {
@@ -238,6 +283,28 @@ impl BaselineState {
             .collect()
     }
 
+    /// Snapshot per-service activity-floor silence state for chunk #64
+    /// `evaluate_service_went_silent`. Allocates a Vec — sufficient at 1Hz
+    /// tick cadence with bounded service count per
+    /// `ACTIVITY_FLOOR_SERVICE_CAP`. Mirrors `iter_services()` allocation
+    /// shape and lock discipline (snapshot at iteration; downstream works
+    /// without holding the DashMap shard lock).
+    pub fn iter_service_silence_snapshots(&self, now_nanos: i64) -> Vec<ServiceSilenceSnapshot> {
+        self.services
+            .iter()
+            .map(|entry| ServiceSilenceSnapshot {
+                service_name: entry.key().clone(),
+                current_quiet_duration_seconds: entry
+                    .activity_floor
+                    .current_quiet_duration_seconds(now_nanos),
+                p95_historical_quiet_duration_seconds: entry
+                    .activity_floor
+                    .p95_historical_quiet_duration_seconds(),
+                bootstrap_state: entry.activity_floor.bootstrap_state(now_nanos),
+            })
+            .collect()
+    }
+
     /// Snapshot all per-operation latency metrics at the supplied percentile
     /// `q ∈ [0.0, 1.0]`. Service name is recovered from the operation key's
     /// prefix (everything before the first `/`); operations с malformed keys
@@ -282,6 +349,20 @@ pub struct OperationMetricSnapshot {
     pub service_name: String,
     pub latency_at_percentile: Option<f64>,
     pub samples: u64,
+}
+
+/// Snapshot of one service's activity-floor silence state for chunk #64
+/// `evaluate_service_went_silent` consumption. Cloned from the live
+/// `DashMap` shard at iteration time; downstream evaluation works on the
+/// snapshot without holding the DashMap lock. The `p95_historical_*` field
+/// is `None` when fewer than two observations have occurred for that
+/// service (no gap samples yet).
+#[derive(Debug, Clone)]
+pub struct ServiceSilenceSnapshot {
+    pub service_name: String,
+    pub current_quiet_duration_seconds: u64,
+    pub p95_historical_quiet_duration_seconds: Option<u64>,
+    pub bootstrap_state: BootstrapState,
 }
 
 fn operation_key(service: &str, operation: &str) -> String {
@@ -331,6 +412,16 @@ pub fn run_persist_cycle(
             target: TARGET_SERVICE_ID_MISSING,
             dropped_count = drops as u64,
             "service.name empty; spans dropped this tick"
+        );
+    }
+
+    let cap_drops = state.drain_service_cap_exceeded_since_last_tick();
+    if cap_drops > 0 {
+        tracing::warn!(
+            target: TARGET_SERVICE_CAP_EXCEEDED,
+            dropped_count = cap_drops as u64,
+            cap = ACTIVITY_FLOOR_SERVICE_CAP as u64,
+            "service.name cardinality cap reached; new-service spans dropped this tick"
         );
     }
 
@@ -812,5 +903,96 @@ mod tests {
             .find(|(k, _)| k == "kind")
             .map(|(_, v)| v.clone());
         assert_eq!(kind, Some("cold_start".to_string()));
+    }
+
+    #[test]
+    fn observe_span_routes_to_activity_floor_observe() {
+        let state = BaselineState::new();
+        let first = 1_000 * 1_000_000_000_i64;
+        state.observe_span("svc-a", "op", 0, 50, first);
+        let snapshots = state.iter_service_silence_snapshots(first);
+        assert_eq!(snapshots.len(), 1);
+        assert_eq!(snapshots[0].service_name, "svc-a");
+        assert_eq!(snapshots[0].current_quiet_duration_seconds, 0);
+        assert_eq!(snapshots[0].bootstrap_state, BootstrapState::Learning);
+        let later = first + 60 * 1_000_000_000;
+        let snapshots_later = state.iter_service_silence_snapshots(later);
+        assert_eq!(snapshots_later[0].current_quiet_duration_seconds, 60);
+    }
+
+    #[test]
+    fn observe_span_enforces_service_cardinality_cap() {
+        let state = BaselineState::new();
+        // Fill exactly to the cap with distinct services.
+        for i in 0..ACTIVITY_FLOOR_SERVICE_CAP {
+            let name = format!("svc-{i}");
+            state.observe_span(&name, "op", 0, 50, 1_000_000);
+        }
+        assert_eq!(state.service_count(), ACTIVITY_FLOOR_SERVICE_CAP);
+        let cap_drops_before = state.drain_service_cap_exceeded_since_last_tick();
+        assert_eq!(cap_drops_before, 0);
+        // Emit additional 10 distinct service names → all dropped.
+        for i in 0..10 {
+            let name = format!("over-cap-{i}");
+            state.observe_span(&name, "op", 0, 50, 2_000_000);
+        }
+        // Service count stays at cap; cap counter increments by 10.
+        assert_eq!(state.service_count(), ACTIVITY_FLOOR_SERVICE_CAP);
+        let cap_drops = state.drain_service_cap_exceeded_since_last_tick();
+        assert_eq!(cap_drops, 10);
+        assert_eq!(
+            state.drain_service_cap_exceeded_since_last_tick(),
+            0,
+            "drain resets counter"
+        );
+        // Existing services can still observe (cap check skipped on contains_key).
+        state.observe_span("svc-0", "op", 0, 50, 3_000_000);
+        assert_eq!(state.service_count(), ACTIVITY_FLOOR_SERVICE_CAP);
+    }
+
+    #[test]
+    fn service_cap_exceeded_emits_aggregate_warn_per_tick() {
+        let (sub, events) = CapturingSubscriber::new();
+        let tmp = TempDir::new().expect("tmp");
+        let path = resolve_corpus_path(tmp.path()).expect("resolve");
+        let state = BaselineState::new();
+        for i in 0..ACTIVITY_FLOOR_SERVICE_CAP {
+            state.observe_span(&format!("svc-{i}"), "op", 0, 50, 1_000_000);
+        }
+        for i in 0..5 {
+            state.observe_span(&format!("over-{i}"), "op", 0, 50, 2_000_000);
+        }
+        tracing::subscriber::with_default(sub, || {
+            run_persist_cycle(&state, &path, 5_000, "periodic").expect("persist");
+        });
+
+        let captured = events.lock().unwrap();
+        let cap_events: Vec<&CapturedEvent> = captured
+            .iter()
+            .filter(|(t, _, _)| t == TARGET_SERVICE_CAP_EXCEEDED)
+            .collect();
+        assert_eq!(cap_events.len(), 1, "expected exactly one aggregate warn");
+        let (target, level, fields) = cap_events[0];
+        assert_eq!(target, TARGET_SERVICE_CAP_EXCEEDED);
+        assert_eq!(*level, Level::WARN);
+        let dropped = fields
+            .iter()
+            .find(|(k, _)| k == "dropped_count")
+            .map(|(_, v)| v.clone());
+        assert_eq!(dropped, Some("5".to_string()));
+        // PII guard: aggregate warn must not carry per-service identifiers.
+        let banned = [
+            "service_name",
+            "scope_id",
+            "span_id",
+            "trace_id",
+            "operation_name",
+        ];
+        for (k, _) in fields {
+            assert!(
+                !banned.contains(&k.as_str()),
+                "PII key {k:?} leaked into cap warn"
+            );
+        }
     }
 }

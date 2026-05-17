@@ -660,3 +660,62 @@ Alternative timing: defer until the second observed instance to confirm the patt
 - Triggering session: session 82 (`/andromeda-setup-project --delta` invocation, commit `ac09308`) — first observed bundled-uncommitted scenario in pulse v0.2.0 dogfood
 - Related companion in session-learnings.md (Tier 3): "2026-05-17 (session 82) — Bundled `--delta` commit when prior uncommitted refactor exists" (workflow-lesson framing of same friction; this proposal is the skill-mechanic-enhancement framing)
 - Sibling proposals: Proposal 5 (Type 7 expected_propagation pre-populate) + Proposal 6 (Form 1 §1 mechanical update) — same theme of "/andromeda-evolve + /andromeda-setup-project --delta authoring-time correctness"; this proposal extends the theme to /delta commit-time correctness
+
+## Status: PROPOSED — 2026-05-17 (session 84)
+
+### Proposal 11 — `/andromeda-phase` Phase 2 merge-protocol cross-extract evidence-consistency check (obs ↔ existing AllowList registry)
+
+**Problem:**
+
+Phase 1 sub-agents in `/andromeda-phase` work independently — the obs / security / tests / arch / a11y / design / layouts extractors each filter their own specialist plan to chunk relevance without consulting the existing CODEBASE STATE (e.g., the actual `pulse-app/src/observability.rs::AllowList::production()` registry contents that the project has accumulated over prior chunks). Phase 2 merge protocol's Cross-domain rot scan catches three patterns:
+
+- Pattern 1: stale Decisions Log references (deprecates X but other extract cites X)
+- Pattern 2: security ban without matching test trigger
+- Pattern 3: shared concept with different vocabulary across extracts
+
+But Pattern 1-3 don't catch a recurring class of friction: obs extract requests fields that the existing codebase AllowList would reject. The obs sub-agent reads obs-plan.md (which authorizes per-service fields under §5 "exception for query-time aggregation metrics — service_name is intentionally unbounded") but doesn't reconcile against the more-stringent convention that chunks #62/#63 ESTABLISHED in the actual implementation (`triage.cue.emit` deliberately excludes `scope_id` even though the AttentionCue payload carries it). The plan inherits the obs extract's per-service-field request verbatim; user Phase 6 review approves without seeing the conflict; /implement Phase 1 surfaces the conflict at code-writing time and the implementer chooses Path A' (fix impl to match existing precedent) without specialist-plan amendment.
+
+Session 84 dogfood example: chunk #64 obs extract called for `service_went_silent.emit` target with `fields.service_name` + `fields.quiet_duration_ms` + `fields.p95_threshold_ms` + `fields.bootstrap_state` per-event. Plan acceptance criteria inherited this. /implement Phase 1 chose Path A' — ServiceWentSilent cues flow through existing `triage.cue.emit` target (chunk #62 precedent, no per-service fields in tracing); new chunk #64 events are aggregate-only (3 new allowlist entries vs plan's 7). Surfaced in /implement Phase 3 report; user accepts at wrap-session review. Cost: implementer cognition (recognize the conflict + design correction), report surface area (Path A' note in Phase 3 report + this proposal). Not catastrophic; recurs whenever a chunk adds new tracing targets in any namespace where prior chunks established a tighter PII convention than the literal obs-plan.
+
+**Proposal:**
+
+Extend `/andromeda-phase` Phase 2 merge-protocol Step 8 (Cross-domain rot scan) with a fourth pattern:
+
+Pattern 4 — Obs extract field request conflicts with existing AllowList registry:
+
+1. Parse obs extract `## Constraints` + `## Acceptance criteria contributions` sections for any tracing target naming convention pattern (`triage.{module}.{operation}` / `metric.{module}.{measure}` / etc.) accompanied by field specifications.
+2. Cross-reference against the existing `pulse-app/src/observability.rs::AllowList::production()` registry: parse `by_target.insert(target, [fields].iter()...)` entries for the same target namespace family (e.g., all `triage.cue.*` entries).
+3. Build a registry-derived "established convention" summary per namespace (e.g., "triage.cue.* entries permit `kind`, `priority`, `scope`, `magnitude`, etc. but exclude `service_name` / `scope_id`").
+4. Flag conflict: "Pattern 4 — Obs extract requests field `{field}` for new target `{target}` in namespace `{ns}`; existing AllowList registry for `{ns}` entries does not admit `{field}` (chunks #X/#Y precedent). Plan implementer must choose: (a) extend AllowList convention (security-plan §Logging review needed); (b) follow precedent (rephrase obs criterion as aggregate-only). Default-recommendation: (b) per established codebase pattern."
+
+User Phase 6 review sees the conflict explicitly + decides direction BEFORE /implement Phase 1 surfaces it.
+
+**Design:**
+
+- Phase 2 merge-protocol Step 8 gains a new pattern detector.
+- Implementation requires read access to `pulse-app/src/observability.rs` (or stack-equivalent registry file) from the orchestrator — already present in Phase 3 codebase research scope (`/andromeda-phase` orchestrator reads source files anyway).
+- Pattern 4 lives ONLY in `/andromeda-phase` Phase 2 merge protocol; does NOT modify Phase 1 sub-agent prompts (sub-agents stay scoped to their specialist plan; cross-extract reconciliation is orchestrator territory per Phase 2 design).
+- Output renders in `combined.md` §Cross-domain rot warnings section + Phase 6 user review summary surfaces Pattern 4 hits.
+- Generalizes beyond obs ↔ AllowList — the pattern is "Phase 1 sub-agent extract proposes shape conflicting with codebase-established convention captured in registry-like files". Future variants: tests extract proposes `#[tokio::test(start_paused = true, flavor = "multi_thread")]` (codebase precedent testing.md 2026-05-06 shows incompatible combination); design extract proposes a new color token (codebase precedent design-system.md already locked palette).
+
+**Implementation cost estimate:**
+
+| File | Change | Lines |
+|---|---|---|
+| `andromeda-phase/references/phase-2/merge-protocol.md` | Add §Pattern 4 — Obs extract field request vs existing AllowList registry; describe detection + output format | ~40 |
+| `andromeda-phase/SKILL.md` | Phase 2 Step 8 — extend pattern list to include Pattern 4; orchestrator instructions to read AllowList file | ~10 |
+| `andromeda-phase/references/visual-references.md` | Phase 6 review banner — show Pattern 4 hits prominently when present | ~10 |
+
+**Total:** ~60 lines across 3 files. Moderate-effort enhancement; high-value because it shifts the cognitive cost of conflict detection from /implement-time to /phase-time (cheaper because user is reviewing the plan anyway; avoids the surprise + Path A' explanation in /implement Phase 3 report).
+
+**When to do:**
+
+- Optionally now-soon. Confidence that this pattern recurs is medium (one observed instance: session 84 chunk #64). The fix is small but pays off only when the pattern actually fires.
+- Defer-until-second-observation alternative — wait until chunk #65 or later adds another tracing namespace AND triggers another Pattern 4-style /implement Path A'; bundle two observations into the same proposal-to-implementation cycle for higher signal-noise ratio.
+- Author preference — lean toward defer; single observation is weak evidence of recurring friction. Chunk #65 is span-events ingestion which doesn't touch the cue/baseline namespace where #62-#64 established the precedent, so the next likely trigger is post-Phase-3 (LLM interpretation layer) chunks.
+
+**Cross-references:**
+
+- Triggering session: session 84 (chunk #64 implementation; /implement Phase 3 report documented the Path A' correction; this proposal extends the lesson to /phase Phase 2 merge protocol)
+- Companion in `.claude/rules/observability.md` Session Additions (Tier 2 rule): "2026-05-17 (session 84): Chunks #62/#63/#64 established a TIGHTER AllowList convention..." — that rule tells chunk implementers about the convention; this proposal proposes catching the conflict at planning-time so implementers don't need to discover it at coding-time
+- Sibling proposals: Proposal 7 (Type 6 narrative-cascade visibility) — same theme of "make implicit conventions visible to planning-time machinery so /implement doesn't surface them post-hoc"

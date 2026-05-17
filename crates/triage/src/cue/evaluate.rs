@@ -1,4 +1,4 @@
-use crate::baseline::BaselineState;
+use crate::baseline::{BaselineState, BootstrapState};
 use crate::contract::{AttentionCue, CueKind, CueScope};
 use crate::cue::classify::{classify_priority, dual_condition_bypass};
 use crate::cue::thresholds::Thresholds;
@@ -98,6 +98,57 @@ pub fn evaluate_thresholds(
         });
     }
 
+    cues
+}
+
+/// Pure synchronous evaluator for chunk #64 ServiceWentSilent cues. Iterates
+/// per-service silence snapshots; emits a cue ONLY when the service has
+/// crossed the bootstrap window (`bootstrap_state == Ready`) AND its current
+/// quiet duration exceeds its own learned p95 quiet duration. Cues are NOT
+/// subject to chunk #63 restart-window suppression (the suppression filter
+/// in `pattern::suppression::evaluate_with_suppression` only filters
+/// `ErrorRateSpike`), so `suppression_bypassed = false` is the only valid
+/// value at construction.
+///
+/// Bootstrap state derivation depends ONLY on internal clock per security
+/// extract — incoming OTLP attribute values cannot influence the gate
+/// regardless of attribute shape.
+pub fn evaluate_service_went_silent(
+    state: &BaselineState,
+    _thresholds: &Thresholds,
+    now_nanos: i64,
+) -> Vec<AttentionCue> {
+    let mut cues = Vec::new();
+    for snapshot in state.iter_service_silence_snapshots(now_nanos) {
+        if snapshot.bootstrap_state != BootstrapState::Ready {
+            continue;
+        }
+        let Some(p95_seconds) = snapshot.p95_historical_quiet_duration_seconds else {
+            continue;
+        };
+        if snapshot.current_quiet_duration_seconds <= p95_seconds {
+            continue;
+        }
+        let magnitude = if p95_seconds == 0 {
+            snapshot.current_quiet_duration_seconds as f64
+        } else {
+            snapshot.current_quiet_duration_seconds as f64 / p95_seconds as f64
+        };
+        let confidence = 1.0;
+        let persistence_seconds = snapshot.current_quiet_duration_seconds;
+        let priority_tier = classify_priority(magnitude, confidence, persistence_seconds);
+        cues.push(AttentionCue {
+            kind: CueKind::ServiceWentSilent,
+            scope: CueScope::Service,
+            scope_id: Some(snapshot.service_name),
+            magnitude,
+            absolute_value: snapshot.current_quiet_duration_seconds as f64,
+            persistence_seconds,
+            confidence,
+            priority_tier,
+            suppression_bypassed: false,
+        });
+    }
     cues
 }
 
@@ -274,6 +325,139 @@ mod tests {
         assert!(
             cues.is_empty(),
             "empty service.name spans must not produce cues"
+        );
+    }
+
+    const NANOS_PER_SEC: i64 = 1_000_000_000;
+
+    /// Observe a service at regular gaps to build a p95 distribution.
+    /// `count` observations at `gap_seconds` apart starting at `first_nanos`.
+    fn seed_regular_gaps(
+        state: &BaselineState,
+        service: &str,
+        first_nanos: i64,
+        gap_seconds: i64,
+        count: i64,
+    ) {
+        for i in 0..count {
+            let now = first_nanos + (i * gap_seconds) * NANOS_PER_SEC;
+            state.observe_span(service, "op", 0, 50, now);
+        }
+    }
+
+    #[test]
+    fn evaluate_service_went_silent_empty_state_returns_no_cues() {
+        let state = BaselineState::new();
+        let cues = evaluate_service_went_silent(&state, &Thresholds::default(), 1_000);
+        assert!(cues.is_empty());
+    }
+
+    #[test]
+    fn evaluate_service_went_silent_during_bootstrap_returns_no_cues_even_when_quiet_long() {
+        let state = BaselineState::new();
+        let first = 1_000 * NANOS_PER_SEC;
+        seed_regular_gaps(&state, "svc-fresh", first, 60, 30);
+        // 30 minutes of observations + now = first + 2 hours but observe stopped
+        // after ~30min → current_quiet = ~5400s. Bootstrap end requires
+        // 3600s elapsed since FIRST observation. now = first + 1800s + 3600s
+        // would be past bootstrap. Instead pick now = first + 2000s (still in
+        // bootstrap window — only 2000s elapsed since first).
+        let now = first + 2_000 * NANOS_PER_SEC;
+        let cues = evaluate_service_went_silent(&state, &Thresholds::default(), now);
+        assert!(cues.is_empty(), "bootstrap suppression must hold");
+    }
+
+    #[test]
+    fn evaluate_service_went_silent_post_bootstrap_below_p95_returns_no_cues() {
+        let state = BaselineState::new();
+        let first = 0_i64;
+        // 70 observations at 60s gap → first=0, last=4140s, p95~60s, bootstrap
+        // requires now ≥ first + 3600s.
+        seed_regular_gaps(&state, "svc-active", first, 60, 70);
+        let last = 69 * 60 * NANOS_PER_SEC;
+        // now is 30s after last → current_quiet = 30s ≤ p95 (60s) → no cue.
+        let now = last + 30 * NANOS_PER_SEC;
+        let cues = evaluate_service_went_silent(&state, &Thresholds::default(), now);
+        assert!(cues.is_empty(), "current_quiet ≤ p95 must not emit");
+    }
+
+    #[test]
+    fn evaluate_service_went_silent_post_bootstrap_above_p95_returns_cue() {
+        let state = BaselineState::new();
+        let first = 0_i64;
+        seed_regular_gaps(&state, "svc-quiet", first, 60, 70);
+        let last = 69 * 60 * NANOS_PER_SEC;
+        // Advance now to 600s past last → current_quiet = 600s >> p95 (60s).
+        // Bootstrap done: now - first = ~4740s > 3600s.
+        let now = last + 600 * NANOS_PER_SEC;
+        let cues = evaluate_service_went_silent(&state, &Thresholds::default(), now);
+        assert_eq!(cues.len(), 1, "expected one ServiceWentSilent cue");
+        let cue = &cues[0];
+        assert_eq!(cue.kind, CueKind::ServiceWentSilent);
+        assert_eq!(cue.scope, CueScope::Service);
+        assert_eq!(cue.scope_id.as_deref(), Some("svc-quiet"));
+        assert!(cue.magnitude > 1.0);
+        assert!(!cue.suppression_bypassed);
+    }
+
+    #[test]
+    fn evaluate_service_went_silent_bursty_pattern_keeps_quiet_phases_silent() {
+        let state = BaselineState::new();
+        // Bursty: 10 bursts of 5 observations each. Within-burst gaps are
+        // 10s (40 small gaps); between-burst inter-arrival is 1200s producing
+        // 9 large gaps of ~1160s. p95 of [10×40, 1160×9] lands in the upper
+        // tail (near 1160s) because 95% of 49 samples = index 46, which is
+        // the 7th of the 9 large gaps after sorting.
+        let bursts: i64 = 10;
+        let per_burst: i64 = 5;
+        let within_gap: i64 = 10;
+        let between_gap: i64 = 1_200;
+        for burst in 0..bursts {
+            let burst_start = burst * between_gap * NANOS_PER_SEC;
+            for i in 0..per_burst {
+                state.observe_span(
+                    "svc-bursty",
+                    "op",
+                    0,
+                    50,
+                    burst_start + (i * within_gap) * NANOS_PER_SEC,
+                );
+            }
+        }
+        let last = (bursts - 1) * between_gap * NANOS_PER_SEC
+            + (per_burst - 1) * within_gap * NANOS_PER_SEC;
+        // Now = last + 500s → less than learned p95 (~1160s) → no cue.
+        // Bootstrap done: now - first = (bursts-1)*between_gap + 4*within_gap + 500
+        // = 9*1200 + 40 + 500 = 11340s > 3600s ✓.
+        let now = last + 500 * NANOS_PER_SEC;
+        let cues = evaluate_service_went_silent(&state, &Thresholds::default(), now);
+        assert!(
+            cues.is_empty(),
+            "500s quiet inside bursty pattern (learned p95 ~1160s) should not emit; got {cues:?}"
+        );
+    }
+
+    #[test]
+    fn evaluate_service_went_silent_attribute_poisoning_does_not_bypass_bootstrap() {
+        let state = BaselineState::new();
+        let first = 1_000_000_000_000_i64;
+        // Poison: service.name shaped like an internal-state-machine
+        // assertion. Bootstrap MUST stay Learning regardless of the string
+        // content — the gate consults internal clock only.
+        for name in [
+            "bootstrap.complete=true",
+            "quiet.duration=0",
+            "ready",
+            "BootstrapState::Ready",
+        ] {
+            state.observe_span(name, "op", 0, 50, first);
+        }
+        // now is only 1 second after first observations → bootstrap not done.
+        let now = first + NANOS_PER_SEC;
+        let cues = evaluate_service_went_silent(&state, &Thresholds::default(), now);
+        assert!(
+            cues.is_empty(),
+            "bootstrap suppression must hold under attribute-shaped service names"
         );
     }
 }

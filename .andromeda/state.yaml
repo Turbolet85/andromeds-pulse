@@ -1,14 +1,14 @@
 schema_version: 2
-last_wrap: 2026-05-17T15:19:58Z
-last_reconcile: 2026-05-17T15:19:58Z
+last_wrap: 2026-05-17T16:35:00Z
+last_reconcile: 2026-05-17T16:35:00Z
 
 last_completed_chunk:
-  route_index: 63
-  title: "Restart event detector + dual-condition bypass — `crates/triage/pattern` RestartDetector emits restart events to `pulse://stream/restart-events`; `crates/triage/cue` suppresses cues during restart windows EXCEPT for dual-condition magnitude bypass (P-057) which ensures real catastrophic regressions surface during restart. Capabilities P-015 (Restart Event Detection) + P-016 (Restart-Window Suppression Surgical) + P-057 (Dual-Condition Suppression Bypass). Bypass test scenarios per pulse-v0_2_0-route §63: 8×/3%, 12×/4%, 6×/7% relative-magnitude × absolute-rate."
+  route_index: 64
+  title: "Activity floor learning + corpus persistence — per-service 24h rolling histogram + ServiceWentSilent gating by p95 historical quiet duration + 1-hour bootstrap suppression window + per-service.name cardinality cap (1024 services, drop-new-arrivals eviction); capabilities P-013 (Service Activity Floor Learning, persistence sub-scope deferred per user ordering decision) + P-014 (Service Went Silent Detection). IN-MEMORY-ONLY scope: corpus persistence sub-scope (60s flush + load-on-startup with state-age check identical to #61) deferred to subsequent /andromeda-evolve cycle once #69 corpus scaffold lands; ActivityFloor struct already serde-ready for the wire-up. Implementation: `crates/triage/src/baseline/activity_floor.rs` (NEW) + `crates/triage/src/baseline/mod.rs` (ServiceBaseline.activity_floor field + cardinality cap + iter_service_silence_snapshots accessor + ServiceSilenceSnapshot pub struct) + `crates/triage/src/cue/evaluate.rs` (evaluate_service_went_silent fn) + `crates/triage/src/cue/emitter.rs` (per-tick aggregate event + integration into run_one_emit_cycle) + `crates/triage/src/cue/thresholds.rs` (bootstrap_window_seconds + quiet_duration_percentile fields) + `crates/triage/src/contract.rs` (14 pub use re-exports) + `pulse-app/src/observability.rs` (3 AllowList entries: triage.baseline.service_went_silent.evaluate + triage.baseline.service_cap_exceeded + metric.triage.activity_floor.bootstrap_state)."
   epoch: 9
-  committed_at: 2026-05-17T13:20:00Z
-  commit_sha: cdfe1da
-  commit_subject: "feat(triage): chunk #63 — restart event detector + dual-condition bypass (Epoch 9 Foundation v0.2.0 seventh chunk); session 81 wrap"
+  committed_at: 2026-05-17T16:35:00Z
+  commit_sha: 6605123
+  commit_subject: "feat(triage): chunk #64 — activity floor learning + ServiceWentSilent gating (Epoch 9 Foundation v0.2.0 eighth chunk; IN-MEMORY-ONLY scope); session 84 wrap"
 
 in_progress: null
 
@@ -24,9 +24,9 @@ plan_freshness:
   input_mtime: 2026-05-02T06:52:58Z
 
 living_artifact_freshness:
-  dep_tree_reconciled_at: 2026-05-17T15:19:58Z
-  api_surface_reconciled_at: 2026-05-17T15:19:58Z
-  most_recent_code_mtime: 2026-05-17T13:15:07Z
+  dep_tree_reconciled_at: 2026-05-17T16:35:00Z
+  api_surface_reconciled_at: 2026-05-17T16:35:00Z
+  most_recent_code_mtime: 2026-05-17T16:30:00Z
   reconcile_failed: false
 
 drift_warnings: []
@@ -359,4 +359,4 @@ spec_amendments:
       propagated_by_run: .andromeda/runs/2026-05-11T19-00-00-setup-project-delta/
       archived_at: 2026-05-11T19:25:00Z
 
-session_count: 83
+session_count: 84

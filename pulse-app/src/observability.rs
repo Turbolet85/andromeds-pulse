@@ -1142,6 +1142,47 @@ impl AllowList {
                 .collect(),
         );
 
+        // Chunk #64 — activity floor learning + corpus persistence (Epoch 9
+        // Foundation v0.2.0 eighth chunk; capabilities P-013 + P-014). 3 new
+        // tracing target leaves emitted by `crates/triage/src/cue/emitter.rs`
+        // (service_went_silent aggregate evaluate + bootstrap_state metric)
+        // + `crates/triage/src/baseline/mod.rs` (service-name cardinality cap
+        // aggregate warn). PII discipline (per security plan §Anti-Patterns
+        // § Logging row 1 + chunk #62/#63 precedent): no `service`/`scope_id`
+        // / OTLP attribute fields admitted — only bounded-cardinality count +
+        // structural numeric fields cross the scrubber boundary. ServiceWent-
+        // Silent cue payloads on the `pulse://stream/attention-cues` broadcast
+        // topic are product surface (contains `scope_id` = service.name);
+        // self-observation events strictly aggregate.
+        by_target.insert(
+            "triage.baseline.service_went_silent.evaluate",
+            [
+                "services_tracked",
+                "services_in_bootstrap",
+                "services_ready",
+                "silence_cues_emitted",
+            ]
+            .iter()
+            .copied()
+            .collect(),
+        );
+        by_target.insert(
+            "triage.baseline.service_cap_exceeded",
+            ["dropped_count", "cap"].iter().copied().collect(),
+        );
+        by_target.insert(
+            "metric.triage.activity_floor.bootstrap_state",
+            [
+                "value",
+                "services_in_bootstrap",
+                "services_ready",
+                "services_tracked",
+            ]
+            .iter()
+            .copied()
+            .collect(),
+        );
+
         Self { by_target }
     }
 
@@ -2131,6 +2172,89 @@ mod tests {
             assert_eq!(
                 fields[forbidden], "<redacted>",
                 "field `{forbidden}` MUST be redacted at snapshot.curate.aggregate target (default-deny via snapshot fall-through)",
+            );
+        }
+    }
+
+    #[test]
+    fn allowlist_for_target_resolves_service_went_silent_evaluate_field_set() {
+        // chunk #64: per-tick aggregate event for ServiceWentSilent gating.
+        // Bounded-cardinality count fields only — no per-service identifiers
+        // per chunk #62/#63 PII discipline.
+        let al = AllowList::production();
+        let set = al
+            .for_target("triage.baseline.service_went_silent.evaluate")
+            .expect("triage.baseline.service_went_silent.evaluate entry");
+        for required in [
+            "services_tracked",
+            "services_in_bootstrap",
+            "services_ready",
+            "silence_cues_emitted",
+        ] {
+            assert!(
+                set.contains(required),
+                "service_went_silent.evaluate must permit `{required}`",
+            );
+        }
+        for banned in [
+            "service_name",
+            "scope_id",
+            "span_id",
+            "trace_id",
+            "operation_name",
+        ] {
+            assert!(
+                !set.contains(banned),
+                "service_went_silent.evaluate must NOT permit `{banned}` (chunk #62/#63 PII discipline)",
+            );
+        }
+    }
+
+    #[test]
+    fn allowlist_for_target_resolves_service_cap_exceeded_field_set() {
+        // chunk #64: aggregate warn when service.name cardinality cap is
+        // reached. dropped_count + cap fields only — no per-service identifiers.
+        let al = AllowList::production();
+        let set = al
+            .for_target("triage.baseline.service_cap_exceeded")
+            .expect("triage.baseline.service_cap_exceeded entry");
+        for required in ["dropped_count", "cap"] {
+            assert!(
+                set.contains(required),
+                "service_cap_exceeded must permit `{required}`",
+            );
+        }
+        for banned in ["service_name", "scope_id"] {
+            assert!(
+                !set.contains(banned),
+                "service_cap_exceeded must NOT permit `{banned}` (chunk #62/#63 PII discipline)",
+            );
+        }
+    }
+
+    #[test]
+    fn allowlist_for_target_resolves_metric_activity_floor_bootstrap_state_field_set() {
+        // chunk #64: per-tick bootstrap-state gauge. Aggregate count fields
+        // only — no per-service identifiers.
+        let al = AllowList::production();
+        let set = al
+            .for_target("metric.triage.activity_floor.bootstrap_state")
+            .expect("metric.triage.activity_floor.bootstrap_state entry");
+        for required in [
+            "value",
+            "services_in_bootstrap",
+            "services_ready",
+            "services_tracked",
+        ] {
+            assert!(
+                set.contains(required),
+                "metric.triage.activity_floor.bootstrap_state must permit `{required}`",
+            );
+        }
+        for banned in ["service_name", "scope_id"] {
+            assert!(
+                !set.contains(banned),
+                "metric.triage.activity_floor.bootstrap_state must NOT permit `{banned}` (chunk #62/#63 PII discipline)",
             );
         }
     }

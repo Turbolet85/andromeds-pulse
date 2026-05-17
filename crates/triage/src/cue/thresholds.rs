@@ -75,6 +75,17 @@ pub const DEFAULT_RESTART_SUPPRESSION_WINDOW_SECONDS: u64 = 60;
 /// not restart-induced noise).
 pub const DEFAULT_SUPPRESSION_PERSISTENCE_CUTOFF_SECONDS: u64 = 30;
 
+/// Default activity-floor bootstrap window (1h per chunk #64 spec).
+/// During the first hour of observations for a service, `ServiceWentSilent`
+/// emission is universally suppressed regardless of quiet duration.
+/// Mirrors `baseline::BOOTSTRAP_WINDOW_SECONDS` so config-path / hot-reload
+/// can tune the value without touching the baseline module's default.
+pub const DEFAULT_BOOTSTRAP_WINDOW_SECONDS: u64 = 3_600;
+
+/// Default percentile used to gate `ServiceWentSilent` emission against the
+/// learned historical quiet-duration distribution (chunk #64 P-014).
+pub const DEFAULT_QUIET_DURATION_PERCENTILE: f64 = 0.95;
+
 /// Validation error for `Thresholds`. Local к the cue module so threshold
 /// validation does not couple к `BaselineError` shape (chunk #61). Future
 /// config-path deserialization MAY convert to a unified error type at the
@@ -106,6 +117,8 @@ pub struct Thresholds {
     pub restart_gap_threshold_seconds: u64,
     pub restart_suppression_window_seconds: u64,
     pub suppression_persistence_cutoff_seconds: u64,
+    pub bootstrap_window_seconds: u64,
+    pub quiet_duration_percentile: f64,
 }
 
 impl Default for Thresholds {
@@ -125,6 +138,8 @@ impl Default for Thresholds {
             restart_gap_threshold_seconds: DEFAULT_RESTART_GAP_THRESHOLD_SECONDS,
             restart_suppression_window_seconds: DEFAULT_RESTART_SUPPRESSION_WINDOW_SECONDS,
             suppression_persistence_cutoff_seconds: DEFAULT_SUPPRESSION_PERSISTENCE_CUTOFF_SECONDS,
+            bootstrap_window_seconds: DEFAULT_BOOTSTRAP_WINDOW_SECONDS,
+            quiet_duration_percentile: DEFAULT_QUIET_DURATION_PERCENTILE,
         }
     }
 }
@@ -198,6 +213,19 @@ impl Thresholds {
                 field: "suppression_persistence_cutoff_seconds",
             });
         }
+        if self.bootstrap_window_seconds == 0 {
+            return Err(ThresholdsError::InvalidConfig {
+                field: "bootstrap_window_seconds",
+            });
+        }
+        if !self.quiet_duration_percentile.is_finite()
+            || self.quiet_duration_percentile <= 0.0
+            || self.quiet_duration_percentile >= 1.0
+        {
+            return Err(ThresholdsError::InvalidConfig {
+                field: "quiet_duration_percentile",
+            });
+        }
         Ok(())
     }
 }
@@ -216,6 +244,9 @@ const _: () = {
     assert!(DEFAULT_RESTART_GAP_THRESHOLD_SECONDS > 0);
     assert!(DEFAULT_RESTART_SUPPRESSION_WINDOW_SECONDS > 0);
     assert!(DEFAULT_SUPPRESSION_PERSISTENCE_CUTOFF_SECONDS > 0);
+    assert!(DEFAULT_BOOTSTRAP_WINDOW_SECONDS > 0);
+    assert!(DEFAULT_QUIET_DURATION_PERCENTILE > 0.0);
+    assert!(DEFAULT_QUIET_DURATION_PERCENTILE < 1.0);
 };
 
 #[cfg(test)]
@@ -239,6 +270,64 @@ mod tests {
         assert_eq!(t.restart_gap_threshold_seconds, 20);
         assert_eq!(t.restart_suppression_window_seconds, 60);
         assert_eq!(t.suppression_persistence_cutoff_seconds, 30);
+        assert_eq!(t.bootstrap_window_seconds, 3_600);
+        assert_eq!(t.quiet_duration_percentile, 0.95);
+    }
+
+    #[test]
+    fn validate_rejects_zero_bootstrap_window_seconds() {
+        let t = Thresholds {
+            bootstrap_window_seconds: 0,
+            ..Thresholds::default()
+        };
+        assert_eq!(
+            t.validate().unwrap_err(),
+            ThresholdsError::InvalidConfig {
+                field: "bootstrap_window_seconds"
+            }
+        );
+    }
+
+    #[test]
+    fn validate_rejects_quiet_duration_percentile_outside_unit_range() {
+        let t = Thresholds {
+            quiet_duration_percentile: 1.5,
+            ..Thresholds::default()
+        };
+        assert_eq!(
+            t.validate().unwrap_err(),
+            ThresholdsError::InvalidConfig {
+                field: "quiet_duration_percentile"
+            }
+        );
+    }
+
+    #[test]
+    fn validate_rejects_nan_quiet_duration_percentile() {
+        let t = Thresholds {
+            quiet_duration_percentile: f64::NAN,
+            ..Thresholds::default()
+        };
+        assert_eq!(
+            t.validate().unwrap_err(),
+            ThresholdsError::InvalidConfig {
+                field: "quiet_duration_percentile"
+            }
+        );
+    }
+
+    #[test]
+    fn validate_rejects_zero_quiet_duration_percentile() {
+        let t = Thresholds {
+            quiet_duration_percentile: 0.0,
+            ..Thresholds::default()
+        };
+        assert_eq!(
+            t.validate().unwrap_err(),
+            ThresholdsError::InvalidConfig {
+                field: "quiet_duration_percentile"
+            }
+        );
     }
 
     #[test]

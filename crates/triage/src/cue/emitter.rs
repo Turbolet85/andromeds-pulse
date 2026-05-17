@@ -2,15 +2,16 @@ use std::sync::Arc;
 
 use tokio::sync::broadcast::error::TryRecvError;
 
-use crate::baseline::BaselineState;
+use crate::baseline::{BaselineState, BootstrapState};
 use crate::contract::{AttentionCue, CueScope, PriorityTier};
 use crate::cue::broadcast::{AttentionCueBroadcast, CadenceTriggerChannel};
 use crate::cue::classify::{cue_kind_label, priority_tier_label};
-use crate::cue::evaluate::evaluate_thresholds;
+use crate::cue::evaluate::{evaluate_service_went_silent, evaluate_thresholds};
 use crate::cue::thresholds::Thresholds;
 use crate::cue::{
     TARGET_CUE_EMIT, TARGET_CUE_EVALUATE, TARGET_CUE_SUPPRESSION_BYPASS,
-    TARGET_CUE_SUPPRESSION_CHECK, TARGET_CUE_TICK, TARGET_METRIC_CUE_EMIT_COUNT,
+    TARGET_CUE_SUPPRESSION_CHECK, TARGET_CUE_TICK, TARGET_METRIC_BOOTSTRAP_STATE,
+    TARGET_METRIC_CUE_EMIT_COUNT, TARGET_SERVICE_WENT_SILENT_EVALUATE,
 };
 use crate::pattern::{
     RestartEventBroadcast, SuppressionParams, SuppressionState, TARGET_METRIC_MAGNITUDE_BYPASS,
@@ -47,8 +48,41 @@ pub fn run_one_emit_cycle(
         "cue evaluation cycle",
     );
 
-    let raw_cues = evaluate_thresholds(state, thresholds, now_nanos);
-    let cues_evaluated = services_tracked + operations_tracked;
+    let mut raw_cues = evaluate_thresholds(state, thresholds, now_nanos);
+    let silence_cues = evaluate_service_went_silent(state, thresholds, now_nanos);
+    let silence_cues_count = silence_cues.len();
+    raw_cues.extend(silence_cues);
+
+    // Aggregate bootstrap-state counts for chunk #64 observability — single
+    // pass over the snapshots, fields are bounded-cardinality counts only
+    // (no service.name per chunk #62/#63 PII discipline).
+    let silence_snapshots = state.iter_service_silence_snapshots(now_nanos);
+    let mut services_in_bootstrap = 0_u64;
+    let mut services_ready = 0_u64;
+    for snapshot in &silence_snapshots {
+        match snapshot.bootstrap_state {
+            BootstrapState::Learning => services_in_bootstrap += 1,
+            BootstrapState::Ready => services_ready += 1,
+        }
+    }
+    tracing::info!(
+        target: TARGET_SERVICE_WENT_SILENT_EVALUATE,
+        services_tracked = services_tracked as u64,
+        services_in_bootstrap = services_in_bootstrap,
+        services_ready = services_ready,
+        silence_cues_emitted = silence_cues_count as u64,
+        "service-went-silent evaluation cycle",
+    );
+    tracing::info!(
+        target: TARGET_METRIC_BOOTSTRAP_STATE,
+        value = services_ready,
+        services_in_bootstrap = services_in_bootstrap,
+        services_ready = services_ready,
+        services_tracked = services_tracked as u64,
+        "activity floor bootstrap state",
+    );
+
+    let cues_evaluated = services_tracked + operations_tracked + silence_snapshots.len();
 
     // Per-cue suppression decision logging — emit `triage.cue.suppression_check`
     // for each evaluated cue so the surgical-suppression posture (chunk #63
@@ -765,6 +799,142 @@ mod tests {
                 fields.iter().any(|(k, _)| k == required),
                 "suppression_check missing field `{required}`"
             );
+        }
+    }
+
+    /// Integration: a service that has passed its bootstrap window and gone
+    /// quiet beyond its learned p95 quiet duration produces a ServiceWentSilent
+    /// cue through `run_one_emit_cycle` end-to-end (chunk #64).
+    #[test]
+    fn run_one_emit_cycle_emits_service_went_silent_cue_post_bootstrap() {
+        const NANOS_PER_SEC: i64 = 1_000_000_000;
+        let state = BaselineState::new();
+        // Seed 70 observations at 60s intervals → first=0, last=4140s,
+        // p95~60s. Bootstrap requires >3600s elapsed since first.
+        for i in 0..70_i64 {
+            state.observe_span("svc-quiet", "op", 0, 50, (i * 60) * NANOS_PER_SEC);
+        }
+        let last = 69 * 60 * NANOS_PER_SEC;
+        // Advance now to 600s past last → current_quiet ~600s >> p95 ~60s.
+        let now = last + 600 * NANOS_PER_SEC;
+        let broadcast_handle = AttentionCueBroadcast::new();
+        let mut rx = broadcast_handle.subscribe();
+        let cadence_handle = CadenceTriggerChannel::new();
+        let _cad_rx = cadence_handle.subscribe();
+
+        let stats = run_one_emit_cycle(
+            &state,
+            &Thresholds::default(),
+            &broadcast_handle,
+            &cadence_handle,
+            &SuppressionState::new(),
+            now,
+        );
+        assert!(stats.cues_emitted >= 1);
+        let mut saw_silent = false;
+        while let Ok(cue) = rx.try_recv() {
+            if cue.kind == crate::contract::CueKind::ServiceWentSilent {
+                saw_silent = true;
+                assert_eq!(cue.scope_id.as_deref(), Some("svc-quiet"));
+                assert!(!cue.suppression_bypassed);
+                break;
+            }
+        }
+        assert!(
+            saw_silent,
+            "expected at least one ServiceWentSilent cue on broadcast"
+        );
+    }
+
+    /// Integration: bootstrap suppression holds end-to-end through the emit
+    /// cycle (chunk #64) — services still inside their 1h bootstrap window
+    /// do not produce ServiceWentSilent cues regardless of quiet duration.
+    #[test]
+    fn run_one_emit_cycle_does_not_emit_service_went_silent_during_bootstrap() {
+        const NANOS_PER_SEC: i64 = 1_000_000_000;
+        let state = BaselineState::new();
+        let first = 1_000 * NANOS_PER_SEC;
+        for i in 0..20_i64 {
+            state.observe_span("svc-fresh", "op", 0, 50, first + (i * 60) * NANOS_PER_SEC);
+        }
+        // now still inside bootstrap window (2000s elapsed vs 3600s required).
+        let now = first + 2_000 * NANOS_PER_SEC;
+        let broadcast_handle = AttentionCueBroadcast::new();
+        let mut rx = broadcast_handle.subscribe();
+        let cadence_handle = CadenceTriggerChannel::new();
+        let _cad_rx = cadence_handle.subscribe();
+
+        run_one_emit_cycle(
+            &state,
+            &Thresholds::default(),
+            &broadcast_handle,
+            &cadence_handle,
+            &SuppressionState::new(),
+            now,
+        );
+        while let Ok(cue) = rx.try_recv() {
+            assert_ne!(
+                cue.kind,
+                crate::contract::CueKind::ServiceWentSilent,
+                "no ServiceWentSilent cue during bootstrap window"
+            );
+        }
+    }
+
+    /// Integration: the chunk #64 aggregate evaluation event fires per tick
+    /// with bounded-cardinality count fields (no per-service identifiers per
+    /// chunk #62/#63 PII discipline).
+    #[test]
+    fn run_one_emit_cycle_emits_service_went_silent_evaluate_aggregate_event() {
+        let (sub, events) = CapturingSubscriber::new();
+        let state = BaselineState::new();
+        let broadcast_handle = AttentionCueBroadcast::new();
+        let cadence_handle = CadenceTriggerChannel::new();
+
+        tracing::subscriber::with_default(sub, || {
+            run_one_emit_cycle(
+                &state,
+                &Thresholds::default(),
+                &broadcast_handle,
+                &cadence_handle,
+                &SuppressionState::new(),
+                1_000,
+            )
+        });
+
+        let captured = events.lock().unwrap();
+        let aggregate_events: Vec<&CapturedEvent> = captured
+            .iter()
+            .filter(|(t, _, _)| t == TARGET_SERVICE_WENT_SILENT_EVALUATE)
+            .collect();
+        assert_eq!(aggregate_events.len(), 1);
+        let (_, _, fields) = aggregate_events[0];
+        for required in [
+            "services_tracked",
+            "services_in_bootstrap",
+            "services_ready",
+            "silence_cues_emitted",
+        ] {
+            assert!(
+                fields.iter().any(|(k, _)| k == required),
+                "evaluate aggregate event missing field `{required}`"
+            );
+        }
+        // PII guard: no service.name / scope_id / span_id / trace_id / operation_name
+        // in either keys or values.
+        let banned = [
+            "service_name",
+            "scope_id",
+            "span_id",
+            "trace_id",
+            "operation_name",
+        ];
+        for (k, v) in fields {
+            assert!(
+                !banned.contains(&k.as_str()),
+                "PII key {k:?} leaked into aggregate event"
+            );
+            assert!(!v.contains("svc-"), "PII value leaked: {v:?}");
         }
     }
 

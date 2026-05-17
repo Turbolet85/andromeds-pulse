@@ -9,12 +9,19 @@ use serde::{Deserialize, Serialize};
 // Re-export public-API types from `triage::baseline` so future chunks (#62
 // attention cue emitter, #63 restart event detector) import one shape per
 // arch §Conventions "Module visibility discipline" + chunks #58/#60 precedent.
+//
+// Chunk #64 extension: `ActivityFloor` + `BootstrapState` + activity-floor
+// window constants + `ServiceSilenceSnapshot` + `ACTIVITY_FLOOR_SERVICE_CAP`
+// + `TARGET_SERVICE_CAP_EXCEEDED` cover the new per-service activity
+// histogram + ServiceWentSilent gating contract types.
 pub use crate::baseline::{
-    BaselineError, BaselineState, BootstrapResult, DEFAULT_ALPHA_5MIN_WINDOW,
-    DEFAULT_MAX_SIZE_BYTES, DEFAULT_PERSIST_INTERVAL_NANOS, DEFAULT_SERVICE_COUNT_CAP,
-    OperationMetricSnapshot, PersistStats, SCHEMA_VERSION, STATE_AGE_THRESHOLD_NANOS,
-    ServiceMetricSnapshot, bootstrap_state, persist_on_shutdown, resolve_corpus_path,
-    run_persist_cycle, run_persist_loop,
+    ACTIVITY_FLOOR_SERVICE_CAP, ActivityFloor, BOOTSTRAP_WINDOW_SECONDS, BUCKET_COUNT,
+    BUCKET_INTERVAL_SECONDS, BaselineError, BaselineState, BootstrapResult, BootstrapState,
+    DEFAULT_ALPHA_5MIN_WINDOW, DEFAULT_MAX_SIZE_BYTES, DEFAULT_PERSIST_INTERVAL_NANOS,
+    DEFAULT_SERVICE_COUNT_CAP, OperationMetricSnapshot, PersistStats, SCHEMA_VERSION,
+    STATE_AGE_THRESHOLD_NANOS, ServiceMetricSnapshot, ServiceSilenceSnapshot,
+    TARGET_SERVICE_CAP_EXCEEDED, WINDOW_DURATION_SECONDS, bootstrap_state, persist_on_shutdown,
+    resolve_corpus_path, run_persist_cycle, run_persist_loop,
 };
 
 // Chunk #62 — attention cue emitter. Re-export public-API types from
@@ -31,13 +38,14 @@ pub use crate::baseline::{
 pub use crate::cue::{
     AttentionCueBroadcast, BROADCAST_CAPACITY, CHANNEL_NAME_CADENCE_TRIGGERS,
     CadenceTriggerChannel, DEFAULT_ABSOLUTE_BYPASS_ERROR_RATE, DEFAULT_ABSOLUTE_BYPASS_LATENCY_MS,
-    DEFAULT_BASE_ERROR_RATE, DEFAULT_BASE_LATENCY_MS, DEFAULT_ERROR_RATE_MULTIPLIER,
-    DEFAULT_LATENCY_MULTIPLIER, DEFAULT_LATENCY_PERCENTILE, DEFAULT_MAGNITUDE_BYPASS_MULTIPLIER,
-    DEFAULT_MIN_PERSISTENCE_SECONDS, DEFAULT_RESTART_GAP_THRESHOLD_SECONDS,
+    DEFAULT_BASE_ERROR_RATE, DEFAULT_BASE_LATENCY_MS, DEFAULT_BOOTSTRAP_WINDOW_SECONDS,
+    DEFAULT_ERROR_RATE_MULTIPLIER, DEFAULT_LATENCY_MULTIPLIER, DEFAULT_LATENCY_PERCENTILE,
+    DEFAULT_MAGNITUDE_BYPASS_MULTIPLIER, DEFAULT_MIN_PERSISTENCE_SECONDS,
+    DEFAULT_QUIET_DURATION_PERCENTILE, DEFAULT_RESTART_GAP_THRESHOLD_SECONDS,
     DEFAULT_RESTART_SUPPRESSION_WINDOW_SECONDS, DEFAULT_SUPPRESSION_PERSISTENCE_CUTOFF_SECONDS,
     DEFAULT_TICK_INTERVAL, MIN_EWMA_SAMPLES, STREAM_NAME_ATTENTION_CUES, Thresholds,
-    ThresholdsError, classify_priority, dual_condition_bypass, evaluate_thresholds,
-    run_one_emit_cycle, start_emitter,
+    ThresholdsError, classify_priority, dual_condition_bypass, evaluate_service_went_silent,
+    evaluate_thresholds, run_one_emit_cycle, start_emitter,
 };
 
 // Chunk #63 — restart event detector + dual-condition bypass. Re-export
