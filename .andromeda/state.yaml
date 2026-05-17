@@ -1,13 +1,13 @@
 schema_version: 2
-last_wrap: 2026-05-17T21:04:30Z
-last_reconcile: 2026-05-17T21:04:30Z
+last_wrap: 2026-05-17T22:18:34Z
+last_reconcile: 2026-05-17T22:18:34Z
 
 last_completed_chunk:
   route_index: 65
   title: "Span events ingestion — extend OTLP decode in appender.rs to populate span_events table; redaction layer preserved (capability P-006; detail in pulse-v0_2_0-route §65). Implementation: `crates/buffer/src/schema.rs` (CREATE_SPAN_EVENTS + SCHEMA_DDL extended in lockstep with 5 new columns: name NOT NULL DEFAULT '', exception_type NULL, exception_message NULL, exception_stacktrace NULL, fingerprint BLOB NULL; chunk #66 substrate) + `crates/buffer/src/appender.rs` (build_span_events_record_batch + extract_string_attribute helper + #[cfg(test)] append_span_events_batch wrapper + 10 new tests + pii_canary::CapturingSubscriber+FieldCollector submodule helper) + `crates/buffer/src/consumer.rs` (dispatch_batch::Batch::Spans extended to build + append span_events under same lock guard + append_table_traced helper + production-path duckdb.append emission for all 4 tables + 1 round-trip test) + `crates/ingest/src/invariants.rs` (validate_resource_spans extended into span.events[].attributes traversal + 4 tests) + `pulse-app/src/observability.rs` (duckdb AllowList key + allowlist_for_target_resolves_duckdb_append_to_arrow_appender_fields probe test). Adjacent improvement bundled at chunk boundary: production-path duckdb.append emission lifted from #[cfg(test)] wrappers to consumer::dispatch_batch (required duckdb allowlist key to avoid default-deny JsonFieldVisitor redaction). +16 net-new tests."
   epoch: 9
   committed_at: 2026-05-17T21:05:00Z
-  commit_sha: e638195
+  commit_sha: 0bd0d76
   commit_subject: "feat(buffer): chunk #65 — span events ingestion (Epoch 9 Foundation v0.2.0 ninth chunk); session 86 wrap"
 
 in_progress: null
@@ -20,19 +20,20 @@ plan_freshness:
   tests_mtime: 2026-05-10T12:55:51Z
   obs_mtime: 2026-05-08T18:00:16Z
   a11y_mtime: 2026-05-02T21:45:23Z
-  route_mtime: 2026-05-17T17:50:17Z
+  route_mtime: 2026-05-17T22:09:09Z
   input_mtime: 2026-05-02T06:52:58Z
 
 living_artifact_freshness:
-  dep_tree_reconciled_at: 2026-05-17T21:04:30Z
-  api_surface_reconciled_at: 2026-05-17T21:04:30Z
+  dep_tree_reconciled_at: 2026-05-17T22:18:34Z
+  api_surface_reconciled_at: 2026-05-17T22:18:34Z
   most_recent_code_mtime: 2026-05-17T20:50:28Z
   reconcile_failed: false
 
 drift_warnings: []
 
 spec_amendments:
-  active:
+  active: []
+  archive:
     - amendment_id: 2026-05-17T22-01-44-append-chunk-66-exception-fingerprinting-retry-storm
       plans:
         - path: route.md
@@ -40,38 +41,11 @@ spec_amendments:
             - "§1 Route Scope Summary (Total chunks mechanical update per Proposal 6)"
             - "§2 Roadmap (Epoch 9 body)"
             - "§3 Decisions Log"
-          decisions_log_section: "2026-05-17 — Append chunk #66 exception fingerprinting + retry storm detector (--allow-route-append)"
-      trigger:
-        chunk: null
-        phase: null
-        harness: "user-driven via /andromeda-evolve"
-      authority:
-        winning_plan: route.md
-        winning_tier: pipeline state
-        losing_plan: route.md
-        losing_concern: chunk-list-stale-vs-pipeline-reality
-        rationale: "Chunk #65 (span events ingestion + span_events.fingerprint NULL substrate) landed at session 86 wrap commit 0bd0d76; chunk #65 plan explicitly declared the fingerprint column as substrate for chunk #66 population per pulse-v0_2_0-route.md §65 line 238. Authorized via --allow-route-append narrow Refuse 6 exception."
-      impl_files_synced: []
-      expected_propagation:
-        - "CLAUDE.md (GENERATED:setup:pointer-table — chunk-count cascade 9 epochs / 65 chunks → 9 epochs / 66 chunks)"
-      marker_path: .andromeda/runs/2026-05-17T22-01-44-spec-amendment-append-chunk-66-exception-fingerprinting-retry-storm/amendment.md
-      applied_at: 2026-05-17T22:01:44Z
-      noted_at: null
+      decisions_log_sections:
+        - "2026-05-17 — Append chunk #66 exception fingerprinting + retry storm detector (--allow-route-append)"
       propagated_by_run: .andromeda/runs/2026-05-17T22-10-42-setup-project-delta/
-      archived_at: null
-      verification_status: clean
+      archived_at: 2026-05-17T22:18:34Z
       flag_used: --allow-route-append
-      form: 1
-      route_section_modified: "Epoch 9 — Foundation v0.2.0"
-      chunks_added:
-        - position: 66
-          text: "Exception fingerprinting + retry storm detector — hash(exception.type + normalized stack) per span event; ≥5/30s emits Suggested cue, ≥10 Autonomous (capabilities P-017/P-018; detail in pulse-v0_2_0-route §66)."
-      chunks_renumbered: []
-      motivation: "Chunk #65 (span events ingestion + span_events.fingerprint NULL substrate) landed at session 86 wrap commit 0bd0d76; chunk #65 plan declared fingerprint column as substrate for #66 per pulse-v0_2_0-route.md §65 line 238. Chunk #60 (triage pattern module + 10 contract types) landed at session 74. Chunk #66 is the natural successor consuming both substrates per pulse-v0_2_0-route.md §Phase 2 line 240-251."
-      confirmed_shift: false
-      scope_summary_updates:
-        - "Total chunks: 65 → 66"
-  archive:
     - amendment_id: 2026-05-17T17-23-43-append-chunk-65-span-events-ingestion
       plans:
         - path: route.md
@@ -409,4 +383,4 @@ spec_amendments:
       propagated_by_run: .andromeda/runs/2026-05-11T19-00-00-setup-project-delta/
       archived_at: 2026-05-11T19:25:00Z
 
-session_count: 86
+session_count: 87
