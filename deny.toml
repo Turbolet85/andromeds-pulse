@@ -131,6 +131,13 @@ skip = [
     { crate = "darling_macro" },
     { crate = "schemars" },
     { crate = "schemars_derive" },
+    # blake3 1.8.5 transitive dep under chunk #66 (2026-05-17): pulls cpufeatures
+    # 0.3.x for SIMD detection; sha2 0.10 (existing transitive via tauri-codegen +
+    # wasmtime + wry) keeps cpufeatures 0.2.x. Pure ABI bump in the cpufeatures
+    # crate (same maintainer); both versions are build/runtime fine. Tightening
+    # would require either downgrading blake3 (worse hashing perf) OR waiting for
+    # tauri-codegen to bump к cpufeatures 0.3 (out of our control).
+    { crate = "cpufeatures" },
 ]
 skip-tree = []
 

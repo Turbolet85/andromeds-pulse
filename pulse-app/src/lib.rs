@@ -7,6 +7,7 @@ pub mod observability;
 pub mod plugins_router;
 pub mod restart_observer;
 pub mod snapshot_runtime;
+pub mod storm_observer;
 pub mod streams;
 pub mod tray;
 pub mod viz_routers;

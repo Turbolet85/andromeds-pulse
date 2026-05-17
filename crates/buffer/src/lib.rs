@@ -2,6 +2,7 @@ pub mod appender;
 pub mod broadcast;
 pub mod consumer;
 pub mod contract;
+pub mod fingerprint;
 pub mod retention;
 pub mod schema;
 pub mod state;

@@ -1200,6 +1200,70 @@ impl AllowList {
             .collect(),
         );
 
+        // Chunk #66 — retry storm detector + exception fingerprinting (Epoch
+        // 9 Foundation v0.2.0 tenth chunk; capabilities P-017 + P-018).
+        // 6 new tracing target leaves: 3 emitted by
+        // `crates/triage/src/pattern/storm.rs::observe_and_dispatch_storm`
+        // (storm detected + emit + tick) + 3 metric event targets fed by
+        // the same module's cycle + dispatch helpers.
+        //
+        // PII discipline (per chunks #62/#63/#64 AllowList convention
+        // reaffirmed by `.claude/rules/testing.md` Session Additions
+        // 2026-05-17 session 84 aggregate-only mandate): NO `service_name`
+        // / `scope_id` / `span_id` / `trace_id` / `attribute` / `body` /
+        // `exception_message` / `exception_stacktrace` fields admitted —
+        // only opaque `fingerprint_hex` (8-char hash prefix), bounded enum
+        // tags (`cue_kind`, `severity_hint`), and bounded numeric fields
+        // cross the scrubber boundary. RetryStorm cue payloads on the
+        // `pulse://stream/attention-cues` broadcast topic are product
+        // surface (carry full `scope_id` = service.name); self-observation
+        // events strictly aggregate.
+        by_target.insert(
+            "triage.pattern.storm.detected",
+            [
+                "cue_kind",
+                "severity_hint",
+                "occurrence_count",
+                "window_seconds",
+                "fingerprint_hex",
+            ]
+            .iter()
+            .copied()
+            .collect(),
+        );
+        by_target.insert(
+            "triage.pattern.storm.emit",
+            ["cue_kind", "severity_hint", "occurrence_count"]
+                .iter()
+                .copied()
+                .collect(),
+        );
+        by_target.insert(
+            "triage.pattern.storm.tick",
+            [
+                "value",
+                "tracked_fingerprints_count",
+                "storms_detected_total",
+                "fingerprints_evicted_total",
+                "window_seconds",
+            ]
+            .iter()
+            .copied()
+            .collect(),
+        );
+        by_target.insert(
+            "metric.triage.pattern.storm_detected_count",
+            ["value", "severity_hint"].iter().copied().collect(),
+        );
+        by_target.insert(
+            "metric.triage.pattern.fingerprints_tracked",
+            ["value"].iter().copied().collect(),
+        );
+        by_target.insert(
+            "metric.triage.pattern.fingerprint_evicted_count",
+            ["value"].iter().copied().collect(),
+        );
+
         Self { by_target }
     }
 
@@ -2299,6 +2363,63 @@ mod tests {
             assert!(
                 !set.contains(banned),
                 "metric.triage.activity_floor.bootstrap_state must NOT permit `{banned}` (chunk #62/#63 PII discipline)",
+            );
+        }
+    }
+
+    #[test]
+    fn allowlist_for_target_resolves_storm_detected_field_set() {
+        // chunk #66: retry storm detector emits at triage.pattern.storm.*
+        // targets. Aggregate identifier-class fields only — fingerprint_hex
+        // is the 8-char hash prefix (bounded cardinality opaque ID),
+        // severity_hint + cue_kind are bounded enum tags, occurrence_count
+        // + window_seconds are bounded numerics. NO `service_name`/`scope_id`
+        // even though the cue payload carries them (broadcast IS the surface
+        // for those; self-observation log is aggregate-only per chunk #62/
+        // #63/#64 convention reaffirmed by testing.md 2026-05-17 session 84).
+        let al = AllowList::production();
+        for target in [
+            "triage.pattern.storm.detected",
+            "triage.pattern.storm.emit",
+            "triage.pattern.storm.tick",
+            "metric.triage.pattern.storm_detected_count",
+            "metric.triage.pattern.fingerprints_tracked",
+            "metric.triage.pattern.fingerprint_evicted_count",
+        ] {
+            let set = al
+                .for_target(target)
+                .unwrap_or_else(|| panic!("{target} allowlist entry MUST exist"));
+            for banned in [
+                "service_name",
+                "scope_id",
+                "span_id",
+                "trace_id",
+                "attribute",
+                "instrumentation_scope",
+                "body",
+                "exception_message",
+                "exception_stacktrace",
+            ] {
+                assert!(
+                    !set.contains(banned),
+                    "{target} must NOT permit `{banned}` (chunk #62/#63/#64 PII discipline)",
+                );
+            }
+        }
+        // Spot-check required fields на the primary detection target.
+        let detected = al
+            .for_target("triage.pattern.storm.detected")
+            .expect("storm.detected entry");
+        for required in [
+            "cue_kind",
+            "severity_hint",
+            "occurrence_count",
+            "window_seconds",
+            "fingerprint_hex",
+        ] {
+            assert!(
+                detected.contains(required),
+                "triage.pattern.storm.detected must permit `{required}`",
             );
         }
     }

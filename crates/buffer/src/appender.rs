@@ -17,6 +17,9 @@ use ingest::grpc::proto::opentelemetry::proto::resource::v1::Resource;
 use ingest::grpc::proto::opentelemetry::proto::trace::v1::ResourceSpans;
 
 use crate::contract::Error;
+use crate::fingerprint::{
+    ExceptionFingerprint, FingerprintObserver, compute_exception_fingerprint,
+};
 
 const TS_TZ_UTC: &str = "UTC";
 
@@ -284,6 +287,7 @@ pub(crate) fn extract_string_attribute(attrs: &[KeyValue], key: &str) -> Option<
 
 pub(crate) fn build_span_events_record_batch(
     batch: &[ResourceSpans],
+    fingerprint_observer: Option<&dyn FingerprintObserver>,
 ) -> Result<Option<RecordBatch>, Error> {
     let mut trace_ids: Vec<Vec<u8>> = Vec::new();
     let mut span_ids: Vec<Vec<u8>> = Vec::new();
@@ -294,14 +298,28 @@ pub(crate) fn build_span_events_record_batch(
     let mut exception_types: Vec<Option<String>> = Vec::new();
     let mut exception_messages: Vec<Option<String>> = Vec::new();
     let mut exception_stacktraces: Vec<Option<String>> = Vec::new();
+    let mut fingerprints: Vec<Option<ExceptionFingerprint>> = Vec::new();
+    let mut service_names: Vec<String> = Vec::new();
 
     for rs in batch {
+        let service_name = extract_service_name(rs.resource.as_ref());
         for ss in &rs.scope_spans {
             for span in &ss.spans {
                 if span.trace_id.is_empty() || span.span_id.is_empty() {
                     continue;
                 }
                 for (event_index, event) in span.events.iter().enumerate() {
+                    let exception_type =
+                        extract_string_attribute(&event.attributes, "exception.type");
+                    let exception_message =
+                        extract_string_attribute(&event.attributes, "exception.message");
+                    let exception_stacktrace =
+                        extract_string_attribute(&event.attributes, "exception.stacktrace");
+                    let fingerprint = compute_exception_fingerprint(
+                        exception_type.as_deref(),
+                        exception_stacktrace.as_deref(),
+                    );
+
                     trace_ids.push(span.trace_id.clone());
                     span_ids.push(span.span_id.clone());
                     event_indices.push(event_index as i32);
@@ -309,18 +327,11 @@ pub(crate) fn build_span_events_record_batch(
                     tss.push(ns / 1_000);
                     ts_unix_nanos.push(ns);
                     names.push(event.name.clone());
-                    exception_types.push(extract_string_attribute(
-                        &event.attributes,
-                        "exception.type",
-                    ));
-                    exception_messages.push(extract_string_attribute(
-                        &event.attributes,
-                        "exception.message",
-                    ));
-                    exception_stacktraces.push(extract_string_attribute(
-                        &event.attributes,
-                        "exception.stacktrace",
-                    ));
+                    exception_types.push(exception_type);
+                    exception_messages.push(exception_message);
+                    exception_stacktraces.push(exception_stacktrace);
+                    fingerprints.push(fingerprint);
+                    service_names.push(service_name.clone());
                 }
             }
         }
@@ -330,7 +341,18 @@ pub(crate) fn build_span_events_record_batch(
         return Ok(None);
     }
 
-    let row_count = trace_ids.len();
+    // Chunk #66: fan-out fingerprints к observer BEFORE consuming ts_unix_nanos
+    // into the Arrow Int64Array. service_names + ts_unix_nanos remain owned
+    // by the function until the array constructors below consume them; the
+    // observer hook receives copies (i64 + &str borrow).
+    if let Some(observer) = fingerprint_observer {
+        for (row_idx, fp_opt) in fingerprints.iter().enumerate() {
+            if let Some(fp) = fp_opt {
+                observer.on_fingerprint(*fp, &service_names[row_idx], ts_unix_nanos[row_idx]);
+            }
+        }
+    }
+
     let trace_id_array = BinaryArray::from_iter_values(trace_ids.iter().map(|v| v.as_slice()));
     let span_id_array = BinaryArray::from_iter_values(span_ids.iter().map(|v| v.as_slice()));
     let event_index_array = Int32Array::from(event_indices);
@@ -340,10 +362,13 @@ pub(crate) fn build_span_events_record_batch(
     let exception_type_array = StringArray::from(exception_types);
     let exception_message_array = StringArray::from(exception_messages);
     let exception_stacktrace_array = StringArray::from(exception_stacktraces);
-    // chunk #66 populates fingerprint via hash(exception.type + normalized stacktrace);
-    // chunk #65 leaves the column NULL so #66 has a stable substrate without a second
-    // schema migration.
-    let fingerprint_array = BinaryArray::from_iter((0..row_count).map(|_| None::<&[u8]>));
+    // Chunk #66 populates fingerprint inline via hash(exception.type + normalized
+    // stacktrace); rows without exception.type stay NULL per chunk #65 substrate.
+    let fingerprint_array = BinaryArray::from_iter(
+        fingerprints
+            .iter()
+            .map(|f| f.as_ref().map(|b| b.as_slice())),
+    );
 
     let schema = Arc::new(Schema::new(vec![
         Field::new("trace_id", DataType::Binary, false),
@@ -485,7 +510,7 @@ pub(crate) fn append_span_events_batch(
     batch: &[ResourceSpans],
 ) -> Result<u64, Error> {
     let start = Instant::now();
-    let Some(record_batch) = build_span_events_record_batch(batch)? else {
+    let Some(record_batch) = build_span_events_record_batch(batch, None)? else {
         return Ok(0);
     };
     let row_count = append_record_batch_to_table(conn, "span_events", record_batch)?;
@@ -1273,14 +1298,16 @@ mod tests {
         // Span exists but events vec is empty; expect Ok(None).
         let span = span_with_ids(vec![6u8; 16], vec![6u8; 8], 1_700_000_000_000_000_000);
         let batch = wrap_spans(vec![span]);
-        let result = build_span_events_record_batch(&batch).expect("build");
+        let result = build_span_events_record_batch(&batch, None).expect("build");
         assert!(result.is_none());
     }
 
     #[test]
-    fn append_span_events_batch_accepts_null_fingerprint_for_chunk_66_substrate() {
-        // chunk #65 leaves fingerprint NULL; chunk #66 populates.
-        // Verifies the column accepts NULL and round-trips as NULL.
+    fn append_span_events_batch_leaves_fingerprint_null_for_non_exception_events() {
+        // Per chunk #66 semantics, span events WITHOUT `exception.type` attribute
+        // get NULL fingerprint (the BLOB column is reserved for events that
+        // represent exceptions). This guards chunk #65's substrate behavior:
+        // non-exception events keep the column NULL post-chunk-#66.
         let conn = fresh_conn_with_schema();
         let span = span_with_events(
             vec![7u8; 16],
@@ -1409,5 +1436,149 @@ mod tests {
                 );
             }
         }
+    }
+
+    // Chunk #66 — fingerprint population + observer invocation tests.
+    //
+    // Mock `FingerprintObserver` collecting `(fingerprint, service, ts)` tuples
+    // for assertion. `Arc<Mutex<Vec<_>>>` capture pattern mirrors the chunk #62
+    // CapturingSubscriber discipline; cannot import from pulse-app per
+    // workspace direction.
+    mod chunk_66 {
+        use crate::fingerprint::{ExceptionFingerprint, FingerprintObserver};
+        use std::sync::{Arc, Mutex};
+
+        pub(super) struct CapturingFingerprintObserver {
+            pub captured: Arc<Mutex<Vec<(ExceptionFingerprint, String, i64)>>>,
+        }
+
+        impl CapturingFingerprintObserver {
+            pub(super) fn new() -> Self {
+                Self {
+                    captured: Arc::new(Mutex::new(Vec::new())),
+                }
+            }
+        }
+
+        impl FingerprintObserver for CapturingFingerprintObserver {
+            fn on_fingerprint(
+                &self,
+                fingerprint: ExceptionFingerprint,
+                service_name: &str,
+                ts_unix_nano: i64,
+            ) {
+                self.captured.lock().expect("lock").push((
+                    fingerprint,
+                    service_name.to_string(),
+                    ts_unix_nano,
+                ));
+            }
+        }
+    }
+
+    #[test]
+    fn build_span_events_record_batch_populates_fingerprint_for_exception_events() {
+        use arrow::array::Array;
+        let span = span_with_events(
+            vec![9u8; 16],
+            vec![9u8; 8],
+            1_700_000_000_000_000_000,
+            vec![span_event(
+                "exception",
+                1_700_000_000_000_000_001,
+                exception_attrs(
+                    "java.lang.RuntimeException",
+                    "boom",
+                    "    at com.example.Foo.bar(Foo.java:42)",
+                ),
+            )],
+        );
+        let batch = wrap_spans(vec![span]);
+        let record_batch = build_span_events_record_batch(&batch, None)
+            .expect("build")
+            .expect("non-empty batch yields record_batch");
+
+        let fingerprint_col = record_batch
+            .column_by_name("fingerprint")
+            .expect("fingerprint column present")
+            .as_any()
+            .downcast_ref::<BinaryArray>()
+            .expect("fingerprint column is BinaryArray");
+        assert_eq!(fingerprint_col.len(), 1);
+        assert!(
+            !fingerprint_col.is_null(0),
+            "exception event MUST produce non-NULL fingerprint"
+        );
+        assert_eq!(
+            fingerprint_col.value(0).len(),
+            16,
+            "fingerprint MUST be exactly 16 bytes (truncated blake3)"
+        );
+    }
+
+    #[test]
+    fn build_span_events_record_batch_observer_invoked_per_exception_event() {
+        let observer = chunk_66::CapturingFingerprintObserver::new();
+        let captured = Arc::clone(&observer.captured);
+
+        let span = span_with_events(
+            vec![10u8; 16],
+            vec![10u8; 8],
+            1_700_000_000_000_000_000,
+            vec![
+                span_event(
+                    "exception",
+                    1_700_000_000_000_000_001,
+                    exception_attrs("ErrA", "m", "    at Foo.bar"),
+                ),
+                span_event("non-exception", 1_700_000_000_000_000_002, vec![]),
+                span_event(
+                    "exception",
+                    1_700_000_000_000_000_003,
+                    exception_attrs("ErrB", "m", "    at Bar.baz"),
+                ),
+            ],
+        );
+        let batch = wrap_spans(vec![span]);
+
+        let _record_batch = build_span_events_record_batch(&batch, Some(&observer))
+            .expect("build")
+            .expect("record_batch built");
+
+        let captured = captured.lock().expect("lock");
+        assert_eq!(
+            captured.len(),
+            2,
+            "observer MUST be invoked exactly once per exception event"
+        );
+        assert_eq!(captured[0].2, 1_700_000_000_000_000_001);
+        assert_eq!(captured[1].2, 1_700_000_000_000_000_003);
+        assert_ne!(
+            captured[0].0, captured[1].0,
+            "different exception types MUST produce different fingerprints"
+        );
+    }
+
+    #[test]
+    fn build_span_events_record_batch_observer_not_invoked_when_no_exception_events() {
+        let observer = chunk_66::CapturingFingerprintObserver::new();
+        let captured = Arc::clone(&observer.captured);
+
+        let span = span_with_events(
+            vec![11u8; 16],
+            vec![11u8; 8],
+            1_700_000_000_000_000_000,
+            vec![span_event("plain-event", 1_700_000_000_000_000_001, vec![])],
+        );
+        let batch = wrap_spans(vec![span]);
+
+        let _record_batch = build_span_events_record_batch(&batch, Some(&observer))
+            .expect("build")
+            .expect("record_batch built");
+
+        assert!(
+            captured.lock().expect("lock").is_empty(),
+            "observer MUST NOT be invoked for non-exception events"
+        );
     }
 }

@@ -1,14 +1,14 @@
 schema_version: 2
-last_wrap: 2026-05-17T22:18:34Z
-last_reconcile: 2026-05-17T22:18:34Z
+last_wrap: 2026-05-17T23:30:42Z
+last_reconcile: 2026-05-17T23:30:42Z
 
 last_completed_chunk:
-  route_index: 65
-  title: "Span events ingestion — extend OTLP decode in appender.rs to populate span_events table; redaction layer preserved (capability P-006; detail in pulse-v0_2_0-route §65). Implementation: `crates/buffer/src/schema.rs` (CREATE_SPAN_EVENTS + SCHEMA_DDL extended in lockstep with 5 new columns: name NOT NULL DEFAULT '', exception_type NULL, exception_message NULL, exception_stacktrace NULL, fingerprint BLOB NULL; chunk #66 substrate) + `crates/buffer/src/appender.rs` (build_span_events_record_batch + extract_string_attribute helper + #[cfg(test)] append_span_events_batch wrapper + 10 new tests + pii_canary::CapturingSubscriber+FieldCollector submodule helper) + `crates/buffer/src/consumer.rs` (dispatch_batch::Batch::Spans extended to build + append span_events under same lock guard + append_table_traced helper + production-path duckdb.append emission for all 4 tables + 1 round-trip test) + `crates/ingest/src/invariants.rs` (validate_resource_spans extended into span.events[].attributes traversal + 4 tests) + `pulse-app/src/observability.rs` (duckdb AllowList key + allowlist_for_target_resolves_duckdb_append_to_arrow_appender_fields probe test). Adjacent improvement bundled at chunk boundary: production-path duckdb.append emission lifted from #[cfg(test)] wrappers to consumer::dispatch_batch (required duckdb allowlist key to avoid default-deny JsonFieldVisitor redaction). +16 net-new tests."
+  route_index: 66
+  title: "Exception fingerprinting + retry storm detector — hash(exception.type + normalized stack) per span event; ≥5/30s emits Suggested cue, ≥10 Autonomous (capabilities P-017/P-018; detail in pulse-v0_2_0-route §66). Implementation: `crates/buffer/src/fingerprint.rs` (NEW — FingerprintObserver trait + ExceptionFingerprint type + compute_exception_fingerprint via blake3 + hand-rolled normalize_stacktrace strips paths/addresses/line-numbers + truncates к first 3 frames + NoopFingerprintObserver fallback + fingerprint_to_hex_prefix bounded-cardinality helper + 16 tests) + `crates/buffer/src/appender.rs` (build_span_events_record_batch signature extended с Option<&dyn FingerprintObserver> + per-row fingerprint compute and populate + observer fan-out before Int64Array consumes ts_unix_nanos + 3 new tests) + `crates/buffer/src/consumer.rs` (run_consumer + dispatch_batch signatures threaded observer parameter + 1 new integration test) + `crates/triage/src/pattern/storm.rs` (NEW — RetryStormDetector с DashMap<[u8;16], FingerprintState> + 60s rolling window + 30s detection sub-window + record_occurrence per-tier one-shot dedup + observe_and_dispatch_storm + run_one_storm_cycle prunes expired fingerprints + start_storm_detector 15s heartbeat task + 4 pub const + StormCycleStats + 17 tests covering threshold matrix + window-reset + per-fingerprint isolation + PII negative-canary + identifier-class field discipline) + `crates/triage/src/pattern/mod.rs` (mod storm; + 6 new tracing target consts) + `crates/triage/src/contract.rs` (10 new storm re-exports) + `pulse-app/src/storm_observer.rs` (NEW — StormObserverAdapter wraps detector + cue_broadcast Arcs к implement FingerprintObserver by delegating к observe_and_dispatch_storm + 2 tests) + `pulse-app/src/lib.rs` (+pub mod storm_observer) + `pulse-app/src/main.rs` (boot wiring: storm_detector Arc + StormObserverAdapter Arc<dyn FingerprintObserver> threaded к run_consumer + tokio::spawn start_storm_detector heartbeat alongside chunk #63 start_restart_detector spawn) + `pulse-app/src/observability.rs` (6 new AllowList per-target entries для triage.pattern.storm.{detected,emit,tick} + metric.triage.pattern.{storm_detected_count,fingerprints_tracked,fingerprint_evicted_count} + 1 probe test asserting identifier-class fields only). Workspace deps: `blake3 = \"1\"` added к Cargo.toml [workspace.dependencies] + crates/buffer/Cargo.toml blake3.workspace = true + deny.toml [bans] skip cpufeatures (blake3's transitive 0.3 vs sha2's 0.2 ABI bump). Integration: `pulse-app/tests/e2e_storm_detection.rs` (NEW — live tonic gRPC → :4317 injects 10 identical-fingerprint exception events → asserts Suggested at 5th + Autonomous at 10th broadcast + DuckDB direct SELECT verifies fingerprint column populated с 1 distinct value across 10 rows) + 3 existing e2e test signature updates (e2e_p1 / e2e_p6 / perf_slo_10k_spans run_consumer 6-arg call passing None). +40 net-new tests."
   epoch: 9
-  committed_at: 2026-05-17T21:05:00Z
-  commit_sha: 0bd0d76
-  commit_subject: "feat(buffer): chunk #65 — span events ingestion (Epoch 9 Foundation v0.2.0 ninth chunk); session 86 wrap"
+  committed_at: 2026-05-17T23:30:42Z
+  commit_sha: 9d6da21
+  commit_subject: "feat(triage): chunk #66 — exception fingerprinting + retry storm detector (Epoch 9 Foundation v0.2.0 tenth chunk); session 88 wrap"
 
 in_progress: null
 
@@ -24,9 +24,9 @@ plan_freshness:
   input_mtime: 2026-05-02T06:52:58Z
 
 living_artifact_freshness:
-  dep_tree_reconciled_at: 2026-05-17T22:18:34Z
-  api_surface_reconciled_at: 2026-05-17T22:18:34Z
-  most_recent_code_mtime: 2026-05-17T20:50:28Z
+  dep_tree_reconciled_at: 2026-05-17T23:30:42Z
+  api_surface_reconciled_at: 2026-05-17T23:30:42Z
+  most_recent_code_mtime: 2026-05-17T23:23:38Z
   reconcile_failed: false
 
 drift_warnings: []
@@ -383,4 +383,4 @@ spec_amendments:
       propagated_by_run: .andromeda/runs/2026-05-11T19-00-00-setup-project-delta/
       archived_at: 2026-05-11T19:25:00Z
 
-session_count: 87
+session_count: 88

@@ -104,6 +104,7 @@ async fn p1_otlp_grpc_to_traces_query_returns_ingested_rows() {
         Arc::clone(&buffer_state),
         Arc::clone(&broadcast_senders),
         Arc::new(ingest::observer::NoopSpanObserver),
+        None,
     ));
 
     // Bind ingest gRPC receiver on ephemeral loopback port.

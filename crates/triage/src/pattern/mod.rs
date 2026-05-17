@@ -22,12 +22,18 @@
 
 mod broadcast;
 mod detector;
+mod storm;
 mod suppression;
 
 pub use broadcast::{RestartEvent, RestartEventBroadcast, STREAM_NAME_RESTART_EVENTS};
 pub use detector::{
     DEFAULT_HEARTBEAT_INTERVAL, DetectCycleStats, RestartDetector, observe_and_dispatch,
     run_one_detect_cycle, start_restart_detector,
+};
+pub use storm::{
+    DEFAULT_AUTONOMOUS_THRESHOLD, DEFAULT_DETECTION_SUB_WINDOW_SECONDS,
+    DEFAULT_STORM_WINDOW_SECONDS, DEFAULT_SUGGESTED_THRESHOLD, RetryStormDetector, StormCycleStats,
+    observe_and_dispatch_storm, record_occurrence, run_one_storm_cycle, start_storm_detector,
 };
 pub use suppression::{
     BypassReason, BypassTrigger, SuppressionOutcome, SuppressionParams, SuppressionState,
@@ -39,3 +45,15 @@ pub(crate) const TARGET_PATTERN_RESTART_DETECT: &str = "triage.pattern.restart_d
 pub(crate) const TARGET_PATTERN_RESTART_EMIT: &str = "triage.pattern.restart_emit";
 pub(crate) const TARGET_METRIC_MAGNITUDE_BYPASS: &str =
     "metric.pipeline.l2.magnitude_bypass_triggered_total";
+// Chunk #66 — retry storm detector tracing targets. Aggregate-only fields
+// per AllowList convention established by chunks #62/#63/#64 (no per-service
+// identifiers in self-observation events).
+pub(crate) const TARGET_PATTERN_STORM_DETECTED: &str = "triage.pattern.storm.detected";
+pub(crate) const TARGET_PATTERN_STORM_EMIT: &str = "triage.pattern.storm.emit";
+pub(crate) const TARGET_PATTERN_STORM_TICK: &str = "triage.pattern.storm.tick";
+pub(crate) const TARGET_METRIC_STORM_DETECTED_COUNT: &str =
+    "metric.triage.pattern.storm_detected_count";
+pub(crate) const TARGET_METRIC_FINGERPRINTS_TRACKED: &str =
+    "metric.triage.pattern.fingerprints_tracked";
+pub(crate) const TARGET_METRIC_FINGERPRINT_EVICTED_COUNT: &str =
+    "metric.triage.pattern.fingerprint_evicted_count";

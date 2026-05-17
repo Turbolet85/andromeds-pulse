@@ -129,6 +129,7 @@ async fn perf_slo_sustained_10k_spans_per_sec_ingest_throughput_holds() {
         Arc::clone(&buffer_state),
         Arc::clone(&broadcast_senders),
         Arc::new(ingest::observer::NoopSpanObserver),
+        None,
     ));
 
     let listener = ingest::grpc::try_bind(SocketAddr::from(([127, 0, 0, 1], 0)))

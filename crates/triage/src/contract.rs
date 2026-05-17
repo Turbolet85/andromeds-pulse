@@ -54,10 +54,13 @@ pub use crate::cue::{
 // is NOT re-exported from `pattern` here because the same const value is
 // already re-exported from `cue` (both equal 32; sharing avoids ambiguity).
 pub use crate::pattern::{
-    BypassReason, BypassTrigger, DEFAULT_HEARTBEAT_INTERVAL, DetectCycleStats, RestartDetector,
-    RestartEvent, RestartEventBroadcast, STREAM_NAME_RESTART_EVENTS, SuppressionOutcome,
-    SuppressionParams, SuppressionState, evaluate_with_suppression, observe_and_dispatch,
-    run_one_detect_cycle, start_restart_detector,
+    BypassReason, BypassTrigger, DEFAULT_AUTONOMOUS_THRESHOLD,
+    DEFAULT_DETECTION_SUB_WINDOW_SECONDS, DEFAULT_HEARTBEAT_INTERVAL, DEFAULT_STORM_WINDOW_SECONDS,
+    DEFAULT_SUGGESTED_THRESHOLD, DetectCycleStats, RestartDetector, RestartEvent,
+    RestartEventBroadcast, RetryStormDetector, STREAM_NAME_RESTART_EVENTS, StormCycleStats,
+    SuppressionOutcome, SuppressionParams, SuppressionState, evaluate_with_suppression,
+    observe_and_dispatch, observe_and_dispatch_storm, record_occurrence, run_one_detect_cycle,
+    run_one_storm_cycle, start_restart_detector, start_storm_detector,
 };
 
 /// Kind of detected condition emitted as an attention cue. Bounded

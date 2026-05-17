@@ -17,6 +17,7 @@ use crate::broadcast::{
     STREAM_NAME_SPANS,
 };
 use crate::contract::Error;
+use crate::fingerprint::FingerprintObserver;
 use crate::state::BufferState;
 
 /// Long-running consumer task that drains the ingest mpsc receiver and writes
@@ -35,6 +36,7 @@ pub async fn run_consumer(
     state: Arc<BufferState>,
     broadcast_senders: Arc<BroadcastSenders>,
     span_observer: Arc<dyn SpanObserver>,
+    fingerprint_observer: Option<Arc<dyn FingerprintObserver>>,
 ) {
     while let Some(batch) = receiver.recv().await {
         // Chunk #62 baseline tap: per-span observation feeds the triage
@@ -48,9 +50,16 @@ pub async fn run_consumer(
         let conn_clone = Arc::clone(&conn);
         let state_clone = Arc::clone(&state);
         let senders_clone = Arc::clone(&broadcast_senders);
+        let fingerprint_observer_clone = fingerprint_observer.clone();
 
         let join = tokio::task::spawn_blocking(move || {
-            dispatch_batch(&conn_clone, &state_clone, &senders_clone, batch)
+            dispatch_batch(
+                &conn_clone,
+                &state_clone,
+                &senders_clone,
+                batch,
+                fingerprint_observer_clone.as_deref(),
+            )
         })
         .await;
 
@@ -81,6 +90,7 @@ fn dispatch_batch(
     state: &BufferState,
     senders: &BroadcastSenders,
     batch: Batch,
+    fingerprint_observer: Option<&dyn FingerprintObserver>,
 ) -> Result<(), Error> {
     let guard = conn.lock().map_err(|_| Error::ConnectionLost)?;
 
@@ -95,7 +105,9 @@ fn dispatch_batch(
             // to `rows` — BufferState::rows_ingested keeps per-batch-type
             // semantics ("1 Batch::Spans = 1 increment"); span_events surface
             // independently via the duckdb.append tracing event.
-            if let Some(events_rb) = build_span_events_record_batch(&s)? {
+            // chunk #66: fingerprint_observer (when Some) receives per-row
+            // exception fingerprints during the build pass for storm detection.
+            if let Some(events_rb) = build_span_events_record_batch(&s, fingerprint_observer)? {
                 append_table_traced(&guard, "span_events", events_rb)?;
             }
             (rows, &senders.spans, encoded)
@@ -314,6 +326,7 @@ mod tests {
             Arc::clone(&state),
             Arc::clone(&senders),
             noop_observer(),
+            None,
         ));
 
         // Drop sender so consumer's recv() returns None and the task exits.
@@ -351,6 +364,7 @@ mod tests {
             Arc::clone(&state),
             Arc::clone(&senders),
             noop_observer(),
+            None,
         ));
 
         let payload = tokio::time::timeout(std::time::Duration::from_secs(5), spans_rx.recv())
@@ -391,6 +405,7 @@ mod tests {
             Arc::clone(&state),
             Arc::clone(&senders),
             noop_observer(),
+            None,
         ));
 
         let p1 = tokio::time::timeout(std::time::Duration::from_secs(5), r1.recv())
@@ -430,6 +445,7 @@ mod tests {
             Arc::clone(&state),
             Arc::clone(&senders),
             noop_observer(),
+            None,
         ));
 
         drop(sender);
@@ -467,6 +483,7 @@ mod tests {
             Arc::clone(&state),
             Arc::clone(&senders),
             noop_observer(),
+            None,
         ));
 
         drop(sender);
@@ -490,6 +507,135 @@ mod tests {
 
         // BufferState::rows_ingested reflects parent spans only, not events.
         assert_eq!(state.snapshot().rows_ingested, 1);
+    }
+
+    // chunk #66: end-to-end integration of the fingerprint observer hook
+    // through the consumer's spawn_blocking dispatch. Verifies the observer
+    // receives one callback per exception-bearing span event.
+    #[tokio::test(flavor = "multi_thread", worker_threads = 4)]
+    async fn run_consumer_invokes_fingerprint_observer_on_exception_span_events() {
+        use crate::fingerprint::{ExceptionFingerprint, FingerprintObserver};
+        use ingest::grpc::proto::opentelemetry::proto::common::v1::{
+            AnyValue, KeyValue, any_value,
+        };
+        use ingest::grpc::proto::opentelemetry::proto::trace::v1::span;
+
+        struct CapturingObs {
+            captured: Arc<Mutex<Vec<(ExceptionFingerprint, String, i64)>>>,
+        }
+        impl FingerprintObserver for CapturingObs {
+            fn on_fingerprint(
+                &self,
+                fingerprint: ExceptionFingerprint,
+                service_name: &str,
+                ts_unix_nano: i64,
+            ) {
+                self.captured.lock().unwrap().push((
+                    fingerprint,
+                    service_name.to_string(),
+                    ts_unix_nano,
+                ));
+            }
+        }
+
+        let captured = Arc::new(Mutex::new(Vec::new()));
+        let observer: Arc<dyn FingerprintObserver> = Arc::new(CapturingObs {
+            captured: Arc::clone(&captured),
+        });
+
+        fn str_attr(key: &str, value: &str) -> KeyValue {
+            KeyValue {
+                key: key.into(),
+                value: Some(AnyValue {
+                    value: Some(any_value::Value::StringValue(value.into())),
+                }),
+            }
+        }
+
+        let event_with_exception = span::Event {
+            time_unix_nano: 1_700_000_000_000_000_001,
+            name: "exception".into(),
+            attributes: vec![
+                str_attr("exception.type", "java.lang.RuntimeException"),
+                str_attr("exception.message", "boom"),
+                str_attr(
+                    "exception.stacktrace",
+                    "    at com.example.Foo.bar(Foo.java:42)",
+                ),
+            ],
+            dropped_attributes_count: 0,
+        };
+        let plain_event = span::Event {
+            time_unix_nano: 1_700_000_000_000_000_002,
+            name: "plain".into(),
+            attributes: vec![],
+            dropped_attributes_count: 0,
+        };
+
+        let batch = Batch::Spans(vec![ResourceSpans {
+            resource: None,
+            scope_spans: vec![ScopeSpans {
+                scope: None,
+                spans: vec![Span {
+                    trace_id: vec![20u8; 16],
+                    span_id: vec![20u8; 8],
+                    name: "parent".into(),
+                    start_time_unix_nano: 1_700_000_000_000_000_000,
+                    end_time_unix_nano: 1_700_000_000_000_000_010,
+                    events: vec![event_with_exception, plain_event],
+                    ..Default::default()
+                }],
+                schema_url: String::new(),
+            }],
+            schema_url: String::new(),
+        }]);
+
+        let conn = fresh_conn_with_schema();
+        let state = Arc::new(BufferState::new());
+        let senders = Arc::new(broadcast::create());
+
+        let (sender, receiver) = build_channel();
+        sender.try_send(batch).expect("send within capacity");
+
+        let handle = tokio::spawn(run_consumer(
+            receiver,
+            Arc::clone(&conn),
+            Arc::clone(&state),
+            Arc::clone(&senders),
+            noop_observer(),
+            Some(observer),
+        ));
+
+        drop(sender);
+        handle.await.expect("consumer must complete cleanly");
+
+        let captured = captured.lock().unwrap();
+        assert_eq!(
+            captured.len(),
+            1,
+            "observer MUST be invoked exactly once (one exception event in batch)"
+        );
+        assert_eq!(captured[0].2, 1_700_000_000_000_000_001);
+
+        // span_events row count is 2 (both events landed in DuckDB); only the
+        // exception-bearing one fed the observer.
+        let events_count: i64 = conn
+            .lock()
+            .unwrap()
+            .query_row("SELECT COUNT(*) FROM span_events", [], |row| row.get(0))
+            .expect("count span_events");
+        assert_eq!(events_count, 2);
+
+        let with_fp: i64 = conn
+            .lock()
+            .unwrap()
+            .query_row(
+                "SELECT COUNT(*) FROM span_events WHERE fingerprint IS NOT NULL",
+                [],
+                |row| row.get(0),
+            )
+            .expect("count");
+        assert_eq!(with_fp, 1);
     }
 
     #[test]

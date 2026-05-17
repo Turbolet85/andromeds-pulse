@@ -14,10 +14,12 @@ use ingest::state::IngestState;
 use tauri::Manager;
 use tracing_error::SpanTrace;
 use triage::contract::{
-    AttentionCueBroadcast, CadenceTriggerChannel, DEFAULT_HEARTBEAT_INTERVAL,
-    DEFAULT_MAX_SIZE_BYTES, DEFAULT_PERSIST_INTERVAL_NANOS, DEFAULT_SERVICE_COUNT_CAP,
-    RestartDetector, RestartEventBroadcast, SuppressionState, Thresholds, bootstrap_state,
-    resolve_corpus_path, run_persist_loop, start_emitter, start_restart_detector,
+    AttentionCueBroadcast, CadenceTriggerChannel, DEFAULT_AUTONOMOUS_THRESHOLD,
+    DEFAULT_DETECTION_SUB_WINDOW_SECONDS, DEFAULT_HEARTBEAT_INTERVAL, DEFAULT_MAX_SIZE_BYTES,
+    DEFAULT_PERSIST_INTERVAL_NANOS, DEFAULT_SERVICE_COUNT_CAP, DEFAULT_STORM_WINDOW_SECONDS,
+    DEFAULT_SUGGESTED_THRESHOLD, RestartDetector, RestartEventBroadcast, RetryStormDetector,
+    SuppressionState, Thresholds, bootstrap_state, resolve_corpus_path, run_persist_loop,
+    start_emitter, start_restart_detector, start_storm_detector,
 };
 use ui_bridge::Settings;
 use ui_bridge::health::{
@@ -38,6 +40,7 @@ use pulse_app::mcp_router::{McpApi, McpApiImpl};
 use pulse_app::plugins_router::{PluginsApi, PluginsApiImpl};
 use pulse_app::restart_observer::{CompositeSpanObserver, RestartObserverAdapter};
 use pulse_app::snapshot_runtime::{SnapshotApi, SnapshotApiImpl};
+use pulse_app::storm_observer::StormObserverAdapter;
 use pulse_app::streams::{StreamsApi, StreamsApiImpl};
 use pulse_app::viz_routers::{
     LogsApi, LogsApiImpl, MetricsApi, MetricsApiImpl, TracesApi, TracesApiImpl,
@@ -297,6 +300,26 @@ fn main() {
         restart_adapter,
     ]));
 
+    // Chunk #66 — retry storm detector. Tracks per-fingerprint occurrences
+    // in a 60s rolling window; ≥5/30s → Suggested cue, ≥10/30s → Autonomous
+    // cue, emitted through the existing chunk #62 attention-cues broadcast
+    // channel. State в-memory only (corpus persistence deferred к chunk #69
+    // per arch §[Telemetry Retention Surface]). StormObserverAdapter wraps
+    // the detector + broadcast for the buffer-side FingerprintObserver hot
+    // path; trait declaration lives в the lower buffer crate per arch
+    // §Cross-cutting Patterns Module dependency direction.
+    let storm_detector = Arc::new(RetryStormDetector::new(
+        DEFAULT_STORM_WINDOW_SECONDS,
+        DEFAULT_DETECTION_SUB_WINDOW_SECONDS,
+        DEFAULT_SUGGESTED_THRESHOLD,
+        DEFAULT_AUTONOMOUS_THRESHOLD,
+    ));
+    let fingerprint_observer: Option<Arc<dyn buffer::fingerprint::FingerprintObserver>> =
+        Some(Arc::new(StormObserverAdapter::new(
+            Arc::clone(&storm_detector),
+            Arc::clone(&cue_broadcast),
+        )));
+
     let grpc_addr = match resolve_grpc_port() {
         Ok(p) => Some(SocketAddr::from(([127, 0, 0, 1], p.value()))),
         Err(_) => {
@@ -452,6 +475,7 @@ fn main() {
                         Arc::clone(&buffer_state),
                         Arc::clone(&broadcast_senders),
                         Arc::clone(&span_observer),
+                        fingerprint_observer.clone(),
                     ));
                     tauri::async_runtime::spawn(run_retention(
                         Arc::clone(&conn),
@@ -587,6 +611,14 @@ fn main() {
             // via the RestartObserverAdapter hot-path hook.
             tauri::async_runtime::spawn(start_restart_detector(
                 Arc::clone(&restart_detector),
+                DEFAULT_HEARTBEAT_INTERVAL,
+            ));
+            // Chunk #66 — retry storm detector heartbeat tick (15s default;
+            // shares cadence с chunk #63 restart detector). Storm detection
+            // itself happens inline at fingerprint-observation time via the
+            // StormObserverAdapter buffer-side hot-path hook.
+            tauri::async_runtime::spawn(start_storm_detector(
+                Arc::clone(&storm_detector),
                 DEFAULT_HEARTBEAT_INTERVAL,
             ));
             let _heartbeat_handles = heartbeat::spawn(
