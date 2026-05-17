@@ -1,6 +1,7 @@
 use std::sync::{Arc, Mutex};
-use std::time::{SystemTime, UNIX_EPOCH};
+use std::time::{Instant, SystemTime, UNIX_EPOCH};
 
+use arrow::record_batch::RecordBatch;
 use bytes::Bytes;
 use duckdb::Connection;
 use ingest::channel::{Batch, IngestReceiver};
@@ -9,7 +10,7 @@ use ingest::observer::SpanObserver;
 
 use crate::appender::{
     append_record_batch_to_table, build_logs_record_batch, build_metrics_record_batch,
-    build_spans_record_batch, extract_service_name,
+    build_span_events_record_batch, build_spans_record_batch, extract_service_name,
 };
 use crate::broadcast::{
     self, BroadcastSenders, MAX_PAYLOAD_BYTES, STREAM_NAME_LOGS, STREAM_NAME_METRICS,
@@ -89,7 +90,14 @@ fn dispatch_batch(
                 return Ok(());
             };
             let encoded = encode_or_log(broadcast::encode_spans(&rb), STREAM_NAME_SPANS);
-            let rows = append_record_batch_to_table(&guard, "spans", rb)?;
+            let rows = append_table_traced(&guard, "spans", rb)?;
+            // chunk #65: span_events append on same guard. Row count NOT added
+            // to `rows` — BufferState::rows_ingested keeps per-batch-type
+            // semantics ("1 Batch::Spans = 1 increment"); span_events surface
+            // independently via the duckdb.append tracing event.
+            if let Some(events_rb) = build_span_events_record_batch(&s)? {
+                append_table_traced(&guard, "span_events", events_rb)?;
+            }
             (rows, &senders.spans, encoded)
         }
         Batch::Metrics(m) => {
@@ -97,7 +105,7 @@ fn dispatch_batch(
                 return Ok(());
             };
             let encoded = encode_or_log(broadcast::encode_metrics(&rb), STREAM_NAME_METRICS);
-            let rows = append_record_batch_to_table(&guard, "metrics_points", rb)?;
+            let rows = append_table_traced(&guard, "metrics_points", rb)?;
             (rows, &senders.metrics, encoded)
         }
         Batch::Logs(l) => {
@@ -105,7 +113,7 @@ fn dispatch_batch(
                 return Ok(());
             };
             let encoded = encode_or_log(broadcast::encode_logs(&rb), STREAM_NAME_LOGS);
-            let rows = append_record_batch_to_table(&guard, "log_records", rb)?;
+            let rows = append_table_traced(&guard, "log_records", rb)?;
             (rows, &senders.logs, encoded)
         }
     };
@@ -118,6 +126,30 @@ fn dispatch_batch(
         let _ = sender.send(bytes);
     }
     Ok(())
+}
+
+// Production-path duckdb.append tracing emission. Each table append surfaces
+// one info event under target "duckdb.append" with rows_appended +
+// duration_ms + table_name fields per obs-plan §4 must-trace P1 + the
+// "duckdb" AllowList::production() entry. Test-side wrappers in appender.rs
+// (#[cfg(test)] append_*_batch) keep their independent emission so unit
+// tests don't depend on dispatch_batch wiring.
+fn append_table_traced(
+    guard: &Connection,
+    table_name: &'static str,
+    rb: RecordBatch,
+) -> Result<u64, Error> {
+    let start = Instant::now();
+    let rows = append_record_batch_to_table(guard, table_name, rb)?;
+    let duration_ms = start.elapsed().as_millis() as u64;
+    tracing::info!(
+        target: "duckdb.append",
+        rows_appended = rows,
+        duration_ms = duration_ms,
+        table_name = table_name,
+        "Arrow appender wrote rows",
+    );
+    Ok(rows)
 }
 
 fn encode_or_log(result: Result<Bytes, Error>, channel_name: &'static str) -> Option<Bytes> {
@@ -224,6 +256,35 @@ mod tests {
                     name: "x".into(),
                     start_time_unix_nano: 1_700_000_000_000_000_000,
                     end_time_unix_nano: 1_700_000_000_000_000_001,
+                    ..Default::default()
+                }],
+                schema_url: String::new(),
+            }],
+            schema_url: String::new(),
+        }])
+    }
+
+    fn span_batch_with_events(trace_id: u8, span_id: u8, event_count: usize) -> Batch {
+        use ingest::grpc::proto::opentelemetry::proto::trace::v1::span;
+        let events: Vec<span::Event> = (0..event_count)
+            .map(|i| span::Event {
+                time_unix_nano: 1_700_000_000_000_000_000 + i as u64,
+                name: format!("evt-{i}"),
+                attributes: Vec::new(),
+                dropped_attributes_count: 0,
+            })
+            .collect();
+        Batch::Spans(vec![ResourceSpans {
+            resource: None,
+            scope_spans: vec![ScopeSpans {
+                scope: None,
+                spans: vec![Span {
+                    trace_id: vec![trace_id; 16],
+                    span_id: vec![span_id; 8],
+                    name: "parent".into(),
+                    start_time_unix_nano: 1_700_000_000_000_000_000,
+                    end_time_unix_nano: 1_700_000_000_000_000_010,
+                    events,
                     ..Default::default()
                 }],
                 schema_url: String::new(),
@@ -382,6 +443,53 @@ mod tests {
             .query_row("SELECT COUNT(*) FROM spans", [], |row| row.get(0))
             .expect("count");
         assert_eq!(actual, 1);
+    }
+
+    #[tokio::test(flavor = "multi_thread", worker_threads = 4)]
+    async fn dispatch_batch_writes_span_events_alongside_spans_under_same_lock_guard() {
+        // chunk #65: a Batch::Spans carrying events populates BOTH spans
+        // AND span_events tables in a single dispatch. BufferState::rows_ingested
+        // reflects parent spans only (per chunk #65 plan: span events count
+        // surfaces via duckdb.append tracing, not via the rows_ingested
+        // heartbeat field, to preserve "1 Batch = 1 increment" semantics).
+        let conn = fresh_conn_with_schema();
+        let state = Arc::new(BufferState::new());
+        let senders = Arc::new(broadcast::create());
+
+        let (sender, receiver) = build_channel();
+        sender
+            .try_send(span_batch_with_events(11, 11, 3))
+            .expect("send within capacity");
+
+        let handle = tokio::spawn(run_consumer(
+            receiver,
+            Arc::clone(&conn),
+            Arc::clone(&state),
+            Arc::clone(&senders),
+            noop_observer(),
+        ));
+
+        drop(sender);
+        handle.await.expect("consumer must complete cleanly");
+
+        // Parent spans: 1 (Batch contains 1 span)
+        let spans_count: i64 = conn
+            .lock()
+            .unwrap()
+            .query_row("SELECT COUNT(*) FROM spans", [], |row| row.get(0))
+            .expect("count spans");
+        assert_eq!(spans_count, 1);
+
+        // Span events: 3 (the span carries 3 events)
+        let events_count: i64 = conn
+            .lock()
+            .unwrap()
+            .query_row("SELECT COUNT(*) FROM span_events", [], |row| row.get(0))
+            .expect("count span_events");
+        assert_eq!(events_count, 3);
+
+        // BufferState::rows_ingested reflects parent spans only, not events.
+        assert_eq!(state.snapshot().rows_ingested, 1);
     }
 
     #[test]

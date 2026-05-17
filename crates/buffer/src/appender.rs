@@ -8,7 +8,7 @@ use arrow::array::{
 use arrow::datatypes::{DataType, Field, Schema, TimeUnit};
 use arrow::record_batch::RecordBatch;
 use duckdb::Connection;
-use ingest::grpc::proto::opentelemetry::proto::common::v1::{AnyValue, any_value};
+use ingest::grpc::proto::opentelemetry::proto::common::v1::{AnyValue, KeyValue, any_value};
 use ingest::grpc::proto::opentelemetry::proto::logs::v1::ResourceLogs;
 use ingest::grpc::proto::opentelemetry::proto::metrics::v1::{
     NumberDataPoint, ResourceMetrics, metric, number_data_point,
@@ -270,6 +270,116 @@ fn extract_log_body(body: Option<&AnyValue>) -> String {
     }
 }
 
+pub(crate) fn extract_string_attribute(attrs: &[KeyValue], key: &str) -> Option<String> {
+    for kv in attrs {
+        if kv.key == key
+            && let Some(av) = &kv.value
+            && let Some(any_value::Value::StringValue(s)) = &av.value
+        {
+            return Some(s.clone());
+        }
+    }
+    None
+}
+
+pub(crate) fn build_span_events_record_batch(
+    batch: &[ResourceSpans],
+) -> Result<Option<RecordBatch>, Error> {
+    let mut trace_ids: Vec<Vec<u8>> = Vec::new();
+    let mut span_ids: Vec<Vec<u8>> = Vec::new();
+    let mut event_indices: Vec<i32> = Vec::new();
+    let mut tss: Vec<i64> = Vec::new();
+    let mut ts_unix_nanos: Vec<i64> = Vec::new();
+    let mut names: Vec<String> = Vec::new();
+    let mut exception_types: Vec<Option<String>> = Vec::new();
+    let mut exception_messages: Vec<Option<String>> = Vec::new();
+    let mut exception_stacktraces: Vec<Option<String>> = Vec::new();
+
+    for rs in batch {
+        for ss in &rs.scope_spans {
+            for span in &ss.spans {
+                if span.trace_id.is_empty() || span.span_id.is_empty() {
+                    continue;
+                }
+                for (event_index, event) in span.events.iter().enumerate() {
+                    trace_ids.push(span.trace_id.clone());
+                    span_ids.push(span.span_id.clone());
+                    event_indices.push(event_index as i32);
+                    let ns = event.time_unix_nano as i64;
+                    tss.push(ns / 1_000);
+                    ts_unix_nanos.push(ns);
+                    names.push(event.name.clone());
+                    exception_types.push(extract_string_attribute(
+                        &event.attributes,
+                        "exception.type",
+                    ));
+                    exception_messages.push(extract_string_attribute(
+                        &event.attributes,
+                        "exception.message",
+                    ));
+                    exception_stacktraces.push(extract_string_attribute(
+                        &event.attributes,
+                        "exception.stacktrace",
+                    ));
+                }
+            }
+        }
+    }
+
+    if trace_ids.is_empty() {
+        return Ok(None);
+    }
+
+    let row_count = trace_ids.len();
+    let trace_id_array = BinaryArray::from_iter_values(trace_ids.iter().map(|v| v.as_slice()));
+    let span_id_array = BinaryArray::from_iter_values(span_ids.iter().map(|v| v.as_slice()));
+    let event_index_array = Int32Array::from(event_indices);
+    let ts_array = TimestampMicrosecondArray::from(tss).with_timezone(TS_TZ_UTC);
+    let ts_unix_nano_array = Int64Array::from(ts_unix_nanos);
+    let name_array = StringArray::from(names);
+    let exception_type_array = StringArray::from(exception_types);
+    let exception_message_array = StringArray::from(exception_messages);
+    let exception_stacktrace_array = StringArray::from(exception_stacktraces);
+    // chunk #66 populates fingerprint via hash(exception.type + normalized stacktrace);
+    // chunk #65 leaves the column NULL so #66 has a stable substrate without a second
+    // schema migration.
+    let fingerprint_array = BinaryArray::from_iter((0..row_count).map(|_| None::<&[u8]>));
+
+    let schema = Arc::new(Schema::new(vec![
+        Field::new("trace_id", DataType::Binary, false),
+        Field::new("span_id", DataType::Binary, false),
+        Field::new("event_index", DataType::Int32, false),
+        Field::new("ts", timestamp_tz_type(), false),
+        Field::new("ts_unix_nano", DataType::Int64, false),
+        Field::new("name", DataType::Utf8, false),
+        Field::new("exception_type", DataType::Utf8, true),
+        Field::new("exception_message", DataType::Utf8, true),
+        Field::new("exception_stacktrace", DataType::Utf8, true),
+        Field::new("fingerprint", DataType::Binary, true),
+    ]));
+
+    let record_batch = RecordBatch::try_new(
+        schema,
+        vec![
+            Arc::new(trace_id_array),
+            Arc::new(span_id_array),
+            Arc::new(event_index_array),
+            Arc::new(ts_array),
+            Arc::new(ts_unix_nano_array),
+            Arc::new(name_array),
+            Arc::new(exception_type_array),
+            Arc::new(exception_message_array),
+            Arc::new(exception_stacktrace_array),
+            Arc::new(fingerprint_array),
+        ],
+    )
+    .map_err(|e| Error::Append {
+        reason: format!("record_batch(span_events): {}", short_err(&e.to_string())),
+    })?;
+
+    Ok(Some(record_batch))
+}
+
 fn extract_data_point_value(p: &NumberDataPoint) -> f64 {
     match &p.value {
         Some(number_data_point::Value::AsInt(i)) => *i as f64,
@@ -363,6 +473,29 @@ pub(crate) fn append_logs_batch(conn: &Connection, batch: &[ResourceLogs]) -> Re
         rows_appended = row_count,
         duration_ms = duration_ms,
         table_name = "log_records",
+        "Arrow appender wrote rows",
+    );
+
+    Ok(row_count)
+}
+
+#[cfg(test)]
+pub(crate) fn append_span_events_batch(
+    conn: &Connection,
+    batch: &[ResourceSpans],
+) -> Result<u64, Error> {
+    let start = Instant::now();
+    let Some(record_batch) = build_span_events_record_batch(batch)? else {
+        return Ok(0);
+    };
+    let row_count = append_record_batch_to_table(conn, "span_events", record_batch)?;
+
+    let duration_ms = start.elapsed().as_millis() as u64;
+    tracing::info!(
+        target: "duckdb.append",
+        rows_appended = row_count,
+        duration_ms = duration_ms,
+        table_name = "span_events",
         "Arrow appender wrote rows",
     );
 
@@ -531,6 +664,8 @@ fn short_err(raw: &str) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::sync::Mutex;
+
     use crate::schema::create_schema;
     use ingest::grpc::proto::opentelemetry::proto::common::v1::{AnyValue, KeyValue, any_value};
     use ingest::grpc::proto::opentelemetry::proto::logs::v1::{LogRecord, ScopeLogs};
@@ -538,7 +673,7 @@ mod tests {
         Gauge, Metric, NumberDataPoint, ScopeMetrics, number_data_point,
     };
     use ingest::grpc::proto::opentelemetry::proto::resource::v1::Resource;
-    use ingest::grpc::proto::opentelemetry::proto::trace::v1::{ScopeSpans, Span};
+    use ingest::grpc::proto::opentelemetry::proto::trace::v1::{ScopeSpans, Span, span};
 
     fn fresh_conn_with_schema() -> Connection {
         let conn = Connection::open_in_memory().expect("open_in_memory");
@@ -932,5 +1067,347 @@ mod tests {
             .expect("read");
         assert_eq!(trace_id, vec![3u8; 16]);
         assert_eq!(span_id, vec![4u8; 8]);
+    }
+
+    // chunk #65 span_events tests follow.
+
+    fn string_attr(key: &str, value: &str) -> KeyValue {
+        KeyValue {
+            key: key.into(),
+            value: Some(AnyValue {
+                value: Some(any_value::Value::StringValue(value.into())),
+            }),
+        }
+    }
+
+    fn exception_attrs(typ: &str, msg: &str, stack: &str) -> Vec<KeyValue> {
+        vec![
+            string_attr("exception.type", typ),
+            string_attr("exception.message", msg),
+            string_attr("exception.stacktrace", stack),
+        ]
+    }
+
+    fn span_event(name: &str, time_ns: u64, attrs: Vec<KeyValue>) -> span::Event {
+        span::Event {
+            time_unix_nano: time_ns,
+            name: name.into(),
+            attributes: attrs,
+            dropped_attributes_count: 0,
+        }
+    }
+
+    fn span_with_events(
+        trace_id: Vec<u8>,
+        span_id: Vec<u8>,
+        start_ns: u64,
+        events: Vec<span::Event>,
+    ) -> Span {
+        let mut s = span_with_ids(trace_id, span_id, start_ns);
+        s.events = events;
+        s
+    }
+
+    #[test]
+    fn append_span_events_batch_inserts_rows_and_returns_count() {
+        let conn = fresh_conn_with_schema();
+        let span = span_with_events(
+            vec![1u8; 16],
+            vec![1u8; 8],
+            1_700_000_000_000_000_000,
+            vec![
+                span_event("evt1", 1_700_000_000_000_000_001, vec![]),
+                span_event("evt2", 1_700_000_000_000_000_002, vec![]),
+                span_event("evt3", 1_700_000_000_000_000_003, vec![]),
+            ],
+        );
+        let batch = wrap_spans(vec![span]);
+
+        let count = append_span_events_batch(&conn, &batch).expect("append must succeed");
+        assert_eq!(count, 3);
+
+        let actual: i64 = conn
+            .query_row("SELECT COUNT(*) FROM span_events", [], |row| row.get(0))
+            .expect("count");
+        assert_eq!(actual, 3);
+    }
+
+    #[test]
+    fn append_span_events_batch_round_trips_exception_attributes() {
+        let conn = fresh_conn_with_schema();
+        let span = span_with_events(
+            vec![2u8; 16],
+            vec![2u8; 8],
+            1_700_000_000_000_000_000,
+            vec![span_event(
+                "exception",
+                1_700_000_000_000_000_001,
+                exception_attrs("ValueError", "bad input", "at foo:42\nat bar:13"),
+            )],
+        );
+        append_span_events_batch(&conn, &wrap_spans(vec![span])).expect("append");
+
+        let (etype, emsg, estack): (Option<String>, Option<String>, Option<String>) = conn
+            .query_row(
+                "SELECT exception_type, exception_message, exception_stacktrace FROM span_events LIMIT 1",
+                [],
+                |r| Ok((r.get(0)?, r.get(1)?, r.get(2)?)),
+            )
+            .expect("read");
+        assert_eq!(etype.as_deref(), Some("ValueError"));
+        assert_eq!(emsg.as_deref(), Some("bad input"));
+        assert_eq!(estack.as_deref(), Some("at foo:42\nat bar:13"));
+    }
+
+    #[test]
+    fn append_span_events_batch_round_trips_name() {
+        let conn = fresh_conn_with_schema();
+        let span = span_with_events(
+            vec![3u8; 16],
+            vec![3u8; 8],
+            1_700_000_000_000_000_000,
+            vec![
+                span_event("first", 1_700_000_000_000_000_001, vec![]),
+                span_event("second", 1_700_000_000_000_000_002, vec![]),
+            ],
+        );
+        append_span_events_batch(&conn, &wrap_spans(vec![span])).expect("append");
+
+        let names: Vec<String> = conn
+            .prepare("SELECT name FROM span_events ORDER BY event_index")
+            .expect("prepare")
+            .query_map([], |r| r.get::<_, String>(0))
+            .expect("query")
+            .map(|r| r.expect("row"))
+            .collect();
+        assert_eq!(names, vec!["first".to_string(), "second".to_string()]);
+    }
+
+    #[test]
+    fn append_span_events_batch_handles_missing_exception_attributes_as_null() {
+        let conn = fresh_conn_with_schema();
+        let span = span_with_events(
+            vec![4u8; 16],
+            vec![4u8; 8],
+            1_700_000_000_000_000_000,
+            vec![span_event(
+                "non-exception-event",
+                1_700_000_000_000_000_001,
+                vec![string_attr("custom.key", "custom-value")],
+            )],
+        );
+        append_span_events_batch(&conn, &wrap_spans(vec![span])).expect("append");
+
+        let nulls: i64 = conn
+            .query_row(
+                "SELECT COUNT(*) FROM span_events \
+                 WHERE exception_type IS NULL \
+                   AND exception_message IS NULL \
+                   AND exception_stacktrace IS NULL",
+                [],
+                |r| r.get(0),
+            )
+            .expect("count");
+        assert_eq!(nulls, 1);
+    }
+
+    #[test]
+    fn append_span_events_batch_assigns_monotonic_event_index_per_span() {
+        let conn = fresh_conn_with_schema();
+        let span = span_with_events(
+            vec![5u8; 16],
+            vec![5u8; 8],
+            1_700_000_000_000_000_000,
+            vec![
+                span_event("a", 1_700_000_000_000_000_001, vec![]),
+                span_event("b", 1_700_000_000_000_000_002, vec![]),
+                span_event("c", 1_700_000_000_000_000_003, vec![]),
+                span_event("d", 1_700_000_000_000_000_004, vec![]),
+            ],
+        );
+        append_span_events_batch(&conn, &wrap_spans(vec![span])).expect("append");
+
+        let indices: Vec<i32> = conn
+            .prepare(
+                "SELECT event_index FROM span_events \
+                 WHERE trace_id = ? AND span_id = ? ORDER BY event_index",
+            )
+            .expect("prepare")
+            .query_map(duckdb::params![vec![5u8; 16], vec![5u8; 8]], |r| {
+                r.get::<_, i32>(0)
+            })
+            .expect("query")
+            .map(|r| r.expect("row"))
+            .collect();
+        assert_eq!(indices, vec![0, 1, 2, 3]);
+    }
+
+    #[test]
+    fn append_span_events_batch_skips_when_parent_span_ids_empty() {
+        let conn = fresh_conn_with_schema();
+        let mut malformed = span_with_events(
+            vec![],
+            vec![],
+            1_700_000_000_000_000_000,
+            vec![span_event("ghost", 1_700_000_000_000_000_001, vec![])],
+        );
+        malformed.start_time_unix_nano = 1_700_000_000_000_000_000;
+        let count = append_span_events_batch(&conn, &wrap_spans(vec![malformed])).expect("append");
+        assert_eq!(count, 0);
+
+        let actual: i64 = conn
+            .query_row("SELECT COUNT(*) FROM span_events", [], |row| row.get(0))
+            .expect("count");
+        assert_eq!(actual, 0);
+    }
+
+    #[test]
+    fn append_span_events_batch_empty_input_returns_zero() {
+        let conn = fresh_conn_with_schema();
+        let count = append_span_events_batch(&conn, &[]).expect("empty append");
+        assert_eq!(count, 0);
+    }
+
+    #[test]
+    fn build_span_events_record_batch_returns_none_when_no_events_in_any_span() {
+        // Span exists but events vec is empty; expect Ok(None).
+        let span = span_with_ids(vec![6u8; 16], vec![6u8; 8], 1_700_000_000_000_000_000);
+        let batch = wrap_spans(vec![span]);
+        let result = build_span_events_record_batch(&batch).expect("build");
+        assert!(result.is_none());
+    }
+
+    #[test]
+    fn append_span_events_batch_accepts_null_fingerprint_for_chunk_66_substrate() {
+        // chunk #65 leaves fingerprint NULL; chunk #66 populates.
+        // Verifies the column accepts NULL and round-trips as NULL.
+        let conn = fresh_conn_with_schema();
+        let span = span_with_events(
+            vec![7u8; 16],
+            vec![7u8; 8],
+            1_700_000_000_000_000_000,
+            vec![span_event("x", 1_700_000_000_000_000_001, vec![])],
+        );
+        append_span_events_batch(&conn, &wrap_spans(vec![span])).expect("append");
+
+        let nulls: i64 = conn
+            .query_row(
+                "SELECT COUNT(*) FROM span_events WHERE fingerprint IS NULL",
+                [],
+                |r| r.get(0),
+            )
+            .expect("count");
+        assert_eq!(nulls, 1);
+    }
+
+    // PII negative-canary subscriber pattern per testing.md Session Addition
+    // 2026-05-11 (chunk #44 FieldCollector + 2026-05-07 CapturingSubscriber).
+    // Buffer crate cannot import from pulse-app (workspace direction); helpers
+    // are copied per convention.
+    mod pii_canary {
+        use std::sync::{Arc, Mutex};
+        use tracing::field::{Field, Visit};
+        use tracing::span::{Attributes, Id, Record};
+        use tracing::{Event, Metadata, Subscriber};
+
+        pub(super) struct CapturingSubscriber {
+            pub events: Arc<Mutex<Vec<(String, String)>>>,
+        }
+
+        struct FieldCollector {
+            sink: String,
+        }
+
+        impl Visit for FieldCollector {
+            fn record_debug(&mut self, field: &Field, value: &dyn std::fmt::Debug) {
+                use std::fmt::Write;
+                let _ = write!(&mut self.sink, " {}={:?}", field.name(), value);
+            }
+            fn record_str(&mut self, field: &Field, value: &str) {
+                use std::fmt::Write;
+                let _ = write!(&mut self.sink, " {}={}", field.name(), value);
+            }
+            fn record_bool(&mut self, field: &Field, value: bool) {
+                use std::fmt::Write;
+                let _ = write!(&mut self.sink, " {}={}", field.name(), value);
+            }
+            fn record_u64(&mut self, field: &Field, value: u64) {
+                use std::fmt::Write;
+                let _ = write!(&mut self.sink, " {}={}", field.name(), value);
+            }
+            fn record_i64(&mut self, field: &Field, value: i64) {
+                use std::fmt::Write;
+                let _ = write!(&mut self.sink, " {}={}", field.name(), value);
+            }
+        }
+
+        impl Subscriber for CapturingSubscriber {
+            fn enabled(&self, _: &Metadata<'_>) -> bool {
+                true
+            }
+            fn new_span(&self, _: &Attributes<'_>) -> Id {
+                Id::from_u64(1)
+            }
+            fn record(&self, _: &Id, _: &Record<'_>) {}
+            fn record_follows_from(&self, _: &Id, _: &Id) {}
+            fn event(&self, event: &Event<'_>) {
+                let metadata = event.metadata();
+                let mut collector = FieldCollector {
+                    sink: String::new(),
+                };
+                event.record(&mut collector);
+                self.events
+                    .lock()
+                    .expect("event lock")
+                    .push((metadata.target().to_string(), collector.sink));
+            }
+            fn enter(&self, _: &Id) {}
+            fn exit(&self, _: &Id) {}
+        }
+    }
+
+    #[test]
+    fn append_span_events_batch_does_not_log_exception_canaries() {
+        // Canary substrings MUST NOT appear in any captured tracing emission
+        // across the decode + append path (per security plan §Logging row 1 +
+        // obs-plan §11 Logs vector 1). Verifies the redaction discipline at
+        // chunk-authoring time per testing.md 2026-05-11 pattern.
+        let canary_message = "secret-canary-EXCEPTION-MESSAGE-PII-12345";
+        let canary_stack = "/home/user/.creds/private.key:42\nat handler:13";
+        let canary_type = "CanaryValueError";
+
+        let events = Arc::new(Mutex::new(Vec::<(String, String)>::new()));
+        let subscriber = pii_canary::CapturingSubscriber {
+            events: Arc::clone(&events),
+        };
+
+        tracing::subscriber::with_default(subscriber, || {
+            let conn = fresh_conn_with_schema();
+            let span = span_with_events(
+                vec![8u8; 16],
+                vec![8u8; 8],
+                1_700_000_000_000_000_000,
+                vec![span_event(
+                    "exception",
+                    1_700_000_000_000_000_001,
+                    exception_attrs(canary_type, canary_message, canary_stack),
+                )],
+            );
+            append_span_events_batch(&conn, &wrap_spans(vec![span])).expect("append");
+        });
+
+        let captured = events.lock().expect("events lock").clone();
+        for (target, fields) in &captured {
+            for canary in [canary_type, canary_message, canary_stack] {
+                assert!(
+                    !target.contains(canary),
+                    "canary leaked into target: target={target} fields={fields}"
+                );
+                assert!(
+                    !fields.contains(canary),
+                    "canary leaked into fields: target={target} fields={fields}"
+                );
+            }
+        }
     }
 }

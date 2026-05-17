@@ -43,6 +43,16 @@ pub(crate) fn validate_resource_spans(resource_spans: &[ResourceSpans]) -> Resul
                     });
                 }
                 validate_attributes(&span.attributes)?;
+                for event in &span.events {
+                    if event.attributes.len() > MAX_ATTRIBUTES_PER_SPAN {
+                        return Err(Error::InvariantViolation {
+                            kind: "event_attributes_count",
+                            expected: MAX_ATTRIBUTES_PER_SPAN,
+                            actual: event.attributes.len(),
+                        });
+                    }
+                    validate_attributes(&event.attributes)?;
+                }
             }
         }
     }
@@ -200,7 +210,9 @@ fn any_value_size(v: &AnyValue) -> usize {
 mod tests {
     use super::*;
     use crate::grpc::proto::opentelemetry::proto::common::v1::AnyValue;
-    use crate::grpc::proto::opentelemetry::proto::trace::v1::{ResourceSpans, ScopeSpans, Span};
+    use crate::grpc::proto::opentelemetry::proto::trace::v1::{
+        ResourceSpans, ScopeSpans, Span, span,
+    };
 
     fn span_with_ids(trace_id_len: usize, span_id_len: usize) -> Span {
         Span {
@@ -404,6 +416,86 @@ mod tests {
             }),
         }];
         assert!(validate_resource_spans(&wrap_span(span)).is_ok());
+    }
+
+    fn exception_event(message: &str) -> span::Event {
+        span::Event {
+            time_unix_nano: 1_700_000_000_000_000_000,
+            name: "exception".into(),
+            attributes: vec![KeyValue {
+                key: "exception.message".into(),
+                value: Some(AnyValue {
+                    value: Some(any_value::Value::StringValue(message.into())),
+                }),
+            }],
+            dropped_attributes_count: 0,
+        }
+    }
+
+    #[test]
+    fn validate_spans_accepts_span_with_no_events() {
+        let span = span_with_ids(TRACE_ID_LEN, SPAN_ID_LEN);
+        // events vec is empty by Default; validate accepts.
+        assert!(validate_resource_spans(&wrap_span(span)).is_ok());
+    }
+
+    #[test]
+    fn validate_spans_accepts_event_with_attribute_within_limit() {
+        let mut span = span_with_ids(TRACE_ID_LEN, SPAN_ID_LEN);
+        span.events = vec![exception_event("connection refused")];
+        assert!(validate_resource_spans(&wrap_span(span)).is_ok());
+    }
+
+    #[test]
+    fn validate_spans_rejects_event_attribute_count_over_limit() {
+        let mut span = span_with_ids(TRACE_ID_LEN, SPAN_ID_LEN);
+        let event = span::Event {
+            time_unix_nano: 1_700_000_000_000_000_000,
+            name: "test-event".into(),
+            attributes: (0..(MAX_ATTRIBUTES_PER_SPAN + 1))
+                .map(|i| KeyValue {
+                    key: format!("k{i}"),
+                    value: None,
+                })
+                .collect(),
+            dropped_attributes_count: 0,
+        };
+        span.events = vec![event];
+        let err = validate_resource_spans(&wrap_span(span)).unwrap_err();
+        assert!(matches!(
+            err,
+            Error::InvariantViolation {
+                kind: "event_attributes_count",
+                ..
+            }
+        ));
+    }
+
+    #[test]
+    fn validate_spans_rejects_event_attribute_value_string_over_limit() {
+        let mut span = span_with_ids(TRACE_ID_LEN, SPAN_ID_LEN);
+        let event = span::Event {
+            time_unix_nano: 1_700_000_000_000_000_000,
+            name: "exception".into(),
+            attributes: vec![KeyValue {
+                key: "exception.message".into(),
+                value: Some(AnyValue {
+                    value: Some(any_value::Value::StringValue(
+                        "v".repeat(MAX_ATTRIBUTE_VALUE_BYTES + 1),
+                    )),
+                }),
+            }],
+            dropped_attributes_count: 0,
+        };
+        span.events = vec![event];
+        let err = validate_resource_spans(&wrap_span(span)).unwrap_err();
+        assert!(matches!(
+            err,
+            Error::InvariantViolation {
+                kind: "attribute_value_length",
+                ..
+            }
+        ));
     }
 
     #[test]

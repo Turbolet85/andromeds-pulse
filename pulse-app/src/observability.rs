@@ -155,6 +155,23 @@ impl AllowList {
             .copied()
             .collect(),
         );
+        // chunk #65 — duckdb.append target emitted by consumer::dispatch_batch
+        // per table append (spans / span_events / metrics_points / log_records).
+        // Happy path: rows_appended + duration_ms + table_name. Error path
+        // (consumer.rs::run_consumer dispatch error branch): reject_reason.
+        // Resolver collapses "duckdb.append" → "duckdb" via split('.').next().
+        by_target.insert(
+            "duckdb",
+            [
+                "rows_appended",
+                "duration_ms",
+                "table_name",
+                "reject_reason",
+            ]
+            .iter()
+            .copied()
+            .collect(),
+        );
         by_target.insert(
             "plugin",
             [
@@ -1956,6 +1973,33 @@ mod tests {
             assert!(
                 drift.contains(required),
                 "xtask.capability_drift must permit `{required}`"
+            );
+        }
+    }
+
+    #[test]
+    fn allowlist_for_target_resolves_duckdb_append_to_arrow_appender_fields() {
+        // chunk #65: production consumer::dispatch_batch emits one
+        // tracing::info!(target: "duckdb.append", ...) per table append
+        // (spans / span_events / metrics_points / log_records) with the
+        // rows_appended + duration_ms + table_name field shape. Error path
+        // (target: "duckdb.append", reject_reason = ...) is also covered.
+        // Without this exact entry, the resolver's split('.').next() fallback
+        // returns None ("duckdb" key absent) and JsonFieldVisitor silently
+        // redacts all fields per the default-deny posture.
+        let al = AllowList::production();
+        let entry = al
+            .for_target("duckdb.append")
+            .expect("expected duckdb entry resolving via split('.').next() from duckdb.append");
+        for required in [
+            "rows_appended",
+            "duration_ms",
+            "table_name",
+            "reject_reason",
+        ] {
+            assert!(
+                entry.contains(required),
+                "duckdb.append must permit `{required}`"
             );
         }
     }

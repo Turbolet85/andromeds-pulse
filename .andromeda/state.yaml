@@ -1,14 +1,14 @@
 schema_version: 2
-last_wrap: 2026-05-17T18:30:55Z
-last_reconcile: 2026-05-17T18:30:55Z
+last_wrap: 2026-05-17T21:04:30Z
+last_reconcile: 2026-05-17T21:04:30Z
 
 last_completed_chunk:
-  route_index: 64
-  title: "Activity floor learning + corpus persistence — per-service 24h rolling histogram + ServiceWentSilent gating by p95 historical quiet duration + 1-hour bootstrap suppression window + per-service.name cardinality cap (1024 services, drop-new-arrivals eviction); capabilities P-013 (Service Activity Floor Learning, persistence sub-scope deferred per user ordering decision) + P-014 (Service Went Silent Detection). IN-MEMORY-ONLY scope: corpus persistence sub-scope (60s flush + load-on-startup with state-age check identical to #61) deferred to subsequent /andromeda-evolve cycle once #69 corpus scaffold lands; ActivityFloor struct already serde-ready for the wire-up. Implementation: `crates/triage/src/baseline/activity_floor.rs` (NEW) + `crates/triage/src/baseline/mod.rs` (ServiceBaseline.activity_floor field + cardinality cap + iter_service_silence_snapshots accessor + ServiceSilenceSnapshot pub struct) + `crates/triage/src/cue/evaluate.rs` (evaluate_service_went_silent fn) + `crates/triage/src/cue/emitter.rs` (per-tick aggregate event + integration into run_one_emit_cycle) + `crates/triage/src/cue/thresholds.rs` (bootstrap_window_seconds + quiet_duration_percentile fields) + `crates/triage/src/contract.rs` (14 pub use re-exports) + `pulse-app/src/observability.rs` (3 AllowList entries: triage.baseline.service_went_silent.evaluate + triage.baseline.service_cap_exceeded + metric.triage.activity_floor.bootstrap_state)."
+  route_index: 65
+  title: "Span events ingestion — extend OTLP decode in appender.rs to populate span_events table; redaction layer preserved (capability P-006; detail in pulse-v0_2_0-route §65). Implementation: `crates/buffer/src/schema.rs` (CREATE_SPAN_EVENTS + SCHEMA_DDL extended in lockstep with 5 new columns: name NOT NULL DEFAULT '', exception_type NULL, exception_message NULL, exception_stacktrace NULL, fingerprint BLOB NULL; chunk #66 substrate) + `crates/buffer/src/appender.rs` (build_span_events_record_batch + extract_string_attribute helper + #[cfg(test)] append_span_events_batch wrapper + 10 new tests + pii_canary::CapturingSubscriber+FieldCollector submodule helper) + `crates/buffer/src/consumer.rs` (dispatch_batch::Batch::Spans extended to build + append span_events under same lock guard + append_table_traced helper + production-path duckdb.append emission for all 4 tables + 1 round-trip test) + `crates/ingest/src/invariants.rs` (validate_resource_spans extended into span.events[].attributes traversal + 4 tests) + `pulse-app/src/observability.rs` (duckdb AllowList key + allowlist_for_target_resolves_duckdb_append_to_arrow_appender_fields probe test). Adjacent improvement bundled at chunk boundary: production-path duckdb.append emission lifted from #[cfg(test)] wrappers to consumer::dispatch_batch (required duckdb allowlist key to avoid default-deny JsonFieldVisitor redaction). +16 net-new tests."
   epoch: 9
-  committed_at: 2026-05-17T16:35:00Z
-  commit_sha: 6605123
-  commit_subject: "feat(triage): chunk #64 — activity floor learning + ServiceWentSilent gating (Epoch 9 Foundation v0.2.0 eighth chunk; IN-MEMORY-ONLY scope); session 84 wrap"
+  committed_at: 2026-05-17T21:05:00Z
+  commit_sha: e638195
+  commit_subject: "feat(buffer): chunk #65 — span events ingestion (Epoch 9 Foundation v0.2.0 ninth chunk); session 86 wrap"
 
 in_progress: null
 
@@ -24,9 +24,9 @@ plan_freshness:
   input_mtime: 2026-05-02T06:52:58Z
 
 living_artifact_freshness:
-  dep_tree_reconciled_at: 2026-05-17T18:30:55Z
-  api_surface_reconciled_at: 2026-05-17T18:30:55Z
-  most_recent_code_mtime: 2026-05-17T16:30:00Z
+  dep_tree_reconciled_at: 2026-05-17T21:04:30Z
+  api_surface_reconciled_at: 2026-05-17T21:04:30Z
+  most_recent_code_mtime: 2026-05-17T20:50:28Z
   reconcile_failed: false
 
 drift_warnings: []
@@ -371,4 +371,4 @@ spec_amendments:
       propagated_by_run: .andromeda/runs/2026-05-11T19-00-00-setup-project-delta/
       archived_at: 2026-05-11T19:25:00Z
 
-session_count: 85
+session_count: 86

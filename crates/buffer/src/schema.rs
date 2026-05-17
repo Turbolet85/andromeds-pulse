@@ -42,6 +42,11 @@ CREATE TABLE IF NOT EXISTS span_events (
     event_index INTEGER NOT NULL,
     ts TIMESTAMPTZ NOT NULL,
     ts_unix_nano BIGINT NOT NULL,
+    name VARCHAR NOT NULL DEFAULT '',
+    exception_type VARCHAR,
+    exception_message VARCHAR,
+    exception_stacktrace VARCHAR,
+    fingerprint BLOB,
     PRIMARY KEY (trace_id, span_id, event_index)
 );";
 
@@ -119,6 +124,11 @@ const SCHEMA_DDL: &str = concat!(
     event_index INTEGER NOT NULL,
     ts TIMESTAMPTZ NOT NULL,
     ts_unix_nano BIGINT NOT NULL,
+    name VARCHAR NOT NULL DEFAULT '',
+    exception_type VARCHAR,
+    exception_message VARCHAR,
+    exception_stacktrace VARCHAR,
+    fingerprint BLOB,
     PRIMARY KEY (trace_id, span_id, event_index)
 );",
     "CREATE TABLE IF NOT EXISTS span_links (
