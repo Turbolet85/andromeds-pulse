@@ -32,7 +32,41 @@ living_artifact_freshness:
 drift_warnings: []
 
 spec_amendments:
-  active: []
+  active:
+    - amendment_id: 2026-05-17T00-02-12-append-chunk-61-streaming-baseline-trackers
+      plans:
+        - path: route.md
+          sections:
+            - "§2 Roadmap (Epoch 9 body)"
+            - "§3 Decisions Log"
+          decisions_log_section: "2026-05-17 — Append chunk #61 streaming baseline trackers + corpus persistence (--allow-route-append)"
+      trigger:
+        chunk: null
+        phase: null
+        harness: "user-driven via /andromeda-evolve"
+      authority:
+        winning_plan: docs/v0_2_0/pulse-v0_2_0-route.md
+        winning_tier: pipeline-state
+        losing_plan: route.md
+        losing_concern: chunk-list-stale-vs-pipeline-reality
+        rationale: "Pulse v0.2.0 plan Phase 2 line 165 declares chunk #61 (Streaming baseline trackers + corpus persistence) as L1b foundation depending on #58 (curation) + #60 (triage scaffold; landed session 74 commit 589225f). Capabilities P-009 + P-011. Adding new chunk #61 in Epoch 9 brings route into alignment with pipeline reality. Authorized via /andromeda-evolve --allow-route-append flag (narrow Refuse 6 exception); Check 8 verified purely additive / existing epoch / position-stable / motivation grounded / Decisions Log entry well-formed."
+      impl_files_synced: []
+      expected_propagation: []
+      marker_path: .andromeda/runs/2026-05-17T00-02-12-spec-amendment-append-chunk-61-streaming-baseline-trackers/amendment.md
+      applied_at: 2026-05-17T00:02:12Z
+      noted_at: null
+      propagated_by_run: .andromeda/runs/2026-05-17T00-08-34-setup-project-delta/
+      archived_at: null
+      verification_status: clean
+      flag_used: --allow-route-append
+      form: 1
+      route_section_modified: "Epoch 9 — Foundation v0.2.0"
+      chunks_added:
+        - position: 61
+          text: "Streaming baseline trackers + corpus persistence — EwmaTracker per service (5-min window) + per-operation t-digest pair (current/previous, swap-on-tick) for streaming p50/p95/p99 + per-service RollingWindow<u32>; corpus persist every 60s + on-shutdown; service identity drop on empty service.name; capabilities P-009 + P-011; workspace deps: +tdigest +dashmap +bincode"
+      chunks_renumbered: []
+      motivation: "Pulse v0.2.0 plan (docs/v0_2_0/pulse-v0_2_0-route.md line 165, Phase 2 — Algorithmic detection layer) declares chunk #61 as L1b streaming distillation foundation with explicit dependencies on chunk #58 (curation; session 70) + chunk #60 (triage scaffold; session 74 commit 589225f). Capabilities P-009 + P-011 required before subsequent v0.2.0 algorithmic detection chunks (#62 attention cue emitter, #63 restart event detector)."
+      confirmed_shift: false
   archive:
     - amendment_id: 2026-05-16T23-39-39-acknowledge-triage-crate-and-scope
       plans:
