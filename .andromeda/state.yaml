@@ -1,6 +1,6 @@
 schema_version: 2
-last_wrap: 2026-05-17T14:35:00Z
-last_reconcile: 2026-05-17T14:30:00Z
+last_wrap: 2026-05-17T15:19:58Z
+last_reconcile: 2026-05-17T15:19:58Z
 
 last_completed_chunk:
   route_index: 63
@@ -20,31 +20,20 @@ plan_freshness:
   tests_mtime: 2026-05-10T12:55:51Z
   obs_mtime: 2026-05-08T18:00:16Z
   a11y_mtime: 2026-05-02T21:45:23Z
-  route_mtime: 2026-05-17T14:09:18Z
+  route_mtime: 2026-05-17T14:56:12Z
   input_mtime: 2026-05-02T06:52:58Z
 
 living_artifact_freshness:
-  dep_tree_reconciled_at: 2026-05-17T14:30:00Z
-  api_surface_reconciled_at: 2026-05-17T14:30:00Z
-  most_recent_code_mtime: 2026-05-17T13:18:22Z
+  dep_tree_reconciled_at: 2026-05-17T15:19:58Z
+  api_surface_reconciled_at: 2026-05-17T15:19:58Z
+  most_recent_code_mtime: 2026-05-17T13:15:07Z
   reconcile_failed: false
 
-drift_warnings:
-  - drift_id: D5
-    description: "arch.md mtime advanced > CLAUDE.md mtime via Type 6 amendment for pulse://stream/restart-events (commit ac09308) + retroactive compact-format refactor of 7 historical Type 6 entries in §Architecture Registry Updates. Amendment-aware classification: matched amendment 2026-05-17T14-15-00-acknowledge-restart-events-broadcast archived this wrap; refactor portion (cosmetic, no Tier 1 surface change) is intentional staleness."
-    severity: info
-    remediation_hint: "Amendment archived (automatic this wrap Phase 8); refactor portion is mtime-only staleness with no semantic CLAUDE.md surface change. If gap clearing desired: run /andromeda-setup-project (full re-derive without --delta) to regenerate CLAUDE.md from current upstream state."
-    first_observed_session_count: 82
-    last_observed_session_count: 82
-  - drift_id: D5
-    description: "route.md mtime advanced > CLAUDE.md mtime via retroactive compact-format refactor (§1 Total chunks 58→63 staleness fix + §2 Epoch 9 chunks #57-#63 word-tightening + §3 Decisions Log 8 verbose Type 7 → compact entries). No matching active spec_amendment — refactor was cosmetic with no /andromeda-evolve amendment record."
-    severity: warning
-    remediation_hint: "Accept intentional staleness (CLAUDE.md @-imports route.md → @-import resolves new content at runtime; staleness is mtime-only, not content-semantic), OR run /andromeda-setup-project (full re-derive without --delta) to clear the mtime gap by regenerating CLAUDE.md."
-    first_observed_session_count: 82
-    last_observed_session_count: 82
+drift_warnings: []
 
 spec_amendments:
-  active:
+  active: []
+  archive:
     - amendment_id: 2026-05-17T14-51-36-append-chunk-64-activity-floor-learning
       plans:
         - path: route.md
@@ -52,38 +41,11 @@ spec_amendments:
             - "§1 Route Scope Summary (Total chunks mechanical update per Proposal 6)"
             - "§2 Roadmap (Epoch 9 body)"
             - "§3 Decisions Log"
-          decisions_log_section: "2026-05-17 — Append chunk #64 activity floor learning + corpus persistence (--allow-route-append)"
-      trigger:
-        chunk: null
-        phase: null
-        harness: "user-driven via /andromeda-evolve"
-      authority:
-        winning_plan: null
-        winning_tier: pipeline-state
-        losing_plan: route.md
-        losing_concern: chunk-list-stale-vs-pipeline-reality
-        rationale: "Pulse v0.2.0 source plan declares chunk #64 at §Phase 2 line 208; route.md §2 has not acknowledged. Authorized via /andromeda-evolve --allow-route-append flag (narrow Refuse 6 exception); Check 8 all sub-checks ✓."
-      impl_files_synced: []
-      expected_propagation:
-        - "CLAUDE.md (<!-- GENERATED:setup:pointer-table --> chunk-count line — Proposal 5 pre-populate)"
-      marker_path: .andromeda/runs/2026-05-17T14-51-36-spec-amendment-append-chunk-64-activity-floor-learning/amendment.md
-      applied_at: 2026-05-17T14:51:36Z
-      noted_at: null
+      decisions_log_sections:
+        - "2026-05-17 — Append chunk #64 activity floor learning + corpus persistence (--allow-route-append)"
       propagated_by_run: .andromeda/runs/2026-05-17T15-00-07-setup-project-delta/
-      archived_at: null
-      verification_status: clean
+      archived_at: 2026-05-17T15:19:58Z
       flag_used: --allow-route-append
-      form: 1
-      route_section_modified: "Epoch 9 — Foundation v0.2.0"
-      chunks_added:
-        - position: 64
-          text: "Activity floor learning + corpus persistence — per-service 24h rolling histogram; ServiceWentSilent gated by p95 quiet duration (capabilities P-013/P-014; detail in pulse-v0_2_0-route §64)."
-      chunks_renumbered: []
-      motivation: "Pulse v0.2.0 Phase 2 L1b distillation layer; depends on chunk #61 (streaming baseline trackers, complete); soft-depends on chunk #69 (corpus scaffold) per ordering note. Session 82 handoff Next Recommended Action recommended this append."
-      confirmed_shift: false
-      scope_summary_updates:
-        - "Total chunks: 63 → 64"
-  archive:
     - amendment_id: 2026-05-17T14-15-00-acknowledge-restart-events-broadcast
       plans:
         - path: architecture.md
@@ -397,4 +359,4 @@ spec_amendments:
       propagated_by_run: .andromeda/runs/2026-05-11T19-00-00-setup-project-delta/
       archived_at: 2026-05-11T19:25:00Z
 
-session_count: 82
+session_count: 83
