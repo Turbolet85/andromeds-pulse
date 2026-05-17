@@ -32,7 +32,45 @@ living_artifact_freshness:
 drift_warnings: []
 
 spec_amendments:
-  active: []
+  active:
+    - amendment_id: 2026-05-17T08-38-16-append-chunk-62-attention-cue-emitter
+      plans:
+        - path: route.md
+          sections:
+            - "§2 Roadmap (Epoch 9 body)"
+            - "§3 Decisions Log"
+            - "§1 Route Scope Summary (Total chunks mechanical update per Proposal 6)"
+          decisions_log_section: "2026-05-17 — Append chunk #62 attention cue emitter (--allow-route-append)"
+      trigger:
+        chunk: null
+        phase: null
+        harness: "user-driven via /andromeda-evolve"
+      authority:
+        winning_plan: null
+        winning_tier: pipeline-state
+        losing_plan: route.md
+        losing_concern: chunk-list-stale-vs-pipeline-reality
+        rationale: "Pulse v0.2.0 plan §Phase 2 line 178 identifies chunk #62 as next step; consumes chunk #61 baseline primitives landed session 77. Route §2 acknowledges via Type 7 Form 1 append."
+      impl_files_synced: []
+      expected_propagation:
+        - "CLAUDE.md (GENERATED:setup:pointer-table — chunk-count line: (9 epochs / 61 chunks) → (9 epochs / 62 chunks); pre-populated per Proposal 5)"
+      marker_path: .andromeda/runs/2026-05-17T08-38-16-spec-amendment-append-chunk-62-attention-cue-emitter/amendment.md
+      applied_at: 2026-05-17T08:38:17Z
+      noted_at: null
+      propagated_by_run: .andromeda/runs/2026-05-17T08-50-21-setup-project-delta/
+      archived_at: null
+      verification_status: clean
+      flag_used: --allow-route-append
+      form: 1
+      route_section_modified: "Epoch 9 — Foundation v0.2.0"
+      chunks_added:
+        - position: 62
+          text: "Attention cue emitter — Background tick task (1-2s) reads all trackers, evaluates thresholds (3.0× error rate multiplier, 2.5× latency multiplier — calibration values loaded from config), emits `AttentionCue` to broadcast with `priority_tier` classification (Hard / Medium / Baseline based on confidence and magnitude). Tier-2 cues additionally emit to `cadence-triggers` channel for Cadence Coordinator (#72). **Threshold multipliers loaded from config or hardcoded defaults for now; hot-reload wiring added in #86.**"
+      chunks_renumbered: []
+      motivation: "Pulse v0.2.0 plan §Phase 2 line 178 identifies chunk #62 as next step; consumes chunk #61 baseline primitives (EwmaTracker / TDigestPair / RollingWindow exposed via triage::contract from session 77 commit c9c8d9a); enables capabilities P-021 + P-019 partial; mandatory infrastructure before chunks #63/#64."
+      confirmed_shift: false
+      scope_summary_updates:
+        - "Total chunks: 56 → 57"
   archive:
     - amendment_id: 2026-05-17T00-02-12-append-chunk-61-streaming-baseline-trackers
       plans:
