@@ -172,7 +172,7 @@
   - `connection.current_state` — pulse-app crate (`ConnectionApiImpl` returning `ConnectionStatePayload` from `crates/ingest::connection::compute_state()`; chunk #59) — see §Architecture Registry Updates 2026-05-16
 - **External HTTP routes (OTLP HTTP)**: `POST /v1/traces`, `POST /v1/metrics`, `POST /v1/logs` on `:4318`.
 - **MCP stdio surface**: standard MCP `initialize`, `tools/list`, `tools/call`, `notifications/*` over stdin/stdout when the rmcp sidecar is started.
-- **Tauri IPC events (broadcast channels)**: `pulse://stream/spans`, `pulse://stream/metrics`, `pulse://stream/logs`, `pulse://stream/snapshot-progress`, `pulse://stream/plugin-events`, `pulse://stream/connection-state` (chunk #59 — see §Architecture Registry Updates 2026-05-16).
+- **Tauri IPC events (broadcast channels)**: `pulse://stream/spans`, `pulse://stream/metrics`, `pulse://stream/logs`, `pulse://stream/snapshot-progress`, `pulse://stream/plugin-events`, `pulse://stream/connection-state` (chunk #59 — see §Architecture Registry Updates 2026-05-16), `pulse://stream/attention-cues` (chunk #62 — see §Architecture Registry Updates 2026-05-17).
 - **Process / service identity**:
   - Tauri app bundle identifier: `com.andromeda.pulse`
   - Binary name: `andromeda-pulse` (Linux/macOS), `andromeda-pulse.exe` (Windows)
@@ -422,4 +422,18 @@ _This section accumulates entries from `/andromeda-evolve --allow-arch-registry`
 **Rationale:** Chunk #60 implementation creates new workspace member `crates/triage/` (12th workspace crate; arch §Occupied Resources Cargo workspace crate names had not yet acknowledged the new reserved name — D3 capability-drift class). Separately, chunk #60 introduces the first registered scope `pulse-v0_2_0-route` (per route §3 Decisions Log 2026-05-16 entry: "Arch registry delta: +1 crate `triage`, first registered scope `pulse-v0_2_0-route` in §Existing Scopes"). The `pulse-v0_2_0-route` scope-defining document `docs/v0_2_0/pulse-v0_2_0-route.md` landed prior to chunk #57 via pulse v0.2.0 planning; chunks #57-#60 have been implemented within this scope but arch §Existing Scopes was never formally updated to register it. This amendment closes both gaps in one coordinated cycle. Mirrors 2026-05-16 curation crate precedent (single Type 6 amendment per chunk) + extends with first-ever scope registration (Check 7.4 first-entry case; placeholder text replaced).
 
 **Amendment record:** `.andromeda/runs/2026-05-16T23-39-39-spec-amendment-acknowledge-triage-crate-and-scope/amendment.md`
+
+### 2026-05-17 — Acknowledge `pulse://stream/attention-cues` broadcast in §Occupied Resources (--allow-arch-registry)
+
+**Section affected:** §Occupied Resources Tauri IPC events (broadcast channels)
+
+**Registry additions:**
+
+- `pulse://stream/attention-cues` — implemented at `crates/triage/src/cue/broadcast.rs:8` (chunk #62 "Attention cue emitter" — route §2 Epoch 9 Foundation v0.2.0 sixth chunk; committed 2026-05-17 commit `aeb4d7d`)
+
+**Authority:** /andromeda-evolve with `--allow-arch-registry` flag (narrow Refuse 1 exception for arch registry sections; full audit trail in amendment marker). Check 7 verified purely additive / registry section / code evidence resolved / no new architectural concept (sub-section had 6 prior entries; this is the 7th) + Check 7.5 narrative-cascade scan returned clean (count-noun whitelist does not include "Tauri IPC events"; scan trivially passed).
+
+**Rationale:** Chunk #62 implementation lands the attention cue emitter in `crates/triage/src/cue/` (specifically `crates/triage/src/cue/broadcast.rs:8` declares `STREAM_NAME_ATTENTION_CUES = "pulse://stream/attention-cues"`); broadcast topic emitted from `AttentionCueBroadcast::send` invoked by the cue emitter tick task per chunk #62 plan. arch §Occupied Resources Tauri IPC events (broadcast channels) sub-section had not yet acknowledged the new topic (D3 capability-drift class — chunk #62 added implementation without arch update; this amendment closes the gap). Mirrors 2026-05-16 chunk #59 `pulse://stream/connection-state` precedent + accumulated chunk #57-#61 cascade discipline. `cadence-triggers` internal tokio broadcast channel (inside the triage crate, NOT crossing the Tauri bridge) is intentionally NOT acknowledged in this amendment per evolve Phase 1c clarifying-question answer — internal cross-crate channels do not occupy registry-grade identifiers for §Occupied Resources.
+
+**Amendment record:** `.andromeda/runs/2026-05-17T10-34-52-spec-amendment-acknowledge-attention-cues-broadcast/amendment.md`
 
