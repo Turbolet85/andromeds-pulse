@@ -75,7 +75,7 @@ tower = "0.5"
 tower-http = { version = "0.6", features = ["cors", "limit", "trace"] }
 bytes = "1"
 http = "1"
-axum-test = "18"
+axum-test = "20"
 reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"] }
 
 # Rate-limit middleware for OTLP receivers (route#19 — Epoch 2 Ingest pipeline closes).
