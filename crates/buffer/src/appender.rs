@@ -98,7 +98,7 @@ pub(crate) fn build_spans_record_batch(
     Ok(Some(record_batch))
 }
 
-fn extract_service_name(resource: Option<&Resource>) -> String {
+pub(crate) fn extract_service_name(resource: Option<&Resource>) -> String {
     let Some(r) = resource else {
         return String::new();
     };

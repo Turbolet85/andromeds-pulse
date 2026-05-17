@@ -4,4 +4,5 @@ pub mod contract;
 pub mod grpc;
 pub mod http;
 pub mod invariants;
+pub mod observer;
 pub mod state;

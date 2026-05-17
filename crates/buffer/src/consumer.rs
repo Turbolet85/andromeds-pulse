@@ -1,12 +1,15 @@
 use std::sync::{Arc, Mutex};
+use std::time::{SystemTime, UNIX_EPOCH};
 
 use bytes::Bytes;
 use duckdb::Connection;
 use ingest::channel::{Batch, IngestReceiver};
+use ingest::grpc::proto::opentelemetry::proto::trace::v1::ResourceSpans;
+use ingest::observer::SpanObserver;
 
 use crate::appender::{
     append_record_batch_to_table, build_logs_record_batch, build_metrics_record_batch,
-    build_spans_record_batch,
+    build_spans_record_batch, extract_service_name,
 };
 use crate::broadcast::{
     self, BroadcastSenders, MAX_PAYLOAD_BYTES, STREAM_NAME_LOGS, STREAM_NAME_METRICS,
@@ -30,8 +33,17 @@ pub async fn run_consumer(
     conn: Arc<Mutex<Connection>>,
     state: Arc<BufferState>,
     broadcast_senders: Arc<BroadcastSenders>,
+    span_observer: Arc<dyn SpanObserver>,
 ) {
     while let Some(batch) = receiver.recv().await {
+        // Chunk #62 baseline tap: per-span observation feeds the triage
+        // BaselineState before DuckDB write so baseline tracking is
+        // decoupled from storage path. Only span batches participate —
+        // metrics/logs do not feed the streaming baseline trackers.
+        if let Batch::Spans(ref spans) = batch {
+            observe_spans_for_baseline(spans, &span_observer);
+        }
+
         let conn_clone = Arc::clone(&conn);
         let state_clone = Arc::clone(&state);
         let senders_clone = Arc::clone(&broadcast_senders);
@@ -134,6 +146,42 @@ fn encode_or_log(result: Result<Bytes, Error>, channel_name: &'static str) -> Op
     }
 }
 
+/// Chunk #62: invoke the span observer for each post-decode span in the
+/// batch. Wall-clock derived once per batch (cheap; multiple spans share);
+/// span fields (`service_name`, `operation_name`, `status_code`,
+/// `latency_ms`) extracted from the OTLP proto types. Empty trace_id or
+/// span_id spans are skipped — receiver-side invariants (chunk #18) already
+/// reject these, but the tap stays defensive at the boundary mirroring
+/// `build_spans_record_batch` discipline.
+fn observe_spans_for_baseline(batch: &[ResourceSpans], observer: &Arc<dyn SpanObserver>) {
+    let now_nanos = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .map(|d| d.as_nanos() as i64)
+        .unwrap_or(0);
+    for rs in batch {
+        let service_name = extract_service_name(rs.resource.as_ref());
+        for ss in &rs.scope_spans {
+            for span in &ss.spans {
+                if span.trace_id.is_empty() || span.span_id.is_empty() {
+                    continue;
+                }
+                let status_code = span.status.as_ref().map(|s| s.code).unwrap_or(0) as u8;
+                let latency_nanos = span
+                    .end_time_unix_nano
+                    .saturating_sub(span.start_time_unix_nano);
+                let latency_ms = latency_nanos / 1_000_000;
+                observer.observe_span(
+                    &service_name,
+                    &span.name,
+                    status_code,
+                    latency_ms,
+                    now_nanos,
+                );
+            }
+        }
+    }
+}
+
 fn describe_error(e: &Error) -> &'static str {
     match e {
         Error::Init { .. } => "init_failed",
@@ -153,6 +201,11 @@ mod tests {
     use crate::schema::create_schema;
     use ingest::channel::build_channel;
     use ingest::grpc::proto::opentelemetry::proto::trace::v1::{ResourceSpans, ScopeSpans, Span};
+    use ingest::observer::NoopSpanObserver;
+
+    fn noop_observer() -> Arc<dyn SpanObserver> {
+        Arc::new(NoopSpanObserver)
+    }
 
     fn fresh_conn_with_schema() -> Arc<Mutex<Connection>> {
         let conn = Connection::open_in_memory().expect("open_in_memory");
@@ -199,6 +252,7 @@ mod tests {
             Arc::clone(&conn),
             Arc::clone(&state),
             Arc::clone(&senders),
+            noop_observer(),
         ));
 
         // Drop sender so consumer's recv() returns None and the task exits.
@@ -235,6 +289,7 @@ mod tests {
             Arc::clone(&conn),
             Arc::clone(&state),
             Arc::clone(&senders),
+            noop_observer(),
         ));
 
         let payload = tokio::time::timeout(std::time::Duration::from_secs(5), spans_rx.recv())
@@ -274,6 +329,7 @@ mod tests {
             Arc::clone(&conn),
             Arc::clone(&state),
             Arc::clone(&senders),
+            noop_observer(),
         ));
 
         let p1 = tokio::time::timeout(std::time::Duration::from_secs(5), r1.recv())
@@ -312,6 +368,7 @@ mod tests {
             Arc::clone(&conn),
             Arc::clone(&state),
             Arc::clone(&senders),
+            noop_observer(),
         ));
 
         drop(sender);

@@ -9,9 +9,15 @@ use duckdb::Connection;
 use ingest::channel::{IngestSender, build_channel};
 use ingest::connection::{self, ConnectionBroadcast, ReceiverBindStatus};
 use ingest::contract::{Error as IngestError, OtlpPort};
+use ingest::observer::SpanObserver;
 use ingest::state::IngestState;
 use tauri::Manager;
 use tracing_error::SpanTrace;
+use triage::contract::{
+    AttentionCueBroadcast, CadenceTriggerChannel, DEFAULT_MAX_SIZE_BYTES,
+    DEFAULT_PERSIST_INTERVAL_NANOS, DEFAULT_SERVICE_COUNT_CAP, Thresholds, bootstrap_state,
+    resolve_corpus_path, run_persist_loop, start_emitter,
+};
 use ui_bridge::Settings;
 use ui_bridge::health::{
     BindStatus, BufferConnectionStatus, HeartbeatState, IngestChannelStatus, IntrospectionApi,
@@ -24,6 +30,7 @@ use viz::VizState;
 use pulse_app::taurpc_export_config;
 use pulse_app::{heartbeat, observability, tray, window};
 
+use pulse_app::baseline_observer::BaselineObserverAdapter;
 use pulse_app::connection_router::{ConnectionApi, ConnectionApiImpl, HeartbeatBindStatus};
 #[cfg(feature = "mcp-server")]
 use pulse_app::mcp_router::{McpApi, McpApiImpl};
@@ -242,6 +249,30 @@ fn main() {
     let connection_impl =
         ConnectionApiImpl::new(Arc::clone(&ingest_state), Arc::clone(&bind_status));
 
+    // Chunk #62 — attention cue emitter substrate. BaselineState bootstraps
+    // from disk corpus if present (chunk #61 deferred this wiring); the
+    // BaselineObserverAdapter wraps it as `ingest::observer::SpanObserver`
+    // for buffer's consumer tap. AttentionCueBroadcast + CadenceTriggerChannel
+    // are the emit surfaces (chunk #62); Thresholds carries hardcoded
+    // defaults this chunk (hot-reload lands in #86).
+    let corpus_path = resolve_corpus_path(&data_dir).unwrap_or_else(|_| {
+        // Fallback: a non-canonicalize-able path means persist will fail; the
+        // emitter still operates on the in-memory state for the session.
+        data_dir.join("triage").join("baseline-corpus.bin")
+    });
+    let baseline_now = chrono::Utc::now().timestamp_nanos_opt().unwrap_or(0);
+    let baseline_state = Arc::new(bootstrap_state(
+        &corpus_path,
+        DEFAULT_MAX_SIZE_BYTES,
+        DEFAULT_SERVICE_COUNT_CAP,
+        baseline_now,
+    ));
+    let span_observer: Arc<dyn SpanObserver> =
+        Arc::new(BaselineObserverAdapter::new(Arc::clone(&baseline_state)));
+    let cue_broadcast = Arc::new(AttentionCueBroadcast::new());
+    let cadence_channel = Arc::new(CadenceTriggerChannel::new());
+    let thresholds = Arc::new(Thresholds::default());
+
     let grpc_addr = match resolve_grpc_port() {
         Ok(p) => Some(SocketAddr::from(([127, 0, 0, 1], p.value()))),
         Err(_) => {
@@ -396,6 +427,7 @@ fn main() {
                         Arc::clone(&conn),
                         Arc::clone(&buffer_state),
                         Arc::clone(&broadcast_senders),
+                        Arc::clone(&span_observer),
                     ));
                     tauri::async_runtime::spawn(run_retention(
                         Arc::clone(&conn),
@@ -506,6 +538,22 @@ fn main() {
                 Arc::clone(&ingest_state),
                 Arc::clone(&bind_status),
                 Arc::clone(&connection_broadcast),
+            ));
+            // Chunk #62 — baseline corpus periodic persist (60s + on-shutdown
+            // deferred to next chunk per plan Implementation note 5) +
+            // attention cue emitter background tick (1s cadence reading all
+            // BaselineState trackers, evaluating thresholds, emitting cues
+            // to broadcast + cadence-triggers channel).
+            tauri::async_runtime::spawn(run_persist_loop(
+                Arc::clone(&baseline_state),
+                corpus_path.clone(),
+                std::time::Duration::from_nanos(DEFAULT_PERSIST_INTERVAL_NANOS as u64),
+            ));
+            tauri::async_runtime::spawn(start_emitter(
+                Arc::clone(&baseline_state),
+                Arc::clone(&cue_broadcast),
+                Arc::clone(&cadence_channel),
+                Arc::clone(&thresholds),
             ));
             let _heartbeat_handles = heartbeat::spawn(
                 heartbeat_state,

@@ -1,14 +1,14 @@
 schema_version: 2
-last_wrap: 2026-05-17T08:56:16Z
-last_reconcile: 2026-05-17T08:56:16Z
+last_wrap: 2026-05-17T10:17:59Z
+last_reconcile: 2026-05-17T10:17:59Z
 
 last_completed_chunk:
-  route_index: 61
-  title: "Streaming baseline trackers + corpus persistence — EwmaTracker per service (5-min window) + per-operation t-digest pair (current/previous, swap-on-tick) for streaming p50/p95/p99 + per-service RollingWindow<u32>; corpus persist every 60s + on-shutdown; service identity drop on empty service.name; capabilities P-009 + P-011; workspace deps: +tdigest +dashmap +bincode"
+  route_index: 62
+  title: "Attention cue emitter — Background tick task (1-2s) reads all trackers, evaluates thresholds (3.0× error rate multiplier, 2.5× latency multiplier — calibration values loaded from config), emits `AttentionCue` to broadcast with `priority_tier` classification (Hard / Medium / Baseline based on confidence and magnitude). Tier-2 cues additionally emit to `cadence-triggers` channel for Cadence Coordinator (#72). **Threshold multipliers loaded from config or hardcoded defaults for now; hot-reload wiring added in #86.**"
   epoch: 9
-  committed_at: 2026-05-17T01:20:26Z
-  commit_sha: c9c8d9a
-  commit_subject: "feat(triage): chunk #61 — streaming baseline trackers + corpus persistence (Epoch 9 Foundation v0.2.0 fifth chunk); session 77"
+  committed_at: 2026-05-17T10:17:59Z
+  commit_sha: d9ed67a
+  commit_subject: "feat(triage): chunk #62 — attention cue emitter (Epoch 9 Foundation v0.2.0 sixth chunk); session 79 wrap"
 
 in_progress: null
 
@@ -24,12 +24,18 @@ plan_freshness:
   input_mtime: 2026-05-02T06:52:58Z
 
 living_artifact_freshness:
-  dep_tree_reconciled_at: 2026-05-17T08:56:16Z
-  api_surface_reconciled_at: 2026-05-17T08:56:16Z
-  most_recent_code_mtime: 2026-05-17T01:10:38Z
+  dep_tree_reconciled_at: 2026-05-17T10:17:59Z
+  api_surface_reconciled_at: 2026-05-17T10:17:59Z
+  most_recent_code_mtime: 2026-05-17T10:17:59Z
   reconcile_failed: false
 
-drift_warnings: []
+drift_warnings:
+- drift_id: D3
+  description: "chunk #62 broadcast topic `pulse://stream/attention-cues` + `cadence-triggers` internal channel not acknowledged in arch.md §Occupied Resources Tauri IPC events; deferred to /andromeda-evolve --allow-arch-registry Type 6 amendment per route §3 Decisions Log 2026-05-17 chunk #62 entry. Likely first live P7 narrative-cascade test."
+  severity: warning
+  remediation_hint: "/andromeda-evolve --allow-arch-registry → /andromeda-setup-project --delta → /andromeda-wrap-session"
+  first_observed_session_count: 79
+  last_observed_session_count: 79
 
 spec_amendments:
   active: []
@@ -313,4 +319,4 @@ spec_amendments:
       propagated_by_run: .andromeda/runs/2026-05-11T19-00-00-setup-project-delta/
       archived_at: 2026-05-11T19:25:00Z
 
-session_count: 78
+session_count: 79

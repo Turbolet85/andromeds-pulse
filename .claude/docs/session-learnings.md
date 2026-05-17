@@ -8,6 +8,34 @@ _This file is entirely wrap-session's territory. `/setup-project` creates it if 
 
 ---
 
+## 2026-05-17 (session 79) — EWMA convergence in N-sample tests is misleading at production alpha (confidence 0.85)
+
+When writing unit tests against `crates/triage/src/baseline/EwmaTracker` (alpha=0.00333, 5-min window), seeding strategies that assume "N errors in M samples → N/M error rate" produce wildly incorrect EWMA values at typical test scale (100 samples). With alpha=0.00333, a single initial error observation sets EWMA=1.0; 99 subsequent non-error observations decay it via `value = 0.99667 * value` к ~0.717 — STILL above any sub-50% threshold. Tests asserting "1 error in 100 → below 3% threshold" fail because actual EWMA is ~71% NOT 1%. Discovered at chunk #62 cue emitter tests (`evaluate_thresholds_low_error_rate_does_not_emit_cue` + `evaluate_thresholds_classification_flips_when_multiplier_raised` both failed on first run).
+
+**Resolution patterns for cue/baseline emit tests:**
+
+1. **Below threshold:** seed 0 errors. EWMA stays at exactly 0.0 (first observation = 0; all subsequent = 0). Reliable below-threshold without convergence wait.
+2. **Above threshold + clearly classified:** seed HIGH error counts (50/100) — EWMA converges to ~85%; safely above any sub-100% threshold; classify by setting multiplier to suppress (e.g., multiplier=100 → threshold=100% → cue suppressed when EWMA=85%).
+3. **Borderline cases:** AVOID — the 5-min window doesn't converge to 4%/10%/etc. в 100 samples regardless of seeding pattern. Use multipliers that flip Hard→Suggested transitions instead of magnitude-based tests.
+
+Apply to ANY future test in `crates/triage/` that uses BaselineState. The 5-min EWMA window is calibrated for streaming production traffic, not 100-sample unit tests; alternating injection (every Nth sample is error) would converge but adds test complexity. Pre-emptively reach for option 1 (0 errors) or option 2 (high errors + multiplier flip) over magnitude-based assertions.
+
+---
+
+## 2026-05-17 (session 79) — Buffer consumer is the canonical baseline-tap point (not ingest hot-path) for cross-crate span observation (confidence 0.80)
+
+When a downstream crate (chunk #62 `triage::BaselineState`) needs к observe every decoded OTLP span without taking a sibling dep on `ingest`, the buffer crate's `run_consumer` is the cleaner tap point than per-receiver wiring through `ingest/src/{grpc,http}.rs`. Rationale:
+
+1. **Buffer already iterates decoded spans** (`build_spans_record_batch` walks ResourceSpans → ScopeSpans → Span for the Arrow record batch); adding a parallel `observe_spans_for_baseline` walk is trivial vs threading `Arc<dyn SpanObserver>` through 2 separate receiver handlers + their generated tonic code paths.
+2. **Single tap point** covers all OTLP traffic regardless of transport (gRPC + HTTP).
+3. **Buffer already depends on ingest** (sanctioned per arch §Module dependency direction for the Batch enum); no new workspace dep edge needed.
+4. **Trait-in-lower-crate + impl-in-pulse-app preserved**: `SpanObserver` trait lives in `crates/ingest/src/observer.rs` (call site); `BaselineObserverAdapter` impl lives at `pulse-app/src/baseline_observer.rs` boundary wrapping `Arc<triage::BaselineState>`. Mirrors chunk #59 `ReceiverBindStatus` precedent.
+5. **Trade-off:** observation happens BEFORE `spawn_blocking` for DuckDB write but AFTER the batch is constructed (already past invariant checks). Slightly later in pipeline vs per-receiver tap, but pre-spawn_blocking so doesn't block on DuckDB I/O. Acceptable for chunk #62 cadence (1s tick reads stable state regardless of mid-batch timing).
+
+**Generalization:** any future cross-crate state delivery where the consumer needs decoded spans (cross-spec metric aggregators, custom counters, future incident detectors) should default к buffer's consumer tap rather than per-receiver wiring. The chunk #62 plan originally specified per-receiver tap but Phase 1 research surfaced buffer as the simpler home; the deviation was in-scope per Phase 2 §Bounded retry caps + strict scope classification.
+
+---
+
 ## 2026-05-17 — Dogfood Andromeda improvements via the next pending cascade (confidence 0.85)
 
 When landing improvements to user-level Andromeda skill files (`~/.claude/skills/andromeda-*/`), sequence them IMMEDIATELY before the next pending `/andromeda-evolve` invocation rather than as a standalone improvement-only session. The next pending cascade IS the live test — verifies mechanical operation under real conditions rather than synthetic ones. Validated session 78 by landing Proposals 5 (Type 7 cascade visibility) + 6 (Form 1 §1 mechanical update) immediately before the chunk #62 `--allow-route-append` cascade. Result: both proposals exercised end-to-end (evolve marker pre-populated, route §1 mechanically incremented, setup-project --delta grep-expansion found ZERO additional files because P5 pre-populated successfully). Pattern generalizes: bundle improvement landing + first dogfood cascade in the same session for maximum verification feedback. Caveat: only works when the next cascade exercises the improved code path. P7 (Type 6 narrative-cascade) was landed in same session 78 but NOT exercised because chunk #62 is Type 7, not Type 6 — P7 awaits next `--allow-arch-registry` invocation for live test. So "next pending cascade" must match the improved flag's classification; otherwise improvement lands without immediate validation and accumulates "pending live test" debt.

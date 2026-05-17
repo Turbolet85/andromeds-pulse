@@ -1023,6 +1023,62 @@ impl AllowList {
             ["value", "kind"].iter().copied().collect(),
         );
 
+        // Chunk #62 — attention cue emitter (Epoch 9 Foundation v0.2.0
+        // sixth chunk; capability P-021 + P-019 partial). 4 new tracing
+        // target leaves emitted by `crates/triage/src/cue/emitter.rs`.
+        // PII discipline (per security plan §Anti-Patterns § Logging row 1):
+        // no `scope_id` admitted (carries user-controlled service.name);
+        // only bounded-cardinality enum tags + structural numeric values.
+        by_target.insert(
+            "triage.cue.tick",
+            [
+                "cues_evaluated",
+                "cues_emitted",
+                "cadence_triggers_emitted",
+                "services_tracked",
+                "operations_tracked",
+            ]
+            .iter()
+            .copied()
+            .collect(),
+        );
+        by_target.insert(
+            "triage.cue.evaluate",
+            [
+                "services_tracked",
+                "operations_tracked",
+                "error_rate_multiplier",
+                "latency_multiplier",
+                "source",
+            ]
+            .iter()
+            .copied()
+            .collect(),
+        );
+        by_target.insert(
+            "triage.cue.emit",
+            [
+                "kind",
+                "priority",
+                "scope",
+                "magnitude",
+                "absolute_value",
+                "persistence_seconds",
+                "confidence",
+                "suppression_bypassed",
+            ]
+            .iter()
+            .copied()
+            .collect(),
+        );
+        by_target.insert(
+            "metric.cue.emit_count_total",
+            ["value", "kind", "priority", "scope"]
+                .iter()
+                .copied()
+                .collect(),
+        );
+
         Self { by_target }
     }
 

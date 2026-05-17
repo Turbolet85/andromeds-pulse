@@ -221,6 +221,67 @@ impl BaselineState {
             .get(&key)
             .and_then(|op| op.latency_tdigest.percentile(q))
     }
+
+    /// Snapshot all per-service baseline metrics. Called from the chunk #62
+    /// attention cue emitter tick body to enumerate services for threshold
+    /// evaluation. Allocates a Vec — sufficient at 1Hz tick cadence with
+    /// bounded service count per `DEFAULT_SERVICE_COUNT_CAP`.
+    pub fn iter_services(&self) -> Vec<ServiceMetricSnapshot> {
+        self.services
+            .iter()
+            .map(|entry| ServiceMetricSnapshot {
+                service_name: entry.key().clone(),
+                error_rate: entry.error_rate_ewma.value(),
+                samples: entry.error_rate_ewma.samples(),
+                last_update_nanos: entry.error_rate_ewma.last_update_nanos(),
+            })
+            .collect()
+    }
+
+    /// Snapshot all per-operation latency metrics at the supplied percentile
+    /// `q ∈ [0.0, 1.0]`. Service name is recovered from the operation key's
+    /// prefix (everything before the first `/`); operations с malformed keys
+    /// are skipped. Used by the chunk #62 cue emitter for LatencyRegression
+    /// detection.
+    pub fn iter_operations(&self, percentile_q: f64) -> Vec<OperationMetricSnapshot> {
+        self.operations
+            .iter()
+            .filter_map(|entry| {
+                let key = entry.key();
+                let service_name = key.split('/').next()?.to_string();
+                let latency = entry.latency_tdigest.percentile(percentile_q);
+                let samples = entry.latency_tdigest.samples_current();
+                Some(OperationMetricSnapshot {
+                    operation_key: key.clone(),
+                    service_name,
+                    latency_at_percentile: latency,
+                    samples,
+                })
+            })
+            .collect()
+    }
+}
+
+/// Snapshot of one service's baseline metrics for chunk #62 cue evaluation.
+/// Cloned from the live `DashMap` shard at iteration time; downstream
+/// evaluation works on the snapshot without holding the DashMap lock.
+#[derive(Debug, Clone)]
+pub struct ServiceMetricSnapshot {
+    pub service_name: String,
+    pub error_rate: f64,
+    pub samples: u64,
+    pub last_update_nanos: i64,
+}
+
+/// Snapshot of one operation's latency metric for chunk #62 cue evaluation.
+/// `operation_key` is opaque (`"{service}/{hash}"` shape); `service_name` is
+/// extracted from the prefix for cue payload `scope_id` population.
+#[derive(Debug, Clone)]
+pub struct OperationMetricSnapshot {
+    pub operation_key: String,
+    pub service_name: String,
+    pub latency_at_percentile: Option<f64>,
+    pub samples: u64,
 }
 
 fn operation_key(service: &str, operation: &str) -> String {

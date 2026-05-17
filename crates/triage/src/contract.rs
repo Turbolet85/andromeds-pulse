@@ -12,8 +12,21 @@ use serde::{Deserialize, Serialize};
 pub use crate::baseline::{
     BaselineError, BaselineState, BootstrapResult, DEFAULT_ALPHA_5MIN_WINDOW,
     DEFAULT_MAX_SIZE_BYTES, DEFAULT_PERSIST_INTERVAL_NANOS, DEFAULT_SERVICE_COUNT_CAP,
-    PersistStats, SCHEMA_VERSION, STATE_AGE_THRESHOLD_NANOS, bootstrap_state, persist_on_shutdown,
-    resolve_corpus_path, run_persist_cycle, run_persist_loop,
+    OperationMetricSnapshot, PersistStats, SCHEMA_VERSION, STATE_AGE_THRESHOLD_NANOS,
+    ServiceMetricSnapshot, bootstrap_state, persist_on_shutdown, resolve_corpus_path,
+    run_persist_cycle, run_persist_loop,
+};
+
+// Chunk #62 — attention cue emitter. Re-export public-API types from
+// `triage::cue` so pulse-app boot wiring + future v0.2.0 chunks import one
+// shape per chunk #61 precedent.
+pub use crate::cue::{
+    AttentionCueBroadcast, BROADCAST_CAPACITY, CHANNEL_NAME_CADENCE_TRIGGERS,
+    CadenceTriggerChannel, DEFAULT_BASE_ERROR_RATE, DEFAULT_BASE_LATENCY_MS,
+    DEFAULT_ERROR_RATE_MULTIPLIER, DEFAULT_LATENCY_MULTIPLIER, DEFAULT_LATENCY_PERCENTILE,
+    DEFAULT_MIN_PERSISTENCE_SECONDS, DEFAULT_TICK_INTERVAL, MIN_EWMA_SAMPLES,
+    STREAM_NAME_ATTENTION_CUES, Thresholds, ThresholdsError, classify_priority,
+    dual_condition_bypass, evaluate_thresholds, run_one_emit_cycle, start_emitter,
 };
 
 /// Kind of detected condition emitted as an attention cue. Bounded

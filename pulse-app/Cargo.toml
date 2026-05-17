@@ -43,6 +43,7 @@ viz = { path = "../crates/viz" }
 plugins = { path = "../crates/plugins" }
 snapshot = { path = "../crates/snapshot" }
 workspace-detector = { path = "../crates/workspace-detector" }
+triage = { path = "../crates/triage" }
 
 [dependencies.mcp-server-crate]
 package = "mcp-server"

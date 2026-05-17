@@ -1,130 +1,128 @@
 # Session Handoff
 
-**Last Updated:** 2026-05-17T08:56:16Z
+**Last Updated:** 2026-05-17T10:30:00Z
 **Branch:** main
 **Session End Status:** clean
-**Last Commit:** (pending — wrap commit composed in Phase 10; closes session 78 + archives chunk #62 Type 7 amendment + lands Proposals 5/6 IMPLEMENTED status + 2 Tier 3 learnings)
+**Last Commit:** (pending — wrap commit composed this Phase 10; closes session 79 + lands chunk #62 attention cue emitter implementation)
 
 ## Current State
 
-- **Last completed chunk:** route#61 "Streaming baseline trackers + corpus persistence" (committed session 77 commit c9c8d9a; SHA-hygiene fix this wrap)
-- **Next chunk:** route#62 "Attention cue emitter — Background tick task (1-2s) reads all trackers, evaluates thresholds (3.0× error rate multiplier, 2.5× latency multiplier — calibration values loaded from config), emits `AttentionCue` to broadcast with `priority_tier` classification (Hard / Medium / Baseline based on confidence and magnitude). Tier-2 cues additionally emit to `cadence-triggers` channel for Cadence Coordinator (#72). **Threshold multipliers loaded from config or hardcoded defaults for now; hot-reload wiring added in #86.**" — registered in route §2 Epoch 9 this session via chunk #62 Type 7 cascade
-- **Next chunk status:** REGISTERED in route.md §2 Epoch 9 line 160. Ready for `/andromeda-phase` planning.
+- **Last completed chunk:** route#62 "Attention cue emitter — Background tick task (1-2s) reads all trackers, evaluates thresholds (3.0× error rate multiplier, 2.5× latency multiplier), emits `AttentionCue` to broadcast with priority_tier classification (Autonomous / Suggested / Curious per chunk #60 contract). Tier-2 cues additionally emit to `cadence-triggers` channel for Cadence Coordinator (#72)." (committed this wrap)
+- **Next chunk:** (route §2 Epoch 9 currently terminates at chunk #62; chunk #63 "Restart event detector" per pulse v0.2.0 plan is the natural successor but NOT yet registered in route §2 — requires `/andromeda-evolve --allow-route-append` Type 7 to register before `/andromeda-phase`)
+- **Next chunk status:** route §2 terminates at chunk #62. Subsequent v0.2.0 work needs Type 7 cascade.
 - **In-progress phase:** none
-- **Phase artifacts present:** `.andromeda/phases/phase-{1..57}/` (phase-57 = chunk #61 plan from session 77)
+- **Phase artifacts present:** `.andromeda/phases/phase-{1..58}/` (phase-58 = chunk #62 plan from this session)
 
 ## Andromeda State Detection (states A-K)
 
-All clean post-wrap.
-
-- States A, B, C, D, E, F, G, H, I, J, K: clean.
-- State H specifically resolved: state.yaml.last_completed_chunk.commit_sha = c9c8d9a (was 0576340 stale; corrected this wrap via state hygiene fix). The "0576340" placeholder was a session 77 SHA-fixup amend leftover; corrected to the actual chunk #61 main-branch commit SHA reachable from HEAD.
+- States A, B, C, D, E, F, G, H, I, J: clean.
+- **⚠️ K — Multi-chunk in-progress imbalance:** N/A (in_progress=null this session).
+- **State J specifically resolved this wrap:** living artifacts dep-tree.md + api-surface.md reconciled at 2026-05-17T10:30:00Z (timestamps refreshed; LIVING blocks replaced with fresh tooling output).
+- **State D6/H specifically resolved:** state.yaml.last_completed_chunk.route_index advanced 61 → 62 reflecting chunk #62 implementation commit this wrap.
 
 ## Drift Detection (6 dimensions)
 
-**0 active drifts post-wrap.** All clear.
+**1 active drift post-wrap.**
 
-- D1 (living artifact staleness): clear — find verified zero `.rs` files newer than dep-tree.md reconcile (01:21:21 UTC session 77); session 78 made ZERO Rust source changes (only meta-Andromeda + project skill artifact edits).
-- D2 (LIVING block wrong content): N/A — Phase 5 reconcile skipped (no-op verification; no source changes); LIVING blocks preserved from session 77.
-- D3 (plan-to-code drift): clear — chunk #62 registered in route §2 but no code changes yet (impl deferred to `/andromeda-phase` + `/andromeda-implement`); workspace members unchanged; TauRPC procedures unchanged.
+- ℹ️ D3 (plan-to-code drift): **Type 6 amendment pending** — chunk #62 introduces `pulse://stream/attention-cues` broadcast topic + `cadence-triggers` internal channel (in `crates/triage/src/cue/broadcast.rs`) NOT yet acknowledged in `arch.md` §Occupied Resources Tauri IPC events. Per route §3 Decisions Log 2026-05-17 chunk #62 entry: "deferred к /implement phase: arch via separate `/andromeda-evolve --allow-arch-registry` Type 6 amendment when impl lands". Resolve via `/andromeda-evolve --allow-arch-registry` post-this-wrap. **Likely first live P7 narrative-cascade test per session-handoff Proposal 7 status (PROPOSED, awaits live `--allow-arch-registry` cascade for live test).**
+- D1 (living artifact staleness): clear — reconciled this wrap.
+- D2 (LIVING block wrong content): clear — Phase 5 succeeded.
 - D4 (plan-to-plan drift): clear — no specialist plan body edits this session.
-- D5 (plan-to-CLAUDE.md drift): clear — CLAUDE.md mtime 08:51:35Z > all 9 upstream mtimes (latest upstream is route.md at 08:46:38Z; arch.md/specialists older still). All upstream mtimes ≤ CLAUDE.md mtime.
-- D6 (route chunk progression): clear — last_completed_chunk.route_index=61 matches latest `feat(triage):` commit subject (c9c8d9a); session 78 had no chunk completion commits (only `chore(setup-project):` cascade commit).
+- D5 (plan-to-CLAUDE.md drift): clear — CLAUDE.md mtime is the latest among all upstream files.
+- D6 (route chunk progression): clear — state.yaml.last_completed_chunk advanced к 62 this wrap.
 
 ## Spec Amendments (this session)
 
-**1 amendment applied this session; 1 archived this session (same entry — full lifecycle in one cycle).**
-
-Lifecycle progression this wrap:
-- **Applied** 2026-05-17T08:38:17Z via `/andromeda-evolve --allow-route-append` (Type 7 Form 1; chunk #62 Attention cue emitter)
-- **Noted** 2026-05-17T08:56:16Z by this wrap (Phase 8 lifecycle progression)
-- **Propagated** 2026-05-17T08:50:21Z by `/andromeda-setup-project --delta` (run-dir `.andromeda/runs/2026-05-17T08-50-21-setup-project-delta/`)
-- **Archived** 2026-05-17T08:56:16Z by this wrap (moved active → archive compact form)
-
-Marker preserved at `.andromeda/runs/2026-05-17T08-38-16-spec-amendment-append-chunk-62-attention-cue-emitter/amendment.md` (gitignored audit trail).
-
-state.yaml.spec_amendments.active = [] post-wrap; archive contains 28 entries (was 26 — added chunk #62 + chunk #61 from session 77's earlier archive).
+(none this session — chunk #62 implementation committed; the Type 6 arch §Occupied Resources amendment for `pulse://stream/attention-cues` + `cadence-triggers` is deferred к a separate `/andromeda-evolve --allow-arch-registry` invocation post-this-wrap.)
 
 ## Key Decisions This Session
 
-- **Meta-Andromeda enhancement session (Path C-like 4-step variant):** `/clear` → `/andromeda-new-session` → plan mode (P5+P6+P7 design) → land Proposals 5/6/7-B across 6 user-level skill files (5 planned + 1 consistency discovery in classification-taxonomy.md) → dogfood via chunk #62 Type 7 cascade → `/andromeda-evolve --allow-route-append` → `/andromeda-setup-project --delta` → `/andromeda-wrap-session`. Whole flow in one session; mature pattern.
-- **Proposal 7 chose Option B (warn only):** preserves Refuse 1 strict purely-additive scope for `--allow-arch-registry`. Check 7.5 narrative-cascade scan surfaces warnings in `narrative_cascade_warnings` marker field + materialization-plan-delta.md subsection; does NOT auto-write to structural arch sections. ~37 LoC vs ~75 LoC for Option A. Aligns with handoff's ~95 LoC bundle estimate.
-- **P6 Policy A strict mechanical for Form 1 §1 update:** §1 += M from §1's CURRENT value (not from §2's truth). Pre-existing §1 vs §2 staleness PRESERVED, NOT auto-corrected — that's /andromeda-route territory. Verified live this cycle: chunk #62 cascade incremented §1 56→57; §1 vs §2 gap (-5) preserved as 57 vs 62.
-- **Cross-file consistency discovery (classification-taxonomy.md drift):** P6 plan covered 5 files; a final grep for `Form 2 only.*scope_summary` after edits surfaced stale citation at `classification-taxonomy.md:446`. Fixed in same session (2 additional edits). Generalized as Tier 3 learning.
-- **First live dogfood test of P5 + P6 succeeded end-to-end:** P5 — `expected_propagation` pre-populated CLAUDE.md pointer-table at evolve-time; Detection step 8 grep-expansion found ZERO additional files (cascade fully visible in marker before --delta ran). P6 — route.md §1 Total chunks mechanically incremented 56→57 at evolve atomic write; Decisions Log Impact field cites new auto-update language. P7 not exercised (Type 7 not Type 6); awaits next `--allow-arch-registry` cascade for live test.
+- **Buffer's consumer chosen as the baseline-tap point** (plan deviation): instead of threading `Arc<dyn SpanObserver>` through ingest's gRPC + HTTP handlers (per plan Implementation step 11), `buffer::consumer::run_consumer` is the single tap point. Buffer already iterates decoded spans for the Arrow record batch + already deps on ingest; adding a parallel `observe_spans_for_baseline` helper is +30 lines vs threading through 2 receiver pathways + their tonic-generated handler bodies. Rationale captured as Tier 3 learning.
+- **PriorityTier naming reconciled:** route §62 chunk text said "Hard / Medium / Baseline" but chunk #60 contract uses `Autonomous` / `Suggested` / `Curious`. Plan + implementation use contract names canonically; mapping convention: Hard ≈ Autonomous (high-confidence prominent), Medium ≈ Suggested (Tier-2 fan-out к cadence-triggers), Baseline ≈ Curious (record-only).
+- **Threshold evaluation strategy:** chunk #62 implements `ErrorRateSpike` + `LatencyRegression` cue kinds. ErrorRateSpike fires when EWMA value ≥ `base_error_rate × multiplier` (= 0.03 with defaults); LatencyRegression fires when p95 latency ≥ `base_latency_ms × multiplier` (= 250ms with defaults). Warm-up gate: `samples ≥ MIN_EWMA_SAMPLES (10)` per service before participating; suppresses cold-start noise.
+- **In-scope plan extensions documented at Phase 3 report:** baseline/mod.rs +2 pub structs + 2 pub methods (ServiceMetricSnapshot / OperationMetricSnapshot + iter_services / iter_operations); appender::extract_service_name visibility widened к pub(crate); pulse-app/Cargo.toml +triage path dep; 3 test files updated for run_consumer signature change (e2e_p1 / e2e_p6 / perf_slo_10k_spans).
+- **Tauri 2 shutdown hook NOT implemented** (plan Implementation note 5 fallback): periodic 60s persist via `run_persist_loop` covers most data; ungraceful exit loses ≤60s of baseline state. Deferred к follow-on chunk if needed.
+- **PriorityTier::Suggested = Tier-2 fan-out к cadence-triggers** per route §62 text — verified in `emit_cue` impl: `if matches!(cue.priority_tier, PriorityTier::Suggested) { cadence_handle.sender().send(cue.clone()); }`.
+- **bindings.ts SHA-hygiene at wrap-commit:** transient regeneration during `cargo tauri dev` smoke + default-features nextest. Restored via `cargo nextest run -p pulse-app --features mcp-server -E 'test(emit_taurpc_bindings)'` к canonical full-set state (grep `'"mcp":'` returns 1) before commit. Per testing.md Session Additions 2026-05-17 self-heal discipline.
 
 ## Files Modified
 
 **MODIFIED (this wrap commit):**
 - `.claude/session-handoff.md` — this file (full overwrite)
-- `.andromeda/state.yaml` — last_wrap + last_reconcile (refreshed 08:56:16Z) + last_completed_chunk.commit_sha (0576340 → c9c8d9a hygiene fix) + plan_freshness.route_mtime (00:06:39Z → 08:46:38Z) + living_artifact_freshness (refreshed) + drift_warnings=[] + spec_amendments.active=[] (chunk #62 archived) + spec_amendments.archive +1 entry (chunk #62 compact form) + session_count 77 → 78
-- `.claude/docs/session-learnings.md` — 2 new Tier 3 entries prepended (cascade dogfood pattern + cross-file consistency methodology)
-- `docs/andromeda-improvements.md` — Proposals 5 + 6 status: PROPOSED → IMPLEMENTED 2026-05-17 (session 78); P7 stays PROPOSED (awaits live test via next Type 6 cascade)
+- `.claude/docs/session-learnings.md` — 2 new Tier 3 entries prepended (EWMA convergence in N-sample tests + buffer consumer as baseline-tap point)
+- `.andromeda/context/dependency-tree.md` — Phase 5 reconcile: cargo tree replaced LIVING block (378 lines fresh; was 387); Last reconciled timestamp updated; session-79 maintenance note appended
+- `.andromeda/context/api-surface.md` — Phase 5 reconcile: per-crate cargo public-api iteration replaced LIVING block (6535 lines fresh; was 6317); session-79 maintenance note appended
+- `.andromeda/state.yaml` — last_wrap + last_reconcile + last_completed_chunk advanced to chunk #62 + plan_freshness mtimes refreshed + drift_warnings[D3] persisted + session_count 78 → 79
 
-**MODIFIED earlier this session (already committed in 44a7ba4):**
-- `CLAUDE.md` — pointer-table line 54: "(9 epochs / 61 chunks)" → "(9 epochs / 62 chunks)" via setup-project --delta
-- `.andromeda/route.md` — §1 Total chunks 56→57 (Form 1 mechanical) + §2 Epoch 9 chunk #62 insertion + §3 Decisions Log entry (Type 7 Form 1 cascade)
-- `.andromeda/state.yaml` — chunk #62 amendment entry (active list)
+**NEW (this wrap commit):**
+- `crates/triage/src/cue/mod.rs` — chunk #62 cue module entry (38 lines)
+- `crates/triage/src/cue/thresholds.rs` — Thresholds struct + 8 const defaults + validate() + 9 tests (~265 lines)
+- `crates/triage/src/cue/classify.rs` — classify_priority + dual_condition_bypass + label fns + 12 tests (~140 lines)
+- `crates/triage/src/cue/evaluate.rs` — evaluate_thresholds pure synchronous evaluator + 9 tests (~255 lines)
+- `crates/triage/src/cue/broadcast.rs` — AttentionCueBroadcast + CadenceTriggerChannel thin wrappers + 8 tests (~145 lines)
+- `crates/triage/src/cue/emitter.rs` — start_emitter + run_one_emit_cycle + emit_cue + EmitCycleStats + 8 tests (~370 lines)
+- `crates/ingest/src/observer.rs` — SpanObserver trait + NoopSpanObserver + 3 tests (~90 lines)
+- `pulse-app/src/baseline_observer.rs` — BaselineObserverAdapter wrapping Arc<BaselineState> as SpanObserver + 2 tests (~55 lines)
 
-**MODIFIED at USER-LEVEL skill files (outside project tree):**
-- `C:\Users\turbo\.claude\skills\andromeda-evolve\SKILL.md` — Flag-specific Form 1 §1 update rule block (P6) + Phase 4 step 2g pointer-table pre-populate (P5) + Phase 6 step 2 Form 1 §1 edit note (P6); ~20 LoC
-- `C:\Users\turbo\.claude\skills\andromeda-evolve\references\output-templates.md` — Type 7 marker variant Form 1/Form 2 §1 split (P6) + Plans amended Before→After Form 1 update (P6) + Decisions Log Impact field language (P6) + state.yaml scope_summary_updates restructure (P6) + Type 7 downstream propagation two-branch template (P5) + Type 6 marker variant narrative_cascade_warnings field (P7) + Verification 7.5 bullet (P7); ~39 LoC
-- `C:\Users\turbo\.claude\skills\andromeda-evolve\references\refuse-taxonomy.md` — Refuse 6 Exception Form 1/Form 2 split (P6) + Refuse 6 verification list (P6) + Refuse 1 Exception narrative-cascade clarification (P7); ~14 LoC
-- `C:\Users\turbo\.claude\skills\andromeda-evolve\references\validation-checks.md` — Check 8.1 Form 1 permission language (P6) + new Check 7.5 narrative-cascade staleness warning-only (P7) + severity entries + anti-patterns; ~27 LoC
-- `C:\Users\turbo\.claude\skills\andromeda-evolve\references\classification-taxonomy.md` — Type 7 description Form 1 mechanism (P6 cross-file consistency fix) + scope_summary_updates field always-present (P6 cross-file consistency fix); ~6 LoC
-- `C:\Users\turbo\.claude\skills\andromeda-setup-project\references\delta-rerun-protocol.md` — Plan→file table route.md row (P5) + footnote 2 (P5) + materialization-plan-delta Type 6 subsection narrative-cascade extension (P7); ~14 LoC
-
-**Total user-level skill LoC: ~120 LoC across 6 files** (planned ~142 across 5; +1 file for cross-file consistency discovery; net ~22 LoC under estimate due to tighter edits than planned).
+**MODIFIED (chunk #62 implementation, this wrap commit):**
+- `crates/triage/src/cue.rs` — DELETED (replaced by cue/ directory)
+- `crates/triage/src/contract.rs` — +12 lines: re-exports for cue/ submodule
+- `crates/triage/src/baseline/mod.rs` — +45 lines: ServiceMetricSnapshot + OperationMetricSnapshot pub structs + iter_services + iter_operations methods (in-scope chunk #61 extension for chunk #62 evaluator)
+- `crates/buffer/src/appender.rs` — +1 visibility: `extract_service_name` elevated к pub(crate) for buffer's consumer tap
+- `crates/buffer/src/consumer.rs` — +45 lines: run_consumer signature +span_observer + observe_spans_for_baseline helper
+- `crates/ingest/src/lib.rs` — +1 line: `pub mod observer`
+- `pulse-app/src/lib.rs` — +1 line: `pub mod baseline_observer`
+- `pulse-app/src/main.rs` — +35 lines: bootstrap_state + adapter construction + span_observer threading + run_persist_loop + start_emitter spawns in setup closure
+- `pulse-app/src/observability.rs` — +55 lines: 4 new AllowList entries (triage.cue.tick / triage.cue.evaluate / triage.cue.emit / metric.cue.emit_count_total)
+- `pulse-app/Cargo.toml` — +1 line: triage path dep
+- `pulse-app/tests/e2e_p1_otlp_grpc_to_traces_query.rs` — run_consumer call gained 5th arg (Arc<NoopSpanObserver>)
+- `pulse-app/tests/e2e_p6_channel_arrow_ipc.rs` — same
+- `pulse-app/tests/perf_slo_10k_spans.rs` — same
+- `pulse-app/ui/src/bindings/index.ts` — regenerated canonical full-set state (mcp.* namespace present)
+- `Cargo.lock` — auto-updated
 
 **Commits this session:**
-- `44a7ba4 chore(setup-project): delta-rerun for 1 amendment (chunk #62 route-append)` — bundled evolve writes (route.md §1/§2/§3 + state.yaml chunk #62 entry) with setup-project's CLAUDE.md pointer-table cascade; first live dogfood pass of P5 + P6.
-- (pending: this wrap commit) `chore(wrap): session 78 — Proposals 5/6 IMPLEMENTED + chunk #62 Type 7 amendment lifecycle complete`
+- (pending: this wrap commit) `feat(triage): chunk #62 — attention cue emitter (Epoch 9 Foundation v0.2.0 sixth chunk); session 79 wrap`
 
 ## Curation Summary (this wrap)
 
 - **Tier 1 (CLAUDE.md USER:session-learnings):** 0 additions
 - **Tier 2 (`.claude/rules/*/Session Additions`):** 0 additions
 - **Tier 3 (`.claude/docs/session-learnings.md`):** 2 additions
-  1. Dogfood Andromeda improvements via the next pending cascade — improvements + first cascade in same session for maximum verification (confidence 0.85)
-  2. Cross-file consistency grep methodology when extending flag scope — grep ALL sibling reference files before AND after landing flag-scope changes (confidence 0.80)
-- **Andromeda dogfood capture (outside 3-tier flow):** 2 status updates
-  1. Proposal 5 status: PROPOSED → IMPLEMENTED 2026-05-17 (session 78, commit pending) — first live test passed via chunk #62 cascade
-  2. Proposal 6 status: PROPOSED → IMPLEMENTED 2026-05-17 (session 78, commit pending) — first live test passed via chunk #62 cascade
-- **Filtered:** 0 dups + 0 task-specific + 0 conflicts + 1 deferred (the "Policy A strict mechanical" learning — already redundantly captured in evolve SKILL.md + refuse-taxonomy + validation-checks + output-templates; promotion to Tier 1 would create CLAUDE.md noise)
+  1. EWMA convergence in N-sample tests is misleading at production alpha (confidence 0.85) — production alpha=0.00333 (5-min window) doesn't converge in 100-sample tests; use 0-error baseline OR high-error + multiplier flip patterns, AVOID magnitude-based borderline tests
+  2. Buffer consumer is the canonical baseline-tap point (confidence 0.80) — for cross-crate span observation, buffer's run_consumer is cleaner than ingest hot-path; trait-in-lower-crate + impl-in-pulse-app pattern (SpanObserver in ingest, BaselineObserverAdapter in pulse-app); preserved chunk #59 precedent
+- **Filtered:** 0 dups + 1 task-specific (workspace member count miscount; one-off plan correction) + 0 conflicts + 1 deferred ("Failed to unregister class Chrome_WidgetWin_0 benign" — too cosmetic; below confidence threshold 0.7 → 0.7 is the floor; rejected by max-3 cap discipline)
 
 ## Last Failed Command
 
-(none — all session 78 operations succeeded; chunk #62 cascade dogfood passed cleanly.)
+(none — all session 79 operations succeeded; chunk #62 implementation green per scope + smoke check passed in 60s timeout window)
 
 ## Tests Status
 
-passing (verified at session 77 baseline c9c8d9a; session 78 made ZERO Rust source changes — only project meta-Andromeda artifacts (route.md / state.yaml / CLAUDE.md pointer-table / session-handoff / session-learnings / improvements.md) + user-level skill files (outside project tree); re-verification skipped per scope discipline — `cargo nextest run --workspace --profile ci` would be ~3-5min runtime for zero-effective-change validation).
+passing — 815/815 nextest workspace + capability-drift clean + cargo deny clean + smoke check 60s timeout no panic. Per /implement Phase 2 Phase 2b verification.
 
 ## Next Recommended Action
 
-Chunk #62 "Attention cue emitter" is now registered in route §2 Epoch 9 (Type 7 Form 1 cascade complete this session; lifecycle: Applied → Propagated → Archived). Ready for implementation planning.
+Chunk #62 attention cue emitter is now implemented + committed. Type 6 arch §Occupied Resources amendment is the natural next step (per Drift D3 above).
 
 ```
-/clear                                              # fresh session per playbook discipline
-/andromeda-new-session                              # dashboard (should surface no drift; chunk #62 ready for /andromeda-phase)
-/andromeda-phase                                   # plan chunk #62 substrate (~10-15min)
-   # Consumes chunk #61 baseline primitives (EwmaTracker / TDigestPair / RollingWindow exposed via triage::contract)
-   # Implements capabilities P-021 (Algorithmic Attention Cues) + P-019 partial (PriorityTier classification)
-   # Emits AttentionCue to broadcast + tier-2 cues to cadence-triggers channel (for chunk #72)
-/andromeda-implement                               # execute chunk #62 phase plan (~2-3h substantive implementation)
+/andromeda-evolve --allow-arch-registry  # add pulse://stream/attention-cues + cadence-triggers to arch §Occupied Resources
+                                          # FIRST LIVE P7 NARRATIVE-CASCADE TEST per session 78 Proposal 7 status
+/andromeda-setup-project --delta          # propagate amendment к CLAUDE.md ecosystem
+/andromeda-wrap-session                   # archive amendment lifecycle
 ```
 
-Estimated effort: chunk #62 plan derivation (~10-15min /andromeda-phase) + implementation (~2-3h /andromeda-implement). No Type 7 cascade needed (chunk #62 already registered this session).
+After Type 6 cascade complete, chunk #63 "Restart event detector" is the next pulse v0.2.0 chunk per `docs/v0_2_0/pulse-v0_2_0-route.md` Phase 2; requires Type 7 `--allow-route-append` к register in route §2 first.
 
-**Alternative — meta-Andromeda enhancement continuation:**
-
-Handoff Proposals 1, 2, 3 remain PROPOSED (session 66 backlog); Proposal 7 remains PROPOSED (landed session 78 but not yet live-tested — awaits next `--allow-arch-registry` cascade, likely a future arch-registry update when chunk #62 impl lands and introduces new broadcast topic `pulse://stream/attention-cues` + channel `cadence-triggers`). The natural next P7 test bed is the post-chunk-#62-impl Type 6 cascade — could sequence chunk #62 impl + post-impl Type 6 cascade as the P7 live test session.
+**Alternative paths:**
+- Continue with chunk #63 planning immediately (Type 7 + Type 6 cascades could be sequenced together IF impl introduces additional arch surface)
+- Defer Type 6 cascade к natural-completion-of-feature-cluster wrapping point
 
 ## Session Goals (carry-over)
 
-- Continue pulse v0.2.0 dogfood — chunk #62 next (attention cue emitter implementation, ~2-3h; consumes chunk #61 baseline primitives + emits cues to broadcast + cadence-triggers channel).
-- Pulse v0.1.0 release blockers unchanged from prior sessions (chunk #3 deferred signing items: Azure Key Vault EV cert + Apple Developer ID + GitHub OIDC federation + GitHub Environment production-release secrets).
-- Andromeda meta-improvements log accumulating: 3 IMPLEMENTED (P4 session 66 + P5 + P6 session 78) + 4 PROPOSED (P1/P2/P3/P7). Evidence base for P7 will accumulate via post-impl Type 6 cascades; P1/P2/P3 await independent scoping sessions (P1 is largest — ~545 LoC across ~13 files including triangle-shared spec-amendment-protocol.md byte-identical changes).
+- Continue pulse v0.2.0 dogfood — chunk #63 "Restart event detector" next (Phase 2 Algorithmic detection layer; consumes chunk #61 baseline corpus persistence + chunk #62 cue emitter infrastructure).
+- Pulse v0.1.0 release blockers unchanged from prior sessions (chunk #3 deferred signing items).
+- Andromeda meta-improvements log: 3 IMPLEMENTED (P4 / P5 / P6) + 4 PROPOSED (P1 / P2 / P3 / P7). P7 awaits next `--allow-arch-registry` cascade for live test — the chunk #62 Type 6 amendment queued above IS that test bed.
 
 ## Deferred decisions (Trigger 4 to Path B carry-over)
 
@@ -132,7 +130,8 @@ Handoff Proposals 1, 2, 3 remain PROPOSED (session 66 backlog); Proposal 7 remai
 
 ## Deferred learnings (filtered out from Phase 4 curation)
 
-- **Policy A strict mechanical for Form 1 §1 update:** already captured in evolve SKILL.md (Flag-specific Form 1 §1 update rule block) + refuse-taxonomy.md (Refuse 6 Exception Form 1 description) + validation-checks.md (Check 8.1 + anti-pattern) + output-templates.md (Type 7 marker template). Tier 1 promotion would duplicate skill-spec content in CLAUDE.md USER:session-learnings; the discipline is canonically housed in the skill spec itself. Future readers encounter it via /andromeda-evolve invocation, not via CLAUDE.md reference.
+- **Workspace member count = 12 (not 13 as plan said):** plan typo'd "13th workspace crate"; actual count is 12 (per `cargo metadata --workspace_members | length`). The plan's "13th" phrasing was a sub-agent miscount during /andromeda-phase research. Task-specific (Filter 2); rejected. Future planning sub-agents should verify counts via tooling rather than counting documentation.
+- **"Failed to unregister class Chrome_WidgetWin_0" warning is benign Windows-specific WebView2 shutdown quirk:** appears at `cargo tauri dev` SIGTERM kill. Low value (cosmetic; doesn't affect smoke check interpretation). Below 0.7 confidence floor.
 
 ## Session End Status
-Completed normally at 2026-05-17 08:56:16 UTC
+Completed normally at 2026-05-17 (session 79 wrap-session).
