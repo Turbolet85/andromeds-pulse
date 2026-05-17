@@ -32,7 +32,45 @@ living_artifact_freshness:
 drift_warnings: []
 
 spec_amendments:
-  active: []
+  active:
+    - amendment_id: 2026-05-17T17-23-43-append-chunk-65-span-events-ingestion
+      plans:
+        - path: route.md
+          sections:
+            - "§1 Route Scope Summary (Total chunks mechanical update per Proposal 6)"
+            - "§2 Roadmap (Epoch 9 body)"
+            - "§3 Decisions Log"
+          decisions_log_section: "2026-05-17 — Append chunk #65 span events ingestion (--allow-route-append)"
+      trigger:
+        chunk: null
+        phase: null
+        harness: "user-driven via /andromeda-evolve"
+      authority:
+        winning_plan: pulse-v0_2_0-route.md
+        winning_tier: pipeline-state
+        losing_plan: route.md
+        losing_concern: chunk-list-stale-vs-pipeline-reality
+        rationale: "v0.2.0 plan §Phase 2 declares chunk #65 'Span events ingestion' (capability P-006) as L0 schema population layer + prerequisite for chunk #66; route.md §2 Epoch 9 has not yet registered the chunk."
+      impl_files_synced: []
+      expected_propagation:
+        - "CLAUDE.md (GENERATED:setup:pointer-table — 9 epochs / 64 chunks → 9 epochs / 65 chunks)"
+      marker_path: .andromeda/runs/2026-05-17T17-23-43-spec-amendment-append-chunk-65-span-events-ingestion/amendment.md
+      applied_at: 2026-05-17T17:23:43Z
+      noted_at: null
+      propagated_by_run: .andromeda/runs/2026-05-17T17-56-31-setup-project-delta/
+      archived_at: null
+      verification_status: clean
+      flag_used: --allow-route-append
+      form: 1
+      route_section_modified: "Epoch 9 — Foundation v0.2.0"
+      chunks_added:
+        - position: 65
+          text: "Span events ingestion — extend OTLP decode in appender.rs to populate span_events table; redaction layer preserved (capability P-006; detail in pulse-v0_2_0-route §65)."
+      chunks_renumbered: []
+      motivation: "L0 schema population layer per docs/v0_2_0/pulse-v0_2_0-route.md §Phase 2 line 225-238; capability P-006 prerequisite for chunk #66; source plan declares zero deps and no arch/TauRPC/broadcast deltas."
+      confirmed_shift: false
+      scope_summary_updates:
+        - "Total chunks: 64 → 65"
   archive:
     - amendment_id: 2026-05-17T14-51-36-append-chunk-64-activity-floor-learning
       plans:

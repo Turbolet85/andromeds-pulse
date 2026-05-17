@@ -16,7 +16,7 @@ unit) not HOW (implementation steps)._
 
 ## 1. Route Scope Summary
 
-- **Total chunks:** 64
+- **Total chunks:** 65
 - **Epochs:** 9 (Foundation, Ingest pipeline, Storage & query, Webview shell + TauRPC bridge, Visualization surfaces, Snapshot & Investigate, Plugin runtime + MCP server, Polish & ship, Foundation v0.2.0)
 - **Drilldown depth (avg):** 1.6 (mixed: Foundation depth 2, Ingest pipeline depth 1, Storage & query depth 2, Webview shell depth 1, Visualization surfaces depth 2, Snapshot depth 2, Plugin+MCP depth 2, Polish depth 1)
 - **Hierarchy mode:** mixed (3-level for dense epochs Foundation / Storage / Visualization / Snapshot / Plugin+MCP; 2-level for lighter epochs Ingest / Webview shell / Polish)
@@ -161,7 +161,9 @@ Attention cue emitter — 1-2s tick task evaluates thresholds + emits priority-t
    ↓
 Restart event detector + dual-condition bypass — emit restart events; suppress cues in restart window with P-057 magnitude bypass (capabilities P-015/P-016/P-057; detail in pulse-v0_2_0-route §63)
    ↓
-Activity floor learning + corpus persistence — per-service 24h rolling histogram; ServiceWentSilent gated by p95 quiet duration (capabilities P-013/P-014; detail in pulse-v0_2_0-route §64).
+Activity floor learning + corpus persistence — per-service 24h rolling histogram; ServiceWentSilent gated by p95 quiet duration (capabilities P-013/P-014; detail in pulse-v0_2_0-route §64)
+   ↓
+Span events ingestion — extend OTLP decode in appender.rs to populate span_events table; redaction layer preserved (capability P-006; detail in pulse-v0_2_0-route §65).
 
 ---
 
@@ -293,3 +295,12 @@ Activity floor learning + corpus persistence — per-service 24h rolling histogr
 - **Why:** L1b distillation layer; capabilities P-013/P-014; depends on chunk #61 (baseline trackers, complete) for percentile infrastructure; soft-depends on chunk #69 (corpus scaffold) per ordering note (can land with in-memory-only state initially). Mirrors chunk #63 precedent.
 - **Mechanical:** §1 Total chunks 63 → 64 (Form 1 P6 mechanical auto-update; Policy A strict mechanical).
 - **Marker:** `.andromeda/runs/2026-05-17T14-51-36-spec-amendment-append-chunk-64-activity-floor-learning/amendment.md`
+
+---
+
+`2026-05-17` — Append chunk #65 span events ingestion (--allow-route-append)
+
+- **Insert:** chunk #65 at §2 Epoch 9 — Foundation v0.2.0 (text: see §2; full detail in pulse-v0_2_0-route.md §Phase 2 line 225).
+- **Why:** L0 schema population layer for OTLP span events decode; capability P-006 (Exception Event Capture); prerequisite for chunk #66 exception fingerprinting + retry storm detection. Mirrors chunk #64 precedent.
+- **Mechanical:** §1 Total chunks 64 → 65 (Form 1 P6 mechanical auto-update; Policy A strict mechanical).
+- **Marker:** `.andromeda/runs/2026-05-17T17-23-43-spec-amendment-append-chunk-65-span-events-ingestion/amendment.md`
