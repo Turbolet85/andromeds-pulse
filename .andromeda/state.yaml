@@ -38,7 +38,34 @@ drift_warnings:
     last_observed_session_count: 81
 
 spec_amendments:
-  active: []
+  active:
+    - amendment_id: 2026-05-17T14-15-00-acknowledge-restart-events-broadcast
+      plans:
+        - path: architecture.md
+          sections:
+            - "§Occupied Resources Tauri IPC events (broadcast channels)"
+            - "§Architecture Registry Updates"
+      decisions_log_sections:
+        - "2026-05-17 — Acknowledge `pulse://stream/restart-events` (--allow-arch-registry)"
+      trigger:
+        chunk: null
+        phase: null
+        harness: "user-driven via /andromeda-evolve --allow-arch-registry"
+      authority:
+        winning_plan: null
+        winning_tier: implementation
+        losing_plan: architecture.md
+        losing_concern: registry-section-stale-vs-implementation-reality
+        rationale: "Chunk #63 implementation declared STREAM_NAME_RESTART_EVENTS at crates/triage/src/pattern/broadcast.rs:8; arch §Occupied Resources had not acknowledged. Check 7 verified clean."
+      impl_files_synced: []
+      expected_propagation: []
+      marker_path: .andromeda/runs/2026-05-17T14-15-00-spec-amendment-acknowledge-restart-events-broadcast/amendment.md
+      applied_at: 2026-05-17T14:15:00Z
+      noted_at: null
+      propagated_by_run: .andromeda/runs/2026-05-17T14-20-00-setup-project-delta/
+      archived_at: null
+      flag_used: --allow-arch-registry
+      verification_status: clean
   archive:
     - amendment_id: 2026-05-17T11-02-16-append-chunk-63-restart-event-detector
       plans:

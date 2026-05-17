@@ -524,11 +524,13 @@ Alternative timing: defer until the next Type 6 amendment surfaces this gap agai
 - Related artifact: `.andromeda/runs/2026-05-16T16-34-14-setup-project-delta/materialization-plan-delta.md` "Out-of-Type-6 staleness surfaced" subsection documents the current ad-hoc manual surface-pattern.
 - Current state: state.yaml.spec_amendments.archive contains the chunk #58 amendment (archived this session) with `flag_used: --allow-arch-registry` - preserves audit trail for future readers studying this proposal's context.
 
-## Status: PROPOSED — 2026-05-17 (session 80)
+## Status: PHASE 1 IMPLEMENTED — 2026-05-17 (session 82, commit pending); Phase 2 still PROPOSED — first author-time compact-template + Check 7.6 conformance landed via P8/P9 bundle
 
 ### Proposal 8 — Arch Registry Updates section compaction strategy
 
-**Status:** PROPOSED (observed session 79, threshold not yet reached)
+**Status:** PHASE 1 IMPLEMENTED 2026-05-17 (session 82, commit pending) — compact Type 6 Decisions Log entry template + Check 7.6 conformance landed in `~/.claude/skills/andromeda-evolve/` (output-templates.md / validation-checks.md / SKILL.md / refuse-taxonomy.md / dialog-templates.md). Phase 2 (sliding-window demotion of older entries to single-line summaries, wrap-session demotion logic + threshold detection) still PROPOSED — observed session 79, threshold not yet reached. The Phase 1 body below preserves the original problem statement and design as historical record per this doc's convention.
+
+**Status (original):** PROPOSED (observed session 79, threshold not yet reached)
 
 **Problem:** §Architecture Registry Updates accumulates verbose entries (~15 lines each). 7 entries currently (109 lines, 33% of arch.md). Linear forecast: 30-40 additional entries through v0.2.0 ship → section grows to 500-700 lines, 50%+ of arch.md. Reader scans become slow, Established Decisions buried, precedent citations require long scroll-back.
 
@@ -553,11 +555,13 @@ Phase 2 (deferred until ~15-20 active entries threshold): Implement sliding wind
 
 **Cross-references:** Related to Proposal X (state.yaml archive list compaction) if exists; same theme of "post-MVP artifact growth needing strategic compaction". Session 79 user observation.
 
-## Status: PROPOSED — 2026-05-17 (session 80)
+## Status: PHASE 1 IMPLEMENTED — 2026-05-17 (session 82, commit pending); Phase 2 still PROPOSED — first author-time compact-template + Check 8.5 ack + Check 8.8 conformance landed via P8/P9 bundle
 
 ### Proposal 9 — route.md §3 Decisions Log + §2 Roadmap entry compaction strategy
 
-**Status:** PROPOSED (observed session 79, threshold not yet reached)
+**Status:** PHASE 1 IMPLEMENTED 2026-05-17 (session 82, commit pending) — both Phase 1(a) (§2 chunk text 25-word constraint elevated from quiet WARNING to Phase 5 ack-required surface) and Phase 1(b) (compact Type 7 Decisions Log entry template + Check 8.8 conformance) landed in `~/.claude/skills/andromeda-evolve/` (output-templates.md / validation-checks.md / SKILL.md / refuse-taxonomy.md / dialog-templates.md). Phase 2 (Epoch 1-8 archival via `<details>` HTML folding or separate `route-archive-v0_1_0.md`, post-v1.0 ship) still PROPOSED. The Phase 1 body below preserves the original problem statement and design as historical record per this doc's convention.
+
+**Status (original):** PROPOSED (observed session 79, threshold not yet reached)
 
 **Problem:** route.md accumulates verbosity in two locations. §2 Roadmap chunks grew from 12-25 words (Epoch 1-8 baseline) to 60-80 words (Epoch 9 chunks #57-#63), violating documented 25-word-single-line constraint; verbosity encodes file paths + capability lists + behavioral notes + test scenarios that already exist in pulse-v0_2_0-route.md. §3 Decisions Log entries average 7-8 lines per chunk append with significant boilerplate (chunk text duplicated from §2, "/implement standard flow" reference, "Trigger 4 spec-drift-protocol if drift surfaces" repeated paragraph, Form classification name + Refuse 6 exception citation redundant with flag name). Currently 277 lines total; linear forecast through v0.2.0 ship: 530+ lines with §3 Decisions Log reaching 60% of document. Route.md read every chunk planning session — high read frequency multiplies cognitive cost per verbose entry, more impactful than arch.md (Proposal 8 sibling).
 

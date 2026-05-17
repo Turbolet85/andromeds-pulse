@@ -172,7 +172,7 @@
   - `connection.current_state` — pulse-app crate (`ConnectionApiImpl` returning `ConnectionStatePayload` from `crates/ingest::connection::compute_state()`; chunk #59) — see §Architecture Registry Updates 2026-05-16
 - **External HTTP routes (OTLP HTTP)**: `POST /v1/traces`, `POST /v1/metrics`, `POST /v1/logs` on `:4318`.
 - **MCP stdio surface**: standard MCP `initialize`, `tools/list`, `tools/call`, `notifications/*` over stdin/stdout when the rmcp sidecar is started.
-- **Tauri IPC events (broadcast channels)**: `pulse://stream/spans`, `pulse://stream/metrics`, `pulse://stream/logs`, `pulse://stream/snapshot-progress`, `pulse://stream/plugin-events`, `pulse://stream/connection-state` (chunk #59 — see §Architecture Registry Updates 2026-05-16), `pulse://stream/attention-cues` (chunk #62 — see §Architecture Registry Updates 2026-05-17).
+- **Tauri IPC events (broadcast channels)**: `pulse://stream/spans`, `pulse://stream/metrics`, `pulse://stream/logs`, `pulse://stream/snapshot-progress`, `pulse://stream/plugin-events`, `pulse://stream/connection-state` (chunk #59 — see §Architecture Registry Updates 2026-05-16), `pulse://stream/attention-cues` (chunk #62 — see §Architecture Registry Updates 2026-05-17), `pulse://stream/restart-events` (chunk #63 — see §Architecture Registry Updates 2026-05-17).
 - **Process / service identity**:
   - Tauri app bundle identifier: `com.andromeda.pulse`
   - Binary name: `andromeda-pulse` (Linux/macOS), `andromeda-pulse.exe` (Windows)
@@ -335,105 +335,66 @@ andromeda-pulse/
 
 _This section accumulates entries from `/andromeda-evolve --allow-arch-registry` invocations that legitimize implementation reality in the registry sections of this document (typically §Occupied Resources). Entries are NOT specialist-plan Decisions Log entries — they record arch-level acknowledgments of code that landed via /andromeda-implement chunks before /andromeda-arch could update the canonical registry list. Entry format mirrors specialist-plan Decisions Log conventions (`### {YYYY-MM-DD} — {title}`). Cleanup convention: this section is preserved across /andromeda-arch re-runs as audit trail; never deleted._
 
-### 2026-05-09 — Acknowledge streams.* namespace in §Occupied Resources (--allow-arch-registry)
+### 2026-05-09 — Acknowledge `streams.*` namespace (--allow-arch-registry)
 
-**Section affected:** §Occupied Resources Tauri IPC routes
+**Section:** §Occupied Resources Tauri IPC routes.
+**Added:**
+- `streams.subscribe_spans` (`pulse-app/src/streams.rs:16`, chunk #23)
+- `streams.subscribe_metrics` (`pulse-app/src/streams.rs:17`, chunk #23)
+- `streams.subscribe_logs` (`pulse-app/src/streams.rs:18`, chunk #23)
+**Rationale:** D3 stale-drift closure for chunk #23 TauRPC procedures (age 7 wraps in state.yaml.drift_warnings). Sibling amendment legitimizes telemetry.frontend.* simultaneously.
+**Marker:** `.andromeda/runs/2026-05-09T11-45-00-spec-amendment-legitimize-streams-namespace/amendment.md`
 
-**Registry additions:**
+### 2026-05-09 — Acknowledge `telemetry.frontend.*` namespace (--allow-arch-registry)
 
-- `streams.subscribe_spans` — implemented at `pulse-app/src/streams.rs:16` (chunk #23)
-- `streams.subscribe_metrics` — implemented at `pulse-app/src/streams.rs:17` (chunk #23)
-- `streams.subscribe_logs` — implemented at `pulse-app/src/streams.rs:18` (chunk #23)
+**Section:** §Occupied Resources Tauri IPC routes.
+**Added:** `telemetry.frontend.record_frame_ms` (`crates/ui-bridge/src/telemetry.rs:99`, chunk #29).
+**Rationale:** D3 capability-drift closure for chunk #29 frontend telemetry resolver. Sibling amendment legitimizes streams.* simultaneously.
+**Marker:** `.andromeda/runs/2026-05-09T11-45-00-spec-amendment-legitimize-telemetry-namespace/amendment.md`
 
-**Authority:** /andromeda-evolve with `--allow-arch-registry` flag (narrow Refuse 1 exception for arch registry sections; full audit trail in amendment marker). Check 7 verified purely additive / registry section / code evidence resolved / no new architectural concept.
+### 2026-05-11 — Acknowledge `pulse:clipboard` capability (--allow-arch-registry)
 
-**Rationale:** Code reality at the cited file already implements these 3 TauRPC procedures via `#[taurpc::procedures(path = "streams")]`; arch §Occupied Resources had not acknowledged the streams.* namespace since chunk #23 landed (D3 stale drift, age 7 wraps in state.yaml.drift_warnings). This entry brings arch into alignment with implementation reality. Capability-drift class (D3) — chunk #23 added implementation without arch update; this amendment closes the gap. Sibling amendment legitimizes telemetry.frontend.* simultaneously.
+**Section:** §Occupied Resources Tauri capability identifiers.
+**Added:** `pulse:clipboard` (`pulse-app/capabilities/clipboard.json`, chunk #43 partial commit `6e2d398`).
+**Rationale:** D3 capability-drift closure for chunk #43 clipboard-manager write-only capability (security plan §Anti-Patterns API row 6 — clipboard read excluded). Mirrors 2026-05-09 streams.* / telemetry.* precedent.
+**Marker:** `.andromeda/runs/2026-05-11T00-15-00-spec-amendment-acknowledge-pulse-clipboard-capability/amendment.md`
 
-**Amendment record:** `.andromeda/runs/2026-05-09T11-45-00-spec-amendment-legitimize-streams-namespace/amendment.md`
+### 2026-05-16 — Acknowledge `curation` crate (--allow-arch-registry)
 
-### 2026-05-09 — Acknowledge telemetry.frontend.* namespace in §Occupied Resources (--allow-arch-registry)
+**Section:** §Occupied Resources Cargo workspace crate names.
+**Added:** `curation` (`crates/curation/Cargo.toml`, chunk #58 Epoch 9 Foundation v0.2.0).
+**Rationale:** D3 capability-drift closure for chunk #58 workspace member (curation primitives extracted from snapshot). Mirrors 2026-05-11 pulse:clipboard precedent.
+**Marker:** `.andromeda/runs/2026-05-16T16-15-00-spec-amendment-acknowledge-curation-crate/amendment.md`
 
-**Section affected:** §Occupied Resources Tauri IPC routes
+### 2026-05-16 — Acknowledge `connection.current_state` + `pulse://stream/connection-state` (--allow-arch-registry)
 
-**Registry additions:**
+**Section:** §Occupied Resources Tauri IPC routes + Tauri IPC events (broadcast channels).
+**Added:**
+- `connection.current_state` (`pulse-app/src/connection_router.rs:46`, chunk #59)
+- `pulse://stream/connection-state` (`crates/ingest/src/connection.rs:25`, chunk #59)
+**Rationale:** D3 capability-drift closure for chunk #59 connection FSM TauRPC + broadcast topic. Mirrors 2026-05-16 curation crate precedent.
+**Marker:** `.andromeda/runs/2026-05-16T22-08-32-spec-amendment-acknowledge-connection-namespace/amendment.md`
 
-- `telemetry.frontend.record_frame_ms` — implemented at `crates/ui-bridge/src/telemetry.rs:99` (chunk #29)
+### 2026-05-16 — Acknowledge `triage` crate + register `pulse-v0_2_0-route` scope (--allow-arch-registry)
 
-**Authority:** /andromeda-evolve with `--allow-arch-registry` flag. Check 7 verified purely additive / registry section / code evidence resolved / no new architectural concept.
+**Section:** §Occupied Resources Cargo workspace crate names + §Existing Scopes.
+**Added:**
+- `triage` (`crates/triage/Cargo.toml`, chunk #60 commit `589225f`)
+- `pulse-v0_2_0-route` (first registered scope; defined at `docs/v0_2_0/pulse-v0_2_0-route.md`)
+**Rationale:** D3 capability-drift closure for chunk #60 workspace member + first scope registration (Check 7.4 first-entry case for §Existing Scopes). Mirrors 2026-05-16 curation crate precedent + extends with first-ever scope.
+**Marker:** `.andromeda/runs/2026-05-16T23-39-39-spec-amendment-acknowledge-triage-crate-and-scope/amendment.md`
 
-**Rationale:** Code reality at the cited file implements the `record_frame_ms` resolver via `#[taurpc::procedures(path = "telemetry.frontend")]` (3-segment dotted-namespace, validated this session per .claude/rules/frontend.md Session Additions 2026-05-09); arch §Occupied Resources had not acknowledged the telemetry.* namespace since chunk #29 landed (D3 NEW this wrap). Closes capability-drift gap. Sibling amendment legitimizes streams.* simultaneously.
+### 2026-05-17 — Acknowledge `pulse://stream/attention-cues` (--allow-arch-registry)
 
-**Amendment record:** `.andromeda/runs/2026-05-09T11-45-00-spec-amendment-legitimize-telemetry-namespace/amendment.md`
+**Section:** §Occupied Resources Tauri IPC events (broadcast channels).
+**Added:** `pulse://stream/attention-cues` (`crates/triage/src/cue/broadcast.rs:8`, chunk #62 commit `aeb4d7d`).
+**Rationale:** D3 capability-drift closure for chunk #62 cue emitter broadcast topic. Mirrors 2026-05-16 chunk #59 `connection-state` precedent.
+**Marker:** `.andromeda/runs/2026-05-17T10-34-52-spec-amendment-acknowledge-attention-cues-broadcast/amendment.md`
 
-### 2026-05-11 — Acknowledge `pulse:clipboard` in §Occupied Resources (--allow-arch-registry)
+### 2026-05-17 — Acknowledge `pulse://stream/restart-events` (--allow-arch-registry)
 
-**Section affected:** §Occupied Resources Tauri capability identifiers
-
-**Registry additions:**
-
-- `pulse:clipboard` — implemented at `pulse-app/capabilities/clipboard.json` (chunk #43, partial commit 6e2d398, session 51)
-
-**Authority:** /andromeda-evolve with `--allow-arch-registry` flag (narrow Refuse 1 exception for arch registry sections; full audit trail in amendment marker). Check 7 verified purely additive / registry section / code evidence resolved / no new architectural concept (section had 5 prior entries; this is the 6th).
-
-**Rationale:** Code reality at the cited file implements the `pulse:clipboard` capability with `clipboard-manager:allow-write-text` permission scope (write-only outbound; NEVER allow-read-* per security plan §Anti-Patterns API row 6 — clipboard read is exfiltration surface needing separately-named capability). arch §Occupied Resources Tauri capability identifiers had not acknowledged the new identifier (D3 capability-drift class — NEW this wrap; surfaced in session 51 wrap-session Phase 6 detection per session-handoff.md Drift Detection block). Adding `pulse:clipboard` to the reserved list brings arch into alignment with implementation reality + clears the D3 drift_warning at next wrap-session re-detection. Mirrors 2026-05-09 streams.* + telemetry.* additive precedent.
-
-**Amendment record:** `.andromeda/runs/2026-05-11T00-15-00-spec-amendment-acknowledge-pulse-clipboard-capability/amendment.md`
-
-### 2026-05-16 — Acknowledge `curation` crate in §Occupied Resources (--allow-arch-registry)
-
-**Section affected:** §Occupied Resources Cargo workspace crate names
-
-**Registry additions:**
-
-- `curation` — implemented at `crates/curation/Cargo.toml` + `crates/curation/src/lib.rs` + root `Cargo.toml` workspace members (chunk #58 "Curation crate extraction" — route §2 Epoch 9 Foundation v0.2.0)
-
-**Authority:** /andromeda-evolve with `--allow-arch-registry` flag (narrow Refuse 1 exception for arch registry sections; full audit trail in amendment marker). Check 7 verified purely additive / registry section / code evidence resolved / no new architectural concept (section had 10 prior entries; this is the 11th).
-
-**Rationale:** Chunk #58 implementation extracts curation primitives (dedupe / anomaly / critical_path / aggregation) from the snapshot crate into a new `crates/curation/` workspace crate. arch §Occupied Resources "Cargo workspace crate names" had not yet acknowledged the new reserved name (D3 capability-drift class — chunk #58 added the workspace member without arch update; this amendment closes the gap). Mirrors 2026-05-11 `pulse:clipboard` precedent + 2026-05-09 `streams.*` / `telemetry.*` precedents.
-
-**Amendment record:** `.andromeda/runs/2026-05-16T16-15-00-spec-amendment-acknowledge-curation-crate/amendment.md`
-
-### 2026-05-16 — Acknowledge `connection.current_state` TauRPC + `pulse://stream/connection-state` broadcast in §Occupied Resources (--allow-arch-registry)
-
-**Section affected:** §Occupied Resources Tauri IPC routes + Tauri IPC events (broadcast channels)
-
-**Registry additions:**
-
-- `connection.current_state` — implemented at `pulse-app/src/connection_router.rs:46` (chunk #59 "Connection state machine" — route §2 Epoch 9 Foundation v0.2.0 third chunk)
-- `pulse://stream/connection-state` — implemented at `crates/ingest/src/connection.rs:25` (chunk #59 "Connection state machine" — route §2 Epoch 9 Foundation v0.2.0 third chunk)
-
-**Authority:** /andromeda-evolve with `--allow-arch-registry` flag (narrow Refuse 1 exception for arch registry sections; full audit trail in amendment marker). Check 7 verified purely additive / registry section / code evidence resolved / no new architectural concept (Tauri IPC routes had 8 prior nested bullets; Tauri IPC events had 5 prior inline entries — additive only).
-
-**Rationale:** Chunk #59 implementation introduces (a) the `connection.current_state` TauRPC procedure via `#[taurpc::procedures(path = "connection")]` declared at `pulse-app/src/connection_router.rs:46`, returning `ConnectionStatePayload` from `crates/ingest::connection::compute_state()`, AND (b) the `pulse://stream/connection-state` broadcast topic emitted by `ConnectionBroadcast::send` on FSM state transitions (Listening / Receiving / Idle / Stalled / ReceiverFailed) declared at `crates/ingest/src/connection.rs:25`. arch §Occupied Resources Tauri IPC routes + Tauri IPC events sections had not yet acknowledged either entry (D3 capability-drift class — chunk #59 added implementation without arch update; this amendment closes the gap). Mirrors 2026-05-09 streams.* + telemetry.* additive precedent + 2026-05-11 pulse:clipboard precedent + 2026-05-16 curation crate precedent.
-
-**Amendment record:** `.andromeda/runs/2026-05-16T22-08-32-spec-amendment-acknowledge-connection-namespace/amendment.md`
-
-### 2026-05-16 — Acknowledge `triage` crate in §Occupied Resources + register `pulse-v0_2_0-route` as first §Existing Scopes entry (--allow-arch-registry)
-
-**Section affected:** §Occupied Resources Cargo workspace crate names + §Existing Scopes
-
-**Registry additions:**
-
-- `triage` — implemented at `crates/triage/Cargo.toml` + `crates/triage/src/lib.rs` + root `Cargo.toml` workspace members (chunk #60 "Triage crate scaffold + attention cue contract types" — route §2 Epoch 9 Foundation v0.2.0 fourth chunk; committed session 74 commit `589225f`)
-- `pulse-v0_2_0-route` — first registered scope; defined at `docs/v0_2_0/pulse-v0_2_0-route.md`; drives Epoch 9 (Foundation v0.2.0) chunks #57+
-
-**Authority:** /andromeda-evolve with `--allow-arch-registry` flag (narrow Refuse 1 exception for arch registry sections; full audit trail in amendment marker). Check 7 verified purely additive / registry section / code evidence resolved / Check 7.4 first-entry WARNING surfaced for §Existing Scopes (section exists with placeholder; user-confirmed via flag invocation per session 74 handoff intent — `pulse-v0_2_0-route` is the first scope registered since project began).
-
-**Rationale:** Chunk #60 implementation creates new workspace member `crates/triage/` (12th workspace crate; arch §Occupied Resources Cargo workspace crate names had not yet acknowledged the new reserved name — D3 capability-drift class). Separately, chunk #60 introduces the first registered scope `pulse-v0_2_0-route` (per route §3 Decisions Log 2026-05-16 entry: "Arch registry delta: +1 crate `triage`, first registered scope `pulse-v0_2_0-route` in §Existing Scopes"). The `pulse-v0_2_0-route` scope-defining document `docs/v0_2_0/pulse-v0_2_0-route.md` landed prior to chunk #57 via pulse v0.2.0 planning; chunks #57-#60 have been implemented within this scope but arch §Existing Scopes was never formally updated to register it. This amendment closes both gaps in one coordinated cycle. Mirrors 2026-05-16 curation crate precedent (single Type 6 amendment per chunk) + extends with first-ever scope registration (Check 7.4 first-entry case; placeholder text replaced).
-
-**Amendment record:** `.andromeda/runs/2026-05-16T23-39-39-spec-amendment-acknowledge-triage-crate-and-scope/amendment.md`
-
-### 2026-05-17 — Acknowledge `pulse://stream/attention-cues` broadcast in §Occupied Resources (--allow-arch-registry)
-
-**Section affected:** §Occupied Resources Tauri IPC events (broadcast channels)
-
-**Registry additions:**
-
-- `pulse://stream/attention-cues` — implemented at `crates/triage/src/cue/broadcast.rs:8` (chunk #62 "Attention cue emitter" — route §2 Epoch 9 Foundation v0.2.0 sixth chunk; committed 2026-05-17 commit `aeb4d7d`)
-
-**Authority:** /andromeda-evolve with `--allow-arch-registry` flag (narrow Refuse 1 exception for arch registry sections; full audit trail in amendment marker). Check 7 verified purely additive / registry section / code evidence resolved / no new architectural concept (sub-section had 6 prior entries; this is the 7th) + Check 7.5 narrative-cascade scan returned clean (count-noun whitelist does not include "Tauri IPC events"; scan trivially passed).
-
-**Rationale:** Chunk #62 implementation lands the attention cue emitter in `crates/triage/src/cue/` (specifically `crates/triage/src/cue/broadcast.rs:8` declares `STREAM_NAME_ATTENTION_CUES = "pulse://stream/attention-cues"`); broadcast topic emitted from `AttentionCueBroadcast::send` invoked by the cue emitter tick task per chunk #62 plan. arch §Occupied Resources Tauri IPC events (broadcast channels) sub-section had not yet acknowledged the new topic (D3 capability-drift class — chunk #62 added implementation without arch update; this amendment closes the gap). Mirrors 2026-05-16 chunk #59 `pulse://stream/connection-state` precedent + accumulated chunk #57-#61 cascade discipline. `cadence-triggers` internal tokio broadcast channel (inside the triage crate, NOT crossing the Tauri bridge) is intentionally NOT acknowledged in this amendment per evolve Phase 1c clarifying-question answer — internal cross-crate channels do not occupy registry-grade identifiers for §Occupied Resources.
-
-**Amendment record:** `.andromeda/runs/2026-05-17T10-34-52-spec-amendment-acknowledge-attention-cues-broadcast/amendment.md`
+**Section:** §Occupied Resources Tauri IPC events (broadcast channels).
+**Added:** `pulse://stream/restart-events` (`crates/triage/src/pattern/broadcast.rs:8`, chunk #63 commit `61ca564`).
+**Rationale:** D3 capability-drift closure for chunk #63 restart-event broadcast topic. Mirrors 2026-05-17 chunk #62 `attention-cues` precedent.
+**Marker:** `.andromeda/runs/2026-05-17T14-15-00-spec-amendment-acknowledge-restart-events-broadcast/amendment.md`
 
