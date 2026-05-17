@@ -311,7 +311,7 @@ This proposal was implemented INLINE during session 66 conversation to unblock p
 
 ---
 
-## Status: PROPOSED — 2026-05-16 (session 69)
+## Status: IMPLEMENTED — 2026-05-17 (session 78, commit pending) — first live dogfood test passed via chunk #62 cascade
 
 ### Proposal 5 — Type 7 evolve markers should pre-populate `expected_propagation: [CLAUDE.md]` when chunk count appears in pointer-table
 
@@ -369,7 +369,7 @@ Now-soon. Two consecutive dogfood Type 7 amendments hitting the same gap is enou
 
 ---
 
-## Status: PROPOSED — 2026-05-16 (session 69)
+## Status: IMPLEMENTED — 2026-05-17 (session 78, commit pending) — first live dogfood test passed via chunk #62 cascade
 
 ### Proposal 6 — Form 1 chunk-append should auto-update `§1 Total chunks` line (mirror Form 2 mechanical behavior)
 
