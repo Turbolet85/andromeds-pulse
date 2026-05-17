@@ -44,8 +44,12 @@ pub fn evaluate_thresholds(
         let confidence = (snapshot.samples as f64 / CONFIDENCE_SATURATION_SAMPLES).min(1.0);
         let persistence_seconds = snapshot.samples;
         let priority_tier = classify_priority(magnitude, confidence, persistence_seconds);
-        let suppression_bypassed =
-            dual_condition_bypass(magnitude, snapshot.error_rate, CueKind::ErrorRateSpike);
+        let suppression_bypassed = dual_condition_bypass(
+            magnitude,
+            snapshot.error_rate,
+            CueKind::ErrorRateSpike,
+            thresholds,
+        );
         cues.push(AttentionCue {
             kind: CueKind::ErrorRateSpike,
             scope: CueScope::Service,
@@ -80,7 +84,7 @@ pub fn evaluate_thresholds(
         let persistence_seconds = snapshot.samples;
         let priority_tier = classify_priority(magnitude, confidence, persistence_seconds);
         let suppression_bypassed =
-            dual_condition_bypass(magnitude, latency, CueKind::LatencyRegression);
+            dual_condition_bypass(magnitude, latency, CueKind::LatencyRegression, thresholds);
         cues.push(AttentionCue {
             kind: CueKind::LatencyRegression,
             scope: CueScope::Operation,

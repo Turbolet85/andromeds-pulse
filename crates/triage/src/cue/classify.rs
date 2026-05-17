@@ -1,4 +1,5 @@
 use crate::contract::{CueKind, PriorityTier};
+use crate::cue::thresholds::Thresholds;
 
 /// Classify a detected deviation into one of the three priority tiers per
 /// capability spec P-019. Decision boundary (chunk #62 plan Implementation
@@ -29,19 +30,28 @@ pub fn classify_priority(
 }
 
 /// Dual-condition bypass per capability spec P-057: extreme magnitude OR
-/// extreme absolute value bypasses restart-window suppression in the future
-/// `lifecycle` module. Chunk #62 computes + records the flag on emission;
-/// downstream consumers honor it.
-pub fn dual_condition_bypass(magnitude: f64, absolute_value: f64, kind: CueKind) -> bool {
+/// extreme absolute value bypasses restart-window suppression in the
+/// chunk #63 `pattern::suppression` evaluator. Chunk #62 computes + records
+/// the flag on emission; downstream consumers honor it.
+///
+/// Thresholds extracted to `&Thresholds` at chunk #63 (previously hardcoded
+/// to 10.0 / 0.05 / 1000.0 literals). Short-circuit priority: Relative >
+/// Absolute, mirrored by `pattern::suppression::derive_bypass_reason`.
+pub fn dual_condition_bypass(
+    magnitude: f64,
+    absolute_value: f64,
+    kind: CueKind,
+    thresholds: &Thresholds,
+) -> bool {
     if !magnitude.is_finite() || !absolute_value.is_finite() {
         return false;
     }
-    if magnitude > 10.0 {
+    if magnitude > thresholds.magnitude_bypass_multiplier {
         return true;
     }
     match kind {
-        CueKind::ErrorRateSpike => absolute_value > 0.05,
-        CueKind::LatencyRegression => absolute_value > 1000.0,
+        CueKind::ErrorRateSpike => absolute_value > thresholds.absolute_bypass_error_rate,
+        CueKind::LatencyRegression => absolute_value > thresholds.absolute_bypass_latency_ms,
         CueKind::RestartEvent | CueKind::ServiceWentSilent | CueKind::RetryStorm => false,
     }
 }
@@ -121,23 +131,52 @@ mod tests {
         #[case] kind: CueKind,
         #[case] expected: bool,
     ) {
+        let t = Thresholds::default();
         assert_eq!(
-            dual_condition_bypass(magnitude, absolute_value, kind),
+            dual_condition_bypass(magnitude, absolute_value, kind, &t),
             expected
         );
     }
 
     #[test]
     fn dual_condition_bypass_nan_inputs_return_false() {
+        let t = Thresholds::default();
         assert!(!dual_condition_bypass(
             f64::NAN,
             0.5,
-            CueKind::ErrorRateSpike
+            CueKind::ErrorRateSpike,
+            &t
         ));
         assert!(!dual_condition_bypass(
             5.0,
             f64::NAN,
-            CueKind::ErrorRateSpike
+            CueKind::ErrorRateSpike,
+            &t
+        ));
+    }
+
+    #[test]
+    fn dual_condition_bypass_respects_configured_multiplier_override() {
+        let t = Thresholds {
+            magnitude_bypass_multiplier: 5.0,
+            ..Thresholds::default()
+        };
+        // Magnitude 6.0 < default 10.0 multiplier but > 5.0 override.
+        assert!(dual_condition_bypass(6.0, 0.0, CueKind::ErrorRateSpike, &t));
+    }
+
+    #[test]
+    fn dual_condition_bypass_respects_configured_absolute_error_rate_override() {
+        let t = Thresholds {
+            absolute_bypass_error_rate: 0.10,
+            ..Thresholds::default()
+        };
+        // Absolute 0.07 > default 0.05 but < 0.10 override → no bypass.
+        assert!(!dual_condition_bypass(
+            3.0,
+            0.07,
+            CueKind::ErrorRateSpike,
+            &t
         ));
     }
 

@@ -1,14 +1,14 @@
 schema_version: 2
-last_wrap: 2026-05-17T11:30:00Z
-last_reconcile: 2026-05-17T11:30:00Z
+last_wrap: 2026-05-17T13:20:00Z
+last_reconcile: 2026-05-17T13:20:00Z
 
 last_completed_chunk:
-  route_index: 62
-  title: "Attention cue emitter — Background tick task (1-2s) reads all trackers, evaluates thresholds (3.0× error rate multiplier, 2.5× latency multiplier — calibration values loaded from config), emits `AttentionCue` to broadcast with `priority_tier` classification (Hard / Medium / Baseline based on confidence and magnitude). Tier-2 cues additionally emit to `cadence-triggers` channel for Cadence Coordinator (#72). **Threshold multipliers loaded from config or hardcoded defaults for now; hot-reload wiring added in #86.**"
+  route_index: 63
+  title: "Restart event detector + dual-condition bypass — `crates/triage/pattern` RestartDetector emits restart events to `pulse://stream/restart-events`; `crates/triage/cue` suppresses cues during restart windows EXCEPT for dual-condition magnitude bypass (P-057) which ensures real catastrophic regressions surface during restart. Capabilities P-015 (Restart Event Detection) + P-016 (Restart-Window Suppression Surgical) + P-057 (Dual-Condition Suppression Bypass). Bypass test scenarios per pulse-v0_2_0-route §63: 8×/3%, 12×/4%, 6×/7% relative-magnitude × absolute-rate."
   epoch: 9
-  committed_at: 2026-05-17T10:17:59Z
-  commit_sha: aeb4d7d
-  commit_subject: "feat(triage): chunk #62 — attention cue emitter (Epoch 9 Foundation v0.2.0 sixth chunk); session 79 wrap"
+  committed_at: 2026-05-17T13:20:00Z
+  commit_sha: cdfe1da
+  commit_subject: "feat(triage): chunk #63 — restart event detector + dual-condition bypass (Epoch 9 Foundation v0.2.0 seventh chunk); session 81 wrap"
 
 in_progress: null
 
@@ -24,12 +24,18 @@ plan_freshness:
   input_mtime: 2026-05-02T06:52:58Z
 
 living_artifact_freshness:
-  dep_tree_reconciled_at: 2026-05-17T11:30:00Z
-  api_surface_reconciled_at: 2026-05-17T11:30:00Z
-  most_recent_code_mtime: 2026-05-17T10:17:59Z
+  dep_tree_reconciled_at: 2026-05-17T13:20:00Z
+  api_surface_reconciled_at: 2026-05-17T13:20:00Z
+  most_recent_code_mtime: 2026-05-17T13:18:22Z
   reconcile_failed: false
 
-drift_warnings: []
+drift_warnings:
+  - drift_id: D3
+    description: "arch.md §Occupied Resources Tauri IPC events (broadcast channels) sub-section does not yet acknowledge `pulse://stream/restart-events` introduced this session at `crates/triage/src/pattern/broadcast.rs:8` (chunk #63 impl)"
+    severity: warning
+    remediation_hint: "Run /andromeda-evolve --allow-arch-registry to land Type 6 amendment (mirrors chunk #62 pulse://stream/attention-cues 2026-05-17 precedent at arch §Architecture Registry Updates)"
+    first_observed_session_count: 81
+    last_observed_session_count: 81
 
 spec_amendments:
   active: []
@@ -336,4 +342,4 @@ spec_amendments:
       propagated_by_run: .andromeda/runs/2026-05-11T19-00-00-setup-project-delta/
       archived_at: 2026-05-11T19:25:00Z
 
-session_count: 80
+session_count: 81

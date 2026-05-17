@@ -14,9 +14,10 @@ use ingest::state::IngestState;
 use tauri::Manager;
 use tracing_error::SpanTrace;
 use triage::contract::{
-    AttentionCueBroadcast, CadenceTriggerChannel, DEFAULT_MAX_SIZE_BYTES,
-    DEFAULT_PERSIST_INTERVAL_NANOS, DEFAULT_SERVICE_COUNT_CAP, Thresholds, bootstrap_state,
-    resolve_corpus_path, run_persist_loop, start_emitter,
+    AttentionCueBroadcast, CadenceTriggerChannel, DEFAULT_HEARTBEAT_INTERVAL,
+    DEFAULT_MAX_SIZE_BYTES, DEFAULT_PERSIST_INTERVAL_NANOS, DEFAULT_SERVICE_COUNT_CAP,
+    RestartDetector, RestartEventBroadcast, SuppressionState, Thresholds, bootstrap_state,
+    resolve_corpus_path, run_persist_loop, start_emitter, start_restart_detector,
 };
 use ui_bridge::Settings;
 use ui_bridge::health::{
@@ -35,6 +36,7 @@ use pulse_app::connection_router::{ConnectionApi, ConnectionApiImpl, HeartbeatBi
 #[cfg(feature = "mcp-server")]
 use pulse_app::mcp_router::{McpApi, McpApiImpl};
 use pulse_app::plugins_router::{PluginsApi, PluginsApiImpl};
+use pulse_app::restart_observer::{CompositeSpanObserver, RestartObserverAdapter};
 use pulse_app::snapshot_runtime::{SnapshotApi, SnapshotApiImpl};
 use pulse_app::streams::{StreamsApi, StreamsApiImpl};
 use pulse_app::viz_routers::{
@@ -267,11 +269,33 @@ fn main() {
         DEFAULT_SERVICE_COUNT_CAP,
         baseline_now,
     ));
-    let span_observer: Arc<dyn SpanObserver> =
-        Arc::new(BaselineObserverAdapter::new(Arc::clone(&baseline_state)));
     let cue_broadcast = Arc::new(AttentionCueBroadcast::new());
     let cadence_channel = Arc::new(CadenceTriggerChannel::new());
     let thresholds = Arc::new(Thresholds::default());
+
+    // Chunk #63 — restart event detector + dual-condition bypass substrate.
+    // RestartDetector tracks per-service last-seen timestamps; gap > threshold
+    // triggers emission on `pulse://stream/restart-events`. SuppressionState
+    // holds per-service post-restart suppression windows consumed by the cue
+    // emitter's surgical-suppression filter. RestartObserverAdapter wraps the
+    // detector + broadcast for the span-observer hot path; CompositeSpanObserver
+    // fan-outs each ingested span to BOTH baseline + restart adapters.
+    let restart_broadcast = Arc::new(RestartEventBroadcast::new());
+    let restart_detector = Arc::new(RestartDetector::new(
+        thresholds.restart_gap_threshold_seconds,
+    ));
+    let suppression_state = Arc::new(SuppressionState::new());
+
+    let baseline_adapter: Arc<dyn SpanObserver> =
+        Arc::new(BaselineObserverAdapter::new(Arc::clone(&baseline_state)));
+    let restart_adapter: Arc<dyn SpanObserver> = Arc::new(RestartObserverAdapter::new(
+        Arc::clone(&restart_detector),
+        Arc::clone(&restart_broadcast),
+    ));
+    let span_observer: Arc<dyn SpanObserver> = Arc::new(CompositeSpanObserver::new(vec![
+        baseline_adapter,
+        restart_adapter,
+    ]));
 
     let grpc_addr = match resolve_grpc_port() {
         Ok(p) => Some(SocketAddr::from(([127, 0, 0, 1], p.value()))),
@@ -554,6 +578,16 @@ fn main() {
                 Arc::clone(&cue_broadcast),
                 Arc::clone(&cadence_channel),
                 Arc::clone(&thresholds),
+                Arc::clone(&restart_broadcast),
+                Arc::clone(&suppression_state),
+            ));
+            // Chunk #63 — restart detector heartbeat tick (15s default
+            // cadence per `.claude/rules/observability.md` heartbeat-ticks
+            // rule); detection itself happens inline at observe_span time
+            // via the RestartObserverAdapter hot-path hook.
+            tauri::async_runtime::spawn(start_restart_detector(
+                Arc::clone(&restart_detector),
+                DEFAULT_HEARTBEAT_INTERVAL,
             ));
             let _heartbeat_handles = heartbeat::spawn(
                 heartbeat_state,

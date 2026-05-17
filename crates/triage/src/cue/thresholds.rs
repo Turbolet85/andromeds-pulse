@@ -39,6 +39,42 @@ pub const DEFAULT_LATENCY_PERCENTILE: f64 = 0.95;
 /// ErrorRateSpike detection — warm-up gate к suppress cold-start noise.
 pub const MIN_EWMA_SAMPLES: u64 = 10;
 
+/// Default dual-condition bypass magnitude multiplier (P-057 chunk #63
+/// spec). When a cue's `magnitude > multiplier × baseline` the bypass
+/// short-circuits — cue survives restart-window suppression. Matches the
+/// chunk #62 `cue::classify::dual_condition_bypass` literal (10.0)
+/// extracted к Thresholds for hot-reload in chunk #86.
+pub const DEFAULT_MAGNITUDE_BYPASS_MULTIPLIER: f64 = 10.0;
+
+/// Default dual-condition bypass absolute error-rate threshold (5% per
+/// chunk #63 spec). `ErrorRateSpike` cues with absolute rate >
+/// threshold bypass restart-window suppression.
+pub const DEFAULT_ABSOLUTE_BYPASS_ERROR_RATE: f64 = 0.05;
+
+/// Default dual-condition bypass absolute latency threshold (1000ms).
+/// `LatencyRegression` cues with absolute latency > threshold bypass
+/// restart-window suppression. Mirrors the chunk #62
+/// `cue::classify::dual_condition_bypass` literal extracted to Thresholds.
+pub const DEFAULT_ABSOLUTE_BYPASS_LATENCY_MS: f64 = 1000.0;
+
+/// Default restart-detection gap threshold (20s per chunk #63 spec).
+/// `RestartDetector` emits a `RestartEvent` when a service's gap from
+/// the previous observation exceeds this threshold (gap-then-resume).
+pub const DEFAULT_RESTART_GAP_THRESHOLD_SECONDS: u64 = 20;
+
+/// Default restart-suppression window (60s per chunk #63 spec). After
+/// each `RestartEvent`, the cue emitter suppresses short-persistence
+/// `ErrorRateSpike` cues for this duration unless the dual-condition
+/// magnitude bypass fires.
+pub const DEFAULT_RESTART_SUPPRESSION_WINDOW_SECONDS: u64 = 60;
+
+/// Default suppression persistence cutoff (30s per chunk #63 spec).
+/// `ErrorRateSpike` cues with `persistence_seconds < cutoff` are
+/// suppression-eligible; cues with persistence ≥ cutoff survive even
+/// during active restart windows (long-persistence cues are real signals,
+/// not restart-induced noise).
+pub const DEFAULT_SUPPRESSION_PERSISTENCE_CUTOFF_SECONDS: u64 = 30;
+
 /// Validation error for `Thresholds`. Local к the cue module so threshold
 /// validation does not couple к `BaselineError` shape (chunk #61). Future
 /// config-path deserialization MAY convert to a unified error type at the
@@ -64,6 +100,12 @@ pub struct Thresholds {
     pub min_persistence_seconds: u64,
     pub latency_percentile: f64,
     pub min_ewma_samples: u64,
+    pub magnitude_bypass_multiplier: f64,
+    pub absolute_bypass_error_rate: f64,
+    pub absolute_bypass_latency_ms: f64,
+    pub restart_gap_threshold_seconds: u64,
+    pub restart_suppression_window_seconds: u64,
+    pub suppression_persistence_cutoff_seconds: u64,
 }
 
 impl Default for Thresholds {
@@ -77,6 +119,12 @@ impl Default for Thresholds {
             min_persistence_seconds: DEFAULT_MIN_PERSISTENCE_SECONDS,
             latency_percentile: DEFAULT_LATENCY_PERCENTILE,
             min_ewma_samples: MIN_EWMA_SAMPLES,
+            magnitude_bypass_multiplier: DEFAULT_MAGNITUDE_BYPASS_MULTIPLIER,
+            absolute_bypass_error_rate: DEFAULT_ABSOLUTE_BYPASS_ERROR_RATE,
+            absolute_bypass_latency_ms: DEFAULT_ABSOLUTE_BYPASS_LATENCY_MS,
+            restart_gap_threshold_seconds: DEFAULT_RESTART_GAP_THRESHOLD_SECONDS,
+            restart_suppression_window_seconds: DEFAULT_RESTART_SUPPRESSION_WINDOW_SECONDS,
+            suppression_persistence_cutoff_seconds: DEFAULT_SUPPRESSION_PERSISTENCE_CUTOFF_SECONDS,
         }
     }
 }
@@ -116,6 +164,40 @@ impl Thresholds {
                 field: "tick_interval",
             });
         }
+        if !self.magnitude_bypass_multiplier.is_finite() || self.magnitude_bypass_multiplier <= 1.0
+        {
+            return Err(ThresholdsError::InvalidConfig {
+                field: "magnitude_bypass_multiplier",
+            });
+        }
+        if !self.absolute_bypass_error_rate.is_finite()
+            || self.absolute_bypass_error_rate <= 0.0
+            || self.absolute_bypass_error_rate > 1.0
+        {
+            return Err(ThresholdsError::InvalidConfig {
+                field: "absolute_bypass_error_rate",
+            });
+        }
+        if !self.absolute_bypass_latency_ms.is_finite() || self.absolute_bypass_latency_ms <= 0.0 {
+            return Err(ThresholdsError::InvalidConfig {
+                field: "absolute_bypass_latency_ms",
+            });
+        }
+        if self.restart_gap_threshold_seconds == 0 {
+            return Err(ThresholdsError::InvalidConfig {
+                field: "restart_gap_threshold_seconds",
+            });
+        }
+        if self.restart_suppression_window_seconds == 0 {
+            return Err(ThresholdsError::InvalidConfig {
+                field: "restart_suppression_window_seconds",
+            });
+        }
+        if self.suppression_persistence_cutoff_seconds == 0 {
+            return Err(ThresholdsError::InvalidConfig {
+                field: "suppression_persistence_cutoff_seconds",
+            });
+        }
         Ok(())
     }
 }
@@ -128,6 +210,12 @@ const _: () = {
     assert!(DEFAULT_BASE_ERROR_RATE > 0.0);
     assert!(DEFAULT_BASE_LATENCY_MS > 0.0);
     assert!(MIN_EWMA_SAMPLES >= 1);
+    assert!(DEFAULT_MAGNITUDE_BYPASS_MULTIPLIER > 1.0);
+    assert!(DEFAULT_ABSOLUTE_BYPASS_ERROR_RATE > 0.0);
+    assert!(DEFAULT_ABSOLUTE_BYPASS_LATENCY_MS > 0.0);
+    assert!(DEFAULT_RESTART_GAP_THRESHOLD_SECONDS > 0);
+    assert!(DEFAULT_RESTART_SUPPRESSION_WINDOW_SECONDS > 0);
+    assert!(DEFAULT_SUPPRESSION_PERSISTENCE_CUTOFF_SECONDS > 0);
 };
 
 #[cfg(test)]
@@ -145,6 +233,110 @@ mod tests {
         assert_eq!(t.min_persistence_seconds, 30);
         assert_eq!(t.latency_percentile, 0.95);
         assert_eq!(t.min_ewma_samples, 10);
+        assert_eq!(t.magnitude_bypass_multiplier, 10.0);
+        assert_eq!(t.absolute_bypass_error_rate, 0.05);
+        assert_eq!(t.absolute_bypass_latency_ms, 1000.0);
+        assert_eq!(t.restart_gap_threshold_seconds, 20);
+        assert_eq!(t.restart_suppression_window_seconds, 60);
+        assert_eq!(t.suppression_persistence_cutoff_seconds, 30);
+    }
+
+    #[test]
+    fn validate_rejects_magnitude_bypass_multiplier_below_or_equal_one() {
+        let t = Thresholds {
+            magnitude_bypass_multiplier: 1.0,
+            ..Thresholds::default()
+        };
+        assert_eq!(
+            t.validate().unwrap_err(),
+            ThresholdsError::InvalidConfig {
+                field: "magnitude_bypass_multiplier"
+            }
+        );
+    }
+
+    #[test]
+    fn validate_rejects_absolute_bypass_error_rate_above_one() {
+        let t = Thresholds {
+            absolute_bypass_error_rate: 1.5,
+            ..Thresholds::default()
+        };
+        assert_eq!(
+            t.validate().unwrap_err(),
+            ThresholdsError::InvalidConfig {
+                field: "absolute_bypass_error_rate"
+            }
+        );
+    }
+
+    #[test]
+    fn validate_rejects_zero_absolute_bypass_latency_ms() {
+        let t = Thresholds {
+            absolute_bypass_latency_ms: 0.0,
+            ..Thresholds::default()
+        };
+        assert_eq!(
+            t.validate().unwrap_err(),
+            ThresholdsError::InvalidConfig {
+                field: "absolute_bypass_latency_ms"
+            }
+        );
+    }
+
+    #[test]
+    fn validate_rejects_zero_restart_gap_threshold_seconds() {
+        let t = Thresholds {
+            restart_gap_threshold_seconds: 0,
+            ..Thresholds::default()
+        };
+        assert_eq!(
+            t.validate().unwrap_err(),
+            ThresholdsError::InvalidConfig {
+                field: "restart_gap_threshold_seconds"
+            }
+        );
+    }
+
+    #[test]
+    fn validate_rejects_zero_restart_suppression_window_seconds() {
+        let t = Thresholds {
+            restart_suppression_window_seconds: 0,
+            ..Thresholds::default()
+        };
+        assert_eq!(
+            t.validate().unwrap_err(),
+            ThresholdsError::InvalidConfig {
+                field: "restart_suppression_window_seconds"
+            }
+        );
+    }
+
+    #[test]
+    fn validate_rejects_zero_suppression_persistence_cutoff_seconds() {
+        let t = Thresholds {
+            suppression_persistence_cutoff_seconds: 0,
+            ..Thresholds::default()
+        };
+        assert_eq!(
+            t.validate().unwrap_err(),
+            ThresholdsError::InvalidConfig {
+                field: "suppression_persistence_cutoff_seconds"
+            }
+        );
+    }
+
+    #[test]
+    fn validate_rejects_nan_magnitude_bypass_multiplier() {
+        let t = Thresholds {
+            magnitude_bypass_multiplier: f64::NAN,
+            ..Thresholds::default()
+        };
+        assert_eq!(
+            t.validate().unwrap_err(),
+            ThresholdsError::InvalidConfig {
+                field: "magnitude_bypass_multiplier"
+            }
+        );
     }
 
     #[test]

@@ -523,3 +523,69 @@ Alternative timing: defer until the next Type 6 amendment surfaces this gap agai
 - Triggering chunks: chunk #43 (session 51) + chunk #58 (session 70) - Type 6 amendments accumulating narrative-section staleness across multiple wraps.
 - Related artifact: `.andromeda/runs/2026-05-16T16-34-14-setup-project-delta/materialization-plan-delta.md` "Out-of-Type-6 staleness surfaced" subsection documents the current ad-hoc manual surface-pattern.
 - Current state: state.yaml.spec_amendments.archive contains the chunk #58 amendment (archived this session) with `flag_used: --allow-arch-registry` - preserves audit trail for future readers studying this proposal's context.
+
+## Status: PROPOSED — 2026-05-17 (session 80)
+
+### Proposal 8 — Arch Registry Updates section compaction strategy
+
+**Status:** PROPOSED (observed session 79, threshold not yet reached)
+
+**Problem:** §Architecture Registry Updates accumulates verbose entries (~15 lines each). 7 entries currently (109 lines, 33% of arch.md). Linear forecast: 30-40 additional entries through v0.2.0 ship → section grows to 500-700 lines, 50%+ of arch.md. Reader scans become slow, Established Decisions buried, precedent citations require long scroll-back.
+
+**Proposal:** Two-phase intervention:
+
+Phase 1 (immediate, no machinery): Tighten new entry format going forward. Drop Authority paragraph boilerplate, condense Rationale to single sentence + precedent citation. Target ~5-6 lines per new entry instead of 15. Existing entries untouched.
+
+Phase 2 (deferred until ~15-20 active entries threshold): Implement sliding window of detail. Last N=10-15 entries verbose (full current format). Older entries compact-demoted: single line summary + marker path reference. Demotion via wrap-session phase step or manual evolve action.
+
+**Design:**
+- Phase 1: style discipline change, no code change. Update evolve output templates.
+- Phase 2: detection at wrap-session Phase X — if §Architecture Registry Updates entry count > threshold (configurable, default 15), demote oldest verbose entry to compact format. Marker paths preserved as forensic access path.
+- **Template artifacts (NEW):** generate concrete output template files for both compact verbose entry format (Phase 1) and compact-demoted single-line entry format (Phase 2). Templates live in `~/.claude/skills/andromeda-evolve/references/output-templates.md` (extend existing file) and become authoritative source consumed by evolve dialog flow + wrap-session demotion logic. Update skill SKILL.md files (`andromeda-evolve`, `andromeda-wrap-session`) to reference templates as canonical output format. Skills must enforce templates as default — agent-improvised format becomes refusal at Check 7 validation (compact format conformance check).
+
+**Implementation cost:**
+- Phase 1: ~30 LOC in evolve output-templates.md + style guide update + **compact verbose entry template authoring (~15 LOC of template + example)**
+- Phase 2: ~150-250 LOC in wrap-session SKILL.md Phase X + demotion logic + **compact-demoted entry template authoring (~10 LOC of template + example)** + Check 7 conformance validation hook
+
+**When to do:**
+- Phase 1: next Type 6 amendment cycle (consciously author new entry in tighter format; if works without forensic loss, codify in evolve templates)
+- Phase 2: chunk #67-#70 timeframe (when ~12-15 entries accumulated)
+
+**Cross-references:** Related to Proposal X (state.yaml archive list compaction) if exists; same theme of "post-MVP artifact growth needing strategic compaction". Session 79 user observation.
+
+## Status: PROPOSED — 2026-05-17 (session 80)
+
+### Proposal 9 — route.md §3 Decisions Log + §2 Roadmap entry compaction strategy
+
+**Status:** PROPOSED (observed session 79, threshold not yet reached)
+
+**Problem:** route.md accumulates verbosity in two locations. §2 Roadmap chunks grew from 12-25 words (Epoch 1-8 baseline) to 60-80 words (Epoch 9 chunks #57-#63), violating documented 25-word-single-line constraint; verbosity encodes file paths + capability lists + behavioral notes + test scenarios that already exist in pulse-v0_2_0-route.md. §3 Decisions Log entries average 7-8 lines per chunk append with significant boilerplate (chunk text duplicated from §2, "/implement standard flow" reference, "Trigger 4 spec-drift-protocol if drift surfaces" repeated paragraph, Form classification name + Refuse 6 exception citation redundant with flag name). Currently 277 lines total; linear forecast through v0.2.0 ship: 530+ lines with §3 Decisions Log reaching 60% of document. Route.md read every chunk planning session — high read frequency multiplies cognitive cost per verbose entry, more impactful than arch.md (Proposal 8 sibling).
+
+**Proposal:** Two-phase intervention paralleling Proposal 8 (arch.md compaction):
+
+Phase 1 (immediate, no machinery): Tighten new entries in two locations:
+
+(a) §2 Roadmap chunk text: enforce 25-word single-line constraint. Move file paths + capability descriptions + behavioral notes + test scenarios to pulse-v0_2_0-route.md (where they already exist in fuller form). §2 chunks become glance-table summaries, not duplicate detailed spec. Target ~15-22 words per chunk.
+
+(b) §3 Decisions Log entries: drop boilerplate (chunk text duplication → reference §2 line N instead; "/implement against chunk #X via /andromeda-phase + /andromeda-implement standard flow" repeated wording; "Form 1 = chunk append to existing epoch" tautology with classification name; "Type 7 narrow Refuse 6 exception per refuse-taxonomy.md" citation chain). Target ~4-5 lines per entry instead of 7-8.
+
+Existing entries untouched.
+
+Phase 2 (deferred until post-v1.0 ship): Epoch 1-8 collapse to archival form. These epochs CLOSED (v0.1.0 shipped). Individual chunks still useful as numerical reference ("see chunk #29 pattern"), so collapse via `<details>` HTML folding (or separate `route-archive-v0_1_0.md`) rather than deletion. Keep chunk lookup accessible, reduce visual scan area in active route.md. Recent epochs (9+) retain full detail.
+
+**Design:**
+- Phase 1(a): chunk-text style discipline change, no code change. Update evolve dialog template for `--allow-route-append` to surface 25-word constraint as Check 8.X validation (currently soft constraint, would become enforced refusal on overflow).
+- Phase 1(b): output-templates.md update for Type 7 amendment marker generation. Compact entry format becomes default.
+- Phase 2: archival mechanism — manual edit OR scripted `<details>` wrap injection. Triggers on user decision after v1.0 milestone, not automatic.
+- **Template artifacts (NEW):** generate concrete output template files for compact §2 chunk text format (Phase 1a) and compact §3 Decisions Log entry format (Phase 1b). Templates live in `~/.claude/skills/andromeda-evolve/references/output-templates.md` (extend existing file alongside Proposal 8 templates) and become authoritative source consumed by evolve dialog flow for `--allow-route-append`. Update `andromeda-evolve` SKILL.md to reference templates as canonical output format for Type 7 Form 1 + Form 2 amendments. Skill must enforce templates as default — agent-improvised format becomes refusal at Check 8.X validation (compact format conformance check, parallel to 25-word constraint enforcement). Phase 2 archival mechanism includes its own template for `<details>`-wrapped Epoch archival blocks.
+
+**Implementation cost:**
+- Phase 1(a): ~20 LOC validation in evolve Check 8 family + dialog template update + style guide + **compact §2 chunk text template authoring (~8 LOC of template + example)**
+- Phase 1(b): ~40 LOC in evolve output-templates.md + Type 7 entry generator + **compact §3 entry template authoring (~12 LOC of template + example)**
+- Phase 2: ~80-150 LOC if scripted (archival section generator + chunk lookup preservation) + **Epoch archival template authoring (~15 LOC of template + example)**; ~10 minutes manual edit alternative
+
+**When to do:**
+- Phase 1: next route-append amendment cycle (chunk #64, likely 1-2 sessions ahead — try compact format manually, validate forensic feel before codifying in templates)
+- Phase 2: post-v1.0 ship (when Epoch 1-8 reference frequency naturally drops; Epoch 9 still actively referenced)
+
+**Cross-references:** Sibling to Proposal 8 (arch.md §Architecture Registry Updates compaction) — same theme of "post-MVP artifact growth needing strategic compaction" but route.md higher-frequency-read so larger cognitive ROI per tightened entry. Session 79 user observation, route.md current state 277 lines / 7 §3 entries / 7 Epoch 9 chunks.

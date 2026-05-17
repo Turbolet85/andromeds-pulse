@@ -20,13 +20,36 @@ pub use crate::baseline::{
 // Chunk #62 — attention cue emitter. Re-export public-API types from
 // `triage::cue` so pulse-app boot wiring + future v0.2.0 chunks import one
 // shape per chunk #61 precedent.
+//
+// Chunk #63 extension: `DEFAULT_MAGNITUDE_BYPASS_MULTIPLIER` +
+// `DEFAULT_ABSOLUTE_BYPASS_ERROR_RATE` + `DEFAULT_ABSOLUTE_BYPASS_LATENCY_MS`
+// + `DEFAULT_RESTART_GAP_THRESHOLD_SECONDS` +
+// `DEFAULT_RESTART_SUPPRESSION_WINDOW_SECONDS` +
+// `DEFAULT_SUPPRESSION_PERSISTENCE_CUTOFF_SECONDS` cover the new
+// `Thresholds` fields wired through `dual_condition_bypass` + the
+// `pattern::suppression` filter.
 pub use crate::cue::{
     AttentionCueBroadcast, BROADCAST_CAPACITY, CHANNEL_NAME_CADENCE_TRIGGERS,
-    CadenceTriggerChannel, DEFAULT_BASE_ERROR_RATE, DEFAULT_BASE_LATENCY_MS,
-    DEFAULT_ERROR_RATE_MULTIPLIER, DEFAULT_LATENCY_MULTIPLIER, DEFAULT_LATENCY_PERCENTILE,
-    DEFAULT_MIN_PERSISTENCE_SECONDS, DEFAULT_TICK_INTERVAL, MIN_EWMA_SAMPLES,
-    STREAM_NAME_ATTENTION_CUES, Thresholds, ThresholdsError, classify_priority,
-    dual_condition_bypass, evaluate_thresholds, run_one_emit_cycle, start_emitter,
+    CadenceTriggerChannel, DEFAULT_ABSOLUTE_BYPASS_ERROR_RATE, DEFAULT_ABSOLUTE_BYPASS_LATENCY_MS,
+    DEFAULT_BASE_ERROR_RATE, DEFAULT_BASE_LATENCY_MS, DEFAULT_ERROR_RATE_MULTIPLIER,
+    DEFAULT_LATENCY_MULTIPLIER, DEFAULT_LATENCY_PERCENTILE, DEFAULT_MAGNITUDE_BYPASS_MULTIPLIER,
+    DEFAULT_MIN_PERSISTENCE_SECONDS, DEFAULT_RESTART_GAP_THRESHOLD_SECONDS,
+    DEFAULT_RESTART_SUPPRESSION_WINDOW_SECONDS, DEFAULT_SUPPRESSION_PERSISTENCE_CUTOFF_SECONDS,
+    DEFAULT_TICK_INTERVAL, MIN_EWMA_SAMPLES, STREAM_NAME_ATTENTION_CUES, Thresholds,
+    ThresholdsError, classify_priority, dual_condition_bypass, evaluate_thresholds,
+    run_one_emit_cycle, start_emitter,
+};
+
+// Chunk #63 — restart event detector + dual-condition bypass. Re-export
+// `pattern` public-API types so pulse-app boot wiring + future v0.2.0
+// chunks import one shape per chunk #61/#62 precedent. `BROADCAST_CAPACITY`
+// is NOT re-exported from `pattern` here because the same const value is
+// already re-exported from `cue` (both equal 32; sharing avoids ambiguity).
+pub use crate::pattern::{
+    BypassReason, BypassTrigger, DEFAULT_HEARTBEAT_INTERVAL, DetectCycleStats, RestartDetector,
+    RestartEvent, RestartEventBroadcast, STREAM_NAME_RESTART_EVENTS, SuppressionOutcome,
+    SuppressionParams, SuppressionState, evaluate_with_suppression, observe_and_dispatch,
+    run_one_detect_cycle, start_restart_detector,
 };
 
 /// Kind of detected condition emitted as an attention cue. Bounded

@@ -5,6 +5,7 @@ pub mod heartbeat;
 pub mod mcp_router;
 pub mod observability;
 pub mod plugins_router;
+pub mod restart_observer;
 pub mod snapshot_runtime;
 pub mod streams;
 pub mod tray;

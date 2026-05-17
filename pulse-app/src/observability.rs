@@ -1079,6 +1079,69 @@ impl AllowList {
                 .collect(),
         );
 
+        // Chunk #63 — restart event detector + dual-condition bypass
+        // (Epoch 9 Foundation v0.2.0 seventh chunk; capabilities P-015 +
+        // P-016 + P-057). 6 new tracing target leaves: 3 emitted by
+        // `crates/triage/src/pattern/{detector,broadcast}.rs` + 3 emitted
+        // by `crates/triage/src/cue/emitter.rs` (suppression hook + bypass
+        // metric).
+        //
+        // PII discipline (per security plan §Anti-Patterns § Logging row 1
+        // + chunk #62 precedent): no `service`/`scope_id` / `span_id` /
+        // `trace_id` / OTLP attribute value fields admitted. Only
+        // identifier-class numeric + enum tag + boolean fields cross the
+        // scrubber boundary. Per-leaf entries (exact-match resolver
+        // precedence; per `.claude/rules/observability.md` Session
+        // Additions 2026-05-07).
+        by_target.insert(
+            "triage.pattern.tick",
+            [
+                "value",
+                "gap_threshold_seconds",
+                "services_tracked",
+                "restart_events_emitted",
+            ]
+            .iter()
+            .copied()
+            .collect(),
+        );
+        by_target.insert(
+            "triage.pattern.restart_detect",
+            ["cue_kind", "gap_seconds", "restart_window_active"]
+                .iter()
+                .copied()
+                .collect(),
+        );
+        by_target.insert(
+            "triage.pattern.restart_emit",
+            ["cue_kind", "gap_seconds"].iter().copied().collect(),
+        );
+        by_target.insert(
+            "triage.cue.suppression_check",
+            [
+                "cue_kind",
+                "persistence_seconds",
+                "restart_window_active",
+                "suppression_bypassed",
+                "bypass_reason",
+                "skipped_events",
+            ]
+            .iter()
+            .copied()
+            .collect(),
+        );
+        by_target.insert(
+            "triage.cue.suppression_bypass",
+            ["cue_kind", "bypass_reason"].iter().copied().collect(),
+        );
+        by_target.insert(
+            "metric.pipeline.l2.magnitude_bypass_triggered_total",
+            ["value", "reason", "cue_kind", "priority"]
+                .iter()
+                .copied()
+                .collect(),
+        );
+
         Self { by_target }
     }
 
