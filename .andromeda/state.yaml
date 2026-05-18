@@ -32,7 +32,41 @@ living_artifact_freshness:
 drift_warnings: []
 
 spec_amendments:
-  active: []
+  active:
+    - amendment_id: 2026-05-18T16-53-11-acknowledge-services-namespace
+      plans:
+        - path: architecture.md
+          sections:
+            - "§Occupied Resources Tauri IPC routes"
+            - "§Occupied Resources Tauri IPC events (broadcast channels)"
+            - "§Architecture Registry Updates"
+          decisions_log_section: "2026-05-18 — Acknowledge `services.list_with_states` + `pulse://stream/service-lifecycle` (--allow-arch-registry)"
+      trigger:
+        chunk: null
+        phase: null
+        harness: "user-driven via /andromeda-evolve"
+      authority:
+        winning_plan: pulse-app/src/services_router.rs + crates/triage/src/lifecycle/broadcast.rs
+        winning_tier: implementation
+        losing_plan: architecture.md
+        losing_concern: registry-section-stale-vs-implementation-reality
+        rationale: "Code at pulse-app/src/services_router.rs:61 implements services.list_with_states; crates/triage/src/lifecycle/broadcast.rs:16 declares pulse://stream/service-lifecycle. Arch §Occupied Resources had not acknowledged either; this amendment closes the chunk #67 D3 capability-drift."
+      impl_files_synced: []
+      expected_propagation: []
+      marker_path: .andromeda/runs/2026-05-18T16-53-11-spec-amendment-acknowledge-services-namespace/amendment.md
+      applied_at: 2026-05-18T16:53:11Z
+      noted_at: null
+      propagated_by_run: .andromeda/runs/2026-05-18T17-07-27-setup-project-delta/
+      archived_at: null
+      verification_status: clean
+      flag_used: --allow-arch-registry
+      registry_section: "§Occupied Resources Tauri IPC routes + Tauri IPC events (broadcast channels)"
+      registry_additions:
+        - services.list_with_states
+        - pulse://stream/service-lifecycle
+      code_evidence:
+        - pulse-app/src/services_router.rs
+        - crates/triage/src/lifecycle/broadcast.rs
   archive:
     - amendment_id: 2026-05-17T23-51-55-append-chunk-67-service-registry-lifecycle
       plans:

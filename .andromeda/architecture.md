@@ -170,9 +170,10 @@
   - `mcp.status`, `mcp.start`, `mcp.stop` — mcp-server crate (only when `--features mcp-server`)
   - `workspace.detect`, `workspace.list` — workspace-detector crate
   - `connection.current_state` — pulse-app crate (`ConnectionApiImpl` returning `ConnectionStatePayload` from `crates/ingest::connection::compute_state()`; chunk #59) — see §Architecture Registry Updates 2026-05-16
+  - `services.list_with_states` — pulse-app crate (`ServicesApiImpl` returning `ServiceListPayload` from `crates/triage::lifecycle::InMemoryServiceRegistry::list`; chunk #67) — see §Architecture Registry Updates 2026-05-18
 - **External HTTP routes (OTLP HTTP)**: `POST /v1/traces`, `POST /v1/metrics`, `POST /v1/logs` on `:4318`.
 - **MCP stdio surface**: standard MCP `initialize`, `tools/list`, `tools/call`, `notifications/*` over stdin/stdout when the rmcp sidecar is started.
-- **Tauri IPC events (broadcast channels)**: `pulse://stream/spans`, `pulse://stream/metrics`, `pulse://stream/logs`, `pulse://stream/snapshot-progress`, `pulse://stream/plugin-events`, `pulse://stream/connection-state` (chunk #59 — see §Architecture Registry Updates 2026-05-16), `pulse://stream/attention-cues` (chunk #62 — see §Architecture Registry Updates 2026-05-17), `pulse://stream/restart-events` (chunk #63 — see §Architecture Registry Updates 2026-05-17).
+- **Tauri IPC events (broadcast channels)**: `pulse://stream/spans`, `pulse://stream/metrics`, `pulse://stream/logs`, `pulse://stream/snapshot-progress`, `pulse://stream/plugin-events`, `pulse://stream/connection-state` (chunk #59 — see §Architecture Registry Updates 2026-05-16), `pulse://stream/attention-cues` (chunk #62 — see §Architecture Registry Updates 2026-05-17), `pulse://stream/restart-events` (chunk #63 — see §Architecture Registry Updates 2026-05-17), `pulse://stream/service-lifecycle` (chunk #67 — see §Architecture Registry Updates 2026-05-18).
 - **Process / service identity**:
   - Tauri app bundle identifier: `com.andromeda.pulse`
   - Binary name: `andromeda-pulse` (Linux/macOS), `andromeda-pulse.exe` (Windows)
@@ -397,4 +398,13 @@ _This section accumulates entries from `/andromeda-evolve --allow-arch-registry`
 **Added:** `pulse://stream/restart-events` (`crates/triage/src/pattern/broadcast.rs:8`, chunk #63 commit `61ca564`).
 **Rationale:** D3 capability-drift closure for chunk #63 restart-event broadcast topic. Mirrors 2026-05-17 chunk #62 `attention-cues` precedent.
 **Marker:** `.andromeda/runs/2026-05-17T14-15-00-spec-amendment-acknowledge-restart-events-broadcast/amendment.md`
+
+### 2026-05-18 — Acknowledge `services.list_with_states` + `pulse://stream/service-lifecycle` (--allow-arch-registry)
+
+**Section:** §Occupied Resources Tauri IPC routes + Tauri IPC events (broadcast channels).
+**Added:**
+- `services.list_with_states` (`pulse-app/src/services_router.rs:61`, chunk #67)
+- `pulse://stream/service-lifecycle` (`crates/triage/src/lifecycle/broadcast.rs:16`, chunk #67)
+**Rationale:** D3 capability-drift closure for chunk #67 service registry + lifecycle FSM TauRPC + broadcast topic. Mirrors 2026-05-16 chunk #59 `connection-state` precedent (single-coordinated dual TauRPC + broadcast amendment).
+**Marker:** `.andromeda/runs/2026-05-18T16-53-11-spec-amendment-acknowledge-services-namespace/amendment.md`
 
