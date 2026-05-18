@@ -171,6 +171,7 @@
   - `workspace.detect`, `workspace.list` — workspace-detector crate
   - `connection.current_state` — pulse-app crate (`ConnectionApiImpl` returning `ConnectionStatePayload` from `crates/ingest::connection::compute_state()`; chunk #59) — see §Architecture Registry Updates 2026-05-16
   - `services.list_with_states` — pulse-app crate (`ServicesApiImpl` returning `ServiceListPayload` from `crates/triage::lifecycle::InMemoryServiceRegistry::list`; chunk #67) — see §Architecture Registry Updates 2026-05-18
+  - `storage.inspect`, `storage.path` — pulse-app crate (`StorageApiImpl` returning corpus inspection metadata + data-dir absolute path from `crates/corpus::CorpusReader`; chunk #68) — see §Architecture Registry Updates 2026-05-18
 - **External HTTP routes (OTLP HTTP)**: `POST /v1/traces`, `POST /v1/metrics`, `POST /v1/logs` on `:4318`.
 - **MCP stdio surface**: standard MCP `initialize`, `tools/list`, `tools/call`, `notifications/*` over stdin/stdout when the rmcp sidecar is started.
 - **Tauri IPC events (broadcast channels)**: `pulse://stream/spans`, `pulse://stream/metrics`, `pulse://stream/logs`, `pulse://stream/snapshot-progress`, `pulse://stream/plugin-events`, `pulse://stream/connection-state` (chunk #59 — see §Architecture Registry Updates 2026-05-16), `pulse://stream/attention-cues` (chunk #62 — see §Architecture Registry Updates 2026-05-17), `pulse://stream/restart-events` (chunk #63 — see §Architecture Registry Updates 2026-05-17), `pulse://stream/service-lifecycle` (chunk #67 — see §Architecture Registry Updates 2026-05-18).
@@ -179,7 +180,7 @@
   - Binary name: `andromeda-pulse` (Linux/macOS), `andromeda-pulse.exe` (Windows)
   - Binary crate name: `pulse-app`
   - rmcp sidecar binary (when feature enabled): `andromeda-pulse-mcp`
-- **Cargo workspace crate names**: `ingest`, `buffer`, `viz`, `ui-bridge`, `snapshot`, `curation`, `triage`, `workspace-detector`, `plugins`, `mcp-server`, `pulse-app`, `xtask` — these names are reserved at the workspace level and cannot be reused by scopes.
+- **Cargo workspace crate names**: `ingest`, `buffer`, `viz`, `ui-bridge`, `snapshot`, `curation`, `triage`, `workspace-detector`, `plugins`, `mcp-server`, `corpus`, `security`, `pulse-app`, `xtask` — these names are reserved at the workspace level and cannot be reused by scopes.
 - **DuckDB database / schema names**:
   - In-memory database identity: `pulse_buffer` (single in-memory `:memory:` DuckDB connection, schema `main`)
   - Reserved tables: `spans`, `span_events`, `span_links`, `metrics_points`, `log_records`, `resources`, `instrumentation_scopes`
@@ -187,7 +188,7 @@
   - Linux: `~/.andromeda-pulse/` (i.e. `$XDG_CONFIG_HOME/andromeda-pulse/` if set, else `$HOME/.andromeda-pulse/`)
   - macOS: `~/Library/Application Support/com.andromeda.pulse/`
   - Windows: `%APPDATA%\andromeda-pulse\` (i.e. `%APPDATA%\andromeda-pulse\config.toml`, `...\plugins\`, `...\snapshots\`, `...\logs\`)
-  - Subpaths under the resolved root: `config.toml` (user settings), `plugins/` (WASM Component Model plugin loading directory), `snapshots/` (generated snapshot markdown files), `logs/` (stdout-exporter destination for self-telemetry).
+  - Subpaths under the resolved root: `config.toml` (user settings), `plugins/` (WASM Component Model plugin loading directory), `snapshots/` (generated snapshot markdown files), `logs/` (stdout-exporter destination for self-telemetry), `corpus/corpus.db` (persistent incident corpus SQLite; OS-keychain-encrypted cell-level AES-256-GCM — chunk #68).
   - `ANDROMEDA_PULSE_DATA_DIR` overrides the resolved root on every platform; subpath layout under the override is identical to the per-platform default.
 - **Environment variables (reserved at arch level)**:
   - `ANDROMEDA_PULSE_CONFIG_PATH` — override path to `config.toml`
@@ -407,4 +408,16 @@ _This section accumulates entries from `/andromeda-evolve --allow-arch-registry`
 - `pulse://stream/service-lifecycle` (`crates/triage/src/lifecycle/broadcast.rs:16`, chunk #67)
 **Rationale:** D3 capability-drift closure for chunk #67 service registry + lifecycle FSM TauRPC + broadcast topic. Mirrors 2026-05-16 chunk #59 `connection-state` precedent (single-coordinated dual TauRPC + broadcast amendment).
 **Marker:** `.andromeda/runs/2026-05-18T16-53-11-spec-amendment-acknowledge-services-namespace/amendment.md`
+
+### 2026-05-18 — Acknowledge `corpus` + `security` crates + `storage.{inspect,path}` TauRPC + `corpus/corpus.db` filesystem subpath (--allow-arch-registry)
+
+**Section:** §Occupied Resources Cargo workspace crate names + Tauri IPC routes + Filesystem locations.
+**Added:**
+- `corpus` (`Cargo.toml:11`, `crates/corpus/src/lib.rs`, chunk #68)
+- `security` (`Cargo.toml:12`, `crates/security/src/lib.rs`, chunk #68)
+- `storage.inspect` (`pulse-app/src/storage_router.rs:50`, chunk #68)
+- `storage.path` (`pulse-app/src/storage_router.rs:50`, chunk #68)
+- `corpus/corpus.db` subpath under data dir root (`pulse-app/src/main.rs:353`, chunk #68)
+**Rationale:** D3 capability-drift closure for chunk #68 persistent incident corpus + PII scrubber + storage router. Mirrors 2026-05-18 chunk #67 `services-namespace` precedent (single-coordinated multi-item Registry Update across sub-sections under §Occupied Resources).
+**Marker:** `.andromeda/runs/2026-05-18T19-55-24-spec-amendment-acknowledge-chunk-68-corpus-additions/amendment.md`
 

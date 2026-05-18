@@ -38,7 +38,48 @@ drift_warnings:
     last_observed_session_count: 93
 
 spec_amendments:
-  active: []
+  active:
+    - amendment_id: 2026-05-18T19-55-24-acknowledge-chunk-68-corpus-additions
+      plans:
+        - path: architecture.md
+          sections:
+            - "§Occupied Resources Cargo workspace crate names"
+            - "§Occupied Resources Tauri IPC routes"
+            - "§Occupied Resources Filesystem locations"
+            - "§Architecture Registry Updates"
+          decisions_log_section: "2026-05-18 — Acknowledge `corpus` + `security` crates + `storage.{inspect,path}` TauRPC + `corpus/corpus.db` filesystem subpath (--allow-arch-registry)"
+      trigger:
+        chunk: null
+        phase: null
+        harness: "user-driven via /andromeda-evolve"
+      authority:
+        winning_plan: implementation
+        winning_tier: implementation
+        losing_plan: architecture.md
+        losing_concern: registry-section-stale-vs-implementation-reality
+        rationale: "Chunk #68 (commit 04431cd) added crates/corpus + crates/security workspace members + storage.{inspect,path} TauRPC + corpus/corpus.db filesystem subpath; arch §Occupied Resources sub-sections not yet acknowledged. Single-coordinated multi-item Registry Update per chunk #59/#67 precedent."
+      impl_files_synced: []
+      expected_propagation: []
+      marker_path: .andromeda/runs/2026-05-18T19-55-24-spec-amendment-acknowledge-chunk-68-corpus-additions/amendment.md
+      applied_at: 2026-05-18T19:55:24Z
+      noted_at: null
+      propagated_by_run: .andromeda/runs/2026-05-18T20-07-09-setup-project-delta/
+      archived_at: null
+      verification_status: clean
+      flag_used: --allow-arch-registry
+      registry_section: "§Occupied Resources"
+      registry_additions:
+        - "corpus (Cargo workspace crate name)"
+        - "security (Cargo workspace crate name)"
+        - "storage.inspect (Tauri IPC route, pulse-app crate)"
+        - "storage.path (Tauri IPC route, pulse-app crate)"
+        - "corpus/corpus.db (Filesystem subpath under data dir root)"
+      code_evidence:
+        - Cargo.toml
+        - crates/corpus/src/lib.rs
+        - crates/security/src/lib.rs
+        - pulse-app/src/storage_router.rs
+        - pulse-app/src/main.rs
   archive:
     - amendment_id: 2026-05-18T17-38-50-append-chunk-68-corpus-sqlite-scaffold
       plans:
