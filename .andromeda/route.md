@@ -16,7 +16,7 @@ unit) not HOW (implementation steps)._
 
 ## 1. Route Scope Summary
 
-- **Total chunks:** 66
+- **Total chunks:** 67
 - **Epochs:** 9 (Foundation, Ingest pipeline, Storage & query, Webview shell + TauRPC bridge, Visualization surfaces, Snapshot & Investigate, Plugin runtime + MCP server, Polish & ship, Foundation v0.2.0)
 - **Drilldown depth (avg):** 1.6 (mixed: Foundation depth 2, Ingest pipeline depth 1, Storage & query depth 2, Webview shell depth 1, Visualization surfaces depth 2, Snapshot depth 2, Plugin+MCP depth 2, Polish depth 1)
 - **Hierarchy mode:** mixed (3-level for dense epochs Foundation / Storage / Visualization / Snapshot / Plugin+MCP; 2-level for lighter epochs Ingest / Webview shell / Polish)
@@ -166,6 +166,8 @@ Activity floor learning + corpus persistence — per-service 24h rolling histogr
 Span events ingestion — extend OTLP decode in appender.rs to populate span_events table; redaction layer preserved (capability P-006; detail in pulse-v0_2_0-route §65).
    ↓
 Exception fingerprinting + retry storm detector — hash(exception.type + normalized stack) per span event; ≥5/30s emits Suggested cue, ≥10 Autonomous (capabilities P-017/P-018; detail in pulse-v0_2_0-route §66).
+   ↓
+Service registry + lifecycle state machine — seven states (Unknown→Bootstrapping→Active→Quiet→Silent→Dormant→Archived) per service; corpus history lookup on Archived→Active (capability P-027; detail in pulse-v0_2_0-route §68).
 
 ---
 
@@ -315,3 +317,12 @@ Exception fingerprinting + retry storm detector — hash(exception.type + normal
 - **Why:** L1c fingerprinting + L2 storm detection; capabilities P-017/P-018; depends on chunks #65 (span_events.fingerprint substrate landed at session 86 wrap 0bd0d76) + #60 (triage pattern module). Mirrors chunk #65 precedent.
 - **Mechanical:** §1 Total chunks 65 → 66 (Form 1 P6 mechanical auto-update; Policy A strict mechanical).
 - **Marker:** `.andromeda/runs/2026-05-17T22-01-44-spec-amendment-append-chunk-66-exception-fingerprinting-retry-storm/amendment.md`
+
+---
+
+`2026-05-17` — Append chunk #67 service registry + lifecycle state machine (--allow-route-append)
+
+- **Insert:** chunk #67 at §2 Epoch 9 — Foundation v0.2.0 (text: see §2; full detail in pulse-v0_2_0-route.md §Phase 4 line 276).
+- **Why:** L1b service identity layer; capability P-027 (Service Constellation Auto-Discovery — formal lifecycle); depends on chunks #61 (baseline trackers, complete) + #63 (restart detector, complete). Registering at route position #67 because v0.2.0-plan chunk #67 (Drain Rust) blocked on Pre-D2 spike validation. Mirrors chunk #66 precedent.
+- **Mechanical:** §1 Total chunks 66 → 67 (Form 1 P6 mechanical auto-update; Policy A strict mechanical).
+- **Marker:** `.andromeda/runs/2026-05-17T23-51-55-spec-amendment-append-chunk-67-service-registry-lifecycle/amendment.md`

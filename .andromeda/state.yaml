@@ -32,7 +32,45 @@ living_artifact_freshness:
 drift_warnings: []
 
 spec_amendments:
-  active: []
+  active:
+    - amendment_id: 2026-05-17T23-51-55-append-chunk-67-service-registry-lifecycle
+      plans:
+        - path: route.md
+          sections:
+            - "§1 Route Scope Summary (Total chunks mechanical update per Proposal 6)"
+            - "§2 Roadmap (Epoch 9 body)"
+            - "§3 Decisions Log"
+          decisions_log_section: "2026-05-17 — Append chunk #67 service registry + lifecycle state machine (--allow-route-append)"
+      trigger:
+        chunk: null
+        phase: null
+        harness: "user-driven via /andromeda-evolve"
+      authority:
+        winning_plan: route.md
+        winning_tier: pipeline state
+        losing_plan: route.md
+        losing_concern: chunk-list-stale-vs-pipeline-reality
+        rationale: "Chunk #68 in pulse-v0_2_0-route.md unblocked (deps #61 + #63 landed); registers at route position #67. P-027 prerequisite for #82 (constellation rendering). Mirrors chunk #66 append precedent."
+      impl_files_synced: []
+      expected_propagation:
+        - "CLAUDE.md (GENERATED:setup:pointer-table — (9 epochs / 66 chunks) → (9 epochs / 67 chunks))"
+      marker_path: .andromeda/runs/2026-05-17T23-51-55-spec-amendment-append-chunk-67-service-registry-lifecycle/amendment.md
+      applied_at: 2026-05-17T23:51:55Z
+      noted_at: null
+      propagated_by_run: .andromeda/runs/2026-05-18T00-00-24-setup-project-delta/
+      archived_at: null
+      verification_status: clean
+      flag_used: --allow-route-append
+      form: 1
+      route_section_modified: "Epoch 9 — Foundation v0.2.0"
+      chunks_added:
+        - position: 67
+          text: "Service registry + lifecycle state machine — seven states (Unknown→Bootstrapping→Active→Quiet→Silent→Dormant→Archived) per service; corpus history lookup on Archived→Active (capability P-027; detail in pulse-v0_2_0-route §68)."
+      chunks_renumbered: []
+      motivation: "Capability P-027 (Service Constellation Auto-Discovery) unblocked by chunks #61 + #63 landing per session 88 handoff Next Recommended Action. Spec lives in pulse-v0_2_0-route.md §Phase 4 line 276 (v0.2.0 plan §68). Registered at route position #67 because v0.2.0-plan chunk #67 (Drain Rust) blocked on Pre-D2 spike validation."
+      confirmed_shift: false
+      scope_summary_updates:
+        - "Total chunks: 66 → 67"
   archive:
     - amendment_id: 2026-05-17T22-01-44-append-chunk-66-exception-fingerprinting-retry-storm
       plans:
