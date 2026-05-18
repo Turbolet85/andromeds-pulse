@@ -1,13 +1,13 @@
 schema_version: 2
-last_wrap: 2026-05-17T23:30:42Z
-last_reconcile: 2026-05-17T23:30:42Z
+last_wrap: 2026-05-18T00:08:04Z
+last_reconcile: 2026-05-18T00:08:04Z
 
 last_completed_chunk:
   route_index: 66
   title: "Exception fingerprinting + retry storm detector — hash(exception.type + normalized stack) per span event; ≥5/30s emits Suggested cue, ≥10 Autonomous (capabilities P-017/P-018; detail in pulse-v0_2_0-route §66). Implementation: `crates/buffer/src/fingerprint.rs` (NEW — FingerprintObserver trait + ExceptionFingerprint type + compute_exception_fingerprint via blake3 + hand-rolled normalize_stacktrace strips paths/addresses/line-numbers + truncates к first 3 frames + NoopFingerprintObserver fallback + fingerprint_to_hex_prefix bounded-cardinality helper + 16 tests) + `crates/buffer/src/appender.rs` (build_span_events_record_batch signature extended с Option<&dyn FingerprintObserver> + per-row fingerprint compute and populate + observer fan-out before Int64Array consumes ts_unix_nanos + 3 new tests) + `crates/buffer/src/consumer.rs` (run_consumer + dispatch_batch signatures threaded observer parameter + 1 new integration test) + `crates/triage/src/pattern/storm.rs` (NEW — RetryStormDetector с DashMap<[u8;16], FingerprintState> + 60s rolling window + 30s detection sub-window + record_occurrence per-tier one-shot dedup + observe_and_dispatch_storm + run_one_storm_cycle prunes expired fingerprints + start_storm_detector 15s heartbeat task + 4 pub const + StormCycleStats + 17 tests covering threshold matrix + window-reset + per-fingerprint isolation + PII negative-canary + identifier-class field discipline) + `crates/triage/src/pattern/mod.rs` (mod storm; + 6 new tracing target consts) + `crates/triage/src/contract.rs` (10 new storm re-exports) + `pulse-app/src/storm_observer.rs` (NEW — StormObserverAdapter wraps detector + cue_broadcast Arcs к implement FingerprintObserver by delegating к observe_and_dispatch_storm + 2 tests) + `pulse-app/src/lib.rs` (+pub mod storm_observer) + `pulse-app/src/main.rs` (boot wiring: storm_detector Arc + StormObserverAdapter Arc<dyn FingerprintObserver> threaded к run_consumer + tokio::spawn start_storm_detector heartbeat alongside chunk #63 start_restart_detector spawn) + `pulse-app/src/observability.rs` (6 new AllowList per-target entries для triage.pattern.storm.{detected,emit,tick} + metric.triage.pattern.{storm_detected_count,fingerprints_tracked,fingerprint_evicted_count} + 1 probe test asserting identifier-class fields only). Workspace deps: `blake3 = \"1\"` added к Cargo.toml [workspace.dependencies] + crates/buffer/Cargo.toml blake3.workspace = true + deny.toml [bans] skip cpufeatures (blake3's transitive 0.3 vs sha2's 0.2 ABI bump). Integration: `pulse-app/tests/e2e_storm_detection.rs` (NEW — live tonic gRPC → :4317 injects 10 identical-fingerprint exception events → asserts Suggested at 5th + Autonomous at 10th broadcast + DuckDB direct SELECT verifies fingerprint column populated с 1 distinct value across 10 rows) + 3 existing e2e test signature updates (e2e_p1 / e2e_p6 / perf_slo_10k_spans run_consumer 6-arg call passing None). +40 net-new tests."
   epoch: 9
   committed_at: 2026-05-17T23:30:42Z
-  commit_sha: 9d6da21
+  commit_sha: 95f0411
   commit_subject: "feat(triage): chunk #66 — exception fingerprinting + retry storm detector (Epoch 9 Foundation v0.2.0 tenth chunk); session 88 wrap"
 
 in_progress: null
@@ -20,19 +20,20 @@ plan_freshness:
   tests_mtime: 2026-05-10T12:55:51Z
   obs_mtime: 2026-05-08T18:00:16Z
   a11y_mtime: 2026-05-02T21:45:23Z
-  route_mtime: 2026-05-17T22:09:09Z
+  route_mtime: 2026-05-17T23:58:38Z
   input_mtime: 2026-05-02T06:52:58Z
 
 living_artifact_freshness:
-  dep_tree_reconciled_at: 2026-05-17T23:30:42Z
-  api_surface_reconciled_at: 2026-05-17T23:30:42Z
+  dep_tree_reconciled_at: 2026-05-18T00:08:04Z
+  api_surface_reconciled_at: 2026-05-18T00:08:04Z
   most_recent_code_mtime: 2026-05-17T23:23:38Z
   reconcile_failed: false
 
 drift_warnings: []
 
 spec_amendments:
-  active:
+  active: []
+  archive:
     - amendment_id: 2026-05-17T23-51-55-append-chunk-67-service-registry-lifecycle
       plans:
         - path: route.md
@@ -40,38 +41,11 @@ spec_amendments:
             - "§1 Route Scope Summary (Total chunks mechanical update per Proposal 6)"
             - "§2 Roadmap (Epoch 9 body)"
             - "§3 Decisions Log"
-          decisions_log_section: "2026-05-17 — Append chunk #67 service registry + lifecycle state machine (--allow-route-append)"
-      trigger:
-        chunk: null
-        phase: null
-        harness: "user-driven via /andromeda-evolve"
-      authority:
-        winning_plan: route.md
-        winning_tier: pipeline state
-        losing_plan: route.md
-        losing_concern: chunk-list-stale-vs-pipeline-reality
-        rationale: "Chunk #68 in pulse-v0_2_0-route.md unblocked (deps #61 + #63 landed); registers at route position #67. P-027 prerequisite for #82 (constellation rendering). Mirrors chunk #66 append precedent."
-      impl_files_synced: []
-      expected_propagation:
-        - "CLAUDE.md (GENERATED:setup:pointer-table — (9 epochs / 66 chunks) → (9 epochs / 67 chunks))"
-      marker_path: .andromeda/runs/2026-05-17T23-51-55-spec-amendment-append-chunk-67-service-registry-lifecycle/amendment.md
-      applied_at: 2026-05-17T23:51:55Z
-      noted_at: null
+      decisions_log_sections:
+        - "2026-05-17 — Append chunk #67 service registry + lifecycle state machine (--allow-route-append)"
       propagated_by_run: .andromeda/runs/2026-05-18T00-00-24-setup-project-delta/
-      archived_at: null
-      verification_status: clean
+      archived_at: 2026-05-18T00:08:04Z
       flag_used: --allow-route-append
-      form: 1
-      route_section_modified: "Epoch 9 — Foundation v0.2.0"
-      chunks_added:
-        - position: 67
-          text: "Service registry + lifecycle state machine — seven states (Unknown→Bootstrapping→Active→Quiet→Silent→Dormant→Archived) per service; corpus history lookup on Archived→Active (capability P-027; detail in pulse-v0_2_0-route §68)."
-      chunks_renumbered: []
-      motivation: "Capability P-027 (Service Constellation Auto-Discovery) unblocked by chunks #61 + #63 landing per session 88 handoff Next Recommended Action. Spec lives in pulse-v0_2_0-route.md §Phase 4 line 276 (v0.2.0 plan §68). Registered at route position #67 because v0.2.0-plan chunk #67 (Drain Rust) blocked on Pre-D2 spike validation."
-      confirmed_shift: false
-      scope_summary_updates:
-        - "Total chunks: 66 → 67"
-  archive:
     - amendment_id: 2026-05-17T22-01-44-append-chunk-66-exception-fingerprinting-retry-storm
       plans:
         - path: route.md
@@ -421,4 +395,4 @@ spec_amendments:
       propagated_by_run: .andromeda/runs/2026-05-11T19-00-00-setup-project-delta/
       archived_at: 2026-05-11T19:25:00Z
 
-session_count: 88
+session_count: 89
