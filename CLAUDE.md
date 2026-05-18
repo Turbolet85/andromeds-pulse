@@ -6,10 +6,10 @@
 <!-- GENERATED:setup:overview start -->
 Cross-platform Tauri 2 desktop dashboard for local OpenTelemetry — receives OTLP telemetry from any local app, visualizes traces/metrics/logs in a GPU-accelerated webview, runs as a quarter-screen always-visible glance widget plus a full expanded dashboard, and one-click "Investigate" generates a token-efficient curated markdown snapshot for paste-to-AI debug sessions. Optional rmcp MCP stdio sidecar lets AI agents query telemetry directly. Public OSS (MIT) on GitHub Releases.
 
-**Stack:** Rust 2024 / rustc 1.85+ + Tauri 2.x (single-process modular monolith, 10 library crates + `pulse-app` binary + `xtask`) — `tonic` 0.14 OTLP/gRPC `:4317`, `axum` 0.8 OTLP/HTTP `:4318` on `hyper` 1 + `tower`, DuckDB 1.5 in-memory ring buffer with Apache Arrow zero-copy, React 19 + Tailwind v4 + WebGPU/WGSL webview via TauRPC, `wasmtime` 25+ Component Model plugins (current pin 43.0.2 — chunk #45 upgrade per security audit), `rmcp` (feature-gated) MCP sidecar.
+**Stack:** Rust 2024 / rustc 1.85+ + Tauri 2.x (single-process modular monolith, 12 library crates + `pulse-app` binary + `xtask`) — `tonic` 0.14 OTLP/gRPC `:4317`, `axum` 0.8 OTLP/HTTP `:4318` on `hyper` 1 + `tower`, DuckDB 1.5 in-memory ring buffer with Apache Arrow zero-copy, persistent SQLite incident corpus (chunk #68; OS-keychain-encrypted cell-level AES-256-GCM), React 19 + Tailwind v4 + WebGPU/WGSL webview via TauRPC, `wasmtime` 25+ Component Model plugins (current pin 43.0.2 — chunk #45 upgrade per security audit), `rmcp` (feature-gated) MCP sidecar.
 
 **Key directories:**
-- `crates/` — 10 library crates (`ingest` / `buffer` / `viz` / `ui-bridge` / `snapshot` / `curation` / `triage` / `workspace-detector` / `plugins` / `mcp-server`)
+- `crates/` — 12 library crates (`ingest` / `buffer` / `viz` / `ui-bridge` / `snapshot` / `curation` / `triage` / `workspace-detector` / `plugins` / `mcp-server` / `corpus` / `security`)
 - `pulse-app/` — Tauri binary crate; `tauri.conf.json` + `capabilities/` JSON + `src/main.rs` + `ui/` webview source
 - `xtask/` — cargo-xtask: release / sign / notarize / capability-drift / agent-run harness
 - `.github/workflows/` — `ci.yml` matrix Linux/macOS/Windows + `release.yml` (`tauri-action`) + `update-channels.yml` (Homebrew + Scoop)
@@ -28,6 +28,8 @@ Cross-platform Tauri 2 desktop dashboard for local OpenTelemetry — receives OT
 - **`workspace-detector`** — host project context (`.andromeda/` marker + VCS metadata); `workspace.{detect,list}`.
 - **`plugins`** — `wasmtime` 25+ Component Model host with WIT capability-scoping; loader from `~/.andromeda-pulse/plugins/`; `plugins.{list,reload,invoke}`. Chunk #45 substrate: Engine + Config posture (Cranelift on x86_64; epoch_interruption(true)) + WIT for 3 categories (custom-dashboard/data-transform/snapshot-template).
 - **`mcp-server`** — `rmcp` stdio sidecar (feature-gated `--features mcp-server`); `query_traces` / `query_metrics` / `query_logs` / `generate_snapshot` `#[tool]` methods; `mcp.{status,start,stop}`.
+- **`corpus`** — Persistent incident corpus SQLite backend (chunk #68 — Epoch 9 Foundation v0.2.0): 6 schema tables (`baseline_state` / `service_registry` / `pipeline_metrics` / `incidents` / `incident_events` / `digest_archive`) per dist-arch v3; first-launch idempotent migration via PRAGMA user_version; cell-level AES-256-GCM encryption with key sourced from OS keychain (macOS Keychain / Linux Secret Service / Windows DPAPI) via `keyring` crate + fake in-memory backend for tests. `CorpusReader` trait + `Corpus` connection root + `Error` enum. Consumed by `pulse-app::storage_router` for `storage.{inspect,path}` TauRPC. Capabilities P-041 / P-047–P-051.
+- **`security`** — PII scrubber primitive (chunk #68 — Epoch 9 Foundation v0.2.0): 7 P-047 categories (JWT / bearer token / API key / secret KV / email / credit card / SSN) via OnceLock-cached compiled regex set; `ScrubbedValue::{Allowed, Redacted}` enum + `scrub_attribute()` fn. Consumed by `corpus` at ingestion AND eventually by `pulse-app::observability` subscriber Layer (defense-in-depth; deferred to chunk #70+).
 - **`pulse-app`** — Tauri 2 binary crate; tokio runtime owner; `pulse-app/capabilities/` JSON files; bundle id `com.andromeda.pulse`.
 - **`xtask`** — cargo-xtask: release / sign / notarize / changelog + agent-run 5-command harness (boot/run/status/cleanup/logs).
 <!-- GENERATED:setup:modules end -->
@@ -68,7 +70,7 @@ Cross-platform Tauri 2 desktop dashboard for local OpenTelemetry — receives OT
 | Module dependency graph (living artifact) | `.andromeda/context/dependency-tree.md` |
 | API surface (living artifact) | `.andromeda/context/api-surface.md` |
 | Specialist summaries (security / design / tests / obs / a11y) | `.claude/docs/{specialist}-summary.md` |
-| Per-module implementation notes (10 crates) | `.claude/docs/services/{module}.md` |
+| Per-module implementation notes (12 crates) | `.claude/docs/services/{module}.md` |
 | Stack / commands / conventions / gotchas / workflow | `.claude/docs/{topic}.md` |
 | Path-scoped rules (security / testing / observability / a11y / verification-harness / design-tokens / frontend) | `.claude/rules/{rule}.md` |
 | Session learnings (curated) + handoff (state across sessions) | `.claude/docs/session-learnings.md` + `.claude/session-handoff.md` |
@@ -109,7 +111,7 @@ Local-first, zero-infrastructure modular monolith: every byte of telemetry stays
 On-demand references in `.claude/docs/` (Claude reads when relevant):
 - Specialist summaries: `security-summary.md` / `design-summary.md` / `tests-summary.md` / `obs-summary.md` / `a11y-summary.md`
 - Core: `stack.md` / `conventions.md` / `commands.md` / `gotchas.md` / `workflow.md`
-- `services/{name}.md` — per-module implementation notes (`ingest` / `buffer` / `viz` / `ui-bridge` / `snapshot` / `workspace-detector` / `plugins` / `mcp-server`)
+- `services/{name}.md` — per-module implementation notes (`ingest` / `buffer` / `viz` / `ui-bridge` / `snapshot` / `curation` / `triage` / `corpus` / `security` / `workspace-detector` / `plugins` / `mcp-server`)
 - `session-learnings.md` — curated by /wrap-session
 
 Path-scoped rules in `.claude/rules/` (auto-load when matching files touched):
