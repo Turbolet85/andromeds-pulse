@@ -6,6 +6,28 @@ _Entries are added in reverse chronological order (newest first). Each entry has
 
 _This file is entirely wrap-session's territory. `/setup-project` creates it if missing but NEVER regenerates it. Manual edits are preserved across all Andromeda skill runs._
 
+## 2026-05-18 (session 92) — route.md ↔ v0.2.0-plan chunk-numbering divergence: stable pattern after two consecutive divergent registrations (confidence 0.80)
+
+The route.md and `docs/v0_2_0/pulse-v0_2_0-route.md` chunk numbering have diverged by -1 since chunk #67 registration (session 89). The divergence originated because v0.2.0-plan chunk #67 "Drain Rust implementation" is blocked on Pre-D2 spike validation per pulse-v0_2_0-route ordering note ("Don't start without spike confirmation of estimate"); the practical-next chunk at that time was v0.2.0-plan §68 "Service registry + lifecycle state machine" (capability P-027), which got registered as route.md chunk #67.
+
+Session 92 reinforced the pattern: user CLI arg to `/andromeda-evolve --allow-route-append` named "#69 — Corpus SQLite scaffold + schema + encryption + PII scrubber" (verbatim match for v0.2.0-plan §69 heading). Skill made the reasonable call to register as route.md chunk #68 (next sequential after committed #67) sourcing from v0.2.0-plan §69, mirroring the chunk #67 precedent.
+
+**Stable rule going forward:** when user supplies `#N` in CLI args that matches a v0.2.0-plan source-doc chunk number but route.md target position differs:
+1. Source-of-truth reference: use v0.2.0-plan's chunk number (cite as `pulse-v0_2_0-route §N` in marker Motivation + Decisions Log)
+2. Route.md target position: use next sequential after `state.yaml.last_completed_chunk.route_index` (NOT the source-doc number)
+3. Marker Authority resolution rationale: cite the divergence + mirror the chunk #67 precedent of route↔v0.2.0-plan numbering offset
+
+**Numbering math (current state, post-session-92):**
+- v0.2.0-plan §67 = "Drain Rust" (blocked; not yet registered in route.md)
+- v0.2.0-plan §68 = "Service registry + lifecycle state machine" = route.md chunk #67 (committed `fafd7c8`)
+- v0.2.0-plan §69 = "Corpus SQLite scaffold + schema + encryption + PII scrubber" = route.md chunk #68 (registered session 92)
+- v0.2.0-plan §70 = "Incident records + lifecycle persistence" → next route.md target #69 (when registered)
+- Drain Rust will re-enter the sequence when Pre-D2 spike validates; route.md position will be max(current_route_index) + 1 at registration time, NOT v0.2.0-plan §67 retroactively
+
+**Generalizes beyond v0.2.0:** this pattern applies to any future scope-doc-vs-route-doc numbering offset when an upstream chunk is skipped/blocked. The route.md is authoritative for sequential position; source-doc citations preserve traceability. Without this discipline, agents would either (a) silently re-number route to match source-doc (breaking historical commit refs that cite route position) or (b) refuse the user's verbatim source-doc reference (forcing manual translation each cycle).
+
+---
+
 ## 2026-05-18 — state.yaml.last_completed_chunk.title YAML quote-escape discipline (wrap-session Phase 8)
 
 **Defect observed (session 90 wrap):** state.yaml became unparseable by strict YAML (`python -c "import yaml; yaml.safe_load(...)"` failed at line 7 col 2283) because session 90's wrap stuffed a ~12K-char implementation-detail dump into `last_completed_chunk.title` using double-quoted form `title: "..."`. The dump included substrings like `["dep:specta"]` and `\"services.list_with_states\"` with embedded inner double quotes; YAML's double-quoted-string form requires backslash-escape for inner `"`, which the wrap did not consistently apply (some escapes present, others not).
