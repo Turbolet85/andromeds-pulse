@@ -6,6 +6,22 @@ _Entries are added in reverse chronological order (newest first). Each entry has
 
 _This file is entirely wrap-session's territory. `/setup-project` creates it if missing but NEVER regenerates it. Manual edits are preserved across all Andromeda skill runs._
 
+## 2026-05-18 (session 95) — Type 6 amendment → CLAUDE.md cascade: --delta is lifecycle-only; full /andromeda-setup-project is the realignment path (confidence 0.8)
+
+`/andromeda-evolve --allow-arch-registry` Type 6 amendments with `expected_propagation: []` (the typical Type 6 shape per `spec-amendment-protocol.md` Part D Narrow exception) propagate via `/andromeda-setup-project --delta` as **lifecycle progression only** — no Tier 2/3 regeneration, no CLAUDE.md re-materialization. This is correct protocol behavior, but creates a recurring trap: CLAUDE.md mirrors arch §Inherited Defaults / Stack / Modules content in its `setup:overview` (Stack one-liner crate count, Key directories crate enumeration), `setup:modules` (per-crate entries), and `setup:pointer-table` (services row count). Each Type 6 amendment that adds a workspace crate (chunks #58 curation, #60 triage, #68 corpus+security per session 95 evidence) leaves these derived sections stale until a separate cycle restores alignment.
+
+**Operational guidance (current workflow, pre-Proposal-12):**
+
+- **Choose `/andromeda-setup-project --delta` when:** amendment's `expected_propagation` lists explicit Tier 2/3 targets (most non-Type-6 cases) OR Type 6 amendment is purely arch-internal (e.g., adding a TauRPC procedure that no CLAUDE.md section enumerates). Honors the literal Type 6 permit path — cheap, atomic, audit-trail clean.
+- **Choose full `/andromeda-setup-project` (NOT --delta) when:** Type 6 amendment adds workspace crate(s), capability identifiers, or other content that CLAUDE.md `setup:*` sections enumerate. Full re-derive regenerates derived CLAUDE.md sections from the now-updated arch upstream. Heavier than --delta but properly reconciles ecosystem.
+- **Pre-existing arch.md structural narrative staleness** (e.g., §Design Philosophy "eight library crates", §Project Intent "eight Rust crates", §Infrastructure Patterns "eight library crates" — all stale at 12 after chunks #58/#60/#68) **is NOT addressed by setup-project re-run** — setup-project faithfully mirrors arch upstream. Only `/andromeda-arch` re-plan OR manual edit of structural arch sections fixes those (Refuse 1 strict scope keeps Type 6 evolve flag away from structural sections).
+
+**Companion Andromeda improvement:** Proposal 12 (filed session 94) proposes the structural fix — extending `/andromeda-evolve` Phase 4 to pre-populate `expected_propagation: [CLAUDE.md]` when registry section appears in CLAUDE.md derived sections. Until P12 lands, the operational guidance above is the workflow discipline.
+
+**Surgical-fix-within-full-re-derive is acceptable.** This session's setup-project run skipped Phase 2 (rule files unchanged) / Phase 4 (agent harness unchanged) / Phase 5 (reviewer + hooks + .gitignore unchanged) — running them would have produced no diff. The materialization-plan captured the limited scope; Phases 1 (CLAUDE.md regen) + 3 (4 new services stubs) did the actual work. Total commit: 5 files. Full re-derive ≠ rewrite-everything; it's "regenerate everything that could change from updated upstreams; preserve everything else byte-identical."
+
+---
+
 ## 2026-05-18 (session 93) — Standard-gate baseline catches inherited tech debt; Option-A scope expansion appropriate for ≤5-line mechanical fixes (confidence 0.75)
 
 The chunk-gate-baseline trigger (testing.md Pending coverage triggers 2026-05-10) mandates the FULL standard gate set (cargo fmt + clippy + nextest + capability-drift + npm lint/typecheck/test) for every chunk regardless of scope. At chunk #68 implementation, this trigger surfaced a pre-existing chunk #67 regression: `pulse-app/ui/src/dashboard/routes/SettingsModalForm.{tsx,test.tsx}` had Settings fixtures missing `lifecycle_dormant_after_secs` + `lifecycle_archived_after_secs` (added to the `Settings` struct in chunk #67 but never propagated to UI consumers). The regression was verified pre-existing via `git stash && npm run typecheck` on the HEAD baseline (87788c1, session 92 wrap) reproducing the exact same 2 errors.

@@ -1,6 +1,6 @@
 schema_version: 2
-last_wrap: 2026-05-18T20:20:19Z
-last_reconcile: 2026-05-18T20:20:19Z
+last_wrap: 2026-05-18T20:58:45Z
+last_reconcile: 2026-05-18T20:58:45Z
 
 last_completed_chunk:
   route_index: 68
@@ -24,18 +24,12 @@ plan_freshness:
   input_mtime: 2026-05-02T06:52:58Z
 
 living_artifact_freshness:
-  dep_tree_reconciled_at: 2026-05-18T20:20:19Z
-  api_surface_reconciled_at: 2026-05-18T20:20:19Z
+  dep_tree_reconciled_at: 2026-05-18T20:58:45Z
+  api_surface_reconciled_at: 2026-05-18T20:58:45Z
   most_recent_code_mtime: 2026-05-18T19:31:51Z
   reconcile_failed: false
 
-drift_warnings:
-  - drift_id: D5
-    description: "Plan-to-CLAUDE.md drift: arch.md (2026-05-18T20:01:41Z) regenerated since last setup-project run; Case 4 Type 6 arch registry — matched amendment 2026-05-18T19-55-24-acknowledge-chunk-68-corpus-additions with flag_used=--allow-arch-registry + propagated_by_run set + archived_at=null at Phase 6 detection time. Severity info. Amendment archived this wrap; next wrap will downgrade to Case 3 generic warning until CLAUDE.md re-materialized."
-    severity: info
-    remediation_hint: "Full `/andromeda-setup-project` re-derive (NOT --delta) absorbs chunk #68 additions into CLAUDE.md Stack one-liner + Modules section + Key directories list. Alternative: manual edit of CLAUDE.md derived sections. Proposal 12 in docs/andromeda-improvements.md addresses this structurally for future Type 6 amendments."
-    first_observed_session_count: 94
-    last_observed_session_count: 94
+drift_warnings: []
 
 spec_amendments:
   active: []
@@ -439,4 +433,4 @@ spec_amendments:
       propagated_by_run: .andromeda/runs/2026-05-11T19-00-00-setup-project-delta/
       archived_at: 2026-05-11T19:25:00Z
 
-session_count: 94
+session_count: 95
