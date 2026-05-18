@@ -16,7 +16,7 @@ unit) not HOW (implementation steps)._
 
 ## 1. Route Scope Summary
 
-- **Total chunks:** 67
+- **Total chunks:** 68
 - **Epochs:** 9 (Foundation, Ingest pipeline, Storage & query, Webview shell + TauRPC bridge, Visualization surfaces, Snapshot & Investigate, Plugin runtime + MCP server, Polish & ship, Foundation v0.2.0)
 - **Drilldown depth (avg):** 1.6 (mixed: Foundation depth 2, Ingest pipeline depth 1, Storage & query depth 2, Webview shell depth 1, Visualization surfaces depth 2, Snapshot depth 2, Plugin+MCP depth 2, Polish depth 1)
 - **Hierarchy mode:** mixed (3-level for dense epochs Foundation / Storage / Visualization / Snapshot / Plugin+MCP; 2-level for lighter epochs Ingest / Webview shell / Polish)
@@ -168,6 +168,8 @@ Span events ingestion — extend OTLP decode in appender.rs to populate span_eve
 Exception fingerprinting + retry storm detector — hash(exception.type + normalized stack) per span event; ≥5/30s emits Suggested cue, ≥10 Autonomous (capabilities P-017/P-018; detail in pulse-v0_2_0-route §66).
    ↓
 Service registry + lifecycle state machine — seven states (Unknown→Bootstrapping→Active→Quiet→Silent→Dormant→Archived) per service; corpus history lookup on Archived→Active (capability P-027; detail in pulse-v0_2_0-route §68).
+   ↓
+Corpus SQLite scaffold + schema + encryption + PII scrubber — new `crates/corpus/`; OS-keychain encryption; security-crate PII scrubber primitive (capabilities P-041/P-047–P-051; detail in pulse-v0_2_0-route §69).
 
 ---
 
@@ -326,3 +328,12 @@ Service registry + lifecycle state machine — seven states (Unknown→Bootstrap
 - **Why:** L1b service identity layer; capability P-027 (Service Constellation Auto-Discovery — formal lifecycle); depends on chunks #61 (baseline trackers, complete) + #63 (restart detector, complete). Registering at route position #67 because v0.2.0-plan chunk #67 (Drain Rust) blocked on Pre-D2 spike validation. Mirrors chunk #66 precedent.
 - **Mechanical:** §1 Total chunks 66 → 67 (Form 1 P6 mechanical auto-update; Policy A strict mechanical).
 - **Marker:** `.andromeda/runs/2026-05-17T23-51-55-spec-amendment-append-chunk-67-service-registry-lifecycle/amendment.md`
+
+---
+
+`2026-05-18` — Append chunk #68 corpus SQLite scaffold + schema + encryption + PII scrubber (--allow-route-append)
+
+- **Insert:** chunk #68 at §2 Epoch 9 — Foundation v0.2.0 (text: see §2; full detail in pulse-v0_2_0-route.md §Phase 5 line 329).
+- **Why:** L5 persistence foundation; capabilities P-041 + P-047–P-051; foundational chunk many subsequent v0.2.0 chunks depend on (#64 / #66 / #70 / #71 / #73 / #74 / #78 / #84 / #85). Mirrors chunk #67 precedent.
+- **Mechanical:** §1 Total chunks 67 → 68 (Form 1 P6 mechanical auto-update; Policy A strict mechanical).
+- **Marker:** `.andromeda/runs/2026-05-18T17-38-50-spec-amendment-append-chunk-68-corpus-sqlite-scaffold/amendment.md`

@@ -32,7 +32,45 @@ living_artifact_freshness:
 drift_warnings: []
 
 spec_amendments:
-  active: []
+  active:
+    - amendment_id: 2026-05-18T17-38-50-append-chunk-68-corpus-sqlite-scaffold
+      plans:
+        - path: route.md
+          sections:
+            - "§1 Route Scope Summary (Total chunks mechanical update per Proposal 6)"
+            - "§2 Roadmap (Epoch 9 body)"
+            - "§3 Decisions Log"
+          decisions_log_section: "2026-05-18 — Append chunk #68 corpus SQLite scaffold + schema + encryption + PII scrubber (--allow-route-append)"
+      trigger:
+        chunk: null
+        phase: null
+        harness: "user-driven via /andromeda-evolve"
+      authority:
+        winning_plan: pulse-v0_2_0-route.md
+        winning_tier: pipeline state
+        losing_plan: route.md
+        losing_concern: chunk-list-stale-vs-pipeline-reality
+        rationale: "Capability cluster P-041 + P-047 through P-051 spec from v0.2.0 plan §69 (Phase 5 — Corpus foundation, line 329) is unblocked foundational chunk with no upstream deps; many subsequent v0.2.0 chunks (#64/#66/#70/#71/#73/#74/#78/#84/#85) depend on corpus availability. Registering at route position #68 mirrors chunk #67 precedent of route↔v0.2.0-plan numbering divergence (route#67 sourced from v0.2.0-§68; route#68 sources from v0.2.0-§69)."
+      impl_files_synced: []
+      expected_propagation:
+        - "CLAUDE.md <!-- GENERATED:setup:pointer-table --> section — chunk-count line cascades from (9 epochs / 67 chunks) to (9 epochs / 68 chunks). Pre-populated per Proposal 5 (Type 7 cascade visibility); confirmed CLAUDE.md line 54 within GENERATED:setup:pointer-table block (lines 50-78)."
+      marker_path: .andromeda/runs/2026-05-18T17-38-50-spec-amendment-append-chunk-68-corpus-sqlite-scaffold/amendment.md
+      applied_at: 2026-05-18T17:38:50Z
+      noted_at: null
+      propagated_by_run: .andromeda/runs/2026-05-18T17-54-32-setup-project-delta/
+      archived_at: null
+      verification_status: clean
+      flag_used: --allow-route-append
+      form: 1
+      route_section_modified: "Epoch 9 — Foundation v0.2.0"
+      chunks_added:
+        - position: 68
+          text: "Corpus SQLite scaffold + schema + encryption + PII scrubber — new `crates/corpus/`; OS-keychain encryption; security-crate PII scrubber primitive (capabilities P-041/P-047–P-051; detail in pulse-v0_2_0-route §69)."
+      chunks_renumbered: []
+      motivation: "Capability cluster P-041 (Persistent Incident Corpus scaffold) + P-047 (PII Scrubbing at Ingestion) + P-048 (No Raw OTLP Attribute Values Stored) + P-049 (Encryption at Rest) + P-050 (Cross-Project Sharing Opt-In default) + P-051 (Transparent Storage) is foundational for v0.2.0. Spec lives at pulse-v0_2_0-route.md §Phase 5 line 329. No upstream deps per §69 line 333 (parallel-safe with prior phases). Many subsequent v0.2.0 chunks depend on corpus availability (#64 activity-floor persistence, #66 fingerprint persistence, #70 incident records, #71 SQL aggregation, #73 digest pipeline, #74 LLM corpus retrieval, #78 findings counter, #84 MCP, #85 community export). Session 91 handoff Next Recommended Action surfaced this as the cleanest next step."
+      confirmed_shift: false
+      scope_summary_updates:
+        - "Total chunks: 67 → 68"
   archive:
     - amendment_id: 2026-05-18T16-53-11-acknowledge-services-namespace
       plans:
