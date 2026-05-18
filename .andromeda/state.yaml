@@ -1,6 +1,6 @@
 schema_version: 2
-last_wrap: 2026-05-18T20:58:45Z
-last_reconcile: 2026-05-18T20:58:45Z
+last_wrap: 2026-05-18T21:26:03Z
+last_reconcile: 2026-05-18T21:26:03Z
 
 last_completed_chunk:
   route_index: 68
@@ -20,19 +20,20 @@ plan_freshness:
   tests_mtime: 2026-05-10T12:55:51Z
   obs_mtime: 2026-05-08T18:00:16Z
   a11y_mtime: 2026-05-02T21:45:23Z
-  route_mtime: 2026-05-18T17:47:15Z
+  route_mtime: 2026-05-18T21:18:11Z
   input_mtime: 2026-05-02T06:52:58Z
 
 living_artifact_freshness:
-  dep_tree_reconciled_at: 2026-05-18T20:58:45Z
-  api_surface_reconciled_at: 2026-05-18T20:58:45Z
+  dep_tree_reconciled_at: 2026-05-18T21:26:03Z
+  api_surface_reconciled_at: 2026-05-18T21:26:03Z
   most_recent_code_mtime: 2026-05-18T19:31:51Z
   reconcile_failed: false
 
 drift_warnings: []
 
 spec_amendments:
-  active:
+  active: []
+  archive:
     - amendment_id: 2026-05-18T21-11-12-append-chunk-69-drain-rust-implementation
       plans:
         - path: route.md
@@ -40,38 +41,12 @@ spec_amendments:
             - "§2 Roadmap (Epoch 9 body)"
             - "§3 Decisions Log"
             - "§1 Route Scope Summary (Total chunks mechanical update per Proposal 6)"
-          decisions_log_section: "2026-05-18 — Append chunk #69 Drain Rust implementation + template profiling diagnostics (--allow-route-append)"
-      trigger:
-        chunk: null
-        phase: null
-        harness: "user-driven via /andromeda-evolve"
-      authority:
-        winning_plan: route.md
-        winning_tier: pipeline-state
-        losing_plan: route.md
-        losing_concern: chunk-list-stale-vs-pipeline-reality
-        rationale: "v0.2.0-plan §Phase 3 §67 Drain Rust documented + deferred from route #67/#68 per Pre-D2 spike-gate; registering as route #69 brings route into alignment with pipeline reality. Authorized via --allow-route-append; Check 8 verified."
-      impl_files_synced: []
-      expected_propagation:
-        - "CLAUDE.md (GENERATED:setup:pointer-table — chunk count cascade: 68 → 69)"
-      marker_path: .andromeda/runs/2026-05-18T21-11-12-spec-amendment-append-chunk-69-drain-rust-implementation/amendment.md
-      applied_at: 2026-05-18T21:11:12Z
-      noted_at: null
+      decisions_log_sections:
+        - "2026-05-18 — Append chunk #69 Drain Rust implementation + template profiling diagnostics (--allow-route-append)"
       propagated_by_run: .andromeda/runs/2026-05-18T21-20-55-setup-project-delta/
-      archived_at: null
-      verification_status: clean
+      archived_at: 2026-05-18T21:26:03Z
       flag_used: --allow-route-append
       form: 1
-      route_section_modified: "Epoch 9 — Foundation v0.2.0"
-      chunks_added:
-        - position: 69
-          text: "Drain Rust implementation + template profiling diagnostics — Drain3 Rust port (depth/similarity/masking); two-phase spike-then-production; diagnostics.template_distribution() panel (capability P-007; detail in pulse-v0_2_0-route §67)."
-      chunks_renumbered: []
-      motivation: "v0.2.0-plan §Phase 3 line 257 chunk #67 Drain Rust documented + deferred from route #67/#68 per Pre-D2 spike-pending discipline (see route §3 2026-05-17 entry for route#67)."
-      confirmed_shift: false
-      scope_summary_updates:
-        - "Total chunks: 68 → 69"
-  archive:
     - amendment_id: 2026-05-18T19-55-24-acknowledge-chunk-68-corpus-additions
       plans:
         - path: architecture.md
@@ -471,4 +446,4 @@ spec_amendments:
       propagated_by_run: .andromeda/runs/2026-05-11T19-00-00-setup-project-delta/
       archived_at: 2026-05-11T19:25:00Z
 
-session_count: 95
+session_count: 96

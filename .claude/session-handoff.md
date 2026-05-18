@@ -1,14 +1,14 @@
 # Session Handoff
 
-**Last Updated:** 2026-05-18T20:58:45Z
+**Last Updated:** 2026-05-18T21:26:03Z
 **Branch:** main
 **Session End Status:** clean
-**Last Commit:** (pending — wrap commit composed this Phase 10; closes session 95 / full `/andromeda-setup-project` re-derive that resolved State C + D5)
+**Last Commit:** (pending — wrap commit composed this Phase 10; closes session 96 / chunk #69 Drain Rust route-registration META cycle)
 
 ## Current State
 
-- **Last completed chunk:** route#68 "Corpus SQLite scaffold + schema + encryption + PII scrubber — new `crates/corpus/`; OS-keychain encryption; security-crate PII scrubber primitive (capabilities P-041/P-047–P-051; detail in pulse-v0_2_0-route §69)" (commit `04431cd`; State H SHA reconciled at session 94 wrap)
-- **Next chunk:** none in route §2 yet — chunk #68 was LAST chunk in Epoch 9 + last entry in route. CLAUDE.md ecosystem now realigned with arch reality (chunks #58/#60/#68 workspace additions absorbed via session 95 setup-project full re-derive). Next action requires new-chunk registration via `/andromeda-evolve --allow-route-append`.
+- **Last completed chunk:** route#68 "Corpus SQLite scaffold + schema + encryption + PII scrubber — new `crates/corpus/`; OS-keychain encryption; security-crate PII scrubber primitive (capabilities P-041/P-047–P-051; detail in pulse-v0_2_0-route §69)" (commit `04431cd`; State H SHA stable since session 94)
+- **Next chunk:** route#69 "Drain Rust implementation + template profiling diagnostics — Drain3 Rust port (depth/similarity/masking); two-phase spike-then-production; diagnostics.template_distribution() panel (capability P-007; detail in pulse-v0_2_0-route §67)" (registered this session via Type 7 Form 1 amendment cycle; PHASE A SPIKE GATED per chunk's internal two-phase discipline — Phase B production blocked on Phase A findings doc at `.andromeda/decisions/pre-d2-drain-spike.md` with PROCEED/REVISE/SPLIT/DEFER decision)
 - **In-progress phase:** none
 - **Phase artifacts present:** `.andromeda/phases/phase-{1..64}/` (phase-64 from chunk #68 implementation at session 93)
 
@@ -16,69 +16,74 @@
 
 **Zero active state findings post-wrap. ALL CLEAR. ✓**
 
-- A: no orphaned runs (this-session setup-project run-dir completed cleanly)
-- B: no project.yaml status drift
-- C: arch.md (2026-05-18T20:01:41Z) < CLAUDE.md (2026-05-18T20:52:56Z). **CLEAN — fixed this session via full setup-project re-derive.**
-- D: route.md present with 68 chunks ✓
-- E: no chunk #69 in route yet → does not fire (registration via /andromeda-evolve --allow-route-append needed before /andromeda-phase)
+- A: 0 orphan runs (this session's 3 run-dirs completed cleanly: 2 evolve sub-dirs + 1 setup-project-delta dir)
+- B: project.yaml status clean
+- C: arch.md (2026-05-18T20:01:41Z UTC) < CLAUDE.md (2026-05-18T21:22:20Z UTC post-delta). **CLEAN.**
+- D: route.md present with 69 chunks (was 68 last wrap; chunk #69 Drain Rust appended this session via /andromeda-evolve)
+- E: no chunk #70 in route → does not fire (registration via /andromeda-evolve --allow-route-append needed before next /andromeda-phase)
 - F: no pending implementation (in_progress = null)
 - G: 0 concurrent runs
-- H: state.yaml.commit_sha = `04431cd` (matches actual chunk #68 commit). CLEAN.
-- I: plan_freshness mtimes in state.yaml match actual file mtimes. CLEAN.
-- J: dep-tree (2026-05-18T20:58:45Z) + api-surface (2026-05-18T20:58:45Z) reconciled this wrap (well <24h). CLEAN.
+- H: state.yaml.commit_sha = `04431cd` (matches actual chunk #68 commit per session 94 reconciliation). CLEAN. (Note: b70a447 + this wrap commit are spec/META commits — they do NOT advance last_completed_chunk per H semantics.)
+- I: plan_freshness mtimes refreshed this wrap (route_mtime advanced 17:47:15Z → 21:18:11Z reflecting /evolve write). CLEAN.
+- J: dep-tree + api-surface reconciled this wrap (2026-05-18T21:26:03Z; <1 hour). CLEAN.
 - K: in_progress = null. N/A.
 
 ## Drift Detection (6 dimensions)
 
 **Zero active drift post-wrap. ALL CLEAR. ✓**
 
-- D1 (living artifact staleness): just-reconciled this wrap at 2026-05-18T20:58:45Z; 0 source files newer than state.yaml. CLEAN.
-- D2 (wrong content): cargo tree rerun returned 432 lines (zero-diff vs session 94 baseline); api-surface skipped per session 91/92/94 precedent (spec-only wrap, zero source change). CLEAN.
-- D3 (plan-to-code drift): chunk #68 capability drift cleared at session 94. arch §Occupied Resources matches workspace reality. CLEAN.
+- D1 (living artifact staleness): most_recent_code_mtime (2026-05-18T19:31:51Z chunk #68 impl) < dep_tree_reconciled_at (2026-05-18T21:26:03Z this wrap). CLEAN.
+- D2 (wrong content): cargo tree rerun returned 432 lines (zero-diff vs session 95 baseline); api-surface skipped per session 91/92/94/95 precedent (spec-only wrap, zero source change). CLEAN.
+- D3 (plan-to-code drift): arch §Occupied Resources matches workspace reality (chunks #58/#60/#68 absorbed at session 95 setup-project re-derive). Chunk #69 Drain Rust registered in route §2 but NOT yet implemented — pending /andromeda-phase + /andromeda-implement; expected pending state, not drift. CLEAN.
 - D4 (plan-to-plan drift): no specialist plan changes this session. CLEAN.
-- D5 (plan-to-CLAUDE.md drift): **CLEARED** — session 94's Case 4 Type 6 info-transient entry self-dropped this wrap per dedup discipline (new detection found mtime(CLAUDE.md)=20:52:56Z > mtime(arch.md)=20:01:41Z post-setup-project; no D5 trigger fires; old entry NOT re-matched → dropped from persisted list).
-- D6 (route chunk progression): max chunk index detected in git log = 68 (matches recorded). CLEAN.
+- D5 (plan-to-CLAUDE.md drift): post-wrap state shows CLAUDE.md mtime (21:22:20Z) > route.md mtime (21:18:11Z) > arch.md mtime (20:01:41Z); /andromeda-setup-project --delta this session cascaded the pointer-table line. CLEAN.
+- D6 (route chunk progression): max chunk index detected in git log = 68 (chunk #69 not yet impl; b70a447 is setup-project delta-rerun, not a chunk impl commit). state.yaml.last_completed_chunk.route_index = 68 matches. CLEAN.
 
 ## Spec Amendments (this session)
 
-**0 amendments applied this session.** state.yaml.spec_amendments.active remains empty (last amendment `2026-05-18T19-55-24-acknowledge-chunk-68-corpus-additions` was archived at session 94 wrap; this session 95 was a setup-project full re-derive, which does not author new amendments).
+**1 amendment applied + propagated + archived this session.** state.yaml.spec_amendments.active is empty post-wrap; archive entry count: 36 → 37.
 
-state.yaml.spec_amendments.archive entry count: 36 (unchanged from session 94 wrap).
+### Archived this session
+
+- **`2026-05-18T21-11-12-append-chunk-69-drain-rust-implementation`** (Type 7 Form 1, --allow-route-append)
+  - Plans: `.andromeda/route.md` (§2 Roadmap Epoch 9 body + §3 Decisions Log + §1 Total chunks 68 → 69)
+  - Decisions Log: "2026-05-18 — Append chunk #69 Drain Rust implementation + template profiling diagnostics (--allow-route-append)" (compact P9 format)
+  - Trigger: user-driven evolution via /andromeda-evolve (no chunk/phase/harness)
+  - Authority: pipeline-state > chunk-list-stale-vs-pipeline-reality (v0.2.0-plan §Phase 3 §67 Drain Rust documented + deferred from route #67/#68 per Pre-D2 spike-gate; registering as route #69)
+  - Lifecycle: applied 2026-05-18T21:11:12Z (evolve) | noted 2026-05-18T21:26:03Z (this wrap) | propagated 2026-05-18T21:20:55Z (setup-project --delta commit b70a447) | archived 2026-05-18T21:26:03Z (this wrap)
+  - Marker: `.andromeda/runs/2026-05-18T21-11-12-spec-amendment-append-chunk-69-drain-rust-implementation/amendment.md`
 
 ## Key Decisions This Session
 
-- **Chose full `/andromeda-setup-project` (NOT --delta) per session 94 wrap recommendation** to absorb chunk #58/#60/#68 workspace crate additions into CLAUDE.md derived sections (Stack one-liner, Key directories, Modules, pointer-table, deeper-topics services list). The --delta path with empty `expected_propagation` from session 94 was correct for lifecycle progression but couldn't cascade to CLAUDE.md derived content (the structural gap that Proposal 12 addresses). Full re-derive was the operational fix; P12 is the future structural fix.
-- **Created 4 long-overdue services/{name}.md stubs** (curation chunk #58 + triage chunk #60 + corpus chunk #68 + security chunk #68) bringing services dir from 8 → 12 entries to match the workspace reality. CLAUDE.md `setup:deeper-topics` services list now enumerates all 12.
-- **Pre-existing arch.md structural narrative staleness deliberately preserved** (§Design Philosophy "eight library crates" + §Project Intent "eight Rust crates" + §Infrastructure Patterns "eight library crates" — all stale at 12 reality). Setup-project faithfully mirrors arch upstream per Refuse 1 strict scope; CLAUDE.md `setup:architecture` paragraph inherits the staleness verbatim. Documented but NOT modified by this session. Tracked by Proposal 7 (arch narrative cascade structural fix) + Proposal 12 (CLAUDE.md derived-content cascade structural fix).
-- **Surgical-fix-within-full-re-derive judgment** — session 95 setup-project skipped Phase 2 (rule files unchanged) / Phase 4 (agent harness unchanged) / Phase 5 (reviewer + hooks + .gitignore unchanged) by materialization-plan scope declaration. Phases 1 + 3 did the actual work. Full re-derive ≠ rewrite-everything; the discipline is "regenerate everything that could change from updated upstreams; preserve everything else byte-identical." Documented as Tier 3 entry this wrap.
+- **Form 1 chunk append chosen (not Form 2)** — Epoch 9 — Foundation v0.2.0 remains the active terminal epoch; chunk #69 fits semantically into the existing v0.2.0 distillation pipeline (L1c log-template-mining layer per v0.2.0-plan Phase 3). No need for new epoch creation.
+- **Route #69 = v0.2.0-plan #67 number divergence** — v0.2.0-plan chunk #67 (Drain Rust) was deferred ahead of v0.2.0-plan #68 (service registry) + #69 (corpus) per Pre-D2 spike-pending discipline. Route #67/#68 took the deferred work; route #69 now picks up v0.2.0-plan #67. Mirrors route §3 2026-05-17 chunk #67 entry precedent that originally documented the divergence rationale.
+- **Two-phase chunk recognized but registered as single route entry** — chunk #69's internal Phase A (Drain spike validation) → Phase B (production implementation) gate per v0.2.0-plan §Phase 3 line 257-309 is internal to the chunk; route registration is one chunk. /andromeda-phase against chunk #69 will plan Phase A first; Phase B blocked on `.andromeda/decisions/pre-d2-drain-spike.md` with PROCEED/REVISE/SPLIT/DEFER decision.
+- **Routine Type 7 Form 1 cycle, no protocol surprises** — Mirrors chunks #57-#68 precedent exactly. Validates the established evolve → setup-project --delta → wrap-session sequence still works cleanly. No new operational learnings; no Andromeda meta-improvement proposals filed this wrap.
 
 ## Files Modified
 
 This session's commits + this wrap's changes:
 
-- `CLAUDE.md` (session 95 setup-project — 5 GENERATED:setup:* sections regenerated; USER:session-learnings preserved; committed in `a961a36`)
-- `.claude/docs/services/curation.md` (NEW — chunk #58 retroactive doc stub; committed in `a961a36`)
-- `.claude/docs/services/triage.md` (NEW — chunk #60 retroactive doc stub; committed in `a961a36`)
-- `.claude/docs/services/corpus.md` (NEW — chunk #68 doc stub; committed in `a961a36`)
-- `.claude/docs/services/security.md` (NEW — chunk #68 doc stub; committed in `a961a36`)
-- `.andromeda/state.yaml` (Phase 8 updates: session_count 94 → 95; last_wrap → 2026-05-18T20:58:45Z; living_artifact_freshness timestamps refreshed; drift_warnings → []; this wrap commit)
-- `.andromeda/context/dependency-tree.md` (Phase 5 — Last reconciled refreshed + session 95 maintenance note; this wrap commit)
-- `.andromeda/context/api-surface.md` (Phase 5 — Last reconciled refreshed + session 95 maintenance note documenting per-crate-iteration skip per session 91/92/94 precedent; this wrap commit)
-- `.claude/docs/session-learnings.md` (Phase 4 — Tier 3 entry: "Type 6 amendment → CLAUDE.md cascade: --delta is lifecycle-only; full /andromeda-setup-project is the realignment path"; this wrap commit)
-- `.claude/session-handoff.md` (this file — session 95 wrap)
+- `.andromeda/route.md` (evolve Phase 6: §1 Total chunks 68 → 69 + §2 Epoch 9 chunk #69 appended + §3 Decisions Log compact P9 entry; committed in `b70a447`)
+- `.andromeda/state.yaml` (evolve appended spec_amendments.active entry; delta-rerun set propagated_by_run; this wrap archived to compact form + refreshed last_wrap/last_reconcile/route_mtime/living_artifact_freshness timestamps + session_count 95 → 96; committed in `b70a447` + this wrap commit)
+- `CLAUDE.md` (delta-rerun Phase 1: line 56 pointer-table cascade "9 epochs / 68 chunks" → "9 epochs / 69 chunks"; committed in `b70a447`)
+- `.andromeda/runs/2026-05-18T21-11-12-spec-amendment-append-chunk-69-drain-rust-implementation/amendment.md` (gitignored marker file; Lifecycle status updated [x] Noted + [x] Archived this wrap)
+- `.andromeda/context/dependency-tree.md` (Phase 5 — Last reconciled refreshed to 2026-05-18T21:26:03Z + session 96 maintenance note prepended; this wrap commit)
+- `.andromeda/context/api-surface.md` (Phase 5 — Last reconciled refreshed to 2026-05-18T21:26:03Z + session 96 maintenance note prepended documenting per-crate-iteration skip per session 91/92/94/95 precedent; this wrap commit)
+- `.claude/session-handoff.md` (this file — session 96 wrap)
 
 ## Curation Summary (this wrap)
 
 - **Tier 1 (CLAUDE.md USER:session-learnings):** 0 additions
 - **Tier 2 (`.claude/rules/*/Session Additions`):** 0 additions
-- **Tier 3 (`.claude/docs/session-learnings.md`):** 1 addition — 2026-05-18 (session 95) — Type 6 amendment → CLAUDE.md cascade operational guidance (confidence 0.8). Companion to Proposal 12 structural fix; documents the current-workflow trade-off until P12 lands.
+- **Tier 3 (`.claude/docs/session-learnings.md`):** 0 additions
 - **Filtered:** 0 duplicates / 0 task-specific / 0 conflicts / 0 deferred
 
-Andromeda improvements added: 0 (P12 was added last wrap; this session's lesson complements but doesn't propose new structural fix). Current standing unchanged from session 94: 5 IMPLEMENTED + 7 PROPOSED.
+Andromeda improvements added: 0 (no novel pipeline friction surfaced). Current standing: 5 IMPLEMENTED + 7 PROPOSED (unchanged from session 95). This wrap reinforced the established Type 7 Form 1 chunk-append precedent (chunks #57-#68 → #69) without surfacing new patterns; the documented operational guidance (Type 6 → CLAUDE.md cascade lesson from session 95 Tier 3 entry, Type 7 cascade visibility per P5, etc.) covers the relevant ground.
 
 ## Last Failed Command
 
-(none — session 95 ran clean: /andromeda-setup-project → /andromeda-wrap-session.)
+(none — session 96 ran clean: /andromeda-new-session → /andromeda-evolve --allow-route-append → /andromeda-setup-project --delta → /andromeda-wrap-session.)
 
 ## Tests Status
 
@@ -87,38 +92,39 @@ Andromeda improvements added: 0 (P12 was added last wrap; this session's lesson 
 ## Next Recommended Action
 
 ```
-/andromeda-evolve --allow-route-append    # register chunk #69
+/andromeda-phase 69    # plan chunk #69 Phase A (Drain spike validation) per chunk's internal two-phase gate
 ```
 
-Append a new chunk to route §2 Epoch 9. Candidate scopes:
-- **observability subscriber-Layer scrubber wiring** (deferred from chunk #68 plan Step 16; consumes `crates/security` PII scrubber at log emission boundary; defense-in-depth complementing corpus-side scrubbing)
-- **Incident records foundation** (chunks #70+ per v0.2.0 plan; populates `incidents` + `incident_events` tables in corpus from cue + restart event + storm signals)
-- **Drain Rust Phase A spike** (v0.2.0-plan §67; blocked on Pre-D2 validation; not yet registered in route)
-
-CLAUDE.md ecosystem now fully aligned with arch reality (corpus + security visible in Modules / Stack / Key directories / services docs). The previously-blocking State C + D5 drift cleared this session.
+Plan chunk #69 — Drain Rust implementation + template profiling diagnostics. Per chunk's internal discipline:
+- **Phase A FIRST:** Minimal Drain prototype in Rust (depth=4 / similarity=0.5 / basic masking) tested against LogHub corpus subset (Apache + Linux syslog + HDFS recommended). Capture: actual LOC count, template assignment quality, per-event latency p99, template tree memory footprint. Findings document committed at `.andromeda/decisions/pre-d2-drain-spike.md` with PROCEED / REVISE / SPLIT / DEFER decision.
+- **Spike code lives in throwaway branch or `crates/triage-experimental/`** (gitignored); does NOT commit to main.
+- **Phase B GATED:** does not start until Phase A findings doc exists with PROCEED, REVISE, or SPLIT decision. If decision is DEFER, chunk #69 closes here and v0.2.0 ships without Drain (capability P-007 documented as v0.3.0+ deferred).
 
 **Alternatives:**
-- `/andromeda-arch` re-plan to address structural arch.md narrative staleness (§Design Philosophy / §Project Intent / §Infrastructure Patterns count-word stale at "eight library crates" — Proposal 7 future scope; can defer until enough churn justifies)
-- Implement P12 (Type 6 → CLAUDE.md cascade structural fix) — would eliminate the manual-cycle pattern that played out across chunks #58/#60/#68
+- `/andromeda-evolve --allow-route-append` to register additional v0.2.0 chunk(s) ahead of Phase A spike work (e.g., observability subscriber-Layer scrubber wiring deferred from chunk #68 plan Step 16; OR incident records foundation chunk #70+ per v0.2.0 plan)
+- `/andromeda-arch` re-plan to address structural narrative staleness (§Design Philosophy / §Project Intent / §Infrastructure Patterns count-word stale at "eight library crates" — Proposal 7 future scope; can defer until enough churn justifies)
+- Implement Proposal 12 (Type 6 → CLAUDE.md cascade structural fix) — would eliminate the manual full-re-derive cycle that played out at session 95
 - Pulse v0.1.0 release blockers (chunk #3 deferred signing items: Azure Key Vault EV cert + Apple Developer ID + GitHub OIDC federation)
-- Continue Andromeda meta-improvements (P12 companion implementation alongside P7)
 
 ## Session Goals (carry-over)
 
-- State C + D5 remediation **COMPLETED** this session (full setup-project re-derive restored CLAUDE.md mtime > arch.md mtime; chunks #58/#60/#68 absorbed into CLAUDE.md derived sections)
-- v0.2.0 corpus foundation downstream chunks remain unblocked: #64 activity-floor persistence wiring, #66 fingerprint persistence, #70 incident records, #71+ digest pipeline, #74 LLM corpus retrieval, #78 / #84 / #85
+- v0.2.0 corpus foundation downstream chunks remain unblocked (corpus + security crates landed chunk #68): #64 activity-floor persistence wiring, #66 fingerprint persistence, #70 incident records, #71+ digest pipeline, #74 LLM corpus retrieval, #78 / #84 / #85
+- chunk #69 Drain Rust unblocked at route registration (this session); Phase A spike work + Pre-D2 decision document remain as next implementation step
 - Cross-cutting plan amendments flagged for follow-up `/andromeda-security` re-run (corpus is FIRST persistent DB):
   - security plan §Data Protection §At rest — adds "persistent disk database" row
   - security plan §Secret Management "What counts as secret" — adds "corpus encryption key" entry
 - pulse-app/src/observability.rs AllowList extension (chunk #68 plan Step 16) deferred — flag for follow-up chunk OR include in next /andromeda-evolve cycle when actual corpus tracing emission lands (chunk #70+)
 - Pulse v0.1.0 release blockers unchanged (chunk #3 deferred signing items)
-- Andromeda meta-improvements log: 5 IMPLEMENTED + 7 PROPOSED (unchanged this session). P12 (filed session 94) addresses the structural Type 6 → CLAUDE.md cascade gap that played out this session as a manual-cycle workaround.
-- arch.md structural narrative staleness (§Design Philosophy / §Project Intent / §Infrastructure Patterns) NOT addressed this session per Refuse 1 strict scope; Proposal 7 tracks the structural fix (auto-update narrative count lines on Type 6 amendment); current workaround is /andromeda-arch re-plan or manual edit when convenient
+- Andromeda meta-improvements log: 5 IMPLEMENTED + 7 PROPOSED (unchanged this session). P12 (filed session 94) addresses the structural Type 6 → CLAUDE.md cascade gap; remains open for future implementation.
+- arch.md structural narrative staleness (§Design Philosophy / §Project Intent / §Infrastructure Patterns "eight library crates" stale at 12) NOT addressed this session per Refuse 1 strict scope; Proposal 7 tracks the structural fix; current workaround is /andromeda-arch re-plan or manual edit when convenient
 
 ## Deferred decisions (Trigger 4 to Path B carry-over)
 
-(none — no Trigger 4 spec-drift surfaced this session; pure spec/docs maintenance with no /implement step)
+(none — no Trigger 4 spec-drift surfaced this session; pure spec/META maintenance with no /implement step)
 
 ## Deferred learnings (filtered out from Phase 3 curation)
 
-(none filtered this session; the Type 6 → CLAUDE.md cascade operational guidance was promoted to Tier 3 session-learnings.md cleanly. Past session 93 deferred learning re: boot-smoke-skip-when-integration-tests-cover-boot-path remains carry-over for next /andromeda-tests re-run.)
+(none filtered this session; the established Type 7 Form 1 precedent + Type 6 → CLAUDE.md cascade operational guidance covers the relevant ground. Past session 93 deferred learning re: boot-smoke-skip-when-integration-tests-cover-boot-path remains carry-over for next /andromeda-tests re-run.)
+
+## Session End Status
+Completed normally at 2026-05-18 23:26:03
