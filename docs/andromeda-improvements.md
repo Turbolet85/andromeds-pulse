@@ -719,3 +719,71 @@ User Phase 6 review sees the conflict explicitly + decides direction BEFORE /imp
 - Triggering session: session 84 (chunk #64 implementation; /implement Phase 3 report documented the Path A' correction; this proposal extends the lesson to /phase Phase 2 merge protocol)
 - Companion in `.claude/rules/observability.md` Session Additions (Tier 2 rule): "2026-05-17 (session 84): Chunks #62/#63/#64 established a TIGHTER AllowList convention..." — that rule tells chunk implementers about the convention; this proposal proposes catching the conflict at planning-time so implementers don't need to discover it at coding-time
 - Sibling proposals: Proposal 7 (Type 6 narrative-cascade visibility) — same theme of "make implicit conventions visible to planning-time machinery so /implement doesn't surface them post-hoc"
+
+---
+
+## Status: PROPOSED — 2026-05-18 (session 94)
+
+### Proposal 12 — Type 6 evolve markers should pre-populate `expected_propagation: [CLAUDE.md]` when registry section appears in CLAUDE.md derived sections (Modules / Stack / Key directories)
+
+**Problem:**
+
+`/andromeda-evolve --allow-arch-registry` (Type 6 amendments) registers a new item in an arch.md registry section (e.g., a new workspace crate in §Occupied Resources Cargo workspace crate names). The amendment marker's `expected_propagation` field is typically empty per the Type 6 default — per `spec-amendment-protocol.md` Part D Narrow exception: "Type 6 amendments typically have empty or minimal `expected_propagation` (registry-section additions don't usually cascade through Tier 2/3); --delta MUST still progress the lifecycle... so wrap-session Phase 8 can archive cleanly."
+
+But CLAUDE.md mirrors arch.md §Inherited Defaults Workspace crates list in its Stack one-liner ("N library crates"), Key directories enumeration ("`crates/` — N library crates (...)") and Modules section (one bullet per crate with module purpose). When a Type 6 amendment adds a new crate to arch §Occupied Resources, those CLAUDE.md derived sections silently desync. `--delta` mode preserves CLAUDE.md byte-identical (per literal protocol with empty expected_propagation), accumulating staleness.
+
+Pulse dogfood evidence:
+
+1. **Chunk #58 / curation crate** (2026-05-16) — added to arch §Occupied Resources via Type 6. CLAUDE.md Modules section eventually was updated to include curation (likely manually as "bundled evolve work" per commit `4539ba8` style), but Stack one-liner count didn't track perfectly.
+2. **Chunk #60 / triage crate** (2026-05-16) — same pattern; manual fixup bundled.
+3. **Chunk #68 / corpus + security crates (this session 94)** — Type 6 amendment propagated via setup-project --delta with empty expected_propagation. Post-propagation: CLAUDE.md Modules section OMITS corpus + security entries; Stack one-liner still reads "10 library crates" though reality post-amendment is 12. Materialization-plan-delta.md surfaced this as known-follow-up under "Known pre-existing CLAUDE.md staleness" but no automated cascade was triggered.
+
+The `delta-rerun-protocol.md` Detection step 8 grep-expansion is defense-in-depth, but it targets OLD VALUES being replaced (e.g., hex `#8B2E3B` for color-token lift). For PURELY-ADDITIVE Type 6 amendments to enumeration lists, there's no "old value" to grep for — the gap is what's MISSING in CLAUDE.md (the new crates), not a stale value being replaced.
+
+**Proposal:**
+
+Extend `/andromeda-evolve --allow-arch-registry` Phase 4 artifact construction (parallel to Proposal 5's Type 7 cascade pre-populate) with a Type 6 cascade detection step:
+
+For each Type 6 amendment, if the registry section being amended is one that CLAUDE.md derives from (configurable list; default targets: §Occupied Resources Cargo workspace crate names + §Inherited Defaults Workspace crates), AND CLAUDE.md contains a pattern matching the registry's derived content (default regexes: `\b\d+ library crates\b`, `\b\d+ workspace members\b`, the bulleted Modules section enumeration), pre-populate the amendment marker's `expected_propagation` to include `CLAUDE.md` with anchor citation:
+
+```
+- CLAUDE.md: `<!-- GENERATED:setup:stack -->` + `<!-- GENERATED:setup:modules -->` sections — crate count + Modules enumeration cascade from registry change via /andromeda-setup-project --delta. Pre-populated per Proposal 12 (Type 6 → CLAUDE.md derived-content cascade).
+```
+
+`/andromeda-setup-project --delta` would then regenerate the relevant CLAUDE.md GENERATED sections per standard delta-scoped logic, eliminating the silent compounding.
+
+**Design:**
+
+1. `/andromeda-evolve` Phase 4 step 2 — for Type 6 amendments, after constructing the baseline marker but before user review, scan CLAUDE.md for derived-content patterns matching the registry being amended:
+   - `<!-- GENERATED:setup:stack -->` section: grep for `\b\d+ (library crates|workspace members)\b` patterns
+   - `<!-- GENERATED:setup:modules -->` section: grep for `(?m)^- \*\*\`crate-name\`\*\*` enumeration matching workspace crate names
+   - `<!-- GENERATED:setup:key-directories -->` section: same patterns
+2. If any match found AND registry section is one of the configured cascade-targets: append CLAUDE.md to marker's `expected_propagation` with the specific anchor citation.
+3. CLAUDE.md template (`claude-md-template.md`) gains the relevant `<!-- GENERATED:setup:stack -->` / `<!-- GENERATED:setup:modules -->` etc. anchors if not already present (precondition for setup-project --delta to know which span to regenerate).
+4. `/andromeda-setup-project` Phase 1 CLAUDE.md regeneration honors these anchor markers when --delta cascades through them; non-cascaded CLAUDE.md content stays byte-identical.
+
+**Implementation cost estimate:**
+
+| File | Change | Lines |
+|---|---|---|
+| `andromeda-evolve/SKILL.md` | Phase 4 step 2 — add Type 6 CLAUDE.md cascade detection logic (parallel to Type 7 cascade per Proposal 5 Phase 4 step 2g) | ~25 |
+| `andromeda-evolve/references/output-templates.md` | Type 6 marker variant — add "expected_propagation pre-populate" subsection mirroring Type 7's Branch (a) / Branch (b) | ~20 |
+| `andromeda-evolve/references/validation-checks.md` | Check 7 — add 7.7 subcheck for CLAUDE.md cascade pre-populate (analogous to Type 7's Check 8.5) | ~15 |
+| `andromeda-setup-project/references/claude-md-template.md` | Add `<!-- GENERATED:setup:modules -->` / `<!-- GENERATED:setup:stack -->` anchors around relevant sections | ~10 |
+| `andromeda-setup-project/references/delta-rerun-protocol.md` | Plan→file mapping table — clarify that Type 6 amendments may legitimately list CLAUDE.md in `expected_propagation` when registry section appears in derived sections | ~10 |
+
+**Total:** ~80 lines across 5 files. Moderate-effort enhancement; high-value because it eliminates the silent staleness compounding pattern observed across 3+ Type 6 amendments (chunks #58, #60, #68).
+
+**When to do:**
+
+- Now-soon. Confidence the pattern recurs: HIGH (3+ direct dogfood observations; structural — every new lib crate triggers it; will recur as v0.2.0 evolves through more crate additions).
+- Defer-until-Phase-4-of-v0.2.0 alternative — wait until chunk count approaches 80+ and Modules section has 16+ entries; manual fixup at that point would become tedious.
+- Author preference — lean toward soon (next 1-2 sessions). Each unaddressed Type 6 amendment compounds the CLAUDE.md staleness; manual fixup gets harder as count drift grows. Pairs naturally with Proposal 7 Phase 2 implementation (arch.md narrative cascade); the two together would close both the CLAUDE.md AND arch.md narrative cascade gaps in one coordinated enhancement.
+
+**Cross-references:**
+
+- Triggering session: session 94 (this wrap; chunk #68 Type 6 amendment propagated cleanly via --delta but left CLAUDE.md Modules + Stack desynced). Prior sessions 70 / 74-equivalent observations for chunks #58 + #60 set the precedent; those manual fixups were apparently bundled into "evolve work" commits (`8189530` commit message pattern).
+- Sibling proposal: **Proposal 5** — Type 7 evolve markers pre-populate CLAUDE.md cascade for chunk count (same structural pattern; different amendment type + different derived section).
+- Sibling proposal: **Proposal 7** — Type 6 narrative-cascade visibility WITHIN arch.md structural sections (P7 covers arch.md narrative cascade; P12 covers CLAUDE.md derived-section cascade — orthogonal scopes).
+- `spec-amendment-protocol.md` Part D Architecture.md exception → Type 6 permit path: documents that empty `expected_propagation` is permitted/typical; P12 proposes evolve auto-detect when empty is wrong AND pre-populate with CLAUDE.md cascade.
+- `delta-rerun-protocol.md` Detection step 8 grep-expansion: defense-in-depth for value-replacement amendments; P12 covers the gap for purely-additive enumeration-list amendments where grep-expansion can't help.

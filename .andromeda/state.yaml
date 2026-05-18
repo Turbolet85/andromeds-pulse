@@ -1,19 +1,19 @@
 schema_version: 2
-last_wrap: 2026-05-18T19:37:27Z
-last_reconcile: 2026-05-18T19:37:27Z
+last_wrap: 2026-05-18T20:20:19Z
+last_reconcile: 2026-05-18T20:20:19Z
 
 last_completed_chunk:
   route_index: 68
   title: "Corpus SQLite scaffold + schema + encryption + PII scrubber — new `crates/corpus/`; OS-keychain encryption; security-crate PII scrubber primitive (capabilities P-041/P-047–P-051; detail in pulse-v0_2_0-route §69)"
   epoch: 9
-  committed_at: 2026-05-18T19:38:00Z
-  commit_sha: 73c983e
-  commit_subject: "feat(corpus): chunk #68 — corpus SQLite scaffold + crates/security/ + crates/corpus/ + storage.{inspect,path} TauRPC (Epoch 9 Foundation v0.2.0 twelfth chunk; final Epoch 9 chunk); session 93 wrap"
+  committed_at: 2026-05-18T19:46:01Z
+  commit_sha: 04431cd
+  commit_subject: "feat(corpus): chunk #68 — corpus SQLite scaffold + crates/security/ + crates/corpus/ + storage.{inspect,path} TauRPC (Epoch 9 Foundation v0.2.0 twelfth chunk; final Epoch 9 chunk; session 93 impl commit absorbed wrap-session changes per fold-impl-into-wrap pattern; State H placeholder commit_sha=73c983e reconciled to actual at session 94 wrap per session 89/91 precedent)"
 
 in_progress: null
 
 plan_freshness:
-  arch_mtime: 2026-05-18T16:57:03Z
+  arch_mtime: 2026-05-18T20:01:41Z
   security_mtime: 2026-05-11T17:53:00Z
   design_mtime: 2026-05-03T21:52:16Z
   layout_mtime: 2026-05-02T15:53:22Z
@@ -24,21 +24,22 @@ plan_freshness:
   input_mtime: 2026-05-02T06:52:58Z
 
 living_artifact_freshness:
-  dep_tree_reconciled_at: 2026-05-18T19:37:27Z
-  api_surface_reconciled_at: 2026-05-18T19:37:27Z
+  dep_tree_reconciled_at: 2026-05-18T20:20:19Z
+  api_surface_reconciled_at: 2026-05-18T20:20:19Z
   most_recent_code_mtime: 2026-05-18T19:31:51Z
   reconcile_failed: false
 
 drift_warnings:
-  - drift_id: D3
-    description: "arch §Occupied Resources missing chunk #68 additions: `corpus` + `security` workspace crate names (Cargo.toml members) + `storage.inspect` + `storage.path` Tauri IPC routes + `corpus/corpus.db` filesystem subpath under data dir root. /andromeda-evolve --allow-arch-registry amendment required before next wrap."
-    severity: warning
-    remediation_hint: "Run `/andromeda-evolve --allow-arch-registry` with dual-crate-name + dual-TauRPC-procedure + filesystem-subpath additions (single-coordinated marker per chunk #59/#67 precedent); follow with `/andromeda-setup-project --delta` to propagate to CLAUDE.md pointer-table + arch §Architecture Registry Updates."
-    first_observed_session_count: 93
-    last_observed_session_count: 93
+  - drift_id: D5
+    description: "Plan-to-CLAUDE.md drift: arch.md (2026-05-18T20:01:41Z) regenerated since last setup-project run; Case 4 Type 6 arch registry — matched amendment 2026-05-18T19-55-24-acknowledge-chunk-68-corpus-additions with flag_used=--allow-arch-registry + propagated_by_run set + archived_at=null at Phase 6 detection time. Severity info. Amendment archived this wrap; next wrap will downgrade to Case 3 generic warning until CLAUDE.md re-materialized."
+    severity: info
+    remediation_hint: "Full `/andromeda-setup-project` re-derive (NOT --delta) absorbs chunk #68 additions into CLAUDE.md Stack one-liner + Modules section + Key directories list. Alternative: manual edit of CLAUDE.md derived sections. Proposal 12 in docs/andromeda-improvements.md addresses this structurally for future Type 6 amendments."
+    first_observed_session_count: 94
+    last_observed_session_count: 94
 
 spec_amendments:
-  active:
+  active: []
+  archive:
     - amendment_id: 2026-05-18T19-55-24-acknowledge-chunk-68-corpus-additions
       plans:
         - path: architecture.md
@@ -47,40 +48,11 @@ spec_amendments:
             - "§Occupied Resources Tauri IPC routes"
             - "§Occupied Resources Filesystem locations"
             - "§Architecture Registry Updates"
-          decisions_log_section: "2026-05-18 — Acknowledge `corpus` + `security` crates + `storage.{inspect,path}` TauRPC + `corpus/corpus.db` filesystem subpath (--allow-arch-registry)"
-      trigger:
-        chunk: null
-        phase: null
-        harness: "user-driven via /andromeda-evolve"
-      authority:
-        winning_plan: implementation
-        winning_tier: implementation
-        losing_plan: architecture.md
-        losing_concern: registry-section-stale-vs-implementation-reality
-        rationale: "Chunk #68 (commit 04431cd) added crates/corpus + crates/security workspace members + storage.{inspect,path} TauRPC + corpus/corpus.db filesystem subpath; arch §Occupied Resources sub-sections not yet acknowledged. Single-coordinated multi-item Registry Update per chunk #59/#67 precedent."
-      impl_files_synced: []
-      expected_propagation: []
-      marker_path: .andromeda/runs/2026-05-18T19-55-24-spec-amendment-acknowledge-chunk-68-corpus-additions/amendment.md
-      applied_at: 2026-05-18T19:55:24Z
-      noted_at: null
+      decisions_log_sections:
+        - "2026-05-18 — Acknowledge `corpus` + `security` crates + `storage.{inspect,path}` TauRPC + `corpus/corpus.db` filesystem subpath (--allow-arch-registry)"
       propagated_by_run: .andromeda/runs/2026-05-18T20-07-09-setup-project-delta/
-      archived_at: null
-      verification_status: clean
+      archived_at: 2026-05-18T20:20:19Z
       flag_used: --allow-arch-registry
-      registry_section: "§Occupied Resources"
-      registry_additions:
-        - "corpus (Cargo workspace crate name)"
-        - "security (Cargo workspace crate name)"
-        - "storage.inspect (Tauri IPC route, pulse-app crate)"
-        - "storage.path (Tauri IPC route, pulse-app crate)"
-        - "corpus/corpus.db (Filesystem subpath under data dir root)"
-      code_evidence:
-        - Cargo.toml
-        - crates/corpus/src/lib.rs
-        - crates/security/src/lib.rs
-        - pulse-app/src/storage_router.rs
-        - pulse-app/src/main.rs
-  archive:
     - amendment_id: 2026-05-18T17-38-50-append-chunk-68-corpus-sqlite-scaffold
       plans:
         - path: route.md
@@ -467,4 +439,4 @@ spec_amendments:
       propagated_by_run: .andromeda/runs/2026-05-11T19-00-00-setup-project-delta/
       archived_at: 2026-05-11T19:25:00Z
 
-session_count: 93
+session_count: 94
