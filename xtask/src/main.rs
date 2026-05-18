@@ -662,6 +662,8 @@ const EXPECTED_PROCEDURES: &[&str] = &[
     "logs.query",
     "metrics.query",
     "services.list_with_states",
+    "storage.inspect",
+    "storage.path",
     "streams.subscribe_logs",
     "streams.subscribe_metrics",
     "streams.subscribe_spans",
@@ -941,6 +943,17 @@ mod capability_drift_tests {
             expected.contains("services.list_with_states"),
             "EXPECTED_PROCEDURES must include services.list_with_states (chunk #67 service registry + lifecycle state machine)"
         );
+    }
+
+    #[test]
+    fn expected_procedures_includes_storage_namespace_at_chunk_68() {
+        let expected: BTreeSet<&str> = EXPECTED_PROCEDURES.iter().copied().collect();
+        for proc in ["storage.inspect", "storage.path"] {
+            assert!(
+                expected.contains(proc),
+                "EXPECTED_PROCEDURES must include {proc} (chunk #68 corpus SQLite scaffold + storage router)"
+            );
+        }
     }
 
     #[test]

@@ -40,6 +40,8 @@ const sampleSettings: Required<Settings> = {
   always_on_top: true,
   snapshot_preset: "balanced",
   snapshot_format: "markdown",
+  lifecycle_dormant_after_secs: 3_600,
+  lifecycle_archived_after_secs: 86_400,
 };
 
 let getSettingsFn: ReturnType<typeof vi.fn>;

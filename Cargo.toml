@@ -8,6 +8,8 @@ members = [
     "crates/snapshot",
     "crates/curation",
     "crates/triage",
+    "crates/corpus",
+    "crates/security",
     "crates/workspace-detector",
     "crates/plugins",
     "crates/mcp-server",
@@ -144,6 +146,29 @@ bincode = "1.3"
 # no hash recompute). Dual-licensed Apache-2.0/CC0; verified via
 # `cargo deny check bans licenses sources`.
 blake3 = "1"
+
+# Corpus + security crate substrate (route#68 — Epoch 9 Foundation v0.2.0 final chunk).
+# - rusqlite 0.32 with `bundled` feature: statically links SQLite C, no system
+#   dep — cross-platform reproducible Tauri build (same posture as duckdb).
+# - keyring 3: cross-platform OS-keychain abstraction (macOS Keychain, Linux
+#   Secret Service via dbus, Windows DPAPI/Credential Manager). Default features
+#   auto-select per target; tests use the in-memory FakeKeychainBackend trait
+#   impl (per test-plan §6 P5 surrogate pattern; no real keychain in CI).
+# - aes-gcm 0.10: RustCrypto AES-256-GCM AEAD for per-cell encryption.
+#   Default features only — no platform-specific assembly intrinsics
+#   (preserves cross-platform reproducibility; performance acceptable for
+#   corpus write rates which are bounded by L1/L2 ingest cadence).
+# - rand 0.8: nonce generation for AEAD encryption (aes-gcm depends on this).
+# - regex 1: PII pattern catalog in crates/security/src/scrubber.rs.
+# Per arch §Established Decisions [Database] DELIBERATE SCOPE EXTENSION beyond
+# "In-memory DuckDB ring buffer only" — corpus is the FIRST persistent on-disk
+# database; chunk #68 plan documents the rationale + flags the security plan
+# §Data Protection §At rest schema-level amendment as a wrap-time follow-up.
+rusqlite = { version = "0.32", features = ["bundled"] }
+keyring = "3"
+aes-gcm = "0.10"
+rand = "0.8"
+regex = "1"
 
 [profile.release]
 lto = "thin"

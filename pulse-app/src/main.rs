@@ -43,6 +43,7 @@ use pulse_app::plugins_router::{PluginsApi, PluginsApiImpl};
 use pulse_app::restart_observer::{CompositeSpanObserver, RestartObserverAdapter};
 use pulse_app::services_router::{ServicesApi, ServicesApiImpl};
 use pulse_app::snapshot_runtime::{SnapshotApi, SnapshotApiImpl};
+use pulse_app::storage_router::{StorageApi, StorageApiImpl};
 use pulse_app::storm_observer::StormObserverAdapter;
 use pulse_app::streams::{StreamsApi, StreamsApiImpl};
 use pulse_app::viz_routers::{
@@ -338,6 +339,35 @@ fn main() {
         Arc::clone(&lifecycle_broadcast),
     );
 
+    // Chunk #68 — persistent incident corpus scaffold (NEW `crates/corpus/`).
+    // OS keychain backend fetches (or creates on first launch) the 32-byte
+    // AES-256-GCM key per capability P-049. Corpus opens at the resolved
+    // data dir's `corpus/corpus.db` subpath; first-launch creates the file
+    // + runs schema migrations idempotently. Boot non-fatal: if keychain
+    // unavailable OR corpus open fails, log structured error + continue
+    // with corpus reader absent (storage.inspect / storage.path return
+    // AppError::Storage at IPC time).
+    let keychain_backend: Arc<dyn corpus::contract::KeychainBackend> = Arc::new(
+        corpus::contract::OsKeychainBackend::new("com.andromeda.pulse"),
+    );
+    let corpus_db_path = data_dir.join("corpus").join("corpus.db");
+    let corpus_reader: Option<Arc<dyn corpus::contract::CorpusReader>> =
+        match corpus::contract::Corpus::open(corpus_db_path.clone(), Arc::clone(&keychain_backend))
+        {
+            Ok(c) => Some(Arc::new(c)),
+            Err(e) => {
+                tracing::error!(
+                    target: "corpus.open.error",
+                    error_kind = ?e,
+                    "corpus open failed at boot; storage.* IPC will return error until corpus available",
+                );
+                None
+            }
+        };
+    let storage_impl = corpus_reader
+        .as_ref()
+        .map(|r| StorageApiImpl::new(Arc::clone(r)));
+
     let grpc_addr = match resolve_grpc_port() {
         Ok(p) => Some(SocketAddr::from(([127, 0, 0, 1], p.value()))),
         Err(_) => {
@@ -447,6 +477,10 @@ fn main() {
                 .merge(plugins_impl.clone().into_handler())
                 .merge(connection_impl.clone().into_handler())
                 .merge(services_impl.clone().into_handler());
+            let base = match storage_impl.as_ref() {
+                Some(s) => base.merge(s.clone().into_handler()),
+                None => base,
+            };
             #[cfg(feature = "mcp-server")]
             let base = base.merge(mcp_impl.clone().into_handler());
             base
@@ -462,6 +496,10 @@ fn main() {
                 .merge(plugins_impl.clone().into_handler())
                 .merge(connection_impl.clone().into_handler())
                 .merge(services_impl.clone().into_handler());
+            let base = match storage_impl.as_ref() {
+                Some(s) => base.merge(s.clone().into_handler()),
+                None => base,
+            };
             #[cfg(feature = "mcp-server")]
             let base = base.merge(mcp_impl.clone().into_handler());
             base
@@ -962,6 +1000,18 @@ mod tests {
         let services_broadcast = Arc::new(ServiceLifecycleBroadcast::new());
         let services_impl = ServicesApiImpl::new(services_registry, services_broadcast);
 
+        // Chunk #68: StorageApiImpl participates in the emit so bindings.ts
+        // ARGS_MAP includes storage.inspect / storage.path (quadruple-binding
+        // 4th slot per .claude/rules/security.md Session Additions 2026-05-12).
+        // In-memory corpus backed by FakeKeychainBackend keeps the test
+        // hermetic — no real OS keychain or on-disk SQLite file.
+        let storage_keychain: Arc<dyn corpus::contract::KeychainBackend> =
+            Arc::new(corpus::contract::FakeKeychainBackend::new());
+        let storage_corpus = corpus::contract::Corpus::open_in_memory(storage_keychain)
+            .expect("in-memory corpus opens with fake keychain");
+        let storage_reader: Arc<dyn corpus::contract::CorpusReader> = Arc::new(storage_corpus);
+        let storage_impl = StorageApiImpl::new(storage_reader);
+
         // Chunk #49: McpApiImpl participates in the emit so the bindings.ts
         // ARGS_MAP includes mcp.status / mcp.start / mcp.stop (4th binding
         // per .claude/rules/security.md Session Additions 2026-05-12).
@@ -987,7 +1037,8 @@ mod tests {
                 .merge(WorkspaceApiImpl::new().into_handler())
                 .merge(plugins_impl.into_handler())
                 .merge(connection_impl.into_handler())
-                .merge(services_impl.into_handler());
+                .merge(services_impl.into_handler())
+                .merge(storage_impl.into_handler());
             #[cfg(feature = "mcp-server")]
             let base = base.merge(mcp_impl.into_handler());
             base

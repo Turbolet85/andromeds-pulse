@@ -107,9 +107,30 @@ export type SnapshotPreset = "conservative" | "balanced" | "detailed"
 
 export type SnapshotResultDto = { token_count: number; markdown_path_basename: string; json_path_basename: string; preset_prompts: PresetPromptDto[]; byte_count: number; dedup_count: number }
 
+/**
+ * Per-table record counts + on-disk byte size + schema version. Cross-bridge
+ * envelope for the `storage.inspect` resolver.
+ */
+export type StorageInspectPayload = { record_counts: TableRecordCount[]; total_bytes_on_disk: number; schema_version: number }
+
+/**
+ * Corpus DB filesystem path + size + schema version envelope. Path is
+ * the canonicalized string surfaced across the bridge; the matching
+ * `tracing` event in `storage.path.request` emits basename only per
+ * obs-plan §1 Vector 6.
+ */
+export type StoragePathPayload = { path: string; size_bytes: number; schema_version: number }
+
 export type SubsystemStatus = { status: string; error_msg: string | null; last_tick_at: string | null }
 
 export type SubsystemStatuses = { otlp_grpc_receiver: SubsystemStatus; otlp_http_receiver: SubsystemStatus; buffer: SubsystemStatus; ingest_channel: SubsystemStatus; viz: SubsystemStatus; plugins: SubsystemStatus }
+
+/**
+ * Single table → record count entry. Vec<TableRecordCount> in the
+ * payload (rather than a map) keeps the TS binding shape stable
+ * across specta releases.
+ */
+export type TableRecordCount = { table: string; count: number }
 
 export type Theme = "dark" | "light" | "auto"
 
@@ -127,7 +148,7 @@ export type WidgetPosition = "top-left" | "top-right" | "bottom-left" | "bottom-
 
 export type WorkspaceContextDto = { root_basename: string; project_name: string | null; vcs_type: string | null; vcs_root_basename: string | null; has_andromeda_marker: boolean }
 
-const ARGS_MAP = { '':'{"app_info":[],"get_settings":[],"health":[],"ready":[],"update_settings":["settings"]}', 'connection':'{"current_state":[]}', 'logs':'{"query":["args"]}', 'mcp':'{"start":[],"status":[],"stop":[]}', 'metrics':'{"query":["args"]}', 'plugins':'{"invoke":["plugin_id","capability"],"list":[],"reload":[]}', 'services':'{"list_with_states":[]}', 'snapshot':'{"generate":["preset","workspace_root"]}', 'streams':'{"subscribe_logs":["channel"],"subscribe_metrics":["channel"],"subscribe_spans":["channel"]}', 'telemetry.frontend':'{"record_frame_ms":["input"]}', 'traces':'{"query":["args"]}', 'workspace':'{"detect":["candidate_root"]}' }
+const ARGS_MAP = { '':'{"app_info":[],"get_settings":[],"health":[],"ready":[],"update_settings":["settings"]}', 'connection':'{"current_state":[]}', 'logs':'{"query":["args"]}', 'mcp':'{"start":[],"status":[],"stop":[]}', 'metrics':'{"query":["args"]}', 'plugins':'{"invoke":["plugin_id","capability"],"list":[],"reload":[]}', 'services':'{"list_with_states":[]}', 'snapshot':'{"generate":["preset","workspace_root"]}', 'storage':'{"inspect":[],"path":[]}', 'streams':'{"subscribe_logs":["channel"],"subscribe_metrics":["channel"],"subscribe_spans":["channel"]}', 'telemetry.frontend':'{"record_frame_ms":["input"]}', 'traces':'{"query":["args"]}', 'workspace':'{"detect":["candidate_root"]}' }
 export type Router = { "": {app_info: () => Promise<AppInfo>, 
 get_settings: () => Promise<Settings>, 
 health: () => Promise<HealthEnvelope>, 
@@ -144,6 +165,8 @@ list: () => Promise<PluginListEnvelope>,
 reload: () => Promise<PluginListEnvelope>},
 "services": {list_with_states: () => Promise<ServiceListPayload>},
 "snapshot": {generate: (preset: SnapshotPreset, workspaceRoot: string | null) => Promise<SnapshotResultDto>},
+"storage": {inspect: () => Promise<StorageInspectPayload>, 
+path: () => Promise<StoragePathPayload>},
 "streams": {subscribe_logs: (channel: TAURI_CHANNEL<number[]>) => Promise<null>, 
 subscribe_metrics: (channel: TAURI_CHANNEL<number[]>) => Promise<null>, 
 subscribe_spans: (channel: TAURI_CHANNEL<number[]>) => Promise<null>},

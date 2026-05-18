@@ -8,6 +8,7 @@ pub mod plugins_router;
 pub mod restart_observer;
 pub mod services_router;
 pub mod snapshot_runtime;
+pub mod storage_router;
 pub mod storm_observer;
 pub mod streams;
 pub mod tray;

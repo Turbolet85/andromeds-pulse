@@ -1,14 +1,14 @@
 schema_version: 2
-last_wrap: 2026-05-18T18:03:32Z
-last_reconcile: 2026-05-18T18:03:32Z
+last_wrap: 2026-05-18T19:37:27Z
+last_reconcile: 2026-05-18T19:37:27Z
 
 last_completed_chunk:
-  route_index: 67
-  title: "Service registry + lifecycle state machine — seven states (Unknown→Bootstrapping→Active→Quiet→Silent→Dormant→Archived) per service; corpus history lookup on Archived→Active (capability P-027; detail in pulse-v0_2_0-route §68)"
+  route_index: 68
+  title: "Corpus SQLite scaffold + schema + encryption + PII scrubber — new `crates/corpus/`; OS-keychain encryption; security-crate PII scrubber primitive (capabilities P-041/P-047–P-051; detail in pulse-v0_2_0-route §69)"
   epoch: 9
-  committed_at: 2026-05-18T16:39:44Z
-  commit_sha: fafd7c8
-  commit_subject: "feat(triage): chunk #67 — service registry + lifecycle state machine (Epoch 9 Foundation v0.2.0 eleventh chunk; final Epoch 9 chunk); session 90 wrap"
+  committed_at: 2026-05-18T19:38:00Z
+  commit_sha: 73c983e
+  commit_subject: "feat(corpus): chunk #68 — corpus SQLite scaffold + crates/security/ + crates/corpus/ + storage.{inspect,path} TauRPC (Epoch 9 Foundation v0.2.0 twelfth chunk; final Epoch 9 chunk); session 93 wrap"
 
 in_progress: null
 
@@ -24,12 +24,18 @@ plan_freshness:
   input_mtime: 2026-05-02T06:52:58Z
 
 living_artifact_freshness:
-  dep_tree_reconciled_at: 2026-05-18T18:03:32Z
-  api_surface_reconciled_at: 2026-05-18T18:03:32Z
-  most_recent_code_mtime: 2026-05-18T16:19:59Z
+  dep_tree_reconciled_at: 2026-05-18T19:37:27Z
+  api_surface_reconciled_at: 2026-05-18T19:37:27Z
+  most_recent_code_mtime: 2026-05-18T19:31:51Z
   reconcile_failed: false
 
-drift_warnings: []
+drift_warnings:
+  - drift_id: D3
+    description: "arch §Occupied Resources missing chunk #68 additions: `corpus` + `security` workspace crate names (Cargo.toml members) + `storage.inspect` + `storage.path` Tauri IPC routes + `corpus/corpus.db` filesystem subpath under data dir root. /andromeda-evolve --allow-arch-registry amendment required before next wrap."
+    severity: warning
+    remediation_hint: "Run `/andromeda-evolve --allow-arch-registry` with dual-crate-name + dual-TauRPC-procedure + filesystem-subpath additions (single-coordinated marker per chunk #59/#67 precedent); follow with `/andromeda-setup-project --delta` to propagate to CLAUDE.md pointer-table + arch §Architecture Registry Updates."
+    first_observed_session_count: 93
+    last_observed_session_count: 93
 
 spec_amendments:
   active: []
@@ -420,4 +426,4 @@ spec_amendments:
       propagated_by_run: .andromeda/runs/2026-05-11T19-00-00-setup-project-delta/
       archived_at: 2026-05-11T19:25:00Z
 
-session_count: 92
+session_count: 93

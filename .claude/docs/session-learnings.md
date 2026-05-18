@@ -6,6 +6,23 @@ _Entries are added in reverse chronological order (newest first). Each entry has
 
 _This file is entirely wrap-session's territory. `/setup-project` creates it if missing but NEVER regenerates it. Manual edits are preserved across all Andromeda skill runs._
 
+## 2026-05-18 (session 93) — Standard-gate baseline catches inherited tech debt; Option-A scope expansion appropriate for ≤5-line mechanical fixes (confidence 0.75)
+
+The chunk-gate-baseline trigger (testing.md Pending coverage triggers 2026-05-10) mandates the FULL standard gate set (cargo fmt + clippy + nextest + capability-drift + npm lint/typecheck/test) for every chunk regardless of scope. At chunk #68 implementation, this trigger surfaced a pre-existing chunk #67 regression: `pulse-app/ui/src/dashboard/routes/SettingsModalForm.{tsx,test.tsx}` had Settings fixtures missing `lifecycle_dormant_after_secs` + `lifecycle_archived_after_secs` (added to the `Settings` struct in chunk #67 but never propagated to UI consumers). The regression was verified pre-existing via `git stash && npm run typecheck` on the HEAD baseline (87788c1, session 92 wrap) reproducing the exact same 2 errors.
+
+**Decision: Option A (expand chunk #68 scope to fix) vs Option B (defer to follow-up chunk) vs Option C (commit as-is).**
+
+User chose Option A; the fix was 2 lines per file (4 total) adding the missing fields with default values (3_600 + 86_400 per chunk #67's `default_lifecycle_*_after_secs` fns). Took ~2 minutes including verification. Net cost: chunk #68's commit becomes slightly broader, includes 2 cross-chunk fixes outside its original Files-to-modify list.
+
+**Rule going forward:** when standard-gate baseline catches inherited tech debt that's a clearly mechanical ≤5-line fix:
+- Option A (in-scope expand): preferred when fix is mechanical + small + obviously correct + no test-shape changes needed. Chunk's commit body should explicitly note the expansion ("Option-A scope expansion: included 2-line lifecycle field propagation per chunk #67 carry-over").
+- Option B (defer to follow-up chunk): preferred when fix requires design decisions, test-shape changes, or touches >2 files significantly. Defers to /andromeda-evolve cycle adding a dedicated cleanup chunk.
+- Option C (commit as-is + flag): preferred when the fix can't be made small AND the current chunk's commit shouldn't grow further. Surfaces in /andromeda-wrap-session as Deferred decision.
+
+The chunk-gate-baseline trigger is doing its job — it catches inherited drift across chunks earlier than CI would have. Acceptable cost: occasional cross-chunk cleanup absorbed into the consuming chunk. Pattern recurs whenever a Settings struct extension (or similar cross-crate type) doesn't propagate to consumers; the gate catches it on the next chunk that touches the same compile graph.
+
+---
+
 ## 2026-05-18 (session 92) — route.md ↔ v0.2.0-plan chunk-numbering divergence: stable pattern after two consecutive divergent registrations (confidence 0.80)
 
 The route.md and `docs/v0_2_0/pulse-v0_2_0-route.md` chunk numbering have diverged by -1 since chunk #67 registration (session 89). The divergence originated because v0.2.0-plan chunk #67 "Drain Rust implementation" is blocked on Pre-D2 spike validation per pulse-v0_2_0-route ordering note ("Don't start without spike confirmation of estimate"); the practical-next chunk at that time was v0.2.0-plan §68 "Service registry + lifecycle state machine" (capability P-027), which got registered as route.md chunk #67.

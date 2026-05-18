@@ -40,6 +40,8 @@ const DEFAULT_SETTINGS: SettingsResolved = {
   always_on_top: true,
   snapshot_preset: "balanced",
   snapshot_format: "markdown",
+  lifecycle_dormant_after_secs: 3_600,
+  lifecycle_archived_after_secs: 86_400,
 };
 
 const RETENTION_SECONDS_MIN = 60;

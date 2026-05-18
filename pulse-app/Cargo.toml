@@ -44,6 +44,8 @@ plugins = { path = "../crates/plugins" }
 snapshot = { path = "../crates/snapshot" }
 workspace-detector = { path = "../crates/workspace-detector" }
 triage = { path = "../crates/triage" }
+corpus = { path = "../crates/corpus" }
+security = { path = "../crates/security" }
 
 [dependencies.mcp-server-crate]
 package = "mcp-server"
