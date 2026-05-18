@@ -865,6 +865,8 @@ mod introspection_tests {
             always_on_top: false,
             snapshot_preset: SnapshotPreset::Detailed,
             snapshot_format: SnapshotFormat::Json,
+            lifecycle_dormant_after_secs: 7_200,
+            lifecycle_archived_after_secs: 172_800,
         };
 
         let api1 = make_impl(dir.path().to_path_buf(), vec![]);

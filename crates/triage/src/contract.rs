@@ -63,6 +63,21 @@ pub use crate::pattern::{
     run_one_storm_cycle, start_restart_detector, start_storm_detector,
 };
 
+// Chunk #67 — service registry + lifecycle state machine. Re-export
+// `lifecycle` public-API types so pulse-app boot wiring + future v0.2.0
+// chunks import one shape per chunk #58/#61/#62/#63 precedent.
+// `BROADCAST_CAPACITY` is NOT re-exported here because the same const
+// value is already re-exported from `cue` + `pattern` (all equal 32).
+pub use crate::lifecycle::{
+    ACTIVE_TO_QUIET_THRESHOLD_SECONDS, DEFAULT_LIFECYCLE_HEARTBEAT_INTERVAL,
+    InMemoryServiceRegistry, QUIET_TO_SILENT_FALLBACK_SECONDS, STREAM_NAME_SERVICE_LIFECYCLE,
+    ServiceLifecycleBroadcast, ServiceLifecycleEvent, ServiceLifecycleState, ServiceListItem,
+    ServiceRegistry, ServiceRegistryEntry, TARGET_LIFECYCLE_CORPUS_RESTORE, TARGET_LIFECYCLE_TICK,
+    TARGET_LIFECYCLE_TRANSITION, TARGET_METRIC_LIFECYCLE_STATE_DISTRIBUTION,
+    TARGET_PIPELINE_L1B_TRACKED_SERVICES_TOTAL, TransitionTrigger, is_valid_transition,
+    start_lifecycle_heartbeat, state_index, state_label,
+};
+
 /// Kind of detected condition emitted as an attention cue. Bounded
 /// enumeration; future kinds are added explicitly (no `Other(String)`
 /// catch-all). Variants serialize as snake_case strings.

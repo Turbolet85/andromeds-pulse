@@ -124,6 +124,10 @@ pub struct Settings {
     pub snapshot_preset: SnapshotPreset,
     #[serde(default)]
     pub snapshot_format: SnapshotFormat,
+    #[serde(default = "default_lifecycle_dormant_after_secs")]
+    pub lifecycle_dormant_after_secs: u64,
+    #[serde(default = "default_lifecycle_archived_after_secs")]
+    pub lifecycle_archived_after_secs: u64,
 }
 
 fn default_retention_seconds() -> u64 {
@@ -141,6 +145,17 @@ fn default_always_on_top() -> bool {
     true
 }
 
+// Chunk #67 service-lifecycle thresholds — defaults per v0.2.0-plan §68.
+// Bounds enforced by `Settings::validate()` per security plan §Input
+// Validation row "Configuration values".
+fn default_lifecycle_dormant_after_secs() -> u64 {
+    3_600
+}
+
+fn default_lifecycle_archived_after_secs() -> u64 {
+    86_400
+}
+
 impl Default for Settings {
     fn default() -> Self {
         Self {
@@ -152,6 +167,8 @@ impl Default for Settings {
             always_on_top: default_always_on_top(),
             snapshot_preset: SnapshotPreset::default(),
             snapshot_format: SnapshotFormat::default(),
+            lifecycle_dormant_after_secs: default_lifecycle_dormant_after_secs(),
+            lifecycle_archived_after_secs: default_lifecycle_archived_after_secs(),
         }
     }
 }
@@ -162,12 +179,40 @@ impl Default for Settings {
 pub const RETENTION_SECONDS_MIN: u64 = 60;
 pub const RETENTION_SECONDS_MAX: u64 = 86_400;
 
+// Chunk #67 service-lifecycle threshold bounds. Min 60s (one minute, also
+// the chunk #61 baseline bucket interval); max i64::MAX in seconds (clamped
+// to u64::MAX / 1_000_000_000 to keep wall-clock conversions safe).
+pub const LIFECYCLE_THRESHOLD_MIN_SECS: u64 = 60;
+pub const LIFECYCLE_THRESHOLD_MAX_SECS: u64 = i64::MAX as u64 / 1_000_000_000;
+
 impl Settings {
     pub fn validate(&self) -> Result<(), AppError> {
         if !(RETENTION_SECONDS_MIN..=RETENTION_SECONDS_MAX).contains(&self.retention_seconds) {
             return Err(AppError::Validation {
                 field: "retention_seconds".to_string(),
                 reason: "out of range".to_string(),
+            });
+        }
+        if !(LIFECYCLE_THRESHOLD_MIN_SECS..=LIFECYCLE_THRESHOLD_MAX_SECS)
+            .contains(&self.lifecycle_dormant_after_secs)
+        {
+            return Err(AppError::Validation {
+                field: "lifecycle_dormant_after_secs".to_string(),
+                reason: "out of range".to_string(),
+            });
+        }
+        if !(LIFECYCLE_THRESHOLD_MIN_SECS..=LIFECYCLE_THRESHOLD_MAX_SECS)
+            .contains(&self.lifecycle_archived_after_secs)
+        {
+            return Err(AppError::Validation {
+                field: "lifecycle_archived_after_secs".to_string(),
+                reason: "out of range".to_string(),
+            });
+        }
+        if self.lifecycle_archived_after_secs < self.lifecycle_dormant_after_secs {
+            return Err(AppError::Validation {
+                field: "lifecycle_archived_after_secs".to_string(),
+                reason: "must be >= lifecycle_dormant_after_secs".to_string(),
             });
         }
         Ok(())
@@ -1697,6 +1742,8 @@ mod tests {
             always_on_top: false,
             snapshot_preset: SnapshotPreset::Detailed,
             snapshot_format: SnapshotFormat::Json,
+            lifecycle_dormant_after_secs: 7_200,
+            lifecycle_archived_after_secs: 172_800,
         };
         let json = serde_json::to_string(&s).expect("serializes");
         let parsed: Settings = serde_json::from_str(&json).expect("parses back");
@@ -1823,6 +1870,80 @@ mod tests {
         assert_eq!(s.retention_seconds, 600);
         assert!(s.notifications_enabled);
         assert!(s.always_on_top);
+        assert_eq!(s.lifecycle_dormant_after_secs, 3_600);
+        assert_eq!(s.lifecycle_archived_after_secs, 86_400);
+    }
+
+    #[test]
+    fn settings_default_lifecycle_thresholds_are_3600_and_86400() {
+        let s = Settings::default();
+        assert_eq!(s.lifecycle_dormant_after_secs, 3_600);
+        assert_eq!(s.lifecycle_archived_after_secs, 86_400);
+    }
+
+    #[test]
+    fn settings_validate_accepts_default_lifecycle_thresholds() {
+        let s = Settings::default();
+        assert!(s.validate().is_ok());
+    }
+
+    #[test]
+    fn settings_validate_rejects_below_min_lifecycle_dormant() {
+        let s = Settings {
+            lifecycle_dormant_after_secs: 30,
+            ..Settings::default()
+        };
+        match s.validate() {
+            Err(AppError::Validation { field, reason }) => {
+                assert_eq!(field, "lifecycle_dormant_after_secs");
+                assert_eq!(reason, "out of range");
+            }
+            other => panic!("expected Validation error, got {other:?}"),
+        }
+    }
+
+    #[test]
+    fn settings_validate_rejects_zero_lifecycle_archived() {
+        let s = Settings {
+            lifecycle_archived_after_secs: 0,
+            ..Settings::default()
+        };
+        match s.validate() {
+            Err(AppError::Validation { field, reason }) => {
+                assert_eq!(field, "lifecycle_archived_after_secs");
+                assert_eq!(reason, "out of range");
+            }
+            other => panic!("expected Validation error, got {other:?}"),
+        }
+    }
+
+    #[test]
+    fn settings_validate_rejects_archived_below_dormant() {
+        let s = Settings {
+            lifecycle_dormant_after_secs: 3_600,
+            lifecycle_archived_after_secs: 1_800,
+            ..Settings::default()
+        };
+        match s.validate() {
+            Err(AppError::Validation { field, reason }) => {
+                assert_eq!(field, "lifecycle_archived_after_secs");
+                assert!(reason.contains("lifecycle_dormant_after_secs"));
+            }
+            other => panic!("expected Validation error, got {other:?}"),
+        }
+    }
+
+    #[test]
+    fn settings_serde_round_trips_lifecycle_thresholds() {
+        let s = Settings {
+            lifecycle_dormant_after_secs: 7_200,
+            lifecycle_archived_after_secs: 172_800,
+            ..Settings::default()
+        };
+        let json = serde_json::to_string(&s).expect("serialize");
+        let parsed: Settings = serde_json::from_str(&json).expect("deserialize");
+        assert_eq!(parsed.lifecycle_dormant_after_secs, 7_200);
+        assert_eq!(parsed.lifecycle_archived_after_secs, 172_800);
     }
 
     #[test]

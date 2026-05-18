@@ -661,6 +661,7 @@ const EXPECTED_PROCEDURES: &[&str] = &[
     "connection.current_state",
     "logs.query",
     "metrics.query",
+    "services.list_with_states",
     "streams.subscribe_logs",
     "streams.subscribe_metrics",
     "streams.subscribe_spans",
@@ -930,6 +931,15 @@ mod capability_drift_tests {
         assert!(
             expected.contains("connection.current_state"),
             "EXPECTED_PROCEDURES must include connection.current_state (chunk #59 connection router)"
+        );
+    }
+
+    #[test]
+    fn expected_procedures_includes_services_list_with_states_at_chunk_67() {
+        let expected: BTreeSet<&str> = EXPECTED_PROCEDURES.iter().copied().collect();
+        assert!(
+            expected.contains("services.list_with_states"),
+            "EXPECTED_PROCEDURES must include services.list_with_states (chunk #67 service registry + lifecycle state machine)"
         );
     }
 

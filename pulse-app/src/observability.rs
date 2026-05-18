@@ -1264,6 +1264,74 @@ impl AllowList {
             ["value"].iter().copied().collect(),
         );
 
+        // Chunk #67 — service lifecycle state machine (Epoch 9 Foundation
+        // v0.2.0 final chunk; capability P-027). 6 new tracing target
+        // leaves: 3 emitted by `crates/triage/src/lifecycle/mod.rs::
+        // emit_tick_observability` (heartbeat tick + per-bucket transition
+        // counts + corpus-restore no-op stub for chunk #69) + 1 TauRPC
+        // request resolver target + 2 metric event targets.
+        //
+        // PII discipline (per `.claude/rules/observability.md` Session
+        // Addition 2026-05-17 session 84 aggregate-only mandate + chunks
+        // #62/#63/#64/#66 AllowList convention): NO `service_name` /
+        // `service_id` / `scope_id` / `span_id` / `trace_id` /
+        // `operation_name` / `attribute` / `body` fields admitted — only
+        // bounded enum tags (`from_state`, `to_state`, `kind`) and
+        // bounded numeric counts cross the scrubber. Per-service
+        // identifiers ride `pulse://stream/service-lifecycle` broadcast
+        // surface only.
+        by_target.insert(
+            "triage.lifecycle.tick",
+            [
+                "tracked_services_total",
+                "services_unknown",
+                "services_bootstrapping",
+                "services_active",
+                "services_quiet",
+                "services_silent",
+                "services_dormant",
+                "services_archived",
+            ]
+            .iter()
+            .copied()
+            .collect(),
+        );
+        by_target.insert(
+            "triage.lifecycle.transition",
+            ["from_state", "to_state", "count"]
+                .iter()
+                .copied()
+                .collect(),
+        );
+        by_target.insert(
+            "triage.lifecycle.corpus_restore",
+            ["kind", "count"].iter().copied().collect(),
+        );
+        by_target.insert(
+            "services.list_with_states.request",
+            ["item_count", "traceparent"].iter().copied().collect(),
+        );
+        by_target.insert(
+            "pipeline.l1b.tracked_services_total",
+            ["value"].iter().copied().collect(),
+        );
+        by_target.insert(
+            "metric.triage.lifecycle.state_distribution",
+            [
+                "value",
+                "services_unknown",
+                "services_bootstrapping",
+                "services_active",
+                "services_quiet",
+                "services_silent",
+                "services_dormant",
+                "services_archived",
+            ]
+            .iter()
+            .copied()
+            .collect(),
+        );
+
         Self { by_target }
     }
 
@@ -2420,6 +2488,166 @@ mod tests {
             assert!(
                 detected.contains(required),
                 "triage.pattern.storm.detected must permit `{required}`",
+            );
+        }
+    }
+
+    #[test]
+    fn allowlist_for_target_resolves_triage_lifecycle_tick_field_set() {
+        // chunk #67: service lifecycle heartbeat tick emits aggregate
+        // per-state counts only. NO per-service identifiers — those ride
+        // the `pulse://stream/service-lifecycle` broadcast topic instead.
+        let al = AllowList::production();
+        let set = al
+            .for_target("triage.lifecycle.tick")
+            .expect("triage.lifecycle.tick entry");
+        for required in [
+            "tracked_services_total",
+            "services_unknown",
+            "services_bootstrapping",
+            "services_active",
+            "services_quiet",
+            "services_silent",
+            "services_dormant",
+            "services_archived",
+        ] {
+            assert!(
+                set.contains(required),
+                "triage.lifecycle.tick must permit `{required}`",
+            );
+        }
+        for banned in [
+            "service_name",
+            "service_id",
+            "scope_id",
+            "span_id",
+            "trace_id",
+            "operation_name",
+            "attribute",
+            "instrumentation_scope",
+            "body",
+        ] {
+            assert!(
+                !set.contains(banned),
+                "triage.lifecycle.tick must NOT permit `{banned}` (chunk #62/#63/#64 PII discipline)",
+            );
+        }
+    }
+
+    #[test]
+    fn allowlist_for_target_resolves_triage_lifecycle_transition_field_set() {
+        let al = AllowList::production();
+        let set = al
+            .for_target("triage.lifecycle.transition")
+            .expect("triage.lifecycle.transition entry");
+        for required in ["from_state", "to_state", "count"] {
+            assert!(
+                set.contains(required),
+                "triage.lifecycle.transition must permit `{required}`",
+            );
+        }
+        for banned in [
+            "service",
+            "service_name",
+            "service_id",
+            "scope_id",
+            "span_id",
+            "trace_id",
+            "operation_name",
+        ] {
+            assert!(
+                !set.contains(banned),
+                "triage.lifecycle.transition must NOT permit `{banned}` (aggregate-only per chunk #67)",
+            );
+        }
+    }
+
+    #[test]
+    fn allowlist_for_target_resolves_triage_lifecycle_corpus_restore_field_set() {
+        let al = AllowList::production();
+        let set = al
+            .for_target("triage.lifecycle.corpus_restore")
+            .expect("triage.lifecycle.corpus_restore entry");
+        for required in ["kind", "count"] {
+            assert!(
+                set.contains(required),
+                "triage.lifecycle.corpus_restore must permit `{required}`",
+            );
+        }
+        for banned in ["service_name", "service_id", "scope_id"] {
+            assert!(
+                !set.contains(banned),
+                "triage.lifecycle.corpus_restore must NOT permit `{banned}` (chunk #67 PII discipline)",
+            );
+        }
+    }
+
+    #[test]
+    fn allowlist_for_target_resolves_services_list_with_states_request_field_set() {
+        let al = AllowList::production();
+        let set = al
+            .for_target("services.list_with_states.request")
+            .expect("services.list_with_states.request entry");
+        for required in ["item_count", "traceparent"] {
+            assert!(
+                set.contains(required),
+                "services.list_with_states.request must permit `{required}`",
+            );
+        }
+        for banned in [
+            "service_name",
+            "service_id",
+            "scope_id",
+            "items",
+            "manual_override",
+        ] {
+            assert!(
+                !set.contains(banned),
+                "services.list_with_states.request must NOT permit `{banned}` (chunk #67 PII discipline — response body excluded from log)",
+            );
+        }
+    }
+
+    #[test]
+    fn allowlist_for_target_resolves_pipeline_l1b_tracked_services_total_field_set() {
+        let al = AllowList::production();
+        let set = al
+            .for_target("pipeline.l1b.tracked_services_total")
+            .expect("pipeline.l1b.tracked_services_total entry");
+        assert!(set.contains("value"), "must permit `value`");
+        for banned in ["service_name", "service_id", "scope_id"] {
+            assert!(
+                !set.contains(banned),
+                "pipeline.l1b.tracked_services_total must NOT permit `{banned}` (chunk #67 PII discipline)",
+            );
+        }
+    }
+
+    #[test]
+    fn allowlist_for_target_resolves_metric_triage_lifecycle_state_distribution_field_set() {
+        let al = AllowList::production();
+        let set = al
+            .for_target("metric.triage.lifecycle.state_distribution")
+            .expect("metric.triage.lifecycle.state_distribution entry");
+        for required in [
+            "value",
+            "services_unknown",
+            "services_bootstrapping",
+            "services_active",
+            "services_quiet",
+            "services_silent",
+            "services_dormant",
+            "services_archived",
+        ] {
+            assert!(
+                set.contains(required),
+                "metric.triage.lifecycle.state_distribution must permit `{required}`",
+            );
+        }
+        for banned in ["service_name", "service_id", "scope_id"] {
+            assert!(
+                !set.contains(banned),
+                "metric.triage.lifecycle.state_distribution must NOT permit `{banned}` (chunk #67 PII discipline)",
             );
         }
     }

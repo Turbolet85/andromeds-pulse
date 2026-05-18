@@ -6,6 +6,7 @@ pub mod mcp_router;
 pub mod observability;
 pub mod plugins_router;
 pub mod restart_observer;
+pub mod services_router;
 pub mod snapshot_runtime;
 pub mod storm_observer;
 pub mod streams;

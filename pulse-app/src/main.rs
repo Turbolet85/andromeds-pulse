@@ -15,11 +15,13 @@ use tauri::Manager;
 use tracing_error::SpanTrace;
 use triage::contract::{
     AttentionCueBroadcast, CadenceTriggerChannel, DEFAULT_AUTONOMOUS_THRESHOLD,
-    DEFAULT_DETECTION_SUB_WINDOW_SECONDS, DEFAULT_HEARTBEAT_INTERVAL, DEFAULT_MAX_SIZE_BYTES,
-    DEFAULT_PERSIST_INTERVAL_NANOS, DEFAULT_SERVICE_COUNT_CAP, DEFAULT_STORM_WINDOW_SECONDS,
-    DEFAULT_SUGGESTED_THRESHOLD, RestartDetector, RestartEventBroadcast, RetryStormDetector,
-    SuppressionState, Thresholds, bootstrap_state, resolve_corpus_path, run_persist_loop,
-    start_emitter, start_restart_detector, start_storm_detector,
+    DEFAULT_DETECTION_SUB_WINDOW_SECONDS, DEFAULT_HEARTBEAT_INTERVAL,
+    DEFAULT_LIFECYCLE_HEARTBEAT_INTERVAL, DEFAULT_MAX_SIZE_BYTES, DEFAULT_PERSIST_INTERVAL_NANOS,
+    DEFAULT_SERVICE_COUNT_CAP, DEFAULT_STORM_WINDOW_SECONDS, DEFAULT_SUGGESTED_THRESHOLD,
+    InMemoryServiceRegistry, RestartDetector, RestartEventBroadcast, RetryStormDetector,
+    ServiceLifecycleBroadcast, ServiceRegistry, SuppressionState, Thresholds, bootstrap_state,
+    resolve_corpus_path, run_persist_loop, start_emitter, start_lifecycle_heartbeat,
+    start_restart_detector, start_storm_detector,
 };
 use ui_bridge::Settings;
 use ui_bridge::health::{
@@ -39,6 +41,7 @@ use pulse_app::connection_router::{ConnectionApi, ConnectionApiImpl, HeartbeatBi
 use pulse_app::mcp_router::{McpApi, McpApiImpl};
 use pulse_app::plugins_router::{PluginsApi, PluginsApiImpl};
 use pulse_app::restart_observer::{CompositeSpanObserver, RestartObserverAdapter};
+use pulse_app::services_router::{ServicesApi, ServicesApiImpl};
 use pulse_app::snapshot_runtime::{SnapshotApi, SnapshotApiImpl};
 use pulse_app::storm_observer::StormObserverAdapter;
 use pulse_app::streams::{StreamsApi, StreamsApiImpl};
@@ -320,6 +323,21 @@ fn main() {
             Arc::clone(&cue_broadcast),
         )));
 
+    // Chunk #67 — service lifecycle state machine + registry. In-memory
+    // DashMap-backed registry per arch §[Telemetry Retention Surface]
+    // guardrail (corpus persistence deferred to chunk #69 SQLite scaffold).
+    // Heartbeat task spawned in setup closure below; subscribes to chunk #63
+    // `pulse://stream/restart-events` to trigger Bootstrapping transitions
+    // on any-state restart-detector observation. State derives at tick time
+    // from chunk #61 `BaselineState` activity-floor snapshots; thresholds
+    // (`dormant_after_secs` / `archived_after_secs`) flow through Settings.
+    let lifecycle_registry: Arc<dyn ServiceRegistry> = Arc::new(InMemoryServiceRegistry::new());
+    let lifecycle_broadcast = Arc::new(ServiceLifecycleBroadcast::new());
+    let services_impl = ServicesApiImpl::new(
+        Arc::clone(&lifecycle_registry),
+        Arc::clone(&lifecycle_broadcast),
+    );
+
     let grpc_addr = match resolve_grpc_port() {
         Ok(p) => Some(SocketAddr::from(([127, 0, 0, 1], p.value()))),
         Err(_) => {
@@ -427,7 +445,8 @@ fn main() {
                 .merge(snapshot_impl.clone().into_handler())
                 .merge(WorkspaceApiImpl::new().into_handler())
                 .merge(plugins_impl.clone().into_handler())
-                .merge(connection_impl.clone().into_handler());
+                .merge(connection_impl.clone().into_handler())
+                .merge(services_impl.clone().into_handler());
             #[cfg(feature = "mcp-server")]
             let base = base.merge(mcp_impl.clone().into_handler());
             base
@@ -441,7 +460,8 @@ fn main() {
                 .merge(snapshot_impl.clone().into_handler())
                 .merge(WorkspaceApiImpl::new().into_handler())
                 .merge(plugins_impl.clone().into_handler())
-                .merge(connection_impl.clone().into_handler());
+                .merge(connection_impl.clone().into_handler())
+                .merge(services_impl.clone().into_handler());
             #[cfg(feature = "mcp-server")]
             let base = base.merge(mcp_impl.clone().into_handler());
             base
@@ -620,6 +640,22 @@ fn main() {
             tauri::async_runtime::spawn(start_storm_detector(
                 Arc::clone(&storm_detector),
                 DEFAULT_HEARTBEAT_INTERVAL,
+            ));
+            // Chunk #67 — service lifecycle heartbeat tick (15s default
+            // sibling cadence). Reads BaselineState activity snapshots,
+            // emits ServiceLifecycleEvent transitions on the broadcast,
+            // and subscribes к pulse://stream/restart-events to trigger
+            // Bootstrapping transitions on any-state restart-observed gap.
+            // Thresholds source from persisted Settings (loaded above).
+            let lifecycle_restart_rx = restart_broadcast.subscribe();
+            tauri::async_runtime::spawn(start_lifecycle_heartbeat(
+                Arc::clone(&lifecycle_registry),
+                Arc::clone(&lifecycle_broadcast),
+                Arc::clone(&baseline_state),
+                lifecycle_restart_rx,
+                settings.lifecycle_dormant_after_secs,
+                settings.lifecycle_archived_after_secs,
+                DEFAULT_LIFECYCLE_HEARTBEAT_INTERVAL,
             ));
             let _heartbeat_handles = heartbeat::spawn(
                 heartbeat_state,
@@ -919,6 +955,13 @@ mod tests {
             Arc::new(TestBindStatus);
         let connection_impl = ConnectionApiImpl::new(connection_ingest, connection_bind);
 
+        // Chunk #67: ServicesApiImpl participates in the emit so bindings.ts
+        // ARGS_MAP includes services.list_with_states (quadruple-binding 4th slot
+        // per .claude/rules/security.md Session Additions 2026-05-12).
+        let services_registry: Arc<dyn ServiceRegistry> = Arc::new(InMemoryServiceRegistry::new());
+        let services_broadcast = Arc::new(ServiceLifecycleBroadcast::new());
+        let services_impl = ServicesApiImpl::new(services_registry, services_broadcast);
+
         // Chunk #49: McpApiImpl participates in the emit so the bindings.ts
         // ARGS_MAP includes mcp.status / mcp.start / mcp.stop (4th binding
         // per .claude/rules/security.md Session Additions 2026-05-12).
@@ -943,7 +986,8 @@ mod tests {
                 .merge(snapshot_impl.into_handler())
                 .merge(WorkspaceApiImpl::new().into_handler())
                 .merge(plugins_impl.into_handler())
-                .merge(connection_impl.into_handler());
+                .merge(connection_impl.into_handler())
+                .merge(services_impl.into_handler());
             #[cfg(feature = "mcp-server")]
             let base = base.merge(mcp_impl.into_handler());
             base

@@ -68,7 +68,31 @@ export type ReadyEnvelope = { ready: boolean; checked_at: string; checks: ReadyC
  */
 export type ReceiverFailureReason = "bind_failed" | "stale_heartbeat" | "receiver_panicked"
 
-export type Settings = { theme?: Theme; widget_position?: WidgetPosition; retention_seconds?: number; mcp_server_enabled?: boolean; notifications_enabled?: boolean; always_on_top?: boolean; snapshot_preset?: SnapshotPreset; snapshot_format?: SnapshotFormat }
+/**
+ * Per-service lifecycle state per capability spec P-027. Seven discrete
+ * states ordered roughly by activity intensity (most-active first;
+ * Archived = effectively-removed end state). The `Unknown` variant exists
+ * for services seen via prior corpus but not yet observed in the current
+ * session (chunk #69 corpus restore territory).
+ */
+export type ServiceLifecycleState = "unknown" | "bootstrapping" | "active" | "quiet" | "silent" | "dormant" | "archived"
+
+/**
+ * Item returned by `ServiceRegistry::list_all` for the
+ * `services.list_with_states` TauRPC resolver. Service name is bounded
+ * telemetry identifier; manual_override is the operator pin (None when
+ * natural state).
+ */
+export type ServiceListItem = { service: string; state: ServiceLifecycleState; last_seen_unix_nano: number; manual_override: ServiceLifecycleState | null }
+
+/**
+ * Paginated list envelope per arch §Standard Contracts. `next_cursor`
+ * reserved for future pagination wire-up; chunk #67 returns the full set
+ * in one response (registry is bounded by `ACTIVITY_FLOOR_SERVICE_CAP`).
+ */
+export type ServiceListPayload = { items: ServiceListItem[]; total: number; next_cursor: string | null }
+
+export type Settings = { theme?: Theme; widget_position?: WidgetPosition; retention_seconds?: number; mcp_server_enabled?: boolean; notifications_enabled?: boolean; always_on_top?: boolean; snapshot_preset?: SnapshotPreset; snapshot_format?: SnapshotFormat; lifecycle_dormant_after_secs?: number; lifecycle_archived_after_secs?: number }
 
 /**
  * Severity hint enabling future webview `aria-live` polite-vs-assertive
@@ -103,7 +127,7 @@ export type WidgetPosition = "top-left" | "top-right" | "bottom-left" | "bottom-
 
 export type WorkspaceContextDto = { root_basename: string; project_name: string | null; vcs_type: string | null; vcs_root_basename: string | null; has_andromeda_marker: boolean }
 
-const ARGS_MAP = { '':'{"app_info":[],"get_settings":[],"health":[],"ready":[],"update_settings":["settings"]}', 'connection':'{"current_state":[]}', 'logs':'{"query":["args"]}', 'mcp':'{"start":[],"status":[],"stop":[]}', 'metrics':'{"query":["args"]}', 'plugins':'{"invoke":["plugin_id","capability"],"list":[],"reload":[]}', 'snapshot':'{"generate":["preset","workspace_root"]}', 'streams':'{"subscribe_logs":["channel"],"subscribe_metrics":["channel"],"subscribe_spans":["channel"]}', 'telemetry.frontend':'{"record_frame_ms":["input"]}', 'traces':'{"query":["args"]}', 'workspace':'{"detect":["candidate_root"]}' }
+const ARGS_MAP = { '':'{"app_info":[],"get_settings":[],"health":[],"ready":[],"update_settings":["settings"]}', 'connection':'{"current_state":[]}', 'logs':'{"query":["args"]}', 'mcp':'{"start":[],"status":[],"stop":[]}', 'metrics':'{"query":["args"]}', 'plugins':'{"invoke":["plugin_id","capability"],"list":[],"reload":[]}', 'services':'{"list_with_states":[]}', 'snapshot':'{"generate":["preset","workspace_root"]}', 'streams':'{"subscribe_logs":["channel"],"subscribe_metrics":["channel"],"subscribe_spans":["channel"]}', 'telemetry.frontend':'{"record_frame_ms":["input"]}', 'traces':'{"query":["args"]}', 'workspace':'{"detect":["candidate_root"]}' }
 export type Router = { "": {app_info: () => Promise<AppInfo>, 
 get_settings: () => Promise<Settings>, 
 health: () => Promise<HealthEnvelope>, 
@@ -118,6 +142,7 @@ stop: () => Promise<McpStopResult>},
 "plugins": {invoke: (pluginId: string, capability: string) => Promise<PluginInvokeResult>, 
 list: () => Promise<PluginListEnvelope>, 
 reload: () => Promise<PluginListEnvelope>},
+"services": {list_with_states: () => Promise<ServiceListPayload>},
 "snapshot": {generate: (preset: SnapshotPreset, workspaceRoot: string | null) => Promise<SnapshotResultDto>},
 "streams": {subscribe_logs: (channel: TAURI_CHANNEL<number[]>) => Promise<null>, 
 subscribe_metrics: (channel: TAURI_CHANNEL<number[]>) => Promise<null>, 

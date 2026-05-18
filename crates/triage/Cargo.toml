@@ -6,6 +6,16 @@ rust-version.workspace = true
 license.workspace = true
 repository.workspace = true
 
+# Chunk #67 — `taurpc-runtime` feature gates the optional specta dep used
+# to derive `specta::Type` on `ServiceLifecycleState` /
+# `ServiceLifecycleEvent` / `TransitionTrigger` / `ServiceListItem` /
+# `ServiceRegistryEntry`. Mirrors chunk #59 ingest crate precedent
+# (default-on for pulse-app consumption; feature-off in CI / lib-only
+# builds avoids pulling specta when not generating TauRPC bindings).
+[features]
+default = ["taurpc-runtime"]
+taurpc-runtime = ["dep:specta"]
+
 [dependencies]
 serde.workspace = true
 thiserror.workspace = true
@@ -16,6 +26,10 @@ dashmap.workspace = true
 bincode.workspace = true
 strict-path.workspace = true
 tokio.workspace = true
+# Chunk #67 — optional specta::Type derive for cross-bridge types; gated
+# by `taurpc-runtime` feature (default-on). Mirrors chunk #59 ingest
+# Cargo.toml shape.
+specta = { workspace = true, optional = true, features = ["derive"] }
 
 [dev-dependencies]
 proptest.workspace = true

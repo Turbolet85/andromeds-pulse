@@ -7500,6 +7500,7 @@ dependencies = [
  "rstest",
  "serde",
  "serde_json",
+ "specta",
  "strict-path",
  "tdigest",
  "tempfile",

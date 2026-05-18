@@ -256,9 +256,9 @@ This phase establishes the L1 streaming distillation foundation. Capabilities he
 
 ### #67 — Drain Rust implementation + template profiling diagnostics
 
-> **Blocked by Pre-D2** (Drain spike validation). Largest single component in route. Don't start without spike confirmation of estimate.
+> **Two-phase chunk:** Phase A (Drain spike validation) MUST complete before Phase B (production implementation). Largest single component in route — spike resolves LOC estimate uncertainty before committing to multi-session production work.
 
-- **Depends on:** #65 (logs table schema), Pre-D2 (Drain spike validation)
+- **Depends on:** #65 (logs table schema)
 - **Capabilities enabled:** P-007 (High-Severity Log Capture — template-aware aggregation enables Q6)
 - **Distillation layer:** L1c (Drain assignment) + L6 (template profiling surface)
 - **Crates touched:** `crates/buffer/drain.rs` (NEW), `crates/buffer/appender.rs` (assignment integration), `pulse-app/ui/diagnostics/TemplateDistribution.tsx` (NEW)
@@ -267,9 +267,45 @@ This phase establishes the L1 streaming distillation foundation. Capabilities he
 - **Workspace deps delta:** maybe `regex` if not already present (used for masking patterns)
 - **Arch registry delta:** +1 TauRPC procedure, new schema table `log_templates`, +1 column `logs.template_id`
 - **Specialist plan touches:** arch (schema additions), test-plan (golden-file tests with LogHub corpus subset, parameter sensitivity tests for depth/similarity), obs-plan (`pipeline.l1c.drain_template_count_total`, `pipeline.l1c.drain_assignment_latency_p99_microseconds`), security (template content goes through PII scrubber)
-- **Summary:** Rust port of Drain3 algorithm (fixed-depth parse tree, similarity threshold matching, template extraction with parameter masking). Estimated 1000-1500 LOC pending Pre-D2 validation. Settings → Diagnostics exposes "Template Distribution" panel: top-50 templates with sample messages, occurrence counts, drift indicators. Users tune `[triage.drain.depth]` (default 4), `[triage.drain.similarity]` (default 0.5), `[triage.drain.max_clusters]` (default 1000) based on observed pathology. Drain params require restart per P-055 (template tree invalidation).
 
----
+#### Phase A — Drain spike validation
+
+**Type:** Research/spike sub-phase. Deliverable: decision document + LOC validation. No production code commits to main.
+
+**Acceptance criteria:**
+- Minimal Drain prototype in Rust implements: fixed-depth parse tree (depth=4), similarity matching (threshold=0.5), basic masking config (numbers, hex addresses, paths), template extraction with parameter substitution
+- Prototype tested against LogHub corpus subset (Apache web logs + Linux syslog + HDFS application logs recommended)
+- Measurements captured: actual LOC count of prototype, template assignment quality (% match rate per corpus), per-event latency p99 in microseconds, template tree memory footprint
+- Findings document committed at `.andromeda/decisions/pre-d2-drain-spike.md` with one of four decisions: PROCEED (estimate confirmed), REVISE (estimate adjusted with rationale), SPLIT (chunk #67 should split into sub-chunks), DEFER (Drain pushed to v0.3.0+)
+- Spike code lives in throwaway branch or `crates/triage-experimental/` (gitignored); does NOT commit to main
+
+**Scope boundary:** Phase A does NOT implement persistence, max_clusters cap with LRU eviction, custom masking via regex config, performance optimization beyond observation, or production-quality tests. These are explicitly Phase B scope.
+
+**Gate:** Phase B does not start until Phase A findings document exists with PROCEED, REVISE, or SPLIT decision. If decision is DEFER, chunk #67 closes here and v0.2.0 ships without Drain (capability P-007 documented as v0.3.0+ deferred).
+
+#### Phase B — Drain production implementation 
+
+**Type:** Production implementation. Deliverable: full Drain Rust port matching Drain3 Python parity including persistence, masking, edge cases.
+
+**Acceptance criteria:**
+- Rust port of Drain3 algorithm: fixed-depth parse tree, similarity threshold matching, template extraction with parameter masking, persistence (template tree serialization to/from storage), max_clusters cap with LRU eviction, custom masking via `[triage.drain.masking_patterns]` config
+- Template assignment integrated into ingestion hot path at `crates/buffer/appender.rs` between OTLP decode and DuckDB append; per-event latency target <50μs p99
+- `log_templates` table schema landed; `logs.template_id` column populated for all log records
+- TauRPC `diagnostics.template_distribution()` returns top-N templates with sample messages, occurrence counts, drift indicators
+- Settings → Diagnostics "Template Distribution" panel displays top-50 templates with sample messages, occurrence counts; users can identify pathological clustering (over-generalization like `[<:STAR:>]`, under-clustering with thousands of single-occurrence templates)
+- Drain params (`[triage.drain.depth]`, `[triage.drain.similarity]`, `[triage.drain.max_clusters]`) loaded from config with safe defaults (depth=4, similarity=0.5, max_clusters=1000)
+- Drain params require pulse restart to apply (template tree invalidation) per P-055; restart-required notice surfaces in Diagnostics when config changed
+- Golden-file tests against LogHub corpus subset validate stable template assignments across refactoring; parameter sensitivity tests for depth/similarity verify quality degradation/recovery curves
+- Template content passes through existing PII scrubber per P-047 before persistence
+
+**Summary:** Rust port of Drain3 algorithm. Spike-validated LOC estimate (Phase A determines actual count vs initial 1000-1500 estimate). Settings → Diagnostics exposes "Template Distribution" panel for tuning. Drain params require restart per P-055 (template tree invalidation). All template content respects PII scrubbing per P-047.
+
+#### Risk notes
+
+- **Pre-D2 spike resolves estimate uncertainty.** Initial estimate 1000-1500 LOC based on Drain3 Python parity. Spike may confirm, revise upward (split chunk #67), or revise downward (single chunk faster than expected).
+- **Largest single chunk in route.** Even confirmed estimate means 4-6 sessions multi-session implementation. Plan for sustained attention; don't interleave с unrelated work mid-implementation.
+- **Cognitive context switch from Phase 2/3.** Drain is log-template-mining algorithm, conceptually distinct from baseline trackers / attention cues / corpus persistence work. Allow first session of Phase B for re-orientation if Phase A spike was earlier session.
+- **Schema migration discipline.** `log_templates` table + `logs.template_id` column are first new schema additions since chunk #67 started; verify migration test covers existing-data scenario (logs ingested before chunk #67 lands should tolerate NULL template_id).
 
 ## Phase 4 — Service identity lifecycle
 
