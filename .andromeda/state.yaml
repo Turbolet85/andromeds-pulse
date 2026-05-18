@@ -1,19 +1,19 @@
 schema_version: 2
-last_wrap: 2026-05-18T16:30:42Z
-last_reconcile: 2026-05-18T16:30:42Z
+last_wrap: 2026-05-18T17:15:05Z
+last_reconcile: 2026-05-18T17:15:05Z
 
 last_completed_chunk:
   route_index: 67
-  title: "Service registry + lifecycle state machine — seven states (Unknown→Bootstrapping→Active→Quiet→Silent→Dormant→Archived) per service; corpus history lookup on Archived→Active (capability P-027; detail in pulse-v0_2_0-route §68). Implementation: `crates/triage/src/lifecycle/mod.rs` (NEW — module root + 5 tracing target consts + `start_lifecycle_heartbeat` async task using tokio::select! on (15s interval, restart broadcast receiver) + `emit_tick_observability` pub fn aggregating per-bucket (from_state, to_state) transition counts + `state_label` snake_case helper + 5 unit tests asserting aggregate-only PII discipline) + `crates/triage/src/lifecycle/state_machine.rs` (NEW — `ServiceLifecycleState` enum 7 variants + `TransitionTrigger` enum 5 variants + `is_valid_transition` matches! over 9 spec-valid edges + 6 unit tests for FSM validity + self-loop / skipping / reverse rejection) + `crates/triage/src/lifecycle/registry.rs` (NEW — `ServiceRegistry` trait Send+Sync+Debug bounds 6 methods + `InMemoryServiceRegistry` DashMap-backed impl + `ServiceRegistryEntry` 5 fields + `ServiceListItem` 4 fields + `state_index` 0-6 mapping + `next_natural_state` private fn covering 7-state progression based on chunk #64 ServiceSilenceSnapshot + ACTIVE_TO_QUIET_THRESHOLD_SECONDS=60 + QUIET_TO_SILENT_FALLBACK_SECONDS=300 + 22 unit tests covering tick_all baseline-driven transitions + manual override pin + restart bypass + count_by_state + state_index totality + 11 next_natural_state threshold matrix sub-tests) + `crates/triage/src/lifecycle/broadcast.rs` (NEW — STREAM_NAME_SERVICE_LIFECYCLE='pulse://stream/service-lifecycle' + BROADCAST_CAPACITY=32 + `ServiceLifecycleEvent` 5 identifier-class fields + `ServiceLifecycleBroadcast` wrapper subscribe/sender/subscriber_count + Default impl + 7 unit tests including PII negative-canary) + `crates/triage/src/lifecycle.rs` (DELETED — 2-line misnamed stub replaced by directory module above) + `crates/triage/src/contract.rs` (+ 17-name `pub use crate::lifecycle::*` re-export block) + `crates/triage/src/incident.rs` (doc comment rephrased — auto-resolution / cool-down context relocated from deleted stub; distinguishes from per-service `lifecycle/` module) + `crates/triage/Cargo.toml` (+ `[features] taurpc-runtime = ["dep:specta"]` default-on per chunk #59 ingest precedent + `specta = { workspace = true, optional = true, features = [\"derive\"] }` dep) + `crates/ui-bridge/src/contract.rs` (Settings struct +2 fields lifecycle_dormant_after_secs default 3600 + lifecycle_archived_after_secs default 86400 + 2 sibling default_lifecycle_* fns + 2 pub const LIFECYCLE_THRESHOLD_{MIN,MAX}_SECS + Settings::validate +3 validation arms covering min bound + max bound + archived >= dormant ordering + 7 new unit tests + 2 existing test sites updated) + `crates/ui-bridge/src/health.rs` (1 existing update_settings test updated for new fields) + `pulse-app/src/lib.rs` (+ pub mod services_router) + `pulse-app/src/main.rs` (+ 6 triage::contract imports DEFAULT_LIFECYCLE_HEARTBEAT_INTERVAL/InMemoryServiceRegistry/ServiceLifecycleBroadcast/ServiceRegistry/start_lifecycle_heartbeat + ServicesApi/ServicesApiImpl import + lifecycle boot cluster construction Arc<dyn ServiceRegistry> + ServiceLifecycleBroadcast + ServicesApiImpl + `.merge(services_impl.clone().into_handler())` in BOTH Router branches after connection_impl + `start_lifecycle_heartbeat` spawn in setup closure subscribing к restart_broadcast + threading settings.lifecycle_*_after_secs values + emit_taurpc_bindings test extended with services_impl mock setup) + `pulse-app/src/observability.rs` (+ 6 exact-match AllowList entries triage.lifecycle.{tick,transition,corpus_restore} + services.list_with_states.request + pipeline.l1b.tracked_services_total + metric.triage.lifecycle.state_distribution + 6 new per-target unit tests with banned-field PII discipline assertions covering service_name/service_id/scope_id/span_id/trace_id/operation_name/attribute/instrumentation_scope/body banned set) + `pulse-app/src/services_router.rs` (NEW — `#[taurpc::procedures(path = \"services\")]` ServicesApi trait + ServicesApiImpl Clone + ServiceListPayload typed envelope items/total/next_cursor + `#[tracing::instrument(skip_all, fields(item_count))]` resolver emitting `services.list_with_states.request` at INFO + 2 unit tests) + `xtask/src/main.rs` (+ \"services.list_with_states\" к EXPECTED_PROCEDURES + 1 new parametric test expected_procedures_includes_services_list_with_states_at_chunk_67). Integration: `pulse-app/tests/e2e_service_lifecycle.rs` (NEW — 5 tokio async e2e tests covering heartbeat_emits_unknown_to_bootstrapping + restart_event_subscription_triggers_bootstrapping + service_lifecycle_event_payload_has_no_pii + services_list_with_states_returns_typed_payload + lifecycle_event_with_dormant_archived_thresholds_uses_settings_values). +61 net-new tests across workspace; total 1035 (was 974 baseline session 88). Bundled pre-existing edit: `docs/v0_2_0/pulse-v0_2_0-route.md` v0.2.0-plan §67 Drain Rust two-phase split — Phase A spike validation gate (PROCEED/REVISE/SPLIT/DEFER decision document at `.andromeda/decisions/pre-d2-drain-spike.md`) + Phase B production implementation; 32 lines added — author was user in prior session, uncommitted until this wrap."
+  title: "Service registry + lifecycle state machine — seven states (Unknown→Bootstrapping→Active→Quiet→Silent→Dormant→Archived) per service; corpus history lookup on Archived→Active (capability P-027; detail in pulse-v0_2_0-route §68)"
   epoch: 9
-  committed_at: 2026-05-18T16:30:42Z
-  commit_sha: 44f1320
+  committed_at: 2026-05-18T16:39:44Z
+  commit_sha: fafd7c8
   commit_subject: "feat(triage): chunk #67 — service registry + lifecycle state machine (Epoch 9 Foundation v0.2.0 eleventh chunk; final Epoch 9 chunk); session 90 wrap"
 
 in_progress: null
 
 plan_freshness:
-  arch_mtime: 2026-05-17T14:23:42Z
+  arch_mtime: 2026-05-18T16:57:03Z
   security_mtime: 2026-05-11T17:53:00Z
   design_mtime: 2026-05-03T21:52:16Z
   layout_mtime: 2026-05-02T15:53:22Z
@@ -24,15 +24,16 @@ plan_freshness:
   input_mtime: 2026-05-02T06:52:58Z
 
 living_artifact_freshness:
-  dep_tree_reconciled_at: 2026-05-18T16:30:42Z
-  api_surface_reconciled_at: 2026-05-18T16:30:42Z
+  dep_tree_reconciled_at: 2026-05-18T17:15:05Z
+  api_surface_reconciled_at: 2026-05-18T17:15:05Z
   most_recent_code_mtime: 2026-05-18T16:19:59Z
   reconcile_failed: false
 
 drift_warnings: []
 
 spec_amendments:
-  active:
+  active: []
+  archive:
     - amendment_id: 2026-05-18T16-53-11-acknowledge-services-namespace
       plans:
         - path: architecture.md
@@ -40,34 +41,11 @@ spec_amendments:
             - "§Occupied Resources Tauri IPC routes"
             - "§Occupied Resources Tauri IPC events (broadcast channels)"
             - "§Architecture Registry Updates"
-          decisions_log_section: "2026-05-18 — Acknowledge `services.list_with_states` + `pulse://stream/service-lifecycle` (--allow-arch-registry)"
-      trigger:
-        chunk: null
-        phase: null
-        harness: "user-driven via /andromeda-evolve"
-      authority:
-        winning_plan: pulse-app/src/services_router.rs + crates/triage/src/lifecycle/broadcast.rs
-        winning_tier: implementation
-        losing_plan: architecture.md
-        losing_concern: registry-section-stale-vs-implementation-reality
-        rationale: "Code at pulse-app/src/services_router.rs:61 implements services.list_with_states; crates/triage/src/lifecycle/broadcast.rs:16 declares pulse://stream/service-lifecycle. Arch §Occupied Resources had not acknowledged either; this amendment closes the chunk #67 D3 capability-drift."
-      impl_files_synced: []
-      expected_propagation: []
-      marker_path: .andromeda/runs/2026-05-18T16-53-11-spec-amendment-acknowledge-services-namespace/amendment.md
-      applied_at: 2026-05-18T16:53:11Z
-      noted_at: null
+      decisions_log_sections:
+        - "2026-05-18 — Acknowledge `services.list_with_states` + `pulse://stream/service-lifecycle` (--allow-arch-registry)"
       propagated_by_run: .andromeda/runs/2026-05-18T17-07-27-setup-project-delta/
-      archived_at: null
-      verification_status: clean
+      archived_at: 2026-05-18T17:15:05Z
       flag_used: --allow-arch-registry
-      registry_section: "§Occupied Resources Tauri IPC routes + Tauri IPC events (broadcast channels)"
-      registry_additions:
-        - services.list_with_states
-        - pulse://stream/service-lifecycle
-      code_evidence:
-        - pulse-app/src/services_router.rs
-        - crates/triage/src/lifecycle/broadcast.rs
-  archive:
     - amendment_id: 2026-05-17T23-51-55-append-chunk-67-service-registry-lifecycle
       plans:
         - path: route.md
@@ -429,4 +407,4 @@ spec_amendments:
       propagated_by_run: .andromeda/runs/2026-05-11T19-00-00-setup-project-delta/
       archived_at: 2026-05-11T19:25:00Z
 
-session_count: 90
+session_count: 91

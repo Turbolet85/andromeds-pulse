@@ -6,6 +6,32 @@ _Entries are added in reverse chronological order (newest first). Each entry has
 
 _This file is entirely wrap-session's territory. `/setup-project` creates it if missing but NEVER regenerates it. Manual edits are preserved across all Andromeda skill runs._
 
+## 2026-05-18 — state.yaml.last_completed_chunk.title YAML quote-escape discipline (wrap-session Phase 8)
+
+**Defect observed (session 90 wrap):** state.yaml became unparseable by strict YAML (`python -c "import yaml; yaml.safe_load(...)"` failed at line 7 col 2283) because session 90's wrap stuffed a ~12K-char implementation-detail dump into `last_completed_chunk.title` using double-quoted form `title: "..."`. The dump included substrings like `["dep:specta"]` and `\"services.list_with_states\"` with embedded inner double quotes; YAML's double-quoted-string form requires backslash-escape for inner `"`, which the wrap did not consistently apply (some escapes present, others not).
+
+**Impact:** Strict YAML parsers (`python yaml.safe_load`; CI gates that validate YAML structure) fail. Line-based readers (Read tool, grep, sed) tolerate the defect, so the issue persists silently until a strict parser hits it. Surfaced session 91 new-session Phase 3 health check.
+
+**Fix discipline for wrap-session Phase 8:**
+
+1. **Preferred — keep title concise.** `last_completed_chunk.title` should be the canonical route.md §2 chunk text (single line, typically ≤300 chars, no embedded `"` / backticks-only acceptable). The title is a navigation label, not an implementation diary. Implementation detail belongs in `.claude/docs/session-learnings.md`, in the wrap commit body, or in per-phase artifacts under `.andromeda/phases/phase-N/`.
+
+2. **If verbose content must go in title:** use YAML literal-block scalar form (`title: |` followed by indented body) or folded-block scalar (`title: >`); both forms embed any character safely without escaping. Example:
+   ```yaml
+     title: |
+       Multi-line content with "embedded quotes" and any
+       special characters that would otherwise break parsing.
+   ```
+
+3. **Pre-commit smoke (optional but defensive):** after Phase 8 state.yaml write, smoke-test with `python -c "import yaml; yaml.safe_load(open('.andromeda/state.yaml',encoding='utf-8'))"` (exit 0 = parseable). Catches escape defects before the wrap commit lands.
+
+**Why it matters:** the Andromeda triangle (setup-project / wrap-session / new-session) reads state.yaml via line-based parsing today, which tolerates the defect. But the broader ecosystem (third-party tools, CI gates, manual diagnostic scripts the user writes) often uses strict YAML parsers. A title field that survives the triangle but breaks `yaml.safe_load` is a latent landmine — it accumulates over wraps and surfaces when someone least expects it.
+
+**Fixed in session 91 Phase 8:** title rewritten to canonical route.md §2 chunk text for chunk #67; strict YAML parse confirmed clean post-edit. State.yaml header timestamps + plan_freshness + lifecycle progression also bundled in same wrap commit.
+
+---
+
+
 ---
 
 ## 2026-05-17 (session 82) — Bundled `--delta` commit when prior uncommitted refactor exists (confidence 0.75)
