@@ -105,6 +105,8 @@ async fn p1_otlp_grpc_to_traces_query_returns_ingested_rows() {
         Arc::clone(&broadcast_senders),
         Arc::new(ingest::observer::NoopSpanObserver),
         None,
+        // Chunk #69 Phase B Session 2: drain_miner param (None = no template assignment).
+        None,
     ));
 
     // Bind ingest gRPC receiver on ephemeral loopback port.

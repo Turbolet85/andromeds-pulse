@@ -20,6 +20,11 @@ pub enum Error {
     BroadcastEncode { reason: String },
     #[error("buffer broadcast payload exceeded size cap: {payload_bytes} bytes")]
     BroadcastSizeCapExceeded { payload_bytes: usize },
+    // Chunk #69 Phase B — Drain template-mining errors. Sanitized message strings
+    // only; no log content / template body strings (per security plan §Logging
+    // NEVER-log discipline + obs-plan §8 default-deny posture).
+    #[error("buffer Drain operation failed: {reason}")]
+    Drain { reason: String },
 }
 
 #[derive(Debug, Clone, Copy, Default)]

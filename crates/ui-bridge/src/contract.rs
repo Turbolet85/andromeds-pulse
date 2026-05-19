@@ -327,6 +327,10 @@ impl From<BufferError> for AppError {
                 "buffer broadcast payload exceeded size cap",
                 "broadcast_size_cap_exceeded",
             ),
+            // Chunk #69 Phase B — Drain operation errors (sanitized; no
+            // template content / log-body strings cross the bridge per
+            // security plan §Logging NEVER-log discipline).
+            BufferError::Drain { .. } => ("buffer Drain operation failed", "drain"),
         };
         tracing::warn!(
             target: "ui-bridge.error.storage",

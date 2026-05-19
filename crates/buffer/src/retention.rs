@@ -11,6 +11,14 @@ use crate::state::BufferState;
 // (per security plan §Anti-Patterns Input + chunk #20 grep gate). Order
 // parallels `crate::schema::RESERVED_TABLES` but is local to this module to
 // keep DELETE / CREATE concerns separable.
+//
+// Chunk #69 Phase B note: `log_templates` (8th reserved table) is excluded
+// from the retention sweep — template lifecycle is LRU-managed by the
+// `crates/buffer::drain::DrainMiner` (`max_clusters` cap, default 1000).
+// Templates have no per-record `ts_unix_nano`; the `first_seen_unix_nano`
+// / `last_seen_unix_nano` window-based metadata is informational. Evicting
+// templates by retention cutoff would orphan `log_records.template_id`
+// references; LRU-on-write keeps the cap without that issue.
 const DELETE_BY_CUTOFF: [&str; 7] = [
     "DELETE FROM spans WHERE ts_unix_nano < ?",
     "DELETE FROM span_events WHERE ts_unix_nano < ?",
@@ -20,6 +28,12 @@ const DELETE_BY_CUTOFF: [&str; 7] = [
     "DELETE FROM resources WHERE ts_unix_nano < ?",
     "DELETE FROM instrumentation_scopes WHERE ts_unix_nano < ?",
 ];
+
+/// Reserved tables NOT subject to retention sweep. Excluded because their
+/// lifecycle is managed elsewhere (LRU, not time-window). See
+/// `DELETE_BY_CUTOFF` doc for rationale per table.
+#[cfg(test)]
+const RETENTION_EXCLUDED_TABLES: &[&str] = &["log_templates"];
 
 /// Long-running periodic task that issues `DELETE WHERE ts_unix_nano < ?`
 /// against each of the 7 reserved tables to enforce the in-memory ring-
@@ -150,6 +164,8 @@ fn describe_error(e: &Error) -> &'static str {
         Error::Retention { .. } => "retention_failed",
         Error::BroadcastEncode { .. } => "broadcast_encode_failed",
         Error::BroadcastSizeCapExceeded { .. } => "broadcast_size_cap_exceeded",
+        // Chunk #69 Phase B — Drain operation errors.
+        Error::Drain { .. } => "drain_failed",
     }
 }
 
@@ -318,16 +334,38 @@ mod tests {
 
     #[test]
     fn delete_by_cutoff_constants_match_reserved_tables() {
-        // Sanity: the 7 DELETE constants reference the 7 reserved table
-        // names from `crate::schema::RESERVED_TABLES`. Drift guard.
+        // Drift guard: the DELETE constants reference every retention-bounded
+        // reserved table. Chunk #69 Phase B excludes `log_templates` (LRU-
+        // managed by DrainMiner; see `DELETE_BY_CUTOFF` doc comment).
         for table in crate::schema::RESERVED_TABLES.iter() {
+            if RETENTION_EXCLUDED_TABLES.contains(table) {
+                continue;
+            }
             let needle = format!(" {table} ");
             assert!(
                 DELETE_BY_CUTOFF.iter().any(|sql| sql.contains(&needle)),
-                "DELETE_BY_CUTOFF must reference reserved table `{table}`"
+                "DELETE_BY_CUTOFF must reference reserved table `{table}` \
+                 (not in RETENTION_EXCLUDED_TABLES)"
             );
         }
-        assert_eq!(DELETE_BY_CUTOFF.len(), crate::schema::RESERVED_TABLES.len());
+        // Length invariant: DELETE_BY_CUTOFF covers all reserved tables
+        // EXCEPT the LRU-managed exclusions.
+        assert_eq!(
+            DELETE_BY_CUTOFF.len(),
+            crate::schema::RESERVED_TABLES.len() - RETENTION_EXCLUDED_TABLES.len()
+        );
+    }
+
+    #[test]
+    fn retention_excluded_tables_are_subset_of_reserved() {
+        // Sanity: every exclusion must be a real reserved table (catches
+        // typos like "log_template" missing the trailing s).
+        for excluded in RETENTION_EXCLUDED_TABLES {
+            assert!(
+                crate::schema::RESERVED_TABLES.contains(excluded),
+                "RETENTION_EXCLUDED_TABLES entry `{excluded}` must appear in RESERVED_TABLES"
+            );
+        }
     }
 
     #[test]

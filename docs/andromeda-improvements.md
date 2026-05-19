@@ -866,3 +866,69 @@ in_progress:
 - Sibling proposal: **Proposal 7** — Type 6 narrative-cascade visibility (different concern — arch.md text staleness vs state.yaml schema gap). Both surface in pulse v0.2.0 Phase 3+ work.
 - `session-state-contract.md` Part B in_progress schema — current shape is `{phase, chunks, artifacts, started_at}`; P13 extends with 3 new optional fields.
 - `integrity-protocol.md` Part C D6 — current heuristic relies on commit subject pattern + state.yaml.last_completed_chunk numeric comparison; P13 makes D6 sub-phase-aware so wrap commits for partial-chunk work don't trip the drift gate.
+
+---
+
+## Status: PROPOSED — 2026-05-19 (session 98)
+
+### Proposal 14 — `/andromeda-implement` Phase 2b smoke-check protocol should support "integration-test runtime smoke" for non-UI multi-session chunks
+
+**Problem:**
+
+Multi-session chunks like #69 Phase B (estimated 4-6 sessions per route §Risk notes) trigger `/andromeda-implement` Phase 2b boot-smoke gate on every session that touches files in the gate's mechanical trigger list (`pulse-app/src/main.rs`, `crates/ui-bridge/src/`, `pulse-app/src-tauri/tauri.conf.json`, `pulse-app/capabilities/*.json`). The protocol mandates `npx @tauri-apps/cli dev` with 60s timeout. In practice for backend-only multi-session chunks:
+
+- Each session may touch one of the trigger paths (e.g., chunk #69 Session 1 touched `crates/ui-bridge/src/contract.rs` for the BufferError::Drain From-impl arm; Session 2 touched `pulse-app/src/main.rs` to thread the new `run_consumer` arg)
+- The change is mechanically in-scope but not functionally boot-affecting (a From-impl arm or new `None` param to run_consumer doesn't introduce boot panics)
+- Cold-rebuild of dev profile takes 5+ min on this codebase (verified at chunk #69 Phase B Session 1 post-`cargo clean`)
+- Tauri dev launch as background bash leaves an orphan pulse-app.exe process when bash times out at 10 min (per verification-harness.md session addition 2026-05-19), which blocks subsequent cargo nextest runs
+- Meanwhile the workspace nextest run includes `pulse-app::e2e_p1_otlp_grpc_to_traces_query` + `pulse-app::perf_slo_10k_spans` — both exercise full boot+ingest+query+broadcast paths via real tonic + axum + DuckDB + Arrow stack in <15s combined
+
+The current Phase 2b protocol treats Tauri-dev-launch as load-bearing for runtime verification, but for non-UI sessions the integration-test path provides equivalent runtime coverage at a fraction of the budget cost and without the orphan-process side effect.
+
+**Proposal:**
+
+Extend `/andromeda-implement` Phase 2b smoke-check protocol with an "integration-test runtime smoke" alternative path:
+
+- Phase 2b §Step 2 (smoke command detection) gains a pre-check: scan plan.md / `## Codebase touchpoints / New files` + `Files to modify` for any UI-touching paths (`pulse-app/ui/src/**`, `pulse-app/ui/dist/**`, `pulse-app/tauri.conf.json` build config keys affecting webview behavior). If zero UI-touching paths AND the workspace nextest just passed AND nextest includes ≥1 integration test exercising boot path (heuristic: tests in `pulse-app/tests/e2e_*.rs` OR `perf_slo_*.rs` — both boot pulse-app's full stack), classify smoke as "passed via integration-test path" without invoking Tauri dev.
+- For UI-touching sessions OR sessions where integration tests don't exercise the boot path, fall back to current Tauri dev protocol.
+- Phase 2b §Step 3 (run smoke check) gains an explicit "lightweight build verification": `cargo build -p pulse-app` (no Tauri runtime spawn) as a complementary smoke that verifies the dev-profile binary builds cleanly. Faster than tauri dev cold rebuild, deterministic, no orphan process risk.
+
+**Design:**
+
+- Phase 2b §Step 2 "Detect smoke-check classification":
+  1. Read current chunk's plan.md `## Codebase touchpoints` section
+  2. Glob "New files" + "Files to modify" entries; classify each path as `ui-touching` (matches `pulse-app/ui/src/**` or webview config keys) OR `backend-only`
+  3. If ALL touched paths are `backend-only` AND workspace nextest just passed AND nextest test count includes ≥1 `e2e_*` or `perf_slo_*` integration test: smoke classification = `integration-test-path`; log result + proceed to Phase 3 with smoke status `✓ smoke passed via integration-test path ({N} integration tests boot pulse-app stack)`
+  4. Otherwise: smoke classification = `tauri-dev-required`; proceed with current Tauri dev protocol
+- Phase 2b §Step 3 "Run lightweight build verification" (new optional sub-step before full Tauri dev):
+  - When tauri-dev-required: run `cargo build -p pulse-app` first; if it fails, surface immediately (build-error classification per Phase 2 §Bounded retry caps); if it succeeds, proceed with Tauri dev launch
+  - When integration-test-path: skip the cargo build (workspace nextest already built it via test profile; dev profile would require separate rebuild but isn't load-bearing for the smoke classification)
+- Phase 2b §Step 6 summary line gains new variants:
+  - `Phase 2b passed via integration-test path ({N}/{M} integration tests boot pulse-app)`
+  - `Phase 2b passed via lightweight build ({duration}; full Tauri dev deferred to UI-touching session)`
+
+**Implementation cost:**
+
+| File | Change | LOC est |
+|---|---|---|
+| `~/.claude/skills/andromeda-implement/SKILL.md` Phase 2b §Step 2 | Plan.md path scan + UI-touching classifier | ~30 |
+| `~/.claude/skills/andromeda-implement/SKILL.md` Phase 2b §Step 3 | Branch on classification: integration-test-path vs tauri-dev-required | ~25 |
+| `~/.claude/skills/andromeda-implement/SKILL.md` Phase 2b §Step 6 | Summary variants for new classification outcomes | ~10 |
+| `~/.claude/skills/andromeda-implement/references/visual-references.md` | Phase 2b banner template variants | ~15 |
+| `~/.claude/skills/andromeda-implement/SKILL.md` Phase 3 report | "via integration-test path" / "via lightweight build" lines | ~10 |
+
+**Total:** ~90 lines across 2 files. Moderate-effort skill mechanic improvement. High value for projects with multi-session chunks where every session triggers the mechanical smoke gate.
+
+**When to do:**
+
+- Defer-until-second-occurrence per the proposal-log convention (P5/P7/P12/P13 precedent). The first occurrence was this session (chunk #69 Phase B Sessions 1+2 both hit the Phase 2b cold-rebuild friction). Second occurrence will likely be chunk #69 Phase B Session 3+ (still upcoming) OR chunk #74 LLM-runtime Phase B work (also multi-session per route plan).
+- The current Tauri dev approach is not BROKEN — it works, just expensive. Workaround (manual classification + `cargo build -p pulse-app` as substitute) is documented in session-learnings.md 2026-05-19 + verification-harness.md Session Addition 2026-05-19 as a convention; framework support via P14 lands when the pattern is well-validated across multiple chunks.
+- Author preference — lean toward filing-and-deferring. The workaround works; the structured fix lands when there's clear two-chunk-occurrence evidence justifying the skill change.
+
+**Cross-references:**
+
+- Triggering session: session 98 (this wrap; chunk #69 Phase B Sessions 1+2 backend-only work hit the Phase 2b mandatory-Tauri-dev gate on each session for trivial mechanical touches to boot-path files).
+- Sibling proposal: **Proposal 13** — first-class sub-phase state for two-phase chunks (filed session 97). P14 is the runtime-smoke complement to P13's state-tracking enhancement; both address the multi-session chunk workflow friction. P13 + P14 together close most of the friction observed during chunk #69 Phase B implementation.
+- `references/visual-references.md` Phase 2b — current variants are `✓ smoke passed ({boot-time}s)` / `– smoke skipped: no-cli` / `– smoke skipped: headless`. P14 adds two more: integration-test-path + lightweight-build.
+- `references/runtime-failure-patterns.md` Phase 2b table — no new patterns needed; existing patterns (capability-drift, Tauri capability JSON, schema mismatch) still classify out-of-scope failures correctly. P14 changes WHEN tauri dev launches, not how surfaces classify failures.
+- Cross-reference to **verification-harness.md Session Addition 2026-05-19** (filed this same wrap) which documents the Windows-specific orphan-process risk of background tauri dev — P14 mitigates by avoiding the launch entirely for non-UI sessions.

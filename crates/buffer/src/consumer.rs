@@ -17,6 +17,7 @@ use crate::broadcast::{
     STREAM_NAME_SPANS,
 };
 use crate::contract::Error;
+use crate::drain::DrainMiner;
 use crate::fingerprint::FingerprintObserver;
 use crate::state::BufferState;
 
@@ -37,6 +38,11 @@ pub async fn run_consumer(
     broadcast_senders: Arc<BroadcastSenders>,
     span_observer: Arc<dyn SpanObserver>,
     fingerprint_observer: Option<Arc<dyn FingerprintObserver>>,
+    // Chunk #69 Phase B — Drain log-template miner. When `Some`, log records
+    // pass through the miner before DuckDB append; `log_records.template_id`
+    // gets populated per assignment. When `None`, log_records.template_id
+    // stays NULL (pre-Drain-assignment mode).
+    drain_miner: Option<Arc<DrainMiner>>,
 ) {
     while let Some(batch) = receiver.recv().await {
         // Chunk #62 baseline tap: per-span observation feeds the triage
@@ -51,6 +57,7 @@ pub async fn run_consumer(
         let state_clone = Arc::clone(&state);
         let senders_clone = Arc::clone(&broadcast_senders);
         let fingerprint_observer_clone = fingerprint_observer.clone();
+        let drain_miner_clone = drain_miner.clone();
 
         let join = tokio::task::spawn_blocking(move || {
             dispatch_batch(
@@ -59,6 +66,7 @@ pub async fn run_consumer(
                 &senders_clone,
                 batch,
                 fingerprint_observer_clone.as_deref(),
+                drain_miner_clone.as_deref(),
             )
         })
         .await;
@@ -91,6 +99,7 @@ fn dispatch_batch(
     senders: &BroadcastSenders,
     batch: Batch,
     fingerprint_observer: Option<&dyn FingerprintObserver>,
+    drain_miner: Option<&DrainMiner>,
 ) -> Result<(), Error> {
     let guard = conn.lock().map_err(|_| Error::ConnectionLost)?;
 
@@ -121,7 +130,11 @@ fn dispatch_batch(
             (rows, &senders.metrics, encoded)
         }
         Batch::Logs(l) => {
-            let Some(rb) = build_logs_record_batch(&l)? else {
+            // chunk #69 Phase B: drain_miner (when Some) assigns a
+            // template_id per log record between OTLP decode and DuckDB
+            // append; populates the nullable log_records.template_id
+            // column. When None, template_id stays NULL.
+            let Some(rb) = build_logs_record_batch(&l, drain_miner)? else {
                 return Ok(());
             };
             let encoded = encode_or_log(broadcast::encode_logs(&rb), STREAM_NAME_LOGS);
@@ -236,6 +249,8 @@ fn describe_error(e: &Error) -> &'static str {
         Error::Retention { .. } => "retention_failed",
         Error::BroadcastEncode { .. } => "broadcast_encode_failed",
         Error::BroadcastSizeCapExceeded { .. } => "broadcast_size_cap_exceeded",
+        // Chunk #69 Phase B — Drain operation errors.
+        Error::Drain { .. } => "drain_failed",
     }
 }
 
@@ -327,6 +342,7 @@ mod tests {
             Arc::clone(&senders),
             noop_observer(),
             None,
+            None,
         ));
 
         // Drop sender so consumer's recv() returns None and the task exits.
@@ -364,6 +380,7 @@ mod tests {
             Arc::clone(&state),
             Arc::clone(&senders),
             noop_observer(),
+            None,
             None,
         ));
 
@@ -406,6 +423,7 @@ mod tests {
             Arc::clone(&senders),
             noop_observer(),
             None,
+            None,
         ));
 
         let p1 = tokio::time::timeout(std::time::Duration::from_secs(5), r1.recv())
@@ -446,6 +464,7 @@ mod tests {
             Arc::clone(&senders),
             noop_observer(),
             None,
+            None,
         ));
 
         drop(sender);
@@ -483,6 +502,7 @@ mod tests {
             Arc::clone(&state),
             Arc::clone(&senders),
             noop_observer(),
+            None,
             None,
         ));
 
@@ -604,6 +624,7 @@ mod tests {
             Arc::clone(&senders),
             noop_observer(),
             Some(observer),
+            None,
         ));
 
         drop(sender);
@@ -668,6 +689,10 @@ mod tests {
         assert_eq!(
             describe_error(&Error::BroadcastSizeCapExceeded { payload_bytes: 9 }),
             "broadcast_size_cap_exceeded"
+        );
+        assert_eq!(
+            describe_error(&Error::Drain { reason: "x".into() }),
+            "drain_failed"
         );
     }
 }

@@ -170,6 +170,15 @@ aes-gcm = "0.10"
 rand = "0.8"
 regex = "1"
 
+# Drain log-template-mining LRU eviction (route#69 — Epoch 9 Foundation v0.2.0 final chunk; Phase B production).
+# lru 0.12: standard LRU cache for max_clusters bounded template tree (default 1000 per
+# pulse-v0_2_0-route §67). Compile-time-bounded eviction policy mirrors the chunk #66
+# DashMap-based RetryStormDetector pattern; both bound memory footprint at fixed cluster cap.
+# Used by crates/buffer/src/drain.rs::DrainMiner; algorithm validated at Phase A spike
+# (.andromeda/decisions/pre-d2-drain-spike.md PROCEED decision; 167 LOC algo core; 2μs p99
+# per-event latency = 25× under <50μs production target).
+lru = "0.12"
+
 [profile.release]
 lto = "thin"
 codegen-units = 1

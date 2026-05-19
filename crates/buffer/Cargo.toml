@@ -16,6 +16,14 @@ arrow.workspace = true
 bytes.workspace = true
 # Chunk #66 — exception fingerprint hashing (see Cargo.toml workspace dep block).
 blake3.workspace = true
+# Chunk #69 Phase B — Drain log-template-mining substrate.
+# regex: regex-config-driven masker (NUM / IP / HEX / PATH categories) BEFORE tokenization.
+# bincode + serde: template tree serialization for corpus persistence round-trip.
+# lru: max_clusters bounded eviction (default 1000 per pulse-v0_2_0-route §67).
+regex.workspace = true
+bincode.workspace = true
+serde.workspace = true
+lru.workspace = true
 
 # Sanctioned sibling-DAG edge: the `Batch` enum is the cross-crate hand-off
 # contract from ingest → buffer (per arch §Established Decisions

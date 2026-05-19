@@ -3,8 +3,11 @@ use duckdb::Connection;
 use crate::contract::Error;
 
 // Reserved table list per arch §Occupied Resources §DuckDB reserved tables.
-// Locked set; chunk #20 may not add a new table outside this list.
-pub const RESERVED_TABLES: [&str; 7] = [
+// Chunk #20 baseline locked 7 tables; chunk #69 Phase B adds `log_templates`
+// (8th table) for Drain L1c log-template-mining surface. Arch §Occupied
+// Resources update via /andromeda-evolve --allow-arch-registry lands at
+// Session 6 wrap per chunk #69 Phase B plan.md Step 32.
+pub const RESERVED_TABLES: [&str; 8] = [
     "spans",
     "span_events",
     "span_links",
@@ -12,6 +15,7 @@ pub const RESERVED_TABLES: [&str; 7] = [
     "log_records",
     "resources",
     "instrumentation_scopes",
+    "log_templates",
 ];
 
 // Static DDL — never `format!`-style interpolation, even for table names
@@ -84,6 +88,7 @@ CREATE TABLE IF NOT EXISTS log_records (
     severity_text VARCHAR NOT NULL DEFAULT '',
     trace_id BLOB NOT NULL DEFAULT X'',
     span_id BLOB NOT NULL DEFAULT X'',
+    template_id BIGINT,
     PRIMARY KEY (ts_unix_nano, resource_hash, severity_number)
 );";
 
@@ -105,6 +110,25 @@ CREATE TABLE IF NOT EXISTS instrumentation_scopes (
     ts TIMESTAMPTZ NOT NULL,
     ts_unix_nano BIGINT NOT NULL,
     PRIMARY KEY (resource_hash, scope_name, scope_version)
+);";
+
+// Chunk #69 Phase B — Drain log-template-mining surface. Per-cluster metadata
+// (template_id sequence + masked-template-tokens body + occurrence count +
+// first/last-seen wall-clock). `template_content` stores PII-scrubbed template
+// text (scrubbed via `crates/security::scrubber::scrub_attribute` before any
+// write per capability P-047 + security plan §Logging NEVER-log discipline).
+// `template_id` is the sequence assigned by `crates/buffer::drain::DrainMiner`;
+// matches `log_records.template_id` foreign-key-shape (no explicit FK because
+// log_records ring-buffer evictions race the template lifecycle).
+#[allow(dead_code)]
+const CREATE_LOG_TEMPLATES: &str = "\
+CREATE TABLE IF NOT EXISTS log_templates (
+    template_id BIGINT NOT NULL,
+    template_content VARCHAR NOT NULL,
+    occurrence_count BIGINT NOT NULL DEFAULT 0,
+    first_seen_unix_nano BIGINT NOT NULL,
+    last_seen_unix_nano BIGINT NOT NULL,
+    PRIMARY KEY (template_id)
 );";
 
 const SCHEMA_DDL: &str = concat!(
@@ -157,6 +181,7 @@ const SCHEMA_DDL: &str = concat!(
     severity_text VARCHAR NOT NULL DEFAULT '',
     trace_id BLOB NOT NULL DEFAULT X'',
     span_id BLOB NOT NULL DEFAULT X'',
+    template_id BIGINT,
     PRIMARY KEY (ts_unix_nano, resource_hash, severity_number)
 );",
     "CREATE TABLE IF NOT EXISTS resources (
@@ -172,6 +197,14 @@ const SCHEMA_DDL: &str = concat!(
     ts TIMESTAMPTZ NOT NULL,
     ts_unix_nano BIGINT NOT NULL,
     PRIMARY KEY (resource_hash, scope_name, scope_version)
+);",
+    "CREATE TABLE IF NOT EXISTS log_templates (
+    template_id BIGINT NOT NULL,
+    template_content VARCHAR NOT NULL,
+    occurrence_count BIGINT NOT NULL DEFAULT 0,
+    first_seen_unix_nano BIGINT NOT NULL,
+    last_seen_unix_nano BIGINT NOT NULL,
+    PRIMARY KEY (template_id)
 );",
 );
 
@@ -219,7 +252,7 @@ mod tests {
     }
 
     #[test]
-    fn schema_creates_exactly_seven_reserved_tables() {
+    fn schema_creates_exactly_eight_reserved_tables() {
         let conn = open_in_memory();
         create_schema(&conn).expect("schema create must succeed");
 
@@ -234,8 +267,13 @@ mod tests {
 
         let expected: BTreeSet<String> = RESERVED_TABLES.iter().map(|s| s.to_string()).collect();
         assert_eq!(names, expected);
+        assert_eq!(names.len(), 8, "chunk #69 added log_templates as 8th table");
     }
 
+    // log_templates excluded — it uses `first_seen_unix_nano` / `last_seen_unix_nano`
+    // instead of the standard `ts` / `ts_unix_nano` convention (template lifecycle
+    // is window-based, not per-record timestamped). Coverage for log_templates
+    // ts-column shape lives in `log_templates_has_first_seen_and_last_seen_columns`.
     #[rstest]
     #[case("spans")]
     #[case("span_events")]
@@ -340,11 +378,12 @@ mod tests {
 
     #[test]
     fn ddl_constants_match_concatenated_schema() {
-        // Spot-check that all 7 named DDL constants together cover the same
+        // Spot-check that all 8 named DDL constants together cover the same
         // ground as SCHEMA_DDL — guards against accidental DDL drift if
-        // someone edits one but forgets the other.
+        // someone edits one but forgets the other. Chunk #69 Phase B extended
+        // from 7 → 8 with the addition of CREATE_LOG_TEMPLATES.
         let union = format!(
-            "{}{}{}{}{}{}{}",
+            "{}{}{}{}{}{}{}{}",
             CREATE_SPANS,
             CREATE_SPAN_EVENTS,
             CREATE_SPAN_LINKS,
@@ -352,7 +391,72 @@ mod tests {
             CREATE_LOG_RECORDS,
             CREATE_RESOURCES,
             CREATE_INSTRUMENTATION_SCOPES,
+            CREATE_LOG_TEMPLATES,
         );
         assert_eq!(SCHEMA_DDL, union);
+    }
+
+    // Chunk #69 Phase B — log_templates uses first_seen/last_seen window-based
+    // timestamps instead of per-record ts/ts_unix_nano. Verify the actual
+    // column names match the DDL.
+    #[test]
+    fn log_templates_has_first_seen_and_last_seen_columns() {
+        let conn = open_in_memory();
+        create_schema(&conn).expect("schema create must succeed");
+
+        let mut stmt = conn
+            .prepare(
+                "SELECT column_name FROM information_schema.columns WHERE table_schema = 'main' AND table_name = ?",
+            )
+            .expect("information_schema query must prepare");
+        let columns: BTreeSet<String> = stmt
+            .query_map(["log_templates"], |row| row.get::<_, String>(0))
+            .expect("query_map must succeed")
+            .map(|r| r.expect("row must read"))
+            .collect();
+
+        for expected in [
+            "template_id",
+            "template_content",
+            "occurrence_count",
+            "first_seen_unix_nano",
+            "last_seen_unix_nano",
+        ] {
+            assert!(
+                columns.contains(expected),
+                "log_templates must have `{expected}` column; got {columns:?}"
+            );
+        }
+    }
+
+    // Chunk #69 Phase B — log_records gains a nullable `template_id BIGINT`
+    // column populated by `crates/buffer::drain::DrainMiner` at hot-path
+    // append. Existing rows tolerate NULL when Drain disabled or not yet
+    // assigned per chunk #69 Phase B plan §Acceptance Criteria (tests).
+    #[test]
+    fn log_records_has_nullable_template_id_column() {
+        let conn = open_in_memory();
+        create_schema(&conn).expect("schema create must succeed");
+
+        let mut stmt = conn
+            .prepare(
+                "SELECT column_name, is_nullable FROM information_schema.columns \
+                 WHERE table_schema = 'main' AND table_name = 'log_records' \
+                 AND column_name = 'template_id'",
+            )
+            .expect("information_schema query must prepare");
+        let rows: Vec<(String, String)> = stmt
+            .query_map([], |row| {
+                Ok((row.get::<_, String>(0)?, row.get::<_, String>(1)?))
+            })
+            .expect("query_map must succeed")
+            .map(|r| r.expect("row must read"))
+            .collect();
+        assert_eq!(rows.len(), 1, "template_id column must exist exactly once");
+        // DuckDB reports nullable as "YES" / "NO" per SQL standard.
+        assert_eq!(
+            rows[0].1, "YES",
+            "template_id MUST be nullable; existing rows tolerate NULL pre-Drain-assignment"
+        );
     }
 }

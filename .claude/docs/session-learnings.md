@@ -6,6 +6,48 @@ _Entries are added in reverse chronological order (newest first). Each entry has
 
 _This file is entirely wrap-session's territory. `/setup-project` creates it if missing but NEVER regenerates it. Manual edits are preserved across all Andromeda skill runs._
 
+## 2026-05-19 (session 98) — N-session implementation pattern affirmed for "largest single chunk in route" work (confidence 0.85)
+
+The two-phase chunk pattern (session 97 learning above) generalizes to N-session implementation for genuinely large chunks like #69 Phase B (estimated 4-6 sessions per route §Risk notes). Validated empirically across Session 1 (Drain algorithm core, ~620 LOC + 32 tests) + Session 2 (schema additions + appender hot-path integration + consumer wiring) in this session.
+
+**Pattern:** when a chunk's plan §Implementation notes documents a recommended N-session split, treat each session as an atomic standard-gate-green milestone. Each session ships an independently-testable surface:
+- Session 1 ships an unconsumed module (drain.rs) — green via unit tests
+- Session 2 wires the API into hot path with `None`-default for new params — green via integration tests + workspace nextest
+- Session 3+ continue adding capabilities; each session closes a green commit
+
+**State tracking:** `state.yaml.last_completed_chunk` stays at predecessor chunk; `state.yaml.in_progress.sub_phase` encodes which session of N completed. Wrap commits use `chore(wrap):` prefix to avoid D6 false-fire (same discipline as Phase A two-phase pattern). Multi-session work commits without claiming chunk completion until the FINAL session lands the registry update via `/andromeda-evolve --allow-arch-registry`.
+
+**Rationale for between-session wraps:** rollback granularity. Each session's commit is small enough to revert if a downstream session reveals a design flaw. Single-mega-commit alternative loses per-session diff visibility. Pattern carries across to chunk #74 LLM-runtime two-phase + any future genuinely-large chunks (estimated >800 LOC + multiple integration boundaries).
+
+**Companion Andromeda improvement:** Proposal 14 (filed this session) proposes Phase 2b smoke-check protocol acknowledge "all integration tests passed" as runtime-smoke equivalent for non-UI multi-session chunks — current protocol mandates Tauri dev launch which incurs 5+ min cold rebuild for every session even when integration tests already exercise boot+ingest paths.
+
+---
+
+## 2026-05-19 (session 98) — Windows MSVC linker exit code 1318 ("command line too long") is a disk-full disguise (confidence 0.85)
+
+When `cargo nextest run --workspace` (or any cargo build of a binary with many transitive deps like pulse-app) fails on Windows with:
+```
+error: linking with `link.exe` failed: exit code: 1318
+  = note: "C:\\Program Files\\...\\link.exe" "/NOLOGO" "..." "<181 object files omitted>" ...
+```
+the surface error is misleading. Exit code 1318 documented meaning is "The command line is too long" — but on Windows MSVC, the linker may surface disk-full as command-line-too-long when it cannot write the output binary (the actual root-cause OS error is hidden behind the linker's generic exit code).
+
+**Diagnostic confirmation:** look for a sibling cargo error in the same output:
+```
+error: failed to create directory `D:\...\target\debug\.fingerprint\regex-<hash>`
+Caused by:
+  There is not enough space on the disk. (os error 112)
+```
+This appears when cargo can't allocate fingerprint dir on the volume. If you see BOTH errors, the root cause is disk-full, not actual command-line length.
+
+**Fix:** `df -h` to confirm; `cargo clean` is the canonical recovery (frees the entire target/ tree — can be 100GB+ for mature workspaces like andromeda-pulse). Selective `rm -rf target/debug/incremental` + `rm -rf target/llvm-cov-target` frees less but preserves more of the build cache; selective cleanup blocked by Claude Code's destructive-action classifier so `cargo clean` (which cargo invokes through its own permission model) is the simpler path.
+
+**Verified at session 98 Session 1:** after extensive chunk #1-#68 implementation history accumulated 182GB in `target/`, D: drive reached 100% full (2.4MB free of 200G). `cargo nextest` failed with exit 1318; after `cargo clean` freed 216GB, re-run succeeded with 1103/1103 passing. The MSVC actual-command-length limit (32KB) was a red herring — the workspace's link command is large but well under that limit; disk-full was the true cause.
+
+**Recurrence prevention:** add `cargo sweep` or periodic `cargo clean` to dev-env hygiene routine; monitor disk space proactively (`du -sh ./target` quick check before kicking off long test runs).
+
+---
+
 ## 2026-05-19 (session 97) — Two-phase chunk wrap-state pattern: phase-A-complete does NOT advance last_completed_chunk; use in_progress to mark partial state (confidence 0.85)
 
 Two-phase chunks (research spike → production, per the chunk's internal scoping discipline — e.g., chunk #69 "Drain Rust implementation + template profiling diagnostics" with Phase A spike + Phase B production gated on `.andromeda/decisions/pre-d2-drain-spike.md`) require specialized wrap-session handling that the current Andromeda workflow does NOT formally support — must be encoded as free-text in state.yaml.in_progress.

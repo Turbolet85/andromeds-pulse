@@ -2,6 +2,7 @@ pub mod appender;
 pub mod broadcast;
 pub mod consumer;
 pub mod contract;
+pub mod drain;
 pub mod fingerprint;
 pub mod retention;
 pub mod schema;
@@ -13,6 +14,10 @@ pub use broadcast::{
 };
 pub use consumer::run_consumer;
 pub use contract::{BufferHeartbeat, Error};
+pub use drain::{
+    DrainConfig, DrainMiner, DrainPersistence, DrainState, DriftIndicator, MaskPattern,
+    TemplateDistEntry, TemplateId, TemplateRecord,
+};
 pub use retention::run_retention;
 pub use schema::create_schema;
 pub use state::{BufferState, BufferStateSnapshot};

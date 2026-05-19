@@ -17,6 +17,7 @@ use ingest::grpc::proto::opentelemetry::proto::resource::v1::Resource;
 use ingest::grpc::proto::opentelemetry::proto::trace::v1::ResourceSpans;
 
 use crate::contract::Error;
+use crate::drain::DrainMiner;
 use crate::fingerprint::{
     ExceptionFingerprint, FingerprintObserver, compute_exception_fingerprint,
 };
@@ -191,6 +192,7 @@ pub(crate) fn build_metrics_record_batch(
 
 pub(crate) fn build_logs_record_batch(
     batch: &[ResourceLogs],
+    drain_miner: Option<&DrainMiner>,
 ) -> Result<Option<RecordBatch>, Error> {
     let mut tss: Vec<i64> = Vec::new();
     let mut ts_unix_nanos: Vec<i64> = Vec::new();
@@ -200,20 +202,30 @@ pub(crate) fn build_logs_record_batch(
     let mut severity_texts: Vec<String> = Vec::new();
     let mut trace_ids: Vec<Vec<u8>> = Vec::new();
     let mut span_ids: Vec<Vec<u8>> = Vec::new();
+    // Chunk #69 Phase B — per-record template_id assignment. Nullable column
+    // (all-None when drain_miner is None; populated via miner.assign_at when
+    // Some). Hot-path budget per Phase A spike: <50μs p99; spike measured
+    // 2μs in isolation = 25× headroom for masking + LRU + cluster merge.
+    let mut template_ids: Vec<Option<i64>> = Vec::new();
 
     for rl in batch {
         let resource_hash = hash_resource_logs(rl);
         for sl in &rl.scope_logs {
             for log in &sl.log_records {
                 let ns = log.time_unix_nano as i64;
+                let body = extract_log_body(log.body.as_ref());
+                let template_id = drain_miner
+                    .and_then(|m| m.assign_at(&body, ns))
+                    .map(|id| id as i64);
                 tss.push(ns / 1_000);
                 ts_unix_nanos.push(ns);
                 resource_hashes.push(resource_hash.clone());
                 severities.push(log.severity_number);
-                bodies.push(extract_log_body(log.body.as_ref()));
+                bodies.push(body);
                 severity_texts.push(log.severity_text.clone());
                 trace_ids.push(log.trace_id.clone());
                 span_ids.push(log.span_id.clone());
+                template_ids.push(template_id);
             }
         }
     }
@@ -231,6 +243,7 @@ pub(crate) fn build_logs_record_batch(
     let severity_text_array = StringArray::from(severity_texts);
     let trace_id_array = BinaryArray::from_iter_values(trace_ids.iter().map(|v| v.as_slice()));
     let span_id_array = BinaryArray::from_iter_values(span_ids.iter().map(|v| v.as_slice()));
+    let template_id_array = Int64Array::from(template_ids);
 
     let schema = Arc::new(Schema::new(vec![
         Field::new("ts", timestamp_tz_type(), false),
@@ -241,6 +254,10 @@ pub(crate) fn build_logs_record_batch(
         Field::new("severity_text", DataType::Utf8, false),
         Field::new("trace_id", DataType::Binary, false),
         Field::new("span_id", DataType::Binary, false),
+        // Nullable: existing rows pre-Drain-assignment OR all rows when
+        // Drain disabled retain NULL template_id per chunk #69 Phase B
+        // plan §Acceptance Criteria (tests) schema migration scenario.
+        Field::new("template_id", DataType::Int64, true),
     ]));
 
     let record_batch = RecordBatch::try_new(
@@ -254,6 +271,7 @@ pub(crate) fn build_logs_record_batch(
             Arc::new(severity_text_array),
             Arc::new(trace_id_array),
             Arc::new(span_id_array),
+            Arc::new(template_id_array),
         ],
     )
     .map_err(|e| Error::Append {
@@ -487,7 +505,10 @@ pub(crate) fn append_metrics_batch(
 #[cfg(test)]
 pub(crate) fn append_logs_batch(conn: &Connection, batch: &[ResourceLogs]) -> Result<u64, Error> {
     let start = Instant::now();
-    let Some(record_batch) = build_logs_record_batch(batch)? else {
+    // Test helper passes None for drain_miner; Drain integration tests live
+    // in `crates/buffer/src/drain.rs::tests` + the Session 5 e2e integration
+    // test at `pulse-app/tests/e2e_drain_template_assignment.rs`.
+    let Some(record_batch) = build_logs_record_batch(batch, None)? else {
         return Ok(0);
     };
     let row_count = append_record_batch_to_table(conn, "log_records", record_batch)?;

@@ -89,6 +89,8 @@ async fn p6_channel_spans_emits_arrow_ipc_decodable_payload() {
         Arc::clone(&broadcast_senders),
         Arc::new(ingest::observer::NoopSpanObserver),
         None,
+        // Chunk #69 Phase B Session 2: drain_miner param (None = no template assignment).
+        None,
     ));
 
     let listener = ingest::grpc::try_bind(SocketAddr::from(([127, 0, 0, 1], 0)))

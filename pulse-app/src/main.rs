@@ -534,6 +534,12 @@ fn main() {
                         Arc::clone(&broadcast_senders),
                         Arc::clone(&span_observer),
                         fingerprint_observer.clone(),
+                        // Chunk #69 Phase B Session 2: drain_miner parameter
+                        // wiring lands here; Session 3 will construct + pass
+                        // `Some(Arc::clone(&drain_miner))` once boot wiring
+                        // is in place (plan Step 13). Session 2 keeps it
+                        // None to land the API surface change atomically.
+                        None,
                     ));
                     tauri::async_runtime::spawn(run_retention(
                         Arc::clone(&conn),
