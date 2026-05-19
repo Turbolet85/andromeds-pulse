@@ -6,6 +6,85 @@ _Entries are added in reverse chronological order (newest first). Each entry has
 
 _This file is entirely wrap-session's territory. `/setup-project` creates it if missing but NEVER regenerates it. Manual edits are preserved across all Andromeda skill runs._
 
+## 2026-05-20 (session 102) — Mid-stream consolidation audit pattern: 9-dimension methodology + parallel agent dispatch (confidence 0.85)
+
+When a project completes a major foundational substrate phase (e.g., v0.2.0 Foundation Epoch 9 reaches 100% with chunks #57-#69 shipped) **and is about to start user-facing surfaces that consume the substrate** (digest pipeline / LLM interpretation / Reports / MCP), pause for strategic **consistency audit** before continuing forward. Audit-driven consolidation prevents technical debt accumulation downstream once chunks become harder to refactor (e.g., LLM interpretation chunks assume specific persistence model).
+
+**9-dimension audit methodology** (executed this session in `docs/v0_2_0/pulse-v0_2_0-consolidation-audit-2026-05-19.md`):
+
+1. **Persistence mechanism consistency** — map every runtime state component; flag dual-mechanisms
+2. **Capability claims vs implementation reality** — spec SHALL/SHOULD/MAY vs code behavior
+3. **Capability coverage gaps** — orphan / partial / over-claimed / implicit capabilities
+4. **Architecture registry vs codebase reality** — arch §Occupied Resources vs code
+5. **Specialist plan compliance** — security / test / obs / design / a11y / layouts plan touches
+6. **Documentation cross-reference consistency** — sibling doc references resolve
+7. **Living artifacts freshness** — dep-tree + api-surface reconcile state
+8. **Improvements proposals lifecycle review** — implement-now / keep-pending / refine / deprecate
+9. **State.yaml integrity** — schema_version / amendment lifecycle / commit_sha vs git log
+
+**Execution pattern: parallel agent dispatch + main-context synthesis.** 5 general-purpose subagents (each with self-contained brief reaffirming consistency-first standard) handle dimensions 1-6 + 8 in parallel; main context handles dimensions 7 + 9 inline; main synthesizes findings into Section 1-6 (HIGH critical / MEDIUM notable / LOW cleanup / proposals lifecycle / remediation categories / consolidation chunk groupings). ~10-15 min wall-clock vs 50-75 min sequential.
+
+**Consistency-first standard mandatory** — "two ways of doing X where one should suffice" = HIGH severity regardless of whether both work; "spec promises Y but code delivers partial Y" = HIGH severity. No soft-deferral framings allowed ("could keep both during transition" / "minor variation" / "acceptable difference") — they erode the audit value. User pre-commit to "no half-solutions" is the safety mechanism.
+
+**Audit output: deliverable file at `docs/v0_2_0/pulse-v0_2_0-consolidation-audit-{YYYY-MM-DD}.md`.** Length unlimited (completeness over brevity). Captures findings + severity + file:line evidence + remediation category recommendations + Section 6 consolidation chunk groupings (no ordering imposed; user owns scope decisions).
+
+**When to trigger:** at major phase boundaries (Foundation epoch closes, before next epoch starts), OR when N consecutive sessions surface drift findings, OR when capability spec coverage gap exceeds threshold (e.g., this audit found 20/60 PARTIAL with HIGH gaps → consolidation justified before proceeding).
+
+Reference: full audit deliverable in `docs/v0_2_0/pulse-v0_2_0-consolidation-audit-2026-05-19.md`; consolidation plan in `C:\Users\turbo\.claude\plans\rippling-brewing-moon.md` (Phase 2 of the plan = 8 chunks #70-#77 sequential implementation).
+
+---
+
+## 2026-05-20 (session 102) — pulse-v0_2_0-route.md v2→v3 manual-edit precedent: project-internal planning docs are user-edit territory (confidence 0.85)
+
+**Andromeda Refuse 6 mid-route-insertion forbid applies ONLY to `.andromeda/route.md §2`** (the Andromeda-pipeline-managed canonical route). Project-internal planning docs like `docs/v0_2_0/pulse-v0_2_0-route.md` are **user-edit territory** and can be manually edited with `v{N}→v{N+1}` Migration table precedent (per v1→v2 changelog established at session ~65).
+
+**v3 manual edit pattern** (executed this session for consolidation chunks insertion):
+
+1. **Insert new phase mid-route** (NEW Phase 6 — Consolidation) between existing Phase 5 + Phase 6
+2. **Insert 8 new chunks** §70-§77 as Phase 6 body (Form 2-like in spirit but applied to project-internal doc, NOT route.md §2 — different scope)
+3. **Renumber subsequent chunks**: existing §70-§89 → §78-§97 (shift +8); renumber via Edit per chunk header in descending order to avoid collision
+4. **Cascade Depends on / Summary chunk# references** within renumbered chunk bodies (e.g., §73's "Depends on: #71" → "#79"; §72's Summary ref "Cadence Coordinator (#72)" → "(#80)")
+5. **Rename Phase headers**: Phase 6-12 → Phase 7-13 (Phase 6 was Digest pipeline → renamed Phase 7 Incident records + digest pipeline; merged with old Phase 5's §70 Incidents move)
+6. **Refresh Capability-to-chunk mapping table** — fix stale row (old "P-019 to P-023, P-060 | #67 superseded by #72-#77" was wrong per audit Dim 6 — v2 #67 = Drain not Severity classifier; update to v3 numbers)
+7. **Append v3 Changelog entry** at top of changelog section (newest-first per existing convention)
+8. **Append v2→v3 Migration table sub-section** alongside existing v1→v2 migration table (additive — preserves v1→v2 history; readers apply v1→v2 then v2→v3 mentally for full v1→v3 mapping)
+9. **Update Summary section** counts: Total chunks 33 → 41 (existing 33 + 8 consolidation); phase breakdown reflects 14 phases (0-13); TauRPC procedures / broadcast topics / crates lists with v3 chunk numbering refs
+
+**Sequencing within Edit operations**: do renumbering passes in **descending order** (e.g., §89→§97 first, then §88→§96, etc.) to avoid intermediate collisions where the same chunk number would temporarily exist twice. Did this safely via "Phase A2 big structural Edit" replacing whole regions atomically, then per-phase Edits for downstream Phase 7→13 renames.
+
+**Trade-off with Andromeda system docs**: the two route docs (Andromeda `.andromeda/route.md` + project-internal `pulse-v0_2_0-route.md`) will inevitably diverge in chunk numbering — they already diverged at chunks #67/#68/#69 ↔ §67/§68/§69 (inverted) before this consolidation; v3 widens the divergence further (route.md §70 = BaselineState migration but v0_2_0-route §78 = Incidents). Divergence is acceptable because the two docs serve different purposes: route.md §2 is the canonical Andromeda-pipeline route (Form 1 terminal appends only); pulse-v0_2_0-route.md is the project-internal detailed plan (full manual structural control).
+
+**Document the chunk-number divergence explicitly** in session-learnings (extending 2026-05-19 session 100 entry which captures the original #67/#68/#69 inversion). Future agents reading "Chunk #N" need context: which route doc is canonical for that N?
+
+---
+
+## 2026-05-20 (session 102) — Consolidation chunk decomposition: 1:1 audit Section 6 groups → chunks (confidence 0.85)
+
+When audit Section 6 produces N natural scope boundaries, register N consolidation chunks **one-to-one** (granularity choice tested this session). For andromeda-pulse this produced 8 chunks (#70-#77) following:
+
+| Chunk | Audit group | Scope |
+|---|---|---|
+| #70 | A1 | BaselineState → corpus migration (persistence consolidation, EwmaTracker/TDigestPair/RollingWindow/ActivityFloor) |
+| #71 | A2 + A3 | ServiceRegistry + RetryStormState → corpus migration |
+| #72 | B | PII scrubber coverage extension (Drain corpus path + appender + log_records + span_events) |
+| #73 | C | Capability spec numeric alignment (P-001/P-003/P-010/P-011/P-012/P-014) |
+| #74 | F | Architecture registry alignment batch (log_templates DuckDB + corpus schema + cleanup forward-promises) |
+| #75 | G | Documentation consolidation (8 BROKEN + 4 STALE cross-refs + arch narrative cascade) |
+| #76 | H | Andromeda pipeline meta-improvements (P7 + P12 + file P15-P18) |
+| #77 | I | Specialist plan re-runs (/andromeda-security + /andromeda-tests) |
+
+**Default ordering** (dependency-aware; user may revise): persistence first (#70-#71 establish corpus-backed runtime state) → PII (#72 wires scrubber at new corpus persist sites) → capability spec (#73 independent of persistence; can run parallel conceptually) → arch registry (#74 META; consumes #70-#73 final state) → docs (#75 META; consumes #74 final arch state) → Andromeda meta (#76 META; closes recurring drift category) → specialist re-runs (#77 final; re-derives plans with consolidation reality).
+
+**Granularity trade-off considered**: alternatives were 5 chunks (merging meta concerns) or 11+ chunks (atomic per concern). User selected 8 per audit Section 6 groups → clean traceability audit→chunk; each chunk session-scoped (1-3 sessions max).
+
+**Implementation discipline per chunk:** each consolidation chunk follows standard `/andromeda-evolve --allow-route-append Form 1` (register in route.md §2 Epoch 9) → `/andromeda-setup-project --delta` (CLAUDE.md pointer-table cascade) → `/andromeda-phase` (plan implementation) → `/andromeda-implement` (execute) → `/andromeda-wrap-session` (close + archive). Sub-chunk META amendments (Type 6 for arch registry; Type 5 spec amendments for capability downgrades) may fire mid-implementation per chunk scope.
+
+**Trade-off captured in plan**: consolidation phase adds 8-18 sessions (1-2 sessions per chunk × 8 chunks + verification) before §78 Incident records can start. User chose this explicitly over alternative paths (option 2 v0_2_0-route §70+ incident records first; option 3 v0.1.0 ship blockers first) — consistency-first standard justifies upfront cost.
+
+Reference: consolidation plan in `C:\Users\turbo\.claude\plans\rippling-brewing-moon.md`; audit findings in `docs/v0_2_0/pulse-v0_2_0-consolidation-audit-2026-05-19.md` Section 6.
+
+---
+
 ## 2026-05-19 (session 100) — v0_2_0-route plan chunk numbers diverge from andromeda route.md chunk numbers (confidence 0.85)
 
 When a user prompt references "Chunk #N" for v0.2.0 evolution work, that number likely maps to the **v0_2_0-route plan** (`docs/v0_2_0/pulse-v0_2_0-route.md`) — which has its own chunk numbering — NOT to the andromeda master route (`.andromeda/route.md`). Mismatches arose because chunks shipped in a DIFFERENT order than v0_2_0-route originally planned:
