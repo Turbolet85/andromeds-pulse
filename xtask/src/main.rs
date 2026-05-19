@@ -659,6 +659,7 @@ const EXPECTED_PROCEDURES: &[&str] = &[
     "get_settings",
     "update_settings",
     "connection.current_state",
+    "diagnostics.template_distribution",
     "logs.query",
     "metrics.query",
     "services.list_with_states",
@@ -954,6 +955,15 @@ mod capability_drift_tests {
                 "EXPECTED_PROCEDURES must include {proc} (chunk #68 corpus SQLite scaffold + storage router)"
             );
         }
+    }
+
+    #[test]
+    fn expected_procedures_includes_diagnostics_namespace_at_chunk_69() {
+        let expected: BTreeSet<&str> = EXPECTED_PROCEDURES.iter().copied().collect();
+        assert!(
+            expected.contains("diagnostics.template_distribution"),
+            "EXPECTED_PROCEDURES must include diagnostics.template_distribution (chunk #69 Phase B Session 3 Drain template profiling diagnostics)"
+        );
     }
 
     #[test]

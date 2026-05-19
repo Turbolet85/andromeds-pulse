@@ -1,6 +1,6 @@
 schema_version: 2
-last_wrap: 2026-05-19T20:16:00Z
-last_reconcile: 2026-05-19T20:15:00Z
+last_wrap: 2026-05-19T21:30:00Z
+last_reconcile: 2026-05-19T21:30:00Z
 
 last_completed_chunk:
   route_index: 68
@@ -10,26 +10,25 @@ last_completed_chunk:
   commit_sha: 04431cd
   commit_subject: "feat(corpus): chunk #68 — corpus SQLite scaffold + crates/security/ + crates/corpus/ + storage.{inspect,path} TauRPC (Epoch 9 Foundation v0.2.0 twelfth chunk; final Epoch 9 chunk; session 93 impl commit absorbed wrap-session changes per fold-impl-into-wrap pattern; State H placeholder commit_sha=73c983e reconciled to actual at session 94 wrap per session 89/91 precedent)"
 
-# Chunk #69 Phase B Sessions 1+2 COMPLETE this session (98); Sessions 3-6
-# pending. N-session chunk discipline (generalizes session 97's two-phase
-# pattern): last_completed_chunk stays at predecessor (#68) because chunk
-# #69's plan §Implementation notes documents 6-session recommended split;
-# Sessions 1+2 landed atomic standard-gate-green milestones (Session 1
-# drain.rs algorithm core ~620 LOC + 32 tests; Session 2 schema additions
-# + appender hot-path integration + consumer wiring) but chunk does NOT
-# close until Session 6 lands the final registry update via
-# /andromeda-evolve --allow-arch-registry. See
-# .claude/docs/session-learnings.md "N-session implementation pattern
-# affirmed" (2026-05-19 session 98) for the canonical workaround pattern;
-# Andromeda improvement Proposals 13 + 14 (docs/andromeda-improvements.md)
-# propose first-class sub_phase / completion_status schema fields + Phase
-# 2b integration-test smoke fallback to replace these free-text + manual
-# discipline encodings.
+# Chunk #69 Phase B Sessions 3+4+5+6 COMPLETE this session (99); Session 7+
+# pending. N-session chunk discipline (extends session 98's 2-session
+# pattern к 4-session continuous /implement series): last_completed_chunk
+# stays at predecessor (#68) because chunk #69's plan §Implementation
+# notes documents 6-session recommended split + remaining closure work
+# (Steps 8 + 27 + 28 + metric emission code + Step 32 /evolve cycle).
+# Sessions 3-6 landed atomic standard-gate-green milestones (Session 3
+# diagnostics_router.rs + Session 4 CorpusWriter + CorpusDrainPersistence
+# + Session 5 Settings struct expansion + UI Drain config + Session 6 obs
+# AllowList + TemplateDistribution component) but chunk does NOT close
+# until Session 7+ lands the remaining items + /andromeda-evolve
+# --allow-arch-registry. See .claude/docs/session-learnings.md "N-session
+# implementation pattern affirmed" (2026-05-19 session 98) + this wrap's
+# Deferred learnings #3 (4-session continuous /implement pattern).
 in_progress:
   phase: 66
   chunks: [69]
-  sub_phase: phase_b_sessions_1_2_complete
-  completion_status: phase_b_sessions_3_to_6_pending
+  sub_phase: phase_b_sessions_3_to_6_complete
+  completion_status: phase_b_session_7_pending_metrics_step8_step27_step28_step32
   artifacts:
     - .andromeda/decisions/pre-d2-drain-spike.md
     - .andromeda/phases/phase-65/combined.md
@@ -41,8 +40,15 @@ in_progress:
   next_phase_blocked_on: []
   spike_decision: PROCEED
   spike_loc_estimate_revised: "900-1100"
-  sessions_complete: [1, 2]
-  sessions_pending: [3, 4, 5, 6]
+  sessions_complete: [1, 2, 3, 4, 5, 6]
+  sessions_pending: [7]
+  remaining_steps:
+    - "Step 8: write_template_to_table for in-memory DuckDB log_templates write path"
+    - "Step 27: PII negative canary test (depends on Step 8)"
+    - "Step 28: e2e_drain_template_assignment.rs integration test"
+    - "Step 4 follow-up: BufferHeartbeat drain fields + buffer.tick emission + metric.pipeline.l1c.drain_template_count_total emission"
+    - "Per-event latency metric emission: metric.pipeline.l1c.drain_assignment_latency_p99_microseconds (hot-path trace-level)"
+    - "Step 32: /andromeda-evolve --allow-arch-registry for diagnostics.template_distribution arch §Occupied Resources acknowledgment"
   started_at: 2026-05-18T21:35:58Z
 
 plan_freshness:
@@ -57,14 +63,20 @@ plan_freshness:
   input_mtime: 2026-05-02T06:52:58Z
 
 living_artifact_freshness:
-  dep_tree_reconciled_at: 2026-05-19T20:15:00Z
-  api_surface_reconciled_at: 2026-05-19T20:15:00Z
-  most_recent_code_mtime: 2026-05-19T19:59:39Z
+  dep_tree_reconciled_at: 2026-05-19T21:30:00Z
+  api_surface_reconciled_at: 2026-05-19T21:30:00Z
+  most_recent_code_mtime: 2026-05-19T21:30:00Z
   reconcile_failed: false
   api_surface_deferred: true
-  api_surface_deferred_reason: "per-crate cargo +nightly public-api iteration across 14 crates exceeds wrap budget (estimated 7-14 min vs ~3 min wrap budget); pragmatic-deviation per sessions 91/92/94-97 precedent; full reconcile resumes at next implementation session wrap (Session 3 introduces diagnostics_router.rs new TauRPC pub surface — natural re-baseline checkpoint)"
+  api_surface_deferred_reason: "per-crate cargo +nightly public-api iteration across 14 crates exceeds wrap budget (estimated 7-14 min vs ~3 min wrap budget); pragmatic-deviation per sessions 91/92/94-98 precedent (4th consecutive deferral); full reconcile resumes at next /implement-followed wrap after chunk #69 fully closes (Step 8 + 27 + 28 + metric emission + Step 32 land in Session 7+) when full chunk public surface is settled"
 
-drift_warnings: []
+drift_warnings:
+  - drift_id: D3
+    description: "diagnostics.template_distribution TauRPC procedure exists in xtask::EXPECTED_PROCEDURES + pulse-app/ui/src/bindings/index.ts + pulse-app/capabilities/default.json description + production Router + emit_taurpc_bindings test merge BUT does NOT yet appear in .andromeda/architecture.md §Occupied Resources Tauri IPC routes. Expected Type 6 pre-evolve state per chunk #69 plan Step 32 deferral; mirrors session 84's chunk #62 pulse://stream/attention-cues + session 87's chunk #66 + many prior chunks' pre-evolve pattern."
+    severity: warning
+    remediation_hint: "/andromeda-evolve --allow-arch-registry for diagnostics.template_distribution acknowledgment in arch §Occupied Resources Tauri IPC routes"
+    first_observed_session_count: 99
+    last_observed_session_count: 99
 
 spec_amendments:
   active: []
@@ -481,4 +493,4 @@ spec_amendments:
       propagated_by_run: .andromeda/runs/2026-05-11T19-00-00-setup-project-delta/
       archived_at: 2026-05-11T19:25:00Z
 
-session_count: 98
+session_count: 99

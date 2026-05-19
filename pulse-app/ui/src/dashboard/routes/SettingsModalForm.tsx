@@ -28,6 +28,7 @@ import {
   type Theme,
   type WidgetPosition,
 } from "../../bindings";
+import { TemplateDistribution } from "./diagnostics/TemplateDistribution";
 
 type SettingsResolved = Required<Settings>;
 
@@ -42,10 +43,22 @@ const DEFAULT_SETTINGS: SettingsResolved = {
   snapshot_format: "markdown",
   lifecycle_dormant_after_secs: 3_600,
   lifecycle_archived_after_secs: 86_400,
+  drain_depth: 4,
+  drain_similarity_x100: 50,
+  drain_max_clusters: 1000,
 };
 
 const RETENTION_SECONDS_MIN = 60;
 const RETENTION_SECONDS_MAX = 86_400;
+// Chunk #69 Phase B Session 5 — Drain knob bounds mirror the Rust-side
+// constants in `crates/ui-bridge/src/contract.rs` (DRAIN_DEPTH_MIN/MAX /
+// DRAIN_SIMILARITY_X100_MIN/MAX / DRAIN_MAX_CLUSTERS_MIN/MAX). Kept in
+// sync with the backend bounds discipline; validation surfaces via the
+// `update_settings` AppError::Validation { field, reason } path.
+const DRAIN_SIMILARITY_X100_MIN = 30;
+const DRAIN_SIMILARITY_X100_MAX = 70;
+const DRAIN_MAX_CLUSTERS_MIN = 100;
+const DRAIN_MAX_CLUSTERS_MAX = 10_000;
 
 let cachedClient: ReturnType<typeof createTauRPCProxy> | null = null;
 
@@ -75,6 +88,9 @@ interface FieldErrors {
   snapshot_format?: string;
   theme?: string;
   widget_position?: string;
+  drain_depth?: string;
+  drain_similarity_x100?: string;
+  drain_max_clusters?: string;
   generic?: string;
 }
 
@@ -121,6 +137,10 @@ export function SettingsModalForm({
   const [saving, setSaving] = useState<boolean>(false);
   const [errors, setErrors] = useState<FieldErrors>({});
   const [statusMessage, setStatusMessage] = useState<string>("");
+  // Chunk #69 Phase B Session 6 — Diagnostics disclosure section (plan
+  // Step 21). Inline collapsible per Open Question Q5 option (i);
+  // component-local state OK (no persistence).
+  const [diagnosticsOpen, setDiagnosticsOpen] = useState<boolean>(false);
   const initialFocusRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -170,6 +190,26 @@ export function SettingsModalForm({
     const parsed = Number(raw);
     if (Number.isFinite(parsed)) {
       setFormState((prev) => ({ ...prev, retention_seconds: parsed }));
+    }
+  };
+
+  const onDrainSimilarityChange = (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    const raw = event.target.value;
+    const parsed = Number(raw);
+    if (Number.isFinite(parsed)) {
+      setFormState((prev) => ({ ...prev, drain_similarity_x100: parsed }));
+    }
+  };
+
+  const onDrainMaxClustersChange = (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    const raw = event.target.value;
+    const parsed = Number(raw);
+    if (Number.isFinite(parsed)) {
+      setFormState((prev) => ({ ...prev, drain_max_clusters: parsed }));
     }
   };
 
@@ -403,6 +443,251 @@ export function SettingsModalForm({
             </Radio>
           </div>
         </RadioGroup>
+
+        <section
+          aria-labelledby="drain-config-label"
+          style={fieldGroupStyle}
+        >
+          <h3
+            id="drain-config-label"
+            style={{
+              ...labelStyle,
+              fontFamily: "var(--font-display)",
+              fontSize: "14px",
+              fontWeight: 600,
+              margin: 0,
+            }}
+          >
+            Drain log-template mining
+          </h3>
+
+          <RadioGroup
+            value={String(formState.drain_depth)}
+            onChange={(value) =>
+              setFormState((prev) => ({
+                ...prev,
+                drain_depth: Number(value),
+              }))
+            }
+            isDisabled={loading || saving}
+            aria-labelledby="drain-depth-label"
+            style={fieldGroupStyle}
+          >
+            <Label id="drain-depth-label" style={labelStyle}>
+              Tree depth
+            </Label>
+            <div style={radioRowStyle}>
+              <Radio value="3" style={radioStyle}>
+                3
+              </Radio>
+              <Radio value="4" style={radioStyle}>
+                4 (default)
+              </Radio>
+              <Radio value="5" style={radioStyle}>
+                5
+              </Radio>
+            </div>
+            {errors.drain_depth ? (
+              <span
+                id="drain-depth-error"
+                role="alert"
+                style={{
+                  fontSize: "12px",
+                  color: "var(--color-text-primary)",
+                }}
+              >
+                {errors.drain_depth}
+              </span>
+            ) : null}
+          </RadioGroup>
+
+          <div style={fieldGroupStyle}>
+            <label
+              htmlFor="settings-drain-similarity"
+              style={labelStyle}
+            >
+              Similarity threshold (×100)
+            </label>
+            <input
+              id="settings-drain-similarity"
+              type="number"
+              min={DRAIN_SIMILARITY_X100_MIN}
+              max={DRAIN_SIMILARITY_X100_MAX}
+              step={5}
+              value={String(formState.drain_similarity_x100)}
+              onChange={onDrainSimilarityChange}
+              disabled={loading || saving}
+              aria-describedby={
+                errors.drain_similarity_x100
+                  ? "drain-similarity-error drain-similarity-help-text"
+                  : "drain-similarity-help-text"
+              }
+              aria-invalid={Boolean(errors.drain_similarity_x100)}
+              style={{
+                background: "var(--color-inset)",
+                border: errors.drain_similarity_x100
+                  ? "1px solid rgba(199, 85, 106, 0.5)"
+                  : "1px solid rgba(74, 144, 226, 0.3)",
+                borderRadius: "var(--radius-sm)",
+                padding: "var(--spacing-sm)",
+                color: "var(--color-text-primary)",
+                fontFamily: "var(--font-code)",
+                fontSize: "12px",
+                maxWidth: "180px",
+              }}
+            />
+            <span
+              id="drain-similarity-help-text"
+              style={{
+                fontSize: "12px",
+                color: "var(--color-text-secondary)",
+              }}
+            >
+              Range {DRAIN_SIMILARITY_X100_MIN}–{DRAIN_SIMILARITY_X100_MAX}{" "}
+              (represents 0.30–0.70; 50 ↔ 0.50)
+            </span>
+            {errors.drain_similarity_x100 ? (
+              <span
+                id="drain-similarity-error"
+                role="alert"
+                style={{
+                  fontSize: "12px",
+                  color: "var(--color-text-primary)",
+                }}
+              >
+                {errors.drain_similarity_x100}
+              </span>
+            ) : null}
+          </div>
+
+          <div style={fieldGroupStyle}>
+            <label
+              htmlFor="settings-drain-max-clusters"
+              style={labelStyle}
+            >
+              Max template clusters
+            </label>
+            <input
+              id="settings-drain-max-clusters"
+              type="number"
+              min={DRAIN_MAX_CLUSTERS_MIN}
+              max={DRAIN_MAX_CLUSTERS_MAX}
+              step={100}
+              value={String(formState.drain_max_clusters)}
+              onChange={onDrainMaxClustersChange}
+              disabled={loading || saving}
+              aria-describedby={
+                errors.drain_max_clusters
+                  ? "drain-max-clusters-error drain-max-clusters-help-text"
+                  : "drain-max-clusters-help-text"
+              }
+              aria-invalid={Boolean(errors.drain_max_clusters)}
+              style={{
+                background: "var(--color-inset)",
+                border: errors.drain_max_clusters
+                  ? "1px solid rgba(199, 85, 106, 0.5)"
+                  : "1px solid rgba(74, 144, 226, 0.3)",
+                borderRadius: "var(--radius-sm)",
+                padding: "var(--spacing-sm)",
+                color: "var(--color-text-primary)",
+                fontFamily: "var(--font-code)",
+                fontSize: "12px",
+                maxWidth: "180px",
+              }}
+            />
+            <span
+              id="drain-max-clusters-help-text"
+              style={{
+                fontSize: "12px",
+                color: "var(--color-text-secondary)",
+              }}
+            >
+              Range {DRAIN_MAX_CLUSTERS_MIN}–{DRAIN_MAX_CLUSTERS_MAX} (LRU-bounded)
+            </span>
+            {errors.drain_max_clusters ? (
+              <span
+                id="drain-max-clusters-error"
+                role="alert"
+                style={{
+                  fontSize: "12px",
+                  color: "var(--color-text-primary)",
+                }}
+              >
+                {errors.drain_max_clusters}
+              </span>
+            ) : null}
+          </div>
+
+          <div
+            role="status"
+            aria-live="polite"
+            data-testid="drain-restart-required-notice"
+            style={{
+              border: "1px solid var(--color-accent)",
+              background: "var(--color-base)",
+              borderRadius: "var(--radius-sm)",
+              padding: "var(--spacing-sm)",
+              color: "var(--color-text-primary)",
+              fontSize: "12px",
+            }}
+          >
+            Drain config changes require restart to apply (template tree
+            invalidation).
+          </div>
+        </section>
+
+        <section
+          aria-labelledby="diagnostics-section-label"
+          style={fieldGroupStyle}
+        >
+          <h3
+            id="diagnostics-section-label"
+            style={{
+              ...labelStyle,
+              fontFamily: "var(--font-display)",
+              fontSize: "14px",
+              fontWeight: 600,
+              margin: 0,
+            }}
+          >
+            Diagnostics
+          </h3>
+          <button
+            type="button"
+            aria-expanded={diagnosticsOpen}
+            aria-controls="diagnostics-panel"
+            data-testid="diagnostics-disclosure-toggle"
+            onClick={() => setDiagnosticsOpen((prev) => !prev)}
+            disabled={loading || saving}
+            style={{
+              alignSelf: "flex-start",
+              background: "var(--color-raised-1)",
+              color: "var(--color-text-primary)",
+              border: "1px solid rgba(74, 144, 226, 0.3)",
+              borderRadius: "var(--radius-sm)",
+              padding: "var(--spacing-sm) var(--spacing-md)",
+              fontFamily: "var(--font-body)",
+              fontSize: "12px",
+              cursor: "pointer",
+            }}
+          >
+            {diagnosticsOpen ? "Hide" : "Show"} template distribution
+          </button>
+          {diagnosticsOpen ? (
+            <div
+              id="diagnostics-panel"
+              data-testid="diagnostics-panel"
+              style={{
+                background: "var(--color-raised-1)",
+                border: "1px solid rgba(74, 144, 226, 0.1)",
+                borderRadius: "var(--radius-md)",
+                padding: "var(--spacing-md)",
+              }}
+            >
+              <TemplateDistribution />
+            </div>
+          ) : null}
+        </section>
 
         <section
           aria-labelledby="plugin-manager-label"

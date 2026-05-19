@@ -128,6 +128,23 @@ pub struct Settings {
     pub lifecycle_dormant_after_secs: u64,
     #[serde(default = "default_lifecycle_archived_after_secs")]
     pub lifecycle_archived_after_secs: u64,
+    // Chunk #69 Phase B Session 5 — Drain template-mining knobs. Persisted
+    // via Settings precedent (CLAUDE.md 2026-05-09 Settings-extension
+    // pattern avoids the security ↔ tests/CI ↔ arch capability-drift
+    // triple binding). Runtime DrainConfig captures these at boot;
+    // changes require restart to apply (P-055 — restart-required notice
+    // surface).
+    //
+    // `drain_similarity_x100` is the percent-scaled integer form of the
+    // float similarity threshold ∈ (0, 1] (50 ↔ 0.50). Integer storage
+    // preserves Settings' PartialEq + Eq derive (f32 doesn't implement
+    // Eq); boot code converts via `value as f32 / 100.0`.
+    #[serde(default = "default_drain_depth")]
+    pub drain_depth: u32,
+    #[serde(default = "default_drain_similarity_x100")]
+    pub drain_similarity_x100: u32,
+    #[serde(default = "default_drain_max_clusters")]
+    pub drain_max_clusters: u32,
 }
 
 fn default_retention_seconds() -> u64 {
@@ -156,6 +173,22 @@ fn default_lifecycle_archived_after_secs() -> u64 {
     86_400
 }
 
+// Chunk #69 Phase B Session 5 — Drain knob defaults match the route-spec
+// values used by `buffer::drain::DrainConfig::default_config()` so
+// missing-Settings boot path produces identical DrainMiner state к
+// settings-driven boot path.
+fn default_drain_depth() -> u32 {
+    4
+}
+
+fn default_drain_similarity_x100() -> u32 {
+    50
+}
+
+fn default_drain_max_clusters() -> u32 {
+    1000
+}
+
 impl Default for Settings {
     fn default() -> Self {
         Self {
@@ -169,6 +202,9 @@ impl Default for Settings {
             snapshot_format: SnapshotFormat::default(),
             lifecycle_dormant_after_secs: default_lifecycle_dormant_after_secs(),
             lifecycle_archived_after_secs: default_lifecycle_archived_after_secs(),
+            drain_depth: default_drain_depth(),
+            drain_similarity_x100: default_drain_similarity_x100(),
+            drain_max_clusters: default_drain_max_clusters(),
         }
     }
 }
@@ -184,6 +220,18 @@ pub const RETENTION_SECONDS_MAX: u64 = 86_400;
 // to u64::MAX / 1_000_000_000 to keep wall-clock conversions safe).
 pub const LIFECYCLE_THRESHOLD_MIN_SECS: u64 = 60;
 pub const LIFECYCLE_THRESHOLD_MAX_SECS: u64 = i64::MAX as u64 / 1_000_000_000;
+
+// Chunk #69 Phase B Session 5 — Drain knob bounds. Per pulse-v0_2_0-route
+// §67 line 296 + plan Step 14: depth ∈ {3,4,5}, similarity ∈ [0.30, 0.70]
+// (50 = 0.50 scaled), max_clusters ∈ [100, 10000]. Validation is
+// exclusive-inclusive at both ends per security plan §Input Validation
+// "Configuration values" reject-out-of-range discipline.
+pub const DRAIN_DEPTH_MIN: u32 = 3;
+pub const DRAIN_DEPTH_MAX: u32 = 5;
+pub const DRAIN_SIMILARITY_X100_MIN: u32 = 30;
+pub const DRAIN_SIMILARITY_X100_MAX: u32 = 70;
+pub const DRAIN_MAX_CLUSTERS_MIN: u32 = 100;
+pub const DRAIN_MAX_CLUSTERS_MAX: u32 = 10_000;
 
 impl Settings {
     pub fn validate(&self) -> Result<(), AppError> {
@@ -213,6 +261,26 @@ impl Settings {
             return Err(AppError::Validation {
                 field: "lifecycle_archived_after_secs".to_string(),
                 reason: "must be >= lifecycle_dormant_after_secs".to_string(),
+            });
+        }
+        if !(DRAIN_DEPTH_MIN..=DRAIN_DEPTH_MAX).contains(&self.drain_depth) {
+            return Err(AppError::Validation {
+                field: "drain_depth".to_string(),
+                reason: "out of range".to_string(),
+            });
+        }
+        if !(DRAIN_SIMILARITY_X100_MIN..=DRAIN_SIMILARITY_X100_MAX)
+            .contains(&self.drain_similarity_x100)
+        {
+            return Err(AppError::Validation {
+                field: "drain_similarity_x100".to_string(),
+                reason: "out of range".to_string(),
+            });
+        }
+        if !(DRAIN_MAX_CLUSTERS_MIN..=DRAIN_MAX_CLUSTERS_MAX).contains(&self.drain_max_clusters) {
+            return Err(AppError::Validation {
+                field: "drain_max_clusters".to_string(),
+                reason: "out of range".to_string(),
             });
         }
         Ok(())
@@ -1748,6 +1816,9 @@ mod tests {
             snapshot_format: SnapshotFormat::Json,
             lifecycle_dormant_after_secs: 7_200,
             lifecycle_archived_after_secs: 172_800,
+            drain_depth: 5,
+            drain_similarity_x100: 60,
+            drain_max_clusters: 500,
         };
         let json = serde_json::to_string(&s).expect("serializes");
         let parsed: Settings = serde_json::from_str(&json).expect("parses back");
@@ -1948,6 +2019,134 @@ mod tests {
         let parsed: Settings = serde_json::from_str(&json).expect("deserialize");
         assert_eq!(parsed.lifecycle_dormant_after_secs, 7_200);
         assert_eq!(parsed.lifecycle_archived_after_secs, 172_800);
+    }
+
+    // ===== Chunk #69 Phase B Session 5 — Drain knob validation =====
+
+    #[test]
+    fn settings_default_drain_knobs_match_route_spec() {
+        let s = Settings::default();
+        assert_eq!(s.drain_depth, 4);
+        assert_eq!(s.drain_similarity_x100, 50);
+        assert_eq!(s.drain_max_clusters, 1000);
+    }
+
+    #[test]
+    fn settings_validate_accepts_default_drain_knobs() {
+        let s = Settings::default();
+        assert!(s.validate().is_ok());
+    }
+
+    #[test]
+    fn settings_validate_rejects_below_min_drain_depth() {
+        let s = Settings {
+            drain_depth: 2,
+            ..Settings::default()
+        };
+        match s.validate() {
+            Err(AppError::Validation { field, reason }) => {
+                assert_eq!(field, "drain_depth");
+                assert_eq!(reason, "out of range");
+            }
+            other => panic!("expected Validation error, got {other:?}"),
+        }
+    }
+
+    #[test]
+    fn settings_validate_rejects_above_max_drain_depth() {
+        let s = Settings {
+            drain_depth: 6,
+            ..Settings::default()
+        };
+        match s.validate() {
+            Err(AppError::Validation { field, .. }) => {
+                assert_eq!(field, "drain_depth");
+            }
+            other => panic!("expected Validation error, got {other:?}"),
+        }
+    }
+
+    #[test]
+    fn settings_validate_rejects_below_min_drain_similarity_x100() {
+        let s = Settings {
+            drain_similarity_x100: 29,
+            ..Settings::default()
+        };
+        match s.validate() {
+            Err(AppError::Validation { field, .. }) => {
+                assert_eq!(field, "drain_similarity_x100");
+            }
+            other => panic!("expected Validation error, got {other:?}"),
+        }
+    }
+
+    #[test]
+    fn settings_validate_rejects_above_max_drain_similarity_x100() {
+        let s = Settings {
+            drain_similarity_x100: 71,
+            ..Settings::default()
+        };
+        match s.validate() {
+            Err(AppError::Validation { field, .. }) => {
+                assert_eq!(field, "drain_similarity_x100");
+            }
+            other => panic!("expected Validation error, got {other:?}"),
+        }
+    }
+
+    #[test]
+    fn settings_validate_rejects_below_min_drain_max_clusters() {
+        let s = Settings {
+            drain_max_clusters: 50,
+            ..Settings::default()
+        };
+        match s.validate() {
+            Err(AppError::Validation { field, .. }) => {
+                assert_eq!(field, "drain_max_clusters");
+            }
+            other => panic!("expected Validation error, got {other:?}"),
+        }
+    }
+
+    #[test]
+    fn settings_validate_rejects_above_max_drain_max_clusters() {
+        let s = Settings {
+            drain_max_clusters: 10_001,
+            ..Settings::default()
+        };
+        match s.validate() {
+            Err(AppError::Validation { field, .. }) => {
+                assert_eq!(field, "drain_max_clusters");
+            }
+            other => panic!("expected Validation error, got {other:?}"),
+        }
+    }
+
+    #[test]
+    fn settings_validate_accepts_drain_extremes_within_range() {
+        let s_low = Settings {
+            drain_depth: DRAIN_DEPTH_MIN,
+            drain_similarity_x100: DRAIN_SIMILARITY_X100_MIN,
+            drain_max_clusters: DRAIN_MAX_CLUSTERS_MIN,
+            ..Settings::default()
+        };
+        assert!(s_low.validate().is_ok());
+        let s_high = Settings {
+            drain_depth: DRAIN_DEPTH_MAX,
+            drain_similarity_x100: DRAIN_SIMILARITY_X100_MAX,
+            drain_max_clusters: DRAIN_MAX_CLUSTERS_MAX,
+            ..Settings::default()
+        };
+        assert!(s_high.validate().is_ok());
+    }
+
+    #[test]
+    fn settings_partial_deserialize_uses_defaults_for_missing_drain_fields() {
+        let json = r#"{"theme":"light"}"#;
+        let s: Settings = serde_json::from_str(json).expect("parses");
+        assert_eq!(s.drain_depth, 4);
+        assert_eq!(s.drain_similarity_x100, 50);
+        assert_eq!(s.drain_max_clusters, 1000);
     }
 
     #[test]

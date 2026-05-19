@@ -11,7 +11,7 @@ use std::fmt::Debug;
 use std::path::{Path, PathBuf};
 use std::sync::{Arc, Mutex};
 
-use rusqlite::Connection;
+use rusqlite::{Connection, OptionalExtension};
 use serde::{Deserialize, Serialize};
 
 pub use crate::error::Error;
@@ -20,7 +20,7 @@ pub use crate::keychain::{
 };
 
 use crate::db;
-use crate::encryption::EncryptionKey;
+use crate::encryption::{EncryptionKey, cell_decrypt, cell_encrypt};
 use crate::schema::{SCHEMA_VERSION, TABLE_NAMES};
 
 /// Per-table record count + on-disk byte size + schema version. Returned
@@ -145,6 +145,102 @@ impl CorpusReader for Corpus {
     }
 }
 
+/// Write-side corpus operations for the pipeline-metric persistence
+/// surface (chunk #69 Phase B Drain template tree persistence; future
+/// chunks #71+ digest archive writes). Parallel trait to [`CorpusReader`]:
+/// keeps the read-only-by-design posture of P-051 — write capability is
+/// only exposed to consumers that explicitly bind `Arc<dyn CorpusWriter>`.
+///
+/// Payloads MUST be pre-encrypted-free plaintext at this boundary; the
+/// impl wraps each payload в AES-256-GCM before the SQLite INSERT (per
+/// chunk #68 cell-level encryption discipline). Caller's plaintext
+/// payload SHOULD already have been PII-scrubbed via
+/// `security::scrubber::scrub_attribute` at the producer side — encryption
+/// is defense-in-depth for the at-rest threat model, not a substitute for
+/// PII scrubbing at the producer (per security plan §Logging NEVER-log
+/// discipline + obs-plan §8 default-deny posture).
+pub trait CorpusWriter: Send + Sync {
+    /// Persist a pipeline-metric snapshot. `metric_name` + `layer`
+    /// together identify the metric series (e.g.,
+    /// `("drain_template_tree", "l1c")` for chunk #69 Drain persistence).
+    /// `payload` is the plaintext-bytes to encrypt + store; the impl
+    /// stamps `snapshot_unix_nano` from system time.
+    ///
+    /// Implementation appends a new row each call; the latest row для
+    /// the given `(metric_name, layer)` pair is what
+    /// [`Self::load_pipeline_metric`] returns. A bounded-history sweep
+    /// is out of scope for chunk #69 (deferred к а follow-on retention
+    /// chunk).
+    fn save_pipeline_metric(
+        &self,
+        metric_name: &str,
+        layer: &str,
+        payload: &[u8],
+    ) -> Result<(), Error>;
+
+    /// Load the most recent pipeline-metric snapshot for the given
+    /// `(metric_name, layer)` pair. Returns `Ok(None)` when no prior
+    /// snapshot exists; `Err` on decryption failure or SQL error.
+    fn load_pipeline_metric(
+        &self,
+        metric_name: &str,
+        layer: &str,
+    ) -> Result<Option<Vec<u8>>, Error>;
+}
+
+impl CorpusWriter for Corpus {
+    fn save_pipeline_metric(
+        &self,
+        metric_name: &str,
+        layer: &str,
+        payload: &[u8],
+    ) -> Result<(), Error> {
+        let encrypted = cell_encrypt(self.key(), payload)?;
+        let snapshot_unix_nano = current_unix_nanos();
+        let conn = self.connection();
+        let guard = conn.lock().map_err(|_| Error::QueryFailed)?;
+        guard
+            .execute(
+                "INSERT INTO pipeline_metrics (metric_name, layer, snapshot_unix_nano, payload) VALUES (?1, ?2, ?3, ?4)",
+                rusqlite::params![metric_name, layer, snapshot_unix_nano, &encrypted[..]],
+            )
+            .map_err(|_| Error::QueryFailed)?;
+        Ok(())
+    }
+
+    fn load_pipeline_metric(
+        &self,
+        metric_name: &str,
+        layer: &str,
+    ) -> Result<Option<Vec<u8>>, Error> {
+        let conn = self.connection();
+        let guard = conn.lock().map_err(|_| Error::QueryFailed)?;
+        let mut stmt = guard
+            .prepare(
+                "SELECT payload FROM pipeline_metrics WHERE metric_name = ?1 AND layer = ?2 ORDER BY snapshot_unix_nano DESC LIMIT 1",
+            )
+            .map_err(|_| Error::QueryFailed)?;
+        let encrypted_opt: Option<Vec<u8>> = stmt
+            .query_row(rusqlite::params![metric_name, layer], |row| row.get(0))
+            .optional()
+            .map_err(|_| Error::QueryFailed)?;
+        match encrypted_opt {
+            Some(encrypted) => {
+                let plaintext = cell_decrypt(self.key(), &encrypted)?;
+                Ok(Some(plaintext))
+            }
+            None => Ok(None),
+        }
+    }
+}
+
+fn current_unix_nanos() -> i64 {
+    std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .map(|d| i64::try_from(d.as_nanos()).unwrap_or(i64::MAX))
+        .unwrap_or(0)
+}
+
 fn basename(path: &Path) -> String {
     path.file_name()
         .and_then(|s| s.to_str())
@@ -264,5 +360,164 @@ mod tests {
         let reader: Arc<dyn CorpusReader> = Arc::new(corpus);
         let meta = reader.inspect().expect("inspect via trait");
         assert_eq!(meta.schema_version, SCHEMA_VERSION);
+    }
+
+    // ===== CorpusWriter trait tests (chunk #69 Phase B Session 4) =====
+
+    #[test]
+    fn corpus_writer_save_then_load_round_trips_plaintext_bytes() {
+        let corpus = test_corpus();
+        let writer: Arc<dyn CorpusWriter> = Arc::new(corpus);
+        let payload = b"drain-state-bincode-bytes-go-here-but-this-is-a-fixture";
+        writer
+            .save_pipeline_metric("drain_template_tree", "l1c", payload)
+            .expect("save");
+        let loaded = writer
+            .load_pipeline_metric("drain_template_tree", "l1c")
+            .expect("load")
+            .expect("Some(bytes)");
+        assert_eq!(loaded, payload);
+    }
+
+    #[test]
+    fn corpus_writer_load_returns_none_when_no_prior_save() {
+        let corpus = test_corpus();
+        let writer: Arc<dyn CorpusWriter> = Arc::new(corpus);
+        let loaded = writer
+            .load_pipeline_metric("never_saved", "l1c")
+            .expect("load");
+        assert!(loaded.is_none());
+    }
+
+    #[test]
+    fn corpus_writer_load_returns_latest_snapshot_when_multiple_saved() {
+        let corpus = test_corpus();
+        let writer: Arc<dyn CorpusWriter> = Arc::new(corpus);
+        writer
+            .save_pipeline_metric("drain_template_tree", "l1c", b"v1-older")
+            .expect("save v1");
+        // Small sleep to ensure distinct snapshot_unix_nano values; nanosecond
+        // precision is generally enough but be explicit.
+        std::thread::sleep(std::time::Duration::from_millis(2));
+        writer
+            .save_pipeline_metric("drain_template_tree", "l1c", b"v2-newer")
+            .expect("save v2");
+        let loaded = writer
+            .load_pipeline_metric("drain_template_tree", "l1c")
+            .expect("load")
+            .expect("Some(bytes)");
+        assert_eq!(loaded, b"v2-newer");
+    }
+
+    #[test]
+    fn corpus_writer_distinct_layer_or_name_persists_separately() {
+        let corpus = test_corpus();
+        let writer: Arc<dyn CorpusWriter> = Arc::new(corpus);
+        writer
+            .save_pipeline_metric("drain_template_tree", "l1c", b"drain-payload")
+            .expect("save drain");
+        writer
+            .save_pipeline_metric("baseline_state", "l1b", b"baseline-payload")
+            .expect("save baseline");
+        let drain_loaded = writer
+            .load_pipeline_metric("drain_template_tree", "l1c")
+            .expect("load drain")
+            .expect("Some");
+        let baseline_loaded = writer
+            .load_pipeline_metric("baseline_state", "l1b")
+            .expect("load baseline")
+            .expect("Some");
+        assert_eq!(drain_loaded, b"drain-payload");
+        assert_eq!(baseline_loaded, b"baseline-payload");
+    }
+
+    #[test]
+    fn corpus_writer_empty_payload_round_trips() {
+        let corpus = test_corpus();
+        let writer: Arc<dyn CorpusWriter> = Arc::new(corpus);
+        writer
+            .save_pipeline_metric("empty_metric", "l0", b"")
+            .expect("save empty");
+        let loaded = writer
+            .load_pipeline_metric("empty_metric", "l0")
+            .expect("load empty")
+            .expect("Some");
+        assert!(loaded.is_empty());
+    }
+
+    #[test]
+    fn corpus_writer_persists_across_corpus_reopen() {
+        let tmp = TempDir::new().expect("tmp");
+        let path = tmp.path().join("writer-persist-test.db");
+        let backend_key = [0x5Au8; 32];
+        {
+            let backend: Arc<dyn KeychainBackend> = Arc::new(FakeKeychainBackend::with_seeded_key(
+                "corpus-key",
+                backend_key,
+            ));
+            let corpus = Corpus::open(path.clone(), backend).expect("open");
+            let writer: Arc<dyn CorpusWriter> = Arc::new(corpus);
+            writer
+                .save_pipeline_metric(
+                    "drain_template_tree",
+                    "l1c",
+                    b"persisted-across-reopen-payload",
+                )
+                .expect("save");
+        }
+        let backend2: Arc<dyn KeychainBackend> = Arc::new(FakeKeychainBackend::with_seeded_key(
+            "corpus-key",
+            backend_key,
+        ));
+        let corpus2 = Corpus::open(path.clone(), backend2).expect("reopen");
+        let writer2: Arc<dyn CorpusWriter> = Arc::new(corpus2);
+        let loaded = writer2
+            .load_pipeline_metric("drain_template_tree", "l1c")
+            .expect("load")
+            .expect("Some after reopen");
+        assert_eq!(loaded, b"persisted-across-reopen-payload");
+    }
+
+    #[test]
+    fn corpus_writer_save_encrypts_payload_on_disk() {
+        let tmp = TempDir::new().expect("tmp");
+        let path = tmp.path().join("encryption-canary.db");
+        let backend_key = [0x33u8; 32];
+        let canary = b"DISTINCTIVE-PLAINTEXT-CANARY-MUST-NOT-APPEAR-RAW";
+        {
+            let backend: Arc<dyn KeychainBackend> = Arc::new(FakeKeychainBackend::with_seeded_key(
+                "corpus-key",
+                backend_key,
+            ));
+            let corpus = Corpus::open(path.clone(), backend).expect("open");
+            let writer: Arc<dyn CorpusWriter> = Arc::new(corpus);
+            writer
+                .save_pipeline_metric("canary_metric", "l1c", canary)
+                .expect("save");
+        }
+        // Read raw file bytes; assert the canary plaintext is NOT present
+        // (encryption discipline). This is the at-rest defense test
+        // mirroring chunk #68 encryption.rs round-trip discipline.
+        let raw = std::fs::read(&path).expect("read raw db");
+        let canary_position = raw
+            .windows(canary.len())
+            .position(|window| window == canary);
+        assert!(
+            canary_position.is_none(),
+            "plaintext canary leaked at-rest at byte offset {canary_position:?}"
+        );
+    }
+
+    #[test]
+    fn corpus_writer_trait_dispatch_works() {
+        let corpus = test_corpus();
+        let writer: Arc<dyn CorpusWriter> = Arc::new(corpus);
+        writer
+            .save_pipeline_metric("dispatch_test", "l1c", b"x")
+            .expect("save via trait");
+        let loaded = writer
+            .load_pipeline_metric("dispatch_test", "l1c")
+            .expect("load via trait");
+        assert!(loaded.is_some());
     }
 }

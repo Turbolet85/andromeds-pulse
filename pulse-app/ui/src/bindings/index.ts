@@ -25,6 +25,8 @@ export type ConnectionState = { state: "Listening" } | { state: "Receiving" } | 
  */
 export type ConnectionStatePayload = { state: ConnectionState; last_span_ago_ms: number; severity: Severity; message: string | null; reason: ReceiverFailureReason | null }
 
+export type DriftIndicatorPayload = "Healthy" | "OverGeneralized" | "UnderClustered"
+
 export type FrameDurationInput = { duration_ms: number; wgpu_backend: WgpuBackend; webview_backend: WebviewBackend; timing_method: TimingMethod }
 
 export type HealthEnvelope = { status: HealthStatus; checked_at: string; subsystems: SubsystemStatuses; pid: number; uptime_ms: number }
@@ -92,7 +94,7 @@ export type ServiceListItem = { service: string; state: ServiceLifecycleState; l
  */
 export type ServiceListPayload = { items: ServiceListItem[]; total: number; next_cursor: string | null }
 
-export type Settings = { theme?: Theme; widget_position?: WidgetPosition; retention_seconds?: number; mcp_server_enabled?: boolean; notifications_enabled?: boolean; always_on_top?: boolean; snapshot_preset?: SnapshotPreset; snapshot_format?: SnapshotFormat; lifecycle_dormant_after_secs?: number; lifecycle_archived_after_secs?: number }
+export type Settings = { theme?: Theme; widget_position?: WidgetPosition; retention_seconds?: number; mcp_server_enabled?: boolean; notifications_enabled?: boolean; always_on_top?: boolean; snapshot_preset?: SnapshotPreset; snapshot_format?: SnapshotFormat; lifecycle_dormant_after_secs?: number; lifecycle_archived_after_secs?: number; drain_depth?: number; drain_similarity_x100?: number; drain_max_clusters?: number }
 
 /**
  * Severity hint enabling future webview `aria-live` polite-vs-assertive
@@ -132,6 +134,10 @@ export type SubsystemStatuses = { otlp_grpc_receiver: SubsystemStatus; otlp_http
  */
 export type TableRecordCount = { table: string; count: number }
 
+export type TemplateDistEntryPayload = { id: number; content: string; occurrence_count: number; drift_indicator: DriftIndicatorPayload }
+
+export type TemplateDistributionPayload = { templates: TemplateDistEntryPayload[]; total_template_count: number; last_updated_unix_nano: number }
+
 export type Theme = "dark" | "light" | "auto"
 
 export type TimingMethod = "cpu" | "gpu"
@@ -148,13 +154,14 @@ export type WidgetPosition = "top-left" | "top-right" | "bottom-left" | "bottom-
 
 export type WorkspaceContextDto = { root_basename: string; project_name: string | null; vcs_type: string | null; vcs_root_basename: string | null; has_andromeda_marker: boolean }
 
-const ARGS_MAP = { '':'{"app_info":[],"get_settings":[],"health":[],"ready":[],"update_settings":["settings"]}', 'connection':'{"current_state":[]}', 'logs':'{"query":["args"]}', 'mcp':'{"start":[],"status":[],"stop":[]}', 'metrics':'{"query":["args"]}', 'plugins':'{"invoke":["plugin_id","capability"],"list":[],"reload":[]}', 'services':'{"list_with_states":[]}', 'snapshot':'{"generate":["preset","workspace_root"]}', 'storage':'{"inspect":[],"path":[]}', 'streams':'{"subscribe_logs":["channel"],"subscribe_metrics":["channel"],"subscribe_spans":["channel"]}', 'telemetry.frontend':'{"record_frame_ms":["input"]}', 'traces':'{"query":["args"]}', 'workspace':'{"detect":["candidate_root"]}' }
+const ARGS_MAP = { '':'{"app_info":[],"get_settings":[],"health":[],"ready":[],"update_settings":["settings"]}', 'connection':'{"current_state":[]}', 'diagnostics':'{"template_distribution":[]}', 'logs':'{"query":["args"]}', 'mcp':'{"start":[],"status":[],"stop":[]}', 'metrics':'{"query":["args"]}', 'plugins':'{"invoke":["plugin_id","capability"],"list":[],"reload":[]}', 'services':'{"list_with_states":[]}', 'snapshot':'{"generate":["preset","workspace_root"]}', 'storage':'{"inspect":[],"path":[]}', 'streams':'{"subscribe_logs":["channel"],"subscribe_metrics":["channel"],"subscribe_spans":["channel"]}', 'telemetry.frontend':'{"record_frame_ms":["input"]}', 'traces':'{"query":["args"]}', 'workspace':'{"detect":["candidate_root"]}' }
 export type Router = { "": {app_info: () => Promise<AppInfo>, 
 get_settings: () => Promise<Settings>, 
 health: () => Promise<HealthEnvelope>, 
 ready: () => Promise<ReadyEnvelope>, 
 update_settings: (settings: Settings) => Promise<null>},
 "connection": {current_state: () => Promise<ConnectionStatePayload>},
+"diagnostics": {template_distribution: () => Promise<TemplateDistributionPayload>},
 "logs": {query: (args: LogsQueryArgs) => Promise<PaginatedResponse<LogRow>>},
 "mcp": {start: () => Promise<McpStartResult>, 
 status: () => Promise<McpStatusDto>, 

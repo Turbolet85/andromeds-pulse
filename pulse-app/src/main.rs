@@ -4,7 +4,10 @@ use std::sync::{Arc, Mutex};
 use std::time::Instant;
 use std::{env, fs};
 
-use buffer::{BroadcastSenders, BufferState, create_schema, run_consumer, run_retention};
+use buffer::{
+    BroadcastSenders, BufferState, DrainConfig, DrainMiner, create_schema, run_consumer,
+    run_retention,
+};
 use duckdb::Connection;
 use ingest::channel::{IngestSender, build_channel};
 use ingest::connection::{self, ConnectionBroadcast, ReceiverBindStatus};
@@ -37,6 +40,8 @@ use pulse_app::{heartbeat, observability, tray, window};
 
 use pulse_app::baseline_observer::BaselineObserverAdapter;
 use pulse_app::connection_router::{ConnectionApi, ConnectionApiImpl, HeartbeatBindStatus};
+use pulse_app::diagnostics_router::{DiagnosticsApi, DiagnosticsApiImpl};
+use pulse_app::drain_persistence::CorpusDrainPersistence;
 #[cfg(feature = "mcp-server")]
 use pulse_app::mcp_router::{McpApi, McpApiImpl};
 use pulse_app::plugins_router::{PluginsApi, PluginsApiImpl};
@@ -351,22 +356,83 @@ fn main() {
         corpus::contract::OsKeychainBackend::new("com.andromeda.pulse"),
     );
     let corpus_db_path = data_dir.join("corpus").join("corpus.db");
-    let corpus_reader: Option<Arc<dyn corpus::contract::CorpusReader>> =
-        match corpus::contract::Corpus::open(corpus_db_path.clone(), Arc::clone(&keychain_backend))
-        {
-            Ok(c) => Some(Arc::new(c)),
-            Err(e) => {
-                tracing::error!(
-                    target: "corpus.open.error",
-                    error_kind = ?e,
-                    "corpus open failed at boot; storage.* IPC will return error until corpus available",
-                );
-                None
-            }
-        };
+    let corpus_arc: Option<Arc<corpus::contract::Corpus>> = match corpus::contract::Corpus::open(
+        corpus_db_path.clone(),
+        Arc::clone(&keychain_backend),
+    ) {
+        Ok(c) => Some(Arc::new(c)),
+        Err(e) => {
+            tracing::error!(
+                target: "corpus.open.error",
+                error_kind = ?e,
+                "corpus open failed at boot; storage.* IPC will return error until corpus available",
+            );
+            None
+        }
+    };
+    let corpus_reader: Option<Arc<dyn corpus::contract::CorpusReader>> = corpus_arc
+        .as_ref()
+        .map(|c| Arc::clone(c) as Arc<dyn corpus::contract::CorpusReader>);
+    // Chunk #69 Phase B Session 4 — CorpusWriter trait view от the same
+    // underlying Arc<Corpus>. Both reader + writer share one rusqlite
+    // connection mutex; CorpusReader stays read-only-by-design per P-051
+    // while CorpusWriter is the additive write surface для pipeline-metric
+    // persistence (drain template tree this chunk; future chunks #71+
+    // digest archive writes).
+    let corpus_writer: Option<Arc<dyn corpus::contract::CorpusWriter>> = corpus_arc
+        .as_ref()
+        .map(|c| Arc::clone(c) as Arc<dyn corpus::contract::CorpusWriter>);
     let storage_impl = corpus_reader
         .as_ref()
         .map(|r| StorageApiImpl::new(Arc::clone(r)));
+
+    // Chunk #69 Phase B Session 4 — Drain miner construction с corpus-backed
+    // persistence. `CorpusDrainPersistence` wraps the writer trait object
+    // via trait-in-lower-crate pattern (per session-learnings 2026-05-16);
+    // serializes DrainState via bincode → AES-256-GCM cell encrypt →
+    // `pipeline_metrics(metric_name="drain_template_tree", layer="l1c")`.
+    // Boot is non-fatal: if corpus_writer is None the miner runs
+    // in-memory-only; if `load_from_persistence` fails, we log + proceed
+    // (template tree resets к empty). Settings-driven config (Step 14)
+    // lands в Session 5 alongside the SettingsModalForm Drain UI.
+    let drain_persistence: Option<Arc<dyn buffer::DrainPersistence>> =
+        corpus_writer.as_ref().map(|writer| {
+            Arc::new(CorpusDrainPersistence::new(Arc::clone(writer)))
+                as Arc<dyn buffer::DrainPersistence>
+        });
+    // Chunk #69 Phase B Session 5 — Settings-driven Drain knobs. Load
+    // Settings from disk; if file missing OR parse-error, silent fallback
+    // к defaults via `Settings::load_from_data_dir` per chunk #30 boot-
+    // load precedent. Settings.drain_* fields shape DrainConfig before
+    // DrainMiner construction; runtime config changes (via Settings UI)
+    // persist но do NOT mutate the live miner — restart required (P-055).
+    // similarity_x100 is the percent-scaled integer storage form (50 ↔ 0.50).
+    let boot_settings = Settings::load_from_data_dir(&data_dir);
+    let mut drain_config = DrainConfig::default_config();
+    drain_config.depth = boot_settings.drain_depth;
+    drain_config.similarity = boot_settings.drain_similarity_x100 as f32 / 100.0;
+    drain_config.max_clusters = boot_settings.drain_max_clusters as usize;
+    let drain_miner = Arc::new(DrainMiner::new(drain_config, drain_persistence));
+    match drain_miner.load_from_persistence() {
+        Ok(true) => {
+            tracing::info!(
+                target: "drain.persistence.load.ok",
+                template_count = drain_miner.template_count(),
+                "drain template tree rehydrated from corpus",
+            );
+        }
+        Ok(false) => {
+            // No prior snapshot OR no persistence configured — fresh tree.
+        }
+        Err(e) => {
+            tracing::warn!(
+                target: "drain.persistence.unavailable",
+                reason = %e,
+                "Drain persistence unavailable; in-memory-only template tree this boot",
+            );
+        }
+    }
+    let diagnostics_impl = DiagnosticsApiImpl::new(Arc::clone(&drain_miner));
 
     let grpc_addr = match resolve_grpc_port() {
         Ok(p) => Some(SocketAddr::from(([127, 0, 0, 1], p.value()))),
@@ -476,7 +542,8 @@ fn main() {
                 .merge(WorkspaceApiImpl::new().into_handler())
                 .merge(plugins_impl.clone().into_handler())
                 .merge(connection_impl.clone().into_handler())
-                .merge(services_impl.clone().into_handler());
+                .merge(services_impl.clone().into_handler())
+                .merge(diagnostics_impl.clone().into_handler());
             let base = match storage_impl.as_ref() {
                 Some(s) => base.merge(s.clone().into_handler()),
                 None => base,
@@ -495,7 +562,8 @@ fn main() {
                 .merge(WorkspaceApiImpl::new().into_handler())
                 .merge(plugins_impl.clone().into_handler())
                 .merge(connection_impl.clone().into_handler())
-                .merge(services_impl.clone().into_handler());
+                .merge(services_impl.clone().into_handler())
+                .merge(diagnostics_impl.clone().into_handler());
             let base = match storage_impl.as_ref() {
                 Some(s) => base.merge(s.clone().into_handler()),
                 None => base,
@@ -534,12 +602,14 @@ fn main() {
                         Arc::clone(&broadcast_senders),
                         Arc::clone(&span_observer),
                         fingerprint_observer.clone(),
-                        // Chunk #69 Phase B Session 2: drain_miner parameter
-                        // wiring lands here; Session 3 will construct + pass
-                        // `Some(Arc::clone(&drain_miner))` once boot wiring
-                        // is in place (plan Step 13). Session 2 keeps it
-                        // None to land the API surface change atomically.
-                        None,
+                        // Chunk #69 Phase B Session 3 — Drain miner threaded
+                        // into the buffer consumer hot path. The same Arc is
+                        // shared with `diagnostics_impl` so TauRPC reads see
+                        // the live tree. Persistence is None this session;
+                        // Session 4 wires `CorpusDrainPersistence` through
+                        // `DrainMiner::new`'s persistence slot via the
+                        // trait-in-lower-crate `DrainPersistence` adapter.
+                        Some(Arc::clone(&drain_miner)),
                     ));
                     tauri::async_runtime::spawn(run_retention(
                         Arc::clone(&conn),
@@ -1018,6 +1088,14 @@ mod tests {
         let storage_reader: Arc<dyn corpus::contract::CorpusReader> = Arc::new(storage_corpus);
         let storage_impl = StorageApiImpl::new(storage_reader);
 
+        // Chunk #69 Phase B Session 3: DiagnosticsApiImpl participates in
+        // the emit so bindings.ts ARGS_MAP includes diagnostics.template_distribution
+        // (quadruple-binding 4th slot per .claude/rules/security.md Session
+        // Additions 2026-05-12). In-memory miner with no persistence keeps
+        // the test hermetic.
+        let diagnostics_miner = Arc::new(DrainMiner::new(DrainConfig::default_config(), None));
+        let diagnostics_impl = DiagnosticsApiImpl::new(diagnostics_miner);
+
         // Chunk #49: McpApiImpl participates in the emit so the bindings.ts
         // ARGS_MAP includes mcp.status / mcp.start / mcp.stop (4th binding
         // per .claude/rules/security.md Session Additions 2026-05-12).
@@ -1044,7 +1122,8 @@ mod tests {
                 .merge(plugins_impl.into_handler())
                 .merge(connection_impl.into_handler())
                 .merge(services_impl.into_handler())
-                .merge(storage_impl.into_handler());
+                .merge(storage_impl.into_handler())
+                .merge(diagnostics_impl.into_handler());
             #[cfg(feature = "mcp-server")]
             let base = base.merge(mcp_impl.into_handler());
             base

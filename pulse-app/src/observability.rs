@@ -150,6 +150,14 @@ impl AllowList {
                 "retention_window_seconds",
                 "retention_window_active",
                 "eviction_count_since_last_tick",
+                // Chunk #69 Phase B Session 6 — Drain heartbeat tick fields.
+                // Forward slot: emission lands when buffer.tick heartbeat is
+                // extended to query DrainMiner.template_count() (Step 4
+                // follow-up; not part of this chunk's scope). Pre-registered
+                // here so `buffer.tick` events surface fields cleanly when
+                // emission lands instead of redacting under default-deny.
+                "drain_template_count",
+                "drain_lru_evictions_since_tick",
             ]
             .iter()
             .copied()
@@ -1330,6 +1338,56 @@ impl AllowList {
             .iter()
             .copied()
             .collect(),
+        );
+        // Chunk #69 Phase B Session 6 — Drain template-mining + diagnostics
+        // AllowList registration. Per CLAUDE.md 2026-05-07 explicit-leaf
+        // pattern + 2026-05-17 session 84 AGGREGATE-ONLY discipline:
+        // bounded counts + integer values + enum tags ONLY; NO template_text
+        // / sample_message / service_name / scope_id appear in self-
+        // observation. `message` is universally allowed by the
+        // JsonFieldVisitor (per CLAUDE.md 2026-05-12 special-case) so it
+        // does not need to appear here.
+        by_target.insert(
+            "drain",
+            [
+                "template_count",
+                "evicted_count",
+                "schema_version",
+                "reason",
+            ]
+            .iter()
+            .copied()
+            .collect(),
+        );
+        by_target.insert(
+            "drain.persistence.load.ok",
+            ["template_count"].iter().copied().collect(),
+        );
+        by_target.insert(
+            "drain.persistence.unavailable",
+            ["reason"].iter().copied().collect(),
+        );
+        by_target.insert(
+            "diagnostics",
+            ["top_n", "result_count", "duration_ms"]
+                .iter()
+                .copied()
+                .collect(),
+        );
+        by_target.insert(
+            "diagnostics.template_distribution.request",
+            ["top_n", "result_count", "duration_ms"]
+                .iter()
+                .copied()
+                .collect(),
+        );
+        by_target.insert(
+            "metric.pipeline.l1c.drain_template_count_total",
+            ["value"].iter().copied().collect(),
+        );
+        by_target.insert(
+            "metric.pipeline.l1c.drain_assignment_latency_p99_microseconds",
+            ["value"].iter().copied().collect(),
         );
 
         Self { by_target }
@@ -2648,6 +2706,166 @@ mod tests {
             assert!(
                 !set.contains(banned),
                 "metric.triage.lifecycle.state_distribution must NOT permit `{banned}` (chunk #67 PII discipline)",
+            );
+        }
+    }
+
+    // ===== Chunk #69 Phase B Session 6 — Drain + diagnostics AllowList tests =====
+
+    #[test]
+    fn allowlist_for_target_extends_buffer_with_drain_heartbeat_fields() {
+        let al = AllowList::production();
+        let set = al.for_target("buffer").expect("buffer entry");
+        for required in ["drain_template_count", "drain_lru_evictions_since_tick"] {
+            assert!(
+                set.contains(required),
+                "buffer must permit `{required}` (chunk #69 buffer.tick drain fields)",
+            );
+        }
+        // Chunk #69 AGGREGATE-ONLY discipline applies even though we did
+        // not remove existing buffer fields — the new drain fields are
+        // bounded counts; per-template-content fields stay forbidden.
+        for banned in ["template_text", "sample_message", "service_name"] {
+            assert!(
+                !set.contains(banned),
+                "buffer must NOT permit `{banned}` (chunk #69 aggregate-only discipline)",
+            );
+        }
+    }
+
+    #[test]
+    fn allowlist_for_target_resolves_drain_persistence_load_ok_field_set() {
+        let al = AllowList::production();
+        let set = al
+            .for_target("drain.persistence.load.ok")
+            .expect("drain.persistence.load.ok entry");
+        assert!(
+            set.contains("template_count"),
+            "drain.persistence.load.ok must permit `template_count`",
+        );
+        for banned in [
+            "template_text",
+            "sample_message",
+            "service_name",
+            "scope_id",
+        ] {
+            assert!(
+                !set.contains(banned),
+                "drain.persistence.load.ok must NOT permit `{banned}` (chunk #69 aggregate-only)",
+            );
+        }
+    }
+
+    #[test]
+    fn allowlist_for_target_resolves_drain_persistence_unavailable_field_set() {
+        let al = AllowList::production();
+        let set = al
+            .for_target("drain.persistence.unavailable")
+            .expect("drain.persistence.unavailable entry");
+        assert!(
+            set.contains("reason"),
+            "drain.persistence.unavailable must permit `reason`",
+        );
+        for banned in [
+            "template_text",
+            "sample_message",
+            "service_name",
+            "stacktrace",
+        ] {
+            assert!(
+                !set.contains(banned),
+                "drain.persistence.unavailable must NOT permit `{banned}` (PII / opaque-error discipline)",
+            );
+        }
+    }
+
+    #[test]
+    fn allowlist_for_target_resolves_diagnostics_template_distribution_request_field_set() {
+        let al = AllowList::production();
+        let set = al
+            .for_target("diagnostics.template_distribution.request")
+            .expect("diagnostics.template_distribution.request entry");
+        for required in ["top_n", "result_count", "duration_ms"] {
+            assert!(
+                set.contains(required),
+                "diagnostics.template_distribution.request must permit `{required}`",
+            );
+        }
+        for banned in [
+            "template_text",
+            "sample_message",
+            "service_name",
+            "templates",
+            "content",
+        ] {
+            assert!(
+                !set.contains(banned),
+                "diagnostics.template_distribution.request must NOT permit `{banned}` (chunk #69 aggregate-only)",
+            );
+        }
+    }
+
+    #[test]
+    fn allowlist_for_target_resolves_metric_pipeline_l1c_drain_template_count_total_field_set() {
+        let al = AllowList::production();
+        let set = al
+            .for_target("metric.pipeline.l1c.drain_template_count_total")
+            .expect("metric.pipeline.l1c.drain_template_count_total entry");
+        assert!(
+            set.contains("value"),
+            "metric.pipeline.l1c.drain_template_count_total must permit `value`",
+        );
+        for banned in [
+            "template_text",
+            "sample_message",
+            "service_name",
+            "template_id",
+        ] {
+            assert!(
+                !set.contains(banned),
+                "metric.pipeline.l1c.drain_template_count_total must NOT permit `{banned}` (chunk #69 aggregate-only)",
+            );
+        }
+    }
+
+    #[test]
+    fn allowlist_for_target_resolves_metric_pipeline_l1c_drain_assignment_latency_p99_microseconds_field_set()
+     {
+        let al = AllowList::production();
+        let set = al
+            .for_target("metric.pipeline.l1c.drain_assignment_latency_p99_microseconds")
+            .expect("metric.pipeline.l1c.drain_assignment_latency_p99_microseconds entry");
+        assert!(
+            set.contains("value"),
+            "metric.pipeline.l1c.drain_assignment_latency_p99_microseconds must permit `value`",
+        );
+        for banned in [
+            "template_text",
+            "sample_message",
+            "service_name",
+            "template_id",
+        ] {
+            assert!(
+                !set.contains(banned),
+                "metric.pipeline.l1c.drain_assignment_latency_p99_microseconds must NOT permit `{banned}` (chunk #69 aggregate-only)",
+            );
+        }
+    }
+
+    #[test]
+    fn allowlist_for_target_resolves_diagnostics_prefix_fallback_to_diagnostics_entry() {
+        // Verify the dotted-target prefix-strip fallback per CLAUDE.md
+        // 2026-05-07: `diagnostics.X` (unknown sub-namespace) resolves via
+        // split('.').next() → "diagnostics" entry instead of redacting all
+        // fields. This is the safety net under the explicit-leaf entries.
+        let al = AllowList::production();
+        let set = al
+            .for_target("diagnostics.unknown.future.target")
+            .expect("diagnostics fallback entry");
+        for required in ["top_n", "result_count", "duration_ms"] {
+            assert!(
+                set.contains(required),
+                "diagnostics fallback must permit `{required}`",
             );
         }
     }

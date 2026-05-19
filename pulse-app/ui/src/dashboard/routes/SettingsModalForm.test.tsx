@@ -42,6 +42,9 @@ const sampleSettings: Required<Settings> = {
   snapshot_format: "markdown",
   lifecycle_dormant_after_secs: 3_600,
   lifecycle_archived_after_secs: 86_400,
+  drain_depth: 4,
+  drain_similarity_x100: 50,
+  drain_max_clusters: 1000,
 };
 
 let getSettingsFn: ReturnType<typeof vi.fn>;
@@ -191,7 +194,10 @@ describe("SettingsModalForm", () => {
       await waitFor(() => {
         expect(updateSettingsFn).toHaveBeenCalledWith(sampleSettings);
       });
-      const status = screen.getByRole("status");
+      // Modal's transient announcement region (NOT the static
+      // drain-restart-required-notice, which is always role="status"
+      // when the Drain section renders — chunk #69 Phase B Session 5).
+      const status = screen.getByTestId("modal-live-region");
       await waitFor(() => {
         expect(status.textContent).toBe("Settings saved");
       });

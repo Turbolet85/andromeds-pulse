@@ -5104,6 +5104,7 @@ version = "0.1.0"
 dependencies = [
  "arrow",
  "assert_fs",
+ "bincode",
  "buffer",
  "bytes",
  "chrono",

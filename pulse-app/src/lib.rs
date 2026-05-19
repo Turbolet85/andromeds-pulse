@@ -1,5 +1,7 @@
 pub mod baseline_observer;
 pub mod connection_router;
+pub mod diagnostics_router;
+pub mod drain_persistence;
 pub mod heartbeat;
 #[cfg(feature = "mcp-server")]
 pub mod mcp_router;
