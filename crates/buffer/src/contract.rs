@@ -35,12 +35,21 @@ pub struct BufferHeartbeat {
     pub memory_bytes: u64,
     pub retention_window_seconds: u64,
     pub eviction_count_since_last_tick: u64,
+    // Chunk #69 Phase B Session 7+ — Drain heartbeat fields. Pre-registered
+    // in the `buffer` AllowList entry at observability.rs:159-160 (Session
+    // 6); emission lands in pulse-app/src/heartbeat.rs::emit_buffer_tick
+    // when a DrainMiner ref is threaded in (Some) — otherwise both default
+    // to 0 (matches the all-zero default for the Default impl baseline).
+    pub drain_template_count: u64,
+    pub drain_lru_evictions_since_tick: u64,
 }
 
 pub fn heartbeat_payload(
     state: &BufferState,
     retention_window_seconds: u64,
     eviction_count_since_last_tick: u64,
+    drain_template_count: u64,
+    drain_lru_evictions_since_tick: u64,
 ) -> BufferHeartbeat {
     let snap = state.snapshot();
     BufferHeartbeat {
@@ -50,6 +59,8 @@ pub fn heartbeat_payload(
         memory_bytes: snap.memory_bytes,
         retention_window_seconds,
         eviction_count_since_last_tick,
+        drain_template_count,
+        drain_lru_evictions_since_tick,
     }
 }
 
@@ -60,20 +71,22 @@ mod tests {
     #[test]
     fn heartbeat_payload_default_state_is_all_zero() {
         let state = BufferState::new();
-        let h = heartbeat_payload(&state, 0, 0);
+        let h = heartbeat_payload(&state, 0, 0, 0, 0);
         assert_eq!(h.rows_ingested, 0);
         assert!(!h.retention_window_active);
         assert_eq!(h.eviction_count, 0);
         assert_eq!(h.memory_bytes, 0);
         assert_eq!(h.retention_window_seconds, 0);
         assert_eq!(h.eviction_count_since_last_tick, 0);
+        assert_eq!(h.drain_template_count, 0);
+        assert_eq!(h.drain_lru_evictions_since_tick, 0);
     }
 
     #[test]
     fn heartbeat_payload_reflects_recorded_rows_ingested() {
         let state = BufferState::new();
         state.record_rows_appended(42);
-        let h = heartbeat_payload(&state, 600, 0);
+        let h = heartbeat_payload(&state, 600, 0, 0, 0);
         assert_eq!(h.rows_ingested, 42);
         assert_eq!(h.retention_window_seconds, 600);
     }
@@ -82,7 +95,7 @@ mod tests {
     fn heartbeat_payload_reflects_eviction_count() {
         let state = BufferState::new();
         state.record_eviction(7);
-        let h = heartbeat_payload(&state, 600, 7);
+        let h = heartbeat_payload(&state, 600, 7, 0, 0);
         assert_eq!(h.eviction_count, 7);
         assert_eq!(h.eviction_count_since_last_tick, 7);
     }
@@ -90,10 +103,10 @@ mod tests {
     #[test]
     fn heartbeat_payload_reflects_retention_active_flip() {
         let state = BufferState::new();
-        let h_pre = heartbeat_payload(&state, 600, 0);
+        let h_pre = heartbeat_payload(&state, 600, 0, 0, 0);
         assert!(!h_pre.retention_window_active);
         state.mark_retention_active();
-        let h_post = heartbeat_payload(&state, 600, 0);
+        let h_post = heartbeat_payload(&state, 600, 0, 0, 0);
         assert!(h_post.retention_window_active);
     }
 
@@ -101,8 +114,18 @@ mod tests {
     fn heartbeat_payload_reflects_memory_bytes() {
         let state = BufferState::new();
         state.set_memory_bytes(2048);
-        let h = heartbeat_payload(&state, 600, 0);
+        let h = heartbeat_payload(&state, 600, 0, 0, 0);
         assert_eq!(h.memory_bytes, 2048);
+    }
+
+    #[test]
+    fn heartbeat_payload_carries_drain_fields_through() {
+        // chunk #69 Phase B Session 7+: drain_template_count +
+        // drain_lru_evictions_since_tick flow through without alteration.
+        let state = BufferState::new();
+        let h = heartbeat_payload(&state, 600, 0, 42, 7);
+        assert_eq!(h.drain_template_count, 42);
+        assert_eq!(h.drain_lru_evictions_since_tick, 7);
     }
 
     #[test]

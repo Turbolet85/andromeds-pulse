@@ -3,7 +3,7 @@ use std::sync::Mutex;
 use std::sync::atomic::{AtomicU64, Ordering};
 use std::time::Duration;
 
-use buffer::{BroadcastSenders, BufferState};
+use buffer::{BroadcastSenders, BufferState, DrainMiner};
 use chrono::Utc;
 use ingest::channel::IngestSender;
 use ingest::connection::{
@@ -29,6 +29,12 @@ pub fn spawn(
     broadcast_senders: Arc<BroadcastSenders>,
     plugins_registry: Arc<Mutex<PluginRegistry>>,
     bind_status: Arc<dyn ReceiverBindStatus>,
+    // Chunk #69 Phase B Session 7+: when Some, the buffer.tick heartbeat
+    // surfaces drain_template_count + drain_lru_evictions_since_tick fields
+    // AND emits a metric.pipeline.l1c.drain_template_count_total event per
+    // tick. When None, both heartbeat fields default to 0 + the metric
+    // event is suppressed (matches pre-Drain-enabled boot mode).
+    drain_miner: Option<Arc<DrainMiner>>,
 ) -> Vec<JoinHandle<()>> {
     vec![
         tokio::spawn(run_ingest(
@@ -37,7 +43,12 @@ pub fn spawn(
             ingest_sender,
             broadcast_senders,
         )),
-        tokio::spawn(run_buffer(state.clone(), buffer_state, retention_seconds)),
+        tokio::spawn(run_buffer(
+            state.clone(),
+            buffer_state,
+            retention_seconds,
+            drain_miner,
+        )),
         tokio::spawn(run_viz(state.clone(), viz_state)),
         tokio::spawn(run_plugins(state.clone(), plugins_registry)),
         tokio::spawn(run_connection(state, ingest_state, bind_status)),
@@ -61,12 +72,19 @@ async fn run_buffer(
     state: Arc<HeartbeatState>,
     buffer_state: Arc<BufferState>,
     retention_seconds: u64,
+    drain_miner: Option<Arc<DrainMiner>>,
 ) {
     let mut interval = tokio::time::interval(Duration::from_secs(TICK_INTERVAL_SECS));
     let last_eviction = AtomicU64::new(0);
     loop {
         interval.tick().await;
-        emit_buffer_tick(&state, &buffer_state, retention_seconds, &last_eviction);
+        emit_buffer_tick(
+            &state,
+            &buffer_state,
+            retention_seconds,
+            &last_eviction,
+            drain_miner.as_deref(),
+        );
     }
 }
 
@@ -154,13 +172,29 @@ fn emit_buffer_tick(
     buffer_state: &BufferState,
     retention_seconds: u64,
     last_eviction: &AtomicU64,
+    drain_miner: Option<&DrainMiner>,
 ) {
     let snap = buffer_state.snapshot();
     let prev = last_eviction.swap(snap.eviction_count, Ordering::Relaxed);
     let delta = snap.eviction_count.saturating_sub(prev);
     let rows_active = snap.rows_ingested.saturating_sub(snap.eviction_count);
 
-    let payload = buffer::contract::heartbeat_payload(buffer_state, retention_seconds, delta);
+    // Chunk #69 Phase B Session 7+: pull Drain heartbeat counters (zero
+    // when no miner threaded in). `take_lru_evictions_since_tick` resets
+    // the counter to 0 after read — matches the `eviction_count_since_last_tick`
+    // sibling semantics (delta-since-last-tick, not running total).
+    let drain_template_count = drain_miner.map(|m| m.template_count()).unwrap_or(0);
+    let drain_lru_evictions_since_tick = drain_miner
+        .map(|m| m.take_lru_evictions_since_tick())
+        .unwrap_or(0);
+
+    let payload = buffer::contract::heartbeat_payload(
+        buffer_state,
+        retention_seconds,
+        delta,
+        drain_template_count,
+        drain_lru_evictions_since_tick,
+    );
     state.record_buffer(Utc::now());
 
     tracing::info!(
@@ -171,6 +205,8 @@ fn emit_buffer_tick(
         memory_bytes = payload.memory_bytes,
         retention_window_seconds = payload.retention_window_seconds,
         eviction_count_since_last_tick = payload.eviction_count_since_last_tick,
+        drain_template_count = payload.drain_template_count,
+        drain_lru_evictions_since_tick = payload.drain_lru_evictions_since_tick,
         "heartbeat",
     );
 
@@ -189,6 +225,21 @@ fn emit_buffer_tick(
             value = delta,
             retention_window_seconds = retention_seconds,
             "buffer eviction counter",
+        );
+    }
+
+    // Chunk #69 Phase B Session 7+ (Step 4 follow-up): emit the
+    // `metric.pipeline.l1c.drain_template_count_total` event per tick
+    // when a Drain miner is threaded in. Aggregate-only field discipline
+    // per AllowList registration at observability.rs:1385 (`value` only).
+    // Emitted unconditionally when miner present — even at zero count
+    // (presence-of-tick semantics; CI heartbeat-gap-check tolerates
+    // value=0 as a healthy signal).
+    if drain_miner.is_some() {
+        tracing::info!(
+            target: "metric.pipeline.l1c.drain_template_count_total",
+            value = drain_template_count,
+            "drain template count",
         );
     }
 }
@@ -363,7 +414,8 @@ mod tests {
         let state = HeartbeatState::new();
         let buffer_state = BufferState::new();
         let last_eviction = AtomicU64::new(0);
-        let lines = capture_lines(|| emit_buffer_tick(&state, &buffer_state, 600, &last_eviction));
+        let lines =
+            capture_lines(|| emit_buffer_tick(&state, &buffer_state, 600, &last_eviction, None));
         // First tick emits buffer.tick + metric.buffer.memory_bytes; no eviction
         // delta so metric.buffer.evicted_span_count is suppressed.
         assert_eq!(lines.len(), 2);
@@ -384,7 +436,8 @@ mod tests {
         let buffer_state = BufferState::new();
         buffer_state.record_rows_appended(11);
         let last_eviction = AtomicU64::new(0);
-        let lines = capture_lines(|| emit_buffer_tick(&state, &buffer_state, 600, &last_eviction));
+        let lines =
+            capture_lines(|| emit_buffer_tick(&state, &buffer_state, 600, &last_eviction, None));
         assert_eq!(lines[0]["fields"]["rows_ingested"], 11);
     }
 
@@ -397,7 +450,7 @@ mod tests {
         // First tick: no eviction yet; delta should be 0
         buffer_state.record_eviction(5);
         let lines_first =
-            capture_lines(|| emit_buffer_tick(&state, &buffer_state, 600, &last_eviction));
+            capture_lines(|| emit_buffer_tick(&state, &buffer_state, 600, &last_eviction, None));
         assert_eq!(lines_first[0]["fields"]["eviction_count"], 5);
         assert_eq!(
             lines_first[0]["fields"]["eviction_count_since_last_tick"],
@@ -407,7 +460,7 @@ mod tests {
         // Second tick: another 3 evictions; delta should be 3 (5 was previous)
         buffer_state.record_eviction(3);
         let lines_second =
-            capture_lines(|| emit_buffer_tick(&state, &buffer_state, 600, &last_eviction));
+            capture_lines(|| emit_buffer_tick(&state, &buffer_state, 600, &last_eviction, None));
         assert_eq!(lines_second[0]["fields"]["eviction_count"], 8);
         assert_eq!(
             lines_second[0]["fields"]["eviction_count_since_last_tick"],
@@ -421,7 +474,8 @@ mod tests {
         let buffer_state = BufferState::new();
         buffer_state.set_memory_bytes(4096);
         let last_eviction = AtomicU64::new(0);
-        let lines = capture_lines(|| emit_buffer_tick(&state, &buffer_state, 600, &last_eviction));
+        let lines =
+            capture_lines(|| emit_buffer_tick(&state, &buffer_state, 600, &last_eviction, None));
         assert_eq!(lines[0]["fields"]["memory_bytes"], 4096);
     }
 
@@ -432,12 +486,12 @@ mod tests {
         let last_eviction = AtomicU64::new(0);
 
         let lines_pre =
-            capture_lines(|| emit_buffer_tick(&state, &buffer_state, 600, &last_eviction));
+            capture_lines(|| emit_buffer_tick(&state, &buffer_state, 600, &last_eviction, None));
         assert_eq!(lines_pre[0]["fields"]["retention_window_active"], false);
 
         buffer_state.mark_retention_active();
         let lines_post =
-            capture_lines(|| emit_buffer_tick(&state, &buffer_state, 600, &last_eviction));
+            capture_lines(|| emit_buffer_tick(&state, &buffer_state, 600, &last_eviction, None));
         assert_eq!(lines_post[0]["fields"]["retention_window_active"], true);
     }
 
@@ -449,7 +503,8 @@ mod tests {
         buffer_state.set_memory_bytes(2560);
         let last_eviction = AtomicU64::new(0);
 
-        let lines = capture_lines(|| emit_buffer_tick(&state, &buffer_state, 600, &last_eviction));
+        let lines =
+            capture_lines(|| emit_buffer_tick(&state, &buffer_state, 600, &last_eviction, None));
         let memory_event = lines
             .iter()
             .find(|l| l["target"] == "metric.buffer.memory_bytes")
@@ -468,7 +523,8 @@ mod tests {
         buffer_state.record_eviction(7);
         let last_eviction = AtomicU64::new(0);
 
-        let lines = capture_lines(|| emit_buffer_tick(&state, &buffer_state, 600, &last_eviction));
+        let lines =
+            capture_lines(|| emit_buffer_tick(&state, &buffer_state, 600, &last_eviction, None));
         let evicted_event = lines
             .iter()
             .find(|l| l["target"] == "metric.buffer.evicted_span_count")
@@ -484,13 +540,148 @@ mod tests {
         let buffer_state = BufferState::new();
         let last_eviction = AtomicU64::new(0);
 
-        let lines = capture_lines(|| emit_buffer_tick(&state, &buffer_state, 600, &last_eviction));
+        let lines =
+            capture_lines(|| emit_buffer_tick(&state, &buffer_state, 600, &last_eviction, None));
         assert!(
             lines
                 .iter()
                 .all(|l| l["target"] != "metric.buffer.evicted_span_count"),
             "metric.buffer.evicted_span_count must NOT emit when delta == 0"
         );
+    }
+
+    // ─── Chunk #69 Phase B Session 7+ — Drain heartbeat path ──────────────
+
+    #[test]
+    fn emit_buffer_tick_surfaces_drain_fields_when_miner_threaded_in() {
+        use buffer::{DrainConfig, DrainMiner};
+        let state = HeartbeatState::new();
+        let buffer_state = BufferState::new();
+        let last_eviction = AtomicU64::new(0);
+        let miner = Arc::new(DrainMiner::new(DrainConfig::default_config(), None));
+        miner.assign("connection from server completed at startup");
+        miner.assign("connection from server completed at startup");
+
+        let lines = capture_lines(|| {
+            emit_buffer_tick(
+                &state,
+                &buffer_state,
+                600,
+                &last_eviction,
+                Some(miner.as_ref()),
+            )
+        });
+
+        let tick = lines
+            .iter()
+            .find(|l| l["target"] == "buffer.tick")
+            .expect("buffer.tick line present");
+        let fields = &tick["fields"];
+        assert_eq!(fields["drain_template_count"], 1);
+        assert_eq!(fields["drain_lru_evictions_since_tick"], 0);
+    }
+
+    #[test]
+    fn emit_buffer_tick_emits_metric_pipeline_l1c_drain_template_count_total_when_miner_present() {
+        use buffer::{DrainConfig, DrainMiner};
+        let state = HeartbeatState::new();
+        let buffer_state = BufferState::new();
+        let last_eviction = AtomicU64::new(0);
+        let miner = Arc::new(DrainMiner::new(DrainConfig::default_config(), None));
+        miner.assign("event log alpha occurred at startup");
+        miner.assign("event log beta occurred at startup");
+
+        let lines = capture_lines(|| {
+            emit_buffer_tick(
+                &state,
+                &buffer_state,
+                600,
+                &last_eviction,
+                Some(miner.as_ref()),
+            )
+        });
+
+        let event = lines
+            .iter()
+            .find(|l| l["target"] == "metric.pipeline.l1c.drain_template_count_total")
+            .expect("drain template count total metric must emit when miner threaded in");
+        assert_eq!(event["fields"]["value"], 2);
+    }
+
+    #[test]
+    fn emit_buffer_tick_suppresses_drain_metric_when_miner_not_threaded_in() {
+        let state = HeartbeatState::new();
+        let buffer_state = BufferState::new();
+        let last_eviction = AtomicU64::new(0);
+
+        let lines =
+            capture_lines(|| emit_buffer_tick(&state, &buffer_state, 600, &last_eviction, None));
+
+        assert!(
+            lines
+                .iter()
+                .all(|l| l["target"] != "metric.pipeline.l1c.drain_template_count_total"),
+            "drain template count total metric must NOT emit when no miner threaded in"
+        );
+    }
+
+    #[test]
+    fn emit_buffer_tick_resets_drain_lru_evictions_counter_each_tick() {
+        use buffer::{DrainConfig, DrainMiner};
+        let state = HeartbeatState::new();
+        let buffer_state = BufferState::new();
+        let last_eviction = AtomicU64::new(0);
+        // Configure a tight max_clusters so the LRU eviction loop fires
+        // deterministically; disable masking so each message stays
+        // distinct (and similarity=0.99 forces new clusters per message).
+        let cfg = DrainConfig {
+            depth: 4,
+            similarity: 0.99,
+            max_clusters: 2,
+            masking_patterns: Vec::new(),
+        };
+        let miner = Arc::new(DrainMiner::new(cfg, None));
+        for i in 0..6 {
+            miner.assign(&format!("distinct message_x{i} word tail content"));
+        }
+
+        let lines_first = capture_lines(|| {
+            emit_buffer_tick(
+                &state,
+                &buffer_state,
+                600,
+                &last_eviction,
+                Some(miner.as_ref()),
+            )
+        });
+        let first_tick = lines_first
+            .iter()
+            .find(|l| l["target"] == "buffer.tick")
+            .expect("first tick present");
+        let first_evictions = first_tick["fields"]["drain_lru_evictions_since_tick"]
+            .as_u64()
+            .expect("u64");
+        assert!(
+            first_evictions >= 1,
+            "first tick must reflect accumulated evictions; got {}",
+            first_evictions
+        );
+
+        // Second tick (immediately after) — counter reset; no new assigns.
+        let lines_second = capture_lines(|| {
+            emit_buffer_tick(
+                &state,
+                &buffer_state,
+                600,
+                &last_eviction,
+                Some(miner.as_ref()),
+            )
+        });
+        let second_tick = lines_second
+            .iter()
+            .find(|l| l["target"] == "buffer.tick")
+            .expect("second tick present");
+        assert_eq!(second_tick["fields"]["drain_lru_evictions_since_tick"], 0);
     }
 
     #[test]
@@ -585,6 +776,7 @@ mod tests {
             senders,
             plugins_registry,
             bind_status,
+            None,
         );
         assert_eq!(handles.len(), 5);
         for handle in handles {

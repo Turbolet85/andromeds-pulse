@@ -38,9 +38,12 @@
 use std::collections::HashMap;
 use std::num::NonZeroUsize;
 use std::sync::{Arc, Mutex};
+use std::time::Instant;
 
+use duckdb::Connection;
 use lru::LruCache;
 use regex::Regex;
+use security::scrubber::{ScrubbedValue, scrub_attribute};
 use serde::{Deserialize, Serialize};
 
 use crate::contract::Error;
@@ -255,6 +258,17 @@ struct MinerState {
     templates: HashMap<TemplateId, TemplateRecord>,
     tree: TreeRoot,
     lru: LruCache<TemplateId, ()>,
+    /// Newly-created [`TemplateRecord`]s accumulated since the last
+    /// [`DrainMiner::drain_newly_created_templates`] call. The consumer
+    /// drains this slot after each Arrow batch and writes new templates
+    /// to the in-memory DuckDB `log_templates` table via prepared statement.
+    newly_created_since_last_drain: Vec<TemplateRecord>,
+    /// LRU evictions accumulated since the last
+    /// [`DrainMiner::take_lru_evictions_since_tick`] call. The pulse-app
+    /// `buffer.tick` heartbeat reads + resets this counter every 15s and
+    /// surfaces it as the `drain_lru_evictions_since_tick` heartbeat field
+    /// (per pre-registered AllowList entry at observability.rs:160).
+    lru_evictions_since_last_tick: u64,
 }
 
 /// Tree root: branches by token count (length bucket).
@@ -297,6 +311,8 @@ impl DrainMiner {
                     length_buckets: HashMap::new(),
                 },
                 lru: LruCache::new(lru_cap),
+                newly_created_since_last_drain: Vec::new(),
+                lru_evictions_since_last_tick: 0,
             }),
         }
     }
@@ -383,6 +399,34 @@ impl DrainMiner {
     /// record's timestamp is already known. The zero-default `assign`
     /// variant is fine for unit tests where the timestamp is uninteresting.
     pub fn assign_at(&self, log_body: &str, ts_unix_nano: i64) -> Option<TemplateId> {
+        // Per-event latency emission per chunk #69 Phase B Session 7+
+        // (obs allowlist pre-registered at observability.rs:1389 +
+        // observability.rs:2840 — only `value` field permitted under the
+        // aggregate-only discipline). Trace-level gated: `Instant::now()`
+        // call elided when trace level is disabled (production default;
+        // ANDROMEDA_PULSE_LOG_LEVEL=trace enables for SLO verification
+        // per obs-plan §11 hot-path level-gating discipline + plan
+        // §Test Commands jq pipeline). Result type is captured + returned
+        // verbatim so the emission cost is a single Instant read at trace
+        // level + zero at production levels.
+        let start = if tracing::enabled!(tracing::Level::TRACE) {
+            Some(Instant::now())
+        } else {
+            None
+        };
+        let id = self.assign_at_inner(log_body, ts_unix_nano);
+        if let Some(start) = start {
+            let elapsed_us = start.elapsed().as_micros() as u64;
+            tracing::trace!(
+                target: "metric.pipeline.l1c.drain_assignment_latency_p99_microseconds",
+                value = elapsed_us,
+                "drain assignment latency",
+            );
+        }
+        id
+    }
+
+    fn assign_at_inner(&self, log_body: &str, ts_unix_nano: i64) -> Option<TemplateId> {
         let masked = mask_body(&self.config.masking_patterns, log_body);
         let tokens: Vec<String> = masked.split_whitespace().map(|s| s.to_string()).collect();
         if tokens.is_empty() {
@@ -439,7 +483,8 @@ impl DrainMiner {
                     first_seen_unix_nano: ts_unix_nano,
                     last_seen_unix_nano: ts_unix_nano,
                 };
-                state.templates.insert(new_id, record);
+                state.templates.insert(new_id, record.clone());
+                state.newly_created_since_last_drain.push(record);
 
                 // Phase 3: re-walk tree to attach the new id at the leaf
                 // (the leaf was created during Phase 1; this re-walk is
@@ -465,6 +510,8 @@ impl DrainMiner {
                     };
                     state.templates.remove(&evict_id);
                     remove_id_from_tree(&mut state.tree, evict_id);
+                    state.lru_evictions_since_last_tick =
+                        state.lru_evictions_since_last_tick.saturating_add(1);
                 }
 
                 Some(new_id)
@@ -501,6 +548,95 @@ impl DrainMiner {
             .lock()
             .map(|s| s.templates.len() as u64)
             .unwrap_or(0)
+    }
+
+    /// Drain accumulated newly-created [`TemplateRecord`]s and return them
+    /// to the caller. The consumer drains this slot after each Arrow log
+    /// batch and writes the new templates to the in-memory DuckDB
+    /// `log_templates` table via [`write_template_to_table`]. Each record
+    /// is yielded at most once across the lifetime of the miner; subsequent
+    /// calls return an empty Vec unless new clusters were created in the
+    /// interim. On poisoned mutex returns an empty Vec (best-effort
+    /// surfacing — the underlying clusters are still queryable via the
+    /// in-memory state for `diagnostics.template_distribution`).
+    pub fn drain_newly_created_templates(&self) -> Vec<TemplateRecord> {
+        match self.state.lock() {
+            Ok(mut state) => std::mem::take(&mut state.newly_created_since_last_drain),
+            Err(_) => Vec::new(),
+        }
+    }
+
+    /// Read + reset the LRU eviction counter accumulated since the last
+    /// call. Used by the `buffer.tick` heartbeat to surface
+    /// `drain_lru_evictions_since_tick` (per pre-registered AllowList entry
+    /// at observability.rs:160). On poisoned mutex returns 0 — the metric
+    /// is informational; missing samples are preferable to panicking the
+    /// long-running heartbeat task.
+    pub fn take_lru_evictions_since_tick(&self) -> u64 {
+        match self.state.lock() {
+            Ok(mut state) => std::mem::take(&mut state.lru_evictions_since_last_tick),
+            Err(_) => 0,
+        }
+    }
+}
+
+/// Persist a newly-created template to the in-memory DuckDB `log_templates`
+/// table via a prepared statement (NO `format!()`; per security plan
+/// universal invariant on DuckDB SQL composition). The template's
+/// joined-token text is scrubbed via [`security::scrubber::scrub_attribute`]
+/// BEFORE the write per capability P-047 + security plan §Logging NEVER-log
+/// discipline extended to a new persistence surface; redacted matches store
+/// the stable `[REDACTED:{category}]` marker rather than the raw matched
+/// content.
+///
+/// Caller passes the same `Connection` already held under the
+/// `Arc<Mutex<Connection>>` consumer guard — write happens on the same
+/// lock + transaction window as the preceding `log_records` Arrow append.
+pub(crate) fn write_template_to_table(
+    conn: &Connection,
+    record: &TemplateRecord,
+) -> Result<(), Error> {
+    let raw_text = record.tokens.join(" ");
+    let scrubbed = match scrub_attribute(&raw_text) {
+        ScrubbedValue::Allowed(s) => s,
+        ScrubbedValue::Redacted { category } => format!("[REDACTED:{}]", category),
+    };
+
+    let mut stmt = conn
+        .prepare(
+            "INSERT INTO log_templates \
+             (template_id, template_content, occurrence_count, first_seen_unix_nano, last_seen_unix_nano) \
+             VALUES (?, ?, ?, ?, ?)",
+        )
+        .map_err(|e| Error::Drain {
+            reason: format!("prepare log_templates insert: {}", short_drain_err(&e.to_string())),
+        })?;
+    stmt.execute(duckdb::params![
+        record.id as i64,
+        scrubbed,
+        record.occurrence_count as i64,
+        record.first_seen_unix_nano,
+        record.last_seen_unix_nano,
+    ])
+    .map_err(|e| Error::Drain {
+        reason: format!(
+            "execute log_templates insert: {}",
+            short_drain_err(&e.to_string())
+        ),
+    })?;
+    Ok(())
+}
+
+/// Compact short-error rendering for [`Error::Drain`] reasons. Mirrors
+/// `appender::short_err` shape — first line, trimmed, capped at 120 chars
+/// — but module-local to avoid leaking the appender's pub(crate) visibility
+/// across what is otherwise a self-contained module surface.
+fn short_drain_err(msg: &str) -> String {
+    let first_line = msg.lines().next().unwrap_or(msg).trim();
+    if first_line.len() > 120 {
+        format!("{}…", &first_line[..120])
+    } else {
+        first_line.to_string()
     }
 }
 

@@ -781,6 +781,12 @@ fn main() {
                 Arc::clone(&broadcast_senders),
                 Arc::clone(&plugins_registry),
                 Arc::clone(&bind_status),
+                // chunk #69 Phase B Session 7+: thread the DrainMiner ref
+                // into the buffer.tick heartbeat task so drain_template_count
+                // + drain_lru_evictions_since_tick fields surface AND the
+                // `metric.pipeline.l1c.drain_template_count_total` event
+                // emits per tick (15s sibling cadence).
+                Some(Arc::clone(&drain_miner)),
             );
             Ok(())
         })

@@ -6,6 +6,37 @@ _Entries are added in reverse chronological order (newest first). Each entry has
 
 _This file is entirely wrap-session's territory. `/setup-project` creates it if missing but NEVER regenerates it. Manual edits are preserved across all Andromeda skill runs._
 
+## 2026-05-19 (session 100) — v0_2_0-route plan chunk numbers diverge from andromeda route.md chunk numbers (confidence 0.85)
+
+When a user prompt references "Chunk #N" for v0.2.0 evolution work, that number likely maps to the **v0_2_0-route plan** (`docs/v0_2_0/pulse-v0_2_0-route.md`) — which has its own chunk numbering — NOT to the andromeda master route (`.andromeda/route.md`). Mismatches arose because chunks shipped in a DIFFERENT order than v0_2_0-route originally planned:
+
+| v0_2_0-route § | andromeda route # | Subject |
+|---|---|---|
+| §57 | #57 | Widget real-data binding |
+| §58 | #58 | Curation crate extraction |
+| §59 | #59 | Connection state machine |
+| §60 | #60 | Triage crate scaffold |
+| §61 | #61 | Streaming baseline trackers |
+| §62 | #62 | Attention cue emitter |
+| §63 | #63 | Restart event detector |
+| §64 | #64 | Activity floor learning |
+| §65 | #65 | Span events ingestion |
+| §66 | #66 | Exception fingerprinting + retry storm |
+| **§67** | **#69** | **Drain Rust implementation** |
+| **§68** | **#67** | **Service registry + lifecycle** |
+| **§69** | **#68** | **Corpus SQLite scaffold** |
+| §70 | #70 (proposed) | Incident records + lifecycle persistence |
+
+**Why the divergence:** Per andromeda route.md Decisions Log 2026-05-17 entry for chunk #67 — "Registering at route position #67 because v0.2.0-plan chunk #67 (Drain Rust) blocked on Pre-D2 spike validation." So Service Registry (v0_2_0 §68) shipped at andromeda #67 to unblock dependent work; Corpus (v0_2_0 §69) shipped at andromeda #68; Drain (v0_2_0 §67) shipped at andromeda #69 once the Pre-D2 spike validated.
+
+**Diagnostic:** when a user reference like "chunk #68 ServiceRegistry" doesn't match andromeda chunk #68 (corpus), the v0_2_0-route §-number is the intended index. Look at the SUBJECT names in the prompt — chunk names are stable across both docs.
+
+**Resolution discipline:** When delivering audit findings or chunk authoring proposals, EXPLICITLY name both numbers when divergent ("Service Registry = v0_2_0-route §68 = andromeda route #67"). Audit response patterns benefit from a chunk-number reconciliation table at the top of the findings section (verified at session 100 substrate persistence audit response).
+
+Generalizes to any future user reference using §-numbering from a project-internal plan document (`docs/v0_2_0/pulse-v0_2_0-route.md`, future `docs/v0_3_0/...` etc.) — always verify whether user's number is plan-§ or andromeda-#.
+
+---
+
 ## 2026-05-19 (session 98) — N-session implementation pattern affirmed for "largest single chunk in route" work (confidence 0.85)
 
 The two-phase chunk pattern (session 97 learning above) generalizes to N-session implementation for genuinely large chunks like #69 Phase B (estimated 4-6 sessions per route §Risk notes). Validated empirically across Session 1 (Drain algorithm core, ~620 LOC + 32 tests) + Session 2 (schema additions + appender hot-path integration + consumer wiring) in this session.

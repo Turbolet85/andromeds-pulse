@@ -30,6 +30,15 @@ lru.workspace = true
 # [In-Process Channel Architecture] + §Module dependency direction).
 ingest = { path = "../ingest" }
 
+# Chunk #69 Phase B Session 7+ — Drain template content MUST pass through the
+# PII scrubber BEFORE the DuckDB `log_templates` write (capability P-047 +
+# security plan §Logging NEVER-log discipline extended to a new persistence
+# surface). Sanctioned sibling-DAG edge mirroring the `corpus → security` dep
+# (chunk #68) — preserves arch §Module dependency direction (no library crate
+# depends on a sibling unless its declared contract requires it; PII scrub
+# IS that contract for the `log_templates` write path).
+security = { path = "../security" }
+
 [dev-dependencies]
 rstest.workspace = true
 tempfile.workspace = true

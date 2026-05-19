@@ -1077,6 +1077,90 @@ mod tests {
         assert_eq!(severity_text, "ERROR");
     }
 
+    // Chunk #69 Phase B Session 7+ (Step 27): PII negative canary.
+    // Closes test-plan §12 2026-05-08 PII Vector 1 gap (raw OTLP attribute
+    // values at the new log_templates persistence surface). The default
+    // masker does NOT strip email-shaped tokens (its catalog is IP / path /
+    // hex / number); the security::scrubber catches them BEFORE
+    // `write_template_to_table` writes the row to DuckDB.
+    #[test]
+    fn drain_pii_canary_email_redacted_in_log_templates() {
+        use crate::drain::{DrainConfig, DrainMiner, write_template_to_table};
+
+        let conn = fresh_conn_with_schema();
+        let miner = DrainMiner::new(DrainConfig::default_config(), None);
+
+        let canary_body = "user logged in from canary-secret-email@example.com on alpha-tier";
+        let batch = vec![ResourceLogs {
+            resource: Some(make_resource("svc-pii-canary")),
+            scope_logs: vec![ScopeLogs {
+                scope: None,
+                log_records: vec![LogRecord {
+                    time_unix_nano: 1_700_000_000_000_000_000,
+                    observed_time_unix_nano: 0,
+                    severity_number: 9,
+                    severity_text: "INFO".into(),
+                    body: Some(AnyValue {
+                        value: Some(any_value::Value::StringValue(canary_body.into())),
+                    }),
+                    attributes: Vec::new(),
+                    dropped_attributes_count: 0,
+                    flags: 0,
+                    trace_id: Vec::new(),
+                    span_id: Vec::new(),
+                    event_name: String::new(),
+                }],
+                schema_url: String::new(),
+            }],
+            schema_url: String::new(),
+        }];
+
+        let record_batch = build_logs_record_batch(&batch, Some(&miner))
+            .expect("build batch ok")
+            .expect("non-empty batch");
+        append_record_batch_to_table(&conn, "log_records", record_batch).expect("append rows");
+
+        let new_templates = miner.drain_newly_created_templates();
+        assert!(
+            !new_templates.is_empty(),
+            "one canary log line must create exactly one new template"
+        );
+        for record in &new_templates {
+            write_template_to_table(&conn, record).expect("write template row");
+        }
+
+        let templates: Vec<String> = conn
+            .prepare("SELECT template_content FROM log_templates")
+            .expect("prepare select")
+            .query_map([], |r| r.get::<_, String>(0))
+            .expect("query templates")
+            .map(|r| r.expect("read row"))
+            .collect();
+
+        assert!(
+            !templates.is_empty(),
+            "PII canary test expects at least one stored template row"
+        );
+
+        for stored in &templates {
+            assert!(
+                !stored.contains("canary-secret-email@example.com"),
+                "raw email leaked into log_templates.template_content: {stored:?}"
+            );
+            assert!(
+                !stored.contains("@example.com"),
+                "raw email fragment leaked into log_templates.template_content: {stored:?}"
+            );
+        }
+
+        assert!(
+            templates.iter().any(|t| t.contains("[REDACTED:email]")),
+            "expected at least one log_templates.template_content row to carry the \
+             stable [REDACTED:email] marker (security::scrubber category label); \
+             got templates: {templates:?}"
+        );
+    }
+
     #[test]
     fn build_logs_record_batch_extracts_trace_id_and_span_id_for_correlation() {
         let conn = fresh_conn_with_schema();

@@ -17,7 +17,7 @@ use crate::broadcast::{
     STREAM_NAME_SPANS,
 };
 use crate::contract::Error;
-use crate::drain::DrainMiner;
+use crate::drain::{DrainMiner, write_template_to_table};
 use crate::fingerprint::FingerprintObserver;
 use crate::state::BufferState;
 
@@ -139,6 +139,18 @@ fn dispatch_batch(
             };
             let encoded = encode_or_log(broadcast::encode_logs(&rb), STREAM_NAME_LOGS);
             let rows = append_table_traced(&guard, "log_records", rb)?;
+            // chunk #69 Phase B Session 7+ (Step 8): persist any
+            // newly-created templates to the in-memory DuckDB
+            // `log_templates` table via prepared statement on the SAME
+            // connection guard as the preceding log_records append. PII
+            // scrubber fires inside `write_template_to_table` BEFORE the
+            // DuckDB write per capability P-047.
+            if let Some(miner) = drain_miner {
+                let new_templates = miner.drain_newly_created_templates();
+                for record in &new_templates {
+                    write_template_to_table(&guard, record)?;
+                }
+            }
             (rows, &senders.logs, encoded)
         }
     };
