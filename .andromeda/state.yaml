@@ -1,47 +1,28 @@
 schema_version: 2
-last_wrap: 2026-05-19T22:43:00Z
-last_reconcile: 2026-05-19T22:43:00Z
+last_wrap: 2026-05-19T23:10:00Z
+last_reconcile: 2026-05-19T23:10:00Z
 
 last_completed_chunk:
-  route_index: 68
-  title: "Corpus SQLite scaffold + schema + encryption + PII scrubber — new `crates/corpus/`; OS-keychain encryption; security-crate PII scrubber primitive (capabilities P-041/P-047–P-051; detail in pulse-v0_2_0-route §69)"
+  route_index: 69
+  title: "Drain Rust implementation + template profiling diagnostics — Drain3 Rust port (depth/similarity/masking); two-phase spike-then-production; diagnostics.template_distribution() panel (capability P-007; detail in pulse-v0_2_0-route §67)"
   epoch: 9
-  committed_at: 2026-05-18T19:46:01Z
-  commit_sha: 04431cd
-  commit_subject: "feat(corpus): chunk #68 — corpus SQLite scaffold + crates/security/ + crates/corpus/ + storage.{inspect,path} TauRPC (Epoch 9 Foundation v0.2.0 twelfth chunk; final Epoch 9 chunk; session 93 impl commit absorbed wrap-session changes per fold-impl-into-wrap pattern; State H placeholder commit_sha=73c983e reconciled to actual at session 94 wrap per session 89/91 precedent)"
+  committed_at: 2026-05-19T23:10:00Z
+  commit_sha: 5402d3f
+  commit_subject: "chore(wrap): session 101 — chunk #69 fully closes via Type 6 amendment lifecycle (Step 32 /evolve --allow-arch-registry + /setup-project --delta propagation); diagnostics.template_distribution now registered in arch §Occupied Resources; v0.2.0 Foundation Epoch 9 reaches 100% (final chunk in route §2)"
 
-# Chunk #69 Phase B Session 7+ COMPLETE this session (100). Plan §Implementation
-# Steps 1-31 all landed across sessions 96-100 (5-wrap N-session pattern;
-# extends session 98's 2-session + session 99's 4-session precedent to 5
-# wraps for the "largest single chunk in route"). Only Step 32 remains:
-# /andromeda-evolve --allow-arch-registry to register
-# diagnostics.template_distribution in arch §Occupied Resources, which is
-# meta-work explicitly out of /implement scope per plan. last_completed_chunk
-# stays at predecessor (#68) until Step 32 lands; once /evolve cycle closes
-# the D3 drift, last_completed_chunk advances to 69 and v0.2.0 Foundation
-# Epoch 9 reaches 100%. See .claude/docs/session-learnings.md "N-session
-# implementation pattern affirmed" (2026-05-19 session 98).
-in_progress:
-  phase: 66
-  chunks: [69]
-  sub_phase: phase_b_session_7_complete
-  completion_status: phase_b_chunk_closeable_pending_step32_evolve_cycle
-  artifacts:
-    - .andromeda/decisions/pre-d2-drain-spike.md
-    - .andromeda/phases/phase-65/combined.md
-    - .andromeda/phases/phase-65/research.md
-    - .andromeda/phases/phase-65/plan.md
-    - .andromeda/phases/phase-66/combined.md
-    - .andromeda/phases/phase-66/research.md
-    - .andromeda/phases/phase-66/plan.md
-  next_phase_blocked_on: []
-  spike_decision: PROCEED
-  spike_loc_estimate_revised: "900-1100"
-  sessions_complete: [1, 2, 3, 4, 5, 6, 7]
-  sessions_pending: []
-  remaining_steps:
-    - "Step 32: /andromeda-evolve --allow-arch-registry for diagnostics.template_distribution arch §Occupied Resources acknowledgment (closes D3 drift; advances last_completed_chunk to 69; completes v0.2.0 Foundation Epoch 9)"
-  started_at: 2026-05-18T21:35:58Z
+# Chunk #69 fully closed this session 101 via Type 6 amendment lifecycle:
+# Step 32 /evolve --allow-arch-registry (session 100→101 boundary) added
+# diagnostics.template_distribution to arch §Occupied Resources Tauri IPC
+# routes; /setup-project --delta propagated; this wrap-session archived the
+# amendment + advanced last_completed_chunk from 68 → 69. v0.2.0 Foundation
+# Epoch 9 reaches 100% (final chunk in route §2 = chunk #69 complete; 69 of
+# 69 chunks landed; epoch 8 of 9 = Polish & Ship deferred for v0.1.0 ship;
+# Epoch 9 = Foundation v0.2.0 reaches 100% per its 13-chunk scope).
+# No active in-progress phase. Next /andromeda-phase target: pending user
+# decision (could be chunk #70 substrate persistence audit per session 100
+# proposed chunk text, OR v0_2_0-route §70+ work, OR Polish & Ship v0.1.0
+# blockers).
+in_progress: null
 
 plan_freshness:
   arch_mtime: 2026-05-18T20:01:41Z
@@ -55,55 +36,29 @@ plan_freshness:
   input_mtime: 2026-05-02T06:52:58Z
 
 living_artifact_freshness:
-  dep_tree_reconciled_at: 2026-05-19T22:43:00Z
-  api_surface_reconciled_at: 2026-05-19T22:43:00Z
+  dep_tree_reconciled_at: 2026-05-19T23:10:00Z
+  api_surface_reconciled_at: 2026-05-19T23:10:00Z
   most_recent_code_mtime: 2026-05-19T22:43:00Z
   reconcile_failed: false
   api_surface_deferred: true
-  api_surface_deferred_reason: "per-crate cargo +nightly public-api iteration across 14 crates exceeds wrap budget (estimated 7-14 min vs ~3 min wrap budget); pragmatic-deviation per sessions 91/92/94-99 precedent (6th consecutive deferral); full reconcile resumes at next /implement-followed wrap after chunk #69 fully closes (Step 32 /evolve cycle lands) when full chunk public surface is settled"
+  api_surface_deferred_reason: "per-crate cargo +nightly public-api iteration across 14 crates exceeds wrap budget (estimated 7-14 min vs ~3 min wrap budget); pragmatic-deviation per sessions 91-100 precedent (7th consecutive deferral); chunk #69 fully closed this session 101 → next /implement-followed wrap is the natural re-baseline checkpoint when full chunk public surface settles + new chunk #70+ implementation lands"
 
-drift_warnings:
-  - drift_id: D3
-    description: "diagnostics.template_distribution TauRPC procedure exists in xtask::EXPECTED_PROCEDURES + pulse-app/ui/src/bindings/index.ts + pulse-app/capabilities/default.json description + production Router + emit_taurpc_bindings test merge BUT does NOT yet appear in .andromeda/architecture.md §Occupied Resources Tauri IPC routes. Expected Type 6 pre-evolve state per chunk #69 plan Step 32 deferral; mirrors session 84's chunk #62 pulse://stream/attention-cues + session 87's chunk #66 + many prior chunks' pre-evolve pattern."
-    severity: warning
-    remediation_hint: "/andromeda-evolve --allow-arch-registry for diagnostics.template_distribution acknowledgment in arch §Occupied Resources Tauri IPC routes"
-    first_observed_session_count: 99
-    last_observed_session_count: 100
+drift_warnings: []
 
 spec_amendments:
-  active:
+  active: []
+  archive:
     - amendment_id: 2026-05-19T20-54-03-acknowledge-diagnostics-namespace
       plans:
         - path: architecture.md
           sections:
             - "§Occupied Resources Tauri IPC routes"
             - "§Architecture Registry Updates"
-          decisions_log_section: "2026-05-19 — Acknowledge `diagnostics.template_distribution` (--allow-arch-registry)"
-      trigger:
-        chunk: null
-        phase: null
-        harness: "user-driven via /andromeda-evolve"
-      authority:
-        winning_plan: pulse-app/src/diagnostics_router.rs
-        winning_tier: implementation
-        losing_plan: architecture.md
-        losing_concern: registry-section-stale-vs-implementation-reality
-        rationale: "Code at pulse-app/src/diagnostics_router.rs:59 implements #[taurpc::procedures(path = 'diagnostics')] with template_distribution() method; arch §Occupied Resources Tauri IPC routes has not acknowledged. Authorized via --allow-arch-registry flag; Check 7 all sub-checks passed."
-      impl_files_synced: []
-      expected_propagation: []
-      marker_path: .andromeda/runs/2026-05-19T20-54-03-spec-amendment-acknowledge-diagnostics-namespace/amendment.md
-      applied_at: 2026-05-19T20:54:03Z
-      noted_at: null
+      decisions_log_sections:
+        - "2026-05-19 — Acknowledge `diagnostics.template_distribution` (--allow-arch-registry)"
       propagated_by_run: .andromeda/runs/2026-05-19T20-58-54-setup-project-delta/
-      archived_at: null
-      verification_status: clean
+      archived_at: 2026-05-19T23:10:00Z
       flag_used: --allow-arch-registry
-      registry_section: "§Occupied Resources Tauri IPC routes"
-      registry_additions:
-        - diagnostics.template_distribution
-      code_evidence:
-        - pulse-app/src/diagnostics_router.rs
-  archive:
     - amendment_id: 2026-05-18T21-11-12-append-chunk-69-drain-rust-implementation
       plans:
         - path: route.md
@@ -516,4 +471,4 @@ spec_amendments:
       propagated_by_run: .andromeda/runs/2026-05-11T19-00-00-setup-project-delta/
       archived_at: 2026-05-11T19:25:00Z
 
-session_count: 100
+session_count: 101
