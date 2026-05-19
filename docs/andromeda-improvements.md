@@ -787,3 +787,82 @@ For each Type 6 amendment, if the registry section being amended is one that CLA
 - Sibling proposal: **Proposal 7** — Type 6 narrative-cascade visibility WITHIN arch.md structural sections (P7 covers arch.md narrative cascade; P12 covers CLAUDE.md derived-section cascade — orthogonal scopes).
 - `spec-amendment-protocol.md` Part D Architecture.md exception → Type 6 permit path: documents that empty `expected_propagation` is permitted/typical; P12 proposes evolve auto-detect when empty is wrong AND pre-populate with CLAUDE.md cascade.
 - `delta-rerun-protocol.md` Detection step 8 grep-expansion: defense-in-depth for value-replacement amendments; P12 covers the gap for purely-additive enumeration-list amendments where grep-expansion can't help.
+
+---
+
+## Status: PROPOSED — 2026-05-19 (session 97)
+
+### Proposal 13 — First-class sub-phase state for two-phase chunks
+
+**Problem:**
+
+Some route chunks have explicit two-phase internal scoping where Phase A is a research spike (gitignored throwaway code; deliverable is a `.andromeda/decisions/pre-d#-{slug}.md` findings document) and Phase B is the production implementation, gated on the Phase A decision document returning PROCEED / REVISE / SPLIT (DEFER closes the chunk). Chunk #69 "Drain Rust implementation + template profiling diagnostics" is the first such chunk in pulse v0.2.0 to actually exercise this discipline at /implement time; future chunks #74 (LLM runtime + hardware profile, Pre-D1 spike) + others may also adopt the pattern.
+
+The Andromeda framework currently has NO structured representation for "Phase A complete; Phase B pending" in `state.yaml`. The workflow forced this session (chunk #69 Phase A wrap-session 97) to:
+
+1. Leave `state.yaml.last_completed_chunk` at the predecessor chunk (#68) — because chunk #69 is sub-completed only — even though chunk #69's Phase A actually landed substantive artifacts on main (the findings doc + .gitignore update).
+2. Encode the partial state in `state.yaml.in_progress` as free-text: `{phase: 65, chunks: [69], status: "phase_a_complete; phase_b_pending", artifacts: [".andromeda/decisions/pre-d2-drain-spike.md"], started_at: <ISO>}`.
+3. Use a `chore(wrap):` commit prefix to avoid D6 drift detection's `^chunk\(\d+\):` / `^feat\({module}\):` chunk-progression pattern match. A `feat(chunk-69):` subject would falsely fire D6 ("git log suggests chunk #69 completed but state.yaml stuck at #68").
+4. Document the workaround in session-learnings.md so the next-session orchestrator (or human reviewer) understands why `last_completed_chunk` is "stuck" at 68 despite chunk #69 artifacts being on main.
+
+This works but is convention-driven, not framework-enforced. Failure modes:
+- A new session orchestrator who skips reading session-learnings.md might "fix" the stale `last_completed_chunk` by advancing to 69, then `/andromeda-phase` next session targets chunk #70 (which doesn't exist) — missing Phase B entirely.
+- A user invoking `/andromeda-phase` (default, no --chunks override) would expect to plan the next-chunk increment; without explicit signal that Phase B is pending, the heuristic falls back to "all chunks done; tell user to run /andromeda-evolve."
+- The `/andromeda-new-session` dashboard cannot tell the user "Phase B of chunk #69 is your next action" — it can only say "chunk #68 complete; chunk #69 is next" which is ambiguous (is #69 pending entirely OR partially complete?).
+
+**Proposal:**
+
+Extend `state.yaml` schema (`session-state-contract.md` Part B) with structured sub-phase fields:
+
+```yaml
+last_completed_chunk:
+  route_index: 68
+  # ... existing fields ...
+
+in_progress:
+  phase: 65
+  chunks: [69]
+  sub_phase: phase_a        # NEW: explicit "phase_a" / "phase_b" / null
+  completion_status: complete  # NEW: "complete" / "blocked" / "in_flight"
+  next_phase_blocked_on:    # NEW: list of files/decisions required before next phase
+    - .andromeda/decisions/pre-d2-drain-spike.md
+  artifacts:
+    - .andromeda/decisions/pre-d2-drain-spike.md
+  started_at: 2026-05-19T01:00:00Z
+```
+
+`/andromeda-phase` Setup step 4 (next-chunk identification) consults `in_progress.sub_phase` + `completion_status`: if `sub_phase="phase_a"` AND `completion_status="complete"` → next phase is Phase B of same chunk (re-plan against chunk's Phase B scope), NOT next chunk index. `/andromeda-new-session` dashboard renders the "chunk N Phase A complete; Phase B pending" state directly from the structured fields rather than parsing free-text status.
+
+**Design:**
+
+- `sub_phase` enum: `phase_a` / `phase_b` / `phase_c` / `null` (single-phase chunks). Lowercase snake_case per existing serde conventions.
+- `completion_status` enum: `complete` / `blocked` / `in_flight` / `failed`. Distinguishes "Phase A done, Phase B can start" (`complete`) from "Phase A done but findings doc says DEFER, chunk closes" (`failed`) from "Phase A still being implemented" (`in_flight`) from "Phase A complete, Phase B blocked on external decision" (`blocked`).
+- `next_phase_blocked_on` list: paths or short identifiers (e.g., decision tokens) that gate the next phase. `/andromeda-phase` Setup checks file existence; `/andromeda-new-session` renders.
+- D6 drift detection updates: when `in_progress.sub_phase` is non-null AND `completion_status="complete"`, treat the chunk as "in flight" (the route chunk is not done) — do NOT fire D6 "git log suggests chunk #N completed but state.yaml stuck at #N-1" because the framework now understands the sub-phase state.
+- Commit-subject heuristic: with the structured fields, the commit-subject pattern match becomes a soft signal rather than the load-bearing detection. `chore(wrap):` prefix discipline can stay as a recommendation but is no longer required to avoid false D6 fires.
+
+**Implementation cost:**
+
+| File | Change | LOC est |
+|---|---|---|
+| `~/.claude/skills/andromeda-wrap-session/references/session-state-contract.md` | Part B — add `sub_phase` / `completion_status` / `next_phase_blocked_on` to in_progress schema | ~15 |
+| `~/.claude/skills/andromeda-wrap-session/SKILL.md` | Phase 8 — detect sub_phase from commit message keywords (`Phase A` / `Phase B` text) + completion_status from artifacts (decision doc present → complete) | ~25 |
+| `~/.claude/skills/andromeda-phase/SKILL.md` | Setup step 4 — branch on in_progress.sub_phase + completion_status to decide next-chunk-vs-next-phase planning | ~20 |
+| `~/.claude/skills/andromeda-new-session/SKILL.md` + `references/visual-references.md` | Dashboard render for two-phase chunks (e.g., "chunk #N Phase A complete; Phase B pending: .andromeda/decisions/...") | ~15 |
+| `~/.claude/skills/andromeda-wrap-session/references/integrity-protocol.md` Part C | D6 — augment drift detection to consult sub_phase + completion_status before firing | ~10 |
+| One-time v2 → v2.2 migration step in wrap-session Phase 8 | Detect existing in_progress entries without sub_phase fields; default sub_phase=null + completion_status=in_flight | ~10 |
+
+**Total:** ~95 lines across 5 files. Moderate-effort enhancement; high-value for projects that exercise two-phase chunks (pulse v0.2.0 has at least 2 known: chunk #69 Drain + chunk #74 LLM hardware-profile; future Pre-D# spike-gated chunks generalize).
+
+**When to do:**
+
+- Soon-ish. Confidence the pattern recurs: MEDIUM-HIGH. Pulse v0.2.0 has the second two-phase chunk (#74) coming in Phase 5+ work; absent P13, will face the same workaround pattern. Other Andromeda-using projects may also need it as they adopt multi-phase chunks.
+- Defer-until-second-occurrence alternative — wait until chunk #74 implementation makes the same workaround explicit a second time; that's the natural "filed twice = implement" precedent the proposal log uses elsewhere (P5, P7, P12). At that point, the implementation is fairly mechanical.
+- Author preference — lean toward filing-and-deferring. The workaround works for chunk #69 Phase A; the structured fix lands more naturally when chunk #74's Phase A is also done and there's a clear two-occurrence pattern justifying the schema change. No urgency until then.
+
+**Cross-references:**
+
+- Triggering session: session 97 (this wrap; chunk #69 Phase A Drain spike validation). The discipline applied verbatim as session-learnings.md "Two-phase chunk wrap-state pattern" entry. Convention-driven workaround documented; framework support deferred to P13.
+- Sibling proposal: **Proposal 7** — Type 6 narrative-cascade visibility (different concern — arch.md text staleness vs state.yaml schema gap). Both surface in pulse v0.2.0 Phase 3+ work.
+- `session-state-contract.md` Part B in_progress schema — current shape is `{phase, chunks, artifacts, started_at}`; P13 extends with 3 new optional fields.
+- `integrity-protocol.md` Part C D6 — current heuristic relies on commit subject pattern + state.yaml.last_completed_chunk numeric comparison; P13 makes D6 sub-phase-aware so wrap commits for partial-chunk work don't trip the drift gate.

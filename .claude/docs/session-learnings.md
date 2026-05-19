@@ -6,6 +6,46 @@ _Entries are added in reverse chronological order (newest first). Each entry has
 
 _This file is entirely wrap-session's territory. `/setup-project` creates it if missing but NEVER regenerates it. Manual edits are preserved across all Andromeda skill runs._
 
+## 2026-05-19 (session 97) — Two-phase chunk wrap-state pattern: phase-A-complete does NOT advance last_completed_chunk; use in_progress to mark partial state (confidence 0.85)
+
+Two-phase chunks (research spike → production, per the chunk's internal scoping discipline — e.g., chunk #69 "Drain Rust implementation + template profiling diagnostics" with Phase A spike + Phase B production gated on `.andromeda/decisions/pre-d2-drain-spike.md`) require specialized wrap-session handling that the current Andromeda workflow does NOT formally support — must be encoded as free-text in state.yaml.in_progress.
+
+**Discipline this session applied (chunk #69 Phase A wrap):**
+
+- `state.yaml.last_completed_chunk` stays at predecessor chunk (#68 corpus; commit_sha `04431cd`). Phase A completion does NOT advance to #69 because chunk #69's route entry covers BOTH Phase A spike AND Phase B production — only Phase A landed this session.
+- `state.yaml.in_progress` set to `{phase: 65, chunks: [69], status: "phase_a_complete; phase_b_pending", artifacts: [".andromeda/decisions/pre-d2-drain-spike.md"], started_at: <ISO>}` — encodes the partial state so next-session `/andromeda-phase` sees chunk #69 still in flight.
+- Wrap commit subject uses `chore(wrap):` prefix (NOT `feat(chunk-69):` or similar). Rationale: D6 drift detection greps `git log` for `^chunk\(\d+\):` OR `^feat\({module}\):` patterns matching route epoch/chunk titles. A `feat(chunk-69):` subject would trigger D6 ("git log suggests chunk #69 completed but state.yaml stuck at #68") — but this is INTENTIONAL divergence (Phase A is sub-chunk work). Using `chore(wrap):` sidesteps the pattern match.
+- Next-session `/andromeda-phase` (default) attempts to plan chunk #69 again (since last_completed_chunk+1 = 69, and chunk #69 IS the next chunk). The plan author re-reads chunk #69 + finds Phase A complete via `.andromeda/decisions/pre-d2-drain-spike.md` decision PROCEED → plans Phase B production scope.
+
+**Alternative considered:** advance last_completed_chunk to 69 + register Phase B as new route chunk #70 via `/andromeda-evolve --allow-route-append`. Cleaner but adds an extra cycle; the route already documents the two-phase discipline within chunk #69's text. Keeping the implicit Phase A→B progression within one route entry is consistent with the route author's intent.
+
+**Generalization:** any future chunk with explicit two-phase scoping in its route text (recognizable by "two-phase" / "spike-then-production" / similar markers + a Pre-D# decision document in the chunk's acceptance criteria) follows the same pattern. Verified at chunk #69 Phase A (commit `chore(wrap): session 97 — chunk #69 Phase A Drain spike complete; decision PROCEED; Phase B pending`); D6 did NOT fire post-commit.
+
+**Companion Andromeda improvement:** Proposal 13 (filed this session) proposes structured `in_progress.sub_phase` + `in_progress.completion_status` schema fields to replace free-text encoding — would make the partial-state discipline first-class rather than convention-driven.
+
+---
+
+## 2026-05-19 (session 97) — Standalone spike-crate Rust workspace quirk: `[workspace]` table required for gitignored sibling crates (confidence 0.9)
+
+Research spike crates placed at `crates/{name}-experimental/` (gitignored per CLAUDE.md spike discipline + chunk #69 Phase A acceptance criteria) MUST declare their own `[workspace]` table in `Cargo.toml`. Without it, cargo detects the parent workspace's `Cargo.toml` and errors at any cargo command run inside the spike dir: `current package believes it's in a workspace when it's not` (or similar phrasing).
+
+**Root cause:** cargo's workspace discovery walks upward from the package's `Cargo.toml` to find the workspace root. When the spike crate is a subdirectory of an existing workspace's `members`-bounded scope but is NOT listed in `members`, cargo considers it an orphan and refuses to compile.
+
+**Fix:** add minimal `[workspace]` table to spike's `Cargo.toml`:
+```toml
+[workspace]
+# Standalone workspace root — NOT a member of the parent {project} workspace
+# at {parent path}/Cargo.toml. Research spike per .andromeda/decisions/pre-d2-{slug}.md.
+```
+
+No `members` list needed (single-crate "workspace"). No `[workspace.dependencies]` needed (spike's deps go directly in its own `[dependencies]`). The `[workspace]` table's presence is what tells cargo "I'm my own root; stop walking upward."
+
+**Verified at chunk #69 Phase A (session 97):** `crates/triage-experimental/Cargo.toml` with `[workspace]` declaration compiled cleanly via `cargo build --release` + `cargo test --release` + `cargo run --release --bin drain-spike` from `D:/dev/projects/andromeda-pulse/crates/triage-experimental/`. Parent workspace's `cargo nextest run --workspace --profile ci` from the project root correctly excluded the spike (gitignored + not in parent `members`) — 1068/1068 production tests passing without any spike-test contamination.
+
+**Generalization:** applies to ANY future research spike crate, regardless of language tool quirks — Cargo workspace discovery semantics are stable. Pairs naturally with the security extract's Constraint #6 from chunk #69 plan ("Throwaway branch / gitignored crate semantics MUST be enforced via `.gitignore` BEFORE any spike file is written") — `.gitignore` entry first, `[workspace]` table second, spike source code third.
+
+---
+
 ## 2026-05-18 (session 95) — Type 6 amendment → CLAUDE.md cascade: --delta is lifecycle-only; full /andromeda-setup-project is the realignment path (confidence 0.8)
 
 `/andromeda-evolve --allow-arch-registry` Type 6 amendments with `expected_propagation: []` (the typical Type 6 shape per `spec-amendment-protocol.md` Part D Narrow exception) propagate via `/andromeda-setup-project --delta` as **lifecycle progression only** — no Tier 2/3 regeneration, no CLAUDE.md re-materialization. This is correct protocol behavior, but creates a recurring trap: CLAUDE.md mirrors arch §Inherited Defaults / Stack / Modules content in its `setup:overview` (Stack one-liner crate count, Key directories crate enumeration), `setup:modules` (per-crate entries), and `setup:pointer-table` (services row count). Each Type 6 amendment that adds a workspace crate (chunks #58 curation, #60 triage, #68 corpus+security per session 95 evidence) leaves these derived sections stale until a separate cycle restores alignment.

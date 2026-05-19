@@ -1,6 +1,6 @@
 schema_version: 2
-last_wrap: 2026-05-18T21:26:03Z
-last_reconcile: 2026-05-18T21:26:03Z
+last_wrap: 2026-05-19T01:30:00Z
+last_reconcile: 2026-05-19T01:30:00Z
 
 last_completed_chunk:
   route_index: 68
@@ -10,7 +10,28 @@ last_completed_chunk:
   commit_sha: 04431cd
   commit_subject: "feat(corpus): chunk #68 — corpus SQLite scaffold + crates/security/ + crates/corpus/ + storage.{inspect,path} TauRPC (Epoch 9 Foundation v0.2.0 twelfth chunk; final Epoch 9 chunk; session 93 impl commit absorbed wrap-session changes per fold-impl-into-wrap pattern; State H placeholder commit_sha=73c983e reconciled to actual at session 94 wrap per session 89/91 precedent)"
 
-in_progress: null
+# Chunk #69 Phase A Drain spike COMPLETE this session (97); Phase B production
+# implementation pending. Two-phase chunk discipline: last_completed_chunk stays
+# at predecessor (#68) because chunk #69's route entry covers BOTH phases; only
+# Phase A landed. See .claude/docs/session-learnings.md "Two-phase chunk wrap-
+# state pattern" (2026-05-19 session 97) for the canonical workaround pattern;
+# Andromeda improvement Proposal 13 (docs/andromeda-improvements.md) proposes
+# first-class sub_phase / completion_status schema fields to replace this
+# free-text encoding.
+in_progress:
+  phase: 65
+  chunks: [69]
+  sub_phase: phase_a_complete
+  completion_status: phase_b_pending
+  artifacts:
+    - .andromeda/decisions/pre-d2-drain-spike.md
+    - .andromeda/phases/phase-65/combined.md
+    - .andromeda/phases/phase-65/research.md
+    - .andromeda/phases/phase-65/plan.md
+  next_phase_blocked_on: []
+  spike_decision: PROCEED
+  spike_loc_estimate_revised: "900-1100"
+  started_at: 2026-05-18T21:35:58Z
 
 plan_freshness:
   arch_mtime: 2026-05-18T20:01:41Z
@@ -24,8 +45,8 @@ plan_freshness:
   input_mtime: 2026-05-02T06:52:58Z
 
 living_artifact_freshness:
-  dep_tree_reconciled_at: 2026-05-18T21:26:03Z
-  api_surface_reconciled_at: 2026-05-18T21:26:03Z
+  dep_tree_reconciled_at: 2026-05-19T01:30:00Z
+  api_surface_reconciled_at: 2026-05-19T01:30:00Z
   most_recent_code_mtime: 2026-05-18T19:31:51Z
   reconcile_failed: false
 
@@ -446,4 +467,4 @@ spec_amendments:
       propagated_by_run: .andromeda/runs/2026-05-11T19-00-00-setup-project-delta/
       archived_at: 2026-05-11T19:25:00Z
 
-session_count: 96
+session_count: 97

@@ -86,3 +86,8 @@ pulse-app/ui/test-results/a11y-sr/
 .claude/backup/
 # Runtime PID lock file (scheduled tasks; ephemeral; per-session)
 .claude/scheduled_tasks.lock
+
+# --- Research spikes (throwaway / never commits to main) ---
+# Chunk #69 Phase A Drain spike validation (per .andromeda/decisions/pre-d2-drain-spike.md).
+# Spike code never commits to main; the findings doc is the only artifact that does.
+crates/triage-experimental/
