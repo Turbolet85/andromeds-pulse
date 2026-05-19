@@ -172,6 +172,7 @@
   - `connection.current_state` — pulse-app crate (`ConnectionApiImpl` returning `ConnectionStatePayload` from `crates/ingest::connection::compute_state()`; chunk #59) — see §Architecture Registry Updates 2026-05-16
   - `services.list_with_states` — pulse-app crate (`ServicesApiImpl` returning `ServiceListPayload` from `crates/triage::lifecycle::InMemoryServiceRegistry::list`; chunk #67) — see §Architecture Registry Updates 2026-05-18
   - `storage.inspect`, `storage.path` — pulse-app crate (`StorageApiImpl` returning corpus inspection metadata + data-dir absolute path from `crates/corpus::CorpusReader`; chunk #68) — see §Architecture Registry Updates 2026-05-18
+  - `diagnostics.template_distribution` — pulse-app crate (`DiagnosticsApiImpl` returning `TemplateDistributionPayload` from `crates/buffer::DrainMiner::template_distribution()`; chunk #69) — see §Architecture Registry Updates 2026-05-19
 - **External HTTP routes (OTLP HTTP)**: `POST /v1/traces`, `POST /v1/metrics`, `POST /v1/logs` on `:4318`.
 - **MCP stdio surface**: standard MCP `initialize`, `tools/list`, `tools/call`, `notifications/*` over stdin/stdout when the rmcp sidecar is started.
 - **Tauri IPC events (broadcast channels)**: `pulse://stream/spans`, `pulse://stream/metrics`, `pulse://stream/logs`, `pulse://stream/snapshot-progress`, `pulse://stream/plugin-events`, `pulse://stream/connection-state` (chunk #59 — see §Architecture Registry Updates 2026-05-16), `pulse://stream/attention-cues` (chunk #62 — see §Architecture Registry Updates 2026-05-17), `pulse://stream/restart-events` (chunk #63 — see §Architecture Registry Updates 2026-05-17), `pulse://stream/service-lifecycle` (chunk #67 — see §Architecture Registry Updates 2026-05-18).
@@ -420,4 +421,11 @@ _This section accumulates entries from `/andromeda-evolve --allow-arch-registry`
 - `corpus/corpus.db` subpath under data dir root (`pulse-app/src/main.rs:353`, chunk #68)
 **Rationale:** D3 capability-drift closure for chunk #68 persistent incident corpus + PII scrubber + storage router. Mirrors 2026-05-18 chunk #67 `services-namespace` precedent (single-coordinated multi-item Registry Update across sub-sections under §Occupied Resources).
 **Marker:** `.andromeda/runs/2026-05-18T19-55-24-spec-amendment-acknowledge-chunk-68-corpus-additions/amendment.md`
+
+### 2026-05-19 — Acknowledge `diagnostics.template_distribution` (--allow-arch-registry)
+
+**Section:** §Occupied Resources Tauri IPC routes.
+**Added:** `diagnostics.template_distribution` (`pulse-app/src/diagnostics_router.rs:59`, chunk #69).
+**Rationale:** D3 capability-drift closure for chunk #69 Drain template-profiling diagnostics TauRPC procedure. Mirrors 2026-05-17 chunk #62 `attention-cues` precedent (single-item Type 6).
+**Marker:** `.andromeda/runs/2026-05-19T20-54-03-spec-amendment-acknowledge-diagnostics-namespace/amendment.md`
 

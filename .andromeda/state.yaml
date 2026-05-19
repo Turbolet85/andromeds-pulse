@@ -71,7 +71,38 @@ drift_warnings:
     last_observed_session_count: 100
 
 spec_amendments:
-  active: []
+  active:
+    - amendment_id: 2026-05-19T20-54-03-acknowledge-diagnostics-namespace
+      plans:
+        - path: architecture.md
+          sections:
+            - "§Occupied Resources Tauri IPC routes"
+            - "§Architecture Registry Updates"
+          decisions_log_section: "2026-05-19 — Acknowledge `diagnostics.template_distribution` (--allow-arch-registry)"
+      trigger:
+        chunk: null
+        phase: null
+        harness: "user-driven via /andromeda-evolve"
+      authority:
+        winning_plan: pulse-app/src/diagnostics_router.rs
+        winning_tier: implementation
+        losing_plan: architecture.md
+        losing_concern: registry-section-stale-vs-implementation-reality
+        rationale: "Code at pulse-app/src/diagnostics_router.rs:59 implements #[taurpc::procedures(path = 'diagnostics')] with template_distribution() method; arch §Occupied Resources Tauri IPC routes has not acknowledged. Authorized via --allow-arch-registry flag; Check 7 all sub-checks passed."
+      impl_files_synced: []
+      expected_propagation: []
+      marker_path: .andromeda/runs/2026-05-19T20-54-03-spec-amendment-acknowledge-diagnostics-namespace/amendment.md
+      applied_at: 2026-05-19T20:54:03Z
+      noted_at: null
+      propagated_by_run: .andromeda/runs/2026-05-19T20-58-54-setup-project-delta/
+      archived_at: null
+      verification_status: clean
+      flag_used: --allow-arch-registry
+      registry_section: "§Occupied Resources Tauri IPC routes"
+      registry_additions:
+        - diagnostics.template_distribution
+      code_evidence:
+        - pulse-app/src/diagnostics_router.rs
   archive:
     - amendment_id: 2026-05-18T21-11-12-append-chunk-69-drain-rust-implementation
       plans:
