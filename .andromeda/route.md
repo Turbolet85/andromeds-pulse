@@ -16,7 +16,7 @@ unit) not HOW (implementation steps)._
 
 ## 1. Route Scope Summary
 
-- **Total chunks:** 71
+- **Total chunks:** 72
 - **Epochs:** 9 (Foundation, Ingest pipeline, Storage & query, Webview shell + TauRPC bridge, Visualization surfaces, Snapshot & Investigate, Plugin runtime + MCP server, Polish & ship, Foundation v0.2.0)
 - **Drilldown depth (avg):** 1.6 (mixed: Foundation depth 2, Ingest pipeline depth 1, Storage & query depth 2, Webview shell depth 1, Visualization surfaces depth 2, Snapshot depth 2, Plugin+MCP depth 2, Polish depth 1)
 - **Hierarchy mode:** mixed (3-level for dense epochs Foundation / Storage / Visualization / Snapshot / Plugin+MCP; 2-level for lighter epochs Ingest / Webview shell / Polish)
@@ -176,6 +176,8 @@ Drain Rust implementation + template profiling diagnostics — Drain3 Rust port 
 BaselineState → corpus migration — EwmaTracker / TDigestPair / RollingWindow / ActivityFloor from flat-file baseline-corpus.bin to corpus SQLite via BaselinePersistence trait (capabilities P-009/P-011/P-013/P-051; detail in pulse-v0_2_0-route §70).
    ↓
 ServiceRegistry + RetryStormState → corpus migration — DashMap → corpus via LifecyclePersistence + StormPersistence traits (capabilities P-017/P-018/P-027; detail in pulse-v0_2_0-route §71).
+   ↓
+PII scrubber coverage extension — extend scrub_attribute to OTLP appender + Drain corpus persist paths; uniform pre-scrub at persistence boundary (capabilities P-006/P-047/P-048; detail in pulse-v0_2_0-route §72).
 
 ---
 
@@ -370,3 +372,12 @@ ServiceRegistry + RetryStormState → corpus migration — DashMap → corpus vi
 - **Why:** Second chunk of v3 Phase 6 Consolidation; closes P-027 dot-positions-survive-restart + chunk #66 storm.rs deferred-persistence broken promise; depends on #66/#67/#68/#70. Mirrors chunk #70 precedent.
 - **Mechanical:** §1 Total chunks 70 → 71 (Form 1 Policy A); state.yaml.last_completed_chunk unchanged.
 - **Marker:** `.andromeda/runs/2026-05-20T18-55-00-spec-amendment-append-chunk-71-lifecycle-storm-corpus-migration/amendment.md`
+
+---
+
+`2026-05-20` — Append chunk #72 PII scrubber coverage extension (--allow-route-append)
+
+- **Insert:** chunk #72 at §2 Epoch 9 — Foundation v0.2.0 (text: see §2; full detail in `pulse-v0_2_0-route.md` §Phase 6 §72).
+- **Why:** Third chunk of v3 Phase 6 Consolidation; closes P-006/P-047/P-048 single-site coverage gap (scrubber invoked at only `crates/buffer/src/drain.rs:600`); extends to `appender.rs:332-356` OTLP attributes + Drain corpus persist + CorpusWriter trait contract. Depends on #65/#68/#69/#70/#71. Mirrors chunk #71 precedent.
+- **Mechanical:** §1 Total chunks 71 → 72 (Form 1 Policy A); state.yaml.last_completed_chunk unchanged.
+- **Marker:** `.andromeda/runs/2026-05-20T21-00-00-spec-amendment-append-chunk-72-pii-scrubber-coverage-extension/amendment.md`
