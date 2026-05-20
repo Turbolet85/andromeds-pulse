@@ -6,6 +6,45 @@ _Entries are added in reverse chronological order (newest first). Each entry has
 
 _This file is entirely wrap-session's territory. `/setup-project` creates it if missing but NEVER regenerates it. Manual edits are preserved across all Andromeda skill runs._
 
+## 2026-05-20 (session 103) — Runtime tracing verification at /implement Phase 2b: grep agent-latest.jsonl after boot for new trace targets (confidence 0.8)
+
+When a chunk introduces new `tracing::info!` / `tracing::warn!` targets (especially boot-time emissions like chunk #70's `triage.baseline.migrate`), /implement Phase 2b can be elevated from "did the app process not crash?" to **"did the new target actually fire with the expected field set?"** by grepping `~/.andromeda-pulse/logs/agent-latest.jsonl.{YYYY-MM-DD}` after the dev boot.
+
+**Procedure:**
+1. Run `npx @tauri-apps/cli dev` in background; wait for compile + boot
+2. (Optionally pre-stage state to exercise the new code path — e.g., chunk #70 had a leftover `<data_dir>/triage/baseline-corpus.bin` from prior sessions, which naturally exercised the migration path without test fixture staging)
+3. After ~60s runtime (enough to capture both boot-time emissions AND first periodic tick), `grep -E '"target":"(<new_target_a>|<new_target_b>)"' <log_path>` to extract matching events
+4. Verify field set matches design (correct fields present; PII fields ABSENT)
+5. Kill the dev process via `powershell -Command "Get-Process -Name pulse-app -ErrorAction SilentlyContinue | Stop-Process -Force"`
+
+**Pre-staged-state via prior-session dogfood:** Sometimes the BEST migration / boot-path test is just running the app on a real dogfood data dir that accumulated state across prior sessions. Chunk #70 found a 28-byte `baseline-corpus.bin` from sessions 99-101 and migrated it cleanly with `migration_outcome: "completed"` + `legacy_state_size_bytes: 28` — much more convincing than a TempDir test fixture. Future migration / persistence chunks can deliberately leave prior-session artifacts in place to validate at the Phase 2b boundary.
+
+**Stronger guarantee than unit tests alone:** unit tests in `pulse-app/src/baseline_persistence.rs::tests` verify the helper function in isolation (TempDir + FakeKeychainBackend); Phase 2b runtime verification proves the actual boot wiring in `pulse-app/src/main.rs` calls the helper at the right point + the AllowList registry permits the emitted fields + the JSON log subscriber writes them correctly. The combination is the full pipeline test.
+
+**Apply to any future chunk introducing new boot-time tracing emissions** — Phase 2b grep adds <30s to /implement runtime + provides strong evidence the end-to-end runtime path works.
+
+Reference: chunk #70 implementation session 103; observed at `2026-05-20T16:22:53Z triage.baseline.migrate` + `2026-05-20T16:23:54Z triage.baseline.persist` in `~/.andromeda-pulse/logs/agent-latest.jsonl.2026-05-20`.
+
+---
+
+## 2026-05-20 (session 103) — Cross-crate persistence trait wiring requires corpus/DB init BEFORE state-struct bootstrap in main.rs (confidence 0.75)
+
+When a chunk introduces a NEW `*Persistence` trait derived from `Arc<dyn CorpusWriter>` (or any other cross-crate trait provider), the boot wiring in `pulse-app/src/main.rs` may require **structural reordering**: the trait-provider construction (e.g., corpus_arc + corpus_writer derivation) must precede the trait-consumer (e.g., baseline_state bootstrap) because the consumer needs `Option<&dyn Persistence>` at construction time.
+
+**Concrete example (chunk #70):** the pre-existing init order had baseline_state bootstrap at line ~272 + corpus init at line ~347. Chunk #70 needed `baseline_persistence` (derived from corpus_writer) injected into `bootstrap_state(persistence, ...)`. Resolution: moved the corpus init block (~40 lines including OS keychain + Corpus::open + CorpusReader + CorpusWriter + storage_impl derivation) BEFORE the baseline section. Added baseline_persistence + migration call + None-case warn between corpus init and baseline bootstrap. Preserved the cue / restart / observer / storm / lifecycle order downstream — only the corpus block moved.
+
+**Generalize to future chunks #71+** (ServiceRegistry + RetryStormState → corpus migration per Phase 6 Consolidation plan): the same pattern applies. ServiceRegistry's `InMemoryServiceRegistry::new()` at main.rs ~340 will become `CorpusLifecycleRegistry::new(corpus_writer_or_arc, ...)` requiring the corpus block to already be initialized. The trait-in-lower-crate + adapter-at-pulse-app-boundary pattern (per session-learnings 2026-05-16) implies this reordering whenever the consumer is also at boot.
+
+**Test for whether reordering is needed:** read the main.rs init order. If the chunk's new trait consumer is initialized BEFORE the trait provider, the answer is yes — move the provider up.
+
+**Side benefit:** the corpus init block also provides `storage_impl` (StorageApiImpl) and `drain_persistence` (CorpusDrainPersistence). Once moved earlier, all downstream consumers of these trait views see them available. No cascading reordering needed if the move is "promote provider to top of section".
+
+**Don't try to use Arc<RwLock<Option<...>>> deferred indirection** — adds complexity without benefit. Just move the block.
+
+Reference: chunk #70 main.rs delta at `pulse-app/src/main.rs:266-360` after refactor; cue_broadcast + thresholds + restart + observer + storm + lifecycle order preserved verbatim downstream of the moved corpus block.
+
+---
+
 ## 2026-05-20 (session 102) — Mid-stream consolidation audit pattern: 9-dimension methodology + parallel agent dispatch (confidence 0.85)
 
 When a project completes a major foundational substrate phase (e.g., v0.2.0 Foundation Epoch 9 reaches 100% with chunks #57-#69 shipped) **and is about to start user-facing surfaces that consume the substrate** (digest pipeline / LLM interpretation / Reports / MCP), pause for strategic **consistency audit** before continuing forward. Audit-driven consolidation prevents technical debt accumulation downstream once chunks become harder to refactor (e.g., LLM interpretation chunks assume specific persistence model).

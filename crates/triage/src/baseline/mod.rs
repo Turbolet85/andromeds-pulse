@@ -1,26 +1,31 @@
-//! Streaming baseline trackers + corpus persistence (chunk #61).
+//! Streaming baseline trackers + corpus persistence (chunk #61 trackers +
+//! chunk #70 corpus migration).
 //!
 //! Implements the L1b streaming distillation foundation per
 //! `docs/v0_2_0/pulse-v0_2_0-route.md` §Phase 2 (capabilities P-009 +
-//! P-011). Three algorithm primitives — `EwmaTracker` (per-service error
-//! rate baseline), `TDigestPair` (per-operation streaming p50/p95/p99
-//! latency baseline with swap-on-tick rotation), and `RollingWindow<u32>`
-//! (per-service activity tracking) — feed `BaselineState`, a DashMap-backed
-//! aggregator that persists to a self-versioned bincode corpus file under
-//! `<data-dir>/triage/baseline-corpus.bin`.
+//! P-011) + Phase 6 Consolidation (capability P-013 + P-051). Three
+//! algorithm primitives — `EwmaTracker` (per-service error rate baseline),
+//! `TDigestPair` (per-operation streaming p50/p95/p99 latency baseline
+//! with swap-on-tick rotation), and `RollingWindow<u32>` (per-service
+//! activity tracking) — feed `BaselineState`, a DashMap-backed aggregator.
 //!
-//! Boot wiring (spawn `run_persist_loop`, tap the ingest span stream) is
-//! deferred to chunk #62; this chunk delivers callable + testable primitives
-//! only.
+//! Persistence routes through the [`persistence::BaselinePersistence`]
+//! trait, implemented at `pulse-app/src/baseline_persistence.rs` over
+//! `corpus::contract::CorpusWriter` (Schema Option A — reuses the
+//! `pipeline_metrics` blob slot with `metric_name="baseline_state"` +
+//! `layer="l1b"`, mirroring chunk #69 `CorpusDrainPersistence`). The flat
+//! file `<data-dir>/triage/baseline-corpus.bin` (chunk #61 substrate) is
+//! eliminated; legacy files migrate-and-delete on first boot via
+//! `pulse-app/src/baseline_persistence.rs::migrate_legacy_baseline_if_present`.
 
 mod activity_floor;
 mod corpus;
 mod error;
 mod ewma;
+mod persistence;
 mod rolling_window;
 mod tdigest_pair;
 
-use std::path::Path;
 use std::sync::Arc;
 use std::sync::atomic::{AtomicI64, AtomicU32, Ordering};
 use std::time::Duration;
@@ -32,22 +37,30 @@ pub use activity_floor::{
     ActivityFloor, BOOTSTRAP_WINDOW_SECONDS, BUCKET_COUNT, BUCKET_INTERVAL_SECONDS, BootstrapState,
     WINDOW_DURATION_SECONDS,
 };
-#[cfg(test)]
-pub(crate) use corpus::load_state;
 pub use corpus::{
     BootstrapResult, DEFAULT_MAX_SIZE_BYTES, DEFAULT_SERVICE_COUNT_CAP, PersistStats,
-    bootstrap_from_corpus, persist_state, resolve_corpus_path,
+    bootstrap_from_persistence,
 };
 pub use error::BaselineError;
 pub use ewma::EwmaTracker;
+pub use persistence::BaselinePersistence;
 pub use rolling_window::RollingWindow;
 pub use tdigest_pair::TDigestPair;
 
 pub const SCHEMA_VERSION: u32 = 1;
 
+/// Canonical corpus filesystem basename. Persistence writes go through
+/// `corpus::contract::CorpusWriter`; this constant carries the basename
+/// surfaced in tracing fields (`corpus_basename`) since the trait API
+/// does not expose the underlying path. Matches arch §Occupied Resources
+/// Filesystem locations corpus/corpus.db subpath.
+pub(crate) const CORPUS_BASENAME: &str = "corpus.db";
+
 pub(crate) const TARGET_BASELINE_TICK: &str = "triage.baseline.tick";
 pub(crate) const TARGET_BASELINE_PERSIST: &str = "triage.baseline.persist";
-pub(crate) const TARGET_BASELINE_PERSIST_ERROR: &str = "triage.baseline.persist.error";
+pub const TARGET_BASELINE_PERSIST_ERROR: &str = "triage.baseline.persist.error";
+pub const TARGET_BASELINE_MIGRATE: &str = "triage.baseline.migrate";
+pub const TARGET_BASELINE_MIGRATE_FAILED: &str = "triage.baseline.migrate.failed";
 pub(crate) const TARGET_SERVICE_ID_MISSING: &str = "triage.service_id_missing";
 pub(crate) const TARGET_METRIC_EWMA_SHORT_WINDOW: &str = "metric.baseline.ewma_short_window_size";
 pub(crate) const TARGET_PIPELINE_L1B_PERSIST_TOTAL: &str = "pipeline.l1b.persist_count_total";
@@ -375,13 +388,14 @@ fn operation_key(service: &str, operation: &str) -> String {
 }
 
 /// Synchronous one-pass persist cycle: swap-on-tick, emit per-tick metric,
-/// drain service-identity drops + emit aggregate warn, persist corpus,
-/// emit persist outcome metric. Returns the persist result for callers
-/// that want explicit error handling. Designed for unit-testable invocation
-/// independent of the `tokio::time::interval`-driven outer loop.
+/// drain service-identity drops + emit aggregate warn, persist via the
+/// `BaselinePersistence` trait, emit persist outcome metric. Returns the
+/// persist result for callers that want explicit error handling. Designed
+/// for unit-testable invocation independent of the `tokio::time::interval`-
+/// driven outer loop.
 pub fn run_persist_cycle(
     state: &BaselineState,
-    corpus_path: &Path,
+    persistence: &dyn BaselinePersistence,
     now_nanos: i64,
     persist_kind: &'static str,
 ) -> Result<PersistStats, BaselineError> {
@@ -426,11 +440,6 @@ pub fn run_persist_cycle(
     }
 
     let persist_start = std::time::Instant::now();
-    let corpus_basename = corpus_path
-        .file_name()
-        .and_then(|s| s.to_str())
-        .unwrap_or("baseline-corpus.bin")
-        .to_string();
 
     // Set persisted_at BEFORE serialize so the round-trip includes it.
     // If persist fails, the in-memory atomic is "ahead" of the disk
@@ -438,16 +447,26 @@ pub fn run_persist_cycle(
     let prior_persisted_at = state.persisted_at_unix_nanos();
     state.set_persisted_at_unix_nanos(now_nanos);
 
-    match persist_state(corpus_path, state) {
-        Ok(stats) => {
+    match persistence.save(state) {
+        Ok(()) => {
             let duration_ms = persist_start.elapsed().as_millis() as u64;
+            // Adapter does not surface `bytes_written` across the trait boundary;
+            // synthesize from a fresh serialize. Cheap relative to the AES write
+            // already performed; preserves the existing tracing field shape.
+            let bytes_written = bincode::serialize(state)
+                .map(|v| v.len() as u64)
+                .unwrap_or(0);
+            let stats = PersistStats {
+                bytes_written,
+                service_count,
+            };
             tracing::info!(
                 target: TARGET_BASELINE_PERSIST,
                 service_id_count = stats.service_count as u64,
                 state_size_bytes = stats.bytes_written,
                 duration_ms = duration_ms,
                 persist_kind = persist_kind,
-                corpus_basename = %corpus_basename,
+                corpus_basename = CORPUS_BASENAME,
                 "corpus persisted"
             );
             tracing::info!(
@@ -476,13 +495,13 @@ pub fn run_persist_cycle(
     }
 }
 
-/// Long-running future spawned at boot (chunk #62 territory) that fires
-/// `run_persist_cycle` on the supplied `interval`. Wall-clock time is read
-/// from `SystemTime::UNIX_EPOCH`; tests should exercise `run_persist_cycle`
+/// Long-running future spawned at boot that fires `run_persist_cycle` on
+/// the supplied `interval`. Wall-clock time is read from
+/// `SystemTime::UNIX_EPOCH`; tests should exercise `run_persist_cycle`
 /// directly with injected `now_nanos` for deterministic timing.
 pub async fn run_persist_loop(
     state: Arc<BaselineState>,
-    corpus_path: std::path::PathBuf,
+    persistence: Arc<dyn BaselinePersistence>,
     interval: Duration,
 ) {
     let mut ticker = tokio::time::interval(interval);
@@ -490,34 +509,35 @@ pub async fn run_persist_loop(
     loop {
         ticker.tick().await;
         let now = current_unix_nanos();
-        let _ = run_persist_cycle(&state, &corpus_path, now, "periodic");
+        let _ = run_persist_cycle(&state, persistence.as_ref(), now, "periodic");
     }
 }
 
 /// Graceful-shutdown persist helper. Synchronous so it can be called from a
-/// Tauri shutdown hook (chunk #62 boot wiring). Emits the persist counter
-/// with `persist_kind = "shutdown"`.
+/// Tauri shutdown hook. Emits the persist counter with
+/// `persist_kind = "shutdown"`.
 pub fn persist_on_shutdown(
     state: &BaselineState,
-    corpus_path: &Path,
+    persistence: &dyn BaselinePersistence,
 ) -> Result<PersistStats, BaselineError> {
     let now = current_unix_nanos();
-    run_persist_cycle(state, corpus_path, now, "shutdown")
+    run_persist_cycle(state, persistence, now, "shutdown")
 }
 
 /// Bootstrap entry point used at boot to attempt load-from-corpus, falling
 /// through to fresh state on any failure. Emits the
 /// `pipeline.l1b.bootstrap_count_total{kind}` metric describing the path
-/// taken. Returns a ready-to-use `BaselineState`.
+/// taken. Returns a ready-to-use `BaselineState`. `persistence = None`
+/// (corpus unavailable at boot) → cold-start fresh state with
+/// `kind = "cold_start"`.
 pub fn bootstrap_state(
-    corpus_path: &Path,
-    max_size_bytes: u64,
+    persistence: Option<&dyn BaselinePersistence>,
     service_count_cap: usize,
     now_nanos: i64,
 ) -> BaselineState {
     let kind: &'static str;
-    let state =
-        match bootstrap_from_corpus(corpus_path, max_size_bytes, service_count_cap, now_nanos) {
+    let state = match persistence {
+        Some(p) => match bootstrap_from_persistence(p, service_count_cap, now_nanos) {
             BootstrapResult::Loaded { state, age_nanos } => {
                 if age_nanos >= STATE_AGE_THRESHOLD_NANOS {
                     kind = "corpus_corrupt_reset";
@@ -531,7 +551,12 @@ pub fn bootstrap_state(
                 kind = reason_kind;
                 BaselineState::new()
             }
-        };
+        },
+        None => {
+            kind = "cold_start";
+            BaselineState::new()
+        }
+    };
 
     tracing::info!(
         target: TARGET_PIPELINE_L1B_BOOTSTRAP_TOTAL,
@@ -554,9 +579,51 @@ fn current_unix_nanos() -> i64 {
 mod tests {
     use super::*;
     use std::sync::Mutex;
-    use tempfile::TempDir;
     use tracing::field::{Field, Visit};
     use tracing::{Event, Level, Subscriber};
+
+    /// In-crate test fixture implementing `BaselinePersistence` over an
+    /// in-memory bincode slot. Mirrors the role of the real
+    /// `pulse-app/src/baseline_persistence.rs::CorpusBaselinePersistence`
+    /// adapter for crate-level tests that can't take a corpus dep
+    /// (per arch §Cross-cutting Patterns Module dependency direction —
+    /// `triage` MUST NOT depend on `corpus`).
+    #[derive(Default)]
+    struct FakeBaselinePersistence {
+        bytes: Mutex<Option<Vec<u8>>>,
+        next_save_error: Mutex<Option<BaselineError>>,
+    }
+
+    impl FakeBaselinePersistence {
+        fn new() -> Self {
+            Self::default()
+        }
+
+        /// Inject a one-shot save-error for the next call.
+        fn fail_next_save_with(&self, err: BaselineError) {
+            *self.next_save_error.lock().unwrap() = Some(err);
+        }
+    }
+
+    impl BaselinePersistence for FakeBaselinePersistence {
+        fn load(&self) -> Result<Option<BaselineState>, BaselineError> {
+            let guard = self.bytes.lock().unwrap();
+            match guard.as_ref() {
+                Some(b) => bincode::deserialize::<BaselineState>(b)
+                    .map(Some)
+                    .map_err(|_| BaselineError::Deserialize),
+                None => Ok(None),
+            }
+        }
+        fn save(&self, state: &BaselineState) -> Result<(), BaselineError> {
+            if let Some(err) = self.next_save_error.lock().unwrap().take() {
+                return Err(err);
+            }
+            let bytes = bincode::serialize(state).map_err(|_| BaselineError::Serialize)?;
+            *self.bytes.lock().unwrap() = Some(bytes);
+            Ok(())
+        }
+    }
 
     #[test]
     fn observe_span_with_empty_service_increments_drops() {
@@ -609,80 +676,71 @@ mod tests {
     }
 
     #[test]
-    fn run_persist_cycle_writes_corpus_and_advances_persisted_at() {
-        let tmp = TempDir::new().expect("tmp");
-        let path = resolve_corpus_path(tmp.path()).expect("resolve");
+    fn run_persist_cycle_advances_persisted_at_via_trait() {
+        let persistence = FakeBaselinePersistence::new();
         let state = BaselineState::new();
         state.observe_span("svc-a", "op-1", 0, 100, 1_000);
         assert_eq!(state.persisted_at_unix_nanos(), 0);
 
-        let stats = run_persist_cycle(&state, &path, 5_000, "periodic").expect("persist");
+        let stats = run_persist_cycle(&state, &persistence, 5_000, "periodic").expect("persist");
         assert!(stats.bytes_written > 0);
         assert_eq!(state.persisted_at_unix_nanos(), 5_000);
-        assert!(path.exists());
+        assert!(persistence.bytes.lock().unwrap().is_some());
     }
 
     #[test]
-    fn run_persist_cycle_round_trip_preserves_service_state() {
-        let tmp = TempDir::new().expect("tmp");
-        let path = resolve_corpus_path(tmp.path()).expect("resolve");
+    fn run_persist_cycle_round_trip_preserves_service_state_via_trait() {
+        let persistence = FakeBaselinePersistence::new();
         let original = BaselineState::new();
         for i in 0..50 {
             original.observe_span("svc-a", "op-x", 0, 100, i * 1_000_000);
         }
-        run_persist_cycle(&original, &path, 5_000, "periodic").expect("persist");
+        run_persist_cycle(&original, &persistence, 5_000, "periodic").expect("persist");
 
-        let loaded =
-            load_state(&path, DEFAULT_MAX_SIZE_BYTES, DEFAULT_SERVICE_COUNT_CAP).expect("load");
+        let loaded = persistence.load().expect("load ok").expect("Some(state)");
         assert_eq!(loaded.service_count(), original.service_count());
         assert_eq!(loaded.persisted_at_unix_nanos(), 5_000);
         assert_eq!(loaded.error_rate("svc-a"), original.error_rate("svc-a"));
     }
 
     #[test]
-    fn bootstrap_state_returns_fresh_when_corpus_missing() {
-        let tmp = TempDir::new().expect("tmp");
-        let path = tmp.path().join("nonexistent-corpus.bin");
-        let state = bootstrap_state(&path, DEFAULT_MAX_SIZE_BYTES, DEFAULT_SERVICE_COUNT_CAP, 0);
+    fn bootstrap_state_returns_fresh_when_persistence_none() {
+        let state = bootstrap_state(None, DEFAULT_SERVICE_COUNT_CAP, 0);
         assert_eq!(state.service_count(), 0);
         assert_eq!(state.schema_version(), SCHEMA_VERSION);
     }
 
     #[test]
-    fn bootstrap_state_returns_loaded_when_corpus_fresh() {
-        let tmp = TempDir::new().expect("tmp");
-        let path = resolve_corpus_path(tmp.path()).expect("resolve");
+    fn bootstrap_state_returns_fresh_when_persistence_empty() {
+        let persistence = FakeBaselinePersistence::new();
+        let state = bootstrap_state(Some(&persistence), DEFAULT_SERVICE_COUNT_CAP, 0);
+        assert_eq!(state.service_count(), 0);
+        assert_eq!(state.schema_version(), SCHEMA_VERSION);
+    }
+
+    #[test]
+    fn bootstrap_state_returns_loaded_when_persistence_fresh() {
+        let persistence = FakeBaselinePersistence::new();
         let original = BaselineState::new();
         original.observe_span("svc-a", "op-x", 0, 100, 1_000);
         original.set_persisted_at_unix_nanos(1_000);
-        persist_state(&path, &original).expect("persist");
+        persistence.save(&original).expect("save");
 
-        let loaded = bootstrap_state(
-            &path,
-            DEFAULT_MAX_SIZE_BYTES,
-            DEFAULT_SERVICE_COUNT_CAP,
-            2_000,
-        );
+        let loaded = bootstrap_state(Some(&persistence), DEFAULT_SERVICE_COUNT_CAP, 2_000);
         assert_eq!(loaded.service_count(), 1);
     }
 
     #[test]
-    fn bootstrap_state_resets_when_corpus_stale_beyond_threshold() {
-        let tmp = TempDir::new().expect("tmp");
-        let path = resolve_corpus_path(tmp.path()).expect("resolve");
+    fn bootstrap_state_resets_when_persistence_stale_beyond_threshold() {
+        let persistence = FakeBaselinePersistence::new();
         let original = BaselineState::new();
         original.observe_span("svc-a", "op-x", 0, 100, 1_000);
         original.set_persisted_at_unix_nanos(0);
-        persist_state(&path, &original).expect("persist");
+        persistence.save(&original).expect("save");
 
         let now = STATE_AGE_THRESHOLD_NANOS + 1;
-        let loaded = bootstrap_state(
-            &path,
-            DEFAULT_MAX_SIZE_BYTES,
-            DEFAULT_SERVICE_COUNT_CAP,
-            now,
-        );
-        assert_eq!(loaded.service_count(), 0, "stale corpus should reset");
+        let loaded = bootstrap_state(Some(&persistence), DEFAULT_SERVICE_COUNT_CAP, now);
+        assert_eq!(loaded.service_count(), 0, "stale state should reset");
     }
 
     type CapturedFields = Vec<(String, String)>;
@@ -753,14 +811,13 @@ mod tests {
     #[test]
     fn service_identity_missing_emits_single_aggregate_warn_per_tick() {
         let (sub, events) = CapturingSubscriber::new();
-        let tmp = TempDir::new().expect("tmp");
-        let path = resolve_corpus_path(tmp.path()).expect("resolve");
+        let persistence = FakeBaselinePersistence::new();
         let state = BaselineState::new();
         for _ in 0..10 {
             state.observe_span("", "op", 0, 100, 1_000);
         }
         tracing::subscriber::with_default(sub, || {
-            run_persist_cycle(&state, &path, 5_000, "periodic").expect("persist");
+            run_persist_cycle(&state, &persistence, 5_000, "periodic").expect("persist");
         });
 
         let captured = events.lock().unwrap();
@@ -789,12 +846,11 @@ mod tests {
     #[test]
     fn run_persist_cycle_emits_tick_and_persist_metric_events() {
         let (sub, events) = CapturingSubscriber::new();
-        let tmp = TempDir::new().expect("tmp");
-        let path = resolve_corpus_path(tmp.path()).expect("resolve");
+        let persistence = FakeBaselinePersistence::new();
         let state = BaselineState::new();
         state.observe_span("svc-a", "op-x", 0, 100, 1_000);
         tracing::subscriber::with_default(sub, || {
-            run_persist_cycle(&state, &path, 5_000, "periodic").expect("persist");
+            run_persist_cycle(&state, &persistence, 5_000, "periodic").expect("persist");
         });
 
         let captured = events.lock().unwrap();
@@ -818,14 +874,40 @@ mod tests {
     }
 
     #[test]
-    fn persist_on_shutdown_emits_shutdown_kind_metric() {
+    fn run_persist_cycle_emits_corpus_basename_field() {
         let (sub, events) = CapturingSubscriber::new();
-        let tmp = TempDir::new().expect("tmp");
-        let path = resolve_corpus_path(tmp.path()).expect("resolve");
+        let persistence = FakeBaselinePersistence::new();
         let state = BaselineState::new();
         state.observe_span("svc-a", "op-x", 0, 100, 1_000);
         tracing::subscriber::with_default(sub, || {
-            persist_on_shutdown(&state, &path).expect("shutdown persist");
+            run_persist_cycle(&state, &persistence, 5_000, "periodic").expect("persist");
+        });
+
+        let captured = events.lock().unwrap();
+        let persist_event = captured
+            .iter()
+            .find(|(t, _, _)| t == TARGET_BASELINE_PERSIST)
+            .expect("missing persist event");
+        let basename = persist_event
+            .2
+            .iter()
+            .find(|(k, _)| k == "corpus_basename")
+            .map(|(_, v)| v.clone());
+        assert_eq!(
+            basename,
+            Some(CORPUS_BASENAME.to_string()),
+            "corpus_basename field must equal CORPUS_BASENAME constant"
+        );
+    }
+
+    #[test]
+    fn persist_on_shutdown_emits_shutdown_kind_metric() {
+        let (sub, events) = CapturingSubscriber::new();
+        let persistence = FakeBaselinePersistence::new();
+        let state = BaselineState::new();
+        state.observe_span("svc-a", "op-x", 0, 100, 1_000);
+        tracing::subscriber::with_default(sub, || {
+            persist_on_shutdown(&state, &persistence).expect("shutdown persist");
         });
 
         let captured = events.lock().unwrap();
@@ -843,17 +925,16 @@ mod tests {
     }
 
     #[test]
-    fn run_persist_cycle_emits_error_event_on_io_failure() {
+    fn run_persist_cycle_emits_error_event_on_persistence_failure() {
         let (sub, events) = CapturingSubscriber::new();
-        let tmp = TempDir::new().expect("tmp");
-        // Point at a path whose parent is a regular file — fs::write fails.
-        let blocker = tmp.path().join("blocker");
-        std::fs::write(&blocker, b"x").expect("write blocker");
-        let bad_path = blocker.join("corpus.bin");
+        let persistence = FakeBaselinePersistence::new();
+        persistence.fail_next_save_with(BaselineError::Io {
+            kind: std::io::ErrorKind::PermissionDenied,
+        });
 
         let state = BaselineState::new();
         let result = tracing::subscriber::with_default(sub, || {
-            run_persist_cycle(&state, &bad_path, 1_000, "periodic")
+            run_persist_cycle(&state, &persistence, 1_000, "periodic")
         });
         assert!(result.is_err(), "expected persist failure");
         assert_eq!(state.persisted_at_unix_nanos(), 0, "rollback on failure");
@@ -864,6 +945,14 @@ mod tests {
             .filter(|(t, _, _)| t == TARGET_BASELINE_PERSIST_ERROR)
             .collect();
         assert_eq!(errs.len(), 1, "exactly one persist error event");
+        let (target, level, fields) = errs[0];
+        assert_eq!(target, TARGET_BASELINE_PERSIST_ERROR);
+        assert_eq!(*level, Level::WARN);
+        let cat = fields
+            .iter()
+            .find(|(k, _)| k == "error_category")
+            .map(|(_, v)| v.clone());
+        assert_eq!(cat, Some("io".to_string()));
     }
 
     #[test]
@@ -885,10 +974,8 @@ mod tests {
     #[test]
     fn bootstrap_state_emits_cold_start_metric() {
         let (sub, events) = CapturingSubscriber::new();
-        let tmp = TempDir::new().expect("tmp");
-        let path = tmp.path().join("nonexistent.bin");
         tracing::subscriber::with_default(sub, || {
-            let _ = bootstrap_state(&path, DEFAULT_MAX_SIZE_BYTES, DEFAULT_SERVICE_COUNT_CAP, 0);
+            let _ = bootstrap_state(None, DEFAULT_SERVICE_COUNT_CAP, 0);
         });
 
         let captured = events.lock().unwrap();
@@ -953,8 +1040,7 @@ mod tests {
     #[test]
     fn service_cap_exceeded_emits_aggregate_warn_per_tick() {
         let (sub, events) = CapturingSubscriber::new();
-        let tmp = TempDir::new().expect("tmp");
-        let path = resolve_corpus_path(tmp.path()).expect("resolve");
+        let persistence = FakeBaselinePersistence::new();
         let state = BaselineState::new();
         for i in 0..ACTIVITY_FLOOR_SERVICE_CAP {
             state.observe_span(&format!("svc-{i}"), "op", 0, 50, 1_000_000);
@@ -963,7 +1049,7 @@ mod tests {
             state.observe_span(&format!("over-{i}"), "op", 0, 50, 2_000_000);
         }
         tracing::subscriber::with_default(sub, || {
-            run_persist_cycle(&state, &path, 5_000, "periodic").expect("persist");
+            run_persist_cycle(&state, &persistence, 5_000, "periodic").expect("persist");
         });
 
         let captured = events.lock().unwrap();

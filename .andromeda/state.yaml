@@ -1,24 +1,28 @@
 schema_version: 2
-last_wrap: 2026-05-20T00:45:00Z
-last_reconcile: 2026-05-20T00:40:00Z
+last_wrap: 2026-05-20T16:30:00Z
+last_reconcile: 2026-05-20T16:30:00Z
 
 last_completed_chunk:
-  route_index: 69
-  title: "Drain Rust implementation + template profiling diagnostics — Drain3 Rust port (depth/similarity/masking); two-phase spike-then-production; diagnostics.template_distribution() panel (capability P-007; detail in pulse-v0_2_0-route §67)"
+  route_index: 70
+  title: "BaselineState → corpus migration — EwmaTracker / TDigestPair / RollingWindow / ActivityFloor from flat-file baseline-corpus.bin to corpus SQLite via BaselinePersistence trait (capabilities P-009/P-011/P-013/P-051; detail in pulse-v0_2_0-route §70)"
   epoch: 9
-  committed_at: 2026-05-19T23:10:00Z
-  commit_sha: 3602f82
-  commit_subject: "chore(wrap): session 101 — chunk #69 fully closes via Type 6 amendment lifecycle (Step 32 /evolve --allow-arch-registry + /setup-project --delta propagation); diagnostics.template_distribution now registered in arch §Occupied Resources; v0.2.0 Foundation Epoch 9 reaches 100% (final chunk in route §2)"
+  committed_at: 2026-05-20T16:30:00Z
+  commit_sha: "9459d14"
+  commit_subject: "chore(wrap): session 103 — chunk #70 BaselineState → corpus migration implementation + smoke-verified runtime emissions"
 
-# Session 102 wrap (2026-05-20): mid-stream consolidation audit cycle completed.
-# 9-dimension audit deliverable (1273 lines) identified 7 HIGH-severity inconsistency
-# clusters in chunks #57-#69. v3 manual edit of pulse-v0_2_0-route.md inserted Phase 6
-# Consolidation with 8 chunks (#70-#77) + renumbered §70-§89 → §78-§97 + capability
-# mapping refresh + v3 changelog + v2→v3 migration table. Chunk #70 BaselineState→corpus
-# migration registered this session via /andromeda-evolve --allow-route-append Form 1 +
-# propagated via /andromeda-setup-project --delta (CLAUDE.md pointer-table cascade 69→70).
-# last_completed_chunk stays at 69 (chunk #70 REGISTERED, not yet implemented).
-# Next /andromeda-phase target: chunk #70 BaselineState → corpus migration.
+# Session 103 wrap (2026-05-20): chunk #70 BaselineState → corpus migration implemented.
+# First chunk of v3 Phase 6 Consolidation lands; closes audit Section 1.A persistence
+# triple-mechanism finding for 3 of 4 in-flat-file components. New `trait BaselinePersistence`
+# in crates/triage/src/baseline/persistence.rs + CorpusBaselinePersistence adapter in
+# pulse-app/src/baseline_persistence.rs + migrate_legacy_baseline_if_present helper + 16 new
+# tests including PII canary at-rest verification. Schema Option A committed (reuse
+# pipeline_metrics blob slot). Migration Path A committed (read-and-migrate-once + delete +
+# warn-log; preserve on failure). Tracing target `triage.baseline.migrate` registered in
+# AllowList with aggregate-only field set. Phase 2b runtime smoke verified end-to-end —
+# legacy 28-byte baseline-corpus.bin from sessions 99-101 dogfood migrated cleanly at boot;
+# triage.baseline.persist fired ~60s post-boot with corpus_basename="corpus.db".
+# Next chunk: route#71 ServiceRegistry + RetryStormState → corpus migration (per v3 Phase 6
+# Consolidation plan; requires /andromeda-evolve --allow-route-append registration).
 in_progress: null
 
 plan_freshness:
@@ -33,12 +37,12 @@ plan_freshness:
   input_mtime: 2026-05-02T06:52:58Z
 
 living_artifact_freshness:
-  dep_tree_reconciled_at: 2026-05-20T00:40:00Z
-  api_surface_reconciled_at: 2026-05-20T00:40:00Z
-  most_recent_code_mtime: 2026-05-19T22:43:00Z
+  dep_tree_reconciled_at: 2026-05-20T16:30:00Z
+  api_surface_reconciled_at: 2026-05-20T16:30:00Z
+  most_recent_code_mtime: 2026-05-20T16:18:54Z
   reconcile_failed: false
   api_surface_deferred: true
-  api_surface_deferred_reason: "per-crate cargo +nightly public-api iteration across 14 crates exceeds wrap budget (estimated 7-14 min vs ~3 min wrap budget); pragmatic-deviation per sessions 91-101 precedent (8th consecutive deferral); session 102 = mid-stream consolidation audit + chunk #70 registration only — zero Rust source changes; next /implement-followed wrap (chunk #70 BaselineState→corpus migration implementation) is the natural re-baseline checkpoint when BaselinePersistence trait + CorpusBaselinePersistence adapter + Settings struct extensions land"
+  api_surface_deferred_reason: "per-crate cargo +nightly public-api iteration across 14 crates exceeds wrap budget (estimated 7-14 min vs ~3 min wrap budget); pragmatic-deviation per sessions 91-102 precedent (9th consecutive deferral); session 103 = chunk #70 BaselineState → corpus migration implementation + spot-verified cargo public-api on crates/triage/ this wrap confirming BaselinePersistence + bootstrap_from_persistence + refactored signatures land cleanly; full pub surface delta documented inline (api-surface.md METADATA session 103 note); next /implement-followed wrap (chunk #71 ServiceRegistry+RetryStormState corpus migration) is natural re-baseline checkpoint when CorpusLifecyclePersistence / CorpusStormPersistence adapters land"
 
 drift_warnings: []
 
@@ -481,4 +485,4 @@ spec_amendments:
       propagated_by_run: .andromeda/runs/2026-05-11T19-00-00-setup-project-delta/
       archived_at: 2026-05-11T19:25:00Z
 
-session_count: 102
+session_count: 103

@@ -16,12 +16,13 @@ use serde::{Deserialize, Serialize};
 // histogram + ServiceWentSilent gating contract types.
 pub use crate::baseline::{
     ACTIVITY_FLOOR_SERVICE_CAP, ActivityFloor, BOOTSTRAP_WINDOW_SECONDS, BUCKET_COUNT,
-    BUCKET_INTERVAL_SECONDS, BaselineError, BaselineState, BootstrapResult, BootstrapState,
-    DEFAULT_ALPHA_5MIN_WINDOW, DEFAULT_MAX_SIZE_BYTES, DEFAULT_PERSIST_INTERVAL_NANOS,
-    DEFAULT_SERVICE_COUNT_CAP, OperationMetricSnapshot, PersistStats, SCHEMA_VERSION,
-    STATE_AGE_THRESHOLD_NANOS, ServiceMetricSnapshot, ServiceSilenceSnapshot,
-    TARGET_SERVICE_CAP_EXCEEDED, WINDOW_DURATION_SECONDS, bootstrap_state, persist_on_shutdown,
-    resolve_corpus_path, run_persist_cycle, run_persist_loop,
+    BUCKET_INTERVAL_SECONDS, BaselineError, BaselinePersistence, BaselineState, BootstrapResult,
+    BootstrapState, DEFAULT_ALPHA_5MIN_WINDOW, DEFAULT_MAX_SIZE_BYTES,
+    DEFAULT_PERSIST_INTERVAL_NANOS, DEFAULT_SERVICE_COUNT_CAP, OperationMetricSnapshot,
+    PersistStats, SCHEMA_VERSION, STATE_AGE_THRESHOLD_NANOS, ServiceMetricSnapshot,
+    ServiceSilenceSnapshot, TARGET_BASELINE_MIGRATE, TARGET_BASELINE_MIGRATE_FAILED,
+    TARGET_BASELINE_PERSIST_ERROR, TARGET_SERVICE_CAP_EXCEEDED, WINDOW_DURATION_SECONDS,
+    bootstrap_state, persist_on_shutdown, run_persist_cycle, run_persist_loop,
 };
 
 // Chunk #62 — attention cue emitter. Re-export public-API types from

@@ -1,138 +1,162 @@
 # Session Handoff
 
-**Last Updated:** 2026-05-20T00:45:00Z
+**Last Updated:** 2026-05-20T16:30:00Z
 **Branch:** main
 **Session End Status:** clean
-**Last Commit:** (pending — wrap commit composed this Phase 10; closes session 102 / consolidation audit cycle + chunk #70 BaselineState→corpus migration registered + propagated)
+**Last Commit:** (pending — wrap commit composed this Phase 10; closes session 103 / chunk #70 BaselineState→corpus migration implementation)
 
 ## Current State
 
-- **Last completed chunk:** route#69 "Drain Rust implementation + template profiling diagnostics — Drain3 Rust port (depth/similarity/masking); two-phase spike-then-production; diagnostics.template_distribution() panel (capability P-007; detail in pulse-v0_2_0-route §67)" (chunk #69 closed at session 101 wrap; v0.2.0 Foundation Epoch 9 reaches 100% per route §2 13 chunks #57-#69)
-- **Next chunk:** **route#70 "BaselineState → corpus migration — EwmaTracker / TDigestPair / RollingWindow / ActivityFloor from flat-file baseline-corpus.bin to corpus SQLite via BaselinePersistence trait"** — registered this session 102 via `/andromeda-evolve --allow-route-append` Form 1 + propagated via `/andromeda-setup-project --delta`. Pending /andromeda-phase planning.
-- **In-progress phase:** none (chunk #70 registered but not yet planned)
-- **Phase artifacts present:** `.andromeda/phases/phase-{1..66}/` (phase-66 = chunk #69 plan; archived audit trail per Andromeda discipline)
-- **Major session output:** consolidation audit deliverable at `docs/v0_2_0/pulse-v0_2_0-consolidation-audit-2026-05-19.md` (1273 lines, 9 dimensions + Section 1-6 synthesis + Appendices A/B/C); consolidation insertion plan at `C:\Users\turbo\.claude\plans\rippling-brewing-moon.md`; pulse-v0_2_0-route.md v3 manual edit (insert Phase 6 Consolidation §70-§77 + renumber §70-§89 → §78-§97)
+- **Last completed chunk:** route#70 "BaselineState → corpus migration — EwmaTracker / TDigestPair / RollingWindow / ActivityFloor from flat-file baseline-corpus.bin to corpus SQLite via BaselinePersistence trait (capabilities P-009/P-011/P-013/P-051; detail in pulse-v0_2_0-route §70)" (implemented this session 103 wrap; v0.2.0 Foundation Epoch 9 now extends to 14/14 chunks #57-#70 closed). First chunk of v3 Phase 6 Consolidation landed.
+- **Next chunk:** **route#71 "ServiceRegistry + RetryStormState → corpus migration"** (per `docs/v0_2_0/pulse-v0_2_0-route.md` v3 Phase 6 §71). NOT yet registered in `.andromeda/route.md §2` — requires `/andromeda-evolve --allow-route-append` Form 1 + `/andromeda-setup-project --delta` cascade before `/andromeda-phase` can plan it.
+- **In-progress phase:** none (chunk #70 closed cleanly with all 24 acceptance criteria verified + Phase 2b runtime smoke pass)
+- **Phase artifacts present:** `.andromeda/phases/phase-{1..67}/` (phase-67 = chunk #70 plan/combined/research; archived audit trail per Andromeda discipline)
 
 ## Andromeda State Detection (states A-K)
 
 **Zero active state findings post-wrap. ALL CLEAR. ✓**
 
-- A: 0 orphan runs (consolidation-audit + spec-amendment + evolve + setup-project-delta run-dirs all have expected output files)
-- B: project.yaml status clean
-- C: arch.md mtime (2026-05-19 22:56) < CLAUDE.md mtime (2026-05-20 01:28). CLEAN.
-- D: route.md present with 70 chunks (chunk #70 appended this session)
-- E: chunk #70 registered but `.andromeda/phases/phase-70/` not yet created (no in-progress planning) — NOT pending per state E criteria (E fires when chunk N+1 exists but phase-{N+1}/ has no artifacts; here phase-70 simply hasn't been started yet, which is expected post-evolve pre-/andromeda-phase)
-- F: no in-progress implementation
+- A: 0 orphan runs (phase-67 + spec-amendment/evolve/setup-project-delta run-dirs from session 102 all have expected output files)
+- B: no project.yaml in this project layout (Tauri-only — not applicable)
+- C: arch.md mtime (2026-05-19 22:56) < CLAUDE.md mtime (just updated this wrap). CLEAN.
+- D: route.md present with 70 chunks (unchanged since session 102 wrap registered chunk #70). CLEAN.
+- E: chunk #70 implementation COMPLETE; no phase-68 pending (would correspond to chunk #71 which isn't yet route-registered). NOT pending per state E criteria (E fires when chunk N+1 exists in route §2 but phase-{N+1}/ has no artifacts; here chunk #71 isn't registered yet — expected post-/implement pre-/evolve).
+- F: no in-progress implementation (chunk #70 closed via /andromeda-implement this session)
 - G: 0 concurrent runs
-- H: state.yaml.last_completed_chunk.route_index = 69 (will be set to 69 still — chunk #70 registered != completed); no commits past #69 implementation. CLEAN.
-- I: plan_freshness mtimes coherent (route.md mtime advanced via evolve; setup-project --delta captured updated state for state.yaml.plan_freshness in this wrap)
-- J: living artifacts refreshed (timestamps 2026-05-20T00:40:00Z); api-surface 8th consecutive deferral per pattern (NOT a state J finding — reconcile_failed=false; intentional pragmatic-deviation)
+- H: state.yaml.last_completed_chunk.route_index = 70 (advanced this wrap from 69; matches the wrap commit closing chunk #70 implementation). CLEAN.
+- I: plan_freshness mtimes coherent (no specialist plan or arch.md changes this session; mtimes match session 102 baseline). CLEAN.
+- J: living artifacts refreshed this wrap (Phase 5 ran cargo tree + spot-verified cargo public-api on triage); api-surface 9th consecutive deferral per pattern (NOT a state J finding — reconcile_failed=false; pragmatic-deviation acknowledged; chunk #70 pub surface delta documented inline). CLEAN.
 - K: in_progress null — no multi-chunk state. CLEAN.
 
 ## Drift Detection (6 dimensions)
 
 **Zero active drift post-wrap. ALL CLEAR. ✓**
 
-- D1 (living artifact staleness): dep_tree_reconciled_at + api_surface_reconciled_at = 2026-05-20T00:40:00Z; most_recent_code_mtime = 2026-05-19T22:43:00Z (session 100 baseline; zero code changes this session 102). CLEAN.
-- D2 (wrong content): no reconcile changes this wrap (zero code changes). CLEAN.
-- D3 (plan-to-code drift): heuristic scans (workspace crates / IPC methods / auth lib / test framework / logging lib) all match arch + plans. CLEAN. **Note:** audit Section 1.F surfaced arch registry gaps (log_templates DuckDB table + corpus SQLite 6-table schema + baseline-corpus.bin subpath) — these are outside D3's documented heuristic scope; tracked for closure in chunk #74 (Architecture registry alignment batch).
+- D1 (living artifact staleness): dep_tree_reconciled_at + api_surface_reconciled_at = 2026-05-20T16:30:00Z; most_recent_code_mtime updated this session via Rust source changes (crates/triage/src/baseline/ + pulse-app/src/baseline_persistence.rs + main.rs). Reconcile happened AFTER all source changes. CLEAN.
+- D2 (wrong content): dep-tree.md byte-identical at 444 lines (chunk #70 added zero new external deps); api-surface.md timestamp refreshed + inline delta documented (full per-crate reconcile deferred per 9-wrap pragmatic pattern). CLEAN.
+- D3 (plan-to-code drift): heuristic scans pass — workspace crates (14 = ingest/buffer/viz/ui-bridge/snapshot/curation/triage/workspace-detector/plugins/mcp-server/corpus/security/pulse-app/xtask) match arch §Occupied Resources + cargo metadata exactly; capability-drift clean (chunk #70 TauRPC delta=none preserved); auth lib N/A; tests framework cargo nextest stable; logging tracing stable. CLEAN.
 - D4 (plan-to-plan drift): no specialist plan changes this session. CLEAN.
-- D5 (plan-to-CLAUDE.md drift): all 9 upstream mtimes < CLAUDE.md mtime (2026-05-20 01:28). CLEAN.
-- D6 (route chunk progression): commit `2db9450` does NOT match D6 patterns `^chunk(70):` OR `^feat({module}):` — chunk #70 is REGISTERED not implemented; state.yaml.last_completed_chunk stays at 69. CLEAN.
+- D5 (plan-to-CLAUDE.md drift): all 9 upstream mtimes < CLAUDE.md mtime (just updated this wrap via Tier 1 curation append). CLEAN.
+- D6 (route chunk progression): chunk #70 implementation lands via this wrap commit; state.yaml.last_completed_chunk advances from 69 → 70 anticipating the wrap commit; commit_sha pending until post-commit SHA-fixup amend (Phase 10 step). CLEAN after Phase 10 fixup.
 
 ## Spec Amendments (this session)
 
-**1 amendment applied + propagated + archived this session 102:**
+**Zero amendments applied this session 103.**
 
-- **Plan(s):** `.andromeda/route.md` (§2 Roadmap Epoch 9 body + §3 Decisions Log + §1 Route Scope Summary Total chunks mechanical update)
-- **Decisions Log:** §3 — 2026-05-20 "Append chunk #70 BaselineState → corpus migration (--allow-route-append)"
-- **Trigger:** user-driven evolution via /andromeda-evolve (no chunk/phase/harness)
-- **Authority resolution:** pipeline-state (consolidation audit + v3 manual edit) > route.md chunk-list-stale-vs-consolidation-plan-reality
-- **Lifecycle:** applied 2026-05-20T00:30:00Z (/evolve) | noted (this wrap implicit) | propagated 2026-05-20T00:35:00Z (/setup-project --delta) | archived 2026-05-20T00:45:00Z (this wrap-session)
-- **Marker:** `.andromeda/runs/2026-05-20T00-30-00-spec-amendment-append-chunk-70-baseline-corpus-migration/amendment.md`
-- **Flag:** `--allow-route-append` (Type 7 Form 1)
-
-Archived this session: 1 amendment (state.yaml.spec_amendments.archive count 38 → 39; active count 1 → 0)
+state.yaml.spec_amendments.active = [] at session start (session 102 archived the chunk #70 route-append amendment) and = [] at session end. Chunk #70 implementation made no changes to arch.md or specialist plans — it lives entirely within code + test surface. The Phase 6 Consolidation plan tracks arch registry alignment via chunk #74 (Architecture registry alignment batch) which will land later; chunk #70 itself touches no §Occupied Resources or §Established Decisions sections.
 
 ## Key Decisions This Session
 
-- **Strategic mid-stream consolidation pause initiated** between v0.2.0 Foundation Epoch 9 completion (chunks #57-#69) and Phase 7+ user-facing surface work (digest pipeline + LLM interpretation + Reports + MCP). 9-dimension consolidation audit deliverable (1273 lines) identified **7 HIGH-severity inconsistency clusters** in shipped substrate including persistence triple-mechanism (BaselineState flat-file vs corpus SQLite vs pure-in-memory) + PII scrubber single-site coverage + capability spec PARTIAL gaps (20/60 capabilities) + arch registry incompleteness + doc cross-reference drift. Consistency-first standard mandated: "two ways of doing X where one should suffice = HIGH severity" — no soft-deferral framings allowed.
-- **8 consolidation chunks (#70-#77)** registered as new Phase 6 — Consolidation in v3 of `pulse-v0_2_0-route.md`. 1:1 mapping with audit Section 6 groups (A1/A2+A3/B/C/F/G/H/I). Dependency-aware default ordering: persistence (#70-#71) → PII scrubber (#72) → capability numeric alignment (#73) → arch registry batch (#74) → docs (#75) → Andromeda meta P7+P12 (#76) → specialist re-runs (#77). v3 manual edit established via project-internal-doc precedent (Andromeda Refuse 6 mid-route-insertion applies ONLY to `.andromeda/route.md §2`).
-- **Chunk #70 (first consolidation chunk) registered + propagated this session.** /andromeda-evolve --allow-route-append Form 1 → route.md §1 Total chunks 69→70 + §2 Epoch 9 chunk #70 entry + §3 Decisions Log compact P9 entry. /andromeda-setup-project --delta cascaded CLAUDE.md pointer-table 69→70 chunks. Commit `2db9450` bundled evolve work + v3 manual edit + audit deliverable + delta propagation.
-- **Project consolidation plan persists at** `C:\Users\turbo\.claude\plans\rippling-brewing-moon.md` — Phase 1 (v3 manual edit) complete; Phase 2 (8 chunks sequential implementation) in progress with chunk #70 registered.
-- **Decision deferred:** /andromeda-phase planning for chunk #70 happens in next session (post-wrap).
+- **Chunk #70 BaselineState → corpus migration implemented + smoke-verified.** First chunk of v3 Phase 6 Consolidation lands; closes audit Section 1.A persistence triple-mechanism finding for 3 of 4 in-flat-file components (EwmaTracker / TDigestPair / RollingWindow / ActivityFloor all now persist via the new `trait BaselinePersistence` → `CorpusBaselinePersistence` adapter → corpus SQLite). 4th component `BaselineState` itself is a wrapper around these trackers; its `services + operations` DashMaps are part of the same persisted bincode payload.
+- **Schema Option A committed** — reuse `pipeline_metrics` blob slot with `metric_name="baseline_state"` + `layer="l1b"` (mirrors chunk #69 Drain precedent exactly). Empty `baseline_state` table at `crates/corpus/src/schema.rs:35-42` remains unused — cleanup deferred to chunk #74 arch registry batch.
+- **Migration Path A committed** — read-and-migrate-once + delete legacy + warn-log; preserves legacy file on failure for retry safety. Successfully migrated 28-byte `baseline-corpus.bin` from sessions 99-101 dogfood data during Phase 2b smoke check — real-world end-to-end verification.
+- **Tracing target naming `triage.baseline.migrate`** committed (verb form, mirrors `triage.baseline.persist`). Closes combined.md Phase 2 rot warning #1.
+- **None-case wiring** — when `corpus_writer` is `None` at boot (keychain failure / corpus open failure): skip `run_persist_loop` spawn + emit one boot warn at `triage.baseline.persist.error` with `error_category = "corpus_unavailable_at_boot"`. Makes degraded persistence state observable.
+- **Boot wiring restructure** — corpus init block (lines 313-348 post-edit) moved BEFORE the baseline + cue + restart + observer + storm + lifecycle initialization. New trait-provider-before-trait-consumer pattern documented in session-learnings 2026-05-20.
 
 ## Files Modified
 
-This session's commit `2db9450` bundled 5 files:
+This session's commit (pending wrap commit) will bundle:
 
-- `CLAUDE.md` — pointer-table cascade `(9 epochs / 69 chunks)` → `(9 epochs / 70 chunks)` via /andromeda-setup-project --delta (Tier 1 GENERATED:setup:pointer-table section)
-- `.andromeda/route.md` — §1 Total chunks 69→70 + §2 Epoch 9 §70 BaselineState→corpus migration entry + §3 Decisions Log compact P9 entry (via /andromeda-evolve --allow-route-append Form 1; mechanical Form 1 Policy A)
-- `.andromeda/state.yaml` — spec_amendments.active +1 entry (chunk #70 amendment with propagated_by_run set via --delta Phase 9 lifecycle progression)
-- `docs/v0_2_0/pulse-v0_2_0-route.md` — v2→v3 manual edit (insert Phase 6 Consolidation + 8 chunks §70-§77 + renumber §70-§89 → §78-§97 + capability mapping refresh + v3 changelog + v2→v3 migration table)
-- `docs/v0_2_0/pulse-v0_2_0-consolidation-audit-2026-05-19.md` — NEW deliverable (9 dimensions + Section 1-6 synthesis + Appendices A/B/C; 1273 lines)
+**6 modified Rust source files:**
+- `crates/triage/src/baseline/corpus.rs` — refactored 319→104 lines: removed `resolve_corpus_path` / `persist_state` / `load_state` / `bootstrap_from_corpus`; added `bootstrap_from_persistence` taking `&dyn BaselinePersistence`
+- `crates/triage/src/baseline/mod.rs` — updated mod docstring + re-exports (-`resolve_corpus_path`, +`BaselinePersistence` + 3 new TARGET_* migration consts promoted to pub); refactored `run_persist_cycle` / `run_persist_loop` / `persist_on_shutdown` / `bootstrap_state` to take trait; corpus_basename hardcoded `"corpus.db"`; replaced 10 tests + added 2 new (FakeBaselinePersistence fixture)
+- `crates/triage/src/contract.rs` — re-export delta: -`resolve_corpus_path`, +`BaselinePersistence` + `TARGET_BASELINE_MIGRATE` + `TARGET_BASELINE_MIGRATE_FAILED` + `TARGET_BASELINE_PERSIST_ERROR`
+- `pulse-app/src/main.rs` — multi-site: removed `corpus_path` block; moved corpus init block ahead of baseline; derived `baseline_persistence` from corpus_writer; added `migrate_legacy_baseline_if_present` call + None-case boot warn; updated `bootstrap_state` + `run_persist_loop` callsites for trait params; added `baseline_persistence_for_persist` clone for setup closure
+- `pulse-app/src/lib.rs` — added `pub mod baseline_persistence;`
+- `pulse-app/src/observability.rs` — 2 new AllowList entries (`triage.baseline.migrate` + `triage.baseline.migrate.failed`); 1 new probe test `allowlist_for_target_resolves_baseline_migrate_field_set`
 
-This wrap (session 102) commit additionally touches:
+**2 new Rust files:**
+- `crates/triage/src/baseline/persistence.rs` (29 lines) — `pub trait BaselinePersistence: Send + Sync` with `load` / `save` methods; mirrors `buffer::DrainPersistence`
+- `pulse-app/src/baseline_persistence.rs` (~540 lines incl. tests) — `CorpusBaselinePersistence` adapter + `corpus_error_to_baseline_error` free fn + `migrate_legacy_baseline_if_present` helper + `MigrationOutcome` enum + 16 unit + migration tests + PII canary at-rest verification
+
+**1 regenerated frontend file:**
+- `pulse-app/ui/src/bindings/index.ts` — regenerated via `cargo nextest run -p pulse-app --features mcp-server -E 'test(emit_taurpc_bindings)'` per testing.md 2026-05-13 + 2026-05-17 + 2026-05-19 procedure (default-features nextest transiently overwrites; mcp-server feature regen restores full namespace)
+
+**3 wrap-session artifacts:**
+- `CLAUDE.md` — Tier 1 USER:session-learnings append (1 entry: migration retry-safety discipline)
+- `.claude/docs/session-learnings.md` — Tier 3 prepend (2 entries: runtime tracing verification at Phase 2b + cross-crate trait wiring requires provider-before-consumer reorder)
 - `.claude/session-handoff.md` — this file
-- `.andromeda/state.yaml` — chunk #70 amendment archived (active → archive); session_count 101 → 102; living_artifact_freshness timestamps refreshed; drift_warnings = []
-- `.andromeda/context/dependency-tree.md` — Last reconciled timestamp + session 102 maintenance note
-- `.andromeda/context/api-surface.md` — Last reconciled timestamp (8th consecutive deferral; LIVING block unchanged)
-- `.claude/docs/session-learnings.md` — 3 Tier 3 entries appended (consolidation audit pattern + v3 manual edit precedent + chunk decomposition strategy)
-- `.andromeda/runs/2026-05-20T00-30-00-spec-amendment-append-chunk-70-baseline-corpus-migration/amendment.md` — lifecycle [x] Propagated checkbox set (gitignored per .andromeda/runs/ convention)
-- `.andromeda/runs/2026-05-20T00-35-00-setup-project-delta/materialization-plan-delta.md` — created by --delta (gitignored)
-- `.andromeda/runs/2026-05-20T00-30-00-evolve-append-chunk-70-baseline-corpus-migration/{intent.md,evolution-plan.md}` — created by /evolve (gitignored)
+- `.andromeda/state.yaml` — chunk cursor advance 69→70, session_count 102→103, plan_freshness refresh, living_artifact_freshness refresh
+- `.andromeda/context/dependency-tree.md` — Last reconciled timestamp + session 103 maintenance note (LIVING block unchanged at 444 lines)
+- `.andromeda/context/api-surface.md` — Last reconciled timestamp + session 103 note with chunk #70 pub surface delta inline (9th consecutive deferral)
+
+**Phase planning artifacts (created this session):**
+- `.andromeda/phases/phase-67/combined.md` (210 lines)
+- `.andromeda/phases/phase-67/research.md` (106 lines)
+- `.andromeda/phases/phase-67/plan.md` (258 lines)
+
+**Audit trail (gitignored — `.andromeda/runs/2026-05-19T23-46-47-phase-67/`):** 7 raw sub-agent outputs + 7 stripped extracts.
 
 ## Curation Summary (this wrap)
 
-- **Tier 1 (CLAUDE.md USER:session-learnings):** 0 additions
+- **Tier 1 (CLAUDE.md USER:session-learnings):** 1 addition (migration helper retry-safety discipline — preserve source data on failure, only delete on full success)
 - **Tier 2 (`.claude/rules/*/Session Additions`):** 0 additions
-- **Tier 3 (`.claude/docs/session-learnings.md`):** 3 additions (consolidation audit methodology / v3 manual edit pattern / chunk decomposition strategy)
-- **Filtered:** 0 duplicates / 0 task-specific / 0 conflicts / 0 deferred
+- **Tier 3 (`.claude/docs/session-learnings.md`):** 2 additions (runtime tracing verification at /implement Phase 2b via agent-latest.jsonl grep + cross-crate trait wiring requires provider-before-consumer reorder in main.rs boot)
+- **Filtered:** 1 duplicate (bindings.ts regen procedure — already covered by testing.md 2026-05-13 + 2026-05-17 + 2026-05-19 entries) / 0 task-specific / 0 conflicts / 1 deferred (PII canary on-disk test pattern — 0.6 confidence; below the top-3 cut)
 
-Session 102 was unusually heavy on methodology learnings — the mid-stream consolidation audit pattern + v3 manual edit precedent + chunk decomposition strategy are all valuable for future projects that adopt similar consolidation cycles. All three captured as Tier 3 reference material.
+Session 103 was a substantial implementation session with strong novel patterns. The 3 captured learnings are universal/broadly-applicable; the migration retry-safety promotion to Tier 1 reflects that it's a safety discipline (no auto-delete on partial state) generalizing beyond chunk #70 to any future schema/file migration.
 
-Andromeda improvements added: 0 (the audit Section 4 already drafted Proposals P15-P18; they'll be filed via chunk #76 implementation, not via this wrap).
+Andromeda improvements added: 0 (no new dogfood friction surfaced; existing P15-P18 from session 102 audit cover the structural concerns).
 
 ## Last Failed Command
 
-(none — session 102 ran clean across consolidation audit + plan mode + v3 manual edit + /andromeda-evolve + /andromeda-setup-project --delta + this wrap.)
+(none — session 103 ran clean across /andromeda-new-session + /andromeda-phase + /andromeda-implement + this wrap.)
 
 ## Tests Status
 
-**Passing — verified GREEN via wrap-session Phase 2 quick sanity:**
+**Passing — verified GREEN this wrap-session Phase 2:**
 - `cargo fmt --check` ✓ (exit=0; zero diff)
-- `cargo xtask capability-drift` ✓ (clean: 0 missing, 0 extra — chunks #67/#68/#69 + diagnostics namespace all in EXPECTED_PROCEDURES + capabilities/default.json + bindings.ts)
+- `cargo clippy --workspace --all-targets --all-features -- -D warnings` ✓ (clean)
+- `cargo nextest run --workspace --profile ci` ✓ (1121/1121 passing across 14 crates)
+- `cargo xtask capability-drift` ✓ (clean: 0 missing, 0 extra — chunk #70 TauRPC delta=none preserved)
+- `cargo tree --workspace --depth 2 --prefix indent` ✓ (444 lines unchanged from session 102 baseline)
+- `cargo +nightly public-api --simplified` on `crates/triage/` ✓ (spot-verified BaselinePersistence trait + bootstrap_from_persistence + refactored signatures land cleanly)
+- Bindings.ts pre-commit verification ✓ (`grep -c '"mcp":' pulse-app/ui/src/bindings/index.ts` = 1)
 
-Heavy gates (cargo clippy / cargo nextest / npm tests) NOT re-run this wrap — zero code changes since session 101 baseline (1128/1128 nextest passing). Per protocol: "tests trivially pass when no code changes between wraps".
+**Runtime verified — Phase 2b smoke check:** `npx @tauri-apps/cli dev` boot succeeded (compile 24.99s + pulse-app.exe spawn). Two chunk #70 tracing events observed in `agent-latest.jsonl.2026-05-20`:
+- `triage.baseline.migrate` at 2026-05-20T16:22:53Z — `migration_outcome: "completed"`, `legacy_state_size_bytes: 28`, `migrated_service_count: 0`, `duration_ms: 12` (legacy baseline-corpus.bin from session 99-101 dogfood found + migrated + deleted)
+- `triage.baseline.persist` at 2026-05-20T16:23:54Z (~60s post-boot) — `corpus_basename: "corpus.db"`, `persist_kind: "periodic"`, `duration_ms: 7`, `state_size_bytes: 28` (corpus-backed periodic persist via BaselinePersistence trait)
+
+Process killed gracefully post-verification via `powershell Stop-Process -Force -Name pulse-app`.
 
 ## Next Recommended Action
 
 ```
-/andromeda-phase     # plan chunk #70 BaselineState → corpus migration implementation
+/andromeda-evolve --allow-route-append    # register chunk #71 ServiceRegistry + RetryStormState → corpus migration
 ```
 
-Chunk #70 is registered + propagated; next step is /andromeda-phase to author the plan-mode + plan.md artifacts (phases/phase-67/ at the next phase index per Andromeda convention). After planning, /andromeda-implement executes; after implementation, /andromeda-wrap-session closes.
+Then propagate:
 
-Consolidation sequencing per `rippling-brewing-moon.md` Phase 2 default ordering:
-1. **#70 BaselineState → corpus migration** ← NEXT (registered; planning pending)
-2. #71 ServiceRegistry + RetryStormState → corpus migration
+```
+/andromeda-setup-project --delta          # cascade CLAUDE.md pointer-table 70→71 chunks
+```
+
+Then plan:
+
+```
+/andromeda-phase                          # plan chunk #71 implementation
+```
+
+Consolidation sequencing per `C:\Users\turbo\.claude\plans\rippling-brewing-moon.md` Phase 2 default ordering:
+1. ✅ **#70 BaselineState → corpus migration** ← landed this session
+2. **#71 ServiceRegistry + RetryStormState → corpus migration** ← NEXT (registration pending)
 3. #72 PII scrubber coverage extension
 4. #73 Capability spec numeric alignment
-5. #74 Architecture registry alignment batch
+5. #74 Architecture registry alignment batch (will also handle the `baseline_state` table cleanup deferred from this chunk)
 6. #75 Documentation consolidation
 7. #76 Andromeda pipeline meta-improvements (P7 + P12 + file P15-P18)
 8. #77 Specialist plan re-runs (/andromeda-security + /andromeda-tests)
 
-After all 8 consolidation chunks land: re-audit selectively per dimensions 1/2/4/6 to confirm 7 HIGH clusters closed; then continue to §78 Incident records (formerly v2 §70) + Phase 7 digest pipeline.
+Chunk #71 inherits the chunk #70 trait-in-lower-crate + adapter-at-pulse-app pattern; main.rs boot wiring already has corpus init at the top of the section so a third consumer (`CorpusLifecyclePersistence` or similar) inserts cleanly.
 
 ## Session Goals (carry-over)
 
-- ✅ **CLOSED THIS SESSION:** Mid-stream consolidation audit + v3 manual edit + chunk #70 registration + delta propagation. Session 102 closes with chunk #70 ready for /andromeda-phase planning.
 - Continue consolidation per plan: chunks #71-#77 sequential registration + implementation cycles.
-- Cross-cutting `/andromeda-security` re-run still flagged for chunk #77 scope (will fold in security plan §Threat Model + §Data Protection refresh post-#70/#71 persistence migration).
+- Cross-cutting `/andromeda-security` re-run still flagged for chunk #77 scope (will fold in security plan §Threat Model + §Data Protection refresh post-#70/#71/#72 persistence migration + PII scrubber coverage extension).
 - v0.2.0 downstream chunks (§78 Incidents + §79-§81 digest + Phase 8 LLM + Phase 9 surfaces) — deferred until consolidation Phase 2 completes.
-- arch.md structural narrative staleness (§Design Philosophy / §Project Intent / §Infrastructure Patterns "eight library crates" at line 4/220/303 stale at 12) NOT addressed this session — explicitly scoped to chunk #75 Doc consolidation (which will resolve via chunk #76 P7 Type 6 narrative-cascade visibility once P7 lands).
-- api-surface.md reconcile 8th consecutive deferral; next /implement-followed wrap (chunk #70 implementation) is natural re-baseline checkpoint.
+- arch.md structural narrative staleness (§Design Philosophy / §Project Intent / §Infrastructure Patterns "eight library crates" at line 4/220/303 stale at 14) NOT addressed this session — explicitly scoped to chunk #75 Doc consolidation.
+- api-surface.md reconcile 9th consecutive deferral; chunk #71 implementation wrap should be next /implement-followed wrap that triggers full re-baseline (chunk #70's pub surface delta documented inline; #71 will add another adapter pattern requiring +similar number of items).
 - Pulse v0.1.0 release blockers unchanged (chunk #3 deferred signing items: Azure Key Vault EV cert + Apple Developer ID + GitHub OIDC federation) — explicitly out of consolidation scope per plan §J.
 
 ## Deferred decisions (Trigger 4 to Path B carry-over)
@@ -141,7 +165,7 @@ After all 8 consolidation chunks land: re-audit selectively per dimensions 1/2/4
 
 ## Deferred learnings (filtered out from Phase 3 curation)
 
-(none — Phase 3 produced exactly 3 candidates, all applied to Tier 3; no max-3-cap deferrals.)
+- **PII canary on-disk test pattern refinement** (0.6 confidence; below top-3 cap): chunk #70's `pii_canary_not_present_in_corpus_db_raw_bytes` test seeds canary substrings in BOTH service name + operation name positions (domain-meaningful positions), then asserts raw .db bytes don't contain plaintext. Refinement of chunk #68's encryption canary (which used arbitrary bytes). Pattern fits future corpus-write chunks but is already implicit in chunk #69's encryption canary test at corpus/contract.rs:481-509. Defer to next session's 3-cap if confidence rises after another similar chunk lands.
 
 ## Session End Status
-Completed normally at 2026-05-20 00:45:00 — **consolidation audit cycle complete + chunk #70 registered & propagated; 7 HIGH-severity inconsistency clusters identified for closure via chunks #70-#77; chunk #70 ready for /andromeda-phase**
+Completed normally at 2026-05-20 16:30:00 — **chunk #70 BaselineState → corpus migration implementation complete + smoke-verified; v0.2.0 Foundation Epoch 9 extends to 14/14 chunks (#57-#70); first v3 Phase 6 Consolidation chunk lands; 24/24 acceptance criteria met; runtime tracing emissions verified end-to-end at Phase 2b smoke**

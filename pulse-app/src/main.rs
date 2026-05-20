@@ -17,14 +17,14 @@ use ingest::state::IngestState;
 use tauri::Manager;
 use tracing_error::SpanTrace;
 use triage::contract::{
-    AttentionCueBroadcast, CadenceTriggerChannel, DEFAULT_AUTONOMOUS_THRESHOLD,
-    DEFAULT_DETECTION_SUB_WINDOW_SECONDS, DEFAULT_HEARTBEAT_INTERVAL,
-    DEFAULT_LIFECYCLE_HEARTBEAT_INTERVAL, DEFAULT_MAX_SIZE_BYTES, DEFAULT_PERSIST_INTERVAL_NANOS,
+    AttentionCueBroadcast, BaselinePersistence, CadenceTriggerChannel,
+    DEFAULT_AUTONOMOUS_THRESHOLD, DEFAULT_DETECTION_SUB_WINDOW_SECONDS, DEFAULT_HEARTBEAT_INTERVAL,
+    DEFAULT_LIFECYCLE_HEARTBEAT_INTERVAL, DEFAULT_PERSIST_INTERVAL_NANOS,
     DEFAULT_SERVICE_COUNT_CAP, DEFAULT_STORM_WINDOW_SECONDS, DEFAULT_SUGGESTED_THRESHOLD,
     InMemoryServiceRegistry, RestartDetector, RestartEventBroadcast, RetryStormDetector,
     ServiceLifecycleBroadcast, ServiceRegistry, SuppressionState, Thresholds, bootstrap_state,
-    resolve_corpus_path, run_persist_loop, start_emitter, start_lifecycle_heartbeat,
-    start_restart_detector, start_storm_detector,
+    run_persist_loop, start_emitter, start_lifecycle_heartbeat, start_restart_detector,
+    start_storm_detector,
 };
 use ui_bridge::Settings;
 use ui_bridge::health::{
@@ -39,6 +39,9 @@ use pulse_app::taurpc_export_config;
 use pulse_app::{heartbeat, observability, tray, window};
 
 use pulse_app::baseline_observer::BaselineObserverAdapter;
+use pulse_app::baseline_persistence::{
+    CorpusBaselinePersistence, migrate_legacy_baseline_if_present,
+};
 use pulse_app::connection_router::{ConnectionApi, ConnectionApiImpl, HeartbeatBindStatus};
 use pulse_app::diagnostics_router::{DiagnosticsApi, DiagnosticsApiImpl};
 use pulse_app::drain_persistence::CorpusDrainPersistence;
@@ -263,21 +266,93 @@ fn main() {
     let connection_impl =
         ConnectionApiImpl::new(Arc::clone(&ingest_state), Arc::clone(&bind_status));
 
-    // Chunk #62 — attention cue emitter substrate. BaselineState bootstraps
-    // from disk corpus if present (chunk #61 deferred this wiring); the
-    // BaselineObserverAdapter wraps it as `ingest::observer::SpanObserver`
-    // for buffer's consumer tap. AttentionCueBroadcast + CadenceTriggerChannel
-    // are the emit surfaces (chunk #62); Thresholds carries hardcoded
-    // defaults this chunk (hot-reload lands in #86).
-    let corpus_path = resolve_corpus_path(&data_dir).unwrap_or_else(|_| {
-        // Fallback: a non-canonicalize-able path means persist will fail; the
-        // emitter still operates on the in-memory state for the session.
-        data_dir.join("triage").join("baseline-corpus.bin")
-    });
+    // Chunk #68 — persistent incident corpus scaffold (NEW `crates/corpus/`).
+    // OS keychain backend fetches (or creates on first launch) the 32-byte
+    // AES-256-GCM key per capability P-049. Corpus opens at the resolved
+    // data dir's `corpus/corpus.db` subpath; first-launch creates the file
+    // + runs schema migrations idempotently. Boot non-fatal: if keychain
+    // unavailable OR corpus open fails, log structured error + continue
+    // with corpus reader absent (storage.inspect / storage.path return
+    // AppError::Storage at IPC time).
+    //
+    // Chunk #70 promoted this block above the baseline_state bootstrap so
+    // BaselinePersistence can be derived from corpus_writer before
+    // bootstrap_state is called.
+    let keychain_backend: Arc<dyn corpus::contract::KeychainBackend> = Arc::new(
+        corpus::contract::OsKeychainBackend::new("com.andromeda.pulse"),
+    );
+    let corpus_db_path = data_dir.join("corpus").join("corpus.db");
+    let corpus_arc: Option<Arc<corpus::contract::Corpus>> = match corpus::contract::Corpus::open(
+        corpus_db_path.clone(),
+        Arc::clone(&keychain_backend),
+    ) {
+        Ok(c) => Some(Arc::new(c)),
+        Err(e) => {
+            tracing::error!(
+                target: "corpus.open.error",
+                error_kind = ?e,
+                "corpus open failed at boot; storage.* IPC will return error until corpus available",
+            );
+            None
+        }
+    };
+    let corpus_reader: Option<Arc<dyn corpus::contract::CorpusReader>> = corpus_arc
+        .as_ref()
+        .map(|c| Arc::clone(c) as Arc<dyn corpus::contract::CorpusReader>);
+    // Chunk #69 Phase B Session 4 — CorpusWriter trait view от the same
+    // underlying Arc<Corpus>. Both reader + writer share one rusqlite
+    // connection mutex; CorpusReader stays read-only-by-design per P-051
+    // while CorpusWriter is the additive write surface для pipeline-metric
+    // persistence (drain template tree this chunk; future chunks #71+
+    // digest archive writes).
+    let corpus_writer: Option<Arc<dyn corpus::contract::CorpusWriter>> = corpus_arc
+        .as_ref()
+        .map(|c| Arc::clone(c) as Arc<dyn corpus::contract::CorpusWriter>);
+    let storage_impl = corpus_reader
+        .as_ref()
+        .map(|r| StorageApiImpl::new(Arc::clone(r)));
+
+    // Chunk #70 — BaselineState corpus persistence adapter. Derives a
+    // third trait view from the same Arc<Corpus> (alongside reader +
+    // drain-writer); BaselineState moves from the chunk #61 flat-file
+    // bincode at `<data_dir>/triage/baseline-corpus.bin` к corpus SQLite
+    // via Schema Option A (mirrors chunk #69 Drain — reuses the
+    // `pipeline_metrics` blob slot with metric_name="baseline_state",
+    // layer="l1b"). None ⇒ corpus unavailable at boot (keychain failure
+    // / SQLite open failure); baseline_state runs in-memory-only for
+    // the session, a one-time warn-log fires below.
+    let baseline_persistence: Option<Arc<dyn BaselinePersistence>> =
+        corpus_writer.as_ref().map(|w| {
+            Arc::new(CorpusBaselinePersistence::new(Arc::clone(w))) as Arc<dyn BaselinePersistence>
+        });
+
+    // Chunk #70 — one-shot legacy bincode migration. Reads
+    // `<data_dir>/triage/baseline-corpus.bin` (chunk #61 substrate); if
+    // present + valid, re-persists through the trait + deletes the
+    // legacy file. Idempotent on subsequent boots. Failures preserve
+    // the legacy file for retry; aggregate-only tracing emits per
+    // CLAUDE.md 2026-05-17 session 84 triage AllowList convention.
+    if let Some(persistence) = baseline_persistence.as_ref() {
+        let _ = migrate_legacy_baseline_if_present(&data_dir, persistence.as_ref());
+    } else {
+        tracing::warn!(
+            target: triage::contract::TARGET_BASELINE_PERSIST_ERROR,
+            error_category = "corpus_unavailable_at_boot",
+            duration_ms = 0_u64,
+            "baseline persistence unavailable; in-memory only this session",
+        );
+    }
+
+    // Chunk #62 — attention cue emitter substrate. BaselineState now
+    // bootstraps via the chunk #70 BaselinePersistence trait (None ⇒
+    // cold-start fresh state); the BaselineObserverAdapter wraps it as
+    // `ingest::observer::SpanObserver` for buffer's consumer tap.
+    // AttentionCueBroadcast + CadenceTriggerChannel are the emit
+    // surfaces (chunk #62); Thresholds carries hardcoded defaults this
+    // chunk (hot-reload lands in #86).
     let baseline_now = chrono::Utc::now().timestamp_nanos_opt().unwrap_or(0);
     let baseline_state = Arc::new(bootstrap_state(
-        &corpus_path,
-        DEFAULT_MAX_SIZE_BYTES,
+        baseline_persistence.as_deref(),
         DEFAULT_SERVICE_COUNT_CAP,
         baseline_now,
     ));
@@ -312,8 +387,8 @@ fn main() {
     // Chunk #66 — retry storm detector. Tracks per-fingerprint occurrences
     // in a 60s rolling window; ≥5/30s → Suggested cue, ≥10/30s → Autonomous
     // cue, emitted through the existing chunk #62 attention-cues broadcast
-    // channel. State в-memory only (corpus persistence deferred к chunk #69
-    // per arch §[Telemetry Retention Surface]). StormObserverAdapter wraps
+    // channel. State в-memory only (corpus persistence deferred к chunk #71
+    // per Phase 6 Consolidation plan). StormObserverAdapter wraps
     // the detector + broadcast for the buffer-side FingerprintObserver hot
     // path; trait declaration lives в the lower buffer crate per arch
     // §Cross-cutting Patterns Module dependency direction.
@@ -331,60 +406,19 @@ fn main() {
 
     // Chunk #67 — service lifecycle state machine + registry. In-memory
     // DashMap-backed registry per arch §[Telemetry Retention Surface]
-    // guardrail (corpus persistence deferred to chunk #69 SQLite scaffold).
-    // Heartbeat task spawned in setup closure below; subscribes to chunk #63
-    // `pulse://stream/restart-events` to trigger Bootstrapping transitions
-    // on any-state restart-detector observation. State derives at tick time
-    // from chunk #61 `BaselineState` activity-floor snapshots; thresholds
-    // (`dormant_after_secs` / `archived_after_secs`) flow through Settings.
+    // guardrail (corpus persistence deferred to chunk #71 per Phase 6
+    // Consolidation plan). Heartbeat task spawned in setup closure below;
+    // subscribes to chunk #63 `pulse://stream/restart-events` to trigger
+    // Bootstrapping transitions on any-state restart-detector observation.
+    // State derives at tick time from chunk #61 `BaselineState`
+    // activity-floor snapshots; thresholds (`dormant_after_secs` /
+    // `archived_after_secs`) flow through Settings.
     let lifecycle_registry: Arc<dyn ServiceRegistry> = Arc::new(InMemoryServiceRegistry::new());
     let lifecycle_broadcast = Arc::new(ServiceLifecycleBroadcast::new());
     let services_impl = ServicesApiImpl::new(
         Arc::clone(&lifecycle_registry),
         Arc::clone(&lifecycle_broadcast),
     );
-
-    // Chunk #68 — persistent incident corpus scaffold (NEW `crates/corpus/`).
-    // OS keychain backend fetches (or creates on first launch) the 32-byte
-    // AES-256-GCM key per capability P-049. Corpus opens at the resolved
-    // data dir's `corpus/corpus.db` subpath; first-launch creates the file
-    // + runs schema migrations idempotently. Boot non-fatal: if keychain
-    // unavailable OR corpus open fails, log structured error + continue
-    // with corpus reader absent (storage.inspect / storage.path return
-    // AppError::Storage at IPC time).
-    let keychain_backend: Arc<dyn corpus::contract::KeychainBackend> = Arc::new(
-        corpus::contract::OsKeychainBackend::new("com.andromeda.pulse"),
-    );
-    let corpus_db_path = data_dir.join("corpus").join("corpus.db");
-    let corpus_arc: Option<Arc<corpus::contract::Corpus>> = match corpus::contract::Corpus::open(
-        corpus_db_path.clone(),
-        Arc::clone(&keychain_backend),
-    ) {
-        Ok(c) => Some(Arc::new(c)),
-        Err(e) => {
-            tracing::error!(
-                target: "corpus.open.error",
-                error_kind = ?e,
-                "corpus open failed at boot; storage.* IPC will return error until corpus available",
-            );
-            None
-        }
-    };
-    let corpus_reader: Option<Arc<dyn corpus::contract::CorpusReader>> = corpus_arc
-        .as_ref()
-        .map(|c| Arc::clone(c) as Arc<dyn corpus::contract::CorpusReader>);
-    // Chunk #69 Phase B Session 4 — CorpusWriter trait view от the same
-    // underlying Arc<Corpus>. Both reader + writer share one rusqlite
-    // connection mutex; CorpusReader stays read-only-by-design per P-051
-    // while CorpusWriter is the additive write surface для pipeline-metric
-    // persistence (drain template tree this chunk; future chunks #71+
-    // digest archive writes).
-    let corpus_writer: Option<Arc<dyn corpus::contract::CorpusWriter>> = corpus_arc
-        .as_ref()
-        .map(|c| Arc::clone(c) as Arc<dyn corpus::contract::CorpusWriter>);
-    let storage_impl = corpus_reader
-        .as_ref()
-        .map(|r| StorageApiImpl::new(Arc::clone(r)));
 
     // Chunk #69 Phase B Session 4 — Drain miner construction с corpus-backed
     // persistence. `CorpusDrainPersistence` wraps the writer trait object
@@ -574,6 +608,11 @@ fn main() {
         }
     };
 
+    // Chunk #70: clone baseline_persistence option for use inside the
+    // `.setup(move ...)` closure (the persist loop spawn site). The outer
+    // binding is no longer needed after this point.
+    let baseline_persistence_for_persist = baseline_persistence.clone();
+
     tauri::Builder::default()
         .plugin(tauri_plugin_updater::Builder::new().build())
         .plugin(tauri_plugin_clipboard_manager::init())
@@ -721,16 +760,21 @@ fn main() {
                 Arc::clone(&bind_status),
                 Arc::clone(&connection_broadcast),
             ));
-            // Chunk #62 — baseline corpus periodic persist (60s + on-shutdown
-            // deferred to next chunk per plan Implementation note 5) +
-            // attention cue emitter background tick (1s cadence reading all
-            // BaselineState trackers, evaluating thresholds, emitting cues
-            // to broadcast + cadence-triggers channel).
-            tauri::async_runtime::spawn(run_persist_loop(
-                Arc::clone(&baseline_state),
-                corpus_path.clone(),
-                std::time::Duration::from_nanos(DEFAULT_PERSIST_INTERVAL_NANOS as u64),
-            ));
+            // Chunk #62 + #70 — baseline corpus periodic persist (60s default)
+            // + attention cue emitter background tick (1s cadence reading
+            // all BaselineState trackers, evaluating thresholds, emitting
+            // cues to broadcast + cadence-triggers channel).
+            //
+            // Chunk #70: spawn the persist loop ONLY when baseline_persistence
+            // is Some (corpus available at boot). None ⇒ in-memory-only this
+            // session per the boot-warn emitted above; no persist task needed.
+            if let Some(persistence) = baseline_persistence_for_persist.as_ref() {
+                tauri::async_runtime::spawn(run_persist_loop(
+                    Arc::clone(&baseline_state),
+                    Arc::clone(persistence),
+                    std::time::Duration::from_nanos(DEFAULT_PERSIST_INTERVAL_NANOS as u64),
+                ));
+            }
             tauri::async_runtime::spawn(start_emitter(
                 Arc::clone(&baseline_state),
                 Arc::clone(&cue_broadcast),

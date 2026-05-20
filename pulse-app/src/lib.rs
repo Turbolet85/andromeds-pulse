@@ -1,4 +1,5 @@
 pub mod baseline_observer;
+pub mod baseline_persistence;
 pub mod connection_router;
 pub mod diagnostics_router;
 pub mod drain_persistence;

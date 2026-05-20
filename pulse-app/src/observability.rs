@@ -1028,6 +1028,29 @@ impl AllowList {
             "triage.baseline.persist.error",
             ["error_category", "duration_ms"].iter().copied().collect(),
         );
+        // Chunk #70 — BaselineState → corpus migration. Aggregate-only
+        // event surfaces per CLAUDE.md 2026-05-17 session 84 + chunks
+        // #62/#63/#64 triage AllowList convention: bounded enum
+        // (`migration_outcome` / `error_category`) + integer-value fields
+        // (`legacy_state_size_bytes` / `migrated_service_count` /
+        // `duration_ms`) only. NO `service_name` / `scope_id` /
+        // `legacy_path` / per-record content fields.
+        by_target.insert(
+            "triage.baseline.migrate",
+            [
+                "legacy_state_size_bytes",
+                "migrated_service_count",
+                "duration_ms",
+                "migration_outcome",
+            ]
+            .iter()
+            .copied()
+            .collect(),
+        );
+        by_target.insert(
+            "triage.baseline.migrate.failed",
+            ["error_category", "duration_ms"].iter().copied().collect(),
+        );
         by_target.insert(
             "triage.service_id_missing",
             ["dropped_count"].iter().copied().collect(),
@@ -2298,6 +2321,67 @@ mod tests {
                 assert!(
                     set.contains(required),
                     "{target} must permit `{required}` (snapshot allowlist coverage)",
+                );
+            }
+        }
+    }
+
+    #[test]
+    fn allowlist_for_target_resolves_baseline_migrate_field_set() {
+        // chunk #70: BaselineState → corpus migration emits one-time legacy
+        // migration tracing events at `triage.baseline.migrate` (info) +
+        // `triage.baseline.migrate.failed` (warn). Both targets require
+        // explicit-leaf AllowList entries (no fall-through к the broader
+        // `triage` entry, whose field set is unrelated). PII discipline
+        // per .claude/rules/observability.md 2026-05-17 session 84 +
+        // chunks #62/#63/#64 aggregate-only mandate: bounded enum +
+        // integer-value fields ONLY; NO `service_name` / `scope_id` /
+        // `span_id` / `trace_id` / `operation_name` / `legacy_path`
+        // admitted (the latter excludes raw file paths per Vector 6).
+        let al = AllowList::production();
+
+        let migrate = al
+            .for_target("triage.baseline.migrate")
+            .expect("expected triage.baseline.migrate entry");
+        for required in [
+            "legacy_state_size_bytes",
+            "migrated_service_count",
+            "duration_ms",
+            "migration_outcome",
+        ] {
+            assert!(
+                migrate.contains(required),
+                "triage.baseline.migrate must permit `{required}`",
+            );
+        }
+
+        let failed = al
+            .for_target("triage.baseline.migrate.failed")
+            .expect("expected triage.baseline.migrate.failed entry");
+        for required in ["error_category", "duration_ms"] {
+            assert!(
+                failed.contains(required),
+                "triage.baseline.migrate.failed must permit `{required}`",
+            );
+        }
+
+        // PII guard: neither entry may admit per-service or per-record
+        // identifiers (aggregate-only convention).
+        let banned = [
+            "service_name",
+            "scope_id",
+            "span_id",
+            "trace_id",
+            "operation_name",
+            "legacy_path",
+            "attribute",
+            "body",
+        ];
+        for target_set in [migrate, failed] {
+            for k in &banned {
+                assert!(
+                    !target_set.contains(k),
+                    "baseline migrate AllowList must NOT permit PII field `{k}`",
                 );
             }
         }
