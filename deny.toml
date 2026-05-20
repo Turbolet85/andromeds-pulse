@@ -4,7 +4,57 @@ all-features = true
 [advisories]
 db-urls = ["https://github.com/rustsec/advisory-db"]
 yanked = "warn"
-ignore = []
+# All ignored advisories below are unmaintained-warnings on transitive deps with
+# "No safe upgrade is available!" — i.e. no actionable fix at the source. Reviewed
+# 2026-05-20; revisit when Tauri 2 migrates к GTK4 (closes 10 GTK3 IDs) OR when
+# tauri-utils swaps urlpattern → icu_properties (closes 5 unic-* IDs) OR when
+# rmcp / specta migrate off proc-macro-error / paste / older transitive chain.
+# The lru 0.12.5 UNSOUND advisory (RUSTSEC-2026-0002) is NOT in this list — it
+# was fixed at the source via `lru = "0.16"` workspace dep bump (2026-05-20).
+ignore = [
+    # Tauri 2.11 GTK3 Linux UI stack (10 IDs) — transitive via tray-icon /
+    # libappindicator / wry / webkit2gtk → gtk 0.18.2 on Linux only. Upstream
+    # archived; gtk4-rs is the migration target but Tauri 2 LTS has not moved.
+    # Closes when Tauri ships GTK4-based tray + window backends.
+    "RUSTSEC-2024-0411",  # gdkwayland-sys 0.18.2
+    "RUSTSEC-2024-0412",  # gdk 0.18.2
+    "RUSTSEC-2024-0413",  # atk 0.18.2
+    "RUSTSEC-2024-0414",  # gdkx11-sys 0.18.2
+    "RUSTSEC-2024-0415",  # gtk 0.18.2
+    "RUSTSEC-2024-0416",  # atk-sys 0.18.2
+    "RUSTSEC-2024-0417",  # gdkx11 0.18.2
+    "RUSTSEC-2024-0418",  # gdk-sys 0.18.2
+    "RUSTSEC-2024-0419",  # gtk3-macros 0.18.2
+    "RUSTSEC-2024-0420",  # gtk-sys 0.18.2
+    # rust-unic Unicode crates (5 IDs) — transitive via tauri-utils →
+    # urlpattern 0.3 → unic-ucd-ident 0.9. Upstream open-i18n/rust-unic archived;
+    # icu_properties / unicode-ident are the migration targets but urlpattern has
+    # not moved. Closes when tauri-utils replaces its urlpattern dep chain.
+    "RUSTSEC-2025-0075",  # unic-char-range 0.9.0
+    "RUSTSEC-2025-0080",  # unic-common 0.9.0
+    "RUSTSEC-2025-0081",  # unic-char-property 0.9.0
+    "RUSTSEC-2025-0098",  # unic-ucd-version 0.9.0
+    "RUSTSEC-2025-0100",  # unic-ucd-ident 0.9.0
+    # proc-macro-error 1.0.4 unmaintained — transitive via glib-macros 0.18.5
+    # (GTK3 stack closes this) + rmcp 0.6 + specta 2.0.0-rc.22. Crate maintainer
+    # unreachable; proc-macro-error2 is the suggested replacement but no upstream
+    # has migrated. Closes when rmcp 0.7+ + specta 2 stable + GTK4 land.
+    "RUSTSEC-2024-0370",
+    # paste 1.0.15 unmaintained — transitive via rmcp 0.6 + specta 2.0.0-rc.22.
+    # Crate creator archived репозитарий; pastey is the drop-in replacement.
+    # Closes when rmcp + specta migrate off paste.
+    "RUSTSEC-2024-0436",
+    # bincode 1.3.3 unmaintained — direct dep in buffer + triage + pulse-app
+    # for serialized state persistence (Drain templates / baseline / lifecycle /
+    # storm snapshots). Bincode team ceased development after doxxing incident;
+    # 1.3.3 is the final stable version per upstream. pulse-app::bincode_bounded
+    # wraps it with size-limit options + baseline_persistence prefix validator
+    # provides type-specific OOM protection at untrusted-input boundaries (per
+    # session-learning 2026-05-20). Future migration to bincode 2.x (try_reserve-
+    # based safer allocations) tracked as separate follow-up. Closes when the
+    # bincode 2.x migration lands.
+    "RUSTSEC-2025-0141",
+]
 
 [licenses]
 allow = [
@@ -138,6 +188,21 @@ skip = [
     # would require either downgrading blake3 (worse hashing perf) OR waiting for
     # tauri-codegen to bump к cpufeatures 0.3 (out of our control).
     { crate = "cpufeatures" },
+    # corpus crate (chunk #68, 2026-05-18) adds rusqlite 0.32 (bundled SQLite for
+    # the persistent incident corpus). rusqlite 0.32 transitively pulls hashlink
+    # 0.9.1 + rand 0.8.6 → rand_chacha 0.3.1; duckdb 1.10502 (pre-existing buffer
+    # ring-buffer dep) carries hashlink 0.10.0; proptest 1.11 + governor 0.10 +
+    # tauri-plugin-notification 2.3 carry rand 0.9.4 → rand_chacha 0.9.0. Build/
+    # runtime fine in both versions — the duplicate is purely the rusqlite ↔
+    # duckdb / rand-0.8 ↔ rand-0.9 split of the same crate name. Tightening
+    # would require either bumping rusqlite to 0.33 (hashlink 0.10) AND its rand
+    # transitive (semver-major; touches AEAD nonce generation in corpus encrypt
+    # path) OR waiting for duckdb to downgrade hashlink — neither is in scope
+    # for chunk-level hygiene. Pattern mirrors rand + rand_core (route#19) and
+    # follows the 2026-05-03 session-learning (Tauri-ecosystem-bump-style skip
+    # entries with provenance).
+    { crate = "hashlink" },
+    { crate = "rand_chacha" },
 ]
 skip-tree = []
 
