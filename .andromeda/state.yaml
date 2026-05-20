@@ -1,14 +1,14 @@
 schema_version: 2
-last_wrap: 2026-05-20T16:30:00Z
-last_reconcile: 2026-05-20T16:30:00Z
+last_wrap: 2026-05-20T19:20:00Z
+last_reconcile: 2026-05-20T19:20:00Z
 
 last_completed_chunk:
   route_index: 70
   title: "BaselineState → corpus migration — EwmaTracker / TDigestPair / RollingWindow / ActivityFloor from flat-file baseline-corpus.bin to corpus SQLite via BaselinePersistence trait (capabilities P-009/P-011/P-013/P-051; detail in pulse-v0_2_0-route §70)"
   epoch: 9
-  committed_at: 2026-05-20T16:30:00Z
-  commit_sha: "9459d14"
-  commit_subject: "chore(wrap): session 103 — chunk #70 BaselineState → corpus migration implementation + smoke-verified runtime emissions"
+  committed_at: 2026-05-20T16:42:18Z
+  commit_sha: "91469f9"
+  commit_subject: "feat(triage,pulse-app): chunk #70 BaselineState → corpus migration"
 
 # Session 103 wrap (2026-05-20): chunk #70 BaselineState → corpus migration implemented.
 # First chunk of v3 Phase 6 Consolidation lands; closes audit Section 1.A persistence
@@ -33,12 +33,12 @@ plan_freshness:
   tests_mtime: 2026-05-10T12:55:51Z
   obs_mtime: 2026-05-08T18:00:16Z
   a11y_mtime: 2026-05-02T21:45:23Z
-  route_mtime: 2026-05-19T23:25:30Z
+  route_mtime: 2026-05-20T16:59:01Z
   input_mtime: 2026-05-02T06:52:58Z
 
 living_artifact_freshness:
-  dep_tree_reconciled_at: 2026-05-20T16:30:00Z
-  api_surface_reconciled_at: 2026-05-20T16:30:00Z
+  dep_tree_reconciled_at: 2026-05-20T19:20:00Z
+  api_surface_reconciled_at: 2026-05-20T19:20:00Z
   most_recent_code_mtime: 2026-05-20T16:18:54Z
   reconcile_failed: false
   api_surface_deferred: true
@@ -47,7 +47,8 @@ living_artifact_freshness:
 drift_warnings: []
 
 spec_amendments:
-  active:
+  active: []
+  archive:
     - amendment_id: 2026-05-20T18-55-00-append-chunk-71-lifecycle-storm-corpus-migration
       plans:
         - path: route.md
@@ -55,38 +56,12 @@ spec_amendments:
             - "§1 Route Scope Summary (Total chunks mechanical update per Proposal 6)"
             - "§2 Roadmap (Epoch 9 body)"
             - "§3 Decisions Log"
-          decisions_log_section: "2026-05-20 — Append chunk #71 ServiceRegistry + RetryStormState → corpus migration (--allow-route-append)"
-      trigger:
-        chunk: null
-        phase: null
-        harness: "user-driven via /andromeda-evolve"
-      authority:
-        winning_plan: null
-        winning_tier: pipeline state
-        losing_plan: route.md
-        losing_concern: chunk-list-stale-vs-pipeline-reality
-        rationale: "v3 Phase 6 Consolidation plan §71 declares ServiceRegistry + RetryStormState corpus migration; route.md §2 has not acknowledged. Closes P-027 dot-positions-survive-restart + chunk #66 storm.rs deferred-persistence broken promise."
-      impl_files_synced: []
-      expected_propagation:
-        - "CLAUDE.md (GENERATED:setup:pointer-table — chunk-count line: 9 epochs / 70 chunks → 9 epochs / 71 chunks)"
-      marker_path: .andromeda/runs/2026-05-20T18-55-00-spec-amendment-append-chunk-71-lifecycle-storm-corpus-migration/amendment.md
-      applied_at: 2026-05-20T18:55:00Z
-      noted_at: null
+      decisions_log_sections:
+        - "2026-05-20 — Append chunk #71 ServiceRegistry + RetryStormState → corpus migration (--allow-route-append)"
       propagated_by_run: .andromeda/runs/2026-05-20T19-05-00-setup-project-delta/
-      archived_at: null
-      verification_status: clean
+      archived_at: 2026-05-20T19:20:00Z
       flag_used: --allow-route-append
       form: 1
-      route_section_modified: "Epoch 9 — Foundation v0.2.0"
-      chunks_added:
-        - position: 71
-          text: "ServiceRegistry + RetryStormState → corpus migration — DashMap → corpus via LifecyclePersistence + StormPersistence traits (capabilities P-017/P-018/P-027; detail in pulse-v0_2_0-route §71)."
-      chunks_renumbered: []
-      motivation: "v3 Phase 6 Consolidation plan §71 (rippling-brewing-moon.md Phase 2 default ordering) + chunk #66 storm.rs:38-39+94-95 docstring deferred-persistence-to-#69 (chunk #69 closed without wiring) + chunk #67 registry.rs:113-116 InMemoryServiceRegistry pure-in-memory violates P-027 + chunk #68 corpus schema.rs:44-53 service_registry pre-allocated but unused"
-      confirmed_shift: false
-      scope_summary_updates:
-        - "Total chunks: 70 → 71"
-  archive:
     - amendment_id: 2026-05-20T00-30-00-append-chunk-70-baseline-corpus-migration
       plans:
         - path: route.md
@@ -523,4 +498,4 @@ spec_amendments:
       propagated_by_run: .andromeda/runs/2026-05-11T19-00-00-setup-project-delta/
       archived_at: 2026-05-11T19:25:00Z
 
-session_count: 103
+session_count: 104
