@@ -16,7 +16,7 @@ unit) not HOW (implementation steps)._
 
 ## 1. Route Scope Summary
 
-- **Total chunks:** 72
+- **Total chunks:** 73
 - **Epochs:** 9 (Foundation, Ingest pipeline, Storage & query, Webview shell + TauRPC bridge, Visualization surfaces, Snapshot & Investigate, Plugin runtime + MCP server, Polish & ship, Foundation v0.2.0)
 - **Drilldown depth (avg):** 1.6 (mixed: Foundation depth 2, Ingest pipeline depth 1, Storage & query depth 2, Webview shell depth 1, Visualization surfaces depth 2, Snapshot depth 2, Plugin+MCP depth 2, Polish depth 1)
 - **Hierarchy mode:** mixed (3-level for dense epochs Foundation / Storage / Visualization / Snapshot / Plugin+MCP; 2-level for lighter epochs Ingest / Webview shell / Polish)
@@ -178,6 +178,8 @@ BaselineState → corpus migration — EwmaTracker / TDigestPair / RollingWindow
 ServiceRegistry + RetryStormState → corpus migration — DashMap → corpus via LifecyclePersistence + StormPersistence traits (capabilities P-017/P-018/P-027; detail in pulse-v0_2_0-route §71).
    ↓
 PII scrubber coverage extension — extend scrub_attribute to OTLP appender + Drain corpus persist paths; uniform pre-scrub at persistence boundary (capabilities P-006/P-047/P-048; detail in pulse-v0_2_0-route §72).
+   ↓
+Capability spec numeric alignment — fix P-001/P-003 thresholds + failure path, P-010/P-011/P-012/P-014 baseline-relative semantics (capabilities P-001/P-003/P-010/P-011/P-012/P-014; detail in pulse-v0_2_0-route §73).
 
 ---
 
@@ -381,3 +383,12 @@ PII scrubber coverage extension — extend scrub_attribute to OTLP appender + Dr
 - **Why:** Third chunk of v3 Phase 6 Consolidation; closes P-006/P-047/P-048 single-site coverage gap (scrubber invoked at only `crates/buffer/src/drain.rs:600`); extends to `appender.rs:332-356` OTLP attributes + Drain corpus persist + CorpusWriter trait contract. Depends on #65/#68/#69/#70/#71. Mirrors chunk #71 precedent.
 - **Mechanical:** §1 Total chunks 71 → 72 (Form 1 Policy A); state.yaml.last_completed_chunk unchanged.
 - **Marker:** `.andromeda/runs/2026-05-20T21-00-00-spec-amendment-append-chunk-72-pii-scrubber-coverage-extension/amendment.md`
+
+---
+
+`2026-05-20` — Append chunk #73 Capability spec numeric alignment (--allow-route-append)
+
+- **Insert:** chunk #73 at §2 Epoch 9 — Foundation v0.2.0 (text: see §2; full detail in `pulse-v0_2_0-route.md` §Phase 6 §73).
+- **Why:** Fourth chunk of v3 Phase 6 Consolidation; closes audit Section 1.D capability-PARTIAL HIGH findings (P-001/P-003 thresholds + failure path; P-010/P-011/P-012/P-014 baseline-relative semantics). Depends on #59/#61/#62/#66/#70. Mirrors chunk #72 precedent.
+- **Mechanical:** §1 Total chunks 72 → 73 (Form 1 Policy A); state.yaml.last_completed_chunk unchanged.
+- **Marker:** `.andromeda/runs/2026-05-20T21-56-34-spec-amendment-append-chunk-73-capability-spec-numeric-alignment/amendment.md`
