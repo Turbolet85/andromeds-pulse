@@ -16,7 +16,7 @@ unit) not HOW (implementation steps)._
 
 ## 1. Route Scope Summary
 
-- **Total chunks:** 70
+- **Total chunks:** 71
 - **Epochs:** 9 (Foundation, Ingest pipeline, Storage & query, Webview shell + TauRPC bridge, Visualization surfaces, Snapshot & Investigate, Plugin runtime + MCP server, Polish & ship, Foundation v0.2.0)
 - **Drilldown depth (avg):** 1.6 (mixed: Foundation depth 2, Ingest pipeline depth 1, Storage & query depth 2, Webview shell depth 1, Visualization surfaces depth 2, Snapshot depth 2, Plugin+MCP depth 2, Polish depth 1)
 - **Hierarchy mode:** mixed (3-level for dense epochs Foundation / Storage / Visualization / Snapshot / Plugin+MCP; 2-level for lighter epochs Ingest / Webview shell / Polish)
@@ -174,6 +174,8 @@ Corpus SQLite scaffold + schema + encryption + PII scrubber — new `crates/corp
 Drain Rust implementation + template profiling diagnostics — Drain3 Rust port (depth/similarity/masking); two-phase spike-then-production; diagnostics.template_distribution() panel (capability P-007; detail in pulse-v0_2_0-route §67).
    ↓
 BaselineState → corpus migration — EwmaTracker / TDigestPair / RollingWindow / ActivityFloor from flat-file baseline-corpus.bin to corpus SQLite via BaselinePersistence trait (capabilities P-009/P-011/P-013/P-051; detail in pulse-v0_2_0-route §70).
+   ↓
+ServiceRegistry + RetryStormState → corpus migration — DashMap → corpus via LifecyclePersistence + StormPersistence traits (capabilities P-017/P-018/P-027; detail in pulse-v0_2_0-route §71).
 
 ---
 
@@ -359,3 +361,12 @@ BaselineState → corpus migration — EwmaTracker / TDigestPair / RollingWindow
 - **Why:** First chunk of v3 Consolidation Phase 6; closes audit Section 1.A persistence triple-mechanism (BaselineState flat-file violates P-009/P-013 corpus SHALL); migrates EwmaTracker / TDigestPair / RollingWindow / ActivityFloor to corpus via BaselinePersistence trait. Mirrors chunk #69 Drain corpus persistence precedent.
 - **Mechanical:** §1 Total chunks 69 → 70 (Form 1 P6 mechanical auto-update; Policy A strict mechanical).
 - **Marker:** `.andromeda/runs/2026-05-20T00-30-00-spec-amendment-append-chunk-70-baseline-corpus-migration/amendment.md`
+
+---
+
+`2026-05-20` — Append chunk #71 ServiceRegistry + RetryStormState → corpus migration (--allow-route-append)
+
+- **Insert:** chunk #71 at §2 Epoch 9 — Foundation v0.2.0 (text: see §2; full detail in `pulse-v0_2_0-route.md` §Phase 6 §71).
+- **Why:** Second chunk of v3 Phase 6 Consolidation; closes P-027 dot-positions-survive-restart + chunk #66 storm.rs deferred-persistence broken promise; depends on #66/#67/#68/#70. Mirrors chunk #70 precedent.
+- **Mechanical:** §1 Total chunks 70 → 71 (Form 1 Policy A); state.yaml.last_completed_chunk unchanged.
+- **Marker:** `.andromeda/runs/2026-05-20T18-55-00-spec-amendment-append-chunk-71-lifecycle-storm-corpus-migration/amendment.md`
