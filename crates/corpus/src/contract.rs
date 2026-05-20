@@ -169,11 +169,32 @@ impl CorpusReader for Corpus {
 /// Payloads MUST be pre-encrypted-free plaintext at this boundary; the
 /// impl wraps each payload в AES-256-GCM before the SQLite INSERT (per
 /// chunk #68 cell-level encryption discipline). Caller's plaintext
-/// payload SHOULD already have been PII-scrubbed via
-/// `security::scrubber::scrub_attribute` at the producer side — encryption
-/// is defense-in-depth for the at-rest threat model, not a substitute for
-/// PII scrubbing at the producer (per security plan §Logging NEVER-log
-/// discipline + obs-plan §8 default-deny posture).
+/// payload MUST already have been PII-scrubbed via
+/// `security::scrubber::scrub_attribute` at the producer side (chunk #72);
+/// encryption is defense-in-depth for the at-rest threat model, not a
+/// substitute for PII scrubbing at the producer (per security plan
+/// §Logging NEVER-log discipline + obs-plan §8 default-deny posture).
+///
+/// The pre-scrub contract is enforced at the producer side via per-adapter
+/// PII negative-canary tests covering each call site:
+/// - `crates/buffer/src/appender.rs::extract_log_body` (log_records.body
+///   write path)
+/// - `crates/buffer/src/appender.rs::build_span_events_record_batch`
+///   (span_events.exception_message + span_events.exception_stacktrace
+///   write paths)
+/// - `crates/buffer/src/drain.rs::DrainMiner::snapshot_state` (Drain
+///   template tokens; scrubbed upstream of `CorpusDrainPersistence::save`)
+/// - `pulse-app/src/lifecycle_persistence.rs::save_all`
+///   (service_registry.service_name column)
+/// - `pulse-app/src/baseline_persistence.rs::save` (BaselineState
+///   per-service map keys + operation_key service prefix)
+/// - `pulse-app/src/storm_persistence.rs::save` (StormStateSnapshot
+///   FingerprintState.service fields)
+///
+/// No defensive scrub inside the corpus impl — bincode payload bytes
+/// can't be inspected without decoding (layer-separation violation).
+/// Per-row typed columns (`service_registry.service_name`) likewise
+/// rely on producer-side scrub rather than corpus-side double-scrub.
 pub trait CorpusWriter: Send + Sync {
     /// Persist a pipeline-metric snapshot. `metric_name` + `layer`
     /// together identify the metric series (e.g.,
@@ -213,8 +234,9 @@ pub trait CorpusWriter: Send + Sync {
     /// (unlike `pipeline_metrics.payload` BLOB) because the schema columns
     /// are query-friendly typed columns rather than opaque blobs. The
     /// `service_name` column is user-content classification per arch
-    /// §Threat Model + chunk #71 plan §Acceptance Criteria → Deferred
-    /// (PII scrubber call site deferred to chunk #72).
+    /// §Threat Model; PII scrubber wired at the
+    /// `CorpusLifecyclePersistence` producer-side adapter per chunk #72
+    /// (corpus impl does not double-scrub — see trait docstring above).
     fn save_service_registry_row(
         &self,
         service_name: &str,

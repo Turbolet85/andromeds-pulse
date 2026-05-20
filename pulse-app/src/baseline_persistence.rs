@@ -1,4 +1,4 @@
-//! Corpus-backed BaselineState persistence adapter — chunk #70.
+//! Corpus-backed BaselineState persistence adapter — chunk #70 + chunk #72.
 //!
 //! Wires `triage::contract::BaselinePersistence` to
 //! `corpus::contract::CorpusWriter` at the pulse-app binary boundary,
@@ -17,6 +17,15 @@
 //! serialization → encryption → INSERT is the save path; SELECT →
 //! decryption → deserialization is the load path.
 //!
+//! PII discipline (chunk #72): `BaselineState` per-service `DashMap` keys
+//! and per-operation key prefixes carry raw `service.name` strings
+//! (user-content classification). `save` calls
+//! `BaselineState::scrubbed_clone` with `security::scrubber::scrub_attribute`
+//! to pre-scrub the keys before bincode, rendering `[REDACTED:{category}]`
+//! markers for matched categories. Aggregation-collapse note: PII-shaped
+//! service names collapse to the same scrubbed bucket per chunk #72 plan
+//! §Implementation Note 3 (intentional security > attribution trade-off).
+//!
 //! Legacy bincode migration: at boot, `migrate_legacy_baseline_if_present`
 //! checks for `<data_dir>/triage/baseline-corpus.bin` (chunk #61
 //! substrate). If present + valid, the contents are read once,
@@ -28,6 +37,7 @@ use std::sync::Arc;
 use std::time::Instant;
 
 use corpus::contract::{CorpusWriter, Error as CorpusError};
+use security::scrubber::{ScrubbedValue, scrub_attribute};
 use triage::contract::{BaselineError, BaselinePersistence, BaselineState, DEFAULT_MAX_SIZE_BYTES};
 
 /// Stable `metric_name` value in `pipeline_metrics` for BaselineState.
@@ -43,8 +53,10 @@ pub const BASELINE_PERSISTENCE_LAYER: &str = "l1b";
 /// Legacy bincode subpath under the resolved data dir (chunk #61
 /// substrate; eliminated by chunk #70). Migration helper looks for this
 /// file at boot.
-const LEGACY_BASELINE_BASENAME: &str = "baseline-corpus.bin";
-const LEGACY_BASELINE_SUBDIR: &str = "triage";
+#[doc(hidden)]
+pub const LEGACY_BASELINE_BASENAME: &str = "baseline-corpus.bin";
+#[doc(hidden)]
+pub const LEGACY_BASELINE_SUBDIR: &str = "triage";
 
 /// Adapter implementing `triage::BaselinePersistence` over a
 /// `corpus::contract::CorpusWriter`. Cheap to clone (single Arc inside).
@@ -67,8 +79,8 @@ impl BaselinePersistence for CorpusBaselinePersistence {
             .map_err(corpus_error_to_baseline_error)?;
         match bytes_opt {
             Some(bytes) => {
-                let state: BaselineState =
-                    bincode::deserialize(&bytes).map_err(|_| BaselineError::Deserialize)?;
+                let state: BaselineState = crate::bincode_bounded::deserialize(&bytes)
+                    .map_err(|_| BaselineError::Deserialize)?;
                 Ok(Some(state))
             }
             None => Ok(None),
@@ -76,7 +88,8 @@ impl BaselinePersistence for CorpusBaselinePersistence {
     }
 
     fn save(&self, state: &BaselineState) -> Result<(), BaselineError> {
-        let bytes = bincode::serialize(state).map_err(|_| BaselineError::Serialize)?;
+        let scrubbed = state.scrubbed_clone(scrub_service_key);
+        let bytes = bincode::serialize(&scrubbed).map_err(|_| BaselineError::Serialize)?;
         self.writer
             .save_pipeline_metric(
                 BASELINE_STATE_METRIC_NAME,
@@ -84,6 +97,18 @@ impl BaselinePersistence for CorpusBaselinePersistence {
                 &bytes,
             )
             .map_err(corpus_error_to_baseline_error)
+    }
+}
+
+/// Producer-side PII scrub for `BaselineState` per-service map keys + the
+/// `service` prefix of per-operation keys before bincode (chunk #72).
+/// Renders the `[REDACTED:{category}]` marker per the chunk #68/#69
+/// convention; dep-injected into `BaselineState::scrubbed_clone` to keep
+/// the triage crate security-crate-free.
+fn scrub_service_key(service: &str) -> String {
+    match scrub_attribute(service) {
+        ScrubbedValue::Allowed(s) => s,
+        ScrubbedValue::Redacted { category } => format!("[REDACTED:{}]", category),
     }
 }
 
@@ -95,7 +120,8 @@ impl BaselinePersistence for CorpusBaselinePersistence {
 /// Free function (not `From` impl) — orphan rule forbids
 /// `impl From<corpus::Error> for triage::BaselineError` here (both types
 /// foreign to pulse-app). Per session-learnings 2026-05-18.
-fn corpus_error_to_baseline_error(err: CorpusError) -> BaselineError {
+#[doc(hidden)]
+pub fn corpus_error_to_baseline_error(err: CorpusError) -> BaselineError {
     use triage::contract::SCHEMA_VERSION;
     match err {
         CorpusError::KeyringUnavailable => BaselineError::Io {
@@ -238,7 +264,24 @@ fn migrate_legacy_inner(
         }
     };
 
-    let state: BaselineState = match bincode::deserialize(&bytes) {
+    // Pre-flight prefix sanity check на untrusted-input boundary (chunk #72
+    // follow-up). bincode 1.3.3 pre-allocates Vec / HashMap capacity from
+    // the u64 length prefix BEFORE attempting to read entries; а
+    // valid-looking crafted prefix (e.g., `b"\x00\x01\x02 garbage"` decodes
+    // its first 8 bytes as ~7e18) would trigger an immediate OOM process
+    // abort even though `Options::with_limit` is configured. This validator
+    // checks the `services` map length prefix at the known struct offset
+    // (4-byte schema_version + 8-byte u64 map len) and rejects implausible
+    // counts before bincode allocates anything. Layout MUST stay in sync с
+    // `crates/triage/src/baseline/mod.rs::BaselineState` field declaration
+    // order (schema_version → services → operations → persisted_at).
+    if !baseline_bytes_prefix_plausible(&bytes) {
+        return MigrationOutcome::Failed {
+            error_category: "deserialize",
+        };
+    }
+
+    let state: BaselineState = match crate::bincode_bounded::deserialize(&bytes) {
         Ok(s) => s,
         Err(_) => {
             return MigrationOutcome::Failed {
@@ -265,404 +308,33 @@ fn migrate_legacy_inner(
     }
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use corpus::contract::{Corpus, FakeKeychainBackend, KeychainBackend};
-    use std::sync::Mutex;
-    use tempfile::TempDir;
-    use tracing::field::{Field, Visit};
-    use tracing::{Event, Level, Subscriber};
+/// Plausibility ceiling on the `services` map size — anything beyond this
+/// is almost certainly а crafted length prefix rather than legitimate
+/// telemetry state. Conservatively above the `ACTIVITY_FLOOR_SERVICE_CAP`
+/// in-process bound (currently 100k) с headroom for future raises; well
+/// below any value that would trigger OOM allocation на 64-bit hosts.
+const BASELINE_PREFIX_SVC_LEN_PLAUSIBILITY_CEILING: u64 = 10_000_000;
 
-    fn make_writer() -> Arc<dyn CorpusWriter> {
-        let backend: Arc<dyn KeychainBackend> = Arc::new(FakeKeychainBackend::new());
-        let corpus = Corpus::open_in_memory(backend).expect("in-memory corpus");
-        Arc::new(corpus) as Arc<dyn CorpusWriter>
+/// Sanity-check the bincode bytes' `services` length-prefix slot before
+/// passing к bincode. Prevents the OOM-via-crafted-prefix vulnerability
+/// surfaced at chunk #72 follow-up (untrusted legacy file content). True
+/// = pass (continue к bincode); false = reject (treat as `deserialize`
+/// failure). Below 12 bytes, bincode will EOF safely on its own — let
+/// it through.
+fn baseline_bytes_prefix_plausible(bytes: &[u8]) -> bool {
+    if bytes.len() < 12 {
+        return true;
     }
-
-    #[test]
-    fn save_then_load_round_trips_baseline_state_through_corpus() {
-        let writer = make_writer();
-        let adapter = CorpusBaselinePersistence::new(writer);
-
-        let state_a = BaselineState::new();
-        for i in 0..30 {
-            state_a.observe_span("svc-a", "op-1", 0, 100, i * 1_000_000);
-        }
-        state_a.set_persisted_at_unix_nanos(5_000);
-        adapter.save(&state_a).expect("save");
-
-        // Fresh load via the same adapter → restores state.
-        let loaded = adapter.load().expect("load ok").expect("Some(state)");
-        assert_eq!(loaded.service_count(), state_a.service_count());
-        assert_eq!(loaded.persisted_at_unix_nanos(), 5_000);
-    }
-
-    #[test]
-    fn load_returns_none_when_corpus_empty() {
-        let writer = make_writer();
-        let adapter = CorpusBaselinePersistence::new(writer);
-        let loaded = adapter.load().expect("infallible on empty");
-        assert!(loaded.is_none());
-    }
-
-    #[test]
-    fn save_writes_through_corpus_writer_save_pipeline_metric() {
-        let writer = make_writer();
-        let adapter = CorpusBaselinePersistence::new(Arc::clone(&writer));
-        let state = BaselineState::new();
-        state.observe_span("svc-canary", "op-1", 0, 100, 1_000);
-        adapter.save(&state).expect("save");
-
-        // Reading via the CorpusWriter directly with the same
-        // metric_name + layer should yield bytes.
-        let bytes = writer
-            .load_pipeline_metric(BASELINE_STATE_METRIC_NAME, BASELINE_PERSISTENCE_LAYER)
-            .expect("load via writer")
-            .expect("Some bytes");
-        assert!(!bytes.is_empty());
-        let roundtrip: BaselineState =
-            bincode::deserialize(&bytes).expect("bincode round-trip via writer");
-        assert_eq!(roundtrip.service_count(), 1);
-    }
-
-    #[test]
-    fn corpus_error_keyring_unavailable_maps_to_sanitized_baseline_io() {
-        let err = corpus_error_to_baseline_error(CorpusError::KeyringUnavailable);
-        match err {
-            BaselineError::Io { kind } => {
-                assert_eq!(kind, std::io::ErrorKind::PermissionDenied);
-            }
-            other => panic!("expected BaselineError::Io, got {other:?}"),
-        }
-    }
-
-    #[test]
-    fn corpus_error_query_failed_maps_to_sanitized_baseline_io() {
-        let err = corpus_error_to_baseline_error(CorpusError::QueryFailed);
-        match err {
-            BaselineError::Io { kind } => {
-                assert_eq!(kind, std::io::ErrorKind::Other);
-            }
-            other => panic!("expected BaselineError::Io, got {other:?}"),
-        }
-    }
-
-    #[test]
-    fn corpus_error_decryption_failed_maps_to_baseline_deserialize() {
-        let err = corpus_error_to_baseline_error(CorpusError::DecryptionFailed);
-        assert!(matches!(err, BaselineError::Deserialize));
-    }
-
-    #[test]
-    fn corpus_error_encryption_failed_maps_to_baseline_serialize() {
-        let err = corpus_error_to_baseline_error(CorpusError::EncryptionFailed);
-        assert!(matches!(err, BaselineError::Serialize));
-    }
-
-    #[test]
-    fn corpus_error_schema_version_mismatch_maps_with_expected_constant() {
-        let err = corpus_error_to_baseline_error(CorpusError::SchemaVersionMismatch);
-        match err {
-            BaselineError::SchemaVersionMismatch { expected, got } => {
-                assert_eq!(expected, triage::contract::SCHEMA_VERSION);
-                assert_eq!(got, 0);
-            }
-            other => panic!("expected SchemaVersionMismatch, got {other:?}"),
-        }
-    }
-
-    #[test]
-    fn metric_name_and_layer_constants_match_plan_spec() {
-        assert_eq!(BASELINE_STATE_METRIC_NAME, "baseline_state");
-        assert_eq!(BASELINE_PERSISTENCE_LAYER, "l1b");
-    }
-
-    // ===== Migration helper tests =====
-
-    type CapturedFields = Vec<(String, String)>;
-    type CapturedEvent = (String, Level, CapturedFields);
-    type CapturedEvents = Arc<Mutex<Vec<CapturedEvent>>>;
-
-    #[derive(Default)]
-    struct CapturingSubscriber {
-        events: CapturedEvents,
-    }
-
-    impl CapturingSubscriber {
-        fn new() -> (Self, CapturedEvents) {
-            let events: CapturedEvents = Arc::new(Mutex::new(Vec::new()));
-            (
-                Self {
-                    events: Arc::clone(&events),
-                },
-                events,
-            )
-        }
-    }
-
-    struct FieldCollector(Vec<(String, String)>);
-
-    impl Visit for FieldCollector {
-        fn record_debug(&mut self, field: &Field, value: &dyn std::fmt::Debug) {
-            self.0
-                .push((field.name().to_string(), format!("{value:?}")));
-        }
-        fn record_str(&mut self, field: &Field, value: &str) {
-            self.0.push((field.name().to_string(), value.to_string()));
-        }
-        fn record_u64(&mut self, field: &Field, value: u64) {
-            self.0.push((field.name().to_string(), value.to_string()));
-        }
-        fn record_i64(&mut self, field: &Field, value: i64) {
-            self.0.push((field.name().to_string(), value.to_string()));
-        }
-        fn record_bool(&mut self, field: &Field, value: bool) {
-            self.0.push((field.name().to_string(), value.to_string()));
-        }
-    }
-
-    impl Subscriber for CapturingSubscriber {
-        fn enabled(&self, _: &tracing::Metadata<'_>) -> bool {
-            true
-        }
-        fn new_span(&self, _: &tracing::span::Attributes<'_>) -> tracing::Id {
-            tracing::Id::from_u64(1)
-        }
-        fn record(&self, _: &tracing::Id, _: &tracing::span::Record<'_>) {}
-        fn record_follows_from(&self, _: &tracing::Id, _: &tracing::Id) {}
-        fn event(&self, event: &Event<'_>) {
-            let target = event.metadata().target().to_string();
-            let level = *event.metadata().level();
-            let mut collector = FieldCollector(Vec::new());
-            event.record(&mut collector);
-            self.events
-                .lock()
-                .unwrap()
-                .push((target, level, collector.0));
-        }
-        fn enter(&self, _: &tracing::Id) {}
-        fn exit(&self, _: &tracing::Id) {}
-    }
-
-    fn stage_legacy_file(tmp_data_dir: &Path, state: &BaselineState) {
-        let triage_dir = tmp_data_dir.join(LEGACY_BASELINE_SUBDIR);
-        std::fs::create_dir_all(&triage_dir).expect("mkdir triage");
-        let path = triage_dir.join(LEGACY_BASELINE_BASENAME);
-        let bytes = bincode::serialize(state).expect("bincode legacy");
-        std::fs::write(&path, &bytes).expect("write legacy");
-    }
-
-    fn make_adapter() -> CorpusBaselinePersistence {
-        let writer = make_writer();
-        CorpusBaselinePersistence::new(writer)
-    }
-
-    #[test]
-    fn migrate_legacy_returns_noop_when_no_legacy_file() {
-        let tmp = TempDir::new().expect("tmp data dir");
-        let adapter = make_adapter();
-        let outcome = migrate_legacy_baseline_if_present(tmp.path(), &adapter);
-        assert_eq!(outcome, MigrationOutcome::Noop);
-    }
-
-    #[test]
-    fn migrate_legacy_completed_deletes_legacy_file_and_persists_to_corpus() {
-        let tmp = TempDir::new().expect("tmp data dir");
-        let staged = BaselineState::new();
-        for i in 0..5 {
-            staged.observe_span("svc-canary", "op-x", 0, 100, i * 1_000_000);
-        }
-        staged.set_persisted_at_unix_nanos(7_000);
-        stage_legacy_file(tmp.path(), &staged);
-
-        let adapter = make_adapter();
-        let outcome = migrate_legacy_baseline_if_present(tmp.path(), &adapter);
-
-        match outcome {
-            MigrationOutcome::Completed {
-                legacy_file_deleted,
-                bytes,
-                service_count,
-            } => {
-                assert!(legacy_file_deleted);
-                assert!(bytes > 0);
-                assert_eq!(service_count, 1);
-            }
-            other => panic!("expected Completed, got {other:?}"),
-        }
-
-        let legacy_path = tmp
-            .path()
-            .join(LEGACY_BASELINE_SUBDIR)
-            .join(LEGACY_BASELINE_BASENAME);
-        assert!(
-            !legacy_path.exists(),
-            "legacy file must be deleted after migration"
-        );
-
-        let loaded = adapter.load().expect("load ok").expect("Some(state)");
-        assert_eq!(loaded.service_count(), 1);
-        assert_eq!(loaded.persisted_at_unix_nanos(), 7_000);
-    }
-
-    #[test]
-    fn migrate_legacy_idempotent_on_second_call() {
-        let tmp = TempDir::new().expect("tmp data dir");
-        let staged = BaselineState::new();
-        staged.observe_span("svc", "op", 0, 100, 1_000);
-        stage_legacy_file(tmp.path(), &staged);
-
-        let adapter = make_adapter();
-        let first = migrate_legacy_baseline_if_present(tmp.path(), &adapter);
-        assert!(matches!(first, MigrationOutcome::Completed { .. }));
-
-        let second = migrate_legacy_baseline_if_present(tmp.path(), &adapter);
-        assert_eq!(
-            second,
-            MigrationOutcome::Noop,
-            "second boot must skip migration"
-        );
-    }
-
-    #[test]
-    fn migrate_legacy_failed_on_corrupt_bytes_preserves_legacy_file() {
-        let tmp = TempDir::new().expect("tmp data dir");
-        let triage_dir = tmp.path().join(LEGACY_BASELINE_SUBDIR);
-        std::fs::create_dir_all(&triage_dir).expect("mkdir triage");
-        let legacy_path = triage_dir.join(LEGACY_BASELINE_BASENAME);
-        std::fs::write(&legacy_path, b"\x00\x01\x02 garbage bytes").expect("write");
-
-        let adapter = make_adapter();
-        let outcome = migrate_legacy_baseline_if_present(tmp.path(), &adapter);
-
-        match outcome {
-            MigrationOutcome::Failed { error_category } => {
-                assert_eq!(error_category, "deserialize");
-            }
-            other => panic!("expected Failed, got {other:?}"),
-        }
-
-        assert!(
-            legacy_path.exists(),
-            "legacy file must be preserved on failure for retry"
-        );
-    }
-
-    #[test]
-    fn migrate_legacy_emits_completed_warn_log() {
-        let (sub, events) = CapturingSubscriber::new();
-        let tmp = TempDir::new().expect("tmp data dir");
-        let staged = BaselineState::new();
-        staged.observe_span("svc", "op", 0, 100, 1_000);
-        stage_legacy_file(tmp.path(), &staged);
-
-        let adapter = make_adapter();
-        tracing::subscriber::with_default(sub, || {
-            let _ = migrate_legacy_baseline_if_present(tmp.path(), &adapter);
-        });
-
-        let captured = events.lock().unwrap();
-        let migrate_events: Vec<&CapturedEvent> = captured
-            .iter()
-            .filter(|(t, _, _)| t == triage::contract::TARGET_BASELINE_MIGRATE)
-            .collect();
-        assert_eq!(migrate_events.len(), 1, "expected exactly 1 migrate event");
-        let (target, level, fields) = migrate_events[0];
-        assert_eq!(target, triage::contract::TARGET_BASELINE_MIGRATE);
-        assert_eq!(*level, Level::INFO);
-        let outcome_field = fields
-            .iter()
-            .find(|(k, _)| k == "migration_outcome")
-            .map(|(_, v)| v.clone());
-        assert_eq!(outcome_field, Some("completed".to_string()));
-        // PII discipline: no legacy path / service_name / per-record content.
-        let banned = [
-            "legacy_path",
-            "service_name",
-            "scope_id",
-            "span_id",
-            "trace_id",
-            "operation_name",
-        ];
-        for (k, _) in fields {
-            assert!(
-                !banned.contains(&k.as_str()),
-                "field {k:?} forbidden in aggregate-only migrate event"
-            );
-        }
-    }
-
-    #[test]
-    fn migrate_legacy_emits_failed_warn_on_corrupt_bytes() {
-        let (sub, events) = CapturingSubscriber::new();
-        let tmp = TempDir::new().expect("tmp data dir");
-        let triage_dir = tmp.path().join(LEGACY_BASELINE_SUBDIR);
-        std::fs::create_dir_all(&triage_dir).expect("mkdir triage");
-        let legacy_path = triage_dir.join(LEGACY_BASELINE_BASENAME);
-        std::fs::write(&legacy_path, b"corrupt").expect("write");
-
-        let adapter = make_adapter();
-        tracing::subscriber::with_default(sub, || {
-            let _ = migrate_legacy_baseline_if_present(tmp.path(), &adapter);
-        });
-
-        let captured = events.lock().unwrap();
-        let failed: Vec<&CapturedEvent> = captured
-            .iter()
-            .filter(|(t, _, _)| t == triage::contract::TARGET_BASELINE_MIGRATE_FAILED)
-            .collect();
-        assert_eq!(failed.len(), 1);
-        let (_, level, fields) = failed[0];
-        assert_eq!(*level, Level::WARN);
-        let cat = fields
-            .iter()
-            .find(|(k, _)| k == "error_category")
-            .map(|(_, v)| v.clone());
-        assert_eq!(cat, Some("deserialize".to_string()));
-    }
-
-    #[test]
-    fn pii_canary_not_present_in_corpus_db_raw_bytes() {
-        // Open on-disk corpus (not in-memory) so we can read raw bytes
-        // back from the SQLite file post-save + verify AES encryption hid
-        // the seeded canary substring.
-        let tmp = TempDir::new().expect("tmp");
-        let db_path = tmp.path().join("pii-canary.db");
-        let backend_key = [0x21u8; 32];
-        let backend: Arc<dyn KeychainBackend> = Arc::new(FakeKeychainBackend::with_seeded_key(
-            "corpus-key",
-            backend_key,
-        ));
-        let corpus = Corpus::open(db_path.clone(), backend).expect("open");
-        let writer: Arc<dyn CorpusWriter> = Arc::new(corpus);
-        let adapter = CorpusBaselinePersistence::new(writer);
-
-        let state = BaselineState::new();
-        // Seed canary in BOTH service name + operation name positions
-        // to exercise multiple field paths.
-        let canary = "DISTINCTIVE-PII-CANARY-MUST-NOT-LEAK-AT-REST-42";
-        state.observe_span(canary, "op-canary", 0, 100, 1_000);
-        state.observe_span("svc-normal", canary, 0, 100, 2_000);
-        adapter.save(&state).expect("save");
-
-        let raw = std::fs::read(&db_path).expect("read db");
-        // AES-256-GCM encrypts the bincode payload before SQLite INSERT.
-        // The raw .db bytes MUST NOT contain the canary plaintext.
-        let pos = raw
-            .windows(canary.len())
-            .position(|w| w == canary.as_bytes());
-        assert!(
-            pos.is_none(),
-            "canary leaked at-rest at byte offset {pos:?}"
-        );
-        // Same for the OTLP-derived attribute names that the chunk #61
-        // PII canary test guarded.
-        for pattern in ["span_id", "trace_id", "attribute_value", "operation_name"] {
-            assert!(
-                !raw.windows(pattern.len()).any(|w| w == pattern.as_bytes()),
-                "PII pattern {pattern:?} leaked at-rest"
-            );
-        }
-    }
+    let svc_len_bytes: [u8; 8] = match bytes[4..12].try_into() {
+        Ok(b) => b,
+        Err(_) => return true,
+    };
+    let svc_len = u64::from_le_bytes(svc_len_bytes);
+    svc_len <= BASELINE_PREFIX_SVC_LEN_PLAUSIBILITY_CEILING
 }
+
+// Unit tests live at `pulse-app/tests/unit_baseline_persistence.rs`
+// (integration test crate) per session-learnings 2026-05-13 — Cargo.toml
+// `[lib] test = false` disables the lib auto-generated test binary on
+// Windows due to a WebView2 DLL load failure, so source-level
+// `#[cfg(test)] mod tests` would compile but never run.

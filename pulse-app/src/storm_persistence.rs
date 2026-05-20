@@ -1,4 +1,4 @@
-//! Corpus-backed RetryStormState persistence adapter — chunk #71.
+//! Corpus-backed RetryStormState persistence adapter — chunk #71 + chunk #72.
 //!
 //! Wires `triage::contract::StormPersistence` to
 //! `corpus::contract::CorpusWriter` at the pulse-app binary boundary,
@@ -18,13 +18,18 @@
 //! Boot non-fatal: if corpus is unavailable at boot, the storm detector
 //! runs in-memory-only for the session. Storm fingerprint bytes (16-byte
 //! hashes of exception.type + normalized stack) are non-PII by
-//! construction; FingerprintState.service field IS PII-bearing but
-//! corpus-wide encryption at rest covers it (chunk #72 scrubber
-//! extension is the producer-side defense-in-depth).
+//! construction; FingerprintState.service field IS PII-bearing and is
+//! passed through `security::scrubber::scrub_attribute` via
+//! `StormStateSnapshot::scrubbed_clone` at save time (chunk #72) — the
+//! producer-side defense-in-depth alongside corpus-wide AES-256-GCM
+//! at-rest encryption. Aggregation-collapse note: PII-shaped service
+//! names collapse to the same scrubbed bucket per chunk #72 plan
+//! §Implementation Note 3.
 
 use std::sync::Arc;
 
 use corpus::contract::{CorpusWriter, Error as CorpusError};
+use security::scrubber::{ScrubbedValue, scrub_attribute};
 use triage::contract::{SCHEMA_VERSION, StormError, StormPersistence, StormStateSnapshot};
 
 /// Stable `metric_name` value in `pipeline_metrics` for StormState.
@@ -58,8 +63,8 @@ impl StormPersistence for CorpusStormPersistence {
             .map_err(corpus_error_to_storm_error)?;
         match bytes_opt {
             Some(bytes) => {
-                let snapshot: StormStateSnapshot =
-                    bincode::deserialize(&bytes).map_err(|_| StormError::Deserialize)?;
+                let snapshot: StormStateSnapshot = crate::bincode_bounded::deserialize(&bytes)
+                    .map_err(|_| StormError::Deserialize)?;
                 Ok(Some(snapshot))
             }
             None => Ok(None),
@@ -67,10 +72,22 @@ impl StormPersistence for CorpusStormPersistence {
     }
 
     fn save(&self, snapshot: &StormStateSnapshot) -> Result<(), StormError> {
-        let bytes = bincode::serialize(snapshot).map_err(|_| StormError::Serialize)?;
+        let scrubbed = snapshot.scrubbed_clone(scrub_fingerprint_service);
+        let bytes = bincode::serialize(&scrubbed).map_err(|_| StormError::Serialize)?;
         self.writer
             .save_pipeline_metric(STORM_STATE_METRIC_NAME, STORM_PERSISTENCE_LAYER, &bytes)
             .map_err(corpus_error_to_storm_error)
+    }
+}
+
+/// Producer-side PII scrub for `FingerprintState.service` before bincode
+/// (chunk #72). Renders the `[REDACTED:{category}]` marker per the chunk
+/// #68/#69 convention; dep-injected into `StormStateSnapshot::scrubbed_clone`
+/// to keep the triage crate security-crate-free.
+fn scrub_fingerprint_service(service: &str) -> String {
+    match scrub_attribute(service) {
+        ScrubbedValue::Allowed(s) => s,
+        ScrubbedValue::Redacted { category } => format!("[REDACTED:{}]", category),
     }
 }
 
@@ -82,7 +99,8 @@ impl StormPersistence for CorpusStormPersistence {
 /// Free function (not `From` impl) — orphan rule forbids
 /// `impl From<corpus::Error> for triage::StormError` here (both types
 /// foreign to pulse-app). Per session-learnings 2026-05-18.
-fn corpus_error_to_storm_error(err: CorpusError) -> StormError {
+#[doc(hidden)]
+pub fn corpus_error_to_storm_error(err: CorpusError) -> StormError {
     match err {
         CorpusError::KeyringUnavailable => StormError::Io {
             kind: std::io::ErrorKind::PermissionDenied,
@@ -105,167 +123,8 @@ fn corpus_error_to_storm_error(err: CorpusError) -> StormError {
     }
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use corpus::contract::{Corpus, FakeKeychainBackend, KeychainBackend};
-    use tempfile::TempDir;
-    use triage::contract::RetryStormDetector;
-
-    fn make_writer() -> Arc<dyn CorpusWriter> {
-        let backend: Arc<dyn KeychainBackend> = Arc::new(FakeKeychainBackend::new());
-        let corpus = Corpus::open_in_memory(backend).expect("in-memory corpus");
-        Arc::new(corpus) as Arc<dyn CorpusWriter>
-    }
-
-    #[test]
-    fn save_then_load_round_trips_snapshot() {
-        let writer = make_writer();
-        let adapter = CorpusStormPersistence::new(writer);
-        let detector = RetryStormDetector::new(60, 30, 5, 10);
-        let snapshot = detector.snapshot();
-        adapter.save(&snapshot).expect("save");
-        let loaded = adapter.load().expect("load ok").expect("Some");
-        assert_eq!(loaded.window_seconds, 60);
-        assert_eq!(loaded.detection_window_seconds, 30);
-        assert_eq!(loaded.suggested_threshold, 5);
-        assert_eq!(loaded.autonomous_threshold, 10);
-    }
-
-    #[test]
-    fn load_returns_none_when_corpus_empty() {
-        let writer = make_writer();
-        let adapter = CorpusStormPersistence::new(writer);
-        let loaded = adapter.load().expect("infallible on empty");
-        assert!(loaded.is_none());
-    }
-
-    #[test]
-    fn save_then_restore_preserves_dedup_fingerprints() {
-        let writer = make_writer();
-        let adapter = CorpusStormPersistence::new(Arc::clone(&writer));
-        let detector = RetryStormDetector::new(60, 30, 5, 10);
-        let fingerprint: [u8; 16] = [0xAB; 16];
-        // Seed dedup state by recording 10 occurrences within window —
-        // crosses Autonomous threshold so the detector tracks it.
-        for i in 0..10 {
-            let _ = triage::contract::record_occurrence(
-                &detector,
-                fingerprint,
-                "svc-storm",
-                i * 1_000_000_000,
-            );
-        }
-        assert!(detector.fingerprints_tracked() >= 1);
-        let snapshot = detector.snapshot();
-        adapter.save(&snapshot).expect("save");
-
-        // Drop the detector + recreate from corpus.
-        drop(detector);
-        let loaded = adapter.load().expect("load").expect("Some");
-        let restored = RetryStormDetector::restore_from_snapshot(loaded);
-        assert_eq!(restored.fingerprints_tracked(), 1);
-    }
-
-    #[test]
-    fn save_writes_through_corpus_writer_pipeline_metric_slot() {
-        let writer = make_writer();
-        let adapter = CorpusStormPersistence::new(Arc::clone(&writer));
-        let detector = RetryStormDetector::new(60, 30, 5, 10);
-        let snapshot = detector.snapshot();
-        adapter.save(&snapshot).expect("save");
-        let bytes = writer
-            .load_pipeline_metric(STORM_STATE_METRIC_NAME, STORM_PERSISTENCE_LAYER)
-            .expect("load via writer")
-            .expect("Some");
-        assert!(!bytes.is_empty());
-        let roundtrip: StormStateSnapshot =
-            bincode::deserialize(&bytes).expect("bincode round-trip");
-        assert_eq!(roundtrip.window_seconds, 60);
-    }
-
-    #[test]
-    fn metric_name_and_layer_constants_match_plan_spec() {
-        assert_eq!(STORM_STATE_METRIC_NAME, "storm_state");
-        assert_eq!(STORM_PERSISTENCE_LAYER, "l2");
-    }
-
-    #[test]
-    fn corpus_error_keyring_unavailable_maps_to_sanitized_io() {
-        let err = corpus_error_to_storm_error(CorpusError::KeyringUnavailable);
-        match err {
-            StormError::Io { kind } => {
-                assert_eq!(kind, std::io::ErrorKind::PermissionDenied);
-            }
-            other => panic!("expected Io, got {other:?}"),
-        }
-    }
-
-    #[test]
-    fn corpus_error_query_failed_maps_to_sanitized_io() {
-        let err = corpus_error_to_storm_error(CorpusError::QueryFailed);
-        assert!(matches!(err, StormError::Io { .. }));
-    }
-
-    #[test]
-    fn corpus_error_decryption_failed_maps_to_deserialize() {
-        let err = corpus_error_to_storm_error(CorpusError::DecryptionFailed);
-        assert!(matches!(err, StormError::Deserialize));
-    }
-
-    #[test]
-    fn corpus_error_encryption_failed_maps_to_serialize() {
-        let err = corpus_error_to_storm_error(CorpusError::EncryptionFailed);
-        assert!(matches!(err, StormError::Serialize));
-    }
-
-    #[test]
-    fn corpus_error_schema_mismatch_maps_to_typed_variant() {
-        let err = corpus_error_to_storm_error(CorpusError::SchemaVersionMismatch);
-        match err {
-            StormError::SchemaVersionMismatch { expected, got } => {
-                assert_eq!(expected, SCHEMA_VERSION);
-                assert_eq!(got, 0);
-            }
-            other => panic!("expected SchemaVersionMismatch, got {other:?}"),
-        }
-    }
-
-    #[test]
-    fn pii_canary_not_present_in_corpus_db_raw_bytes() {
-        // FingerprintState.service field carries service.name which is
-        // PII-bearing. Corpus-wide AES-256-GCM cell-level encryption
-        // covers the pipeline_metrics.payload BLOB (chunk #68 substrate).
-        // This test verifies encryption blocks the canary at-rest.
-        let tmp = TempDir::new().expect("tmp");
-        let db_path = tmp.path().join("storm-canary.db");
-        let backend_key = [0x55u8; 32];
-        let backend: Arc<dyn KeychainBackend> = Arc::new(FakeKeychainBackend::with_seeded_key(
-            "corpus-key",
-            backend_key,
-        ));
-        let corpus = Corpus::open(db_path.clone(), backend).expect("open");
-        let writer: Arc<dyn CorpusWriter> = Arc::new(corpus);
-        let adapter = CorpusStormPersistence::new(writer);
-        let detector = RetryStormDetector::new(60, 30, 5, 10);
-        let canary = "EXCEPTION_CANARY_b8d3f7";
-        // Seed detector with canary in service.name.
-        for i in 0..5 {
-            let _ = triage::contract::record_occurrence(
-                &detector,
-                [0x11; 16],
-                canary,
-                i * 1_000_000_000,
-            );
-        }
-        adapter.save(&detector.snapshot()).expect("save");
-        let raw = std::fs::read(&db_path).expect("read db");
-        let canary_position = raw
-            .windows(canary.len())
-            .position(|w| w == canary.as_bytes());
-        assert!(
-            canary_position.is_none(),
-            "canary leaked at-rest at byte offset {canary_position:?}"
-        );
-    }
-}
+// Unit tests live at `pulse-app/tests/unit_storm_persistence.rs`
+// (integration test crate) per session-learnings 2026-05-13 — Cargo.toml
+// `[lib] test = false` disables the lib auto-generated test binary on
+// Windows due to a WebView2 DLL load failure, so source-level
+// `#[cfg(test)] mod tests` would compile but never run.

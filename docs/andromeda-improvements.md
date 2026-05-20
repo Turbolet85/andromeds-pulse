@@ -932,3 +932,68 @@ Extend `/andromeda-implement` Phase 2b smoke-check protocol with an "integration
 - `references/visual-references.md` Phase 2b — current variants are `✓ smoke passed ({boot-time}s)` / `– smoke skipped: no-cli` / `– smoke skipped: headless`. P14 adds two more: integration-test-path + lightweight-build.
 - `references/runtime-failure-patterns.md` Phase 2b table — no new patterns needed; existing patterns (capability-drift, Tauri capability JSON, schema mismatch) still classify out-of-scope failures correctly. P14 changes WHEN tauri dev launches, not how surfaces classify failures.
 - Cross-reference to **verification-harness.md Session Addition 2026-05-19** (filed this same wrap) which documents the Windows-specific orphan-process risk of background tauri dev — P14 mitigates by avoiding the launch entirely for non-UI sessions.
+
+---
+
+## Status: PROPOSED — 2026-05-20 (session 107)
+
+### Proposal 15 — `/andromeda-wrap-session` or `/andromeda-implement` should detect dead `#[cfg(test)] mod tests` blocks in crates с `[lib] test = false`
+
+**Problem:**
+
+When a workspace member (e.g., `pulse-app`) declares `[lib] test = false` in `Cargo.toml` as а workaround for runtime build-time issues (e.g., Windows WebView2 DLL load failure per session-learning 2026-05-13), any source-level `#[cfg(test)] mod tests { … }` blocks in that crate compile but NEVER run as nextest binaries. Authors writing those tests assume they run (the `mod tests` pattern is universal Rust idiom); wrap-session test reports show "N/N pass" without noting source-level tests are silently absent from the discovered set; the gap persists across multiple chunks without surfacing.
+
+This actually happened on andromeda-pulse: chunks #69 / #70 / #71 each added substantial `#[cfg(test)] mod tests` blocks to `pulse-app/src/{drain,lifecycle,storm,baseline}_persistence.rs` (47 tests total across 4 files). All 47 were dead code — never executed, never caught regressions, never validated chunk acceptance criteria. The gap surfaced only at chunk #72 wrap session 107 when the new tests added в that chunk's scope were observed missing from nextest output, and audit revealed the prior tests were equally absent. Bug-finding cost was nontrivial: chunk #72 wrap discovered a real production OOM-on-corrupt-input bug in `baseline_persistence::migrate_legacy_inner` that the dead `migrate_legacy_failed_on_corrupt_bytes_preserves_legacy_file` test WOULD have caught at chunk #70 if it had actually run.
+
+**Proposal:**
+
+Add a "dead-test detection" pass к `/andromeda-wrap-session` Phase 2 (test run) OR `/andromeda-implement` Phase 2 (fix-loop entry). The pass scans each workspace member's `Cargo.toml` for `[lib] test = false` (or `[[bin]] test = false`) declarations; for each such crate, grep src/ for `#[cfg(test)]\s*mod\s+tests` occurrences; if any found, emit warning:
+
+```
+⚠ Dead source-level tests detected:
+  - pulse-app/src/drain_persistence.rs:105 — `mod tests` in crate с [lib] test = false
+    (will compile but NEVER run as nextest binary; move к pulse-app/tests/<file>.rs)
+```
+
+Posture: warning-not-fatal. User decides whether to migrate (recommended) OR accept the dead code (rare; might be intentional documentation-only).
+
+**Design:**
+
+- `/andromeda-wrap-session` Phase 2 §Step 4 (new) "Dead-test scan":
+  1. Parse all workspace `Cargo.toml` files; collect crates с `[lib] test = false` OR `[[bin] test = false` declarations into a target list
+  2. For each target crate, glob `src/**/*.rs`; grep each file for `^#\[cfg\(test\)\]\s*\n?\s*mod\s+tests`
+  3. For each match, emit warning line into Phase 11 report under new "Dead-test warnings" subsection
+  4. Surface count in commit message body Phase 10 under "Dead tests: {N} blocks in {M} files ({K} crates)"
+  5. Continue к Phase 3 regardless. Dead-test hits do NOT block commit.
+- Configuration knob: per-crate opt-out via new `Cargo.toml [package.metadata.andromeda]` block:
+  ```toml
+  [package.metadata.andromeda]
+  allow-dead-source-tests = true  # disables wrap-session dead-test warnings for this crate
+  ```
+- Handles the rare "intentional documentation-only" case без forcing the user к delete legitimate-but-unrunnable code.
+
+**Implementation cost:**
+
+| File | Change | LOC est |
+|---|---|---|
+| `~/.claude/skills/andromeda-wrap-session/SKILL.md` Phase 2 | New §Step 4 dead-test scan with Cargo.toml parsing + grep loop | ~50 |
+| `~/.claude/skills/andromeda-wrap-session/SKILL.md` Phase 10 | Commit message body line for dead-test count | ~5 |
+| `~/.claude/skills/andromeda-wrap-session/SKILL.md` Phase 11 | Report subsection for dead-test warnings | ~15 |
+| `~/.claude/skills/andromeda-wrap-session/references/visual-references.md` | Dead-test warning rendering template | ~10 |
+| `~/.claude/skills/andromeda-wrap-session/SKILL.md` Phase 2 | Opt-out parsing for `[package.metadata.andromeda] allow-dead-source-tests` | ~15 |
+
+**Total:** ~95 lines across 2 files. Low-medium-effort pipeline detection; high value for any project с workspace members carrying `[lib] test = false` workarounds (rare pattern but happens in Tauri / GUI runtime constraint situations).
+
+**When to do:**
+
+- File-and-defer per the P5 / P7 / P12 / P13 / P14 precedent. The first occurrence (this session 107) is a costly bug-finding event — the dead-test gap hid a real OOM vulnerability for 3 chunks. The fix would prevent the same gap from recurring on any future project adopting the same Tauri workaround pattern (or any analogous `[[bin]] test = false` situation).
+- Defer-until-second-occurrence may not apply here — the cost of the FIRST miss already validated the proposal. But Andromeda improvement convention is "wait for two evidences before implementing"; sticking к the convention means waiting until another project hits the same shape (or until pulse-v0.2.0 next phase introduces another `[lib] test = false` situation).
+- Author preference — lean toward filing-and-deferring. Workaround (manual `cargo nextest list -p {crate} | grep <test-name>` audit pre-commit; documented в `.claude/rules/testing.md` Session Addition 2026-05-20 session 107) works as a disciplined-author check; pipeline support via P15 lands когда there's clear two-project-occurrence evidence.
+
+**Cross-references:**
+
+- Triggering session: session 107 (this wrap; chunk #72 PII scrubber coverage extension wrap + dead-test cleanup discovered 47 dead tests across chunks #69/#70/#71 source-level `mod tests` blocks).
+- Sibling proposal: **Proposal 13** — first-class sub-phase state for two-phase chunks (filed session 97). Both P13 + P15 are wrap-session enhancements closing detection gaps; P13 detects sub-phase progress, P15 detects dead test code. Different domains but same wrap-session-as-detection-gate framing.
+- `.claude/rules/testing.md` Session Addition 2026-05-13 — documents the `[lib] test = false` Windows WebView2 workaround.
+- `.claude/rules/testing.md` Session Addition 2026-05-20 session 107 (filed this same wrap) — documents migration discipline for moving dead source-level tests к integration tests + the visibility-bump pattern (private fns → pub с `#[doc(hidden)]` for integration access).
+- `~/.claude/skills/andromeda-wrap-session/references/visual-references.md` Phase 11 — current report sections; P15 adds new "Dead-test warnings" subsection.

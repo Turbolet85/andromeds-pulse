@@ -1,4 +1,4 @@
-//! Corpus-backed lifecycle persistence adapter — chunk #71.
+//! Corpus-backed lifecycle persistence adapter — chunk #71 + chunk #72.
 //!
 //! Wires `triage::contract::LifecyclePersistence` to
 //! `corpus::contract::CorpusWriter` at the pulse-app binary boundary,
@@ -14,14 +14,21 @@
 //! `service_name` is the UNIQUE key; the new
 //! `CorpusWriter::save_service_registry_row` method UPSERTs.
 //!
-//! PII discipline: `service_name` is user-content classification. AES
-//! corpus-wide encryption at rest covers the file bytes; per-row PII
-//! scrubber call site at the producer is deferred to chunk #72 per
-//! plan §Acceptance Criteria → Deferred.
+//! PII discipline (chunk #72): `service_name` is user-content classification.
+//! `save_all` runs each service through `security::scrubber::scrub_attribute`
+//! BEFORE the `save_service_registry_row` call (`[REDACTED:{category}]`
+//! marker convention per chunk #68/#69/drain.rs:600 precedent); AES
+//! corpus-wide encryption stays as defense-in-depth for the at-rest threat
+//! model. Aggregation-collapse note: PII-shaped service names collapse into
+//! the same scrubbed bucket on the unique `service_name` column (e.g., two
+//! distinct misconfigured services that both look like emails merge into
+//! one `[REDACTED:email]` row); intentional security > attribution trade-off
+//! for misconfigured services per chunk #72 plan §Implementation Note 3.
 
 use std::sync::Arc;
 
 use corpus::contract::{CorpusWriter, Error as CorpusError};
+use security::scrubber::{ScrubbedValue, scrub_attribute};
 use triage::contract::{
     LifecycleError, LifecyclePersistence, SCHEMA_VERSION, ServiceLifecycleState,
     ServiceRegistryEntry, state_label,
@@ -73,9 +80,10 @@ impl LifecyclePersistence for CorpusLifecyclePersistence {
     fn save_all(&self, entries: &[(String, ServiceRegistryEntry)]) -> Result<(), LifecycleError> {
         for (service, entry) in entries {
             let manual_override_label = entry.manual_override.map(state_label);
+            let scrubbed_service = scrub_service_name(service);
             self.writer
                 .save_service_registry_row(
-                    service,
+                    &scrubbed_service,
                     state_label(entry.state),
                     entry.first_seen_unix_nano,
                     entry.last_seen_unix_nano,
@@ -88,6 +96,16 @@ impl LifecyclePersistence for CorpusLifecyclePersistence {
     }
 }
 
+/// Producer-side PII scrub for `service_name` before
+/// `CorpusWriter::save_service_registry_row` (chunk #72). Renders the
+/// `[REDACTED:{category}]` marker per the chunk #68/#69 convention.
+fn scrub_service_name(service: &str) -> String {
+    match scrub_attribute(service) {
+        ScrubbedValue::Allowed(s) => s,
+        ScrubbedValue::Redacted { category } => format!("[REDACTED:{}]", category),
+    }
+}
+
 /// Sanitized cross-crate error mapping. Per arch §Established Decisions
 /// [Error Handling Pattern]: no SQLite stack traces / file paths /
 /// library versions appear in the LifecycleError surfaced upward.
@@ -96,7 +114,8 @@ impl LifecyclePersistence for CorpusLifecyclePersistence {
 /// Free function (not `From` impl) — orphan rule forbids
 /// `impl From<corpus::Error> for triage::LifecycleError` here (both
 /// types foreign to pulse-app). Per session-learnings 2026-05-18.
-fn corpus_error_to_lifecycle_error(err: CorpusError) -> LifecycleError {
+#[doc(hidden)]
+pub fn corpus_error_to_lifecycle_error(err: CorpusError) -> LifecycleError {
     match err {
         CorpusError::KeyringUnavailable => LifecycleError::Io {
             kind: std::io::ErrorKind::PermissionDenied,
@@ -124,7 +143,8 @@ fn corpus_error_to_lifecycle_error(err: CorpusError) -> LifecycleError {
 /// `#[serde(rename_all = "snake_case")]` derive on
 /// `ServiceLifecycleState`. Returns `None` on unknown variant — caller
 /// surfaces as `LifecycleError::Deserialize`.
-fn parse_state(s: &str) -> Option<ServiceLifecycleState> {
+#[doc(hidden)]
+pub fn parse_state(s: &str) -> Option<ServiceLifecycleState> {
     match s {
         "unknown" => Some(ServiceLifecycleState::Unknown),
         "bootstrapping" => Some(ServiceLifecycleState::Bootstrapping),
@@ -137,235 +157,8 @@ fn parse_state(s: &str) -> Option<ServiceLifecycleState> {
     }
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use corpus::contract::{Corpus, FakeKeychainBackend, KeychainBackend};
-    use tempfile::TempDir;
-
-    fn make_writer() -> Arc<dyn CorpusWriter> {
-        let backend: Arc<dyn KeychainBackend> = Arc::new(FakeKeychainBackend::new());
-        let corpus = Corpus::open_in_memory(backend).expect("in-memory corpus");
-        Arc::new(corpus) as Arc<dyn CorpusWriter>
-    }
-
-    fn entry(state: ServiceLifecycleState, ts: i64) -> ServiceRegistryEntry {
-        ServiceRegistryEntry {
-            state,
-            first_seen_unix_nano: ts,
-            last_seen_unix_nano: ts,
-            last_transition_unix_nano: ts,
-            manual_override: None,
-        }
-    }
-
-    #[test]
-    fn save_then_load_round_trips_three_services() {
-        let writer = make_writer();
-        let adapter = CorpusLifecyclePersistence::new(writer);
-        let entries = vec![
-            (
-                "svc-a".to_string(),
-                entry(ServiceLifecycleState::Active, 1_000),
-            ),
-            (
-                "svc-b".to_string(),
-                entry(ServiceLifecycleState::Quiet, 2_000),
-            ),
-            (
-                "svc-c".to_string(),
-                entry(ServiceLifecycleState::Silent, 3_000),
-            ),
-        ];
-        adapter.save_all(&entries).expect("save");
-        let loaded = adapter.load_all().expect("load ok").expect("Some");
-        assert_eq!(loaded.len(), 3);
-        let svc_a = loaded.iter().find(|(n, _)| n == "svc-a").expect("svc-a");
-        assert_eq!(svc_a.1.state, ServiceLifecycleState::Active);
-        let svc_b = loaded.iter().find(|(n, _)| n == "svc-b").expect("svc-b");
-        assert_eq!(svc_b.1.state, ServiceLifecycleState::Quiet);
-        let svc_c = loaded.iter().find(|(n, _)| n == "svc-c").expect("svc-c");
-        assert_eq!(svc_c.1.state, ServiceLifecycleState::Silent);
-    }
-
-    #[test]
-    fn load_returns_none_when_corpus_empty() {
-        let writer = make_writer();
-        let adapter = CorpusLifecyclePersistence::new(writer);
-        let loaded = adapter.load_all().expect("infallible on empty");
-        assert!(loaded.is_none());
-    }
-
-    #[test]
-    fn save_persists_manual_override_field() {
-        let writer = make_writer();
-        let adapter = CorpusLifecyclePersistence::new(writer);
-        let entries = vec![(
-            "svc-pinned".to_string(),
-            ServiceRegistryEntry {
-                state: ServiceLifecycleState::Active,
-                first_seen_unix_nano: 1_000,
-                last_seen_unix_nano: 1_000,
-                last_transition_unix_nano: 1_000,
-                manual_override: Some(ServiceLifecycleState::Archived),
-            },
-        )];
-        adapter.save_all(&entries).expect("save");
-        let loaded = adapter.load_all().expect("load").expect("Some");
-        assert_eq!(loaded.len(), 1);
-        assert_eq!(
-            loaded[0].1.manual_override,
-            Some(ServiceLifecycleState::Archived)
-        );
-    }
-
-    #[test]
-    fn save_upsert_overwrites_same_service_state() {
-        let writer = make_writer();
-        let adapter = CorpusLifecyclePersistence::new(writer);
-        adapter
-            .save_all(&[(
-                "svc-x".to_string(),
-                entry(ServiceLifecycleState::Active, 1_000),
-            )])
-            .expect("save initial");
-        adapter
-            .save_all(&[(
-                "svc-x".to_string(),
-                entry(ServiceLifecycleState::Quiet, 2_000),
-            )])
-            .expect("save update");
-        let loaded = adapter.load_all().expect("load").expect("Some");
-        assert_eq!(loaded.len(), 1);
-        assert_eq!(loaded[0].1.state, ServiceLifecycleState::Quiet);
-    }
-
-    #[test]
-    fn parse_state_round_trips_all_seven_variants() {
-        for state in [
-            ServiceLifecycleState::Unknown,
-            ServiceLifecycleState::Bootstrapping,
-            ServiceLifecycleState::Active,
-            ServiceLifecycleState::Quiet,
-            ServiceLifecycleState::Silent,
-            ServiceLifecycleState::Dormant,
-            ServiceLifecycleState::Archived,
-        ] {
-            let label = state_label(state);
-            let parsed = parse_state(label).expect("round-trip");
-            assert_eq!(parsed, state);
-        }
-    }
-
-    #[test]
-    fn parse_state_returns_none_for_unknown_text() {
-        assert!(parse_state("not_a_state").is_none());
-    }
-
-    #[test]
-    fn corpus_error_keyring_unavailable_maps_to_sanitized_io() {
-        let err = corpus_error_to_lifecycle_error(CorpusError::KeyringUnavailable);
-        match err {
-            LifecycleError::Io { kind } => {
-                assert_eq!(kind, std::io::ErrorKind::PermissionDenied);
-            }
-            other => panic!("expected Io, got {other:?}"),
-        }
-    }
-
-    #[test]
-    fn corpus_error_query_failed_maps_to_sanitized_io() {
-        let err = corpus_error_to_lifecycle_error(CorpusError::QueryFailed);
-        assert!(matches!(err, LifecycleError::Io { .. }));
-    }
-
-    #[test]
-    fn corpus_error_decryption_failed_maps_to_deserialize() {
-        let err = corpus_error_to_lifecycle_error(CorpusError::DecryptionFailed);
-        assert!(matches!(err, LifecycleError::Deserialize));
-    }
-
-    #[test]
-    fn corpus_error_encryption_failed_maps_to_serialize() {
-        let err = corpus_error_to_lifecycle_error(CorpusError::EncryptionFailed);
-        assert!(matches!(err, LifecycleError::Serialize));
-    }
-
-    #[test]
-    fn corpus_error_schema_mismatch_maps_to_typed_variant() {
-        let err = corpus_error_to_lifecycle_error(CorpusError::SchemaVersionMismatch);
-        match err {
-            LifecycleError::SchemaVersionMismatch { expected, got } => {
-                assert_eq!(expected, SCHEMA_VERSION);
-                assert_eq!(got, 0);
-            }
-            other => panic!("expected SchemaVersionMismatch, got {other:?}"),
-        }
-    }
-
-    #[test]
-    fn save_load_preserves_per_service_timestamps() {
-        let writer = make_writer();
-        let adapter = CorpusLifecyclePersistence::new(writer);
-        let entry = ServiceRegistryEntry {
-            state: ServiceLifecycleState::Active,
-            first_seen_unix_nano: 1_111_111,
-            last_seen_unix_nano: 2_222_222,
-            last_transition_unix_nano: 3_333_333,
-            manual_override: None,
-        };
-        adapter
-            .save_all(&[("svc-ts".to_string(), entry)])
-            .expect("save");
-        let loaded = adapter.load_all().expect("load").expect("Some");
-        let (_, restored) = &loaded[0];
-        // first_seen is preserved by ON CONFLICT (not in SET clause).
-        assert_eq!(restored.first_seen_unix_nano, 1_111_111);
-        assert_eq!(restored.last_seen_unix_nano, 2_222_222);
-        assert_eq!(restored.last_transition_unix_nano, 3_333_333);
-    }
-
-    #[test]
-    fn pii_canary_not_present_in_corpus_db_raw_bytes() {
-        // service_name + manual_override columns are TEXT (not encrypted
-        // payload BLOB). Corpus-wide AES applies to BLOB columns only;
-        // service_name is queryable plaintext. This test documents the
-        // EXPECTED behavior — service.name IS visible at-rest in the
-        // service_registry table. PII scrubber call site BEFORE write
-        // is deferred to chunk #72 per plan §Acceptance Criteria →
-        // Deferred. Documenting via this test so future readers know
-        // the at-rest posture without re-checking the schema.
-        let tmp = TempDir::new().expect("tmp");
-        let db_path = tmp.path().join("lifecycle-canary.db");
-        let backend_key = [0x42u8; 32];
-        let backend: Arc<dyn KeychainBackend> = Arc::new(FakeKeychainBackend::with_seeded_key(
-            "corpus-key",
-            backend_key,
-        ));
-        let corpus = Corpus::open(db_path.clone(), backend).expect("open");
-        let writer: Arc<dyn CorpusWriter> = Arc::new(corpus);
-        let adapter = CorpusLifecyclePersistence::new(writer);
-        let canary = "SERVICE_CANARY_77f8d3";
-        adapter
-            .save_all(&[(
-                canary.to_string(),
-                entry(ServiceLifecycleState::Active, 1_000),
-            )])
-            .expect("save");
-        let raw = std::fs::read(&db_path).expect("read db");
-        // service_name TEXT column IS plaintext in service_registry per
-        // chunk #68 schema; chunk #71 documents this as a known gap
-        // closed at chunk #72 via scrubber-at-write.
-        let canary_position = raw
-            .windows(canary.len())
-            .position(|w| w == canary.as_bytes());
-        // Currently expected: canary IS present in raw bytes (TEXT column
-        // not encrypted). This assertion is INVERTED from the chunk #70
-        // pattern and serves as a code-aware reminder that scrubber wire-up
-        // is the chunk #72 work.
-        assert!(
-            canary_position.is_some(),
-            "service_name TEXT column expected plaintext at-rest until chunk #72 PII scrubber lands"
-        );
-    }
-}
+// Unit tests live at `pulse-app/tests/unit_lifecycle_persistence.rs`
+// (integration test crate) per session-learnings 2026-05-13 — Cargo.toml
+// `[lib] test = false` disables the lib auto-generated test binary on
+// Windows due to a WebView2 DLL load failure, so source-level
+// `#[cfg(test)] mod tests` would compile but never run.

@@ -94,6 +94,48 @@ pub struct StormStateSnapshot {
     pub autonomous_threshold: u64,
 }
 
+impl StormStateSnapshot {
+    /// Return a clone of the snapshot with each `FingerprintState.service`
+    /// field passed through the caller-supplied `scrub` closure (chunk #72).
+    /// `scrub` is dep-injected so the triage crate stays security-crate-free
+    /// per arch §Module dependency direction; the pulse-app
+    /// `CorpusStormPersistence::save` adapter wires
+    /// `security::scrubber::scrub_attribute` as the closure body. Required
+    /// for at-rest persistence: `FingerprintState.service` is user-content
+    /// classification (service.name from OTLP); scrubbing at persist time
+    /// closes the P-047 + P-048 spec gap surfaced in the consolidation audit
+    /// for the corpus `pipeline_metrics` row carrying this snapshot.
+    ///
+    /// Implementation accesses `FingerprintState`'s `pub(crate)` fields
+    /// directly (same crate); external callers cannot construct
+    /// `FingerprintState` outside the triage crate, so this method IS the
+    /// authoritative scrub path for the snapshot's service strings.
+    pub fn scrubbed_clone<F>(&self, scrub: F) -> Self
+    where
+        F: Fn(&str) -> String,
+    {
+        let entries = self
+            .entries
+            .iter()
+            .map(|(fp, state)| {
+                let scrubbed = FingerprintState {
+                    service: scrub(&state.service),
+                    timestamps_nanos: state.timestamps_nanos.clone(),
+                    last_emitted: state.last_emitted,
+                };
+                (*fp, scrubbed)
+            })
+            .collect();
+        Self {
+            entries,
+            window_seconds: self.window_seconds,
+            detection_window_seconds: self.detection_window_seconds,
+            suggested_threshold: self.suggested_threshold,
+            autonomous_threshold: self.autonomous_threshold,
+        }
+    }
+}
+
 /// Abstraction over durable storage for `RetryStormDetector`.
 /// `load` returns `Ok(None)` for cold-start (no prior storm_state blob);
 /// `Ok(Some(snapshot))` for resume-from-corpus. `save` writes the

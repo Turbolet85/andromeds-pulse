@@ -354,11 +354,39 @@ impl DrainMiner {
     /// Snapshot current state for persistence. Cheap (`O(N)` over templates +
     /// tree clone) but not free; callers should invoke periodically rather
     /// than per assignment.
+    ///
+    /// Each [`TemplateRecord::tokens`] entry is PII-scrubbed via
+    /// [`security::scrubber::scrub_attribute`] before being returned (chunk
+    /// #72). Pattern mirrors the in-memory DuckDB `log_templates` write at
+    /// [`write_template_to_table`]: join tokens, scrub, re-split. This makes
+    /// the persisted bincode payload (`CorpusDrainPersistence::save`) carry
+    /// already-redacted markers (`[REDACTED:{category}]`) rather than raw
+    /// matched content. Idempotent: a Redacted marker re-scrubbed is a no-op
+    /// per the security::scrubber primitive's first-match semantics.
     pub fn snapshot_state(&self) -> Result<DrainState, Error> {
         let state = self.state.lock().map_err(|_| Error::Drain {
             reason: "drain state mutex poisoned".to_string(),
         })?;
-        let mut templates: Vec<TemplateRecord> = state.templates.values().cloned().collect();
+        let mut templates: Vec<TemplateRecord> = state
+            .templates
+            .values()
+            .map(|t| {
+                let joined = t.tokens.join(" ");
+                let scrubbed = match scrub_attribute(&joined) {
+                    ScrubbedValue::Allowed(s) => s,
+                    ScrubbedValue::Redacted { category } => format!("[REDACTED:{}]", category),
+                };
+                let tokens: Vec<String> =
+                    scrubbed.split_whitespace().map(|s| s.to_string()).collect();
+                TemplateRecord {
+                    id: t.id,
+                    tokens,
+                    occurrence_count: t.occurrence_count,
+                    first_seen_unix_nano: t.first_seen_unix_nano,
+                    last_seen_unix_nano: t.last_seen_unix_nano,
+                }
+            })
+            .collect();
         templates.sort_by_key(|t| t.id);
         Ok(DrainState {
             schema_version: DRAIN_STATE_SCHEMA_VERSION,
@@ -588,6 +616,13 @@ impl DrainMiner {
 /// discipline extended to a new persistence surface; redacted matches store
 /// the stable `[REDACTED:{category}]` marker rather than the raw matched
 /// content.
+///
+/// Defense-in-depth alongside chunk #72 [`DrainMiner::snapshot_state`]
+/// scrub (which serves the corpus persist path via
+/// `CorpusDrainPersistence`) — the two persistence sinks (in-memory DuckDB
+/// and on-disk corpus SQLite) are independent, so keeping the scrub at
+/// both boundaries means a regression at one site does NOT silently leak
+/// through the other (idempotent — a Redacted marker re-scrubbed is a no-op).
 ///
 /// Caller passes the same `Connection` already held under the
 /// `Arc<Mutex<Connection>>` consumer guard — write happens on the same
@@ -849,6 +884,42 @@ mod tests {
     #[test]
     fn schema_version_constant_is_one() {
         assert_eq!(DRAIN_STATE_SCHEMA_VERSION, 1);
+    }
+
+    // Chunk #72 — PII negative canary at snapshot_state output. Verifies that
+    // template tokens are scrubbed BEFORE the corpus persist path
+    // (CorpusDrainPersistence::save bincode-serializes the returned
+    // DrainState). Closes the chunk #69 internal scrubber inconsistency
+    // surfaced in the consolidation audit §1.A.6.
+    #[test]
+    fn snapshot_state_returns_pii_scrubbed_template_tokens() {
+        let miner = make_miner();
+        miner.assign("user logged in from canary-snapshot-email@example.com on alpha-tier");
+        let state = miner.snapshot_state().expect("snapshot ok");
+        assert!(
+            !state.templates.is_empty(),
+            "expected at least one template after assign"
+        );
+        for template in &state.templates {
+            let joined = template.tokens.join(" ");
+            assert!(
+                !joined.contains("canary-snapshot-email@example.com"),
+                "raw email leaked into DrainState.templates[].tokens: {joined:?}"
+            );
+            assert!(
+                !joined.contains("@example.com"),
+                "raw email fragment leaked into tokens: {joined:?}"
+            );
+        }
+        let any_redacted = state
+            .templates
+            .iter()
+            .any(|t| t.tokens.iter().any(|tok| tok.contains("[REDACTED:email]")));
+        assert!(
+            any_redacted,
+            "expected snapshot_state output to carry [REDACTED:email] marker; got: {:?}",
+            state.templates
+        );
     }
 
     #[test]

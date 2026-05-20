@@ -15,6 +15,7 @@ use ingest::grpc::proto::opentelemetry::proto::metrics::v1::{
 };
 use ingest::grpc::proto::opentelemetry::proto::resource::v1::Resource;
 use ingest::grpc::proto::opentelemetry::proto::trace::v1::ResourceSpans;
+use security::scrubber::{ScrubbedValue, scrub_attribute};
 
 use crate::contract::Error;
 use crate::drain::DrainMiner;
@@ -286,8 +287,22 @@ fn extract_log_body(body: Option<&AnyValue>) -> String {
         return String::new();
     };
     match &av.value {
-        Some(any_value::Value::StringValue(s)) => s.clone(),
+        Some(any_value::Value::StringValue(s)) => scrub_otlp_field(s),
         _ => String::new(),
+    }
+}
+
+/// PII-scrub an OTLP attribute / log-body string before persistence (chunk
+/// #72). Mirrors the pattern at `crates/buffer/src/drain.rs:600-603`: render
+/// scrubber Redacted matches as `[REDACTED:{category}]` markers, preserving
+/// the chunk #68 + #69 stable-marker convention. Caller responsibility per
+/// `crates/corpus/src/contract.rs::CorpusWriter` trait docstring (the
+/// MUST pre-scrub contract enforced via per-adapter PII negative-canary
+/// tests).
+fn scrub_otlp_field(value: &str) -> String {
+    match scrub_attribute(value) {
+        ScrubbedValue::Allowed(s) => s,
+        ScrubbedValue::Redacted { category } => format!("[REDACTED:{}]", category),
     }
 }
 
@@ -333,10 +348,23 @@ pub(crate) fn build_span_events_record_batch(
                         extract_string_attribute(&event.attributes, "exception.message");
                     let exception_stacktrace =
                         extract_string_attribute(&event.attributes, "exception.stacktrace");
+                    // Compute fingerprint from RAW exception.type +
+                    // exception.stacktrace BEFORE the chunk #72 PII scrub —
+                    // content-stable fingerprints preserve cross-occurrence
+                    // dedupe semantics (two structurally identical exceptions
+                    // with PII-laden stacks fingerprint the same; scrubbing
+                    // first would collide unrelated exceptions whose only
+                    // shared bytes are the redaction marker).
                     let fingerprint = compute_exception_fingerprint(
                         exception_type.as_deref(),
                         exception_stacktrace.as_deref(),
                     );
+                    // Scrub message + stacktrace before the per-Vec push
+                    // (chunk #72 capability P-006 closure — exception.message
+                    // after PII scrubbing per P-047). exception_type stays
+                    // raw (class identifier, not user content).
+                    let exception_message = exception_message.map(|s| scrub_otlp_field(&s));
+                    let exception_stacktrace = exception_stacktrace.map(|s| scrub_otlp_field(&s));
 
                     trace_ids.push(span.trace_id.clone());
                     span_ids.push(span.span_id.clone());
@@ -1158,6 +1186,133 @@ mod tests {
             "expected at least one log_templates.template_content row to carry the \
              stable [REDACTED:email] marker (security::scrubber category label); \
              got templates: {templates:?}"
+        );
+    }
+
+    // Chunk #72 — PII negative canary at log_records.body persistence
+    // boundary (extract_log_body scrubs before push). Closes capability
+    // P-006 + P-047 + P-048 for the OTLP log body persistence path.
+    #[test]
+    fn append_logs_batch_pii_canary_in_body_redacted_in_log_records() {
+        let conn = fresh_conn_with_schema();
+        let canary_body = "auth failed for user canary-secret-email@example.com from 10.0.0.1";
+        let batch = vec![ResourceLogs {
+            resource: Some(make_resource("svc-log-canary")),
+            scope_logs: vec![ScopeLogs {
+                scope: None,
+                log_records: vec![LogRecord {
+                    time_unix_nano: 1_700_000_000_000_000_000,
+                    observed_time_unix_nano: 0,
+                    severity_number: 17,
+                    severity_text: "ERROR".into(),
+                    body: Some(AnyValue {
+                        value: Some(any_value::Value::StringValue(canary_body.into())),
+                    }),
+                    attributes: Vec::new(),
+                    dropped_attributes_count: 0,
+                    flags: 0,
+                    trace_id: Vec::new(),
+                    span_id: Vec::new(),
+                    event_name: String::new(),
+                }],
+                schema_url: String::new(),
+            }],
+            schema_url: String::new(),
+        }];
+
+        append_logs_batch(&conn, &batch).expect("append");
+
+        let body: String = conn
+            .query_row("SELECT body FROM log_records LIMIT 1", [], |r| r.get(0))
+            .expect("read body");
+        assert!(
+            !body.contains("canary-secret-email@example.com"),
+            "raw email leaked into log_records.body: {body:?}"
+        );
+        assert!(
+            !body.contains("@example.com"),
+            "raw email fragment leaked into log_records.body: {body:?}"
+        );
+        assert!(
+            body.contains("[REDACTED:email]"),
+            "expected log_records.body to carry [REDACTED:email] marker; got: {body:?}"
+        );
+    }
+
+    // Chunk #72 — PII negative canary at span_events.exception_message
+    // persistence boundary. Compute_exception_fingerprint runs BEFORE the
+    // scrub so fingerprints remain content-stable across scrubbed/raw forms.
+    #[test]
+    fn append_span_events_batch_pii_canary_in_exception_message_redacted() {
+        let conn = fresh_conn_with_schema();
+        let canary_message = "AuthError: token Bearer abc123def456ghi789jklXYZ rejected";
+        let span = span_with_events(
+            vec![1u8; 16],
+            vec![1u8; 8],
+            1_700_000_000_000_000_000,
+            vec![span_event(
+                "exception",
+                1_700_000_000_000_000_001,
+                exception_attrs(
+                    "AuthError",
+                    canary_message,
+                    "    at handler.rs:42\n    at main.rs:13",
+                ),
+            )],
+        );
+        append_span_events_batch(&conn, &wrap_spans(vec![span])).expect("append");
+
+        let stored: Option<String> = conn
+            .query_row(
+                "SELECT exception_message FROM span_events LIMIT 1",
+                [],
+                |r| r.get(0),
+            )
+            .expect("read exception_message");
+        let stored = stored.expect("exception_message populated");
+        assert!(
+            !stored.contains("Bearer abc123def456ghi789jklXYZ"),
+            "raw bearer token leaked into span_events.exception_message: {stored:?}"
+        );
+        assert!(
+            stored.contains("[REDACTED:bearer]"),
+            "expected span_events.exception_message to carry [REDACTED:bearer] marker; got: {stored:?}"
+        );
+    }
+
+    // Chunk #72 — PII negative canary at span_events.exception_stacktrace
+    // persistence boundary. Email-shaped canary embedded in stacktrace.
+    #[test]
+    fn append_span_events_batch_pii_canary_in_exception_stacktrace_redacted() {
+        let conn = fresh_conn_with_schema();
+        let canary_stack = "  at process(canary-stack-email@example.com)\n  at main(/home/user/.creds/private.key:42)";
+        let span = span_with_events(
+            vec![2u8; 16],
+            vec![2u8; 8],
+            1_700_000_000_000_000_000,
+            vec![span_event(
+                "exception",
+                1_700_000_000_000_000_001,
+                exception_attrs("RuntimeException", "boom", canary_stack),
+            )],
+        );
+        append_span_events_batch(&conn, &wrap_spans(vec![span])).expect("append");
+
+        let stored: Option<String> = conn
+            .query_row(
+                "SELECT exception_stacktrace FROM span_events LIMIT 1",
+                [],
+                |r| r.get(0),
+            )
+            .expect("read exception_stacktrace");
+        let stored = stored.expect("exception_stacktrace populated");
+        assert!(
+            !stored.contains("canary-stack-email@example.com"),
+            "raw email leaked into span_events.exception_stacktrace: {stored:?}"
+        );
+        assert!(
+            stored.contains("[REDACTED:email]"),
+            "expected span_events.exception_stacktrace to carry [REDACTED:email] marker; got: {stored:?}"
         );
     }
 

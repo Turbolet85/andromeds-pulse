@@ -102,7 +102,7 @@ mod atomic_i64_serde {
     }
 }
 
-#[derive(Debug, Default, Serialize, Deserialize)]
+#[derive(Debug, Default, Clone, Serialize, Deserialize)]
 struct ServiceBaseline {
     error_rate_ewma: EwmaTracker,
     activity_window: RollingWindow<u32>,
@@ -110,7 +110,7 @@ struct ServiceBaseline {
     activity_floor: ActivityFloor,
 }
 
-#[derive(Debug, Default, Serialize, Deserialize)]
+#[derive(Debug, Default, Clone, Serialize, Deserialize)]
 struct OperationBaseline {
     latency_tdigest: TDigestPair,
 }
@@ -278,6 +278,49 @@ impl BaselineState {
         self.operations
             .get(&key)
             .and_then(|op| op.latency_tdigest.percentile(q))
+    }
+
+    /// Return a clone of the state with each `services` DashMap key and each
+    /// `operations` DashMap key passed through the caller-supplied `scrub`
+    /// closure (chunk #72). `scrub` is dep-injected so the triage crate stays
+    /// security-crate-free per arch §Module dependency direction; the pulse-app
+    /// `CorpusBaselinePersistence::save` adapter wires
+    /// `security::scrubber::scrub_attribute` as the closure body. Required for
+    /// at-rest persistence: `services` keys are raw `service.name` from OTLP
+    /// (user-content); `operations` keys are `format!("{service}/{:016x}",
+    /// service, hash)` so the prefix carries the same PII risk and is scrubbed
+    /// by splitting on the first `/` and rejoining with the scrubbed prefix.
+    ///
+    /// Aggregation-collapse caveat (per chunk #72 plan §Implementation Note 3):
+    /// PII-shaped `service.name` keys collapse into the same scrubbed bucket
+    /// (e.g., two distinct misconfigured services that both look like emails
+    /// merge into one `[REDACTED:email]` entry). Acceptable security > attribution
+    /// trade-off for misconfigured services; typical service names
+    /// (`web-api`, `auth-service`) flow through unchanged.
+    pub fn scrubbed_clone<F>(&self, scrub: F) -> Self
+    where
+        F: Fn(&str) -> String,
+    {
+        let cloned = Self::new();
+        cloned.set_persisted_at_unix_nanos(self.persisted_at_unix_nanos());
+        for entry in self.services.iter() {
+            cloned
+                .services
+                .insert(scrub(entry.key()), entry.value().clone());
+        }
+        for entry in self.operations.iter() {
+            let key = entry.key();
+            let scrubbed_key = match key.split_once('/') {
+                Some((service_prefix, hash_suffix)) => {
+                    format!("{}/{}", scrub(service_prefix), hash_suffix)
+                }
+                None => key.clone(),
+            };
+            cloned
+                .operations
+                .insert(scrubbed_key, entry.value().clone());
+        }
+        cloned
     }
 
     /// Snapshot all per-service baseline metrics. Called from the chunk #62
