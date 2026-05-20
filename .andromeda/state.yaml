@@ -1,13 +1,13 @@
 schema_version: 2
-last_wrap: 2026-05-20T20:30:00Z
-last_reconcile: 2026-05-20T20:30:00Z
+last_wrap: 2026-05-20T22:00:00Z
+last_reconcile: 2026-05-20T22:00:00Z
 
 last_completed_chunk:
   route_index: 71
   title: "ServiceRegistry + RetryStormState → corpus migration — DashMap → corpus via LifecyclePersistence + StormPersistence traits (capabilities P-017/P-018/P-027; detail in pulse-v0_2_0-route §71)"
   epoch: 9
   committed_at: 2026-05-20T20:30:00Z
-  commit_sha: "95a9619"
+  commit_sha: "2537e44"
   commit_subject: "feat(triage,corpus,pulse-app): chunk #71 ServiceRegistry + RetryStormState → corpus migration"
 
 # Session 105 wrap (2026-05-20): chunk #71 ServiceRegistry+RetryStormState → corpus migration
@@ -45,21 +45,22 @@ plan_freshness:
   tests_mtime: 2026-05-10T12:55:51Z
   obs_mtime: 2026-05-08T18:00:16Z
   a11y_mtime: 2026-05-02T21:45:23Z
-  route_mtime: 2026-05-20T16:59:01Z
+  route_mtime: 2026-05-20T21:00:00Z
   input_mtime: 2026-05-02T06:52:58Z
 
 living_artifact_freshness:
-  dep_tree_reconciled_at: 2026-05-20T20:30:00Z
-  api_surface_reconciled_at: 2026-05-20T20:30:00Z
+  dep_tree_reconciled_at: 2026-05-20T22:00:00Z
+  api_surface_reconciled_at: 2026-05-20T22:00:00Z
   most_recent_code_mtime: 2026-05-20T20:25:00Z
   reconcile_failed: false
   api_surface_deferred: true
-  api_surface_deferred_reason: "per-crate cargo +nightly public-api iteration across 14 crates exceeds wrap budget (estimated 7-14 min vs ~3 min wrap budget); 11th consecutive deferral per sessions 91-104 pattern; session 105 = chunk #71 ServiceRegistry+RetryStormState → corpus migration implementation; SUBSTANTIAL public surface delta this wrap (~25 new pub items across triage + corpus + pulse-app: LifecyclePersistence trait + StormPersistence trait + LifecycleError + StormError + StormStateSnapshot + FingerprintState made pub + CorpusLifecyclePersistence + CorpusStormPersistence adapters + ServiceRegistry::set_state_on_corpus_restore + InMemoryServiceRegistry::from_entries + RetryStormDetector::snapshot/restore_from_snapshot + CorpusWriter::save_service_registry_row + CorpusWriter::load_all_service_registry_rows + ServiceRegistryRowRaw + 26 new pub use re-exports through triage::contract); full pub surface delta documented inline (api-surface.md METADATA session 105 note); next /implement-followed wrap (likely chunk #72 PII scrubber coverage extension) is natural re-baseline checkpoint when both #70 + #71 + #72 deltas can fold into one tooling pass"
+  api_surface_deferred_reason: "per-crate cargo +nightly public-api iteration across 14 crates exceeds wrap budget (estimated 7-14 min vs ~3 min wrap budget); 12th consecutive deferral per sessions 91-105 pattern; session 106 = META spec-only cycle (chunk #72 PII scrubber coverage extension route registration via Type 7 Form 1 amendment + delta-rerun; zero Rust source changes); substantive public API surface byte-identical to session 105 baseline by construction; next /implement-followed wrap (likely chunk #72 implementation) is natural re-baseline checkpoint when chunk #70+#71+#72 pub surface deltas fold into one tooling pass"
 
 drift_warnings: []
 
 spec_amendments:
-  active:
+  active: []
+  archive:
     - amendment_id: 2026-05-20T21-00-00-append-chunk-72-pii-scrubber-coverage-extension
       plans:
         - path: route.md
@@ -67,38 +68,12 @@ spec_amendments:
             - "§1 Route Scope Summary (Total chunks mechanical update per Proposal 6)"
             - "§2 Roadmap (Epoch 9 body)"
             - "§3 Decisions Log"
-          decisions_log_section: "2026-05-20 — Append chunk #72 PII scrubber coverage extension (--allow-route-append)"
-      trigger:
-        chunk: null
-        phase: null
-        harness: "user-driven via /andromeda-evolve"
-      authority:
-        winning_plan: null
-        winning_tier: "pipeline state"
-        losing_plan: route.md
-        losing_concern: chunk-list-stale-vs-pipeline-reality
-        rationale: "v3 Phase 6 Consolidation plan §72 declares PII scrubber coverage extension; scrubber invoked at single production site (drain.rs:600); OTLP appender + chunk #71 lifecycle write path bypass; closes P-006/P-047/P-048 findings."
-      impl_files_synced: []
-      expected_propagation:
-        - "CLAUDE.md (GENERATED:setup:pointer-table — chunk-count line: 9 epochs / 71 chunks → 9 epochs / 72 chunks)"
-      marker_path: .andromeda/runs/2026-05-20T21-00-00-spec-amendment-append-chunk-72-pii-scrubber-coverage-extension/amendment.md
-      applied_at: 2026-05-20T21:00:00Z
-      noted_at: null
+      decisions_log_sections:
+        - "2026-05-20 — Append chunk #72 PII scrubber coverage extension (--allow-route-append)"
       propagated_by_run: .andromeda/runs/2026-05-20T21-05-00-setup-project-delta/
-      archived_at: null
-      verification_status: clean
+      archived_at: 2026-05-20T22:00:00Z
       flag_used: --allow-route-append
       form: 1
-      route_section_modified: "Epoch 9 — Foundation v0.2.0"
-      chunks_added:
-        - position: 72
-          text: "PII scrubber coverage extension — extend scrub_attribute to OTLP appender + Drain corpus persist paths; uniform pre-scrub at persistence boundary (capabilities P-006/P-047/P-048; detail in pulse-v0_2_0-route §72)."
-      chunks_renumbered: []
-      motivation: "v3 Phase 6 Consolidation plan §72 + audit Section 1.B + 1.C single-site scrubber coverage gap (drain.rs:600 only) + chunk #65 appender.rs:332-356 raw exception.message writes + chunk #71 plan §Acceptance Criteria → Deferred (scrubber call site at lifecycle write path explicitly deferred to #72)"
-      confirmed_shift: false
-      scope_summary_updates:
-        - "Total chunks: 71 → 72"
-  archive:
     - amendment_id: 2026-05-20T18-55-00-append-chunk-71-lifecycle-storm-corpus-migration
       plans:
         - path: route.md
@@ -548,4 +523,4 @@ spec_amendments:
       propagated_by_run: .andromeda/runs/2026-05-11T19-00-00-setup-project-delta/
       archived_at: 2026-05-11T19:25:00Z
 
-session_count: 105
+session_count: 106
