@@ -56,12 +56,16 @@ pub use crate::cue::{
 // already re-exported from `cue` (both equal 32; sharing avoids ambiguity).
 pub use crate::pattern::{
     BypassReason, BypassTrigger, DEFAULT_AUTONOMOUS_THRESHOLD,
-    DEFAULT_DETECTION_SUB_WINDOW_SECONDS, DEFAULT_HEARTBEAT_INTERVAL, DEFAULT_STORM_WINDOW_SECONDS,
-    DEFAULT_SUGGESTED_THRESHOLD, DetectCycleStats, RestartDetector, RestartEvent,
-    RestartEventBroadcast, RetryStormDetector, STREAM_NAME_RESTART_EVENTS, StormCycleStats,
-    SuppressionOutcome, SuppressionParams, SuppressionState, evaluate_with_suppression,
-    observe_and_dispatch, observe_and_dispatch_storm, record_occurrence, run_one_detect_cycle,
-    run_one_storm_cycle, start_restart_detector, start_storm_detector,
+    DEFAULT_DETECTION_SUB_WINDOW_SECONDS, DEFAULT_HEARTBEAT_INTERVAL,
+    DEFAULT_STORM_PERSIST_INTERVAL_SECS, DEFAULT_STORM_WINDOW_SECONDS, DEFAULT_SUGGESTED_THRESHOLD,
+    DetectCycleStats, FingerprintState, RestartDetector, RestartEvent, RestartEventBroadcast,
+    RetryStormDetector, STORM_PERSISTENCE_KIND, STREAM_NAME_RESTART_EVENTS, StormCycleStats,
+    StormError, StormPersistence, StormStateSnapshot, SuppressionOutcome, SuppressionParams,
+    SuppressionState, TARGET_PATTERN_STORM_CORPUS_RESTORE, TARGET_PATTERN_STORM_PERSIST,
+    TARGET_PATTERN_STORM_PERSIST_ERROR, evaluate_with_suppression, observe_and_dispatch,
+    observe_and_dispatch_storm, persist_storm_on_shutdown, record_occurrence, run_one_detect_cycle,
+    run_one_storm_cycle, run_storm_persist_cycle, run_storm_persist_loop, start_restart_detector,
+    start_storm_detector,
 };
 
 // Chunk #67 — service registry + lifecycle state machine. Re-export
@@ -71,11 +75,14 @@ pub use crate::pattern::{
 // value is already re-exported from `cue` + `pattern` (all equal 32).
 pub use crate::lifecycle::{
     ACTIVE_TO_QUIET_THRESHOLD_SECONDS, DEFAULT_LIFECYCLE_HEARTBEAT_INTERVAL,
-    InMemoryServiceRegistry, QUIET_TO_SILENT_FALLBACK_SECONDS, STREAM_NAME_SERVICE_LIFECYCLE,
-    ServiceLifecycleBroadcast, ServiceLifecycleEvent, ServiceLifecycleState, ServiceListItem,
-    ServiceRegistry, ServiceRegistryEntry, TARGET_LIFECYCLE_CORPUS_RESTORE, TARGET_LIFECYCLE_TICK,
-    TARGET_LIFECYCLE_TRANSITION, TARGET_METRIC_LIFECYCLE_STATE_DISTRIBUTION,
+    DEFAULT_LIFECYCLE_PERSIST_INTERVAL_SECS, InMemoryServiceRegistry, LIFECYCLE_PERSISTENCE_KIND,
+    LifecycleError, LifecyclePersistence, QUIET_TO_SILENT_FALLBACK_SECONDS,
+    STREAM_NAME_SERVICE_LIFECYCLE, ServiceLifecycleBroadcast, ServiceLifecycleEvent,
+    ServiceLifecycleState, ServiceListItem, ServiceRegistry, ServiceRegistryEntry,
+    TARGET_LIFECYCLE_CORPUS_RESTORE, TARGET_LIFECYCLE_PERSIST, TARGET_LIFECYCLE_PERSIST_ERROR,
+    TARGET_LIFECYCLE_TICK, TARGET_LIFECYCLE_TRANSITION, TARGET_METRIC_LIFECYCLE_STATE_DISTRIBUTION,
     TARGET_PIPELINE_L1B_TRACKED_SERVICES_TOTAL, TransitionTrigger, is_valid_transition,
+    persist_lifecycle_on_shutdown, run_lifecycle_persist_cycle, run_lifecycle_persist_loop,
     start_lifecycle_heartbeat, state_index, state_label,
 };
 

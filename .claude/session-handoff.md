@@ -1,98 +1,125 @@
 # Session Handoff
 
-**Last Updated:** 2026-05-20T19:20:00Z
+**Last Updated:** 2026-05-20T20:30:00Z
 **Branch:** main
 **Session End Status:** clean
-**Last Commit:** (pending — wrap commit composed this Phase 10; closes session 104 / chunk #71 route registration + delta propagation maintenance cycle)
+**Last Commit:** (pending — wrap commit composed this Phase 10; closes session 105 / chunk #71 ServiceRegistry+RetryStormState→corpus migration implementation)
 
 ## Current State
 
-- **Last completed chunk:** route#70 "BaselineState → corpus migration" (committed 2026-05-20T16:42:18Z at commit 91469f9; state.yaml.commit_sha corrected from orphan "9459d14" → "91469f9" this wrap — State H housekeeping fix per new-session 104 dashboard finding)
-- **Next chunk:** route#71 "ServiceRegistry + RetryStormState → corpus migration" (registered in route.md §2 Epoch 9 this session via /andromeda-evolve --allow-route-append + propagated via /andromeda-setup-project --delta; ready for /andromeda-phase planning)
-- **In-progress phase:** none (chunk #70 closed at session 103; chunk #71 registered but planning not yet started)
-- **Phase artifacts present:** `.andromeda/phases/phase-{1..67}/` unchanged from session 103 (phase-67 = chunk #70 plan/combined/research; phase-68 not yet created — chunk #71 phase planning is the next /andromeda-phase action)
+- **Last completed chunk:** route#71 "ServiceRegistry + RetryStormState → corpus migration — DashMap → corpus via LifecyclePersistence + StormPersistence traits (capabilities P-017/P-018/P-027)" (committed this wrap; will be SHA-fixup amended per Phase 10 step 4)
+- **Next chunk:** route#72 "PII scrubber coverage extension" (per v3 Phase 6 Consolidation plan + chunk #71 plan §Acceptance Criteria → Deferred — scrubber call site at lifecycle write path explicitly deferred to #72)
+- **In-progress phase:** none (chunk #71 closed at session 105; #72 not yet phase-planned)
+- **Phase artifacts present:** `.andromeda/phases/phase-{1..68}/` (phase-68 = chunk #71 plan/combined/research from session 104+105; phase-69 will be chunk #72 phase-plan)
 
 ## Andromeda State Detection (states A-K)
 
 **Zero active state findings post-wrap. ALL CLEAR. ✓**
 
-- A: 0 orphan runs (session 104 run-dirs — evolve + spec-amendment + setup-project-delta — all have expected output files: evolution-plan.md / amendment.md / materialization-plan-delta.md)
+- A: 0 orphan runs (session 105 has no /andromeda-* run-dirs; pure /implement + /wrap)
 - B: no project.yaml in this project layout (Tauri-only — N/A)
-- C: arch.md mtime (2026-05-19 20:56:34Z) < CLAUDE.md mtime (just updated this wrap via delta-rerun). CLEAN.
-- D: route.md present with 71 chunks (chunk #71 registered this session). CLEAN.
-- E: chunk #71 not yet phase-planned (phase-68/ absent — expected; planning is next action)
-- F: no in-progress implementation (chunk #71 ready for /andromeda-phase but not yet started)
+- C: arch.md mtime (2026-05-19 20:56:34Z) < CLAUDE.md mtime (session 104 wrap 2026-05-20). CLEAN.
+- D: route.md present with 71 chunks. CLEAN.
+- E: chunk #72 not yet phase-planned (phase-69/ absent — expected; planning is next action)
+- F: no in-progress implementation (chunk #71 implementation complete this session; #72 not yet started)
 - G: 0 concurrent runs
-- H: state.yaml.last_completed_chunk.commit_sha corrected this wrap from orphan "9459d14" (pre-amend artifact from session 103 wrap that bundled via `git commit --amend`) → "91469f9" (actual chunk #70 implementation commit verified via `git log -1 --grep="chunk #70"`). committed_at + commit_subject also corrected to match real feat commit. CLEAN post-fix.
-- I: plan_freshness coherent (route.md mtime advance from /evolve captured this wrap as 2026-05-20T16:59:01Z; arch.md unchanged at 2026-05-19T20:56:34Z; all other plan mtimes unchanged)
-- J: living artifacts refreshed this wrap (Phase 5; dep-tree 444 lines unchanged from session 103 baseline; api-surface 10th consecutive deferral documented). CLEAN.
+- H: state.yaml.last_completed_chunk advanced 70 → 71 this wrap; commit_sha = "pending" initially → SHA-fixup amend at Phase 10 step 4 → real short SHA. CLEAN post-amend.
+- I: plan_freshness coherent (no specialist plan changes this session; all 9 upstream mtimes unchanged)
+- J: living artifacts refreshed this wrap (Phase 5; dep-tree 444 lines unchanged from session 104 baseline; api-surface 11th consecutive deferral documented with substantial inline pub-surface delta). CLEAN.
 - K: in_progress null. CLEAN.
 
 ## Drift Detection (6 dimensions)
 
 **Zero active drift post-wrap. ALL CLEAR. ✓**
 
-- D1 (living artifact staleness): dep_tree_reconciled_at + api_surface_reconciled_at = 2026-05-20T19:20:00Z (just now); most_recent_code_mtime = 2026-05-20T16:18:54Z (unchanged from session 103 — zero .rs changes this session). CLEAN.
-- D2 (wrong content): dep-tree.md byte-identical at 444 lines (chunk #71 added zero new external deps); api-surface deferred per documented 10th-consecutive policy. CLEAN.
-- D3 (plan-to-code drift): workspace crates (14 = ingest/buffer/viz/ui-bridge/snapshot/curation/triage/workspace-detector/plugins/mcp-server/corpus/security/pulse-app/xtask) match arch §Occupied Resources + cargo metadata exactly; capability-drift clean (no TauRPC delta); auth lib N/A; tests cargo nextest stable; logging tracing stable. CLEAN.
+- D1 (living artifact staleness): dep_tree_reconciled_at + api_surface_reconciled_at = 2026-05-20T20:30:00Z (this wrap); most_recent_code_mtime = ~2026-05-20T20:25:00Z (chunk #71 source files). CLEAN.
+- D2 (wrong content): dep-tree.md verified byte-identical 444 lines (chunk #71 added zero new external deps); api-surface deferred per documented 11th consecutive policy with substantial inline pub-surface delta capture. CLEAN.
+- D3 (plan-to-code drift): workspace crates (14) match arch §Occupied Resources + cargo metadata exactly; capability-drift clean (no TauRPC delta); cargo deny duplicate failure (hashlink + rand_chacha) PRE-EXISTING on HEAD pre-session-105 per stash verification — OUT-OF-SCOPE for chunk #71 (not introduced this session). CLEAN for chunk #71 scope.
 - D4 (plan-to-plan drift): no specialist plan changes this session. CLEAN.
-- D5 (plan-to-CLAUDE.md drift): all 9 upstream mtimes ≤ CLAUDE.md mtime (route.md 16:59:01Z < CLAUDE.md 17:01:54Z post-delta-rerun; arch/security/design/etc. all older). CLEAN.
-- D6 (route chunk progression): chunk #70 = last_completed (state.yaml.commit_sha now correctly = 91469f9 after housekeeping fix); chunk #71 registered in route but not yet implemented (no chunk-progression commits this session). CLEAN.
+- D5 (plan-to-CLAUDE.md drift): all 9 upstream mtimes ≤ CLAUDE.md mtime (CLAUDE.md was last updated session 104 wrap; no upstream plan touched this session). CLEAN.
+- D6 (route chunk progression): chunk #71 implementation commit lands this wrap; state.yaml.last_completed_chunk advanced 70 → 71. CLEAN post-advance.
 
 ## Spec Amendments (this session)
 
-**Archived this session: 1 amendment**
+**Zero amendments applied or archived this session.**
 
-- `2026-05-20T18-55-00-append-chunk-71-lifecycle-storm-corpus-migration`
-  - **Plan(s):** route.md (§1 Total chunks 70→71 mechanical, §2 Roadmap Epoch 9 +chunk #71, §3 Decisions Log +entry)
-  - **Decisions Log:** route.md §3 — 2026-05-20 — "Append chunk #71 ServiceRegistry + RetryStormState → corpus migration (--allow-route-append)"
-  - **Trigger:** user-driven evolution via /andromeda-evolve (Type 7 Form 1: chunk append to existing epoch)
-  - **Authority resolution:** pipeline state > route.md (chunk-list-stale-vs-pipeline-reality; cites v3 Phase 6 Consolidation plan + chunk #66 storm.rs deferred-persistence broken promise + chunk #67 InMemoryServiceRegistry P-027 verification gap)
-  - **Lifecycle (full cycle this wrap):** applied 2026-05-20T18:55:00Z → noted 2026-05-20T19:20:00Z → propagated 2026-05-20T19:05:00Z → archived 2026-05-20T19:20:00Z
-  - **Marker:** `.andromeda/runs/2026-05-20T18-55-00-spec-amendment-append-chunk-71-lifecycle-storm-corpus-migration/amendment.md`
-  - **Propagation run:** `.andromeda/runs/2026-05-20T19-05-00-setup-project-delta/`
-  - **Cascade:** CLAUDE.md GENERATED:setup:pointer-table line 56: "(9 epochs / 70 chunks)" → "(9 epochs / 71 chunks)" (Proposal 5 Type 7 conditional cascade pre-populated)
-
-state.yaml.spec_amendments.active = [] post-wrap; archive +1 entry (compact form).
+(none this session — chunk #71 implementation only; no spec edits required)
 
 ## Key Decisions This Session
 
-- **State H stale-SHA housekeeping fix:** state.yaml.last_completed_chunk.commit_sha corrected from "9459d14" (orphan from pre-amend SHA in session 103 wrap; the wrap commit was bundled into the feat commit via `git commit --amend` post-write, leaving the original SHA as an unreferenced object) → "91469f9" (actual chunk #70 implementation commit at HEAD). commit_subject + committed_at also corrected to match real feat commit shape. Captures the new-session-104 dashboard finding from earlier this session.
-- **api-surface 10th consecutive deferral:** Continues the documented pragmatic-deviation pattern (sessions 91-103 + 104). Spec-only sessions skip the 7-14 min per-crate `cargo +nightly public-api --simplified` iteration since public API surface is byte-identical by construction. Next implementation wrap (chunk #71) is the natural re-baseline checkpoint when CorpusLifecyclePersistence + CorpusStormPersistence adapters land.
-- **Clean wrap-only commit:** This wrap commit is maintenance-only (handoff + state.yaml + living artifacts). Unlike session 103's bundled feat+wrap pattern, session 104 has a clean separation: the chunk #71 amendment was committed in the prior delta-rerun commit 286cba7; this wrap commit only contains the wrap-session artifacts.
+- **Schema choice for lifecycle persistence: per-row UPSERT on `service_registry` table.** Service registry's existing pre-allocated columns (state TEXT, three timestamp INTEGERs, manual_override TEXT, service_name UNIQUE key) map 1:1 onto `ServiceRegistryEntry` fields. Chose dedicated table over blob slot for schema discoverability. CorpusWriter trait extended with 2 new methods (`save_service_registry_row` UPSERT via `ON CONFLICT(service_name) DO UPDATE SET ...` + `load_all_service_registry_rows`).
+- **Schema choice for storm persistence: `pipeline_metrics` blob slot.** Mirrors baseline (l1b) + drain (l1c) precedent — metric_name="storm_state" + layer="l2". Single load/save pair via existing `load_pipeline_metric` / `save_pipeline_metric` methods. Stored `StormStateSnapshot` Vec<(KeyBytes, FingerprintState)> + config knobs via bincode.
+- **`FingerprintState` made `pub` with `pub(crate)` fields** to enable serde-via-bincode across crate boundaries while keeping internal layout crate-private. Promoted to Tier 3 session-learning (novel reusable Rust visibility pattern).
+- **set_state_on_corpus_restore semantics: self-loop event with CorpusRestore trigger.** `from_state == to_state == restored_state`; bypasses `is_valid_transition` runtime gate intentionally. Boot-path restore is conceptually no-transition-but-mark for downstream constellation observer cascade. Documented in trait method docstring.
+- **PII scrubber at lifecycle write path explicitly DEFERRED to chunk #72.** Service.name strings persist plaintext in `service_registry.service_name` TEXT column (cell-level AES applies only to BLOB columns); deferral captured in chunk plan + handoff. Storm fingerprints non-PII by construction; FingerprintState.service field PII-bearing but protected by pipeline_metrics blob encryption.
 
 ## Files Modified
 
 This session's wrap commit will bundle:
 
-- `.claude/session-handoff.md` — this file (atomic overwrite per session-state-contract.md Part A)
-- `.andromeda/state.yaml` — last_wrap + last_reconcile timestamps + last_completed_chunk SHA + timestamp + subject correction (State H housekeeping) + plan_freshness route_mtime advance (2026-05-19T23:25:30Z → 2026-05-20T16:59:01Z) + living_artifact_freshness reconciled_at timestamps + spec_amendments lifecycle progression (active 1 → 0; archive prepended with chunk #71 compact entry) + session_count 103 → 104
-- `.andromeda/context/dependency-tree.md` — Last reconciled timestamp + session 104 maintenance note appended to METADATA Maintenance line (LIVING block unchanged at 444 lines)
-- `.andromeda/context/api-surface.md` — Last reconciled timestamp + session 104 deferred note (10th consecutive deferral) appended
+### New files (4)
+- `crates/triage/src/lifecycle/persistence.rs` (179 lines; LifecyclePersistence trait + LifecycleError enum + persist loop + 6 tests)
+- `crates/triage/src/pattern/persistence.rs` (293 lines; StormPersistence trait + StormStateSnapshot + StormError + persist loop + 7 tests)
+- `pulse-app/src/lifecycle_persistence.rs` (325 lines; CorpusLifecyclePersistence adapter + corpus_error_to_lifecycle_error + parse_state + 12 tests)
+- `pulse-app/src/storm_persistence.rs` (236 lines; CorpusStormPersistence adapter + corpus_error_to_storm_error + 11 tests)
 
-Total: 4 files modified. Session 104 prior commit (286cba7) already bundled route.md + state.yaml + CLAUDE.md changes from /evolve + /setup-project --delta.
+### Modified files (11)
+- `crates/triage/src/contract.rs` (re-exports for 26 new chunk #71 items)
+- `crates/triage/src/lifecycle/mod.rs` (mod persistence + re-export block)
+- `crates/triage/src/lifecycle/registry.rs` (ServiceRegistry trait +1 method; InMemoryServiceRegistry +1 constructor; docstring update)
+- `crates/triage/src/lifecycle/state_machine.rs` (TransitionTrigger::CorpusRestore docstring update)
+- `crates/triage/src/pattern/mod.rs` (mod persistence + re-exports; FingerprintState exposed)
+- `crates/triage/src/pattern/storm.rs` (FingerprintState Clone+PartialEq+Serialize+Deserialize derives + made pub; RetryStormDetector snapshot/restore_from_snapshot methods; docstring update)
+- `crates/corpus/src/contract.rs` (CorpusWriter trait +2 methods; ServiceRegistryRowRaw struct added; impl block extended)
+- `pulse-app/src/lib.rs` (pub mod lifecycle_persistence + storm_persistence)
+- `pulse-app/src/main.rs` (imports, trait Arc derives, None-case warns, storm + lifecycle corpus-restore boot paths, periodic persist loop spawns inside setup closure)
+- `pulse-app/src/observability.rs` (7 new AllowList entries + 1 EXTENDED triage.lifecycle.corpus_restore + 4 new probe tests)
+- `pulse-app/ui/src/bindings/index.ts` (regenerated via mcp-server-feature nextest — no IPC delta; chunk #71 introduces zero new TauRPC procedures)
+
+### Living artifacts + handoff + state (this wrap commit only)
+- `.claude/session-handoff.md` — this file (atomic overwrite per session-state-contract.md Part A)
+- `.andromeda/state.yaml` — last_completed_chunk advanced 70→71 + commit_sha "pending"→amend; session_count 104→105; plan_freshness mtimes refreshed; living_artifact_freshness reconciled_at timestamps; spec_amendments unchanged (no amendments this session)
+- `.andromeda/context/dependency-tree.md` — Last reconciled timestamp + session 105 Maintenance note appended (LIVING block unchanged at 444 lines)
+- `.andromeda/context/api-surface.md` — Last reconciled timestamp + session 105 inline pub-surface delta documented (11th consecutive per-crate iteration deferral)
+- `.claude/docs/session-learnings.md` — 1 new Tier 3 entry (pub-type-with-pub(crate)-fields cross-crate serde pattern)
+
+Total: 4 new + 11 modified source files + 5 wrap-housekeeping files.
 
 ## Curation Summary (this wrap)
 
-- **Tier 1 (CLAUDE.md USER:session-learnings):** 0 additions (no novel universal rules surfaced)
+- **Tier 1 (CLAUDE.md USER:session-learnings):** 0 additions
 - **Tier 2 (`.claude/rules/*/Session Additions`):** 0 additions
-- **Tier 3 (`.claude/docs/session-learnings.md`):** 0 additions
-- **Filtered:** 0 duplicates / 0 task-specific / 0 conflicts / 1 deferred (State H pre-amend SHA hangover pattern — confidence 0.6, redundant with /wrap-session Phase 10 step 4 + Phase 8 step 3 protocol)
+- **Tier 3 (`.claude/docs/session-learnings.md`):** 1 addition (pub-type-with-pub(crate)-fields for cross-crate serde via bincode)
+- **Filtered:** 0 duplicates / 0 task-specific / 0 conflicts / 2 deferred (stale corpus row recovery pattern — confidence 0.5, mostly plan-documented; self-loop boot restore event — confidence 0.65, mostly plan-documented)
 
-Session 104 was a clean spec-only maintenance session (registration + propagation only); no novel patterns surfaced. The State H housekeeping fix demonstrates the new-session→wrap-session healing loop working as designed (new-session detected; wrap-session corrected).
+Session 105 implemented chunk #71 by mirroring chunk #70 + #69 patterns almost exactly; most patterns already documented in prior session-learnings. The 1 novel learning (pub-type-pub(crate)-fields visibility pattern for cross-crate serde) is broadly reusable for any future serde-derive-across-crate-boundary work.
 
-Andromeda improvements added: 0 (no new dogfood friction surfaced).
+Andromeda improvements added: 0 (no new dogfood friction surfaced; chunk #71 was a clean precedent-following implementation).
 
 ## Last Failed Command
 
-(none — session 104 ran clean across /clear → /andromeda-new-session → /andromeda-evolve --allow-route-append → /andromeda-setup-project --delta → this wrap.)
+(none — session 105 ran clean across /clear → /andromeda-new-session → /andromeda-phase → /andromeda-implement → this wrap. One transient runtime observation in /implement Phase 2b: `triage.pattern.storm.persist.error` fired once with `error_category=serialize` during second boot's storm corpus restore — graceful fallback fired correctly per plan; subsequent persist tick overwrote with current schema. Not a failed command; documented observation.)
 
 ## Tests Status
 
-**Passing — quick smoke at Phase 2:**
-- `cargo nextest run -p security --profile ci` ✓ (14/14 in 0.135s — 0 source changes since session 103 wrap GREEN-verified 1121/1121)
+**Passing — full workspace verified at /implement Phase 2:**
+- `cargo nextest run --workspace --profile ci` ✓ **1133/1133 tests pass** (273 triage + 43 corpus + 80 pulse-app + others)
+- `cargo fmt --check` ✓ clean
+- `cargo clippy --workspace --all-targets --all-features -- -D warnings` ✓ clean
+- `cargo xtask capability-drift` ✓ clean (after mcp-server-feature bindings.ts regen; grep returns 1)
+- `cargo nextest run -p triage -E 'test(proptest)'` ✓ property-based invariants preserved
+- ⚠ `cargo deny check bans` PRE-EXISTING FAILURE (hashlink + rand_chacha duplicates verified on HEAD pre-this-session via stash check) — OUT-OF-SCOPE for chunk #71 (chunk added zero new transitive deps; workspace-level pre-existing dep issue)
+- Wrap-time re-verify (Phase 2): `cargo nextest run -p triage -p corpus --profile ci` 316/316 pass
 
-Full workspace re-run skipped per wrap budget (no source changes this session — chunk #71 registration touched no .rs files; verified via `find crates pulse-app xtask -name '*.rs' -newer .andromeda/context/dependency-tree.md` returning empty). Next /implement wrap (chunk #71 implementation) will re-verify full 1121/1121 plus chunk #71 acceptance criteria.
+**Phase 2b runtime smoke:** ✓ passed (Tauri dev boot ~60s; exit 143 = SIGTERM from timeout, no panic, no FATAL events). All 6 chunk #71 corpus_restore tracing events verified in `~/.andromeda-pulse/logs/agent-latest.jsonl.2026-05-20`:
+- `triage.lifecycle.corpus_restore` with `kind=lifecycle, count=0, restored_service_count=0, duration_ms=0`
+- `metric.triage.lifecycle.corpus_restore_count_total` with `value=0, kind=lifecycle`
+- `triage.pattern.storm.corpus_restore` with `restored_fingerprint_count=0, kind=storm`
+- `metric.triage.pattern.storm.corpus_restore_count_total` with `value=0, kind=storm`
+- `triage.lifecycle.persist` (60s tick: service_count=0, state_size_bytes=0)
+- `triage.pattern.storm.persist` (60s tick: fingerprint_count=0, state_size_bytes=40)
+
+All aggregate-only field discipline preserved per chunk #62/#63/#64/#70 convention; PII bans loop verified via 4 new AllowList probe tests.
 
 ## Next Recommended Action
 
@@ -100,25 +127,26 @@ Full workspace re-run skipped per wrap budget (no source changes this session �
 /andromeda-phase
 ```
 
-Plans chunk #71 implementation. Chunk #71 inherits the chunk #70 trait-in-lower-crate + adapter-at-pulse-app pattern; main.rs boot wiring already has corpus init at the top of the section so adding `CorpusLifecyclePersistence` + `CorpusStormPersistence` as 3rd/4th consumers inserts cleanly per the trait-provider-before-consumer pattern documented in session-learnings 2026-05-20.
+Plans chunk #72 implementation per v3 Phase 6 Consolidation plan §J.
 
 Consolidation Phase 2 sequence (per `C:\Users\turbo\.claude\plans\rippling-brewing-moon.md`):
 1. ✅ #70 BaselineState → corpus migration (session 103 implementation)
-2. ▶ **#71 ServiceRegistry + RetryStormState → corpus migration** ← NEXT (registered this session; ready to plan)
-3. #72 PII scrubber coverage extension
+2. ✅ **#71 ServiceRegistry + RetryStormState → corpus migration** ← THIS SESSION
+3. ▶ **#72 PII scrubber coverage extension** ← NEXT (per chunk #71 plan §Acceptance Criteria → Deferred — scrubber call site at lifecycle write path)
 4. #73 Capability spec numeric alignment
-5. #74 Architecture registry alignment batch (will fold in the State H pattern cleanup if a recurring concern by then)
+5. #74 Architecture registry alignment batch (META — folds in the storm_state pipeline_metrics layer "l2" attribution + service_registry per-row write site attribution if warranted)
 6. #75 Documentation consolidation
-7. #76 Andromeda pipeline meta-improvements (P5/P7/P8/P9/P12 + new P-numbers as they accumulate)
+7. #76 Andromeda pipeline meta-improvements
 8. #77 Specialist plan re-runs (`/andromeda-security` + `/andromeda-tests`)
 
 ## Session Goals (carry-over)
 
-- Continue consolidation per plan: chunks #71-#77 sequential registration + implementation cycles.
+- Continue consolidation per plan: chunks #72-#77 sequential phase-plan + implementation cycles.
 - Cross-cutting `/andromeda-security` re-run still flagged for chunk #77 scope (will fold in security plan §Threat Model + §Data Protection refresh post-#70/#71/#72 persistence migration + PII scrubber coverage extension).
 - v0.2.0 downstream chunks (§78 Incidents + §79-§81 digest + Phase 8 LLM + Phase 9 surfaces) — deferred until consolidation Phase 2 completes.
 - arch.md structural narrative staleness (§Design Philosophy / §Project Intent / §Infrastructure Patterns "eight library crates" at lines 4/220/303 stale at 14) NOT addressed this session — explicitly scoped to chunk #75 Doc consolidation.
-- api-surface.md reconcile 10th consecutive deferral; chunk #71 implementation wrap is the natural re-baseline checkpoint when `CorpusLifecyclePersistence` + `CorpusStormPersistence` adapters introduce 2 new traits + ~12-15 pub fns per chunk #70 precedent.
+- api-surface.md reconcile 11th consecutive deferral; chunk #72 implementation wrap is the natural re-baseline checkpoint (now that chunk #71 substantial public surface is documented inline, the next re-baseline can fold both chunk #70/#71/#72 deltas in one tooling pass).
+- **Cargo-deny pre-existing duplicate failure (hashlink + rand_chacha)** — out-of-scope for chunk #71; needs separate workspace dep update OR deny.toml skip-list entry. Suggest adding to chunk #76 scope (Andromeda pipeline meta-improvements) OR resolve standalone via short-cycle dep update.
 - Pulse v0.1.0 release blockers unchanged (chunk #3 deferred signing items: Azure Key Vault EV cert + Apple Developer ID + GitHub OIDC federation) — explicitly out of consolidation scope per plan §J.
 
 ## Deferred decisions (Trigger 4 to Path B carry-over)
@@ -127,7 +155,9 @@ Consolidation Phase 2 sequence (per `C:\Users\turbo\.claude\plans\rippling-brewi
 
 ## Deferred learnings (filtered out from Phase 3 curation)
 
-- **State H pre-amend SHA hangover recovery pattern** (0.6 confidence; below top-3 cap; partially redundant with /wrap-session Phase 10 step 4 SHA-fixup amend protocol but the recovery pathway is different): When `git commit --amend` is applied post-wrap to bundle wrap-session updates into the feat commit (or when the Phase 10 step 4 amend itself fails or is skipped), state.yaml.last_completed_chunk.commit_sha can carry a stale orphan SHA pointing to a now-unreferenced commit object. New-session Phase 6 state H detection catches it on the next session start (compared via `git rev-parse --verify` against `git log -1 --grep="chunk #N"`); wrap-session next run can fix via housekeeping update (commit_sha + committed_at + commit_subject all corrected from the actual `git log -1` result). Verified at session 104 wrap (9459d14 → 91469f9 fix demonstrates the new-session→wrap-session healing loop). Pattern is procedural recovery rather than novel architectural insight; defer until confidence rises after another similar occurrence OR an explicit /andromeda-improvements proposal lands for "Phase 10 step 4 + new-session state H + wrap-session housekeeping integration".
+- **Stale corpus row recovery via graceful fallback** (confidence 0.5; below max-3 cap inclusion threshold AND mostly plan-documented): when production runtime encounters a deserialize failure on a previously-persisted corpus pipeline_metrics blob slot (e.g., schema/version mismatch from prior session OR transient bincode edge case), the `Err(_) → fresh-fallback` path in main.rs boot wiring handles it correctly + subsequent persist tick overwrites with current schema. Observed once at chunk #71 second boot (storm corpus restore deserialize failed; `error_category=serialize` from bounded enum). Pattern is already documented in chunk plans + integrity-protocol; the empirical confirmation is task-specific to one observed instance, not generalizable enough to promote.
+
+- **Self-loop ServiceLifecycleEvent for boot-path restore** (confidence 0.65; below max-3 cap inclusion threshold for this session given 1 other Tier 3 also passed): boot-path state-restoration events that need downstream observer cascade should emit synthetic `from_state == to_state` self-loop events with a dedicated `TransitionTrigger` variant (e.g., CorpusRestore), bypassing any runtime is_valid_transition gate that rejects self-loops. Documented inline in chunk #71 plan + via TransitionTrigger::CorpusRestore docstring; promotion to session-learnings deferred since the plan-level documentation suffices for now. Pattern is reusable for future bootstrap restore paths (e.g., chunk #74 incident corpus restore).
 
 ## Session End Status
-Completed normally at 2026-05-20 19:20:00 — **chunk #71 ServiceRegistry+RetryStormState→corpus migration registered (Type 7 Form 1) + propagated (delta-rerun CLAUDE.md pointer-table cascade 70→71) + archived (lifecycle complete in single session); State H housekeeping fix applied (9459d14 → 91469f9); api-surface 10th consecutive deferral documented; ready for /andromeda-phase chunk #71 planning**
+Completed normally at 2026-05-20 20:30:00 — **chunk #71 ServiceRegistry+RetryStormState→corpus migration implementation green; 1133/1133 workspace tests pass; capability-drift clean; runtime smoke ✓; ready for /andromeda-phase chunk #72**

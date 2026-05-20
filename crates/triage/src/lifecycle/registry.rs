@@ -1,14 +1,15 @@
-//! Service registry + state machine evaluator — chunk #67.
+//! Service registry + state machine evaluator — chunk #67 + chunk #71
+//! corpus persistence.
 //!
 //! `ServiceRegistry` trait + `InMemoryServiceRegistry` backed by a
 //! `DashMap<String, ServiceRegistryEntry>`. State derives at heartbeat
 //! tick from chunk #61 `BaselineState` activity-floor snapshots (chunk
 //! #64 `ServiceSilenceSnapshot` shape).
 //!
-//! Per arch §Established Decisions [Telemetry Retention Surface]: state
-//! stays in-memory. Corpus persistence is deferred to chunk #69 corpus
-//! SQLite scaffold — when that lands, `set_state_on_corpus_restore` is
-//! the wire-up point for Archived → Active.
+//! Corpus persistence implemented in chunk #71 via `LifecyclePersistence`
+//! trait at `crates/triage/src/lifecycle/persistence.rs`;
+//! `set_state_on_corpus_restore` emits synthetic CorpusRestore lifecycle
+//! events on boot for downstream constellation observers.
 
 use std::fmt::Debug;
 
@@ -88,6 +89,31 @@ pub trait ServiceRegistry: Send + Sync + Debug {
         now_unix_nano: i64,
     ) -> Option<ServiceLifecycleEvent>;
 
+    /// Restore a service to a specific state from corpus persistence at
+    /// boot (chunk #71). Inserts or overwrites the entry in the registry
+    /// with the restored state + sets first_seen / last_seen /
+    /// last_transition = `restored_at_unix_nano`. Emits a synthetic
+    /// `ServiceLifecycleEvent { from_state, to_state, trigger:
+    /// CorpusRestore }` where `from_state == to_state == restored_state`
+    /// — boot-path restore is conceptually a no-transition-but-mark for
+    /// downstream constellation observer cascade.
+    ///
+    /// Bypasses the `is_valid_transition` runtime gate (which rejects
+    /// self-loops at `state_machine.rs:187`) by NOT invoking the gate at
+    /// restore time. Empty `service` is dropped per chunk #61 service
+    /// identity discipline (returns `None`).
+    ///
+    /// Services restored at `Bootstrapping` are NOT force-promoted; the
+    /// next baseline tick will re-evaluate the activity floor and
+    /// transition naturally (preserves persisted state verbatim per
+    /// chunk #71 plan §Lifecycle restore Bootstrapping handling).
+    fn set_state_on_corpus_restore(
+        &self,
+        service: &str,
+        restored_state: ServiceLifecycleState,
+        restored_at_unix_nano: i64,
+    ) -> Option<ServiceLifecycleEvent>;
+
     /// Evaluate every service against the activity-floor snapshot + thresholds.
     /// Returns the list of state-transition events to emit on broadcast.
     /// Pure function w.r.t. `now_unix_nano` (no `SystemTime::now()` reads
@@ -120,6 +146,21 @@ impl InMemoryServiceRegistry {
         Self {
             entries: DashMap::new(),
         }
+    }
+
+    /// Construct an `InMemoryServiceRegistry` from previously-persisted
+    /// entries restored from corpus at boot (chunk #71). Used by
+    /// `pulse-app/src/main.rs` boot wiring after `LifecyclePersistence::
+    /// load_all` returns `Ok(Some(entries))`. Subsequent
+    /// `set_state_on_corpus_restore` invocations on the populated
+    /// registry produce per-service CorpusRestore lifecycle events for
+    /// downstream broadcast.
+    pub fn from_entries(entries: Vec<(String, ServiceRegistryEntry)>) -> Self {
+        let map = DashMap::with_capacity(entries.len());
+        for (service, entry) in entries {
+            map.insert(service, entry);
+        }
+        Self { entries: map }
     }
 }
 
@@ -208,6 +249,38 @@ impl ServiceRegistry for InMemoryServiceRegistry {
             to_state: ServiceLifecycleState::Bootstrapping,
             transitioned_at_unix_nano: now_unix_nano,
             trigger: TransitionTrigger::Restart,
+        })
+    }
+
+    fn set_state_on_corpus_restore(
+        &self,
+        service: &str,
+        restored_state: ServiceLifecycleState,
+        restored_at_unix_nano: i64,
+    ) -> Option<ServiceLifecycleEvent> {
+        if service.is_empty() {
+            return None;
+        }
+        self.entries.insert(
+            service.to_string(),
+            ServiceRegistryEntry {
+                state: restored_state,
+                first_seen_unix_nano: restored_at_unix_nano,
+                last_seen_unix_nano: restored_at_unix_nano,
+                last_transition_unix_nano: restored_at_unix_nano,
+                manual_override: None,
+            },
+        );
+        // Self-loop event SHAPE: from_state == to_state == restored_state.
+        // Bypasses `is_valid_transition` gate intentionally — boot-path
+        // restore is a no-transition-but-mark for downstream constellation
+        // observer cascade.
+        Some(ServiceLifecycleEvent {
+            service: service.to_string(),
+            from_state: restored_state,
+            to_state: restored_state,
+            transitioned_at_unix_nano: restored_at_unix_nano,
+            trigger: TransitionTrigger::CorpusRestore,
         })
     }
 

@@ -1051,6 +1051,30 @@ impl AllowList {
             "triage.baseline.migrate.failed",
             ["error_category", "duration_ms"].iter().copied().collect(),
         );
+        // Chunk #71 — ServiceRegistry + RetryStormState corpus persistence.
+        // Aggregate-only fields per CLAUDE.md 2026-05-17 session 84 + chunk
+        // #62/#63/#64 triage AllowList convention: bounded enum
+        // (`persist_kind` / `error_category`) + bounded numeric fields
+        // (`service_count` / `state_size_bytes` / `duration_ms`) + the
+        // existing `corpus_basename` field-name convention (chunk #70
+        // precedent). NO `service_name` / `scope_id` / per-record content.
+        by_target.insert(
+            "triage.lifecycle.persist",
+            [
+                "service_count",
+                "state_size_bytes",
+                "duration_ms",
+                "persist_kind",
+                "corpus_basename",
+            ]
+            .iter()
+            .copied()
+            .collect(),
+        );
+        by_target.insert(
+            "triage.lifecycle.persist.error",
+            ["error_category", "duration_ms"].iter().copied().collect(),
+        );
         by_target.insert(
             "triage.service_id_missing",
             ["dropped_count"].iter().copied().collect(),
@@ -1294,6 +1318,35 @@ impl AllowList {
             "metric.triage.pattern.fingerprint_evicted_count",
             ["value"].iter().copied().collect(),
         );
+        // Chunk #71 — RetryStormState corpus persistence. Aggregate-only
+        // fields per chunk #62/#63/#64 + chunk #71 plan §obs criterion.
+        // Note `fingerprint_count` (bounded count of tracked fingerprints
+        // in the snapshot) replaces baseline's `service_count`; otherwise
+        // mirrors the lifecycle.persist shape.
+        by_target.insert(
+            "triage.pattern.storm.persist",
+            [
+                "fingerprint_count",
+                "state_size_bytes",
+                "duration_ms",
+                "persist_kind",
+                "corpus_basename",
+            ]
+            .iter()
+            .copied()
+            .collect(),
+        );
+        by_target.insert(
+            "triage.pattern.storm.persist.error",
+            ["error_category", "duration_ms"].iter().copied().collect(),
+        );
+        by_target.insert(
+            "triage.pattern.storm.corpus_restore",
+            ["restored_fingerprint_count", "duration_ms", "kind"]
+                .iter()
+                .copied()
+                .collect(),
+        );
 
         // Chunk #67 — service lifecycle state machine (Epoch 9 Foundation
         // v0.2.0 final chunk; capability P-027). 6 new tracing target
@@ -1334,9 +1387,15 @@ impl AllowList {
                 .copied()
                 .collect(),
         );
+        // Chunk #67 stub fields `kind` + `count` preserved; chunk #71
+        // adds `restored_service_count` + `duration_ms` for production
+        // emission per plan §11 EXTEND.
         by_target.insert(
             "triage.lifecycle.corpus_restore",
-            ["kind", "count"].iter().copied().collect(),
+            ["kind", "count", "restored_service_count", "duration_ms"]
+                .iter()
+                .copied()
+                .collect(),
         );
         by_target.insert(
             "services.list_with_states.request",
@@ -1361,6 +1420,19 @@ impl AllowList {
             .iter()
             .copied()
             .collect(),
+        );
+        // Chunk #71 — boot-restore counter metrics per v0.2.0 route §71
+        // specialist-plan-touches line 373. Permits `value` (count) +
+        // bounded `kind` enum tag only — NO per-service / per-fingerprint
+        // identifiers. Emitted exactly once per boot (count = 0 on
+        // cold-start).
+        by_target.insert(
+            "metric.triage.lifecycle.corpus_restore_count_total",
+            ["value", "kind"].iter().copied().collect(),
+        );
+        by_target.insert(
+            "metric.triage.pattern.storm.corpus_restore_count_total",
+            ["value", "kind"].iter().copied().collect(),
         );
         // Chunk #69 Phase B Session 6 — Drain template-mining + diagnostics
         // AllowList registration. Per CLAUDE.md 2026-05-07 explicit-leaf
@@ -2382,6 +2454,202 @@ mod tests {
                 assert!(
                     !target_set.contains(k),
                     "baseline migrate AllowList must NOT permit PII field `{k}`",
+                );
+            }
+        }
+    }
+
+    #[test]
+    fn allowlist_for_target_resolves_lifecycle_persist_field_set() {
+        // chunk #71: ServiceRegistry corpus persistence emits aggregate-only
+        // events at `triage.lifecycle.persist` (info, per-tick success) +
+        // `triage.lifecycle.persist.error` (warn, per-tick failure).
+        // PII discipline mirrors chunk #70 baseline.persist precedent —
+        // bounded enum tags + integer-value fields ONLY.
+        let al = AllowList::production();
+
+        let persist = al
+            .for_target("triage.lifecycle.persist")
+            .expect("expected triage.lifecycle.persist entry");
+        for required in [
+            "service_count",
+            "state_size_bytes",
+            "duration_ms",
+            "persist_kind",
+            "corpus_basename",
+        ] {
+            assert!(
+                persist.contains(required),
+                "triage.lifecycle.persist must permit `{required}`",
+            );
+        }
+
+        let persist_err = al
+            .for_target("triage.lifecycle.persist.error")
+            .expect("expected triage.lifecycle.persist.error entry");
+        for required in ["error_category", "duration_ms"] {
+            assert!(
+                persist_err.contains(required),
+                "triage.lifecycle.persist.error must permit `{required}`",
+            );
+        }
+
+        let banned = [
+            "service_name",
+            "scope_id",
+            "span_id",
+            "trace_id",
+            "operation_name",
+            "legacy_path",
+            "attribute",
+            "body",
+        ];
+        for target_set in [persist, persist_err] {
+            for k in &banned {
+                assert!(
+                    !target_set.contains(k),
+                    "lifecycle persist AllowList must NOT permit PII field `{k}`",
+                );
+            }
+        }
+    }
+
+    #[test]
+    fn allowlist_for_target_resolves_lifecycle_corpus_restore_extended_field_set() {
+        // chunk #67 stub fields preserved; chunk #71 adds
+        // `restored_service_count` + `duration_ms` for production
+        // emission per plan §11.
+        let al = AllowList::production();
+        let entry = al
+            .for_target("triage.lifecycle.corpus_restore")
+            .expect("expected triage.lifecycle.corpus_restore entry");
+        for required in ["kind", "count", "restored_service_count", "duration_ms"] {
+            assert!(
+                entry.contains(required),
+                "triage.lifecycle.corpus_restore must permit `{required}` (chunk #71 EXTEND)",
+            );
+        }
+        // PII guard.
+        let banned = [
+            "service_name",
+            "scope_id",
+            "span_id",
+            "trace_id",
+            "operation_name",
+        ];
+        for k in &banned {
+            assert!(
+                !entry.contains(k),
+                "lifecycle.corpus_restore must NOT permit PII field `{k}`",
+            );
+        }
+
+        // Metric counter sibling.
+        let metric = al
+            .for_target("metric.triage.lifecycle.corpus_restore_count_total")
+            .expect("expected metric.triage.lifecycle.corpus_restore_count_total entry");
+        for required in ["value", "kind"] {
+            assert!(
+                metric.contains(required),
+                "metric.triage.lifecycle.corpus_restore_count_total must permit `{required}`",
+            );
+        }
+    }
+
+    #[test]
+    fn allowlist_for_target_resolves_storm_persist_field_set() {
+        // chunk #71: RetryStormState corpus persistence emits aggregate-only
+        // events at `triage.pattern.storm.persist` (info) +
+        // `triage.pattern.storm.persist.error` (warn). PII discipline
+        // mirrors baseline / lifecycle pattern — bounded enum tags +
+        // integer-value fields ONLY.
+        let al = AllowList::production();
+
+        let persist = al
+            .for_target("triage.pattern.storm.persist")
+            .expect("expected triage.pattern.storm.persist entry");
+        for required in [
+            "fingerprint_count",
+            "state_size_bytes",
+            "duration_ms",
+            "persist_kind",
+            "corpus_basename",
+        ] {
+            assert!(
+                persist.contains(required),
+                "triage.pattern.storm.persist must permit `{required}`",
+            );
+        }
+
+        let persist_err = al
+            .for_target("triage.pattern.storm.persist.error")
+            .expect("expected triage.pattern.storm.persist.error entry");
+        for required in ["error_category", "duration_ms"] {
+            assert!(
+                persist_err.contains(required),
+                "triage.pattern.storm.persist.error must permit `{required}`",
+            );
+        }
+
+        let banned = [
+            "service_name",
+            "scope_id",
+            "span_id",
+            "trace_id",
+            "operation_name",
+            "fingerprint_hex_full",
+            "legacy_path",
+        ];
+        for target_set in [persist, persist_err] {
+            for k in &banned {
+                assert!(
+                    !target_set.contains(k),
+                    "storm persist AllowList must NOT permit PII field `{k}`",
+                );
+            }
+        }
+    }
+
+    #[test]
+    fn allowlist_for_target_resolves_storm_corpus_restore_field_set() {
+        // chunk #71: storm corpus restore tracing target + metric
+        // counter. Both NEW entries per plan §11.
+        let al = AllowList::production();
+
+        let restore = al
+            .for_target("triage.pattern.storm.corpus_restore")
+            .expect("expected triage.pattern.storm.corpus_restore entry");
+        for required in ["restored_fingerprint_count", "duration_ms", "kind"] {
+            assert!(
+                restore.contains(required),
+                "triage.pattern.storm.corpus_restore must permit `{required}`",
+            );
+        }
+
+        let metric = al
+            .for_target("metric.triage.pattern.storm.corpus_restore_count_total")
+            .expect("expected metric.triage.pattern.storm.corpus_restore_count_total entry");
+        for required in ["value", "kind"] {
+            assert!(
+                metric.contains(required),
+                "metric.triage.pattern.storm.corpus_restore_count_total must permit `{required}`",
+            );
+        }
+
+        // PII guard on both.
+        let banned = [
+            "service_name",
+            "scope_id",
+            "span_id",
+            "trace_id",
+            "operation_name",
+            "fingerprint_hex_full",
+        ];
+        for target_set in [restore, metric] {
+            for k in &banned {
+                assert!(
+                    !target_set.contains(k),
+                    "storm restore AllowList must NOT permit PII field `{k}`",
                 );
             }
         }

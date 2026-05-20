@@ -22,6 +22,7 @@
 
 mod broadcast;
 mod detector;
+mod persistence;
 mod storm;
 mod suppression;
 
@@ -30,10 +31,17 @@ pub use detector::{
     DEFAULT_HEARTBEAT_INTERVAL, DetectCycleStats, RestartDetector, observe_and_dispatch,
     run_one_detect_cycle, start_restart_detector,
 };
+pub use persistence::{
+    DEFAULT_STORM_PERSIST_INTERVAL_SECS, STORM_PERSISTENCE_KIND, StormError, StormPersistence,
+    StormStateSnapshot, TARGET_PATTERN_STORM_CORPUS_RESTORE, TARGET_PATTERN_STORM_PERSIST,
+    TARGET_PATTERN_STORM_PERSIST_ERROR, persist_storm_on_shutdown, run_storm_persist_cycle,
+    run_storm_persist_loop,
+};
 pub use storm::{
     DEFAULT_AUTONOMOUS_THRESHOLD, DEFAULT_DETECTION_SUB_WINDOW_SECONDS,
-    DEFAULT_STORM_WINDOW_SECONDS, DEFAULT_SUGGESTED_THRESHOLD, RetryStormDetector, StormCycleStats,
-    observe_and_dispatch_storm, record_occurrence, run_one_storm_cycle, start_storm_detector,
+    DEFAULT_STORM_WINDOW_SECONDS, DEFAULT_SUGGESTED_THRESHOLD, FingerprintState,
+    RetryStormDetector, StormCycleStats, observe_and_dispatch_storm, record_occurrence,
+    run_one_storm_cycle, start_storm_detector,
 };
 pub use suppression::{
     BypassReason, BypassTrigger, SuppressionOutcome, SuppressionParams, SuppressionState,

@@ -1,28 +1,40 @@
 schema_version: 2
-last_wrap: 2026-05-20T19:20:00Z
-last_reconcile: 2026-05-20T19:20:00Z
+last_wrap: 2026-05-20T20:30:00Z
+last_reconcile: 2026-05-20T20:30:00Z
 
 last_completed_chunk:
-  route_index: 70
-  title: "BaselineState → corpus migration — EwmaTracker / TDigestPair / RollingWindow / ActivityFloor from flat-file baseline-corpus.bin to corpus SQLite via BaselinePersistence trait (capabilities P-009/P-011/P-013/P-051; detail in pulse-v0_2_0-route §70)"
+  route_index: 71
+  title: "ServiceRegistry + RetryStormState → corpus migration — DashMap → corpus via LifecyclePersistence + StormPersistence traits (capabilities P-017/P-018/P-027; detail in pulse-v0_2_0-route §71)"
   epoch: 9
-  committed_at: 2026-05-20T16:42:18Z
-  commit_sha: "91469f9"
-  commit_subject: "feat(triage,pulse-app): chunk #70 BaselineState → corpus migration"
+  committed_at: 2026-05-20T20:30:00Z
+  commit_sha: "95a9619"
+  commit_subject: "feat(triage,corpus,pulse-app): chunk #71 ServiceRegistry + RetryStormState → corpus migration"
 
-# Session 103 wrap (2026-05-20): chunk #70 BaselineState → corpus migration implemented.
-# First chunk of v3 Phase 6 Consolidation lands; closes audit Section 1.A persistence
-# triple-mechanism finding for 3 of 4 in-flat-file components. New `trait BaselinePersistence`
-# in crates/triage/src/baseline/persistence.rs + CorpusBaselinePersistence adapter in
-# pulse-app/src/baseline_persistence.rs + migrate_legacy_baseline_if_present helper + 16 new
-# tests including PII canary at-rest verification. Schema Option A committed (reuse
-# pipeline_metrics blob slot). Migration Path A committed (read-and-migrate-once + delete +
-# warn-log; preserve on failure). Tracing target `triage.baseline.migrate` registered in
-# AllowList with aggregate-only field set. Phase 2b runtime smoke verified end-to-end —
-# legacy 28-byte baseline-corpus.bin from sessions 99-101 dogfood migrated cleanly at boot;
-# triage.baseline.persist fired ~60s post-boot with corpus_basename="corpus.db".
-# Next chunk: route#71 ServiceRegistry + RetryStormState → corpus migration (per v3 Phase 6
-# Consolidation plan; requires /andromeda-evolve --allow-route-append registration).
+# Session 105 wrap (2026-05-20): chunk #71 ServiceRegistry+RetryStormState → corpus migration
+# implemented. Second chunk of v3 Phase 6 Consolidation lands; closes audit Section 1.A
+# in-memory tier findings for ServiceRegistry + RetryStormState + chunk #66 storm.rs
+# deferred-persistence broken promise. New `trait LifecyclePersistence` in crates/triage/
+# src/lifecycle/persistence.rs + `trait StormPersistence` in crates/triage/src/pattern/
+# persistence.rs + CorpusLifecyclePersistence adapter in pulse-app/src/lifecycle_persistence.rs
+# + CorpusStormPersistence adapter in pulse-app/src/storm_persistence.rs + 36 new tests
+# including 2 PII canary at-rest tests (lifecycle TEXT-column documented; storm BLOB-encrypted
+# verified). Schema choices: lifecycle uses dedicated service_registry table (per-row UPSERT
+# via ON CONFLICT(service_name)); storm uses pipeline_metrics blob slot (metric_name=
+# "storm_state", layer="l2" mirroring baseline l1b + drain l1c precedent). ServiceRegistry
+# trait extended with set_state_on_corpus_restore method (self-loop event with CorpusRestore
+# trigger; bypasses is_valid_transition gate intentionally). RetryStormDetector extended
+# with snapshot/restore_from_snapshot methods. FingerprintState made pub with pub(crate)
+# fields for cross-crate serde via bincode (novel Rust visibility pattern; promoted to Tier 3
+# session-learning). Boot wiring in main.rs: corpus init → baseline restore (#70) →
+# lifecycle restore (#71) → storm restore (#71) → 60s periodic persist loops per consumer.
+# 7 new + 1 EXTENDED AllowList entries + 4 new probe tests (aggregate-only field discipline
+# per chunk #62/#63/#64/#70 convention preserved). PII scrubber call site at lifecycle write
+# path DEFERRED to chunk #72 per plan §Acceptance Criteria → Deferred. Capability P-027
+# closure: runtime smoke verified "Restart Pulse; verify dot positions match prior session"
+# via boot smoke gate. Capability P-018 closure: storm dedup survives restart per restored
+# fingerprint snapshot.
+# Next chunk: route#72 PII scrubber coverage extension (Consolidation Phase 2 sequence; per
+# chunk #71 plan §Acceptance Criteria → Deferred path).
 in_progress: null
 
 plan_freshness:
@@ -37,12 +49,12 @@ plan_freshness:
   input_mtime: 2026-05-02T06:52:58Z
 
 living_artifact_freshness:
-  dep_tree_reconciled_at: 2026-05-20T19:20:00Z
-  api_surface_reconciled_at: 2026-05-20T19:20:00Z
-  most_recent_code_mtime: 2026-05-20T16:18:54Z
+  dep_tree_reconciled_at: 2026-05-20T20:30:00Z
+  api_surface_reconciled_at: 2026-05-20T20:30:00Z
+  most_recent_code_mtime: 2026-05-20T20:25:00Z
   reconcile_failed: false
   api_surface_deferred: true
-  api_surface_deferred_reason: "per-crate cargo +nightly public-api iteration across 14 crates exceeds wrap budget (estimated 7-14 min vs ~3 min wrap budget); pragmatic-deviation per sessions 91-102 precedent (9th consecutive deferral); session 103 = chunk #70 BaselineState → corpus migration implementation + spot-verified cargo public-api on crates/triage/ this wrap confirming BaselinePersistence + bootstrap_from_persistence + refactored signatures land cleanly; full pub surface delta documented inline (api-surface.md METADATA session 103 note); next /implement-followed wrap (chunk #71 ServiceRegistry+RetryStormState corpus migration) is natural re-baseline checkpoint when CorpusLifecyclePersistence / CorpusStormPersistence adapters land"
+  api_surface_deferred_reason: "per-crate cargo +nightly public-api iteration across 14 crates exceeds wrap budget (estimated 7-14 min vs ~3 min wrap budget); 11th consecutive deferral per sessions 91-104 pattern; session 105 = chunk #71 ServiceRegistry+RetryStormState → corpus migration implementation; SUBSTANTIAL public surface delta this wrap (~25 new pub items across triage + corpus + pulse-app: LifecyclePersistence trait + StormPersistence trait + LifecycleError + StormError + StormStateSnapshot + FingerprintState made pub + CorpusLifecyclePersistence + CorpusStormPersistence adapters + ServiceRegistry::set_state_on_corpus_restore + InMemoryServiceRegistry::from_entries + RetryStormDetector::snapshot/restore_from_snapshot + CorpusWriter::save_service_registry_row + CorpusWriter::load_all_service_registry_rows + ServiceRegistryRowRaw + 26 new pub use re-exports through triage::contract); full pub surface delta documented inline (api-surface.md METADATA session 105 note); next /implement-followed wrap (likely chunk #72 PII scrubber coverage extension) is natural re-baseline checkpoint when both #70 + #71 + #72 deltas can fold into one tooling pass"
 
 drift_warnings: []
 
@@ -498,4 +510,4 @@ spec_amendments:
       propagated_by_run: .andromeda/runs/2026-05-11T19-00-00-setup-project-delta/
       archived_at: 2026-05-11T19:25:00Z
 
-session_count: 104
+session_count: 105

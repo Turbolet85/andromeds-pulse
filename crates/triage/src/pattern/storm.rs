@@ -30,21 +30,25 @@
 //! - Otherwise → no cue.
 //! - Per-tier dedup avoids log-spam under sustained high-rate storms.
 //!
-//! ## State (per arch §[Telemetry Retention Surface] in-memory only)
+//! ## State (corpus-backed via chunk #71)
 //!
 //! `DashMap<[u8; 16], FingerprintState>` — concurrent map keyed by
 //! fingerprint, value tracks `service` (first-observed), `timestamps_nanos`
 //! Vec (sorted by insertion order; pruned per tick + per record), and
-//! `last_emitted` (tier + ts for dedup). Persistence deferred к chunk
-//! #69 corpus scaffold.
+//! `last_emitted` (tier + ts for dedup). State persisted via chunk #71
+//! `StormPersistence` trait + `CorpusStormPersistence` adapter at
+//! `pulse-app/src/storm_persistence.rs`. Restart preserves dedup window
+//! per capability P-018 closure.
 
 use std::sync::Arc;
 use std::sync::atomic::{AtomicU64, Ordering};
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
 use dashmap::DashMap;
+use serde::{Deserialize, Serialize};
 use tracing::info;
 
+use super::persistence::StormStateSnapshot;
 use crate::contract::{AttentionCue, AttentionCueBroadcast, CueKind, CueScope, PriorityTier};
 
 use super::{
@@ -73,26 +77,31 @@ pub const DEFAULT_SUGGESTED_THRESHOLD: u64 = 5;
 /// fresh if no prior emit; one-shot per fingerprint until window resets.
 pub const DEFAULT_AUTONOMOUS_THRESHOLD: u64 = 10;
 
-/// Per-fingerprint storm-tracking state.
-#[derive(Debug)]
-struct FingerprintState {
+/// Per-fingerprint storm-tracking state. Public (chunk #71) so the
+/// `StormStateSnapshot` exported via `crate::pattern::persistence` can
+/// reference this type via its `entries: Vec<([u8; 16], FingerprintState)>`
+/// field. Fields stay private — external crates hold the opaque value
+/// type via bincode serialize/deserialize but cannot introspect.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct FingerprintState {
     /// `service.name` from first observation. Subsequent observations do
     /// NOT re-key by service; cross-service propagation of the same
     /// fingerprint contributes к one storm cue attributed к first-observed.
-    service: String,
+    pub(crate) service: String,
     /// Occurrence timestamps within the rolling window (nanoseconds).
     /// Pruned during `record_occurrence` and `run_one_storm_cycle`.
-    timestamps_nanos: Vec<i64>,
+    pub(crate) timestamps_nanos: Vec<i64>,
     /// `(emit_ts_nanos, tier)` of the most recent cue emission for this
     /// fingerprint; `None` if no cue has fired в the current window OR
     /// if the window has fully expired since the last emit.
-    last_emitted: Option<(i64, PriorityTier)>,
+    pub(crate) last_emitted: Option<(i64, PriorityTier)>,
 }
 
-/// Retry storm detector — chunk #66.
+/// Retry storm detector — chunk #66 + chunk #71 corpus persistence.
 ///
-/// In-memory state only; no persistence (corpus deferred к chunk #69 per
-/// arch §[Telemetry Retention Surface]).
+/// State persisted via `crate::pattern::persistence::StormPersistence`
+/// trait — see `pulse-app/src/storm_persistence.rs` for the
+/// `CorpusStormPersistence` adapter wiring.
 #[derive(Debug)]
 pub struct RetryStormDetector {
     fingerprints: DashMap<[u8; 16], FingerprintState>,
@@ -132,6 +141,50 @@ impl RetryStormDetector {
 
     pub fn fingerprints_evicted_total(&self) -> u64 {
         self.fingerprints_evicted_total.load(Ordering::Relaxed)
+    }
+
+    /// Materialize a serializable snapshot of the detector's state +
+    /// configuration knobs. Iteration over the DashMap is safe under
+    /// concurrent observation because each entry returns a clone; the
+    /// snapshot represents an at-time-of-call view (may be slightly
+    /// stale by the time persist completes, which is acceptable for
+    /// the 60s persist cadence — see chunk #71 plan §Storm persist
+    /// cadence tuning deferred decision).
+    pub fn snapshot(&self) -> StormStateSnapshot {
+        let entries: Vec<([u8; 16], FingerprintState)> = self
+            .fingerprints
+            .iter()
+            .map(|entry| (*entry.key(), entry.value().clone()))
+            .collect();
+        StormStateSnapshot {
+            entries,
+            window_seconds: self.window_seconds,
+            detection_window_seconds: self.detection_window_seconds,
+            suggested_threshold: self.suggested_threshold,
+            autonomous_threshold: self.autonomous_threshold,
+        }
+    }
+
+    /// Rebuild a detector from a previously-persisted snapshot. Used at
+    /// boot when corpus has a non-empty `storm_state` row; preserves
+    /// fingerprint dedup state across restart per capability P-018.
+    /// Counters (`storms_detected_total`, `fingerprints_evicted_total`)
+    /// reset to 0 on restore — they are per-session monotonic metrics
+    /// not persisted across boots.
+    pub fn restore_from_snapshot(snapshot: StormStateSnapshot) -> Self {
+        let fingerprints = DashMap::with_capacity(snapshot.entries.len());
+        for (key, state) in snapshot.entries {
+            fingerprints.insert(key, state);
+        }
+        Self {
+            fingerprints,
+            window_seconds: snapshot.window_seconds,
+            detection_window_seconds: snapshot.detection_window_seconds,
+            suggested_threshold: snapshot.suggested_threshold,
+            autonomous_threshold: snapshot.autonomous_threshold,
+            storms_detected_total: AtomicU64::new(0),
+            fingerprints_evicted_total: AtomicU64::new(0),
+        }
     }
 }
 

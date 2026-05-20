@@ -34,8 +34,10 @@ pub enum ServiceLifecycleState {
 /// Activity = baseline tracker derived activity-floor signal; Restart =
 /// chunk #63 restart event; ThresholdExpiry = silent/dormant/archived
 /// progression by clock; ManualOverride = user-driven via
-/// `set_manual_override`; CorpusRestore = Archived→Active via chunk #69
-/// corpus history lookup (no-op stub until #69 lands).
+/// `set_manual_override`; CorpusRestore = fires on boot when a service
+/// is restored from corpus per chunk #71 LifecyclePersistence trait
+/// (emitted as a self-loop `from_state == to_state` for downstream
+/// constellation observer cascade).
 #[cfg_attr(feature = "taurpc-runtime", derive(specta::Type))]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]

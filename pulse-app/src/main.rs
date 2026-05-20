@@ -19,12 +19,15 @@ use tracing_error::SpanTrace;
 use triage::contract::{
     AttentionCueBroadcast, BaselinePersistence, CadenceTriggerChannel,
     DEFAULT_AUTONOMOUS_THRESHOLD, DEFAULT_DETECTION_SUB_WINDOW_SECONDS, DEFAULT_HEARTBEAT_INTERVAL,
-    DEFAULT_LIFECYCLE_HEARTBEAT_INTERVAL, DEFAULT_PERSIST_INTERVAL_NANOS,
-    DEFAULT_SERVICE_COUNT_CAP, DEFAULT_STORM_WINDOW_SECONDS, DEFAULT_SUGGESTED_THRESHOLD,
-    InMemoryServiceRegistry, RestartDetector, RestartEventBroadcast, RetryStormDetector,
-    ServiceLifecycleBroadcast, ServiceRegistry, SuppressionState, Thresholds, bootstrap_state,
-    run_persist_loop, start_emitter, start_lifecycle_heartbeat, start_restart_detector,
-    start_storm_detector,
+    DEFAULT_LIFECYCLE_HEARTBEAT_INTERVAL, DEFAULT_LIFECYCLE_PERSIST_INTERVAL_SECS,
+    DEFAULT_PERSIST_INTERVAL_NANOS, DEFAULT_SERVICE_COUNT_CAP, DEFAULT_STORM_PERSIST_INTERVAL_SECS,
+    DEFAULT_STORM_WINDOW_SECONDS, DEFAULT_SUGGESTED_THRESHOLD, InMemoryServiceRegistry,
+    LifecyclePersistence, RestartDetector, RestartEventBroadcast, RetryStormDetector,
+    ServiceLifecycleBroadcast, ServiceRegistry, StormPersistence, SuppressionState,
+    TARGET_LIFECYCLE_CORPUS_RESTORE, TARGET_LIFECYCLE_PERSIST_ERROR,
+    TARGET_PATTERN_STORM_CORPUS_RESTORE, TARGET_PATTERN_STORM_PERSIST_ERROR, Thresholds,
+    bootstrap_state, run_lifecycle_persist_loop, run_persist_loop, run_storm_persist_loop,
+    start_emitter, start_lifecycle_heartbeat, start_restart_detector, start_storm_detector,
 };
 use ui_bridge::Settings;
 use ui_bridge::health::{
@@ -45,6 +48,7 @@ use pulse_app::baseline_persistence::{
 use pulse_app::connection_router::{ConnectionApi, ConnectionApiImpl, HeartbeatBindStatus};
 use pulse_app::diagnostics_router::{DiagnosticsApi, DiagnosticsApiImpl};
 use pulse_app::drain_persistence::CorpusDrainPersistence;
+use pulse_app::lifecycle_persistence::CorpusLifecyclePersistence;
 #[cfg(feature = "mcp-server")]
 use pulse_app::mcp_router::{McpApi, McpApiImpl};
 use pulse_app::plugins_router::{PluginsApi, PluginsApiImpl};
@@ -53,6 +57,7 @@ use pulse_app::services_router::{ServicesApi, ServicesApiImpl};
 use pulse_app::snapshot_runtime::{SnapshotApi, SnapshotApiImpl};
 use pulse_app::storage_router::{StorageApi, StorageApiImpl};
 use pulse_app::storm_observer::StormObserverAdapter;
+use pulse_app::storm_persistence::CorpusStormPersistence;
 use pulse_app::streams::{StreamsApi, StreamsApiImpl};
 use pulse_app::viz_routers::{
     LogsApi, LogsApiImpl, MetricsApi, MetricsApiImpl, TracesApi, TracesApiImpl,
@@ -343,6 +348,36 @@ fn main() {
         );
     }
 
+    // Chunk #71 — lifecycle + storm corpus persistence adapters. Derive
+    // 3rd + 4th trait views from the same `Arc<Corpus>` (alongside reader
+    // + writer + baseline_persistence). None ⇒ corpus unavailable at
+    // boot; registry + storm detector run in-memory-only this session
+    // with one-time warn-once-at-boot emission below.
+    let lifecycle_persistence: Option<Arc<dyn LifecyclePersistence>> =
+        corpus_writer.as_ref().map(|w| {
+            Arc::new(CorpusLifecyclePersistence::new(Arc::clone(w)))
+                as Arc<dyn LifecyclePersistence>
+        });
+    let storm_persistence: Option<Arc<dyn StormPersistence>> = corpus_writer
+        .as_ref()
+        .map(|w| Arc::new(CorpusStormPersistence::new(Arc::clone(w))) as Arc<dyn StormPersistence>);
+    if lifecycle_persistence.is_none() {
+        tracing::warn!(
+            target: TARGET_LIFECYCLE_PERSIST_ERROR,
+            error_category = "corpus_unavailable_at_boot",
+            duration_ms = 0_u64,
+            "lifecycle persistence unavailable; in-memory only this session",
+        );
+    }
+    if storm_persistence.is_none() {
+        tracing::warn!(
+            target: TARGET_PATTERN_STORM_PERSIST_ERROR,
+            error_category = "corpus_unavailable_at_boot",
+            duration_ms = 0_u64,
+            "storm persistence unavailable; in-memory only this session",
+        );
+    }
+
     // Chunk #62 — attention cue emitter substrate. BaselineState now
     // bootstraps via the chunk #70 BaselinePersistence trait (None ⇒
     // cold-start fresh state); the BaselineObserverAdapter wraps it as
@@ -384,37 +419,158 @@ fn main() {
         restart_adapter,
     ]));
 
-    // Chunk #66 — retry storm detector. Tracks per-fingerprint occurrences
-    // in a 60s rolling window; ≥5/30s → Suggested cue, ≥10/30s → Autonomous
-    // cue, emitted through the existing chunk #62 attention-cues broadcast
-    // channel. State в-memory only (corpus persistence deferred к chunk #71
-    // per Phase 6 Consolidation plan). StormObserverAdapter wraps
-    // the detector + broadcast for the buffer-side FingerprintObserver hot
-    // path; trait declaration lives в the lower buffer crate per arch
-    // §Cross-cutting Patterns Module dependency direction.
-    let storm_detector = Arc::new(RetryStormDetector::new(
-        DEFAULT_STORM_WINDOW_SECONDS,
-        DEFAULT_DETECTION_SUB_WINDOW_SECONDS,
-        DEFAULT_SUGGESTED_THRESHOLD,
-        DEFAULT_AUTONOMOUS_THRESHOLD,
-    ));
+    // Chunk #66 + chunk #71 corpus persistence — retry storm detector.
+    // Tracks per-fingerprint occurrences in a 60s rolling window; ≥5/30s
+    // → Suggested cue, ≥10/30s → Autonomous cue, emitted through the
+    // existing chunk #62 attention-cues broadcast channel.
+    // StormObserverAdapter wraps the detector + broadcast for the
+    // buffer-side FingerprintObserver hot path; trait declaration lives
+    // в the lower buffer crate per arch §Cross-cutting Patterns Module
+    // dependency direction.
+    //
+    // Chunk #71 — restore state from corpus at boot. Ok(Some(snapshot))
+    // → preserved dedup window per capability P-018; Ok(None) or Err(_)
+    // → fresh fallback per error/cold-start path. Emits aggregate-only
+    // tracing event + boot-restore counter metric.
+    let storm_detector = {
+        let restore_start = Instant::now();
+        let (detector, restored_fingerprint_count) = match storm_persistence.as_ref() {
+            Some(p) => match p.load() {
+                Ok(Some(snapshot)) => {
+                    let count = snapshot.entries.len() as u64;
+                    (RetryStormDetector::restore_from_snapshot(snapshot), count)
+                }
+                Ok(None) => (
+                    RetryStormDetector::new(
+                        DEFAULT_STORM_WINDOW_SECONDS,
+                        DEFAULT_DETECTION_SUB_WINDOW_SECONDS,
+                        DEFAULT_SUGGESTED_THRESHOLD,
+                        DEFAULT_AUTONOMOUS_THRESHOLD,
+                    ),
+                    0,
+                ),
+                Err(e) => {
+                    tracing::warn!(
+                        target: TARGET_PATTERN_STORM_PERSIST_ERROR,
+                        error_category = e.error_category(),
+                        duration_ms = restore_start.elapsed().as_millis() as u64,
+                        "storm corpus restore failed; fresh detector",
+                    );
+                    (
+                        RetryStormDetector::new(
+                            DEFAULT_STORM_WINDOW_SECONDS,
+                            DEFAULT_DETECTION_SUB_WINDOW_SECONDS,
+                            DEFAULT_SUGGESTED_THRESHOLD,
+                            DEFAULT_AUTONOMOUS_THRESHOLD,
+                        ),
+                        0,
+                    )
+                }
+            },
+            None => (
+                RetryStormDetector::new(
+                    DEFAULT_STORM_WINDOW_SECONDS,
+                    DEFAULT_DETECTION_SUB_WINDOW_SECONDS,
+                    DEFAULT_SUGGESTED_THRESHOLD,
+                    DEFAULT_AUTONOMOUS_THRESHOLD,
+                ),
+                0,
+            ),
+        };
+        let restore_duration_ms = restore_start.elapsed().as_millis() as u64;
+        tracing::info!(
+            target: TARGET_PATTERN_STORM_CORPUS_RESTORE,
+            restored_fingerprint_count = restored_fingerprint_count,
+            duration_ms = restore_duration_ms,
+            kind = "storm",
+            "storm corpus restore",
+        );
+        tracing::info!(
+            target: "metric.triage.pattern.storm.corpus_restore_count_total",
+            value = restored_fingerprint_count,
+            kind = "storm",
+            "storm restore counter",
+        );
+        Arc::new(detector)
+    };
     let fingerprint_observer: Option<Arc<dyn buffer::fingerprint::FingerprintObserver>> =
         Some(Arc::new(StormObserverAdapter::new(
             Arc::clone(&storm_detector),
             Arc::clone(&cue_broadcast),
         )));
 
-    // Chunk #67 — service lifecycle state machine + registry. In-memory
-    // DashMap-backed registry per arch §[Telemetry Retention Surface]
-    // guardrail (corpus persistence deferred to chunk #71 per Phase 6
-    // Consolidation plan). Heartbeat task spawned in setup closure below;
+    // Chunk #67 + chunk #71 corpus persistence — service lifecycle state
+    // machine + registry. Heartbeat task spawned in setup closure below;
     // subscribes to chunk #63 `pulse://stream/restart-events` to trigger
     // Bootstrapping transitions on any-state restart-detector observation.
     // State derives at tick time from chunk #61 `BaselineState`
     // activity-floor snapshots; thresholds (`dormant_after_secs` /
     // `archived_after_secs`) flow through Settings.
-    let lifecycle_registry: Arc<dyn ServiceRegistry> = Arc::new(InMemoryServiceRegistry::new());
+    //
+    // Chunk #71 — restore registry from corpus at boot. For each
+    // restored service, emit a synthetic CorpusRestore lifecycle event
+    // on `pulse://stream/service-lifecycle` so downstream constellation
+    // observers cascade. P-027 closure: "Restart Pulse; verify dot
+    // positions match prior session" runtime-true.
     let lifecycle_broadcast = Arc::new(ServiceLifecycleBroadcast::new());
+    let lifecycle_registry: Arc<dyn ServiceRegistry> = {
+        let restore_start = Instant::now();
+        let restored_at = chrono::Utc::now().timestamp_nanos_opt().unwrap_or(0);
+        let (registry, restored_service_count) = match lifecycle_persistence.as_ref() {
+            Some(p) => match p.load_all() {
+                Ok(Some(entries)) => {
+                    let count = entries.len() as u64;
+                    let mut event_pairs: Vec<(String, triage::contract::ServiceLifecycleState)> =
+                        entries.iter().map(|(s, e)| (s.clone(), e.state)).collect();
+                    let reg = InMemoryServiceRegistry::from_entries(entries);
+                    for (service, state) in event_pairs.drain(..) {
+                        if let Some(event) =
+                            reg.set_state_on_corpus_restore(&service, state, restored_at)
+                        {
+                            let _ = lifecycle_broadcast.sender().send(event);
+                        }
+                    }
+                    (Arc::new(reg) as Arc<dyn ServiceRegistry>, count)
+                }
+                Ok(None) => (
+                    Arc::new(InMemoryServiceRegistry::new()) as Arc<dyn ServiceRegistry>,
+                    0,
+                ),
+                Err(e) => {
+                    tracing::warn!(
+                        target: TARGET_LIFECYCLE_PERSIST_ERROR,
+                        error_category = e.error_category(),
+                        duration_ms = restore_start.elapsed().as_millis() as u64,
+                        "lifecycle corpus restore failed; fresh registry",
+                    );
+                    (
+                        Arc::new(InMemoryServiceRegistry::new()) as Arc<dyn ServiceRegistry>,
+                        0,
+                    )
+                }
+            },
+            None => (
+                Arc::new(InMemoryServiceRegistry::new()) as Arc<dyn ServiceRegistry>,
+                0,
+            ),
+        };
+        let restore_duration_ms = restore_start.elapsed().as_millis() as u64;
+        tracing::info!(
+            target: TARGET_LIFECYCLE_CORPUS_RESTORE,
+            kind = "lifecycle",
+            count = restored_service_count,
+            restored_service_count = restored_service_count,
+            duration_ms = restore_duration_ms,
+            "lifecycle corpus restore",
+        );
+        tracing::info!(
+            target: "metric.triage.lifecycle.corpus_restore_count_total",
+            value = restored_service_count,
+            kind = "lifecycle",
+            "lifecycle restore counter",
+        );
+        registry
+    };
     let services_impl = ServicesApiImpl::new(
         Arc::clone(&lifecycle_registry),
         Arc::clone(&lifecycle_broadcast),
@@ -612,6 +768,15 @@ fn main() {
     // `.setup(move ...)` closure (the persist loop spawn site). The outer
     // binding is no longer needed after this point.
     let baseline_persistence_for_persist = baseline_persistence.clone();
+
+    // Chunk #71: same pattern for lifecycle + storm persistence.
+    let lifecycle_persistence_for_persist = lifecycle_persistence.clone();
+    let storm_persistence_for_persist = storm_persistence.clone();
+    let corpus_basename_for_persist: String = corpus_db_path
+        .file_name()
+        .and_then(|s| s.to_str())
+        .unwrap_or("corpus.db")
+        .to_string();
 
     tauri::Builder::default()
         .plugin(tauri_plugin_updater::Builder::new().build())
@@ -815,6 +980,28 @@ fn main() {
                 settings.lifecycle_archived_after_secs,
                 DEFAULT_LIFECYCLE_HEARTBEAT_INTERVAL,
             ));
+            // Chunk #71 — lifecycle + storm persistence periodic loops
+            // (60s default, mirrors baseline cadence). Spawn ONLY when
+            // corpus available at boot; None ⇒ in-memory-only this
+            // session per the boot-warn emitted above; no persist task
+            // needed. Skip-first-tick + 60s actual cadence preserves
+            // chunk #62/#63/#66 heartbeat convention.
+            if let Some(persistence) = lifecycle_persistence_for_persist.as_ref() {
+                tauri::async_runtime::spawn(run_lifecycle_persist_loop(
+                    Arc::clone(&lifecycle_registry),
+                    Arc::clone(persistence),
+                    std::time::Duration::from_secs(DEFAULT_LIFECYCLE_PERSIST_INTERVAL_SECS),
+                    corpus_basename_for_persist.clone(),
+                ));
+            }
+            if let Some(persistence) = storm_persistence_for_persist.as_ref() {
+                tauri::async_runtime::spawn(run_storm_persist_loop(
+                    Arc::clone(&storm_detector),
+                    Arc::clone(persistence),
+                    std::time::Duration::from_secs(DEFAULT_STORM_PERSIST_INTERVAL_SECS),
+                    corpus_basename_for_persist.clone(),
+                ));
+            }
             let _heartbeat_handles = heartbeat::spawn(
                 heartbeat_state,
                 Arc::clone(&ingest_state),

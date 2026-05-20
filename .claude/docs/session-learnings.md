@@ -6,6 +6,25 @@ _Entries are added in reverse chronological order (newest first). Each entry has
 
 _This file is entirely wrap-session's territory. `/setup-project` creates it if missing but NEVER regenerates it. Manual edits are preserved across all Andromeda skill runs._
 
+## 2026-05-20 (session 105) — `pub` type with `pub(crate)` fields for cross-crate serde via bincode (confidence 0.65)
+
+When a serializable inner type T must be referenced from an OUTER serializable struct S that's exported across crate boundaries (e.g., `pub struct S { pub entries: Vec<(K, T)> }`), but T's internal field layout should remain crate-private, declare T as `pub` with all fields `pub(crate)`. External crates can hold T values inside S, round-trip them via bincode/serde, and pass them between APIs — but cannot construct T directly or pattern-match on its fields. The serde `Serialize`/`Deserialize` derives expand within the defining crate where the macro has access to private fields, so the visibility wall is preserved at the type level while serialization works seamlessly.
+
+**Why this matters:** the standard alternatives all have downsides:
+- Make T fully `pub` (all fields `pub`) — leaks the field layout as an API surface; external crates can construct invalid T values bypassing invariants
+- Make T `pub(crate)` — external crates can't reference T in their own struct fields even if they just want opaque round-trip; defeats the cross-crate serialization use case
+- Manual `Serialize`/`Deserialize` impl — boilerplate that obscures field-level invariants and breaks when fields are added/removed
+
+The `pub` type + `pub(crate)` fields pattern is the cleanest expression of "this type is opaquely usable across crates but its internals are crate-implementation-detail."
+
+**Verified at chunk #71** (`crates/triage/src/pattern/storm.rs`): `FingerprintState { pub(crate) service, pub(crate) timestamps_nanos, pub(crate) last_emitted }` declared `pub` so `pub struct StormStateSnapshot { pub entries: Vec<([u8; 16], FingerprintState)> }` can re-export across crate boundaries; the `pulse-app/src/storm_persistence.rs` adapter holds `StormStateSnapshot` values + bincode-roundtrips them transparently without ever introspecting individual `FingerprintState` fields. External crates that bincode-serialize/deserialize a `StormStateSnapshot` get the full lossless round-trip; they cannot construct synthetic `FingerprintState` values.
+
+**Applies to future similar patterns:** any future cross-crate persistence layer wrapping crate-internal state types should reach for this pattern first. Most natural fit for `DashMap<K, V>` snapshot persistence + `RwLock<HashMap<K, V>>` snapshot persistence where V is rich state that needs serde derives but shouldn't be externally constructible.
+
+**Caveat:** the pattern is Rust-specific. TypeScript/Go/Java equivalents are weaker (TS has `private` but reflection bypasses it; Go's lowercase-first-letter doesn't expose fields outside the package but doesn't compose with cross-package struct embedding cleanly).
+
+---
+
 ## 2026-05-20 (session 103) — Runtime tracing verification at /implement Phase 2b: grep agent-latest.jsonl after boot for new trace targets (confidence 0.8)
 
 When a chunk introduces new `tracing::info!` / `tracing::warn!` targets (especially boot-time emissions like chunk #70's `triage.baseline.migrate`), /implement Phase 2b can be elevated from "did the app process not crash?" to **"did the new target actually fire with the expected field set?"** by grepping `~/.andromeda-pulse/logs/agent-latest.jsonl.{YYYY-MM-DD}` after the dev boot.

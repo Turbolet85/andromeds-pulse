@@ -19,6 +19,7 @@
 //! (mirrors chunk #59 `ReceiverBindStatus` precedent).
 
 mod broadcast;
+mod persistence;
 mod registry;
 mod state_machine;
 
@@ -32,6 +33,11 @@ use crate::pattern::RestartEvent;
 
 pub use broadcast::{
     STREAM_NAME_SERVICE_LIFECYCLE, ServiceLifecycleBroadcast, ServiceLifecycleEvent,
+};
+pub use persistence::{
+    DEFAULT_LIFECYCLE_PERSIST_INTERVAL_SECS, LIFECYCLE_PERSISTENCE_KIND, LifecycleError,
+    LifecyclePersistence, TARGET_LIFECYCLE_PERSIST, TARGET_LIFECYCLE_PERSIST_ERROR,
+    persist_lifecycle_on_shutdown, run_lifecycle_persist_cycle, run_lifecycle_persist_loop,
 };
 pub use registry::{
     ACTIVE_TO_QUIET_THRESHOLD_SECONDS, InMemoryServiceRegistry, QUIET_TO_SILENT_FALLBACK_SECONDS,

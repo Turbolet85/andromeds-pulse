@@ -4,6 +4,7 @@ pub mod connection_router;
 pub mod diagnostics_router;
 pub mod drain_persistence;
 pub mod heartbeat;
+pub mod lifecycle_persistence;
 #[cfg(feature = "mcp-server")]
 pub mod mcp_router;
 pub mod observability;
@@ -13,6 +14,7 @@ pub mod services_router;
 pub mod snapshot_runtime;
 pub mod storage_router;
 pub mod storm_observer;
+pub mod storm_persistence;
 pub mod streams;
 pub mod tray;
 pub mod viz_routers;

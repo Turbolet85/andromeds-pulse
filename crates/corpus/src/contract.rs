@@ -32,6 +32,21 @@ pub struct InspectionMetadata {
     pub schema_version: u32,
 }
 
+/// Raw row envelope for `service_registry` table reads (chunk #71). The
+/// lifecycle persistence adapter at `pulse-app/src/lifecycle_persistence.rs`
+/// parses TEXT `state` + `manual_override` columns into
+/// `ServiceLifecycleState` enum variants at the binary boundary;
+/// corpus crate stays domain-agnostic (no `triage` dep edge).
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub struct ServiceRegistryRowRaw {
+    pub service_name: String,
+    pub state: String,
+    pub first_seen_unix_nano: i64,
+    pub last_seen_unix_nano: i64,
+    pub last_transition_unix_nano: i64,
+    pub manual_override: Option<String>,
+}
+
 /// Corpus handle — wraps the rusqlite Connection + tracks the resolved
 /// on-disk path + the loaded encryption key. Construct via
 /// [`Corpus::open`] (on-disk) or [`Corpus::open_in_memory`] (tests).
@@ -186,6 +201,37 @@ pub trait CorpusWriter: Send + Sync {
         metric_name: &str,
         layer: &str,
     ) -> Result<Option<Vec<u8>>, Error>;
+
+    /// UPSERT a `service_registry` row (chunk #71). Used by the
+    /// lifecycle persistence adapter at `pulse-app/src/lifecycle_persistence.rs`
+    /// to persist the in-memory DashMap-backed `InMemoryServiceRegistry`
+    /// state across restarts (capability P-027 closure). Prepared
+    /// statement with `?` placeholders per security plan §Input Validation
+    /// + the rusqlite analogue of the 2026 DuckDB CVE cluster.
+    ///
+    /// Column-level encryption does NOT apply to `service_registry` rows
+    /// (unlike `pipeline_metrics.payload` BLOB) because the schema columns
+    /// are query-friendly typed columns rather than opaque blobs. The
+    /// `service_name` column is user-content classification per arch
+    /// §Threat Model + chunk #71 plan §Acceptance Criteria → Deferred
+    /// (PII scrubber call site deferred to chunk #72).
+    fn save_service_registry_row(
+        &self,
+        service_name: &str,
+        state: &str,
+        first_seen_unix_nano: i64,
+        last_seen_unix_nano: i64,
+        last_transition_unix_nano: i64,
+        manual_override: Option<&str>,
+    ) -> Result<(), Error>;
+
+    /// Load all `service_registry` rows ordered by row id (insertion
+    /// order — first observation first; mirrors broadcast ordering for
+    /// downstream constellation cascade determinism). Returns
+    /// `Ok(vec![])` when the table is empty (cold-start path); the
+    /// lifecycle adapter caller maps `vec![]` → `Ok(None)` per the
+    /// LifecyclePersistence trait semantics.
+    fn load_all_service_registry_rows(&self) -> Result<Vec<ServiceRegistryRowRaw>, Error>;
 }
 
 impl CorpusWriter for Corpus {
@@ -231,6 +277,67 @@ impl CorpusWriter for Corpus {
             }
             None => Ok(None),
         }
+    }
+
+    fn save_service_registry_row(
+        &self,
+        service_name: &str,
+        state: &str,
+        first_seen_unix_nano: i64,
+        last_seen_unix_nano: i64,
+        last_transition_unix_nano: i64,
+        manual_override: Option<&str>,
+    ) -> Result<(), Error> {
+        let conn = self.connection();
+        let guard = conn.lock().map_err(|_| Error::QueryFailed)?;
+        guard
+            .execute(
+                "INSERT INTO service_registry (service_name, state, first_seen_unix_nano, last_seen_unix_nano, last_transition_unix_nano, manual_override) \
+                 VALUES (?1, ?2, ?3, ?4, ?5, ?6) \
+                 ON CONFLICT(service_name) DO UPDATE SET \
+                   state = excluded.state, \
+                   last_seen_unix_nano = excluded.last_seen_unix_nano, \
+                   last_transition_unix_nano = excluded.last_transition_unix_nano, \
+                   manual_override = excluded.manual_override",
+                rusqlite::params![
+                    service_name,
+                    state,
+                    first_seen_unix_nano,
+                    last_seen_unix_nano,
+                    last_transition_unix_nano,
+                    manual_override,
+                ],
+            )
+            .map_err(|_| Error::QueryFailed)?;
+        Ok(())
+    }
+
+    fn load_all_service_registry_rows(&self) -> Result<Vec<ServiceRegistryRowRaw>, Error> {
+        let conn = self.connection();
+        let guard = conn.lock().map_err(|_| Error::QueryFailed)?;
+        let mut stmt = guard
+            .prepare(
+                "SELECT service_name, state, first_seen_unix_nano, last_seen_unix_nano, last_transition_unix_nano, manual_override \
+                 FROM service_registry ORDER BY id",
+            )
+            .map_err(|_| Error::QueryFailed)?;
+        let rows = stmt
+            .query_map([], |row| {
+                Ok(ServiceRegistryRowRaw {
+                    service_name: row.get(0)?,
+                    state: row.get(1)?,
+                    first_seen_unix_nano: row.get(2)?,
+                    last_seen_unix_nano: row.get(3)?,
+                    last_transition_unix_nano: row.get(4)?,
+                    manual_override: row.get(5)?,
+                })
+            })
+            .map_err(|_| Error::QueryFailed)?;
+        let mut result = Vec::new();
+        for row in rows {
+            result.push(row.map_err(|_| Error::QueryFailed)?);
+        }
+        Ok(result)
     }
 }
 
