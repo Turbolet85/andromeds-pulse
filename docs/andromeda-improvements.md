@@ -996,4 +996,76 @@ Posture: warning-not-fatal. User decides whether to migrate (recommended) OR acc
 - Sibling proposal: **Proposal 13** — first-class sub-phase state for two-phase chunks (filed session 97). Both P13 + P15 are wrap-session enhancements closing detection gaps; P13 detects sub-phase progress, P15 detects dead test code. Different domains but same wrap-session-as-detection-gate framing.
 - `.claude/rules/testing.md` Session Addition 2026-05-13 — documents the `[lib] test = false` Windows WebView2 workaround.
 - `.claude/rules/testing.md` Session Addition 2026-05-20 session 107 (filed this same wrap) — documents migration discipline for moving dead source-level tests к integration tests + the visibility-bump pattern (private fns → pub с `#[doc(hidden)]` for integration access).
+
+---
+
+## Status: PROPOSED — 2026-05-20 (session 108)
+
+### Proposal 16 — wrap-session Phase 10 step 4 SHA-fixup amend captures pre-amend SHA (chronic single-wrap-lag drift)
+
+**Problem:**
+
+wrap-session Phase 10 step 4 ("post-commit state.yaml SHA-fixup amend") attempts к update `state.yaml.last_completed_chunk.commit_sha` from the `"pending"` placeholder к the real short SHA of the wrap commit. The sequence:
+
+1. Pre-wrap: state.yaml.commit_sha = `"pending"` (placeholder)
+2. Make wrap commit → produces SHA `X`
+3. Capture `X` via `git rev-parse --short HEAD`
+4. Update state.yaml.commit_sha = `X`
+5. `git commit --amend --no-edit` к fold state.yaml into the same commit → produces NEW SHA `Y` (different from `X` because amend changes content + SHA)
+
+Result: state.yaml inside the final commit `Y` contains `commit_sha = X` (the pre-amend SHA), but `X` is now a DANGLING orphan commit (not reachable from HEAD = `Y`). The next /new-session detects State H drift; the next /wrap-session's "State H housekeeping" fixes it by setting commit_sha = `Y` (the now-reachable HEAD).
+
+Evidence of recurrence:
+- Session 105 wrap created orphan SHA `9459d14`; session 106 wrap "State H housekeeping (chunk #71 95a9619→2537e44)" cleaned it up
+- Session 107 wrap created orphan SHA `ae62162`; session 108 wrap (this file's wrap) "State H housekeeping (chunk #72 ae62162→e08693e)" cleaned it up
+- Verified: `git merge-base --is-ancestor ae62162 HEAD` returns non-zero (orphan); `git log -1 ae62162` shows the commit exists but unreachable from HEAD
+
+This is a fundamental git constraint: a commit's SHA cannot be known until the commit exists, and amending changes the SHA. There's no way to capture the post-amend SHA without yet another amend (which would loop forever).
+
+**Proposal:**
+
+Three viable mitigation options; recommend Option (b) per minimal-surgery preference:
+
+**Option (a) — Detect + label as known-stale:**
+After Phase 10 step 4 amend, re-read state.yaml + add a comment block above commit_sha citing "SHA is pre-amend; actual post-amend SHA in git is unknown (chicken-and-egg). Next wrap auto-heals via State H housekeeping." Surfaces honest intent в audit trail. Cost: every commit_sha field carries an explanatory comment forever.
+
+**Option (b) — Remove Phase 10 step 4 entirely; accept the lag:**
+Skip the amend attempt; leave commit_sha = `"pending"` placeholder. New-session detects State H with severity info (downgraded from warning because the lag is now part of the documented pipeline). Next wrap-session's State H housekeeping path (which already exists per session 106 + 108 evidence) sets commit_sha = real HEAD SHA в that wrap's atomic state.yaml write. Cost: one-wrap-cycle lag в state.yaml accuracy (cosmetic; doesn't affect correctness because audit trail in marker files + amendment IDs remain unambiguous).
+
+**Option (c) — Two-commit pattern (wrap commit then SHA-fixup commit):**
+Phase 10 makes the wrap commit normally; Phase 10 step 4 creates a SEPARATE follow-up commit `chore(state-cursor): record chunk #N commit_sha {real-sha}`. Audit trail has two commits per wrap instead of one; commit_sha records the prior wrap commit's actual SHA. Cost: doubles wrap commit count (98 wraps → 196 commits if applied retroactively); violates the "one-commit-per-wrap" invariant documented в session-state-contract.md.
+
+Recommended: **Option (b)**. Simplest; respects the git constraint; acknowledges the chronic lag as part of the documented pipeline rather than fighting it with imperfect mitigations. State H detection at /new-session continues к function (it already handles the existing pattern); the dashboard's existing remediation hint ("next wrap-session Phase 8 should auto-fix") becomes load-bearing rather than aspirational.
+
+**Design:**
+
+For Option (b):
+
+1. Edit `~/.claude/skills/andromeda-wrap-session/SKILL.md` Phase 10:
+   - Remove step 4 ("Post-commit state.yaml SHA-fixup amend") entirely
+   - Update step 3 commit composition: leave `commit_sha = "pending"` in state.yaml inside the wrap commit; document this как deliberate (audit trail preserved by amendment markers + commit subject lines)
+   - Add Phase 8 step 6 (NEW): "State H housekeeping — if state.yaml.last_completed_chunk.commit_sha is `'pending'` OR points к а SHA not reachable from HEAD, update it к the most recent commit matching chunk progression pattern (`^chunk\\(\\d+\\):` OR `^feat\\(\\{module\\}\\):` against the last_completed_chunk's title)". This becomes the auto-heal path every wrap (currently only documented as "next wrap-session Phase 8 should auto-fix" but not explicitly wired — codify it).
+
+2. Edit `~/.claude/skills/andromeda-new-session/references/visual-references.md` Phase 9:
+   - Downgrade State H from warning severity к info severity when state.yaml.commit_sha = `"pending"` (this is the EXPECTED post-wrap state under Option b — not an anomaly)
+   - Keep warning severity when state.yaml.commit_sha points к an unreachable non-pending SHA (this would be an unhealed previous-wrap leftover)
+
+3. No spec-amendment-protocol.md changes needed (state.yaml schema unchanged; Phase 10 step 4 was procedural, not schema-defining).
+
+**Implementation cost:**
+
+~30 LOC across 2 skill files. Single Andromeda toolkit user-level edit (no project-side changes). Should land as part of chunk #76 "Andromeda pipeline meta-improvements" alongside P7 + P12 + P15 + P17-P18.
+
+**When to do:**
+
+After chunk #76 starts (Phase 6 v3 plan sequence). Could land standalone if user wants to clear the chronic State H housekeeping noise from session-after-session wrap commits earlier; the 1-wrap-lag is cosmetic so not urgent.
+
+**Cross-references:**
+
+- Triggering observation: session 108 /new-session detected State H carry-over from session 107 wrap (ae62162 orphan); resolved via State H housekeeping in this wrap (ae62162 → e08693e).
+- Historical precedent: session 105/106 pair (orphan 95a9619 → 2537e44 fix); session 107 carried it forward; pattern visible в commit log по subject lines.
+- Sibling proposal: **Proposal 15** — dead-test detection gate for wrap-session/implement (filed session 107). Both P15 + P16 are wrap-session meta-improvements; P15 fixes detection gap, P16 fixes mechanism flaw. Both target chunk #76 batch.
+- `~/.claude/skills/andromeda-wrap-session/SKILL.md` Phase 10 step 4 — the load-bearing mechanism being deprecated.
+- `~/.claude/skills/andromeda-new-session/references/visual-references.md` Phase 9 State H rendering — needs severity downgrade for `"pending"` case.
+- `state.yaml.last_completed_chunk.commit_sha` field — semantics shift from "real post-amend SHA" к "real HEAD-reachable SHA OR `'pending'` placeholder until next wrap heals".
 - `~/.claude/skills/andromeda-wrap-session/references/visual-references.md` Phase 11 — current report sections; P15 adds new "Dead-test warnings" subsection.

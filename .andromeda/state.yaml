@@ -1,13 +1,13 @@
 schema_version: 2
-last_wrap: 2026-05-20T23:00:00Z
-last_reconcile: 2026-05-20T23:00:00Z
+last_wrap: 2026-05-20T22:19:15Z
+last_reconcile: 2026-05-20T22:19:15Z
 
 last_completed_chunk:
   route_index: 72
   title: "PII scrubber coverage extension — extend scrub_attribute to OTLP appender + Drain corpus persist paths; uniform pre-scrub at persistence boundary (capabilities P-006/P-047/P-048; detail in pulse-v0_2_0-route §72)"
   epoch: 9
-  committed_at: 2026-05-20T23:00:00Z
-  commit_sha: "ae62162"
+  committed_at: 2026-05-20T21:38:51Z
+  commit_sha: "e08693e"
   commit_subject: "feat(buffer,corpus,triage,pulse-app): chunk #72 PII scrubber coverage extension + dead-test migration + bincode OOM fix"
 
 # Session 107 wrap (2026-05-20T23:00Z): chunk #72 PII scrubber coverage extension implementation
@@ -64,21 +64,22 @@ plan_freshness:
   tests_mtime: 2026-05-10T12:55:51Z
   obs_mtime: 2026-05-08T18:00:16Z
   a11y_mtime: 2026-05-02T21:45:23Z
-  route_mtime: 2026-05-20T21:00:00Z
+  route_mtime: 2026-05-20T22:02:01Z
   input_mtime: 2026-05-02T06:52:58Z
 
 living_artifact_freshness:
-  dep_tree_reconciled_at: 2026-05-20T23:00:00Z
-  api_surface_reconciled_at: 2026-05-20T23:00:00Z
-  most_recent_code_mtime: 2026-05-20T22:30:00Z
+  dep_tree_reconciled_at: 2026-05-20T22:19:15Z
+  api_surface_reconciled_at: 2026-05-20T22:19:15Z
+  most_recent_code_mtime: 2026-05-20T22:19:15Z
   reconcile_failed: false
   api_surface_deferred: true
-  api_surface_deferred_reason: "per-crate cargo +nightly public-api iteration across 14 crates exceeds wrap budget (7-14 min vs ~3 min); 13th consecutive deferral per sessions 91-106 pattern; session 107 added substantial new pub surface (chunk #72 PII scrubber coverage extension scrubbed_clone methods + bincode_bounded module + 4 promoted-from-private helper fns/consts via dead-test migration visibility bumps + ~53 newly-runnable test files); next /implement-followed wrap (likely chunk #73 capability spec numeric alignment) is natural re-baseline checkpoint when chunks #70/#71/#72 substantial pub surface deltas fold into one tooling pass"
+  api_surface_deferred_reason: "per-crate cargo +nightly public-api iteration across 14 crates exceeds wrap budget (7-14 min vs ~3 min); 14th consecutive deferral per sessions 91-107 pattern; session 108 = workspace-hygiene cargo-deny closure + chunk #73 route registration only (no pub surface introduced; lru 0.12 → 0.16.4 workspace dep bump is internal к DrainMiner private field with stable LruCache API surface); chunk #73 implementation wrap is the natural re-baseline checkpoint когда chunks #70/#71/#72 + #73's pub surface fold into one tooling pass"
 
 drift_warnings: []
 
 spec_amendments:
-  active:
+  active: []
+  archive:
     - amendment_id: 2026-05-20T21-56-34-append-chunk-73-capability-spec-numeric-alignment
       plans:
         - path: route.md
@@ -86,38 +87,12 @@ spec_amendments:
             - "§1 Route Scope Summary (Total chunks mechanical update per Proposal 6)"
             - "§2 Roadmap (Epoch 9 body)"
             - "§3 Decisions Log"
-          decisions_log_section: "2026-05-20 — Append chunk #73 Capability spec numeric alignment (--allow-route-append)"
-      trigger:
-        chunk: null
-        phase: null
-        harness: "user-driven via /andromeda-evolve"
-      authority:
-        winning_plan: null
-        winning_tier: pipeline state
-        losing_plan: route.md
-        losing_concern: chunk-list-stale-vs-pipeline-reality
-        rationale: "v3 Consolidation Phase 2 sequence per ~/.claude/plans/rippling-brewing-moon.md §73 advances chunk #73 Capability spec numeric alignment; closes audit Section 1.D capability-PARTIAL findings (P-001/P-003/P-010/P-011/P-012/P-014). Authorized via --allow-route-append; Check 8 clean."
-      impl_files_synced: []
-      expected_propagation:
-        - CLAUDE.md  # GENERATED:setup:pointer-table — (9 epochs / 72 chunks) → (9 epochs / 73 chunks) per Proposal 5
-      marker_path: .andromeda/runs/2026-05-20T21-56-34-spec-amendment-append-chunk-73-capability-spec-numeric-alignment/amendment.md
-      applied_at: 2026-05-20T21:56:34Z
-      noted_at: null
+      decisions_log_sections:
+        - "2026-05-20 — Append chunk #73 Capability spec numeric alignment (--allow-route-append)"
       propagated_by_run: .andromeda/runs/2026-05-20T22-05-34-setup-project-delta/
-      archived_at: null
-      verification_status: clean
+      archived_at: 2026-05-20T22:19:15Z
       flag_used: --allow-route-append
       form: 1
-      route_section_modified: "Epoch 9 — Foundation v0.2.0"
-      chunks_added:
-        - position: 73
-          text: "Capability spec numeric alignment — fix P-001/P-003 thresholds + failure path, P-010/P-011/P-012/P-014 baseline-relative semantics (capabilities P-001/P-003/P-010/P-011/P-012/P-014; detail in pulse-v0_2_0-route §73)."
-      chunks_renumbered: []
-      motivation: "v3 Consolidation Phase 2 sequence per ~/.claude/plans/rippling-brewing-moon.md §73; session-handoff carry-over from session 107 wrap names #73 as next consolidation chunk; depends on chunks #59/#61/#62/#66/#70 (all complete)."
-      confirmed_shift: false
-      scope_summary_updates:
-        - "Total chunks: 72 → 73"
-  archive:
     - amendment_id: 2026-05-20T21-00-00-append-chunk-72-pii-scrubber-coverage-extension
       plans:
         - path: route.md
@@ -580,4 +555,4 @@ spec_amendments:
       propagated_by_run: .andromeda/runs/2026-05-11T19-00-00-setup-project-delta/
       archived_at: 2026-05-11T19:25:00Z
 
-session_count: 107
+session_count: 108
