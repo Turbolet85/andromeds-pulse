@@ -38,6 +38,12 @@ pub fn run_one_emit_cycle(
     let services_tracked = state.service_count();
     let operations_tracked = state.operation_count();
 
+    // Chunk #73 P-012: rotate the short-window (~30s effective) t-digest
+    // pairs before evaluation so percentile queries see freshest data.
+    // Internal age-check in `swap_on_tick` no-ops if elapsed <
+    // DEFAULT_SHORT_SWAP_INTERVAL_NANOS (15s), making the 1Hz call safe.
+    state.swap_short_tdigest_pairs_on_tick(now_nanos);
+
     tracing::info!(
         target: TARGET_CUE_EVALUATE,
         services_tracked = services_tracked as u64,
@@ -325,8 +331,13 @@ mod tests {
     use tracing::{Event, Level, Subscriber};
 
     fn seed_error_spike_service(state: &BaselineState, service: &str) {
+        // Chunk #73 P-010 baseline-relative semantics: long-term baseline
+        // at 0% errors (first 50 obs), then short-term spike at 100% errors
+        // (last 50 obs). Short EWMA (α≈0.0333) converges quickly toward
+        // the spike value; long EWMA (α≈0.00333) barely moves; ratio
+        // short/long > 3.0× triggers ErrorRateSpike cue.
         for i in 0..100 {
-            let status = if i < 50 { 2 } else { 0 };
+            let status = if i >= 50 { 2 } else { 0 };
             state.observe_span(service, "op-x", status, 50, 1_000_000 + i * 1_000_000);
         }
     }
@@ -644,11 +655,12 @@ mod tests {
     #[test]
     fn run_one_emit_cycle_drops_short_persistence_error_spike_in_active_window() {
         let state = BaselineState::new();
-        // 25 samples с 13 errors → EWMA ~0.04, samples=25 (<30s cutoff),
-        // magnitude ~4x base — none of these cross bypass thresholds when
-        // we use `high_thresholds`.
+        // Chunk #73 P-010 baseline-relative: seed 12 zeros (baseline) then
+        // 13 errors (recent spike) so short EWMA > long EWMA × multiplier.
+        // 25 samples < `suppression_persistence_cutoff_seconds` (30) → cue
+        // is suppression-eligible during the active restart window.
         for i in 0..25 {
-            let status = if i < 13 { 2 } else { 0 };
+            let status = if i >= 12 { 2 } else { 0 };
             state.observe_span("svc-restarted", "op", status, 50, 1_000_000 + i * 1_000_000);
         }
         let broadcast_handle = AttentionCueBroadcast::new();
@@ -720,9 +732,11 @@ mod tests {
         // Note: persistence > 30s cutoff (=100), so suppression-eligibility
         // is FALSE — the cue would survive even without bypass. Force
         // short persistence by seeding fewer samples.
+        // Chunk #73 P-010 baseline-relative: zeros first then errors so
+        // short EWMA converges to the recent spike + long stays low.
         let state_short = BaselineState::new();
         for i in 0..25 {
-            let status = if i < 20 { 2 } else { 0 };
+            let status = if i >= 5 { 2 } else { 0 };
             state_short.observe_span("svc-severe", "op", status, 50, 1_000_000 + i * 1_000_000);
         }
 

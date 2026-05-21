@@ -1,7 +1,7 @@
 use crate::baseline::{BaselineState, BootstrapState};
 use crate::contract::{AttentionCue, CueKind, CueScope};
 use crate::cue::classify::{classify_priority, dual_condition_bypass};
-use crate::cue::thresholds::Thresholds;
+use crate::cue::thresholds::{MIN_QUIET_SECONDS, Thresholds};
 
 /// Confidence cap — samples ≥ this value yield confidence = 1.0. Mid-range
 /// samples scale linearly от `min_ewma_samples`. Module-private к keep the
@@ -27,17 +27,27 @@ pub fn evaluate_thresholds(
 ) -> Vec<AttentionCue> {
     let mut cues = Vec::new();
 
-    // Per-service ErrorRateSpike detection.
+    // Per-service ErrorRateSpike detection (chunk #73 P-010 baseline-relative):
+    // compares short-term (30s) EWMA against long-term (5min) EWMA per
+    // capability spec. The long-term value floors at `thresholds.base_error_rate`
+    // (former fixed-denominator, now a minimum-baseline floor) so services
+    // с near-zero error rate don't trigger division-explosion magnitudes;
+    // the floor degrades gracefully into the prior fixed-baseline behavior
+    // before convergence.
     for snapshot in state.iter_services() {
         if snapshot.samples < thresholds.min_ewma_samples {
             continue;
         }
-        let threshold = thresholds.base_error_rate * thresholds.error_rate_multiplier;
-        if !snapshot.error_rate.is_finite() || snapshot.error_rate < threshold {
+        if !snapshot.short_term_error_rate.is_finite() || !snapshot.error_rate.is_finite() {
             continue;
         }
-        let magnitude = if thresholds.base_error_rate > 0.0 {
-            snapshot.error_rate / thresholds.base_error_rate
+        let baseline = snapshot.error_rate.max(thresholds.base_error_rate);
+        let threshold = baseline * thresholds.error_rate_multiplier;
+        if snapshot.short_term_error_rate < threshold {
+            continue;
+        }
+        let magnitude = if baseline > 0.0 {
+            snapshot.short_term_error_rate / baseline
         } else {
             0.0
         };
@@ -46,7 +56,7 @@ pub fn evaluate_thresholds(
         let priority_tier = classify_priority(magnitude, confidence, persistence_seconds);
         let suppression_bypassed = dual_condition_bypass(
             magnitude,
-            snapshot.error_rate,
+            snapshot.short_term_error_rate,
             CueKind::ErrorRateSpike,
             thresholds,
         );
@@ -55,7 +65,7 @@ pub fn evaluate_thresholds(
             scope: CueScope::Service,
             scope_id: Some(snapshot.service_name),
             magnitude,
-            absolute_value: snapshot.error_rate,
+            absolute_value: snapshot.short_term_error_rate,
             persistence_seconds,
             confidence,
             priority_tier,
@@ -63,34 +73,61 @@ pub fn evaluate_thresholds(
         });
     }
 
-    // Per-operation LatencyRegression detection.
+    // Per-operation LatencyRegression detection (chunk #73 P-012 baseline-
+    // relative): compares short-window t-digest p99 against long-window
+    // t-digest p99 per capability spec. The long-term value floors at
+    // `thresholds.base_latency_ms` (former fixed-denominator, now a minimum-
+    // baseline floor) so operations с near-zero latency don't trigger
+    // division-explosion magnitudes; the floor degrades gracefully into
+    // the prior fixed-baseline behavior before convergence.
     for snapshot in state.iter_operations(thresholds.latency_percentile) {
         if snapshot.samples < thresholds.min_ewma_samples {
             continue;
         }
-        let Some(latency) = snapshot.latency_at_percentile else {
+        let Some(latency_short) = snapshot.short_term_latency_at_percentile else {
             continue;
         };
-        let threshold = thresholds.base_latency_ms * thresholds.latency_multiplier;
-        if !latency.is_finite() || latency < threshold {
+        if !latency_short.is_finite() {
             continue;
         }
-        let magnitude = if thresholds.base_latency_ms > 0.0 {
-            latency / thresholds.base_latency_ms
+        let baseline = match snapshot.latency_at_percentile {
+            Some(l) if l.is_finite() => l.max(thresholds.base_latency_ms),
+            _ => thresholds.base_latency_ms,
+        };
+        let threshold = baseline * thresholds.latency_multiplier;
+        if latency_short < threshold {
+            continue;
+        }
+        let magnitude = if baseline > 0.0 {
+            latency_short / baseline
         } else {
             0.0
         };
         let confidence = (snapshot.samples as f64 / CONFIDENCE_SATURATION_SAMPLES).min(1.0);
         let persistence_seconds = snapshot.samples;
         let priority_tier = classify_priority(magnitude, confidence, persistence_seconds);
-        let suppression_bypassed =
-            dual_condition_bypass(magnitude, latency, CueKind::LatencyRegression, thresholds);
+        let suppression_bypassed = dual_condition_bypass(
+            magnitude,
+            latency_short,
+            CueKind::LatencyRegression,
+            thresholds,
+        );
+        // Per capability spec P-011: surface the human-readable
+        // `operation_name` so downstream consumers (Findings dropdown, model
+        // interpretation) can describe the regression as "p99 of GET /endpoint
+        // regressed". Falls back к the opaque `operation_key` when the
+        // baseline record predates chunk #73 (pre-existing corpus state).
+        let scope_id = if snapshot.operation_name.is_empty() {
+            snapshot.operation_key
+        } else {
+            snapshot.operation_name
+        };
         cues.push(AttentionCue {
             kind: CueKind::LatencyRegression,
             scope: CueScope::Operation,
-            scope_id: Some(snapshot.operation_key),
+            scope_id: Some(scope_id),
             magnitude,
-            absolute_value: latency,
+            absolute_value: latency_short,
             persistence_seconds,
             confidence,
             priority_tier,
@@ -126,13 +163,18 @@ pub fn evaluate_service_went_silent(
         let Some(p95_seconds) = snapshot.p95_historical_quiet_duration_seconds else {
             continue;
         };
-        if snapshot.current_quiet_duration_seconds <= p95_seconds {
+        // Per capability spec P-014: minimum threshold of 30 seconds, applied
+        // as a max-floor over the learned p95. High-frequency services with
+        // sub-30s p95 are clamped к 30s; low-frequency services с p95 >30s
+        // honor the learned value.
+        let effective_threshold = p95_seconds.max(MIN_QUIET_SECONDS);
+        if snapshot.current_quiet_duration_seconds <= effective_threshold {
             continue;
         }
-        let magnitude = if p95_seconds == 0 {
+        let magnitude = if effective_threshold == 0 {
             snapshot.current_quiet_duration_seconds as f64
         } else {
-            snapshot.current_quiet_duration_seconds as f64 / p95_seconds as f64
+            snapshot.current_quiet_duration_seconds as f64 / effective_threshold as f64
         };
         let confidence = 1.0;
         let persistence_seconds = snapshot.current_quiet_duration_seconds;
@@ -158,9 +200,14 @@ mod tests {
     use crate::baseline::BaselineState;
 
     fn seed_service(state: &BaselineState, service: &str, error_count: u32, total: u32) {
+        // Chunk #73 P-010 baseline-relative semantics: distribute errors at
+        // the TAIL so short EWMA converges quickly to recent values while
+        // long EWMA barely moves. The error_count parameter is interpreted
+        // as "errors in the last error_count observations of total".
         let now = 1_000_000_000;
+        let baseline_obs = total.saturating_sub(error_count);
         for i in 0..total {
-            let status = if i < error_count { 2 } else { 0 };
+            let status = if i >= baseline_obs { 2 } else { 0 };
             state.observe_span(service, "op-x", status, 50, now + (i as i64) * 1_000_000);
         }
     }
@@ -234,10 +281,31 @@ mod tests {
 
     #[test]
     fn evaluate_thresholds_latency_above_threshold_emits_cue() {
+        // Chunk #73 P-012 baseline-relative semantics: long t-digest holds
+        // 1000 baseline obs at 50ms; short t-digest is drained via two swap
+        // cycles; then 5 spike obs at 300ms accumulate in short.current only.
+        // The 1000:5 count ratio keeps long_p99 = 50ms (spike doesn't reach
+        // p99 of 1005 obs); short_p99 (current_only) = 300ms.
         let state = BaselineState::new();
-        // Default threshold = 100 * 2.5 = 250ms. Seed 300ms latency.
-        seed_latency(&state, "svc-slow", "GET /endpoint", 300, 100);
-        let cues = evaluate_thresholds(&state, &Thresholds::default(), 1_000);
+        let mut now = 1_000_000_000_i64;
+
+        for _ in 0..1000 {
+            state.observe_span("svc-slow", "GET /endpoint", 0, 50, now);
+            now += 1_000_000;
+        }
+
+        // Two swaps to drain short.current → previous → empty.
+        now += 16 * NANOS_PER_SEC;
+        state.swap_short_tdigest_pairs_on_tick(now);
+        now += 16 * NANOS_PER_SEC;
+        state.swap_short_tdigest_pairs_on_tick(now);
+
+        for _ in 0..5 {
+            state.observe_span("svc-slow", "GET /endpoint", 0, 300, now);
+            now += 1_000_000;
+        }
+
+        let cues = evaluate_thresholds(&state, &Thresholds::default(), now);
         let latency_cues: Vec<&AttentionCue> = cues
             .iter()
             .filter(|c| c.kind == CueKind::LatencyRegression)
@@ -249,8 +317,18 @@ mod tests {
         );
         let cue = latency_cues[0];
         assert_eq!(cue.scope, CueScope::Operation);
-        assert!(cue.scope_id.as_deref().unwrap().starts_with("svc-slow/"));
-        assert!(cue.absolute_value >= 250.0);
+        // Chunk #73 P-011: scope_id is the human-readable operation_name,
+        // not the hashed operation_key.
+        assert_eq!(cue.scope_id.as_deref(), Some("GET /endpoint"));
+        // absolute_value is the SHORT t-digest p99 = 300ms (just spike obs).
+        assert!(
+            cue.absolute_value >= 250.0,
+            "absolute_value (short p99) = {}",
+            cue.absolute_value
+        );
+        // baseline = max(long_p99=50, base_latency_ms=100) = 100;
+        // magnitude = 300/100 = 3.0; above 2.5 multiplier.
+        assert!(cue.magnitude >= 2.5, "magnitude = {}", cue.magnitude);
     }
 
     #[test]
@@ -458,6 +536,56 @@ mod tests {
         assert!(
             cues.is_empty(),
             "bootstrap suppression must hold under attribute-shaped service names"
+        );
+    }
+
+    #[test]
+    fn evaluate_service_went_silent_high_frequency_service_clamped_to_min_floor() {
+        // Per capability spec P-014: minimum threshold of 30 seconds.
+        // High-frequency service (20s gap, p95 ≈ 20s) — without the floor,
+        // a 25s quiet period would emit a cue (25 > 20); with the floor,
+        // effective_threshold = max(20, 30) = 30s, so 25s is below threshold
+        // and no cue fires. Verifies floor protects chatty services from
+        // false-positive silence detection.
+        let state = BaselineState::new();
+        let first = 0_i64;
+        // 200 obs at 20s gap → 199 gaps × 20s = 3980s span (> 3600s bootstrap)
+        // → p95 of identical-gap distribution = 20s.
+        seed_regular_gaps(&state, "svc-chatty", first, 20, 200);
+        let last = 199 * 20 * NANOS_PER_SEC;
+        // Now is 25s past last → current_quiet = 25s.
+        // effective_threshold = max(20, MIN_QUIET_SECONDS=30) = 30s.
+        // 25s ≤ 30s → suppression, no cue.
+        let now = last + 25 * NANOS_PER_SEC;
+        let cues = evaluate_service_went_silent(&state, &Thresholds::default(), now);
+        assert!(
+            cues.is_empty(),
+            "25s quiet on chatty service (p95=20s) must be clamped к MIN_QUIET_SECONDS=30s floor; got {cues:?}"
+        );
+    }
+
+    #[test]
+    fn evaluate_service_went_silent_low_frequency_service_preserves_learned_p95() {
+        // Per capability spec P-014: floor is `max(p95, MIN_QUIET_SECONDS)`,
+        // so services with learned p95 > 30s honor their learned value.
+        // Low-frequency service (300s gap, p95 ≈ 300s) — current_quiet 280s
+        // is below the learned 300s; effective_threshold = max(300, 30) = 300s;
+        // 280s ≤ 300s → no cue. Verifies floor does not falsely lower
+        // threshold for low-frequency services.
+        let state = BaselineState::new();
+        let first = 0_i64;
+        // 15 obs at 300s gap → 14 gaps × 300s = 4200s span (> 3600s bootstrap)
+        // → p95 of identical-gap distribution = 300s.
+        seed_regular_gaps(&state, "svc-quiet-by-design", first, 300, 15);
+        let last = 14 * 300 * NANOS_PER_SEC;
+        // Now is 280s past last → current_quiet = 280s.
+        // effective_threshold = max(300, MIN_QUIET_SECONDS=30) = 300s.
+        // 280s ≤ 300s → suppression, no cue.
+        let now = last + 280 * NANOS_PER_SEC;
+        let cues = evaluate_service_went_silent(&state, &Thresholds::default(), now);
+        assert!(
+            cues.is_empty(),
+            "280s quiet on low-freq service (p95=300s) must honor learned p95, не clamped to 30s; got {cues:?}"
         );
     }
 }

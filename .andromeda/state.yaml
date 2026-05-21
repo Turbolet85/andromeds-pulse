@@ -1,14 +1,14 @@
 schema_version: 2
-last_wrap: 2026-05-20T22:19:15Z
-last_reconcile: 2026-05-20T22:19:15Z
+last_wrap: 2026-05-21T05:00:00Z
+last_reconcile: 2026-05-21T05:00:00Z
 
 last_completed_chunk:
-  route_index: 72
-  title: "PII scrubber coverage extension — extend scrub_attribute to OTLP appender + Drain corpus persist paths; uniform pre-scrub at persistence boundary (capabilities P-006/P-047/P-048; detail in pulse-v0_2_0-route §72)"
+  route_index: 73
+  title: "Capability spec numeric alignment — fix P-001/P-003 thresholds + failure path, P-010/P-011/P-012/P-014 baseline-relative semantics (capabilities P-001/P-003/P-010/P-011/P-012/P-014; detail in pulse-v0_2_0-route §73)"
   epoch: 9
-  committed_at: 2026-05-20T21:38:51Z
-  commit_sha: "e08693e"
-  commit_subject: "feat(buffer,corpus,triage,pulse-app): chunk #72 PII scrubber coverage extension + dead-test migration + bincode OOM fix"
+  committed_at: 2026-05-21T05:00:00Z
+  commit_sha: "c004e25"
+  commit_subject: "feat(triage,ingest,pulse-app): chunk #73 Capability spec numeric alignment — Path A short-window tracker"
 
 # Session 107 wrap (2026-05-20T23:00Z): chunk #72 PII scrubber coverage extension implementation
 # + dead-test migration cleanup + bincode OOM fix. Third chunk of v3 Phase 6 Consolidation lands;
@@ -68,12 +68,12 @@ plan_freshness:
   input_mtime: 2026-05-02T06:52:58Z
 
 living_artifact_freshness:
-  dep_tree_reconciled_at: 2026-05-20T22:19:15Z
-  api_surface_reconciled_at: 2026-05-20T22:19:15Z
-  most_recent_code_mtime: 2026-05-20T22:19:15Z
+  dep_tree_reconciled_at: 2026-05-21T04:55:00Z
+  api_surface_reconciled_at: 2026-05-21T04:55:00Z
+  most_recent_code_mtime: 2026-05-21T05:00:00Z
   reconcile_failed: false
   api_surface_deferred: true
-  api_surface_deferred_reason: "per-crate cargo +nightly public-api iteration across 14 crates exceeds wrap budget (7-14 min vs ~3 min); 14th consecutive deferral per sessions 91-107 pattern; session 108 = workspace-hygiene cargo-deny closure + chunk #73 route registration only (no pub surface introduced; lru 0.12 → 0.16.4 workspace dep bump is internal к DrainMiner private field with stable LruCache API surface); chunk #73 implementation wrap is the natural re-baseline checkpoint когда chunks #70/#71/#72 + #73's pub surface fold into one tooling pass"
+  api_surface_deferred_reason: "per-crate cargo +nightly public-api iteration across 14 crates exceeds wrap budget (7-14 min vs ~3 min); 15th consecutive deferral per sessions 91-108 pattern; session 109 = chunk #73 implementation wrap landed Path A full short-window tracker (~280 LOC across 5 files + integration test) adding ~30 new pub items (DEFAULT_ALPHA_30S_WINDOW + DEFAULT_SHORT_SWAP_INTERVAL_NANOS const + TDigestPair::percentile_current_only method + BaselineState::swap_short_tdigest_pairs_on_tick method + ServiceMetricSnapshot.short_term_error_rate field + OperationMetricSnapshot.{operation_name,short_term_latency_at_percentile} fields + ReceiverBindStatus.panic_signaled default-impl trait method + observability::{panic_signaled,reset_panic_signal_for_tests} pub fns + MIN_QUIET_SECONDS const + IDLE/STALLED/LATENCY_PERCENTILE const value changes + compute_state/derive_reason signature extensions); cumulative backlog с chunks #70/#71/#72 + #73 now substantial enough к make full per-crate iteration worthwhile at next opportunity (estimated ~9770 lines projected; baseline last reconciled at session 90 was 7288)"
 
 drift_warnings: []
 
@@ -555,4 +555,4 @@ spec_amendments:
       propagated_by_run: .andromeda/runs/2026-05-11T19-00-00-setup-project-delta/
       archived_at: 2026-05-11T19:25:00Z
 
-session_count: 108
+session_count: 109

@@ -35,13 +35,17 @@ const BROADCAST_CAPACITY: usize = 32;
 /// does NOT regress log volume.
 const POLLER_INTERVAL: Duration = Duration::from_secs(1);
 
-/// Age (nanos) after which ingest is considered "Idle". 5 seconds.
-pub const IDLE_THRESHOLD_NANOS: i64 = 5_000_000_000;
+/// Age (nanos) after which ingest is considered "Idle". 10 seconds per
+/// capability spec P-001 ("Idle 10–60s, quiet but otherwise healthy").
+pub const IDLE_THRESHOLD_NANOS: i64 = 10_000_000_000;
 
-/// Age (nanos) after which ingest is considered "Stalled". 30 seconds —
-/// proactively below the 45s heartbeat-gap CI alarm (obs-plan §10) so the
-/// FSM transitions to Stalled BEFORE the CI gate fires.
-pub const STALLED_THRESHOLD_NANOS: i64 = 30_000_000_000;
+/// Age (nanos) after which ingest is considered "Stalled". 60 seconds per
+/// capability spec P-001 ("Stalled >60s, suspect"). Independent of the 45s
+/// heartbeat-gap CI alarm (obs-plan §10) — the two are orthogonal mechanisms
+/// per 2026-05-08 obs Decisions Log "heartbeat ticks vs health command
+/// semantics": ticks measure subsystem self-emission cadence, FSM measures
+/// downstream OTLP span ingestion.
+pub const STALLED_THRESHOLD_NANOS: i64 = 60_000_000_000;
 
 /// 5-state connection lifecycle FSM. `#[serde(tag = "state")]` discriminator
 /// gives the TauRPC TypeScript binding a discriminated union the compiler
@@ -161,10 +165,19 @@ pub trait ReceiverBindStatus: Send + Sync {
     /// Returns true if either gRPC or HTTP OTLP receiver bind has reported
     /// a failure.
     fn any_receiver_failed(&self) -> bool;
+    /// Returns true if a panic has been signaled by the application's
+    /// `std::panic::set_hook` (chunk #73 P-003). Default impl returns false
+    /// for backward compatibility; pulse-app's `HeartbeatBindStatus` adapter
+    /// overrides this к read a module-level atomic signaled by the panic
+    /// hook. When true, the FSM transitions to `ReceiverFailed` with reason
+    /// `ReceiverPanicked` per capability spec P-003 "panics in receiver tasks".
+    fn panic_signaled(&self) -> bool {
+        false
+    }
 }
 
 /// Pure FSM transition function. Edges:
-/// - bind failure → ReceiverFailed (overrides all other signals)
+/// - bind failure OR panic signaled → ReceiverFailed (overrides all other signals)
 /// - no ingest yet (last == 0) → Listening
 /// - age < IDLE_THRESHOLD → Receiving
 /// - IDLE_THRESHOLD ≤ age < STALLED_THRESHOLD → Idle
@@ -173,8 +186,9 @@ pub fn compute_state(
     last_ingest_at_nanos: i64,
     now_nanos: i64,
     any_receiver_failed: bool,
+    receiver_panicked: bool,
 ) -> ConnectionState {
-    if any_receiver_failed {
+    if any_receiver_failed || receiver_panicked {
         return ConnectionState::ReceiverFailed;
     }
     if last_ingest_at_nanos == 0 {
@@ -247,10 +261,11 @@ pub async fn start_poller(
         let now_nanos = chrono::Utc::now().timestamp_nanos_opt().unwrap_or(0);
         let last = ingest_state.last_ingest_at_nanos();
         let failed = bind_status.any_receiver_failed();
-        let next = compute_state(last, now_nanos, failed);
+        let panicked = bind_status.panic_signaled();
+        let next = compute_state(last, now_nanos, failed, panicked);
         if next != current {
             let lag = last_span_ago_ms(last, now_nanos);
-            let reason = derive_reason(next, failed);
+            let reason = derive_reason(next, failed, panicked);
             let payload = ConnectionStatePayload::from_parts(next, lag, reason);
             emit_transition(current, next, lag, reason);
             // Best-effort send: ignore SendError (no subscribers is benign;
@@ -264,16 +279,17 @@ pub async fn start_poller(
 fn derive_reason(
     state: ConnectionState,
     any_receiver_failed: bool,
+    receiver_panicked: bool,
 ) -> Option<ReceiverFailureReason> {
     if matches!(state, ConnectionState::ReceiverFailed) {
-        Some(if any_receiver_failed {
+        // Precedence: panic > bind failure > stale heartbeat. Per capability
+        // spec P-003 panic is the most-actionable failure category and
+        // surfaces first when both conditions apply.
+        Some(if receiver_panicked {
+            ReceiverFailureReason::ReceiverPanicked
+        } else if any_receiver_failed {
             ReceiverFailureReason::BindFailed
         } else {
-            // Bind status not failed but state computed as ReceiverFailed:
-            // can only happen via stale-heartbeat path (currently unreachable
-            // because compute_state requires `any_receiver_failed = true`
-            // to return ReceiverFailed; reserved for future expansion when
-            // an explicit alive flag may be added).
             ReceiverFailureReason::StaleHeartbeat
         })
     } else {
@@ -370,7 +386,7 @@ mod tests {
     #[test]
     fn compute_state_no_ingest_returns_listening() {
         assert_eq!(
-            compute_state(0, 1_000_000_000_000, false),
+            compute_state(0, 1_000_000_000_000, false, false),
             ConnectionState::Listening
         );
     }
@@ -379,35 +395,50 @@ mod tests {
     fn compute_state_recent_ingest_returns_receiving() {
         let now = 100_000_000_000;
         let last = now - 1_000_000_000; // 1s ago < 5s threshold
-        assert_eq!(compute_state(last, now, false), ConnectionState::Receiving);
+        assert_eq!(
+            compute_state(last, now, false, false),
+            ConnectionState::Receiving
+        );
     }
 
     #[test]
     fn compute_state_age_at_idle_threshold_boundary_returns_idle() {
         let now = 100_000_000_000;
         let last = now - IDLE_THRESHOLD_NANOS; // exactly at threshold
-        assert_eq!(compute_state(last, now, false), ConnectionState::Idle);
+        assert_eq!(
+            compute_state(last, now, false, false),
+            ConnectionState::Idle
+        );
     }
 
     #[test]
     fn compute_state_age_between_idle_and_stalled_returns_idle() {
         let now = 100_000_000_000;
-        let last = now - 10_000_000_000; // 10s ago, between 5s and 30s
-        assert_eq!(compute_state(last, now, false), ConnectionState::Idle);
+        let last = now - 10_000_000_000; // 10s ago = IDLE boundary, < STALLED (60s)
+        assert_eq!(
+            compute_state(last, now, false, false),
+            ConnectionState::Idle
+        );
     }
 
     #[test]
     fn compute_state_age_at_stalled_threshold_returns_stalled() {
         let now = 100_000_000_000;
         let last = now - STALLED_THRESHOLD_NANOS; // exactly at threshold
-        assert_eq!(compute_state(last, now, false), ConnectionState::Stalled);
+        assert_eq!(
+            compute_state(last, now, false, false),
+            ConnectionState::Stalled
+        );
     }
 
     #[test]
     fn compute_state_age_past_stalled_returns_stalled() {
         let now = 100_000_000_000;
-        let last = now - 60_000_000_000; // 60s ago
-        assert_eq!(compute_state(last, now, false), ConnectionState::Stalled);
+        let last = now - 120_000_000_000; // 120s ago, well past STALLED (60s)
+        assert_eq!(
+            compute_state(last, now, false, false),
+            ConnectionState::Stalled
+        );
     }
 
     #[test]
@@ -416,11 +447,14 @@ mod tests {
         // Recent ingest BUT bind failed: must transition to ReceiverFailed
         let last = now - 100_000_000;
         assert_eq!(
-            compute_state(last, now, true),
+            compute_state(last, now, true, false),
             ConnectionState::ReceiverFailed
         );
         // No ingest + bind failed → still ReceiverFailed (not Listening)
-        assert_eq!(compute_state(0, now, true), ConnectionState::ReceiverFailed);
+        assert_eq!(
+            compute_state(0, now, true, false),
+            ConnectionState::ReceiverFailed
+        );
     }
 
     #[test]
@@ -428,7 +462,10 @@ mod tests {
         // Clock-skew defense: future-dated last_ingest reads as 0 age (Receiving).
         let now = 100_000_000_000;
         let last = now + 1_000_000_000; // last in the future
-        assert_eq!(compute_state(last, now, false), ConnectionState::Receiving);
+        assert_eq!(
+            compute_state(last, now, false, false),
+            ConnectionState::Receiving
+        );
     }
 
     // ---- last_span_ago_ms ----

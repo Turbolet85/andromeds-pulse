@@ -31,9 +31,10 @@ pub const DEFAULT_TICK_INTERVAL: Duration = Duration::from_secs(1);
 /// least this duration before classifying as `Autonomous` priority.
 pub const DEFAULT_MIN_PERSISTENCE_SECONDS: u64 = 30;
 
-/// Default latency percentile evaluated against the multiplier — p95 is the
-/// stable signal of tail latency per obs-plan §5 percentile choice.
-pub const DEFAULT_LATENCY_PERCENTILE: f64 = 0.95;
+/// Default latency percentile evaluated against the multiplier — p99 per
+/// capability spec P-012 "current p99 latency for an operation exceeds
+/// baseline p99 by factor of 2.5 or more".
+pub const DEFAULT_LATENCY_PERCENTILE: f64 = 0.99;
 
 /// Minimum EWMA samples required before a service participates in
 /// ErrorRateSpike detection — warm-up gate к suppress cold-start noise.
@@ -85,6 +86,15 @@ pub const DEFAULT_BOOTSTRAP_WINDOW_SECONDS: u64 = 3_600;
 /// Default percentile used to gate `ServiceWentSilent` emission against the
 /// learned historical quiet-duration distribution (chunk #64 P-014).
 pub const DEFAULT_QUIET_DURATION_PERCENTILE: f64 = 0.95;
+
+/// Minimum quiet-duration floor for `ServiceWentSilent` emission per
+/// capability spec P-014 ("minimum threshold of 30 seconds"). Applied as
+/// `max(learned_p95, MIN_QUIET_SECONDS)` so high-frequency services with
+/// sub-30s learned p95 still benefit from a 30s baseline floor; low-frequency
+/// services with p95 >30s honor the learned value. Compile-time const (not
+/// `Thresholds` field) per security extract — keeps the input-validation
+/// surface narrow.
+pub const MIN_QUIET_SECONDS: u64 = 30;
 
 /// Validation error for `Thresholds`. Local к the cue module so threshold
 /// validation does not couple к `BaselineError` shape (chunk #61). Future
@@ -247,6 +257,7 @@ const _: () = {
     assert!(DEFAULT_BOOTSTRAP_WINDOW_SECONDS > 0);
     assert!(DEFAULT_QUIET_DURATION_PERCENTILE > 0.0);
     assert!(DEFAULT_QUIET_DURATION_PERCENTILE < 1.0);
+    assert!(MIN_QUIET_SECONDS > 0);
 };
 
 #[cfg(test)]
@@ -262,7 +273,7 @@ mod tests {
         assert_eq!(t.base_latency_ms, 100.0);
         assert_eq!(t.tick_interval, Duration::from_secs(1));
         assert_eq!(t.min_persistence_seconds, 30);
-        assert_eq!(t.latency_percentile, 0.95);
+        assert_eq!(t.latency_percentile, 0.99);
         assert_eq!(t.min_ewma_samples, 10);
         assert_eq!(t.magnitude_bypass_multiplier, 10.0);
         assert_eq!(t.absolute_bypass_error_rate, 0.05);

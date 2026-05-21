@@ -41,6 +41,10 @@ impl ReceiverBindStatus for HeartbeatBindStatus {
         let http_failed = matches!(self.inner.otlp_http_bind(), Some(BindStatus::Failed(_)));
         grpc_failed || http_failed
     }
+
+    fn panic_signaled(&self) -> bool {
+        crate::observability::panic_signaled()
+    }
 }
 
 #[taurpc::procedures(path = "connection")]
@@ -74,9 +78,10 @@ impl ConnectionApi for ConnectionApiImpl {
         let now_nanos = chrono::Utc::now().timestamp_nanos_opt().unwrap_or(0);
         let last = self.ingest_state.last_ingest_at_nanos();
         let failed = self.bind_status.any_receiver_failed();
-        let state = compute_state(last, now_nanos, failed);
+        let panicked = self.bind_status.panic_signaled();
+        let state = compute_state(last, now_nanos, failed, panicked);
         let lag = last_span_ago_ms(last, now_nanos);
-        let reason = derive_reason_for_response(state, failed);
+        let reason = derive_reason_for_response(state, failed, panicked);
         let payload = ConnectionStatePayload::from_parts(state, lag, reason);
 
         let span = tracing::Span::current();
@@ -99,9 +104,16 @@ impl ConnectionApi for ConnectionApiImpl {
 fn derive_reason_for_response(
     state: ConnectionState,
     any_receiver_failed: bool,
+    receiver_panicked: bool,
 ) -> Option<ingest::connection::ReceiverFailureReason> {
     if matches!(state, ConnectionState::ReceiverFailed) {
-        Some(if any_receiver_failed {
+        // Precedence: panic > bind failure > stale heartbeat. Mirrors the
+        // `crates/ingest::connection::derive_reason` precedence used by
+        // the FSM poller; the TauRPC `current_state` resolver should agree
+        // with the broadcast topic emission for any given state.
+        Some(if receiver_panicked {
+            ingest::connection::ReceiverFailureReason::ReceiverPanicked
+        } else if any_receiver_failed {
             ingest::connection::ReceiverFailureReason::BindFailed
         } else {
             ingest::connection::ReceiverFailureReason::StaleHeartbeat

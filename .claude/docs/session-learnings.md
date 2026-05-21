@@ -6,6 +6,65 @@ _Entries are added in reverse chronological order (newest first). Each entry has
 
 _This file is entirely wrap-session's territory. `/setup-project` creates it if missing but NEVER regenerates it. Manual edits are preserved across all Andromeda skill runs._
 
+## 2026-05-21 (session 109) — Path A baseline-relative implementation pattern (short + long tracker pairs) (confidence 0.7)
+
+When implementing capability spec "current short-term value exceeds long-term baseline by N×" detection (e.g., chunk #73 P-010 ErrorRateSpike + P-012 LatencyRegression) on a per-service/per-operation tracker shape that initially has only ONE long-term tracker, the spec-correct Path A implementation adds a SECOND short-window tracker alongside, fed by the same observe call:
+
+**Architecture:**
+- For EWMA-based signals: add `short_term_X: EwmaTracker` with shorter alpha (e.g., `α=0.0333` for ~30s effective window vs the long-term `α=0.00333` for ~5min). Same struct, different alpha.
+- For t-digest-based signals: add `short_term_Y: TDigestPair` alongside long. Both flushed via `observe_span` in the same call; differ in swap cadence (e.g., 15s short swap vs 60s long swap).
+- For t-digest specifically: add `percentile_current_only(q)` method that queries ONLY the current window (excludes union with previous). The short t-digest uses this query to surface recent observations without dilution by the prior rotation cycle. The long t-digest continues using `percentile(q)` (union for averaged historical reference).
+
+**Cue evaluator update:**
+- Compute `magnitude = short_value / max(long_value, base_floor)`. The `base_floor` (formerly the fixed-denominator constant) becomes a minimum-baseline-assumption floor for pre-convergence services with near-zero observed rate. Threshold check: `short_value >= max(long_value, base_floor) * multiplier`.
+- `absolute_value` in the AttentionCue payload should reflect the SHORT value (the spike), not the long baseline.
+
+**Swap rotation wiring:**
+- The short tracker's swap is more frequent than the long's. Wire `swap_short_X_pairs_on_tick` into the 1Hz cue emitter tick body (`run_one_emit_cycle`) at the top, before `evaluate_thresholds`. The internal age-check in `swap_on_tick(now, swap_window_nanos)` no-ops if elapsed < swap_window, so 1Hz invocation with 15s swap window cleanly fires only every 15s.
+
+**Persistence:**
+- `#[serde(default)]` on new short-tracker fields handles forward+backward compat with corpus records. Pre-existing corpus entries deserialize with empty short trackers that re-accumulate from new observations.
+- For ServiceBaseline (which has Default derive), the new short EWMA needs a `#[serde(default = "default_short_ewma")]` attribute pointing к a helper that constructs with the correct (non-default-5min) alpha. The struct's own Default impl is manually implemented (cannot auto-derive when one field has a non-default constructor argument).
+
+**Verified at:** `crates/triage/src/baseline/mod.rs` (ServiceBaseline + OperationBaseline) + `crates/triage/src/baseline/tdigest_pair.rs` (percentile_current_only) + `crates/triage/src/cue/evaluate.rs` (short/long ratio computation) + `crates/triage/src/cue/emitter.rs` (swap_short_tdigest_pairs_on_tick wired into run_one_emit_cycle). Implementation cost: ~280 LOC across 5 files + 2 new unit tests for collision-resistance + ~7 existing tests updated for the new semantics.
+
+**Why this matters:** baseline-relative detection (current vs historical) is the canonical statistical anomaly detection pattern. Future spec capabilities that say "X exceeds Y by N×" will likely require similar dual-tracker architectures. This entry documents the choice points (EWMA vs t-digest; swap cadence; floor semantics; persistence backward-compat; cue payload semantics) so future implementations can converge quickly without re-discovering them.
+
+---
+
+## 2026-05-21 (session 109) — Test fixture pattern for short-vs-long EWMA baseline-relative semantics (confidence 0.6)
+
+When testing differential detection between fast-converging (short) and slow-converging (long) EWMA trackers (per the chunk #73 Path A pattern above), the test fixture observation ORDER matters critically:
+
+**The right order: BASELINE first, then SPIKE.**
+
+- Seed initial observations as the baseline (e.g., 50 obs of value 0 / 50ms latency)
+- Then seed the spike (e.g., 50 obs of value 1.0 / 300ms latency)
+- After: short EWMA (high alpha ≈ 0.0333) has converged toward the spike value (recent observations dominate); long EWMA (low alpha ≈ 0.00333) has barely moved from the baseline (recent observations contribute little)
+- Ratio `short / long` ≈ 5-10×; threshold check passes; cue fires
+
+**The WRONG order: SPIKE first, then BASELINE.**
+
+- Seed spike first (50 obs at value 1.0)
+- Then seed baseline (50 obs at value 0)
+- After: SHORT EWMA decays TOWARD zero (recent observations are zeros); LONG EWMA stays near initial spike value (slow decay)
+- Ratio `short < long`; threshold check fails; NO cue fires
+- This is the REVERSE of the intended detection — the spike is in the past, recent data is normal, so no cue is correct, but it doesn't exercise the Path A detection logic at all
+
+**For t-digest latency tests specifically:**
+
+The t-digest percentile of UNION (current + previous windows) is dominated by extreme values. With 100 baseline obs at 50ms + 30 spike obs at 300ms, p99 of the union sits in the 300ms region because 30/130 obs are 300ms which is >1% of the distribution.
+
+To test short_p99 vs long_p99 properly:
+- Use 1000:5 count ratio (baseline 1000 obs at 50ms + spike 5 obs at 300ms). Long p99 = 50ms (spike obs don't reach top 1% of 1005 total obs); short p99 (current_only) = 300ms (just spike obs in short.current after manual swap).
+- Manually call `state.swap_short_tdigest_pairs_on_tick(now)` TWICE between baseline + spike phases (with `now += 16s` between each call к pass the 15s swap_window age-check). This drains short.current+previous so spike data lands cleanly in the next empty current window.
+
+**Affected fixtures in chunk #73:** `seed_error_spike_service` (emitter.rs) + `seed_service` (evaluate.rs) + inline observation seeding in emitter.rs suppression tests (`for i in 0..25 { let status = if i >= 12 { 2 } else { 0 } }` — note the `>=` indicates baseline-first-then-spike order; the original tests had `< 13` indicating spike-first-then-zeros which fails under Path A).
+
+**Why this matters:** future tests covering baseline-relative semantics (error rate, latency regression, future Hard Signal detection) need to follow this pattern. The test failure mode (no cue when expected) is silent — the assertion times out or returns empty rather than producing a clear "wrong order" diagnostic. Documenting the pattern prevents repeated debugging cycles when adding new tests.
+
+---
+
 ## 2026-05-20 (session 105) — `pub` type with `pub(crate)` fields for cross-crate serde via bincode (confidence 0.65)
 
 When a serializable inner type T must be referenced from an OUTER serializable struct S that's exported across crate boundaries (e.g., `pub struct S { pub entries: Vec<(K, T)> }`), but T's internal field layout should remain crate-private, declare T as `pub` with all fields `pub(crate)`. External crates can hold T values inside S, round-trip them via bincode/serde, and pass them between APIs — but cannot construct T directly or pattern-match on its fields. The serde `Serialize`/`Deserialize` derives expand within the defining crate where the macro has access to private fields, so the visibility wall is preserved at the type level while serialization works seamlessly.

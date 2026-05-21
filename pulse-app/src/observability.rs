@@ -17,6 +17,32 @@ use tracing_subscriber::{EnvFilter, fmt};
 
 const SERVICE_NAME: &str = "com.andromeda.pulse";
 
+/// Chunk #73 P-003: shared atomic signaled by the panic hook so the
+/// connection FSM (`crates/ingest::connection::ReceiverBindStatus`) can
+/// route to the `ReceiverPanicked` reason variant. Read via the
+/// `panic_signaled()` accessor below; written exactly once by
+/// `install_panic_hook`'s closure. Module-level static rather than Arc-
+/// injected к minimize boot-time wiring surface (one accessor pulse-app-
+/// wide), per the security extract's "narrowest exposure" guidance.
+static PANIC_SIGNAL: std::sync::atomic::AtomicBool = std::sync::atomic::AtomicBool::new(false);
+
+/// Returns true if a panic has been signaled by `install_panic_hook` since
+/// process start. Used by `pulse-app::connection_router::HeartbeatBindStatus`
+/// to expose panic-state to the FSM поллер.
+pub fn panic_signaled() -> bool {
+    PANIC_SIGNAL.load(std::sync::atomic::Ordering::Relaxed)
+}
+
+/// Test-only reset for the panic atomic. `#[doc(hidden)] pub` per
+/// testing.md 2026-05-20 session 107 integration-test-access pattern
+/// (signals "not external API but accessible for integration tests");
+/// per-process state means tests must reset between panics к avoid
+/// cross-test contamination.
+#[doc(hidden)]
+pub fn reset_panic_signal_for_tests() {
+    PANIC_SIGNAL.store(false, std::sync::atomic::Ordering::Relaxed);
+}
+
 #[derive(Clone)]
 pub(crate) struct DefaultFields {
     service_name: &'static str,
@@ -843,10 +869,11 @@ impl AllowList {
         );
         by_target.insert(
             "app.panic.fatal",
-            ["panic_message", "location", "spantrace"]
-                .iter()
-                .copied()
-                .collect(),
+            // Chunk #73 P-003: `panic_message` removed — panic payload may
+            // carry user secrets from instrumented hosts. Only location
+            // (file:line of pulse source) + spantrace (user-defined span
+            // hierarchy) are agent-readable surfaces.
+            ["location", "spantrace"].iter().copied().collect(),
         );
 
         // a11y plan §3 violation JSON Required + Extension fields (forward-binding
@@ -1645,24 +1672,37 @@ impl Visit for JsonFieldVisitor<'_> {
 }
 
 pub(crate) fn install_panic_hook() {
-    std::panic::set_hook(Box::new(|info| {
+    // Chunk #73 P-003: chain over any previously-installed hook (e.g.,
+    // tracing-error SpanTrace bridge, Tauri's hook). Capture once at install
+    // time; invoke the prior hook after our own work so SpanTrace + Tauri
+    // panic handling still fire.
+    let prev = std::panic::take_hook();
+    std::panic::set_hook(Box::new(move |info| {
+        // Signal panic для the connection FSM BEFORE emitting tracing event
+        // (so a panic during the tracing emission still leaves the atomic set).
+        PANIC_SIGNAL.store(true, std::sync::atomic::Ordering::Relaxed);
+
+        // Per security plan §Anti-Patterns Logging row 1 + chunk #73 P-003
+        // task brief ("panic event uses sanitized payload"): drop the
+        // panic message entirely from the tracing event. Both `PanicInfo`
+        // Display + raw `info.payload()` downcast expose the literal
+        // `panic!()` argument verbatim — instrumented host apps may pass
+        // user secrets through panic payloads, so the only safe surface
+        // is location + SpanTrace (user-defined span hierarchy only, no
+        // raw payload bytes).
         let location = info
             .location()
             .map(|loc| format!("{}:{}", loc.file(), loc.line()))
             .unwrap_or_else(|| "unknown".to_string());
-        let msg = info
-            .payload()
-            .downcast_ref::<&str>()
-            .copied()
-            .or_else(|| info.payload().downcast_ref::<String>().map(|s| s.as_str()))
-            .unwrap_or("(non-string panic payload)");
         tracing::error!(
             target: "app.panic.fatal",
-            panic_message = %msg,
             location = %location,
             spantrace = ?SpanTrace::capture(),
             "panic captured",
         );
+
+        // Preserve prior-hook chaining (tracing-error SpanTrace bridge etc.).
+        prev(info);
     }));
 }
 

@@ -90,6 +90,26 @@ impl TDigestPair {
         }
     }
 
+    /// Query the CURRENT window's percentile only (excluding `previous`)
+    /// per chunk #73 P-012. Used by the short-window t-digest snapshot
+    /// so the "recent observations" signal is not diluted by the prior
+    /// rotation cycle. Returns None when current is empty.
+    pub fn percentile_current_only(&self, q: f64) -> Option<f64> {
+        if self.samples_current == 0 && self.current_buffer.is_empty() {
+            return None;
+        }
+        let current_eff = if self.current_buffer.is_empty() {
+            self.current.clone()
+        } else {
+            self.current.merge_unsorted(self.current_buffer.clone())
+        };
+        if current_eff.count() == 0.0 {
+            None
+        } else {
+            Some(current_eff.estimate_quantile(q))
+        }
+    }
+
     pub fn samples_current(&self) -> u64 {
         self.samples_current
     }

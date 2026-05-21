@@ -277,7 +277,8 @@ fn emit_connection_tick(ingest_state: &IngestState, bind_status: &dyn ReceiverBi
     let now_nanos = chrono::Utc::now().timestamp_nanos_opt().unwrap_or(0);
     let last = ingest_state.last_ingest_at_nanos();
     let failed = bind_status.any_receiver_failed();
-    let state = compute_state(last, now_nanos, failed);
+    let panicked = bind_status.panic_signaled();
+    let state = compute_state(last, now_nanos, failed, panicked);
     let lag = last_span_ago_ms(last, now_nanos);
     let severity = severity_for_state(state);
     tracing::info!(

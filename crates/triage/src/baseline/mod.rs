@@ -76,7 +76,19 @@ pub const TARGET_SERVICE_CAP_EXCEEDED: &str = "triage.baseline.service_cap_excee
 pub const ACTIVITY_FLOOR_SERVICE_CAP: usize = DEFAULT_SERVICE_COUNT_CAP;
 
 pub const DEFAULT_ALPHA_5MIN_WINDOW: f64 = 0.00333;
+/// Per capability spec P-010: short-term (30-second window) EWMA alpha for
+/// baseline-relative spike detection. The cue evaluator compares the
+/// short-term EWMA against the long-term EWMA (`DEFAULT_ALPHA_5MIN_WINDOW`)
+/// rather than against a fixed constant baseline. Calibrated assuming
+/// ~1 observation per second; alpha ≈ 1/window_seconds.
+pub const DEFAULT_ALPHA_30S_WINDOW: f64 = 0.0333;
 pub const DEFAULT_PERSIST_INTERVAL_NANOS: i64 = 60_000_000_000;
+/// Short-window t-digest swap interval (chunk #73 P-012). 15s swap →
+/// rolling 15-30s effective window via swap-on-tick rotation (current
+/// period 0-15s + previous period 0-15s spanning ~30s of observations).
+/// Invoked from cue emitter tick body at 1Hz; internal age-check no-ops
+/// if elapsed < interval.
+pub const DEFAULT_SHORT_SWAP_INTERVAL_NANOS: i64 = 15_000_000_000;
 pub const STATE_AGE_THRESHOLD_NANOS: i64 = 3_600_000_000_000;
 pub(crate) const DEFAULT_ACTIVITY_WINDOW_CAPACITY: usize = 300;
 
@@ -102,17 +114,52 @@ mod atomic_i64_serde {
     }
 }
 
-#[derive(Debug, Default, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 struct ServiceBaseline {
     error_rate_ewma: EwmaTracker,
+    /// Per capability spec P-010: short-term (30-second window) EWMA for
+    /// baseline-relative spike detection. Compares against `error_rate_ewma`
+    /// (5-min long-term baseline) at evaluation time. `#[serde(default)]`
+    /// provides a fresh empty short tracker for pre-chunk-#73 corpus records;
+    /// it re-accumulates as observations arrive.
+    #[serde(default = "default_short_ewma")]
+    error_rate_ewma_short: EwmaTracker,
     activity_window: RollingWindow<u32>,
     #[serde(default)]
     activity_floor: ActivityFloor,
 }
 
+impl Default for ServiceBaseline {
+    fn default() -> Self {
+        Self {
+            error_rate_ewma: EwmaTracker::default(),
+            error_rate_ewma_short: default_short_ewma(),
+            activity_window: RollingWindow::default(),
+            activity_floor: ActivityFloor::default(),
+        }
+    }
+}
+
+fn default_short_ewma() -> EwmaTracker {
+    EwmaTracker::new(DEFAULT_ALPHA_30S_WINDOW)
+}
+
 #[derive(Debug, Default, Clone, Serialize, Deserialize)]
 struct OperationBaseline {
     latency_tdigest: TDigestPair,
+    // Per capability spec P-012: short-term (~30-second window via 15s swap
+    // rotation) t-digest for baseline-relative latency regression detection
+    // (compares against `latency_tdigest` long-term ~120s window at evaluation).
+    // `#[serde(default)]` provides empty pair for pre-chunk-#73 corpus records.
+    #[serde(default)]
+    latency_tdigest_short: TDigestPair,
+    // Per capability spec P-011: human-readable operation identifier (e.g.,
+    // `"GET /api/foo"`) preserved alongside the hashed `operation_key`
+    // (DashMap key) so downstream surfaces can show the readable name without
+    // re-deriving it from a collision-resistant hash. `#[serde(default)]`
+    // provides empty fallback for pre-chunk-#73 corpus records.
+    #[serde(default)]
+    pub(crate) operation_name: String,
 }
 
 /// Aggregator of per-service and per-operation streaming baselines.
@@ -222,14 +269,26 @@ impl BaselineState {
         };
         let mut svc = self.services.entry(service_name.to_string()).or_default();
         svc.error_rate_ewma.observe(error_observation, now_nanos);
+        // Chunk #73 P-010: feed the short-term EWMA alongside long-term.
+        svc.error_rate_ewma_short
+            .observe(error_observation, now_nanos);
         svc.activity_window.push(1);
         svc.activity_floor.observe(now_nanos);
         drop(svc);
 
         if !operation_name.is_empty() {
             let key = operation_key(service_name, operation_name);
-            let mut op = self.operations.entry(key).or_default();
+            let mut op = self
+                .operations
+                .entry(key)
+                .or_insert_with(|| OperationBaseline {
+                    latency_tdigest: TDigestPair::default(),
+                    latency_tdigest_short: TDigestPair::default(),
+                    operation_name: operation_name.to_string(),
+                });
             op.latency_tdigest.insert(latency_ms as f64);
+            // Chunk #73 P-012: feed the short-window t-digest alongside long.
+            op.latency_tdigest_short.insert(latency_ms as f64);
         }
     }
 
@@ -242,6 +301,23 @@ impl BaselineState {
             if op
                 .latency_tdigest
                 .swap_on_tick(now_nanos, swap_window_nanos)
+            {
+                rotated += 1;
+            }
+        }
+        rotated
+    }
+
+    /// Swap all SHORT-window t-digest pairs whose age exceeds
+    /// `DEFAULT_SHORT_SWAP_INTERVAL_NANOS` (chunk #73 P-012). Invoked from
+    /// cue emitter tick at 1Hz; internal age-check in `swap_on_tick` no-ops
+    /// if elapsed < interval. Returns the count rotated.
+    pub fn swap_short_tdigest_pairs_on_tick(&self, now_nanos: i64) -> usize {
+        let mut rotated = 0_usize;
+        for mut op in self.operations.iter_mut() {
+            if op
+                .latency_tdigest_short
+                .swap_on_tick(now_nanos, DEFAULT_SHORT_SWAP_INTERVAL_NANOS)
             {
                 rotated += 1;
             }
@@ -333,6 +409,7 @@ impl BaselineState {
             .map(|entry| ServiceMetricSnapshot {
                 service_name: entry.key().clone(),
                 error_rate: entry.error_rate_ewma.value(),
+                short_term_error_rate: entry.error_rate_ewma_short.value(),
                 samples: entry.error_rate_ewma.samples(),
                 last_update_nanos: entry.error_rate_ewma.last_update_nanos(),
             })
@@ -373,11 +450,20 @@ impl BaselineState {
                 let key = entry.key();
                 let service_name = key.split('/').next()?.to_string();
                 let latency = entry.latency_tdigest.percentile(percentile_q);
+                // Chunk #73 P-012: SHORT t-digest queries `percentile_current_only`
+                // (recent window only) so the spike signal is не diluted by
+                // the prior rotation cycle. LONG t-digest stays on union for
+                // smoothed long-term baseline reference.
+                let short_latency = entry
+                    .latency_tdigest_short
+                    .percentile_current_only(percentile_q);
                 let samples = entry.latency_tdigest.samples_current();
                 Some(OperationMetricSnapshot {
                     operation_key: key.clone(),
                     service_name,
+                    operation_name: entry.operation_name.clone(),
                     latency_at_percentile: latency,
+                    short_term_latency_at_percentile: short_latency,
                     samples,
                 })
             })
@@ -385,25 +471,34 @@ impl BaselineState {
     }
 }
 
-/// Snapshot of one service's baseline metrics for chunk #62 cue evaluation.
-/// Cloned from the live `DashMap` shard at iteration time; downstream
-/// evaluation works on the snapshot without holding the DashMap lock.
+/// Snapshot of one service's baseline metrics for chunk #62 cue evaluation
+/// (long-term EWMA in `error_rate`) and chunk #73 P-010 baseline-relative
+/// spike detection (30s EWMA in `short_term_error_rate`). Cloned from the
+/// live DashMap shard at iteration time; downstream evaluation works on the
+/// snapshot without holding the DashMap lock.
 #[derive(Debug, Clone)]
 pub struct ServiceMetricSnapshot {
     pub service_name: String,
     pub error_rate: f64,
+    pub short_term_error_rate: f64,
     pub samples: u64,
     pub last_update_nanos: i64,
 }
 
-/// Snapshot of one operation's latency metric for chunk #62 cue evaluation.
-/// `operation_key` is opaque (`"{service}/{hash}"` shape); `service_name` is
-/// extracted from the prefix for cue payload `scope_id` population.
+/// Snapshot of one operation's latency metric for chunk #62 cue evaluation
+/// (long-term t-digest in `latency_at_percentile`) and chunk #73 P-012
+/// baseline-relative regression detection (short-window t-digest in
+/// `short_term_latency_at_percentile`). The `operation_key` is opaque
+/// (`"{service}/{hash}"`); `service_name` is extracted from the prefix;
+/// `operation_name` per chunk #73 P-011 is the human-readable identifier
+/// preserved separately from the collision-resistant hash.
 #[derive(Debug, Clone)]
 pub struct OperationMetricSnapshot {
     pub operation_key: String,
     pub service_name: String,
+    pub operation_name: String,
     pub latency_at_percentile: Option<f64>,
+    pub short_term_latency_at_percentile: Option<f64>,
     pub samples: u64,
 }
 
@@ -1012,6 +1107,51 @@ mod tests {
         assert_eq!(k1, k2, "same inputs → same key");
         assert_ne!(k1, k3, "different service → different key");
         assert!(k1.starts_with("svc-a/"), "key prefix carries service.name");
+    }
+
+    #[test]
+    fn operation_name_round_trips_through_baseline_to_snapshot() {
+        // Chunk #73 P-011: human-readable operation_name is preserved on
+        // OperationBaseline + flows through iter_operations into the
+        // OperationMetricSnapshot. Sampled at percentile q=0.99 (chunk #73
+        // post-P-012); name preserved regardless of latency value.
+        let state = BaselineState::new();
+        let now = 1_000_000_000_i64;
+        for i in 0..100 {
+            state.observe_span("svc-a", "GET /api/users", 0, 50, now + i * 1_000_000);
+        }
+        let ops = state.iter_operations(0.99);
+        assert_eq!(ops.len(), 1, "expected one operation, got {}", ops.len());
+        assert_eq!(
+            ops[0].operation_name, "GET /api/users",
+            "operation_name round-trip preserved through baseline → snapshot"
+        );
+        assert!(
+            ops[0].operation_key.starts_with("svc-a/"),
+            "operation_key still carries hashed identity for DashMap key"
+        );
+    }
+
+    #[test]
+    fn operation_name_distinguishes_two_operations_on_same_service() {
+        // Chunk #73 P-011: two different operation_names on the same service
+        // produce two distinct DashMap entries (full operation_key strings
+        // differ); each preserves its own human-readable name.
+        let state = BaselineState::new();
+        let now = 1_000_000_000_i64;
+        for i in 0..100 {
+            state.observe_span("svc-a", "GET /api/users", 0, 50, now + i * 1_000_000);
+            state.observe_span("svc-a", "POST /api/orders", 0, 75, now + i * 1_000_000);
+        }
+        let mut ops = state.iter_operations(0.99);
+        ops.sort_by(|a, b| a.operation_name.cmp(&b.operation_name));
+        assert_eq!(ops.len(), 2, "expected two operations, got {}", ops.len());
+        assert_eq!(ops[0].operation_name, "GET /api/users");
+        assert_eq!(ops[1].operation_name, "POST /api/orders");
+        assert_ne!(
+            ops[0].operation_key, ops[1].operation_key,
+            "distinct operations produce distinct operation_keys"
+        );
     }
 
     #[test]
