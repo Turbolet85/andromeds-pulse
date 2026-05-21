@@ -165,17 +165,17 @@
   - `traces.*`, `metrics.*`, `logs.*` — query routers (viz crate)
   - `streams.subscribe_spans`, `streams.subscribe_metrics`, `streams.subscribe_logs` — pulse-app crate (Tauri Channel<Vec<u8>> binding to `buffer::BroadcastSenders` for binary Arrow IPC; chunk #23) — see §Architecture Registry Updates 2026-05-09
   - `telemetry.frontend.record_frame_ms` — ui-bridge crate (`FrameDurationInput` → `metric.webgpu.frame_duration_ms` tracing event per obs-plan §11 Frontend bridge; chunk #29) — see §Architecture Registry Updates 2026-05-09
-  - `snapshot.generate`, `snapshot.list_recent`, `snapshot.copy_to_clipboard` — snapshot crate
+  - `snapshot.generate` — snapshot crate (`snapshot.list_recent` and `snapshot.copy_to_clipboard` deferred — no runtime emitter as of chunk #74; only `snapshot.generate` implemented at `pulse-app/src/snapshot_runtime.rs`)
   - `plugins.list`, `plugins.reload`, `plugins.invoke` — plugins crate
   - `mcp.status`, `mcp.start`, `mcp.stop` — mcp-server crate (only when `--features mcp-server`)
-  - `workspace.detect`, `workspace.list` — workspace-detector crate
+  - `workspace.detect` — workspace-detector crate (`workspace.list` deferred — no runtime emitter as of chunk #74; only `workspace.detect` implemented at `crates/ui-bridge/src/workspace_ipc.rs:47`)
   - `connection.current_state` — pulse-app crate (`ConnectionApiImpl` returning `ConnectionStatePayload` from `crates/ingest::connection::compute_state()`; chunk #59) — see §Architecture Registry Updates 2026-05-16
   - `services.list_with_states` — pulse-app crate (`ServicesApiImpl` returning `ServiceListPayload` from `crates/triage::lifecycle::InMemoryServiceRegistry::list`; chunk #67) — see §Architecture Registry Updates 2026-05-18
   - `storage.inspect`, `storage.path` — pulse-app crate (`StorageApiImpl` returning corpus inspection metadata + data-dir absolute path from `crates/corpus::CorpusReader`; chunk #68) — see §Architecture Registry Updates 2026-05-18
   - `diagnostics.template_distribution` — pulse-app crate (`DiagnosticsApiImpl` returning `TemplateDistributionPayload` from `crates/buffer::DrainMiner::template_distribution()`; chunk #69) — see §Architecture Registry Updates 2026-05-19
 - **External HTTP routes (OTLP HTTP)**: `POST /v1/traces`, `POST /v1/metrics`, `POST /v1/logs` on `:4318`.
 - **MCP stdio surface**: standard MCP `initialize`, `tools/list`, `tools/call`, `notifications/*` over stdin/stdout when the rmcp sidecar is started.
-- **Tauri IPC events (broadcast channels)**: `pulse://stream/spans`, `pulse://stream/metrics`, `pulse://stream/logs`, `pulse://stream/snapshot-progress`, `pulse://stream/plugin-events`, `pulse://stream/connection-state` (chunk #59 — see §Architecture Registry Updates 2026-05-16), `pulse://stream/attention-cues` (chunk #62 — see §Architecture Registry Updates 2026-05-17), `pulse://stream/restart-events` (chunk #63 — see §Architecture Registry Updates 2026-05-17), `pulse://stream/service-lifecycle` (chunk #67 — see §Architecture Registry Updates 2026-05-18).
+- **Tauri IPC events (broadcast channels)**: `pulse://stream/spans`, `pulse://stream/metrics`, `pulse://stream/logs`, `pulse://stream/snapshot-progress`, `pulse://stream/plugin-events` (deferred — no runtime emitter as of chunk #74; pending plugin invocation telemetry chunk), `pulse://stream/connection-state` (chunk #59 — see §Architecture Registry Updates 2026-05-16), `pulse://stream/attention-cues` (chunk #62 — see §Architecture Registry Updates 2026-05-17), `pulse://stream/restart-events` (chunk #63 — see §Architecture Registry Updates 2026-05-17), `pulse://stream/service-lifecycle` (chunk #67 — see §Architecture Registry Updates 2026-05-18).
 - **Process / service identity**:
   - Tauri app bundle identifier: `com.andromeda.pulse`
   - Binary name: `andromeda-pulse` (Linux/macOS), `andromeda-pulse.exe` (Windows)
@@ -184,15 +184,19 @@
 - **Cargo workspace crate names**: `ingest`, `buffer`, `viz`, `ui-bridge`, `snapshot`, `curation`, `triage`, `workspace-detector`, `plugins`, `mcp-server`, `corpus`, `security`, `pulse-app`, `xtask` — these names are reserved at the workspace level and cannot be reused by scopes.
 - **DuckDB database / schema names**:
   - In-memory database identity: `pulse_buffer` (single in-memory `:memory:` DuckDB connection, schema `main`)
-  - Reserved tables: `spans`, `span_events`, `span_links`, `metrics_points`, `log_records`, `resources`, `instrumentation_scopes`
+  - Reserved tables: `spans`, `span_events`, `span_links`, `metrics_points`, `log_records`, `resources`, `instrumentation_scopes`, `log_templates` (8th table added per chunk #69 Phase B; `crates/buffer/src/schema.rs:18`)
+- **Corpus SQLite database / schema names**:
+  - On-disk database identity: `corpus/corpus.db` under data dir root (single SQLite connection; chunk #68 origin per §Architecture Registry Updates 2026-05-18 corpus-additions entry)
+  - Reserved tables: `baseline_state`, `service_registry`, `pipeline_metrics`, `incidents`, `incident_events`, `digest_archive` (`crates/corpus/src/schema.rs:26-33`)
+  - At-rest posture: cell-level AES-256-GCM encryption with key sourced from OS keychain (macOS Keychain / Linux Secret Service / Windows DPAPI via `keyring` crate); table + column names plaintext, BLOB cell payloads opaque without key (per security-plan.md §Data Protection §At rest; chunk #68 substrate)
 - **Filesystem locations** (the `~/.andromeda-pulse/` notation below is the Linux canonical form; per-platform resolution is fixed and applies to every path under this root):
   - Linux: `~/.andromeda-pulse/` (i.e. `$XDG_CONFIG_HOME/andromeda-pulse/` if set, else `$HOME/.andromeda-pulse/`)
   - macOS: `~/Library/Application Support/com.andromeda.pulse/`
   - Windows: `%APPDATA%\andromeda-pulse\` (i.e. `%APPDATA%\andromeda-pulse\config.toml`, `...\plugins\`, `...\snapshots\`, `...\logs\`)
-  - Subpaths under the resolved root: `config.toml` (user settings), `plugins/` (WASM Component Model plugin loading directory), `snapshots/` (generated snapshot markdown files), `logs/` (stdout-exporter destination for self-telemetry), `corpus/corpus.db` (persistent incident corpus SQLite; OS-keychain-encrypted cell-level AES-256-GCM — chunk #68).
+  - Subpaths under the resolved root: `config.toml` (user settings), `plugins/` (WASM Component Model plugin loading directory), `snapshots/` (generated snapshot markdown files), `logs/` (stdout-exporter destination for self-telemetry), `corpus/corpus.db` (persistent incident corpus SQLite; OS-keychain-encrypted cell-level AES-256-GCM — chunk #68), `run/andromeda-pulse.pid` (PID file written by production binary at boot; consumed by `scripts/agent-run.{sh,ps1}` harness for status/cleanup commands — `pulse-app/src/main.rs:196`).
   - `ANDROMEDA_PULSE_DATA_DIR` overrides the resolved root on every platform; subpath layout under the override is identical to the per-platform default.
 - **Environment variables (reserved at arch level)**:
-  - `ANDROMEDA_PULSE_CONFIG_PATH` — override path to `config.toml`
+  - `ANDROMEDA_PULSE_CONFIG_PATH` — override path to `config.toml` (deferred — no runtime consumer as of chunk #74; Settings uses fixed `<data_dir>/config.toml` per `crates/ui-bridge/src/contract.rs`)
   - `ANDROMEDA_PULSE_DATA_DIR` — override `~/.andromeda-pulse/` root
   - `ANDROMEDA_PULSE_OTLP_GRPC_PORT` — override `:4317`
   - `ANDROMEDA_PULSE_OTLP_HTTP_PORT` — override `:4318`
@@ -201,6 +205,9 @@
   - `ANDROMEDA_PULSE_MCP_ENABLED` — `true|false` (only honored when binary built with `--features mcp-server`). When set to `true` against a binary built without the feature, startup logs a warning at `warn` level naming the missing feature flag and proceeds with MCP disabled (rather than failing to start), so a misconfigured environment variable does not block the rest of the app.
   - `ANDROMEDA_PULSE_PLUGIN_DIR` — override `~/.andromeda-pulse/plugins/`
   - `RUST_LOG` — honored as fallback for log level filter
+  - `ANDROMEDA_PULSE_PIDFILE` — harness-only override of PID file location for `scripts/agent-run.{sh,ps1}` test harness; NOT consumed by production binary (`scripts/agent-run.sh:22` + `scripts/agent-run.ps1:15`)
+  - `ANDROMEDA_PULSE_LOGFILE` — harness-only override of log file location for `scripts/agent-run.{sh,ps1}` test harness; NOT consumed by production binary (`scripts/agent-run.sh:23` + `scripts/agent-run.ps1:16`)
+  - `ANDROMEDA_PULSE_DATA_DIR_KEEP` — harness-only flag for `scripts/agent-run.{sh,ps1}` test harness to preserve TempDir on cleanup; NOT consumed by production binary (`scripts/agent-run.sh:99` + `scripts/agent-run.ps1:71`)
 - **Tauri capability identifiers (reserved at arch level)**: `pulse:default`, `pulse:tray`, `pulse:notification`, `pulse:updater`, `pulse:plugin-fs`, `pulse:clipboard` — concrete capability JSON files live in `pulse-app/capabilities/`. See §Architecture Registry Updates 2026-05-11 for `pulse:clipboard` chunk #43 acknowledgment.
 - **Updater channel**: `latest.json` published to GitHub Releases under the canonical repository; updater public key is shipped baked into the Tauri config.
 - **Bundle artifact names** (per release): `andromeda-pulse_<version>_x64-setup.msi`, `andromeda-pulse_<version>_x64.dmg`, `andromeda-pulse_<version>_aarch64.dmg`, `andromeda-pulse_<version>_amd64.AppImage`, `andromeda-pulse_<version>_amd64.deb`.
@@ -428,4 +435,35 @@ _This section accumulates entries from `/andromeda-evolve --allow-arch-registry`
 **Added:** `diagnostics.template_distribution` (`pulse-app/src/diagnostics_router.rs:59`, chunk #69).
 **Rationale:** D3 capability-drift closure for chunk #69 Drain template-profiling diagnostics TauRPC procedure. Mirrors 2026-05-17 chunk #62 `attention-cues` precedent (single-item Type 6).
 **Marker:** `.andromeda/runs/2026-05-19T20-54-03-spec-amendment-acknowledge-diagnostics-namespace/amendment.md`
+
+### 2026-05-21 — Acknowledge `log_templates` DuckDB table + Corpus SQLite schema sub-section (--allow-arch-registry)
+
+**Section:** §Occupied Resources DuckDB database / schema names + new §Occupied Resources Corpus SQLite database / schema names sub-section.
+**Added:**
+- `log_templates` DuckDB reserved table (`crates/buffer/src/schema.rs:18`, chunk #69 Phase B; closes Step 32 deferred work self-flagged in schema.rs:5-9)
+- New sub-section "Corpus SQLite database / schema names" listing 6 tables (`baseline_state`, `service_registry`, `pipeline_metrics`, `incidents`, `incident_events`, `digest_archive`) per `crates/corpus/src/schema.rs:26-33` (chunk #68 origin per 2026-05-18 corpus-additions amendment; encryption posture cross-references security-plan.md §Data Protection §At rest)
+**Rationale:** D3 capability-drift closure for chunk #74 v3 Phase 6 Consolidation amendment 1 of 3 — closes chunk #69 Phase B Step 32 deferred work + chunk #68 corpus schema registry completeness. Mirrors 2026-05-18 chunk #68 corpus-additions multi-item amendment precedent.
+**Marker:** `.andromeda/runs/2026-05-21T12-08-11-spec-amendment-acknowledge-log-templates-and-corpus-schema/amendment.md`
+
+### 2026-05-21 — Tag-defer forward-promise entries: `snapshot.list_recent` / `snapshot.copy_to_clipboard` / `workspace.list` / `pulse://stream/plugin-events` / `ANDROMEDA_PULSE_CONFIG_PATH` (--allow-arch-registry)
+
+**Section:** §Occupied Resources Tauri IPC routes + Tauri IPC events (broadcast channels) + Environment variables.
+**Added** (tag-deferred parenthetical, NOT hard-deletion — preserves audit trail per chunk #74 plan; establishes new cleanup-amendment convention since all prior Type 6 amendments were additive):
+- `snapshot.list_recent` + `snapshot.copy_to_clipboard` — tagged "(deferred — no runtime emitter as of chunk #74; only `snapshot.generate` implemented at `pulse-app/src/snapshot_runtime.rs`)"
+- `workspace.list` — tagged "(deferred — no runtime emitter as of chunk #74; only `workspace.detect` implemented at `crates/ui-bridge/src/workspace_ipc.rs:47`)"
+- `pulse://stream/plugin-events` — tagged "(deferred — no runtime emitter as of chunk #74; pending plugin invocation telemetry chunk)"
+- `ANDROMEDA_PULSE_CONFIG_PATH` — tagged "(deferred — no runtime consumer as of chunk #74; Settings uses fixed `<data_dir>/config.toml` per `crates/ui-bridge/src/contract.rs`)"
+**Rationale:** D3 forward-promise drift closure per audit Section 1.F + 2.I findings (chunk #74 v3 Phase 6 Consolidation amendment 2 of 3). Establishes cleanup-amendment convention: tag-deferred parenthetical preserves audit trail of the original architectural promise. Cross-document grep verified zero runtime references across `crates/` + `pulse-app/` (only `xtask/src/main.rs:682-683` future-deferred comments — expected, not runtime emitter). xtask `EXPECTED_PROCEDURES` already correctly omits the 3 forward-promise TauRPC procedures; capability-drift gate unchanged.
+**Marker:** `.andromeda/runs/2026-05-21T12-13-44-spec-amendment-tag-defer-forward-promises/amendment.md`
+
+### 2026-05-21 — Acknowledge harness-only env vars + `run/andromeda-pulse.pid` filesystem subpath (--allow-arch-registry)
+
+**Section:** §Occupied Resources Environment variables + §Occupied Resources Filesystem locations.
+**Added:**
+- `ANDROMEDA_PULSE_PIDFILE` env var (harness-only override; `scripts/agent-run.sh:22` + `scripts/agent-run.ps1:15`; NOT consumed by production binary)
+- `ANDROMEDA_PULSE_LOGFILE` env var (harness-only override; `scripts/agent-run.sh:23` + `scripts/agent-run.ps1:16`; NOT consumed by production binary)
+- `ANDROMEDA_PULSE_DATA_DIR_KEEP` env var (harness-only flag for TempDir preservation; `scripts/agent-run.sh:99` + `scripts/agent-run.ps1:71`; NOT consumed by production binary)
+- `run/andromeda-pulse.pid` filesystem subpath under data dir root (PID file written by production binary at `pulse-app/src/main.rs:196`; consumed by harness scripts for status/cleanup)
+**Rationale:** Registry completeness — harness contract env vars (3) + production-binary PID file subpath (1) acknowledged per chunk #74 v3 Phase 6 Consolidation amendment 3 of 3. Mirrors 2026-05-18 chunk #68 corpus-additions multi-item additive precedent. All harness env vars tagged with "harness-only" qualifier per security plan §Input Validation discipline scope (production path env vars still bound by §Anti-Pattern Input row 4 canonicalization; harness-only env vars explicitly excluded from that requirement).
+**Marker:** `.andromeda/runs/2026-05-21T12-15-47-spec-amendment-acknowledge-harness-env-and-pid-subpath/amendment.md`
 

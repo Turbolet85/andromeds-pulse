@@ -1069,3 +1069,74 @@ After chunk #76 starts (Phase 6 v3 plan sequence). Could land standalone if user
 - `~/.claude/skills/andromeda-new-session/references/visual-references.md` Phase 9 State H rendering — needs severity downgrade for `"pending"` case.
 - `state.yaml.last_completed_chunk.commit_sha` field — semantics shift from "real post-amend SHA" к "real HEAD-reachable SHA OR `'pending'` placeholder until next wrap heals".
 - `~/.claude/skills/andromeda-wrap-session/references/visual-references.md` Phase 11 — current report sections; P15 adds new "Dead-test warnings" subsection.
+
+---
+
+## Status: PROPOSED — 2026-05-21 (session 111)
+
+### Proposal 17 — `/andromeda-implement` META-chunk recognition + inline sibling-skill orchestration
+
+**Problem:**
+
+When `/andromeda-implement` encounters a META chunk (a chunk whose `plan.md` Implementation Steps consist entirely of `/andromeda-evolve --allow-arch-registry` or similar sibling-skill invocations rather than code edits), the current behavior is inconsistent с user expectations:
+
+1. **First-attempt observation (this session):** /andromeda-implement Phase 1 read plan.md, recognized that each Implementation Step said "Invoke /andromeda-evolve --allow-arch-registry с descriptor X", classified the chunk как out-of-scope (per MUST NOT clause "Do not modify .andromeda/architecture.md") and surfaced а META-handoff variant requesting user to manually invoke /andromeda-evolve × N. **Correct per skill constraints** but suboptimal UX: user already approved the plan at /andromeda-phase Phase 6; surfacing only к invoke another skill manually feels like artificial friction.
+
+2. **Second-attempt observation:** user explicitly removed `disable-model-invocation: true` from andromeda-evolve + andromeda-setup-project skill definitions, then re-invoked /andromeda-implement. This time, the orchestrator recognized that the relevant sibling skills were Skill-tool-invocable, executed inline orchestration (3 amendments + 3 propagations + standard gates) successfully. **Same chunk; different UX path; outcome identical.**
+
+The skill currently doesn't have explicit guidance for META chunks. The constraint MUST NOT modify .andromeda/architecture.md is correctly enforced, but the implicit assumption "META chunks are out-of-scope" is wrong: META chunks ARE in-scope if the sibling skills are available + permitted к invoke.
+
+**Proposal:**
+
+Extend /andromeda-implement Phase 1 с а META-chunk detection step + orchestration policy:
+
+1. **Phase 1 step 0 (NEW) — META chunk detection.** After reading plan.md but before Phase 2 (fix loop), scan `## Implementation Steps` for the signature pattern: each step's primary verb is "Invoke /andromeda-{skill} с args ..." (no Read / Edit / Write file references in the step body). If ≥80% of Implementation Steps match this pattern → classify chunk as META.
+
+2. **META-chunk path:** when classified as META, route к а new Phase 1b "Sibling-skill orchestration":
+   - Enumerate the sibling skills referenced in plan.md Implementation Steps (e.g., `/andromeda-evolve --allow-arch-registry`, `/andromeda-setup-project --delta`).
+   - Check Skill-tool availability for each referenced skill (introspect the system-injected skill list).
+   - **If ALL referenced skills are Skill-tool-invocable:** proceed with inline orchestration (invoke each per plan.md step sequence; capture artifacts; record outcomes). Skip the existing MUST NOT для architecture.md (sibling-skill writes к arch.md are authorized by their own discipline, not /implement's).
+   - **If ANY referenced skill is NOT Skill-tool-invocable:** surface the current META-handoff variant ("user runs the following N skills manually...") — preserves existing behavior for skills not yet enabled.
+
+3. **Update MUST NOT clause** about arch.md: clarify that the prohibition is on /implement DIRECTLY editing arch.md as а fix-loop delta; sibling-skill orchestration (where the sibling skill — e.g., /andromeda-evolve --allow-arch-registry — has its own arch-write discipline + Type 6 authorization) is permitted under the META-chunk path.
+
+4. **Phase 2 fix-loop adaptation:** for META chunks, "tests" = standard chunk-gate baseline run AFTER all sibling-skill orchestrations complete (zero `.rs` changes mean tests preserve baseline trivially; the gate confirms no regressions induced by the orchestration). bindings.ts regen discipline applies if any default-features nextest fires during the gate run (per testing.md 2026-05-13 + 2026-05-17 entries).
+
+5. **Phase 3 report variants:** add а "META-chunk-orchestrated" success variant alongside the existing default-success / Path A / Path A' / Path B / Stuck / Smoke-surfaced variants. Reports each sibling-skill invocation's outcome + final standard-gate status + amendment marker paths for wrap-session pickup.
+
+**Design:**
+
+Concrete edits:
+
+1. Edit `~/.claude/skills/andromeda-implement/SKILL.md`:
+   - Phase 1 — insert "step 0 META-chunk detection" before existing step 1
+   - New Phase 1b "Sibling-skill orchestration" between Phase 1 + Phase 2 (conditional на META detection)
+   - MUST NOT clause "Modify .andromeda/architecture.md as а delta amendment" — clarify scope: "directly via Edit/Write tool during fix loop OR Trigger 4 Path A. EXCEPTION: when chunk is classified as META AND plan.md Implementation Steps explicitly delegate к sibling-skill invocations carrying their own arch-write discipline (e.g., /andromeda-evolve --allow-arch-registry), inline orchestration via Skill tool is permitted; the sibling skill's own constraints + audit trail (amendment marker + state.yaml lifecycle) apply."
+   - Phase 3 — add "META-chunk-orchestrated" success variant.
+
+2. Edit `~/.claude/skills/andromeda-implement/references/visual-references.md`:
+   - New banner template для Phase 1 META detection ("⊙ META chunk detected: orchestrating sibling skills inline").
+   - New banner template для Phase 3 META success variant (lists each sibling-skill invocation outcome + amendment marker paths + standard-gate status).
+
+3. Edit `~/.claude/skills/andromeda-implement/references/fix-loop-protocol.md`:
+   - Add brief note that META chunks bypass the standard fix loop (no code edits; "fix" is verifying gates stay green after orchestration).
+
+**Implementation cost:**
+
+- ~80-120 LOC across 3 files in `~/.claude/skills/andromeda-implement/` (SKILL.md Phase 1 + Phase 1b + Phase 3 + visual-references.md banners + fix-loop-protocol.md note).
+- Verification: re-run chunk #74 plan mentally against the new logic (should classify as META; orchestrate 3 evolve invocations + 3 setup-project --delta invocations + final gate; produce the same outcome this session achieved).
+- Test scenario (future chunk #75/#76/#77 are also META; canonical test cases). Run /andromeda-implement against chunk #75 (Documentation consolidation — manual edits + setup-project --delta cascade) to verify the new path handles non-evolve META chunks too.
+
+**When to do:**
+
+Chunk #76 (Andromeda pipeline meta-improvements P7 + P12 + P15-P18) is the natural batch. P17 joins P15/P16/P18 (already filed) as session-meta-improvements landing together. Pre-condition: chunks #75 + earlier consolidation chunks must complete first к stabilize the consolidation Phase 6 baseline.
+
+**Cross-references:**
+
+- Triggering observation: this session 111 /andromeda-implement first-attempt (META-handoff surface) → user enabled skill invocation → second-attempt (inline orchestration). Both attempts in the same conversation; comparison evidence of the UX gap.
+- Sibling proposals: P14 (Phase 2b smoke check protocol extension) — both modify /andromeda-implement Phase 2/2b behavior; P17 modifies Phase 1 + Phase 3. P15 (dead-test detection) — sibling wrap-session improvement, joins P17 в chunk #76 batch.
+- `~/.claude/skills/andromeda-implement/SKILL.md` Phase 1 + Phase 3 — the load-bearing skill body sections to extend.
+- `~/.claude/skills/andromeda-implement/references/visual-references.md` Phase 1 + Phase 3 — banner templates to add.
+- Chunk #74 marker files (`.andromeda/runs/2026-05-21T12-08-11-spec-amendment-acknowledge-log-templates-and-corpus-schema/amendment.md` + 2 siblings) — proof of concept for the META-orchestration path; preserved as audit trail.
+- Skill tool availability semantics — depends on Claude Code harness allowing model-invocation per-skill (via removing `disable-model-invocation: true`); P17 assumes this is the project's preferred posture для Andromeda skill set.
+- chunks #75 + #77 — future META chunks that will benefit from P17 implementation; canonical test cases post-implementation.

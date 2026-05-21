@@ -1,14 +1,50 @@
 schema_version: 2
-last_wrap: 2026-05-21T06:30:00Z
-last_reconcile: 2026-05-21T06:30:00Z
+last_wrap: 2026-05-21T12:25:00Z
+last_reconcile: 2026-05-21T12:25:00Z
 
 last_completed_chunk:
-  route_index: 73
-  title: "Capability spec numeric alignment — fix P-001/P-003 thresholds + failure path, P-010/P-011/P-012/P-014 baseline-relative semantics (capabilities P-001/P-003/P-010/P-011/P-012/P-014; detail in pulse-v0_2_0-route §73)"
+  route_index: 74
+  title: "Architecture registry alignment batch — log_templates DuckDB table + corpus SQLite schema sub-section + forward-promise cleanup (META; detail in pulse-v0_2_0-route §74)"
   epoch: 9
-  committed_at: 2026-05-21T05:00:00Z
-  commit_sha: "fd7a75d"
-  commit_subject: "feat(triage,ingest,pulse-app): chunk #73 Capability spec numeric alignment — Path A short-window tracker"
+  committed_at: 2026-05-21T12:25:00Z
+  commit_sha: "f9248ff"
+  commit_subject: "chore(arch): chunk #74 architecture registry alignment batch — 3 Type 6 amendments + propagations + P17 proposal"
+
+# Session 111 wrap (2026-05-21T12:25:00Z): chunk #74 "Architecture registry alignment batch" META
+# implementation cycle (Consolidation Phase 6 chunk 5 of 8 closed). 3 Type 6 amendments via
+# /andromeda-evolve --allow-arch-registry orchestrated inline from /andromeda-implement (META-chunk
+# skill orchestration pattern emerged this session — see Proposal 17 in docs/andromeda-improvements.md).
+# Amendment 1 (acknowledge-log-templates-and-corpus-schema): added log_templates к arch §Occupied
+# Resources DuckDB reserved tables list (8th entry; chunk #69 Phase B Step 32 deferred work closed)
+# + new sub-section "Corpus SQLite database / schema names" listing 6 corpus tables (baseline_state /
+# service_registry / pipeline_metrics / incidents / incident_events / digest_archive) per
+# crates/corpus/src/schema.rs:26-33 + encryption-posture cross-reference к security-plan.md §Data
+# Protection §At rest (chunk #68 substrate). Amendment 2 (tag-defer-forward-promises): NEW
+# cleanup-amendment convention для arch.md (all prior Type 6 amendments были additive); tag-deferred
+# 5 forward-promise entries (snapshot.list_recent + snapshot.copy_to_clipboard + workspace.list +
+# pulse://stream/plugin-events + ANDROMEDA_PULSE_CONFIG_PATH) с parenthetical preserving audit trail
+# vs hard-deletion. Cross-document grep verified zero runtime references к 5 forward-promise names
+# across crates/+pulse-app/+xtask/ (only expected xtask/src/main.rs:682-683 future-deferred comments).
+# Amendment 3 (acknowledge-harness-env-and-pid-subpath): registered 3 harness-only env vars
+# (ANDROMEDA_PULSE_PIDFILE + LOGFILE + DATA_DIR_KEEP) с "harness-only" qualifier per security plan
+# §Input Validation scope discipline + run/andromeda-pulse.pid filesystem subpath (production binary
+# at pulse-app/src/main.rs:196). All 3 amendments had expected_propagation: [] per Type 6 permit
+# path; all 3 propagated via /andromeda-setup-project --delta lifecycle-progression-only (zero
+# Tier 2/3 file regeneration; CLAUDE.md preserved byte-identical post each cascade verification).
+# Standard chunk-gate baseline clean: cargo fmt + clippy + workspace nextest 1195/1195 +
+# capability-drift (clean: 0 missing 0 extra) + cargo deny (bans/licenses/sources ok). bindings.ts
+# regen discipline applied per testing.md 2026-05-13 + 2026-05-17: workspace nextest overwrote
+# bindings.ts mid-session; restored к canonical full-set mcp-server state via mcp-server-feature
+# emit_taurpc_bindings nextest. Curation: 0 tier learnings (META session с no novel patterns
+# beyond existing); 1 Andromeda pipeline proposal (P17 — /andromeda-implement META-chunk
+# skill-orchestration pattern). Next chunk: route#75 Documentation consolidation (Consolidation
+# Phase 6 chunk 6 of 8; manual edits to arch.md cross-references + arch narrative count-line
+# cascades; may auto-resolve if P7+P12 implemented in chunk #76 land first).
+# Session 110 wrap (2026-05-21T06:30Z): chunk #74 Type 7 Form 1 route registration cycle
+# (/andromeda-evolve --allow-route-append + /andromeda-setup-project --delta пропагации;
+# CLAUDE.md pointer-table cascade 73→74 chunks). META cycle; state.yaml.last_completed_chunk
+# unchanged at chunk #73 (route-append не moves cursor — only chunk #74 implementation does;
+# that's this wrap session 111 above).
 
 # Session 107 wrap (2026-05-20T23:00Z): chunk #72 PII scrubber coverage extension implementation
 # + dead-test migration cleanup + bincode OOM fix. Third chunk of v3 Phase 6 Consolidation lands;
@@ -57,7 +93,7 @@ last_completed_chunk:
 in_progress: null
 
 plan_freshness:
-  arch_mtime: 2026-05-19T20:56:34Z
+  arch_mtime: 2026-05-21T12:25:00Z
   security_mtime: 2026-05-11T17:53:00Z
   design_mtime: 2026-05-03T21:52:16Z
   layout_mtime: 2026-05-02T15:53:22Z
@@ -68,18 +104,55 @@ plan_freshness:
   input_mtime: 2026-05-02T06:52:58Z
 
 living_artifact_freshness:
-  dep_tree_reconciled_at: 2026-05-21T06:30:00Z
+  dep_tree_reconciled_at: 2026-05-21T12:25:00Z
   api_surface_reconciled_at: 2026-05-21T06:30:00Z
   most_recent_code_mtime: 2026-05-21T05:00:00Z
   reconcile_failed: false
   api_surface_deferred: true
-  api_surface_deferred_reason: "per-crate cargo +nightly public-api iteration across 14 crates exceeds wrap budget (7-14 min vs ~3 min); 16th consecutive deferral per sessions 91-110 pattern; session 110 META-only (chunk #74 Type 7 Form 1 route registration; zero new pub items); session 109 = chunk #73 implementation wrap landed Path A full short-window tracker (~280 LOC adding ~30 new pub items); cumulative backlog from chunks #70-#73 + projected #74 META work now substantial enough to make full per-crate iteration worthwhile at next non-META wrap (estimated ~9770 lines projected; baseline last reconciled at session 90 was 7288)"
+  api_surface_deferred_reason: "per-crate cargo +nightly public-api iteration across 14 crates exceeds wrap budget (7-14 min vs ~3 min); 17th consecutive deferral per sessions 91-111 pattern; session 111 META-only (chunk #74 implementation via 3 Type 6 amendments; zero new pub items — all arch.md edits only); session 110 = chunk #74 Type 7 Form 1 route registration META; session 109 = chunk #73 implementation wrap landed Path A full short-window tracker (~280 LOC adding ~30 new pub items); cumulative backlog from chunks #70-#73 + projected #75-#76 META work + #77 specialist re-runs work now substantial enough to make full per-crate iteration worthwhile at next non-META wrap (estimated ~9770 lines projected; baseline last reconciled at session 90 was 7288). Most plausible re-baseline cycle: chunk #77 specialist-re-run wrap (may introduce new pub items if security plan extension adds new error variants OR test plan adds new harness types)"
 
 drift_warnings: []
 
 spec_amendments:
   active: []
   archive:
+    - amendment_id: 2026-05-21T12-15-47-acknowledge-harness-env-and-pid-subpath
+      plans:
+        - path: architecture.md
+          sections:
+            - "§Occupied Resources Environment variables (+3 harness-only entries)"
+            - "§Occupied Resources Filesystem locations Subpaths (+1 entry)"
+            - "§Architecture Registry Updates"
+      decisions_log_sections:
+        - "2026-05-21 — Acknowledge harness-only env vars + run/andromeda-pulse.pid filesystem subpath (--allow-arch-registry)"
+      propagated_by_run: .andromeda/runs/2026-05-21T12-15-47-setup-project-delta/
+      archived_at: 2026-05-21T12:25:00Z
+      flag_used: --allow-arch-registry
+    - amendment_id: 2026-05-21T12-13-44-tag-defer-forward-promises
+      plans:
+        - path: architecture.md
+          sections:
+            - "§Occupied Resources Tauri IPC routes (tag-defer 3 entries)"
+            - "§Occupied Resources Tauri IPC events broadcast channels (tag-defer 1 entry)"
+            - "§Occupied Resources Environment variables (tag-defer 1 entry)"
+            - "§Architecture Registry Updates"
+      decisions_log_sections:
+        - "2026-05-21 — Tag-defer forward-promise entries: snapshot.list_recent / snapshot.copy_to_clipboard / workspace.list / pulse://stream/plugin-events / ANDROMEDA_PULSE_CONFIG_PATH (--allow-arch-registry)"
+      propagated_by_run: .andromeda/runs/2026-05-21T12-13-44-setup-project-delta/
+      archived_at: 2026-05-21T12:25:00Z
+      flag_used: --allow-arch-registry
+    - amendment_id: 2026-05-21T12-08-11-acknowledge-log-templates-and-corpus-schema
+      plans:
+        - path: architecture.md
+          sections:
+            - "§Occupied Resources DuckDB database / schema names"
+            - "§Occupied Resources Corpus SQLite database / schema names (NEW sub-section)"
+            - "§Architecture Registry Updates"
+      decisions_log_sections:
+        - "2026-05-21 — Acknowledge `log_templates` DuckDB table + Corpus SQLite schema sub-section (--allow-arch-registry)"
+      propagated_by_run: .andromeda/runs/2026-05-21T12-08-11-setup-project-delta/
+      archived_at: 2026-05-21T12:25:00Z
+      flag_used: --allow-arch-registry
     - amendment_id: 2026-05-21T06-15-00-append-chunk-74-arch-registry-alignment-batch
       plans:
         - path: route.md
@@ -568,4 +641,4 @@ spec_amendments:
       propagated_by_run: .andromeda/runs/2026-05-11T19-00-00-setup-project-delta/
       archived_at: 2026-05-11T19:25:00Z
 
-session_count: 110
+session_count: 111
