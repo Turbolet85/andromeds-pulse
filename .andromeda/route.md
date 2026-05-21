@@ -338,7 +338,7 @@ Documentation consolidation — cross-reference drift fixes per audit Dim 6 + ar
 
 `2026-05-17` — Append chunk #67 service registry + lifecycle state machine (--allow-route-append)
 
-- **Insert:** chunk #67 at §2 Epoch 9 — Foundation v0.2.0 (text: see §2; full detail in pulse-v0_2_0-route.md §Phase 4 line 276).
+- **Insert:** chunk #67 at §2 Epoch 9 — Foundation v0.2.0 (text: see §2; full detail in pulse-v0_2_0-route.md §Phase 4 §68 — Service registry + lifecycle state machine).
 - **Why:** L1b service identity layer; capability P-027 (Service Constellation Auto-Discovery — formal lifecycle); depends on chunks #61 (baseline trackers, complete) + #63 (restart detector, complete). Registering at route position #67 because v0.2.0-plan chunk #67 (Drain Rust) blocked on Pre-D2 spike validation. Mirrors chunk #66 precedent.
 - **Mechanical:** §1 Total chunks 66 → 67 (Form 1 P6 mechanical auto-update; Policy A strict mechanical).
 - **Marker:** `.andromeda/runs/2026-05-17T23-51-55-spec-amendment-append-chunk-67-service-registry-lifecycle/amendment.md`

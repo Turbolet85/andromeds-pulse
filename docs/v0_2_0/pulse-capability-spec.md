@@ -2,7 +2,7 @@
 
 **Status:** Draft v2, foundational baseline for v0.2.0 implementation kickoff
 **Last revised:** 2026-05-14
-**Reference documents:** `pulse-vision-and-backlog.md` (intent), `architecture.md` (implementation), `pulse-distillation-architecture.md` (data pipeline design v3), `widget-state-validation-mini-route.md` (delivery plan), `widget-state-validation-report-2026-05-14.md` (validation context)
+**Reference documents:** `pulse-vision-and-backlog.md` (intent), `architecture.md` (implementation), `pulse-distillation-architecture.md` (data pipeline design v3), `pulse-v0_2_0-route.md` (delivery plan), `.andromeda/scope-validation/widget-state-validation-report-2026-05-14.md` (validation context)
 
 ---
 
@@ -786,7 +786,7 @@ This document is the foundational baseline for:
 
 1. **Conductor scope definition** — each P-XXX produces one or more Conductor scenarios that trigger and verify the capability. Conductor implementation chunks are organized by which capabilities they enable.
 
-2. **Mini-route reorganization** — existing widget-state-validation-mini-route can be remapped: each chunk lists which P-XXX claims it enables, drift becomes visible if a capability is claimed but no chunk supports it.
+2. **Pulse-v0_2_0-route capability mapping** — `pulse-v0_2_0-route.md` §Capability-to-chunk mapping (line 815) lists which P-XXX claims each chunk enables, surfacing drift if a capability is claimed but no chunk supports it. (Initial mapping landed v3 plan; refreshed during consolidation chunks #70-#77.)
 
 3. **README and marketing copy** — language describing Pulse to potential users derives from claims here. Marketing claims that do not correspond to a P-XXX entry are not allowed.
 

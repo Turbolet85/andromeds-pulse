@@ -6,6 +6,34 @@ _Entries are added in reverse chronological order (newest first). Each entry has
 
 _This file is entirely wrap-session's territory. `/setup-project` creates it if missing but NEVER regenerates it. Manual edits are preserved across all Andromeda skill runs._
 
+## 2026-05-21 (session 113) — Grep `[Omitted long matching line]` follow-up discipline for narrative-cascade plans (confidence 0.85)
+
+When `/andromeda-phase` Phase 3 research uses `grep` (or equivalent) to enumerate occurrences of a multi-site narrative cascade target (e.g., `eight library crates|8-module|eight Rust crates|eight reserved crate names`), and the grep output includes one or more matches rendered as `[Omitted long matching line]`, the orchestrator MUST follow up with explicit `Read` calls at those line numbers BEFORE locking the chunk plan's "Files to modify" list. Omitted lines are STILL matches; deprioritizing them because the line content isn't visible in the grep output produces plan-vs-actual divergence.
+
+Verified at chunk #75 (route#75 Documentation consolidation, session 113): plan-research grep flagged arch.md lines 46 + 52 as `[Omitted long matching line]`; visible lines (4 / 59 / 227 / 310 / 312) were enumerated comprehensively in the plan but the 2 omitted sites (`an 8-module monolith` in Backend Framework + TauRPC entries) were missed. Phase 1 post-edit verification grep with `output_mode=count` surfaced the residual 2 stale occurrences; orchestrator manually identified + applied 2 additional edits during implementation. Plan estimated 6 cascade edits; actual was 8.
+
+**Pattern:** Whenever Grep output includes `[Omitted long matching line]` markers OR `head_limit`-truncated output for content that informs `Files to modify` enumeration, follow up with `Read` at those specific line numbers OR re-run grep with `output_mode=count` to verify total match count. Both Phase 3 research AND Phase 1 verification benefit. The same discipline applies to any chunk-implementer workflow where grep result completeness affects edit scope (cross-cutting / multi-site / cascade / sweep-style edits).
+
+**Alternative phrasing for future Phase 3 protocols:** "When grep emits `[Omitted long matching line]` for >=1 match in a cascade enumeration context, treat as incomplete output requiring per-line Read follow-up before plan finalization." Could land as a `/andromeda-phase` codebase-research-protocol.md formalization if pattern recurs in future cascade-style chunks.
+
+---
+
+## 2026-05-21 (session 113) — META-chunk audit-already-resolved verification-only pattern (confidence 0.7)
+
+When a META consolidation chunk (e.g., chunk #75 Documentation consolidation) implements sub-items derived from a dated audit (e.g., 2026-05-19 audit Dim 6 findings) and interim work between audit and implementation has ALREADY RESOLVED one or more sub-items, the chunk plan should record a verification-only step (no edit) rather than skipping the sub-item silently. This preserves audit traceability: the marker confirms the orchestrator considered the sub-item + verified its resolution + did not blindly skip it.
+
+Verified at chunk #75 sub-item 7 (capability-to-chunk mapping table audit in `docs/v0_2_0/pulse-v0_2_0-route.md`): audit flagged row `P-019 to P-023, P-060 | #67 superseded by #72-#77` as stale; between audit (2026-05-19) and implementation (2026-05-21), an interim manual refresh removed the stale row + added a v3-update note at line 817 explaining the removal. Chunk plan recorded "VERIFIED ALREADY RESOLVED — 0 edits — stale row absent from table; v3-update note + changelog document the fix". Phase 1 verification grep confirmed: the row is gone from the mapping table; remaining 3 occurrences are explanatory/changelog references (chunk briefing self-reference + v3-update note + changelog fix-record), all intentional audit-trail preservation.
+
+**Pattern:** Audit-derived META chunks may include verification-only sub-items when interim work resolves audit findings before implementation. The implementation marker records:
+1. Sub-item description
+2. Outcome status: `✓ VERIFIED ALREADY RESOLVED`
+3. Edit count: 0
+4. Evidence: grep result counts + line numbers of remaining intentional occurrences (changelog / v3-update notes / audit trail references)
+
+**Distinguishing intentional residual references from stale references:** if a cross-reference occurrence appears in a changelog entry, a v3-update note, or a chunk briefing's own description of the audit finding, it is INTENTIONAL audit-trail preservation. If it appears in a navigational reference, an active cross-document cite, or a current-state assertion, it is STALE and requires fix. Use Read context to classify.
+
+---
+
 ## 2026-05-21 (session 109) — Path A baseline-relative implementation pattern (short + long tracker pairs) (confidence 0.7)
 
 When implementing capability spec "current short-term value exceeds long-term baseline by N×" detection (e.g., chunk #73 P-010 ErrorRateSpike + P-012 LatencyRegression) on a per-service/per-operation tracker shape that initially has only ONE long-term tracker, the spec-correct Path A implementation adds a SECOND short-window tracker alongside, fed by the same observe call:

@@ -2,7 +2,7 @@
 
 **Status:** Draft v3, foundational baseline for v0.2.0 implementation kickoff
 **Last revised:** 2026-05-14
-**Reference documents:** `pulse-capability-spec.md` (product contract), `architecture.md` (system architecture), `widget-state-validation-mini-route.md` (delivery plan)
+**Reference documents:** `pulse-capability-spec.md` (product contract), `architecture.md` (system architecture), `pulse-v0_2_0-route.md` (delivery plan)
 
 **Note on document lifecycle:** This document reaches foundational stability at v3. It is the agreed architectural baseline against which implementation chunks will start. Further revisions are expected, but they happen through `andromeda-evolve` when code meets reality — not through additional pre-implementation review iterations. Theoretical refinement past this point yields diminishing returns; remaining open questions are calibration questions that resolve through running real workload through Conductor scenarios, not through document polish.
 
@@ -977,22 +977,9 @@ Each layer of this architecture implements specific capabilities. Mapping:
 | L5 | P-022, P-023, P-024 through P-030, P-041 through P-046 |
 | L6 | (operational infrastructure, supports verification of all capabilities) |
 
-### TODO: capability spec formalization (NEW in v3)
+### Capability spec formalization — RESOLVED (v2)
 
-The following architectural concepts function as user-facing contracts in this document but lack formal P-XXX numbers in `pulse-capability-spec.md`. They should be added as P-XXX claims before v0.2.0 implementation start:
-
-- **Cadence configuration** (default 60s, configurable via `[triage.cadence]`) — formalize as user-facing config contract
-- **Fallback model tier** (3-4B class, 6GB VRAM, reduced quality with explicit Report annotation) — formalize as graceful-degradation capability
-- **Hot reload semantics** (which params reload, which require restart) — formalize as config-stability contract
-- **Magnitude bypass behavior** (dual-condition: relative > 10× OR absolute > 5%) — formalize as suppression escape-valve contract
-- **Self-observability surface** (Settings → Diagnostics view) — formalize as transparency contract
-- **Hardware profile awareness** (gpu-primary, gpu-fallback, cpu-primary, cpu-fallback with profile-dependent SLOs) — formalize as hardware-honesty contract
-- **Active-incident continuity** (LWW exception during active incidents) — formalize as interpretation-continuity contract
-- **Prospective threshold application** (threshold changes do not retroactively re-evaluate history) — formalize as no-surprise contract
-
-**Owner:** Project lead.
-**Deadline:** Before mini-route chunk #1 implementation start.
-**Estimated effort:** Single capability-spec amendment chunk, ~8-10 new P-XXX entries, ~500-800 words of new spec content.
+The architectural concepts previously listed here as TODO items have been formalized as P-052..P-060 in `pulse-capability-spec.md` v2 (2026-05-14 changelog entry: "Revision aligning capability spec with distillation architecture v3 decisions. Formalizes architectural concepts that were previously embedded in distillation document as actual product contracts with P-XXX numbers.").
 
 ---
 
