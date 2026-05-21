@@ -1,13 +1,13 @@
 schema_version: 2
-last_wrap: 2026-05-21T12:25:00Z
-last_reconcile: 2026-05-21T12:25:00Z
+last_wrap: 2026-05-21T13:25:00Z
+last_reconcile: 2026-05-21T13:19:01Z
 
 last_completed_chunk:
   route_index: 74
   title: "Architecture registry alignment batch — log_templates DuckDB table + corpus SQLite schema sub-section + forward-promise cleanup (META; detail in pulse-v0_2_0-route §74)"
   epoch: 9
   committed_at: 2026-05-21T12:25:00Z
-  commit_sha: "f9248ff"
+  commit_sha: "ef575b3"
   commit_subject: "chore(arch): chunk #74 architecture registry alignment batch — 3 Type 6 amendments + propagations + P17 proposal"
 
 # Session 111 wrap (2026-05-21T12:25:00Z): chunk #74 "Architecture registry alignment batch" META
@@ -100,21 +100,22 @@ plan_freshness:
   tests_mtime: 2026-05-10T12:55:51Z
   obs_mtime: 2026-05-08T18:00:16Z
   a11y_mtime: 2026-05-02T21:45:23Z
-  route_mtime: 2026-05-21T06:15:00Z
+  route_mtime: 2026-05-21T13:11:35Z
   input_mtime: 2026-05-02T06:52:58Z
 
 living_artifact_freshness:
-  dep_tree_reconciled_at: 2026-05-21T12:25:00Z
+  dep_tree_reconciled_at: 2026-05-21T13:19:01Z
   api_surface_reconciled_at: 2026-05-21T06:30:00Z
   most_recent_code_mtime: 2026-05-21T05:00:00Z
   reconcile_failed: false
   api_surface_deferred: true
-  api_surface_deferred_reason: "per-crate cargo +nightly public-api iteration across 14 crates exceeds wrap budget (7-14 min vs ~3 min); 17th consecutive deferral per sessions 91-111 pattern; session 111 META-only (chunk #74 implementation via 3 Type 6 amendments; zero new pub items — all arch.md edits only); session 110 = chunk #74 Type 7 Form 1 route registration META; session 109 = chunk #73 implementation wrap landed Path A full short-window tracker (~280 LOC adding ~30 new pub items); cumulative backlog from chunks #70-#73 + projected #75-#76 META work + #77 specialist re-runs work now substantial enough to make full per-crate iteration worthwhile at next non-META wrap (estimated ~9770 lines projected; baseline last reconciled at session 90 was 7288). Most plausible re-baseline cycle: chunk #77 specialist-re-run wrap (may introduce new pub items if security plan extension adds new error variants OR test plan adds new harness types)"
+  api_surface_deferred_reason: "per-crate cargo +nightly public-api iteration across 14 crates exceeds wrap budget (7-14 min vs ~3 min); 18th consecutive deferral per sessions 91-112 pattern; session 112 META META-only (chunk #75 Type 7 Form 1 route registration + setup-project --delta CLAUDE.md cascade; zero new pub items — only CLAUDE.md/route.md/state.yaml edits); session 111 = chunk #74 META implementation via 3 Type 6 amendments (zero new pub items — all arch.md edits only); session 110 = chunk #74 Type 7 Form 1 route registration META; session 109 = chunk #73 implementation wrap landed Path A full short-window tracker (~280 LOC adding ~30 new pub items); cumulative backlog from chunks #70-#73 + projected #76 META work + #77 specialist re-runs work now substantial enough to make full per-crate iteration worthwhile at next non-META wrap (estimated ~9770 lines projected; baseline last reconciled at session 90 was 7288). Most plausible re-baseline cycle: chunk #77 specialist-re-run wrap (may introduce new pub items if security plan extension adds new error variants OR test plan adds new harness types)"
 
 drift_warnings: []
 
 spec_amendments:
-  active:
+  active: []
+  archive:
     - amendment_id: 2026-05-21T13-06-59-append-chunk-75-documentation-consolidation
       plans:
         - path: route.md
@@ -122,38 +123,12 @@ spec_amendments:
             - "§1 Route Scope Summary (Total chunks mechanical update per Proposal 6)"
             - "§2 Roadmap (Epoch 9 body)"
             - "§3 Decisions Log"
-          decisions_log_section: "2026-05-21 — Append chunk #75 Documentation consolidation (--allow-route-append)"
-      trigger:
-        chunk: null
-        phase: null
-        harness: "user-driven via /andromeda-evolve"
-      authority:
-        winning_plan: "pulse-v0_2_0-route.md §Phase 6 §75 (v3 Consolidation Phase 6 chunk 6 of 8)"
-        winning_tier: pipeline state
-        losing_plan: route.md
-        losing_concern: chunk-list-stale-vs-pipeline-reality
-        rationale: "Audit Section 1.G + 2.J surfaced 8 BROKEN + 4 STALE cross-references requiring batch documentation edit; chunk #74 arch state settled this session 111 enables doc cross-refs to lock against final §-numbers + narrative count lines."
-      impl_files_synced: []
-      expected_propagation:
-        - "CLAUDE.md (pointer-table chunk-count line cascades from (9 epochs / 74 chunks) to (9 epochs / 75 chunks) per <!-- GENERATED:setup:pointer-table --> anchor)"
-      marker_path: .andromeda/runs/2026-05-21T13-06-59-spec-amendment-append-chunk-75-documentation-consolidation/amendment.md
-      applied_at: 2026-05-21T13:06:59Z
-      noted_at: null
+      decisions_log_sections:
+        - "2026-05-21 — Append chunk #75 Documentation consolidation (--allow-route-append)"
       propagated_by_run: .andromeda/runs/2026-05-21T13-14-05-setup-project-delta/
-      archived_at: null
-      verification_status: clean
+      archived_at: 2026-05-21T13:25:00Z
       flag_used: --allow-route-append
       form: 1
-      route_section_modified: "Epoch 9 — Foundation v0.2.0"
-      chunks_added:
-        - position: 75
-          text: "Documentation consolidation — cross-reference drift fixes per audit Dim 6 + arch.md narrative count-line cascades (META; detail in pulse-v0_2_0-route §75)."
-      chunks_renumbered: []
-      motivation: "Sixth chunk of v3 Phase 6 Consolidation per pulse-v0_2_0-route.md §Phase 6 §75; closes audit Section 1.G + 2.J cross-reference drift findings; depends on chunk #74 (arch state settled this session 111 commit ef575b3)."
-      confirmed_shift: false
-      scope_summary_updates:
-        - "Total chunks: 74 → 75"
-  archive:
     - amendment_id: 2026-05-21T12-15-47-acknowledge-harness-env-and-pid-subpath
       plans:
         - path: architecture.md
@@ -679,4 +654,4 @@ spec_amendments:
       propagated_by_run: .andromeda/runs/2026-05-11T19-00-00-setup-project-delta/
       archived_at: 2026-05-11T19:25:00Z
 
-session_count: 111
+session_count: 112
