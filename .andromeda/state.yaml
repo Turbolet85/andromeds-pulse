@@ -114,7 +114,45 @@ living_artifact_freshness:
 drift_warnings: []
 
 spec_amendments:
-  active: []
+  active:
+    - amendment_id: 2026-05-21T13-06-59-append-chunk-75-documentation-consolidation
+      plans:
+        - path: route.md
+          sections:
+            - "§1 Route Scope Summary (Total chunks mechanical update per Proposal 6)"
+            - "§2 Roadmap (Epoch 9 body)"
+            - "§3 Decisions Log"
+          decisions_log_section: "2026-05-21 — Append chunk #75 Documentation consolidation (--allow-route-append)"
+      trigger:
+        chunk: null
+        phase: null
+        harness: "user-driven via /andromeda-evolve"
+      authority:
+        winning_plan: "pulse-v0_2_0-route.md §Phase 6 §75 (v3 Consolidation Phase 6 chunk 6 of 8)"
+        winning_tier: pipeline state
+        losing_plan: route.md
+        losing_concern: chunk-list-stale-vs-pipeline-reality
+        rationale: "Audit Section 1.G + 2.J surfaced 8 BROKEN + 4 STALE cross-references requiring batch documentation edit; chunk #74 arch state settled this session 111 enables doc cross-refs to lock against final §-numbers + narrative count lines."
+      impl_files_synced: []
+      expected_propagation:
+        - "CLAUDE.md (pointer-table chunk-count line cascades from (9 epochs / 74 chunks) to (9 epochs / 75 chunks) per <!-- GENERATED:setup:pointer-table --> anchor)"
+      marker_path: .andromeda/runs/2026-05-21T13-06-59-spec-amendment-append-chunk-75-documentation-consolidation/amendment.md
+      applied_at: 2026-05-21T13:06:59Z
+      noted_at: null
+      propagated_by_run: .andromeda/runs/2026-05-21T13-14-05-setup-project-delta/
+      archived_at: null
+      verification_status: clean
+      flag_used: --allow-route-append
+      form: 1
+      route_section_modified: "Epoch 9 — Foundation v0.2.0"
+      chunks_added:
+        - position: 75
+          text: "Documentation consolidation — cross-reference drift fixes per audit Dim 6 + arch.md narrative count-line cascades (META; detail in pulse-v0_2_0-route §75)."
+      chunks_renumbered: []
+      motivation: "Sixth chunk of v3 Phase 6 Consolidation per pulse-v0_2_0-route.md §Phase 6 §75; closes audit Section 1.G + 2.J cross-reference drift findings; depends on chunk #74 (arch state settled this session 111 commit ef575b3)."
+      confirmed_shift: false
+      scope_summary_updates:
+        - "Total chunks: 74 → 75"
   archive:
     - amendment_id: 2026-05-21T12-15-47-acknowledge-harness-env-and-pid-subpath
       plans:
