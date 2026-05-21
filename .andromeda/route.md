@@ -16,7 +16,7 @@ unit) not HOW (implementation steps)._
 
 ## 1. Route Scope Summary
 
-- **Total chunks:** 73
+- **Total chunks:** 74
 - **Epochs:** 9 (Foundation, Ingest pipeline, Storage & query, Webview shell + TauRPC bridge, Visualization surfaces, Snapshot & Investigate, Plugin runtime + MCP server, Polish & ship, Foundation v0.2.0)
 - **Drilldown depth (avg):** 1.6 (mixed: Foundation depth 2, Ingest pipeline depth 1, Storage & query depth 2, Webview shell depth 1, Visualization surfaces depth 2, Snapshot depth 2, Plugin+MCP depth 2, Polish depth 1)
 - **Hierarchy mode:** mixed (3-level for dense epochs Foundation / Storage / Visualization / Snapshot / Plugin+MCP; 2-level for lighter epochs Ingest / Webview shell / Polish)
@@ -180,6 +180,8 @@ ServiceRegistry + RetryStormState → corpus migration — DashMap → corpus vi
 PII scrubber coverage extension — extend scrub_attribute to OTLP appender + Drain corpus persist paths; uniform pre-scrub at persistence boundary (capabilities P-006/P-047/P-048; detail in pulse-v0_2_0-route §72).
    ↓
 Capability spec numeric alignment — fix P-001/P-003 thresholds + failure path, P-010/P-011/P-012/P-014 baseline-relative semantics (capabilities P-001/P-003/P-010/P-011/P-012/P-014; detail in pulse-v0_2_0-route §73).
+   ↓
+Architecture registry alignment batch — log_templates DuckDB table + corpus SQLite schema sub-section + forward-promise cleanup (META; detail in pulse-v0_2_0-route §74).
 
 ---
 
@@ -392,3 +394,12 @@ Capability spec numeric alignment — fix P-001/P-003 thresholds + failure path,
 - **Why:** Fourth chunk of v3 Phase 6 Consolidation; closes audit Section 1.D capability-PARTIAL HIGH findings (P-001/P-003 thresholds + failure path; P-010/P-011/P-012/P-014 baseline-relative semantics). Depends on #59/#61/#62/#66/#70. Mirrors chunk #72 precedent.
 - **Mechanical:** §1 Total chunks 72 → 73 (Form 1 Policy A); state.yaml.last_completed_chunk unchanged.
 - **Marker:** `.andromeda/runs/2026-05-20T21-56-34-spec-amendment-append-chunk-73-capability-spec-numeric-alignment/amendment.md`
+
+---
+
+`2026-05-21` — Append chunk #74 Architecture registry alignment batch (--allow-route-append)
+
+- **Insert:** chunk #74 at §2 Epoch 9 — Foundation v0.2.0 (text: see §2; full detail in `pulse-v0_2_0-route.md` §Phase 6 §74).
+- **Why:** Fifth chunk of v3 Phase 6 Consolidation; META chunk closing audit Section 1.F + 2.I arch registry drift accumulated through chunks #57-#73 (log_templates DuckDB + corpus SQLite schema + forward-promise cleanup). Depends on #70/#71/#72/#73. Mirrors chunk #73 precedent.
+- **Mechanical:** §1 Total chunks 73 → 74 (Form 1 Policy A); state.yaml.last_completed_chunk unchanged.
+- **Marker:** `.andromeda/runs/2026-05-21T06-15-00-spec-amendment-append-chunk-74-arch-registry-alignment-batch/amendment.md`
