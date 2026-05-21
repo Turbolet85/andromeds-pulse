@@ -1,6 +1,6 @@
 schema_version: 2
-last_wrap: 2026-05-21T17:30:00Z
-last_reconcile: 2026-05-21T17:30:00Z
+last_wrap: 2026-05-21T18:05:00Z
+last_reconcile: 2026-05-21T18:05:00Z
 
 last_completed_chunk:
   route_index: 75
@@ -10,6 +10,32 @@ last_completed_chunk:
   commit_sha: "73be075"
   commit_subject: "docs(consolidation): chunk #75 documentation consolidation — 14 doc edits across 5 files + arch narrative cascade (eight->twelve library crates)"
 
+# Session 115 wrap (2026-05-21T18:05:00Z): META session — `/andromeda-evolve --allow-route-append` (chunk #76 Andromeda
+# pipeline meta-improvements route registration; Type 7 Form 1) + `/andromeda-setup-project --delta` (CLAUDE.md
+# pointer-table cascade 75 → 76 chunks; commit e4817e3 bundled evolve artifacts: route.md §1+§2+§3 + state.yaml
+# active entry) + user's separate manual chunk #77 description rewrite (commit f4b0442 — clarifies no
+# /andromeda-security or /andromeda-tests re-derive skill exists in Andromeda v2; specialist plan reconciliation
+# deferred to v3 where specialist plans become living artifacts with continuous evolution + dedicated re-derivation
+# skill + staleness drift inspection). Zero Rust source changes; META session zero new pub items. Lifecycle progression:
+# chunk #76 amendment 2026-05-21T17-50-00-append-chunk-76-andromeda-pipeline-meta-improvements progressed
+# Active → Propagated → Archived in single session 115 (applied 17:50Z via evolve → propagated 17:55Z via setup-project
+# --delta → noted+archived 18:05Z this wrap). spec_amendments.active emptied post-archive; archive grew 39 → 40 entries.
+# `cargo tree --workspace --depth 2 --prefix indent` rerun: 444 lines (identical to session 114 baseline; zero-diff
+# verification per integrity-protocol.md Part B step 5 no-op + refresh path). Curation: 0 Tier 1 + 0 Tier 2 + 0 Tier 3
+# (1 candidate filtered by Filter 1 dedup against `docs/v0_2_0/pulse-v0_2_0-route.md` §77 mechanism note via user's
+# manual chunk #77 rewrite — "manual specialist plan rewrite within declared chunk scope is legitimate per D4
+# OUTSIDE-chunk-scope only" insight already captured in source plan body, not session-learnings). 0 Andromeda pipeline
+# proposals filed (chunk #77 mechanism note addresses no-re-derive-skill finding; deferred to v3 per chunk #77
+# description; no new P19 needed). Drift: all 6 dimensions CLEAN; D5 cleared organically via setup-project --delta
+# Phase 1 CLAUDE.md edit (mtime 17:55Z exceeds arch.md 13:55Z + route.md 17:50Z by 1-3h margin). State H housekeeping:
+# no action needed — state.yaml.last_completed_chunk.commit_sha=73be075 reachable from HEAD (chunk #76 only registered
+# not implemented; last_completed stays at #75). api_surface deferred 20th → 21st consecutive per existing soft-J flag.
+# Smoke test: 14/14 security crate tests passed (0.149s). Brief transient "claude-opus-4-7 classifier temporarily
+# unavailable" mid-session setup-project Phase 9 git-add (resolved via single retry); no failed command at session end.
+# Next chunk: route#76 implementation via /andromeda-phase + /andromeda-implement (META chunk; touches external
+# Andromeda toolkit ~/.claude/skills/andromeda-{evolve,setup-project,wrap-session,new-session}/ at user level;
+# ~155 LOC across ~8 files per audit Section 4 estimates; NOT pulse-app codebase).
+#
 # Session 114 wrap (2026-05-21T17:30:00Z): META session — `/andromeda-new-session` dashboard + `/andromeda-setup-project`
 # full re-derive (commit 6bbe0ff) clearing chunk #75 narrative cascade D5 + this wrap session. Substantive change: 1
 # hunk in CLAUDE.md §Architecture block (line 96; "eight library crates" → "twelve library crates (fourteen workspace
@@ -196,17 +222,18 @@ plan_freshness:
   input_mtime: 2026-05-02T06:52:58Z
 
 living_artifact_freshness:
-  dep_tree_reconciled_at: 2026-05-21T17:30:00Z
+  dep_tree_reconciled_at: 2026-05-21T18:05:00Z
   api_surface_reconciled_at: 2026-05-21T06:30:00Z
   most_recent_code_mtime: 2026-05-21T03:06:26Z
   reconcile_failed: false
   api_surface_deferred: true
-  api_surface_deferred_reason: "per-crate cargo +nightly public-api iteration across 14 crates exceeds wrap budget (7-14 min vs ~3 min); 20th consecutive deferral per sessions 91-114 pattern; session 114 = `/andromeda-new-session` + `/andromeda-setup-project` full re-derive META session zero new pub items (CLAUDE.md §Architecture cascade-only edit + 1 Tier 3 + 1 P18 proposal + dep-tree refresh + state.yaml State H housekeeping); session 113 = chunk #75 documentation consolidation META (zero new pub items — all .md edits); session 112 META-only; session 111 = chunk #74 META implementation via 3 Type 6 amendments (zero new pub items — all arch.md edits only); session 110 = chunk #74 Type 7 Form 1 route registration META; session 109 = chunk #73 implementation wrap landed Path A full short-window tracker (~280 LOC adding ~30 new pub items); cumulative backlog from chunks #70-#73 + META chunks #74/#75 + setup-project sessions + projected #76 META work + #77 specialist re-runs work now substantial enough to make full per-crate iteration worthwhile at next non-META wrap. Most plausible re-baseline cycle: chunk #77 specialist-re-run wrap (may introduce new pub items if security plan extension adds new error variants OR test plan adds new harness types)"
+  api_surface_deferred_reason: "per-crate cargo +nightly public-api iteration across 14 crates exceeds wrap budget (7-14 min vs ~3 min); 21st consecutive deferral per sessions 91-115 pattern; session 115 = `/andromeda-evolve --allow-route-append` + `/andromeda-setup-project --delta` META cycle for chunk #76 registration (zero new pub items — route.md §1+§2+§3 edits + state.yaml lifecycle progression + CLAUDE.md pointer-table cascade only); session 114 = `/andromeda-new-session` + `/andromeda-setup-project` full re-derive META session zero new pub items (CLAUDE.md §Architecture cascade-only edit + 1 Tier 3 + 1 P18 proposal + dep-tree refresh + state.yaml State H housekeeping); session 113 = chunk #75 documentation consolidation META (zero new pub items — all .md edits); session 112 META-only; session 111 = chunk #74 META implementation via 3 Type 6 amendments (zero new pub items — all arch.md edits only); session 110 = chunk #74 Type 7 Form 1 route registration META; session 109 = chunk #73 implementation wrap landed Path A full short-window tracker (~280 LOC adding ~30 new pub items); cumulative backlog from chunks #70-#73 + META chunks #74/#75 + setup-project sessions + projected #76 META work + #77 specialist re-runs work now substantial enough to make full per-crate iteration worthwhile at next non-META wrap. Most plausible re-baseline cycle: chunk #77 specialist-re-run wrap (may introduce new pub items if security plan extension adds new error variants OR test plan adds new harness types)"
 
 drift_warnings: []
 
 spec_amendments:
-  active:
+  active: []
+  archive:
     - amendment_id: 2026-05-21T17-50-00-append-chunk-76-andromeda-pipeline-meta-improvements
       plans:
         - path: route.md
@@ -216,15 +243,10 @@ spec_amendments:
             - "§3 Decisions Log"
       decisions_log_sections:
         - "2026-05-21 — Append chunk #76 Andromeda pipeline meta-improvements (--allow-route-append)"
-      marker_path: ".andromeda/runs/2026-05-21T17-50-00-spec-amendment-append-chunk-76-andromeda-pipeline-meta-improvements/amendment.md"
-      applied_at: 2026-05-21T17:50:00Z
-      noted_at: null
-      propagated_by_run: ".andromeda/runs/2026-05-21T17-55-00-setup-project-delta/"
-      archived_at: null
-      verification_status: clean
+      propagated_by_run: .andromeda/runs/2026-05-21T17-55-00-setup-project-delta/
+      archived_at: 2026-05-21T18:05:00Z
       flag_used: --allow-route-append
       form: 1
-  archive:
     - amendment_id: 2026-05-21T13-06-59-append-chunk-75-documentation-consolidation
       plans:
         - path: route.md
@@ -763,4 +785,4 @@ spec_amendments:
       propagated_by_run: .andromeda/runs/2026-05-11T19-00-00-setup-project-delta/
       archived_at: 2026-05-11T19:25:00Z
 
-session_count: 114
+session_count: 115
