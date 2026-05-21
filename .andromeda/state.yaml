@@ -206,7 +206,24 @@ living_artifact_freshness:
 drift_warnings: []
 
 spec_amendments:
-  active: []
+  active:
+    - amendment_id: 2026-05-21T17-50-00-append-chunk-76-andromeda-pipeline-meta-improvements
+      plans:
+        - path: route.md
+          sections:
+            - "§1 Route Scope Summary (Total chunks mechanical update per Proposal 6)"
+            - "§2 Roadmap (Epoch 9 body)"
+            - "§3 Decisions Log"
+      decisions_log_sections:
+        - "2026-05-21 — Append chunk #76 Andromeda pipeline meta-improvements (--allow-route-append)"
+      marker_path: ".andromeda/runs/2026-05-21T17-50-00-spec-amendment-append-chunk-76-andromeda-pipeline-meta-improvements/amendment.md"
+      applied_at: 2026-05-21T17:50:00Z
+      noted_at: null
+      propagated_by_run: ".andromeda/runs/2026-05-21T17-55-00-setup-project-delta/"
+      archived_at: null
+      verification_status: clean
+      flag_used: --allow-route-append
+      form: 1
   archive:
     - amendment_id: 2026-05-21T13-06-59-append-chunk-75-documentation-consolidation
       plans:

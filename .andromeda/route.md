@@ -16,7 +16,7 @@ unit) not HOW (implementation steps)._
 
 ## 1. Route Scope Summary
 
-- **Total chunks:** 75
+- **Total chunks:** 76
 - **Epochs:** 9 (Foundation, Ingest pipeline, Storage & query, Webview shell + TauRPC bridge, Visualization surfaces, Snapshot & Investigate, Plugin runtime + MCP server, Polish & ship, Foundation v0.2.0)
 - **Drilldown depth (avg):** 1.6 (mixed: Foundation depth 2, Ingest pipeline depth 1, Storage & query depth 2, Webview shell depth 1, Visualization surfaces depth 2, Snapshot depth 2, Plugin+MCP depth 2, Polish depth 1)
 - **Hierarchy mode:** mixed (3-level for dense epochs Foundation / Storage / Visualization / Snapshot / Plugin+MCP; 2-level for lighter epochs Ingest / Webview shell / Polish)
@@ -184,6 +184,8 @@ Capability spec numeric alignment — fix P-001/P-003 thresholds + failure path,
 Architecture registry alignment batch — log_templates DuckDB table + corpus SQLite schema sub-section + forward-promise cleanup (META; detail in pulse-v0_2_0-route §74).
    ↓
 Documentation consolidation — cross-reference drift fixes per audit Dim 6 + arch.md narrative count-line cascades (META; detail in pulse-v0_2_0-route §75).
+   ↓
+Andromeda pipeline meta-improvements (P7 + P12 + P15-P18) — extend evolve/setup-project narrative + CLAUDE.md derived-section cascade detection (META; detail in pulse-v0_2_0-route §76).
 
 ---
 
@@ -414,3 +416,12 @@ Documentation consolidation — cross-reference drift fixes per audit Dim 6 + ar
 - **Why:** Sixth chunk of v3 Phase 6 Consolidation; closes audit Section 1.G + 2.J cross-reference drift findings (8 BROKEN + 4 STALE refs + arch narrative cascade). Depends on chunk #74 (arch state settled this session 111). Mirrors chunk #74 precedent.
 - **Mechanical:** §1 Total chunks 74 → 75 (Form 1 Policy A); state.yaml.last_completed_chunk unchanged.
 - **Marker:** `.andromeda/runs/2026-05-21T13-06-59-spec-amendment-append-chunk-75-documentation-consolidation/amendment.md`
+
+---
+
+`2026-05-21` — Append chunk #76 Andromeda pipeline meta-improvements (--allow-route-append)
+
+- **Insert:** chunk #76 at §2 Epoch 9 — Foundation v0.2.0 (text: see §2; full detail in `pulse-v0_2_0-route.md` §Phase 6 §76).
+- **Why:** Seventh chunk of v3 Phase 6 Consolidation; META chunk closing audit Section 4 IMPLEMENT NOW candidates (P7 Type 6 narrative-cascade visibility + P12 CLAUDE.md derived-section cascade pre-populate; both mature pending 4+ direct dogfood occurrences) + file P15-P18 new entries. Depends on chunks #74/#75 (META cascade settled) per Sequencing note. Mirrors chunk #75 precedent.
+- **Mechanical:** §1 Total chunks 75 → 76 (Form 1 Policy A); state.yaml.last_completed_chunk unchanged.
+- **Marker:** `.andromeda/runs/2026-05-21T17-50-00-spec-amendment-append-chunk-76-andromeda-pipeline-meta-improvements/amendment.md`
