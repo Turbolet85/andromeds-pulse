@@ -1138,5 +1138,69 @@ Chunk #76 (Andromeda pipeline meta-improvements P7 + P12 + P15-P18) is the natur
 - `~/.claude/skills/andromeda-implement/SKILL.md` Phase 1 + Phase 3 — the load-bearing skill body sections to extend.
 - `~/.claude/skills/andromeda-implement/references/visual-references.md` Phase 1 + Phase 3 — banner templates to add.
 - Chunk #74 marker files (`.andromeda/runs/2026-05-21T12-08-11-spec-amendment-acknowledge-log-templates-and-corpus-schema/amendment.md` + 2 siblings) — proof of concept for the META-orchestration path; preserved as audit trail.
+
+---
+
+## Status: PROPOSED — 2026-05-21 (session 114)
+
+### Proposal 18 — `/andromeda-new-session` D5 severity classification should distinguish arch §Design Philosophy mtime drift (substantive) from other arch narrative mtime drift (cosmetic)
+
+**Problem:**
+
+`/andromeda-new-session` Phase 7 currently flags D5 drift (arch.md mtime > CLAUDE.md mtime) with a single severity=warning + uniform remediation_hint "Optional — chunk #75 narrative-cascade content does not flow into CLAUDE.md derived sections... Cosmetic mtime drift only." This framing is INCORRECT when the arch.md change touched §Design Philosophy (because CLAUDE.md `<!-- GENERATED:setup:architecture -->` derives directly from arch §Design Philosophy line 3 narrative — verified at session 114). When the change touched §Established Decisions / §Conventions / §Standard Contracts / etc. instead, the "cosmetic" framing is correct.
+
+Result observed at session 114: dashboard recommended D5 as "optional" cosmetic remediation. User invoked `/andromeda-setup-project` full re-derive anyway, and Phase 0 surfaced substantive stale text at CLAUDE.md line 96 ("eight library crates" — should be "twelve" per arch §Design Philosophy line 3 post chunks #58/#60/#68 cascade). The dashboard misclassified the severity. The wrap-session preceding (session 113) had stated this drift was cosmetic and "will defer until chunk #76 P7+P12 systematizes Type 6 narrative-cascade detection" — but P7+P12 cover different cascade paths (arch narrative → all derived sections; Type 6 evolve marker pre-population). Neither directly addresses the §Design Philosophy → §Architecture derivation gap.
+
+**Proposal:**
+
+Extend `/andromeda-new-session` Phase 7 (`references/integrity-protocol.md` Part C D5 detection) with section-aware severity classification:
+
+1. After detecting D5 (arch.md mtime > CLAUDE.md mtime), read arch.md §Design Philosophy first paragraph (default first 5 lines after the `## Design Philosophy` heading; or up to the next `## ` heading — whichever first).
+2. Read CLAUDE.md `<!-- GENERATED:setup:architecture -->` block content (parse via section-markers regex).
+3. **If §Design Philosophy paragraph is NOT a substring/derivation of the CLAUDE.md §Architecture block** (substantive divergence detected): downgrade D5 to severity=**substantive** with remediation_hint "**Substantive** — run `/andromeda-setup-project` (full re-derive) to materialize the updated §Design Philosophy paragraph into CLAUDE.md §Architecture. The `--delta` variant will NOT fix this because narrative is not amendment-tracked."
+4. **Otherwise** (CLAUDE.md §Architecture already reflects current §Design Philosophy): keep severity=warning + current "cosmetic" remediation_hint.
+
+Same logic applies to route.md mtime drift, but route does NOT derive into CLAUDE.md narrative — only the "Roadmap (N epochs / M chunks)" pointer-table row count cascades. Type 7 route-append amendments handle that via `setup-project --delta`. So route.md mtime drift D5 stays severity=warning + cosmetic by default; substantive escalation N/A unless future scope adds narrative derivation from route.md.
+
+**Design:**
+
+Concrete edits to `~/.claude/skills/andromeda-new-session/references/integrity-protocol.md` Part C D5 section:
+
+```diff
+ D5 — Plan-to-CLAUDE.md drift (mtime-based):
+ - For each upstream (input + arch + 6 specialist plans + route): if mtime(upstream) > mtime(CLAUDE.md) → flag D5 "{upstream} regenerated since last setup-project"
+ - **Amendment-aware classification (NEW v2)**: check state.yaml.spec_amendments.active...
++- **Section-aware classification (NEW P18)**: for arch.md D5 entries with NO amendment match:
++  - Read arch.md §Design Philosophy first paragraph (lines between `## Design Philosophy` heading and next `## ` heading)
++  - Read CLAUDE.md `<!-- GENERATED:setup:architecture -->` block content (parse via section-markers regex)
++  - If §Design Philosophy content is NOT a substring/derivation of the CLAUDE.md §Architecture block: severity=substantive (not warning); remediation_hint "**Substantive** — run /andromeda-setup-project (full re-derive) to materialize the updated §Design Philosophy paragraph into CLAUDE.md §Architecture. The --delta variant will NOT fix this because narrative is not amendment-tracked."
++  - Otherwise: severity=warning; remediation_hint "Optional — cosmetic mtime drift only. CLAUDE.md derived sections (Modules / Stack / pointer-table / §Architecture) are current."
+```
+
+Same conceptual edit to:
+- `~/.claude/skills/andromeda-wrap-session/references/integrity-protocol.md` Part C D5 (part of the 6-contract cross-skill diff; must update in lock-step)
+- `~/.claude/skills/andromeda-setup-project/references/integrity-protocol.md` Part C D5 (same)
+
+Visual rendering at `~/.claude/skills/andromeda-new-session/references/visual-references.md` Phase 7:
+- Add new render variant for severity=substantive: `⚠️ D5 (substantive — arch §Design Philosophy not reflected in CLAUDE.md §Architecture) — {description}. Strongly recommend: /andromeda-setup-project (full re-derive) this session.`
+
+**Implementation cost:**
+
+- ~40-60 LOC across the 3 integrity-protocol.md copies (must stay byte-identical per cross-skill diff Check 8) + visual-references.md update.
+- Verification: re-run new-session against pre-setup-project state at session 114 (arch.md mtime > CLAUDE.md mtime with stale "eight library crates" in CLAUDE.md §Architecture) — confirm new logic correctly flags as substantive.
+
+**When to do:**
+
+Chunk #76 (Andromeda pipeline meta-improvements P7 + P12 + P15-P18) is the natural batch. P18 joins P7 (arch narrative cascade — currently scoped to all specialist sections; P18 narrows to the §Design Philosophy → §Architecture path specifically) + P12 (Type 6 evolve markers should pre-populate `expected_propagation: [CLAUDE.md]` when registry section appears in CLAUDE.md derived sections — orthogonal to P18 since P18 covers narrative not registry) — all three address narrative-cascade scope detection gaps that the current "cosmetic only" framing masks.
+
+**Cross-references:**
+
+- Triggering observation: this session 114 `/andromeda-new-session` dashboard labeled D5 as "Optional — cosmetic mtime drift only" while CLAUDE.md §Architecture line 96 contained substantive stale "eight library crates" text from chunks #58/#60/#68 cascade.
+- Sibling proposals: P7 (arch narrative cascade — narrative changes to specialist sections should trigger cascade); P12 (Type 6 evolve markers should pre-populate expected_propagation for CLAUDE.md derived sections); both adjacent to P18's scope but cover different cascade paths.
+- Session 114 Tier 3 session-learning at `.claude/docs/session-learnings.md` (2026-05-21 entry "CLAUDE.md §Architecture section DOES propagate arch.md §Design Philosophy narrative cascade") — empirical anchor.
+- `~/.claude/skills/andromeda-new-session/references/integrity-protocol.md` Part C D5 — load-bearing reference section to extend.
+- `~/.claude/skills/andromeda-wrap-session/references/integrity-protocol.md` + `~/.claude/skills/andromeda-setup-project/references/integrity-protocol.md` — must stay byte-identical per 6-contract cross-skill diff.
+- CLAUDE.md §Architecture block at line 96 (current; verifies the cascade path).
+- arch.md §Design Philosophy line 3 (the source of truth narrative line for the derivation).
 - Skill tool availability semantics — depends on Claude Code harness allowing model-invocation per-skill (via removing `disable-model-invocation: true`); P17 assumes this is the project's preferred posture для Andromeda skill set.
 - chunks #75 + #77 — future META chunks that will benefit from P17 implementation; canonical test cases post-implementation.
