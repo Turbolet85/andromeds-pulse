@@ -1,15 +1,60 @@
 schema_version: 2
-last_wrap: 2026-05-21T18:05:00Z
-last_reconcile: 2026-05-21T18:05:00Z
+last_wrap: 2026-05-22T18:30:00Z
+last_reconcile: 2026-05-22T18:30:00Z
 
 last_completed_chunk:
-  route_index: 75
-  title: "Documentation consolidation — cross-reference drift fixes per audit Dim 6 (8 BROKEN + 4 STALE references) + arch.md narrative count-line cascades from chunks #58/#60/#68 (`eight library crates` -> `twelve`) (META; detail in pulse-v0_2_0-route §75)"
+  route_index: 76
+  title: "Andromeda pipeline meta-improvements (P7 + P12 + P15-P18) — extend evolve/setup-project narrative + CLAUDE.md derived-section cascade detection (META; detail in pulse-v0_2_0-route §76)"
   epoch: 9
-  committed_at: 2026-05-21T15:43:02Z
-  commit_sha: "73be075"
-  commit_subject: "docs(consolidation): chunk #75 documentation consolidation — 14 doc edits across 5 files + arch narrative cascade (eight->twelve library crates)"
+  committed_at: 2026-05-22T18:30:00Z
+  commit_sha: "pending"
+  commit_subject: "chore(implement): chunk #76 Andromeda pipeline meta-improvements (P7+P12+P15+P16+P17+P18) — 6 proposals landed across 5 Andromeda skills + 1 project file + P19 dogfood proposal"
 
+# Session 116 wrap (2026-05-22T18:30:00Z): chunk #76 "Andromeda pipeline meta-improvements (P7+P12+P15-P18)" META
+# implementation cycle (FINAL Consolidation Phase 6 chunk 7 of 8 closed; #77 specialist plan reconciliation remaining).
+# 6 proposals batched + landed: P7 (Type 6 narrative-cascade visibility — Option A numeric auto-update layered on
+# existing Option B word-form warning; marker Plans amended "Narrative-cascade auto-update" subsection added);
+# P12 (Type 6 → CLAUDE.md derived-section cascade pre-populate — evolve Phase 4 step 2h Type 6 cascade detection +
+# output-templates.md Type 6 §downstream propagation Branch (a)/(b) split + validation-checks.md Check 7.7 +
+# delta-rerun-protocol.md Type 6 permit Branch (b) clarification); P15 (dead `#[cfg(test)] mod tests` block
+# detection — wrap-session Phase 2 step 5 dead-test scan + opt-out parsing + Phase 11 report subsection +
+# visual-references.md template); P16 (Phase 10 step 4 SHA-fixup amend REMOVED per Option (b); Phase 8 step 7
+# State H housekeeping codified — auto-heal pending OR orphan commit_sha к HEAD-reachable on next wrap);
+# P17 (/andromeda-implement META-chunk recognition — Phase 1 step 0 detection ≥80% signature + Phase 1b
+# sibling-skill orchestration с availability check / branch path + MUST NOT arch.md clause clarified с META
+# EXCEPTION + Phase 3 success variant + visual-references.md banners + fix-loop-protocol.md META bypass note);
+# P18 (D5 section-aware classification — integrity-protocol.md Part C §D5 substantive vs cosmetic per arch
+# §Design Philosophy ↔ CLAUDE.md §Architecture comparison; 3-way byte-identical propagation across
+# new-session canonical + wrap-session + setup-project copies verified via diff -q). Plus 6 proposal status
+# updates в docs/andromeda-improvements.md (PROPOSED → IMPLEMENTED session 116) + 1 NEW P19 file proposal
+# (P16 Phase 8 step 7 timing discriminator — dogfood friction surfaced THIS session by P16's first execution).
+# Actual scope ~350 LOC across 13 files vs plan-estimated ~400-460 LOC / 16 files (15-25% reduction from
+# pre-existing partial implementation discovery: P7 Option B already in + P12 Type 7 sibling P5 already in +
+# claude-md-template.md anchors already in). Zero Rust source changes — touched USER-level skill markdown files
+# only + 1 project markdown. `cargo tree --workspace --depth 2 --prefix indent` rerun: 444 lines (identical к
+# session 115 baseline; zero-diff verification per integrity-protocol.md Part B step 5 no-op + refresh path).
+# Standard chunk-gate baseline clean: cargo fmt + cargo clippy --workspace --all-targets --all-features -- -D
+# warnings + cargo nextest run --workspace --profile ci 1195/1195 + cargo xtask capability-drift (clean post
+# bindings.ts regen recovery — workspace nextest overwrote bindings.ts; restored via `cargo nextest run -p
+# pulse-app --features mcp-server emit_taurpc_bindings` per testing.md Session Additions 2026-05-13/17/19). P15
+# FIRST DOGFOOD: scan found 16 `mod tests` blocks в pulse-app/src/ (pulse-app declares `[lib] test = false`
+# per Windows WebView2 workaround); files: baseline_observer / connection_router / diagnostics_router / heartbeat
+# / main / mcp_router / observability / plugins_router / restart_observer / services_router / snapshot_runtime
+# / storage_router / storm_observer / streams / tray / window. Surfaces as Phase 11 warnings; user decides
+# remediation (migrate к pulse-app/tests/ per chunk #72 precedent OR opt-out via [package.metadata.andromeda]
+# allow-dead-source-tests). State H housekeeping: state.yaml.last_completed_chunk advances 75→76 с commit_sha
+# = "pending" per just-landed P16 Option (b); Phase 8 step 7 NEW behavior: token-overlap check against
+# this-wrap's chunk-#76 title vs recent commits (21d5663 chunk #76 route-append archived + 73be075 chunk #75
+# documentation consolidation) finds no match ≥0.5 overlap with new chunk title "Andromeda pipeline
+# meta-improvements"; correctly leaves commit_sha = "pending"; next wrap auto-heals. Curation: 0 Tier 1 + 0
+# Tier 2 + 2 Tier 3 (pre-existing partial implementation discovery pattern confidence 0.80 +
+# one-skill-invocation-removed dogfooding paradox refinement confidence 0.70) + 1 Andromeda pipeline proposal
+# (P19 — P16 timing discriminator dogfood refinement). Drift: all 6 dimensions CLEAN; D5 cleared per
+# CLAUDE.md mtime > all 9 upstreams. api_surface deferred 21st → 22nd consecutive per existing soft-J flag.
+# Smoke test: 14/14 security crate smoke passed (0.140s). Next chunk: route#77 "Specialist plan reconciliation
+# (security + tests)" — manual security-plan + testing.md section rewrites + materialize 5 deferred PII vector
+# tests + Drain golden corpus harness; FINAL Consolidation Phase 6 chunk closing audit Section 2.H + 2.K + 3.S.
+#
 # Session 115 wrap (2026-05-21T18:05:00Z): META session — `/andromeda-evolve --allow-route-append` (chunk #76 Andromeda
 # pipeline meta-improvements route registration; Type 7 Form 1) + `/andromeda-setup-project --delta` (CLAUDE.md
 # pointer-table cascade 75 → 76 chunks; commit e4817e3 bundled evolve artifacts: route.md §1+§2+§3 + state.yaml
@@ -222,12 +267,12 @@ plan_freshness:
   input_mtime: 2026-05-02T06:52:58Z
 
 living_artifact_freshness:
-  dep_tree_reconciled_at: 2026-05-21T18:05:00Z
+  dep_tree_reconciled_at: 2026-05-22T18:30:00Z
   api_surface_reconciled_at: 2026-05-21T06:30:00Z
   most_recent_code_mtime: 2026-05-21T03:06:26Z
   reconcile_failed: false
   api_surface_deferred: true
-  api_surface_deferred_reason: "per-crate cargo +nightly public-api iteration across 14 crates exceeds wrap budget (7-14 min vs ~3 min); 21st consecutive deferral per sessions 91-115 pattern; session 115 = `/andromeda-evolve --allow-route-append` + `/andromeda-setup-project --delta` META cycle for chunk #76 registration (zero new pub items — route.md §1+§2+§3 edits + state.yaml lifecycle progression + CLAUDE.md pointer-table cascade only); session 114 = `/andromeda-new-session` + `/andromeda-setup-project` full re-derive META session zero new pub items (CLAUDE.md §Architecture cascade-only edit + 1 Tier 3 + 1 P18 proposal + dep-tree refresh + state.yaml State H housekeeping); session 113 = chunk #75 documentation consolidation META (zero new pub items — all .md edits); session 112 META-only; session 111 = chunk #74 META implementation via 3 Type 6 amendments (zero new pub items — all arch.md edits only); session 110 = chunk #74 Type 7 Form 1 route registration META; session 109 = chunk #73 implementation wrap landed Path A full short-window tracker (~280 LOC adding ~30 new pub items); cumulative backlog from chunks #70-#73 + META chunks #74/#75 + setup-project sessions + projected #76 META work + #77 specialist re-runs work now substantial enough to make full per-crate iteration worthwhile at next non-META wrap. Most plausible re-baseline cycle: chunk #77 specialist-re-run wrap (may introduce new pub items if security plan extension adds new error variants OR test plan adds new harness types)"
+  api_surface_deferred_reason: "per-crate cargo +nightly public-api iteration across 14 crates exceeds wrap budget (7-14 min vs ~3 min); 22nd consecutive deferral per sessions 91-116 pattern; session 116 = chunk #76 META implementation (P7+P12+P15-P18 across 5 USER-level Andromeda skills + 1 project markdown; zero new pub items — all .md edits at user level outside project workspace); session 115 = `/andromeda-evolve --allow-route-append` + `/andromeda-setup-project --delta` META cycle for chunk #76 registration (zero new pub items — route.md §1+§2+§3 edits + state.yaml lifecycle progression + CLAUDE.md pointer-table cascade only); session 114 = `/andromeda-new-session` + `/andromeda-setup-project` full re-derive META session zero new pub items (CLAUDE.md §Architecture cascade-only edit + 1 Tier 3 + 1 P18 proposal + dep-tree refresh + state.yaml State H housekeeping); session 113 = chunk #75 documentation consolidation META (zero new pub items — all .md edits); session 112 META-only; session 111 = chunk #74 META implementation via 3 Type 6 amendments (zero new pub items — all arch.md edits only); session 110 = chunk #74 Type 7 Form 1 route registration META; session 109 = chunk #73 implementation wrap landed Path A full short-window tracker (~280 LOC adding ~30 new pub items); cumulative backlog from chunks #70-#73 + META chunks #74/#75 + setup-project sessions + projected #76 META work + #77 specialist re-runs work now substantial enough to make full per-crate iteration worthwhile at next non-META wrap. Most plausible re-baseline cycle: chunk #77 specialist-re-run wrap (may introduce new pub items if security plan extension adds new error variants OR test plan adds new harness types)"
 
 drift_warnings: []
 
@@ -785,4 +830,4 @@ spec_amendments:
       propagated_by_run: .andromeda/runs/2026-05-11T19-00-00-setup-project-delta/
       archived_at: 2026-05-11T19:25:00Z
 
-session_count: 115
+session_count: 116

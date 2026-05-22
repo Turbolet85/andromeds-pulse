@@ -446,7 +446,7 @@ _(Subsequent proposals appended below in chronological order. Each proposal has 
 
 ---
 
-## Status: PROPOSED — 2026-05-16 (session 70)
+## Status: IMPLEMENTED — 2026-05-22 (session 116, commit pending) — Option A numeric auto-update + Option B word-form warning + Type 6 marker `Narrative-cascade auto-update` subsection landed via chunk #76 batch
 
 ### Proposal 7 — Type 6 narrative-cascade visibility (arch.md structural section count lines)
 
@@ -722,7 +722,7 @@ User Phase 6 review sees the conflict explicitly + decides direction BEFORE /imp
 
 ---
 
-## Status: PROPOSED — 2026-05-18 (session 94)
+## Status: IMPLEMENTED — 2026-05-22 (session 116, commit pending) — Phase 4 step 2h Type 6 → CLAUDE.md cascade detection + output-templates.md Branch (a)/(b) split + validation-checks.md Check 7.7 + delta-rerun-protocol.md Type 6 permit Branch (b) clarification landed via chunk #76 batch
 
 ### Proposal 12 — Type 6 evolve markers should pre-populate `expected_propagation: [CLAUDE.md]` when registry section appears in CLAUDE.md derived sections (Modules / Stack / Key directories)
 
@@ -935,7 +935,7 @@ Extend `/andromeda-implement` Phase 2b smoke-check protocol with an "integration
 
 ---
 
-## Status: PROPOSED — 2026-05-20 (session 107)
+## Status: IMPLEMENTED — 2026-05-22 (session 116, commit pending) — wrap-session Phase 2 step 5 dead-test scan + Cargo.toml [lib]/[[bin]] test=false target detection + [package.metadata.andromeda] allow-dead-source-tests opt-out + Phase 11 report subsection + visual-references.md template landed via chunk #76 batch
 
 ### Proposal 15 — `/andromeda-wrap-session` or `/andromeda-implement` should detect dead `#[cfg(test)] mod tests` blocks in crates с `[lib] test = false`
 
@@ -999,7 +999,7 @@ Posture: warning-not-fatal. User decides whether to migrate (recommended) OR acc
 
 ---
 
-## Status: PROPOSED — 2026-05-20 (session 108)
+## Status: IMPLEMENTED — 2026-05-22 (session 116, commit pending) — Option (b) applied: Phase 10 step 4 SHA-fixup amend REMOVED + Phase 8 step 7 State H housekeeping codified (auto-heal pending OR orphan commit_sha on next wrap) + new-session visual-references.md Phase 6 State H severity = info for pending / warning for unreachable orphan landed via chunk #76 batch
 
 ### Proposal 16 — wrap-session Phase 10 step 4 SHA-fixup amend captures pre-amend SHA (chronic single-wrap-lag drift)
 
@@ -1072,7 +1072,7 @@ After chunk #76 starts (Phase 6 v3 plan sequence). Could land standalone if user
 
 ---
 
-## Status: PROPOSED — 2026-05-21 (session 111)
+## Status: IMPLEMENTED — 2026-05-22 (session 116, commit pending) — implement SKILL.md Phase 1 step 0 META detection (≥80% signature) + NEW Phase 1b sibling-skill orchestration с availability check / branch path + MUST NOT arch.md clause clarified with META EXCEPTION + Phase 3 META-chunk-orchestrated success variant + visual-references.md banners (Phase 1 META detection / Phase 1b orchestration / Phase 3 META success) + fix-loop-protocol.md META bypass note landed via chunk #76 batch
 
 ### Proposal 17 — `/andromeda-implement` META-chunk recognition + inline sibling-skill orchestration
 
@@ -1141,7 +1141,7 @@ Chunk #76 (Andromeda pipeline meta-improvements P7 + P12 + P15-P18) is the natur
 
 ---
 
-## Status: PROPOSED — 2026-05-21 (session 114)
+## Status: IMPLEMENTED — 2026-05-22 (session 116, commit pending) — integrity-protocol.md Part C D5 section-aware classification (substantive vs cosmetic per arch §Design Philosophy ↔ CLAUDE.md §Architecture comparison) propagated byte-identical across 3 skills (new-session canonical + wrap-session + setup-project copies verified via diff -q) + new-session visual-references.md Phase 7 D5 substantive render variant landed via chunk #76 batch
 
 ### Proposal 18 — `/andromeda-new-session` D5 severity classification should distinguish arch §Design Philosophy mtime drift (substantive) from other arch narrative mtime drift (cosmetic)
 
@@ -1204,3 +1204,71 @@ Chunk #76 (Andromeda pipeline meta-improvements P7 + P12 + P15-P18) is the natur
 - arch.md §Design Philosophy line 3 (the source of truth narrative line for the derivation).
 - Skill tool availability semantics — depends on Claude Code harness allowing model-invocation per-skill (via removing `disable-model-invocation: true`); P17 assumes this is the project's preferred posture для Andromeda skill set.
 - chunks #75 + #77 — future META chunks that will benefit from P17 implementation; canonical test cases post-implementation.
+
+---
+
+## Status: PROPOSED — 2026-05-22 (session 116)
+
+### Proposal 19 — P16 Phase 8 step 7 State H housekeeping timing discriminator (heal previous-wrap leftover, NOT this-wrap pending)
+
+**Problem:**
+
+P16 Option (b) landed at chunk #76 session 116. Phase 8 step 3 advances `state.yaml.last_completed_chunk` (potentially к а new chunk number) с `commit_sha = "pending"`. Phase 8 step 7 then runs State H housekeeping: "If commit_sha == 'pending' OR points к unreachable orphan → heal к most recent commit matching chunk progression pattern с title token overlap ≥0.5".
+
+**Subtle ordering issue surfaced this session:** step 7's "pending" check fires on commit_sha that was JUST set к "pending" by step 3 in the SAME wrap. The healing then tries к find а commit matching the new chunk's title — but the CURRENT wrap's commit hasn't been made yet (Phase 10 makes it later). So step 7 looks at git log + finds the PREVIOUS chunk's commit (or finds nothing matching the new chunk's title с ≥0.5 overlap, in which case it leaves "pending" — which is correct).
+
+The token-overlap threshold (≥0.5) effectively GUARDS against incorrect healing because the new chunk's title won't match the previous chunk's commit subject. But this guard is implicit, not explicit design.
+
+**Dogfood evidence (session 116):**
+- This wrap: state.yaml.last_completed_chunk advanced 75 → 76; commit_sha = "pending"; step 7 looked at recent commits (21d5663 "chunk #76 route-append amendment archived", 73be075 "chunk #75 documentation consolidation"); no match с ≥0.5 token overlap к the new last_completed_chunk.title "Andromeda pipeline meta-improvements"; step 7 left commit_sha = "pending"; this is the correct outcome.
+- But the LOGIC works by accident — the ≥0.5 token overlap check happens к prevent incorrect healing. A future chunk с simpler title (e.g., "P-019 fingerprinting") could spuriously match а recent commit and heal incorrectly.
+
+**Proposal:**
+
+Add an EXPLICIT discriminator к Phase 8 step 7: track whether step 3 just-updated `last_completed_chunk` in this wrap. If step 3 advanced last_completed_chunk in this wrap, step 7 should:
+
+- **NOT heal** commit_sha = "pending" — that's intentional for this wrap's pending state.
+- **STILL heal** unreachable orphan SHAs from previous wraps (a "pending" left by previous wrap that didn't get healed; OR а historical SHA that's no longer reachable).
+
+Concrete edit: add а sub-step 7a before the heal logic:
+
+```
+7a. Determine whether step 3 advanced last_completed_chunk this wrap:
+    - Read state.yaml BEFORE step 3 ran (capture а snapshot at Phase 8 entry).
+    - Compare snapshot.last_completed_chunk.route_index vs current value.
+    - If current > snapshot: step 3 advanced; this-wrap progressed а chunk;
+      commit_sha = "pending" is the deliberate this-wrap pending state →
+      SKIP step 7 heal entirely (leave commit_sha = "pending" для next wrap).
+    - If current == snapshot: step 3 didn't progress а chunk; commit_sha
+      should be the previous wrap's actual SHA OR а "pending" leftover from
+      previous wrap → run step 7 heal logic per the existing P16 design.
+```
+
+This makes the timing discrimination explicit AND eliminates reliance on the implicit ≥0.5 token overlap guard.
+
+**Design:**
+
+1. Add the snapshot capture к Phase 8 step entry (the start of Phase 8, before step 1).
+2. Add the discriminator к Phase 8 step 7 prologue.
+3. Update the rationale prose to explain BOTH the previous-wrap-orphan-heal case AND the same-wrap-pending-skip case.
+
+**Implementation cost:**
+
+| File | Change | LOC est |
+|---|---|---|
+| `~/.claude/skills/andromeda-wrap-session/SKILL.md` Phase 8 step entry + step 7 | Snapshot capture + 7a discriminator + rationale prose | ~25 |
+
+**Total:** ~25 LOC в 1 file. Minimal-effort refinement к close the timing-subtlety gap.
+
+**When to do:**
+
+Next-soon. Confidence the pattern recurs: MEDIUM (depends on future chunks с simple title token sets that could spuriously match recent commits с ≥0.5 overlap). Current ≥0.5 threshold IS the implicit guard; tightening к explicit discriminator improves predictability.
+
+Defer-acceptable IF user prefers minimal additional skill surgery this soon after P16 lands; manual heal at next wrap if а spurious match fires.
+
+**Cross-references:**
+
+- Triggering session: 116 (this wrap; first dogfood of P16). Empirical evidence in this session's wrap report.
+- Sibling proposal: P16 (the implementation this refines) — IMPLEMENTED 2026-05-22 (session 116).
+- `~/.claude/skills/andromeda-wrap-session/SKILL.md` Phase 8 step 3 + step 7 — load-bearing sections to extend.
+- Session 116 Tier 3 session-learning at `.claude/docs/session-learnings.md` (2026-05-22 entry "Self-bootstrap dogfooding paradox is one-skill-invocation-removed, not session-removed") — context for why dogfood is one-skill-invocation-removed.

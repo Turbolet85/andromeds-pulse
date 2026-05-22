@@ -6,6 +6,34 @@ _Entries are added in reverse chronological order (newest first). Each entry has
 
 _This file is entirely wrap-session's territory. `/setup-project` creates it if missing but NEVER regenerates it. Manual edits are preserved across all Andromeda skill runs._
 
+## 2026-05-22 (session 116) — Pre-existing partial implementation discovery pattern during META chunk /implement (confidence 0.80)
+
+When implementing а META chunk that batches multiple `docs/andromeda-improvements.md` proposals (chunk #76 batched P7+P12+P15-P18), the proposal §Status field can be STALE relative к actual skill implementation state. Phase 3 codebase research during /andromeda-phase OR /andromeda-implement Phase 1 should explicitly check for pre-existing partial implementations BEFORE estimating scope from §Implementation cost tables. Empirical findings at chunk #76:
+
+- **P7** (filed session 70, status PROPOSED): Option B (word-form warning) was ALREADY implemented in `validation-checks.md` Check 7.5 + `refuse-taxonomy.md` Refuse 1 Exception narrative-cascade clarification + `output-templates.md` Type 6 marker `narrative_cascade_warnings` field. Only Option A (numeric auto-update) needed implementation. Actual delta ~30 LOC vs proposal-estimated 75 LOC.
+- **P12** (filed session 94, status PROPOSED): the Type 7 sibling (P5 pointer-table cascade pre-populate) was ALREADY implemented in SKILL.md Phase 4 step 2g + `output-templates.md` Type 7 §downstream propagation Branch (a)/(b). Only the Type 6 parallel branch (step 2h) was missing. Actual delta ~50 LOC vs proposal-estimated 80 LOC.
+- **claude-md-template.md** GENERATED anchors (`:modules` / `:overview` / etc.) were already present per chunk #43+ infrastructure; the planned P12 file edit к add anchors was unneeded.
+
+**Implication:** chunk-#76 actual scope was ~350 LOC across 13 files vs plan-estimated ~400-460 LOC / 16 files (15-25% reduction). The proposal §Status flag does NOT track incremental Option-B-only / sibling-only landings; PROPOSED status persists until the AUTHOR explicitly marks IMPLEMENTED. Future META chunks batching proposals SHOULD include а Phase 3 research sub-step "scan target skill files for pre-existing partial implementation evidence" before locking scope estimate.
+
+**Apply к:** future META chunks batching ≥2 proposals where some proposals have been filed for many sessions (e.g., P7 filed session 70, dogfooded 46 sessions later); the longer the filing-to-implementation lag, the higher the likelihood of partial implementation drift. Phase 3 research should explicitly grep target skill body для proposal-related markers (e.g., "Option B", "Proposal {N}", sibling-implementation references) before scope estimation.
+
+---
+
+## 2026-05-22 (session 116) — Self-bootstrap dogfooding paradox is one-skill-invocation-removed, not session-removed (confidence 0.70)
+
+When а META chunk modifies а skill that runs in the SAME session (e.g., chunk #76 modified `~/.claude/skills/andromeda-wrap-session/` + `~/.claude/skills/andromeda-new-session/` + `~/.claude/skills/andromeda-implement/` in /implement, then immediately ran /andromeda-wrap-session), the freshly-edited skill body IS the one loaded by the harness for the NEXT invocation of that skill — which can occur LATER в the SAME session.
+
+**Empirical observation:** chunk #76 landed P15 (wrap-session Phase 2 step 5 dead-test scan) + P16 (Phase 8 step 7 State H housekeeping) + P18 (integrity-protocol.md D5 section-aware classification) AT the end of session 116's /implement. The immediately-following /wrap-session call в the same session 116 loaded the freshly-edited skill body — Phase 2 step 5 dead-test scan + Phase 8 step 7 + D5 section-aware section ALL exercised в the wrap that landed them.
+
+**Implication:** the "dogfooding paradox" framing ("enhancements take effect on NEXT skill invocation") is more precisely "next skill invocation, which may be intra-session". Self-validation of skill enhancements happens immediately when the user runs the skill again. This is а good property — fast feedback on whether the just-landed enhancement actually works.
+
+**Caveat:** the SAME-session re-invocation property does NOT extend across skills that the modifying user-session has ALREADY invoked. E.g., chunk #76 also landed P17 in `andromeda-implement/SKILL.md`; this wrap session does NOT re-run /implement, so P17 will only be exercised on the next chunk's /implement invocation (chunk #77 or later). The "next-invocation-removed" property is per-skill.
+
+**Apply к:** future META chunks modifying skill bodies. Confidence the enhancement is correct can be tested IMMEDIATELY after /implement by running the modified skill (typically /wrap-session next) and observing whether the new behavior fires as expected.
+
+---
+
 ## 2026-05-21 (session 114) — CLAUDE.md §Architecture section DOES propagate arch.md §Design Philosophy narrative cascade (confidence 0.85)
 
 The chunk #75 plan implementation note stated "CLAUDE.md derived sections (Modules / Stack / pointer-table) do NOT consume arch.md narrative-cascade content nor route.md cite line numbers; only registry sections cascade. Cosmetic mtime drift only." That note was correct for the three sections named (Modules / Stack / pointer-table) but INCOMPLETE: the CLAUDE.md `<!-- GENERATED:setup:architecture -->` block at line 96 DOES derive directly from arch.md §Design Philosophy line 3 narrative ("X library crates linked into the pulse-app Tauri binary..."). When arch §Design Philosophy narrative changes (e.g., chunks #58/#60/#68 cascading `eight → twelve library crates`), CLAUDE.md §Architecture inherits the stale narrative until `/andromeda-setup-project` (full re-derive, NOT `--delta`) materializes the new arch.md §Design Philosophy paragraph into the CLAUDE.md §Architecture block.

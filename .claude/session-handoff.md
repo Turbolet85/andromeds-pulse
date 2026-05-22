@@ -1,151 +1,162 @@
 # Session Handoff
 
-**Last Updated:** 2026-05-21T18:05:00Z
+**Last Updated:** 2026-05-22T18:30:00Z
 **Branch:** main
 **Session End Status:** clean
-**Last Commit:** 5002ed3 — `chore(wrap): session 115 — chunk #76 route-append amendment archived (Active → Propagated → Archived in single session)` (closes session 115; 3 files changed, 110 insertions, 84 deletions; bundles Phase 5 reconcile + Phase 7 handoff + Phase 8 lifecycle archive; complements session 115's earlier commits e4817e3 setup-project delta-rerun + f4b0442 chunk #77 docs rewrite)
+**Last Commit:** {pending — this wrap commit subject: chore(implement): chunk #76 Andromeda pipeline meta-improvements (P7+P12+P15+P16+P17+P18) — 6 proposals landed across 5 Andromeda skills + 1 project file + P19 dogfood proposal filed}
 
 ## Current State
 
-- **Last completed chunk:** route#75 "Documentation consolidation — cross-reference drift fixes per audit Dim 6 (8 BROKEN + 4 STALE references) + arch.md narrative count-line cascades from chunks #58/#60/#68 (`eight library crates` -> `twelve`)" (committed 73be075 session 113 — State H reconciled session 114; unchanged this session)
-- **Next chunk:** route#76 "Andromeda pipeline meta-improvements (P7 + P12 + P15-P18)" (NEWLY REGISTERED this session via Type 7 Form 1 route-append cycle; chunk #76 ready for `/andromeda-phase` to plan implementation)
-- **In-progress phase:** none (chunk #76 registered + propagated this session; phase-73 not yet planned)
-- **Phase artifacts present:** `.andromeda/phases/phase-{1..72}/` (last = phase-72 for chunk #75 META implementation; no new phases this META session)
+- **Last completed chunk:** route#76 "Andromeda pipeline meta-improvements (P7 + P12 + P15-P18) — extend evolve/setup-project narrative + CLAUDE.md derived-section cascade detection (META; detail in pulse-v0_2_0-route §76)" (committed THIS wrap; SHA = pending per P16 Option (b) — next wrap auto-heals via Phase 8 step 7 State H housekeeping)
+- **Next chunk:** route#77 "Specialist plan reconciliation (security + tests)" (manual specialist plan rewrites per chunk #77 description; D4 drift detection fires только для OUTSIDE-chunk-scope edits — within chunk #77 declared scope is legitimate per session 115 chunk #77 description rewrite mechanism note)
+- **In-progress phase:** none (chunk #76 complete; phase-74 not yet planned для chunk #77)
+- **Phase artifacts present:** `.andromeda/phases/phase-{1..73}/` (last = phase-73 для chunk #76 META implementation landed this session 116)
 
 ## Andromeda State Detection (states A-K)
 
-**All states CLEAR post-wrap. (One soft-J variant preserved as intentional 21st-consecutive api-surface deferral.)**
+**All states CLEAR post-wrap. (One soft-J variant preserved as intentional 22nd-consecutive api-surface deferral.)**
 
-- A — In-progress runs: only this wrap's run-dirs (evolve + setup-project-delta + this wrap's reconcile); expected final outputs present. CLEAR.
-- B — Status drift: state.yaml.last_wrap 18:05Z, recent commits e4817e3 + f4b0442 + (this wrap commit pending); coherent. CLEAR.
-- C — Architecture staleness: arch.md mtime (15:55:16Z) < CLAUDE.md mtime (17:55Z, post setup-project --delta) by ~2h. CLEAR.
-- D — Pending route: route.md present, 76 chunks (post chunk #76 registration). CLEAR.
+- A — In-progress runs: only this session's run-dirs (phase-73 + implement-related; expected final outputs present). CLEAR.
+- B — Status drift: state.yaml.last_wrap 18:30Z, recent commits coherent post chunk #76 wrap. CLEAR.
+- C — Architecture staleness: arch.md mtime (2026-05-21T13:55:16Z) < CLAUDE.md mtime (2026-05-21T18:11:15Z) by ~4h. CLEAR.
+- D — Pending route: route.md present, 76 chunks. CLEAR.
 - E — Pending phase planning: no in-progress phase. CLEAR.
-- F — Pending implementation: chunk #75 implementation complete; chunk #76 registered + propagated, awaiting /andromeda-phase to plan implementation. CLEAR (registration cycle complete).
-- G — Multiple concurrent runs: only this session's 3 run-dirs (evolve + setup-project-delta + wrap-session-this-wrap). CLEAR.
-- H — Route chunk drift: state.yaml.last_completed_chunk.commit_sha=73be075 reachable from HEAD via `git merge-base --is-ancestor` check; chunk #76 only registered (not implemented), so last_completed_chunk correctly stays at #75. CLEAR.
-- I — Specialist plan freshness mismatch: state.yaml.plan_freshness preserved at session 113 values; arch+route mtimes unchanged structurally (route content cascaded via mechanical §1 update + §2 chunk #76 insertion + §3 Decisions Log entry, but state.yaml.plan_freshness reflects the new route.md mtime per Phase 8 update). CLEAR.
-- **J-soft** — Living artifact staleness: api-surface deferred 21st consecutive per `state.yaml.living_artifact_freshness.api_surface_deferred = true`. Soft variant (intentional, deferred=true flag set); META session adds zero new pub items. CLEAR (modulo intentional flag).
+- F — Pending implementation: chunk #76 implementation complete this session; chunk #77 not yet planned. CLEAR.
+- G — Multiple concurrent runs: only this session's 3 run-dirs (phase-73-planning + this wrap's reconcile). CLEAR.
+- H — Route chunk drift: state.yaml.last_completed_chunk advances 75→76 this wrap; commit_sha = "pending" per just-landed P16 Option (b); Phase 8 step 7 NEW behavior left "pending" correctly (no commit yet for chunk #76 at step 7 time; next wrap heals). EXPECTED post-Proposal-16 state (severity = info per new-session Phase 6 State H classification).
+- I — Specialist plan freshness mismatch: state.yaml.plan_freshness mtimes preserved at session 115 values; no specialist plan touches session 116 (P18 touched integrity-protocol.md across 3 SKILLS via 6-contract cross-skill diff, but that's user-level skill files, NOT pulse-app project specialist plans). CLEAR.
+- **J-soft** — Living artifact staleness: api-surface deferred 22nd consecutive per `state.yaml.living_artifact_freshness.api_surface_deferred = true`. Soft variant (intentional, deferred=true flag set); META session adds zero new pub items. CLEAR (modulo intentional flag).
 - K — Multi-chunk in-progress imbalance: state.yaml.in_progress=null. CLEAR.
 
 ## Drift Detection (6 dimensions)
 
-**All dimensions CLEAN post-wrap. Chunk #76 amendment lifecycle progression resolved cleanly (Active → Propagated → Archived in single session).**
+**All dimensions CLEAN post-wrap. Chunk #76 META implementation produced zero pulse-app product code changes — clean baseline preserved across all 6 drift surfaces.**
 
-- D1 (living artifact staleness): dep-tree reconciled 2026-05-21T18:05:00Z (refresh-only; 444 lines byte-identical to session 114 baseline; zero new deps this session). LATEST_CODE_MTIME = 2026-05-21T03:06:26Z (chunk #73 implementation) < dep_tree_reconciled. api-surface deferred per soft-J. CLEAN.
-- D2 (wrong content): tooling output byte-identical to baseline post-refresh; no LIVING block content change. CLEAN.
-- D3 (plan-to-code drift): arch §Occupied Resources workspace member list matches cargo metadata workspace_members (14 entries). Zero new TauRPC procedures / broadcast topics / env vars / capability identifiers / workspace crates this session. CLEAN.
-- D4 (plan-to-plan drift): no specialist plans touched this session. (Chunk #77 description rewrite touched `docs/v0_2_0/pulse-v0_2_0-route.md` which is a v0.2.0 source plan, NOT one of the 6 main specialist plans — D4 scope.) CLEAN.
-- D5 (plan-to-CLAUDE.md drift): chunk #76 amendment propagated via setup-project --delta at 17:55Z (CLAUDE.md mtime now exceeds arch.md + route.md mtimes per delta-rerun ordering). No active D5 drift. CLEAN.
-- D6 (route chunk progression): state.yaml.last_completed_chunk.route_index = 75; git log since 17:30Z shows e4817e3 (chore(setup-project)) + f4b0442 (docs(v0_2_0)) + (pending wrap commit) — none match chunk-progression pattern `^chunk(N):` or `^feat({module}):`. CLEAN.
+- D1 (living artifact staleness): dep-tree reconciled 2026-05-22T18:30:00Z (refresh-only; 444 lines byte-identical к session 115 baseline; zero new deps this session). LATEST_CODE_MTIME = 2026-05-21T03:06:26Z (chunk #73 implementation) < dep_tree_reconciled. api-surface deferred per soft-J. CLEAN.
+- D2 (wrong content): tooling output byte-identical к baseline post-refresh; no LIVING block content change. CLEAN.
+- D3 (plan-to-code drift): arch §Occupied Resources workspace member list matches cargo metadata workspace_members (14 entries). Zero new TauRPC procedures / broadcast topics / env vars / capability identifiers / workspace crates this session (P15 / P16 / P17 / P18 all touched USER-level skill files — outside project codebase + arch authority). CLEAN.
+- D4 (plan-to-plan drift): no specialist plans touched this session. `docs/andromeda-improvements.md` is project-level pipeline-improvement doc + NOT a specialist plan (D4 scope). CLEAN.
+- D5 (plan-to-CLAUDE.md drift): CLAUDE.md mtime exceeds all 9 upstreams (arch + 6 specialist plans + route + input). No D5 drift. CLEAN.
+- D6 (route chunk progression): chunk #76 implementation completes this wrap; state.yaml.last_completed_chunk advances 75→76 in Phase 8. D6 self-clears next wrap per heuristic; no orphan SHA cycle (P16 Option (b) accepts commit_sha=pending as deliberate state). CLEAN.
 
 ## Spec Amendments (this session)
 
-**Lifecycle this session:** chunk #76 amendment progressed Active → Propagated → Archived in single session 115 (all 3 transitions resolved this wrap).
+**Lifecycle this session:** zero spec amendments authored. Chunk #76 META implementation produced no arch.md / specialist plan / route.md edits — touched USER-level skill files + 1 project markdown file outside specialist-plan authority.
 
-- **Plan(s):** `.andromeda/route.md`
-- **Decisions Log:** §3 — 2026-05-21 — Append chunk #76 Andromeda pipeline meta-improvements (--allow-route-append)
-- **Trigger:** user-driven evolution via /andromeda-evolve (no chunk/phase/harness)
-- **Authority resolution:** pipeline state > route.md chunk-list-stale-vs-pipeline-reality
-- **Lifecycle:** applied 2026-05-21T17:50:00Z | noted 2026-05-21T18:05:00Z | propagated 2026-05-21T17:55:00Z | archived 2026-05-21T18:05:00Z
-- **Marker:** `.andromeda/runs/2026-05-21T17-50-00-spec-amendment-append-chunk-76-andromeda-pipeline-meta-improvements/amendment.md`
-- **Flag used:** `--allow-route-append` (Form 1 — chunk append to existing epoch Epoch 9)
+- state.yaml.spec_amendments.active = [] post-wrap (preserved from session 115 wrap)
+- state.yaml.spec_amendments.archive = 40 entries (unchanged from session 115)
+- No new amendment markers authored this session
 
-Archived this session: 1 amendment (chunk #76); state.yaml.spec_amendments.active emptied; archive grew from 39 → 40 entries.
+(none this session — chunk #76 META touched no specialist plans or arch.md)
 
 ## Key Decisions This Session
 
-- **Chunk #76 route registration cycle (Type 7 Form 1) executed cleanly per session 114 handoff Next Recommended Action.** /andromeda-evolve --allow-route-append authored 1 amendment marker + 1 route.md §1+§2+§3 edit set + 1 state.yaml entry; /andromeda-setup-project --delta propagated CLAUDE.md pointer-table cascade 75 → 76 (the 1 file in expected_propagation per Proposal 5 pre-populate) + lifecycle progression set propagated_by_run. Bundled evolve artifacts committed in delta-rerun commit e4817e3 per project convention.
-- **User manually rewrote chunk #77 description in pulse-v0_2_0-route.md (separate commit f4b0442) because Andromeda v2 has no `/andromeda-security` or `/andromeda-tests` re-derive skill.** Mechanism note added к chunk #77 description: "These edits are legitimate within-lifecycle work because this chunk explicitly declares the affected plans in 'Specialist plan touches' above — D4 drift detection fires only for specialist plan edits OUTSIDE a declared chunk scope; edits attributed to chunk #77 are within scope. Specialist plan re-derivation as a first-class operation deferred to v3 (where specialist plans become living artifacts с continuous evolution + dedicated re-derivation skill + staleness drift inspection)." Surfaced during this wrap-session's git status as unrelated working-tree modification; user clarified intent + chose separate `docs(v0_2_0)` commit over wrap-amend.
-- **Chunk #76 amendment archived in single session 115** (Applied → Propagated → Archived all within this session's evolve + setup-project + wrap-session cycle). Matches Type 7 Form 1 standard pattern (evolve + delta + wrap; 17th repetition per state.yaml archive pattern).
+- **Chunk #76 META implementation completed inline via /implement direct edits** (not Phase 1b sibling-skill orchestration — P17 just landed THIS session, takes effect on NEXT implement invocation per dogfooding paradox). Six proposals batched: P7 narrative-cascade Option A numeric auto-update + P12 Type 6 → CLAUDE.md cascade pre-populate + P15 dead-test detection + P16 Phase 10 step 4 SHA-fixup REMOVED + State H housekeeping codified + P17 META-chunk recognition + P18 D5 section-aware classification.
+- **Scope variance** observed during /implement: actual ~350 LOC across 13 files vs plan-estimated ~400-460 LOC / 16 files (15-25% reduction). Pre-existing partial implementations discovered during Phase 3 codebase research: P7 Option B already implemented (refuse-taxonomy.md + Check 7.5 + output-templates.md narrative_cascade_warnings field); P12 Type 7 sibling P5 already implemented (Phase 4 step 2g); claude-md-template.md GENERATED anchors already present. Surfaced as session 116 Tier 3 learning.
+- **P15 first dogfood (immediate post-landing)** in this wrap-session Phase 2 step 5: scan found 16 `mod tests` blocks в pulse-app/src/ (pulse-app has `[lib] test = false`). User decides remediation (migrate к pulse-app/tests/<file>.rs or opt-out via [package.metadata.andromeda] allow-dead-source-tests). Surfaced as Dead-test warnings в Phase 11 report.
+- **Self-bootstrap dogfooding refinement** — P15/P16/P18 enhancements landed in /implement, then exercised immediately in /wrap-session (same session 116). "Next-invocation-removed" semantics is per-skill, не per-session. New Tier 3 learning captures this.
+- **P19 filed** as dogfood friction proposal on just-landed P16: Phase 8 step 7 timing discriminator (don't heal this-wrap pending; only heal previous-wrap leftover orphans). ~25 LOC refinement, defer-acceptable.
 
 ## Files Modified
 
-This wrap commit (Phase 10) bundles Phase 5 reconcile + Phase 7 handoff + Phase 8 state.yaml updates:
+This wrap commit (Phase 10) bundles Phase 5 reconcile + Phase 7 handoff + Phase 8 state.yaml updates + chunk #76 implementation edits + curation:
+
+**Chunk #76 implementation (Phase 1 / /implement):**
+- `~/.claude/skills/andromeda-evolve/SKILL.md` (USER-level; P7 Phase 3 ref + P12 Phase 4 step 2h Type 6 cascade detection)
+- `~/.claude/skills/andromeda-evolve/references/validation-checks.md` (USER-level; P7 Check 7.5 Option A extension + P12 Check 7.7 NEW)
+- `~/.claude/skills/andromeda-evolve/references/output-templates.md` (USER-level; P7 Narrative-cascade auto-update subsection + P12 Type 6 downstream propagation Branch (a)/(b) split)
+- `~/.claude/skills/andromeda-setup-project/references/delta-rerun-protocol.md` (USER-level; P12 Type 6 permit Branch (b) clarification)
+- `~/.claude/skills/andromeda-setup-project/references/integrity-protocol.md` (USER-level; P18 byte-identical copy of new-session canonical)
+- `~/.claude/skills/andromeda-wrap-session/SKILL.md` (USER-level; P15 Phase 2 step 5 dead-test scan + Phase 10 step 4 SHA-fixup REMOVED per P16 + Phase 8 step 7 State H housekeeping NEW per P16 + Phase 11 dead-test warnings subsection)
+- `~/.claude/skills/andromeda-wrap-session/references/visual-references.md` (USER-level; P15 Phase 1-2 dead-test scan line + Dead-test rendering template)
+- `~/.claude/skills/andromeda-wrap-session/references/integrity-protocol.md` (USER-level; P18 byte-identical copy)
+- `~/.claude/skills/andromeda-new-session/references/visual-references.md` (USER-level; P16 Phase 6 State H severity classification + P18 Phase 7 D5 substantive render variant)
+- `~/.claude/skills/andromeda-new-session/references/integrity-protocol.md` (USER-level; P18 canonical of 3-way byte-identical diff)
+- `~/.claude/skills/andromeda-implement/SKILL.md` (USER-level; P17 Phase 1 step 0 META detection + Phase 1b orchestration + MUST NOT clause + Phase 3 success variant)
+- `~/.claude/skills/andromeda-implement/references/visual-references.md` (USER-level; P17 META detection / Phase 1b / Phase 3 banners)
+- `~/.claude/skills/andromeda-implement/references/fix-loop-protocol.md` (USER-level; P17 META bypass note)
+
+**Project file (committed this wrap):**
+- `docs/andromeda-improvements.md` — 6 proposal status updates (P7/P12/P15/P16/P17/P18 PROPOSED → IMPLEMENTED session 116) + 1 NEW P19 proposal filed (P16 Phase 8 step 7 timing discriminator dogfood refinement)
 
 **Phase 5 living artifact reconcile:**
-- `.andromeda/context/dependency-tree.md` — Last reconciled timestamp 18:05:00Z + session 115 note; 444 lines byte-identical (zero new deps)
-- `.andromeda/context/api-surface.md` — preserved (21st consecutive deferral; META session zero new pub items)
+- `.andromeda/context/dependency-tree.md` — Last reconciled timestamp 18:30Z + session 116 note; 444 lines byte-identical (zero new deps; P15 first-dogfood scan results documented)
+- `.andromeda/context/api-surface.md` — preserved (22nd consecutive deferral; META session zero new pub items)
 
-**Phase 8 state.yaml updates:**
-- `.andromeda/state.yaml` — last_wrap 18:05Z / last_reconcile 18:05Z / plan_freshness route_mtime advanced post chunk #76 cascade / living_artifact_freshness.dep_tree_reconciled_at refreshed / spec_amendments lifecycle progression (chunk #76 amendment Active → Archived; .active emptied; archive +1 entry) / api_surface_deferred 20th → 21st consecutive / drift_warnings: [] / session_count 114 → 115
+**Phase 4 curation:**
+- `.claude/docs/session-learnings.md` — +2 Tier 3 entries (pre-existing partial implementation discovery pattern + one-skill-invocation-removed dogfooding paradox)
 
-**State/handoff (committed this wrap):**
+**Phase 7+8 state/handoff:**
 - `.claude/session-handoff.md` — atomic overwrite (this file)
+- `.andromeda/state.yaml` — last_wrap 18:30Z / last_reconcile 18:30Z / last_completed_chunk advanced 75→76 с commit_sha="pending" / drift_warnings: [] / api_surface_deferred 21st → 22nd consecutive / session_count 115 → 116
 
-**This-session commits already landed (NOT included in this wrap commit):**
-- `e4817e3` chore(setup-project): delta-rerun for 1 amendment (chunk #76 Andromeda pipeline meta-improvements route-append) + bundled evolve
-  - CLAUDE.md (pointer-table cascade 75 → 76)
-  - .andromeda/route.md (§1 + §2 + §3 chunk #76 added)
-  - .andromeda/state.yaml (spec_amendments.active +1; propagated_by_run set)
-- `f4b0442` docs(v0_2_0): chunk #77 description manual rewrite — clarify no /andromeda-security or /andromeda-tests re-derive skill
-  - docs/v0_2_0/pulse-v0_2_0-route.md (44 lines; user-iteration work clarifying v3 specialist-plan-rederive deferral)
+**Phase 73 planning artifacts (untracked, in .andromeda/phases/phase-73/):**
+- `.andromeda/phases/phase-73/combined.md` (121 lines)
+- `.andromeda/phases/phase-73/research.md` (101 lines)
+- `.andromeda/phases/phase-73/plan.md` (310 lines)
 
 **Audit trail (gitignored .andromeda/runs/):**
-- `.andromeda/runs/2026-05-21T17-50-00-spec-amendment-append-chunk-76-andromeda-pipeline-meta-improvements/amendment.md` — amendment marker (Lifecycle: [x] Applied / [x] Propagated)
-- `.andromeda/runs/2026-05-21T17-50-00-evolve-append-chunk-76-andromeda-pipeline-meta-improvements/{intent.md,evolution-plan.md}` — evolve session artifacts
-- `.andromeda/runs/2026-05-21T17-55-00-setup-project-delta/materialization-plan-delta.md` — delta-rerun checkpoint
+- `.andromeda/runs/2026-05-21T18-30-00-phase-73/` — 7 raw + 7 stripped sub-agent extracts
 
-**Unmanaged artifact (carry-over from sessions 109-115):**
+**Unmanaged artifact (carry-over from sessions 109-116):**
 - `ui/` directory at workspace root (untracked) — stray artifact from session 109 workspace-root nextest invocation; user decides cleanup approach. Unchanged this session.
 
 ## Curation Summary (this wrap)
 
-- **Tier 1 (CLAUDE.md USER:session-learnings):** 0 additions (no universal-safety learnings — META evolve+delta+docs session)
-- **Tier 2 (`.claude/rules/*/Session Additions`):** 0 additions (no path-scoped rules — session touched no source paths)
-- **Tier 3 (`.claude/docs/session-learnings.md`):** 0 additions
-  - Manual specialist plan rewrite within declared chunk scope insight ALREADY captured in `docs/v0_2_0/pulse-v0_2_0-route.md` §77 mechanism note via user's manual rewrite (commit f4b0442); Filter 1 dedup against source plan content
-  - Routine 17th repetition of Type 7 Form 1 evolve+delta cycle — no novel learnings
-- **Andromeda pipeline proposal:** 0 added (chunk #77 mechanism note already addresses the "no /andromeda-security or /andromeda-tests re-derive skill" finding; deferred to v3 per chunk #77 description)
-- **Filtered:** 1 candidate filtered (manual specialist plan rewrite pattern — dedup against chunk #77 source plan content) / 0 task-specific / 0 conflicts / 0 deferred / 0 confidence-rejected (under max-3 cap)
+- **Tier 1 (CLAUDE.md USER:session-learnings):** 0 additions (no universal-safety learnings — META session)
+- **Tier 2 (`.claude/rules/*/Session Additions`):** 0 additions (session touched USER-level skill files outside path-scoped rule authority)
+- **Tier 3 (`.claude/docs/session-learnings.md`):** 2 additions
+  - Pre-existing partial implementation discovery pattern during META chunk /implement (confidence 0.80)
+  - Self-bootstrap dogfooding paradox is one-skill-invocation-removed, not session-removed (confidence 0.70)
+- **Andromeda pipeline proposal:** 1 added (P19 — P16 Phase 8 step 7 State H housekeeping timing discriminator)
+- **Filtered:** 1 dedup (bindings.ts regen recovery — already in testing.md 2026-05-13/17/19) + 1 task-specific (chunk #76 scope reduction LOC numbers — Filter 2 reject) + 0 conflicts + 0 deferred (under max-3 cap)
 
 ## Last Failed Command
 
-(none — session 115 ran clean across all 3 skill invocations: `/andromeda-evolve --allow-route-append` + `/andromeda-setup-project --delta` + this `/andromeda-wrap-session`; brief transient "claude-opus-4-7 classifier temporarily unavailable" mid-session 115 setup-project Phase 9 git-add command, resolved via single retry; no failed command at session end)
+(none — session 116 ran clean across all 3 skill invocations: `/andromeda-phase` + `/andromeda-implement` + this `/andromeda-wrap-session`; all 4 standard chunk gates passed; capability-drift bindings.ts regen recovery applied per testing.md 2026-05-13 discipline; no failed command at session end)
 
 ## Tests Status
 
-passing — 14/14 security crate smoke (0.149s; `cargo nextest run -p security --no-fail-fast`); full workspace baseline 1195/1195 preserved from session 113 (zero Rust changes session 115 — META evolve + delta + wrap only, all .md/.yaml edits). Standard chunk gate baseline clean (all carried from session 113 baseline preservation).
+passing — 14/14 security crate smoke (0.140s; `cargo nextest run -p security --no-fail-fast`); full workspace baseline 1195/1195 preserved from session 113 (zero Rust changes session 116 — META chunk #76 touched user-level skill markdown files + 1 project markdown only). Standard chunk gate baseline clean (all 4 gates: cargo fmt + clippy + workspace nextest 1195/1195 + capability-drift clean post-bindings.ts regen recovery).
+
+**Dead-test warnings (P15 first dogfood):** 16 blocks across 16 files в pulse-app crate (declares `[lib] test = false` per Windows WebView2 workaround). Files: baseline_observer.rs / connection_router.rs / diagnostics_router.rs / heartbeat.rs / main.rs / mcp_router.rs / observability.rs / plugins_router.rs / restart_observer.rs / services_router.rs / snapshot_runtime.rs / storage_router.rs / storm_observer.rs / streams.rs / tray.rs / window.rs. User decides remediation (migrate к pulse-app/tests/ per chunk #72 precedent, OR opt-out via `[package.metadata.andromeda] allow-dead-source-tests = true` per P15 design).
 
 ## Next Recommended Action
 
 ```
-/andromeda-phase
+/andromeda-evolve --allow-route-append  (chunk #77 route registration)
 ```
 
-Plan chunk #76 implementation "Andromeda pipeline meta-improvements (P7 + P12 + P15-P18)" per `docs/v0_2_0/pulse-v0_2_0-route.md` §Phase 6 §76. META chunk; ~155 LOC across ~8 files per audit Section 4 estimates touching external Andromeda toolkit at user level (`~/.claude/skills/andromeda-evolve/` + `~/.claude/skills/andromeda-setup-project/` + `~/.claude/skills/andromeda-wrap-session/` + `~/.claude/skills/andromeda-new-session/`) — NOT pulse-app codebase.
+Then `/andromeda-phase` + `/andromeda-implement` для chunk #77 "Specialist plan reconciliation (security + tests)" per `docs/v0_2_0/pulse-v0_2_0-route.md` §Phase 6 §77 manual specialist plan rewrite mechanism.
 
-P18 (filed session 114) joins the chunk #76 batch alongside P7 + P12 + P15-P17 (all proposals to be implemented in this META chunk).
-
-Consolidation Phase 6 sequence remaining:
+Chunk #77 is the FINAL Consolidation Phase 6 chunk:
 1. DONE #70 BaselineState -> corpus migration (session 103)
 2. DONE #71 ServiceRegistry + RetryStormState -> corpus migration (session 105)
 3. DONE #72 PII scrubber coverage extension (session 107)
 4. DONE #73 Capability spec numeric alignment (session 109)
 5. DONE #74 Architecture registry alignment batch (session 111)
 6. DONE #75 Documentation consolidation (session 113)
-7. NEXT #76 Andromeda pipeline meta-improvements (P7 + P12 + P15-P18; registered this session 115; ready for /andromeda-phase)
-8. #77 Specialist plan reconciliation (security + tests) — manual rewrites per v2 mechanism (no re-derive skill); chunk description rewritten this session 115 (commit f4b0442)
+7. DONE #76 Andromeda pipeline meta-improvements (P7+P12+P15-P18) (THIS session 116)
+8. NEXT #77 Specialist plan reconciliation (security + tests) — manual rewrites per v2 mechanism (no re-derive skill); chunk description rewrote session 115 (commit f4b0442); session 116 work ENABLES this via P17 META-orchestration path (next /implement invocation can route к Phase 1b sibling-skill orchestration if user toggles `disable-model-invocation: false` on andromeda-evolve / andromeda-setup-project).
 
 ## Session Goals (carry-over)
 
-- Continue Consolidation Phase 6 sequence: NEXT chunk #76 implementation → then #77
-- **api-surface.md reconcile** 21st-consecutive deferral; full per-crate iteration needed at next non-META wrap (cumulative backlog from chunks #70/#71/#72/#73 + META chunks #74/#75/setup-project sessions + chunk #76 META + chunk #77 specialist reconciliation adds zero new pub items; could land at chunk #77 wrap when security/test plan reconciliation may introduce new error variants / harness types via manual rewrite)
-- **Cross-cutting `/andromeda-security` re-run + `/andromeda-tests` re-run** N/A — Andromeda v2 has no specialist plan re-derivation skill per chunk #77 description (commit f4b0442). Specialist plan reconciliation handled via manual body rewrites within chunk #77's declared scope (legitimate per D4 mechanism note).
-- **P18 + P15-P17 implementation** batched into chunk #76 work (chunk #76 META scope per audit Section 4)
-- **State H housekeeping** for chunk #75 SHA 73be075 already reconciled session 114; chunk #76 amendment archived cleanly this session 115; no orphan SHAs expected
-- **bincode 2.x migration** to replace `bincode_bounded.rs` partial-protection helper with try_reserve-based safer allocations is a follow-up to track separately (NOT urgent — current type-specific prefix validator covers the untrusted-input boundary; encryption mitigates other paths)
-- **Pulse v0.1.0 release blockers** unchanged (chunk #3 deferred signing items: Azure Key Vault EV cert + Apple Developer ID + GitHub OIDC federation) — explicitly out of consolidation scope
-- **`ui/` stray artifact at workspace root** — this wrap commit did not include; user decides cleanup approach
-- **`target/` disk usage** — session 109 cargo clean recovered 182GB; periodic clean recommended as workspace grows
+- **Chunk #77 implementation** (FINAL Consolidation Phase 6): manual security-plan + test-plan section rewrites + materialize 5 deferred PII vector tests + Drain golden corpus harness + clear "Cross-cutting /andromeda-security re-run" carry-over flag
+- **api-surface.md reconcile** 22nd-consecutive deferral; full per-crate iteration needed at chunk #77 wrap when security/test plan reconciliation may introduce new error variants / harness types
+- **P19 implementation** when P16 timing discriminator surfaces again (track for next non-META wrap)
+- **P15 dead-test remediation decision** for pulse-app/src/ 16 surfaced blocks — user choice: migrate к integration tests (chunk #72 precedent established disciplined migration with visibility-bump pattern) OR opt-out for documentation-only intent
+- **bincode 2.x migration** к replace `bincode_bounded.rs` partial helper с try_reserve-based safer allocations (follow-up; not urgent — encryption + type-specific prefix validator mitigate primary attack surface)
+- **Pulse v0.1.0 release blockers** unchanged (chunk #3 deferred signing items: Azure Key Vault EV cert + Apple Developer ID + GitHub OIDC federation)
+- **`ui/` stray artifact at workspace root** — user decides cleanup approach (carry-over from session 109)
+- **`target/` disk usage** — session 109 cargo clean recovered 182GB; periodic clean recommended
 
 ## Deferred decisions (Trigger 4 to Path B carry-over)
 
-(none — no Trigger 4 spec-drift surfaced this session; chunk #76 route-append cycle completed cleanly without amendments beyond the routine Type 7 Form 1)
+(none — chunk #76 implementation completed cleanly without spec ↔ reality drift triggers; no Trigger 4 dialogue this session)
 
 ## Deferred learnings (filtered out from Phase 3 curation)
 
-- **Manual specialist plan rewrite within declared chunk scope is legitimate when chunk explicitly declares affected plans in "Specialist plan touches" field** (D4 drift detection only fires for OUTSIDE-chunk-scope edits) — filtered by Filter 1 (dedup): insight already captured in `docs/v0_2_0/pulse-v0_2_0-route.md` §77 mechanism note via user's manual chunk #77 rewrite this session (commit f4b0442). Project-specific knowledge tied to v3-deferred re-derive-skill discussion; lives in source plan body, not session-learnings.
+- **3-way byte-identical diff via cp + diff -q pattern** for 6-contract cross-skill file propagation (P18 used this for integrity-protocol.md across 3 skills) — filtered by Filter 4 (confidence 0.55, below 0.6 threshold). Standard Unix pattern; not project-specific enough к warrant Tier 3 entry. May re-promote if recurrence pattern grows.
 
 ## Session End Status
-Completed normally at 2026-05-21 18:05:00Z
+Completed normally at 2026-05-22 18:30:00Z
