@@ -300,7 +300,45 @@ living_artifact_freshness:
 drift_warnings: []
 
 spec_amendments:
-  active: []
+  active:
+    - amendment_id: 2026-05-22T22-00-00-append-chunk-77-specialist-plan-reconciliation
+      plans:
+        - path: route.md
+          sections:
+            - "§1 Route Scope Summary (Total chunks mechanical update per Proposal 6)"
+            - "§2 Roadmap (Epoch 9 body)"
+            - "§3 Decisions Log"
+          decisions_log_section: "2026-05-22 — Append chunk #77 Specialist plan reconciliation (security + tests) (--allow-route-append)"
+      trigger:
+        chunk: null
+        phase: null
+        harness: "user-driven via /andromeda-evolve"
+      authority:
+        winning_plan: route.md
+        winning_tier: pipeline-state
+        losing_plan: route.md
+        losing_concern: chunk-list-stale-vs-pipeline-reality
+        rationale: "Pipeline state moved forward through Consolidation Phase 6 chunks #70-#76; chunk #77 specialist plan reconciliation is the FINAL Consolidation chunk closing audit Sections 2.H/2.K/3.S. Authorized via --allow-route-append flag; Check 8 verified all sub-criteria."
+      impl_files_synced: []
+      expected_propagation:
+        - "CLAUDE.md: <!-- GENERATED:setup:pointer-table --> (pointer-table chunk-count line: (9 epochs / 76 chunks) → (9 epochs / 77 chunks); pre-populated per Proposal 5)"
+      marker_path: .andromeda/runs/2026-05-22T22-00-00-spec-amendment-append-chunk-77-specialist-plan-reconciliation/amendment.md
+      applied_at: 2026-05-22T22:00:00Z
+      noted_at: null
+      propagated_by_run: .andromeda/runs/2026-05-22T22-05-00-setup-project-delta/
+      archived_at: null
+      verification_status: clean
+      flag_used: --allow-route-append
+      form: 1
+      route_section_modified: "Epoch 9 — Foundation v0.2.0"
+      chunks_added:
+        - position: 77
+          text: "Specialist plan reconciliation (security + tests) — manual security-plan rewrite + 5 PII vector tests + Drain golden corpus harness (META; detail in pulse-v0_2_0-route §77)."
+      chunks_renumbered: []
+      motivation: "FINAL Consolidation Phase 6 chunk per docs/v0_2_0/pulse-v0_2_0-route.md §Phase 6 §77; depends on chunks #70-#76 (all landed); closes audit Sections 2.H + 2.K + 3.S"
+      confirmed_shift: false
+      scope_summary_updates:
+        - "Total chunks: 76 → 77"
   archive:
     - amendment_id: 2026-05-21T17-50-00-append-chunk-76-andromeda-pipeline-meta-improvements
       plans:
