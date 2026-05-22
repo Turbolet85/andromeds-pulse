@@ -16,7 +16,7 @@ unit) not HOW (implementation steps)._
 
 ## 1. Route Scope Summary
 
-- **Total chunks:** 77
+- **Total chunks:** 78
 - **Epochs:** 9 (Foundation, Ingest pipeline, Storage & query, Webview shell + TauRPC bridge, Visualization surfaces, Snapshot & Investigate, Plugin runtime + MCP server, Polish & ship, Foundation v0.2.0)
 - **Drilldown depth (avg):** 1.6 (mixed: Foundation depth 2, Ingest pipeline depth 1, Storage & query depth 2, Webview shell depth 1, Visualization surfaces depth 2, Snapshot depth 2, Plugin+MCP depth 2, Polish depth 1)
 - **Hierarchy mode:** mixed (3-level for dense epochs Foundation / Storage / Visualization / Snapshot / Plugin+MCP; 2-level for lighter epochs Ingest / Webview shell / Polish)
@@ -188,6 +188,8 @@ Documentation consolidation — cross-reference drift fixes per audit Dim 6 + ar
 Andromeda pipeline meta-improvements (P7 + P12 + P15-P18) — extend evolve/setup-project narrative + CLAUDE.md derived-section cascade detection (META; detail in pulse-v0_2_0-route §76).
    ↓
 Specialist plan reconciliation (security + tests) — manual security-plan rewrite + 5 PII vector tests + Drain golden corpus harness (META; detail in pulse-v0_2_0-route §77).
+   ↓
+Incident records + lifecycle persistence — corpus-backed Active/Resolved lifecycle + acknowledge cool-down + workspace attribution + counter derivation (capabilities P-022/P-023/P-041–P-045; detail in pulse-v0_2_0-route §78).
 
 ---
 
@@ -436,3 +438,12 @@ Specialist plan reconciliation (security + tests) — manual security-plan rewri
 - **Why:** Eighth and FINAL chunk of v3 Phase 6 Consolidation; META chunk closing audit Sections 2.H (security plan staleness) + 2.K (PII vector test gaps) + 3.S (Drain golden corpus harness). Manual security-plan + testing.md rewrites + 5 deferred PII vector tests + Drain golden corpus harness. Depends on chunks #70-#76 (all landed). Mirrors chunk #76 precedent.
 - **Mechanical:** §1 Total chunks 76 → 77 (Form 1 Policy A); state.yaml.last_completed_chunk unchanged.
 - **Marker:** `.andromeda/runs/2026-05-22T22-00-00-spec-amendment-append-chunk-77-specialist-plan-reconciliation/amendment.md`
+
+---
+
+`2026-05-22` — Append chunk #78 Incident records + lifecycle persistence (--allow-route-append)
+
+- **Insert:** chunk #78 at §2 Epoch 9 — Foundation v0.2.0 (text: see §2; full detail in `pulse-v0_2_0-route.md` §Phase 7 §78).
+- **Why:** First Phase 7 chunk per v3 plan; closes pulse v0.2.0 Foundation Phase 6 Consolidation → opens Phase 7 Incident records + digest pipeline; depends on #69 (corpus scaffold) + #60 (triage Incident contract types). Mirrors chunk #77 precedent.
+- **Mechanical:** §1 Total chunks 77→78 (Form 1 Policy A); state.yaml.last_completed_chunk unchanged.
+- **Marker:** `.andromeda/runs/2026-05-22T23-00-00-spec-amendment-append-chunk-78-incident-records-lifecycle-persistence/amendment.md`

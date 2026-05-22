@@ -356,7 +356,46 @@ drift_warnings:
     last_observed_session_count: 119
 
 spec_amendments:
-  active: []
+  active:
+    - amendment_id: 2026-05-22T23-00-00-append-chunk-78-incident-records-lifecycle-persistence
+      plans:
+        - path: route.md
+          sections:
+            - "§1 Route Scope Summary (Total chunks mechanical update per Proposal 6)"
+            - "§2 Roadmap (Epoch 9 body)"
+            - "§3 Decisions Log"
+      decisions_log_sections:
+        - "2026-05-22 — Append chunk #78 Incident records + lifecycle persistence (--allow-route-append)"
+      trigger:
+        chunk: null
+        phase: null
+        harness: "user-driven via /andromeda-evolve"
+      authority:
+        winning_plan: route.md
+        winning_tier: pipeline-state
+        losing_plan: route.md
+        losing_concern: chunk-list-stale-vs-pipeline-reality
+        rationale: "pulse-v0_2_0-route.md §Phase 7 §78 declares chunk #78; route.md §2 ended at #77. Adding registers chunk for /andromeda-phase."
+      impl_files_synced: []
+      expected_propagation:
+        - CLAUDE.md
+      marker_path: .andromeda/runs/2026-05-22T23-00-00-spec-amendment-append-chunk-78-incident-records-lifecycle-persistence/amendment.md
+      applied_at: 2026-05-22T23:00:00Z
+      noted_at: null
+      propagated_by_run: .andromeda/runs/2026-05-22T23-10-00-setup-project-delta/
+      archived_at: null
+      verification_status: clean
+      flag_used: --allow-route-append
+      form: 1
+      route_section_modified: "Epoch 9 — Foundation v0.2.0"
+      chunks_added:
+        - position: 78
+          text: "Incident records + lifecycle persistence — corpus-backed Active/Resolved lifecycle + acknowledge cool-down + workspace attribution + counter derivation (capabilities P-022/P-023/P-041–P-045; detail in pulse-v0_2_0-route §78)."
+      chunks_renumbered: []
+      motivation: "docs/v0_2_0/pulse-v0_2_0-route.md §Phase 7 §78 declares 'Incident records + lifecycle persistence' as next chunk in v3 plan progression"
+      confirmed_shift: false
+      scope_summary_updates:
+        - "Total chunks: 77 → 78"
   archive:
     - amendment_id: 2026-05-22T22-00-00-append-chunk-77-specialist-plan-reconciliation
       plans:
