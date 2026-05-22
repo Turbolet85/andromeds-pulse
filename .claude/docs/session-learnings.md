@@ -6,6 +6,16 @@ _Entries are added in reverse chronological order (newest first). Each entry has
 
 _This file is entirely wrap-session's territory. `/setup-project` creates it if missing but NEVER regenerates it. Manual edits are preserved across all Andromeda skill runs._
 
+## 2026-05-22 (session 119) — Andromeda v3 chunk-scoped manual specialist plan rewrite path (confidence 0.85)
+
+Pulse v0.2.0 Consolidation Phase 6 introduced а NEW Andromeda v3 path: explicit chunk-scoped manual specialist plan rewrites within а single chunk's declared scope. Chunks declaring "**Specialist plan touches:** {plan} (definitely — manual body rewrite of ...)" in their canonical chunk description (e.g., chunk #77 per `docs/v0_2_0/pulse-v0_2_0-route.md` §77) legitimize direct `Edit` operations against `.andromeda/{security,design,test,obs,a11y,layout-templates}-plan.md` AND `.claude/rules/*.md` during /implement WITHOUT а Trigger 4 spec-drift dialogue (which is for unexpected drift, not planned chunk scope), WITHOUT a separate amendment marker (chunk implementation commit IS the audit trail per route §77 Mechanism note), AND WITHOUT D4 drift fires (chunk attribution puts edits within scope).
+
+The /implement skill's MUST NOT clause categorically forbids modifying these paths except via Trigger 4 → Path A; chunk #77's plan required а user-dialogue Phase 1 question to authorize а "chunk-scoped exception" branch. P21 proposes first-class support (`/implement` Phase 1 step 0 routing к а new Phase 1c "chunk-scoped spec rewrite orchestration") to avoid the dialogue overhead на future v3 reconciliation chunks.
+
+**Apply к:** any future v3 chunk performing in-scope manual specialist plan body rewrites (specialist-plan-reconciliation pattern). v3 design defers proper specialist re-derivation skill к future Andromeda iterations; chunk-scoped manual rewrites within declared "Specialist plan touches" metadata are the interim path. Pairs с chunk #77's Decisions Log entry в security-plan.md §Security Decisions Log + testing.md §Pending coverage triggers `**LANDED (chunk #77)**` annotation discipline (mirror of 2026-05-08 DEPRECATED annotation pattern).
+
+---
+
 ## 2026-05-22 (session 116) — Pre-existing partial implementation discovery pattern during META chunk /implement (confidence 0.80)
 
 When implementing а META chunk that batches multiple `docs/andromeda-improvements.md` proposals (chunk #76 batched P7+P12+P15-P18), the proposal §Status field can be STALE relative к actual skill implementation state. Phase 3 codebase research during /andromeda-phase OR /andromeda-implement Phase 1 should explicitly check for pre-existing partial implementations BEFORE estimating scope from §Implementation cost tables. Empirical findings at chunk #76:

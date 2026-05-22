@@ -1,0 +1,26 @@
+{
+  "fixture": "synthetic_basic.log",
+  "description": "LogHub-style synthetic golden corpus — 3 templates exercising NUM masking, IPv4 masking, and identical-line clustering. Per pulse-v0_2_0-route §77 Part 2 final bullet + audit Section 3.S.",
+  "total_input_lines": 30,
+  "expected_template_count": 3,
+  "expected_templates": [
+    {
+      "description": "request completed in N ms — exercises <NUM> mask",
+      "expected_occurrence_count": 10,
+      "must_contain_tokens": ["request", "completed", "in", "ms"],
+      "must_contain_mask": "<NUM>"
+    },
+    {
+      "description": "connection from IP dropped — exercises <IP> mask",
+      "expected_occurrence_count": 10,
+      "must_contain_tokens": ["connection", "from", "dropped"],
+      "must_contain_mask": "<IP>"
+    },
+    {
+      "description": "user logged in successfully — exact-match cluster (no masks needed)",
+      "expected_occurrence_count": 10,
+      "must_contain_tokens": ["user", "logged", "in", "successfully"],
+      "must_contain_mask": null
+    }
+  ]
+}

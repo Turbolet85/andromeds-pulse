@@ -86,6 +86,11 @@ enum Cmd {
     )]
     CapabilityDrift,
     #[command(
+        name = "capability-widening-check",
+        about = "Chunk #77 — static-analyze pulse-app/capabilities/*.json against NEVER-widen bans per security plan §API Anti-Patterns rows 6-7 (pulse:notification / pulse:tray / pulse:plugin-fs MUST stay outbound-emit-only / read-only)"
+    )]
+    CapabilityWideningCheck,
+    #[command(
         name = "smoke",
         about = "install-launch-ingest-query smoke per bundle format (chunk #51)"
     )]
@@ -141,6 +146,7 @@ async fn main() -> ExitCode {
         Cmd::Typecheck { extra } => run_npm_script("typecheck", extra).await,
         Cmd::TestA11y { extra } => run_npm_script("test:a11y", extra).await,
         Cmd::CapabilityDrift => capability_drift().await,
+        Cmd::CapabilityWideningCheck => capability_widening_check().await,
         Cmd::Smoke { bundle, format } => smoke::run_smoke(&bundle, format).await,
         Cmd::PerfSloLoad => run_perf_slo_load().await,
         Cmd::CoverageRegression { current, baseline } => {
@@ -761,6 +767,152 @@ async fn capability_drift() -> Result<ExitCode> {
     eprintln!("  report: {}", report_path.display());
 
     if drift_state == "clean" {
+        Ok(ExitCode::SUCCESS)
+    } else {
+        Ok(ExitCode::FAILURE)
+    }
+}
+
+// Chunk #77 — capability-widening static analysis (per security plan §API
+// Anti-Patterns rows 6-7 + security.md Session Addition 2026-05-08
+// documented test gap).
+//
+// 3 capabilities have NEVER-widen invariants that the existing
+// capability_drift check does NOT enforce (drift only verifies router↔JSON
+// procedure sync, not permission widening within а capability's permissions
+// array):
+//   - pulse:notification — outbound-emit only (NEVER include
+//     notification:allow-register-action-types OR notification:allow-register-listener
+//     per pulse-app/capabilities/notification.json:4 description)
+//   - pulse:tray — outbound emit only (NEVER include any input-event handler;
+//     permissions ending in -register-* / -listen-* / -on-* indicate
+//     input-event handlers banned per pulse-app/capabilities/tray.json:4
+//     description)
+//   - pulse:plugin-fs — backend-only (NEVER expose к webview JavaScript via
+//     `windows: [...]` array population NOR add any fs:* / shell:* / dialog:*
+//     / http:* permissions per pulse-app/capabilities/plugin-fs.json:4
+//     description)
+//
+// On widening detection: report the specific (capability, permission,
+// violated rule) tuple + exit non-zero. Mirrors capability_drift's structured
+// report at target/capability-widening/report.json + structured JSON event
+// line per obs-plan §3 schema.
+async fn capability_widening_check() -> Result<ExitCode> {
+    let workspace_root = Path::new(env!("CARGO_MANIFEST_DIR"))
+        .parent()
+        .context("xtask manifest has no workspace parent")?
+        .to_path_buf();
+    let capabilities_dir = workspace_root.join("pulse-app").join("capabilities");
+
+    // Per-capability rules: (capability_name, banned_substrings_in_permissions,
+    // require_empty_windows). Order matters for stable reporting.
+    let rules: &[(&str, &[&str], bool)] = &[
+        // pulse:notification — banned input-event handler permission substrings
+        // per security.md Session Addition 2026-05-08 + notification.json:4
+        // description.
+        (
+            "notification",
+            &["allow-register-action-types", "allow-register-listener"],
+            false,
+        ),
+        // pulse:tray — banned input-event handler patterns (any -register- /
+        // -listen- / -on- suffix in permission name indicates webview→backend
+        // event re-entry; outbound-emit only is the invariant per tray.json:4
+        // description).
+        ("tray", &["-register-", "-listen-", "-on-"], false),
+        // pulse:plugin-fs — backend-only, no webview exposure (`windows: []`
+        // MUST be empty); no permissions allowed beyond the empty default
+        // (any fs:* / shell:* / dialog:* / http:* permission represents
+        // widening per plugin-fs.json:4 description).
+        ("plugin-fs", &["fs:", "shell:", "dialog:", "http:"], true),
+    ];
+
+    let mut violations: Vec<String> = Vec::new();
+    let mut inspected: Vec<String> = Vec::new();
+
+    for (cap_name, banned_substrings, require_empty_windows) in rules {
+        let path = capabilities_dir.join(format!("{cap_name}.json"));
+        inspected.push(format!("{cap_name}.json"));
+        let content = fs::read_to_string(&path)
+            .with_context(|| format!("read capability JSON at {}", path.display()))?;
+        let json: Value = serde_json::from_str(&content)
+            .with_context(|| format!("parse capability JSON at {}", path.display()))?;
+
+        // Check permissions array against banned substrings.
+        if let Some(permissions) = json.get("permissions").and_then(|v| v.as_array()) {
+            for perm in permissions {
+                if let Some(perm_str) = perm.as_str() {
+                    for banned in *banned_substrings {
+                        if perm_str.contains(banned) {
+                            violations.push(format!(
+                                "pulse:{cap_name} permission `{perm_str}` matches banned substring `{banned}` (widening NEVER-allow per security plan §API Anti-Patterns rows 6-7 + {cap_name}.json description)"
+                            ));
+                        }
+                    }
+                }
+            }
+        }
+
+        // Check windows array IF require_empty_windows.
+        if *require_empty_windows {
+            if let Some(windows) = json.get("windows").and_then(|v| v.as_array()) {
+                if !windows.is_empty() {
+                    let window_names: Vec<String> = windows
+                        .iter()
+                        .filter_map(|w| w.as_str().map(|s| s.to_string()))
+                        .collect();
+                    violations.push(format!(
+                        "pulse:{cap_name} `windows` array MUST be empty (backend-only; no webview exposure per {cap_name}.json description); found {window_names:?}"
+                    ));
+                }
+            }
+        }
+    }
+
+    let widening_state = if violations.is_empty() {
+        "clean"
+    } else {
+        "violations"
+    };
+
+    let report_dir = workspace_root.join("target").join("capability-widening");
+    fs::create_dir_all(&report_dir).context("create capability-widening report dir")?;
+    let report_path = report_dir.join("report.json");
+
+    let report = serde_json::json!({
+        "widening_state": widening_state,
+        "violations_count": violations.len(),
+        "violations": violations,
+        "inspected": inspected,
+        "generated_at": chrono::Utc::now().to_rfc3339(),
+    });
+    fs::write(&report_path, serde_json::to_string_pretty(&report)?)
+        .context("write widening report")?;
+
+    let event = serde_json::json!({
+        "timestamp": chrono::Utc::now().to_rfc3339(),
+        "level": if widening_state == "clean" { "INFO" } else { "WARN" },
+        "target": "xtask.capability_widening_check",
+        "message": "capability widening check complete",
+        "fields": {
+            "violations_count": violations.len(),
+            "widening_state": widening_state,
+            "inspected_count": inspected.len(),
+        },
+    });
+    println!("{}", serde_json::to_string(&event)?);
+
+    eprintln!(
+        "capability-widening-check: {widening_state} ({} violations across {} inspected)",
+        violations.len(),
+        inspected.len()
+    );
+    for v in &violations {
+        eprintln!("  ✗ {v}");
+    }
+    eprintln!("  report: {}", report_path.display());
+
+    if widening_state == "clean" {
         Ok(ExitCode::SUCCESS)
     } else {
         Ok(ExitCode::FAILURE)

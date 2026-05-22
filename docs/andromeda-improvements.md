@@ -1383,4 +1383,69 @@ Defer-acceptable IF user prefers continuing per-wrap proposal filing without cro
 - `~/.claude/skills/andromeda-wrap-session/references/curation-guide.md` — new "Maturation logic" subsection home.
 - `~/.claude/skills/andromeda-{setup-project,wrap-session,new-session}/references/session-state-contract.md` Part B — triangle byte-identity surface for the schema addition.
 - `state.yaml.living_artifact_freshness.api_surface_deferred_reason` (this project) — the empirical anchor: 22 consecutive sessions cited verbatim.
+
+---
+
+## Status: PROPOSED — 2026-05-22 (session 119)
+
+### Proposal 21 — `/andromeda-implement` first-class support for chunk-scoped manual specialist plan rewrites (v3 reconciliation path)
+
+**Problem:**
+
+Chunk #77 ("Specialist plan reconciliation (security + tests)" — pulse v0.2.0 FINAL Consolidation Phase 6 chunk) introduced the FIRST instance of the v3 "manual body rewrite" mechanism per `docs/v0_2_0/pulse-v0_2_0-route.md` §77 Mechanism note. The chunk explicitly declares "Specialist plan touches: security-plan (definitely — manual body rewrite of §Threat Model + §Data Protection + §Secret Management + §Anti-Pattern Logging), test-plan / .claude/rules/testing.md (definitely — manual §Pending coverage triggers update + materialize deferred tests)" in its canonical chunk description. The /implement skill's MUST NOT clause categorically forbids modifying these files except via Trigger 4 → Path A (spec-drift dialogue triggered by UNEXPECTED gap between specialist plan + impl). Chunk #77's rewrites are PLANNED — not drift; not surprise. P17 (META-chunk inline sibling-skill orchestration) covers а different case (Implementation Steps invoke sibling skills like /andromeda-evolve), but chunk #77's plan.md directly Edits the spec files — there's no sibling skill to orchestrate.
+
+Concrete observation at chunk #77 implementation:
+- /implement Phase 1 step 0 META detection looked for sibling-skill invocations OR USER-level skill body edits — neither matched (Steps 1-5 target `.andromeda/security-plan.md`; Step 6 targets `.claude/rules/testing.md`; project files but NOT skill files); chunk classified as `standard`.
+- The standard Phase 1 path would fire the MUST NOT clause immediately on Step 1's Edit attempt.
+- /implement had to surface the ambiguity via AskUserQuestion and the user approved a "chunk-scoped exception" branch (1 of 3 options: execute all 13 steps treating chunk plan as authoritative override of MUST NOT clause).
+- The dialogue worked, but is friction that will recur on EVERY future v3 reconciliation chunk (specialist re-derivation is deferred к v3 per chunk #77 Mechanism note; reconciliation chunks are how v2 covers the gap until then).
+
+**Proposal:**
+
+Add а new recognition path in /implement Phase 1 step 0 (alongside the existing META-chunk classification per P17):
+
+Detection signal — "Chunk-scoped manual specialist plan rewrite":
+- plan.md `## Implementation Steps` include Edit/Write operations targeting `.andromeda/{security,design,test,obs,a11y,layout-templates}-plan.md` OR `.claude/rules/*.md` paths, AND
+- plan.md `## Codebase touchpoints > Files к modify` list explicitly enumerates these spec/rule files (not silent extension), AND
+- combined.md OR research.md (or referenced docs like `docs/v0_2_0/pulse-v0_2_0-route.md` §N) explicitly declares the chunk performs "manual body rewrite" of these plans within а declared "Specialist plan touches" metadata field.
+
+Routing — new Phase 1c "Chunk-scoped spec rewrite orchestration":
+- Applies the spec edits per plan with same audit-trail discipline as Trigger 4 → Path A (write amendment marker at `.andromeda/runs/{ISO}-spec-amendment-chunk-{N}-{slug}/amendment.md` capturing the rewrite scope + Decisions Log entry; append `state.yaml.spec_amendments.active` entry with `flag_used: --chunk-scoped-rewrite` + `chunk_index: N` + `noted_at: null` for lifecycle progression).
+- DOES NOT prompt user — chunk-plan approval at /phase Phase 6 IS the authorization (chunk #77's plan.md was approved by user pre-implementation per /phase Phase 6 user review).
+- Standard Phase 2 fix-loop applies post-orchestration (verify no regressions from the spec edits + the chunk's code work).
+
+**Design:**
+
+- Detection precedence: Phase 1 step 0 sub-step order: (1) META sibling-skill check per P17; (2) Chunk-scoped spec rewrite check per this proposal; (3) fall through к standard chunk classification. The two recognition paths are mutually exclusive in practice (META chunks invoke skills; v3 reconciliation chunks Edit directly) but order matters if а future chunk does both.
+- Audit-trail equivalence: the amendment marker + state.yaml lifecycle preserves the spec-amendment-protocol.md contract. Wrap-session Phase 6 D5 amendment-aware classification + Phase 8 lifecycle progression apply unchanged. The only difference от Path A: no user dialogue (chunk-plan approval substitutes).
+- D4 drift detection: chunk's "Specialist plan touches" metadata defines the within-scope plan list. Edits within this list = within-scope; edits outside = D4 drift fires (matches current discipline per route §77 Mechanism note).
+- Composability с P17: а future chunk could BOTH invoke а sibling skill AND directly Edit а spec file. Phase 1b (META orchestration) + Phase 1c (spec-rewrite orchestration) run in sequence if both detected.
+- Failure mode: if Phase 1c detects the signal but plan.md's Files-to-modify list is INCOMPLETE relative к the spec edits actually attempted (research.md drift), surface as Trigger 4 deferred ("Path A' fix impl OR Path B defer") — falling back к the existing dialogue.
+
+**Implementation cost:**
+
+| File | Change | LOC est |
+|---|---|---|
+| `~/.claude/skills/andromeda-implement/SKILL.md` Phase 1 step 0 | EXTEND META detection с new sub-step 0b "Chunk-scoped spec rewrite detection" + branch routing | ~25 |
+| `~/.claude/skills/andromeda-implement/SKILL.md` Phase 1c | NEW phase "Chunk-scoped spec rewrite orchestration" (orchestration loop + amendment marker write + state.yaml.spec_amendments append) | ~60 |
+| `~/.claude/skills/andromeda-implement/SKILL.md` constraints MUST NOT clause | UPDATE EXCEPTION list к include "Phase 1c chunk-scoped rewrite" alongside existing Trigger 4 → Path A | ~5 |
+| `~/.claude/skills/andromeda-implement/references/visual-references.md` | ADD Phase 3 success variant "chunk-scoped-spec-rewrite-orchestrated" (parallel к existing "amendment-applied" / "META-chunk-orchestrated") | ~15 |
+| `~/.claude/skills/andromeda-implement/references/spec-drift-protocol.md` | ADD section "Phase 1c vs Trigger 4 path A — when each applies" (decision tree) | ~30 |
+| `docs/andromeda-improvements.md` | mark P21 IMPLEMENTED post-application | ~5 |
+
+Total ~140 LOC across 5 files at user-level skill toolkit + 1 project file.
+
+**When to do:**
+
+When the NEXT v3 reconciliation chunk fires (likely chunk #78+ if pulse-v0_2_0 evolves toward Phase 7+ surfaces that need specialist re-touch; OR а future scope's reconciliation chunk). Filing now captures the friction while fresh; implementation pays off when the next dialogue would have fired.
+
+Empirical anchor: chunk #77 took ~3min of dialogue ceremony (user question + option selection + acknowledgment) that the proposal removes. Across N future reconciliation chunks (estimated 2-5 across pulse-v0_2_0 remaining), saves 6-15min of friction + standardizes the audit trail (current dialogue path doesn't generate amendment markers; rewrites are visible only in chunk implementation commit body).
+
+**Cross-references:**
+
+- `docs/v0_2_0/pulse-v0_2_0-route.md` §77 Mechanism note — canonical declaration of the v3 manual-rewrite mechanism
+- Chunk #77 implementation commit body (session 119) — first dogfood; established the "chunk-scoped exception" precedent via /implement Phase 1 user dialogue
+- Proposal 17 (META-chunk inline sibling-skill orchestration) — parallel pattern for the different META case (sibling-skill invocation rather than direct spec Edit)
+- spec-amendment-protocol.md Part C (amendment-aware D5 classification) — applies unchanged to amendments generated by Phase 1c
+- session-learnings.md 2026-05-22 (session 119) — Tier 3 entry documenting the v3 chunk-scoped manual specialist plan rewrite path
 - Invariant 1 (state.yaml is wrap-session's territory) + Invariant 14 (schema migration is Phase 8's one-time responsibility) + Invariant 7 (triangle byte-identity) + Invariant 19 (new-session read-only) — preserved by the design; documented in Step 1 schema this session.
