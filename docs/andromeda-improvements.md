@@ -1272,3 +1272,115 @@ Defer-acceptable IF user prefers minimal additional skill surgery this soon afte
 - Sibling proposal: P16 (the implementation this refines) — IMPLEMENTED 2026-05-22 (session 116).
 - `~/.claude/skills/andromeda-wrap-session/SKILL.md` Phase 8 step 3 + step 7 — load-bearing sections to extend.
 - Session 116 Tier 3 session-learning at `.claude/docs/session-learnings.md` (2026-05-22 entry "Self-bootstrap dogfooding paradox is one-skill-invocation-removed, not session-removed") — context for why dogfood is one-skill-invocation-removed.
+
+---
+
+## Status: PROPOSED — 2026-05-22 (session 117)
+
+### Proposal 20 — Self-evolve: cross-session accumulation tracking + patch/refactor maturation gate
+
+**Problem:**
+
+The existing meta-improvement loop (wrap-session Phase 3 step 2 "Andromeda pipeline friction" scan + `docs/andromeda-improvements.md` proposal log + amendment cycle as apply mechanism) sees only the CURRENT session's conversation. It dedups against existing PROPOSED entries by title token overlap >0.6 but cannot detect the PATTERN that keeps generating proposals across sessions. Three concrete consequences observable in the project today:
+
+1. **No accumulation tracking.** P15 (dead `mod tests`) shipped in session 116 as а patch; the structural cause ("pulse-app declares `[lib] test = false` for WebView2 workaround") was never raised because there's nowhere to track "this pattern keeps surfacing". 16 blocks across 16 files all sit awaiting individual remediation; the system can't ask "is this а recurring pattern that needs а structural fix rather than 16 patches?"
+2. **No honest-healthy authoring.** When zero proposals file in а wrap, Phase 11 says nothing about meta-observation. Zero candidates is indistinguishable from didn't-look. The user can't audit the scan.
+3. **No patch/refactor class distinction.** All entries in `andromeda-improvements.md` are shaped as single fixes. Chunk #76 batched 6 proposals (P7+P12+P15-P18) without anyone asking "do these share а structural cause?" — they might. The schema can't tell.
+
+Specific observable matured pattern in the project today: `state.yaml.living_artifact_freshness.api_surface_deferred = true` for **22 consecutive wraps** (sessions 91-116). The state.yaml field literally cites the count. No patch has been filed because there's no patch to file — the structural cost (cargo +nightly public-api on 14 crates ≈ 7-14 min) exceeds the wrap budget (~3 min). The deferral IS the workflow. This is exactly the case the current meta-layer cannot recognize as actionable.
+
+**Proposal:**
+
+EVOLVE the existing meta-layer at 4 coordinates (no new skill; no parallel log; no separate cron):
+
+1. **`wrap-session/references/curation-guide.md`** gains а "Maturation logic" subsection (Filter 6 parallel to existing 5 quality filters). Classifies each survivor as `noise | patch | refactor`. Wrap-session-local — out of the triangle's 6-contract byte-identity surface (preserves Invariant 7).
+
+2. **`state.yaml`** gains `pipeline_observation_state` field (schema bump v2.1 → v2.2; migration step in wrap-session Phase 8). Persistent cross-session registers:
+   - `recurring_patch[pattern_key]`: count, first/last observed session, related_proposals, evidence list, matured_at_session, resolved_in_chunk
+   - `patch_cascade[area_key]`: same shape
+   - `amendment_clustering[plan_path]`: same shape
+   - `high_severity_recurrence[drift_id]`: same shape
+   - `deferral_recurrence[artifact_path]`: same shape
+   Justification for this one new field (only non-pure-transformation in the design): cross-session accumulation has nowhere to live in the existing schema. `state.yaml.drift_warnings[].first_observed_session_count` is per-drift not per-pipeline-pattern. `andromeda-improvements.md` is unstructured prose. State.yaml IS the cross-session state hub (Invariant 1); adding а field is purely additive and uses the existing schema-migration mechanism (Invariant 14).
+
+3. **`wrap-session` Phase 3 step 2** body extends:
+   - **2a** (existing): scan this session's conversation for friction candidates.
+   - **2b** (NEW): for each candidate that passes Filters 1-5, classify per `curation-guide.md` §Maturation logic.
+   - **2c** (NEW): update `state.yaml.pipeline_observation_state.registers.*` from session evidence + amendment archive + drift_warnings with first_observed_session_count > 7 + deferral counter increments.
+   - **2d** (NEW): scan registers for newly-matured patterns; file а Refactor R{N} entry in `andromeda-improvements.md` (class: refactor) with accumulation evidence MANDATORY in entry body.
+
+4. **`docs/andromeda-improvements.md`** schema extends: each entry gets `**Class:** patch | refactor`; refactor entries additionally require `**Accumulation evidence:**` field citing ≥3 patches OR matured-criterion-specific data. Existing P1-P19 backfill as `Class: patch` (one-line edit). New refactor entries use `### Refactor R{N} — {title}` heading parallel to `### Proposal P{N}`.
+
+5. **`wrap-session` Phase 11** extends with а "Pipeline meta-observation" subsection rendering one of three modes:
+   - **Mode P** (patch filed): lists patches + pattern_key + register touched
+   - **Mode R** (refactor matured): lists refactor + accumulation evidence + scope class + routing
+   - **Mode H** (honest healthy, evidence-backed): lists registers scanned с current counts + closest-to-maturing top 3 + explicit "nothing matured this wrap" conclusion. NOT а silent void — а demonstrated scan.
+
+6. **`new-session` Phase 9** dashboard extends with а "Matured pipeline patterns" subsection reading `state.yaml.pipeline_observation_state.registers.*.matured_at_session != null` entries. Section omitted entirely when empty (preserves new-session read-only role per Invariant 19).
+
+**Design:**
+
+Maturation thresholds (defaults; project-tunable in `curation-guide.md`):
+
+| Pattern | Threshold | Justification |
+|---|---|---|
+| recurring_patch | ≥3 distinct proposals sharing pattern_key | 3 is smallest count that's not coincidence |
+| patch_cascade | ≥2 patches in same area within 5-wrap window | Cascade signature |
+| amendment_clustering | ≥4 amendments to same plan within 5 wraps | Almost-every-wrap touch = instability |
+| high_severity_recurrence | drift_id age > 7 wraps | Beyond stale-drift escalation (which fires at >3) |
+| deferral_recurrence | ≥10 consecutive wraps with `*_deferred = true` | Deferral became the workflow; only refactor can change |
+
+Refactor entry routing by scope class (uses existing skills — no new pathways):
+
+| Scope class | Apply path | Invariant preservation |
+|---|---|---|
+| Specialist plan amendment | `/andromeda-evolve` + `--delta` | Invariant 2, 8 |
+| Arch registry section | `/andromeda-evolve --allow-arch-registry` | Invariant 3 (narrow exception) |
+| Route additive | `/andromeda-evolve --allow-route-append` | Invariant 4 (narrow exception) |
+| Specialist plan re-derive | `/andromeda-{specialty}` greenfield re-run | Existing path |
+| Route restructuring | `/andromeda-route` greenfield re-run | Existing path |
+| Arch re-plan | `/andromeda-arch` greenfield re-run | Cascades via documented path |
+| Cross-skill contract | Manual 3-way coordinated edit + `/andromeda-setup-project` Phase 8 md5sum verify | Invariant 7 |
+| Cross-skill USER-level skill body | META-chunk via /andromeda-evolve --allow-route-append + /andromeda-phase + /andromeda-implement | Invariant 9 (P17 path) |
+
+Anti-pattern safeguards:
+- **Refactor without accumulation citation:** rejected; Mode H rendered instead ("tried to mature but evidence insufficient").
+- **Refiling matured pattern:** `matured_at_session != null` + `resolved_in_chunk = null` → no refile; visible in closest-to-maturing list.
+- **Premature IMPLEMENTED:** one-wrap-lag verification — Status PROPOSED → IMPLEMENTED only after next wrap confirms register actually cleared. Parallel to State H housekeeping (Invariant 17).
+
+First application (would be R1 if self-evolve active today): `api_surface.md` 22-wrap deferral. Walkthrough — detect (read state.yaml; matured at count=22≥10) → track (register updated) → propose (Refactor R1, scope class: Cross-skill contract — extend integrity-protocol.md Part B per-crate iteration) → review (user reads in new-session dashboard) → apply (3-way byte-identical edit + setup-project Phase 8 verify) → verify (next wrap reconciles 1 crate at ~0.5min cost; deferral flag clears) → archive (R1 → IMPLEMENTED).
+
+**Implementation cost:**
+
+| File | Change | LOC est |
+|---|---|---|
+| `~/.claude/skills/andromeda-wrap-session/references/curation-guide.md` | NEW "Maturation logic" subsection (Filter 6 + thresholds + routing table + anti-patterns) | ~120 |
+| `~/.claude/skills/andromeda-wrap-session/references/session-state-contract.md` Part B | ADD `pipeline_observation_state` schema | ~40 |
+| `~/.claude/skills/andromeda-setup-project/references/session-state-contract.md` Part B | byte-identical copy of above | ~40 |
+| `~/.claude/skills/andromeda-new-session/references/session-state-contract.md` Part B | byte-identical copy of above | ~40 |
+| `~/.claude/skills/andromeda-wrap-session/SKILL.md` Phase 3 step 2 | EXTEND с 2b/2c/2d sub-steps | ~30 |
+| `~/.claude/skills/andromeda-wrap-session/SKILL.md` Phase 8 | ADD v2.1→v2.2 migration step (seed `pipeline_observation_state` + backfill `deferral_recurrence['api_surface']` from existing state.yaml.api_surface_deferred_reason text) | ~25 |
+| `~/.claude/skills/andromeda-wrap-session/SKILL.md` Phase 11 | EXTEND report template с "Pipeline meta-observation" subsection (Modes P / R / H) | ~40 |
+| `~/.claude/skills/andromeda-wrap-session/references/visual-references.md` | ADD Mode P / Mode R / Mode H banner templates | ~30 |
+| `~/.claude/skills/andromeda-new-session/SKILL.md` Phase 9 | EXTEND dashboard с "Matured pipeline patterns" subsection (omitted-if-empty rendering) | ~20 |
+| `~/.claude/skills/andromeda-new-session/references/visual-references.md` | ADD matured-patterns subsection template | ~15 |
+| `docs/andromeda-improvements.md` (this project) | Backfill P1-P19 with `**Class:** patch` (one-line per entry; mechanical) | ~20 |
+
+**Total:** ~420 LOC across 11 files (incl. 3-way byte-identical triangle copies × 3). META chunk implementable via P17 sibling-skill orchestration path. Setup-project Phase 8 md5sum verifies triangle byte-identity.
+
+**When to do:**
+
+After P19 (P16 timing discriminator) lands — they don't conflict but P19 is cheaper (~25 LOC, single file) and matures the State H story before this larger evolution. P20 itself is ~420 LOC across 11 files; substantial META chunk. Justification for the cost is direct: 22-wrap api-surface deferral is the existing matured pattern; without P20, no mechanism exists to surface it as а refactor candidate beyond ad-hoc human attention.
+
+Defer-acceptable IF user prefers continuing per-wrap proposal filing without cross-session pattern tracking — the existing meta-layer continues to work for individual patches; only refactor-class observations are missed.
+
+**Cross-references:**
+
+- Triggering session: 117 (this wrap; self-evolve design experiment commissioned by user via two-step prompt). Empirical evidence: 22-wrap api-surface deferral preserved in state.yaml.living_artifact_freshness.api_surface_deferred_reason text since session 91.
+- Step 1 schema (this session conversation): localized friction to (skill × phase × invariant × artifact) coordinates — the substrate this design assumes.
+- Sibling proposals: P15 (dead mod tests detection — а patch that would be tracked in `recurring_patch['dead-mod-tests']` for future maturation if pattern recurs); P17 (META-chunk orchestration — the path P20 implementation uses); P19 (P16 timing discriminator — sequenced before P20 per "When to do" above).
+- `~/.claude/skills/andromeda-wrap-session/SKILL.md` Phase 3 step 2 + Phase 8 + Phase 11 — load-bearing sections to extend.
+- `~/.claude/skills/andromeda-wrap-session/references/curation-guide.md` — new "Maturation logic" subsection home.
+- `~/.claude/skills/andromeda-{setup-project,wrap-session,new-session}/references/session-state-contract.md` Part B — triangle byte-identity surface for the schema addition.
+- `state.yaml.living_artifact_freshness.api_surface_deferred_reason` (this project) — the empirical anchor: 22 consecutive sessions cited verbatim.
+- Invariant 1 (state.yaml is wrap-session's territory) + Invariant 14 (schema migration is Phase 8's one-time responsibility) + Invariant 7 (triangle byte-identity) + Invariant 19 (new-session read-only) — preserved by the design; documented in Step 1 schema this session.
