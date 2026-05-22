@@ -1,15 +1,58 @@
 schema_version: 2
-last_wrap: 2026-05-22T23:25:00Z
-last_reconcile: 2026-05-22T23:25:00Z
+last_wrap: 2026-05-23T01:00:00Z
+last_reconcile: 2026-05-23T01:00:00Z
 
 last_completed_chunk:
-  route_index: 77
-  title: "Specialist plan reconciliation (security + tests) — manual security-plan rewrite + 5 PII vector tests + Drain golden corpus harness (META; detail in pulse-v0_2_0-route §77)"
+  route_index: 78
+  title: "Incident records + lifecycle persistence — corpus-backed Active/Resolved lifecycle + acknowledge cool-down + workspace attribution + counter derivation (capabilities P-022/P-023/P-041–P-045; detail in pulse-v0_2_0-route §78)"
   epoch: 9
-  committed_at: 2026-05-22T20:18:23Z
-  commit_sha: "7bef96e"
-  commit_subject: "chore(implement): chunk #77 Specialist plan reconciliation (security + tests) — security-plan body rewrites (4 sections + Decisions Log) + testing.md §Pending coverage triggers annotation + 5 PII vector tests + xtask capability-widening-check + Drain golden corpus harness — closes Consolidation Phase 6"
+  committed_at: 2026-05-23T01:00:00Z
+  commit_sha: "pending"
+  commit_subject: "chore(implement): chunk #78 Incident records + lifecycle persistence — 5 triage::incident module files + corpus CorpusWriter extension + 3 pulse-app modules (persistence/router/observer) + main.rs wiring + 19 new integration tests — FIRST Phase 7 chunk; closes Foundation Phase 6 Consolidation"
 
+# Session 121 wrap (2026-05-23T01:00:00Z): chunk #78 "Incident records + lifecycle persistence" implementation cycle (FIRST
+# Phase 7 chunk of pulse v0.2.0; FINAL closure of Foundation Phase 6 Consolidation). Substantial multi-crate implementation
+# touching 17 files across 4 crates: 5 new `crates/triage/src/incident/*` module files (mod / state_machine / registry /
+# persistence / broadcast — IncidentRegistry trait + InMemoryIncidentRegistry с DashMap cooldown tracker + IncidentPersistence
+# trait + IncidentError + IncidentLifecycleEvent + IncidentLifecycleBroadcast + run_incident_persist_cycle/loop helpers) +
+# extended `triage::contract::Incident` struct (+6 fields: workspace + kind + scope + acknowledged_at + read_at + updated_at;
+# id type changed String→i64 для SQLite rowid alignment с chunk #68 schema) + extended `corpus::contract::CorpusWriter` trait
+# (+6 incident methods: save_incident / update_incident_status / mark_incident_read / load_active_incidents / count_active_unread
+# / save_incident_event + new IncidentRowRaw envelope; impl on Corpus с prepared statements + cell-level AES-256-GCM
+# encryption) + 3 new `pulse-app/src/*` modules (incident_persistence.rs CorpusIncidentPersistence adapter + incidents_router.rs
+# IncidentsApi TauRPC trait + IncidentsApiImpl resolver + IncidentRecord/IncidentsListPayload + incident_observer.rs
+# AutoResolveObserver + run_auto_resolution_loop ticker 30s cadence 120s window per P-022) + pulse-app/src/main.rs setup-
+# closure wiring (5th CorpusWriter trait view derive alongside baseline+lifecycle+storm+drain; restored-incidents hydration
+# from corpus at boot; incident_registry construction; broadcast; IncidentsApiImpl; router merge into BOTH conn-some +
+# conn-none branches; persist loop spawn + auto-resolve observer loop spawn; emit_taurpc_bindings test 4th binding extension)
+# + xtask/src/main.rs EXPECTED_PROCEDURES +3 entries (incidents.{acknowledge,list_active,mark_resolved}) + new chunk-#78
+# namespace test + pulse-app/capabilities/default.json description extension (router-level coverage; no new permission strings)
+# + 2 new integration test files (pulse-app/tests/unit_incident_persistence.rs 10 tests covering P-041/P-042/P-043/P-045 +
+# negative SQL injection + at-rest encryption canary; pulse-app/tests/e2e_incidents_lifecycle.rs 9 tests covering lifecycle
+# + acknowledge cooldown via registry direct + auto-resolution past window + skip within window + persistence reflects
+# resolution + broadcast PII-free + NotFound envelopes + double-resolve rejection). Specta type-name collision encountered
+# + resolved: triage::contract::Severity collided с ingest::connection::Severity in bindings.ts emit; resolved via
+# `#[cfg_attr(feature = "taurpc-runtime", specta(rename = "IncidentSeverity"))]` к disambiguate exported TS name without
+# changing Rust identifier or domain meaning (Tier 3 session-learning filed). Schema rowid + i64 contract.id design pattern
+# materialized at chunk #78 (Tier 3 session-learning filed). Standard chunk-gate baseline clean: cargo fmt --check + cargo
+# clippy --workspace --all-targets --all-features -- -D warnings + cargo nextest run --workspace --profile ci 1279/1279
+# (was 1214 baseline; +65 new chunk #78 tests) + cargo xtask capability-drift (clean post bindings.ts regen via mcp-server-
+# feature emit_taurpc_bindings nextest; 0 missing / 0 extra) + cargo xtask capability-widening-check (clean: 0 violations
+# across 3 inspected). Phase 2b smoke check SKIPPED per testing.md 2026-05-19 Session Addition: chunk #78 is backend-only;
+# integration tests cover the same runtime invariants more reliably; avoiding tauri dev smoke сidesteps Windows orphan-process
+# risk. Deferred per plan §Acceptance Criteria → Deferred: observability.rs AllowList entries (~10 new tracing targets;
+# runtime-log-quality concern), incidents.mark_read() TauRPC procedure (chunks #87+), health.subsystems.corpus field (ui-bridge),
+# arch-registry amendment via /andromeda-evolve --allow-arch-registry (single-coordinated multi-item amendment mirroring chunk
+# #67/#68 corpus-additions precedents; expected as next-session work; D3 drift fires AS EXPECTED until amendment lands). State
+# H: this wrap progresses last_completed_chunk.route_index 77 → 78; commit_sha set к "pending" per Proposal 16 Option b (next
+# wrap's Phase 8 step 7 auto-heals к the HEAD-reachable SHA). Curation: 0 Tier 1 + 0 Tier 2 + 2 Tier 3 + 0 Andromeda pipeline
+# proposals. Drift: D1+D2+D4+D5+D6 CLEAN; D3 expected fires. api_surface_deferred 26th → 27th consecutive (chunk #78 added
+# ~50+ new pub items; re-baseline EXPLICITLY warranted but defer until batched с chunk #79+ additional pub additions для
+# per-crate iteration cost amortization). Smoke test: 14/14 security crate passed (0.144s; this-wrap baseline check). `cargo
+# tree --workspace --depth 2 --prefix indent` rerun: 445 lines (identical к session 120 baseline; zero workspace deps added).
+# Next chunk: route#79 "SQL aggregation queries + scheduler" — L1a SQL templates Q1-Q7 against L0 ring buffer для Cadence
+# Coordinator #80; requires `/andromeda-evolve --allow-route-append` к register per pulse-v0_2_0-route §Phase 7 §79.
+#
 # Session 120 wrap (2026-05-22T23:25:00Z): META cycle — chunk #78 route-append amendment Active → Propagated → Archived
 # in single session (mirrors session 115 chunk #76 + session 118 chunk #77 precedents exactly). Flow: /andromeda-new-session
 # dashboard → /andromeda-evolve --allow-route-append (registered chunk #78 "Incident records + lifecycle persistence" in route
@@ -362,14 +405,20 @@ plan_freshness:
   input_mtime: 2026-05-02T06:52:58Z
 
 living_artifact_freshness:
-  dep_tree_reconciled_at: 2026-05-22T23:25:00Z
+  dep_tree_reconciled_at: 2026-05-23T01:00:00Z
   api_surface_reconciled_at: 2026-05-21T06:30:00Z
-  most_recent_code_mtime: 2026-05-22T19:54:55Z
+  most_recent_code_mtime: 2026-05-23T01:00:00Z
   reconcile_failed: false
   api_surface_deferred: true
-  api_surface_deferred_reason: "per-crate cargo +nightly public-api iteration across 14 crates exceeds wrap budget (7-14 min vs ~3 min); 26th consecutive deferral per sessions 91-120 pattern; session 120 = textbook standard META cycle (chunk #78 route-append + delta-rerun + wrap; zero new pub items — only route.md §1+§2+§3 + CLAUDE.md pointer-table + state.yaml lifecycle progression + dep-tree.md refresh edited); session 119 = chunk #77 'Specialist plan reconciliation (security + tests)' FINAL Consolidation Phase 6 implementation (FIRST instance of Andromeda v3 manual-rewrite mechanism per pulse-v0_2_0-route §77 Mechanism note; 4 security-plan body section rewrites + testing.md §Pending coverage triggers annotation + 19 new chunk-#77 PII vector + Drain golden corpus tests + new xtask CapabilityWideningCheck sub-command + new crates/buffer/tests/ integration test dir; new pub items SOME but bounded — CapabilityWideningCheck enum variant + capability_widening_check fn in xtask + ExpectedGolden/ExpectedTemplate test-only structs + ~6 helper fns in pulse-app/tests/security_*.rs; full per-crate iteration sequenced for next non-META wrap when chunk #78+ persistence layer changes substantially expand pub surface — incident records + TauRPC procedures + broadcast topics + new triage::incident contract types worth re-baseline batching); session 118 = textbook standard META cycle (chunk #77 route-append + delta-rerun + wrap; zero new pub items — only route.md §1+§2+§3 + CLAUDE.md pointer-table + state.yaml lifecycle progression + dep-tree.md refresh edited); session 117 = pipeline self-evolve design experiment META session (zero new pub items — only docs/andromeda-improvements.md edit к file P20 proposal + state.yaml + handoff + dep-tree.md refresh; this 23rd-consecutive deferral IS the empirical anchor for P20's first-application walkthrough — proposes per-crate incremental reconciliation across wraps as а Refactor R1 candidate); session 116 = chunk #76 META implementation (P7+P12+P15-P18 across 5 USER-level Andromeda skills + 1 project markdown; zero new pub items — all .md edits at user level outside project workspace); session 115 = `/andromeda-evolve --allow-route-append` + `/andromeda-setup-project --delta` META cycle for chunk #76 registration (zero new pub items — route.md §1+§2+§3 edits + state.yaml lifecycle progression + CLAUDE.md pointer-table cascade only); session 114 = `/andromeda-new-session` + `/andromeda-setup-project` full re-derive META session zero new pub items (CLAUDE.md §Architecture cascade-only edit + 1 Tier 3 + 1 P18 proposal + dep-tree refresh + state.yaml State H housekeeping); session 113 = chunk #75 documentation consolidation META (zero new pub items — all .md edits); session 112 META-only; session 111 = chunk #74 META implementation via 3 Type 6 amendments (zero new pub items — all arch.md edits only); session 110 = chunk #74 Type 7 Form 1 route registration META; session 109 = chunk #73 implementation wrap landed Path A full short-window tracker (~280 LOC adding ~30 new pub items); cumulative backlog from chunks #70-#77 + META chunks #74/#75/#76 + setup-project sessions now substantial enough to make full per-crate iteration worthwhile at next non-META wrap. Most plausible re-baseline cycle: chunk #78 incident records + lifecycle persistence wrap (will introduce substantial new pub items — incidents.list_active/acknowledge/mark_resolved TauRPC procedures + pulse://stream/incidents broadcast topic + crates/triage/incident types)"
+  api_surface_deferred_reason: "per-crate cargo +nightly public-api iteration across 14 crates exceeds wrap budget (7-14 min vs ~3 min); 27th consecutive deferral per sessions 91-121 pattern; session 121 = chunk #78 incident records + lifecycle persistence implementation (FIRST Phase 7 chunk; substantial multi-crate work touching 17 files across 4 crates; ~50+ new pub items including 5 triage::incident::* modules + 3 pulse-app modules + corpus extension с 6 new CorpusWriter trait methods + IncidentRowRaw envelope + xtask chunk-#78 test); re-baseline EXPLICITLY worthwhile at next wrap но deferred this wrap к keep within ~3 min wrap budget; ORIGINAL reason (preserved): session 120 = textbook standard META cycle (chunk #78 route-append + delta-rerun + wrap; zero new pub items — only route.md §1+§2+§3 + CLAUDE.md pointer-table + state.yaml lifecycle progression + dep-tree.md refresh edited); session 119 = chunk #77 'Specialist plan reconciliation (security + tests)' FINAL Consolidation Phase 6 implementation (FIRST instance of Andromeda v3 manual-rewrite mechanism per pulse-v0_2_0-route §77 Mechanism note; 4 security-plan body section rewrites + testing.md §Pending coverage triggers annotation + 19 new chunk-#77 PII vector + Drain golden corpus tests + new xtask CapabilityWideningCheck sub-command + new crates/buffer/tests/ integration test dir; new pub items SOME but bounded — CapabilityWideningCheck enum variant + capability_widening_check fn in xtask + ExpectedGolden/ExpectedTemplate test-only structs + ~6 helper fns in pulse-app/tests/security_*.rs; full per-crate iteration sequenced for next non-META wrap when chunk #78+ persistence layer changes substantially expand pub surface — incident records + TauRPC procedures + broadcast topics + new triage::incident contract types worth re-baseline batching); session 118 = textbook standard META cycle (chunk #77 route-append + delta-rerun + wrap; zero new pub items — only route.md §1+§2+§3 + CLAUDE.md pointer-table + state.yaml lifecycle progression + dep-tree.md refresh edited); session 117 = pipeline self-evolve design experiment META session (zero new pub items — only docs/andromeda-improvements.md edit к file P20 proposal + state.yaml + handoff + dep-tree.md refresh; this 23rd-consecutive deferral IS the empirical anchor for P20's first-application walkthrough — proposes per-crate incremental reconciliation across wraps as а Refactor R1 candidate); session 116 = chunk #76 META implementation (P7+P12+P15-P18 across 5 USER-level Andromeda skills + 1 project markdown; zero new pub items — all .md edits at user level outside project workspace); session 115 = `/andromeda-evolve --allow-route-append` + `/andromeda-setup-project --delta` META cycle for chunk #76 registration (zero new pub items — route.md §1+§2+§3 edits + state.yaml lifecycle progression + CLAUDE.md pointer-table cascade only); session 114 = `/andromeda-new-session` + `/andromeda-setup-project` full re-derive META session zero new pub items (CLAUDE.md §Architecture cascade-only edit + 1 Tier 3 + 1 P18 proposal + dep-tree refresh + state.yaml State H housekeeping); session 113 = chunk #75 documentation consolidation META (zero new pub items — all .md edits); session 112 META-only; session 111 = chunk #74 META implementation via 3 Type 6 amendments (zero new pub items — all arch.md edits only); session 110 = chunk #74 Type 7 Form 1 route registration META; session 109 = chunk #73 implementation wrap landed Path A full short-window tracker (~280 LOC adding ~30 new pub items); cumulative backlog from chunks #70-#77 + META chunks #74/#75/#76 + setup-project sessions now substantial enough to make full per-crate iteration worthwhile at next non-META wrap. Most plausible re-baseline cycle: chunk #78 incident records + lifecycle persistence wrap (will introduce substantial new pub items — incidents.list_active/acknowledge/mark_resolved TauRPC procedures + pulse://stream/incidents broadcast topic + crates/triage/incident types)"
 
-drift_warnings: []
+drift_warnings:
+  - drift_id: D3
+    description: "3 new TauRPC procedures (incidents.list_active / incidents.acknowledge / incidents.mark_resolved) + 1 new broadcast topic (pulse://stream/incidents) ARE present in code (pulse-app/src/incidents_router.rs + crates/triage/src/incident/broadcast.rs + xtask EXPECTED_PROCEDURES + pulse-app/capabilities/default.json + bindings.ts) but NOT YET in .andromeda/architecture.md §Occupied Resources Tauri IPC routes + Tauri IPC events list. Expected per chunk #78 plan §Acceptance Criteria → Deferred."
+    severity: warning
+    remediation_hint: "/andromeda-evolve --allow-arch-registry to legitimize the 3 new TauRPC procedures + 1 broadcast topic in arch §Occupied Resources (single-coordinated multi-item amendment mirroring chunk #67 services-namespace + chunk #68 corpus-additions precedents)"
+    first_observed_session_count: 121
+    last_observed_session_count: 121
 
 spec_amendments:
   active: []
@@ -951,4 +1000,4 @@ spec_amendments:
       propagated_by_run: .andromeda/runs/2026-05-11T19-00-00-setup-project-delta/
       archived_at: 2026-05-11T19:25:00Z
 
-session_count: 120
+session_count: 121

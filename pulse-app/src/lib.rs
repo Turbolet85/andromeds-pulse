@@ -5,6 +5,9 @@ pub mod connection_router;
 pub mod diagnostics_router;
 pub mod drain_persistence;
 pub mod heartbeat;
+pub mod incident_observer;
+pub mod incident_persistence;
+pub mod incidents_router;
 pub mod lifecycle_persistence;
 #[cfg(feature = "mcp-server")]
 pub mod mcp_router;

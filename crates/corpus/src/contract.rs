@@ -47,6 +47,32 @@ pub struct ServiceRegistryRowRaw {
     pub manual_override: Option<String>,
 }
 
+/// Raw row envelope for `incidents` table reads (chunk #78). The incident
+/// persistence adapter at `pulse-app/src/incident_persistence.rs`
+/// decrypts the BLOB column + bincode-deserializes into
+/// `triage::contract::Incident` at the binary boundary; corpus crate
+/// stays domain-agnostic (no `triage` dep edge).
+///
+/// The `id` field is the SQLite auto-rowid assigned по `INSERT INTO
+/// incidents (...)` AND served as the external incident identifier
+/// over the TauRPC bridge (incidents.acknowledge / mark_resolved take
+/// the rowid string). The `payload` field carries the encrypted-then-
+/// decrypted Incident BLOB (AES-256-GCM cell-level encryption per
+/// chunk #68 substrate); `payload` is the source-of-truth for fields
+/// not captured in the typed metadata columns (`kind`, `scope`, `severity`,
+/// `acknowledged_at`, `priority_tier`, etc.).
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub struct IncidentRowRaw {
+    pub id: i64,
+    pub workspace: String,
+    pub status: String,
+    pub created_unix_nano: i64,
+    pub updated_unix_nano: i64,
+    pub resolved_unix_nano: Option<i64>,
+    pub read_unix_nano: Option<i64>,
+    pub payload: Vec<u8>,
+}
+
 /// Corpus handle — wraps the rusqlite Connection + tracks the resolved
 /// on-disk path + the loaded encryption key. Construct via
 /// [`Corpus::open`] (on-disk) or [`Corpus::open_in_memory`] (tests).
@@ -254,6 +280,80 @@ pub trait CorpusWriter: Send + Sync {
     /// lifecycle adapter caller maps `vec![]` → `Ok(None)` per the
     /// LifecyclePersistence trait semantics.
     fn load_all_service_registry_rows(&self) -> Result<Vec<ServiceRegistryRowRaw>, Error>;
+
+    /// INSERT a new row into `incidents` table (chunk #78). `payload` is
+    /// the plaintext-bytes encoding (bincode-serialized
+    /// `triage::contract::Incident`) — encrypted via AES-256-GCM по the
+    /// cell-level discipline before write. Returns the auto-assigned
+    /// SQLite rowid as the new external incident identifier. Prepared
+    /// statement с `?` placeholders per security plan §Input Validation.
+    /// Workspace + status + timestamp columns store metadata redundantly
+    /// for fast SQL filtering (P-045 counter SQL); payload BLOB is the
+    /// authoritative source of full struct state.
+    ///
+    /// Producer-side PII scrubbing rule (chunk #72 uniform coverage):
+    /// the caller (incident persistence adapter в pulse-app) MUST have
+    /// pre-scrubbed any OTLP-derived attribute values в `incident.title`
+    /// / `incident.detail` / `evidence_refs.fingerprint_hashes` BEFORE
+    /// passing к this method. Corpus impl does NOT double-scrub the BLOB
+    /// payload — see trait docstring above.
+    #[allow(clippy::too_many_arguments)]
+    fn save_incident(
+        &self,
+        workspace: &str,
+        status: &str,
+        created_unix_nano: i64,
+        updated_unix_nano: i64,
+        resolved_unix_nano: Option<i64>,
+        read_unix_nano: Option<i64>,
+        payload: &[u8],
+    ) -> Result<i64, Error>;
+
+    /// UPDATE an existing `incidents` row's status + timestamps + payload
+    /// (chunk #78). Updates the metadata columns + replaces the encrypted
+    /// payload BLOB к keep BLOB-state в sync с column-state. Used по
+    /// `incidents.acknowledge(id)` + `incidents.mark_resolved(id)` +
+    /// auto-resolution observer tick. Returns `Error::QueryFailed` when
+    /// `id` does not match а row (caller maps к `IncidentError::NotFound`
+    /// or `AppError::NotFound` at the binary boundary).
+    fn update_incident_status(
+        &self,
+        id: i64,
+        status: &str,
+        updated_unix_nano: i64,
+        resolved_unix_nano: Option<i64>,
+        payload: &[u8],
+    ) -> Result<(), Error>;
+
+    /// UPDATE only the `read_unix_nano` column for an incident (chunk #78).
+    /// Used по Report-opening event (chunk #87+ wires the UI trigger;
+    /// chunk #78 ships the schema + write path).
+    fn mark_incident_read(&self, id: i64, read_unix_nano: i64) -> Result<(), Error>;
+
+    /// SELECT all active (non-Resolved) incidents для а workspace, ordered
+    /// по rowid ascending (creation order). Returns decrypted `payload`
+    /// bytes per row. Empty Vec when the workspace has no active
+    /// incidents; caller hydrates the in-memory registry from this set
+    /// at boot.
+    fn load_active_incidents(&self, workspace: &str) -> Result<Vec<IncidentRowRaw>, Error>;
+
+    /// P-045 counter SQL: returns the count of active + unread incidents
+    /// для а workspace (`status = 'active' AND read_unix_nano IS NULL`).
+    /// SQL-only path; does NOT decrypt payloads. Fast counter для
+    /// findings dropdown display.
+    fn count_active_unread(&self, workspace: &str) -> Result<u64, Error>;
+
+    /// INSERT а row into `incident_events` table (chunk #78). Audit-trail
+    /// lifecycle events; `payload` is the encrypted bincode of event-
+    /// specific metadata (currently empty Vec is acceptable; chunk #78+
+    /// may extend per-event payload shape).
+    fn save_incident_event(
+        &self,
+        incident_id: i64,
+        event_kind: &str,
+        occurred_unix_nano: i64,
+        payload: &[u8],
+    ) -> Result<(), Error>;
 }
 
 impl CorpusWriter for Corpus {
@@ -360,6 +460,152 @@ impl CorpusWriter for Corpus {
             result.push(row.map_err(|_| Error::QueryFailed)?);
         }
         Ok(result)
+    }
+
+    #[allow(clippy::too_many_arguments)]
+    fn save_incident(
+        &self,
+        workspace: &str,
+        status: &str,
+        created_unix_nano: i64,
+        updated_unix_nano: i64,
+        resolved_unix_nano: Option<i64>,
+        read_unix_nano: Option<i64>,
+        payload: &[u8],
+    ) -> Result<i64, Error> {
+        let encrypted = cell_encrypt(self.key(), payload)?;
+        let conn = self.connection();
+        let guard = conn.lock().map_err(|_| Error::QueryFailed)?;
+        guard
+            .execute(
+                "INSERT INTO incidents (workspace, status, created_unix_nano, updated_unix_nano, resolved_unix_nano, read_unix_nano, payload) \
+                 VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)",
+                rusqlite::params![
+                    workspace,
+                    status,
+                    created_unix_nano,
+                    updated_unix_nano,
+                    resolved_unix_nano,
+                    read_unix_nano,
+                    &encrypted[..],
+                ],
+            )
+            .map_err(|_| Error::QueryFailed)?;
+        Ok(guard.last_insert_rowid())
+    }
+
+    fn update_incident_status(
+        &self,
+        id: i64,
+        status: &str,
+        updated_unix_nano: i64,
+        resolved_unix_nano: Option<i64>,
+        payload: &[u8],
+    ) -> Result<(), Error> {
+        let encrypted = cell_encrypt(self.key(), payload)?;
+        let conn = self.connection();
+        let guard = conn.lock().map_err(|_| Error::QueryFailed)?;
+        let rows = guard
+            .execute(
+                "UPDATE incidents SET status = ?1, updated_unix_nano = ?2, resolved_unix_nano = ?3, payload = ?4 WHERE id = ?5",
+                rusqlite::params![status, updated_unix_nano, resolved_unix_nano, &encrypted[..], id],
+            )
+            .map_err(|_| Error::QueryFailed)?;
+        if rows == 0 {
+            return Err(Error::QueryFailed);
+        }
+        Ok(())
+    }
+
+    fn mark_incident_read(&self, id: i64, read_unix_nano: i64) -> Result<(), Error> {
+        let conn = self.connection();
+        let guard = conn.lock().map_err(|_| Error::QueryFailed)?;
+        let rows = guard
+            .execute(
+                "UPDATE incidents SET read_unix_nano = ?1 WHERE id = ?2",
+                rusqlite::params![read_unix_nano, id],
+            )
+            .map_err(|_| Error::QueryFailed)?;
+        if rows == 0 {
+            return Err(Error::QueryFailed);
+        }
+        Ok(())
+    }
+
+    fn load_active_incidents(&self, workspace: &str) -> Result<Vec<IncidentRowRaw>, Error> {
+        let conn = self.connection();
+        let guard = conn.lock().map_err(|_| Error::QueryFailed)?;
+        let mut stmt = guard
+            .prepare(
+                "SELECT id, workspace, status, created_unix_nano, updated_unix_nano, resolved_unix_nano, read_unix_nano, payload \
+                 FROM incidents WHERE workspace = ?1 AND status != 'resolved' ORDER BY id",
+            )
+            .map_err(|_| Error::QueryFailed)?;
+        let rows = stmt
+            .query_map(rusqlite::params![workspace], |row| {
+                let encrypted: Vec<u8> = row.get(7)?;
+                Ok((
+                    row.get::<_, i64>(0)?,
+                    row.get::<_, String>(1)?,
+                    row.get::<_, String>(2)?,
+                    row.get::<_, i64>(3)?,
+                    row.get::<_, i64>(4)?,
+                    row.get::<_, Option<i64>>(5)?,
+                    row.get::<_, Option<i64>>(6)?,
+                    encrypted,
+                ))
+            })
+            .map_err(|_| Error::QueryFailed)?;
+        let mut result = Vec::new();
+        for row in rows {
+            let (id, workspace, status, created, updated, resolved, read, encrypted) =
+                row.map_err(|_| Error::QueryFailed)?;
+            let payload = cell_decrypt(self.key(), &encrypted)?;
+            result.push(IncidentRowRaw {
+                id,
+                workspace,
+                status,
+                created_unix_nano: created,
+                updated_unix_nano: updated,
+                resolved_unix_nano: resolved,
+                read_unix_nano: read,
+                payload,
+            });
+        }
+        Ok(result)
+    }
+
+    fn count_active_unread(&self, workspace: &str) -> Result<u64, Error> {
+        let conn = self.connection();
+        let guard = conn.lock().map_err(|_| Error::QueryFailed)?;
+        let n: i64 = guard
+            .query_row(
+                "SELECT COUNT(*) FROM incidents WHERE workspace = ?1 AND read_unix_nano IS NULL AND status = 'active'",
+                rusqlite::params![workspace],
+                |row| row.get(0),
+            )
+            .map_err(|_| Error::QueryFailed)?;
+        Ok(n.max(0) as u64)
+    }
+
+    fn save_incident_event(
+        &self,
+        incident_id: i64,
+        event_kind: &str,
+        occurred_unix_nano: i64,
+        payload: &[u8],
+    ) -> Result<(), Error> {
+        let encrypted = cell_encrypt(self.key(), payload)?;
+        let conn = self.connection();
+        let guard = conn.lock().map_err(|_| Error::QueryFailed)?;
+        guard
+            .execute(
+                "INSERT INTO incident_events (incident_id, event_kind, occurred_unix_nano, payload) \
+                 VALUES (?1, ?2, ?3, ?4)",
+                rusqlite::params![incident_id, event_kind, occurred_unix_nano, &encrypted[..]],
+            )
+            .map_err(|_| Error::QueryFailed)?;
+        Ok(())
     }
 }
 

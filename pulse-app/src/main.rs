@@ -19,15 +19,17 @@ use tracing_error::SpanTrace;
 use triage::contract::{
     AttentionCueBroadcast, BaselinePersistence, CadenceTriggerChannel,
     DEFAULT_AUTONOMOUS_THRESHOLD, DEFAULT_DETECTION_SUB_WINDOW_SECONDS, DEFAULT_HEARTBEAT_INTERVAL,
-    DEFAULT_LIFECYCLE_HEARTBEAT_INTERVAL, DEFAULT_LIFECYCLE_PERSIST_INTERVAL_SECS,
-    DEFAULT_PERSIST_INTERVAL_NANOS, DEFAULT_SERVICE_COUNT_CAP, DEFAULT_STORM_PERSIST_INTERVAL_SECS,
-    DEFAULT_STORM_WINDOW_SECONDS, DEFAULT_SUGGESTED_THRESHOLD, InMemoryServiceRegistry,
-    LifecyclePersistence, RestartDetector, RestartEventBroadcast, RetryStormDetector,
-    ServiceLifecycleBroadcast, ServiceRegistry, StormPersistence, SuppressionState,
-    TARGET_LIFECYCLE_CORPUS_RESTORE, TARGET_LIFECYCLE_PERSIST_ERROR,
-    TARGET_PATTERN_STORM_CORPUS_RESTORE, TARGET_PATTERN_STORM_PERSIST_ERROR, Thresholds,
-    bootstrap_state, run_lifecycle_persist_loop, run_persist_loop, run_storm_persist_loop,
-    start_emitter, start_lifecycle_heartbeat, start_restart_detector, start_storm_detector,
+    DEFAULT_INCIDENT_PERSIST_INTERVAL_SECS, DEFAULT_LIFECYCLE_HEARTBEAT_INTERVAL,
+    DEFAULT_LIFECYCLE_PERSIST_INTERVAL_SECS, DEFAULT_PERSIST_INTERVAL_NANOS,
+    DEFAULT_SERVICE_COUNT_CAP, DEFAULT_STORM_PERSIST_INTERVAL_SECS, DEFAULT_STORM_WINDOW_SECONDS,
+    DEFAULT_SUGGESTED_THRESHOLD, InMemoryIncidentRegistry, InMemoryServiceRegistry,
+    IncidentLifecycleBroadcast, IncidentPersistence, IncidentRegistry, LifecyclePersistence,
+    RestartDetector, RestartEventBroadcast, RetryStormDetector, ServiceLifecycleBroadcast,
+    ServiceRegistry, StormPersistence, SuppressionState, TARGET_LIFECYCLE_CORPUS_RESTORE,
+    TARGET_LIFECYCLE_PERSIST_ERROR, TARGET_PATTERN_STORM_CORPUS_RESTORE,
+    TARGET_PATTERN_STORM_PERSIST_ERROR, Thresholds, bootstrap_state, run_incident_persist_loop,
+    run_lifecycle_persist_loop, run_persist_loop, run_storm_persist_loop, start_emitter,
+    start_lifecycle_heartbeat, start_restart_detector, start_storm_detector,
 };
 use ui_bridge::Settings;
 use ui_bridge::health::{
@@ -48,6 +50,9 @@ use pulse_app::baseline_persistence::{
 use pulse_app::connection_router::{ConnectionApi, ConnectionApiImpl, HeartbeatBindStatus};
 use pulse_app::diagnostics_router::{DiagnosticsApi, DiagnosticsApiImpl};
 use pulse_app::drain_persistence::CorpusDrainPersistence;
+use pulse_app::incident_observer::{AutoResolveObserver, run_auto_resolution_loop};
+use pulse_app::incident_persistence::CorpusIncidentPersistence;
+use pulse_app::incidents_router::{IncidentsApi, IncidentsApiImpl};
 use pulse_app::lifecycle_persistence::CorpusLifecyclePersistence;
 #[cfg(feature = "mcp-server")]
 use pulse_app::mcp_router::{McpApi, McpApiImpl};
@@ -576,6 +581,53 @@ fn main() {
         Arc::clone(&lifecycle_broadcast),
     );
 
+    // Chunk #78 — incident records + lifecycle persistence. Derive а 5th
+    // CorpusWriter trait view (alongside baseline + lifecycle + storm +
+    // drain) from the same Arc<Corpus>. None ⇒ corpus unavailable at
+    // boot; incident registry runs in-memory-only this session.
+    // Hydrate the registry from corpus active-incidents on boot (P-042
+    // cross-session continuity). Workspace attribution uses data_dir as
+    // the workspace key for chunk #78 backend persistence; future chunks
+    // integrate workspace-detector for proper per-project keying.
+    let incident_workspace_key: String = data_dir.to_string_lossy().to_string();
+    let incident_broadcast = Arc::new(IncidentLifecycleBroadcast::new());
+    let incident_persistence: Option<Arc<dyn IncidentPersistence>> =
+        corpus_writer.as_ref().map(|w| {
+            Arc::new(CorpusIncidentPersistence::new(Arc::clone(w))) as Arc<dyn IncidentPersistence>
+        });
+    let restored_incidents: Vec<triage::contract::Incident> = incident_persistence
+        .as_ref()
+        .and_then(|p| match p.load_active_incidents(&incident_workspace_key) {
+            Ok(v) => Some(v),
+            Err(e) => {
+                tracing::warn!(
+                    target: triage::contract::TARGET_INCIDENT_PERSIST_ERROR,
+                    error_category = e.error_category(),
+                    persist_kind = "incident_boot_restore",
+                    "incident corpus restore failed at boot; starting with empty registry",
+                );
+                None
+            }
+        })
+        .unwrap_or_default();
+    let restored_incident_count = restored_incidents.len() as u64;
+    let incident_registry: Arc<dyn IncidentRegistry> =
+        Arc::new(InMemoryIncidentRegistry::from_persisted(restored_incidents));
+    tracing::info!(
+        target: "triage.incident.corpus_restore",
+        kind = "incident",
+        restored_incident_count = restored_incident_count,
+        "incident corpus restore",
+    );
+    let incidents_impl = incident_persistence.as_ref().map(|p| {
+        IncidentsApiImpl::new(
+            Arc::clone(&incident_registry),
+            Arc::clone(&incident_broadcast),
+            Arc::clone(p),
+            incident_workspace_key.clone(),
+        )
+    });
+
     // Chunk #69 Phase B Session 4 — Drain miner construction с corpus-backed
     // persistence. `CorpusDrainPersistence` wraps the writer trait object
     // via trait-in-lower-crate pattern (per session-learnings 2026-05-16);
@@ -738,6 +790,10 @@ fn main() {
                 Some(s) => base.merge(s.clone().into_handler()),
                 None => base,
             };
+            let base = match incidents_impl.as_ref() {
+                Some(i) => base.merge(i.clone().into_handler()),
+                None => base,
+            };
             #[cfg(feature = "mcp-server")]
             let base = base.merge(mcp_impl.clone().into_handler());
             base
@@ -756,6 +812,10 @@ fn main() {
                 .merge(diagnostics_impl.clone().into_handler());
             let base = match storage_impl.as_ref() {
                 Some(s) => base.merge(s.clone().into_handler()),
+                None => base,
+            };
+            let base = match incidents_impl.as_ref() {
+                Some(i) => base.merge(i.clone().into_handler()),
                 None => base,
             };
             #[cfg(feature = "mcp-server")]
@@ -777,6 +837,14 @@ fn main() {
         .and_then(|s| s.to_str())
         .unwrap_or("corpus.db")
         .to_string();
+
+    // Chunk #78: capture incident persistence + registry + broadcast +
+    // workspace key for the setup closure spawn site (persist loop + auto-
+    // resolution observer loop). Cloning Option<Arc<...>> is cheap (Arc).
+    let incident_persistence_for_persist = incident_persistence.clone();
+    let incident_registry_for_persist = Arc::clone(&incident_registry);
+    let incident_broadcast_for_observe = Arc::clone(&incident_broadcast);
+    let incident_workspace_for_persist = incident_workspace_key.clone();
 
     tauri::Builder::default()
         .plugin(tauri_plugin_updater::Builder::new().build())
@@ -1001,6 +1069,27 @@ fn main() {
                     std::time::Duration::from_secs(DEFAULT_STORM_PERSIST_INTERVAL_SECS),
                     corpus_basename_for_persist.clone(),
                 ));
+            }
+            // Chunk #78 — incident persistence + auto-resolution observer.
+            // Spawn ONLY when corpus available at boot; None ⇒ in-memory-only
+            // this session per the boot-restore-failed warn already emitted.
+            // The persist loop (60s default cadence) catches up corpus state
+            // with the in-memory registry; the auto-resolution observer
+            // (30s tick) evaluates Active+Acknowledged incidents for the
+            // 120s no-reemission window (capability P-022).
+            if let Some(persistence) = incident_persistence_for_persist.as_ref() {
+                tauri::async_runtime::spawn(run_incident_persist_loop(
+                    Arc::clone(&incident_registry_for_persist),
+                    Arc::clone(persistence),
+                    vec![incident_workspace_for_persist.clone()],
+                    DEFAULT_INCIDENT_PERSIST_INTERVAL_SECS,
+                ));
+                let observer = AutoResolveObserver::new(
+                    Arc::clone(&incident_registry_for_persist),
+                    Arc::clone(persistence),
+                    Arc::clone(&incident_broadcast_for_observe),
+                );
+                tauri::async_runtime::spawn(run_auto_resolution_loop(observer));
             }
             let _heartbeat_handles = heartbeat::spawn(
                 heartbeat_state,
@@ -1333,6 +1422,30 @@ mod tests {
         let diagnostics_miner = Arc::new(DrainMiner::new(DrainConfig::default_config(), None));
         let diagnostics_impl = DiagnosticsApiImpl::new(diagnostics_miner);
 
+        // Chunk #78: IncidentsApiImpl participates in the emit so bindings.ts
+        // ARGS_MAP includes incidents.list_active / acknowledge / mark_resolved
+        // (quadruple-binding 4th slot per .claude/rules/security.md Session
+        // Additions 2026-05-12). In-memory corpus + fresh registry + broadcast
+        // keep the test hermetic.
+        let incident_keychain: Arc<dyn corpus::contract::KeychainBackend> =
+            Arc::new(corpus::contract::FakeKeychainBackend::new());
+        let incident_corpus = corpus::contract::Corpus::open_in_memory(incident_keychain)
+            .expect("in-memory incident corpus opens with fake keychain");
+        let incident_corpus_arc = Arc::new(incident_corpus);
+        let incident_writer: Arc<dyn corpus::contract::CorpusWriter> =
+            Arc::clone(&incident_corpus_arc) as Arc<dyn corpus::contract::CorpusWriter>;
+        let incident_persistence_test: Arc<dyn IncidentPersistence> =
+            Arc::new(CorpusIncidentPersistence::new(incident_writer));
+        let incident_registry_test: Arc<dyn IncidentRegistry> =
+            Arc::new(InMemoryIncidentRegistry::new());
+        let incident_broadcast_test = Arc::new(IncidentLifecycleBroadcast::new());
+        let incidents_impl = IncidentsApiImpl::new(
+            incident_registry_test,
+            incident_broadcast_test,
+            incident_persistence_test,
+            "bindings-test-workspace".to_string(),
+        );
+
         // Chunk #49: McpApiImpl participates in the emit so the bindings.ts
         // ARGS_MAP includes mcp.status / mcp.start / mcp.stop (4th binding
         // per .claude/rules/security.md Session Additions 2026-05-12).
@@ -1360,7 +1473,8 @@ mod tests {
                 .merge(connection_impl.into_handler())
                 .merge(services_impl.into_handler())
                 .merge(storage_impl.into_handler())
-                .merge(diagnostics_impl.into_handler());
+                .merge(diagnostics_impl.into_handler())
+                .merge(incidents_impl.into_handler());
             #[cfg(feature = "mcp-server")]
             let base = base.merge(mcp_impl.into_handler());
             base

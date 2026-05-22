@@ -68,6 +68,21 @@ pub use crate::pattern::{
     start_storm_detector,
 };
 
+// Chunk #78 — incident records + lifecycle persistence. Re-export
+// `incident` public-API types so pulse-app boot wiring imports one shape
+// per chunk #67/#71 precedent. `BROADCAST_CAPACITY` is NOT re-exported
+// here because the same const value is already re-exported from `cue` +
+// `pattern` + `lifecycle` (all equal 32).
+pub use crate::incident::{
+    DEFAULT_INCIDENT_ACK_COOLDOWN_SECS, DEFAULT_INCIDENT_AUTO_RESOLVE_WINDOW_SECS,
+    DEFAULT_INCIDENT_PERSIST_INTERVAL_SECS, INCIDENT_PERSISTENCE_KIND, InMemoryIncidentRegistry,
+    IncidentError, IncidentLifecycleBroadcast, IncidentLifecycleEvent, IncidentPersistence,
+    IncidentRecordPayload, IncidentRegistry, IncidentRegistryError, ResolutionTrigger,
+    STREAM_NAME_INCIDENTS, TARGET_INCIDENT_PERSIST, TARGET_INCIDENT_PERSIST_ERROR,
+    cooldown_expiry_unix_nano, is_valid_incident_transition, run_incident_persist_cycle,
+    run_incident_persist_loop, should_auto_resolve, status_label as incident_status_label,
+};
+
 // Chunk #67 — service registry + lifecycle state machine. Re-export
 // `lifecycle` public-API types so pulse-app boot wiring + future v0.2.0
 // chunks import one shape per chunk #58/#61/#62/#63 precedent.
@@ -88,8 +103,12 @@ pub use crate::lifecycle::{
 
 /// Kind of detected condition emitted as an attention cue. Bounded
 /// enumeration; future kinds are added explicitly (no `Other(String)`
-/// catch-all). Variants serialize as snake_case strings.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+/// catch-all). Variants serialize as snake_case strings. Chunk #78 added
+/// the `Hash` derive (needed for `IncidentRegistry` cool-down map keying)
+/// AND the cfg-gated `specta::Type` derive (for cross-bridge type
+/// generation via `IncidentLifecycleEvent`).
+#[cfg_attr(feature = "taurpc-runtime", derive(specta::Type))]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum CueKind {
     ErrorRateSpike,
@@ -101,8 +120,10 @@ pub enum CueKind {
 
 /// Scope an attention cue applies to: a single service, a single operation
 /// within a service, or the global pipeline. Bounded enumeration; variants
-/// serialize as snake_case strings.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+/// serialize as snake_case strings. Chunk #78 added `Hash` derive +
+/// cfg-gated `specta::Type` derive (parallel к `CueKind`).
+#[cfg_attr(feature = "taurpc-runtime", derive(specta::Type))]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum CueScope {
     Service,
@@ -115,6 +136,9 @@ pub enum CueScope {
 /// increment); Suggested = model believes likely problem with reservations
 /// (quiet counter increment, minimal halo); Curious = worth recording for
 /// pattern learning, no interruption (Findings dropdown collapsed section).
+/// Chunk #78 added cfg-gated `specta::Type` derive (for cross-bridge
+/// `IncidentRecord` resolver envelope).
+#[cfg_attr(feature = "taurpc-runtime", derive(specta::Type))]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum PriorityTier {
@@ -125,7 +149,14 @@ pub enum PriorityTier {
 
 /// Severity level for an incident. Bounded enumeration; mirrors
 /// `tracing::Level` ordering for future event integration. Variants
-/// serialize as snake_case strings.
+/// serialize as snake_case strings. Chunk #78 added cfg-gated
+/// `specta::Type` derive (for cross-bridge `IncidentRecord` resolver
+/// envelope). The TypeScript binding is renamed `IncidentSeverity`
+/// к disambiguate from `ingest::connection::Severity` (same identifier,
+/// distinct domain — connection severity vs incident severity); specta
+/// rejects duplicate type names across the bindings.ts emission.
+#[cfg_attr(feature = "taurpc-runtime", derive(specta::Type))]
+#[cfg_attr(feature = "taurpc-runtime", specta(rename = "IncidentSeverity"))]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum Severity {
@@ -138,8 +169,11 @@ pub enum Severity {
 /// Lifecycle state of an incident per capability spec P-022 auto-resolution
 /// flow. Active = currently surfaced; Acknowledged = user acknowledged but
 /// underlying signal still active; Resolved = signal has not re-emitted for
-/// the cool-down window (120s default).
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+/// the cool-down window (120s default). Chunk #78 added cfg-gated
+/// `specta::Type` derive (for cross-bridge type generation via
+/// `IncidentLifecycleEvent` payload + `IncidentRecord` resolver envelope).
+#[cfg_attr(feature = "taurpc-runtime", derive(specta::Type))]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum IncidentStatus {
     Active,
@@ -218,10 +252,28 @@ pub struct AttentionCue {
 /// agent-readable enumerated metadata (`kind`, `severity`, `status`) so
 /// future emitters can apply `#[tracing::instrument(skip(title, detail))]`
 /// + Layer-redaction at the formatter stage.
+///
+/// Chunk #78 extended the struct with persistence-related fields:
+/// `workspace` (workspace-detector attribution), `kind` + `scope`
+/// (reused from CueKind/CueScope as cool-down identity tuple),
+/// `updated_at_unix_nano` (re-emission timestamp for 120s auto-resolve
+/// window), `acknowledged_at_unix_nano` (ack timestamp), and
+/// `read_at_unix_nano` (Report-opening event mutation; column exists in
+/// chunk #68 schema but UI trigger lands in chunk #87+).
+///
+/// `id` is the corpus rowid (i64) assigned по `INSERT INTO incidents`;
+/// 0 = unpersisted sentinel for in-memory drafts. The `fingerprint`
+/// field is the UUID-shaped cross-incident grouping identifier (separate
+/// from id).
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Incident {
-    /// Stable incident identifier (UUID-shaped string).
-    pub id: String,
+    /// Corpus rowid assigned по INSERT. 0 = unpersisted sentinel.
+    pub id: i64,
+    /// Workspace attribution; canonicalized path from workspace-detector
+    /// at the producer side. Per security plan §Anti-Patterns Input row
+    /// 4 (CWE-22 path traversal class defense); workspace-detector is
+    /// the trust boundary; this field stores the resolved string.
+    pub workspace: String,
     /// Anonymized fingerprint hash for cross-incident grouping per
     /// capability spec P-047 redaction-by-construction posture.
     pub fingerprint: String,
@@ -237,12 +289,27 @@ pub struct Incident {
     /// §Logging "What NEVER to log" bullet 1 + §Security Anti-Patterns
     /// §Logging bullet 1.
     pub detail: String,
+    /// Bounded incident kind enum; part of (kind, scope, workspace)
+    /// cool-down identity tuple per capability spec P-023. Reuses
+    /// `CueKind` since incidents derive from attention cues per dist-arch
+    /// v3.
+    pub kind: CueKind,
+    /// Bounded incident scope enum; part of cool-down identity tuple.
+    pub scope: CueScope,
     pub status: IncidentStatus,
     pub severity: Severity,
     pub priority_tier: PriorityTier,
     pub evidence_refs: EvidenceRefs,
     pub opened_at_unix_nano: i64,
+    /// Re-emission timestamp; bumped по `IncidentRegistry::observe_reemission`.
+    /// The auto-resolve evaluator at chunk #78
+    /// `pulse-app/src/incident_observer.rs` compares
+    /// `now - updated_at_unix_nano >= 120s` and transitions Active /
+    /// Acknowledged → Resolved per capability spec P-022.
+    pub updated_at_unix_nano: i64,
+    pub acknowledged_at_unix_nano: Option<i64>,
     pub resolved_at_unix_nano: Option<i64>,
+    pub read_at_unix_nano: Option<i64>,
 }
 
 /// Output of the L4 distillation layer — a digest summarizing incidents,
@@ -292,16 +359,22 @@ mod tests {
 
     fn sample_incident() -> Incident {
         Incident {
-            id: "11111111-2222-3333-4444-555555555555".to_string(),
+            id: 42,
+            workspace: "ws-checkout".to_string(),
             fingerprint: "fp-checkout-err-spike".to_string(),
             title: "[redacted] error rate spike in checkout".to_string(),
             detail: "[redacted] sustained 3.5x baseline for 45s".to_string(),
+            kind: CueKind::ErrorRateSpike,
+            scope: CueScope::Service,
             status: IncidentStatus::Active,
             severity: Severity::Warn,
             priority_tier: PriorityTier::Suggested,
             evidence_refs: sample_evidence_refs(),
             opened_at_unix_nano: 1_700_000_000_000,
+            updated_at_unix_nano: 1_700_000_000_000,
+            acknowledged_at_unix_nano: None,
             resolved_at_unix_nano: None,
+            read_at_unix_nano: None,
         }
     }
 
@@ -310,7 +383,7 @@ mod tests {
             kind: DigestKind::IncidentSummary,
             token_count: 1024,
             payload_summary: "[redacted] 1 active incident, 3 resolved".to_string(),
-            incident_refs: vec!["11111111-2222-3333-4444-555555555555".to_string()],
+            incident_refs: vec!["42".to_string()],
             generated_at_unix_nano: 1_700_000_002_000,
         }
     }

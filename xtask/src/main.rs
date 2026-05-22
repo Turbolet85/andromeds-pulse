@@ -666,6 +666,9 @@ const EXPECTED_PROCEDURES: &[&str] = &[
     "update_settings",
     "connection.current_state",
     "diagnostics.template_distribution",
+    "incidents.acknowledge",
+    "incidents.list_active",
+    "incidents.mark_resolved",
     "logs.query",
     "metrics.query",
     "services.list_with_states",
@@ -1116,6 +1119,21 @@ mod capability_drift_tests {
             expected.contains("diagnostics.template_distribution"),
             "EXPECTED_PROCEDURES must include diagnostics.template_distribution (chunk #69 Phase B Session 3 Drain template profiling diagnostics)"
         );
+    }
+
+    #[test]
+    fn expected_procedures_includes_incidents_namespace_at_chunk_78() {
+        let expected: BTreeSet<&str> = EXPECTED_PROCEDURES.iter().copied().collect();
+        for proc in [
+            "incidents.list_active",
+            "incidents.acknowledge",
+            "incidents.mark_resolved",
+        ] {
+            assert!(
+                expected.contains(proc),
+                "EXPECTED_PROCEDURES must include {proc} (chunk #78 incident records + lifecycle persistence)"
+            );
+        }
     }
 
     #[test]

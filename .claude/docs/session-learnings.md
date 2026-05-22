@@ -6,6 +6,32 @@ _Entries are added in reverse chronological order (newest first). Each entry has
 
 _This file is entirely wrap-session's territory. `/setup-project` creates it if missing but NEVER regenerates it. Manual edits are preserved across all Andromeda skill runs._
 
+## 2026-05-23 (session 121) — Specta type-name collision discipline across workspace crates (confidence 0.85)
+
+When two distinct workspace crates each define а type with the same name AND both derive `specta::Type` (gated by `taurpc-runtime` feature OR equivalent), the `emit_taurpc_bindings` test panics с `Unable to export type named 'X' from locations '...'`. The TS bindings target requires unique type names across all transitively-exported types.
+
+Resolution: use `#[cfg_attr(feature = "taurpc-runtime", specta(rename = "AliasName"))]` on the colliding type definition к disambiguate at the binding emission layer. Domain meaning preserved (the Rust type keeps its original name); only the exported TS shape is renamed.
+
+Verified at chunk #78 `triage::contract::Severity` (incident severity) collided с `ingest::connection::Severity` (connection severity). Resolution: triage Severity → TS `IncidentSeverity` via cfg_attr specta(rename). The two domain concepts are unrelated (incident lifecycle severity vs connection state severity); rename pins the alias к the more specific contextual usage.
+
+**Apply к:** any future cross-crate TauRPC binding addition that introduces а type sharing а name с an existing exported type. Audit candidate at planning time: grep workspace для existing `derive(specta::Type)` types matching the new type's name; if conflict surfaces, plan а rename. Pairs naturally с the 2026-05-13 / 2026-05-17 bindings.ts regen discipline — both are concerns at emission-time, surfaced when the `emit_taurpc_bindings` test runs.
+
+---
+
+## 2026-05-23 (session 121) — SQLite auto-rowid as the contract `id: i64` for corpus-persisted contract types (confidence 0.80)
+
+When а corpus-backed persistent entity has its schema column `id INTEGER PRIMARY KEY` (SQLite auto-rowid), the in-memory contract type for that entity should use `id: i64` rather than `id: String` (UUID-shaped). Rationale:
+
+- Schema rowid is the natural lookup key для SQL `UPDATE WHERE id = ?` operations. Keeping the contract field as i64 enables direct UPDATE without scan-and-decrypt fallback.
+- The contract type's `Eq + Hash` derives benefit from а primitive integer type rather than а String UUID.
+- The 0-sentinel-for-unpersisted convention works cleanly с i64 (0 = "not yet INSERTed; the corpus has not assigned а rowid").
+
+Verified at chunk #78 `triage::contract::Incident.id` changed from `String` → `i64`. The decision was driven by chunk #68's prior schema choice (`incidents.id INTEGER PRIMARY KEY`). Alternative paths considered + rejected: (а) adding а UUID column с schema migration к v2 (out-of-scope for chunk #78 + violates plan's "no DDL changes" §Files to leave untouched note); (b) keeping `id: String` + scan-decrypt every row на acknowledge/mark_resolved (O(N) lookup; acceptable for bounded counts but architecturally regressive).
+
+**Apply к:** any future v0.2.0+ chunk adding а new corpus-backed contract type (e.g., Digest archive entries chunk #81, future fingerprint records, etc.). Pre-emptively check the chunk #68 schema table's PK column shape; if it's `id INTEGER PRIMARY KEY`, mirror the i64 contract pattern. Preserves the `fingerprint: String` field separately as the cross-incident grouping identifier (UUID-shaped opaque hash for P-047 redaction-by-construction posture). Pairs с the 2026-05-19 N-trait-from-single-Arc<Corpus> pattern + 2026-05-18 free-function corpus_error_to_app_error pattern — all three are corpus-persisted-entity wiring discipline.
+
+---
+
 ## 2026-05-22 (session 119) — Andromeda v3 chunk-scoped manual specialist plan rewrite path (confidence 0.85)
 
 Pulse v0.2.0 Consolidation Phase 6 introduced а NEW Andromeda v3 path: explicit chunk-scoped manual specialist plan rewrites within а single chunk's declared scope. Chunks declaring "**Specialist plan touches:** {plan} (definitely — manual body rewrite of ...)" in their canonical chunk description (e.g., chunk #77 per `docs/v0_2_0/pulse-v0_2_0-route.md` §77) legitimize direct `Edit` operations against `.andromeda/{security,design,test,obs,a11y,layout-templates}-plan.md` AND `.claude/rules/*.md` during /implement WITHOUT а Trigger 4 spec-drift dialogue (which is for unexpected drift, not planned chunk scope), WITHOUT a separate amendment marker (chunk implementation commit IS the audit trail per route §77 Mechanism note), AND WITHOUT D4 drift fires (chunk attribution puts edits within scope).

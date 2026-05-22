@@ -25,6 +25,24 @@ export type ConnectionState = { state: "Listening" } | { state: "Receiving" } | 
  */
 export type ConnectionStatePayload = { state: ConnectionState; last_span_ago_ms: number; severity: Severity; message: string | null; reason: ReceiverFailureReason | null }
 
+/**
+ * Kind of detected condition emitted as an attention cue. Bounded
+ * enumeration; future kinds are added explicitly (no `Other(String)`
+ * catch-all). Variants serialize as snake_case strings. Chunk #78 added
+ * the `Hash` derive (needed for `IncidentRegistry` cool-down map keying)
+ * AND the cfg-gated `specta::Type` derive (for cross-bridge type
+ * generation via `IncidentLifecycleEvent`).
+ */
+export type CueKind = "error_rate_spike" | "latency_regression" | "restart_event" | "service_went_silent" | "retry_storm"
+
+/**
+ * Scope an attention cue applies to: a single service, a single operation
+ * within a service, or the global pipeline. Bounded enumeration; variants
+ * serialize as snake_case strings. Chunk #78 added `Hash` derive +
+ * cfg-gated `specta::Type` derive (parallel к `CueKind`).
+ */
+export type CueScope = "service" | "operation" | "global"
+
 export type DriftIndicatorPayload = "Healthy" | "OverGeneralized" | "UnderClustered"
 
 export type FrameDurationInput = { duration_ms: number; wgpu_backend: WgpuBackend; webview_backend: WebviewBackend; timing_method: TimingMethod }
@@ -32,6 +50,45 @@ export type FrameDurationInput = { duration_ms: number; wgpu_backend: WgpuBacken
 export type HealthEnvelope = { status: HealthStatus; checked_at: string; subsystems: SubsystemStatuses; pid: number; uptime_ms: number }
 
 export type HealthStatus = "ok" | "degraded"
+
+/**
+ * Resolver-facing view of an Incident. Narrower than the full `triage::
+ * contract::Incident` struct — drops raw `evidence_refs` byte arrays
+ * (downstream UI displays the `evidence_count` instead) AND drops the
+ * fingerprint string (internal grouping identifier; not user-relevant).
+ * Webview consumers receive this shape over the TauRPC bridge.
+ */
+export type IncidentRecord = { id: number; workspace: string; kind: CueKind; scope: CueScope; status: IncidentStatus; severity: IncidentSeverity; priority_tier: PriorityTier; title: string; detail: string; opened_at_unix_nano: number; updated_at_unix_nano: number; acknowledged_at_unix_nano: number | null; resolved_at_unix_nano: number | null; read_at_unix_nano: number | null; evidence_count: number }
+
+/**
+ * Severity level for an incident. Bounded enumeration; mirrors
+ * `tracing::Level` ordering for future event integration. Variants
+ * serialize as snake_case strings. Chunk #78 added cfg-gated
+ * `specta::Type` derive (for cross-bridge `IncidentRecord` resolver
+ * envelope). The TypeScript binding is renamed `IncidentSeverity`
+ * к disambiguate from `ingest::connection::Severity` (same identifier,
+ * distinct domain — connection severity vs incident severity); specta
+ * rejects duplicate type names across the bindings.ts emission.
+ */
+export type IncidentSeverity = "info" | "warn" | "error" | "critical"
+
+/**
+ * Lifecycle state of an incident per capability spec P-022 auto-resolution
+ * flow. Active = currently surfaced; Acknowledged = user acknowledged but
+ * underlying signal still active; Resolved = signal has not re-emitted for
+ * the cool-down window (120s default). Chunk #78 added cfg-gated
+ * `specta::Type` derive (for cross-bridge type generation via
+ * `IncidentLifecycleEvent` payload + `IncidentRecord` resolver envelope).
+ */
+export type IncidentStatus = "active" | "acknowledged" | "resolved"
+
+/**
+ * Paginated list envelope per arch §Standard Contracts. `next_cursor`
+ * reserved для future pagination wire-up; chunk #78 returns the full
+ * active-incident set in one response (bounded by 120s auto-resolution
+ * + 10-min recent-history display window).
+ */
+export type IncidentsListPayload = { items: IncidentRecord[]; total: number; next_cursor: string | null }
 
 export type LogRow = { ts_unix_nano: number; resource_hash: string; severity_number: number; body: string; severity_text: string; trace_id: string; span_id: string }
 
@@ -58,6 +115,17 @@ export type PluginInvokeResult = { plugin_id: string; capability: string; allowe
 export type PluginListEnvelope = { items: PluginDto[]; total: number; next_cursor: string | null }
 
 export type PresetPromptDto = { id: string; label: string }
+
+/**
+ * Three-tier severity model per capability spec P-019. Autonomous = model
+ * is highly confident (surfaces with prominent halo shift and counter
+ * increment); Suggested = model believes likely problem with reservations
+ * (quiet counter increment, minimal halo); Curious = worth recording for
+ * pattern learning, no interruption (Findings dropdown collapsed section).
+ * Chunk #78 added cfg-gated `specta::Type` derive (for cross-bridge
+ * `IncidentRecord` resolver envelope).
+ */
+export type PriorityTier = "autonomous" | "suggested" | "curious"
 
 export type ReadyChecks = { duckdb_connection: string; ingest_mpsc_capacity_pct: number; broadcast_subscribers: number; plugins_loaded: number; mcp_server_enabled: boolean }
 
@@ -154,7 +222,7 @@ export type WidgetPosition = "top-left" | "top-right" | "bottom-left" | "bottom-
 
 export type WorkspaceContextDto = { root_basename: string; project_name: string | null; vcs_type: string | null; vcs_root_basename: string | null; has_andromeda_marker: boolean }
 
-const ARGS_MAP = { '':'{"app_info":[],"get_settings":[],"health":[],"ready":[],"update_settings":["settings"]}', 'connection':'{"current_state":[]}', 'diagnostics':'{"template_distribution":[]}', 'logs':'{"query":["args"]}', 'mcp':'{"start":[],"status":[],"stop":[]}', 'metrics':'{"query":["args"]}', 'plugins':'{"invoke":["plugin_id","capability"],"list":[],"reload":[]}', 'services':'{"list_with_states":[]}', 'snapshot':'{"generate":["preset","workspace_root"]}', 'storage':'{"inspect":[],"path":[]}', 'streams':'{"subscribe_logs":["channel"],"subscribe_metrics":["channel"],"subscribe_spans":["channel"]}', 'telemetry.frontend':'{"record_frame_ms":["input"]}', 'traces':'{"query":["args"]}', 'workspace':'{"detect":["candidate_root"]}' }
+const ARGS_MAP = { '':'{"app_info":[],"get_settings":[],"health":[],"ready":[],"update_settings":["settings"]}', 'connection':'{"current_state":[]}', 'diagnostics':'{"template_distribution":[]}', 'incidents':'{"acknowledge":["id"],"list_active":[],"mark_resolved":["id"]}', 'logs':'{"query":["args"]}', 'mcp':'{"start":[],"status":[],"stop":[]}', 'metrics':'{"query":["args"]}', 'plugins':'{"invoke":["plugin_id","capability"],"list":[],"reload":[]}', 'services':'{"list_with_states":[]}', 'snapshot':'{"generate":["preset","workspace_root"]}', 'storage':'{"inspect":[],"path":[]}', 'streams':'{"subscribe_logs":["channel"],"subscribe_metrics":["channel"],"subscribe_spans":["channel"]}', 'telemetry.frontend':'{"record_frame_ms":["input"]}', 'traces':'{"query":["args"]}', 'workspace':'{"detect":["candidate_root"]}' }
 export type Router = { "": {app_info: () => Promise<AppInfo>, 
 get_settings: () => Promise<Settings>, 
 health: () => Promise<HealthEnvelope>, 
@@ -162,6 +230,9 @@ ready: () => Promise<ReadyEnvelope>,
 update_settings: (settings: Settings) => Promise<null>},
 "connection": {current_state: () => Promise<ConnectionStatePayload>},
 "diagnostics": {template_distribution: () => Promise<TemplateDistributionPayload>},
+"incidents": {acknowledge: (id: number) => Promise<null>, 
+list_active: () => Promise<IncidentsListPayload>, 
+mark_resolved: (id: number) => Promise<null>},
 "logs": {query: (args: LogsQueryArgs) => Promise<PaginatedResponse<LogRow>>},
 "mcp": {start: () => Promise<McpStartResult>, 
 status: () => Promise<McpStatusDto>, 
