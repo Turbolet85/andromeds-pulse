@@ -1,13 +1,19 @@
 schema_version: 2
-last_wrap: 2026-05-23T18:32:00Z
-last_reconcile: 2026-05-23T18:32:00Z
+last_wrap: 2026-05-23T22:08:58Z
+last_reconcile: 2026-05-23T22:08:58Z
+
+# Session 132 wrap (2026-05-23T22:08:58Z): META cycle — chunk #81 `pulse://stream/digests` arch-registry amendment
+# Active → Propagated → Archived in single session (textbook standard Type 6 single-cycle wrap mirroring session
+# 122 chunk #78 incidents-namespace + session 127 chunk #80 cadence-events precedents exactly; 6th instance of
+# single-item arch-registry broadcast topic Type 6 wrap pattern). State H housekeeping: commit_sha "pending" →
+# a01e57d (chunk #81 implementation commit, HEAD-reachable; auto-heal per Phase 8 step 7 per Proposal 16 Option b).
 
 last_completed_chunk:
   route_index: 81
   title: "Digest assembler + LWW queue + active-incident exception — compose L3 digest from L1a/L2/corpus; LWW for cadence with active-incident bypass (capabilities P-031/P-032/P-044/P-059; detail in pulse-v0_2_0-route §81)"
   epoch: 9
   committed_at: 2026-05-23T18:32:00Z
-  commit_sha: "pending"
+  commit_sha: "a01e57d"
   commit_subject: "chore(implement): chunk #81 Digest assembler + LWW queue + active-incident exception substrate — NEW crates/triage/digest/ submodule (4 files ~870 LOC: mod.rs + broadcast.rs + queue.rs + assembler.rs) + NEW pulse-app/src/digest_runtime.rs binary adapter (build_assembler + spawn_cadence_subscriber + spawn_digest_persister + pii_scrub_closure + workspace_to_digest_context) + +tokenizers workspace dep с fancy-regex feature + ureq/sha2 build-deps + extended crates/triage/build.rs Phase 2 Llama-3 tokenizer.json download from Xenova/llama-3-tokenizer public mirror SHA-256 2247c0bccf0e9480f36dbd860f3482b1b296ea5d1ad407ce513d0778ab5b3c21 + corpus CorpusWriter trait extended с save_digest + contract.rs Digest struct extended (+12 fields; dropped Eq derive) + DigestKind enum extended (+5 cadence/resolution variants) + new sub-types DigestServiceRow/DigestCueRef/DigestLwwMode/DigestProjectContext/DigestRecentCommit + scrubbed_clone method + pub use crate::digest::* re-export block + 9 new observability AllowList entries for digest.* tracing targets + .cargo/config.toml rust-lld linker workaround for Windows MSVC link.exe cmd-line length limit + deny.toml +2 skip entries (nom + webpki-roots) for tokenizers + ureq transitive duplicates + 17 new tests across triage::digest::broadcast (6) + queue (11); first L3 layer chunk closing Phase 7 §81; 4 substantive fix-loop iterations (tokenizers fancy-regex feature, clippy too-many-args render_payload, rust-lld Windows linker workaround, disk-full cargo clean recovery); deferred к chunk #82+: CORPUS MATCHES retrieval (P-044) + schema migration digest_archive.workspace v1→v2 + ProjectContextProvider trait extraction + AttentionCue passthrough + golden file regression tests + workspace-detector last-N-commits + framework signal detection"
 
 # Session 127 wrap (2026-05-23T12:26:04Z): META cycle — chunk #80 `pulse://stream/cadence-events` arch-registry amendment
@@ -592,7 +598,7 @@ last_completed_chunk:
 in_progress: null
 
 plan_freshness:
-  arch_mtime: 2026-05-23T12:16:17Z
+  arch_mtime: 2026-05-23T21:50:21Z
   security_mtime: 2026-05-22T19:43:57Z
   design_mtime: 2026-05-03T21:52:16Z
   layout_mtime: 2026-05-02T15:53:22Z
@@ -603,55 +609,30 @@ plan_freshness:
   input_mtime: 2026-05-02T06:52:58Z
 
 living_artifact_freshness:
-  dep_tree_reconciled_at: 2026-05-23T18:32:00Z
+  dep_tree_reconciled_at: 2026-05-23T22:08:58Z
   api_surface_reconciled_at: 2026-05-21T06:30:00Z
   most_recent_code_mtime: 2026-05-23T18:32:00Z
   reconcile_failed: false
   api_surface_deferred: true
   api_surface_deferred_reason: "per-crate cargo +nightly public-api iteration across 14 crates exceeds wrap budget (7-14 min vs ~3 min); 32nd consecutive deferral per sessions 91-126 pattern; session 126 = chunk #80 Cadence coordinator + three-tier triggering implementation wrap (substantial multi-file work: NEW crates/triage/cadence/ submodule с 4 files ~1390 LOC + 4 Settings fields + 5 observability allowlist entries + boot wiring at pulse-app/src/main.rs; ~25 new pub items: triage::contract::CadenceConfig + CadenceConfigError + CadenceCoordinator + CadenceEvent + CadenceEventBroadcast + CadenceMode + CoordinatorCycleStats + HardwareProfile + HardwareProfileSource + SqlQueryRunner + UnknownHardwareProfile + 9 constants CADENCE_*_MIN/DEFAULT_CADENCE_* + 3 fns mode_label/run_one_coordinator_cycle/start_cadence_coordinator + chunk #79 SQL re-exports surfaced as triage::contract re-exports + 4 ui-bridge::Settings fields + 6 CADENCE_*_MIN/MAX bounds constants + 2 pulse-app adapter structs CadenceSqlRunner + UnknownHardwareProfile-via-re-export); cumulative backlog from chunks #70-#80 + META chunks #74/#75/#76 + setup-project sessions now VERY substantial (~150+ new pub items unaccounted-for since session 91 baseline); re-baseline EXPLICITLY warranted at next non-META wrap (most plausibly chunk #81 Digest assembler + LWW queue implementation wrap — substantial new triage::digest module + workspace dep delta +tokenizers crate); ORIGINAL reason (preserved): 31st consecutive deferral per sessions 91-125 pattern; session 125 = META cycle (chunk #80 route-append + delta-rerun + wrap; zero new pub items — only route.md §1+§2+§3 + CLAUDE.md pointer-table + state.yaml lifecycle progression + dep-tree.md refresh edited; mirrors sessions 115/118/120/123 Type 7 single-cycle precedent exactly; re-baseline opportunity unchanged from session 124 — still warranted at next non-META wrap which is most plausibly chunk #80 implementation wrap introducing additional `crates/triage/cadence` module pub items); session 124 = chunk #79 SQL aggregation queries + scheduler implementation (substantial single-crate work: 1260 LOC sql.rs + 21 LOC build.rs in triage crate; ~30 new pub items including Q1RedRow / Q2OperationRow / Q3FingerprintRow / Q4InteractionRow / Q5CardinalityRow / Q6LogRow / Q7CriticalPathRow / Q7_DEFAULT_TIMEOUT / SqlAggregationError / TriageSqlState + 8 async run_qN public functions + cutoff_ns helper); re-baseline EXPLICITLY worthwhile at next non-META wrap (most plausibly chunk #80 Cadence Coordinator + three-tier triggering implementation wrap which will introduce additional triage::cadence module pub items); session 123 = textbook standard META cycle (chunk #79 route-append + delta-rerun + wrap; zero new pub items — only route.md §1+§2+§3 + CLAUDE.md pointer-table + state.yaml lifecycle progression + dep-tree.md refresh edited); session 122 = META cycle — Type 6 arch-registry amendment for chunk #78 incidents.* + pulse://stream/incidents Active → Propagated → Archived in single session (FIRST instance of standalone Type 6 single-cycle wrap; mirrors session 115/118/120 Type 7 route-append precedent mechanically; zero new pub items — META-only flow: /andromeda-new-session dashboard + /andromeda-evolve --allow-arch-registry + /andromeda-setup-project --delta Branch (a) + this wrap); cumulative backlog from chunks #70-#78 + META chunks #74/#75/#76 + setup-project META sessions unchanged from session 121; re-baseline opportunity unchanged — still warranted at next non-META wrap (most plausibly chunk #79 SQL aggregation queries + scheduler implementation wrap); session 121 = chunk #78 incident records + lifecycle persistence implementation (FIRST Phase 7 chunk; substantial multi-crate work touching 17 files across 4 crates; ~50+ new pub items including 5 triage::incident::* modules + 3 pulse-app modules + corpus extension с 6 new CorpusWriter trait methods + IncidentRowRaw envelope + xtask chunk-#78 test); re-baseline EXPLICITLY worthwhile at next wrap но deferred this wrap к keep within ~3 min wrap budget; ORIGINAL reason (preserved): session 120 = textbook standard META cycle (chunk #78 route-append + delta-rerun + wrap; zero new pub items — only route.md §1+§2+§3 + CLAUDE.md pointer-table + state.yaml lifecycle progression + dep-tree.md refresh edited); session 119 = chunk #77 'Specialist plan reconciliation (security + tests)' FINAL Consolidation Phase 6 implementation (FIRST instance of Andromeda v3 manual-rewrite mechanism per pulse-v0_2_0-route §77 Mechanism note; 4 security-plan body section rewrites + testing.md §Pending coverage triggers annotation + 19 new chunk-#77 PII vector + Drain golden corpus tests + new xtask CapabilityWideningCheck sub-command + new crates/buffer/tests/ integration test dir; new pub items SOME but bounded — CapabilityWideningCheck enum variant + capability_widening_check fn in xtask + ExpectedGolden/ExpectedTemplate test-only structs + ~6 helper fns in pulse-app/tests/security_*.rs; full per-crate iteration sequenced for next non-META wrap when chunk #78+ persistence layer changes substantially expand pub surface — incident records + TauRPC procedures + broadcast topics + new triage::incident contract types worth re-baseline batching); session 118 = textbook standard META cycle (chunk #77 route-append + delta-rerun + wrap; zero new pub items — only route.md §1+§2+§3 + CLAUDE.md pointer-table + state.yaml lifecycle progression + dep-tree.md refresh edited); session 117 = pipeline self-evolve design experiment META session (zero new pub items — only docs/andromeda-improvements.md edit к file P20 proposal + state.yaml + handoff + dep-tree.md refresh; this 23rd-consecutive deferral IS the empirical anchor for P20's first-application walkthrough — proposes per-crate incremental reconciliation across wraps as а Refactor R1 candidate); session 116 = chunk #76 META implementation (P7+P12+P15-P18 across 5 USER-level Andromeda skills + 1 project markdown; zero new pub items — all .md edits at user level outside project workspace); session 115 = `/andromeda-evolve --allow-route-append` + `/andromeda-setup-project --delta` META cycle for chunk #76 registration (zero new pub items — route.md §1+§2+§3 edits + state.yaml lifecycle progression + CLAUDE.md pointer-table cascade only); session 114 = `/andromeda-new-session` + `/andromeda-setup-project` full re-derive META session zero new pub items (CLAUDE.md §Architecture cascade-only edit + 1 Tier 3 + 1 P18 proposal + dep-tree refresh + state.yaml State H housekeeping); session 113 = chunk #75 documentation consolidation META (zero new pub items — all .md edits); session 112 META-only; session 111 = chunk #74 META implementation via 3 Type 6 amendments (zero new pub items — all arch.md edits only); session 110 = chunk #74 Type 7 Form 1 route registration META; session 109 = chunk #73 implementation wrap landed Path A full short-window tracker (~280 LOC adding ~30 new pub items); cumulative backlog from chunks #70-#77 + META chunks #74/#75/#76 + setup-project sessions now substantial enough to make full per-crate iteration worthwhile at next non-META wrap. Most plausible re-baseline cycle: chunk #78 incident records + lifecycle persistence wrap (will introduce substantial new pub items — incidents.list_active/acknowledge/mark_resolved TauRPC procedures + pulse://stream/incidents broadcast topic + crates/triage/incident types)"
 
-drift_warnings:
-  - drift_id: D3
-    severity: warning
-    description: "chunk #81 `pulse://stream/digests` broadcast topic emitted from `crates/triage/src/digest/broadcast.rs:13` NOT yet in arch §Occupied Resources Tauri IPC events (broadcast channels) list"
-    remediation_hint: "/andromeda-evolve --allow-arch-registry follow-on (Type 6 single-item amendment mirroring chunks #62/#63/#67/#78/#80 chunk-then-amendment precedent)"
-    first_observed_session_count: 131
-    last_observed_session_count: 131
+drift_warnings: []
 
 spec_amendments:
-  active:
+  active: []
+  archive:
     - amendment_id: 2026-05-23T21-46-00-acknowledge-digests-broadcast
       plans:
         - path: architecture.md
           sections:
             - "§Occupied Resources Tauri IPC events (broadcast channels)"
             - "§Architecture Registry Updates"
-          decisions_log_section: "2026-05-23 — Acknowledge `pulse://stream/digests` (--allow-arch-registry)"
-      trigger:
-        chunk: null
-        phase: null
-        harness: "user-driven via /andromeda-evolve"
-      authority:
-        winning_plan: architecture.md
-        winning_tier: implementation
-        losing_plan: architecture.md
-        losing_concern: registry-section-stale-vs-implementation-reality
-        rationale: "Code at crates/triage/src/digest/broadcast.rs:15 defines STREAM_NAME_DIGESTS for chunk #81 L3 digest assembler; arch §Occupied Resources Tauri IPC events had not acknowledged. Adding to registry brings arch into alignment with implementation reality."
-      impl_files_synced: []
-      expected_propagation: []
-      marker_path: .andromeda/runs/2026-05-23T21-46-00-spec-amendment-acknowledge-digests-broadcast/amendment.md
-      applied_at: 2026-05-23T21:46:00Z
-      noted_at: null
+      decisions_log_sections:
+        - "2026-05-23 — Acknowledge `pulse://stream/digests` (--allow-arch-registry)"
       propagated_by_run: .andromeda/runs/2026-05-23T21-58-51-setup-project-delta/
-      archived_at: null
-      verification_status: clean
+      noted_at: 2026-05-23T22:08:58Z
+      archived_at: 2026-05-23T22:08:58Z
       flag_used: --allow-arch-registry
-      registry_section: "§Occupied Resources Tauri IPC events (broadcast channels)"
-      registry_additions:
-        - "pulse://stream/digests"
-      code_evidence:
-        - crates/triage/src/digest/broadcast.rs
-  archive:
     - amendment_id: 2026-05-23T15-54-23-append-chunk-81-digest-assembler-lww-queue
       plans:
         - path: route.md
@@ -1302,9 +1283,9 @@ spec_amendments:
 # Modification 3 (per-accumulator verification_condition declared).
 pipeline_accumulators:
   api_surface_deferral:
-    consecutive_count: 35                # session 131 Phase 8 step 4b.i incremented from 34 (last_deferred_session=130 < current=131 → increment fired; chunk #81 substantial implementation wrap preserves deferral — substantial new pub items added: Assembler + DigestAssembler trait + DigestBroadcast + LwwQueue + QueueAction + DigestError + DigestProjectContext + DigestRecentCommit + DigestServiceRow + DigestCueRef + DigestLwwMode + DigestFuture + 11 constants + 5 DigestKind variants + corpus CorpusWriter::save_digest method + 9 observability AllowList targets — full per-crate cargo +nightly public-api iteration warranted but still deferred this wrap)
+    consecutive_count: 36                # session 132 Phase 8 step 4b.i incremented from 35 (last_deferred_session=131 < current=132 → increment fired; META wrap — chunk #81 `pulse://stream/digests` arch-registry Type 6 single-cycle wrap, zero new pub items this session — only arch.md edits + state.yaml lifecycle + marker files + dep-tree.md refresh; per-crate iteration time budget unchanged at 7-14 min vs ~3 min wrap budget; backlog re-baseline opportunity unchanged from session 131 — warranted at next non-META wrap, most plausibly chunk #82 Hardware profile detection + model loading + tokenizer wrap once Pre-D1 LLM runtime decision resolved)
     first_deferred_session: 91
-    last_deferred_session: 131           # session 131 Phase 8 step 4b.i updated from 130
+    last_deferred_session: 132           # session 132 Phase 8 step 4b.i updated from 131
     matured_at_session: 128              # preserved from session 128 step 4a migration (matures NOW captured at migration time; Mod 1)
     refactor_proposed_at: 129            # NEW — session 129 Phase 8 step 4b.ii filed R1 this wrap
     refactor_proposal_id: "R1"           # NEW — session 129 Phase 8 step 4b.ii filed R1 entry to docs/andromeda-improvements.md
@@ -1321,4 +1302,4 @@ pipeline_accumulators:
   # verification proves the loop end-to-end). Future activation: deliberate
   # one-time edit to add A2 entry here + update catalogue status DORMANT → ACTIVE.
 
-session_count: 131
+session_count: 132
