@@ -16,7 +16,7 @@ unit) not HOW (implementation steps)._
 
 ## 1. Route Scope Summary
 
-- **Total chunks:** 79
+- **Total chunks:** 80
 - **Epochs:** 9 (Foundation, Ingest pipeline, Storage & query, Webview shell + TauRPC bridge, Visualization surfaces, Snapshot & Investigate, Plugin runtime + MCP server, Polish & ship, Foundation v0.2.0)
 - **Drilldown depth (avg):** 1.6 (mixed: Foundation depth 2, Ingest pipeline depth 1, Storage & query depth 2, Webview shell depth 1, Visualization surfaces depth 2, Snapshot depth 2, Plugin+MCP depth 2, Polish depth 1)
 - **Hierarchy mode:** mixed (3-level for dense epochs Foundation / Storage / Visualization / Snapshot / Plugin+MCP; 2-level for lighter epochs Ingest / Webview shell / Polish)
@@ -192,6 +192,8 @@ Specialist plan reconciliation (security + tests) — manual security-plan rewri
 Incident records + lifecycle persistence — corpus-backed Active/Resolved lifecycle + acknowledge cool-down + workspace attribution + counter derivation (capabilities P-022/P-023/P-041–P-045; detail in pulse-v0_2_0-route §78).
    ↓
 SQL aggregation queries + scheduler — L1a SQL templates Q1-Q7 against L0 ring buffer for Cadence Coordinator (capabilities P-020/P-021 prerequisite; detail in pulse-v0_2_0-route §79)
+   ↓
+Cadence coordinator + three-tier triggering — orchestrate L1a SQL queries per attention cue priority tier (capabilities P-052/P-060; detail in pulse-v0_2_0-route §80)
 
 ---
 
@@ -458,3 +460,12 @@ SQL aggregation queries + scheduler — L1a SQL templates Q1-Q7 against L0 ring 
 - **Why:** Second Phase 7 chunk per v3 plan; L1a SQL templates Q1-Q7 prerequisite for chunk #80 Cadence Coordinator; depends on #58 (curation) + #67 (log templates available) + #66 (fingerprints) — all landed. Mirrors chunk #78 precedent.
 - **Mechanical:** §1 Total chunks 78→79 (Form 1 Policy A); state.yaml.last_completed_chunk unchanged.
 - **Marker:** `.andromeda/runs/2026-05-23T08-21-03-spec-amendment-append-chunk-79-sql-aggregation-queries-scheduler/amendment.md`
+
+---
+
+`2026-05-23` — Append chunk #80 Cadence coordinator + three-tier triggering (--allow-route-append)
+
+- **Insert:** chunk #80 at §2 Epoch 9 — Foundation v0.2.0 (text: see §2; full detail in `pulse-v0_2_0-route.md` §Phase 7 §80).
+- **Why:** Third Phase 7 chunk per v3 plan; orchestrates L1a SQL execution + L3 digest assembly + L4 inference invocation per dist-arch v3 §Cadence and Event Triggers; depends on #62 attention cues + #79 SQL queries (both landed); capabilities P-052 / P-060. Mirrors chunk #79 precedent.
+- **Mechanical:** §1 Total chunks 79→80 (Form 1 Policy A); state.yaml.last_completed_chunk unchanged.
+- **Marker:** `.andromeda/runs/2026-05-23T09-50-29-spec-amendment-append-chunk-80-cadence-coordinator-three-tier-triggering/amendment.md`
