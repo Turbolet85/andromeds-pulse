@@ -11,6 +11,11 @@ target/
 # rustfmt backups
 **/*.rs.bk
 
+# DuckDB temp-storage spill files (per-process; on crash/abort leaked under
+# the executing crate's working dir; can hit 40+ GB on Windows after a
+# query like Q7 recursive-CTE buffer overrun) — discovered chunk #79.
+**/.tmp/
+
 # Cargo.lock policy: COMMIT for binary crates (reproducible builds);
 # pulse-app is the binary root, so Cargo.lock IS committed.
 # (Do NOT add Cargo.lock to .gitignore.)

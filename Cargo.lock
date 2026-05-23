@@ -7685,6 +7685,7 @@ version = "0.1.0"
 dependencies = [
  "bincode",
  "dashmap",
+ "duckdb",
  "proptest",
  "rstest",
  "serde",

@@ -1,131 +1,139 @@
 # Session Handoff
 
-**Last Updated:** 2026-05-23T08:35:00Z
+**Last Updated:** 2026-05-23T09:40:00Z
 **Branch:** main
 **Session End Status:** clean
-**Last Commit:** {pending — this wrap commit subject: chore(wrap): session 123 — chunk #79 route-append amendment archived (Active → Propagated → Archived in single session; textbook standard Type 7 cycle mirroring sessions 115/118/120)}
+**Last Commit:** {pending — this wrap commit subject: chore(implement): chunk #79 SQL aggregation queries + scheduler — 1260 LOC `crates/triage/src/baseline/sql.rs` + 21 LOC `crates/triage/build.rs` Windows linker workaround + Cargo.toml duckdb dep + 17 new integration tests}
 
 ## Current State
 
-- **Last completed chunk:** route#78 "Incident records + lifecycle persistence — corpus-backed Active/Resolved lifecycle + acknowledge cool-down + workspace attribution + counter derivation (capabilities P-022/P-023/P-041–P-045; detail in pulse-v0_2_0-route §78)" (commit `83c58af`; HEAD-reachable from session 121 chunk #78 implementation)
-- **Next chunk:** route#79 "SQL aggregation queries + scheduler — L1a SQL templates Q1-Q7 against L0 ring buffer for Cadence Coordinator (capabilities P-020/P-021 prerequisite; detail in pulse-v0_2_0-route §79)" (registered this session via /andromeda-evolve; ready for /andromeda-phase + /andromeda-implement)
-- **In-progress phase:** none (chunk #79 registered + cascade propagated + amendment archived this wrap)
-- **Phase artifacts present:** `.andromeda/phases/phase-{1..75}/` (phase-75 created session 121 for chunk #78 plan + combined + research; no new phase artifacts this session)
+- **Last completed chunk:** route#79 "SQL aggregation queries + scheduler — L1a SQL templates Q1-Q7 against L0 ring buffer for Cadence Coordinator (capabilities P-020/P-021 prerequisite; detail in pulse-v0_2_0-route §79)" (commit `pending` — Phase 8 step 7 of next wrap auto-heals per Proposal 16 Option b lag pattern)
+- **Next chunk:** route#80 "Cadence coordinator + three-tier triggering" (per pulse-v0_2_0-route §Phase 7 §80; requires `/andromeda-evolve --allow-route-append` to register before next /andromeda-phase invocation; depends on #62 attention cues + #79 SQL aggregation queries — both landed)
+- **In-progress phase:** none (chunk #79 implementation complete + all gates passing)
+- **Phase artifacts present:** `.andromeda/phases/phase-{1..76}/` (phase-76 created this session for chunk #79 plan + combined + research; committed in this wrap)
 
 ## Andromeda State Detection (states A-K)
 
-**All states CLEAR post-wrap modulo intentional flags (J-soft 29th-consecutive api-surface deferral).**
+**All states CLEAR post-wrap modulo intentional flags (J-soft 30th-consecutive api-surface deferral).**
 
-- A — In-progress runs: only this session's 3 expected run-dirs (evolve + spec-amendment + setup-project-delta; all gitignored). CLEAR.
-- B — Status drift: state.yaml.last_wrap 08:35Z this wrap; recent commits coherent (session 122 wrap 51d4b14 → this session's evolve + --delta commit 2e863c3 → this wrap pending). CLEAR.
-- C — Architecture staleness: arch.md mtime 2026-05-23T07:55:29Z < CLAUDE.md mtime 2026-05-23T08:30:40Z (CLAUDE.md newer by ~35min via this session's delta-rerun cascade). CLEAR (session 122's D5 carry-over organically resolved).
-- D — Pending route: route.md present, 79 chunks (chunk #79 registered this session). Next chunk #80 awaits register. CLEAR (current state; expected).
+- A — In-progress runs: only this session's phase-76 + wrap-session run-dirs (gitignored). CLEAR.
+- B — Status drift: state.yaml.last_wrap 09:40Z this wrap; recent commits coherent (session 123 wrap 7575040 → chunk #79 implementation commit pending this wrap). CLEAR.
+- C — Architecture staleness: arch.md mtime 2026-05-23T07:55:29Z < CLAUDE.md mtime 2026-05-23T08:30:40Z (CLAUDE.md newer; carried from session 123 cascade). CLEAR.
+- D — Pending route: route.md present, 79 chunks. Next chunk #80 awaits register. CLEAR (current state; expected).
 - E — Pending phase planning: no in_progress phase. CLEAR.
 - F — Pending implementation: no in-progress chunk implementation. CLEAR.
-- G — Multiple concurrent runs: only this session's expected 3 run-dirs (gitignored). CLEAR.
-- H — Route chunk drift: state.yaml.last_completed_chunk.commit_sha=83c58af verified HEAD-reachable via `git merge-base --is-ancestor`. No action needed (chunk #79 only registered not implemented; last_completed stays at #78). CLEAR.
-- I — Specialist plan freshness mismatch: state.yaml.plan_freshness.route_mtime updated to 2026-05-23T08:27:06Z (matches route.md actual mtime post-evolve). All other plans unchanged. CLEAR.
-- **J-soft** — Living artifact staleness: api-surface deferred 29th consecutive per `state.yaml.living_artifact_freshness.api_surface_deferred = true`. META session added zero new pub items. Cumulative backlog from chunks #70-#78 + META chunks #74/#75/#76/#79-route + setup-project sessions unchanged from session 122. Re-baseline EXPLICITLY warranted at next non-META wrap (most plausibly chunk #79 SQL aggregation queries + scheduler implementation wrap). CLEAR (modulo intentional flag).
+- G — Multiple concurrent runs: only this session's expected run-dirs (phase-76 + wrap-session; gitignored). CLEAR.
+- H — Route chunk drift: state.yaml.last_completed_chunk.commit_sha = "pending" (this wrap; next wrap Phase 8 step 7 auto-heals to chunk #79 implementation commit SHA per Proposal 16 Option b). CLEAR (current state; expected post-wrap).
+- I — Specialist plan freshness mismatch: state.yaml.plan_freshness updated to current mtimes; no plan files modified this session. CLEAR.
+- **J-soft** — Living artifact staleness: api-surface deferred 30th consecutive per `state.yaml.living_artifact_freshness.api_surface_deferred = true`. Chunk #79 added ~30 new pub items (`Q1RedRow` / `Q2OperationRow` / `Q3FingerprintRow` / `Q4InteractionRow` / `Q5CardinalityRow` / `Q6LogRow` / `Q7CriticalPathRow` / `Q7_DEFAULT_TIMEOUT` / `SqlAggregationError` / `TriageSqlState` / 8 async `run_qN` fns + `cutoff_ns` helper) к the triage crate's public API. Re-baseline EXPLICITLY warranted at next non-META wrap — cumulative backlog from chunks #70-#79 substantial enough to amortize per-crate iteration cost. CLEAR (modulo intentional flag).
 - K — Multi-chunk in-progress imbalance: state.yaml.in_progress=null post-wrap. CLEAR.
 
 ## Drift Detection (6 dimensions)
 
 **All 6 dimensions CLEAN post-wrap.**
 
-- D1 (living artifact staleness): dep-tree reconciled 2026-05-23T08:35:00Z (this wrap; tooling rerun 445 lines identical к session 122 baseline — zero new transitive deps; META session touched zero workspace deps). LATEST_CODE_MTIME = 2026-05-22T22:46:59Z (session 121 chunk #78 commit) < dep_tree_reconciled (08:35Z this wrap). api-surface deferred per soft-J. CLEAN.
-- D2 (wrong content): tooling output byte-identical к LIVING block content per zero-diff verification path (445 lines unchanged from session 122 baseline). CLEAN.
-- D3 (plan-to-code drift): chunk #79 introduces zero new code (route-only registration); no new TauRPC procedures / broadcast topics / capabilities to acknowledge in arch §Occupied Resources. D3 unchanged from session 122 CLEAR baseline. CLEAN.
-- D4 (plan-to-plan drift): zero specialist plan files touched this session; route.md touched but does not cross-reference contradiction with specialist plans. CLEAN.
-- D5 (plan-to-CLAUDE.md drift): arch.md mtime 2026-05-23T07:55Z < CLAUDE.md mtime 2026-05-23T08:30Z (CLAUDE.md newer post-delta-rerun cascade). Session 122's D5 carry-over (arch.md > CLAUDE.md due to Type 6 Branch (a) lifecycle-only --delta) ORGANICALLY CLEARED by this session's Type 7 route-append → --delta → CLAUDE.md pointer-table cascade. route.md mtime 08:27Z < CLAUDE.md mtime 08:30Z post-cascade. CLEAN.
-- D6 (route chunk progression): state.yaml.last_completed_chunk.route_index unchanged at 78 this wrap (META session, no chunk implementation commits); commit_sha=83c58af HEAD-reachable. CLEAN.
+- D1 (living artifact staleness): dep-tree reconciled 2026-05-23T09:40:00Z (this wrap; tooling rerun 446 lines, +1 from session 123 baseline due to new triage→duckdb workspace dep edge). LATEST_CODE_MTIME = 2026-05-23T09:30Z (chunk #79 implementation files this session) < dep_tree_reconciled (09:40Z). api-surface deferred per soft-J. CLEAN.
+- D2 (wrong content): tooling output differs from prior LIVING block by exactly the +1 triage→duckdb edge as expected per chunk #79 dep addition. LIVING block replaced with fresh tooling output. CLEAN.
+- D3 (plan-to-code drift): chunk #79 introduces zero new TauRPC procedures / broadcast topics / capability identifiers / env vars / DuckDB tables — arch §Occupied Resources unchanged required. New `crates/triage/build.rs` is purely а Windows linker workaround (no architectural meaning). CLEAN.
+- D4 (plan-to-plan drift): zero specialist plan files touched this session; route.md untouched. CLEAN.
+- D5 (plan-to-CLAUDE.md drift): arch.md mtime 2026-05-23T07:55Z < CLAUDE.md mtime 2026-05-23T08:30Z (CLAUDE.md newer; carried from session 123). Route.md mtime 08:27Z < CLAUDE.md mtime 08:30Z. CLEAN.
+- D6 (route chunk progression): state.yaml.last_completed_chunk.route_index advances 78 → 79 this wrap (chunk #79 implementation committed); commit_sha="pending" per Proposal 16 Option b (next wrap Phase 8 step 7 auto-heals). CLEAN.
 
 ## Spec Amendments (this session)
 
-This session applied + propagated + archived 1 amendment in single cycle (mirrors session 115/118/120 Type 7 single-cycle META precedent exactly):
-
-- **Plan(s):** `.andromeda/route.md` (§1 Route Scope Summary + §2 Roadmap Epoch 9 body + §3 Decisions Log)
-- **Decisions Log:** §3 dated 2026-05-23 — "Append chunk #79 SQL aggregation queries + scheduler (--allow-route-append)"
-- **Trigger:** user-driven evolution via /andromeda-evolve (no chunk/phase/harness)
-- **Authority resolution:** pulse-v0_2_0-route.md (pipeline-state) > route.md (chunk-list-stale-vs-pipeline-reality); v3 Phase 7 plan declares chunk #79 as second Phase 7 chunk; deps #58/#67/#66 all landed
-- **Lifecycle:** applied 2026-05-23T08:21:03Z | noted 2026-05-23T08:35:00Z | propagated 2026-05-23T08:29:54Z | archived 2026-05-23T08:35:00Z
-- **Marker:** `.andromeda/runs/2026-05-23T08-21-03-spec-amendment-append-chunk-79-sql-aggregation-queries-scheduler/amendment.md`
-- **Flag used:** `--allow-route-append` (Type 7 Form 1 narrow exception per refuse-taxonomy.md §Refuse 6 Exception)
-- **Registry addition:** route §2 Epoch 9 chunk #79 + §1 Total chunks 78→79 (Form 1 Policy A mechanical) + CLAUDE.md pointer-table cascade (9 epochs / 78 chunks) → (9 epochs / 79 chunks)
-
-Archived this session: 1 amendment — moved from active to archive с compact form per Phase 8 lifecycle progression. spec_amendments.active emptied; archive grew 43 → 44 entries.
+(none — chunk #79 implementation session, no spec amendments applied or archived)
 
 post-wrap state:
-- state.yaml.spec_amendments.active = []
-- state.yaml.spec_amendments.archive = 44 entries (this session's amendment archived)
+- state.yaml.spec_amendments.active = [] (preserved from session 123)
+- state.yaml.spec_amendments.archive = 44 entries (preserved from session 123)
 
 ## Key Decisions This Session
 
-- **Textbook standard Type 7 single-cycle wrap precedent maintained.** Sessions 115/118/120 established the Type 7 route-append → setup-project --delta → wrap-session single-cycle pattern; session 123 mirrors mechanically with zero new patterns or corrections. The pattern is stable; documenting it again would be churn, not a learning.
-- **D5 organic clearing via Type 7 cascade.** Session 122's expected D5 carry-over (arch.md 07:55Z > CLAUDE.md 20:47Z residual from Type 6 Branch (a) lifecycle-only --delta) ORGANICALLY CLEARED this session via the Type 7 --delta cascade (CLAUDE.md pointer-table 78→79 edit lifted CLAUDE.md mtime to 08:30Z). This validates the Branch (a) trade-off design: Type 6 Branch (a) accepts deferred D5 clearing с the explicit knowledge that the next Type 7 route-append amendment will organically clear it via pointer-table cascade. Empirically verified this session.
+- **Q7 SQL recursion correctness — preserve canonical Appendix A join condition verbatim.** The dist-arch v3 §Appendix A canonical Q7 SQL uses `JOIN trace_tree tt ON s.parent_span_id = tt.span_id` к walk the parent-child tree. First implementation attempt simplified to `s.span_id != tt.span_id` which produced а Cartesian explosion. Lesson: when transcribing canonical SQL from а spec doc, NEVER drop the parent-child edge constraint в recursive CTEs. Tier 2 learning landed in testing.md Session Additions.
+- **DuckDB `INTERVAL ?` parameter binding does not work cleanly** — used Rust pre-computed cutoff_ns (matches viz/query.rs precedent) instead. Documented divergence from canonical Appendix A SQL form; identical semantic, safer parameter contract.
+- **Windows linker workaround for libduckdb-sys 1.10502.x** — а crate-local `build.rs` emitting `cargo:rustc-link-lib=rstrtmgr` for `target_os = "windows"` is necessary when adding duckdb dep к а new crate (existing crates' cached test binaries pre-date the API addition + don't surface the link gap). Tier 2 learning landed.
+- **Deferred chunk #80 wiring.** Plan §Deferred carried two items forward: (a) `pulse-app/src/observability.rs` allowlist extension for `triage::baseline::sql` fields (deferred per chunk #78 precedent); (b) Q7 timeout Option B (DuckDB `Connection::interrupt()` upgrade if available in duckdb 1.10500.x crate) — currently using Option A `tokio::time::timeout` cooperative wrap. Both forward к either chunk #80 OR а dedicated cleanup chunk.
 
 ## Files Modified
 
-This wrap commit (Phase 10) bundles all session 123 maintenance updates. Files touched this session:
+**Chunk #79 implementation (this wrap commit Phase 10):**
+- NEW: `crates/triage/src/baseline/sql.rs` (1260 LOC — Q1-Q7 + Q7-fallback SQL templates + 7 result struct types + `SqlAggregationError` enum + `TriageSqlState` connection wrapper + 8 async `run_qN` public API + `cutoff_ns` helper + 17 integration tests covering happy-path / empty-table / SQL-injection-blocked / Q7 fallback / Q7 outer LIMIT cap)
+- NEW: `crates/triage/build.rs` (21 LOC — Windows linker workaround for libduckdb-sys 1.10502.x missing rstrtmgr.lib directive)
+- MODIFIED: `crates/triage/src/baseline/mod.rs` (added `mod sql;` declaration + `#[allow(unused_imports)] pub use sql::{...};` re-export of Q1-Q7 API)
+- MODIFIED: `crates/triage/Cargo.toml` (added `duckdb.workspace = true` to triage's [dependencies])
+- MODIFIED: `Cargo.lock` (transitive deps from triage→duckdb edge)
 
-**Evolve + setup-project-delta session artifacts (commit 2e863c3 at this session):**
-- MODIFIED: `.andromeda/route.md` — 3 spots (§1 Total chunks 78→79; §2 Epoch 9 body chunk #79 appended after #78; §3 Decisions Log new compact P9 entry dated 2026-05-23)
-- MODIFIED: `.andromeda/state.yaml` — evolve added spec_amendments.active entry; --delta set propagated_by_run
-- MODIFIED: `CLAUDE.md` — pointer-table line 56 cascade (9 epochs / 78 chunks) → (9 epochs / 79 chunks)
+**Phase planning artifacts (committed this wrap):**
+- NEW: `.andromeda/phases/phase-76/combined.md` (188 lines — 7 specialist extracts merged)
+- NEW: `.andromeda/phases/phase-76/research.md` (198 lines — codebase research findings)
+- NEW: `.andromeda/phases/phase-76/plan.md` (318 lines — 10 implementation steps + 17 acceptance criteria + 2 deferred items)
 
 **Wrap-session artifacts (Phase 10 maintenance — this wrap commit):**
-- MODIFIED: `.claude/session-handoff.md` — atomic overwrite (this file)
-- MODIFIED: `.andromeda/state.yaml` — last_wrap 08:35Z + last_reconcile 08:35Z + plan_freshness.route_mtime updated к 2026-05-23T08:27:06Z + living_artifact_freshness.dep_tree_reconciled_at = 08:35Z + drift_warnings = [] + spec_amendments.active = [] (1 amendment archived) + spec_amendments.archive 43 → 44 entries (chunk #79 route-append archived) + session_count 122 → 123 + session 123 wrap comment block prepended + api_surface_deferred 28th → 29th consecutive
-- MODIFIED: `.andromeda/context/dependency-tree.md` — Last reconciled timestamp 08:35Z (445 lines identical к session 122 baseline; zero-diff verification per integrity-protocol.md Part B step 5 no-op + refresh path)
+- MODIFIED: `.claude/session-handoff.md` (atomic overwrite — this file)
+- MODIFIED: `.andromeda/state.yaml` (last_wrap 09:40Z + last_reconcile 09:40Z + last_completed_chunk advanced к route#79 + plan_freshness route_mtime preserved + living_artifact_freshness.dep_tree_reconciled_at = 09:40Z + drift_warnings = [] + spec_amendments unchanged + session_count 123 → 124 + session 124 wrap comment block prepended + api_surface_deferred 29th → 30th consecutive)
+- MODIFIED: `.andromeda/context/dependency-tree.md` (LIVING block refreshed with new tooling output 446 lines; +1 from session 123 baseline for new triage→duckdb edge; Last reconciled timestamp 09:40Z)
+- MODIFIED: `.claude/rules/testing.md` (3 Tier 2 Session Additions: libduckdb-sys Windows linker workaround / DuckDB INTERVAL parameter binding / recursive CTE join discipline)
+- MODIFIED: `.gitignore` (+`**/.tmp/` entry для DuckDB temp storage spill files after process crashes)
 
 **Run-dir audit trails (gitignored per `.gitignore`; not staged):**
-- `.andromeda/runs/2026-05-23T08-21-03-evolve-append-chunk-79-sql-aggregation-queries-scheduler/` — intent.md + evolution-plan.md from evolve invocation
-- `.andromeda/runs/2026-05-23T08-21-03-spec-amendment-append-chunk-79-sql-aggregation-queries-scheduler/amendment.md` — lifecycle checkboxes (Applied + Propagated set)
-- `.andromeda/runs/2026-05-23T08-29-54-setup-project-delta/` — materialization-plan-delta.md from --delta invocation
+- `.andromeda/runs/2026-05-23T08-44-48-phase-76/` — 7 raw + 7 stripped sub-agent outputs from /andromeda-phase
 
-**Unmanaged artifact (carry-over from sessions 109-122):**
-- `ui/` directory at workspace root (untracked) — stray artifact from session 109 workspace-root nextest invocation; user decides cleanup approach. Unchanged this session.
+**Unmanaged artifacts:**
+- `ui/` directory at workspace root (untracked stray from session 109; carry-over)
 
 ## Curation Summary (this wrap)
 
 - **Tier 1 (CLAUDE.md USER:session-learnings):** 0 additions
-- **Tier 2 (`.claude/rules/*/Session Additions`):** 0 additions
+- **Tier 2 (`.claude/rules/*/Session Additions`):** 3 additions — все in `testing.md`:
+  1. libduckdb-sys 1.10502.x Windows linker workaround (Restart Manager rstrtmgr.lib missing directive; crate-local build.rs fix)
+  2. DuckDB `INTERVAL ?` prepared-statement binding fails; use Rust pre-computed cutoff_ns instead (matches viz/query.rs precedent)
+  3. Recursive CTE join discipline — preserve parent-child join verbatim from spec; bare antijoin produces Cartesian explosion + DuckDB column allocator buffer overrun
 - **Tier 3 (`.claude/docs/session-learnings.md`):** 0 additions
-- **Andromeda pipeline proposals:** 0 added (Mode H — honest healthy per P20 design; textbook standard cycle mirroring sessions 115/118/120 exactly с zero new patterns or corrections; the Type 7 single-cycle precedent is mechanically identical and documenting it again would be churn, not a learning)
-- **Filtered:** 0 dedup + 0 task-specific + 0 conflicts + 0 deferred
+- **Andromeda pipeline proposals:** 0 added (standard chunk-implementation cycle с substantial empirical learnings consolidated into Tier 2 SQL/DuckDB discipline; no Andromeda-pipeline-mechanism friction surfaced)
+- **Filtered:** 0 dedup + 0 task-specific + 0 conflicts + 1 deferred (DuckDB temp storage cleanup pattern — mentioned in Tier 2 entry #3 as companion fact rather than standalone entry to stay within max-3 cap)
 
 ## Last Failed Command
 
-(none — session 123 ran through /andromeda-new-session + /andromeda-evolve --allow-route-append + /andromeda-setup-project --delta + this /andromeda-wrap-session с no command failures at any phase)
+(none — chunk #79 implementation cycle: /andromeda-implement Phase 2 fix loop succeeded after 4 fixes (link workaround + SQL pattern + Q4 join + Q7 recursion + test fixture parent_span_id seeding); final gate run все clean)
 
 ## Tests Status
 
-passing — smoke baseline this wrap: 14/14 security crate tests (0.128s; `cargo nextest run -p security`). Full workspace baseline 1279/1279 unchanged from session 121 (META session zero source-code changes — only route.md + state.yaml + CLAUDE.md + dep-tree.md + handoff edited; no `crates/*/src/` or `pulse-app/src/` files touched).
+passing — 1296/1296 tests across workspace (was 1279 baseline session 121; +17 new chunk #79 tests in triage::baseline::sql). Detailed gate results:
+- `cargo fmt --check`: clean
+- `cargo clippy --workspace --all-targets --all-features -- -D warnings`: clean
+- `cargo nextest run --workspace --profile ci`: 1296/1296 passed
+- `cargo xtask capability-drift`: clean (0 missing, 0 extra)
+- `cargo xtask capability-widening-check`: clean (0 violations across 3 inspected)
+- Phase 2b runtime smoke: SKIPPED per testing.md 2026-05-19 Session Addition (chunk #79 is backend-only; integration tests cover same runtime invariants reliably)
 
-**Dead-test warnings (P15 eighth observation — pattern persisting unchanged):** 16 blocks across 16 files in pulse-app crate (declares `[lib] test = false` per Windows WebView2 workaround at `pulse-app/Cargo.toml:9-12`). Unchanged from sessions 116/117/118/119/120/121/122 detection. META session added zero new pulse-app source-level `#[cfg(test)] mod tests` blocks (no Rust source touched). Files unchanged: baseline_observer.rs / connection_router.rs / diagnostics_router.rs / heartbeat.rs / main.rs / mcp_router.rs / observability.rs / plugins_router.rs / restart_observer.rs / services_router.rs / snapshot_runtime.rs / storage_router.rs / storm_observer.rs / streams.rs / tray.rs / window.rs. User decision still pending.
+**Dead-test warnings (P15 ninth observation — pattern persisting unchanged):** 16 blocks across 16 files in pulse-app crate (declares `[lib] test = false` per Windows WebView2 workaround at `pulse-app/Cargo.toml:9-12`). Unchanged from sessions 116-123 detection. Chunk #79 added zero new pulse-app source-level `#[cfg(test)] mod tests` blocks (no pulse-app source touched). User decision still pending.
 
 ## Next Recommended Action
 
 ```
-/andromeda-phase    (plan chunk #79 "SQL aggregation queries + scheduler" per pulse-v0_2_0-route §Phase 7 §79; second Phase 7 chunk; depends on #58 curation + #67 log templates + #66 fingerprints — all landed; capabilities P-020 / P-021 prerequisite for algorithmic detection)
+/andromeda-evolve --allow-route-append    (register chunk #80 "Cadence coordinator + three-tier triggering" per pulse-v0_2_0-route §Phase 7 §80; third Phase 7 chunk; depends on #62 attention cues + #79 SQL aggregation queries — both landed; capabilities P-052 / P-060)
 ```
 
-Then `/andromeda-implement` for chunk #79.
+Then `/andromeda-phase` + `/andromeda-implement` for chunk #80.
 
 **Alternative paths:**
-- **api-surface.md reconcile** 29th-consecutive deferral; cumulative backlog from chunks #70-#78 substantial enough that next non-META wrap (most plausibly chunk #79 implementation) should fold all deltas into one per-crate `cargo +nightly public-api` tooling pass — explicit re-baseline opportunity flagged in api_surface_deferred_reason
-- **observability.rs AllowList polish pass** for chunk #78's ~10 new tracing targets (deferred per session 121 plan §Deferred; affects production log emission quality — incidents.* + triage.incident.* events currently default-deny redacted per Layer convention)
-- **P21 implementation** (filed session 119; ~140 LOC across 5 user-level skill files) — first-class support для chunk-scoped manual specialist plan rewrites
+- **api-surface.md reconcile** 30th-consecutive deferral; chunk #79 added ~30 new pub items in triage crate; cumulative backlog substantial — re-baseline strongly warranted at next non-META wrap
+- **observability.rs AllowList polish pass** for chunk #79's new `triage::baseline::sql` fields + chunk #78's ~10 carry-over targets (compound deferral now affects production log emission quality for both — Phase 7 incidents.* + L1a SQL targets currently default-deny redacted per Layer convention)
+- **Q7 timeout Option B** investigation — verify DuckDB `Connection::interrupt()` API availability in duckdb 1.10500.x crate; upgrade Q7 from cooperative `tokio::time::timeout` (Option A) к true cancellation primitive if available
+- **P21 implementation** (filed session 119; ~140 LOC across 5 user-level skill files)
 - **P19 implementation** (P16 timing discriminator refinement; filed session 116; not blocking)
 - **P20 implementation** (self-evolve cross-session accumulation; filed session 117; ~420 LOC) — sequenced after P19/P21
-- **P15 dead-test remediation decision** (16 pulse-app/src/ blocks; chunks #72 + #77 PII vector tests + chunk #78 incident tests all established the integration-test-migration precedent cleanly)
+- **P15 dead-test remediation decision** (16 pulse-app/src/ blocks; chunks #72 + #77 PII vector tests + chunk #78 incident tests + chunk #79 sql tests all established the integration-test-migration precedent cleanly)
+- **bincode 2.x migration** to replace `bincode_bounded.rs` partial helper with try_reserve-based safer allocations (follow-up; not urgent)
 
 ## Session Goals (carry-over)
 
-- **Chunk #79 route registration** ✓ COMPLETE this session (was the explicit next-session work from session 122 handoff)
-- **Chunk #79 implementation** (`/andromeda-phase` + `/andromeda-implement` per pulse-v0_2_0-route §Phase 7 §79; NEXT primary path)
-- **observability.rs AllowList polish** для chunk #78 tracing targets (deferred per session 121 plan; affects production log emission quality)
+- **Chunk #79 implementation** ✓ COMPLETE this session
+- **Chunk #80 route registration** (`/andromeda-evolve --allow-route-append`; NEXT primary path)
+- **observability.rs AllowList polish** для chunk #78 + chunk #79 tracing targets (compound deferral; affects production log emission quality)
+- **Q7 timeout Option B investigation** (DuckDB `Connection::interrupt()` API; documented в chunk #79 plan §Deferred)
+- **api-surface.md reconcile** 30th-consecutive deferral; chunk #79 adds substantial new pub items; re-baseline strongly warranted at next non-META wrap
 - **P21 implementation** (filed session 119)
-- **api-surface.md reconcile** 29th-consecutive deferral; chunk #78 introduced substantial new pub items in session 121; META cycles since then added zero; re-baseline strongly warranted at chunk #79 implementation wrap
 - **P19 implementation** when P16 timing discriminator surfaces again
 - **P20 implementation** (self-evolve cross-session accumulation) sequenced after P19+P21
 - **P15 dead-test remediation decision** для pulse-app/src/ 16 surfaced blocks
@@ -135,11 +143,11 @@ Then `/andromeda-implement` for chunk #79.
 
 ## Deferred decisions (Trigger 4 to Path B carry-over)
 
-(none — session 123 was а straightforward META cycle с no Trigger 4 dialogues; no deferrals to Path B)
+(none — session 124 was а straightforward chunk implementation cycle с no Trigger 4 dialogues; no deferrals к Path B)
 
 ## Deferred learnings (filtered out from Phase 3 curation)
 
-(none — Filter 5 max-3 cap not hit; zero candidate learnings surfaced; Mode H honest-healthy cycle by design)
+1 deferred: DuckDB temp storage cleanup pattern (40+ GB `.tmp/duckdb_temp_storage_*.tmp` files left after process crash). Merged as companion fact in the recursive CTE Tier 2 entry rather than standalone entry to stay within max-3 cap.
 
 ## Session End Status
-Completed normally at 2026-05-23 08:35:00
+Completed normally at 2026-05-23 09:40:00

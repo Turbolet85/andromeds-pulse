@@ -24,6 +24,7 @@ mod error;
 mod ewma;
 mod persistence;
 mod rolling_window;
+mod sql;
 mod tdigest_pair;
 
 use std::sync::Arc;
@@ -45,6 +46,15 @@ pub use error::BaselineError;
 pub use ewma::EwmaTracker;
 pub use persistence::BaselinePersistence;
 pub use rolling_window::RollingWindow;
+// Chunk #79 — L1a SQL aggregation queries. Public API exposed for chunk #80
+// Cadence Coordinator consumption; until that lands, the in-crate caller
+// is absent so `#[allow(unused_imports)]` silences the transient warning.
+#[allow(unused_imports)]
+pub use sql::{
+    Q1RedRow, Q2OperationRow, Q3FingerprintRow, Q4InteractionRow, Q5CardinalityRow, Q6LogRow,
+    Q7_DEFAULT_TIMEOUT, Q7CriticalPathRow, SqlAggregationError, TriageSqlState, run_q1, run_q2,
+    run_q3, run_q4, run_q5, run_q6, run_q7, run_q7_with_timeout,
+};
 pub use tdigest_pair::TDigestPair;
 
 pub const SCHEMA_VERSION: u32 = 1;

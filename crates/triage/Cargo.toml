@@ -26,6 +26,9 @@ dashmap.workspace = true
 bincode.workspace = true
 strict-path.workspace = true
 tokio.workspace = true
+# Chunk #79 — L1a SQL aggregation queries (`baseline::sql` module) against
+# the L0 DuckDB ring buffer.
+duckdb.workspace = true
 # Chunk #67 — optional specta::Type derive for cross-bridge types; gated
 # by `taurpc-runtime` feature (default-on). Mirrors chunk #59 ingest
 # Cargo.toml shape.
