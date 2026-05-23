@@ -447,7 +447,45 @@ living_artifact_freshness:
 drift_warnings: []
 
 spec_amendments:
-  active: []
+  active:
+    - amendment_id: 2026-05-23T08-21-03-append-chunk-79-sql-aggregation-queries-scheduler
+      plans:
+        - path: route.md
+          sections:
+            - "§1 Route Scope Summary (Total chunks mechanical update per Proposal 6)"
+            - "§2 Roadmap (Epoch 9 body)"
+            - "§3 Decisions Log"
+          decisions_log_section: "2026-05-23 — Append chunk #79 SQL aggregation queries + scheduler (--allow-route-append)"
+      trigger:
+        chunk: null
+        phase: null
+        harness: "user-driven via /andromeda-evolve"
+      authority:
+        winning_plan: pulse-v0_2_0-route.md
+        winning_tier: pipeline-state
+        losing_plan: route.md
+        losing_concern: chunk-list-stale-vs-pipeline-reality
+        rationale: "v3 Phase 7 plan declares chunk #79 (SQL aggregation queries + scheduler) as second Phase 7 chunk; deps #58/#67/#66 all landed; adding to route per --allow-route-append narrow exception."
+      impl_files_synced: []
+      expected_propagation:
+        - "CLAUDE.md (<!-- GENERATED:setup:pointer-table --> — chunk-count cascade 78→79)"
+      marker_path: .andromeda/runs/2026-05-23T08-21-03-spec-amendment-append-chunk-79-sql-aggregation-queries-scheduler/amendment.md
+      applied_at: 2026-05-23T08:21:03Z
+      noted_at: null
+      propagated_by_run: .andromeda/runs/2026-05-23T08-29-54-setup-project-delta/
+      archived_at: null
+      verification_status: clean
+      flag_used: --allow-route-append
+      form: 1
+      route_section_modified: "Epoch 9 — Foundation v0.2.0"
+      chunks_added:
+        - position: 79
+          text: "SQL aggregation queries + scheduler — L1a SQL templates Q1-Q7 against L0 ring buffer for Cadence Coordinator (capabilities P-020/P-021 prerequisite; detail in pulse-v0_2_0-route §79)"
+      chunks_renumbered: []
+      motivation: "Second Phase 7 chunk per pulse-v0_2_0-route §Phase 7 §79; depends on #58/#67/#66 (all landed); chunk #80 Cadence Coordinator consumes #79 outputs. Mirrors chunk #78 precedent."
+      confirmed_shift: false
+      scope_summary_updates:
+        - "Total chunks: 78 → 79"
   archive:
     - amendment_id: 2026-05-23T07-49-08-acknowledge-incidents-namespace
       plans:

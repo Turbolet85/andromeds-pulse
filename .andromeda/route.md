@@ -16,7 +16,7 @@ unit) not HOW (implementation steps)._
 
 ## 1. Route Scope Summary
 
-- **Total chunks:** 78
+- **Total chunks:** 79
 - **Epochs:** 9 (Foundation, Ingest pipeline, Storage & query, Webview shell + TauRPC bridge, Visualization surfaces, Snapshot & Investigate, Plugin runtime + MCP server, Polish & ship, Foundation v0.2.0)
 - **Drilldown depth (avg):** 1.6 (mixed: Foundation depth 2, Ingest pipeline depth 1, Storage & query depth 2, Webview shell depth 1, Visualization surfaces depth 2, Snapshot depth 2, Plugin+MCP depth 2, Polish depth 1)
 - **Hierarchy mode:** mixed (3-level for dense epochs Foundation / Storage / Visualization / Snapshot / Plugin+MCP; 2-level for lighter epochs Ingest / Webview shell / Polish)
@@ -190,6 +190,8 @@ Andromeda pipeline meta-improvements (P7 + P12 + P15-P18) — extend evolve/setu
 Specialist plan reconciliation (security + tests) — manual security-plan rewrite + 5 PII vector tests + Drain golden corpus harness (META; detail in pulse-v0_2_0-route §77).
    ↓
 Incident records + lifecycle persistence — corpus-backed Active/Resolved lifecycle + acknowledge cool-down + workspace attribution + counter derivation (capabilities P-022/P-023/P-041–P-045; detail in pulse-v0_2_0-route §78).
+   ↓
+SQL aggregation queries + scheduler — L1a SQL templates Q1-Q7 against L0 ring buffer for Cadence Coordinator (capabilities P-020/P-021 prerequisite; detail in pulse-v0_2_0-route §79)
 
 ---
 
@@ -447,3 +449,12 @@ Incident records + lifecycle persistence — corpus-backed Active/Resolved lifec
 - **Why:** First Phase 7 chunk per v3 plan; closes pulse v0.2.0 Foundation Phase 6 Consolidation → opens Phase 7 Incident records + digest pipeline; depends on #69 (corpus scaffold) + #60 (triage Incident contract types). Mirrors chunk #77 precedent.
 - **Mechanical:** §1 Total chunks 77→78 (Form 1 Policy A); state.yaml.last_completed_chunk unchanged.
 - **Marker:** `.andromeda/runs/2026-05-22T23-00-00-spec-amendment-append-chunk-78-incident-records-lifecycle-persistence/amendment.md`
+
+---
+
+`2026-05-23` — Append chunk #79 SQL aggregation queries + scheduler (--allow-route-append)
+
+- **Insert:** chunk #79 at §2 Epoch 9 — Foundation v0.2.0 (text: see §2; full detail in `pulse-v0_2_0-route.md` §Phase 7 §79).
+- **Why:** Second Phase 7 chunk per v3 plan; L1a SQL templates Q1-Q7 prerequisite for chunk #80 Cadence Coordinator; depends on #58 (curation) + #67 (log templates available) + #66 (fingerprints) — all landed. Mirrors chunk #78 precedent.
+- **Mechanical:** §1 Total chunks 78→79 (Form 1 Policy A); state.yaml.last_completed_chunk unchanged.
+- **Marker:** `.andromeda/runs/2026-05-23T08-21-03-spec-amendment-append-chunk-79-sql-aggregation-queries-scheduler/amendment.md`
