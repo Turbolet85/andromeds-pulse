@@ -354,6 +354,32 @@ pub trait CorpusWriter: Send + Sync {
         occurred_unix_nano: i64,
         payload: &[u8],
     ) -> Result<(), Error>;
+
+    /// INSERT а row into `digest_archive` table (chunk #81 — L3 digest
+    /// assembler). `payload` is bincode-serialized plaintext-bytes of
+    /// the triage `Digest` struct; encrypted via AES-256-GCM per the
+    /// cell-level discipline before write. Returns the auto-assigned
+    /// SQLite rowid. Prepared statement с `?` placeholders per security
+    /// plan §Input Validation.
+    ///
+    /// Producer-side PII scrubbing rule (chunk #72 uniform coverage):
+    /// the caller (digest assembler в triage::digest::assembler::Assembler)
+    /// MUST have pre-scrubbed any OTLP-derived attribute values в the
+    /// Digest fields BEFORE bincode serialization. Corpus impl does
+    /// NOT double-scrub the BLOB payload — see trait docstring above.
+    ///
+    /// Workspace filtering happens at read-time post-decryption (the
+    /// digest_archive schema lacks а workspace column at chunk #81; the
+    /// workspace field is embedded в the bincode payload). Future
+    /// schema migration v1 → v2 may add а workspace column for SQL-side
+    /// filtering — deferred к chunk #82+ retrieval implementation.
+    fn save_digest(
+        &self,
+        digest_kind: &str,
+        assembled_unix_nano: i64,
+        token_count: i64,
+        payload: &[u8],
+    ) -> Result<i64, Error>;
 }
 
 impl CorpusWriter for Corpus {
@@ -606,6 +632,26 @@ impl CorpusWriter for Corpus {
             )
             .map_err(|_| Error::QueryFailed)?;
         Ok(())
+    }
+
+    fn save_digest(
+        &self,
+        digest_kind: &str,
+        assembled_unix_nano: i64,
+        token_count: i64,
+        payload: &[u8],
+    ) -> Result<i64, Error> {
+        let encrypted = cell_encrypt(self.key(), payload)?;
+        let conn = self.connection();
+        let guard = conn.lock().map_err(|_| Error::QueryFailed)?;
+        guard
+            .execute(
+                "INSERT INTO digest_archive (digest_kind, assembled_unix_nano, token_count, payload) \
+                 VALUES (?1, ?2, ?3, ?4)",
+                rusqlite::params![digest_kind, assembled_unix_nano, token_count, &encrypted[..]],
+            )
+            .map_err(|_| Error::QueryFailed)?;
+        Ok(guard.last_insert_rowid())
     }
 }
 

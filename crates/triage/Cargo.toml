@@ -29,10 +29,22 @@ tokio.workspace = true
 # Chunk #79 — L1a SQL aggregation queries (`baseline::sql` module) against
 # the L0 DuckDB ring buffer.
 duckdb.workspace = true
+# Chunk #81 — L3 digest assembler tokenizer for 500-2000 soft / 3000 hard
+# cap token-budget enforcement per dist-arch v3 §L3. Default features off
+# (load tokenizer.json from build-time OUT_DIR include_bytes!; no runtime
+# HF Hub fetch; no http feature pulled in).
+tokenizers.workspace = true
 # Chunk #67 — optional specta::Type derive for cross-bridge types; gated
 # by `taurpc-runtime` feature (default-on). Mirrors chunk #59 ingest
 # Cargo.toml shape.
 specta = { workspace = true, optional = true, features = ["derive"] }
+
+# Chunk #81 — build-time tokenizer fixture download (Llama-3 tokenizer
+# from public Xenova mirror, pinned revision + SHA-256). See
+# crates/triage/build.rs Phase 2 for the download + verification logic.
+[build-dependencies]
+ureq.workspace = true
+sha2.workspace = true
 
 [dev-dependencies]
 proptest.workspace = true

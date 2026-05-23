@@ -182,6 +182,27 @@ regex = "1"
 # used (new(NonZeroUsize), put, get, pop_lru) stable across 0.12 → 0.16.
 lru = "0.16"
 
+# Digest assembler tokenizer (route#81 — Epoch 9 Foundation v0.2.0 L3 layer).
+# tokenizers (Hugging Face): production-grade BPE/WordPiece/Unigram tokenizer
+# library; used by triage::digest::assembler for token-count enforcement
+# against the 500-2000 soft / 3000 hard cap budget per dist-arch v3 §L3.
+# default-features = false strips the `http` / `progressbar` / `onig` features
+# we don't need at this chunk (loading from filesystem only; no HF Hub fetch
+# at runtime; no onig regex — uses fancy-regex default split-mode pattern
+# which is sufficient for Llama-3 tokenizer.json shape). Tokenizer fixture is
+# downloaded at build time via `crates/triage/build.rs` from a pinned
+# Xenova/llama-3-tokenizer revision (public, non-gated mirror of Llama-3
+# tokenizer.json; future-binds to chunk #82+ LLM runtime choice).
+tokenizers = { version = "0.21", default-features = false, features = ["fancy-regex"] }
+
+# Build-time HTTPS downloader for tokenizer fixture (route#81).
+# ureq 2.x is a minimal blocking HTTP client (no async runtime); used ONLY
+# in build.rs scripts to fetch the pinned tokenizer.json + verify SHA-256.
+# rustls feature avoids OpenSSL system dep (cross-platform reproducible).
+# `tls` feature enables HTTPS support.
+ureq = { version = "2", default-features = false, features = ["tls"] }
+sha2 = "0.10"
+
 [profile.release]
 lto = "thin"
 codegen-units = 1

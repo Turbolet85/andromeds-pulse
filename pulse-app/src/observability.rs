@@ -1577,6 +1577,128 @@ impl AllowList {
                 .copied()
                 .collect(),
         );
+        // Chunk #81 — L3 digest assembler tracing targets. Aggregate-only
+        // fields per CLAUDE.md observability Session Learnings 2026-05-17
+        // (no per-service `service_name` / `scope_id` / per-incident-id).
+        by_target.insert(
+            "digest.assemble.request",
+            [
+                "mode",
+                "cue_kind",
+                "cue_priority_tier",
+                "token_count_actual",
+                "active_incident_bypass",
+                "resolution_event",
+                "latency_ms",
+            ]
+            .iter()
+            .copied()
+            .collect(),
+        );
+        by_target.insert(
+            "digest.lww.drop",
+            ["mode", "cadence_tier", "drop_reason", "dropped_kind"]
+                .iter()
+                .copied()
+                .collect(),
+        );
+        by_target.insert(
+            "digest.lww.replace",
+            [
+                "mode",
+                "cadence_tier",
+                "active_incident_bypass",
+                "replaced_kind",
+            ]
+            .iter()
+            .copied()
+            .collect(),
+        );
+        by_target.insert(
+            "digest.token.count.validate",
+            [
+                "mode",
+                "token_count_actual",
+                "token_budget_limit",
+                "soft_min",
+                "soft_max",
+                "budget_exceeded",
+                "truncation_applied",
+            ]
+            .iter()
+            .copied()
+            .collect(),
+        );
+        by_target.insert(
+            "digest.corpus.retrieve",
+            [
+                "query_id",
+                "param_count",
+                "row_count_returned",
+                "duration_ms",
+            ]
+            .iter()
+            .copied()
+            .collect(),
+        );
+        by_target.insert(
+            "digest.runtime.persist",
+            [
+                "rowid",
+                "token_count",
+                "digest_kind",
+                "error_category",
+                "error_message",
+                "skipped_events",
+            ]
+            .iter()
+            .copied()
+            .collect(),
+        );
+        by_target.insert(
+            "digest.runtime.cadence_tick",
+            [
+                "mode",
+                "cue_kind",
+                "cue_priority",
+                "error_category",
+                "skipped_events",
+            ]
+            .iter()
+            .copied()
+            .collect(),
+        );
+        by_target.insert(
+            "digest.runtime.boot",
+            ["error_message"].iter().copied().collect(),
+        );
+        by_target.insert(
+            "metric.pipeline.l3.digest_token_count_ms",
+            [
+                "value",
+                "mode",
+                "token_count_actual",
+                "token_budget_limit",
+                "budget_exceeded",
+            ]
+            .iter()
+            .copied()
+            .collect(),
+        );
+        by_target.insert(
+            "metric.pipeline.l3.lww_drop_count_total",
+            ["value", "cadence_tier", "drop_reason"]
+                .iter()
+                .copied()
+                .collect(),
+        );
+        by_target.insert(
+            "metric.pipeline.l3.active_incident_queue_depth",
+            ["value", "severity_tier", "queue_depth"]
+                .iter()
+                .copied()
+                .collect(),
+        );
 
         Self { by_target }
     }

@@ -203,6 +203,21 @@ skip = [
     # entries with provenance).
     { crate = "hashlink" },
     { crate = "rand_chacha" },
+    # tokenizers 0.21 + ureq 2.x transitive duplicates (chunk #81, 2026-05-23):
+    # - `nom`: tokenizers 0.21 → spm_precompiled 0.1.4 pulls nom 7.x;
+    #   tauri-utils + other transitive crates pull nom 8.x. Build/runtime fine;
+    #   tightening would require waiting for tokenizers to bump spm_precompiled
+    #   к the nom 8.x line.
+    # - `webpki-roots`: ureq 2.12 (triage build-dep for tokenizer fixture
+    #   download per build.rs Phase 2) pulls webpki-roots 0.26; reqwest 0.13
+    #   (transitive via tauri / tauri-plugin-updater) pulls webpki-roots 1.x.
+    #   Build vs runtime split (ureq is build-only — the tokenizer.json
+    #   download happens once at compile time); reqwest is the runtime HTTPS
+    #   client for the Tauri updater. Tightening would require either
+    #   downgrading reqwest (loss of tls upgrades) OR waiting для ureq 3.x
+    #   к bump к webpki-roots 1.x.
+    { crate = "nom" },
+    { crate = "webpki-roots" },
 ]
 skip-tree = []
 

@@ -125,6 +125,22 @@ pub use crate::baseline::{
     run_q6, run_q7,
 };
 
+// Chunk #81 — L3 digest assembler + LWW queue + active-incident exception.
+// Re-export public-API types from `triage::digest` so pulse-app boot
+// wiring (digest_runtime adapter + main.rs cadence coordinator hook)
+// imports one shape per chunks #61/#62/#63/#67/#78/#80 precedent.
+// Capabilities P-031 / P-032 / P-044 / P-059.
+pub use crate::digest::{
+    ACTIVE_INCIDENT_QUEUE_CAP, Assembler, BROADCAST_CAPACITY as DIGEST_BROADCAST_CAPACITY,
+    DIGEST_CORPUS_RETRIEVAL_LIMIT, DIGEST_TOKEN_BUDGET_HARD_CAP, DIGEST_TOKEN_BUDGET_SOFT_MAX,
+    DIGEST_TOKEN_BUDGET_SOFT_MIN, DigestAssembler, DigestBroadcast, DigestError, DigestFuture,
+    LwwQueue, QueueAction, STREAM_NAME_DIGESTS, TARGET_DIGEST_ASSEMBLE,
+    TARGET_DIGEST_CORPUS_RETRIEVE, TARGET_DIGEST_LWW_DROP, TARGET_DIGEST_LWW_REPLACE,
+    TARGET_DIGEST_TOKEN_COUNT_VALIDATE, TARGET_METRIC_ACTIVE_INCIDENT_QUEUE_DEPTH,
+    TARGET_METRIC_DIGEST_TOKEN_COUNT_MS, TARGET_METRIC_LWW_DROP_COUNT_TOTAL, TIER1_QUEUE_CAP,
+    assembler::{DigestProjectContext, DigestRecentCommit},
+};
+
 /// Kind of detected condition emitted as an attention cue. Bounded
 /// enumeration; future kinds are added explicitly (no `Other(String)`
 /// catch-all). Variants serialize as snake_case strings. Chunk #78 added
@@ -205,9 +221,13 @@ pub enum IncidentStatus {
     Resolved,
 }
 
-/// Kind of digest emitted at the L4 output layer. Bounded enumeration;
+/// Kind of digest emitted at the L3/L4 layer boundary. Bounded enumeration;
 /// future kinds are added explicitly. Variants serialize as snake_case
 /// strings.
+///
+/// Chunk #81 extension: cadence-mode tier variants
+/// (`CadenceTier1`/`Tier2`/`Tier3`/`Reflection`) + `ResolutionSummary`
+/// per dist-arch v3 §L3 invocation modes + §Queue behavior.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum DigestKind {
@@ -215,6 +235,11 @@ pub enum DigestKind {
     IncidentSummary,
     BaselineState,
     AttentionCueDigest,
+    CadenceTier1,
+    CadenceTier2,
+    CadenceTier3,
+    Reflection,
+    ResolutionSummary,
 }
 
 /// References to evidence supporting an incident or attention cue. Stores
@@ -336,10 +361,69 @@ pub struct Incident {
     pub read_at_unix_nano: Option<i64>,
 }
 
-/// Output of the L4 distillation layer — a digest summarizing incidents,
-/// baselines, or attention cues for downstream consumption (paste-to-AI
-/// surface, MCP tool response, snapshot file).
+/// LWW queue mode classifier for `Digest` per dist-arch v3 §Queue behavior.
+/// Determines whether the digest is LWW-eligible, an active-incident
+/// bypass that escapes LWW, or a Tier-1 hard signal that never gets
+/// LWW-replaced. Reflection digests follow LWW as well (cadence-mode).
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum DigestLwwMode {
+    /// Default cadence-mode digest; LWW-replaces prior cadence digest
+    /// within the same workspace.
+    Default,
+    /// Cadence-mode digest produced while ≥1 active incident has severity
+    /// ≥ Suggested in the digest's workspace. Bypasses LWW; queues
+    /// independently (capped at 5 per workspace).
+    ActiveIncidentBypass,
+    /// Tier-1 hard signal digest. Never LWW-replaced (capped at 3
+    /// regardless of workspace state).
+    Tier1NeverLww,
+    /// Reflection digest (30-minute background cadence). Same LWW
+    /// semantics as Default cadence digests; classified separately for
+    /// observability + scheduling discipline.
+    Reflection,
+}
+
+/// Per-service row in the SERVICES section of an Appendix C digest
+/// (`rate, error%, p99 vs baselines`). f64 fields → `PartialEq` only
+/// (matches `AttentionCue` precedent at this file).
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct DigestServiceRow {
+    /// Service identifier (e.g., `service.name`). Pre-scrubbed at the
+    /// producer side; chunk #81 assembler invokes
+    /// `security::scrubber::scrub_attribute` BEFORE this field is
+    /// populated when the source string is OTLP-attribute-derived.
+    pub service: String,
+    pub rate_per_sec: f64,
+    pub rate_baseline_per_sec: f64,
+    pub error_rate: f64,
+    pub error_rate_baseline: f64,
+    pub p99_latency_ms: f64,
+    pub p99_baseline_ms: f64,
+}
+
+/// Compact attention-cue reference embedded in а digest's ATTENTION CUES
+/// section. Carries enumerated cue kind + scope-summary string (NOT raw
+/// OTLP attributes — scrubbed at producer).
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct DigestCueRef {
+    pub kind: CueKind,
+    pub priority_tier: PriorityTier,
+    /// Free-text scope summary; pre-scrubbed at producer side.
+    pub summary: String,
+}
+
+/// Output of the L3 distillation layer — а digest summarizing incidents,
+/// baselines, attention cues, services, and corpus matches for downstream
+/// L4 LLM consumption + corpus archival.
+///
+/// Chunk #81 extension: adds workspace identification, window timestamps,
+/// SERVICES + ATTENTION CUES + CORPUS MATCHES structured fields, and
+/// LWW metadata (lww_mode + active_incident_bypass + resolution_event)
+/// per dist-arch v3 §Appendix C. f64 fields в `services` force dropping
+/// the `Eq` derive (preserving `PartialEq`); existing tests use
+/// `assert_eq!` which works on `PartialEq`.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Digest {
     pub kind: DigestKind,
     pub token_count: usize,
@@ -352,6 +436,85 @@ pub struct Digest {
     /// References to incident IDs included in this digest.
     pub incident_refs: Vec<String>,
     pub generated_at_unix_nano: i64,
+    /// Workspace canonical path (chunk #81). Drives corpus filter +
+    /// active-incident lookup. Pre-canonicalized at workspace-detector;
+    /// not scrubbed (workspace path is а first-party detected identifier,
+    /// not OTLP-attribute-derived).
+    pub workspace: String,
+    /// Window start (chunk #81). Used for corpus retention / replay.
+    pub window_start_unix_nano: i64,
+    pub window_end_unix_nano: i64,
+    /// SERVICES section structured rows (chunk #81). Sorted by anomaly
+    /// severity per Appendix C composition rule.
+    pub services: Vec<DigestServiceRow>,
+    /// ATTENTION CUES section (chunk #81). Combined HIGH + MEDIUM tiers;
+    /// renderer separates by `priority_tier`.
+    pub attention_cues: Vec<DigestCueRef>,
+    /// CORPUS MATCHES section (chunk #81). Top-N fingerprint hashes of
+    /// similar past incidents retrieved from corpus (capability P-044).
+    pub corpus_matches: Vec<String>,
+    /// LWW queue mode (chunk #81). Drives `LwwQueue::push` decision.
+    pub lww_mode: DigestLwwMode,
+    /// True if active-incident exception bypassed LWW (chunk #81 / P-059).
+    /// Mirrored as а discriminating field в `digest.lww.replace` events
+    /// per obs plan binding.
+    pub active_incident_bypass: bool,
+    /// True if this digest captures а Resolved transition (chunk #81 /
+    /// P-022). L4 prompt uses this flag to generate resolution summary.
+    pub resolution_event: bool,
+}
+
+impl Digest {
+    /// Apply а scrubbing closure к every OTLP-attribute-derived string
+    /// field per chunk #72 cross-crate `scrubbed_clone` pattern (CLAUDE.md
+    /// §Session Learnings 2026-05-20). Pulse-app side dep-injects
+    /// `security::scrubber::scrub_attribute`-wrapping closure; this
+    /// method lives on the lower crate per arch §Module dependency
+    /// direction (no `security` crate dep on `triage`).
+    ///
+    /// Fields scrubbed: `payload_summary` (the rendered Appendix C text
+    /// body), each `attention_cues[].summary`, each `services[].service`
+    /// name. `workspace` is NOT scrubbed (first-party canonicalized
+    /// path, not OTLP-derived). `incident_refs` + `corpus_matches`
+    /// carry hash IDs, not user content.
+    pub fn scrubbed_clone<F: Fn(&str) -> String>(&self, scrub: F) -> Self {
+        Self {
+            kind: self.kind,
+            token_count: self.token_count,
+            payload_summary: scrub(&self.payload_summary),
+            incident_refs: self.incident_refs.clone(),
+            generated_at_unix_nano: self.generated_at_unix_nano,
+            workspace: self.workspace.clone(),
+            window_start_unix_nano: self.window_start_unix_nano,
+            window_end_unix_nano: self.window_end_unix_nano,
+            services: self
+                .services
+                .iter()
+                .map(|row| DigestServiceRow {
+                    service: scrub(&row.service),
+                    rate_per_sec: row.rate_per_sec,
+                    rate_baseline_per_sec: row.rate_baseline_per_sec,
+                    error_rate: row.error_rate,
+                    error_rate_baseline: row.error_rate_baseline,
+                    p99_latency_ms: row.p99_latency_ms,
+                    p99_baseline_ms: row.p99_baseline_ms,
+                })
+                .collect(),
+            attention_cues: self
+                .attention_cues
+                .iter()
+                .map(|cue| DigestCueRef {
+                    kind: cue.kind,
+                    priority_tier: cue.priority_tier,
+                    summary: scrub(&cue.summary),
+                })
+                .collect(),
+            corpus_matches: self.corpus_matches.clone(),
+            lww_mode: self.lww_mode,
+            active_incident_bypass: self.active_incident_bypass,
+            resolution_event: self.resolution_event,
+        }
+    }
 }
 
 #[cfg(test)]
@@ -409,6 +572,27 @@ mod tests {
             payload_summary: "[redacted] 1 active incident, 3 resolved".to_string(),
             incident_refs: vec!["42".to_string()],
             generated_at_unix_nano: 1_700_000_002_000,
+            workspace: "/home/dev/example".to_string(),
+            window_start_unix_nano: 1_700_000_000_000,
+            window_end_unix_nano: 1_700_000_060_000,
+            services: vec![DigestServiceRow {
+                service: "auth-service".to_string(),
+                rate_per_sec: 45.2,
+                rate_baseline_per_sec: 44.0,
+                error_rate: 0.123,
+                error_rate_baseline: 0.008,
+                p99_latency_ms: 240.0,
+                p99_baseline_ms: 80.0,
+            }],
+            attention_cues: vec![DigestCueRef {
+                kind: CueKind::ErrorRateSpike,
+                priority_tier: PriorityTier::Suggested,
+                summary: "auth-service error rate 12.3% vs 0.8% baseline".to_string(),
+            }],
+            corpus_matches: vec!["fp-a3f9".to_string()],
+            lww_mode: DigestLwwMode::Default,
+            active_incident_bypass: false,
+            resolution_event: false,
         }
     }
 

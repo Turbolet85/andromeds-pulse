@@ -22,16 +22,17 @@ use triage::contract::{
     DEFAULT_HEARTBEAT_INTERVAL, DEFAULT_INCIDENT_PERSIST_INTERVAL_SECS,
     DEFAULT_LIFECYCLE_HEARTBEAT_INTERVAL, DEFAULT_LIFECYCLE_PERSIST_INTERVAL_SECS,
     DEFAULT_PERSIST_INTERVAL_NANOS, DEFAULT_SERVICE_COUNT_CAP, DEFAULT_STORM_PERSIST_INTERVAL_SECS,
-    DEFAULT_STORM_WINDOW_SECONDS, DEFAULT_SUGGESTED_THRESHOLD, HardwareProfileSource,
-    InMemoryIncidentRegistry, InMemoryServiceRegistry, IncidentLifecycleBroadcast,
-    IncidentPersistence, IncidentRegistry, LifecyclePersistence, RestartDetector,
-    RestartEventBroadcast, RetryStormDetector, ServiceLifecycleBroadcast, ServiceRegistry,
-    SqlQueryRunner, StormPersistence, SuppressionState, TARGET_LIFECYCLE_CORPUS_RESTORE,
-    TARGET_LIFECYCLE_PERSIST_ERROR, TARGET_PATTERN_STORM_CORPUS_RESTORE,
-    TARGET_PATTERN_STORM_PERSIST_ERROR, Thresholds, TriageSqlState, UnknownHardwareProfile,
-    bootstrap_state, run_incident_persist_loop, run_lifecycle_persist_loop, run_persist_loop,
-    run_storm_persist_loop, start_cadence_coordinator, start_emitter, start_lifecycle_heartbeat,
-    start_restart_detector, start_storm_detector,
+    DEFAULT_STORM_WINDOW_SECONDS, DEFAULT_SUGGESTED_THRESHOLD, DigestBroadcast,
+    HardwareProfileSource, InMemoryIncidentRegistry, InMemoryServiceRegistry,
+    IncidentLifecycleBroadcast, IncidentPersistence, IncidentRegistry, LifecyclePersistence,
+    LwwQueue, RestartDetector, RestartEventBroadcast, RetryStormDetector,
+    ServiceLifecycleBroadcast, ServiceRegistry, SqlQueryRunner, StormPersistence, SuppressionState,
+    TARGET_LIFECYCLE_CORPUS_RESTORE, TARGET_LIFECYCLE_PERSIST_ERROR,
+    TARGET_PATTERN_STORM_CORPUS_RESTORE, TARGET_PATTERN_STORM_PERSIST_ERROR, Thresholds,
+    TriageSqlState, UnknownHardwareProfile, bootstrap_state, run_incident_persist_loop,
+    run_lifecycle_persist_loop, run_persist_loop, run_storm_persist_loop,
+    start_cadence_coordinator, start_emitter, start_lifecycle_heartbeat, start_restart_detector,
+    start_storm_detector,
 };
 use ui_bridge::Settings;
 use ui_bridge::health::{
@@ -1090,6 +1091,61 @@ fn main() {
                 tracing::warn!(
                     target: "cadence.config.safety_floor",
                     "cadence coordinator disabled — buffer connection unavailable",
+                );
+            }
+            // Chunk #81 — L3 digest assembler runtime. Constructs the
+            // assembler if both sql_runner + corpus_writer are available
+            // (degrades gracefully when buffer or corpus unavailable per
+            // chunk #80 / chunk #68 substrates). Spawns two tasks:
+            // - cadence subscriber: invokes assembler.assemble() per
+            //   CadenceEvent
+            // - digest persister: writes each assembled digest к
+            //   corpus.digest_archive via CorpusWriter::save_digest
+            let digest_broadcast: Arc<DigestBroadcast> = Arc::new(DigestBroadcast::new());
+            let digest_queue: Arc<std::sync::Mutex<LwwQueue>> =
+                Arc::new(std::sync::Mutex::new(LwwQueue::new()));
+            if let (Some(sql_runner), Some(corpus_writer_handle)) =
+                (cadence_sql_runner.as_ref(), corpus_writer.as_ref())
+            {
+                match pulse_app::digest_runtime::build_assembler(
+                    Arc::clone(sql_runner),
+                    Arc::clone(&incident_registry_for_persist),
+                    Arc::clone(&digest_broadcast),
+                    Arc::clone(&digest_queue),
+                ) {
+                    Ok(assembler) => {
+                        let project_context = std::env::current_dir()
+                            .ok()
+                            .and_then(|cwd| workspace_detector::detect::detect(&cwd).ok())
+                            .as_ref()
+                            .map(pulse_app::digest_runtime::workspace_to_digest_context)
+                            .unwrap_or_default();
+                        pulse_app::digest_runtime::spawn_cadence_subscriber(
+                            Arc::clone(&cadence_event_broadcast),
+                            Arc::clone(&assembler),
+                            project_context,
+                        );
+                        pulse_app::digest_runtime::spawn_digest_persister(
+                            Arc::clone(&digest_broadcast),
+                            Arc::clone(corpus_writer_handle),
+                        );
+                        tracing::info!(
+                            target: "digest.runtime.boot",
+                            "digest assembler spawned (cadence subscriber + persister)",
+                        );
+                    }
+                    Err(e) => {
+                        tracing::warn!(
+                            target: "digest.runtime.boot",
+                            error_message = %e,
+                            "digest assembler init failed; L3 disabled",
+                        );
+                    }
+                }
+            } else {
+                tracing::warn!(
+                    target: "digest.runtime.boot",
+                    "digest assembler disabled — buffer connection or corpus unavailable",
                 );
             }
             // Chunk #67 — service lifecycle heartbeat tick (15s default
