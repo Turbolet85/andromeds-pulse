@@ -479,3 +479,10 @@ _This section accumulates entries from `/andromeda-evolve --allow-arch-registry`
 **Rationale:** D3 capability-drift closure for chunk #78 incidents namespace TauRPC procedures + lifecycle broadcast topic. Mirrors 2026-05-18 chunk #67 `services-namespace` + chunk #68 `corpus-additions` precedents (single-coordinated multi-item amendment across sub-sections under §Occupied Resources).
 **Marker:** `.andromeda/runs/2026-05-23T07-49-08-spec-amendment-acknowledge-incidents-namespace/amendment.md`
 
+### 2026-05-23 — Acknowledge `pulse://stream/cadence-events` (--allow-arch-registry)
+
+**Section:** §Occupied Resources Tauri IPC events (broadcast channels).
+**Added:** `pulse://stream/cadence-events` (`crates/triage/src/cadence/broadcast.rs:9`, chunk #80).
+**Rationale:** D3 capability-drift closure for chunk #80 cadence coordinator L6-visibility broadcast topic. Mirrors 2026-05-17 chunk #62 `attention-cues` + chunk #63 `restart-events` precedents.
+**Marker:** `.andromeda/runs/2026-05-23T12-10-53-spec-amendment-acknowledge-cadence-events-broadcast/amendment.md`
+
