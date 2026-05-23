@@ -1,6 +1,6 @@
 schema_version: 2
-last_wrap: 2026-05-23T14:45:16Z
-last_reconcile: 2026-05-23T14:45:16Z
+last_wrap: 2026-05-23T15:22:57Z
+last_reconcile: 2026-05-23T15:22:57Z
 
 last_completed_chunk:
   route_index: 80
@@ -603,7 +603,7 @@ plan_freshness:
   input_mtime: 2026-05-02T06:52:58Z
 
 living_artifact_freshness:
-  dep_tree_reconciled_at: 2026-05-23T14:45:16Z
+  dep_tree_reconciled_at: 2026-05-23T15:22:57Z
   api_surface_reconciled_at: 2026-05-21T06:30:00Z
   most_recent_code_mtime: 2026-05-23T12:16:17Z
   reconcile_failed: false
@@ -616,7 +616,7 @@ drift_warnings:
     severity: warning
     remediation_hint: "no matching active amendment (Case 3 generic per spec-amendment-protocol.md Part C); remediation /andromeda-setup-project (full re-derive) OR investigate edit source; next chunk #81 route-append pointer-table cascade will organically clear via CLAUDE.md edit"
     first_observed_session_count: 128
-    last_observed_session_count: 128
+    last_observed_session_count: 129
 
 spec_amendments:
   active: []
@@ -1257,12 +1257,12 @@ spec_amendments:
 # Modification 3 (per-accumulator verification_condition declared).
 pipeline_accumulators:
   api_surface_deferral:
-    consecutive_count: 32
+    consecutive_count: 33                # session 129 Phase 8 step 4b.i incremented from 32 (last_deferred_session=128 < current=129 → not yet credited; increment fired)
     first_deferred_session: 91
-    last_deferred_session: 128
-    matured_at_session: 128
-    refactor_proposed_at: null
-    refactor_proposal_id: null
+    last_deferred_session: 129           # session 129 Phase 8 step 4b.i updated from 128
+    matured_at_session: 128              # preserved from session 128 step 4a migration (matures NOW captured at migration time; Mod 1)
+    refactor_proposed_at: 129            # NEW — session 129 Phase 8 step 4b.ii filed R1 this wrap
+    refactor_proposal_id: "R1"           # NEW — session 129 Phase 8 step 4b.ii filed R1 entry to docs/andromeda-improvements.md
     resolved_in_chunk: null
     pre_resolution_count_snapshot: null
     verified_cleared_at_session: null
@@ -1276,4 +1276,4 @@ pipeline_accumulators:
   # verification proves the loop end-to-end). Future activation: deliberate
   # one-time edit to add A2 entry here + update catalogue status DORMANT → ACTIVE.
 
-session_count: 128
+session_count: 129
