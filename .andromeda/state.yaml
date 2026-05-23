@@ -619,7 +619,45 @@ drift_warnings:
     last_observed_session_count: 129
 
 spec_amendments:
-  active: []
+  active:
+    - amendment_id: 2026-05-23T15-54-23-append-chunk-81-digest-assembler-lww-queue
+      plans:
+        - path: route.md
+          sections:
+            - "§1 Route Scope Summary (Total chunks mechanical update per Proposal 6)"
+            - "§2 Roadmap (Epoch 9 body)"
+            - "§3 Decisions Log"
+          decisions_log_section: "2026-05-23 — Append chunk #81 Digest assembler + LWW queue + active-incident exception (--allow-route-append)"
+      trigger:
+        chunk: null
+        phase: null
+        harness: "user-driven via /andromeda-evolve"
+      authority:
+        winning_plan: route.md
+        winning_tier: pipeline-state
+        losing_plan: route.md
+        losing_concern: chunk-list-stale-vs-pipeline-reality
+        rationale: "Pulse v0.2.0 plan declares chunk #81 as next Phase 7 chunk; deps #79+#62+#66+#67+#69+#78 all landed; carry-over from sessions 127-128 handoff."
+      impl_files_synced: []
+      expected_propagation:
+        - "CLAUDE.md (<!-- GENERATED:setup:pointer-table --> chunk-count line: (9 epochs / 80 chunks) → (9 epochs / 81 chunks))"
+      marker_path: .andromeda/runs/2026-05-23T15-54-23-spec-amendment-append-chunk-81-digest-assembler-lww-queue/amendment.md
+      applied_at: 2026-05-23T15:54:23Z
+      noted_at: null
+      propagated_by_run: .andromeda/runs/2026-05-23T15-54-23-setup-project-delta/
+      archived_at: null
+      verification_status: clean
+      flag_used: --allow-route-append
+      form: 1
+      route_section_modified: "Epoch 9 — Foundation v0.2.0"
+      chunks_added:
+        - position: 81
+          text: "Digest assembler + LWW queue + active-incident exception — compose L3 digest from L1a/L2/corpus; LWW for cadence with active-incident bypass (capabilities P-031/P-032/P-044/P-059; detail in pulse-v0_2_0-route §81)"
+      chunks_renumbered: []
+      motivation: "Carry-over from sessions 127-128 handoff; first L3 digest pipeline chunk; predecessor #80 cadence coordinator delivers cadence-triggers consumed by digest assembler."
+      confirmed_shift: false
+      scope_summary_updates:
+        - "Total chunks: 80 → 81"
   archive:
     - amendment_id: 2026-05-23T12-10-53-acknowledge-cadence-events-broadcast
       plans:
