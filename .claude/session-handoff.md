@@ -1,75 +1,137 @@
 # Session Handoff
 
-**Last Updated:** 2026-05-23T12:26:04Z
+**Last Updated:** 2026-05-23T14:45:16Z
 **Branch:** main
 **Session End Status:** clean
-**Last Commit:** {pending — this wrap commit subject: chore(wrap): session 127 — chunk #80 pulse://stream/cadence-events arch-registry amendment archived (Active → Propagated → Archived in single session; textbook standard Type 6 single-cycle wrap mirroring session 122 chunk #78 precedent)}
+**Last Commit:** {pending — this wrap commit subject: chore(wrap): session 128 — self-evolve infrastructure landing + first dogfood wrap (Phase 1: session-state-contract.md byte-identical 3-way edit; Phase 2: 5 wrap-local + new-session-local files; 6/6 shared contracts byte-identical verified; Phase 8 step 5 v2.1 → v2.2 migration seeded A1 api_surface_deferral with consecutive_count=32 + matured_at_session=128; A2 catalogued-but-dormant; R1 NOT filed this wrap per first-wrap ordering — Phase 3 step 7 runs before Phase 8 migration; R1 will fire next wrap; Mode H rendered as earned honest-healthy)}
 
 ## Current State
 
-- **Last completed chunk:** route#80 "Cadence coordinator + three-tier triggering — orchestrate L1a SQL queries per attention cue priority tier (capabilities P-052/P-060; detail in pulse-v0_2_0-route §80)" (committed 2026-05-23T11:40:00Z; commit_sha=9296fa3 healed this wrap from "pending" per Proposal 16 State H housekeeping)
-- **Next chunk:** route#81 "Digest assembler + LWW queue + active-incident exception" — NOT YET registered in `.andromeda/route.md` §2 Epoch 9 (registered only in `docs/v0_2_0/pulse-v0_2_0-route.md` §Phase 7 §81). Requires `/andromeda-evolve --allow-route-append` to register before `/andromeda-phase` invocation.
-- **In-progress phase:** none (chunk #80 implementation complete session 126; META cycle this session 127)
-- **Phase artifacts present:** `.andromeda/phases/phase-{1..77}/` (phase-77 from session 126; chunk #80 plan)
+- **Last completed chunk:** route#80 "Cadence coordinator + three-tier triggering — orchestrate L1a SQL queries per attention cue priority tier (capabilities P-052/P-060; detail in pulse-v0_2_0-route §80)" (committed 2026-05-23T11:40:00Z; commit_sha=9296fa3 healed in session 127 wrap per Proposal 16 State H housekeeping; unchanged this wrap)
+- **Next chunk:** route#81 "Digest assembler + LWW queue + active-incident exception" — NOT YET registered in `.andromeda/route.md` §2 Epoch 9. Requires `/andromeda-evolve --allow-route-append` to register before `/andromeda-phase` invocation. **Independent of self-evolve infrastructure** — chunk #81 work proceeds regardless of A1/R1 dogfood lifecycle.
+- **In-progress phase:** none (chunk #80 implementation complete session 126; META cycle this session 128)
+- **Phase artifacts present:** `.andromeda/phases/phase-{1..77}/` (unchanged from session 127)
 
 ## Andromeda State Detection (states A-K)
 
-- **All states CLEAR post-wrap modulo J-soft (33rd-consecutive api-surface deferral) + one C-info transient (arch.md mtime > CLAUDE.md mtime per Type 6 Branch (a) — will clear at next CLAUDE.md cascade; matches session 122 post-wrap state exactly).**
-- A — In-progress runs: only this session's evolve + spec-amendment + setup-project-delta + wrap-session run-dirs. CLEAR.
-- B — Status drift: state.yaml.last_wrap 12:26Z this wrap; recent commits coherent (session 126 wrap 9296fa3 + session 127 delta-rerun c01b2a4 + this wrap subsequent). CLEAR.
-- C — Architecture staleness: arch.md mtime 2026-05-23T12:16:17Z > CLAUDE.md mtime 2026-05-23T09:58:12Z due to Type 6 Branch (a) (this session's evolve edited arch.md but did not cascade CLAUDE.md per Check 7.7 sub-criterion 2 — broadcast topics not in default cascade target list). Severity: info, transient (will clear at next CLAUDE.md cascade, e.g., chunk #81 route-append pointer-table refresh). Same pattern as session 122 post-wrap.
-- D — Pending route: route.md present, 80 chunks. Chunk #81 NOT YET appended; next chunk requires `/andromeda-evolve --allow-route-append` (Type 7 Form 1) BEFORE `/andromeda-phase`. Same as session 126 dashboard pattern. WARNING (informational; expected next-step gating).
-- E — Pending phase planning: no in_progress phase. CLEAR.
+- A — In-progress runs: only this session's wrap-session run. CLEAR.
+- B — Status drift: clean per state.yaml.last_wrap=14:45Z this wrap. CLEAR.
+- ⚠️ C — Architecture staleness: arch.md mtime 12:16Z > CLAUDE.md mtime 09:58Z by ~2.3h (carry-over from session 127 chunk #80 Type 6 Branch (a) — broadcast topic amendment landed in arch.md but did NOT cascade CLAUDE.md per Check 7.7 sub-criterion 2). Same fingerprint as D5 entry below (state C and D5 share the same mtime signal). Severity info per session 127 narrative; remediation deferred to next chunk #81 route-append cascade.
+- ⚠️ D — Pending route: chunk #81 NOT YET registered. Same as session 127 carry-over. Requires `/andromeda-evolve --allow-route-append` BEFORE `/andromeda-phase` invocation.
+- E — Pending phase planning: in_progress=null. CLEAR.
 - F — Pending implementation: chunk #80 complete (session 126). CLEAR.
 - G — Multiple concurrent runs: only this session's expected runs. CLEAR.
-- H — Route chunk drift: state.yaml.last_completed_chunk.commit_sha healed this wrap from "pending" → "9296fa3" via Phase 8 step 7 State H housekeeping (token-overlap match against chunk #80 title vs commit subject 100%; HEAD-reachable verified). CLEAR.
-- I — Specialist plan freshness mismatch: state.yaml.plan_freshness.arch_mtime updated to 12:16Z (matches current arch.md mtime); other 8 mtimes unchanged from session 126. CLEAR.
-- **J-soft** — Living artifact staleness: api-surface deferred 33rd consecutive per `state.yaml.living_artifact_freshness.api_surface_deferred = true`. META session zero new pub items; cumulative backlog from chunks #70-#80 unchanged. Re-baseline EXPLICITLY warranted at next non-META wrap (most plausibly chunk #81 implementation wrap; will introduce substantial new triage::digest module pub items). CLEAR (modulo intentional flag).
-- K — Multi-chunk in-progress imbalance: state.yaml.in_progress=null post-wrap. CLEAR.
+- H — Route chunk drift: state.yaml.last_completed_chunk.commit_sha=9296fa3 reachable from HEAD (healed in session 127). CLEAR.
+- I — Specialist plan freshness mismatch: state.yaml.plan_freshness mtimes match current file mtimes (no plan files touched this session). CLEAR.
+- **J-soft (now A1-tracked via accumulator)** — Living artifact staleness: api_surface_deferred=true (would be 33rd consecutive if A1 had credited this wrap; **but A1 accumulator-tracked consecutive_count stays at 32** because Phase 3 step 7b skipped this wrap — first-wrap ordering means accumulator doesn't credit this wrap's deferral; subsequent wraps will increment normally). CLEAR (modulo intentional flag; now tracked via new A1 accumulator).
+- K — Multi-chunk in-progress imbalance: state.yaml.in_progress=null. CLEAR.
 
 ## Drift Detection (6 dimensions)
 
-**All 6 dimensions CLEAN post-wrap (D3 from session 126 CLEARED by this wrap's commit; D5 transient cleared at Phase 8 archival per session 122 precedent).**
+⚠️ D5 — arch.md mtime > CLAUDE.md mtime by ~2.3h (12:16Z vs 09:58Z). No matching active amendment (chunk #80 Type 6 amendment archived in session 127; state.yaml.spec_amendments.active empty — Case 3 generic warning per spec-amendment-protocol.md Part C). Severity: warning. Remediation: `/andromeda-setup-project` (full re-derive) OR investigate edit source. Will organically clear at next route-append amendment (chunk #81) via CLAUDE.md pointer-table cascade.
+  - first_observed_session_count: 128 (newly fired this wrap)
+  - last_observed_session_count: 128
+  - Stale-drift escalation: NO (age = 0 wraps)
 
-- D1 (living artifact staleness): dep-tree reconciled 2026-05-23T12:26:04Z (this wrap; tooling rerun 446 lines identical к session 124/125/126 baseline; zero-diff verification per integrity-protocol.md Part B step 5 no-op + refresh path). api-surface deferred per soft-J. CLEAN.
-- D2 (wrong content): tooling output identical к prior LIVING block; zero-diff path. CLEAN.
-- D3 (plan-to-code drift): pulse://stream/cadence-events NOW REGISTERED in arch §Occupied Resources Tauri IPC events (broadcast channels) sub-section via this session's evolve commit (c01b2a4 bundled). D3 from session 126 CLEARED. CLEAN.
-- D4 (plan-to-plan drift): zero specialist plan files touched this session. CLEAN.
-- D5 (plan-to-CLAUDE.md drift): arch.md mtime 12:16Z > CLAUDE.md mtime 09:58Z fires Phase 6 — matched active amendment + propagated/unarchived → severity=info Case 2 (transient via amendment match per spec-amendment-protocol.md Part C decision tree); CLEARED at Phase 8 archive (drift_warnings = [] post-archive); will re-fire as generic warning at next session IF no intervening CLAUDE.md cascade — next route-append amendment (chunk #81) will organically clear via pointer-table cascade. Same pattern as session 122 post-wrap exactly. CLEAN at end of this Phase 8.
-- D6 (route chunk progression): state.yaml.last_completed_chunk unchanged (route#80; META session). commit_sha healed "pending" → "9296fa3" via State H housekeeping. CLEAN.
+All other dimensions (D1, D2, D3, D4, D6): CLEAN.
 
 ## Spec Amendments (this session)
 
-Active applied this session: 1 (now archived)
-- **Plan(s):** `.andromeda/architecture.md`
-- **Decisions Log:** §Architecture Registry Updates — 2026-05-23 "Acknowledge `pulse://stream/cadence-events` (--allow-arch-registry)"
-- **Trigger:** user-driven evolution via /andromeda-evolve (no chunk/phase/harness)
-- **Authority resolution:** implementation tier (crates/triage/src/cadence/broadcast.rs) > architecture.md registry-section-stale-vs-implementation-reality
-- **Lifecycle:** applied 2026-05-23T12:10:53Z | noted 2026-05-23T12:26:04Z | propagated 2026-05-23T12:19:08Z (run-dir: `.andromeda/runs/2026-05-23T12-19-08-setup-project-delta`) | archived 2026-05-23T12:26:04Z
-- **Marker:** `.andromeda/runs/2026-05-23T12-10-53-spec-amendment-acknowledge-cadence-events-broadcast/amendment.md`
+(none this session — META cycle for self-evolve infrastructure landing did not generate a pulse-project amendment; all infrastructure edits were in `~/.claude/skills/` USER-level skill files. state.yaml.spec_amendments.active stays empty; archive unchanged at 46 entries from session 127.)
 
-Archived this session: 1 amendment — see archive list in state.yaml (grew 45 → 46 entries).
+## Self-evolve infrastructure status (NEW v2.2 — FIRST DOGFOOD WRAP)
+
+**Self-evolve infrastructure landed across 6 user-level skill files this session:**
+
+Phase 1 (session-state-contract.md — 3-way byte-identical edit):
+- ✓ Added `pipeline_accumulators` schema to Part B
+- ✓ Documented v2.1 → v2.2 in-place additive migration
+- ✓ Added 13 validation bullets for pipeline_accumulators
+- ✓ Verified byte-identical via diff -q (all 3 copies md5: f9b422557b53e7a76d58dbe2fe4e135e)
+
+Phase 2 (5 wrap-local + new-session-local files):
+- ✓ `wrap-session/references/curation-guide.md` (+212 LOC): §Maturation gate subsection added with named accumulators catalogue (A1 ACTIVE; A2 DOCUMENTED-BUT-DORMANT), thresholds, refactor entry shape, routing table, one-wrap-lag verification, anti-patterns
+- ✓ `wrap-session/SKILL.md` (+83 LOC): Phase 3 step 7 ADDED (Andromeda pipeline meta-observation; sub-steps 7a/7b/7c/7d/7e); Phase 8 step 8 ADDED (one-wrap-lag verification); Phase 11 Pipeline meta-observation subsection added
+- ✓ `wrap-session/references/visual-references.md` (+75 LOC): Phase 11 Mode P/R/H templates
+- ✓ `new-session/SKILL.md` (+30 LOC): Phase 9 "Matured pipeline patterns" subsection + priority hierarchy update
+- ✓ `new-session/references/visual-references.md` (+42 LOC): Phase 9 Matured pipeline patterns template
+- ✓ 6/6 shared contracts byte-identical post-edits verified via md5sum
+
+**Phase 8 step 5 v2.1 → v2.2 migration this wrap (seeded A1 per Modifications 1+2+3):**
+
+state.yaml.pipeline_accumulators (newly created field):
+
+```yaml
+pipeline_accumulators:
+  api_surface_deferral:
+    consecutive_count: 32              # parsed ONE-TIME from existing
+                                       # api_surface_deferred_reason narrative
+                                       # "32nd consecutive deferral per
+                                       # sessions 91-126 pattern"
+    first_deferred_session: 91
+    last_deferred_session: 128         # current session_count (Mod 1)
+    matured_at_session: 128            # NOW (system first detects past
+                                       # threshold; no retroactive computation)
+    refactor_proposed_at: null
+    refactor_proposal_id: null
+    resolved_in_chunk: null
+    pre_resolution_count_snapshot: null
+    verified_cleared_at_session: null
+    verification_condition: "consecutive_count == 0"   # Mod 3
+    evidence_snapshot: "per-crate cargo +nightly public-api iteration
+      across 14 crates exceeds wrap budget (7-14 min vs ~3 min); 32nd
+      consecutive deferral per sessions 91-126 pattern; cumulative
+      backlog ~150+ new pub items unaccounted-for since session 91
+      baseline; re-baseline EXPLICITLY warranted at next non-META wrap"
+    diagnostics: []
+  # A2 code_arch_registration_cycle DOCUMENTED-BUT-DORMANT per Mod 2
+  # (defined in curation-guide.md catalogue but NOT seeded here;
+  #  NOT scanned by Phase 3 step 7b; activates after R1 IMPLEMENTED)
+```
+
+**R1 NOT filed this wrap** — Phase 3 step 7 ran BEFORE Phase 8 step 5 migration:
+- At Phase 3 step 7 time: state.yaml.pipeline_accumulators field did not yet exist
+- Sub-step 7b: no ACTIVE entries to increment → SKIPPED silently
+- Sub-step 7c: no matured entries to file refactors for → SKIPPED silently
+- Sub-step 7d: no patch candidates passed Filter 4 → SKIPPED silently
+- Sub-step 7e: signaled **Mode H** (no entries filed; honest-healthy)
+- Phase 8 step 5 migration THEN seeded A1 with matured_at_session=128
+
+**Consequence (first-wrap-lag for first activation):**
+- This wrap: A1 seeded + matured, but R1 entry NOT filed yet
+- Next wrap: Phase 3 step 7c sees A1.matured_at_session != null AND A1.refactor_proposal_id == null → files R1 entry to docs/andromeda-improvements.md
+
+**Phase 8 step 8 one-wrap-lag verification this wrap:** zero entries with `resolved_in_chunk` set yet (A1 was just seeded). Verification loop empty. No action.
+
+**Phase 11 Pipeline meta-observation mode this wrap:** Mode H (HONEST HEALTHY — earned scan showing A1 was just seeded, matured, awaiting next-wrap R1 filing; A2 catalogued-but-dormant; D5 drift surfaced; smoke + dead-test status reported).
 
 ## Key Decisions This Session
 
-(none — META cycle mirroring session 122 chunk #78 Type 6 single-cycle precedent exactly; zero new patterns or corrections; 5th instance of single-item arch-registry broadcast topic Type 6 amendment shape — mechanically identical к the precedent and documenting it would be churn per P20 Mode H honest-healthy design.)
+- Self-evolve infrastructure landing executed in phased sequence (Phase 1 byte-identity isolation → user-confirmed → Phase 2 5-file edits → 6/6 verification → user-confirmed → Phase 3 first dogfood wrap). Phase 1's hard STOP after byte-identity verification was load-bearing — would have caught any drift on a single contract before propagating to others. Strategy proved sound.
+- Modification 1 (present-reality seed): consecutive_count=32 parsed ONE-TIME from narrative; first_deferred_session=91 from same; matured_at_session=128 (NOW) — no retroactive computation. State.yaml.pipeline_accumulators.api_surface_deferral.evidence_snapshot captures narrative one-time; subsequent wraps maintain consecutive_count via Phase 3 step 7b (NOT by re-reading narrative).
+- Modification 2 (A1 only): A2 catalogued-but-dormant — defined in curation-guide.md §A2 entry with **DOCUMENTED-BUT-DORMANT** status; NOT seeded in state.yaml; NOT scanned by Phase 3 step 7b. Activates in future deliberate step after R1 IMPLEMENTED.
+- Modification 3 (per-accumulator verification_condition): A1's condition is `"consecutive_count == 0"` (only verified-cleared when api-surface ACTUALLY reconciled). Universal 50%-drop heuristic rejected in favor of per-accumulator declared expressions.
+- First-wrap ordering observation surfaced: Phase 3 step 7 runs BEFORE Phase 8 step 5 migration; this creates a one-wrap-lag for first activation (A1 seeded this wrap; R1 fires next wrap). Honest-healthy implementation accepts this lag rather than restructuring SKILL.md ordering. User decides whether to amend ordering OR accept the lag (recommend accept — only affects first activation; subsequent wraps run in normal order).
 
 ## Files Modified
 
-**This session's commits (about к land in this wrap commit):**
+This session's project-level commits (about to land in this wrap commit):
 
-`.andromeda/state.yaml` — multiple updates per Phase 8: last_wrap 11:39Z → 12:26Z + last_reconcile 11:35Z → 12:26Z + commit_sha "pending" → "9296fa3" via State H housekeeping + plan_freshness.arch_mtime 07:55Z → 12:16Z + living_artifact_freshness.dep_tree_reconciled_at 11:35Z → 12:26Z + living_artifact_freshness.api_surface_deferred_reason updated к 33rd-consecutive narrative + drift_warnings: D3 entry → [] + spec_amendments.active: cadence-events entry → moved к archive (compact form; archive grew 45 → 46) + session_count 126 → 127 + session 127 wrap comment block prepended
+- `.andromeda/state.yaml` — Phase 8 updates (last_wrap, last_reconcile, session_count 127→128, drift_warnings D5 entry added, **NEW v2.2: pipeline_accumulators field added with A1 seeded**)
+- `.andromeda/context/dependency-tree.md` — Phase 5 reconcile (Last reconciled timestamp 12:26Z→14:45Z; LIVING block unchanged 446 lines; session 128 wrap entry prepended to METADATA maintenance log)
+- `.claude/session-handoff.md` — this file (atomic overwrite per Part A schema)
 
-`.claude/session-handoff.md` — atomic overwrite (this file)
+USER-level skill files modified this session (separate from pulse project; in `~/.claude/skills/`):
+- `andromeda-setup-project/references/session-state-contract.md` (3-way byte-identical edit; Phase 1)
+- `andromeda-wrap-session/references/session-state-contract.md` (same; cp from canonical)
+- `andromeda-new-session/references/session-state-contract.md` (same; cp from canonical)
+- `andromeda-wrap-session/references/curation-guide.md` (+212 LOC §Maturation gate)
+- `andromeda-wrap-session/SKILL.md` (+83 LOC Phase 3 step 7 + Phase 8 step 8 + Phase 11 subsection)
+- `andromeda-wrap-session/references/visual-references.md` (+75 LOC Phase 11 Mode P/R/H templates)
+- `andromeda-new-session/SKILL.md` (+30 LOC Phase 9 Matured pipeline patterns + priority hierarchy)
+- `andromeda-new-session/references/visual-references.md` (+42 LOC Phase 9 Matured pipeline patterns template)
 
-`.andromeda/context/dependency-tree.md` — Last reconciled timestamp 11:35Z → 12:26Z; LIVING block unchanged (446-line zero-diff verification per integrity-protocol.md Part B step 5 no-op + refresh path); new session 127 wrap maintenance paragraph prepended
-
-**Marker file (gitignored; updated in place):**
-- `.andromeda/runs/2026-05-23T12-10-53-spec-amendment-acknowledge-cadence-events-broadcast/amendment.md` — Lifecycle status fields: [x] Noted 12:26:04Z + [x] Archived 12:26:04Z added
-
-**Run-dir audit trails (gitignored per `.gitignore`; not staged):**
-- `.andromeda/runs/2026-05-23T12-10-53-evolve-acknowledge-cadence-events-broadcast/` (intent.md + evolution-plan.md from this session's evolve)
-- `.andromeda/runs/2026-05-23T12-19-08-setup-project-delta/` (materialization-plan-delta.md from this session's --delta)
+USER-level skill changes NOT committed (~/.claude/skills is not a git repo on this system). User can manually back up or set up versioning if desired.
 
 **Unmanaged artifacts:**
 - `ui/` directory at workspace root (untracked stray from session 109; carry-over)
@@ -77,76 +139,65 @@ Archived this session: 1 amendment — see archive list in state.yaml (grew 45 �
 ## Curation Summary (this wrap)
 
 - **Tier 1 (CLAUDE.md USER:session-learnings):** 0 additions
-- **Tier 2 (`.claude/rules/*/Session Additions`):** 0 additions
-- **Tier 3 (`.claude/docs/session-learnings.md`):** 0 additions
-- **Andromeda pipeline proposals:** 0 added (no pipeline mechanic friction surfaced this session — every skill exited cleanly; textbook standard Type 6 single-cycle wrap; the 5th instance of single-item broadcast topic Type 6 amendment is mechanically identical к session 122 chunk #78 precedent and documenting it would be churn per P20 Mode H honest-healthy design)
-- **Filtered:** 0 dedup + 0 task-specific + 0 conflicts + 0 deferred
+- **Tier 2 (.claude/rules/*/Session Additions):** 0 additions
+- **Tier 3 (.claude/docs/session-learnings.md):** 0 additions
+- **Andromeda pipeline proposals (Phase 3 step 7d patches):** 0 added (one candidate considered — "first-wrap ordering observation for self-evolve infrastructure" — but Filter 4 confidence ~0.0 net signal; rejected as one-off design-experiment observation rather than generalizable rule; documented in handoff Key Decisions instead)
+- **Andromeda pipeline refactors (Phase 3 step 7c):** 0 filed (state.yaml.pipeline_accumulators field absent at Phase 3 time per first-wrap ordering; sub-step 7c skipped silently; R1 will fire next wrap)
+- **Pipeline meta-observation mode:** Mode H — HONEST HEALTHY (earned scan; nothing filed this wrap; A1 seeded by migration awaiting next-wrap R1 filing)
+- **Filtered:** 1 task-specific (the first-wrap ordering observation) + 0 dedup + 0 conflicts + 0 deferred
 
 ## Last Failed Command
 
-(none — META cycle: /andromeda-new-session dashboard → /andromeda-evolve --allow-arch-registry → /andromeda-setup-project --delta → this wrap; every skill exited cleanly without error)
+(none — wrap-session executed without command failures; honest first-wrap dogfood completed cleanly modulo the documented first-wrap-ordering lag)
 
 ## Tests Status
 
-passing — 14/14 security crate smoke (0.127s; this-wrap baseline check). Full workspace baseline 1331/1331 from session 126 unchanged (META session touched zero Rust source).
+passing — 14/14 security crate smoke (0.141s; matches session 127 baseline).
 
-**Dead-test warnings (P15 twelfth observation — pattern persisting unchanged):** 16 blocks across 16 files in pulse-app crate (declares `[lib] test = false` per Windows WebView2 workaround at `pulse-app/Cargo.toml:9-12`). Unchanged from sessions 116-126 detection. META session touched zero pulse-app source. User decision still pending on remediation approach (migrate к pulse-app/tests/ OR opt-out via [package.metadata.andromeda] allow-dead-source-tests = true).
+**Dead-test warnings (P15 thirteenth observation — pattern persisting unchanged):** 16 blocks across 16 files in pulse-app/src/ (declares `[lib] test = false` per Windows WebView2 workaround at `pulse-app/Cargo.toml`). Unchanged from sessions 116-127 detection. META session touched zero pulse-app source. User decision still pending on remediation approach.
 
 ## Next Recommended Action
 
 ```
-/andromeda-evolve --allow-route-append   (Type 7 Form 1 amendment registering
-                                           chunk #81 "Digest assembler + LWW
-                                           queue + active-incident exception"
-                                           в route.md §2 Epoch 9 per
-                                           pulse-v0_2_0-route §Phase 7 §81;
-                                           deps #79 L1a outputs + #62 cues +
-                                           #66 fingerprints + #67 templates +
-                                           #69 corpus retrieval + #78 active
-                                           incident state — all landed;
-                                           expected_propagation includes
-                                           CLAUDE.md pointer-table per
-                                           Proposal 5 Type 7 cascade
-                                           pre-populate which will organically
-                                           clear C-info drift from this wrap)
+/andromeda-wrap-session  (SECOND consecutive wrap to fire R1 via Phase 3 step
+                          7c — verifies one-wrap-lag for first activation
+                          resolves correctly. Expected next-wrap behavior:
+                          - Phase 3 step 7b: detects A1 present in state.yaml
+                            + Phase 5 of THIS wrap preserved api_surface_deferred
+                            = true → increment consecutive_count 32 → 33;
+                            last_deferred_session 128 → 129
+                          - Phase 3 step 7c: detects A1.matured_at_session=128
+                            != null AND A1.refactor_proposal_id == null →
+                            files R1 entry to docs/andromeda-improvements.md;
+                            sets refactor_proposed_at=129 + refactor_proposal_id=R1
+                          - Phase 11 renders Mode R with R1 details + accumulator
+                            evidence + scope class + routing instruction.)
 ```
 
-Then `/andromeda-setup-project --delta` (CLAUDE.md pointer-table cascade for chunk count 80 → 81 + Form 1 mechanical §1 Total chunks update; closes C-info drift), then `/andromeda-wrap-session` (archive amendment), then `/andromeda-phase` → `/andromeda-implement` for chunk #81 implementation. Standard route-append + delta-rerun + wrap-session cycle (mirrors sessions 115/118/120/123/125 Type 7 single-cycle precedent).
+**Alternative paths (depending on user decision):**
 
-**Alternative paths:**
-- **api-surface.md reconcile** 33rd-consecutive deferral; cumulative backlog from chunks #70-#80 substantial (~150+ new pub items unaccounted-for since session 91 baseline); re-baseline EXPLICITLY warranted at next non-META wrap (most plausibly chunk #81 implementation wrap — substantial new triage::digest module pub surface)
-- **observability.rs AllowList polish pass** for chunks #78 + #79 + #80 carry-over tracing targets (compound deferral; affects production log emission quality; chunk #80 added 5 new allowlist entries cleanly с PII discipline — observability surface stable)
-- **Q7 timeout Option B investigation** — verify DuckDB `Connection::interrupt()` API availability in duckdb 1.10500.x crate; upgrade Q7 from cooperative `tokio::time::timeout` (Option A) к true cancellation primitive if available
-- **P21 implementation** (filed session 119; ~140 LOC across 5 user-level skill files)
-- **P19 implementation** (P16 timing discriminator refinement; filed session 116; not blocking)
-- **P20 implementation** (self-evolve cross-session accumulation; filed session 117; ~420 LOC) — sequenced after P19/P21
-- **P15 dead-test remediation decision** (16 pulse-app/src/ blocks; twelfth observation; chunks #72 + #77 + #78 + #79 + #80 all preserved the integration-test-migration precedent для new tests; existing 16 blocks unchanged)
-- **bincode 2.x migration** to replace `bincode_bounded.rs` partial helper с try_reserve-based safer allocations (follow-up; not urgent)
+- **Accept first-wrap-lag**: don't touch wrap-session SKILL.md ordering; run a no-op wrap to fire R1.
+- **Amend ordering**: edit wrap-session SKILL.md to inline migration into Phase 3 step 7b OR move migration earlier; would file R1 this wrap if re-run.
+- **Apply R1 directly**: once R1 fires next wrap, user reviews + applies per its Routing (Cross-skill contract — 3-way edit to integrity-protocol.md + session-state-contract.md cursor field + wrap-session Phase 5 update); ~346 LOC.
+- **Chunk #81 route registration** (independent of self-evolve): `/andromeda-evolve --allow-route-append` for chunk #81 per pulse-v0_2_0-route §Phase 7 §81.
 
 ## Session Goals (carry-over)
 
-- **Chunk #80 arch-registry amendment** ✓ COMPLETE this session (Active → Propagated → Archived in single session 127 textbook standard cycle)
-- **Chunk #81 route registration** (NEXT — `/andromeda-evolve --allow-route-append` per pulse-v0_2_0-route §81; deps #79 + #62 + #66 + #67 + #69 + #78 all landed)
-- **Chunk #81 phase planning** (`/andromeda-phase` post-registration)
-- **Chunk #81 implementation** (`/andromeda-implement` post-phase)
-- **observability.rs AllowList polish** для chunks #78 + #79 + #80 tracing targets (compound deferral)
-- **Q7 timeout Option B investigation** (DuckDB `Connection::interrupt()` API)
-- **api-surface.md reconcile** 33rd-consecutive deferral; re-baseline EXPLICITLY warranted at next non-META wrap
-- **P21 implementation** (filed session 119)
-- **P19 implementation** when P16 timing discriminator surfaces again
-- **P20 implementation** (self-evolve cross-session accumulation) sequenced after P19+P21
-- **P15 dead-test remediation decision** для pulse-app/src/ 16 surfaced blocks
-- **bincode 2.x migration** к replace `bincode_bounded.rs` partial helper с try_reserve-based safer allocations (follow-up; not urgent)
-- **Pulse v0.1.0 release blockers** unchanged (chunk #3 deferred signing items: Azure Key Vault EV cert + Apple Developer ID + GitHub OIDC federation)
-- **`ui/` stray artifact at workspace root** — user decides cleanup approach (carry-over from session 109)
+- **Self-evolve infrastructure landing** ✓ COMPLETE this session 128 (Phase 1 byte-identity clean; Phase 2 6/6 byte-identical verified; first dogfood Mode H rendered demonstrating earned honest-healthy mode; A1 seeded; R1 deferred to next wrap)
+- **R1 filing** — DEFERRED to next wrap (first-wrap-ordering; design observation visible in this handoff Key Decisions; user decides whether to amend SKILL.md OR accept lag)
+- **R1 application** — DEFERRED — user decision per Step B §h Step 10 (ACCEPT/DEFER/REJECT after reviewing R1 entry when it fires next wrap)
+- **A2 activation** — DEFERRED per Modification 2 — activate only after R1 IMPLEMENTED (one-wrap-lag verification proves loop end-to-end)
+- **Chunk #81 route registration → phase → implementation** (independent of self-evolve; same as session 127 carry-over)
+- (carry-over from session 127): observability.rs AllowList polish for chunks #78/#79/#80, Q7 timeout Option B investigation, api-surface reconcile (NOW addressed via A1 → R1 path), P19/P20/P21 implementation, P15 dead-test remediation, bincode 2.x migration, `ui/` stray artifact cleanup, Pulse v0.1.0 release blockers
 
 ## Deferred decisions (Trigger 4 to Path B carry-over)
 
-(none — session 127 was а META cycle с no Trigger 4 dialogues)
+(none — wrap-session session 128 was a META cycle with no Trigger 4 dialogues)
 
 ## Deferred learnings (filtered out from Phase 3 curation)
 
-0 deferred (zero candidates surfaced; Mode H honest-healthy textbook standard cycle).
+1 deferred (Filter 4 reject):
+- "first-wrap ordering for self-evolve infrastructure: Phase 3 step 7 runs before Phase 8 migration; creates one-wrap-lag for first activation" — filed in handoff Key Decisions instead as design observation; could become P22 if pattern recurs in future infrastructure landings (currently one-off, confidence ~0.0)
 
 ## Session End Status
-Completed normally at 2026-05-23 12:26:04Z
+Completed normally at 2026-05-23T14:45:16Z

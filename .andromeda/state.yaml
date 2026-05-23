@@ -1,6 +1,6 @@
 schema_version: 2
-last_wrap: 2026-05-23T12:26:04Z
-last_reconcile: 2026-05-23T12:26:04Z
+last_wrap: 2026-05-23T14:45:16Z
+last_reconcile: 2026-05-23T14:45:16Z
 
 last_completed_chunk:
   route_index: 80
@@ -603,14 +603,20 @@ plan_freshness:
   input_mtime: 2026-05-02T06:52:58Z
 
 living_artifact_freshness:
-  dep_tree_reconciled_at: 2026-05-23T12:26:04Z
+  dep_tree_reconciled_at: 2026-05-23T14:45:16Z
   api_surface_reconciled_at: 2026-05-21T06:30:00Z
   most_recent_code_mtime: 2026-05-23T12:16:17Z
   reconcile_failed: false
   api_surface_deferred: true
   api_surface_deferred_reason: "per-crate cargo +nightly public-api iteration across 14 crates exceeds wrap budget (7-14 min vs ~3 min); 32nd consecutive deferral per sessions 91-126 pattern; session 126 = chunk #80 Cadence coordinator + three-tier triggering implementation wrap (substantial multi-file work: NEW crates/triage/cadence/ submodule с 4 files ~1390 LOC + 4 Settings fields + 5 observability allowlist entries + boot wiring at pulse-app/src/main.rs; ~25 new pub items: triage::contract::CadenceConfig + CadenceConfigError + CadenceCoordinator + CadenceEvent + CadenceEventBroadcast + CadenceMode + CoordinatorCycleStats + HardwareProfile + HardwareProfileSource + SqlQueryRunner + UnknownHardwareProfile + 9 constants CADENCE_*_MIN/DEFAULT_CADENCE_* + 3 fns mode_label/run_one_coordinator_cycle/start_cadence_coordinator + chunk #79 SQL re-exports surfaced as triage::contract re-exports + 4 ui-bridge::Settings fields + 6 CADENCE_*_MIN/MAX bounds constants + 2 pulse-app adapter structs CadenceSqlRunner + UnknownHardwareProfile-via-re-export); cumulative backlog from chunks #70-#80 + META chunks #74/#75/#76 + setup-project sessions now VERY substantial (~150+ new pub items unaccounted-for since session 91 baseline); re-baseline EXPLICITLY warranted at next non-META wrap (most plausibly chunk #81 Digest assembler + LWW queue implementation wrap — substantial new triage::digest module + workspace dep delta +tokenizers crate); ORIGINAL reason (preserved): 31st consecutive deferral per sessions 91-125 pattern; session 125 = META cycle (chunk #80 route-append + delta-rerun + wrap; zero new pub items — only route.md §1+§2+§3 + CLAUDE.md pointer-table + state.yaml lifecycle progression + dep-tree.md refresh edited; mirrors sessions 115/118/120/123 Type 7 single-cycle precedent exactly; re-baseline opportunity unchanged from session 124 — still warranted at next non-META wrap which is most plausibly chunk #80 implementation wrap introducing additional `crates/triage/cadence` module pub items); session 124 = chunk #79 SQL aggregation queries + scheduler implementation (substantial single-crate work: 1260 LOC sql.rs + 21 LOC build.rs in triage crate; ~30 new pub items including Q1RedRow / Q2OperationRow / Q3FingerprintRow / Q4InteractionRow / Q5CardinalityRow / Q6LogRow / Q7CriticalPathRow / Q7_DEFAULT_TIMEOUT / SqlAggregationError / TriageSqlState + 8 async run_qN public functions + cutoff_ns helper); re-baseline EXPLICITLY worthwhile at next non-META wrap (most plausibly chunk #80 Cadence Coordinator + three-tier triggering implementation wrap which will introduce additional triage::cadence module pub items); session 123 = textbook standard META cycle (chunk #79 route-append + delta-rerun + wrap; zero new pub items — only route.md §1+§2+§3 + CLAUDE.md pointer-table + state.yaml lifecycle progression + dep-tree.md refresh edited); session 122 = META cycle — Type 6 arch-registry amendment for chunk #78 incidents.* + pulse://stream/incidents Active → Propagated → Archived in single session (FIRST instance of standalone Type 6 single-cycle wrap; mirrors session 115/118/120 Type 7 route-append precedent mechanically; zero new pub items — META-only flow: /andromeda-new-session dashboard + /andromeda-evolve --allow-arch-registry + /andromeda-setup-project --delta Branch (a) + this wrap); cumulative backlog from chunks #70-#78 + META chunks #74/#75/#76 + setup-project META sessions unchanged from session 121; re-baseline opportunity unchanged — still warranted at next non-META wrap (most plausibly chunk #79 SQL aggregation queries + scheduler implementation wrap); session 121 = chunk #78 incident records + lifecycle persistence implementation (FIRST Phase 7 chunk; substantial multi-crate work touching 17 files across 4 crates; ~50+ new pub items including 5 triage::incident::* modules + 3 pulse-app modules + corpus extension с 6 new CorpusWriter trait methods + IncidentRowRaw envelope + xtask chunk-#78 test); re-baseline EXPLICITLY worthwhile at next wrap но deferred this wrap к keep within ~3 min wrap budget; ORIGINAL reason (preserved): session 120 = textbook standard META cycle (chunk #78 route-append + delta-rerun + wrap; zero new pub items — only route.md §1+§2+§3 + CLAUDE.md pointer-table + state.yaml lifecycle progression + dep-tree.md refresh edited); session 119 = chunk #77 'Specialist plan reconciliation (security + tests)' FINAL Consolidation Phase 6 implementation (FIRST instance of Andromeda v3 manual-rewrite mechanism per pulse-v0_2_0-route §77 Mechanism note; 4 security-plan body section rewrites + testing.md §Pending coverage triggers annotation + 19 new chunk-#77 PII vector + Drain golden corpus tests + new xtask CapabilityWideningCheck sub-command + new crates/buffer/tests/ integration test dir; new pub items SOME but bounded — CapabilityWideningCheck enum variant + capability_widening_check fn in xtask + ExpectedGolden/ExpectedTemplate test-only structs + ~6 helper fns in pulse-app/tests/security_*.rs; full per-crate iteration sequenced for next non-META wrap when chunk #78+ persistence layer changes substantially expand pub surface — incident records + TauRPC procedures + broadcast topics + new triage::incident contract types worth re-baseline batching); session 118 = textbook standard META cycle (chunk #77 route-append + delta-rerun + wrap; zero new pub items — only route.md §1+§2+§3 + CLAUDE.md pointer-table + state.yaml lifecycle progression + dep-tree.md refresh edited); session 117 = pipeline self-evolve design experiment META session (zero new pub items — only docs/andromeda-improvements.md edit к file P20 proposal + state.yaml + handoff + dep-tree.md refresh; this 23rd-consecutive deferral IS the empirical anchor for P20's first-application walkthrough — proposes per-crate incremental reconciliation across wraps as а Refactor R1 candidate); session 116 = chunk #76 META implementation (P7+P12+P15-P18 across 5 USER-level Andromeda skills + 1 project markdown; zero new pub items — all .md edits at user level outside project workspace); session 115 = `/andromeda-evolve --allow-route-append` + `/andromeda-setup-project --delta` META cycle for chunk #76 registration (zero new pub items — route.md §1+§2+§3 edits + state.yaml lifecycle progression + CLAUDE.md pointer-table cascade only); session 114 = `/andromeda-new-session` + `/andromeda-setup-project` full re-derive META session zero new pub items (CLAUDE.md §Architecture cascade-only edit + 1 Tier 3 + 1 P18 proposal + dep-tree refresh + state.yaml State H housekeeping); session 113 = chunk #75 documentation consolidation META (zero new pub items — all .md edits); session 112 META-only; session 111 = chunk #74 META implementation via 3 Type 6 amendments (zero new pub items — all arch.md edits only); session 110 = chunk #74 Type 7 Form 1 route registration META; session 109 = chunk #73 implementation wrap landed Path A full short-window tracker (~280 LOC adding ~30 new pub items); cumulative backlog from chunks #70-#77 + META chunks #74/#75/#76 + setup-project sessions now substantial enough to make full per-crate iteration worthwhile at next non-META wrap. Most plausible re-baseline cycle: chunk #78 incident records + lifecycle persistence wrap (will introduce substantial new pub items — incidents.list_active/acknowledge/mark_resolved TauRPC procedures + pulse://stream/incidents broadcast topic + crates/triage/incident types)"
 
-drift_warnings: []
+drift_warnings:
+  - drift_id: D5
+    description: "arch.md mtime > CLAUDE.md mtime by ~2.3h (carry-over from session 127 chunk #80 Type 6 Branch (a) — arch-registry amendment for pulse://stream/cadence-events landed in arch.md but did NOT cascade CLAUDE.md per Check 7.7 sub-criterion 2; archive moved amendment out of active list this session 128 first-look)"
+    severity: warning
+    remediation_hint: "no matching active amendment (Case 3 generic per spec-amendment-protocol.md Part C); remediation /andromeda-setup-project (full re-derive) OR investigate edit source; next chunk #81 route-append pointer-table cascade will organically clear via CLAUDE.md edit"
+    first_observed_session_count: 128
+    last_observed_session_count: 128
 
 spec_amendments:
   active: []
@@ -1244,4 +1250,30 @@ spec_amendments:
       propagated_by_run: .andromeda/runs/2026-05-11T19-00-00-setup-project-delta/
       archived_at: 2026-05-11T19:25:00Z
 
-session_count: 127
+# NEW v2.2 (session 128 migration v2.1 → v2.2 — in-place additive per
+# session-state-contract.md Part B Maintenance step 4). Seeded per
+# Modification 1 (present-reality seed; no retroactive computation),
+# Modification 2 (A1 only; A2 catalogued-but-dormant — NOT seeded here),
+# Modification 3 (per-accumulator verification_condition declared).
+pipeline_accumulators:
+  api_surface_deferral:
+    consecutive_count: 32
+    first_deferred_session: 91
+    last_deferred_session: 128
+    matured_at_session: 128
+    refactor_proposed_at: null
+    refactor_proposal_id: null
+    resolved_in_chunk: null
+    pre_resolution_count_snapshot: null
+    verified_cleared_at_session: null
+    verification_condition: "consecutive_count == 0"
+    evidence_snapshot: "per-crate cargo +nightly public-api iteration across 14 crates exceeds wrap budget (7-14 min vs ~3 min); 32nd consecutive deferral per sessions 91-126 pattern; cumulative backlog ~150+ new pub items unaccounted-for since session 91 baseline; re-baseline EXPLICITLY warranted at next non-META wrap"
+    diagnostics: []
+  # A2 code_arch_registration_cycle DOCUMENTED-BUT-DORMANT per Modification 2:
+  # defined in wrap-session/references/curation-guide.md §Named accumulators
+  # catalogue but NOT seeded here; NOT scanned by Phase 3 step 7b (skipped
+  # during dormant phase). Activates after R1 IMPLEMENTED (one-wrap-lag
+  # verification proves the loop end-to-end). Future activation: deliberate
+  # one-time edit to add A2 entry here + update catalogue status DORMANT → ACTIVE.
+
+session_count: 128
