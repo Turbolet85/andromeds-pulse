@@ -173,9 +173,10 @@
   - `services.list_with_states` — pulse-app crate (`ServicesApiImpl` returning `ServiceListPayload` from `crates/triage::lifecycle::InMemoryServiceRegistry::list`; chunk #67) — see §Architecture Registry Updates 2026-05-18
   - `storage.inspect`, `storage.path` — pulse-app crate (`StorageApiImpl` returning corpus inspection metadata + data-dir absolute path from `crates/corpus::CorpusReader`; chunk #68) — see §Architecture Registry Updates 2026-05-18
   - `diagnostics.template_distribution` — pulse-app crate (`DiagnosticsApiImpl` returning `TemplateDistributionPayload` from `crates/buffer::DrainMiner::template_distribution()`; chunk #69) — see §Architecture Registry Updates 2026-05-19
+  - `incidents.list_active`, `incidents.acknowledge`, `incidents.mark_resolved` — pulse-app crate (`IncidentsApiImpl` resolver backed by `crates/triage::contract::IncidentRegistry` + `IncidentPersistence` + `IncidentLifecycleBroadcast`; chunk #78) — see §Architecture Registry Updates 2026-05-23
 - **External HTTP routes (OTLP HTTP)**: `POST /v1/traces`, `POST /v1/metrics`, `POST /v1/logs` on `:4318`.
 - **MCP stdio surface**: standard MCP `initialize`, `tools/list`, `tools/call`, `notifications/*` over stdin/stdout when the rmcp sidecar is started.
-- **Tauri IPC events (broadcast channels)**: `pulse://stream/spans`, `pulse://stream/metrics`, `pulse://stream/logs`, `pulse://stream/snapshot-progress`, `pulse://stream/plugin-events` (deferred — no runtime emitter as of chunk #74; pending plugin invocation telemetry chunk), `pulse://stream/connection-state` (chunk #59 — see §Architecture Registry Updates 2026-05-16), `pulse://stream/attention-cues` (chunk #62 — see §Architecture Registry Updates 2026-05-17), `pulse://stream/restart-events` (chunk #63 — see §Architecture Registry Updates 2026-05-17), `pulse://stream/service-lifecycle` (chunk #67 — see §Architecture Registry Updates 2026-05-18).
+- **Tauri IPC events (broadcast channels)**: `pulse://stream/spans`, `pulse://stream/metrics`, `pulse://stream/logs`, `pulse://stream/snapshot-progress`, `pulse://stream/plugin-events` (deferred — no runtime emitter as of chunk #74; pending plugin invocation telemetry chunk), `pulse://stream/connection-state` (chunk #59 — see §Architecture Registry Updates 2026-05-16), `pulse://stream/attention-cues` (chunk #62 — see §Architecture Registry Updates 2026-05-17), `pulse://stream/restart-events` (chunk #63 — see §Architecture Registry Updates 2026-05-17), `pulse://stream/service-lifecycle` (chunk #67 — see §Architecture Registry Updates 2026-05-18), `pulse://stream/incidents` (chunk #78 — see §Architecture Registry Updates 2026-05-23).
 - **Process / service identity**:
   - Tauri app bundle identifier: `com.andromeda.pulse`
   - Binary name: `andromeda-pulse` (Linux/macOS), `andromeda-pulse.exe` (Windows)
@@ -466,4 +467,15 @@ _This section accumulates entries from `/andromeda-evolve --allow-arch-registry`
 - `run/andromeda-pulse.pid` filesystem subpath under data dir root (PID file written by production binary at `pulse-app/src/main.rs:196`; consumed by harness scripts for status/cleanup)
 **Rationale:** Registry completeness — harness contract env vars (3) + production-binary PID file subpath (1) acknowledged per chunk #74 v3 Phase 6 Consolidation amendment 3 of 3. Mirrors 2026-05-18 chunk #68 corpus-additions multi-item additive precedent. All harness env vars tagged with "harness-only" qualifier per security plan §Input Validation discipline scope (production path env vars still bound by §Anti-Pattern Input row 4 canonicalization; harness-only env vars explicitly excluded from that requirement).
 **Marker:** `.andromeda/runs/2026-05-21T12-15-47-spec-amendment-acknowledge-harness-env-and-pid-subpath/amendment.md`
+
+### 2026-05-23 — Acknowledge `incidents.*` namespace + `pulse://stream/incidents` (--allow-arch-registry)
+
+**Section:** §Occupied Resources Tauri IPC routes + Tauri IPC events (broadcast channels).
+**Added:**
+- `incidents.list_active` (`pulse-app/src/incidents_router.rs:83`, chunk #78)
+- `incidents.acknowledge` (`pulse-app/src/incidents_router.rs:84`, chunk #78)
+- `incidents.mark_resolved` (`pulse-app/src/incidents_router.rs:85`, chunk #78)
+- `pulse://stream/incidents` (`crates/triage/src/incident/broadcast.rs:17`, chunk #78)
+**Rationale:** D3 capability-drift closure for chunk #78 incidents namespace TauRPC procedures + lifecycle broadcast topic. Mirrors 2026-05-18 chunk #67 `services-namespace` + chunk #68 `corpus-additions` precedents (single-coordinated multi-item amendment across sub-sections under §Occupied Resources).
+**Marker:** `.andromeda/runs/2026-05-23T07-49-08-spec-amendment-acknowledge-incidents-namespace/amendment.md`
 

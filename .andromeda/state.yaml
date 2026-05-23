@@ -421,7 +421,43 @@ drift_warnings:
     last_observed_session_count: 121
 
 spec_amendments:
-  active: []
+  active:
+    - amendment_id: 2026-05-23T07-49-08-acknowledge-incidents-namespace
+      plans:
+        - path: architecture.md
+          sections:
+            - "§Occupied Resources Tauri IPC routes"
+            - "§Occupied Resources Tauri IPC events (broadcast channels)"
+            - "§Architecture Registry Updates"
+          decisions_log_section: "2026-05-23 — Acknowledge `incidents.*` namespace + `pulse://stream/incidents` (--allow-arch-registry)"
+      trigger:
+        chunk: null
+        phase: null
+        harness: "user-driven via /andromeda-evolve"
+      authority:
+        winning_plan: "pulse-app/src/incidents_router.rs + crates/triage/src/incident/broadcast.rs"
+        winning_tier: implementation
+        losing_plan: architecture.md
+        losing_concern: registry-section-stale-vs-implementation-reality
+        rationale: "Chunk #78 added 3 TauRPC procedures (incidents.list_active / .acknowledge / .mark_resolved) + 1 broadcast topic (pulse://stream/incidents); arch §Occupied Resources sub-sections had not acknowledged. Authorized via --allow-arch-registry flag; Check 7 passed."
+      impl_files_synced: []
+      expected_propagation: []
+      marker_path: .andromeda/runs/2026-05-23T07-49-08-spec-amendment-acknowledge-incidents-namespace/amendment.md
+      applied_at: 2026-05-23T07:49:08Z
+      noted_at: null
+      propagated_by_run: .andromeda/runs/2026-05-23T07-57-30-setup-project-delta/
+      archived_at: null
+      verification_status: clean
+      flag_used: --allow-arch-registry
+      registry_section: "§Occupied Resources Tauri IPC routes + Tauri IPC events (broadcast channels)"
+      registry_additions:
+        - incidents.list_active
+        - incidents.acknowledge
+        - incidents.mark_resolved
+        - "pulse://stream/incidents"
+      code_evidence:
+        - pulse-app/src/incidents_router.rs
+        - crates/triage/src/incident/broadcast.rs
   archive:
     - amendment_id: 2026-05-22T23-00-00-append-chunk-78-incident-records-lifecycle-persistence
       plans:
