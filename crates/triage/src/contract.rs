@@ -101,6 +101,30 @@ pub use crate::lifecycle::{
     start_lifecycle_heartbeat, state_index, state_label,
 };
 
+// Chunk #80 — cadence coordinator + three-tier triggering. Re-export
+// public-API types from `triage::cadence` so pulse-app boot wiring +
+// future v0.2.0 chunks import one shape per chunk #61/#62/#63/#67/#78
+// precedent. Capabilities P-052 / P-060.
+pub use crate::cadence::{
+    CADENCE_ACCELERATED_SECONDS_MIN, CADENCE_BASELINE_SECONDS_MIN, CADENCE_REFLECTION_SECONDS_MIN,
+    CadenceConfig, CadenceConfigError, CadenceCoordinator, CadenceEvent, CadenceEventBroadcast,
+    CadenceMode, CoordinatorCycleStats, DEFAULT_CADENCE_ACCELERATED_SECONDS,
+    DEFAULT_CADENCE_BASELINE_SECONDS, DEFAULT_CADENCE_REFLECTION_SECONDS, HardwareProfile,
+    HardwareProfileSource, STREAM_NAME_CADENCE_EVENTS, SqlQueryRunner, UnknownHardwareProfile,
+    mode_label, run_one_coordinator_cycle, start_cadence_coordinator,
+};
+
+// Chunk #79 — L1a SQL aggregation queries. Re-export to enable chunk #80
+// Cadence Coordinator's `SqlQueryRunner` adapter at the binary boundary
+// (`pulse-app/src/cadence_runner.rs`) to construct the runner over
+// `TriageSqlState` без directly reaching into `triage::baseline`. Mirrors
+// chunk #62 pattern of contract-as-single-import-surface for pulse-app.
+pub use crate::baseline::{
+    Q1RedRow, Q2OperationRow, Q3FingerprintRow, Q4InteractionRow, Q5CardinalityRow, Q6LogRow,
+    Q7CriticalPathRow, SqlAggregationError, TriageSqlState, run_q1, run_q2, run_q3, run_q4, run_q5,
+    run_q6, run_q7,
+};
+
 /// Kind of detected condition emitted as an attention cue. Bounded
 /// enumeration; future kinds are added explicitly (no `Other(String)`
 /// catch-all). Variants serialize as snake_case strings. Chunk #78 added

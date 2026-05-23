@@ -1512,6 +1512,72 @@ impl AllowList {
             ["value"].iter().copied().collect(),
         );
 
+        // Chunk #80 — cadence coordinator + three-tier triggering (Epoch 9
+        // Foundation v0.2.0 final-chunk; capabilities P-052 + P-060). 5 new
+        // tracing target leaves emitted by `crates/triage/src/cadence/
+        // coordinator.rs` + `pulse-app/src/main.rs` boot wiring.
+        //
+        // PII discipline (per chunks #62/#63/#64/#66 AllowList convention
+        // reaffirmed by `.claude/rules/testing.md` Session Additions
+        // 2026-05-17 session 84 aggregate-only mandate): NO `service` /
+        // `scope_id` / `span_id` / `trace_id` / `operation_name` /
+        // `digest_body` / `inference_input` / `inference_output` fields
+        // admitted — only bounded-cardinality enum tags (`tier`, `mode`,
+        // `cue_kind`, `priority`, `field`) + structural numeric fields
+        // (counts, timestamps, intervals) cross the scrubber boundary.
+        // CadenceEvent broadcast payloads on `pulse://stream/cadence-events`
+        // are product surface (carry mode_label + cue_kind_label +
+        // cue_priority_label as bounded static strings, never user content);
+        // self-observation events strictly aggregate.
+        by_target.insert(
+            "cadence.tick",
+            [
+                "tier",
+                "mode",
+                "queries_executed",
+                "queries_succeeded",
+                "next_due_ms",
+                "last_executed_at_ms",
+                "tier2_acceleration_enabled",
+            ]
+            .iter()
+            .copied()
+            .collect(),
+        );
+        by_target.insert(
+            "cadence.trigger",
+            ["tier", "mode", "cue_kind", "priority"]
+                .iter()
+                .copied()
+                .collect(),
+        );
+        by_target.insert(
+            "cadence.config.load",
+            [
+                "baseline_seconds",
+                "accelerated_seconds",
+                "reflection_seconds",
+                "tier2_acceleration_enabled",
+            ]
+            .iter()
+            .copied()
+            .collect(),
+        );
+        by_target.insert(
+            "cadence.config.safety_floor",
+            ["field", "requested_seconds", "enforced_seconds"]
+                .iter()
+                .copied()
+                .collect(),
+        );
+        by_target.insert(
+            "metric.pipeline.l3.digests_assembled_total",
+            ["value", "mode", "queries_executed"]
+                .iter()
+                .copied()
+                .collect(),
+        );
+
         Self { by_target }
     }
 
@@ -3241,6 +3307,106 @@ mod tests {
                 !set.contains(banned),
                 "metric.pipeline.l1c.drain_assignment_latency_p99_microseconds must NOT permit `{banned}` (chunk #69 aggregate-only)",
             );
+        }
+    }
+
+    #[test]
+    fn allowlist_resolves_each_cadence_target_with_expected_fields() {
+        let al = AllowList::production();
+
+        let tick = al.for_target("cadence.tick").expect("cadence.tick entry");
+        for required in [
+            "tier",
+            "mode",
+            "queries_executed",
+            "queries_succeeded",
+            "next_due_ms",
+            "last_executed_at_ms",
+            "tier2_acceleration_enabled",
+        ] {
+            assert!(
+                tick.contains(required),
+                "cadence.tick must permit `{required}`"
+            );
+        }
+
+        let trigger = al
+            .for_target("cadence.trigger")
+            .expect("cadence.trigger entry");
+        for required in ["tier", "mode", "cue_kind", "priority"] {
+            assert!(
+                trigger.contains(required),
+                "cadence.trigger must permit `{required}`"
+            );
+        }
+
+        let load = al
+            .for_target("cadence.config.load")
+            .expect("cadence.config.load entry");
+        for required in [
+            "baseline_seconds",
+            "accelerated_seconds",
+            "reflection_seconds",
+            "tier2_acceleration_enabled",
+        ] {
+            assert!(
+                load.contains(required),
+                "cadence.config.load must permit `{required}`"
+            );
+        }
+
+        let floor = al
+            .for_target("cadence.config.safety_floor")
+            .expect("cadence.config.safety_floor entry");
+        for required in ["field", "requested_seconds", "enforced_seconds"] {
+            assert!(
+                floor.contains(required),
+                "cadence.config.safety_floor must permit `{required}`"
+            );
+        }
+
+        let metric = al
+            .for_target("metric.pipeline.l3.digests_assembled_total")
+            .expect("metric.pipeline.l3.digests_assembled_total entry");
+        for required in ["value", "mode", "queries_executed"] {
+            assert!(
+                metric.contains(required),
+                "metric.pipeline.l3.digests_assembled_total must permit `{required}`"
+            );
+        }
+    }
+
+    #[test]
+    fn cadence_targets_ban_pii_fields_per_chunk_62_precedent() {
+        let al = AllowList::production();
+        let cadence_targets = [
+            "cadence.tick",
+            "cadence.trigger",
+            "cadence.config.load",
+            "cadence.config.safety_floor",
+            "metric.pipeline.l3.digests_assembled_total",
+        ];
+        let banned_fields = [
+            "service",
+            "service_name",
+            "scope_id",
+            "span_id",
+            "trace_id",
+            "operation_name",
+            "digest_body",
+            "inference_input",
+            "inference_output",
+        ];
+        for target in cadence_targets {
+            let set = al
+                .for_target(target)
+                .unwrap_or_else(|| panic!("expected allowlist entry for `{target}`"));
+            for banned in banned_fields {
+                assert!(
+                    !set.contains(banned),
+                    "cadence target `{target}` must NOT permit `{banned}` field (chunk #62 aggregate-only precedent)"
+                );
+            }
         }
     }
 

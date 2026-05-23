@@ -17,19 +17,21 @@ use ingest::state::IngestState;
 use tauri::Manager;
 use tracing_error::SpanTrace;
 use triage::contract::{
-    AttentionCueBroadcast, BaselinePersistence, CadenceTriggerChannel,
-    DEFAULT_AUTONOMOUS_THRESHOLD, DEFAULT_DETECTION_SUB_WINDOW_SECONDS, DEFAULT_HEARTBEAT_INTERVAL,
-    DEFAULT_INCIDENT_PERSIST_INTERVAL_SECS, DEFAULT_LIFECYCLE_HEARTBEAT_INTERVAL,
-    DEFAULT_LIFECYCLE_PERSIST_INTERVAL_SECS, DEFAULT_PERSIST_INTERVAL_NANOS,
-    DEFAULT_SERVICE_COUNT_CAP, DEFAULT_STORM_PERSIST_INTERVAL_SECS, DEFAULT_STORM_WINDOW_SECONDS,
-    DEFAULT_SUGGESTED_THRESHOLD, InMemoryIncidentRegistry, InMemoryServiceRegistry,
-    IncidentLifecycleBroadcast, IncidentPersistence, IncidentRegistry, LifecyclePersistence,
-    RestartDetector, RestartEventBroadcast, RetryStormDetector, ServiceLifecycleBroadcast,
-    ServiceRegistry, StormPersistence, SuppressionState, TARGET_LIFECYCLE_CORPUS_RESTORE,
+    AttentionCueBroadcast, BaselinePersistence, CadenceConfig, CadenceEventBroadcast,
+    CadenceTriggerChannel, DEFAULT_AUTONOMOUS_THRESHOLD, DEFAULT_DETECTION_SUB_WINDOW_SECONDS,
+    DEFAULT_HEARTBEAT_INTERVAL, DEFAULT_INCIDENT_PERSIST_INTERVAL_SECS,
+    DEFAULT_LIFECYCLE_HEARTBEAT_INTERVAL, DEFAULT_LIFECYCLE_PERSIST_INTERVAL_SECS,
+    DEFAULT_PERSIST_INTERVAL_NANOS, DEFAULT_SERVICE_COUNT_CAP, DEFAULT_STORM_PERSIST_INTERVAL_SECS,
+    DEFAULT_STORM_WINDOW_SECONDS, DEFAULT_SUGGESTED_THRESHOLD, HardwareProfileSource,
+    InMemoryIncidentRegistry, InMemoryServiceRegistry, IncidentLifecycleBroadcast,
+    IncidentPersistence, IncidentRegistry, LifecyclePersistence, RestartDetector,
+    RestartEventBroadcast, RetryStormDetector, ServiceLifecycleBroadcast, ServiceRegistry,
+    SqlQueryRunner, StormPersistence, SuppressionState, TARGET_LIFECYCLE_CORPUS_RESTORE,
     TARGET_LIFECYCLE_PERSIST_ERROR, TARGET_PATTERN_STORM_CORPUS_RESTORE,
-    TARGET_PATTERN_STORM_PERSIST_ERROR, Thresholds, bootstrap_state, run_incident_persist_loop,
-    run_lifecycle_persist_loop, run_persist_loop, run_storm_persist_loop, start_emitter,
-    start_lifecycle_heartbeat, start_restart_detector, start_storm_detector,
+    TARGET_PATTERN_STORM_PERSIST_ERROR, Thresholds, TriageSqlState, UnknownHardwareProfile,
+    bootstrap_state, run_incident_persist_loop, run_lifecycle_persist_loop, run_persist_loop,
+    run_storm_persist_loop, start_cadence_coordinator, start_emitter, start_lifecycle_heartbeat,
+    start_restart_detector, start_storm_detector,
 };
 use ui_bridge::Settings;
 use ui_bridge::health::{
@@ -47,6 +49,7 @@ use pulse_app::baseline_observer::BaselineObserverAdapter;
 use pulse_app::baseline_persistence::{
     CorpusBaselinePersistence, migrate_legacy_baseline_if_present,
 };
+use pulse_app::cadence_runner::CadenceSqlRunner;
 use pulse_app::connection_router::{ConnectionApi, ConnectionApiImpl, HeartbeatBindStatus};
 use pulse_app::diagnostics_router::{DiagnosticsApi, DiagnosticsApiImpl};
 use pulse_app::drain_persistence::CorpusDrainPersistence;
@@ -399,6 +402,25 @@ fn main() {
     let cue_broadcast = Arc::new(AttentionCueBroadcast::new());
     let cadence_channel = Arc::new(CadenceTriggerChannel::new());
     let thresholds = Arc::new(Thresholds::default());
+
+    // Chunk #80 — cadence coordinator substrate. CadenceEventBroadcast is
+    // the L6-visibility emission topic (`pulse://stream/cadence-events`).
+    // CadenceConfig loads from persisted Settings; coordinator reads once
+    // at spawn (hot-reload deferred к chunk #94 per pulse-v0_2_0-route §80).
+    // SqlQueryRunner is wired via CadenceSqlRunner adapter ONLY when buffer_conn
+    // is Some — else coordinator is disabled (warn-logged below). Hardware
+    // profile defaults к Unknown (Tier-2-enabled posture) until chunk #82
+    // delivers а real detector.
+    let cadence_event_broadcast = Arc::new(CadenceEventBroadcast::new());
+    let hardware_profile: Arc<dyn HardwareProfileSource> = Arc::new(UnknownHardwareProfile);
+    let cadence_sql_runner: Option<Arc<dyn SqlQueryRunner>> = buffer_conn.as_ref().map(|conn| {
+        let state = Arc::new(TriageSqlState::new(Arc::clone(conn)));
+        Arc::new(CadenceSqlRunner::new(state)) as Arc<dyn SqlQueryRunner>
+    });
+    // CadenceConfig itself is constructed inside the setup closure where
+    // `settings` is in scope (mirrors the chunk #67 lifecycle thresholds
+    // pattern of reading settings at spawn-time rather than at substrate-
+    // construction time).
 
     // Chunk #63 — restart event detector + dual-condition bypass substrate.
     // RestartDetector tracks per-service last-seen timestamps; gap > threshold
@@ -1032,6 +1054,44 @@ fn main() {
                 Arc::clone(&storm_detector),
                 DEFAULT_HEARTBEAT_INTERVAL,
             ));
+            // Chunk #80 — cadence coordinator + three-tier triggering.
+            // CadenceConfig reads from persisted Settings (validated by
+            // Settings::validate at load time); coordinator reads once at
+            // spawn per pulse-v0_2_0-route §80 (hot-reload deferred к chunk
+            // #94). Spawn ONLY when buffer_conn is Some (cadence_sql_runner
+            // has а real DuckDB handle); else log warn + skip.
+            let cadence_config = Arc::new(
+                CadenceConfig::try_new(
+                    settings.cadence_baseline_seconds,
+                    settings.cadence_accelerated_seconds,
+                    settings.cadence_reflection_seconds,
+                    settings.cadence_tier2_acceleration_enabled,
+                )
+                .expect("cadence config validated by Settings::validate"),
+            );
+            tracing::info!(
+                target: "cadence.config.load",
+                baseline_seconds = cadence_config.baseline_seconds as u64,
+                accelerated_seconds = cadence_config.accelerated_seconds as u64,
+                reflection_seconds = cadence_config.reflection_seconds as u64,
+                tier2_acceleration_enabled = cadence_config.tier2_acceleration_enabled,
+                "cadence config loaded at boot",
+            );
+            if let Some(sql_runner) = cadence_sql_runner.as_ref() {
+                tauri::async_runtime::spawn(start_cadence_coordinator(
+                    Arc::clone(sql_runner),
+                    Arc::clone(&cadence_event_broadcast),
+                    Arc::clone(&cue_broadcast),
+                    Arc::clone(&cadence_channel),
+                    Arc::clone(&hardware_profile),
+                    Arc::clone(&cadence_config),
+                ));
+            } else {
+                tracing::warn!(
+                    target: "cadence.config.safety_floor",
+                    "cadence coordinator disabled — buffer connection unavailable",
+                );
+            }
             // Chunk #67 — service lifecycle heartbeat tick (15s default
             // sibling cadence). Reads BaselineState activity snapshots,
             // emits ServiceLifecycleEvent transitions on the broadcast,

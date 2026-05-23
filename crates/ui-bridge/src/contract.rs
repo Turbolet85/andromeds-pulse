@@ -145,6 +145,19 @@ pub struct Settings {
     pub drain_similarity_x100: u32,
     #[serde(default = "default_drain_max_clusters")]
     pub drain_max_clusters: u32,
+    // Chunk #80 — cadence coordinator + three-tier triggering. Persisted
+    // via Settings precedent (CLAUDE.md 2026-05-09 Settings-extension
+    // pattern avoids the security ↔ tests/CI ↔ arch capability-drift
+    // triple binding). Coordinator reads once at boot per pulse-v0_2_0-
+    // route §80; hot-reload deferred к chunk #94.
+    #[serde(default = "default_cadence_baseline_seconds")]
+    pub cadence_baseline_seconds: u32,
+    #[serde(default = "default_cadence_accelerated_seconds")]
+    pub cadence_accelerated_seconds: u32,
+    #[serde(default = "default_cadence_reflection_seconds")]
+    pub cadence_reflection_seconds: u32,
+    #[serde(default = "default_cadence_tier2_acceleration_enabled")]
+    pub cadence_tier2_acceleration_enabled: bool,
 }
 
 fn default_retention_seconds() -> u64 {
@@ -189,6 +202,26 @@ fn default_drain_max_clusters() -> u32 {
     1000
 }
 
+// Chunk #80 cadence-coordinator defaults per pulse-v0_2_0-route §80
+// (baseline 60s / accelerated 20s / reflection 1800s; Tier-2 acceleration
+// enabled by default — disabled only when chunk #82 hardware-profile
+// detection reports cpu-primary).
+fn default_cadence_baseline_seconds() -> u32 {
+    60
+}
+
+fn default_cadence_accelerated_seconds() -> u32 {
+    20
+}
+
+fn default_cadence_reflection_seconds() -> u32 {
+    1800
+}
+
+fn default_cadence_tier2_acceleration_enabled() -> bool {
+    true
+}
+
 impl Default for Settings {
     fn default() -> Self {
         Self {
@@ -205,6 +238,10 @@ impl Default for Settings {
             drain_depth: default_drain_depth(),
             drain_similarity_x100: default_drain_similarity_x100(),
             drain_max_clusters: default_drain_max_clusters(),
+            cadence_baseline_seconds: default_cadence_baseline_seconds(),
+            cadence_accelerated_seconds: default_cadence_accelerated_seconds(),
+            cadence_reflection_seconds: default_cadence_reflection_seconds(),
+            cadence_tier2_acceleration_enabled: default_cadence_tier2_acceleration_enabled(),
         }
     }
 }
@@ -232,6 +269,18 @@ pub const DRAIN_SIMILARITY_X100_MIN: u32 = 30;
 pub const DRAIN_SIMILARITY_X100_MAX: u32 = 70;
 pub const DRAIN_MAX_CLUSTERS_MIN: u32 = 100;
 pub const DRAIN_MAX_CLUSTERS_MAX: u32 = 10_000;
+
+// Chunk #80 cadence coordinator bounds. MIN values mirror the safety
+// floors in `triage::cadence::config` (baseline ≥ 5s, accelerated ≥ 1s,
+// reflection ≥ 300s per pulse-v0_2_0-route §80). MAX values bound к
+// 1h / 10min / 24h respectively к prevent silently-disabling tickers via
+// extreme config.
+pub const CADENCE_BASELINE_SECONDS_MIN: u32 = 5;
+pub const CADENCE_BASELINE_SECONDS_MAX: u32 = 3_600;
+pub const CADENCE_ACCELERATED_SECONDS_MIN: u32 = 1;
+pub const CADENCE_ACCELERATED_SECONDS_MAX: u32 = 600;
+pub const CADENCE_REFLECTION_SECONDS_MIN: u32 = 300;
+pub const CADENCE_REFLECTION_SECONDS_MAX: u32 = 86_400;
 
 impl Settings {
     pub fn validate(&self) -> Result<(), AppError> {
@@ -280,6 +329,30 @@ impl Settings {
         if !(DRAIN_MAX_CLUSTERS_MIN..=DRAIN_MAX_CLUSTERS_MAX).contains(&self.drain_max_clusters) {
             return Err(AppError::Validation {
                 field: "drain_max_clusters".to_string(),
+                reason: "out of range".to_string(),
+            });
+        }
+        if !(CADENCE_BASELINE_SECONDS_MIN..=CADENCE_BASELINE_SECONDS_MAX)
+            .contains(&self.cadence_baseline_seconds)
+        {
+            return Err(AppError::Validation {
+                field: "cadence_baseline_seconds".to_string(),
+                reason: "out of range".to_string(),
+            });
+        }
+        if !(CADENCE_ACCELERATED_SECONDS_MIN..=CADENCE_ACCELERATED_SECONDS_MAX)
+            .contains(&self.cadence_accelerated_seconds)
+        {
+            return Err(AppError::Validation {
+                field: "cadence_accelerated_seconds".to_string(),
+                reason: "out of range".to_string(),
+            });
+        }
+        if !(CADENCE_REFLECTION_SECONDS_MIN..=CADENCE_REFLECTION_SECONDS_MAX)
+            .contains(&self.cadence_reflection_seconds)
+        {
+            return Err(AppError::Validation {
+                field: "cadence_reflection_seconds".to_string(),
                 reason: "out of range".to_string(),
             });
         }
@@ -1819,6 +1892,10 @@ mod tests {
             drain_depth: 5,
             drain_similarity_x100: 60,
             drain_max_clusters: 500,
+            cadence_baseline_seconds: 90,
+            cadence_accelerated_seconds: 30,
+            cadence_reflection_seconds: 2_400,
+            cadence_tier2_acceleration_enabled: false,
         };
         let json = serde_json::to_string(&s).expect("serializes");
         let parsed: Settings = serde_json::from_str(&json).expect("parses back");
@@ -2147,6 +2224,108 @@ mod tests {
         assert_eq!(s.drain_depth, 4);
         assert_eq!(s.drain_similarity_x100, 50);
         assert_eq!(s.drain_max_clusters, 1000);
+    }
+
+    // ===== Chunk #80 — Cadence coordinator validation =====
+
+    #[test]
+    fn settings_default_cadence_knobs_match_route_spec() {
+        let s = Settings::default();
+        assert_eq!(s.cadence_baseline_seconds, 60);
+        assert_eq!(s.cadence_accelerated_seconds, 20);
+        assert_eq!(s.cadence_reflection_seconds, 1_800);
+        assert!(s.cadence_tier2_acceleration_enabled);
+    }
+
+    #[test]
+    fn settings_validate_accepts_default_cadence_knobs() {
+        let s = Settings::default();
+        assert!(s.validate().is_ok());
+    }
+
+    #[test]
+    fn settings_validate_rejects_below_min_cadence_baseline() {
+        let s = Settings {
+            cadence_baseline_seconds: 1,
+            ..Settings::default()
+        };
+        match s.validate() {
+            Err(AppError::Validation { field, reason }) => {
+                assert_eq!(field, "cadence_baseline_seconds");
+                assert_eq!(reason, "out of range");
+            }
+            other => panic!("expected Validation error, got {other:?}"),
+        }
+    }
+
+    #[test]
+    fn settings_validate_rejects_above_max_cadence_baseline() {
+        let s = Settings {
+            cadence_baseline_seconds: 100_000,
+            ..Settings::default()
+        };
+        match s.validate() {
+            Err(AppError::Validation { field, .. }) => {
+                assert_eq!(field, "cadence_baseline_seconds");
+            }
+            other => panic!("expected Validation error, got {other:?}"),
+        }
+    }
+
+    #[test]
+    fn settings_validate_rejects_below_min_cadence_accelerated() {
+        let s = Settings {
+            cadence_accelerated_seconds: 0,
+            ..Settings::default()
+        };
+        match s.validate() {
+            Err(AppError::Validation { field, .. }) => {
+                assert_eq!(field, "cadence_accelerated_seconds");
+            }
+            other => panic!("expected Validation error, got {other:?}"),
+        }
+    }
+
+    #[test]
+    fn settings_validate_rejects_below_min_cadence_reflection() {
+        let s = Settings {
+            cadence_reflection_seconds: 60,
+            ..Settings::default()
+        };
+        match s.validate() {
+            Err(AppError::Validation { field, .. }) => {
+                assert_eq!(field, "cadence_reflection_seconds");
+            }
+            other => panic!("expected Validation error, got {other:?}"),
+        }
+    }
+
+    #[test]
+    fn settings_validate_accepts_cadence_extremes_within_range() {
+        let s_low = Settings {
+            cadence_baseline_seconds: CADENCE_BASELINE_SECONDS_MIN,
+            cadence_accelerated_seconds: CADENCE_ACCELERATED_SECONDS_MIN,
+            cadence_reflection_seconds: CADENCE_REFLECTION_SECONDS_MIN,
+            ..Settings::default()
+        };
+        assert!(s_low.validate().is_ok());
+        let s_high = Settings {
+            cadence_baseline_seconds: CADENCE_BASELINE_SECONDS_MAX,
+            cadence_accelerated_seconds: CADENCE_ACCELERATED_SECONDS_MAX,
+            cadence_reflection_seconds: CADENCE_REFLECTION_SECONDS_MAX,
+            ..Settings::default()
+        };
+        assert!(s_high.validate().is_ok());
+    }
+
+    #[test]
+    fn settings_partial_deserialize_uses_defaults_for_missing_cadence_fields() {
+        let json = r#"{"theme":"light"}"#;
+        let s: Settings = serde_json::from_str(json).expect("parses");
+        assert_eq!(s.cadence_baseline_seconds, 60);
+        assert_eq!(s.cadence_accelerated_seconds, 20);
+        assert_eq!(s.cadence_reflection_seconds, 1_800);
+        assert!(s.cadence_tier2_acceleration_enabled);
     }
 
     #[test]

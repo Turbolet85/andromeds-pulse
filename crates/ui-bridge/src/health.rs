@@ -870,6 +870,10 @@ mod introspection_tests {
             drain_depth: 5,
             drain_similarity_x100: 60,
             drain_max_clusters: 500,
+            cadence_baseline_seconds: 90,
+            cadence_accelerated_seconds: 30,
+            cadence_reflection_seconds: 2_400,
+            cadence_tier2_acceleration_enabled: false,
         };
 
         let api1 = make_impl(dir.path().to_path_buf(), vec![]);

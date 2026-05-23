@@ -162,7 +162,7 @@ export type ServiceListItem = { service: string; state: ServiceLifecycleState; l
  */
 export type ServiceListPayload = { items: ServiceListItem[]; total: number; next_cursor: string | null }
 
-export type Settings = { theme?: Theme; widget_position?: WidgetPosition; retention_seconds?: number; mcp_server_enabled?: boolean; notifications_enabled?: boolean; always_on_top?: boolean; snapshot_preset?: SnapshotPreset; snapshot_format?: SnapshotFormat; lifecycle_dormant_after_secs?: number; lifecycle_archived_after_secs?: number; drain_depth?: number; drain_similarity_x100?: number; drain_max_clusters?: number }
+export type Settings = { theme?: Theme; widget_position?: WidgetPosition; retention_seconds?: number; mcp_server_enabled?: boolean; notifications_enabled?: boolean; always_on_top?: boolean; snapshot_preset?: SnapshotPreset; snapshot_format?: SnapshotFormat; lifecycle_dormant_after_secs?: number; lifecycle_archived_after_secs?: number; drain_depth?: number; drain_similarity_x100?: number; drain_max_clusters?: number; cadence_baseline_seconds?: number; cadence_accelerated_seconds?: number; cadence_reflection_seconds?: number; cadence_tier2_acceleration_enabled?: boolean }
 
 /**
  * Severity hint enabling future webview `aria-live` polite-vs-assertive

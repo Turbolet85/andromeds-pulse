@@ -1,9 +1,11 @@
 pub mod baseline_observer;
 pub mod baseline_persistence;
 pub mod bincode_bounded;
+pub mod cadence_runner;
 pub mod connection_router;
 pub mod diagnostics_router;
 pub mod drain_persistence;
+pub mod hardware_profile;
 pub mod heartbeat;
 pub mod incident_observer;
 pub mod incident_persistence;
