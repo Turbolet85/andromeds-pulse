@@ -176,7 +176,7 @@
   - `incidents.list_active`, `incidents.acknowledge`, `incidents.mark_resolved` — pulse-app crate (`IncidentsApiImpl` resolver backed by `crates/triage::contract::IncidentRegistry` + `IncidentPersistence` + `IncidentLifecycleBroadcast`; chunk #78) — see §Architecture Registry Updates 2026-05-23
 - **External HTTP routes (OTLP HTTP)**: `POST /v1/traces`, `POST /v1/metrics`, `POST /v1/logs` on `:4318`.
 - **MCP stdio surface**: standard MCP `initialize`, `tools/list`, `tools/call`, `notifications/*` over stdin/stdout when the rmcp sidecar is started.
-- **Tauri IPC events (broadcast channels)**: `pulse://stream/spans`, `pulse://stream/metrics`, `pulse://stream/logs`, `pulse://stream/snapshot-progress`, `pulse://stream/plugin-events` (deferred — no runtime emitter as of chunk #74; pending plugin invocation telemetry chunk), `pulse://stream/connection-state` (chunk #59 — see §Architecture Registry Updates 2026-05-16), `pulse://stream/attention-cues` (chunk #62 — see §Architecture Registry Updates 2026-05-17), `pulse://stream/restart-events` (chunk #63 — see §Architecture Registry Updates 2026-05-17), `pulse://stream/service-lifecycle` (chunk #67 — see §Architecture Registry Updates 2026-05-18), `pulse://stream/incidents` (chunk #78 — see §Architecture Registry Updates 2026-05-23).
+- **Tauri IPC events (broadcast channels)**: `pulse://stream/spans`, `pulse://stream/metrics`, `pulse://stream/logs`, `pulse://stream/snapshot-progress`, `pulse://stream/plugin-events` (deferred — no runtime emitter as of chunk #74; pending plugin invocation telemetry chunk), `pulse://stream/connection-state` (chunk #59 — see §Architecture Registry Updates 2026-05-16), `pulse://stream/attention-cues` (chunk #62 — see §Architecture Registry Updates 2026-05-17), `pulse://stream/restart-events` (chunk #63 — see §Architecture Registry Updates 2026-05-17), `pulse://stream/service-lifecycle` (chunk #67 — see §Architecture Registry Updates 2026-05-18), `pulse://stream/incidents` (chunk #78 — see §Architecture Registry Updates 2026-05-23), `pulse://stream/digests` (chunk #81 — see §Architecture Registry Updates 2026-05-23).
 - **Process / service identity**:
   - Tauri app bundle identifier: `com.andromeda.pulse`
   - Binary name: `andromeda-pulse` (Linux/macOS), `andromeda-pulse.exe` (Windows)
@@ -485,4 +485,11 @@ _This section accumulates entries from `/andromeda-evolve --allow-arch-registry`
 **Added:** `pulse://stream/cadence-events` (`crates/triage/src/cadence/broadcast.rs:9`, chunk #80).
 **Rationale:** D3 capability-drift closure for chunk #80 cadence coordinator L6-visibility broadcast topic. Mirrors 2026-05-17 chunk #62 `attention-cues` + chunk #63 `restart-events` precedents.
 **Marker:** `.andromeda/runs/2026-05-23T12-10-53-spec-amendment-acknowledge-cadence-events-broadcast/amendment.md`
+
+### 2026-05-23 — Acknowledge `pulse://stream/digests` (--allow-arch-registry)
+
+**Section:** §Occupied Resources Tauri IPC events (broadcast channels).
+**Added:** `pulse://stream/digests` (`crates/triage/src/digest/broadcast.rs:15`, chunk #81).
+**Rationale:** D3 capability-drift closure for chunk #81 L3 digest assembler broadcast topic. Mirrors 2026-05-23 chunk #80 `cadence-events` precedent.
+**Marker:** `.andromeda/runs/2026-05-23T21-46-00-spec-amendment-acknowledge-digests-broadcast/amendment.md`
 

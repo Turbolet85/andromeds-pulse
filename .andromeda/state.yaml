@@ -619,7 +619,38 @@ drift_warnings:
     last_observed_session_count: 131
 
 spec_amendments:
-  active: []
+  active:
+    - amendment_id: 2026-05-23T21-46-00-acknowledge-digests-broadcast
+      plans:
+        - path: architecture.md
+          sections:
+            - "§Occupied Resources Tauri IPC events (broadcast channels)"
+            - "§Architecture Registry Updates"
+          decisions_log_section: "2026-05-23 — Acknowledge `pulse://stream/digests` (--allow-arch-registry)"
+      trigger:
+        chunk: null
+        phase: null
+        harness: "user-driven via /andromeda-evolve"
+      authority:
+        winning_plan: architecture.md
+        winning_tier: implementation
+        losing_plan: architecture.md
+        losing_concern: registry-section-stale-vs-implementation-reality
+        rationale: "Code at crates/triage/src/digest/broadcast.rs:15 defines STREAM_NAME_DIGESTS for chunk #81 L3 digest assembler; arch §Occupied Resources Tauri IPC events had not acknowledged. Adding to registry brings arch into alignment with implementation reality."
+      impl_files_synced: []
+      expected_propagation: []
+      marker_path: .andromeda/runs/2026-05-23T21-46-00-spec-amendment-acknowledge-digests-broadcast/amendment.md
+      applied_at: 2026-05-23T21:46:00Z
+      noted_at: null
+      propagated_by_run: .andromeda/runs/2026-05-23T21-58-51-setup-project-delta/
+      archived_at: null
+      verification_status: clean
+      flag_used: --allow-arch-registry
+      registry_section: "§Occupied Resources Tauri IPC events (broadcast channels)"
+      registry_additions:
+        - "pulse://stream/digests"
+      code_evidence:
+        - crates/triage/src/digest/broadcast.rs
   archive:
     - amendment_id: 2026-05-23T15-54-23-append-chunk-81-digest-assembler-lww-queue
       plans:
