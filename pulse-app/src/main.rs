@@ -431,7 +431,20 @@ fn main() {
     ));
     let llm_runner: Arc<dyn interpretation::contract::LlmInferenceRunner> =
         Arc::clone(&mistralrs_inference) as Arc<dyn interpretation::contract::LlmInferenceRunner>;
-    let model_impl = ModelApiImpl::new(llm_runner, Arc::clone(&hardware_profile));
+    let model_impl = ModelApiImpl::new(Arc::clone(&llm_runner), Arc::clone(&hardware_profile));
+
+    // Chunk #83 — boot-time mistralrs model load. Fire-and-forget: if
+    // `ANDROMEDA_PULSE_MODEL_PATH` is unset OR the file is invalid OR
+    // mistralrs fails to load, the runner stays в `ModelStatus::Error`
+    // and `generate_constrained` returns `ModelNotConfigured` — the L4
+    // subscriber catches it as а runtime_error and skips. App boots
+    // cleanly in graceful-degraded mode either way.
+    {
+        let runner_for_load = Arc::clone(&mistralrs_inference);
+        tokio::spawn(async move {
+            let _ = runner_for_load.load_from_env_if_configured().await;
+        });
+    }
     let cadence_sql_runner: Option<Arc<dyn SqlQueryRunner>> = buffer_conn.as_ref().map(|conn| {
         let state = Arc::new(TriageSqlState::new(Arc::clone(conn)));
         Arc::new(CadenceSqlRunner::new(state)) as Arc<dyn SqlQueryRunner>
@@ -1149,9 +1162,23 @@ fn main() {
                             Arc::clone(&digest_broadcast),
                             Arc::clone(corpus_writer_handle),
                         );
+                        // Chunk #83 — L4 inference subscriber. Subscribes
+                        // to `pulse://stream/digests` (same source as the
+                        // persister above) and invokes LlmInferenceRunner
+                        // per digest. With the chunk #82 stub runner this
+                        // returns ModelNotConfigured + counts а
+                        // runtime_error metric per inference; future
+                        // chunks с actual mistralrs binding produce real
+                        // L4 outputs that downstream chunks (#86+) wire
+                        // into incident records.
+                        pulse_app::inference_runtime::spawn_l4_inference_subscriber(
+                            Arc::clone(&digest_broadcast),
+                            Arc::clone(&llm_runner),
+                        );
+                        pulse_app::inference_runtime::spawn_l4_queue_depth_heartbeat(|| 0);
                         tracing::info!(
                             target: "digest.runtime.boot",
-                            "digest assembler spawned (cadence subscriber + persister)",
+                            "digest assembler spawned (cadence subscriber + persister + L4 inference subscriber)",
                         );
                     }
                     Err(e) => {
