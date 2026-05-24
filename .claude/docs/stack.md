@@ -20,6 +20,14 @@ _Extracted from `.andromeda/architecture.md` Stack and Technologies section by `
 - **Error handling:** `thiserror` 2.x (modules) + `anyhow` 1.x (boundaries) + `serde`-friendly `AppError` enum at the IPC bridge.
 - **Validation:** `serde` + smart enum types + `TryFrom<u16>` (no validation library by default; defer `garde` 0.20+ to plugin manifest cross-field validation if/when needed).
 
+## AI / LLM Inference (v0.2.0+, pending chunk #82 onwards)
+- **Local LLM runtime:** `mistralrs` 0.8.0 (pin-exact, no caret) — chosen over `candle` per Pre-D1 decision (2026-05-24) because native JSON-constrained generation via grammar enforcement + strict schema mode (llguidance integration) is essential for the L4 interpretation pipeline that emits structured digest reports.
+- **Quantization formats supported:** GGUF (2-8 bit), GPTQ, AWQ, HQQ, FP8, BNB.
+- **Backends:** Metal (FlashAttention V2/V3 + PagedAttention), CUDA, CPU — matches hardware-profile-aware tier model (`gpu-primary` / `gpu-fallback` / `cpu-primary` / `cpu-fallback` per chunk #82 detection).
+- **Tokenizer:** `tokenizers` crate (already pulled in via chunk #81 digest assembler; shared workspace dep).
+- **Abstraction:** `pub trait LlmInferenceRunner: Send + Sync` in `crates/triage/src/contract` with `Pin<Box<dyn Future + Send + 'a>>` return types (async-trait pattern matching the 2026-05-23 `SqlQueryRunner`); concrete `MistralRsInference` impl at `pulse-app/` binary boundary. Bus factor mitigation against mistral.rs smaller community (7,171 stars vs candle's 20,341); swap to `candle` + `outlines-rs` if maintenance falters is a single-impl change, not a workspace rewrite.
+- **Implementation status:** scheduled in chunks #82–#85 per route §Epoch 9 (Foundation v0.2.0); not yet in code. Workspace dep `mistralrs = "=0.8.0"` lands with chunk #82.
+
 ## Data Storage
 - **Storage engine:** DuckDB 1.5.x via `duckdb` crate 1.10500.x — embedded columnar OLAP, in-memory `:memory:` ring buffer (5–10 min retention, configurable via `ANDROMEDA_PULSE_RETENTION_SECONDS`).
 - **Columnar interchange:** Apache Arrow via `Appender::append_record_batch()` / `stream_arrow()` — zero-copy hand-off between OTLP decode → DuckDB → viz/MCP.
