@@ -1456,6 +1456,10 @@ Empirical anchor: chunk #77 took ~3min of dialogue ceremony (user question + opt
 
 ### Refactor R1 — Per-crate incremental api-surface reconciliation (deprecate batch-reconcile pattern)
 
+## Status: IMPLEMENTED — 2026-05-24 (session 135) — REFACTOR — verified cleared session 135
+
+(Filed PROPOSED 2026-05-23 session 129; applied 2026-05-24 session 135 chunk #82; verification_condition `consecutive_count == 0` PASS at wrap-session 135 Phase 8 step 8 — required common-sense P22 override for matured_at_session preservation through step 4b.i. This is the FIRST refactor entry to traverse the entire self-evolve compounding loop DETECT → PROPOSE → APPLY → VERIFY end-to-end.)
+
 **Class:** refactor
 
 **Accumulation evidence:** (REQUIRED iff Class=refactor)
@@ -1500,7 +1504,7 @@ After edits: `diff -q` verification (must return empty for both pairs of both co
 **Total:** ~346 LOC across 7 user-level skill files + 1 project file. Triangle byte-identity discipline required for integrity-protocol.md + session-state-contract.md (2 of 6 shared contracts).
 
 **Verification gate (one-wrap-lag):**
-- Resolution chunk: TBD (filled when R1 implementation lands)
+- Resolution chunk: 82 (set by /andromeda-apply --confirm-applied at 2026-05-24T11:34:51Z)
 - Verification condition: `consecutive_count == 0` (from A1 catalogue per Modification 3)
 - Verified cleared at session: TBD (filled by Phase 8 step 8 when condition passes)
 - Anti-pattern: do NOT mark IMPLEMENTED until verification condition passes; diagnostic remediation required for failed verifications
@@ -1517,3 +1521,66 @@ NOW. The accumulator has been past threshold for 1 wrap by session 129 (matured 
 - Triggering session: 129 (first wrap after B5+B4 self-evolve fix landed; expected first-dogfood case per session 129 diagnostic trace prediction)
 - P20 (original self-evolve proposal — session 117; cited 22-wrap deferral as empirical anchor; now 33 wraps and the matured refactor candidate this proposal addresses)
 - B5+B4 fix (session 129 wrap-session/SKILL.md edits) — the wrap-local fix that made R1 filing automatic on first activation; documented in session 129 handoff Key Decisions
+
+### Resolution log
+
+- 2026-05-24T11:34:51Z — Phased plan applied manually (HIGH-risk Cross-skill contract; 6-phase plan per `~/.claude/skills-applier-plans/2026-05-24T10-28-32Z-R1.md` dry-run reference); verified by /andromeda-apply --confirm-applied R1 --chunk-id 82. **Resolution chunk: 82.** 8 files touched (7 in skills repo: 3× integrity-protocol.md + 3× session-state-contract.md + 1× wrap-session SKILL.md; + 1× project api-surface.md restructured to 14 per-crate sub-blocks). 14 verification gates PASS (2× [MD5SUM_3WAY] preserved triangle byte-identity for both shared contracts; 4× [READ_AFTER_WRITE]; 8× [NO_COLLATERAL_DAMAGE]; 5× [§12_10_SANITY] sub-checks on wrap-session SKILL.md). [VERIFICATION_CONDITION_INFORMATIONAL] `consecutive_count == 0` evaluates FALSE post-confirm (current=38; expected — per-crate Phase 5 reconcile at next wrap-session will reset count). Awaiting wrap-session Phase 8 step 8 one-wrap-lag verification to transition PROPOSED → IMPLEMENTED. Rollback pointers (still valid): `git -C ~/.claude/skills/ reset --hard pre-R1-apply` + `git -C D:/dev/projects/andromeda-pulse/ restore .andromeda/context/api-surface.md`.
+
+---
+
+### Proposal P22 — Phase 8 step 4b.i clears matured_at_session BEFORE step 8 verification, breaking one-wrap-lag gate for ANY accumulator-driven refactor
+
+## Status: PROPOSED — 2026-05-24 (session 135)
+
+**Problem:** wrap-session Phase 8's intra-phase ordering creates a verification-gap when the same wrap that completes a matured refactor's apply ALSO triggers the natural cycle clear that step 8 needs to observe:
+
+1. Step 4b.i increment-trigger runs FIRST. For accumulators where Phase 5 cleared the deferred flag this wrap (`api_surface_deferred=false` for A1; analogous for future accumulators), the ELSE branch fires and clears: `consecutive_count=0` + `first_deferred_session=null` + `last_deferred_session=null` + **`matured_at_session=null`**.
+
+2. Step 8 verification runs SECOND. Its WHERE clause requires `matured_at_session != null AND refactor_proposal_id != null AND resolved_in_chunk != null AND verified_cleared_at_session == null`. Step 4b.i just cleared `matured_at_session`, so step 8 SKIPS the entry.
+
+3. Result: `verified_cleared_at_session` stays null forever; refactor never auto-transitions PROPOSED → IMPLEMENTED via the gate. User must manually transition with explicit "manual override" annotation — defeating the one-wrap-lag verification design.
+
+**This is not an R1-specific edge case** — it's the general path. EVERY accumulator-driven refactor's implementation IS what triggers the cycle clear (e.g., A1's R1 reconcile clears api_surface_deferred). The bug fires every time, not as a corner case.
+
+**Discovered:** session 135 wrap-session, when tracing through expected behavior of R1's verification before executing Phase 8.
+
+**Proposed fix (one of three options):**
+
+1. **Swap step ordering:** run step 8 BEFORE step 4b.i. Step 8 observes pre-reset state (matured_at_session preserved); on PASS, transitions refactor to IMPLEMENTED. Then step 4b.i performs the natural cycle clear.
+2. **Conditional clear in step 4b.i:** preserve `matured_at_session` (and any other fields step 8 needs) when `resolved_in_chunk != null AND verified_cleared_at_session == null` (refactor in flight). Reset only count/dates. Step 8 fires correctly; final cleanup happens after step 8 transitions.
+3. **Step 8 wider WHERE:** drop `matured_at_session != null` from step 8's WHERE clause (use `refactor_proposal_id != null` as the primary trigger; matured_at is implied by refactor existing). This handles cleared-during-this-wrap.
+
+Option 2 is least disruptive (smallest protocol change; preserves all design intent including "cycle naturally clears" semantics).
+
+**When to do:** NOW. Without this fix, no accumulator-driven refactor ever auto-transitions. R1 (currently in-flight at session 135) is the first dogfood case. To unblock R1's verification THIS WRAP, session 135 applies common-sense fix per Option 2 with explicit annotation: "preserved matured_at_session for in-flight refactor's verification per P22 proposal pending protocol fix". Future sessions get the same treatment until the protocol is updated.
+
+**Cross-references:**
+- Affected accumulator state: `state.yaml.pipeline_accumulators.api_surface_deferral` (R1 in flight at filing time)
+- Affected SKILL.md: `~/.claude/skills/andromeda-wrap-session/SKILL.md` Phase 8 step 4b.i + step 8
+- Related: R1 (the first refactor to hit this; would have stalled without the workaround)
+- Related: maintainer guide §9.3.2 one-wrap-lag verification design (the design intent that step 4b.i ordering breaks)
+
+---
+
+### Proposal P23 — andromeda-apply HIGH-risk plan should flag target files exceeding Read tool size cap
+
+## Status: PROPOSED — 2026-05-24 (session 135)
+
+**Problem:** /andromeda-apply's design assumes all target files can be Read by the Edit/Write tools (Edit + Write both require Read-before-Edit). Claude Code's Read tool errors on files exceeding ~25K tokens regardless of `limit:` argument. For HIGH-risk apply where the human follows the emitted phased plan, hitting an oversize target mid-phase forces tool-path improvisation (Bash heredoc with atomic `> .tmp; mv .tmp file` workaround).
+
+**Encountered:** session 135 Phase 6 of R1 manual apply. Target `D:/dev/projects/andromeda-pulse/.andromeda/context/api-surface.md` was 7794 lines / 819KB pre-migration. Read tool errored with "File content (26327 tokens) exceeds maximum allowed tokens (25000)" even with `limit: 60`. Switched to Bash heredoc; worked but lost the safety guarantees of Edit/Write tool atomicity.
+
+**Proposed fix:**
+
+1. **Class detection extension (Phase 4):** check each target file's byte size via `wc -c`. For files >250KB (conservative threshold below the ~819KB encountered), flag with "non-skill-large" sub-class. This is in addition to existing class detection (greenfield / triangle maintainer / author / non-skill).
+2. **Plan emission (Phase 5):** for non-skill-large targets, the emitted plan includes a note: "TOOL ADVISORY: this target exceeds Read tool's ~25K-token cap. Edit/Write tools will fail Read-before-Edit prerequisite. Use Bash heredoc + atomic rename pattern: `cat > {target}.tmp << 'EOF' ... EOF; mv {target}.tmp {target}`."
+3. **Verification gate adjustment:** for non-skill-large targets, [READ_AFTER_WRITE] uses Grep (which works on large files) instead of Read.
+
+**Side benefit:** detecting oversize targets early also informs the user whether the file fits the "non-skill" category as designed (project doc, modest size) or has accidentally accumulated content that should itself be refactored.
+
+**When to do:** opportunistic. P22 is the urgent blocker (R1 needs the verification gate fix). P23 is a UX improvement for future refactors that touch oversize project markdown.
+
+**Cross-references:**
+- Encountered chunk/refactor: R1 Phase 6 (project api-surface.md migration)
+- Affected SKILL.md: `~/.claude/skills/andromeda-apply/SKILL.md` Phase 4 (class detection) + Phase 5 (plan emission) + `~/.claude/skills/andromeda-apply/references/verification-gates.md` ([READ_AFTER_WRITE] gate implementation)
+- Related: applier audit-trail file at `~/.claude/skills-applier-plans/2026-05-24T10-28-32Z-R1.md` Phase 6 deliverable did NOT mention the size constraint despite Phase 4's class detection running on api-surface.md (the cap-violation surfaced only at human-apply time when Read failed)
