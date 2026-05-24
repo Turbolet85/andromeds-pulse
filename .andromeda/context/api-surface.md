@@ -1089,7 +1089,1860 @@ pub fn curation::contract::extract_critical_path(spans: &[curation::contract::Sp
 ```
 <!-- LIVING:api-surface:crate-curation end -->
 <!-- LIVING:api-surface:crate-ingest start -->
-(empty placeholder — wrap-session Phase 5 will fill when cursor reaches `ingest`)
+```text
+pub mod ingest
+pub mod ingest::channel
+pub enum ingest::channel::Batch
+pub ingest::channel::Batch::Logs(alloc::vec::Vec<ingest::grpc::proto::opentelemetry::proto::logs::v1::ResourceLogs>)
+pub ingest::channel::Batch::Metrics(alloc::vec::Vec<ingest::grpc::proto::opentelemetry::proto::metrics::v1::ResourceMetrics>)
+pub ingest::channel::Batch::Spans(alloc::vec::Vec<ingest::grpc::proto::opentelemetry::proto::trace::v1::ResourceSpans>)
+impl core::fmt::Debug for ingest::channel::Batch
+pub fn ingest::channel::Batch::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Freeze for ingest::channel::Batch
+impl core::marker::Send for ingest::channel::Batch
+impl core::marker::Sync for ingest::channel::Batch
+impl core::marker::Unpin for ingest::channel::Batch
+impl core::marker::UnsafeUnpin for ingest::channel::Batch
+impl core::panic::unwind_safe::RefUnwindSafe for ingest::channel::Batch
+impl core::panic::unwind_safe::UnwindSafe for ingest::channel::Batch
+pub struct ingest::channel::IngestSender
+impl ingest::channel::IngestSender
+pub fn ingest::channel::IngestSender::capacity_pct(&self) -> f64
+pub fn ingest::channel::IngestSender::try_send(&self, batch: ingest::channel::Batch) -> core::result::Result<(), ingest::contract::Error>
+impl core::clone::Clone for ingest::channel::IngestSender
+pub fn ingest::channel::IngestSender::clone(&self) -> ingest::channel::IngestSender
+impl core::fmt::Debug for ingest::channel::IngestSender
+pub fn ingest::channel::IngestSender::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Freeze for ingest::channel::IngestSender
+impl core::marker::Send for ingest::channel::IngestSender
+impl core::marker::Sync for ingest::channel::IngestSender
+impl core::marker::Unpin for ingest::channel::IngestSender
+impl core::marker::UnsafeUnpin for ingest::channel::IngestSender
+impl core::panic::unwind_safe::RefUnwindSafe for ingest::channel::IngestSender
+impl core::panic::unwind_safe::UnwindSafe for ingest::channel::IngestSender
+pub const ingest::channel::MPSC_CAPACITY: usize
+pub fn ingest::channel::build_channel() -> (ingest::channel::IngestSender, ingest::channel::IngestReceiver)
+pub fn ingest::channel::build_channel_with_capacity(capacity: usize) -> (ingest::channel::IngestSender, ingest::channel::IngestReceiver)
+pub type ingest::channel::IngestReceiver = tokio::sync::mpsc::bounded::Receiver<ingest::channel::Batch>
+pub mod ingest::connection
+pub enum ingest::connection::ConnectionState
+pub ingest::connection::ConnectionState::Idle
+pub ingest::connection::ConnectionState::Listening
+pub ingest::connection::ConnectionState::ReceiverFailed
+pub ingest::connection::ConnectionState::Receiving
+pub ingest::connection::ConnectionState::Stalled
+impl core::clone::Clone for ingest::connection::ConnectionState
+pub fn ingest::connection::ConnectionState::clone(&self) -> ingest::connection::ConnectionState
+impl core::cmp::Eq for ingest::connection::ConnectionState
+impl core::cmp::PartialEq for ingest::connection::ConnectionState
+pub fn ingest::connection::ConnectionState::eq(&self, other: &ingest::connection::ConnectionState) -> bool
+impl core::fmt::Debug for ingest::connection::ConnectionState
+pub fn ingest::connection::ConnectionState::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::hash::Hash for ingest::connection::ConnectionState
+pub fn ingest::connection::ConnectionState::hash<__H: core::hash::Hasher>(&self, state: &mut __H)
+impl core::marker::Copy for ingest::connection::ConnectionState
+impl core::marker::StructuralPartialEq for ingest::connection::ConnectionState
+impl serde_core::ser::Serialize for ingest::connection::ConnectionState
+pub fn ingest::connection::ConnectionState::serialize<__S>(&self, __serializer: __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
+impl specta::type::Flatten for ingest::connection::ConnectionState
+impl specta::type::NamedType for ingest::connection::ConnectionState
+pub fn ingest::connection::ConnectionState::definition_named_data_type(type_map: &mut specta::type_collection::TypeCollection) -> specta::datatype::named::NamedDataType
+pub fn ingest::connection::ConnectionState::named_data_type(type_map: &mut specta::type_collection::TypeCollection, generics: &[specta::datatype::DataType]) -> specta::datatype::named::NamedDataType
+pub fn ingest::connection::ConnectionState::sid() -> specta::specta_id::SpectaID
+impl specta::type::Type for ingest::connection::ConnectionState
+pub fn ingest::connection::ConnectionState::inline(type_map: &mut specta::type_collection::TypeCollection, generics: specta::type::Generics<'_>) -> specta::datatype::DataType
+pub fn ingest::connection::ConnectionState::reference(type_map: &mut specta::type_collection::TypeCollection, generics: &[specta::datatype::DataType]) -> specta::datatype::reference::Reference
+impl<'de> serde_core::de::Deserialize<'de> for ingest::connection::ConnectionState
+pub fn ingest::connection::ConnectionState::deserialize<__D>(__deserializer: __D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
+impl core::marker::Freeze for ingest::connection::ConnectionState
+impl core::marker::Send for ingest::connection::ConnectionState
+impl core::marker::Sync for ingest::connection::ConnectionState
+impl core::marker::Unpin for ingest::connection::ConnectionState
+impl core::marker::UnsafeUnpin for ingest::connection::ConnectionState
+impl core::panic::unwind_safe::RefUnwindSafe for ingest::connection::ConnectionState
+impl core::panic::unwind_safe::UnwindSafe for ingest::connection::ConnectionState
+pub enum ingest::connection::ReceiverFailureReason
+pub ingest::connection::ReceiverFailureReason::BindFailed
+pub ingest::connection::ReceiverFailureReason::ReceiverPanicked
+pub ingest::connection::ReceiverFailureReason::StaleHeartbeat
+impl ingest::connection::ReceiverFailureReason
+pub fn ingest::connection::ReceiverFailureReason::label(&self) -> &'static str
+impl core::clone::Clone for ingest::connection::ReceiverFailureReason
+pub fn ingest::connection::ReceiverFailureReason::clone(&self) -> ingest::connection::ReceiverFailureReason
+impl core::cmp::Eq for ingest::connection::ReceiverFailureReason
+impl core::cmp::PartialEq for ingest::connection::ReceiverFailureReason
+pub fn ingest::connection::ReceiverFailureReason::eq(&self, other: &ingest::connection::ReceiverFailureReason) -> bool
+impl core::fmt::Debug for ingest::connection::ReceiverFailureReason
+pub fn ingest::connection::ReceiverFailureReason::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Copy for ingest::connection::ReceiverFailureReason
+impl core::marker::StructuralPartialEq for ingest::connection::ReceiverFailureReason
+impl serde_core::ser::Serialize for ingest::connection::ReceiverFailureReason
+pub fn ingest::connection::ReceiverFailureReason::serialize<__S>(&self, __serializer: __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
+impl specta::type::NamedType for ingest::connection::ReceiverFailureReason
+pub fn ingest::connection::ReceiverFailureReason::definition_named_data_type(type_map: &mut specta::type_collection::TypeCollection) -> specta::datatype::named::NamedDataType
+pub fn ingest::connection::ReceiverFailureReason::named_data_type(type_map: &mut specta::type_collection::TypeCollection, generics: &[specta::datatype::DataType]) -> specta::datatype::named::NamedDataType
+pub fn ingest::connection::ReceiverFailureReason::sid() -> specta::specta_id::SpectaID
+impl specta::type::Type for ingest::connection::ReceiverFailureReason
+pub fn ingest::connection::ReceiverFailureReason::inline(type_map: &mut specta::type_collection::TypeCollection, generics: specta::type::Generics<'_>) -> specta::datatype::DataType
+pub fn ingest::connection::ReceiverFailureReason::reference(type_map: &mut specta::type_collection::TypeCollection, generics: &[specta::datatype::DataType]) -> specta::datatype::reference::Reference
+impl<'de> serde_core::de::Deserialize<'de> for ingest::connection::ReceiverFailureReason
+pub fn ingest::connection::ReceiverFailureReason::deserialize<__D>(__deserializer: __D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
+impl core::marker::Freeze for ingest::connection::ReceiverFailureReason
+impl core::marker::Send for ingest::connection::ReceiverFailureReason
+impl core::marker::Sync for ingest::connection::ReceiverFailureReason
+impl core::marker::Unpin for ingest::connection::ReceiverFailureReason
+impl core::marker::UnsafeUnpin for ingest::connection::ReceiverFailureReason
+impl core::panic::unwind_safe::RefUnwindSafe for ingest::connection::ReceiverFailureReason
+impl core::panic::unwind_safe::UnwindSafe for ingest::connection::ReceiverFailureReason
+pub enum ingest::connection::Severity
+pub ingest::connection::Severity::Critical
+pub ingest::connection::Severity::Info
+pub ingest::connection::Severity::Warning
+impl core::clone::Clone for ingest::connection::Severity
+pub fn ingest::connection::Severity::clone(&self) -> ingest::connection::Severity
+impl core::cmp::Eq for ingest::connection::Severity
+impl core::cmp::PartialEq for ingest::connection::Severity
+pub fn ingest::connection::Severity::eq(&self, other: &ingest::connection::Severity) -> bool
+impl core::fmt::Debug for ingest::connection::Severity
+pub fn ingest::connection::Severity::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Copy for ingest::connection::Severity
+impl core::marker::StructuralPartialEq for ingest::connection::Severity
+impl serde_core::ser::Serialize for ingest::connection::Severity
+pub fn ingest::connection::Severity::serialize<__S>(&self, __serializer: __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
+impl specta::type::NamedType for ingest::connection::Severity
+pub fn ingest::connection::Severity::definition_named_data_type(type_map: &mut specta::type_collection::TypeCollection) -> specta::datatype::named::NamedDataType
+pub fn ingest::connection::Severity::named_data_type(type_map: &mut specta::type_collection::TypeCollection, generics: &[specta::datatype::DataType]) -> specta::datatype::named::NamedDataType
+pub fn ingest::connection::Severity::sid() -> specta::specta_id::SpectaID
+impl specta::type::Type for ingest::connection::Severity
+pub fn ingest::connection::Severity::inline(type_map: &mut specta::type_collection::TypeCollection, generics: specta::type::Generics<'_>) -> specta::datatype::DataType
+pub fn ingest::connection::Severity::reference(type_map: &mut specta::type_collection::TypeCollection, generics: &[specta::datatype::DataType]) -> specta::datatype::reference::Reference
+impl<'de> serde_core::de::Deserialize<'de> for ingest::connection::Severity
+pub fn ingest::connection::Severity::deserialize<__D>(__deserializer: __D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
+impl core::marker::Freeze for ingest::connection::Severity
+impl core::marker::Send for ingest::connection::Severity
+impl core::marker::Sync for ingest::connection::Severity
+impl core::marker::Unpin for ingest::connection::Severity
+impl core::marker::UnsafeUnpin for ingest::connection::Severity
+impl core::panic::unwind_safe::RefUnwindSafe for ingest::connection::Severity
+impl core::panic::unwind_safe::UnwindSafe for ingest::connection::Severity
+pub struct ingest::connection::ConnectionBroadcast
+impl ingest::connection::ConnectionBroadcast
+pub fn ingest::connection::ConnectionBroadcast::new() -> Self
+pub fn ingest::connection::ConnectionBroadcast::sender(&self) -> &tokio::sync::broadcast::Sender<ingest::connection::ConnectionStatePayload>
+pub fn ingest::connection::ConnectionBroadcast::subscribe(&self) -> tokio::sync::broadcast::Receiver<ingest::connection::ConnectionStatePayload>
+pub fn ingest::connection::ConnectionBroadcast::subscriber_count(&self) -> usize
+impl core::clone::Clone for ingest::connection::ConnectionBroadcast
+pub fn ingest::connection::ConnectionBroadcast::clone(&self) -> ingest::connection::ConnectionBroadcast
+impl core::default::Default for ingest::connection::ConnectionBroadcast
+pub fn ingest::connection::ConnectionBroadcast::default() -> Self
+impl core::fmt::Debug for ingest::connection::ConnectionBroadcast
+pub fn ingest::connection::ConnectionBroadcast::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Freeze for ingest::connection::ConnectionBroadcast
+impl core::marker::Send for ingest::connection::ConnectionBroadcast
+impl core::marker::Sync for ingest::connection::ConnectionBroadcast
+impl core::marker::Unpin for ingest::connection::ConnectionBroadcast
+impl core::marker::UnsafeUnpin for ingest::connection::ConnectionBroadcast
+impl !core::panic::unwind_safe::RefUnwindSafe for ingest::connection::ConnectionBroadcast
+impl !core::panic::unwind_safe::UnwindSafe for ingest::connection::ConnectionBroadcast
+pub struct ingest::connection::ConnectionStatePayload
+pub ingest::connection::ConnectionStatePayload::last_span_ago_ms: u64
+pub ingest::connection::ConnectionStatePayload::message: core::option::Option<alloc::string::String>
+pub ingest::connection::ConnectionStatePayload::reason: core::option::Option<ingest::connection::ReceiverFailureReason>
+pub ingest::connection::ConnectionStatePayload::severity: ingest::connection::Severity
+pub ingest::connection::ConnectionStatePayload::state: ingest::connection::ConnectionState
+impl ingest::connection::ConnectionStatePayload
+pub fn ingest::connection::ConnectionStatePayload::from_parts(state: ingest::connection::ConnectionState, last_span_ago_ms: u64, reason: core::option::Option<ingest::connection::ReceiverFailureReason>) -> Self
+impl core::clone::Clone for ingest::connection::ConnectionStatePayload
+pub fn ingest::connection::ConnectionStatePayload::clone(&self) -> ingest::connection::ConnectionStatePayload
+impl core::fmt::Debug for ingest::connection::ConnectionStatePayload
+pub fn ingest::connection::ConnectionStatePayload::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl serde_core::ser::Serialize for ingest::connection::ConnectionStatePayload
+pub fn ingest::connection::ConnectionStatePayload::serialize<__S>(&self, __serializer: __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
+impl specta::type::Flatten for ingest::connection::ConnectionStatePayload
+impl specta::type::NamedType for ingest::connection::ConnectionStatePayload
+pub fn ingest::connection::ConnectionStatePayload::definition_named_data_type(type_map: &mut specta::type_collection::TypeCollection) -> specta::datatype::named::NamedDataType
+pub fn ingest::connection::ConnectionStatePayload::named_data_type(type_map: &mut specta::type_collection::TypeCollection, generics: &[specta::datatype::DataType]) -> specta::datatype::named::NamedDataType
+pub fn ingest::connection::ConnectionStatePayload::sid() -> specta::specta_id::SpectaID
+impl specta::type::Type for ingest::connection::ConnectionStatePayload
+pub fn ingest::connection::ConnectionStatePayload::inline(type_map: &mut specta::type_collection::TypeCollection, generics: specta::type::Generics<'_>) -> specta::datatype::DataType
+pub fn ingest::connection::ConnectionStatePayload::reference(type_map: &mut specta::type_collection::TypeCollection, generics: &[specta::datatype::DataType]) -> specta::datatype::reference::Reference
+impl<'de> serde_core::de::Deserialize<'de> for ingest::connection::ConnectionStatePayload
+pub fn ingest::connection::ConnectionStatePayload::deserialize<__D>(__deserializer: __D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
+impl core::marker::Freeze for ingest::connection::ConnectionStatePayload
+impl core::marker::Send for ingest::connection::ConnectionStatePayload
+impl core::marker::Sync for ingest::connection::ConnectionStatePayload
+impl core::marker::Unpin for ingest::connection::ConnectionStatePayload
+impl core::marker::UnsafeUnpin for ingest::connection::ConnectionStatePayload
+impl core::panic::unwind_safe::RefUnwindSafe for ingest::connection::ConnectionStatePayload
+impl core::panic::unwind_safe::UnwindSafe for ingest::connection::ConnectionStatePayload
+pub const ingest::connection::IDLE_THRESHOLD_NANOS: i64
+pub const ingest::connection::STALLED_THRESHOLD_NANOS: i64
+pub const ingest::connection::STREAM_NAME_CONNECTION_STATE: &str
+pub trait ingest::connection::ReceiverBindStatus: core::marker::Send + core::marker::Sync
+pub fn ingest::connection::ReceiverBindStatus::any_receiver_failed(&self) -> bool
+pub fn ingest::connection::ReceiverBindStatus::panic_signaled(&self) -> bool
+pub fn ingest::connection::compute_state(last_ingest_at_nanos: i64, now_nanos: i64, any_receiver_failed: bool, receiver_panicked: bool) -> ingest::connection::ConnectionState
+pub fn ingest::connection::last_span_ago_ms(last_ingest_at_nanos: i64, now_nanos: i64) -> u64
+pub fn ingest::connection::severity_label(severity: ingest::connection::Severity) -> &'static str
+pub async fn ingest::connection::start_poller(ingest_state: alloc::sync::Arc<ingest::state::IngestState>, bind_status: alloc::sync::Arc<dyn ingest::connection::ReceiverBindStatus>, broadcast_handle: alloc::sync::Arc<ingest::connection::ConnectionBroadcast>)
+pub fn ingest::connection::state_label(state: ingest::connection::ConnectionState) -> &'static str
+pub mod ingest::contract
+pub enum ingest::contract::Error
+pub ingest::contract::Error::BindFailed
+pub ingest::contract::Error::BindFailed::reason: alloc::string::String
+pub ingest::contract::Error::ChannelFull
+pub ingest::contract::Error::InvalidPort
+pub ingest::contract::Error::InvalidPort::value: alloc::string::String
+pub ingest::contract::Error::InvariantViolation
+pub ingest::contract::Error::InvariantViolation::actual: usize
+pub ingest::contract::Error::InvariantViolation::expected: usize
+pub ingest::contract::Error::InvariantViolation::kind: &'static str
+pub ingest::contract::Error::ServeFailed
+pub ingest::contract::Error::ServeFailed::reason: alloc::string::String
+impl core::error::Error for ingest::contract::Error
+impl core::fmt::Debug for ingest::contract::Error
+pub fn ingest::contract::Error::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::fmt::Display for ingest::contract::Error
+pub fn ingest::contract::Error::fmt(&self, __formatter: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Freeze for ingest::contract::Error
+impl core::marker::Send for ingest::contract::Error
+impl core::marker::Sync for ingest::contract::Error
+impl core::marker::Unpin for ingest::contract::Error
+impl core::marker::UnsafeUnpin for ingest::contract::Error
+impl core::panic::unwind_safe::RefUnwindSafe for ingest::contract::Error
+impl core::panic::unwind_safe::UnwindSafe for ingest::contract::Error
+pub struct ingest::contract::IngestHeartbeat
+pub ingest::contract::IngestHeartbeat::broadcast_subscribers: u32
+pub ingest::contract::IngestHeartbeat::buffer_capacity_pct: f64
+pub ingest::contract::IngestHeartbeat::span_count: u64
+impl core::clone::Clone for ingest::contract::IngestHeartbeat
+pub fn ingest::contract::IngestHeartbeat::clone(&self) -> ingest::contract::IngestHeartbeat
+impl core::default::Default for ingest::contract::IngestHeartbeat
+pub fn ingest::contract::IngestHeartbeat::default() -> ingest::contract::IngestHeartbeat
+impl core::fmt::Debug for ingest::contract::IngestHeartbeat
+pub fn ingest::contract::IngestHeartbeat::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Copy for ingest::contract::IngestHeartbeat
+impl core::marker::Freeze for ingest::contract::IngestHeartbeat
+impl core::marker::Send for ingest::contract::IngestHeartbeat
+impl core::marker::Sync for ingest::contract::IngestHeartbeat
+impl core::marker::Unpin for ingest::contract::IngestHeartbeat
+impl core::marker::UnsafeUnpin for ingest::contract::IngestHeartbeat
+impl core::panic::unwind_safe::RefUnwindSafe for ingest::contract::IngestHeartbeat
+impl core::panic::unwind_safe::UnwindSafe for ingest::contract::IngestHeartbeat
+pub struct ingest::contract::OtlpPort(_)
+impl ingest::contract::OtlpPort
+pub const fn ingest::contract::OtlpPort::value(&self) -> u16
+impl core::clone::Clone for ingest::contract::OtlpPort
+pub fn ingest::contract::OtlpPort::clone(&self) -> ingest::contract::OtlpPort
+impl core::cmp::Eq for ingest::contract::OtlpPort
+impl core::cmp::PartialEq for ingest::contract::OtlpPort
+pub fn ingest::contract::OtlpPort::eq(&self, other: &ingest::contract::OtlpPort) -> bool
+impl core::convert::TryFrom<u16> for ingest::contract::OtlpPort
+pub type ingest::contract::OtlpPort::Error = ingest::contract::Error
+pub fn ingest::contract::OtlpPort::try_from(value: u16) -> core::result::Result<Self, Self::Error>
+impl core::fmt::Debug for ingest::contract::OtlpPort
+pub fn ingest::contract::OtlpPort::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Copy for ingest::contract::OtlpPort
+impl core::marker::StructuralPartialEq for ingest::contract::OtlpPort
+impl core::marker::Freeze for ingest::contract::OtlpPort
+impl core::marker::Send for ingest::contract::OtlpPort
+impl core::marker::Sync for ingest::contract::OtlpPort
+impl core::marker::Unpin for ingest::contract::OtlpPort
+impl core::marker::UnsafeUnpin for ingest::contract::OtlpPort
+impl core::panic::unwind_safe::RefUnwindSafe for ingest::contract::OtlpPort
+impl core::panic::unwind_safe::UnwindSafe for ingest::contract::OtlpPort
+pub fn ingest::contract::heartbeat_payload(state: &ingest::state::IngestState, sender: &ingest::channel::IngestSender) -> ingest::contract::IngestHeartbeat
+pub mod ingest::grpc
+pub mod ingest::grpc::proto
+pub mod ingest::grpc::proto::opentelemetry
+pub mod ingest::grpc::proto::opentelemetry::proto
+pub mod ingest::grpc::proto::opentelemetry::proto::collector
+pub mod ingest::grpc::proto::opentelemetry::proto::collector::logs
+pub mod ingest::grpc::proto::opentelemetry::proto::collector::logs::v1
+pub mod ingest::grpc::proto::opentelemetry::proto::collector::logs::v1::logs_service_client
+pub struct ingest::grpc::proto::opentelemetry::proto::collector::logs::v1::logs_service_client::LogsServiceClient<T>
+impl ingest::grpc::proto::opentelemetry::proto::collector::logs::v1::logs_service_client::LogsServiceClient<tonic::transport::channel::Channel>
+pub async fn ingest::grpc::proto::opentelemetry::proto::collector::logs::v1::logs_service_client::LogsServiceClient<tonic::transport::channel::Channel>::connect<D>(dst: D) -> core::result::Result<Self, tonic::transport::error::Error> where D: core::convert::TryInto<tonic::transport::channel::endpoint::Endpoint>, <D as core::convert::TryInto>::Error: core::convert::Into<tonic::codegen::StdError>
+impl<T> ingest::grpc::proto::opentelemetry::proto::collector::logs::v1::logs_service_client::LogsServiceClient<T> where T: tonic::client::service::GrpcService<tonic::body::Body>, <T as tonic::client::service::GrpcService>::Error: core::convert::Into<tonic::codegen::StdError>, <T as tonic::client::service::GrpcService>::ResponseBody: http_body::Body<Data = bytes::bytes::Bytes> + core::marker::Send + 'static, <<T as tonic::client::service::GrpcService>::ResponseBody as http_body::Body>::Error: core::convert::Into<tonic::codegen::StdError> + core::marker::Send
+pub fn ingest::grpc::proto::opentelemetry::proto::collector::logs::v1::logs_service_client::LogsServiceClient<T>::accept_compressed(self, encoding: tonic::codec::compression::CompressionEncoding) -> Self
+pub async fn ingest::grpc::proto::opentelemetry::proto::collector::logs::v1::logs_service_client::LogsServiceClient<T>::export(&mut self, request: impl tonic::request::IntoRequest<ingest::grpc::proto::opentelemetry::proto::collector::logs::v1::ExportLogsServiceRequest>) -> core::result::Result<tonic::response::Response<ingest::grpc::proto::opentelemetry::proto::collector::logs::v1::ExportLogsServiceResponse>, tonic::status::Status>
+pub fn ingest::grpc::proto::opentelemetry::proto::collector::logs::v1::logs_service_client::LogsServiceClient<T>::max_decoding_message_size(self, limit: usize) -> Self
+pub fn ingest::grpc::proto::opentelemetry::proto::collector::logs::v1::logs_service_client::LogsServiceClient<T>::max_encoding_message_size(self, limit: usize) -> Self
+pub fn ingest::grpc::proto::opentelemetry::proto::collector::logs::v1::logs_service_client::LogsServiceClient<T>::new(inner: T) -> Self
+pub fn ingest::grpc::proto::opentelemetry::proto::collector::logs::v1::logs_service_client::LogsServiceClient<T>::send_compressed(self, encoding: tonic::codec::compression::CompressionEncoding) -> Self
+pub fn ingest::grpc::proto::opentelemetry::proto::collector::logs::v1::logs_service_client::LogsServiceClient<T>::with_interceptor<F>(inner: T, interceptor: F) -> ingest::grpc::proto::opentelemetry::proto::collector::logs::v1::logs_service_client::LogsServiceClient<tonic::service::interceptor::InterceptedService<T, F>> where F: tonic::service::interceptor::Interceptor, <T as tonic::client::service::GrpcService>::ResponseBody: core::default::Default, T: tower_service::Service<http::request::Request<tonic::body::Body>, Response = http::response::Response<<T as tonic::client::service::GrpcService<tonic::body::Body>>::ResponseBody>>, <T as tower_service::Service<http::request::Request<tonic::body::Body>>>::Error: core::convert::Into<tonic::codegen::StdError> + core::marker::Send + core::marker::Sync
+pub fn ingest::grpc::proto::opentelemetry::proto::collector::logs::v1::logs_service_client::LogsServiceClient<T>::with_origin(inner: T, origin: http::uri::Uri) -> Self
+impl<T: core::clone::Clone> core::clone::Clone for ingest::grpc::proto::opentelemetry::proto::collector::logs::v1::logs_service_client::LogsServiceClient<T>
+pub fn ingest::grpc::proto::opentelemetry::proto::collector::logs::v1::logs_service_client::LogsServiceClient<T>::clone(&self) -> ingest::grpc::proto::opentelemetry::proto::collector::logs::v1::logs_service_client::LogsServiceClient<T>
+impl<T: core::fmt::Debug> core::fmt::Debug for ingest::grpc::proto::opentelemetry::proto::collector::logs::v1::logs_service_client::LogsServiceClient<T>
+pub fn ingest::grpc::proto::opentelemetry::proto::collector::logs::v1::logs_service_client::LogsServiceClient<T>::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl<T> !core::marker::Freeze for ingest::grpc::proto::opentelemetry::proto::collector::logs::v1::logs_service_client::LogsServiceClient<T>
+impl<T> core::marker::Send for ingest::grpc::proto::opentelemetry::proto::collector::logs::v1::logs_service_client::LogsServiceClient<T> where T: core::marker::Send
+impl<T> core::marker::Sync for ingest::grpc::proto::opentelemetry::proto::collector::logs::v1::logs_service_client::LogsServiceClient<T> where T: core::marker::Sync
+impl<T> core::marker::Unpin for ingest::grpc::proto::opentelemetry::proto::collector::logs::v1::logs_service_client::LogsServiceClient<T> where T: core::marker::Unpin
+impl<T> core::marker::UnsafeUnpin for ingest::grpc::proto::opentelemetry::proto::collector::logs::v1::logs_service_client::LogsServiceClient<T> where T: core::marker::UnsafeUnpin
+impl<T> core::panic::unwind_safe::RefUnwindSafe for ingest::grpc::proto::opentelemetry::proto::collector::logs::v1::logs_service_client::LogsServiceClient<T> where T: core::panic::unwind_safe::RefUnwindSafe
+impl<T> core::panic::unwind_safe::UnwindSafe for ingest::grpc::proto::opentelemetry::proto::collector::logs::v1::logs_service_client::LogsServiceClient<T> where T: core::panic::unwind_safe::UnwindSafe
+pub mod ingest::grpc::proto::opentelemetry::proto::collector::logs::v1::logs_service_server
+pub struct ingest::grpc::proto::opentelemetry::proto::collector::logs::v1::logs_service_server::LogsServiceServer<T>
+impl<T> ingest::grpc::proto::opentelemetry::proto::collector::logs::v1::logs_service_server::LogsServiceServer<T>
+pub fn ingest::grpc::proto::opentelemetry::proto::collector::logs::v1::logs_service_server::LogsServiceServer<T>::accept_compressed(self, encoding: tonic::codec::compression::CompressionEncoding) -> Self
+pub fn ingest::grpc::proto::opentelemetry::proto::collector::logs::v1::logs_service_server::LogsServiceServer<T>::from_arc(inner: alloc::sync::Arc<T>) -> Self
+pub fn ingest::grpc::proto::opentelemetry::proto::collector::logs::v1::logs_service_server::LogsServiceServer<T>::max_decoding_message_size(self, limit: usize) -> Self
+pub fn ingest::grpc::proto::opentelemetry::proto::collector::logs::v1::logs_service_server::LogsServiceServer<T>::max_encoding_message_size(self, limit: usize) -> Self
+pub fn ingest::grpc::proto::opentelemetry::proto::collector::logs::v1::logs_service_server::LogsServiceServer<T>::new(inner: T) -> Self
+pub fn ingest::grpc::proto::opentelemetry::proto::collector::logs::v1::logs_service_server::LogsServiceServer<T>::send_compressed(self, encoding: tonic::codec::compression::CompressionEncoding) -> Self
+pub fn ingest::grpc::proto::opentelemetry::proto::collector::logs::v1::logs_service_server::LogsServiceServer<T>::with_interceptor<F>(inner: T, interceptor: F) -> tonic::service::interceptor::InterceptedService<Self, F> where F: tonic::service::interceptor::Interceptor
+impl<T, B> tower_service::Service<http::request::Request<B>> for ingest::grpc::proto::opentelemetry::proto::collector::logs::v1::logs_service_server::LogsServiceServer<T> where T: ingest::grpc::proto::opentelemetry::proto::collector::logs::v1::logs_service_server::LogsService, B: http_body::Body + core::marker::Send + 'static, <B as http_body::Body>::Error: core::convert::Into<tonic::codegen::StdError> + core::marker::Send + 'static
+pub type ingest::grpc::proto::opentelemetry::proto::collector::logs::v1::logs_service_server::LogsServiceServer<T>::Error = core::convert::Infallible
+pub type ingest::grpc::proto::opentelemetry::proto::collector::logs::v1::logs_service_server::LogsServiceServer<T>::Future = core::pin::Pin<alloc::boxed::Box<(dyn core::future::future::Future<Output = core::result::Result<<ingest::grpc::proto::opentelemetry::proto::collector::logs::v1::logs_service_server::LogsServiceServer<T> as tower_service::Service<http::request::Request<B>>>::Response, <ingest::grpc::proto::opentelemetry::proto::collector::logs::v1::logs_service_server::LogsServiceServer<T> as tower_service::Service<http::request::Request<B>>>::Error>> + core::marker::Send)>>
+pub type ingest::grpc::proto::opentelemetry::proto::collector::logs::v1::logs_service_server::LogsServiceServer<T>::Response = http::response::Response<tonic::body::Body>
+pub fn ingest::grpc::proto::opentelemetry::proto::collector::logs::v1::logs_service_server::LogsServiceServer<T>::call(&mut self, req: http::request::Request<B>) -> Self::Future
+pub fn ingest::grpc::proto::opentelemetry::proto::collector::logs::v1::logs_service_server::LogsServiceServer<T>::poll_ready(&mut self, _cx: &mut core::task::wake::Context<'_>) -> core::task::poll::Poll<core::result::Result<(), Self::Error>>
+impl<T: core::fmt::Debug> core::fmt::Debug for ingest::grpc::proto::opentelemetry::proto::collector::logs::v1::logs_service_server::LogsServiceServer<T>
+pub fn ingest::grpc::proto::opentelemetry::proto::collector::logs::v1::logs_service_server::LogsServiceServer<T>::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl<T> core::clone::Clone for ingest::grpc::proto::opentelemetry::proto::collector::logs::v1::logs_service_server::LogsServiceServer<T>
+pub fn ingest::grpc::proto::opentelemetry::proto::collector::logs::v1::logs_service_server::LogsServiceServer<T>::clone(&self) -> Self
+impl<T> tonic::server::NamedService for ingest::grpc::proto::opentelemetry::proto::collector::logs::v1::logs_service_server::LogsServiceServer<T>
+pub const ingest::grpc::proto::opentelemetry::proto::collector::logs::v1::logs_service_server::LogsServiceServer<T>::NAME: &'static str
+impl<T> core::marker::Freeze for ingest::grpc::proto::opentelemetry::proto::collector::logs::v1::logs_service_server::LogsServiceServer<T>
+impl<T> core::marker::Send for ingest::grpc::proto::opentelemetry::proto::collector::logs::v1::logs_service_server::LogsServiceServer<T> where T: core::marker::Sync + core::marker::Send
+impl<T> core::marker::Sync for ingest::grpc::proto::opentelemetry::proto::collector::logs::v1::logs_service_server::LogsServiceServer<T> where T: core::marker::Sync + core::marker::Send
+impl<T> core::marker::Unpin for ingest::grpc::proto::opentelemetry::proto::collector::logs::v1::logs_service_server::LogsServiceServer<T>
+impl<T> core::marker::UnsafeUnpin for ingest::grpc::proto::opentelemetry::proto::collector::logs::v1::logs_service_server::LogsServiceServer<T>
+impl<T> core::panic::unwind_safe::RefUnwindSafe for ingest::grpc::proto::opentelemetry::proto::collector::logs::v1::logs_service_server::LogsServiceServer<T> where T: core::panic::unwind_safe::RefUnwindSafe
+impl<T> core::panic::unwind_safe::UnwindSafe for ingest::grpc::proto::opentelemetry::proto::collector::logs::v1::logs_service_server::LogsServiceServer<T> where T: core::panic::unwind_safe::RefUnwindSafe
+pub const ingest::grpc::proto::opentelemetry::proto::collector::logs::v1::logs_service_server::SERVICE_NAME: &str
+pub trait ingest::grpc::proto::opentelemetry::proto::collector::logs::v1::logs_service_server::LogsService: core::marker::Send + core::marker::Sync + 'static
+pub fn ingest::grpc::proto::opentelemetry::proto::collector::logs::v1::logs_service_server::LogsService::export<'life0, 'async_trait>(&'life0 self, request: tonic::request::Request<ingest::grpc::proto::opentelemetry::proto::collector::logs::v1::ExportLogsServiceRequest>) -> core::pin::Pin<alloc::boxed::Box<(dyn core::future::future::Future<Output = core::result::Result<tonic::response::Response<ingest::grpc::proto::opentelemetry::proto::collector::logs::v1::ExportLogsServiceResponse>, tonic::status::Status>> + core::marker::Send + 'async_trait)>> where Self: 'async_trait, 'life0: 'async_trait
+pub struct ingest::grpc::proto::opentelemetry::proto::collector::logs::v1::ExportLogsPartialSuccess
+pub ingest::grpc::proto::opentelemetry::proto::collector::logs::v1::ExportLogsPartialSuccess::error_message: alloc::string::String
+pub ingest::grpc::proto::opentelemetry::proto::collector::logs::v1::ExportLogsPartialSuccess::rejected_log_records: i64
+impl core::clone::Clone for ingest::grpc::proto::opentelemetry::proto::collector::logs::v1::ExportLogsPartialSuccess
+pub fn ingest::grpc::proto::opentelemetry::proto::collector::logs::v1::ExportLogsPartialSuccess::clone(&self) -> ingest::grpc::proto::opentelemetry::proto::collector::logs::v1::ExportLogsPartialSuccess
+impl core::cmp::Eq for ingest::grpc::proto::opentelemetry::proto::collector::logs::v1::ExportLogsPartialSuccess
+impl core::cmp::PartialEq for ingest::grpc::proto::opentelemetry::proto::collector::logs::v1::ExportLogsPartialSuccess
+pub fn ingest::grpc::proto::opentelemetry::proto::collector::logs::v1::ExportLogsPartialSuccess::eq(&self, other: &ingest::grpc::proto::opentelemetry::proto::collector::logs::v1::ExportLogsPartialSuccess) -> bool
+impl core::default::Default for ingest::grpc::proto::opentelemetry::proto::collector::logs::v1::ExportLogsPartialSuccess
+pub fn ingest::grpc::proto::opentelemetry::proto::collector::logs::v1::ExportLogsPartialSuccess::default() -> Self
+impl core::fmt::Debug for ingest::grpc::proto::opentelemetry::proto::collector::logs::v1::ExportLogsPartialSuccess
+pub fn ingest::grpc::proto::opentelemetry::proto::collector::logs::v1::ExportLogsPartialSuccess::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::hash::Hash for ingest::grpc::proto::opentelemetry::proto::collector::logs::v1::ExportLogsPartialSuccess
+pub fn ingest::grpc::proto::opentelemetry::proto::collector::logs::v1::ExportLogsPartialSuccess::hash<__H: core::hash::Hasher>(&self, state: &mut __H)
+impl core::marker::StructuralPartialEq for ingest::grpc::proto::opentelemetry::proto::collector::logs::v1::ExportLogsPartialSuccess
+impl prost::message::Message for ingest::grpc::proto::opentelemetry::proto::collector::logs::v1::ExportLogsPartialSuccess
+pub fn ingest::grpc::proto::opentelemetry::proto::collector::logs::v1::ExportLogsPartialSuccess::clear(&mut self)
+pub fn ingest::grpc::proto::opentelemetry::proto::collector::logs::v1::ExportLogsPartialSuccess::encoded_len(&self) -> usize
+impl core::marker::Freeze for ingest::grpc::proto::opentelemetry::proto::collector::logs::v1::ExportLogsPartialSuccess
+impl core::marker::Send for ingest::grpc::proto::opentelemetry::proto::collector::logs::v1::ExportLogsPartialSuccess
+impl core::marker::Sync for ingest::grpc::proto::opentelemetry::proto::collector::logs::v1::ExportLogsPartialSuccess
+impl core::marker::Unpin for ingest::grpc::proto::opentelemetry::proto::collector::logs::v1::ExportLogsPartialSuccess
+impl core::marker::UnsafeUnpin for ingest::grpc::proto::opentelemetry::proto::collector::logs::v1::ExportLogsPartialSuccess
+impl core::panic::unwind_safe::RefUnwindSafe for ingest::grpc::proto::opentelemetry::proto::collector::logs::v1::ExportLogsPartialSuccess
+impl core::panic::unwind_safe::UnwindSafe for ingest::grpc::proto::opentelemetry::proto::collector::logs::v1::ExportLogsPartialSuccess
+pub struct ingest::grpc::proto::opentelemetry::proto::collector::logs::v1::ExportLogsServiceRequest
+pub ingest::grpc::proto::opentelemetry::proto::collector::logs::v1::ExportLogsServiceRequest::resource_logs: alloc::vec::Vec<ingest::grpc::proto::opentelemetry::proto::logs::v1::ResourceLogs>
+impl core::clone::Clone for ingest::grpc::proto::opentelemetry::proto::collector::logs::v1::ExportLogsServiceRequest
+pub fn ingest::grpc::proto::opentelemetry::proto::collector::logs::v1::ExportLogsServiceRequest::clone(&self) -> ingest::grpc::proto::opentelemetry::proto::collector::logs::v1::ExportLogsServiceRequest
+impl core::cmp::PartialEq for ingest::grpc::proto::opentelemetry::proto::collector::logs::v1::ExportLogsServiceRequest
+pub fn ingest::grpc::proto::opentelemetry::proto::collector::logs::v1::ExportLogsServiceRequest::eq(&self, other: &ingest::grpc::proto::opentelemetry::proto::collector::logs::v1::ExportLogsServiceRequest) -> bool
+impl core::default::Default for ingest::grpc::proto::opentelemetry::proto::collector::logs::v1::ExportLogsServiceRequest
+pub fn ingest::grpc::proto::opentelemetry::proto::collector::logs::v1::ExportLogsServiceRequest::default() -> Self
+impl core::fmt::Debug for ingest::grpc::proto::opentelemetry::proto::collector::logs::v1::ExportLogsServiceRequest
+pub fn ingest::grpc::proto::opentelemetry::proto::collector::logs::v1::ExportLogsServiceRequest::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for ingest::grpc::proto::opentelemetry::proto::collector::logs::v1::ExportLogsServiceRequest
+impl prost::message::Message for ingest::grpc::proto::opentelemetry::proto::collector::logs::v1::ExportLogsServiceRequest
+pub fn ingest::grpc::proto::opentelemetry::proto::collector::logs::v1::ExportLogsServiceRequest::clear(&mut self)
+pub fn ingest::grpc::proto::opentelemetry::proto::collector::logs::v1::ExportLogsServiceRequest::encoded_len(&self) -> usize
+impl core::marker::Freeze for ingest::grpc::proto::opentelemetry::proto::collector::logs::v1::ExportLogsServiceRequest
+impl core::marker::Send for ingest::grpc::proto::opentelemetry::proto::collector::logs::v1::ExportLogsServiceRequest
+impl core::marker::Sync for ingest::grpc::proto::opentelemetry::proto::collector::logs::v1::ExportLogsServiceRequest
+impl core::marker::Unpin for ingest::grpc::proto::opentelemetry::proto::collector::logs::v1::ExportLogsServiceRequest
+impl core::marker::UnsafeUnpin for ingest::grpc::proto::opentelemetry::proto::collector::logs::v1::ExportLogsServiceRequest
+impl core::panic::unwind_safe::RefUnwindSafe for ingest::grpc::proto::opentelemetry::proto::collector::logs::v1::ExportLogsServiceRequest
+impl core::panic::unwind_safe::UnwindSafe for ingest::grpc::proto::opentelemetry::proto::collector::logs::v1::ExportLogsServiceRequest
+pub struct ingest::grpc::proto::opentelemetry::proto::collector::logs::v1::ExportLogsServiceResponse
+pub ingest::grpc::proto::opentelemetry::proto::collector::logs::v1::ExportLogsServiceResponse::partial_success: core::option::Option<ingest::grpc::proto::opentelemetry::proto::collector::logs::v1::ExportLogsPartialSuccess>
+impl core::clone::Clone for ingest::grpc::proto::opentelemetry::proto::collector::logs::v1::ExportLogsServiceResponse
+pub fn ingest::grpc::proto::opentelemetry::proto::collector::logs::v1::ExportLogsServiceResponse::clone(&self) -> ingest::grpc::proto::opentelemetry::proto::collector::logs::v1::ExportLogsServiceResponse
+impl core::cmp::Eq for ingest::grpc::proto::opentelemetry::proto::collector::logs::v1::ExportLogsServiceResponse
+impl core::cmp::PartialEq for ingest::grpc::proto::opentelemetry::proto::collector::logs::v1::ExportLogsServiceResponse
+pub fn ingest::grpc::proto::opentelemetry::proto::collector::logs::v1::ExportLogsServiceResponse::eq(&self, other: &ingest::grpc::proto::opentelemetry::proto::collector::logs::v1::ExportLogsServiceResponse) -> bool
+impl core::default::Default for ingest::grpc::proto::opentelemetry::proto::collector::logs::v1::ExportLogsServiceResponse
+pub fn ingest::grpc::proto::opentelemetry::proto::collector::logs::v1::ExportLogsServiceResponse::default() -> Self
+impl core::fmt::Debug for ingest::grpc::proto::opentelemetry::proto::collector::logs::v1::ExportLogsServiceResponse
+pub fn ingest::grpc::proto::opentelemetry::proto::collector::logs::v1::ExportLogsServiceResponse::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::hash::Hash for ingest::grpc::proto::opentelemetry::proto::collector::logs::v1::ExportLogsServiceResponse
+pub fn ingest::grpc::proto::opentelemetry::proto::collector::logs::v1::ExportLogsServiceResponse::hash<__H: core::hash::Hasher>(&self, state: &mut __H)
+impl core::marker::StructuralPartialEq for ingest::grpc::proto::opentelemetry::proto::collector::logs::v1::ExportLogsServiceResponse
+impl prost::message::Message for ingest::grpc::proto::opentelemetry::proto::collector::logs::v1::ExportLogsServiceResponse
+pub fn ingest::grpc::proto::opentelemetry::proto::collector::logs::v1::ExportLogsServiceResponse::clear(&mut self)
+pub fn ingest::grpc::proto::opentelemetry::proto::collector::logs::v1::ExportLogsServiceResponse::encoded_len(&self) -> usize
+impl core::marker::Freeze for ingest::grpc::proto::opentelemetry::proto::collector::logs::v1::ExportLogsServiceResponse
+impl core::marker::Send for ingest::grpc::proto::opentelemetry::proto::collector::logs::v1::ExportLogsServiceResponse
+impl core::marker::Sync for ingest::grpc::proto::opentelemetry::proto::collector::logs::v1::ExportLogsServiceResponse
+impl core::marker::Unpin for ingest::grpc::proto::opentelemetry::proto::collector::logs::v1::ExportLogsServiceResponse
+impl core::marker::UnsafeUnpin for ingest::grpc::proto::opentelemetry::proto::collector::logs::v1::ExportLogsServiceResponse
+impl core::panic::unwind_safe::RefUnwindSafe for ingest::grpc::proto::opentelemetry::proto::collector::logs::v1::ExportLogsServiceResponse
+impl core::panic::unwind_safe::UnwindSafe for ingest::grpc::proto::opentelemetry::proto::collector::logs::v1::ExportLogsServiceResponse
+pub mod ingest::grpc::proto::opentelemetry::proto::collector::metrics
+pub mod ingest::grpc::proto::opentelemetry::proto::collector::metrics::v1
+pub mod ingest::grpc::proto::opentelemetry::proto::collector::metrics::v1::metrics_service_client
+pub struct ingest::grpc::proto::opentelemetry::proto::collector::metrics::v1::metrics_service_client::MetricsServiceClient<T>
+impl ingest::grpc::proto::opentelemetry::proto::collector::metrics::v1::metrics_service_client::MetricsServiceClient<tonic::transport::channel::Channel>
+pub async fn ingest::grpc::proto::opentelemetry::proto::collector::metrics::v1::metrics_service_client::MetricsServiceClient<tonic::transport::channel::Channel>::connect<D>(dst: D) -> core::result::Result<Self, tonic::transport::error::Error> where D: core::convert::TryInto<tonic::transport::channel::endpoint::Endpoint>, <D as core::convert::TryInto>::Error: core::convert::Into<tonic::codegen::StdError>
+impl<T> ingest::grpc::proto::opentelemetry::proto::collector::metrics::v1::metrics_service_client::MetricsServiceClient<T> where T: tonic::client::service::GrpcService<tonic::body::Body>, <T as tonic::client::service::GrpcService>::Error: core::convert::Into<tonic::codegen::StdError>, <T as tonic::client::service::GrpcService>::ResponseBody: http_body::Body<Data = bytes::bytes::Bytes> + core::marker::Send + 'static, <<T as tonic::client::service::GrpcService>::ResponseBody as http_body::Body>::Error: core::convert::Into<tonic::codegen::StdError> + core::marker::Send
+pub fn ingest::grpc::proto::opentelemetry::proto::collector::metrics::v1::metrics_service_client::MetricsServiceClient<T>::accept_compressed(self, encoding: tonic::codec::compression::CompressionEncoding) -> Self
+pub async fn ingest::grpc::proto::opentelemetry::proto::collector::metrics::v1::metrics_service_client::MetricsServiceClient<T>::export(&mut self, request: impl tonic::request::IntoRequest<ingest::grpc::proto::opentelemetry::proto::collector::metrics::v1::ExportMetricsServiceRequest>) -> core::result::Result<tonic::response::Response<ingest::grpc::proto::opentelemetry::proto::collector::metrics::v1::ExportMetricsServiceResponse>, tonic::status::Status>
+pub fn ingest::grpc::proto::opentelemetry::proto::collector::metrics::v1::metrics_service_client::MetricsServiceClient<T>::max_decoding_message_size(self, limit: usize) -> Self
+pub fn ingest::grpc::proto::opentelemetry::proto::collector::metrics::v1::metrics_service_client::MetricsServiceClient<T>::max_encoding_message_size(self, limit: usize) -> Self
+pub fn ingest::grpc::proto::opentelemetry::proto::collector::metrics::v1::metrics_service_client::MetricsServiceClient<T>::new(inner: T) -> Self
+pub fn ingest::grpc::proto::opentelemetry::proto::collector::metrics::v1::metrics_service_client::MetricsServiceClient<T>::send_compressed(self, encoding: tonic::codec::compression::CompressionEncoding) -> Self
+pub fn ingest::grpc::proto::opentelemetry::proto::collector::metrics::v1::metrics_service_client::MetricsServiceClient<T>::with_interceptor<F>(inner: T, interceptor: F) -> ingest::grpc::proto::opentelemetry::proto::collector::metrics::v1::metrics_service_client::MetricsServiceClient<tonic::service::interceptor::InterceptedService<T, F>> where F: tonic::service::interceptor::Interceptor, <T as tonic::client::service::GrpcService>::ResponseBody: core::default::Default, T: tower_service::Service<http::request::Request<tonic::body::Body>, Response = http::response::Response<<T as tonic::client::service::GrpcService<tonic::body::Body>>::ResponseBody>>, <T as tower_service::Service<http::request::Request<tonic::body::Body>>>::Error: core::convert::Into<tonic::codegen::StdError> + core::marker::Send + core::marker::Sync
+pub fn ingest::grpc::proto::opentelemetry::proto::collector::metrics::v1::metrics_service_client::MetricsServiceClient<T>::with_origin(inner: T, origin: http::uri::Uri) -> Self
+impl<T: core::clone::Clone> core::clone::Clone for ingest::grpc::proto::opentelemetry::proto::collector::metrics::v1::metrics_service_client::MetricsServiceClient<T>
+pub fn ingest::grpc::proto::opentelemetry::proto::collector::metrics::v1::metrics_service_client::MetricsServiceClient<T>::clone(&self) -> ingest::grpc::proto::opentelemetry::proto::collector::metrics::v1::metrics_service_client::MetricsServiceClient<T>
+impl<T: core::fmt::Debug> core::fmt::Debug for ingest::grpc::proto::opentelemetry::proto::collector::metrics::v1::metrics_service_client::MetricsServiceClient<T>
+pub fn ingest::grpc::proto::opentelemetry::proto::collector::metrics::v1::metrics_service_client::MetricsServiceClient<T>::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl<T> !core::marker::Freeze for ingest::grpc::proto::opentelemetry::proto::collector::metrics::v1::metrics_service_client::MetricsServiceClient<T>
+impl<T> core::marker::Send for ingest::grpc::proto::opentelemetry::proto::collector::metrics::v1::metrics_service_client::MetricsServiceClient<T> where T: core::marker::Send
+impl<T> core::marker::Sync for ingest::grpc::proto::opentelemetry::proto::collector::metrics::v1::metrics_service_client::MetricsServiceClient<T> where T: core::marker::Sync
+impl<T> core::marker::Unpin for ingest::grpc::proto::opentelemetry::proto::collector::metrics::v1::metrics_service_client::MetricsServiceClient<T> where T: core::marker::Unpin
+impl<T> core::marker::UnsafeUnpin for ingest::grpc::proto::opentelemetry::proto::collector::metrics::v1::metrics_service_client::MetricsServiceClient<T> where T: core::marker::UnsafeUnpin
+impl<T> core::panic::unwind_safe::RefUnwindSafe for ingest::grpc::proto::opentelemetry::proto::collector::metrics::v1::metrics_service_client::MetricsServiceClient<T> where T: core::panic::unwind_safe::RefUnwindSafe
+impl<T> core::panic::unwind_safe::UnwindSafe for ingest::grpc::proto::opentelemetry::proto::collector::metrics::v1::metrics_service_client::MetricsServiceClient<T> where T: core::panic::unwind_safe::UnwindSafe
+pub mod ingest::grpc::proto::opentelemetry::proto::collector::metrics::v1::metrics_service_server
+pub struct ingest::grpc::proto::opentelemetry::proto::collector::metrics::v1::metrics_service_server::MetricsServiceServer<T>
+impl<T> ingest::grpc::proto::opentelemetry::proto::collector::metrics::v1::metrics_service_server::MetricsServiceServer<T>
+pub fn ingest::grpc::proto::opentelemetry::proto::collector::metrics::v1::metrics_service_server::MetricsServiceServer<T>::accept_compressed(self, encoding: tonic::codec::compression::CompressionEncoding) -> Self
+pub fn ingest::grpc::proto::opentelemetry::proto::collector::metrics::v1::metrics_service_server::MetricsServiceServer<T>::from_arc(inner: alloc::sync::Arc<T>) -> Self
+pub fn ingest::grpc::proto::opentelemetry::proto::collector::metrics::v1::metrics_service_server::MetricsServiceServer<T>::max_decoding_message_size(self, limit: usize) -> Self
+pub fn ingest::grpc::proto::opentelemetry::proto::collector::metrics::v1::metrics_service_server::MetricsServiceServer<T>::max_encoding_message_size(self, limit: usize) -> Self
+pub fn ingest::grpc::proto::opentelemetry::proto::collector::metrics::v1::metrics_service_server::MetricsServiceServer<T>::new(inner: T) -> Self
+pub fn ingest::grpc::proto::opentelemetry::proto::collector::metrics::v1::metrics_service_server::MetricsServiceServer<T>::send_compressed(self, encoding: tonic::codec::compression::CompressionEncoding) -> Self
+pub fn ingest::grpc::proto::opentelemetry::proto::collector::metrics::v1::metrics_service_server::MetricsServiceServer<T>::with_interceptor<F>(inner: T, interceptor: F) -> tonic::service::interceptor::InterceptedService<Self, F> where F: tonic::service::interceptor::Interceptor
+impl<T, B> tower_service::Service<http::request::Request<B>> for ingest::grpc::proto::opentelemetry::proto::collector::metrics::v1::metrics_service_server::MetricsServiceServer<T> where T: ingest::grpc::proto::opentelemetry::proto::collector::metrics::v1::metrics_service_server::MetricsService, B: http_body::Body + core::marker::Send + 'static, <B as http_body::Body>::Error: core::convert::Into<tonic::codegen::StdError> + core::marker::Send + 'static
+pub type ingest::grpc::proto::opentelemetry::proto::collector::metrics::v1::metrics_service_server::MetricsServiceServer<T>::Error = core::convert::Infallible
+pub type ingest::grpc::proto::opentelemetry::proto::collector::metrics::v1::metrics_service_server::MetricsServiceServer<T>::Future = core::pin::Pin<alloc::boxed::Box<(dyn core::future::future::Future<Output = core::result::Result<<ingest::grpc::proto::opentelemetry::proto::collector::metrics::v1::metrics_service_server::MetricsServiceServer<T> as tower_service::Service<http::request::Request<B>>>::Response, <ingest::grpc::proto::opentelemetry::proto::collector::metrics::v1::metrics_service_server::MetricsServiceServer<T> as tower_service::Service<http::request::Request<B>>>::Error>> + core::marker::Send)>>
+pub type ingest::grpc::proto::opentelemetry::proto::collector::metrics::v1::metrics_service_server::MetricsServiceServer<T>::Response = http::response::Response<tonic::body::Body>
+pub fn ingest::grpc::proto::opentelemetry::proto::collector::metrics::v1::metrics_service_server::MetricsServiceServer<T>::call(&mut self, req: http::request::Request<B>) -> Self::Future
+pub fn ingest::grpc::proto::opentelemetry::proto::collector::metrics::v1::metrics_service_server::MetricsServiceServer<T>::poll_ready(&mut self, _cx: &mut core::task::wake::Context<'_>) -> core::task::poll::Poll<core::result::Result<(), Self::Error>>
+impl<T: core::fmt::Debug> core::fmt::Debug for ingest::grpc::proto::opentelemetry::proto::collector::metrics::v1::metrics_service_server::MetricsServiceServer<T>
+pub fn ingest::grpc::proto::opentelemetry::proto::collector::metrics::v1::metrics_service_server::MetricsServiceServer<T>::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl<T> core::clone::Clone for ingest::grpc::proto::opentelemetry::proto::collector::metrics::v1::metrics_service_server::MetricsServiceServer<T>
+pub fn ingest::grpc::proto::opentelemetry::proto::collector::metrics::v1::metrics_service_server::MetricsServiceServer<T>::clone(&self) -> Self
+impl<T> tonic::server::NamedService for ingest::grpc::proto::opentelemetry::proto::collector::metrics::v1::metrics_service_server::MetricsServiceServer<T>
+pub const ingest::grpc::proto::opentelemetry::proto::collector::metrics::v1::metrics_service_server::MetricsServiceServer<T>::NAME: &'static str
+impl<T> core::marker::Freeze for ingest::grpc::proto::opentelemetry::proto::collector::metrics::v1::metrics_service_server::MetricsServiceServer<T>
+impl<T> core::marker::Send for ingest::grpc::proto::opentelemetry::proto::collector::metrics::v1::metrics_service_server::MetricsServiceServer<T> where T: core::marker::Sync + core::marker::Send
+impl<T> core::marker::Sync for ingest::grpc::proto::opentelemetry::proto::collector::metrics::v1::metrics_service_server::MetricsServiceServer<T> where T: core::marker::Sync + core::marker::Send
+impl<T> core::marker::Unpin for ingest::grpc::proto::opentelemetry::proto::collector::metrics::v1::metrics_service_server::MetricsServiceServer<T>
+impl<T> core::marker::UnsafeUnpin for ingest::grpc::proto::opentelemetry::proto::collector::metrics::v1::metrics_service_server::MetricsServiceServer<T>
+impl<T> core::panic::unwind_safe::RefUnwindSafe for ingest::grpc::proto::opentelemetry::proto::collector::metrics::v1::metrics_service_server::MetricsServiceServer<T> where T: core::panic::unwind_safe::RefUnwindSafe
+impl<T> core::panic::unwind_safe::UnwindSafe for ingest::grpc::proto::opentelemetry::proto::collector::metrics::v1::metrics_service_server::MetricsServiceServer<T> where T: core::panic::unwind_safe::RefUnwindSafe
+pub const ingest::grpc::proto::opentelemetry::proto::collector::metrics::v1::metrics_service_server::SERVICE_NAME: &str
+pub trait ingest::grpc::proto::opentelemetry::proto::collector::metrics::v1::metrics_service_server::MetricsService: core::marker::Send + core::marker::Sync + 'static
+pub fn ingest::grpc::proto::opentelemetry::proto::collector::metrics::v1::metrics_service_server::MetricsService::export<'life0, 'async_trait>(&'life0 self, request: tonic::request::Request<ingest::grpc::proto::opentelemetry::proto::collector::metrics::v1::ExportMetricsServiceRequest>) -> core::pin::Pin<alloc::boxed::Box<(dyn core::future::future::Future<Output = core::result::Result<tonic::response::Response<ingest::grpc::proto::opentelemetry::proto::collector::metrics::v1::ExportMetricsServiceResponse>, tonic::status::Status>> + core::marker::Send + 'async_trait)>> where Self: 'async_trait, 'life0: 'async_trait
+pub struct ingest::grpc::proto::opentelemetry::proto::collector::metrics::v1::ExportMetricsPartialSuccess
+pub ingest::grpc::proto::opentelemetry::proto::collector::metrics::v1::ExportMetricsPartialSuccess::error_message: alloc::string::String
+pub ingest::grpc::proto::opentelemetry::proto::collector::metrics::v1::ExportMetricsPartialSuccess::rejected_data_points: i64
+impl core::clone::Clone for ingest::grpc::proto::opentelemetry::proto::collector::metrics::v1::ExportMetricsPartialSuccess
+pub fn ingest::grpc::proto::opentelemetry::proto::collector::metrics::v1::ExportMetricsPartialSuccess::clone(&self) -> ingest::grpc::proto::opentelemetry::proto::collector::metrics::v1::ExportMetricsPartialSuccess
+impl core::cmp::Eq for ingest::grpc::proto::opentelemetry::proto::collector::metrics::v1::ExportMetricsPartialSuccess
+impl core::cmp::PartialEq for ingest::grpc::proto::opentelemetry::proto::collector::metrics::v1::ExportMetricsPartialSuccess
+pub fn ingest::grpc::proto::opentelemetry::proto::collector::metrics::v1::ExportMetricsPartialSuccess::eq(&self, other: &ingest::grpc::proto::opentelemetry::proto::collector::metrics::v1::ExportMetricsPartialSuccess) -> bool
+impl core::default::Default for ingest::grpc::proto::opentelemetry::proto::collector::metrics::v1::ExportMetricsPartialSuccess
+pub fn ingest::grpc::proto::opentelemetry::proto::collector::metrics::v1::ExportMetricsPartialSuccess::default() -> Self
+impl core::fmt::Debug for ingest::grpc::proto::opentelemetry::proto::collector::metrics::v1::ExportMetricsPartialSuccess
+pub fn ingest::grpc::proto::opentelemetry::proto::collector::metrics::v1::ExportMetricsPartialSuccess::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::hash::Hash for ingest::grpc::proto::opentelemetry::proto::collector::metrics::v1::ExportMetricsPartialSuccess
+pub fn ingest::grpc::proto::opentelemetry::proto::collector::metrics::v1::ExportMetricsPartialSuccess::hash<__H: core::hash::Hasher>(&self, state: &mut __H)
+impl core::marker::StructuralPartialEq for ingest::grpc::proto::opentelemetry::proto::collector::metrics::v1::ExportMetricsPartialSuccess
+impl prost::message::Message for ingest::grpc::proto::opentelemetry::proto::collector::metrics::v1::ExportMetricsPartialSuccess
+pub fn ingest::grpc::proto::opentelemetry::proto::collector::metrics::v1::ExportMetricsPartialSuccess::clear(&mut self)
+pub fn ingest::grpc::proto::opentelemetry::proto::collector::metrics::v1::ExportMetricsPartialSuccess::encoded_len(&self) -> usize
+impl core::marker::Freeze for ingest::grpc::proto::opentelemetry::proto::collector::metrics::v1::ExportMetricsPartialSuccess
+impl core::marker::Send for ingest::grpc::proto::opentelemetry::proto::collector::metrics::v1::ExportMetricsPartialSuccess
+impl core::marker::Sync for ingest::grpc::proto::opentelemetry::proto::collector::metrics::v1::ExportMetricsPartialSuccess
+impl core::marker::Unpin for ingest::grpc::proto::opentelemetry::proto::collector::metrics::v1::ExportMetricsPartialSuccess
+impl core::marker::UnsafeUnpin for ingest::grpc::proto::opentelemetry::proto::collector::metrics::v1::ExportMetricsPartialSuccess
+impl core::panic::unwind_safe::RefUnwindSafe for ingest::grpc::proto::opentelemetry::proto::collector::metrics::v1::ExportMetricsPartialSuccess
+impl core::panic::unwind_safe::UnwindSafe for ingest::grpc::proto::opentelemetry::proto::collector::metrics::v1::ExportMetricsPartialSuccess
+pub struct ingest::grpc::proto::opentelemetry::proto::collector::metrics::v1::ExportMetricsServiceRequest
+pub ingest::grpc::proto::opentelemetry::proto::collector::metrics::v1::ExportMetricsServiceRequest::resource_metrics: alloc::vec::Vec<ingest::grpc::proto::opentelemetry::proto::metrics::v1::ResourceMetrics>
+impl core::clone::Clone for ingest::grpc::proto::opentelemetry::proto::collector::metrics::v1::ExportMetricsServiceRequest
+pub fn ingest::grpc::proto::opentelemetry::proto::collector::metrics::v1::ExportMetricsServiceRequest::clone(&self) -> ingest::grpc::proto::opentelemetry::proto::collector::metrics::v1::ExportMetricsServiceRequest
+impl core::cmp::PartialEq for ingest::grpc::proto::opentelemetry::proto::collector::metrics::v1::ExportMetricsServiceRequest
+pub fn ingest::grpc::proto::opentelemetry::proto::collector::metrics::v1::ExportMetricsServiceRequest::eq(&self, other: &ingest::grpc::proto::opentelemetry::proto::collector::metrics::v1::ExportMetricsServiceRequest) -> bool
+impl core::default::Default for ingest::grpc::proto::opentelemetry::proto::collector::metrics::v1::ExportMetricsServiceRequest
+pub fn ingest::grpc::proto::opentelemetry::proto::collector::metrics::v1::ExportMetricsServiceRequest::default() -> Self
+impl core::fmt::Debug for ingest::grpc::proto::opentelemetry::proto::collector::metrics::v1::ExportMetricsServiceRequest
+pub fn ingest::grpc::proto::opentelemetry::proto::collector::metrics::v1::ExportMetricsServiceRequest::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for ingest::grpc::proto::opentelemetry::proto::collector::metrics::v1::ExportMetricsServiceRequest
+impl prost::message::Message for ingest::grpc::proto::opentelemetry::proto::collector::metrics::v1::ExportMetricsServiceRequest
+pub fn ingest::grpc::proto::opentelemetry::proto::collector::metrics::v1::ExportMetricsServiceRequest::clear(&mut self)
+pub fn ingest::grpc::proto::opentelemetry::proto::collector::metrics::v1::ExportMetricsServiceRequest::encoded_len(&self) -> usize
+impl core::marker::Freeze for ingest::grpc::proto::opentelemetry::proto::collector::metrics::v1::ExportMetricsServiceRequest
+impl core::marker::Send for ingest::grpc::proto::opentelemetry::proto::collector::metrics::v1::ExportMetricsServiceRequest
+impl core::marker::Sync for ingest::grpc::proto::opentelemetry::proto::collector::metrics::v1::ExportMetricsServiceRequest
+impl core::marker::Unpin for ingest::grpc::proto::opentelemetry::proto::collector::metrics::v1::ExportMetricsServiceRequest
+impl core::marker::UnsafeUnpin for ingest::grpc::proto::opentelemetry::proto::collector::metrics::v1::ExportMetricsServiceRequest
+impl core::panic::unwind_safe::RefUnwindSafe for ingest::grpc::proto::opentelemetry::proto::collector::metrics::v1::ExportMetricsServiceRequest
+impl core::panic::unwind_safe::UnwindSafe for ingest::grpc::proto::opentelemetry::proto::collector::metrics::v1::ExportMetricsServiceRequest
+pub struct ingest::grpc::proto::opentelemetry::proto::collector::metrics::v1::ExportMetricsServiceResponse
+pub ingest::grpc::proto::opentelemetry::proto::collector::metrics::v1::ExportMetricsServiceResponse::partial_success: core::option::Option<ingest::grpc::proto::opentelemetry::proto::collector::metrics::v1::ExportMetricsPartialSuccess>
+impl core::clone::Clone for ingest::grpc::proto::opentelemetry::proto::collector::metrics::v1::ExportMetricsServiceResponse
+pub fn ingest::grpc::proto::opentelemetry::proto::collector::metrics::v1::ExportMetricsServiceResponse::clone(&self) -> ingest::grpc::proto::opentelemetry::proto::collector::metrics::v1::ExportMetricsServiceResponse
+impl core::cmp::Eq for ingest::grpc::proto::opentelemetry::proto::collector::metrics::v1::ExportMetricsServiceResponse
+impl core::cmp::PartialEq for ingest::grpc::proto::opentelemetry::proto::collector::metrics::v1::ExportMetricsServiceResponse
+pub fn ingest::grpc::proto::opentelemetry::proto::collector::metrics::v1::ExportMetricsServiceResponse::eq(&self, other: &ingest::grpc::proto::opentelemetry::proto::collector::metrics::v1::ExportMetricsServiceResponse) -> bool
+impl core::default::Default for ingest::grpc::proto::opentelemetry::proto::collector::metrics::v1::ExportMetricsServiceResponse
+pub fn ingest::grpc::proto::opentelemetry::proto::collector::metrics::v1::ExportMetricsServiceResponse::default() -> Self
+impl core::fmt::Debug for ingest::grpc::proto::opentelemetry::proto::collector::metrics::v1::ExportMetricsServiceResponse
+pub fn ingest::grpc::proto::opentelemetry::proto::collector::metrics::v1::ExportMetricsServiceResponse::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::hash::Hash for ingest::grpc::proto::opentelemetry::proto::collector::metrics::v1::ExportMetricsServiceResponse
+pub fn ingest::grpc::proto::opentelemetry::proto::collector::metrics::v1::ExportMetricsServiceResponse::hash<__H: core::hash::Hasher>(&self, state: &mut __H)
+impl core::marker::StructuralPartialEq for ingest::grpc::proto::opentelemetry::proto::collector::metrics::v1::ExportMetricsServiceResponse
+impl prost::message::Message for ingest::grpc::proto::opentelemetry::proto::collector::metrics::v1::ExportMetricsServiceResponse
+pub fn ingest::grpc::proto::opentelemetry::proto::collector::metrics::v1::ExportMetricsServiceResponse::clear(&mut self)
+pub fn ingest::grpc::proto::opentelemetry::proto::collector::metrics::v1::ExportMetricsServiceResponse::encoded_len(&self) -> usize
+impl core::marker::Freeze for ingest::grpc::proto::opentelemetry::proto::collector::metrics::v1::ExportMetricsServiceResponse
+impl core::marker::Send for ingest::grpc::proto::opentelemetry::proto::collector::metrics::v1::ExportMetricsServiceResponse
+impl core::marker::Sync for ingest::grpc::proto::opentelemetry::proto::collector::metrics::v1::ExportMetricsServiceResponse
+impl core::marker::Unpin for ingest::grpc::proto::opentelemetry::proto::collector::metrics::v1::ExportMetricsServiceResponse
+impl core::marker::UnsafeUnpin for ingest::grpc::proto::opentelemetry::proto::collector::metrics::v1::ExportMetricsServiceResponse
+impl core::panic::unwind_safe::RefUnwindSafe for ingest::grpc::proto::opentelemetry::proto::collector::metrics::v1::ExportMetricsServiceResponse
+impl core::panic::unwind_safe::UnwindSafe for ingest::grpc::proto::opentelemetry::proto::collector::metrics::v1::ExportMetricsServiceResponse
+pub mod ingest::grpc::proto::opentelemetry::proto::collector::trace
+pub mod ingest::grpc::proto::opentelemetry::proto::collector::trace::v1
+pub mod ingest::grpc::proto::opentelemetry::proto::collector::trace::v1::trace_service_client
+pub struct ingest::grpc::proto::opentelemetry::proto::collector::trace::v1::trace_service_client::TraceServiceClient<T>
+impl ingest::grpc::proto::opentelemetry::proto::collector::trace::v1::trace_service_client::TraceServiceClient<tonic::transport::channel::Channel>
+pub async fn ingest::grpc::proto::opentelemetry::proto::collector::trace::v1::trace_service_client::TraceServiceClient<tonic::transport::channel::Channel>::connect<D>(dst: D) -> core::result::Result<Self, tonic::transport::error::Error> where D: core::convert::TryInto<tonic::transport::channel::endpoint::Endpoint>, <D as core::convert::TryInto>::Error: core::convert::Into<tonic::codegen::StdError>
+impl<T> ingest::grpc::proto::opentelemetry::proto::collector::trace::v1::trace_service_client::TraceServiceClient<T> where T: tonic::client::service::GrpcService<tonic::body::Body>, <T as tonic::client::service::GrpcService>::Error: core::convert::Into<tonic::codegen::StdError>, <T as tonic::client::service::GrpcService>::ResponseBody: http_body::Body<Data = bytes::bytes::Bytes> + core::marker::Send + 'static, <<T as tonic::client::service::GrpcService>::ResponseBody as http_body::Body>::Error: core::convert::Into<tonic::codegen::StdError> + core::marker::Send
+pub fn ingest::grpc::proto::opentelemetry::proto::collector::trace::v1::trace_service_client::TraceServiceClient<T>::accept_compressed(self, encoding: tonic::codec::compression::CompressionEncoding) -> Self
+pub async fn ingest::grpc::proto::opentelemetry::proto::collector::trace::v1::trace_service_client::TraceServiceClient<T>::export(&mut self, request: impl tonic::request::IntoRequest<ingest::grpc::proto::opentelemetry::proto::collector::trace::v1::ExportTraceServiceRequest>) -> core::result::Result<tonic::response::Response<ingest::grpc::proto::opentelemetry::proto::collector::trace::v1::ExportTraceServiceResponse>, tonic::status::Status>
+pub fn ingest::grpc::proto::opentelemetry::proto::collector::trace::v1::trace_service_client::TraceServiceClient<T>::max_decoding_message_size(self, limit: usize) -> Self
+pub fn ingest::grpc::proto::opentelemetry::proto::collector::trace::v1::trace_service_client::TraceServiceClient<T>::max_encoding_message_size(self, limit: usize) -> Self
+pub fn ingest::grpc::proto::opentelemetry::proto::collector::trace::v1::trace_service_client::TraceServiceClient<T>::new(inner: T) -> Self
+pub fn ingest::grpc::proto::opentelemetry::proto::collector::trace::v1::trace_service_client::TraceServiceClient<T>::send_compressed(self, encoding: tonic::codec::compression::CompressionEncoding) -> Self
+pub fn ingest::grpc::proto::opentelemetry::proto::collector::trace::v1::trace_service_client::TraceServiceClient<T>::with_interceptor<F>(inner: T, interceptor: F) -> ingest::grpc::proto::opentelemetry::proto::collector::trace::v1::trace_service_client::TraceServiceClient<tonic::service::interceptor::InterceptedService<T, F>> where F: tonic::service::interceptor::Interceptor, <T as tonic::client::service::GrpcService>::ResponseBody: core::default::Default, T: tower_service::Service<http::request::Request<tonic::body::Body>, Response = http::response::Response<<T as tonic::client::service::GrpcService<tonic::body::Body>>::ResponseBody>>, <T as tower_service::Service<http::request::Request<tonic::body::Body>>>::Error: core::convert::Into<tonic::codegen::StdError> + core::marker::Send + core::marker::Sync
+pub fn ingest::grpc::proto::opentelemetry::proto::collector::trace::v1::trace_service_client::TraceServiceClient<T>::with_origin(inner: T, origin: http::uri::Uri) -> Self
+impl<T: core::clone::Clone> core::clone::Clone for ingest::grpc::proto::opentelemetry::proto::collector::trace::v1::trace_service_client::TraceServiceClient<T>
+pub fn ingest::grpc::proto::opentelemetry::proto::collector::trace::v1::trace_service_client::TraceServiceClient<T>::clone(&self) -> ingest::grpc::proto::opentelemetry::proto::collector::trace::v1::trace_service_client::TraceServiceClient<T>
+impl<T: core::fmt::Debug> core::fmt::Debug for ingest::grpc::proto::opentelemetry::proto::collector::trace::v1::trace_service_client::TraceServiceClient<T>
+pub fn ingest::grpc::proto::opentelemetry::proto::collector::trace::v1::trace_service_client::TraceServiceClient<T>::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl<T> !core::marker::Freeze for ingest::grpc::proto::opentelemetry::proto::collector::trace::v1::trace_service_client::TraceServiceClient<T>
+impl<T> core::marker::Send for ingest::grpc::proto::opentelemetry::proto::collector::trace::v1::trace_service_client::TraceServiceClient<T> where T: core::marker::Send
+impl<T> core::marker::Sync for ingest::grpc::proto::opentelemetry::proto::collector::trace::v1::trace_service_client::TraceServiceClient<T> where T: core::marker::Sync
+impl<T> core::marker::Unpin for ingest::grpc::proto::opentelemetry::proto::collector::trace::v1::trace_service_client::TraceServiceClient<T> where T: core::marker::Unpin
+impl<T> core::marker::UnsafeUnpin for ingest::grpc::proto::opentelemetry::proto::collector::trace::v1::trace_service_client::TraceServiceClient<T> where T: core::marker::UnsafeUnpin
+impl<T> core::panic::unwind_safe::RefUnwindSafe for ingest::grpc::proto::opentelemetry::proto::collector::trace::v1::trace_service_client::TraceServiceClient<T> where T: core::panic::unwind_safe::RefUnwindSafe
+impl<T> core::panic::unwind_safe::UnwindSafe for ingest::grpc::proto::opentelemetry::proto::collector::trace::v1::trace_service_client::TraceServiceClient<T> where T: core::panic::unwind_safe::UnwindSafe
+pub mod ingest::grpc::proto::opentelemetry::proto::collector::trace::v1::trace_service_server
+pub struct ingest::grpc::proto::opentelemetry::proto::collector::trace::v1::trace_service_server::TraceServiceServer<T>
+impl<T> ingest::grpc::proto::opentelemetry::proto::collector::trace::v1::trace_service_server::TraceServiceServer<T>
+pub fn ingest::grpc::proto::opentelemetry::proto::collector::trace::v1::trace_service_server::TraceServiceServer<T>::accept_compressed(self, encoding: tonic::codec::compression::CompressionEncoding) -> Self
+pub fn ingest::grpc::proto::opentelemetry::proto::collector::trace::v1::trace_service_server::TraceServiceServer<T>::from_arc(inner: alloc::sync::Arc<T>) -> Self
+pub fn ingest::grpc::proto::opentelemetry::proto::collector::trace::v1::trace_service_server::TraceServiceServer<T>::max_decoding_message_size(self, limit: usize) -> Self
+pub fn ingest::grpc::proto::opentelemetry::proto::collector::trace::v1::trace_service_server::TraceServiceServer<T>::max_encoding_message_size(self, limit: usize) -> Self
+pub fn ingest::grpc::proto::opentelemetry::proto::collector::trace::v1::trace_service_server::TraceServiceServer<T>::new(inner: T) -> Self
+pub fn ingest::grpc::proto::opentelemetry::proto::collector::trace::v1::trace_service_server::TraceServiceServer<T>::send_compressed(self, encoding: tonic::codec::compression::CompressionEncoding) -> Self
+pub fn ingest::grpc::proto::opentelemetry::proto::collector::trace::v1::trace_service_server::TraceServiceServer<T>::with_interceptor<F>(inner: T, interceptor: F) -> tonic::service::interceptor::InterceptedService<Self, F> where F: tonic::service::interceptor::Interceptor
+impl<T, B> tower_service::Service<http::request::Request<B>> for ingest::grpc::proto::opentelemetry::proto::collector::trace::v1::trace_service_server::TraceServiceServer<T> where T: ingest::grpc::proto::opentelemetry::proto::collector::trace::v1::trace_service_server::TraceService, B: http_body::Body + core::marker::Send + 'static, <B as http_body::Body>::Error: core::convert::Into<tonic::codegen::StdError> + core::marker::Send + 'static
+pub type ingest::grpc::proto::opentelemetry::proto::collector::trace::v1::trace_service_server::TraceServiceServer<T>::Error = core::convert::Infallible
+pub type ingest::grpc::proto::opentelemetry::proto::collector::trace::v1::trace_service_server::TraceServiceServer<T>::Future = core::pin::Pin<alloc::boxed::Box<(dyn core::future::future::Future<Output = core::result::Result<<ingest::grpc::proto::opentelemetry::proto::collector::trace::v1::trace_service_server::TraceServiceServer<T> as tower_service::Service<http::request::Request<B>>>::Response, <ingest::grpc::proto::opentelemetry::proto::collector::trace::v1::trace_service_server::TraceServiceServer<T> as tower_service::Service<http::request::Request<B>>>::Error>> + core::marker::Send)>>
+pub type ingest::grpc::proto::opentelemetry::proto::collector::trace::v1::trace_service_server::TraceServiceServer<T>::Response = http::response::Response<tonic::body::Body>
+pub fn ingest::grpc::proto::opentelemetry::proto::collector::trace::v1::trace_service_server::TraceServiceServer<T>::call(&mut self, req: http::request::Request<B>) -> Self::Future
+pub fn ingest::grpc::proto::opentelemetry::proto::collector::trace::v1::trace_service_server::TraceServiceServer<T>::poll_ready(&mut self, _cx: &mut core::task::wake::Context<'_>) -> core::task::poll::Poll<core::result::Result<(), Self::Error>>
+impl<T: core::fmt::Debug> core::fmt::Debug for ingest::grpc::proto::opentelemetry::proto::collector::trace::v1::trace_service_server::TraceServiceServer<T>
+pub fn ingest::grpc::proto::opentelemetry::proto::collector::trace::v1::trace_service_server::TraceServiceServer<T>::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl<T> core::clone::Clone for ingest::grpc::proto::opentelemetry::proto::collector::trace::v1::trace_service_server::TraceServiceServer<T>
+pub fn ingest::grpc::proto::opentelemetry::proto::collector::trace::v1::trace_service_server::TraceServiceServer<T>::clone(&self) -> Self
+impl<T> tonic::server::NamedService for ingest::grpc::proto::opentelemetry::proto::collector::trace::v1::trace_service_server::TraceServiceServer<T>
+pub const ingest::grpc::proto::opentelemetry::proto::collector::trace::v1::trace_service_server::TraceServiceServer<T>::NAME: &'static str
+impl<T> core::marker::Freeze for ingest::grpc::proto::opentelemetry::proto::collector::trace::v1::trace_service_server::TraceServiceServer<T>
+impl<T> core::marker::Send for ingest::grpc::proto::opentelemetry::proto::collector::trace::v1::trace_service_server::TraceServiceServer<T> where T: core::marker::Sync + core::marker::Send
+impl<T> core::marker::Sync for ingest::grpc::proto::opentelemetry::proto::collector::trace::v1::trace_service_server::TraceServiceServer<T> where T: core::marker::Sync + core::marker::Send
+impl<T> core::marker::Unpin for ingest::grpc::proto::opentelemetry::proto::collector::trace::v1::trace_service_server::TraceServiceServer<T>
+impl<T> core::marker::UnsafeUnpin for ingest::grpc::proto::opentelemetry::proto::collector::trace::v1::trace_service_server::TraceServiceServer<T>
+impl<T> core::panic::unwind_safe::RefUnwindSafe for ingest::grpc::proto::opentelemetry::proto::collector::trace::v1::trace_service_server::TraceServiceServer<T> where T: core::panic::unwind_safe::RefUnwindSafe
+impl<T> core::panic::unwind_safe::UnwindSafe for ingest::grpc::proto::opentelemetry::proto::collector::trace::v1::trace_service_server::TraceServiceServer<T> where T: core::panic::unwind_safe::RefUnwindSafe
+pub const ingest::grpc::proto::opentelemetry::proto::collector::trace::v1::trace_service_server::SERVICE_NAME: &str
+pub trait ingest::grpc::proto::opentelemetry::proto::collector::trace::v1::trace_service_server::TraceService: core::marker::Send + core::marker::Sync + 'static
+pub fn ingest::grpc::proto::opentelemetry::proto::collector::trace::v1::trace_service_server::TraceService::export<'life0, 'async_trait>(&'life0 self, request: tonic::request::Request<ingest::grpc::proto::opentelemetry::proto::collector::trace::v1::ExportTraceServiceRequest>) -> core::pin::Pin<alloc::boxed::Box<(dyn core::future::future::Future<Output = core::result::Result<tonic::response::Response<ingest::grpc::proto::opentelemetry::proto::collector::trace::v1::ExportTraceServiceResponse>, tonic::status::Status>> + core::marker::Send + 'async_trait)>> where Self: 'async_trait, 'life0: 'async_trait
+pub struct ingest::grpc::proto::opentelemetry::proto::collector::trace::v1::ExportTracePartialSuccess
+pub ingest::grpc::proto::opentelemetry::proto::collector::trace::v1::ExportTracePartialSuccess::error_message: alloc::string::String
+pub ingest::grpc::proto::opentelemetry::proto::collector::trace::v1::ExportTracePartialSuccess::rejected_spans: i64
+impl core::clone::Clone for ingest::grpc::proto::opentelemetry::proto::collector::trace::v1::ExportTracePartialSuccess
+pub fn ingest::grpc::proto::opentelemetry::proto::collector::trace::v1::ExportTracePartialSuccess::clone(&self) -> ingest::grpc::proto::opentelemetry::proto::collector::trace::v1::ExportTracePartialSuccess
+impl core::cmp::Eq for ingest::grpc::proto::opentelemetry::proto::collector::trace::v1::ExportTracePartialSuccess
+impl core::cmp::PartialEq for ingest::grpc::proto::opentelemetry::proto::collector::trace::v1::ExportTracePartialSuccess
+pub fn ingest::grpc::proto::opentelemetry::proto::collector::trace::v1::ExportTracePartialSuccess::eq(&self, other: &ingest::grpc::proto::opentelemetry::proto::collector::trace::v1::ExportTracePartialSuccess) -> bool
+impl core::default::Default for ingest::grpc::proto::opentelemetry::proto::collector::trace::v1::ExportTracePartialSuccess
+pub fn ingest::grpc::proto::opentelemetry::proto::collector::trace::v1::ExportTracePartialSuccess::default() -> Self
+impl core::fmt::Debug for ingest::grpc::proto::opentelemetry::proto::collector::trace::v1::ExportTracePartialSuccess
+pub fn ingest::grpc::proto::opentelemetry::proto::collector::trace::v1::ExportTracePartialSuccess::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::hash::Hash for ingest::grpc::proto::opentelemetry::proto::collector::trace::v1::ExportTracePartialSuccess
+pub fn ingest::grpc::proto::opentelemetry::proto::collector::trace::v1::ExportTracePartialSuccess::hash<__H: core::hash::Hasher>(&self, state: &mut __H)
+impl core::marker::StructuralPartialEq for ingest::grpc::proto::opentelemetry::proto::collector::trace::v1::ExportTracePartialSuccess
+impl prost::message::Message for ingest::grpc::proto::opentelemetry::proto::collector::trace::v1::ExportTracePartialSuccess
+pub fn ingest::grpc::proto::opentelemetry::proto::collector::trace::v1::ExportTracePartialSuccess::clear(&mut self)
+pub fn ingest::grpc::proto::opentelemetry::proto::collector::trace::v1::ExportTracePartialSuccess::encoded_len(&self) -> usize
+impl core::marker::Freeze for ingest::grpc::proto::opentelemetry::proto::collector::trace::v1::ExportTracePartialSuccess
+impl core::marker::Send for ingest::grpc::proto::opentelemetry::proto::collector::trace::v1::ExportTracePartialSuccess
+impl core::marker::Sync for ingest::grpc::proto::opentelemetry::proto::collector::trace::v1::ExportTracePartialSuccess
+impl core::marker::Unpin for ingest::grpc::proto::opentelemetry::proto::collector::trace::v1::ExportTracePartialSuccess
+impl core::marker::UnsafeUnpin for ingest::grpc::proto::opentelemetry::proto::collector::trace::v1::ExportTracePartialSuccess
+impl core::panic::unwind_safe::RefUnwindSafe for ingest::grpc::proto::opentelemetry::proto::collector::trace::v1::ExportTracePartialSuccess
+impl core::panic::unwind_safe::UnwindSafe for ingest::grpc::proto::opentelemetry::proto::collector::trace::v1::ExportTracePartialSuccess
+pub struct ingest::grpc::proto::opentelemetry::proto::collector::trace::v1::ExportTraceServiceRequest
+pub ingest::grpc::proto::opentelemetry::proto::collector::trace::v1::ExportTraceServiceRequest::resource_spans: alloc::vec::Vec<ingest::grpc::proto::opentelemetry::proto::trace::v1::ResourceSpans>
+impl core::clone::Clone for ingest::grpc::proto::opentelemetry::proto::collector::trace::v1::ExportTraceServiceRequest
+pub fn ingest::grpc::proto::opentelemetry::proto::collector::trace::v1::ExportTraceServiceRequest::clone(&self) -> ingest::grpc::proto::opentelemetry::proto::collector::trace::v1::ExportTraceServiceRequest
+impl core::cmp::PartialEq for ingest::grpc::proto::opentelemetry::proto::collector::trace::v1::ExportTraceServiceRequest
+pub fn ingest::grpc::proto::opentelemetry::proto::collector::trace::v1::ExportTraceServiceRequest::eq(&self, other: &ingest::grpc::proto::opentelemetry::proto::collector::trace::v1::ExportTraceServiceRequest) -> bool
+impl core::default::Default for ingest::grpc::proto::opentelemetry::proto::collector::trace::v1::ExportTraceServiceRequest
+pub fn ingest::grpc::proto::opentelemetry::proto::collector::trace::v1::ExportTraceServiceRequest::default() -> Self
+impl core::fmt::Debug for ingest::grpc::proto::opentelemetry::proto::collector::trace::v1::ExportTraceServiceRequest
+pub fn ingest::grpc::proto::opentelemetry::proto::collector::trace::v1::ExportTraceServiceRequest::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for ingest::grpc::proto::opentelemetry::proto::collector::trace::v1::ExportTraceServiceRequest
+impl prost::message::Message for ingest::grpc::proto::opentelemetry::proto::collector::trace::v1::ExportTraceServiceRequest
+pub fn ingest::grpc::proto::opentelemetry::proto::collector::trace::v1::ExportTraceServiceRequest::clear(&mut self)
+pub fn ingest::grpc::proto::opentelemetry::proto::collector::trace::v1::ExportTraceServiceRequest::encoded_len(&self) -> usize
+impl core::marker::Freeze for ingest::grpc::proto::opentelemetry::proto::collector::trace::v1::ExportTraceServiceRequest
+impl core::marker::Send for ingest::grpc::proto::opentelemetry::proto::collector::trace::v1::ExportTraceServiceRequest
+impl core::marker::Sync for ingest::grpc::proto::opentelemetry::proto::collector::trace::v1::ExportTraceServiceRequest
+impl core::marker::Unpin for ingest::grpc::proto::opentelemetry::proto::collector::trace::v1::ExportTraceServiceRequest
+impl core::marker::UnsafeUnpin for ingest::grpc::proto::opentelemetry::proto::collector::trace::v1::ExportTraceServiceRequest
+impl core::panic::unwind_safe::RefUnwindSafe for ingest::grpc::proto::opentelemetry::proto::collector::trace::v1::ExportTraceServiceRequest
+impl core::panic::unwind_safe::UnwindSafe for ingest::grpc::proto::opentelemetry::proto::collector::trace::v1::ExportTraceServiceRequest
+pub struct ingest::grpc::proto::opentelemetry::proto::collector::trace::v1::ExportTraceServiceResponse
+pub ingest::grpc::proto::opentelemetry::proto::collector::trace::v1::ExportTraceServiceResponse::partial_success: core::option::Option<ingest::grpc::proto::opentelemetry::proto::collector::trace::v1::ExportTracePartialSuccess>
+impl core::clone::Clone for ingest::grpc::proto::opentelemetry::proto::collector::trace::v1::ExportTraceServiceResponse
+pub fn ingest::grpc::proto::opentelemetry::proto::collector::trace::v1::ExportTraceServiceResponse::clone(&self) -> ingest::grpc::proto::opentelemetry::proto::collector::trace::v1::ExportTraceServiceResponse
+impl core::cmp::Eq for ingest::grpc::proto::opentelemetry::proto::collector::trace::v1::ExportTraceServiceResponse
+impl core::cmp::PartialEq for ingest::grpc::proto::opentelemetry::proto::collector::trace::v1::ExportTraceServiceResponse
+pub fn ingest::grpc::proto::opentelemetry::proto::collector::trace::v1::ExportTraceServiceResponse::eq(&self, other: &ingest::grpc::proto::opentelemetry::proto::collector::trace::v1::ExportTraceServiceResponse) -> bool
+impl core::default::Default for ingest::grpc::proto::opentelemetry::proto::collector::trace::v1::ExportTraceServiceResponse
+pub fn ingest::grpc::proto::opentelemetry::proto::collector::trace::v1::ExportTraceServiceResponse::default() -> Self
+impl core::fmt::Debug for ingest::grpc::proto::opentelemetry::proto::collector::trace::v1::ExportTraceServiceResponse
+pub fn ingest::grpc::proto::opentelemetry::proto::collector::trace::v1::ExportTraceServiceResponse::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::hash::Hash for ingest::grpc::proto::opentelemetry::proto::collector::trace::v1::ExportTraceServiceResponse
+pub fn ingest::grpc::proto::opentelemetry::proto::collector::trace::v1::ExportTraceServiceResponse::hash<__H: core::hash::Hasher>(&self, state: &mut __H)
+impl core::marker::StructuralPartialEq for ingest::grpc::proto::opentelemetry::proto::collector::trace::v1::ExportTraceServiceResponse
+impl prost::message::Message for ingest::grpc::proto::opentelemetry::proto::collector::trace::v1::ExportTraceServiceResponse
+pub fn ingest::grpc::proto::opentelemetry::proto::collector::trace::v1::ExportTraceServiceResponse::clear(&mut self)
+pub fn ingest::grpc::proto::opentelemetry::proto::collector::trace::v1::ExportTraceServiceResponse::encoded_len(&self) -> usize
+impl core::marker::Freeze for ingest::grpc::proto::opentelemetry::proto::collector::trace::v1::ExportTraceServiceResponse
+impl core::marker::Send for ingest::grpc::proto::opentelemetry::proto::collector::trace::v1::ExportTraceServiceResponse
+impl core::marker::Sync for ingest::grpc::proto::opentelemetry::proto::collector::trace::v1::ExportTraceServiceResponse
+impl core::marker::Unpin for ingest::grpc::proto::opentelemetry::proto::collector::trace::v1::ExportTraceServiceResponse
+impl core::marker::UnsafeUnpin for ingest::grpc::proto::opentelemetry::proto::collector::trace::v1::ExportTraceServiceResponse
+impl core::panic::unwind_safe::RefUnwindSafe for ingest::grpc::proto::opentelemetry::proto::collector::trace::v1::ExportTraceServiceResponse
+impl core::panic::unwind_safe::UnwindSafe for ingest::grpc::proto::opentelemetry::proto::collector::trace::v1::ExportTraceServiceResponse
+pub mod ingest::grpc::proto::opentelemetry::proto::common
+pub mod ingest::grpc::proto::opentelemetry::proto::common::v1
+pub mod ingest::grpc::proto::opentelemetry::proto::common::v1::any_value
+pub enum ingest::grpc::proto::opentelemetry::proto::common::v1::any_value::Value
+pub ingest::grpc::proto::opentelemetry::proto::common::v1::any_value::Value::ArrayValue(ingest::grpc::proto::opentelemetry::proto::common::v1::ArrayValue)
+pub ingest::grpc::proto::opentelemetry::proto::common::v1::any_value::Value::BoolValue(bool)
+pub ingest::grpc::proto::opentelemetry::proto::common::v1::any_value::Value::BytesValue(alloc::vec::Vec<u8>)
+pub ingest::grpc::proto::opentelemetry::proto::common::v1::any_value::Value::DoubleValue(f64)
+pub ingest::grpc::proto::opentelemetry::proto::common::v1::any_value::Value::IntValue(i64)
+pub ingest::grpc::proto::opentelemetry::proto::common::v1::any_value::Value::KvlistValue(ingest::grpc::proto::opentelemetry::proto::common::v1::KeyValueList)
+pub ingest::grpc::proto::opentelemetry::proto::common::v1::any_value::Value::StringValue(alloc::string::String)
+impl ingest::grpc::proto::opentelemetry::proto::common::v1::any_value::Value
+pub fn ingest::grpc::proto::opentelemetry::proto::common::v1::any_value::Value::encode(&self, buf: &mut impl bytes::buf::buf_mut::BufMut)
+pub fn ingest::grpc::proto::opentelemetry::proto::common::v1::any_value::Value::encoded_len(&self) -> usize
+pub fn ingest::grpc::proto::opentelemetry::proto::common::v1::any_value::Value::merge(field: &mut core::option::Option<ingest::grpc::proto::opentelemetry::proto::common::v1::any_value::Value>, tag: u32, wire_type: prost::encoding::wire_type::WireType, buf: &mut impl bytes::buf::buf_impl::Buf, ctx: prost::encoding::DecodeContext) -> core::result::Result<(), prost::error::DecodeError>
+impl core::clone::Clone for ingest::grpc::proto::opentelemetry::proto::common::v1::any_value::Value
+pub fn ingest::grpc::proto::opentelemetry::proto::common::v1::any_value::Value::clone(&self) -> ingest::grpc::proto::opentelemetry::proto::common::v1::any_value::Value
+impl core::cmp::PartialEq for ingest::grpc::proto::opentelemetry::proto::common::v1::any_value::Value
+pub fn ingest::grpc::proto::opentelemetry::proto::common::v1::any_value::Value::eq(&self, other: &ingest::grpc::proto::opentelemetry::proto::common::v1::any_value::Value) -> bool
+impl core::fmt::Debug for ingest::grpc::proto::opentelemetry::proto::common::v1::any_value::Value
+pub fn ingest::grpc::proto::opentelemetry::proto::common::v1::any_value::Value::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for ingest::grpc::proto::opentelemetry::proto::common::v1::any_value::Value
+impl core::marker::Freeze for ingest::grpc::proto::opentelemetry::proto::common::v1::any_value::Value
+impl core::marker::Send for ingest::grpc::proto::opentelemetry::proto::common::v1::any_value::Value
+impl core::marker::Sync for ingest::grpc::proto::opentelemetry::proto::common::v1::any_value::Value
+impl core::marker::Unpin for ingest::grpc::proto::opentelemetry::proto::common::v1::any_value::Value
+impl core::marker::UnsafeUnpin for ingest::grpc::proto::opentelemetry::proto::common::v1::any_value::Value
+impl core::panic::unwind_safe::RefUnwindSafe for ingest::grpc::proto::opentelemetry::proto::common::v1::any_value::Value
+impl core::panic::unwind_safe::UnwindSafe for ingest::grpc::proto::opentelemetry::proto::common::v1::any_value::Value
+pub struct ingest::grpc::proto::opentelemetry::proto::common::v1::AnyValue
+pub ingest::grpc::proto::opentelemetry::proto::common::v1::AnyValue::value: core::option::Option<ingest::grpc::proto::opentelemetry::proto::common::v1::any_value::Value>
+impl core::clone::Clone for ingest::grpc::proto::opentelemetry::proto::common::v1::AnyValue
+pub fn ingest::grpc::proto::opentelemetry::proto::common::v1::AnyValue::clone(&self) -> ingest::grpc::proto::opentelemetry::proto::common::v1::AnyValue
+impl core::cmp::PartialEq for ingest::grpc::proto::opentelemetry::proto::common::v1::AnyValue
+pub fn ingest::grpc::proto::opentelemetry::proto::common::v1::AnyValue::eq(&self, other: &ingest::grpc::proto::opentelemetry::proto::common::v1::AnyValue) -> bool
+impl core::default::Default for ingest::grpc::proto::opentelemetry::proto::common::v1::AnyValue
+pub fn ingest::grpc::proto::opentelemetry::proto::common::v1::AnyValue::default() -> Self
+impl core::fmt::Debug for ingest::grpc::proto::opentelemetry::proto::common::v1::AnyValue
+pub fn ingest::grpc::proto::opentelemetry::proto::common::v1::AnyValue::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for ingest::grpc::proto::opentelemetry::proto::common::v1::AnyValue
+impl prost::message::Message for ingest::grpc::proto::opentelemetry::proto::common::v1::AnyValue
+pub fn ingest::grpc::proto::opentelemetry::proto::common::v1::AnyValue::clear(&mut self)
+pub fn ingest::grpc::proto::opentelemetry::proto::common::v1::AnyValue::encoded_len(&self) -> usize
+impl core::marker::Freeze for ingest::grpc::proto::opentelemetry::proto::common::v1::AnyValue
+impl core::marker::Send for ingest::grpc::proto::opentelemetry::proto::common::v1::AnyValue
+impl core::marker::Sync for ingest::grpc::proto::opentelemetry::proto::common::v1::AnyValue
+impl core::marker::Unpin for ingest::grpc::proto::opentelemetry::proto::common::v1::AnyValue
+impl core::marker::UnsafeUnpin for ingest::grpc::proto::opentelemetry::proto::common::v1::AnyValue
+impl core::panic::unwind_safe::RefUnwindSafe for ingest::grpc::proto::opentelemetry::proto::common::v1::AnyValue
+impl core::panic::unwind_safe::UnwindSafe for ingest::grpc::proto::opentelemetry::proto::common::v1::AnyValue
+pub struct ingest::grpc::proto::opentelemetry::proto::common::v1::ArrayValue
+pub ingest::grpc::proto::opentelemetry::proto::common::v1::ArrayValue::values: alloc::vec::Vec<ingest::grpc::proto::opentelemetry::proto::common::v1::AnyValue>
+impl core::clone::Clone for ingest::grpc::proto::opentelemetry::proto::common::v1::ArrayValue
+pub fn ingest::grpc::proto::opentelemetry::proto::common::v1::ArrayValue::clone(&self) -> ingest::grpc::proto::opentelemetry::proto::common::v1::ArrayValue
+impl core::cmp::PartialEq for ingest::grpc::proto::opentelemetry::proto::common::v1::ArrayValue
+pub fn ingest::grpc::proto::opentelemetry::proto::common::v1::ArrayValue::eq(&self, other: &ingest::grpc::proto::opentelemetry::proto::common::v1::ArrayValue) -> bool
+impl core::default::Default for ingest::grpc::proto::opentelemetry::proto::common::v1::ArrayValue
+pub fn ingest::grpc::proto::opentelemetry::proto::common::v1::ArrayValue::default() -> Self
+impl core::fmt::Debug for ingest::grpc::proto::opentelemetry::proto::common::v1::ArrayValue
+pub fn ingest::grpc::proto::opentelemetry::proto::common::v1::ArrayValue::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for ingest::grpc::proto::opentelemetry::proto::common::v1::ArrayValue
+impl prost::message::Message for ingest::grpc::proto::opentelemetry::proto::common::v1::ArrayValue
+pub fn ingest::grpc::proto::opentelemetry::proto::common::v1::ArrayValue::clear(&mut self)
+pub fn ingest::grpc::proto::opentelemetry::proto::common::v1::ArrayValue::encoded_len(&self) -> usize
+impl core::marker::Freeze for ingest::grpc::proto::opentelemetry::proto::common::v1::ArrayValue
+impl core::marker::Send for ingest::grpc::proto::opentelemetry::proto::common::v1::ArrayValue
+impl core::marker::Sync for ingest::grpc::proto::opentelemetry::proto::common::v1::ArrayValue
+impl core::marker::Unpin for ingest::grpc::proto::opentelemetry::proto::common::v1::ArrayValue
+impl core::marker::UnsafeUnpin for ingest::grpc::proto::opentelemetry::proto::common::v1::ArrayValue
+impl core::panic::unwind_safe::RefUnwindSafe for ingest::grpc::proto::opentelemetry::proto::common::v1::ArrayValue
+impl core::panic::unwind_safe::UnwindSafe for ingest::grpc::proto::opentelemetry::proto::common::v1::ArrayValue
+pub struct ingest::grpc::proto::opentelemetry::proto::common::v1::InstrumentationScope
+pub ingest::grpc::proto::opentelemetry::proto::common::v1::InstrumentationScope::attributes: alloc::vec::Vec<ingest::grpc::proto::opentelemetry::proto::common::v1::KeyValue>
+pub ingest::grpc::proto::opentelemetry::proto::common::v1::InstrumentationScope::dropped_attributes_count: u32
+pub ingest::grpc::proto::opentelemetry::proto::common::v1::InstrumentationScope::name: alloc::string::String
+pub ingest::grpc::proto::opentelemetry::proto::common::v1::InstrumentationScope::version: alloc::string::String
+impl core::clone::Clone for ingest::grpc::proto::opentelemetry::proto::common::v1::InstrumentationScope
+pub fn ingest::grpc::proto::opentelemetry::proto::common::v1::InstrumentationScope::clone(&self) -> ingest::grpc::proto::opentelemetry::proto::common::v1::InstrumentationScope
+impl core::cmp::PartialEq for ingest::grpc::proto::opentelemetry::proto::common::v1::InstrumentationScope
+pub fn ingest::grpc::proto::opentelemetry::proto::common::v1::InstrumentationScope::eq(&self, other: &ingest::grpc::proto::opentelemetry::proto::common::v1::InstrumentationScope) -> bool
+impl core::default::Default for ingest::grpc::proto::opentelemetry::proto::common::v1::InstrumentationScope
+pub fn ingest::grpc::proto::opentelemetry::proto::common::v1::InstrumentationScope::default() -> Self
+impl core::fmt::Debug for ingest::grpc::proto::opentelemetry::proto::common::v1::InstrumentationScope
+pub fn ingest::grpc::proto::opentelemetry::proto::common::v1::InstrumentationScope::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for ingest::grpc::proto::opentelemetry::proto::common::v1::InstrumentationScope
+impl prost::message::Message for ingest::grpc::proto::opentelemetry::proto::common::v1::InstrumentationScope
+pub fn ingest::grpc::proto::opentelemetry::proto::common::v1::InstrumentationScope::clear(&mut self)
+pub fn ingest::grpc::proto::opentelemetry::proto::common::v1::InstrumentationScope::encoded_len(&self) -> usize
+impl core::marker::Freeze for ingest::grpc::proto::opentelemetry::proto::common::v1::InstrumentationScope
+impl core::marker::Send for ingest::grpc::proto::opentelemetry::proto::common::v1::InstrumentationScope
+impl core::marker::Sync for ingest::grpc::proto::opentelemetry::proto::common::v1::InstrumentationScope
+impl core::marker::Unpin for ingest::grpc::proto::opentelemetry::proto::common::v1::InstrumentationScope
+impl core::marker::UnsafeUnpin for ingest::grpc::proto::opentelemetry::proto::common::v1::InstrumentationScope
+impl core::panic::unwind_safe::RefUnwindSafe for ingest::grpc::proto::opentelemetry::proto::common::v1::InstrumentationScope
+impl core::panic::unwind_safe::UnwindSafe for ingest::grpc::proto::opentelemetry::proto::common::v1::InstrumentationScope
+pub struct ingest::grpc::proto::opentelemetry::proto::common::v1::KeyValue
+pub ingest::grpc::proto::opentelemetry::proto::common::v1::KeyValue::key: alloc::string::String
+pub ingest::grpc::proto::opentelemetry::proto::common::v1::KeyValue::value: core::option::Option<ingest::grpc::proto::opentelemetry::proto::common::v1::AnyValue>
+impl core::clone::Clone for ingest::grpc::proto::opentelemetry::proto::common::v1::KeyValue
+pub fn ingest::grpc::proto::opentelemetry::proto::common::v1::KeyValue::clone(&self) -> ingest::grpc::proto::opentelemetry::proto::common::v1::KeyValue
+impl core::cmp::PartialEq for ingest::grpc::proto::opentelemetry::proto::common::v1::KeyValue
+pub fn ingest::grpc::proto::opentelemetry::proto::common::v1::KeyValue::eq(&self, other: &ingest::grpc::proto::opentelemetry::proto::common::v1::KeyValue) -> bool
+impl core::default::Default for ingest::grpc::proto::opentelemetry::proto::common::v1::KeyValue
+pub fn ingest::grpc::proto::opentelemetry::proto::common::v1::KeyValue::default() -> Self
+impl core::fmt::Debug for ingest::grpc::proto::opentelemetry::proto::common::v1::KeyValue
+pub fn ingest::grpc::proto::opentelemetry::proto::common::v1::KeyValue::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for ingest::grpc::proto::opentelemetry::proto::common::v1::KeyValue
+impl prost::message::Message for ingest::grpc::proto::opentelemetry::proto::common::v1::KeyValue
+pub fn ingest::grpc::proto::opentelemetry::proto::common::v1::KeyValue::clear(&mut self)
+pub fn ingest::grpc::proto::opentelemetry::proto::common::v1::KeyValue::encoded_len(&self) -> usize
+impl core::marker::Freeze for ingest::grpc::proto::opentelemetry::proto::common::v1::KeyValue
+impl core::marker::Send for ingest::grpc::proto::opentelemetry::proto::common::v1::KeyValue
+impl core::marker::Sync for ingest::grpc::proto::opentelemetry::proto::common::v1::KeyValue
+impl core::marker::Unpin for ingest::grpc::proto::opentelemetry::proto::common::v1::KeyValue
+impl core::marker::UnsafeUnpin for ingest::grpc::proto::opentelemetry::proto::common::v1::KeyValue
+impl core::panic::unwind_safe::RefUnwindSafe for ingest::grpc::proto::opentelemetry::proto::common::v1::KeyValue
+impl core::panic::unwind_safe::UnwindSafe for ingest::grpc::proto::opentelemetry::proto::common::v1::KeyValue
+pub struct ingest::grpc::proto::opentelemetry::proto::common::v1::KeyValueList
+pub ingest::grpc::proto::opentelemetry::proto::common::v1::KeyValueList::values: alloc::vec::Vec<ingest::grpc::proto::opentelemetry::proto::common::v1::KeyValue>
+impl core::clone::Clone for ingest::grpc::proto::opentelemetry::proto::common::v1::KeyValueList
+pub fn ingest::grpc::proto::opentelemetry::proto::common::v1::KeyValueList::clone(&self) -> ingest::grpc::proto::opentelemetry::proto::common::v1::KeyValueList
+impl core::cmp::PartialEq for ingest::grpc::proto::opentelemetry::proto::common::v1::KeyValueList
+pub fn ingest::grpc::proto::opentelemetry::proto::common::v1::KeyValueList::eq(&self, other: &ingest::grpc::proto::opentelemetry::proto::common::v1::KeyValueList) -> bool
+impl core::default::Default for ingest::grpc::proto::opentelemetry::proto::common::v1::KeyValueList
+pub fn ingest::grpc::proto::opentelemetry::proto::common::v1::KeyValueList::default() -> Self
+impl core::fmt::Debug for ingest::grpc::proto::opentelemetry::proto::common::v1::KeyValueList
+pub fn ingest::grpc::proto::opentelemetry::proto::common::v1::KeyValueList::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for ingest::grpc::proto::opentelemetry::proto::common::v1::KeyValueList
+impl prost::message::Message for ingest::grpc::proto::opentelemetry::proto::common::v1::KeyValueList
+pub fn ingest::grpc::proto::opentelemetry::proto::common::v1::KeyValueList::clear(&mut self)
+pub fn ingest::grpc::proto::opentelemetry::proto::common::v1::KeyValueList::encoded_len(&self) -> usize
+impl core::marker::Freeze for ingest::grpc::proto::opentelemetry::proto::common::v1::KeyValueList
+impl core::marker::Send for ingest::grpc::proto::opentelemetry::proto::common::v1::KeyValueList
+impl core::marker::Sync for ingest::grpc::proto::opentelemetry::proto::common::v1::KeyValueList
+impl core::marker::Unpin for ingest::grpc::proto::opentelemetry::proto::common::v1::KeyValueList
+impl core::marker::UnsafeUnpin for ingest::grpc::proto::opentelemetry::proto::common::v1::KeyValueList
+impl core::panic::unwind_safe::RefUnwindSafe for ingest::grpc::proto::opentelemetry::proto::common::v1::KeyValueList
+impl core::panic::unwind_safe::UnwindSafe for ingest::grpc::proto::opentelemetry::proto::common::v1::KeyValueList
+pub mod ingest::grpc::proto::opentelemetry::proto::logs
+pub mod ingest::grpc::proto::opentelemetry::proto::logs::v1
+#[repr(i32)] pub enum ingest::grpc::proto::opentelemetry::proto::logs::v1::SeverityNumber
+pub ingest::grpc::proto::opentelemetry::proto::logs::v1::SeverityNumber::Debug = 5
+pub ingest::grpc::proto::opentelemetry::proto::logs::v1::SeverityNumber::Debug2 = 6
+pub ingest::grpc::proto::opentelemetry::proto::logs::v1::SeverityNumber::Debug3 = 7
+pub ingest::grpc::proto::opentelemetry::proto::logs::v1::SeverityNumber::Debug4 = 8
+pub ingest::grpc::proto::opentelemetry::proto::logs::v1::SeverityNumber::Error = 17
+pub ingest::grpc::proto::opentelemetry::proto::logs::v1::SeverityNumber::Error2 = 18
+pub ingest::grpc::proto::opentelemetry::proto::logs::v1::SeverityNumber::Error3 = 19
+pub ingest::grpc::proto::opentelemetry::proto::logs::v1::SeverityNumber::Error4 = 20
+pub ingest::grpc::proto::opentelemetry::proto::logs::v1::SeverityNumber::Fatal = 21
+pub ingest::grpc::proto::opentelemetry::proto::logs::v1::SeverityNumber::Fatal2 = 22
+pub ingest::grpc::proto::opentelemetry::proto::logs::v1::SeverityNumber::Fatal3 = 23
+pub ingest::grpc::proto::opentelemetry::proto::logs::v1::SeverityNumber::Fatal4 = 24
+pub ingest::grpc::proto::opentelemetry::proto::logs::v1::SeverityNumber::Info = 9
+pub ingest::grpc::proto::opentelemetry::proto::logs::v1::SeverityNumber::Info2 = 10
+pub ingest::grpc::proto::opentelemetry::proto::logs::v1::SeverityNumber::Info3 = 11
+pub ingest::grpc::proto::opentelemetry::proto::logs::v1::SeverityNumber::Info4 = 12
+pub ingest::grpc::proto::opentelemetry::proto::logs::v1::SeverityNumber::Trace = 1
+pub ingest::grpc::proto::opentelemetry::proto::logs::v1::SeverityNumber::Trace2 = 2
+pub ingest::grpc::proto::opentelemetry::proto::logs::v1::SeverityNumber::Trace3 = 3
+pub ingest::grpc::proto::opentelemetry::proto::logs::v1::SeverityNumber::Trace4 = 4
+pub ingest::grpc::proto::opentelemetry::proto::logs::v1::SeverityNumber::Unspecified = 0
+pub ingest::grpc::proto::opentelemetry::proto::logs::v1::SeverityNumber::Warn = 13
+pub ingest::grpc::proto::opentelemetry::proto::logs::v1::SeverityNumber::Warn2 = 14
+pub ingest::grpc::proto::opentelemetry::proto::logs::v1::SeverityNumber::Warn3 = 15
+pub ingest::grpc::proto::opentelemetry::proto::logs::v1::SeverityNumber::Warn4 = 16
+impl ingest::grpc::proto::opentelemetry::proto::logs::v1::SeverityNumber
+pub fn ingest::grpc::proto::opentelemetry::proto::logs::v1::SeverityNumber::as_str_name(&self) -> &'static str
+pub fn ingest::grpc::proto::opentelemetry::proto::logs::v1::SeverityNumber::from_str_name(value: &str) -> core::option::Option<Self>
+impl ingest::grpc::proto::opentelemetry::proto::logs::v1::SeverityNumber
+pub fn ingest::grpc::proto::opentelemetry::proto::logs::v1::SeverityNumber::from_i32(value: i32) -> core::option::Option<ingest::grpc::proto::opentelemetry::proto::logs::v1::SeverityNumber>
+pub fn ingest::grpc::proto::opentelemetry::proto::logs::v1::SeverityNumber::is_valid(value: i32) -> bool
+impl core::clone::Clone for ingest::grpc::proto::opentelemetry::proto::logs::v1::SeverityNumber
+pub fn ingest::grpc::proto::opentelemetry::proto::logs::v1::SeverityNumber::clone(&self) -> ingest::grpc::proto::opentelemetry::proto::logs::v1::SeverityNumber
+impl core::cmp::Eq for ingest::grpc::proto::opentelemetry::proto::logs::v1::SeverityNumber
+impl core::cmp::Ord for ingest::grpc::proto::opentelemetry::proto::logs::v1::SeverityNumber
+pub fn ingest::grpc::proto::opentelemetry::proto::logs::v1::SeverityNumber::cmp(&self, other: &ingest::grpc::proto::opentelemetry::proto::logs::v1::SeverityNumber) -> core::cmp::Ordering
+impl core::cmp::PartialEq for ingest::grpc::proto::opentelemetry::proto::logs::v1::SeverityNumber
+pub fn ingest::grpc::proto::opentelemetry::proto::logs::v1::SeverityNumber::eq(&self, other: &ingest::grpc::proto::opentelemetry::proto::logs::v1::SeverityNumber) -> bool
+impl core::cmp::PartialOrd for ingest::grpc::proto::opentelemetry::proto::logs::v1::SeverityNumber
+pub fn ingest::grpc::proto::opentelemetry::proto::logs::v1::SeverityNumber::partial_cmp(&self, other: &ingest::grpc::proto::opentelemetry::proto::logs::v1::SeverityNumber) -> core::option::Option<core::cmp::Ordering>
+impl core::convert::From<ingest::grpc::proto::opentelemetry::proto::logs::v1::SeverityNumber> for i32
+pub fn i32::from(value: ingest::grpc::proto::opentelemetry::proto::logs::v1::SeverityNumber) -> i32
+impl core::convert::TryFrom<i32> for ingest::grpc::proto::opentelemetry::proto::logs::v1::SeverityNumber
+pub type ingest::grpc::proto::opentelemetry::proto::logs::v1::SeverityNumber::Error = prost::error::UnknownEnumValue
+pub fn ingest::grpc::proto::opentelemetry::proto::logs::v1::SeverityNumber::try_from(value: i32) -> core::result::Result<ingest::grpc::proto::opentelemetry::proto::logs::v1::SeverityNumber, prost::error::UnknownEnumValue>
+impl core::default::Default for ingest::grpc::proto::opentelemetry::proto::logs::v1::SeverityNumber
+pub fn ingest::grpc::proto::opentelemetry::proto::logs::v1::SeverityNumber::default() -> ingest::grpc::proto::opentelemetry::proto::logs::v1::SeverityNumber
+impl core::fmt::Debug for ingest::grpc::proto::opentelemetry::proto::logs::v1::SeverityNumber
+pub fn ingest::grpc::proto::opentelemetry::proto::logs::v1::SeverityNumber::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::hash::Hash for ingest::grpc::proto::opentelemetry::proto::logs::v1::SeverityNumber
+pub fn ingest::grpc::proto::opentelemetry::proto::logs::v1::SeverityNumber::hash<__H: core::hash::Hasher>(&self, state: &mut __H)
+impl core::marker::Copy for ingest::grpc::proto::opentelemetry::proto::logs::v1::SeverityNumber
+impl core::marker::StructuralPartialEq for ingest::grpc::proto::opentelemetry::proto::logs::v1::SeverityNumber
+impl core::marker::Freeze for ingest::grpc::proto::opentelemetry::proto::logs::v1::SeverityNumber
+impl core::marker::Send for ingest::grpc::proto::opentelemetry::proto::logs::v1::SeverityNumber
+impl core::marker::Sync for ingest::grpc::proto::opentelemetry::proto::logs::v1::SeverityNumber
+impl core::marker::Unpin for ingest::grpc::proto::opentelemetry::proto::logs::v1::SeverityNumber
+impl core::marker::UnsafeUnpin for ingest::grpc::proto::opentelemetry::proto::logs::v1::SeverityNumber
+impl core::panic::unwind_safe::RefUnwindSafe for ingest::grpc::proto::opentelemetry::proto::logs::v1::SeverityNumber
+impl core::panic::unwind_safe::UnwindSafe for ingest::grpc::proto::opentelemetry::proto::logs::v1::SeverityNumber
+pub struct ingest::grpc::proto::opentelemetry::proto::logs::v1::LogRecord
+pub ingest::grpc::proto::opentelemetry::proto::logs::v1::LogRecord::attributes: alloc::vec::Vec<ingest::grpc::proto::opentelemetry::proto::common::v1::KeyValue>
+pub ingest::grpc::proto::opentelemetry::proto::logs::v1::LogRecord::body: core::option::Option<ingest::grpc::proto::opentelemetry::proto::common::v1::AnyValue>
+pub ingest::grpc::proto::opentelemetry::proto::logs::v1::LogRecord::dropped_attributes_count: u32
+pub ingest::grpc::proto::opentelemetry::proto::logs::v1::LogRecord::event_name: alloc::string::String
+pub ingest::grpc::proto::opentelemetry::proto::logs::v1::LogRecord::flags: u32
+pub ingest::grpc::proto::opentelemetry::proto::logs::v1::LogRecord::observed_time_unix_nano: u64
+pub ingest::grpc::proto::opentelemetry::proto::logs::v1::LogRecord::severity_number: i32
+pub ingest::grpc::proto::opentelemetry::proto::logs::v1::LogRecord::severity_text: alloc::string::String
+pub ingest::grpc::proto::opentelemetry::proto::logs::v1::LogRecord::span_id: alloc::vec::Vec<u8>
+pub ingest::grpc::proto::opentelemetry::proto::logs::v1::LogRecord::time_unix_nano: u64
+pub ingest::grpc::proto::opentelemetry::proto::logs::v1::LogRecord::trace_id: alloc::vec::Vec<u8>
+impl ingest::grpc::proto::opentelemetry::proto::logs::v1::LogRecord
+pub fn ingest::grpc::proto::opentelemetry::proto::logs::v1::LogRecord::set_severity_number(&mut self, value: ingest::grpc::proto::opentelemetry::proto::logs::v1::SeverityNumber)
+pub fn ingest::grpc::proto::opentelemetry::proto::logs::v1::LogRecord::severity_number(&self) -> ingest::grpc::proto::opentelemetry::proto::logs::v1::SeverityNumber
+impl core::clone::Clone for ingest::grpc::proto::opentelemetry::proto::logs::v1::LogRecord
+pub fn ingest::grpc::proto::opentelemetry::proto::logs::v1::LogRecord::clone(&self) -> ingest::grpc::proto::opentelemetry::proto::logs::v1::LogRecord
+impl core::cmp::PartialEq for ingest::grpc::proto::opentelemetry::proto::logs::v1::LogRecord
+pub fn ingest::grpc::proto::opentelemetry::proto::logs::v1::LogRecord::eq(&self, other: &ingest::grpc::proto::opentelemetry::proto::logs::v1::LogRecord) -> bool
+impl core::default::Default for ingest::grpc::proto::opentelemetry::proto::logs::v1::LogRecord
+pub fn ingest::grpc::proto::opentelemetry::proto::logs::v1::LogRecord::default() -> Self
+impl core::fmt::Debug for ingest::grpc::proto::opentelemetry::proto::logs::v1::LogRecord
+pub fn ingest::grpc::proto::opentelemetry::proto::logs::v1::LogRecord::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for ingest::grpc::proto::opentelemetry::proto::logs::v1::LogRecord
+impl prost::message::Message for ingest::grpc::proto::opentelemetry::proto::logs::v1::LogRecord
+pub fn ingest::grpc::proto::opentelemetry::proto::logs::v1::LogRecord::clear(&mut self)
+pub fn ingest::grpc::proto::opentelemetry::proto::logs::v1::LogRecord::encoded_len(&self) -> usize
+impl core::marker::Freeze for ingest::grpc::proto::opentelemetry::proto::logs::v1::LogRecord
+impl core::marker::Send for ingest::grpc::proto::opentelemetry::proto::logs::v1::LogRecord
+impl core::marker::Sync for ingest::grpc::proto::opentelemetry::proto::logs::v1::LogRecord
+impl core::marker::Unpin for ingest::grpc::proto::opentelemetry::proto::logs::v1::LogRecord
+impl core::marker::UnsafeUnpin for ingest::grpc::proto::opentelemetry::proto::logs::v1::LogRecord
+impl core::panic::unwind_safe::RefUnwindSafe for ingest::grpc::proto::opentelemetry::proto::logs::v1::LogRecord
+impl core::panic::unwind_safe::UnwindSafe for ingest::grpc::proto::opentelemetry::proto::logs::v1::LogRecord
+pub struct ingest::grpc::proto::opentelemetry::proto::logs::v1::LogsData
+pub ingest::grpc::proto::opentelemetry::proto::logs::v1::LogsData::resource_logs: alloc::vec::Vec<ingest::grpc::proto::opentelemetry::proto::logs::v1::ResourceLogs>
+impl core::clone::Clone for ingest::grpc::proto::opentelemetry::proto::logs::v1::LogsData
+pub fn ingest::grpc::proto::opentelemetry::proto::logs::v1::LogsData::clone(&self) -> ingest::grpc::proto::opentelemetry::proto::logs::v1::LogsData
+impl core::cmp::PartialEq for ingest::grpc::proto::opentelemetry::proto::logs::v1::LogsData
+pub fn ingest::grpc::proto::opentelemetry::proto::logs::v1::LogsData::eq(&self, other: &ingest::grpc::proto::opentelemetry::proto::logs::v1::LogsData) -> bool
+impl core::default::Default for ingest::grpc::proto::opentelemetry::proto::logs::v1::LogsData
+pub fn ingest::grpc::proto::opentelemetry::proto::logs::v1::LogsData::default() -> Self
+impl core::fmt::Debug for ingest::grpc::proto::opentelemetry::proto::logs::v1::LogsData
+pub fn ingest::grpc::proto::opentelemetry::proto::logs::v1::LogsData::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for ingest::grpc::proto::opentelemetry::proto::logs::v1::LogsData
+impl prost::message::Message for ingest::grpc::proto::opentelemetry::proto::logs::v1::LogsData
+pub fn ingest::grpc::proto::opentelemetry::proto::logs::v1::LogsData::clear(&mut self)
+pub fn ingest::grpc::proto::opentelemetry::proto::logs::v1::LogsData::encoded_len(&self) -> usize
+impl core::marker::Freeze for ingest::grpc::proto::opentelemetry::proto::logs::v1::LogsData
+impl core::marker::Send for ingest::grpc::proto::opentelemetry::proto::logs::v1::LogsData
+impl core::marker::Sync for ingest::grpc::proto::opentelemetry::proto::logs::v1::LogsData
+impl core::marker::Unpin for ingest::grpc::proto::opentelemetry::proto::logs::v1::LogsData
+impl core::marker::UnsafeUnpin for ingest::grpc::proto::opentelemetry::proto::logs::v1::LogsData
+impl core::panic::unwind_safe::RefUnwindSafe for ingest::grpc::proto::opentelemetry::proto::logs::v1::LogsData
+impl core::panic::unwind_safe::UnwindSafe for ingest::grpc::proto::opentelemetry::proto::logs::v1::LogsData
+pub struct ingest::grpc::proto::opentelemetry::proto::logs::v1::ResourceLogs
+pub ingest::grpc::proto::opentelemetry::proto::logs::v1::ResourceLogs::resource: core::option::Option<ingest::grpc::proto::opentelemetry::proto::resource::v1::Resource>
+pub ingest::grpc::proto::opentelemetry::proto::logs::v1::ResourceLogs::schema_url: alloc::string::String
+pub ingest::grpc::proto::opentelemetry::proto::logs::v1::ResourceLogs::scope_logs: alloc::vec::Vec<ingest::grpc::proto::opentelemetry::proto::logs::v1::ScopeLogs>
+impl core::clone::Clone for ingest::grpc::proto::opentelemetry::proto::logs::v1::ResourceLogs
+pub fn ingest::grpc::proto::opentelemetry::proto::logs::v1::ResourceLogs::clone(&self) -> ingest::grpc::proto::opentelemetry::proto::logs::v1::ResourceLogs
+impl core::cmp::PartialEq for ingest::grpc::proto::opentelemetry::proto::logs::v1::ResourceLogs
+pub fn ingest::grpc::proto::opentelemetry::proto::logs::v1::ResourceLogs::eq(&self, other: &ingest::grpc::proto::opentelemetry::proto::logs::v1::ResourceLogs) -> bool
+impl core::default::Default for ingest::grpc::proto::opentelemetry::proto::logs::v1::ResourceLogs
+pub fn ingest::grpc::proto::opentelemetry::proto::logs::v1::ResourceLogs::default() -> Self
+impl core::fmt::Debug for ingest::grpc::proto::opentelemetry::proto::logs::v1::ResourceLogs
+pub fn ingest::grpc::proto::opentelemetry::proto::logs::v1::ResourceLogs::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for ingest::grpc::proto::opentelemetry::proto::logs::v1::ResourceLogs
+impl prost::message::Message for ingest::grpc::proto::opentelemetry::proto::logs::v1::ResourceLogs
+pub fn ingest::grpc::proto::opentelemetry::proto::logs::v1::ResourceLogs::clear(&mut self)
+pub fn ingest::grpc::proto::opentelemetry::proto::logs::v1::ResourceLogs::encoded_len(&self) -> usize
+impl core::marker::Freeze for ingest::grpc::proto::opentelemetry::proto::logs::v1::ResourceLogs
+impl core::marker::Send for ingest::grpc::proto::opentelemetry::proto::logs::v1::ResourceLogs
+impl core::marker::Sync for ingest::grpc::proto::opentelemetry::proto::logs::v1::ResourceLogs
+impl core::marker::Unpin for ingest::grpc::proto::opentelemetry::proto::logs::v1::ResourceLogs
+impl core::marker::UnsafeUnpin for ingest::grpc::proto::opentelemetry::proto::logs::v1::ResourceLogs
+impl core::panic::unwind_safe::RefUnwindSafe for ingest::grpc::proto::opentelemetry::proto::logs::v1::ResourceLogs
+impl core::panic::unwind_safe::UnwindSafe for ingest::grpc::proto::opentelemetry::proto::logs::v1::ResourceLogs
+pub struct ingest::grpc::proto::opentelemetry::proto::logs::v1::ScopeLogs
+pub ingest::grpc::proto::opentelemetry::proto::logs::v1::ScopeLogs::log_records: alloc::vec::Vec<ingest::grpc::proto::opentelemetry::proto::logs::v1::LogRecord>
+pub ingest::grpc::proto::opentelemetry::proto::logs::v1::ScopeLogs::schema_url: alloc::string::String
+pub ingest::grpc::proto::opentelemetry::proto::logs::v1::ScopeLogs::scope: core::option::Option<ingest::grpc::proto::opentelemetry::proto::common::v1::InstrumentationScope>
+impl core::clone::Clone for ingest::grpc::proto::opentelemetry::proto::logs::v1::ScopeLogs
+pub fn ingest::grpc::proto::opentelemetry::proto::logs::v1::ScopeLogs::clone(&self) -> ingest::grpc::proto::opentelemetry::proto::logs::v1::ScopeLogs
+impl core::cmp::PartialEq for ingest::grpc::proto::opentelemetry::proto::logs::v1::ScopeLogs
+pub fn ingest::grpc::proto::opentelemetry::proto::logs::v1::ScopeLogs::eq(&self, other: &ingest::grpc::proto::opentelemetry::proto::logs::v1::ScopeLogs) -> bool
+impl core::default::Default for ingest::grpc::proto::opentelemetry::proto::logs::v1::ScopeLogs
+pub fn ingest::grpc::proto::opentelemetry::proto::logs::v1::ScopeLogs::default() -> Self
+impl core::fmt::Debug for ingest::grpc::proto::opentelemetry::proto::logs::v1::ScopeLogs
+pub fn ingest::grpc::proto::opentelemetry::proto::logs::v1::ScopeLogs::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for ingest::grpc::proto::opentelemetry::proto::logs::v1::ScopeLogs
+impl prost::message::Message for ingest::grpc::proto::opentelemetry::proto::logs::v1::ScopeLogs
+pub fn ingest::grpc::proto::opentelemetry::proto::logs::v1::ScopeLogs::clear(&mut self)
+pub fn ingest::grpc::proto::opentelemetry::proto::logs::v1::ScopeLogs::encoded_len(&self) -> usize
+impl core::marker::Freeze for ingest::grpc::proto::opentelemetry::proto::logs::v1::ScopeLogs
+impl core::marker::Send for ingest::grpc::proto::opentelemetry::proto::logs::v1::ScopeLogs
+impl core::marker::Sync for ingest::grpc::proto::opentelemetry::proto::logs::v1::ScopeLogs
+impl core::marker::Unpin for ingest::grpc::proto::opentelemetry::proto::logs::v1::ScopeLogs
+impl core::marker::UnsafeUnpin for ingest::grpc::proto::opentelemetry::proto::logs::v1::ScopeLogs
+impl core::panic::unwind_safe::RefUnwindSafe for ingest::grpc::proto::opentelemetry::proto::logs::v1::ScopeLogs
+impl core::panic::unwind_safe::UnwindSafe for ingest::grpc::proto::opentelemetry::proto::logs::v1::ScopeLogs
+pub mod ingest::grpc::proto::opentelemetry::proto::metrics
+pub mod ingest::grpc::proto::opentelemetry::proto::metrics::v1
+pub mod ingest::grpc::proto::opentelemetry::proto::metrics::v1::exemplar
+pub enum ingest::grpc::proto::opentelemetry::proto::metrics::v1::exemplar::Value
+pub ingest::grpc::proto::opentelemetry::proto::metrics::v1::exemplar::Value::AsDouble(f64)
+pub ingest::grpc::proto::opentelemetry::proto::metrics::v1::exemplar::Value::AsInt(i64)
+impl ingest::grpc::proto::opentelemetry::proto::metrics::v1::exemplar::Value
+pub fn ingest::grpc::proto::opentelemetry::proto::metrics::v1::exemplar::Value::encode(&self, buf: &mut impl bytes::buf::buf_mut::BufMut)
+pub fn ingest::grpc::proto::opentelemetry::proto::metrics::v1::exemplar::Value::encoded_len(&self) -> usize
+pub fn ingest::grpc::proto::opentelemetry::proto::metrics::v1::exemplar::Value::merge(field: &mut core::option::Option<ingest::grpc::proto::opentelemetry::proto::metrics::v1::exemplar::Value>, tag: u32, wire_type: prost::encoding::wire_type::WireType, buf: &mut impl bytes::buf::buf_impl::Buf, ctx: prost::encoding::DecodeContext) -> core::result::Result<(), prost::error::DecodeError>
+impl core::clone::Clone for ingest::grpc::proto::opentelemetry::proto::metrics::v1::exemplar::Value
+pub fn ingest::grpc::proto::opentelemetry::proto::metrics::v1::exemplar::Value::clone(&self) -> ingest::grpc::proto::opentelemetry::proto::metrics::v1::exemplar::Value
+impl core::cmp::PartialEq for ingest::grpc::proto::opentelemetry::proto::metrics::v1::exemplar::Value
+pub fn ingest::grpc::proto::opentelemetry::proto::metrics::v1::exemplar::Value::eq(&self, other: &ingest::grpc::proto::opentelemetry::proto::metrics::v1::exemplar::Value) -> bool
+impl core::fmt::Debug for ingest::grpc::proto::opentelemetry::proto::metrics::v1::exemplar::Value
+pub fn ingest::grpc::proto::opentelemetry::proto::metrics::v1::exemplar::Value::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Copy for ingest::grpc::proto::opentelemetry::proto::metrics::v1::exemplar::Value
+impl core::marker::StructuralPartialEq for ingest::grpc::proto::opentelemetry::proto::metrics::v1::exemplar::Value
+impl core::marker::Freeze for ingest::grpc::proto::opentelemetry::proto::metrics::v1::exemplar::Value
+impl core::marker::Send for ingest::grpc::proto::opentelemetry::proto::metrics::v1::exemplar::Value
+impl core::marker::Sync for ingest::grpc::proto::opentelemetry::proto::metrics::v1::exemplar::Value
+impl core::marker::Unpin for ingest::grpc::proto::opentelemetry::proto::metrics::v1::exemplar::Value
+impl core::marker::UnsafeUnpin for ingest::grpc::proto::opentelemetry::proto::metrics::v1::exemplar::Value
+impl core::panic::unwind_safe::RefUnwindSafe for ingest::grpc::proto::opentelemetry::proto::metrics::v1::exemplar::Value
+impl core::panic::unwind_safe::UnwindSafe for ingest::grpc::proto::opentelemetry::proto::metrics::v1::exemplar::Value
+pub mod ingest::grpc::proto::opentelemetry::proto::metrics::v1::exponential_histogram_data_point
+pub struct ingest::grpc::proto::opentelemetry::proto::metrics::v1::exponential_histogram_data_point::Buckets
+pub ingest::grpc::proto::opentelemetry::proto::metrics::v1::exponential_histogram_data_point::Buckets::bucket_counts: alloc::vec::Vec<u64>
+pub ingest::grpc::proto::opentelemetry::proto::metrics::v1::exponential_histogram_data_point::Buckets::offset: i32
+impl core::clone::Clone for ingest::grpc::proto::opentelemetry::proto::metrics::v1::exponential_histogram_data_point::Buckets
+pub fn ingest::grpc::proto::opentelemetry::proto::metrics::v1::exponential_histogram_data_point::Buckets::clone(&self) -> ingest::grpc::proto::opentelemetry::proto::metrics::v1::exponential_histogram_data_point::Buckets
+impl core::cmp::Eq for ingest::grpc::proto::opentelemetry::proto::metrics::v1::exponential_histogram_data_point::Buckets
+impl core::cmp::PartialEq for ingest::grpc::proto::opentelemetry::proto::metrics::v1::exponential_histogram_data_point::Buckets
+pub fn ingest::grpc::proto::opentelemetry::proto::metrics::v1::exponential_histogram_data_point::Buckets::eq(&self, other: &ingest::grpc::proto::opentelemetry::proto::metrics::v1::exponential_histogram_data_point::Buckets) -> bool
+impl core::default::Default for ingest::grpc::proto::opentelemetry::proto::metrics::v1::exponential_histogram_data_point::Buckets
+pub fn ingest::grpc::proto::opentelemetry::proto::metrics::v1::exponential_histogram_data_point::Buckets::default() -> Self
+impl core::fmt::Debug for ingest::grpc::proto::opentelemetry::proto::metrics::v1::exponential_histogram_data_point::Buckets
+pub fn ingest::grpc::proto::opentelemetry::proto::metrics::v1::exponential_histogram_data_point::Buckets::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::hash::Hash for ingest::grpc::proto::opentelemetry::proto::metrics::v1::exponential_histogram_data_point::Buckets
+pub fn ingest::grpc::proto::opentelemetry::proto::metrics::v1::exponential_histogram_data_point::Buckets::hash<__H: core::hash::Hasher>(&self, state: &mut __H)
+impl core::marker::StructuralPartialEq for ingest::grpc::proto::opentelemetry::proto::metrics::v1::exponential_histogram_data_point::Buckets
+impl prost::message::Message for ingest::grpc::proto::opentelemetry::proto::metrics::v1::exponential_histogram_data_point::Buckets
+pub fn ingest::grpc::proto::opentelemetry::proto::metrics::v1::exponential_histogram_data_point::Buckets::clear(&mut self)
+pub fn ingest::grpc::proto::opentelemetry::proto::metrics::v1::exponential_histogram_data_point::Buckets::encoded_len(&self) -> usize
+impl core::marker::Freeze for ingest::grpc::proto::opentelemetry::proto::metrics::v1::exponential_histogram_data_point::Buckets
+impl core::marker::Send for ingest::grpc::proto::opentelemetry::proto::metrics::v1::exponential_histogram_data_point::Buckets
+impl core::marker::Sync for ingest::grpc::proto::opentelemetry::proto::metrics::v1::exponential_histogram_data_point::Buckets
+impl core::marker::Unpin for ingest::grpc::proto::opentelemetry::proto::metrics::v1::exponential_histogram_data_point::Buckets
+impl core::marker::UnsafeUnpin for ingest::grpc::proto::opentelemetry::proto::metrics::v1::exponential_histogram_data_point::Buckets
+impl core::panic::unwind_safe::RefUnwindSafe for ingest::grpc::proto::opentelemetry::proto::metrics::v1::exponential_histogram_data_point::Buckets
+impl core::panic::unwind_safe::UnwindSafe for ingest::grpc::proto::opentelemetry::proto::metrics::v1::exponential_histogram_data_point::Buckets
+pub mod ingest::grpc::proto::opentelemetry::proto::metrics::v1::metric
+pub enum ingest::grpc::proto::opentelemetry::proto::metrics::v1::metric::Data
+pub ingest::grpc::proto::opentelemetry::proto::metrics::v1::metric::Data::ExponentialHistogram(ingest::grpc::proto::opentelemetry::proto::metrics::v1::ExponentialHistogram)
+pub ingest::grpc::proto::opentelemetry::proto::metrics::v1::metric::Data::Gauge(ingest::grpc::proto::opentelemetry::proto::metrics::v1::Gauge)
+pub ingest::grpc::proto::opentelemetry::proto::metrics::v1::metric::Data::Histogram(ingest::grpc::proto::opentelemetry::proto::metrics::v1::Histogram)
+pub ingest::grpc::proto::opentelemetry::proto::metrics::v1::metric::Data::Sum(ingest::grpc::proto::opentelemetry::proto::metrics::v1::Sum)
+pub ingest::grpc::proto::opentelemetry::proto::metrics::v1::metric::Data::Summary(ingest::grpc::proto::opentelemetry::proto::metrics::v1::Summary)
+impl ingest::grpc::proto::opentelemetry::proto::metrics::v1::metric::Data
+pub fn ingest::grpc::proto::opentelemetry::proto::metrics::v1::metric::Data::encode(&self, buf: &mut impl bytes::buf::buf_mut::BufMut)
+pub fn ingest::grpc::proto::opentelemetry::proto::metrics::v1::metric::Data::encoded_len(&self) -> usize
+pub fn ingest::grpc::proto::opentelemetry::proto::metrics::v1::metric::Data::merge(field: &mut core::option::Option<ingest::grpc::proto::opentelemetry::proto::metrics::v1::metric::Data>, tag: u32, wire_type: prost::encoding::wire_type::WireType, buf: &mut impl bytes::buf::buf_impl::Buf, ctx: prost::encoding::DecodeContext) -> core::result::Result<(), prost::error::DecodeError>
+impl core::clone::Clone for ingest::grpc::proto::opentelemetry::proto::metrics::v1::metric::Data
+pub fn ingest::grpc::proto::opentelemetry::proto::metrics::v1::metric::Data::clone(&self) -> ingest::grpc::proto::opentelemetry::proto::metrics::v1::metric::Data
+impl core::cmp::PartialEq for ingest::grpc::proto::opentelemetry::proto::metrics::v1::metric::Data
+pub fn ingest::grpc::proto::opentelemetry::proto::metrics::v1::metric::Data::eq(&self, other: &ingest::grpc::proto::opentelemetry::proto::metrics::v1::metric::Data) -> bool
+impl core::fmt::Debug for ingest::grpc::proto::opentelemetry::proto::metrics::v1::metric::Data
+pub fn ingest::grpc::proto::opentelemetry::proto::metrics::v1::metric::Data::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for ingest::grpc::proto::opentelemetry::proto::metrics::v1::metric::Data
+impl core::marker::Freeze for ingest::grpc::proto::opentelemetry::proto::metrics::v1::metric::Data
+impl core::marker::Send for ingest::grpc::proto::opentelemetry::proto::metrics::v1::metric::Data
+impl core::marker::Sync for ingest::grpc::proto::opentelemetry::proto::metrics::v1::metric::Data
+impl core::marker::Unpin for ingest::grpc::proto::opentelemetry::proto::metrics::v1::metric::Data
+impl core::marker::UnsafeUnpin for ingest::grpc::proto::opentelemetry::proto::metrics::v1::metric::Data
+impl core::panic::unwind_safe::RefUnwindSafe for ingest::grpc::proto::opentelemetry::proto::metrics::v1::metric::Data
+impl core::panic::unwind_safe::UnwindSafe for ingest::grpc::proto::opentelemetry::proto::metrics::v1::metric::Data
+pub mod ingest::grpc::proto::opentelemetry::proto::metrics::v1::number_data_point
+pub enum ingest::grpc::proto::opentelemetry::proto::metrics::v1::number_data_point::Value
+pub ingest::grpc::proto::opentelemetry::proto::metrics::v1::number_data_point::Value::AsDouble(f64)
+pub ingest::grpc::proto::opentelemetry::proto::metrics::v1::number_data_point::Value::AsInt(i64)
+impl ingest::grpc::proto::opentelemetry::proto::metrics::v1::number_data_point::Value
+pub fn ingest::grpc::proto::opentelemetry::proto::metrics::v1::number_data_point::Value::encode(&self, buf: &mut impl bytes::buf::buf_mut::BufMut)
+pub fn ingest::grpc::proto::opentelemetry::proto::metrics::v1::number_data_point::Value::encoded_len(&self) -> usize
+pub fn ingest::grpc::proto::opentelemetry::proto::metrics::v1::number_data_point::Value::merge(field: &mut core::option::Option<ingest::grpc::proto::opentelemetry::proto::metrics::v1::number_data_point::Value>, tag: u32, wire_type: prost::encoding::wire_type::WireType, buf: &mut impl bytes::buf::buf_impl::Buf, ctx: prost::encoding::DecodeContext) -> core::result::Result<(), prost::error::DecodeError>
+impl core::clone::Clone for ingest::grpc::proto::opentelemetry::proto::metrics::v1::number_data_point::Value
+pub fn ingest::grpc::proto::opentelemetry::proto::metrics::v1::number_data_point::Value::clone(&self) -> ingest::grpc::proto::opentelemetry::proto::metrics::v1::number_data_point::Value
+impl core::cmp::PartialEq for ingest::grpc::proto::opentelemetry::proto::metrics::v1::number_data_point::Value
+pub fn ingest::grpc::proto::opentelemetry::proto::metrics::v1::number_data_point::Value::eq(&self, other: &ingest::grpc::proto::opentelemetry::proto::metrics::v1::number_data_point::Value) -> bool
+impl core::fmt::Debug for ingest::grpc::proto::opentelemetry::proto::metrics::v1::number_data_point::Value
+pub fn ingest::grpc::proto::opentelemetry::proto::metrics::v1::number_data_point::Value::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Copy for ingest::grpc::proto::opentelemetry::proto::metrics::v1::number_data_point::Value
+impl core::marker::StructuralPartialEq for ingest::grpc::proto::opentelemetry::proto::metrics::v1::number_data_point::Value
+impl core::marker::Freeze for ingest::grpc::proto::opentelemetry::proto::metrics::v1::number_data_point::Value
+impl core::marker::Send for ingest::grpc::proto::opentelemetry::proto::metrics::v1::number_data_point::Value
+impl core::marker::Sync for ingest::grpc::proto::opentelemetry::proto::metrics::v1::number_data_point::Value
+impl core::marker::Unpin for ingest::grpc::proto::opentelemetry::proto::metrics::v1::number_data_point::Value
+impl core::marker::UnsafeUnpin for ingest::grpc::proto::opentelemetry::proto::metrics::v1::number_data_point::Value
+impl core::panic::unwind_safe::RefUnwindSafe for ingest::grpc::proto::opentelemetry::proto::metrics::v1::number_data_point::Value
+impl core::panic::unwind_safe::UnwindSafe for ingest::grpc::proto::opentelemetry::proto::metrics::v1::number_data_point::Value
+pub mod ingest::grpc::proto::opentelemetry::proto::metrics::v1::summary_data_point
+pub struct ingest::grpc::proto::opentelemetry::proto::metrics::v1::summary_data_point::ValueAtQuantile
+pub ingest::grpc::proto::opentelemetry::proto::metrics::v1::summary_data_point::ValueAtQuantile::quantile: f64
+pub ingest::grpc::proto::opentelemetry::proto::metrics::v1::summary_data_point::ValueAtQuantile::value: f64
+impl core::clone::Clone for ingest::grpc::proto::opentelemetry::proto::metrics::v1::summary_data_point::ValueAtQuantile
+pub fn ingest::grpc::proto::opentelemetry::proto::metrics::v1::summary_data_point::ValueAtQuantile::clone(&self) -> ingest::grpc::proto::opentelemetry::proto::metrics::v1::summary_data_point::ValueAtQuantile
+impl core::cmp::PartialEq for ingest::grpc::proto::opentelemetry::proto::metrics::v1::summary_data_point::ValueAtQuantile
+pub fn ingest::grpc::proto::opentelemetry::proto::metrics::v1::summary_data_point::ValueAtQuantile::eq(&self, other: &ingest::grpc::proto::opentelemetry::proto::metrics::v1::summary_data_point::ValueAtQuantile) -> bool
+impl core::default::Default for ingest::grpc::proto::opentelemetry::proto::metrics::v1::summary_data_point::ValueAtQuantile
+pub fn ingest::grpc::proto::opentelemetry::proto::metrics::v1::summary_data_point::ValueAtQuantile::default() -> Self
+impl core::fmt::Debug for ingest::grpc::proto::opentelemetry::proto::metrics::v1::summary_data_point::ValueAtQuantile
+pub fn ingest::grpc::proto::opentelemetry::proto::metrics::v1::summary_data_point::ValueAtQuantile::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Copy for ingest::grpc::proto::opentelemetry::proto::metrics::v1::summary_data_point::ValueAtQuantile
+impl core::marker::StructuralPartialEq for ingest::grpc::proto::opentelemetry::proto::metrics::v1::summary_data_point::ValueAtQuantile
+impl prost::message::Message for ingest::grpc::proto::opentelemetry::proto::metrics::v1::summary_data_point::ValueAtQuantile
+pub fn ingest::grpc::proto::opentelemetry::proto::metrics::v1::summary_data_point::ValueAtQuantile::clear(&mut self)
+pub fn ingest::grpc::proto::opentelemetry::proto::metrics::v1::summary_data_point::ValueAtQuantile::encoded_len(&self) -> usize
+impl core::marker::Freeze for ingest::grpc::proto::opentelemetry::proto::metrics::v1::summary_data_point::ValueAtQuantile
+impl core::marker::Send for ingest::grpc::proto::opentelemetry::proto::metrics::v1::summary_data_point::ValueAtQuantile
+impl core::marker::Sync for ingest::grpc::proto::opentelemetry::proto::metrics::v1::summary_data_point::ValueAtQuantile
+impl core::marker::Unpin for ingest::grpc::proto::opentelemetry::proto::metrics::v1::summary_data_point::ValueAtQuantile
+impl core::marker::UnsafeUnpin for ingest::grpc::proto::opentelemetry::proto::metrics::v1::summary_data_point::ValueAtQuantile
+impl core::panic::unwind_safe::RefUnwindSafe for ingest::grpc::proto::opentelemetry::proto::metrics::v1::summary_data_point::ValueAtQuantile
+impl core::panic::unwind_safe::UnwindSafe for ingest::grpc::proto::opentelemetry::proto::metrics::v1::summary_data_point::ValueAtQuantile
+#[repr(i32)] pub enum ingest::grpc::proto::opentelemetry::proto::metrics::v1::AggregationTemporality
+pub ingest::grpc::proto::opentelemetry::proto::metrics::v1::AggregationTemporality::Cumulative = 2
+pub ingest::grpc::proto::opentelemetry::proto::metrics::v1::AggregationTemporality::Delta = 1
+pub ingest::grpc::proto::opentelemetry::proto::metrics::v1::AggregationTemporality::Unspecified = 0
+impl ingest::grpc::proto::opentelemetry::proto::metrics::v1::AggregationTemporality
+pub fn ingest::grpc::proto::opentelemetry::proto::metrics::v1::AggregationTemporality::as_str_name(&self) -> &'static str
+pub fn ingest::grpc::proto::opentelemetry::proto::metrics::v1::AggregationTemporality::from_str_name(value: &str) -> core::option::Option<Self>
+impl ingest::grpc::proto::opentelemetry::proto::metrics::v1::AggregationTemporality
+pub fn ingest::grpc::proto::opentelemetry::proto::metrics::v1::AggregationTemporality::from_i32(value: i32) -> core::option::Option<ingest::grpc::proto::opentelemetry::proto::metrics::v1::AggregationTemporality>
+pub fn ingest::grpc::proto::opentelemetry::proto::metrics::v1::AggregationTemporality::is_valid(value: i32) -> bool
+impl core::clone::Clone for ingest::grpc::proto::opentelemetry::proto::metrics::v1::AggregationTemporality
+pub fn ingest::grpc::proto::opentelemetry::proto::metrics::v1::AggregationTemporality::clone(&self) -> ingest::grpc::proto::opentelemetry::proto::metrics::v1::AggregationTemporality
+impl core::cmp::Eq for ingest::grpc::proto::opentelemetry::proto::metrics::v1::AggregationTemporality
+impl core::cmp::Ord for ingest::grpc::proto::opentelemetry::proto::metrics::v1::AggregationTemporality
+pub fn ingest::grpc::proto::opentelemetry::proto::metrics::v1::AggregationTemporality::cmp(&self, other: &ingest::grpc::proto::opentelemetry::proto::metrics::v1::AggregationTemporality) -> core::cmp::Ordering
+impl core::cmp::PartialEq for ingest::grpc::proto::opentelemetry::proto::metrics::v1::AggregationTemporality
+pub fn ingest::grpc::proto::opentelemetry::proto::metrics::v1::AggregationTemporality::eq(&self, other: &ingest::grpc::proto::opentelemetry::proto::metrics::v1::AggregationTemporality) -> bool
+impl core::cmp::PartialOrd for ingest::grpc::proto::opentelemetry::proto::metrics::v1::AggregationTemporality
+pub fn ingest::grpc::proto::opentelemetry::proto::metrics::v1::AggregationTemporality::partial_cmp(&self, other: &ingest::grpc::proto::opentelemetry::proto::metrics::v1::AggregationTemporality) -> core::option::Option<core::cmp::Ordering>
+impl core::convert::From<ingest::grpc::proto::opentelemetry::proto::metrics::v1::AggregationTemporality> for i32
+pub fn i32::from(value: ingest::grpc::proto::opentelemetry::proto::metrics::v1::AggregationTemporality) -> i32
+impl core::convert::TryFrom<i32> for ingest::grpc::proto::opentelemetry::proto::metrics::v1::AggregationTemporality
+pub type ingest::grpc::proto::opentelemetry::proto::metrics::v1::AggregationTemporality::Error = prost::error::UnknownEnumValue
+pub fn ingest::grpc::proto::opentelemetry::proto::metrics::v1::AggregationTemporality::try_from(value: i32) -> core::result::Result<ingest::grpc::proto::opentelemetry::proto::metrics::v1::AggregationTemporality, prost::error::UnknownEnumValue>
+impl core::default::Default for ingest::grpc::proto::opentelemetry::proto::metrics::v1::AggregationTemporality
+pub fn ingest::grpc::proto::opentelemetry::proto::metrics::v1::AggregationTemporality::default() -> ingest::grpc::proto::opentelemetry::proto::metrics::v1::AggregationTemporality
+impl core::fmt::Debug for ingest::grpc::proto::opentelemetry::proto::metrics::v1::AggregationTemporality
+pub fn ingest::grpc::proto::opentelemetry::proto::metrics::v1::AggregationTemporality::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::hash::Hash for ingest::grpc::proto::opentelemetry::proto::metrics::v1::AggregationTemporality
+pub fn ingest::grpc::proto::opentelemetry::proto::metrics::v1::AggregationTemporality::hash<__H: core::hash::Hasher>(&self, state: &mut __H)
+impl core::marker::Copy for ingest::grpc::proto::opentelemetry::proto::metrics::v1::AggregationTemporality
+impl core::marker::StructuralPartialEq for ingest::grpc::proto::opentelemetry::proto::metrics::v1::AggregationTemporality
+impl core::marker::Freeze for ingest::grpc::proto::opentelemetry::proto::metrics::v1::AggregationTemporality
+impl core::marker::Send for ingest::grpc::proto::opentelemetry::proto::metrics::v1::AggregationTemporality
+impl core::marker::Sync for ingest::grpc::proto::opentelemetry::proto::metrics::v1::AggregationTemporality
+impl core::marker::Unpin for ingest::grpc::proto::opentelemetry::proto::metrics::v1::AggregationTemporality
+impl core::marker::UnsafeUnpin for ingest::grpc::proto::opentelemetry::proto::metrics::v1::AggregationTemporality
+impl core::panic::unwind_safe::RefUnwindSafe for ingest::grpc::proto::opentelemetry::proto::metrics::v1::AggregationTemporality
+impl core::panic::unwind_safe::UnwindSafe for ingest::grpc::proto::opentelemetry::proto::metrics::v1::AggregationTemporality
+pub struct ingest::grpc::proto::opentelemetry::proto::metrics::v1::Exemplar
+pub ingest::grpc::proto::opentelemetry::proto::metrics::v1::Exemplar::filtered_attributes: alloc::vec::Vec<ingest::grpc::proto::opentelemetry::proto::common::v1::KeyValue>
+pub ingest::grpc::proto::opentelemetry::proto::metrics::v1::Exemplar::span_id: alloc::vec::Vec<u8>
+pub ingest::grpc::proto::opentelemetry::proto::metrics::v1::Exemplar::time_unix_nano: u64
+pub ingest::grpc::proto::opentelemetry::proto::metrics::v1::Exemplar::trace_id: alloc::vec::Vec<u8>
+pub ingest::grpc::proto::opentelemetry::proto::metrics::v1::Exemplar::value: core::option::Option<ingest::grpc::proto::opentelemetry::proto::metrics::v1::exemplar::Value>
+impl core::clone::Clone for ingest::grpc::proto::opentelemetry::proto::metrics::v1::Exemplar
+pub fn ingest::grpc::proto::opentelemetry::proto::metrics::v1::Exemplar::clone(&self) -> ingest::grpc::proto::opentelemetry::proto::metrics::v1::Exemplar
+impl core::cmp::PartialEq for ingest::grpc::proto::opentelemetry::proto::metrics::v1::Exemplar
+pub fn ingest::grpc::proto::opentelemetry::proto::metrics::v1::Exemplar::eq(&self, other: &ingest::grpc::proto::opentelemetry::proto::metrics::v1::Exemplar) -> bool
+impl core::default::Default for ingest::grpc::proto::opentelemetry::proto::metrics::v1::Exemplar
+pub fn ingest::grpc::proto::opentelemetry::proto::metrics::v1::Exemplar::default() -> Self
+impl core::fmt::Debug for ingest::grpc::proto::opentelemetry::proto::metrics::v1::Exemplar
+pub fn ingest::grpc::proto::opentelemetry::proto::metrics::v1::Exemplar::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for ingest::grpc::proto::opentelemetry::proto::metrics::v1::Exemplar
+impl prost::message::Message for ingest::grpc::proto::opentelemetry::proto::metrics::v1::Exemplar
+pub fn ingest::grpc::proto::opentelemetry::proto::metrics::v1::Exemplar::clear(&mut self)
+pub fn ingest::grpc::proto::opentelemetry::proto::metrics::v1::Exemplar::encoded_len(&self) -> usize
+impl core::marker::Freeze for ingest::grpc::proto::opentelemetry::proto::metrics::v1::Exemplar
+impl core::marker::Send for ingest::grpc::proto::opentelemetry::proto::metrics::v1::Exemplar
+impl core::marker::Sync for ingest::grpc::proto::opentelemetry::proto::metrics::v1::Exemplar
+impl core::marker::Unpin for ingest::grpc::proto::opentelemetry::proto::metrics::v1::Exemplar
+impl core::marker::UnsafeUnpin for ingest::grpc::proto::opentelemetry::proto::metrics::v1::Exemplar
+impl core::panic::unwind_safe::RefUnwindSafe for ingest::grpc::proto::opentelemetry::proto::metrics::v1::Exemplar
+impl core::panic::unwind_safe::UnwindSafe for ingest::grpc::proto::opentelemetry::proto::metrics::v1::Exemplar
+pub struct ingest::grpc::proto::opentelemetry::proto::metrics::v1::ExponentialHistogram
+pub ingest::grpc::proto::opentelemetry::proto::metrics::v1::ExponentialHistogram::aggregation_temporality: i32
+pub ingest::grpc::proto::opentelemetry::proto::metrics::v1::ExponentialHistogram::data_points: alloc::vec::Vec<ingest::grpc::proto::opentelemetry::proto::metrics::v1::ExponentialHistogramDataPoint>
+impl ingest::grpc::proto::opentelemetry::proto::metrics::v1::ExponentialHistogram
+pub fn ingest::grpc::proto::opentelemetry::proto::metrics::v1::ExponentialHistogram::aggregation_temporality(&self) -> ingest::grpc::proto::opentelemetry::proto::metrics::v1::AggregationTemporality
+pub fn ingest::grpc::proto::opentelemetry::proto::metrics::v1::ExponentialHistogram::set_aggregation_temporality(&mut self, value: ingest::grpc::proto::opentelemetry::proto::metrics::v1::AggregationTemporality)
+impl core::clone::Clone for ingest::grpc::proto::opentelemetry::proto::metrics::v1::ExponentialHistogram
+pub fn ingest::grpc::proto::opentelemetry::proto::metrics::v1::ExponentialHistogram::clone(&self) -> ingest::grpc::proto::opentelemetry::proto::metrics::v1::ExponentialHistogram
+impl core::cmp::PartialEq for ingest::grpc::proto::opentelemetry::proto::metrics::v1::ExponentialHistogram
+pub fn ingest::grpc::proto::opentelemetry::proto::metrics::v1::ExponentialHistogram::eq(&self, other: &ingest::grpc::proto::opentelemetry::proto::metrics::v1::ExponentialHistogram) -> bool
+impl core::default::Default for ingest::grpc::proto::opentelemetry::proto::metrics::v1::ExponentialHistogram
+pub fn ingest::grpc::proto::opentelemetry::proto::metrics::v1::ExponentialHistogram::default() -> Self
+impl core::fmt::Debug for ingest::grpc::proto::opentelemetry::proto::metrics::v1::ExponentialHistogram
+pub fn ingest::grpc::proto::opentelemetry::proto::metrics::v1::ExponentialHistogram::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for ingest::grpc::proto::opentelemetry::proto::metrics::v1::ExponentialHistogram
+impl prost::message::Message for ingest::grpc::proto::opentelemetry::proto::metrics::v1::ExponentialHistogram
+pub fn ingest::grpc::proto::opentelemetry::proto::metrics::v1::ExponentialHistogram::clear(&mut self)
+pub fn ingest::grpc::proto::opentelemetry::proto::metrics::v1::ExponentialHistogram::encoded_len(&self) -> usize
+impl core::marker::Freeze for ingest::grpc::proto::opentelemetry::proto::metrics::v1::ExponentialHistogram
+impl core::marker::Send for ingest::grpc::proto::opentelemetry::proto::metrics::v1::ExponentialHistogram
+impl core::marker::Sync for ingest::grpc::proto::opentelemetry::proto::metrics::v1::ExponentialHistogram
+impl core::marker::Unpin for ingest::grpc::proto::opentelemetry::proto::metrics::v1::ExponentialHistogram
+impl core::marker::UnsafeUnpin for ingest::grpc::proto::opentelemetry::proto::metrics::v1::ExponentialHistogram
+impl core::panic::unwind_safe::RefUnwindSafe for ingest::grpc::proto::opentelemetry::proto::metrics::v1::ExponentialHistogram
+impl core::panic::unwind_safe::UnwindSafe for ingest::grpc::proto::opentelemetry::proto::metrics::v1::ExponentialHistogram
+pub struct ingest::grpc::proto::opentelemetry::proto::metrics::v1::ExponentialHistogramDataPoint
+pub ingest::grpc::proto::opentelemetry::proto::metrics::v1::ExponentialHistogramDataPoint::attributes: alloc::vec::Vec<ingest::grpc::proto::opentelemetry::proto::common::v1::KeyValue>
+pub ingest::grpc::proto::opentelemetry::proto::metrics::v1::ExponentialHistogramDataPoint::count: u64
+pub ingest::grpc::proto::opentelemetry::proto::metrics::v1::ExponentialHistogramDataPoint::exemplars: alloc::vec::Vec<ingest::grpc::proto::opentelemetry::proto::metrics::v1::Exemplar>
+pub ingest::grpc::proto::opentelemetry::proto::metrics::v1::ExponentialHistogramDataPoint::flags: u32
+pub ingest::grpc::proto::opentelemetry::proto::metrics::v1::ExponentialHistogramDataPoint::max: core::option::Option<f64>
+pub ingest::grpc::proto::opentelemetry::proto::metrics::v1::ExponentialHistogramDataPoint::min: core::option::Option<f64>
+pub ingest::grpc::proto::opentelemetry::proto::metrics::v1::ExponentialHistogramDataPoint::negative: core::option::Option<ingest::grpc::proto::opentelemetry::proto::metrics::v1::exponential_histogram_data_point::Buckets>
+pub ingest::grpc::proto::opentelemetry::proto::metrics::v1::ExponentialHistogramDataPoint::positive: core::option::Option<ingest::grpc::proto::opentelemetry::proto::metrics::v1::exponential_histogram_data_point::Buckets>
+pub ingest::grpc::proto::opentelemetry::proto::metrics::v1::ExponentialHistogramDataPoint::scale: i32
+pub ingest::grpc::proto::opentelemetry::proto::metrics::v1::ExponentialHistogramDataPoint::start_time_unix_nano: u64
+pub ingest::grpc::proto::opentelemetry::proto::metrics::v1::ExponentialHistogramDataPoint::sum: f64
+pub ingest::grpc::proto::opentelemetry::proto::metrics::v1::ExponentialHistogramDataPoint::time_unix_nano: u64
+pub ingest::grpc::proto::opentelemetry::proto::metrics::v1::ExponentialHistogramDataPoint::zero_count: u64
+pub ingest::grpc::proto::opentelemetry::proto::metrics::v1::ExponentialHistogramDataPoint::zero_threshold: f64
+impl ingest::grpc::proto::opentelemetry::proto::metrics::v1::ExponentialHistogramDataPoint
+pub fn ingest::grpc::proto::opentelemetry::proto::metrics::v1::ExponentialHistogramDataPoint::max(&self) -> f64
+pub fn ingest::grpc::proto::opentelemetry::proto::metrics::v1::ExponentialHistogramDataPoint::min(&self) -> f64
+impl core::clone::Clone for ingest::grpc::proto::opentelemetry::proto::metrics::v1::ExponentialHistogramDataPoint
+pub fn ingest::grpc::proto::opentelemetry::proto::metrics::v1::ExponentialHistogramDataPoint::clone(&self) -> ingest::grpc::proto::opentelemetry::proto::metrics::v1::ExponentialHistogramDataPoint
+impl core::cmp::PartialEq for ingest::grpc::proto::opentelemetry::proto::metrics::v1::ExponentialHistogramDataPoint
+pub fn ingest::grpc::proto::opentelemetry::proto::metrics::v1::ExponentialHistogramDataPoint::eq(&self, other: &ingest::grpc::proto::opentelemetry::proto::metrics::v1::ExponentialHistogramDataPoint) -> bool
+impl core::default::Default for ingest::grpc::proto::opentelemetry::proto::metrics::v1::ExponentialHistogramDataPoint
+pub fn ingest::grpc::proto::opentelemetry::proto::metrics::v1::ExponentialHistogramDataPoint::default() -> Self
+impl core::fmt::Debug for ingest::grpc::proto::opentelemetry::proto::metrics::v1::ExponentialHistogramDataPoint
+pub fn ingest::grpc::proto::opentelemetry::proto::metrics::v1::ExponentialHistogramDataPoint::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for ingest::grpc::proto::opentelemetry::proto::metrics::v1::ExponentialHistogramDataPoint
+impl prost::message::Message for ingest::grpc::proto::opentelemetry::proto::metrics::v1::ExponentialHistogramDataPoint
+pub fn ingest::grpc::proto::opentelemetry::proto::metrics::v1::ExponentialHistogramDataPoint::clear(&mut self)
+pub fn ingest::grpc::proto::opentelemetry::proto::metrics::v1::ExponentialHistogramDataPoint::encoded_len(&self) -> usize
+impl core::marker::Freeze for ingest::grpc::proto::opentelemetry::proto::metrics::v1::ExponentialHistogramDataPoint
+impl core::marker::Send for ingest::grpc::proto::opentelemetry::proto::metrics::v1::ExponentialHistogramDataPoint
+impl core::marker::Sync for ingest::grpc::proto::opentelemetry::proto::metrics::v1::ExponentialHistogramDataPoint
+impl core::marker::Unpin for ingest::grpc::proto::opentelemetry::proto::metrics::v1::ExponentialHistogramDataPoint
+impl core::marker::UnsafeUnpin for ingest::grpc::proto::opentelemetry::proto::metrics::v1::ExponentialHistogramDataPoint
+impl core::panic::unwind_safe::RefUnwindSafe for ingest::grpc::proto::opentelemetry::proto::metrics::v1::ExponentialHistogramDataPoint
+impl core::panic::unwind_safe::UnwindSafe for ingest::grpc::proto::opentelemetry::proto::metrics::v1::ExponentialHistogramDataPoint
+pub struct ingest::grpc::proto::opentelemetry::proto::metrics::v1::Gauge
+pub ingest::grpc::proto::opentelemetry::proto::metrics::v1::Gauge::data_points: alloc::vec::Vec<ingest::grpc::proto::opentelemetry::proto::metrics::v1::NumberDataPoint>
+impl core::clone::Clone for ingest::grpc::proto::opentelemetry::proto::metrics::v1::Gauge
+pub fn ingest::grpc::proto::opentelemetry::proto::metrics::v1::Gauge::clone(&self) -> ingest::grpc::proto::opentelemetry::proto::metrics::v1::Gauge
+impl core::cmp::PartialEq for ingest::grpc::proto::opentelemetry::proto::metrics::v1::Gauge
+pub fn ingest::grpc::proto::opentelemetry::proto::metrics::v1::Gauge::eq(&self, other: &ingest::grpc::proto::opentelemetry::proto::metrics::v1::Gauge) -> bool
+impl core::default::Default for ingest::grpc::proto::opentelemetry::proto::metrics::v1::Gauge
+pub fn ingest::grpc::proto::opentelemetry::proto::metrics::v1::Gauge::default() -> Self
+impl core::fmt::Debug for ingest::grpc::proto::opentelemetry::proto::metrics::v1::Gauge
+pub fn ingest::grpc::proto::opentelemetry::proto::metrics::v1::Gauge::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for ingest::grpc::proto::opentelemetry::proto::metrics::v1::Gauge
+impl prost::message::Message for ingest::grpc::proto::opentelemetry::proto::metrics::v1::Gauge
+pub fn ingest::grpc::proto::opentelemetry::proto::metrics::v1::Gauge::clear(&mut self)
+pub fn ingest::grpc::proto::opentelemetry::proto::metrics::v1::Gauge::encoded_len(&self) -> usize
+impl core::marker::Freeze for ingest::grpc::proto::opentelemetry::proto::metrics::v1::Gauge
+impl core::marker::Send for ingest::grpc::proto::opentelemetry::proto::metrics::v1::Gauge
+impl core::marker::Sync for ingest::grpc::proto::opentelemetry::proto::metrics::v1::Gauge
+impl core::marker::Unpin for ingest::grpc::proto::opentelemetry::proto::metrics::v1::Gauge
+impl core::marker::UnsafeUnpin for ingest::grpc::proto::opentelemetry::proto::metrics::v1::Gauge
+impl core::panic::unwind_safe::RefUnwindSafe for ingest::grpc::proto::opentelemetry::proto::metrics::v1::Gauge
+impl core::panic::unwind_safe::UnwindSafe for ingest::grpc::proto::opentelemetry::proto::metrics::v1::Gauge
+pub struct ingest::grpc::proto::opentelemetry::proto::metrics::v1::Histogram
+pub ingest::grpc::proto::opentelemetry::proto::metrics::v1::Histogram::aggregation_temporality: i32
+pub ingest::grpc::proto::opentelemetry::proto::metrics::v1::Histogram::data_points: alloc::vec::Vec<ingest::grpc::proto::opentelemetry::proto::metrics::v1::HistogramDataPoint>
+impl ingest::grpc::proto::opentelemetry::proto::metrics::v1::Histogram
+pub fn ingest::grpc::proto::opentelemetry::proto::metrics::v1::Histogram::aggregation_temporality(&self) -> ingest::grpc::proto::opentelemetry::proto::metrics::v1::AggregationTemporality
+pub fn ingest::grpc::proto::opentelemetry::proto::metrics::v1::Histogram::set_aggregation_temporality(&mut self, value: ingest::grpc::proto::opentelemetry::proto::metrics::v1::AggregationTemporality)
+impl core::clone::Clone for ingest::grpc::proto::opentelemetry::proto::metrics::v1::Histogram
+pub fn ingest::grpc::proto::opentelemetry::proto::metrics::v1::Histogram::clone(&self) -> ingest::grpc::proto::opentelemetry::proto::metrics::v1::Histogram
+impl core::cmp::PartialEq for ingest::grpc::proto::opentelemetry::proto::metrics::v1::Histogram
+pub fn ingest::grpc::proto::opentelemetry::proto::metrics::v1::Histogram::eq(&self, other: &ingest::grpc::proto::opentelemetry::proto::metrics::v1::Histogram) -> bool
+impl core::default::Default for ingest::grpc::proto::opentelemetry::proto::metrics::v1::Histogram
+pub fn ingest::grpc::proto::opentelemetry::proto::metrics::v1::Histogram::default() -> Self
+impl core::fmt::Debug for ingest::grpc::proto::opentelemetry::proto::metrics::v1::Histogram
+pub fn ingest::grpc::proto::opentelemetry::proto::metrics::v1::Histogram::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for ingest::grpc::proto::opentelemetry::proto::metrics::v1::Histogram
+impl prost::message::Message for ingest::grpc::proto::opentelemetry::proto::metrics::v1::Histogram
+pub fn ingest::grpc::proto::opentelemetry::proto::metrics::v1::Histogram::clear(&mut self)
+pub fn ingest::grpc::proto::opentelemetry::proto::metrics::v1::Histogram::encoded_len(&self) -> usize
+impl core::marker::Freeze for ingest::grpc::proto::opentelemetry::proto::metrics::v1::Histogram
+impl core::marker::Send for ingest::grpc::proto::opentelemetry::proto::metrics::v1::Histogram
+impl core::marker::Sync for ingest::grpc::proto::opentelemetry::proto::metrics::v1::Histogram
+impl core::marker::Unpin for ingest::grpc::proto::opentelemetry::proto::metrics::v1::Histogram
+impl core::marker::UnsafeUnpin for ingest::grpc::proto::opentelemetry::proto::metrics::v1::Histogram
+impl core::panic::unwind_safe::RefUnwindSafe for ingest::grpc::proto::opentelemetry::proto::metrics::v1::Histogram
+impl core::panic::unwind_safe::UnwindSafe for ingest::grpc::proto::opentelemetry::proto::metrics::v1::Histogram
+pub struct ingest::grpc::proto::opentelemetry::proto::metrics::v1::HistogramDataPoint
+pub ingest::grpc::proto::opentelemetry::proto::metrics::v1::HistogramDataPoint::attributes: alloc::vec::Vec<ingest::grpc::proto::opentelemetry::proto::common::v1::KeyValue>
+pub ingest::grpc::proto::opentelemetry::proto::metrics::v1::HistogramDataPoint::bucket_counts: alloc::vec::Vec<u64>
+pub ingest::grpc::proto::opentelemetry::proto::metrics::v1::HistogramDataPoint::count: u64
+pub ingest::grpc::proto::opentelemetry::proto::metrics::v1::HistogramDataPoint::exemplars: alloc::vec::Vec<ingest::grpc::proto::opentelemetry::proto::metrics::v1::Exemplar>
+pub ingest::grpc::proto::opentelemetry::proto::metrics::v1::HistogramDataPoint::explicit_bounds: alloc::vec::Vec<f64>
+pub ingest::grpc::proto::opentelemetry::proto::metrics::v1::HistogramDataPoint::flags: u32
+pub ingest::grpc::proto::opentelemetry::proto::metrics::v1::HistogramDataPoint::max: core::option::Option<f64>
+pub ingest::grpc::proto::opentelemetry::proto::metrics::v1::HistogramDataPoint::min: core::option::Option<f64>
+pub ingest::grpc::proto::opentelemetry::proto::metrics::v1::HistogramDataPoint::start_time_unix_nano: u64
+pub ingest::grpc::proto::opentelemetry::proto::metrics::v1::HistogramDataPoint::sum: core::option::Option<f64>
+pub ingest::grpc::proto::opentelemetry::proto::metrics::v1::HistogramDataPoint::time_unix_nano: u64
+impl ingest::grpc::proto::opentelemetry::proto::metrics::v1::HistogramDataPoint
+pub fn ingest::grpc::proto::opentelemetry::proto::metrics::v1::HistogramDataPoint::max(&self) -> f64
+pub fn ingest::grpc::proto::opentelemetry::proto::metrics::v1::HistogramDataPoint::min(&self) -> f64
+pub fn ingest::grpc::proto::opentelemetry::proto::metrics::v1::HistogramDataPoint::sum(&self) -> f64
+impl core::clone::Clone for ingest::grpc::proto::opentelemetry::proto::metrics::v1::HistogramDataPoint
+pub fn ingest::grpc::proto::opentelemetry::proto::metrics::v1::HistogramDataPoint::clone(&self) -> ingest::grpc::proto::opentelemetry::proto::metrics::v1::HistogramDataPoint
+impl core::cmp::PartialEq for ingest::grpc::proto::opentelemetry::proto::metrics::v1::HistogramDataPoint
+pub fn ingest::grpc::proto::opentelemetry::proto::metrics::v1::HistogramDataPoint::eq(&self, other: &ingest::grpc::proto::opentelemetry::proto::metrics::v1::HistogramDataPoint) -> bool
+impl core::default::Default for ingest::grpc::proto::opentelemetry::proto::metrics::v1::HistogramDataPoint
+pub fn ingest::grpc::proto::opentelemetry::proto::metrics::v1::HistogramDataPoint::default() -> Self
+impl core::fmt::Debug for ingest::grpc::proto::opentelemetry::proto::metrics::v1::HistogramDataPoint
+pub fn ingest::grpc::proto::opentelemetry::proto::metrics::v1::HistogramDataPoint::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for ingest::grpc::proto::opentelemetry::proto::metrics::v1::HistogramDataPoint
+impl prost::message::Message for ingest::grpc::proto::opentelemetry::proto::metrics::v1::HistogramDataPoint
+pub fn ingest::grpc::proto::opentelemetry::proto::metrics::v1::HistogramDataPoint::clear(&mut self)
+pub fn ingest::grpc::proto::opentelemetry::proto::metrics::v1::HistogramDataPoint::encoded_len(&self) -> usize
+impl core::marker::Freeze for ingest::grpc::proto::opentelemetry::proto::metrics::v1::HistogramDataPoint
+impl core::marker::Send for ingest::grpc::proto::opentelemetry::proto::metrics::v1::HistogramDataPoint
+impl core::marker::Sync for ingest::grpc::proto::opentelemetry::proto::metrics::v1::HistogramDataPoint
+impl core::marker::Unpin for ingest::grpc::proto::opentelemetry::proto::metrics::v1::HistogramDataPoint
+impl core::marker::UnsafeUnpin for ingest::grpc::proto::opentelemetry::proto::metrics::v1::HistogramDataPoint
+impl core::panic::unwind_safe::RefUnwindSafe for ingest::grpc::proto::opentelemetry::proto::metrics::v1::HistogramDataPoint
+impl core::panic::unwind_safe::UnwindSafe for ingest::grpc::proto::opentelemetry::proto::metrics::v1::HistogramDataPoint
+pub struct ingest::grpc::proto::opentelemetry::proto::metrics::v1::Metric
+pub ingest::grpc::proto::opentelemetry::proto::metrics::v1::Metric::data: core::option::Option<ingest::grpc::proto::opentelemetry::proto::metrics::v1::metric::Data>
+pub ingest::grpc::proto::opentelemetry::proto::metrics::v1::Metric::description: alloc::string::String
+pub ingest::grpc::proto::opentelemetry::proto::metrics::v1::Metric::metadata: alloc::vec::Vec<ingest::grpc::proto::opentelemetry::proto::common::v1::KeyValue>
+pub ingest::grpc::proto::opentelemetry::proto::metrics::v1::Metric::name: alloc::string::String
+pub ingest::grpc::proto::opentelemetry::proto::metrics::v1::Metric::unit: alloc::string::String
+impl core::clone::Clone for ingest::grpc::proto::opentelemetry::proto::metrics::v1::Metric
+pub fn ingest::grpc::proto::opentelemetry::proto::metrics::v1::Metric::clone(&self) -> ingest::grpc::proto::opentelemetry::proto::metrics::v1::Metric
+impl core::cmp::PartialEq for ingest::grpc::proto::opentelemetry::proto::metrics::v1::Metric
+pub fn ingest::grpc::proto::opentelemetry::proto::metrics::v1::Metric::eq(&self, other: &ingest::grpc::proto::opentelemetry::proto::metrics::v1::Metric) -> bool
+impl core::default::Default for ingest::grpc::proto::opentelemetry::proto::metrics::v1::Metric
+pub fn ingest::grpc::proto::opentelemetry::proto::metrics::v1::Metric::default() -> Self
+impl core::fmt::Debug for ingest::grpc::proto::opentelemetry::proto::metrics::v1::Metric
+pub fn ingest::grpc::proto::opentelemetry::proto::metrics::v1::Metric::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for ingest::grpc::proto::opentelemetry::proto::metrics::v1::Metric
+impl prost::message::Message for ingest::grpc::proto::opentelemetry::proto::metrics::v1::Metric
+pub fn ingest::grpc::proto::opentelemetry::proto::metrics::v1::Metric::clear(&mut self)
+pub fn ingest::grpc::proto::opentelemetry::proto::metrics::v1::Metric::encoded_len(&self) -> usize
+impl core::marker::Freeze for ingest::grpc::proto::opentelemetry::proto::metrics::v1::Metric
+impl core::marker::Send for ingest::grpc::proto::opentelemetry::proto::metrics::v1::Metric
+impl core::marker::Sync for ingest::grpc::proto::opentelemetry::proto::metrics::v1::Metric
+impl core::marker::Unpin for ingest::grpc::proto::opentelemetry::proto::metrics::v1::Metric
+impl core::marker::UnsafeUnpin for ingest::grpc::proto::opentelemetry::proto::metrics::v1::Metric
+impl core::panic::unwind_safe::RefUnwindSafe for ingest::grpc::proto::opentelemetry::proto::metrics::v1::Metric
+impl core::panic::unwind_safe::UnwindSafe for ingest::grpc::proto::opentelemetry::proto::metrics::v1::Metric
+pub struct ingest::grpc::proto::opentelemetry::proto::metrics::v1::MetricsData
+pub ingest::grpc::proto::opentelemetry::proto::metrics::v1::MetricsData::resource_metrics: alloc::vec::Vec<ingest::grpc::proto::opentelemetry::proto::metrics::v1::ResourceMetrics>
+impl core::clone::Clone for ingest::grpc::proto::opentelemetry::proto::metrics::v1::MetricsData
+pub fn ingest::grpc::proto::opentelemetry::proto::metrics::v1::MetricsData::clone(&self) -> ingest::grpc::proto::opentelemetry::proto::metrics::v1::MetricsData
+impl core::cmp::PartialEq for ingest::grpc::proto::opentelemetry::proto::metrics::v1::MetricsData
+pub fn ingest::grpc::proto::opentelemetry::proto::metrics::v1::MetricsData::eq(&self, other: &ingest::grpc::proto::opentelemetry::proto::metrics::v1::MetricsData) -> bool
+impl core::default::Default for ingest::grpc::proto::opentelemetry::proto::metrics::v1::MetricsData
+pub fn ingest::grpc::proto::opentelemetry::proto::metrics::v1::MetricsData::default() -> Self
+impl core::fmt::Debug for ingest::grpc::proto::opentelemetry::proto::metrics::v1::MetricsData
+pub fn ingest::grpc::proto::opentelemetry::proto::metrics::v1::MetricsData::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for ingest::grpc::proto::opentelemetry::proto::metrics::v1::MetricsData
+impl prost::message::Message for ingest::grpc::proto::opentelemetry::proto::metrics::v1::MetricsData
+pub fn ingest::grpc::proto::opentelemetry::proto::metrics::v1::MetricsData::clear(&mut self)
+pub fn ingest::grpc::proto::opentelemetry::proto::metrics::v1::MetricsData::encoded_len(&self) -> usize
+impl core::marker::Freeze for ingest::grpc::proto::opentelemetry::proto::metrics::v1::MetricsData
+impl core::marker::Send for ingest::grpc::proto::opentelemetry::proto::metrics::v1::MetricsData
+impl core::marker::Sync for ingest::grpc::proto::opentelemetry::proto::metrics::v1::MetricsData
+impl core::marker::Unpin for ingest::grpc::proto::opentelemetry::proto::metrics::v1::MetricsData
+impl core::marker::UnsafeUnpin for ingest::grpc::proto::opentelemetry::proto::metrics::v1::MetricsData
+impl core::panic::unwind_safe::RefUnwindSafe for ingest::grpc::proto::opentelemetry::proto::metrics::v1::MetricsData
+impl core::panic::unwind_safe::UnwindSafe for ingest::grpc::proto::opentelemetry::proto::metrics::v1::MetricsData
+pub struct ingest::grpc::proto::opentelemetry::proto::metrics::v1::NumberDataPoint
+pub ingest::grpc::proto::opentelemetry::proto::metrics::v1::NumberDataPoint::attributes: alloc::vec::Vec<ingest::grpc::proto::opentelemetry::proto::common::v1::KeyValue>
+pub ingest::grpc::proto::opentelemetry::proto::metrics::v1::NumberDataPoint::exemplars: alloc::vec::Vec<ingest::grpc::proto::opentelemetry::proto::metrics::v1::Exemplar>
+pub ingest::grpc::proto::opentelemetry::proto::metrics::v1::NumberDataPoint::flags: u32
+pub ingest::grpc::proto::opentelemetry::proto::metrics::v1::NumberDataPoint::start_time_unix_nano: u64
+pub ingest::grpc::proto::opentelemetry::proto::metrics::v1::NumberDataPoint::time_unix_nano: u64
+pub ingest::grpc::proto::opentelemetry::proto::metrics::v1::NumberDataPoint::value: core::option::Option<ingest::grpc::proto::opentelemetry::proto::metrics::v1::number_data_point::Value>
+impl core::clone::Clone for ingest::grpc::proto::opentelemetry::proto::metrics::v1::NumberDataPoint
+pub fn ingest::grpc::proto::opentelemetry::proto::metrics::v1::NumberDataPoint::clone(&self) -> ingest::grpc::proto::opentelemetry::proto::metrics::v1::NumberDataPoint
+impl core::cmp::PartialEq for ingest::grpc::proto::opentelemetry::proto::metrics::v1::NumberDataPoint
+pub fn ingest::grpc::proto::opentelemetry::proto::metrics::v1::NumberDataPoint::eq(&self, other: &ingest::grpc::proto::opentelemetry::proto::metrics::v1::NumberDataPoint) -> bool
+impl core::default::Default for ingest::grpc::proto::opentelemetry::proto::metrics::v1::NumberDataPoint
+pub fn ingest::grpc::proto::opentelemetry::proto::metrics::v1::NumberDataPoint::default() -> Self
+impl core::fmt::Debug for ingest::grpc::proto::opentelemetry::proto::metrics::v1::NumberDataPoint
+pub fn ingest::grpc::proto::opentelemetry::proto::metrics::v1::NumberDataPoint::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for ingest::grpc::proto::opentelemetry::proto::metrics::v1::NumberDataPoint
+impl prost::message::Message for ingest::grpc::proto::opentelemetry::proto::metrics::v1::NumberDataPoint
+pub fn ingest::grpc::proto::opentelemetry::proto::metrics::v1::NumberDataPoint::clear(&mut self)
+pub fn ingest::grpc::proto::opentelemetry::proto::metrics::v1::NumberDataPoint::encoded_len(&self) -> usize
+impl core::marker::Freeze for ingest::grpc::proto::opentelemetry::proto::metrics::v1::NumberDataPoint
+impl core::marker::Send for ingest::grpc::proto::opentelemetry::proto::metrics::v1::NumberDataPoint
+impl core::marker::Sync for ingest::grpc::proto::opentelemetry::proto::metrics::v1::NumberDataPoint
+impl core::marker::Unpin for ingest::grpc::proto::opentelemetry::proto::metrics::v1::NumberDataPoint
+impl core::marker::UnsafeUnpin for ingest::grpc::proto::opentelemetry::proto::metrics::v1::NumberDataPoint
+impl core::panic::unwind_safe::RefUnwindSafe for ingest::grpc::proto::opentelemetry::proto::metrics::v1::NumberDataPoint
+impl core::panic::unwind_safe::UnwindSafe for ingest::grpc::proto::opentelemetry::proto::metrics::v1::NumberDataPoint
+pub struct ingest::grpc::proto::opentelemetry::proto::metrics::v1::ResourceMetrics
+pub ingest::grpc::proto::opentelemetry::proto::metrics::v1::ResourceMetrics::resource: core::option::Option<ingest::grpc::proto::opentelemetry::proto::resource::v1::Resource>
+pub ingest::grpc::proto::opentelemetry::proto::metrics::v1::ResourceMetrics::schema_url: alloc::string::String
+pub ingest::grpc::proto::opentelemetry::proto::metrics::v1::ResourceMetrics::scope_metrics: alloc::vec::Vec<ingest::grpc::proto::opentelemetry::proto::metrics::v1::ScopeMetrics>
+impl core::clone::Clone for ingest::grpc::proto::opentelemetry::proto::metrics::v1::ResourceMetrics
+pub fn ingest::grpc::proto::opentelemetry::proto::metrics::v1::ResourceMetrics::clone(&self) -> ingest::grpc::proto::opentelemetry::proto::metrics::v1::ResourceMetrics
+impl core::cmp::PartialEq for ingest::grpc::proto::opentelemetry::proto::metrics::v1::ResourceMetrics
+pub fn ingest::grpc::proto::opentelemetry::proto::metrics::v1::ResourceMetrics::eq(&self, other: &ingest::grpc::proto::opentelemetry::proto::metrics::v1::ResourceMetrics) -> bool
+impl core::default::Default for ingest::grpc::proto::opentelemetry::proto::metrics::v1::ResourceMetrics
+pub fn ingest::grpc::proto::opentelemetry::proto::metrics::v1::ResourceMetrics::default() -> Self
+impl core::fmt::Debug for ingest::grpc::proto::opentelemetry::proto::metrics::v1::ResourceMetrics
+pub fn ingest::grpc::proto::opentelemetry::proto::metrics::v1::ResourceMetrics::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for ingest::grpc::proto::opentelemetry::proto::metrics::v1::ResourceMetrics
+impl prost::message::Message for ingest::grpc::proto::opentelemetry::proto::metrics::v1::ResourceMetrics
+pub fn ingest::grpc::proto::opentelemetry::proto::metrics::v1::ResourceMetrics::clear(&mut self)
+pub fn ingest::grpc::proto::opentelemetry::proto::metrics::v1::ResourceMetrics::encoded_len(&self) -> usize
+impl core::marker::Freeze for ingest::grpc::proto::opentelemetry::proto::metrics::v1::ResourceMetrics
+impl core::marker::Send for ingest::grpc::proto::opentelemetry::proto::metrics::v1::ResourceMetrics
+impl core::marker::Sync for ingest::grpc::proto::opentelemetry::proto::metrics::v1::ResourceMetrics
+impl core::marker::Unpin for ingest::grpc::proto::opentelemetry::proto::metrics::v1::ResourceMetrics
+impl core::marker::UnsafeUnpin for ingest::grpc::proto::opentelemetry::proto::metrics::v1::ResourceMetrics
+impl core::panic::unwind_safe::RefUnwindSafe for ingest::grpc::proto::opentelemetry::proto::metrics::v1::ResourceMetrics
+impl core::panic::unwind_safe::UnwindSafe for ingest::grpc::proto::opentelemetry::proto::metrics::v1::ResourceMetrics
+pub struct ingest::grpc::proto::opentelemetry::proto::metrics::v1::ScopeMetrics
+pub ingest::grpc::proto::opentelemetry::proto::metrics::v1::ScopeMetrics::metrics: alloc::vec::Vec<ingest::grpc::proto::opentelemetry::proto::metrics::v1::Metric>
+pub ingest::grpc::proto::opentelemetry::proto::metrics::v1::ScopeMetrics::schema_url: alloc::string::String
+pub ingest::grpc::proto::opentelemetry::proto::metrics::v1::ScopeMetrics::scope: core::option::Option<ingest::grpc::proto::opentelemetry::proto::common::v1::InstrumentationScope>
+impl core::clone::Clone for ingest::grpc::proto::opentelemetry::proto::metrics::v1::ScopeMetrics
+pub fn ingest::grpc::proto::opentelemetry::proto::metrics::v1::ScopeMetrics::clone(&self) -> ingest::grpc::proto::opentelemetry::proto::metrics::v1::ScopeMetrics
+impl core::cmp::PartialEq for ingest::grpc::proto::opentelemetry::proto::metrics::v1::ScopeMetrics
+pub fn ingest::grpc::proto::opentelemetry::proto::metrics::v1::ScopeMetrics::eq(&self, other: &ingest::grpc::proto::opentelemetry::proto::metrics::v1::ScopeMetrics) -> bool
+impl core::default::Default for ingest::grpc::proto::opentelemetry::proto::metrics::v1::ScopeMetrics
+pub fn ingest::grpc::proto::opentelemetry::proto::metrics::v1::ScopeMetrics::default() -> Self
+impl core::fmt::Debug for ingest::grpc::proto::opentelemetry::proto::metrics::v1::ScopeMetrics
+pub fn ingest::grpc::proto::opentelemetry::proto::metrics::v1::ScopeMetrics::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for ingest::grpc::proto::opentelemetry::proto::metrics::v1::ScopeMetrics
+impl prost::message::Message for ingest::grpc::proto::opentelemetry::proto::metrics::v1::ScopeMetrics
+pub fn ingest::grpc::proto::opentelemetry::proto::metrics::v1::ScopeMetrics::clear(&mut self)
+pub fn ingest::grpc::proto::opentelemetry::proto::metrics::v1::ScopeMetrics::encoded_len(&self) -> usize
+impl core::marker::Freeze for ingest::grpc::proto::opentelemetry::proto::metrics::v1::ScopeMetrics
+impl core::marker::Send for ingest::grpc::proto::opentelemetry::proto::metrics::v1::ScopeMetrics
+impl core::marker::Sync for ingest::grpc::proto::opentelemetry::proto::metrics::v1::ScopeMetrics
+impl core::marker::Unpin for ingest::grpc::proto::opentelemetry::proto::metrics::v1::ScopeMetrics
+impl core::marker::UnsafeUnpin for ingest::grpc::proto::opentelemetry::proto::metrics::v1::ScopeMetrics
+impl core::panic::unwind_safe::RefUnwindSafe for ingest::grpc::proto::opentelemetry::proto::metrics::v1::ScopeMetrics
+impl core::panic::unwind_safe::UnwindSafe for ingest::grpc::proto::opentelemetry::proto::metrics::v1::ScopeMetrics
+pub struct ingest::grpc::proto::opentelemetry::proto::metrics::v1::Sum
+pub ingest::grpc::proto::opentelemetry::proto::metrics::v1::Sum::aggregation_temporality: i32
+pub ingest::grpc::proto::opentelemetry::proto::metrics::v1::Sum::data_points: alloc::vec::Vec<ingest::grpc::proto::opentelemetry::proto::metrics::v1::NumberDataPoint>
+pub ingest::grpc::proto::opentelemetry::proto::metrics::v1::Sum::is_monotonic: bool
+impl ingest::grpc::proto::opentelemetry::proto::metrics::v1::Sum
+pub fn ingest::grpc::proto::opentelemetry::proto::metrics::v1::Sum::aggregation_temporality(&self) -> ingest::grpc::proto::opentelemetry::proto::metrics::v1::AggregationTemporality
+pub fn ingest::grpc::proto::opentelemetry::proto::metrics::v1::Sum::set_aggregation_temporality(&mut self, value: ingest::grpc::proto::opentelemetry::proto::metrics::v1::AggregationTemporality)
+impl core::clone::Clone for ingest::grpc::proto::opentelemetry::proto::metrics::v1::Sum
+pub fn ingest::grpc::proto::opentelemetry::proto::metrics::v1::Sum::clone(&self) -> ingest::grpc::proto::opentelemetry::proto::metrics::v1::Sum
+impl core::cmp::PartialEq for ingest::grpc::proto::opentelemetry::proto::metrics::v1::Sum
+pub fn ingest::grpc::proto::opentelemetry::proto::metrics::v1::Sum::eq(&self, other: &ingest::grpc::proto::opentelemetry::proto::metrics::v1::Sum) -> bool
+impl core::default::Default for ingest::grpc::proto::opentelemetry::proto::metrics::v1::Sum
+pub fn ingest::grpc::proto::opentelemetry::proto::metrics::v1::Sum::default() -> Self
+impl core::fmt::Debug for ingest::grpc::proto::opentelemetry::proto::metrics::v1::Sum
+pub fn ingest::grpc::proto::opentelemetry::proto::metrics::v1::Sum::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for ingest::grpc::proto::opentelemetry::proto::metrics::v1::Sum
+impl prost::message::Message for ingest::grpc::proto::opentelemetry::proto::metrics::v1::Sum
+pub fn ingest::grpc::proto::opentelemetry::proto::metrics::v1::Sum::clear(&mut self)
+pub fn ingest::grpc::proto::opentelemetry::proto::metrics::v1::Sum::encoded_len(&self) -> usize
+impl core::marker::Freeze for ingest::grpc::proto::opentelemetry::proto::metrics::v1::Sum
+impl core::marker::Send for ingest::grpc::proto::opentelemetry::proto::metrics::v1::Sum
+impl core::marker::Sync for ingest::grpc::proto::opentelemetry::proto::metrics::v1::Sum
+impl core::marker::Unpin for ingest::grpc::proto::opentelemetry::proto::metrics::v1::Sum
+impl core::marker::UnsafeUnpin for ingest::grpc::proto::opentelemetry::proto::metrics::v1::Sum
+impl core::panic::unwind_safe::RefUnwindSafe for ingest::grpc::proto::opentelemetry::proto::metrics::v1::Sum
+impl core::panic::unwind_safe::UnwindSafe for ingest::grpc::proto::opentelemetry::proto::metrics::v1::Sum
+pub struct ingest::grpc::proto::opentelemetry::proto::metrics::v1::Summary
+pub ingest::grpc::proto::opentelemetry::proto::metrics::v1::Summary::data_points: alloc::vec::Vec<ingest::grpc::proto::opentelemetry::proto::metrics::v1::SummaryDataPoint>
+impl core::clone::Clone for ingest::grpc::proto::opentelemetry::proto::metrics::v1::Summary
+pub fn ingest::grpc::proto::opentelemetry::proto::metrics::v1::Summary::clone(&self) -> ingest::grpc::proto::opentelemetry::proto::metrics::v1::Summary
+impl core::cmp::PartialEq for ingest::grpc::proto::opentelemetry::proto::metrics::v1::Summary
+pub fn ingest::grpc::proto::opentelemetry::proto::metrics::v1::Summary::eq(&self, other: &ingest::grpc::proto::opentelemetry::proto::metrics::v1::Summary) -> bool
+impl core::default::Default for ingest::grpc::proto::opentelemetry::proto::metrics::v1::Summary
+pub fn ingest::grpc::proto::opentelemetry::proto::metrics::v1::Summary::default() -> Self
+impl core::fmt::Debug for ingest::grpc::proto::opentelemetry::proto::metrics::v1::Summary
+pub fn ingest::grpc::proto::opentelemetry::proto::metrics::v1::Summary::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for ingest::grpc::proto::opentelemetry::proto::metrics::v1::Summary
+impl prost::message::Message for ingest::grpc::proto::opentelemetry::proto::metrics::v1::Summary
+pub fn ingest::grpc::proto::opentelemetry::proto::metrics::v1::Summary::clear(&mut self)
+pub fn ingest::grpc::proto::opentelemetry::proto::metrics::v1::Summary::encoded_len(&self) -> usize
+impl core::marker::Freeze for ingest::grpc::proto::opentelemetry::proto::metrics::v1::Summary
+impl core::marker::Send for ingest::grpc::proto::opentelemetry::proto::metrics::v1::Summary
+impl core::marker::Sync for ingest::grpc::proto::opentelemetry::proto::metrics::v1::Summary
+impl core::marker::Unpin for ingest::grpc::proto::opentelemetry::proto::metrics::v1::Summary
+impl core::marker::UnsafeUnpin for ingest::grpc::proto::opentelemetry::proto::metrics::v1::Summary
+impl core::panic::unwind_safe::RefUnwindSafe for ingest::grpc::proto::opentelemetry::proto::metrics::v1::Summary
+impl core::panic::unwind_safe::UnwindSafe for ingest::grpc::proto::opentelemetry::proto::metrics::v1::Summary
+pub struct ingest::grpc::proto::opentelemetry::proto::metrics::v1::SummaryDataPoint
+pub ingest::grpc::proto::opentelemetry::proto::metrics::v1::SummaryDataPoint::attributes: alloc::vec::Vec<ingest::grpc::proto::opentelemetry::proto::common::v1::KeyValue>
+pub ingest::grpc::proto::opentelemetry::proto::metrics::v1::SummaryDataPoint::count: u64
+pub ingest::grpc::proto::opentelemetry::proto::metrics::v1::SummaryDataPoint::flags: u32
+pub ingest::grpc::proto::opentelemetry::proto::metrics::v1::SummaryDataPoint::quantile_values: alloc::vec::Vec<ingest::grpc::proto::opentelemetry::proto::metrics::v1::summary_data_point::ValueAtQuantile>
+pub ingest::grpc::proto::opentelemetry::proto::metrics::v1::SummaryDataPoint::start_time_unix_nano: u64
+pub ingest::grpc::proto::opentelemetry::proto::metrics::v1::SummaryDataPoint::sum: f64
+pub ingest::grpc::proto::opentelemetry::proto::metrics::v1::SummaryDataPoint::time_unix_nano: u64
+impl core::clone::Clone for ingest::grpc::proto::opentelemetry::proto::metrics::v1::SummaryDataPoint
+pub fn ingest::grpc::proto::opentelemetry::proto::metrics::v1::SummaryDataPoint::clone(&self) -> ingest::grpc::proto::opentelemetry::proto::metrics::v1::SummaryDataPoint
+impl core::cmp::PartialEq for ingest::grpc::proto::opentelemetry::proto::metrics::v1::SummaryDataPoint
+pub fn ingest::grpc::proto::opentelemetry::proto::metrics::v1::SummaryDataPoint::eq(&self, other: &ingest::grpc::proto::opentelemetry::proto::metrics::v1::SummaryDataPoint) -> bool
+impl core::default::Default for ingest::grpc::proto::opentelemetry::proto::metrics::v1::SummaryDataPoint
+pub fn ingest::grpc::proto::opentelemetry::proto::metrics::v1::SummaryDataPoint::default() -> Self
+impl core::fmt::Debug for ingest::grpc::proto::opentelemetry::proto::metrics::v1::SummaryDataPoint
+pub fn ingest::grpc::proto::opentelemetry::proto::metrics::v1::SummaryDataPoint::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for ingest::grpc::proto::opentelemetry::proto::metrics::v1::SummaryDataPoint
+impl prost::message::Message for ingest::grpc::proto::opentelemetry::proto::metrics::v1::SummaryDataPoint
+pub fn ingest::grpc::proto::opentelemetry::proto::metrics::v1::SummaryDataPoint::clear(&mut self)
+pub fn ingest::grpc::proto::opentelemetry::proto::metrics::v1::SummaryDataPoint::encoded_len(&self) -> usize
+impl core::marker::Freeze for ingest::grpc::proto::opentelemetry::proto::metrics::v1::SummaryDataPoint
+impl core::marker::Send for ingest::grpc::proto::opentelemetry::proto::metrics::v1::SummaryDataPoint
+impl core::marker::Sync for ingest::grpc::proto::opentelemetry::proto::metrics::v1::SummaryDataPoint
+impl core::marker::Unpin for ingest::grpc::proto::opentelemetry::proto::metrics::v1::SummaryDataPoint
+impl core::marker::UnsafeUnpin for ingest::grpc::proto::opentelemetry::proto::metrics::v1::SummaryDataPoint
+impl core::panic::unwind_safe::RefUnwindSafe for ingest::grpc::proto::opentelemetry::proto::metrics::v1::SummaryDataPoint
+impl core::panic::unwind_safe::UnwindSafe for ingest::grpc::proto::opentelemetry::proto::metrics::v1::SummaryDataPoint
+pub mod ingest::grpc::proto::opentelemetry::proto::resource
+pub mod ingest::grpc::proto::opentelemetry::proto::resource::v1
+pub struct ingest::grpc::proto::opentelemetry::proto::resource::v1::Resource
+pub ingest::grpc::proto::opentelemetry::proto::resource::v1::Resource::attributes: alloc::vec::Vec<ingest::grpc::proto::opentelemetry::proto::common::v1::KeyValue>
+pub ingest::grpc::proto::opentelemetry::proto::resource::v1::Resource::dropped_attributes_count: u32
+impl core::clone::Clone for ingest::grpc::proto::opentelemetry::proto::resource::v1::Resource
+pub fn ingest::grpc::proto::opentelemetry::proto::resource::v1::Resource::clone(&self) -> ingest::grpc::proto::opentelemetry::proto::resource::v1::Resource
+impl core::cmp::PartialEq for ingest::grpc::proto::opentelemetry::proto::resource::v1::Resource
+pub fn ingest::grpc::proto::opentelemetry::proto::resource::v1::Resource::eq(&self, other: &ingest::grpc::proto::opentelemetry::proto::resource::v1::Resource) -> bool
+impl core::default::Default for ingest::grpc::proto::opentelemetry::proto::resource::v1::Resource
+pub fn ingest::grpc::proto::opentelemetry::proto::resource::v1::Resource::default() -> Self
+impl core::fmt::Debug for ingest::grpc::proto::opentelemetry::proto::resource::v1::Resource
+pub fn ingest::grpc::proto::opentelemetry::proto::resource::v1::Resource::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for ingest::grpc::proto::opentelemetry::proto::resource::v1::Resource
+impl prost::message::Message for ingest::grpc::proto::opentelemetry::proto::resource::v1::Resource
+pub fn ingest::grpc::proto::opentelemetry::proto::resource::v1::Resource::clear(&mut self)
+pub fn ingest::grpc::proto::opentelemetry::proto::resource::v1::Resource::encoded_len(&self) -> usize
+impl core::marker::Freeze for ingest::grpc::proto::opentelemetry::proto::resource::v1::Resource
+impl core::marker::Send for ingest::grpc::proto::opentelemetry::proto::resource::v1::Resource
+impl core::marker::Sync for ingest::grpc::proto::opentelemetry::proto::resource::v1::Resource
+impl core::marker::Unpin for ingest::grpc::proto::opentelemetry::proto::resource::v1::Resource
+impl core::marker::UnsafeUnpin for ingest::grpc::proto::opentelemetry::proto::resource::v1::Resource
+impl core::panic::unwind_safe::RefUnwindSafe for ingest::grpc::proto::opentelemetry::proto::resource::v1::Resource
+impl core::panic::unwind_safe::UnwindSafe for ingest::grpc::proto::opentelemetry::proto::resource::v1::Resource
+pub mod ingest::grpc::proto::opentelemetry::proto::trace
+pub mod ingest::grpc::proto::opentelemetry::proto::trace::v1
+pub mod ingest::grpc::proto::opentelemetry::proto::trace::v1::span
+#[repr(i32)] pub enum ingest::grpc::proto::opentelemetry::proto::trace::v1::span::SpanKind
+pub ingest::grpc::proto::opentelemetry::proto::trace::v1::span::SpanKind::Client = 3
+pub ingest::grpc::proto::opentelemetry::proto::trace::v1::span::SpanKind::Consumer = 5
+pub ingest::grpc::proto::opentelemetry::proto::trace::v1::span::SpanKind::Internal = 1
+pub ingest::grpc::proto::opentelemetry::proto::trace::v1::span::SpanKind::Producer = 4
+pub ingest::grpc::proto::opentelemetry::proto::trace::v1::span::SpanKind::Server = 2
+pub ingest::grpc::proto::opentelemetry::proto::trace::v1::span::SpanKind::Unspecified = 0
+impl ingest::grpc::proto::opentelemetry::proto::trace::v1::span::SpanKind
+pub fn ingest::grpc::proto::opentelemetry::proto::trace::v1::span::SpanKind::as_str_name(&self) -> &'static str
+pub fn ingest::grpc::proto::opentelemetry::proto::trace::v1::span::SpanKind::from_str_name(value: &str) -> core::option::Option<Self>
+impl ingest::grpc::proto::opentelemetry::proto::trace::v1::span::SpanKind
+pub fn ingest::grpc::proto::opentelemetry::proto::trace::v1::span::SpanKind::from_i32(value: i32) -> core::option::Option<ingest::grpc::proto::opentelemetry::proto::trace::v1::span::SpanKind>
+pub fn ingest::grpc::proto::opentelemetry::proto::trace::v1::span::SpanKind::is_valid(value: i32) -> bool
+impl core::clone::Clone for ingest::grpc::proto::opentelemetry::proto::trace::v1::span::SpanKind
+pub fn ingest::grpc::proto::opentelemetry::proto::trace::v1::span::SpanKind::clone(&self) -> ingest::grpc::proto::opentelemetry::proto::trace::v1::span::SpanKind
+impl core::cmp::Eq for ingest::grpc::proto::opentelemetry::proto::trace::v1::span::SpanKind
+impl core::cmp::Ord for ingest::grpc::proto::opentelemetry::proto::trace::v1::span::SpanKind
+pub fn ingest::grpc::proto::opentelemetry::proto::trace::v1::span::SpanKind::cmp(&self, other: &ingest::grpc::proto::opentelemetry::proto::trace::v1::span::SpanKind) -> core::cmp::Ordering
+impl core::cmp::PartialEq for ingest::grpc::proto::opentelemetry::proto::trace::v1::span::SpanKind
+pub fn ingest::grpc::proto::opentelemetry::proto::trace::v1::span::SpanKind::eq(&self, other: &ingest::grpc::proto::opentelemetry::proto::trace::v1::span::SpanKind) -> bool
+impl core::cmp::PartialOrd for ingest::grpc::proto::opentelemetry::proto::trace::v1::span::SpanKind
+pub fn ingest::grpc::proto::opentelemetry::proto::trace::v1::span::SpanKind::partial_cmp(&self, other: &ingest::grpc::proto::opentelemetry::proto::trace::v1::span::SpanKind) -> core::option::Option<core::cmp::Ordering>
+impl core::convert::From<ingest::grpc::proto::opentelemetry::proto::trace::v1::span::SpanKind> for i32
+pub fn i32::from(value: ingest::grpc::proto::opentelemetry::proto::trace::v1::span::SpanKind) -> i32
+impl core::convert::TryFrom<i32> for ingest::grpc::proto::opentelemetry::proto::trace::v1::span::SpanKind
+pub type ingest::grpc::proto::opentelemetry::proto::trace::v1::span::SpanKind::Error = prost::error::UnknownEnumValue
+pub fn ingest::grpc::proto::opentelemetry::proto::trace::v1::span::SpanKind::try_from(value: i32) -> core::result::Result<ingest::grpc::proto::opentelemetry::proto::trace::v1::span::SpanKind, prost::error::UnknownEnumValue>
+impl core::default::Default for ingest::grpc::proto::opentelemetry::proto::trace::v1::span::SpanKind
+pub fn ingest::grpc::proto::opentelemetry::proto::trace::v1::span::SpanKind::default() -> ingest::grpc::proto::opentelemetry::proto::trace::v1::span::SpanKind
+impl core::fmt::Debug for ingest::grpc::proto::opentelemetry::proto::trace::v1::span::SpanKind
+pub fn ingest::grpc::proto::opentelemetry::proto::trace::v1::span::SpanKind::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::hash::Hash for ingest::grpc::proto::opentelemetry::proto::trace::v1::span::SpanKind
+pub fn ingest::grpc::proto::opentelemetry::proto::trace::v1::span::SpanKind::hash<__H: core::hash::Hasher>(&self, state: &mut __H)
+impl core::marker::Copy for ingest::grpc::proto::opentelemetry::proto::trace::v1::span::SpanKind
+impl core::marker::StructuralPartialEq for ingest::grpc::proto::opentelemetry::proto::trace::v1::span::SpanKind
+impl core::marker::Freeze for ingest::grpc::proto::opentelemetry::proto::trace::v1::span::SpanKind
+impl core::marker::Send for ingest::grpc::proto::opentelemetry::proto::trace::v1::span::SpanKind
+impl core::marker::Sync for ingest::grpc::proto::opentelemetry::proto::trace::v1::span::SpanKind
+impl core::marker::Unpin for ingest::grpc::proto::opentelemetry::proto::trace::v1::span::SpanKind
+impl core::marker::UnsafeUnpin for ingest::grpc::proto::opentelemetry::proto::trace::v1::span::SpanKind
+impl core::panic::unwind_safe::RefUnwindSafe for ingest::grpc::proto::opentelemetry::proto::trace::v1::span::SpanKind
+impl core::panic::unwind_safe::UnwindSafe for ingest::grpc::proto::opentelemetry::proto::trace::v1::span::SpanKind
+pub struct ingest::grpc::proto::opentelemetry::proto::trace::v1::span::Event
+pub ingest::grpc::proto::opentelemetry::proto::trace::v1::span::Event::attributes: alloc::vec::Vec<ingest::grpc::proto::opentelemetry::proto::common::v1::KeyValue>
+pub ingest::grpc::proto::opentelemetry::proto::trace::v1::span::Event::dropped_attributes_count: u32
+pub ingest::grpc::proto::opentelemetry::proto::trace::v1::span::Event::name: alloc::string::String
+pub ingest::grpc::proto::opentelemetry::proto::trace::v1::span::Event::time_unix_nano: u64
+impl core::clone::Clone for ingest::grpc::proto::opentelemetry::proto::trace::v1::span::Event
+pub fn ingest::grpc::proto::opentelemetry::proto::trace::v1::span::Event::clone(&self) -> ingest::grpc::proto::opentelemetry::proto::trace::v1::span::Event
+impl core::cmp::PartialEq for ingest::grpc::proto::opentelemetry::proto::trace::v1::span::Event
+pub fn ingest::grpc::proto::opentelemetry::proto::trace::v1::span::Event::eq(&self, other: &ingest::grpc::proto::opentelemetry::proto::trace::v1::span::Event) -> bool
+impl core::default::Default for ingest::grpc::proto::opentelemetry::proto::trace::v1::span::Event
+pub fn ingest::grpc::proto::opentelemetry::proto::trace::v1::span::Event::default() -> Self
+impl core::fmt::Debug for ingest::grpc::proto::opentelemetry::proto::trace::v1::span::Event
+pub fn ingest::grpc::proto::opentelemetry::proto::trace::v1::span::Event::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for ingest::grpc::proto::opentelemetry::proto::trace::v1::span::Event
+impl prost::message::Message for ingest::grpc::proto::opentelemetry::proto::trace::v1::span::Event
+pub fn ingest::grpc::proto::opentelemetry::proto::trace::v1::span::Event::clear(&mut self)
+pub fn ingest::grpc::proto::opentelemetry::proto::trace::v1::span::Event::encoded_len(&self) -> usize
+impl core::marker::Freeze for ingest::grpc::proto::opentelemetry::proto::trace::v1::span::Event
+impl core::marker::Send for ingest::grpc::proto::opentelemetry::proto::trace::v1::span::Event
+impl core::marker::Sync for ingest::grpc::proto::opentelemetry::proto::trace::v1::span::Event
+impl core::marker::Unpin for ingest::grpc::proto::opentelemetry::proto::trace::v1::span::Event
+impl core::marker::UnsafeUnpin for ingest::grpc::proto::opentelemetry::proto::trace::v1::span::Event
+impl core::panic::unwind_safe::RefUnwindSafe for ingest::grpc::proto::opentelemetry::proto::trace::v1::span::Event
+impl core::panic::unwind_safe::UnwindSafe for ingest::grpc::proto::opentelemetry::proto::trace::v1::span::Event
+pub struct ingest::grpc::proto::opentelemetry::proto::trace::v1::span::Link
+pub ingest::grpc::proto::opentelemetry::proto::trace::v1::span::Link::attributes: alloc::vec::Vec<ingest::grpc::proto::opentelemetry::proto::common::v1::KeyValue>
+pub ingest::grpc::proto::opentelemetry::proto::trace::v1::span::Link::dropped_attributes_count: u32
+pub ingest::grpc::proto::opentelemetry::proto::trace::v1::span::Link::flags: u32
+pub ingest::grpc::proto::opentelemetry::proto::trace::v1::span::Link::span_id: alloc::vec::Vec<u8>
+pub ingest::grpc::proto::opentelemetry::proto::trace::v1::span::Link::trace_id: alloc::vec::Vec<u8>
+pub ingest::grpc::proto::opentelemetry::proto::trace::v1::span::Link::trace_state: alloc::string::String
+impl core::clone::Clone for ingest::grpc::proto::opentelemetry::proto::trace::v1::span::Link
+pub fn ingest::grpc::proto::opentelemetry::proto::trace::v1::span::Link::clone(&self) -> ingest::grpc::proto::opentelemetry::proto::trace::v1::span::Link
+impl core::cmp::PartialEq for ingest::grpc::proto::opentelemetry::proto::trace::v1::span::Link
+pub fn ingest::grpc::proto::opentelemetry::proto::trace::v1::span::Link::eq(&self, other: &ingest::grpc::proto::opentelemetry::proto::trace::v1::span::Link) -> bool
+impl core::default::Default for ingest::grpc::proto::opentelemetry::proto::trace::v1::span::Link
+pub fn ingest::grpc::proto::opentelemetry::proto::trace::v1::span::Link::default() -> Self
+impl core::fmt::Debug for ingest::grpc::proto::opentelemetry::proto::trace::v1::span::Link
+pub fn ingest::grpc::proto::opentelemetry::proto::trace::v1::span::Link::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for ingest::grpc::proto::opentelemetry::proto::trace::v1::span::Link
+impl prost::message::Message for ingest::grpc::proto::opentelemetry::proto::trace::v1::span::Link
+pub fn ingest::grpc::proto::opentelemetry::proto::trace::v1::span::Link::clear(&mut self)
+pub fn ingest::grpc::proto::opentelemetry::proto::trace::v1::span::Link::encoded_len(&self) -> usize
+impl core::marker::Freeze for ingest::grpc::proto::opentelemetry::proto::trace::v1::span::Link
+impl core::marker::Send for ingest::grpc::proto::opentelemetry::proto::trace::v1::span::Link
+impl core::marker::Sync for ingest::grpc::proto::opentelemetry::proto::trace::v1::span::Link
+impl core::marker::Unpin for ingest::grpc::proto::opentelemetry::proto::trace::v1::span::Link
+impl core::marker::UnsafeUnpin for ingest::grpc::proto::opentelemetry::proto::trace::v1::span::Link
+impl core::panic::unwind_safe::RefUnwindSafe for ingest::grpc::proto::opentelemetry::proto::trace::v1::span::Link
+impl core::panic::unwind_safe::UnwindSafe for ingest::grpc::proto::opentelemetry::proto::trace::v1::span::Link
+pub mod ingest::grpc::proto::opentelemetry::proto::trace::v1::status
+#[repr(i32)] pub enum ingest::grpc::proto::opentelemetry::proto::trace::v1::status::StatusCode
+pub ingest::grpc::proto::opentelemetry::proto::trace::v1::status::StatusCode::Error = 2
+pub ingest::grpc::proto::opentelemetry::proto::trace::v1::status::StatusCode::Ok = 1
+pub ingest::grpc::proto::opentelemetry::proto::trace::v1::status::StatusCode::Unset = 0
+impl ingest::grpc::proto::opentelemetry::proto::trace::v1::status::StatusCode
+pub fn ingest::grpc::proto::opentelemetry::proto::trace::v1::status::StatusCode::as_str_name(&self) -> &'static str
+pub fn ingest::grpc::proto::opentelemetry::proto::trace::v1::status::StatusCode::from_str_name(value: &str) -> core::option::Option<Self>
+impl ingest::grpc::proto::opentelemetry::proto::trace::v1::status::StatusCode
+pub fn ingest::grpc::proto::opentelemetry::proto::trace::v1::status::StatusCode::from_i32(value: i32) -> core::option::Option<ingest::grpc::proto::opentelemetry::proto::trace::v1::status::StatusCode>
+pub fn ingest::grpc::proto::opentelemetry::proto::trace::v1::status::StatusCode::is_valid(value: i32) -> bool
+impl core::clone::Clone for ingest::grpc::proto::opentelemetry::proto::trace::v1::status::StatusCode
+pub fn ingest::grpc::proto::opentelemetry::proto::trace::v1::status::StatusCode::clone(&self) -> ingest::grpc::proto::opentelemetry::proto::trace::v1::status::StatusCode
+impl core::cmp::Eq for ingest::grpc::proto::opentelemetry::proto::trace::v1::status::StatusCode
+impl core::cmp::Ord for ingest::grpc::proto::opentelemetry::proto::trace::v1::status::StatusCode
+pub fn ingest::grpc::proto::opentelemetry::proto::trace::v1::status::StatusCode::cmp(&self, other: &ingest::grpc::proto::opentelemetry::proto::trace::v1::status::StatusCode) -> core::cmp::Ordering
+impl core::cmp::PartialEq for ingest::grpc::proto::opentelemetry::proto::trace::v1::status::StatusCode
+pub fn ingest::grpc::proto::opentelemetry::proto::trace::v1::status::StatusCode::eq(&self, other: &ingest::grpc::proto::opentelemetry::proto::trace::v1::status::StatusCode) -> bool
+impl core::cmp::PartialOrd for ingest::grpc::proto::opentelemetry::proto::trace::v1::status::StatusCode
+pub fn ingest::grpc::proto::opentelemetry::proto::trace::v1::status::StatusCode::partial_cmp(&self, other: &ingest::grpc::proto::opentelemetry::proto::trace::v1::status::StatusCode) -> core::option::Option<core::cmp::Ordering>
+impl core::convert::From<ingest::grpc::proto::opentelemetry::proto::trace::v1::status::StatusCode> for i32
+pub fn i32::from(value: ingest::grpc::proto::opentelemetry::proto::trace::v1::status::StatusCode) -> i32
+impl core::convert::TryFrom<i32> for ingest::grpc::proto::opentelemetry::proto::trace::v1::status::StatusCode
+pub type ingest::grpc::proto::opentelemetry::proto::trace::v1::status::StatusCode::Error = prost::error::UnknownEnumValue
+pub fn ingest::grpc::proto::opentelemetry::proto::trace::v1::status::StatusCode::try_from(value: i32) -> core::result::Result<ingest::grpc::proto::opentelemetry::proto::trace::v1::status::StatusCode, prost::error::UnknownEnumValue>
+impl core::default::Default for ingest::grpc::proto::opentelemetry::proto::trace::v1::status::StatusCode
+pub fn ingest::grpc::proto::opentelemetry::proto::trace::v1::status::StatusCode::default() -> ingest::grpc::proto::opentelemetry::proto::trace::v1::status::StatusCode
+impl core::fmt::Debug for ingest::grpc::proto::opentelemetry::proto::trace::v1::status::StatusCode
+pub fn ingest::grpc::proto::opentelemetry::proto::trace::v1::status::StatusCode::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::hash::Hash for ingest::grpc::proto::opentelemetry::proto::trace::v1::status::StatusCode
+pub fn ingest::grpc::proto::opentelemetry::proto::trace::v1::status::StatusCode::hash<__H: core::hash::Hasher>(&self, state: &mut __H)
+impl core::marker::Copy for ingest::grpc::proto::opentelemetry::proto::trace::v1::status::StatusCode
+impl core::marker::StructuralPartialEq for ingest::grpc::proto::opentelemetry::proto::trace::v1::status::StatusCode
+impl core::marker::Freeze for ingest::grpc::proto::opentelemetry::proto::trace::v1::status::StatusCode
+impl core::marker::Send for ingest::grpc::proto::opentelemetry::proto::trace::v1::status::StatusCode
+impl core::marker::Sync for ingest::grpc::proto::opentelemetry::proto::trace::v1::status::StatusCode
+impl core::marker::Unpin for ingest::grpc::proto::opentelemetry::proto::trace::v1::status::StatusCode
+impl core::marker::UnsafeUnpin for ingest::grpc::proto::opentelemetry::proto::trace::v1::status::StatusCode
+impl core::panic::unwind_safe::RefUnwindSafe for ingest::grpc::proto::opentelemetry::proto::trace::v1::status::StatusCode
+impl core::panic::unwind_safe::UnwindSafe for ingest::grpc::proto::opentelemetry::proto::trace::v1::status::StatusCode
+pub struct ingest::grpc::proto::opentelemetry::proto::trace::v1::ResourceSpans
+pub ingest::grpc::proto::opentelemetry::proto::trace::v1::ResourceSpans::resource: core::option::Option<ingest::grpc::proto::opentelemetry::proto::resource::v1::Resource>
+pub ingest::grpc::proto::opentelemetry::proto::trace::v1::ResourceSpans::schema_url: alloc::string::String
+pub ingest::grpc::proto::opentelemetry::proto::trace::v1::ResourceSpans::scope_spans: alloc::vec::Vec<ingest::grpc::proto::opentelemetry::proto::trace::v1::ScopeSpans>
+impl core::clone::Clone for ingest::grpc::proto::opentelemetry::proto::trace::v1::ResourceSpans
+pub fn ingest::grpc::proto::opentelemetry::proto::trace::v1::ResourceSpans::clone(&self) -> ingest::grpc::proto::opentelemetry::proto::trace::v1::ResourceSpans
+impl core::cmp::PartialEq for ingest::grpc::proto::opentelemetry::proto::trace::v1::ResourceSpans
+pub fn ingest::grpc::proto::opentelemetry::proto::trace::v1::ResourceSpans::eq(&self, other: &ingest::grpc::proto::opentelemetry::proto::trace::v1::ResourceSpans) -> bool
+impl core::default::Default for ingest::grpc::proto::opentelemetry::proto::trace::v1::ResourceSpans
+pub fn ingest::grpc::proto::opentelemetry::proto::trace::v1::ResourceSpans::default() -> Self
+impl core::fmt::Debug for ingest::grpc::proto::opentelemetry::proto::trace::v1::ResourceSpans
+pub fn ingest::grpc::proto::opentelemetry::proto::trace::v1::ResourceSpans::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for ingest::grpc::proto::opentelemetry::proto::trace::v1::ResourceSpans
+impl prost::message::Message for ingest::grpc::proto::opentelemetry::proto::trace::v1::ResourceSpans
+pub fn ingest::grpc::proto::opentelemetry::proto::trace::v1::ResourceSpans::clear(&mut self)
+pub fn ingest::grpc::proto::opentelemetry::proto::trace::v1::ResourceSpans::encoded_len(&self) -> usize
+impl core::marker::Freeze for ingest::grpc::proto::opentelemetry::proto::trace::v1::ResourceSpans
+impl core::marker::Send for ingest::grpc::proto::opentelemetry::proto::trace::v1::ResourceSpans
+impl core::marker::Sync for ingest::grpc::proto::opentelemetry::proto::trace::v1::ResourceSpans
+impl core::marker::Unpin for ingest::grpc::proto::opentelemetry::proto::trace::v1::ResourceSpans
+impl core::marker::UnsafeUnpin for ingest::grpc::proto::opentelemetry::proto::trace::v1::ResourceSpans
+impl core::panic::unwind_safe::RefUnwindSafe for ingest::grpc::proto::opentelemetry::proto::trace::v1::ResourceSpans
+impl core::panic::unwind_safe::UnwindSafe for ingest::grpc::proto::opentelemetry::proto::trace::v1::ResourceSpans
+pub struct ingest::grpc::proto::opentelemetry::proto::trace::v1::ScopeSpans
+pub ingest::grpc::proto::opentelemetry::proto::trace::v1::ScopeSpans::schema_url: alloc::string::String
+pub ingest::grpc::proto::opentelemetry::proto::trace::v1::ScopeSpans::scope: core::option::Option<ingest::grpc::proto::opentelemetry::proto::common::v1::InstrumentationScope>
+pub ingest::grpc::proto::opentelemetry::proto::trace::v1::ScopeSpans::spans: alloc::vec::Vec<ingest::grpc::proto::opentelemetry::proto::trace::v1::Span>
+impl core::clone::Clone for ingest::grpc::proto::opentelemetry::proto::trace::v1::ScopeSpans
+pub fn ingest::grpc::proto::opentelemetry::proto::trace::v1::ScopeSpans::clone(&self) -> ingest::grpc::proto::opentelemetry::proto::trace::v1::ScopeSpans
+impl core::cmp::PartialEq for ingest::grpc::proto::opentelemetry::proto::trace::v1::ScopeSpans
+pub fn ingest::grpc::proto::opentelemetry::proto::trace::v1::ScopeSpans::eq(&self, other: &ingest::grpc::proto::opentelemetry::proto::trace::v1::ScopeSpans) -> bool
+impl core::default::Default for ingest::grpc::proto::opentelemetry::proto::trace::v1::ScopeSpans
+pub fn ingest::grpc::proto::opentelemetry::proto::trace::v1::ScopeSpans::default() -> Self
+impl core::fmt::Debug for ingest::grpc::proto::opentelemetry::proto::trace::v1::ScopeSpans
+pub fn ingest::grpc::proto::opentelemetry::proto::trace::v1::ScopeSpans::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for ingest::grpc::proto::opentelemetry::proto::trace::v1::ScopeSpans
+impl prost::message::Message for ingest::grpc::proto::opentelemetry::proto::trace::v1::ScopeSpans
+pub fn ingest::grpc::proto::opentelemetry::proto::trace::v1::ScopeSpans::clear(&mut self)
+pub fn ingest::grpc::proto::opentelemetry::proto::trace::v1::ScopeSpans::encoded_len(&self) -> usize
+impl core::marker::Freeze for ingest::grpc::proto::opentelemetry::proto::trace::v1::ScopeSpans
+impl core::marker::Send for ingest::grpc::proto::opentelemetry::proto::trace::v1::ScopeSpans
+impl core::marker::Sync for ingest::grpc::proto::opentelemetry::proto::trace::v1::ScopeSpans
+impl core::marker::Unpin for ingest::grpc::proto::opentelemetry::proto::trace::v1::ScopeSpans
+impl core::marker::UnsafeUnpin for ingest::grpc::proto::opentelemetry::proto::trace::v1::ScopeSpans
+impl core::panic::unwind_safe::RefUnwindSafe for ingest::grpc::proto::opentelemetry::proto::trace::v1::ScopeSpans
+impl core::panic::unwind_safe::UnwindSafe for ingest::grpc::proto::opentelemetry::proto::trace::v1::ScopeSpans
+pub struct ingest::grpc::proto::opentelemetry::proto::trace::v1::Span
+pub ingest::grpc::proto::opentelemetry::proto::trace::v1::Span::attributes: alloc::vec::Vec<ingest::grpc::proto::opentelemetry::proto::common::v1::KeyValue>
+pub ingest::grpc::proto::opentelemetry::proto::trace::v1::Span::dropped_attributes_count: u32
+pub ingest::grpc::proto::opentelemetry::proto::trace::v1::Span::dropped_events_count: u32
+pub ingest::grpc::proto::opentelemetry::proto::trace::v1::Span::dropped_links_count: u32
+pub ingest::grpc::proto::opentelemetry::proto::trace::v1::Span::end_time_unix_nano: u64
+pub ingest::grpc::proto::opentelemetry::proto::trace::v1::Span::events: alloc::vec::Vec<ingest::grpc::proto::opentelemetry::proto::trace::v1::span::Event>
+pub ingest::grpc::proto::opentelemetry::proto::trace::v1::Span::flags: u32
+pub ingest::grpc::proto::opentelemetry::proto::trace::v1::Span::kind: i32
+pub ingest::grpc::proto::opentelemetry::proto::trace::v1::Span::links: alloc::vec::Vec<ingest::grpc::proto::opentelemetry::proto::trace::v1::span::Link>
+pub ingest::grpc::proto::opentelemetry::proto::trace::v1::Span::name: alloc::string::String
+pub ingest::grpc::proto::opentelemetry::proto::trace::v1::Span::parent_span_id: alloc::vec::Vec<u8>
+pub ingest::grpc::proto::opentelemetry::proto::trace::v1::Span::span_id: alloc::vec::Vec<u8>
+pub ingest::grpc::proto::opentelemetry::proto::trace::v1::Span::start_time_unix_nano: u64
+pub ingest::grpc::proto::opentelemetry::proto::trace::v1::Span::status: core::option::Option<ingest::grpc::proto::opentelemetry::proto::trace::v1::Status>
+pub ingest::grpc::proto::opentelemetry::proto::trace::v1::Span::trace_id: alloc::vec::Vec<u8>
+pub ingest::grpc::proto::opentelemetry::proto::trace::v1::Span::trace_state: alloc::string::String
+impl ingest::grpc::proto::opentelemetry::proto::trace::v1::Span
+pub fn ingest::grpc::proto::opentelemetry::proto::trace::v1::Span::kind(&self) -> ingest::grpc::proto::opentelemetry::proto::trace::v1::span::SpanKind
+pub fn ingest::grpc::proto::opentelemetry::proto::trace::v1::Span::set_kind(&mut self, value: ingest::grpc::proto::opentelemetry::proto::trace::v1::span::SpanKind)
+impl core::clone::Clone for ingest::grpc::proto::opentelemetry::proto::trace::v1::Span
+pub fn ingest::grpc::proto::opentelemetry::proto::trace::v1::Span::clone(&self) -> ingest::grpc::proto::opentelemetry::proto::trace::v1::Span
+impl core::cmp::PartialEq for ingest::grpc::proto::opentelemetry::proto::trace::v1::Span
+pub fn ingest::grpc::proto::opentelemetry::proto::trace::v1::Span::eq(&self, other: &ingest::grpc::proto::opentelemetry::proto::trace::v1::Span) -> bool
+impl core::default::Default for ingest::grpc::proto::opentelemetry::proto::trace::v1::Span
+pub fn ingest::grpc::proto::opentelemetry::proto::trace::v1::Span::default() -> Self
+impl core::fmt::Debug for ingest::grpc::proto::opentelemetry::proto::trace::v1::Span
+pub fn ingest::grpc::proto::opentelemetry::proto::trace::v1::Span::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for ingest::grpc::proto::opentelemetry::proto::trace::v1::Span
+impl prost::message::Message for ingest::grpc::proto::opentelemetry::proto::trace::v1::Span
+pub fn ingest::grpc::proto::opentelemetry::proto::trace::v1::Span::clear(&mut self)
+pub fn ingest::grpc::proto::opentelemetry::proto::trace::v1::Span::encoded_len(&self) -> usize
+impl core::marker::Freeze for ingest::grpc::proto::opentelemetry::proto::trace::v1::Span
+impl core::marker::Send for ingest::grpc::proto::opentelemetry::proto::trace::v1::Span
+impl core::marker::Sync for ingest::grpc::proto::opentelemetry::proto::trace::v1::Span
+impl core::marker::Unpin for ingest::grpc::proto::opentelemetry::proto::trace::v1::Span
+impl core::marker::UnsafeUnpin for ingest::grpc::proto::opentelemetry::proto::trace::v1::Span
+impl core::panic::unwind_safe::RefUnwindSafe for ingest::grpc::proto::opentelemetry::proto::trace::v1::Span
+impl core::panic::unwind_safe::UnwindSafe for ingest::grpc::proto::opentelemetry::proto::trace::v1::Span
+pub struct ingest::grpc::proto::opentelemetry::proto::trace::v1::Status
+pub ingest::grpc::proto::opentelemetry::proto::trace::v1::Status::code: i32
+pub ingest::grpc::proto::opentelemetry::proto::trace::v1::Status::message: alloc::string::String
+impl ingest::grpc::proto::opentelemetry::proto::trace::v1::Status
+pub fn ingest::grpc::proto::opentelemetry::proto::trace::v1::Status::code(&self) -> ingest::grpc::proto::opentelemetry::proto::trace::v1::status::StatusCode
+pub fn ingest::grpc::proto::opentelemetry::proto::trace::v1::Status::set_code(&mut self, value: ingest::grpc::proto::opentelemetry::proto::trace::v1::status::StatusCode)
+impl core::clone::Clone for ingest::grpc::proto::opentelemetry::proto::trace::v1::Status
+pub fn ingest::grpc::proto::opentelemetry::proto::trace::v1::Status::clone(&self) -> ingest::grpc::proto::opentelemetry::proto::trace::v1::Status
+impl core::cmp::Eq for ingest::grpc::proto::opentelemetry::proto::trace::v1::Status
+impl core::cmp::PartialEq for ingest::grpc::proto::opentelemetry::proto::trace::v1::Status
+pub fn ingest::grpc::proto::opentelemetry::proto::trace::v1::Status::eq(&self, other: &ingest::grpc::proto::opentelemetry::proto::trace::v1::Status) -> bool
+impl core::default::Default for ingest::grpc::proto::opentelemetry::proto::trace::v1::Status
+pub fn ingest::grpc::proto::opentelemetry::proto::trace::v1::Status::default() -> Self
+impl core::fmt::Debug for ingest::grpc::proto::opentelemetry::proto::trace::v1::Status
+pub fn ingest::grpc::proto::opentelemetry::proto::trace::v1::Status::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::hash::Hash for ingest::grpc::proto::opentelemetry::proto::trace::v1::Status
+pub fn ingest::grpc::proto::opentelemetry::proto::trace::v1::Status::hash<__H: core::hash::Hasher>(&self, state: &mut __H)
+impl core::marker::StructuralPartialEq for ingest::grpc::proto::opentelemetry::proto::trace::v1::Status
+impl prost::message::Message for ingest::grpc::proto::opentelemetry::proto::trace::v1::Status
+pub fn ingest::grpc::proto::opentelemetry::proto::trace::v1::Status::clear(&mut self)
+pub fn ingest::grpc::proto::opentelemetry::proto::trace::v1::Status::encoded_len(&self) -> usize
+impl core::marker::Freeze for ingest::grpc::proto::opentelemetry::proto::trace::v1::Status
+impl core::marker::Send for ingest::grpc::proto::opentelemetry::proto::trace::v1::Status
+impl core::marker::Sync for ingest::grpc::proto::opentelemetry::proto::trace::v1::Status
+impl core::marker::Unpin for ingest::grpc::proto::opentelemetry::proto::trace::v1::Status
+impl core::marker::UnsafeUnpin for ingest::grpc::proto::opentelemetry::proto::trace::v1::Status
+impl core::panic::unwind_safe::RefUnwindSafe for ingest::grpc::proto::opentelemetry::proto::trace::v1::Status
+impl core::panic::unwind_safe::UnwindSafe for ingest::grpc::proto::opentelemetry::proto::trace::v1::Status
+pub struct ingest::grpc::proto::opentelemetry::proto::trace::v1::TracesData
+pub ingest::grpc::proto::opentelemetry::proto::trace::v1::TracesData::resource_spans: alloc::vec::Vec<ingest::grpc::proto::opentelemetry::proto::trace::v1::ResourceSpans>
+impl core::clone::Clone for ingest::grpc::proto::opentelemetry::proto::trace::v1::TracesData
+pub fn ingest::grpc::proto::opentelemetry::proto::trace::v1::TracesData::clone(&self) -> ingest::grpc::proto::opentelemetry::proto::trace::v1::TracesData
+impl core::cmp::PartialEq for ingest::grpc::proto::opentelemetry::proto::trace::v1::TracesData
+pub fn ingest::grpc::proto::opentelemetry::proto::trace::v1::TracesData::eq(&self, other: &ingest::grpc::proto::opentelemetry::proto::trace::v1::TracesData) -> bool
+impl core::default::Default for ingest::grpc::proto::opentelemetry::proto::trace::v1::TracesData
+pub fn ingest::grpc::proto::opentelemetry::proto::trace::v1::TracesData::default() -> Self
+impl core::fmt::Debug for ingest::grpc::proto::opentelemetry::proto::trace::v1::TracesData
+pub fn ingest::grpc::proto::opentelemetry::proto::trace::v1::TracesData::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for ingest::grpc::proto::opentelemetry::proto::trace::v1::TracesData
+impl prost::message::Message for ingest::grpc::proto::opentelemetry::proto::trace::v1::TracesData
+pub fn ingest::grpc::proto::opentelemetry::proto::trace::v1::TracesData::clear(&mut self)
+pub fn ingest::grpc::proto::opentelemetry::proto::trace::v1::TracesData::encoded_len(&self) -> usize
+impl core::marker::Freeze for ingest::grpc::proto::opentelemetry::proto::trace::v1::TracesData
+impl core::marker::Send for ingest::grpc::proto::opentelemetry::proto::trace::v1::TracesData
+impl core::marker::Sync for ingest::grpc::proto::opentelemetry::proto::trace::v1::TracesData
+impl core::marker::Unpin for ingest::grpc::proto::opentelemetry::proto::trace::v1::TracesData
+impl core::marker::UnsafeUnpin for ingest::grpc::proto::opentelemetry::proto::trace::v1::TracesData
+impl core::panic::unwind_safe::RefUnwindSafe for ingest::grpc::proto::opentelemetry::proto::trace::v1::TracesData
+impl core::panic::unwind_safe::UnwindSafe for ingest::grpc::proto::opentelemetry::proto::trace::v1::TracesData
+pub const ingest::grpc::DEFAULT_GRPC_PORT: u16
+pub const ingest::grpc::MAX_DECODING_MESSAGE_SIZE: usize
+pub const ingest::grpc::OTLP_GRPC_RATE_LIMIT_BURST_SIZE: u32
+pub const ingest::grpc::OTLP_GRPC_RATE_LIMIT_PERIOD: core::time::Duration
+pub async fn ingest::grpc::serve_on(listener: tokio::net::tcp::listener::TcpListener, state: alloc::sync::Arc<ingest::state::IngestState>, sender: alloc::sync::Arc<ingest::channel::IngestSender>) -> core::result::Result<(), ingest::contract::Error>
+pub async fn ingest::grpc::serve_on_with_rate_limit(listener: tokio::net::tcp::listener::TcpListener, state: alloc::sync::Arc<ingest::state::IngestState>, sender: alloc::sync::Arc<ingest::channel::IngestSender>, rate_limit_period: core::time::Duration, rate_limit_burst_size: u32) -> core::result::Result<(), ingest::contract::Error>
+pub async fn ingest::grpc::try_bind(addr: core::net::socket_addr::SocketAddr) -> core::result::Result<tokio::net::tcp::listener::TcpListener, ingest::contract::Error>
+pub mod ingest::http
+pub const ingest::http::DEFAULT_HTTP_PORT: u16
+pub const ingest::http::MAX_DECODING_BODY_SIZE: usize
+pub const ingest::http::OTLP_HTTP_RATE_LIMIT_BURST_SIZE: u32
+pub const ingest::http::OTLP_HTTP_RATE_LIMIT_PERIOD: core::time::Duration
+pub async fn ingest::http::serve_on(listener: tokio::net::tcp::listener::TcpListener, state: alloc::sync::Arc<ingest::state::IngestState>, sender: alloc::sync::Arc<ingest::channel::IngestSender>) -> core::result::Result<(), ingest::contract::Error>
+pub async fn ingest::http::serve_on_with_rate_limit(listener: tokio::net::tcp::listener::TcpListener, state: alloc::sync::Arc<ingest::state::IngestState>, sender: alloc::sync::Arc<ingest::channel::IngestSender>, rate_limit_period: core::time::Duration, rate_limit_burst_size: u32) -> core::result::Result<(), ingest::contract::Error>
+pub async fn ingest::http::try_bind(addr: core::net::socket_addr::SocketAddr) -> core::result::Result<tokio::net::tcp::listener::TcpListener, ingest::contract::Error>
+pub mod ingest::invariants
+pub const ingest::invariants::MAX_ATTRIBUTES_PER_SPAN: usize
+pub const ingest::invariants::MAX_ATTRIBUTE_KEY_BYTES: usize
+pub const ingest::invariants::MAX_ATTRIBUTE_VALUE_BYTES: usize
+pub const ingest::invariants::SPAN_ID_LEN: usize
+pub const ingest::invariants::TRACE_ID_LEN: usize
+pub mod ingest::observer
+pub struct ingest::observer::NoopSpanObserver
+impl core::clone::Clone for ingest::observer::NoopSpanObserver
+pub fn ingest::observer::NoopSpanObserver::clone(&self) -> ingest::observer::NoopSpanObserver
+impl core::default::Default for ingest::observer::NoopSpanObserver
+pub fn ingest::observer::NoopSpanObserver::default() -> ingest::observer::NoopSpanObserver
+impl core::fmt::Debug for ingest::observer::NoopSpanObserver
+pub fn ingest::observer::NoopSpanObserver::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Copy for ingest::observer::NoopSpanObserver
+impl ingest::observer::SpanObserver for ingest::observer::NoopSpanObserver
+pub fn ingest::observer::NoopSpanObserver::observe_span(&self, _service_name: &str, _operation_name: &str, _status_code: u8, _latency_ms: u64, _now_nanos: i64)
+impl core::marker::Freeze for ingest::observer::NoopSpanObserver
+impl core::marker::Send for ingest::observer::NoopSpanObserver
+impl core::marker::Sync for ingest::observer::NoopSpanObserver
+impl core::marker::Unpin for ingest::observer::NoopSpanObserver
+impl core::marker::UnsafeUnpin for ingest::observer::NoopSpanObserver
+impl core::panic::unwind_safe::RefUnwindSafe for ingest::observer::NoopSpanObserver
+impl core::panic::unwind_safe::UnwindSafe for ingest::observer::NoopSpanObserver
+pub trait ingest::observer::SpanObserver: core::marker::Send + core::marker::Sync
+pub fn ingest::observer::SpanObserver::observe_span(&self, service_name: &str, operation_name: &str, status_code: u8, latency_ms: u64, now_nanos: i64)
+impl ingest::observer::SpanObserver for ingest::observer::NoopSpanObserver
+pub fn ingest::observer::NoopSpanObserver::observe_span(&self, _service_name: &str, _operation_name: &str, _status_code: u8, _latency_ms: u64, _now_nanos: i64)
+pub mod ingest::state
+pub struct ingest::state::IngestState
+impl ingest::state::IngestState
+pub fn ingest::state::IngestState::last_ingest_at_nanos(&self) -> i64
+pub fn ingest::state::IngestState::new() -> Self
+pub fn ingest::state::IngestState::record_log_records(&self, n: u64)
+pub fn ingest::state::IngestState::record_metric_data_points(&self, n: u64)
+pub fn ingest::state::IngestState::record_spans(&self, n: u64)
+pub fn ingest::state::IngestState::set_broadcast_subscribers(&self, n: u32)
+pub fn ingest::state::IngestState::snapshot(&self) -> ingest::state::IngestStateSnapshot
+impl core::default::Default for ingest::state::IngestState
+pub fn ingest::state::IngestState::default() -> ingest::state::IngestState
+impl core::fmt::Debug for ingest::state::IngestState
+pub fn ingest::state::IngestState::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl !core::marker::Freeze for ingest::state::IngestState
+impl core::marker::Send for ingest::state::IngestState
+impl core::marker::Sync for ingest::state::IngestState
+impl core::marker::Unpin for ingest::state::IngestState
+impl core::marker::UnsafeUnpin for ingest::state::IngestState
+impl core::panic::unwind_safe::RefUnwindSafe for ingest::state::IngestState
+impl core::panic::unwind_safe::UnwindSafe for ingest::state::IngestState
+pub struct ingest::state::IngestStateSnapshot
+pub ingest::state::IngestStateSnapshot::broadcast_subscribers: u32
+pub ingest::state::IngestStateSnapshot::last_ingest_at_nanos: i64
+pub ingest::state::IngestStateSnapshot::log_record_count: u64
+pub ingest::state::IngestStateSnapshot::metric_data_point_count: u64
+pub ingest::state::IngestStateSnapshot::span_count: u64
+impl core::clone::Clone for ingest::state::IngestStateSnapshot
+pub fn ingest::state::IngestStateSnapshot::clone(&self) -> ingest::state::IngestStateSnapshot
+impl core::default::Default for ingest::state::IngestStateSnapshot
+pub fn ingest::state::IngestStateSnapshot::default() -> ingest::state::IngestStateSnapshot
+impl core::fmt::Debug for ingest::state::IngestStateSnapshot
+pub fn ingest::state::IngestStateSnapshot::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Copy for ingest::state::IngestStateSnapshot
+impl core::marker::Freeze for ingest::state::IngestStateSnapshot
+impl core::marker::Send for ingest::state::IngestStateSnapshot
+impl core::marker::Sync for ingest::state::IngestStateSnapshot
+impl core::marker::Unpin for ingest::state::IngestStateSnapshot
+impl core::marker::UnsafeUnpin for ingest::state::IngestStateSnapshot
+impl core::panic::unwind_safe::RefUnwindSafe for ingest::state::IngestStateSnapshot
+impl core::panic::unwind_safe::UnwindSafe for ingest::state::IngestStateSnapshot
+```
 <!-- LIVING:api-surface:crate-ingest end -->
 <!-- LIVING:api-surface:crate-mcp-server start -->
 (empty placeholder — wrap-session Phase 5 will fill when cursor reaches `mcp-server`)
