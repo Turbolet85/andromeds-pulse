@@ -11,6 +11,7 @@ pub mod heartbeat;
 pub mod incident_observer;
 pub mod incident_persistence;
 pub mod incidents_router;
+pub mod inference_runtime;
 pub mod lifecycle_persistence;
 #[cfg(feature = "mcp-server")]
 pub mod mcp_router;

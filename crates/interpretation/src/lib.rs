@@ -18,3 +18,5 @@
 pub mod broadcast;
 pub mod contract;
 pub mod hardware;
+pub mod prompt;
+pub mod schema;

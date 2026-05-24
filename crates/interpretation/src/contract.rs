@@ -124,6 +124,25 @@ pub enum InferenceError {
     /// schema constraint rejected the model output).
     #[error("inference failed: {reason}")]
     InferenceFailed { reason: String },
+
+    /// Raw inference output exceeded the defense-in-depth byte cap before
+    /// `serde_json::from_slice` could allocate а parse buffer. Per security
+    /// plan §Anti-Pattern Code Patterns serde_json+size-cap rule.
+    #[error("L4 output too large: {actual_bytes} > {max_bytes}")]
+    OutputTooLarge {
+        actual_bytes: usize,
+        max_bytes: usize,
+    },
+
+    /// JSON-shaped output failed structural deserialization. Sanitized one-
+    /// liner — no line/column noise or internal serde paths.
+    #[error("L4 JSON parse failed: {reason}")]
+    JsonParseFailed { reason: String },
+
+    /// Output deserialized cleanly but violated а bounded-length or bounded-
+    /// enum invariant per the schema's defense-in-depth post-parse check.
+    #[error("L4 schema violation: {reason}")]
+    SchemaViolation { reason: String },
 }
 
 /// Object-safe future-return-position alias for async trait methods. Manual

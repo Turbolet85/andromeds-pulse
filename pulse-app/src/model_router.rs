@@ -145,6 +145,18 @@ pub fn inference_error_to_app_error(err: InferenceError) -> AppError {
         InferenceError::InferenceFailed { reason } => AppError::Internal {
             message: format!("inference failed: {reason}"),
         },
+        InferenceError::OutputTooLarge {
+            actual_bytes,
+            max_bytes,
+        } => AppError::Internal {
+            message: format!("L4 output exceeded size cap: {actual_bytes} > {max_bytes}"),
+        },
+        InferenceError::JsonParseFailed { reason } => AppError::Internal {
+            message: format!("L4 JSON parse failed: {reason}"),
+        },
+        InferenceError::SchemaViolation { reason } => AppError::Internal {
+            message: format!("L4 schema violation: {reason}"),
+        },
     }
 }
 

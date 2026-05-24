@@ -1770,6 +1770,81 @@ impl AllowList {
             ["profile", "tier", "load_status"].iter().copied().collect(),
         );
 
+        // Chunk #83 — L4 LLM interpretation pipeline tracing targets.
+        // Aggregate-only fields per CLAUDE.md observability Session
+        // Learnings 2026-05-17 session 84 mandate (no per-service
+        // identifiers + no raw prompt body / digest payload / model
+        // output bytes). Mirrors chunk #82 `interpretation` entry shape.
+        by_target.insert(
+            "interpretation.inference.request",
+            [
+                "model_tier",
+                "hardware_profile",
+                "prompt_version",
+                "schema_version",
+                "duration_ms",
+                "result",
+                "token_count_prompt",
+                "token_count_output",
+                "digest_kind",
+            ]
+            .iter()
+            .copied()
+            .collect(),
+        );
+        by_target.insert(
+            "interpretation.prompt.assemble",
+            ["token_count", "prompt_version", "duration_ms"]
+                .iter()
+                .copied()
+                .collect(),
+        );
+        by_target.insert(
+            "interpretation.constrained.generate",
+            ["model_tier", "hardware_profile", "duration_ms", "success"]
+                .iter()
+                .copied()
+                .collect(),
+        );
+        by_target.insert(
+            "interpretation.json.parse",
+            ["parse_outcome", "duration_ms", "output_bytes", "max_bytes"]
+                .iter()
+                .copied()
+                .collect(),
+        );
+        by_target.insert(
+            "interpretation.inference.error",
+            [
+                "model_tier",
+                "hardware_profile",
+                "error_category",
+                "recovery_action",
+                "skipped_events",
+            ]
+            .iter()
+            .copied()
+            .collect(),
+        );
+        by_target.insert(
+            "metric.pipeline.l4.inferences_total",
+            ["value", "result", "model_tier", "hardware_profile"]
+                .iter()
+                .copied()
+                .collect(),
+        );
+        by_target.insert(
+            "metric.pipeline.l4.inference_latency_p99_milliseconds",
+            ["value", "duration_ms", "model_tier", "hardware_profile"]
+                .iter()
+                .copied()
+                .collect(),
+        );
+        by_target.insert(
+            "metric.pipeline.l4.inference_queue_depth",
+            ["value", "queued_count"].iter().copied().collect(),
+        );
+
         Self { by_target }
     }
 
@@ -5046,6 +5121,153 @@ mod tests {
                 tracing::info!(target: "ingest", span_count = 0_i64, "ping");
             });
             assert_eq!(lines.len(), 1);
+        }
+    }
+
+    #[test]
+    fn allowlist_for_target_resolves_l4_inference_pipeline_targets() {
+        // chunk #83: L4 LLM interpretation pipeline emits five tracing
+        // targets plus three metric targets. Required fields per the obs
+        // extract; PII guard per CLAUDE.md observability.md 2026-05-17
+        // session 84 aggregate-only mandate (no per-service identifiers;
+        // no raw prompt body / digest payload / output bytes).
+        let al = AllowList::production();
+
+        let request = al
+            .for_target("interpretation.inference.request")
+            .expect("expected interpretation.inference.request entry");
+        for required in [
+            "model_tier",
+            "hardware_profile",
+            "prompt_version",
+            "schema_version",
+            "duration_ms",
+            "result",
+            "token_count_prompt",
+            "token_count_output",
+            "digest_kind",
+        ] {
+            assert!(
+                request.contains(required),
+                "interpretation.inference.request must permit `{required}`",
+            );
+        }
+
+        let assemble = al
+            .for_target("interpretation.prompt.assemble")
+            .expect("expected interpretation.prompt.assemble entry");
+        for required in ["token_count", "prompt_version", "duration_ms"] {
+            assert!(
+                assemble.contains(required),
+                "interpretation.prompt.assemble must permit `{required}`",
+            );
+        }
+
+        let generate = al
+            .for_target("interpretation.constrained.generate")
+            .expect("expected interpretation.constrained.generate entry");
+        for required in ["model_tier", "hardware_profile", "duration_ms", "success"] {
+            assert!(
+                generate.contains(required),
+                "interpretation.constrained.generate must permit `{required}`",
+            );
+        }
+
+        let parse = al
+            .for_target("interpretation.json.parse")
+            .expect("expected interpretation.json.parse entry");
+        for required in ["parse_outcome", "duration_ms", "output_bytes"] {
+            assert!(
+                parse.contains(required),
+                "interpretation.json.parse must permit `{required}`",
+            );
+        }
+
+        let error = al
+            .for_target("interpretation.inference.error")
+            .expect("expected interpretation.inference.error entry");
+        for required in [
+            "model_tier",
+            "hardware_profile",
+            "error_category",
+            "recovery_action",
+        ] {
+            assert!(
+                error.contains(required),
+                "interpretation.inference.error must permit `{required}`",
+            );
+        }
+
+        let inferences_total = al
+            .for_target("metric.pipeline.l4.inferences_total")
+            .expect("expected metric.pipeline.l4.inferences_total entry");
+        for required in ["value", "result", "model_tier", "hardware_profile"] {
+            assert!(
+                inferences_total.contains(required),
+                "metric.pipeline.l4.inferences_total must permit `{required}`",
+            );
+        }
+
+        let latency = al
+            .for_target("metric.pipeline.l4.inference_latency_p99_milliseconds")
+            .expect("expected metric.pipeline.l4.inference_latency_p99_milliseconds entry");
+        for required in ["value", "duration_ms", "model_tier", "hardware_profile"] {
+            assert!(
+                latency.contains(required),
+                "metric.pipeline.l4.inference_latency_p99_milliseconds must permit `{required}`",
+            );
+        }
+
+        let queue_depth = al
+            .for_target("metric.pipeline.l4.inference_queue_depth")
+            .expect("expected metric.pipeline.l4.inference_queue_depth entry");
+        for required in ["value", "queued_count"] {
+            assert!(
+                queue_depth.contains(required),
+                "metric.pipeline.l4.inference_queue_depth must permit `{required}`",
+            );
+        }
+
+        // PII guard: none of the chunk #83 entries may admit raw
+        // OTLP-derived identifiers, prompt content, output bytes, or
+        // free-text payload fields. Each target re-validated.
+        let banned = [
+            "service_name",
+            "scope_id",
+            "span_id",
+            "trace_id",
+            "operation_name",
+            "prompt_body",
+            "prompt_text",
+            "digest_payload",
+            "digest_body",
+            "raw_output",
+            "output_text",
+            "tokenized_prompt",
+            "completion_bytes",
+            "model_path",
+            "checkpoint_url",
+            "file_path",
+            "fingerprint",
+            "digest_id",
+            "incident_id",
+        ];
+        for set in [
+            request,
+            assemble,
+            generate,
+            parse,
+            error,
+            inferences_total,
+            latency,
+            queue_depth,
+        ] {
+            for k in &banned {
+                assert!(
+                    !set.contains(k),
+                    "L4 inference AllowList must NOT permit PII field `{k}`",
+                );
+            }
         }
     }
 }
