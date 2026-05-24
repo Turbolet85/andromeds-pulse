@@ -13,6 +13,7 @@ members = [
     "crates/workspace-detector",
     "crates/plugins",
     "crates/mcp-server",
+    "crates/interpretation",
     "pulse-app",
     "xtask",
 ]
@@ -202,6 +203,27 @@ tokenizers = { version = "0.21", default-features = false, features = ["fancy-re
 # `tls` feature enables HTTPS support.
 ureq = { version = "2", default-features = false, features = ["tls"] }
 sha2 = "0.10"
+
+# LLM inference runtime (route#82 — Epoch 9 Foundation v0.2.0 L4 interpretation layer).
+# mistralrs 0.8.0: Pre-D1 decision resolved 2026-05-24 (session 137) per arch
+# §Established Decisions [LLM Inference Runtime — L4 interpretation layer].
+# Pin-exact (no caret) discipline: 0.x series API churn over 3-6 month minor-
+# release cadence means floating constraints would cause mid-chunk breakage
+# during the L4 implementation window (chunks #82-#85). Version bumps happen
+# as deliberate chunk-scoped events, never via `cargo update` drift.
+# Native first-class JSON-constrained generation via grammar enforcement +
+# strict schema mode (llguidance integration) is the load-bearing Pre-D1
+# criterion. Quantization breadth (GGUF 2-8 bit, GPTQ, AWQ, HQQ, FP8, BNB)
+# + backend coverage (Metal/CUDA/CPU) match the hardware-profile tier model.
+# Bus factor mitigation: wrapped behind `pub trait LlmInferenceRunner` in
+# `crates/interpretation/src/contract.rs` (matching 2026-05-23 SqlQueryRunner
+# async pattern); concrete `MistralRsInference` impl lives at the binary
+# boundary in `pulse-app/`.
+# `optional = true` keeps the dep out of leaf-crate dep graphs (per arch
+# §Cross-cutting Patterns Feature-gate hygiene); the workspace dep is
+# resolved only when consumed by `pulse-app` which adds it as а direct
+# (non-optional) dep.
+mistralrs = "=0.8.0"
 
 [profile.release]
 lto = "thin"

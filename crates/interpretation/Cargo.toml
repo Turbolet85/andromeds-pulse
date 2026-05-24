@@ -1,0 +1,41 @@
+[package]
+name = "interpretation"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+authors.workspace = true
+
+# L4 LLM interpretation layer (route#82 — Epoch 9 Foundation v0.2.0 first L4 chunk).
+# Per arch §Established Decisions [LLM Inference Runtime — L4 interpretation layer]
+# bus factor mitigation entry: this crate exposes the `LlmInferenceRunner` trait +
+# `HardwareProfileDetector` + supporting contract types. NO direct `mistralrs`
+# dep at this crate level — that's the binary boundary (`pulse-app/`) per arch
+# §Module dependency direction. Trait abstraction lets future swap к candle
+# (or other runtime) without workspace-wide rewrite.
+
+[dependencies]
+serde = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+tokio = { workspace = true }
+tracing = { workspace = true }
+chrono = { workspace = true }
+
+# Re-export hardware profile substrate from triage (chunk #80 introduced the
+# `HardwareProfile` enum + `HardwareProfileSource` trait + `UnknownHardwareProfile`
+# default at `crates/triage/src/cadence/coordinator.rs`; re-exported via
+# `triage::contract::*`). interpretation::hardware provides the REAL detector
+# implementing the existing trait.
+triage = { path = "../triage" }
+
+[dev-dependencies]
+rstest = { workspace = true }
+
+[features]
+default = []
+# Exposes test-only constructors (`HardwareProfileDetector::with_profile`)
+# к integration tests in sibling crates. Enabled by `pulse-app/tests/`
+# when needed; not part of the default build surface.
+test-utils = []

@@ -1700,6 +1700,76 @@ impl AllowList {
                 .collect(),
         );
 
+        // Chunk #82 — L4 LLM interpretation layer tracing targets.
+        // Aggregate-only fields per CLAUDE.md observability Session
+        // Learnings 2026-05-17 session 84 mandate (no per-service
+        // identifiers + no `model_path` / `checkpoint_url` per
+        // .claude/rules/security.md §Logging & Monitoring NEVER-log list).
+        // `model_identity` carries semantic model name only (e.g.,
+        // "llama-3.2-3b-instruct-q4_k_m") per InterpretationContract;
+        // never а file path or URL.
+        by_target.insert(
+            "interpretation",
+            [
+                "model_profile",
+                "model_tier",
+                "model_ready",
+                "model_status",
+                "override_source",
+            ]
+            .iter()
+            .copied()
+            .collect(),
+        );
+        by_target.insert(
+            "interpretation.hardware.detect",
+            [
+                "profile",
+                "detection_latency_ms",
+                "gpu_available",
+                "cpu_core_count",
+                "profile_detection_decision_recorded",
+                "override_source",
+            ]
+            .iter()
+            .copied()
+            .collect(),
+        );
+        by_target.insert(
+            "interpretation.model.load",
+            ["model_identity", "tier", "file_size_bytes", "load_status"]
+                .iter()
+                .copied()
+                .collect(),
+        );
+        by_target.insert(
+            "interpretation.model.load.error",
+            [
+                "error_msg",
+                "model_identity",
+                "recovery_action",
+                "error_category",
+            ]
+            .iter()
+            .copied()
+            .collect(),
+        );
+        by_target.insert(
+            "interpretation.tokenizer.init",
+            ["tokenizer_id", "init_latency_ms"]
+                .iter()
+                .copied()
+                .collect(),
+        );
+        by_target.insert(
+            "metric.interpretation.tokenizer_init_latency_ms",
+            ["value", "tier"].iter().copied().collect(),
+        );
+        by_target.insert(
+            "model.current_profile.request",
+            ["profile", "tier", "load_status"].iter().copied().collect(),
+        );
+
         Self { by_target }
     }
 

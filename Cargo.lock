@@ -3479,6 +3479,20 @@ dependencies = [
 ]
 
 [[package]]
+name = "interpretation"
+version = "0.1.0"
+dependencies = [
+ "chrono",
+ "rstest",
+ "serde",
+ "serde_json",
+ "thiserror 2.0.18",
+ "tokio",
+ "tracing",
+ "triage",
+]
+
+[[package]]
 name = "inventory"
 version = "0.3.24"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -5288,6 +5302,7 @@ dependencies = [
  "corpus",
  "duckdb",
  "ingest",
+ "interpretation",
  "mcp-server",
  "plugins",
  "prost",

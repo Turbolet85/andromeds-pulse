@@ -29,10 +29,9 @@ use triage::contract::{
     ServiceLifecycleBroadcast, ServiceRegistry, SqlQueryRunner, StormPersistence, SuppressionState,
     TARGET_LIFECYCLE_CORPUS_RESTORE, TARGET_LIFECYCLE_PERSIST_ERROR,
     TARGET_PATTERN_STORM_CORPUS_RESTORE, TARGET_PATTERN_STORM_PERSIST_ERROR, Thresholds,
-    TriageSqlState, UnknownHardwareProfile, bootstrap_state, run_incident_persist_loop,
-    run_lifecycle_persist_loop, run_persist_loop, run_storm_persist_loop,
-    start_cadence_coordinator, start_emitter, start_lifecycle_heartbeat, start_restart_detector,
-    start_storm_detector,
+    TriageSqlState, bootstrap_state, run_incident_persist_loop, run_lifecycle_persist_loop,
+    run_persist_loop, run_storm_persist_loop, start_cadence_coordinator, start_emitter,
+    start_lifecycle_heartbeat, start_restart_detector, start_storm_detector,
 };
 use ui_bridge::Settings;
 use ui_bridge::health::{
@@ -60,6 +59,8 @@ use pulse_app::incidents_router::{IncidentsApi, IncidentsApiImpl};
 use pulse_app::lifecycle_persistence::CorpusLifecyclePersistence;
 #[cfg(feature = "mcp-server")]
 use pulse_app::mcp_router::{McpApi, McpApiImpl};
+use pulse_app::mistralrs_inference::MistralRsInference;
+use pulse_app::model_router::{ModelApi, ModelApiImpl, tier_for_profile};
 use pulse_app::plugins_router::{PluginsApi, PluginsApiImpl};
 use pulse_app::restart_observer::{CompositeSpanObserver, RestartObserverAdapter};
 use pulse_app::services_router::{ServicesApi, ServicesApiImpl};
@@ -413,7 +414,24 @@ fn main() {
     // profile defaults к Unknown (Tier-2-enabled posture) until chunk #82
     // delivers а real detector.
     let cadence_event_broadcast = Arc::new(CadenceEventBroadcast::new());
-    let hardware_profile: Arc<dyn HardwareProfileSource> = Arc::new(UnknownHardwareProfile);
+    // Chunk #82 — replace the chunk #80 boot stub (UnknownHardwareProfile)
+    // with the real `HardwareProfileDetector`. Detector probes GPU presence
+    // + CPU core count at construction; cached for subsequent reads.
+    // Env var `ANDROMEDA_PULSE_HARDWARE_PROFILE` overrides detection for
+    // tests + degraded-environment validation.
+    let hardware_profile: Arc<dyn HardwareProfileSource> =
+        Arc::new(pulse_app::hardware_profile::HardwareProfileDetector::new());
+    let detected_profile = hardware_profile.current_profile();
+    let model_tier = tier_for_profile(detected_profile);
+    let model_status_broadcast = interpretation::broadcast::ModelStatusBroadcast::new();
+    let mistralrs_inference = Arc::new(MistralRsInference::new(
+        model_tier,
+        detected_profile,
+        model_status_broadcast.clone(),
+    ));
+    let llm_runner: Arc<dyn interpretation::contract::LlmInferenceRunner> =
+        Arc::clone(&mistralrs_inference) as Arc<dyn interpretation::contract::LlmInferenceRunner>;
+    let model_impl = ModelApiImpl::new(llm_runner, Arc::clone(&hardware_profile));
     let cadence_sql_runner: Option<Arc<dyn SqlQueryRunner>> = buffer_conn.as_ref().map(|conn| {
         let state = Arc::new(TriageSqlState::new(Arc::clone(conn)));
         Arc::new(CadenceSqlRunner::new(state)) as Arc<dyn SqlQueryRunner>
@@ -808,7 +826,8 @@ fn main() {
                 .merge(plugins_impl.clone().into_handler())
                 .merge(connection_impl.clone().into_handler())
                 .merge(services_impl.clone().into_handler())
-                .merge(diagnostics_impl.clone().into_handler());
+                .merge(diagnostics_impl.clone().into_handler())
+                .merge(model_impl.clone().into_handler());
             let base = match storage_impl.as_ref() {
                 Some(s) => base.merge(s.clone().into_handler()),
                 None => base,
@@ -832,7 +851,8 @@ fn main() {
                 .merge(plugins_impl.clone().into_handler())
                 .merge(connection_impl.clone().into_handler())
                 .merge(services_impl.clone().into_handler())
-                .merge(diagnostics_impl.clone().into_handler());
+                .merge(diagnostics_impl.clone().into_handler())
+                .merge(model_impl.clone().into_handler());
             let base = match storage_impl.as_ref() {
                 Some(s) => base.merge(s.clone().into_handler()),
                 None => base,
@@ -1273,6 +1293,7 @@ fn init_buffer(heartbeat_state: &Arc<HeartbeatState>) -> Option<Arc<Mutex<Connec
 #[cfg(test)]
 mod tests {
     use super::*;
+    use triage::contract::UnknownHardwareProfile;
 
     // SAFETY: env::set_var / remove_var are unsafe in Rust 2024 edition because
     // they race with concurrent threads' env reads. cargo-nextest gives us
@@ -1562,6 +1583,21 @@ mod tests {
             "bindings-test-workspace".to_string(),
         );
 
+        // Chunk #82: ModelApiImpl participates in the emit so bindings.ts
+        // ARGS_MAP includes model.current_profile (5-place binding 5th slot
+        // per .claude/rules/security.md Session Additions 2026-05-12).
+        // Test uses UnknownHardwareProfile (deterministic) + а stub
+        // MistralRsInference (status: Error, identity: None).
+        let model_hardware: Arc<dyn HardwareProfileSource> = Arc::new(UnknownHardwareProfile);
+        let model_status_bcast_test = interpretation::broadcast::ModelStatusBroadcast::new();
+        let model_runner_test: Arc<dyn interpretation::contract::LlmInferenceRunner> =
+            Arc::new(MistralRsInference::new(
+                interpretation::contract::ModelTier::Primary,
+                model_hardware.current_profile(),
+                model_status_bcast_test,
+            ));
+        let model_impl = ModelApiImpl::new(model_runner_test, model_hardware);
+
         // Chunk #49: McpApiImpl participates in the emit so the bindings.ts
         // ARGS_MAP includes mcp.status / mcp.start / mcp.stop (4th binding
         // per .claude/rules/security.md Session Additions 2026-05-12).
@@ -1590,7 +1626,8 @@ mod tests {
                 .merge(services_impl.into_handler())
                 .merge(storage_impl.into_handler())
                 .merge(diagnostics_impl.into_handler())
-                .merge(incidents_impl.into_handler());
+                .merge(incidents_impl.into_handler())
+                .merge(model_impl.into_handler());
             #[cfg(feature = "mcp-server")]
             let base = base.merge(mcp_impl.into_handler());
             base

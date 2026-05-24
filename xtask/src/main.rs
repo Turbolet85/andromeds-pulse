@@ -684,6 +684,7 @@ const EXPECTED_PROCEDURES: &[&str] = &[
     "mcp.status",
     "mcp.start",
     "mcp.stop",
+    "model.current_profile",
     "telemetry.frontend.record_frame_ms",
     "traces.query",
     "workspace.detect",
@@ -1134,6 +1135,15 @@ mod capability_drift_tests {
                 "EXPECTED_PROCEDURES must include {proc} (chunk #78 incident records + lifecycle persistence)"
             );
         }
+    }
+
+    #[test]
+    fn expected_procedures_includes_model_namespace_at_chunk_82() {
+        let expected: BTreeSet<&str> = EXPECTED_PROCEDURES.iter().copied().collect();
+        assert!(
+            expected.contains("model.current_profile"),
+            "EXPECTED_PROCEDURES must include model.current_profile (chunk #82 hardware profile detection + model loading + tokenizer)"
+        );
     }
 
     #[test]

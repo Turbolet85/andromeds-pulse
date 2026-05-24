@@ -47,6 +47,7 @@ workspace-detector = { path = "../crates/workspace-detector" }
 triage = { path = "../crates/triage" }
 corpus = { path = "../crates/corpus" }
 security = { path = "../crates/security" }
+interpretation = { path = "../crates/interpretation" }
 
 [dependencies.mcp-server-crate]
 package = "mcp-server"

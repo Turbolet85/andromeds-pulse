@@ -106,6 +106,34 @@ export type MetricRow = { metric_name: string; ts_unix_nano: number; resource_ha
 
 export type MetricsQueryArgs = { time_window_seconds: number; limit: number; cursor: string | null }
 
+/**
+ * Payload returned by `model.current_profile`. All fields are String /
+ * Option<String> к sidestep cross-crate specta derive plumbing — the
+ * strings are bounded snake_case labels (validated by the upstream
+ * enum-to-label fns); webview consumers get string types in their
+ * TypeScript bindings + assert against the same bounded set.
+ */
+export type ModelProfilePayload = { 
+/**
+ * Bounded snake_case label: `unknown` / `gpu_primary` / `gpu_fallback`
+ * / `cpu_primary` / `cpu_fallback`.
+ */
+profile_label: string; 
+/**
+ * Bounded snake_case label: `primary` / `fallback`.
+ */
+tier_label: string; 
+/**
+ * Bounded snake_case label: `loading` / `loaded` / `error`.
+ */
+load_status: string; 
+/**
+ * Semantic name (e.g., `"llama-3.2-3b-instruct-q4_k_m"`); `None`
+ * when the model is not loaded (Loading or Error state).
+ * NEVER а file path or checkpoint URL per security extract.
+ */
+model_identity_name: string | null }
+
 export type PaginatedResponse<T> = { items: T[]; total: number; next_cursor: string | null }
 
 export type PluginDto = { id: string; basename: string; category: string; byte_count: number }
@@ -222,7 +250,7 @@ export type WidgetPosition = "top-left" | "top-right" | "bottom-left" | "bottom-
 
 export type WorkspaceContextDto = { root_basename: string; project_name: string | null; vcs_type: string | null; vcs_root_basename: string | null; has_andromeda_marker: boolean }
 
-const ARGS_MAP = { '':'{"app_info":[],"get_settings":[],"health":[],"ready":[],"update_settings":["settings"]}', 'connection':'{"current_state":[]}', 'diagnostics':'{"template_distribution":[]}', 'incidents':'{"acknowledge":["id"],"list_active":[],"mark_resolved":["id"]}', 'logs':'{"query":["args"]}', 'mcp':'{"start":[],"status":[],"stop":[]}', 'metrics':'{"query":["args"]}', 'plugins':'{"invoke":["plugin_id","capability"],"list":[],"reload":[]}', 'services':'{"list_with_states":[]}', 'snapshot':'{"generate":["preset","workspace_root"]}', 'storage':'{"inspect":[],"path":[]}', 'streams':'{"subscribe_logs":["channel"],"subscribe_metrics":["channel"],"subscribe_spans":["channel"]}', 'telemetry.frontend':'{"record_frame_ms":["input"]}', 'traces':'{"query":["args"]}', 'workspace':'{"detect":["candidate_root"]}' }
+const ARGS_MAP = { '':'{"app_info":[],"get_settings":[],"health":[],"ready":[],"update_settings":["settings"]}', 'connection':'{"current_state":[]}', 'diagnostics':'{"template_distribution":[]}', 'incidents':'{"acknowledge":["id"],"list_active":[],"mark_resolved":["id"]}', 'logs':'{"query":["args"]}', 'mcp':'{"start":[],"status":[],"stop":[]}', 'metrics':'{"query":["args"]}', 'model':'{"current_profile":[]}', 'plugins':'{"invoke":["plugin_id","capability"],"list":[],"reload":[]}', 'services':'{"list_with_states":[]}', 'snapshot':'{"generate":["preset","workspace_root"]}', 'storage':'{"inspect":[],"path":[]}', 'streams':'{"subscribe_logs":["channel"],"subscribe_metrics":["channel"],"subscribe_spans":["channel"]}', 'telemetry.frontend':'{"record_frame_ms":["input"]}', 'traces':'{"query":["args"]}', 'workspace':'{"detect":["candidate_root"]}' }
 export type Router = { "": {app_info: () => Promise<AppInfo>, 
 get_settings: () => Promise<Settings>, 
 health: () => Promise<HealthEnvelope>, 
@@ -238,6 +266,7 @@ mark_resolved: (id: number) => Promise<null>},
 status: () => Promise<McpStatusDto>, 
 stop: () => Promise<McpStopResult>},
 "metrics": {query: (args: MetricsQueryArgs) => Promise<PaginatedResponse<MetricRow>>},
+"model": {current_profile: () => Promise<ModelProfilePayload>},
 "plugins": {invoke: (pluginId: string, capability: string) => Promise<PluginInvokeResult>, 
 list: () => Promise<PluginListEnvelope>, 
 reload: () => Promise<PluginListEnvelope>},
