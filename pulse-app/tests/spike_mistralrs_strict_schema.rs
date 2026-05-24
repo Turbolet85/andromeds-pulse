@@ -106,7 +106,10 @@ async fn spike_mistralrs_strict_schema_round_trips_against_real_model() {
     eprintln!(
         "[spike] phase 1: load complete ({:.2}s) — result: {:?}",
         load_elapsed.as_secs_f64(),
-        load_result.as_ref().map(|_| "Ok").map_err(|e| format!("{:?}", e))
+        load_result
+            .as_ref()
+            .map(|_| "Ok")
+            .map_err(|e| format!("{:?}", e))
     );
     load_result.expect("model load must succeed against а real GGUF file");
 

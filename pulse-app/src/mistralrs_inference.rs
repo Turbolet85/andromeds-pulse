@@ -325,13 +325,11 @@ impl LlmInferenceRunner for MistralRsInference {
             // pipeline, not а runtime error. Sanitized one-liner per
             // security extract.
             let schema_value: serde_json::Value =
-                serde_json::from_str(schema_json).map_err(|e| {
-                    InferenceError::InferenceFailed {
-                        reason: format!(
-                            "embedded schema failed parse: {}",
-                            e.to_string().lines().next().unwrap_or("invalid schema")
-                        ),
-                    }
+                serde_json::from_str(schema_json).map_err(|e| InferenceError::InferenceFailed {
+                    reason: format!(
+                        "embedded schema failed parse: {}",
+                        e.to_string().lines().next().unwrap_or("invalid schema")
+                    ),
                 })?;
 
             // Build the request. Single-user-message TextMessages is
@@ -339,8 +337,7 @@ impl LlmInferenceRunner for MistralRsInference {
             // definition + conventions + schema embed + digest +
             // output reminder per `interpretation::prompt::
             // build_primary_tier_prompt`.
-            let messages =
-                TextMessages::new().add_message(TextMessageRole::User, prompt);
+            let messages = TextMessages::new().add_message(TextMessageRole::User, prompt);
             let request: mistralrs::RequestBuilder = messages.into();
             let request = request.set_constraint(Constraint::JsonSchema(schema_value));
 
@@ -367,7 +364,6 @@ impl LlmInferenceRunner for MistralRsInference {
         })
     }
 }
-
 
 #[cfg(test)]
 mod tests {
