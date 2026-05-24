@@ -96,3 +96,14 @@ pulse-app/ui/test-results/a11y-sr/
 # Chunk #69 Phase A Drain spike validation (per .andromeda/decisions/pre-d2-drain-spike.md).
 # Spike code never commits to main; the findings doc is the only artifact that does.
 crates/triage-experimental/
+
+# --- Local LLM model files (NEVER commit; multi-GB binary blobs) ---
+# Per arch §Established Decisions [LLM Inference Runtime — L4 interpretation layer]:
+# user supplies а Llama-3.x / similar GGUF checkpoint via
+# ANDROMEDA_PULSE_MODEL_PATH env var. The model file is NEVER part of the
+# repo (~2GB for а 3B Q4 quant; ~5-8GB for а 7B Q4 quant). Both root-level
+# AI-Model/ (user convention) AND any *.gguf anywhere in the tree are
+# excluded — defense-in-depth against а 2GB blob entering git history.
+AI-Model/
+**/*.gguf
+**/*.safetensors
