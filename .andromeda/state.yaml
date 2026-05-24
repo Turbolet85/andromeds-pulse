@@ -1,7 +1,47 @@
 schema_version: 2
-last_wrap: 2026-05-23T23:08:23Z
-last_reconcile: 2026-05-23T23:08:23Z
+last_wrap: 2026-05-24T10:42:21Z
+last_reconcile: 2026-05-24T10:42:21Z
 
+# Session 134 wrap (2026-05-24T10:42:21Z): META cycle — Experiments 2+3+4+5: maintainer-class authoring guide
+# extracted + saved at ~/.claude/skills/andromeda-skill-authoring-guide-maintainer.md (702 lines; companion to
+# greenfield guide from session 133); applier design proposal emitted as PROPOSE-ONLY text; git version control
+# established on ~/.claude/skills/ (init + .gitattributes LF lock + baseline commit 169db8a + LF lock commit
+# b6a83eb; 6-contract triangle byte-identity preserved post-renormalize via md5sum 3-way); andromeda-apply skill
+# built end-to-end (B0/B1/B2/B3) — AUTHOR-class (borderline maintainer) per maintainer guide §8.5; cross-references
+# 6 triangle contracts at canonical location rather than mirroring (§7.3); built against maintainer guide §12
+# checklist clean (§12.10 self-check PASS — no Agent / no phase-N/ / no meta-prompt / no iteration loop / no
+# hardcoded R1; non-negotiable 1 GENERAL not R1-specific PASS; non-negotiable 2 OBSERVABLE PASS); skills repo
+# commits aa896ac scaffold + 80e16cf references + cf43e93 SKILL.md (tag pre-applier-build preserved as build
+# rollback point). FIRST observable end-to-end self-evolve loop test: /andromeda-apply --dry-run on R1 produced
+# expected behavior — auto-selected R1 (only matured-unresolved); classified HIGH (Cross-skill contract; row 7;
+# I-7 triangle byte-identity preserved); git gate PASS (skills tree clean at cf43e93); class detection identified
+# 7 triangle maintainer targets + 1 non-skill (project api-surface.md migration); produced 6-phase plan per
+# §2.5 template + §3 R1 worked example (one byte-identity contract per phase batch; canonical-first/mirrors-second;
+# SKILL body after contracts; non-skill last); HIGH escalation honored (zero edits applied; zero state.yaml writes;
+# audit trail written к ~/.claude/skills-applier-plans/2026-05-24T10-28-32Z-R1.md). Loop validated conceptually —
+# applier produced exactly what design predicted; one honest design-vs-build delta surfaced (design walkthrough
+# showed 5 phases, actual run produced 6 because R1's routing includes project-side api-surface.md migration
+# the design underspecified — class detection caught it as non-skill with reduced gates; design survived contact
+# correctly). ZERO project file changes this session beyond this wrap's standard outputs — all substantive work
+# was USER-LEVEL skill infrastructure. R1 remains PROPOSED + resolved_in_chunk=null + verification_condition
+# `consecutive_count == 0` unchanged — applier dry-run does NOT touch state.yaml per --dry-run flag discipline.
+# A1 consecutive_count incremented 37→38 this wrap via Phase 8 step 4b.i (api_surface still deferred; not
+# reconciled). Phase 8 step 4b.ii: A1.matured_at=128 ✓ + R1 already PROPOSED at 129 → SKIP. Phase 8 step 7
+# State H: commit_sha a01e57d already HEAD-reachable (healed at session 132) — no action. Phase 8 step 8
+# verification: A1 has resolved_in_chunk=null → SKIP (correctly waits for R1 implementation к land via either
+# applier confirm-applied OR manual apply). Phase 11 Mode determination (state-based): A1.refactor_proposed_at=129
+# ≠ 134 → NOT Mode R. `git diff docs/andromeda-improvements.md` shows no new `+### Proposal` lines → NOT Mode P.
+# Fallback → Mode H (honest healthy). Curation: 0/0/0/0/0 — USER-LEVEL substantive work doesn't yield project
+# Tier 1/2/3 learnings (Filter 2 task-specificity would reject R-id/path/session-count facts). Drift: D5 carry-
+# over from session 132 Type 6 Branch (a) preserved per first_observed tracking (first_observed=133,
+# last_observed=134; age=1 wrap; NOT stale yet — threshold >3 wraps); severity=warning + section-aware=cosmetic
+# per Proposal 18 (§Design Philosophy unchanged). Smoke test: 14/14 security crate passed (0.138s). Dead-test
+# scan: 17 blocks in 17 files в pulse-app/src/ (P15 eighteenth observation; unchanged). Cyrillic check: this
+# wrap's authored content Latin-only; pre-existing cyrillic preserved per project precedent. Next chunk:
+# route#82 BLOCKED by Pre-D1 LLM runtime decision (5 wraps now). PRIMARY user decision this session: whether
+# к apply R1 via the now-built applier (closes self-evolve loop end-to-end on a real refactor + validates
+# design before 0.3.0) OR continue analyzing the applier across more dry-runs / variants before committing.
+#
 # Session 133 wrap (2026-05-23T23:08:23Z): META cycle — Experiment 1: extracted Andromeda skill authoring guide
 # from greenfield specialist exemplars (obs/security/arch/design SKILL.md end-to-end + 7 phase reference files
 # from andromeda-obs: phase-0/1/2/3/5 prompt + output-template + validation + visual-references) as PROPOSE-ONLY
@@ -647,7 +687,7 @@ plan_freshness:
   input_mtime: 2026-05-02T06:52:58Z
 
 living_artifact_freshness:
-  dep_tree_reconciled_at: 2026-05-23T23:08:23Z
+  dep_tree_reconciled_at: 2026-05-24T10:42:21Z
   api_surface_reconciled_at: 2026-05-21T06:30:00Z
   most_recent_code_mtime: 2026-05-23T18:32:00Z
   reconcile_failed: false
@@ -660,7 +700,7 @@ drift_warnings:
     severity: warning
     remediation_hint: "Optional — cosmetic mtime drift only per Proposal 18 section-aware classification (§Design Philosophy unchanged → CLAUDE.md §Architecture still current; only §Occupied Resources sub-section changed). Run /andromeda-setup-project (full re-derive) if you want CLAUDE.md mtime refreshed; cosmetic otherwise."
     first_observed_session_count: 133
-    last_observed_session_count: 133
+    last_observed_session_count: 134
 
 spec_amendments:
   active: []
@@ -1327,9 +1367,9 @@ spec_amendments:
 # Modification 3 (per-accumulator verification_condition declared).
 pipeline_accumulators:
   api_surface_deferral:
-    consecutive_count: 37                # session 133 Phase 8 step 4b.i incremented from 36 (last_deferred_session=132 < current=133 → increment fired; META wrap — Experiment 1 extracted Andromeda skill authoring guide as PROPOSE-ONLY artifact in chat text only, zero disk delta, zero new pub items this session; per-crate iteration time budget unchanged at 7-14 min vs ~3 min wrap budget; backlog re-baseline opportunity unchanged from session 132 — warranted at next non-META wrap, most plausibly chunk #82 Hardware profile detection + model loading + tokenizer wrap once Pre-D1 LLM runtime decision resolved)
+    consecutive_count: 38                # session 134 Phase 8 step 4b.i incremented from 37 (last_deferred_session=133 < current=134 → increment fired; META wrap — Experiments 2-5 extracted maintainer-class authoring guide + emitted applier design proposal as PROPOSE-ONLY text + established git version control on ~/.claude/skills/ + built andromeda-apply skill end-to-end + dry-runned applier on R1 producing first observable end-to-end self-evolve loop test; zero project disk delta beyond this wrap; zero new pub items this session; per-crate iteration time budget unchanged at 7-14 min vs ~3 min wrap budget; backlog re-baseline opportunity unchanged from session 132 — warranted at next non-META wrap, most plausibly chunk #82 Hardware profile detection + model loading + tokenizer wrap once Pre-D1 LLM runtime decision resolved; NOTE: R1 has new apply path this session — applier dry-run confirmed HIGH classification + 6-phase escalation plan; user decision point now active: apply R1 via applier OR continue analysis)
     first_deferred_session: 91
-    last_deferred_session: 133           # session 133 Phase 8 step 4b.i updated from 132
+    last_deferred_session: 134           # session 134 Phase 8 step 4b.i updated from 133
     matured_at_session: 128              # preserved from session 128 step 4a migration (matures NOW captured at migration time; Mod 1)
     refactor_proposed_at: 129            # NEW — session 129 Phase 8 step 4b.ii filed R1 this wrap
     refactor_proposal_id: "R1"           # NEW — session 129 Phase 8 step 4b.ii filed R1 entry to docs/andromeda-improvements.md
@@ -1346,4 +1386,4 @@ pipeline_accumulators:
   # verification proves the loop end-to-end). Future activation: deliberate
   # one-time edit to add A2 entry here + update catalogue status DORMANT → ACTIVE.
 
-session_count: 133
+session_count: 134
