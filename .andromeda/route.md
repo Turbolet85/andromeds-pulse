@@ -16,7 +16,7 @@ unit) not HOW (implementation steps)._
 
 ## 1. Route Scope Summary
 
-- **Total chunks:** 81
+- **Total chunks:** 82
 - **Epochs:** 9 (Foundation, Ingest pipeline, Storage & query, Webview shell + TauRPC bridge, Visualization surfaces, Snapshot & Investigate, Plugin runtime + MCP server, Polish & ship, Foundation v0.2.0)
 - **Drilldown depth (avg):** 1.6 (mixed: Foundation depth 2, Ingest pipeline depth 1, Storage & query depth 2, Webview shell depth 1, Visualization surfaces depth 2, Snapshot depth 2, Plugin+MCP depth 2, Polish depth 1)
 - **Hierarchy mode:** mixed (3-level for dense epochs Foundation / Storage / Visualization / Snapshot / Plugin+MCP; 2-level for lighter epochs Ingest / Webview shell / Polish)
@@ -196,6 +196,8 @@ SQL aggregation queries + scheduler — L1a SQL templates Q1-Q7 against L0 ring 
 Cadence coordinator + three-tier triggering — orchestrate L1a SQL queries per attention cue priority tier (capabilities P-052/P-060; detail in pulse-v0_2_0-route §80)
    ↓
 Digest assembler + LWW queue + active-incident exception — compose L3 digest from L1a/L2/corpus; LWW for cadence with active-incident bypass (capabilities P-031/P-032/P-044/P-059; detail in pulse-v0_2_0-route §81)
+   ↓
+Hardware profile detection + model loading + tokenizer — classify hardware tier; load mistralrs model; pair tokenizer per checkpoint (capabilities P-053/P-054; detail in pulse-v0_2_0-route §82).
 
 ---
 
@@ -480,3 +482,12 @@ Digest assembler + LWW queue + active-incident exception — compose L3 digest f
 - **Why:** First L3 digest pipeline chunk per v3 plan Phase 7; depends on #79 (L1a outputs) + #62 (attention cues) + #66 (fingerprints) + #67 (templates) + #69 (corpus retrieval) + #78 (active incident state) — all landed; capabilities P-031 / P-032 / P-044 / P-059. Mirrors chunk #80 precedent.
 - **Mechanical:** §1 Total chunks 80→81 (Form 1 Policy A); state.yaml.last_completed_chunk unchanged.
 - **Marker:** `.andromeda/runs/2026-05-23T15-54-23-spec-amendment-append-chunk-81-digest-assembler-lww-queue/amendment.md`
+
+---
+
+`2026-05-24` — Append chunk #82 Hardware profile detection + model loading + tokenizer (--allow-route-append)
+
+- **Insert:** chunk #82 at §2 Epoch 9 — Foundation v0.2.0 (text: see §2; full detail in `pulse-v0_2_0-route.md` §Phase 8 §82).
+- **Why:** Pre-D1 LLM runtime decision (mistralrs vs candle) resolved session 137; chunk #82 unblocked after 7-wrap block. Capabilities P-053 / P-054.
+- **Mechanical:** §1 Total chunks 81→82 (Form 1 Policy A); state.yaml.last_completed_chunk unchanged.
+- **Marker:** `.andromeda/runs/2026-05-24T13-35-24-spec-amendment-append-chunk-82-hardware-profile/amendment.md`

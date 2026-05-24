@@ -747,7 +747,45 @@ living_artifact_freshness:
 drift_warnings: []   # session 137 — D5 carry-over from sessions 132-136 CLEARED organically by setup-project cascade this session (CLAUDE.md mtime now > arch.md mtime by ~1m)
 
 spec_amendments:
-  active: []
+  active:
+    - amendment_id: 2026-05-24T13-35-24-append-chunk-82-hardware-profile
+      plans:
+        - path: route.md
+          sections:
+            - "§1 Route Scope Summary (Total chunks mechanical update per Proposal 6)"
+            - "§2 Roadmap (Epoch 9 body)"
+            - "§3 Decisions Log"
+          decisions_log_section: "2026-05-24 — Append chunk #82 Hardware profile detection + model loading + tokenizer (--allow-route-append)"
+      trigger:
+        chunk: null
+        phase: null
+        harness: "user-driven via /andromeda-evolve"
+      authority:
+        winning_plan: route.md
+        winning_tier: pipeline state
+        losing_plan: route.md
+        losing_concern: chunk-list-stale-vs-pipeline-reality
+        rationale: "Pre-D1 (mistralrs vs candle) resolved session 137; chunk #82 was BLOCKED 7 wraps awaiting decision; pulse-v0_2_0-route §Phase 8 §82 detail spec exists; route §2 acknowledgment was deferred until Pre-D1 cleared."
+      impl_files_synced: []
+      expected_propagation:
+        - "CLAUDE.md (<!-- GENERATED:setup:pointer-table --> section — chunk-count line cascade 81 → 82)"
+      marker_path: .andromeda/runs/2026-05-24T13-35-24-spec-amendment-append-chunk-82-hardware-profile/amendment.md
+      applied_at: 2026-05-24T13:35:24Z
+      noted_at: null
+      propagated_by_run: .andromeda/runs/2026-05-24T13-41-03-setup-project-delta/
+      archived_at: null
+      verification_status: clean
+      flag_used: --allow-route-append
+      form: 1
+      route_section_modified: "Epoch 9 — Foundation v0.2.0"
+      chunks_added:
+        - position: 82
+          text: "Hardware profile detection + model loading + tokenizer — classify hardware tier; load mistralrs model; pair tokenizer per checkpoint (capabilities P-053/P-054; detail in pulse-v0_2_0-route §82)."
+      chunks_renumbered: []
+      motivation: "Pre-D1 LLM runtime decision (mistralrs vs candle) resolved session 137 via arch §Established Decisions [LLM Inference Runtime — L4 interpretation layer] entry + setup-project cascade commit 6c687c2; chunk #82 BLOCKED 7 wraps awaiting decision"
+      confirmed_shift: false
+      scope_summary_updates:
+        - "Total chunks: 81 → 82"
   archive:
     - amendment_id: 2026-05-23T21-46-00-acknowledge-digests-broadcast
       plans:
