@@ -884,7 +884,209 @@ pub fn corpus::contract::OsKeychainBackend::fetch_or_create_key(&self, service_i
 ```
 <!-- LIVING:api-surface:crate-corpus end -->
 <!-- LIVING:api-surface:crate-curation start -->
-(empty placeholder — wrap-session Phase 5 will fill when cursor reaches `curation`)
+```text
+pub mod curation
+pub mod curation::contract
+pub enum curation::contract::AnomalyKind
+pub curation::contract::AnomalyKind::CardinalitySpike
+pub curation::contract::AnomalyKind::ErrorCorrelation
+pub curation::contract::AnomalyKind::LatencyOutlier
+impl core::clone::Clone for curation::contract::AnomalyKind
+pub fn curation::contract::AnomalyKind::clone(&self) -> curation::contract::AnomalyKind
+impl core::cmp::Eq for curation::contract::AnomalyKind
+impl core::cmp::PartialEq for curation::contract::AnomalyKind
+pub fn curation::contract::AnomalyKind::eq(&self, other: &curation::contract::AnomalyKind) -> bool
+impl core::fmt::Debug for curation::contract::AnomalyKind
+pub fn curation::contract::AnomalyKind::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Copy for curation::contract::AnomalyKind
+impl core::marker::StructuralPartialEq for curation::contract::AnomalyKind
+impl serde_core::ser::Serialize for curation::contract::AnomalyKind
+pub fn curation::contract::AnomalyKind::serialize<__S>(&self, __serializer: __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
+impl<'de> serde_core::de::Deserialize<'de> for curation::contract::AnomalyKind
+pub fn curation::contract::AnomalyKind::deserialize<__D>(__deserializer: __D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
+impl core::marker::Freeze for curation::contract::AnomalyKind
+impl core::marker::Send for curation::contract::AnomalyKind
+impl core::marker::Sync for curation::contract::AnomalyKind
+impl core::marker::Unpin for curation::contract::AnomalyKind
+impl core::marker::UnsafeUnpin for curation::contract::AnomalyKind
+impl core::panic::unwind_safe::RefUnwindSafe for curation::contract::AnomalyKind
+impl core::panic::unwind_safe::UnwindSafe for curation::contract::AnomalyKind
+pub struct curation::contract::AggregationResult
+pub curation::contract::AggregationResult::global: curation::contract::ServicePercentiles
+pub curation::contract::AggregationResult::per_service: alloc::collections::btree::map::BTreeMap<alloc::string::String, curation::contract::ServicePercentiles>
+impl core::clone::Clone for curation::contract::AggregationResult
+pub fn curation::contract::AggregationResult::clone(&self) -> curation::contract::AggregationResult
+impl core::cmp::Eq for curation::contract::AggregationResult
+impl core::cmp::PartialEq for curation::contract::AggregationResult
+pub fn curation::contract::AggregationResult::eq(&self, other: &curation::contract::AggregationResult) -> bool
+impl core::default::Default for curation::contract::AggregationResult
+pub fn curation::contract::AggregationResult::default() -> curation::contract::AggregationResult
+impl core::fmt::Debug for curation::contract::AggregationResult
+pub fn curation::contract::AggregationResult::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for curation::contract::AggregationResult
+impl serde_core::ser::Serialize for curation::contract::AggregationResult
+pub fn curation::contract::AggregationResult::serialize<__S>(&self, __serializer: __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
+impl<'de> serde_core::de::Deserialize<'de> for curation::contract::AggregationResult
+pub fn curation::contract::AggregationResult::deserialize<__D>(__deserializer: __D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
+impl core::marker::Freeze for curation::contract::AggregationResult
+impl core::marker::Send for curation::contract::AggregationResult
+impl core::marker::Sync for curation::contract::AggregationResult
+impl core::marker::Unpin for curation::contract::AggregationResult
+impl core::marker::UnsafeUnpin for curation::contract::AggregationResult
+impl core::panic::unwind_safe::RefUnwindSafe for curation::contract::AggregationResult
+impl core::panic::unwind_safe::UnwindSafe for curation::contract::AggregationResult
+pub struct curation::contract::AnomalyMarker
+pub curation::contract::AnomalyMarker::affected_span_ids: alloc::vec::Vec<[u8; 8]>
+pub curation::contract::AnomalyMarker::kind: curation::contract::AnomalyKind
+pub curation::contract::AnomalyMarker::rationale: alloc::string::String
+pub curation::contract::AnomalyMarker::severity: u8
+impl core::clone::Clone for curation::contract::AnomalyMarker
+pub fn curation::contract::AnomalyMarker::clone(&self) -> curation::contract::AnomalyMarker
+impl core::cmp::Eq for curation::contract::AnomalyMarker
+impl core::cmp::PartialEq for curation::contract::AnomalyMarker
+pub fn curation::contract::AnomalyMarker::eq(&self, other: &curation::contract::AnomalyMarker) -> bool
+impl core::fmt::Debug for curation::contract::AnomalyMarker
+pub fn curation::contract::AnomalyMarker::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for curation::contract::AnomalyMarker
+impl serde_core::ser::Serialize for curation::contract::AnomalyMarker
+pub fn curation::contract::AnomalyMarker::serialize<__S>(&self, __serializer: __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
+impl<'de> serde_core::de::Deserialize<'de> for curation::contract::AnomalyMarker
+pub fn curation::contract::AnomalyMarker::deserialize<__D>(__deserializer: __D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
+impl core::marker::Freeze for curation::contract::AnomalyMarker
+impl core::marker::Send for curation::contract::AnomalyMarker
+impl core::marker::Sync for curation::contract::AnomalyMarker
+impl core::marker::Unpin for curation::contract::AnomalyMarker
+impl core::marker::UnsafeUnpin for curation::contract::AnomalyMarker
+impl core::panic::unwind_safe::RefUnwindSafe for curation::contract::AnomalyMarker
+impl core::panic::unwind_safe::UnwindSafe for curation::contract::AnomalyMarker
+pub struct curation::contract::CriticalPathStep
+pub curation::contract::CriticalPathStep::duration_ms: u64
+pub curation::contract::CriticalPathStep::span_id: [u8; 8]
+impl core::clone::Clone for curation::contract::CriticalPathStep
+pub fn curation::contract::CriticalPathStep::clone(&self) -> curation::contract::CriticalPathStep
+impl core::cmp::Eq for curation::contract::CriticalPathStep
+impl core::cmp::PartialEq for curation::contract::CriticalPathStep
+pub fn curation::contract::CriticalPathStep::eq(&self, other: &curation::contract::CriticalPathStep) -> bool
+impl core::fmt::Debug for curation::contract::CriticalPathStep
+pub fn curation::contract::CriticalPathStep::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Copy for curation::contract::CriticalPathStep
+impl core::marker::StructuralPartialEq for curation::contract::CriticalPathStep
+impl serde_core::ser::Serialize for curation::contract::CriticalPathStep
+pub fn curation::contract::CriticalPathStep::serialize<__S>(&self, __serializer: __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
+impl<'de> serde_core::de::Deserialize<'de> for curation::contract::CriticalPathStep
+pub fn curation::contract::CriticalPathStep::deserialize<__D>(__deserializer: __D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
+impl core::marker::Freeze for curation::contract::CriticalPathStep
+impl core::marker::Send for curation::contract::CriticalPathStep
+impl core::marker::Sync for curation::contract::CriticalPathStep
+impl core::marker::Unpin for curation::contract::CriticalPathStep
+impl core::marker::UnsafeUnpin for curation::contract::CriticalPathStep
+impl core::panic::unwind_safe::RefUnwindSafe for curation::contract::CriticalPathStep
+impl core::panic::unwind_safe::UnwindSafe for curation::contract::CriticalPathStep
+pub struct curation::contract::CurationOutput
+pub curation::contract::CurationOutput::aggregation: curation::contract::AggregationResult
+pub curation::contract::CurationOutput::anomaly_markers: alloc::vec::Vec<curation::contract::AnomalyMarker>
+pub curation::contract::CurationOutput::critical_path: alloc::vec::Vec<curation::contract::CriticalPathStep>
+pub curation::contract::CurationOutput::dedup_count: usize
+pub curation::contract::CurationOutput::dropped_attribute_count: usize
+pub curation::contract::CurationOutput::input_row_count: usize
+pub curation::contract::CurationOutput::kept_attribute_count: usize
+pub curation::contract::CurationOutput::output_row_count: usize
+pub curation::contract::CurationOutput::unique_spans: alloc::vec::Vec<curation::contract::SpanRecord>
+impl core::clone::Clone for curation::contract::CurationOutput
+pub fn curation::contract::CurationOutput::clone(&self) -> curation::contract::CurationOutput
+impl core::cmp::Eq for curation::contract::CurationOutput
+impl core::cmp::PartialEq for curation::contract::CurationOutput
+pub fn curation::contract::CurationOutput::eq(&self, other: &curation::contract::CurationOutput) -> bool
+impl core::default::Default for curation::contract::CurationOutput
+pub fn curation::contract::CurationOutput::default() -> curation::contract::CurationOutput
+impl core::fmt::Debug for curation::contract::CurationOutput
+pub fn curation::contract::CurationOutput::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for curation::contract::CurationOutput
+impl serde_core::ser::Serialize for curation::contract::CurationOutput
+pub fn curation::contract::CurationOutput::serialize<__S>(&self, __serializer: __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
+impl<'de> serde_core::de::Deserialize<'de> for curation::contract::CurationOutput
+pub fn curation::contract::CurationOutput::deserialize<__D>(__deserializer: __D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
+impl core::marker::Freeze for curation::contract::CurationOutput
+impl core::marker::Send for curation::contract::CurationOutput
+impl core::marker::Sync for curation::contract::CurationOutput
+impl core::marker::Unpin for curation::contract::CurationOutput
+impl core::marker::UnsafeUnpin for curation::contract::CurationOutput
+impl core::panic::unwind_safe::RefUnwindSafe for curation::contract::CurationOutput
+impl core::panic::unwind_safe::UnwindSafe for curation::contract::CurationOutput
+pub struct curation::contract::DedupResult
+pub curation::contract::DedupResult::dedup_count: usize
+pub curation::contract::DedupResult::input_row_count: usize
+pub curation::contract::DedupResult::output_row_count: usize
+pub curation::contract::DedupResult::unique_spans: alloc::vec::Vec<curation::contract::SpanRecord>
+impl core::marker::Freeze for curation::contract::DedupResult
+impl core::marker::Send for curation::contract::DedupResult
+impl core::marker::Sync for curation::contract::DedupResult
+impl core::marker::Unpin for curation::contract::DedupResult
+impl core::marker::UnsafeUnpin for curation::contract::DedupResult
+impl core::panic::unwind_safe::RefUnwindSafe for curation::contract::DedupResult
+impl core::panic::unwind_safe::UnwindSafe for curation::contract::DedupResult
+pub struct curation::contract::ServicePercentiles
+pub curation::contract::ServicePercentiles::max_ms: u64
+pub curation::contract::ServicePercentiles::p50_ms: u64
+pub curation::contract::ServicePercentiles::p95_ms: u64
+pub curation::contract::ServicePercentiles::p99_ms: u64
+pub curation::contract::ServicePercentiles::sample_count: usize
+impl core::clone::Clone for curation::contract::ServicePercentiles
+pub fn curation::contract::ServicePercentiles::clone(&self) -> curation::contract::ServicePercentiles
+impl core::cmp::Eq for curation::contract::ServicePercentiles
+impl core::cmp::PartialEq for curation::contract::ServicePercentiles
+pub fn curation::contract::ServicePercentiles::eq(&self, other: &curation::contract::ServicePercentiles) -> bool
+impl core::default::Default for curation::contract::ServicePercentiles
+pub fn curation::contract::ServicePercentiles::default() -> curation::contract::ServicePercentiles
+impl core::fmt::Debug for curation::contract::ServicePercentiles
+pub fn curation::contract::ServicePercentiles::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Copy for curation::contract::ServicePercentiles
+impl core::marker::StructuralPartialEq for curation::contract::ServicePercentiles
+impl serde_core::ser::Serialize for curation::contract::ServicePercentiles
+pub fn curation::contract::ServicePercentiles::serialize<__S>(&self, __serializer: __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
+impl<'de> serde_core::de::Deserialize<'de> for curation::contract::ServicePercentiles
+pub fn curation::contract::ServicePercentiles::deserialize<__D>(__deserializer: __D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
+impl core::marker::Freeze for curation::contract::ServicePercentiles
+impl core::marker::Send for curation::contract::ServicePercentiles
+impl core::marker::Sync for curation::contract::ServicePercentiles
+impl core::marker::Unpin for curation::contract::ServicePercentiles
+impl core::marker::UnsafeUnpin for curation::contract::ServicePercentiles
+impl core::panic::unwind_safe::RefUnwindSafe for curation::contract::ServicePercentiles
+impl core::panic::unwind_safe::UnwindSafe for curation::contract::ServicePercentiles
+pub struct curation::contract::SpanRecord
+pub curation::contract::SpanRecord::attributes: alloc::vec::Vec<(alloc::string::String, alloc::string::String)>
+pub curation::contract::SpanRecord::end_time_unix_nano: i64
+pub curation::contract::SpanRecord::name: alloc::string::String
+pub curation::contract::SpanRecord::parent_span_id: core::option::Option<[u8; 8]>
+pub curation::contract::SpanRecord::service_name: alloc::string::String
+pub curation::contract::SpanRecord::span_id: [u8; 8]
+pub curation::contract::SpanRecord::start_time_unix_nano: i64
+pub curation::contract::SpanRecord::status_code: u8
+pub curation::contract::SpanRecord::trace_id: [u8; 16]
+impl core::clone::Clone for curation::contract::SpanRecord
+pub fn curation::contract::SpanRecord::clone(&self) -> curation::contract::SpanRecord
+impl core::cmp::Eq for curation::contract::SpanRecord
+impl core::cmp::PartialEq for curation::contract::SpanRecord
+pub fn curation::contract::SpanRecord::eq(&self, other: &curation::contract::SpanRecord) -> bool
+impl core::fmt::Debug for curation::contract::SpanRecord
+pub fn curation::contract::SpanRecord::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for curation::contract::SpanRecord
+impl serde_core::ser::Serialize for curation::contract::SpanRecord
+pub fn curation::contract::SpanRecord::serialize<__S>(&self, __serializer: __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
+impl<'de> serde_core::de::Deserialize<'de> for curation::contract::SpanRecord
+pub fn curation::contract::SpanRecord::deserialize<__D>(__deserializer: __D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
+impl core::marker::Freeze for curation::contract::SpanRecord
+impl core::marker::Send for curation::contract::SpanRecord
+impl core::marker::Sync for curation::contract::SpanRecord
+impl core::marker::Unpin for curation::contract::SpanRecord
+impl core::marker::UnsafeUnpin for curation::contract::SpanRecord
+impl core::panic::unwind_safe::RefUnwindSafe for curation::contract::SpanRecord
+impl core::panic::unwind_safe::UnwindSafe for curation::contract::SpanRecord
+pub fn curation::contract::aggregate_metrics(spans: &[curation::contract::SpanRecord]) -> curation::contract::AggregationResult
+pub fn curation::contract::dedupe_spans(spans: &[curation::contract::SpanRecord]) -> curation::contract::DedupResult
+pub fn curation::contract::detect_anomalies(spans: &[curation::contract::SpanRecord]) -> alloc::vec::Vec<curation::contract::AnomalyMarker>
+pub fn curation::contract::extract_critical_path(spans: &[curation::contract::SpanRecord]) -> alloc::vec::Vec<curation::contract::CriticalPathStep>
+```
 <!-- LIVING:api-surface:crate-curation end -->
 <!-- LIVING:api-surface:crate-ingest start -->
 (empty placeholder — wrap-session Phase 5 will fill when cursor reaches `ingest`)
