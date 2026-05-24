@@ -1,6 +1,6 @@
 schema_version: 2
-last_wrap: 2026-05-24T11:55:52Z
-last_reconcile: 2026-05-24T11:55:52Z
+last_wrap: 2026-05-24T12:29:10Z
+last_reconcile: 2026-05-24T12:29:10Z
 
 # Session 134 wrap (2026-05-24T10:42:21Z): META cycle — Experiments 2+3+4+5: maintainer-class authoring guide
 # extracted + saved at ~/.claude/skills/andromeda-skill-authoring-guide-maintainer.md (702 lines; companion to
@@ -687,10 +687,10 @@ plan_freshness:
   input_mtime: 2026-05-02T06:52:58Z
 
 living_artifact_freshness:
-  dep_tree_reconciled_at: 2026-05-24T11:55:52Z
-  api_surface_reconciled_at: 2026-05-24T11:55:52Z   # NEW post-R1 — FIRST per-crate Phase 5 reconcile fired; `buffer` crate sub-block filled с 616 lines of real cargo +nightly public-api --simplified -p buffer output (took ~83s, well within ~3min wrap budget — R1 design validated empirically)
-  api_surface_next_crate: "corpus"                  # NEW post-R1 — per-crate cursor advanced from "buffer" (first alphabetical reconcile target this wrap); next wrap will reconcile `corpus`
-  api_surface_cycle_start_crate: "buffer"           # NEW post-R1 — cycle anchor set on first per-crate reconcile this wrap; cycle wraps when next_crate returns к "buffer" (~14 wraps for 14-crate workspace)
+  dep_tree_reconciled_at: 2026-05-24T12:29:10Z
+  api_surface_reconciled_at: 2026-05-24T12:29:10Z   # session 136 — SECOND per-crate Phase 5 reconcile fired (corpus crate, 248 LOC in ~7s); cursor "corpus" → "curation"; cycle_start_crate "buffer" preserved
+  api_surface_next_crate: "curation"                # session 136 — cursor advanced corpus → curation (3rd alphabetical)
+  api_surface_cycle_start_crate: "buffer"           # session 135 cycle anchor; will reset when cursor returns к "buffer" (~12 more wraps for 14-crate workspace)
   most_recent_code_mtime: 2026-05-23T18:32:00Z
   reconcile_failed: false
   api_surface_deferred: false                       # CHANGED post-R1 — per-crate mode never defers (was true through sessions 91-134 during batch-mode pattern)
@@ -702,7 +702,7 @@ drift_warnings:
     severity: warning
     remediation_hint: "Optional — cosmetic mtime drift only per Proposal 18 section-aware classification (§Design Philosophy unchanged → CLAUDE.md §Architecture still current; only §Occupied Resources sub-section changed). Run /andromeda-setup-project (full re-derive) if you want CLAUDE.md mtime refreshed; cosmetic otherwise."
     first_observed_session_count: 133
-    last_observed_session_count: 135
+    last_observed_session_count: 136
 
 spec_amendments:
   active: []
@@ -1388,4 +1388,4 @@ pipeline_accumulators:
   # verification proves the loop end-to-end). Future activation: deliberate
   # one-time edit to add A2 entry here + update catalogue status DORMANT → ACTIVE.
 
-session_count: 135
+session_count: 136

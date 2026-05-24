@@ -632,7 +632,256 @@ pub type buffer::TemplateId = u64
 ```
 <!-- LIVING:api-surface:crate-buffer end -->
 <!-- LIVING:api-surface:crate-corpus start -->
-(empty placeholder — wrap-session Phase 5 will fill when cursor reaches `corpus`)
+```text
+pub mod corpus
+pub mod corpus::contract
+pub enum corpus::contract::BackendKind
+pub corpus::contract::BackendKind::InMemoryFake
+pub corpus::contract::BackendKind::LinuxSecretService
+pub corpus::contract::BackendKind::MacosKeychain
+pub corpus::contract::BackendKind::PassphraseFallback
+pub corpus::contract::BackendKind::WindowsDpapi
+impl corpus::contract::BackendKind
+pub fn corpus::contract::BackendKind::as_str(self) -> &'static str
+impl core::clone::Clone for corpus::contract::BackendKind
+pub fn corpus::contract::BackendKind::clone(&self) -> corpus::contract::BackendKind
+impl core::cmp::Eq for corpus::contract::BackendKind
+impl core::cmp::PartialEq for corpus::contract::BackendKind
+pub fn corpus::contract::BackendKind::eq(&self, other: &corpus::contract::BackendKind) -> bool
+impl core::fmt::Debug for corpus::contract::BackendKind
+pub fn corpus::contract::BackendKind::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Copy for corpus::contract::BackendKind
+impl core::marker::StructuralPartialEq for corpus::contract::BackendKind
+impl core::marker::Freeze for corpus::contract::BackendKind
+impl core::marker::Send for corpus::contract::BackendKind
+impl core::marker::Sync for corpus::contract::BackendKind
+impl core::marker::Unpin for corpus::contract::BackendKind
+impl core::marker::UnsafeUnpin for corpus::contract::BackendKind
+impl core::panic::unwind_safe::RefUnwindSafe for corpus::contract::BackendKind
+impl core::panic::unwind_safe::UnwindSafe for corpus::contract::BackendKind
+pub enum corpus::contract::Error
+pub corpus::contract::Error::DecryptionFailed
+pub corpus::contract::Error::EncryptionFailed
+pub corpus::contract::Error::Io
+pub corpus::contract::Error::Io::kind: core::io::error::ErrorKind
+pub corpus::contract::Error::KeyringUnavailable
+pub corpus::contract::Error::MigrationFailed
+pub corpus::contract::Error::PathTraversal
+pub corpus::contract::Error::QueryFailed
+pub corpus::contract::Error::SchemaVersionMismatch
+pub corpus::contract::Error::SizeCapExceeded
+impl core::convert::From<rusqlite::error::Error> for corpus::contract::Error
+pub fn corpus::contract::Error::from(_: rusqlite::error::Error) -> Self
+impl core::convert::From<std::io::error::Error> for corpus::contract::Error
+pub fn corpus::contract::Error::from(e: std::io::error::Error) -> Self
+impl core::error::Error for corpus::contract::Error
+impl core::fmt::Debug for corpus::contract::Error
+pub fn corpus::contract::Error::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::fmt::Display for corpus::contract::Error
+pub fn corpus::contract::Error::fmt(&self, __formatter: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Freeze for corpus::contract::Error
+impl core::marker::Send for corpus::contract::Error
+impl core::marker::Sync for corpus::contract::Error
+impl core::marker::Unpin for corpus::contract::Error
+impl core::marker::UnsafeUnpin for corpus::contract::Error
+impl core::panic::unwind_safe::RefUnwindSafe for corpus::contract::Error
+impl core::panic::unwind_safe::UnwindSafe for corpus::contract::Error
+pub enum corpus::contract::KeychainError
+pub corpus::contract::KeychainError::Failed
+pub corpus::contract::KeychainError::NotFound
+pub corpus::contract::KeychainError::Unavailable
+impl core::error::Error for corpus::contract::KeychainError
+impl core::fmt::Debug for corpus::contract::KeychainError
+pub fn corpus::contract::KeychainError::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::fmt::Display for corpus::contract::KeychainError
+pub fn corpus::contract::KeychainError::fmt(&self, __formatter: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Freeze for corpus::contract::KeychainError
+impl core::marker::Send for corpus::contract::KeychainError
+impl core::marker::Sync for corpus::contract::KeychainError
+impl core::marker::Unpin for corpus::contract::KeychainError
+impl core::marker::UnsafeUnpin for corpus::contract::KeychainError
+impl core::panic::unwind_safe::RefUnwindSafe for corpus::contract::KeychainError
+impl core::panic::unwind_safe::UnwindSafe for corpus::contract::KeychainError
+pub struct corpus::contract::Corpus
+impl corpus::contract::Corpus
+pub fn corpus::contract::Corpus::open(path: std::path::PathBuf, keychain: alloc::sync::Arc<dyn corpus::contract::KeychainBackend>) -> core::result::Result<Self, corpus::contract::Error>
+pub fn corpus::contract::Corpus::open_in_memory(keychain: alloc::sync::Arc<dyn corpus::contract::KeychainBackend>) -> core::result::Result<Self, corpus::contract::Error>
+pub fn corpus::contract::Corpus::path(&self) -> &std::path::Path
+pub fn corpus::contract::Corpus::schema_version(&self) -> u32
+impl core::fmt::Debug for corpus::contract::Corpus
+pub fn corpus::contract::Corpus::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl corpus::contract::CorpusReader for corpus::contract::Corpus
+pub fn corpus::contract::Corpus::inspect(&self) -> core::result::Result<corpus::contract::InspectionMetadata, corpus::contract::Error>
+pub fn corpus::contract::Corpus::path(&self) -> std::path::PathBuf
+impl corpus::contract::CorpusWriter for corpus::contract::Corpus
+pub fn corpus::contract::Corpus::count_active_unread(&self, workspace: &str) -> core::result::Result<u64, corpus::contract::Error>
+pub fn corpus::contract::Corpus::load_active_incidents(&self, workspace: &str) -> core::result::Result<alloc::vec::Vec<corpus::contract::IncidentRowRaw>, corpus::contract::Error>
+pub fn corpus::contract::Corpus::load_all_service_registry_rows(&self) -> core::result::Result<alloc::vec::Vec<corpus::contract::ServiceRegistryRowRaw>, corpus::contract::Error>
+pub fn corpus::contract::Corpus::load_pipeline_metric(&self, metric_name: &str, layer: &str) -> core::result::Result<core::option::Option<alloc::vec::Vec<u8>>, corpus::contract::Error>
+pub fn corpus::contract::Corpus::mark_incident_read(&self, id: i64, read_unix_nano: i64) -> core::result::Result<(), corpus::contract::Error>
+pub fn corpus::contract::Corpus::save_digest(&self, digest_kind: &str, assembled_unix_nano: i64, token_count: i64, payload: &[u8]) -> core::result::Result<i64, corpus::contract::Error>
+pub fn corpus::contract::Corpus::save_incident(&self, workspace: &str, status: &str, created_unix_nano: i64, updated_unix_nano: i64, resolved_unix_nano: core::option::Option<i64>, read_unix_nano: core::option::Option<i64>, payload: &[u8]) -> core::result::Result<i64, corpus::contract::Error>
+pub fn corpus::contract::Corpus::save_incident_event(&self, incident_id: i64, event_kind: &str, occurred_unix_nano: i64, payload: &[u8]) -> core::result::Result<(), corpus::contract::Error>
+pub fn corpus::contract::Corpus::save_pipeline_metric(&self, metric_name: &str, layer: &str, payload: &[u8]) -> core::result::Result<(), corpus::contract::Error>
+pub fn corpus::contract::Corpus::save_service_registry_row(&self, service_name: &str, state: &str, first_seen_unix_nano: i64, last_seen_unix_nano: i64, last_transition_unix_nano: i64, manual_override: core::option::Option<&str>) -> core::result::Result<(), corpus::contract::Error>
+pub fn corpus::contract::Corpus::update_incident_status(&self, id: i64, status: &str, updated_unix_nano: i64, resolved_unix_nano: core::option::Option<i64>, payload: &[u8]) -> core::result::Result<(), corpus::contract::Error>
+impl core::marker::Freeze for corpus::contract::Corpus
+impl core::marker::Send for corpus::contract::Corpus
+impl core::marker::Sync for corpus::contract::Corpus
+impl core::marker::Unpin for corpus::contract::Corpus
+impl core::marker::UnsafeUnpin for corpus::contract::Corpus
+impl core::panic::unwind_safe::RefUnwindSafe for corpus::contract::Corpus
+impl core::panic::unwind_safe::UnwindSafe for corpus::contract::Corpus
+pub struct corpus::contract::FakeKeychainBackend
+impl corpus::contract::FakeKeychainBackend
+pub fn corpus::contract::FakeKeychainBackend::new() -> Self
+pub fn corpus::contract::FakeKeychainBackend::with_seeded_key(service_id: &str, key: [u8; 32]) -> Self
+impl core::default::Default for corpus::contract::FakeKeychainBackend
+pub fn corpus::contract::FakeKeychainBackend::default() -> corpus::contract::FakeKeychainBackend
+impl core::fmt::Debug for corpus::contract::FakeKeychainBackend
+pub fn corpus::contract::FakeKeychainBackend::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl corpus::contract::KeychainBackend for corpus::contract::FakeKeychainBackend
+pub fn corpus::contract::FakeKeychainBackend::backend_kind(&self) -> corpus::contract::BackendKind
+pub fn corpus::contract::FakeKeychainBackend::fetch_or_create_key(&self, service_id: &str) -> core::result::Result<[u8; 32], corpus::contract::KeychainError>
+impl !core::marker::Freeze for corpus::contract::FakeKeychainBackend
+impl core::marker::Send for corpus::contract::FakeKeychainBackend
+impl core::marker::Sync for corpus::contract::FakeKeychainBackend
+impl core::marker::Unpin for corpus::contract::FakeKeychainBackend
+impl core::marker::UnsafeUnpin for corpus::contract::FakeKeychainBackend
+impl core::panic::unwind_safe::RefUnwindSafe for corpus::contract::FakeKeychainBackend
+impl core::panic::unwind_safe::UnwindSafe for corpus::contract::FakeKeychainBackend
+pub struct corpus::contract::IncidentRowRaw
+pub corpus::contract::IncidentRowRaw::created_unix_nano: i64
+pub corpus::contract::IncidentRowRaw::id: i64
+pub corpus::contract::IncidentRowRaw::payload: alloc::vec::Vec<u8>
+pub corpus::contract::IncidentRowRaw::read_unix_nano: core::option::Option<i64>
+pub corpus::contract::IncidentRowRaw::resolved_unix_nano: core::option::Option<i64>
+pub corpus::contract::IncidentRowRaw::status: alloc::string::String
+pub corpus::contract::IncidentRowRaw::updated_unix_nano: i64
+pub corpus::contract::IncidentRowRaw::workspace: alloc::string::String
+impl core::clone::Clone for corpus::contract::IncidentRowRaw
+pub fn corpus::contract::IncidentRowRaw::clone(&self) -> corpus::contract::IncidentRowRaw
+impl core::cmp::Eq for corpus::contract::IncidentRowRaw
+impl core::cmp::PartialEq for corpus::contract::IncidentRowRaw
+pub fn corpus::contract::IncidentRowRaw::eq(&self, other: &corpus::contract::IncidentRowRaw) -> bool
+impl core::fmt::Debug for corpus::contract::IncidentRowRaw
+pub fn corpus::contract::IncidentRowRaw::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for corpus::contract::IncidentRowRaw
+impl serde_core::ser::Serialize for corpus::contract::IncidentRowRaw
+pub fn corpus::contract::IncidentRowRaw::serialize<__S>(&self, __serializer: __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
+impl<'de> serde_core::de::Deserialize<'de> for corpus::contract::IncidentRowRaw
+pub fn corpus::contract::IncidentRowRaw::deserialize<__D>(__deserializer: __D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
+impl core::marker::Freeze for corpus::contract::IncidentRowRaw
+impl core::marker::Send for corpus::contract::IncidentRowRaw
+impl core::marker::Sync for corpus::contract::IncidentRowRaw
+impl core::marker::Unpin for corpus::contract::IncidentRowRaw
+impl core::marker::UnsafeUnpin for corpus::contract::IncidentRowRaw
+impl core::panic::unwind_safe::RefUnwindSafe for corpus::contract::IncidentRowRaw
+impl core::panic::unwind_safe::UnwindSafe for corpus::contract::IncidentRowRaw
+pub struct corpus::contract::InspectionMetadata
+pub corpus::contract::InspectionMetadata::record_counts: alloc::collections::btree::map::BTreeMap<alloc::string::String, u64>
+pub corpus::contract::InspectionMetadata::schema_version: u32
+pub corpus::contract::InspectionMetadata::total_bytes_on_disk: u64
+impl core::clone::Clone for corpus::contract::InspectionMetadata
+pub fn corpus::contract::InspectionMetadata::clone(&self) -> corpus::contract::InspectionMetadata
+impl core::cmp::Eq for corpus::contract::InspectionMetadata
+impl core::cmp::PartialEq for corpus::contract::InspectionMetadata
+pub fn corpus::contract::InspectionMetadata::eq(&self, other: &corpus::contract::InspectionMetadata) -> bool
+impl core::fmt::Debug for corpus::contract::InspectionMetadata
+pub fn corpus::contract::InspectionMetadata::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for corpus::contract::InspectionMetadata
+impl serde_core::ser::Serialize for corpus::contract::InspectionMetadata
+pub fn corpus::contract::InspectionMetadata::serialize<__S>(&self, __serializer: __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
+impl<'de> serde_core::de::Deserialize<'de> for corpus::contract::InspectionMetadata
+pub fn corpus::contract::InspectionMetadata::deserialize<__D>(__deserializer: __D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
+impl core::marker::Freeze for corpus::contract::InspectionMetadata
+impl core::marker::Send for corpus::contract::InspectionMetadata
+impl core::marker::Sync for corpus::contract::InspectionMetadata
+impl core::marker::Unpin for corpus::contract::InspectionMetadata
+impl core::marker::UnsafeUnpin for corpus::contract::InspectionMetadata
+impl core::panic::unwind_safe::RefUnwindSafe for corpus::contract::InspectionMetadata
+impl core::panic::unwind_safe::UnwindSafe for corpus::contract::InspectionMetadata
+pub struct corpus::contract::OsKeychainBackend
+impl corpus::contract::OsKeychainBackend
+pub fn corpus::contract::OsKeychainBackend::new(service: impl core::convert::Into<alloc::string::String>) -> Self
+impl core::fmt::Debug for corpus::contract::OsKeychainBackend
+pub fn corpus::contract::OsKeychainBackend::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl corpus::contract::KeychainBackend for corpus::contract::OsKeychainBackend
+pub fn corpus::contract::OsKeychainBackend::backend_kind(&self) -> corpus::contract::BackendKind
+pub fn corpus::contract::OsKeychainBackend::fetch_or_create_key(&self, service_id: &str) -> core::result::Result<[u8; 32], corpus::contract::KeychainError>
+impl core::marker::Freeze for corpus::contract::OsKeychainBackend
+impl core::marker::Send for corpus::contract::OsKeychainBackend
+impl core::marker::Sync for corpus::contract::OsKeychainBackend
+impl core::marker::Unpin for corpus::contract::OsKeychainBackend
+impl core::marker::UnsafeUnpin for corpus::contract::OsKeychainBackend
+impl core::panic::unwind_safe::RefUnwindSafe for corpus::contract::OsKeychainBackend
+impl core::panic::unwind_safe::UnwindSafe for corpus::contract::OsKeychainBackend
+pub struct corpus::contract::ServiceRegistryRowRaw
+pub corpus::contract::ServiceRegistryRowRaw::first_seen_unix_nano: i64
+pub corpus::contract::ServiceRegistryRowRaw::last_seen_unix_nano: i64
+pub corpus::contract::ServiceRegistryRowRaw::last_transition_unix_nano: i64
+pub corpus::contract::ServiceRegistryRowRaw::manual_override: core::option::Option<alloc::string::String>
+pub corpus::contract::ServiceRegistryRowRaw::service_name: alloc::string::String
+pub corpus::contract::ServiceRegistryRowRaw::state: alloc::string::String
+impl core::clone::Clone for corpus::contract::ServiceRegistryRowRaw
+pub fn corpus::contract::ServiceRegistryRowRaw::clone(&self) -> corpus::contract::ServiceRegistryRowRaw
+impl core::cmp::Eq for corpus::contract::ServiceRegistryRowRaw
+impl core::cmp::PartialEq for corpus::contract::ServiceRegistryRowRaw
+pub fn corpus::contract::ServiceRegistryRowRaw::eq(&self, other: &corpus::contract::ServiceRegistryRowRaw) -> bool
+impl core::fmt::Debug for corpus::contract::ServiceRegistryRowRaw
+pub fn corpus::contract::ServiceRegistryRowRaw::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for corpus::contract::ServiceRegistryRowRaw
+impl serde_core::ser::Serialize for corpus::contract::ServiceRegistryRowRaw
+pub fn corpus::contract::ServiceRegistryRowRaw::serialize<__S>(&self, __serializer: __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
+impl<'de> serde_core::de::Deserialize<'de> for corpus::contract::ServiceRegistryRowRaw
+pub fn corpus::contract::ServiceRegistryRowRaw::deserialize<__D>(__deserializer: __D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
+impl core::marker::Freeze for corpus::contract::ServiceRegistryRowRaw
+impl core::marker::Send for corpus::contract::ServiceRegistryRowRaw
+impl core::marker::Sync for corpus::contract::ServiceRegistryRowRaw
+impl core::marker::Unpin for corpus::contract::ServiceRegistryRowRaw
+impl core::marker::UnsafeUnpin for corpus::contract::ServiceRegistryRowRaw
+impl core::panic::unwind_safe::RefUnwindSafe for corpus::contract::ServiceRegistryRowRaw
+impl core::panic::unwind_safe::UnwindSafe for corpus::contract::ServiceRegistryRowRaw
+pub trait corpus::contract::CorpusReader: core::marker::Send + core::marker::Sync + core::fmt::Debug
+pub fn corpus::contract::CorpusReader::inspect(&self) -> core::result::Result<corpus::contract::InspectionMetadata, corpus::contract::Error>
+pub fn corpus::contract::CorpusReader::path(&self) -> std::path::PathBuf
+impl corpus::contract::CorpusReader for corpus::contract::Corpus
+pub fn corpus::contract::Corpus::inspect(&self) -> core::result::Result<corpus::contract::InspectionMetadata, corpus::contract::Error>
+pub fn corpus::contract::Corpus::path(&self) -> std::path::PathBuf
+pub trait corpus::contract::CorpusWriter: core::marker::Send + core::marker::Sync
+pub fn corpus::contract::CorpusWriter::count_active_unread(&self, workspace: &str) -> core::result::Result<u64, corpus::contract::Error>
+pub fn corpus::contract::CorpusWriter::load_active_incidents(&self, workspace: &str) -> core::result::Result<alloc::vec::Vec<corpus::contract::IncidentRowRaw>, corpus::contract::Error>
+pub fn corpus::contract::CorpusWriter::load_all_service_registry_rows(&self) -> core::result::Result<alloc::vec::Vec<corpus::contract::ServiceRegistryRowRaw>, corpus::contract::Error>
+pub fn corpus::contract::CorpusWriter::load_pipeline_metric(&self, metric_name: &str, layer: &str) -> core::result::Result<core::option::Option<alloc::vec::Vec<u8>>, corpus::contract::Error>
+pub fn corpus::contract::CorpusWriter::mark_incident_read(&self, id: i64, read_unix_nano: i64) -> core::result::Result<(), corpus::contract::Error>
+pub fn corpus::contract::CorpusWriter::save_digest(&self, digest_kind: &str, assembled_unix_nano: i64, token_count: i64, payload: &[u8]) -> core::result::Result<i64, corpus::contract::Error>
+pub fn corpus::contract::CorpusWriter::save_incident(&self, workspace: &str, status: &str, created_unix_nano: i64, updated_unix_nano: i64, resolved_unix_nano: core::option::Option<i64>, read_unix_nano: core::option::Option<i64>, payload: &[u8]) -> core::result::Result<i64, corpus::contract::Error>
+pub fn corpus::contract::CorpusWriter::save_incident_event(&self, incident_id: i64, event_kind: &str, occurred_unix_nano: i64, payload: &[u8]) -> core::result::Result<(), corpus::contract::Error>
+pub fn corpus::contract::CorpusWriter::save_pipeline_metric(&self, metric_name: &str, layer: &str, payload: &[u8]) -> core::result::Result<(), corpus::contract::Error>
+pub fn corpus::contract::CorpusWriter::save_service_registry_row(&self, service_name: &str, state: &str, first_seen_unix_nano: i64, last_seen_unix_nano: i64, last_transition_unix_nano: i64, manual_override: core::option::Option<&str>) -> core::result::Result<(), corpus::contract::Error>
+pub fn corpus::contract::CorpusWriter::update_incident_status(&self, id: i64, status: &str, updated_unix_nano: i64, resolved_unix_nano: core::option::Option<i64>, payload: &[u8]) -> core::result::Result<(), corpus::contract::Error>
+impl corpus::contract::CorpusWriter for corpus::contract::Corpus
+pub fn corpus::contract::Corpus::count_active_unread(&self, workspace: &str) -> core::result::Result<u64, corpus::contract::Error>
+pub fn corpus::contract::Corpus::load_active_incidents(&self, workspace: &str) -> core::result::Result<alloc::vec::Vec<corpus::contract::IncidentRowRaw>, corpus::contract::Error>
+pub fn corpus::contract::Corpus::load_all_service_registry_rows(&self) -> core::result::Result<alloc::vec::Vec<corpus::contract::ServiceRegistryRowRaw>, corpus::contract::Error>
+pub fn corpus::contract::Corpus::load_pipeline_metric(&self, metric_name: &str, layer: &str) -> core::result::Result<core::option::Option<alloc::vec::Vec<u8>>, corpus::contract::Error>
+pub fn corpus::contract::Corpus::mark_incident_read(&self, id: i64, read_unix_nano: i64) -> core::result::Result<(), corpus::contract::Error>
+pub fn corpus::contract::Corpus::save_digest(&self, digest_kind: &str, assembled_unix_nano: i64, token_count: i64, payload: &[u8]) -> core::result::Result<i64, corpus::contract::Error>
+pub fn corpus::contract::Corpus::save_incident(&self, workspace: &str, status: &str, created_unix_nano: i64, updated_unix_nano: i64, resolved_unix_nano: core::option::Option<i64>, read_unix_nano: core::option::Option<i64>, payload: &[u8]) -> core::result::Result<i64, corpus::contract::Error>
+pub fn corpus::contract::Corpus::save_incident_event(&self, incident_id: i64, event_kind: &str, occurred_unix_nano: i64, payload: &[u8]) -> core::result::Result<(), corpus::contract::Error>
+pub fn corpus::contract::Corpus::save_pipeline_metric(&self, metric_name: &str, layer: &str, payload: &[u8]) -> core::result::Result<(), corpus::contract::Error>
+pub fn corpus::contract::Corpus::save_service_registry_row(&self, service_name: &str, state: &str, first_seen_unix_nano: i64, last_seen_unix_nano: i64, last_transition_unix_nano: i64, manual_override: core::option::Option<&str>) -> core::result::Result<(), corpus::contract::Error>
+pub fn corpus::contract::Corpus::update_incident_status(&self, id: i64, status: &str, updated_unix_nano: i64, resolved_unix_nano: core::option::Option<i64>, payload: &[u8]) -> core::result::Result<(), corpus::contract::Error>
+pub trait corpus::contract::KeychainBackend: core::marker::Send + core::marker::Sync + core::fmt::Debug
+pub fn corpus::contract::KeychainBackend::backend_kind(&self) -> corpus::contract::BackendKind
+pub fn corpus::contract::KeychainBackend::fetch_or_create_key(&self, service_id: &str) -> core::result::Result<[u8; 32], corpus::contract::KeychainError>
+impl corpus::contract::KeychainBackend for corpus::contract::FakeKeychainBackend
+pub fn corpus::contract::FakeKeychainBackend::backend_kind(&self) -> corpus::contract::BackendKind
+pub fn corpus::contract::FakeKeychainBackend::fetch_or_create_key(&self, service_id: &str) -> core::result::Result<[u8; 32], corpus::contract::KeychainError>
+impl corpus::contract::KeychainBackend for corpus::contract::OsKeychainBackend
+pub fn corpus::contract::OsKeychainBackend::backend_kind(&self) -> corpus::contract::BackendKind
+pub fn corpus::contract::OsKeychainBackend::fetch_or_create_key(&self, service_id: &str) -> core::result::Result<[u8; 32], corpus::contract::KeychainError>
+```
 <!-- LIVING:api-surface:crate-corpus end -->
 <!-- LIVING:api-surface:crate-curation start -->
 (empty placeholder — wrap-session Phase 5 will fill when cursor reaches `curation`)

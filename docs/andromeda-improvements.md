@@ -1530,7 +1530,7 @@ NOW. The accumulator has been past threshold for 1 wrap by session 129 (matured 
 
 ### Proposal P22 — Phase 8 step 4b.i clears matured_at_session BEFORE step 8 verification, breaking one-wrap-lag gate for ANY accumulator-driven refactor
 
-## Status: PROPOSED — 2026-05-24 (session 135)
+## Status: IMPLEMENTED — 2026-05-24 (session 135) — Option 2 applied: 2 edits к `~/.claude/skills/andromeda-wrap-session/SKILL.md` Phase 8 step 4b.i (conditional preserve when refactor in flight) + step 8 IF-PASS branch (deferred cleanup of matured_at_session post-transition). Skills repo commit base `076a01b` (R1 changes) + `pre-P22-apply` tag for rollback. [READ_AFTER_WRITE] + [NO_COLLATERAL_DAMAGE] (2 hunks / 1 file) + [§12_10_SANITY] 5/5 PASS. Manually-applied patch (no accumulator binding → no Phase 8 step 8 one-wrap-lag gate applies; transition is user-driven per patch convention).
 
 **Problem:** wrap-session Phase 8's intra-phase ordering creates a verification-gap when the same wrap that completes a matured refactor's apply ALSO triggers the natural cycle clear that step 8 needs to observe:
 
