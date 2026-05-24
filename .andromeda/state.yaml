@@ -1,6 +1,40 @@
 schema_version: 2
-last_wrap: 2026-05-24T20:49:42Z
-last_reconcile: 2026-05-24T20:49:42Z
+last_wrap: 2026-05-24T21:35:19Z
+last_reconcile: 2026-05-24T21:35:19Z
+
+# Session 143 wrap (2026-05-24T21:35:19Z): DIAGNOSTIC-ONLY session — staged-ladder
+# validation INVALIDATES session 142's Step 0 spike "120× SLO / CPU too slow"
+# conclusion. User intuition correct: 60min CPU-bound + zero tokens != honest
+# slowness. Built `pulse-app/tests/spike_diagnostic_staged_ladder.rs` (#[ignore]-
+# gated) с (a) `stream_chat_request` streaming chunks, (b) eprintln+flush per
+# chunk (NO tail buffering), (c) heartbeat thread firing every 10s, (d) explicit
+# `set_sampler_max_len(N)` к bound generation, (e) `tokio::time::timeout(...)`
+# wall-clock wrapper — Stage 1 (trivial "What is 2+2?", max_tokens=16, no schema,
+# 5min cap) produced ZERO TOKENS while heartbeats fired regularly on schedule
+# (30 ticks confirming test process alive). Stages 2/3 gated; not run because
+# Stage 1's zero-token result rules out "slow but progressing." Diagnosis:
+# basic mistralrs 0.8.0 → Llama-3.2-3B-Q4_K_M GGUF → CPU inference path produces
+# no observable output via streaming OR non-streaming API on this host.
+# Possible root causes (none confirmed; for next-debug): mistralrs 0.8.0 CPU
+# kernel bug, GGUF source mismatch с Llama-3.2 architecture, streaming code
+# batching на CPU path, deadlock в request/response channel, OR truly extreme
+# slowness <0.001 tok/sec. INVALIDATES session 142's spike-result.md L4 SLO
+# claim ("120× SLO / CPU too slow"); the spike was measuring а stuck path, NOT
+# CPU throughput. Arch follow-up (L4 GPU-only restriction / SLO revision /
+# fallback tier) should be PAUSED pending real tokens-per-sec measurement.
+# Suggested next-debug paths (not arch decisions): try Model::chat() simple
+# API; try mistralrs 0.8.1; try different GGUF source; try smaller model
+# (1B / TinyLlama); check mistralrs GitHub for Llama-3.2 CPU issues.
+# Diagnostic test stays committed-able as а reusable debug harness (heartbeat +
+# bounded streaming + per-stage cap pattern). Zero production code changes
+# этой session (per user's diagnostic-only constraint). Phase 5 reconcile этой
+# wrap: dep-tree timestamp-only refresh (no source delta since session 142);
+# api-surface cursor advanced snapshot → triage; snapshot sub-block populated
+# 170 lines pub API (9/14 crates с real api content). 1 Tier 2 curation: testing.md
+# "Sustained-CPU + zero-output ≠ slow inference; validation discipline для any
+# inference performance claim." State H housekeeping этой wrap: session 142
+# commit_sha="pending" auto-heals к 0e37159 (HEAD-reachable; chunk #83
+# progression match).
 
 # Session 142 wrap (2026-05-24T20:49:42Z): TWO-WORKFLOW session — (1) standard chunk #83 substrate
 # implementation via new-session → phase → implement chain (Phase 80 plan landed; 8 new files + 5 modified
@@ -355,7 +389,7 @@ last_completed_chunk:
   title: "Prompt scaffolding + JSON schema + primary tier inference — system prompt; embedded JSON schema; JSON-constrained inference (capabilities P-019/P-020/P-033/P-034; detail in pulse-v0_2_0-route §Phase 8 §83)"
   epoch: 9
   committed_at: 2026-05-24T20:49:42Z
-  commit_sha: "pending"
+  commit_sha: "0e37159"
   commit_subject: "chore(wrap): session 142 — chunk #83 substrate + Step 1/5/0/13 deferred-step execution + Step 0 spike against real model (load PASS / inference SLO FAIL verdict) + EIGHTH per-crate api-surface reconcile (security)"
   # Note: commit_sha="pending" per Proposal 16 (commit's SHA cannot be known pre-commit; next wrap auto-heals
   # via Phase 8 step 7 к а HEAD-reachable SHA matching chunk progression pattern). The chunk #83 substrate
@@ -963,16 +997,16 @@ plan_freshness:
   input_mtime: 2026-05-02T06:52:58Z
 
 living_artifact_freshness:
-  dep_tree_reconciled_at: 2026-05-24T20:49:42Z      # session 142 — refreshed 481 lines (+31 от session 141 baseline 450 lines due к mistralrs workspace dep edges landing this session at Step 1; first non-zero delta dep-tree этой cycle since session 131 chunk #81 tokenizers dep addition)
-  api_surface_reconciled_at: 2026-05-24T20:49:42Z   # session 142 — EIGHTH per-crate Phase 5 reconcile fired (security crate, 29 lines pub API в <1s — smallest sub-block of the cycle so far; single ScrubbedValue enum + scrub_attribute fn от chunk #68/#72 substrate); cursor "security" → "snapshot"; cycle_start_crate "buffer" preserved
-  api_surface_next_crate: "snapshot"                # session 142 — cursor advanced security → snapshot (9th alphabetical of 14; NOTE: interpretation crate sub-block insertion still pending; cursor currently traverses 14 pre-interpretation crates)
-  api_surface_cycle_start_crate: "buffer"           # session 135 cycle anchor; will reset when cursor returns к "buffer" (~6 more wraps для 14-crate workspace, +1 once interpretation sub-block inserted)
-  most_recent_code_mtime: 2026-05-24T20:00:00Z      # session 142 — pulse-app/src/mistralrs_inference.rs + spike test + observability AllowList edits committed Steps 1/5/0/fmt
+  dep_tree_reconciled_at: 2026-05-24T21:35:19Z      # session 143 — timestamp-only refresh (zero source delta этой session; only new test file pulse-app/tests/spike_diagnostic_staged_ladder.rs which is #[ignore]-gated diagnostic; dep tree unchanged from session 142 baseline 481 lines per Phase 5 no-op + refresh path)
+  api_surface_reconciled_at: 2026-05-24T21:35:19Z   # session 143 — NINTH per-crate Phase 5 reconcile fired (snapshot crate, 170 lines pub API в <1s; chunk #44 substrate); cursor "snapshot" → "triage"; cycle_start_crate "buffer" preserved
+  api_surface_next_crate: "triage"                  # session 143 — cursor advanced snapshot → triage (10th alphabetical of 14; NOTE: interpretation crate sub-block insertion still pending)
+  api_surface_cycle_start_crate: "buffer"           # session 135 cycle anchor; will reset when cursor returns к "buffer" (~5 more wraps для 14-crate workspace, +1 once interpretation sub-block inserted)
+  most_recent_code_mtime: 2026-05-24T21:30:00Z      # session 143 — pulse-app/tests/spike_diagnostic_staged_ladder.rs (new diagnostic test file)
   reconcile_failed: false
   api_surface_deferred: false                       # CHANGED post-R1 — per-crate mode never defers (was true through sessions 91-134 during batch-mode pattern)
   api_surface_deferred_reason: "per-crate cargo +nightly public-api iteration across 14 crates exceeds wrap budget (7-14 min vs ~3 min); 32nd consecutive deferral per sessions 91-126 pattern; session 126 = chunk #80 Cadence coordinator + three-tier triggering implementation wrap (substantial multi-file work: NEW crates/triage/cadence/ submodule с 4 files ~1390 LOC + 4 Settings fields + 5 observability allowlist entries + boot wiring at pulse-app/src/main.rs; ~25 new pub items: triage::contract::CadenceConfig + CadenceConfigError + CadenceCoordinator + CadenceEvent + CadenceEventBroadcast + CadenceMode + CoordinatorCycleStats + HardwareProfile + HardwareProfileSource + SqlQueryRunner + UnknownHardwareProfile + 9 constants CADENCE_*_MIN/DEFAULT_CADENCE_* + 3 fns mode_label/run_one_coordinator_cycle/start_cadence_coordinator + chunk #79 SQL re-exports surfaced as triage::contract re-exports + 4 ui-bridge::Settings fields + 6 CADENCE_*_MIN/MAX bounds constants + 2 pulse-app adapter structs CadenceSqlRunner + UnknownHardwareProfile-via-re-export); cumulative backlog from chunks #70-#80 + META chunks #74/#75/#76 + setup-project sessions now VERY substantial (~150+ new pub items unaccounted-for since session 91 baseline); re-baseline EXPLICITLY warranted at next non-META wrap (most plausibly chunk #81 Digest assembler + LWW queue implementation wrap — substantial new triage::digest module + workspace dep delta +tokenizers crate); ORIGINAL reason (preserved): 31st consecutive deferral per sessions 91-125 pattern; session 125 = META cycle (chunk #80 route-append + delta-rerun + wrap; zero new pub items — only route.md §1+§2+§3 + CLAUDE.md pointer-table + state.yaml lifecycle progression + dep-tree.md refresh edited; mirrors sessions 115/118/120/123 Type 7 single-cycle precedent exactly; re-baseline opportunity unchanged from session 124 — still warranted at next non-META wrap which is most plausibly chunk #80 implementation wrap introducing additional `crates/triage/cadence` module pub items); session 124 = chunk #79 SQL aggregation queries + scheduler implementation (substantial single-crate work: 1260 LOC sql.rs + 21 LOC build.rs in triage crate; ~30 new pub items including Q1RedRow / Q2OperationRow / Q3FingerprintRow / Q4InteractionRow / Q5CardinalityRow / Q6LogRow / Q7CriticalPathRow / Q7_DEFAULT_TIMEOUT / SqlAggregationError / TriageSqlState + 8 async run_qN public functions + cutoff_ns helper); re-baseline EXPLICITLY worthwhile at next non-META wrap (most plausibly chunk #80 Cadence Coordinator + three-tier triggering implementation wrap which will introduce additional triage::cadence module pub items); session 123 = textbook standard META cycle (chunk #79 route-append + delta-rerun + wrap; zero new pub items — only route.md §1+§2+§3 + CLAUDE.md pointer-table + state.yaml lifecycle progression + dep-tree.md refresh edited); session 122 = META cycle — Type 6 arch-registry amendment for chunk #78 incidents.* + pulse://stream/incidents Active → Propagated → Archived in single session (FIRST instance of standalone Type 6 single-cycle wrap; mirrors session 115/118/120 Type 7 route-append precedent mechanically; zero new pub items — META-only flow: /andromeda-new-session dashboard + /andromeda-evolve --allow-arch-registry + /andromeda-setup-project --delta Branch (a) + this wrap); cumulative backlog from chunks #70-#78 + META chunks #74/#75/#76 + setup-project META sessions unchanged from session 121; re-baseline opportunity unchanged — still warranted at next non-META wrap (most plausibly chunk #79 SQL aggregation queries + scheduler implementation wrap); session 121 = chunk #78 incident records + lifecycle persistence implementation (FIRST Phase 7 chunk; substantial multi-crate work touching 17 files across 4 crates; ~50+ new pub items including 5 triage::incident::* modules + 3 pulse-app modules + corpus extension с 6 new CorpusWriter trait methods + IncidentRowRaw envelope + xtask chunk-#78 test); re-baseline EXPLICITLY worthwhile at next wrap но deferred this wrap к keep within ~3 min wrap budget; ORIGINAL reason (preserved): session 120 = textbook standard META cycle (chunk #78 route-append + delta-rerun + wrap; zero new pub items — only route.md §1+§2+§3 + CLAUDE.md pointer-table + state.yaml lifecycle progression + dep-tree.md refresh edited); session 119 = chunk #77 'Specialist plan reconciliation (security + tests)' FINAL Consolidation Phase 6 implementation (FIRST instance of Andromeda v3 manual-rewrite mechanism per pulse-v0_2_0-route §77 Mechanism note; 4 security-plan body section rewrites + testing.md §Pending coverage triggers annotation + 19 new chunk-#77 PII vector + Drain golden corpus tests + new xtask CapabilityWideningCheck sub-command + new crates/buffer/tests/ integration test dir; new pub items SOME but bounded — CapabilityWideningCheck enum variant + capability_widening_check fn in xtask + ExpectedGolden/ExpectedTemplate test-only structs + ~6 helper fns in pulse-app/tests/security_*.rs; full per-crate iteration sequenced for next non-META wrap when chunk #78+ persistence layer changes substantially expand pub surface — incident records + TauRPC procedures + broadcast topics + new triage::incident contract types worth re-baseline batching); session 118 = textbook standard META cycle (chunk #77 route-append + delta-rerun + wrap; zero new pub items — only route.md §1+§2+§3 + CLAUDE.md pointer-table + state.yaml lifecycle progression + dep-tree.md refresh edited); session 117 = pipeline self-evolve design experiment META session (zero new pub items — only docs/andromeda-improvements.md edit к file P20 proposal + state.yaml + handoff + dep-tree.md refresh; this 23rd-consecutive deferral IS the empirical anchor for P20's first-application walkthrough — proposes per-crate incremental reconciliation across wraps as а Refactor R1 candidate); session 116 = chunk #76 META implementation (P7+P12+P15-P18 across 5 USER-level Andromeda skills + 1 project markdown; zero new pub items — all .md edits at user level outside project workspace); session 115 = `/andromeda-evolve --allow-route-append` + `/andromeda-setup-project --delta` META cycle for chunk #76 registration (zero new pub items — route.md §1+§2+§3 edits + state.yaml lifecycle progression + CLAUDE.md pointer-table cascade only); session 114 = `/andromeda-new-session` + `/andromeda-setup-project` full re-derive META session zero new pub items (CLAUDE.md §Architecture cascade-only edit + 1 Tier 3 + 1 P18 proposal + dep-tree refresh + state.yaml State H housekeeping); session 113 = chunk #75 documentation consolidation META (zero new pub items — all .md edits); session 112 META-only; session 111 = chunk #74 META implementation via 3 Type 6 amendments (zero new pub items — all arch.md edits only); session 110 = chunk #74 Type 7 Form 1 route registration META; session 109 = chunk #73 implementation wrap landed Path A full short-window tracker (~280 LOC adding ~30 new pub items); cumulative backlog from chunks #70-#77 + META chunks #74/#75/#76 + setup-project sessions now substantial enough to make full per-crate iteration worthwhile at next non-META wrap. Most plausible re-baseline cycle: chunk #78 incident records + lifecycle persistence wrap (will introduce substantial new pub items — incidents.list_active/acknowledge/mark_resolved TauRPC procedures + pulse://stream/incidents broadcast topic + crates/triage/incident types)"
 
-drift_warnings: []   # session 142 — ALL 6 dimensions CLEAR this wrap; living artifacts both reconciled at 20:49:42Z; no specialist plan mtime advances; no plan-to-code drift (mistralrs.workspace=true addition к pulse-app/Cargo.toml + interpretation crate API surface match arch §Established Decisions [LLM Inference Runtime] + §Occupied Resources interpretation entry from session 140 Type 6 amendment); chunk #83 progression advances state.yaml.last_completed_chunk → 83 with commit_sha="pending" placeholder (per Proposal 16 next wrap auto-heals). Session 140 — 3 D3 entries from session 139 CLEARED organically by evolve's arch.md updates этой parent turn (registered interpretation crate + model.current_profile TauRPC + pulse://stream/model-status broadcast в arch §Occupied Resources via /andromeda-evolve --allow-arch-registry, propagated via setup-project --delta, archived этой wrap)
+drift_warnings: []   # session 143 — ALL 6 dimensions CLEAR this wrap (diagnostic-only session; zero production source delta; living artifacts both reconciled at 21:35:19Z). Session 142 — ALL 6 dimensions CLEAR this wrap; living artifacts both reconciled at 20:49:42Z; no specialist plan mtime advances; no plan-to-code drift (mistralrs.workspace=true addition к pulse-app/Cargo.toml + interpretation crate API surface match arch §Established Decisions [LLM Inference Runtime] + §Occupied Resources interpretation entry from session 140 Type 6 amendment); chunk #83 progression advances state.yaml.last_completed_chunk → 83 with commit_sha="pending" placeholder (per Proposal 16 next wrap auto-heals). Session 140 — 3 D3 entries from session 139 CLEARED organically by evolve's arch.md updates этой parent turn (registered interpretation crate + model.current_profile TauRPC + pulse://stream/model-status broadcast в arch §Occupied Resources via /andromeda-evolve --allow-arch-registry, propagated via setup-project --delta, archived этой wrap)
 
 spec_amendments:
   active: []   # session 141 — chunk #83 route-append amendment archived this wrap (textbook Type 7 Form 1 single-cycle wrap mirroring session 138 chunk #82 precedent)
@@ -1700,4 +1734,4 @@ pipeline_accumulators:
   # verification proves the loop end-to-end). Future activation: deliberate
   # one-time edit to add A2 entry here + update catalogue status DORMANT → ACTIVE.
 
-session_count: 142
+session_count: 143
