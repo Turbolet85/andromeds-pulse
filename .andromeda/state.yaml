@@ -891,7 +891,45 @@ living_artifact_freshness:
 drift_warnings: []   # session 140 — 3 D3 entries from session 139 CLEARED organically by evolve's arch.md updates этой parent turn (registered interpretation crate + model.current_profile TauRPC + pulse://stream/model-status broadcast в arch §Occupied Resources via /andromeda-evolve --allow-arch-registry, propagated via setup-project --delta, archived этой wrap)
 
 spec_amendments:
-  active: []   # session 140 — chunk #82 amendment archived this wrap (textbook Type 6 single-cycle wrap)
+  active:
+    - amendment_id: 2026-05-24T16-27-53-append-chunk-83-prompt-scaffolding
+      plans:
+        - path: route.md
+          sections:
+            - "§1 Route Scope Summary (Total chunks mechanical update per Proposal 6)"
+            - "§2 Roadmap (Epoch 9 body)"
+            - "§3 Decisions Log"
+          decisions_log_section: "2026-05-24 — Append chunk #83 Prompt scaffolding + JSON schema + primary tier inference (--allow-route-append)"
+      trigger:
+        chunk: null
+        phase: null
+        harness: "user-driven via /andromeda-evolve"
+      authority:
+        winning_plan: pulse-v0_2_0-route.md
+        winning_tier: pipeline state
+        losing_plan: route.md
+        losing_concern: chunk-list-stale-vs-pipeline-reality
+        rationale: "Chunk #82 substrate landed session 139 (commit cf6686b); chunk #81 digest landed session 137; chunk #83 first L4 inference chunk per pulse-v0_2_0-route §Phase 8 §83 dependencies. Adding new chunk #83 in Epoch 9 brings route into alignment with pipeline reality."
+      impl_files_synced: []
+      expected_propagation:
+        - "CLAUDE.md: <!-- GENERATED:setup:pointer-table --> (chunk-count line: (9 epochs / 82 chunks) → (9 epochs / 83 chunks))"
+      marker_path: .andromeda/runs/2026-05-24T16-27-53-spec-amendment-append-chunk-83-prompt-scaffolding/amendment.md
+      applied_at: 2026-05-24T16:27:53Z
+      noted_at: null
+      propagated_by_run: .andromeda/runs/2026-05-24T16-34-05-setup-project-delta/
+      archived_at: null
+      verification_status: clean
+      flag_used: --allow-route-append
+      form: 1
+      route_section_modified: "Epoch 9 — Foundation v0.2.0"
+      chunks_added:
+        - position: 83
+          text: "Prompt scaffolding + JSON schema + primary tier inference — system prompt; embedded JSON schema; JSON-constrained inference (capabilities P-019/P-020/P-033/P-034; detail in pulse-v0_2_0-route §83)."
+      chunks_renumbered: []
+      motivation: "Chunk #82 substrate landed session 139 (commit cf6686b); chunk #81 digest landed session 137; both prerequisites for chunk #83 per pulse-v0_2_0-route §Phase 8 §83."
+      confirmed_shift: false
+      scope_summary_updates:
+        - "Total chunks: 82 → 83"
   archive:
     - amendment_id: 2026-05-24T15-58-15-acknowledge-chunk-82-additions
       plans:

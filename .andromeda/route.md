@@ -16,7 +16,7 @@ unit) not HOW (implementation steps)._
 
 ## 1. Route Scope Summary
 
-- **Total chunks:** 82
+- **Total chunks:** 83
 - **Epochs:** 9 (Foundation, Ingest pipeline, Storage & query, Webview shell + TauRPC bridge, Visualization surfaces, Snapshot & Investigate, Plugin runtime + MCP server, Polish & ship, Foundation v0.2.0)
 - **Drilldown depth (avg):** 1.6 (mixed: Foundation depth 2, Ingest pipeline depth 1, Storage & query depth 2, Webview shell depth 1, Visualization surfaces depth 2, Snapshot depth 2, Plugin+MCP depth 2, Polish depth 1)
 - **Hierarchy mode:** mixed (3-level for dense epochs Foundation / Storage / Visualization / Snapshot / Plugin+MCP; 2-level for lighter epochs Ingest / Webview shell / Polish)
@@ -198,6 +198,8 @@ Cadence coordinator + three-tier triggering — orchestrate L1a SQL queries per 
 Digest assembler + LWW queue + active-incident exception — compose L3 digest from L1a/L2/corpus; LWW for cadence with active-incident bypass (capabilities P-031/P-032/P-044/P-059; detail in pulse-v0_2_0-route §81)
    ↓
 Hardware profile detection + model loading + tokenizer — classify hardware tier; load mistralrs model; pair tokenizer per checkpoint (capabilities P-053/P-054; detail in pulse-v0_2_0-route §82).
+   ↓
+Prompt scaffolding + JSON schema + primary tier inference — system prompt; embedded JSON schema; JSON-constrained inference (capabilities P-019/P-020/P-033/P-034; detail in pulse-v0_2_0-route §83).
 
 ---
 
@@ -491,3 +493,12 @@ Hardware profile detection + model loading + tokenizer — classify hardware tie
 - **Why:** Pre-D1 LLM runtime decision (mistralrs vs candle) resolved session 137; chunk #82 unblocked after 7-wrap block. Capabilities P-053 / P-054.
 - **Mechanical:** §1 Total chunks 81→82 (Form 1 Policy A); state.yaml.last_completed_chunk unchanged.
 - **Marker:** `.andromeda/runs/2026-05-24T13-35-24-spec-amendment-append-chunk-82-hardware-profile/amendment.md`
+
+---
+
+`2026-05-24` — Append chunk #83 Prompt scaffolding + JSON schema + primary tier inference (--allow-route-append)
+
+- **Insert:** chunk #83 at §2 Epoch 9 — Foundation v0.2.0 (text: see §2; full detail in `pulse-v0_2_0-route.md` §Phase 8 §83).
+- **Why:** L4 first inference chunk per v3 plan Phase 8; depends on #82 (model loaded; substrate landed session 139) + #81 (digest produced; landed session 137); capabilities P-019 / P-020 / P-033 / P-034. Mirrors chunk #82 precedent.
+- **Mechanical:** §1 Total chunks 82→83 (Form 1 Policy A); state.yaml.last_completed_chunk unchanged.
+- **Marker:** `.andromeda/runs/2026-05-24T16-27-53-spec-amendment-append-chunk-83-prompt-scaffolding/amendment.md`
