@@ -175,15 +175,16 @@
   - `storage.inspect`, `storage.path` — pulse-app crate (`StorageApiImpl` returning corpus inspection metadata + data-dir absolute path from `crates/corpus::CorpusReader`; chunk #68) — see §Architecture Registry Updates 2026-05-18
   - `diagnostics.template_distribution` — pulse-app crate (`DiagnosticsApiImpl` returning `TemplateDistributionPayload` from `crates/buffer::DrainMiner::template_distribution()`; chunk #69) — see §Architecture Registry Updates 2026-05-19
   - `incidents.list_active`, `incidents.acknowledge`, `incidents.mark_resolved` — pulse-app crate (`IncidentsApiImpl` resolver backed by `crates/triage::contract::IncidentRegistry` + `IncidentPersistence` + `IncidentLifecycleBroadcast`; chunk #78) — see §Architecture Registry Updates 2026-05-23
+  - `model.current_profile` — pulse-app crate (`ModelApiImpl` returning `ModelProfilePayload` { profile_label, tier_label, load_status, model_identity_name } from `interpretation::contract::LlmInferenceRunner` + `triage::contract::HardwareProfileSource`; chunk #82) — see §Architecture Registry Updates 2026-05-24
 - **External HTTP routes (OTLP HTTP)**: `POST /v1/traces`, `POST /v1/metrics`, `POST /v1/logs` on `:4318`.
 - **MCP stdio surface**: standard MCP `initialize`, `tools/list`, `tools/call`, `notifications/*` over stdin/stdout when the rmcp sidecar is started.
-- **Tauri IPC events (broadcast channels)**: `pulse://stream/spans`, `pulse://stream/metrics`, `pulse://stream/logs`, `pulse://stream/snapshot-progress`, `pulse://stream/plugin-events` (deferred — no runtime emitter as of chunk #74; pending plugin invocation telemetry chunk), `pulse://stream/connection-state` (chunk #59 — see §Architecture Registry Updates 2026-05-16), `pulse://stream/attention-cues` (chunk #62 — see §Architecture Registry Updates 2026-05-17), `pulse://stream/restart-events` (chunk #63 — see §Architecture Registry Updates 2026-05-17), `pulse://stream/service-lifecycle` (chunk #67 — see §Architecture Registry Updates 2026-05-18), `pulse://stream/incidents` (chunk #78 — see §Architecture Registry Updates 2026-05-23), `pulse://stream/digests` (chunk #81 — see §Architecture Registry Updates 2026-05-23).
+- **Tauri IPC events (broadcast channels)**: `pulse://stream/spans`, `pulse://stream/metrics`, `pulse://stream/logs`, `pulse://stream/snapshot-progress`, `pulse://stream/plugin-events` (deferred — no runtime emitter as of chunk #74; pending plugin invocation telemetry chunk), `pulse://stream/connection-state` (chunk #59 — see §Architecture Registry Updates 2026-05-16), `pulse://stream/attention-cues` (chunk #62 — see §Architecture Registry Updates 2026-05-17), `pulse://stream/restart-events` (chunk #63 — see §Architecture Registry Updates 2026-05-17), `pulse://stream/service-lifecycle` (chunk #67 — see §Architecture Registry Updates 2026-05-18), `pulse://stream/incidents` (chunk #78 — see §Architecture Registry Updates 2026-05-23), `pulse://stream/digests` (chunk #81 — see §Architecture Registry Updates 2026-05-23), `pulse://stream/model-status` (chunk #82 — see §Architecture Registry Updates 2026-05-24).
 - **Process / service identity**:
   - Tauri app bundle identifier: `com.andromeda.pulse`
   - Binary name: `andromeda-pulse` (Linux/macOS), `andromeda-pulse.exe` (Windows)
   - Binary crate name: `pulse-app`
   - rmcp sidecar binary (when feature enabled): `andromeda-pulse-mcp`
-- **Cargo workspace crate names**: `ingest`, `buffer`, `viz`, `ui-bridge`, `snapshot`, `curation`, `triage`, `workspace-detector`, `plugins`, `mcp-server`, `corpus`, `security`, `pulse-app`, `xtask` — these names are reserved at the workspace level and cannot be reused by scopes.
+- **Cargo workspace crate names**: `ingest`, `buffer`, `viz`, `ui-bridge`, `snapshot`, `curation`, `triage`, `workspace-detector`, `plugins`, `mcp-server`, `corpus`, `security`, `interpretation`, `pulse-app`, `xtask` — these names are reserved at the workspace level and cannot be reused by scopes.
 - **DuckDB database / schema names**:
   - In-memory database identity: `pulse_buffer` (single in-memory `:memory:` DuckDB connection, schema `main`)
   - Reserved tables: `spans`, `span_events`, `span_links`, `metrics_points`, `log_records`, `resources`, `instrumentation_scopes`, `log_templates` (8th table added per chunk #69 Phase B; `crates/buffer/src/schema.rs:18`)
@@ -494,4 +495,14 @@ _This section accumulates entries from `/andromeda-evolve --allow-arch-registry`
 **Added:** `pulse://stream/digests` (`crates/triage/src/digest/broadcast.rs:15`, chunk #81).
 **Rationale:** D3 capability-drift closure for chunk #81 L3 digest assembler broadcast topic. Mirrors 2026-05-23 chunk #80 `cadence-events` precedent.
 **Marker:** `.andromeda/runs/2026-05-23T21-46-00-spec-amendment-acknowledge-digests-broadcast/amendment.md`
+
+### 2026-05-24 — Acknowledge `interpretation` crate + `model.current_profile` TauRPC + `pulse://stream/model-status` broadcast (--allow-arch-registry)
+
+**Section:** §Occupied Resources Cargo workspace crate names + Tauri IPC routes + Tauri IPC events (broadcast channels).
+**Added:**
+- `interpretation` (`Cargo.toml:14`, `crates/interpretation/src/{lib,contract,hardware,broadcast}.rs`, chunk #82)
+- `model.current_profile` (`pulse-app/src/model_router.rs:48`, chunk #82)
+- `pulse://stream/model-status` (`crates/interpretation/src/broadcast.rs:14`, chunk #82)
+**Rationale:** D3 capability-drift closure for chunk #82 Hardware profile detection + model loading + tokenizer substrate (L4 LLM interpretation pipeline initiation). Mirrors 2026-05-18 chunk #68 corpus-additions + chunk #67 services-namespace single-coordinated multi-item amendment precedents across sub-sections under §Occupied Resources.
+**Marker:** `.andromeda/runs/2026-05-24T15-58-15-spec-amendment-acknowledge-chunk-82-additions/amendment.md`
 

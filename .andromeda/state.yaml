@@ -863,7 +863,27 @@ drift_warnings:
     last_observed_session_count: 139
 
 spec_amendments:
-  active: []   # session 138 — chunk #82 amendment archived this wrap (textbook Type 7 single-cycle wrap)
+  active:
+    - amendment_id: 2026-05-24T15-58-15-acknowledge-chunk-82-additions
+      plans:
+        - path: architecture.md
+          sections:
+            - "§Occupied Resources Cargo workspace crate names"
+            - "§Occupied Resources Tauri IPC routes"
+            - "§Occupied Resources Tauri IPC events (broadcast channels)"
+            - "§Architecture Registry Updates"
+      decisions_log_sections:
+        - "2026-05-24 — Acknowledge `interpretation` crate + `model.current_profile` TauRPC + `pulse://stream/model-status` broadcast (--allow-arch-registry)"
+      propagated_by_run: .andromeda/runs/2026-05-24T16-07-09-setup-project-delta/
+      noted_at: null
+      archived_at: null
+      flag_used: --allow-arch-registry
+      applied_at: 2026-05-24T15:58:15Z
+      marker_path: .andromeda/runs/2026-05-24T15-58-15-spec-amendment-acknowledge-chunk-82-additions/amendment.md
+      expected_propagation:
+        - "CLAUDE.md: <!-- GENERATED:setup:modules --> section (workspace crate enumeration; +1 interpretation bullet)"
+        - "CLAUDE.md: <!-- GENERATED:setup:overview --> section (Stack one-liner count + Key directories list; twelve→thirteen library crates)"
+      verification_status: clean
   archive:
     - amendment_id: 2026-05-24T13-35-24-append-chunk-82-hardware-profile
       plans:
