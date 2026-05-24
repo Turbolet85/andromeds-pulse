@@ -1,7 +1,47 @@
 schema_version: 2
-last_wrap: 2026-05-24T16:30:00Z
-last_reconcile: 2026-05-24T16:30:00Z
+last_wrap: 2026-05-24T16:45:00Z
+last_reconcile: 2026-05-24T16:45:00Z
 
+# Session 141 wrap (2026-05-24T16:45:00Z): META cycle — chunk #83 route-append amendment Active → Propagated →
+# Archived в single session (textbook standard Type 7 Form 1 single-cycle wrap mirroring session 138 chunk #82
+# route-append precedent exactly; 2nd instance of standalone Type 7 Form 1 single-cycle wrap pattern). Flow
+# этой session (across 3 invocations): /andromeda-new-session dashboard (state H clean — cf6686b reachable from
+# HEAD; no auto-heal needed; all states A-K + drift D1-D6 CLEAR); → /andromeda-evolve --allow-route-append
+# (Type 7 Form 1 chunk append к existing Epoch 9; per Policy A strict mechanical §1 Total chunks 82 → 83;
+# compact P9 Phase 1(b) Decisions Log entry Insert/Why/Mechanical/Marker bullets; ~23/25 words chunk text per
+# Phase 1(a) discipline; Check 8 sub-checks 8.1-8.8 all clean; 0 ack-required warnings); → /andromeda-setup-project
+# --delta (Branch (b) Type 7 cascade pre-populate per Proposal 5; CLAUDE.md pointer-table line 57:
+# (9 epochs / 82 chunks) → (9 epochs / 83 chunks); all Tier 2/3 + agent harness + reviewer + hooks + .gitignore
+# preserved byte-identical; commit 99611f7 bundled route.md + state.yaml + CLAUDE.md); → THIS wrap archives the
+# amendment (active → archive с archived_at set; noted_at set this wrap per Phase 8 lifecycle progression).
+# spec_amendments.active emptied post-archive; archive grew 48 → 49 entries. State H housekeeping:
+# state.yaml.last_completed_chunk.commit_sha=cf6686b already real + HEAD-reachable; no action needed (no new
+# chunk commits этой META session). Drift: all 6 dimensions CLEAN post-wrap (no D5 transient — CLAUDE.md mtime
+# 16:45:11Z > route.md mtime 16:42:04Z > arch.md mtime 15:54:16Z > all other upstreams; setup-project --delta
+# cascade preserved chronological order this session). `cargo tree --workspace --depth 2 --prefix indent` rerun:
+# 462 lines (identical к session 140 baseline; zero-diff verification per integrity-protocol.md Part B step 5
+# no-op + refresh path — META session zero workspace dep delta). Phase 5 per-crate api-surface reconcile fired:
+# SEVENTH per-crate reconcile cycle (pulse-app crate populated, ~1907 lines pub API в ~10s — largest single
+# crate of the cycle; binary crate with extensive TauRPC routers + observability AllowList + LLM substrate
+# helpers); cursor advanced pulse-app → security (8th alphabetical of 14; 7/14 crates now have real api content:
+# buffer + corpus + curation + ingest + mcp-server + plugins + pulse-app; 7 placeholder sub-blocks remaining;
+# cycle completes в ~7 more wraps). api-surface.md file grew ~3160 → 5247 lines after sub-block populate.
+# Curation: 0 Tier 1 + 0 Tier 2 + 0 Tier 3 + 0 Andromeda pipeline proposals (Mode H — honest healthy per
+# P20 design; 2nd instance of textbook standard Type 7 Form 1 single-cycle wrap pattern mirroring session 138
+# chunk #82 route-append precedent exactly; zero new patterns or corrections — the 2nd instance is mechanically
+# identical к the precedent and documenting it would be churn, not а learning). Smoke test: 14/14 security
+# crate passed (0.145s). Dead-test scan: 18 blocks в 18 files в pulse-app/src/ (P15 25th observation; up from
+# 17 baseline per session 140 prediction; +1 = chunk #82 session 139 added pulse-app/src/mistralrs_inference.rs
+# с а mod tests block (6 tests); canonical observation count now 18 effective per CLAUDE.md 2026-05-20
+# dead-test discipline; migration к pulse-app/tests/unit_mistralrs_inference.rs awaits user decision). Pipeline
+# meta-observation: Mode H — honest healthy scan. Every skill в the 3-invocation chain этой session
+# (new-session → evolve → setup-project --delta → this wrap) executed exactly as designed; no friction, no new
+# pattern, no proposal filed. Next chunk: route#83 "Prompt scaffolding + JSON schema + primary tier inference"
+# now REGISTERED in route.md §2 Epoch 9 — actionable via /andromeda-phase next session. Chunk #83 will trigger
+# the actual mistralrs runtime compile (first `use mistralrs::*` import) — natural Step 0 spike validation
+# point per chunk #82's PROCEED-WITH-DEFERRAL verdict + arch §Established Decisions [LLM Inference Runtime]
+# caveat.
+#
 # Session 140 wrap (2026-05-24T16:30:00Z): META cycle — chunk #82 arch-registry amendment Active → Propagated →
 # Archived в single session (textbook standard Type 6 single-cycle wrap mirroring sessions 122/127/132/138
 # precedents exactly; 7th instance of standalone Type 6 single-cycle wrap pattern). Flow этой parent turn
@@ -879,9 +919,9 @@ plan_freshness:
   input_mtime: 2026-05-02T06:52:58Z
 
 living_artifact_freshness:
-  dep_tree_reconciled_at: 2026-05-24T16:30:00Z      # session 140 — refreshed (462 lines unchanged from session 139 baseline; zero-diff verification per integrity-protocol.md Part B step 5 no-op + refresh path — META session zero workspace dep delta)
-  api_surface_reconciled_at: 2026-05-24T16:30:00Z   # session 140 — SIXTH per-crate Phase 5 reconcile fired (plugins crate, ~158 lines pub API в ~10s); cursor "plugins" → "pulse-app"; cycle_start_crate "buffer" preserved
-  api_surface_next_crate: "pulse-app"               # session 140 — cursor advanced plugins → pulse-app (7th alphabetical of 14; NOTE: interpretation crate sub-block insertion still pending; cursor currently traverses 14 pre-interpretation crates)
+  dep_tree_reconciled_at: 2026-05-24T16:45:00Z      # session 141 — refreshed (462 lines unchanged from session 140 baseline; zero-diff verification per integrity-protocol.md Part B step 5 no-op + refresh path — META session zero workspace dep delta)
+  api_surface_reconciled_at: 2026-05-24T16:45:00Z   # session 141 — SEVENTH per-crate Phase 5 reconcile fired (pulse-app crate, ~1907 lines pub API в ~10s — largest single crate of the cycle; binary с extensive TauRPC routers + observability AllowList + LLM substrate helpers); cursor "pulse-app" → "security"; cycle_start_crate "buffer" preserved
+  api_surface_next_crate: "security"                # session 141 — cursor advanced pulse-app → security (8th alphabetical of 14; NOTE: interpretation crate sub-block insertion still pending; cursor currently traverses 14 pre-interpretation crates)
   api_surface_cycle_start_crate: "buffer"           # session 135 cycle anchor; will reset when cursor returns к "buffer" (~8 more wraps для 14-crate workspace, +1 once interpretation sub-block inserted)
   most_recent_code_mtime: 2026-05-23T18:32:00Z
   reconcile_failed: false
@@ -891,7 +931,8 @@ living_artifact_freshness:
 drift_warnings: []   # session 140 — 3 D3 entries from session 139 CLEARED organically by evolve's arch.md updates этой parent turn (registered interpretation crate + model.current_profile TauRPC + pulse://stream/model-status broadcast в arch §Occupied Resources via /andromeda-evolve --allow-arch-registry, propagated via setup-project --delta, archived этой wrap)
 
 spec_amendments:
-  active:
+  active: []   # session 141 — chunk #83 route-append amendment archived this wrap (textbook Type 7 Form 1 single-cycle wrap mirroring session 138 chunk #82 precedent)
+  archive:
     - amendment_id: 2026-05-24T16-27-53-append-chunk-83-prompt-scaffolding
       plans:
         - path: route.md
@@ -899,38 +940,13 @@ spec_amendments:
             - "§1 Route Scope Summary (Total chunks mechanical update per Proposal 6)"
             - "§2 Roadmap (Epoch 9 body)"
             - "§3 Decisions Log"
-          decisions_log_section: "2026-05-24 — Append chunk #83 Prompt scaffolding + JSON schema + primary tier inference (--allow-route-append)"
-      trigger:
-        chunk: null
-        phase: null
-        harness: "user-driven via /andromeda-evolve"
-      authority:
-        winning_plan: pulse-v0_2_0-route.md
-        winning_tier: pipeline state
-        losing_plan: route.md
-        losing_concern: chunk-list-stale-vs-pipeline-reality
-        rationale: "Chunk #82 substrate landed session 139 (commit cf6686b); chunk #81 digest landed session 137; chunk #83 first L4 inference chunk per pulse-v0_2_0-route §Phase 8 §83 dependencies. Adding new chunk #83 in Epoch 9 brings route into alignment with pipeline reality."
-      impl_files_synced: []
-      expected_propagation:
-        - "CLAUDE.md: <!-- GENERATED:setup:pointer-table --> (chunk-count line: (9 epochs / 82 chunks) → (9 epochs / 83 chunks))"
-      marker_path: .andromeda/runs/2026-05-24T16-27-53-spec-amendment-append-chunk-83-prompt-scaffolding/amendment.md
-      applied_at: 2026-05-24T16:27:53Z
-      noted_at: null
+      decisions_log_sections:
+        - "2026-05-24 — Append chunk #83 Prompt scaffolding + JSON schema + primary tier inference (--allow-route-append)"
       propagated_by_run: .andromeda/runs/2026-05-24T16-34-05-setup-project-delta/
-      archived_at: null
-      verification_status: clean
+      noted_at: 2026-05-24T16:45:00Z
+      archived_at: 2026-05-24T16:45:00Z
       flag_used: --allow-route-append
       form: 1
-      route_section_modified: "Epoch 9 — Foundation v0.2.0"
-      chunks_added:
-        - position: 83
-          text: "Prompt scaffolding + JSON schema + primary tier inference — system prompt; embedded JSON schema; JSON-constrained inference (capabilities P-019/P-020/P-033/P-034; detail in pulse-v0_2_0-route §83)."
-      chunks_renumbered: []
-      motivation: "Chunk #82 substrate landed session 139 (commit cf6686b); chunk #81 digest landed session 137; both prerequisites for chunk #83 per pulse-v0_2_0-route §Phase 8 §83."
-      confirmed_shift: false
-      scope_summary_updates:
-        - "Total chunks: 82 → 83"
-  archive:
     - amendment_id: 2026-05-24T15-58-15-acknowledge-chunk-82-additions
       plans:
         - path: architecture.md
@@ -1640,4 +1656,4 @@ pipeline_accumulators:
   # verification proves the loop end-to-end). Future activation: deliberate
   # one-time edit to add A2 entry here + update catalogue status DORMANT → ACTIVE.
 
-session_count: 140
+session_count: 141
