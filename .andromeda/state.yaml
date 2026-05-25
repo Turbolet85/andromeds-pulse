@@ -1241,16 +1241,62 @@ spec_amendments:
   # gained 1 entry (chunk #85 joins; archive now ~15 entries — pruning threshold
   # is 50 per spec-amendment-protocol.md Part B).
   #
-  # session 149 wrap (THIS wrap) — chunk #86 route-append amendment archived
-  # этой wrap. Lifecycle completed в single wrap (textbook Type 7 Form 1
-  # single-cycle pattern; 9th instance — mirrors sessions 115/118/120/123/
-  # 125/138/141/147 precedents exactly): applied 16:18:53Z (by /andromeda-
-  # evolve --allow-route-append) → propagated 16:27:30Z (by /andromeda-
-  # setup-project --delta CLAUDE.md pointer-table cascade 85→86 per
-  # Proposal 5 Branch (b)) → noted+archived 16:32:22Z (этой wrap-session
-  # Phase 8 lifecycle progression per spec-amendment-protocol.md Part D).
-  # Active list empty post-archive; archive grew 15 → 16 entries.
-  active: []
+  # session 149 wrap — chunk #86 route-append amendment archived: applied
+  # 16:18:53Z (by /andromeda-evolve --allow-route-append) → propagated
+  # 16:27:30Z (by /andromeda-setup-project --delta CLAUDE.md pointer-table
+  # cascade 85→86 per Proposal 5 Branch (b)) → noted+archived 16:32:22Z
+  # (этой wrap-session Phase 8 lifecycle progression per spec-amendment-
+  # protocol.md Part D). Active list empty post-archive; archive grew
+  # 15 → 16 entries.
+  #
+  # session 152 (THIS turn) — chunk #87 route-append amendment APPLIED via
+  # /andromeda-evolve --allow-route-append (Type 7 Form 1; terminal-position
+  # append to existing Epoch 9 per Refuse 6 narrow exception). Source: user
+  # Option A decision via /andromeda-new-session AskUserQuestion (over Option
+  # B Diagnostic Report). Source-doc detail: docs/v0_2_0/pulse-v0_2_0-route.md
+  # §86. Dependencies #78/#81/#85 all landed prior. Mirrors chunks
+  # #83/#84/#85/#86 single-cycle Type 7 precedents (10th instance of single-
+  # cycle Type 7 wrap pattern pending; this wrap is /evolve only — wrap-session
+  # archive will fire later this session). Check 8 PASS all sub-checks 8.1-8.8.
+  active:
+    - amendment_id: 2026-05-25T20-03-10-append-chunk-87-findings-counter-dropdown
+      plans:
+        - path: route.md
+          sections:
+            - "§1 Route Scope Summary"
+            - "§2 Roadmap (Epoch 9 — Foundation v0.2.0)"
+            - "§3 Decisions Log"
+          decisions_log_section: "2026-05-25 — Append chunk #87 Findings counter + dropdown (--allow-route-append)"
+      trigger:
+        chunk: null
+        phase: null
+        harness: "user-driven via /andromeda-evolve"
+      authority:
+        winning_plan: null
+        winning_tier: pipeline state
+        losing_plan: route.md
+        losing_concern: chunk-list-stale-vs-pipeline-reality
+        rationale: "Session 151 reconciliation Q&A + user Option A decision identified chunk #87 'Findings counter + dropdown' as next operational item. All dependencies (#78/#81/#85) landed. Authorized via --allow-route-append narrow Refuse 6 exception; Check 8 passed all sub-checks."
+      impl_files_synced: []
+      expected_propagation:
+        - "CLAUDE.md (GENERATED:setup:pointer-table — chunk-count cascade 86→87)"
+      marker_path: .andromeda/runs/2026-05-25T20-03-10-spec-amendment-append-chunk-87-findings-counter-dropdown/amendment.md
+      applied_at: 2026-05-25T20:03:10Z
+      noted_at: null
+      propagated_by_run: .andromeda/runs/2026-05-25T20-11-20-setup-project-delta/
+      archived_at: null
+      verification_status: clean
+      flag_used: --allow-route-append
+      form: 1
+      route_section_modified: "Epoch 9 — Foundation v0.2.0"
+      chunks_added:
+        - position: 87
+          text: "Findings counter + dropdown — render incident-derived counter with severity-colored dropdown + corpus persistence (capabilities P-028 / P-029 / P-030; detail in pulse-v0_2_0-route §86)."
+      chunks_renumbered: []
+      motivation: "Session 151 reconciliation Q&A + user Option A decision via new-session AskUserQuestion. Capabilities P-028/P-029/P-030 substrate ready (#78/#81/#85 all landed)."
+      confirmed_shift: false
+      scope_summary_updates:
+        - "Total chunks: 86 → 87"
   archive:
     - amendment_id: 2026-05-25T18-49-17-acknowledge-chunk-86-diagnostics-retry-interpretation
       plans:
