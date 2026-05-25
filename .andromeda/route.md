@@ -16,7 +16,7 @@ unit) not HOW (implementation steps)._
 
 ## 1. Route Scope Summary
 
-- **Total chunks:** 83
+- **Total chunks:** 84
 - **Epochs:** 9 (Foundation, Ingest pipeline, Storage & query, Webview shell + TauRPC bridge, Visualization surfaces, Snapshot & Investigate, Plugin runtime + MCP server, Polish & ship, Foundation v0.2.0)
 - **Drilldown depth (avg):** 1.6 (mixed: Foundation depth 2, Ingest pipeline depth 1, Storage & query depth 2, Webview shell depth 1, Visualization surfaces depth 2, Snapshot depth 2, Plugin+MCP depth 2, Polish depth 1)
 - **Hierarchy mode:** mixed (3-level for dense epochs Foundation / Storage / Visualization / Snapshot / Plugin+MCP; 2-level for lighter epochs Ingest / Webview shell / Polish)
@@ -200,6 +200,8 @@ Digest assembler + LWW queue + active-incident exception — compose L3 digest f
 Hardware profile detection + model loading + tokenizer — classify hardware tier; load mistralrs model; pair tokenizer per checkpoint (capabilities P-053/P-054; detail in pulse-v0_2_0-route §82).
    ↓
 Prompt scaffolding + JSON schema + primary tier inference — system prompt; embedded JSON schema; JSON-constrained inference (capabilities P-019/P-020/P-033/P-034; detail in pulse-v0_2_0-route §83).
+   ↓
+L4 LLM runtime swap — replace MistralRsInference impl с LlamaCliInference subprocess (llama.cpp b9305 D1); wire prebuilt llama-cli per chunk #80 HardwareProfileSource tier.
 
 ---
 
@@ -502,3 +504,12 @@ Prompt scaffolding + JSON schema + primary tier inference — system prompt; emb
 - **Why:** L4 first inference chunk per v3 plan Phase 8; depends on #82 (model loaded; substrate landed session 139) + #81 (digest produced; landed session 137); capabilities P-019 / P-020 / P-033 / P-034. Mirrors chunk #82 precedent.
 - **Mechanical:** §1 Total chunks 82→83 (Form 1 Policy A); state.yaml.last_completed_chunk unchanged.
 - **Marker:** `.andromeda/runs/2026-05-24T16-27-53-spec-amendment-append-chunk-83-prompt-scaffolding/amendment.md`
+
+---
+
+`2026-05-25` — Append chunk #84 L4 LLM runtime swap (mistralrs → llama.cpp subprocess D1) (--allow-route-append)
+
+- **Insert:** chunk #84 at §2 Epoch 9 — Foundation v0.2.0 (text: see §2; full detail in `.andromeda/architecture.md` §Established Decisions [LLM Inference Runtime — L4 interpretation layer] landed session 144 commit 7a90ef3).
+- **Why:** Session 144 arch amendment swapped the L4 LLM runtime from `mistralrs = "=0.8.0"` to `llama.cpp` prebuilt binaries (b9305-pinned) subprocess D1 per upstream issue #1134 CPU deadlock + empirical cross-check (28.2/231.2/122.3 tok/sec on this host). Chunk #84 is the implementation work: replace `MistralRsInference` → `LlamaCliInference` at the binary boundary, remove `mistralrs` workspace dep, wire prebuilt `llama-cli.exe` subprocess invocation per chunk #80 `HardwareProfileSource` tier routing. Sequenced before originally-planned chunk #84 "Fallback model tier support" (now logically #85) since fallback design assumes primary runtime works.
+- **Mechanical:** §1 Total chunks 83→84 (Form 1 Policy A); state.yaml.last_completed_chunk unchanged.
+- **Marker:** `.andromeda/runs/2026-05-25T10-29-16-spec-amendment-append-chunk-84-l4-runtime-swap/amendment.md`

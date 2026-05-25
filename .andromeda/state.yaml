@@ -1009,7 +1009,23 @@ living_artifact_freshness:
 drift_warnings: []   # session 143 — ALL 6 dimensions CLEAR this wrap (diagnostic-only session; zero production source delta; living artifacts both reconciled at 21:35:19Z). Session 142 — ALL 6 dimensions CLEAR this wrap; living artifacts both reconciled at 20:49:42Z; no specialist plan mtime advances; no plan-to-code drift (mistralrs.workspace=true addition к pulse-app/Cargo.toml + interpretation crate API surface match arch §Established Decisions [LLM Inference Runtime] + §Occupied Resources interpretation entry from session 140 Type 6 amendment); chunk #83 progression advances state.yaml.last_completed_chunk → 83 with commit_sha="pending" placeholder (per Proposal 16 next wrap auto-heals). Session 140 — 3 D3 entries from session 139 CLEARED organically by evolve's arch.md updates этой parent turn (registered interpretation crate + model.current_profile TauRPC + pulse://stream/model-status broadcast в arch §Occupied Resources via /andromeda-evolve --allow-arch-registry, propagated via setup-project --delta, archived этой wrap)
 
 spec_amendments:
-  active: []   # session 141 — chunk #83 route-append amendment archived this wrap (textbook Type 7 Form 1 single-cycle wrap mirroring session 138 chunk #82 precedent)
+  active:   # session 144 — chunk #84 route-append amendment (L4 LLM runtime swap from mistralrs к llama.cpp subprocess D1; pending propagation via /andromeda-setup-project --delta + archive via /andromeda-wrap-session)
+    - amendment_id: 2026-05-25T10-29-16-append-chunk-84-l4-runtime-swap
+      plans:
+        - path: route.md
+          sections:
+            - "§1 Route Scope Summary (Total chunks mechanical update per Proposal 6)"
+            - "§2 Roadmap (Epoch 9 body)"
+            - "§3 Decisions Log"
+      decisions_log_sections:
+        - "2026-05-25 — Append chunk #84 L4 LLM runtime swap (mistralrs → llama.cpp subprocess D1) (--allow-route-append)"
+      marker_path: .andromeda/runs/2026-05-25T10-29-16-spec-amendment-append-chunk-84-l4-runtime-swap/amendment.md
+      applied_at: 2026-05-25T10:29:16Z
+      noted_at: null
+      propagated_by_run: .andromeda/runs/2026-05-25T10-39-34-setup-project-delta/
+      archived_at: null
+      flag_used: --allow-route-append
+      form: 1
   archive:
     - amendment_id: 2026-05-24T16-27-53-append-chunk-83-prompt-scaffolding
       plans:
