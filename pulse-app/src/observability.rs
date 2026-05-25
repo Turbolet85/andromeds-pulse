@@ -1845,6 +1845,62 @@ impl AllowList {
             ["value", "queued_count"].iter().copied().collect(),
         );
 
+        // Chunk #86 — L4 degraded-mode FSM + manual-retry surface +
+        // resolution-summary persist error tracing targets. Aggregate-only
+        // fields per chunk #86 obs constraint + CLAUDE.md observability
+        // 2026-05-17 session 84 AGGREGATE-ONLY mandate (no per-incident /
+        // per-service / per-trace labels — degraded-mode FSM is GLOBAL).
+        by_target.insert(
+            "interpretation.degraded.enter",
+            ["consecutive_failures", "window_seconds", "backoff_seconds"]
+                .iter()
+                .copied()
+                .collect(),
+        );
+        by_target.insert(
+            "interpretation.degraded.exit",
+            ["consecutive_successes", "duration_seconds"]
+                .iter()
+                .copied()
+                .collect(),
+        );
+        by_target.insert(
+            "interpretation.inference.skipped",
+            ["reason", "model_tier", "backoff_seconds_remaining"]
+                .iter()
+                .copied()
+                .collect(),
+        );
+        by_target.insert(
+            "interpretation.resolution_summary.persist.error",
+            ["error_category"].iter().copied().collect(),
+        );
+        by_target.insert(
+            "metric.pipeline.l4.degraded_mode_active_seconds_total",
+            ["value"].iter().copied().collect(),
+        );
+        by_target.insert(
+            "metric.pipeline.l4.degraded_mode_entries_total",
+            ["value"].iter().copied().collect(),
+        );
+        by_target.insert(
+            "metric.pipeline.l4.backoff_remaining_seconds",
+            ["value"].iter().copied().collect(),
+        );
+        by_target.insert(
+            "diagnostics.retry_interpretation.request",
+            [
+                "triggered",
+                "current_state",
+                "consecutive_failures",
+                "backoff_remaining_seconds",
+                "duration_ms",
+            ]
+            .iter()
+            .copied()
+            .collect(),
+        );
+
         Self { by_target }
     }
 
@@ -5266,6 +5322,123 @@ mod tests {
                 assert!(
                     !set.contains(k),
                     "L4 inference AllowList must NOT permit PII field `{k}`",
+                );
+            }
+        }
+    }
+
+    // Chunk #86 — L4 degraded-mode + manual retry AllowList entries.
+    // Aggregate-only fields per chunk #86 obs constraint mirroring chunk
+    // #83 test pattern above. Seven new entries (4 tracing targets + 3
+    // metric targets) registered in AllowList::production(); the
+    // diagnostics.retry_interpretation.request entry is also new.
+    #[test]
+    fn allowlist_for_target_resolves_chunk_86_degraded_mode_and_retry_targets() {
+        let al = AllowList::production();
+
+        let degraded_enter = al
+            .for_target("interpretation.degraded.enter")
+            .expect("expected interpretation.degraded.enter entry");
+        for required in ["consecutive_failures", "window_seconds", "backoff_seconds"] {
+            assert!(
+                degraded_enter.contains(required),
+                "interpretation.degraded.enter must permit `{required}`",
+            );
+        }
+
+        let degraded_exit = al
+            .for_target("interpretation.degraded.exit")
+            .expect("expected interpretation.degraded.exit entry");
+        for required in ["consecutive_successes", "duration_seconds"] {
+            assert!(
+                degraded_exit.contains(required),
+                "interpretation.degraded.exit must permit `{required}`",
+            );
+        }
+
+        let skipped = al
+            .for_target("interpretation.inference.skipped")
+            .expect("expected interpretation.inference.skipped entry");
+        for required in ["reason", "model_tier", "backoff_seconds_remaining"] {
+            assert!(
+                skipped.contains(required),
+                "interpretation.inference.skipped must permit `{required}`",
+            );
+        }
+
+        let persist_err = al
+            .for_target("interpretation.resolution_summary.persist.error")
+            .expect("expected interpretation.resolution_summary.persist.error entry");
+        assert!(
+            persist_err.contains("error_category"),
+            "interpretation.resolution_summary.persist.error must permit `error_category`",
+        );
+
+        let degraded_active_total = al
+            .for_target("metric.pipeline.l4.degraded_mode_active_seconds_total")
+            .expect("expected metric.pipeline.l4.degraded_mode_active_seconds_total entry");
+        assert!(degraded_active_total.contains("value"));
+
+        let degraded_entries_total = al
+            .for_target("metric.pipeline.l4.degraded_mode_entries_total")
+            .expect("expected metric.pipeline.l4.degraded_mode_entries_total entry");
+        assert!(degraded_entries_total.contains("value"));
+
+        let backoff_remaining = al
+            .for_target("metric.pipeline.l4.backoff_remaining_seconds")
+            .expect("expected metric.pipeline.l4.backoff_remaining_seconds entry");
+        assert!(backoff_remaining.contains("value"));
+
+        let retry_req = al
+            .for_target("diagnostics.retry_interpretation.request")
+            .expect("expected diagnostics.retry_interpretation.request entry");
+        for required in [
+            "triggered",
+            "current_state",
+            "consecutive_failures",
+            "backoff_remaining_seconds",
+            "duration_ms",
+        ] {
+            assert!(
+                retry_req.contains(required),
+                "diagnostics.retry_interpretation.request must permit `{required}`",
+            );
+        }
+
+        // PII guard: chunk #86 entries MUST NOT admit per-incident /
+        // per-service / per-trace identifiers OR LLM-emitted content
+        // (raw output / parse error message / digest body). The FSM is
+        // GLOBAL per Phase 6 user-confirmed scope; per-incident
+        // explosion defeats the cardinality budget per CLAUDE.md
+        // observability 2026-05-17 session 84 AGGREGATE-ONLY mandate.
+        let banned = [
+            "service_name",
+            "scope_id",
+            "span_id",
+            "trace_id",
+            "incident_id",
+            "operation_name",
+            "model_output",
+            "raw_output",
+            "parse_error_message",
+            "digest_body",
+            "digest_payload",
+            "prompt_body",
+        ];
+        for set in [
+            degraded_enter,
+            degraded_exit,
+            skipped,
+            persist_err,
+            degraded_active_total,
+            degraded_entries_total,
+            backoff_remaining,
+            retry_req,
+        ] {
+            for k in &banned {
+                assert!(
+                    !set.contains(k),
+                    "chunk #86 AllowList entry must NOT permit PII field `{k}`",
                 );
             }
         }

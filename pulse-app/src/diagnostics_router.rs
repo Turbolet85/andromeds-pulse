@@ -16,6 +16,7 @@
 use std::sync::Arc;
 
 use buffer::{DrainMiner, DriftIndicator as BufferDriftIndicator, TemplateDistEntry, TemplateId};
+use interpretation::degraded_mode::{DegradedModeStatus, degraded_mode_state_label};
 use serde::{Deserialize, Serialize};
 use ui_bridge::contract::AppError;
 
@@ -56,24 +57,103 @@ pub struct TemplateDistributionPayload {
     pub last_updated_unix_nano: i64,
 }
 
+/// Chunk #86 — Settings → Diagnostics "Retry interpretation now" payload.
+/// Returned by `diagnostics.retry_interpretation()` after invoking the
+/// manual-override path on the degraded-mode FSM.
+///
+/// Bounded к scalar / string-label fields per chunk #86 obs constraint
+/// aggregate-only discipline; carries NO LLM-emitted content / incident
+/// identifiers / per-trace IDs. The `current_state` label is the snake-
+/// case bounded enum from `interpretation::degraded_mode::DegradedModeState`
+/// ("active" | "degraded") routed through `degraded_mode_state_label`.
+#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq, specta::Type)]
+pub struct RetryInterpretationPayload {
+    /// True if the manual-retry invocation transitioned FSM state OR
+    /// reset а live failure counter; false if FSM was already в clean
+    /// Active state с zero consecutive failures (no-op retry).
+    pub triggered: bool,
+    /// Post-invocation FSM state label ("active" | "degraded").
+    pub current_state: String,
+    pub consecutive_failures: u32,
+    pub backoff_remaining_seconds: u64,
+}
+
+// Chunk #86 — `retry_interpretation` is the manual override for the L4
+// degraded-mode FSM. Resets the consecutive-failure counter к 0 and
+// transitions Degraded → Active immediately, regardless of current
+// backoff window position. The next L4 inference invocation proceeds
+// normally; если it fails the failure counter restarts from 1.
 #[taurpc::procedures(path = "diagnostics")]
 pub trait DiagnosticsApi {
     async fn template_distribution() -> Result<TemplateDistributionPayload, AppError>;
+    async fn retry_interpretation() -> Result<RetryInterpretationPayload, AppError>;
 }
 
 #[derive(Clone)]
 pub struct DiagnosticsApiImpl {
     miner: Arc<DrainMiner>,
+    degraded_mode: Arc<dyn DegradedModeStatus>,
 }
 
 impl DiagnosticsApiImpl {
-    pub fn new(miner: Arc<DrainMiner>) -> Self {
-        Self { miner }
+    pub fn new(miner: Arc<DrainMiner>, degraded_mode: Arc<dyn DegradedModeStatus>) -> Self {
+        Self {
+            miner,
+            degraded_mode,
+        }
     }
 }
 
 #[taurpc::resolvers]
 impl DiagnosticsApi for DiagnosticsApiImpl {
+    #[tracing::instrument(skip_all, fields(
+        triggered = tracing::field::Empty,
+        current_state = tracing::field::Empty,
+        consecutive_failures = tracing::field::Empty,
+        backoff_remaining_seconds = tracing::field::Empty,
+        duration_ms = tracing::field::Empty,
+    ))]
+    async fn retry_interpretation(self) -> Result<RetryInterpretationPayload, AppError> {
+        let start = std::time::Instant::now();
+        let now = current_unix_nanos();
+        let pre = self.degraded_mode.current_snapshot(now);
+        let triggered = pre.consecutive_failures > 0
+            || matches!(
+                pre.state,
+                interpretation::degraded_mode::DegradedModeState::Degraded
+            );
+        let post = self.degraded_mode.trigger_manual_retry(now);
+        let payload = RetryInterpretationPayload {
+            triggered,
+            current_state: degraded_mode_state_label(post.state).to_string(),
+            consecutive_failures: post.consecutive_failures,
+            backoff_remaining_seconds: post.backoff_seconds_remaining,
+        };
+        let duration_ms: u64 = u64::try_from(start.elapsed().as_millis()).unwrap_or(u64::MAX);
+
+        let span = tracing::Span::current();
+        span.record("triggered", triggered);
+        span.record("current_state", payload.current_state.as_str());
+        span.record("consecutive_failures", payload.consecutive_failures);
+        span.record(
+            "backoff_remaining_seconds",
+            payload.backoff_remaining_seconds,
+        );
+        span.record("duration_ms", duration_ms);
+
+        tracing::info!(
+            target: "diagnostics.retry_interpretation.request",
+            triggered = triggered,
+            current_state = payload.current_state.as_str(),
+            consecutive_failures = payload.consecutive_failures,
+            backoff_remaining_seconds = payload.backoff_remaining_seconds,
+            duration_ms = duration_ms,
+            "diagnostics.retry_interpretation returned",
+        );
+
+        Ok(payload)
+    }
+
     #[tracing::instrument(skip_all, fields(
         top_n = tracing::field::Empty,
         result_count = tracing::field::Empty,
@@ -172,7 +252,10 @@ mod tests {
 
     fn make_impl() -> DiagnosticsApiImpl {
         let miner = Arc::new(DrainMiner::new(DrainConfig::default_config(), None));
-        DiagnosticsApiImpl::new(miner)
+        DiagnosticsApiImpl::new(
+            miner,
+            Arc::new(crate::degraded_mode_runtime::LocalDegradedModeStatus::new()),
+        )
     }
 
     #[tokio::test]
@@ -191,7 +274,10 @@ mod tests {
         miner.assign("event alpha occurred at startup");
         miner.assign("event alpha occurred at startup");
         miner.assign("event beta different message entirely");
-        let api = DiagnosticsApiImpl::new(miner);
+        let api = DiagnosticsApiImpl::new(
+            miner,
+            Arc::new(crate::degraded_mode_runtime::LocalDegradedModeStatus::new()),
+        );
         let payload = api.template_distribution().await.expect("infallible");
         assert!(!payload.templates.is_empty());
         assert!(payload.total_template_count >= 1);
@@ -216,7 +302,10 @@ mod tests {
         for i in 0..(TEMPLATE_DISTRIBUTION_TOP_N + 30) {
             miner.assign(&format!("distinct_event_x{i} occurred at phase tail"));
         }
-        let api = DiagnosticsApiImpl::new(miner);
+        let api = DiagnosticsApiImpl::new(
+            miner,
+            Arc::new(crate::degraded_mode_runtime::LocalDegradedModeStatus::new()),
+        );
         let payload = api.template_distribution().await.expect("infallible");
         assert!(payload.templates.len() <= TEMPLATE_DISTRIBUTION_TOP_N);
     }
@@ -225,7 +314,10 @@ mod tests {
     async fn template_distribution_payload_drift_indicator_round_trips() {
         let miner = Arc::new(DrainMiner::new(DrainConfig::default_config(), None));
         miner.assign("singleton message word four");
-        let api = DiagnosticsApiImpl::new(miner);
+        let api = DiagnosticsApiImpl::new(
+            miner,
+            Arc::new(crate::degraded_mode_runtime::LocalDegradedModeStatus::new()),
+        );
         let payload = api.template_distribution().await.expect("infallible");
         assert_eq!(payload.templates.len(), 1);
         assert_eq!(

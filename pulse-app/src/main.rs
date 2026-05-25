@@ -729,7 +729,17 @@ fn main() {
             );
         }
     }
-    let diagnostics_impl = DiagnosticsApiImpl::new(Arc::clone(&drain_miner));
+    // Chunk #86 — L4 degraded-mode FSM. Single shared instance per L4
+    // subscriber per Phase 6 user-confirmed GLOBAL scope. Injected into
+    // (a) the L4 inference subscriber (chunk-86 backoff-skip + record
+    // success/failure outcomes), (b) the diagnostics router (manual
+    // override via `diagnostics.retry_interpretation()`), (c) the
+    // backoff-remaining gauge heartbeat (chunk #86 obs metric).
+    let degraded_mode: Arc<dyn interpretation::degraded_mode::DegradedModeStatus> =
+        Arc::new(pulse_app::degraded_mode_runtime::LocalDegradedModeStatus::new());
+
+    let diagnostics_impl =
+        DiagnosticsApiImpl::new(Arc::clone(&drain_miner), Arc::clone(&degraded_mode));
 
     let grpc_addr = match resolve_grpc_port() {
         Ok(p) => Some(SocketAddr::from(([127, 0, 0, 1], p.value()))),
@@ -900,6 +910,12 @@ fn main() {
     // resolution observer loop). Cloning Option<Arc<...>> is cheap (Arc).
     let incident_persistence_for_persist = incident_persistence.clone();
     let incident_registry_for_persist = Arc::clone(&incident_registry);
+    // Chunk #86 — capture degraded_mode for the setup closure spawn site
+    // (L4 inference subscriber + backoff-remaining heartbeat). Mirrors the
+    // incident_*_for_persist pattern above. One shared Arc serves all
+    // three consumers (subscriber / heartbeat / diagnostics resolver).
+    let degraded_mode_for_subscriber = Arc::clone(&degraded_mode);
+    let degraded_mode_for_heartbeat = Arc::clone(&degraded_mode);
     let incident_broadcast_for_observe = Arc::clone(&incident_broadcast);
     let incident_workspace_for_persist = incident_workspace_key.clone();
 
@@ -1163,23 +1179,38 @@ fn main() {
                             Arc::clone(&digest_broadcast),
                             Arc::clone(corpus_writer_handle),
                         );
-                        // Chunk #83 — L4 inference subscriber. Subscribes
-                        // to `pulse://stream/digests` (same source as the
-                        // persister above) and invokes LlmInferenceRunner
-                        // per digest. With the chunk #82 stub runner this
-                        // returns ModelNotConfigured + counts а
-                        // runtime_error metric per inference; future
-                        // chunks с actual mistralrs binding produce real
-                        // L4 outputs that downstream chunks (#86+) wire
-                        // into incident records.
-                        pulse_app::inference_runtime::spawn_l4_inference_subscriber(
-                            Arc::clone(&digest_broadcast),
-                            Arc::clone(&llm_runner),
-                        );
+                        // Chunk #83 substrate + chunk #86 degraded-mode
+                        // wiring. The L4 subscriber now consumes the
+                        // degraded-mode FSM (backoff-skip + record outcome)
+                        // + incident registry + persistence for the
+                        // resolution-summary attachment path (chunk #86).
+                        // Persistence path active ONLY when the corpus
+                        // is available at boot; in-memory-only deployments
+                        // skip the resolution-summary persist site (the
+                        // attachment happens in-memory but the durable
+                        // write is deferred — defensive skip prevents
+                        // None unwrap on Path A non-corpus boot).
+                        if let Some(persistence) = incident_persistence_for_persist.as_ref() {
+                            pulse_app::inference_runtime::spawn_l4_inference_subscriber(
+                                Arc::clone(&digest_broadcast),
+                                Arc::clone(&llm_runner),
+                                Arc::clone(&degraded_mode_for_subscriber),
+                                Arc::clone(&incident_registry_for_persist),
+                                Arc::clone(persistence),
+                            );
+                        } else {
+                            tracing::warn!(
+                                target: "digest.runtime.boot",
+                                "L4 inference subscriber disabled — corpus unavailable; resolution-summary attachment path inactive this boot",
+                            );
+                        }
                         pulse_app::inference_runtime::spawn_l4_queue_depth_heartbeat(|| 0);
+                        pulse_app::inference_runtime::spawn_l4_backoff_remaining_heartbeat(
+                            Arc::clone(&degraded_mode_for_heartbeat),
+                        );
                         tracing::info!(
                             target: "digest.runtime.boot",
-                            "digest assembler spawned (cadence subscriber + persister + L4 inference subscriber)",
+                            "digest assembler spawned (cadence subscriber + persister + L4 inference subscriber + degraded-mode heartbeat)",
                         );
                     }
                     Err(e) => {
@@ -1585,7 +1616,12 @@ mod tests {
         // Additions 2026-05-12). In-memory miner with no persistence keeps
         // the test hermetic.
         let diagnostics_miner = Arc::new(DrainMiner::new(DrainConfig::default_config(), None));
-        let diagnostics_impl = DiagnosticsApiImpl::new(diagnostics_miner);
+        // Chunk #86 — DiagnosticsApiImpl now takes Arc<dyn DegradedModeStatus>;
+        // in-memory LocalDegradedModeStatus keeps the test hermetic.
+        let diagnostics_degraded_mode: Arc<dyn interpretation::degraded_mode::DegradedModeStatus> =
+            Arc::new(pulse_app::degraded_mode_runtime::LocalDegradedModeStatus::new());
+        let diagnostics_impl =
+            DiagnosticsApiImpl::new(diagnostics_miner, diagnostics_degraded_mode);
 
         // Chunk #78: IncidentsApiImpl participates in the emit so bindings.ts
         // ARGS_MAP includes incidents.list_active / acknowledge / mark_resolved

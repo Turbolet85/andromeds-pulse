@@ -3,6 +3,7 @@ pub mod baseline_persistence;
 pub mod bincode_bounded;
 pub mod cadence_runner;
 pub mod connection_router;
+pub mod degraded_mode_runtime;
 pub mod diagnostics_router;
 pub mod digest_runtime;
 pub mod drain_persistence;

@@ -46,6 +46,7 @@ fn sample_incident(workspace: &str, kind: CueKind, status: IncidentStatus, ts: i
         acknowledged_at_unix_nano: None,
         resolved_at_unix_nano: None,
         read_at_unix_nano: None,
+        resolution_summary_text: None,
     }
 }
 

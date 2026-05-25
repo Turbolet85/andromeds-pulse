@@ -109,6 +109,24 @@ pub trait IncidentRegistry: Send + Sync + Debug {
     /// `now_unix_nano` — caller injects deterministic time for tests.
     fn evaluate_auto_resolution(&self, now_unix_nano: i64, window_secs: u64) -> Vec<i64>;
 
+    /// Attach an L4-generated resolution summary к а Resolved incident
+    /// (chunk #86; capabilities P-022 + P-059). The caller (L4 inference
+    /// subscriber) ensures the `summary_text` payload has already passed
+    /// through `security::scrubber::scrub_attribute` per chunk #72
+    /// uniform-coverage invariant — the registry side does NOT re-scrub.
+    /// Updates `resolution_summary_text` + `updated_at_unix_nano`. Errors:
+    /// `NotFound` (no such incident); `InvalidTransition` when target
+    /// incident is NOT already Resolved (chunk spec: attach к Resolved
+    /// only). Returns the updated incident snapshot. Does NOT emit а
+    /// `pulse://stream/incidents` lifecycle event per chunk #86 silent-
+    /// attachment Phase 6 resolution.
+    fn attach_resolution_summary(
+        &self,
+        id: i64,
+        summary_text: String,
+        now_unix_nano: i64,
+    ) -> Result<Incident, IncidentRegistryError>;
+
     /// Total incident count в the registry (Active + Acknowledged + Resolved
     /// — for diagnostics + tests).
     fn count(&self) -> usize;
@@ -250,6 +268,24 @@ impl IncidentRegistry for InMemoryIncidentRegistry {
             .collect()
     }
 
+    fn attach_resolution_summary(
+        &self,
+        id: i64,
+        summary_text: String,
+        now_unix_nano: i64,
+    ) -> Result<Incident, IncidentRegistryError> {
+        let mut entry = self
+            .incidents
+            .get_mut(&id)
+            .ok_or(IncidentRegistryError::NotFound)?;
+        if entry.status != IncidentStatus::Resolved {
+            return Err(IncidentRegistryError::InvalidTransition);
+        }
+        entry.resolution_summary_text = Some(summary_text);
+        entry.updated_at_unix_nano = now_unix_nano;
+        Ok(entry.clone())
+    }
+
     fn count(&self) -> usize {
         self.incidents.len()
     }
@@ -294,6 +330,7 @@ mod tests {
             acknowledged_at_unix_nano: None,
             resolved_at_unix_nano: None,
             read_at_unix_nano: None,
+            resolution_summary_text: None,
         }
     }
 
@@ -592,5 +629,52 @@ mod tests {
             IncidentRegistryError::CooldownActive { remaining_secs: 60 }.error_category(),
             "cooldown_active"
         );
+    }
+
+    #[test]
+    fn attach_resolution_summary_writes_summary_to_resolved_incident() {
+        let r = fresh_registry();
+        let mut inc = sample_incident(1, "ws-a", CueKind::ErrorRateSpike, CueScope::Service);
+        // Pre-resolve the incident — chunk #86 spec attaches summaries
+        // only to Resolved incidents.
+        inc.status = IncidentStatus::Resolved;
+        inc.resolved_at_unix_nano = Some(2_000_000_000);
+        r.insert(inc);
+
+        let now = 3_000_000_000_i64;
+        let summary = "[redacted] resolved after 120s of no re-emission".to_string();
+        let updated = r
+            .attach_resolution_summary(1, summary.clone(), now)
+            .expect("attach succeeds on Resolved");
+        assert_eq!(updated.resolution_summary_text, Some(summary));
+        assert_eq!(updated.updated_at_unix_nano, now);
+        assert_eq!(updated.status, IncidentStatus::Resolved);
+    }
+
+    #[test]
+    fn attach_resolution_summary_rejects_active_incident() {
+        let r = fresh_registry();
+        // Default sample_incident is Active; resolution-summary attachment
+        // requires Resolved state per chunk #86 spec.
+        r.insert(sample_incident(
+            1,
+            "ws-a",
+            CueKind::ErrorRateSpike,
+            CueScope::Service,
+        ));
+        let result = r.attach_resolution_summary(1, "summary".to_string(), 5_000_000_000);
+        assert!(matches!(
+            result,
+            Err(IncidentRegistryError::InvalidTransition)
+        ));
+        // Verify the incident's resolution_summary_text was NOT mutated.
+        assert_eq!(r.get(1).unwrap().resolution_summary_text, None);
+    }
+
+    #[test]
+    fn attach_resolution_summary_returns_not_found_for_unknown_id() {
+        let r = fresh_registry();
+        let result = r.attach_resolution_summary(999, "summary".to_string(), 5_000_000_000);
+        assert!(matches!(result, Err(IncidentRegistryError::NotFound)));
     }
 }

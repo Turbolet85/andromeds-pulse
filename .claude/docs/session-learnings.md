@@ -6,6 +6,39 @@ _Entries are added in reverse chronological order (newest first). Each entry has
 
 _This file is entirely wrap-session's territory. `/setup-project` creates it if missing but NEVER regenerates it. Manual edits are preserved across all Andromeda skill runs._
 
+## 2026-05-25 (session 150) — Outcome-enum backward-compat shim for refactoring void-returning handlers (confidence 0.70)
+
+When extending а handler fn to surface internal classified outcomes к а new consumer WITHOUT breaking N+ existing test callsites that depend on the void-returning signature, extract the handler body into а new `_outcome`-suffixed fn returning а classified enum, then make the original fn а thin shim that calls the new fn and discards the return value.
+
+Verified at chunk #86 `pulse-app/src/inference_runtime.rs::handle_digest` refactor: 11+ existing tests in `pulse-app/tests/unit_inference_runtime.rs` call `handle_digest(&runner, &digest).await` with no return-value handling. Chunk #86 needed the L4 inference outcome (Success/ParseFailure/SchemaViolation/OutputTooLarge/RuntimeError) к feed degraded-mode FSM record_failure/record_success calls + к surface `Box<L4Output>` payload к the resolution-summary attachment path. Refactor:
+
+```rust
+pub enum L4DigestOutcome {
+    Success(Box<L4Output>),
+    ParseFailure,
+    SchemaViolation,
+    OutputTooLarge,
+    RuntimeError,
+}
+
+pub async fn handle_digest_outcome(runner: &dyn LlmInferenceRunner, digest: &Digest) -> L4DigestOutcome { /* moved body */ }
+
+pub async fn handle_digest(runner: &dyn LlmInferenceRunner, digest: &Digest) {
+    let _ = handle_digest_outcome(runner, digest).await;  // shim для existing tests
+}
+```
+
+Zero test churn: the 11 existing callsites continue к work с the void contract. New degraded-mode-aware subscriber calls `handle_digest_outcome` directly + branches on the variants. The boxed `L4Output` sidesteps clippy `large_enum_variant` (~600-byte struct dominates the enum size; other variants are unit).
+
+Trade-offs vs alternative refactor strategies:
+- Update all 11 test callsites к `let _ = handle_digest(...)`: pure churn; loses information that the original signature was void.
+- Add Option<Arc<dyn DegradedModeStatus>> with default-None impl к the original signature: changes the production hot path's parameter list to thread Option through; mocks need k construct stubs.
+- Make the original fn return the outcome + update test callsites к use `_`-prefix bindings: same as option 1 but slightly cleaner shape.
+
+The shim approach minimizes diff radius (1 new fn + 1 unchanged-body fn becomes 2 fns с the original now а thin delegator). Generalizes к ANY future refactor where а void-returning handler needs к surface internal classification к а new consumer без re-shuffling N existing test callsites. Apply when N ≥ 5 (below that threshold the test-update cost may be lower than the shim-fn maintenance overhead).
+
+---
+
 ## 2026-05-23 (session 121) — Specta type-name collision discipline across workspace crates (confidence 0.85)
 
 When two distinct workspace crates each define а type with the same name AND both derive `specta::Type` (gated by `taurpc-runtime` feature OR equivalent), the `emit_taurpc_bindings` test panics с `Unable to export type named 'X' from locations '...'`. The TS bindings target requires unique type names across all transitively-exported types.

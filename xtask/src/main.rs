@@ -665,6 +665,7 @@ const EXPECTED_PROCEDURES: &[&str] = &[
     "get_settings",
     "update_settings",
     "connection.current_state",
+    "diagnostics.retry_interpretation",
     "diagnostics.template_distribution",
     "incidents.acknowledge",
     "incidents.list_active",
@@ -1143,6 +1144,15 @@ mod capability_drift_tests {
         assert!(
             expected.contains("model.current_profile"),
             "EXPECTED_PROCEDURES must include model.current_profile (chunk #82 hardware profile detection + model loading + tokenizer)"
+        );
+    }
+
+    #[test]
+    fn expected_procedures_includes_diagnostics_retry_interpretation_at_chunk_86() {
+        let expected: BTreeSet<&str> = EXPECTED_PROCEDURES.iter().copied().collect();
+        assert!(
+            expected.contains("diagnostics.retry_interpretation"),
+            "EXPECTED_PROCEDURES must include diagnostics.retry_interpretation (chunk #86 JSON parse failure handling + backoff + resolution summary — Settings → Diagnostics manual override per capability P-020 graceful degradation reaching full)"
         );
     }
 

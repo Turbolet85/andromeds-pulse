@@ -25,13 +25,17 @@ use std::sync::Arc;
 use std::time::{Duration, Instant};
 
 use interpretation::contract::{InferenceError, LlmInferenceRunner, ModelTier};
+use interpretation::degraded_mode::DegradedModeStatus;
 use interpretation::prompt::{build_fallback_tier_prompt, build_primary_tier_prompt};
 use interpretation::schema::{
     L4_OUTPUT_JSON_SCHEMA, L4Output, PROMPT_VERSION_FALLBACK, PROMPT_VERSION_PRIMARY,
 };
+use security::scrubber::{ScrubbedValue, scrub_attribute};
 use tokio::sync::broadcast::error::RecvError;
 use tokio::task::JoinHandle;
-use triage::contract::{Digest, DigestBroadcast};
+use triage::contract::{
+    Digest, DigestBroadcast, DigestKind, IncidentPersistence, IncidentRegistry,
+};
 
 /// Tracing target — top-level L4 inference request span (per L3 digest).
 pub const TARGET_L4_INFERENCE_REQUEST: &str = "interpretation.inference.request";
@@ -55,6 +59,22 @@ pub const TARGET_METRIC_L4_INFERENCE_LATENCY_P99_MS: &str =
 /// Metric target — queue depth gauge (emitted per heartbeat tick by the
 /// queue-depth task, not per-event).
 pub const TARGET_METRIC_L4_INFERENCE_QUEUE_DEPTH: &str = "metric.pipeline.l4.inference_queue_depth";
+/// Tracing target — L4 inference skipped due к active degraded-mode
+/// backoff window (chunk #86).
+pub const TARGET_L4_INFERENCE_SKIPPED: &str = "interpretation.inference.skipped";
+/// Tracing target — resolution-summary persist failures (chunk #86).
+/// Sanitized error_category only.
+pub const TARGET_L4_RESOLUTION_SUMMARY_PERSIST_ERROR: &str =
+    "interpretation.resolution_summary.persist.error";
+/// Metric target — degraded-mode cumulative seconds gauge (chunk #86).
+pub const TARGET_METRIC_L4_DEGRADED_MODE_ACTIVE_SECONDS_TOTAL: &str =
+    "metric.pipeline.l4.degraded_mode_active_seconds_total";
+/// Metric target — count of degraded-mode entries since boot (chunk #86).
+pub const TARGET_METRIC_L4_DEGRADED_MODE_ENTRIES_TOTAL: &str =
+    "metric.pipeline.l4.degraded_mode_entries_total";
+/// Metric target — remaining seconds until next eligible retry (chunk #86).
+pub const TARGET_METRIC_L4_BACKOFF_REMAINING_SECONDS: &str =
+    "metric.pipeline.l4.backoff_remaining_seconds";
 
 /// Default heartbeat interval for the L4 queue-depth gauge emission task
 /// (mirrors obs-plan §3 Heartbeat ticks 15s cadence).
@@ -72,23 +92,59 @@ fn build_project_context(digest: &Digest) -> String {
 }
 
 /// Spawn the L4 inference subscriber. Subscribes к `digest_broadcast`,
-/// invokes `runner` per digest, emits observability events.
+/// invokes `runner` per digest, emits observability events. Threads the
+/// chunk #86 degraded-mode FSM + incident registry/persistence so the
+/// subscriber can (a) skip generation during active backoff windows,
+/// (b) record success/failure outcomes к the FSM, (c) attach resolution
+/// summaries к Resolved incidents on `DigestKind::ResolutionSummary`.
 ///
 /// Returns the JoinHandle so callers can await graceful shutdown if needed.
-/// Per chunk #83 substrate scope, the parsed L4Output is logged but NOT
-/// persisted — future chunks add the persistence side once the
-/// L4-к-incident mapping is fully specified (see chunk #86 Findings
-/// counter + corpus integration).
 pub fn spawn_l4_inference_subscriber(
     digest_broadcast: Arc<DigestBroadcast>,
     runner: Arc<dyn LlmInferenceRunner>,
+    degraded_mode: Arc<dyn DegradedModeStatus>,
+    incident_registry: Arc<dyn IncidentRegistry>,
+    incident_persistence: Arc<dyn IncidentPersistence>,
 ) -> JoinHandle<()> {
     tokio::spawn(async move {
         let mut rx = digest_broadcast.subscribe();
         loop {
             match rx.recv().await {
                 Ok(digest) => {
-                    handle_digest(&*runner, &digest).await;
+                    let now = current_unix_nanos();
+                    if degraded_mode.is_in_backoff(now) {
+                        let snap = degraded_mode.current_snapshot(now);
+                        let tier_label = interpretation::contract::model_tier_label(runner.tier());
+                        tracing::info!(
+                            target: TARGET_L4_INFERENCE_SKIPPED,
+                            reason = "backoff_active",
+                            model_tier = tier_label,
+                            backoff_seconds_remaining = snap.backoff_seconds_remaining,
+                            "L4 inference skipped due к active backoff window",
+                        );
+                        continue;
+                    }
+                    let outcome = handle_digest_outcome(&*runner, &digest).await;
+                    match &outcome {
+                        L4DigestOutcome::Success(parsed) => {
+                            degraded_mode.record_success(now);
+                            if matches!(digest.kind, DigestKind::ResolutionSummary) {
+                                attach_resolution_summary_to_incident(
+                                    incident_registry.as_ref(),
+                                    incident_persistence.as_ref(),
+                                    &digest.incident_refs,
+                                    parsed,
+                                    now,
+                                );
+                            }
+                        }
+                        L4DigestOutcome::ParseFailure
+                        | L4DigestOutcome::SchemaViolation
+                        | L4DigestOutcome::OutputTooLarge
+                        | L4DigestOutcome::RuntimeError => {
+                            degraded_mode.record_failure(now);
+                        }
+                    }
                 }
                 Err(RecvError::Lagged(skipped)) => {
                     tracing::warn!(
@@ -102,6 +158,40 @@ pub fn spawn_l4_inference_subscriber(
                 }
                 Err(RecvError::Closed) => return,
             }
+        }
+    })
+}
+
+/// Wall-clock unix-nano helper. Mirrors `pulse-app/src/diagnostics_router.rs`
+/// `current_unix_nanos` shape; reused for the chunk #86 degraded-mode FSM
+/// timestamp injections.
+pub fn current_unix_nanos() -> i64 {
+    std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .map(|d| i64::try_from(d.as_nanos()).unwrap_or(i64::MAX))
+        .unwrap_or(0)
+}
+
+/// Spawn the chunk #86 backoff-remaining gauge tick. Emits
+/// `metric.pipeline.l4.backoff_remaining_seconds` every 15s (mirrors
+/// chunk #83 `spawn_l4_queue_depth_heartbeat` cadence + obs-plan §3
+/// Heartbeat ticks). Bounded к single `value` field per chunk #86 obs
+/// constraint aggregate-only discipline.
+pub fn spawn_l4_backoff_remaining_heartbeat(
+    degraded_mode: Arc<dyn DegradedModeStatus>,
+) -> JoinHandle<()> {
+    tokio::spawn(async move {
+        let mut ticker = tokio::time::interval(DEFAULT_QUEUE_DEPTH_TICK_INTERVAL);
+        ticker.set_missed_tick_behavior(tokio::time::MissedTickBehavior::Skip);
+        loop {
+            ticker.tick().await;
+            let now = current_unix_nanos();
+            let snap = degraded_mode.current_snapshot(now);
+            tracing::info!(
+                target: TARGET_METRIC_L4_BACKOFF_REMAINING_SECONDS,
+                value = snap.backoff_seconds_remaining,
+                "L4 backoff remaining heartbeat",
+            );
         }
     })
 }
@@ -136,11 +226,49 @@ where
     })
 }
 
+/// Classified outcome of а single L4 digest processing pass. Drives the
+/// chunk #86 degraded-mode FSM transitions in
+/// [`spawn_l4_inference_subscriber`] AND surfaces the parsed `L4Output`
+/// for the resolution-summary attachment path. `L4Output` is boxed
+/// because its serialized size dwarfs the other variants (per clippy
+/// `large_enum_variant`).
+#[derive(Debug)]
+pub enum L4DigestOutcome {
+    /// Generation + parse + validate succeeded; the parsed payload is
+    /// attached for the resolution-summary path OR ignored otherwise.
+    Success(Box<L4Output>),
+    /// JSON parse failed (malformed output bytes). Drives
+    /// `degraded_mode.record_failure`.
+    ParseFailure,
+    /// Schema validation failed (parse succeeded but bounded-shape
+    /// invariant violated). Drives `degraded_mode.record_failure`.
+    SchemaViolation,
+    /// Output exceeded the defense-in-depth byte cap before parse.
+    /// Drives `degraded_mode.record_failure`.
+    OutputTooLarge,
+    /// Runtime / LLM-side error (subprocess failure / model not
+    /// configured / etc.). Drives `degraded_mode.record_failure`.
+    RuntimeError,
+}
+
 /// Single-digest inference handling. Composes prompt → invokes runner →
-/// parses result → emits observability. Pulled out from
-/// [`spawn_l4_inference_subscriber`] для unit-test reach via а stub
-/// runner.
+/// parses result → emits observability. Backward-compat shim around
+/// [`handle_digest_outcome`]; discards the outcome for existing test
+/// callers that pre-date chunk #86. New degraded-mode-aware code uses
+/// `handle_digest_outcome` directly.
 pub async fn handle_digest(runner: &dyn LlmInferenceRunner, digest: &Digest) {
+    let _ = handle_digest_outcome(runner, digest).await;
+}
+
+/// Outcome-returning single-digest inference handler. Identical
+/// observability behavior к `handle_digest`; additionally surfaces а
+/// classified `L4DigestOutcome` so callers (e.g.,
+/// [`spawn_l4_inference_subscriber`]) can update the chunk #86
+/// degraded-mode FSM + handle the resolution-summary attachment path.
+pub async fn handle_digest_outcome(
+    runner: &dyn LlmInferenceRunner,
+    digest: &Digest,
+) -> L4DigestOutcome {
     let tier = runner.tier();
     let started = Instant::now();
     let tier_label = interpretation::contract::model_tier_label(tier);
@@ -188,7 +316,7 @@ pub async fn handle_digest(runner: &dyn LlmInferenceRunner, digest: &Digest) {
                 success = true,
                 "L4 constrained generation returned",
             );
-            handle_parse(&raw_output, tier_label, digest_kind, total_elapsed_ms);
+            handle_parse_outcome(&raw_output, tier_label, digest_kind, total_elapsed_ms)
         }
         Err(err) => {
             let category = inference_error_label(&err);
@@ -213,16 +341,17 @@ pub async fn handle_digest(runner: &dyn LlmInferenceRunner, digest: &Digest) {
                 model_tier = tier_label,
                 "L4 inference latency sample",
             );
+            L4DigestOutcome::RuntimeError
         }
     }
 }
 
-fn handle_parse(
+fn handle_parse_outcome(
     raw_output: &str,
     tier_label: &'static str,
     digest_kind: &'static str,
     total_elapsed_ms: u64,
-) {
+) -> L4DigestOutcome {
     let parse_started = Instant::now();
     let output_bytes = raw_output.as_bytes();
     let parse_result = interpretation::schema::parse_bounded(output_bytes);
@@ -259,11 +388,7 @@ fn handle_parse(
                 model_tier = tier_label,
                 "L4 inference latency sample",
             );
-            // L4 output persistence к incident records is deferred к
-            // chunk #86+. The parsed L4Output IS produced here + observable
-            // via the success-path events above; downstream chunks add the
-            // persistence pathway.
-            let _persistence_deferred: &L4Output = &parsed;
+            L4DigestOutcome::Success(Box::new(parsed))
         }
         Err(InferenceError::OutputTooLarge {
             actual_bytes,
@@ -284,6 +409,7 @@ fn handle_parse(
                 model_tier = tier_label,
                 "L4 inference counter",
             );
+            L4DigestOutcome::OutputTooLarge
         }
         Err(InferenceError::JsonParseFailed { .. }) => {
             tracing::warn!(
@@ -300,6 +426,7 @@ fn handle_parse(
                 model_tier = tier_label,
                 "L4 inference counter",
             );
+            L4DigestOutcome::ParseFailure
         }
         Err(InferenceError::SchemaViolation { .. }) => {
             tracing::warn!(
@@ -316,12 +443,13 @@ fn handle_parse(
                 model_tier = tier_label,
                 "L4 inference counter",
             );
+            L4DigestOutcome::SchemaViolation
         }
         Err(other) => {
             // Other variants (ModelNotConfigured / etc) routed via the
-            // runtime-error path inside `handle_digest`; reaching here
-            // would indicate а new InferenceError variant — fall through
-            // к counter increment for visibility.
+            // runtime-error path inside `handle_digest_outcome`; reaching
+            // here would indicate а new InferenceError variant — fall
+            // through к counter increment for visibility.
             let category = inference_error_label(&other);
             tracing::warn!(
                 target: TARGET_L4_INFERENCE_ERROR,
@@ -335,7 +463,62 @@ fn handle_parse(
                 model_tier = tier_label,
                 "L4 inference counter",
             );
+            L4DigestOutcome::RuntimeError
         }
+    }
+}
+
+/// Attach the parsed L4Output as а resolution summary к the resolved
+/// incident referenced by the digest's `incident_refs[0]`. Chunk #86
+/// resolution-summary path; capability P-022 + P-059.
+///
+/// Discipline:
+/// - Render summary as JSON-serialized L4Output (chunk #87 Report UI
+///   parses back; preserves structured fields without а new schema).
+/// - Scrub via `security::scrubber::scrub_attribute` at the persistence
+///   boundary per chunk #72 uniform-coverage invariant.
+/// - Call `registry.attach_resolution_summary` (updates in-memory state).
+/// - Call `persistence.update_incident_status` (rewrites full BLOB к
+///   corpus via existing chunk #78 trait method; the new
+///   `resolution_summary_text` field flows through via serde).
+/// - Defensive skip on malformed `incident_refs` / invalid id / registry
+///   error (NotFound or InvalidTransition — incident may have been
+///   archived OR not yet transitioned к Resolved).
+pub fn attach_resolution_summary_to_incident(
+    registry: &dyn IncidentRegistry,
+    persistence: &dyn IncidentPersistence,
+    incident_refs: &[String],
+    parsed: &L4Output,
+    now_unix_nano: i64,
+) {
+    let Some(id_str) = incident_refs.first() else {
+        return;
+    };
+    let Ok(id) = id_str.parse::<i64>() else {
+        return;
+    };
+
+    let raw_summary = match serde_json::to_string(parsed) {
+        Ok(s) => s,
+        Err(_) => return,
+    };
+
+    let scrubbed_text = match scrub_attribute(&raw_summary) {
+        ScrubbedValue::Allowed(s) => s,
+        ScrubbedValue::Redacted { category } => format!("[redacted: {category}]"),
+    };
+
+    let updated = match registry.attach_resolution_summary(id, scrubbed_text, now_unix_nano) {
+        Ok(u) => u,
+        Err(_) => return,
+    };
+
+    if let Err(err) = persistence.update_incident_status(id, &updated) {
+        tracing::warn!(
+            target: TARGET_L4_RESOLUTION_SUMMARY_PERSIST_ERROR,
+            error_category = err.error_category(),
+            "resolution summary persist failed",
+        );
     }
 }
 

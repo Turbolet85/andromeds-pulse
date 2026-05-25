@@ -45,6 +45,10 @@ const sampleSettings: Required<Settings> = {
   drain_depth: 4,
   drain_similarity_x100: 50,
   drain_max_clusters: 1000,
+  cadence_baseline_seconds: 60,
+  cadence_accelerated_seconds: 20,
+  cadence_reflection_seconds: 1800,
+  cadence_tier2_acceleration_enabled: true,
 };
 
 let getSettingsFn: ReturnType<typeof vi.fn>;

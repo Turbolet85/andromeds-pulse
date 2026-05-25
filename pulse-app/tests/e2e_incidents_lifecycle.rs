@@ -68,6 +68,7 @@ fn seed_incident(
         acknowledged_at_unix_nano: None,
         resolved_at_unix_nano: None,
         read_at_unix_nano: None,
+        resolution_summary_text: None,
     };
     let id = persistence.save_new_incident(&inc).expect("save");
     inc.id = id;
@@ -201,6 +202,7 @@ fn acknowledge_cooldown_rejects_second_attempt_via_registry() {
         acknowledged_at_unix_nano: None,
         resolved_at_unix_nano: None,
         read_at_unix_nano: None,
+        resolution_summary_text: None,
     };
     let mut inc_b = inc_a.clone();
     inc_b.id = 2;

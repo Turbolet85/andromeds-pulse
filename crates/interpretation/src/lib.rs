@@ -17,6 +17,7 @@
 
 pub mod broadcast;
 pub mod contract;
+pub mod degraded_mode;
 pub mod hardware;
 pub mod prompt;
 pub mod schema;

@@ -94,14 +94,6 @@ export type LogRow = { ts_unix_nano: number; resource_hash: string; severity_num
 
 export type LogsQueryArgs = { time_window_seconds: number; limit: number; cursor: string | null }
 
-export type McpServerState = "enabled" | "disabled" | "unavailable"
-
-export type McpStartResult = { state: McpServerState; pid: number | null }
-
-export type McpStatusDto = { state: McpServerState; sidecar_running: boolean; pid: number | null }
-
-export type McpStopResult = { state: McpServerState }
-
 export type MetricRow = { metric_name: string; ts_unix_nano: number; resource_hash: string; value: number; data_point_kind: number }
 
 export type MetricsQueryArgs = { time_window_seconds: number; limit: number; cursor: string | null }
@@ -165,6 +157,29 @@ export type ReadyEnvelope = { ready: boolean; checked_at: string; checks: ReadyC
  * §Anti-Patterns §Logging row 1 + a11y plan §8 plain-language commitment.
  */
 export type ReceiverFailureReason = "bind_failed" | "stale_heartbeat" | "receiver_panicked"
+
+/**
+ * Chunk #86 — Settings → Diagnostics "Retry interpretation now" payload.
+ * Returned by `diagnostics.retry_interpretation()` after invoking the
+ * manual-override path on the degraded-mode FSM.
+ * 
+ * Bounded к scalar / string-label fields per chunk #86 obs constraint
+ * aggregate-only discipline; carries NO LLM-emitted content / incident
+ * identifiers / per-trace IDs. The `current_state` label is the snake-
+ * case bounded enum from `interpretation::degraded_mode::DegradedModeState`
+ * ("active" | "degraded") routed through `degraded_mode_state_label`.
+ */
+export type RetryInterpretationPayload = { 
+/**
+ * True if the manual-retry invocation transitioned FSM state OR
+ * reset а live failure counter; false if FSM was already в clean
+ * Active state с zero consecutive failures (no-op retry).
+ */
+triggered: boolean; 
+/**
+ * Post-invocation FSM state label ("active" | "degraded").
+ */
+current_state: string; consecutive_failures: number; backoff_remaining_seconds: number }
 
 /**
  * Per-service lifecycle state per capability spec P-027. Seven discrete
@@ -250,21 +265,19 @@ export type WidgetPosition = "top-left" | "top-right" | "bottom-left" | "bottom-
 
 export type WorkspaceContextDto = { root_basename: string; project_name: string | null; vcs_type: string | null; vcs_root_basename: string | null; has_andromeda_marker: boolean }
 
-const ARGS_MAP = { '':'{"app_info":[],"get_settings":[],"health":[],"ready":[],"update_settings":["settings"]}', 'connection':'{"current_state":[]}', 'diagnostics':'{"template_distribution":[]}', 'incidents':'{"acknowledge":["id"],"list_active":[],"mark_resolved":["id"]}', 'logs':'{"query":["args"]}', 'mcp':'{"start":[],"status":[],"stop":[]}', 'metrics':'{"query":["args"]}', 'model':'{"current_profile":[]}', 'plugins':'{"invoke":["plugin_id","capability"],"list":[],"reload":[]}', 'services':'{"list_with_states":[]}', 'snapshot':'{"generate":["preset","workspace_root"]}', 'storage':'{"inspect":[],"path":[]}', 'streams':'{"subscribe_logs":["channel"],"subscribe_metrics":["channel"],"subscribe_spans":["channel"]}', 'telemetry.frontend':'{"record_frame_ms":["input"]}', 'traces':'{"query":["args"]}', 'workspace':'{"detect":["candidate_root"]}' }
+const ARGS_MAP = { '':'{"app_info":[],"get_settings":[],"health":[],"ready":[],"update_settings":["settings"]}', 'connection':'{"current_state":[]}', 'diagnostics':'{"retry_interpretation":[],"template_distribution":[]}', 'incidents':'{"acknowledge":["id"],"list_active":[],"mark_resolved":["id"]}', 'logs':'{"query":["args"]}', 'metrics':'{"query":["args"]}', 'model':'{"current_profile":[]}', 'plugins':'{"invoke":["plugin_id","capability"],"list":[],"reload":[]}', 'services':'{"list_with_states":[]}', 'snapshot':'{"generate":["preset","workspace_root"]}', 'storage':'{"inspect":[],"path":[]}', 'streams':'{"subscribe_logs":["channel"],"subscribe_metrics":["channel"],"subscribe_spans":["channel"]}', 'telemetry.frontend':'{"record_frame_ms":["input"]}', 'traces':'{"query":["args"]}', 'workspace':'{"detect":["candidate_root"]}' }
 export type Router = { "": {app_info: () => Promise<AppInfo>, 
 get_settings: () => Promise<Settings>, 
 health: () => Promise<HealthEnvelope>, 
 ready: () => Promise<ReadyEnvelope>, 
 update_settings: (settings: Settings) => Promise<null>},
 "connection": {current_state: () => Promise<ConnectionStatePayload>},
-"diagnostics": {template_distribution: () => Promise<TemplateDistributionPayload>},
+"diagnostics": {retry_interpretation: () => Promise<RetryInterpretationPayload>, 
+template_distribution: () => Promise<TemplateDistributionPayload>},
 "incidents": {acknowledge: (id: number) => Promise<null>, 
 list_active: () => Promise<IncidentsListPayload>, 
 mark_resolved: (id: number) => Promise<null>},
 "logs": {query: (args: LogsQueryArgs) => Promise<PaginatedResponse<LogRow>>},
-"mcp": {start: () => Promise<McpStartResult>, 
-status: () => Promise<McpStatusDto>, 
-stop: () => Promise<McpStopResult>},
 "metrics": {query: (args: MetricsQueryArgs) => Promise<PaginatedResponse<MetricRow>>},
 "model": {current_profile: () => Promise<ModelProfilePayload>},
 "plugins": {invoke: (pluginId: string, capability: string) => Promise<PluginInvokeResult>, 

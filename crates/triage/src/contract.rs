@@ -359,6 +359,15 @@ pub struct Incident {
     pub acknowledged_at_unix_nano: Option<i64>,
     pub resolved_at_unix_nano: Option<i64>,
     pub read_at_unix_nano: Option<i64>,
+    /// L4-generated summary attached on Resolved transition per capability
+    /// spec P-022 + P-059 (chunk #86). `#[serde(default)]` keeps pre-chunk-#86
+    /// persisted rows deserializable (backward-compat for corpus BLOB payloads
+    /// authored by chunk #78 persist cycle). MUST be populated via the
+    /// `IncidentRegistry::attach_resolution_summary` API path так что
+    /// `security::scrubber::scrub_attribute` runs before persistence per
+    /// chunk #72 uniform-coverage invariant.
+    #[serde(default)]
+    pub resolution_summary_text: Option<String>,
 }
 
 /// LWW queue mode classifier for `Digest` per dist-arch v3 §Queue behavior.
@@ -562,6 +571,7 @@ mod tests {
             acknowledged_at_unix_nano: None,
             resolved_at_unix_nano: None,
             read_at_unix_nano: None,
+            resolution_summary_text: None,
         }
     }
 
@@ -802,6 +812,35 @@ mod tests {
         let json = serde_json::to_string(&inc).expect("serialize");
         let parsed: Incident = serde_json::from_str(&json).expect("deserialize");
         assert_eq!(parsed, inc);
+    }
+
+    #[test]
+    fn incident_deserializes_pre_chunk_86_payload_without_resolution_summary_field() {
+        // BLOB payloads persisted by chunk #78 (pre-chunk-#86) lack the
+        // `resolution_summary_text` field. `#[serde(default)]` MUST keep
+        // those rows deserializable; chunk #86 backward-compat invariant.
+        let pre_chunk_86_json = r#"{
+            "id": 42,
+            "workspace": "ws-checkout",
+            "fingerprint": "fp-checkout-err-spike",
+            "title": "[redacted] error rate spike in checkout",
+            "detail": "[redacted] sustained 3.5x baseline for 45s",
+            "kind": "error_rate_spike",
+            "scope": "service",
+            "status": "active",
+            "severity": "warn",
+            "priority_tier": "suggested",
+            "evidence_refs": {"trace_id": null, "span_ids": [], "fingerprint_hashes": [], "timestamps_unix_nano": []},
+            "opened_at_unix_nano": 1700000000000,
+            "updated_at_unix_nano": 1700000000000,
+            "acknowledged_at_unix_nano": null,
+            "resolved_at_unix_nano": null,
+            "read_at_unix_nano": null
+        }"#;
+        let parsed: Incident =
+            serde_json::from_str(pre_chunk_86_json).expect("deserialize pre-chunk-#86 row");
+        assert_eq!(parsed.resolution_summary_text, None);
+        assert_eq!(parsed.id, 42);
     }
 
     #[test]

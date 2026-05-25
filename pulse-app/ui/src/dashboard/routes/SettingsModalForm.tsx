@@ -46,6 +46,14 @@ const DEFAULT_SETTINGS: SettingsResolved = {
   drain_depth: 4,
   drain_similarity_x100: 50,
   drain_max_clusters: 1000,
+  // Chunk #80 — Cadence Coordinator defaults. Surfaced through Settings
+  // bindings but not yet form-editable; chunk #86 carries forward the
+  // backend-side defaults к unblock the typecheck gate (Required<Settings>
+  // shape now includes these). Form controls land in а follow-up UI chunk.
+  cadence_baseline_seconds: 60,
+  cadence_accelerated_seconds: 20,
+  cadence_reflection_seconds: 1800,
+  cadence_tier2_acceleration_enabled: true,
 };
 
 const RETENTION_SECONDS_MIN = 60;
@@ -141,6 +149,11 @@ export function SettingsModalForm({
   // Step 21). Inline collapsible per Open Question Q5 option (i);
   // component-local state OK (no persistence).
   const [diagnosticsOpen, setDiagnosticsOpen] = useState<boolean>(false);
+  // Chunk #86 — manual retry override for L4 interpretation degraded-mode
+  // FSM. State carries the in-flight flag + post-invocation status message
+  // for the aria-live region. Component-local; no persistence.
+  const [retryInflight, setRetryInflight] = useState<boolean>(false);
+  const [retryStatusMessage, setRetryStatusMessage] = useState<string>("");
   const initialFocusRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -211,6 +224,36 @@ export function SettingsModalForm({
     if (Number.isFinite(parsed)) {
       setFormState((prev) => ({ ...prev, drain_max_clusters: parsed }));
     }
+  };
+
+  // Chunk #86 — manual L4 retry override. Invokes
+  // `diagnostics.retry_interpretation()` TauRPC procedure; resets the
+  // degraded-mode FSM regardless of current state. Focus stays on the
+  // button across async completion per a11y-plan §5 focus restoration
+  // (matches Critical Path P6 snapshot-generation pattern). aria-live
+  // region announces the post-invocation state — `polite` (not assertive)
+  // for routine success per WCAG SC 4.1.3.
+  const onRetryInterpretation = () => {
+    setRetryInflight(true);
+    setRetryStatusMessage("");
+    void getClient()
+      .diagnostics.retry_interpretation()
+      .then((payload) => {
+        setRetryInflight(false);
+        if (payload.triggered) {
+          setRetryStatusMessage(
+            `Retry triggered — interpretation state: ${payload.current_state}`,
+          );
+        } else {
+          setRetryStatusMessage(
+            `No retry needed — interpretation already ${payload.current_state}`,
+          );
+        }
+      })
+      .catch((err: unknown) => {
+        setRetryInflight(false);
+        setRetryStatusMessage(`Retry failed: ${appErrorMessage(toAppError(err))}`);
+      });
   };
 
   return (
@@ -687,6 +730,60 @@ export function SettingsModalForm({
               <TemplateDistribution />
             </div>
           ) : null}
+          <div
+            data-testid="retry-interpretation-row"
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: "var(--spacing-xs)",
+              marginTop: "var(--spacing-sm)",
+            }}
+          >
+            <button
+              type="button"
+              aria-busy={retryInflight}
+              data-testid="retry-interpretation-button"
+              onClick={onRetryInterpretation}
+              disabled={loading || saving || retryInflight}
+              style={{
+                alignSelf: "flex-start",
+                background: "var(--color-raised-1)",
+                color: "var(--color-text-primary)",
+                border: "1px solid rgba(74, 144, 226, 0.3)",
+                borderRadius: "var(--radius-sm)",
+                padding: "var(--spacing-sm) var(--spacing-md)",
+                fontFamily: "var(--font-body)",
+                fontSize: "12px",
+                cursor: retryInflight ? "not-allowed" : "pointer",
+              }}
+            >
+              {retryInflight
+                ? "Retrying interpretation..."
+                : "Retry interpretation now"}
+            </button>
+            <p
+              style={{
+                fontSize: "11px",
+                color: "var(--color-text-tertiary)",
+                margin: 0,
+              }}
+            >
+              Manual override for L4 interpretation backoff. Resets failure
+              counter and exits degraded mode immediately.
+            </p>
+            <div
+              role="status"
+              aria-live="polite"
+              data-testid="retry-interpretation-status"
+              style={{
+                fontSize: "12px",
+                color: "var(--color-text-secondary)",
+                minHeight: "1.5em",
+              }}
+            >
+              {retryStatusMessage}
+            </div>
+          </div>
         </section>
 
         <section
