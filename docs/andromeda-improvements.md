@@ -1584,3 +1584,58 @@ Option 2 is least disruptive (smallest protocol change; preserves all design int
 - Encountered chunk/refactor: R1 Phase 6 (project api-surface.md migration)
 - Affected SKILL.md: `~/.claude/skills/andromeda-apply/SKILL.md` Phase 4 (class detection) + Phase 5 (plan emission) + `~/.claude/skills/andromeda-apply/references/verification-gates.md` ([READ_AFTER_WRITE] gate implementation)
 - Related: applier audit-trail file at `~/.claude/skills-applier-plans/2026-05-24T10-28-32Z-R1.md` Phase 6 deliverable did NOT mention the size constraint despite Phase 4's class detection running on api-surface.md (the cap-violation surfaced only at human-apply time when Read failed)
+---
+
+### Proposal P24 — wrap-session should auto-progress Type 6 amendments where expected_propagation is empty (trivially-empty cascade = effectively propagated)
+
+## Status: PROPOSED — 2026-05-25 (session 145)
+
+**Problem:** When а Type 6 arch-registry amendment (per spec-amendment-protocol.md Part D Architecture.md exception → Narrow exception) declares empty `## Expected downstream propagation` (no CLAUDE.md cascade needed; no Tier 2/3 cascade needed — additions land в а §Occupied Resources sub-section that no `GENERATED:setup:*` anchor derives from), the propagation lifecycle stalls indefinitely OR requires а full /andromeda-setup-project re-derive (over-cost для known no-op cascade) OR requires а manual `propagated_by_run` sentinel write (workaround). setup-project --delta is the canonical propagation path BUT its Trigger exact-match defense correctly refuses manually-authored markers — designed-in defense against fake-flag use. This creates а stuck-amendment pattern когда the sibling-skill (/andromeda-evolve) is not Skill-tool-invocable (disable-model-invocation: true) AND user authorizes manual replication of /evolve output.
+
+**Encountered:** session 145 wrap (chunk #84 L4 LLM runtime swap implementation + Type 6 arch-registry amendment manually authored). Chain of constraints:
+1. Plan-81 step 11 delegated arch-registry registration к `/andromeda-evolve --allow-arch-registry`
+2. /implement skill correctly refused inline orchestration (chunk #84 was NOT META-classified per P17's ≥80% signature; 1/11 steps = 9%)
+3. Skill tool refused /evolve invocation (disable-model-invocation: true posture)
+4. User authorized manual replication via "proceed" — agent created marker file + arch.md edits + state.yaml entry with honest Trigger field documenting manual provenance
+5. setup-project --delta correctly refused propagation per Trigger exact-match defense (per delta-rerun-protocol.md Architecture.md exception → Type 6 permit path step "Defense-in-depth")
+6. setup-project full would be 100% no-op cascade (verified: 0 of 8 GENERATED:setup:* anchors derive from §Occupied Resources Environment variables OR §Architecture Registry Updates sub-sections) — pure compute waste
+7. Outcome: user picked "skip setup-project + go straight к wrap-session"; wrap-session must handle unpropagated lifecycle
+
+Total friction: 4 user prompts + 2 AskUserQuestion exchanges + ~3 tool-call rounds к navigate а true no-op cascade. The amendment IS effectively propagated (nothing к cascade); the lifecycle machinery doesn't recognize this state.
+
+**Proposed fix:** wrap-session Phase 8 spec_amendments lifecycle progression adds а new auto-progress branch:
+
+```python
+# Existing branches preserved.
+# NEW: trivially-empty cascade auto-progression
+for entry в state.yaml.spec_amendments.active where propagated_by_run is null:
+    marker = read_marker_file(entry.marker_path)
+    if marker has Type 6 signature (flag_used: --allow-arch-registry):
+        expected_prop = parse_expected_downstream_propagation(marker)
+        if expected_prop is empty OR contains only "no CLAUDE.md cascade required" sentinel:
+            # Trivially-empty cascade: nothing к propagate
+            # Auto-set propagated_by_run к а wrap-session sentinel
+            entry.propagated_by_run = (
+                f".andromeda/runs/{current_wrap_iso}-wrap-session-auto-progress-"
+                f"trivially-empty-cascade-verified-{session_count}/"
+            )
+            entry.noted_at = current_iso
+            # Continue к archive branch (entry now has propagated_by_run set)
+```
+
+This auto-progresses Type 6 amendments where the marker explicitly declares no Tier 2/3 cascade required. The sentinel `propagated_by_run` value documents the auto-progression provenance for audit-trail clarity (preserves intent: amendment WAS propagated; cascade was just empty).
+
+Defense preserved: only Type 6 amendments (flag_used: --allow-arch-registry) с marker-declared empty expected_propagation can auto-progress. Type 7 route-append amendments OR Type 6 с non-empty expected_propagation still require setup-project --delta (preserves the existing Trigger exact-match defense для cases where propagation MUST cascade).
+
+Edge case: if marker is manually authored (e.g., this session's chain) AND Trigger doesn't match canonical /evolve signature, the wrap-session auto-progress branch STILL fires — но the audit trail в the marker's lifecycle status checkbox + state.yaml sentinel both document the manual provenance. setup-project --delta's strict Trigger check remains unchanged (it stops manual markers from triggering Tier 2/3 cascade; wrap-session's path is purely lifecycle-progression-only, no Tier 2/3 writes).
+
+**Why this matters:** Type 6 arch-registry amendments are the most common amendment type post-MVP (every chunk that adds а workspace crate / TauRPC procedure / broadcast topic / env var triggers one). Many of these don't actually require Tier 2/3 cascade (env var additions, broadcast topic additions). The current lifecycle machinery treats all Type 6 amendments как requiring setup-project --delta propagation, but а subset are trivially-empty cascades that don't need it. Recognizing this auto-progresses lifecycle cleanly + saves compute + reduces stuck-amendment carryover.
+
+**When to do:** moderate priority. The workaround (skip setup-project; wrap-session sentinel write OR carry-over к next session) works но adds friction per Type 6 amendment с empty cascade. Implementation cost is modest (~30-50 LOC в wrap-session SKILL.md Phase 8 + protocol update в spec-amendment-protocol.md Part D).
+
+**Cross-references:**
+- Encountered chunk/amendment: chunk #84 L4 LLM runtime swap + manual Type 6 amendment at `.andromeda/runs/2026-05-25T12-34-46-spec-amendment-acknowledge-chunk-84-llama-bin-paths/amendment.md` (session 145 wrap)
+- Related precedent: P17 META-chunk inline orchestration (covers ≥80% META path); P24 covers the complementary path где а non-META chunk has а minority sibling-skill invocation step + user authorizes manual replication
+- Affected SKILL.md: `~/.claude/skills/andromeda-wrap-session/SKILL.md` Phase 8 spec_amendments lifecycle progression block
+- Affected references: `references/spec-amendment-protocol.md` Part D Architecture.md exception → Type 6 permit path subsection (add trivially-empty-cascade auto-progress sub-clause)
+- Affected referenced delta protocol: `~/.claude/skills/andromeda-setup-project/references/delta-rerun-protocol.md` (no change required; defense-in-depth Trigger check stays unchanged — setup-project --delta refuses manual markers correctly; wrap-session is the proper lifecycle resolution path для trivially-empty cascades)

@@ -13,9 +13,9 @@ pub mod incident_persistence;
 pub mod incidents_router;
 pub mod inference_runtime;
 pub mod lifecycle_persistence;
+pub mod llamacli_inference;
 #[cfg(feature = "mcp-server")]
 pub mod mcp_router;
-pub mod mistralrs_inference;
 pub mod model_router;
 pub mod observability;
 pub mod plugins_router;

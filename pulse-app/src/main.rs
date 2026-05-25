@@ -57,9 +57,9 @@ use pulse_app::incident_observer::{AutoResolveObserver, run_auto_resolution_loop
 use pulse_app::incident_persistence::CorpusIncidentPersistence;
 use pulse_app::incidents_router::{IncidentsApi, IncidentsApiImpl};
 use pulse_app::lifecycle_persistence::CorpusLifecyclePersistence;
+use pulse_app::llamacli_inference::LlamaCliInference;
 #[cfg(feature = "mcp-server")]
 use pulse_app::mcp_router::{McpApi, McpApiImpl};
-use pulse_app::mistralrs_inference::MistralRsInference;
 use pulse_app::model_router::{ModelApi, ModelApiImpl, tier_for_profile};
 use pulse_app::plugins_router::{PluginsApi, PluginsApiImpl};
 use pulse_app::restart_observer::{CompositeSpanObserver, RestartObserverAdapter};
@@ -424,23 +424,24 @@ fn main() {
     let detected_profile = hardware_profile.current_profile();
     let model_tier = tier_for_profile(detected_profile);
     let model_status_broadcast = interpretation::broadcast::ModelStatusBroadcast::new();
-    let mistralrs_inference = Arc::new(MistralRsInference::new(
+    let llamacli_inference = Arc::new(LlamaCliInference::new(
         model_tier,
         detected_profile,
         model_status_broadcast.clone(),
     ));
     let llm_runner: Arc<dyn interpretation::contract::LlmInferenceRunner> =
-        Arc::clone(&mistralrs_inference) as Arc<dyn interpretation::contract::LlmInferenceRunner>;
+        Arc::clone(&llamacli_inference) as Arc<dyn interpretation::contract::LlmInferenceRunner>;
     let model_impl = ModelApiImpl::new(Arc::clone(&llm_runner), Arc::clone(&hardware_profile));
 
-    // Chunk #83 — boot-time mistralrs model load. Fire-and-forget: if
-    // `ANDROMEDA_PULSE_MODEL_PATH` is unset OR the file is invalid OR
-    // mistralrs fails to load, the runner stays в `ModelStatus::Error`
-    // and `generate_constrained` returns `ModelNotConfigured` — the L4
-    // subscriber catches it as а runtime_error and skips. App boots
-    // cleanly in graceful-degraded mode either way.
+    // Chunk #84 — boot-time llama-cli readiness check. Fire-and-forget: if
+    // `ANDROMEDA_PULSE_LLAMA_{CUDA,CPU}_BIN_PATH` or `ANDROMEDA_PULSE_MODEL_PATH`
+    // are unset OR resolve to invalid paths, the runner stays в `ModelStatus::Error`
+    // and `generate_constrained` returns `ModelNotConfigured` — the L4 subscriber
+    // catches it as а runtime_error and skips. App boots cleanly in graceful-
+    // degraded mode either way. Subprocess D1 means no actual model load happens
+    // here (load happens per-generation inside llama-cli).
     {
-        let runner_for_load = Arc::clone(&mistralrs_inference);
+        let runner_for_load = Arc::clone(&llamacli_inference);
         tokio::spawn(async move {
             let _ = runner_for_load.load_from_env_if_configured().await;
         });
@@ -1614,11 +1615,12 @@ mod tests {
         // ARGS_MAP includes model.current_profile (5-place binding 5th slot
         // per .claude/rules/security.md Session Additions 2026-05-12).
         // Test uses UnknownHardwareProfile (deterministic) + а stub
-        // MistralRsInference (status: Error, identity: None).
+        // LlamaCliInference (status: Error, identity: None — env vars unset
+        // in test process so binary_path + model_path both resolve to None).
         let model_hardware: Arc<dyn HardwareProfileSource> = Arc::new(UnknownHardwareProfile);
         let model_status_bcast_test = interpretation::broadcast::ModelStatusBroadcast::new();
         let model_runner_test: Arc<dyn interpretation::contract::LlmInferenceRunner> =
-            Arc::new(MistralRsInference::new(
+            Arc::new(LlamaCliInference::new(
                 interpretation::contract::ModelTier::Primary,
                 model_hardware.current_profile(),
                 model_status_bcast_test,

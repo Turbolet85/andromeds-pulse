@@ -3,11 +3,12 @@
 //! Declares the `LlmInferenceRunner` async trait + supporting types
 //! (ModelTier / ModelStatus / ModelIdentity / ModelLoadEvent payloads +
 //! InferenceError enum). The trait is object-safe — concrete impl lives at
-//! the binary boundary (`pulse-app/src/mistralrs_inference.rs`) per arch
+//! the binary boundary (`pulse-app/src/llamacli_inference.rs` since
+//! chunk #84; was `mistralrs_inference.rs` at chunks #82/#83) per arch
 //! §Established Decisions [LLM Inference Runtime] bus factor entry +
 //! §Module dependency direction.
 //!
-//! NO `mistralrs` imports in this crate per arch §Module boundaries
+//! NO LLM-runtime imports in this crate per arch §Module boundaries
 //! enforcement — leaf-crate surface stays runtime-agnostic.
 
 use std::future::Future;
@@ -85,7 +86,7 @@ pub struct ModelLoadEvent {
     pub tier: ModelTier,
     pub status: ModelStatus,
     /// Sanitized error message present only when `status == Error`. Never
-    /// contains file paths, stack traces, library internals, or mistralrs
+    /// contains file paths, stack traces, library internals, or LLM-runtime
     /// type names per security extract §Error Handling §External responses.
     pub error_message: Option<String>,
 }
@@ -107,11 +108,11 @@ pub enum InferenceError {
     #[error("model path validation failed")]
     InvalidModelPath,
 
-    /// Model file load failed (file present but mistralrs runtime rejected
-    /// it). Sanitized — never contains mistralrs internal error chain.
+    /// Model file load failed (file present but the LLM runtime rejected
+    /// it). Sanitized — never contains LLM-runtime internal error chain.
     #[error("model load failed: {reason}")]
     ModelLoadFailed {
-        /// Sanitized one-liner — strip mistralrs internal types, file
+        /// Sanitized one-liner — strip LLM-runtime internal types, file
         /// paths, library versions per security extract.
         reason: String,
     },
@@ -154,8 +155,9 @@ pub type InferenceFuture<'a, T> =
     Pin<Box<dyn Future<Output = Result<T, InferenceError>> + Send + 'a>>;
 
 /// L4 LLM inference contract. Concrete impl at the binary boundary
-/// (`pulse-app/src/mistralrs_inference.rs`) holds all `use mistralrs::*`
-/// imports per arch §Module boundaries enforcement.
+/// (`pulse-app/src/llamacli_inference.rs` since chunk #84; subprocess
+/// D1 spawn-per-generation pattern) holds all LLM-runtime orchestration
+/// logic per arch §Module boundaries enforcement.
 ///
 /// Chunk #82 declares the surface; chunk #83 implements primary-tier
 /// inference; chunk #84 implements fallback-tier inference; chunk #85

@@ -48,7 +48,6 @@ triage = { path = "../crates/triage" }
 corpus = { path = "../crates/corpus" }
 security = { path = "../crates/security" }
 interpretation = { path = "../crates/interpretation" }
-mistralrs.workspace = true
 
 [dependencies.mcp-server-crate]
 package = "mcp-server"

@@ -207,6 +207,8 @@
   - `ANDROMEDA_PULSE_LOG_LEVEL` — `trace|debug|info|warn|error`
   - `ANDROMEDA_PULSE_MCP_ENABLED` — `true|false` (only honored when binary built with `--features mcp-server`). When set to `true` against a binary built without the feature, startup logs a warning at `warn` level naming the missing feature flag and proceeds with MCP disabled (rather than failing to start), so a misconfigured environment variable does not block the rest of the app.
   - `ANDROMEDA_PULSE_PLUGIN_DIR` — override `~/.andromeda-pulse/plugins/`
+  - `ANDROMEDA_PULSE_LLAMA_CUDA_BIN_PATH` — path to prebuilt `llama-cli.exe` CUDA build (b9305-pinned series); consumed by `pulse-app/src/llamacli_inference.rs` for GPU-primary / GPU-fallback tier inference per chunk #80 `HardwareProfileSource` routing (chunk #84 — see §Architecture Registry Updates 2026-05-25)
+  - `ANDROMEDA_PULSE_LLAMA_CPU_BIN_PATH` — path to prebuilt `llama-cli.exe` CPU build (b9305-pinned series); consumed by `pulse-app/src/llamacli_inference.rs` for CPU-primary / CPU-fallback / Unknown tier inference (chunk #84 — see §Architecture Registry Updates 2026-05-25)
   - `RUST_LOG` — honored as fallback for log level filter
   - `ANDROMEDA_PULSE_PIDFILE` — harness-only override of PID file location for `scripts/agent-run.{sh,ps1}` test harness; NOT consumed by production binary (`scripts/agent-run.sh:22` + `scripts/agent-run.ps1:15`)
   - `ANDROMEDA_PULSE_LOGFILE` — harness-only override of log file location for `scripts/agent-run.{sh,ps1}` test harness; NOT consumed by production binary (`scripts/agent-run.sh:23` + `scripts/agent-run.ps1:16`)
@@ -505,4 +507,13 @@ _This section accumulates entries from `/andromeda-evolve --allow-arch-registry`
 - `pulse://stream/model-status` (`crates/interpretation/src/broadcast.rs:14`, chunk #82)
 **Rationale:** D3 capability-drift closure for chunk #82 Hardware profile detection + model loading + tokenizer substrate (L4 LLM interpretation pipeline initiation). Mirrors 2026-05-18 chunk #68 corpus-additions + chunk #67 services-namespace single-coordinated multi-item amendment precedents across sub-sections under §Occupied Resources.
 **Marker:** `.andromeda/runs/2026-05-24T15-58-15-spec-amendment-acknowledge-chunk-82-additions/amendment.md`
+
+### 2026-05-25 — Acknowledge `ANDROMEDA_PULSE_LLAMA_CUDA_BIN_PATH` + `ANDROMEDA_PULSE_LLAMA_CPU_BIN_PATH` env vars (--allow-arch-registry)
+
+**Section:** §Occupied Resources Environment variables.
+**Added:**
+- `ANDROMEDA_PULSE_LLAMA_CUDA_BIN_PATH` (`pulse-app/src/llamacli_inference.rs::ENV_LLAMA_CUDA_BIN_PATH`, chunk #84)
+- `ANDROMEDA_PULSE_LLAMA_CPU_BIN_PATH` (`pulse-app/src/llamacli_inference.rs::ENV_LLAMA_CPU_BIN_PATH`, chunk #84)
+**Rationale:** D3 capability-drift closure for chunk #84 L4 LLM runtime swap (mistralrs → llama.cpp subprocess D1). Two env vars resolve the prebuilt `llama-cli.exe` binary path per chunk #80 `HardwareProfileSource` tier routing (CUDA build for GPU profiles + CPU build for CPU profiles + Unknown safe-default); canonicalized via `Path::canonicalize()` + `metadata().is_file()` assert before `tokio::process::Command::new()` invocation per arch §Critical Warnings path-env-var-canonicalization rule. `_PATH` suffix conforms to arch §Conventions environment-variable naming discipline. Mirrors 2026-05-18 chunk #68 corpus-additions + 2026-05-24 chunk #82 interpretation-crate-additions single-coordinated multi-item amendment precedents under §Occupied Resources.
+**Marker:** `.andromeda/runs/2026-05-25T12-34-46-spec-amendment-acknowledge-chunk-84-llama-bin-paths/amendment.md`
 
