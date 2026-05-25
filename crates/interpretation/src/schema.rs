@@ -28,6 +28,12 @@ pub const SCHEMA_VERSION: &str = "2.0";
 /// [`crate::prompt::build_primary_tier_prompt`] (chunk #83).
 pub const PROMPT_VERSION_PRIMARY: &str = "v2.1";
 
+/// Prompt template version. Fallback-tier prompt assembled by
+/// [`crate::prompt::build_fallback_tier_prompt`] (chunk #85 — Epoch 9
+/// Foundation v0.2.0). Distinct namespace from primary's `v2.1` lineage;
+/// future fallback prompt iterations bump к `"v1.1-fallback"` etc.
+pub const PROMPT_VERSION_FALLBACK: &str = "v1.0-fallback";
+
 /// Defense-in-depth pre-parse cap on raw inference output bytes.
 /// mistralrs strict-schema-mode caps total tokens, but the byte budget
 /// is the canonical untrusted-input boundary check per security plan
@@ -52,12 +58,31 @@ pub const HYPOTHESIS_STATEMENT_MAX_LEN: usize = 500;
 pub const INVESTIGATION_STEP_MAX_LEN: usize = 500;
 
 /// Maximum count of ranked hypotheses per output. Primary tier emits up
-/// to this; fallback tier (chunk #84) emits 1.
+/// to this; fallback tier (chunk #85) emits 1.
 pub const HYPOTHESES_MAX: usize = 5;
 
 /// Maximum count of investigation steps per output. Primary tier emits
-/// up to this; fallback tier (chunk #84) emits up to 2.
+/// up to this; fallback tier (chunk #85) emits up to 2.
 pub const INVESTIGATION_STEPS_MAX: usize = 5;
+
+/// Maximum count of hypotheses for fallback-tier outputs (chunk #85).
+/// Enforced как post-parse defense-in-depth on top of the prompt-level
+/// constraint per P-053 reduced-quality contract.
+pub const FALLBACK_HYPOTHESES_MAX: usize = 1;
+
+/// Maximum count of investigation steps for fallback-tier outputs
+/// (chunk #85). Enforced как post-parse defense-in-depth on top of the
+/// prompt-level constraint per P-053 reduced-quality contract.
+pub const FALLBACK_INVESTIGATION_STEPS_MAX: usize = 2;
+
+// Compile-time invariant: fallback bounds MUST be strictly smaller than
+// primary bounds per P-053 reduced-quality contract. Const-block per
+// CLAUDE.md testing.md 2026-05-11 pattern (clippy::assertions_on_constants
+// rejects the assertion inside а `#[test]` fn).
+const _: () = {
+    assert!(FALLBACK_HYPOTHESES_MAX < HYPOTHESES_MAX);
+    assert!(FALLBACK_INVESTIGATION_STEPS_MAX < INVESTIGATION_STEPS_MAX);
+};
 
 /// Maximum count of evidence references per output.
 pub const EVIDENCE_REFS_MAX: usize = 32;
@@ -240,6 +265,27 @@ pub fn validate(output: &L4Output) -> Result<(), InferenceError> {
         other => {
             return Err(InferenceError::SchemaViolation {
                 reason: format!("model_tier label {other:?} not in bounded set"),
+            });
+        }
+    }
+    // Fallback-tier reduced-quality contract per P-053 (chunk #85): cap
+    // hypotheses + investigation steps below primary's bounds. Defense-in-
+    // depth on top of the prompt-level instruction в OUTPUT_REMINDER_FALLBACK.
+    if output.model_tier == "fallback" {
+        if output.hypotheses.len() > FALLBACK_HYPOTHESES_MAX {
+            return Err(InferenceError::SchemaViolation {
+                reason: format!(
+                    "fallback tier hypotheses count {} exceeds bound ({FALLBACK_HYPOTHESES_MAX})",
+                    output.hypotheses.len()
+                ),
+            });
+        }
+        if output.investigation_steps.len() > FALLBACK_INVESTIGATION_STEPS_MAX {
+            return Err(InferenceError::SchemaViolation {
+                reason: format!(
+                    "fallback tier investigation_steps count {} exceeds bound ({FALLBACK_INVESTIGATION_STEPS_MAX})",
+                    output.investigation_steps.len()
+                ),
             });
         }
     }
@@ -558,4 +604,136 @@ mod tests {
             other => panic!("expected JsonParseFailed, got {other:?}"),
         }
     }
+
+    // ---- Fallback-tier validation coverage (chunk #85) ----
+
+    fn fallback_sample() -> L4Output {
+        let mut sample = valid_sample();
+        sample.model_tier = "fallback".into();
+        sample.prompt_version = PROMPT_VERSION_FALLBACK.into();
+        sample
+    }
+
+    #[test]
+    fn validate_accepts_fallback_with_single_hypothesis() {
+        let sample = fallback_sample();
+        validate(&sample).expect("fallback с 1 hypothesis + 1 investigation step passes");
+    }
+
+    #[test]
+    fn validate_accepts_fallback_with_two_investigation_steps() {
+        let mut sample = fallback_sample();
+        sample.investigation_steps = vec![
+            InvestigationStep {
+                step: "step one".into(),
+                expected_yield: "yield one".into(),
+            },
+            InvestigationStep {
+                step: "step two".into(),
+                expected_yield: "yield two".into(),
+            },
+        ];
+        validate(&sample).expect("fallback с 1 hypothesis + 2 investigation steps passes");
+    }
+
+    #[test]
+    fn validate_rejects_fallback_with_too_many_hypotheses() {
+        let mut sample = fallback_sample();
+        sample.hypotheses = vec![
+            Hypothesis {
+                statement: "first hypothesis".into(),
+                confidence: Confidence::High,
+                justification: "first justification".into(),
+            },
+            Hypothesis {
+                statement: "second hypothesis".into(),
+                confidence: Confidence::Medium,
+                justification: "second justification".into(),
+            },
+        ];
+        match validate(&sample) {
+            Err(InferenceError::SchemaViolation { reason }) => {
+                assert!(reason.contains("fallback"));
+                assert!(reason.contains("hypotheses"));
+            }
+            other => panic!("expected SchemaViolation, got {other:?}"),
+        }
+    }
+
+    #[test]
+    fn validate_rejects_fallback_with_too_many_investigation_steps() {
+        let mut sample = fallback_sample();
+        sample.investigation_steps = vec![
+            InvestigationStep {
+                step: "step one".into(),
+                expected_yield: "yield one".into(),
+            },
+            InvestigationStep {
+                step: "step two".into(),
+                expected_yield: "yield two".into(),
+            },
+            InvestigationStep {
+                step: "step three".into(),
+                expected_yield: "yield three".into(),
+            },
+        ];
+        match validate(&sample) {
+            Err(InferenceError::SchemaViolation { reason }) => {
+                assert!(reason.contains("fallback"));
+                assert!(reason.contains("investigation_steps"));
+            }
+            other => panic!("expected SchemaViolation, got {other:?}"),
+        }
+    }
+
+    #[test]
+    fn validate_accepts_primary_with_five_hypotheses() {
+        // Regression guard: tier-conditional fallback check MUST NOT
+        // affect primary's bounds (primary still allows up to 5 hypotheses).
+        let mut sample = valid_sample();
+        sample.hypotheses = (0..HYPOTHESES_MAX)
+            .map(|i| Hypothesis {
+                statement: format!("hypothesis {i}"),
+                confidence: Confidence::Medium,
+                justification: format!("justification {i}"),
+            })
+            .collect();
+        sample.investigation_steps = (0..INVESTIGATION_STEPS_MAX)
+            .map(|i| InvestigationStep {
+                step: format!("step {i}"),
+                expected_yield: format!("yield {i}"),
+            })
+            .collect();
+        validate(&sample).expect("primary с 5 hypotheses + 5 investigation steps passes");
+    }
+
+    #[test]
+    fn parse_bounded_rejects_fallback_with_too_many_hypotheses() {
+        let mut sample = fallback_sample();
+        sample.hypotheses = vec![
+            Hypothesis {
+                statement: "first".into(),
+                confidence: Confidence::High,
+                justification: "j1".into(),
+            },
+            Hypothesis {
+                statement: "second".into(),
+                confidence: Confidence::Medium,
+                justification: "j2".into(),
+            },
+        ];
+        let bytes = serde_json::to_vec(&sample).expect("serialize ok");
+        match parse_bounded(&bytes) {
+            Err(InferenceError::SchemaViolation { reason }) => {
+                assert!(reason.contains("fallback"));
+                assert!(reason.contains("hypotheses"));
+            }
+            other => panic!("expected SchemaViolation, got {other:?}"),
+        }
+    }
+
+    // NOTE: the `FALLBACK_*_MAX < *_MAX` invariant is enforced at
+    // compile time via а module-level `const _: () = { assert!(...) };`
+    // block; clippy::assertions_on_constants rejects the assertion
+    // here per CLAUDE.md testing.md 2026-05-11 pattern.
 }

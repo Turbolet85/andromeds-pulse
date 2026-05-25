@@ -1,152 +1,180 @@
 # Session Handoff
 
-**Last Updated:** 2026-05-25T14:53:24Z
+**Last Updated:** 2026-05-25T17:00:00Z
 **Branch:** main
 **Session End Status:** clean
-**Last Commit:** `<pending — wrap-session 147 commit this turn>`
+**Last Commit:** `<pending — wrap-session 148 commit this turn>`
 
 ## Current State
 
-- **Last completed chunk:** route#84 "L4 LLM runtime swap (mistralrs → llama.cpp subprocess D1)" (chunk impl session 145 `13d80e6`; chunk #84 follow-up fix session 146 `3eb3892`). State H clean этой wrap — commit_sha already healed to `13d80e6` в session 146 wrap; HEAD-reachable via `git merge-base --is-ancestor`. No new chunk progression этой session (4579605 was "chore(setup-project)" delta-rerun, не chunk-progression pattern).
-- **Next chunk:** route#85 "Fallback model tier support" — REGISTERED этой wrap via /andromeda-evolve --allow-route-append + propagated CLAUDE.md cascade via /andromeda-setup-project --delta. Actionable via /andromeda-phase next session.
-- **In-progress phase:** none.
-- **Phase artifacts present:** `.andromeda/phases/phase-{1..81}/` (no new phase artifacts этой session — META session only).
+- **Last completed chunk:** route#85 "Fallback model tier support" (impl session 148, committed этой wrap). Per pulse-v0_2_0-route §Phase 8 §84 detail spec: reduced-quality prompt + reduced output schema for 3-4B class models on CPU-fallback hardware tiers; single hypothesis + ≤2 investigation steps + `model_tier: "fallback"` discriminator embedded в L4 output JSON. Capability P-053 (Fallback Model Tier — full) reaches "full" status; v0.2.0 Phase 8 LLM interpretation work substrate complete through chunk #85.
+- **Next chunk:** route#86 — NOT YET REGISTERED. Per pulse-v0_2_0-route §Phase 8 §85: "JSON parse failure handling + backoff + resolution summary" (depends on #83 primary tier + #84 fallback tier + #78 incident lifecycle; capabilities P-020 graceful degradation full + P-022 resolution summary attachment + P-059 resolution summary generation; +1 TauRPC procedure `diagnostics.retry_interpretation()`). Actionable next session via `/andromeda-evolve --allow-route-append` к register chunk #86 в route.md §2 Epoch 9, then `/andromeda-phase` к plan.
+- **In-progress phase:** none (phase-82 plan completed end-to-end этой session — combined.md + research.md + plan.md authored; chunk #85 fully implemented + tested).
+- **Phase artifacts present:** `.andromeda/phases/phase-{1..82}/` (phase-82 added этой session — combined.md + research.md + plan.md).
 
 ## Andromeda State Detection (states A-K)
 
 All 11 dimensions (A/B/C/D/E/F/G/H/I/J/K) CLEAR этой wrap.
 
-- **A — In-progress runs:** 3 run-dirs created этой session (evolve + spec-amendment + setup-project-delta); all have complete outputs (intent.md / evolution-plan.md / amendment.md / materialization-plan-delta.md). Not "in-progress" per state A semantics.
+- **A — In-progress runs:** 1 run-dir created этой session (`.andromeda/runs/2026-05-25T18-00-00-phase-82/`) с complete outputs (7 raw + 7 stripped sub-agent extracts). Not "in-progress" per state A semantics (full artifact set present).
 - **B — Status drift:** no project.yaml mismatch.
-- **C — Architecture staleness:** arch.md mtime 2026-05-25T14:35 < CLAUDE.md mtime 2026-05-25T14:48 (after this session's setup-project --delta cascade edit). CLEAR.
+- **C — Architecture staleness:** arch.md mtime 2026-05-25T13:05Z < CLAUDE.md mtime 2026-05-25T14:48Z. CLEAR.
 - **D — Pending route:** route.md present с 85 chunks. CLEAR.
-- **E — Pending phase planning:** chunk #85 registered этой wrap; user's option to /andromeda-phase next session; not "pending" per state E semantics (no phase artifacts started).
+- **E — Pending phase planning:** phase-82 plan complete + implemented этой session. No new pending chunk artifacts started. CLEAR.
 - **F — Pending implementation:** no plans without commits.
 - **G — Multiple concurrent runs:** N/A.
-- **H — Route chunk drift:** state.yaml.last_completed_chunk.commit_sha=`13d80e6` (set session 146 wrap); HEAD-reachable; no new chunk progression этой session. CLEAR (no auto-heal needed).
-- **I — Specialist plan freshness mismatch:** plan_freshness.arch_mtime=2026-05-25T13:05Z (session 145 manual edit); arch.md actual mtime 2026-05-25T14:35Z (session 145 — same value normalized). Match. CLEAR.
-- **J — Living artifact staleness:** dep_tree_reconciled_at + api_surface_reconciled_at both 2026-05-25T14:53Z (this wrap). <24h. CLEAR.
+- **H — Route chunk drift:** state.yaml.last_completed_chunk advances 84 → 85 этой wrap; commit_sha="pending" per Proposal 16 Option b (auto-heals next wrap or first new-session). CLEAR post-update.
+- **I — Specialist plan freshness mismatch:** no plan_freshness mismatches (no specialist plan edits этой session).
+- **J — Living artifact staleness:** dep-tree + api-surface both reconciled этой wrap (timestamps 2026-05-25T17:00:00Z). <1h. CLEAR.
 - **K — Multi-chunk in-progress imbalance:** in_progress.chunks=null. CLEAR.
 
 ## Drift Detection (6 dimensions)
 
 ALL 6 dimensions CLEAR этой wrap.
 
-- **D1 — Living artifact staleness:** dep-tree.md + api-surface.md both reconciled этой wrap (timestamps 2026-05-25T14:53:00Z). Latest code mtime is `pulse-app/src/llamacli_inference.rs` from session 146 (~14:30Z) — older than reconcile. CLEAR.
-- **D2 — Living artifact wrong content:** Phase 5 reconcile output matches LIVING block content (workspace-detector sub-block replacement verified). CLEAR.
-- **D3 — Plan-to-code drift:** No new workspace crates / TauRPC procedures / env vars / dependencies introduced этой session — META session с route.md + CLAUDE.md + state.yaml edits only. arch §Occupied Resources unchanged from session 146 state. CLEAR.
-- **D4 — Plan-to-plan drift:** route.md gained chunk #85 entry; that's the expected additive change (no cross-plan conflict). CLEAR.
-- **D5 — Plan-to-CLAUDE.md drift (mtime-based):** CLAUDE.md mtime 14:48Z (this session) > all upstream mtimes (arch.md 14:35Z / route.md 14:44Z / all 6 specialist plans older). CLEAR — cascade landed cleanly.
-- **D6 — Route chunk progression drift:** state.yaml.last_completed_chunk.route_index=84 (unchanged этой session; 4579605 was "chore(setup-project)" delta-rerun, не chunk-progression). CLEAR.
+- **D1 — Living artifact staleness:** dep-tree.md + api-surface.md both reconciled этой wrap (timestamps 2026-05-25T17:00:00Z). Latest code mtime from chunk #85 edits (`crates/interpretation/src/{prompt,schema}.rs` + `pulse-app/src/inference_runtime.rs` + `pulse-app/tests/unit_inference_runtime.rs`) ~17:00Z, equal к reconcile timestamp. CLEAR.
+- **D2 — Living artifact wrong content:** Phase 5 dep-tree reconcile = 462 lines identical к session 147 baseline (zero workspace dep delta — chunk spec "Workspace deps delta: none" honored). api-surface xtask sub-block updated к explain binary-only structural limitation (per per-crate protocol step 5b "tooling failed" handling). CLEAR.
+- **D3 — Plan-to-code drift:** chunk #85 introduced NO new workspace crates / TauRPC procedures / broadcast topics / env vars / dependencies. arch §Occupied Resources unchanged. CLEAR.
+- **D4 — Plan-to-plan drift:** no cross-plan changes этой session. CLEAR.
+- **D5 — Plan-to-CLAUDE.md drift (mtime-based):** CLAUDE.md mtime 14:48Z (session 147) > all upstream mtimes (arch.md 13:05Z / route.md 14:44Z / all 6 specialist plans older). CLEAR — no specialist plan was edited этой session (testing.md edit was к `Session Additions` curation block, owned by wrap-session, не triggering D5 per the section-markers contract).
+- **D6 — Route chunk progression drift:** state.yaml.last_completed_chunk.route_index advances 84 → 85 этой wrap (chunk #85 implementation commit). D6 self-clears at Phase 8 update.
 
 ## Spec Amendments (this session)
 
-Archived this session: 1 amendment — see archive list в state.yaml.
-
-Lifecycle this wrap:
-- `2026-05-25T14-37-26-append-chunk-85-fallback-model-tier`
-  - **Plan(s):** `.andromeda/route.md` (§1 Total chunks + §2 Roadmap Epoch 9 + §3 Decisions Log)
-  - **Decisions Log:** route.md §3 dated 2026-05-25 — "Append chunk #85 Fallback model tier support (--allow-route-append)"
-  - **Trigger:** user-driven evolution via /andromeda-evolve (no chunk/phase/harness)
-  - **Authority resolution:** pipeline state > chunk-list-stale-vs-pipeline-reality
-  - **Lifecycle:** applied 2026-05-25T14:37:26Z | noted 2026-05-25T14:53:24Z | propagated 2026-05-25T14:47:10Z | archived 2026-05-25T14:53:24Z
-  - **Marker:** `.andromeda/runs/2026-05-25T14-37-26-spec-amendment-append-chunk-85-fallback-model-tier/amendment.md`
-  - **Flag:** `--allow-route-append` (Form 1)
-
-Active list post-archive: 0 entries.
+(none этой session — chunk #85 route-append amendment was applied + propagated + archived в session 147 wrap; no new amendments этой session)
 
 ## Key Decisions This Session
 
-Этот session was а textbook standard Type 7 Form 1 single-cycle wrap mirroring 27+ prior Epoch 9 chunk registration precedents (chunks #58-#84). Flow этой session (across 3 skill invocations + this wrap):
+Session 148 was а standard chunk implementation wrap mirroring the chunk impl session pattern (most recently chunks #82 session 139 + #83 session 142 + #84 session 145). Flow:
 
-1. **`/andromeda-new-session`** dashboard surfaced session 146 ended clean; chunk #85 registration was the explicit "Next Recommended Action" item 1 per session 146 handoff. All states A-K + drift D1-D6 CLEAR; recent archive 5 entries (chunk #82/#83/#84 + arch-registry for #84/#82); spec_amendments.active=0; pipeline_accumulators.api_surface_deferral IMPLEMENTED steady (verified_cleared_at_session=135).
+1. **`/andromeda-new-session`** dashboard surfaced session 147 ended clean; chunk #85 registered + ready for /andromeda-phase. All states A-K + drift D1-D6 CLEAR; pipeline_accumulators A1 IMPLEMENTED steady state (consecutive_count=0; verified_cleared_at_session=135).
 
-2. **`/andromeda-evolve --allow-route-append`** registered chunk #85 "Fallback model tier support" в route.md §2 Epoch 9 + §1 Total chunks 84→85 mechanical Form 1 Policy A + §3 Decisions Log compact P9 Phase 1(b) entry. Source spec: pulse-v0_2_0-route.md §Phase 8 §84 (which renumbers к route#85 since session 144 inserted "L4 LLM runtime swap" as route#84 outside pulse-v0_2_0-route's original sequence). Chunk text crafted at 24/25 words compact form (Check 8.5 PASS no-ack); Check 8 all 7 sub-checks PASS. Marker + intent.md + evolution-plan.md written к gitignored run-dirs.
+2. **`/andromeda-phase`** authored phase-82 plan для chunk #85 "Fallback model tier support":
+   - Setup: highest existing phase = 81; chunk #85 is the terminal chunk in route §2 Epoch 9 — single-chunk group (no #86 in route.md).
+   - Phase 1: 7 parallel sub-agents spawned via Agent tool (general-purpose); 5 in-domain extracts (security/design/tests/obs/arch) + 2 out-of-domain (layouts + a11y — pure backend chunk, UI deferred к #86+).
+   - Phase 2: combined.md merged 7 extracts + cross-domain reconciliation + Step 8 rot scan _None detected._ (190 lines).
+   - Phase 3: codebase research moderate-depth — 9 files inspected covering `crates/interpretation/` + `pulse-app/src/inference_runtime.rs` + AllowList confirmation. Key findings: `L4Output.model_tier` field ALREADY exists (chunk #83 substrate); validate() already accepts both "primary" + "fallback"; AllowList already permits `model_tier` field on all `interpretation.*` + `metric.pipeline.l4.*` targets (chunks #82/#83 substrate). Chunk #85 modifications confined к 3 source files + 1 test file (research.md 63 lines).
+   - Phase 4: plan.md authored 224 lines — 8 Implementation Steps, 0 new files, 4 files к modify, 18 acceptance criteria across 5 in-domain + 1 cross-cutting subsection.
+   - Phase 5: 9-check mechanical validation PASS.
+   - Phase 6: user-approved.
+   - Phase 7: report.
 
-3. **`/andromeda-setup-project --delta`** cascaded к CLAUDE.md `<!-- GENERATED:setup:pointer-table -->` section line 57 chunk-count `(9 epochs / 84 chunks)` → `(9 epochs / 85 chunks)` per Type 7 conditional cascade (Proposal 5 pre-populate). All other Tier 2/3 + agent harness + reviewer + hooks + .gitignore preserved byte-identical. Cross-skill diff verified 6/6 contracts 3-way byte-identical. Lifecycle progression: amendment marker [x] Propagated checkbox set; state.yaml.spec_amendments.active[0].propagated_by_run set к delta run-dir. Commit 4579605 bundled route.md + CLAUDE.md + state.yaml (3 tracked files; intent.md / evolution-plan.md / amendment.md / materialization-plan-delta.md остаются в gitignored .andromeda/runs/).
+3. **`/andromeda-implement`** executed plan-82 chunk #85:
+   - Phase 0: drift check — empty (CLEAR baseline).
+   - Phase 1 step 0: META detection — STANDARD chunk (0/8 steps invoke sibling skills).
+   - Phase 1 steps 1-8: applied all Implementation Steps in plan order. 4 files modified (prompt.rs +constants +fn +tests; schema.rs +constants +validate extension +tests +const-block invariant; inference_runtime.rs +tier branch; unit_inference_runtime.rs +stub prompt-capture +5 tier-routing tests).
+   - Phase 2 fix-loop iteration 1: 3 fmt collapse warnings + 2 test failures (`fallback_prompt_embeds_versioning_metadata` failed на v2.1 string in schema.json description prose; `fallback_prompt_role_definition_is_smaller_than_primary` failed because fallback role is 416 bytes vs primary 401 — fallback ADDS reduced-output specifics so direction "≤" doesn't match reality). Fixed by (a) cargo fmt auto-apply, (b) revising versioning assertion к check "prompt_version: " metadata-line shape (excludes bare "v2.1" в schema description), (c) replacing size assertion с distinguishing-string assertion checking framing-exclusive substrings.
+   - Phase 2 fix-loop iteration 2: 2 clippy::assertions_on_constants errors per CLAUDE.md testing.md 2026-05-11 pattern. Migrated runtime const-equality test к module-scope `const _: () = { assert!(...) };` block.
+   - Phase 2 fix-loop iteration 3: 1 test failure (`handle_digest_selects_primary_prompt_when_runner_tier_is_primary`) — "fallback tier" substring leaked into primary prompt via embedded schema.json description prose. Fixed by switching distinguishing strings к framing-exclusive "ONE hypothesis" (capital ONE) + "hardware-constrained" (neither appears в schema.json).
+   - Phase 2 standard gate baseline: 1470/1470 + 1 skip (was 1446 baseline; +24 chunk #85 tests); cargo deny + cargo audit (existing baseline preserved); cargo xtask capability-drift clean post bindings.ts regen via mcp-server-feature emit_taurpc_bindings (per CLAUDE.md testing.md 2026-05-13/17 discipline).
+   - Phase 2b smoke check: skipped (chunk plan excludes per `boot-smoke-coverage` conditional — chunk touches no boot/setup paths; documented в plan.md Test Commands rationale).
+   - Phase 3 report: chunk green per scope; all 18 acceptance criteria met. Trigger 4 spec-drift: none surfaced.
 
-4. **THIS wrap (session 147)** completes the lifecycle: noted 2026-05-25T14:53:24Z + archived 2026-05-25T14:53:24Z; amendment moves from `active` к `archive` compact form в state.yaml. Phase 5 per-crate api-surface cycle continues — workspace-detector sub-block populated с ~110 lines pub API enumerated covering workspace_detector::contract::{Error, VcsType, VcsMetadata, WorkspaceContext} + workspace_detector::detect free fn; cursor advanced workspace-detector → xtask (14th alphabetical — FINAL placeholder before cycle completes; 12/14 crates с real api content now; only xtask + interpretation + triage placeholders remaining; cycle completes в ~3 more wraps).
+4. **THIS wrap (session 148)** completes the lifecycle:
+   - Living artifacts reconciled: dep-tree timestamp refresh (zero workspace dep delta) + api-surface xtask sub-block updated к explain binary-only structural limitation; cursor advanced xtask → buffer (cycle wrap). **First per-crate cycle COMPLETE** within 14 wraps (sessions 135-148).
+   - Drift detection: all 6 dimensions CLEAR.
+   - Curation: 1 Tier 2 entry added к `.claude/rules/testing.md` Session Additions (framing-text-exclusive assertions для prompt-builder tests embedding include_str! schemas).
+   - Pipeline meta-observation: Mode H — honest healthy scan. No new pipeline mechanism friction. The Phase 2b skip-variant question (chunk plan exclusion as а 3rd skip variant beyond no-cli/headless) is subsumed by existing Proposal P14 (Phase 2b "integration-test runtime smoke" alternative path) — not а novel proposal candidate.
 
 ## Files Modified
 
-This session's wrap commit will land (M=modified):
+This session's wrap commit will land (M=modified, A=added):
 
-**Living artifact reconcile (working tree этой wrap):**
-- M `.andromeda/context/api-surface.md` (workspace-detector sub-block populated 110 lines fresh; METADATA Last reconciled bumped к 2026-05-25T14:53:00Z; cursor advanced workspace-detector → xtask in METADATA narrative)
-- M `.andromeda/context/dependency-tree.md` (METADATA Last reconciled bumped к 2026-05-25T14:53:00Z; LIVING block 462 lines — identical к session 146 baseline; zero workspace dep delta этой session per META session discipline)
+**Source code (chunk #85 implementation):**
+- M `crates/interpretation/src/prompt.rs` (+ROLE_DEFINITION_FALLBACK + OUTPUT_REMINDER_FALLBACK constants + `build_fallback_tier_prompt` fn + 13 fallback prompt tests)
+- M `crates/interpretation/src/schema.rs` (+PROMPT_VERSION_FALLBACK + FALLBACK_HYPOTHESES_MAX + FALLBACK_INVESTIGATION_STEPS_MAX constants + const-block invariant + validate() tier-conditional extension + 6 fallback validation tests)
+- M `pulse-app/src/inference_runtime.rs` (handle_digest branches on runner.tier() → primary vs fallback prompt builder; dynamic prompt_version tracing field)
+- M `pulse-app/tests/unit_inference_runtime.rs` (StubInferenceRunner +last_prompt capture + 5 tier-routing tests + valid_fallback_l4_output_json fixture)
 
-**State updates (working tree этой wrap):**
-- M `.andromeda/state.yaml` (last_wrap 2026-05-25T16:35Z → 14:53Z; last_reconcile bumped к 2026-05-25T14:53:00Z; living_artifact_freshness.{dep_tree,api_surface}_reconciled_at + api_surface_next_crate workspace-detector→xtask; drift_warnings remains empty (all 6 CLEAR этой wrap); session_count 146 → 147; spec_amendments.active moved к archive с noted_at + archived_at set для chunk #85 entry; plan_freshness.arch_mtime + route_mtime captured fresh от this session's edits)
-- M `.claude/session-handoff.md` (this file — rewritten для session 147)
-- M `.andromeda/runs/2026-05-25T14-37-26-spec-amendment-append-chunk-85-fallback-model-tier/amendment.md` (Lifecycle [x] Noted + [x] Archived checkboxes set по этой wrap)
+**Regenerated artifacts:**
+- M `pulse-app/ui/src/bindings/index.ts` (regenerated via mcp-server-feature emit_taurpc_bindings post default-features nextest overwrite per CLAUDE.md testing.md 2026-05-13/17 discipline; mcp namespace verified present)
+
+**Phase planning artifacts (chunk #85):**
+- A `.andromeda/phases/phase-82/combined.md` (~190 lines)
+- A `.andromeda/phases/phase-82/research.md` (~63 lines)
+- A `.andromeda/phases/phase-82/plan.md` (~224 lines)
+
+**Living artifact reconcile (this wrap):**
+- M `.andromeda/context/dependency-tree.md` (METADATA Last reconciled bumped к 2026-05-25T17:00:00Z; LIVING block 462 lines — identical к session 147 baseline; zero workspace dep delta этой session)
+- M `.andromeda/context/api-surface.md` (METADATA Last reconciled bumped к 2026-05-25T17:00:00Z; xtask sub-block content replaced с "binary-only structural limitation" explanation per per-crate protocol step 5b; cursor advance xtask → buffer documented; cycle 1 completion logged)
+
+**Curation (Tier 2 этой wrap):**
+- M `.claude/rules/testing.md` Session Additions (1 new entry — framing-text-exclusive substring assertions для prompt-builder tests embedding include_str! schemas)
+
+**State updates (this wrap):**
+- M `.andromeda/state.yaml` (last_wrap 14:53Z → 17:00Z; last_reconcile bumped; last_completed_chunk.route_index 84 → 85; commit_sha "pending" per Proposal 16 Option b; living_artifact_freshness timestamps bumped; api_surface_next_crate xtask → buffer; drift_warnings empty; session_count 147 → 148; pipeline_accumulators A1 unchanged IMPLEMENTED steady state)
+- M `.claude/session-handoff.md` (this file — rewritten для session 148)
 
 **Unmanaged artifacts (project):**
-- `experiments/` directory (untracked; carryover от session 144 spike work; cleanup eventually)
-- `ui/` directory at workspace root (untracked stray; 39 wraps now)
+- `experiments/` directory (untracked; carryover from session 144 spike work; cleanup еще deferred)
+- `ui/` directory at workspace root (untracked stray; 40 wraps now)
 - `AI-Model/Llama-3.2-3B-Instruct-Q4_K_M.gguf` (2 GB; gitignored)
-- `/tmp/llamacpp/`, `/tmp/llamacpp-cuda/`, `/tmp/cmake/` (debug-harness assets; carryover)
 
 ## Curation Summary (this wrap)
 
 - **Tier 1 (CLAUDE.md USER:session-learnings):** 0 additions
-- **Tier 2 (.claude/rules/*/Session Additions):** 0 additions
+- **Tier 2 (.claude/rules/*/Session Additions):** 1 addition
+  - `.claude/rules/testing.md`: framing-text-exclusive substring assertions для prompt-builder tests embedding include_str! schemas (chunk #85 fix-loop iteration 1+3 verified pattern; generalizes к snapshot template tests + future Report UI rendering tests + plugin manifest validation tests)
 - **Tier 3 (.claude/docs/session-learnings.md):** 0 additions
-- **Andromeda pipeline proposals (Phase 3 step 7d):** 0 new patches filed (no novel pipeline friction surfaced — every skill в the 3-invocation chain executed exactly as designed; classifier discipline на 27+ Type 7 Form 1 single-cycle wraps now textbook precedent and would be churn к re-document)
-- **Andromeda pipeline refactors (Phase 8 step 4b.ii):** 0 new filed (A1 IMPLEMENTED steady state preserved per session 135; A2 catalogued-but-dormant; no accumulator matured этой wrap)
-- **Pipeline meta-observation mode:** **Mode H** (honest-healthy) — A1.refactor_proposed_at=129 ≠ 147 → не Mode R; `git diff docs/andromeda-improvements.md` shows no new `+### Proposal P{N}` lines → не Mode P; fallback к Mode H per visual-references.md §Phase 11
-- **Filtered:** 0 candidates rejected (no learning candidates surfaced этой session)
+- **Andromeda pipeline proposals (Phase 3 step 7d):** 0 new patches filed (Phase 2b skip-variant question subsumed by existing P14; no novel friction)
+- **Andromeda pipeline refactors (Phase 8 step 4b.ii):** 0 new filed (A1 IMPLEMENTED steady state preserved; A2 catalogued-but-dormant; no accumulator matured этой wrap)
+- **Pipeline meta-observation mode:** **Mode H** (honest-healthy) — A1.refactor_proposed_at=129 ≠ 148 → не Mode R; `git diff docs/andromeda-improvements.md` shows no new `+### Proposal P{N}` lines → не Mode P; fallback к Mode H per visual-references.md §Phase 11
+- **Filtered:** 0 duplicates + 0 task-specific + 0 conflicts + 0 deferred (only 1 candidate surfaced; passed all 5 quality filters)
 
 ## Last Failed Command
 
-(none — META session executed cleanly across all 3 skill invocations + this wrap)
+(none — chunk #85 fix-loop iterations 1+2+3 all resolved cleanly; no commands ended в unrecoverable error state)
 
 ## Tests Status
 
-passing — smoke check 14/14 security crate (0.139s) этой wrap; workspace baseline 1446/1446 + 1 skipped preserved per session 146 wrap (no code changes этой session). Capability-drift gate preserved per session 146's last regen-via-mcp-server-feature emit_taurpc_bindings discipline (this session not invoking nextest --workspace; baseline trusted).
+passing — `cargo nextest run --workspace --profile ci` returns 1470/1470 + 1 skip (was 1446 baseline session 147; +24 chunk #85 tests = 13 fallback prompt + 6 fallback validation + 5 tier-routing). Standard gates все clean: cargo fmt --check + cargo clippy --workspace --all-targets --all-features -- -D warnings + cargo xtask capability-drift (post bindings regen).
 
-Dead-test warnings (P15 32nd observation): unchanged from session 146 = 18 blocks в 18 files в pulse-app/src/. Этот session edited NO pulse-app/src/ files; only .md + .yaml docs.
+Dead-test warnings (P15 33rd observation): 17 blocks в 17 files в pulse-app/src/ (DOWN from session 147's forward-looking count of 18 — that count assumed `pulse-app/src/mistralrs_inference.rs` had а mod tests block, но chunk #84 swap deleted that file и new `pulse-app/src/llamacli_inference.rs` does NOT have а source-level mod tests block; instead its tests live в `pulse-app/tests/unit_llamacli_inference.rs` per CLAUDE.md testing.md 2026-05-20 discipline. Effective canonical count 17 confirmed via grep этой wrap).
 
 ## Next Recommended Action
 
 **Primary path forward (next session):**
 
-1. **`/andromeda-phase`** к plan chunk #85 "Fallback model tier support" implementation. Per pulse-v0_2_0-route.md §Phase 8 §84:
-   - Scope: `crates/interpretation/` only (reduced-quality prompt + reduced output schema; no other crates touched)
-   - Depends on: chunk #83 (primary tier inference; substrate landed session 142)
-   - Capability enabled: P-053 (Fallback Model Tier — full)
-   - Output JSON includes `model_tier: "fallback"` discriminator
-   - Single hypothesis instead of ranked list; ≤2 investigation steps instead of 5
-   - CPU inference fully supported at 3-8s typical latency
-   - Less specific project context grounding (~500-700 token system prompt vs primary's ~800-1000)
+1. **`/andromeda-evolve --allow-route-append`** к register chunk #86 "JSON parse failure handling + backoff + resolution summary" в route.md §2 Epoch 9. Per pulse-v0_2_0-route §Phase 8 §85 detail spec:
+   - Depends on: #83 (primary inference), #84 (fallback inference), #78 (incident lifecycle)
+   - Capabilities enabled: P-020 graceful degradation (full), P-022 (resolution summary attachment), P-059 (resolution summary generation)
+   - Distillation layer: L4 failure handling + L5 surface
+   - Crates touched: `crates/interpretation/`, `crates/triage/incident`
+   - TauRPC delta: +1 procedure `diagnostics.retry_interpretation()` (manual override for backoff)
+   - Arch registry delta: +1 TauRPC procedure (requires post-impl Type 6 arch-registry amendment per chunks #78/#80/#81 precedent)
+   - Substantial chunk — multi-crate scope + new TauRPC namespace; not а Type 7 single-cycle wrap pattern.
 
-2. **`git push origin/main`** — branch will be ~103 commits ahead of origin/main after this wrap (102 prior + this wrap's commit).
+2. **`/andromeda-phase`** then к plan chunk #86 implementation.
+
+3. **`git push origin main`** — branch will be ~104 commits ahead of origin/main after this wrap.
 
 **Secondary cleanup opportunities (not blocking):**
-- Cleanup `experiments/` untracked dir (carryover от session 144 spike work)
-- Cleanup `ui/` untracked stray dir (39 wraps unaddressed)
-- api-surface.md per-crate cycle: 3 placeholder sub-blocks remaining (xtask + interpretation + triage); cycle completes в ~3 more wraps (xtask next; then interpretation alphabetical wrap-around; then triage)
+- api-surface per-crate cycle 2 — will visit interpretation (position 5) + triage (position 11) within ~5-6 more wraps; xtask permanently skipped (binary-only)
+- cleanup `experiments/` untracked dir (carryover from session 144 spike work)
+- cleanup `ui/` untracked stray dir (40 wraps unaddressed)
 - bincode 2.x upgrade (RAM-safe deserialize migration hook per CLAUDE.md 2026-05-20 entry)
-- v0.1.0 release blockers (Azure Key Vault EV cert + Apple Developer ID, deferred от chunk #3)
+- v0.1.0 release blockers (Azure Key Vault EV cert + Apple Developer ID — deferred от chunk #3)
 
 ## Session Goals (carry-over)
 
-- **Chunk #85 registration** ✓ COMPLETE этой session (route.md §1 + §2 + §3 edits via /andromeda-evolve + CLAUDE.md cascade via /andromeda-setup-project --delta + this wrap's lifecycle archive)
-- **Chunk #85 implementation (fallback tier)** — open; next session's first work via /andromeda-phase
-- (carry-overs от prior sessions, unchanged): R1/P22 IMPLEMENTED steady state; A2 activation; maintainer guide §4.1 writer table; author-class guide gap; observability.rs AllowList polish; Q7 timeout; bincode 2.x; v0.1.0 release blockers; api-surface xtask/interpretation/triage per-crate populates pending; experiments/+ ui/ untracked dir cleanup
+- **Chunk #85 implementation** ✓ COMPLETE этой session (4 source files modified + 4 phase artifacts + state.yaml + handoff + 2 living artifacts; all standard gates green)
+- **Chunk #86 registration + implementation** — next session's first work (substantive multi-crate chunk; +1 TauRPC procedure требует post-impl arch-registry amendment)
+- (carry-overs от prior sessions, unchanged): A2 activation (after additional R-style dogfood cycles); maintainer guide §4.1 writer table; author-class guide gap; observability.rs AllowList polish; Q7 timeout; bincode 2.x; v0.1.0 release blockers; api-surface cycle 2 interpretation + triage population; experiments/ + ui/ untracked dir cleanup
 
 ## Deferred decisions (Trigger 4 to Path B carry-over)
 
-(none — session 147 had no Trigger 4 dialogues; all skill invocations resolved cleanly via direct authorization)
+(none — session 148 had no Trigger 4 dialogues; all chunk #85 implementation resolved cleanly within the chunk's documented scope)
 
 ## Deferred learnings (filtered out from Phase 3 curation)
 
-(none — no candidates surfaced этой session; META session of textbook precedent did not introduce novel patterns. The 27+ prior Type 7 Form 1 single-cycle wrap precedents render each subsequent instance as mechanically identical, and documenting the 28th instance would be churn rather than learning.)
+(none — only 1 learning candidate surfaced этой session; passed all 5 filters; applied к Tier 2 testing.md cleanly)
 
 ## Final state
 
-- **Code:** zero source delta этой session (META work only — route.md + CLAUDE.md + state.yaml edits); workspace nextest baseline 1446/1446 + 1 skip preserved per session 146.
-- **Ecosystem:** Tier 2 unchanged (0 additions); api-surface.md workspace-detector sub-block populated + dep-tree.md timestamp refreshed; CLAUDE.md pointer-table cascaded 84→85; state.yaml session_count 146→147.
+- **Code:** chunk #85 fallback tier substrate landed (4 source files modified; +24 tests); workspace nextest 1446 → 1470 + 1 skip; all standard gates clean.
+- **Ecosystem:** Tier 2 +1 entry (testing.md framing-text-exclusive assertions); api-surface.md xtask sub-block content updated к explain binary-only structural limitation + cursor advance к buffer + cycle 1 completion logged; dep-tree.md timestamp refresh.
 - **Drift:** all 6 dimensions CLEAR.
-- **Andromeda states:** all 11 CLEAR.
-- **Spec amendments:** 0 active post-wrap (chunk #85 archived этой wrap); archive grew от 14 → 15 entries (chunk #85 joins).
-- **GPU + processes:** no llama processes этой session (META session — no inference work performed); GPU VRAM unchanged.
+- **Andromeda states:** all 11 (A-K) CLEAR.
+- **Spec amendments:** 0 active + 15 archived (no change этой session — chunk #85 amendment was archived в session 147).
+- **Per-crate api-surface cycle:** cycle 1 COMPLETE (sessions 135-148; 14 wraps total; xtask permanently skipped as binary-only; interpretation + triage остаются placeholders awaiting cycle 2 visit).
+- **GPU + processes:** no llama processes этой session (META + standard chunk work — no inference runtime execution required).

@@ -24,9 +24,11 @@
 use std::sync::Arc;
 use std::time::{Duration, Instant};
 
-use interpretation::contract::{InferenceError, LlmInferenceRunner};
-use interpretation::prompt::build_primary_tier_prompt;
-use interpretation::schema::{L4_OUTPUT_JSON_SCHEMA, L4Output};
+use interpretation::contract::{InferenceError, LlmInferenceRunner, ModelTier};
+use interpretation::prompt::{build_fallback_tier_prompt, build_primary_tier_prompt};
+use interpretation::schema::{
+    L4_OUTPUT_JSON_SCHEMA, L4Output, PROMPT_VERSION_FALLBACK, PROMPT_VERSION_PRIMARY,
+};
 use tokio::sync::broadcast::error::RecvError;
 use tokio::task::JoinHandle;
 use triage::contract::{Digest, DigestBroadcast};
@@ -144,17 +146,29 @@ pub async fn handle_digest(runner: &dyn LlmInferenceRunner, digest: &Digest) {
     let tier_label = interpretation::contract::model_tier_label(tier);
     let digest_kind = digest_kind_label(digest);
 
-    // Prompt assembly — emit one event с the resulting token count proxy.
+    // Prompt assembly — branch on runner tier per chunk #85. Primary uses
+    // the chunk #83 prompt builder; fallback uses the chunk #85
+    // reduced-quality builder. Both consume the SAME L4 JSON schema (chunk
+    // #83 substrate); the schema's `model_tier` field discriminates downstream.
     let prompt_started = Instant::now();
     let project_context = build_project_context(digest);
-    let prompt = build_primary_tier_prompt(&digest.payload_summary, &project_context, "");
+    let (prompt, prompt_version_label): (String, &'static str) = match tier {
+        ModelTier::Primary => (
+            build_primary_tier_prompt(&digest.payload_summary, &project_context, ""),
+            PROMPT_VERSION_PRIMARY,
+        ),
+        ModelTier::Fallback => (
+            build_fallback_tier_prompt(&digest.payload_summary, &project_context, ""),
+            PROMPT_VERSION_FALLBACK,
+        ),
+    };
     let prompt_elapsed_ms = prompt_started.elapsed().as_millis() as u64;
     tracing::info!(
         target: TARGET_L4_PROMPT_ASSEMBLE,
-        prompt_version = interpretation::schema::PROMPT_VERSION_PRIMARY,
+        prompt_version = prompt_version_label,
         token_count = prompt.len() as u64,
         duration_ms = prompt_elapsed_ms,
-        "L4 primary-tier prompt assembled",
+        "L4 prompt assembled",
     );
 
     // Constrained generation invocation.

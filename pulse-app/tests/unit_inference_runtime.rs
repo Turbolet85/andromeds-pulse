@@ -100,6 +100,7 @@ struct StubInferenceRunner {
     tier: ModelTier,
     status: ModelStatus,
     response: Mutex<Option<Result<String, InferenceError>>>,
+    last_prompt: Mutex<Option<String>>,
 }
 
 impl StubInferenceRunner {
@@ -108,6 +109,7 @@ impl StubInferenceRunner {
             tier,
             status: ModelStatus::Loaded,
             response: Mutex::new(Some(Ok(canned_json))),
+            last_prompt: Mutex::new(None),
         }
     }
 
@@ -116,7 +118,12 @@ impl StubInferenceRunner {
             tier,
             status,
             response: Mutex::new(Some(Err(err))),
+            last_prompt: Mutex::new(None),
         }
+    }
+
+    fn captured_prompt(&self) -> Option<String> {
+        self.last_prompt.lock().expect("prompt lock").clone()
     }
 }
 
@@ -135,9 +142,10 @@ impl LlmInferenceRunner for StubInferenceRunner {
 
     fn generate_constrained<'a>(
         &'a self,
-        _prompt: &'a str,
+        prompt: &'a str,
         _schema_json: &'a str,
     ) -> InferenceFuture<'a, String> {
+        *self.last_prompt.lock().expect("prompt lock") = Some(prompt.to_string());
         let outcome = self
             .response
             .lock()
@@ -184,6 +192,26 @@ fn valid_l4_output_json() -> String {
         fingerprint: "test-fp".into(),
         model_tier: "primary".into(),
         hardware_profile: "cpu_primary".into(),
+        is_resolution_summary: false,
+    };
+    serde_json::to_string(&v).expect("serialize ok")
+}
+
+fn valid_fallback_l4_output_json() -> String {
+    let v = L4Output {
+        schema_version: "2.0".into(),
+        prompt_version: "v1.0-fallback".into(),
+        decision: interpretation::schema::Decision::Surface,
+        severity: interpretation::schema::Severity::Suggested,
+        title: "Test fallback title".into(),
+        symptom: "Test fallback symptom".into(),
+        timeline: "Test fallback timeline".into(),
+        hypotheses: vec![],
+        investigation_steps: vec![],
+        evidence_refs: vec![],
+        fingerprint: "test-fp-fb".into(),
+        model_tier: "fallback".into(),
+        hardware_profile: "cpu_fallback".into(),
         is_resolution_summary: false,
     };
     serde_json::to_string(&v).expect("serialize ok")
@@ -421,4 +449,148 @@ async fn handle_digest_never_logs_prompt_or_output_content() {
             "output canary leaked into target {target}: {fields}"
         );
     }
+}
+
+// ---- Tier-routing coverage (chunk #85) ----
+
+#[tokio::test]
+async fn handle_digest_selects_primary_prompt_when_runner_tier_is_primary() {
+    let (subscriber, _events) = CapturingSubscriber::new();
+    let runner = StubInferenceRunner::new_ok(ModelTier::Primary, valid_l4_output_json());
+    let digest = sample_digest();
+
+    let guard = tracing::subscriber::set_default(subscriber);
+    handle_digest(&runner, &digest).await;
+    drop(guard);
+
+    let captured = runner
+        .captured_prompt()
+        .expect("primary prompt sent к runner");
+    assert!(
+        captured.contains("Your job is к decide"),
+        "primary role text missing from captured prompt"
+    );
+    // NB: "fallback tier" also appears in the embedded JSON schema's
+    // description text (chunk #83 schema.json prose), so use strings
+    // exclusive к the fallback framing text instead — "ONE hypothesis"
+    // (capital ONE) and "hardware-constrained" appear only in
+    // ROLE_DEFINITION_FALLBACK + OUTPUT_REMINDER_FALLBACK, never in
+    // schema.json.
+    assert!(
+        !captured.contains("ONE hypothesis"),
+        "fallback-specific 'ONE hypothesis' string leaked into primary prompt"
+    );
+    assert!(
+        !captured.contains("hardware-constrained"),
+        "fallback-specific 'hardware-constrained' string leaked into primary prompt"
+    );
+}
+
+#[tokio::test]
+async fn handle_digest_selects_fallback_prompt_when_runner_tier_is_fallback() {
+    let (subscriber, _events) = CapturingSubscriber::new();
+    let runner = StubInferenceRunner::new_ok(ModelTier::Fallback, valid_fallback_l4_output_json());
+    let digest = sample_digest();
+
+    let guard = tracing::subscriber::set_default(subscriber);
+    handle_digest(&runner, &digest).await;
+    drop(guard);
+
+    let captured = runner
+        .captured_prompt()
+        .expect("fallback prompt sent к runner");
+    // Use framing-exclusive strings ("hardware-constrained", "ONE hypothesis",
+    // "at most 2 investigation steps") — schema.json descriptions contain
+    // "fallback tier" verbatim so it's not а fallback-framing-only marker.
+    assert!(
+        captured.contains("hardware-constrained"),
+        "fallback role text missing 'hardware-constrained' marker"
+    );
+    assert!(
+        captured.contains("ONE hypothesis"),
+        "fallback role / output reminder missing 'ONE hypothesis' instruction"
+    );
+    assert!(
+        captured.contains("at most 2 investigation steps"),
+        "fallback output reminder missing 'at most 2 investigation steps' bound"
+    );
+    assert!(
+        !captured.contains("Your job is к decide"),
+        "primary-specific role text leaked into fallback prompt"
+    );
+}
+
+#[tokio::test]
+async fn handle_digest_emits_prompt_version_v2_1_for_primary_tier() {
+    let (subscriber, events) = CapturingSubscriber::new();
+    let runner = StubInferenceRunner::new_ok(ModelTier::Primary, valid_l4_output_json());
+    let digest = sample_digest();
+
+    let guard = tracing::subscriber::set_default(subscriber);
+    handle_digest(&runner, &digest).await;
+    drop(guard);
+
+    let captured = events.lock().expect("capture lock").clone();
+    let assemble_evt = captured
+        .iter()
+        .find(|(t, _, _)| t == "interpretation.prompt.assemble")
+        .expect("interpretation.prompt.assemble event present");
+    assert!(
+        assemble_evt.2.contains("prompt_version=v2.1"),
+        "primary tier must emit prompt_version=v2.1; got fields: {}",
+        assemble_evt.2
+    );
+}
+
+#[tokio::test]
+async fn handle_digest_emits_prompt_version_v1_fallback_for_fallback_tier() {
+    let (subscriber, events) = CapturingSubscriber::new();
+    let runner = StubInferenceRunner::new_ok(ModelTier::Fallback, valid_fallback_l4_output_json());
+    let digest = sample_digest();
+
+    let guard = tracing::subscriber::set_default(subscriber);
+    handle_digest(&runner, &digest).await;
+    drop(guard);
+
+    let captured = events.lock().expect("capture lock").clone();
+    let assemble_evt = captured
+        .iter()
+        .find(|(t, _, _)| t == "interpretation.prompt.assemble")
+        .expect("interpretation.prompt.assemble event present");
+    assert!(
+        assemble_evt.2.contains("prompt_version=v1.0-fallback"),
+        "fallback tier must emit prompt_version=v1.0-fallback; got fields: {}",
+        assemble_evt.2
+    );
+}
+
+#[tokio::test]
+async fn handle_digest_emits_model_tier_fallback_in_inference_request_event() {
+    let (subscriber, events) = CapturingSubscriber::new();
+    let runner = StubInferenceRunner::new_ok(ModelTier::Fallback, valid_fallback_l4_output_json());
+    let digest = sample_digest();
+
+    let guard = tracing::subscriber::set_default(subscriber);
+    handle_digest(&runner, &digest).await;
+    drop(guard);
+
+    let captured = events.lock().expect("capture lock").clone();
+    let request_evt = captured
+        .iter()
+        .find(|(t, _, _)| t == "interpretation.inference.request")
+        .expect("interpretation.inference.request event present (success path)");
+    assert!(
+        request_evt.2.contains("model_tier=fallback"),
+        "fallback-tier success path must carry model_tier=fallback; got fields: {}",
+        request_evt.2
+    );
+    let counter_evt = captured
+        .iter()
+        .find(|(t, _, _)| t == "metric.pipeline.l4.inferences_total")
+        .expect("counter event present");
+    assert!(
+        counter_evt.2.contains("model_tier=fallback"),
+        "fallback-tier counter must carry model_tier=fallback; got fields: {}",
+        counter_evt.2
+    );
 }
