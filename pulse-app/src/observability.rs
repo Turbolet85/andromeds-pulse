@@ -1901,6 +1901,24 @@ impl AllowList {
             .collect(),
         );
 
+        // Chunk #87 — Findings counter + dropdown "Mark all as read"
+        // bulk action. Aggregate-only fields per CLAUDE.md observability
+        // 2026-05-17 session 84 mandate (no per-incident-id / per-service
+        // / per-trace labels — bulk action is workspace-scoped at the
+        // resolver, не at the event field set). Capabilities P-028 /
+        // P-029 / P-030.
+        by_target.insert(
+            "incidents.mark_all_read.request",
+            ["affected_count", "outcome", "duration_ms", "traceparent"]
+                .iter()
+                .copied()
+                .collect(),
+        );
+        by_target.insert(
+            "incident.broadcast.bulk_acknowledged",
+            ["affected_count"].iter().copied().collect(),
+        );
+
         Self { by_target }
     }
 
@@ -5439,6 +5457,60 @@ mod tests {
                 assert!(
                     !set.contains(k),
                     "chunk #86 AllowList entry must NOT permit PII field `{k}`",
+                );
+            }
+        }
+    }
+
+    #[test]
+    fn allowlist_for_target_resolves_chunk_87_mark_all_read_and_bulk_acknowledged_targets() {
+        let al = AllowList::production();
+        let mark_all_read = al
+            .for_target("incidents.mark_all_read.request")
+            .expect("expected incidents.mark_all_read.request entry");
+        for required in ["affected_count", "outcome", "duration_ms", "traceparent"] {
+            assert!(
+                mark_all_read.contains(required),
+                "incidents.mark_all_read.request must permit `{required}`",
+            );
+        }
+
+        let bulk_ack = al
+            .for_target("incident.broadcast.bulk_acknowledged")
+            .expect("expected incident.broadcast.bulk_acknowledged entry");
+        assert!(
+            bulk_ack.contains("affected_count"),
+            "incident.broadcast.bulk_acknowledged must permit `affected_count`",
+        );
+
+        // PII guard: chunk #87 bulk action entries MUST NOT admit
+        // per-incident / per-service / per-trace identifiers OR raw
+        // workspace strings OR LLM-emitted content. The bulk emit is
+        // aggregate-only per CLAUDE.md observability 2026-05-17 session
+        // 84 AGGREGATE-ONLY mandate. `workspace` deliberately banned
+        // because the broadcast event scope is workspace-resolved at the
+        // resolver, not at the event payload (mirrors chunk #78
+        // `incident_lifecycle_event_has_no_pii_fields` discipline).
+        let banned = [
+            "service_name",
+            "scope_id",
+            "span_id",
+            "trace_id",
+            "incident_id",
+            "operation_name",
+            "workspace",
+            "workspace_hash",
+            "title",
+            "detail",
+            "fingerprint",
+            "raw_output",
+            "incident_ids",
+        ];
+        for set in [mark_all_read, bulk_ack] {
+            for k in &banned {
+                assert!(
+                    !set.contains(k),
+                    "chunk #87 AllowList entry must NOT permit PII field `{k}`",
                 );
             }
         }

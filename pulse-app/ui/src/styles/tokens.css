@@ -25,6 +25,7 @@
   --radius-sm: 4px;
   --radius-md: 6px;
   --radius-lg: 8px;
+  --radius-full: 9999px;
 
   --font-display: 'IBM Plex Sans', sans-serif;
   --font-body: 'IBM Plex Sans', sans-serif;

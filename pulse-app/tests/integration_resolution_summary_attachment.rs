@@ -97,6 +97,13 @@ impl IncidentPersistence for CountingPersistence {
         *self.last_updated.lock().unwrap() = Some(payload.clone());
         Ok(())
     }
+    fn mark_read(
+        &self,
+        _id: i64,
+        _read_unix_nano: i64,
+    ) -> Result<(), triage::contract::IncidentError> {
+        Ok(())
+    }
     fn load_active_incidents(
         &self,
         _workspace: &str,

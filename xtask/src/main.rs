@@ -669,6 +669,7 @@ const EXPECTED_PROCEDURES: &[&str] = &[
     "diagnostics.template_distribution",
     "incidents.acknowledge",
     "incidents.list_active",
+    "incidents.mark_all_read",
     "incidents.mark_resolved",
     "logs.query",
     "metrics.query",
@@ -1153,6 +1154,15 @@ mod capability_drift_tests {
         assert!(
             expected.contains("diagnostics.retry_interpretation"),
             "EXPECTED_PROCEDURES must include diagnostics.retry_interpretation (chunk #86 JSON parse failure handling + backoff + resolution summary — Settings → Diagnostics manual override per capability P-020 graceful degradation reaching full)"
+        );
+    }
+
+    #[test]
+    fn expected_procedures_includes_mark_all_read_at_chunk_87() {
+        let expected: BTreeSet<&str> = EXPECTED_PROCEDURES.iter().copied().collect();
+        assert!(
+            expected.contains("incidents.mark_all_read"),
+            "EXPECTED_PROCEDURES must include incidents.mark_all_read (chunk #87 Findings counter + dropdown — bulk-mark-as-read action per capabilities P-028 / P-029 / P-030)"
         );
     }
 

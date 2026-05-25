@@ -78,11 +78,29 @@ pub struct IncidentsListPayload {
     pub next_cursor: Option<String>,
 }
 
+// Chunk #87 — `mark_all_read` is the Findings counter dropdown footer's
+// bulk action. Sets `read_at_unix_nano` on every Active / Acknowledged
+// incident in the current workspace that is currently unread; returns
+// affected_count. Persist failures inside the iteration are non-fatal
+// (warn + continue per chunk #78 `acknowledge` precedent). Single
+// aggregate `incident.broadcast.bulk_acknowledged` tracing event emits
+// per invocation regardless of affected_count (cardinality discipline
+// per CLAUDE.md observability 2026-05-17 session 84). NO broadcast
+// channel event emit — read-state changes propagate via pull-on-focus
+// per project-doc §86 "no separate state file"; future webview live
+// updates can land с а dedicated `streams.subscribe_incidents` chunk.
 #[taurpc::procedures(path = "incidents")]
 pub trait IncidentsApi {
     async fn list_active() -> Result<IncidentsListPayload, AppError>;
     async fn acknowledge(id: i64) -> Result<(), AppError>;
     async fn mark_resolved(id: i64) -> Result<(), AppError>;
+    async fn mark_all_read() -> Result<MarkAllReadPayload, AppError>;
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq, specta::Type)]
+pub struct MarkAllReadPayload {
+    pub affected_count: usize,
+    pub marked_at_unix_nano: i64,
 }
 
 #[derive(Clone)]
@@ -264,6 +282,58 @@ impl IncidentsApi for IncidentsApiImpl {
                 })
             }
         }
+    }
+
+    #[tracing::instrument(skip_all, fields(
+        affected_count = tracing::field::Empty,
+        outcome = tracing::field::Empty,
+        duration_ms = tracing::field::Empty,
+    ))]
+    async fn mark_all_read(self) -> Result<MarkAllReadPayload, AppError> {
+        let start = std::time::Instant::now();
+        let now = current_unix_nanos();
+        let affected_ids = self
+            .registry
+            .mark_all_read(&self.workspace_root, now)
+            .map_err(|err| AppError::Internal {
+                message: format!("registry mark_all_read failed: {}", err.error_category()),
+            })?;
+        let affected_count = affected_ids.len();
+        for id in &affected_ids {
+            if let Err(err) = self.persistence.mark_read(*id, now) {
+                tracing::warn!(
+                    target: "triage.incident.persist.error",
+                    error_category = err.error_category(),
+                    persist_kind = "incident_mark_all_read",
+                    "incident persist on mark_all_read failed",
+                );
+            }
+        }
+        let duration_ms: u64 = u64::try_from(start.elapsed().as_millis()).unwrap_or(u64::MAX);
+
+        let span = tracing::Span::current();
+        span.record("affected_count", affected_count as u64);
+        span.record("outcome", "succeeded");
+        span.record("duration_ms", duration_ms);
+
+        tracing::info!(
+            target: "incidents.mark_all_read.request",
+            affected_count = affected_count as u64,
+            outcome = "succeeded",
+            duration_ms = duration_ms,
+            "incidents.mark_all_read returned",
+        );
+
+        tracing::info!(
+            target: "incident.broadcast.bulk_acknowledged",
+            affected_count = affected_count as u64,
+            "incident bulk-acknowledged",
+        );
+
+        Ok(MarkAllReadPayload {
+            affected_count,
+            marked_at_unix_nano: now,
+        })
     }
 }
 

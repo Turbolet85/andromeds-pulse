@@ -108,6 +108,15 @@ pub trait IncidentPersistence: Send + Sync {
     /// `NotFound` when no row matches the id.
     fn update_incident_status(&self, id: i64, payload: &Incident) -> Result<(), IncidentError>;
 
+    /// UPDATE only the `read_unix_nano` column for an incident (chunk #87
+    /// — Findings counter "Mark all as read" + future Report-opening
+    /// trigger). Distinct from `update_incident_status` because the
+    /// status-column UPDATE path does NOT touch the read_at column; this
+    /// method ships the dedicated per-row read-state persistence write.
+    /// Delegates к `CorpusWriter::mark_incident_read` at the binary
+    /// boundary. Returns `NotFound` when no row matches the id.
+    fn mark_read(&self, id: i64, read_unix_nano: i64) -> Result<(), IncidentError>;
+
     /// Load all active (incl. Acknowledged) incidents для а workspace.
     /// Used at boot к hydrate the in-memory registry from corpus +
     /// fallback path в `incidents.list_active()` if registry-empty.
@@ -261,6 +270,9 @@ mod tests {
                 .lock()
                 .expect("lock")
                 .push((id, payload.clone()));
+            Ok(())
+        }
+        fn mark_read(&self, _id: i64, _read_unix_nano: i64) -> Result<(), IncidentError> {
             Ok(())
         }
         fn load_active_incidents(&self, _workspace: &str) -> Result<Vec<Incident>, IncidentError> {

@@ -1,110 +1,108 @@
 # Session Handoff
 
-**Last Updated:** 2026-05-25T20:16:10Z
+**Last Updated:** 2026-05-25T21:45:00Z
 **Branch:** main
 **Session End Status:** clean
-**Last Commit:** `<pending — session 152 wrap commit this turn>`
+**Last Commit:** `<pending — session 153 wrap commit this turn>`
 
 ## Current State
 
-- **Last completed chunk:** route#86 "JSON parse failure handling + backoff + resolution summary" (committed 4489ae3 session 150; State H healed session 151).
-- **Next chunk:** route#87 "Findings counter + dropdown" — NOW REGISTERED этой session via /andromeda-evolve --allow-route-append. Actionable next via /andromeda-phase. Source-doc detail: `docs/v0_2_0/pulse-v0_2_0-route.md` §86 (lines 605-617).
-- **In-progress phase:** none (Type 7 META wrap этой session; no implementation work).
-- **Phase artifacts present:** `.andromeda/phases/phase-{1..83}/` (no new phase directories этой session — META work only; phase-84/ would house chunk #87 implementation when /andromeda-phase fires next).
+- **Last completed chunk:** route#87 "Findings counter + dropdown — render incident-derived counter with severity-colored dropdown + corpus persistence (capabilities P-028 / P-029 / P-030)" (committed this wrap; commit_sha "pending" per Proposal 16 Option b — auto-heals next wrap Phase 8 step 7).
+- **Next chunk:** route#88 (NOT YET REGISTERED — Epoch 9 is at terminal chunk #87; chunks #88+ per project-doc `docs/v0_2_0/pulse-v0_2_0-route.md` §87+ enumerate Diagnostic Report generation + Header redesign + Halo refactor + Service constellation rendering + etc.; user picks priority via /andromeda-new-session AskUserQuestion next session; actionable via /andromeda-evolve --allow-route-append).
+- **In-progress phase:** none (chunk #87 implementation complete; phase-84/ artifacts present).
+- **Phase artifacts present:** `.andromeda/phases/phase-{1..84}/` (new phase-84/ added этой session с combined.md + research.md + plan.md from /andromeda-phase invocation).
 
 ## Andromeda State Detection (states A-K)
 
-11 of 11 dimensions CLEAR этой wrap.
+10 of 11 dimensions CLEAR этой wrap; D3 fires as EXPECTED chunk-then-amendment Type 6 follow-up.
 
-- **A — In-progress runs:** new run-dirs created этой parent turn (`.andromeda/runs/2026-05-25T20-03-10-evolve-append-chunk-87-findings-counter-dropdown/` + `.andromeda/runs/2026-05-25T20-03-10-spec-amendment-append-chunk-87-findings-counter-dropdown/` + `.andromeda/runs/2026-05-25T20-11-20-setup-project-delta/`); all с complete artifact sets + Lifecycle status [x] Propagated. Not "in-progress" per state A semantics. CLEAR.
+- **A — In-progress runs:** new run-dir created этой parent turn (`.andromeda/runs/2026-05-25T20-28-43-phase-84/` для /andromeda-phase artifacts + raw/stripped sub-agent extracts). Complete artifact set. Not "in-progress" per state A semantics. CLEAR.
 - **B — Status drift:** N/A (no project.yaml).
-- **C — Architecture staleness:** ✓ CLEAR — arch.md mtime unchanged этой session (18:53Z from session 151 /evolve --allow-arch-registry edit); CLAUDE.md mtime 20:11:20Z (this session's /setup-project --delta pointer-table edit) > arch.md. No staleness.
-- **D — Pending route:** route.md present с 87 chunks (was 86; chunk #87 added этой session). CLEAR.
-- **E — Pending phase planning:** ✓ CLEAR — chunk #87 registered этой session; /andromeda-phase ready к plan. Actionable next session.
-- **F — Pending implementation:** no plans without commits. CLEAR.
+- **C — Architecture staleness:** ✓ CLEAR — arch.md mtime 20:53Z unchanged этой session; CLAUDE.md mtime 22:13Z > arch.md. No staleness.
+- **D — Pending route:** route.md present с 87 chunks. CLEAR.
+- **E — Pending phase planning:** ✓ CLEAR — chunk #87 fully implemented этой session; phase-84/ artifacts complete; chunk #87 marked complete by Phase 10 commit. No subsequent chunk #88 yet registered. Next session decides priority.
+- **F — Pending implementation:** chunk #87 plan executed end-to-end этой session — green tests + clean gates; commit pending Phase 10. CLEAR post-commit.
 - **G — Multiple concurrent runs:** N/A.
-- **H — Route chunk drift:** state.yaml.last_completed_chunk.commit_sha already real at 4489ae3 (healed session 151; verified HEAD-reachable этой wrap Phase 8 step 7 via `git merge-base --is-ancestor`; no auto-heal needed — this META session didn't progress а chunk). CLEAR.
-- **I — Specialist plan freshness:** plan_freshness.route_mtime bumps к 2026-05-25T20:03:10Z этой wrap (per /evolve route-append edit). arch_mtime unchanged at 2026-05-25T18:53:00Z (no arch edit этой session). CLEAR.
-- **J — Living artifact staleness:** dep-tree.md (463 lines, zero-diff vs session 151 baseline + timestamp refresh) + api-surface.md (ingest sub-block zero-diff refresh vs cycle 1 session 138 baseline + cursor ingest → interpretation cycle 2 progression) both reconciled этой wrap (20:16:10Z). <1h. CLEAR.
+- **H — Route chunk drift:** state.yaml.last_completed_chunk.route_index advances 86 → 87 этой wrap; commit_sha set "pending" per Proposal 16 Option b (auto-heals next wrap Phase 8 step 7 к the chunk #87 implementation commit SHA matched by token-overlap pattern). CLEAR.
+- **I — Specialist plan freshness:** plan_freshness.route_mtime stays at 20:03:10Z (no /evolve этой session); plan_freshness.arch_mtime stays at 18:53Z (no arch edit этой session). CLEAR.
+- **J — Living artifact staleness:** dep-tree.md (zero-diff at 463 lines; timestamp refresh 21:40Z) + api-surface.md (interpretation sub-block FIRST POPULATE с 424 lines fresh content) both reconciled этой wrap. Per-crate cursor advances interpretation → mcp-server. <1h. CLEAR.
 - **K — Multi-chunk in-progress imbalance:** in_progress.chunks=null. CLEAR.
 
 ## Drift Detection (6 dimensions)
 
-All 6 dimensions CLEAR этой wrap.
+5 of 6 dimensions CLEAR; D3 EXPECTED chunk-then-amendment follow-up.
 
-- **D1 — Living artifact staleness:** dep-tree.md + api-surface.md both reconciled этой wrap (timestamps 2026-05-25T20:16:10Z). most_recent_code_mtime stays at 2026-05-25T18:00:00Z (session 150 chunk #86 implementation files; this META session zero source delta). CLEAR.
-- **D2 — Living artifact wrong content:** dep-tree zero-diff verified at 463 lines (META session zero workspace dep delta). api-surface ingest sub-block zero-diff verified at 1852 lines (1854 cargo output - 2 cargo status headers; matches session 138 cycle 1 baseline exactly; chunk #87 amendment touched zero `crates/ingest/` files). CLEAR.
-- **D3 — Plan-to-code drift:** no new D3 этой wrap. Chunk #87 is а route-append registering the chunk; actual implementation deferred к future /andromeda-phase + /andromeda-implement against phase-84/ artifacts (`pulse-app/ui/widget/{FindingsCounter,FindingsDropdown}.tsx` + new TauRPC `incidents.mark_all_read()`). The +1 future TauRPC procedure will surface as а post-impl Type 6 amendment (Branch (a) — TauRPC routes not а CLAUDE.md cascade target per Proposal 12 mirror map), mirroring chunk #86 precedent. CLEAR.
+- **D1 — Living artifact staleness:** dep-tree.md + api-surface.md both reconciled этой wrap. most_recent_code_mtime advances к ~21:40Z (chunk #87 source files written этой session); reconciled_at = 21:40Z. CLEAR.
+- **D2 — Living artifact wrong content:** dep-tree zero-diff verified (chunk #87 added zero workspace deps); api-surface interpretation sub-block populated с 424 lines real api content (FIRST visit). Cycle 2 progression on track. CLEAR.
+- **D3 — Plan-to-code drift:** **FIRES** — chunk #87 added `incidents.mark_all_read` TauRPC procedure (per resolver implementation в `pulse-app/src/incidents_router.rs` + xtask EXPECTED_PROCEDURES + capabilities/default.json description + emit_taurpc_bindings test + bindings.ts regen). Procedure NOT yet listed в arch.md §Occupied Resources Tauri IPC routes (`incidents.*` row currently lists only `list_active, acknowledge, mark_resolved` from chunk #78). EXPECTED chunk-then-amendment Type 6 follow-up mirroring chunks #62/#67/#78/#82/#86 precedents. Remediation: `/andromeda-evolve --allow-arch-registry` next session к register the procedure в §Occupied Resources Tauri IPC routes + §Architecture Registry Updates compact entry.
 - **D4 — Plan-to-plan drift:** no cross-plan changes этой session. CLEAR.
-- **D5 — Plan-to-CLAUDE.md drift (mtime-based + amendment-aware):** ✓ CLEAR этой wrap — CLAUDE.md mtime 20:11:20Z (set by /setup-project --delta Branch (b) pointer-table cascade этой parent turn) > route.md mtime 20:03:10Z > arch.md mtime 18:53Z > all other upstreams. The route.md edit (chunk #87 amendment) was IMMEDIATELY propagated к CLAUDE.md в the same parent turn, preventing any D5 carry-over. CLEAR.
-- **D6 — Route chunk progression drift:** state.yaml.last_completed_chunk.route_index unchanged at 86 этой wrap (META session — chunk #87 was REGISTERED but not IMPLEMENTED; commit_sha=4489ae3 already healed session 151). git log shows 1 new commit этой session (aab70d5 setup-project --delta) — это chunk #87 amendment propagation commit, not а chunk implementation commit (no `^chunk\(\d+\):` pattern match). No D6. CLEAR.
+- **D5 — Plan-to-CLAUDE.md drift (mtime-based + amendment-aware):** ✓ CLEAR — CLAUDE.md mtime 22:13Z > all upstream mtimes including route.md 22:08Z + arch.md 20:53Z + all specialist plans (≤ 22:08Z). No upstream regenerated since last setup-project. CLEAR.
+- **D6 — Route chunk progression drift:** state.yaml.last_completed_chunk.route_index advances 86 → 87 этой wrap (Phase 10 commit `chunk(87): implement Findings counter + dropdown` matches the pattern); commit_sha set "pending" per Proposal 16 Option b. No drift. CLEAR.
 
 ## Spec Amendments (this session)
 
-This wrap archives 1 amendment that was applied + propagated earlier этой parent turn:
+(none this session)
 
-- **Amendment ID:** 2026-05-25T20-03-10-append-chunk-87-findings-counter-dropdown
-- **Plan(s):** `.andromeda/route.md` (§1 Route Scope Summary + §2 Roadmap Epoch 9 — Foundation v0.2.0 + §3 Decisions Log)
-- **Decisions Log entry:** "2026-05-25 — Append chunk #87 Findings counter + dropdown (--allow-route-append)"
-- **Trigger:** user-driven evolution via /andromeda-evolve (no chunk/phase/harness)
-- **Authority resolution:** pipeline state > route.md (chunk-list-stale-vs-pipeline-reality) — Session 151 reconciliation Q&A + user Option A decision via new-session AskUserQuestion
-- **Type:** Type 7 — Route registry update (Form 1 — chunk append to existing Epoch 9)
-- **Flag used:** `--allow-route-append` (narrow Refuse 6 exception)
-- **Lifecycle:** applied 2026-05-25T20:03:10Z (by /andromeda-evolve) | noted 2026-05-25T20:16:10Z (этой wrap-session) | propagated 2026-05-25T20:11:20Z (by /andromeda-setup-project --delta; Branch (b) Type 7 — CLAUDE.md pointer-table cascade 86→87 per Proposal 5) | archived 2026-05-25T20:16:10Z (этой wrap-session Phase 8 lifecycle progression per spec-amendment-protocol.md Part D)
-- **Marker:** `.andromeda/runs/2026-05-25T20-03-10-spec-amendment-append-chunk-87-findings-counter-dropdown/amendment.md`
-
-Post-archive state: spec_amendments.active = []; spec_amendments.archive grew 17 → 18 entries.
-
-Textbook standard Type 7 Form 1 single-cycle wrap pattern (10th instance of single-cycle Type 7 Form 1 wrap; mirrors sessions 115/118/120/123/125/138/141/147/149 chunks #58-#86 precedents exactly).
+Spec amendments lifecycle state: active=[] + archive remains at 18 entries (no new amendments этой session; chunk #87 IMPLEMENTATION wrap, not а route-append OR arch-registry amendment session). Post-impl Type 6 arch-registry amendment for `incidents.mark_all_read` expected NEXT session.
 
 ## Key Decisions This Session
 
-(carried over from prior /andromeda-new-session AskUserQuestion in same parent session — only one decision этой session: chunk #87 priority choice.)
-
-- **Chunk #87 priority = Option A "Findings counter + dropdown"** (project-doc §86; capabilities P-028/P-029/P-030; widget UI extension layer). Chosen over Option B "Diagnostic Report generation" (project-doc §87; P-031/P-035/P-036/P-037/P-038) and Option C (something else). Rationale: smaller scope, closes а long-standing original-plan item; substrate dependencies (#78 incident records + #81 digest assembler + #85 fallback tier) all landed in prior sessions.
+- **Broadcast event variant SKIPPED for "Mark all as read" action:** original plan called for adding а `BulkAcknowledged` variant к chunk #78's `IncidentLifecycleEvent` struct, emitted на `pulse://stream/incidents`. Implementation discovered the struct's PII negative-canary test (`incident_lifecycle_event_has_no_pii_fields`) bans many field substrings including `"workspace"` — а planned `workspace_hash` field would substring-match + fail the test. Two paths considered: (a) refactor `IncidentLifecycleEvent` struct → enum (substantial change rippling through all chunk #78 send/recv sites); (b) skip broadcast emit, use tracing-only event at `incident.broadcast.bulk_acknowledged` target (preserves cardinality discipline + chunk-scope minimality; satisfies obs acceptance criterion #4 via JSON log emission). Chose (b). Live push к webview consumers deferred к а future dedicated `streams.subscribe_incidents` chunk; chunk #87 useFindings hook uses PULL-on-widget-focus per project-doc §86 design intent ("no separate state file").
+- **In-scope Phase 2 fix-loop iteration (mark_read column-specific persistence):** discovered IncidentPersistence::update_incident_status does NOT update `read_unix_nano` column (only status/timestamps/payload BLOB). CorpusWriter has dedicated `mark_incident_read(id, read_unix_nano)` method (chunk #78 substrate's docstring explicitly anticipated chunk #87 wiring). Extended IncidentPersistence trait с parallel `mark_read(id, ts)` method delegating к CorpusWriter::mark_incident_read; impl on CorpusIncidentPersistence + stubs on MockPersistence + CountingPersistence. Resolver switched FROM update_incident_status TO mark_read. Single-iteration fix within chunk scope. Pattern captured as Tier 2 security.md entry.
 
 ## Files Modified
 
-**Source files этой session:** none (META wrap; zero source code changes).
+**Source files этой session (chunk #87 implementation):**
+- M `crates/triage/src/incident/registry.rs` (IncidentRegistry::mark_all_read trait method + InMemoryIncidentRegistry impl + 5 colocated tests)
+- M `crates/triage/src/incident/persistence.rs` (IncidentPersistence::mark_read trait method + MockPersistence stub)
+- M `pulse-app/src/incidents_router.rs` (IncidentsApi 4th procedure + MarkAllReadPayload struct + resolver impl с tracing instrumentation)
+- M `pulse-app/src/incident_persistence.rs` (CorpusIncidentPersistence::mark_read adapter)
+- M `pulse-app/src/observability.rs` (2 AllowList entries: incidents.mark_all_read.request + incident.broadcast.bulk_acknowledged + PII guard test)
+- M `pulse-app/tests/integration_resolution_summary_attachment.rs` (CountingPersistence::mark_read stub)
+- A `pulse-app/tests/unit_incidents_mark_all_read_router.rs` (8 resolver integration tests)
+- A `pulse-app/tests/integration_findings_counter_persists_across_restart.rs` (1 cross-restart persistence test)
+- M `xtask/src/main.rs` (EXPECTED_PROCEDURES + chunk #87 test)
+- M `pulse-app/capabilities/default.json` (description block extension)
+- M `pulse-app/ui/src/styles/tokens.css` (+--radius-full token)
+- M `pulse-app/ui/src/widget/CompactWidget.tsx` (mount FindingsCounter + FindingsDropdown band + live region)
+- M `pulse-app/ui/src/widget/CompactWidget.test.tsx` (findings mocks + counter/live-region tests)
+- M `pulse-app/ui/src/bindings/index.ts` (regenerated с incidents.mark_all_read)
+- A `pulse-app/ui/src/widget/findings-types.ts` (FindingsRow + severity helpers + formatters)
+- A `pulse-app/ui/src/widget/findings-types.test.ts` (21 unit tests for helpers)
+- A `pulse-app/ui/src/widget/FindingsCounter.tsx` (compact circular counter button)
+- A `pulse-app/ui/src/widget/FindingsCounter.test.tsx` (~17 unit tests covering a11y + design tokens + click)
+- A `pulse-app/ui/src/widget/FindingsDropdown.tsx` (click-anchored disclosure panel)
+- A `pulse-app/ui/src/widget/FindingsDropdown.test.tsx` (~15 unit tests covering rows + Escape + click-outside)
+- A `pulse-app/ui/src/hooks/use-findings.ts` (React hook coordinating IPC pull + markAllRead)
+- A `pulse-app/ui/src/hooks/use-findings.test.tsx` (~7 unit tests covering fetch + IPC + announcement)
 
-**Spec + ecosystem files этой parent turn (across all 4 skill invocations):**
-- M `.andromeda/route.md` (by /evolve этой parent turn — §1 Total chunks 86→87 + §2 Epoch 9 terminal-position chunk #87 insertion + §3 Decisions Log compact P9 entry)
-- M `CLAUDE.md` (by /setup-project --delta этой parent turn — line 57 pointer-table cascade "(9 epochs / 86 chunks)" → "(9 epochs / 87 chunks)" per Proposal 5 Branch (b))
-- M `.andromeda/state.yaml` (multiple skills: /evolve added active amendment entry; /setup-project --delta set propagated_by_run; this wrap moves к archive + bumps session_count 151 → 152 + clears drift_warnings + bumps timestamps + advances api_surface cursor ingest → interpretation + bumps plan_freshness.route_mtime)
-- M `.andromeda/context/dependency-tree.md` (this wrap — METADATA timestamp 19:00 → 20:16Z + narrative session 152 prefix; LIVING block unchanged at 463 lines zero-diff)
-- M `.andromeda/context/api-surface.md` (this wrap — METADATA timestamp + ingest cursor narrative + cycle 2 progression; LIVING ingest sub-block unchanged at 1852 lines zero-diff)
+**Spec + ecosystem files этой parent turn:**
+- A `.andromeda/phases/phase-84/` (combined.md + research.md + plan.md from /andromeda-phase)
+- A `.andromeda/runs/2026-05-25T20-28-43-phase-84/` (7 raw + 7 stripped sub-agent extracts)
+- M `.claude/rules/security.md` (Session Additions: mark_incident_read column-specific update pattern)
+- M `.claude/rules/testing.md` (Session Additions: cargo clean -p / cargo test --test rlib-format recovery paths)
 - M `.claude/session-handoff.md` (this file — full rewrite)
-- A `.andromeda/runs/2026-05-25T20-03-10-evolve-append-chunk-87-findings-counter-dropdown/` (run-dir с intent.md + evolution-plan.md authored by /evolve)
-- A `.andromeda/runs/2026-05-25T20-03-10-spec-amendment-append-chunk-87-findings-counter-dropdown/` (marker file authored by /evolve; Lifecycle status [x] Propagated set by /setup-project --delta; этой wrap completes [x] Archived via state.yaml archive move)
-- A `.andromeda/runs/2026-05-25T20-11-20-setup-project-delta/` (run-dir с materialization-plan-delta.md authored by /setup-project)
+- M `.andromeda/context/dependency-tree.md` (METADATA timestamp 20:16Z → 21:40Z + narrative session 153 prefix; LIVING block 463 lines zero-diff)
+- M `.andromeda/context/api-surface.md` (METADATA timestamp + interpretation cursor narrative; NEW sub-block crate-interpretation populated 424 lines fresh content; LIVING outer markers preserved)
+- M `.andromeda/state.yaml` (last_completed_chunk advances 86 → 87; session_count 152 → 153; api_surface cursor interpretation → mcp-server; drift_warnings = [D3]; plan_freshness preserved)
 
 **Unmanaged artifacts (project):**
-- `experiments/` directory (untracked; 7-session carryover от session 144 spike work)
-- `ui/` directory at workspace root (untracked stray; 42+ wraps now)
+- `experiments/` directory (untracked; 9-session carryover от session 144 spike work)
+- `ui/` directory at workspace root (untracked stray; 43+ wraps now)
 
 ## Curation Summary (this wrap)
 
 - **Tier 1 (CLAUDE.md USER:session-learnings):** 0 additions
-- **Tier 2 (.claude/rules/*/Session Additions):** 0 additions
+- **Tier 2 (.claude/rules/*/Session Additions):** 2 additions
+  - `.claude/rules/security.md`: mark_incident_read column-specific update — when implementing а bulk-action resolver, check whether CorpusWriter has а dedicated column-specific UPDATE method для the column being mutated, rather than reusing general-purpose status updater. Extends cross-crate state delivery family (2026-05-16/18/19/23/24).
+  - `.claude/rules/testing.md`: rlib-format mismatch recovery paths (`cargo test --test <single>` для targeted runs + `cargo clean -p pulse-app` для baseline restore). Companion к session 150 `--bin pulse-app` workaround.
 - **Tier 3 (.claude/docs/session-learnings.md):** 0 additions
 - **Andromeda pipeline proposals (Phase 3 step 7d):** 0 new patches filed
-- **Andromeda pipeline refactors (Phase 8 step 4b.ii):** 0 new filed (A1 IMPLEMENTED steady state preserved; verified_cleared_at_session=135 unchanged; consecutive_count=0 since per-crate reconcile fired Phase 5 этой wrap)
-- **Pipeline meta-observation mode:** **Mode H** (honest-healthy) — A1.refactor_proposed_at=129 ≠ 152 → не Mode R; `git diff docs/andromeda-improvements.md` shows no new `+### Proposal P{N}` lines → не Mode P; fallback к Mode H per visual-references.md §Phase 11. Pipeline-mechanism scan: every skill в the 4-invocation chain этой parent turn (/new-session → /evolve --allow-route-append → /setup-project --delta → this wrap) executed cleanly as designed; no friction, no novel pattern, no proposal filed. The 10th-instance Type 7 Form 1 single-cycle wrap pattern is mechanically identical к the 9 prior precedents (chunks #58/#59/#60/.../#83/#84/#85/#86) and documenting it would be churn, not а learning.
-- **Filtered:** 0 duplicates + 0 task-specific + 0 conflicts + 0 deferred (zero curation candidates surfaced этой session; the Option A decision is project-priority context captured в Key Decisions section + intent.md audit trail, not а reusable rule)
+- **Andromeda pipeline refactors (Phase 8 step 4b.ii):** 0 new filed (A1 IMPLEMENTED steady state preserved; verified_cleared_at_session=135 unchanged; consecutive_count stays 0 — per-crate reconcile fired Phase 5 этой wrap)
+- **Pipeline meta-observation mode:** **Mode H** (honest-healthy) — A1.refactor_proposed_at=129 ≠ 153 → не Mode R; `git diff docs/andromeda-improvements.md` shows no new `+### Proposal P{N}` lines → не Mode P; fallback к Mode H. Pipeline-mechanism scan: every skill в the 3-invocation chain этой parent turn (/andromeda-phase → /andromeda-implement → this wrap) executed cleanly as designed; one in-scope fix-loop iteration (mark_read trait extension) within iteration cap; no novel pattern; the test framework's rlib-format mismatch recovery paths are captured as Tier 2 testing.md entry (not а pipeline-mechanism gap; environmental quirk).
+- **Filtered:** 1 deferred (broadcast event variant SKIP design judgment — captured в Key Decisions instead of Tier 2 since the lesson is а chunk-scope trade-off rather than а universally-applicable cross-crate pattern)
 
-api-surface full cycle: cycle 2 in progress at session 152 (cursor advancing buffer → corpus → curation → ingest → interpretation; chunk #82 interpretation crate + chunk #60 triage crate not yet visited в cycle 2 — at positions 5 + 11 respectively; will populate sub-blocks с real api content within ~2-3 more wraps for interpretation, ~7 more wraps for triage).
-
-## Notes
-
-This session was а textbook standard 10th-instance Type 7 Form 1 single-cycle wrap pattern. Mechanically identical к 9 prior precedents. The chunk #87 amendment Active → Propagated → Archived в single session.
-
-Project-doc divergence reconciliation findings от session 151 Q&A still apply — `.andromeda/route.md` is operational source-of-truth; `docs/v0_2_0/pulse-v0_2_0-route.md` migration table stale by +1 from chunk #84 runtime-swap insertion onward (project-doc §86 = Andromeda chunk #87 per the divergence; this wrap honors the precedent per chunks #84/#85/#86 §3 Decisions Log entries).
-
-Next chunk #87 implementation work (via /andromeda-phase + /andromeda-implement) will touch:
-- NEW `pulse-app/ui/widget/{FindingsCounter,FindingsDropdown}.tsx`
-- `crates/ui-bridge/contract.rs` (likely Settings extension OR new TauRPC procedure)
-- NEW TauRPC procedure `incidents.mark_all_read()` (post-impl Type 6 amendment expected, Branch (a) — TauRPC routes not а CLAUDE.md cascade target per Proposal 12 mirror map)
-- Specialist plan touches: design-system (counter visual spec + dropdown row visual spec), layout-templates (counter position + dropdown overlay), a11y-plan (counter aria-label + dropdown keyboard nav + focus management), test-plan (counter derivation from corpus + cross-restart persistence + "Mark all as read" action)
+api-surface full cycle: cycle 2 in progress at session 153 (cursor advancing buffer → corpus → curation → ingest → interpretation → mcp-server; chunk #82 interpretation crate sub-block populated this wrap с 424 lines real api content; chunk #60 triage crate sub-block still placeholder at position 11 — will populate в cycle 2 within ~5-6 more wraps). 13/15 crates с real api content (was 12/15; +1 interpretation).
 
 ## Last Failed Command
 
@@ -112,60 +110,67 @@ Next chunk #87 implementation work (via /andromeda-phase + /andromeda-implement)
 
 ## Tests Status
 
-passing — `cargo nextest run -p security` returns 14/14 in 0.136s этой wrap (workspace baseline preserved from session 151 at 1508/1508 + 1 skip; this META session touched zero source files so no test count delta expected — confirmed clean via security crate smoke).
+passing — full standard chunk gate baseline ✓ этой /implement Phase 2:
+- `cargo fmt --check` — clean (applied к 2 new test files post-write)
+- `cargo clippy --workspace --all-targets --all-features -- -D warnings` — 0 warnings
+- `cargo nextest run --workspace --profile ci` — **1523/1523 + 1 skip** (was 1508 baseline session 152 → **+15 new chunk #87 Rust tests**: 5 triage registry mark_all_read + 8 incidents_router resolver + 1 cross-restart persistence + 1 xtask EXPECTED_PROCEDURES test)
+- `cargo xtask capability-drift` — clean (0 missing, 0 extra; chunk #87 `incidents.mark_all_read` propagated end-to-end through quadruple binding)
+- `npm run lint --prefix pulse-app/ui` — clean
+- `npm run typecheck --prefix pulse-app/ui` — clean (exit 0)
+- `npm run test --prefix pulse-app/ui` — **599/599 passing across 64 test files** (incl. ~56 new chunk #87 webview tests across 5 new test files: findings-types.test.ts ~21 + FindingsCounter.test.tsx ~17 + FindingsDropdown.test.tsx ~15 + use-findings.test.tsx ~7 + CompactWidget.test.tsx extensions ~3)
+- Bindings.ts regen via `cargo nextest run -p pulse-app --features mcp-server --bin pulse-app -E 'test(emit_taurpc_bindings)'` — `grep -c '"mark_all_read":' pulse-app/ui/src/bindings/index.ts` returns 1 ✓
 
-Standard gates ALL green (verification этой wrap):
-- `cargo nextest run -p security`: 14/14 + 0 skip (smoke 0.136s; workspace baseline 1508/1508 + 1 skip preserved per session 151)
-- `cargo tree --workspace --depth 2 --prefix indent`: 463 lines (zero-diff vs session 151)
-- `cargo +nightly public-api --simplified -p ingest`: 1852 lines (zero-diff vs session 138 cycle 1 baseline; the 1854 cargo output = 1852 public API lines + 2 cargo status headers)
-- `git diff --name-only HEAD`: clean post-commit
-- `git log --since=2026-05-25T19:00:00Z`: 2 commits (f8e151b session 151 wrap [pre-cutoff edge] + aab70d5 setup-project --delta [this session's chunk #87 propagation])
+Phase 2b smoke check: SKIPPED boot-path-unchanged variant. Chunk #87 extends existing IncidentsApiImpl trait + adds React components mounted to CompactWidget; ZERO boot/setup wiring changed (existing Option<IncidentsApiImpl> merge handles new 4th procedure automatically per emit_taurpc_bindings PASS proof). Per CLAUDE.md testing.md 2026-05-19 Windows process-orphan risk + non-boot-path conditional, `npx @tauri-apps/cli dev` smoke deferred к integration tests (unit_incidents_mark_all_read_router + integration_findings_counter_persists_across_restart cover resolver + cross-restart persistence boundary fully).
 
-Dead-test warnings (P15 37th observation): 17 blocks в 17 files в pulse-app/src/ — unchanged from session 151 baseline. NO new dead-test block introduced этой session (META session zero source delta).
+Dead-test warnings (P15 38th observation): 17 blocks в 17 files в pulse-app/src/ — unchanged from session 152 baseline. NO new dead-test block introduced этой session (chunk #87's new PII guard test для chunk #87 AllowList entries went INTO the existing `pulse-app/src/observability.rs::tests` `mod tests` block which was already counted as dead per session 152 baseline; same chunk #86 precedent с the corresponding chunk #86 AllowList test that also doesn't actually run per `[lib] test = false`).
 
-Cyrillic check: this wrap's authored content contains intentional cyrillic homoglyphs ('к', 'с', 'в', 'этой', 'не', 'или') в handoff body + dep-tree.md + api-surface.md METADATA narratives + state.yaml comments per project-precedent (prior 51+ wraps' content). Not staged code; ignored per the allowed-section discipline.
+Cyrillic check: this wrap's authored content contains intentional cyrillic homoglyphs ('к', 'с', 'в', 'этой', 'не', 'или') в handoff body + dep-tree.md + api-surface.md METADATA narratives + state.yaml comments + security.md/testing.md Session Additions per project-precedent (prior 52+ wraps' content). Not staged code; ignored per the allowed-section discipline.
 
 ## Next Recommended Action
 
 **Primary next action:**
 
-1. **`/andromeda-phase`** к plan chunk #87 implementation. Phase artifacts will land at `.andromeda/phases/phase-84/`.
+1. **`/andromeda-new-session`** at next session start. Dashboard will surface:
+   - Chunk #87 IMPLEMENTED + state H clean (auto-healed к chunk #87 commit SHA via Phase 8 step 7 auto-heal at next wrap)
+   - D3 drift surfaced: `incidents.mark_all_read` not yet в arch §Occupied Resources Tauri IPC routes
+   - Suggested action: `/andromeda-evolve --allow-arch-registry` к close D3 via Type 6 single-coordinated single-item amendment (mirrors chunk #82 model.current_profile / chunk #86 diagnostics.retry_interpretation precedent).
+2. **`/andromeda-evolve --allow-arch-registry`** к register chunk #87's `incidents.mark_all_read` TauRPC procedure в arch §Occupied Resources Tauri IPC routes + §Architecture Registry Updates compact entry. Type 6 single-coordinated single-item amendment per chunk #86 precedent.
+3. **`/andromeda-setup-project --delta`** к propagate the arch.md amendment к CLAUDE.md GENERATED:setup:* anchors (если any cascade target affected; for а single TauRPC procedure addition the cascade is typically zero — Branch (a) lifecycle-only propagation per chunks #67/#78/#82/#86 precedents).
+4. After amendment cycle complete, user decides chunk #88+ priority (Diagnostic Report / Header redesign / Halo refactor / Service constellation / others per project-doc §87+).
 
-2. **`/andromeda-implement`** к execute the plan. Substantive work expected (widget UI + TauRPC + corpus integration).
-
-3. **`git push origin main`** at session boundary (branch будет 7 commits ahead of origin/main post-wrap: 5 from prior + this session 152's 2 = aab70d5 setup-project + this wrap commit).
+5. **`git push origin main`** at session boundary (branch будет 8 commits ahead post-wrap: 7 from prior + 1 this session's chunk #87 implementation wrap = which combines all chunk #87 source + ecosystem changes).
 
 **Secondary cleanup opportunities (not blocking):**
-- experiments/ untracked directory (carryover от session 144 spike work, 8 sessions now)
-- ui/ untracked stray directory (42+ wraps unaddressed)
+- experiments/ untracked directory (carryover от session 144 spike work, 9 sessions now)
+- ui/ untracked stray directory (43+ wraps unaddressed)
 - bincode 2.x upgrade (RAM-safe deserialize hook per CLAUDE.md 2026-05-20)
 - v0.1.0 release blockers (Azure Key Vault EV cert + Apple Developer ID — deferred от chunk #3)
-- api-surface cycle 2 progression: ingest done этой wrap; interpretation next (FIRST visit; sub-block populate from placeholder); cycle 2 completes в ~11 more wraps
+- api-surface cycle 2 progression: interpretation populated этой wrap; mcp-server next (cycle 2 position 6 — was last visited session 139 cycle 1 position 5); cycle 2 completes в ~10 more wraps
 - Decide whether к update `docs/v0_2_0/pulse-v0_2_0-route.md` migration table к flag staleness (NOT required per established precedent; informational documentation only)
 
 ## Session Goals (carry-over)
 
-- **Chunk #87 registration** ✓ COMPLETE этой session
-- **Chunk #87 post-impl Type 6 arch-registry amendment** — pending future chunk #87 implementation (+1 TauRPC procedure `incidents.mark_all_read()` will need amendment per chunk #86 precedent)
-- **Chunk #87 implementation** — NEXT (via /andromeda-phase + /andromeda-implement)
-- (carry-overs от prior sessions, unchanged): A2 activation (after additional R-style dogfood cycles); maintainer guide §4.1 writer table; author-class guide gap; observability.rs AllowList polish; Q7 timeout; bincode 2.x; v0.1.0 release blockers; experiments/ + ui/ untracked dir cleanup
+- **Chunk #87 implementation** ✓ COMPLETE этой session (substantial multi-crate work — 10 new files + 12 modified files; 1523/1523 tests passing; quadruple-binding closed; bindings regenerated)
+- **Chunk #87 post-impl Type 6 arch-registry amendment** — pending NEXT session (+1 TauRPC procedure `incidents.mark_all_read` needs amendment per chunk #86 precedent)
+- **Next chunk decision** — chunk #88+ priority к be selected via /andromeda-new-session AskUserQuestion next session
+- (carry-overs от prior sessions, unchanged): A2 activation (after additional R-style dogfood cycles); maintainer guide §4.1 writer table; author-class guide gap; observability.rs AllowList polish (latent chunk #78 gap for incidents.list_active.request/.acknowledge.request/.mark_resolved.request); Q7 timeout; bincode 2.x; v0.1.0 release blockers; experiments/ + ui/ untracked dir cleanup
 
 ## Deferred decisions (Trigger 4 to Path B carry-over)
 
-(none — session 152 had no Trigger 4 dialogues; all Type 7 amendment lifecycle progressed cleanly within standard mechanical phases. Chunk #87 priority choice was а user-facing decision made via /andromeda-new-session AskUserQuestion, not а Trigger 4 spec-drift.)
+(none — session 153 had no Trigger 4 dialogues; the in-scope mark_read trait extension was а normal Trigger-1-style fix within chunk scope, not а spec-drift; the broadcast-variant SKIP was а chunk-scope design judgment, not а spec ↔ reality conflict requiring amendment dialogue.)
 
 ## Deferred learnings (filtered out from Phase 3 curation)
 
-(none — 0 candidates surfaced этой session; the mechanically-identical 10th-instance Type 7 single-cycle pattern would be churn к document)
+- **Broadcast event variant SKIP (chunk-scope design trade-off):** captured в Key Decisions section. Not promoted к Tier 2 because: (a) the lesson is а narrow chunk-scope judgment rather than а universally-applicable pattern (the underlying mechanism — substring-match PII test bans a planned field name — is already documented в multiple places); (b) the chosen path (tracing-only event) leverages existing pattern (chunk #82/#86 AllowList tracing-event discipline) rather than introducing а new pattern. The lesson is implicit в the existing cardinality discipline rules + chunk #78 broadcast.rs PII test docstring.
 
 ## Final state
 
-- **Code:** zero source delta этой META session (chunk #87 is а route-append amendment; implementation deferred к future /andromeda-phase + /andromeda-implement).
-- **Ecosystem:** 0 Tier 1 + 0 Tier 2 + 0 Tier 3 curation entries (Mode H — honest-healthy; pipeline executed cleanly; 10th-instance Type 7 Form 1 pattern would be churn к document); dep-tree refresh (zero-diff at 463 lines + timestamp bump); api-surface ingest sub-block refresh (zero-diff at 1852 lines + cursor advance ingest → interpretation cycle 2 progression).
-- **Drift:** all 6 dimensions CLEAR (D5 not fired этой wrap because /setup-project --delta CLAUDE.md cascade landed in same parent turn as /evolve route edit — no carry-over staleness).
-- **Andromeda states:** 11 of 11 CLEAR.
-- **Spec amendments:** 0 active post-archive + 18 archived total (chunk #87 amendment archived этой wrap; archive grew 17 → 18 entries).
-- **Per-crate api-surface cycle:** cycle 2 in progress (buffer + corpus + curation + ingest refreshed; interpretation next — FIRST visit since added session 139; triage + triage-experimental placeholders pending — will populate within ~7 more wraps).
-- **State H housekeeping:** no action needed (4489ae3 already real + HEAD-reachable from session 151 healing).
-- **Mode H honest-healthy pipeline scan** — every skill в the 4-invocation chain этой parent turn (/new-session → /evolve --allow-route-append → /setup-project --delta → wrap-session) executed exactly as designed; no friction, no new pipeline pattern, no proposal filed. The 10th-instance Type 7 Form 1 single-cycle wrap pattern is mechanically identical к 9 prior precedents.
-- **Next:** /andromeda-phase к plan chunk #87 implementation.
+- **Code:** substantial multi-crate delta этой session (chunk #87 implementation: 10 new files + 12 modified files across crates/triage + pulse-app + xtask + pulse-app/ui + capabilities + tokens.css).
+- **Ecosystem:** 0 Tier 1 + 2 Tier 2 + 0 Tier 3 curation entries (mark_incident_read column-specific update pattern + rlib-format mismatch recovery paths); dep-tree refresh (zero-diff at 463 lines + timestamp bump); api-surface interpretation sub-block FIRST POPULATE с 424 lines fresh content + cursor advance interpretation → mcp-server cycle 2 progression.
+- **Drift:** 5 of 6 dimensions CLEAR; D3 fires as EXPECTED chunk-then-amendment Type 6 follow-up for `incidents.mark_all_read`.
+- **Andromeda states:** 10 of 11 CLEAR; D3 noted above (also surfaces as state I-equivalent post-chunk).
+- **Spec amendments:** 0 active post-wrap + 18 archived total (chunk #87 implementation session, not а route-append OR arch-registry amendment session).
+- **Per-crate api-surface cycle:** cycle 2 in progress (buffer + corpus + curation + ingest + interpretation refreshed; mcp-server next — was last visited cycle 1 session 139; triage + xtask placeholders pending — triage will populate within ~5 more wraps).
+- **State H housekeeping:** state.yaml.last_completed_chunk advances 86 → 87 этой wrap; commit_sha set "pending" per Proposal 16 Option b (auto-heal at next wrap Phase 8 step 7).
+- **Mode H honest-healthy pipeline scan** — every skill в the 3-invocation chain этой parent turn (/andromeda-phase → /andromeda-implement → wrap-session) executed exactly as designed; no friction, no novel pipeline pattern, no proposal filed. The chunk #87 implementation followed the documented quadruple-binding discipline + cross-crate state delivery family + per-crate cursor protocol cleanly.
+- **Next:** /andromeda-new-session next session к surface D3 drift + suggest /andromeda-evolve --allow-arch-registry; then user picks chunk #88+ priority.

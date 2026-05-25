@@ -100,6 +100,21 @@ pub trait IncidentRegistry: Send + Sync + Debug {
     /// supports the column but chunk #87+ wires the UI trigger).
     fn mark_read(&self, id: i64, now_unix_nano: i64) -> Result<Incident, IncidentRegistryError>;
 
+    /// Bulk-mark all unread non-Resolved incidents in а workspace as read
+    /// (chunk #87 — Findings counter "Mark all as read" action; capability
+    /// P-029 dropdown footer). Iterates the workspace's incidents and sets
+    /// `read_at_unix_nano = Some(now)` + `updated_at_unix_nano = now` for
+    /// each Active/Acknowledged incident с `read_at_unix_nano.is_none()`.
+    /// Returns the Vec<i64> of incident ids that transitioned from unread
+    /// → read so the caller can drive per-incident persistence updates +
+    /// aggregate-only observability emission. Already-read incidents and
+    /// Resolved incidents are skipped. Empty workspace returns empty Vec.
+    fn mark_all_read(
+        &self,
+        workspace: &str,
+        now_unix_nano: i64,
+    ) -> Result<Vec<i64>, IncidentRegistryError>;
+
     /// Bump `updated_at_unix_nano` when а re-emission observed for а live
     /// incident (resets the 120s no-reemission auto-resolve timer).
     fn observe_reemission(&self, id: i64, now_unix_nano: i64) -> Result<(), IncidentRegistryError>;
@@ -243,6 +258,30 @@ impl IncidentRegistry for InMemoryIncidentRegistry {
         entry.read_at_unix_nano = Some(now_unix_nano);
         entry.updated_at_unix_nano = now_unix_nano;
         Ok(entry.clone())
+    }
+
+    fn mark_all_read(
+        &self,
+        workspace: &str,
+        now_unix_nano: i64,
+    ) -> Result<Vec<i64>, IncidentRegistryError> {
+        let mut affected: Vec<i64> = Vec::new();
+        for mut entry in self.incidents.iter_mut() {
+            if entry.workspace != workspace {
+                continue;
+            }
+            if entry.status == IncidentStatus::Resolved {
+                continue;
+            }
+            if entry.read_at_unix_nano.is_some() {
+                continue;
+            }
+            entry.read_at_unix_nano = Some(now_unix_nano);
+            entry.updated_at_unix_nano = now_unix_nano;
+            affected.push(*entry.key());
+        }
+        affected.sort_unstable();
+        Ok(affected)
     }
 
     fn observe_reemission(&self, id: i64, now_unix_nano: i64) -> Result<(), IncidentRegistryError> {
@@ -676,5 +715,106 @@ mod tests {
         let r = fresh_registry();
         let result = r.attach_resolution_summary(999, "summary".to_string(), 5_000_000_000);
         assert!(matches!(result, Err(IncidentRegistryError::NotFound)));
+    }
+
+    #[test]
+    fn mark_all_read_on_empty_workspace_returns_empty_vec() {
+        let r = fresh_registry();
+        let result = r.mark_all_read("ws-a", 5_000_000_000).expect("ok");
+        assert!(result.is_empty());
+    }
+
+    #[test]
+    fn mark_all_read_marks_all_unread_in_workspace_and_returns_ids() {
+        let r = fresh_registry();
+        r.insert(sample_incident(
+            1,
+            "ws-a",
+            CueKind::ErrorRateSpike,
+            CueScope::Service,
+        ));
+        r.insert(sample_incident(
+            2,
+            "ws-a",
+            CueKind::LatencyRegression,
+            CueScope::Service,
+        ));
+        r.insert(sample_incident(
+            3,
+            "ws-a",
+            CueKind::RetryStorm,
+            CueScope::Global,
+        ));
+        let now = 7_000_000_000_i64;
+        let affected = r.mark_all_read("ws-a", now).expect("ok");
+        assert_eq!(affected, vec![1, 2, 3]);
+        for id in [1, 2, 3] {
+            let inc = r.get(id).expect("present");
+            assert_eq!(inc.read_at_unix_nano, Some(now));
+            assert_eq!(inc.updated_at_unix_nano, now);
+        }
+    }
+
+    #[test]
+    fn mark_all_read_skips_already_read_incidents() {
+        let r = fresh_registry();
+        let mut a = sample_incident(1, "ws-a", CueKind::ErrorRateSpike, CueScope::Service);
+        a.read_at_unix_nano = Some(2_000_000_000);
+        r.insert(a);
+        r.insert(sample_incident(
+            2,
+            "ws-a",
+            CueKind::LatencyRegression,
+            CueScope::Service,
+        ));
+        let now = 7_000_000_000_i64;
+        let affected = r.mark_all_read("ws-a", now).expect("ok");
+        assert_eq!(affected, vec![2], "only the unread incident transitions");
+        let preserved = r.get(1).expect("present");
+        assert_eq!(
+            preserved.read_at_unix_nano,
+            Some(2_000_000_000),
+            "previously-read timestamp must not be overwritten"
+        );
+    }
+
+    #[test]
+    fn mark_all_read_skips_resolved_incidents() {
+        let r = fresh_registry();
+        let mut a = sample_incident(1, "ws-a", CueKind::ErrorRateSpike, CueScope::Service);
+        a.status = IncidentStatus::Resolved;
+        r.insert(a);
+        r.insert(sample_incident(
+            2,
+            "ws-a",
+            CueKind::LatencyRegression,
+            CueScope::Service,
+        ));
+        let now = 7_000_000_000_i64;
+        let affected = r.mark_all_read("ws-a", now).expect("ok");
+        assert_eq!(affected, vec![2], "Resolved incidents excluded from bulk");
+        let resolved = r.get(1).expect("present");
+        assert_eq!(resolved.read_at_unix_nano, None);
+    }
+
+    #[test]
+    fn mark_all_read_filters_by_workspace() {
+        let r = fresh_registry();
+        r.insert(sample_incident(
+            1,
+            "ws-a",
+            CueKind::ErrorRateSpike,
+            CueScope::Service,
+        ));
+        r.insert(sample_incident(
+            2,
+            "ws-b",
+            CueKind::LatencyRegression,
+            CueScope::Service,
+        ));
+        let affected = r.mark_all_read("ws-a", 5_000_000_000).expect("ok");
+        assert_eq!(affected, vec![1]);
+        let other_ws = r.get(2).expect("present");
+        assert_eq!(other_ws.read_at_unix_nano, None);
     }
 }

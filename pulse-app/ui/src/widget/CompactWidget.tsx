@@ -7,13 +7,17 @@
 // Compact widget IA notes); the titlebar gear + Investigate button are the
 // two tab stops on this surface.
 
+import { useEffect, useRef, useState } from "react";
 import { Titlebar } from "../components/Titlebar";
 import { InvestigationModalForm } from "../dashboard/InvestigationModalForm";
 import {
   InvestigationProvider,
   useInvestigation,
 } from "../hooks/use-investigation";
+import { useFindings } from "../hooks/use-findings";
 import { AggregatedBadgeCanvas } from "./AggregatedBadgeCanvas";
+import { FindingsCounter } from "./FindingsCounter";
+import { FindingsDropdown } from "./FindingsDropdown";
 import { FooterBand } from "./FooterBand";
 import type { WidgetMetrics } from "./widget-types";
 
@@ -32,6 +36,18 @@ export function CompactWidget({ metrics }: CompactWidgetProps) {
 function CompactWidgetContents({ metrics }: CompactWidgetProps) {
   const { open, openInvestigation, closeInvestigation, triggerRef } =
     useInvestigation();
+  const findings = useFindings();
+  const [findingsOpen, setFindingsOpen] = useState(false);
+  const findingsTriggerRef = useRef<HTMLButtonElement | null>(null);
+  useEffect(() => {
+    if (findings.count === 0 && findingsOpen) {
+      setFindingsOpen(false);
+    }
+  }, [findings.count, findingsOpen]);
+  const handleMarkAllRead = () => {
+    void findings.markAllRead();
+    setFindingsOpen(false);
+  };
   return (
     <>
       <Titlebar onInvestigateClick={openInvestigation} />
@@ -54,6 +70,33 @@ function CompactWidgetContents({ metrics }: CompactWidgetProps) {
             errorRate={metrics.errorRate}
           />
         </div>
+        <div
+          data-testid="findings-band"
+          style={{
+            position: "relative",
+            display: "flex",
+            justifyContent: "flex-end",
+            padding: "0 var(--spacing-md) var(--spacing-xs)",
+            flexShrink: 0,
+            minHeight: findings.count > 0 ? undefined : 0,
+          }}
+        >
+          <FindingsCounter
+            count={findings.count}
+            severity={findings.severityMax}
+            isOpen={findingsOpen}
+            onOpen={() => setFindingsOpen((prev) => !prev)}
+            triggerRef={findingsTriggerRef}
+          />
+          <FindingsDropdown
+            rows={findings.rows}
+            isOpen={findingsOpen}
+            onClose={() => setFindingsOpen(false)}
+            onMarkAllRead={handleMarkAllRead}
+            triggerRef={findingsTriggerRef}
+            nowUnixNano={Date.now() * 1_000_000}
+          />
+        </div>
         <FooterBand
           throughputHz={metrics.throughputHz}
           errorRate={metrics.errorRate}
@@ -61,6 +104,24 @@ function CompactWidgetContents({ metrics }: CompactWidgetProps) {
           retentionMaxSeconds={metrics.retentionMaxSeconds}
         />
       </main>
+      <div
+        role="status"
+        aria-live="polite"
+        data-testid="findings-live-region"
+        style={{
+          position: "absolute",
+          width: 1,
+          height: 1,
+          margin: -1,
+          padding: 0,
+          overflow: "hidden",
+          clip: "rect(0, 0, 0, 0)",
+          whiteSpace: "nowrap",
+          border: 0,
+        }}
+      >
+        {findings.lastAnnouncement}
+      </div>
       <InvestigationModalForm
         open={open}
         onClose={closeInvestigation}

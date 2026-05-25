@@ -75,6 +75,15 @@ impl IncidentPersistence for CorpusIncidentPersistence {
             })
     }
 
+    fn mark_read(&self, id: i64, read_unix_nano: i64) -> Result<(), IncidentError> {
+        self.writer
+            .mark_incident_read(id, read_unix_nano)
+            .map_err(|err| match err {
+                CorpusError::QueryFailed => IncidentError::NotFound,
+                other => corpus_error_to_incident_error(other),
+            })
+    }
+
     fn load_active_incidents(&self, workspace: &str) -> Result<Vec<Incident>, IncidentError> {
         let rows = self
             .writer
