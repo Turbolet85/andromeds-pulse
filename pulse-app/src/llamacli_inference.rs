@@ -276,6 +276,100 @@ pub fn classify_subprocess_failure(
     }
 }
 
+/// Maximum number of bytes from raw stdout к include в the
+/// [`InferenceError::JsonParseFailed`] reason field when extraction fails.
+/// Small enough к keep error payloads bounded per security plan §Error
+/// Handling boundary discipline (sanitized one-liner) yet long enough к
+/// give а follow-up reader а representative sample of what came back.
+pub const EXTRACT_SNIPPET_MAX_BYTES: usize = 240;
+
+/// Extracts the JSON object body from raw `llama-cli` stdout. b9305
+/// surrounds the schema-constrained JSON with а startup banner (~1400
+/// bytes; "Loading model...", ASCII logo, build/model/modalities metadata,
+/// "available commands:" interactive-mode hint) and а trailing perf-stats
+/// line (`[ Prompt: X t/s | Generation: Y t/s ]` + "Exiting..."). The
+/// schema-constrained generation (GBNF) + `-st` single-turn discipline
+/// guarantee exactly one top-level JSON object между the framing, so the
+/// "first `{` к matching closing `}`" slice is well-defined.
+///
+/// The match-pair scan walks bytes counting `{`/`}` parity (string-aware:
+/// double-quote toggle с backslash escape) к find the END of the FIRST
+/// top-level object — robust against trailing perf-stats text that may
+/// contain stray punctuation. Returns the slice between (inclusive of
+/// both braces). If no `{` exists OR the parity never balances, returns
+/// [`InferenceError::JsonParseFailed`] с the truncated stdout snippet for
+/// diagnosability.
+pub fn extract_json_object_bounded(stdout: &str) -> Result<&str, InferenceError> {
+    let bytes = stdout.as_bytes();
+    let Some(start) = bytes.iter().position(|&b| b == b'{') else {
+        return Err(InferenceError::JsonParseFailed {
+            reason: format!(
+                "no '{{' found in stdout; snippet=<{}>",
+                stdout_snippet(stdout)
+            ),
+        });
+    };
+
+    let mut depth: i32 = 0;
+    let mut in_string = false;
+    let mut escape_next = false;
+    for (idx, &b) in bytes.iter().enumerate().skip(start) {
+        if escape_next {
+            escape_next = false;
+            continue;
+        }
+        if in_string {
+            match b {
+                b'\\' => escape_next = true,
+                b'"' => in_string = false,
+                _ => {}
+            }
+            continue;
+        }
+        match b {
+            b'"' => in_string = true,
+            b'{' => depth += 1,
+            b'}' => {
+                depth -= 1;
+                if depth == 0 {
+                    let end = idx + 1;
+                    return Ok(&stdout[start..end]);
+                }
+            }
+            _ => {}
+        }
+    }
+
+    Err(InferenceError::JsonParseFailed {
+        reason: format!(
+            "unbalanced braces от offset {start}; final_depth={depth}; snippet=<{}>",
+            stdout_snippet(stdout)
+        ),
+    })
+}
+
+/// Truncates raw stdout к [`EXTRACT_SNIPPET_MAX_BYTES`] чтобы embed safely
+/// in error payloads без log-payload bloat. Replaces non-printable bytes
+/// to keep snippet readable.
+fn stdout_snippet(stdout: &str) -> String {
+    let trimmed: String = stdout
+        .chars()
+        .take(EXTRACT_SNIPPET_MAX_BYTES)
+        .map(|c| {
+            if c.is_control() && c != '\n' && c != '\r' && c != '\t' {
+                '.'
+            } else {
+                c
+            }
+        })
+        .collect();
+    if stdout.len() > trimmed.len() {
+        format!("{trimmed}...[truncated]")
+    } else {
+        trimmed
+    }
+}
+
 /// Builds the argument vector passed к `tokio::process::Command::args()`
 /// для а single L4 inference invocation. Extracted to а pure helper for
 /// unit-testable spawn-arg-vector assertion (per chunk #84 plan acceptance
@@ -299,6 +393,14 @@ pub fn build_llama_cli_args(
         "-st".to_string(),
         "--simple-io".to_string(),
         "--no-display-prompt".to_string(),
+        // `--log-disable` suppresses llama.cpp's load + perf-stats lines on
+        // stderr (б9305 common/log.cpp). Does NOT remove the interactive-mode
+        // banner llama-cli writes к stdout (build/model/modalities lines +
+        // "available commands:" hint) — `-no-cnv` would handle that but is
+        // rejected by б9305 (output: "--no-conversation is not supported by
+        // llama-cli; please use llama-completion instead"). The banner is
+        // therefore stripped post-hoc by `extract_json_object_bounded`.
+        "--log-disable".to_string(),
         "-n".to_string(),
         max_tokens.to_string(),
         "--json-schema-file".to_string(),
@@ -517,16 +619,25 @@ impl LlmInferenceRunner for LlamaCliInference {
                     reason: "stdout_utf8_invalid".to_string(),
                 })?;
 
+            // Strip llama-cli b9305's startup banner + trailing perf-stats by
+            // extracting the schema-constrained JSON object. Defense-in-depth:
+            // `--log-disable` shrinks the stderr-side noise; this extraction
+            // owns correctness on the stdout side regardless of banner drift в
+            // future b9305+ builds. See `extract_json_object_bounded` docs.
+            let extracted = extract_json_object_bounded(&stdout_string)?;
+
             tracing::info!(
                 target: "interpretation.constrained.generate",
                 model_tier = interpretation::contract::model_tier_label(self.tier),
                 hardware_profile = profile_label(self.profile),
                 duration_ms = 0u64,
                 success = true,
+                raw_output_bytes = stdout_string.len() as u64,
+                extracted_bytes = extracted.len() as u64,
                 "llama-cli subprocess completed",
             );
 
-            Ok(stdout_string)
+            Ok(extracted.to_string())
         })
     }
 }

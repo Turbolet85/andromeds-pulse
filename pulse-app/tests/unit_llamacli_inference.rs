@@ -31,7 +31,7 @@ use interpretation::contract::{InferenceError, LlmInferenceRunner, ModelStatus, 
 use pulse_app::llamacli_inference::{
     DEFAULT_MAX_TOKENS, ENV_LLAMA_CPU_BIN_PATH, ENV_LLAMA_CUDA_BIN_PATH, ENV_MODEL_PATH,
     LlamaCliInference, binary_target_for_profile, build_llama_cli_args, canonicalize_path,
-    classify_subprocess_failure,
+    classify_subprocess_failure, extract_json_object_bounded,
 };
 use tempfile::TempDir;
 use triage::contract::HardwareProfile;
@@ -424,4 +424,139 @@ fn mark_transitions_broadcast_to_subscribers() {
     assert!(matches!(event.status, ModelStatus::Loading));
     assert_eq!(event.tier, ModelTier::Fallback);
     assert_eq!(event.profile_label, "cpu_fallback");
+}
+
+// ============================================================================
+// Test (f) — `--log-disable` flag suppresses stderr load chatter
+// ============================================================================
+
+#[test]
+fn spawn_args_contain_log_disable_flag() {
+    let schema_path = PathBuf::from("/tmp/schema.json");
+    let model_path = PathBuf::from("/tmp/model.gguf");
+    let args = build_llama_cli_args(&model_path, 99, DEFAULT_MAX_TOKENS, &schema_path, "prompt");
+    assert!(
+        args.iter().any(|a| a == "--log-disable"),
+        "--log-disable flag MUST be present (stderr cleanup so real errors surface)"
+    );
+}
+
+// ============================================================================
+// Test (g) — JSON bracket-extraction strips llama-cli b9305 banner framing
+// ============================================================================
+
+#[test]
+fn extract_json_strips_real_b9305_banner_and_perf_stats_framing() {
+    // Verbatim layout captured от integration smoke (session 146):
+    // banner -> JSON -> trailing perf-stats + "Exiting...".
+    let raw = "\n\nLoading model... \n\n\
+        ASCII llama logo redacted for unit-test brevity\n\
+        build      : b9305-63248fc3e\n\
+        model      : Llama-3.2-3B-Instruct-Q4_K_M.gguf\n\
+        modalities : text\n\n\
+        available commands:\n\n\
+        > prompt echoed via -p\n\n\
+        {\n  \"schema_version\": \"2.0\",\n  \"decision\": \"surface\"\n}\n\n\
+        [ Prompt: 9339.4 t/s | Generation: 228.1 t/s ]\n\nExiting...\n";
+    let extracted = extract_json_object_bounded(raw).expect("extracts JSON object");
+    assert_eq!(
+        extracted,
+        "{\n  \"schema_version\": \"2.0\",\n  \"decision\": \"surface\"\n}"
+    );
+}
+
+#[test]
+fn extract_json_handles_pure_json_no_framing() {
+    let raw = "{\"k\":\"v\"}";
+    let extracted = extract_json_object_bounded(raw).expect("pure JSON passes through");
+    assert_eq!(extracted, "{\"k\":\"v\"}");
+}
+
+#[test]
+fn extract_json_handles_nested_objects() {
+    let raw = "prefix {\n  \"outer\": {\"inner\": {\"deep\": 1}},\n  \"k\": \"v\"\n} suffix";
+    let extracted = extract_json_object_bounded(raw).expect("nested object extracted correctly");
+    assert_eq!(
+        extracted,
+        "{\n  \"outer\": {\"inner\": {\"deep\": 1}},\n  \"k\": \"v\"\n}"
+    );
+}
+
+#[test]
+fn extract_json_ignores_braces_inside_strings() {
+    // String content "{" must NOT increment depth; "}" inside string must
+    // NOT decrement. The escape-aware scanner handles backslash-escapes.
+    let raw = "{\"text\": \"a } b { c\", \"k\": \"v\"}";
+    let extracted = extract_json_object_bounded(raw).expect("string-internal braces ignored");
+    assert_eq!(extracted, "{\"text\": \"a } b { c\", \"k\": \"v\"}");
+}
+
+#[test]
+fn extract_json_handles_escaped_quote_inside_string() {
+    let raw = "{\"text\": \"a \\\"} b\", \"k\": \"v\"}";
+    let extracted = extract_json_object_bounded(raw).expect("escaped quote handled");
+    assert_eq!(extracted, "{\"text\": \"a \\\"} b\", \"k\": \"v\"}");
+}
+
+#[test]
+fn extract_json_returns_json_parse_failed_when_no_open_brace() {
+    let raw = "Error: model not loaded\nExiting...\n";
+    let err = extract_json_object_bounded(raw).expect_err("no '{' present");
+    match err {
+        InferenceError::JsonParseFailed { reason } => {
+            assert!(
+                reason.contains("no '{' found"),
+                "reason should explain missing open brace; got: {reason}"
+            );
+            assert!(
+                reason.contains("snippet=<"),
+                "reason should include snippet for diagnosability; got: {reason}"
+            );
+        }
+        other => panic!("expected JsonParseFailed; got {other:?}"),
+    }
+}
+
+#[test]
+fn extract_json_returns_json_parse_failed_when_braces_unbalanced() {
+    let raw = "noise {\"a\": {\"b\": 1} truncated mid-object";
+    let err = extract_json_object_bounded(raw).expect_err("braces never balance");
+    match err {
+        InferenceError::JsonParseFailed { reason } => {
+            assert!(
+                reason.contains("unbalanced braces"),
+                "reason should explain unbalanced state; got: {reason}"
+            );
+            assert!(
+                reason.contains("snippet=<"),
+                "reason should include snippet; got: {reason}"
+            );
+        }
+        other => panic!("expected JsonParseFailed; got {other:?}"),
+    }
+}
+
+#[test]
+fn extract_json_truncates_long_snippet_in_error() {
+    let mut payload = String::from("garbage with no braces ");
+    // Pad past EXTRACT_SNIPPET_MAX_BYTES (240) so truncation kicks in.
+    payload.push_str(&"X".repeat(500));
+    let err = extract_json_object_bounded(&payload).expect_err("no '{' present");
+    match err {
+        InferenceError::JsonParseFailed { reason } => {
+            assert!(
+                reason.contains("[truncated]"),
+                "reason should mark truncation; got: {reason}"
+            );
+            // The reason itself stays bounded — verify the snippet portion is
+            // well under the full payload length.
+            assert!(
+                reason.len() < payload.len(),
+                "reason ({}) must be shorter than payload ({})",
+                reason.len(),
+                payload.len(),
+            );
+        }
+        other => panic!("expected JsonParseFailed; got {other:?}"),
+    }
 }
