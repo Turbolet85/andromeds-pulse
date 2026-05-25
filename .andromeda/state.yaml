@@ -1177,7 +1177,51 @@ living_artifact_freshness:
 drift_warnings: []   # session 146 — all 6 dimensions CLEAR. D1/D2 satisfied by Phase 5 reconcile этой wrap. D3 CLEAR (no plan/code mismatch — fix is internal pulse-app/src/llamacli_inference.rs edits + new test file; no workspace crates / TauRPC procs / env vars / deps changed). D4 CLEAR (no plan edits). D5 SUPPRESSED per spec-amendment-protocol.md Part C Case 3 — arch.md mtime (14:35) > CLAUDE.md mtime (12:52) condition still true но matches ARCHIVED amendment 2026-05-25T12-34-46-acknowledge-chunk-84-llama-bin-paths (archived 2026-05-25T13:05:00Z в session 145 wrap commit 13d80e6 — trivially-empty cascade auto-progressed per P24 pragmatic interpretation). D6 CLEAR (session 146 commit 3eb3892 "fix(llamacli): ..." не matches chunk-progression patterns; last_completed_chunk stays at #84). Session 145's D5-info-amendment-matched entry dropped per dedup discipline (different drift_id; archived amendment match suppresses re-detection in Case 3 anyway).
 
 spec_amendments:
-  active: []   # session 145 — chunk #84 Type 6 arch-registry amendment archived этой wrap per P24 pragmatic interpretation (trivially-empty cascade verified; lifecycle auto-progressed Applied → Noted → Propagated → Archived в single wrap). Lifecycle: applied 2026-05-25T12:34:46Z by manual /andromeda-evolve-equivalent edit → noted+propagated+archived 2026-05-25T13:05:00Z by this wrap-session.
+  # session 147 — /andromeda-evolve --allow-route-append registered chunk #85
+  # "Fallback model tier support" в route.md §2 Epoch 9 + §1 Total chunks 84→85
+  # + §3 Decisions Log compact P9 entry. Form 1 Policy A strict mechanical;
+  # state.yaml.last_completed_chunk unchanged at #84. Active list rotated from
+  # empty (post session 145 chunk #84 Type 6 archive) к this single entry.
+  active:
+    - amendment_id: 2026-05-25T14-37-26-append-chunk-85-fallback-model-tier
+      plans:
+        - path: route.md
+          sections:
+            - "§1 Route Scope Summary (Total chunks mechanical update per Proposal 6)"
+            - "§2 Roadmap (Epoch 9 body)"
+            - "§3 Decisions Log"
+          decisions_log_section: "2026-05-25 — Append chunk #85 Fallback model tier support (--allow-route-append)"
+      trigger:
+        chunk: null
+        phase: null
+        harness: "user-driven via /andromeda-evolve"
+      authority:
+        winning_plan: null
+        winning_tier: pipeline state
+        losing_plan: route.md
+        losing_concern: chunk-list-stale-vs-pipeline-reality
+        rationale: "pulse-v0_2_0-route §Phase 8 §84 documents chunk #85 (Fallback model tier support) as next chunk after #83 primary tier + #84 runtime swap; route.md §2 has not yet acknowledged."
+      impl_files_synced: []
+      expected_propagation:
+        - "CLAUDE.md (GENERATED:setup:pointer-table — chunk-count cascade 84→85)"
+      marker_path: .andromeda/runs/2026-05-25T14-37-26-spec-amendment-append-chunk-85-fallback-model-tier/amendment.md
+      applied_at: 2026-05-25T14:37:26Z
+      noted_at: null
+      propagated_by_run: .andromeda/runs/2026-05-25T14-47-10-setup-project-delta/
+      archived_at: null
+      verification_status: clean
+      flag_used: --allow-route-append
+      form: 1
+      route_section_modified: "Epoch 9 — Foundation v0.2.0"
+      # propagated_by_run set by /andromeda-setup-project --delta session 147 per Type 7 cascade pre-populate (Proposal 5)
+      chunks_added:
+        - position: 85
+          text: "Fallback model tier support — reduced-quality prompt/schema for 3-4B class models; single hypothesis; ≤2 investigation steps; full CPU inference (capability P-053; detail in pulse-v0_2_0-route §84)."
+      chunks_renumbered: []
+      motivation: "pulse-v0_2_0-route.md §Phase 8 §84 documented scope; depends on chunk #83 (registered session 141; substrate landed session 142; primary-tier runtime swap context sessions 144-146). Mirrors chunk #84 precedent."
+      confirmed_shift: false
+      scope_summary_updates:
+        - "Total chunks: 84 → 85"
   archive:
     - amendment_id: 2026-05-25T12-34-46-acknowledge-chunk-84-llama-bin-paths
       plans:
