@@ -1,6 +1,88 @@
 schema_version: 2
-last_wrap: 2026-05-24T21:35:19Z
-last_reconcile: 2026-05-24T21:35:19Z
+last_wrap: 2026-05-25T10:51:32Z
+last_reconcile: 2026-05-25T10:51:32Z
+
+# Session 144 wrap (2026-05-25T10:51:32Z): SUBSTANTIVE empirical-driven runtime-swap
+# session — overturned session 142/143 mistralrs Pre-D1 choice + cascaded к
+# llama.cpp subprocess D1 across 6 skill invocations. Flow (across 6 invocations
+# this turn): (1) `/andromeda-new-session` dashboard (clean state; chunk #84
+# blocked on root-cause); (2) DIAGNOSTIC track — PROBE 1 (mistralrs GitHub
+# issue search) located issue #1134 "Endless inferencing with cpu" (OPEN since
+# 2025-02-12; spans 0.7.0 → 0.8.1+ multi-model; load-then-deadlock CPU sampler
+# threads with zero token output); PROBE 5 (GGUF metadata) confirmed file is
+# structurally valid (arch=llama, version 3, 255 tensors, Llama-3.2-3B-Instruct).
+# Conclusion: bug is 100% in mistralrs CPU engine (issue #1134), not file/host;
+# (3) CROSS-CHECK with prebuilt llama.cpp on this EXACT host + EXACT GGUF
+# generated tokens cleanly: 28.2 tok/sec CPU (Ryzen 9 5950X), 231.2 tok/sec
+# unconstrained CUDA (RTX 3090 -ngl 99), 122.3 tok/sec under L4 --json-schema-file
+# GBNF constraint, ~4.3 s complete schema-conformant L4 output. Three orders of
+# magnitude better than mistralrs's 60-min zero-token deadlock; (4) PROPOSE-ONLY
+# research on llama.cpp Rust binding ecosystem (recommended llama-cpp-2 =
+# "=0.1.146" with json_schema_to_grammar() public fn + llguidance fallback +
+# 3 documented swap paths preserved through chunk #82 LlmInferenceRunner trait);
+# (5) llama-cpp-2 CONFIRMATION SPIKE — built sidecar experiments/llamacpp_spike/
+# с own [workspace] for isolation; cmake portable extract via Kitware GitHub
+# release zip (winget MSI failed --scope user with "No applicable installer
+# found"); bindgen at build step BLOCKED — needs libclang.dll which is NOT
+# shipped с MSVC (LLVM portable extract ~600 MB OR `winget install LLVM.LLVM`
+# heavy+UAC); spike failed at Step 2 (sidecar build); informed Option D pivot;
+# (6) PROPOSE-ONLY: subprocess Option D (prebuilt llama-cli.exe spawn-per-call)
+# evaluated as alternative — zero build-toolchain dep, ships prebuilt; (7)
+# OPTION D SPIKE — 6 STEPS ALL PASS: STEP 1 inventoried CUDA llama.cpp b9305 +
+# cudart64_13.dll runtime DLLs; STEP 2 CPU subprocess "2+2" via -st single-turn
+# = 28.2 tok/sec (subprocess wiring proven); STEP 3 CUDA -ngl 99 same prompt =
+# 231.2 tok/sec (8.2× CPU baseline); STEP 4 MAKE-OR-BREAK --json-schema-file
+# crates/interpretation/src/schema.json -n 1024 = 122.3 tok/sec constrained
+# generation, full schema-conformant L4 JSON (~530 bytes); STEP 5 Python
+# validation: 14/14 required fields, all enum bounds, length bounds OK;
+# STEP 6 HardwareProfileDetector confirmed: nvcuda.dll present + 32 cores +
+# override unset → routes к gpu_primary tier; (8) PROPOSE-ONLY D1 vs D2 (spawn-
+# per-gen vs persistent llama-server) — researched actual L4 invocation pattern
+# at pulse-app/src/inference_runtime.rs::spawn_l4_inference_subscriber (cadence-
+# coordinator-driven background subscriber on pulse://stream/digests; no user-
+# action trigger; rate 1-4/min under default cadence config — well under D1's
+# ~6-10/min throughput cap); RECOMMENDED D1 spawn-per-gen for simpler lifecycle
+# + zero idle cost + local-first respect for the user's machine; (9) MANUAL
+# ARCH AMENDMENT — three sections rewritten в .andromeda/architecture.md:
+# §Established Decisions [LLM Inference Runtime] full replacement (mistralrs
+# 0.8.0 → llama.cpp prebuilt b9305-pinned subprocess D1; bus-factor mitigation
+# unchanged from chunk #82; 3 documented swap paths preserved — llama-server
+# HTTP D2 / in-process llama-cpp-2 bindings / candle), §Stack table AI/ML
+# serving row, §Inherited Defaults LLM runtime row; (10) /andromeda-setup-project
+# (full re-derive; targeted-cascade per session 137 precedent) cascaded к
+# CLAUDE.md GENERATED:setup:overview Stack one-liner + .claude/docs/stack.md
+# §AI/LLM Inference section + state.yaml plan_freshness.arch_mtime bump;
+# committed 7a90ef3 (4 files / 16 insertions / 12 deletions); (11)
+# /andromeda-evolve --allow-route-append registered chunk #84 "L4 LLM runtime
+# swap (mistralrs → llama.cpp subprocess D1)" at terminal position в Epoch 9
+# (Form 1; ≤25-word chunk text; compact P9 Decisions Log entry; Check 8.1-8.8
+# all ✓); §1 Total chunks 83→84 mechanical; chunks_renumbered=none (terminal);
+# (12) /andromeda-setup-project --delta cascaded chunk #84 к CLAUDE.md line 57
+# pointer-table "(9 epochs / 83 chunks)" → "(9 epochs / 84 chunks)"; lifecycle
+# progression set propagated_by_run + Lifecycle status [x] Propagated checkbox;
+# committed aa6ae81. State H housekeeping: session 142 last_completed_chunk
+# commit_sha=0e37159 already healed (set during session 143 wrap); chunk #84
+# was REGISTERED in route.md but NOT IMPLEMENTED — last_completed_chunk
+# unchanged at 83. Curation этой wrap: 1 Tier 1 (CLAUDE.md USER:session-learnings
+# — runtime-strategy decision methodology grounded in actual invocation rate)
+# + 2 Tier 2 (.claude/rules/testing.md — bounded subprocess discipline +
+# build-toolchain feasibility spike before heavy-dep commit) + 0 Tier 3 +
+# 0 Andromeda pipeline proposals (Mode H — honest healthy scan; every skill
+# в the 6-invocation chain executed exactly as designed; bus-factor trait
+# abstraction from chunk #82 paid off exactly as intended — runtime swap was
+# a sibling-impl change, not a workspace rewrite; zero pipeline mechanism
+# gap surfaced). Drift этой wrap: D3 FIRES — arch §Established Decisions
+# [LLM Inference Runtime] now says llama.cpp subprocess D1; pulse-app/src/
+# mistralrs_inference.rs + workspace dep `mistralrs = "=0.8.0"` still represent
+# pre-swap state. EXPECTED drift (chunk #84 registered к resolve via
+# /andromeda-phase + /andromeda-implement). All other dimensions CLEAR.
+# State E fires: chunk #84 next needs phase planning. Phase 5 reconcile этой
+# wrap: dep-tree timestamp-only refresh (zero workspace dep delta — no Cargo.toml
+# mutation; cargo tree output unchanged from session 143 baseline 481 lines);
+# api-surface per-crate cursor advanced triage → ui-bridge but triage sub-block
+# reconcile DEFERRED (tool returned compile-only noise this run; preserve
+# placeholder, re-fire at next wrap). 9/14 crates с real api content unchanged.
+# 2 commits этой session: 7a90ef3 (cascade swap) + aa6ae81 (delta-rerun).
 
 # Session 143 wrap (2026-05-24T21:35:19Z): DIAGNOSTIC-ONLY session — staged-ladder
 # validation INVALIDATES session 142's Step 0 spike "120× SLO / CPU too slow"
@@ -993,23 +1075,30 @@ plan_freshness:
   tests_mtime: 2026-05-10T12:55:51Z
   obs_mtime: 2026-05-08T18:00:16Z
   a11y_mtime: 2026-05-02T21:45:23Z
-  route_mtime: 2026-05-23T15:58:58Z
+  route_mtime: 2026-05-25T10:36:37Z   # bumped this session 144 — /andromeda-evolve --allow-route-append registered chunk #84 "L4 LLM runtime swap (mistralrs → llama.cpp subprocess D1)" in §2 Epoch 9 + §1 Total chunks 83→84 + §3 Decisions Log compact P9 entry; was 2026-05-23T15:58:58Z (chunk #81 route-append at session 124).
   input_mtime: 2026-05-02T06:52:58Z
 
 living_artifact_freshness:
-  dep_tree_reconciled_at: 2026-05-24T21:35:19Z      # session 143 — timestamp-only refresh (zero source delta этой session; only new test file pulse-app/tests/spike_diagnostic_staged_ladder.rs which is #[ignore]-gated diagnostic; dep tree unchanged from session 142 baseline 481 lines per Phase 5 no-op + refresh path)
-  api_surface_reconciled_at: 2026-05-24T21:35:19Z   # session 143 — NINTH per-crate Phase 5 reconcile fired (snapshot crate, 170 lines pub API в <1s; chunk #44 substrate); cursor "snapshot" → "triage"; cycle_start_crate "buffer" preserved
-  api_surface_next_crate: "triage"                  # session 143 — cursor advanced snapshot → triage (10th alphabetical of 14; NOTE: interpretation crate sub-block insertion still pending)
-  api_surface_cycle_start_crate: "buffer"           # session 135 cycle anchor; will reset when cursor returns к "buffer" (~5 more wraps для 14-crate workspace, +1 once interpretation sub-block inserted)
-  most_recent_code_mtime: 2026-05-24T21:30:00Z      # session 143 — pulse-app/tests/spike_diagnostic_staged_ladder.rs (new diagnostic test file)
+  dep_tree_reconciled_at: 2026-05-25T10:51:32Z      # session 144 — timestamp-only refresh (zero workspace dep delta этой session; all changes were specs/docs/state, no Cargo.toml mutation; cargo tree output unchanged from session 143 baseline 481 lines + 14 wrapping marker/metadata = 495 total file lines preserved)
+  api_surface_reconciled_at: 2026-05-25T10:51:32Z   # session 144 — triage sub-block reconcile DEFERRED (cargo +nightly public-api -p triage executed exit 0 in background but stdout returned only compile-progress noise, no `pub` items emitted; tool-invocation issue, not "no pub items" state; preserve placeholder); cursor advanced triage → ui-bridge anyway per integrity-protocol Phase 5 step 4 "advance on failure" discipline; 9/14 crates с real api content unchanged
+  api_surface_next_crate: "ui-bridge"               # session 144 — cursor advanced triage → ui-bridge (11th alphabetical of 14); triage reconcile DEFERRED this wrap (tool-invocation issue; re-fire at next wrap)
+  api_surface_cycle_start_crate: "buffer"           # session 135 cycle anchor; cycle anchor preserved through this wrap's deferred triage reconcile
+  most_recent_code_mtime: 2026-05-24T21:30:00Z      # session 143 baseline — no source code mutation этой session 144 (specs/docs/state only)
   reconcile_failed: false
   api_surface_deferred: false                       # CHANGED post-R1 — per-crate mode never defers (was true through sessions 91-134 during batch-mode pattern)
   api_surface_deferred_reason: "per-crate cargo +nightly public-api iteration across 14 crates exceeds wrap budget (7-14 min vs ~3 min); 32nd consecutive deferral per sessions 91-126 pattern; session 126 = chunk #80 Cadence coordinator + three-tier triggering implementation wrap (substantial multi-file work: NEW crates/triage/cadence/ submodule с 4 files ~1390 LOC + 4 Settings fields + 5 observability allowlist entries + boot wiring at pulse-app/src/main.rs; ~25 new pub items: triage::contract::CadenceConfig + CadenceConfigError + CadenceCoordinator + CadenceEvent + CadenceEventBroadcast + CadenceMode + CoordinatorCycleStats + HardwareProfile + HardwareProfileSource + SqlQueryRunner + UnknownHardwareProfile + 9 constants CADENCE_*_MIN/DEFAULT_CADENCE_* + 3 fns mode_label/run_one_coordinator_cycle/start_cadence_coordinator + chunk #79 SQL re-exports surfaced as triage::contract re-exports + 4 ui-bridge::Settings fields + 6 CADENCE_*_MIN/MAX bounds constants + 2 pulse-app adapter structs CadenceSqlRunner + UnknownHardwareProfile-via-re-export); cumulative backlog from chunks #70-#80 + META chunks #74/#75/#76 + setup-project sessions now VERY substantial (~150+ new pub items unaccounted-for since session 91 baseline); re-baseline EXPLICITLY warranted at next non-META wrap (most plausibly chunk #81 Digest assembler + LWW queue implementation wrap — substantial new triage::digest module + workspace dep delta +tokenizers crate); ORIGINAL reason (preserved): 31st consecutive deferral per sessions 91-125 pattern; session 125 = META cycle (chunk #80 route-append + delta-rerun + wrap; zero new pub items — only route.md §1+§2+§3 + CLAUDE.md pointer-table + state.yaml lifecycle progression + dep-tree.md refresh edited; mirrors sessions 115/118/120/123 Type 7 single-cycle precedent exactly; re-baseline opportunity unchanged from session 124 — still warranted at next non-META wrap which is most plausibly chunk #80 implementation wrap introducing additional `crates/triage/cadence` module pub items); session 124 = chunk #79 SQL aggregation queries + scheduler implementation (substantial single-crate work: 1260 LOC sql.rs + 21 LOC build.rs in triage crate; ~30 new pub items including Q1RedRow / Q2OperationRow / Q3FingerprintRow / Q4InteractionRow / Q5CardinalityRow / Q6LogRow / Q7CriticalPathRow / Q7_DEFAULT_TIMEOUT / SqlAggregationError / TriageSqlState + 8 async run_qN public functions + cutoff_ns helper); re-baseline EXPLICITLY worthwhile at next non-META wrap (most plausibly chunk #80 Cadence Coordinator + three-tier triggering implementation wrap which will introduce additional triage::cadence module pub items); session 123 = textbook standard META cycle (chunk #79 route-append + delta-rerun + wrap; zero new pub items — only route.md §1+§2+§3 + CLAUDE.md pointer-table + state.yaml lifecycle progression + dep-tree.md refresh edited); session 122 = META cycle — Type 6 arch-registry amendment for chunk #78 incidents.* + pulse://stream/incidents Active → Propagated → Archived in single session (FIRST instance of standalone Type 6 single-cycle wrap; mirrors session 115/118/120 Type 7 route-append precedent mechanically; zero new pub items — META-only flow: /andromeda-new-session dashboard + /andromeda-evolve --allow-arch-registry + /andromeda-setup-project --delta Branch (a) + this wrap); cumulative backlog from chunks #70-#78 + META chunks #74/#75/#76 + setup-project META sessions unchanged from session 121; re-baseline opportunity unchanged — still warranted at next non-META wrap (most plausibly chunk #79 SQL aggregation queries + scheduler implementation wrap); session 121 = chunk #78 incident records + lifecycle persistence implementation (FIRST Phase 7 chunk; substantial multi-crate work touching 17 files across 4 crates; ~50+ new pub items including 5 triage::incident::* modules + 3 pulse-app modules + corpus extension с 6 new CorpusWriter trait methods + IncidentRowRaw envelope + xtask chunk-#78 test); re-baseline EXPLICITLY worthwhile at next wrap но deferred this wrap к keep within ~3 min wrap budget; ORIGINAL reason (preserved): session 120 = textbook standard META cycle (chunk #78 route-append + delta-rerun + wrap; zero new pub items — only route.md §1+§2+§3 + CLAUDE.md pointer-table + state.yaml lifecycle progression + dep-tree.md refresh edited); session 119 = chunk #77 'Specialist plan reconciliation (security + tests)' FINAL Consolidation Phase 6 implementation (FIRST instance of Andromeda v3 manual-rewrite mechanism per pulse-v0_2_0-route §77 Mechanism note; 4 security-plan body section rewrites + testing.md §Pending coverage triggers annotation + 19 new chunk-#77 PII vector + Drain golden corpus tests + new xtask CapabilityWideningCheck sub-command + new crates/buffer/tests/ integration test dir; new pub items SOME but bounded — CapabilityWideningCheck enum variant + capability_widening_check fn in xtask + ExpectedGolden/ExpectedTemplate test-only structs + ~6 helper fns in pulse-app/tests/security_*.rs; full per-crate iteration sequenced for next non-META wrap when chunk #78+ persistence layer changes substantially expand pub surface — incident records + TauRPC procedures + broadcast topics + new triage::incident contract types worth re-baseline batching); session 118 = textbook standard META cycle (chunk #77 route-append + delta-rerun + wrap; zero new pub items — only route.md §1+§2+§3 + CLAUDE.md pointer-table + state.yaml lifecycle progression + dep-tree.md refresh edited); session 117 = pipeline self-evolve design experiment META session (zero new pub items — only docs/andromeda-improvements.md edit к file P20 proposal + state.yaml + handoff + dep-tree.md refresh; this 23rd-consecutive deferral IS the empirical anchor for P20's first-application walkthrough — proposes per-crate incremental reconciliation across wraps as а Refactor R1 candidate); session 116 = chunk #76 META implementation (P7+P12+P15-P18 across 5 USER-level Andromeda skills + 1 project markdown; zero new pub items — all .md edits at user level outside project workspace); session 115 = `/andromeda-evolve --allow-route-append` + `/andromeda-setup-project --delta` META cycle for chunk #76 registration (zero new pub items — route.md §1+§2+§3 edits + state.yaml lifecycle progression + CLAUDE.md pointer-table cascade only); session 114 = `/andromeda-new-session` + `/andromeda-setup-project` full re-derive META session zero new pub items (CLAUDE.md §Architecture cascade-only edit + 1 Tier 3 + 1 P18 proposal + dep-tree refresh + state.yaml State H housekeeping); session 113 = chunk #75 documentation consolidation META (zero new pub items — all .md edits); session 112 META-only; session 111 = chunk #74 META implementation via 3 Type 6 amendments (zero new pub items — all arch.md edits only); session 110 = chunk #74 Type 7 Form 1 route registration META; session 109 = chunk #73 implementation wrap landed Path A full short-window tracker (~280 LOC adding ~30 new pub items); cumulative backlog from chunks #70-#77 + META chunks #74/#75/#76 + setup-project sessions now substantial enough to make full per-crate iteration worthwhile at next non-META wrap. Most plausible re-baseline cycle: chunk #78 incident records + lifecycle persistence wrap (will introduce substantial new pub items — incidents.list_active/acknowledge/mark_resolved TauRPC procedures + pulse://stream/incidents broadcast topic + crates/triage/incident types)"
 
-drift_warnings: []   # session 143 — ALL 6 dimensions CLEAR this wrap (diagnostic-only session; zero production source delta; living artifacts both reconciled at 21:35:19Z). Session 142 — ALL 6 dimensions CLEAR this wrap; living artifacts both reconciled at 20:49:42Z; no specialist plan mtime advances; no plan-to-code drift (mistralrs.workspace=true addition к pulse-app/Cargo.toml + interpretation crate API surface match arch §Established Decisions [LLM Inference Runtime] + §Occupied Resources interpretation entry from session 140 Type 6 amendment); chunk #83 progression advances state.yaml.last_completed_chunk → 83 with commit_sha="pending" placeholder (per Proposal 16 next wrap auto-heals). Session 140 — 3 D3 entries from session 139 CLEARED organically by evolve's arch.md updates этой parent turn (registered interpretation crate + model.current_profile TauRPC + pulse://stream/model-status broadcast в arch §Occupied Resources via /andromeda-evolve --allow-arch-registry, propagated via setup-project --delta, archived этой wrap)
+drift_warnings:   # session 144 — 1 D3 entry surfaced (arch §Established Decisions [LLM Inference Runtime] / impl mismatch — EXPECTED + tracked via chunk #84). 5/6 other dimensions CLEAR. Session 143 — ALL 6 dimensions CLEAR (diagnostic-only session). Session 142 — ALL 6 dimensions CLEAR. Session 140 — 3 D3 entries from session 139 CLEARED organically by evolve's arch.md updates (interpretation crate + model.current_profile TauRPC + pulse://stream/model-status broadcast registered в arch §Occupied Resources).
+  - drift_id: D3-llm-runtime-impl-arch-mismatch
+    description: "arch §Established Decisions [LLM Inference Runtime — L4 interpretation layer] swapped к llama.cpp prebuilt binaries (b9305-pinned) subprocess D1 spawn-per-generation (session 144 commit 7a90ef3); pulse-app/src/mistralrs_inference.rs + workspace dep `mistralrs = \"=0.8.0\"` в root Cargo.toml + `mistralrs.workspace = true` в pulse-app/Cargo.toml still represent the pre-swap state — EXPECTED drift, resolution path registered."
+    severity: warning
+    remediation_hint: "Implement chunk #84 'L4 LLM runtime swap' (route-registered session 144 commit aa6ae81; arch.md §Established Decisions [LLM Inference Runtime] is the authoritative spec) via /andromeda-phase + /andromeda-implement. The implementation work: delete pulse-app/src/mistralrs_inference.rs + create pulse-app/src/llamacli_inference.rs (LlmInferenceRunner sibling impl) + remove `mistralrs = \"=0.8.0\"` from workspace deps + remove `mistralrs.workspace = true` from pulse-app/Cargo.toml + wire boot per HardwareProfileDetector tier output."
+    first_observed_session_count: 144
+    last_observed_session_count: 144
 
 spec_amendments:
-  active:   # session 144 — chunk #84 route-append amendment (L4 LLM runtime swap from mistralrs к llama.cpp subprocess D1; pending propagation via /andromeda-setup-project --delta + archive via /andromeda-wrap-session)
+  active: []   # session 144 — chunk #84 route-append amendment archived this wrap (textbook Type 7 Form 1 single-cycle wrap mirroring sessions 138/141 chunk #82/#83 precedents). Lifecycle: applied 10:29:16Z by /andromeda-evolve --allow-route-append → propagated 10:39:34Z by /andromeda-setup-project --delta → noted+archived 10:51:32Z by this wrap-session.
+  archive:
     - amendment_id: 2026-05-25T10-29-16-append-chunk-84-l4-runtime-swap
       plans:
         - path: route.md
@@ -1019,14 +1108,11 @@ spec_amendments:
             - "§3 Decisions Log"
       decisions_log_sections:
         - "2026-05-25 — Append chunk #84 L4 LLM runtime swap (mistralrs → llama.cpp subprocess D1) (--allow-route-append)"
-      marker_path: .andromeda/runs/2026-05-25T10-29-16-spec-amendment-append-chunk-84-l4-runtime-swap/amendment.md
-      applied_at: 2026-05-25T10:29:16Z
-      noted_at: null
       propagated_by_run: .andromeda/runs/2026-05-25T10-39-34-setup-project-delta/
-      archived_at: null
+      noted_at: 2026-05-25T10:51:32Z
+      archived_at: 2026-05-25T10:51:32Z
       flag_used: --allow-route-append
       form: 1
-  archive:
     - amendment_id: 2026-05-24T16-27-53-append-chunk-83-prompt-scaffolding
       plans:
         - path: route.md
@@ -1750,4 +1836,4 @@ pipeline_accumulators:
   # verification proves the loop end-to-end). Future activation: deliberate
   # one-time edit to add A2 entry here + update catalogue status DORMANT → ACTIVE.
 
-session_count: 143
+session_count: 144
