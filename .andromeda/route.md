@@ -16,7 +16,7 @@ unit) not HOW (implementation steps)._
 
 ## 1. Route Scope Summary
 
-- **Total chunks:** 85
+- **Total chunks:** 86
 - **Epochs:** 9 (Foundation, Ingest pipeline, Storage & query, Webview shell + TauRPC bridge, Visualization surfaces, Snapshot & Investigate, Plugin runtime + MCP server, Polish & ship, Foundation v0.2.0)
 - **Drilldown depth (avg):** 1.6 (mixed: Foundation depth 2, Ingest pipeline depth 1, Storage & query depth 2, Webview shell depth 1, Visualization surfaces depth 2, Snapshot depth 2, Plugin+MCP depth 2, Polish depth 1)
 - **Hierarchy mode:** mixed (3-level for dense epochs Foundation / Storage / Visualization / Snapshot / Plugin+MCP; 2-level for lighter epochs Ingest / Webview shell / Polish)
@@ -204,6 +204,8 @@ Prompt scaffolding + JSON schema + primary tier inference — system prompt; emb
 L4 LLM runtime swap — replace MistralRsInference impl с LlamaCliInference subprocess (llama.cpp b9305 D1); wire prebuilt llama-cli per chunk #80 HardwareProfileSource tier.
    ↓
 Fallback model tier support — reduced-quality prompt/schema for 3-4B class models; single hypothesis; ≤2 investigation steps; full CPU inference (capability P-053; detail in pulse-v0_2_0-route §84).
+   ↓
+JSON parse failure handling + backoff + resolution summary — retry on parse failure; attach summary to incident; +diagnostics.retry_interpretation() (capabilities P-020 / P-022 / P-059; detail in pulse-v0_2_0-route §85).
 
 ---
 
@@ -524,3 +526,12 @@ Fallback model tier support — reduced-quality prompt/schema for 3-4B class mod
 - **Why:** L4 fallback inference path for 3-4B class models on CPU-fallback hardware tiers; depends on chunk #83 (primary tier — substrate session 142 + runtime swap context sessions 144-146); capability P-053. Mirrors chunk #84 precedent.
 - **Mechanical:** §1 Total chunks 84→85 (Form 1 Policy A); state.yaml.last_completed_chunk unchanged.
 - **Marker:** `.andromeda/runs/2026-05-25T14-37-26-spec-amendment-append-chunk-85-fallback-model-tier/amendment.md`
+
+---
+
+`2026-05-25` — Append chunk #86 JSON parse failure handling + backoff + resolution summary (--allow-route-append)
+
+- **Insert:** chunk #86 at §2 Epoch 9 — Foundation v0.2.0 (text: see §2; full detail in `pulse-v0_2_0-route.md` §Phase 8 §85).
+- **Why:** L4 failure handling + L5 resolution surface; depends on chunks #83 (primary tier) + #84 (LLM runtime swap) + #78 (incident lifecycle); capabilities P-020 / P-022 / P-059. Mirrors chunk #85 precedent.
+- **Mechanical:** §1 Total chunks 85→86 (Form 1 Policy A); state.yaml.last_completed_chunk unchanged.
+- **Marker:** `.andromeda/runs/2026-05-25T16-18-53-spec-amendment-append-chunk-86-json-parse-fail/amendment.md`
