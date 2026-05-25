@@ -1257,7 +1257,42 @@ spec_amendments:
   # Proposal 5 Branch (b)) → noted+archived 16:32:22Z (этой wrap-session
   # Phase 8 lifecycle progression per spec-amendment-protocol.md Part D).
   # Active list empty post-archive; archive grew 15 → 16 entries.
-  active: []
+  active:
+    - amendment_id: 2026-05-25T18-49-17-acknowledge-chunk-86-diagnostics-retry-interpretation
+      plans:
+        - path: architecture.md
+          sections:
+            - "§Occupied Resources Tauri IPC routes"
+            - "§Architecture Registry Updates"
+          decisions_log_section: "2026-05-25 — Acknowledge `diagnostics.retry_interpretation` (--allow-arch-registry)"
+      trigger:
+        chunk: null
+        phase: null
+        harness: "user-driven via /andromeda-evolve"
+      authority:
+        winning_plan: "pulse-app/src/diagnostics_router.rs"
+        winning_tier: implementation
+        losing_plan: architecture.md
+        losing_concern: registry-section-stale-vs-implementation-reality
+        rationale: "Code at `pulse-app/src/diagnostics_router.rs:60-89` (RetryInterpretationPayload + DiagnosticsApi trait extension + resolver impl) implements `diagnostics.retry_interpretation` TauRPC procedure landed via chunk #86 commit 4489ae3 (session 150); arch §Occupied Resources Tauri IPC routes had not acknowledged. Adding к registry brings arch into alignment с implementation reality. Authorized via /andromeda-evolve --allow-arch-registry flag; Check 7 verified purely additive / registry section / code evidence / no new architectural concept / narrative-cascade clear."
+      impl_files_synced: []
+      expected_propagation: []
+      marker_path: .andromeda/runs/2026-05-25T18-49-17-spec-amendment-acknowledge-chunk-86-diagnostics-retry-interpretation/amendment.md
+      applied_at: 2026-05-25T18:49:17Z
+      noted_at: null
+      propagated_by_run: .andromeda/runs/2026-05-25T18-49-17-setup-project-delta/
+      archived_at: null
+      verification_status: clean
+      flag_used: --allow-arch-registry
+      registry_section: "§Occupied Resources Tauri IPC routes"
+      registry_additions:
+        - diagnostics.retry_interpretation
+      code_evidence:
+        - "pulse-app/src/diagnostics_router.rs:60-89"
+        - "pulse-app/src/diagnostics_router.rs:107-155"
+        - "pulse-app/src/main.rs"
+        - "xtask/src/main.rs:668"
+        - "pulse-app/capabilities/default.json"
   archive:
     - amendment_id: 2026-05-25T16-18-53-append-chunk-86-json-parse-fail
       plans:

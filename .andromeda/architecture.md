@@ -174,6 +174,7 @@
   - `services.list_with_states` — pulse-app crate (`ServicesApiImpl` returning `ServiceListPayload` from `crates/triage::lifecycle::InMemoryServiceRegistry::list`; chunk #67) — see §Architecture Registry Updates 2026-05-18
   - `storage.inspect`, `storage.path` — pulse-app crate (`StorageApiImpl` returning corpus inspection metadata + data-dir absolute path from `crates/corpus::CorpusReader`; chunk #68) — see §Architecture Registry Updates 2026-05-18
   - `diagnostics.template_distribution` — pulse-app crate (`DiagnosticsApiImpl` returning `TemplateDistributionPayload` from `crates/buffer::DrainMiner::template_distribution()`; chunk #69) — see §Architecture Registry Updates 2026-05-19
+  - `diagnostics.retry_interpretation` — pulse-app crate (`DiagnosticsApiImpl` returning `RetryInterpretationPayload` via the L4 degraded-mode FSM manual-override path; chunk #86) — see §Architecture Registry Updates 2026-05-25
   - `incidents.list_active`, `incidents.acknowledge`, `incidents.mark_resolved` — pulse-app crate (`IncidentsApiImpl` resolver backed by `crates/triage::contract::IncidentRegistry` + `IncidentPersistence` + `IncidentLifecycleBroadcast`; chunk #78) — see §Architecture Registry Updates 2026-05-23
   - `model.current_profile` — pulse-app crate (`ModelApiImpl` returning `ModelProfilePayload` { profile_label, tier_label, load_status, model_identity_name } from `interpretation::contract::LlmInferenceRunner` + `triage::contract::HardwareProfileSource`; chunk #82) — see §Architecture Registry Updates 2026-05-24
 - **External HTTP routes (OTLP HTTP)**: `POST /v1/traces`, `POST /v1/metrics`, `POST /v1/logs` on `:4318`.
@@ -516,4 +517,11 @@ _This section accumulates entries from `/andromeda-evolve --allow-arch-registry`
 - `ANDROMEDA_PULSE_LLAMA_CPU_BIN_PATH` (`pulse-app/src/llamacli_inference.rs::ENV_LLAMA_CPU_BIN_PATH`, chunk #84)
 **Rationale:** D3 capability-drift closure for chunk #84 L4 LLM runtime swap (mistralrs → llama.cpp subprocess D1). Two env vars resolve the prebuilt `llama-cli.exe` binary path per chunk #80 `HardwareProfileSource` tier routing (CUDA build for GPU profiles + CPU build for CPU profiles + Unknown safe-default); canonicalized via `Path::canonicalize()` + `metadata().is_file()` assert before `tokio::process::Command::new()` invocation per arch §Critical Warnings path-env-var-canonicalization rule. `_PATH` suffix conforms to arch §Conventions environment-variable naming discipline. Mirrors 2026-05-18 chunk #68 corpus-additions + 2026-05-24 chunk #82 interpretation-crate-additions single-coordinated multi-item amendment precedents under §Occupied Resources.
 **Marker:** `.andromeda/runs/2026-05-25T12-34-46-spec-amendment-acknowledge-chunk-84-llama-bin-paths/amendment.md`
+
+### 2026-05-25 — Acknowledge `diagnostics.retry_interpretation` (--allow-arch-registry)
+
+**Section:** §Occupied Resources Tauri IPC routes.
+**Added:** `diagnostics.retry_interpretation` (`pulse-app/src/diagnostics_router.rs:60-89` trait + `pulse-app/src/diagnostics_router.rs:107-155` resolver impl, chunk #86).
+**Rationale:** D3 capability-drift closure for chunk #86 JSON parse failure handling + backoff + resolution summary (L4 degraded-mode FSM manual-override path; capabilities P-020 graceful degradation reaching full). Sibling к existing `diagnostics.template_distribution` chunk #69 entry в the same `diagnostics.*` namespace + same §Occupied Resources Tauri IPC routes section. Mirrors 2026-05-19 chunk #69 + 2026-05-25 chunk #84 single-coordinated single-item amendment precedents.
+**Marker:** `.andromeda/runs/2026-05-25T18-49-17-spec-amendment-acknowledge-chunk-86-diagnostics-retry-interpretation/amendment.md`
 
