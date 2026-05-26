@@ -88,7 +88,7 @@ jobs:
         # embed dependency tree as a JSON section for post-release CVE
         # scanning via `cargo audit bin <bundle>` (security plan §Dependency
         # Security + §Bootstrap phases `dep-security-ci-gate`).
-        uses: taiki-e/install-action@db5fb34fa772531a3ece57ca434f579eb334e0fb # v2.75.30
+        uses: taiki-e/install-action@920ab1831fbf4fb3ef75c8ead83556c918bb7290 # v2.79.8
         with:
           tool: cargo-auditable
 
