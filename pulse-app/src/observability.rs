@@ -1919,6 +1919,53 @@ impl AllowList {
             ["affected_count"].iter().copied().collect(),
         );
 
+        // Chunk #88 — Diagnostic Report generation. Aggregate-only fields
+        // per CLAUDE.md observability 2026-05-17 session 84 mandate +
+        // 2026-05-11 chunk #44 snapshot/clipboard hygiene (NEVER log
+        // markdown body / hypotheses_text / evidence_excerpts / symptom_text).
+        // Capabilities P-031 + P-035–P-038.
+        by_target.insert(
+            "incidents.get_report.request",
+            [
+                "item_id",
+                "outcome",
+                "section_count",
+                "markdown_size_bytes",
+                "degraded_mode",
+                "previously_seen_corpus_match_count",
+                "duration_ms",
+                "traceparent",
+            ]
+            .iter()
+            .copied()
+            .collect(),
+        );
+        by_target.insert(
+            "report.render.markdown",
+            [
+                "incident_id",
+                "report_section_count",
+                "markdown_size_bytes",
+                "degraded_mode",
+                "previously_seen_corpus_match_count",
+                "duration_ms",
+            ]
+            .iter()
+            .copied()
+            .collect(),
+        );
+        by_target.insert(
+            "report.degraded_mode_notice",
+            ["incident_id", "reason_category"].iter().copied().collect(),
+        );
+        by_target.insert(
+            "metric.report.render_ms",
+            ["value", "section_count", "degraded_mode"]
+                .iter()
+                .copied()
+                .collect(),
+        );
+
         Self { by_target }
     }
 

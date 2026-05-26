@@ -668,6 +668,7 @@ const EXPECTED_PROCEDURES: &[&str] = &[
     "diagnostics.retry_interpretation",
     "diagnostics.template_distribution",
     "incidents.acknowledge",
+    "incidents.get_report",
     "incidents.list_active",
     "incidents.mark_all_read",
     "incidents.mark_resolved",
@@ -1163,6 +1164,15 @@ mod capability_drift_tests {
         assert!(
             expected.contains("incidents.mark_all_read"),
             "EXPECTED_PROCEDURES must include incidents.mark_all_read (chunk #87 Findings counter + dropdown — bulk-mark-as-read action per capabilities P-028 / P-029 / P-030)"
+        );
+    }
+
+    #[test]
+    fn expected_procedures_includes_get_report_at_chunk_88() {
+        let expected: BTreeSet<&str> = EXPECTED_PROCEDURES.iter().copied().collect();
+        assert!(
+            expected.contains("incidents.get_report"),
+            "EXPECTED_PROCEDURES must include incidents.get_report (chunk #88 Diagnostic Report generation — L5 in-app report panel + copy markdown per capabilities P-031 + P-035–P-038)"
         );
     }
 

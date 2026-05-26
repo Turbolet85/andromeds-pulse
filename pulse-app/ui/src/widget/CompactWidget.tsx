@@ -15,6 +15,7 @@ import {
   useInvestigation,
 } from "../hooks/use-investigation";
 import { useFindings } from "../hooks/use-findings";
+import { Report } from "../report/Report";
 import { AggregatedBadgeCanvas } from "./AggregatedBadgeCanvas";
 import { FindingsCounter } from "./FindingsCounter";
 import { FindingsDropdown } from "./FindingsDropdown";
@@ -38,6 +39,7 @@ function CompactWidgetContents({ metrics }: CompactWidgetProps) {
     useInvestigation();
   const findings = useFindings();
   const [findingsOpen, setFindingsOpen] = useState(false);
+  const [reportIncidentId, setReportIncidentId] = useState<number | null>(null);
   const findingsTriggerRef = useRef<HTMLButtonElement | null>(null);
   useEffect(() => {
     if (findings.count === 0 && findingsOpen) {
@@ -47,6 +49,13 @@ function CompactWidgetContents({ metrics }: CompactWidgetProps) {
   const handleMarkAllRead = () => {
     void findings.markAllRead();
     setFindingsOpen(false);
+  };
+  const handleRowClick = (incidentId: number) => {
+    setFindingsOpen(false);
+    setReportIncidentId(incidentId);
+  };
+  const handleReportClose = () => {
+    setReportIncidentId(null);
   };
   return (
     <>
@@ -93,6 +102,7 @@ function CompactWidgetContents({ metrics }: CompactWidgetProps) {
             isOpen={findingsOpen}
             onClose={() => setFindingsOpen(false)}
             onMarkAllRead={handleMarkAllRead}
+            onRowClick={handleRowClick}
             triggerRef={findingsTriggerRef}
             nowUnixNano={Date.now() * 1_000_000}
           />
@@ -126,6 +136,12 @@ function CompactWidgetContents({ metrics }: CompactWidgetProps) {
         open={open}
         onClose={closeInvestigation}
         triggerRef={triggerRef}
+      />
+      <Report
+        isOpen={reportIncidentId !== null}
+        onClose={handleReportClose}
+        incidentId={reportIncidentId}
+        triggerRef={findingsTriggerRef}
       />
     </>
   );

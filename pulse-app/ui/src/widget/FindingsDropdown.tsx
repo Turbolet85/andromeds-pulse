@@ -34,6 +34,7 @@ export interface FindingsDropdownProps {
   isOpen: boolean;
   onClose: () => void;
   onMarkAllRead: () => void;
+  onRowClick: (incidentId: number) => void;
   triggerRef: RefObject<HTMLButtonElement | null>;
   nowUnixNano: number;
 }
@@ -119,6 +120,7 @@ export function FindingsDropdown({
   isOpen,
   onClose,
   onMarkAllRead,
+  onRowClick,
   triggerRef,
   nowUnixNano,
 }: FindingsDropdownProps) {
@@ -192,6 +194,7 @@ export function FindingsDropdown({
               <button
                 type="button"
                 aria-label={dropdownRowAriaLabel(row, nowUnixNano)}
+                onClick={() => onRowClick(row.id)}
                 data-testid="findings-dropdown-row"
                 data-row-id={row.id}
                 data-priority-tier={row.priorityTier}

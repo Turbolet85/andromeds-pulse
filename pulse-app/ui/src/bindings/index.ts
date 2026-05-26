@@ -52,6 +52,13 @@ export type HealthEnvelope = { status: HealthStatus; checked_at: string; subsyst
 export type HealthStatus = "ok" | "degraded"
 
 /**
+ * Single ranked hypothesis. Mirrors `interpretation::markdown::HypothesisView`
+ * but с specta::Type derive for cross-bridge transport (interpretation
+ * crate has no taurpc/specta dep per arch §Module dependency direction).
+ */
+export type HypothesisPayload = { statement: string; confidence_label: string; justification: string }
+
+/**
  * Resolver-facing view of an Incident. Narrower than the full `triage::
  * contract::Incident` struct — drops raw `evidence_refs` byte arrays
  * (downstream UI displays the `evidence_count` instead) AND drops the
@@ -89,6 +96,11 @@ export type IncidentStatus = "active" | "acknowledged" | "resolved"
  * + 10-min recent-history display window).
  */
 export type IncidentsListPayload = { items: IncidentRecord[]; total: number; next_cursor: string | null }
+
+/**
+ * Single suggested investigation step с expected yield description.
+ */
+export type InvestigationStepPayload = { step: string; expected_yield: string }
 
 export type LogRow = { ts_unix_nano: number; resource_hash: string; severity_number: number; body: string; severity_text: string; trace_id: string; span_id: string }
 
@@ -147,6 +159,13 @@ export type PluginListEnvelope = { items: PluginDto[]; total: number; next_curso
 export type PresetPromptDto = { id: string; label: string }
 
 /**
+ * Cross-incident "Previously seen" match per P-036. Chunk #88 reserves
+ * the field shape; current resolver always returns empty Vec (corpus
+ * fingerprint-similarity query path is а follow-up chunk).
+ */
+export type PreviouslySeenPayload = { incident_id: number; opened_at_unix_nano: number; title: string; workspace: string }
+
+/**
  * Three-tier severity model per capability spec P-019. Autonomous = model
  * is highly confident (surfaces with prominent halo shift and counter
  * increment); Suggested = model believes likely problem with reservations
@@ -167,6 +186,23 @@ export type ReadyEnvelope = { ready: boolean; checked_at: string; checks: ReadyC
  * §Anti-Patterns §Logging row 1 + a11y plan §8 plain-language commitment.
  */
 export type ReceiverFailureReason = "bind_failed" | "stale_heartbeat" | "receiver_panicked"
+
+/**
+ * Six-section Report payload returned by `incidents.get_report(id)`
+ * (chunk #88 — Epoch 9 Foundation v0.2.0). Carries structured fields
+ * for the in-app webview surface AND а pre-serialized `markdown` string
+ * for the Copy markdown action (P-038 byte-identical к future MCP
+ * delivery #92 per project doc §87 contract).
+ * 
+ * Hybrid render contract (chunk #88 Phase 1 user-approved scope):
+ * - `degraded_mode = false` indicates Resolved incident с parsed L4Output
+ * payload — full six-section content.
+ * - `degraded_mode = true` indicates Active/Acknowledged incident OR
+ * Resolved incident с unparseable / redacted resolution_summary_text —
+ * hypotheses + investigation_steps replaced by explicit "interpretation
+ * pending" notice in the markdown OR webview.
+ */
+export type ReportPayload = { incident_id: number; title: string; workspace: string; opened_at_unix_nano: number; status: IncidentStatus; severity: IncidentSeverity; symptom: string; timeline: string; hypotheses: HypothesisPayload[]; investigation_steps: InvestigationStepPayload[]; evidence_refs: string[]; project_context: string; degraded_mode: boolean; resolution_summary: string | null; previously_seen: PreviouslySeenPayload[]; markdown: string }
 
 /**
  * Chunk #86 — Settings → Diagnostics "Retry interpretation now" payload.
@@ -275,7 +311,7 @@ export type WidgetPosition = "top-left" | "top-right" | "bottom-left" | "bottom-
 
 export type WorkspaceContextDto = { root_basename: string; project_name: string | null; vcs_type: string | null; vcs_root_basename: string | null; has_andromeda_marker: boolean }
 
-const ARGS_MAP = { '':'{"app_info":[],"get_settings":[],"health":[],"ready":[],"update_settings":["settings"]}', 'connection':'{"current_state":[]}', 'diagnostics':'{"retry_interpretation":[],"template_distribution":[]}', 'incidents':'{"acknowledge":["id"],"list_active":[],"mark_all_read":[],"mark_resolved":["id"]}', 'logs':'{"query":["args"]}', 'mcp':'{"start":[],"status":[],"stop":[]}', 'metrics':'{"query":["args"]}', 'model':'{"current_profile":[]}', 'plugins':'{"invoke":["plugin_id","capability"],"list":[],"reload":[]}', 'services':'{"list_with_states":[]}', 'snapshot':'{"generate":["preset","workspace_root"]}', 'storage':'{"inspect":[],"path":[]}', 'streams':'{"subscribe_logs":["channel"],"subscribe_metrics":["channel"],"subscribe_spans":["channel"]}', 'telemetry.frontend':'{"record_frame_ms":["input"]}', 'traces':'{"query":["args"]}', 'workspace':'{"detect":["candidate_root"]}' }
+const ARGS_MAP = { '':'{"app_info":[],"get_settings":[],"health":[],"ready":[],"update_settings":["settings"]}', 'connection':'{"current_state":[]}', 'diagnostics':'{"retry_interpretation":[],"template_distribution":[]}', 'incidents':'{"acknowledge":["id"],"get_report":["id"],"list_active":[],"mark_all_read":[],"mark_resolved":["id"]}', 'logs':'{"query":["args"]}', 'mcp':'{"start":[],"status":[],"stop":[]}', 'metrics':'{"query":["args"]}', 'model':'{"current_profile":[]}', 'plugins':'{"invoke":["plugin_id","capability"],"list":[],"reload":[]}', 'services':'{"list_with_states":[]}', 'snapshot':'{"generate":["preset","workspace_root"]}', 'storage':'{"inspect":[],"path":[]}', 'streams':'{"subscribe_logs":["channel"],"subscribe_metrics":["channel"],"subscribe_spans":["channel"]}', 'telemetry.frontend':'{"record_frame_ms":["input"]}', 'traces':'{"query":["args"]}', 'workspace':'{"detect":["candidate_root"]}' }
 export type Router = { "": {app_info: () => Promise<AppInfo>, 
 get_settings: () => Promise<Settings>, 
 health: () => Promise<HealthEnvelope>, 
@@ -285,6 +321,7 @@ update_settings: (settings: Settings) => Promise<null>},
 "diagnostics": {retry_interpretation: () => Promise<RetryInterpretationPayload>, 
 template_distribution: () => Promise<TemplateDistributionPayload>},
 "incidents": {acknowledge: (id: number) => Promise<null>, 
+get_report: (id: number) => Promise<ReportPayload>, 
 list_active: () => Promise<IncidentsListPayload>, 
 mark_all_read: () => Promise<MarkAllReadPayload>, 
 mark_resolved: (id: number) => Promise<null>},

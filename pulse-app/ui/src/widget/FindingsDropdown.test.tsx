@@ -41,6 +41,7 @@ describe("FindingsDropdown — visibility", () => {
         isOpen={false}
         onClose={() => {}}
         onMarkAllRead={() => {}}
+        onRowClick={() => {}}
         triggerRef={makeTriggerRef()}
         nowUnixNano={NOW_NANO}
       />,
@@ -55,6 +56,7 @@ describe("FindingsDropdown — visibility", () => {
         isOpen={true}
         onClose={() => {}}
         onMarkAllRead={() => {}}
+        onRowClick={() => {}}
         triggerRef={makeTriggerRef()}
         nowUnixNano={NOW_NANO}
       />,
@@ -72,6 +74,7 @@ describe("FindingsDropdown — empty state", () => {
         isOpen={true}
         onClose={() => {}}
         onMarkAllRead={() => {}}
+        onRowClick={() => {}}
         triggerRef={makeTriggerRef()}
         nowUnixNano={NOW_NANO}
       />,
@@ -87,6 +90,7 @@ describe("FindingsDropdown — empty state", () => {
         isOpen={true}
         onClose={() => {}}
         onMarkAllRead={() => {}}
+        onRowClick={() => {}}
         triggerRef={makeTriggerRef()}
         nowUnixNano={NOW_NANO}
       />,
@@ -110,6 +114,7 @@ describe("FindingsDropdown — row rendering", () => {
         isOpen={true}
         onClose={() => {}}
         onMarkAllRead={() => {}}
+        onRowClick={() => {}}
         triggerRef={makeTriggerRef()}
         nowUnixNano={NOW_NANO}
       />,
@@ -131,6 +136,7 @@ describe("FindingsDropdown — row rendering", () => {
         isOpen={true}
         onClose={() => {}}
         onMarkAllRead={() => {}}
+        onRowClick={() => {}}
         triggerRef={makeTriggerRef()}
         nowUnixNano={NOW_NANO}
       />,
@@ -153,6 +159,7 @@ describe("FindingsDropdown — row rendering", () => {
         isOpen={true}
         onClose={() => {}}
         onMarkAllRead={() => {}}
+        onRowClick={() => {}}
         triggerRef={makeTriggerRef()}
         nowUnixNano={NOW_NANO}
       />,
@@ -171,6 +178,7 @@ describe("FindingsDropdown — footer action", () => {
         isOpen={true}
         onClose={() => {}}
         onMarkAllRead={() => {}}
+        onRowClick={() => {}}
         triggerRef={makeTriggerRef()}
         nowUnixNano={NOW_NANO}
       />,
@@ -189,6 +197,7 @@ describe("FindingsDropdown — footer action", () => {
         isOpen={true}
         onClose={() => {}}
         onMarkAllRead={onMarkAllRead}
+        onRowClick={() => {}}
         triggerRef={makeTriggerRef()}
         nowUnixNano={NOW_NANO}
       />,
@@ -209,6 +218,7 @@ describe("FindingsDropdown — Escape closes + focus restoration", () => {
         isOpen={true}
         onClose={onClose}
         onMarkAllRead={() => {}}
+        onRowClick={() => {}}
         triggerRef={triggerRef}
         nowUnixNano={NOW_NANO}
       />,
@@ -227,6 +237,7 @@ describe("FindingsDropdown — Escape closes + focus restoration", () => {
         isOpen={false}
         onClose={onClose}
         onMarkAllRead={() => {}}
+        onRowClick={() => {}}
         triggerRef={makeTriggerRef()}
         nowUnixNano={NOW_NANO}
       />,
@@ -246,6 +257,7 @@ describe("FindingsDropdown — click-outside closes", () => {
         isOpen={true}
         onClose={onClose}
         onMarkAllRead={() => {}}
+        onRowClick={() => {}}
         triggerRef={triggerRef}
         nowUnixNano={NOW_NANO}
       />,
@@ -264,6 +276,7 @@ describe("FindingsDropdown — click-outside closes", () => {
         isOpen={true}
         onClose={onClose}
         onMarkAllRead={() => {}}
+        onRowClick={() => {}}
         triggerRef={makeTriggerRef()}
         nowUnixNano={NOW_NANO}
       />,
@@ -282,6 +295,7 @@ describe("FindingsDropdown — click-outside closes", () => {
         isOpen={true}
         onClose={onClose}
         onMarkAllRead={() => {}}
+        onRowClick={() => {}}
         triggerRef={triggerRef}
         nowUnixNano={NOW_NANO}
       />,
