@@ -1347,7 +1347,49 @@ spec_amendments:
   # Proposal 5 Branch (b)) → noted+archived 20:16:10Z (этой wrap-session
   # Phase 8 lifecycle progression per spec-amendment-protocol.md Part D).
   # Active list empty post-archive; archive grew 17 → 18 entries.
-  active: []
+  #
+  # session 154 (THIS turn) — chunk #87 post-impl Type 6 arch-registry
+  # amendment applied via /andromeda-evolve --allow-arch-registry к close
+  # D3 drift (incidents.mark_all_read TauRPC procedure not yet listed в
+  # arch §Occupied Resources Tauri IPC routes). Single-coordinated
+  # single-item amendment mirroring chunk #86 diagnostics.retry_interpretation
+  # precedent (9th instance of Type 6 single-cycle pattern). Lifecycle stage
+  # = Applied; awaits /andromeda-setup-project --delta для propagation
+  # (Branch (a) — expected_propagation empty per Proposal 12 Tauri-IPC-routes-
+  # not-in-cascade-target-map; --delta will run lifecycle progression only).
+  active:
+    - amendment_id: 2026-05-26T16-25-48-acknowledge-chunk-87-incidents-mark-all-read
+      plans:
+        - path: architecture.md
+          sections:
+            - "§Occupied Resources Tauri IPC routes"
+            - "§Architecture Registry Updates"
+          decisions_log_section: "2026-05-26 — Acknowledge `incidents.mark_all_read` (--allow-arch-registry)"
+      trigger:
+        chunk: null
+        phase: null
+        harness: "user-driven via /andromeda-evolve"
+      authority:
+        winning_plan: null
+        winning_tier: implementation
+        losing_plan: architecture.md
+        losing_concern: registry-section-stale-vs-implementation-reality
+        rationale: "Code at pulse-app/src/incidents_router.rs:97 + :292 implements incidents.mark_all_read TauRPC procedure (chunk #87); arch §Occupied Resources Tauri IPC routes did not acknowledge. Authorized via --allow-arch-registry flag; Check 7 passed."
+      impl_files_synced: []
+      expected_propagation: []
+      marker_path: .andromeda/runs/2026-05-26T16-25-48-spec-amendment-acknowledge-chunk-87-incidents-mark-all-read/amendment.md
+      applied_at: 2026-05-26T16:25:48Z
+      noted_at: null
+      propagated_by_run: .andromeda/runs/2026-05-26T16-32-25-setup-project-delta/
+      archived_at: null
+      verification_status: clean
+      flag_used: --allow-arch-registry
+      registry_section: "§Occupied Resources Tauri IPC routes"
+      registry_additions:
+        - incidents.mark_all_read
+      code_evidence:
+        - pulse-app/src/incidents_router.rs:97
+        - pulse-app/src/incidents_router.rs:292
   archive:
     - amendment_id: 2026-05-25T20-03-10-append-chunk-87-findings-counter-dropdown
       plans:
