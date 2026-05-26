@@ -201,8 +201,8 @@ schema_version: 2
 # wrap Phase 8 step 7). Post-impl Type 6 arch-registry amendment for
 # `incidents.mark_all_read` expected NEXT session.
 
-last_wrap: 2026-05-26T16:39:32Z
-last_reconcile: 2026-05-26T16:39:32Z
+last_wrap: 2026-05-26T17:16:56Z
+last_reconcile: 2026-05-26T17:16:56Z
 
 # Session 144 wrap (2026-05-25T10:51:32Z): SUBSTANTIVE empirical-driven runtime-swap
 # session — overturned session 142/143 mistralrs Pre-D1 choice + cascaded к
@@ -1299,9 +1299,9 @@ plan_freshness:
   input_mtime: 2026-05-02T06:52:58Z
 
 living_artifact_freshness:
-  dep_tree_reconciled_at: 2026-05-26T16:39:32Z      # session 154 — Type 6 META wrap (chunk #87 arch-registry archival; 9th instance single-cycle pattern): cargo tree rerun = 463 lines (identical к session 153 baseline; zero-diff verification per integrity-protocol.md Part B step 5 no-op + refresh path — META session zero workspace dep delta). ORIGINAL: session 153 — chunk #87 implementation wrap: cargo tree rerun = 463 lines (identical к session 152 baseline; zero-diff verification per integrity-protocol.md Part B step 5 no-op + refresh path — chunk #87 added zero workspace dep edges; only intra-workspace trait extension across triage + pulse-app + xtask). ORIGINAL: session 152 — Type 7 META wrap (chunk #87 route-append archival): cargo tree rerun = 463 lines (identical к session 151 baseline; zero-diff verification per integrity-protocol.md Part B step 5 no-op + refresh path — META session zero workspace dep delta). ORIGINAL: session 151 — Type 6 META wrap: cargo tree rerun = 463 lines (identical к session 150 baseline; zero-diff verification per integrity-protocol.md Part B step 5 no-op + refresh path — META session zero workspace dep delta). ORIGINAL: session 150 — chunk #86 implementation wrap: cargo tree rerun = 463 lines (was 462 baseline session 149; +1 line = tokio dev-dep edge under interpretation crate per the new `tokio = { workspace = true, features = ["test-util"] }` in crates/interpretation/Cargo.toml [dev-dependencies] needed для `tokio::time::pause()` reach в degraded-mode backoff progression tests per CLAUDE.md testing.md 2026-05-03 workspace-tokio-test-util-pattern).
-  api_surface_reconciled_at: 2026-05-26T16:39:32Z   # session 154 — mcp-server sub-block per-crate refresh: `cargo +nightly public-api --simplified -p mcp-server` output = 205 lines (was ~204 lines cycle 1 session 139 baseline; +1 line cosmetic formatting delta — pub mod mcp_server::tracing_setup now а separate enumeration line; no real API surface delta — mcp-server source code unchanged since chunk #50 substrate). Cycle 2 progression: cursor advances mcp-server → plugins (7th alphabetical of 15). 13/15 crates с real api content unchanged. Type 6 META session этой wrap (chunk #87 amendment archival); per-crate reconcile fires per protocol regardless of source delta. ORIGINAL: session 153 — interpretation sub-block per-crate FIRST POPULATE: `cargo +nightly public-api --simplified -p interpretation` output = 424 lines, inserted as а NEW sub-block between ingest end + mcp-server start markers (interpretation crate was added session 139 post chunk #82 substrate; cycle 1 cursor passed its alphabetical position 5 before the crate existed; cycle 2 now visits + populates it). 13/15 crates с real api content (was 12/15 — interpretation transitions placeholder → real). Cycle 2 progression: interpretation done; cursor advances interpretation → mcp-server (6th alphabetical of 15). Remaining placeholders: triage (position 11; first visit pending) + xtask (binary-only structural placeholder per session 148 finding; permanent). Chunk #87 implementation wrap also added new pub items в crates/triage (mark_all_read on IncidentRegistry + mark_read on IncidentPersistence) — these surface на next visit к triage sub-block (cycle 2 position 11 ~5-6 more wraps); pulse-app new pub items (MarkAllReadPayload + mark_all_read resolver method) NOT yet captured (pulse-app cursor visit deferred к cycle 2 position 8 ~2-3 more wraps). ORIGINAL: session 152 — ingest sub-block per-crate refresh: zero-diff verification (cargo +nightly public-api -p ingest output = 1852 lines, identical к existing sub-block content from cycle 1 visit session 138 — chunk #87 route-append amendment doesn't touch crates/ingest/ source files); per-crate protocol step 5 no-op + refresh + cursor advance path applied. Cycle 2 progression: cursor advances ingest → interpretation (5th alphabetical of 16 — FIRST visit since interpretation crate added session 139; will populate placeholder с real api content next wrap). 12/16 crates с real api content unchanged. ORIGINAL: session 151 — curation sub-block per-crate refresh: zero-diff verification (cargo +nightly public-api -p curation output = 201 lines, identical к existing sub-block content from cycle 1 visit — chunk #86 touched zero crates/curation/ files); per-crate protocol step 5 no-op + refresh + cursor advance path applied. Cycle 2 progression: cursor advances curation → ingest (4th alphabetical of 15; cycle 2 will visit interpretation [position 5] + triage [position 11] within ~3 more wraps к bring those 2 placeholder sub-blocks к real api content). 12/15 crates с real api content unchanged. ORIGINAL: session 150 — corpus sub-block per-crate refresh: zero-diff verification (cargo +nightly public-api -p corpus output = 248 lines, identical к existing sub-block content from cycle 1 visit — chunk #86 touched zero crates/corpus/ files).
-  api_surface_next_crate: "plugins"                 # session 154 cursor advance mcp-server → plugins (cycle 2 progression; plugins is 7th alphabetical of 15 workspace crates; last visited cycle 1 session 140 при ~XXX lines pub API; cycle 2 visit pending). Previous: session 153 cursor was "mcp-server" (cycle 2 visit fired этой wrap session 154; sub-block content replaced).
+  dep_tree_reconciled_at: 2026-05-26T17:16:56Z      # session 155 — Type 7 Form 1 META wrap (chunk #88 route-append amendment archival; 11th instance single-cycle pattern): cargo tree rerun = 463 lines (identical к session 154 baseline; zero-diff verification per integrity-protocol.md Part B step 5 no-op + refresh path — Type 7 META session zero workspace dep delta). ORIGINAL: session 154 — Type 6 META wrap (chunk #87 arch-registry archival; 9th instance single-cycle pattern): cargo tree rerun = 463 lines (identical к session 153 baseline; zero-diff verification per integrity-protocol.md Part B step 5 no-op + refresh path — META session zero workspace dep delta). ORIGINAL: session 153 — chunk #87 implementation wrap: cargo tree rerun = 463 lines (identical к session 152 baseline; zero-diff verification per integrity-protocol.md Part B step 5 no-op + refresh path — chunk #87 added zero workspace dep edges; only intra-workspace trait extension across triage + pulse-app + xtask). ORIGINAL: session 152 — Type 7 META wrap (chunk #87 route-append archival): cargo tree rerun = 463 lines (identical к session 151 baseline; zero-diff verification per integrity-protocol.md Part B step 5 no-op + refresh path — META session zero workspace dep delta). ORIGINAL: session 151 — Type 6 META wrap: cargo tree rerun = 463 lines (identical к session 150 baseline; zero-diff verification per integrity-protocol.md Part B step 5 no-op + refresh path — META session zero workspace dep delta). ORIGINAL: session 150 — chunk #86 implementation wrap: cargo tree rerun = 463 lines (was 462 baseline session 149; +1 line = tokio dev-dep edge under interpretation crate per the new `tokio = { workspace = true, features = ["test-util"] }` in crates/interpretation/Cargo.toml [dev-dependencies] needed для `tokio::time::pause()` reach в degraded-mode backoff progression tests per CLAUDE.md testing.md 2026-05-03 workspace-tokio-test-util-pattern).
+  api_surface_reconciled_at: 2026-05-26T17:16:56Z   # session 155 — plugins sub-block per-crate refresh: zero-diff verification (`cargo +nightly public-api --simplified -p plugins` output = 158 lines, identical к existing sub-block content from cycle 1 visit session 140 — chunk #88 route-append amendment doesn't touch crates/plugins/ source files); per-crate protocol step 5 no-op + refresh + cursor advance path applied. Cycle 2 progression: plugins done; cursor advances plugins → pulse-app (8th alphabetical of 15). ORIGINAL: session 154 — mcp-server sub-block per-crate refresh: `cargo +nightly public-api --simplified -p mcp-server` output = 205 lines (was ~204 lines cycle 1 session 139 baseline; +1 line cosmetic formatting delta — pub mod mcp_server::tracing_setup now а separate enumeration line; no real API surface delta — mcp-server source code unchanged since chunk #50 substrate). Cycle 2 progression: cursor advances mcp-server → plugins (7th alphabetical of 15). 13/15 crates с real api content unchanged. Type 6 META session этой wrap (chunk #87 amendment archival); per-crate reconcile fires per protocol regardless of source delta. ORIGINAL: session 153 — interpretation sub-block per-crate FIRST POPULATE: `cargo +nightly public-api --simplified -p interpretation` output = 424 lines, inserted as а NEW sub-block between ingest end + mcp-server start markers (interpretation crate was added session 139 post chunk #82 substrate; cycle 1 cursor passed its alphabetical position 5 before the crate existed; cycle 2 now visits + populates it). 13/15 crates с real api content (was 12/15 — interpretation transitions placeholder → real). Cycle 2 progression: interpretation done; cursor advances interpretation → mcp-server (6th alphabetical of 15). Remaining placeholders: triage (position 11; first visit pending) + xtask (binary-only structural placeholder per session 148 finding; permanent). Chunk #87 implementation wrap also added new pub items в crates/triage (mark_all_read on IncidentRegistry + mark_read on IncidentPersistence) — these surface на next visit к triage sub-block (cycle 2 position 11 ~5-6 more wraps); pulse-app new pub items (MarkAllReadPayload + mark_all_read resolver method) NOT yet captured (pulse-app cursor visit deferred к cycle 2 position 8 ~2-3 more wraps). ORIGINAL: session 152 — ingest sub-block per-crate refresh: zero-diff verification (cargo +nightly public-api -p ingest output = 1852 lines, identical к existing sub-block content from cycle 1 visit session 138 — chunk #87 route-append amendment doesn't touch crates/ingest/ source files); per-crate protocol step 5 no-op + refresh + cursor advance path applied. Cycle 2 progression: cursor advances ingest → interpretation (5th alphabetical of 16 — FIRST visit since interpretation crate added session 139; will populate placeholder с real api content next wrap). 12/16 crates с real api content unchanged. ORIGINAL: session 151 — curation sub-block per-crate refresh: zero-diff verification (cargo +nightly public-api -p curation output = 201 lines, identical к existing sub-block content from cycle 1 visit — chunk #86 touched zero crates/curation/ files); per-crate protocol step 5 no-op + refresh + cursor advance path applied. Cycle 2 progression: cursor advances curation → ingest (4th alphabetical of 15; cycle 2 will visit interpretation [position 5] + triage [position 11] within ~3 more wraps к bring those 2 placeholder sub-blocks к real api content). 12/15 crates с real api content unchanged. ORIGINAL: session 150 — corpus sub-block per-crate refresh: zero-diff verification (cargo +nightly public-api -p corpus output = 248 lines, identical к existing sub-block content from cycle 1 visit — chunk #86 touched zero crates/corpus/ files).
+  api_surface_next_crate: "pulse-app"               # session 155 cursor advance plugins → pulse-app (cycle 2 progression; pulse-app is 8th alphabetical of 15 workspace crates; last visited cycle 1 session 141; cycle 2 visit pending — will populate с current pub items from chunk #87 implementation: MarkAllReadPayload + mark_all_read resolver method + DiagnosticsApiImpl::new 2-arg signature + LocalDegradedModeStatus + various other пульsе-app pub items added in chunks #82-#87). Previous: session 154 cursor was "plugins" (cycle 2 visit fired этой wrap session 155; sub-block zero-diff verified).
   api_surface_cycle_start_crate: "buffer"           # session 150 cycle 2 in progress (started session 149 at buffer; cursor will wrap back к buffer after touching all 15 crates ~12 more wraps from now); cycle_start_crate stays at buffer until cursor wrap-around resets it
   most_recent_code_mtime: 2026-05-25T21:30:00Z      # session 153 — chunk #87 implementation wrap: substantial multi-crate source mods (22 files modified/created total: 12 existing files modified + 10 new files across crates/triage/src/incident/{registry,persistence}.rs + pulse-app/src/{incidents_router,incident_persistence,observability}.rs + pulse-app/tests/{unit_incidents_mark_all_read_router,integration_findings_counter_persists_across_restart,integration_resolution_summary_attachment}.rs + xtask/src/main.rs + pulse-app/capabilities/default.json + pulse-app/ui/src/{styles/tokens.css,bindings/index.ts,widget/{CompactWidget,CompactWidget.test,FindingsCounter,FindingsCounter.test,FindingsDropdown,FindingsDropdown.test,findings-types,findings-types.test}.{ts,tsx},hooks/{use-findings,use-findings.test}.{ts,tsx}})
   reconcile_failed: false
@@ -1355,14 +1355,17 @@ spec_amendments:
   # lifecycle progression per spec-amendment-protocol.md Part D). Active
   # list empty post-archive; archive grew 18 → 19 entries.
   #
-  # session 155 parent turn (current) — chunk #88 route-append amendment
-  # applied этой session via /andromeda-evolve --allow-route-append (Type 7
-  # Form 1 single-cycle pattern; 11th instance — mirrors sessions 115/118/
-  # 120/123/125/138/141/147/149/152 precedents exactly). Lifecycle:
-  # applied 2026-05-26T16:57:38Z (by /andromeda-evolve) → propagated TBD
-  # (by next /andromeda-setup-project --delta) → noted+archived TBD (by
-  # next /andromeda-wrap-session Phase 8 lifecycle progression).
-  active:
+  # session 155 wrap (THIS wrap) — chunk #88 route-append amendment archived
+  # этой wrap. Lifecycle completed в single wrap (textbook Type 7 Form 1
+  # single-cycle pattern; 11th instance — mirrors sessions 115/118/120/123/
+  # 125/138/141/147/149/152 precedents exactly): applied 16:57:38Z (by
+  # /andromeda-evolve --allow-route-append) → propagated 17:10:09Z (by
+  # /andromeda-setup-project --delta CLAUDE.md pointer-table cascade 87→88
+  # per Proposal 5 Branch (b)) → noted+archived 17:16:56Z (этой wrap-session
+  # Phase 8 lifecycle progression per spec-amendment-protocol.md Part D).
+  # Active list empty post-archive; archive grew 19 → 20 entries.
+  active: []
+  archive:
     - amendment_id: 2026-05-26T16-57-38-append-chunk-88-diagnostic-report
       plans:
         - path: route.md
@@ -1370,38 +1373,13 @@ spec_amendments:
             - "§1 Route Scope Summary (Total chunks mechanical update per Proposal 6)"
             - "§2 Roadmap (Epoch 9 body)"
             - "§3 Decisions Log"
-          decisions_log_section: "2026-05-26 — Append chunk #88 Diagnostic Report generation (--allow-route-append)"
-      trigger:
-        chunk: null
-        phase: null
-        harness: "user-driven via /andromeda-evolve"
-      authority:
-        winning_plan: null
-        winning_tier: pipeline state
-        losing_plan: route.md
-        losing_concern: chunk-list-stale-vs-pipeline-reality
-        rationale: "Project-doc pulse-v0_2_0-route.md §87 enumerates Diagnostic Report generation as next unimplemented v0.2.0 surface; route.md §2 had not registered chunk #88. Adding via Type 7 Form 1 chunk append brings route into alignment with pipeline reality."
-      impl_files_synced: []
-      expected_propagation:
-        - "CLAUDE.md: <!-- GENERATED:setup:pointer-table --> section (chunk count line: 87 → 88)"
-      marker_path: .andromeda/runs/2026-05-26T16-57-38-spec-amendment-append-chunk-88-diagnostic-report/amendment.md
-      applied_at: 2026-05-26T16:57:38Z
-      noted_at: null
+      decisions_log_sections:
+        - "2026-05-26 — Append chunk #88 Diagnostic Report generation (--allow-route-append)"
       propagated_by_run: .andromeda/runs/2026-05-26T17-10-09-setup-project-delta/
-      archived_at: null
-      verification_status: clean
+      noted_at: 2026-05-26T17:16:56Z
+      archived_at: 2026-05-26T17:16:56Z
       flag_used: --allow-route-append
       form: 1
-      route_section_modified: "Epoch 9 — Foundation v0.2.0"
-      chunks_added:
-        - position: 88
-          text: "Diagnostic Report generation — in-app six-section report + copy-markdown action; degraded mode preserves explicit notice (capabilities P-031 + P-035–P-038; detail in pulse-v0_2_0-route §87)."
-      chunks_renumbered: []
-      motivation: "Project-doc pulse-v0_2_0-route.md §87 enumerates Diagnostic Report generation as next-up unimplemented v0.2.0 surface (5 capability targets: P-031 + P-035–P-038; L5 layer; concrete crates/TauRPC delta). Pipeline reality: chunk #87 landed session 153; #88 is next in user-facing-surfaces Phase 9."
-      confirmed_shift: false
-      scope_summary_updates:
-        - "Total chunks: 87 → 88"
-  archive:
     - amendment_id: 2026-05-26T16-25-48-acknowledge-chunk-87-incidents-mark-all-read
       plans:
         - path: architecture.md
@@ -2220,4 +2198,4 @@ pipeline_accumulators:
   # verification proves the loop end-to-end). Future activation: deliberate
   # one-time edit to add A2 entry here + update catalogue status DORMANT → ACTIVE.
 
-session_count: 154
+session_count: 155
