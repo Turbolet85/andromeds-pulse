@@ -175,7 +175,7 @@
   - `storage.inspect`, `storage.path` — pulse-app crate (`StorageApiImpl` returning corpus inspection metadata + data-dir absolute path from `crates/corpus::CorpusReader`; chunk #68) — see §Architecture Registry Updates 2026-05-18
   - `diagnostics.template_distribution` — pulse-app crate (`DiagnosticsApiImpl` returning `TemplateDistributionPayload` from `crates/buffer::DrainMiner::template_distribution()`; chunk #69) — see §Architecture Registry Updates 2026-05-19
   - `diagnostics.retry_interpretation` — pulse-app crate (`DiagnosticsApiImpl` returning `RetryInterpretationPayload` via the L4 degraded-mode FSM manual-override path; chunk #86) — see §Architecture Registry Updates 2026-05-25
-  - `incidents.list_active`, `incidents.acknowledge`, `incidents.mark_resolved`, `incidents.mark_all_read` — pulse-app crate (`IncidentsApiImpl` resolver backed by `crates/triage::contract::IncidentRegistry` + `IncidentPersistence` + `IncidentLifecycleBroadcast`; chunk #78, `mark_all_read` chunk #87) — see §Architecture Registry Updates 2026-05-23 + 2026-05-26
+  - `incidents.list_active`, `incidents.acknowledge`, `incidents.mark_resolved`, `incidents.mark_all_read`, `incidents.get_report` — pulse-app crate (`IncidentsApiImpl` resolver backed by `crates/triage::contract::IncidentRegistry` + `IncidentPersistence` + `IncidentLifecycleBroadcast`; chunk #78, `mark_all_read` chunk #87, `get_report` chunk #88) — see §Architecture Registry Updates 2026-05-23 + 2026-05-26 + 2026-05-27
   - `model.current_profile` — pulse-app crate (`ModelApiImpl` returning `ModelProfilePayload` { profile_label, tier_label, load_status, model_identity_name } from `interpretation::contract::LlmInferenceRunner` + `triage::contract::HardwareProfileSource`; chunk #82) — see §Architecture Registry Updates 2026-05-24
 - **External HTTP routes (OTLP HTTP)**: `POST /v1/traces`, `POST /v1/metrics`, `POST /v1/logs` on `:4318`.
 - **MCP stdio surface**: standard MCP `initialize`, `tools/list`, `tools/call`, `notifications/*` over stdin/stdout when the rmcp sidecar is started.
@@ -531,4 +531,11 @@ _This section accumulates entries from `/andromeda-evolve --allow-arch-registry`
 **Added:** `incidents.mark_all_read` (`pulse-app/src/incidents_router.rs:97` trait + `pulse-app/src/incidents_router.rs:292` resolver impl, chunk #87).
 **Rationale:** D3 capability-drift closure for chunk #87 Findings counter + dropdown (capabilities P-028 / P-029 / P-030 — incident bulk-acknowledge from widget UI). Sibling к existing `incidents.{list_active,acknowledge,mark_resolved}` chunk #78 entry в the same `incidents.*` namespace + same §Occupied Resources Tauri IPC routes section. Mirrors 2026-05-25 chunk #86 `diagnostics.retry_interpretation` single-coordinated single-item amendment precedent.
 **Marker:** `.andromeda/runs/2026-05-26T16-25-48-spec-amendment-acknowledge-chunk-87-incidents-mark-all-read/amendment.md`
+
+### 2026-05-27 — Acknowledge `incidents.get_report` (--allow-arch-registry)
+
+**Section:** §Occupied Resources Tauri IPC routes.
+**Added:** `incidents.get_report` (`pulse-app/src/incidents_router.rs:173` trait + `pulse-app/src/incidents_router.rs:424` resolver impl, chunk #88).
+**Rationale:** D3 capability-drift closure for chunk #88 Diagnostic Report generation (capabilities P-031 + P-035–P-038 — in-app six-section report + copy-markdown action). Sibling к existing `incidents.{list_active,acknowledge,mark_resolved}` chunk #78 entry + `incidents.mark_all_read` chunk #87 entry в the same `incidents.*` namespace + same §Occupied Resources Tauri IPC routes section. Mirrors 2026-05-26 chunk #87 `incidents.mark_all_read` single-coordinated single-item amendment precedent.
+**Marker:** `.andromeda/runs/2026-05-27T17-09-46-spec-amendment-acknowledge-chunk-88-incidents-get-report/amendment.md`
 

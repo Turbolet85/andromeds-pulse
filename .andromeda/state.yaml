@@ -1370,7 +1370,40 @@ spec_amendments:
   # per Proposal 5 Branch (b)) → noted+archived 17:16:56Z (этой wrap-session
   # Phase 8 lifecycle progression per spec-amendment-protocol.md Part D).
   # Active list empty post-archive; archive grew 19 → 20 entries.
-  active: []
+  active:
+    - amendment_id: 2026-05-27T17-09-46Z-acknowledge-chunk-88-incidents-get-report
+      plans:
+        - path: architecture.md
+          sections:
+            - "§Occupied Resources Tauri IPC routes"
+          decisions_log_section: "2026-05-27 — Acknowledge incidents.get_report (--allow-arch-registry)"
+      trigger:
+        chunk: null
+        phase: null
+        harness: "user-driven via /andromeda-evolve"
+      authority:
+        winning_plan: "pulse-app/src/incidents_router.rs"
+        winning_tier: implementation
+        losing_plan: architecture.md
+        losing_concern: registry-section-stale-vs-implementation-reality
+        rationale: "Code at pulse-app/src/incidents_router.rs:173 (trait IncidentsApi::get_report) + :424 (resolver impl) implements incidents.get_report TauRPC procedure landed in chunk #88; arch §Occupied Resources Tauri IPC routes had not acknowledged. Authorized via /andromeda-evolve --allow-arch-registry flag (narrow Refuse 1 exception); Check 7 verified purely additive / registry section / code evidence resolved / no new architectural concept."
+      impl_files_synced: []
+      expected_propagation: []
+      marker_path: .andromeda/runs/2026-05-27T17-09-46-spec-amendment-acknowledge-chunk-88-incidents-get-report/amendment.md
+      applied_at: 2026-05-27T17:09:46Z
+      noted_at: null
+      propagated_by_run: .andromeda/runs/2026-05-27T17-18-40-setup-project-delta/
+      archived_at: null
+      verification_status: clean
+      flag_used: --allow-arch-registry
+      registry_section: "§Occupied Resources Tauri IPC routes"
+      registry_additions:
+        - incidents.get_report
+      code_evidence:
+        - pulse-app/src/incidents_router.rs
+        - pulse-app/capabilities/default.json
+        - xtask/src/main.rs
+        - pulse-app/ui/src/bindings/index.ts
   archive:
     - amendment_id: 2026-05-26T16-57-38-append-chunk-88-diagnostic-report
       plans:
