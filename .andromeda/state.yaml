@@ -1385,7 +1385,47 @@ spec_amendments:
   # Phase 8 lifecycle progression per spec-amendment-protocol.md Part D).
   # Textbook Type 7 Form 1 single-cycle wrap (13th instance) mirroring chunks
   # #58-#89 precedents. Active list empty post-archive; archive gained 1.
-  active: []
+  active:
+    - amendment_id: 2026-05-29T19-20-03-halo-severity-motion-token
+      plans:
+        - path: design-system.md
+          sections:
+            - "Motion (High-impact moments + Accessibility)"
+            - "Downstream Readiness (obs measurement hooks)"
+            - Decisions Log
+            - Signature element summary
+          decisions_log_section: "2026-05-29 — Halo State Pulse driven by incident severity + activity + connection state (supersedes throughput/error-rate model)"
+      trigger:
+        chunk: 90
+        phase: 87
+        harness: "(none — planned manual specialist-plan edit during /andromeda-implement Step 1; route §90 'Specialist plan touches: design-system'; user-authorized via /andromeda-phase Q2 + setup-project --delta formalize-amendment choice; formalized retroactively)"
+      authority:
+        winning_plan: design-system.md
+        winning_tier: design-system-Motion-token-owner
+        losing_plan: design-system.md
+        losing_concern: chunk-31-era-throughput-error-rate-Halo-model
+        rationale: "v0.2.0 pipeline produces LLM incident severity (chunk #83) + connection state (chunk #59); re-driving the Halo from those instead of pre-distillation throughput/error-rate is route §90 intent (P-025/P-026); calmer 4-5s/2s cadence keeps luminance change <3 Hz (SC 2.3.1)"
+      impl_files_synced:
+        - .claude/rules/design-tokens.md
+        - pulse-app/ui/src/halo/halo-types.ts
+        - pulse-app/ui/src/halo/activity-state.ts
+        - pulse-app/ui/src/halo/severity-to-halo.ts
+        - pulse-app/ui/src/halo/lch.ts
+        - pulse-app/ui/src/halo/shaders/halo.wgsl
+        - pulse-app/ui/src/halo/HaloCanvas.tsx
+        - pulse-app/ui/src/widget/AggregatedBadgeCanvas.tsx
+        - pulse-app/ui/src/widget/CompactWidget.tsx
+      expected_propagation:
+        - .claude/docs/design-summary.md
+        - .claude/rules/a11y.md
+        - .claude/rules/frontend.md
+        - "CLAUDE.md (GENERATED:setup:warnings — Halo reduced-motion hue phrase)"
+      marker_path: .andromeda/runs/2026-05-29T19-20-03-spec-amendment-halo-severity-motion-token/amendment.md
+      applied_at: 2026-05-29T19:08:00Z
+      noted_at: null
+      propagated_by_run: .andromeda/runs/2026-05-29T19-20-03-setup-project-delta/
+      archived_at: null
+      verification_status: clean
   archive:
     - amendment_id: 2026-05-29T17-27-46-append-chunk-90-halo-formula-refactor
       plans:

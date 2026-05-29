@@ -46,7 +46,7 @@ Cross-platform Tauri 2 desktop dashboard for local OpenTelemetry — receives OT
 - NEVER log raw OTLP attribute values, snapshot file contents, clipboard contents, MCP tool response bodies, full plugin paths, or DuckDB query parameter values — incidentally captured secrets from instrumented host apps.
 - Pin every third-party GitHub Action by 40-char SHA — never `@v2` or floating tag (`tj-actions/changed-files` CVE-2025-30066 anchor).
 - Errors crossing the TauRPC bridge MUST be `serde`-friendly `AppError` enum variants — convert from `thiserror`/`anyhow` via `From` impls; strip stack traces, file paths, library versions, Rust struct names.
-- Every transition (chrome AND data-driven Halo State Pulse) MUST respect `prefers-reduced-motion: reduce` — Halo degrades to static glow (hue still updates per error rate); WCAG 2.1 AAA SC 2.3.3.
+- Every transition (chrome AND data-driven Halo State Pulse) MUST respect `prefers-reduced-motion: reduce` — Halo degrades to static glow (hue still updates per cumulative incident severity); WCAG 2.1 AAA SC 2.3.3.
 <!-- GENERATED:setup:warnings end -->
 
 ## Where to Look

@@ -12,11 +12,12 @@ _Distilled from `.andromeda/design-system.md` + `.andromeda/layout-templates.md`
 
 ## Signature element: Halo State Pulse
 WebGPU shader-driven circular animated glow rendered on a dedicated canvas layer around each service constellation dot:
-- **Frequency:** 0.8–2.4 Hz (proportional to throughput, clamped from `throughput_hz / 1000`).
-- **Hue:** LCH interpolation Earth Blue (`#4A90E2`) ↔ Alert Burgundy (`#C7556A`) based on error rate.
-- **Blur radius:** 4–16 px envelope per pulse cycle.
+- **Frequency:** breathing period 4–5 s when quiet → ~2 s under active flow (≈0.2–0.5 Hz; driven by activity state, not raw throughput). Opacity + blur modulation only, never scale (P-026). Supersedes the chunk #31-era 0.8–2.4 Hz `throughput_hz / 1000` band per design-system.md Decisions Log 2026-05-29.
+- **Hue:** LCH interpolation Earth Blue (`#4A90E2`) ↔ Alert Burgundy (`#C7556A`) by cumulative incident severity.
+- **Blur radius:** 4–16 px envelope per pulse cycle (mapped from cumulative incident severity).
+- **Connection axis:** connection state grays out / desaturates the halo as an orthogonal axis (P-004), independent of the severity hue.
 - **Tray icon variant:** unified halo around aggregated service-count badge.
-- **Reduced motion (`prefers-reduced-motion: reduce`):** degrades to static glow; hue still updates per error rate.
+- **Reduced motion (`prefers-reduced-motion: reduce`):** degrades to static glow; hue still updates per cumulative incident severity.
 - **Required presence:** full dashboard constellation map + compact widget aggregated badge + tray icon (3 places).
 - **Exempt from chrome budget** (separate WebGPU canvas layer).
 

@@ -168,7 +168,7 @@ Chrome interactions are constrained to 150–200ms per expression budget. Suppor
 - **Scroll effects:** none — expression level does not warrant parallax or scroll-driven reveals.
 
 **High-impact moments (max 2 at 0.3–0.35 level):**
-1. **Halo State Pulse breathing:** WebGPU shader-driven, sinusoidal animation at 0.8–2.4 Hz (data-driven frequency, exempt from chrome budget). Blur radius 4–16 px per cycle, 0.6–1.2 s per breath. Color interpolation (Earth Blue ↔ Alert Burgundy via LCH) is simultaneous with rhythm.
+1. **Halo State Pulse breathing:** WebGPU shader-driven, sinusoidal animation (data-driven, exempt from chrome budget). Breathing period 4–5 s when telemetry flow is quiet, accelerating to ~2 s under active flow (driven by activity state, not raw throughput; ease-in-out). Modulation is opacity AND blur ONLY, NEVER scale (P-026). Blur radius 4–16 px per cycle, mapped from cumulative incident severity. Color interpolation (Earth Blue ↔ Alert Burgundy via LCH) is driven by cumulative incident severity, simultaneous with rhythm. Supersedes the chunk #31-era 0.8–2.4 Hz throughput-driven frequency (see Decisions Log 2026-05-29).
 2. **Investigation Capture Collapse (supporting moment):** 350 ms scale + opacity ease into a centered snapshot object when Investigate button is clicked. Confirms action without demanding attention. Supporting moments are EXEMPT from the 200ms opacity hard limit (max 2 high-impact moments per expression level justify one supporting moment at ~250–350ms). Hard limits are ceiling constraints for default micro-interactions (hover, focus, panel transitions); supporting moments (user-initiated capture, snapshot generation) may exceed hard limits as visual confirmation of significant action.
 
 **Hard limits for 0.3–0.35 expression; inherited to 0.2 (desktop-native):**
@@ -182,7 +182,7 @@ Chrome interactions are constrained to 150–200ms per expression budget. Suppor
 
 **Expression level 0.2 (desktop-native):** All above hard limits inherit to desktop-native surface. Additionally, desktop-native tray menu and notifications are OS-native UI; no custom chrome motion is applied. Only the Halo State Pulse glyph (if composited) may animate per the above rules; all other state changes are instant per OS convention.
 
-**Accessibility:** All motion respects `prefers-reduced-motion` media query. Halo State Pulse degrades to static glow (no pulsing rhythm, but hue still updates per error rate). Other transitions become instant (200ms fade → 0ms, 150ms hover → 0ms).
+**Accessibility:** All motion respects `prefers-reduced-motion` media query. Halo State Pulse degrades to static glow (no pulsing rhythm, but hue still updates per cumulative incident severity). Other transitions become instant (200ms fade → 0ms, 150ms hover → 0ms).
 
 ---
 
@@ -447,8 +447,8 @@ These glyphs are built into the token system and referenced as `<Icon glyph="tel
 Centralized handoff index for downstream specialists. Source-of-truth content lives in the Surface, Motion, Color Palette, Typography, and Anti-Patterns sections; this section is a finder's guide.
 
 **For obs specialist:** The Halo State Pulse motion layer (WebGPU canvas, separate from chrome budget) requires observability hooks. Design specifies the measurement intent; obs configures the backend:
-- Log Halo pulse frequency (Hz, updated on each pulse cycle) — derived from `throughput_hz / 1000` and clamped to 0.8–2.4 Hz by the data-viz layer before pulse-cycle emission. Obs logs the final clamped frequency value as-is without re-clamping.
-- Log Halo color state (Earth Blue / Alert Burgundy / interpolated LCH value) on each pulse — encodes error-rate composition.
+- Log Halo pulse frequency (Hz, updated on each pulse cycle) — derived from activity state (breathing period 4–5 s quiet → ~2 s under active flow; ≈0.2–0.5 Hz) by the data-viz layer before pulse-cycle emission. Obs logs the final frequency value as-is without re-clamping.
+- Log Halo color state (Earth Blue / Alert Burgundy / interpolated LCH value) on each pulse — encodes cumulative incident severity composition.
 - No specific observability platform is mandated; design does not own vendor selection. Obs specialist exposes these signals as measurement hooks and configures the backend independently.
 - Loading / error state visuals (skeleton pulse, error color #C7556A) live in Surface: desktop-webview Component Patterns; obs may instrument transitions into/out of these states without modifying the visual tokens.
 
@@ -466,7 +466,7 @@ Centralized handoff index for downstream specialists. Source-of-truth content li
 - Contrast targets: see Text Hierarchy table (Primary ≈ 8.5:1, Secondary ≈ 6.8:1, Tertiary ≈ 4.2:1 large text only, Muted ≈ 2.1:1 decorative only). Formal WCAG conformance derivation is a11y's domain — design provides the target ratios.
 - Focus ring specification: 3–4 px outset, color #4A90E2, rendered via `box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.2)` or `outline: 3px solid #4A90E2` (see Border Progression and Surface: desktop-webview Focus / Keyboard Navigation).
 - Keyboard navigation: all interactive elements must be Tab-navigable; `:focus-visible` applies (see Surface: desktop-webview).
-- Motion accessibility: all transitions respect `prefers-reduced-motion` media query; Halo State Pulse degrades to static glow (no pulsing, hue still updates per error rate); other transitions become instant.
+- Motion accessibility: all transitions respect `prefers-reduced-motion` media query; Halo State Pulse degrades to static glow (no pulsing, hue still updates per cumulative incident severity); other transitions become instant.
 
 **For setup-project specialist:**
 - Materialize design rule files from Anti-Patterns Universal Bans (banned fonts → `.claude/rules/no-banned-fonts.md`).
@@ -505,7 +505,7 @@ Verify text-on-background contrast values match the Text Hierarchy table — Pri
 
 - **Brand personality:** Ambient constellation — luminous, patient, emergence-driven (Observatory/Mission Control metaphor; contemplative, pattern-seeking voice).
 - **Surfaces:** desktop-webview (compact widget + full dashboard, React 19 + Tailwind v4 + shadcn/ui + WebGPU canvas) and desktop-native (tray icon via Tauri 2 `tauri-plugin-notification`).
-- **Signature element:** Halo State Pulse — service icon aura encoding throughput (rhythm 0.8–2.4 Hz) and error rate (LCH hue Earth Blue → Alert Burgundy). Lives on dedicated WebGPU canvas layer, exempt from chrome expression budget (0.3 base / 0.35 webview / 0.2 native).
+- **Signature element:** Halo State Pulse — service aura encoding activity (breathing rhythm 4–5 s quiet → ~2 s active; opacity + blur, never scale) and cumulative incident severity (LCH hue Earth Blue → Alert Burgundy + blur radius), with connection state as an orthogonal grayout axis. Lives on dedicated WebGPU canvas layer, exempt from chrome expression budget (0.3 base / 0.35 webview / 0.2 native). (Severity/activity-driven per Decisions Log 2026-05-29, superseding the original throughput/error-rate model.)
 - **Key rejection:** Gradient overlays, generic fonts (Inter/Roboto), uniform monochrome status icons, bounce easing, and "delightful" motion tone. Replaced with: flat surfaces + NASA palette + Halo State Pulse + data-driven state encoding + contemplative motion.
 - **Snapshot generation (curated observation log):** Transient telemetry (5–10 min ring buffer window) materializes as persistent markdown observation via the snapshot generator — enabling LLM-investigator digest. Triggered by "Generate Snapshot" action in tray menu and dashboard; completion confirmed via OS-native notification. The Investigation Capture Collapse supporting moment in Motion is the visual handshake for this action.
 - **Color World locked:** Deep Control Gray #1A1D24 / Alert Burgundy #C7556A / Earth Blue #4A90E2 / Status White-Blue #E8EEF7 / Stellar Indigo #2C3E7F / Feedback Cyan #17B3A3 — all derived from NASA Artemis Mission Control mood (user-confirmed in Q3, overriding library-shortlist palette structures).
@@ -525,3 +525,10 @@ Verify text-on-background contrast values match the Text Hierarchy table — Pri
 
 
 [Phase 7 Final Validation] Applied 2 patches: clarified Motion duration table (added explicit supporting-moments line + reorganized Investigation Capture Collapse into its own bullet); added "Snapshot generation (curated observation log)" bullet to Decisions Log to anchor the Domain Concept that was otherwise implicit.
+
+`2026-05-29` — Halo State Pulse driven by incident severity + activity + connection state (supersedes throughput/error-rate model)
+
+- **Trigger:** Chunk #90 (route#90 "Halo formula refactor", Epoch 9 — Foundation v0.2.0). The v0.2.0 distillation pipeline produces LLM-derived incident severity (chunk #83) + a connection state machine (chunk #59); the Halo's original chunk #31 inputs (`throughput_hz`, `error_rate`) are pre-distillation rule-based signals. Re-driving the signature element from the new pipeline is the route plan's intent (P-025 Halo Hue Encoding + P-026 Halo Breathing Encoding).
+- **Change:** (a) **Breathing frequency** band moves from `0.8–2.4 Hz` (clamped `throughput_hz / 1000`) to **period 4–5 s when quiet → ~2 s under active flow** (≈0.2–0.5 Hz), driven by an **activity state** tier rather than raw throughput. Calmer cadence fits an always-on ambient widget and keeps the luminance-change rate well under the SC 2.3.1 three-flashes threshold (0.5 Hz ≪ 3 Hz). (b) **Hue + blur radius** are driven by **cumulative incident severity** (max active-incident priority tier) rather than error rate — LCH Earth Blue → Alert Burgundy + blur 4–16 px. (c) **Connection state** added as an **orthogonal grayout/desaturation axis** (P-004 health-vs-severity orthogonality), independent of the severity hue axis. Breathing remains **opacity + blur modulation ONLY, never scale** (P-026 unchanged).
+- **Brand impact:** Signature element semantics preserved (dual-dimension encoding — rhythm + hue — retained, now severity/activity-driven; connection adds a third orthogonal axis). Earth Blue ↔ Alert Burgundy LCH interpolation endpoints + blur envelope (4–16 px) unchanged; only the input drivers + the breathing cadence band change. The 0.8–2.4 Hz figure from the chunk #31 / 2026-05-03 entries is now historical (those entries are preserved as audit trail; this entry supersedes the frequency band + drivers).
+- **Authority:** Adjusted directly in design-system.md per Andromeda living-artifact discipline (specialist plans evolve through Decisions Log when downstream pipeline capabilities require). User-authorized the locked-token change during /andromeda-phase Phase 6 (Q2 "Switch to 4–5 s / 2 s"). Mirrored in `.claude/rules/design-tokens.md` §Motion. Cross-references: capabilities P-025 / P-026 / P-004; chunk #90 plan `.andromeda/phases/phase-87/plan.md`.

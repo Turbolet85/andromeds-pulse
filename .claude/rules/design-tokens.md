@@ -63,11 +63,11 @@ NEVER use organic curves. Mixed strategy: most chrome at sm/md; only badges + to
 ## Motion (expression level 0.3 base / 0.35 webview / 0.2 native)
 - `--duration-fast` 150ms / `--duration-standard` 200ms / `--easing-out` `cubic-bezier(0.4, 0, 0.2, 1)`
 - Investigation Capture Collapse 250–350ms (supporting moment, EXEMPT from 200ms hard limit per design §Motion)
-- Halo State Pulse 0.8–2.4 Hz frequency (data-driven via WebGPU shader; clamped from `throughput_hz / 1000`); blur radius 4–16 px per cycle; LCH hue interpolation Earth Blue ↔ Alert Burgundy per error rate; EXEMPT from chrome budget (separate WebGPU canvas layer)
+- Halo State Pulse breathing period 4–5 s quiet → ~2 s under active flow (≈0.2–0.5 Hz; data-driven via WebGPU shader, driven by activity state — supersedes the chunk #31-era 0.8–2.4 Hz `throughput_hz / 1000` band per design-system.md Decisions Log 2026-05-29); opacity + blur modulation ONLY, never scale (P-026); blur radius 4–16 px per cycle mapped from cumulative incident severity; LCH hue interpolation Earth Blue ↔ Alert Burgundy by cumulative incident severity; connection state is an orthogonal grayout/desaturation axis; EXEMPT from chrome budget (separate WebGPU canvas layer)
 
 **Hard limits (NEVER do):** parallax / scroll animations / spring physics / staggered reveals / 3D transforms / canvas-WebGL except Halo / opacity fades >200ms.
 
-**Reduced motion (`prefers-reduced-motion: reduce`):** all transitions become instant (200ms→0ms, 150ms→0ms); Halo degrades to static glow (hue still updates per error rate).
+**Reduced motion (`prefers-reduced-motion: reduce`):** all transitions become instant (200ms→0ms, 150ms→0ms); Halo degrades to static glow (hue still updates per cumulative incident severity).
 
 ## Iconography
 - **Custom SVG glyphs** (registered as React components at `src/components/icons/`): `aperture`, `telescope`, `constellation-grid`, `star`, `circular-pulse` — astronomy/Observatory metaphor, monochrome `#E8EEF7` default.
