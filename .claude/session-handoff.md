@@ -1,77 +1,73 @@
 # Session Handoff
 
-**Last Updated:** 2026-05-29T19:32:26Z
+**Last Updated:** 2026-05-29T20:05:04Z
 **Branch:** main
 **Session End Status:** clean
-**Last Commit:** `<pending — session 161 chunk(90) implementation wrap commit this turn>` (prior HEAD: `58d846c` chore(setup-project): delta-rerun for 1 amendment — Halo severity/activity motion-token)
+**Last Commit:** `<wrap commit pending this turn>` (prior HEAD: `c3c7edd` chore(setup-project): delta-rerun for 1 amendment — chunk #91 service constellation route-append)
 
 ## Current State
 
-- **Last completed chunk:** route#90 "Halo formula refactor" (Epoch 9 — Foundation v0.2.0; committed this wrap, `commit_sha` pending per Proposal 16 Option b — heals next wrap). The Halo State Pulse now renders a **three-axis** model: hue+blur ← cumulative incident severity (`PriorityTier`), saturation/grayout ← `connectionState` (orthogonal P-004), breathing pace ← new `activityState`.
-- **Next chunk:** route#91 — NOT YET REGISTERED. Backlog candidates (project-doc `docs/v0_2_0/pulse-v0_2_0-route.md` §90+): "Service constellation rendering" (§90 — widget constellation dots) + "ConstellationCanvas dashboard cascade" (§91 — dashboard per-service halos to the new HaloCanvas API). Register via `/andromeda-evolve --allow-route-append`, then `/andromeda-phase`.
+- **Last completed chunk:** route#90 "Halo formula refactor" (Epoch 9 — Foundation v0.2.0; commit `3152bb0`). UNCHANGED this session — session 162 was a META cycle (route-append + delta-rerun + wrap), not a chunk implementation.
+- **Next chunk:** route#91 "Service constellation rendering" (Epoch 9; REGISTERED this session via `/andromeda-evolve --allow-route-append`; capability P-027). Ready to plan: `/andromeda-phase` → `/andromeda-implement`. Replaces widget `AggregatedBadgeCanvas.tsx` with per-service constellation dots (brightness=activity, hue=severity, seeded scatter; dormant dimmed, archived hidden); depends on landed #61/#68/#90.
 - **In-progress phase:** none.
-- **Phase artifacts present:** `.andromeda/phases/phase-87/` (chunk #90 plan/combined/research; complete).
+- **Phase artifacts present:** `.andromeda/phases/phase-87/` (chunk #90; complete). No phase-88 yet.
 
 ## Andromeda State Detection (states A-K)
 
-10 of 11 CLEAR; State E fires as the expected next-action signal (route#91 to register + plan).
+10 of 11 CLEAR; State E fires as the expected next-action signal (route#91 to plan).
 
-- **A — In-progress runs:** CLEAR — phase-87 complete; spec-amendment + setup-delta run-dirs complete (amendment.md + materialization-plan-delta.md present).
+- **A — In-progress runs:** CLEAR — evolve + spec-amendment + setup-delta run-dirs all complete (intent.md / amendment.md / materialization-plan-delta.md present).
 - **B — Status drift:** N/A (no project.yaml).
-- **C — Architecture staleness:** ✓ CLEAR — arch.md (2026-05-27) < CLAUDE.md (this wrap).
-- **D — Pending route:** CLEAR — route.md present, 90 chunks.
-- **E — Pending phase planning:** ℹ️ info (expected) — chunk #90 implemented; route#91 not yet registered. Next: `/andromeda-evolve --allow-route-append` then `/andromeda-phase`. Normal forward state.
+- **C — Architecture staleness:** ✓ CLEAR — arch.md (2026-05-27) < CLAUDE.md (this turn).
+- **D — Pending route:** CLEAR — route.md present, 91 chunks.
+- **E — Pending phase planning:** ℹ️ info (expected) — chunk #91 registered, not yet planned. Next: `/andromeda-phase`. Normal forward state.
 - **F — Pending implementation:** CLEAR — no unimplemented phase plan.
 - **G — Multiple concurrent runs:** CLEAR.
-- **H — Route chunk drift:** ℹ️ info (expected) — last_completed_chunk advanced 89→90; `commit_sha` = "pending" per Proposal 16 Option b (next wrap Phase 8 step 7 auto-heals to the HEAD-reachable chunk(90) SHA).
-- **I — Specialist plan freshness mismatch:** ✓ CLEAR — design_mtime bumped to 2026-05-29T19:32:26Z (matches the amended design-system.md, propagated + archived this wrap).
-- **J — Living artifact staleness:** ✓ CLEAR — dep-tree + api-surface reconciled this wrap (19:32:26Z).
+- **H — Route chunk drift:** ✓ CLEAR — commit_sha "pending" (carried from session 161) HEALED this wrap → `3152bb0` (chunk #90 impl; HEAD-reachable, title-overlap match). last_completed unchanged at #90 (META session, no chunk progressed).
+- **I — Specialist plan freshness mismatch:** ✓ CLEAR — plan_freshness.route_mtime re-captured (2026-05-29T20:02:15Z) to match route.md edited this session by the route-append.
+- **J — Living artifact staleness:** ✓ CLEAR — dep-tree + api-surface reconciled this wrap (20:05:04Z; <24h).
 - **K — Multi-chunk in-progress imbalance:** CLEAR — in_progress null.
 
 ## Drift Detection (6 dimensions)
 
 All 6 CLEAR. `state.yaml.drift_warnings = []`.
 
-- **D1 — Living artifact staleness:** ✓ CLEAR — both reconciled 19:32:26Z > most_recent_code_mtime 19:32:26Z (equal; this wrap's reconcile).
-- **D2 — Living artifact wrong content:** ✓ CLEAR — dep-tree zero-diff (463 lines); api-surface viz cycle-2 zero-diff (562 lines, byte-identical to cycle-1 session 146; build-noise grep clean).
-- **D3 — Plan-to-code drift:** ✓ CLEAR — chunk #90 consumer-side; `cargo xtask capability-drift` clean (0 missing/extra); zero new TauRPC/crate/broadcast/env-var.
-- **D4 — Plan-to-plan drift:** ✓ CLEAR — design-system.md amendment + design-tokens.md + design-summary.md + a11y.md + frontend.md + CLAUDE.md all reconciled consistently (severity/activity-driven Halo; 0.8–2.4 Hz superseded).
-- **D5 — Plan-to-CLAUDE.md drift:** ✓ CLEAR — CLAUDE.md (21:22 local) newer than amended design-system.md (20:58 local); the matching amendment was propagated + archived this wrap (Case 2 transient → cleared).
-- **D6 — Route chunk progression:** ✓ CLEAR — chunk #90 committed this wrap; last_completed advanced 89→90 in lockstep.
+- **D1 — Living artifact staleness:** ✓ CLEAR — most_recent_code_mtime (19:32:26Z, unchanged — zero source delta) ≤ reconcile (20:05:04Z).
+- **D2 — Living artifact wrong content:** ✓ CLEAR — dep-tree zero-diff (cargo tree = 463 lines); api-surface workspace-detector zero-diff by construction (source unchanged since cycle-1 session 147).
+- **D3 — Plan-to-code drift:** ✓ CLEAR — route-append touched zero code/arch; chunk #91 is consumer-side + not yet implemented (no new TauRPC/crate/broadcast/env-var).
+- **D4 — Plan-to-plan drift:** ✓ CLEAR — no specialist plan changes this session.
+- **D5 — Plan-to-CLAUDE.md drift:** ✓ CLEAR — CLAUDE.md (20:07Z) newest > route.md (20:02Z) > arch.md (05-27); the delta-rerun's pointer-table edit made CLAUDE.md newest (no transient D5).
+- **D6 — Route chunk progression:** ✓ CLEAR — no chunk(N>90) commit; chunk #91 registered, not implemented; last_completed stays #90.
 
 ## Spec Amendments (this session)
 
-Archived this session: **1** amendment — `2026-05-29T19-20-03-halo-severity-motion-token` (Type 1-5 specialist-plan BODY amendment; design-system.md §Motion). **FIRST Type 1-5 body amendment in this project** (all 27+ prior were Type 6 arch-registry / Type 7 route-append via `/andromeda-evolve`). Lifecycle in a single turn (skip-wrap path per spec-amendment-protocol Part D): applied 19:08:00Z (/implement Step 1, formalized retroactively) → propagated 19:20:03Z (/setup-project --delta, commit `58d846c` → design-summary.md + a11y.md + frontend.md + CLAUDE.md) → noted+archived 19:32:26Z (this wrap). `spec_amendments.active` empty post-archive; archive +1. Surfaced pipeline gap **P26** (/implement does not author amendments for PLANNED specialist-plan edits).
+Archived this session: **1** amendment — `2026-05-29T19-54-53-append-chunk-91-service-constellation` (Type 7 Form 1 route-append; route.md §2 Epoch 9 + §1 + §3). **14th Type 7 Form 1 single-cycle** in Epoch 9. Full lifecycle in one session: applied 19:54:53Z (`/andromeda-evolve --allow-route-append`) → propagated 20:05:04Z (`/andromeda-setup-project --delta`, commit `c3c7edd` → CLAUDE.md pointer-table 90→91) → noted+archived 20:05:04Z (this wrap). `spec_amendments.active` empty post-archive; archive now 73 entries.
 
 ## Key Decisions This Session
 
-1. **Implemented chunk #90 "Halo formula refactor"** (route#90) — webview-only three-axis Halo. `HaloCanvas` props `(errorRate, throughputHz)` → `(connectionState, cumulativeSeverity, activityState)`; 2 new pure-mapper modules (`activity-state.ts` throughput→tier; `severity-to-halo.ts` severity→hue/blur + connection→grayout + activity→breathing-period); WGSL gained `connection_dim` via a spare pad slot (no 32-byte buffer resize); opacity+blur breathing only (P-026, no scale); `recordFrameMs` SLO bridge + reduced-motion static-glow preserved.
-2. **Two user decisions (at /andromeda-phase Q1/Q2)** drove scope: Q1 "Extend: add ActivityState" → built as a real third axis (webview-derived from throughput, zero new TauRPC — arch-registry-clean); Q2 "Switch to 4–5 s / 2 s" breathing → required amending the locked design-system §Motion token.
-3. **Two scope refinements during /implement** (honoring the "ConstellationCanvas = future chunk, untouched" boundary): kept the shared `HaloInput` type (changed only `HaloCanvasProps` local interface + added `ActivityState`); kept `error-rate-to-blur.ts` + `throughput-to-hz.ts` (the dashboard `ConstellationCanvas` still imports them — deleting would break its build). Both deferred to the "ConstellationCanvas dashboard cascade" chunk (project-doc §91).
-4. **OQ3 defaulted** (not asked): the hue/blur axis uses `PriorityTier` (from the ready `use-findings.severityMax`), matching the project-doc §89 blur table's tier names; swappable to strict `IncidentSeverity` later.
-5. **Formalized the design-system amendment** (user chose "formalize amendment first" when --delta halted on empty active list) — marker + state.yaml entry + propagation; surfaced + filed pipeline gap **P26**.
+1. **Registered route#91 "Service constellation rendering"** (project-doc §90) — chosen over the alternative §91 "ConstellationCanvas dashboard cascade" at the `/andromeda-evolve` Phase 1c decision (AskUserQuestion). §90 is the natural next in source-doc sequence + bears capability P-027; §91 (cascade-only, closes the chunk-#90 deferred legacy-helper debt) deferred to a later chunk.
+2. **Chunk text given a trailing period** to match the §2 sibling punctuation (#86–#90) — 1-char format-fidelity adjustment; recorded consistently in marker + state.yaml.
+3. **Type 7 Form 1 single-cycle** end-to-end (evolve → setup-project --delta → wrap) — mechanically identical to chunks #58→#90 precedent; CLAUDE.md pointer-table cascade was the only delta-scoped distillation (route additions don't cascade through specialist-plan distillations).
 
 ## Files Modified
 
-**This wrap commit (chunk #90 implementation + wrap artifacts):**
-- M `pulse-app/ui/src/halo/{HaloCanvas.tsx, halo-types.ts, lch.ts, shaders/halo.wgsl, HaloCanvas.test.tsx, lch.test.ts}`
-- A `pulse-app/ui/src/halo/{activity-state.ts, activity-state.test.ts, severity-to-halo.ts, severity-to-halo.test.ts}`
-- M `pulse-app/ui/src/widget/{AggregatedBadgeCanvas.tsx, AggregatedBadgeCanvas.test.tsx, CompactWidget.tsx, CompactWidget.test.tsx}`
-- A `.andromeda/phases/phase-87/` (plan + combined + research)
-- M `.andromeda/state.yaml` (last_completed 89→90; amendment archived; freshness + cursor viz→workspace-detector; session_count 161; design_mtime bump)
-- M `.andromeda/context/{dependency-tree.md, api-surface.md}` (reconcile timestamps; LIVING zero-diff)
-- M `docs/andromeda-improvements.md` (P26)
-- M `.claude/session-handoff.md` (this file)
+**Committed in `c3c7edd` (this session's delta-rerun):** `.andromeda/route.md` (§2 chunk #91 + §1 Total chunks 90→91 + §3 Decisions Log), `CLAUDE.md` (pointer-table 90→91), `.andromeda/state.yaml` (active entry + propagated_by_run).
 
-**Prior in-turn commit `58d846c` (already landed — amendment + propagation):** `.andromeda/design-system.md`, `.claude/rules/{design-tokens.md, a11y.md, frontend.md}`, `.claude/docs/design-summary.md`, `CLAUDE.md`, `.andromeda/state.yaml` (active append).
+**This wrap commit:** `.andromeda/state.yaml` (amendment active→archive; last_wrap/last_reconcile; session_count 161→162; commit_sha heal pending→3152bb0; route_mtime; living_artifact_freshness timestamps + cursor→xtask), `.claude/session-handoff.md` (this file), `.andromeda/context/{dependency-tree.md, api-surface.md}` (METADATA Last-reconciled refresh; LIVING blocks zero-diff).
+
+**Gitignored (forensic on-disk):** `.andromeda/runs/2026-05-29T19-54-53-{evolve,spec-amendment}-append-chunk-91-service-constellation/` + `.andromeda/runs/2026-05-29T20-05-04-setup-project-delta/`.
 
 ## Curation Summary (this wrap)
 
 - **Tier 1 (CLAUDE.md USER:session-learnings):** 0
 - **Tier 2 (.claude/rules/* Session Additions):** 0
 - **Tier 3 (.claude/docs/session-learnings.md):** 0
-- **Filtered:** chunk-#90/#91-boundary scope decisions (kept HaloInput / kept helpers / PriorityTier-vs-IncidentSeverity) — task-specific (Filter 2); the grep-expansion + planned-specialist-edit observations are pipeline mechanics → docs/andromeda-improvements.md, not project-code rules.
-- **Andromeda pipeline proposals:** 1 patch — **P26** (Mode P): /implement does not author amendments for PLANNED specialist-plan edits ("Specialist plan touches: X") → --delta later halts on empty active list. Encountered live this session.
+- **Filtered:** chunk-#90/#91 boundary scope decisions (which backlog chunk to register; period-fidelity) — task-specific (Filter 2). The 14th-instance Type 7 single-cycle pattern is mechanically identical to precedent → documenting would be churn.
+- **Andromeda pipeline proposals:** 0 (Mode H — honest healthy scan; new-session → evolve → setup-project --delta → wrap chain executed exactly as designed; no friction surfaced).
+
+## Pipeline Accumulators
+
+A1 `api_surface_deferral`: IMPLEMENTED steady state preserved (verified_cleared_at_session=135; consecutive_count=0 — per-crate reconcile fired cleanly this wrap, `api_surface_deferred=false`). A2 dormant. 0 refactors filed, 0 patches filed (Mode H).
 
 ## Last Failed Command
 
@@ -79,27 +75,20 @@ Archived this session: **1** amendment — `2026-05-29T19-20-03-halo-severity-mo
 
 ## Tests Status
 
-passing — webview vitest 67 files / **623 tests** ✓ (+19 new mapper tests vs 604 baseline); `cargo fmt --check` ✓; `cargo xtask capability-drift` clean ✓; bindings.ts full-set intact. Rust workspace nextest verified 1544/1544 + 1 skip during /implement (zero `.rs` changed since → baseline preserved). `cargo clippy --workspace --all-targets --all-features -- -D warnings` ✓ (during /implement).
-
-**Dead-test scan (Proposal 15, warning-not-fatal):** 17 `#[cfg(test)] mod tests` blocks in `pulse-app/src/*.rs` (chronic — pulse-app `[lib] test = false`). Unchanged this wrap (chunk #90 is webview-only; zero `pulse-app/src/*.rs` changes).
-
-## Andromeda Pipeline Meta-observation (Mode P — patch filed)
-
-`docs/andromeda-improvements.md` present → scan ran. **1 patch filed (P26)** — the FIRST Type 1-5 specialist-plan body amendment in this project (design-system §Motion via chunk #90's declared "Specialist plan touches: design-system") surfaced that /implement authors amendments only for Trigger-4 harness drift, not for PLANNED specialist-plan edits — so /setup-project --delta halted on an empty active list and required retroactive "formalize amendment first". Accumulators: A1 `api_surface_deferral` IMPLEMENTED + verified (verified_cleared_at_session=135); per-crate reconcile fired cleanly this wrap (viz cycle-2 zero-diff), `api_surface_deferred=false`, consecutive_count stays 0. A2 dormant. 0 refactors filed.
+passing — security smoke 14/14 ✓ (0.150s). **Full suite baseline preserved**: this session changed ZERO source (`.rs`/`.tsx`) — only `route.md`/`CLAUDE.md`/`state.yaml` docs. Last full-suite baseline (session 161): webview vitest 623 ✓ · Rust nextest 1544/1544 + 1 skip · `cargo xtask capability-drift` clean. Dead-test scan (Proposal 15, warning-not-fatal): chronic `#[cfg(test)]` blocks in pulse-app/src (`[lib] test = false`) — unchanged this wrap (zero `.rs` touched).
 
 ## Next Recommended Action
 
-1. **`/andromeda-evolve --allow-route-append`** to register route#91 (choose from project-doc §90+ backlog: "Service constellation rendering" or "ConstellationCanvas dashboard cascade"), then **`/andromeda-phase`** + `/andromeda-implement`.
-   - **Note:** the **"ConstellationCanvas dashboard cascade"** chunk (project-doc §91) carries this session's deferred work: delete `error-rate-to-blur.ts` + `throughput-to-hz.ts` (+ tests) once the dashboard `ConstellationCanvas` migrates to the new HaloCanvas API, and retype the shared `HaloInput`. Prioritize it if you want to close the legacy-helper retention.
-2. **`git push origin main`** — branch is ~4 commits ahead of origin post-wrap (`d235632`, `bc905d9`, `58d846c`, + this wrap commit).
+1. **`/andromeda-phase`** to plan chunk #91 "Service constellation rendering", then **`/andromeda-implement`**. Scope: replace widget `AggregatedBadgeCanvas.tsx` with per-service constellation dots; touches design-system + layout-templates + a11y at /implement time.
+2. **`git push origin main`** — branch is ~6 commits ahead of origin post-wrap.
 
-**Secondary cleanup (not blocking):**
-- api-surface cycle-2 progression: workspace-detector next, then xtask (permanent binary-only placeholder) → cycle wraps back to buffer in ~1-2 wraps.
+**Secondary (not blocking):**
+- api-surface cursor at `xtask` (permanent binary-only placeholder); next real visit wraps back to `buffer` = cycle-2 completion.
+- The deferred chunk-#90 legacy-helper debt (delete `error-rate-to-blur.ts` + `throughput-to-hz.ts`, retype `HaloInput`) lands with the future "ConstellationCanvas dashboard cascade" chunk (project-doc §91) — register it after #91 to close that debt.
+- `spec_amendments.archive` at 73 entries (over the 50 soft-cap per spec-amendment-protocol Part B; prior wraps never enforced pruning — run-dir markers remain forensic; low-value grooming deferred).
 - `experiments/` + `ui/` untracked carryover (still in `git status`).
-- 17 dead-test blocks in pulse-app/src/ (Proposal 15 warning; user-deferred).
-- bincode 2.x upgrade hook (RAM-safe deserialize); v0.1.0 release blockers (Azure Key Vault EV cert + Apple Developer ID).
-- Pipeline patches awaiting review in `docs/andromeda-improvements.md`: P22-P26.
+- Pipeline patches awaiting review in `docs/andromeda-improvements.md`: P22–P26.
 
 ## Session Goals (carry-over)
 
-(none — this session's goal (plan + implement + propagate chunk #90) completed end-to-end: new-session → phase → implement → setup-project --delta → wrap.)
+(none — this session's goal (register + propagate + archive chunk #91 route-append) completed end-to-end: new-session → evolve → setup-project --delta → wrap.)
