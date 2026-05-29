@@ -15,15 +15,23 @@ import {
   useInvestigation,
 } from "../hooks/use-investigation";
 import { useFindings } from "../hooks/use-findings";
+import { useConnectionState } from "../hooks/use-connection-state";
+import { throughputToActivityState } from "../halo/activity-state";
 import { Report } from "../report/Report";
 import { AggregatedBadgeCanvas } from "./AggregatedBadgeCanvas";
 import { FindingsCounter } from "./FindingsCounter";
 import { FindingsDropdown } from "./FindingsDropdown";
 import type { WidgetMetrics } from "./widget-types";
+import type { ConnectionState } from "../bindings/index";
 
 interface CompactWidgetProps {
   metrics: WidgetMetrics;
 }
+
+// Neutral default while the connection state is still loading (jsdom /
+// pre-init Tauri context, where use-connection-state returns null): a
+// bound-but-idle receiver renders the halo at full color (no grayout).
+const DEFAULT_CONNECTION_STATE: ConnectionState = { state: "Listening" };
 
 export function CompactWidget({ metrics }: CompactWidgetProps) {
   return (
@@ -37,6 +45,7 @@ function CompactWidgetContents({ metrics }: CompactWidgetProps) {
   const { open, openInvestigation, closeInvestigation, triggerRef } =
     useInvestigation();
   const findings = useFindings();
+  const connection = useConnectionState();
   const [findingsOpen, setFindingsOpen] = useState(false);
   const [reportIncidentId, setReportIncidentId] = useState<number | null>(null);
   const findingsTriggerRef = useRef<HTMLButtonElement | null>(null);
@@ -74,8 +83,10 @@ function CompactWidgetContents({ metrics }: CompactWidgetProps) {
         <div style={{ flex: 1, minHeight: 0, padding: "var(--spacing-md)" }}>
           <AggregatedBadgeCanvas
             serviceCount={metrics.serviceCount}
-            throughputHz={metrics.throughputHz}
             errorRate={metrics.errorRate}
+            connectionState={connection?.state ?? DEFAULT_CONNECTION_STATE}
+            cumulativeSeverity={findings.severityMax}
+            activityState={throughputToActivityState(metrics.throughputHz)}
           />
         </div>
         <div

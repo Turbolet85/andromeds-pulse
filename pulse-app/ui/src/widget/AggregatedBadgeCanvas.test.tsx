@@ -2,6 +2,8 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import { AggregatedBadgeCanvas } from "./AggregatedBadgeCanvas";
 import { HaloCanvas } from "../halo/HaloCanvas";
+import type { ConnectionState, PriorityTier } from "../bindings/index";
+import type { ActivityState } from "../halo/halo-types";
 
 vi.mock("../halo/HaloCanvas", () => ({
   HaloCanvas: vi.fn(({ ariaLabel }: { ariaLabel: string }) => (
@@ -14,26 +16,55 @@ afterEach(() => {
   vi.unstubAllGlobals();
 });
 
+const RECEIVING: ConnectionState = { state: "Receiving" };
+const AUTONOMOUS: PriorityTier = "autonomous";
+const ACTIVE: ActivityState = "active";
+
 describe("AggregatedBadgeCanvas — composition", () => {
-  it("renders HaloCanvas with throughputHz + errorRate forwarded from props", () => {
-    render(<AggregatedBadgeCanvas serviceCount={24} throughputHz={1234} errorRate={0.012} />);
+  it("forwards the three Halo axes (connectionState + cumulativeSeverity + activityState)", () => {
+    render(
+      <AggregatedBadgeCanvas
+        serviceCount={24}
+        errorRate={0.012}
+        connectionState={{ state: "Stalled" }}
+        cumulativeSeverity="suggested"
+        activityState="quiet"
+      />,
+    );
     expect(vi.mocked(HaloCanvas)).toHaveBeenCalled();
     const lastCallProps = vi.mocked(HaloCanvas).mock.calls.at(-1)?.[0];
     expect(lastCallProps).toMatchObject({
       ariaLabel: "Service constellation halo",
-      throughputHz: 1234,
-      errorRate: 0.012,
+      connectionState: { state: "Stalled" },
+      cumulativeSeverity: "suggested",
+      activityState: "quiet",
     });
   });
 
   it("renders the HaloCanvas stub inside the badge container", () => {
-    render(<AggregatedBadgeCanvas serviceCount={24} throughputHz={1000} errorRate={0.05} />);
+    render(
+      <AggregatedBadgeCanvas
+        serviceCount={24}
+        errorRate={0.05}
+        connectionState={RECEIVING}
+        cumulativeSeverity={AUTONOMOUS}
+        activityState={ACTIVE}
+      />,
+    );
     expect(screen.getByTestId("aggregated-badge-canvas")).toBeDefined();
     expect(screen.getByTestId("halo-canvas-stub")).toBeDefined();
   });
 
   it("badge wraps in role=status with complete-sentence aria-label", () => {
-    render(<AggregatedBadgeCanvas serviceCount={24} throughputHz={1000} errorRate={0.012} />);
+    render(
+      <AggregatedBadgeCanvas
+        serviceCount={24}
+        errorRate={0.012}
+        connectionState={RECEIVING}
+        cumulativeSeverity={null}
+        activityState={ACTIVE}
+      />,
+    );
     const status = screen.getByRole("status", {
       name: /\d+ services, \d+\.\d+% average error rate/,
     });
@@ -41,20 +72,44 @@ describe("AggregatedBadgeCanvas — composition", () => {
   });
 
   it("decorative 'services' label is aria-hidden", () => {
-    render(<AggregatedBadgeCanvas serviceCount={24} throughputHz={1000} errorRate={0.012} />);
+    render(
+      <AggregatedBadgeCanvas
+        serviceCount={24}
+        errorRate={0.012}
+        connectionState={RECEIVING}
+        cumulativeSeverity={null}
+        activityState={ACTIVE}
+      />,
+    );
     const decoration = screen.getByText("services");
     expect(decoration.getAttribute("aria-hidden")).toBe("true");
   });
 
   it("visible service-count digits render in font-code with tabular-nums", () => {
-    render(<AggregatedBadgeCanvas serviceCount={24} throughputHz={1000} errorRate={0.012} />);
+    render(
+      <AggregatedBadgeCanvas
+        serviceCount={24}
+        errorRate={0.012}
+        connectionState={RECEIVING}
+        cumulativeSeverity={null}
+        activityState={ACTIVE}
+      />,
+    );
     const digit = screen.getByText("24");
     expect(digit.style.fontFamily).toContain("--font-code");
     expect(digit.style.fontVariantNumeric).toBe("tabular-nums");
   });
 
   it("badge overlay positions in bottom-right quadrant via absolute positioning", () => {
-    render(<AggregatedBadgeCanvas serviceCount={24} throughputHz={1000} errorRate={0.012} />);
+    render(
+      <AggregatedBadgeCanvas
+        serviceCount={24}
+        errorRate={0.012}
+        connectionState={RECEIVING}
+        cumulativeSeverity={null}
+        activityState={ACTIVE}
+      />,
+    );
     const status = screen.getByRole("status");
     expect(status.style.position).toBe("absolute");
     expect(status.style.bottom).toContain("--spacing-md");
@@ -65,8 +120,10 @@ describe("AggregatedBadgeCanvas — composition", () => {
     render(
       <AggregatedBadgeCanvas
         serviceCount={Number.NaN}
-        throughputHz={1000}
         errorRate={0.012}
+        connectionState={RECEIVING}
+        cumulativeSeverity={null}
+        activityState={ACTIVE}
       />,
     );
     const status = screen.getByRole("status");

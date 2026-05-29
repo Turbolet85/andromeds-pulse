@@ -1662,3 +1662,29 @@ Edge case: if marker is manually authored (e.g., this session's chain) AND Trigg
 - Encountered: session 160 wrap (chunk #90 route-append propagation META wrap); fix completed the session-151 comment-out at `state.yaml` last_completed_chunk block.
 - Related: Proposal 16 (State H "pending" -> real-SHA heal — this bug silently defeated that heal's parse-time effect for ~9 sessions).
 - Affected SKILL.md: `~/.claude/skills/andromeda-wrap-session/SKILL.md` Phase 8 step 3 (last_completed_chunk supersede) + step 7 (State H housekeeping — add duplicate-key guard).
+
+---
+
+### Proposal P26 — /andromeda-implement does not author an amendment record for PLANNED specialist-plan edits (route "Specialist plan touches: X"), only for Trigger-4 drift — so setup-project --delta later halts on empty active list
+
+## Status: PROPOSED — 2026-05-29 (session 161)
+
+**Mode:** P (patch)
+
+**Problem:** A route chunk whose entry declares "Specialist plan touches: {plan}" is expected to edit that specialist plan during /andromeda-implement (e.g., chunk #90 route §90 "Specialist plan touches: design-system" → /implement Step 1 edited design-system.md §Motion). But /andromeda-implement's spec-drift-protocol.md only authors an amendment record (marker + state.yaml.spec_amendments.active append) for **Trigger-4 harness-fired drift** — NOT for a PLANNED specialist-plan edit that is part of the chunk's declared scope. The planned edit lands directly in the specialist plan (+ its Decisions Log entry) with NO amendment record. Then /andromeda-setup-project --delta (the documented propagation mechanism per the 2026-05-16 manual-edit→delta precedent) HALTS at Setup step 1 because state.yaml.spec_amendments.active is empty — there is no tracked amendment to propagate, even though a real specialist-plan amendment was just made + its Tier 2/3 distillations are stale.
+
+**Encountered:** session 161 (chunk #90 "Halo formula refactor"). /implement Step 1 amended design-system.md §Motion (Halo breathing band + hue driver) per route §90's declared design-system touch + user Q2 authorization, but authored no amendment record. /setup-project --delta then could not run (empty active list). Resolution this session was the "formalize amendment first" path: retroactively wrote the marker + state.yaml.active entry (per session-144 manual-formalization precedent), THEN --delta propagated to design-summary.md + a11y.md + frontend.md + CLAUDE.md (grep-expansion caught 3 beyond the plan→file table's design-summary.md-only prediction).
+
+**Proposed fix (pick one or combine):**
+1. **/andromeda-implement authors the amendment for planned specialist-plan edits.** When a plan.md Implementation Step edits `.andromeda/{specialist}-plan.md`, /implement writes the amendment marker + state.yaml.active append (same Part A/B discipline as Trigger-4), Trigger = "chunk #X planned specialist-plan touch (route §X)". Makes planned-edit → --delta propagation seamless; no retroactive formalization.
+2. **/andromeda-phase flags specialist-plan-edit steps** so /implement knows to author the amendment.
+3. **setup-project --delta halt diagnostic gains a "formalize manual edit" branch** — the current halt recommends "full re-derive" but not "if you made a manual specialist-plan edit, formalize it as an amendment first".
+
+**Why this matters:** FIRST Type 1-5 specialist-plan BODY amendment in this project (all 27+ prior amendments were Type 6 arch-registry or Type 7 route-append, authored by /andromeda-evolve). The gap was invisible until a chunk's route entry declared a specialist-plan touch that /implement executed as a planned edit. As more chunks touch specialist plans (design-system / a11y / etc.), this halt recurs. Fix 1 is cleanest (seamless propagation); Fix 3 is cheapest (diagnostic-only).
+
+**When to do:** moderate priority. Fix 3 ~5 LOC; Fix 1 ~30-50 LOC + a spec-drift-protocol.md section.
+
+**Cross-references:**
+- Encountered: session 161 (chunk #90 implementation + setup-project --delta formalize-amendment path). Marker: `.andromeda/runs/2026-05-29T19-20-03-spec-amendment-halo-severity-motion-token/amendment.md`.
+- Related: 2026-05-16 CLAUDE.md session-learning (manual specialist-plan edits + setup-project --delta propagation); session-144 precedent (manual amendment formalization under user authorization).
+- Affected SKILL.md: `~/.claude/skills/andromeda-implement/references/spec-drift-protocol.md` (add planned-specialist-edit amendment-authoring path) + `~/.claude/skills/andromeda-setup-project/references/delta-rerun-protocol.md` Detection step 3 halt diagnostic (add formalize-manual-edit branch).

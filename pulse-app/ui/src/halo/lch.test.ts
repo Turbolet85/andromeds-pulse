@@ -5,7 +5,7 @@ const EARTH_BLUE = "#4A90E2";
 const ALERT_BURGUNDY = "#C7556A";
 
 describe("lchInterpolate — LCH (not RGB) color interpolation", () => {
-  it("error_rate=0 returns approximately Earth Blue (sRGB float)", () => {
+  it("fraction=0 returns approximately Earth Blue (sRGB float)", () => {
     const result = lchInterpolate(0, EARTH_BLUE, ALERT_BURGUNDY);
     expect(result.r).toBeCloseTo(74 / 255, 2);
     expect(result.g).toBeCloseTo(144 / 255, 2);
@@ -13,7 +13,7 @@ describe("lchInterpolate — LCH (not RGB) color interpolation", () => {
     expect(result.a).toBe(1);
   });
 
-  it("error_rate=1 returns approximately Alert Burgundy (sRGB float)", () => {
+  it("fraction=1 returns approximately Alert Burgundy (sRGB float)", () => {
     const result = lchInterpolate(1, EARTH_BLUE, ALERT_BURGUNDY);
     expect(result.r).toBeCloseTo(199 / 255, 2);
     expect(result.g).toBeCloseTo(85 / 255, 2);
@@ -21,7 +21,7 @@ describe("lchInterpolate — LCH (not RGB) color interpolation", () => {
     expect(result.a).toBe(1);
   });
 
-  it("error_rate=0.5 midpoint MUST land on LCH geodesic, NOT naive RGB midpoint (~#896E96)", () => {
+  it("fraction=0.5 midpoint MUST land on LCH geodesic, NOT naive RGB midpoint (~#896E96)", () => {
     const midpoint = lchInterpolate(0.5, EARTH_BLUE, ALERT_BURGUNDY);
     // RGB midpoint of Earth Blue (#4A90E2) and Alert Burgundy (#C7556A):
     //   r = (0.290 + 0.780) / 2 ≈ 0.535
@@ -38,28 +38,28 @@ describe("lchInterpolate — LCH (not RGB) color interpolation", () => {
     expect(maxDistance).toBeGreaterThan(0.05);
   });
 
-  it("clamps error_rate below 0 to lower bound (returns Earth Blue)", () => {
+  it("clamps fraction below 0 to lower bound (returns Earth Blue)", () => {
     const result = lchInterpolate(-1, EARTH_BLUE, ALERT_BURGUNDY);
     expect(result.r).toBeCloseTo(74 / 255, 2);
     expect(result.g).toBeCloseTo(144 / 255, 2);
     expect(result.b).toBeCloseTo(226 / 255, 2);
   });
 
-  it("clamps error_rate above 1 to upper bound (returns Alert Burgundy)", () => {
+  it("clamps fraction above 1 to upper bound (returns Alert Burgundy)", () => {
     const result = lchInterpolate(1.5, EARTH_BLUE, ALERT_BURGUNDY);
     expect(result.r).toBeCloseTo(199 / 255, 2);
     expect(result.g).toBeCloseTo(85 / 255, 2);
     expect(result.b).toBeCloseTo(106 / 255, 2);
   });
 
-  it("collapses NaN error_rate to lower bound (non-finite guard)", () => {
+  it("collapses NaN fraction to lower bound (non-finite guard)", () => {
     const result = lchInterpolate(Number.NaN, EARTH_BLUE, ALERT_BURGUNDY);
     expect(result.r).toBeCloseTo(74 / 255, 2);
     expect(result.g).toBeCloseTo(144 / 255, 2);
     expect(result.b).toBeCloseTo(226 / 255, 2);
   });
 
-  it("returns alpha = 1.0 (always opaque) regardless of error_rate", () => {
+  it("returns alpha = 1.0 (always opaque) regardless of fraction", () => {
     expect(lchInterpolate(0, EARTH_BLUE, ALERT_BURGUNDY).a).toBe(1);
     expect(lchInterpolate(0.25, EARTH_BLUE, ALERT_BURGUNDY).a).toBe(1);
     expect(lchInterpolate(0.5, EARTH_BLUE, ALERT_BURGUNDY).a).toBe(1);

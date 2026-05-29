@@ -23,17 +23,23 @@
 import { HaloCanvas } from "../halo/HaloCanvas";
 import { Icon } from "../components/icons";
 import { formatBadgeAriaLabel, formatServiceCount } from "./widget-types";
+import type { ActivityState } from "../halo/halo-types";
+import type { ConnectionState, PriorityTier } from "../bindings/index";
 
 interface AggregatedBadgeCanvasProps {
   serviceCount: number;
-  throughputHz: number;
   errorRate: number;
+  connectionState: ConnectionState;
+  cumulativeSeverity: PriorityTier | null;
+  activityState: ActivityState;
 }
 
 export function AggregatedBadgeCanvas({
   serviceCount,
-  throughputHz,
   errorRate,
+  connectionState,
+  cumulativeSeverity,
+  activityState,
 }: AggregatedBadgeCanvasProps) {
   const ariaLabel = formatBadgeAriaLabel(serviceCount, errorRate);
   return (
@@ -43,8 +49,9 @@ export function AggregatedBadgeCanvas({
     >
       <HaloCanvas
         ariaLabel="Service constellation halo"
-        throughputHz={throughputHz}
-        errorRate={errorRate}
+        connectionState={connectionState}
+        cumulativeSeverity={cumulativeSeverity}
+        activityState={activityState}
       />
       <div
         role="status"

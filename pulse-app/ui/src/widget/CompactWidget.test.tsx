@@ -20,6 +20,10 @@ vi.mock("../hooks/use-findings", () => ({
   useFindings: () => findingsMock.state,
 }));
 
+vi.mock("../hooks/use-connection-state", () => ({
+  useConnectionState: () => null,
+}));
+
 vi.mock("../components/Titlebar", () => ({
   Titlebar: () => <header data-testid="titlebar-stub">titlebar</header>,
 }));
@@ -27,18 +31,24 @@ vi.mock("../components/Titlebar", () => ({
 vi.mock("./AggregatedBadgeCanvas", () => ({
   AggregatedBadgeCanvas: ({
     serviceCount,
-    throughputHz,
     errorRate,
+    connectionState,
+    cumulativeSeverity,
+    activityState,
   }: {
     serviceCount: number;
-    throughputHz: number;
     errorRate: number;
+    connectionState: { state: string };
+    cumulativeSeverity: string | null;
+    activityState: string;
   }) => (
     <div
       data-testid="aggregated-badge-stub"
       data-service-count={serviceCount}
-      data-throughput-hz={throughputHz}
       data-error-rate={errorRate}
+      data-connection-state={connectionState.state}
+      data-cumulative-severity={cumulativeSeverity ?? "none"}
+      data-activity-state={activityState}
     />
   ),
 }));
@@ -97,12 +107,19 @@ describe("CompactWidget — three-band wireframe", () => {
 });
 
 describe("CompactWidget — props flow", () => {
-  it("forwards serviceCount + throughputHz + errorRate to AggregatedBadgeCanvas", () => {
+  it("forwards serviceCount + errorRate + derived Halo axes to AggregatedBadgeCanvas", () => {
+    setFindingsState({ count: 0, severityMax: null });
     render(<CompactWidget metrics={metrics} />);
     const badge = screen.getByTestId("aggregated-badge-stub");
     expect(badge.dataset.serviceCount).toBe("24");
-    expect(badge.dataset.throughputHz).toBe("1234");
     expect(badge.dataset.errorRate).toBe("0.012");
+    // activityState derived from metrics.throughputHz (1234 >= ACTIVE_THROUGHPUT_HZ)
+    expect(badge.dataset.activityState).toBe("active");
+    // useConnectionState mock returns null → CompactWidget falls back to the
+    // neutral default (Listening)
+    expect(badge.dataset.connectionState).toBe("Listening");
+    // findings.severityMax null → no active-incident severity
+    expect(badge.dataset.cumulativeSeverity).toBe("none");
   });
 });
 

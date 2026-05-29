@@ -4,14 +4,19 @@
 // Performance notes). Wraps in <region role="region" aria-label="..."> per
 // a11y-plan §1 desktop-webview row + §7 Landmark roles.
 //
-// Data inputs (throughputHz + errorRate) flow as React props from the parent;
-// chunk #31 ships with synthetic input from App.tsx (sine-wave simulator)
-// while real `streams.subscribe_metrics` Arrow IPC binding is deferred to
-// chunks #34/#35. Refs hold latest prop values so the long-lived rAF loop
-// reads fresh data without tearing down the pipeline on every prop update.
+// Data inputs (connectionState + cumulativeSeverity + activityState) flow as
+// React props from the parent (chunk #90; sourced from use-connection-state +
+// use-findings + the throughput→activity derivation). Refs hold latest prop
+// values so the long-lived rAF loop reads fresh data without tearing down the
+// pipeline on every prop update.
 //
-// Reduced-motion behavior: the rAF loop is suppressed (static glow) but hue
-// continues to update on errorRate prop change via a secondary effect that
+// Three orthogonal axes (per design-system §Motion Decisions Log 2026-05-29):
+// cumulative incident severity drives hue (LCH) + blur; activity drives the
+// breathing pace (4-5 s quiet → ~2 s active); connection state grays out the
+// halo independently (P-004). Breathing is opacity + blur only, never scale.
+//
+// Reduced-motion behavior: the rAF loop is suppressed (static glow) but hue +
+// blur + grayout continue to update on prop change via a secondary effect that
 // re-invokes one static-glow render per change. Per design-system §Motion
 // Accessibility + canvas/types.ts comment ("consumers may re-call start() to
 // repaint after data updates").
@@ -27,20 +32,28 @@ import {
 } from "../canvas/frame-metrics";
 import { requestWebGPUAdapter, type AdapterResult } from "../canvas/webgpu-adapter";
 import { createHaloPipeline } from "./halo-pipeline";
-import { throughputToHz } from "./throughput-to-hz";
-import { errorRateToBlur } from "./error-rate-to-blur";
 import { lchInterpolate } from "./lch";
+import {
+  activityStateToBreathingPeriodMs,
+  connectionStateToDim,
+  severityToBlurPx,
+  severityToHueFraction,
+} from "./severity-to-halo";
+import type { ActivityState } from "./halo-types";
+import type { ConnectionState, PriorityTier } from "../bindings/index";
 
 interface HaloCanvasProps {
   ariaLabel: string;
-  throughputHz: number;
-  errorRate: number;
+  connectionState: ConnectionState;
+  cumulativeSeverity: PriorityTier | null;
+  activityState: ActivityState;
 }
 
 const PREFERRED_FORMAT: GPUTextureFormat = "bgra8unorm";
 // 16 bytes (color: vec4<f32>) + 4 bytes (blur_target: f32) + 4 bytes
-// (pulse_phase: f32) + 8 bytes (_pad0/_pad1: f32) = 32 bytes total, matching
-// the HaloUniforms struct in halo.wgsl with WGSL std140-equivalent alignment.
+// (pulse_phase: f32) + 4 bytes (connection_dim: f32) + 4 bytes (_pad0: f32)
+// = 32 bytes total, matching the HaloUniforms struct in halo.wgsl with WGSL
+// std140-equivalent alignment.
 const UNIFORM_BUFFER_SIZE = 32;
 // Inlined per WebGPU spec (GPUBufferUsage.UNIFORM = 0x40, COPY_DST = 0x08).
 // jsdom test environment does not expose the runtime GPUBufferUsage global
@@ -54,20 +67,27 @@ function readDesignToken(name: string, fallback: string): string {
   return value || fallback;
 }
 
-export function HaloCanvas({ ariaLabel, throughputHz, errorRate }: HaloCanvasProps) {
+export function HaloCanvas({
+  ariaLabel,
+  connectionState,
+  cumulativeSeverity,
+  activityState,
+}: HaloCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [adapter, setAdapter] = useState<AdapterResult | null>(null);
   const [haloPipelineFailed, setHaloPipelineFailed] = useState(false);
   const reducedMotion = useReducedMotion() ?? false;
 
-  const throughputHzRef = useRef(throughputHz);
-  const errorRateRef = useRef(errorRate);
+  const connectionStateRef = useRef(connectionState);
+  const cumulativeSeverityRef = useRef(cumulativeSeverity);
+  const activityStateRef = useRef(activityState);
   const restartLoopRef = useRef<(() => void) | null>(null);
 
   useEffect(() => {
-    throughputHzRef.current = throughputHz;
-    errorRateRef.current = errorRate;
-  }, [throughputHz, errorRate]);
+    connectionStateRef.current = connectionState;
+    cumulativeSeverityRef.current = cumulativeSeverity;
+    activityStateRef.current = activityState;
+  }, [connectionState, cumulativeSeverity, activityState]);
 
   useEffect(() => {
     let cancelled = false;
@@ -122,9 +142,10 @@ export function HaloCanvas({ ariaLabel, throughputHz, errorRate }: HaloCanvasPro
     const renderContext = context;
 
     const writeUniforms = (pulsePhase: number): void => {
-      const currentErrorRate = errorRateRef.current;
-      const color = lchInterpolate(currentErrorRate, primaryHex, accentHex);
-      const blurTarget = errorRateToBlur(currentErrorRate);
+      const severity = cumulativeSeverityRef.current;
+      const color = lchInterpolate(severityToHueFraction(severity), primaryHex, accentHex);
+      const blurTarget = severityToBlurPx(severity);
+      const connectionDim = connectionStateToDim(connectionStateRef.current);
       const data = new Float32Array([
         color.r,
         color.g,
@@ -132,7 +153,7 @@ export function HaloCanvas({ ariaLabel, throughputHz, errorRate }: HaloCanvasPro
         color.a,
         blurTarget,
         pulsePhase,
-        0,
+        connectionDim,
         0,
       ]);
       device.queue.writeBuffer(uniformBuffer, 0, data.buffer);
@@ -160,7 +181,8 @@ export function HaloCanvas({ ariaLabel, throughputHz, errorRate }: HaloCanvasPro
     const loop = createFrameLoop({
       onFrame: (timestamp) => {
         const start = performance.now();
-        const hz = throughputToHz(throughputHzRef.current);
+        const periodMs = activityStateToBreathingPeriodMs(activityStateRef.current);
+        const hz = 1000 / periodMs;
         const phase = ((timestamp / 1000) * 2 * Math.PI * hz) % (2 * Math.PI);
         writeUniforms(phase);
         encodeAndSubmit();
@@ -203,7 +225,7 @@ export function HaloCanvas({ ariaLabel, throughputHz, errorRate }: HaloCanvasPro
     if (reducedMotion && restartLoopRef.current !== null) {
       restartLoopRef.current();
     }
-  }, [throughputHz, errorRate, reducedMotion]);
+  }, [connectionState, cumulativeSeverity, activityState, reducedMotion]);
 
   const showFallback =
     (adapter !== null && adapter.kind === "unavailable") || haloPipelineFailed;

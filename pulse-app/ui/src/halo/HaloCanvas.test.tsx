@@ -88,14 +88,14 @@ describe("HaloCanvas — semantic wrapper + adapter branch + reduced-motion gate
 
   it("renders <section role='region'> wrapper with the provided aria-label", async () => {
     stubGpuAvailable();
-    render(<HaloCanvas ariaLabel="Application status indicator" throughputHz={1000} errorRate={0} />);
+    render(<HaloCanvas ariaLabel="Application status indicator" connectionState={{ state: "Receiving" }} cumulativeSeverity={null} activityState="active" />);
     const region = await screen.findByRole("region", { name: "Application status indicator" });
     expect(region.tagName).toBe("SECTION");
   });
 
   it("applies design-token chrome (color-inset bg, radius-md, spacing-md padding)", async () => {
     stubGpuAvailable();
-    render(<HaloCanvas ariaLabel="Application status indicator" throughputHz={1000} errorRate={0} />);
+    render(<HaloCanvas ariaLabel="Application status indicator" connectionState={{ state: "Receiving" }} cumulativeSeverity={null} activityState="active" />);
     const region = await screen.findByRole("region");
     expect(region.style.background).toBe("var(--color-inset)");
     expect(region.style.borderRadius).toBe("var(--radius-md)");
@@ -105,7 +105,7 @@ describe("HaloCanvas — semantic wrapper + adapter branch + reduced-motion gate
   it("renders <canvas> + creates halo pipeline when WebGPU adapter is available", async () => {
     stubGpuAvailable();
     const { container } = render(
-      <HaloCanvas ariaLabel="Halo" throughputHz={1000} errorRate={0} />,
+      <HaloCanvas ariaLabel="Halo" connectionState={{ state: "Receiving" }} cumulativeSeverity={null} activityState="active" />,
     );
     await waitFor(() => {
       expect(haloPipelineModule.createHaloPipeline).toHaveBeenCalled();
@@ -117,7 +117,7 @@ describe("HaloCanvas — semantic wrapper + adapter branch + reduced-motion gate
   it("renders <Fallback role='alert'> when navigator.gpu is undefined", async () => {
     stubGpuUnavailable();
     const { container } = render(
-      <HaloCanvas ariaLabel="Halo" throughputHz={1000} errorRate={0} />,
+      <HaloCanvas ariaLabel="Halo" connectionState={{ state: "Receiving" }} cumulativeSeverity={null} activityState="active" />,
     );
     await waitFor(() => {
       expect(screen.getByRole("alert")).toBeDefined();
@@ -133,7 +133,7 @@ describe("HaloCanvas — semantic wrapper + adapter branch + reduced-motion gate
       reason: "halo pipeline creation failed",
     });
     const { container } = render(
-      <HaloCanvas ariaLabel="Halo" throughputHz={1000} errorRate={0} />,
+      <HaloCanvas ariaLabel="Halo" connectionState={{ state: "Receiving" }} cumulativeSeverity={null} activityState="active" />,
     );
     await waitFor(() => {
       expect(screen.getByRole("alert")).toBeDefined();
@@ -145,7 +145,7 @@ describe("HaloCanvas — semantic wrapper + adapter branch + reduced-motion gate
     vi.mocked(useReducedMotion).mockReturnValue(true);
     stubGpuAvailable();
     const rafSpy = vi.spyOn(globalThis, "requestAnimationFrame");
-    render(<HaloCanvas ariaLabel="Halo" throughputHz={1000} errorRate={0} />);
+    render(<HaloCanvas ariaLabel="Halo" connectionState={{ state: "Receiving" }} cumulativeSeverity={null} activityState="active" />);
     await waitFor(() => {
       expect(haloPipelineModule.createHaloPipeline).toHaveBeenCalled();
     });
@@ -156,7 +156,7 @@ describe("HaloCanvas — semantic wrapper + adapter branch + reduced-motion gate
   it("invokes recordFrameMs from the reduced-motion static-paint branch (stable 4-field shape)", async () => {
     vi.mocked(useReducedMotion).mockReturnValue(true);
     stubGpuAvailable();
-    render(<HaloCanvas ariaLabel="Halo" throughputHz={1000} errorRate={0} />);
+    render(<HaloCanvas ariaLabel="Halo" connectionState={{ state: "Receiving" }} cumulativeSeverity={null} activityState="active" />);
     await waitFor(() => {
       expect(frameMetricsModule.recordFrameMs).toHaveBeenCalled();
     });
@@ -171,17 +171,29 @@ describe("HaloCanvas — semantic wrapper + adapter branch + reduced-motion gate
     expect(call.timing_method).toBe("cpu");
   });
 
-  it("re-renders one static-glow frame on errorRate prop change under reduced-motion", async () => {
+  it("re-renders one static-glow frame on cumulativeSeverity prop change under reduced-motion", async () => {
     vi.mocked(useReducedMotion).mockReturnValue(true);
     stubGpuAvailable();
     const { rerender } = render(
-      <HaloCanvas ariaLabel="Halo" throughputHz={1000} errorRate={0.0} />,
+      <HaloCanvas
+        ariaLabel="Halo"
+        connectionState={{ state: "Receiving" }}
+        cumulativeSeverity={null}
+        activityState="active"
+      />,
     );
     await waitFor(() => {
       expect(frameMetricsModule.recordFrameMs).toHaveBeenCalled();
     });
     const callsBeforeRerender = vi.mocked(frameMetricsModule.recordFrameMs).mock.calls.length;
-    rerender(<HaloCanvas ariaLabel="Halo" throughputHz={1000} errorRate={0.5} />);
+    rerender(
+      <HaloCanvas
+        ariaLabel="Halo"
+        connectionState={{ state: "Receiving" }}
+        cumulativeSeverity="autonomous"
+        activityState="active"
+      />,
+    );
     await waitFor(() => {
       expect(vi.mocked(frameMetricsModule.recordFrameMs).mock.calls.length).toBeGreaterThan(
         callsBeforeRerender,

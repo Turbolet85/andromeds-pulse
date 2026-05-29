@@ -18,11 +18,11 @@ export interface RgbaFloat {
 }
 
 export function lchInterpolate(
-  errorRate: number,
+  severityFraction: number,
   primaryHex: string,
   accentHex: string,
 ): RgbaFloat {
-  const t = !Number.isFinite(errorRate) ? 0 : Math.max(0, Math.min(1, errorRate));
+  const t = !Number.isFinite(severityFraction) ? 0 : Math.max(0, Math.min(1, severityFraction));
   const primary = new Color(primaryHex);
   const accent = new Color(accentHex);
   const interp = primary.range(accent, { space: "lch" })(t);
