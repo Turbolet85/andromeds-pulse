@@ -1639,3 +1639,26 @@ Edge case: if marker is manually authored (e.g., this session's chain) AND Trigg
 - Affected SKILL.md: `~/.claude/skills/andromeda-wrap-session/SKILL.md` Phase 8 spec_amendments lifecycle progression block
 - Affected references: `references/spec-amendment-protocol.md` Part D Architecture.md exception → Type 6 permit path subsection (add trivially-empty-cascade auto-progress sub-clause)
 - Affected referenced delta protocol: `~/.claude/skills/andromeda-setup-project/references/delta-rerun-protocol.md` (no change required; defense-in-depth Trigger check stays unchanged — setup-project --delta refuses manual markers correctly; wrap-session is the proper lifecycle resolution path для trivially-empty cascades)
+
+---
+
+### Proposal P25 — wrap-session prior-block supersede leaves live duplicate keys that YAML-last-win-shadow last_completed_chunk (silently defeats the State H heal)
+
+## Status: PROPOSED — 2026-05-29 (session 160)
+
+**Problem:** When wrap-session supersedes `state.yaml.last_completed_chunk` and preserves the prior block as commented narrative (the `# PRIOR last_completed_chunk:` pattern), an incomplete comment-out can leave some of the prior block's keys (`epoch` / `committed_at` / `commit_sha` / `commit_subject`) UNcommented at the same 2-space indent. Because they stay inside the `last_completed_chunk:` mapping, they become live YAML DUPLICATE KEYS — and YAML last-key-wins means the stale prior values silently shadow the current block's values. The State H housekeeping heal (Proposal 16) edits the FIRST `commit_sha:` line, but the duplicate lower in the mapping wins at parse time, so the heal is silently ineffective.
+
+**Encountered:** session 160 wrap. `last_completed_chunk` correctly showed `route_index: 89` + chunk-89 `title` (those keys were NOT duplicated), but `python yaml.safe_load` resolved `commit_sha: 4489ae3` + `committed_at: 2026-05-25T18:45:37Z` + `commit_subject: "chunk(86): ..."` — chunk #86's metadata, stale since session 151. Root cause: the session-151 supersede commented `# PRIOR last_completed_chunk:` + `# route_index: 86` + `# title: ...` (3 lines) but left `epoch: 9` / `committed_at:` / `commit_sha: 4489ae3` / `commit_subject: "chunk(86)..."` (4 lines) uncommented. So for ~9 sessions (151 -> 159) every State H "heal" edited the first commit_sha line while the duplicate won at parse time — new-session dashboards reading `commit_sha` would have shown the stale 4489ae3. Fixed this wrap by completing the comment-out.
+
+**Proposed fix (two complementary guards):**
+1. **Phase 8 duplicate-key detection (primary):** after the atomic state.yaml write, parse with a duplicate-key-rejecting loader (a `yaml.SafeLoader` subclass overriding `construct_mapping` to raise on duplicate keys, OR a post-parse scan asserting exactly 1 non-comment occurrence each of `commit_sha`/`committed_at`/`commit_subject`/`route_index` under `last_completed_chunk`). Surface a fatal-class warning on any duplicate. Catches the class regardless of how the duplicate arose.
+2. **Supersede discipline (preventive):** when superseding `last_completed_chunk`, DELETE the prior block (git history + amendment markers are the audit trail; prior chunk metadata is recoverable) rather than comment it. If narrative preservation is desired, comment EVERY line of the block — never a prefix.
+
+**Why this matters:** `last_completed_chunk.commit_sha` is read by new-session State H detection + the dashboard "Last completed chunk" line + the State H heal itself. A silent duplicate-key shadow means all three operate on stale data while reporting success — exactly the failure mode the State H machinery (Proposal 16) was built to prevent, defeated one layer below. The bug is invisible to line-level edits (the heal "succeeds") and only surfaces under a full YAML parse.
+
+**When to do:** moderate priority. Cheap to implement (~15-25 LOC: a duplicate-key scan in wrap-session Phase 8 + a one-line discipline note in the supersede step).
+
+**Cross-references:**
+- Encountered: session 160 wrap (chunk #90 route-append propagation META wrap); fix completed the session-151 comment-out at `state.yaml` last_completed_chunk block.
+- Related: Proposal 16 (State H "pending" -> real-SHA heal — this bug silently defeated that heal's parse-time effect for ~9 sessions).
+- Affected SKILL.md: `~/.claude/skills/andromeda-wrap-session/SKILL.md` Phase 8 step 3 (last_completed_chunk supersede) + step 7 (State H housekeeping — add duplicate-key guard).

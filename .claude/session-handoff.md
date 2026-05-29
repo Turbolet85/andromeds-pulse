@@ -1,105 +1,99 @@
 # Session Handoff
 
-**Last Updated:** 2026-05-29T15:46:07Z
+**Last Updated:** 2026-05-29T17:53:55Z
 **Branch:** main
 **Session End Status:** clean
-**Last Commit:** `<pending — session 159 chunk #89 implementation wrap commit this turn>` (prior HEAD: 84217aa session 158 wrap)
+**Last Commit:** `<pending — session 160 META wrap commit this turn>` (prior HEAD: `d235632` chore(setup-project): delta-rerun for chunk #90 route-append)
 
 ## Current State
 
-- **Last completed chunk:** route#89 "Header redesign: connection dot + chrome cleanup" (Epoch 9 — Foundation v0.2.0; committed this wrap, commit_sha `pending` per Proposal 16 Option b — next wrap Phase 8 step 7 heals to the HEAD-reachable SHA).
-- **Next chunk:** route#89 is the **final registered chunk** of the 89-chunk route. The project-doc backlog (`docs/v0_2_0/pulse-v0_2_0-route.md` §89) lists "Halo formula refactor" as the next candidate — NOT yet registered in route.md. Register via `/andromeda-evolve --allow-route-append` (would become route#90), then `/andromeda-phase`.
-- **In-progress phase:** none (chunk #89 implemented + green; phase-86 artifacts complete).
-- **Phase artifacts present:** `.andromeda/phases/phase-86/` (combined.md + research.md + plan.md — chunk #89 plan).
+- **Last completed chunk:** route#89 "Header redesign: connection dot + chrome cleanup" (Epoch 9 — Foundation v0.2.0; committed `60c7a17`, session 159). `commit_sha` healed `pending` → `60c7a17` this wrap (Proposal 16 Phase 8 step 7).
+- **Next chunk:** route#90 "Halo formula refactor" — REGISTERED this session (route-append) + amendment propagated + archived. Ready to plan via `/andromeda-phase`, then `/andromeda-implement`.
+- **In-progress phase:** none.
+- **Phase artifacts present:** `.andromeda/phases/phase-86/` (chunk #89 plan; complete). No phase dir for #90 yet.
 
 ## Andromeda State Detection (states A-K)
 
-10 of 11 CLEAR; State H fires as the expected post-wrap `commit_sha=pending` info signal.
+10 of 11 CLEAR; State E fires as the expected next-action signal (chunk #90 ready to plan).
 
-- **A — In-progress runs:** CLEAR — the phase-86 run dir (`2026-05-29T14-34-03-phase-86/`) is complete (plan.md present + 7 raw + 7 stripped extracts).
+- **A — In-progress runs:** CLEAR — evolve + setup-delta run-dirs complete (amendment.md + materialization-plan-delta.md present).
 - **B — Status drift:** N/A (no project.yaml).
-- **C — Architecture staleness:** ✓ CLEAR — arch.md mtime 2026-05-27 < CLAUDE.md mtime 2026-05-29T14:11Z (CLAUDE.md not edited this wrap).
-- **D — Pending route:** CLEAR — route.md present with 89 chunks.
-- **E — Pending phase planning:** CLEAR (route exhausted) — route#89 is the last registered chunk + it is now implemented. No unplanned chunk in route. Next is a route-append for #90 (Halo refactor), not a phase-plan of an existing chunk.
-- **F — Pending implementation:** CLEAR — phase-86 plan implemented + committed.
+- **C — Architecture staleness:** ✓ CLEAR — arch.md (2026-05-27T17:17Z) < CLAUDE.md (2026-05-29T17:41Z).
+- **D — Pending route:** CLEAR — route.md present, 90 chunks.
+- **E — Pending phase planning:** ℹ️ info (expected) — route#90 "Halo formula refactor" registered + propagated; next action `/andromeda-phase`. Normal forward state, not an anomaly.
+- **F — Pending implementation:** CLEAR — no phase plan for #90 yet.
 - **G — Multiple concurrent runs:** CLEAR.
-- **H — Route chunk drift:** ℹ️ info (expected) — `last_completed_chunk.commit_sha = "pending"` (Proposal 16 Option b). The chunk #89 commit lands this wrap; next wrap-session Phase 8 step 7 auto-heals the SHA. Routine cycle marker, not an anomaly.
-- **I — Specialist plan freshness mismatch:** CLEAR — no specialist plan / arch / route edited this session; plan_freshness mtimes unchanged.
-- **J — Living artifact staleness:** ✓ CLEAR — dep-tree + api-surface both reconciled this wrap (15:46:07Z); most_recent_code_mtime 2026-05-29T15:15Z < reconcile.
+- **H — Route chunk drift:** ✓ CLEAR — commit_sha healed `pending` → `60c7a17` (chunk #89 impl, HEAD-reachable, "chunk(89)" subject match). No new pending (META wrap; #90 registered, not implemented).
+- **I — Specialist plan freshness mismatch:** ✓ CLEAR — plan_freshness.route_mtime updated to 2026-05-29T17:38:10Z (matches route.md post evolve edit).
+- **J — Living artifact staleness:** ✓ CLEAR — dep-tree + api-surface reconciled this wrap (17:53:55Z).
 - **K — Multi-chunk in-progress imbalance:** CLEAR — in_progress null.
 
 ## Drift Detection (6 dimensions)
 
 All 6 CLEAR. `state.yaml.drift_warnings = []`.
 
-- **D1 — Living artifact staleness:** ✓ CLEAR — both artifacts reconciled this wrap (after the chunk #89 code edits).
-- **D2 — Living artifact wrong content:** ✓ CLEAR — dep-tree zero-diff (463 lines); api-surface triage sub-block spliced cleanly (markers + adjacent ui-bridge sub-block intact; YAML structure verified via python yaml.safe_load).
-- **D3 — Plan-to-code drift:** ✓ CLEAR — chunk #89 is consumer-side (no new TauRPC procedure / broadcast topic / crate / env var); `cargo xtask capability-drift` clean (0 missing, 0 extra). No arch §Occupied Resources delta.
-- **D4 — Plan-to-plan drift:** ✓ CLEAR — no cross-plan changes this session.
-- **D5 — Plan-to-CLAUDE.md drift:** ✓ CLEAR — no upstream (arch May 27 / route May 29 14:07Z / specialists) newer than CLAUDE.md (May 29 14:11Z); CLAUDE.md not edited this wrap.
-- **D6 — Route chunk progression drift:** ✓ CLEAR — last_completed_chunk advances to #89 this wrap; chunk(89) commit lands this wrap; no drift.
+- **D1 — Living artifact staleness:** ✓ CLEAR — both reconciled 17:53:55Z > most_recent_code_mtime 15:15Z (session 159).
+- **D2 — Living artifact wrong content:** ✓ CLEAR — dep-tree zero-diff (463 lines); api-surface ui-bridge cycle-2 API zero-diff (1611 lines identical; only the cycle-1 build-noise wrapper removed; outer markers + adjacent sub-blocks intact).
+- **D3 — Plan-to-code drift:** ✓ CLEAR — chunk #90 registered consumer-side (zero arch-registry delta; no new TauRPC/crate/broadcast/env-var). No §Occupied Resources delta.
+- **D4 — Plan-to-plan drift:** ✓ CLEAR — no cross-plan changes.
+- **D5 — Plan-to-CLAUDE.md drift:** ✓ CLEAR — CLAUDE.md (17:41Z) newer than route.md (17:38Z) + arch.md (May 27) + all specialists.
+- **D6 — Route chunk progression:** ✓ CLEAR — last_completed at #89 (60c7a17); chunk #90 registered, not implemented; no chunk(90) commit.
 
 ## Spec Amendments (this session)
 
-(none this session) — `state.yaml.spec_amendments.active` empty at session start + end. The chunk #89 route-append amendment completed its lifecycle in session 158 (archived). This session was a chunk IMPLEMENTATION (code), not a spec amendment.
+Archived this session: **1** amendment — `2026-05-29T17-27-46-append-chunk-90-halo-formula-refactor` (Type 7 Form 1, `--allow-route-append`). Full lifecycle in a single session: applied 17:27:46Z (/andromeda-evolve) → propagated 17:39:37Z (/andromeda-setup-project --delta, commit `d235632`) → noted+archived 17:53:55Z (this wrap). 13th instance of the Type 7 Form 1 single-cycle pattern. `spec_amendments.active` empty post-archive; archive +1.
 
 ## Key Decisions This Session
 
-1. **Chunk #89 implemented end-to-end (webview-only).** Removed the `Ingest/Error/Retention` FooterBand entirely (P-024 ambient invariant); added a connection-state dot in the titlebar. The dot is **non-interactive** (`role="img"` + always-present `aria-label`, not a `<button>`) — satisfies SC 1.4.1 not-color-alone without adding a tab stop, and keeps a11y-plan §1's "SC 1.4.13 not applicable" valid. First webview consumer of `connection.current_state` via a PULL hook (mirrors the chunk #87 `use-findings` precedent). Zero arch-registry delta.
+1. **Registered route#90 "Halo formula refactor"** via `/andromeda-evolve --allow-route-append` (Type 7 Form 1; §1 89→90, §2 Epoch 9 +1 chunk, §3 compact Decisions Log entry). Consumer-side webview chunk — drives Halo hue+breathing from LLM `cumulativeSeverity` + `connectionState` instead of rule-based error-rate/throughput; capabilities P-025/P-026; deps #83 (LLM severity) + #59 (connection state) both landed.
+2. **Propagated** via `/andromeda-setup-project --delta` (Branch (b): CLAUDE.md pointer-table 89→90 cascade), then archived this wrap — clean single-session Type 7 cycle.
+3. **ui-bridge api-surface cycle-2 refresh:** API verified zero-diff (1611 lines identical to session-145 capture); surgically removed 2 cycle-1 build-noise lines (stderr leaked into stdout at the session-145 capture). viz carries the same artifact — self-cleans on its cycle-2 visit next wrap (cursor advanced ui-bridge → viz).
+4. **Found + fixed a latent state.yaml data-integrity bug (filed as Proposal P25).** `last_completed_chunk` had live duplicate keys (`epoch`/`committed_at`/`commit_sha: 4489ae3`/`commit_subject: "chunk(86)…"`) left uncommented when session 151 superseded the prior block — YAML last-key-wins silently shadowed the chunk-89 values (commit_sha parsed as `4489ae3` = chunk #86) for ~9 sessions, defeating every State H heal at parse time despite route_index/title correctly showing #89. Completed the comment-out (state.yaml lines 687-690); `commit_sha` now correctly resolves to `60c7a17`.
 
-2. **Full runtime smoke test (user-requested) — PASSED with visual confirmation.** Booted the real app via `tauri dev` (after rebuilding `ui/dist`); verified OTLP receivers bound `127.0.0.1:4317`+`:4318`, and captured a PowerShell window screenshot confirming the Earth-Blue connection dot renders, the footer band is gone, and the Halo canvas reflows. Captured the recipe as a Tier 3 learning.
+## Files Modified (this wrap)
 
-3. **0 fix-loop iterations** — all gates green on first pass (webview lint/typecheck + vitest 604/604; Rust fmt/clippy + nextest 1544/1544 +1 skip; capability-drift clean).
-
-## Files Modified
-
-- A `pulse-app/ui/src/hooks/use-connection-state.ts` (+ `.test.ts`)
-- A `pulse-app/ui/src/components/ConnectionDot.tsx` (+ `.test.tsx`)
-- M `pulse-app/ui/src/components/Titlebar.tsx` (+ `Titlebar.test.tsx`)
-- M `pulse-app/ui/src/widget/CompactWidget.tsx` (+ `CompactWidget.test.tsx`)
-- D `pulse-app/ui/src/widget/FooterBand.tsx` (+ `FooterBand.test.tsx`)
-- M `.claude/docs/session-learnings.md` (Tier 3 +1 — Tauri visual smoke recipe)
-- M `.claude/session-handoff.md` (this file)
-- M `.andromeda/state.yaml` (last_completed_chunk → #89; session_count 158→159; living-artifact freshness + cursor triage→ui-bridge)
+- M `.andromeda/state.yaml` (lifecycle archive #90; commit_sha heal pending→60c7a17; **duplicate-key-shadow fix lines 687-690 — see P25**; cursor ui-bridge→viz; session_count 159→160; freshness + route_mtime)
+- M `docs/andromeda-improvements.md` (Proposal P25 — duplicate-key-shadow bug + Phase 8 guard)
 - M `.andromeda/context/dependency-tree.md` (METADATA timestamp; LIVING zero-diff 463 lines)
-- M `.andromeda/context/api-surface.md` (triage sub-block FIRST POPULATE +2082 lines; METADATA)
-- A `.andromeda/phases/phase-86/` (combined.md + research.md + plan.md)
+- M `.andromeda/context/api-surface.md` (ui-bridge build-noise removal −2 lines; METADATA timestamp)
+- M `.claude/session-handoff.md` (this file)
 
-bindings.ts: regenerated to full-mcp + identical to HEAD (chunk added no TauRPC type — not in the commit diff).
+(Prior in-session commit `d235632` already landed: CLAUDE.md pointer-table + route.md §1/§2/§3 + state.yaml active-append.)
 
 ## Curation Summary (this wrap)
 
 - **Tier 1 (CLAUDE.md USER:session-learnings):** 0
 - **Tier 2 (.claude/rules/* Session Additions):** 0
-- **Tier 3 (.claude/docs/session-learnings.md):** 1 — "Full visual smoke test for a Tauri GUI chunk on Windows" (build dist first / boot tauri dev bg + until-watcher / ports-as-proof / PowerShell window screenshot / clean teardown / post-smoke bindings.ts regen) (confidence 0.62).
-- **Filtered:** the "tauri dev needs npm run build first" + "bindings.ts overwritten at boot" parts deduped against frontend.md 2026-05-10/19 (Filter 1); the non-interactive `role=img` dot a11y micro-pattern deferred (confidence < 0.6 — one-off, self-decided, no correction/repeat); chunk-specific details (file:line) rejected (Filter 2).
-
-## Andromeda Pipeline Meta-observation (Mode H — honest-healthy)
-
-`docs/andromeda-improvements.md` present → scan ran. No friction filed (the 4-skill chain new-session → phase → implement → wrap executed cleanly; the runtime smoke was a user-driven manual workflow, not a pipeline-mechanism gap). Accumulators: A1 `api_surface_deferral` IMPLEMENTED + verified (verified_cleared_at_session=135; per-crate reconcile fired cleanly this wrap, consecutive_count 0). A2 dormant. 0 patches, 0 refactors filed.
+- **Tier 3 (.claude/docs/session-learnings.md):** 0
+- **Filtered:** textbook 13th-instance route-append + delta + wrap; mechanically identical to 12 prior instances — documenting would be churn (Filter 1 dedup). The ui-bridge build-noise cleanup is a task-specific data-artifact fix (Filter 2), not a generalizable rule.
+- **Andromeda pipeline proposals:** 1 patch (P25 — wrap-session prior-block supersede leaves live duplicate keys that YAML-last-win-shadow last_completed_chunk; Phase 8 duplicate-key guard proposed). Mode P.
 
 ## Last Failed Command
 
-(none — the wrap executed cleanly. One mid-wrap Edit was retried with a corrected old_string value, but no shell command ended in error.)
+(none — the wrap executed cleanly. One mid-wrap Write was retried after a Read-before-Write guard on session-handoff.md — no shell command ended in error.)
 
 ## Tests Status
 
-passing — Rust `cargo nextest run --workspace --profile ci` 1544/1544 + 1 skip (env-gated llamacli subprocess smoke); webview `npm run test` 604/604 across 65 files. Lint + typecheck + fmt + clippy + capability-drift all clean.
+passing (smoke) — `cargo nextest run -p security --profile ci` 14/14 (0.14s). Full suite unchanged from session-159 baseline (Rust `nextest --workspace` 1544/1544 + 1 skip; webview vitest 604/604) — zero source code changed this META session.
 
-**Dead-test scan (Proposal 15, warning-not-fatal):** 17 `#[cfg(test)] mod tests` blocks in `pulse-app/src/*.rs` (chronic — pulse-app has `[lib] test = false`; these compile but never run as nextest binaries). Unchanged this wrap (chunk #89 added zero `pulse-app/src` tests; all chunk tests live in `pulse-app/ui` vitest).
+**Dead-test scan (Proposal 15, warning-not-fatal):** 17 `#[cfg(test)] mod tests` blocks in `pulse-app/src/*.rs` (chronic — pulse-app has `[lib] test = false`). Unchanged this wrap (zero pulse-app/src changes).
+
+## Andromeda Pipeline Meta-observation (Mode P — patch filed)
+
+`docs/andromeda-improvements.md` present → scan ran. **1 patch filed (P25)** — a latent duplicate-key-shadow bug in `state.yaml.last_completed_chunk`: session 151's incomplete prior-block comment-out left live duplicate `commit_sha`/`committed_at`/`commit_subject` keys that YAML-last-win-shadowed the chunk-89 values for ~9 sessions, silently defeating every State H heal at parse time. Fixed this wrap (completed the comment-out → commit_sha resolves to 60c7a17) + proposed a Phase 8 duplicate-key detection guard + delete-don't-comment supersede discipline. Accumulators: A1 `api_surface_deferral` IMPLEMENTED + verified (verified_cleared_at_session=135); per-crate reconcile fired cleanly this wrap (ui-bridge), consecutive_count 0. A2 dormant. 0 refactors filed.
 
 ## Next Recommended Action
 
-1. **`git push origin main`** — branch will be ~5 commits ahead of origin post-wrap.
-2. **`/andromeda-evolve --allow-route-append`** to register chunk #90 "Halo formula refactor" (project-doc §89; depends on landed #59 connection state + #83 LLM severity) — the route's next backlog item. Then `/andromeda-phase` + `/andromeda-implement`.
+1. **`/andromeda-phase`** to plan chunk #90 "Halo formula refactor" — consumer-side webview: `pulse-app/ui/halo/{HaloCanvas.tsx,lch.ts,shaders/halo.wgsl}`; props `(errorRate, throughputHz)` → `(connectionState, cumulativeSeverity, activityState)`; delete `error-rate-to-blur.ts` + `throughput-to-hz.ts`; breathing via opacity+blur only (NEVER scale, per P-026); design-system (severity→blur/hue mapping) + a11y-plan (reduced-motion) touches per project-doc §89. Then `/andromeda-implement`.
+2. **`git push origin main`** — branch ~2 commits ahead of origin post-wrap (`d235632` + this wrap commit).
 
 **Secondary cleanup (not blocking):**
-- `experiments/` (untracked, 16-session carryover from session-144 llama spike) + `ui/` (untracked stray at repo root, 50+ wraps) — both still in `git status`.
-- api-surface cycle 2 progression: triage populated this wrap; ui-bridge next; cycle 2 completes in ~3-4 more wraps (remaining: ui-bridge + viz + workspace-detector + xtask permanent-placeholder).
+- viz api-surface sub-block carries the same cycle-1 build-noise (self-cleans on cycle-2 viz visit next wrap).
+- `experiments/` + `ui/` untracked carryover (still in `git status`).
+- api-surface cycle 2 progression: viz next, then workspace-detector + xtask (permanent placeholder); cycle completes ~2-3 wraps.
 - 17 dead-test blocks in pulse-app/src/ (Proposal 15 warning; user-deferred).
-- bincode 2.x upgrade hook (RAM-safe deserialize per CLAUDE.md 2026-05-20).
-- v0.1.0 release blockers (Azure Key Vault EV cert + Apple Developer ID — deferred from chunk #3).
+- bincode 2.x upgrade hook (RAM-safe deserialize); v0.1.0 release blockers (Azure Key Vault EV cert + Apple Developer ID).
 
 ## Session Goals (carry-over)
 
-(none — this session's goal (implement + verify chunk #89) completed end-to-end: phase plan → implement → green gates → full runtime smoke verified → wrap.)
+(none — this session's goal (register + propagate chunk #90) completed end-to-end: new-session → evolve → setup-project --delta → wrap.)
