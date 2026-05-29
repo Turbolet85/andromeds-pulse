@@ -1373,7 +1373,45 @@ spec_amendments:
   # lifecycle progression per spec-amendment-protocol.md Part D). Textbook
   # Type 7 Form 1 single-cycle wrap (12th instance) mirroring chunks
   # #58-#88 precedents. Active list empty post-archive; archive gained 1.
-  active: []
+  active:
+    - amendment_id: 2026-05-29T17-27-46-append-chunk-90-halo-formula-refactor
+      plans:
+        - path: route.md
+          sections:
+            - "§1 Route Scope Summary"
+            - "§2 Roadmap (Epoch 9 — Foundation v0.2.0)"
+            - "§3 Decisions Log"
+          decisions_log_section: "2026-05-29 — Append chunk #90 Halo formula refactor (--allow-route-append)"
+      trigger:
+        chunk: null
+        phase: null
+        harness: "user-driven via /andromeda-evolve"
+      authority:
+        winning_plan: route.md
+        winning_tier: "pipeline state"
+        losing_plan: route.md
+        losing_concern: chunk-list-stale-vs-pipeline-reality
+        rationale: "Project-doc §89 backlog item; deps #83 (LLM severity) + #59 (connection state) landed; chunk #89 settled widget chrome. Adding chunk #90 aligns route §2 with pipeline reality."
+      impl_files_synced: []
+      expected_propagation:
+        - "CLAUDE.md (GENERATED:setup:pointer-table — (9 epochs / 89 chunks) → (9 epochs / 90 chunks))"
+      marker_path: .andromeda/runs/2026-05-29T17-27-46-spec-amendment-append-chunk-90-halo-formula-refactor/amendment.md
+      applied_at: 2026-05-29T17:27:46Z
+      noted_at: null
+      propagated_by_run: .andromeda/runs/2026-05-29T17-39-37-setup-project-delta/
+      archived_at: null
+      verification_status: clean
+      flag_used: --allow-route-append
+      form: 1
+      route_section_modified: "Epoch 9 — Foundation v0.2.0"
+      chunks_added:
+        - position: 90
+          text: "Halo formula refactor — drive Halo hue + breathing from LLM incident severity (not rule-based error-rate/throughput); delete legacy mapping helpers (capabilities P-025/P-026; detail in pulse-v0_2_0-route §89)."
+      chunks_renumbered: []
+      motivation: "project-doc docs/v0_2_0/pulse-v0_2_0-route.md §89 backlog item; deps #83 + #59 landed; chunk #89 (Header redesign) landed session 159 settling widget chrome"
+      confirmed_shift: false
+      scope_summary_updates:
+        - "Total chunks: 89 → 90"
   archive:
     - amendment_id: 2026-05-29T13-56-28-append-chunk-89-header-redesign
       plans:
