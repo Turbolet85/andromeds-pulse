@@ -43,28 +43,6 @@ vi.mock("./AggregatedBadgeCanvas", () => ({
   ),
 }));
 
-vi.mock("./FooterBand", () => ({
-  FooterBand: ({
-    throughputHz,
-    errorRate,
-    retentionUsedSeconds,
-    retentionMaxSeconds,
-  }: {
-    throughputHz: number;
-    errorRate: number;
-    retentionUsedSeconds: number;
-    retentionMaxSeconds: number;
-  }) => (
-    <footer
-      data-testid="footer-band-stub"
-      data-throughput-hz={throughputHz}
-      data-error-rate={errorRate}
-      data-retention-used={retentionUsedSeconds}
-      data-retention-max={retentionMaxSeconds}
-    />
-  ),
-}));
-
 function setFindingsState(state: Partial<typeof findingsMock.state>) {
   findingsMock.state.rows = state.rows ?? [];
   findingsMock.state.count = state.count ?? 0;
@@ -81,13 +59,21 @@ const metrics: WidgetMetrics = {
 };
 
 describe("CompactWidget — three-band wireframe", () => {
-  it("renders titlebar / main / footer in DOM order", () => {
+  it("renders titlebar / main in DOM order (footer band removed)", () => {
     setFindingsState({ count: 0 });
     const { container } = render(<CompactWidget metrics={metrics} />);
     const top = container.firstElementChild as Element;
     expect(top.tagName).toBe("HEADER");
     expect(screen.getByRole("main").tagName).toBe("MAIN");
-    expect(screen.getByTestId("footer-band-stub")).toBeDefined();
+    expect(screen.queryByTestId("footer-band-stub")).toBeNull();
+  });
+
+  it("does not render the removed footer metrics (P-024 ambient invariant)", () => {
+    setFindingsState({ count: 0 });
+    render(<CompactWidget metrics={metrics} />);
+    expect(screen.queryByText("Ingest")).toBeNull();
+    expect(screen.queryByText("Error")).toBeNull();
+    expect(screen.queryByText("Retention")).toBeNull();
   });
 
   it("the <main> element has id='main-content' for skip-link target", () => {
@@ -117,15 +103,6 @@ describe("CompactWidget — props flow", () => {
     expect(badge.dataset.serviceCount).toBe("24");
     expect(badge.dataset.throughputHz).toBe("1234");
     expect(badge.dataset.errorRate).toBe("0.012");
-  });
-
-  it("forwards 4 metric fields to FooterBand", () => {
-    render(<CompactWidget metrics={metrics} />);
-    const footer = screen.getByTestId("footer-band-stub");
-    expect(footer.dataset.throughputHz).toBe("1234");
-    expect(footer.dataset.errorRate).toBe("0.012");
-    expect(footer.dataset.retentionUsed).toBe("480");
-    expect(footer.dataset.retentionMax).toBe("600");
   });
 });
 

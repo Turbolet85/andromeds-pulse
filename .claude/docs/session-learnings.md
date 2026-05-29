@@ -6,6 +6,21 @@ _Entries are added in reverse chronological order (newest first). Each entry has
 
 _This file is entirely wrap-session's territory. `/setup-project` creates it if missing but NEVER regenerates it. Manual edits are preserved across all Andromeda skill runs._
 
+## 2026-05-29 (session 159) — Full visual smoke test for a Tauri GUI chunk on Windows (confidence 0.62)
+
+When a chunk lands webview/UI changes and the user wants to *see* the app working (not just green tests), drive an end-to-end visual smoke beyond the /andromeda-implement boot-detection Phase 2b. Recipe (verified at chunk #89 connection-dot + footer-removal):
+
+1. **Build the UI bundle FIRST.** `pulse-app/tauri.conf.json` sets `frontendDist: "ui/dist"` with NO `devUrl`, so `tauri dev` serves the static built bundle — it does NOT run a live Vite server and does NOT auto-`npm run build` (only `beforeBuildCommand` for `tauri build` does). Run `npm run build --prefix pulse-app/ui` first or the webview shows a stale bundle (the committed `dist/` was chunk-#30-era). Complements frontend.md 2026-05-10.
+2. **Boot `tauri dev` backgrounded → logfile**, paired with a Bash `run_in_background` `until`-loop watcher grepping the logfile for boot markers (`.tick` / `app.boot` / `otlp_grpc|http`) OR failure markers (`error[E` / `could not compile` / `panicked at` / `linking with`), bounded by an iteration cap. Per Monitor-tool guidance a single-notification "until ready OR failed" watcher beats an unbounded `tail -f` (it must cover crash/hang, not just the happy path). `.taurignore` already excludes `ui/src/bindings/` so the boot-time bindings regen doesn't trigger the dev-watcher HMR loop.
+3. **Bound ports are the definitive "app works" proof.** `netstat -ano | grep 127.0.0.1:431[78]` showing both `:4317` + `:4318` LISTENING under the pulse-app PID confirms the OTLP receivers are live + loopback-bound — stronger than any stdout line (the app's JSON logs go to its file sink and are often buffered out of the piped stderr, so the dev logfile may show only the cargo `Running` line).
+4. **Capture ONLY the app window** (privacy — not the whole desktop) via PowerShell P/Invoke `GetWindowRect` on `(Get-Process pulse-app).MainWindowHandle` + `System.Drawing.Graphics.CopyFromScreen` → PNG, then Read the PNG to verify the render (dot color/position, footer absence, canvas reflow). The compact-widget is `visible:false` in config but `window.rs::w.show()` displays it at boot, so it is capturable.
+5. **Teardown cleanly:** `TaskStop` the watcher + dev launcher, then `Stop-Process pulse-app` (gentle, NOT `-Force` — a responsive GUI app, unlike the session-144 hung-llama no-force rule), verify ports released.
+6. **Regenerate `bindings.ts` after:** the dev binary rewrites `ui/src/bindings/index.ts` to the no-mcp shape at boot (default features), so re-run the mcp-server-feature `emit_taurpc_bindings` regen + verify `grep -c '"mcp":' >= 1` before commit (per testing.md 2026-05-17/25).
+
+Write smoke artifacts under `target/` (gitignored) to avoid polluting `git status`. Recurs on remaining v0.2.0 GUI chunks (Halo refactor etc.).
+
+---
+
 ## 2026-05-25 (session 150) — Outcome-enum backward-compat shim for refactoring void-returning handlers (confidence 0.70)
 
 When extending а handler fn to surface internal classified outcomes к а new consumer WITHOUT breaking N+ existing test callsites that depend on the void-returning signature, extract the handler body into а new `_outcome`-suffixed fn returning а classified enum, then make the original fn а thin shim that calls the new fn and discards the return value.

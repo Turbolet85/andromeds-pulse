@@ -2,6 +2,7 @@ import { forwardRef, useImperativeHandle, useRef } from "react";
 import { Icon } from "./icons";
 import { usePlatform } from "../hooks/use-platform";
 import { WindowControls } from "./WindowControls";
+import { ConnectionDot } from "./ConnectionDot";
 
 interface TitlebarProps {
   // Optional override for the title text — defaults to "andromeda-pulse"
@@ -74,6 +75,7 @@ export const Titlebar = forwardRef<TitlebarHandle, TitlebarProps>(
       >
         <Icon glyph="constellation-grid" size={16} />
       </span>
+      <ConnectionDot />
       <span
         className="titlebar__title"
         data-tauri-drag-region

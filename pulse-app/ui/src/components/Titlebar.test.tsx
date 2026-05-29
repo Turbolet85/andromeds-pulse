@@ -15,6 +15,16 @@ vi.mock("../hooks/use-window-controls", () => ({
   }),
 }));
 
+vi.mock("../hooks/use-connection-state", () => ({
+  useConnectionState: () => ({
+    state: { state: "Receiving" },
+    last_span_ago_ms: 1200,
+    severity: "info",
+    message: null,
+    reason: null,
+  }),
+}));
+
 describe("Titlebar — semantic HTML + drag region + ARIA", () => {
   it("wraps the titlebar in a <header> landmark", () => {
     render(<Titlebar />);
@@ -94,5 +104,12 @@ describe("Titlebar — semantic HTML + drag region + ARIA", () => {
     await user.click(btn);
     expect(onInvestigateClick).toHaveBeenCalledTimes(1);
     expect(onInvestigateClick).toHaveBeenCalledWith(btn);
+  });
+
+  it("renders the connection-state dot with role=img and a Connection aria-label", () => {
+    render(<Titlebar />);
+    const dot = screen.getByTestId("connection-dot");
+    expect(dot.getAttribute("role")).toBe("img");
+    expect(dot.getAttribute("aria-label")).toContain("Connection: ");
   });
 });

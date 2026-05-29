@@ -19,7 +19,6 @@ import { Report } from "../report/Report";
 import { AggregatedBadgeCanvas } from "./AggregatedBadgeCanvas";
 import { FindingsCounter } from "./FindingsCounter";
 import { FindingsDropdown } from "./FindingsDropdown";
-import { FooterBand } from "./FooterBand";
 import type { WidgetMetrics } from "./widget-types";
 
 interface CompactWidgetProps {
@@ -107,12 +106,6 @@ function CompactWidgetContents({ metrics }: CompactWidgetProps) {
             nowUnixNano={Date.now() * 1_000_000}
           />
         </div>
-        <FooterBand
-          throughputHz={metrics.throughputHz}
-          errorRate={metrics.errorRate}
-          retentionUsedSeconds={metrics.retentionUsedSeconds}
-          retentionMaxSeconds={metrics.retentionMaxSeconds}
-        />
       </main>
       <div
         role="status"
