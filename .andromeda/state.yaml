@@ -1393,7 +1393,45 @@ spec_amendments:
   # retroactively at --delta) → propagated 19:20:03Z (setup-project --delta, commit 58d846c → 4
   # distillations) → noted+archived 19:32:26Z (this wrap). Surfaced pipeline gap P26 (/implement does
   # not author amendments for PLANNED specialist-plan edits). Active list empty post-archive; archive +1.
-  active: []
+  active:
+    - amendment_id: 2026-05-29T19-54-53-append-chunk-91-service-constellation
+      plans:
+        - path: route.md
+          sections:
+            - "§2 Roadmap (Epoch 9 — Foundation v0.2.0)"
+            - "§1 Route Scope Summary"
+            - "§3 Decisions Log"
+          decisions_log_section: "2026-05-29 — Append chunk #91 Service constellation rendering (--allow-route-append)"
+      trigger:
+        chunk: null
+        phase: null
+        harness: "user-driven via /andromeda-evolve"
+      authority:
+        winning_plan: route.md
+        winning_tier: pipeline state
+        losing_plan: route.md
+        losing_concern: chunk-list-stale-vs-pipeline-reality
+        rationale: "Project-doc §90 'Service constellation rendering' next backlog chunk; deps #61/#68/#90 landed. Route §2 had not registered it. Authorized via --allow-route-append; Check 8 passed."
+      impl_files_synced: []
+      expected_propagation:
+        - "CLAUDE.md (GENERATED:setup:pointer-table — (9 epochs / 90 chunks) → (9 epochs / 91 chunks))"
+      marker_path: .andromeda/runs/2026-05-29T19-54-53-spec-amendment-append-chunk-91-service-constellation/amendment.md
+      applied_at: 2026-05-29T19:54:53Z
+      noted_at: null
+      propagated_by_run: .andromeda/runs/2026-05-29T20-05-04-setup-project-delta/
+      archived_at: null
+      verification_status: clean
+      flag_used: --allow-route-append
+      form: 1
+      route_section_modified: "Epoch 9 — Foundation v0.2.0"
+      chunks_added:
+        - position: 91
+          text: "Service constellation rendering — replace aggregated badge with per-service dots (brightness=activity, hue=severity, seeded scatter); dormant dimmed, archived hidden (capability P-027; detail in pulse-v0_2_0-route §90)."
+      chunks_renumbered: []
+      motivation: "Project-doc §90 'Service constellation rendering' next backlog chunk; deps #61 (baseline activity) + #68 (service lifecycle) + #90 (halo canvas settled) all landed."
+      confirmed_shift: false
+      scope_summary_updates:
+        - "Total chunks: 90 → 91"
   archive:
     - amendment_id: 2026-05-29T19-20-03-halo-severity-motion-token
       plans:

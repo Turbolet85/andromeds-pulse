@@ -16,7 +16,7 @@ unit) not HOW (implementation steps)._
 
 ## 1. Route Scope Summary
 
-- **Total chunks:** 90
+- **Total chunks:** 91
 - **Epochs:** 9 (Foundation, Ingest pipeline, Storage & query, Webview shell + TauRPC bridge, Visualization surfaces, Snapshot & Investigate, Plugin runtime + MCP server, Polish & ship, Foundation v0.2.0)
 - **Drilldown depth (avg):** 1.6 (mixed: Foundation depth 2, Ingest pipeline depth 1, Storage & query depth 2, Webview shell depth 1, Visualization surfaces depth 2, Snapshot depth 2, Plugin+MCP depth 2, Polish depth 1)
 - **Hierarchy mode:** mixed (3-level for dense epochs Foundation / Storage / Visualization / Snapshot / Plugin+MCP; 2-level for lighter epochs Ingest / Webview shell / Polish)
@@ -214,6 +214,8 @@ Diagnostic Report generation — in-app six-section report + copy-markdown actio
 Header redesign: connection dot + chrome cleanup — remove footer band; add connection-state dot + tooltip (capabilities P-001/P-024; detail in pulse-v0_2_0-route §88).
    ↓
 Halo formula refactor — drive Halo hue + breathing from LLM incident severity (not rule-based error-rate/throughput); delete legacy mapping helpers (capabilities P-025/P-026; detail in pulse-v0_2_0-route §89).
+   ↓
+Service constellation rendering — replace aggregated badge with per-service dots (brightness=activity, hue=severity, seeded scatter); dormant dimmed, archived hidden (capability P-027; detail in pulse-v0_2_0-route §90).
 
 ---
 
@@ -579,3 +581,12 @@ Halo formula refactor — drive Halo hue + breathing from LLM incident severity 
 - **Why:** L5 Halo refactor — drive hue + breathing from LLM incident severity instead of rule-based error-rate/throughput; depends on chunks #83 (LLM severity) + #59 (connection state) — both landed; capabilities P-025 / P-026. Mirrors chunk #89 precedent.
 - **Mechanical:** §1 Total chunks 89→90 (Form 1 Policy A); state.yaml.last_completed_chunk unchanged.
 - **Marker:** `.andromeda/runs/2026-05-29T17-27-46-spec-amendment-append-chunk-90-halo-formula-refactor/amendment.md`
+
+---
+
+`2026-05-29` — Append chunk #91 Service constellation rendering (--allow-route-append)
+
+- **Insert:** chunk #91 at §2 Epoch 9 — Foundation v0.2.0 (text: see §2; full detail in `docs/v0_2_0/pulse-v0_2_0-route.md` §90).
+- **Why:** L5 widget-surface — replace aggregated badge with per-service constellation dots; depends on #61 (baseline activity) + #68 (service lifecycle) + #90 (halo canvas settled) — all landed; capability P-027. Mirrors chunk #90 precedent.
+- **Mechanical:** §1 Total chunks 90→91 (Form 1 Policy A); state.yaml.last_completed_chunk unchanged.
+- **Marker:** `.andromeda/runs/2026-05-29T19-54-53-spec-amendment-append-chunk-91-service-constellation/amendment.md`
