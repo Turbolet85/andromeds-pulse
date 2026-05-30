@@ -11,37 +11,8 @@ vi.mock("./hooks/use-synthetic-halo-input", () => ({
   useSyntheticHaloInput: () => ({ throughputHz: 1000, errorRate: 0.5 }),
 }));
 
-vi.mock("./hooks/use-widget-metrics", () => ({
-  useWidgetMetrics: () => ({
-    serviceCount: 24,
-    throughputHz: 1234,
-    errorRate: 0.012,
-    retentionUsedSeconds: 480,
-    retentionMaxSeconds: 600,
-  }),
-}));
-
 vi.mock("./widget/CompactWidget", () => ({
-  CompactWidget: ({
-    metrics,
-  }: {
-    metrics: {
-      serviceCount: number;
-      throughputHz: number;
-      errorRate: number;
-      retentionUsedSeconds: number;
-      retentionMaxSeconds: number;
-    };
-  }) => (
-    <div
-      data-testid="compact-widget-stub"
-      data-service-count={metrics.serviceCount}
-      data-throughput-hz={metrics.throughputHz}
-      data-error-rate={metrics.errorRate}
-      data-retention-used={metrics.retentionUsedSeconds}
-      data-retention-max={metrics.retentionMaxSeconds}
-    />
-  ),
+  CompactWidget: () => <div data-testid="compact-widget-stub" />,
 }));
 
 vi.mock("./dashboard/Dashboard", () => ({
@@ -87,17 +58,6 @@ describe("App — window-label routing", () => {
 });
 
 describe("App — props flow to children", () => {
-  it("forwards WidgetMetrics to <CompactWidget>", () => {
-    vi.mocked(useWindowLabel).mockReturnValue("compact-widget");
-    render(<App />);
-    const widget = screen.getByTestId("compact-widget-stub");
-    expect(widget.dataset.serviceCount).toBe("24");
-    expect(widget.dataset.throughputHz).toBe("1234");
-    expect(widget.dataset.errorRate).toBe("0.012");
-    expect(widget.dataset.retentionUsed).toBe("480");
-    expect(widget.dataset.retentionMax).toBe("600");
-  });
-
   it("forwards HaloInput to <Dashboard>", () => {
     vi.mocked(useWindowLabel).mockReturnValue("main");
     render(<App />);

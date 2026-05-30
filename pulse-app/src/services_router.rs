@@ -12,11 +12,27 @@
 //! the request-side observability event per
 //! `.claude/rules/observability.md` Session Addition 2026-05-07 (exact-match
 //! AllowList entry for `services.list_with_states.request`).
+//!
+//! Per-service severity enrichment: the resolver joins the active-incident
+//! registry on `Incident.scope_id` (service-scoped incidents only) so each
+//! `ServiceListItem.priority_tier` carries the max severity tier across that
+//! service's active incidents. The join lives at the binary boundary (the
+//! `triage` registry holds no cross-domain incident state); the incident
+//! producer path is deferred per `inference_runtime.rs`, so this surfaces
+//! `None` until incidents are created in production.
+//!
+//! Tests live at `pulse-app/tests/unit_services_router.rs` (integration
+//! crate) because `pulse-app` sets `[lib] test = false` per the WebView2
+//! test-link workaround — colocated `#[cfg(test)]` blocks never run
+//! (.claude/rules/testing.md Session Additions 2026-05-20).
 
 use std::sync::Arc;
 
 use serde::{Deserialize, Serialize};
-use triage::contract::{ServiceLifecycleBroadcast, ServiceListItem, ServiceRegistry};
+use triage::contract::{
+    CueScope, IncidentRegistry, PriorityTier, ServiceLifecycleBroadcast, ServiceListItem,
+    ServiceRegistry,
+};
 use ui_bridge::contract::AppError;
 
 /// Paginated list envelope per arch §Standard Contracts. `next_cursor`
@@ -37,6 +53,8 @@ pub trait ServicesApi {
 #[derive(Clone)]
 pub struct ServicesApiImpl {
     registry: Arc<dyn ServiceRegistry>,
+    incident_registry: Arc<dyn IncidentRegistry>,
+    workspace_root: String,
     #[allow(dead_code)]
     broadcast: Arc<ServiceLifecycleBroadcast>,
 }
@@ -44,12 +62,26 @@ pub struct ServicesApiImpl {
 impl ServicesApiImpl {
     pub fn new(
         registry: Arc<dyn ServiceRegistry>,
+        incident_registry: Arc<dyn IncidentRegistry>,
+        workspace_root: String,
         broadcast: Arc<ServiceLifecycleBroadcast>,
     ) -> Self {
         Self {
             registry,
+            incident_registry,
+            workspace_root,
             broadcast,
         }
+    }
+}
+
+/// Total-order rank for `PriorityTier` (which derives no `Ord`). Higher =
+/// more severe; used to pick the max tier across a service's incidents.
+pub fn tier_rank(tier: PriorityTier) -> u8 {
+    match tier {
+        PriorityTier::Autonomous => 3,
+        PriorityTier::Suggested => 2,
+        PriorityTier::Curious => 1,
     }
 }
 
@@ -59,7 +91,18 @@ impl ServicesApi for ServicesApiImpl {
         item_count = tracing::field::Empty,
     ))]
     async fn list_with_states(self) -> Result<ServiceListPayload, AppError> {
-        let items = self.registry.list_all();
+        let mut items = self.registry.list_all();
+        let active = self.incident_registry.list_active(&self.workspace_root);
+        for item in items.iter_mut() {
+            item.priority_tier = active
+                .iter()
+                .filter(|inc| {
+                    inc.scope == CueScope::Service
+                        && inc.scope_id.as_deref() == Some(item.service.as_str())
+                })
+                .map(|inc| inc.priority_tier)
+                .max_by_key(|tier| tier_rank(*tier));
+        }
         let total = items.len();
         let payload = ServiceListPayload {
             items,
@@ -77,42 +120,5 @@ impl ServicesApi for ServicesApiImpl {
         );
 
         Ok(payload)
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use triage::contract::{InMemoryServiceRegistry, ServiceLifecycleState};
-
-    fn make_impl() -> ServicesApiImpl {
-        let registry: Arc<dyn ServiceRegistry> = Arc::new(InMemoryServiceRegistry::new());
-        let broadcast = Arc::new(ServiceLifecycleBroadcast::new());
-        ServicesApiImpl::new(registry, broadcast)
-    }
-
-    #[tokio::test]
-    async fn list_with_states_returns_empty_for_fresh_registry() {
-        let api = make_impl();
-        let payload = api.list_with_states().await.expect("returns Ok");
-        assert_eq!(payload.total, 0);
-        assert!(payload.items.is_empty());
-        assert!(payload.next_cursor.is_none());
-    }
-
-    #[tokio::test]
-    async fn list_with_states_reflects_manual_override() {
-        let registry: Arc<dyn ServiceRegistry> = Arc::new(InMemoryServiceRegistry::new());
-        registry.set_manual_override("svc-a", Some(ServiceLifecycleState::Dormant), 1_000_000_000);
-        let broadcast = Arc::new(ServiceLifecycleBroadcast::new());
-        let api = ServicesApiImpl::new(Arc::clone(&registry), broadcast);
-        let payload = api.list_with_states().await.expect("returns Ok");
-        assert_eq!(payload.total, 1);
-        assert_eq!(payload.items[0].service, "svc-a");
-        assert_eq!(payload.items[0].state, ServiceLifecycleState::Dormant);
-        assert_eq!(
-            payload.items[0].manual_override,
-            Some(ServiceLifecycleState::Dormant),
-        );
     }
 }

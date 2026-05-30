@@ -242,7 +242,15 @@ export type ServiceLifecycleState = "unknown" | "bootstrapping" | "active" | "qu
  * telemetry identifier; manual_override is the operator pin (None when
  * natural state).
  */
-export type ServiceListItem = { service: string; state: ServiceLifecycleState; last_seen_unix_nano: number; manual_override: ServiceLifecycleState | null }
+export type ServiceListItem = { service: string; state: ServiceLifecycleState; last_seen_unix_nano: number; manual_override: ServiceLifecycleState | null; 
+/**
+ * Max priority tier across active service-scoped incidents attributed to
+ * this service (`None` when no active incident). The registry holds no
+ * incident data, so `list_all` always emits `None`; the
+ * `services.list_with_states` resolver enriches this by joining the
+ * incident registry on `scope_id`. Drives the constellation dot hue.
+ */
+priority_tier?: PriorityTier | null }
 
 /**
  * Paginated list envelope per arch §Standard Contracts. `next_cursor`

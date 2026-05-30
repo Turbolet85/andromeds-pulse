@@ -1,11 +1,8 @@
 // Compact-widget surface: top-level component for the `compact-widget` Tauri
 // window per layout-templates.md §Surface: desktop-webview / Wireframe —
-// Compact widget. Three-band wireframe: titlebar (chunk #30) at top / canvas
-// with Halo-overlaid aggregated badge (chunk #32 §Step 5) in the middle /
-// footer band (chunk #32 §Step 6) at bottom. Chunk #42 adds an Investigate
-// telescope icon button to the titlebar (per layout-templates.md §Wireframe —
-// Compact widget IA notes); the titlebar gear + Investigate button are the
-// two tab stops on this surface.
+// Compact widget. Titlebar (chunk #30, + connection dot chunk #89) at top /
+// service constellation canvas (chunk #91, replacing the chunk #32 aggregated
+// badge) in the middle / findings band (chunk #87) below.
 
 import { useEffect, useRef, useState } from "react";
 import { Titlebar } from "../components/Titlebar";
@@ -15,37 +12,25 @@ import {
   useInvestigation,
 } from "../hooks/use-investigation";
 import { useFindings } from "../hooks/use-findings";
-import { useConnectionState } from "../hooks/use-connection-state";
-import { throughputToActivityState } from "../halo/activity-state";
+import { useServiceConstellation } from "../hooks/use-service-constellation";
 import { Report } from "../report/Report";
-import { AggregatedBadgeCanvas } from "./AggregatedBadgeCanvas";
+import { ConstellationCanvas } from "./ConstellationCanvas";
 import { FindingsCounter } from "./FindingsCounter";
 import { FindingsDropdown } from "./FindingsDropdown";
-import type { WidgetMetrics } from "./widget-types";
-import type { ConnectionState } from "../bindings/index";
 
-interface CompactWidgetProps {
-  metrics: WidgetMetrics;
-}
-
-// Neutral default while the connection state is still loading (jsdom /
-// pre-init Tauri context, where use-connection-state returns null): a
-// bound-but-idle receiver renders the halo at full color (no grayout).
-const DEFAULT_CONNECTION_STATE: ConnectionState = { state: "Listening" };
-
-export function CompactWidget({ metrics }: CompactWidgetProps) {
+export function CompactWidget() {
   return (
     <InvestigationProvider>
-      <CompactWidgetContents metrics={metrics} />
+      <CompactWidgetContents />
     </InvestigationProvider>
   );
 }
 
-function CompactWidgetContents({ metrics }: CompactWidgetProps) {
+function CompactWidgetContents() {
   const { open, openInvestigation, closeInvestigation, triggerRef } =
     useInvestigation();
   const findings = useFindings();
-  const connection = useConnectionState();
+  const services = useServiceConstellation();
   const [findingsOpen, setFindingsOpen] = useState(false);
   const [reportIncidentId, setReportIncidentId] = useState<number | null>(null);
   const findingsTriggerRef = useRef<HTMLButtonElement | null>(null);
@@ -81,13 +66,7 @@ function CompactWidgetContents({ metrics }: CompactWidgetProps) {
         }}
       >
         <div style={{ flex: 1, minHeight: 0, padding: "var(--spacing-md)" }}>
-          <AggregatedBadgeCanvas
-            serviceCount={metrics.serviceCount}
-            errorRate={metrics.errorRate}
-            connectionState={connection?.state ?? DEFAULT_CONNECTION_STATE}
-            cumulativeSeverity={findings.severityMax}
-            activityState={throughputToActivityState(metrics.throughputHz)}
-          />
+          <ConstellationCanvas items={services} />
         </div>
         <div
           data-testid="findings-band"

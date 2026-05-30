@@ -355,6 +355,7 @@ mod tests {
             detail: "[redacted] sample detail".to_string(),
             kind,
             scope,
+            scope_id: None,
             status: IncidentStatus::Active,
             severity: Severity::Warn,
             priority_tier: PriorityTier::Suggested,

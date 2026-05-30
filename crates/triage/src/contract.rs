@@ -345,6 +345,15 @@ pub struct Incident {
     pub kind: CueKind,
     /// Bounded incident scope enum; part of cool-down identity tuple.
     pub scope: CueScope,
+    /// Service attribution: `service.name` when `scope == CueScope::Service`,
+    /// `None` otherwise. Sourced from the originating `AttentionCue.scope_id`
+    /// at incident construction (the production cue→incident creation path is
+    /// deferred per `pulse-app/src/inference_runtime.rs` — populated `None`
+    /// until that producer lands). `#[serde(default)]` keeps pre-existing
+    /// corpus BLOB payloads (authored before this field) deserializable.
+    /// Consumed by the per-service severity join in `services.list_with_states`.
+    #[serde(default)]
+    pub scope_id: Option<String>,
     pub status: IncidentStatus,
     pub severity: Severity,
     pub priority_tier: PriorityTier,
@@ -562,6 +571,7 @@ mod tests {
             detail: "[redacted] sustained 3.5x baseline for 45s".to_string(),
             kind: CueKind::ErrorRateSpike,
             scope: CueScope::Service,
+            scope_id: Some("checkout".to_string()),
             status: IncidentStatus::Active,
             severity: Severity::Warn,
             priority_tier: PriorityTier::Suggested,

@@ -33,6 +33,7 @@ fn sample_incident(workspace: &str, kind: CueKind, ts: i64) -> Incident {
         detail: "[redacted] sample detail".to_string(),
         kind,
         scope: CueScope::Service,
+        scope_id: None,
         status: IncidentStatus::Active,
         severity: Severity::Warn,
         priority_tier: PriorityTier::Suggested,

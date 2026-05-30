@@ -17,6 +17,7 @@ use dashmap::DashMap;
 use serde::{Deserialize, Serialize};
 
 use crate::baseline::{BaselineState, BootstrapState, ServiceSilenceSnapshot};
+use crate::contract::PriorityTier;
 
 use super::broadcast::ServiceLifecycleEvent;
 use super::state_machine::{ServiceLifecycleState, TransitionTrigger, is_valid_transition};
@@ -55,6 +56,13 @@ pub struct ServiceListItem {
     pub state: ServiceLifecycleState,
     pub last_seen_unix_nano: i64,
     pub manual_override: Option<ServiceLifecycleState>,
+    /// Max priority tier across active service-scoped incidents attributed to
+    /// this service (`None` when no active incident). The registry holds no
+    /// incident data, so `list_all` always emits `None`; the
+    /// `services.list_with_states` resolver enriches this by joining the
+    /// incident registry on `scope_id`. Drives the constellation dot hue.
+    #[serde(default)]
+    pub priority_tier: Option<PriorityTier>,
 }
 
 /// Service registry — per-service lifecycle state holder + tick evaluator.
@@ -179,6 +187,7 @@ impl ServiceRegistry for InMemoryServiceRegistry {
                 state: entry.manual_override.unwrap_or(entry.state),
                 last_seen_unix_nano: entry.last_seen_unix_nano,
                 manual_override: entry.manual_override,
+                priority_tier: None,
             })
             .collect()
     }

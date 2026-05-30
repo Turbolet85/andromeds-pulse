@@ -229,6 +229,7 @@ mod tests {
             detail: "[r]".to_string(),
             kind: CueKind::ErrorRateSpike,
             scope: CueScope::Service,
+            scope_id: None,
             status: IncidentStatus::Active,
             severity: Severity::Warn,
             priority_tier: PriorityTier::Suggested,

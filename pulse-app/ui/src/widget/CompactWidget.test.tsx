@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import { tabbable } from "tabbable";
 import { CompactWidget } from "./CompactWidget";
-import type { WidgetMetrics } from "./widget-types";
+import type { ServiceListItem } from "../bindings/index";
 import type { FindingsRow } from "./findings-types";
 
 const findingsMock = vi.hoisted(() => ({
@@ -16,40 +16,25 @@ const findingsMock = vi.hoisted(() => ({
   },
 }));
 
+const servicesMock = vi.hoisted(() => ({
+  items: [] as ServiceListItem[],
+}));
+
 vi.mock("../hooks/use-findings", () => ({
   useFindings: () => findingsMock.state,
 }));
 
-vi.mock("../hooks/use-connection-state", () => ({
-  useConnectionState: () => null,
+vi.mock("../hooks/use-service-constellation", () => ({
+  useServiceConstellation: () => servicesMock.items,
 }));
 
 vi.mock("../components/Titlebar", () => ({
   Titlebar: () => <header data-testid="titlebar-stub">titlebar</header>,
 }));
 
-vi.mock("./AggregatedBadgeCanvas", () => ({
-  AggregatedBadgeCanvas: ({
-    serviceCount,
-    errorRate,
-    connectionState,
-    cumulativeSeverity,
-    activityState,
-  }: {
-    serviceCount: number;
-    errorRate: number;
-    connectionState: { state: string };
-    cumulativeSeverity: string | null;
-    activityState: string;
-  }) => (
-    <div
-      data-testid="aggregated-badge-stub"
-      data-service-count={serviceCount}
-      data-error-rate={errorRate}
-      data-connection-state={connectionState.state}
-      data-cumulative-severity={cumulativeSeverity ?? "none"}
-      data-activity-state={activityState}
-    />
+vi.mock("./ConstellationCanvas", () => ({
+  ConstellationCanvas: ({ items }: { items: readonly ServiceListItem[] }) => (
+    <div data-testid="constellation-stub" data-service-count={items.length} />
   ),
 }));
 
@@ -60,18 +45,14 @@ function setFindingsState(state: Partial<typeof findingsMock.state>) {
   findingsMock.state.lastAnnouncement = state.lastAnnouncement ?? "";
 }
 
-const metrics: WidgetMetrics = {
-  serviceCount: 24,
-  throughputHz: 1234,
-  errorRate: 0.012,
-  retentionUsedSeconds: 480,
-  retentionMaxSeconds: 600,
-};
+function setServices(items: ServiceListItem[]) {
+  servicesMock.items = items;
+}
 
 describe("CompactWidget — three-band wireframe", () => {
   it("renders titlebar / main in DOM order (footer band removed)", () => {
     setFindingsState({ count: 0 });
-    const { container } = render(<CompactWidget metrics={metrics} />);
+    const { container } = render(<CompactWidget />);
     const top = container.firstElementChild as Element;
     expect(top.tagName).toBe("HEADER");
     expect(screen.getByRole("main").tagName).toBe("MAIN");
@@ -80,53 +61,69 @@ describe("CompactWidget — three-band wireframe", () => {
 
   it("does not render the removed footer metrics (P-024 ambient invariant)", () => {
     setFindingsState({ count: 0 });
-    render(<CompactWidget metrics={metrics} />);
+    render(<CompactWidget />);
     expect(screen.queryByText("Ingest")).toBeNull();
     expect(screen.queryByText("Error")).toBeNull();
     expect(screen.queryByText("Retention")).toBeNull();
   });
 
   it("the <main> element has id='main-content' for skip-link target", () => {
-    render(<CompactWidget metrics={metrics} />);
+    render(<CompactWidget />);
     const main = screen.getByRole("main");
     expect(main.getAttribute("id")).toBe("main-content");
   });
 
   it("the <main> element is focusable via tabIndex=-1 (focus restoration target)", () => {
-    render(<CompactWidget metrics={metrics} />);
+    render(<CompactWidget />);
     const main = screen.getByRole("main");
     expect(main.getAttribute("tabindex")).toBe("-1");
   });
 
   it("renders <main> with flex-column layout", () => {
-    render(<CompactWidget metrics={metrics} />);
+    render(<CompactWidget />);
     const main = screen.getByRole("main");
     expect(main.style.display).toBe("flex");
     expect(main.style.flexDirection).toBe("column");
   });
 });
 
-describe("CompactWidget — props flow", () => {
-  it("forwards serviceCount + errorRate + derived Halo axes to AggregatedBadgeCanvas", () => {
-    setFindingsState({ count: 0, severityMax: null });
-    render(<CompactWidget metrics={metrics} />);
-    const badge = screen.getByTestId("aggregated-badge-stub");
-    expect(badge.dataset.serviceCount).toBe("24");
-    expect(badge.dataset.errorRate).toBe("0.012");
-    // activityState derived from metrics.throughputHz (1234 >= ACTIVE_THROUGHPUT_HZ)
-    expect(badge.dataset.activityState).toBe("active");
-    // useConnectionState mock returns null → CompactWidget falls back to the
-    // neutral default (Listening)
-    expect(badge.dataset.connectionState).toBe("Listening");
-    // findings.severityMax null → no active-incident severity
-    expect(badge.dataset.cumulativeSeverity).toBe("none");
+describe("CompactWidget — constellation", () => {
+  it("renders the service constellation fed by useServiceConstellation", () => {
+    setFindingsState({ count: 0 });
+    setServices([
+      {
+        service: "checkout",
+        state: "active",
+        last_seen_unix_nano: 1_000,
+        manual_override: null,
+        priority_tier: "autonomous",
+      },
+      {
+        service: "billing",
+        state: "quiet",
+        last_seen_unix_nano: 1_000,
+        manual_override: null,
+        priority_tier: null,
+      },
+    ]);
+    render(<CompactWidget />);
+    const constellation = screen.getByTestId("constellation-stub");
+    expect(constellation.getAttribute("data-service-count")).toBe("2");
+  });
+
+  it("renders the constellation with zero services without crashing", () => {
+    setFindingsState({ count: 0 });
+    setServices([]);
+    render(<CompactWidget />);
+    expect(screen.getByTestId("constellation-stub").getAttribute("data-service-count")).toBe("0");
   });
 });
 
 describe("CompactWidget — focus order", () => {
   it("introduces zero focusable elements when findings count is zero", () => {
     setFindingsState({ count: 0 });
-    const { container } = render(<CompactWidget metrics={metrics} />);
+    setServices([]);
+    const { container } = render(<CompactWidget />);
     const focusables = tabbable(container);
     expect(focusables).toEqual([]);
   });
@@ -141,7 +138,7 @@ describe("CompactWidget — focus order", () => {
         { id: 3, priorityTier: "suggested", title: "z", openedAtUnixNano: 0 },
       ],
     });
-    render(<CompactWidget metrics={metrics} />);
+    render(<CompactWidget />);
     const counter = screen.getByTestId("findings-counter");
     expect(counter.tagName).toBe("BUTTON");
     expect(counter.getAttribute("aria-label")).toContain("Findings: 3 unread");
@@ -151,7 +148,7 @@ describe("CompactWidget — focus order", () => {
 describe("CompactWidget — findings live region", () => {
   it("renders а polite aria-live region for findings announcements", () => {
     setFindingsState({ count: 0 });
-    render(<CompactWidget metrics={metrics} />);
+    render(<CompactWidget />);
     const liveRegion = screen.getByTestId("findings-live-region");
     expect(liveRegion.getAttribute("role")).toBe("status");
     expect(liveRegion.getAttribute("aria-live")).toBe("polite");
@@ -159,7 +156,7 @@ describe("CompactWidget — findings live region", () => {
 
   it("reflects findings lastAnnouncement string в the live region", () => {
     setFindingsState({ count: 2, lastAnnouncement: "Findings: 2 unread" });
-    render(<CompactWidget metrics={metrics} />);
+    render(<CompactWidget />);
     expect(screen.getByTestId("findings-live-region").textContent).toBe("Findings: 2 unread");
   });
 });

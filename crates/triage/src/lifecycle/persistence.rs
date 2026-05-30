@@ -314,12 +314,14 @@ mod tests {
                 state: ServiceLifecycleState::Active,
                 last_seen_unix_nano: 1_000,
                 manual_override: None,
+                priority_tier: None,
             },
             ServiceListItem {
                 service: "svc-b".to_string(),
                 state: ServiceLifecycleState::Quiet,
                 last_seen_unix_nano: 2_000,
                 manual_override: Some(ServiceLifecycleState::Active),
+                priority_tier: None,
             },
         ];
         let entries = services_to_entries(&items);

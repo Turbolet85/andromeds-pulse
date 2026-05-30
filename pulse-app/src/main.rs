@@ -631,11 +631,6 @@ fn main() {
         );
         registry
     };
-    let services_impl = ServicesApiImpl::new(
-        Arc::clone(&lifecycle_registry),
-        Arc::clone(&lifecycle_broadcast),
-    );
-
     // Chunk #78 — incident records + lifecycle persistence. Derive а 5th
     // CorpusWriter trait view (alongside baseline + lifecycle + storm +
     // drain) from the same Arc<Corpus>. None ⇒ corpus unavailable at
@@ -682,6 +677,16 @@ fn main() {
             incident_workspace_key.clone(),
         )
     });
+
+    // ServicesApiImpl is constructed here (after incident_registry) because
+    // its per-service severity join reads the active-incident registry to
+    // enrich each ServiceListItem.priority_tier for the constellation dots.
+    let services_impl = ServicesApiImpl::new(
+        Arc::clone(&lifecycle_registry),
+        Arc::clone(&incident_registry),
+        incident_workspace_key.clone(),
+        Arc::clone(&lifecycle_broadcast),
+    );
 
     // Chunk #69 Phase B Session 4 — Drain miner construction с corpus-backed
     // persistence. `CorpusDrainPersistence` wraps the writer trait object
@@ -1595,8 +1600,15 @@ mod tests {
         // ARGS_MAP includes services.list_with_states (quadruple-binding 4th slot
         // per .claude/rules/security.md Session Additions 2026-05-12).
         let services_registry: Arc<dyn ServiceRegistry> = Arc::new(InMemoryServiceRegistry::new());
+        let services_incident_registry: Arc<dyn IncidentRegistry> =
+            Arc::new(InMemoryIncidentRegistry::new());
         let services_broadcast = Arc::new(ServiceLifecycleBroadcast::new());
-        let services_impl = ServicesApiImpl::new(services_registry, services_broadcast);
+        let services_impl = ServicesApiImpl::new(
+            services_registry,
+            services_incident_registry,
+            "bindings-test-workspace".to_string(),
+            services_broadcast,
+        );
 
         // Chunk #68: StorageApiImpl participates in the emit so bindings.ts
         // ARGS_MAP includes storage.inspect / storage.path (quadruple-binding

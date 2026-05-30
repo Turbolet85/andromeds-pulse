@@ -16,9 +16,9 @@ use std::time::Duration;
 use pulse_app::services_router::{ServiceListPayload, ServicesApiImpl};
 use tokio::sync::broadcast;
 use triage::contract::{
-    BaselineState, InMemoryServiceRegistry, RestartEvent, RestartEventBroadcast,
-    ServiceLifecycleBroadcast, ServiceLifecycleEvent, ServiceLifecycleState, ServiceRegistry,
-    TransitionTrigger, start_lifecycle_heartbeat,
+    BaselineState, InMemoryIncidentRegistry, InMemoryServiceRegistry, IncidentRegistry,
+    RestartEvent, RestartEventBroadcast, ServiceLifecycleBroadcast, ServiceLifecycleEvent,
+    ServiceLifecycleState, ServiceRegistry, TransitionTrigger, start_lifecycle_heartbeat,
 };
 
 const SHORT_HEARTBEAT: Duration = Duration::from_millis(50);
@@ -202,7 +202,13 @@ async fn services_list_with_states_resolver_returns_typed_payload() {
         1_000 * NANOS_PER_SEC,
     );
     let lifecycle_broadcast = Arc::new(ServiceLifecycleBroadcast::new());
-    let api = ServicesApiImpl::new(Arc::clone(&registry), lifecycle_broadcast);
+    let incident_registry: Arc<dyn IncidentRegistry> = Arc::new(InMemoryIncidentRegistry::new());
+    let api = ServicesApiImpl::new(
+        Arc::clone(&registry),
+        incident_registry,
+        "ws-test".to_string(),
+        lifecycle_broadcast,
+    );
 
     // Direct resolver invocation (no taurpc IPC layer needed for contract
     // verification of the typed return shape).
