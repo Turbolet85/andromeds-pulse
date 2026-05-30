@@ -16,7 +16,7 @@ unit) not HOW (implementation steps)._
 
 ## 1. Route Scope Summary
 
-- **Total chunks:** 91
+- **Total chunks:** 92
 - **Epochs:** 9 (Foundation, Ingest pipeline, Storage & query, Webview shell + TauRPC bridge, Visualization surfaces, Snapshot & Investigate, Plugin runtime + MCP server, Polish & ship, Foundation v0.2.0)
 - **Drilldown depth (avg):** 1.6 (mixed: Foundation depth 2, Ingest pipeline depth 1, Storage & query depth 2, Webview shell depth 1, Visualization surfaces depth 2, Snapshot depth 2, Plugin+MCP depth 2, Polish depth 1)
 - **Hierarchy mode:** mixed (3-level for dense epochs Foundation / Storage / Visualization / Snapshot / Plugin+MCP; 2-level for lighter epochs Ingest / Webview shell / Polish)
@@ -216,6 +216,8 @@ Header redesign: connection dot + chrome cleanup — remove footer band; add con
 Halo formula refactor — drive Halo hue + breathing from LLM incident severity (not rule-based error-rate/throughput); delete legacy mapping helpers (capabilities P-025/P-026; detail in pulse-v0_2_0-route §89).
    ↓
 Service constellation rendering — replace aggregated badge with per-service dots (brightness=activity, hue=severity, seeded scatter); dormant dimmed, archived hidden (capability P-027; detail in pulse-v0_2_0-route §90).
+   ↓
+Incident-creation producer — wire L4Output → Incident; save_new_incident + registry.insert + corpus persist with cue scope_id; activates chunk-#91 per-service severity (capabilities P-022 / P-041 / P-027).
 
 ---
 
@@ -590,3 +592,12 @@ Service constellation rendering — replace aggregated badge with per-service do
 - **Why:** L5 widget-surface — replace aggregated badge with per-service constellation dots; depends on #61 (baseline activity) + #68 (service lifecycle) + #90 (halo canvas settled) — all landed; capability P-027. Mirrors chunk #90 precedent.
 - **Mechanical:** §1 Total chunks 90→91 (Form 1 Policy A); state.yaml.last_completed_chunk unchanged.
 - **Marker:** `.andromeda/runs/2026-05-29T19-54-53-spec-amendment-append-chunk-91-service-constellation/amendment.md`
+
+---
+
+`2026-05-30` — Append chunk #92 Incident-creation producer (--allow-route-append)
+
+- **Insert:** chunk #92 at §2 Epoch 9 — Foundation v0.2.0 (text: see §2; full detail grounded in `pulse-app/src/inference_runtime.rs:9-16` L4→Incident deferral + chunk #91 forward-infrastructure).
+- **Why:** Wire L4Output → Incident production-creation path; activates the chunk-#91 per-service-severity backend (runtime-inert until a real cue→incident producer lands); depends on #78/#83/#85/#91 — all landed. Mirrors chunk #91 precedent.
+- **Mechanical:** §1 Total chunks 91→92 (Form 1 Policy A); state.yaml.last_completed_chunk unchanged.
+- **Marker:** `.andromeda/runs/2026-05-30T11-31-57-spec-amendment-append-chunk-92-incident-creation-producer/amendment.md`

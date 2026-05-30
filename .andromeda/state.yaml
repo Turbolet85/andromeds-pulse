@@ -1393,7 +1393,51 @@ spec_amendments:
   # retroactively at --delta) → propagated 19:20:03Z (setup-project --delta, commit 58d846c → 4
   # distillations) → noted+archived 19:32:26Z (this wrap). Surfaced pipeline gap P26 (/implement does
   # not author amendments for PLANNED specialist-plan edits). Active list empty post-archive; archive +1.
-  active: []
+  #
+  # session 164 — chunk #92 route-append amendment applied this turn via
+  # /andromeda-evolve --allow-route-append (Type 7 Form 1; 15th instance of the
+  # standalone route-append pattern). Lifecycle: applied 2026-05-30T11:31:57Z;
+  # awaiting propagation via /andromeda-setup-project --delta (CLAUDE.md
+  # pointer-table cascade 91→92 chunks) then archival at next wrap.
+  active:
+    - amendment_id: 2026-05-30T11-31-57-append-chunk-92-incident-creation-producer
+      plans:
+        - path: route.md
+          sections:
+            - "§1 Route Scope Summary (Total chunks)"
+            - "§2 Roadmap (Epoch 9 — Foundation v0.2.0)"
+            - "§3 Route Decisions Log"
+          decisions_log_section: "2026-05-30 — Append chunk #92 Incident-creation producer (--allow-route-append)"
+      trigger:
+        chunk: null
+        phase: null
+        harness: "user-driven via /andromeda-evolve"
+      authority:
+        winning_plan: route.md
+        winning_tier: pipeline-state
+        losing_plan: route.md
+        losing_concern: chunk-list-stale-vs-pipeline-reality
+        rationale: "Chunk #91 per-service-severity backend is runtime-inert (no production L4Output->Incident path; deferred per inference_runtime.rs:9-16). Chunk #92 registers the producer that activates it."
+      impl_files_synced: []
+      expected_propagation:
+        - "CLAUDE.md (GENERATED:setup:pointer-table — (9 epochs / 91 chunks) -> (9 epochs / 92 chunks))"
+      marker_path: .andromeda/runs/2026-05-30T11-31-57-spec-amendment-append-chunk-92-incident-creation-producer/amendment.md
+      applied_at: 2026-05-30T11:31:57Z
+      noted_at: null
+      propagated_by_run: .andromeda/runs/2026-05-30T17-22-40-setup-project-delta/
+      archived_at: null
+      verification_status: clean
+      flag_used: --allow-route-append
+      form: 1
+      route_section_modified: "Epoch 9 — Foundation v0.2.0"
+      chunks_added:
+        - position: 92
+          text: "Incident-creation producer — wire L4Output → Incident; save_new_incident + registry.insert + corpus persist with cue scope_id; activates chunk-#91 per-service severity (capabilities P-022 / P-041 / P-027)."
+      chunks_renumbered: []
+      motivation: "Chunk #91 forward-infrastructure (Incident.scope_id + per-service-severity resolver join) is runtime-inert; production L4Output->Incident creation deferred per inference_runtime.rs:9-16. Chunk #92 is that deferred producer."
+      confirmed_shift: false
+      scope_summary_updates:
+        - "Total chunks: 91 → 92"
   archive:
     - amendment_id: 2026-05-29T19-54-53-append-chunk-91-service-constellation
       plans:
