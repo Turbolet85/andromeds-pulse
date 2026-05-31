@@ -1,102 +1,106 @@
 # Session Handoff
 
-**Last Updated:** 2026-05-31T18:02:35Z
+**Last Updated:** 2026-05-31T19:28:26Z
 **Branch:** main
 **Session End Status:** clean
-**Last Commit:** `<chunk #93 implementation commit — pending this turn>` (prior HEAD: `d5e7043` chore(wrap): session 166 — chunk #93 ConstellationCanvas dashboard cascade route-append META wrap)
+**Last Commit:** `<session 168 wrap commit — pending this turn>` (prior HEAD: `af3023d` chore(setup-project): delta-rerun for 1 amendment — chunk #94 MCP server + tool exposure route-append)
 
 ## Current State
 
-- **Last completed chunk:** route#93 "ConstellationCanvas dashboard cascade" (Epoch 9 — Foundation v0.2.0; committed this wrap, `commit_sha: pending` per Proposal 16 — auto-heals next wrap). **TERMINAL chunk — the route is now 93/93 COMPLETE.**
-- **Next chunk:** none registered. `.andromeda/route.md` is exhausted at 93 chunks. Forward options (see Next Recommended Action) — the `docs/v0_2_0/pulse-v0_2_0-route.md` plan still has §92–§97 (MCP server / Export / config hot-reload / Diagnostics view / reflection / finalization) that are NOT yet registered in route.md.
-- **In-progress phase:** none (chunk #93 implemented + green this session).
-- **Phase artifacts present:** `.andromeda/phases/phase-90/` (combined.md 143 + research.md 75 + plan.md 234) — the chunk #93 plan, now implemented.
+- **Last completed chunk:** route#93 "ConstellationCanvas dashboard cascade" (Epoch 9 — Foundation v0.2.0; commit `0ea946e` — State H healed this wrap from the `pending` placeholder).
+- **Next chunk:** route#94 "MCP server + tool exposure" — **REGISTERED this session** (via `/andromeda-evolve --allow-route-append`; propagated via `/andromeda-setup-project --delta`; archived this wrap). NOT yet planned — `/andromeda-phase` is the next action. Route is now **94 chunks** (93 implemented + #94 registered-not-implemented).
+- **In-progress phase:** none.
+- **Phase artifacts present:** `.andromeda/phases/phase-90/` (chunk #93 plan, implemented). No phase dir for #94 yet.
 
 ## Andromeda State Detection (states A-K)
 
-11 of 11 effectively CLEAR (B = N/A; E = none-pending because route is complete; H = info, expected pending-SHA heal).
+11 of 11 effectively CLEAR (B = N/A; E = next chunk #94 registered awaiting `/andromeda-phase` — expected forward state, not drift; H = healed this wrap).
 
-- **A — In-progress runs:** ✓ CLEAR — phase-90 run-dir complete (plan.md present); evolve/setup run-dirs from session 166 complete.
+- **A — In-progress runs:** ✓ CLEAR — this session's evolve / spec-amendment / setup-project-delta run-dirs all complete (evolution-plan.md / amendment.md / materialization-plan-delta.md present); phase-90 complete.
 - **B — Status drift:** N/A (no project.yaml).
-- **C — Architecture staleness:** ✓ CLEAR — arch.md (2026-05-27) < CLAUDE.md (this wrap, Tier 1 edit).
-- **D — Pending route:** ✓ CLEAR — route.md present, 93 chunks (all implemented).
-- **E — Pending phase planning:** ✓ CLEAR — no registered next chunk (route exhausted at 93). Registering route#94 is a deliberate forward choice, not pending drift.
-- **F — Pending implementation:** ✓ CLEAR — chunk #93 implemented + green; no partial artifacts.
+- **C — Architecture staleness:** ✓ CLEAR — arch.md (2026-05-27) < CLAUDE.md (2026-05-31, delta pointer-table edit).
+- **D — Pending route:** ✓ CLEAR — route.md present, 94 chunks.
+- **E — Pending phase planning:** ℹ️ info (expected) — chunk #94 registered but not yet planned; `/andromeda-phase` is the deliberate next action (designed route-append flow, not anomalous drift).
+- **F — Pending implementation:** ✓ CLEAR — no partial phase/impl artifacts; #94 has no phase yet.
 - **G — Multiple concurrent runs:** ✓ CLEAR.
-- **H — Route chunk drift:** ℹ️ info (expected) — `commit_sha: pending` for chunk #93 (the implementation commit is THIS wrap's; heals next wrap-session Phase 8 step 7 per Proposal 16 Option b). Prior chunk #92 sha `001a768` was already real + HEAD-reachable.
-- **I — Specialist plan freshness mismatch:** ✓ CLEAR — no specialist plan / arch / route edited this session (implementation chunk); plan_freshness mtimes unchanged + accurate.
-- **J — Living artifact staleness:** ✓ CLEAR — reconcile 18:02:35Z (this wrap); reconcile_failed=false.
+- **H — Route chunk drift:** ✓ HEALED this wrap — chunk #93 `commit_sha` advanced `pending` → `0ea946e` (HEAD-reachable; title-token match) per Phase 8 step 7. Now real + reachable.
+- **I — Specialist plan freshness mismatch:** ✓ CLEAR — route.md edited this session (chunk #94 evolve); `plan_freshness.route_mtime` bumped to 2026-05-31T18:31:49Z this wrap. No other plan touched.
+- **J — Living artifact staleness:** ✓ CLEAR — reconcile 19:28:26Z (this wrap); reconcile_failed=false.
 - **K — Multi-chunk in-progress imbalance:** ✓ CLEAR — in_progress null.
 
 ## Drift Detection (6 dimensions)
 
 All 6 CLEAR. `state.yaml.drift_warnings = []`.
 
-- **D1 — Living artifact staleness:** ✓ CLEAR — reconcile (18:02:35Z) > most_recent_code_mtime (17:45:00Z; webview edits landed before the reconcile).
-- **D2 — Living artifact wrong content:** ✓ CLEAR — dep-tree zero-diff (463 lines); api-surface ingest sub-block zero-diff (1852 lines, byte-identical to session 152).
-- **D3 — Plan-to-code drift:** ✓ CLEAR — chunk #93 added ZERO arch-registry resources (no TauRPC procedure / broadcast topic / corpus table / env var / crate / capability). Consumer-side webview-only; `cargo xtask capability-drift` clean.
-- **D4 — Plan-to-plan drift:** ✓ CLEAR — no specialist plan changed.
-- **D5 — Plan-to-CLAUDE.md drift:** ✓ CLEAR — all upstreams (route.md 16:46Z session 166, arch.md 05-27) < CLAUDE.md mtime (this wrap's Tier 1 edit). No active amendment.
-- **D6 — Route chunk progression:** ✓ CLEAR — last_completed advances 92 → 93; the chunk(93) implementation commit lands this wrap; state.yaml + git self-consistent.
+- **D1 — Living artifact staleness:** ✓ CLEAR — reconcile (19:28:26Z) > most_recent_code_mtime (2026-05-31T17:45:00Z; no new source this session).
+- **D2 — Living artifact wrong content:** ✓ CLEAR — interpretation sub-block splice verified (markers balanced 32/32); dep-tree zero-diff.
+- **D3 — Plan-to-code drift:** ✓ CLEAR — chunk #94 added ZERO arch-registry resources (route registration only; no TauRPC / broadcast / crate / capability / env var landed — `mcp.status()` + any crate work belongs to #94's future `/implement`). `mcp-server` crate already exists in the workspace.
+- **D4 — Plan-to-plan drift:** ✓ CLEAR — only route.md changed; §1 count (94) consistent with §2.
+- **D5 — Plan-to-CLAUDE.md drift:** ✓ CLEAR — route.md mtime (18:31:49Z, evolve) < CLAUDE.md mtime (~19:02Z, delta pointer-table cascade); the delta already propagated route's change. Amendment Propagated + archived.
+- **D6 — Route chunk progression:** ✓ CLEAR — last_completed stays 93 (chunk #94 registered-not-implemented; no `chunk(94): implement` commit). State self-consistent.
 
 ## Spec Amendments (this session)
 
-(none this session) — no `/andromeda-evolve`, no Trigger-4 spec drift (the migration matched the spec exactly). `spec_amendments.active` remains empty; archive unchanged at 75. Chunk #93 was a pure implementation of an already-registered route chunk — no amendment needed (zero arch-registry delta).
+Chunk #94 route-append — **full single-cycle this turn** (17th instance Type 7 Form 1; mirrors chunks #58–#93 precedents):
+- **Plan:** `.andromeda/route.md` (§1 Route Scope Summary, §2 Roadmap Epoch 9, §3 Decisions Log)
+- **Decisions Log:** §3 — 2026-05-31 "Append chunk #94 MCP server + tool exposure (--allow-route-append)"
+- **Trigger:** user-driven evolution via /andromeda-evolve (no chunk/phase/harness)
+- **Authority resolution:** pipeline state > chunk-list-stale-vs-pipeline-reality
+- **Lifecycle:** applied 2026-05-31T18:31:49Z (`/andromeda-evolve`) → propagated 2026-05-31T19:02:12Z (`/andromeda-setup-project --delta`; CLAUDE.md pointer-table cascade 93→94) → noted+archived 2026-05-31T19:28:26Z (this wrap, Phase 8)
+- **Marker:** `.andromeda/runs/2026-05-31T18-31-49-spec-amendment-append-chunk-94-mcp-server-tool-exposure/amendment.md`
+
+`spec_amendments.active` empty post-archive; archive grew 75 → 76.
 
 ## Key Decisions This Session
 
-1. **Resolved two scope ambiguities at /phase via AskUserQuestion** (before writing the plan) — the route §2 cleanup one-liner diverged from code reality: (a) "retype HaloInput" → the synthetic chain was 100% DEAD (zero `useHaloInput()` consumers) → user chose **delete the dead chain**; (b) the migration orphaned `use-constellation-data` (NOT named in route §2's cleanup list) → user chose **delete everything orphaned**.
-2. **HaloCanvas.tsx left untouched** — discovered by READING it that it was already migrated to the per-service API by chunk #90; the route §2 phrase "migrate … HaloCanvas" was imprecise. The §91 source spec scoped the work to the dashboard ConstellationCanvas only.
-3. **Mirror-the-widget implementation** — the dashboard ConstellationCanvas became a near-copy of the chunk-#91 widget ConstellationCanvas, reusing `widget/constellation-types` + `constellation-pipeline` (three-surface coherence), differing only in container height (240px hero) + data-testid.
+1. **Mis-invocation caught + redirected (skill guardrails worked as designed):** the user first ran `/andromeda-setup-project --allow-route-append <chunk spec>` — but `--allow-route-append` is an `/andromeda-evolve` flag, not a setup-project flag, and setup-project never registers route chunks. Halted at flag-parse (no files touched) and redirected to `/andromeda-evolve --allow-route-append`. The cycle is evolve(register) → setup-project --delta(propagate) → wrap(archive).
+2. **Numbering:** the chunk spec's "#92" is the v0.2.0-plan internal §92; in route.md it landed as **chunk #94** (route was at 93). Form 1 Policy A: §1 Total chunks 93→94, Epochs line untouched.
+3. **Arch §Established Decisions deferred:** the chunk spec's "MCP is one of three equal-tier output channels, not coupling" is a structural arch.md body change — out of route-append scope (Refuse 1 even with `--allow-arch-registry`). Handle at #94's `/implement` or a deliberate `/andromeda-arch` touch.
 
 ## Files Modified
 
-**Code (this turn — uncommitted until wrap commit):**
-- Modified (10): `pulse-app/ui/src/dashboard/routes/traces/ConstellationCanvas.tsx` (+`.test.tsx`), `dashboard/routes/TracesRoute.tsx` (+`.test.tsx`), `dashboard/Dashboard.tsx` (+`.test.tsx`), `dashboard/router.test.tsx`, `App.tsx` (+`.test.tsx`), `halo/halo-types.ts`.
-- Deleted (11): `halo/error-rate-to-blur.ts`(+test), `halo/throughput-to-hz.ts`(+test), `hooks/use-widget-metrics.ts`(+test), `dashboard/routes/traces/use-constellation-data.ts`(+test), `hooks/use-synthetic-halo-input.ts`(+test), `dashboard/halo-input-context.tsx`.
-- Regenerated: `pulse-app/ui/src/bindings/index.ts` (mcp shape restored after default-features nextest).
-
-**Wrap (this turn):** `CLAUDE.md` (Tier 1 +1), `.claude/rules/testing.md` (Tier 2 +1), `.andromeda/state.yaml` (cursor 92→93 + timestamps + reconcile cursor ingest→interpretation + session_count 167), `.andromeda/context/{dependency-tree,api-surface}.md` (reconcile refresh), `.claude/session-handoff.md`, `.andromeda/phases/phase-90/` (plan artifacts).
+**This wrap (uncommitted until wrap commit):** `.andromeda/state.yaml` (active→archive + lifecycle + State-H heal + cursor advance + session_count 168), `.claude/session-handoff.md`, `.andromeda/context/dependency-tree.md` + `api-surface.md` (Phase 5 reconcile).
+**Earlier this session (committed `af3023d`):** `CLAUDE.md` (pointer-table 93→94), `.andromeda/route.md` (§1/§2/§3 chunk #94), `.andromeda/state.yaml` (then).
+**Gitignored (on-disk forensic):** amendment.md (Propagated checkbox), evolution-plan.md, materialization-plan-delta.md under `.andromeda/runs/`.
 
 ## Curation Summary (this wrap)
 
-- **Tier 1 (CLAUDE.md USER:session-learnings):** 1 — "CLEANUP/DELETION-CHUNK orphan-graph mapping" (inverse of the hybrid/forward-infra family; grep live consumers + distinguish comments; surface delete-vs-retype + cascade-depth via AskUserQuestion; route cleanup list often incomplete).
-- **Tier 2 (.claude/rules/testing.md):** 1 — "component prop/data-source migration test fan-out" (co-located + route-level mock tests both break; enumerate render+mock sites up front; complement to the 2026-05-10 context-provider entry).
-- **Tier 3 (.claude/docs/session-learnings.md):** 0.
-- **Filtered:** mirror-the-widget pattern (project-specific/obvious — dropped); bindings.ts-regen-on-webview-chunk (already captured testing.md 2026-05-17/25 — dedup).
-- **Andromeda pipeline proposals:** 0 (**Mode H — honest healthy**: the new-session → phase → implement → wrap chain executed as designed; the 2 fix-loop test discoveries are normal in-scope fix-loop work the loop is built to handle, not a pipeline mechanic gap; captured as the Tier 2 curation learning instead).
+- **Tier 1 (CLAUDE.md USER:session-learnings):** 0
+- **Tier 2 (.claude/rules/):** 0
+- **Tier 3 (.claude/docs/session-learnings.md):** 0
+- **Filtered:** mis-invocation→redirect candidate — dropped (dup of 2026-05-16 after-MVP-evolution-path entry + low-novelty: skills self-document their flags; the redirect worked via existing guardrails, not a gap).
+- **Andromeda pipeline proposals:** 0 (**Mode H — honest healthy**: META route-append cycle executed exactly as designed; the mis-invocation was caught by setup-project's own flag-parse + no-foreign-writes discipline, not a pipeline gap).
 
 ## Pipeline Accumulators
 
-A1 `api_surface_deferral`: IMPLEMENTED steady state preserved (verified_cleared_at_session=135; consecutive_count=0 — per-crate reconcile fired this wrap on `ingest`, api_surface_deferred=false; cycle-3 in progress, cursor ingest → interpretation). A2 dormant. 0 refactors filed, 0 patches filed (Mode H).
+A1 `api_surface_deferral`: IMPLEMENTED steady state preserved (verified_cleared_at_session=135; consecutive_count=0 — interpretation reconciled cleanly this wrap, api_surface_deferred=false). Cycle-3 in progress (cursor advanced interpretation → mcp-server; the chunk #85/#86 interpretation additions captured this wrap, +107 lines). A2 dormant. 0 refactors / 0 patches filed (Mode H).
 
 ## Last Failed Command
 
-(none — the new-session → phase → implement → wrap chain completed green; all gates passed.)
+(none — the evolve → setup-project --delta → wrap chain completed green; all gates passed.)
 
 ## Tests Status
 
-**PASS — all gates green this session** (during /implement):
-- Webview: `npm run typecheck` clean · `npm run lint` clean · `npm run test` (vitest) **605/605** (64 files).
-- Rust: `cargo fmt --check` clean · `cargo clippy --workspace --all-targets --all-features -- -D warnings` clean · `cargo nextest run --workspace --profile ci` **1559/1559 + 1 skip** (baseline held — zero Rust regression, webview-only) · `cargo xtask capability-drift` clean (0 missing, 0 extra; bindings.ts regenerated to mcp shape).
-- Phase 2b smoke: skipped (boot-path-unchanged — webview-only, zero main.rs/ui-bridge/capabilities/tauri.conf.json touched).
-- Wrap smoke: `cargo nextest run -p security --profile ci` = 14/14 (0.14s).
+**PASS (smoke) — zero code changed this session (specs/docs only):**
+- Smoke: `cargo nextest run -p security --profile ci` = **14/14** (0.13s) — build healthy.
+- Full workspace suite NOT re-run (no source/boot path touched — only route.md/CLAUDE.md/state.yaml/living-artifacts/handoff). Last full green: session 167 (1559/1559 + 1 skip).
+- Dead-test scan (P15): 16 source-level `#[cfg(test)] mod tests` blocks in `pulse-app/src/` (binary, `test = false`) — unchanged carryover (zero `.rs` touched); warning-not-fatal.
 
 ## Next Recommended Action
 
-**The 93-chunk route is COMPLETE (chunk #93 was the terminal chunk).** Forward options:
+**`/andromeda-phase` to plan chunk #94 "MCP server + tool exposure."**
 
-1. **Register the next v0.2.0 chunk** — `docs/v0_2_0/pulse-v0_2_0-route.md` §92 "MCP server + tool exposure" (Output channels phase) is the next unimplemented surface. Register as route#94 via `/andromeda-evolve --allow-route-append`, then `/andromeda-phase`. (§93 Export / §94 config hot-reload / §95 Diagnostics view / §96 reflection / §97 finalization follow.)
-2. **`git push origin main`** — branch is ~3 commits ahead of origin after this wrap (`d5e7043` session-166 wrap + the chunk #93 commit; verify with `git status`).
-3. Consider whether v0.2.0 Foundation (Epoch 9) is at a natural milestone for polish/ship before the Output-channels phase.
+When planning/implementing #94, note:
+- The arch §Established Decisions "MCP = one of three equal-tier output channels" framing needs a structural arch touch (`/andromeda-arch` or `/implement`-time decision) — NOT addressable via the registry-only `--allow-arch-registry` flag.
+- Surface: 4 rmcp tools (`query_incident_list` / `retrieve_report(id)` / `retrieve_telemetry_slice(id)` / `mark_incident_resolved(id)`) + `mcp.status()` connected-agent identity + `[mcp.enable]` config (default false) + "Send to agent" button gated on configured-AND-connected. Source detail: `docs/v0_2_0/pulse-v0_2_0-route.md` §92.
 
 **Secondary (not blocking):**
-- `spec_amendments.archive` at 75 (over the 50 soft-cap; pruning deferred — run-dir markers remain forensic).
-- api-surface CYCLE-3 in progress (cursor at `interpretation` next); chunk-#92 new pub items (triage `DigestCueRef.scope`/`scope_id` + pulse-app `create_incident_from_l4_output`) captured when the cursor reaches triage (pos 11) / pulse-app (pos 8) ~5-8 wraps out.
+- `git push origin main` — branch is **5 commits ahead** of origin after this wrap (af3023d delta + this wrap commit + the 3 prior). Verify with `git status`.
+- `spec_amendments.archive` at 76 (over the 50 soft-cap; pruning deferred — run-dir markers remain forensic).
+- api-surface CYCLE-3 in progress (cursor at `mcp-server` next; interpretation captured this wrap). chunk-#92 new pub items (triage `DigestCueRef.scope`/`scope_id` + pulse-app `create_incident_from_l4_output`) captured when cursor reaches triage (pos 11) / pulse-app (pos 8).
 - `experiments/` + `ui/` untracked carryover (still in `git status`).
-- Dead-test carryover: 16 files with source-level `mod tests` in `pulse-app/src/` (pre-existing P15 observation; chunk #93 added zero `.rs`).
 - Pipeline patches awaiting review in `docs/andromeda-improvements.md`: P22–P26.
 
 ## Session Goals (carry-over)
 
-(none — this session's goal completed: plan + implement chunk #93 "ConstellationCanvas dashboard cascade" end-to-end, green. The route reached 93/93 complete.)
+(none — this session's goal completed: register chunk #94 "MCP server + tool exposure" via the evolve → setup-project --delta → wrap cycle, end-to-end green. Route now 94 chunks.)
