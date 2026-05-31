@@ -16,7 +16,7 @@ unit) not HOW (implementation steps)._
 
 ## 1. Route Scope Summary
 
-- **Total chunks:** 92
+- **Total chunks:** 93
 - **Epochs:** 9 (Foundation, Ingest pipeline, Storage & query, Webview shell + TauRPC bridge, Visualization surfaces, Snapshot & Investigate, Plugin runtime + MCP server, Polish & ship, Foundation v0.2.0)
 - **Drilldown depth (avg):** 1.6 (mixed: Foundation depth 2, Ingest pipeline depth 1, Storage & query depth 2, Webview shell depth 1, Visualization surfaces depth 2, Snapshot depth 2, Plugin+MCP depth 2, Polish depth 1)
 - **Hierarchy mode:** mixed (3-level for dense epochs Foundation / Storage / Visualization / Snapshot / Plugin+MCP; 2-level for lighter epochs Ingest / Webview shell / Polish)
@@ -218,6 +218,8 @@ Halo formula refactor — drive Halo hue + breathing from LLM incident severity 
 Service constellation rendering — replace aggregated badge with per-service dots (brightness=activity, hue=severity, seeded scatter); dormant dimmed, archived hidden (capability P-027; detail in pulse-v0_2_0-route §90).
    ↓
 Incident-creation producer — wire L4Output → Incident; save_new_incident + registry.insert + corpus persist with cue scope_id; activates chunk-#91 per-service severity (capabilities P-022 / P-041 / P-027).
+   ↓
+ConstellationCanvas dashboard cascade — migrate full-window constellation + HaloCanvas to per-service severity/activity API; delete legacy error-rate-to-blur/throughput-to-hz + orphaned use-widget-metrics; retype HaloInput (capability P-027; detail in pulse-v0_2_0-route §91).
 
 ---
 
@@ -601,3 +603,12 @@ Incident-creation producer — wire L4Output → Incident; save_new_incident + r
 - **Why:** Wire L4Output → Incident production-creation path; activates the chunk-#91 per-service-severity backend (runtime-inert until a real cue→incident producer lands); depends on #78/#83/#85/#91 — all landed. Mirrors chunk #91 precedent.
 - **Mechanical:** §1 Total chunks 91→92 (Form 1 Policy A); state.yaml.last_completed_chunk unchanged.
 - **Marker:** `.andromeda/runs/2026-05-30T11-31-57-spec-amendment-append-chunk-92-incident-creation-producer/amendment.md`
+
+---
+
+`2026-05-31` — Append chunk #93 ConstellationCanvas dashboard cascade (--allow-route-append)
+
+- **Insert:** chunk #93 at §2 Epoch 9 — Foundation v0.2.0 (text: see §2; full detail in `docs/v0_2_0/pulse-v0_2_0-route.md` §91).
+- **Why:** Complete the deferred dashboard-side halo/constellation cascade — chunks #90/#91 migrated the widget to the new per-service severity/activity API but deferred the full-window dashboard ConstellationCanvas + legacy-helper deletion; depends on #90/#91 — both landed. Mirrors chunk #92 precedent.
+- **Mechanical:** §1 Total chunks 92→93 (Form 1 Policy A); state.yaml.last_completed_chunk unchanged.
+- **Marker:** `.andromeda/runs/2026-05-31T16-35-32-spec-amendment-append-chunk-93-constellation-dashboard-cascade/amendment.md`
