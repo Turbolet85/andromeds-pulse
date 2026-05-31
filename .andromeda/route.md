@@ -16,7 +16,7 @@ unit) not HOW (implementation steps)._
 
 ## 1. Route Scope Summary
 
-- **Total chunks:** 93
+- **Total chunks:** 94
 - **Epochs:** 9 (Foundation, Ingest pipeline, Storage & query, Webview shell + TauRPC bridge, Visualization surfaces, Snapshot & Investigate, Plugin runtime + MCP server, Polish & ship, Foundation v0.2.0)
 - **Drilldown depth (avg):** 1.6 (mixed: Foundation depth 2, Ingest pipeline depth 1, Storage & query depth 2, Webview shell depth 1, Visualization surfaces depth 2, Snapshot depth 2, Plugin+MCP depth 2, Polish depth 1)
 - **Hierarchy mode:** mixed (3-level for dense epochs Foundation / Storage / Visualization / Snapshot / Plugin+MCP; 2-level for lighter epochs Ingest / Webview shell / Polish)
@@ -220,6 +220,8 @@ Service constellation rendering — replace aggregated badge with per-service do
 Incident-creation producer — wire L4Output → Incident; save_new_incident + registry.insert + corpus persist with cue scope_id; activates chunk-#91 per-service severity (capabilities P-022 / P-041 / P-027).
    ↓
 ConstellationCanvas dashboard cascade — migrate full-window constellation + HaloCanvas to per-service severity/activity API; delete legacy error-rate-to-blur/throughput-to-hz + orphaned use-widget-metrics; retype HaloInput (capability P-027; detail in pulse-v0_2_0-route §91).
+   ↓
+MCP server + tool exposure — rmcp exposes 4 incident/report/telemetry tools + mcp.status() agent identity; [mcp.enable] default-off equal-tier output channel (capabilities P-039 / P-040; detail in pulse-v0_2_0-route §92).
 
 ---
 
@@ -612,3 +614,12 @@ ConstellationCanvas dashboard cascade — migrate full-window constellation + Ha
 - **Why:** Complete the deferred dashboard-side halo/constellation cascade — chunks #90/#91 migrated the widget to the new per-service severity/activity API but deferred the full-window dashboard ConstellationCanvas + legacy-helper deletion; depends on #90/#91 — both landed. Mirrors chunk #92 precedent.
 - **Mechanical:** §1 Total chunks 92→93 (Form 1 Policy A); state.yaml.last_completed_chunk unchanged.
 - **Marker:** `.andromeda/runs/2026-05-31T16-35-32-spec-amendment-append-chunk-93-constellation-dashboard-cascade/amendment.md`
+
+---
+
+`2026-05-31` — Append chunk #94 MCP server + tool exposure (--allow-route-append)
+
+- **Insert:** chunk #94 at §2 Epoch 9 — Foundation v0.2.0 (text: see §2; full detail in `docs/v0_2_0/pulse-v0_2_0-route.md` §92).
+- **Why:** First Output-channels surface — MCP as one of three equal-tier output channels (P-039 / P-040, default-off per P-040); depends on #78 (incident records) + #88 (Diagnostic Report + copy-markdown) — both landed. Mirrors chunk #93 precedent.
+- **Mechanical:** §1 Total chunks 93→94 (Form 1 Policy A); state.yaml.last_completed_chunk unchanged.
+- **Marker:** `.andromeda/runs/2026-05-31T18-31-49-spec-amendment-append-chunk-94-mcp-server-tool-exposure/amendment.md`

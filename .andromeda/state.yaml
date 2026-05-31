@@ -1403,7 +1403,42 @@ spec_amendments:
   # noted+archived 2026-05-30T20:24:15Z (this wrap-session Phase 8 lifecycle
   # progression per spec-amendment-protocol.md Part D). Active list empty
   # post-archive; archive +1 (73 → 74).
-  active: []
+  active:
+    - amendment_id: 2026-05-31T18-31-49-append-chunk-94-mcp-server-tool-exposure
+      plans:
+        - path: route.md
+          sections: ["§1 Route Scope Summary", "§2 Roadmap (Epoch 9 — Foundation v0.2.0)", "§3 Decisions Log"]
+          decisions_log_section: "2026-05-31 — Append chunk #94 MCP server + tool exposure (--allow-route-append)"
+      trigger:
+        chunk: null
+        phase: null
+        harness: "user-driven via /andromeda-evolve"
+      authority:
+        winning_plan: route.md
+        winning_tier: pipeline state
+        losing_plan: route.md
+        losing_concern: chunk-list-stale-vs-pipeline-reality
+        rationale: "v0.2.0 plan §92 defines the MCP output-channel surface; route.md had not registered it. Type 7 Form 1 append to Epoch 9."
+      impl_files_synced: []
+      expected_propagation:
+        - CLAUDE.md   # <!-- GENERATED:setup:pointer-table --> cascade (9 epochs / 93 chunks) → (9 epochs / 94 chunks)
+      marker_path: .andromeda/runs/2026-05-31T18-31-49-spec-amendment-append-chunk-94-mcp-server-tool-exposure/amendment.md
+      applied_at: 2026-05-31T18:31:49Z
+      noted_at: null
+      propagated_by_run: .andromeda/runs/2026-05-31T19-02-12-setup-project-delta/
+      archived_at: null
+      verification_status: clean
+      flag_used: --allow-route-append
+      form: 1
+      route_section_modified: "Epoch 9 — Foundation v0.2.0"
+      chunks_added:
+        - position: 94
+          text: "MCP server + tool exposure — rmcp exposes 4 incident/report/telemetry tools + mcp.status() agent identity; [mcp.enable] default-off equal-tier output channel (capabilities P-039 / P-040; detail in pulse-v0_2_0-route §92)."
+      chunks_renumbered: []
+      motivation: "v0.2.0 plan §92 (docs/v0_2_0/pulse-v0_2_0-route.md:693) first Output-channels surface; depends on route#78 (incident records) + route#88 (Diagnostic Report + copy-markdown) — both landed; route 93/93 complete."
+      confirmed_shift: false
+      scope_summary_updates:
+        - "Total chunks: 93 → 94"
   archive:
     - amendment_id: 2026-05-31T16-35-32-append-chunk-93-constellation-dashboard-cascade
       plans:
