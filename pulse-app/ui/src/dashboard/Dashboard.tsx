@@ -1,37 +1,27 @@
 // Full dashboard surface — chunk #33 shell. Wraps TanStack Router around the
 // root layout (Titlebar / SkipToMain / TabNav / Outlet / FooterStatusBar /
-// CommandPalette) and surfaces the synthetic HaloInput stream from App.tsx
-// to TracesRoute via React context.
+// CommandPalette).
 //
-// Per layouts §Wireframe — Full dashboard, the existing CanvasContainer +
-// HaloCanvas peer composition (chunks #28/#29 substrate + #31 Halo signature)
-// relocates into TracesRoute; subsequent chunks (#34/#35/#38) fill the
-// other 4 tab routes.
+// Per layouts §Wireframe — Full dashboard, the per-service constellation map +
+// trace table live in TracesRoute; the other 4 tab routes (#34/#35/#38) fill
+// the remaining tabs.
 
 import { useMemo } from "react";
 import { RouterProvider } from "@tanstack/react-router";
 import { createDashboardRouter } from "./router";
-import { HaloInputProvider } from "./halo-input-context";
 import { InvestigationModalForm } from "./InvestigationModalForm";
 import {
   InvestigationProvider,
   useInvestigation,
 } from "../hooks/use-investigation";
-import type { HaloInput } from "../halo/halo-types";
 
-interface DashboardProps {
-  haloInput: HaloInput;
-}
-
-export function Dashboard({ haloInput }: DashboardProps) {
+export function Dashboard() {
   const router = useMemo(() => createDashboardRouter(), []);
   return (
-    <HaloInputProvider value={haloInput}>
-      <InvestigationProvider>
-        <RouterProvider router={router} />
-        <DashboardInvestigationModal />
-      </InvestigationProvider>
-    </HaloInputProvider>
+    <InvestigationProvider>
+      <RouterProvider router={router} />
+      <DashboardInvestigationModal />
+    </InvestigationProvider>
   );
 }
 

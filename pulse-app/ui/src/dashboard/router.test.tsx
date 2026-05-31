@@ -7,7 +7,6 @@ import {
   createMemoryHistory,
   pathnameToTabId,
 } from "./router";
-import { HaloInputProvider } from "./halo-input-context";
 import { InvestigationProvider } from "../hooks/use-investigation";
 
 vi.mock("../components/Titlebar", () => ({
@@ -23,7 +22,7 @@ vi.mock("../canvas/CanvasContainer", () => ({
 }));
 
 vi.mock("../halo/HaloCanvas", () => ({
-  HaloCanvas: ({ ariaLabel }: { ariaLabel: string; throughputHz: number; errorRate: number }) => (
+  HaloCanvas: ({ ariaLabel }: { ariaLabel: string }) => (
     <section aria-label={ariaLabel} data-testid="halo-canvas-stub" />
   ),
 }));
@@ -32,19 +31,15 @@ vi.mock("@tauri-apps/api/webviewWindow", () => ({
   getAllWebviewWindows: vi.fn().mockResolvedValue([]),
 }));
 
-const haloInput = { throughputHz: 1000, errorRate: 0.5 };
-
 function renderRouterAt(path: string) {
   const router = createDashboardRouter({
     history: createMemoryHistory({ initialEntries: [path] }),
   });
   return {
     ...render(
-      <HaloInputProvider value={haloInput}>
-        <InvestigationProvider>
-          <RouterProvider router={router} />
-        </InvestigationProvider>
-      </HaloInputProvider>,
+      <InvestigationProvider>
+        <RouterProvider router={router} />
+      </InvestigationProvider>,
     ),
     router,
   };

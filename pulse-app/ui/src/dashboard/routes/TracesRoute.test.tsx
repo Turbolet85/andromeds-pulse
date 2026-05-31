@@ -5,16 +5,35 @@ import { InvestigationProvider } from "../../hooks/use-investigation";
 import { __setProxyForTest } from "./traces/use-traces";
 import { TracesRoute } from "./TracesRoute";
 
+vi.mock("../../hooks/use-service-constellation", () => ({
+  useServiceConstellation: () => [
+    {
+      service: "svc-a",
+      state: "active",
+      last_seen_unix_nano: 1_000,
+      manual_override: null,
+      priority_tier: null,
+    },
+    {
+      service: "svc-b",
+      state: "quiet",
+      last_seen_unix_nano: 1_000,
+      manual_override: null,
+      priority_tier: null,
+    },
+  ],
+}));
+
 vi.mock("./traces/ConstellationCanvas", () => ({
   ConstellationCanvas: ({
-    services,
+    items,
   }: {
-    services: ReadonlyArray<{ serviceName: string }>;
+    items: ReadonlyArray<{ service: string }>;
   }) => (
     <section
       aria-label="Service constellation"
       data-testid="constellation-canvas-stub"
-      data-service-count={services.length}
+      data-service-count={items.length}
     />
   ),
 }));
@@ -101,7 +120,7 @@ describe("TracesRoute", () => {
     );
   });
 
-  it("forwards aggregated services to ConstellationCanvas", async () => {
+  it("forwards service-registry items to ConstellationCanvas", async () => {
     setupProxyWithRows(sampleRows);
     render(
       <InvestigationProvider>

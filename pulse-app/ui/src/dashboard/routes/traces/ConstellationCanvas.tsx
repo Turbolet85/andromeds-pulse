@@ -1,4 +1,18 @@
-import { useEffect, useRef, useState } from "react";
+// Full-window dashboard service constellation (chunk #93) — migrates the
+// dashboard hero canvas off the legacy error-rate/throughput single-blob model
+// (chunk #31) onto the per-service severity/activity API the widget adopted in
+// chunk #91. One soft Halo dot per service from the registry: hue = per-service
+// incident severity (LCH Earth Blue → Alert Burgundy), brightness = lifecycle
+// activity tier, position = stable hash(service_name) scatter. Dormant dimmed;
+// Archived hidden. Reuses the widget's constellation-types + constellation-pipeline
+// machinery (three-surface coherence per layout-templates.md §IA notes).
+//
+// The <canvas> is opaque to screen readers (a11y-plan §1), so the wrapper
+// <section> carries a complete-sentence accessible name (count + per-state
+// breakdown + active-findings count) — the not-color-alone (SC 1.4.1) text
+// equivalent for the color/brightness dots.
+
+import { useEffect, useMemo, useRef, useState } from "react";
 import { createFrameLoop } from "../../../canvas/frame-loop";
 import { Fallback } from "../../../canvas/Fallback";
 import {
@@ -6,29 +20,32 @@ import {
   normalizeWgpuBackend,
   recordFrameMs,
 } from "../../../canvas/frame-metrics";
-import {
-  requestWebGPUAdapter,
-  type AdapterResult,
-} from "../../../canvas/webgpu-adapter";
-import { createHaloPipeline } from "../../../halo/halo-pipeline";
+import { requestWebGPUAdapter, type AdapterResult } from "../../../canvas/webgpu-adapter";
 import { lchInterpolate } from "../../../halo/lch";
-import { errorRateToBlur } from "../../../halo/error-rate-to-blur";
-import { throughputToHz } from "../../../halo/throughput-to-hz";
 import { useReducedMotion } from "../../../hooks/use-reduced-motion";
-import type { ServiceAggregate } from "./use-constellation-data";
+import { createConstellationPipeline } from "../../../widget/constellation-pipeline";
+import {
+  constellationSummary,
+  visibleDots,
+  type ConstellationDot,
+} from "../../../widget/constellation-types";
+import type { ServiceListItem } from "../../../bindings/index";
 
 interface ConstellationCanvasProps {
-  services: readonly ServiceAggregate[];
+  items: readonly ServiceListItem[];
 }
 
 const PREFERRED_FORMAT: GPUTextureFormat = "bgra8unorm";
-// Same uniform layout as halo/HaloCanvas: 16 (color) + 4 (blur) + 4 (phase)
-// + 8 (padding) = 32 bytes. Per-service dots reuse the same struct via
-// per-service draw calls + per-call uniform writes.
+// 16 (color) + 8 (center: vec2) + 4 (radius) + 4 (brightness) = 32 bytes,
+// matching the DotUniforms struct in constellation.wgsl.
 const UNIFORM_BUFFER_SIZE = 32;
-// GPUBufferUsage.UNIFORM (0x40) | GPUBufferUsage.COPY_DST (0x08) inlined per
-// jsdom test portability discipline (.claude/rules/testing.md 2026-05-09).
+// GPUBufferUsage.UNIFORM (0x40) | COPY_DST (0x08) inlined per jsdom test
+// portability discipline (.claude/rules/testing.md 2026-05-09).
 const UNIFORM_BUFFER_USAGE = 0x40 | 0x08;
+// Soft-falloff dot radius in normalized [-1, 1] canvas units.
+const DOT_RADIUS_NORM = 0.14;
+// Gentle shared breathing period (ms); within the design-system quiet band.
+const BREATHING_PERIOD_MS = 3500;
 
 function readDesignToken(name: string, fallback: string): string {
   if (typeof document === "undefined") return fallback;
@@ -36,16 +53,19 @@ function readDesignToken(name: string, fallback: string): string {
   return value || fallback;
 }
 
-export function ConstellationCanvas({ services }: ConstellationCanvasProps) {
+export function ConstellationCanvas({ items }: ConstellationCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [adapter, setAdapter] = useState<AdapterResult | null>(null);
   const [pipelineFailed, setPipelineFailed] = useState(false);
   const reducedMotion = useReducedMotion() ?? false;
-  const servicesRef = useRef<readonly ServiceAggregate[]>(services);
+
+  const dots = useMemo(() => visibleDots(items), [items]);
+  const summary = useMemo(() => constellationSummary(items), [items]);
+  const dotsRef = useRef<readonly ConstellationDot[]>(dots);
 
   useEffect(() => {
-    servicesRef.current = services;
-  }, [services]);
+    dotsRef.current = dots;
+  }, [dots]);
 
   useEffect(() => {
     let cancelled = false;
@@ -74,7 +94,7 @@ export function ConstellationCanvas({ services }: ConstellationCanvasProps) {
     const { device, backendKind } = adapter;
     context.configure({ device, format: PREFERRED_FORMAT, alphaMode: "premultiplied" });
 
-    const pipelineResult = createHaloPipeline(device, PREFERRED_FORMAT);
+    const pipelineResult = createConstellationPipeline(device, PREFERRED_FORMAT);
     if (pipelineResult.kind === "failed") {
       setPipelineFailed(true);
       return;
@@ -98,52 +118,51 @@ export function ConstellationCanvas({ services }: ConstellationCanvasProps) {
     const webviewBackend = detectWebviewBackend();
     const renderContext = context;
 
-    const writeUniformsForService = (service: ServiceAggregate, pulsePhase: number): void => {
-      const color = lchInterpolate(service.errorRate, primaryHex, accentHex);
-      const blurTarget = errorRateToBlur(service.errorRate);
+    const writeUniformsForDot = (dot: ConstellationDot, envelope: number): void => {
+      const color = lchInterpolate(dot.hueFraction, primaryHex, accentHex);
+      const effectiveBrightness = dot.brightness * envelope;
       const data = new Float32Array([
         color.r,
         color.g,
         color.b,
         color.a,
-        blurTarget,
-        pulsePhase,
-        0,
-        0,
+        dot.x,
+        dot.y,
+        DOT_RADIUS_NORM,
+        effectiveBrightness,
       ]);
       device.queue.writeBuffer(uniformBuffer, 0, data.buffer);
     };
 
-    const renderAllServices = (timestamp: DOMHighResTimeStamp): void => {
-      const list = servicesRef.current;
+    const clearFrame = (): void => {
+      const encoder = device.createCommandEncoder({ label: "constellation-clear" });
+      const pass = encoder.beginRenderPass({
+        colorAttachments: [
+          {
+            view: renderContext.getCurrentTexture().createView(),
+            loadOp: "clear",
+            storeOp: "store",
+            clearValue: { r: 0, g: 0, b: 0, a: 0 },
+          },
+        ],
+      });
+      pass.end();
+      device.queue.submit([encoder.finish()]);
+    };
+
+    const renderAllDots = (envelope: number): void => {
+      const list = dotsRef.current;
       if (list.length === 0) {
-        // Render a single clear frame so the canvas isn't a stale paint.
-        const encoder = device.createCommandEncoder({ label: "constellation-clear" });
-        const pass = encoder.beginRenderPass({
-          colorAttachments: [
-            {
-              view: renderContext.getCurrentTexture().createView(),
-              loadOp: "clear",
-              storeOp: "store",
-              clearValue: { r: 0, g: 0, b: 0, a: 0 },
-            },
-          ],
-        });
-        pass.end();
-        device.queue.submit([encoder.finish()]);
+        clearFrame();
         return;
       }
       for (let i = 0; i < list.length; i += 1) {
-        const service = list[i];
-        const hz = throughputToHz(service.throughputHz);
-        const phase = ((timestamp / 1000) * 2 * Math.PI * hz) % (2 * Math.PI);
-        writeUniformsForService(service, phase);
+        writeUniformsForDot(list[i], envelope);
         const encoder = device.createCommandEncoder({ label: "constellation-encoder" });
         const pass = encoder.beginRenderPass({
           colorAttachments: [
             {
               view: renderContext.getCurrentTexture().createView(),
-              // First service clears; subsequent services draw on top.
               loadOp: i === 0 ? "clear" : "load",
               storeOp: "store",
               clearValue: { r: 0, g: 0, b: 0, a: 0 },
@@ -161,7 +180,9 @@ export function ConstellationCanvas({ services }: ConstellationCanvasProps) {
     const loop = createFrameLoop({
       onFrame: (timestamp) => {
         const start = performance.now();
-        renderAllServices(timestamp);
+        const phase = ((timestamp % BREATHING_PERIOD_MS) / BREATHING_PERIOD_MS) * 2 * Math.PI;
+        const envelope = 0.6 + 0.4 * (0.5 + 0.5 * Math.sin(phase));
+        renderAllDots(envelope);
         void device.queue.onSubmittedWorkDone().then(() => {
           const duration_ms = performance.now() - start;
           void recordFrameMs({
@@ -174,7 +195,8 @@ export function ConstellationCanvas({ services }: ConstellationCanvasProps) {
       },
       prefersReducedMotion: reducedMotion,
       onReducedMotionFrame: () => {
-        renderAllServices(0);
+        // Static glow: full envelope, no rhythm; hue + brightness still encode state.
+        renderAllDots(1);
         void recordFrameMs({
           duration_ms: 0,
           wgpu_backend: wgpuBackend,
@@ -194,9 +216,9 @@ export function ConstellationCanvas({ services }: ConstellationCanvasProps) {
 
   return (
     <section
-      aria-label="Service constellation"
+      aria-label={summary}
       data-testid="constellation-canvas"
-      data-service-count={services.length}
+      data-service-count={dots.length}
       style={{
         background: "var(--color-inset)",
         border: "1px solid rgba(74, 144, 226, 0.3)",

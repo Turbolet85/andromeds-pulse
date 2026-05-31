@@ -15,7 +15,7 @@ vi.mock("../canvas/CanvasContainer", () => ({
 }));
 
 vi.mock("../halo/HaloCanvas", () => ({
-  HaloCanvas: ({ ariaLabel }: { ariaLabel: string; throughputHz: number; errorRate: number }) => (
+  HaloCanvas: ({ ariaLabel }: { ariaLabel: string }) => (
     <section aria-label={ariaLabel} data-testid="halo-canvas-stub" />
   ),
 }));
@@ -23,8 +23,6 @@ vi.mock("../halo/HaloCanvas", () => ({
 vi.mock("@tauri-apps/api/webviewWindow", () => ({
   getAllWebviewWindows: vi.fn().mockResolvedValue([]),
 }));
-
-const haloInput = { throughputHz: 1000, errorRate: 0.5 };
 
 describe("Dashboard — shell composition", () => {
   beforeEach(() => {
@@ -36,7 +34,7 @@ describe("Dashboard — shell composition", () => {
   });
 
   it("renders titlebar + tablist + main + footer + status live region", async () => {
-    render(<Dashboard haloInput={haloInput} />);
+    render(<Dashboard />);
     expect(await screen.findByRole("banner")).toBeDefined();
     expect(screen.getByRole("tablist")).toBeDefined();
     expect(screen.getByRole("main")).toBeDefined();
@@ -45,7 +43,7 @@ describe("Dashboard — shell composition", () => {
   });
 
   it("the <main> element has id='main-content' and tabindex=-1 (skip-link target)", async () => {
-    render(<Dashboard haloInput={haloInput} />);
+    render(<Dashboard />);
     await screen.findByRole("main");
     const main = screen.getByRole("main");
     expect(main.getAttribute("id")).toBe("main-content");
@@ -53,21 +51,21 @@ describe("Dashboard — shell composition", () => {
   });
 
   it("renders skip-to-main link as the first focusable element", async () => {
-    render(<Dashboard haloInput={haloInput} />);
+    render(<Dashboard />);
     const skipLink = await screen.findByTestId("skip-to-main");
     expect(skipLink.tagName).toBe("A");
     expect(skipLink.getAttribute("href")).toBe("#main-content");
   });
 
   it("status live region is polite and visually hidden", async () => {
-    render(<Dashboard haloInput={haloInput} />);
+    render(<Dashboard />);
     const status = await screen.findByRole("status");
     expect(status.getAttribute("aria-live")).toBe("polite");
     expect(status.getAttribute("id")).toBe("shell-status");
   });
 
   it("renders the 5-tab tablist with the canonical tab order", async () => {
-    render(<Dashboard haloInput={haloInput} />);
+    render(<Dashboard />);
     await screen.findByRole("tablist");
     const tabs = screen.getAllByRole("tab");
     expect(tabs).toHaveLength(5);
@@ -81,7 +79,7 @@ describe("Dashboard — shell composition", () => {
   });
 
   it("default route is /traces — Traces tab is aria-selected", async () => {
-    render(<Dashboard haloInput={haloInput} />);
+    render(<Dashboard />);
     const tracesTab = await screen.findByTestId("tab-traces");
     expect(tracesTab.getAttribute("aria-selected")).toBe("true");
   });

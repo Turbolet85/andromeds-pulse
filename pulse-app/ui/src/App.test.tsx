@@ -7,26 +7,12 @@ vi.mock("./hooks/use-window-label", () => ({
   useWindowLabel: vi.fn().mockReturnValue("main"),
 }));
 
-vi.mock("./hooks/use-synthetic-halo-input", () => ({
-  useSyntheticHaloInput: () => ({ throughputHz: 1000, errorRate: 0.5 }),
-}));
-
 vi.mock("./widget/CompactWidget", () => ({
   CompactWidget: () => <div data-testid="compact-widget-stub" />,
 }));
 
 vi.mock("./dashboard/Dashboard", () => ({
-  Dashboard: ({
-    haloInput,
-  }: {
-    haloInput: { throughputHz: number; errorRate: number };
-  }) => (
-    <div
-      data-testid="dashboard-stub"
-      data-throughput-hz={haloInput.throughputHz}
-      data-error-rate={haloInput.errorRate}
-    />
-  ),
+  Dashboard: () => <div data-testid="dashboard-stub" />,
 }));
 
 afterEach(() => {
@@ -54,16 +40,6 @@ describe("App — window-label routing", () => {
     render(<App />);
     expect(screen.getByTestId("dashboard-stub")).toBeDefined();
     expect(screen.queryByTestId("compact-widget-stub")).toBeNull();
-  });
-});
-
-describe("App — props flow to children", () => {
-  it("forwards HaloInput to <Dashboard>", () => {
-    vi.mocked(useWindowLabel).mockReturnValue("main");
-    render(<App />);
-    const dashboard = screen.getByTestId("dashboard-stub");
-    expect(dashboard.dataset.throughputHz).toBe("1000");
-    expect(dashboard.dataset.errorRate).toBe("0.5");
   });
 });
 

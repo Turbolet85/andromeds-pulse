@@ -9,7 +9,7 @@
 
 import { ConstellationCanvas } from "./traces/ConstellationCanvas";
 import { TraceTable } from "./traces/TraceTable";
-import { useConstellationData } from "./traces/use-constellation-data";
+import { useServiceConstellation } from "../../hooks/use-service-constellation";
 import { useTraces } from "./traces/use-traces";
 import { InvestigateButton } from "../../components/InvestigateButton";
 import { useInvestigation } from "../../hooks/use-investigation";
@@ -22,7 +22,7 @@ export function TracesRoute() {
     timeWindowSeconds: QUERY_WINDOW_SECONDS,
     limit: QUERY_LIMIT,
   });
-  const services = useConstellationData(rows, { windowSeconds: QUERY_WINDOW_SECONDS });
+  const items = useServiceConstellation();
   const { openInvestigation } = useInvestigation();
   return (
     <section
@@ -63,7 +63,7 @@ export function TracesRoute() {
           data-testid="traces-investigate"
         />
       </div>
-      <ConstellationCanvas services={services} />
+      <ConstellationCanvas items={items} />
       <TraceTable rows={rows} isLoading={isLoading} />
     </section>
   );
