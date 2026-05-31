@@ -1,104 +1,100 @@
 # Session Handoff
 
-**Last Updated:** 2026-05-30T20:24:15Z
+**Last Updated:** 2026-05-31T08:17:02Z
 **Branch:** main
 **Session End Status:** clean
-**Last Commit:** `<wrap commit pending this turn>` (prior HEAD: `331ac73` chore(setup-project): delta-rerun for 1 amendment (chunk #92 incident-creation producer — route-append))
+**Last Commit:** `<wrap commit pending this turn>` (prior HEAD: `65eb465` chore(wrap): session 164 — chunk #92 incident-creation producer route-append META wrap)
 
 ## Current State
 
-- **Last completed chunk:** route#91 "Service constellation rendering" (Epoch 9 — Foundation v0.2.0; terminal IMPLEMENTED chunk). commit_sha healed this wrap "pending" → `3539e8c` (Phase 8 step 7 State-H auto-heal; closes the single-wrap-lag carried from session 163 per Proposal 16 Option b).
-- **Next chunk:** route#92 "Incident-creation producer" — **NOW REGISTERED + propagated + archived this session** (route §2 Epoch 9; §1 Total chunks 92). Wire L4Output → Incident (`save_new_incident` + `registry.insert` + corpus persist with cue `scope_id`) at the `pulse-app/src/inference_runtime.rs:9-16` deferral site. Ready for `/andromeda-phase` → `/andromeda-implement`. **This is the producer that activates the chunk-#91 per-service-severity backend** (runtime-inert today).
-- **In-progress phase:** none.
-- **Phase artifacts present:** none new this session (META wrap). Prior `.andromeda/phases/phase-88/` (chunk #91).
+- **Last completed chunk:** route#92 "Incident-creation producer" (Epoch 9 — Foundation v0.2.0; **TERMINAL chunk of the 92-chunk route**). IMPLEMENTED this session — the deferred `L4Output → Incident` production path at `pulse-app/src/inference_runtime.rs:9-16` is now wired. commit_sha set `"pending"` this wrap (Proposal 16 Option b; next wrap Phase 8 step 7 heals to the `chunk(92):` SHA).
+- **Next chunk:** **NONE — the route is COMPLETE (92/92 chunks implemented).** Epoch 9 (Foundation v0.2.0) and the entire route are fully landed. Forward options (no chunk auto-queued): (a) register new scope/chunks via `/andromeda-evolve --allow-route-append` (e.g., the deferred "ConstellationCanvas dashboard cascade" per project-doc §91 — migrate the DASHBOARD constellation to the new severity/activity API + delete legacy `error-rate-to-blur.ts`/`throughput-to-hz.ts`); (b) v0.2.0 polish/ship; (c) `git push` (10 commits ahead of origin after this wrap).
+- **In-progress phase:** none (chunk #92 implemented + committed this wrap).
+- **Phase artifacts present:** `.andromeda/phases/phase-89/` (chunk #92: combined.md + research.md + plan.md). Audit trail at `.andromeda/runs/2026-05-30T20-43-31-phase-89/` (7 raw + 7 stripped extracts).
 
 ## Andromeda State Detection (states A-K)
 
-10 of 11 CLEAR; State E is the expected healthy forward signal (registered chunk awaiting phase planning).
+10 of 11 CLEAR; State H = info (expected post-wrap `commit_sha = "pending"` heal next wrap per Proposal 16 Option b).
 
-- **A — In-progress runs:** ✓ CLEAR — this session's 3 run-dirs (evolve + spec-amendment + setup-project-delta) all complete (evolution-plan.md + amendment.md + materialization-plan-delta.md present).
+- **A — In-progress runs:** ✓ CLEAR — phase-89 run-dir complete (7 raw + 7 stripped extracts present).
 - **B — Status drift:** N/A (no project.yaml).
-- **C — Architecture staleness:** ✓ CLEAR — arch.md (2026-05-27) < CLAUDE.md (2026-05-30, delta-cascade edit).
-- **D — Pending route:** ✓ CLEAR — route.md present, 92 chunks.
-- **E — Pending phase planning:** ℹ️ info (expected) — chunk #92 registered, no phase artifacts yet. Forward action = `/andromeda-phase` to plan chunk #92.
-- **F — Pending implementation:** ✓ CLEAR — no phase plan for #92 yet (planning precedes implementation).
+- **C — Architecture staleness:** ✓ CLEAR — arch.md (2026-05-27) < CLAUDE.md (2026-05-30).
+- **D — Pending route:** ✓ CLEAR — route.md present, 92 chunks (all implemented).
+- **E — Pending phase planning:** ✓ CLEAR — chunk #92 implemented; no #93 exists (route terminal). Route complete.
+- **F — Pending implementation:** ✓ CLEAR — phase-89 plan implemented + committed this wrap.
 - **G — Multiple concurrent runs:** ✓ CLEAR.
-- **H — Route chunk drift:** ✓ CLEARED this wrap — commit_sha "pending" → `3539e8c` (Phase 8 step 7 heal; last_completed unchanged at #91; #92 registered-not-implemented so last_completed does not advance).
-- **I — Specialist plan freshness mismatch:** ✓ CLEAR — `plan_freshness.route_mtime` bumped to 2026-05-30T11:31:57Z matching route.md's actual mtime (prevents spurious State I next session); all other plan mtimes unchanged.
-- **J — Living artifact staleness:** ✓ CLEAR — dep-tree + api-surface reconciled this wrap (20:24:15Z).
+- **H — Route chunk drift:** ℹ️ info (expected) — last_completed advances 91 → 92 this wrap; commit_sha = `"pending"` (Proposal 16 Option b; next wrap Phase 8 step 7 heals to the `chunk(92):` implementation SHA via title-token overlap).
+- **I — Specialist plan freshness mismatch:** ✓ CLEAR — no `.andromeda/` specialist plan / route / arch touched this session (only `.claude/rules/testing.md` curation, which is not a plan_freshness upstream). All plan_freshness mtimes unchanged.
+- **J — Living artifact staleness:** ✓ CLEAR — dep-tree + api-surface reconciled this wrap (2026-05-31T08:14:21Z).
 - **K — Multi-chunk in-progress imbalance:** ✓ CLEAR — in_progress null.
 
 ## Drift Detection (6 dimensions)
 
 All 6 CLEAR. `state.yaml.drift_warnings = []`.
 
-- **D1 — Living artifact staleness:** ✓ CLEAR — reconcile (20:24:15Z) ≥ most_recent_code_mtime (2026-05-30T08:40:47Z, unchanged — no source delta this META session).
-- **D2 — Living artifact wrong content:** ✓ CLEAR — dep-tree zero-diff (463 lines); api-surface buffer sub-block zero-diff (616 lines, byte-identical to cycle-2).
-- **D3 — Plan-to-code drift:** ✓ CLEAR — chunk #92 route-append added a chunk row only; zero arch-registry delta (no new procedures/topics/crates/env-vars; capability-drift unaffected).
-- **D4 — Plan-to-plan drift:** ✓ CLEAR — no specialist plan changed; route §1/§2/§3 internally consistent post-append.
-- **D5 — Plan-to-CLAUDE.md drift:** ✓ CLEAR — CLAUDE.md mtime (delta-cascade 17:22Z) > route.md (11:31Z) > all other upstreams; no upstream newer than CLAUDE.md. The chunk #92 amendment archived this wrap (active → archive).
-- **D6 — Route chunk progression:** ✓ CLEAR — git log chunk-progression max = #91 (3539e8c) = state.yaml.last_completed_chunk; #92 registered-not-implemented.
+- **D1 — Living artifact staleness:** ✓ CLEAR — reconcile (08:14:21Z) ≥ most_recent_code_mtime (this session's source edits, all earlier today).
+- **D2 — Living artifact wrong content:** ✓ CLEAR — dep-tree zero-diff (463 lines); api-surface corpus sub-block zero-diff (248 lines).
+- **D3 — Plan-to-code drift:** ✓ CLEAR — chunk #92 added ZERO arch-registry resources (no new TauRPC procedure / broadcast topic / corpus table / env var / crate). `DigestCueRef.scope`/`scope_id` are internal `triage::contract` fields, not arch §Occupied Resources. `cargo xtask capability-drift` clean (0 missing, 0 extra). No Type 6 arch-registry amendment needed (unlike chunks #78/#82/#87/#88).
+- **D4 — Plan-to-plan drift:** ✓ CLEAR — no specialist plan changed.
+- **D5 — Plan-to-CLAUDE.md drift:** ✓ CLEAR — no `.andromeda/` upstream newer than CLAUDE.md (no arch/route/plan edits this session).
+- **D6 — Route chunk progression:** ✓ CLEAR — last_completed advances 91 → 92 this wrap (the chunk #92 implementation); `chunk(92):` commit lands Phase 10.
 
 ## Spec Amendments (this session)
 
-**Archived this session: 1** — chunk #92 route-append, FULL Type 7 Form 1 single-cycle (15th instance):
-
-- **Plan:** `.andromeda/route.md` (§1 Route Scope Summary, §2 Roadmap Epoch 9, §3 Decisions Log)
-- **Decisions Log:** §3 — 2026-05-30 "Append chunk #92 Incident-creation producer (--allow-route-append)"
-- **Trigger:** user-driven evolution via /andromeda-evolve (no chunk/phase/harness)
-- **Authority resolution:** pipeline-state > route.md chunk-list-stale-vs-pipeline-reality
-- **Lifecycle:** applied 2026-05-30T11:31:57Z → propagated 2026-05-30T17:22:40Z → noted+archived 2026-05-30T20:24:15Z (all in this turn)
-- **Marker:** `.andromeda/runs/2026-05-30T11-31-57-spec-amendment-append-chunk-92-incident-creation-producer/amendment.md`
-
-`spec_amendments.active` empty post-archive; archive 73 → 74.
+(none this session) — chunk #92 implementation introduced NO new arch-registered resource (capability-drift clean), so NO Type 6 arch-registry amendment is needed. The chunk #92 route-append amendment was already archived last session (164). `spec_amendments.active` empty; archive unchanged at 74.
 
 ## Key Decisions This Session
 
-1. **Registered route#92 "Incident-creation producer"** as the next chunk (chosen over the "ConstellationCanvas dashboard cascade" candidate for higher product value): it wires the production L4Output → Incident creation path (`save_new_incident` + `registry.insert` + corpus persist with cue `scope_id`) that **activates the chunk-#91 per-service-severity backend**, which is forward-infrastructure / runtime-INERT today (no production cue→incident path exists; incidents built only in `#[cfg(test)]`; deferral documented at `pulse-app/src/inference_runtime.rs:9-16`).
-2. **Capability citation verified against the spec** (not guessed): P-022 (Auto-Resolution and Lifecycle) + P-041 (Persistent Incident Corpus) + P-027 (Service Constellation Auto-Discovery — the per-service severity it activates). P-023 (Acknowledge Cool-Down) dropped as not-relevant.
-3. **Textbook 15th Type 7 Form 1 single-cycle** — new-session → evolve --allow-route-append → setup-project --delta → wrap, all executed as designed; Active→Propagated→Archived in one turn.
+1. **Activation scope = extend (Option A)** — surfaced via AskUserQuestion at /phase (per the CLAUDE.md 2026-05-30 data-producer discipline, which itself was the chunk-#91 lesson recurring one level deeper): the cue `scope_id` is dropped at the `AttentionCue → DigestCueRef` step (folded into free-text `summary`), so chunk #92 threads `scope` + `scope_id` STRUCTURALLY through `DigestCueRef` + the chunk #81 digest assembler. This delivers the chunk's headline (per-service severity lights up at runtime) — the alternative (forward-inert, scope_id=None) was rejected.
+2. **Creation predicate = Surface→Active, Watch→Curious** (AskUserQuestion at /phase): `Decision::Surface` → Active incident; `Decision::Watch` → low-interrupt Curious-tier incident; `Decision::Dismiss` OR `Severity::None` OR no-triggering-cue → skip; `is_resolution_summary` → existing resolution-summary path. Dedup on the per-service `(kind, scope, scope_id)` identity (distinct services keep distinct incidents); severity map Autonomous→Error, Suggested→Warn, Curious→Info (Critical reserved); NO creation broadcast (transition-oriented shape + deferred webview consumer; activation works via `registry.insert` which `ServicesApiImpl` reads directly).
+3. **Build-environment saga** — a `libduckdb_sys` rlib-format COLD-BUILD race blocked the test gate; a full `cargo clean` ALONE did not fix it and `CARGO_BUILD_PIPELINING=false` made it worse; the reliable de-race was `cargo build -p pulse-app` (single binary target, no parallel-test-binary link race) BEFORE `cargo nextest`. Captured as a Tier 2 testing.md learning extending the session 150/153/163 rlib family.
 
 ## Files Modified
 
-**Committed in 331ac73 (delta-rerun):** `.andromeda/route.md` (§1 91→92 + §2 chunk #92 + §3 entry), `CLAUDE.md` (pointer-table 91→92 chunks), `.andromeda/state.yaml` (active entry + propagated_by_run).
-**This wrap commit:** `.andromeda/state.yaml` (lifecycle archive + State-H heal + cursor + timestamps + session_count), `.claude/session-handoff.md`, `.andromeda/context/dependency-tree.md` (reconcile narrative), `.andromeda/context/api-surface.md` (buffer cycle-3 reconcile narrative).
-**Gitignored forensic (this session):** `.andromeda/runs/2026-05-30T11-31-57-{evolve,spec-amendment}-append-chunk-92-incident-creation-producer/` + `.andromeda/runs/2026-05-30T17-22-40-setup-project-delta/`.
+**Source (committed this wrap):** `crates/triage/src/contract.rs` (DigestCueRef +scope/+scope_id + `default_digest_cue_scope` + Digest::scrubbed_clone carry-through), `crates/triage/src/digest/assembler.rs` (populate scope/scope_id), `pulse-app/src/inference_runtime.rs` (`create_incident_from_l4_output` + L4→triage mappers + 3 obs targets + Success-arm wiring), `pulse-app/src/observability.rs` (3 AllowList entries + chunk-92 PII-ban test).
+**New tests:** `pulse-app/tests/unit_incident_producer.rs` (11 tests), `pulse-app/tests/integration_incident_producer_persists_across_restart.rs` (1 test).
+**Ecosystem:** `.claude/rules/testing.md` (1 Tier 2), `.andromeda/context/dependency-tree.md` + `.andromeda/context/api-surface.md` (reconcile), `.andromeda/state.yaml`, `.claude/session-handoff.md`.
 
 ## Curation Summary (this wrap)
 
 - **Tier 1 (CLAUDE.md USER:session-learnings):** 0.
-- **Tier 2 (.claude/rules/*):** 0.
+- **Tier 2 (.claude/rules/*):** 1 — testing.md: the `cargo build -p pulse-app` de-race for the cold-build libduckdb_sys rlib-format race (extends the session 150/153/163 family with a new remedy + two negative findings: full-clean-alone insufficient, pipelining=false counterproductive).
 - **Tier 3 (.claude/docs/session-learnings.md):** 0.
-- **Filtered:** ~2 (the Bash-classifier-transient workaround — environmental, not a pattern; the capability-verify-against-spec discipline — task-specific). Mode H.
-- **Andromeda pipeline proposals:** 0 (Mode H — honest healthy scan; the 4-skill chain new-session → evolve → setup-project --delta → wrap executed exactly as designed; the mid-session Bash-classifier outage was infra, handled gracefully via read-only tools, not a pipeline gap; 15th identical route-append cycle = documenting it would be churn).
+- **Filtered:** ~3 (cross-crate enum aliasing — standard Rust idiom; DigestCueRef structural-threading — task-specific; data-producer-discipline-recurs — dup of the 2026-05-30 CLAUDE.md entry which this session APPLIED).
+- **Andromeda pipeline proposals:** 0 (Mode H — honest healthy; the new-session → phase → implement → wrap chain executed as designed; the AskUserQuestion data-producer gates worked per the 2026-05-30 discipline; the rlib build issue was environmental/cargo, not a pipeline-skill gap — captured as a Tier 2 code learning, not a pipeline proposal).
 
 ## Pipeline Accumulators
 
-A1 `api_surface_deferral`: IMPLEMENTED steady state preserved (verified_cleared_at_session=135; consecutive_count=0 — per-crate reconcile fired cleanly this wrap on `buffer`, api_surface_deferred=false; cycle-3 in progress, cursor buffer → corpus). A2 dormant. 0 refactors filed, 0 patches filed (Mode H).
+A1 `api_surface_deferral`: IMPLEMENTED steady state preserved (verified_cleared_at_session=135; consecutive_count=0 — per-crate reconcile fired cleanly this wrap on `corpus`, api_surface_deferred=false; cycle-3 in progress, cursor corpus → curation). A2 dormant. 0 refactors filed, 0 patches filed (Mode H).
 
 ## Last Failed Command
 
-(none — the evolve + delta-rerun + wrap executed cleanly. One environmental hiccup mid-session: the Bash sandbox classifier was briefly unavailable during evolve verification + setup-project Phase 8; worked around with read-only Grep/Read tools, then it recovered. Not a failed command; no retry needed.)
+(none — the implementation completed green. The mid-session `libduckdb_sys` rlib-format build errors were an environmental cold-build race, resolved via `cargo build -p pulse-app` before nextest; not a failed command needing retry-avoidance — the remedy is the next step, captured as a Tier 2 learning.)
 
 ## Tests Status
 
-META session — **zero code delta** (route.md + CLAUDE.md + state.yaml + handoff + living artifacts only; no `crates/` or `pulse-app/` source touched). Security-crate smoke this wrap: `cargo nextest run -p security` 14/14 ✓ (0.153s). Full suite unchanged from session 163 baseline: Rust `cargo nextest --workspace --profile ci` 1547/1547 + 1 skip; webview vitest 648/648; fmt/clippy/capability-drift clean. cargo tree 463 lines (zero dep delta). **Dead-test scan:** 16 `#[cfg(test)] mod tests` blocks in pulse-app/src (unchanged — no pulse-app/src edits this session; warning-not-fatal).
+PASSING. Workspace `cargo nextest run --workspace --profile ci` = **1559/1559 + 1 skip** (baseline 1547 + 12 new chunk-#92 tests). triage 392/392 (post-clippy-fix). pulse-app 274/274 + 1 skip. fmt clean; `cargo clippy --workspace --all-targets --all-features -- -D warnings` clean; `cargo xtask capability-drift` clean (0/0); bindings.ts mcp-namespace present. Security-crate smoke this wrap: 14/14 (0.146s).
 
-**Cyrillic check:** state.yaml carries pre-existing historical-narrative cyrillic in prior-session METADATA/comment blocks (audit trail — NOT introduced this wrap); all this-wrap additions (handoff, state.yaml session-164 narratives, dep-tree/api-surface reconcile notes) are ASCII/English. No new homoglyphs.
+**Dead-test note (Phase 2 step 5):** pulse-app `[lib] test = false` (Cargo.toml:12) makes source-level `#[cfg(test)] mod tests` blocks dead. Chunk #92 added the `allowlist_for_target_resolves_chunk_92_incident_producer_targets` test INSIDE observability.rs's existing (dead) `mod tests` block — it is **dead** (confirmed: `cargo nextest list -p pulse-app | grep chunk_92` empty), exactly like the existing chunk_86 AllowList test (`AllowList` is private → these tests can only live in-module). The obs criterion's RUNTIME behavior IS verified by a RUNNING test: `pulse-app/tests/unit_incident_producer.rs::producer_observability_is_aggregate_only` asserts the producer emits no scope_id/title into self-observation. Relocating the AllowList-entry test to `pulse-app/tests/` would require making `AllowList` pub (an out-of-scope refactor touching all existing in-module AllowList tests) — deferred. Block count unchanged (no NEW dead block; added a test to an existing block).
+
+## Build-environment note (carry-forward)
+
+`target/` was fully `cargo clean`ed this session (88 GB removed) to chase the rlib race; the workspace + nightly api-surface caches are now warm again. Future wraps: per the new testing.md 2026-05-31 entry, if the `libduckdb_sys` rlib race recurs on a cold build, run `cargo build -p pulse-app` before `cargo nextest` (do NOT set `CARGO_BUILD_PIPELINING=false`).
 
 ## Next Recommended Action
 
-1. **`git push origin main`** — branch is ~9 commits ahead of origin after this wrap commit.
-2. **`/andromeda-phase`** to plan chunk #92 "Incident-creation producer" → then `/andromeda-implement`. The chunk wires `L4Output → Incident` at `pulse-app/src/inference_runtime.rs` (the deferral site) + `save_new_incident`/`registry.insert`/corpus-persist with cue `scope_id`, lighting up the chunk-#91 per-service-severity backend.
+1. **`git push origin main`** — branch is ~10 commits ahead of origin after this wrap commit.
+2. **The route is COMPLETE (92/92).** No chunk is auto-queued. Choose the next scope:
+   - Register a follow-up via `/andromeda-evolve --allow-route-append` — strongest candidate is the deferred **"ConstellationCanvas dashboard cascade"** (project-doc §91): migrate the DASHBOARD (full-window) constellation to the new severity/activity API + delete legacy `error-rate-to-blur.ts`/`throughput-to-hz.ts` + retype `HaloInput`; also clean the `use-widget-metrics.ts` orphaned-in-production hook (chunk #91 metrics-prop removal).
+   - OR begin v0.2.0 polish/ship work (the v0.1.0 Polish & ship epoch patterns — a11y audit, perf SLO, release pipeline — adapted for v0.2.0).
+3. **The chunk #92 producer is now LIVE** — when a real cue → L1a → digest → L4 (Surface/Watch) flows at runtime, incidents are created + persisted + attributed to their service, lighting up the chunk-#91 per-service-severity constellation (no longer runtime-inert).
 
 **Secondary (not blocking):**
-- The deferred **"ConstellationCanvas dashboard cascade"** (project-doc §91) remains an open future chunk — migrate the DASHBOARD constellation to the new severity/activity API + delete legacy `error-rate-to-blur.ts`/`throughput-to-hz.ts` + retype `HaloInput`. Lower product value than the incident producer; register via `/andromeda-evolve --allow-route-append` when ready.
-- `use-widget-metrics.ts` orphaned-in-production (chunk #91 metrics-prop removal); leave or clean in a future webview chunk.
-- api-surface CYCLE-3 in progress (cursor at corpus); triage/pulse-app new pub items (scope_id/priority_tier/tier_rank) captured ~8-12 wraps out.
+- api-surface CYCLE-3 in progress (cursor at curation); the chunk-#92 new pub items (triage `DigestCueRef.scope`/`scope_id` + pulse-app `create_incident_from_l4_output` + 3 tracing-target consts) captured cycle-3 when the cursor reaches triage (pos 11) / pulse-app (pos 8) ~6-9 wraps out.
 - `spec_amendments.archive` at 74 (over the 50 soft-cap; pruning deferred — run-dir markers remain forensic).
 - `experiments/` + `ui/` untracked carryover (still in `git status`).
 - Pipeline patches awaiting review in `docs/andromeda-improvements.md`: P22–P26.
 
 ## Session Goals (carry-over)
 
-(none — this session's goal completed: register route#92 via `/andromeda-evolve --allow-route-append` + propagate via `/andromeda-setup-project --delta` + archive via this wrap. The terminal route is now 92 chunks; the highest-value next chunk — the incident-creation producer — is queued and ready for `/andromeda-phase`.)
+(none — this session's goal completed: plan + implement chunk #92 "Incident-creation producer" end-to-end. The producer landed green, the per-service-severity backend from chunk #91 is now activated, and the 92-chunk route is fully implemented.)

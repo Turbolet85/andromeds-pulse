@@ -420,6 +420,14 @@ pub struct DigestServiceRow {
     pub p99_baseline_ms: f64,
 }
 
+/// Backward-compat default for `DigestCueRef::scope` when deserializing
+/// archived digest BLOBs authored before the chunk #92 scope-threading
+/// fields existed. `CueScope` derives no `Default`, so serde needs an
+/// explicit producer; Global is the neutral "no specific service" scope.
+fn default_digest_cue_scope() -> CueScope {
+    CueScope::Global
+}
+
 /// Compact attention-cue reference embedded in а digest's ATTENTION CUES
 /// section. Carries enumerated cue kind + scope-summary string (NOT raw
 /// OTLP attributes — scrubbed at producer).
@@ -429,6 +437,19 @@ pub struct DigestCueRef {
     pub priority_tier: PriorityTier,
     /// Free-text scope summary; pre-scrubbed at producer side.
     pub summary: String,
+    /// Originating cue scope enum (chunk #92). Threaded structurally so the
+    /// incident-creation producer reuses the `(kind, scope)` identity to
+    /// build `Incident.{kind,scope}`. `#[serde(default)]` keeps pre-chunk-#92
+    /// archived digest BLOBs deserializable.
+    #[serde(default = "default_digest_cue_scope")]
+    pub scope: CueScope,
+    /// Originating service attribution (`AttentionCue.scope_id`; chunk #92).
+    /// Threaded structurally (not only folded into `summary`) so the producer
+    /// can populate `Incident.scope_id` and light up the per-service severity
+    /// join. Pre-scrubbed at producer side; `#[serde(default)]` keeps older
+    /// archived BLOBs deserializable.
+    #[serde(default)]
+    pub scope_id: Option<String>,
 }
 
 /// Output of the L3 distillation layer — а digest summarizing incidents,
@@ -525,6 +546,8 @@ impl Digest {
                     kind: cue.kind,
                     priority_tier: cue.priority_tier,
                     summary: scrub(&cue.summary),
+                    scope: cue.scope,
+                    scope_id: cue.scope_id.as_deref().map(&scrub),
                 })
                 .collect(),
             corpus_matches: self.corpus_matches.clone(),
@@ -608,6 +631,8 @@ mod tests {
                 kind: CueKind::ErrorRateSpike,
                 priority_tier: PriorityTier::Suggested,
                 summary: "auth-service error rate 12.3% vs 0.8% baseline".to_string(),
+                scope: CueScope::Service,
+                scope_id: Some("auth-service".to_string()),
             }],
             corpus_matches: vec!["fp-a3f9".to_string()],
             lww_mode: DigestLwwMode::Default,

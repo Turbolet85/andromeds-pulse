@@ -257,6 +257,8 @@ impl DigestAssembler for Assembler {
                             .as_deref()
                             .map(|s| format!("{} scope_id={s}", cue_kind_label(c.kind)))
                             .unwrap_or_else(|| cue_kind_label(c.kind).to_string()),
+                        scope: c.scope,
+                        scope_id: c.scope_id.clone(),
                     }]
                 })
                 .unwrap_or_default();

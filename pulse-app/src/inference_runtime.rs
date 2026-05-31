@@ -28,13 +28,15 @@ use interpretation::contract::{InferenceError, LlmInferenceRunner, ModelTier};
 use interpretation::degraded_mode::DegradedModeStatus;
 use interpretation::prompt::{build_fallback_tier_prompt, build_primary_tier_prompt};
 use interpretation::schema::{
-    L4_OUTPUT_JSON_SCHEMA, L4Output, PROMPT_VERSION_FALLBACK, PROMPT_VERSION_PRIMARY,
+    Decision, L4_OUTPUT_JSON_SCHEMA, L4Output, PROMPT_VERSION_FALLBACK, PROMPT_VERSION_PRIMARY,
+    Severity as L4Severity,
 };
 use security::scrubber::{ScrubbedValue, scrub_attribute};
 use tokio::sync::broadcast::error::RecvError;
 use tokio::task::JoinHandle;
 use triage::contract::{
-    Digest, DigestBroadcast, DigestKind, IncidentPersistence, IncidentRegistry,
+    Digest, DigestBroadcast, DigestKind, EvidenceRefs, Incident, IncidentPersistence,
+    IncidentRegistry, IncidentStatus, PriorityTier, Severity as IncidentSeverity,
 };
 
 /// Tracing target — top-level L4 inference request span (per L3 digest).
@@ -75,6 +77,17 @@ pub const TARGET_METRIC_L4_DEGRADED_MODE_ENTRIES_TOTAL: &str =
 /// Metric target — remaining seconds until next eligible retry (chunk #86).
 pub const TARGET_METRIC_L4_BACKOFF_REMAINING_SECONDS: &str =
     "metric.pipeline.l4.backoff_remaining_seconds";
+/// Tracing target — incident created (or deduped) from a parsed L4Output
+/// (chunk #92). Aggregate-only fields per the triage AllowList convention;
+/// NEVER carries scope_id / service_name / incident_id / title / detail.
+pub const TARGET_L4_INCIDENT_CREATED: &str = "interpretation.incident.created";
+/// Tracing target — incident persist failures from the chunk #92 producer.
+/// Sanitized `error_category` only.
+pub const TARGET_L4_INCIDENT_PERSIST_ERROR: &str = "interpretation.incident.persist.error";
+/// Metric target — count of incidents produced from L4 output (chunk #92);
+/// label `result ∈ {created, deduped}`.
+pub const TARGET_METRIC_L4_INCIDENTS_CREATED_TOTAL: &str =
+    "metric.pipeline.l4.incidents_created_total";
 
 /// Default heartbeat interval for the L4 queue-depth gauge emission task
 /// (mirrors obs-plan §3 Heartbeat ticks 15s cadence).
@@ -128,11 +141,21 @@ pub fn spawn_l4_inference_subscriber(
                     match &outcome {
                         L4DigestOutcome::Success(parsed) => {
                             degraded_mode.record_success(now);
-                            if matches!(digest.kind, DigestKind::ResolutionSummary) {
+                            if matches!(digest.kind, DigestKind::ResolutionSummary)
+                                || parsed.is_resolution_summary
+                            {
                                 attach_resolution_summary_to_incident(
                                     incident_registry.as_ref(),
                                     incident_persistence.as_ref(),
                                     &digest.incident_refs,
+                                    parsed,
+                                    now,
+                                );
+                            } else {
+                                create_incident_from_l4_output(
+                                    incident_registry.as_ref(),
+                                    incident_persistence.as_ref(),
+                                    &digest,
                                     parsed,
                                     now,
                                 );
@@ -520,6 +543,200 @@ pub fn attach_resolution_summary_to_incident(
             "resolution summary persist failed",
         );
     }
+}
+
+/// Scrub a telemetry-derived text field at the persistence boundary per the
+/// chunk #72 uniform-coverage invariant. `Redacted` collapses to a bounded
+/// category marker so no raw secret content reaches the corpus BLOB.
+fn scrub_text(raw: &str) -> String {
+    match scrub_attribute(raw) {
+        ScrubbedValue::Allowed(s) => s,
+        ScrubbedValue::Redacted { category } => format!("[redacted: {category}]"),
+    }
+}
+
+/// Map the L4 surface severity onto the triage incident `PriorityTier`
+/// (1:1 for the three non-baseline tiers). `Severity::None` is filtered by
+/// the caller before this is reached.
+fn map_l4_priority_tier(severity: L4Severity) -> PriorityTier {
+    match severity {
+        L4Severity::Autonomous => PriorityTier::Autonomous,
+        L4Severity::Suggested => PriorityTier::Suggested,
+        L4Severity::Curious | L4Severity::None => PriorityTier::Curious,
+    }
+}
+
+/// Map the L4 surface severity onto the triage `IncidentSeverity` hue axis
+/// (drives the Halo / constellation hue). `Critical` is reserved for future
+/// escalation per phase-89 plan §Implementation notes.
+fn map_l4_incident_severity(severity: L4Severity) -> IncidentSeverity {
+    match severity {
+        L4Severity::Autonomous => IncidentSeverity::Error,
+        L4Severity::Suggested => IncidentSeverity::Warn,
+        L4Severity::Curious | L4Severity::None => IncidentSeverity::Info,
+    }
+}
+
+/// Bounded enum label for the triage incident severity (aggregate-only obs).
+fn incident_severity_label(severity: IncidentSeverity) -> &'static str {
+    match severity {
+        IncidentSeverity::Info => "info",
+        IncidentSeverity::Warn => "warn",
+        IncidentSeverity::Error => "error",
+        IncidentSeverity::Critical => "critical",
+    }
+}
+
+/// Bounded enum label for the incident priority tier (aggregate-only obs).
+fn priority_tier_label(tier: PriorityTier) -> &'static str {
+    match tier {
+        PriorityTier::Autonomous => "autonomous",
+        PriorityTier::Suggested => "suggested",
+        PriorityTier::Curious => "curious",
+    }
+}
+
+/// Produce a new `Incident` from a parsed L4Output (chunk #92 — the deferred
+/// L4Output → Incident production path; capabilities P-022 / P-041 / P-027).
+/// This is the producer that activates the chunk #91 per-service-severity
+/// join by attributing each incident to its originating service via
+/// `Incident.scope_id`.
+///
+/// Discipline mirrors [`attach_resolution_summary_to_incident`]:
+/// - Creation predicate: skip resolution summaries, `Decision::Dismiss`,
+///   `Severity::None`, OR digests с no triggering cue (incidents are strictly
+///   cue-derived per the `Incident.kind` contract doc).
+/// - Scrub every telemetry-derived text field via `scrub_attribute` before
+///   the corpus write (chunk #72 uniform-coverage invariant).
+/// - Re-emission dedup on the `(kind, scope, scope_id)` per-service identity:
+///   bump an existing active incident rather than creating a duplicate, so
+///   distinct services keep distinct incidents.
+/// - Persist-then-insert: `save_new_incident` assigns the rowid → set
+///   `Incident.id` → `registry.insert` → `save_incident_event`.
+/// - Aggregate-only observability; never panics on a corpus result.
+pub fn create_incident_from_l4_output(
+    registry: &dyn IncidentRegistry,
+    persistence: &dyn IncidentPersistence,
+    digest: &Digest,
+    parsed: &L4Output,
+    now_unix_nano: i64,
+) {
+    if parsed.is_resolution_summary
+        || parsed.decision == Decision::Dismiss
+        || parsed.severity == L4Severity::None
+    {
+        return;
+    }
+
+    // Incidents are strictly cue-derived; non-cue digests (baseline /
+    // reflection cadence) carry no triggering cue and are not service-
+    // attributable. Skip when absent.
+    let Some(cue) = digest.attention_cues.first() else {
+        return;
+    };
+
+    let scope_id = cue.scope_id.as_deref().map(scrub_text);
+    let severity = map_l4_incident_severity(parsed.severity);
+    let priority_tier = map_l4_priority_tier(parsed.severity);
+
+    // Re-emission dedup on the per-service identity tuple — distinct services
+    // (distinct scope_id) keep distinct incidents.
+    if let Some(existing) = registry
+        .list_active(&digest.workspace)
+        .into_iter()
+        .find(|inc| inc.kind == cue.kind && inc.scope == cue.scope && inc.scope_id == scope_id)
+    {
+        if registry
+            .observe_reemission(existing.id, now_unix_nano)
+            .is_ok()
+        {
+            if let Some(updated) = registry.get(existing.id) {
+                if let Err(err) = persistence.update_incident_status(existing.id, &updated) {
+                    tracing::warn!(
+                        target: TARGET_L4_INCIDENT_PERSIST_ERROR,
+                        error_category = err.error_category(),
+                        "incident reemission persist failed",
+                    );
+                }
+            }
+        }
+        emit_incident_outcome(false, true, severity, priority_tier);
+        return;
+    }
+
+    let mut incident = Incident {
+        id: 0,
+        workspace: digest.workspace.clone(),
+        fingerprint: parsed.fingerprint.clone(),
+        title: scrub_text(&parsed.title),
+        detail: scrub_text(&parsed.symptom),
+        kind: cue.kind,
+        scope: cue.scope,
+        scope_id,
+        status: IncidentStatus::Active,
+        severity,
+        priority_tier,
+        evidence_refs: EvidenceRefs {
+            trace_id: None,
+            span_ids: Vec::new(),
+            fingerprint_hashes: parsed.evidence_refs.clone(),
+            timestamps_unix_nano: Vec::new(),
+        },
+        opened_at_unix_nano: now_unix_nano,
+        updated_at_unix_nano: now_unix_nano,
+        acknowledged_at_unix_nano: None,
+        resolved_at_unix_nano: None,
+        read_at_unix_nano: None,
+        resolution_summary_text: None,
+    };
+
+    let id = match persistence.save_new_incident(&incident) {
+        Ok(id) => id,
+        Err(err) => {
+            tracing::warn!(
+                target: TARGET_L4_INCIDENT_PERSIST_ERROR,
+                error_category = err.error_category(),
+                "incident create persist failed",
+            );
+            return;
+        }
+    };
+    incident.id = id;
+    registry.insert(incident);
+    if let Err(err) = persistence.save_incident_event(id, "created", now_unix_nano) {
+        tracing::warn!(
+            target: TARGET_L4_INCIDENT_PERSIST_ERROR,
+            error_category = err.error_category(),
+            "incident created-event persist failed",
+        );
+    }
+    emit_incident_outcome(true, false, severity, priority_tier);
+}
+
+/// Emit the aggregate-only producer-outcome event + counter. Bounded fields
+/// only — never scope_id / service_name / incident_id / title / detail.
+fn emit_incident_outcome(
+    created: bool,
+    deduped: bool,
+    severity: IncidentSeverity,
+    priority_tier: PriorityTier,
+) {
+    let severity_label = incident_severity_label(severity);
+    let tier_label = priority_tier_label(priority_tier);
+    tracing::info!(
+        target: TARGET_L4_INCIDENT_CREATED,
+        created = created,
+        deduped = deduped,
+        severity = severity_label,
+        priority_tier = tier_label,
+        "incident producer outcome",
+    );
+    tracing::info!(
+        target: TARGET_METRIC_L4_INCIDENTS_CREATED_TOTAL,
+        value = 1u64,
+        result = if created { "created" } else { "deduped" },
+        "incident producer counter",
+    );
 }
 
 /// Bounded label per `InferenceError` variant. Used for `error_category`

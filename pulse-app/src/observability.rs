@@ -1888,6 +1888,21 @@ impl AllowList {
             ["value"].iter().copied().collect(),
         );
         by_target.insert(
+            "interpretation.incident.created",
+            ["created", "deduped", "severity", "priority_tier"]
+                .iter()
+                .copied()
+                .collect(),
+        );
+        by_target.insert(
+            "interpretation.incident.persist.error",
+            ["error_category"].iter().copied().collect(),
+        );
+        by_target.insert(
+            "metric.pipeline.l4.incidents_created_total",
+            ["value", "result"].iter().copied().collect(),
+        );
+        by_target.insert(
             "diagnostics.retry_interpretation.request",
             [
                 "triggered",
@@ -5504,6 +5519,66 @@ mod tests {
                 assert!(
                     !set.contains(k),
                     "chunk #86 AllowList entry must NOT permit PII field `{k}`",
+                );
+            }
+        }
+    }
+
+    #[test]
+    fn allowlist_for_target_resolves_chunk_92_incident_producer_targets() {
+        let al = AllowList::production();
+
+        let created = al
+            .for_target("interpretation.incident.created")
+            .expect("expected interpretation.incident.created entry");
+        for required in ["created", "deduped", "severity", "priority_tier"] {
+            assert!(
+                created.contains(required),
+                "interpretation.incident.created must permit `{required}`",
+            );
+        }
+
+        let persist_err = al
+            .for_target("interpretation.incident.persist.error")
+            .expect("expected interpretation.incident.persist.error entry");
+        assert!(
+            persist_err.contains("error_category"),
+            "interpretation.incident.persist.error must permit `error_category`",
+        );
+
+        let created_total = al
+            .for_target("metric.pipeline.l4.incidents_created_total")
+            .expect("expected metric.pipeline.l4.incidents_created_total entry");
+        for required in ["value", "result"] {
+            assert!(
+                created_total.contains(required),
+                "metric.pipeline.l4.incidents_created_total must permit `{required}`",
+            );
+        }
+
+        // PII guard: the chunk #92 producer targets MUST NOT admit
+        // per-incident / per-service / per-trace identifiers OR LLM-emitted
+        // content. The Incident payload carries scope_id for the product
+        // surface (pulse://stream/incidents), but agent-latest.jsonl is
+        // self-observation only — AGGREGATE-ONLY per CLAUDE.md observability
+        // 2026-05-17 session 84.
+        let banned = [
+            "service_name",
+            "scope_id",
+            "span_id",
+            "trace_id",
+            "incident_id",
+            "operation_name",
+            "title",
+            "detail",
+            "fingerprint",
+            "workspace",
+        ];
+        for set in [created, persist_err, created_total] {
+            for k in &banned {
+                assert!(
+                    !set.contains(k),
+                    "chunk #92 AllowList entry must NOT permit PII field `{k}`",
                 );
             }
         }
