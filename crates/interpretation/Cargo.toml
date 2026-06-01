@@ -30,6 +30,13 @@ chrono = { workspace = true }
 # implementing the existing trait.
 triage = { path = "../triage" }
 
+# Chunk #94 — `markdown::assemble_report` moved here from pulse-app so the MCP
+# `retrieve_report` tool and the `incidents.get_report` resolver share one
+# Incident → Report projection (P-038 single-source). The projection applies
+# defense-in-depth scrubbing, so the PII scrubber primitive is now a direct
+# dep (security is a leaf crate — no cycle).
+security = { path = "../security" }
+
 [dev-dependencies]
 rstest = { workspace = true }
 # `test-util` enables `tokio::time::pause()` + `tokio::time::advance(...)` for

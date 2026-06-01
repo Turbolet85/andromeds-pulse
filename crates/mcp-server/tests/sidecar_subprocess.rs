@@ -78,7 +78,7 @@ async fn sidecar_env_unset_exits_cleanly_without_stdio() {
 }
 
 #[tokio::test(flavor = "multi_thread")]
-async fn sidecar_tools_list_returns_4_tools_with_names() {
+async fn sidecar_tools_list_returns_8_tools_with_names() {
     let tmp = tempfile::tempdir().expect("tempdir");
     let mut child = Command::new(sidecar_binary_path())
         .env("ANDROMEDA_PULSE_MCP_ENABLED", "true")
@@ -106,7 +106,11 @@ async fn sidecar_tools_list_returns_4_tools_with_names() {
     let parsed: serde_json::Value = serde_json::from_str(&response_line).expect("envelope");
     assert_eq!(parsed["jsonrpc"], "2.0");
     let tools = parsed["result"]["tools"].as_array().expect("tools array");
-    assert_eq!(tools.len(), 4, "chunk #49 exposes 4 tools");
+    assert_eq!(
+        tools.len(),
+        8,
+        "chunk #49 (4 query tools) + chunk #94 (4 incident tools)"
+    );
     let names: Vec<&str> = tools
         .iter()
         .map(|t| t["name"].as_str().expect("name string"))
@@ -115,6 +119,10 @@ async fn sidecar_tools_list_returns_4_tools_with_names() {
     assert!(names.contains(&"query_metrics"));
     assert!(names.contains(&"query_logs"));
     assert!(names.contains(&"generate_snapshot"));
+    assert!(names.contains(&"query_incident_list"));
+    assert!(names.contains(&"retrieve_report"));
+    assert!(names.contains(&"retrieve_telemetry_slice"));
+    assert!(names.contains(&"mark_incident_resolved"));
 
     let _ = child.kill().await;
 }

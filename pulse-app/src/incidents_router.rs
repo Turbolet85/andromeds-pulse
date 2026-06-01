@@ -12,11 +12,8 @@
 use std::sync::Arc;
 use std::time::{Instant, SystemTime, UNIX_EPOCH};
 
-use interpretation::markdown::{
-    HypothesisView, InvestigationStepView, Report as MarkdownReport, serialize_report,
-};
-use interpretation::schema::{Confidence as L4Confidence, L4Output};
-use security::scrubber::{ScrubbedValue, scrub_attribute};
+use interpretation::markdown::{assemble_report, serialize_report};
+use interpretation::schema::L4Output;
 use serde::{Deserialize, Serialize};
 use triage::contract::{
     CueKind, CueScope, DEFAULT_INCIDENT_ACK_COOLDOWN_SECS, Incident, IncidentLifecycleBroadcast,
@@ -556,136 +553,6 @@ fn degraded_reason_category(incident: &Incident) -> &'static str {
         (IncidentStatus::Resolved, false) => "resolved_no_summary_attached",
         (IncidentStatus::Active, _) => "active_no_l4_output",
         (IncidentStatus::Acknowledged, _) => "acknowledged_no_l4_output",
-    }
-}
-
-/// Assemble the markdown::Report struct from an Incident + optional
-/// parsed L4Output. Pure projection — no I/O, no scrubbing (caller is
-/// expected to ensure incident strings are pre-scrubbed per chunks #72,
-/// #78, #86 uniform coverage; defense-in-depth scrub happens at field
-/// projection time below).
-fn assemble_report(incident: &Incident, l4: Option<&L4Output>) -> MarkdownReport {
-    let workspace = scrub_string(&incident.workspace);
-    let project_context = format!("workspace={workspace}");
-    let status_label = incident_status_label(incident.status).to_string();
-    let severity_label = severity_label(incident.severity).to_string();
-
-    match l4 {
-        Some(l4) => MarkdownReport {
-            incident_id: incident.id,
-            title: scrub_string(&l4.title),
-            workspace,
-            opened_at_unix_nano: incident.opened_at_unix_nano,
-            status_label,
-            severity_label,
-            symptom: scrub_string(&l4.symptom),
-            timeline: scrub_string(&l4.timeline),
-            hypotheses: l4
-                .hypotheses
-                .iter()
-                .map(|h| HypothesisView {
-                    statement: scrub_string(&h.statement),
-                    confidence_label: l4_confidence_label(h.confidence).to_string(),
-                    justification: scrub_string(&h.justification),
-                })
-                .collect(),
-            investigation_steps: l4
-                .investigation_steps
-                .iter()
-                .map(|s| InvestigationStepView {
-                    step: scrub_string(&s.step),
-                    expected_yield: scrub_string(&s.expected_yield),
-                })
-                .collect(),
-            evidence_refs: l4.evidence_refs.iter().map(|r| scrub_string(r)).collect(),
-            project_context,
-            degraded_mode: false,
-            // When the L4Output renders the Report itself for а Resolved
-            // incident, the same payload IS the resolution summary —
-            // surfacing it as а duplicate section under "Resolution
-            // Summary" would be redundant. Skip.
-            resolution_summary: None,
-            previously_seen: Vec::new(),
-        },
-        None => MarkdownReport {
-            incident_id: incident.id,
-            title: scrub_string(&incident.title),
-            workspace,
-            opened_at_unix_nano: incident.opened_at_unix_nano,
-            status_label,
-            severity_label,
-            // Symptom falls back к incident.detail when no L4Output
-            // available (chunk #78 producer-side scrubbed; defense-in-
-            // depth scrub here is а no-op for already-scrubbed input).
-            symptom: scrub_string(&incident.detail),
-            timeline: String::new(),
-            hypotheses: Vec::new(),
-            investigation_steps: Vec::new(),
-            evidence_refs: incident
-                .evidence_refs
-                .span_ids
-                .iter()
-                .map(|bytes| format!("span:{}", hex_lower(bytes)))
-                .chain(
-                    incident
-                        .evidence_refs
-                        .fingerprint_hashes
-                        .iter()
-                        .map(|fp| format!("fp:{}", scrub_string(fp))),
-                )
-                .collect(),
-            project_context,
-            degraded_mode: true,
-            resolution_summary: None,
-            previously_seen: Vec::new(),
-        },
-    }
-}
-
-/// Defense-in-depth scrubber application. Routes every user-facing text
-/// field through `security::scrubber::scrub_attribute` BEFORE markdown
-/// composition per the chunk #72 uniform-coverage invariant + plan.md
-/// Step 3 step 9 scrub_report discipline. Already-scrubbed input passes
-/// through verbatim (idempotent at the scrubber boundary); raw OTLP-
-/// derived bytes that somehow bypassed upstream scrubbing get redacted
-/// here.
-fn scrub_string(text: &str) -> String {
-    match scrub_attribute(text) {
-        ScrubbedValue::Allowed(s) => s,
-        ScrubbedValue::Redacted { category } => format!("[redacted: {category}]"),
-    }
-}
-
-fn hex_lower(bytes: &[u8]) -> String {
-    let mut out = String::with_capacity(bytes.len() * 2);
-    for b in bytes {
-        out.push_str(&format!("{b:02x}"));
-    }
-    out
-}
-
-fn incident_status_label(status: IncidentStatus) -> &'static str {
-    match status {
-        IncidentStatus::Active => "active",
-        IncidentStatus::Acknowledged => "acknowledged",
-        IncidentStatus::Resolved => "resolved",
-    }
-}
-
-fn severity_label(severity: Severity) -> &'static str {
-    match severity {
-        Severity::Info => "info",
-        Severity::Warn => "warn",
-        Severity::Error => "error",
-        Severity::Critical => "critical",
-    }
-}
-
-fn l4_confidence_label(c: L4Confidence) -> &'static str {
-    match c {
-        L4Confidence::High => "high",
-        L4Confidence::Medium => "medium",
-        L4Confidence::Low => "low",
     }
 }
 

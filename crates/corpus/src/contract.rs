@@ -337,6 +337,15 @@ pub trait CorpusWriter: Send + Sync {
     /// at boot.
     fn load_active_incidents(&self, workspace: &str) -> Result<Vec<IncidentRowRaw>, Error>;
 
+    /// SELECT a single incident по rowid regardless of status. Returns
+    /// `Ok(None)` when no row matches. Decrypts the `payload` BLOB.
+    /// Consumed cross-process by the MCP `retrieve_report(id)` /
+    /// `mark_incident_resolved(id)` tools (chunk #94) — the sidecar reads
+    /// corpus.db directly since it has no handle on the main process's
+    /// in-memory registry. Prepared statement с `?` placeholder per
+    /// security plan §Input Validation.
+    fn load_incident_by_id(&self, id: i64) -> Result<Option<IncidentRowRaw>, Error>;
+
     /// P-045 counter SQL: returns the count of active + unread incidents
     /// для а workspace (`status = 'active' AND read_unix_nano IS NULL`).
     /// SQL-only path; does NOT decrypt payloads. Fast counter для
@@ -599,6 +608,41 @@ impl CorpusWriter for Corpus {
             });
         }
         Ok(result)
+    }
+
+    fn load_incident_by_id(&self, id: i64) -> Result<Option<IncidentRowRaw>, Error> {
+        let conn = self.connection();
+        let guard = conn.lock().map_err(|_| Error::QueryFailed)?;
+        // The `payload` field carries the STILL-ENCRYPTED BLOB out of the
+        // closure; it is decrypted below (cell_decrypt can't run inside the
+        // rusqlite row mapper, which returns rusqlite::Error).
+        let row_opt: Option<IncidentRowRaw> = guard
+            .query_row(
+                "SELECT id, workspace, status, created_unix_nano, updated_unix_nano, resolved_unix_nano, read_unix_nano, payload \
+                 FROM incidents WHERE id = ?1",
+                rusqlite::params![id],
+                |row| {
+                    Ok(IncidentRowRaw {
+                        id: row.get(0)?,
+                        workspace: row.get(1)?,
+                        status: row.get(2)?,
+                        created_unix_nano: row.get(3)?,
+                        updated_unix_nano: row.get(4)?,
+                        resolved_unix_nano: row.get(5)?,
+                        read_unix_nano: row.get(6)?,
+                        payload: row.get(7)?,
+                    })
+                },
+            )
+            .optional()
+            .map_err(|_| Error::QueryFailed)?;
+        match row_opt {
+            None => Ok(None),
+            Some(mut raw) => {
+                raw.payload = cell_decrypt(self.key(), &raw.payload)?;
+                Ok(Some(raw))
+            }
+        }
     }
 
     fn count_active_unread(&self, workspace: &str) -> Result<u64, Error> {
@@ -940,5 +984,49 @@ mod tests {
             .load_pipeline_metric("dispatch_test", "l1c")
             .expect("load via trait");
         assert!(loaded.is_some());
+    }
+
+    #[test]
+    fn load_incident_by_id_returns_row_after_save() {
+        let corpus = test_corpus();
+        let writer: Arc<dyn CorpusWriter> = Arc::new(corpus);
+        let id = writer
+            .save_incident("ws-a", "active", 1_000, 1_000, None, None, b"incident-blob")
+            .expect("save");
+        let row = writer
+            .load_incident_by_id(id)
+            .expect("load")
+            .expect("Some(row)");
+        assert_eq!(row.id, id);
+        assert_eq!(row.workspace, "ws-a");
+        assert_eq!(row.status, "active");
+        assert_eq!(row.payload, b"incident-blob");
+    }
+
+    #[test]
+    fn load_incident_by_id_returns_none_for_missing_id() {
+        let corpus = test_corpus();
+        let writer: Arc<dyn CorpusWriter> = Arc::new(corpus);
+        let row = writer.load_incident_by_id(99_999).expect("load");
+        assert!(row.is_none());
+    }
+
+    #[test]
+    fn load_incident_by_id_returns_resolved_row() {
+        let corpus = test_corpus();
+        let writer: Arc<dyn CorpusWriter> = Arc::new(corpus);
+        let id = writer
+            .save_incident("ws-b", "active", 2_000, 2_000, None, None, b"blob")
+            .expect("save");
+        writer
+            .update_incident_status(id, "resolved", 3_000, Some(3_000), b"blob-resolved")
+            .expect("resolve");
+        let row = writer
+            .load_incident_by_id(id)
+            .expect("load")
+            .expect("Some(row)");
+        assert_eq!(row.status, "resolved");
+        assert_eq!(row.resolved_unix_nano, Some(3_000));
+        assert_eq!(row.payload, b"blob-resolved");
     }
 }

@@ -116,11 +116,12 @@ pub fn empty_tools_list() -> Value {
     json!({ "tools": [] })
 }
 
-// Per chunk #49: enumerate the 4 #[tool] methods exposed by the rmcp
-// sidecar. Schema follows the MCP `Tool` shape (name + description +
-// inputSchema). Input schemas are JSON Schema draft-07 fragments;
-// `additionalProperties: false` rejects unknown args при `tools/call`.
-pub fn tools_list_with_4_tools() -> Value {
+// Enumerate the #[tool] methods exposed by the rmcp sidecar. Schema follows
+// the MCP `Tool` shape (name + description + inputSchema). Input schemas are
+// JSON Schema draft-07 fragments; `additionalProperties: false` rejects
+// unknown args при `tools/call`. Chunk #49 shipped the first 4 (live-buffer
+// query tools); chunk #94 adds the 4 corpus-backed incident/report tools.
+pub fn tools_list_with_8_tools() -> Value {
     json!({
         "tools": [
             {
@@ -171,6 +172,51 @@ pub fn tools_list_with_4_tools() -> Value {
                         "token_budget": { "type": "integer", "minimum": 1000, "default": 25000 },
                         "time_window_seconds": { "type": "integer", "minimum": 1, "default": 300 }
                     },
+                    "additionalProperties": false
+                }
+            },
+            {
+                "name": "query_incident_list",
+                "description": "List active incidents from the persistent corpus for the current workspace. Returns id, status, severity, title, opened_at per incident.",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {},
+                    "additionalProperties": false
+                }
+            },
+            {
+                "name": "retrieve_report",
+                "description": "Retrieve the six-section Diagnostic Report markdown for an incident by id. Byte-identical to the in-app Copy markdown action. Resolved incidents render full hypotheses + investigation steps; active incidents render a degraded-mode notice.",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "incident_id": { "type": "integer" }
+                    },
+                    "required": ["incident_id"],
+                    "additionalProperties": false
+                }
+            },
+            {
+                "name": "retrieve_telemetry_slice",
+                "description": "Retrieve the persisted incident context for an incident by id: span and fingerprint evidence references plus timestamps. Persisted context only — live telemetry rows are served by the separate query_traces / query_logs tools against the live buffer.",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "incident_id": { "type": "integer" }
+                    },
+                    "required": ["incident_id"],
+                    "additionalProperties": false
+                }
+            },
+            {
+                "name": "mark_incident_resolved",
+                "description": "Mark an incident resolved in the persistent corpus by id. The main app's in-memory registry reflects the change on next launch (eventual consistency).",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "incident_id": { "type": "integer" }
+                    },
+                    "required": ["incident_id"],
                     "additionalProperties": false
                 }
             }
@@ -306,10 +352,10 @@ mod tests {
     }
 
     #[test]
-    fn tools_list_with_4_tools_returns_4_named_tools() {
-        let r = tools_list_with_4_tools();
+    fn tools_list_with_8_tools_returns_8_named_tools() {
+        let r = tools_list_with_8_tools();
         let arr = r["tools"].as_array().expect("array");
-        assert_eq!(arr.len(), 4);
+        assert_eq!(arr.len(), 8);
         let names: Vec<&str> = arr
             .iter()
             .map(|t| t["name"].as_str().expect("name"))
@@ -318,11 +364,15 @@ mod tests {
         assert!(names.contains(&"query_metrics"));
         assert!(names.contains(&"query_logs"));
         assert!(names.contains(&"generate_snapshot"));
+        assert!(names.contains(&"query_incident_list"));
+        assert!(names.contains(&"retrieve_report"));
+        assert!(names.contains(&"retrieve_telemetry_slice"));
+        assert!(names.contains(&"mark_incident_resolved"));
     }
 
     #[test]
-    fn tools_list_with_4_tools_each_has_description_and_input_schema() {
-        let r = tools_list_with_4_tools();
+    fn tools_list_with_8_tools_each_has_description_and_input_schema() {
+        let r = tools_list_with_8_tools();
         for tool in r["tools"].as_array().expect("array") {
             assert!(tool["description"].as_str().is_some());
             assert!(tool["inputSchema"]["type"].as_str() == Some("object"));
@@ -331,8 +381,8 @@ mod tests {
     }
 
     #[test]
-    fn tools_list_with_4_tools_query_schemas_share_time_window_property() {
-        let r = tools_list_with_4_tools();
+    fn tools_list_with_8_tools_query_schemas_share_time_window_property() {
+        let r = tools_list_with_8_tools();
         for name in ["query_traces", "query_metrics", "query_logs"] {
             let tool = r["tools"]
                 .as_array()
@@ -345,6 +395,27 @@ mod tests {
                 .expect("props object");
             assert!(props.contains_key("time_window_seconds"));
             assert!(props.contains_key("limit"));
+        }
+    }
+
+    #[test]
+    fn tools_list_with_8_tools_incident_id_tools_require_incident_id() {
+        let r = tools_list_with_8_tools();
+        for name in [
+            "retrieve_report",
+            "retrieve_telemetry_slice",
+            "mark_incident_resolved",
+        ] {
+            let tool = r["tools"]
+                .as_array()
+                .expect("array")
+                .iter()
+                .find(|t| t["name"] == name)
+                .unwrap_or_else(|| panic!("tool {name} present"));
+            let required = tool["inputSchema"]["required"]
+                .as_array()
+                .expect("required array");
+            assert!(required.iter().any(|v| v == "incident_id"));
         }
     }
 }

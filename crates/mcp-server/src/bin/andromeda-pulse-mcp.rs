@@ -1,15 +1,16 @@
 use std::env;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::process::ExitCode;
 use std::sync::{Arc, Mutex};
 
+use corpus::contract::{Corpus, CorpusWriter, KeychainBackend, OsKeychainBackend};
 use duckdb::Connection;
 use mcp_server::feature_gate::{GateState, validate_double_gate};
 use mcp_server::jsonrpc::{
     CODE_INTERNAL_ERROR, CODE_INVALID_PARAMS, CODE_METHOD_NOT_FOUND, error, initialize_result,
-    parse_request, success, tools_list_with_4_tools,
+    parse_request, success, tools_list_with_8_tools,
 };
-use mcp_server::tools::{ALL_TOOL_NAMES, dispatch_tool};
+use mcp_server::tools::{ALL_TOOL_NAMES, IncidentToolContext, dispatch_tool};
 use mcp_server::tracing_setup;
 use serde_json::{Value, json};
 use tokio::io::{AsyncBufReadExt, AsyncWriteExt, BufReader};
@@ -21,6 +22,7 @@ use rmcp as _;
 struct SidecarContext {
     conn: Arc<Mutex<Connection>>,
     viz_state: VizState,
+    incident_ctx: Option<IncidentToolContext>,
 }
 
 fn resolve_data_dir() -> PathBuf {
@@ -53,6 +55,39 @@ fn init_buffer_connection() -> Result<Arc<Mutex<Connection>>, String> {
     Ok(Arc::new(Mutex::new(conn)))
 }
 
+// Open the persistent incident corpus for the chunk #94 incident/report
+// tools. Non-fatal: corpus-open failure (keychain unavailable etc.) logs a
+// warn and returns None so the sidecar still serves the live-buffer query
+// tools; the incident tools then return a JSON-RPC error. Mirrors the
+// existing init_buffer_connection resilience posture.
+fn init_incident_context(data_dir: &Path) -> Option<IncidentToolContext> {
+    let corpus_db_path = data_dir.join("corpus").join("corpus.db");
+    let keychain: Arc<dyn KeychainBackend> =
+        Arc::new(OsKeychainBackend::new("com.andromeda.pulse"));
+    match Corpus::open(corpus_db_path, keychain) {
+        Ok(c) => {
+            let corpus: Arc<dyn CorpusWriter> = Arc::new(c);
+            // Match the main process's workspace key derivation
+            // (`incident_workspace_key = data_dir.to_string_lossy()` at
+            // pulse-app/src/main.rs) so query_incident_list filters the same
+            // rows the in-app surface shows.
+            let workspace_root = data_dir.to_string_lossy().to_string();
+            Some(IncidentToolContext {
+                corpus,
+                workspace_root,
+            })
+        }
+        Err(_) => {
+            tracing::warn!(
+                target: "mcp.boot.corpus.init",
+                reason = "corpus_open_failed",
+                "incident corpus unavailable; incident tools will return errors",
+            );
+            None
+        }
+    }
+}
+
 fn main() -> ExitCode {
     let data_dir = resolve_data_dir();
     let _guard = match tracing_setup::init(&data_dir) {
@@ -79,9 +114,11 @@ fn main() -> ExitCode {
                     return ExitCode::from(1);
                 }
             };
+            let incident_ctx = init_incident_context(&data_dir);
             let ctx = SidecarContext {
                 conn,
                 viz_state: VizState::new(),
+                incident_ctx,
             };
             let runtime = match tokio::runtime::Builder::new_current_thread()
                 .enable_all()
@@ -169,7 +206,7 @@ fn dispatch_line(ctx: &SidecarContext, line: &str) -> Option<Vec<u8>> {
             serde_json::to_vec(&resp).ok()
         }
         "tools/list" => {
-            let resp = success(id, tools_list_with_4_tools());
+            let resp = success(id, tools_list_with_8_tools());
             tracing::info!(
                 target: "mcp.tools.list.response",
                 result_type = "tools_array",
@@ -229,7 +266,13 @@ fn dispatch_tools_call(ctx: &SidecarContext, id: Value, params: &Option<Value>) 
         "tool dispatch begin",
     );
 
-    match dispatch_tool(&ctx.conn, &ctx.viz_state, &tool_name, arguments) {
+    match dispatch_tool(
+        &ctx.conn,
+        &ctx.viz_state,
+        ctx.incident_ctx.as_ref(),
+        &tool_name,
+        arguments,
+    ) {
         Ok(value) => {
             let resp = success(id, value);
             serde_json::to_vec(&resp).ok()

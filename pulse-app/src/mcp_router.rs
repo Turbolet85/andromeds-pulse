@@ -39,6 +39,14 @@ pub struct McpStatusDto {
     pub state: McpServerState,
     pub sidecar_running: bool,
     pub pid: Option<u32>,
+    /// Connected-agent identity (chunk #94). The main process knows the
+    /// sidecar is running (Child handle) but not whether an MCP agent has
+    /// connected to its stdio peer; at this chunk's scope this is the
+    /// sidecar-running state surfaced as a bounded label
+    /// (`Some("stdio-client")` when running, else `None`). The "Send to
+    /// agent" button in the Diagnostic Report toolbar gates on
+    /// `Settings.mcp_server_enabled AND connected_agent.is_some()`.
+    pub connected_agent: Option<String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, specta::Type)]
@@ -108,6 +116,11 @@ impl McpApi for McpApiImpl {
                 None => (false, None),
             }
         };
+        let connected_agent = if running {
+            Some("stdio-client".to_string())
+        } else {
+            None
+        };
         let span = tracing::Span::current();
         span.record("state", state_label(mapped));
         span.record("sidecar_running", running);
@@ -121,6 +134,7 @@ impl McpApi for McpApiImpl {
             state: mapped,
             sidecar_running: running,
             pid,
+            connected_agent,
         })
     }
 

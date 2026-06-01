@@ -112,7 +112,17 @@ export type McpServerState = "enabled" | "disabled" | "unavailable"
 
 export type McpStartResult = { state: McpServerState; pid: number | null }
 
-export type McpStatusDto = { state: McpServerState; sidecar_running: boolean; pid: number | null }
+export type McpStatusDto = { state: McpServerState; sidecar_running: boolean; pid: number | null; 
+/**
+ * Connected-agent identity (chunk #94). The main process knows the
+ * sidecar is running (Child handle) but not whether an MCP agent has
+ * connected to its stdio peer; at this chunk's scope this is the
+ * sidecar-running state surfaced as a bounded label
+ * (`Some("stdio-client")` when running, else `None`). The "Send to
+ * agent" button in the Diagnostic Report toolbar gates on
+ * `Settings.mcp_server_enabled AND connected_agent.is_some()`.
+ */
+connected_agent: string | null }
 
 export type McpStopResult = { state: McpServerState }
 

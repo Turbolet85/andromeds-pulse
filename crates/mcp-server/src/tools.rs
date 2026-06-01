@@ -20,10 +20,14 @@
 use std::sync::{Arc, Mutex};
 use std::time::Instant;
 
+use corpus::contract::{CorpusWriter, IncidentRowRaw};
 use duckdb::Connection;
+use interpretation::markdown::{assemble_report, serialize_report};
+use interpretation::schema::L4Output;
 use serde::Deserialize;
 use serde_json::{Value, json};
 use snapshot::contract::{SpanRecord, TokenBudget, curate, format_markdown};
+use triage::contract::Incident;
 use viz::query::{
     LIMIT_DEFAULT, LIMIT_MAX, LogsQueryArgs, MetricsQueryArgs, TracesQueryArgs, query_logs,
     query_metrics, query_traces,
@@ -36,13 +40,33 @@ pub const TOOL_QUERY_TRACES: &str = "query_traces";
 pub const TOOL_QUERY_METRICS: &str = "query_metrics";
 pub const TOOL_QUERY_LOGS: &str = "query_logs";
 pub const TOOL_GENERATE_SNAPSHOT: &str = "generate_snapshot";
+pub const TOOL_QUERY_INCIDENT_LIST: &str = "query_incident_list";
+pub const TOOL_RETRIEVE_REPORT: &str = "retrieve_report";
+pub const TOOL_RETRIEVE_TELEMETRY_SLICE: &str = "retrieve_telemetry_slice";
+pub const TOOL_MARK_INCIDENT_RESOLVED: &str = "mark_incident_resolved";
 
 pub const ALL_TOOL_NAMES: &[&str] = &[
     TOOL_QUERY_TRACES,
     TOOL_QUERY_METRICS,
     TOOL_QUERY_LOGS,
     TOOL_GENERATE_SNAPSHOT,
+    TOOL_QUERY_INCIDENT_LIST,
+    TOOL_RETRIEVE_REPORT,
+    TOOL_RETRIEVE_TELEMETRY_SLICE,
+    TOOL_MARK_INCIDENT_RESOLVED,
 ];
+
+/// Cross-process corpus access for the chunk #94 incident/report/telemetry
+/// tools. The sidecar is a separate process with no handle on the main
+/// process's in-memory `IncidentRegistry`, so these tools read/write the
+/// on-disk `corpus/corpus.db` directly. `None` when corpus open failed at
+/// boot (keychain unavailable etc.) — the incident tools then return a
+/// JSON-RPC error rather than crashing the sidecar.
+#[derive(Clone)]
+pub struct IncidentToolContext {
+    pub corpus: Arc<dyn CorpusWriter>,
+    pub workspace_root: String,
+}
 
 const DEFAULT_TIME_WINDOW_SECONDS: u64 = 300;
 
@@ -128,6 +152,7 @@ fn budget_for_count(target: u32) -> TokenBudget {
 pub fn dispatch_tool(
     conn: &Arc<Mutex<Connection>>,
     viz_state: &VizState,
+    incident_ctx: Option<&IncidentToolContext>,
     tool_name: &str,
     arguments: &Value,
 ) -> Result<Value, Error> {
@@ -137,6 +162,10 @@ pub fn dispatch_tool(
         TOOL_QUERY_METRICS => dispatch_query_metrics(conn, viz_state, arguments),
         TOOL_QUERY_LOGS => dispatch_query_logs(conn, viz_state, arguments),
         TOOL_GENERATE_SNAPSHOT => dispatch_generate_snapshot(conn, arguments),
+        TOOL_QUERY_INCIDENT_LIST => dispatch_query_incident_list(incident_ctx),
+        TOOL_RETRIEVE_REPORT => dispatch_retrieve_report(incident_ctx, arguments),
+        TOOL_RETRIEVE_TELEMETRY_SLICE => dispatch_retrieve_telemetry_slice(incident_ctx, arguments),
+        TOOL_MARK_INCIDENT_RESOLVED => dispatch_mark_incident_resolved(incident_ctx, arguments),
         other => Err(Error::ToolDispatchFailed {
             tool_name: other.to_string(),
             reason: "unknown tool".to_string(),
@@ -267,6 +296,165 @@ fn dispatch_generate_snapshot(
     }))
 }
 
+// ---- Chunk #94 incident/report/telemetry tools (corpus-backed) ----
+
+#[derive(Debug, Deserialize)]
+struct IncidentIdArgs {
+    incident_id: i64,
+}
+
+fn require_incident_ctx<'a>(
+    tool_name: &str,
+    ctx: Option<&'a IncidentToolContext>,
+) -> Result<&'a IncidentToolContext, Error> {
+    ctx.ok_or_else(|| Error::ToolDispatchFailed {
+        tool_name: tool_name.to_string(),
+        reason: "incident corpus unavailable".to_string(),
+    })
+}
+
+// Decode the encrypted-then-decrypted corpus BLOB into a triage Incident.
+// Same default bincode config the producer side uses in
+// `pulse-app/src/incident_persistence.rs` (no custom Options on either
+// side — config parity is the silent-failure risk flagged in plan Step 0).
+fn decode_incident(tool_name: &str, row: &IncidentRowRaw) -> Result<Incident, Error> {
+    bincode::deserialize::<Incident>(&row.payload).map_err(|_| Error::ToolDispatchFailed {
+        tool_name: tool_name.to_string(),
+        reason: "incident payload decode failed".to_string(),
+    })
+}
+
+fn dispatch_query_incident_list(ctx: Option<&IncidentToolContext>) -> Result<Value, Error> {
+    let ctx = require_incident_ctx(TOOL_QUERY_INCIDENT_LIST, ctx)?;
+    let rows = ctx
+        .corpus
+        .load_active_incidents(&ctx.workspace_root)
+        .map_err(|e| Error::ToolDispatchFailed {
+            tool_name: TOOL_QUERY_INCIDENT_LIST.to_string(),
+            reason: short_reason(&e.to_string()),
+        })?;
+    let mut items: Vec<Value> = Vec::with_capacity(rows.len());
+    for row in &rows {
+        let incident = decode_incident(TOOL_QUERY_INCIDENT_LIST, row)?;
+        items.push(json!({
+            "incident_id": row.id,
+            "status": row.status,
+            "severity": severity_str(&incident),
+            "title": incident.title,
+            "opened_at_unix_nano": incident.opened_at_unix_nano,
+        }));
+    }
+    let total = items.len();
+    Ok(json!({ "items": items, "total": total, "next_cursor": Value::Null }))
+}
+
+fn dispatch_retrieve_report(
+    ctx: Option<&IncidentToolContext>,
+    arguments: &Value,
+) -> Result<Value, Error> {
+    let ctx = require_incident_ctx(TOOL_RETRIEVE_REPORT, ctx)?;
+    let args: IncidentIdArgs = parse_args(TOOL_RETRIEVE_REPORT, arguments)?;
+    let row = load_incident_row(ctx, TOOL_RETRIEVE_REPORT, args.incident_id)?;
+    let incident = decode_incident(TOOL_RETRIEVE_REPORT, &row)?;
+    let parsed_l4: Option<L4Output> = incident
+        .resolution_summary_text
+        .as_deref()
+        .and_then(|text| serde_json::from_str::<L4Output>(text).ok());
+    let degraded_mode = parsed_l4.is_none();
+    // Same assemble_report + serialize_report path the in-app
+    // incidents.get_report resolver uses — P-038 byte-identical delivery.
+    let report = assemble_report(&incident, parsed_l4.as_ref());
+    let markdown = serialize_report(&report);
+    Ok(json!({ "markdown": markdown, "degraded_mode": degraded_mode }))
+}
+
+fn dispatch_retrieve_telemetry_slice(
+    ctx: Option<&IncidentToolContext>,
+    arguments: &Value,
+) -> Result<Value, Error> {
+    let ctx = require_incident_ctx(TOOL_RETRIEVE_TELEMETRY_SLICE, ctx)?;
+    let args: IncidentIdArgs = parse_args(TOOL_RETRIEVE_TELEMETRY_SLICE, arguments)?;
+    let row = load_incident_row(ctx, TOOL_RETRIEVE_TELEMETRY_SLICE, args.incident_id)?;
+    let incident = decode_incident(TOOL_RETRIEVE_TELEMETRY_SLICE, &row)?;
+    let span_refs: Vec<String> = incident
+        .evidence_refs
+        .span_ids
+        .iter()
+        .map(|bytes| format!("span:{}", hex_lower(bytes)))
+        .collect();
+    let fingerprint_refs: Vec<String> = incident.evidence_refs.fingerprint_hashes.clone();
+    Ok(json!({
+        "incident_id": row.id,
+        "span_refs": span_refs,
+        "fingerprint_refs": fingerprint_refs,
+        "timestamps_unix_nano": incident.evidence_refs.timestamps_unix_nano,
+    }))
+}
+
+fn dispatch_mark_incident_resolved(
+    ctx: Option<&IncidentToolContext>,
+    arguments: &Value,
+) -> Result<Value, Error> {
+    let ctx = require_incident_ctx(TOOL_MARK_INCIDENT_RESOLVED, ctx)?;
+    let args: IncidentIdArgs = parse_args(TOOL_MARK_INCIDENT_RESOLVED, arguments)?;
+    let row = load_incident_row(ctx, TOOL_MARK_INCIDENT_RESOLVED, args.incident_id)?;
+    let mut incident = decode_incident(TOOL_MARK_INCIDENT_RESOLVED, &row)?;
+    let now = current_unix_nanos();
+    incident.status = triage::contract::IncidentStatus::Resolved;
+    incident.resolved_at_unix_nano = Some(now);
+    incident.updated_at_unix_nano = now;
+    let payload = bincode::serialize(&incident).map_err(|_| Error::ToolDispatchFailed {
+        tool_name: TOOL_MARK_INCIDENT_RESOLVED.to_string(),
+        reason: "incident payload encode failed".to_string(),
+    })?;
+    ctx.corpus
+        .update_incident_status(row.id, "resolved", now, Some(now), &payload)
+        .map_err(|e| Error::ToolDispatchFailed {
+            tool_name: TOOL_MARK_INCIDENT_RESOLVED.to_string(),
+            reason: short_reason(&e.to_string()),
+        })?;
+    Ok(json!({ "resolved": true, "incident_id": row.id }))
+}
+
+fn load_incident_row(
+    ctx: &IncidentToolContext,
+    tool_name: &str,
+    id: i64,
+) -> Result<IncidentRowRaw, Error> {
+    ctx.corpus
+        .load_incident_by_id(id)
+        .map_err(|e| Error::ToolDispatchFailed {
+            tool_name: tool_name.to_string(),
+            reason: short_reason(&e.to_string()),
+        })?
+        .ok_or_else(|| Error::ToolDispatchFailed {
+            tool_name: tool_name.to_string(),
+            reason: "incident not found".to_string(),
+        })
+}
+
+fn severity_str(incident: &Incident) -> &'static str {
+    use triage::contract::Severity;
+    match incident.severity {
+        Severity::Info => "info",
+        Severity::Warn => "warn",
+        Severity::Error => "error",
+        Severity::Critical => "critical",
+    }
+}
+
+fn hex_lower(bytes: &[u8]) -> String {
+    let mut out = String::with_capacity(bytes.len() * 2);
+    for b in bytes {
+        out.push_str(&format!("{b:02x}"));
+    }
+    out
+}
+
+fn current_unix_nanos() -> i64 {
+    chrono::Utc::now().timestamp_nanos_opt().unwrap_or(i64::MAX)
+}
+
 fn parse_args<T: for<'de> Deserialize<'de>>(tool_name: &str, value: &Value) -> Result<T, Error> {
     serde_json::from_value(value.clone()).map_err(|e| Error::ToolArgsInvalid {
         tool_name: tool_name.to_string(),
@@ -316,21 +504,35 @@ fn result_type_label(tool_name: &str) -> &'static str {
         TOOL_QUERY_METRICS => "paginated_metrics",
         TOOL_QUERY_LOGS => "paginated_logs",
         TOOL_GENERATE_SNAPSHOT => "markdown_snapshot",
+        TOOL_QUERY_INCIDENT_LIST => "incident_list",
+        TOOL_RETRIEVE_REPORT => "markdown_report",
+        TOOL_RETRIEVE_TELEMETRY_SLICE => "telemetry_slice",
+        TOOL_MARK_INCIDENT_RESOLVED => "resolve_ack",
         _ => "unknown",
     }
 }
 
 fn result_count_for(tool_name: &str, value: &Value) -> u64 {
     match tool_name {
-        TOOL_QUERY_TRACES | TOOL_QUERY_METRICS | TOOL_QUERY_LOGS => value
-            .get("items")
-            .and_then(|v| v.as_array())
-            .map(|a| a.len() as u64)
-            .unwrap_or(0),
+        TOOL_QUERY_TRACES | TOOL_QUERY_METRICS | TOOL_QUERY_LOGS | TOOL_QUERY_INCIDENT_LIST => {
+            value
+                .get("items")
+                .and_then(|v| v.as_array())
+                .map(|a| a.len() as u64)
+                .unwrap_or(0)
+        }
         TOOL_GENERATE_SNAPSHOT => value
             .get("output_row_count")
             .and_then(|v| v.as_u64())
             .unwrap_or(0),
+        TOOL_RETRIEVE_TELEMETRY_SLICE => value
+            .get("span_refs")
+            .and_then(|v| v.as_array())
+            .map(|a| a.len() as u64)
+            .unwrap_or(0),
+        // Single-item results: 1 on success (the dispatch only reaches the
+        // count helper on the Ok branch).
+        TOOL_RETRIEVE_REPORT | TOOL_MARK_INCIDENT_RESOLVED => 1,
         _ => 0,
     }
 }
@@ -442,7 +644,7 @@ mod tests {
         let conn = fresh_buffer();
         let state = VizState::new();
         let value =
-            dispatch_tool(&conn, &state, TOOL_QUERY_TRACES, &json!({})).expect("dispatch ok");
+            dispatch_tool(&conn, &state, None, TOOL_QUERY_TRACES, &json!({})).expect("dispatch ok");
         let items = value
             .get("items")
             .and_then(|v| v.as_array())
@@ -455,8 +657,8 @@ mod tests {
     fn dispatch_query_metrics_returns_empty_paginated_response_on_empty_buffer() {
         let conn = fresh_buffer();
         let state = VizState::new();
-        let value =
-            dispatch_tool(&conn, &state, TOOL_QUERY_METRICS, &json!({})).expect("dispatch ok");
+        let value = dispatch_tool(&conn, &state, None, TOOL_QUERY_METRICS, &json!({}))
+            .expect("dispatch ok");
         let items = value
             .get("items")
             .and_then(|v| v.as_array())
@@ -468,7 +670,8 @@ mod tests {
     fn dispatch_query_logs_returns_empty_paginated_response_on_empty_buffer() {
         let conn = fresh_buffer();
         let state = VizState::new();
-        let value = dispatch_tool(&conn, &state, TOOL_QUERY_LOGS, &json!({})).expect("dispatch ok");
+        let value =
+            dispatch_tool(&conn, &state, None, TOOL_QUERY_LOGS, &json!({})).expect("dispatch ok");
         let items = value
             .get("items")
             .and_then(|v| v.as_array())
@@ -480,8 +683,8 @@ mod tests {
     fn dispatch_generate_snapshot_returns_envelope_on_empty_buffer() {
         let conn = fresh_buffer();
         let state = VizState::new();
-        let value =
-            dispatch_tool(&conn, &state, TOOL_GENERATE_SNAPSHOT, &json!({})).expect("dispatch ok");
+        let value = dispatch_tool(&conn, &state, None, TOOL_GENERATE_SNAPSHOT, &json!({}))
+            .expect("dispatch ok");
         assert!(value.get("markdown").and_then(|v| v.as_str()).is_some());
         assert_eq!(
             value.get("input_row_count").and_then(|v| v.as_u64()),
@@ -493,7 +696,7 @@ mod tests {
     fn dispatch_unknown_tool_returns_tool_dispatch_failed_unknown_tool() {
         let conn = fresh_buffer();
         let state = VizState::new();
-        let err = dispatch_tool(&conn, &state, "nonexistent_tool", &json!({}))
+        let err = dispatch_tool(&conn, &state, None, "nonexistent_tool", &json!({}))
             .expect_err("unknown tool errors");
         match err {
             Error::ToolDispatchFailed { tool_name, reason } => {
@@ -511,6 +714,7 @@ mod tests {
         let err = dispatch_tool(
             &conn,
             &state,
+            None,
             TOOL_QUERY_TRACES,
             &json!({"time_window_seconds": "not-a-number"}),
         )
@@ -530,6 +734,7 @@ mod tests {
         let value = dispatch_tool(
             &conn,
             &state,
+            None,
             TOOL_QUERY_TRACES,
             &json!({"time_window_seconds": 60, "limit": 100_000}),
         )
@@ -551,8 +756,8 @@ mod tests {
     }
 
     #[test]
-    fn all_tool_names_count_is_four() {
-        assert_eq!(ALL_TOOL_NAMES.len(), 4);
+    fn all_tool_names_count_is_eight() {
+        assert_eq!(ALL_TOOL_NAMES.len(), 8);
     }
 
     #[test]
@@ -564,6 +769,162 @@ mod tests {
             result_type_label(TOOL_GENERATE_SNAPSHOT),
             "markdown_snapshot"
         );
+        assert_eq!(result_type_label(TOOL_QUERY_INCIDENT_LIST), "incident_list");
+        assert_eq!(result_type_label(TOOL_RETRIEVE_REPORT), "markdown_report");
+        assert_eq!(
+            result_type_label(TOOL_RETRIEVE_TELEMETRY_SLICE),
+            "telemetry_slice"
+        );
+        assert_eq!(
+            result_type_label(TOOL_MARK_INCIDENT_RESOLVED),
+            "resolve_ack"
+        );
         assert_eq!(result_type_label("bogus"), "unknown");
+    }
+
+    // ---- Chunk #94 corpus-backed incident tools ----
+
+    use corpus::contract::{Corpus, FakeKeychainBackend, KeychainBackend};
+    use triage::contract::{
+        CueKind, CueScope, EvidenceRefs, IncidentStatus, PriorityTier, Severity,
+    };
+
+    fn incident_ctx_with_one_incident() -> (IncidentToolContext, i64) {
+        let backend: Arc<dyn KeychainBackend> = Arc::new(FakeKeychainBackend::new());
+        let corpus = Corpus::open_in_memory(backend).expect("in-memory corpus");
+        let corpus: Arc<dyn CorpusWriter> = Arc::new(corpus);
+        let incident = Incident {
+            id: 0,
+            workspace: "ws-test".into(),
+            fingerprint: "fp-1".into(),
+            title: "Pool saturation".into(),
+            detail: "Connection pool exhausted".into(),
+            kind: CueKind::ErrorRateSpike,
+            scope: CueScope::Service,
+            scope_id: Some("service-a".into()),
+            status: IncidentStatus::Active,
+            severity: Severity::Error,
+            priority_tier: PriorityTier::Suggested,
+            evidence_refs: EvidenceRefs {
+                trace_id: None,
+                span_ids: vec![[1u8; 8]],
+                fingerprint_hashes: vec!["fp-1".into()],
+                timestamps_unix_nano: vec![1_700_000_000_000],
+            },
+            opened_at_unix_nano: 1_700_000_000_000,
+            updated_at_unix_nano: 1_700_000_000_000,
+            acknowledged_at_unix_nano: None,
+            resolved_at_unix_nano: None,
+            read_at_unix_nano: None,
+            resolution_summary_text: None,
+        };
+        let payload = bincode::serialize(&incident).expect("encode");
+        let id = corpus
+            .save_incident(
+                "ws-test",
+                "active",
+                1_700_000_000_000,
+                1_700_000_000_000,
+                None,
+                None,
+                &payload,
+            )
+            .expect("save");
+        let ctx = IncidentToolContext {
+            corpus,
+            workspace_root: "ws-test".into(),
+        };
+        (ctx, id)
+    }
+
+    #[test]
+    fn query_incident_list_returns_active_incidents() {
+        let (ctx, id) = incident_ctx_with_one_incident();
+        let value = dispatch_query_incident_list(Some(&ctx)).expect("dispatch ok");
+        let items = value["items"].as_array().expect("items array");
+        assert_eq!(items.len(), 1);
+        assert_eq!(items[0]["incident_id"].as_i64(), Some(id));
+        assert_eq!(items[0]["severity"].as_str(), Some("error"));
+        assert_eq!(items[0]["title"].as_str(), Some("Pool saturation"));
+        assert_eq!(value["total"].as_u64(), Some(1));
+    }
+
+    #[test]
+    fn retrieve_report_returns_degraded_markdown_for_active_incident() {
+        let (ctx, id) = incident_ctx_with_one_incident();
+        let value =
+            dispatch_retrieve_report(Some(&ctx), &json!({"incident_id": id})).expect("dispatch ok");
+        let md = value["markdown"].as_str().expect("markdown string");
+        assert!(md.starts_with("# Diagnostic Report:"));
+        assert!(md.contains("## Symptom"));
+        assert_eq!(value["degraded_mode"].as_bool(), Some(true));
+    }
+
+    #[test]
+    fn retrieve_telemetry_slice_returns_evidence_refs() {
+        let (ctx, id) = incident_ctx_with_one_incident();
+        let value = dispatch_retrieve_telemetry_slice(Some(&ctx), &json!({"incident_id": id}))
+            .expect("dispatch ok");
+        let span_refs = value["span_refs"].as_array().expect("span_refs");
+        assert_eq!(span_refs.len(), 1);
+        assert_eq!(span_refs[0].as_str(), Some("span:0101010101010101"));
+        let fp_refs = value["fingerprint_refs"].as_array().expect("fp_refs");
+        assert_eq!(fp_refs[0].as_str(), Some("fp-1"));
+    }
+
+    #[test]
+    fn mark_incident_resolved_writes_resolved_status() {
+        let (ctx, id) = incident_ctx_with_one_incident();
+        let value = dispatch_mark_incident_resolved(Some(&ctx), &json!({"incident_id": id}))
+            .expect("dispatch ok");
+        assert_eq!(value["resolved"].as_bool(), Some(true));
+        assert_eq!(value["incident_id"].as_i64(), Some(id));
+        // Re-read: status is now resolved, no longer in the active list.
+        let row = ctx
+            .corpus
+            .load_incident_by_id(id)
+            .expect("load")
+            .expect("row");
+        assert_eq!(row.status, "resolved");
+    }
+
+    #[test]
+    fn incident_tools_error_when_corpus_unavailable() {
+        let err = dispatch_query_incident_list(None).expect_err("no corpus");
+        match err {
+            Error::ToolDispatchFailed { reason, .. } => {
+                assert!(reason.contains("corpus unavailable"));
+            }
+            other => panic!("expected ToolDispatchFailed, got {other:?}"),
+        }
+    }
+
+    #[test]
+    fn retrieve_report_errors_on_missing_incident() {
+        let (ctx, _id) = incident_ctx_with_one_incident();
+        let err = dispatch_retrieve_report(Some(&ctx), &json!({"incident_id": 99_999}))
+            .expect_err("not found");
+        match err {
+            Error::ToolDispatchFailed { reason, .. } => {
+                assert!(reason.contains("not found"));
+            }
+            other => panic!("expected ToolDispatchFailed, got {other:?}"),
+        }
+    }
+
+    #[test]
+    fn dispatch_tool_routes_incident_tools_through_context() {
+        let conn = fresh_buffer();
+        let state = VizState::new();
+        let (ctx, _id) = incident_ctx_with_one_incident();
+        let value = dispatch_tool(
+            &conn,
+            &state,
+            Some(&ctx),
+            TOOL_QUERY_INCIDENT_LIST,
+            &json!({}),
+        )
+        .expect("dispatch ok");
+        assert_eq!(value["total"].as_u64(), Some(1));
     }
 }

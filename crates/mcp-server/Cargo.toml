@@ -17,9 +17,17 @@ tracing-appender.workspace = true
 tracing-error.workspace = true
 chrono.workspace = true
 duckdb.workspace = true
+bincode.workspace = true
 buffer = { path = "../buffer" }
 viz = { path = "../viz" }
 snapshot = { path = "../snapshot" }
+# Chunk #94 — incident/report/telemetry tools read corpus.db cross-process.
+# `interpretation::markdown::{assemble_report, serialize_report}` is the
+# P-038 single-source projection (shared with `incidents.get_report`);
+# `triage::contract::Incident` is the bincode-decoded corpus BLOB shape.
+corpus = { path = "../corpus" }
+triage = { path = "../triage" }
+interpretation = { path = "../interpretation" }
 rmcp = { workspace = true, optional = true }
 
 [features]

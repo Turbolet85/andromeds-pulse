@@ -1,106 +1,109 @@
 # Session Handoff
 
-**Last Updated:** 2026-05-31T19:28:26Z
+**Last Updated:** 2026-06-01T17:25:00Z
 **Branch:** main
 **Session End Status:** clean
-**Last Commit:** `<session 168 wrap commit — pending this turn>` (prior HEAD: `af3023d` chore(setup-project): delta-rerun for 1 amendment — chunk #94 MCP server + tool exposure route-append)
+**Last Commit:** `<session 169 chunk #94 implement commit — pending this turn>` (prior HEAD: `00010f3` chore(wrap): session 168 — chunk #94 route-append META wrap)
 
 ## Current State
 
-- **Last completed chunk:** route#93 "ConstellationCanvas dashboard cascade" (Epoch 9 — Foundation v0.2.0; commit `0ea946e` — State H healed this wrap from the `pending` placeholder).
-- **Next chunk:** route#94 "MCP server + tool exposure" — **REGISTERED this session** (via `/andromeda-evolve --allow-route-append`; propagated via `/andromeda-setup-project --delta`; archived this wrap). NOT yet planned — `/andromeda-phase` is the next action. Route is now **94 chunks** (93 implemented + #94 registered-not-implemented).
-- **In-progress phase:** none.
-- **Phase artifacts present:** `.andromeda/phases/phase-90/` (chunk #93 plan, implemented). No phase dir for #94 yet.
+- **Last completed chunk:** route#94 "MCP server + tool exposure" (Epoch 9 — Foundation v0.2.0; commit `pending` this wrap — advances from #93; State-H auto-heals next wrap per Proposal 16 Option b). **TERMINAL chunk of the 94-chunk route — route now 94/94 implemented.**
+- **Next chunk:** none registered. Epoch 9 + the v0.2.0 route are complete. Next forward work is either a deliberate `/andromeda-arch` touch (see Deferred decisions) OR a new chunk via `/andromeda-evolve --allow-route-append` from `docs/v0_2_0/pulse-v0_2_0-route.md` §93 (Export for community training) / §94 (Config hot reload) if the user wants to extend.
+- **In-progress phase:** none (phase-91 plan implemented this session).
+- **Phase artifacts present:** `.andromeda/phases/phase-91/` (chunk #94 plan/combined/research, implemented).
 
 ## Andromeda State Detection (states A-K)
 
-11 of 11 effectively CLEAR (B = N/A; E = next chunk #94 registered awaiting `/andromeda-phase` — expected forward state, not drift; H = healed this wrap).
+11 of 11 effectively CLEAR (B = N/A; H advances 93→94 this wrap with commit_sha=pending = expected post-wrap state per Proposal 16).
 
-- **A — In-progress runs:** ✓ CLEAR — this session's evolve / spec-amendment / setup-project-delta run-dirs all complete (evolution-plan.md / amendment.md / materialization-plan-delta.md present); phase-90 complete.
+- **A — In-progress runs:** ✓ CLEAR — phase-91 complete; the chunk #94 route-append run-dir markers from session 168 are archived.
 - **B — Status drift:** N/A (no project.yaml).
-- **C — Architecture staleness:** ✓ CLEAR — arch.md (2026-05-27) < CLAUDE.md (2026-05-31, delta pointer-table edit).
-- **D — Pending route:** ✓ CLEAR — route.md present, 94 chunks.
-- **E — Pending phase planning:** ℹ️ info (expected) — chunk #94 registered but not yet planned; `/andromeda-phase` is the deliberate next action (designed route-append flow, not anomalous drift).
-- **F — Pending implementation:** ✓ CLEAR — no partial phase/impl artifacts; #94 has no phase yet.
+- **C — Architecture staleness:** ✓ CLEAR — arch.md (2026-05-27) < CLAUDE.md (2026-06-01, Tier-1 edit this wrap).
+- **D — Pending route:** ✓ CLEAR — route.md present, 94 chunks, all implemented.
+- **E — Pending phase planning:** ✓ CLEAR — no unplanned registered chunk (route complete).
+- **F — Pending implementation:** ✓ CLEAR — chunk #94 implemented this session.
 - **G — Multiple concurrent runs:** ✓ CLEAR.
-- **H — Route chunk drift:** ✓ HEALED this wrap — chunk #93 `commit_sha` advanced `pending` → `0ea946e` (HEAD-reachable; title-token match) per Phase 8 step 7. Now real + reachable.
-- **I — Specialist plan freshness mismatch:** ✓ CLEAR — route.md edited this session (chunk #94 evolve); `plan_freshness.route_mtime` bumped to 2026-05-31T18:31:49Z this wrap. No other plan touched.
-- **J — Living artifact staleness:** ✓ CLEAR — reconcile 19:28:26Z (this wrap); reconcile_failed=false.
+- **H — Route chunk drift:** ℹ️ info (expected) — last_completed advances 93 → 94 this wrap; commit_sha=pending (Proposal 16 Option b — next wrap Phase 8 step 7 auto-heals to the HEAD-reachable implement commit SHA).
+- **I — Specialist plan freshness mismatch:** ✓ CLEAR — no specialist plan edited this session (pure /implement).
+- **J — Living artifact staleness:** ⚠️ partial — dep-tree.md reconciled (468 lines, real +5 delta); api-surface.md reconcile FAILED (environmental disk-full; reconcile_failed=true; mcp-server sub-block content preserved-but-stale, catches up next wrap). Not a code fault.
 - **K — Multi-chunk in-progress imbalance:** ✓ CLEAR — in_progress null.
 
 ## Drift Detection (6 dimensions)
 
-All 6 CLEAR. `state.yaml.drift_warnings = []`.
+`state.yaml.drift_warnings` = [D1-apisurface-staleness (environmental), D3-arch-mcp-tools (expected chunk-then-amendment)].
 
-- **D1 — Living artifact staleness:** ✓ CLEAR — reconcile (19:28:26Z) > most_recent_code_mtime (2026-05-31T17:45:00Z; no new source this session).
-- **D2 — Living artifact wrong content:** ✓ CLEAR — interpretation sub-block splice verified (markers balanced 32/32); dep-tree zero-diff.
-- **D3 — Plan-to-code drift:** ✓ CLEAR — chunk #94 added ZERO arch-registry resources (route registration only; no TauRPC / broadcast / crate / capability / env var landed — `mcp.status()` + any crate work belongs to #94's future `/implement`). `mcp-server` crate already exists in the workspace.
-- **D4 — Plan-to-plan drift:** ✓ CLEAR — only route.md changed; §1 count (94) consistent with §2.
-- **D5 — Plan-to-CLAUDE.md drift:** ✓ CLEAR — route.md mtime (18:31:49Z, evolve) < CLAUDE.md mtime (~19:02Z, delta pointer-table cascade); the delta already propagated route's change. Amendment Propagated + archived.
-- **D6 — Route chunk progression:** ✓ CLEAR — last_completed stays 93 (chunk #94 registered-not-implemented; no `chunk(94): implement` commit). State self-consistent.
+- **D1 — Living artifact staleness:** ⚠️ api-surface.md only — reconcile_failed=true (cargo +nightly public-api -p mcp-server failed: libduckdb-sys build-script exit 1, disk 100% full / 675 MB free; nightly target cache needs a cold libduckdb-sys compile). Environmental, not code. dep-tree.md CLEAR (reconciled this wrap). Remediation: free disk + re-run /wrap-session (or it self-clears when the cursor revisits mcp-server with disk headroom).
+- **D2 — Living artifact wrong content:** ✓ CLEAR — dep-tree fresh-stdout == LIVING block post-replace.
+- **D3 — Plan-to-code drift:** ⚠️ FIRES (EXPECTED chunk-then-amendment) — arch §Stack + §Standard Contracts + §Established Decisions [MCP Server Surface] enumerate 4 MCP `#[tool]` methods; chunk #94 added 4 more (`query_incident_list` / `retrieve_report` / `retrieve_telemetry_slice` / `mark_incident_resolved`). ALSO the structural "MCP = one of three equal-tier output channels, not coupling" §Established Decisions framing is NOT yet in arch. Remediation: (a) `/andromeda-evolve --allow-arch-registry` to acknowledge the 4 new tools in §Established Decisions [MCP Server Surface] + §Stack + §Standard Contracts enumeration (mirrors chunks #78/#82/#86/#87/#88 Type 6 precedent); (b) a deliberate `/andromeda-arch` touch for the structural equal-tier-channel framing (out of scope for registry-only flow). NOTE: capability-drift is CLEAN — `mcp.status` DTO extension changed no TauRPC procedure set, so no TauRPC↔capability-JSON drift.
+- **D4 — Plan-to-plan drift:** ✓ CLEAR.
+- **D5 — Plan-to-CLAUDE.md drift:** ✓ CLEAR — CLAUDE.md mtime (this wrap) > all upstream mtimes.
+- **D6 — Route chunk progression:** ℹ️ self-clears — git log shows no `chunk(94): implement` yet (this wrap creates it); state.yaml advances 93→94 this wrap. Self-consistent post-commit.
 
 ## Spec Amendments (this session)
 
-Chunk #94 route-append — **full single-cycle this turn** (17th instance Type 7 Form 1; mirrors chunks #58–#93 precedents):
-- **Plan:** `.andromeda/route.md` (§1 Route Scope Summary, §2 Roadmap Epoch 9, §3 Decisions Log)
-- **Decisions Log:** §3 — 2026-05-31 "Append chunk #94 MCP server + tool exposure (--allow-route-append)"
-- **Trigger:** user-driven evolution via /andromeda-evolve (no chunk/phase/harness)
-- **Authority resolution:** pipeline state > chunk-list-stale-vs-pipeline-reality
-- **Lifecycle:** applied 2026-05-31T18:31:49Z (`/andromeda-evolve`) → propagated 2026-05-31T19:02:12Z (`/andromeda-setup-project --delta`; CLAUDE.md pointer-table cascade 93→94) → noted+archived 2026-05-31T19:28:26Z (this wrap, Phase 8)
-- **Marker:** `.andromeda/runs/2026-05-31T18-31-49-spec-amendment-append-chunk-94-mcp-server-tool-exposure/amendment.md`
-
-`spec_amendments.active` empty post-archive; archive grew 75 → 76.
+(none this session) — this was a pure `/andromeda-implement` of chunk #94; no specialist-plan or arch amendment was applied. `spec_amendments.active` empty (chunk #94 route-append amendment was archived in session 168). The D3 arch-registry acknowledgment for the 4 new MCP tools is a FUTURE evolve cycle, not applied here.
 
 ## Key Decisions This Session
 
-1. **Mis-invocation caught + redirected (skill guardrails worked as designed):** the user first ran `/andromeda-setup-project --allow-route-append <chunk spec>` — but `--allow-route-append` is an `/andromeda-evolve` flag, not a setup-project flag, and setup-project never registers route chunks. Halted at flag-parse (no files touched) and redirected to `/andromeda-evolve --allow-route-append`. The cycle is evolve(register) → setup-project --delta(propagate) → wrap(archive).
-2. **Numbering:** the chunk spec's "#92" is the v0.2.0-plan internal §92; in route.md it landed as **chunk #94** (route was at 93). Form 1 Policy A: §1 Total chunks 93→94, Epochs line untouched.
-3. **Arch §Established Decisions deferred:** the chunk spec's "MCP is one of three equal-tier output channels, not coupling" is a structural arch.md body change — out of route-append scope (Refuse 1 even with `--allow-arch-registry`). Handle at #94's `/implement` or a deliberate `/andromeda-arch` touch.
+1. **Option A "Corpus-backed subprocess" (user-approved at /phase):** the MCP sidecar stays a separate process; the 4 new incident/report/telemetry tools read/write the on-disk `corpus/corpus.db` cross-process (the only shared substrate between the main app and the stdio sidecar). Accepted consequences: `retrieve_telemetry_slice` returns persisted incident-context (evidence refs), NOT live telemetry rows; `mark_incident_resolved` is eventually-consistent vs the in-memory registry (durable in corpus; re-hydrated at boot); `mcp.status()` "connected" = sidecar-running. Options B (in-process pivot, arch-gated) + C (defer) NOT chosen.
+2. **P-038 single-source via assemble_report move:** moved the ~135-line `assemble_report` glue from `pulse-app/src/incidents_router.rs` into `interpretation::markdown` (where `serialize_report` already lived). The MCP `retrieve_report` tool + `incidents.get_report` now project identical Reports; a dedicated test asserts byte-identity. Only new dep edge: `interpretation → security` (leaf crate, acyclic).
+3. **HYBRID-RENDER INVERSE (curated Tier 1 this wrap):** 4 planned "add new" steps collapsed to no-ops because the capabilities already existed — `Settings.mcp_server_enabled` (chunk #38) + the SettingsModalForm Switch + the on-demand-only sidecar (no auto-spawn → default-off holds by construction, P-040). Reused the existing field (zero ui-bridge/contract.rs delta), did NOT touch main.rs, reported the no-ops as scope reconciliations.
+4. **Skipped redundant `security_mcp_incident_tools.rs`:** response-body redaction is already covered by the existing `security_mcp_response_body_redaction.rs` + the uniform `mcp.*` AllowList exclusion of `result_content`; the command-injection ban is satisfied by-construction (`mark_incident_resolved` is a pure corpus write, no `Command::arg`).
 
 ## Files Modified
 
-**This wrap (uncommitted until wrap commit):** `.andromeda/state.yaml` (active→archive + lifecycle + State-H heal + cursor advance + session_count 168), `.claude/session-handoff.md`, `.andromeda/context/dependency-tree.md` + `api-surface.md` (Phase 5 reconcile).
-**Earlier this session (committed `af3023d`):** `CLAUDE.md` (pointer-table 93→94), `.andromeda/route.md` (§1/§2/§3 chunk #94), `.andromeda/state.yaml` (then).
-**Gitignored (on-disk forensic):** amendment.md (Propagated checkbox), evolution-plan.md, materialization-plan-delta.md under `.andromeda/runs/`.
+**Modified (15):** `Cargo.lock`, `crates/corpus/src/contract.rs` (load_incident_by_id), `crates/interpretation/Cargo.toml` (+security dep), `crates/interpretation/src/markdown.rs` (+assemble_report), `crates/mcp-server/Cargo.toml` (+corpus/triage/interpretation/bincode), `crates/mcp-server/src/bin/andromeda-pulse-mcp.rs` (corpus open + ctx), `crates/mcp-server/src/jsonrpc.rs` (tools_list_with_8_tools), `crates/mcp-server/src/tools.rs` (4 dispatch fns + IncidentToolContext), `crates/mcp-server/src/tracing_setup.rs` (AllowList +3 fields), `crates/mcp-server/tests/sidecar_subprocess.rs` (8-tools assert), `pulse-app/src/incidents_router.rs` (call interpretation::markdown::assemble_report), `pulse-app/src/mcp_router.rs` (McpStatusDto.connected_agent), `pulse-app/ui/src/bindings/index.ts` (regen), `pulse-app/ui/src/report/Report.tsx` + `ReportRenderer.tsx` (SendToAgent wiring).
+**New (4):** `pulse-app/tests/e2e_p3_mcp_incident_tools.rs` (P-038 identity), `pulse-app/ui/src/report/SendToAgentButton.tsx` + `.test.tsx`, `pulse-app/ui/src/report/use-mcp-delivery.ts`.
+**Wrap (this turn):** CLAUDE.md (Tier 1), `.claude/rules/security.md` (Tier 2), `.andromeda/context/dependency-tree.md` (reconciled), `.andromeda/context/api-surface.md` (deferral note), `.andromeda/state.yaml`, this handoff.
 
 ## Curation Summary (this wrap)
 
-- **Tier 1 (CLAUDE.md USER:session-learnings):** 0
-- **Tier 2 (.claude/rules/):** 0
-- **Tier 3 (.claude/docs/session-learnings.md):** 0
-- **Filtered:** mis-invocation→redirect candidate — dropped (dup of 2026-05-16 after-MVP-evolution-path entry + low-novelty: skills self-document their flags; the redirect worked via existing guardrails, not a gap).
-- **Andromeda pipeline proposals:** 0 (**Mode H — honest healthy**: META route-append cycle executed exactly as designed; the mis-invocation was caught by setup-project's own flag-parse + no-foreign-writes discipline, not a pipeline gap).
+- **Tier 1 (CLAUDE.md USER:session-learnings):** 1 — HYBRID-RENDER INVERSE (plan assumes "create new" but capability already exists → verify-before-add + report no-op reconciliations).
+- **Tier 2 (.claude/rules/security.md):** 1 — cross-process bincode decode-config parity (sidecar decode must match producer encode config; verify at Step 0, else silent decode failure).
+- **Tier 3:** 0.
+- **Filtered:** 1 deferred (separate-process-MCP-reads-corpus architecture — covered by arch extract + research.md, low standalone novelty); 1 task-specific reject (L4Output test-fixture schema shape).
+- **Andromeda pipeline proposals:** 0 (**Mode H — honest healthy**: the /new-session → /phase → /implement → /wrap chain executed as designed; the one disk-full episode is an environmental host constraint already documented across sessions 144/145/153/163/165, not a pipeline gap).
 
 ## Pipeline Accumulators
 
-A1 `api_surface_deferral`: IMPLEMENTED steady state preserved (verified_cleared_at_session=135; consecutive_count=0 — interpretation reconciled cleanly this wrap, api_surface_deferred=false). Cycle-3 in progress (cursor advanced interpretation → mcp-server; the chunk #85/#86 interpretation additions captured this wrap, +107 lines). A2 dormant. 0 refactors / 0 patches filed (Mode H).
+A1 `api_surface_deferral`: IMPLEMENTED steady state preserved (verified_cleared_at_session=135; consecutive_count=0). NOTE this wrap: api-surface per-crate reconcile FAILED (disk-full environmental) — but this is NOT a batch-deferral (the failure is tooling-can't-run, not deferred-to-stay-in-budget), so consecutive_count stays 0 and api_surface_deferred stays false per per-crate-mode semantics; the mcp-server sub-block catches up next wrap. A2 dormant. 0 refactors / 0 patches filed (Mode H).
 
 ## Last Failed Command
 
-(none — the evolve → setup-project --delta → wrap chain completed green; all gates passed.)
+`cargo +nightly public-api --simplified -p mcp-server` — FAILED (libduckdb-sys build-script exit 1; root cause: disk 100% full / 675 MB free; nightly target cache needs a cold libduckdb-sys compile with no space). **Alternative (do NOT retry as-is):** free disk first (e.g., `cargo clean` recovers ~180 GB, or remove `target/debug/incremental`), THEN the next /wrap-session per-crate reconcile picks up mcp-server cleanly. The api-surface mcp-server sub-block is preserved-but-stale until then.
 
 ## Tests Status
 
-**PASS (smoke) — zero code changed this session (specs/docs only):**
-- Smoke: `cargo nextest run -p security --profile ci` = **14/14** (0.13s) — build healthy.
-- Full workspace suite NOT re-run (no source/boot path touched — only route.md/CLAUDE.md/state.yaml/living-artifacts/handoff). Last full green: session 167 (1559/1559 + 1 skip).
-- Dead-test scan (P15): 16 source-level `#[cfg(test)] mod tests` blocks in `pulse-app/src/` (binary, `test = false`) — unchanged carryover (zero `.rs` touched); warning-not-fatal.
+**PASS — green per /implement gate set (run during this session's /andromeda-implement):**
+- `cargo nextest run --workspace --all-features --profile ci` = **1591/1591 + 1 skip** (was 1559 baseline; +32 new tests: corpus +3, mcp-server incident tools/labels +13, jsonrpc +1, pulse-app e2e +2, plus renames).
+- `cargo nextest run --workspace --profile ci` (default-features, P-040 independence) = **1570/1570 + 1 skip**.
+- webview: lint clean · typecheck clean · vitest **613/613** (+8 SendToAgentButton).
+- `cargo xtask capability-drift` clean (0 missing, 0 extra; bindings.ts carries `mcp` namespace + `connected_agent`).
+- `cargo deny check bans licenses sources` ok · `cargo audit` exit 0 (19 allowed warnings).
+- Wrap smoke: `cargo nextest run -p security` = 14/14.
+- **Phase 2b boot smoke: SKIPPED (environmental disk-full @ <3 GB; tauri dev build would re-hit no-space).** Boot-path-neutral by inspection — `main.rs` + `ui-bridge/contract.rs` NOT modified; prod `pulse-app.exe` compiled clean twice this session.
+- Dead-test scan (P15): source-level `#[cfg(test)] mod tests` blocks in `pulse-app/src/` (binary, test=false) — carryover (incidents_router.rs + mcp_router.rs blocks are pre-existing chunk #49/#88 era; chunk #94 added ZERO new source-level test blocks — its tests live in `pulse-app/tests/`). Warning-not-fatal.
 
 ## Next Recommended Action
 
-**`/andromeda-phase` to plan chunk #94 "MCP server + tool exposure."**
+**Priority 1 — `/andromeda-evolve --allow-arch-registry`** to acknowledge the 4 new MCP `#[tool]` methods (`query_incident_list` / `retrieve_report` / `retrieve_telemetry_slice` / `mark_incident_resolved`) in arch §Established Decisions [MCP Server Surface] + §Stack MCP server row + §Standard Contracts MCP server enumeration (closes the D3 chunk-then-amendment drift; mirrors chunks #78/#82/#86/#87/#88 Type 6 precedent).
 
-When planning/implementing #94, note:
-- The arch §Established Decisions "MCP = one of three equal-tier output channels" framing needs a structural arch touch (`/andromeda-arch` or `/implement`-time decision) — NOT addressable via the registry-only `--allow-arch-registry` flag.
-- Surface: 4 rmcp tools (`query_incident_list` / `retrieve_report(id)` / `retrieve_telemetry_slice(id)` / `mark_incident_resolved(id)`) + `mcp.status()` connected-agent identity + `[mcp.enable]` config (default false) + "Send to agent" button gated on configured-AND-connected. Source detail: `docs/v0_2_0/pulse-v0_2_0-route.md` §92.
+**Priority 2 — deliberate `/andromeda-arch` touch** for the structural "MCP = one of three equal-tier output channels, not coupling" §Established Decisions framing (the plan flagged this as out-of-scope for the registry-only flow; carries forward from the session-168 handoff). This is a Deferred decision (below).
 
 **Secondary (not blocking):**
-- `git push origin main` — branch is **5 commits ahead** of origin after this wrap (af3023d delta + this wrap commit + the 3 prior). Verify with `git status`.
-- `spec_amendments.archive` at 76 (over the 50 soft-cap; pruning deferred — run-dir markers remain forensic).
-- api-surface CYCLE-3 in progress (cursor at `mcp-server` next; interpretation captured this wrap). chunk-#92 new pub items (triage `DigestCueRef.scope`/`scope_id` + pulse-app `create_incident_from_l4_output`) captured when cursor reaches triage (pos 11) / pulse-app (pos 8).
+- **Free disk** (`cargo clean` or rm `target/debug/incremental`) so the next wrap's api-surface reconcile picks up the stale mcp-server sub-block + so boot smoke can run.
+- `git push origin main` — branch is now **6+ commits ahead** of origin (verify with `git status`).
+- `spec_amendments.archive` at 76 (over 50 soft-cap; pruning deferred — run-dir markers remain forensic).
 - `experiments/` + `ui/` untracked carryover (still in `git status`).
 - Pipeline patches awaiting review in `docs/andromeda-improvements.md`: P22–P26.
 
+## Deferred decisions
+
+`2026-06-01 — Deferred arch-body change (chunk #94 flagged, NOT applied):`
+- **Gap:** the chunk spec's "MCP is one of three equal-tier output channels, not coupling" is a STRUCTURAL `.andromeda/architecture.md` §Established Decisions body change (a new framing of the [MCP Server Surface] decision).
+- **Why deferred:** out of scope for the registry-only `--allow-arch-registry` flow (which only touches §Occupied Resources / §Architecture Registry Updates), and out of scope for `/andromeda-implement` (cannot edit arch body as a delta). Requires a deliberate `/andromeda-arch` touch OR an explicit arch-body edit + `/andromeda-setup-project --delta` cascade.
+- **User decision:** defer to a dedicated arch session. Carries forward from the session-168 handoff (registered there at chunk #94 route-append; still unactioned).
+
 ## Session Goals (carry-over)
 
-(none — this session's goal completed: register chunk #94 "MCP server + tool exposure" via the evolve → setup-project --delta → wrap cycle, end-to-end green. Route now 94 chunks.)
+(none — this session's goal completed: implement chunk #94 "MCP server + tool exposure" end-to-end. Route now 94/94 implemented; Epoch 9 + the v0.2.0 route are functionally complete pending the deferred arch-framing touch.)

@@ -74,6 +74,11 @@ impl AllowList {
                 "traceparent",
                 "error_detail",
                 "tool_name_unknown",
+                // Chunk #94 — incident/report tool fields (bounded;
+                // incident_id is an i64 rowid, not high-cardinality content).
+                "incident_id",
+                "incident_count",
+                "resolved",
             ]
             .iter()
             .copied()

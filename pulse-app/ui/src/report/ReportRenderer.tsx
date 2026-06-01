@@ -31,11 +31,18 @@ import {
   severityTextColorVar,
   statusLabel,
 } from "./report-types";
+import { SendToAgentButton, type SendState } from "./SendToAgentButton";
 
 export interface ReportRendererProps {
   report: ReportPayload;
   onCopyMarkdown: () => void;
   copyState: CopyState;
+  // Chunk #94 — "Send to agent" MCP delivery channel. The button only
+  // renders when MCP is configured AND an agent is connected; absent props
+  // default to not-shown so existing callers are unaffected.
+  mcpDeliveryAvailable?: boolean;
+  onSendToAgent?: () => void;
+  sendState?: SendState;
 }
 
 const METADATA_LABEL_STYLE: CSSProperties = {
@@ -176,6 +183,9 @@ export function ReportRenderer({
   report,
   onCopyMarkdown,
   copyState,
+  mcpDeliveryAvailable = false,
+  onSendToAgent,
+  sendState = "idle",
 }: ReportRendererProps) {
   const [open, setOpen] = useState<SectionState>(ALL_EXPANDED);
 
@@ -406,6 +416,11 @@ export function ReportRenderer({
           paddingTop: "var(--spacing-sm)",
         }}
       >
+        <SendToAgentButton
+          visible={mcpDeliveryAvailable}
+          sendState={sendState}
+          onSend={onSendToAgent ?? (() => {})}
+        />
         <button
           type="button"
           onClick={onCopyMarkdown}

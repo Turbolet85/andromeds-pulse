@@ -7,11 +7,15 @@
 //! producing markdown identical к the future MCP delivery (#92) per
 //! P-038 single-source-of-truth discipline.
 //!
-//! Pre-scrub contract: caller MUST have routed every user-facing text
-//! field through `security::scrubber::scrub_attribute` BEFORE constructing
-//! the `Report` struct. This module is pure transform — no scrubbing
-//! happens here per arch §Module dependency direction (interpretation
-//! crate has no security dep edge).
+//! Pre-scrub contract: `serialize_report` is a pure transform — it does
+//! NOT scrub. Callers building a `Report` by hand MUST pre-scrub every
+//! user-facing text field. As of chunk #94 the canonical Incident → Report
+//! projection lives here as [`assemble_report`] (moved from pulse-app so the
+//! MCP `retrieve_report` tool and the `incidents.get_report` resolver share
+//! one source per P-038); that projection DOES apply defense-in-depth
+//! scrubbing via `security::scrubber::scrub_attribute`, which is why this
+//! crate now carries a `security` dep edge (security is a leaf crate — no
+//! cycle introduced).
 //!
 //! Hybrid render contract (chunk #88 Phase 1 user-approved scope):
 //! - Resolved incidents с `resolution_summary_text.is_some()` →
@@ -22,7 +26,11 @@
 //!   serializer surfaces explicit "interpretation pending" notice in
 //!   place of those sections per chunk #86 degraded-mode UX pattern.
 
+use security::scrubber::{ScrubbedValue, scrub_attribute};
 use serde::{Deserialize, Serialize};
+use triage::contract::{Incident, IncidentStatus, Severity};
+
+use crate::schema::{Confidence as L4Confidence, L4Output};
 
 /// Confidence label for а ranked hypothesis. Mirrors
 /// [`crate::schema::Confidence`] but stays decoupled at this surface so
@@ -209,6 +217,136 @@ pub fn serialize_report(report: &Report) -> String {
     }
 
     out
+}
+
+/// Assemble the [`Report`] struct from an Incident + optional parsed
+/// `L4Output`. Pure projection — no I/O. Moved here from pulse-app at
+/// chunk #94 so the MCP `retrieve_report` tool and the
+/// `incidents.get_report` resolver project identical Reports (P-038
+/// single-source). Defense-in-depth scrub at field-projection time per
+/// the chunks #72 / #78 / #86 uniform-coverage invariant (already-scrubbed
+/// input passes through verbatim; idempotent at the scrubber boundary).
+pub fn assemble_report(incident: &Incident, l4: Option<&L4Output>) -> Report {
+    let workspace = scrub_string(&incident.workspace);
+    let project_context = format!("workspace={workspace}");
+    let status_label = incident_status_label(incident.status).to_string();
+    let severity_label = severity_label(incident.severity).to_string();
+
+    match l4 {
+        Some(l4) => Report {
+            incident_id: incident.id,
+            title: scrub_string(&l4.title),
+            workspace,
+            opened_at_unix_nano: incident.opened_at_unix_nano,
+            status_label,
+            severity_label,
+            symptom: scrub_string(&l4.symptom),
+            timeline: scrub_string(&l4.timeline),
+            hypotheses: l4
+                .hypotheses
+                .iter()
+                .map(|h| HypothesisView {
+                    statement: scrub_string(&h.statement),
+                    confidence_label: l4_confidence_label(h.confidence).to_string(),
+                    justification: scrub_string(&h.justification),
+                })
+                .collect(),
+            investigation_steps: l4
+                .investigation_steps
+                .iter()
+                .map(|s| InvestigationStepView {
+                    step: scrub_string(&s.step),
+                    expected_yield: scrub_string(&s.expected_yield),
+                })
+                .collect(),
+            evidence_refs: l4.evidence_refs.iter().map(|r| scrub_string(r)).collect(),
+            project_context,
+            degraded_mode: false,
+            // When the L4Output renders the Report itself for а Resolved
+            // incident, the same payload IS the resolution summary —
+            // surfacing it as а duplicate section under "Resolution
+            // Summary" would be redundant. Skip.
+            resolution_summary: None,
+            previously_seen: Vec::new(),
+        },
+        None => Report {
+            incident_id: incident.id,
+            title: scrub_string(&incident.title),
+            workspace,
+            opened_at_unix_nano: incident.opened_at_unix_nano,
+            status_label,
+            severity_label,
+            // Symptom falls back к incident.detail when no L4Output
+            // available (chunk #78 producer-side scrubbed; defense-in-
+            // depth scrub here is а no-op for already-scrubbed input).
+            symptom: scrub_string(&incident.detail),
+            timeline: String::new(),
+            hypotheses: Vec::new(),
+            investigation_steps: Vec::new(),
+            evidence_refs: incident
+                .evidence_refs
+                .span_ids
+                .iter()
+                .map(|bytes| format!("span:{}", hex_lower(bytes)))
+                .chain(
+                    incident
+                        .evidence_refs
+                        .fingerprint_hashes
+                        .iter()
+                        .map(|fp| format!("fp:{}", scrub_string(fp))),
+                )
+                .collect(),
+            project_context,
+            degraded_mode: true,
+            resolution_summary: None,
+            previously_seen: Vec::new(),
+        },
+    }
+}
+
+/// Defense-in-depth scrubber application. Routes a text field through
+/// `security::scrubber::scrub_attribute` BEFORE markdown composition per
+/// the chunk #72 uniform-coverage invariant. Already-scrubbed input passes
+/// through verbatim (idempotent at the scrubber boundary); raw OTLP-derived
+/// bytes that somehow bypassed upstream scrubbing get redacted here.
+pub fn scrub_string(text: &str) -> String {
+    match scrub_attribute(text) {
+        ScrubbedValue::Allowed(s) => s,
+        ScrubbedValue::Redacted { category } => format!("[redacted: {category}]"),
+    }
+}
+
+fn hex_lower(bytes: &[u8]) -> String {
+    let mut out = String::with_capacity(bytes.len() * 2);
+    for b in bytes {
+        out.push_str(&format!("{b:02x}"));
+    }
+    out
+}
+
+fn incident_status_label(status: IncidentStatus) -> &'static str {
+    match status {
+        IncidentStatus::Active => "active",
+        IncidentStatus::Acknowledged => "acknowledged",
+        IncidentStatus::Resolved => "resolved",
+    }
+}
+
+fn severity_label(severity: Severity) -> &'static str {
+    match severity {
+        Severity::Info => "info",
+        Severity::Warn => "warn",
+        Severity::Error => "error",
+        Severity::Critical => "critical",
+    }
+}
+
+fn l4_confidence_label(c: L4Confidence) -> &'static str {
+    match c {
+        L4Confidence::High => "high",
+        L4Confidence::Medium => "medium",
+        L4Confidence::Low => "low",
+    }
 }
 
 #[cfg(test)]
