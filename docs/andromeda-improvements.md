@@ -1688,3 +1688,34 @@ Edge case: if marker is manually authored (e.g., this session's chain) AND Trigg
 - Encountered: session 161 (chunk #90 implementation + setup-project --delta formalize-amendment path). Marker: `.andromeda/runs/2026-05-29T19-20-03-spec-amendment-halo-severity-motion-token/amendment.md`.
 - Related: 2026-05-16 CLAUDE.md session-learning (manual specialist-plan edits + setup-project --delta propagation); session-144 precedent (manual amendment formalization under user authorization).
 - Affected SKILL.md: `~/.claude/skills/andromeda-implement/references/spec-drift-protocol.md` (add planned-specialist-edit amendment-authoring path) + `~/.claude/skills/andromeda-setup-project/references/delta-rerun-protocol.md` Detection step 3 halt diagnostic (add formalize-manual-edit branch).
+
+---
+
+### Proposal P27 — /andromeda-evolve Refuse 1 + /andromeda-setup-project --delta arch-halt both redirect STRUCTURAL arch.md amendments to /andromeda-arch, which is greenfield write-once and cannot surgically amend
+
+## Status: PROPOSED — 2026-06-02 (session 170)
+
+**Mode:** P (patch)
+
+**Problem:** When a STRUCTURAL `.andromeda/architecture.md` body amendment is needed after MVP (a §Stack / §Established Decisions / §Conventions / §Standard Contracts edit — NOT a §Occupied-Resources registry addition), there is no clean skill path, and the two skills the user is steered toward both dead-end:
+- `/andromeda-evolve` refuses (Refuse 1 — structural arch.md body is outside `--allow-arch-registry` scope) and its refusal text redirects to `/andromeda-arch`.
+- `/andromeda-setup-project --delta` refuses any architecture.md amendment that is not a Type-6 flag-authorized registry addition, and its halt diagnostic also redirects to `/andromeda-arch`.
+- But `/andromeda-arch` is a GREENFIELD write-once skill — it (re)generates an architecture.md from the creator brief; it cannot surgically amend an existing one. Pointing the user there is a dead-end (running it would regenerate, not amend).
+
+So both diagnostics misdirect. The actual working path (proven session 137 mistralrs→llama.cpp, session 145 chunk-#84, session 170 chunk-#94 MCP-tools 4→8): **manual arch.md body edit + manual amendment marker (`.andromeda/runs/{ISO}-spec-amendment-*/amendment.md` with `manual_structural_amendment: true`, no `flag_used`) + manual `state.yaml.spec_amendments.active` entry + manual Tier-2/3 cascade (CLAUDE.md @imports arch.md so the imported body reflects the edit automatically; the DERIVED mirrors — CLAUDE.md GENERATED:setup sections + `.claude/docs/services/*.md` — are hand-cascaded since `--delta` refuses the structural amendment) + wrap-session archives the amendment.**
+
+**Encountered:** session 170 (chunk #94 MCP-tools arch acknowledgment; arch enumerations 4→8 across §Stack + §Established Decisions [MCP Server Surface] + §Conventions + §Standard Contracts). `/andromeda-evolve --allow-arch-registry` correctly refused the structural sections (registry flag covers §Occupied Resources only); the manual-cascade path was used; committed `44af47b`. The `/andromeda-arch` redirect cost a confused detour until the user corrected: "arch have no tools to recreate plan it can produce only greenfield plan unfortunally." Same shape as sessions 137/144/145.
+
+**Proposed fix (pick one or combine):**
+1. **Fix the two redirect diagnostics** — `/andromeda-evolve` Refuse 1 message + `/andromeda-setup-project --delta` arch-halt diagnostic should redirect STRUCTURAL arch.md amendments to the manual-cascade path (manual edit + marker + state.yaml active entry + manual/`--delta` Tier-2/3 cascade + wrap archive), NOT to `/andromeda-arch`. Cheapest; diagnostic-text only.
+2. **Document the manual-structural-amendment recipe** as a first-class path in `spec-amendment-protocol.md` Part D (alongside the Type-6/Type-7 flag paths), so the `manual_structural_amendment: true` marker shape is canonical rather than re-derived ad-hoc per session.
+3. (Stretch) **A `--allow-arch-structural` evolve flag** mirroring `--allow-arch-registry` but for structural sections, with stronger guard-rails (single-section, decision-or-code-evidence-grounded, purely-additive-or-supersede). Higher cost; risk of weakening the structural-protection invariant.
+
+**Why this matters:** structural arch amendments are rare but recurring in late-stage projects (runtime swaps, decision reversals, surface-count changes). Each one currently re-derives the manual recipe from scratch, and the misleading `/andromeda-arch` redirect costs a confused detour every time. Fix 1 (~10 LOC diagnostic text across 2 skills) removes the dead-end; the 2026-05-16 CLAUDE.md session-learning already records the working path, but the in-skill diagnostics don't point at it.
+
+**When to do:** low-moderate priority; Fix 1 is ~10 LOC diagnostic text.
+
+**Cross-references:**
+- Encountered: session 170 (chunk #94 manual structural amendment; committed `44af47b`). Marker: `.andromeda/runs/2026-06-02T18-13-31-spec-amendment-acknowledge-chunk-94-mcp-tools/amendment.md` (`manual_structural_amendment: true`). Refusal audit: `.andromeda/runs/2026-06-01T22-25-08-evolve-acknowledge-chunk-94-mcp-tools/refused.md`.
+- Related: 2026-05-16 CLAUDE.md session-learning (after-MVP path: manual arch edits where evolve refuses + setup-project --delta); sessions 137/144/145 precedents (manual structural arch amendment under user authorization). P26 (sibling amendment-authoring gap for planned specialist-plan edits).
+- Affected SKILL.md: `~/.claude/skills/andromeda-evolve/references/refuse-taxonomy.md` Refuse 1 redirect + `~/.claude/skills/andromeda-setup-project/references/delta-rerun-protocol.md` architecture-exception halt diagnostic.

@@ -6,6 +6,16 @@ _Entries are added in reverse chronological order (newest first). Each entry has
 
 _This file is entirely wrap-session's territory. `/setup-project` creates it if missing but NEVER regenerates it. Manual edits are preserved across all Andromeda skill runs._
 
+## 2026-06-02 (session 170) — crates/triage/build.rs caps the L4 tokenizer download at 8 MB → silent truncation breaks digest-assembler init (confidence 0.65)
+
+`crates/triage/build.rs` downloads the Llama-3 `tokenizer.json` fixture at build time (from the Xenova/llama-3-tokenizer public mirror) and reads the HTTP response body with a `.take(8 * 1024 * 1024)` byte cap. The real Llama-3 `tokenizer.json` is ~9 MB, so the download is **silently truncated** — the build still succeeds, but the embedded tokenizer JSON is a truncated (incomplete) object. At runtime the L3→L4 digest assembler's tokenizer initialization then fails with a JSON-EOF parse error (unexpected end of a truncated object), and the entire L4 interpretation path produces zero output — with no obvious link back to the build-time cap.
+
+Discovered during the deferred L4 "red-dot" debug (sessions 169→170; the demo edits were reverted but `build.rs` was never touched, so this is real pre-existing code). Workaround used: set `ANDROMEDA_LLAMA3_TOKENIZER_PATH` to a full local copy of `tokenizer.json`, which overrides the truncated build-time fixture. Proper fix: raise the `.take(...)` cap to comfortably exceed the tokenizer size (e.g. 16–32 MB) — the cap is a download-DoS guard, not a real size constraint, so a larger bound is safe.
+
+Any future session re-engaging the L4 LLM path on a fresh build (cleared `target/`) will re-hit this. Pairs with arch §Established Decisions [LLM Inference Runtime] (llama.cpp subprocess) and the AI-Model/ debug setup preserved for the deferred red-dot work.
+
+---
+
 ## 2026-05-29 (session 159) — Full visual smoke test for a Tauri GUI chunk on Windows (confidence 0.62)
 
 When a chunk lands webview/UI changes and the user wants to *see* the app working (not just green tests), drive an end-to-end visual smoke beyond the /andromeda-implement boot-detection Phase 2b. Recipe (verified at chunk #89 connection-dot + footer-removal):
