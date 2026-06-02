@@ -1402,7 +1402,47 @@ spec_amendments:
   # noted+archived 2026-05-30T20:24:15Z (this wrap-session Phase 8 lifecycle
   # progression per spec-amendment-protocol.md Part D). Active list empty
   # post-archive; archive +1 (73 → 74).
-  active: []   # session 170 — the manual_structural amendment 2026-06-02T18-13-31-acknowledge-chunk-94-mcp-tools archived this wrap (applied 18:13:31Z commit 44af47b -> propagated via manual 2-file cascade -> noted+archived now). Active list empty post-archive.
+  active:
+    # session 171 — chunk #95 route-append amendment applied this turn via /andromeda-evolve --allow-route-append (Form 1 Type 7).
+    # PRIOR (session 170): active was [] — the manual_structural amendment 2026-06-02T18-13-31-acknowledge-chunk-94-mcp-tools archived that wrap (applied 18:13:31Z commit 44af47b -> propagated via manual 2-file cascade -> noted+archived); active list was empty post-archive.
+    - amendment_id: 2026-06-02T17-39-05-append-chunk-95-export-community-training
+      plans:
+        - path: route.md
+          sections:
+            - "§1 Route Scope Summary"
+            - "§2 Roadmap (Epoch 9 — Foundation v0.2.0)"
+            - "§3 Decisions Log"
+          decisions_log_section: "2026-06-02 — Append chunk #95 Export for community training (--allow-route-append)"
+      trigger:
+        chunk: null
+        phase: null
+        harness: "user-driven via /andromeda-evolve"
+      authority:
+        winning_plan: null
+        winning_tier: pipeline-state
+        losing_plan: route.md
+        losing_concern: chunk-list-stale-vs-planned-v0.2.0-scope
+        rationale: "pulse v0.2.0 plan §93 documents Export for community training (P-046, L5 channel) as next chunk; route §2 had not registered it. Form 1 append to Epoch 9."
+      impl_files_synced: []
+      expected_propagation:
+        - "CLAUDE.md (GENERATED:setup:pointer-table — (9 epochs / 94 chunks) -> (9 epochs / 95 chunks))"
+      marker_path: .andromeda/runs/2026-06-02T17-39-05-spec-amendment-append-chunk-95-export-community-training/amendment.md
+      applied_at: 2026-06-02T17:39:05Z
+      noted_at: null
+      propagated_by_run: .andromeda/runs/2026-06-02T18-44-29-setup-project-delta/
+      archived_at: null
+      verification_status: clean
+      flag_used: --allow-route-append
+      form: 1
+      route_section_modified: "Epoch 9 — Foundation v0.2.0"
+      chunks_added:
+        - position: 95
+          text: "Export for community training — Settings→Storage action produces anonymized JSONL corpus dump with pre-write preview summary; no auto-submission (capability P-046; detail in pulse-v0_2_0-route §93)"
+      chunks_renumbered: []
+      motivation: "Next v0.2.0 chunk per docs/v0_2_0/pulse-v0_2_0-route.md §93 (P-046, L5 channel); deps #69/#78/#47 all landed; route 94/94."
+      confirmed_shift: false
+      scope_summary_updates:
+        - "Total chunks: 94 -> 95"
   archive:
     - amendment_id: 2026-06-02T18-13-31-acknowledge-chunk-94-mcp-tools
       plans:

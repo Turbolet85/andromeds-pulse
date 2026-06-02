@@ -16,7 +16,7 @@ unit) not HOW (implementation steps)._
 
 ## 1. Route Scope Summary
 
-- **Total chunks:** 94
+- **Total chunks:** 95
 - **Epochs:** 9 (Foundation, Ingest pipeline, Storage & query, Webview shell + TauRPC bridge, Visualization surfaces, Snapshot & Investigate, Plugin runtime + MCP server, Polish & ship, Foundation v0.2.0)
 - **Drilldown depth (avg):** 1.6 (mixed: Foundation depth 2, Ingest pipeline depth 1, Storage & query depth 2, Webview shell depth 1, Visualization surfaces depth 2, Snapshot depth 2, Plugin+MCP depth 2, Polish depth 1)
 - **Hierarchy mode:** mixed (3-level for dense epochs Foundation / Storage / Visualization / Snapshot / Plugin+MCP; 2-level for lighter epochs Ingest / Webview shell / Polish)
@@ -222,6 +222,8 @@ Incident-creation producer — wire L4Output → Incident; save_new_incident + r
 ConstellationCanvas dashboard cascade — migrate full-window constellation + HaloCanvas to per-service severity/activity API; delete legacy error-rate-to-blur/throughput-to-hz + orphaned use-widget-metrics; retype HaloInput (capability P-027; detail in pulse-v0_2_0-route §91).
    ↓
 MCP server + tool exposure — rmcp exposes 4 incident/report/telemetry tools + mcp.status() agent identity; [mcp.enable] default-off equal-tier output channel (capabilities P-039 / P-040; detail in pulse-v0_2_0-route §92).
+   ↓
+Export for community training — Settings→Storage action produces anonymized JSONL corpus dump with pre-write preview summary; no auto-submission (capability P-046; detail in pulse-v0_2_0-route §93).
 
 ---
 
@@ -623,3 +625,12 @@ MCP server + tool exposure — rmcp exposes 4 incident/report/telemetry tools + 
 - **Why:** First Output-channels surface — MCP as one of three equal-tier output channels (P-039 / P-040, default-off per P-040); depends on #78 (incident records) + #88 (Diagnostic Report + copy-markdown) — both landed. Mirrors chunk #93 precedent.
 - **Mechanical:** §1 Total chunks 93→94 (Form 1 Policy A); state.yaml.last_completed_chunk unchanged.
 - **Marker:** `.andromeda/runs/2026-05-31T18-31-49-spec-amendment-append-chunk-94-mcp-server-tool-exposure/amendment.md`
+
+---
+
+`2026-06-02` — Append chunk #95 Export for community training (--allow-route-append)
+
+- **Insert:** chunk #95 at §2 Epoch 9 — Foundation v0.2.0 (text: see §2; full detail in `docs/v0_2_0/pulse-v0_2_0-route.md` §93).
+- **Why:** First L5-channel export surface — anonymized corpus → JSONL with pre-write preview + no auto-submission (capability P-046); depends on #69 (corpus) + #78 (incident records) + #47 (PII scrubbing) — all landed. Mirrors chunk #94 precedent.
+- **Mechanical:** §1 Total chunks 94→95 (Form 1 Policy A); state.yaml.last_completed_chunk unchanged.
+- **Marker:** `.andromeda/runs/2026-06-02T17-39-05-spec-amendment-append-chunk-95-export-community-training/amendment.md`
