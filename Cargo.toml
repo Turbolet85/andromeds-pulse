@@ -108,7 +108,7 @@ arrow = "58"
 # "Feature-gate hygiene" — rmcp only enters the build graph under
 # `--features mcp-server`. Feature set kept minimal: `server` (the
 # ServerHandler-side traits) + `transport-io` (stdio transport).
-rmcp = { version = "0.6", features = ["server", "transport-io"] }
+rmcp = { version = "1.7", features = ["server", "transport-io"] }
 
 # Plugin host runtime (route#45 — Epoch 7 Plugin runtime + MCP server opens).
 # wasmtime 25+ with WASM Component Model per arch §Stack and Technologies + §Established
