@@ -27,6 +27,7 @@ pub mod storage_router;
 pub mod storm_observer;
 pub mod storm_persistence;
 pub mod streams;
+pub mod training_export;
 pub mod tray;
 pub mod viz_routers;
 pub mod window;

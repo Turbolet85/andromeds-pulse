@@ -12,10 +12,16 @@
 //! boundary; avoids `ui-bridge → corpus` reverse dep edge).
 
 use std::sync::Arc;
+use std::time::Instant;
 
-use corpus::contract::{CorpusReader, Error as CorpusError, InspectionMetadata};
+use corpus::contract::{CorpusReader, CorpusWriter, Error as CorpusError, InspectionMetadata};
 use serde::{Deserialize, Serialize};
 use ui_bridge::contract::AppError;
+
+use crate::training_export::{
+    ExportPreviewPayload, assemble_records, build_preview_summary, count_redactions,
+    resolve_default_target, serialize_jsonl, validate_export_target,
+};
 
 /// Per-table record counts + on-disk byte size + schema version. Cross-bridge
 /// envelope for the `storage.inspect` resolver.
@@ -50,16 +56,33 @@ pub struct StoragePathPayload {
 pub trait StorageApi {
     async fn inspect() -> Result<StorageInspectPayload, AppError>;
     async fn path() -> Result<StoragePathPayload, AppError>;
+    // Anonymized JSONL corpus export for community training (chunk #95,
+    // capability P-046). `confirm = false` returns the preview summary
+    // WITHOUT writing a file; `confirm = true` writes the JSONL to
+    // `target_path` (or the default `~/Downloads/...` when None) + returns
+    // the summary with `written = true`. No auto-submission — the user
+    // manually shares the file. Regular `//` comment (not `///`) so the
+    // taurpc::procedures macro does not reject a `#[doc]` attribute on the
+    // trait method (per CLAUDE.md testing 2026-05-25).
+    async fn export_for_training(
+        target_path: Option<String>,
+        confirm: bool,
+    ) -> Result<ExportPreviewPayload, AppError>;
 }
 
 #[derive(Clone)]
 pub struct StorageApiImpl {
     reader: Arc<dyn CorpusReader>,
+    // CorpusWriter view from the SAME underlying Arc<Corpus> as `reader`
+    // (N-trait-from-single-Arc per session-learnings 2026-05-19). The
+    // incident read used by `export_for_training` (`load_all_incidents`)
+    // lives on CorpusWriter alongside the other incident reads.
+    writer: Arc<dyn CorpusWriter>,
 }
 
 impl StorageApiImpl {
-    pub fn new(reader: Arc<dyn CorpusReader>) -> Self {
-        Self { reader }
+    pub fn new(reader: Arc<dyn CorpusReader>, writer: Arc<dyn CorpusWriter>) -> Self {
+        Self { reader, writer }
     }
 }
 
@@ -123,6 +146,91 @@ impl StorageApi for StorageApiImpl {
 
         Ok(payload)
     }
+
+    #[tracing::instrument(skip_all, fields(
+        record_count = tracing::field::Empty,
+        redacted_field_count = tracing::field::Empty,
+        target_path_basename = tracing::field::Empty,
+        written = tracing::field::Empty,
+        duration_ms = tracing::field::Empty,
+    ))]
+    async fn export_for_training(
+        self,
+        target_path: Option<String>,
+        confirm: bool,
+    ) -> Result<ExportPreviewPayload, AppError> {
+        let start = Instant::now();
+        let rows = self
+            .writer
+            .load_all_incidents()
+            .map_err(corpus_error_to_app_error)?;
+        let records = assemble_records(&rows)?;
+        let redacted_field_count = count_redactions(&records);
+
+        let (summary, basename) = if confirm {
+            let target = match target_path {
+                Some(ref s) if !s.trim().is_empty() => std::path::PathBuf::from(s),
+                _ => resolve_default_target(now_unix_nanos())?,
+            };
+            let validated = validate_export_target(&target).inspect_err(|_| {
+                tracing::warn!(
+                    target: "storage.export_for_training.request",
+                    error_category = "target_validation_rejected",
+                    written = false,
+                    "storage.export_for_training target rejected",
+                );
+            })?;
+            let jsonl = serialize_jsonl(&records)?;
+            std::fs::write(&validated, jsonl).map_err(|_| {
+                tracing::warn!(
+                    target: "storage.export_for_training.request",
+                    error_category = "write_failed",
+                    written = false,
+                    "storage.export_for_training write failed",
+                );
+                AppError::Storage {
+                    message: "export file write failed".to_string(),
+                }
+            })?;
+            let basename = validated
+                .file_name()
+                .and_then(|s| s.to_str())
+                .unwrap_or("pulse-corpus-export.jsonl")
+                .to_string();
+            (
+                build_preview_summary(&records, true, Some(basename.clone())),
+                basename,
+            )
+        } else {
+            (build_preview_summary(&records, false, None), String::new())
+        };
+
+        let duration_ms = u64::try_from(start.elapsed().as_millis()).unwrap_or(u64::MAX);
+        let span = tracing::Span::current();
+        span.record("record_count", summary.total_records);
+        span.record("redacted_field_count", redacted_field_count);
+        span.record("target_path_basename", basename.as_str());
+        span.record("written", summary.written);
+        span.record("duration_ms", duration_ms);
+        tracing::info!(
+            target: "storage.export_for_training.request",
+            record_count = summary.total_records,
+            redacted_field_count = redacted_field_count,
+            target_path_basename = basename.as_str(),
+            written = summary.written,
+            duration_ms = duration_ms,
+            "storage.export_for_training returned",
+        );
+
+        Ok(summary)
+    }
+}
+
+fn now_unix_nanos() -> i64 {
+    std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .map(|d| i64::try_from(d.as_nanos()).unwrap_or(i64::MAX))
+        .unwrap_or(0)
 }
 
 fn inspect_metadata_to_payload(meta: &InspectionMetadata) -> StorageInspectPayload {
@@ -176,8 +284,10 @@ mod tests {
     fn make_impl() -> StorageApiImpl {
         let backend: Arc<dyn KeychainBackend> = Arc::new(FakeKeychainBackend::new());
         let corpus = Corpus::open_in_memory(backend).expect("in-memory corpus");
-        let reader: Arc<dyn CorpusReader> = Arc::new(corpus);
-        StorageApiImpl::new(reader)
+        let corpus_arc = Arc::new(corpus);
+        let reader: Arc<dyn CorpusReader> = Arc::clone(&corpus_arc) as Arc<dyn CorpusReader>;
+        let writer: Arc<dyn CorpusWriter> = Arc::clone(&corpus_arc) as Arc<dyn CorpusWriter>;
+        StorageApiImpl::new(reader, writer)
     }
 
     #[tokio::test]

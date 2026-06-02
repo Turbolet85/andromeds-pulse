@@ -346,6 +346,15 @@ pub trait CorpusWriter: Send + Sync {
     /// security plan §Input Validation.
     fn load_incident_by_id(&self, id: i64) -> Result<Option<IncidentRowRaw>, Error>;
 
+    /// SELECT ALL incidents (every status, every workspace) ordered by rowid
+    /// ascending. Returns decrypted `payload` bytes per row. Consumed by the
+    /// `storage.export_for_training` resolver (chunk #95) to produce a full
+    /// anonymized corpus dump for community training — no status or workspace
+    /// filter (the export is the user's entire incident corpus). Empty Vec
+    /// when the table is empty. Prepared statement (no user-controlled
+    /// parameter; full-table scan in insertion order).
+    fn load_all_incidents(&self) -> Result<Vec<IncidentRowRaw>, Error>;
+
     /// P-045 counter SQL: returns the count of active + unread incidents
     /// для а workspace (`status = 'active' AND read_unix_nano IS NULL`).
     /// SQL-only path; does NOT decrypt payloads. Fast counter для
@@ -643,6 +652,49 @@ impl CorpusWriter for Corpus {
                 Ok(Some(raw))
             }
         }
+    }
+
+    fn load_all_incidents(&self) -> Result<Vec<IncidentRowRaw>, Error> {
+        let conn = self.connection();
+        let guard = conn.lock().map_err(|_| Error::QueryFailed)?;
+        let mut stmt = guard
+            .prepare(
+                "SELECT id, workspace, status, created_unix_nano, updated_unix_nano, resolved_unix_nano, read_unix_nano, payload \
+                 FROM incidents ORDER BY id",
+            )
+            .map_err(|_| Error::QueryFailed)?;
+        let rows = stmt
+            .query_map([], |row| {
+                let encrypted: Vec<u8> = row.get(7)?;
+                Ok((
+                    row.get::<_, i64>(0)?,
+                    row.get::<_, String>(1)?,
+                    row.get::<_, String>(2)?,
+                    row.get::<_, i64>(3)?,
+                    row.get::<_, i64>(4)?,
+                    row.get::<_, Option<i64>>(5)?,
+                    row.get::<_, Option<i64>>(6)?,
+                    encrypted,
+                ))
+            })
+            .map_err(|_| Error::QueryFailed)?;
+        let mut result = Vec::new();
+        for row in rows {
+            let (id, workspace, status, created, updated, resolved, read, encrypted) =
+                row.map_err(|_| Error::QueryFailed)?;
+            let payload = cell_decrypt(self.key(), &encrypted)?;
+            result.push(IncidentRowRaw {
+                id,
+                workspace,
+                status,
+                created_unix_nano: created,
+                updated_unix_nano: updated,
+                resolved_unix_nano: resolved,
+                read_unix_nano: read,
+                payload,
+            });
+        }
+        Ok(result)
     }
 
     fn count_active_unread(&self, workspace: &str) -> Result<u64, Error> {
@@ -1028,5 +1080,44 @@ mod tests {
         assert_eq!(row.status, "resolved");
         assert_eq!(row.resolved_unix_nano, Some(3_000));
         assert_eq!(row.payload, b"blob-resolved");
+    }
+
+    #[test]
+    fn load_all_incidents_returns_empty_for_fresh_corpus() {
+        let corpus = test_corpus();
+        let writer: Arc<dyn CorpusWriter> = Arc::new(corpus);
+        let rows = writer.load_all_incidents().expect("load");
+        assert!(rows.is_empty());
+    }
+
+    #[test]
+    fn load_all_incidents_returns_all_statuses_and_workspaces_in_insertion_order() {
+        let corpus = test_corpus();
+        let writer: Arc<dyn CorpusWriter> = Arc::new(corpus);
+        let id1 = writer
+            .save_incident("ws-a", "active", 1_000, 1_000, None, None, b"blob-1")
+            .expect("save 1");
+        let id2 = writer
+            .save_incident(
+                "ws-b",
+                "resolved",
+                2_000,
+                3_000,
+                Some(3_000),
+                None,
+                b"blob-2",
+            )
+            .expect("save 2");
+        let rows = writer.load_all_incidents().expect("load");
+        assert_eq!(rows.len(), 2);
+        assert_eq!(rows[0].id, id1);
+        assert_eq!(rows[0].workspace, "ws-a");
+        assert_eq!(rows[0].status, "active");
+        assert_eq!(rows[0].payload, b"blob-1");
+        assert_eq!(rows[1].id, id2);
+        assert_eq!(rows[1].workspace, "ws-b");
+        assert_eq!(rows[1].status, "resolved");
+        assert_eq!(rows[1].resolved_unix_nano, Some(3_000));
+        assert_eq!(rows[1].payload, b"blob-2");
     }
 }

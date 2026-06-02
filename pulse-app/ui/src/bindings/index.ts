@@ -45,6 +45,20 @@ export type CueScope = "service" | "operation" | "global"
 
 export type DriftIndicatorPayload = "Healthy" | "OverGeneralized" | "UnderClustered"
 
+/**
+ * One `(dimension, label) -> count` entry in the preview summary. `Vec` of
+ * these (rather than a map) keeps the TS binding shape stable across specta
+ * releases. `dimension` is `"status"` or `"severity"`.
+ */
+export type ExportCategoryCount = { dimension: string; label: string; count: number }
+
+/**
+ * Pre-write preview summary surfaced across the TauRPC bridge. `written`
+ * is false on the preview-only path (no file written); true after the
+ * confirmed write. `categories` aggregates counts by `status` + `severity`.
+ */
+export type ExportPreviewPayload = { categories: ExportCategoryCount[]; total_records: number; date_range_start_unix_nano: number | null; date_range_end_unix_nano: number | null; anonymization_confirmed: boolean; written: boolean; written_path_basename: string | null }
+
 export type FrameDurationInput = { duration_ms: number; wgpu_backend: WgpuBackend; webview_backend: WebviewBackend; timing_method: TimingMethod }
 
 export type HealthEnvelope = { status: HealthStatus; checked_at: string; subsystems: SubsystemStatuses; pid: number; uptime_ms: number }
@@ -329,7 +343,7 @@ export type WidgetPosition = "top-left" | "top-right" | "bottom-left" | "bottom-
 
 export type WorkspaceContextDto = { root_basename: string; project_name: string | null; vcs_type: string | null; vcs_root_basename: string | null; has_andromeda_marker: boolean }
 
-const ARGS_MAP = { '':'{"app_info":[],"get_settings":[],"health":[],"ready":[],"update_settings":["settings"]}', 'connection':'{"current_state":[]}', 'diagnostics':'{"retry_interpretation":[],"template_distribution":[]}', 'incidents':'{"acknowledge":["id"],"get_report":["id"],"list_active":[],"mark_all_read":[],"mark_resolved":["id"]}', 'logs':'{"query":["args"]}', 'mcp':'{"start":[],"status":[],"stop":[]}', 'metrics':'{"query":["args"]}', 'model':'{"current_profile":[]}', 'plugins':'{"invoke":["plugin_id","capability"],"list":[],"reload":[]}', 'services':'{"list_with_states":[]}', 'snapshot':'{"generate":["preset","workspace_root"]}', 'storage':'{"inspect":[],"path":[]}', 'streams':'{"subscribe_logs":["channel"],"subscribe_metrics":["channel"],"subscribe_spans":["channel"]}', 'telemetry.frontend':'{"record_frame_ms":["input"]}', 'traces':'{"query":["args"]}', 'workspace':'{"detect":["candidate_root"]}' }
+const ARGS_MAP = { '':'{"app_info":[],"get_settings":[],"health":[],"ready":[],"update_settings":["settings"]}', 'connection':'{"current_state":[]}', 'diagnostics':'{"retry_interpretation":[],"template_distribution":[]}', 'incidents':'{"acknowledge":["id"],"get_report":["id"],"list_active":[],"mark_all_read":[],"mark_resolved":["id"]}', 'logs':'{"query":["args"]}', 'mcp':'{"start":[],"status":[],"stop":[]}', 'metrics':'{"query":["args"]}', 'model':'{"current_profile":[]}', 'plugins':'{"invoke":["plugin_id","capability"],"list":[],"reload":[]}', 'services':'{"list_with_states":[]}', 'snapshot':'{"generate":["preset","workspace_root"]}', 'storage':'{"export_for_training":["target_path","confirm"],"inspect":[],"path":[]}', 'streams':'{"subscribe_logs":["channel"],"subscribe_metrics":["channel"],"subscribe_spans":["channel"]}', 'telemetry.frontend':'{"record_frame_ms":["input"]}', 'traces':'{"query":["args"]}', 'workspace':'{"detect":["candidate_root"]}' }
 export type Router = { "": {app_info: () => Promise<AppInfo>, 
 get_settings: () => Promise<Settings>, 
 health: () => Promise<HealthEnvelope>, 
@@ -354,7 +368,8 @@ list: () => Promise<PluginListEnvelope>,
 reload: () => Promise<PluginListEnvelope>},
 "services": {list_with_states: () => Promise<ServiceListPayload>},
 "snapshot": {generate: (preset: SnapshotPreset, workspaceRoot: string | null) => Promise<SnapshotResultDto>},
-"storage": {inspect: () => Promise<StorageInspectPayload>, 
+"storage": {export_for_training: (targetPath: string | null, confirm: boolean) => Promise<ExportPreviewPayload>, 
+inspect: () => Promise<StorageInspectPayload>, 
 path: () => Promise<StoragePathPayload>},
 "streams": {subscribe_logs: (channel: TAURI_CHANNEL<number[]>) => Promise<null>, 
 subscribe_metrics: (channel: TAURI_CHANNEL<number[]>) => Promise<null>, 

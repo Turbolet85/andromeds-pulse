@@ -703,6 +703,24 @@ impl AllowList {
             "config.load.retention_seconds",
             ["env_var_name", "reject_reason"].iter().copied().collect(),
         );
+        // chunk #95 storage.export_for_training — aggregate-only fields per
+        // obs-plan §6/§8 + the triage cardinality discipline (CLAUDE.md
+        // observability 2026-05-17). NEVER the exported corpus content, the
+        // full target path, or per-record values: basename + counts only.
+        by_target.insert(
+            "storage.export_for_training.request",
+            [
+                "record_count",
+                "redacted_field_count",
+                "target_path_basename",
+                "written",
+                "duration_ms",
+                "error_category",
+            ]
+            .iter()
+            .copied()
+            .collect(),
+        );
         // chunk #21 metric.buffer.* events. Specific entries take precedence
         // over the generic `metric` prefix-strip fallback (which only allows
         // value/unit/module).

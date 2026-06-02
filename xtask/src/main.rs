@@ -675,6 +675,7 @@ const EXPECTED_PROCEDURES: &[&str] = &[
     "logs.query",
     "metrics.query",
     "services.list_with_states",
+    "storage.export_for_training",
     "storage.inspect",
     "storage.path",
     "streams.subscribe_logs",
@@ -1108,10 +1109,14 @@ mod capability_drift_tests {
     #[test]
     fn expected_procedures_includes_storage_namespace_at_chunk_68() {
         let expected: BTreeSet<&str> = EXPECTED_PROCEDURES.iter().copied().collect();
-        for proc in ["storage.inspect", "storage.path"] {
+        for proc in [
+            "storage.inspect",
+            "storage.path",
+            "storage.export_for_training",
+        ] {
             assert!(
                 expected.contains(proc),
-                "EXPECTED_PROCEDURES must include {proc} (chunk #68 corpus SQLite scaffold + storage router)"
+                "EXPECTED_PROCEDURES must include {proc} (chunk #68 corpus SQLite scaffold + storage router; storage.export_for_training added chunk #95)"
             );
         }
     }

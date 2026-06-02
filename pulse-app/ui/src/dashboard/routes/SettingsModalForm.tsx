@@ -29,6 +29,7 @@ import {
   type WidgetPosition,
 } from "../../bindings";
 import { TemplateDistribution } from "./diagnostics/TemplateDistribution";
+import { ExportForTraining } from "./settings/ExportForTraining";
 
 type SettingsResolved = Required<Settings>;
 
@@ -784,6 +785,25 @@ export function SettingsModalForm({
               {retryStatusMessage}
             </div>
           </div>
+        </section>
+
+        <section
+          aria-labelledby="storage-section-label"
+          style={fieldGroupStyle}
+        >
+          <h3
+            id="storage-section-label"
+            style={{
+              ...labelStyle,
+              fontFamily: "var(--font-display)",
+              fontSize: "14px",
+              fontWeight: 600,
+              margin: 0,
+            }}
+          >
+            Storage
+          </h3>
+          <ExportForTraining />
         </section>
 
         <section

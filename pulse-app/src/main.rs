@@ -325,7 +325,8 @@ fn main() {
         .map(|c| Arc::clone(c) as Arc<dyn corpus::contract::CorpusWriter>);
     let storage_impl = corpus_reader
         .as_ref()
-        .map(|r| StorageApiImpl::new(Arc::clone(r)));
+        .zip(corpus_writer.as_ref())
+        .map(|(r, w)| StorageApiImpl::new(Arc::clone(r), Arc::clone(w)));
 
     // Chunk #70 — BaselineState corpus persistence adapter. Derives a
     // third trait view from the same Arc<Corpus> (alongside reader +
@@ -1619,8 +1620,12 @@ mod tests {
             Arc::new(corpus::contract::FakeKeychainBackend::new());
         let storage_corpus = corpus::contract::Corpus::open_in_memory(storage_keychain)
             .expect("in-memory corpus opens with fake keychain");
-        let storage_reader: Arc<dyn corpus::contract::CorpusReader> = Arc::new(storage_corpus);
-        let storage_impl = StorageApiImpl::new(storage_reader);
+        let storage_corpus_arc = Arc::new(storage_corpus);
+        let storage_reader: Arc<dyn corpus::contract::CorpusReader> =
+            Arc::clone(&storage_corpus_arc) as Arc<dyn corpus::contract::CorpusReader>;
+        let storage_writer: Arc<dyn corpus::contract::CorpusWriter> =
+            Arc::clone(&storage_corpus_arc) as Arc<dyn corpus::contract::CorpusWriter>;
+        let storage_impl = StorageApiImpl::new(storage_reader, storage_writer);
 
         // Chunk #69 Phase B Session 3: DiagnosticsApiImpl participates in
         // the emit so bindings.ts ARGS_MAP includes diagnostics.template_distribution
