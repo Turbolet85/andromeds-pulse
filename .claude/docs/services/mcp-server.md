@@ -1,7 +1,7 @@
 # `mcp-server` — rmcp stdio Sidecar
 
 ## Responsibility
-Optional MCP server sidecar for AI agents to query telemetry directly. JSON-RPC 2.0 over stdin/stdout per MCP spec. Tool methods: `query_traces`, `query_metrics`, `query_logs`, `generate_snapshot` (shares the snapshot crate's curation pipeline). Hosts `mcp.{status,start,stop}` TauRPC routers. **Feature double-gated:** compile-time `--features mcp-server` AND runtime `ANDROMEDA_PULSE_MCP_ENABLED=true`.
+Optional MCP server sidecar for AI agents to query telemetry directly. JSON-RPC 2.0 over stdin/stdout per MCP spec. Tool methods (8): `query_traces`, `query_metrics`, `query_logs`, `generate_snapshot` (shares the snapshot crate's curation pipeline) + `query_incident_list`, `retrieve_report`, `retrieve_telemetry_slice`, `mark_incident_resolved` (corpus-backed incident/report, chunk #94). Hosts `mcp.{status,start,stop}` TauRPC routers. **Feature double-gated:** compile-time `--features mcp-server` AND runtime `ANDROMEDA_PULSE_MCP_ENABLED=true`.
 
 ## Key integrations
 
@@ -40,7 +40,7 @@ Optional MCP server sidecar for AI agents to query telemetry directly. JSON-RPC 
 
 ## Entry points for modification
 - **Sidecar entrypoint:** `crates/mcp-server/src/main.rs` (the binary; gated by `--features mcp-server`)
-- **Tool method definitions:** `crates/mcp-server/src/tools/{query_traces,query_metrics,query_logs,generate_snapshot}.rs` with `#[tool]` annotations
+- **Tool method definitions:** `crates/mcp-server/src/tools/{query_traces,query_metrics,query_logs,generate_snapshot}.rs` with `#[tool]` annotations; chunk #94 incident/report tools (`query_incident_list` / `retrieve_report` / `retrieve_telemetry_slice` / `mark_incident_resolved`) are dispatch fns in `crates/mcp-server/src/tools.rs`, corpus-backed (read/write `corpus/corpus.db` cross-process)
 - **JSON-RPC framing:** `crates/mcp-server/src/rpc.rs` (rmcp-provided)
 - **Feature gate check:** `crates/mcp-server/src/gate.rs` (compile-time + runtime)
 - **TauRPC router:** `crates/mcp-server/src/router.rs` (mcp.status / mcp.start / mcp.stop visible from main app)

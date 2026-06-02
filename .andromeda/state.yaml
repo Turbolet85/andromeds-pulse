@@ -1415,7 +1415,21 @@ spec_amendments:
   # noted+archived 2026-05-30T20:24:15Z (this wrap-session Phase 8 lifecycle
   # progression per spec-amendment-protocol.md Part D). Active list empty
   # post-archive; archive +1 (73 → 74).
-  active: []
+  active:
+    - amendment_id: 2026-06-02T18-13-31-acknowledge-chunk-94-mcp-tools
+      plans:
+        - path: architecture.md
+          sections: ["§Stack (MCP server row)", "§Established Decisions [MCP Server Surface]", "§Conventions (External wire — MCP server)", "§Standard Contracts (MCP server — spec-conformant)"]
+      decisions_log_sections: []   # structural body edit; not a §Decisions Log / §Architecture Registry Updates entry (see marker)
+      marker_path: .andromeda/runs/2026-06-02T18-13-31-spec-amendment-acknowledge-chunk-94-mcp-tools/amendment.md
+      expected_propagation:
+        - "CLAUDE.md GENERATED:setup:modules mcp-server entry (4->8 #[tool] enumeration)"
+        - ".claude/docs/services/mcp-server.md tool enumeration (if present)"
+      applied_at: 2026-06-02T18:13:31Z
+      noted_at: null
+      propagated_by_run: manual-cascade-2026-06-02   # manual 2-file mirror cascade (CLAUDE.md :modules line 30 + .claude/docs/services/mcp-server.md tool enum, 4->8); NO --delta run-dir — --delta refuses structural arch amendments (Type 6 permit N/A; this is manual_structural). Session-144/145 manual-cascade pattern.
+      archived_at: null
+      manual_structural_amendment: true   # NOT /andromeda-evolve (refused Refuse 1 as structural) + NOT /andromeda-arch (greenfield write-once); manual arch-body edit per CLAUDE.md 2026-05-16 after-MVP path + session-144 precedent
   archive:
     - amendment_id: 2026-05-31T18-31-49-append-chunk-94-mcp-server-tool-exposure
       plans:
