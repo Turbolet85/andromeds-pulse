@@ -1,86 +1,90 @@
 # Session Handoff
 
-**Last Updated:** 2026-06-02T20:45:03Z
+**Last Updated:** 2026-06-03T17:37:35Z
 **Branch:** main
 **Session End Status:** clean
-**Last Commit:** `<session 172 chunk(95) commit — pending this wrap>` (prior HEAD: `f1dfebe` chore(wrap): session 171 — chunk #95 route-append delta-propagation META wrap)
+**Last Commit:** `<session 173 wrap commit — pending this wrap>` (prior HEAD: `99ce65e` chore(setup-project): delta-rerun for 1 amendment — chunk #95 storage.export_for_training arch-registry)
 
 ## Current State
 
-- **Last completed chunk:** route#95 "Export for community training" (Epoch 9 — Foundation v0.2.0; IMPLEMENTED this session; commit pending this wrap). **Route is 95 chunks — all 95 now implemented.**
+- **Last completed chunk:** route#95 "Export for community training" (Epoch 9 — Foundation v0.2.0; IMPLEMENTED session 172; commit `ec5c267`). **Route is 95 chunks — all 95 implemented.** This session (173) was a META Type 6 arch-registry single-cycle — no chunk progressed.
 - **Next chunk:** route#96 NOT yet registered (route §2 ends at #95). `docs/v0_2_0/pulse-v0_2_0-route.md §94` = "Configuration hot reload + prospective threshold application" — actionable via `/andromeda-evolve --allow-route-append`.
 - **In-progress phase:** none.
-- **Phase artifacts present:** `.andromeda/phases/phase-92/` (chunk #95 — combined.md + research.md + plan.md, this session).
+- **Phase artifacts present:** `.andromeda/phases/phase-92/` (chunk #95 — carryover; no new phase this META session).
 
 ## Andromeda State Detection (states A-K)
 
-10 CLEAR + **State H fires (info, expected per Proposal 16)**.
-- **A** ✓ no in-progress runs (phase-92 run dir has its 14 extracts). **B** N/A. **C** ✓ arch.md (18:12 s170) < CLAUDE.md (20:45 s171). **D** ✓ route present, 95 chunks. **E** ✓ no pending phase planning (chunk #96 not yet route-registered → nothing to plan). **F** ✓ chunk #95 implemented (not pending-impl). **G** ✓ single run. **H** ℹ️ last_completed_chunk.commit_sha = "pending" (EXPECTED post-wrap state per Proposal 16 Option b; next wrap Phase 8 step 7 auto-heals to the chunk(95) HEAD-reachable SHA). **I** ✓ no plan_freshness mismatch (no specialist plan regenerated this session; testing.md is a rule-file, not a plan_freshness upstream). **J** ✓ living artifacts reconciled this wrap (20:45:03Z). **K** ✓ in_progress null.
+**ALL 11 CLEAR** (State H healed this wrap).
+- **A** ✓ no in-progress runs. **B** N/A. **C** ✓ arch.md (17:32Z s173) > CLAUDE.md (18:45Z 06-02 s172) by mtime — but this is the EXPECTED Type 6 /evolve-edit lag (sibling to D5; CLAUDE.md not a cascade target for these registry sub-sections; clears organically at next Type 7 route-append wrap that cascades the pointer-table). **D** ✓ route present, 95 chunks. **E** ✓ no pending phase planning (chunk #96 not yet registered). **F** ✓ chunk #95 implemented. **G** ✓ single run. **H** ✓ HEALED — `last_completed_chunk.commit_sha` "pending" (s172) → `ec5c267` (chunk(95) impl commit; HEAD-reachable; title overlap 100%). **I** ✓ no plan_freshness mismatch (no specialist plan regenerated; arch.md edit was a Type 6 registry amendment, tracked via spec_amendments not plan_freshness drift). **J** ✓ living artifacts reconciled this wrap (17:37:35Z). **K** ✓ in_progress null.
 
 ## Drift Detection (6 dimensions)
 
-**D3 FIRES (expected chunk-then-amendment); D1/D2/D4/D5/D6 CLEAR.**
-- **D1** ✓ reconciled 20:45:03Z > most_recent_code_mtime (~20:30 /implement).
-- **D2** ✓ reconcile zero-diff, no content bug.
-- **D3** ⚠️ EXPECTED — `storage.export_for_training` TauRPC procedure (chunk #95) not yet in arch §Occupied Resources Tauri IPC routes; the `~/Downloads` out-of-data-dir egress sink is not yet documented as an exception to §Occupied Resources Filesystem locations / §Critical Warnings path-canonicalization-under-data-dir rule. **Remediation:** `/andromeda-evolve --allow-arch-registry` (Type 6 single-coordinated amendment; mirrors chunks #78/#82/#86/#87/#88) next session. first_observed_session_count=172.
+**ALL 6 CLEAR** (D3 cleared by the amendment; D5 transient-cleared by archive).
+- **D1** ✓ reconciled 17:37:35Z > most_recent_code_mtime (s172 ~20:30, no .rs touched this session).
+- **D2** ✓ reconcile zero-diff (dep-tree 468 + api-surface snapshot 170), no content bug.
+- **D3** ✓ CLEARED — `storage.export_for_training` + `~/Downloads` egress now acknowledged in arch §Occupied Resources Tauri IPC routes + Filesystem locations + §Architecture Registry Updates 2026-06-03 (the `/andromeda-evolve --allow-arch-registry` amendment this session).
 - **D4** ✓ no plan-to-plan contradiction.
-- **D5** ✓ no upstream newer than CLAUDE.md (arch/route < CLAUDE.md mtime; only code + testing.md rule + living artifacts touched this session).
-- **D6** ✓ Phase 8 advanced last_completed_chunk 94→95 in sync with the chunk(95) commit (commit_sha=pending per Proposal 16).
+- **D5** ✓ fired Phase 6 (arch.md mtime 17:32:11Z > CLAUDE.md 18:45:29Z 06-02 via the /evolve edit) but matched the Type 6 amendment (flag_used=--allow-arch-registry + propagated_by_run set + archived_at=null) → Case 4 transient info → CLEARED at Phase 8 archive this wrap (per chunk #78/#82/#86/#87/#88 precedent; `drift_warnings = []` post-archive).
+- **D6** ✓ git log has no chunk() commit beyond #95 (99ce65e is chore(setup-project); ec5c267 chunk(95) already recorded).
 
 ## Spec Amendments (this session)
 
-(none active this session) — the chunk #95 route-append amendment was applied+propagated+archived in session 171. The `storage.export_for_training` arch-registry amendment (D3 remediation) is EXPECTED **next** session via `/andromeda-evolve --allow-arch-registry` (not yet created). `spec_amendments.active` remains empty.
+**1 archived this session** — full Type 6 single-cycle (Active → Propagated → Archived in one session; 11th-class instance mirroring sessions 122/127/132/140/144/151/154/157 Type 6 precedents).
+- **Amendment:** `2026-06-03T17-26-46-acknowledge-chunk-95-export-for-training`
+- **Plan:** `.andromeda/architecture.md` §Occupied Resources Tauri IPC routes + Filesystem locations + §Architecture Registry Updates
+- **Decisions Log:** "2026-06-03 — Acknowledge storage.export_for_training + ~/Downloads egress exception (--allow-arch-registry)"
+- **Trigger:** user-driven evolution via /andromeda-evolve (no chunk/phase/harness)
+- **Authority:** implementation (code reality) > architecture.md (registry-section-stale-vs-implementation-reality)
+- **Lifecycle:** applied 2026-06-03T17:26:46Z | propagated 2026-06-03T17:37:35Z (commit 99ce65e) | archived 2026-06-03T17:37:35Z
+- **Marker:** `.andromeda/runs/2026-06-03T17-26-46-spec-amendment-acknowledge-chunk-95-export-for-training/amendment.md`
+
+`spec_amendments.active` empty post-archive; archive 78 → 79.
 
 ## Key Decisions This Session
 
-1. **Implemented chunk #95 "Export for community training"** end-to-end via `/andromeda-phase` (phase-92) → `/andromeda-implement`. `storage.export_for_training(target_path: Option<String>, confirm: bool)` on the existing `storage.*` router; `confirm=false` previews without writing, `confirm=true` writes anonymized JSONL.
-2. **`~/Downloads` default target + `confirm` preview gate** — both surfaced at /phase (research Open Questions 1+2) and pre-approved at the Phase 6 review. `~/Downloads` is a deliberate out-of-data-dir egress sink (validated for `..`-traversal + parent-dir existence; NO native file picker → preserves workspace-deps-delta=none by avoiding tauri-plugin-dialog).
-3. **PII scrubbed at the egress boundary** (`security::scrubber::scrub_attribute`), defense-in-depth on top of the chunk #72 producer scrub; the `e2e_p95` negative-canary test verifies a seeded `secret@example.com` is absent from the written file.
-4. **Phase 2b smoke skipped-by-policy** — Windows tauri-dev orphan-process/machine-hang hazard (testing.md 2026-05-19); the `main.rs` change is a 2-arg constructor signature; boot path covered by `e2e_p1` (passed), UI by vitest (617).
+1. **Ran the standard evolve → setup-project --delta → wrap single-cycle** for the chunk #95 D3 remediation: `/andromeda-new-session` (dashboard surfaced D3) → `/andromeda-evolve --allow-arch-registry` (Type 6, all Check 7 sub-checks ✓) → `/andromeda-setup-project --delta` (Branch (a) lifecycle-only, commit 99ce65e) → this wrap (archive).
+2. **Documented the `~/Downloads` out-of-data-dir egress sink** as the ONE deliberate exception to the under-data-dir path-confinement rule, in arch §Occupied Resources Filesystem locations (registry section — in-scope for the flag; structural §Critical Warnings untouched). The CLAUDE.md §Critical-Warnings mirror is a curated Tier-1 surface NOT in the Type-6 cascade map → optional future full `/andromeda-setup-project` re-derive (not required for D3 closure).
+3. **State H healed** in the same wrap (commit_sha pending → ec5c267) per Proposal 16 Option b.
 
 ## Files Modified
 
-**Modified (9):** `crates/corpus/src/contract.rs`, `pulse-app/src/{storage_router,main,observability,lib}.rs`, `pulse-app/capabilities/default.json`, `xtask/src/main.rs`, `pulse-app/ui/src/dashboard/routes/SettingsModalForm.tsx`, `pulse-app/ui/src/bindings/index.ts`.
-**New (5):** `pulse-app/src/training_export.rs`, `pulse-app/tests/{unit_training_export,e2e_p95_export_for_training}.rs`, `pulse-app/ui/src/dashboard/routes/settings/ExportForTraining.tsx` (+`.test.tsx`).
-**This wrap:** `.claude/rules/testing.md` (Tier 2), `.andromeda/context/{dependency-tree,api-surface}.md` (reconcile timestamps), `.andromeda/state.yaml`, `.claude/session-handoff.md`. **Phase artifacts:** `.andromeda/phases/phase-92/`.
+**This session (committed in 99ce65e):** `.andromeda/architecture.md` (3 additive Type 6 edits).
+**This wrap (pending wrap commit):** `.andromeda/state.yaml`, `.andromeda/context/{dependency-tree,api-surface}.md` (reconcile timestamps + cursor), `.claude/session-handoff.md`.
+**Gitignored on-disk (forensic):** `.andromeda/runs/2026-06-03T17-26-46-spec-amendment-…/amendment.md`, `…-evolve-…/evolution-plan.md`, `…-setup-project-delta/materialization-plan-delta.md` + snapshot-api.txt.
 
 ## Curation Summary (this wrap)
 
 - **Tier 1** (CLAUDE.md USER:session-learnings): 0.
-- **Tier 2** (.claude/rules/testing.md): 1 — `doc_lazy_continuation` via `+ `/`-`/`*` line-start in `//!` docs (complement to the 2026-05-14 colon-list entry).
+- **Tier 2** (.claude/rules/): 0.
 - **Tier 3** (.claude/docs/session-learnings.md): 0.
-- **Filtered:** 1 duplicate (cold-build-race-via-fmt — dedups against the 2026-05-30/31 cold-build-race family >0.7 overlap) + 0 task-specific + 0 conflicts + 0 deferred.
-- **Andromeda pipeline:** Mode H (honest-healthy). phase → implement → wrap chain executed cleanly; the cold-build-race + clippy were known patterns handled in-scope (2 fix-loop iterations, within caps); the two design decisions were surfaced at /phase + pre-approved at Phase 6 (pipeline working as designed). No proposal filed.
-- **api-surface per-crate:** security sub-block cycle-3 reconciled (29 lines zero-diff; untouched by chunk #95); cursor security → snapshot. Chunk #95 new pub items (corpus `load_all_incidents` + pulse-app `training_export`/`export_for_training`) R1-accepted per-crate lag until the cursor revisits corpus + pulse-app (cycle-3/4).
+- **Filtered:** 0 (textbook Type 6 single-cycle; mechanically identical to ~10 priors — no novel friction to capture).
+- **Andromeda pipeline:** Mode H (honest-healthy). The 4-skill chain (new-session → evolve → setup-project --delta → wrap) executed exactly as designed; no friction; no proposal filed.
+- **api-surface per-crate:** snapshot sub-block cycle-3 reconciled (170 lines zero-diff; byte-identical to session 158); cursor snapshot → triage. dep-tree 468 zero-diff.
+- **A1 accumulator:** IMPLEMENTED steady-state preserved (consecutive_count=0; verified_cleared_at_session=135; per-crate reconcile fired so api_surface_deferred=false).
 
 ## Last Failed Command
 
-(none) — during Phase 5/gates, `cd pulse-app/ui` persisted the working dir so two subsequent root-relative commands (`cargo fmt`/`cargo deny`) ran from the wrong dir; recovered by `cd` back to project root. No failed command at session end.
+(none).
 
 ## Tests Status
 
-**PASS:**
-- This wrap (post-doc-fix re-verify): `cargo nextest run -p corpus -p pulse-app -p xtask --profile ci` = **369/369 + 1 skip** (incl. corpus `load_all_incidents` ×2, `unit_training_export` ×11, `e2e_p95` ×4, xtask `EXPECTED_PROCEDURES`, `e2e_p1` boot+ingest+query, `emit_taurpc_bindings`).
-- At /implement: `cargo nextest run --workspace --profile ci` = **1586/1586 + 1 skip** (other crates untouched since); webview `tsc` + `eslint` + `vitest` **617/617** (+4 ExportForTraining); `fmt` + `clippy --all-targets --all-features -D warnings` + `cargo xtask capability-drift` (clean) + `cargo deny check bans licenses sources` (clean).
-- bindings.ts: mcp + `export_for_training` present (final mcp-feature regen verified pre-commit).
-- Dead-test scan (P15): 16 `#[cfg(test)]` files in `pulse-app/src/` (carryover, +0 this session — `training_export.rs` puts tests in `pulse-app/tests/`); warning-not-fatal.
+**PASS** — smoke: `cargo nextest run -p security --profile ci` = **14/14** (0.14s). META session: only `.md`/`.yaml` touched (architecture.md + state.yaml + living artifacts + handoff); zero Rust/webview source delta since session 172, so the full workspace suite (1586/1586 + 1 skip at session 172 /implement) is unchanged. Dead-test scan (P15): 16 `#[cfg(test)]` files in `pulse-app/src/` (carryover, +0 this session) — warning-not-fatal.
 
 ## Next Recommended Action
 
-Route is **95 chunks, all 95 implemented**. D3 (expected) is the highest-signal follow-up. Pick one:
-1. **`/andromeda-evolve --allow-arch-registry`** — land `storage.export_for_training` in arch §Occupied Resources Tauri IPC routes + document the `~/Downloads` egress exception (the D3 remediation; Type 6 single-coordinated amendment).
-2. **`/andromeda-evolve --allow-route-append`** — register chunk #96 "Configuration hot reload + prospective threshold application" from `docs/v0_2_0/pulse-v0_2_0-route.md §94`.
-3. **`git push origin main`** — branch is now **3 commits ahead** of origin (`f39e6fc` + `f1dfebe` + this wrap commit; verify with `git status`).
-4. **Deliberate `/andromeda-arch` touch** for the deferred "MCP = equal-tier output channel" structural framing (carried from chunk #94).
+Route is **95 chunks, all 95 implemented**; amendments clean (0 active); all drift clear. Pick one:
+1. **`/andromeda-evolve --allow-route-append`** — register chunk #96 "Configuration hot reload + prospective threshold application" from `docs/v0_2_0/pulse-v0_2_0-route.md §94`.
+2. **`git push origin main`** — branch is **5 commits ahead** of origin after this wrap commit (`f39e6fc` + `f1dfebe` + `ec5c267` + `99ce65e` + the wrap commit; verify with `git status`).
+3. **Deliberate `/andromeda-arch` touch** for the carried "MCP = equal-tier output channel" structural framing (chunk #94 carry-over) + optionally mirror the `~/Downloads` egress exception into CLAUDE.md §Critical Warnings at a full re-derive.
 
 ## Session Goals (carry-over)
 
-(none — this session's goal completed: implement chunk #95 end-to-end + green gates + wrap.)
+(none — this session's goal completed: clear the D3 via Type 6 arch-registry amendment + propagate + archive.)
 
 ## Deferred decisions
 
-1. **`storage.export_for_training` arch-registry amendment (NEW, D3):** the chunk #95 procedure + `~/Downloads` egress exception need a Type-6 `/andromeda-evolve --allow-arch-registry` to land in arch §Occupied Resources + §Critical-Warnings exception note. Expected next session (standard chunk-then-amendment).
-2. **`2026-06-01 — arch-body "equal-tier output channel" framing` (carries forward):** the chunk-#94 spec's "MCP is one of three equal-tier output channels" is a STRUCTURAL `.andromeda/architecture.md` §Established Decisions body change — out of scope for `--allow-arch-registry` + `/implement`; needs a deliberate `/andromeda-arch` touch (P27 in `docs/andromeda-improvements.md`).
-3. **mcp-server `cargo +nightly public-api` reconcile (R1-accepted lag):** the chunk-#94 mcp-server tool surface remains uncaptured (cursor at snapshot now); a manual `cargo +nightly public-api --simplified -p mcp-server` when convenient would capture it.
-4. **`spec_amendments.archive` pruning:** archive at 78 (> 50 soft-cap); pruning deferred — run-dir markers remain forensic.
-5. **Untracked carryover** still in `git status`: `crates/ingest/examples/` (inject_demo.rs debug tool; note: NOT formatted by chunk #95's scoped `cargo fmt -p corpus -p pulse-app` — a pre-existing `cargo fmt --check` workspace-wide diff, out-of-scope for chunk #95), `experiments/`, `ui/`. Intentional (deferred L4 "red-dot" debug setup).
+1. **`2026-06-01 — arch-body "equal-tier output channel" framing` (carries forward):** the chunk-#94 spec's "MCP is one of three equal-tier output channels" is a STRUCTURAL `.andromeda/architecture.md` §Established Decisions body change — out of scope for `--allow-arch-registry`; needs a deliberate `/andromeda-arch` touch (P27 in `docs/andromeda-improvements.md`).
+2. **CLAUDE.md §Critical Warnings `~/Downloads` egress mirror (NEW):** the egress exception now lives in arch (source of truth) but the curated Tier-1 §Critical Warnings copy is not a Type-6 cascade target; optional mirror at a future full `/andromeda-setup-project` re-derive. Not required for D3 closure.
+3. **mcp-server `cargo +nightly public-api` reconcile (R1-accepted lag):** chunk-#94 mcp-server tool surface (4 TOOL_* consts + IncidentToolContext + dispatch_tool 5-arg + tools_list_with_8_tools) remains uncaptured (cursor at triage now); a manual `cargo +nightly public-api --simplified -p mcp-server` when convenient would capture it.
+4. **`spec_amendments.archive` pruning:** archive at 79 (> 50 soft-cap); pruning deferred — run-dir markers remain forensic.
+5. **Untracked carryover** still in `git status`: `crates/ingest/examples/` (inject_demo.rs debug tool — also a pre-existing workspace-wide `cargo fmt --check` diff, out-of-scope), `experiments/`, `ui/`. Intentional (deferred L4 "red-dot" debug setup).
