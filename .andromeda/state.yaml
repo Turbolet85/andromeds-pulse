@@ -1446,7 +1446,47 @@ spec_amendments:
   # noted+archived 2026-05-30T20:24:15Z (this wrap-session Phase 8 lifecycle
   # progression per spec-amendment-protocol.md Part D). Active list empty
   # post-archive; archive +1 (73 → 74).
-  active: []   # session 171 — chunk #95 route-append amendment ARCHIVED this wrap (applied 2026-06-02T17:39:05Z by /andromeda-evolve --allow-route-append -> propagated 2026-06-02T18:44:29Z by /andromeda-setup-project --delta commit f39e6fc -> noted+archived now). Active list empty post-archive; archive 77 -> 78.
+  active:
+    # session 172 — chunk #95 Type 6 arch-registry amendment APPLIED this session
+    # (storage.export_for_training + ~/Downloads egress exception; /andromeda-evolve
+    # --allow-arch-registry). PRIOR session 171 — chunk #95 route-append amendment
+    # ARCHIVED (applied 2026-06-02T17:39:05Z -> propagated commit f39e6fc -> archived;
+    # active emptied post-archive; archive 77 -> 78).
+    - amendment_id: 2026-06-03T17-26-46-acknowledge-chunk-95-export-for-training
+      plans:
+        - path: architecture.md
+          sections:
+            - "§Occupied Resources Tauri IPC routes"
+            - "§Occupied Resources Filesystem locations"
+            - "§Architecture Registry Updates"
+          decisions_log_section: "2026-06-03 — Acknowledge storage.export_for_training + ~/Downloads egress exception (--allow-arch-registry)"
+      trigger:
+        chunk: null
+        phase: null
+        harness: "user-driven via /andromeda-evolve"
+      authority:
+        winning_plan: null
+        winning_tier: implementation
+        losing_plan: architecture.md
+        losing_concern: registry-section-stale-vs-implementation-reality
+        rationale: "Code at storage_router.rs:67 + training_export.rs:255 implements storage.export_for_training + the ~/Downloads egress sink (chunk #95); arch §Occupied Resources had not acknowledged. Check 7 verified additive/registry/evidence/no-new-concept."
+      impl_files_synced: []
+      expected_propagation: []
+      marker_path: .andromeda/runs/2026-06-03T17-26-46-spec-amendment-acknowledge-chunk-95-export-for-training/amendment.md
+      applied_at: 2026-06-03T17:26:46Z
+      noted_at: null
+      propagated_by_run: .andromeda/runs/2026-06-03T17-37-35-setup-project-delta/
+      archived_at: null
+      verification_status: clean
+      flag_used: --allow-arch-registry
+      registry_section: "§Occupied Resources (Tauri IPC routes + Filesystem locations)"
+      registry_additions:
+        - "storage.export_for_training (TauRPC procedure)"
+        - "~/Downloads/pulse-corpus-export-{ts}.jsonl (out-of-data-dir egress sink)"
+      code_evidence:
+        - pulse-app/src/storage_router.rs
+        - pulse-app/src/training_export.rs
+        - crates/corpus/src/contract.rs
   archive:
     - amendment_id: 2026-06-02T17-39-05-append-chunk-95-export-community-training
       plans:
