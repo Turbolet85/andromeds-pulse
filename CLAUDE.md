@@ -54,7 +54,7 @@ Cross-platform Tauri 2 desktop dashboard for local OpenTelemetry — receives OT
 | Topic | Source |
 |---|---|
 | Architecture overview + Established Decisions | `.andromeda/architecture.md` |
-| Roadmap (9 epochs / 95 chunks) | `.andromeda/route.md` |
+| Roadmap (9 epochs / 96 chunks) | `.andromeda/route.md` |
 | Workspace crates + Occupied Resources (ports / IPC routes / env vars / tables / capabilities) | `.andromeda/architecture.md` §Inherited Defaults / §Occupied Resources |
 | Standard Contracts (`app_info` / `health` / `ready` envelopes; OTLP / MCP / IPC error schemas) | `.andromeda/architecture.md` §Standard Contracts |
 | Threat model + tier (Minimal) + data classifications | `.andromeda/security-plan.md` §Threat Model Summary |

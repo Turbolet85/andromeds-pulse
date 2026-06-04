@@ -1440,7 +1440,45 @@ spec_amendments:
   # noted+archived 2026-05-30T20:24:15Z (this wrap-session Phase 8 lifecycle
   # progression per spec-amendment-protocol.md Part D). Active list empty
   # post-archive; archive +1 (73 → 74).
-  active: []   # session 173 — chunk #95 Type 6 arch-registry amendment ARCHIVED this wrap (applied 2026-06-03T17:26:46Z by /andromeda-evolve --allow-arch-registry -> propagated 2026-06-03T17:37:35Z by /andromeda-setup-project --delta commit 99ce65e -> noted+archived now). Full Type 6 single-cycle Active->Propagated->Archived in one session, mirroring chunk #78/#82/#86/#87/#88 precedents. Active list empty post-archive; archive 78 -> 79.
+  active:   # session 174 — chunk #96 route-append amendment APPLIED (2026-06-04T06:33:54Z by /andromeda-evolve --allow-route-append; pending /andromeda-setup-project --delta propagation + wrap archive). PRIOR session 173 — chunk #95 Type 6 arch-registry amendment ARCHIVED (applied 2026-06-03T17:26:46Z -> propagated 17:37:35Z commit 99ce65e -> archived; active was empty post-archive; archive 78 -> 79).
+    - amendment_id: 2026-06-04T06-33-54-append-chunk-96-config-hot-reload
+      plans:
+        - path: route.md
+          sections:
+            - "§1 Route Scope Summary (Total chunks)"
+            - "§2 Roadmap (Epoch 9 — Foundation v0.2.0)"
+            - "§3 Route Decisions Log"
+          decisions_log_section: "2026-06-04 — Append chunk #96 Configuration hot reload + prospective threshold application (--allow-route-append)"
+      trigger:
+        chunk: null
+        phase: null
+        harness: "user-driven via /andromeda-evolve"
+      authority:
+        winning_plan: route.md
+        winning_tier: pipeline state
+        losing_plan: route.md
+        losing_concern: chunk-list-stale-vs-pipeline-reality
+        rationale: "v0.2.0 plan §94 enumerates 'Configuration hot reload + prospective threshold application' as the next chunk; route §2 ended at #95. Adding chunk #96 aligns route with the roadmap so /andromeda-phase has a target."
+      impl_files_synced: []
+      expected_propagation:
+        - "CLAUDE.md (GENERATED:setup:pointer-table — (9 epochs / 95 chunks) -> (9 epochs / 96 chunks))"
+      marker_path: .andromeda/runs/2026-06-04T06-33-54-spec-amendment-append-chunk-96-config-hot-reload/amendment.md
+      applied_at: 2026-06-04T06:33:54Z
+      noted_at: null
+      propagated_by_run: .andromeda/runs/2026-06-04T07-04-23-setup-project-delta/   # session 174 — /andromeda-setup-project --delta propagated CLAUDE.md pointer-table (9 epochs / 95 -> 96 chunks). Awaiting wrap-session archive.
+      archived_at: null
+      verification_status: clean
+      flag_used: --allow-route-append
+      form: 1
+      route_section_modified: "Epoch 9 — Foundation v0.2.0"
+      chunks_added:
+        - position: 96
+          text: "Configuration hot reload + prospective threshold application — notify watcher hot-applies threshold/cadence keys ≤2s; restart-required keys raise Diagnostics notice; prospective-only, opt-in reevaluate (capabilities P-055 / P-056; detail in pulse-v0_2_0-route §94)."
+      chunks_renumbered: []
+      motivation: "Next sequential v0.2.0 roadmap chunk per docs/v0_2_0/pulse-v0_2_0-route.md §94; deps #62/#63/#64/#67/#80/#82 all landed."
+      confirmed_shift: false
+      scope_summary_updates:
+        - "Total chunks: 95 -> 96"
   archive:
     - amendment_id: 2026-06-03T17-26-46-acknowledge-chunk-95-export-for-training
       plans:

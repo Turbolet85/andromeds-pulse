@@ -16,7 +16,7 @@ unit) not HOW (implementation steps)._
 
 ## 1. Route Scope Summary
 
-- **Total chunks:** 95
+- **Total chunks:** 96
 - **Epochs:** 9 (Foundation, Ingest pipeline, Storage & query, Webview shell + TauRPC bridge, Visualization surfaces, Snapshot & Investigate, Plugin runtime + MCP server, Polish & ship, Foundation v0.2.0)
 - **Drilldown depth (avg):** 1.6 (mixed: Foundation depth 2, Ingest pipeline depth 1, Storage & query depth 2, Webview shell depth 1, Visualization surfaces depth 2, Snapshot depth 2, Plugin+MCP depth 2, Polish depth 1)
 - **Hierarchy mode:** mixed (3-level for dense epochs Foundation / Storage / Visualization / Snapshot / Plugin+MCP; 2-level for lighter epochs Ingest / Webview shell / Polish)
@@ -224,6 +224,8 @@ ConstellationCanvas dashboard cascade — migrate full-window constellation + Ha
 MCP server + tool exposure — rmcp exposes 4 incident/report/telemetry tools + mcp.status() agent identity; [mcp.enable] default-off equal-tier output channel (capabilities P-039 / P-040; detail in pulse-v0_2_0-route §92).
    ↓
 Export for community training — Settings→Storage action produces anonymized JSONL corpus dump with pre-write preview summary; no auto-submission (capability P-046; detail in pulse-v0_2_0-route §93).
+   ↓
+Configuration hot reload + prospective threshold application — notify watcher hot-applies threshold/cadence keys ≤2s; restart-required keys raise Diagnostics notice; prospective-only, opt-in reevaluate (capabilities P-055 / P-056; detail in pulse-v0_2_0-route §94).
 
 ---
 
@@ -634,3 +636,12 @@ Export for community training — Settings→Storage action produces anonymized 
 - **Why:** First L5-channel export surface — anonymized corpus → JSONL with pre-write preview + no auto-submission (capability P-046); depends on #69 (corpus) + #78 (incident records) + #47 (PII scrubbing) — all landed. Mirrors chunk #94 precedent.
 - **Mechanical:** §1 Total chunks 94→95 (Form 1 Policy A); state.yaml.last_completed_chunk unchanged.
 - **Marker:** `.andromeda/runs/2026-06-02T17-39-05-spec-amendment-append-chunk-95-export-community-training/amendment.md`
+
+---
+
+`2026-06-04` — Append chunk #96 Configuration hot reload + prospective threshold application (--allow-route-append)
+
+- **Insert:** chunk #96 at §2 Epoch 9 — Foundation v0.2.0 (text: see §2; full detail in `docs/v0_2_0/pulse-v0_2_0-route.md` §94).
+- **Why:** Cross-cutting config layer — notify watcher hot-applies threshold/cadence keys, prospective-only with opt-in reevaluate (capabilities P-055 / P-056); depends on #62/#63/#64/#67/#80/#82 — all landed. Mirrors chunk #95 precedent.
+- **Mechanical:** §1 Total chunks 95→96 (Form 1 Policy A); state.yaml.last_completed_chunk unchanged.
+- **Marker:** `.andromeda/runs/2026-06-04T06-33-54-spec-amendment-append-chunk-96-config-hot-reload/amendment.md`
