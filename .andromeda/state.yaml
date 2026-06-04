@@ -1442,7 +1442,46 @@ spec_amendments:
   # noted+archived 2026-05-30T20:24:15Z (this wrap-session Phase 8 lifecycle
   # progression per spec-amendment-protocol.md Part D). Active list empty
   # post-archive; archive +1 (73 → 74).
-  active: []   # session 176 — chunk #96 config-watcher Type 6 arch-registry amendment ARCHIVED this wrap (full single-session cycle: applied 2026-06-04T17:05:12Z /andromeda-evolve --allow-arch-registry -> propagated 2026-06-04T17:19:37Z /andromeda-setup-project --delta CLAUDE.md :overview/:modules cascade (commit 08438af) -> noted+archived 2026-06-04T19:05:46Z this wrap; D3 closure complete). Archive 80 -> 81. PRIOR session 174 — chunk #96 route-append amendment ARCHIVED that wrap (full Type 7 Form 1 single-cycle Active->Propagated->Archived in one session; 19th-instance pattern mirroring sessions 115/118/.../166/171). Lifecycle: applied 2026-06-04T06:33:54Z (/andromeda-evolve --allow-route-append) -> propagated 2026-06-04T07:04:23Z (/andromeda-setup-project --delta; CLAUDE.md pointer-table 95->96 chunks; commit 9c75071) -> noted+archived 2026-06-04T07:17:30Z. PRIOR session 173 — chunk #95 Type 6 arch-registry amendment ARCHIVED; active empty post-archive. Archive 79 -> 80. NOTE: session 176 (2026-06-04T17:05:12Z) appended the chunk #96 Type 6 arch-registry amendment below (D3 closure) via /andromeda-evolve --allow-arch-registry — lifecycle in flight (applied; pending propagate via setup-project --delta + archive).
+  active:
+    - amendment_id: 2026-06-04T19-35-38-append-chunk-97-settings-diagnostics-view
+      plans:
+        - path: route.md
+          sections:
+            - "§1 Route Scope Summary"
+            - "§2 Roadmap (Epoch 9 — Foundation v0.2.0)"
+            - "§3 Route Decisions Log"
+          decisions_log_section: "2026-06-04 — Append chunk #97 Settings → Diagnostics view (--allow-route-append)"
+      trigger:
+        chunk: null
+        phase: null
+        harness: "user-driven via /andromeda-evolve"
+      authority:
+        winning_plan: "pulse-v0_2_0-route.md (source plan §95)"
+        winning_tier: pipeline-state
+        losing_plan: route.md
+        losing_concern: chunk-list-stale-vs-pipeline-reality
+        rationale: "Source plan §95 defines 'Settings → Diagnostics view' as next sequential chunk after #96; adds chunk #97 in Epoch 9 to align route §2 with the planned v0.2.0 sequence."
+      impl_files_synced: []
+      expected_propagation:
+        - "CLAUDE.md (GENERATED:setup:pointer-table — chunk count 96 -> 97)"
+      marker_path: .andromeda/runs/2026-06-04T19-35-38-spec-amendment-append-chunk-97-settings-diagnostics-view/amendment.md
+      applied_at: 2026-06-04T19:35:38Z
+      noted_at: null
+      propagated_by_run: .andromeda/runs/2026-06-04T19-46-22-setup-project-delta/
+      archived_at: null
+      verification_status: clean
+      flag_used: --allow-route-append
+      form: 1
+      route_section_modified: "Epoch 9 — Foundation v0.2.0"
+      chunks_added:
+        - position: 97
+          text: "Settings → Diagnostics view — single read-only L6 self-observability surface (Connection/Model/Pipeline/Hardware/Templates) over pipeline metrics + 30-day corpus history (capability P-058; detail in pulse-v0_2_0-route §95)."
+      chunks_renumbered: []
+      motivation: "Source plan docs/v0_2_0/pulse-v0_2_0-route.md §95 (Phase 11 — Operations) defines chunk #97 as next sequential v0.2.0 chunk after #96 (source §94, landed 4d3c36f); capability P-058."
+      confirmed_shift: false
+      scope_summary_updates:
+        - "Total chunks: 96 -> 97"
+  # session 176 — chunk #96 config-watcher Type 6 arch-registry amendment ARCHIVED this wrap (full single-session cycle: applied 2026-06-04T17:05:12Z /andromeda-evolve --allow-arch-registry -> propagated 2026-06-04T17:19:37Z /andromeda-setup-project --delta CLAUDE.md :overview/:modules cascade (commit 08438af) -> noted+archived 2026-06-04T19:05:46Z this wrap; D3 closure complete). Archive 80 -> 81. PRIOR session 174 — chunk #96 route-append amendment ARCHIVED that wrap (full Type 7 Form 1 single-cycle Active->Propagated->Archived in one session; 19th-instance pattern mirroring sessions 115/118/.../166/171). Lifecycle: applied 2026-06-04T06:33:54Z (/andromeda-evolve --allow-route-append) -> propagated 2026-06-04T07:04:23Z (/andromeda-setup-project --delta; CLAUDE.md pointer-table 95->96 chunks; commit 9c75071) -> noted+archived 2026-06-04T07:17:30Z. PRIOR session 173 — chunk #95 Type 6 arch-registry amendment ARCHIVED; active empty post-archive. Archive 79 -> 80. NOTE: session 176 (2026-06-04T17:05:12Z) appended the chunk #96 Type 6 arch-registry amendment below (D3 closure) via /andromeda-evolve --allow-arch-registry — lifecycle in flight (applied; pending propagate via setup-project --delta + archive).
   archive:
     - amendment_id: 2026-06-04T17-05-12-acknowledge-chunk-96-config-hot-reload
       plans:
