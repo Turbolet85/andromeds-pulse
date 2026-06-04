@@ -91,14 +91,14 @@ pub use crate::incident::{
 pub use crate::lifecycle::{
     ACTIVE_TO_QUIET_THRESHOLD_SECONDS, DEFAULT_LIFECYCLE_HEARTBEAT_INTERVAL,
     DEFAULT_LIFECYCLE_PERSIST_INTERVAL_SECS, InMemoryServiceRegistry, LIFECYCLE_PERSISTENCE_KIND,
-    LifecycleError, LifecyclePersistence, QUIET_TO_SILENT_FALLBACK_SECONDS,
+    LifecycleError, LifecyclePersistence, LifecycleThresholds, QUIET_TO_SILENT_FALLBACK_SECONDS,
     STREAM_NAME_SERVICE_LIFECYCLE, ServiceLifecycleBroadcast, ServiceLifecycleEvent,
     ServiceLifecycleState, ServiceListItem, ServiceRegistry, ServiceRegistryEntry,
     TARGET_LIFECYCLE_CORPUS_RESTORE, TARGET_LIFECYCLE_PERSIST, TARGET_LIFECYCLE_PERSIST_ERROR,
     TARGET_LIFECYCLE_TICK, TARGET_LIFECYCLE_TRANSITION, TARGET_METRIC_LIFECYCLE_STATE_DISTRIBUTION,
     TARGET_PIPELINE_L1B_TRACKED_SERVICES_TOTAL, TransitionTrigger, is_valid_transition,
-    persist_lifecycle_on_shutdown, run_lifecycle_persist_cycle, run_lifecycle_persist_loop,
-    start_lifecycle_heartbeat, state_index, state_label,
+    persist_lifecycle_on_shutdown, reevaluate_now, run_lifecycle_persist_cycle,
+    run_lifecycle_persist_loop, start_lifecycle_heartbeat, state_index, state_label,
 };
 
 // Chunk #80 — cadence coordinator + three-tier triggering. Re-export

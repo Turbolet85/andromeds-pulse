@@ -50,6 +50,7 @@ use pulse_app::baseline_persistence::{
     CorpusBaselinePersistence, migrate_legacy_baseline_if_present,
 };
 use pulse_app::cadence_runner::CadenceSqlRunner;
+use pulse_app::config_router::{self, ConfigApi, ConfigApiImpl};
 use pulse_app::connection_router::{ConnectionApi, ConnectionApiImpl, HeartbeatBindStatus};
 use pulse_app::diagnostics_router::{DiagnosticsApi, DiagnosticsApiImpl};
 use pulse_app::drain_persistence::CorpusDrainPersistence;
@@ -62,6 +63,7 @@ use pulse_app::llamacli_inference::LlamaCliInference;
 use pulse_app::mcp_router::{McpApi, McpApiImpl};
 use pulse_app::model_router::{ModelApi, ModelApiImpl, tier_for_profile};
 use pulse_app::plugins_router::{PluginsApi, PluginsApiImpl};
+use pulse_app::reevaluation::{LiveReevaluator, RecentWindowReevaluator};
 use pulse_app::restart_observer::{CompositeSpanObserver, RestartObserverAdapter};
 use pulse_app::services_router::{ServicesApi, ServicesApiImpl};
 use pulse_app::snapshot_runtime::{SnapshotApi, SnapshotApiImpl};
@@ -744,8 +746,38 @@ fn main() {
     let degraded_mode: Arc<dyn interpretation::degraded_mode::DegradedModeStatus> =
         Arc::new(pulse_app::degraded_mode_runtime::LocalDegradedModeStatus::new());
 
-    let diagnostics_impl =
-        DiagnosticsApiImpl::new(Arc::clone(&drain_miner), Arc::clone(&degraded_mode));
+    // Chunk #96 — configuration hot-reload substrate. The watcher publishes a
+    // validated `Settings` on a watch channel; a boot-time fan-out maps it to
+    // per-consumer watch channels (cadence + lifecycle) so consumers re-read
+    // prospectively. The notify watcher is spawned in the setup closure (needs
+    // the runtime); the router-side ConfigApiImpl reads the handle via a
+    // deferred OnceLock (mirrors snapshot_impl_for_setup). LiveReevaluator
+    // backs the opt-in `diagnostics.reevaluate_recent_window()` retrospective.
+    let config_event_broadcast = Arc::new(config_watcher::ConfigEventBroadcast::new());
+    let config_status = Arc::new(Mutex::new(config_watcher::ConfigStatus::default()));
+    let config_handle_slot: Arc<std::sync::OnceLock<config_watcher::ConfigWatchHandle>> =
+        Arc::new(std::sync::OnceLock::new());
+    let (config_settings_tx, config_settings_rx) =
+        tokio::sync::watch::channel(boot_settings.clone());
+    let (cadence_cfg_tx, cadence_cfg_rx) =
+        tokio::sync::watch::channel(config_router::settings_to_cadence_config(&boot_settings));
+    let (lifecycle_thresh_tx, lifecycle_thresh_rx) = tokio::sync::watch::channel(
+        config_router::settings_to_lifecycle_thresholds(&boot_settings),
+    );
+    let config_impl =
+        ConfigApiImpl::new(Arc::clone(&config_handle_slot), Arc::clone(&config_status));
+    let reevaluator: Arc<dyn RecentWindowReevaluator> = Arc::new(LiveReevaluator::new(
+        Arc::clone(&lifecycle_registry),
+        Arc::clone(&lifecycle_broadcast),
+        Arc::clone(&baseline_state),
+        lifecycle_thresh_rx.clone(),
+    ));
+
+    let diagnostics_impl = DiagnosticsApiImpl::new(
+        Arc::clone(&drain_miner),
+        Arc::clone(&degraded_mode),
+        Arc::clone(&reevaluator),
+    );
 
     let grpc_addr = match resolve_grpc_port() {
         Ok(p) => Some(SocketAddr::from(([127, 0, 0, 1], p.value()))),
@@ -857,7 +889,8 @@ fn main() {
                 .merge(connection_impl.clone().into_handler())
                 .merge(services_impl.clone().into_handler())
                 .merge(diagnostics_impl.clone().into_handler())
-                .merge(model_impl.clone().into_handler());
+                .merge(model_impl.clone().into_handler())
+                .merge(config_impl.clone().into_handler());
             let base = match storage_impl.as_ref() {
                 Some(s) => base.merge(s.clone().into_handler()),
                 None => base,
@@ -882,7 +915,8 @@ fn main() {
                 .merge(connection_impl.clone().into_handler())
                 .merge(services_impl.clone().into_handler())
                 .merge(diagnostics_impl.clone().into_handler())
-                .merge(model_impl.clone().into_handler());
+                .merge(model_impl.clone().into_handler())
+                .merge(config_impl.clone().into_handler());
             let base = match storage_impl.as_ref() {
                 Some(s) => base.merge(s.clone().into_handler()),
                 None => base,
@@ -944,6 +978,45 @@ fn main() {
             window::apply_widget_settings(app, &settings);
             let tray_icon = tray::setup_tray(app.handle(), Arc::clone(&broadcast_senders))?;
             app.manage(tray_icon);
+
+            // Chunk #96 — configuration hot-reload watcher + fan-out (spawned
+            // here so it runs in the Tauri-managed runtime regardless of
+            // buffer availability). The watcher publishes validated Settings on
+            // the watch channel; the fan-out maps each settled change to the
+            // per-consumer cadence + lifecycle watch channels (prospective).
+            match config_watcher::start_config_watcher(
+                &data_dir,
+                config_settings_tx,
+                config_event_broadcast,
+                config_status,
+            ) {
+                Ok((config_handle, config_task)) => {
+                    let _ = config_handle_slot.set(config_handle);
+                    tauri::async_runtime::spawn(config_task.run());
+                    let mut settings_rx = config_settings_rx;
+                    tauri::async_runtime::spawn(async move {
+                        while settings_rx.changed().await.is_ok() {
+                            let s = settings_rx.borrow_and_update().clone();
+                            let _ =
+                                cadence_cfg_tx.send(config_router::settings_to_cadence_config(&s));
+                            let _ = lifecycle_thresh_tx
+                                .send(config_router::settings_to_lifecycle_thresholds(&s));
+                        }
+                    });
+                    tracing::info!(
+                        target: "config.watcher.boot",
+                        "config hot-reload watcher started",
+                    );
+                }
+                Err(e) => {
+                    tracing::warn!(
+                        target: "config.watcher.boot",
+                        error_category = config_router::config_watch_error_category(&e),
+                        "config hot-reload watcher disabled this boot",
+                    );
+                }
+            }
+
             match buffer_conn {
                 Some(conn) => {
                     tauri::async_runtime::spawn(run_consumer(
@@ -1142,6 +1215,7 @@ fn main() {
                     Arc::clone(&cadence_channel),
                     Arc::clone(&hardware_profile),
                     Arc::clone(&cadence_config),
+                    cadence_cfg_rx,
                 ));
             } else {
                 tracing::warn!(
@@ -1245,8 +1319,7 @@ fn main() {
                 Arc::clone(&lifecycle_broadcast),
                 Arc::clone(&baseline_state),
                 lifecycle_restart_rx,
-                settings.lifecycle_dormant_after_secs,
-                settings.lifecycle_archived_after_secs,
+                lifecycle_thresh_rx,
                 DEFAULT_LIFECYCLE_HEARTBEAT_INTERVAL,
             ));
             // Chunk #71 — lifecycle + storm persistence periodic loops
@@ -1637,8 +1710,28 @@ mod tests {
         // in-memory LocalDegradedModeStatus keeps the test hermetic.
         let diagnostics_degraded_mode: Arc<dyn interpretation::degraded_mode::DegradedModeStatus> =
             Arc::new(pulse_app::degraded_mode_runtime::LocalDegradedModeStatus::new());
-        let diagnostics_impl =
-            DiagnosticsApiImpl::new(diagnostics_miner, diagnostics_degraded_mode);
+        // Chunk #96 — DiagnosticsApiImpl now takes a RecentWindowReevaluator;
+        // a LiveReevaluator over fresh in-memory handles keeps the test hermetic.
+        let reeval_registry: Arc<dyn ServiceRegistry> = Arc::new(InMemoryServiceRegistry::new());
+        let reeval_broadcast = Arc::new(ServiceLifecycleBroadcast::new());
+        let reeval_baseline = Arc::new(triage::contract::BaselineState::new());
+        let (_reeval_thresh_tx, reeval_thresh_rx) =
+            tokio::sync::watch::channel(triage::contract::LifecycleThresholds {
+                dormant_after_secs: 3_600,
+                archived_after_secs: 86_400,
+            });
+        let diagnostics_reevaluator: Arc<dyn RecentWindowReevaluator> =
+            Arc::new(LiveReevaluator::new(
+                reeval_registry,
+                reeval_broadcast,
+                reeval_baseline,
+                reeval_thresh_rx,
+            ));
+        let diagnostics_impl = DiagnosticsApiImpl::new(
+            diagnostics_miner,
+            diagnostics_degraded_mode,
+            diagnostics_reevaluator,
+        );
 
         // Chunk #78: IncidentsApiImpl participates in the emit so bindings.ts
         // ARGS_MAP includes incidents.list_active / acknowledge / mark_resolved
@@ -1680,6 +1773,16 @@ mod tests {
             ));
         let model_impl = ModelApiImpl::new(model_runner_test, model_hardware);
 
+        // Chunk #96: ConfigApiImpl participates in the emit so bindings.ts
+        // ARGS_MAP includes config.reload / config.status. Empty handle slot
+        // (no watcher in the bindings test) + default status keep it hermetic.
+        let config_impl = ConfigApiImpl::new(
+            Arc::new(std::sync::OnceLock::new()),
+            Arc::new(std::sync::Mutex::new(
+                config_watcher::ConfigStatus::default(),
+            )),
+        );
+
         // Chunk #49: McpApiImpl participates in the emit so the bindings.ts
         // ARGS_MAP includes mcp.status / mcp.start / mcp.stop (4th binding
         // per .claude/rules/security.md Session Additions 2026-05-12).
@@ -1709,7 +1812,8 @@ mod tests {
                 .merge(storage_impl.into_handler())
                 .merge(diagnostics_impl.into_handler())
                 .merge(incidents_impl.into_handler())
-                .merge(model_impl.into_handler());
+                .merge(model_impl.into_handler())
+                .merge(config_impl.into_handler());
             #[cfg(feature = "mcp-server")]
             let base = base.merge(mcp_impl.into_handler());
             base

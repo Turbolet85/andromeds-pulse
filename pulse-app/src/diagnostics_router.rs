@@ -20,6 +20,8 @@ use interpretation::degraded_mode::{DegradedModeStatus, degraded_mode_state_labe
 use serde::{Deserialize, Serialize};
 use ui_bridge::contract::AppError;
 
+use crate::reevaluation::RecentWindowReevaluator;
+
 /// Maximum templates returned per `diagnostics.template_distribution()`
 /// call. Caller cannot exceed this cap (per layouts AC-L5 top-50 row
 /// limit; same value enforced server-side as a defensive bound).
@@ -78,28 +80,47 @@ pub struct RetryInterpretationPayload {
     pub backoff_remaining_seconds: u64,
 }
 
+/// Chunk #96 — `reevaluate_recent_window` payload (capability P-056). Counts
+/// services re-classified + transitions emitted by the opt-in retrospective
+/// pass; aggregate-only (no per-service identifiers).
+#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq, specta::Type)]
+pub struct ReevaluateWindowPayload {
+    pub services_reclassified: u64,
+    pub transitions_emitted: u64,
+    pub cadence_prospective: bool,
+}
+
 // Chunk #86 — `retry_interpretation` is the manual override for the L4
-// degraded-mode FSM. Resets the consecutive-failure counter к 0 and
-// transitions Degraded → Active immediately, regardless of current
-// backoff window position. The next L4 inference invocation proceeds
-// normally; если it fails the failure counter restarts from 1.
+// degraded-mode FSM (resets the consecutive-failure counter to 0 and
+// transitions Degraded → Active immediately). Chunk #96 —
+// `reevaluate_recent_window` is the opt-in retrospective re-evaluation
+// (re-classify every tracked service against the freshly hot-reloaded
+// lifecycle thresholds). Doc lives above the macro (taurpc 0.7 rejects
+// multi-line /// attributes inside the trait body).
 #[taurpc::procedures(path = "diagnostics")]
 pub trait DiagnosticsApi {
     async fn template_distribution() -> Result<TemplateDistributionPayload, AppError>;
     async fn retry_interpretation() -> Result<RetryInterpretationPayload, AppError>;
+    async fn reevaluate_recent_window() -> Result<ReevaluateWindowPayload, AppError>;
 }
 
 #[derive(Clone)]
 pub struct DiagnosticsApiImpl {
     miner: Arc<DrainMiner>,
     degraded_mode: Arc<dyn DegradedModeStatus>,
+    reevaluator: Arc<dyn RecentWindowReevaluator>,
 }
 
 impl DiagnosticsApiImpl {
-    pub fn new(miner: Arc<DrainMiner>, degraded_mode: Arc<dyn DegradedModeStatus>) -> Self {
+    pub fn new(
+        miner: Arc<DrainMiner>,
+        degraded_mode: Arc<dyn DegradedModeStatus>,
+        reevaluator: Arc<dyn RecentWindowReevaluator>,
+    ) -> Self {
         Self {
             miner,
             degraded_mode,
+            reevaluator,
         }
     }
 }
@@ -151,6 +172,29 @@ impl DiagnosticsApi for DiagnosticsApiImpl {
             "diagnostics.retry_interpretation returned",
         );
 
+        Ok(payload)
+    }
+
+    #[tracing::instrument(skip_all, fields(
+        services_reclassified = tracing::field::Empty,
+        transitions_emitted = tracing::field::Empty,
+    ))]
+    async fn reevaluate_recent_window(self) -> Result<ReevaluateWindowPayload, AppError> {
+        let summary = self.reevaluator.reevaluate();
+        let payload = ReevaluateWindowPayload {
+            services_reclassified: summary.services_reclassified,
+            transitions_emitted: summary.transitions_emitted,
+            cadence_prospective: summary.cadence_prospective,
+        };
+        let span = tracing::Span::current();
+        span.record("services_reclassified", payload.services_reclassified);
+        span.record("transitions_emitted", payload.transitions_emitted);
+        tracing::info!(
+            target: "diagnostics.reevaluate_recent_window.request",
+            services_reclassified = payload.services_reclassified,
+            transitions_emitted = payload.transitions_emitted,
+            "diagnostics.reevaluate_recent_window returned",
+        );
         Ok(payload)
     }
 
@@ -250,11 +294,26 @@ mod tests {
     use super::*;
     use buffer::{DrainConfig, DrainMiner};
 
+    fn noop_reevaluator() -> Arc<dyn RecentWindowReevaluator> {
+        struct Noop;
+        impl RecentWindowReevaluator for Noop {
+            fn reevaluate(&self) -> crate::reevaluation::ReevaluationSummary {
+                crate::reevaluation::ReevaluationSummary {
+                    services_reclassified: 0,
+                    transitions_emitted: 0,
+                    cadence_prospective: true,
+                }
+            }
+        }
+        Arc::new(Noop)
+    }
+
     fn make_impl() -> DiagnosticsApiImpl {
         let miner = Arc::new(DrainMiner::new(DrainConfig::default_config(), None));
         DiagnosticsApiImpl::new(
             miner,
             Arc::new(crate::degraded_mode_runtime::LocalDegradedModeStatus::new()),
+            noop_reevaluator(),
         )
     }
 
@@ -277,6 +336,7 @@ mod tests {
         let api = DiagnosticsApiImpl::new(
             miner,
             Arc::new(crate::degraded_mode_runtime::LocalDegradedModeStatus::new()),
+            noop_reevaluator(),
         );
         let payload = api.template_distribution().await.expect("infallible");
         assert!(!payload.templates.is_empty());
@@ -305,6 +365,7 @@ mod tests {
         let api = DiagnosticsApiImpl::new(
             miner,
             Arc::new(crate::degraded_mode_runtime::LocalDegradedModeStatus::new()),
+            noop_reevaluator(),
         );
         let payload = api.template_distribution().await.expect("infallible");
         assert!(payload.templates.len() <= TEMPLATE_DISTRIBUTION_TOP_N);
@@ -317,6 +378,7 @@ mod tests {
         let api = DiagnosticsApiImpl::new(
             miner,
             Arc::new(crate::degraded_mode_runtime::LocalDegradedModeStatus::new()),
+            noop_reevaluator(),
         );
         let payload = api.template_distribution().await.expect("infallible");
         assert_eq!(payload.templates.len(), 1);

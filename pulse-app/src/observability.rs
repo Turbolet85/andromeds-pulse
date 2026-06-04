@@ -703,6 +703,66 @@ impl AllowList {
             "config.load.retention_seconds",
             ["env_var_name", "reject_reason"].iter().copied().collect(),
         );
+        // chunk #96 configuration hot-reload events. Aggregate-only per
+        // obs-plan §6/§8 + the triage cardinality discipline (CLAUDE.md
+        // observability 2026-05-17): counts + bounded enum/category labels
+        // ONLY — NEVER the raw config values, the full config.toml path, or
+        // per-key contents (per security plan §Logging NEVER-log list).
+        by_target.insert(
+            "config.load",
+            [
+                "hot_applied_count",
+                "restart_required_count",
+                "silent_count",
+            ]
+            .iter()
+            .copied()
+            .collect(),
+        );
+        by_target.insert(
+            "config.load.rejected",
+            ["error_category"].iter().copied().collect(),
+        );
+        by_target.insert(
+            "config.load.path_validation",
+            ["reason"].iter().copied().collect(),
+        );
+        by_target.insert(
+            "config.watcher.boot",
+            ["error_category"].iter().copied().collect(),
+        );
+        by_target.insert(
+            "config.reload.request",
+            ["outcome", "hot_applied_count", "restart_required_count"]
+                .iter()
+                .copied()
+                .collect(),
+        );
+        by_target.insert(
+            "config.status.request",
+            ["restart_required_pending", "reload_count"]
+                .iter()
+                .copied()
+                .collect(),
+        );
+        by_target.insert(
+            "cadence.config.reload_applied",
+            [
+                "baseline_seconds",
+                "reflection_seconds",
+                "tier2_acceleration_enabled",
+            ]
+            .iter()
+            .copied()
+            .collect(),
+        );
+        by_target.insert(
+            "diagnostics.reevaluate_recent_window.request",
+            ["services_reclassified", "transitions_emitted"]
+                .iter()
+                .copied()
+                .collect(),
+        );
         // chunk #95 storage.export_for_training — aggregate-only fields per
         // obs-plan §6/§8 + the triage cardinality discipline (CLAUDE.md
         // observability 2026-05-17). NEVER the exported corpus content, the

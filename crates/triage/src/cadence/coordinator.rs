@@ -4,6 +4,7 @@ use std::sync::Arc;
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
 use serde::Serialize;
+use tokio::sync::watch;
 
 use crate::baseline::{
     Q1RedRow, Q2OperationRow, Q3FingerprintRow, Q4InteractionRow, Q5CardinalityRow, Q6LogRow,
@@ -12,7 +13,8 @@ use crate::baseline::{
 use crate::cadence::broadcast::{CadenceEvent, CadenceEventBroadcast};
 use crate::cadence::config::CadenceConfig;
 use crate::cadence::{
-    TARGET_CADENCE_TICK, TARGET_CADENCE_TRIGGER, TARGET_METRIC_PIPELINE_L3_DIGESTS_ASSEMBLED_TOTAL,
+    TARGET_CADENCE_CONFIG_RELOAD_APPLIED, TARGET_CADENCE_TICK, TARGET_CADENCE_TRIGGER,
+    TARGET_METRIC_PIPELINE_L3_DIGESTS_ASSEMBLED_TOTAL,
 };
 use crate::contract::{AttentionCue, CueKind, PriorityTier};
 use crate::cue::AttentionCueBroadcast;
@@ -271,12 +273,17 @@ pub async fn start_cadence_coordinator(
     cadence_handle: Arc<CadenceTriggerChannel>,
     hw_profile: Arc<dyn HardwareProfileSource>,
     cadence_config: Arc<CadenceConfig>,
+    mut config_rx: watch::Receiver<CadenceConfig>,
 ) {
+    // `current` mirrors the latest validated cadence config; the config_rx
+    // arm rebuilds the tier-3 + reflection intervals when it changes —
+    // prospective: the next tick uses the new rate, missed ticks are not
+    // replayed. CadenceConfig is Copy.
+    let mut current: CadenceConfig = *cadence_config;
     let mut tier3_interval =
-        tokio::time::interval(Duration::from_secs(cadence_config.baseline_seconds as u64));
-    let mut reflection_interval = tokio::time::interval(Duration::from_secs(
-        cadence_config.reflection_seconds as u64,
-    ));
+        tokio::time::interval(Duration::from_secs(current.baseline_seconds as u64));
+    let mut reflection_interval =
+        tokio::time::interval(Duration::from_secs(current.reflection_seconds as u64));
     let mut heartbeat_interval = tokio::time::interval(HEARTBEAT_TICK_INTERVAL);
     // Skip first immediate tick per chunk #62 emitter precedent.
     tier3_interval.tick().await;
@@ -288,9 +295,38 @@ pub async fn start_cadence_coordinator(
 
     let mut cumulative_cycles: u64 = 0;
     let mut cumulative_queries: u64 = 0;
+    let mut config_open = true;
 
     loop {
         tokio::select! {
+            res = config_rx.changed(), if config_open => {
+                match res {
+                    Ok(()) => {
+                        current = *config_rx.borrow_and_update();
+                        tier3_interval = tokio::time::interval(Duration::from_secs(
+                            current.baseline_seconds as u64,
+                        ));
+                        reflection_interval = tokio::time::interval(Duration::from_secs(
+                            current.reflection_seconds as u64,
+                        ));
+                        tier3_interval.tick().await;
+                        reflection_interval.tick().await;
+                        tracing::info!(
+                            target: TARGET_CADENCE_CONFIG_RELOAD_APPLIED,
+                            baseline_seconds = current.baseline_seconds as u64,
+                            reflection_seconds = current.reflection_seconds as u64,
+                            tier2_acceleration_enabled = current.tier2_acceleration_enabled,
+                            "cadence config hot-reloaded",
+                        );
+                    }
+                    Err(_) => {
+                        // All config senders dropped; park this arm so it does
+                        // not busy-loop. The coordinator keeps running with the
+                        // last-known config.
+                        config_open = false;
+                    }
+                }
+            }
             _ = tier3_interval.tick() => {
                 let stats = run_one_coordinator_cycle(
                     CadenceMode::Tier3,
@@ -322,9 +358,9 @@ pub async fn start_cadence_coordinator(
                     mode = "tier3",
                     queries_executed = cumulative_queries,
                     queries_succeeded = cumulative_queries,
-                    next_due_ms = (cadence_config.baseline_seconds as u64) * 1_000,
+                    next_due_ms = (current.baseline_seconds as u64) * 1_000,
                     last_executed_at_ms = 0_u64,
-                    tier2_acceleration_enabled = cadence_config.tier2_acceleration_enabled,
+                    tier2_acceleration_enabled = current.tier2_acceleration_enabled,
                     "cadence heartbeat",
                 );
             }
@@ -355,7 +391,7 @@ pub async fn start_cadence_coordinator(
             recv = cadence_rx.recv() => {
                 match recv {
                     Ok(cue) => {
-                        if cadence_config.tier2_acceleration_enabled
+                        if current.tier2_acceleration_enabled
                             && !matches!(
                                 hw_profile.current_profile(),
                                 HardwareProfile::CpuPrimary
@@ -699,6 +735,7 @@ mod tests {
             cadence_handle,
             profile,
             config,
+            watch::channel(CadenceConfig::default()).1,
         ));
         tokio::time::sleep(Duration::from_millis(20)).await;
         handle.abort();
@@ -724,6 +761,7 @@ mod tests {
             cadence_handle,
             profile,
             config,
+            watch::channel(CadenceConfig::default()).1,
         ));
         // Give the spawned task a tick to subscribe.
         tokio::time::sleep(Duration::from_millis(20)).await;
@@ -774,6 +812,7 @@ mod tests {
             Arc::clone(&cadence_handle),
             profile,
             config,
+            watch::channel(CadenceConfig::default()).1,
         ));
         tokio::time::sleep(Duration::from_millis(20)).await;
 
@@ -819,6 +858,7 @@ mod tests {
             Arc::clone(&cadence_handle),
             profile,
             config,
+            watch::channel(CadenceConfig::default()).1,
         ));
         tokio::time::sleep(Duration::from_millis(20)).await;
 
@@ -874,5 +914,63 @@ mod tests {
             !json.contains(canary),
             "canary leaked into CadenceEvent JSON: {json}"
         );
+    }
+
+    #[tokio::test]
+    async fn start_cadence_coordinator_survives_config_hot_reload() {
+        let (counting, runner) = arc_runner();
+        let broadcast = Arc::new(CadenceEventBroadcast::new());
+        let mut event_rx = broadcast.subscribe();
+        let cue_broadcast = Arc::new(AttentionCueBroadcast::new());
+        let cadence_handle = Arc::new(CadenceTriggerChannel::new());
+        let profile = arc_profile(HardwareProfile::Unknown);
+        let config = Arc::new(CadenceConfig::default());
+        let (cfg_tx, cfg_rx) = watch::channel(CadenceConfig::default());
+
+        let handle = tokio::spawn(start_cadence_coordinator(
+            runner,
+            Arc::clone(&broadcast),
+            Arc::clone(&cue_broadcast),
+            cadence_handle,
+            profile,
+            config,
+            cfg_rx,
+        ));
+        tokio::time::sleep(Duration::from_millis(20)).await;
+
+        // Hot-reload the cadence config; the coordinator rebuilds its intervals
+        // prospectively and keeps running.
+        cfg_tx
+            .send(CadenceConfig::try_new(5, 1, 300, false).expect("valid config"))
+            .expect("send config update");
+        tokio::time::sleep(Duration::from_millis(20)).await;
+
+        // Still alive + functional: an Autonomous cue still triggers Tier-1.
+        cue_broadcast
+            .sender()
+            .send(sample_cue(PriorityTier::Autonomous))
+            .expect("send autonomous cue");
+
+        let mut received_tier1 = false;
+        for _ in 0..50 {
+            tokio::time::sleep(Duration::from_millis(10)).await;
+            while let Ok(event) = event_rx.try_recv() {
+                if event.mode == CadenceMode::Tier1 {
+                    received_tier1 = true;
+                    break;
+                }
+            }
+            if received_tier1 {
+                break;
+            }
+        }
+        handle.abort();
+        let _ = handle.await;
+        assert!(
+            received_tier1,
+            "coordinator must survive + stay functional after a hot-reload"
+        );
+        assert!(counting.invoked("q1"));
+        drop(cfg_tx);
     }
 }

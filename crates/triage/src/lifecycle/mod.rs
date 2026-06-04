@@ -27,6 +27,7 @@ use std::sync::Arc;
 use std::time::Duration;
 
 use tokio::sync::broadcast::Receiver;
+use tokio::sync::watch;
 
 use crate::baseline::BaselineState;
 use crate::pattern::RestartEvent;
@@ -49,6 +50,17 @@ pub use state_machine::{ServiceLifecycleState, TransitionTrigger, is_valid_trans
 /// `pattern::DEFAULT_HEARTBEAT_INTERVAL` and `.claude/rules/observability.md`
 /// §Heartbeat ticks rule.
 pub const DEFAULT_LIFECYCLE_HEARTBEAT_INTERVAL: Duration = Duration::from_secs(15);
+
+/// Hot-reloadable lifecycle thresholds (chunk #96) delivered to the heartbeat
+/// via a `watch` channel. `Copy` so the heartbeat re-reads the latest value
+/// cheaply each tick. Prospective application: a threshold edit affects the
+/// next tick's evaluation, not a retroactive replay (the explicit retrospective
+/// pass is `reevaluate_now`).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct LifecycleThresholds {
+    pub dormant_after_secs: u64,
+    pub archived_after_secs: u64,
+}
 
 pub const TARGET_LIFECYCLE_TICK: &str = "triage.lifecycle.tick";
 pub const TARGET_LIFECYCLE_TRANSITION: &str = "triage.lifecycle.transition";
@@ -77,8 +89,7 @@ pub async fn start_lifecycle_heartbeat(
     broadcast: Arc<ServiceLifecycleBroadcast>,
     baseline_state: Arc<BaselineState>,
     mut restart_rx: Receiver<RestartEvent>,
-    dormant_after_secs: u64,
-    archived_after_secs: u64,
+    thresholds_rx: watch::Receiver<LifecycleThresholds>,
     heartbeat_interval: Duration,
 ) {
     let mut interval = tokio::time::interval(heartbeat_interval);
@@ -87,7 +98,16 @@ pub async fn start_lifecycle_heartbeat(
         tokio::select! {
             _ = interval.tick() => {
                 let now_nanos = current_time_unix_nano();
-                let events = registry.tick_all(now_nanos, &baseline_state, dormant_after_secs, archived_after_secs);
+                // Re-read the latest hot-reloadable thresholds each tick
+                // (chunk #96, prospective: a threshold edit applies from the
+                // next tick forward; no retroactive re-classification).
+                let t = *thresholds_rx.borrow();
+                let events = registry.tick_all(
+                    now_nanos,
+                    &baseline_state,
+                    t.dormant_after_secs,
+                    t.archived_after_secs,
+                );
                 for event in &events {
                     let _ = broadcast.sender().send(event.clone());
                 }
@@ -101,6 +121,32 @@ pub async fn start_lifecycle_heartbeat(
             }
         }
     }
+}
+
+/// Opt-in retrospective re-evaluation (chunk #96 — capability P-056).
+/// Immediately re-classifies every tracked service against the CURRENT
+/// thresholds (rather than waiting for the next heartbeat tick), broadcasting
+/// the implied lifecycle transitions. Returns the number of transition events
+/// emitted. Invoked by `diagnostics.reevaluate_recent_window()` so a user can
+/// apply freshly-hot-reloaded thresholds retrospectively.
+pub fn reevaluate_now(
+    registry: &dyn ServiceRegistry,
+    broadcast: &ServiceLifecycleBroadcast,
+    baseline_state: &BaselineState,
+    thresholds: LifecycleThresholds,
+    now_unix_nano: i64,
+) -> usize {
+    let events = registry.tick_all(
+        now_unix_nano,
+        baseline_state,
+        thresholds.dormant_after_secs,
+        thresholds.archived_after_secs,
+    );
+    for event in &events {
+        let _ = broadcast.sender().send(event.clone());
+    }
+    emit_tick_observability(registry, &events);
+    events.len()
 }
 
 /// Emit the per-tick observability events. Aggregate-only per

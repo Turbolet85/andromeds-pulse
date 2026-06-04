@@ -39,13 +39,20 @@ fn boot_lifecycle(
     let broadcast_handle = Arc::new(ServiceLifecycleBroadcast::new());
     let rx = broadcast_handle.subscribe();
     let restart_rx = restart_broadcast.subscribe();
+    // Chunk #96 — `start_lifecycle_heartbeat` now reads its thresholds from a
+    // `watch` channel (hot-reloadable). Seed it once with the test thresholds;
+    // the heartbeat re-reads the (constant) value each tick.
+    let (_thresh_tx, thresh_rx) =
+        tokio::sync::watch::channel(triage::contract::LifecycleThresholds {
+            dormant_after_secs: dormant_secs,
+            archived_after_secs: archived_secs,
+        });
     let task = tokio::spawn(start_lifecycle_heartbeat(
         Arc::clone(&registry),
         Arc::clone(&broadcast_handle),
         baseline_state,
         restart_rx,
-        dormant_secs,
-        archived_secs,
+        thresh_rx,
         SHORT_HEARTBEAT,
     ));
     (registry, broadcast_handle, rx, task)

@@ -21,7 +21,21 @@ const NANOS_PER_SEC: i64 = 1_000_000_000;
 
 fn make_impl(dm: Arc<dyn DegradedModeStatus>) -> DiagnosticsApiImpl {
     let miner = Arc::new(DrainMiner::new(DrainConfig::default_config(), None));
-    DiagnosticsApiImpl::new(miner, dm)
+    // Chunk #96 — DiagnosticsApiImpl now takes a RecentWindowReevaluator; a
+    // LiveReevaluator over fresh in-memory handles keeps the test hermetic.
+    let registry: Arc<dyn triage::contract::ServiceRegistry> =
+        Arc::new(triage::contract::InMemoryServiceRegistry::new());
+    let broadcast = Arc::new(triage::contract::ServiceLifecycleBroadcast::new());
+    let baseline = Arc::new(triage::contract::BaselineState::new());
+    let (_thresh_tx, thresh_rx) =
+        tokio::sync::watch::channel(triage::contract::LifecycleThresholds {
+            dormant_after_secs: 3_600,
+            archived_after_secs: 86_400,
+        });
+    let reevaluator: Arc<dyn pulse_app::reevaluation::RecentWindowReevaluator> = Arc::new(
+        pulse_app::reevaluation::LiveReevaluator::new(registry, broadcast, baseline, thresh_rx),
+    );
+    DiagnosticsApiImpl::new(miner, dm, reevaluator)
 }
 
 #[tokio::test]

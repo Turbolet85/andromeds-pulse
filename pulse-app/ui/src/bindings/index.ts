@@ -8,6 +8,18 @@ export type AppError = { kind: "validation"; field: string; reason: string } | {
 
 export type AppInfo = { name: string; version: string; rust_version: string; tauri_version: string; features: string[]; build_profile: string }
 
+export type ConfigReloadPayload = { applied: boolean; 
+/**
+ * Bounded outcome label: `"applied"` / `"unchanged"` / `"rejected"`.
+ */
+outcome: string; hot_applied_count: number; restart_required_count: number; 
+/**
+ * Bounded error-category label when `outcome == "rejected"`; else `None`.
+ */
+error_category: string | null }
+
+export type ConfigStatusPayload = { last_reload_unix_nano: number; last_error_category: string | null; restart_required_pending: number; reload_count: number }
+
 /**
  * 5-state connection lifecycle FSM. `#[serde(tag = "state")]` discriminator
  * gives the TauRPC TypeScript binding a discriminated union the compiler
@@ -212,6 +224,13 @@ export type ReadyEnvelope = { ready: boolean; checked_at: string; checks: ReadyC
 export type ReceiverFailureReason = "bind_failed" | "stale_heartbeat" | "receiver_panicked"
 
 /**
+ * Chunk #96 — `reevaluate_recent_window` payload (capability P-056). Counts
+ * services re-classified + transitions emitted by the opt-in retrospective
+ * pass; aggregate-only (no per-service identifiers).
+ */
+export type ReevaluateWindowPayload = { services_reclassified: number; transitions_emitted: number; cadence_prospective: boolean }
+
+/**
  * Six-section Report payload returned by `incidents.get_report(id)`
  * (chunk #88 — Epoch 9 Foundation v0.2.0). Carries structured fields
  * for the in-app webview surface AND а pre-serialized `markdown` string
@@ -343,14 +362,17 @@ export type WidgetPosition = "top-left" | "top-right" | "bottom-left" | "bottom-
 
 export type WorkspaceContextDto = { root_basename: string; project_name: string | null; vcs_type: string | null; vcs_root_basename: string | null; has_andromeda_marker: boolean }
 
-const ARGS_MAP = { '':'{"app_info":[],"get_settings":[],"health":[],"ready":[],"update_settings":["settings"]}', 'connection':'{"current_state":[]}', 'diagnostics':'{"retry_interpretation":[],"template_distribution":[]}', 'incidents':'{"acknowledge":["id"],"get_report":["id"],"list_active":[],"mark_all_read":[],"mark_resolved":["id"]}', 'logs':'{"query":["args"]}', 'mcp':'{"start":[],"status":[],"stop":[]}', 'metrics':'{"query":["args"]}', 'model':'{"current_profile":[]}', 'plugins':'{"invoke":["plugin_id","capability"],"list":[],"reload":[]}', 'services':'{"list_with_states":[]}', 'snapshot':'{"generate":["preset","workspace_root"]}', 'storage':'{"export_for_training":["target_path","confirm"],"inspect":[],"path":[]}', 'streams':'{"subscribe_logs":["channel"],"subscribe_metrics":["channel"],"subscribe_spans":["channel"]}', 'telemetry.frontend':'{"record_frame_ms":["input"]}', 'traces':'{"query":["args"]}', 'workspace':'{"detect":["candidate_root"]}' }
+const ARGS_MAP = { '':'{"app_info":[],"get_settings":[],"health":[],"ready":[],"update_settings":["settings"]}', 'config':'{"reload":[],"status":[]}', 'connection':'{"current_state":[]}', 'diagnostics':'{"reevaluate_recent_window":[],"retry_interpretation":[],"template_distribution":[]}', 'incidents':'{"acknowledge":["id"],"get_report":["id"],"list_active":[],"mark_all_read":[],"mark_resolved":["id"]}', 'logs':'{"query":["args"]}', 'mcp':'{"start":[],"status":[],"stop":[]}', 'metrics':'{"query":["args"]}', 'model':'{"current_profile":[]}', 'plugins':'{"invoke":["plugin_id","capability"],"list":[],"reload":[]}', 'services':'{"list_with_states":[]}', 'snapshot':'{"generate":["preset","workspace_root"]}', 'storage':'{"export_for_training":["target_path","confirm"],"inspect":[],"path":[]}', 'streams':'{"subscribe_logs":["channel"],"subscribe_metrics":["channel"],"subscribe_spans":["channel"]}', 'telemetry.frontend':'{"record_frame_ms":["input"]}', 'traces':'{"query":["args"]}', 'workspace':'{"detect":["candidate_root"]}' }
 export type Router = { "": {app_info: () => Promise<AppInfo>, 
 get_settings: () => Promise<Settings>, 
 health: () => Promise<HealthEnvelope>, 
 ready: () => Promise<ReadyEnvelope>, 
 update_settings: (settings: Settings) => Promise<null>},
+"config": {reload: () => Promise<ConfigReloadPayload>, 
+status: () => Promise<ConfigStatusPayload>},
 "connection": {current_state: () => Promise<ConnectionStatePayload>},
-"diagnostics": {retry_interpretation: () => Promise<RetryInterpretationPayload>, 
+"diagnostics": {reevaluate_recent_window: () => Promise<ReevaluateWindowPayload>, 
+retry_interpretation: () => Promise<RetryInterpretationPayload>, 
 template_distribution: () => Promise<TemplateDistributionPayload>},
 "incidents": {acknowledge: (id: number) => Promise<null>, 
 get_report: (id: number) => Promise<ReportPayload>, 

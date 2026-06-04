@@ -14,6 +14,7 @@ members = [
     "crates/plugins",
     "crates/mcp-server",
     "crates/interpretation",
+    "crates/config-watcher",
     "pulse-app",
     "xtask",
 ]
@@ -203,6 +204,15 @@ tokenizers = { version = "0.21", default-features = false, features = ["fancy-re
 # `tls` feature enables HTTPS support.
 ureq = { version = "2", default-features = false, features = ["tls"] }
 sha2 = "0.10"
+
+# Configuration hot-reload filesystem watcher (route#96 — Epoch 9 Foundation
+# v0.2.0 terminal chunk). `notify` 8.x cross-platform FS watcher (inotify /
+# FSEvents / ReadDirectoryChangesW). Consumed by crates/config-watcher to
+# observe `<data_dir>/config.toml`; the watched path is canonicalized +
+# confined under the data dir before the watcher attaches (CWE-22). Pinned
+# per security plan §Dependency Security; passes `cargo deny check bans
+# licenses sources`.
+notify = "8"
 
 [profile.release]
 lto = "thin"

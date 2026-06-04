@@ -664,7 +664,10 @@ const EXPECTED_PROCEDURES: &[&str] = &[
     "ready",
     "get_settings",
     "update_settings",
+    "config.reload",
+    "config.status",
     "connection.current_state",
+    "diagnostics.reevaluate_recent_window",
     "diagnostics.retry_interpretation",
     "diagnostics.template_distribution",
     "incidents.acknowledge",
@@ -1179,6 +1182,21 @@ mod capability_drift_tests {
             expected.contains("incidents.get_report"),
             "EXPECTED_PROCEDURES must include incidents.get_report (chunk #88 Diagnostic Report generation — L5 in-app report panel + copy markdown per capabilities P-031 + P-035–P-038)"
         );
+    }
+
+    #[test]
+    fn expected_procedures_includes_config_hot_reload_at_chunk_96() {
+        let expected: BTreeSet<&str> = EXPECTED_PROCEDURES.iter().copied().collect();
+        for proc in [
+            "config.reload",
+            "config.status",
+            "diagnostics.reevaluate_recent_window",
+        ] {
+            assert!(
+                expected.contains(proc),
+                "EXPECTED_PROCEDURES must include {proc} (chunk #96 Configuration hot reload + prospective threshold application per capabilities P-055 / P-056)"
+            );
+        }
     }
 
     #[test]

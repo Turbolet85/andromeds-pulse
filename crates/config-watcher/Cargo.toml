@@ -1,0 +1,22 @@
+[package]
+name = "config-watcher"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[dependencies]
+serde.workspace = true
+thiserror.workspace = true
+tracing.workspace = true
+toml.workspace = true
+strict-path.workspace = true
+tokio.workspace = true
+notify.workspace = true
+ui-bridge = { path = "../ui-bridge" }
+
+[dev-dependencies]
+tempfile.workspace = true
+serde_json.workspace = true
+tokio = { workspace = true, features = ["test-util"] }

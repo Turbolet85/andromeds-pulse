@@ -40,6 +40,10 @@ pub(crate) const TARGET_CADENCE_TICK: &str = "cadence.tick";
 pub(crate) const TARGET_CADENCE_TRIGGER: &str = "cadence.trigger";
 pub(crate) const TARGET_METRIC_PIPELINE_L3_DIGESTS_ASSEMBLED_TOTAL: &str =
     "metric.pipeline.l3.digests_assembled_total";
+/// Emitted when the coordinator hot-reloads its cadence config from the
+/// `watch` channel (chunk #96). Aggregate-only fields (the new interval
+/// seconds + tier2 flag); no user content.
+pub(crate) const TARGET_CADENCE_CONFIG_RELOAD_APPLIED: &str = "cadence.config.reload_applied";
 // `cadence.config.load` + `cadence.config.safety_floor` are emitted from
 // `pulse-app/src/main.rs` boot wiring (Settings-load path) — string
 // literal at emit site mirrors chunk #62 precedent for emit-only targets
