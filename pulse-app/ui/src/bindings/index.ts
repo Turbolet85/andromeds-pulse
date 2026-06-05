@@ -55,6 +55,30 @@ export type CueKind = "error_rate_spike" | "latency_regression" | "restart_event
  */
 export type CueScope = "service" | "operation" | "global"
 
+/**
+ * Chunk #97 — `diagnostics.history(metric_name, window_seconds)` payload
+ * (capability P-058). STUB this chunk: no numeric-metric-history producer
+ * exists (the corpus `pipeline_metrics` table stores opaque latest-only
+ * state-snapshot blobs, not per-metric series), so `points` is empty +
+ * `recorded` is false + `notice` explains. The procedure still validates
+ * `metric_name` + bounds the window so the contract is stable for a future
+ * producer chunk.
+ */
+export type DiagnosticsHistoryPayload = { metric_name: string; points: MetricHistoryPoint[]; recorded: boolean; notice: string }
+
+/**
+ * Chunk #97 — `diagnostics.snapshot()` payload (capability P-058). A
+ * point-in-time aggregate of the L6 self-observability state that already
+ * exists in-process. Sub-fields with no production producer yet (inference
+ * success rate, queue depth, per-layer L0-L5 numerics) are `None` / `false`
+ * and rendered as "not yet recorded" by the webview — NEVER fabricated
+ * (hybrid-render scope decision). The Connection + Templates sections reuse
+ * the existing `connection.current_state` + `diagnostics.template_distribution`
+ * resolvers webview-side, so this payload carries only the Model / Hardware /
+ * Pipeline sections that have no dedicated resolver.
+ */
+export type DiagnosticsSnapshotPayload = { model: ModelSectionPayload; hardware: HardwareSectionPayload; pipeline: PipelineSectionPayload; captured_unix_nano: number }
+
 export type DriftIndicatorPayload = "Healthy" | "OverGeneralized" | "UnderClustered"
 
 /**
@@ -72,6 +96,8 @@ export type ExportCategoryCount = { dimension: string; label: string; count: num
 export type ExportPreviewPayload = { categories: ExportCategoryCount[]; total_records: number; date_range_start_unix_nano: number | null; date_range_end_unix_nano: number | null; anonymization_confirmed: boolean; written: boolean; written_path_basename: string | null }
 
 export type FrameDurationInput = { duration_ms: number; wgpu_backend: WgpuBackend; webview_backend: WebviewBackend; timing_method: TimingMethod }
+
+export type HardwareSectionPayload = { profile_label: string; detection_detail: string | null }
 
 export type HealthEnvelope = { status: HealthStatus; checked_at: string; subsystems: SubsystemStatuses; pid: number; uptime_ms: number }
 
@@ -152,6 +178,8 @@ connected_agent: string | null }
 
 export type McpStopResult = { state: McpServerState }
 
+export type MetricHistoryPoint = { snapshot_unix_nano: number; value_basis_points: number }
+
 export type MetricRow = { metric_name: string; ts_unix_nano: number; resource_hash: string; value: number; data_point_kind: number }
 
 export type MetricsQueryArgs = { time_window_seconds: number; limit: number; cursor: string | null }
@@ -184,7 +212,26 @@ load_status: string;
  */
 model_identity_name: string | null }
 
+export type ModelSectionPayload = { tier_label: string; profile_label: string; load_status: string; model_identity_name: string | null; backoff_state_label: string; backoff_remaining_seconds: number; consecutive_failures: number; 
+/**
+ * Inference success rate in basis points (10000 = 100.00%). `None`
+ * until a numeric-metric-history producer lands; basis-points keeps
+ * the payload `Eq` (no `f64`).
+ */
+inference_success_rate_basis_points: number | null; 
+/**
+ * L4 inference queue depth. `None` until a producer records it.
+ */
+queue_depth: number | null }
+
 export type PaginatedResponse<T> = { items: T[]; total: number; next_cursor: string | null }
+
+export type PipelineSectionPayload = { drain_template_count: number; 
+/**
+ * `false` until per-layer L0-L5 numeric metrics are produced; the
+ * webview renders a "not yet recorded" notice when false.
+ */
+per_layer_recorded: boolean }
 
 export type PluginDto = { id: string; basename: string; category: string; byte_count: number }
 
@@ -362,7 +409,7 @@ export type WidgetPosition = "top-left" | "top-right" | "bottom-left" | "bottom-
 
 export type WorkspaceContextDto = { root_basename: string; project_name: string | null; vcs_type: string | null; vcs_root_basename: string | null; has_andromeda_marker: boolean }
 
-const ARGS_MAP = { '':'{"app_info":[],"get_settings":[],"health":[],"ready":[],"update_settings":["settings"]}', 'config':'{"reload":[],"status":[]}', 'connection':'{"current_state":[]}', 'diagnostics':'{"reevaluate_recent_window":[],"retry_interpretation":[],"template_distribution":[]}', 'incidents':'{"acknowledge":["id"],"get_report":["id"],"list_active":[],"mark_all_read":[],"mark_resolved":["id"]}', 'logs':'{"query":["args"]}', 'mcp':'{"start":[],"status":[],"stop":[]}', 'metrics':'{"query":["args"]}', 'model':'{"current_profile":[]}', 'plugins':'{"invoke":["plugin_id","capability"],"list":[],"reload":[]}', 'services':'{"list_with_states":[]}', 'snapshot':'{"generate":["preset","workspace_root"]}', 'storage':'{"export_for_training":["target_path","confirm"],"inspect":[],"path":[]}', 'streams':'{"subscribe_logs":["channel"],"subscribe_metrics":["channel"],"subscribe_spans":["channel"]}', 'telemetry.frontend':'{"record_frame_ms":["input"]}', 'traces':'{"query":["args"]}', 'workspace':'{"detect":["candidate_root"]}' }
+const ARGS_MAP = { '':'{"app_info":[],"get_settings":[],"health":[],"ready":[],"update_settings":["settings"]}', 'config':'{"reload":[],"status":[]}', 'connection':'{"current_state":[]}', 'diagnostics':'{"history":["metric_name","window_seconds"],"reevaluate_recent_window":[],"retry_interpretation":[],"snapshot":[],"template_distribution":[]}', 'incidents':'{"acknowledge":["id"],"get_report":["id"],"list_active":[],"mark_all_read":[],"mark_resolved":["id"]}', 'logs':'{"query":["args"]}', 'mcp':'{"start":[],"status":[],"stop":[]}', 'metrics':'{"query":["args"]}', 'model':'{"current_profile":[]}', 'plugins':'{"invoke":["plugin_id","capability"],"list":[],"reload":[]}', 'services':'{"list_with_states":[]}', 'snapshot':'{"generate":["preset","workspace_root"]}', 'storage':'{"export_for_training":["target_path","confirm"],"inspect":[],"path":[]}', 'streams':'{"subscribe_logs":["channel"],"subscribe_metrics":["channel"],"subscribe_spans":["channel"]}', 'telemetry.frontend':'{"record_frame_ms":["input"]}', 'traces':'{"query":["args"]}', 'workspace':'{"detect":["candidate_root"]}' }
 export type Router = { "": {app_info: () => Promise<AppInfo>, 
 get_settings: () => Promise<Settings>, 
 health: () => Promise<HealthEnvelope>, 
@@ -371,8 +418,10 @@ update_settings: (settings: Settings) => Promise<null>},
 "config": {reload: () => Promise<ConfigReloadPayload>, 
 status: () => Promise<ConfigStatusPayload>},
 "connection": {current_state: () => Promise<ConnectionStatePayload>},
-"diagnostics": {reevaluate_recent_window: () => Promise<ReevaluateWindowPayload>, 
+"diagnostics": {history: (metricName: string, windowSeconds: number) => Promise<DiagnosticsHistoryPayload>, 
+reevaluate_recent_window: () => Promise<ReevaluateWindowPayload>, 
 retry_interpretation: () => Promise<RetryInterpretationPayload>, 
+snapshot: () => Promise<DiagnosticsSnapshotPayload>, 
 template_distribution: () => Promise<TemplateDistributionPayload>},
 "incidents": {acknowledge: (id: number) => Promise<null>, 
 get_report: (id: number) => Promise<ReportPayload>, 

@@ -35,7 +35,22 @@ fn make_impl(dm: Arc<dyn DegradedModeStatus>) -> DiagnosticsApiImpl {
     let reevaluator: Arc<dyn pulse_app::reevaluation::RecentWindowReevaluator> = Arc::new(
         pulse_app::reevaluation::LiveReevaluator::new(registry, broadcast, baseline, thresh_rx),
     );
-    DiagnosticsApiImpl::new(miner, dm, reevaluator)
+    // Chunk #97 — DiagnosticsApiImpl gained LlmInferenceRunner +
+    // HardwareProfileSource for diagnostics.snapshot(); hermetic stubs
+    // (env-unset runner → status Error; Unknown hardware profile).
+    let runner: Arc<dyn interpretation::contract::LlmInferenceRunner> =
+        Arc::new(pulse_app::llamacli_inference::LlamaCliInference::new(
+            interpretation::contract::ModelTier::Primary,
+            triage::contract::HardwareProfile::Unknown,
+            interpretation::broadcast::ModelStatusBroadcast::new(),
+        ));
+    DiagnosticsApiImpl::new(
+        miner,
+        dm,
+        reevaluator,
+        runner,
+        Arc::new(triage::contract::UnknownHardwareProfile),
+    )
 }
 
 #[tokio::test]

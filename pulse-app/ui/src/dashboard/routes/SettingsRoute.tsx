@@ -41,6 +41,9 @@ export function SettingsRoute() {
         onClose={() => {
           void navigate({ to: "/traces" });
         }}
+        onOpenDiagnostics={() => {
+          void navigate({ to: "/diagnostics" });
+        }}
         triggerRef={triggerRef}
       />
     </section>

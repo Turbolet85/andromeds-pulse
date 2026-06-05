@@ -667,8 +667,10 @@ const EXPECTED_PROCEDURES: &[&str] = &[
     "config.reload",
     "config.status",
     "connection.current_state",
+    "diagnostics.history",
     "diagnostics.reevaluate_recent_window",
     "diagnostics.retry_interpretation",
+    "diagnostics.snapshot",
     "diagnostics.template_distribution",
     "incidents.acknowledge",
     "incidents.get_report",
@@ -1195,6 +1197,17 @@ mod capability_drift_tests {
             assert!(
                 expected.contains(proc),
                 "EXPECTED_PROCEDURES must include {proc} (chunk #96 Configuration hot reload + prospective threshold application per capabilities P-055 / P-056)"
+            );
+        }
+    }
+
+    #[test]
+    fn expected_procedures_includes_diagnostics_snapshot_and_history_at_chunk_97() {
+        let expected: BTreeSet<&str> = EXPECTED_PROCEDURES.iter().copied().collect();
+        for proc in ["diagnostics.snapshot", "diagnostics.history"] {
+            assert!(
+                expected.contains(proc),
+                "EXPECTED_PROCEDURES must include {proc} (chunk #97 Settings → Diagnostics view — L6 self-observability surface per capability P-058)"
             );
         }
     }

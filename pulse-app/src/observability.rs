@@ -1581,6 +1581,33 @@ impl AllowList {
                 .copied()
                 .collect(),
         );
+        // Chunk #97 — Settings → Diagnostics view (capability P-058).
+        // Aggregate-only fields per the 2026-05-17 session-84 mandate: no
+        // per-service / per-trace / payload-value labels. `metric_name` is a
+        // bounded allowlist enum tag (4 known values); the `window_seconds`
+        // arg is NEVER logged (query-anonymizer discipline).
+        by_target.insert(
+            "diagnostics.snapshot.request",
+            [
+                "tier",
+                "profile",
+                "load_status",
+                "backoff_remaining_seconds",
+                "consecutive_failures",
+                "drain_template_count",
+                "duration_ms",
+            ]
+            .iter()
+            .copied()
+            .collect(),
+        );
+        by_target.insert(
+            "diagnostics.history.request",
+            ["metric_name", "recorded", "point_count", "duration_ms"]
+                .iter()
+                .copied()
+                .collect(),
+        );
         by_target.insert(
             "metric.pipeline.l1c.drain_template_count_total",
             ["value"].iter().copied().collect(),
@@ -5597,6 +5624,64 @@ mod tests {
                 assert!(
                     !set.contains(k),
                     "chunk #86 AllowList entry must NOT permit PII field `{k}`",
+                );
+            }
+        }
+    }
+
+    #[test]
+    fn allowlist_for_target_resolves_chunk_97_diagnostics_snapshot_and_history_targets() {
+        let al = AllowList::production();
+
+        let snapshot_req = al
+            .for_target("diagnostics.snapshot.request")
+            .expect("expected diagnostics.snapshot.request entry");
+        for required in [
+            "tier",
+            "profile",
+            "load_status",
+            "backoff_remaining_seconds",
+            "consecutive_failures",
+            "drain_template_count",
+            "duration_ms",
+        ] {
+            assert!(
+                snapshot_req.contains(required),
+                "diagnostics.snapshot.request must permit `{required}`",
+            );
+        }
+
+        let history_req = al
+            .for_target("diagnostics.history.request")
+            .expect("expected diagnostics.history.request entry");
+        for required in ["metric_name", "recorded", "point_count", "duration_ms"] {
+            assert!(
+                history_req.contains(required),
+                "diagnostics.history.request must permit `{required}`",
+            );
+        }
+
+        // PII / aggregate-only guard: chunk #97 entries MUST NOT admit
+        // per-service / per-trace identifiers, the raw `window_seconds`
+        // value (query-anonymizer discipline), OR payload content (per
+        // CLAUDE.md observability 2026-05-17 session 84 aggregate-only
+        // mandate).
+        let banned = [
+            "service_name",
+            "scope_id",
+            "span_id",
+            "trace_id",
+            "operation_name",
+            "window_seconds",
+            "model_identity_name",
+            "points",
+            "value_basis_points",
+        ];
+        for set in [snapshot_req, history_req] {
+            for k in &banned {
+                assert!(
+                    !set.contains(k),
+                    "chunk #97 AllowList entry must NOT permit PII/raw field `{k}`",
                 );
             }
         }

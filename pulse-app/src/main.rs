@@ -777,6 +777,8 @@ fn main() {
         Arc::clone(&drain_miner),
         Arc::clone(&degraded_mode),
         Arc::clone(&reevaluator),
+        Arc::clone(&llm_runner),
+        Arc::clone(&hardware_profile),
     );
 
     let grpc_addr = match resolve_grpc_port() {
@@ -1727,10 +1729,24 @@ mod tests {
                 reeval_baseline,
                 reeval_thresh_rx,
             ));
+        // Chunk #97 — DiagnosticsApiImpl now takes an LlmInferenceRunner +
+        // HardwareProfileSource for diagnostics.snapshot(); dedicated hermetic
+        // instances keep the bindings emit deterministic (UnknownHardwareProfile
+        // + an env-unset LlamaCliInference → status: Error, identity: None).
+        let diagnostics_hardware: Arc<dyn HardwareProfileSource> = Arc::new(UnknownHardwareProfile);
+        let diagnostics_model_bcast = interpretation::broadcast::ModelStatusBroadcast::new();
+        let diagnostics_runner: Arc<dyn interpretation::contract::LlmInferenceRunner> =
+            Arc::new(LlamaCliInference::new(
+                interpretation::contract::ModelTier::Primary,
+                diagnostics_hardware.current_profile(),
+                diagnostics_model_bcast,
+            ));
         let diagnostics_impl = DiagnosticsApiImpl::new(
             diagnostics_miner,
             diagnostics_degraded_mode,
             diagnostics_reevaluator,
+            diagnostics_runner,
+            diagnostics_hardware,
         );
 
         // Chunk #78: IncidentsApiImpl participates in the emit so bindings.ts

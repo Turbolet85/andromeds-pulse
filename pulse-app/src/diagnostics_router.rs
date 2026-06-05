@@ -16,8 +16,11 @@
 use std::sync::Arc;
 
 use buffer::{DrainMiner, DriftIndicator as BufferDriftIndicator, TemplateDistEntry, TemplateId};
+use interpretation::contract::{LlmInferenceRunner, model_status_label, model_tier_label};
 use interpretation::degraded_mode::{DegradedModeStatus, degraded_mode_state_label};
+use interpretation::hardware::profile_label;
 use serde::{Deserialize, Serialize};
+use triage::contract::HardwareProfileSource;
 use ui_bridge::contract::AppError;
 
 use crate::reevaluation::RecentWindowReevaluator;
@@ -90,18 +93,108 @@ pub struct ReevaluateWindowPayload {
     pub cadence_prospective: bool,
 }
 
+/// Chunk #97 — `diagnostics.snapshot()` payload (capability P-058). A
+/// point-in-time aggregate of the L6 self-observability state that already
+/// exists in-process. Sub-fields with no production producer yet (inference
+/// success rate, queue depth, per-layer L0-L5 numerics) are `None` / `false`
+/// and rendered as "not yet recorded" by the webview — NEVER fabricated
+/// (hybrid-render scope decision). The Connection + Templates sections reuse
+/// the existing `connection.current_state` + `diagnostics.template_distribution`
+/// resolvers webview-side, so this payload carries only the Model / Hardware /
+/// Pipeline sections that have no dedicated resolver.
+#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq, specta::Type)]
+pub struct DiagnosticsSnapshotPayload {
+    pub model: ModelSectionPayload,
+    pub hardware: HardwareSectionPayload,
+    pub pipeline: PipelineSectionPayload,
+    pub captured_unix_nano: i64,
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq, specta::Type)]
+pub struct ModelSectionPayload {
+    pub tier_label: String,
+    pub profile_label: String,
+    pub load_status: String,
+    pub model_identity_name: Option<String>,
+    pub backoff_state_label: String,
+    pub backoff_remaining_seconds: u64,
+    pub consecutive_failures: u32,
+    /// Inference success rate in basis points (10000 = 100.00%). `None`
+    /// until a numeric-metric-history producer lands; basis-points keeps
+    /// the payload `Eq` (no `f64`).
+    pub inference_success_rate_basis_points: Option<u32>,
+    /// L4 inference queue depth. `None` until a producer records it.
+    pub queue_depth: Option<u64>,
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq, specta::Type)]
+pub struct HardwareSectionPayload {
+    pub profile_label: String,
+    pub detection_detail: Option<String>,
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq, specta::Type)]
+pub struct PipelineSectionPayload {
+    pub drain_template_count: u64,
+    /// `false` until per-layer L0-L5 numeric metrics are produced; the
+    /// webview renders a "not yet recorded" notice when false.
+    pub per_layer_recorded: bool,
+}
+
+/// Chunk #97 — `diagnostics.history(metric_name, window_seconds)` payload
+/// (capability P-058). STUB this chunk: no numeric-metric-history producer
+/// exists (the corpus `pipeline_metrics` table stores opaque latest-only
+/// state-snapshot blobs, not per-metric series), so `points` is empty +
+/// `recorded` is false + `notice` explains. The procedure still validates
+/// `metric_name` + bounds the window so the contract is stable for a future
+/// producer chunk.
+#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq, specta::Type)]
+pub struct DiagnosticsHistoryPayload {
+    pub metric_name: String,
+    pub points: Vec<MetricHistoryPoint>,
+    pub recorded: bool,
+    pub notice: String,
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq, specta::Type)]
+pub struct MetricHistoryPoint {
+    pub snapshot_unix_nano: i64,
+    pub value_basis_points: u32,
+}
+
+/// Bounded allowlist of metric names `diagnostics.history` accepts. Gates
+/// the `metric_name` arg so it can never be used as an unbounded key (per
+/// security plan §Input Validation). Extend when a producer adds a series.
+pub const DIAGNOSTICS_HISTORY_METRICS: &[&str] = &[
+    "inference_success_rate",
+    "queue_depth",
+    "drain_template_count",
+    "connection_last_span_ago_ms",
+];
+
+/// Upper bound on the `window_seconds` arg (30 days), matching the corpus
+/// 30-day default retention. Larger requests clamp to this.
+pub const DIAGNOSTICS_HISTORY_MAX_WINDOW_SECONDS: u64 = 30 * 24 * 60 * 60;
+
 // Chunk #86 — `retry_interpretation` is the manual override for the L4
 // degraded-mode FSM (resets the consecutive-failure counter to 0 and
 // transitions Degraded → Active immediately). Chunk #96 —
 // `reevaluate_recent_window` is the opt-in retrospective re-evaluation
 // (re-classify every tracked service against the freshly hot-reloaded
-// lifecycle thresholds). Doc lives above the macro (taurpc 0.7 rejects
-// multi-line /// attributes inside the trait body).
+// lifecycle thresholds). Chunk #97 — `snapshot` is the point-in-time L6
+// self-observability aggregate; `history` is the (currently stubbed)
+// per-metric time-series accessor. Doc lives above the macro (taurpc 0.7
+// rejects multi-line /// attributes inside the trait body).
 #[taurpc::procedures(path = "diagnostics")]
 pub trait DiagnosticsApi {
     async fn template_distribution() -> Result<TemplateDistributionPayload, AppError>;
     async fn retry_interpretation() -> Result<RetryInterpretationPayload, AppError>;
     async fn reevaluate_recent_window() -> Result<ReevaluateWindowPayload, AppError>;
+    async fn snapshot() -> Result<DiagnosticsSnapshotPayload, AppError>;
+    async fn history(
+        metric_name: String,
+        window_seconds: u64,
+    ) -> Result<DiagnosticsHistoryPayload, AppError>;
 }
 
 #[derive(Clone)]
@@ -109,6 +202,8 @@ pub struct DiagnosticsApiImpl {
     miner: Arc<DrainMiner>,
     degraded_mode: Arc<dyn DegradedModeStatus>,
     reevaluator: Arc<dyn RecentWindowReevaluator>,
+    runner: Arc<dyn LlmInferenceRunner>,
+    profile_source: Arc<dyn HardwareProfileSource>,
 }
 
 impl DiagnosticsApiImpl {
@@ -116,11 +211,15 @@ impl DiagnosticsApiImpl {
         miner: Arc<DrainMiner>,
         degraded_mode: Arc<dyn DegradedModeStatus>,
         reevaluator: Arc<dyn RecentWindowReevaluator>,
+        runner: Arc<dyn LlmInferenceRunner>,
+        profile_source: Arc<dyn HardwareProfileSource>,
     ) -> Self {
         Self {
             miner,
             degraded_mode,
             reevaluator,
+            runner,
+            profile_source,
         }
     }
 }
@@ -195,6 +294,139 @@ impl DiagnosticsApi for DiagnosticsApiImpl {
             transitions_emitted = payload.transitions_emitted,
             "diagnostics.reevaluate_recent_window returned",
         );
+        Ok(payload)
+    }
+
+    #[tracing::instrument(skip_all, fields(
+        tier = tracing::field::Empty,
+        profile = tracing::field::Empty,
+        load_status = tracing::field::Empty,
+        backoff_remaining_seconds = tracing::field::Empty,
+        consecutive_failures = tracing::field::Empty,
+        drain_template_count = tracing::field::Empty,
+        duration_ms = tracing::field::Empty,
+    ))]
+    async fn snapshot(self) -> Result<DiagnosticsSnapshotPayload, AppError> {
+        let start = std::time::Instant::now();
+        let now = current_unix_nanos();
+
+        let profile = self.profile_source.current_profile();
+        let tier = self.runner.tier();
+        let status = self.runner.current_status();
+        let identity = self.runner.identity();
+        let dm = self.degraded_mode.current_snapshot(now);
+        let drain_template_count = self.miner.template_count();
+
+        let model = ModelSectionPayload {
+            tier_label: model_tier_label(tier).to_string(),
+            profile_label: profile_label(profile).to_string(),
+            load_status: model_status_label(status).to_string(),
+            model_identity_name: identity.map(|i| i.semantic_name),
+            backoff_state_label: degraded_mode_state_label(dm.state).to_string(),
+            backoff_remaining_seconds: dm.backoff_seconds_remaining,
+            consecutive_failures: dm.consecutive_failures,
+            inference_success_rate_basis_points: None,
+            queue_depth: None,
+        };
+        let hardware = HardwareSectionPayload {
+            profile_label: profile_label(profile).to_string(),
+            detection_detail: None,
+        };
+        let pipeline = PipelineSectionPayload {
+            drain_template_count,
+            per_layer_recorded: false,
+        };
+        let payload = DiagnosticsSnapshotPayload {
+            model,
+            hardware,
+            pipeline,
+            captured_unix_nano: now,
+        };
+
+        let duration_ms: u64 = u64::try_from(start.elapsed().as_millis()).unwrap_or(u64::MAX);
+        let span = tracing::Span::current();
+        span.record("tier", payload.model.tier_label.as_str());
+        span.record("profile", payload.hardware.profile_label.as_str());
+        span.record("load_status", payload.model.load_status.as_str());
+        span.record(
+            "backoff_remaining_seconds",
+            payload.model.backoff_remaining_seconds,
+        );
+        span.record("consecutive_failures", payload.model.consecutive_failures);
+        span.record(
+            "drain_template_count",
+            payload.pipeline.drain_template_count,
+        );
+        span.record("duration_ms", duration_ms);
+
+        tracing::info!(
+            target: "diagnostics.snapshot.request",
+            tier = payload.model.tier_label.as_str(),
+            profile = payload.hardware.profile_label.as_str(),
+            load_status = payload.model.load_status.as_str(),
+            backoff_remaining_seconds = payload.model.backoff_remaining_seconds,
+            consecutive_failures = payload.model.consecutive_failures,
+            drain_template_count = payload.pipeline.drain_template_count,
+            duration_ms = duration_ms,
+            "diagnostics.snapshot returned",
+        );
+
+        Ok(payload)
+    }
+
+    #[tracing::instrument(skip_all, fields(
+        metric_name = tracing::field::Empty,
+        recorded = tracing::field::Empty,
+        point_count = tracing::field::Empty,
+        duration_ms = tracing::field::Empty,
+    ))]
+    async fn history(
+        self,
+        metric_name: String,
+        window_seconds: u64,
+    ) -> Result<DiagnosticsHistoryPayload, AppError> {
+        let start = std::time::Instant::now();
+
+        if !DIAGNOSTICS_HISTORY_METRICS.contains(&metric_name.as_str()) {
+            return Err(AppError::Validation {
+                field: "metric_name".to_string(),
+                reason: "unknown diagnostics metric".to_string(),
+            });
+        }
+        // Window bounded к the 30-day corpus retention; clamp rather than
+        // reject so the contract is forgiving for a future producer chunk.
+        let _bounded_window = window_seconds.min(DIAGNOSTICS_HISTORY_MAX_WINDOW_SECONDS);
+
+        // Hybrid-render scope (chunk #97): no numeric-metric-history producer
+        // exists yet — `pipeline_metrics` stores opaque latest-only state
+        // blobs, not per-metric series. Return an empty series + notice; the
+        // contract stays stable for a future producer chunk. No corpus query
+        // runs (so the prepared-statement / query-anonymizer disciplines are
+        // N/A-by-construction this chunk).
+        let payload = DiagnosticsHistoryPayload {
+            metric_name: metric_name.clone(),
+            points: Vec::new(),
+            recorded: false,
+            notice: "metric history recording not yet available".to_string(),
+        };
+
+        let duration_ms: u64 = u64::try_from(start.elapsed().as_millis()).unwrap_or(u64::MAX);
+        let point_count: u64 = u64::try_from(payload.points.len()).unwrap_or(u64::MAX);
+        let span = tracing::Span::current();
+        span.record("metric_name", metric_name.as_str());
+        span.record("recorded", payload.recorded);
+        span.record("point_count", point_count);
+        span.record("duration_ms", duration_ms);
+
+        tracing::info!(
+            target: "diagnostics.history.request",
+            metric_name = metric_name.as_str(),
+            recorded = payload.recorded,
+            point_count = point_count,
+            duration_ms = duration_ms,
+            "diagnostics.history returned",
+        );
+
         Ok(payload)
     }
 
@@ -308,12 +540,26 @@ mod tests {
         Arc::new(Noop)
     }
 
+    fn test_runner() -> Arc<dyn LlmInferenceRunner> {
+        Arc::new(crate::llamacli_inference::LlamaCliInference::new(
+            interpretation::contract::ModelTier::Primary,
+            triage::contract::HardwareProfile::Unknown,
+            interpretation::broadcast::ModelStatusBroadcast::new(),
+        ))
+    }
+
+    fn test_profile_source() -> Arc<dyn HardwareProfileSource> {
+        Arc::new(triage::contract::UnknownHardwareProfile)
+    }
+
     fn make_impl() -> DiagnosticsApiImpl {
         let miner = Arc::new(DrainMiner::new(DrainConfig::default_config(), None));
         DiagnosticsApiImpl::new(
             miner,
             Arc::new(crate::degraded_mode_runtime::LocalDegradedModeStatus::new()),
             noop_reevaluator(),
+            test_runner(),
+            test_profile_source(),
         )
     }
 
@@ -337,6 +583,8 @@ mod tests {
             miner,
             Arc::new(crate::degraded_mode_runtime::LocalDegradedModeStatus::new()),
             noop_reevaluator(),
+            test_runner(),
+            test_profile_source(),
         );
         let payload = api.template_distribution().await.expect("infallible");
         assert!(!payload.templates.is_empty());
@@ -366,6 +614,8 @@ mod tests {
             miner,
             Arc::new(crate::degraded_mode_runtime::LocalDegradedModeStatus::new()),
             noop_reevaluator(),
+            test_runner(),
+            test_profile_source(),
         );
         let payload = api.template_distribution().await.expect("infallible");
         assert!(payload.templates.len() <= TEMPLATE_DISTRIBUTION_TOP_N);
@@ -379,6 +629,8 @@ mod tests {
             miner,
             Arc::new(crate::degraded_mode_runtime::LocalDegradedModeStatus::new()),
             noop_reevaluator(),
+            test_runner(),
+            test_profile_source(),
         );
         let payload = api.template_distribution().await.expect("infallible");
         assert_eq!(payload.templates.len(), 1);

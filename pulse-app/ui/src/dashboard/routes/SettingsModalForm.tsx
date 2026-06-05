@@ -89,6 +89,10 @@ interface SettingsModalFormProps {
   open: boolean;
   onClose: () => void;
   triggerRef: RefObject<HTMLElement | null>;
+  // Chunk #97 — navigate to the full Settings → Diagnostics route. Optional
+  // so the modal stays router-agnostic for unit tests (rendered outside a
+  // RouterProvider); SettingsRoute supplies the navigate callback.
+  onOpenDiagnostics?: () => void;
 }
 
 interface FieldErrors {
@@ -140,6 +144,7 @@ export function SettingsModalForm({
   open,
   onClose,
   triggerRef,
+  onOpenDiagnostics,
 }: SettingsModalFormProps) {
   const [formState, setFormState] = useState<SettingsResolved>(DEFAULT_SETTINGS);
   const [loading, setLoading] = useState<boolean>(true);
@@ -696,6 +701,28 @@ export function SettingsModalForm({
           >
             Diagnostics
           </h3>
+          {onOpenDiagnostics ? (
+            <button
+              type="button"
+              data-testid="open-diagnostics-view"
+              onClick={onOpenDiagnostics}
+              disabled={loading || saving}
+              style={{
+                alignSelf: "flex-start",
+                background: "var(--color-primary)",
+                color: "var(--color-base)",
+                border: "1px solid var(--color-primary)",
+                borderRadius: "var(--radius-sm)",
+                padding: "var(--spacing-sm) var(--spacing-md)",
+                fontFamily: "var(--font-body)",
+                fontSize: "12px",
+                fontWeight: 500,
+                cursor: "pointer",
+              }}
+            >
+              Open full Diagnostics view
+            </button>
+          ) : null}
           <button
             type="button"
             aria-expanded={diagnosticsOpen}

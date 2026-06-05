@@ -37,6 +37,7 @@ import { MetricsRoute } from "./routes/MetricsRoute";
 import { LogsRoute } from "./routes/LogsRoute";
 import { SnapshotsRoute } from "./routes/SnapshotsRoute";
 import { SettingsRoute } from "./routes/SettingsRoute";
+import { Diagnostics } from "./routes/diagnostics/Diagnostics";
 
 export function pathnameToTabId(pathname: string): TabId {
   const stripped = pathname.replace(/^\//, "").split("/")[0];
@@ -204,6 +205,16 @@ const settingsRoute = createRoute({
   component: SettingsRoute,
 });
 
+// Chunk #97 — Settings → Diagnostics view (capability P-058). A routable
+// sub-surface reachable from the Settings panel's "Open full Diagnostics
+// view" button (NOT a top-level tab, NOT in the compact widget or tray per
+// layout-templates.md §IA notes).
+const diagnosticsRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/diagnostics",
+  component: Diagnostics,
+});
+
 export const routeTree = rootRoute.addChildren([
   indexRoute,
   tracesRoute,
@@ -211,6 +222,7 @@ export const routeTree = rootRoute.addChildren([
   logsRoute,
   snapshotsRoute,
   settingsRoute,
+  diagnosticsRoute,
 ]);
 
 export interface CreateDashboardRouterOptions {
