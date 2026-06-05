@@ -177,6 +177,8 @@
   - `diagnostics.template_distribution` — pulse-app crate (`DiagnosticsApiImpl` returning `TemplateDistributionPayload` from `crates/buffer::DrainMiner::template_distribution()`; chunk #69) — see §Architecture Registry Updates 2026-05-19
   - `diagnostics.retry_interpretation` — pulse-app crate (`DiagnosticsApiImpl` returning `RetryInterpretationPayload` via the L4 degraded-mode FSM manual-override path; chunk #86) — see §Architecture Registry Updates 2026-05-25
   - `diagnostics.reevaluate_recent_window` — pulse-app crate (`DiagnosticsApiImpl` opt-in FULL retrospective re-classification of the recent window via `RecentWindowReevaluator`/`LiveReevaluator` in `pulse-app/src/reevaluation.rs`; chunk #96) — see §Architecture Registry Updates 2026-06-04
+  - `diagnostics.snapshot` — pulse-app crate (`DiagnosticsApiImpl` returning `DiagnosticsSnapshotPayload` — HYBRID-RENDER L6 self-observability point-in-time aggregate of Model/Hardware/Pipeline live state from `interpretation::LlmInferenceRunner` + `triage::HardwareProfileSource` + `buffer::DrainMiner`; sub-fields with no production producer render explicit "not yet recorded" never fabricated; chunk #97) — see §Architecture Registry Updates 2026-06-05
+  - `diagnostics.history` — pulse-app crate (`DiagnosticsApiImpl` returning `DiagnosticsHistoryPayload` — validated stub: bounded-allowlist `metric_name` + clamped `window_seconds` → empty series + "not yet recorded" notice, NO corpus query; chunk #97) — see §Architecture Registry Updates 2026-06-05
   - `config.reload`, `config.status` — pulse-app crate (`ConfigApiImpl` backed by the `crates/config-watcher` notify-watcher + `tokio::sync::watch` fan-out; `config.reload` forces an immediate re-read + hot-apply of `config.toml`, `config.status` returns the last-reload timestamp + last error category; chunk #96) — see §Architecture Registry Updates 2026-06-04
   - `incidents.list_active`, `incidents.acknowledge`, `incidents.mark_resolved`, `incidents.mark_all_read`, `incidents.get_report` — pulse-app crate (`IncidentsApiImpl` resolver backed by `crates/triage::contract::IncidentRegistry` + `IncidentPersistence` + `IncidentLifecycleBroadcast`; chunk #78, `mark_all_read` chunk #87, `get_report` chunk #88) — see §Architecture Registry Updates 2026-05-23 + 2026-05-26 + 2026-05-27
   - `model.current_profile` — pulse-app crate (`ModelApiImpl` returning `ModelProfilePayload` { profile_label, tier_label, load_status, model_identity_name } from `interpretation::contract::LlmInferenceRunner` + `triage::contract::HardwareProfileSource`; chunk #82) — see §Architecture Registry Updates 2026-05-24
@@ -562,4 +564,13 @@ _This section accumulates entries from `/andromeda-evolve --allow-arch-registry`
 - `pulse://stream/config-events` (`crates/config-watcher/src/event.rs:13` `STREAM_NAME_CONFIG_EVENTS`, chunk #96) — aggregate-only `ConfigEvent` (kind/counts/error_category; no raw config values or paths per logging discipline).
 **Rationale:** D3 capability-drift closure for chunk #96 Configuration hot reload + prospective threshold application (capabilities P-055 / P-056). Single-coordinated multi-item amendment mirroring 2026-05-24 chunk #82 (crate + TauRPC + broadcast) + 2026-05-18 chunk #68 corpus-additions multi-sub-section precedents; the `notify` 8.x workspace dep is §Stack/dep-tree territory (excluded from this registry amendment), and word-form narrative-cascade warnings (§Design Philosophy "twelve library crates" → 14 / "fourteen workspace members" → 16) are surfaced informationally per Check 7.5 Option B (structural §Design Philosophy NOT modified).
 **Marker:** `.andromeda/runs/2026-06-04T17-05-12-spec-amendment-acknowledge-chunk-96-config-hot-reload/amendment.md`
+
+### 2026-06-05 — Acknowledge `diagnostics.snapshot` + `diagnostics.history` (--allow-arch-registry)
+
+**Section:** §Occupied Resources Tauri IPC routes.
+**Added:**
+- `diagnostics.snapshot` (`pulse-app/src/diagnostics_router.rs:193` trait + `:309` resolver impl, chunk #97).
+- `diagnostics.history` (`pulse-app/src/diagnostics_router.rs:194` trait + `:383` resolver impl, chunk #97).
+**Rationale:** D3 capability-drift closure for chunk #97 Settings → Diagnostics view (L6 self-observability surface, HYBRID-RENDER scope). Mirrors 2026-06-04 chunk #96 `diagnostics.reevaluate_recent_window` + 2026-05-25 chunk #86 `diagnostics.retry_interpretation` + 2026-05-19 chunk #69 `diagnostics.template_distribution` precedent.
+**Marker:** `.andromeda/runs/2026-06-05T17-56-29-spec-amendment-acknowledge-chunk-97-diagnostics-snapshot-history/amendment.md`
 

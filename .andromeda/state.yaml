@@ -1449,7 +1449,41 @@ spec_amendments:
   # noted+archived 2026-05-30T20:24:15Z (this wrap-session Phase 8 lifecycle
   # progression per spec-amendment-protocol.md Part D). Active list empty
   # post-archive; archive +1 (73 → 74).
-  active: []   # session 177 — chunk #97 "Settings -> Diagnostics view" route-append Type 7 Form 1 amendment ARCHIVED this wrap (full single-session cycle: applied 2026-06-04T19:35:38Z /andromeda-evolve --allow-route-append -> propagated 2026-06-04T19:46:22Z /andromeda-setup-project --delta CLAUDE.md pointer-table 96->97 chunks (commit ac224b9) -> noted+archived 2026-06-04T19:54:59Z this wrap; 20th-instance Type 7 Form 1 single-cycle Active->Propagated->Archived in one session). Archive 81 -> 82.
+  active:
+    - amendment_id: 2026-06-05T17-56-29-acknowledge-chunk-97-diagnostics-snapshot-history
+      plans:
+        - path: architecture.md
+          sections:
+            - "§Occupied Resources (Tauri IPC routes)"
+            - "§Architecture Registry Updates"
+          decisions_log_section: "2026-06-05 — Acknowledge diagnostics.snapshot + diagnostics.history (--allow-arch-registry)"
+      trigger:
+        chunk: null
+        phase: null
+        harness: "user-driven via /andromeda-evolve"
+      authority:
+        winning_plan: architecture.md
+        winning_tier: implementation
+        losing_plan: architecture.md
+        losing_concern: registry-section-stale-vs-implementation-reality
+        rationale: "Code at diagnostics_router.rs:193/309 (snapshot) + :194/383 (history) implements the procedures; arch §Occupied Resources Tauri IPC routes had not acknowledged. chunk #97."
+      impl_files_synced: []
+      expected_propagation: []
+      marker_path: .andromeda/runs/2026-06-05T17-56-29-spec-amendment-acknowledge-chunk-97-diagnostics-snapshot-history/amendment.md
+      applied_at: 2026-06-05T17:56:29Z
+      noted_at: null
+      propagated_by_run: .andromeda/runs/2026-06-05T19-00-49-setup-project-delta/
+      archived_at: null
+      verification_status: clean
+      flag_used: --allow-arch-registry
+      registry_section: "§Occupied Resources (Tauri IPC routes)"
+      registry_additions:
+        - diagnostics.snapshot
+        - diagnostics.history
+      code_evidence:
+        - pulse-app/src/diagnostics_router.rs
+  # session 178 — chunk #97 diagnostics.snapshot + diagnostics.history Type 6 arch-registry amendment APPENDED this turn (D3 closure) via /andromeda-evolve --allow-arch-registry; lifecycle in flight (applied 2026-06-05T17:56:29Z; pending propagate via /andromeda-setup-project --delta + archive next wrap).
+  # session 177 — chunk #97 "Settings -> Diagnostics view" route-append Type 7 Form 1 amendment ARCHIVED this wrap (full single-session cycle: applied 2026-06-04T19:35:38Z /andromeda-evolve --allow-route-append -> propagated 2026-06-04T19:46:22Z /andromeda-setup-project --delta CLAUDE.md pointer-table 96->97 chunks (commit ac224b9) -> noted+archived 2026-06-04T19:54:59Z this wrap; 20th-instance Type 7 Form 1 single-cycle Active->Propagated->Archived in one session). Archive 81 -> 82.
   # session 176 — chunk #96 config-watcher Type 6 arch-registry amendment ARCHIVED this wrap (full single-session cycle: applied 2026-06-04T17:05:12Z /andromeda-evolve --allow-arch-registry -> propagated 2026-06-04T17:19:37Z /andromeda-setup-project --delta CLAUDE.md :overview/:modules cascade (commit 08438af) -> noted+archived 2026-06-04T19:05:46Z this wrap; D3 closure complete). Archive 80 -> 81. PRIOR session 174 — chunk #96 route-append amendment ARCHIVED that wrap (full Type 7 Form 1 single-cycle Active->Propagated->Archived in one session; 19th-instance pattern mirroring sessions 115/118/.../166/171). Lifecycle: applied 2026-06-04T06:33:54Z (/andromeda-evolve --allow-route-append) -> propagated 2026-06-04T07:04:23Z (/andromeda-setup-project --delta; CLAUDE.md pointer-table 95->96 chunks; commit 9c75071) -> noted+archived 2026-06-04T07:17:30Z. PRIOR session 173 — chunk #95 Type 6 arch-registry amendment ARCHIVED; active empty post-archive. Archive 79 -> 80. NOTE: session 176 (2026-06-04T17:05:12Z) appended the chunk #96 Type 6 arch-registry amendment below (D3 closure) via /andromeda-evolve --allow-arch-registry — lifecycle in flight (applied; pending propagate via setup-project --delta + archive).
   archive:
     - amendment_id: 2026-06-04T19-35-38-append-chunk-97-settings-diagnostics-view
