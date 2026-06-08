@@ -42,7 +42,7 @@ jobs:
           shared-key: ${{ runner.os }}-cargo
 
       - name: Install cargo-nextest + cargo-llvm-cov
-        uses: taiki-e/install-action@db5fb34fa772531a3ece57ca434f579eb334e0fb # v2.75.30
+        uses: taiki-e/install-action@0631aa6515c7d545823c67cfae7ef4fc7f490154 # v2.81.8
         with:
           tool: cargo-nextest,cargo-llvm-cov
 
@@ -211,7 +211,7 @@ jobs:
         uses: EmbarkStudios/cargo-deny-action@a4d2d701318fdc1c6ae17ba8cea8f329c5110eb2 # v2.0.17
 
       - name: Install cargo-auditable
-        uses: taiki-e/install-action@db5fb34fa772531a3ece57ca434f579eb334e0fb # v2.75.30
+        uses: taiki-e/install-action@0631aa6515c7d545823c67cfae7ef4fc7f490154 # v2.81.8
         with:
           tool: cargo-auditable
 
@@ -239,7 +239,7 @@ jobs:
           shared-key: ubuntu-22.04-cargo
 
       - name: Install cargo-nextest + cargo-llvm-cov
-        uses: taiki-e/install-action@db5fb34fa772531a3ece57ca434f579eb334e0fb # v2.75.30
+        uses: taiki-e/install-action@0631aa6515c7d545823c67cfae7ef4fc7f490154 # v2.81.8
         with:
           tool: cargo-nextest,cargo-llvm-cov
 
