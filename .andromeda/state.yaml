@@ -1443,7 +1443,45 @@ spec_amendments:
   # noted+archived 2026-05-30T20:24:15Z (this wrap-session Phase 8 lifecycle
   # progression per spec-amendment-protocol.md Part D). Active list empty
   # post-archive; archive +1 (73 → 74).
-  active: []   # session 180 — chunk #98 Background reflection cadence Type 7 Form 1 route-append amendment ARCHIVED this wrap (full single-session cycle: applied 2026-06-09T17:05:14Z /andromeda-evolve --allow-route-append -> propagated 2026-06-09T17:13:41Z /andromeda-setup-project --delta CLAUDE.md pointer-table 97->98 chunks (commit 07d8cca) -> noted+archived 2026-06-09T17:27:48Z this wrap; 21st-instance Type 7 Form 1 single-cycle Active->Propagated->Archived in one session, mirrors sessions 177/174/171 precedent). Archive 83 -> 84.
+  active:   # session 182 — chunk #99 A11y + perf re-verify Type 7 Form 1 route-append amendment APPLIED this session via /andromeda-evolve --allow-route-append; lifecycle in flight (applied 2026-06-09T19:05:27Z; pending propagate via /andromeda-setup-project --delta + archive at next wrap). PRIOR: session 180 — chunk #98 Background reflection cadence Type 7 Form 1 route-append amendment ARCHIVED that wrap (full single-session cycle: applied 2026-06-09T17:05:14Z /andromeda-evolve --allow-route-append -> propagated 2026-06-09T17:13:41Z /andromeda-setup-project --delta CLAUDE.md pointer-table 97->98 chunks (commit 07d8cca) -> noted+archived 2026-06-09T17:27:48Z that wrap; 21st-instance Type 7 Form 1 single-cycle Active->Propagated->Archived in one session, mirrors sessions 177/174/171 precedent). Archive 83 -> 84.
+    - amendment_id: 2026-06-09T19-05-27-append-chunk-99-a11y-perf-reverify
+      plans:
+        - path: route.md
+          sections:
+            - "§1 Route Scope Summary (Total chunks line)"
+            - "§2 Roadmap (Epoch 9 — Foundation v0.2.0)"
+            - "§3 Decisions Log"
+          decisions_log_section: "2026-06-09 — Append chunk #99 A11y + perf re-verify + capability coverage check (--allow-route-append)"
+      trigger:
+        chunk: null
+        phase: null
+        harness: "user-driven via /andromeda-evolve"
+      authority:
+        winning_plan: null
+        winning_tier: "pipeline state"
+        losing_plan: route.md
+        losing_concern: chunk-list-stale-vs-pipeline-reality
+        rationale: "Route 98/98 registered+implemented (session 181, chunk #98 commit b5cd6b5); source pulse-v0_2_0-route.md §97 (the v0.2.0 tag gate) unregistered — append as chunk #99 per Check-8-verified Form 1."
+      impl_files_synced: []
+      expected_propagation:
+        - "CLAUDE.md (GENERATED:setup:pointer-table — chunk-count cascade (9 epochs / 98 chunks) → (9 epochs / 99 chunks))"
+      marker_path: .andromeda/runs/2026-06-09T19-05-27-spec-amendment-append-chunk-99-a11y-perf-reverify/amendment.md
+      applied_at: 2026-06-09T19:05:27Z
+      noted_at: null
+      propagated_by_run: .andromeda/runs/2026-06-09T19-19-58-setup-project-delta/   # session 182 — delta-rerun propagated CLAUDE.md pointer-table (9 epochs / 98 chunks) -> (9 epochs / 99 chunks); noted+archive at next wrap
+      archived_at: null
+      verification_status: clean
+      flag_used: --allow-route-append
+      form: 1
+      route_section_modified: "Epoch 9 — Foundation v0.2.0"
+      chunks_added:
+        - position: 99
+          text: "A11y + perf re-verify + capability coverage check — full a11y/perf SLO re-audit + load profiles; P-001–P-060 verified; v0.2.0 tag gate (detail in pulse-v0_2_0-route §97)."
+      chunks_renumbered: []
+      motivation: "Route 98/98 implemented (session 181 wrap, chunk #98 commit b5cd6b5); source §97 'A11y + perf re-verify + capability coverage check' is the v0.2.0 tag gate, last unregistered chunk; handoff Deferred decisions #10."
+      confirmed_shift: false
+      scope_summary_updates:
+        - "Total chunks: 98 → 99"
   # session 178 — chunk #97 diagnostics.snapshot + diagnostics.history Type 6 arch-registry amendment APPENDED this turn (D3 closure) via /andromeda-evolve --allow-arch-registry; lifecycle in flight (applied 2026-06-05T17:56:29Z; pending propagate via /andromeda-setup-project --delta + archive next wrap).
   # session 177 — chunk #97 "Settings -> Diagnostics view" route-append Type 7 Form 1 amendment ARCHIVED this wrap (full single-session cycle: applied 2026-06-04T19:35:38Z /andromeda-evolve --allow-route-append -> propagated 2026-06-04T19:46:22Z /andromeda-setup-project --delta CLAUDE.md pointer-table 96->97 chunks (commit ac224b9) -> noted+archived 2026-06-04T19:54:59Z this wrap; 20th-instance Type 7 Form 1 single-cycle Active->Propagated->Archived in one session). Archive 81 -> 82.
   # session 176 — chunk #96 config-watcher Type 6 arch-registry amendment ARCHIVED this wrap (full single-session cycle: applied 2026-06-04T17:05:12Z /andromeda-evolve --allow-arch-registry -> propagated 2026-06-04T17:19:37Z /andromeda-setup-project --delta CLAUDE.md :overview/:modules cascade (commit 08438af) -> noted+archived 2026-06-04T19:05:46Z this wrap; D3 closure complete). Archive 80 -> 81. PRIOR session 174 — chunk #96 route-append amendment ARCHIVED that wrap (full Type 7 Form 1 single-cycle Active->Propagated->Archived in one session; 19th-instance pattern mirroring sessions 115/118/.../166/171). Lifecycle: applied 2026-06-04T06:33:54Z (/andromeda-evolve --allow-route-append) -> propagated 2026-06-04T07:04:23Z (/andromeda-setup-project --delta; CLAUDE.md pointer-table 95->96 chunks; commit 9c75071) -> noted+archived 2026-06-04T07:17:30Z. PRIOR session 173 — chunk #95 Type 6 arch-registry amendment ARCHIVED; active empty post-archive. Archive 79 -> 80. NOTE: session 176 (2026-06-04T17:05:12Z) appended the chunk #96 Type 6 arch-registry amendment below (D3 closure) via /andromeda-evolve --allow-arch-registry — lifecycle in flight (applied; pending propagate via setup-project --delta + archive).
