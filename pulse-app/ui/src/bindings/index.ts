@@ -43,9 +43,21 @@ export type ConnectionStatePayload = { state: ConnectionState; last_span_ago_ms:
  * catch-all). Variants serialize as snake_case strings. Chunk #78 added
  * the `Hash` derive (needed for `IncidentRegistry` cool-down map keying)
  * AND the cfg-gated `specta::Type` derive (for cross-bridge type
- * generation via `IncidentLifecycleEvent`).
+ * generation via `IncidentLifecycleEvent`). Chunk #98 added the synthetic
+ * `ReflectionTrend` variant — the sole kind NOT emitted by a streaming
+ * detector.
  */
-export type CueKind = "error_rate_spike" | "latency_regression" | "restart_event" | "service_went_silent" | "retry_storm"
+export type CueKind = "error_rate_spike" | "latency_regression" | "restart_event" | "service_went_silent" | "retry_storm" | 
+/**
+ * Cumulative-pattern signal from the background reflection cadence
+ * (chunk #98). The ONE synthetic kind NOT emitted by a streaming
+ * detector — constructed only at the L4 reflection-incident producer
+ * (`pulse-app/src/inference_runtime.rs`) to give workspace-global
+ * reflection incidents a `(kind, scope, workspace)` cool-down identity
+ * distinct from the five detector cues. Never enters the
+ * cue→suppression path (reflection digests carry no `AttentionCue`).
+ */
+"reflection_trend"
 
 /**
  * Scope an attention cue applies to: a single service, a single operation

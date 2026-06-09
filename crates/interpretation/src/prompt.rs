@@ -24,7 +24,8 @@
 //! the actual mistralrs runtime binding lands.
 
 use crate::schema::{
-    L4_OUTPUT_JSON_SCHEMA, PROMPT_VERSION_FALLBACK, PROMPT_VERSION_PRIMARY, SCHEMA_VERSION,
+    L4_OUTPUT_JSON_SCHEMA, PROMPT_VERSION_FALLBACK, PROMPT_VERSION_PRIMARY,
+    PROMPT_VERSION_REFLECTION, SCHEMA_VERSION,
 };
 
 /// Marker bounding the L3 digest insertion in the assembled prompt.
@@ -92,6 +93,38 @@ Set `model_tier` to \"fallback\" in the output. \
 Provide exactly ONE hypothesis (highest-confidence; not а ranked list of multiple). \
 Provide at most 2 investigation steps. \
 Do not emit text outside the JSON object. \
+Do not emit а markdown code fence around the JSON. \
+Do not emit explanatory prose before or after the JSON object.";
+
+/// Role definition section emitted at the top of every reflection-tier
+/// prompt (chunk #98 — Epoch 9 Foundation v0.2.0). Emphasizes cumulative
+/// pattern detection over the 30-minute background reflection window
+/// rather than acute single-event interpretation; biases the default
+/// decision toward `curious` unless а high-confidence cumulative pattern
+/// justifies higher severity. Runs at primary-tier quality (`model_tier:
+/// "primary"`), NOT fallback.
+const ROLE_DEFINITION_REFLECTION: &str = "\
+You are а severity classifier reviewing а 30-minute cumulative window of \
+local OpenTelemetry telemetry for а local triage assistant. Your job is к \
+detect emergent patterns, drift, and recurring signatures ACROSS the window \
+— not to react к а single acute event. Weigh whether the cumulative trend \
+warrants surfacing к the developer, dismissing as noise, or watching for \
+further evolution. Default к the \"curious\" severity (record for pattern \
+learning, no interruption) UNLESS you identify а high-confidence cumulative \
+pattern that justifies \"suggested\" or \"autonomous\". Your output MUST \
+conform к the embedded JSON schema, with no prose before or after the JSON \
+object.";
+
+/// Output format reminder emitted at the bottom of every reflection-tier
+/// prompt (chunk #98). Reinforces the default-curious cumulative-trend
+/// contract on top of the strict-JSON-only emission rule.
+const OUTPUT_REMINDER_REFLECTION: &str = "\
+Emit exactly one JSON object matching the schema above. \
+Base your decision on the CUMULATIVE trend across the 30-minute window, not \
+а single event. Default `severity` к \"curious\" unless а high-confidence \
+recurring pattern justifies \"suggested\" or \"autonomous\". \
+Set `model_tier` to \"primary\" in the output. \
+Do not emit any text outside the JSON object. \
 Do not emit а markdown code fence around the JSON. \
 Do not emit explanatory prose before or after the JSON object.";
 
@@ -248,6 +281,84 @@ pub fn build_fallback_tier_prompt(
 
     prompt.push_str("# Output Instructions\n");
     prompt.push_str(OUTPUT_REMINDER_FALLBACK);
+    prompt.push('\n');
+
+    prompt
+}
+
+/// Composes the reflection-tier prompt per [`PROMPT_VERSION_REFLECTION`]
+/// (chunk #98 — Epoch 9 Foundation v0.2.0).
+///
+/// Mirrors [`build_primary_tier_prompt`] section structure (Role →
+/// Conventions → Schema → Project Context → Current Digest → optional
+/// Corpus Retrieval → Output Instructions) but substitutes the
+/// cumulative-trend-emphasis role + output reminder for the 30-minute
+/// background reflection window. Runs at primary-tier quality (no
+/// fallback single-hypothesis constraint; the model emits `model_tier:
+/// "primary"`). Selected by the L4 subscriber when the digest kind is
+/// `DigestKind::Reflection` on а primary-tier runner; fallback-tier
+/// reflection digests reuse [`build_fallback_tier_prompt`].
+pub fn build_reflection_tier_prompt(
+    digest_payload: &str,
+    project_context: &str,
+    corpus_retrieval: &str,
+) -> String {
+    let mut prompt = String::with_capacity(
+        ROLE_DEFINITION_REFLECTION.len()
+            + CONVENTIONS_SNIPPET.len()
+            + L4_OUTPUT_JSON_SCHEMA.len()
+            + digest_payload.len()
+            + project_context.len()
+            + corpus_retrieval.len()
+            + OUTPUT_REMINDER_REFLECTION.len()
+            + 512,
+    );
+
+    prompt.push_str("# Role\n");
+    prompt.push_str(ROLE_DEFINITION_REFLECTION);
+    prompt.push_str("\n\n");
+
+    prompt.push_str("# Conventions\n");
+    prompt.push_str(CONVENTIONS_SNIPPET);
+    prompt.push_str("\n\n");
+
+    prompt.push_str("# Output Schema (JSON Schema draft 2020-12)\n");
+    prompt.push_str("schema_version: ");
+    prompt.push_str(SCHEMA_VERSION);
+    prompt.push_str("; prompt_version: ");
+    prompt.push_str(PROMPT_VERSION_REFLECTION);
+    prompt.push_str("\n```json\n");
+    prompt.push_str(L4_OUTPUT_JSON_SCHEMA);
+    prompt.push_str("\n```\n\n");
+
+    prompt.push_str("# Project Context\n");
+    prompt.push_str(PROJECT_OPEN_MARKER);
+    prompt.push('\n');
+    prompt.push_str(project_context);
+    prompt.push('\n');
+    prompt.push_str(PROJECT_CLOSE_MARKER);
+    prompt.push_str("\n\n");
+
+    prompt.push_str("# Current Digest\n");
+    prompt.push_str(DIGEST_OPEN_MARKER);
+    prompt.push('\n');
+    prompt.push_str(digest_payload);
+    prompt.push('\n');
+    prompt.push_str(DIGEST_CLOSE_MARKER);
+    prompt.push_str("\n\n");
+
+    if !corpus_retrieval.trim().is_empty() {
+        prompt.push_str("# Corpus Retrieval (past similar incidents)\n");
+        prompt.push_str(CORPUS_OPEN_MARKER);
+        prompt.push('\n');
+        prompt.push_str(corpus_retrieval);
+        prompt.push('\n');
+        prompt.push_str(CORPUS_CLOSE_MARKER);
+        prompt.push_str("\n\n");
+    }
+
+    prompt.push_str("# Output Instructions\n");
+    prompt.push_str(OUTPUT_REMINDER_REFLECTION);
     prompt.push('\n');
 
     prompt
@@ -542,6 +653,91 @@ mod tests {
             assert!(
                 !outside_schema.contains(banned),
                 "fallback prompt scaffolding outside schema must not leak raw OTLP field name `{banned}`"
+            );
+        }
+    }
+
+    // ---- Reflection-tier prompt coverage (chunk #98) ----
+
+    #[test]
+    fn reflection_prompt_embeds_schema_string() {
+        let prompt = build_reflection_tier_prompt("digest body", "project body", "");
+        assert!(prompt.contains(L4_OUTPUT_JSON_SCHEMA));
+    }
+
+    #[test]
+    fn reflection_prompt_embeds_trend_emphasis_role() {
+        let prompt = build_reflection_tier_prompt("digest", "project", "");
+        assert!(prompt.contains("# Role"));
+        assert!(prompt.contains("severity classifier"));
+        assert!(prompt.contains("cumulative"));
+        assert!(prompt.contains("30-minute"));
+    }
+
+    #[test]
+    fn reflection_prompt_distinguishes_from_primary() {
+        // The cumulative-trend framing is reflection-exclusive — "cumulative"
+        // appears in ROLE_DEFINITION_REFLECTION / OUTPUT_REMINDER_REFLECTION
+        // but neither in the primary prompt's framing nor in the embedded
+        // schema.json (verified at chunk #98 implement per CLAUDE.md
+        // 2026-05-25 framing-exclusive assertion discipline).
+        let reflection = build_reflection_tier_prompt("digest", "project", "");
+        let primary = build_primary_tier_prompt("digest", "project", "");
+        assert!(reflection.contains("cumulative"));
+        assert!(!primary.contains("cumulative"));
+        assert!(ROLE_DEFINITION_REFLECTION.contains("cumulative"));
+        assert!(!ROLE_DEFINITION.contains("cumulative"));
+    }
+
+    #[test]
+    fn reflection_prompt_embeds_versioning_metadata() {
+        let prompt = build_reflection_tier_prompt("digest", "project", "");
+        assert!(prompt.contains(SCHEMA_VERSION));
+        let reflection_meta = format!("prompt_version: {PROMPT_VERSION_REFLECTION}");
+        let primary_meta = format!("prompt_version: {PROMPT_VERSION_PRIMARY}");
+        assert!(prompt.contains(&reflection_meta));
+        assert!(!prompt.contains(&primary_meta));
+    }
+
+    #[test]
+    fn reflection_prompt_instructs_default_curious() {
+        // L5 surfacing contract (source §96): reflection incidents default
+        // to curious unless the model finds a high-confidence pattern.
+        let prompt = build_reflection_tier_prompt("digest", "project", "");
+        assert!(prompt.contains("curious"));
+        assert!(prompt.contains("# Output Instructions"));
+    }
+
+    #[test]
+    fn reflection_prompt_section_ordering_is_stable() {
+        let prompt = build_reflection_tier_prompt("digest", "project", "corpus");
+        let role_idx = prompt.find("# Role").expect("role section");
+        let conv_idx = prompt.find("# Conventions").expect("conventions section");
+        let schema_idx = prompt.find("# Output Schema").expect("schema section");
+        let project_idx = prompt.find("# Project Context").expect("project section");
+        let digest_idx = prompt.find("# Current Digest").expect("digest section");
+        let corpus_idx = prompt.find("# Corpus Retrieval").expect("corpus section");
+        let output_idx = prompt
+            .find("# Output Instructions")
+            .expect("output section");
+        assert!(role_idx < conv_idx);
+        assert!(conv_idx < schema_idx);
+        assert!(schema_idx < project_idx);
+        assert!(project_idx < digest_idx);
+        assert!(digest_idx < corpus_idx);
+        assert!(corpus_idx < output_idx);
+    }
+
+    #[test]
+    fn reflection_prompt_does_not_leak_internal_field_names_outside_schema() {
+        let prompt = build_reflection_tier_prompt("safe digest body", "safe project ctx", "");
+        let schema_start = prompt.find(L4_OUTPUT_JSON_SCHEMA).expect("schema present");
+        let schema_end = schema_start + L4_OUTPUT_JSON_SCHEMA.len();
+        let outside_schema = format!("{}{}", &prompt[..schema_start], &prompt[schema_end..]);
+        for banned in ["span_id", "trace_id", "parent_span_id", "ts_unix_nano"] {
+            assert!(
+                !outside_schema.contains(banned),
+                "reflection prompt scaffolding outside schema must not leak raw OTLP field name `{banned}`"
             );
         }
     }

@@ -26,17 +26,20 @@ use std::time::{Duration, Instant};
 
 use interpretation::contract::{InferenceError, LlmInferenceRunner, ModelTier};
 use interpretation::degraded_mode::DegradedModeStatus;
-use interpretation::prompt::{build_fallback_tier_prompt, build_primary_tier_prompt};
+use interpretation::prompt::{
+    build_fallback_tier_prompt, build_primary_tier_prompt, build_reflection_tier_prompt,
+};
 use interpretation::schema::{
     Decision, L4_OUTPUT_JSON_SCHEMA, L4Output, PROMPT_VERSION_FALLBACK, PROMPT_VERSION_PRIMARY,
-    Severity as L4Severity,
+    PROMPT_VERSION_REFLECTION, Severity as L4Severity,
 };
 use security::scrubber::{ScrubbedValue, scrub_attribute};
 use tokio::sync::broadcast::error::RecvError;
 use tokio::task::JoinHandle;
 use triage::contract::{
-    Digest, DigestBroadcast, DigestKind, EvidenceRefs, Incident, IncidentPersistence,
-    IncidentRegistry, IncidentStatus, PriorityTier, Severity as IncidentSeverity,
+    CueKind, CueScope, Digest, DigestBroadcast, DigestKind, EvidenceRefs, Incident,
+    IncidentPersistence, IncidentRegistry, IncidentStatus, PriorityTier,
+    Severity as IncidentSeverity,
 };
 
 /// Tracing target — top-level L4 inference request span (per L3 digest).
@@ -303,12 +306,18 @@ pub async fn handle_digest_outcome(
     // #83 substrate); the schema's `model_tier` field discriminates downstream.
     let prompt_started = Instant::now();
     let project_context = build_project_context(digest);
-    let (prompt, prompt_version_label): (String, &'static str) = match tier {
-        ModelTier::Primary => (
+    let (prompt, prompt_version_label): (String, &'static str) = match (tier, digest.kind) {
+        (ModelTier::Primary, DigestKind::Reflection) => (
+            build_reflection_tier_prompt(&digest.payload_summary, &project_context, ""),
+            PROMPT_VERSION_REFLECTION,
+        ),
+        (ModelTier::Primary, _) => (
             build_primary_tier_prompt(&digest.payload_summary, &project_context, ""),
             PROMPT_VERSION_PRIMARY,
         ),
-        ModelTier::Fallback => (
+        // Fallback-tier reflection digests reuse the fallback acute builder —
+        // cumulative-trend emphasis is a primary-tier enrichment (chunk #98).
+        (ModelTier::Fallback, _) => (
             build_fallback_tier_prompt(&digest.payload_summary, &project_context, ""),
             PROMPT_VERSION_FALLBACK,
         ),
@@ -628,23 +637,31 @@ pub fn create_incident_from_l4_output(
         return;
     }
 
-    // Incidents are strictly cue-derived; non-cue digests (baseline /
-    // reflection cadence) carry no triggering cue and are not service-
-    // attributable. Skip when absent.
-    let Some(cue) = digest.attention_cues.first() else {
+    // Identity derivation. Cue-triggered digests are service-attributable:
+    // (kind, scope, scope_id) come from the triggering cue. Reflection-cadence
+    // digests (chunk #98) carry no cue — they get the synthetic
+    // workspace-global ReflectionTrend identity (scope_id = None) so the
+    // cumulative-trend incident dedups one-per-workspace WITHOUT touching the
+    // per-service constellation join (which keys on scope_id). All other
+    // non-cue digests (baseline cadence) still skip — incidents stay strictly
+    // cue-or-reflection-derived.
+    let (kind, scope, scope_id) = if digest.kind == DigestKind::Reflection {
+        (CueKind::ReflectionTrend, CueScope::Global, None)
+    } else if let Some(cue) = digest.attention_cues.first() {
+        (cue.kind, cue.scope, cue.scope_id.as_deref().map(scrub_text))
+    } else {
         return;
     };
 
-    let scope_id = cue.scope_id.as_deref().map(scrub_text);
     let severity = map_l4_incident_severity(parsed.severity);
     let priority_tier = map_l4_priority_tier(parsed.severity);
 
-    // Re-emission dedup on the per-service identity tuple — distinct services
-    // (distinct scope_id) keep distinct incidents.
+    // Re-emission dedup on the identity tuple — distinct services (distinct
+    // scope_id) keep distinct incidents; reflection trends dedup per workspace.
     if let Some(existing) = registry
         .list_active(&digest.workspace)
         .into_iter()
-        .find(|inc| inc.kind == cue.kind && inc.scope == cue.scope && inc.scope_id == scope_id)
+        .find(|inc| inc.kind == kind && inc.scope == scope && inc.scope_id == scope_id)
     {
         if registry
             .observe_reemission(existing.id, now_unix_nano)
@@ -670,8 +687,8 @@ pub fn create_incident_from_l4_output(
         fingerprint: parsed.fingerprint.clone(),
         title: scrub_text(&parsed.title),
         detail: scrub_text(&parsed.symptom),
-        kind: cue.kind,
-        scope: cue.scope,
+        kind,
+        scope,
         scope_id,
         status: IncidentStatus::Active,
         severity,

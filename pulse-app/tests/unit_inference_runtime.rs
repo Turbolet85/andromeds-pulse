@@ -594,3 +594,59 @@ async fn handle_digest_emits_model_tier_fallback_in_inference_request_event() {
         counter_evt.2
     );
 }
+
+// ---- Reflection-tier prompt selection (chunk #98) ----
+
+#[tokio::test]
+async fn handle_digest_selects_reflection_prompt_for_reflection_digest() {
+    let (subscriber, events) = CapturingSubscriber::new();
+    let runner = StubInferenceRunner::new_ok(ModelTier::Primary, valid_l4_output_json());
+    let mut digest = sample_digest();
+    digest.kind = DigestKind::Reflection;
+
+    let guard = tracing::subscriber::set_default(subscriber);
+    handle_digest(&runner, &digest).await;
+    drop(guard);
+
+    let prompt = runner
+        .captured_prompt()
+        .expect("reflection prompt sent к runner");
+    assert!(
+        prompt.contains("cumulative"),
+        "reflection digest must select the cumulative-trend prompt; got: {prompt}"
+    );
+    assert!(
+        prompt.contains("30-minute"),
+        "reflection prompt must reference the 30-minute window"
+    );
+    let captured = events.lock().expect("capture lock").clone();
+    let assemble_evt = captured
+        .iter()
+        .find(|(t, _, _)| t == "interpretation.prompt.assemble")
+        .expect("interpretation.prompt.assemble event present");
+    assert!(
+        assemble_evt.2.contains("prompt_version=v1.0-reflection"),
+        "reflection digest must emit prompt_version=v1.0-reflection; got fields: {}",
+        assemble_evt.2
+    );
+}
+
+#[tokio::test]
+async fn handle_digest_acute_primary_digest_does_not_select_reflection_prompt() {
+    // Regression guard: a non-reflection (CadenceTier3) digest on a primary
+    // runner keeps the acute primary prompt after the chunk #98 reflection
+    // branch was added.
+    let (subscriber, _events) = CapturingSubscriber::new();
+    let runner = StubInferenceRunner::new_ok(ModelTier::Primary, valid_l4_output_json());
+    let digest = sample_digest();
+
+    let guard = tracing::subscriber::set_default(subscriber);
+    handle_digest(&runner, &digest).await;
+    drop(guard);
+
+    let prompt = runner
+        .captured_prompt()
+        .expect("primary prompt sent к runner");
+    assert!(!prompt.contains("cumulative"));
+    assert!(prompt.contains("Your job is к decide"));
+}

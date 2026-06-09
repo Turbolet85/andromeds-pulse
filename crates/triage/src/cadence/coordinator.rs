@@ -246,6 +246,7 @@ fn cue_kind_label(kind: CueKind) -> &'static str {
         CueKind::RestartEvent => "restart_event",
         CueKind::ServiceWentSilent => "service_went_silent",
         CueKind::RetryStorm => "retry_storm",
+        CueKind::ReflectionTrend => "reflection_trend",
     }
 }
 

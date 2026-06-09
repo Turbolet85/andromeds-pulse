@@ -34,6 +34,15 @@ pub const PROMPT_VERSION_PRIMARY: &str = "v2.1";
 /// future fallback prompt iterations bump к `"v1.1-fallback"` etc.
 pub const PROMPT_VERSION_FALLBACK: &str = "v1.0-fallback";
 
+/// Prompt template version. Reflection-tier prompt assembled by
+/// [`crate::prompt::build_reflection_tier_prompt`] (chunk #98 — Epoch 9
+/// Foundation v0.2.0). Cumulative-pattern-emphasis variant of the
+/// primary prompt for the 30-minute background reflection window;
+/// distinct namespace from primary's `v2.1` + fallback's `v1.0-fallback`
+/// lineages. Reflection runs at primary-tier quality (the model emits
+/// `model_tier: "primary"`); it is NOT a fallback-tier prompt.
+pub const PROMPT_VERSION_REFLECTION: &str = "v1.0-reflection";
+
 /// Defense-in-depth pre-parse cap on raw inference output bytes.
 /// mistralrs strict-schema-mode caps total tokens, but the byte budget
 /// is the canonical untrusted-input boundary check per security plan

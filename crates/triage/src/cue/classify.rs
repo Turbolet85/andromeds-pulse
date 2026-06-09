@@ -52,7 +52,10 @@ pub fn dual_condition_bypass(
     match kind {
         CueKind::ErrorRateSpike => absolute_value > thresholds.absolute_bypass_error_rate,
         CueKind::LatencyRegression => absolute_value > thresholds.absolute_bypass_latency_ms,
-        CueKind::RestartEvent | CueKind::ServiceWentSilent | CueKind::RetryStorm => false,
+        CueKind::RestartEvent
+        | CueKind::ServiceWentSilent
+        | CueKind::RetryStorm
+        | CueKind::ReflectionTrend => false,
     }
 }
 
@@ -67,6 +70,7 @@ pub fn cue_kind_label(kind: CueKind) -> &'static str {
         CueKind::RestartEvent => "restart_event",
         CueKind::ServiceWentSilent => "service_went_silent",
         CueKind::RetryStorm => "retry_storm",
+        CueKind::ReflectionTrend => "reflection_trend",
     }
 }
 

@@ -146,7 +146,9 @@ pub use crate::digest::{
 /// catch-all). Variants serialize as snake_case strings. Chunk #78 added
 /// the `Hash` derive (needed for `IncidentRegistry` cool-down map keying)
 /// AND the cfg-gated `specta::Type` derive (for cross-bridge type
-/// generation via `IncidentLifecycleEvent`).
+/// generation via `IncidentLifecycleEvent`). Chunk #98 added the synthetic
+/// `ReflectionTrend` variant — the sole kind NOT emitted by a streaming
+/// detector.
 #[cfg_attr(feature = "taurpc-runtime", derive(specta::Type))]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
@@ -156,6 +158,14 @@ pub enum CueKind {
     RestartEvent,
     ServiceWentSilent,
     RetryStorm,
+    /// Cumulative-pattern signal from the background reflection cadence
+    /// (chunk #98). The ONE synthetic kind NOT emitted by a streaming
+    /// detector — constructed only at the L4 reflection-incident producer
+    /// (`pulse-app/src/inference_runtime.rs`) to give workspace-global
+    /// reflection incidents a `(kind, scope, workspace)` cool-down identity
+    /// distinct from the five detector cues. Never enters the
+    /// cue→suppression path (reflection digests carry no `AttentionCue`).
+    ReflectionTrend,
 }
 
 /// Scope an attention cue applies to: a single service, a single operation
@@ -745,6 +755,10 @@ mod tests {
             serde_json::to_string(&DigestKind::AttentionCueDigest).unwrap(),
             "\"attention_cue_digest\""
         );
+        assert_eq!(
+            serde_json::to_string(&DigestKind::Reflection).unwrap(),
+            "\"reflection\""
+        );
     }
 
     #[test]
@@ -755,11 +769,20 @@ mod tests {
             CueKind::RestartEvent,
             CueKind::ServiceWentSilent,
             CueKind::RetryStorm,
+            CueKind::ReflectionTrend,
         ] {
             let json = serde_json::to_string(&kind).expect("serialize");
             let parsed: CueKind = serde_json::from_str(&json).expect("deserialize");
             assert_eq!(parsed, kind);
         }
+    }
+
+    #[test]
+    fn cue_kind_reflection_trend_serializes_snake_case() {
+        assert_eq!(
+            serde_json::to_string(&CueKind::ReflectionTrend).unwrap(),
+            "\"reflection_trend\""
+        );
     }
 
     #[test]
@@ -818,6 +841,7 @@ mod tests {
             DigestKind::IncidentSummary,
             DigestKind::BaselineState,
             DigestKind::AttentionCueDigest,
+            DigestKind::Reflection,
         ] {
             let json = serde_json::to_string(&kind).expect("serialize");
             let parsed: DigestKind = serde_json::from_str(&json).expect("deserialize");

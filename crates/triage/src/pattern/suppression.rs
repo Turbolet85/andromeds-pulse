@@ -170,7 +170,10 @@ fn derive_bypass_reason(cue: &AttentionCue, params: &SuppressionParams) -> Bypas
         && match cue.kind {
             CueKind::ErrorRateSpike => cue.absolute_value > params.absolute_bypass_error_rate,
             CueKind::LatencyRegression => cue.absolute_value > params.absolute_bypass_latency_ms,
-            CueKind::RestartEvent | CueKind::ServiceWentSilent | CueKind::RetryStorm => false,
+            CueKind::RestartEvent
+            | CueKind::ServiceWentSilent
+            | CueKind::RetryStorm
+            | CueKind::ReflectionTrend => false,
         };
     if absolute_satisfied {
         BypassReason::Absolute

@@ -464,6 +464,138 @@ fn producer_observability_is_aggregate_only() {
     }
 }
 
+// ---- Reflection-incident producer coverage (chunk #98) ----
+
+/// Build a reflection-cadence digest (30-minute window, no triggering cue).
+/// The producer derives the synthetic workspace-global ReflectionTrend
+/// identity for these instead of requiring a cue.
+fn reflection_digest() -> Digest {
+    let mut d = digest_without_cue();
+    d.kind = DigestKind::Reflection;
+    d
+}
+
+#[test]
+fn reflection_surface_creates_workspace_global_incident() {
+    let (registry, persistence) = fresh();
+    let digest = reflection_digest();
+    let output = l4_output(
+        Decision::Surface,
+        L4Severity::Curious,
+        "cumulative latency drift across the window",
+    );
+
+    create_incident_from_l4_output(
+        registry.as_ref(),
+        persistence.as_ref(),
+        &digest,
+        &output,
+        5_000,
+    );
+
+    let active = registry.list_active(WORKSPACE);
+    assert_eq!(
+        active.len(),
+        1,
+        "a reflection digest with a surface decision creates one incident",
+    );
+    let inc = &active[0];
+    assert_eq!(inc.kind, CueKind::ReflectionTrend);
+    assert_eq!(inc.scope, CueScope::Global);
+    assert_eq!(
+        inc.scope_id, None,
+        "reflection incidents are workspace-global, not service-attributed",
+    );
+    assert_eq!(
+        inc.priority_tier,
+        PriorityTier::Curious,
+        "default-curious reflection incident",
+    );
+    assert_eq!(inc.severity, IncidentSeverity::Info, "Curious → Info hue");
+    assert_eq!(inc.status, IncidentStatus::Active);
+}
+
+#[test]
+fn reflection_high_confidence_surfaces_suggested() {
+    // "unless the model identifies a high-confidence pattern warranting
+    // Suggested or higher" — when the L4 output is Suggested, the producer
+    // maps it through (the default-curious bias is prompt-enforced upstream,
+    // not a producer-side clamp; symmetric with the acute path).
+    let (registry, persistence) = fresh();
+    let digest = reflection_digest();
+    let output = l4_output(
+        Decision::Surface,
+        L4Severity::Suggested,
+        "recurring saturation pattern",
+    );
+    create_incident_from_l4_output(
+        registry.as_ref(),
+        persistence.as_ref(),
+        &digest,
+        &output,
+        5_000,
+    );
+    let active = registry.list_active(WORKSPACE);
+    assert_eq!(active.len(), 1);
+    assert_eq!(active[0].priority_tier, PriorityTier::Suggested);
+    assert_eq!(active[0].kind, CueKind::ReflectionTrend);
+}
+
+#[test]
+fn reflection_dedups_one_per_workspace() {
+    let (registry, persistence) = fresh();
+    let digest = reflection_digest();
+    let output = l4_output(Decision::Surface, L4Severity::Curious, "trend");
+    create_incident_from_l4_output(
+        registry.as_ref(),
+        persistence.as_ref(),
+        &digest,
+        &output,
+        5_000,
+    );
+    create_incident_from_l4_output(
+        registry.as_ref(),
+        persistence.as_ref(),
+        &digest,
+        &output,
+        9_000,
+    );
+    assert_eq!(
+        registry.count(),
+        1,
+        "reflection trends dedup one-per-workspace on (ReflectionTrend, Global, None)",
+    );
+    assert_eq!(persistence.save_count(), 1, "only the first call INSERTs");
+    assert!(
+        persistence.update_count() >= 1,
+        "the second reflection digest drives a reemission update",
+    );
+    let inc = registry.list_active(WORKSPACE).remove(0);
+    assert_eq!(
+        inc.updated_at_unix_nano, 9_000,
+        "reemission bumped updated_at"
+    );
+}
+
+#[test]
+fn reflection_dismiss_creates_no_incident() {
+    let (registry, persistence) = fresh();
+    let digest = reflection_digest();
+    let output = l4_output(Decision::Dismiss, L4Severity::None, "no trend");
+    create_incident_from_l4_output(
+        registry.as_ref(),
+        persistence.as_ref(),
+        &digest,
+        &output,
+        5_000,
+    );
+    assert_eq!(
+        registry.count(),
+        0,
+        "a dismissed reflection digest creates no incident",
+    );
+}
+
 /// One captured event: `(target, concatenated-fields)`.
 type Captured = Arc<Mutex<Vec<(String, String)>>>;
 

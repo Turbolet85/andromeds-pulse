@@ -1,51 +1,44 @@
 # Session Handoff
 
-**Last Updated:** 2026-06-09T17:27:48Z
+**Last Updated:** 2026-06-09T18:44:39Z
 **Branch:** main
-**Session End Status:** clean (Type 7 Form 1 route-append single-cycle META wrap — chunk #98 "Background reflection cadence" registered + propagated + archived end-to-end; all 6 drift dimensions CLEAR; State C resolved; one environmental reconcile note [corpus api-surface])
-**Last Commit:** `<session 180 wrap commit — pending this wrap: chore(wrap): session 180 — chunk #98 Background reflection cadence Type 7 Form 1 route-append single-cycle META wrap + amendment archival>` (prior HEAD: `07d8cca` chore(setup-project): delta-rerun for 1 amendment (chunk #98 Background reflection cadence — route-append))
+**Session End Status:** clean (chunk #98 "Background reflection cadence" IMPLEMENTATION wrap — EXTEND scope; all 6 drift dimensions CLEAR; State H=info expected pending-SHA heal; route now 98/98 registered + implemented)
+**Last Commit:** `<session 181 wrap commit — pending this wrap: chunk(98): implement Background reflection cadence (Epoch 9 — Foundation v0.2.0)>` (prior HEAD: `eba9cd7` chore(wrap): session 180 — chunk #98 route-append single-cycle META wrap)
 
 ## Current State
 
-- **Last completed chunk:** route#97 "Settings → Diagnostics view" (Epoch 9 — Foundation v0.2.0; committed `7d1f9d0`; commit_sha HEAD-reachable, no heal needed this META wrap).
-- **Route total:** **98 chunks registered — 97 implemented.** chunk #98 newly registered this session (NOT yet implemented).
-- **Next chunk:** route#98 "Background reflection cadence" (Epoch 9; source `docs/v0_2_0/pulse-v0_2_0-route.md` §96; optional/defer-friendly per source — "Drop from v0.2.0 if scope tight"). Awaiting `/andromeda-phase`.
-- **In-progress phase:** none (`in_progress: null`).
-- **This session (180):** Type 7 Form 1 route-append single-cycle META cycle (21st-instance pattern; mirrors #177/#174/#171 precedent). `/andromeda-new-session` dashboard (route 97/97; State C+J info surfaced) → `/andromeda-evolve --allow-route-append` (registered chunk #98 in route §2 Epoch 9 + §1 Total 97→98 Form 1 Policy A + §3 compact P9 entry; AskUserQuestion chose §96 reflection cadence over §97 finalization gate) → `/andromeda-setup-project --delta` (Branch (a) CLAUDE.md pointer-table 97→98; commit `07d8cca`) → THIS wrap archives the amendment + heals State C + reconciles living artifacts.
+- **Last completed chunk:** route#98 "Background reflection cadence" (Epoch 9 — Foundation v0.2.0; committed this wrap; commit_sha="pending" per Proposal 16 Option b — next wrap Phase 8 step 7 auto-heals to the HEAD-reachable chunk(98) SHA).
+- **Route total:** **98 chunks registered — 98 implemented.** Epoch 9 (Foundation v0.2.0) all registered chunks now implemented.
+- **Next chunk:** route#99 NOT registered. Source §97 "A11y + perf re-verify + capability coverage check" (the v0.2.0 tag gate) remains unregistered → `/andromeda-evolve --allow-route-append` to register it as #99.
+- **In-progress phase:** none (`in_progress: null`; phase-95 plan implemented + committed this session).
+- **Phase artifacts present:** `.andromeda/phases/phase-95/` (combined.md + research.md + plan.md).
+- **This session (181):** standard `/andromeda-phase` → `/andromeda-implement` → `/andromeda-wrap-session` chunk-implementation cycle for chunk #98. Phase-95 plan authored (EXTEND scope chosen at /phase AskUserQuestion); implemented across 10 files; all gates green; wrapped.
 
 ## Andromeda State Detection (states A-K)
 
-- **E** ℹ️ info (EXPECTED post-route-append) — Pending phase planning: chunk #98 "Background reflection cadence" is registered with no phase plan. This is the normal forward state after a route-append; remediation `/andromeda-phase` to plan chunk #98 (or defer — §96 is optional per source).
-- **A–D, F–K** ✓ CLEAR. (A no in-progress runs; B branch=main matches; **C RESOLVED** — arch.md mtime 2026-06-05T18:14:18Z < CLAUDE.md 2026-06-09T17:15:07Z after the delta cascade [the session-179 deferred State-C info is now cleared]; D route present 98 registered; F no planned-unimplemented; G single run; H commit_sha 7d1f9d0 HEAD-reachable; I plan_freshness route_mtime re-captured to match route.md; J living artifacts reconciled this wrap [<24h]; K in_progress null.)
-- **NOTE (not a state A-K):** `living_artifact_freshness.reconcile_failed = true` — api-surface **corpus** per-crate reconcile failed environmentally (nightly `libsqlite3-sys` `cl.exe D8050` MSVC build error; NOT code — debug `cargo build`/`nextest` target compiles fine). Surfaced by next `/andromeda-new-session` Phase 7 special note. Clears when corpus reconciles on a future cycle-4 revisit with a healthy MSVC env.
+- **H** ℹ️ info (EXPECTED post-impl) — `last_completed_chunk.commit_sha = "pending"` per Proposal 16 Option b; next wrap Phase 8 step 7 auto-heals to the HEAD-reachable chunk(98) SHA. Routine cycle marker, not an anomaly.
+- **A–G, I–K** ✓ CLEAR. (A no in-progress runs; B branch=main; C arch.md 2026-06-05 < CLAUDE.md 2026-06-09T17:15:07Z; D route present 98 registered; E no registered-but-unplanned chunk [98/98 implemented; #99 unregistered]; F no pending implementation; G single run; I no specialist-plan-freshness mismatch [no plan touched]; J living artifacts reconciled this wrap <24h + reconcile_failed CLEARED; K in_progress null.)
 
 ## Drift Detection (6 dimensions)
 
-- **All 6 CLEAR.** D1 CLEAR (dep-tree reconciled 2026-06-09T17:27:48Z > most_recent_code_mtime 2026-06-05T04:27:28Z; corpus api-surface failure tracked by reconcile_failed=true, NOT a D1-D6 drift). D2 CLEAR (dep-tree 414 zero-diff). D3 CLEAR (chunk #98 registered NOT implemented — normal route-ahead-of-impl; last_completed stays 97). D4 CLEAR (route §1=98 + §2 Epoch 9 + CLAUDE.md pointer-table 98 consistent). D5 CLEAR (CLAUDE.md 2026-06-09T17:15:07Z newer than all upstreams incl route.md 17:11:39Z + arch.md 2026-06-05). D6 CLEAR (no chunk() commit; only evolve+delta+wrap META commits).
+- **All 6 CLEAR.** D1 CLEAR (dep-tree + api-surface reconciled 2026-06-09T18:44:39Z > most_recent_code_mtime 2026-06-09T18:38:00Z; curation per-crate cosmetic-preserved; corpus R1-lag is reconcile-tracked, NOT a D1-D6 drift). D2 CLEAR (dep-tree 414 + curation 52-pub-items content-correct). **D3 CLEAR** (route §96 declares Arch registry delta NONE — `CueKind::ReflectionTrend` is a triage-internal contract type, NOT an arch §Occupied Resources registry item; zero new TauRPC procedure / broadcast topic / crate / env var / table / capability; reflection incidents reuse existing `incidents.*` + `pulse://stream/incidents` — **NO Type 6 arch-registry follow-up needed**, unlike the diagnostics.* chunks). D4 CLEAR (no plan-to-plan contradiction). D5 CLEAR (CLAUDE.md untouched this wrap — 0 Tier-1 curation — mtime 2026-06-09T17:15:07Z newest vs arch.md 2026-06-05 + route.md 2026-06-09T17:11:39Z). D6 CLEAR (chunk(98) commit lands this wrap; last_completed_chunk 97→98; commit_sha=pending auto-heals next wrap).
 
 ## Spec Amendments (this session)
 
-- **Plan(s):** `.andromeda/route.md` (§1 Route Scope Summary + §2 Roadmap Epoch 9 + §3 Route Decisions Log)
-- **Decisions Log:** §3 — 2026-06-09 "Append chunk #98 Background reflection cadence (--allow-route-append)"
-- **Trigger:** user-driven evolution via /andromeda-evolve (no chunk/phase/harness); Type 7 Form 1; flag_used --allow-route-append
-- **Authority resolution:** pipeline state (route.md chunk-list-stale-vs-pipeline-reality)
-- **Lifecycle:** applied 2026-06-09T17:05:14Z | noted 2026-06-09T17:27:48Z | propagated 2026-06-09T17:13:41Z | archived 2026-06-09T17:27:48Z — **full Applied→Propagated→Archived in single session.**
-- **Marker:** `.andromeda/runs/2026-06-09T17-05-14-spec-amendment-append-chunk-98-background-reflection-cadence/amendment.md`
-
-Archived this session: **1** amendment (active 1 → 0; archive **83 → 84**).
+(none this session) — chunk #98's route-append amendment was applied + propagated + archived in session 180 (the prior META wrap). This session is the IMPLEMENTATION wrap; no new amendment. `spec_amendments.active = []`; archive stays at 84.
 
 ## Key Decisions This Session
 
-1. **Type 7 Form 1 route-append single-cycle** (21st instance; textbook). evolve → setup-project --delta → wrap, all executed as designed.
-2. **§96 over §97** — AskUserQuestion at evolve Phase 1 chose §96 "Background reflection cadence" (next in source order, optional/defer-friendly) over §97 "A11y + perf re-verify" (the v0.2.0 finalization gate) as chunk #98. §97 remains unregistered for a later invocation.
-3. **State C self-cleared** — the delta cascade bumped CLAUDE.md (2026-06-09) past arch.md (2026-06-05), clearing the session-179 deferred State-C arch-staleness info exactly as predicted.
-4. **corpus api-surface reconcile env-failure** — `cargo +nightly public-api -p corpus` hit `cl.exe D8050` building `libsqlite3-sys` under the nightly target (environmental MSVC, not code). Per per-crate protocol step b: preserved corpus sub-block, advanced cursor corpus→curation, set reconcile_failed=true. Mirrors session-169 libduckdb-sys disk-full class.
+1. **EXTEND scope** for chunk #98 element-(4) — chosen at the /phase Phase 3 AskUserQuestion (Hybrid / Extend / Defer). Full reflection-incident production, accepting the `Incident`/`CueKind` contract change.
+2. **`CueKind::ReflectionTrend`** — the ONE synthetic non-detector `CueKind` variant — gives reflection incidents a clean `(ReflectionTrend, Global, scope_id None)` workspace-global cool-down identity; the 5 exhaustive match arms (classify ×2, suppression, assembler, coordinator) updated. Reflection incidents do NOT touch the per-service constellation join (keyed on `scope_id`) but DO feed the findings counter + Halo (Curious→Info hue).
+3. **Default-Curious is prompt-enforced, not code-clamped** — symmetric with the acute incident path (severity fully model-driven via the trend prompt); no producer-side clamp.
+4. **Discovery (inverse-hybrid):** chunks #80/#81 already built 4 of the 5 source-§96 elements (cadence trigger, 30-min window, DigestKind/LWW, Settings); net-new was the reflection prompt + the producer branch. Surfaced at /phase research; the AskUserQuestion resolved the one gated-out producer (element 4) per CLAUDE.md 2026-05-30/2026-06-01.
+5. **Plan refinement:** producer tests landed in `pulse-app/tests/unit_incident_producer.rs` (reused its stubs) rather than the plan-named `unit_inference_runtime.rs`; the prompt-selection tests landed in `unit_inference_runtime.rs` as planned.
 
 ## Files Modified
 
-**This wrap (committed this wrap):** `.andromeda/state.yaml`, `.andromeda/context/dependency-tree.md`, `.andromeda/context/api-surface.md`, `.claude/session-handoff.md`.
-**Committed earlier this session (`07d8cca`):** `CLAUDE.md` (pointer-table 97→98), `.andromeda/route.md` (§1/§2/§3), `.andromeda/state.yaml` (evolve entry + propagated_by_run).
-**Gitignored run-dirs (forensic, not committed):** evolve + spec-amendment + setup-project-delta dirs under `.andromeda/runs/2026-06-09T17-*`.
+**This wrap (committed this wrap):** `crates/interpretation/src/{schema,prompt}.rs` · `crates/triage/src/{contract,cue/classify,pattern/suppression,digest/assembler,cadence/coordinator}.rs` · `pulse-app/src/inference_runtime.rs` · `pulse-app/tests/{unit_inference_runtime,unit_incident_producer}.rs` · `pulse-app/ui/src/bindings/index.ts` (auto-regen, gains `reflection_trend` CueKind member) · `.andromeda/phases/phase-95/` (new: combined/research/plan) · `.andromeda/state.yaml` · `.andromeda/context/{dependency-tree,api-surface}.md` · `.claude/session-handoff.md`.
+**Gitignored run-dir (forensic, not committed):** `.andromeda/runs/2026-06-09T17-39-48-phase-95/` (7 raw + 7 stripped extracts).
 **NOT committed (intentional carryover):** `crates/ingest/examples/`, `experiments/`, `ui/`.
 
 ## Curation Summary (this wrap)
@@ -53,40 +46,38 @@ Archived this session: **1** amendment (active 1 → 0; archive **83 → 84**).
 - **Tier 1** (CLAUDE.md USER:session-learnings): 0.
 - **Tier 2** (.claude/rules/): 0.
 - **Tier 3** (.claude/docs/session-learnings.md): 0.
-- **Andromeda pipeline:** Mode H (honest-healthy). 21st-instance Type 7 Form 1 single-cycle — mechanically identical to the #177/#174/#171 precedent; documenting it would be churn, not a learning. Every skill in the 4-invocation chain (new-session → evolve → setup-project --delta → wrap) executed exactly as designed; zero friction, zero novel pattern. 0 proposals filed. The corpus reconcile env-failure (cl.exe D8050) is NOT novel — same per-crate-reconcile-environmental-failure class as session-169 libduckdb-sys disk-full (already encoded in protocol + prior notes); task-specific + non-novel → no Tier learning.
-- **Living artifacts:** dep-tree 414 zero-diff (no workspace-dep delta) + api-surface corpus per-crate reconcile FAILED (env MSVC cl.exe D8050; sub-block preserved, cursor corpus→curation, reconcile_failed=true). chunk #98's implementation surface lands when it's built (route-tail registration only this session).
-- **A1 accumulator:** IMPLEMENTED steady-state preserved (consecutive_count=0; per-crate mode never defers — the corpus FAILURE is reconcile_failed, not api_surface_deferred, so A1 unaffected).
+- **Andromeda pipeline:** Mode H (honest-healthy). Every pattern this session exercised is already documented in CLAUDE.md session-learnings: cold-build-race + rust-lld crash (2026-05-31), inverse-hybrid + data-producer-gated-out scope decision via AskUserQuestion (2026-05-30/2026-06-01), framing-exclusive test discriminators (2026-05-25), the `CueKind` ripple (task-specific). All reject on dedup/task-specificity filters. The pipeline (phase research → AskUserQuestion → implement → wrap) executed exactly as designed; zero novel friction. 0 proposals filed. The rust-lld `0xc000001d` crash code is a trivial variant of the documented cold-build-race family (same build-then-retry remediation) → not a new learning.
+- **Living artifacts:** dep-tree 414 zero-diff (no workspace-dep delta — source-only chunk) + api-surface curation per-crate reconcile (cycle-4, 3rd of 16) = 209 lines / 52 pub items SEMANTICALLY IDENTICAL to existing sub-block (+6 cosmetic re-export-expansion only) → preserved per session-176/177 precedent; cursor curation→ingest; **reconcile_failed CLEARED** (both reconciled cleanly this wrap; session-180 corpus D8050 superseded). chunk #98's interpretation/triage/pulse-app pub-surface lands when cycle-4 cursor reaches those crates (R1-accepted per-crate lag); corpus sub-block also R1-lag until cycle-4 revisits it.
+- **A1 accumulator:** IMPLEMENTED steady-state preserved (consecutive_count=0; api-surface reconciled cleanly this wrap → api_surface_deferred=false → A1 unaffected).
 
 ## Last Failed Command
 
-- **Command:** `cargo +nightly public-api --simplified -p corpus` (Phase 5 api-surface per-crate reconcile)
-- **Error:** `libsqlite3-sys` C build failed — `cl : Command line error D8050 : cannot execute 'c1.dll': failed to get command line into debug records` (environmental MSVC under the nightly cargo-public-api target).
-- **Suggested alternative:** This is environmental, NOT code — the debug `cargo build`/`cargo nextest` target compiles libsqlite3-sys fine. Do NOT retry blindly; the per-crate protocol already advanced the cursor (corpus→curation) and flagged reconcile_failed=true. corpus reconciles on its next cycle-4 revisit. If a manual corpus reconcile is wanted sooner, a clean nightly target (`cargo +nightly clean` is heavy) or resolving the MSVC D8050 (often debug-record/`-Brepro`/AV interaction) would be needed — not worth it for this META session's R1-accepted lag.
+(none unresolved) — the `pulse-app` nextest hit the documented cold-build-race + a transient `rust-lld` `0xc000001d` crash mid-session (exit 101), but it was RESOLVED via the documented build-then-retry de-race (CLAUDE.md 2026-05-31): 25 errors → 1 straggler → 0. Final `cargo nextest run --workspace --profile ci` = **1636 passed, 1 skipped**. Do NOT pre-emptively `cargo clean`; if a future cold-build-race recurs, `cargo build --workspace`/`-p pulse-app` before nextest, then retry.
 
 ## Tests Status
 
-**PASS (inherited — META session, zero source delta).** Full suite NOT re-run: this session changed only `.andromeda/` docs + `.andromeda/state.yaml` + CLAUDE.md pointer-table + route.md — zero `crates/`/`pulse-app/` source. Session-178 baseline holds: `cargo nextest run --workspace --profile ci` = **1622/1622 + 1 skip**; webview typecheck+lint+vitest = **628**. This session's smoke = `cargo nextest run -p security` **14/14** (0.13s, run twice — new-session + wrap) confirms toolchain healthy. Dead-test scan (P15): 16 `#[cfg(test)] mod tests` blocks in pulse-app/src/ (pulse-app `[lib] test = false`) — carryover, warning-not-fatal, unchanged.
+**PASS.** This session (post-implement): `cargo nextest run --workspace --profile ci` = **1636/1636 + 1 skip** (1622 session-178 baseline + 14 new chunk-#98 tests: 7 reflection prompt + 1 `CueKind::ReflectionTrend` serde + 2 prompt-selection + 4 producer). Subsets: interpretation+triage 495/495, pulse-app 311/311+1skip. Webview typecheck + lint + vitest = **628**. Wrap smoke `cargo nextest run -p security` = 14/14 (toolchain healthy; no bindings.ts thrash). bindings.ts verified mcp-shape + `reflection_trend` present before commit. fmt + clippy --workspace --all-targets --all-features -D warnings + capability-drift clean (0 missing, 0 extra). Dead-test scan (P15): 16 `#[cfg(test)] mod tests` blocks in pulse-app/src/ (pulse-app `[lib] test = false`) — carryover, warning-not-fatal, unchanged (chunk #98 added no source mod tests — inference_runtime.rs tests are integration tests).
 
 ## Next Recommended Action
 
-Route is **98 registered / 97 implemented**; chunk #98 fully registered + propagated + archived. All drift CLEAR. Pick one:
-1. **`/andromeda-phase`** — plan chunk #98 "Background reflection cadence" implementation (note: §96 is optional/defer-friendly per source — deferring is legitimate).
-2. **`git push origin main`** — branch is **17 commits ahead** of origin after this wrap (verify: `git rev-list --count origin/main..HEAD`).
-3. **`/andromeda-evolve --allow-route-append`** — register chunk #99 (source §97 "A11y + perf re-verify + capability coverage check" — the v0.2.0 finalization gate).
-4. Stop — clean milestone.
+Route is **98 registered / 98 implemented** — Epoch 9 (Foundation v0.2.0) all registered chunks implemented. Pick one:
+1. **`/andromeda-evolve --allow-route-append`** — register chunk #99 (source §97 "A11y + perf re-verify + capability coverage check" — the v0.2.0 tag gate / finalization gate). The natural next step toward the v0.2.0 tag.
+2. **`git push origin main`** — branch is **18 commits ahead** of origin after this wrap (verify: `git rev-list --count origin/main..HEAD`).
+3. Stop — clean milestone (chunk #98 done, all drift CLEAR).
 
 ## Session Goals (carry-over)
 
-(none — this session's goal completed: register + propagate + archive chunk #98 end-to-end.)
+(none — this session's goal completed: plan + implement + wrap chunk #98 "Background reflection cadence" end-to-end.)
 
 ## Deferred decisions
 
-1. **§Design Philosophy / CLAUDE.md narrative crate-count staleness** (carries forward): arch §Design Philosophy "twelve library crates"/"fourteen workspace members" stale (now 14/16); CLAUDE.md pointer-table "12 crates" + "33-chunk route plan". Fix = deliberate `/andromeda-arch` re-plan or manual edit (out of Type 6/7 `--delta` scope). The session-180 Type 7 amendment added a route chunk (NOT crates) so did NOT touch these counts.
+1. **§Design Philosophy / CLAUDE.md narrative crate-count staleness** (carries forward): arch §Design Philosophy "twelve library crates"/"fourteen workspace members" stale (now 14/16); CLAUDE.md pointer-table "12 crates" + "33-chunk route plan". Fix = deliberate `/andromeda-arch` re-plan or manual edit (out of Type 6/7 `--delta` scope). chunk #98 added no crates.
 2. **`2026-06-01 — arch-body "equal-tier output channel" framing`** (carries forward): chunk-#94 MCP framing is a STRUCTURAL §Established Decisions change — needs a deliberate `/andromeda-arch` touch (P27).
 3. **CLAUDE.md §Critical Warnings `~/Downloads` egress mirror** (carries forward): chunk-#95 egress exception lives in arch (source of truth); optional Tier-1 mirror at a future full `/andromeda-setup-project` re-derive.
-4. **chunk #97 `diagnostics.history()` real numeric-metric-history producer** (carries forward): `history()` is a validated stub until a future chunk adds a periodic numeric-metric recorder + persistence path. Deferred per chunk #97's HYBRID-RENDER scope.
-5. **api-surface corpus reconcile (NEW, this wrap):** corpus sub-block stale-by-failure (cl.exe D8050 nightly MSVC build); chunk #95's `corpus::load_all_incidents` + chunk #98 surfaces remain R1-accepted per-crate lag until corpus reconciles on a future cycle-4 revisit with a healthy build env. reconcile_failed=true flags it; clears on successful corpus reconcile.
-6. **api-surface per-crate R1-accepted lag** (carries forward): config-watcher (pos 2) + triage (pos 12) chunk-#96 + mcp-server chunk-#94 + corpus/training_export chunk-#95 + pulse-app chunk-#97 diagnostics surfaces land when cycle-4 revisits each crate. cycle-4 cursor now at curation (corpus skipped-by-failure this wrap).
-7. **`spec_amendments.archive` pruning:** archive now at **84** (> 50 soft-cap). Pruning deferred — run-dir markers remain forensic. Consider pruning the oldest ~34 at a future wrap.
-8. **Untracked carryover** still in `git status`: `crates/ingest/examples/`, `experiments/`, `ui/`. Intentional.
-9. **§97 finalization gate unregistered** (NEW): source §97 "A11y + perf re-verify + capability coverage check" (the v0.2.0 tag gate) remains unregistered → would be route #99 via `/andromeda-evolve --allow-route-append`.
+4. **chunk #97 `diagnostics.history()` real numeric-metric-history producer** (carries forward): `history()` is a validated stub until a future chunk adds a periodic numeric-metric recorder + persistence path.
+5. **api-surface corpus reconcile (carries forward, partially superseded):** session-180's corpus reconcile failure (cl.exe D8050) is no longer flagged as `reconcile_failed` (this wrap reconciled curation cleanly + cleared the flag), but the corpus sub-block content remains stale-by-lag (last-good cycle-3 session-165) until cycle-4's round-robin cursor revisits corpus with a healthy MSVC env. Chunk #95's `corpus::load_all_incidents` surface remains R1-accepted per-crate lag.
+6. **api-surface per-crate R1-accepted lag** (carries forward): config-watcher (pos 2) + triage (pos 12) + mcp-server + corpus/training_export (#95) + pulse-app diagnostics (#97) + **chunk #98's interpretation reflection prompt builder + triage CueKind::ReflectionTrend + pulse-app producer branch** all land when cycle-4 revisits each crate. cycle-4 cursor now at ingest (curation done this wrap).
+7. **`spec_amendments.archive` pruning:** archive at **84** (> 50 soft-cap). Pruning deferred — run-dir markers remain forensic.
+8. **Living-artifact METADATA line bloat** (NEW): the dep-tree + api-surface "Last reconciled" METADATA lines have accreted ~35 sessions of inline PRIOR narrative (each is now a multi-KB single line). Not blocking (state.yaml carries authoritative freshness timestamps; git history + run-dir markers preserve the full audit trail), but a future wrap could trim the inline PRIOR chain to the most-recent ~5 entries for readability.
+9. **Untracked carryover** still in `git status`: `crates/ingest/examples/`, `experiments/`, `ui/`. Intentional.
+10. **§97 finalization gate unregistered** (carries forward): source §97 "A11y + perf re-verify + capability coverage check" (the v0.2.0 tag gate) → would be route #99 via `/andromeda-evolve --allow-route-append`.
