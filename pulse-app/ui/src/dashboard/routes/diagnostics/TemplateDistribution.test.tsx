@@ -75,9 +75,11 @@ describe("TemplateDistribution", () => {
       render(<TemplateDistribution />);
       const empty = await screen.findByTestId("template-distribution-empty");
       expect(empty.textContent).toBe("No templates yet");
-      // Per design extract: empty state uses --color-text-tertiary.
+      // Chunk #99 re-audit: 12px body text on raised-1 needs 4.5:1, so the
+      // empty state uses text-secondary (tertiary measured 3.92:1 — the
+      // original "tertiary per design extract" encoded the violation).
       expect(empty.getAttribute("style")).toContain(
-        "var(--color-text-tertiary)",
+        "var(--color-text-secondary)",
       );
     });
 

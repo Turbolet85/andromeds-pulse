@@ -10,7 +10,7 @@ test.describe("P4 Live trace list", () => {
   test("dashboard-traces live list — zero critical/serious axe violations", async ({ page }) => {
     await runAxeSweep(page, {
       surface: "dashboard-traces",
-      url: "/#/traces",
+      url: "/traces",
       setup: async (p) => {
         await p.waitForLoadState("networkidle").catch(() => undefined);
       },

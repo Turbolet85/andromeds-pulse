@@ -1,14 +1,68 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-05-14T09:36:11Z",
-  "total_tuple_count": 0,
+  "generated_at": "2026-06-09T22:17:13.471Z",
+  "total_tuple_count": 6,
   "per_surface": {
-    "compact-widget": [],
-    "dashboard-traces": [],
-    "dashboard-metrics": [],
-    "dashboard-logs": [],
-    "dashboard-snapshots": [],
-    "dashboard-settings": [],
+    "compact-widget": [
+      {
+        "surface": "compact-widget",
+        "wcag_criterion": "n/a",
+        "selector": "",
+        "severity": "info",
+        "tool": "lighthouse",
+        "violation_type": "lighthouse-score"
+      }
+    ],
+    "dashboard-traces": [
+      {
+        "surface": "dashboard-traces",
+        "wcag_criterion": "n/a",
+        "selector": "",
+        "severity": "info",
+        "tool": "lighthouse",
+        "violation_type": "lighthouse-score"
+      }
+    ],
+    "dashboard-metrics": [
+      {
+        "surface": "dashboard-metrics",
+        "wcag_criterion": "n/a",
+        "selector": "",
+        "severity": "info",
+        "tool": "lighthouse",
+        "violation_type": "lighthouse-score"
+      }
+    ],
+    "dashboard-logs": [
+      {
+        "surface": "dashboard-logs",
+        "wcag_criterion": "n/a",
+        "selector": "",
+        "severity": "info",
+        "tool": "lighthouse",
+        "violation_type": "lighthouse-score"
+      }
+    ],
+    "dashboard-snapshots": [
+      {
+        "surface": "dashboard-snapshots",
+        "wcag_criterion": "n/a",
+        "selector": "",
+        "severity": "info",
+        "tool": "lighthouse",
+        "violation_type": "lighthouse-score"
+      }
+    ],
+    "dashboard-settings": [
+      {
+        "surface": "dashboard-settings",
+        "wcag_criterion": "n/a",
+        "selector": "",
+        "severity": "info",
+        "tool": "lighthouse",
+        "violation_type": "lighthouse-score"
+      }
+    ],
     "tray-icon-halo": []
   }
 }

@@ -20,10 +20,15 @@ import { TABS, type TabId } from "./dashboard-types";
 
 interface TabNavProps {
   activeTabId: TabId;
+  // false on non-tab routes (/diagnostics): activeTabId is then only the
+  // roving-tabindex entry point — no tab renders aria-selected="true" or
+  // aria-controls, because the fallback tab's panel is not mounted there
+  // (aria-valid-attr-value@critical per the chunk #99 re-audit).
+  activeIsCurrentRoute?: boolean;
   onSelect: (tabId: TabId) => void;
 }
 
-export function TabNav({ activeTabId, onSelect }: TabNavProps) {
+export function TabNav({ activeTabId, activeIsCurrentRoute = true, onSelect }: TabNavProps) {
   const buttonRefs = useRef<Map<TabId, HTMLButtonElement | null>>(new Map());
 
   const focusTab = useCallback((tabId: TabId) => {
@@ -91,8 +96,14 @@ export function TabNav({ activeTabId, onSelect }: TabNavProps) {
               role="tab"
               type="button"
               id={`tab-${tab.id}`}
-              aria-selected={isActive}
-              aria-controls={`tabpanel-${tab.id}`}
+              aria-selected={isActive && activeIsCurrentRoute}
+              // aria-controls only while genuinely selected: inactive tabs'
+              // panels are not mounted, so a static reference dangles to a
+              // missing id (aria-valid-attr-value@critical per the chunk
+              // #99 re-audit). ARIA APG marks aria-controls optional.
+              aria-controls={
+                isActive && activeIsCurrentRoute ? `tabpanel-${tab.id}` : undefined
+              }
               tabIndex={isActive ? 0 : -1}
               onClick={() => onSelect(tab.id)}
               data-testid={`tab-${tab.id}`}

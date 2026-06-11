@@ -12,7 +12,7 @@ test.describe("P2 Investigation modal", () => {
   }) => {
     await runAxeSweep(page, {
       surface: "dashboard-traces",
-      url: "/#/traces",
+      url: "/traces",
       setup: async (p) => {
         const trigger = p.getByRole("button", { name: /investigat/i }).first();
         if (await trigger.isVisible({ timeout: 2_000 }).catch(() => false)) {

@@ -107,3 +107,6 @@ crates/triage-experimental/
 AI-Model/
 **/*.gguf
 **/*.safetensors
+
+# chunk #99 a11y regression-detector run artifact (embeds absolute user paths; regenerated per run)
+pulse-app/ui/tests-a11y/regression-set.json

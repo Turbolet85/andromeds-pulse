@@ -302,8 +302,29 @@ pub struct TriageSqlState {
 }
 
 impl TriageSqlState {
+    /// Wraps a DEDICATED read connection cloned from the shared appender
+    /// connection (chunk #99 high-load profile finding): L1a queries that
+    /// queued on the shared Rust mutex occasionally landed behind an
+    /// append carrying DuckDB-internal row-group maintenance (~0.5s hold)
+    /// and blew the <500ms p99 budget — always the FIRST query after an
+    /// idle cadence gap. On a `try_clone()`d connection DuckDB MVCC reads
+    /// see the same database without queueing on the write path. Falls
+    /// back to the shared connection (pre-#99 behavior) if cloning fails.
     pub fn new(conn: Arc<Mutex<Connection>>) -> Self {
-        Self { conn }
+        let read_conn = conn.lock().ok().and_then(|guard| guard.try_clone().ok());
+        match read_conn {
+            Some(c) => Self {
+                conn: Arc::new(Mutex::new(c)),
+            },
+            None => {
+                tracing::warn!(
+                    target: "triage.sql",
+                    fallback = "shared_connection",
+                    "L1a read connection clone failed; querying on the shared connection"
+                );
+                Self { conn }
+            }
+        }
     }
 
     pub fn connection(&self) -> &Arc<Mutex<Connection>> {
@@ -413,6 +434,17 @@ pub async fn run_q7(
 
 /// Run Q7 with explicit timeout duration. Tests use this directly for
 /// deterministic timeout assertions с injected duration knob.
+///
+/// The primary recursive CTE runs on a DEDICATED `try_clone()`d connection
+/// (own private mutex), and on timeout that clone is `interrupt()`ed.
+/// Rationale (chunk #99 high-load profile finding): `tokio::time::timeout`
+/// around `spawn_blocking` ABANDONS but cannot cancel the blocking task —
+/// when the primary ran on the shared connection, every 200ms timeout left
+/// an orphaned multi-second CTE holding the shared mutex, and the fallback
+/// plus the next cadence tick's Q1-Q6 convoyed behind it (Q1 p99 measured
+/// 699ms vs the 500ms dist-arch budget). With the clone, an abandoned
+/// primary holds nothing shared, and the interrupt aborts it inside DuckDB
+/// to reclaim the blocking thread promptly.
 pub async fn run_q7_with_timeout(
     state: &TriageSqlState,
     window: Duration,
@@ -422,7 +454,14 @@ pub async fn run_q7_with_timeout(
     let cutoff = cutoff_ns(window);
     let start = Instant::now();
 
-    let primary_conn = Arc::clone(&conn);
+    let (primary_conn, interrupt) = {
+        let guard = conn.lock().map_err(|_| SqlAggregationError::LockPoisoned)?;
+        let clone = guard
+            .try_clone()
+            .map_err(|_| SqlAggregationError::QueryFailed { query_id: "q7" })?;
+        let interrupt = clone.interrupt_handle();
+        (Arc::new(Mutex::new(clone)), interrupt)
+    };
     let primary_result = tokio::time::timeout(
         timeout,
         tokio::task::spawn_blocking(move || run_q7_primary_blocking(&primary_conn, cutoff)),
@@ -437,7 +476,10 @@ pub async fn run_q7_with_timeout(
         Ok(Ok(Err(e))) => Err(e),
         Ok(Err(_)) => Err(SqlAggregationError::Join),
         Err(_) => {
-            // Primary Q7 timed out — emit timeout signal + invoke fallback
+            // Primary Q7 timed out — abort the orphaned clone-side CTE so
+            // its blocking thread is reclaimed, then invoke the fallback on
+            // the shared connection (which the orphan never held).
+            interrupt.interrupt();
             tracing::warn!(
                 target: "metric.pipeline.l1a.q7_timeout_count_total",
                 value = 1_i64,

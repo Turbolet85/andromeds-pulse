@@ -52,7 +52,10 @@ function EmptyState({ message }: EmptyStateProps) {
         color: "var(--color-text-tertiary)",
       }}
     >
-      <Icon glyph="telescope" size={24} aria-label="" />
+      {/* decorative: omit aria-label entirely — an EMPTY aria-label forces
+          role="img" with no accessible name (svg-img-alt@serious, chunk #99
+          re-audit); BaseIcon defaults to aria-hidden when unlabeled */}
+      <Icon glyph="telescope" size={24} />
       <p
         style={{
           margin: 0,

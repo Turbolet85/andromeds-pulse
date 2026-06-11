@@ -10,7 +10,7 @@ test.describe("P3 Settings modal MCP toggle", () => {
   test("dashboard-settings — zero critical/serious axe violations", async ({ page }) => {
     await runAxeSweep(page, {
       surface: "dashboard-settings",
-      url: "/#/settings",
+      url: "/settings",
     });
   });
 });

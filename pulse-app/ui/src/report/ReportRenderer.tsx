@@ -27,6 +27,7 @@ import type {
 import {
   formatOpenedAt,
   severityBackgroundVar,
+  severityBorderColorVar,
   severityLabel,
   severityTextColorVar,
   statusLabel,
@@ -271,7 +272,7 @@ export function ReportRenderer({
                 ...SEVERITY_BADGE_BASE_STYLE,
                 background: severityBackgroundVar(report.severity),
                 color: severityTextColorVar(report.severity),
-                border: `1px solid ${severityTextColorVar(report.severity)}`,
+                border: `1px solid ${severityBorderColorVar(report.severity)}`,
               }}
               data-severity={report.severity}
             >

@@ -792,7 +792,9 @@ export function SettingsModalForm({
             <p
               style={{
                 fontSize: "11px",
-                color: "var(--color-text-tertiary)",
+                // text-secondary, not tertiary: small body text on raised-3
+                // needs 4.5:1 (chunk #99 axe finding: 3.11:1)
+                color: "var(--color-text-secondary)",
                 margin: 0,
               }}
             >
@@ -853,7 +855,9 @@ export function SettingsModalForm({
             data-testid="plugin-manager-placeholder"
             style={{
               fontSize: "12px",
-              color: "var(--color-text-tertiary)",
+              // text-secondary, not tertiary (12px body text on raised-3;
+              // chunk #99 axe finding)
+              color: "var(--color-text-secondary)",
               margin: 0,
             }}
           >

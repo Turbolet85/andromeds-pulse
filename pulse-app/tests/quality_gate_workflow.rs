@@ -27,6 +27,53 @@ fn read_nextest_config() -> String {
         .unwrap_or_else(|e| panic!("read {} failed: {e}", full_path.display()))
 }
 
+// Line-anchored TOML section extraction: header lines sit at column 0;
+// comment lines mentioning bracketed profile names must not terminate the
+// window. CRLF-safe via str::lines() per testing.md 2026-05-14.
+fn nextest_profile_window(content: &str, header: &str) -> String {
+    let lines: Vec<&str> = content.lines().collect();
+    let start = lines
+        .iter()
+        .position(|l| l.trim() == header)
+        .unwrap_or_else(|| panic!(".config/nextest.toml MUST declare `{header}` per chunk #99"));
+    lines[start + 1..]
+        .iter()
+        .take_while(|l| !l.trim_start().starts_with("[profile."))
+        .copied()
+        .collect::<Vec<&str>>()
+        .join("\n")
+}
+
+#[test]
+fn nextest_default_profile_excludes_load_profiles_suite() {
+    let content = read_nextest_config();
+    let window = nextest_profile_window(&content, "[profile.default]");
+    assert!(
+        window.contains("default-filter") && window.contains("not binary(perf_load_profiles)"),
+        "`[profile.default]` MUST exclude `binary(perf_load_profiles)` via \
+         default-filter so the ~12-minute four-profile suite never runs in \
+         default/ci/coverage invocations (chunk #99; no #[ignore] gating \
+         per quarantine-tracking discipline, no new env var per the \
+         arch registry freeze)"
+    );
+}
+
+#[test]
+fn nextest_load_profiles_profile_preserves_zero_flake_posture() {
+    let content = read_nextest_config();
+    let window = nextest_profile_window(&content, "[profile.load-profiles]");
+    assert!(
+        window.contains("retries = 0"),
+        "`[profile.load-profiles]` MUST keep `retries = 0` (zero-flake \
+         budget applies to the release-gate load suite; test-plan §10)"
+    );
+    assert!(
+        window.contains("default-filter") && window.contains("\"binary(perf_load_profiles)\""),
+        "`[profile.load-profiles]` MUST re-select exactly the \
+         perf_load_profiles binary via default-filter (chunk #99)"
+    );
+}
+
 #[test]
 fn nextest_ci_profile_enforces_zero_retries() {
     let content = read_nextest_config();

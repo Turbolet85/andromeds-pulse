@@ -10,7 +10,7 @@ test.describe("P1 Traces route", () => {
   test("dashboard-traces — zero critical/serious axe violations", async ({ page }) => {
     await runAxeSweep(page, {
       surface: "dashboard-traces",
-      url: "/#/traces",
+      url: "/traces",
     });
   });
 });

@@ -12,8 +12,25 @@ interface WindowControlsProps {
 // §Component — Custom titlebar Components Window controls.
 //
 // Each button is a native <button> with an aria-label per a11y plan §11
-// ARIA "semantic HTML first". Hit targets size from --target-button-min
-// (44px) per a11y plan §6 Target size tokens (SC 2.5.8 minimum 24×24).
+// ARIA "semantic HTML first".
+//
+// Chunk #99 re-audit finding: the `.window-control` class never received a
+// stylesheet rule, so the buttons rendered at UA default size (<24px) and
+// axe flagged target-size@serious on every surface. The app styles via
+// tokens + inline styles; the hit target binds to --target-input-min
+// (24px floor per SC 2.5.8).
+const CONTROL_STYLE: React.CSSProperties = {
+  minWidth: "var(--target-input-min)",
+  minHeight: "var(--target-input-min)",
+  display: "inline-flex",
+  alignItems: "center",
+  justifyContent: "center",
+  background: "transparent",
+  border: "none",
+  color: "var(--color-text-secondary)",
+  borderRadius: "var(--radius-sm)",
+};
+
 export function WindowControls({ platform }: WindowControlsProps) {
   const { minimize, maximize, close } = useWindowControls();
 
@@ -30,6 +47,7 @@ export function WindowControls({ platform }: WindowControlsProps) {
           void minimize();
         }}
         className="window-control window-control--minimize"
+        style={CONTROL_STYLE}
       >
         <span aria-hidden="true">—</span>
       </button>
@@ -40,6 +58,7 @@ export function WindowControls({ platform }: WindowControlsProps) {
           void maximize();
         }}
         className="window-control window-control--maximize"
+        style={CONTROL_STYLE}
       >
         <span aria-hidden="true">▢</span>
       </button>
@@ -50,6 +69,7 @@ export function WindowControls({ platform }: WindowControlsProps) {
           void close();
         }}
         className="window-control window-control--close"
+        style={CONTROL_STYLE}
       >
         <span aria-hidden="true">×</span>
       </button>

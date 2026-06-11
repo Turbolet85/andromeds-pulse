@@ -183,7 +183,9 @@ export function TemplateDistribution() {
         style={{
           fontFamily: "var(--font-body)",
           fontSize: "12px",
-          color: "var(--color-text-tertiary)",
+          // text-secondary, not tertiary: 12px body text on raised-1 needs
+          // 4.5:1 (tertiary measured 3.92:1 — chunk #99 axe finding)
+          color: "var(--color-text-secondary)",
           padding: "var(--spacing-md)",
           textAlign: "center",
         }}

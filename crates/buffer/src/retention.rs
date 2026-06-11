@@ -52,6 +52,38 @@ pub async fn run_retention(
 ) {
     let cadence_secs = retention_seconds.max(60) / 6;
     let mut interval = tokio::time::interval(Duration::from_secs(cadence_secs));
+    // Delay (not the default Burst) on missed ticks: when a sweep's DELETE
+    // overruns the cadence on a large resident table, Burst refires the
+    // missed ticks back-to-back and the sweeps monopolize the connection —
+    // Delay guarantees a full idle cadence window after every sweep.
+    interval.set_missed_tick_behavior(tokio::time::MissedTickBehavior::Delay);
+
+    // DEDICATED sweep connection (chunk #99 sustained-extreme finding):
+    // sweeping on the shared appender connection let one long-running
+    // DuckDB DELETE hold the shared mutex for minutes — the appender
+    // starved and ingest stalled without recovery (lock-probe forensics
+    // showed the mutex held continuously from the second sweep onward).
+    // On a `try_clone()`d connection a slow sweep delays only eviction
+    // (in-contract degraded mode, visible via eviction_count lag) while
+    // appends proceed on the shared connection. DuckDB MVCC serializes
+    // the cloned connections internally per-operation, not per-task.
+    // Fallback to the shared connection only if cloning fails — degraded
+    // but functional, and loudly logged.
+    let sweep_conn: Arc<Mutex<Connection>> = {
+        let cloned = conn.lock().ok().and_then(|guard| guard.try_clone().ok());
+        match cloned {
+            Some(c) => Arc::new(Mutex::new(c)),
+            None => {
+                tracing::warn!(
+                    target: "buffer.retention",
+                    fallback = "shared_connection",
+                    "retention sweep connection clone failed; sweeping on the shared connection"
+                );
+                Arc::clone(&conn)
+            }
+        }
+    };
+
     // Skip the immediate first tick — `tokio::time::interval` fires
     // immediately on first poll, which would sweep before any rows have
     // landed and lead to a misleading first-tick eviction-of-zero log line.
@@ -59,7 +91,7 @@ pub async fn run_retention(
 
     loop {
         interval.tick().await;
-        run_one_sweep(&conn, &state, retention_seconds).await;
+        run_one_sweep(&sweep_conn, &state, retention_seconds).await;
     }
 }
 

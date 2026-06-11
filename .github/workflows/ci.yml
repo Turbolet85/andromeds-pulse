@@ -73,6 +73,12 @@ jobs:
       - name: cargo xtask capability-drift (TauRPC procedures vs arch §Occupied Resources)
         run: cargo xtask capability-drift
 
+      - name: cargo xtask capability-widening-check (chunk #77 — NEVER-widen bans on pulse:notification/tray/plugin-fs)
+        run: cargo xtask capability-widening-check
+
+      - name: cargo xtask verify:capability-matrix (chunk #99 — P-001..P-060 scenario mapping)
+        run: cargo xtask verify:capability-matrix
+
       - name: npm run build --prefix pulse-app/ui (Vite dist for a11y harness)
         working-directory: pulse-app/ui
         run: npm run build

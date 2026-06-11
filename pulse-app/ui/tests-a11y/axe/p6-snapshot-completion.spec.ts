@@ -10,7 +10,7 @@ test.describe("P6 Snapshot completion", () => {
   test("dashboard-snapshots — zero critical/serious axe violations", async ({ page }) => {
     await runAxeSweep(page, {
       surface: "dashboard-snapshots",
-      url: "/#/snapshots",
+      url: "/snapshots",
     });
   });
 });

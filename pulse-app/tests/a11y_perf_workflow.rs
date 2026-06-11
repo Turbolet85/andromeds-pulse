@@ -78,6 +78,28 @@ fn ci_workflow_uploads_playwright_a11y_report_artifact() {
 }
 
 #[test]
+fn ci_workflow_invokes_xtask_verify_capability_matrix() {
+    let content = read_workflow();
+    assert!(
+        content.contains("cargo xtask verify:capability-matrix"),
+        "ci.yml MUST invoke `cargo xtask verify:capability-matrix` per chunk \
+         #99 (P-001..P-060 capability scenario mapping is a tag-gate \
+         invariant)"
+    );
+}
+
+#[test]
+fn ci_workflow_invokes_xtask_capability_widening_check() {
+    let content = read_workflow();
+    assert!(
+        content.contains("cargo xtask capability-widening-check"),
+        "ci.yml MUST invoke `cargo xtask capability-widening-check` per \
+         chunk #99 CI wiring of the chunk #77 NEVER-widen static analysis \
+         (security plan §API Anti-Patterns rows 6-7)"
+    );
+}
+
+#[test]
 fn ci_workflow_uses_sha_pin_discipline_unchanged() {
     let content = read_workflow();
     for line in content.lines() {

@@ -12,7 +12,7 @@
     "verify:contrast": "node scripts/verify-contrast.mjs",
     "lint": "eslint .",
     "lint:a11y": "eslint . --rule 'jsx-a11y/alt-text: error' --rule 'jsx-a11y/anchor-has-content: error' --rule 'jsx-a11y/aria-props: error' --rule 'jsx-a11y/aria-role: error' --rule 'jsx-a11y/role-has-required-aria-props: error'",
-    "test:a11y": "npm run verify:contrast && playwright test --config=playwright-a11y.config.ts && node tests-a11y/lighthouse/lighthouse-runner.mjs && pa11y-ci --config tests-a11y/pa11y/pa11y-ci-config.json && node tests-a11y/aggregator.mjs && node tests-a11y/regression-detector.mjs"
+    "test:a11y": "npm run verify:contrast && playwright test --config=playwright-a11y.config.ts && node tests-a11y/lighthouse/lighthouse-runner.mjs && node tests-a11y/pa11y/run-pa11y.mjs && node tests-a11y/aggregator.mjs && node tests-a11y/regression-detector.mjs"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.11.0",
@@ -31,6 +31,7 @@
     "eslint-plugin-react": "^7.37.0",
     "eslint-plugin-react-hooks": "^5.0.0",
     "globals": "^15.0.0",
+    "http-server": "^14.1.1",
     "jsdom": "^26.0.0",
     "lighthouse": "^12.0.0",
     "pa11y": "^9.0.0",

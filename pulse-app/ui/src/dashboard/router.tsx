@@ -47,6 +47,13 @@ export function pathnameToTabId(pathname: string): TabId {
   return "traces";
 }
 
+// Non-tab routes (/diagnostics) keep the traces fallback as the roving
+// entry point only — TabNav must not mark it selected there (chunk #99).
+export function pathnameIsTabRoute(pathname: string): boolean {
+  const stripped = pathname.replace(/^\//, "").split("/")[0];
+  return (TAB_IDS as readonly string[]).includes(stripped);
+}
+
 function tabIdToLabel(tabId: TabId): string {
   return TABS.find((t) => t.id === tabId)?.label ?? "Traces";
 }
@@ -140,7 +147,11 @@ function DashboardShell() {
     <>
       <Titlebar title={`andromeda-pulse — ${activeTabLabel}`} />
       <SkipToMain />
-      <TabNav activeTabId={activeTabId} onSelect={onSelectTab} />
+      <TabNav
+        activeTabId={activeTabId}
+        activeIsCurrentRoute={pathnameIsTabRoute(pathname)}
+        onSelect={onSelectTab}
+      />
       <main
         id="main-content"
         tabIndex={-1}

@@ -122,7 +122,9 @@ export function LogTable({ rows, isLoading }: LogTableProps) {
                 colSpan={COLUMNS.length}
                 style={{
                   padding: "var(--spacing-md)",
-                  color: "var(--color-text-tertiary)",
+                  // text-secondary, not tertiary: small body text needs 4.5:1
+                  // (chunk #99 pa11y finding 3.92:1)
+                  color: "var(--color-text-secondary)",
                   textAlign: "center",
                 }}
                 data-testid="log-table-loading"
@@ -136,7 +138,9 @@ export function LogTable({ rows, isLoading }: LogTableProps) {
                 colSpan={COLUMNS.length}
                 style={{
                   padding: "var(--spacing-md)",
-                  color: "var(--color-text-tertiary)",
+                  // text-secondary, not tertiary: small body text needs 4.5:1
+                  // (chunk #99 pa11y finding 3.92:1)
+                  color: "var(--color-text-secondary)",
                   textAlign: "center",
                 }}
                 data-testid="log-table-empty"

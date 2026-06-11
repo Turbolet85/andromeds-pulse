@@ -147,7 +147,9 @@ export function ExportForTraining() {
       <p
         style={{
           fontSize: "11px",
-          color: "var(--color-text-tertiary)",
+          // text-secondary, not tertiary: 11px body text needs 4.5:1
+          // (chunk #99 axe finding: 3.11:1 on raised-3)
+          color: "var(--color-text-secondary)",
           margin: 0,
         }}
       >
@@ -233,7 +235,10 @@ export function ExportForTraining() {
               <span
                 style={{
                   fontSize: "12px",
-                  color: "var(--color-feedback-success)",
+                  // state word stays in text-primary: feedback-cyan as 12px
+                  // TEXT measured 4.36:1 on raised-3 (chunk #99 axe finding);
+                  // the cyan glyph above conveys the state hue (non-text)
+                  color: "var(--color-text-primary)",
                 }}
               >
                 Anonymized (PII scrubbed)

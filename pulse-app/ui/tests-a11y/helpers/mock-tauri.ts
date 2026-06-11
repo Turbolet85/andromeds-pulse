@@ -1,8 +1,24 @@
 import type { Page } from "@playwright/test";
 
-export async function installTauriIpcMock(page: Page): Promise<void> {
-  await page.addInitScript(() => {
-    const responses: Record<string, unknown> = {
+// Optional per-spec response overrides for v0.2.0 procedures (chunk #99):
+// merged over the v0.1.0 baseline map below so the redesigned surfaces
+// (findings dropdown, diagnostic report, constellation, export preview)
+// render data-bearing states under the axe sweep instead of empty states.
+// Values must be JSON-serializable (they cross into the init script).
+// `windowLabel` drives use-window-label routing (compact-widget vs main):
+// @tauri-apps/api v2 resolves the label from
+// `__TAURI_INTERNALS__.metadata.currentWebview.label` (chunk #99 probe
+// finding — the bare `__TAURI_INTERNALS_WINDOW_LABEL__` global the chunk
+// #54 specs defined is never read by the API, so label detection always
+// fell through to the 'unknown' -> Dashboard safe-default).
+export async function installTauriIpcMock(
+  page: Page,
+  overrides: Record<string, unknown> = {},
+  windowLabel: string = "main",
+): Promise<void> {
+  await page.addInitScript(
+    ({ extraResponses, label }: { extraResponses: Record<string, unknown>; label: string }) => {
+      const responses: Record<string, unknown> = {
       app_info: {
         name: "andromeda-pulse",
         version: "0.1.0",
@@ -64,19 +80,35 @@ export async function installTauriIpcMock(page: Page): Promise<void> {
       "plugins.list": { items: [], total: 0, next_cursor: null },
       "workspace.detect": null,
     };
+    Object.assign(responses, extraResponses);
 
     const internals = {
       transformCallback: () => Math.floor(Math.random() * 1e9),
-      invoke: (cmd: string) => {
+      metadata: {
+        currentWebview: { label },
+        currentWindow: { label },
+      },
+      invoke: (cmd: string, args?: { handler?: number }) => {
         if (cmd in responses) {
           return Promise.resolve(responses[cmd]);
         }
-        const taurpcMatch = /^plugin:taurpc\|([\w.]+)/.exec(cmd);
+        // taurpc 0.7 runtime invokes procedures as `TauRPC__<router.path>`
+        // (chunk #99 probe finding — the `plugin:taurpc|` form assumed at
+        // chunk #54 never matched, so every procedure mock was dead and
+        // surfaces always rendered empty states under the audit). Keep the
+        // legacy form as fallback in case the wire shape changes again.
+        const taurpcMatch =
+          /^TauRPC__([\w.]+)$/.exec(cmd) ?? /^plugin:taurpc\|([\w.]+)/.exec(cmd);
         if (taurpcMatch) {
           const proc = taurpcMatch[1];
           if (proc in responses) {
             return Promise.resolve(responses[proc]);
           }
+        }
+        // Tauri event plugin: subscriptions resolve with the handler id so
+        // listen() callers don't reject (no events are ever delivered).
+        if (cmd === "plugin:event|listen" || cmd === "plugin:event|unlisten") {
+          return Promise.resolve(args?.handler ?? 1);
         }
         return Promise.resolve(null);
       },
@@ -85,10 +117,12 @@ export async function installTauriIpcMock(page: Page): Promise<void> {
       },
     };
 
-    Object.defineProperty(window, "__TAURI_INTERNALS__", {
-      value: internals,
-      configurable: true,
-      writable: true,
-    });
-  });
+      Object.defineProperty(window, "__TAURI_INTERNALS__", {
+        value: internals,
+        configurable: true,
+        writable: true,
+      });
+    },
+    { extraResponses: overrides, label: windowLabel },
+  );
 }

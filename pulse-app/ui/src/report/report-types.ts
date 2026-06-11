@@ -79,12 +79,28 @@ export function severityBackgroundVar(severity: IncidentSeverity): string {
   }
 }
 
+// Chunk #99 re-audit finding: accent #C7556A is a NON-TEXT token (3.0:1
+// SC 1.4.11 classification per design-system Decisions Log 2026-05-03) —
+// using it as 12px label TEXT measured 3.37:1 on raised-1
+// (color-contrast@serious). Severity hue moves to the badge BORDER
+// (non-text, 3:1 applies); the label text stays text-primary and conveys
+// severity as a word (SC 1.4.1 not-color-alone).
 export function severityTextColorVar(severity: IncidentSeverity): string {
   switch (severity) {
     case "info":
-      return "var(--color-text-primary)";
     case "warn":
+    case "error":
+    case "critical":
       return "var(--color-text-primary)";
+  }
+}
+
+export function severityBorderColorVar(severity: IncidentSeverity): string {
+  switch (severity) {
+    case "info":
+      return "var(--color-primary)";
+    case "warn":
+      return "var(--color-text-secondary)";
     case "error":
       return "var(--color-accent)";
     case "critical":

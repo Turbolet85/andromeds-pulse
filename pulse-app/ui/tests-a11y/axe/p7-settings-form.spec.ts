@@ -13,7 +13,7 @@ test.describe("P7 Settings form Tab cycle", () => {
   }) => {
     await runAxeSweep(page, {
       surface: "dashboard-settings",
-      url: "/#/settings",
+      url: "/settings",
     });
 
     const focusables = await page.evaluate(() => {

@@ -70,7 +70,9 @@ export function LogFilter({
         style={{
           fontFamily: "var(--font-body)",
           fontSize: "12px",
-          color: "var(--color-text-tertiary)",
+          // text-secondary, not tertiary: small body text needs 4.5:1
+                  // (chunk #99 pa11y finding 3.92:1)
+                  color: "var(--color-text-secondary)",
         }}
       >
         Case-insensitive

@@ -130,6 +130,16 @@ enum Cmd {
         #[arg(long, value_name = "PATH")]
         baseline: PathBuf,
     },
+    #[command(
+        name = "verify:capability-matrix",
+        about = "Chunk #99 — validate docs/v0_2_0/capability-verification-matrix.json: all 60 P-001..P-060 ids present exactly once, every scenario file ref exists, every `contains` anchor greps non-empty, by-construction entries carry justification notes"
+    )]
+    VerifyCapabilityMatrix,
+    #[command(
+        name = "perf:load-profiles",
+        about = "Chunk #99 — dist-arch v3 four-profile load suite (baseline 1k / high 10k / burst 50k / sustained-extreme 50k spans/s) via nextest --profile load-profiles, then heartbeat-gap + perf-slo gates over harness logs when present"
+    )]
+    PerfLoadProfiles,
 }
 
 #[tokio::main]
@@ -156,6 +166,8 @@ async fn main() -> ExitCode {
         Cmd::CriterionRegression { current, baseline } => {
             run_criterion_regression(&current, &baseline).await
         }
+        Cmd::VerifyCapabilityMatrix => verify_capability_matrix().await,
+        Cmd::PerfLoadProfiles => run_perf_load_profiles().await,
     };
     match result {
         Ok(code) => code,
@@ -352,6 +364,47 @@ fn collect_log_files() -> Vec<PathBuf> {
     files
 }
 
+// Chunk #99 — scope the obs gate scripts to the CURRENT run's time window.
+// The persistent dev data dir accumulates daily-rolled logs across booted
+// sessions (verification-harness.md 2026-05-14 dev-residue trap), so
+// cross-session tick gaps in `agent-latest.jsonl*` are not stalls. Keep only
+// lines whose RFC3339 UTC timestamp prefix is >= the run-start prefix and
+// hand the scripts the windowed artifact instead of the raw archive.
+// Lexicographic compare on the 19-char `YYYY-MM-DDTHH:MM:SS` prefix is
+// order-correct because both sides are UTC.
+fn write_run_window_log(
+    log_files: &[PathBuf],
+    run_start_utc19: &str,
+    out_path: &Path,
+) -> Result<usize> {
+    let mut kept: Vec<String> = Vec::new();
+    for file in log_files {
+        let content = match fs::read_to_string(file) {
+            Ok(c) => c,
+            Err(_) => continue,
+        };
+        for line in content.lines() {
+            let Some(idx) = line.find("\"timestamp\":\"") else {
+                continue;
+            };
+            let ts_start = idx + "\"timestamp\":\"".len();
+            let Some(ts19) = line.get(ts_start..ts_start + 19) else {
+                continue;
+            };
+            if ts19 >= run_start_utc19 {
+                kept.push(line.to_string());
+            }
+        }
+    }
+    if let Some(parent) = out_path.parent() {
+        fs::create_dir_all(parent)
+            .with_context(|| format!("create run-window log dir {}", parent.display()))?;
+    }
+    fs::write(out_path, kept.join("\n"))
+        .with_context(|| format!("write run-window log {}", out_path.display()))?;
+    Ok(kept.len())
+}
+
 fn resolve_log_dir() -> PathBuf {
     if let Ok(p) = env::var("ANDROMEDA_PULSE_DATA_DIR") {
         return PathBuf::from(p).join("logs");
@@ -478,6 +531,293 @@ async fn run_perf_slo_load() -> Result<ExitCode> {
         .await
         .context("failed to spawn `cargo nextest run --test perf_slo_10k_spans`")?;
     Ok(status_to_code(status))
+}
+
+// Chunk #99 — dist-arch v3 §Load testing four-profile release-gate suite.
+// The tests are excluded from default/ci nextest profiles via
+// `.config/nextest.toml` default-filter; `--profile load-profiles`
+// re-selects exactly the perf_load_profiles binary. After the suite, the
+// heartbeat-gap + perf-slo gates run over harness logs when present (the
+// booted-app ACTIVE window flow); absent logs map к NEUTRAL — the
+// in-process suite does not write agent-latest.jsonl itself.
+async fn run_perf_load_profiles() -> Result<ExitCode> {
+    let run_start_utc19 = chrono::Utc::now().format("%Y-%m-%dT%H:%M:%S").to_string();
+    let mut cmd = tokio::process::Command::new("cargo");
+    cmd.env("NEXTEST_EXPERIMENTAL_LIBTEST_JSON", "1");
+    cmd.args([
+        "nextest",
+        "run",
+        "-p",
+        "pulse-app",
+        "--test",
+        "perf_load_profiles",
+        "--profile",
+        "load-profiles",
+        "--no-tests=pass",
+        "--message-format",
+        "libtest-json",
+    ]);
+    let status = cmd
+        .status()
+        .await
+        .context("failed to spawn `cargo nextest run --test perf_load_profiles`")?;
+    if !status.success() {
+        return Ok(status_to_code(status));
+    }
+
+    let log_files = collect_log_files();
+    let workspace_root = Path::new(env!("CARGO_MANIFEST_DIR"))
+        .parent()
+        .context("xtask manifest has no workspace parent")?
+        .to_path_buf();
+    let window_path = workspace_root
+        .join("target")
+        .join("load-profiles")
+        .join("agent-window.jsonl");
+    let in_window = if log_files.is_empty() {
+        0
+    } else {
+        write_run_window_log(&log_files, &run_start_utc19, &window_path)?
+    };
+    if in_window == 0 {
+        println!(
+            "perf:load-profiles: heartbeat-gap + perf-slo gates NEUTRAL (no `agent-latest.jsonl*` telemetry within this run's window under {} — the load suite uses ephemeral rigs; for the ACTIVE window boot the app via scripts/agent-run boot + drive crates/ingest/examples/load_profiles.rs, then re-run this command)",
+            resolve_log_dir().display()
+        );
+        return Ok(ExitCode::SUCCESS);
+    }
+    println!(
+        "perf:load-profiles: {in_window} in-window log line(s) — running obs gates over {}",
+        window_path.display()
+    );
+    let windowed_files = vec![window_path];
+    match invoke_heartbeat_check(&windowed_files).await {
+        Ok(true) => println!("perf:load-profiles: heartbeat-gap PASS"),
+        Ok(false) => {
+            eprintln!("::error::perf:load-profiles: heartbeat-gap FAIL");
+            return Ok(ExitCode::FAILURE);
+        }
+        Err(e) => {
+            eprintln!("perf:load-profiles: heartbeat-gap script unavailable ({e:#}) — NEUTRAL")
+        }
+    }
+    match invoke_perf_slo_check(&windowed_files).await {
+        Ok(true) => println!("perf:load-profiles: perf-slo PASS"),
+        Ok(false) => {
+            eprintln!("::error::perf:load-profiles: perf-slo FAIL");
+            return Ok(ExitCode::FAILURE);
+        }
+        Err(e) => eprintln!("perf:load-profiles: perf-slo script unavailable ({e:#}) — NEUTRAL"),
+    }
+    Ok(ExitCode::SUCCESS)
+}
+
+// Chunk #99 — capability verification matrix validator (the v0.2.0 tag
+// gate's "every P-XXX has at least one named scenario" enforcement).
+// Validates docs/v0_2_0/capability-verification-matrix.json structurally:
+// exactly P-001..P-060 present once each, every file-kind scenario ref
+// exists on disk, every `contains` anchor greps non-empty in its ref,
+// xtask-gate refs name known subcommands, and by-construction entries
+// carry a justification note. Mirrors capability_drift's report shape at
+// target/capability-matrix/report.json + obs §3 structured event line.
+async fn verify_capability_matrix() -> Result<ExitCode> {
+    let workspace_root = Path::new(env!("CARGO_MANIFEST_DIR"))
+        .parent()
+        .context("xtask manifest has no workspace parent")?
+        .to_path_buf();
+    let matrix_path = workspace_root
+        .join("docs")
+        .join("v0_2_0")
+        .join("capability-verification-matrix.json");
+    let content = fs::read_to_string(&matrix_path)
+        .with_context(|| format!("read capability matrix at {}", matrix_path.display()))?;
+    let doc: Value = serde_json::from_str(&content).context("parse capability matrix JSON")?;
+
+    const FILE_KINDS: &[&str] = &[
+        "nextest-file",
+        "ui-test",
+        "a11y-spec",
+        "ci-script",
+        "source-evidence",
+    ];
+    const ALL_KINDS: &[&str] = &[
+        "nextest-file",
+        "ui-test",
+        "a11y-spec",
+        "ci-script",
+        "source-evidence",
+        "xtask-gate",
+        "by-construction",
+    ];
+    const MODES: &[&str] = &[
+        "automated-nextest",
+        "automated-a11y",
+        "automated-e2e",
+        "xtask-gate",
+        "env-gated-runtime",
+        "manual-sr-supplemental",
+        "by-construction",
+    ];
+    const XTASK_GATES: &[&str] = &[
+        "capability-drift",
+        "capability-widening-check",
+        "test:a11y",
+        "perf:slo-load",
+        "perf:load-profiles",
+        "verify:capability-matrix",
+        "ci-gates",
+        "quarantine-tracking",
+    ];
+
+    let mut violations: Vec<String> = Vec::new();
+    let mut mode_counts: BTreeMap<String, usize> = BTreeMap::new();
+    let mut seen_ids: BTreeSet<String> = BTreeSet::new();
+
+    let capabilities = doc
+        .get("capabilities")
+        .and_then(Value::as_array)
+        .context("matrix JSON missing `capabilities` array")?;
+
+    for entry in capabilities {
+        let id = entry.get("id").and_then(Value::as_str).unwrap_or("");
+        if id.is_empty() {
+            violations.push("entry with missing/empty `id`".to_string());
+            continue;
+        }
+        if !seen_ids.insert(id.to_string()) {
+            violations.push(format!("{id}: duplicate id"));
+        }
+        let mode = entry
+            .get("verification_mode")
+            .and_then(Value::as_str)
+            .unwrap_or("");
+        if !MODES.contains(&mode) {
+            violations.push(format!("{id}: unknown verification_mode `{mode}`"));
+        }
+        *mode_counts.entry(mode.to_string()).or_insert(0) += 1;
+        let notes = entry.get("notes").and_then(Value::as_str).unwrap_or("");
+
+        let scenarios = entry
+            .get("scenarios")
+            .and_then(Value::as_array)
+            .cloned()
+            .unwrap_or_default();
+        if scenarios.is_empty() {
+            violations.push(format!("{id}: zero scenarios (every capability needs ≥1)"));
+            continue;
+        }
+        let mut has_verifying_scenario = false;
+        for scenario in &scenarios {
+            let kind = scenario.get("kind").and_then(Value::as_str).unwrap_or("");
+            let reference = scenario.get("ref").and_then(Value::as_str).unwrap_or("");
+            if !ALL_KINDS.contains(&kind) {
+                violations.push(format!("{id}: unknown scenario kind `{kind}`"));
+                continue;
+            }
+            match kind {
+                "by-construction" => {
+                    if notes.trim().is_empty() {
+                        violations.push(format!(
+                            "{id}: by-construction scenario requires a justification in `notes`"
+                        ));
+                    }
+                    has_verifying_scenario = true;
+                }
+                "xtask-gate" => {
+                    if !XTASK_GATES.contains(&reference) {
+                        violations.push(format!(
+                            "{id}: xtask-gate ref `{reference}` is not a known subcommand"
+                        ));
+                    }
+                    has_verifying_scenario = true;
+                }
+                kind if FILE_KINDS.contains(&kind) => {
+                    let path = workspace_root.join(reference);
+                    if !path.is_file() {
+                        violations.push(format!(
+                            "{id}: scenario ref `{reference}` does not exist on disk"
+                        ));
+                        continue;
+                    }
+                    if let Some(anchor) = scenario.get("contains").and_then(Value::as_str) {
+                        let file_content = fs::read_to_string(&path)
+                            .with_context(|| format!("read scenario ref `{reference}` for {id}"))?;
+                        if !file_content.contains(anchor) {
+                            violations.push(format!(
+                                "{id}: anchor `{anchor}` not found in `{reference}`"
+                            ));
+                            continue;
+                        }
+                    }
+                    if kind != "source-evidence" {
+                        has_verifying_scenario = true;
+                    }
+                }
+                _ => unreachable!("kind membership checked above"),
+            }
+        }
+        if !has_verifying_scenario && notes.trim().is_empty() {
+            violations.push(format!(
+                "{id}: only source-evidence scenarios and no `notes` justification"
+            ));
+        }
+    }
+
+    let expected_ids: BTreeSet<String> = (1..=60).map(|n| format!("P-{n:03}")).collect();
+    for missing in expected_ids.difference(&seen_ids) {
+        violations.push(format!("{missing}: capability missing from matrix"));
+    }
+    for unexpected in seen_ids.difference(&expected_ids) {
+        violations.push(format!("{unexpected}: id outside P-001..P-060 range"));
+    }
+
+    let state = if violations.is_empty() {
+        "clean"
+    } else {
+        "violations"
+    };
+    let report_dir = workspace_root.join("target").join("capability-matrix");
+    fs::create_dir_all(&report_dir).context("create capability-matrix report dir")?;
+    let report_path = report_dir.join("report.json");
+    let report = serde_json::json!({
+        "state": state,
+        "capability_count": seen_ids.len(),
+        "violation_count": violations.len(),
+        "violations": violations,
+        "verification_mode_counts": mode_counts,
+        "generated_at": chrono::Utc::now().to_rfc3339(),
+    });
+    fs::write(&report_path, serde_json::to_string_pretty(&report)?)
+        .context("write capability-matrix report")?;
+
+    let event = serde_json::json!({
+        "timestamp": chrono::Utc::now().to_rfc3339(),
+        "level": if state == "clean" { "INFO" } else { "WARN" },
+        "target": "xtask.verify_capability_matrix",
+        "message": "capability verification matrix check complete",
+        "fields": {
+            "state": state,
+            "capability_count": seen_ids.len(),
+            "violation_count": violations.len(),
+        },
+    });
+    println!("{}", serde_json::to_string(&event)?);
+
+    eprintln!(
+        "verify:capability-matrix: {state} ({}/60 capabilities, {} violation(s))",
+        seen_ids.len(),
+        violations.len()
+    );
+    for v in &violations {
+        eprintln!("  violation: {v}");
+    }
+    eprintln!("  report: {}", report_path.display());
+
+    if state == "clean" {
+        Ok(ExitCode::SUCCESS)
+    } else {
+        Ok(ExitCode::FAILURE)
+    }
 }
 
 async fn invoke_coverage_regression_check(current: &Path, baseline: &Path) -> Result<bool> {

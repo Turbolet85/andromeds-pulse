@@ -35,14 +35,24 @@ describe("TabNav", () => {
     expect(tracesTab.getAttribute("tabindex")).toBe("-1");
   });
 
-  it("each tab has aria-controls pointing to a tabpanel id", () => {
+  it("only the selected tab carries aria-controls (inactive panels are unmounted)", () => {
+    // Chunk #99 re-audit: a static aria-controls on every tab dangles to
+    // missing ids (aria-valid-attr-value@critical) because only the active
+    // route's tabpanel is mounted. ARIA APG marks aria-controls optional.
     render(<TabNav activeTabId="traces" onSelect={vi.fn()} />);
     expect(screen.getByTestId("tab-traces").getAttribute("aria-controls")).toBe(
       "tabpanel-traces",
     );
-    expect(screen.getByTestId("tab-settings").getAttribute("aria-controls")).toBe(
-      "tabpanel-settings",
-    );
+    expect(screen.getByTestId("tab-settings").getAttribute("aria-controls")).toBeNull();
+  });
+
+  it("non-tab routes mark no tab selected and emit no aria-controls", () => {
+    render(<TabNav activeTabId="traces" activeIsCurrentRoute={false} onSelect={vi.fn()} />);
+    const traces = screen.getByTestId("tab-traces");
+    expect(traces.getAttribute("aria-selected")).toBe("false");
+    expect(traces.getAttribute("aria-controls")).toBeNull();
+    // Roving entry point preserved: the fallback tab keeps tabindex 0.
+    expect(traces.getAttribute("tabindex")).toBe("0");
   });
 
   it("clicking a tab calls onSelect with that tab id", async () => {

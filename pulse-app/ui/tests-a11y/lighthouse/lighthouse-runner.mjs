@@ -1,5 +1,4 @@
 #!/usr/bin/env node
-import { spawn } from "node:child_process";
 import { appendFile, mkdir, writeFile } from "node:fs/promises";
 import { homedir, platform } from "node:os";
 import { dirname, join } from "node:path";
@@ -7,13 +6,17 @@ import { fileURLToPath } from "node:url";
 
 const ROOT = dirname(dirname(dirname(fileURLToPath(import.meta.url))));
 
+// Real browser-history paths (chunk #99 finding: the former `/#/route`
+// URLs never routed — every surface silently audited the traces index).
+// /diagnostics added with the chunk #97 view.
 const SURFACES = [
   { key: "compact-widget", path: "/" },
-  { key: "dashboard-traces", path: "/#/traces" },
-  { key: "dashboard-metrics", path: "/#/metrics" },
-  { key: "dashboard-logs", path: "/#/logs" },
-  { key: "dashboard-snapshots", path: "/#/snapshots" },
-  { key: "dashboard-settings", path: "/#/settings" },
+  { key: "dashboard-traces", path: "/traces" },
+  { key: "dashboard-metrics", path: "/metrics" },
+  { key: "dashboard-logs", path: "/logs" },
+  { key: "dashboard-snapshots", path: "/snapshots" },
+  { key: "dashboard-settings", path: "/settings" },
+  { key: "dashboard-diagnostics", path: "/diagnostics" },
 ];
 
 const MIN_A11Y_SCORE = 90;
@@ -42,24 +45,12 @@ function resolveLogDir() {
 }
 
 function startServer() {
-  return new Promise((resolve, reject) => {
-    const child = spawn(
-      process.platform === "win32" ? "npx.cmd" : "npx",
-      ["http-server", "dist", "-p", PORT, "--silent"],
-      { cwd: ROOT, stdio: "ignore", shell: false },
-    );
-    const timer = setTimeout(() => {
-      reject(new Error(`http-server on :${PORT} did not start within 10s`));
-    }, 10_000);
-    setTimeout(() => {
-      clearTimeout(timer);
-      resolve(child);
-    }, 1_500);
-    child.on("error", (err) => {
-      clearTimeout(timer);
-      reject(err);
-    });
-  });
+  // Shared lifecycle helper (chunk #99): direct-spawn server with SPA
+  // fallback; the prior npx-wrapper spawn orphaned the real server child
+  // on Windows kill and had no fallback for browser-history routes.
+  return import("../helpers/static-server.mjs").then(({ startStaticServer }) =>
+    startStaticServer(ROOT, PORT),
+  );
 }
 
 async function runLighthouseOne(lighthouse, surface) {

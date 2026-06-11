@@ -106,7 +106,10 @@ export function TraceTable({ rows, isLoading }: TraceTableProps) {
                 colSpan={COLUMNS.length}
                 style={{
                   padding: "var(--spacing-md)",
-                  color: "var(--color-text-tertiary)",
+                  // text-secondary, not tertiary: 12px body text needs 4.5:1
+                  // (tertiary is large-text-only; chunk #99 axe finding 3.92:1
+                  // on raised-1)
+                  color: "var(--color-text-secondary)",
                   textAlign: "center",
                 }}
                 data-testid="trace-table-loading"
@@ -120,7 +123,9 @@ export function TraceTable({ rows, isLoading }: TraceTableProps) {
                 colSpan={COLUMNS.length}
                 style={{
                   padding: "var(--spacing-md)",
-                  color: "var(--color-text-tertiary)",
+                  // text-secondary, not tertiary (12px body text; see loading
+                  // cell note)
+                  color: "var(--color-text-secondary)",
                   textAlign: "center",
                 }}
                 data-testid="trace-table-empty"
