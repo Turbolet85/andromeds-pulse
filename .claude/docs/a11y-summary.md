@@ -15,7 +15,7 @@ Cross-platform desktop app (Windows / macOS / Linux via Tauri 2.x) with 2 primar
 ## WCAG criteria (Standard tier)
 - **Baseline:** WCAG 2.1 AA full (~50 SCs). axe-core config: `runOnly: { type: 'tag', values: ['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa'] }` (adds SC 2.5.8 target-size from WCAG 2.2 AA).
 - **AAA escalation (motion-sensitive trigger):** **SC 2.3.3 Animation from Interactions** — Lighthouse 12.x prefers-reduced-motion audit + custom Playwright `page.emulateMedia({ reducedMotion: 'reduce' })` assertion.
-- **Explicitly N/A SCs (12 with documented reasons):** SC 1.2.1/1.2.2/1.2.3/1.4.2 (no audio), 1.4.4/1.4.5 (no text-as-image), 1.4.10 (desktop-only viewport), 1.4.13 (no hover-hidden tooltips), 2.2.1/2.2.2 (no time-dependent content), 2.4.4 (verified via 4.1.2), 3.1.1 (single-language), 3.2.1/3.2.2 (covered in P7), 3.3.3/3.3.4 (covered via P2/P7), 4.1.1 (parsing — deprecated WCAG 2.2; React 19 + TS + ESLint enforce).
+- **Explicitly N/A SCs (12 with documented reasons):** SC 1.2.1/1.2.2/1.2.3/1.4.2 (no audio), 1.4.4/1.4.5 (no text-as-image), 1.4.10 (desktop-only viewport), 1.4.13 (re-evaluated chunk #99: the header connection-dot tooltip is a non-interactive `role="img"` summary with an `aria-hidden` decorative tooltip — no hover/focus-triggered ADDITIONAL content in the SC sense; still N/A), 2.2.1/2.2.2 (no time-dependent content), 2.4.4 (verified via 4.1.2), 3.1.1 (single-language), 3.2.1/3.2.2 (covered in P7), 3.3.3/3.3.4 (covered via P2/P7), 4.1.1 (parsing — deprecated WCAG 2.2; React 19 + TS + ESLint enforce).
 
 ## Critical paths (P1–P7 must-be-accessible)
 
@@ -84,6 +84,12 @@ Emitted to `~/.andromeda-pulse/logs/a11y-{tool}-results.jsonl`; uploaded as CI a
 - Keyboard focus order test fails
 - Contrast verification detects token mismatch (actual <required)
 - Per-PR regression — any new tuple `{surface, wcag_criterion, selector, severity}` not in base branch
+
+## v0.2.0 re-audit (chunk #99, per a11y-plan §12 2026-06-10)
+- **Harness repaired** — the Playwright a11y suite was silently dead since session 64 (4 infra bugs: stale root-level `../helpers/` import; IPC mock matched `plugin:taurpc|` while taurpc 0.7 invokes `TauRPC__<router.path>`; window-label global never read — production reads `__TAURI_INTERNALS__.metadata.currentWebview.label`; `/#/route` URLs never resolved — TanStack Router uses browser history). Repairs: `helpers/mock-tauri.ts` rewrite + `helpers/v02-fixtures.ts` + `helpers/static-server.mjs` SPA fallback + `pa11y/run-pa11y.mjs` + real route paths in pa11y/Lighthouse configs.
+- **Spec coverage extended** — axe specs p1–p7 → **p1–p12** (findings dropdown / diagnostic report modal / diagnostics view / constellation semantics / export preview) + `keyboard-focus/widget-and-modals.spec.ts`; p5 + reduced-motion updated to the redesigned widget. New-surface discipline: every new route/modal chunk adds an axe spec + `v02-fixtures.ts` payloads in the same chunk.
+- **~10 violations remediated in-chunk** — SC 2.5.8 target-size (WindowControls 24px), SC 1.4.3/1.4.11 contrast (tertiary→secondary text; severity text→primary + severity borders), svg-img-alt, aria-valid-attr-value (TabNav dangling `aria-controls`), SkipToMain clip pattern.
+- **Baseline re-established 2026-06-09** — `baselines/a11y-violations-summary.json` from a clean full-chain pass (6 informational lighthouse-score tuples, 0 violation tuples); suite health checked cheaply via `npx playwright test --list`.
 
 ## Top anti-patterns (a11y-plan §11)
 - NEVER use ARIA on non-semantic HTML (`role="button"` on `<div>` instead of `<button>`).

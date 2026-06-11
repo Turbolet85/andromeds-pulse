@@ -56,7 +56,7 @@ JSON-per-line; fields: `timestamp` (ISO-8601), `level`, `target`, `message`, `fi
 | Integration | All Standard Contracts + boundary types | `tauri::test::mock_builder()` + `tonic` 0.14.5 + `axum-test` 18.7 + `duckdb-rs` 1.5 |
 | E2E | All 7 critical paths | `tauri-driver` 2.x + `WebdriverIO` 9.x + `mocha` (headless `xvfb-run` Linux; native macOS/Windows) |
 | Property | Selective per trigger | `proptest` 1.10 |
-| Performance / Load | Trigger-driven | Custom load drivers; `criterion` 0.5 in `xtask benches/` |
+| Performance / Load | Four dist-arch v3 profiles (release/tag gate) + per-PR 10k profile | `pulse-app/tests/perf_load_profiles.rs` (nextest `load-profiles` profile via `cargo xtask perf:load-profiles`); `perf_slo_10k_spans.rs` per-PR; live injector `crates/ingest/examples/load_profiles.rs`; `criterion` 0.5 in `xtask benches/` |
 | Chaos / Fault | Trigger-driven | `tokio::time::pause()` + manual broadcast disconnect |
 
 ## Self-bootstrapping fixtures
@@ -71,13 +71,16 @@ JSON-per-line; fields: `timestamp` (ISO-8601), `level`, `target`, `message`, `fi
 ## Quality gates (CI)
 - Coverage ≥75% line / ≥70% branch / ≥85% function via `cargo-llvm-cov` 0.8.5.
 - **Zero-flakiness budget** — flake = real bug; quarantine + fix or delete (NO retry-once policy).
-- Performance budgets (p99): OTLP gRPC <100ms, OTLP HTTP <120ms, TauRPC `traces.query` <150ms, snapshot 25k budget <500ms, DuckDB Arrow appender <50ms, WebGPU 10k spans/sec ≥30 fps sustained.
+- Performance budgets (p99): OTLP gRPC <100ms, OTLP HTTP <120ms, TauRPC `traces.query` <150ms, snapshot 25k budget <500ms, DuckDB Arrow appender <50ms, WebGPU 10k spans/sec ≥30 fps sustained (descriptive — the ASSERTED frame budget is obs §10's `metric.webgpu.frame_duration_ms` p99 ≤33ms, per test-plan §12 2026-06-10).
+- **Capability verification matrix (chunk #99):** `docs/v0_2_0/capability-verification-matrix.json` (60 P-entries → named scenarios) validated by `cargo xtask verify:capability-matrix` in CI; P-061+ extend the matrix in the landing chunk.
+- **Four-profile load suite (chunk #99, release/tag gate):** `pulse-app/tests/perf_load_profiles.rs` behind nextest `[profile.load-profiles]` via `cargo xtask perf:load-profiles` (baseline/high/burst/sustained-extreme per dist-arch v3; default/ci profiles exclude it); load-shaped tests join the profile, never `#[ignore]`.
 - `cargo deny check bans` blocks `multiple-versions = "deny"` regression (catches `tonic` 0.14/0.13 duplicate).
 - Cranelift-only WASM enforcement: build-time check on `wasmtime` Cargo.lock.
 
 ## CI integration
 GitHub Actions matrix (Linux/macOS/Windows × Rust stable):
 - Lint → Unit tests → Integration → E2E (matrix per platform) → Coverage → Quality gates.
+- Capability gates: `cargo xtask capability-drift` → `cargo xtask capability-widening-check` → `cargo xtask verify:capability-matrix` (chunk #99).
 - JUnit XML output via `cargo nextest --message-format junit`; `dorny/test-reporter` for inline PR annotations.
 - Build fails on: any test failure, coverage below threshold, flaky test, perf regression, lint/typecheck/`cargo deny check` failure.
 

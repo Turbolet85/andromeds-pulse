@@ -54,7 +54,9 @@ Path-scoped rules for Rust source + colocated test modules + webview frontend te
 
 ## Quality gates (Standard tier)
 - Coverage: ≥75% line, ≥70% branch, ≥85% function via `cargo-llvm-cov` 0.8.5 (LLVM source-based; cross-platform on all 3 CI runners). Exclude generated code (`prost` stubs, `taurpc` IPC bindings) and test fixtures.
-- Performance budgets (p99): OTLP gRPC Export <100ms, OTLP HTTP POST <120ms, TauRPC `traces.query` <150ms, Snapshot 25k budget <500ms, DuckDB Arrow appender <50ms, WebGPU 10k spans/sec sustained ≥30 fps.
+- Performance budgets (p99): OTLP gRPC Export <100ms, OTLP HTTP POST <120ms, TauRPC `traces.query` <150ms, Snapshot 25k budget <500ms, DuckDB Arrow appender <50ms, WebGPU 10k spans/sec sustained ≥30 fps (descriptive intent — the ASSERTED frame budget is obs-plan §10's ms-form, `metric.webgpu.frame_duration_ms` p99 ≤33ms; no test asserts an fps number, per test-plan §12 2026-06-10).
+- **Capability verification matrix (chunk #99):** `docs/v0_2_0/capability-verification-matrix.json` maps every P-001–P-060 capability to a named verification scenario (modes: automated-nextest / automated-a11y / by-construction / env-gated-runtime); `cargo xtask verify:capability-matrix` validates ids + file refs + grep anchors and runs in CI after capability-drift. Future capabilities (P-061+) extend the matrix in the same chunk that lands the capability — dangling ids/paths/anchors fail CI.
+- **Four-profile load suite (chunk #99, release/tag gate):** `pulse-app/tests/perf_load_profiles.rs` implements the dist-arch v3 profiles {baseline 1k/60s zero-drops; high 10k×5min L1a p99<500ms; burst 50k/30s ≤60s recovery; sustained-extreme 50k×5min zero-L0-loss + retention}. Runs ONLY behind nextest `[profile.load-profiles]` (`test-threads = 1`; 20-min terminate ceiling; the default/ci profiles exclude the binary via `default-filter`), orchestrated by `cargo xtask perf:load-profiles`. Future load-shaped tests JOIN this profile rather than using `#[ignore]` (`#[ignore]` stays reserved for flake quarantine). `perf_slo_10k_spans.rs` remains the fast per-PR gate.
 - **Zero-flakiness budget:** flaky tests are NOT tolerated. Quarantine immediately via `#[ignore]` + open issue; root-cause + fix or delete before unquarantining. NO retry-once policies.
 - `cargo deny check bans` blocks `multiple-versions = "deny"` regressions (catches `tonic` 0.14/0.13 duplicate).
 
@@ -102,6 +104,7 @@ The following test triggers are documented as required-but-not-yet-implemented; 
 - **All workspace:** `cargo nextest run --workspace --profile ci --message-format libtest-json`
 - **With coverage:** `cargo llvm-cov nextest --workspace --lcov --output-path lcov.info --summary-only`
 - **xtask shortcut:** `cargo xtask test`
+- **Release/tag gates (chunk #99):** `cargo xtask verify:capability-matrix` (P-001–P-060 scenario mapping; also a per-PR CI step) + `cargo xtask perf:load-profiles` (four-profile suite + run-window-scoped obs gates; ~17 min — release/tag cadence, not per-PR).
 - **CI matrix:** Linux/macOS/Windows × Rust stable; tauri-driver matrix per platform for E2E desktop-webview.
 
 ## Session Additions

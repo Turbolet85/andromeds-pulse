@@ -43,7 +43,7 @@ Path-scoped rules for the desktop-webview React frontend (Tauri 2 webview).
 - Halo State Pulse renders on a dedicated `<canvas>` layer OUTSIDE React's render tree — Arrow data is pushed into the canvas via WebGPU compute shader, side-stepping VDOM diff cost.
 - WebGPU init: `navigator.gpu.requestAdapter()` + device / pipeline / shader compile at component mount; reuse pipeline across re-renders.
 - Fallback when `navigator.gpu` is undefined: `<canvas>` shows `font-body` text in `color-text-tertiary` ("WebGPU not supported in this context"). MUST be screen-reader accessible (wrap in `<region role="region" aria-label="...">`).
-- Frame timing emitted via TauRPC `telemetry.frontend.record_frame_ms(duration_ms, wgpu_backend)` for SLO enforcement (p99 ≤33ms / 30 fps).
+- Frame timing emitted via TauRPC `telemetry.frontend.record_frame_ms(duration_ms, wgpu_backend)` for SLO enforcement (p99 ≤33ms per obs-plan §10 — the ms-form governs; ≈30 fps equivalence is descriptive only, per test-plan §12 2026-06-10 reconciliation).
 - Reduced-motion: degrade to static glow (no pulse rhythm); hue still updates per cumulative incident severity. Use `useReducedMotion` hook from `motion/react` 12.x.
 
 ## Custom titlebar (Tauri 2 frameless)

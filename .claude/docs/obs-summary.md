@@ -71,10 +71,15 @@ Every P1–P7 must emit parent + child spans with the `{module}.{operation}` nam
 | **Zero unlogged panics** | `std::panic::set_hook` → `tracing::error!(target: "app.panic.fatal", ...)`; CI greps for `app.panic.fatal` spans (any match = build fail) |
 | **Heartbeat ticks (>45s gap = stall)** | Post-test gap analysis: parse log timestamps per `{module}.tick` target, compute deltas, assert max ≤45000ms |
 | **Snapshot p99 ≤500ms** | `metric.snapshot.token_count_ms` events; CI tail aggregation via `jq` |
-| **WebGPU frame p99 ≤33ms (30 fps)** | `metric.webgpu.frame_duration_ms` events bridged from frontend via TauRPC |
+| **WebGPU frame p99 ≤33ms (ms-form governs; ≈30 fps descriptive)** | `metric.webgpu.frame_duration_ms` events bridged from frontend via TauRPC; ACTIVE-verified session 183 (p99 27.3ms, n=56,642 real frames) |
 | **Buffer memory ≤512MB** | `metric.buffer.memory_bytes` per heartbeat tick; chaos test (10k spans/sec for 15min) post-test max check |
 | **Module-boundary error logging** | Every error at boundary logged at WARN/ERROR with trace context + error category (not full stack trace) |
 | **Trace context propagation** | Cross-surface call propagates W3C traceparent / IPC envelope context |
+
+### NEUTRAL/ACTIVE gate posture + connection isolation (chunk #99, per obs-plan §12 2026-06-10)
+- The check scripts (`xtask/ci/{perf-slo-check,heartbeat-gap-check,l4-latency-p99}`) are **NEUTRAL-tolerant**: absent metric stream → NEUTRAL, not FAIL — one script set serves headless CI and booted-app (ACTIVE) sessions. `cargo xtask perf:load-profiles` time-windows collected logs to the current run (`target/load-profiles/agent-window.jsonl`); unscoped dev daily-rolled logs false-FAIL heartbeat on cross-session gaps.
+- ACTIVE evidence flow: `scripts/agent-run boot` (or direct binary) → `cargo run -p ingest --example load_profiles -- custom <rate> <secs>` → stop app → run gate scripts via `pwsh` (5.1 misparses `l4-latency-p99.ps1`'s UTF-8 punctuation; `tracing-appender` holds the live log without read-share on Windows).
+- **DuckDB connection isolation:** multi-second statements take a dedicated `Connection::try_clone()` — write (appender) / sweep (retention) / read (L1a) topology; never hold the shared appender connection (three production defects found+fixed at 50k spans/s by the load suite).
 
 ## PII scrubbing (Vectors 1–6 from security plan)
 | Vector | Rule |

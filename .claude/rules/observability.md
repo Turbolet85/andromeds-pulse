@@ -69,7 +69,7 @@ Optional fields: `trace_id` / `span_id` (W3C traceparent strings), `duration_ms`
 
 ## Metrics convention (`metric.*` target prefix)
 - `tracing::info!(target: "metric.{module}.{measure}", value = N, ...)` — agent computes percentiles by tailing the JSON log; offline regression via `criterion` 0.5 in `xtask benches/`.
-- Required perf-budget metrics: `metric.snapshot.token_count_ms` (p99 ≤500ms), `metric.webgpu.frame_duration_ms` (p99 ≤33ms / 30 fps), `metric.buffer.memory_bytes` (≤512MB for 10-min retention), `metric.buffer.ingest_throughput_spans_per_sec`, `metric.trace.latency_percentiles`.
+- Required perf-budget metrics: `metric.snapshot.token_count_ms` (p99 ≤500ms), `metric.webgpu.frame_duration_ms` (p99 ≤33ms — the ms-form GOVERNS; the test-plan fps row is descriptive only, per obs-plan §12 2026-06-10), `metric.buffer.memory_bytes` (≤512MB for 10-min retention), `metric.buffer.ingest_throughput_spans_per_sec`, `metric.trace.latency_percentiles`.
 - NEVER use unbounded label cardinality in event fields (per-trace-ID, arbitrary request paths) — explodes `jq` aggregation cost. Exception: query-time aggregation events emit unbounded `service_name` per single-query scope.
 - NEVER format expensive payloads inside hot paths without level-gating: wrap in `if tracing::enabled!(Level::DEBUG) { ... }`.
 
@@ -79,6 +79,9 @@ Optional fields: `trace_id` / `span_id` (W3C traceparent strings), `duration_ms`
 - **Perf budget enforcement:** `xtask test` post-run aggregates `metric.snapshot.token_count_ms` p99 via `jq`; >500ms = build fail. `metric.webgpu.frame_duration_ms` p99 >33ms = release build fail.
 - **Buffer memory bounded:** chaos test (10k spans/sec for 15 min) post-run tail `metric.buffer.memory_bytes` max; >512_000_000 = build fail.
 - **Build fails if `xtask test` produces zero spans in log file** — indicates instrumentation missing.
+- **NEUTRAL/ACTIVE gate posture (chunk #99):** the check scripts (`perf-slo-check` / `heartbeat-gap-check` / `l4-latency-p99`) are NEUTRAL-tolerant — an absent metric stream reports NEUTRAL, not FAIL, so headless verification runs and booted-app (ACTIVE) sessions share one script set. `cargo xtask perf:load-profiles` additionally time-windows the collected `agent-latest.jsonl*` lines to the CURRENT run (`target/load-profiles/agent-window.jsonl`) — without scoping, the persistent dev data dir's daily-rolled logs false-FAIL heartbeat-gap on cross-session tick gaps. Any future check script over `agent-latest.jsonl` MUST adopt the same posture. ACTIVE evidence (session 183, 900,500 spans at 10k/s into the live app): frame p99 27.3ms ≤33ms (n=56,642), heartbeat max-gap 15.0s ≤45s, buffer max 152.4MB ≤512MB, zero panics.
+- **DuckDB connection isolation (load-bearing perf invariant, chunk #99 findings):** any consumer issuing multi-second statements MUST take a dedicated `Connection::try_clone()` rather than holding the shared appender connection — the write (appender) / sweep (retention) / read (L1a) three-way topology is the reference pattern. Violations found+fixed at 50k spans/s: retention sweep starved ingest; Q7 timeout abandoned a mutex-holding `spawn_blocking` task (now `interrupt_handle().interrupt()` on timeout); L1a reads queued behind append-path row-group maintenance.
+- **Gate-script invocation discipline (Windows):** run the `xtask/ci/*.ps1` scripts via `pwsh` (PowerShell 7 — `l4-latency-p99.ps1` contains UTF-8 punctuation that Windows PowerShell 5.1 misparses) and only AFTER the app stops (`tracing-appender` holds the log file open without read-share).
 
 ## Frontend bridge
 - `web-vitals` 5.x callbacks (LCP / CLS / INP / FCP / TTFB) → TauRPC `telemetry.frontend.record_web_vital(name, value)` → backend `tracing::info!(target: "metric.web_vital.{name}", ...)`.

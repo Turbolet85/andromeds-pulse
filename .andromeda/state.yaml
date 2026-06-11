@@ -1443,7 +1443,85 @@ spec_amendments:
   # noted+archived 2026-05-30T20:24:15Z (this wrap-session Phase 8 lifecycle
   # progression per spec-amendment-protocol.md Part D). Active list empty
   # post-archive; archive +1 (73 → 74).
-  active: []   # session 182 — chunk #99 A11y + perf re-verify Type 7 Form 1 route-append amendment ARCHIVED this wrap (full single-session cycle: applied 2026-06-09T19:05:27Z /andromeda-evolve --allow-route-append -> propagated 2026-06-09T19:19:58Z /andromeda-setup-project --delta CLAUDE.md pointer-table 98->99 chunks (commit 6bc6264) -> noted+archived 2026-06-09T19:38:43Z this wrap; 22nd-instance Type 7 Form 1 single-cycle Active->Propagated->Archived in one session, mirrors sessions 180/177/174 precedent). Archive 84 -> 85. PRIOR: session 180 — chunk #98 Background reflection cadence Type 7 Form 1 route-append amendment ARCHIVED that wrap (full single-session cycle: applied 2026-06-09T17:05:14Z /andromeda-evolve --allow-route-append -> propagated 2026-06-09T17:13:41Z /andromeda-setup-project --delta CLAUDE.md pointer-table 97->98 chunks (commit 07d8cca) -> noted+archived 2026-06-09T17:27:48Z that wrap; 21st-instance Type 7 Form 1 single-cycle Active->Propagated->Archived in one session, mirrors sessions 177/174/171 precedent). Archive 83 -> 84.
+  # session 183 — chunk #99 IMPLEMENT: two Type 1-5 specialist-plan amendments APPENDED below by /andromeda-implement
+  # (Path A, chunk's DECLARED specialist-plan touches per phase-96 plan.md step 8; user pre-authorized
+  # "continue till you finish fixing, do not wait for my acceptance"). Lifecycle in flight: applied
+  # 2026-06-10T00:35/00:36Z; pending propagate via /andromeda-setup-project --delta + note/archive at wrap.
+  active:   # session 182 — chunk #99 A11y + perf re-verify Type 7 Form 1 route-append amendment ARCHIVED this wrap (full single-session cycle: applied 2026-06-09T19:05:27Z /andromeda-evolve --allow-route-append -> propagated 2026-06-09T19:19:58Z /andromeda-setup-project --delta CLAUDE.md pointer-table 98->99 chunks (commit 6bc6264) -> noted+archived 2026-06-09T19:38:43Z this wrap; 22nd-instance Type 7 Form 1 single-cycle Active->Propagated->Archived in one session, mirrors sessions 180/177/174 precedent). Archive 84 -> 85. PRIOR: session 180 — chunk #98 Background reflection cadence Type 7 Form 1 route-append amendment ARCHIVED that wrap (full single-session cycle: applied 2026-06-09T17:05:14Z /andromeda-evolve --allow-route-append -> propagated 2026-06-09T17:13:41Z /andromeda-setup-project --delta CLAUDE.md pointer-table 97->98 chunks (commit 07d8cca) -> noted+archived 2026-06-09T17:27:48Z that wrap; 21st-instance Type 7 Form 1 single-cycle Active->Propagated->Archived in one session, mirrors sessions 177/174/171 precedent). Archive 83 -> 84.
+    - amendment_id: 2026-06-10T00-35-00-adopt-four-load-profiles
+      plans:
+        - path: test-plan.md
+          sections: ["§12 Test Decisions Log"]
+          decisions_log_section: "2026-06-10 — Chunk #99 tag gate: capability verification matrix + four-profile load suite adopted; frame budget reconciled to obs §10"
+        - path: obs-plan.md
+          sections: ["§12 Obs Decisions Log"]
+          decisions_log_section: "2026-06-10 — Chunk #99 tag gate: frame-budget posture (NEUTRAL verified, ACTIVE deferred) + L4 per-profile budgets confirmed + load-suite connection-isolation findings"
+      trigger:
+        chunk: 99
+        phase: 96
+        harness: "cargo xtask perf:load-profiles + cargo xtask verify:capability-matrix"
+      authority:
+        winning_plan: obs-plan.md
+        winning_tier: Standard
+        losing_plan: test-plan.md
+        losing_concern: "§10 fps-form frame budget (numerically weaker than obs 33ms p99) + pre-#99 single-profile load coverage"
+        rationale: "One frame-budget number governs; obs §10 ms-form is stricter and jq-aggregatable. Four dist-arch-v3 profiles supersede the single 10k profile as the tag gate. Resolves combined.md rot warning 5."
+      impl_files_synced:
+        - pulse-app/tests/perf_load_profiles.rs
+        - .config/nextest.toml
+        - xtask/src/main.rs
+        - docs/v0_2_0/capability-verification-matrix.json
+        - .github/workflows/ci.yml
+        - crates/buffer/src/retention.rs
+        - crates/triage/src/baseline/sql.rs
+        - crates/ingest/examples/load_profiles.rs
+        - pulse-app/tests/a11y_perf_workflow.rs
+        - pulse-app/tests/quality_gate_workflow.rs
+      expected_propagation:
+        - .claude/rules/testing.md
+        - .claude/rules/observability.md
+        - .claude/docs/tests-summary.md
+        - .claude/docs/obs-summary.md
+      marker_path: .andromeda/runs/2026-06-10T00-35-00-spec-amendment-adopt-four-load-profiles/amendment.md
+      applied_at: 2026-06-10T00:35:00Z
+      noted_at: null
+      propagated_by_run: .andromeda/runs/2026-06-11T17-15-13-setup-project-delta/
+      archived_at: null
+      verification_status: clean
+    - amendment_id: 2026-06-10T00-36-00-a11y-v020-reaudit-rebaseline
+      plans:
+        - path: a11y-plan.md
+          sections: ["§12 A11y Decisions Log"]
+          decisions_log_section: "2026-06-10 — Chunk #99 tag gate: v0.2.0 full re-audit + harness repair + surface extension + baseline re-established"
+      trigger:
+        chunk: 99
+        phase: 96
+        harness: "cargo xtask test:a11y"
+      authority:
+        winning_plan: a11y-plan.md
+        winning_tier: Standard
+        losing_plan: a11y-plan.md
+        losing_concern: "stale v0.1.0-only surface enumeration + dead harness state (suite silently broken since session 64) + prior SC 1.4.13 applicability assumption"
+        rationale: "§10 hard gates + §11 machine-verifiable-evidence invariant require live audits over every shipped surface; v0.2.0 shipped 5+ surfaces with zero a11y evidence while the harness was dead."
+      impl_files_synced:
+        - pulse-app/ui/tests-a11y/helpers/mock-tauri.ts
+        - pulse-app/ui/tests-a11y/helpers/v02-fixtures.ts
+        - pulse-app/ui/tests-a11y/helpers/static-server.mjs
+        - pulse-app/ui/tests-a11y/pa11y/run-pa11y.mjs
+        - pulse-app/ui/tests-a11y/axe/ (p8-p12 new; p1-p7 + reduced-motion repaired)
+        - pulse-app/ui/tests-a11y/keyboard-focus/widget-and-modals.spec.ts
+        - pulse-app/ui/tests-a11y/baselines/a11y-violations-summary.json
+        - pulse-app/ui/src/ (12 remediation files incl. WindowControls/TabNav/report-types/SkipToMain)
+        - pulse-app/ui/package.json
+      expected_propagation:
+        - .claude/rules/a11y.md
+        - .claude/docs/a11y-summary.md
+      marker_path: .andromeda/runs/2026-06-10T00-36-00-spec-amendment-a11y-v020-reaudit-rebaseline/amendment.md
+      applied_at: 2026-06-10T00:36:00Z
+      noted_at: null
+      propagated_by_run: .andromeda/runs/2026-06-11T17-15-13-setup-project-delta/
+      archived_at: null
+      verification_status: clean
   # session 178 — chunk #97 diagnostics.snapshot + diagnostics.history Type 6 arch-registry amendment APPENDED this turn (D3 closure) via /andromeda-evolve --allow-arch-registry; lifecycle in flight (applied 2026-06-05T17:56:29Z; pending propagate via /andromeda-setup-project --delta + archive next wrap).
   # session 177 — chunk #97 "Settings -> Diagnostics view" route-append Type 7 Form 1 amendment ARCHIVED this wrap (full single-session cycle: applied 2026-06-04T19:35:38Z /andromeda-evolve --allow-route-append -> propagated 2026-06-04T19:46:22Z /andromeda-setup-project --delta CLAUDE.md pointer-table 96->97 chunks (commit ac224b9) -> noted+archived 2026-06-04T19:54:59Z this wrap; 20th-instance Type 7 Form 1 single-cycle Active->Propagated->Archived in one session). Archive 81 -> 82.
   # session 176 — chunk #96 config-watcher Type 6 arch-registry amendment ARCHIVED this wrap (full single-session cycle: applied 2026-06-04T17:05:12Z /andromeda-evolve --allow-arch-registry -> propagated 2026-06-04T17:19:37Z /andromeda-setup-project --delta CLAUDE.md :overview/:modules cascade (commit 08438af) -> noted+archived 2026-06-04T19:05:46Z this wrap; D3 closure complete). Archive 80 -> 81. PRIOR session 174 — chunk #96 route-append amendment ARCHIVED that wrap (full Type 7 Form 1 single-cycle Active->Propagated->Archived in one session; 19th-instance pattern mirroring sessions 115/118/.../166/171). Lifecycle: applied 2026-06-04T06:33:54Z (/andromeda-evolve --allow-route-append) -> propagated 2026-06-04T07:04:23Z (/andromeda-setup-project --delta; CLAUDE.md pointer-table 95->96 chunks; commit 9c75071) -> noted+archived 2026-06-04T07:17:30Z. PRIOR session 173 — chunk #95 Type 6 arch-registry amendment ARCHIVED; active empty post-archive. Archive 79 -> 80. NOTE: session 176 (2026-06-04T17:05:12Z) appended the chunk #96 Type 6 arch-registry amendment below (D3 closure) via /andromeda-evolve --allow-arch-registry — lifecycle in flight (applied; pending propagate via setup-project --delta + archive).
