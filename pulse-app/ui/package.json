@@ -49,7 +49,7 @@
     "@tauri-apps/plugin-clipboard-manager": "^2.0.0",
     "focus-trap-react": "^12.0.0",
     "motion": "^12.0.0",
-    "react": "^19.2.0",
+    "react": "^19.2.6",
     "react-aria-components": "^1.17.0",
     "react-dom": "^19.2.0",
     "tabbable": "^6.4.0"
