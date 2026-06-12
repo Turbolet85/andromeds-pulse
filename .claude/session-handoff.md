@@ -1,96 +1,92 @@
 # Session Handoff
 
-**Last Updated:** 2026-06-11T18:27:02Z
+**Last Updated:** 2026-06-12T15:18:00Z
 **Branch:** main
-**Session End Status:** clean (session 183 — chunk #99 "A11y + perf re-verify + capability coverage check" IMPLEMENTATION wrap — the v0.2.0 TAG GATE; route now 99 registered / 99 IMPLEMENTED; all 6 drift dimensions CLEAR; both Type 1-5 amendments full-cycled applied→propagated→archived in-session)
-**Last Commit:** `<session 183 wrap commit — pending this wrap: chunk(99): implement A11y + perf re-verify + capability coverage check>` (prior HEAD: `a68c6dc` chore(setup-project): delta-rerun for 2 amendments)
+**Session End Status:** clean (session 184 — chunk #100 "Capability-audit remediation" route-append propagation META wrap; the amendment was HAND-AUTHORED in the 2026-06-12 meta-session [evolve ceremony replicated by hand — a FIRST], verified by /andromeda-setup-project --delta before propagation; full single-session lifecycle applied→propagated→noted+archived; all 6 drift dimensions CLEAR; State H HEALED this wrap [pending → 749778d])
+**Last Commit:** `<session 184 wrap commit — pending this wrap: chore(wrap): session 184 — chunk #100 route-append propagation META wrap + amendment archival>` (prior HEAD: `d3ce627` chore(setup-project): delta-rerun for 1 amendment)
 
 ## Current State
 
-- **Last completed chunk:** route#99 "A11y + perf re-verify + capability coverage check" (Epoch 9 — Foundation v0.2.0; the v0.2.0 tag gate; commit `pending` — heals next wrap per Proposal 16).
-- **Route total:** **99 chunks registered — 99 IMPLEMENTED.** Epoch 9 (Foundation v0.2.0) is COMPLETE. The route is fully implemented end-to-end.
-- **Next chunk:** none — the route is exhausted. v0.2.0 tag push is gated ONLY by the chunk #3 release-signing deferreds (Azure Key Vault EV cert + Apple Developer ID + GitHub Environment production-release). Next milestones are user-driven: execute the signing runbook (`docs/runbooks/updater-key-rotation.md` + chunk #3 DEFERRED list) then tag v0.2.0, OR open a v0.3.0 planning cycle via `/andromeda-evolve` (new epoch) / `/andromeda-arch` re-plan.
+- **Last completed chunk:** route#99 "A11y + perf re-verify + capability coverage check" (Epoch 9 — the v0.2.0 tag gate; commit `749778d` — HEALED this wrap from "pending" per Proposal 16 Phase 8 step 7).
+- **Route total:** **100 chunks registered — 99 implemented.** Chunk #100 "Capability-audit remediation" registered 2026-06-12 via hand-replicated Type 7 Form 1 route-append (post-#99 capability audit found pre-tag work); NOT yet planned/implemented.
+- **Next chunk:** route#100 — actionable via `/andromeda-phase`. Scope per `docs/v0_2_0/pulse-v0_2_0-capability-audit-2026-06-12.md`: P-044 corpus-retrieval unstub at `crates/triage/src/digest/assembler.rs:267` (top-5, same-workspace, 30-day, fingerprint/scope match; activates P-036) + divergence sync P-008/P-011/P-017/P-032 (remediation defaults pinned in audit §Remediation defaults) + P-041 metrics-retention purge + F3 weak-test gap-fill. Spec amendments for P-008/P-017 are part of the chunk (Trigger-4-shaped; plan accordingly at /phase).
 - **In-progress phase:** none (`in_progress: null`).
-- **Phase artifacts present:** `.andromeda/phases/phase-96/` (chunk #99's plan, implemented; latest dir).
-- **This session (183, spanned 2026-06-10 overnight + 2026-06-11):** /andromeda-phase (phase-96 planned) → /andromeda-implement (chunk #99 executed with user-directed in-chunk production fixes + overnight autonomy) → ACTIVE booted-window obs measurement (user present) → /andromeda-setup-project --delta (`a68c6dc`, 2 amendments → 7 distillations) → THIS wrap.
-
-## Chunk #99 highlights (the tag-gate evidence)
-
-- **Capability matrix:** `docs/v0_2_0/capability-verification-matrix.json` 60/60 P-entries verified (`cargo xtask verify:capability-matrix` clean; now a CI step + `capability-widening-check` wired).
-- **Four-profile load suite:** baseline 60.2s / burst 37.2s / high 300.3s (L1a p99<500ms at production cadence) / sustained-extreme 597.7s — canonical `cargo xtask perf:load-profiles` exit 0 with run-window-scoped NEUTRAL obs gates.
-- **3 production defects found+fixed at 50k spans/s** (user: "fix it now, no new chunks"): retention-sweep connection monopolization, Q7 timeout mutex leak, L1a reads behind append maintenance → write/sweep/read `try_clone()` isolation. +1 characterized: DuckDB append-path maintenance >60s stalls at ~12.7M rows (in-spec; maintenance-tolerant drain).
-- **A11y harness revived** (dead since session 64) + specs p1–p12 + ~10 WCAG violations remediated + baseline re-established (0 violation tuples).
-- **ACTIVE obs evidence:** 900,500 spans at 10k/s into the live app → frame p99 27.3ms ≤33ms (n=56,642) + heartbeat max-gap 15.0s + zero panics.
+- **Phase artifacts present:** `.andromeda/phases/phase-96/` (chunk #99's plan, implemented; latest dir — chunk #100 needs a NEW phase dir via /andromeda-phase).
+- **This session (184):** out-of-band hand route-append (pre-session) → `/andromeda-setup-project --delta` (verified the hand-authored marker Part A-conformant + route diff terminal-append shape + P-044 grounding REAL at assembler.rs:266-267; propagated CLAUDE.md pointer-table 99→100; commit `d3ce627` bundling route.md + audit doc per precedent) → THIS wrap (note+archive).
 
 ## Andromeda State Detection (states A-K)
 
-- **A–K all CLEAR** except the designed post-implement pendings: H is the deliberate `commit_sha: pending` (Proposal 16 single-wrap lag; next wrap Phase 8 step 7 auto-heals to the chunk(99) commit). E is N/A-for-the-first-time — no next chunk exists to plan (route exhausted); the "pending phase planning" state is replaced by the v0.2.0-tag / v0.3.0-planning fork above.
+- **E** ℹ️ expected — chunk #100 registered in route.md but no phase plan exists yet (the designed post-route-append state). Remediation: `/andromeda-phase`.
+- **H** ✓ HEALED this wrap — session 183's `commit_sha: "pending"` → `749778d` (chunk(99) implementation commit; HEAD-reachable; title-overlap ≥0.5). No new pending introduced (META wrap — no chunk progressed).
+- **A–D, F, G, I–K** ✓ CLEAR. (C clear: CLAUDE.md mtime 2026-06-12T14:54 > arch.md 2026-06-05 + route.md 14:45 after the delta cascade.)
 
 ## Drift Detection (6 dimensions)
 
-- **All 6 CLEAR.** D1 (artifacts reconciled 2026-06-11T18:27:02Z > code_mtime 18:20:40Z). D2 (dep-tree 414 zero-diff; interpretation sub-block 535 lines content-correct). D3 (chunk #99 declared + verified ZERO registry deltas — capability-drift clean + matrix 60/60; no Type 6 follow-up). D4 (the long-standing test-vs-obs fps-vs-ms frame-budget mismatch RESOLVED via amendment — obs §10 ms-form governs). D5 (test/obs/a11y-plan mtimes > CLAUDE.md, but both matching amendments propagated `a68c6dc` + archived this wrap → transient-info cleared; CLAUDE.md untouched by design). D6 (chunk(99) commit lands this wrap; cursor 98→99).
+- **All 6 CLEAR.** D1 CLEAR (dep-tree + api-surface reconciled 2026-06-12T15:18Z > most_recent_code_mtime — zero source touched). D2 CLEAR (dep-tree 414 zero-diff; mcp-server 221 lines content-correct, markers+fences intact). D3 CLEAR (chunk #100 registered NOT implemented — normal route-ahead-of-impl; last_completed stays 99). D4 CLEAR. D5 CLEAR (CLAUDE.md mtime newest after the delta's pointer-table edit; the route.md amendment propagated+archived regardless). D6 CLEAR (no chunk() commit this session; only META commit d3ce627).
 
 ## Spec Amendments (this session)
 
-**Archived this session: 2** (both authored by /andromeda-implement as chunk #99's DECLARED specialist-plan touches — Path A per spec-drift-protocol; 23rd single-cycle instance, FIRST dual-amendment cycle):
-- **`2026-06-10T00-35-00-adopt-four-load-profiles`** — test-plan.md §12 + obs-plan.md §12. Trigger: chunk #99 phase #96 via `cargo xtask perf:load-profiles` + `verify:capability-matrix`. Authority: obs §10 ms-values > test-plan fps row. Lifecycle: applied 2026-06-10T00:35Z → propagated 2026-06-11 (`a68c6dc`; 5 files incl. grep-expanded frontend.md) → noted+archived 2026-06-11T18:27:02Z. Marker: `.andromeda/runs/2026-06-10T00-35-00-spec-amendment-adopt-four-load-profiles/amendment.md`
-- **`2026-06-10T00-36-00-a11y-v020-reaudit-rebaseline`** — a11y-plan.md §12. Trigger: chunk #99 phase #96 via `cargo xtask test:a11y`. Authority: a11y §10 hard gates + machine-verifiable-evidence > dead-harness state. Lifecycle: applied 2026-06-10T00:36Z → propagated 2026-06-11 (`a68c6dc`; 2 files) → noted+archived 2026-06-11T18:27:02Z. Marker: `.andromeda/runs/2026-06-10T00-36-00-spec-amendment-a11y-v020-reaudit-rebaseline/amendment.md`
+**Archived this session: 1** — `2026-06-12T14-45-26-append-chunk-100-audit-remediation` (Type 7 Form 1, `flag_used: --allow-route-append`, **hand-authored** — evolve ceremony replicated by hand in the meta-session, verified by --delta before propagation):
+- **Plan(s):** `.andromeda/route.md` (§1 Total chunks 99→100 / §2 Epoch 9 terminal append / §3 Decisions Log)
+- **Decisions Log:** route.md §3 — "2026-06-12 — Append chunk #100 Capability-audit remediation (--allow-route-append)"
+- **Trigger:** user-driven route-append (no chunk/phase/harness); grounded in the post-#99 capability audit (P-044 stub verified real at assembler.rs:266-267)
+- **Authority resolution:** pipeline state (capability audit) > route-complete-vs-spec-reality
+- **Lifecycle:** applied 2026-06-12T14:45:26Z (by hand) | propagated 2026-06-12T14:54:10Z (`d3ce627`, CLAUDE.md pointer-table 99→100) | noted+archived 2026-06-12T15:18:00Z (this wrap) — full single-session cycle (24th instance; FIRST hand-authored one)
+- **Marker:** `.andromeda/runs/2026-06-12T14-45-26-spec-amendment-append-chunk-100-audit-remediation/amendment.md`
+- **Archive note:** the state.yaml active entry omitted `flag_used`/`form`/`verification_status` (hand-authoring gap); the archive entry backfills them FROM THE MARKER per round-trippability (marker is authoritative).
 
-`spec_amendments.active = []` post-archive; archive at **87**.
+`spec_amendments.active = []` post-archive; archive at **88**.
 
 ## Key Decisions This Session
 
-1. **User-directed in-chunk fixes** ("can we fix it now i prefer not to create new chunks" + overnight autonomy "continue till you finish fixing, do not wait for my acceptance") — the load-suite findings became production fixes inside the verification chunk instead of follow-up chunks; recorded in user memory as standing preference.
-2. **Frame-budget authority resolved:** obs-plan §10 ms-form (p99 ≤33ms) GOVERNS; test-plan §10 fps row is descriptive — closes combined.md rot warning 5 via the amendment rather than a body rewrite.
-3. **Sustained-extreme drain made maintenance-tolerant** (420s cap, no eager 30s stall panic; nextest ceiling 10→20 min): the spec's "degraded-but-functional + zero L0 loss" admits transient append-path maintenance pauses — eager stall detection was stricter than spec and flaky-by-config (a passing-shaped run died at 600.1s vs the 600s ceiling).
-4. **Obs gates scoped to the run window** (`write_run_window_log`): the dev data dir's daily-rolled logs false-FAIL heartbeat on cross-session gaps (28.4-min between-boots gap flagged as a stall on the first canonical run).
-5. **ACTIVE measurement run with the user present** (no desktop windows overnight per autonomy constraints) — direct debug-binary boot instead of agent-run.ps1 (whose `cargo run --release` would cold-build 20+ min and blow its own 10s ready window — a latent harness-script issue, noted in Deferred).
+1. **Hand-authored amendment accepted after verification, not on trust** — --delta verified the marker (Part A + Check 8 + Status clean), the route diff (+12/−1 exact terminal-append shape), AND the grounding claim (read assembler.rs:266-267 — the P-044 stub is real) before treating it as pending. The verification-first posture is the precedent for any future out-of-band ceremony replication.
+2. **Route + audit doc bundled into the delta commit** (per the `6bc6264`/`07d8cca` precedents) — hand-applied plan edits have no other commit-owning skill.
+3. **Archive backfills marker fields** the hand-authored state entry omitted — round-trippability exercised in the designed direction (marker → state).
 
 ## Files Modified
 
-**Committed `a68c6dc` (this session, pre-wrap):** 7 Tier-2/3 distillations + state.yaml (amendment lifecycle).
-**This wrap commit:** 41 modified + 13 new chunk files (perf_load_profiles.rs + retention.rs + baseline/sql.rs + xtask/main.rs + ci.yml + nextest.toml + capability-verification-matrix.json + tests-a11y/** [5 new axe specs + keyboard-focus + 4 helpers] + 12 UI remediation files + ingest example + 3 amended specialist plans + phase-96 artifacts) + `.claude/rules/{testing,security}.md` Session Additions + `.gitignore` (regression-set.json) + `.andromeda/context/{dependency-tree,api-surface}.md` + `.andromeda/state.yaml` + this handoff.
-**Gitignored run-dirs (forensic):** 2 amendment markers (Propagated ticked) + `2026-06-11T17-15-13-setup-project-delta/` + ACTIVE-window log at `%TEMP%/agent-run-active183/logs/`.
-**NOT committed (intentional carryover):** `experiments/`, `ui/`, `pulse-app/ui/tests-a11y/regression-set.json` (now gitignored).
+**Committed `d3ce627` (this session, pre-wrap):** `CLAUDE.md` (pointer-table 99→100) · `.andromeda/state.yaml` (propagated_by_run) · `.andromeda/route.md` (hand-applied chunk #100 append) · `docs/v0_2_0/pulse-v0_2_0-capability-audit-2026-06-12.md` (NEW — audit source doc).
+**This wrap:** `.andromeda/state.yaml` (archival + State-H heal + session_count 184) · `.andromeda/context/{dependency-tree,api-surface}.md` · `.claude/session-handoff.md`.
+**Gitignored run-dirs (forensic):** the hand-authored amendment marker (Propagated ticked) + `2026-06-12T14-54-10-setup-project-delta/`.
+**NOT committed (intentional carryover):** `experiments/`, `ui/`, `crates/ingest/examples/inject_demo.rs`.
 
 ## Curation Summary (this wrap)
 
-- **Tier 1** (CLAUDE.md USER:session-learnings): 0.
-- **Tier 2** (.claude/rules/): **2** — testing.md (incremental-corruption ICE: clean -p + CARGO_INCREMENTAL=0; extends the rlib-mismatch family decision tree) + security.md (CORRECTION: capability-widening static-analysis gap is CLOSED — landed chunk #77 at xtask/src/main.rs:813, CI-wired chunk #99; supersedes the stale body claim until next full setup-project re-derive).
-- **Tier 3** (.claude/docs/session-learnings.md): 0.
-- **Filtered:** 4 duplicates (pwsh/stop-app script discipline + connection isolation + window-scoping + maintenance-stall — all already distilled into rule/summary BODIES via this session's --delta) + 0 task-specific + 0 conflicts + 0 deferred.
-- **Andromeda pipeline:** Mode H (honest-healthy). The implement→delta→wrap dual-amendment chain executed cleanly first try (P26's planned-amendment path exercised at scale); 0 proposals filed. A1 accumulator steady-state (consecutive_count=0; api-surface reconciled per-crate this wrap). A2 dormant by design.
-- **Living artifacts:** dep-tree 414 lines zero-diff (timestamp refresh). api-surface interpretation sub-block cycle-4 reconcile (position 6/16): 535 lines replacing 533 — chunk #98 reflection-prompt surface captured exactly as session 182 predicted; cursor **interpretation → mcp-server**. Both METADATA "Last reconciled" PRIOR chains TRIMMED to 4 entries (deferred-item 8 executed: 45.9KB→1.8KB + 31KB→3.6KB).
+- **Tier 1 / Tier 2 / Tier 3:** 0 / 0 / 0.
+- **Filtered:** 1 low-confidence (the hand-authoring state-entry field gap — one-off; the marker round-trip design already covers it, exercised at this archival) + 0 duplicates + 0 task-specific + 0 conflicts.
+- **Andromeda pipeline:** Mode H (honest-healthy). The hand-replicated ceremony + --delta verification + wrap archival chain worked first-try — the protocol's marker-authoritative design absorbed an out-of-band author without modification; 0 proposals filed. A1 steady-state (consecutive_count=0). A2 dormant.
+- **Living artifacts:** dep-tree 414 zero-diff (timestamp refresh). api-surface **mcp-server sub-block 207→221 lines** (cycle-4 position 7/16) — the chunk-#94 sidecar tool surface FINALLY captured, closing the R1-accepted lag open since the session-169 disk-full failure. Cursor **mcp-server → plugins**.
 
 ## Last Failed Command
 
-(none) — environmental detours all resolved in-session: two rlib-race recurrences (de-raced via `cargo build -p pulse-app --tests` before nextest) + one NEW incremental-corruption ICE (remedy now in testing.md session-183 entry: `cargo clean -p pulse-app` + `CARGO_INCREMENTAL=0` for remaining cargo ops). Heads-up for next session: prefer `CARGO_INCREMENTAL=0` + the `--tests` de-race for any workspace nextest after check-mode interleaves.
+(none) — clean session; no environmental detours.
 
 ## Tests Status
 
-**PASS (wrap gate).** `cargo nextest run --workspace --profile ci` = **1640/1640 + 1 skip** (baseline 1636 + 4 new self-lint tests) after `cargo build -p pulse-app --tests` de-race. Webview 629 vitest + lint + typecheck clean (ran this session). Canonical `cargo xtask perf:load-profiles` exit 0 (4/4 profiles). bindings.ts regen discipline applied pre-commit (mcp-grep=1; capability-drift clean). Dead-test scan (P15): 16 `#[cfg(test)]` blocks in 16 pulse-app/src files — carryover, warning-not-fatal, unchanged.
+**PASS (META wrap smoke).** `cargo nextest run -p security` = **14/14 in 0.13s** (zero Rust/webview source touched this session — md/yaml-only META cycle). Full-workspace baseline stands at session 183's **1640/1640 + 1 skip** + 629 webview + canonical perf:load-profiles exit 0. Dead-test scan (P15): 16 blocks in 16 pulse-app/src files — carryover, warning-not-fatal, unchanged.
 
 ## Next Recommended Action
 
-Route is **99/99 — COMPLETE**. The fork is yours:
-1. **Ship v0.2.0:** execute the chunk #3 DEFERRED signing scope (Azure Key Vault EV + Apple Developer ID + GitHub Environment `production-release` secrets per `docs/runbooks/updater-key-rotation.md` + `.andromeda/phases/phase-2/plan.md` §Deferred), then `git push origin main` (~22 commits ahead) + tag `v0.2.0` (triggers release.yml).
-2. **Plan v0.3.0:** `/andromeda-evolve` (new epoch) or `/andromeda-arch` re-plan for the next capability wave.
-3. **Housekeeping-only session:** the Deferred list below (all non-blocking).
+Route is **100 registered / 99 implemented**. Pick one:
+1. **`/andromeda-phase`** — plan chunk #100 "Capability-audit remediation" (the pre-tag remediation; audit doc enumerates scope + pins F2 remediation defaults; expect Trigger-4-shaped spec amendments for P-008/P-017 inside the chunk).
+2. **`git push origin main`** — branch is ~25 commits ahead (verify: `git rev-list --count origin/main..HEAD`).
+3. Stop — clean milestone (amendment full-cycled; all drift CLEAR; State H healed).
+
+The v0.2.0 tag now waits on: chunk #100 + the chunk #3 release-signing deferreds.
 
 ## Session Goals (carry-over)
 
-(none — chunk #99 + amendments + ACTIVE measurement all completed end-to-end.)
+(none — this session's goal completed: verify + propagate + archive the hand-authored chunk #100 registration, end-to-end.)
 
 ## Deferred decisions
 
-1. **Release-signing deferreds (chunk #3)** — the ONLY gate left before the actual v0.2.0 tag push (paid/external-account scope: Azure Key Vault, EV cert, Apple Dev ID, GitHub Environment).
-2. **§Design Philosophy / CLAUDE.md narrative crate-count staleness** (carries forward): arch "twelve library crates"/"fourteen workspace members" stale (now 14/16); fix = deliberate `/andromeda-arch` re-plan or manual edit.
-3. **`2026-06-01 — arch-body "equal-tier output channel" framing`** (carries forward): chunk-#94 MCP framing needs a deliberate `/andromeda-arch` touch (P27).
-4. **security.md BODY stale widening-note** — now superseded by the session-183 Session Addition; the body text itself regenerates at the next FULL `/andromeda-setup-project` re-derive (Tier-2 body is setup territory).
-5. **chunk #97 `diagnostics.history()` real numeric-metric-history producer** (carries forward): validated stub until a future chunk adds a periodic recorder.
-6. **api-surface per-crate R1-accepted lag** (carries forward): mcp-server (#94 surface — NEXT cursor visit), corpus (#95 load_all_incidents), config-watcher, triage, pulse-app diagnostics surfaces land as the cycle-4 cursor reaches each crate.
-7. **`spec_amendments.archive` at 87** (> 50 soft-cap) — pruning deferred; markers remain forensic.
-8. ~~Living-artifact METADATA line bloat~~ — **EXECUTED this wrap** (both PRIOR chains trimmed to 4 entries).
-9. **agent-run.ps1 boot latent issue** (NEW): `boot` spawns `cargo run --release` (20+ min cold) under a 10s ready-poll AND records cargo's PID (not the app's — Stop-Process may orphan pulse-app on Windows). Worked around this session by direct debug-binary boot. Candidate harness fix at next test-plan §3 touch or a housekeeping chunk.
-10. **`l4-latency-p99.ps1` PowerShell 5.1 incompatibility** (NEW, documented in obs distillations): UTF-8 punctuation misparses under 5.1 — fine under pwsh (what xtask + CI use). Optional hardening: ASCII-only rewrite of the script's strings.
-11. **Untracked carryover:** `experiments/`, `ui/` — intentional.
+1. **Release-signing deferreds (chunk #3)** — gate the v0.2.0 tag push alongside chunk #100.
+2. **§Design Philosophy / CLAUDE.md narrative crate-count staleness** (carries forward): fix = `/andromeda-arch` re-plan or manual edit.
+3. **arch-body "equal-tier output channel" framing** (carries forward, P27): needs a deliberate `/andromeda-arch` touch.
+4. **security.md BODY stale widening-note** (carries forward): superseded by the session-183 Session Addition; body regenerates at next full setup-project re-derive.
+5. **chunk #97 `diagnostics.history()` numeric-metric-history producer** (carries forward): validated stub — NOTE: overlaps chunk #100's P-041 metrics-retention scope; check at /phase whether the audit's P-041 purge work touches the same surface.
+6. **api-surface per-crate R1-accepted lag** (carries forward, shrinking): ~~mcp-server~~ CLOSED this wrap; remaining: corpus (#95 load_all_incidents), config-watcher, triage, pulse-app diagnostics surfaces — land as cycle-4 reaches each crate. Cursor now at **plugins**.
+7. **`spec_amendments.archive` at 88** (> 50 soft-cap) — pruning deferred; markers forensic.
+8. **agent-run.ps1 boot latent issue** (carries forward): `cargo run --release` cold-build vs 10s ready-poll + cargo-PID-not-app-PID; candidate fix at next test-plan §3 touch.
+9. **`l4-latency-p99.ps1` PowerShell 5.1 incompatibility** (carries forward): fine under pwsh (xtask + CI path); optional ASCII hardening.
+10. **Untracked carryover:** `experiments/`, `ui/`, `crates/ingest/examples/inject_demo.rs` — intentional.
