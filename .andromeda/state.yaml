@@ -1500,7 +1500,7 @@ spec_amendments:
       marker_path: .andromeda/runs/2026-06-12T18-51-27-spec-amendment-p017-line-insensitive-fingerprints/amendment.md
       applied_at: 2026-06-12T18:51:27Z
       noted_at: 2026-06-12T20:05:00Z   # session 185 wrap Phase 8 lifecycle progression
-      propagated_by_run: null
+      propagated_by_run: .andromeda/runs/2026-06-12T19-24-54-setup-project-delta/
       archived_at: null
       verification_status: clean
     - amendment_id: 2026-06-12T18-52-00-p008-root-weighting-model-side
@@ -1525,7 +1525,7 @@ spec_amendments:
       marker_path: .andromeda/runs/2026-06-12T18-52-00-spec-amendment-p008-root-weighting-model-side/amendment.md
       applied_at: 2026-06-12T18:52:00Z
       noted_at: 2026-06-12T20:05:00Z   # session 185 wrap Phase 8 lifecycle progression
-      propagated_by_run: null
+      propagated_by_run: .andromeda/runs/2026-06-12T19-24-54-setup-project-delta/
       archived_at: null
       verification_status: clean
   # PRIOR active-list comment: session 184 — chunk #100 Capability-audit remediation Type 7 Form 1 route-append amendment ARCHIVED this wrap (full single-session cycle, 24th instance — the FIRST HAND-AUTHORED one: evolve ceremony replicated by hand in the 2026-06-12 meta-session, verified by --delta [marker Part A + Check 8 + route diff + P-044 grounding at assembler.rs:266-267] before propagation. Lifecycle: applied 2026-06-12T14:45:26Z by hand -> propagated 2026-06-12T14:54:10Z /andromeda-setup-project --delta CLAUDE.md pointer-table 99->100 (commit d3ce627, route.md + audit doc bundled per precedent) -> noted+archived 2026-06-12T15:18:00Z this wrap. Archive entry backfills flag_used/form/verification_status FROM THE MARKER per round-trippability — the hand-authored state entry omitted them). Archive 87 -> 88. PRIOR: session 183 — BOTH chunk #99 Type 1-5 amendments archived (23rd instance, first dual).
