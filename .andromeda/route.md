@@ -16,7 +16,7 @@ unit) not HOW (implementation steps)._
 
 ## 1. Route Scope Summary
 
-- **Total chunks:** 99
+- **Total chunks:** 100
 - **Epochs:** 9 (Foundation, Ingest pipeline, Storage & query, Webview shell + TauRPC bridge, Visualization surfaces, Snapshot & Investigate, Plugin runtime + MCP server, Polish & ship, Foundation v0.2.0)
 - **Drilldown depth (avg):** 1.6 (mixed: Foundation depth 2, Ingest pipeline depth 1, Storage & query depth 2, Webview shell depth 1, Visualization surfaces depth 2, Snapshot depth 2, Plugin+MCP depth 2, Polish depth 1)
 - **Hierarchy mode:** mixed (3-level for dense epochs Foundation / Storage / Visualization / Snapshot / Plugin+MCP; 2-level for lighter epochs Ingest / Webview shell / Polish)
@@ -232,6 +232,8 @@ Settings → Diagnostics view — single read-only L6 self-observability surface
 Background reflection cadence — 1800s reflection-mode trigger builds 30-min-window digest; L4 emphasizes cumulative trend analysis; reflection incidents default Curious (L3+L4 long-window; detail in pulse-v0_2_0-route §96).
    ↓
 A11y + perf re-verify + capability coverage check — full a11y/perf SLO re-audit + load profiles; P-001–P-060 verified; v0.2.0 tag gate (detail in pulse-v0_2_0-route §97).
+   ↓
+Capability-audit remediation — P-044 corpus retrieval into digest (activates P-036); divergence sync P-008/P-011/P-017/P-032; metrics retention purge; weak-test gap-fill (detail: docs/v0_2_0/pulse-v0_2_0-capability-audit-2026-06-12.md).
 
 ---
 
@@ -678,3 +680,12 @@ A11y + perf re-verify + capability coverage check — full a11y/perf SLO re-audi
 - **Why:** The v0.2.0 tag gate — final verification pass (every P-001–P-060 capability scenario-verified + four-profile load testing + full a11y/perf re-audit); route 98/98 implemented at session 181, this is the last unregistered source chunk. Mirrors chunk #98 precedent.
 - **Mechanical:** §1 Total chunks 98→99 (Form 1 Policy A); state.yaml.last_completed_chunk unchanged.
 - **Marker:** `.andromeda/runs/2026-06-09T19-05-27-spec-amendment-append-chunk-99-a11y-perf-reverify/amendment.md`
+
+---
+
+`2026-06-12` — Append chunk #100 Capability-audit remediation (--allow-route-append)
+
+- **Insert:** chunk #100 at §2 Epoch 9 — Foundation v0.2.0 (text: see §2; full detail in `docs/v0_2_0/pulse-v0_2_0-capability-audit-2026-06-12.md` F1–F3 + §Remediation defaults).
+- **Why:** Post-#99 capability audit (Tier-1 semantic pass over all 60 P-IDs) found P-044 retrieval stubbed (`crates/triage/src/digest/assembler.rs:267` — "chunk #82+" never landed; drags P-036), 4 spec↔code divergences (P-008 / P-011 / P-017 / P-032), unenforced P-041 metrics retention, and a 9-item weak-test tail — pre-tag remediation in one chunk; depends on #69 (corpus) + #81 (digest substrate) — both landed.
+- **Mechanical:** §1 Total chunks 99→100 (Form 1 Policy A); state.yaml.last_completed_chunk unchanged.
+- **Marker:** `.andromeda/runs/2026-06-12T14-45-26-spec-amendment-append-chunk-100-audit-remediation/amendment.md`
