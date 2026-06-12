@@ -330,6 +330,18 @@ fn main() {
         .zip(corpus_writer.as_ref())
         .map(|(r, w)| StorageApiImpl::new(Arc::clone(r), Arc::clone(w)));
 
+    // Chunk #100 — P-041 pipeline-metrics 30-day retention purge, once per
+    // boot. The corpus-side DELETE preserves the newest row per
+    // (metric_name, layer) series so baseline / Drain / storm snapshots
+    // survive idle gaps longer than the window. Non-fatal on failure.
+    if let Some(w) = corpus_writer.as_ref() {
+        let now_nanos = std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .map(|d| i64::try_from(d.as_nanos()).unwrap_or(i64::MAX))
+            .unwrap_or(0);
+        pulse_app::corpus_retrieval::run_pipeline_metrics_purge(w.as_ref(), now_nanos);
+    }
+
     // Chunk #70 — BaselineState corpus persistence adapter. Derives a
     // third trait view from the same Arc<Corpus> (alongside reader +
     // drain-writer); BaselineState moves from the chunk #61 flat-file
@@ -1244,6 +1256,9 @@ fn main() {
                     Arc::clone(&incident_registry_for_persist),
                     Arc::clone(&digest_broadcast),
                     Arc::clone(&digest_queue),
+                    Arc::new(pulse_app::corpus_retrieval::CorpusBackedIncidentSource::new(
+                        Arc::clone(corpus_writer_handle),
+                    )),
                 ) {
                     Ok(assembler) => {
                         let project_context = std::env::current_dir()

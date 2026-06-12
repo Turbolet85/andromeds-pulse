@@ -32,8 +32,9 @@ use std::time::Duration;
 use security::scrubber::{ScrubbedValue, scrub_attribute};
 use tokio::sync::broadcast::error::RecvError;
 use triage::contract::{
-    Assembler, CadenceEventBroadcast, CadenceMode, Digest, DigestAssembler, DigestBroadcast,
-    DigestProjectContext, DigestRecentCommit, IncidentRegistry, LwwQueue, SqlQueryRunner,
+    Assembler, CadenceEventBroadcast, CadenceMode, CorpusIncidentSource, Digest, DigestAssembler,
+    DigestBroadcast, DigestProjectContext, DigestRecentCommit, IncidentRegistry, LwwQueue,
+    SqlQueryRunner,
 };
 use workspace_detector::contract::WorkspaceContext;
 
@@ -57,17 +58,27 @@ pub fn pii_scrub_closure() -> Arc<dyn Fn(&str) -> String + Send + Sync> {
 
 /// Build the digest assembler. Caller injects all dependencies; this fn
 /// pairs the tokenizer load (from build-time fixture) с the scrub
-/// closure construction. Returns `Arc<dyn DigestAssembler>` ready для
-/// trait-injection elsewhere.
+/// closure construction. `corpus_source` supplies P-044 retrieval
+/// candidates (`NoopCorpusIncidentSource` when the corpus is absent at
+/// boot — digest assembly degrades to empty `corpus_matches`). Returns
+/// `Arc<dyn DigestAssembler>` ready for trait-injection elsewhere.
 pub fn build_assembler(
     sql_runner: Arc<dyn SqlQueryRunner>,
     incident_registry: Arc<dyn IncidentRegistry>,
     broadcast: Arc<DigestBroadcast>,
     queue: Arc<Mutex<LwwQueue>>,
+    corpus_source: Arc<dyn CorpusIncidentSource>,
 ) -> Result<Arc<dyn DigestAssembler>, String> {
     let scrub = pii_scrub_closure();
-    let assembler = Assembler::new(sql_runner, incident_registry, broadcast, queue, scrub)
-        .map_err(|e| format!("digest assembler init failed: {e}"))?;
+    let assembler = Assembler::new(
+        sql_runner,
+        incident_registry,
+        broadcast,
+        queue,
+        scrub,
+        corpus_source,
+    )
+    .map_err(|e| format!("digest assembler init failed: {e}"))?;
     Ok(Arc::new(assembler))
 }
 

@@ -108,6 +108,30 @@ impl IncidentPersistence for CorpusIncidentPersistence {
         Ok(incidents)
     }
 
+    fn load_incidents_for_workspace_since(
+        &self,
+        workspace: &str,
+        since_unix_nano: i64,
+    ) -> Result<Vec<Incident>, IncidentError> {
+        let rows = self
+            .writer
+            .load_incidents_for_workspace_since(workspace, since_unix_nano)
+            .map_err(corpus_error_to_incident_error)?;
+        let mut incidents = Vec::with_capacity(rows.len());
+        for row in rows {
+            let mut incident: Incident = bincode::deserialize::<Incident>(&row.payload)
+                .map_err(|_| IncidentError::Deserialize)?;
+            incident.id = row.id;
+            incident.workspace = row.workspace;
+            incident.opened_at_unix_nano = row.created_unix_nano;
+            incident.updated_at_unix_nano = row.updated_unix_nano;
+            incident.resolved_at_unix_nano = row.resolved_unix_nano;
+            incident.read_at_unix_nano = row.read_unix_nano;
+            incidents.push(incident);
+        }
+        Ok(incidents)
+    }
+
     fn count_active_unread(&self, workspace: &str) -> Result<u64, IncidentError> {
         self.writer
             .count_active_unread(workspace)

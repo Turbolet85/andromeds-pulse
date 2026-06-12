@@ -117,10 +117,22 @@ pub trait IncidentPersistence: Send + Sync {
     /// boundary. Returns `NotFound` when no row matches the id.
     fn mark_read(&self, id: i64, read_unix_nano: i64) -> Result<(), IncidentError>;
 
-    /// Load all active (incl. Acknowledged) incidents для а workspace.
+    /// Load all active (incl. Acknowledged) incidents for a workspace.
     /// Used at boot к hydrate the in-memory registry from corpus +
     /// fallback path в `incidents.list_active()` if registry-empty.
     fn load_active_incidents(&self, workspace: &str) -> Result<Vec<Incident>, IncidentError>;
+
+    /// Load incidents for a workspace created at or after `since_unix_nano`,
+    /// any status (P-036/P-044 retrieval candidates — the "Previously seen"
+    /// selection runs over this set via
+    /// `triage::contract::select_previously_seen`). Delegates to
+    /// `CorpusWriter::load_incidents_for_workspace_since` at the binary
+    /// boundary.
+    fn load_incidents_for_workspace_since(
+        &self,
+        workspace: &str,
+        since_unix_nano: i64,
+    ) -> Result<Vec<Incident>, IncidentError>;
 
     /// P-045 counter SQL: returns count of active + unread incidents for
     /// the workspace. SQL-only (no decryption); fast path.
@@ -278,6 +290,13 @@ mod tests {
         }
         fn load_active_incidents(&self, _workspace: &str) -> Result<Vec<Incident>, IncidentError> {
             Ok(self.actives.lock().expect("lock").clone())
+        }
+        fn load_incidents_for_workspace_since(
+            &self,
+            _workspace: &str,
+            _since_unix_nano: i64,
+        ) -> Result<Vec<Incident>, IncidentError> {
+            Ok(Vec::new())
         }
         fn count_active_unread(&self, _workspace: &str) -> Result<u64, IncidentError> {
             Ok(*self.next_count.lock().expect("lock"))

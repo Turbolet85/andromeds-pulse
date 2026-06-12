@@ -4,6 +4,7 @@ pub mod bincode_bounded;
 pub mod cadence_runner;
 pub mod config_router;
 pub mod connection_router;
+pub mod corpus_retrieval;
 pub mod degraded_mode_runtime;
 pub mod diagnostics_router;
 pub mod digest_runtime;

@@ -705,6 +705,76 @@ mod tests {
         assert_eq!(stats.cues_emitted, 0);
     }
 
+    /// Integration: the P-016 POSITIVE case — a SUSTAINED (>30s
+    /// persistence) ErrorRateSpike SURFACES inside the active 60s restart
+    /// window. Suppression only drops short-persistence cues
+    /// (`persistence_seconds < suppression_persistence_cutoff_seconds`);
+    /// long-persistence cues are real signals, not restart-induced noise.
+    /// Bypass thresholds are raised so survival is attributable to
+    /// persistence alone (not the P-057 magnitude bypass).
+    #[test]
+    fn run_one_emit_cycle_surfaces_sustained_spike_inside_active_restart_window() {
+        let state = BaselineState::new();
+        // 40 samples (12 baseline zeros + 28 tail errors) at 1s spacing →
+        // persistence_seconds = 40 ≥ cutoff (30) → suppression-INELIGIBLE.
+        for i in 0..40 {
+            let status = if i >= 12 { 2 } else { 0 };
+            state.observe_span("svc-restarted", "op", status, 50, 1_000_000 + i * 1_000_000);
+        }
+        let broadcast_handle = AttentionCueBroadcast::new();
+        let mut rx = broadcast_handle.subscribe();
+        let cadence_handle = CadenceTriggerChannel::new();
+        let _cad_rx = cadence_handle.subscribe();
+
+        let high_thresholds = Thresholds {
+            magnitude_bypass_multiplier: 1_000.0,
+            absolute_bypass_error_rate: 0.99,
+            ..Thresholds::default()
+        };
+        let suppression = SuppressionState::new();
+        let now_nanos = 1_000_000_000_000_i64;
+        let restart_event = crate::pattern::RestartEvent {
+            service: "svc-restarted".to_string(),
+            gap_seconds: 25,
+            last_seen_unix_nano: now_nanos - 25_000_000_000,
+            resume_unix_nano: now_nanos,
+        };
+        suppression.record_restart(&restart_event, 60);
+        assert!(
+            suppression.is_active("svc-restarted", now_nanos),
+            "window should be active at resume time"
+        );
+
+        let stats = run_one_emit_cycle(
+            &state,
+            &high_thresholds,
+            &broadcast_handle,
+            &cadence_handle,
+            &suppression,
+            now_nanos,
+        );
+        assert_eq!(
+            stats.cues_suppressed, 0,
+            "sustained >30s spike must NOT be suppressed (stats = {stats:?})"
+        );
+        assert!(
+            stats.cues_emitted >= 1,
+            "sustained spike must SURFACE inside the active window (stats = {stats:?})"
+        );
+        let cue = rx.try_recv().expect("broadcast carries the surfaced cue");
+        assert_eq!(cue.kind, crate::contract::CueKind::ErrorRateSpike);
+        assert_eq!(cue.scope_id.as_deref(), Some("svc-restarted"));
+        assert!(
+            cue.persistence_seconds >= 30,
+            "persistence must be at/above the suppression cutoff; got {}",
+            cue.persistence_seconds
+        );
+        assert!(
+            !cue.suppression_bypassed,
+            "survival must be via persistence, not the P-057 bypass"
+        );
+    }
+
     /// Integration: a cue with `suppression_bypassed: true` survives the
     /// suppression filter during an active window AND fires the
     /// `metric.pipeline.l2.magnitude_bypass_triggered_total` event.

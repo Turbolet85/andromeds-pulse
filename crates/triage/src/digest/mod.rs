@@ -27,10 +27,16 @@
 pub(crate) mod assembler;
 pub(crate) mod broadcast;
 pub(crate) mod queue;
+pub(crate) mod retrieval;
 
 pub use assembler::{Assembler, DigestAssembler, DigestFuture};
 pub use broadcast::{BROADCAST_CAPACITY, DigestBroadcast, STREAM_NAME_DIGESTS};
 pub use queue::{ACTIVE_INCIDENT_QUEUE_CAP, LwwQueue, QueueAction, TIER1_QUEUE_CAP};
+pub use retrieval::{
+    CORPUS_RETRIEVAL_WINDOW_SECONDS, CorpusIncidentSource, NoopCorpusIncidentSource,
+    RetrievalError, RetrievalFuture, format_corpus_match_line, select_corpus_matches,
+    select_previously_seen,
+};
 
 use thiserror::Error;
 
@@ -45,8 +51,11 @@ pub const DIGEST_TOKEN_BUDGET_SOFT_MAX: usize = 2000;
 pub const DIGEST_TOKEN_BUDGET_HARD_CAP: usize = 3000;
 
 /// Default ranking depth for corpus retrieval top-N similar past
-/// incidents (capability P-044). Dist-arch v3 §L3 specifies top-3.
-pub const DIGEST_CORPUS_RETRIEVAL_LIMIT: usize = 3;
+/// incidents — top-5 per capability spec P-044 §Boundary ("up to N most
+/// relevant entries (default 5)"; governs over dist-arch v3 §L3's
+/// earlier top-3 sketch per the 2026-06-12 capability-audit remediation
+/// defaults).
+pub const DIGEST_CORPUS_RETRIEVAL_LIMIT: usize = 5;
 
 /// Tracing target — top-level digest assembly span.
 pub const TARGET_DIGEST_ASSEMBLE: &str = "digest.assemble.request";

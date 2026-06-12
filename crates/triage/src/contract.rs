@@ -44,9 +44,9 @@ pub use crate::cue::{
     DEFAULT_MAGNITUDE_BYPASS_MULTIPLIER, DEFAULT_MIN_PERSISTENCE_SECONDS,
     DEFAULT_QUIET_DURATION_PERCENTILE, DEFAULT_RESTART_GAP_THRESHOLD_SECONDS,
     DEFAULT_RESTART_SUPPRESSION_WINDOW_SECONDS, DEFAULT_SUPPRESSION_PERSISTENCE_CUTOFF_SECONDS,
-    DEFAULT_TICK_INTERVAL, MIN_EWMA_SAMPLES, STREAM_NAME_ATTENTION_CUES, Thresholds,
-    ThresholdsError, classify_priority, dual_condition_bypass, evaluate_service_went_silent,
-    evaluate_thresholds, run_one_emit_cycle, start_emitter,
+    DEFAULT_TICK_INTERVAL, MIN_EWMA_SAMPLES, MIN_LATENCY_SAMPLES, STREAM_NAME_ATTENTION_CUES,
+    Thresholds, ThresholdsError, classify_priority, dual_condition_bypass,
+    evaluate_service_went_silent, evaluate_thresholds, run_one_emit_cycle, start_emitter,
 };
 
 // Chunk #63 — restart event detector + dual-condition bypass. Re-export
@@ -132,13 +132,16 @@ pub use crate::baseline::{
 // Capabilities P-031 / P-032 / P-044 / P-059.
 pub use crate::digest::{
     ACTIVE_INCIDENT_QUEUE_CAP, Assembler, BROADCAST_CAPACITY as DIGEST_BROADCAST_CAPACITY,
-    DIGEST_CORPUS_RETRIEVAL_LIMIT, DIGEST_TOKEN_BUDGET_HARD_CAP, DIGEST_TOKEN_BUDGET_SOFT_MAX,
-    DIGEST_TOKEN_BUDGET_SOFT_MIN, DigestAssembler, DigestBroadcast, DigestError, DigestFuture,
-    LwwQueue, QueueAction, STREAM_NAME_DIGESTS, TARGET_DIGEST_ASSEMBLE,
-    TARGET_DIGEST_CORPUS_RETRIEVE, TARGET_DIGEST_LWW_DROP, TARGET_DIGEST_LWW_REPLACE,
-    TARGET_DIGEST_TOKEN_COUNT_VALIDATE, TARGET_METRIC_ACTIVE_INCIDENT_QUEUE_DEPTH,
-    TARGET_METRIC_DIGEST_TOKEN_COUNT_MS, TARGET_METRIC_LWW_DROP_COUNT_TOTAL, TIER1_QUEUE_CAP,
+    CORPUS_RETRIEVAL_WINDOW_SECONDS, CorpusIncidentSource, DIGEST_CORPUS_RETRIEVAL_LIMIT,
+    DIGEST_TOKEN_BUDGET_HARD_CAP, DIGEST_TOKEN_BUDGET_SOFT_MAX, DIGEST_TOKEN_BUDGET_SOFT_MIN,
+    DigestAssembler, DigestBroadcast, DigestError, DigestFuture, LwwQueue,
+    NoopCorpusIncidentSource, QueueAction, RetrievalError, RetrievalFuture, STREAM_NAME_DIGESTS,
+    TARGET_DIGEST_ASSEMBLE, TARGET_DIGEST_CORPUS_RETRIEVE, TARGET_DIGEST_LWW_DROP,
+    TARGET_DIGEST_LWW_REPLACE, TARGET_DIGEST_TOKEN_COUNT_VALIDATE,
+    TARGET_METRIC_ACTIVE_INCIDENT_QUEUE_DEPTH, TARGET_METRIC_DIGEST_TOKEN_COUNT_MS,
+    TARGET_METRIC_LWW_DROP_COUNT_TOTAL, TIER1_QUEUE_CAP,
     assembler::{DigestProjectContext, DigestRecentCommit},
+    format_corpus_match_line, select_corpus_matches, select_previously_seen,
 };
 
 /// Kind of detected condition emitted as an attention cue. Bounded

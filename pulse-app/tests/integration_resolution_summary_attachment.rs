@@ -110,6 +110,13 @@ impl IncidentPersistence for CountingPersistence {
     ) -> Result<Vec<Incident>, triage::contract::IncidentError> {
         Ok(vec![])
     }
+    fn load_incidents_for_workspace_since(
+        &self,
+        _workspace: &str,
+        _since_unix_nano: i64,
+    ) -> Result<Vec<Incident>, triage::contract::IncidentError> {
+        Ok(vec![])
+    }
     fn count_active_unread(
         &self,
         _workspace: &str,

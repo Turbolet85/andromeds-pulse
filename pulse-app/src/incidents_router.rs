@@ -12,13 +12,14 @@
 use std::sync::Arc;
 use std::time::{Instant, SystemTime, UNIX_EPOCH};
 
-use interpretation::markdown::{assemble_report, serialize_report};
+use interpretation::markdown::{assemble_report, previously_seen_from_incidents, serialize_report};
 use interpretation::schema::L4Output;
 use serde::{Deserialize, Serialize};
 use triage::contract::{
-    CueKind, CueScope, DEFAULT_INCIDENT_ACK_COOLDOWN_SECS, Incident, IncidentLifecycleBroadcast,
-    IncidentLifecycleEvent, IncidentPersistence, IncidentRegistry, IncidentRegistryError,
-    IncidentStatus, PriorityTier, ResolutionTrigger, Severity,
+    CORPUS_RETRIEVAL_WINDOW_SECONDS, CueKind, CueScope, DEFAULT_INCIDENT_ACK_COOLDOWN_SECS,
+    DIGEST_CORPUS_RETRIEVAL_LIMIT, Incident, IncidentLifecycleBroadcast, IncidentLifecycleEvent,
+    IncidentPersistence, IncidentRegistry, IncidentRegistryError, IncidentStatus, PriorityTier,
+    ResolutionTrigger, Severity, select_previously_seen,
 };
 use ui_bridge::contract::AppError;
 
@@ -448,7 +449,31 @@ impl IncidentsApi for IncidentsApiImpl {
             );
         }
 
-        let report = assemble_report(&incident, parsed_l4.as_ref());
+        // P-036 "Previously seen": corpus candidates (same workspace, last
+        // 30 days) matched on this incident's fingerprint/scope. Retrieval
+        // failure degrades to an empty section — the report always renders.
+        let retrieval_since = current_unix_nanos()
+            .saturating_sub(CORPUS_RETRIEVAL_WINDOW_SECONDS.saturating_mul(1_000_000_000));
+        let previously_seen = match self
+            .persistence
+            .load_incidents_for_workspace_since(&incident.workspace, retrieval_since)
+        {
+            Ok(candidates) => previously_seen_from_incidents(&select_previously_seen(
+                &incident,
+                candidates,
+                DIGEST_CORPUS_RETRIEVAL_LIMIT,
+            )),
+            Err(err) => {
+                tracing::warn!(
+                    target: "report.previously_seen.retrieval_error",
+                    error_category = err.error_category(),
+                    "previously-seen retrieval failed; report renders without history",
+                );
+                Vec::new()
+            }
+        };
+
+        let report = assemble_report(&incident, parsed_l4.as_ref(), previously_seen);
         let markdown = serialize_report(&report);
         let markdown_size_bytes = u64::try_from(markdown.len()).unwrap_or(u64::MAX);
         let section_count: u64 = 6;

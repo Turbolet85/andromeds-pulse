@@ -1741,6 +1741,8 @@ impl AllowList {
                 "param_count",
                 "row_count_returned",
                 "duration_ms",
+                // Chunk #100 failure path — bounded category label only.
+                "error_category",
             ]
             .iter()
             .copied()
@@ -2077,6 +2079,28 @@ impl AllowList {
         by_target.insert(
             "report.degraded_mode_notice",
             ["incident_id", "reason_category"].iter().copied().collect(),
+        );
+        // Chunk #100 — P-036 previously-seen retrieval failure path.
+        // error_category only; never candidate content / workspace strings.
+        by_target.insert(
+            "report.previously_seen.retrieval_error",
+            ["error_category"].iter().copied().collect(),
+        );
+        // Chunk #100 — P-041 boot-time pipeline-metrics retention purge.
+        // Aggregate-only counts + bounded window field; exact-match key per
+        // the 2026-05-07 resolver discipline (fallback would resolve to a
+        // generic `corpus` key).
+        by_target.insert(
+            "corpus.pipeline_metrics.purge",
+            [
+                "purged_row_count",
+                "retention_window_days",
+                "duration_ms",
+                "error_category",
+            ]
+            .iter()
+            .copied()
+            .collect(),
         );
         by_target.insert(
             "metric.report.render_ms",

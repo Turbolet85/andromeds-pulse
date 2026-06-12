@@ -38,7 +38,17 @@ pub const DEFAULT_LATENCY_PERCENTILE: f64 = 0.99;
 
 /// Minimum EWMA samples required before a service participates in
 /// ErrorRateSpike detection — warm-up gate к suppress cold-start noise.
+/// Belongs to the P-009 error-rate baseline (its spec floor is 10 spans
+/// per minute); distinct from the latency-path floor below.
 pub const MIN_EWMA_SAMPLES: u64 = 10;
+
+/// Minimum samples required before an operation participates in
+/// LatencyRegression detection — 50 per capability spec P-011 §Boundary
+/// ("operations with fewer than 50 spans over the window may produce
+/// unreliable percentile estimates and SHALL be excluded from regression
+/// detection"). Deliberately distinct from [`MIN_EWMA_SAMPLES`]: t-digest
+/// percentile estimates need more warm-up than the error-rate EWMA.
+pub const MIN_LATENCY_SAMPLES: u64 = 50;
 
 /// Default dual-condition bypass magnitude multiplier (P-057 chunk #63
 /// spec). When a cue's `magnitude > multiplier × baseline` the bypass
@@ -121,6 +131,7 @@ pub struct Thresholds {
     pub min_persistence_seconds: u64,
     pub latency_percentile: f64,
     pub min_ewma_samples: u64,
+    pub min_latency_samples: u64,
     pub magnitude_bypass_multiplier: f64,
     pub absolute_bypass_error_rate: f64,
     pub absolute_bypass_latency_ms: f64,
@@ -142,6 +153,7 @@ impl Default for Thresholds {
             min_persistence_seconds: DEFAULT_MIN_PERSISTENCE_SECONDS,
             latency_percentile: DEFAULT_LATENCY_PERCENTILE,
             min_ewma_samples: MIN_EWMA_SAMPLES,
+            min_latency_samples: MIN_LATENCY_SAMPLES,
             magnitude_bypass_multiplier: DEFAULT_MAGNITUDE_BYPASS_MULTIPLIER,
             absolute_bypass_error_rate: DEFAULT_ABSOLUTE_BYPASS_ERROR_RATE,
             absolute_bypass_latency_ms: DEFAULT_ABSOLUTE_BYPASS_LATENCY_MS,
@@ -223,6 +235,11 @@ impl Thresholds {
                 field: "suppression_persistence_cutoff_seconds",
             });
         }
+        if self.min_latency_samples == 0 {
+            return Err(ThresholdsError::InvalidConfig {
+                field: "min_latency_samples",
+            });
+        }
         if self.bootstrap_window_seconds == 0 {
             return Err(ThresholdsError::InvalidConfig {
                 field: "bootstrap_window_seconds",
@@ -248,6 +265,8 @@ const _: () = {
     assert!(DEFAULT_BASE_ERROR_RATE > 0.0);
     assert!(DEFAULT_BASE_LATENCY_MS > 0.0);
     assert!(MIN_EWMA_SAMPLES >= 1);
+    assert!(MIN_LATENCY_SAMPLES >= 1);
+    assert!(MIN_LATENCY_SAMPLES > MIN_EWMA_SAMPLES);
     assert!(DEFAULT_MAGNITUDE_BYPASS_MULTIPLIER > 1.0);
     assert!(DEFAULT_ABSOLUTE_BYPASS_ERROR_RATE > 0.0);
     assert!(DEFAULT_ABSOLUTE_BYPASS_LATENCY_MS > 0.0);
@@ -275,6 +294,10 @@ mod tests {
         assert_eq!(t.min_persistence_seconds, 30);
         assert_eq!(t.latency_percentile, 0.99);
         assert_eq!(t.min_ewma_samples, 10);
+        assert_eq!(
+            t.min_latency_samples, 50,
+            "P-011 latency-path exclusion floor (spec value)"
+        );
         assert_eq!(t.magnitude_bypass_multiplier, 10.0);
         assert_eq!(t.absolute_bypass_error_rate, 0.05);
         assert_eq!(t.absolute_bypass_latency_ms, 1000.0);
@@ -283,6 +306,20 @@ mod tests {
         assert_eq!(t.suppression_persistence_cutoff_seconds, 30);
         assert_eq!(t.bootstrap_window_seconds, 3_600);
         assert_eq!(t.quiet_duration_percentile, 0.95);
+    }
+
+    #[test]
+    fn validate_rejects_zero_min_latency_samples() {
+        let t = Thresholds {
+            min_latency_samples: 0,
+            ..Thresholds::default()
+        };
+        assert_eq!(
+            t.validate().unwrap_err(),
+            ThresholdsError::InvalidConfig {
+                field: "min_latency_samples"
+            }
+        );
     }
 
     #[test]

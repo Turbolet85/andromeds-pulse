@@ -99,6 +99,13 @@ fn main() {
     fs::write(&target, &bytes).unwrap_or_else(|e| panic!("write tokenizer.json: {e}"));
 }
 
+/// Read cap for the tokenizer download. The Llama-3 tokenizer.json is
+/// ~9 MB — the original 8 MiB cap SILENTLY TRUNCATED it on every fresh
+/// build (found at chunk #100 when the first `Tokenizer::from_bytes`
+/// test callers hit "EOF while parsing a string"). The cap stays as a
+/// runaway guard but hitting it is now a hard error, never truncation.
+const TOKENIZER_MAX_BYTES: u64 = 32 * 1024 * 1024;
+
 fn download(url: &str) -> Result<Vec<u8>, String> {
     let resp = ureq::get(url)
         .timeout(std::time::Duration::from_secs(60))
@@ -106,11 +113,16 @@ fn download(url: &str) -> Result<Vec<u8>, String> {
         .map_err(|e| format!("ureq.call({url}): {e}"))?;
     let mut bytes = Vec::with_capacity(2 * 1024 * 1024);
     resp.into_reader()
-        .take(8 * 1024 * 1024)
+        .take(TOKENIZER_MAX_BYTES)
         .read_to_end(&mut bytes)
         .map_err(|e| format!("read body: {e}"))?;
     if bytes.len() < 1024 {
         return Err(format!("response body too small ({} bytes)", bytes.len()));
+    }
+    if bytes.len() as u64 >= TOKENIZER_MAX_BYTES {
+        return Err(format!(
+            "response body hit the {TOKENIZER_MAX_BYTES}-byte read cap — refusing a silently truncated tokenizer"
+        ));
     }
     Ok(bytes)
 }

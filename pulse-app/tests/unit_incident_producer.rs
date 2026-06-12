@@ -72,6 +72,13 @@ impl IncidentPersistence for RecordingPersistence {
     fn load_active_incidents(&self, _workspace: &str) -> Result<Vec<Incident>, IncidentError> {
         Ok(vec![])
     }
+    fn load_incidents_for_workspace_since(
+        &self,
+        _workspace: &str,
+        _since_unix_nano: i64,
+    ) -> Result<Vec<Incident>, IncidentError> {
+        Ok(vec![])
+    }
     fn count_active_unread(&self, _workspace: &str) -> Result<u64, IncidentError> {
         Ok(0)
     }

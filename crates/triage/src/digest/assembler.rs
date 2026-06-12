@@ -7,15 +7,15 @@
 //! `DigestProjectContext` injected by binary adapter), and active-incident
 //! state (via `IncidentRegistry` injected from chunk #78 substrate).
 //!
-//! ## Scope of corpus retrieval (deferred to chunk #82+)
+//! ## Corpus retrieval (capability P-044)
 //!
-//! Initial chunk #81 substrate writes digests к corpus via
-//! `CorpusWriter::save_digest` extension AND emits broadcast events for
-//! L4 LLM consumption. CORPUS MATCHES section (top-N similar past
-//! incidents by fingerprint per capability P-044) is stubbed as empty
-//! `corpus_matches: Vec<String>` because the retrieval algorithm + index
-//! design depend on chunk #82+ LLM runtime + tokenizer choices for
-//! similarity scoring. Substrate ready; retrieval lands at chunk #82+.
+//! The CORPUS MATCHES section carries top-N similar past incidents —
+//! same workspace, last 30 days, fingerprint or scope match, top-5,
+//! newest first — supplied by the injected [`CorpusIncidentSource`]
+//! and selected via `digest::retrieval::select_corpus_matches`.
+//! Candidate fingerprints come from the window's Q3 rows; candidate
+//! scopes from the Q1 service set. Retrieval failure or an absent
+//! corpus degrades to an empty section — the digest always assembles.
 //!
 //! ## Token-budget enforcement
 //!
@@ -28,7 +28,7 @@
 use std::future::Future;
 use std::pin::Pin;
 use std::sync::{Arc, Mutex};
-use std::time::Duration;
+use std::time::{Duration, Instant};
 
 use tokenizers::Tokenizer;
 
@@ -39,9 +39,14 @@ use crate::contract::{
 };
 use crate::digest::broadcast::DigestBroadcast;
 use crate::digest::queue::{LwwQueue, QueueAction};
+use crate::digest::retrieval::{
+    CORPUS_RETRIEVAL_WINDOW_SECONDS, CorpusIncidentSource, format_corpus_match_line,
+    select_corpus_matches,
+};
 use crate::digest::{
-    DIGEST_TOKEN_BUDGET_HARD_CAP, DIGEST_TOKEN_BUDGET_SOFT_MAX, DIGEST_TOKEN_BUDGET_SOFT_MIN,
-    DigestError, TARGET_DIGEST_ASSEMBLE, TARGET_DIGEST_LWW_DROP, TARGET_DIGEST_LWW_REPLACE,
+    DIGEST_CORPUS_RETRIEVAL_LIMIT, DIGEST_TOKEN_BUDGET_HARD_CAP, DIGEST_TOKEN_BUDGET_SOFT_MAX,
+    DIGEST_TOKEN_BUDGET_SOFT_MIN, DigestError, TARGET_DIGEST_ASSEMBLE,
+    TARGET_DIGEST_CORPUS_RETRIEVE, TARGET_DIGEST_LWW_DROP, TARGET_DIGEST_LWW_REPLACE,
     TARGET_DIGEST_TOKEN_COUNT_VALIDATE, TARGET_METRIC_ACTIVE_INCIDENT_QUEUE_DEPTH,
     TARGET_METRIC_DIGEST_TOKEN_COUNT_MS, TARGET_METRIC_LWW_DROP_COUNT_TOTAL,
 };
@@ -119,6 +124,7 @@ pub struct Assembler {
     broadcast: Arc<DigestBroadcast>,
     queue: Arc<Mutex<LwwQueue>>,
     scrub: Arc<dyn Fn(&str) -> String + Send + Sync>,
+    corpus_source: Arc<dyn CorpusIncidentSource>,
 }
 
 impl std::fmt::Debug for Assembler {
@@ -138,6 +144,7 @@ impl Assembler {
         broadcast: Arc<DigestBroadcast>,
         queue: Arc<Mutex<LwwQueue>>,
         scrub: Arc<dyn Fn(&str) -> String + Send + Sync>,
+        corpus_source: Arc<dyn CorpusIncidentSource>,
     ) -> Result<Self, DigestError> {
         let tokenizer = Tokenizer::from_bytes(TOKENIZER_BYTES)
             .map_err(|e| DigestError::Tokenizer(e.to_string()))?;
@@ -148,6 +155,7 @@ impl Assembler {
             broadcast,
             queue,
             scrub,
+            corpus_source,
         })
     }
 
@@ -162,6 +170,7 @@ impl Assembler {
         broadcast: Arc<DigestBroadcast>,
         queue: Arc<Mutex<LwwQueue>>,
         scrub: Arc<dyn Fn(&str) -> String + Send + Sync>,
+        corpus_source: Arc<dyn CorpusIncidentSource>,
     ) -> Self {
         Self {
             tokenizer,
@@ -170,6 +179,7 @@ impl Assembler {
             broadcast,
             queue,
             scrub,
+            corpus_source,
         }
     }
 
@@ -231,12 +241,13 @@ impl DigestAssembler for Assembler {
                 .run_q1(window_duration)
                 .await
                 .map_err(map_sql_err)?;
-            // Q2-Q7 fetched но не embedded in chunk #81 substrate digest;
+            // Q2/Q4-Q7 fetched but not embedded in chunk #81 substrate digest;
             // execution stays к ensure the SQL surface is exercised
             // identically к the cadence coordinator (consistency +
             // diagnostics value). Future chunk integrates richer fields.
+            // Q3 fingerprint rows feed the corpus-retrieval match below.
             let _q2 = self.sql_runner.run_q2(window_duration).await.ok();
-            let _q3 = self.sql_runner.run_q3(window_duration).await.ok();
+            let q3 = self.sql_runner.run_q3(window_duration).await.ok();
             let _q4 = self.sql_runner.run_q4(window_duration).await.ok();
             let _q5 = self.sql_runner.run_q5(window_duration).await.ok();
             let _q6 = self.sql_runner.run_q6(window_duration).await.ok();
@@ -263,8 +274,60 @@ impl DigestAssembler for Assembler {
                 })
                 .unwrap_or_default();
 
-            // CORPUS MATCHES deferred к chunk #82+ (see file-level docstring).
-            let corpus_matches: Vec<String> = Vec::new();
+            // CORPUS MATCHES (capability P-044): same-workspace, last-30-day
+            // candidates matched on the window's Q3 fingerprints + Q1 service
+            // scopes; top-5 newest first. Each line is routed through the
+            // injected scrub closure at this egress boundary (chunk #88
+            // precedent) — `Digest::scrubbed_clone` deliberately skips
+            // `corpus_matches`, so this is the field's only scrub pass.
+            let current_fingerprints: Vec<String> = q3
+                .as_deref()
+                .unwrap_or(&[])
+                .iter()
+                .map(|row| hex_lower(&row.fingerprint))
+                .collect();
+            let current_scopes: Vec<String> =
+                services.iter().map(|row| row.service.clone()).collect();
+            let retrieval_since = now_unix_nano
+                .saturating_sub(CORPUS_RETRIEVAL_WINDOW_SECONDS.saturating_mul(1_000_000_000));
+            let retrieval_start = Instant::now();
+            let corpus_matches: Vec<String> = match self
+                .corpus_source
+                .load_candidates(&workspace, retrieval_since)
+                .await
+            {
+                Ok(candidates) => {
+                    let candidate_count = candidates.len();
+                    let selected = select_corpus_matches(
+                        candidates,
+                        &current_fingerprints,
+                        &current_scopes,
+                        DIGEST_CORPUS_RETRIEVAL_LIMIT,
+                    );
+                    tracing::info!(
+                        target: TARGET_DIGEST_CORPUS_RETRIEVE,
+                        query_id = "incidents_for_workspace_since",
+                        param_count = 2_u64,
+                        row_count_returned = candidate_count as u64,
+                        duration_ms = retrieval_start.elapsed().as_millis() as u64,
+                        "corpus retrieval for digest",
+                    );
+                    selected
+                        .iter()
+                        .map(|i| (self.scrub)(&format_corpus_match_line(i, now_unix_nano)))
+                        .collect()
+                }
+                Err(_) => {
+                    tracing::warn!(
+                        target: TARGET_DIGEST_CORPUS_RETRIEVE,
+                        query_id = "incidents_for_workspace_since",
+                        error_category = "retrieval_failed",
+                        duration_ms = retrieval_start.elapsed().as_millis() as u64,
+                        "corpus retrieval failed; digest assembles with empty corpus_matches",
+                    );
+                    Vec::new()
+                }
+            };
 
             // Incident refs included in digest if active.
             let incident_refs: Vec<String> = active_incidents
@@ -565,7 +628,8 @@ fn render_payload(
     s.push_str(&format!("PROJECT: {name} (vcs={vcs})\n"));
     if !project.recent_commits.is_empty() {
         s.push_str("RECENT CHANGES:\n");
-        for c in project.recent_commits.iter().take(3) {
+        // Last 5 commits per capability spec P-032 §Project Context Grounding.
+        for c in project.recent_commits.iter().take(5) {
             s.push_str(&format!(
                 "  {}m ago | {} | {} files\n",
                 c.age_seconds / 60,
@@ -609,11 +673,22 @@ fn render_payload(
     }
     if !corpus_matches.is_empty() {
         s.push_str("CORPUS MATCHES:\n");
-        for m in corpus_matches.iter().take(3) {
-            s.push_str(&format!("  - fingerprint [{m}]\n"));
+        for m in corpus_matches.iter().take(DIGEST_CORPUS_RETRIEVAL_LIMIT) {
+            s.push_str(&format!("  - {m}\n"));
         }
     }
     s
+}
+
+/// Lowercase-hex encode raw fingerprint bytes from Q3 rows so they can
+/// match the string form carried on `Incident.fingerprint` (the
+/// `{b:02x}` shape used across the workspace's fingerprint surfaces).
+fn hex_lower(bytes: &[u8]) -> String {
+    let mut out = String::with_capacity(bytes.len() * 2);
+    for b in bytes {
+        out.push_str(&format!("{b:02x}"));
+    }
+    out
 }
 
 fn lowest_priority_cue_index(cues: &[DigestCueRef]) -> usize {
@@ -644,4 +719,335 @@ fn lowest_anomaly_service_index(rows: &[DigestServiceRow]) -> usize {
         })
         .map(|(i, _)| i)
         .unwrap_or(0)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::contract::{
+        CueScope, EvidenceRefs, Incident, IncidentStatus, Q1RedRow, Q2OperationRow,
+        Q3FingerprintRow, Q4InteractionRow, Q5CardinalityRow, Q6LogRow, Q7CriticalPathRow,
+    };
+    use crate::digest::retrieval::{NoopCorpusIncidentSource, RetrievalError, RetrievalFuture};
+    use crate::incident::InMemoryIncidentRegistry;
+
+    type SqlFuture<'a, T> =
+        Pin<Box<dyn Future<Output = Result<T, SqlAggregationError>> + Send + 'a>>;
+
+    struct CannedSqlRunner {
+        q1: Vec<Q1RedRow>,
+        q3: Vec<Q3FingerprintRow>,
+    }
+
+    impl SqlQueryRunner for CannedSqlRunner {
+        fn run_q1<'a>(&'a self, _w: Duration) -> SqlFuture<'a, Vec<Q1RedRow>> {
+            let rows = self.q1.clone();
+            Box::pin(async move { Ok(rows) })
+        }
+        fn run_q2<'a>(&'a self, _w: Duration) -> SqlFuture<'a, Vec<Q2OperationRow>> {
+            Box::pin(async move { Ok(Vec::new()) })
+        }
+        fn run_q3<'a>(&'a self, _w: Duration) -> SqlFuture<'a, Vec<Q3FingerprintRow>> {
+            let rows = self.q3.clone();
+            Box::pin(async move { Ok(rows) })
+        }
+        fn run_q4<'a>(&'a self, _w: Duration) -> SqlFuture<'a, Vec<Q4InteractionRow>> {
+            Box::pin(async move { Ok(Vec::new()) })
+        }
+        fn run_q5<'a>(&'a self, _w: Duration) -> SqlFuture<'a, Vec<Q5CardinalityRow>> {
+            Box::pin(async move { Ok(Vec::new()) })
+        }
+        fn run_q6<'a>(&'a self, _w: Duration) -> SqlFuture<'a, Vec<Q6LogRow>> {
+            Box::pin(async move { Ok(Vec::new()) })
+        }
+        fn run_q7<'a>(&'a self, _w: Duration) -> SqlFuture<'a, Vec<Q7CriticalPathRow>> {
+            Box::pin(async move { Ok(Vec::new()) })
+        }
+    }
+
+    struct CannedCorpusSource {
+        candidates: Vec<Incident>,
+        fail: bool,
+    }
+
+    impl CorpusIncidentSource for CannedCorpusSource {
+        fn load_candidates<'a>(
+            &'a self,
+            _workspace: &'a str,
+            _since_unix_nano: i64,
+        ) -> RetrievalFuture<'a, Vec<Incident>> {
+            let fail = self.fail;
+            let candidates = self.candidates.clone();
+            Box::pin(async move {
+                if fail {
+                    Err(RetrievalError::SourceFailed)
+                } else {
+                    Ok(candidates)
+                }
+            })
+        }
+    }
+
+    fn past_incident(
+        id: i64,
+        fingerprint: &str,
+        scope_id: Option<&str>,
+        title: &str,
+        opened_at: i64,
+    ) -> Incident {
+        Incident {
+            id,
+            workspace: "/ws/project".to_string(),
+            fingerprint: fingerprint.to_string(),
+            title: title.to_string(),
+            detail: String::new(),
+            kind: CueKind::ErrorRateSpike,
+            scope: CueScope::Service,
+            scope_id: scope_id.map(str::to_string),
+            status: IncidentStatus::Active,
+            severity: Severity::Info,
+            priority_tier: PriorityTier::Curious,
+            evidence_refs: EvidenceRefs {
+                trace_id: None,
+                span_ids: vec![],
+                fingerprint_hashes: vec![],
+                timestamps_unix_nano: vec![],
+            },
+            opened_at_unix_nano: opened_at,
+            updated_at_unix_nano: opened_at,
+            acknowledged_at_unix_nano: None,
+            resolved_at_unix_nano: None,
+            read_at_unix_nano: None,
+            resolution_summary_text: None,
+        }
+    }
+
+    fn q1_row(service: &str) -> Q1RedRow {
+        Q1RedRow {
+            service_name: service.to_string(),
+            request_count: 60,
+            error_count: 0,
+            error_rate: 0.0,
+            p50_ns: 1_000_000,
+            p95_ns: 2_000_000,
+            p99_ns: 3_000_000,
+        }
+    }
+
+    fn make_assembler(
+        q1: Vec<Q1RedRow>,
+        q3: Vec<Q3FingerprintRow>,
+        scrub: Arc<dyn Fn(&str) -> String + Send + Sync>,
+        source: Arc<dyn CorpusIncidentSource>,
+    ) -> Assembler {
+        let tokenizer =
+            Arc::new(Tokenizer::from_bytes(TOKENIZER_BYTES).expect("embedded tokenizer fixture"));
+        Assembler::with_tokenizer(
+            tokenizer,
+            Arc::new(CannedSqlRunner { q1, q3 }),
+            Arc::new(InMemoryIncidentRegistry::new()),
+            Arc::new(DigestBroadcast::new()),
+            Arc::new(Mutex::new(LwwQueue::new())),
+            scrub,
+            source,
+        )
+    }
+
+    fn project_context() -> DigestProjectContext {
+        DigestProjectContext {
+            workspace_canonical_path: "/ws/project".to_string(),
+            project_name: Some("project".to_string()),
+            vcs_type: Some("git"),
+            recent_commits: Vec::new(),
+            framework_signals: Vec::new(),
+        }
+    }
+
+    const NOW: i64 = 1_700_000_000_000_000_000;
+
+    #[tokio::test]
+    async fn assemble_populates_corpus_matches_from_fingerprint_match() {
+        let fp_bytes = vec![0xAAu8; 16];
+        let fp_hex = "aa".repeat(16);
+        let q3 = vec![Q3FingerprintRow {
+            fingerprint: fp_bytes,
+            occurrences: 3,
+            first_seen: NOW - 1_000,
+            last_seen: NOW,
+        }];
+        let candidate = past_incident(1, &fp_hex, None, "[redacted] prior incident", NOW - 1_000);
+        let assembler = make_assembler(
+            vec![],
+            q3,
+            Arc::new(|s: &str| s.to_string()),
+            Arc::new(CannedCorpusSource {
+                candidates: vec![candidate],
+                fail: false,
+            }),
+        );
+        let digest = assembler
+            .assemble(
+                CadenceMode::Tier2,
+                None,
+                &project_context(),
+                NOW,
+                Duration::from_secs(60),
+            )
+            .await
+            .expect("assemble succeeds");
+        assert_eq!(digest.corpus_matches.len(), 1);
+        assert!(digest.corpus_matches[0].contains(&fp_hex));
+        assert!(digest.corpus_matches[0].contains("prior incident"));
+        assert!(digest.payload_summary.contains("CORPUS MATCHES:"));
+    }
+
+    #[tokio::test]
+    async fn assemble_matches_on_q1_service_scope_when_fingerprints_differ() {
+        let q1 = vec![q1_row("svc-api")];
+        let candidate = past_incident(
+            2,
+            "ffff0000ffff0000ffff0000ffff0000",
+            Some("svc-api"),
+            "[redacted] scoped incident",
+            NOW - 2_000,
+        );
+        let assembler = make_assembler(
+            q1,
+            vec![],
+            Arc::new(|s: &str| s.to_string()),
+            Arc::new(CannedCorpusSource {
+                candidates: vec![candidate],
+                fail: false,
+            }),
+        );
+        let digest = assembler
+            .assemble(
+                CadenceMode::Tier2,
+                None,
+                &project_context(),
+                NOW,
+                Duration::from_secs(60),
+            )
+            .await
+            .expect("assemble succeeds");
+        assert_eq!(digest.corpus_matches.len(), 1);
+        assert!(digest.corpus_matches[0].contains("scoped incident"));
+    }
+
+    #[tokio::test]
+    async fn assemble_degrades_to_empty_matches_on_retrieval_error() {
+        let assembler = make_assembler(
+            vec![],
+            vec![],
+            Arc::new(|s: &str| s.to_string()),
+            Arc::new(CannedCorpusSource {
+                candidates: vec![],
+                fail: true,
+            }),
+        );
+        let digest = assembler
+            .assemble(
+                CadenceMode::Tier2,
+                None,
+                &project_context(),
+                NOW,
+                Duration::from_secs(60),
+            )
+            .await
+            .expect("assemble still succeeds on retrieval failure");
+        assert!(digest.corpus_matches.is_empty());
+        assert!(!digest.payload_summary.contains("CORPUS MATCHES:"));
+    }
+
+    #[tokio::test]
+    async fn assemble_with_noop_source_yields_empty_matches() {
+        let assembler = make_assembler(
+            vec![],
+            vec![],
+            Arc::new(|s: &str| s.to_string()),
+            Arc::new(NoopCorpusIncidentSource),
+        );
+        let digest = assembler
+            .assemble(
+                CadenceMode::Tier1,
+                None,
+                &project_context(),
+                NOW,
+                Duration::from_secs(60),
+            )
+            .await
+            .expect("assemble succeeds");
+        assert!(digest.corpus_matches.is_empty());
+    }
+
+    #[tokio::test]
+    async fn assemble_routes_corpus_match_lines_through_scrub_closure() {
+        let fp_hex = "bb".repeat(16);
+        let q3 = vec![Q3FingerprintRow {
+            fingerprint: vec![0xBBu8; 16],
+            occurrences: 1,
+            first_seen: NOW - 1_000,
+            last_seen: NOW,
+        }];
+        let candidate = past_incident(3, &fp_hex, None, "title-with-CANARY-token", NOW - 1_000);
+        let assembler = make_assembler(
+            vec![],
+            q3,
+            Arc::new(|s: &str| s.replace("CANARY", "[scrubbed]")),
+            Arc::new(CannedCorpusSource {
+                candidates: vec![candidate],
+                fail: false,
+            }),
+        );
+        let digest = assembler
+            .assemble(
+                CadenceMode::Tier2,
+                None,
+                &project_context(),
+                NOW,
+                Duration::from_secs(60),
+            )
+            .await
+            .expect("assemble succeeds");
+        assert_eq!(digest.corpus_matches.len(), 1);
+        assert!(digest.corpus_matches[0].contains("[scrubbed]"));
+        assert!(!digest.corpus_matches[0].contains("CANARY"));
+    }
+
+    #[test]
+    fn render_payload_includes_five_recent_commits_per_p032() {
+        let mut ctx = project_context();
+        ctx.recent_commits = (1..=6)
+            .map(|i| DigestRecentCommit {
+                basename: format!("commit-{i}"),
+                age_seconds: i * 60,
+                files_changed_count: 1,
+            })
+            .collect();
+        let rendered = render_payload(
+            Duration::from_secs(60),
+            "tier2",
+            &ctx,
+            &[],
+            &[],
+            &[],
+            &[],
+            false,
+        );
+        for i in 1..=5 {
+            assert!(
+                rendered.contains(&format!("commit-{i}")),
+                "commit-{i} must render (spec P-032 last-5)"
+            );
+        }
+        assert!(
+            !rendered.contains("commit-6"),
+            "render caps at 5 commits per spec P-032"
+        );
+    }
+
+    #[test]
+    fn hex_lower_encodes_q3_fingerprint_bytes() {
+        assert_eq!(hex_lower(&[0xAA, 0x0F, 0x00]), "aa0f00");
+    }
 }

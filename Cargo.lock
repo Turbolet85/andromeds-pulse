@@ -5405,6 +5405,7 @@ dependencies = [
  "mcp-server",
  "plugins",
  "prost",
+ "pulldown-cmark",
  "reqwest 0.12.28",
  "security",
  "serde",

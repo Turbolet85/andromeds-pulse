@@ -68,6 +68,10 @@ tempfile = "3"
 rstest = "0.26"
 proptest = "1.10"
 assert_fs = "1.1"
+# Dev-only CommonMark parser for the P-038 structural markdown assert
+# (capability spec §P-038 Conductor clause: "verify markdown validates
+# against CommonMark parser"). Chunk #100; never enters production builds.
+pulldown-cmark = { version = "0.13", default-features = false }
 
 # OTLP HTTP receiver (route#17 — Epoch 2 Ingest pipeline continues).
 # axum 0.8 on hyper 1 + tower per arch §Stack + §Established Decisions

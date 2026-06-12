@@ -81,7 +81,11 @@ pub fn evaluate_thresholds(
     // division-explosion magnitudes; the floor degrades gracefully into
     // the prior fixed-baseline behavior before convergence.
     for snapshot in state.iter_operations(thresholds.latency_percentile) {
-        if snapshot.samples < thresholds.min_ewma_samples {
+        // P-011 §Boundary: operations with <50 samples over the window are
+        // excluded from regression detection (unreliable percentile
+        // estimates). Distinct from the error-rate path's 10-sample EWMA
+        // warm-up gate above (which belongs to P-009).
+        if snapshot.samples < thresholds.min_latency_samples {
             continue;
         }
         let Some(latency_short) = snapshot.short_term_latency_at_percentile else {
@@ -329,6 +333,86 @@ mod tests {
         // baseline = max(long_p99=50, base_latency_ms=100) = 100;
         // magnitude = 300/100 = 3.0; above 2.5 multiplier.
         assert!(cue.magnitude >= 2.5, "magnitude = {}", cue.magnitude);
+    }
+
+    /// Seed the chunk #73 spike shape (baseline obs at 50ms → two t-digest
+    /// swap cycles → 5 spike obs at 300ms) with a configurable baseline
+    /// count so floor-gate tests can sit on either side of
+    /// `min_latency_samples`.
+    fn seed_latency_spike(state: &BaselineState, service: &str, baseline_obs: u32) -> i64 {
+        let mut now = 1_000_000_000_i64;
+        for _ in 0..baseline_obs {
+            state.observe_span(service, "GET /endpoint", 0, 50, now);
+            now += 1_000_000;
+        }
+        now += 16 * NANOS_PER_SEC;
+        state.swap_short_tdigest_pairs_on_tick(now);
+        now += 16 * NANOS_PER_SEC;
+        state.swap_short_tdigest_pairs_on_tick(now);
+        for _ in 0..5 {
+            state.observe_span(service, "GET /endpoint", 0, 300, now);
+            now += 1_000_000;
+        }
+        now
+    }
+
+    #[test]
+    fn latency_gate_excludes_operations_below_min_latency_samples() {
+        // 30 baseline + 5 spike = 35 samples: above the error-rate EWMA
+        // floor (10) but below the P-011 latency floor (50). Under the
+        // pre-chunk-#100 shared floor of 10 this spike WOULD have emitted;
+        // the distinct 50-sample floor must suppress it.
+        let state = BaselineState::new();
+        let now = seed_latency_spike(&state, "svc-sparse", 30);
+        let cues = evaluate_thresholds(&state, &Thresholds::default(), now);
+        let latency_cues: Vec<&AttentionCue> = cues
+            .iter()
+            .filter(|c| c.kind == CueKind::LatencyRegression)
+            .collect();
+        assert!(
+            latency_cues.is_empty(),
+            "35 samples < min_latency_samples (50) must be excluded; got {latency_cues:?}"
+        );
+    }
+
+    #[test]
+    fn latency_gate_admits_operations_at_min_latency_samples() {
+        // 500 baseline + 5 spike = 505 samples ≥ the P-011 floor of 50 →
+        // the spike shape emits. The baseline count must keep the spike
+        // below the long-window p99 position (5/505 < 1%) so long_p99
+        // stays at the 50ms baseline — at 50 baseline obs the 5 spike obs
+        // would BE the long p99 (5/55 ≈ 9%) and self-suppress the cue.
+        let state = BaselineState::new();
+        let now = seed_latency_spike(&state, "svc-dense", 500);
+        let cues = evaluate_thresholds(&state, &Thresholds::default(), now);
+        let latency_cues: Vec<&AttentionCue> = cues
+            .iter()
+            .filter(|c| c.kind == CueKind::LatencyRegression)
+            .collect();
+        assert_eq!(
+            latency_cues.len(),
+            1,
+            "55 samples ≥ min_latency_samples (50) must emit; got {cues:?}"
+        );
+    }
+
+    #[test]
+    fn error_rate_floor_stays_at_ten_samples_distinct_from_latency_floor() {
+        // 20 samples (10 tail errors): above the error-rate EWMA floor (10),
+        // below the latency floor (50). The error-rate cue must still fire —
+        // regression guard that the P-011 fix did NOT widen the error path's
+        // warm-up gate.
+        let state = BaselineState::new();
+        seed_service(&state, "svc-mid", 10, 20);
+        let cues = evaluate_thresholds(&state, &Thresholds::default(), 1_000);
+        assert!(
+            cues.iter().any(|c| c.kind == CueKind::ErrorRateSpike),
+            "error-rate path keeps its 10-sample floor; got {cues:?}"
+        );
+        assert!(
+            !cues.iter().any(|c| c.kind == CueKind::LatencyRegression),
+            "20 samples stay below the latency floor"
+        );
     }
 
     #[test]

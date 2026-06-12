@@ -151,9 +151,9 @@ Pulse SHALL identify log records with `SeverityNumber ≥ 17` (ERROR and above p
 
 Pulse SHALL distinguish error spans where the root span of the trace carries ERROR status from error spans deeper in the trace. Root-span errors indicate complete request failure; deeper-span errors may represent handled internal failures that did not propagate.
 
-**Observable:** Root-span errors weight more heavily in severity calculation, making incident surfacing more likely. Diagnostic Report explicitly distinguishes these cases when describing impact scope.
+**Observable:** Root-vs-deep distinction is detected deterministically at the L1a aggregation layer (root identification via parent-span absence) and surfaced to the model as a fact in its interpretation context; the severity WEIGHTING of root vs deep errors is model-side per P-020 (no deterministic multiplier exists). Diagnostic Report explicitly distinguishes these cases when describing impact scope.
 
-**Conductor verification:** Emit traces where (a) only an internal child span has ERROR status, root succeeds; (b) child span has ERROR and root has ERROR. Verify (b) produces higher severity than (a) for equivalent counts.
+**Conductor verification:** Emit traces where (a) only an internal child span has ERROR status, root succeeds; (b) child span has ERROR and root has ERROR. Treat the severity comparison as a calibration-region check: (b) should TEND to produce equal-or-higher model-assessed severity than (a) for equivalent counts (model-interpretive tendency per P-020, not a hard deterministic assert).
 
 **Boundary:** Trace assembly relies on standard W3C TraceContext propagation.
 
@@ -251,13 +251,13 @@ Pulse SHALL suppress only short-persistence (<30 second) ErrorRateSpike candidat
 
 ### P-017 — Exception Fingerprinting
 
-Pulse SHALL compute stable fingerprints for exceptions consisting of cryptographic hash over `exception.type` plus first three stack frames after normalization (paths stripped to relative form, memory addresses removed, line numbers preserved). Fingerprints SHALL be stable across application restarts but distinguish materially different exception sites.
+Pulse SHALL compute stable fingerprints for exceptions consisting of cryptographic hash over `exception.type` plus first three stack frames after normalization (paths stripped to relative form, memory addresses removed, line and column numbers stripped). Fingerprints SHALL be stable across application restarts AND across trivial line-number shifts (code edits that move a frame without changing the logical frame sequence), but distinguish materially different exception sites.
 
 **Observable signal:** No direct user signal; identifier infrastructure for P-018 and corpus learning (P-044).
 
-**Conductor verification:** Inject exception sequences with (a) identical type and stack — verify identical fingerprint; (b) same type, different file paths but same logical location — verify identical fingerprint (path normalization); (c) same type, different line numbers — verify different fingerprints.
+**Conductor verification:** Inject exception sequences with (a) identical type and stack — verify identical fingerprint; (b) same type, different file paths but same logical location — verify identical fingerprint (path normalization); (c) same type, same logical frames, different line numbers — verify IDENTICAL fingerprint (line-number insensitivity).
 
-**Boundary:** Fingerprinting is intentionally tolerant to path differences but strict on logical location.
+**Boundary:** Fingerprinting is intentionally tolerant to path AND line-number differences but strict on logical frame identity (`exception.type` + normalized frame sequence) — stability across trivial shifts is what P-018 retry-storm counting requires.
 
 ### P-018 — Retry Storm Detection
 
@@ -797,6 +797,19 @@ This document is the foundational baseline for:
 ---
 
 ## Changelog
+
+### v2.1 — 2026-06-12
+
+Divergence-sync revision per the post-#99 capability audit
+(`docs/v0_2_0/pulse-v0_2_0-capability-audit-2026-06-12.md` F2, remediation
+defaults 2-3) — two spec-side amendments where implementation reality is the
+better engineering; applied at chunk #100 via /andromeda-implement with
+amendment markers (Trigger 4 ceremony):
+
+- **P-008 — Root-Span Error Scope Distinction.** Observable reworded: root-vs-deep is detected deterministically (L1a Q7 `parent_span_id IS NULL`) and surfaced to the model as a *fact*; severity WEIGHTING is model-side per P-020 — no deterministic multiplier. Conductor clause becomes a calibration-region check (tendency, not hard assert). Amendment record: `.andromeda/runs/2026-06-12T18-52-00-spec-amendment-p008-root-weighting-model-side/amendment.md`.
+- **P-017 — Exception Fingerprinting.** "Line numbers preserved" → line/column numbers STRIPPED during normalization; Conductor clause (c) inverted (same logical frames + different line numbers → IDENTICAL fingerprint); Boundary reworded — stability across trivial line shifts is what P-018 storm counting requires. Amendment record: `.andromeda/runs/2026-06-12T18-51-27-spec-amendment-p017-line-insensitive-fingerprints/amendment.md`.
+
+**Total capability count:** unchanged (60 across 11 categories).
 
 ### v2 — 2026-05-14
 

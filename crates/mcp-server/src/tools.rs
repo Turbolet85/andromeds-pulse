@@ -22,12 +22,17 @@ use std::time::Instant;
 
 use corpus::contract::{CorpusWriter, IncidentRowRaw};
 use duckdb::Connection;
-use interpretation::markdown::{assemble_report, serialize_report};
+use interpretation::markdown::{
+    PreviouslySeenMatch, assemble_report, previously_seen_from_incidents, serialize_report,
+};
 use interpretation::schema::L4Output;
 use serde::Deserialize;
 use serde_json::{Value, json};
 use snapshot::contract::{SpanRecord, TokenBudget, curate, format_markdown};
-use triage::contract::Incident;
+use triage::contract::{
+    CORPUS_RETRIEVAL_WINDOW_SECONDS, DIGEST_CORPUS_RETRIEVAL_LIMIT, Incident,
+    select_previously_seen,
+};
 use viz::query::{
     LIMIT_DEFAULT, LIMIT_MAX, LogsQueryArgs, MetricsQueryArgs, TracesQueryArgs, query_logs,
     query_metrics, query_traces,
@@ -362,10 +367,46 @@ fn dispatch_retrieve_report(
         .and_then(|text| serde_json::from_str::<L4Output>(text).ok());
     let degraded_mode = parsed_l4.is_none();
     // Same assemble_report + serialize_report path the in-app
-    // incidents.get_report resolver uses — P-038 byte-identical delivery.
-    let report = assemble_report(&incident, parsed_l4.as_ref());
+    // incidents.get_report resolver uses — P-038 byte-identical delivery,
+    // including the P-036 previously-seen selection over the same corpus
+    // candidates + the same selection helper.
+    let previously_seen = load_previously_seen(ctx, &incident);
+    let report = assemble_report(&incident, parsed_l4.as_ref(), previously_seen);
     let markdown = serialize_report(&report);
     Ok(json!({ "markdown": markdown, "degraded_mode": degraded_mode }))
+}
+
+/// P-036 candidate retrieval for the sidecar's `retrieve_report`. Mirrors
+/// the in-app resolver: same workspace, last 30 days, fingerprint/scope
+/// match, top-5. Any failure (query or per-row decode) degrades to an
+/// empty section — history never blocks report delivery.
+fn load_previously_seen(
+    ctx: &IncidentToolContext,
+    incident: &Incident,
+) -> Vec<PreviouslySeenMatch> {
+    let since = current_unix_nanos()
+        .saturating_sub(CORPUS_RETRIEVAL_WINDOW_SECONDS.saturating_mul(1_000_000_000));
+    let Ok(rows) = ctx
+        .corpus
+        .load_incidents_for_workspace_since(&incident.workspace, since)
+    else {
+        return Vec::new();
+    };
+    let mut candidates = Vec::with_capacity(rows.len());
+    for row in &rows {
+        let Ok(mut candidate) = bincode::deserialize::<Incident>(&row.payload) else {
+            return Vec::new();
+        };
+        candidate.id = row.id;
+        candidate.workspace = row.workspace.clone();
+        candidate.opened_at_unix_nano = row.created_unix_nano;
+        candidates.push(candidate);
+    }
+    previously_seen_from_incidents(&select_previously_seen(
+        incident,
+        candidates,
+        DIGEST_CORPUS_RETRIEVAL_LIMIT,
+    ))
 }
 
 fn dispatch_retrieve_telemetry_slice(

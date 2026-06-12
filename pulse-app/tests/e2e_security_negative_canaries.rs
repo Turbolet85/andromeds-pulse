@@ -252,3 +252,80 @@ fn security_workspace_wide_loopback_only_no_non_loopback_bind_literals() {
         hits.join("\n")
     );
 }
+
+/// P-035 excerpt structure-preservation (chunk #100 capability-audit
+/// gap-fill): telemetry excerpts in Reports pass the anonymization layer
+/// — PII canaries are scrubbed — while the span/fingerprint STRUCTURE of
+/// the excerpt survives intact (spec P-035 Conductor clause: "verify
+/// Report excerpts have these scrubbed; verify span structure is
+/// preserved"). Drives the degraded assemble_report branch whose
+/// excerpts derive from EvidenceRefs.
+#[test]
+fn security_p035_report_excerpts_scrub_pii_and_preserve_span_structure() {
+    use interpretation::markdown::{assemble_report, serialize_report};
+    use triage::contract::{
+        CueKind, CueScope, EvidenceRefs, Incident, IncidentStatus, PriorityTier, Severity,
+    };
+
+    let email_canary = "leak-canary@example.com";
+    let incident = Incident {
+        id: 9,
+        workspace: "ws-p035".to_string(),
+        fingerprint: "fp-structure-1".to_string(),
+        title: format!("timeout reports from {email_canary}"),
+        detail: format!("user {email_canary} saw repeated 504s"),
+        kind: CueKind::ErrorRateSpike,
+        scope: CueScope::Service,
+        scope_id: Some("svc-p035".to_string()),
+        status: IncidentStatus::Active,
+        severity: Severity::Warn,
+        priority_tier: PriorityTier::Suggested,
+        evidence_refs: EvidenceRefs {
+            trace_id: None,
+            span_ids: vec![[1, 2, 3, 4, 5, 6, 7, 8]],
+            fingerprint_hashes: vec!["fp-structure-1".to_string()],
+            timestamps_unix_nano: vec![1_700_000_000_000],
+        },
+        opened_at_unix_nano: 1_700_000_000_000,
+        updated_at_unix_nano: 1_700_000_000_000,
+        acknowledged_at_unix_nano: None,
+        resolved_at_unix_nano: None,
+        read_at_unix_nano: None,
+        resolution_summary_text: None,
+    };
+
+    let report = assemble_report(&incident, None, Vec::new());
+    let md = serialize_report(&report);
+
+    // Structure preserved: the span excerpt keeps its `span:{hex}` shape
+    // and the fingerprint excerpt keeps its `fp:` prefix end-to-end.
+    assert!(
+        report
+            .evidence_refs
+            .iter()
+            .any(|r| r == "span:0102030405060708"),
+        "span excerpt structure must survive scrubbing; got {:?}",
+        report.evidence_refs
+    );
+    assert!(
+        report
+            .evidence_refs
+            .iter()
+            .any(|r| r == "fp:fp-structure-1"),
+        "fingerprint excerpt structure must survive scrubbing; got {:?}",
+        report.evidence_refs
+    );
+    assert!(md.contains("span:0102030405060708"));
+    assert!(md.contains("fp:fp-structure-1"));
+
+    // Anonymization: the PII canary is redacted everywhere in the
+    // rendered report (rides P-047 + the projection-time scrub).
+    assert!(
+        !md.contains(email_canary),
+        "email canary must not survive into the report markdown:\n{md}"
+    );
+    assert!(
+        md.contains("[redacted:"),
+        "redaction marker must replace the canary:\n{md}"
+    );
+}

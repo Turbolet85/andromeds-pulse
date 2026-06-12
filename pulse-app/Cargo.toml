@@ -67,6 +67,7 @@ prost.workspace = true
 reqwest.workspace = true
 arrow.workspace = true
 assert_fs.workspace = true
+pulldown-cmark.workspace = true
 
 [features]
 default = []

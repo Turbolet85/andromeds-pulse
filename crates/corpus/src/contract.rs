@@ -249,6 +249,18 @@ pub trait CorpusWriter: Send + Sync {
         layer: &str,
     ) -> Result<Option<Vec<u8>>, Error>;
 
+    /// DELETE `pipeline_metrics` rows older than `cutoff_unix_nano`,
+    /// PRESERVING the newest row per `(metric_name, layer)` series even
+    /// when that row predates the cutoff (P-041 30-day retention
+    /// enforcement). The preservation guard is load-bearing: baseline /
+    /// Drain / storm snapshots are rows in this table and
+    /// [`Self::load_pipeline_metric`] reads latest-per-series — a naive
+    /// cutoff DELETE after >30 days of idle would destroy the only
+    /// snapshot and break P-009 restart restoration. Returns the number
+    /// of rows deleted. Prepared statement with `?` placeholder per
+    /// security plan §Input Validation.
+    fn purge_pipeline_metrics_older_than(&self, cutoff_unix_nano: i64) -> Result<u64, Error>;
+
     /// UPSERT a `service_registry` row (chunk #71). Used by the
     /// lifecycle persistence adapter at `pulse-app/src/lifecycle_persistence.rs`
     /// to persist the in-memory DashMap-backed `InMemoryServiceRegistry`
@@ -330,19 +342,33 @@ pub trait CorpusWriter: Send + Sync {
     /// chunk #78 ships the schema + write path).
     fn mark_incident_read(&self, id: i64, read_unix_nano: i64) -> Result<(), Error>;
 
-    /// SELECT all active (non-Resolved) incidents для а workspace, ordered
-    /// по rowid ascending (creation order). Returns decrypted `payload`
+    /// SELECT all active (non-Resolved) incidents for a workspace, ordered
+    /// by rowid ascending (creation order). Returns decrypted `payload`
     /// bytes per row. Empty Vec when the workspace has no active
     /// incidents; caller hydrates the in-memory registry from this set
     /// at boot.
     fn load_active_incidents(&self, workspace: &str) -> Result<Vec<IncidentRowRaw>, Error>;
 
-    /// SELECT a single incident по rowid regardless of status. Returns
+    /// SELECT incidents for a workspace created at or after
+    /// `since_unix_nano`, any status, ordered by rowid ascending (P-044
+    /// retrieval candidate query). SQL filters the plaintext metadata
+    /// columns only (workspace + created_unix_nano); fingerprint/scope
+    /// matching happens post-decode at the binary boundary because those
+    /// fields live inside the encrypted payload BLOB. Returns decrypted
+    /// `payload` bytes per row. Prepared statement with `?` placeholders
+    /// per security plan §Input Validation.
+    fn load_incidents_for_workspace_since(
+        &self,
+        workspace: &str,
+        since_unix_nano: i64,
+    ) -> Result<Vec<IncidentRowRaw>, Error>;
+
+    /// SELECT a single incident by rowid regardless of status. Returns
     /// `Ok(None)` when no row matches. Decrypts the `payload` BLOB.
     /// Consumed cross-process by the MCP `retrieve_report(id)` /
     /// `mark_incident_resolved(id)` tools (chunk #94) — the sidecar reads
     /// corpus.db directly since it has no handle on the main process's
-    /// in-memory registry. Prepared statement с `?` placeholder per
+    /// in-memory registry. Prepared statement with `?` placeholder per
     /// security plan §Input Validation.
     fn load_incident_by_id(&self, id: i64) -> Result<Option<IncidentRowRaw>, Error>;
 
@@ -356,7 +382,7 @@ pub trait CorpusWriter: Send + Sync {
     fn load_all_incidents(&self) -> Result<Vec<IncidentRowRaw>, Error>;
 
     /// P-045 counter SQL: returns the count of active + unread incidents
-    /// для а workspace (`status = 'active' AND read_unix_nano IS NULL`).
+    /// for a workspace (`status = 'active' AND read_unix_nano IS NULL`).
     /// SQL-only path; does NOT decrypt payloads. Fast counter для
     /// findings dropdown display.
     fn count_active_unread(&self, workspace: &str) -> Result<u64, Error>;
@@ -377,7 +403,7 @@ pub trait CorpusWriter: Send + Sync {
     /// assembler). `payload` is bincode-serialized plaintext-bytes of
     /// the triage `Digest` struct; encrypted via AES-256-GCM per the
     /// cell-level discipline before write. Returns the auto-assigned
-    /// SQLite rowid. Prepared statement с `?` placeholders per security
+    /// SQLite rowid. Prepared statement with `?` placeholders per security
     /// plan §Input Validation.
     ///
     /// Producer-side PII scrubbing rule (chunk #72 uniform coverage):
@@ -387,9 +413,9 @@ pub trait CorpusWriter: Send + Sync {
     /// NOT double-scrub the BLOB payload — see trait docstring above.
     ///
     /// Workspace filtering happens at read-time post-decryption (the
-    /// digest_archive schema lacks а workspace column at chunk #81; the
+    /// digest_archive schema lacks a workspace column at chunk #81; the
     /// workspace field is embedded в the bincode payload). Future
-    /// schema migration v1 → v2 may add а workspace column for SQL-side
+    /// schema migration v1 → v2 may add a workspace column for SQL-side
     /// filtering — deferred к chunk #82+ retrieval implementation.
     fn save_digest(
         &self,
@@ -443,6 +469,23 @@ impl CorpusWriter for Corpus {
             }
             None => Ok(None),
         }
+    }
+
+    fn purge_pipeline_metrics_older_than(&self, cutoff_unix_nano: i64) -> Result<u64, Error> {
+        let conn = self.connection();
+        let guard = conn.lock().map_err(|_| Error::QueryFailed)?;
+        // The inner SELECT uses SQLite's documented bare-column-with-MAX
+        // semantics: `id` resolves to the row holding the per-series
+        // MAX(snapshot_unix_nano) — exactly the row `load_pipeline_metric`
+        // (ORDER BY snapshot_unix_nano DESC LIMIT 1) would return.
+        let deleted = guard
+            .execute(
+                "DELETE FROM pipeline_metrics WHERE snapshot_unix_nano < ?1 AND id NOT IN \
+                 (SELECT id FROM (SELECT id, MAX(snapshot_unix_nano) FROM pipeline_metrics GROUP BY metric_name, layer))",
+                rusqlite::params![cutoff_unix_nano],
+            )
+            .map_err(|_| Error::QueryFailed)?;
+        Ok(deleted as u64)
     }
 
     fn save_service_registry_row(
@@ -587,6 +630,53 @@ impl CorpusWriter for Corpus {
             .map_err(|_| Error::QueryFailed)?;
         let rows = stmt
             .query_map(rusqlite::params![workspace], |row| {
+                let encrypted: Vec<u8> = row.get(7)?;
+                Ok((
+                    row.get::<_, i64>(0)?,
+                    row.get::<_, String>(1)?,
+                    row.get::<_, String>(2)?,
+                    row.get::<_, i64>(3)?,
+                    row.get::<_, i64>(4)?,
+                    row.get::<_, Option<i64>>(5)?,
+                    row.get::<_, Option<i64>>(6)?,
+                    encrypted,
+                ))
+            })
+            .map_err(|_| Error::QueryFailed)?;
+        let mut result = Vec::new();
+        for row in rows {
+            let (id, workspace, status, created, updated, resolved, read, encrypted) =
+                row.map_err(|_| Error::QueryFailed)?;
+            let payload = cell_decrypt(self.key(), &encrypted)?;
+            result.push(IncidentRowRaw {
+                id,
+                workspace,
+                status,
+                created_unix_nano: created,
+                updated_unix_nano: updated,
+                resolved_unix_nano: resolved,
+                read_unix_nano: read,
+                payload,
+            });
+        }
+        Ok(result)
+    }
+
+    fn load_incidents_for_workspace_since(
+        &self,
+        workspace: &str,
+        since_unix_nano: i64,
+    ) -> Result<Vec<IncidentRowRaw>, Error> {
+        let conn = self.connection();
+        let guard = conn.lock().map_err(|_| Error::QueryFailed)?;
+        let mut stmt = guard
+            .prepare(
+                "SELECT id, workspace, status, created_unix_nano, updated_unix_nano, resolved_unix_nano, read_unix_nano, payload \
+                 FROM incidents WHERE workspace = ?1 AND created_unix_nano >= ?2 ORDER BY id",
+            )
+            .map_err(|_| Error::QueryFailed)?;
+        let rows = stmt
+            .query_map(rusqlite::params![workspace, since_unix_nano], |row| {
                 let encrypted: Vec<u8> = row.get(7)?;
                 Ok((
                     row.get::<_, i64>(0)?,
@@ -1119,5 +1209,117 @@ mod tests {
         assert_eq!(rows[1].status, "resolved");
         assert_eq!(rows[1].resolved_unix_nano, Some(3_000));
         assert_eq!(rows[1].payload, b"blob-2");
+    }
+
+    #[test]
+    fn load_incidents_for_workspace_since_filters_workspace_and_cutoff() {
+        let corpus = test_corpus();
+        corpus
+            .save_incident("ws-a", "active", 1_000, 1_000, None, None, b"old-a")
+            .expect("save old ws-a");
+        let recent_a = corpus
+            .save_incident("ws-a", "active", 5_000, 5_000, None, None, b"recent-a")
+            .expect("save recent ws-a");
+        corpus
+            .save_incident("ws-b", "active", 5_000, 5_000, None, None, b"recent-b")
+            .expect("save recent ws-b");
+        let rows = corpus
+            .load_incidents_for_workspace_since("ws-a", 2_000)
+            .expect("load");
+        assert_eq!(rows.len(), 1);
+        assert_eq!(rows[0].id, recent_a);
+        assert_eq!(rows[0].workspace, "ws-a");
+        assert_eq!(rows[0].payload, b"recent-a");
+    }
+
+    #[test]
+    fn load_incidents_for_workspace_since_includes_resolved_and_boundary_row() {
+        let corpus = test_corpus();
+        let id = corpus
+            .save_incident(
+                "ws-a",
+                "resolved",
+                2_000,
+                3_000,
+                Some(3_000),
+                None,
+                b"resolved-blob",
+            )
+            .expect("save resolved");
+        let rows = corpus
+            .load_incidents_for_workspace_since("ws-a", 2_000)
+            .expect("load");
+        assert_eq!(rows.len(), 1, "created == since boundary row is included");
+        assert_eq!(rows[0].id, id);
+        assert_eq!(rows[0].status, "resolved");
+    }
+
+    /// Seed a pipeline_metrics row with an explicit timestamp
+    /// (timestamps-as-data per test-plan §7; `save_pipeline_metric`
+    /// stamps system time so purge-boundary tests insert directly).
+    fn insert_pipeline_metric_at(
+        corpus: &Corpus,
+        metric_name: &str,
+        layer: &str,
+        snapshot_unix_nano: i64,
+        payload: &[u8],
+    ) {
+        let encrypted = cell_encrypt(corpus.key(), payload).expect("encrypt");
+        let conn = corpus.connection();
+        let guard = conn.lock().expect("lock");
+        guard
+            .execute(
+                "INSERT INTO pipeline_metrics (metric_name, layer, snapshot_unix_nano, payload) VALUES (?1, ?2, ?3, ?4)",
+                rusqlite::params![metric_name, layer, snapshot_unix_nano, &encrypted[..]],
+            )
+            .expect("insert seeded row");
+    }
+
+    #[test]
+    fn purge_pipeline_metrics_deletes_old_rows_and_keeps_recent() {
+        let corpus = test_corpus();
+        insert_pipeline_metric_at(&corpus, "m1", "l1b", 100, b"old-1");
+        insert_pipeline_metric_at(&corpus, "m1", "l1b", 200, b"old-2");
+        insert_pipeline_metric_at(&corpus, "m1", "l1b", 9_000, b"recent");
+        insert_pipeline_metric_at(&corpus, "m2", "l1c", 8_000, b"other-series");
+        let deleted = corpus
+            .purge_pipeline_metrics_older_than(1_000)
+            .expect("purge");
+        assert_eq!(deleted, 2, "both stale non-latest m1 rows deleted");
+        let m1 = corpus
+            .load_pipeline_metric("m1", "l1b")
+            .expect("load m1")
+            .expect("latest m1 row survives");
+        assert_eq!(m1, b"recent");
+        let m2 = corpus
+            .load_pipeline_metric("m2", "l1c")
+            .expect("load m2")
+            .expect("untouched series survives");
+        assert_eq!(m2, b"other-series");
+    }
+
+    #[test]
+    fn purge_pipeline_metrics_preserves_latest_row_per_series_even_when_stale() {
+        let corpus = test_corpus();
+        insert_pipeline_metric_at(&corpus, "baseline_state", "l1b", 100, b"older");
+        insert_pipeline_metric_at(&corpus, "baseline_state", "l1b", 200, b"latest-but-stale");
+        let deleted = corpus
+            .purge_pipeline_metrics_older_than(1_000)
+            .expect("purge");
+        assert_eq!(deleted, 1, "only the non-latest stale row is deleted");
+        let survivor = corpus
+            .load_pipeline_metric("baseline_state", "l1b")
+            .expect("load")
+            .expect("latest row preserved despite predating the cutoff");
+        assert_eq!(survivor, b"latest-but-stale");
+    }
+
+    #[test]
+    fn purge_pipeline_metrics_returns_zero_on_empty_table() {
+        let corpus = test_corpus();
+        let deleted = corpus
+            .purge_pipeline_metrics_older_than(1_000)
+            .expect("purge");
+        assert_eq!(deleted, 0);
     }
 }

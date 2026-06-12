@@ -52,14 +52,31 @@ pub struct InvestigationStepView {
 }
 
 /// Cross-incident match surfaced under the "Previously seen" subsection
-/// per P-036. Chunk #88 reserves the slot; corpus query path is а
-/// follow-up — current impl always passes empty `Vec`.
+/// per P-036. Populated from corpus retrieval (same workspace, last 30
+/// days, fingerprint/scope match per `triage::contract::
+/// select_previously_seen`); build via [`previously_seen_from_incidents`].
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct PreviouslySeenMatch {
     pub incident_id: i64,
     pub opened_at_unix_nano: i64,
     pub title: String,
     pub workspace: String,
+}
+
+/// Map selected past incidents into the "Previously seen" view shape.
+/// Applies the same defense-in-depth scrub as the other
+/// [`assemble_report`] field projections (titles are pre-scrubbed at
+/// persistence; this egress pass is idempotent on clean input).
+pub fn previously_seen_from_incidents(matches: &[Incident]) -> Vec<PreviouslySeenMatch> {
+    matches
+        .iter()
+        .map(|m| PreviouslySeenMatch {
+            incident_id: m.id,
+            opened_at_unix_nano: m.opened_at_unix_nano,
+            title: scrub_string(&m.title),
+            workspace: scrub_string(&m.workspace),
+        })
+        .collect()
 }
 
 /// Six-section Report content payload. All text fields are pre-scrubbed
@@ -220,13 +237,20 @@ pub fn serialize_report(report: &Report) -> String {
 }
 
 /// Assemble the [`Report`] struct from an Incident + optional parsed
-/// `L4Output`. Pure projection — no I/O. Moved here from pulse-app at
-/// chunk #94 so the MCP `retrieve_report` tool and the
-/// `incidents.get_report` resolver project identical Reports (P-038
-/// single-source). Defense-in-depth scrub at field-projection time per
-/// the chunks #72 / #78 / #86 uniform-coverage invariant (already-scrubbed
-/// input passes through verbatim; idempotent at the scrubber boundary).
-pub fn assemble_report(incident: &Incident, l4: Option<&L4Output>) -> Report {
+/// `L4Output` + the corpus-selected "Previously seen" matches (P-036;
+/// callers supply `previously_seen_from_incidents(...)` output, empty
+/// when the corpus is absent or no history matches). Pure projection —
+/// no I/O. Moved here from pulse-app at chunk #94 so the MCP
+/// `retrieve_report` tool and the `incidents.get_report` resolver
+/// project identical Reports (P-038 single-source). Defense-in-depth
+/// scrub at field-projection time per the chunks #72 / #78 / #86
+/// uniform-coverage invariant (already-scrubbed input passes through
+/// verbatim; idempotent at the scrubber boundary).
+pub fn assemble_report(
+    incident: &Incident,
+    l4: Option<&L4Output>,
+    previously_seen: Vec<PreviouslySeenMatch>,
+) -> Report {
     let workspace = scrub_string(&incident.workspace);
     let project_context = format!("workspace={workspace}");
     let status_label = incident_status_label(incident.status).to_string();
@@ -267,7 +291,7 @@ pub fn assemble_report(incident: &Incident, l4: Option<&L4Output>) -> Report {
             // surfacing it as а duplicate section under "Resolution
             // Summary" would be redundant. Skip.
             resolution_summary: None,
-            previously_seen: Vec::new(),
+            previously_seen,
         },
         None => Report {
             incident_id: incident.id,
@@ -299,7 +323,7 @@ pub fn assemble_report(incident: &Incident, l4: Option<&L4Output>) -> Report {
             project_context,
             degraded_mode: true,
             resolution_summary: None,
-            previously_seen: Vec::new(),
+            previously_seen,
         },
     }
 }
@@ -460,6 +484,74 @@ mod tests {
     fn serialize_omits_previously_seen_section_when_empty() {
         let mut report = sample_resolved_report();
         report.previously_seen.clear();
+        let md = serialize_report(&report);
+        assert!(!md.contains("## Previously Seen"));
+    }
+
+    fn sample_incident(id: i64, title: &str) -> Incident {
+        use triage::contract::{CueKind, CueScope, EvidenceRefs, PriorityTier};
+        Incident {
+            id,
+            workspace: "ws-a".to_string(),
+            fingerprint: "aa".repeat(16),
+            title: title.to_string(),
+            detail: "[redacted] detail".to_string(),
+            kind: CueKind::ErrorRateSpike,
+            scope: CueScope::Service,
+            scope_id: Some("svc-a".to_string()),
+            status: IncidentStatus::Active,
+            severity: Severity::Warn,
+            priority_tier: PriorityTier::Suggested,
+            evidence_refs: EvidenceRefs {
+                trace_id: None,
+                span_ids: vec![],
+                fingerprint_hashes: vec![],
+                timestamps_unix_nano: vec![],
+            },
+            opened_at_unix_nano: 1_600_000_000_000,
+            updated_at_unix_nano: 1_600_000_000_000,
+            acknowledged_at_unix_nano: None,
+            resolved_at_unix_nano: None,
+            read_at_unix_nano: None,
+            resolution_summary_text: None,
+        }
+    }
+
+    #[test]
+    fn previously_seen_from_incidents_maps_fields_and_scrubs_titles() {
+        let past = sample_incident(7, "leaked token Bearer abcdef0123456789abcdef0123456789");
+        let mapped = previously_seen_from_incidents(&[past]);
+        assert_eq!(mapped.len(), 1);
+        assert_eq!(mapped[0].incident_id, 7);
+        assert_eq!(mapped[0].opened_at_unix_nano, 1_600_000_000_000);
+        assert_eq!(mapped[0].workspace, "ws-a");
+        assert!(
+            mapped[0].title.contains("[redacted:"),
+            "egress scrub must redact the bearer token: {}",
+            mapped[0].title
+        );
+        assert!(!mapped[0].title.contains("abcdef0123456789"));
+    }
+
+    #[test]
+    fn assemble_report_threads_previously_seen_into_degraded_branch() {
+        let incident = sample_incident(42, "[redacted] current incident");
+        let matches =
+            previously_seen_from_incidents(&[sample_incident(7, "[redacted] earlier occurrence")]);
+        let report = assemble_report(&incident, None, matches);
+        assert!(report.degraded_mode);
+        assert_eq!(report.previously_seen.len(), 1);
+        assert_eq!(report.previously_seen[0].incident_id, 7);
+        let md = serialize_report(&report);
+        assert!(md.contains("## Previously Seen"));
+        assert!(md.contains("incident #7"));
+    }
+
+    #[test]
+    fn assemble_report_empty_matches_render_no_previously_seen_section() {
+        let incident = sample_incident(42, "[redacted] current incident");
+        let report = assemble_report(&incident, None, Vec::new());
+        assert!(report.previously_seen.is_empty());
         let md = serialize_report(&report);
         assert!(!md.contains("## Previously Seen"));
     }
