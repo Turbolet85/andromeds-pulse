@@ -6799,9 +6799,9 @@ checksum = "a2eb9349b6444b326872e140eb1cf5e7c522154d69e7a0ffb0fb81c06b37543f"
 
 [[package]]
 name = "strict-path"
-version = "0.2.2"
+version = "0.2.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5eeb7e621b68e57753745d8b7060f2281339fb883a3d28c5f9c40786f996c35d"
+checksum = "b0cc4a05af0757397ddd94ba35f02b2a80258eb5ff2ea7291563517d3a9c0a5d"
 dependencies = [
  "dunce",
  "soft-canonicalize",
