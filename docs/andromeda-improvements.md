@@ -1719,3 +1719,23 @@ So both diagnostics misdirect. The actual working path (proven session 137 mistr
 - Encountered: session 170 (chunk #94 manual structural amendment; committed `44af47b`). Marker: `.andromeda/runs/2026-06-02T18-13-31-spec-amendment-acknowledge-chunk-94-mcp-tools/amendment.md` (`manual_structural_amendment: true`). Refusal audit: `.andromeda/runs/2026-06-01T22-25-08-evolve-acknowledge-chunk-94-mcp-tools/refused.md`.
 - Related: 2026-05-16 CLAUDE.md session-learning (after-MVP path: manual arch edits where evolve refuses + setup-project --delta); sessions 137/144/145 precedents (manual structural arch amendment under user authorization). P26 (sibling amendment-authoring gap for planned specialist-plan edits).
 - Affected SKILL.md: `~/.claude/skills/andromeda-evolve/references/refuse-taxonomy.md` Refuse 1 redirect + `~/.claude/skills/andromeda-setup-project/references/delta-rerun-protocol.md` architecture-exception halt diagnostic.
+
+---
+
+### Proposal P28 — Triangle skills compose timestamps from a narrative clock instead of mandating `date -u` at write time (local-time-mislabeled-Z stamps)
+
+## Status: PROPOSED — 2026-06-12 (session 186)
+
+**Mode:** P (patch)
+
+**Problem:** wrap-session / setup-project / evolve skill bodies say "current ISO timestamp (UTC, Z suffix)" but never mandate HOW to obtain it. In practice the orchestrator can compose stamps from a narrative sense of the clock (e.g., projecting from earlier in-session stamps), which on a UTC+offset host yields local-time values mislabeled with `Z`. Session 185's wrap stamped `noted_at: 2026-06-12T20:05:00Z` + handoff `Last Updated: 2026-06-12T20:05:00Z` while the real UTC at the wrap commit was 19:22 (`git log -1 --format=%cI` → `2026-06-12T21:22:16+02:00`, UTC+2 host). The session-186 `--delta` run, stamping from real `date -u`, then wrote `Propagated 19:25:00Z` — an APPARENT lifecycle inversion (propagated < noted on paper) that is chronologically correct. Harmless here ONLY because the lifecycle state machine is checkbox-order-driven (spec-amendment-protocol.md Part D order-independence); any future consumer that sorts or diffs by timestamp would misread the audit trail.
+
+**Encountered:** session 186 (delta-rerun for the chunk #100 P-017/P-008 amendments); inversion documented in `.andromeda/runs/2026-06-12T19-24-54-setup-project-delta/materialization-plan-delta.md` §Lifecycle progression "Timestamp note".
+
+**Proposed fix:** one-line discipline added to the shared `session-state-contract.md` (Part B field notes) + `spec-amendment-protocol.md` (lifecycle stamps): "Every ISO-8601 stamp MUST be obtained by executing `date -u +%Y-%m-%dT%H:%M:%SZ` (or equivalent) at write time — never composed from a narrative clock, never copied forward from an earlier stamp. Cross-check suspect historical stamps against `git log --format=%cI`." Optionally: wrap-session Phase 8 + setup-project Phase 9 + evolve marker-authoring steps each cite the command inline.
+
+**Why this matters:** timestamps are the only lifecycle fields shared across all four triangle/evolve skills and the audit markers; one mislabeled stamp propagates through state.yaml comments, handoff headers, and marker checkboxes. The checkbox-order design absorbed this instance, but the defense is one `date -u` invocation.
+
+**When to do:** low priority; ~6 lines of shared-contract text across 2 reference files.
+
+**Cross-references:** session-186 Tier 3 entry (`.claude/docs/session-learnings.md` 2026-06-12 UTC-stamp discipline); spec-amendment-protocol.md Part D order-independence (the property that made this harmless).
