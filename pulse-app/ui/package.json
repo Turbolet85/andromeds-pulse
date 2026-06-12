@@ -51,7 +51,7 @@
     "motion": "^12.0.0",
     "react": "^19.2.0",
     "react-aria-components": "^1.17.0",
-    "react-dom": "^19.2.0",
+    "react-dom": "^19.2.6",
     "tabbable": "^6.4.0"
   }
 }
