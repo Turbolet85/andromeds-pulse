@@ -9,9 +9,9 @@
 - Constellation: service topology rendered as interconnected dots with halo brightness encoding operational health
 - Mission Control console: NASA Artemis workstation with purpose-built directional lighting and color-coded alert states
 - Spectroscopy: decomposing light by wavelength; halo's LCH color shift (Earth Blue ↔ Alert Burgundy) encodes error-rate composition
-- Ring buffer ephemeris: transient telemetry (5–10 min window) becomes persistent narrative via snapshot generation
+- Ring buffer ephemeris: transient telemetry (5–10 min window) becomes a persistent markdown observation log (snapshot) for LLM-investigator digest, via on-demand snapshot generation
 
-**Signature element:** "Halo State Pulse" — a circular animated glow rendered on a dedicated WebGPU canvas layer around each service constellation dot, pulsing at a rate proportional to service throughput (0.8–2.4 Hz, clamped from `throughput_hz / 1000`) and shifting hue via LCH interpolation from Earth Blue (#4A90E2) to Alert Burgundy (#C7556A) based on error rate. The blur radius expands/contracts with each pulse (4–16 px). On the tray icon, a single unified halo pulses and shifts hue around the aggregated service-count badge.
+**Signature element:** "Halo State Pulse" — a circular animated glow rendered on a dedicated WebGPU canvas layer around each service constellation dot. It breathes (opacity + blur modulation ONLY, never scale) at a cadence driven by activity state — period 4–5 s when telemetry flow is quiet, accelerating to ~2 s under active flow (≈0.2–0.5 Hz) — and shifts hue via LCH interpolation from Earth Blue (#4A90E2) to Alert Burgundy (#C7556A) driven by cumulative incident severity, the blur radius expanding/contracting 4–16 px per cycle. Connection state is an orthogonal grayout/desaturation axis (independent of the severity-hue axis). On the tray icon, a single unified halo breathes and shifts hue around the aggregated service-count badge.
 
 **Expression level:**
 - **Base:** 0.3 (subtle hover states, fade transitions, quiet focus rings)
@@ -27,7 +27,7 @@
 
 ## Color Palette
 
-**Rationale:** The user selected "NASA Deep Space Mission Control Station (Modern Artemis Design)" as the mood anchor — a secondary monitor console within NASA's modern Artemis Mission Control room. Dimly lit walls with blue accents; carpeting depicts lunar mineral crystalline patterns in gray, blue, and burgundy. The color world drives the entire design system and is the single source of truth for all semantic and surface-elevation colors. Every hex value below is derived directly from the exploration's Color World section; the library-shortlist palettes were used only for structural reference (palette layout, industry rules, UX guidelines), not for literal color values.
+**Rationale:** Mood anchor — "NASA Deep Space Mission Control Station (Modern Artemis Design)": a secondary console within NASA's Artemis Mission Control room, dimly lit walls with blue accents, carpeting depicting lunar-mineral crystalline patterns in gray, blue, and burgundy. This Color World is the single source of truth for all semantic and surface-elevation colors; every hex below derives from it. Library-shortlist palettes informed only structure (layout, industry rules, UX guidelines), not literal color values.
 
 ### Core Colors
 
@@ -36,6 +36,8 @@
 | Primary | #4A90E2 | Actions, focus rings, active states, Earth accent lighting | Earth Blue — accent lighting representing Earth (as visible from the observation station), visible but not harsh; healthy active state, mission-phase markers, non-critical but important signals (service is running, responding nominally). |
 | Secondary | #2C3E7F | Supporting actions, secondary navigation, panel backgrounds | Stellar Indigo — deep indigo of the night sky at twilight, after nautical darkness sets but before full astronomical darkness; used for secondary surfaces (panel backgrounds, borders) to maintain hierarchy without introducing a fourth hue. |
 | Accent | #C7556A | Alerts, error states, anomaly indicators, emphasis | Alert Burgundy — lunar anorthite mineral crystalline pattern in Artemis Mission Control carpeting (burgundy veins in gray basalt); also the standard anomaly-state hue in NASA's color-coded alert taxonomy; error and outlier indicator. |
+
+**Accent usage (non-text token):** Accent (#C7556A) is classified as a non-text token — input borders, error icons, alert badges, divider emphasis. Contrast on Base #1A1D24 is ≈3.8:1: clears WCAG SC 1.4.11 (non-text, 3:1) and SC 1.4.3 large-text, but is below SC 1.4.3 normal-text (4.5:1). For body-size error message text (≤14px regular), use `--color-text-primary` with an accent border + icon for state conveyance (never color alone — SC 1.4.1). The "Error state" component patterns below currently retain #C7556A for the text role; migrating message text to `--color-text-primary` is pending the error-UI chunk.
 
 ### Surface Scale (elevation hierarchy)
 
@@ -148,9 +150,9 @@ Feedback Cyan (#17B3A3) is used for Success — teal-cyan of emergency lighting 
 
 ## Motion (calibrated to expression level 0.3 base / 0.35 webview / 0.2 native)
 
-All motion decisions flow from the expression level set in Brand Identity. Canvas motion (WebGPU shader-driven Halo State Pulse, Latency River, throughput counter) is a **separate dimension** governed by the data-viz layer and NOT bound by the chrome expression number. (See Downstream Readiness section for the obs measurement-intent hook on Halo State Pulse.)
+All motion decisions flow from the expression level set in Brand Identity. Canvas motion (WebGPU shader-driven Halo State Pulse, Latency River, throughput counter) is a **separate dimension** governed by the data-viz layer and NOT bound by the chrome expression number.
 
-**Easing:** ease-out (standard) for focus/hover feedback; ease-in-out for panel transitions. No spring physics, no bounce — contemplative tone rejects the "delightful" framing in favor of "state-confirming" motion.
+**Easing:** ease-out (standard) for focus/hover feedback; ease-in-out for panel transitions — both `cubic-bezier(0.4, 0, 0.2, 1)`. No spring physics, no bounce — contemplative tone rejects the "delightful" framing in favor of "state-confirming" motion.
 
 **Duration scale (adjusted for expression level 0.3–0.35):**
 
@@ -168,7 +170,7 @@ Chrome interactions are constrained to 150–200ms per expression budget. Suppor
 - **Scroll effects:** none — expression level does not warrant parallax or scroll-driven reveals.
 
 **High-impact moments (max 2 at 0.3–0.35 level):**
-1. **Halo State Pulse breathing:** WebGPU shader-driven, sinusoidal animation (data-driven, exempt from chrome budget). Breathing period 4–5 s when telemetry flow is quiet, accelerating to ~2 s under active flow (driven by activity state, not raw throughput; ease-in-out). Modulation is opacity AND blur ONLY, NEVER scale (P-026). Blur radius 4–16 px per cycle, mapped from cumulative incident severity. Color interpolation (Earth Blue ↔ Alert Burgundy via LCH) is driven by cumulative incident severity, simultaneous with rhythm. Supersedes the chunk #31-era 0.8–2.4 Hz throughput-driven frequency (see Decisions Log 2026-05-29).
+1. **Halo State Pulse breathing:** WebGPU shader-driven, sinusoidal animation (data-driven, exempt from chrome budget). Breathing period 4–5 s when telemetry flow is quiet, accelerating to ~2 s under active flow (≈0.2–0.5 Hz; driven by activity state, not raw throughput; ease-in-out) — well under the WCAG SC 2.3.1 three-flashes-per-second threshold (0.5 Hz ≪ 3 Hz). Modulation is opacity AND blur ONLY, NEVER scale (P-026). Blur radius 4–16 px per cycle, mapped from cumulative incident severity. Color interpolation (Earth Blue ↔ Alert Burgundy via LCH) is driven by cumulative incident severity, simultaneous with rhythm. Connection state is an orthogonal grayout/desaturation axis, independent of the severity-hue axis (P-004 health-vs-severity orthogonality).
 2. **Investigation Capture Collapse (supporting moment):** 350 ms scale + opacity ease into a centered snapshot object when Investigate button is clicked. Confirms action without demanding attention. Supporting moments are EXEMPT from the 200ms opacity hard limit (max 2 high-impact moments per expression level justify one supporting moment at ~250–350ms). Hard limits are ceiling constraints for default micro-interactions (hover, focus, panel transitions); supporting moments (user-initiated capture, snapshot generation) may exceed hard limits as visual confirmation of significant action.
 
 **Hard limits for 0.3–0.35 expression; inherited to 0.2 (desktop-native):**
@@ -215,52 +217,7 @@ These glyphs are built into the token system and referenced as `<Icon glyph="tel
 
 ### Tokens (platform-specific)
 
-**CSS custom properties** (Tailwind v4 `@theme` configuration):
-
-**Ownership:** setup-project specialist scaffolds the initial Tailwind config file with `@theme` block and the values below; route specialist verifies the file is loaded and accessible to React components via Tailwind v4's `var()` function (e.g., `bg-[var(--color-primary)]`).
-
-```css
-@theme {
-  /* Colors — derived from Color World */
-  --color-primary: #4A90E2;
-  --color-secondary: #2C3E7F;
-  --color-accent: #C7556A;
-  --color-base: #1A1D24;
-  --color-raised-1: #262A33;
-  --color-raised-2: #2D3139;
-  --color-raised-3: #343A45;
-  --color-inset: #0F1117;
-  --color-text-primary: #E8EEF7;
-  --color-text-secondary: #B4BCCB;
-  --color-text-tertiary: #7D8697;
-  --color-text-muted: #56606E;
-  --color-feedback-success: #17B3A3;
-
-  /* Spacing — base unit 4px */
-  --spacing-micro: 2px;
-  --spacing-xs: 4px;
-  --spacing-sm: 8px;
-  --spacing-md: 16px;
-  --spacing-lg: 24px;
-  --spacing-xl: 32px;
-
-  /* Border radius */
-  --radius-sm: 4px;
-  --radius-md: 6px;
-  --radius-lg: 8px;
-
-  /* Typography */
-  --font-display: 'IBM Plex Sans', sans-serif;
-  --font-body: 'IBM Plex Sans', sans-serif;
-  --font-code: 'JetBrains Mono', monospace;
-
-  /* Motion */
-  --duration-fast: 150ms;
-  --duration-standard: 200ms;
-  --easing-out: cubic-bezier(0.4, 0, 0.2, 1);
-  --easing-in-out: cubic-bezier(0.4, 0, 0.2, 1);
-}
-```
+**CSS custom properties** (Tailwind v4 `@theme` configuration): tokens implemented per design — `--color-*`, `--spacing-*`, `--radius-*`, `--font-*`, `--duration-*`, `--easing-*` — with values taken from the Color Palette, Spacing, Border Radius, Typography, and Motion tables above (easing curves per Motion §Easing). Setup-project scaffolds the `@theme` block; route verifies it loads and that all properties are reachable from React via `var()` (e.g., `bg-[var(--color-primary)]`).
 
 **Dark mode default:** `prefers-color-scheme: dark` is the default; light mode and auto (follow-system) are Settings options. Toggle via Settings panel, persisted to `~/.andromeda-pulse/config.toml`.
 
@@ -356,7 +313,7 @@ These glyphs are built into the token system and referenced as `<Icon glyph="tel
 
 **Tray Icon:**
 - Shape: monochrome SVG, 16–22px (platform-dependent). Design: a stylized pulsar or constellation star with a circular outline (the aperture metaphor). Single glyph, no animation in the icon itself.
-- Halo State Pulse color encoding: unified halo glow around the badge (throughput rhythm via pulsing frequency 0.8–2.4 Hz, error rate via LCH hue shift Earth Blue ↔ Alert Burgundy). The halo is composited as a secondary layer via WebGPU canvas (matching desktop-webview implementation for visual consistency). If WebGPU is unavailable in the tray context, SVG filters may substitute provided they match visual equivalence: blur radius 4–16 px per pulse cycle, LCH color interpolation fidelity ≥95% of Earth Blue #4A90E2 ↔ Alert Burgundy #C7556A shift, opacity 0.6–1.0 envelope matching WebGPU baseline.
+- Halo State Pulse encoding: unified halo glow around the badge (activity-driven breathing rhythm — period 4–5 s quiet → ~2 s under active flow; cumulative-incident-severity LCH hue shift Earth Blue ↔ Alert Burgundy; connection state as an orthogonal grayout axis). The halo is composited as a secondary layer via WebGPU canvas (matching desktop-webview implementation for visual consistency). If WebGPU is unavailable in the tray context, SVG filters may substitute provided they match visual equivalence: blur radius 4–16 px per breathing cycle, LCH color interpolation fidelity ≥95% of Earth Blue #4A90E2 ↔ Alert Burgundy #C7556A shift, opacity 0.6–1.0 envelope matching WebGPU baseline.
 - State variants: clicking the icon opens/focuses the compact widget; double-click expands to full dashboard (TBD by phase 8). Right-click or context-menu icon opens the tray menu.
 
 **Tray Menu:**
@@ -399,7 +356,7 @@ These glyphs are built into the token system and referenced as `<Icon glyph="tel
 
 **CSP policy:** N/A — native surface, no web content.
 
-**Performance notes:** Tray icon is drawn once at startup and updated on state changes (error rate, throughput). No real-time animation in the tray icon glyph itself; Halo State Pulse color (if rendered) is a secondary WebGPU canvas layer, not the icon SVG.
+**Performance notes:** Tray icon is drawn once at startup and updated on state changes (incident severity, activity, connection state). No real-time animation in the tray icon glyph itself; Halo State Pulse color (if rendered) is a secondary WebGPU canvas layer, not the icon SVG.
 
 ---
 
@@ -416,7 +373,7 @@ These glyphs are built into the token system and referenced as `<Icon glyph="tel
 
 ### Rejected Defaults (from exploration)
 
-- **Uniform monochrome status icons (green checkmark / red X)** — rejected because Halo State Pulse encodes TWO independent dimensions (throughput rhythm + error hue). At-a-glance peripheral detection of both "is the service alive?" (pulsing) and "is the service broken?" (color) simultaneously. Mission Control metaphor: red alert lighting encodes anomaly type and severity via hue, not just on/off.
+- **Uniform monochrome status icons (green checkmark / red X)** — rejected because Halo State Pulse encodes TWO independent dimensions (activity-driven breathing rhythm + cumulative-incident-severity hue). At-a-glance peripheral detection of both "is the service alive?" (breathing) and "is the service broken?" (color) simultaneously. Mission Control metaphor: red alert lighting encodes anomaly type and severity via hue, not just on/off.
 - **Bright, contrasty color palette (white foreground on dark background everywhere)** — rejected because Status White-Blue (#E8EEF7) foreground on Deep Control Gray (#1A1D24) background has deliberate cool tone and ~8.5:1 contrast (WCAG AAA but slightly reduced vs. #FFFFFF on #000000 pure black). NASA Artemis Mission Control metaphor: text tone aligns circadian rhythm for marathon observation sessions (nocturnal blue accent over warm amber avoids stimulation).
 - **Animated state transitions using bounce easing and 500ms+ durations** — rejected because Halo State Pulse is shader-driven and independent of chrome expression budget. Chrome transitions (0.3–0.35) are snap/scale/opacity at 150–250ms (state-confirming, not "delightful"). Contemplative tone rejects delightful framing in favor of state-confirming motion.
 - **Sans-serif with mixed weights (regular 400, semibold 600, bold 700) for all hierarchy** — rejected because the architecture commits to Linear reference (Q2) which uses disciplined monospace for data rows (span IDs, trace IDs, latency values) and display sans for headings/controls. Monospace signals "immutable telemetry fact"; sans signals "human-readable summary". This split MUST be encoded in tokens and available to the chart visualization layer.
@@ -442,39 +399,6 @@ These glyphs are built into the token system and referenced as `<Icon glyph="tel
 
 ---
 
-## Downstream Readiness (Phase 5+ Specialist Handoff)
-
-Centralized handoff index for downstream specialists. Source-of-truth content lives in the Surface, Motion, Color Palette, Typography, and Anti-Patterns sections; this section is a finder's guide.
-
-**For obs specialist:** The Halo State Pulse motion layer (WebGPU canvas, separate from chrome budget) requires observability hooks. Design specifies the measurement intent; obs configures the backend:
-- Log Halo pulse frequency (Hz, updated on each pulse cycle) — derived from activity state (breathing period 4–5 s quiet → ~2 s under active flow; ≈0.2–0.5 Hz) by the data-viz layer before pulse-cycle emission. Obs logs the final frequency value as-is without re-clamping.
-- Log Halo color state (Earth Blue / Alert Burgundy / interpolated LCH value) on each pulse — encodes cumulative incident severity composition.
-- No specific observability platform is mandated; design does not own vendor selection. Obs specialist exposes these signals as measurement hooks and configures the backend independently.
-- Loading / error state visuals (skeleton pulse, error color #C7556A) live in Surface: desktop-webview Component Patterns; obs may instrument transitions into/out of these states without modifying the visual tokens.
-
-**For route specialist (webview fonts and `@theme` block):**
-- Both JetBrains Mono and IBM Plex Sans are downloaded as WOFF2 files from fonts.google.com and bundled into the project's static assets directory (CSP-compliant, no CDN).
-- Tailwind v4 `@theme` block (provided in Surface: desktop-webview) is scaffolded by setup-project specialist; route specialist verifies the block is loaded and all CSS custom properties are accessible to React components via `var()` functions.
-- No third-party font CDN is permitted (see `security-plan.md` `script-src 'self'`).
-
-**For tests specialist:**
-- Extract motion lint targets from Motion section: durations (150ms, 200ms, 250ms, 350ms), easing names (ease-out, ease-in-out), the 7 hard-limit bans (parallax, scroll animations, spring, staggered, 3D, canvas/WebGL except Halo, opacity > 200ms).
-- Extract anti-pattern lint targets from Anti-Patterns section: banned fonts (Inter, Roboto, Arial, Helvetica, Open Sans, Lato, system-ui, Space Grotesk), banned effects (gradients, glassmorphism, canvas except Halo), platform-specific bans per surface.
-- Verify Component Patterns hex / spacing / radius values against the Color Palette and Spacing tables.
-
-**For a11y specialist:**
-- Contrast targets: see Text Hierarchy table (Primary ≈ 8.5:1, Secondary ≈ 6.8:1, Tertiary ≈ 4.2:1 large text only, Muted ≈ 2.1:1 decorative only). Formal WCAG conformance derivation is a11y's domain — design provides the target ratios.
-- Focus ring specification: 3–4 px outset, color #4A90E2, rendered via `box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.2)` or `outline: 3px solid #4A90E2` (see Border Progression and Surface: desktop-webview Focus / Keyboard Navigation).
-- Keyboard navigation: all interactive elements must be Tab-navigable; `:focus-visible` applies (see Surface: desktop-webview).
-- Motion accessibility: all transitions respect `prefers-reduced-motion` media query; Halo State Pulse degrades to static glow (no pulsing, hue still updates per cumulative incident severity); other transitions become instant.
-
-**For setup-project specialist:**
-- Materialize design rule files from Anti-Patterns Universal Bans (banned fonts → `.claude/rules/no-banned-fonts.md`).
-- Materialize from Self-Validation Protocol (Swap / Squint / Signature / Token / Sameness / Contrast → `.claude/rules/design-tokens.md` + `.claude/rules/expression-budget.md`).
-- Scaffold initial Tailwind v4 config with the `@theme` block from Surface: desktop-webview (route specialist subsequently verifies load).
-
----
-
 ## Self-Validation Protocol
 
 Before presenting ANY UI output, downstream implementation phases (per project's specialist plans) must run these 6 checks:
@@ -492,43 +416,11 @@ Point to the Halo State Pulse in your output. Can you find it in at least 3 plac
 Read your color, spacing, and typography values aloud. Do they trace back to the Color World palette (Deep Control Gray / Alert Burgundy / Earth Blue / Status White-Blue / Stellar Indigo / Feedback Cyan), the spacing scale (2px–32px multiples of 4px), and the font stack (JetBrains Mono + IBM Plex Sans)? Random hex values or magic numbers signal no system.
 
 ### 5. Sameness Test
-If another AI given a similar prompt ("design a dark telemetry dashboard") would produce substantially the same output — you have failed. The interface must emerge from THIS product's Observatory / Constellation / Mission Control domain exploration, not from statistical patterns in training data. Check: are the icons astronomy-themed? Is the color palette NASA-derived? Is the motion data-driven (Halo pulse frequency = throughput Hz)? Is every interaction explainable via domain metaphor?
+If another AI given a similar prompt ("design a dark telemetry dashboard") would produce substantially the same output — you have failed. The interface must emerge from THIS product's Observatory / Constellation / Mission Control domain exploration, not from statistical patterns in training data. Check: are the icons astronomy-themed? Is the color palette NASA-derived? Is the motion data-driven (Halo breathing cadence = activity state, hue = cumulative incident severity)? Is every interaction explainable via domain metaphor?
 
 ### 6. Contrast Test
-Verify text-on-background contrast values match the Text Hierarchy table — Primary on Base ≈ 8.5:1, Secondary ≈ 6.8:1, Tertiary ≈ 4.2:1 (large text only), Muted ≈ 2.1:1 (decorative only). Focus rings (#4A90E2) on adjacent surface colors must remain perceivable. If implementation values diverge from the table, adjust palette or note deviation in Decisions Log; the a11y specialist owns the formal WCAG conformance derivation downstream.
+Verify text-on-background contrast values match the Text Hierarchy table — Primary on Base ≈ 8.5:1, Secondary ≈ 6.8:1, Tertiary ≈ 4.2:1 (large text only), Muted ≈ 2.1:1 (decorative only). Focus rings (#4A90E2) on adjacent surface colors must remain perceivable. If implementation values diverge from the table, adjust palette or record the deviation in the amendment changelog (`design-system-amendments.md`); the a11y specialist owns the formal WCAG conformance derivation downstream.
 
 ---
 
-## Design Decisions Log
-
-`2026-05-02` — Initial design system generated by `/andromeda-design` Phase 4
-
-- **Brand personality:** Ambient constellation — luminous, patient, emergence-driven (Observatory/Mission Control metaphor; contemplative, pattern-seeking voice).
-- **Surfaces:** desktop-webview (compact widget + full dashboard, React 19 + Tailwind v4 + shadcn/ui + WebGPU canvas) and desktop-native (tray icon via Tauri 2 `tauri-plugin-notification`).
-- **Signature element:** Halo State Pulse — service aura encoding activity (breathing rhythm 4–5 s quiet → ~2 s active; opacity + blur, never scale) and cumulative incident severity (LCH hue Earth Blue → Alert Burgundy + blur radius), with connection state as an orthogonal grayout axis. Lives on dedicated WebGPU canvas layer, exempt from chrome expression budget (0.3 base / 0.35 webview / 0.2 native). (Severity/activity-driven per Decisions Log 2026-05-29, superseding the original throughput/error-rate model.)
-- **Key rejection:** Gradient overlays, generic fonts (Inter/Roboto), uniform monochrome status icons, bounce easing, and "delightful" motion tone. Replaced with: flat surfaces + NASA palette + Halo State Pulse + data-driven state encoding + contemplative motion.
-- **Snapshot generation (curated observation log):** Transient telemetry (5–10 min ring buffer window) materializes as persistent markdown observation via the snapshot generator — enabling LLM-investigator digest. Triggered by "Generate Snapshot" action in tray menu and dashboard; completion confirmed via OS-native notification. The Investigation Capture Collapse supporting moment in Motion is the visual handshake for this action.
-- **Color World locked:** Deep Control Gray #1A1D24 / Alert Burgundy #C7556A / Earth Blue #4A90E2 / Status White-Blue #E8EEF7 / Stellar Indigo #2C3E7F / Feedback Cyan #17B3A3 — all derived from NASA Artemis Mission Control mood (user-confirmed in Q3, overriding library-shortlist palette structures).
-- **Typography locked:** JetBrains Mono (data, monospace = immutable telemetry fact) + IBM Plex Sans (UI, humanist sans = operator communication). Both bundled locally WOFF2 (CSP-safe, no CDN).
-- **Expression level committed:** 0.3 base (subtle, no parallax, no scroll animations, no spring physics). Per-surface: 0.35 webview (skeleton pulsing, panel transitions, 250ms Investigation Capture Collapse signature), 0.2 native (icon state changes, traffic-light colors, badge emergence only). Canvas motion (WebGPU Halo State Pulse, Latency River) is a separate dimension and NOT constrained by chrome budget.
-- **Design Direction locked:** Data & Analysis (from library-shortlist) — prioritizes data density, monospace for immutable telemetry, developer-tool aesthetic, minimal ornamentation, pattern-seeking hierarchy.
-
-`2026-05-03` — Lift `--color-accent` from `#8B2E3B` to `#C7556A`
-
-- **Trigger:** Chunk #12 contrast verification harness (route#12) detected `accent/base` pair at 2.05:1 contrast — below WCAG SC 1.4.11 minimum 3:1 for non-text UI components AND SC 1.4.3 minimum 4.5:1 for normal-size text. a11y plan §6 Color contrast pairs takes precedence over §Color Palette Core Colors aesthetic per project's a11y-tier=Standard discipline (a11y > design when conflict).
-- **Change:** Alert Burgundy hex `#8B2E3B` → `#C7556A`. New contrast on Base `#1A1D24`: ≈3.8:1 (clears SC 1.4.11 non-text + SC 1.4.3 large-text; remains below SC 1.4.3 normal-text 4.5:1).
-- **Brand impact:** Burgundy semantic preserved (still red-toned anomaly accent, recognizable as Alert Burgundy with slight shift toward dusty rose). NASA Artemis Mission Control mood retained — anomaly hue remains distinct from Earth Blue (Primary) and Feedback Cyan (Success) in the color taxonomy. Halo State Pulse Earth Blue ↔ Alert Burgundy LCH interpolation hue endpoint adjusts by ~12 LCH chroma units; rhythm + frequency unchanged.
-- **Usage scope refinement:** Accent is now formally classified as a **non-text token** (input borders, error icons, alert badges, divider emphasis). For body-size error message TEXT (≤14px regular), implementation should use `--color-text-primary` with `--color-accent` border + icon for state conveyance per a11y "never communicate state with color alone" discipline (SC 1.4.1). Component Pattern entries for "Error state" (§Surface: desktop-webview) retain `#C7556A` for both border and text role at this hex revision; updating component patterns to use `--color-text-primary` for the message-text role is deferred to the chunk that materializes actual error UI (chunk #25 webview shell or a follow-up a11y audit chunk).
-- **Cross-references:** a11y-plan §6 Color contrast pairs row "accent/base"; chunk #12 contrast harness output `pulse-app/ui/dist/contrast-report.json` record `accent/base` flips from FAIL (2.05:1 < 4.5:1) to PASS (3.8:1 ≥ 3.0:1 non-text); harness pair classification updated in `pulse-app/ui/src/contrast/pairs.mjs` (target_ratio 4.5 → 3.0, wcag_criterion SC 1.4.3 → SC 1.4.11, usage "normal-text-or-non-text" → "non-text") to reflect non-text scope.
-- **Authority:** Adjusted directly in design-system.md per Andromeda living-artifact discipline (specialist plans evolve through Decisions Log when reality requires; greenfield specialists are one-shot, harness findings drive in-flight spec amendments).
-
-
-
-[Phase 7 Final Validation] Applied 2 patches: clarified Motion duration table (added explicit supporting-moments line + reorganized Investigation Capture Collapse into its own bullet); added "Snapshot generation (curated observation log)" bullet to Decisions Log to anchor the Domain Concept that was otherwise implicit.
-
-`2026-05-29` — Halo State Pulse driven by incident severity + activity + connection state (supersedes throughput/error-rate model)
-
-- **Trigger:** Chunk #90 (route#90 "Halo formula refactor", Epoch 9 — Foundation v0.2.0). The v0.2.0 distillation pipeline produces LLM-derived incident severity (chunk #83) + a connection state machine (chunk #59); the Halo's original chunk #31 inputs (`throughput_hz`, `error_rate`) are pre-distillation rule-based signals. Re-driving the signature element from the new pipeline is the route plan's intent (P-025 Halo Hue Encoding + P-026 Halo Breathing Encoding).
-- **Change:** (a) **Breathing frequency** band moves from `0.8–2.4 Hz` (clamped `throughput_hz / 1000`) to **period 4–5 s when quiet → ~2 s under active flow** (≈0.2–0.5 Hz), driven by an **activity state** tier rather than raw throughput. Calmer cadence fits an always-on ambient widget and keeps the luminance-change rate well under the SC 2.3.1 three-flashes threshold (0.5 Hz ≪ 3 Hz). (b) **Hue + blur radius** are driven by **cumulative incident severity** (max active-incident priority tier) rather than error rate — LCH Earth Blue → Alert Burgundy + blur 4–16 px. (c) **Connection state** added as an **orthogonal grayout/desaturation axis** (P-004 health-vs-severity orthogonality), independent of the severity hue axis. Breathing remains **opacity + blur modulation ONLY, never scale** (P-026 unchanged).
-- **Brand impact:** Signature element semantics preserved (dual-dimension encoding — rhythm + hue — retained, now severity/activity-driven; connection adds a third orthogonal axis). Earth Blue ↔ Alert Burgundy LCH interpolation endpoints + blur envelope (4–16 px) unchanged; only the input drivers + the breathing cadence band change. The 0.8–2.4 Hz figure from the chunk #31 / 2026-05-03 entries is now historical (those entries are preserved as audit trail; this entry supersedes the frequency band + drivers).
-- **Authority:** Adjusted directly in design-system.md per Andromeda living-artifact discipline (specialist plans evolve through Decisions Log when downstream pipeline capabilities require). User-authorized the locked-token change during /andromeda-phase Phase 6 (Q2 "Switch to 4–5 s / 2 s"). Mirrored in `.claude/rules/design-tokens.md` §Motion. Cross-references: capabilities P-025 / P-026 / P-004; chunk #90 plan `.andromeda/phases/phase-87/plan.md`.
+*Amendment history (changelog) and the downstream-specialist handoff index live in the sibling sidecar [`design-system-amendments.md`](./design-system-amendments.md). This body holds current truth only.*

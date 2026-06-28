@@ -66,7 +66,7 @@
 - **[Code Signing] Azure Key Vault (Windows EV) + Apple Developer ID (macOS notarization)**: the standard trusted-publisher path for OSS desktop apps in 2026.
 - **[CI Task Runner] `cargo-xtask`**: lightest fit for a Rust-only repo; release/sign/notarize tasks are Rust binaries in the same workspace, matching agent-driven harness ergonomics. `just` and `cargo-make` add DSL surface area without buying anything for one app with no non-Rust contributors.
 - **[Distribution Channels] GitHub Releases (primary) + Homebrew tap + Scoop manifest**: three channels driven from the same workflow via `taiki-e/upload-rust-binary-action`-style patterns. Rationale: GitHub Releases is the minimum viable distribution; Homebrew + Scoop match developer-tool install norms (`brew install andromeda-pulse` / `scoop install andromeda-pulse`) for the agent-driven-developer target user. **Deferral path**: if the Homebrew tap or Scoop bucket setup blocks the v0.1.0 ship, drop them to v0.2.0 and ship GitHub Releases alone.
-- **[LLM Inference Runtime — L4 interpretation layer] `llama.cpp` prebuilt binaries (b9305-pinned series) invoked via subprocess (D1 — spawn-per-generation pattern)**: the v0.2.0 chunk #82/#83 Pre-D1 decision originally chose `mistralrs = "=0.8.0"` for its native first-class JSON-constrained generation surface, but empirical validation in session 144 (2026-05-25) invalidated that choice on the CPU code path: `mistralrs` CPU inference is broken on Windows MSVC hosts per upstream issue [EricLBuehler/mistral.rs#1134](https://github.com/EricLBuehler/mistral.rs/issues/1134) ("Endless inferencing with cpu", OPEN since 2025-02-12, spans 0.7.0 → 0.8.1+ across multiple models including DeepSeek-R1-Distill-Qwen-1.5B / Qwen3-0.6B-UQFF / our Llama-3.2-3B-Instruct-Q4_K_M) — load completes, "Dummy run completed" logs, then sampling worker threads deadlock in futex/sched_yield spin with zero observable token output. A cross-check using prebuilt `llama.cpp` (build b9305) against the EXACT same GGUF file on the EXACT same host generated tokens cleanly: 28.2 tok/sec CPU (Ryzen 9 5950X), 231.2 tok/sec unconstrained CUDA (RTX 3090, `-ngl 99` all-layers offload), 122.3 tok/sec under L4 `--json-schema-file` GBNF constraint with complete schema-conformant JSON output in ~4.3 seconds — versus 60+ minutes of mistralrs CPU saturation producing zero tokens. The runtime is therefore swapped from `mistralrs` to `llama.cpp` invoked as a **subprocess** of pulse-app rather than linked in-process: prebuilt CUDA + CPU `llama-cli.exe` binaries from official `ggml-org/llama.cpp` GitHub releases (CUDA build matched to the installed driver's max-supported toolkit — currently CUDA 13.1 against driver 596.36), spawned per-L4-digest via `tokio::process::Command` with `kill_on_drop(true)`, bounded by explicit `-n {max_tokens}` cap AND `-st` single-turn flag AND outer `tokio::time::timeout` wall-clock guard (defense in depth — two runaways during this track's spike work were both caused by missing bounds; never repeat). Tier routing follows the chunk #80 `HardwareProfileSource` trait: GPU-primary / GPU-fallback tiers → CUDA binary + `-ngl 99`; CPU-primary / CPU-fallback tiers → CPU binary + `-ngl 0`. The **D1 spawn-per-generation choice over D2 long-lived `llama-server`** is grounded in Pulse's actual L4 invocation pattern: cadence-coordinator-driven background subscriber at `pulse-app/src/inference_runtime.rs::spawn_l4_inference_subscriber` consuming `pulse://stream/digests` (chunk #81), real rate 1-4 invocations/minute under default cadence config (baseline 60s + accelerated 20s + reflection 1800s), no user-action L4 trigger in the codebase, LWW queue from chunk #81 explicitly absorbs cadence-faster-than-L4 bursts. At 1-4/min the ~5-second cold-start load tax (~1-2s warm via OS page cache) happens behind no user-visible spinner, and D2's permanent lifecycle complexity (long-lived child + health probe + restart loop + port allocation + shutdown coordination + 4.5 GB RAM + 2 GB VRAM held while idle) buys throughput Pulse will not exercise. `mistralrs` was rejected on empirical CPU evidence; in-process `llama-cpp-2` bindings were rejected for v0.2.0 on Windows build-toolchain cost (`bindgen` requires `libclang.dll`; `llama-cpp-sys-2` vendored compile requires `cmake` + MSVC + clang). Both remain documented sibling-impl swap paths through the same trait. **Pin discipline**: lock to a specific `llama.cpp` build tag (`b9305` exact at v0.2.0 swap-in; bumps as deliberate chunk-scoped events, never via "latest tag" drift — mirrors the original mistralrs `=0.8.0` pin-exact discipline) in the binary-distribution manifest (whatever ships with the Tauri bundle / `xtask release` pipeline). **Bus factor mitigation (unchanged from chunk #82)**: the `pub trait LlmInferenceRunner: Send + Sync` from `crates/interpretation/src/contract.rs` and the `Pin<Box<dyn Future + Send + 'a>>` future-return alias (mirroring the 2026-05-23 `SqlQueryRunner` async pattern) stay unchanged — only the concrete impl swaps from `MistralRsInference` to a new `LlamaCliInference` sibling at the binary boundary in `pulse-app/`. The chunk #82 design specifically anticipated this kind of staged swap as the bus-factor mitigation pattern. **Three documented upgrade paths (all behind the same trait)**: (a) `llama-server` HTTP (D2) — write `LlamaServerInference` as a sibling impl if L4 invocation rate grows materially (e.g., a future user-on-demand "Interpret this incident now" button where the 5s cold-start tax becomes user-visible) OR if cadence floors are tightened in production tuning; (b) in-process `llama-cpp-2` bindings — write `LlamaCppInference` as a sibling impl once the Windows `libclang` + `cmake` + MSVC toolchain cost is justified by sustained higher rates or Tauri bundle distribution constraints (the spike at session 144 confirmed `llama-cpp-2 = "=0.1.146"` exposes a public `json_schema_to_grammar()` function and the trait surface fits cleanly via `spawn_blocking`, but the build stack required portable cmake + portable libclang on this Windows host — paid cost vs. subprocess prebuilt-binary distribution); (c) `candle` (original chunk #82 escape hatch, still valid) — write `CandleInference` as a sibling impl + add `outlines-rs` or `llguidance` for JSON-constrained sampling if `llama.cpp` maintenance posture ever changes or a future chunk surfaces a missing capability. **Caveat to verify during the runtime-swap chunk implementation**: prebuilt-binary distribution path is currently unsettled — chunks integrating this MUST decide whether the CUDA + CPU `llama-cli.exe` binaries (and their `cudart64_13.dll` + `cublas64_13.dll` dependencies for the CUDA build) ship in the Tauri bundle, are downloaded by an `xtask` step at boot, or rely on a user-set `ANDROMEDA_PULSE_LLAMA_CUDA_BIN` / `ANDROMEDA_PULSE_LLAMA_CPU_BIN` env var pair pointing at user-managed install (current dev pattern from session 144 spike). The distribution decision is parallel to the model-file distribution decision (`ANDROMEDA_PULSE_MODEL_PATH` env var) and should be co-designed.
+- **[LLM Inference Runtime — L4 interpretation layer] `llama.cpp` prebuilt binaries (b9305-pinned series) invoked via subprocess (D1 — spawn-per-generation)**: local on-device L4 inference of curated digests via llama.cpp native JSON-schema-constrained GBNF sampling (`--json-schema-file`). CUDA + CPU prebuilt `llama-cli.exe` selected per hardware-profile tier (chunk #80 `HardwareProfileSource`): GPU-primary/fallback → CUDA + `-ngl 99`; CPU-primary/fallback → CPU + `-ngl 0`. Bounded-invocation discipline (defense-in-depth against unbounded generation): explicit `-n {max_tokens}` cap + `-st` single-turn + outer `tokio::time::timeout` wall-clock guard, spawned per-L4-digest via `tokio::process::Command` with `kill_on_drop(true)`. D1 (spawn-per-generation) over D2 (long-lived `llama-server`) because Pulse's real L4 rate is 1–4 invocations/min (cadence-coordinator background subscriber on `pulse://stream/digests`, chunk #81; no user-action trigger), so the ~5s cold-start tax (~1–2s warm) hides behind no spinner and D2's permanent-lifecycle complexity buys throughput Pulse won't exercise. **Pin discipline**: lock to a specific build tag (`b9305` exact at v0.2.0 swap-in); bumps are deliberate chunk-scoped events, never "latest tag" drift. **Bus-factor / swap paths**: the `pub trait LlmInferenceRunner: Send + Sync` (`crates/interpretation/src/contract.rs`) is the swap boundary — only the concrete impl changes. Three documented sibling impls behind the same trait: `llama-server` HTTP (D2) if invocation rate/UX warrants amortizing load tax; in-process `llama-cpp-2` bindings once the Windows libclang+cmake+MSVC toolchain cost is justified; `candle` (+ `outlines-rs`/`llguidance` for constrained sampling) if llama.cpp's maintenance posture changes. **Open caveat (decide during any runtime chunk)**: prebuilt-binary distribution is unsettled — whether the CUDA+CPU `llama-cli.exe` (+ `cudart64_13.dll`/`cublas64_13.dll`) ship in the Tauri bundle, are downloaded by an `xtask` boot step, or rely on the `ANDROMEDA_PULSE_LLAMA_CUDA_BIN_PATH`/`_CPU_BIN_PATH` env pair (current dev pattern); co-design with the `ANDROMEDA_PULSE_MODEL_PATH` model-file distribution decision. *(History — the original `mistralrs = "=0.8.0"` choice and its empirical invalidation: see `architecture-amendments.md` § Decision-history 2026-05-25.)*
 
 ## Conventions
 
@@ -164,27 +164,27 @@
 - **Tauri IPC routes (TauRPC procedures)**:
   - `app_info`, `health`, `ready`, `get_settings`, `update_settings` — top-level (ui-bridge crate)
   - `traces.*`, `metrics.*`, `logs.*` — query routers (viz crate)
-  - `streams.subscribe_spans`, `streams.subscribe_metrics`, `streams.subscribe_logs` — pulse-app crate (Tauri Channel<Vec<u8>> binding to `buffer::BroadcastSenders` for binary Arrow IPC; chunk #23) — see §Architecture Registry Updates 2026-05-09
-  - `telemetry.frontend.record_frame_ms` — ui-bridge crate (`FrameDurationInput` → `metric.webgpu.frame_duration_ms` tracing event per obs-plan §3 Logging stack > Frontend bridge; chunk #29) — see §Architecture Registry Updates 2026-05-09
+  - `streams.subscribe_spans`, `streams.subscribe_metrics`, `streams.subscribe_logs` — pulse-app crate (Tauri Channel<Vec<u8>> binding to `buffer::BroadcastSenders` for binary Arrow IPC; chunk #23)
+  - `telemetry.frontend.record_frame_ms` — ui-bridge crate (`FrameDurationInput` → `metric.webgpu.frame_duration_ms` tracing event per obs-plan §3 Logging stack > Frontend bridge; chunk #29)
   - `snapshot.generate` — snapshot crate (`snapshot.list_recent` and `snapshot.copy_to_clipboard` deferred — no runtime emitter as of chunk #74; only `snapshot.generate` implemented at `pulse-app/src/snapshot_runtime.rs`)
   - `plugins.list`, `plugins.reload`, `plugins.invoke` — plugins crate
   - `mcp.status`, `mcp.start`, `mcp.stop` — mcp-server crate (only when `--features mcp-server`)
   - `workspace.detect` — workspace-detector crate (`workspace.list` deferred — no runtime emitter as of chunk #74; only `workspace.detect` implemented at `crates/ui-bridge/src/workspace_ipc.rs:47`)
-  - `connection.current_state` — pulse-app crate (`ConnectionApiImpl` returning `ConnectionStatePayload` from `crates/ingest::connection::compute_state()`; chunk #59) — see §Architecture Registry Updates 2026-05-16
-  - `services.list_with_states` — pulse-app crate (`ServicesApiImpl` returning `ServiceListPayload` from `crates/triage::lifecycle::InMemoryServiceRegistry::list`; chunk #67) — see §Architecture Registry Updates 2026-05-18
-  - `storage.inspect`, `storage.path` — pulse-app crate (`StorageApiImpl` returning corpus inspection metadata + data-dir absolute path from `crates/corpus::CorpusReader`; chunk #68) — see §Architecture Registry Updates 2026-05-18
-  - `storage.export_for_training` — pulse-app crate (`StorageApiImpl::export_for_training` resolver producing an anonymized JSONL incident corpus dump from `crates/corpus::CorpusWriter::load_all_incidents` via `pulse-app/src/training_export.rs`; `confirm=false` previews without writing, `confirm=true` writes to `target_path` or the default `~/Downloads` egress sink; chunk #95) — see §Architecture Registry Updates 2026-06-03
-  - `diagnostics.template_distribution` — pulse-app crate (`DiagnosticsApiImpl` returning `TemplateDistributionPayload` from `crates/buffer::DrainMiner::template_distribution()`; chunk #69) — see §Architecture Registry Updates 2026-05-19
-  - `diagnostics.retry_interpretation` — pulse-app crate (`DiagnosticsApiImpl` returning `RetryInterpretationPayload` via the L4 degraded-mode FSM manual-override path; chunk #86) — see §Architecture Registry Updates 2026-05-25
-  - `diagnostics.reevaluate_recent_window` — pulse-app crate (`DiagnosticsApiImpl` opt-in FULL retrospective re-classification of the recent window via `RecentWindowReevaluator`/`LiveReevaluator` in `pulse-app/src/reevaluation.rs`; chunk #96) — see §Architecture Registry Updates 2026-06-04
-  - `diagnostics.snapshot` — pulse-app crate (`DiagnosticsApiImpl` returning `DiagnosticsSnapshotPayload` — HYBRID-RENDER L6 self-observability point-in-time aggregate of Model/Hardware/Pipeline live state from `interpretation::LlmInferenceRunner` + `triage::HardwareProfileSource` + `buffer::DrainMiner`; sub-fields with no production producer render explicit "not yet recorded" never fabricated; chunk #97) — see §Architecture Registry Updates 2026-06-05
-  - `diagnostics.history` — pulse-app crate (`DiagnosticsApiImpl` returning `DiagnosticsHistoryPayload` — validated stub: bounded-allowlist `metric_name` + clamped `window_seconds` → empty series + "not yet recorded" notice, NO corpus query; chunk #97) — see §Architecture Registry Updates 2026-06-05
-  - `config.reload`, `config.status` — pulse-app crate (`ConfigApiImpl` backed by the `crates/config-watcher` notify-watcher + `tokio::sync::watch` fan-out; `config.reload` forces an immediate re-read + hot-apply of `config.toml`, `config.status` returns the last-reload timestamp + last error category; chunk #96) — see §Architecture Registry Updates 2026-06-04
-  - `incidents.list_active`, `incidents.acknowledge`, `incidents.mark_resolved`, `incidents.mark_all_read`, `incidents.get_report` — pulse-app crate (`IncidentsApiImpl` resolver backed by `crates/triage::contract::IncidentRegistry` + `IncidentPersistence` + `IncidentLifecycleBroadcast`; chunk #78, `mark_all_read` chunk #87, `get_report` chunk #88) — see §Architecture Registry Updates 2026-05-23 + 2026-05-26 + 2026-05-27
-  - `model.current_profile` — pulse-app crate (`ModelApiImpl` returning `ModelProfilePayload` { profile_label, tier_label, load_status, model_identity_name } from `interpretation::contract::LlmInferenceRunner` + `triage::contract::HardwareProfileSource`; chunk #82) — see §Architecture Registry Updates 2026-05-24
+  - `connection.current_state` — pulse-app crate (`ConnectionApiImpl` returning `ConnectionStatePayload` from `crates/ingest::connection::compute_state()`; chunk #59)
+  - `services.list_with_states` — pulse-app crate (`ServicesApiImpl` returning `ServiceListPayload` from `crates/triage::lifecycle::InMemoryServiceRegistry::list`; chunk #67)
+  - `storage.inspect`, `storage.path` — pulse-app crate (`StorageApiImpl` returning corpus inspection metadata + data-dir absolute path from `crates/corpus::CorpusReader`; chunk #68)
+  - `storage.export_for_training` — pulse-app crate (`StorageApiImpl::export_for_training` resolver producing an anonymized JSONL incident corpus dump from `crates/corpus::CorpusWriter::load_all_incidents` via `pulse-app/src/training_export.rs`; `confirm=false` previews without writing, `confirm=true` writes to `target_path` or the default `~/Downloads` egress sink; chunk #95)
+  - `diagnostics.template_distribution` — pulse-app crate (`DiagnosticsApiImpl` returning `TemplateDistributionPayload` from `crates/buffer::DrainMiner::template_distribution()`; chunk #69)
+  - `diagnostics.retry_interpretation` — pulse-app crate (`DiagnosticsApiImpl` returning `RetryInterpretationPayload` via the L4 degraded-mode FSM manual-override path; chunk #86)
+  - `diagnostics.reevaluate_recent_window` — pulse-app crate (`DiagnosticsApiImpl` opt-in FULL retrospective re-classification of the recent window via `RecentWindowReevaluator`/`LiveReevaluator` in `pulse-app/src/reevaluation.rs`; chunk #96)
+  - `diagnostics.snapshot` — pulse-app crate (`DiagnosticsApiImpl` returning `DiagnosticsSnapshotPayload` — HYBRID-RENDER L6 self-observability point-in-time aggregate of Model/Hardware/Pipeline live state from `interpretation::LlmInferenceRunner` + `triage::HardwareProfileSource` + `buffer::DrainMiner`; sub-fields with no production producer render explicit "not yet recorded" never fabricated; chunk #97)
+  - `diagnostics.history` — pulse-app crate (`DiagnosticsApiImpl` returning `DiagnosticsHistoryPayload` — validated stub: bounded-allowlist `metric_name` + clamped `window_seconds` → empty series + "not yet recorded" notice, NO corpus query; chunk #97)
+  - `config.reload`, `config.status` — pulse-app crate (`ConfigApiImpl` backed by the `crates/config-watcher` notify-watcher + `tokio::sync::watch` fan-out; `config.reload` forces an immediate re-read + hot-apply of `config.toml`, `config.status` returns the last-reload timestamp + last error category; chunk #96)
+  - `incidents.list_active`, `incidents.acknowledge`, `incidents.mark_resolved`, `incidents.mark_all_read`, `incidents.get_report` — pulse-app crate (`IncidentsApiImpl` resolver backed by `crates/triage::contract::IncidentRegistry` + `IncidentPersistence` + `IncidentLifecycleBroadcast`; chunk #78, `mark_all_read` chunk #87, `get_report` chunk #88)
+  - `model.current_profile` — pulse-app crate (`ModelApiImpl` returning `ModelProfilePayload` { profile_label, tier_label, load_status, model_identity_name } from `interpretation::contract::LlmInferenceRunner` + `triage::contract::HardwareProfileSource`; chunk #82)
 - **External HTTP routes (OTLP HTTP)**: `POST /v1/traces`, `POST /v1/metrics`, `POST /v1/logs` on `:4318`.
 - **MCP stdio surface**: standard MCP `initialize`, `tools/list`, `tools/call`, `notifications/*` over stdin/stdout when the rmcp sidecar is started.
-- **Tauri IPC events (broadcast channels)**: `pulse://stream/spans`, `pulse://stream/metrics`, `pulse://stream/logs`, `pulse://stream/snapshot-progress`, `pulse://stream/plugin-events` (deferred — no runtime emitter as of chunk #74; pending plugin invocation telemetry chunk), `pulse://stream/connection-state` (chunk #59 — see §Architecture Registry Updates 2026-05-16), `pulse://stream/attention-cues` (chunk #62 — see §Architecture Registry Updates 2026-05-17), `pulse://stream/restart-events` (chunk #63 — see §Architecture Registry Updates 2026-05-17), `pulse://stream/service-lifecycle` (chunk #67 — see §Architecture Registry Updates 2026-05-18), `pulse://stream/incidents` (chunk #78 — see §Architecture Registry Updates 2026-05-23), `pulse://stream/digests` (chunk #81 — see §Architecture Registry Updates 2026-05-23), `pulse://stream/model-status` (chunk #82 — see §Architecture Registry Updates 2026-05-24), `pulse://stream/config-events` (chunk #96 — see §Architecture Registry Updates 2026-06-04).
+- **Tauri IPC events (broadcast channels)**: `pulse://stream/spans`, `pulse://stream/metrics`, `pulse://stream/logs`, `pulse://stream/snapshot-progress`, `pulse://stream/plugin-events` (deferred — no runtime emitter as of chunk #74; pending plugin invocation telemetry chunk), `pulse://stream/connection-state` (chunk #59), `pulse://stream/attention-cues` (chunk #62), `pulse://stream/restart-events` (chunk #63), `pulse://stream/service-lifecycle` (chunk #67), `pulse://stream/incidents` (chunk #78), `pulse://stream/cadence-events` (chunk #80 — cadence coordinator L6-visibility topic, `crates/triage/src/cadence/broadcast.rs:9`), `pulse://stream/digests` (chunk #81), `pulse://stream/model-status` (chunk #82), `pulse://stream/config-events` (chunk #96).
 - **Process / service identity**:
   - Tauri app bundle identifier: `com.andromeda.pulse`
   - Binary name: `andromeda-pulse` (Linux/macOS), `andromeda-pulse.exe` (Windows)
@@ -195,7 +195,7 @@
   - In-memory database identity: `pulse_buffer` (single in-memory `:memory:` DuckDB connection, schema `main`)
   - Reserved tables: `spans`, `span_events`, `span_links`, `metrics_points`, `log_records`, `resources`, `instrumentation_scopes`, `log_templates` (8th table added per chunk #69 Phase B; `crates/buffer/src/schema.rs:18`)
 - **Corpus SQLite database / schema names**:
-  - On-disk database identity: `corpus/corpus.db` under data dir root (single SQLite connection; chunk #68 origin per §Architecture Registry Updates 2026-05-18 corpus-additions entry)
+  - On-disk database identity: `corpus/corpus.db` under data dir root (single SQLite connection; chunk #68 origin)
   - Reserved tables: `baseline_state`, `service_registry`, `pipeline_metrics`, `incidents`, `incident_events`, `digest_archive` (`crates/corpus/src/schema.rs:26-33`)
   - At-rest posture: cell-level AES-256-GCM encryption with key sourced from OS keychain (macOS Keychain / Linux Secret Service / Windows DPAPI via `keyring` crate); table + column names plaintext, BLOB cell payloads opaque without key (per security-plan.md §Data Protection §At rest; chunk #68 substrate)
 - **Filesystem locations** (the `~/.andromeda-pulse/` notation below is the Linux canonical form; per-platform resolution is fixed and applies to every path under this root):
@@ -214,13 +214,13 @@
   - `ANDROMEDA_PULSE_LOG_LEVEL` — `trace|debug|info|warn|error`
   - `ANDROMEDA_PULSE_MCP_ENABLED` — `true|false` (only honored when binary built with `--features mcp-server`). When set to `true` against a binary built without the feature, startup logs a warning at `warn` level naming the missing feature flag and proceeds with MCP disabled (rather than failing to start), so a misconfigured environment variable does not block the rest of the app.
   - `ANDROMEDA_PULSE_PLUGIN_DIR` — override `~/.andromeda-pulse/plugins/`
-  - `ANDROMEDA_PULSE_LLAMA_CUDA_BIN_PATH` — path to prebuilt `llama-cli.exe` CUDA build (b9305-pinned series); consumed by `pulse-app/src/llamacli_inference.rs` for GPU-primary / GPU-fallback tier inference per chunk #80 `HardwareProfileSource` routing (chunk #84 — see §Architecture Registry Updates 2026-05-25)
-  - `ANDROMEDA_PULSE_LLAMA_CPU_BIN_PATH` — path to prebuilt `llama-cli.exe` CPU build (b9305-pinned series); consumed by `pulse-app/src/llamacli_inference.rs` for CPU-primary / CPU-fallback / Unknown tier inference (chunk #84 — see §Architecture Registry Updates 2026-05-25)
+  - `ANDROMEDA_PULSE_LLAMA_CUDA_BIN_PATH` — path to prebuilt `llama-cli.exe` CUDA build (b9305-pinned series); consumed by `pulse-app/src/llamacli_inference.rs` for GPU-primary / GPU-fallback tier inference per chunk #80 `HardwareProfileSource` routing (chunk #84)
+  - `ANDROMEDA_PULSE_LLAMA_CPU_BIN_PATH` — path to prebuilt `llama-cli.exe` CPU build (b9305-pinned series); consumed by `pulse-app/src/llamacli_inference.rs` for CPU-primary / CPU-fallback / Unknown tier inference (chunk #84)
   - `RUST_LOG` — honored as fallback for log level filter
   - `ANDROMEDA_PULSE_PIDFILE` — harness-only override of PID file location for `scripts/agent-run.{sh,ps1}` test harness; NOT consumed by production binary (`scripts/agent-run.sh:22` + `scripts/agent-run.ps1:15`)
   - `ANDROMEDA_PULSE_LOGFILE` — harness-only override of log file location for `scripts/agent-run.{sh,ps1}` test harness; NOT consumed by production binary (`scripts/agent-run.sh:23` + `scripts/agent-run.ps1:16`)
   - `ANDROMEDA_PULSE_DATA_DIR_KEEP` — harness-only flag for `scripts/agent-run.{sh,ps1}` test harness to preserve TempDir on cleanup; NOT consumed by production binary (`scripts/agent-run.sh:99` + `scripts/agent-run.ps1:71`)
-- **Tauri capability identifiers (reserved at arch level)**: `pulse:default`, `pulse:tray`, `pulse:notification`, `pulse:updater`, `pulse:plugin-fs`, `pulse:clipboard` — concrete capability JSON files live in `pulse-app/capabilities/`. See §Architecture Registry Updates 2026-05-11 for `pulse:clipboard` chunk #43 acknowledgment.
+- **Tauri capability identifiers (reserved at arch level)**: `pulse:default`, `pulse:tray`, `pulse:notification`, `pulse:updater`, `pulse:plugin-fs`, `pulse:clipboard` — concrete capability JSON files live in `pulse-app/capabilities/`.
 - **Updater channel**: `latest.json` published to GitHub Releases under the canonical repository; updater public key is shipped baked into the Tauri config.
 - **Bundle artifact names** (per release): `andromeda-pulse_<version>_x64-setup.msi`, `andromeda-pulse_<version>_x64.dmg`, `andromeda-pulse_<version>_aarch64.dmg`, `andromeda-pulse_<version>_amd64.AppImage`, `andromeda-pulse_<version>_amd64.deb`.
 - **Docker volumes**: N/A — no Docker.
@@ -339,7 +339,7 @@ andromeda-pulse/
 - API style — external MCP: JSON-RPC 2.0 over stdio with rmcp `#[tool]` methods (feature-gated). Open question carried from Established Decisions: the input-cited "rmcp 1.5.0" must be reconciled against the published `0.3.x` line before locking — verify whether the reference is forward-looking, an internal spec name, or the unrelated `4t145/rmcp` fork; if 1.5.0 cannot be sourced, fall back to the latest published `0.3.x` and re-pin Stack accordingly.
 - Plugin runtime: `wasmtime` 25+ Component Model with WIT interfaces, capability-scoped. The Tauri-side capability `pulse:plugin-fs` gates the host's read of `~/.andromeda-pulse/plugins/` for module discovery and is independent of the per-guest WIT capability grants (which never include host filesystem unless a plugin's WIT explicitly imports a fs interface).
 - Visualization: webview WebGPU (`<canvas>` + `navigator.gpu`, WGSL).
-- LLM inference runtime: `llama.cpp` prebuilt CUDA + CPU binaries (b9305-pinned series) invoked via subprocess (D1 spawn-per-generation), wrapped behind the `LlmInferenceRunner` trait at the binary boundary (the chunk #82 trait surface; unchanged from the original mistralrs choice); native JSON-schema-constrained generation via llama.cpp's GBNF `--json-schema-file` flag; CUDA / CPU binaries selected per hardware-profile tier (`-ngl 99` GPU / `-ngl 0` CPU); bounded single-turn `-st` invocation discipline with explicit `-n {max_tokens}` cap + outer wall-clock timeout (defense in depth against unbounded generation); three documented sibling-impl swap paths through the same trait — `llama-server` HTTP (D2) if invocation rate / UX demands warrant amortizing load tax, in-process `llama-cpp-2` bindings if Windows libclang + cmake + MSVC build-toolchain cost is later justified, `candle` if needed (original chunk #82 swap path remains valid). The original Pre-D1 choice of `mistralrs = "=0.8.0"` was empirically invalidated by upstream issue #1134 (CPU inference deadlock on Windows MSVC) and replaced per the [LLM Inference Runtime — L4 interpretation layer] Established Decision (v0.2.0 Epoch 9+; v0.1.0 had no in-process model).
+- LLM inference runtime: `llama.cpp` prebuilt CUDA + CPU binaries (b9305-pinned series) invoked via subprocess (D1 spawn-per-generation), behind the `LlmInferenceRunner` trait (chunk #82 surface); native JSON-schema-constrained generation via GBNF `--json-schema-file`; CUDA/CPU binary per hardware-profile tier (`-ngl 99` GPU / `-ngl 0` CPU); bounded single-turn `-st` + `-n {max_tokens}` + outer wall-clock timeout. Three documented sibling-impl swap paths through the trait (`llama-server` D2 / in-process `llama-cpp-2` / `candle`). *(Superseded the Pre-D1 `mistralrs = "=0.8.0"` choice — see `architecture-amendments.md`.)*
 - Error handling: `thiserror` 2.x in modules, `anyhow` 1.x at boundaries, `serde`-friendly `AppError` enum at the IPC bridge.
 - Validation: `serde` + smart enum types + `TryFrom<u16>`; no validation library by default.
 - Module boundaries: Cargo workspace, one crate per module, dependency-graph enforcement.
@@ -352,225 +352,4 @@ andromeda-pulse/
 
 ## Existing Scopes
 
-- **`pulse-v0_2_0-route`** — Pulse v0.2.0 evolution scope. Defined at `docs/v0_2_0/pulse-v0_2_0-route.md`. Active scope drives Epoch 9 (Foundation v0.2.0) work: chunks #57 (widget real-data binding) → #58 (curation crate extraction) → #59 (connection state machine) → #60 (triage crate scaffold + attention cue contract types) → subsequent v0.2.0 chunks (#61+ streaming baseline trackers / #62 attention cue emitter / #63 restart event detector / etc.). Registered 2026-05-16 per chunk #60 substrate landing (session 74 wrap commit `589225f` — see §Architecture Registry Updates 2026-05-16). Supporting documents: `docs/v0_2_0/pulse-capability-spec.md` (capability spec P-001 through P-060+), `docs/v0_2_0/pulse-distillation-architecture.md` (L1-L4 layered pipeline), `docs/v0_2_0/pulse-vision-and-backlog.md` (product framing + backlog).
-
-## Architecture Registry Updates
-
-_This section accumulates entries from `/andromeda-evolve --allow-arch-registry` invocations that legitimize implementation reality in the registry sections of this document (typically §Occupied Resources). Entries are NOT specialist-plan Decisions Log entries — they record arch-level acknowledgments of code that landed via /andromeda-implement chunks before /andromeda-arch could update the canonical registry list. Entry format mirrors specialist-plan Decisions Log conventions (`### {YYYY-MM-DD} — {title}`). Cleanup convention: this section is preserved across /andromeda-arch re-runs as audit trail; never deleted._
-
-### 2026-05-09 — Acknowledge `streams.*` namespace (--allow-arch-registry)
-
-**Section:** §Occupied Resources Tauri IPC routes.
-**Added:**
-- `streams.subscribe_spans` (`pulse-app/src/streams.rs:16`, chunk #23)
-- `streams.subscribe_metrics` (`pulse-app/src/streams.rs:17`, chunk #23)
-- `streams.subscribe_logs` (`pulse-app/src/streams.rs:18`, chunk #23)
-**Rationale:** D3 stale-drift closure for chunk #23 TauRPC procedures (age 7 wraps in state.yaml.drift_warnings). Sibling amendment legitimizes telemetry.frontend.* simultaneously.
-**Marker:** `.andromeda/runs/2026-05-09T11-45-00-spec-amendment-legitimize-streams-namespace/amendment.md`
-
-### 2026-05-09 — Acknowledge `telemetry.frontend.*` namespace (--allow-arch-registry)
-
-**Section:** §Occupied Resources Tauri IPC routes.
-**Added:** `telemetry.frontend.record_frame_ms` (`crates/ui-bridge/src/telemetry.rs:99`, chunk #29).
-**Rationale:** D3 capability-drift closure for chunk #29 frontend telemetry resolver. Sibling amendment legitimizes streams.* simultaneously.
-**Marker:** `.andromeda/runs/2026-05-09T11-45-00-spec-amendment-legitimize-telemetry-namespace/amendment.md`
-
-### 2026-05-11 — Acknowledge `pulse:clipboard` capability (--allow-arch-registry)
-
-**Section:** §Occupied Resources Tauri capability identifiers.
-**Added:** `pulse:clipboard` (`pulse-app/capabilities/clipboard.json`, chunk #43 partial commit `6e2d398`).
-**Rationale:** D3 capability-drift closure for chunk #43 clipboard-manager write-only capability (security plan §Anti-Patterns API row 6 — clipboard read excluded). Mirrors 2026-05-09 streams.* / telemetry.* precedent.
-**Marker:** `.andromeda/runs/2026-05-11T00-15-00-spec-amendment-acknowledge-pulse-clipboard-capability/amendment.md`
-
-### 2026-05-16 — Acknowledge `curation` crate (--allow-arch-registry)
-
-**Section:** §Occupied Resources Cargo workspace crate names.
-**Added:** `curation` (`crates/curation/Cargo.toml`, chunk #58 Epoch 9 Foundation v0.2.0).
-**Rationale:** D3 capability-drift closure for chunk #58 workspace member (curation primitives extracted from snapshot). Mirrors 2026-05-11 pulse:clipboard precedent.
-**Marker:** `.andromeda/runs/2026-05-16T16-15-00-spec-amendment-acknowledge-curation-crate/amendment.md`
-
-### 2026-05-16 — Acknowledge `connection.current_state` + `pulse://stream/connection-state` (--allow-arch-registry)
-
-**Section:** §Occupied Resources Tauri IPC routes + Tauri IPC events (broadcast channels).
-**Added:**
-- `connection.current_state` (`pulse-app/src/connection_router.rs:46`, chunk #59)
-- `pulse://stream/connection-state` (`crates/ingest/src/connection.rs:25`, chunk #59)
-**Rationale:** D3 capability-drift closure for chunk #59 connection FSM TauRPC + broadcast topic. Mirrors 2026-05-16 curation crate precedent.
-**Marker:** `.andromeda/runs/2026-05-16T22-08-32-spec-amendment-acknowledge-connection-namespace/amendment.md`
-
-### 2026-05-16 — Acknowledge `triage` crate + register `pulse-v0_2_0-route` scope (--allow-arch-registry)
-
-**Section:** §Occupied Resources Cargo workspace crate names + §Existing Scopes.
-**Added:**
-- `triage` (`crates/triage/Cargo.toml`, chunk #60 commit `589225f`)
-- `pulse-v0_2_0-route` (first registered scope; defined at `docs/v0_2_0/pulse-v0_2_0-route.md`)
-**Rationale:** D3 capability-drift closure for chunk #60 workspace member + first scope registration (Check 7.4 first-entry case for §Existing Scopes). Mirrors 2026-05-16 curation crate precedent + extends with first-ever scope.
-**Marker:** `.andromeda/runs/2026-05-16T23-39-39-spec-amendment-acknowledge-triage-crate-and-scope/amendment.md`
-
-### 2026-05-17 — Acknowledge `pulse://stream/attention-cues` (--allow-arch-registry)
-
-**Section:** §Occupied Resources Tauri IPC events (broadcast channels).
-**Added:** `pulse://stream/attention-cues` (`crates/triage/src/cue/broadcast.rs:8`, chunk #62 commit `aeb4d7d`).
-**Rationale:** D3 capability-drift closure for chunk #62 cue emitter broadcast topic. Mirrors 2026-05-16 chunk #59 `connection-state` precedent.
-**Marker:** `.andromeda/runs/2026-05-17T10-34-52-spec-amendment-acknowledge-attention-cues-broadcast/amendment.md`
-
-### 2026-05-17 — Acknowledge `pulse://stream/restart-events` (--allow-arch-registry)
-
-**Section:** §Occupied Resources Tauri IPC events (broadcast channels).
-**Added:** `pulse://stream/restart-events` (`crates/triage/src/pattern/broadcast.rs:8`, chunk #63 commit `61ca564`).
-**Rationale:** D3 capability-drift closure for chunk #63 restart-event broadcast topic. Mirrors 2026-05-17 chunk #62 `attention-cues` precedent.
-**Marker:** `.andromeda/runs/2026-05-17T14-15-00-spec-amendment-acknowledge-restart-events-broadcast/amendment.md`
-
-### 2026-05-18 — Acknowledge `services.list_with_states` + `pulse://stream/service-lifecycle` (--allow-arch-registry)
-
-**Section:** §Occupied Resources Tauri IPC routes + Tauri IPC events (broadcast channels).
-**Added:**
-- `services.list_with_states` (`pulse-app/src/services_router.rs:61`, chunk #67)
-- `pulse://stream/service-lifecycle` (`crates/triage/src/lifecycle/broadcast.rs:16`, chunk #67)
-**Rationale:** D3 capability-drift closure for chunk #67 service registry + lifecycle FSM TauRPC + broadcast topic. Mirrors 2026-05-16 chunk #59 `connection-state` precedent (single-coordinated dual TauRPC + broadcast amendment).
-**Marker:** `.andromeda/runs/2026-05-18T16-53-11-spec-amendment-acknowledge-services-namespace/amendment.md`
-
-### 2026-05-18 — Acknowledge `corpus` + `security` crates + `storage.{inspect,path}` TauRPC + `corpus/corpus.db` filesystem subpath (--allow-arch-registry)
-
-**Section:** §Occupied Resources Cargo workspace crate names + Tauri IPC routes + Filesystem locations.
-**Added:**
-- `corpus` (`Cargo.toml:11`, `crates/corpus/src/lib.rs`, chunk #68)
-- `security` (`Cargo.toml:12`, `crates/security/src/lib.rs`, chunk #68)
-- `storage.inspect` (`pulse-app/src/storage_router.rs:50`, chunk #68)
-- `storage.path` (`pulse-app/src/storage_router.rs:50`, chunk #68)
-- `corpus/corpus.db` subpath under data dir root (`pulse-app/src/main.rs:353`, chunk #68)
-**Rationale:** D3 capability-drift closure for chunk #68 persistent incident corpus + PII scrubber + storage router. Mirrors 2026-05-18 chunk #67 `services-namespace` precedent (single-coordinated multi-item Registry Update across sub-sections under §Occupied Resources).
-**Marker:** `.andromeda/runs/2026-05-18T19-55-24-spec-amendment-acknowledge-chunk-68-corpus-additions/amendment.md`
-
-### 2026-05-19 — Acknowledge `diagnostics.template_distribution` (--allow-arch-registry)
-
-**Section:** §Occupied Resources Tauri IPC routes.
-**Added:** `diagnostics.template_distribution` (`pulse-app/src/diagnostics_router.rs:59`, chunk #69).
-**Rationale:** D3 capability-drift closure for chunk #69 Drain template-profiling diagnostics TauRPC procedure. Mirrors 2026-05-17 chunk #62 `attention-cues` precedent (single-item Type 6).
-**Marker:** `.andromeda/runs/2026-05-19T20-54-03-spec-amendment-acknowledge-diagnostics-namespace/amendment.md`
-
-### 2026-05-21 — Acknowledge `log_templates` DuckDB table + Corpus SQLite schema sub-section (--allow-arch-registry)
-
-**Section:** §Occupied Resources DuckDB database / schema names + new §Occupied Resources Corpus SQLite database / schema names sub-section.
-**Added:**
-- `log_templates` DuckDB reserved table (`crates/buffer/src/schema.rs:18`, chunk #69 Phase B; closes Step 32 deferred work self-flagged in schema.rs:5-9)
-- New sub-section "Corpus SQLite database / schema names" listing 6 tables (`baseline_state`, `service_registry`, `pipeline_metrics`, `incidents`, `incident_events`, `digest_archive`) per `crates/corpus/src/schema.rs:26-33` (chunk #68 origin per 2026-05-18 corpus-additions amendment; encryption posture cross-references security-plan.md §Data Protection §At rest)
-**Rationale:** D3 capability-drift closure for chunk #74 v3 Phase 6 Consolidation amendment 1 of 3 — closes chunk #69 Phase B Step 32 deferred work + chunk #68 corpus schema registry completeness. Mirrors 2026-05-18 chunk #68 corpus-additions multi-item amendment precedent.
-**Marker:** `.andromeda/runs/2026-05-21T12-08-11-spec-amendment-acknowledge-log-templates-and-corpus-schema/amendment.md`
-
-### 2026-05-21 — Tag-defer forward-promise entries: `snapshot.list_recent` / `snapshot.copy_to_clipboard` / `workspace.list` / `pulse://stream/plugin-events` / `ANDROMEDA_PULSE_CONFIG_PATH` (--allow-arch-registry)
-
-**Section:** §Occupied Resources Tauri IPC routes + Tauri IPC events (broadcast channels) + Environment variables.
-**Added** (tag-deferred parenthetical, NOT hard-deletion — preserves audit trail per chunk #74 plan; establishes new cleanup-amendment convention since all prior Type 6 amendments were additive):
-- `snapshot.list_recent` + `snapshot.copy_to_clipboard` — tagged "(deferred — no runtime emitter as of chunk #74; only `snapshot.generate` implemented at `pulse-app/src/snapshot_runtime.rs`)"
-- `workspace.list` — tagged "(deferred — no runtime emitter as of chunk #74; only `workspace.detect` implemented at `crates/ui-bridge/src/workspace_ipc.rs:47`)"
-- `pulse://stream/plugin-events` — tagged "(deferred — no runtime emitter as of chunk #74; pending plugin invocation telemetry chunk)"
-- `ANDROMEDA_PULSE_CONFIG_PATH` — tagged "(deferred — no runtime consumer as of chunk #74; Settings uses fixed `<data_dir>/config.toml` per `crates/ui-bridge/src/contract.rs`)"
-**Rationale:** D3 forward-promise drift closure per audit Section 1.F + 2.I findings (chunk #74 v3 Phase 6 Consolidation amendment 2 of 3). Establishes cleanup-amendment convention: tag-deferred parenthetical preserves audit trail of the original architectural promise. Cross-document grep verified zero runtime references across `crates/` + `pulse-app/` (only `xtask/src/main.rs:682-683` future-deferred comments — expected, not runtime emitter). xtask `EXPECTED_PROCEDURES` already correctly omits the 3 forward-promise TauRPC procedures; capability-drift gate unchanged.
-**Marker:** `.andromeda/runs/2026-05-21T12-13-44-spec-amendment-tag-defer-forward-promises/amendment.md`
-
-### 2026-05-21 — Acknowledge harness-only env vars + `run/andromeda-pulse.pid` filesystem subpath (--allow-arch-registry)
-
-**Section:** §Occupied Resources Environment variables + §Occupied Resources Filesystem locations.
-**Added:**
-- `ANDROMEDA_PULSE_PIDFILE` env var (harness-only override; `scripts/agent-run.sh:22` + `scripts/agent-run.ps1:15`; NOT consumed by production binary)
-- `ANDROMEDA_PULSE_LOGFILE` env var (harness-only override; `scripts/agent-run.sh:23` + `scripts/agent-run.ps1:16`; NOT consumed by production binary)
-- `ANDROMEDA_PULSE_DATA_DIR_KEEP` env var (harness-only flag for TempDir preservation; `scripts/agent-run.sh:99` + `scripts/agent-run.ps1:71`; NOT consumed by production binary)
-- `run/andromeda-pulse.pid` filesystem subpath under data dir root (PID file written by production binary at `pulse-app/src/main.rs:196`; consumed by harness scripts for status/cleanup)
-**Rationale:** Registry completeness — harness contract env vars (3) + production-binary PID file subpath (1) acknowledged per chunk #74 v3 Phase 6 Consolidation amendment 3 of 3. Mirrors 2026-05-18 chunk #68 corpus-additions multi-item additive precedent. All harness env vars tagged with "harness-only" qualifier per security plan §Input Validation discipline scope (production path env vars still bound by §Anti-Pattern Input row 4 canonicalization; harness-only env vars explicitly excluded from that requirement).
-**Marker:** `.andromeda/runs/2026-05-21T12-15-47-spec-amendment-acknowledge-harness-env-and-pid-subpath/amendment.md`
-
-### 2026-05-23 — Acknowledge `incidents.*` namespace + `pulse://stream/incidents` (--allow-arch-registry)
-
-**Section:** §Occupied Resources Tauri IPC routes + Tauri IPC events (broadcast channels).
-**Added:**
-- `incidents.list_active` (`pulse-app/src/incidents_router.rs:83`, chunk #78)
-- `incidents.acknowledge` (`pulse-app/src/incidents_router.rs:84`, chunk #78)
-- `incidents.mark_resolved` (`pulse-app/src/incidents_router.rs:85`, chunk #78)
-- `pulse://stream/incidents` (`crates/triage/src/incident/broadcast.rs:17`, chunk #78)
-**Rationale:** D3 capability-drift closure for chunk #78 incidents namespace TauRPC procedures + lifecycle broadcast topic. Mirrors 2026-05-18 chunk #67 `services-namespace` + chunk #68 `corpus-additions` precedents (single-coordinated multi-item amendment across sub-sections under §Occupied Resources).
-**Marker:** `.andromeda/runs/2026-05-23T07-49-08-spec-amendment-acknowledge-incidents-namespace/amendment.md`
-
-### 2026-05-23 — Acknowledge `pulse://stream/cadence-events` (--allow-arch-registry)
-
-**Section:** §Occupied Resources Tauri IPC events (broadcast channels).
-**Added:** `pulse://stream/cadence-events` (`crates/triage/src/cadence/broadcast.rs:9`, chunk #80).
-**Rationale:** D3 capability-drift closure for chunk #80 cadence coordinator L6-visibility broadcast topic. Mirrors 2026-05-17 chunk #62 `attention-cues` + chunk #63 `restart-events` precedents.
-**Marker:** `.andromeda/runs/2026-05-23T12-10-53-spec-amendment-acknowledge-cadence-events-broadcast/amendment.md`
-
-### 2026-05-23 — Acknowledge `pulse://stream/digests` (--allow-arch-registry)
-
-**Section:** §Occupied Resources Tauri IPC events (broadcast channels).
-**Added:** `pulse://stream/digests` (`crates/triage/src/digest/broadcast.rs:15`, chunk #81).
-**Rationale:** D3 capability-drift closure for chunk #81 L3 digest assembler broadcast topic. Mirrors 2026-05-23 chunk #80 `cadence-events` precedent.
-**Marker:** `.andromeda/runs/2026-05-23T21-46-00-spec-amendment-acknowledge-digests-broadcast/amendment.md`
-
-### 2026-05-24 — Acknowledge `interpretation` crate + `model.current_profile` TauRPC + `pulse://stream/model-status` broadcast (--allow-arch-registry)
-
-**Section:** §Occupied Resources Cargo workspace crate names + Tauri IPC routes + Tauri IPC events (broadcast channels).
-**Added:**
-- `interpretation` (`Cargo.toml:14`, `crates/interpretation/src/{lib,contract,hardware,broadcast}.rs`, chunk #82)
-- `model.current_profile` (`pulse-app/src/model_router.rs:48`, chunk #82)
-- `pulse://stream/model-status` (`crates/interpretation/src/broadcast.rs:14`, chunk #82)
-**Rationale:** D3 capability-drift closure for chunk #82 Hardware profile detection + model loading + tokenizer substrate (L4 LLM interpretation pipeline initiation). Mirrors 2026-05-18 chunk #68 corpus-additions + chunk #67 services-namespace single-coordinated multi-item amendment precedents across sub-sections under §Occupied Resources.
-**Marker:** `.andromeda/runs/2026-05-24T15-58-15-spec-amendment-acknowledge-chunk-82-additions/amendment.md`
-
-### 2026-05-25 — Acknowledge `ANDROMEDA_PULSE_LLAMA_CUDA_BIN_PATH` + `ANDROMEDA_PULSE_LLAMA_CPU_BIN_PATH` env vars (--allow-arch-registry)
-
-**Section:** §Occupied Resources Environment variables.
-**Added:**
-- `ANDROMEDA_PULSE_LLAMA_CUDA_BIN_PATH` (`pulse-app/src/llamacli_inference.rs::ENV_LLAMA_CUDA_BIN_PATH`, chunk #84)
-- `ANDROMEDA_PULSE_LLAMA_CPU_BIN_PATH` (`pulse-app/src/llamacli_inference.rs::ENV_LLAMA_CPU_BIN_PATH`, chunk #84)
-**Rationale:** D3 capability-drift closure for chunk #84 L4 LLM runtime swap (mistralrs → llama.cpp subprocess D1). Two env vars resolve the prebuilt `llama-cli.exe` binary path per chunk #80 `HardwareProfileSource` tier routing (CUDA build for GPU profiles + CPU build for CPU profiles + Unknown safe-default); canonicalized via `Path::canonicalize()` + `metadata().is_file()` assert before `tokio::process::Command::new()` invocation per arch §Critical Warnings path-env-var-canonicalization rule. `_PATH` suffix conforms to arch §Conventions environment-variable naming discipline. Mirrors 2026-05-18 chunk #68 corpus-additions + 2026-05-24 chunk #82 interpretation-crate-additions single-coordinated multi-item amendment precedents under §Occupied Resources.
-**Marker:** `.andromeda/runs/2026-05-25T12-34-46-spec-amendment-acknowledge-chunk-84-llama-bin-paths/amendment.md`
-
-### 2026-05-25 — Acknowledge `diagnostics.retry_interpretation` (--allow-arch-registry)
-
-**Section:** §Occupied Resources Tauri IPC routes.
-**Added:** `diagnostics.retry_interpretation` (`pulse-app/src/diagnostics_router.rs:60-89` trait + `pulse-app/src/diagnostics_router.rs:107-155` resolver impl, chunk #86).
-**Rationale:** D3 capability-drift closure for chunk #86 JSON parse failure handling + backoff + resolution summary (L4 degraded-mode FSM manual-override path; capabilities P-020 graceful degradation reaching full). Sibling к existing `diagnostics.template_distribution` chunk #69 entry в the same `diagnostics.*` namespace + same §Occupied Resources Tauri IPC routes section. Mirrors 2026-05-19 chunk #69 + 2026-05-25 chunk #84 single-coordinated single-item amendment precedents.
-**Marker:** `.andromeda/runs/2026-05-25T18-49-17-spec-amendment-acknowledge-chunk-86-diagnostics-retry-interpretation/amendment.md`
-
-### 2026-05-26 — Acknowledge `incidents.mark_all_read` (--allow-arch-registry)
-
-**Section:** §Occupied Resources Tauri IPC routes.
-**Added:** `incidents.mark_all_read` (`pulse-app/src/incidents_router.rs:97` trait + `pulse-app/src/incidents_router.rs:292` resolver impl, chunk #87).
-**Rationale:** D3 capability-drift closure for chunk #87 Findings counter + dropdown (capabilities P-028 / P-029 / P-030 — incident bulk-acknowledge from widget UI). Sibling к existing `incidents.{list_active,acknowledge,mark_resolved}` chunk #78 entry в the same `incidents.*` namespace + same §Occupied Resources Tauri IPC routes section. Mirrors 2026-05-25 chunk #86 `diagnostics.retry_interpretation` single-coordinated single-item amendment precedent.
-**Marker:** `.andromeda/runs/2026-05-26T16-25-48-spec-amendment-acknowledge-chunk-87-incidents-mark-all-read/amendment.md`
-
-### 2026-05-27 — Acknowledge `incidents.get_report` (--allow-arch-registry)
-
-**Section:** §Occupied Resources Tauri IPC routes.
-**Added:** `incidents.get_report` (`pulse-app/src/incidents_router.rs:173` trait + `pulse-app/src/incidents_router.rs:424` resolver impl, chunk #88).
-**Rationale:** D3 capability-drift closure for chunk #88 Diagnostic Report generation (capabilities P-031 + P-035–P-038 — in-app six-section report + copy-markdown action). Sibling к existing `incidents.{list_active,acknowledge,mark_resolved}` chunk #78 entry + `incidents.mark_all_read` chunk #87 entry в the same `incidents.*` namespace + same §Occupied Resources Tauri IPC routes section. Mirrors 2026-05-26 chunk #87 `incidents.mark_all_read` single-coordinated single-item amendment precedent.
-**Marker:** `.andromeda/runs/2026-05-27T17-09-46-spec-amendment-acknowledge-chunk-88-incidents-get-report/amendment.md`
-
-### 2026-06-03 — Acknowledge `storage.export_for_training` + `~/Downloads` egress exception (--allow-arch-registry)
-
-**Section:** §Occupied Resources Tauri IPC routes + Filesystem locations.
-**Added:**
-- `storage.export_for_training` (`pulse-app/src/storage_router.rs:67` trait + `:157` resolver impl, chunk #95) — anonymized JSONL incident corpus dump from `crates/corpus::CorpusWriter::load_all_incidents` via `pulse-app/src/training_export.rs`.
-- `<home>/Downloads/pulse-corpus-export-{ts}.jsonl` out-of-data-dir egress sink (`pulse-app/src/training_export.rs:255`, chunk #95) — the one documented exception to the under-data-dir path-confinement rule; `..`-traversal-rejected + parent-dir-validated + egress-boundary PII-scrubbed.
-**Rationale:** D3 capability-drift closure for chunk #95 Export for community training (capability P-046 — L5 community-training export channel; no auto-submission). Mirrors 2026-05-27 chunk #88 `incidents.get_report` single-coordinated amendment precedent, extended to the multi-sub-section shape of the chunk #68 corpus-additions entry.
-**Marker:** `.andromeda/runs/2026-06-03T17-26-46-spec-amendment-acknowledge-chunk-95-export-for-training/amendment.md`
-
-### 2026-06-04 — Acknowledge `config-watcher` crate + `config.{reload,status}` + `diagnostics.reevaluate_recent_window` TauRPC + `pulse://stream/config-events` broadcast (--allow-arch-registry)
-
-**Section:** §Occupied Resources Cargo workspace crate names + Tauri IPC routes + Tauri IPC events (broadcast channels).
-**Added:**
-- `config-watcher` crate (`crates/config-watcher/Cargo.toml` + `src/lib.rs`; workspace member `Cargo.toml:17`, chunk #96) — `notify` 8.x FS watcher on `<data_dir>/config.toml` with `tokio::sync::watch` fan-out to running cadence/lifecycle subscribers.
-- `config.reload` + `config.status` (`pulse-app/src/config_router.rs:70-73` `#[taurpc::procedures(path = "config")] trait ConfigApi`, chunk #96).
-- `diagnostics.reevaluate_recent_window` (`pulse-app/src/diagnostics_router.rs:104` trait + `:182` resolver impl, chunk #96).
-- `pulse://stream/config-events` (`crates/config-watcher/src/event.rs:13` `STREAM_NAME_CONFIG_EVENTS`, chunk #96) — aggregate-only `ConfigEvent` (kind/counts/error_category; no raw config values or paths per logging discipline).
-**Rationale:** D3 capability-drift closure for chunk #96 Configuration hot reload + prospective threshold application (capabilities P-055 / P-056). Single-coordinated multi-item amendment mirroring 2026-05-24 chunk #82 (crate + TauRPC + broadcast) + 2026-05-18 chunk #68 corpus-additions multi-sub-section precedents; the `notify` 8.x workspace dep is §Stack/dep-tree territory (excluded from this registry amendment), and word-form narrative-cascade warnings (§Design Philosophy "twelve library crates" → 14 / "fourteen workspace members" → 16) are surfaced informationally per Check 7.5 Option B (structural §Design Philosophy NOT modified).
-**Marker:** `.andromeda/runs/2026-06-04T17-05-12-spec-amendment-acknowledge-chunk-96-config-hot-reload/amendment.md`
-
-### 2026-06-05 — Acknowledge `diagnostics.snapshot` + `diagnostics.history` (--allow-arch-registry)
-
-**Section:** §Occupied Resources Tauri IPC routes.
-**Added:**
-- `diagnostics.snapshot` (`pulse-app/src/diagnostics_router.rs:193` trait + `:309` resolver impl, chunk #97).
-- `diagnostics.history` (`pulse-app/src/diagnostics_router.rs:194` trait + `:383` resolver impl, chunk #97).
-**Rationale:** D3 capability-drift closure for chunk #97 Settings → Diagnostics view (L6 self-observability surface, HYBRID-RENDER scope). Mirrors 2026-06-04 chunk #96 `diagnostics.reevaluate_recent_window` + 2026-05-25 chunk #86 `diagnostics.retry_interpretation` + 2026-05-19 chunk #69 `diagnostics.template_distribution` precedent.
-**Marker:** `.andromeda/runs/2026-06-05T17-56-29-spec-amendment-acknowledge-chunk-97-diagnostics-snapshot-history/amendment.md`
-
+- **`pulse-v0_2_0-route`** — Pulse v0.2.0 evolution scope. Defined at `docs/v0_2_0/pulse-v0_2_0-route.md`. Active scope drives Epoch 9 (Foundation v0.2.0) work: chunks #57 (widget real-data binding) → #58 (curation crate extraction) → #59 (connection state machine) → #60 (triage crate scaffold + attention cue contract types) → subsequent v0.2.0 chunks (#61+ streaming baseline trackers / #62 attention cue emitter / #63 restart event detector / etc.). Registered 2026-05-16 per chunk #60 substrate landing (session 74 wrap commit `589225f`). Supporting documents: `docs/v0_2_0/pulse-capability-spec.md` (capability spec P-001 through P-060+), `docs/v0_2_0/pulse-distillation-architecture.md` (L1-L4 layered pipeline), `docs/v0_2_0/pulse-vision-and-backlog.md` (product framing + backlog).

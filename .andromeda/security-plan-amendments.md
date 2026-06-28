@@ -1,0 +1,182 @@
+# Security Plan — Amendment History (andromeda-pulse)
+
+_Append-only v3 changelog sidecar for `security-plan.md`._
+
+_**The plan body (`security-plan.md`) holds ONLY current truth.** This file holds the
+externalized Security Decisions Log and superseded guidance, plus a pointer to where each
+item's current-truth substance now lives in the body. Append new entries at the bottom;
+never modify or delete historical entries._
+
+---
+
+## 2026-06-28 — v3 normalization: externalize the Security Decisions Log
+
+**Section:** `## Security Decisions Log` (was the body's final section)
+**Change:** Moved all five dated entries (`2026-05-02` … `2026-05-22`) plus the section intro and
+the "Subsequent entry format" template out of the body and into this sidecar (preserved verbatim
+under _Externalized Security Decisions Log_ below). Removed the section from the body.
+**Why:** v3 shape — the Decisions Log is append-only history, not current truth; current truth lives
+in the body sections, this changelog lives here.
+**Marker:** removed the `## Security Decisions Log` heading + the `(Append new entries at the bottom; do not modify historical entries.)` template from the body.
+
+**Info-loss cross-check (every current-truth item in the 2026-05-02 entry was already in the body, except one — folded first):**
+- Tier = Minimal (0) + justification → already in body §Threat Model Summary.
+- Authorization model (Tauri capability gating + loopback OTLP + wasmtime WIT) → already in body §Threat Model (Auth model) + §API Security + §Data Protection.
+- Code-signing key custody (Azure Key Vault Premium + GitHub OIDC; updater Minisign key) → already in body §Secret Management + §Data Protection (Code-signing key custody).
+- OTLP `:4318` Host-header allowlist + CORS deny-by-default + body-size cap → already in body §API Security.
+- Plugin host `ResourceLimiter` + `epoch_interruption(true)` + wasi-http field bound → already in body §API Security + §Input Validation.
+- `tonic` 0.14 ↔ `opentelemetry-otlp` 0.31 / `tonic` 0.13 duplicate → already in body §Dependency Security + §Anti-Patterns §Universal + §Bootstrap.
+- `rmcp` "1.5.0" vs 0.3.x reconciliation → already in body §Dependency Security + §Input Validation.
+- `rust-toolchain` ≥ 1.85.0 (Edition 2024) → control already in body §Anti-Patterns §Universal ("NEVER let the rust-toolchain drift below 1.85.0").
+- Snapshot / clipboard / MCP OTLP-attribute leakage handled by warnings, not sanitization → already in body §Logging & Monitoring + §Data Protection.
+- Tauri updater Minisign key-rotation runbook (transitional dual-key release) → already in body §Secret Management (Rotation cadence).
+- **FOLDED (was only in the log):** WASM plugin signature verification deferred post-v1 → third-party plugins run unverified in v1; capability-scoped WIT + `ResourceLimiter` mitigate impact, not provenance; accepted residual risk, surfaced in the plugin-install README. Folded into body §Data Protection (At rest — Plugins bullet) before externalizing (the body bullet previously only said "Documented as a residual risk in §Security Decisions Log").
+
+**Note:** the `2026-05-22` entry (chunk #77) records four body rewrites that are ALL already present
+in the current body — §Threat Model corpus.db data-type, §Data Protection corpus.db at-rest row,
+§Secret Management runtime corpus key + "What counts as secret" entry, §Anti-Patterns §Logging
+uniform-scrubber framing. No re-fold needed; the entry is pure history of changes already in the body.
+
+---
+
+## 2026-06-28 — Fold + externalize: `opentelemetry-stdout` → tracing-only self-observation
+
+**Section:** §Data Protection (Logs medium) · §Bootstrap phases (`logging-redaction-wire`) · §Logging & Monitoring (Log format) · §Error Handling (internal logging)
+**Change:** Replaced the superseded `opentelemetry-stdout` / file-exporter references in the body with
+the current self-observation truth: `tracing` + `tracing-subscriber` JSON formatter writing to
+`~/.andromeda-pulse/logs/agent-latest.jsonl` (tracing-only; **no OTel SDK linked into the
+self-runtime**). Removed the three `[DEPRECATED 2026-05-08]` blockquotes. Also corrected the
+**unannotated** `opentelemetry-stdout` reference in §Error Handling (it never carried a deprecation
+blockquote but was the same superseded term). Superseded text preserved verbatim below.
+**Why:** obs-plan §12 Phase 3.5 pivot — drop the OTel SDK from the self-runtime; `tracing-subscriber`
+JSON is the canonical self-observation surface. Functionally equivalent (JSON-per-line at the same
+path); no security-posture change. (See the `2026-05-08` Decisions Log entries below for the original
+reconciliation + annotation history.)
+**Marker:** removed 3× `> **DEPRECATED (2026-05-08):** …` blockquotes; current truth is now stated
+inline at each of the four sites.
+
+Superseded body text, preserved for audit trail:
+
+- §Data Protection (Logs medium) blockquote + body:
+  > **DEPRECATED (2026-05-08):** see Decisions Log entry "2026-05-08 — Annotate body deprecation: §Data Protection / §Bootstrap / §Logging opentelemetry-stdout refs". The `opentelemetry-stdout` reference below is superseded by obs-plan §12 Phase 3.5 pivot (no OTel SDK in self-runtime); `tracing-subscriber` JSON formatter at `~/.andromeda-pulse/logs/agent-latest.jsonl` is the canonical self-observation surface. Body preserved for audit trail.
+
+  `opentelemetry-stdout`/file exporter destination per Cross-cutting Patterns Self-observation; redaction rules in §Logging & Monitoring apply.
+
+- §Bootstrap phases (`logging-redaction-wire`) blockquote + body:
+  > **DEPRECATED (2026-05-08):** see Decisions Log entry "2026-05-08 — Annotate body deprecation: §Data Protection / §Bootstrap / §Logging opentelemetry-stdout refs". The `opentelemetry-stdout` reference below is superseded by obs-plan §12 Phase 3.5 pivot; `tracing-subscriber` JSON formatter is the canonical self-observation primitive. Body preserved for audit trail.
+
+  Wire logger redact paths per §Logging & Monitoring. Self-observation uses `opentelemetry-stdout` to `~/.andromeda-pulse/logs/` per Cross-cutting Patterns. Snapshot/clipboard/MCP-tool-response paths must apply attribute-value redaction for incidentally captured secrets per the snapshot/clipboard hygiene note.
+
+- §Logging & Monitoring (Log format) blockquote + body:
+  > **DEPRECATED (2026-05-08):** see Decisions Log entry "2026-05-08 — Annotate body deprecation: §Data Protection / §Bootstrap / §Logging opentelemetry-stdout refs". The `opentelemetry-stdout` reference in the paragraph below is superseded by obs-plan §12 Phase 3.5 pivot; `tracing-subscriber` is the sole self-observation primitive (no OTel SDK linked). Body preserved for audit trail.
+
+  **Log format:** structured (JSON) via `tracing` + `tracing-subscriber` (the Rust ecosystem standard that pairs with `opentelemetry-stdout` exporter per Cross-cutting Patterns); consistent fields per the obs plan's eventual schema. Field redaction is applied at the subscriber layer, not at log call sites.
+
+- §Error Handling (internal logging) — original superseded phrase (no blockquote existed here):
+  "full error details to `opentelemetry-stdout` / file exporter at `~/.andromeda-pulse/logs/` per Cross-cutting Patterns Self-observation".
+
+---
+
+## 2026-06-28 — Fold + externalize: `max_wasm_http_fields_size` correction (was `[AMENDED 2026-05-11]`)
+
+**Section:** §Input Validation (Plugin host inputs row) · §API Security (Plugin host capability sandbox row)
+**Change:** Replaced the body's `Config::max_wasm_http_fields_size` mentions and the two inline
+`[AMENDED 2026-05-11 — see Decisions Log …]` markers with the corrected current truth: the canonical
+bound is the `MAX_WASM_HTTP_FIELDS_SIZE_BYTES` const in `crates/plugins/src/engine.rs` (this is **NOT**
+a `wasmtime::Config` method); enforcement attaches via the wasi-http context
+(`WasiHttpCtxBuilder::max_field_size`) when wasi-http imports are introduced at chunk #46+. The
+CVE-2026-27572 (April 2026 wasi-http header-explosion) anchor is preserved.
+**Why:** spec↔reality drift fixed during `/andromeda-implement` chunk #45 (full `2026-05-11` Decisions
+Log entry preserved below). The non-existent method call was removed from `engine.rs`; the const is the
+substrate-level bound.
+**Marker:** removed 2× inline `**[AMENDED 2026-05-11 — see Decisions Log: …]**` markers; corrected
+truth is now stated inline in both table rows.
+
+---
+
+## 2026-06-28 — Trim: §Authentication & Authorization SKIPPED section → one-line N/A note
+
+**Section:** §Authentication & Authorization
+**Change:** Reduced the full `_[SKIPPED — …]_` block to a one-line deliberate-N/A note. Kept the
+load-bearing substance (Tauri capability gating — `pulse:default`/`pulse:tray`/`pulse:notification`/`pulse:updater`/`pulse:plugin-fs` — substitutes for runtime authorization) and the pointer to §API Security + §Security Anti-Patterns.
+**Why:** v3 lean — a deliberate N/A is a one-line note, not a full section. No control removed.
+**Marker:** n/a.
+
+---
+
+## Externalized superseded guidance — reference
+
+The verbatim superseded `opentelemetry-stdout` text is reproduced inline in the
+`2026-06-28 — Fold + externalize: opentelemetry-stdout` entry above.
+
+---
+
+## Externalized Security Decisions Log (verbatim, formerly the body's final section)
+
+_Reproduced exactly as it stood in `security-plan.md` immediately before the 2026-06-28
+externalization. The current-truth substance of these entries now lives in the body sections
+named in the changelog entries above; this block is the preserved append-only history._
+
+_Records key decisions during plan generation + manual additions between phase loops._
+
+**Initial entry:**
+
+`2026-05-02` — Initial security plan generated by `/andromeda-security`
+- **Tier:** Minimal (0) — justified by: local-first, zero-infrastructure single-user desktop app; no user accounts; in-memory DuckDB ring buffer with 5–10 min retention (no persistent user data store); no internet-exposed network surface (OTLP receivers bound to `127.0.0.1` only); no compliance-regulated data classifications. Dominant risks per Phase 1 Sec 6: loopback OTLP receivers, untrusted third-party WASM plugins with deferred signature verification, code-signing key custody, in-app updater consuming `latest.json`.
+- **Key decision:** Authorization model is Tauri 2 capability gating (`pulse:default` enumerates exactly the procedures listed in Occupied Resources) plus loopback-only OTLP receiver binding plus `wasmtime` capability-scoped WIT imports — three orthogonal capability systems substituting for user-authentication runtime authorization. Reasoning: no user accounts per Project Intent + standards-track Component Model + Tauri's negative-default capability model gives auditable trust boundaries without inventing an auth framework.
+- **Key decision:** Code-signing key custody centralizes in Azure Key Vault Premium SKU + GitHub OIDC federation — eliminates the long-lived Azure service principal secret from GitHub Actions per security-research §Azure Key Vault OIDC. The Tauri updater Minisign Ed25519 private key sits next to the Windows EV cert in the same Vault; the public key bakes into `tauri.conf.json`. Reasoning: this is the single highest-value secret in the project (loss locks every installed instance out of updates per security-research §Tauri 2 Updater Signature Verification) and Azure Key Vault HSM-RSA is the documented best-practice path for OSS desktop apps in 2026.
+- **Key decision:** OTLP HTTP `:4318` receives Host-header allowlist + CORS deny-by-default + body-size cap as a coordinated three-layer mitigation against the documented localhost-MCP DNS-rebinding chat-exfil class (Coder Agent API CVE 2025-09-19, CVE-2025-66414 MCP TypeScript SDK Dec 2025). Reasoning: Phase 1 Open consideration explicitly flagged "browser-origin `fetch('http://localhost:4318/v1/traces', ...)` from arbitrary websites is a real exposure" and security-research §Host header validation confirms with the lesson "localhost is not a security boundary."
+- **Key decision:** Plugin host gets `wasmtime::ResourceLimiter` + `epoch_interruption(true)` + `max_wasm_http_fields_size` per security-research §wasmtime ResourceLimiter, on top of WIT capability gating. Reasoning: April 2026 advisory cluster (CVE-2026-27572 wasi-http header explosion + 6 others) requires resource bounds orthogonal to capability scoping; Cranelift backend on x86_64 is the unaffected configuration for the two Critical sandbox escapes — verified as the default build config.
+- **Open questions / residual risks deferred to Decisions Log additions:**
+  - **WASM plugin signature verification deferred post-v1** per Established Decisions Plugin Distribution Channel — third-party plugins run unverified in v1. Capability-scoped WIT + `ResourceLimiter` mitigate impact, not provenance. Document the limitation in the user-facing plugin install README.
+  - **`tonic` 0.14 vs `opentelemetry-otlp` 0.31 / `tonic` 0.13 duplicate** must be reconciled before locking versions per Inherited Defaults open question; `cargo deny check bans` enforces.
+  - **`rmcp` "1.5.0" vs published 0.3.x line** must be reconciled per Inherited Defaults open question; pinning will follow the resolution.
+  - **`rust-toolchain.toml` minimum `1.84` predates Edition 2024 (1.85.0)** per security-research §Rust 2024 edition; bump to `1.85.0` minimum to align with `Cargo.toml` `edition = "2024"`.
+  - **Snapshot / clipboard / MCP tool response surfaces are documented OTLP-attribute leakage paths** — addressed via user-facing warnings + visible clipboard-write event + README documentation rather than attempted sanitization (the data is what the user instrumented). Surfaced as documented behavior, not a defect.
+  - **No hot key rotation path for the Tauri updater Minisign keypair without a transitional release** — runbook required before v0.1.0 ships.
+
+`2026-05-08` — Reconcile self-observation references with obs Phase 3.5 pivot
+- **Decision:** This security plan still references `opentelemetry-stdout` exporter destination in §Data Protection (logs medium) and §Bootstrap phases `logging-redaction-wire` bullet. Per obs-plan.md Decisions Log entry `2026-05-02 — User review (Phase 3.5, iteration 1) — pivot to tracing-only self-observation, drop OTel SDK from self-runtime`, the product no longer links an OTel SDK into self-observation runtime. Self-observation is `tracing` 0.1 + `tracing-subscriber` 0.3 JSON formatter writing to `~/.andromeda-pulse/logs/agent-latest.jsonl`. The legacy `opentelemetry-stdout` references in this plan are obsolete but functionally equivalent (both produce JSON-per-line at the same path) and do not change the security posture. Marked here for audit trail; downstream phase loop should treat `tracing-subscriber` JSON formatter as the canonical self-observation surface.
+- **Rationale:** Cross-plan rot caught during cross-plan review. Skill discipline says specialist plans evolve through Decisions Log; this entry serves as the cross-reference rather than rewriting §Data Protection / §Bootstrap phases bodies (those rewrites belong in `/andromeda-security` re-run if/when needed).
+- **Impact:** No behavioral change. §Logging redaction rules apply unchanged to the `tracing` JSON output. PII vectors 1-6 enforcement unchanged.
+- **By:** Manual edit, cross-plan rot reconciliation
+- **Amendment record:** `.andromeda/runs/2026-05-08T17-28-25-spec-amendment-reconcile-otel-stdout-references/amendment.md`
+
+`2026-05-08` — Annotate body deprecation: §Data Protection / §Bootstrap / §Logging opentelemetry-stdout refs
+
+- **Decision:** Add inline `> **DEPRECATED (2026-05-08):**` blockquote annotations inside the 3 deprecated body sites referencing `opentelemetry-stdout`:
+  - §Data Protection logs medium row (line 154) — annotation as indented sub-paragraph inside the bullet
+  - §Bootstrap phases logging-redaction-wire bullet (line 239) — same pattern
+  - §Logging & Monitoring "Log format" paragraph (line 330) — standalone blockquote ABOVE the paragraph
+- **Rationale:** Extends prior `2026-05-08T17-28-25Z-reconcile-otel-stdout-references` amendment (Decisions Log entry only) by adding visible body deprecation markers. Without annotation, future readers — and grep-based audit tools — see stale guidance with no inline cue. Body content preserved verbatim for audit trail; deprecation annotation is purely additive. Body content rewrite to align with current reality (text replacement of `opentelemetry-stdout` → `tracing-subscriber`) is reserved for a future `/andromeda-security` re-run, which has full authority to regenerate plan body content; /andromeda-evolve operates only at annotation level (per output-templates.md anti-pattern: "DO NOT modify the plan body content for Type 1/2/3/4 amendments. Only Type 5 deprecation is allowed to add a body annotation").
+- **Impact:** No behavioral change. §Data Protection / §Bootstrap / §Logging body content preserved; new readers see deprecation notice at each site. PII vectors 1-6 enforcement unchanged. Tier 2/3 distillations need re-derivation (`/andromeda-setup-project --delta` will regenerate `.claude/rules/security.md`, `.claude/rules/observability.md`, `.claude/docs/security-summary.md`, `.claude/docs/obs-summary.md`). architecture.md §Established Decisions [Self-Observation] (line 64) + §Cross-cutting Patterns Self-observation discipline (line 283) ALSO have stale refs but are out of /andromeda-evolve scope; tracked for separate `/andromeda-arch` follow-up.
+- **By:** /andromeda-evolve (user-driven Type 5 deprecation annotation, Path 1 uniform scope)
+- **Amendment record:** `.andromeda/runs/2026-05-08T21-00-00-spec-amendment-obs-pivot-security-bodies/amendment.md`
+
+`2026-05-11` — Reconcile `max_wasm_http_fields_size` reference: not a wasmtime::Config method
+
+- **Decision:** §Input Validation row "Plugin host inputs" (line 126) + §API Security row "Plugin host capability sandbox" (line 189) + §Security Decisions Log 2026-05-02 (line 451) all reference `wasmtime::Config::max_wasm_http_fields_size(...)` as a wasmtime Config method. This method does NOT exist on `wasmtime::Config` in wasmtime 25.x — verified via `cargo check -p plugins --all-targets` E0599 compile error at `crates/plugins/src/engine.rs:58`. The actual wasi-http header field-size enforcement seam in wasmtime is via `wasmtime_wasi_http::WasiHttpCtxBuilder::max_field_size` (or equivalent on the wasi-http context), not the core `Config` struct. Amendment: the canonical bound for wasi-http header fields is defined as the `MAX_WASM_HTTP_FIELDS_SIZE_BYTES` const in `crates/plugins/src/engine.rs` at substrate level (chunk #45); actual enforcement attaches via the wasi-http context construction site when wasi-http imports are introduced in subsequent chunks (#46+). Chunk #45 substrate has zero wasi-http imports declared in the 3 plugin categories (custom-dashboard / data-transform / snapshot-template are pure Component Model without WASI), so the bound is moot in practice at this chunk; the const + future-enforcement-seam discipline is the correct substrate posture.
+- **Rationale:** Spec ↔ reality drift surfaced by `/andromeda-implement` chunk #45 Phase 2 fix-loop. Path A (this amendment) chosen over Path A' (add `wasmtime-wasi-http` workspace dep + construct `WasiHttpCtxBuilder` at substrate) because chunk #45 substrate has no wasi-http imports — adding the dep at substrate level adds significant dep weight for zero actual security benefit. CVE-2026-27572 (April 2026 advisory cluster — wasi-http header explosion) anchor is preserved: the bound exists at substrate level, enforcement attaches at the chunk that introduces wasi-http imports.
+- **Impact:** No behavioral change at chunk #45 substrate (no wasi-http imports declared; bound is moot). Body annotations added at §Input Validation row + §API Security row pointing to this Decisions Log entry. §Security Decisions Log 2026-05-02 historical entry preserved verbatim (Decisions Log is append-only). Implementation file `crates/plugins/src/engine.rs` removed the non-existent `config.max_wasm_http_fields_size(...)` method call; `MAX_WASM_HTTP_FIELDS_SIZE_BYTES` const declaration preserved as the canonical substrate-level bound. Tier 2/3 distillations need re-derivation (`/andromeda-setup-project --delta` will regenerate `.claude/rules/security.md` + `.claude/docs/security-summary.md` if they enumerate the wasmtime Config method by name; verify via grep at delta-rerun time). Phase 42 plan acceptance criterion security #3 is partially-superseded by this amendment — original criterion text required `Config::max_wasm_http_fields_size` set on Engine Config; the criterion is now satisfied as `Config::epoch_interruption(true)` set + `MAX_WASM_HTTP_FIELDS_SIZE_BYTES` const defined in engine.rs (used as span field name `max_wasm_http_fields_size_bytes` per obs instrumentation discipline). Phase artifacts at `.andromeda/phases/phase-42/` are immutable per /andromeda-phase contract; this Decisions Log entry is the canonical record of the criterion-supersession.
+- **By:** /andromeda-implement Phase 2 Trigger 4 dialogue (spec-drift-protocol.md; user approved Path A)
+- **Amendment record:** `.andromeda/runs/2026-05-11T17-50-00-spec-amendment-reconcile-max-wasm-http-fields-size/amendment.md`
+
+**Subsequent entry format (for manual additions or re-runs):**
+
+`{YYYY-MM-DD}` — {short title of decision}
+- **Decision:** {what was decided}
+- **Rationale:** {why — reference threat model / research / org constraint}
+- **Impact:** {which sections affected; downstream skills affected}
+- **By:** {`/andromeda-security` re-run / manual edit by {who}}
+
+(Append new entries at the bottom; do not modify historical entries.)
+
+---
+
+`2026-05-22` — Specialist plan reconciliation — §Threat Model + §Data Protection §At rest + §Secret Management + §Anti-Pattern Logging body rewrites (chunk #77)
+
+- **Decision:** Manual body rewrite of four specialist plan sections to reconcile pre-Consolidation-Phase-6 plan body with post-Consolidation-Phase-6 implementation reality (chunks #68-#73): (1) §Threat Model Data classification — added 5th Type for persistent incident corpus (corpus.db cell-level AES-256-GCM + OS keychain key custody per chunk #68; eliminates obsolete flat-file `baseline-corpus.bin` artifact post-chunk-#70 migration). (2) §Data Protection §At rest — added corpus.db row documenting single canonical encrypted persistence covering BaselineState (chunk #70) + ServiceRegistry (chunk #71) + RetryStormState (chunk #71); cross-references arch §Occupied Resources Corpus SQLite §At-rest posture as the canonical locked-schema reference. (3) §Secret Management — added Storage Runtime subsection documenting corpus encryption key custody flow (OS keychain primary via `keyring` crate per `crates/corpus/src/keychain.rs::OsKeychainBackend`; **passphrase-fallback-with-warning** posture per chunk #73 P-049 decision verified via `BackendKind::PassphraseFallback` enum variant at `crates/corpus/src/keychain.rs:33`); extended "What counts as secret" list with corpus encryption key entry. (4) §Anti-Pattern Logging — prepended uniform-scrubber-coverage framing paragraph documenting post-#72 reality (scrubber invoked at all persistence paths: OTLP appender DuckDB writes + Drain corpus persist + BaselineState / ServiceRegistry / RetryStormState corpus persist; replaces pre-#72 single-site framing identified by audit Section 1.B); preserved all 5 existing NEVER bullets intact.
+- **Rationale:** Closes audit Section 2.H (security plan staleness — pre-Consolidation-Phase-6 body did not reflect corpus persistence layer + uniform scrubber coverage + P-049 fallback posture). Specialist plan re-derivation as a first-class operation is deferred к Andromeda v3 (where specialist plans become living artifacts with continuous evolution + a dedicated re-derivation skill); chunk #77 explicitly declares security-plan in its "Specialist plan touches" metadata per pulse-v0_2_0-route §77 Mechanism note as the within-lifecycle path for manual body rewrites (D4 drift detection fires only for specialist plan edits OUTSIDE declared chunk scope). Building interim re-derivation machinery in v2 is not worthwhile given the v3 redesign. Path A' (fix impl to match existing spec) was NOT applicable — the existing plan body was demonstrably stale relative to chunks #68-#73 implementation; impl is already correct per its acceptance criteria.
+- **Impact:** §Threat Model Summary > Data classification (5th Type added); §Data Protection §At rest (corpus.db row added; Data lifecycle subsection extended); §Secret Management (Storage Runtime subsection added; "What counts as secret" list extended; Development paragraph clarified — corpus key active at developer runtime even though signing keys are N/A); §Security Anti-Patterns §Logging (uniform-scrubber-coverage framing paragraph prepended; 5 existing NEVER bullets preserved verbatim). DEPRECATED blockquotes at §Data Protection (line ~159 pre-rewrite) + §Bootstrap phases (line ~254 pre-rewrite) + §Logging "Log format" paragraph preserved verbatim per 2026-05-08 audit-trail discipline. Downstream Tier 2/3 distillations may need re-derivation via `/andromeda-setup-project --delta` if `.claude/rules/security.md` + `.claude/docs/security-summary.md` enumerate the rewritten content (verify via grep at delta-rerun time post-chunk-#77 commit). No changes to §Authentication / §Input Validation / §API Security / §Dependency Security / §Bootstrap phases / §Error Handling / §Logging & Monitoring / §Compliance Controls / §Security Anti-Patterns §Authentication-Input-DataProtection-API-Secrets-CodePatterns-Universal sub-sections (out of declared chunk #77 scope).
+- **By:** `/andromeda-implement` chunk #77 (manual body rewrites within declared Specialist plan touches scope per pulse-v0_2_0-route §77 Mechanism note; user-approved chunk-scoped-exception path per /andromeda-implement Phase 1 dialogue)
+

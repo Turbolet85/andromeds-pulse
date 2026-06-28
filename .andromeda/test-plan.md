@@ -45,7 +45,7 @@ boundary tests / mocks._
 | **Path canonicalization + confinement** | Security Plan Vector 5, Anti-Pattern → "NEVER read path env vars without Path::canonicalize() + confinement" | testable | Negative test: ANDROMEDA_PULSE_*_PATH env vars with symlink chains, TOCTOU attempts, escape sequences; assert canonicalization resolves and confinement assertion blocks traversal. |
 | **config.toml reading** | Security Plan Data Classifications → config (sensitivity: low), Workspace/Modules | testable | Read from per-platform data dir; drive via env var override; assert settings parsed correctly; negative test: malformed TOML rejects gracefully. |
 | **DuckDB prepared statements** | Security Plan Anti-Pattern → "NEVER format user input directly into SQL" | testable | Negative test: snapshot filter by service_name / trace_id / latency bounds; assert user input only appears as parameter in prepared statement (no format-string SQL injection). |
-| **[DEPRECATED 2026-05-08]** **Self-observation loop prevention** | Creator Brief → "instrumenting an OTLP receiver with an OTLP network exporter pointed back at itself creates an infinite loop" | testable | Negative test: configure product with OTLP exporter pointing to own `:4317` or `:4318`; assert no self-dialing occurs (monitored via network log or IPC liveness check). _See Decisions Log "2026-05-08 — Annotate body deprecation: §1 self-observation loop prevention triggers + §Anti-Patterns OTLP self-dialing row" — by-construction-satisfied per obs §12 Phase 3.5 pivot (no OTel SDK in self-runtime)._ |
+| **Self-observation loop prevention** | Creator Brief → "instrumenting an OTLP receiver with an OTLP network exporter pointed back at itself creates an infinite loop" | by-construction-satisfied | No negative test generated: no OTel SDK is linked into the self-observation runtime, so no exporter exists to misconfigure and no `ANDROMEDA_OBSERVER_URL`-shaped config surface exists (per obs-plan Phase 3.5 pivot). Deprecation history in test-plan-amendments.md. |
 
 **Surfaces under test:**
 
@@ -62,166 +62,7 @@ boundary tests / mocks._
 
 **Test harness requirements:**
 
-### 5-Command Requirements
-
-**Command 1: `boot`**
-- **Input:** None (or environment variables `ANDROMEDA_PULSE_*_PORT`, `ANDROMEDA_PULSE_DATA_DIR`, `ANDROMEDA_PULSE_CONFIG_PATH`, `RUST_LOG`)
-- **Starts:** Tauri desktop application (`pulse-app` binary); launches webview window, initializes OTLP receivers on `:4317` (gRPC) and `:4318` (HTTP), spawns DuckDB in-memory buffer, optionally spawns MCP sidecar if `--features mcp-server` and `ANDROMEDA_PULSE_MCP_ENABLED=true`
-- **Readiness Signal:**
-  - `health` TauRPC command returns `status: "ok"` and all subsystems report non-error state (otlp_grpc_receiver, otlp_http_receiver, buffer, ingest_channel all initialized)
-  - OR `ready` TauRPC command returns `ready: true` (stricter gate: all readiness checks pass, including duckdb_connection confirmed, broadcast subscribers initialized)
-  - Log line: `ANDROMEDA_PULSE_*` environment variables echoed at startup (no secrets); receiver bind confirmation logs appear (`listening on 127.0.0.1:4317 gRPC`, `listening on 127.0.0.1:4318 HTTP`)
-- **Exit Code Semantics:** 0 = success (application running, IPC ready); non-zero = startup failure (agent captures stderr log, aborts test)
-- **Observable Port Readiness:** Agent confirms `:4317` and `:4318` accept connections (TCP handshake succeeds) before declaring boot complete
-
----
-
-**Command 2: `run`**
-- **Input:** Test suite selection (e.g., `cargo xtask test`, `cargo test --workspace`, or specific test target `cargo test --lib ingest`)
-- **Invokes:** Rust `cargo test` framework (co-located unit tests in `src/`, no separate `tests/` directory per convention); tests inject synthetic OTLP telemetry via gRPC/HTTP to loopback `:4317`/`:4318`; end-to-end tests query buffer via TauRPC to assert ingestion
-- **Exit Code Semantics:** 0 = all tests passed; non-zero = failure count (agent captures stderr/stdout test output, parses failure list)
-- **Output Format:** Standard Rust test harness: `test result: ok. X passed, Y failed` on final line; agent extracts count via regex
-- **Test Organization:**
-  - Unit tests: per-crate `#[test]` functions (ingest, buffer, viz, ui-bridge, snapshot, workspace-detector, plugins, mcp-server)
-  - Integration tests: `#[tokio::test]` spawning full `pulse-app`, injecting OTLP, querying via TauRPC
-  - Platform-specific tests: gated via `#[cfg(target_os = "…")]` for tray/notification/updater behavior
-
----
-
-**Command 3: `status`**
-- **Mechanism:** TauRPC IPC command `health` (liveness) or custom `/status` endpoint if HTTP server exposed (not in current arch, so use TauRPC)
-- **Query Method:** Agent invokes TauRPC `health` command via Tauri test harness (or custom IPC client); polls every 500ms until response or timeout (10s)
-- **Structured Response Shape (JSON):**
-  ```json
-  {
-    "status": "ok" | "degraded" | "unhealthy",
-    "subsystems": {
-      "otlp_grpc_receiver": { "status": "initialized" | "error", "error_msg": null | "string" },
-      "otlp_http_receiver": { "status": "initialized" | "error", "error_msg": null | "string" },
-      "buffer": { "status": "ready" | "error", "rows_ingested": number },
-      "ingest_channel": { "status": "ready" | "error", "broadcast_subscribers": number }
-    },
-    "uptime_ms": number,
-    "pid": number
-  }
-  ```
-- **Agent-Polled Fields:**
-  - `status`: assert == "ok" (healthy) or "degraded" (acceptable for non-blocking subsystem failures)
-  - `subsystems.*.status`: all == "initialized" | "ready"
-  - `subsystems.buffer.rows_ingested`: for E2E tests, assert increases after OTLP ingest
-  - `pid`: for process cleanup verification (PID must match spawned process or parent Tauri PID)
-- **Failure Signal:** If `health` command times out or returns error, agent logs and escalates
-
----
-
-**Command 4: `cleanup`**
-- **Teardown:** Close Tauri window (IPC `window.close` or platform-native close), terminate app process (SIGTERM to PID from `status`), wait max 5s for graceful shutdown
-- **Idempotency:** Can be called multiple times; second call on already-closed app is no-op (checking if PID exists via `ps` or equivalent; if not running, cleanup succeeds)
-- **Verification of Completion:**
-  - Port `:4317` and `:4318` no longer accept new connections (TCP handshake fails)
-  - PID no longer exists (`ps` shows no process with captured PID)
-  - Log file is flushed and finalized (no further writes within 2s timeout)
-- **Exit Code:** 0 = cleanup succeeded (app exited, ports released); non-zero = forcible termination required (SIGKILL after SIGTERM timeout)
-
----
-
-**Command 5: `logs`**
-- **Location:**
-  - Primary: `~/.andromeda-pulse/logs/` (configurable via `ANDROMEDA_PULSE_LOG_DIR` env var, defaults to platform XDG_DATA_HOME)
-  - CI override: `ANDROMEDA_PULSE_LOG_DIR=$PWD/.test-logs/` for test isolation
-- **Format:** Plain text or JSON lines (one JSON object per line, containing `timestamp`, `level` (debug/info/warn/error), `target` (crate name), `message`)
-- **Retention:** On-disk for test debugging (no auto-purge within test suite); agent may tail or pipe `RUST_LOG=debug cargo test 2>&1 | tee logs/test.log`
-- **Parseable by Agent:**
-  - Regex match: `\[ERROR\].*` for error detection
-  - JSON line parse: `jq '.level == "error"' logs/app.log` for structured queries
-  - Grep + count: `grep -c "OTLP.*ingested" logs/app.log` for ingest event count
-
----
-
-### Status Endpoint Shape
-
-(Inherited from TauRPC `health` IPC command per Test Harness Commitment)
-
-```json
-{
-  "status": "ok" | "degraded" | "unhealthy",
-  "subsystems": {
-    "otlp_grpc_receiver": { "status": "initialized" | "error", "error_msg": null | "string" },
-    "otlp_http_receiver": { "status": "initialized" | "error", "error_msg": null | "string" },
-    "buffer": { "status": "ready" | "error", "rows_ingested": number, "retention_seconds": number },
-    "ingest_channel": { "status": "ready" | "error", "broadcast_subscribers": number }
-  },
-  "uptime_ms": number,
-  "pid": number
-}
-```
-
-**Fields Agent Polls:**
-- `status`: "ok" for healthy, "degraded" acceptable if buffer or subscribers issue (non-blocking)
-- `subsystems.*.status`: all must be non-error
-- `subsystems.buffer.rows_ingested`: incremented after each OTLP ingest (E2E test assertion)
-- `subsystems.ingest_channel.broadcast_subscribers`: must be > 0 if any real-time streams active
-- `pid`: matched against spawned Tauri process for identity verification
-
----
-
-### Log Format
-
-**Stream:** `RUST_LOG=debug cargo test 2>&1 | tee ~/.andromeda-pulse/logs/test.log`
-
-**Format:** Rust `tracing` crate JSON output (or Env subscriber with format control)
-
-Example line:
-```json
-{ "timestamp": "2026-05-02T16:18:34.567Z", "level": "INFO", "target": "ingest::grpc", "message": "TraceService.Export received 10 spans", "fields": { "span_count": 10, "trace_ids": "[…]" } }
-```
-
-**Agent-Parseable Signals:**
-- Error detection: `jq 'select(.level == "ERROR") | .message' logs/*.log | head -20` (capture first 20 errors for report)
-- Ingest confirmation: `grep -o "rows_ingested: [0-9]*" logs/*.log | tail -1` (last ingest count)
-- Subsystem startup: `grep "listening on 127.0.0.1:\(4317\|4318\)" logs/*.log` (confirm receiver binds)
-
----
-
-### PID File Location
-
-**Primary:** `$XDG_RUNTIME_DIR/andromeda-pulse.pid` (Linux) | `$TMPDIR/andromeda-pulse.pid` (macOS) | `%LOCALAPPDATA%\andromeda-pulse\pid` (Windows)
-
-**Fallback:** If XDG_RUNTIME_DIR not set, use `~/.andromeda-pulse/run/andromeda-pulse.pid`
-
-**Agent Usage:**
-```bash
-# boot: write PID on successful startup
-echo $PID > $PID_FILE
-
-# status: read PID and verify process exists
-PID=$(cat $PID_FILE 2>/dev/null)
-ps -p $PID > /dev/null && echo "OK" || echo "DEAD"
-
-# cleanup: terminate process via PID
-kill -TERM $PID 2>/dev/null
-```
-
----
-
-### Test Data Strategy
-
-**Self-Bootstrapping Fixture Mechanism:**
-
-1. **OTLP Ingest as Fixture Seeding:** Tests do NOT pre-populate DuckDB; instead, each test harness seeds the buffer by sending synthetic OTLP telemetry via gRPC or HTTP to `:4317` / `:4318`. This avoids test-specific database snapshots and keeps data generation declarative.
-
-2. **Synthetic Data Generators:** Per-crate fixture factories (Rust builder pattern):
-   - `ingest`: `MockTraceSpan::builder().service("my-app").latency_ms(50).build()` → serializes to OTLP gRPC protobuf and sends to loopback `:4317`
-   - `buffer`: `MockArrowBatch::builder().rows(100).columns(["trace_id", "span_name", "duration_ms"]).build()` → inserts via Arrow appender
-   - `viz`: `MockMetricPoint::builder().metric_name("requests.total").value(42).timestamp(…).build()` → sent to HTTP `:4318` as OTLP JSON
-   - `snapshot`: Pre-stage 1000 spans in buffer, then invoke `snapshot.generate` IPC with time window + filters; assert markdown output contains anomaly markers
-   - `plugins`: Fixture WASM modules (pre-compiled minimal Component Model binaries with known input/output) loaded from `tests/fixtures/plugins/`
-
-3. **Retention Window Testing:** DuckDB in-memory ring buffer (5–10 min window) — tests explicitly set retention time via config override (`ANDROMEDA_PULSE_BUFFER_RETENTION_SEC=300`) and verify old rows are discarded after TTL expiry (negative test: assert row count decreases as retention window rolls).
-
-4. **Property-Based Generators:** For stress tests and cardinality exploration (e.g., "10k spans/sec ingest throughput"), use `proptest` crate to generate random valid OTLP payloads and assert buffer handles them without panic or memory exhaustion.
-
-5. **No Developer-Seeded DB:** All fixture data is generated at test runtime via OTLP or programmatic Rust builders; no `.sql` scripts or pre-baked SQLite files. This ensures test isolation and repeatability.
+_The 5-command harness, status-endpoint shape, log format, PID-file location, and test-data strategy are specified in full as current truth in **§3 Test Harness Contract** — see there. One-line summary: `boot` (Tauri `pulse-app`; accepts `ANDROMEDA_PULSE_*` env — `*_PORT` / `DATA_DIR` / `CONFIG_PATH` / `RUST_LOG`; confirms TCP handshake on `:4317`/`:4318`), `run` (`cargo nextest run --workspace`), `status` (TauRPC `health`), `cleanup` (SIGTERM by PID; verify ports released), `logs` (JSON-lines `tracing` output, env override `ANDROMEDA_PULSE_LOG_DIR`). Status-endpoint JSON shape, agent-parseable log signals, per-OS PID paths, and the self-bootstrapping OTLP test-data strategy all live in §3 (and §7 Test Data & Fixtures)._
 
 ---
 
@@ -252,7 +93,7 @@ kill -TERM $PID 2>/dev/null
 | **security-vector-coverage: Cranelift-only WASM** | Security Plan Anti-Pattern: "NEVER use non-Cranelift `wasmtime` feature flag on x86_64" | Build-time test: Assert `wasmtime` Cargo.lock resolved with Cranelift feature enabled (or only available backend); negative test: Attempt build with alternate backend → build fails or CI reject (xtask check enforces). |
 | **security-vector-coverage: MCP feature + runtime gating** | Security Plan Vector 4: "gated by compile-time `--features mcp-server` AND runtime `ANDROMEDA_PULSE_MCP_ENABLED=true`" | Negative test: (1) attempt to spawn MCP sidecar without feature flag compile → build fails; (2) runtime env var unset, attempt to spawn → assert sidecar not spawned (cannot find binary or refused at startup). Positive test: both gates enabled → sidecar spawns and accepts JSON-RPC 2.0. |
 | **security-vector-coverage: Minisign updater signature verification** | Security Plan Vector 6: "Minisign Ed25519 signature verification is mandatory and cannot be disabled" | Positive test: Mock latest.json with valid Minisign signature → updater accepts. Negative test: Invalid signature (flipped bit in sig) → updater rejects update (no update downloaded). Negative test: Attempt to bypass verification via config → assert Tauri enforces (cannot override). |
-| **[DEPRECATED 2026-05-08]** **security-vector-coverage: No self-OTLP dialing** | Creator Brief Anti-Pattern: "Any future `ANDROMEDA_OBSERVER_URL`-shaped variable must explicitly distinguish 'outbound observer' (we *are* the observer — do not dial) from 'inbound receivers'" | Negative test: Configure product with OTLP exporter pointing to own `:4317` or `:4318` (via config.toml or env var injection) → assert no self-dialing occurs; monitor network logs or IPC liveness; assert no infinite loop or exponential span multiplication. _See Decisions Log "2026-05-08 — Annotate body deprecation: §1 self-observation loop prevention triggers + §Anti-Patterns OTLP self-dialing row" — by-construction-satisfied per obs §12 Phase 3.5 pivot (no OTel SDK in self-runtime)._ |
+| **security-vector-coverage: No self-OTLP dialing** (by-construction-satisfied) | Creator Brief Anti-Pattern: "Any future `ANDROMEDA_OBSERVER_URL`-shaped variable must explicitly distinguish 'outbound observer' (we *are* the observer — do not dial) from 'inbound receivers'" | No test generated: the config surface does not exist (no OTel SDK in self-runtime → no exporter → no `ANDROMEDA_OBSERVER_URL`-shaped variable), so self-dialing is impossible by construction (per obs-plan Phase 3.5 pivot). Deprecation history in test-plan-amendments.md. |
 | **compliance-test: OTLP protocol compliance (gRPC)** | Architecture Stack: "tonic 0.14.x … gRPC server for OTLP/gRPC receiver on `:4317` with protobuf codegen"; "per opentelemetry-proto" | Contract test: Valid OTLP gRPC TraceService.Export RPC (per OpenTelemetry spec v1.x) → server responds with status OK and exports span to buffer. Valid MetricsService.Export and LogsService.Export RPCs similarly. Malformed requests (missing required fields) → server responds with gRPC error code (INVALID_ARGUMENT or UNIMPLEMENTED). |
 | **compliance-test: OTLP protocol compliance (HTTP)** | Architecture Stack: "axum 0.8.x … HTTP server for OTLP/HTTP receiver on `:4318` supporting protobuf and JSON"; "per OpenTelemetry spec" | Contract test: Valid OTLP HTTP POST `/v1/traces` with protobuf body → 200 OK, export to buffer. Valid JSON body similarly. Unsupported media type (Content-Type: text/plain) → 415 Unsupported Media Type or server attempts to parse (spec permissive). Invalid protobuf wire format → server responds with error (no panic). |
 | **performance-budget: WebGPU canvas throughput** | Creator Brief Risk Tolerance: "Hand-built Canvas falls over at 10k+ spans/sec. Pulse v2 uses WebGPU … Smooth animation; no jank at high cardinality"; "handles 10k+ spans/sec" (target throughput baseline) | Performance test (agent-driven): Inject 10,000 spans/sec to `:4317` gRPC for 10 seconds (100k total) → assert buffer ingests all without dropping; assert buffer memory usage stays within 5–10 min ring buffer window (no unbounded growth). Frame-rate validation (WebGPU canvas rendering smoothness: >= 30 fps) deferred to tauri-driver headful E2E suite (requires GPU frame-buffer inspection, out of agent-driven harness scope per agent-driven-discipline trigger). |
@@ -265,6 +106,21 @@ kill -TERM $PID 2>/dev/null
 | **contract-test-against-OTLP-sandbox: OpenTelemetry protobuf evolution** | Standard Contracts: "TraceService, MetricsService, LogsService on `:4317` per opentelemetry-proto"; "POST /v1/traces, /v1/metrics, /v1/logs on `:4318` per OpenTelemetry spec" | Contract test: Use OpenTelemetry reference SDK (e.g., `opentelemetry-rust` crate) to generate valid spans/metrics/logs and send to app receivers; assert app accepts and buffers all (roundtrip test: generate → send → query back → assert match). Test with multiple protobuf versions (v1.0, v1.1, v1.2 if applicable) to ensure forward/backward compat. |
 | **agent-driven-discipline: No manual verification checkpoints** | Development Style: "agent-driven. … deterministic harness invocations, machine-parseable outputs, schema-stable contracts" | Discipline trigger: Every test must exit with deterministic signal (exit code 0/non-zero, structured stdout/JSON, log line match) readable by CI agent without human review. No "visual inspection of canvas", no "did you see the blue glow?", no "try it manually first". WebGPU canvas rendering is out of E2E agent scope (pixel inspection not required); assert IPC contract and WebGPU compile success. Snapshot generation verified via token count and marker presence, not manual reading. Widget visibility toggle verified via IPC state, not screenshot comparison. |
 | **agent-driven-discipline: Self-bootstrapping test data (no pre-baked DB)** | Test Harness Specification: "Test data strategy: self-bootstrapping fixture mechanism — seed via migrations + factories / fixture files / property-based generators; no developer-seeded DB allowed" | Discipline trigger: Every integration/E2E test must generate fixture data at runtime via OTLP ingest or Rust builders; no `.sql` scripts or pre-baked SQLite snapshots. Rationale: ensures repeatability, test isolation, and verifies ingest path actually works. Fixture data lifecycle is part of test harness, not manual pre-staging. |
+
+### Pending coverage triggers (documented gaps — not yet implemented; awaiting `/andromeda-tests` re-run)
+
+These triggers are decided-and-recommended but not yet wired into the suite above. Recorded here so the coverage gap is not silently lost; full decision context in test-plan-amendments.md.
+
+| Trigger | Spec |
+|---------|------|
+| `security-vector-coverage: AppError sanitization` | IPC error response must not contain stack traces, file paths, Rust struct names, or library versions; assert via grep on `agent-latest.jsonl`. (security-plan §Logging vector 2) |
+| `security-vector-coverage: Plugin path basename only` | Load plugin with symlink chain → assert resolved path NOT in logs, only basename. (vector 3) |
+| `security-vector-coverage: MCP response body redaction` | Call `query_traces` via MCP → assert `result_content` NOT in `agent-latest.jsonl`, only `result_type` + `result_count` metadata. This is the indirect-prompt-injection surface for MCP tool responses. (vector 4) |
+| `security-vector-coverage: Path env var canonicalization log redaction` | Set `ANDROMEDA_PULSE_PLUGIN_DIR=../../etc/passwd` → assert canonicalization rejects + logs only basename. (vector 6) |
+| `security-vector-coverage: Capability widening static analysis` | Xtask test parses each `pulse-app/capabilities/*.json` and asserts (a) `pulse:notification` holds only outbound emit permissions (no input handlers); (b) `pulse:tray` only outbound menu/icon (no incoming-event handlers); (c) `pulse:plugin-fs` limited to read of resolved plugin dir, no write/delete/execute, never exposed to webview JS. Fails with named permission + capability on widening detection. (catches declarative widening that runtime IPC gating cannot) |
+| `living-artifact-tooling-rerun-coverage` | wrap-session Phase 5 MUST execute the Tooling command from each `.andromeda/context/{artifact}.md` METADATA at every wrap; skip-on-webview-only is forbidden (documented root cause of api-surface.md staleness). Skill-level / out-of-project-scope; anchored here as the documented gap. |
+
+(The `chunk-gate-baseline-coverage` and `boot-smoke-coverage` triggers are already active disciplines — see §3 "Per-chunk gate discipline".)
 
 ---
 
@@ -382,7 +238,7 @@ kill -TERM $PID 2>/dev/null
 
 ### PID file
 
-- **Location:** `$XDG_RUNTIME_DIR/andromeda-pulse.pid` (Linux, per XDG spec) OR `~/.andromeda-pulse/run/andromeda-pulse.pid` (fallback)
+- **Location:** `$XDG_RUNTIME_DIR/andromeda-pulse.pid` (Linux, per XDG spec) | `$TMPDIR/andromeda-pulse.pid` (macOS) | `%LOCALAPPDATA%\andromeda-pulse\pid` (Windows); fallback `~/.andromeda-pulse/run/andromeda-pulse.pid` if `$XDG_RUNTIME_DIR` unset
 - **Lifecycle:** 
   - `boot` writes PID after `ready` TauRPC confirms
   - `status` reads and verifies `ps -p $PID > /dev/null`
@@ -395,7 +251,7 @@ kill -TERM $PID 2>/dev/null
 - **Mechanism:** Rust builder factories + `rstest` fixtures
   - `MockTraceSpan::builder().service("test-app").trace_id([0u8; 16]).span_id([0u8; 8]).duration_ms(50).build()` → serializes to OTLP protobuf, sent via `tonic` client to `:4317`
   - `#[fixture] fn test_spans() -> Vec<TraceSpan> { vec![MockTraceSpan::builder()...] }` → composed with other fixtures per `rstest` composition
-- **Per-test isolation:** `tempfile::TempDir` + `ANDROMEDA_PULSE_DATA_DIR=$TMPDIR/test-$$` ensures fresh DuckDB `:memory:` per test; `tokio::time::pause()` for deterministic clock in retention tests
+- **Per-test isolation:** `tempfile::TempDir` + `ANDROMEDA_PULSE_DATA_DIR=$TMPDIR/test-$$` ensures fresh DuckDB `:memory:` per test; `tokio::time::pause()` for deterministic clock in retention tests; retention window override via config env `ANDROMEDA_PULSE_BUFFER_RETENTION_SEC=300` (verify old rows discarded after TTL expiry)
 - **Cleanup:** `cleanup` command removes test data directory; explicit `drop(temp_dir)` in Rust tests
 
 ### Bootstrap phases
@@ -408,6 +264,24 @@ kill -TERM $PID 2>/dev/null
 6. **test-data-bootstrap-wire:** Implement `MockTraceSpan` builder factories in `ingest` crate; `MockArrowBatch` in `buffer` crate; `MockMetricPoint` in `viz` crate; implement `rstest` fixtures for composition
 7. **coverage-tooling-install:** `cargo-llvm-cov` 0.8.5 for LCOV/Cobertura output
 8. **quality-gate-config-emit:** GitHub Actions workflow enforces: line coverage ≥ 75%, branch ≥ 70%, zero-flakiness (no retries), perf-budget < 100ms p99 for RPC latency
+
+### Per-chunk gate discipline
+
+Every `/andromeda-phase`-authored chunk plan's `## Test Commands` section MUST include the **standard gate set** (unconditional, regardless of webview-only / Rust-only / mixed scope):
+
+```
+cargo fmt --check
+cargo clippy --workspace --all-targets --all-features -- -D warnings
+cargo nextest run --workspace --profile ci
+cargo xtask capability-drift
+npm run lint --prefix pulse-app/ui        # webview gates: only when pulse-app/ui/** touched
+npm run typecheck --prefix pulse-app/ui
+npm run test --prefix pulse-app/ui
+```
+
+The webview gates (`npm run lint` / `typecheck` / `test`) are excluded only when the chunk's Files-to-modify / New-files lists touch zero `pulse-app/ui/**` paths. Tracked as coverage trigger `chunk-gate-baseline-coverage`. Rationale: without an unconditional baseline at every chunk, gate-coverage drift accumulates and surfaces only when a downstream chunk's broader gate list catches a pre-existing failure.
+
+**Boot-smoke gate (conditional).** Chunks whose plan touches a boot/setup path — `pulse-app/src/main.rs`, `crates/ui-bridge/src/`, `pulse-app/src-tauri/tauri.conf.json`, or `pulse-app/capabilities/*.json` — MUST additionally include a runtime smoke gate: `cd pulse-app && npx @tauri-apps/cli dev` with a 60-second timeout, watching stdout for boot-completion signals (`Local:` / `ready in` / `Compiled successfully`) before SIGTERM. The in-process 5-command harness does not catch trait-level binding-emission panics that fire at boot in a non-Tokio context (e.g. the `crates/ui-bridge/src/health.rs` "there is no reactor running" panic). On smoke failure the chunk surfaces "green per scope; runtime blocked" rather than blocking commit. Tracked as coverage trigger `boot-smoke-coverage`.
 
 ---
 
@@ -606,6 +480,7 @@ fn test_ingest_accepts_valid_span(mock_span: TraceSpan) { /* … */ }
 - **Verification signal (contract level only):**
   - Step 3: IPC response shape is valid JSON; no window pixel validation
 - **Full P5 coverage (headful tauri-driver):** Actual window resize, tray icon visibility toggle, and notification emission require `tauri-driver` headful mode with platform-specific GUI automation (not agent-driven); documented separately in tauri-driver E2E suite (see Section 9 CI Integration, E2E tests stage, tauri-driver matrix)
+- **Current residual (per chunk #99 tag gate):** the P5 tray/window matrix is covered by the IPC surrogate above PLUS the browser-driven a11y chain (real Chromium against the built webview); the `tauri-driver` headful suite stays deferred (chunk #51 Path A' precedent). This is a documented residual, not a silent coverage claim.
 - **Cleanup:** as above
 - **Trade-off:** P5 is partially covered at agent-driven level (IPC contract) and fully covered at headful level (GUI automation); no gap in total coverage, only scoping boundary
 
@@ -752,6 +627,10 @@ multiple-versions = "deny"
 cargo tree -p wasmtime | grep -q "cranelift" || { echo "FAILED: non-Cranelift wasmtime"; exit 1; }
 ```
 
+**Capability verification matrix (CI step, runs after capability-drift):**
+
+`cargo xtask verify:capability-matrix` validates `docs/v0_2_0/capability-verification-matrix.json`, which enumerates all 60 P-001–P-060 capabilities with per-entry verification scenarios (modes: automated-nextest, automated-a11y, by-construction [e.g. P-040 default-off — no auto-spawn path exists], env-gated-runtime [real llama-cli integration]). The step asserts ids / file-refs / grep-anchors resolve, and fails CI on dangling ids/paths/anchors. Future capability additions (P-061+) extend the matrix JSON in the same chunk that lands the capability.
+
 ---
 
 ## 10. Quality Gates & Coverage Targets
@@ -776,6 +655,21 @@ cargo tree -p wasmtime | grep -q "cranelift" || { echo "FAILED: non-Cranelift wa
 | **Snapshot generation (500 spans, 25k token budget)** | 100ms | 300ms | 500ms |
 | **DuckDB buffer insert (Arrow appender)** | 5ms | 20ms | 50ms |
 | **WebGPU 10k spans/sec sustained throughput** | frame rate >= 30 fps | frame rate >= 25 fps | frame rate >= 20 fps |
+
+> **Frame-budget assertion (authority: obs-plan §10).** The WebGPU fps figures above are descriptive intent only. The ASSERTED budget binds to obs-plan §10's ms-form metric `metric.webgpu.frame_duration_ms` p99 ≤ 33 ms; all CI assertions use the ms-values and no test asserts an fps number. obs-plan §10 ms-values govern over the fps row (stricter + jq-aggregatable per the `metric.*` convention).
+
+### Load profiles (release / tag gate)
+
+Four-profile load suite in `pulse-app/tests/perf_load_profiles.rs`, orchestrated by `cargo xtask perf:load-profiles` (which then applies the NEUTRAL-tolerant obs check scripts). Runs behind nextest `[profile.load-profiles]` (`default-filter = "binary(perf_load_profiles)"`, `test-threads = 1`; the default profile excludes the binary). Profiles (dist-arch v3):
+
+| Profile | Load | Assertion |
+|---------|------|-----------|
+| baseline | 1k spans/s × 60s | zero drops |
+| high | 10k spans/s × 5 min | L1a Q1–Q7 p99 < 500 ms at production 20s cadence |
+| burst | 50k spans/s × 30s | ≤ 60s recovery |
+| sustained-extreme | 50k spans/s × 5 min | degraded-but-functional; zero L0 loss inside retention |
+
+The chunk #54 `perf_slo_10k_spans.rs` single-profile test remains the fast per-PR gate; the four-profile suite is the release/tag gate. Future load-shaped tests join the `load-profiles` nextest profile rather than `#[ignore]` (`#[ignore]` stays reserved for flake quarantine).
 
 **Zero-flakiness budget:** Flaky tests are NOT tolerated. If a test flakes once:
 1. Quarantine immediately (skip in CI via `#[ignore]` or GitHub Actions conditional)
@@ -863,113 +757,7 @@ _Skipped for Standard tier + Minimal security tier (no compliance triggers in te
 
 ### Project-specific (andromeda-pulse)
 
-- NEVER allow OTLP self-dialing (receiver instrumented with exporter pointing back to own `:4317`/`:4318`) — negative test must assert this is prevented
-
-  > **DEPRECATED (2026-05-08):** see Decisions Log entry "2026-05-08 — Annotate body deprecation: §1 self-observation loop prevention triggers + §Anti-Patterns OTLP self-dialing row". By-construction-satisfied per obs-plan §12 Phase 3.5 pivot — no OTel SDK in self-runtime → no exporter to misconfigure → no `ANDROMEDA_OBSERVER_URL`-shaped config surface. Bullet preserved for audit trail.
+- OTLP self-dialing (receiver instrumented with exporter pointing back to own `:4317`/`:4318`) is prevented **by construction** — no OTel SDK is linked into the self-observation runtime, so no exporter exists to misconfigure and no `ANDROMEDA_OBSERVER_URL`-shaped config surface exists (per obs-plan Phase 3.5 pivot). No negative test required. (Previously a "NEVER self-dial / negative test must assert" rule; deprecation history in test-plan-amendments.md.)
 - NEVER dump raw OTLP JSON as snapshot (defeats token-efficiency design goal) — snapshot tests must assert dedup, anomaly markers, aggregates
 - NEVER skip post-`prost` OTLP invariant checks (span_id != 8 bytes, trace_id != 16 bytes must be rejected) — negative tests validate
 - NEVER bind OTLP receivers to `0.0.0.0` (breaks loopback-only security model) — tests must assert rejection of non-loopback binds
-
----
-
-## 12. Test Decisions Log
-
-**2026-05-02** — Initial test plan generated by `/andromeda-tests`
-- **Tier:** Standard (1) — justified by cross-platform desktop app (Windows/macOS/Linux via Tauri 2) with 19 testable entities, 7 critical paths, 28+ security anti-patterns requiring negative tests, and creator's risk tolerance signaling "portfolio-worthy" quality bar above MVP.
-- **Key decisions:**
-  - **Test framework:** `cargo test` (libtest 1.85+) + `cargo-nextest` 0.9.x — chosen because: per-process isolation fixes port-binding integration test collisions; JUnit XML output for CI matrix; actively maintained
-  - **Coverage tool:** `cargo-llvm-cov` 0.8.5 — chosen because: LLVM source-based coverage works on all 3 CI matrix platforms (Windows/macOS/Linux), unlike tarpaulin (Linux-x86_64 only); 75% line / 70% branch / 85% function threshold per Standard tier
-  - **E2E drivers:** `tauri-driver` 2.x + `WebdriverIO` 9.x for desktop-webview; `tauri::test::mock_builder()` for TauRPC IPC; `tonic` 0.14.5 for OTLP gRPC; `axum-test` 18.7.0 for OTLP HTTP; `arrow-rs` 55.x for Real-time Channel Arrow IPC decode; `tokio::process::Command` for MCP sidecar — chosen because: each matches the production stack (tonic receiver, axum HTTP, Arrow columns, Tauri IPC) to ensure no test-mode bypass
-  - **Fixture pattern:** `rstest` 0.26.1 + builder factories — chosen because: parameterized + composable fixtures reduce boilerplate; Rust builder pattern matches project conventions
-  - **Mock libraries:** `httpmock` 0.7.x (HTTP mock for updater latest.json); `tokio::time::pause()` (deterministic clock); `mockall` 0.13.x (trait stubs for cross-module boundaries) — chosen because: all from Phase 2 research catalog; lightweight and stable
-  - **Self-bootstrapping:** OTLP ingest via `tonic` client as fixture seeding — chosen because: tests the ingest path; ensures data isolation; eliminates pre-baked DB snapshots (aligns with agent-driven discipline)
-  - **Performance budgets:** p99 latencies < 100ms for RPC operations; 10k spans/sec throughput; token budget <= 25000 for snapshot generation — chosen because: triggered by `performance-budget: WebGPU canvas throughput` and `performance-budget: Snapshot token budget enforcement` in test-scope Section 5
-  - **Chaos tests:** `tokio::time::pause()` + manual broadcast-channel drop for ingest-channel failure scenario; custom load-driver (no external tool like k6/vegeta) for 10k spans/sec sustained injection — chosen because: deterministic, repeatable within CI; triggered by `chaos-test: Buffer overflow / retention window enforcement` in test-scope Sec 5
-- **Deferred questions:** 
-  - Windows notarization + Minisign HSM testing (out of harness scope; covered by release CI workflow only)
-  - Full WebGPU pixel inspection on tauri-driver headful mode (performance budget enforcement sufficient at Standard tier; Comprehensive tier may add visual regression if risk tolerance increases)
-
-**2026-05-08** — Deprecate self-OTLP-loop negative test (Section 1 coverage triggers + P5 critical path)
-- **Decision:** The `security-vector-coverage: No self-OTLP dialing` trigger in §1 Test Scope Summary and any related steps in §6 E2E scenarios are now by-construction-satisfied per obs-plan.md `2026-05-02 Phase 3.5 pivot` (no OTel SDK linked into self-observation runtime → no exporter to misconfigure → no `ANDROMEDA_OBSERVER_URL`-shaped configuration surface exists). The negative test as currently described ("Configure product with OTLP exporter pointing to own `:4317` or `:4318`") is unimplementable because the configuration surface does not exist.
-- **Rationale:** Skipping this trigger silently would lose the agent-driven invariant; documenting deprecation here keeps the audit trail intact. If a future scope re-introduces an outbound OTLP observer surface, this entry should be revisited.
-- **Impact:** Coverage trigger remains in §1 for historical context but should be marked DEPRECATED in next `/andromeda-tests` re-run. /andromeda-implement should treat this trigger as no-op rather than generating dead test code.
-- **By:** Manual edit, cross-plan rot reconciliation
-- **Amendment record:** `.andromeda/runs/2026-05-08T17-28-26-spec-amendment-deprecate-self-otlp-loop-test/amendment.md`
-
-**2026-05-08** — Document missing PII vector test coverage (security plan vectors 2/3/4/6)
-- **Decision:** The §1 Coverage triggers table contains `security-vector-coverage: DuckDB SQL injection prevention` (covers vector 5) but does not have explicit triggers for security-plan.md §Logging vectors 2 (sanitized AppError errors), 3 (plugin path basename only), 4 (MCP response bodies never logged), 6 (path env var canonicalization). Vector 4 in particular is the indirect-prompt-injection surface for MCP tool responses — security-plan.md §Logging Anti-Patterns explicitly bans logging MCP response bodies, but no test asserts the ban via grep on `agent-latest.jsonl` after MCP invocation.
-- **Rationale:** Phase 2 cross-plan rot scan would have caught this as Pattern 2 (security ban without test trigger). Adding explicit test triggers requires `/andromeda-tests` re-run with this gap documented as input. Pending that re-run, this entry serves as the audit marker.
-- **Impact:** Recommended new triggers for next `/andromeda-tests` re-run:
-  - `security-vector-coverage: AppError sanitization` — IPC error response must not contain stack traces, file paths, Rust struct names, or library versions; assert via grep on agent-latest.jsonl
-  - `security-vector-coverage: Plugin path basename only` — load plugin with symlink chain → assert resolved path NOT in logs, only basename
-  - `security-vector-coverage: MCP response body redaction` — call `query_traces` via MCP → assert `result_content` NOT in agent-latest.jsonl, only `result_type` + `result_count` metadata
-  - `security-vector-coverage: Path env var canonicalization log redaction` — set `ANDROMEDA_PULSE_PLUGIN_DIR=../../etc/passwd` → assert canonicalization rejects + logs only basename
-- **By:** Manual edit, cross-plan rot reconciliation
-- **Amendment record:** `.andromeda/runs/2026-05-08T17-28-27-spec-amendment-document-pii-vector-test-gaps/amendment.md`
-
-**2026-05-08** — Document missing capability-widening static analysis tests
-- **Decision:** Security-plan.md §API Anti-Patterns contains 3 explicit "NEVER widen" bans for capabilities `pulse:notification`, `pulse:tray`, `pulse:plugin-fs`. Current test plan §1 covers `Tauri IPC capability gating` for runtime IPC rejection but does not cover capability JSON static analysis. The xtask drift check (security-plan §API Security row) currently verifies TauRPC procedures vs capabilities/ JSON sync; it does not check for forbidden permission widening on the 3 named capabilities.
-- **Rationale:** Capability widening is declarative (capability JSON content) and cannot be caught at runtime by current tests — by the time IPC rejection fires, the widening has already been deployed. Static analysis test against capabilities/ JSON is the appropriate gate.
-- **Impact:** Recommended new trigger for next `/andromeda-tests` re-run:
-  - `security-vector-coverage: Capability widening static analysis` — xtask test that parses each `pulse-app/capabilities/*.json` and asserts: (a) `pulse:notification` contains only outbound emit permissions (no input handlers); (b) `pulse:tray` contains only outbound menu/icon permissions (no incoming-event handlers); (c) `pulse:plugin-fs` permissions limited to read of resolved plugin dir, no write/delete/execute, never exposed to webview JavaScript. Test fails with named permission and capability on widening detection.
-- **By:** Manual edit, cross-plan rot reconciliation
-- **Amendment record:** `.andromeda/runs/2026-05-08T17-28-29-spec-amendment-document-capability-widening-test-gap/amendment.md`
-
-**2026-05-08** — Annotate body deprecation: §1 self-observation loop prevention triggers + §Anti-Patterns OTLP self-dialing row
-
-- **Decision:** Add inline body deprecation markers at 3 deprecated sites:
-  - §1 Coverage triggers row "Self-observation loop prevention" (line 48) — `**[DEPRECATED 2026-05-08]**` prefix in first column (markdown tables don't accept blockquotes between rows; row content preserved, visible deprecation flag)
-  - §1 Coverage triggers row "security-vector-coverage: No self-OTLP dialing" (line 255) — same pattern
-  - §Anti-Patterns Project-specific bullet "NEVER allow OTLP self-dialing" (line 866) — `> **DEPRECATED**` blockquote inside the bullet
-- **Rationale:** Extends prior `2026-05-08T17-28-26Z-deprecate-self-otlp-loop-test` amendment (Decisions Log entry only) by adding visible body markers. By-construction-satisfied per obs-plan §12 Decisions Log 2026-05-02 Phase 3.5 pivot — no OTel SDK in self-runtime → no exporter to misconfigure → no `ANDROMEDA_OBSERVER_URL`-shaped config surface. Without annotation, /andromeda-implement reading §1 + §Anti-Patterns sections might generate dead test code or fail-safe checks for a configuration surface that doesn't exist. Body content preserved as-is for audit trail; deprecation annotation is additive only.
-- **Impact:** No behavioral change. §1 trigger rows + §Anti-Patterns bullet preserved; new readers see deprecation notice first. Tier 2/3 distillations need re-derivation (`/andromeda-setup-project --delta` will regenerate `.claude/rules/testing.md`, `.claude/docs/tests-summary.md`).
-- **By:** /andromeda-evolve (user-driven Type 5 deprecation annotation, Path 1 uniform scope)
-- **Amendment record:** `.andromeda/runs/2026-05-08T21-00-00-spec-amendment-obs-pivot-test-bodies/amendment.md`
-
-**2026-05-09** — Document gap: §3 Test Harness Contract does not yet require runtime smoke check for boot-path-touching chunks
-
-- **Decision:** When a chunk's plan touches `pulse-app/src/main.rs`, `crates/ui-bridge/src/`, `pulse-app/src-tauri/tauri.conf.json`, OR `pulse-app/capabilities/*.json` (the boot/setup paths), the chunk's `## Test Commands` section MUST include a runtime smoke gate: `cd pulse-app && npx @tauri-apps/cli dev` with a 60-second timeout, watching stdout for boot-completion signals (`Local:` / `ready in` / `Compiled successfully`) before SIGTERM. Latent boot panics — like the chunk #27/#30 panic at `crates/ui-bridge/src/health.rs:291` ("there is no reactor running, must be called from the context of a Tokio 1.x runtime") — go undetected through compile + unit tests + lint + typecheck + fmt + clippy + deny + verify:contrast + capability-drift, surfacing only when a downstream chunk's smoke gate runs against the latent code. The 5-command harness discipline (boot/run/status/cleanup/logs) covers in-process verification but does not catch trait-level binding-emission panics that fire at boot in non-Tokio context.
-- **Rationale:** Surfaced empirically via chunk #31 implementation (Halo State Pulse signature element). Chunk #31's plan included `npx @tauri-apps/cli dev` as Phase 2b smoke check (per /andromeda-implement protocol's Phase 2b runtime smoke), which surfaced a chunk #27/#30 panic that had been latent in commit 19bfbf2. Chunks #27, #28, #29, #30 did NOT gate on smoke and shipped with the panic undetected through 4 wrap cycles. Without a per-chunk smoke gate at the introducing chunk, latent boot panics accumulate as carry-overs that block downstream runtime testing.
-- **Impact:**
-  - Recommended new coverage trigger for next `/andromeda-tests` re-run:
-    - `boot-smoke-coverage: per-chunk Tauri dev smoke gate` — chunks touching boot/setup paths (`pulse-app/src/main.rs`, `crates/ui-bridge/src/`, `pulse-app/src-tauri/tauri.conf.json`, `pulse-app/capabilities/*.json`) MUST include `npx @tauri-apps/cli dev` (60s timeout; boot-completion signal detection) in their Test Commands. Smoke check classification per `andromeda-implement/references/runtime-failure-patterns.md` (capability-drift → /andromeda-scope-arch; Tauri JSON → /andromeda-arch; etc.). On Phase 2b smoke failure, chunk surfaces "green per scope; runtime blocked" variant rather than blocking commit.
-  - `/andromeda-phase` plan authoring should now apply this discipline immediately for chunks #32+ that touch boot/setup paths. The chunk #32 plan (compact widget infographics + footer) touches webview UI only — not boot paths — so it is exempt; but a future chunk modifying `pulse-app/src/main.rs` or `crates/ui-bridge/src/` should include the smoke gate per this discipline.
-  - Tier 2/3 distillations regenerate via `/andromeda-setup-project --delta`: `.claude/rules/testing.md` body (above §Session Additions, which is preserved verbatim; the existing 2026-05-09 §Session Additions "Smoke check gating value" entry is the lower-tier echo of this Tier-1 amendment) + `.claude/docs/tests-summary.md` specialist summary.
-- **By:** /andromeda-evolve (user-driven Type 3 documented gap addition)
-- **Amendment record:** `.andromeda/runs/2026-05-09T16-00-54-spec-amendment-smoke-check-boot-discipline/amendment.md`
-
-**2026-05-10** — Document gap: chunk plans MUST include standard gate baseline regardless of chunk scope
-
-- **Decision:** Every `/andromeda-phase`-authored chunk plan's `## Test Commands` section MUST include the FULL standard gate set: `cargo fmt --check` + `cargo clippy --workspace --all-targets --all-features -- -D warnings` + `cargo nextest run --workspace --profile ci` + `cargo xtask capability-drift` + `npm run lint --prefix pulse-app/ui` + `npm run typecheck --prefix pulse-app/ui` + `npm run test --prefix pulse-app/ui`. Boot-smoke gate remains conditional per the existing `boot-smoke-coverage` trigger (Decisions Log 2026-05-09); standard gate set is unconditional per chunk regardless of webview-only / Rust-only / mixed scope.
-- **Rationale:** Empirically verified at chunk #37 wrap (commit c8785c8) — chunk #36 plan omitted `cargo fmt --check` + `npx tsc --noEmit` from gate list; both gates exposed pre-existing failures (5-line whitespace diff in `pulse-app/src/tray.rs` + 2 errors in `pulse-app/ui/src/dashboard/routes/metrics/MetricsChart.test.tsx:27,49`) when chunk #37's plan included them. Without unconditional gate baseline at every chunk, gate-coverage drift accumulates as carry-overs that surface only when a downstream chunk's broader gate list catches them — effectively delaying detection by N chunks. Pre-flight gate parity at chunk-plan authoring time prevents this gap.
-- **Impact:**
-  - Recommended new coverage trigger for next `/andromeda-tests` re-run:
-    - `chunk-gate-baseline-coverage: standard gate set unconditional per chunk` — every chunk plan §Test Commands MUST list `cargo fmt --check` + `cargo clippy ... -D warnings` + `cargo nextest run --workspace --profile ci` + `cargo xtask capability-drift` + (when webview touched) `npm run lint` + `npm run typecheck` + `npm run test`. Webview gates excluded only when chunk's `Files-to-modify` / `New-files-to-create` lists touch zero `pulse-app/ui/**` paths. Boot-smoke conditional per existing `boot-smoke-coverage` trigger (cumulative, not exclusive).
-  - `/andromeda-phase` plan-template.md should incorporate the gate baseline directly into the Test Commands section template (not just the per-chunk specialist filtering); ensures all chunks emerge with the standard gate set by construction.
-  - Tier 2/3 distillations regenerate via `/andromeda-setup-project --delta`: `.claude/rules/testing.md` Pending coverage triggers section adds the entry; `.claude/docs/tests-summary.md` mirrors.
-- **By:** /andromeda-evolve (user-driven Type 3 documented gap addition)
-- **Amendment record:** `.andromeda/runs/2026-05-10T12-41-03-spec-amendment-mandate-standard-chunk-gates/amendment.md`
-
-**2026-05-10** — Document gap: wrap-session Phase 5 reconcile MUST rerun tooling unconditionally; no skip-on-webview-only optimization
-
-- **Decision:** `/andromeda-wrap-session` Phase 5 living-artifacts reconcile MUST run the recorded Tooling command from each `.andromeda/context/{artifact}.md` METADATA block at every wrap regardless of chunk scope. The "skip tooling re-run when chunk doesn't touch Rust" optimization (currently practiced informally per session 41 / 42 / 43 wrap-session reports) is the documented root cause of api-surface.md staleness accumulation across multiple sessions. Even when chunk is webview-only, tooling re-run is required: it's the only mechanism by which the LIVING block reflects reality.
-- **Rationale:** Empirically verified at chunk #37 wrap (commit c8785c8). Wrap-session 43 ran `cargo +nightly public-api --simplified` per-crate iteration and produced 3837 lines / 1915 `pub` declarations across the workspace. The current api-surface.md LIVING block holds 313 lines / 231 `pub` declarations — a 12× discrepancy in `pub` count. This staleness accumulated across sessions 38-42 (chunks #33-#36 all webview-only or webview-dominant) where prior wraps skipped the tooling rerun on the rationale "no Rust changes => LIVING block content unchanged". The rationale fails because: (a) Cargo.lock advances independently (e.g., chunk #36's tray-icon feature toggle exposed `tray-icon v0.23.1` + transitive deps); (b) cargo public-api re-derives from full dep graph + source AST, so LIVING block divergence vs fresh tooling output is the only reliable staleness signal — observable only by actually running the tooling.
-- **Impact:**
-  - Recommended new coverage trigger for next `/andromeda-tests` re-run:
-    - `living-artifact-tooling-rerun-coverage: unconditional reconcile at every wrap` — wrap-session Phase 5 MUST execute the Tooling command from each `.andromeda/context/{artifact}.md` METADATA at every wrap. Skip-on-webview-only is forbidden. If tooling exits non-zero or stdout empty, follow Phase 5 fallback (set `living_artifact_freshness.reconcile_failed = true`; preserve last good LIVING content; surface as warning) — but never skip the tooling invocation itself.
-  - Format-mismatch reconciliation: when fresh tooling output diverges from LIVING block by >2× line count or >5× field-count metric (whichever first), wrap-session Phase 5 MUST overwrite LIVING block with fresh stdout; the curated formatting (e.g., `## crate-name` headings + code-block fences in api-surface.md) is the wrap-session protocol's responsibility to re-apply at write time, not the user's manual responsibility post-hoc.
-  - Skill-level fix is out-of-project-scope (lives in `~/.claude/skills/andromeda-wrap-session/SKILL.md` Phase 5 spec); this trigger anchors the requirement so future readers and the next /andromeda-tests re-run see the documented gap.
-  - Tier 2/3 distillations regenerate via `/andromeda-setup-project --delta`: `.claude/rules/testing.md` Pending coverage triggers section adds the entry; `.claude/docs/tests-summary.md` mirrors.
-- **By:** /andromeda-evolve (user-driven Type 3 documented gap addition)
-- **Amendment record:** `.andromeda/runs/2026-05-10T12-41-03-spec-amendment-mandate-living-artifact-tooling-rerun/amendment.md`
-
-**2026-06-10** — Chunk #99 tag gate: capability verification matrix + four-profile load suite adopted; frame budget reconciled to obs §10
-
-- **Trigger:** chunk #99 phase #96 (the v0.2.0 tag gate) via `cargo xtask verify:capability-matrix` + `cargo xtask perf:load-profiles` — the chunk's declared specialist-plan touches (plan.md step 8), applied at implement time per spec-drift-protocol Path A.
-- **Change:** Four additions to the test mechanism set, none modifying §10 body rows: (1) **Capability verification matrix** — `docs/v0_2_0/capability-verification-matrix.json` enumerates all 60 P-001–P-060 capabilities with per-entry verification scenarios (modes: 56 automated-nextest, 2 automated-a11y, 1 by-construction [P-040 default-off — no auto-spawn path exists], 1 env-gated-runtime [real llama-cli integration per testing.md 2026-05-25]); `cargo xtask verify:capability-matrix` validates ids/file-refs/grep-anchors and is a CI step after capability-drift. (2) **Four-profile load suite** — `pulse-app/tests/perf_load_profiles.rs` implements dist-arch v3 load profiles {baseline 1k spans/s × 60s zero-drops; high 10k × 5min with L1a Q1–Q7 p99 <500ms at production 20s cadence; burst 50k × 30s with ≤60s recovery; sustained-extreme 50k × 5min degraded-but-functional with zero L0 loss inside retention}. Runs behind nextest `[profile.load-profiles]` (`default-filter = "binary(perf_load_profiles)"`, `test-threads = 1`; the default profile excludes the binary) orchestrated by `cargo xtask perf:load-profiles` which then applies the NEUTRAL-tolerant obs check scripts. The chunk #54 `perf_slo_10k_spans.rs` single-profile test remains as the fast per-PR gate; the four-profile suite is the release/tag gate. (3) **Frame-budget reconciliation (resolves the fps-vs-ms drift):** §10's "WebGPU 10k spans/sec sustained ≥30 fps" row is RETAINED as descriptive intent but the ASSERTED budget is obs-plan §10's ms-form — `metric.webgpu.frame_duration_ms` p99 ≤33ms. All CI assertions bind to the ms-values; no test asserts an fps number. (4) **tauri-driver headful residual recorded:** the P5 tray/window matrix remains covered by the IPC surrogate + the repaired browser-driven a11y chain (real Chromium against the built webview); the tauri-driver headful suite stays deferred per the chunk #51 Path A' precedent — this is a documented residual, not silent coverage claim.
-- **Brand / domain impact:** None to wire contracts or quality-gate thresholds (coverage/flakiness/perf budgets unchanged). The load suite surfaced 3 real pipeline defects fixed in-chunk (user-directed): retention-sweep connection monopolization, Q7 timeout abandoning a mutex-holding task, and L1a reads queuing behind append-path maintenance — recorded in the obs-plan §12 sibling entry (same amendment).
-- **Usage scope refinement:** Future chunks adding load-shaped tests join the `load-profiles` nextest profile rather than `#[ignore]` (quarantine-tracking semantics preserved — `#[ignore]` stays reserved for flake quarantine). Future capability additions (P-061+) extend the matrix JSON in the same chunk that lands the capability; `verify:capability-matrix` fails CI on dangling ids/paths/anchors.
-- **Cross-references:** obs-plan §12 sibling entry "2026-06-10 — Chunk #99 tag gate" (same amendment record); dist-arch v3 `docs/v0_2_0/pulse-distillation-architecture.md` (profile definitions); `docs/v0_2_0/pulse-v0_2_0-route.md` §97 Phase 13 (chunk source); combined.md phase-96 cross-domain rot warning 5 (fps-vs-ms mismatch, resolved here).
-- **Authority:** obs-plan §10 ms-values govern over the test-plan §10 fps row (stricter + jq-aggregatable per the established `metric.*` convention). Amendment record: `.andromeda/runs/2026-06-10T00-35-00-spec-amendment-adopt-four-load-profiles/amendment.md`.
-
-
