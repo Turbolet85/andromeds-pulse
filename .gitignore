@@ -3,6 +3,10 @@
 # context/ living artifacts) — they are the source of truth for the CLAUDE.md ecosystem.
 # Exclude only the audit-trail run directories (ephemeral; large; per-pipeline-invocation).
 .andromeda/runs/
+# Code-graph DB cache (v3 — derived from rust-analyzer SCIP; rebuilt from code, never committed).
+.andromeda/cache/
+# Python bytecode from the code-graph pipeline (scripts/code-graph.py).
+scripts/__pycache__/
 
 # --- Rust ---
 # Build output

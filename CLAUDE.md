@@ -55,7 +55,8 @@ Cross-platform Tauri 2 desktop dashboard for local OpenTelemetry — receives OT
 | Topic | Source |
 |---|---|
 | Architecture overview + Established Decisions | `.andromeda/architecture.md` |
-| Roadmap (9 epochs / 100 chunks) | `.andromeda/route.md` |
+| Roadmap — cross-version master index (forward / current) | `.andromeda/master-route.md` |
+| Roadmap — v0.1.0 + v0.2.0 history (100 chunks / 9 epochs; v2 forensic) | `.andromeda/route.md` + `.andromeda/phases/` |
 | Workspace crates + Occupied Resources (ports / IPC routes / env vars / tables / capabilities) | `.andromeda/architecture.md` §Inherited Defaults / §Occupied Resources |
 | Standard Contracts (`app_info` / `health` / `ready` envelopes; OTLP / MCP / IPC error schemas) | `.andromeda/architecture.md` §Standard Contracts |
 | Threat model + tier (Minimal) + data classifications | `.andromeda/security-plan.md` §Threat Model Summary |
@@ -69,8 +70,9 @@ Cross-platform Tauri 2 desktop dashboard for local OpenTelemetry — receives OT
 | A11y plan (WCAG 2.1 AA + SC 2.3.3 AAA) + harness (axe / Lighthouse / pa11y / Playwright / colorjs.io) | `.andromeda/a11y-plan.md` §3 |
 | Design system (NASA Deep Space palette + Halo State Pulse) | `.andromeda/design-system.md` |
 | Layout templates (compact widget + full dashboard + tray) | `.andromeda/layout-templates.md` |
-| Module dependency graph (living artifact) | `.andromeda/context/dependency-tree.md` |
-| API surface (living artifact) | `.andromeda/context/api-surface.md` |
+| Code map / impact (symbols · callers · crate deps) | `.andromeda/cache/tree.db` via `scripts/code-graph.py query` (cookbook `scripts/code-graph-cookbook.md`; built on first phase/wrap) |
+| Module dependency graph (living artifact — superseded by tree.db; retire after first build) | `.andromeda/context/dependency-tree.md` |
+| API surface (living artifact — superseded by tree.db; retire after first build) | `.andromeda/context/api-surface.md` |
 | Specialist summaries (security / design / tests / obs / a11y) | `.claude/docs/{specialist}-summary.md` |
 | Per-module implementation notes (12 crates) | `.claude/docs/services/{module}.md` |
 | Stack / commands / conventions / gotchas / workflow | `.claude/docs/{topic}.md` |
@@ -102,11 +104,11 @@ Local-first, zero-infrastructure modular monolith: every byte of telemetry stays
 
 <!-- GENERATED:setup:imports start -->
 @.andromeda/architecture.md
-@.andromeda/route.md
+@.andromeda/master-route.md
 @.claude/session-handoff.md
 <!-- GENERATED:setup:imports end -->
 
-<!-- Maintainer note: The @ imports above MUST each be on their own line — Claude Code only recognizes standalone @path lines as import directives. Inline references like `See @path` or `- @path` are NOT expanded. Imported files may be 300-800 lines each; the 200-line limit applies to CLAUDE.md itself, not post-expansion total. Keep @ imports minimal (3 standalone lines: arch.md / route.md / session-handoff.md). Each scope adds one more standalone line. This comment is stripped from Claude's runtime context per Anthropic comment-stripping rule. See section-markers.md. -->
+<!-- Maintainer note: The @ imports above MUST each be on their own line — Claude Code only recognizes standalone @path lines as import directives. Inline references like `See @path` or `- @path` are NOT expanded. Imported files may be 300-800 lines each; the 200-line limit applies to CLAUDE.md itself, not post-expansion total. Keep @ imports minimal (3 standalone lines: arch.md / master-route.md / session-handoff.md). master-route.md is the cross-version nav hub (forward chunk records); the v0.1.0+v0.2.0 history stays in .andromeda/route.md as v2 forensic. This comment is stripped from Claude's runtime context per Anthropic comment-stripping rule. See section-markers.md. -->
 
 ## Deeper Topics
 <!-- GENERATED:setup:deeper-topics start -->
