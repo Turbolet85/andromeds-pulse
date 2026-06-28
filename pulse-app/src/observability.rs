@@ -1764,16 +1764,10 @@ impl AllowList {
         );
         by_target.insert(
             "digest.runtime.cadence_tick",
-            [
-                "mode",
-                "cue_kind",
-                "cue_priority",
-                "error_category",
-                "skipped_events",
-            ]
-            .iter()
-            .copied()
-            .collect(),
+            ["mode", "cue_present", "error_category", "skipped_events"]
+                .iter()
+                .copied()
+                .collect(),
         );
         by_target.insert(
             "digest.runtime.boot",

@@ -8,7 +8,7 @@ _Chunks separated by `   ↓` within an epoch; only `### Epoch K — {name}` hea
 ### Epoch 1 — Foundation: AI-debug spine
 [2026-06-28-deterministic-env-gated-l4-mode] Deterministic env-gated L4 mode — canned `L4Output` via `StubInferenceRunner`, env/flag-selected, so the incident path completes without GPU/3B (P-073 · intent F13a)
    ↓
-Tier1 incident-path reliability — coalesce identical hard-signals into one digest + elastic queue with heartbeat ticks; storm yields one incident (P-074 · intent F13b)
+[2026-06-28-tier1-incident-path-reliability] Tier1 incident-path reliability — coalesce identical hard-signals into one digest + elastic queue with heartbeat ticks; storm yields one incident (P-074 · intent F13b)
    ↓
 Investigate actions functional — the four Investigate buttons run real LLM/MCP analysis with visible progress and a result; failures surface (P-072 · intent F12)
 
@@ -41,4 +41,4 @@ Integration UX e2e test — real assembled path under deterministic-L4 (launch, 
    ↓
 A11y verification — v0.3.0 interactive surfaces (window, widget-to-dashboard nav, anomaly controls, constellation, status, empty states): focus/keyboard/contrast/SR + SC 2.3.3 (per a11y-plan §3/§6/§7)
    ↓
-Demo injector formalized + api-surface retire — `inject_demo.rs` as a supported dev/test tool; retire `context/api-surface.md` once `tree.db` is built (P-077 · intent §5)
+Demo injector formalized + api-surface retire — `inject_demo.rs` as a supported dev/test tool; retire `context/api-surface.md` once `tree.db` is built (P-077 · intent §5) · CARRY: remove the dead Tier-1 `LwwQueue` path (P-074 confirmed `drain_all` has 0 production callers — unused on the L4 path; the broadcast is the real L4 feed)

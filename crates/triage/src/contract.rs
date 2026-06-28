@@ -109,9 +109,10 @@ pub use crate::cadence::{
     CADENCE_ACCELERATED_SECONDS_MIN, CADENCE_BASELINE_SECONDS_MIN, CADENCE_REFLECTION_SECONDS_MIN,
     CadenceConfig, CadenceConfigError, CadenceCoordinator, CadenceEvent, CadenceEventBroadcast,
     CadenceMode, CoordinatorCycleStats, DEFAULT_CADENCE_ACCELERATED_SECONDS,
-    DEFAULT_CADENCE_BASELINE_SECONDS, DEFAULT_CADENCE_REFLECTION_SECONDS, HardwareProfile,
-    HardwareProfileSource, STREAM_NAME_CADENCE_EVENTS, SqlQueryRunner, UnknownHardwareProfile,
-    mode_label, run_one_coordinator_cycle, start_cadence_coordinator,
+    DEFAULT_CADENCE_BASELINE_SECONDS, DEFAULT_CADENCE_REFLECTION_SECONDS, DigestTrigger,
+    DigestTriggerBroadcast, HardwareProfile, HardwareProfileSource, STREAM_NAME_CADENCE_EVENTS,
+    SqlQueryRunner, UnknownHardwareProfile, mode_label, run_one_coordinator_cycle,
+    start_cadence_coordinator,
 };
 
 // Chunk #79 — L1a SQL aggregation queries. Re-export to enable chunk #80

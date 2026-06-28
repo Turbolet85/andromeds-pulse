@@ -2,10 +2,11 @@
 //!
 //! Constructs the `triage::digest::Assembler` from injected deps + spawns
 //! two tasks:
-//! - **Cadence subscriber:** subscribes to `CadenceEventBroadcast`
-//!   (chunk #80) AND invokes `assembler.assemble(...)` per cycle event
-//!   (mode + window passed; triggering cue passthrough deferred к future
-//!   chunk per chunk #81 plan implementation notes).
+//! - **Cadence subscriber:** subscribes to `DigestTriggerBroadcast` and
+//!   invokes `assembler.assemble(...)` per trigger, passing the triggering
+//!   cue THROUGH so the digest carries `attention_cues` and the L4 producer
+//!   can create a cue-derived incident (P-074). The PII-free
+//!   `pulse://stream/cadence-events` L6 topic stays a separate channel.
 //! - **Digest persister:** subscribes to `DigestBroadcast` (chunk #81)
 //!   AND persists each emitted digest к corpus via
 //!   `CorpusWriter::save_digest` (chunk #81 trait extension). Bincode-
@@ -32,9 +33,9 @@ use std::time::Duration;
 use security::scrubber::{ScrubbedValue, scrub_attribute};
 use tokio::sync::broadcast::error::RecvError;
 use triage::contract::{
-    Assembler, CadenceEventBroadcast, CadenceMode, CorpusIncidentSource, Digest, DigestAssembler,
-    DigestBroadcast, DigestProjectContext, DigestRecentCommit, IncidentRegistry, LwwQueue,
-    SqlQueryRunner,
+    Assembler, CadenceMode, CorpusIncidentSource, Digest, DigestAssembler, DigestBroadcast,
+    DigestProjectContext, DigestRecentCommit, DigestTriggerBroadcast, IncidentRegistry, LwwQueue,
+    SqlQueryRunner, mode_label,
 };
 use workspace_detector::contract::WorkspaceContext;
 
@@ -102,27 +103,32 @@ pub fn workspace_to_digest_context(ctx: &WorkspaceContext) -> DigestProjectConte
 /// uses а fixed context; future chunk re-detects per event if workspace
 /// changes mid-session, currently rare).
 pub fn spawn_cadence_subscriber(
-    cadence_broadcast: Arc<CadenceEventBroadcast>,
+    digest_trigger: Arc<DigestTriggerBroadcast>,
     assembler: Arc<dyn DigestAssembler>,
     project_context: DigestProjectContext,
 ) -> tokio::task::JoinHandle<()> {
     tokio::spawn(async move {
-        let mut rx = cadence_broadcast.subscribe();
+        let mut rx = digest_trigger.subscribe();
         loop {
             match rx.recv().await {
-                Ok(event) => {
-                    let mode = event.mode;
+                Ok(trigger) => {
+                    let mode = trigger.mode;
                     let window = cycle_window_for_mode(mode);
-                    let now_nanos = event.executed_at_unix_nano;
+                    let now_nanos = trigger.executed_at_unix_nano;
                     tracing::info!(
                         target: TARGET_DIGEST_RUNTIME_CADENCE_TICK,
-                        mode = event.mode_label,
-                        cue_kind = event.cue_kind_label.unwrap_or(""),
-                        cue_priority = event.cue_priority_label.unwrap_or(""),
-                        "cadence event observed; invoking digest assembler",
+                        mode = mode_label(mode),
+                        cue_present = trigger.triggering_cue.is_some(),
+                        "digest trigger observed; invoking digest assembler",
                     );
                     let result = assembler
-                        .assemble(mode, None, &project_context, now_nanos, window)
+                        .assemble(
+                            mode,
+                            trigger.triggering_cue.as_ref(),
+                            &project_context,
+                            now_nanos,
+                            window,
+                        )
                         .await;
                     if let Err(e) = result {
                         tracing::warn!(
@@ -136,9 +142,9 @@ pub fn spawn_cadence_subscriber(
                     tracing::warn!(
                         target: TARGET_DIGEST_RUNTIME_CADENCE_TICK,
                         skipped_events = skipped,
-                        "cadence subscriber lagged; resubscribing",
+                        "digest trigger subscriber lagged; resubscribing",
                     );
-                    rx = cadence_broadcast.subscribe();
+                    rx = digest_trigger.subscribe();
                 }
                 Err(RecvError::Closed) => return,
             }

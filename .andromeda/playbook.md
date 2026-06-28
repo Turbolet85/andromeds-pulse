@@ -21,4 +21,8 @@ becomes a new rule here. Format owned by /andromeda-wrap-session (`references/am
   verdict: routine
   note: a code-validated + unit-tested env var is registry-completeness drift, NOT an unvalidated-boundary security hole — apply the registration silently. D-security-input's escalate-severity is for ACTUALLY-unvalidated boundaries; an env var the report shows validated + tested does not need a HALT. (Codified 2026-06-28 from the P-073 deterministic-L4 env-var registration; escalated once, then ruled routine WITH the user.)
 
+- pattern: Drift proposal documenting a PRE-EXISTING hot-path / operation / span / metric the chunk did NOT introduce — the report's Changes mark the surface's instrumentation present (✓) and the proposal's named symbols (span / metric targets) do NOT appear in the report's Changes, OR the path traces to earlier chunks rather than this one.
+  verdict: routine
+  note: routine-REJECT (false positive / over-reach, not this chunk's drift). A detector may fire on an existing instrumented pipeline that the current chunk only extends internally (e.g. threading a value through an already-traced carrier); documenting that pipeline now mis-attributes earlier chunks' work to this marker AND risks recording symbols that do not exist. The wrap STILL records a genuine pre-existing doc gap (if any) as a handoff note for a future targeted touch-up — never as this chunk's amendment. (Codified 2026-06-28 from the P-074 D-obs-instrumentation over-reach: proposed a "P8 incident-coalescing" path with invented span names — `cadence.trigger.emit` / `digest.assemble.incident` — for the chunks #80–#92 cadence→digest→incident pipeline that P-074 only threaded a cue through; rejected WITH the user.)
+
 _(more grow from escalations + resolved cases)_

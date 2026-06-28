@@ -23,9 +23,9 @@ use triage::contract::{
     DEFAULT_LIFECYCLE_HEARTBEAT_INTERVAL, DEFAULT_LIFECYCLE_PERSIST_INTERVAL_SECS,
     DEFAULT_PERSIST_INTERVAL_NANOS, DEFAULT_SERVICE_COUNT_CAP, DEFAULT_STORM_PERSIST_INTERVAL_SECS,
     DEFAULT_STORM_WINDOW_SECONDS, DEFAULT_SUGGESTED_THRESHOLD, DigestBroadcast,
-    HardwareProfileSource, InMemoryIncidentRegistry, InMemoryServiceRegistry,
-    IncidentLifecycleBroadcast, IncidentPersistence, IncidentRegistry, LifecyclePersistence,
-    LwwQueue, RestartDetector, RestartEventBroadcast, RetryStormDetector,
+    DigestTriggerBroadcast, HardwareProfileSource, InMemoryIncidentRegistry,
+    InMemoryServiceRegistry, IncidentLifecycleBroadcast, IncidentPersistence, IncidentRegistry,
+    LifecyclePersistence, LwwQueue, RestartDetector, RestartEventBroadcast, RetryStormDetector,
     ServiceLifecycleBroadcast, ServiceRegistry, SqlQueryRunner, StormPersistence, SuppressionState,
     TARGET_LIFECYCLE_CORPUS_RESTORE, TARGET_LIFECYCLE_PERSIST_ERROR,
     TARGET_PATTERN_STORM_CORPUS_RESTORE, TARGET_PATTERN_STORM_PERSIST_ERROR, Thresholds,
@@ -429,6 +429,12 @@ fn main() {
     // profile defaults к Unknown (Tier-2-enabled posture) until chunk #82
     // delivers а real detector.
     let cadence_event_broadcast = Arc::new(CadenceEventBroadcast::new());
+    // P-074 — the non-L6 digest-assembly trigger conveys the full triggering
+    // cue (incl. scope_id) from the coordinator to the digest assembler, so a
+    // cue-driven storm digest reaches L4 with its `attention_cues` populated and
+    // the producer can create + dedup the incident. Kept separate from the
+    // PII-free `pulse://stream/cadence-events` topic above.
+    let cadence_digest_trigger = Arc::new(DigestTriggerBroadcast::new());
     // Chunk #82 — replace the chunk #80 boot stub (UnknownHardwareProfile)
     // with the real `HardwareProfileDetector`. Detector probes GPU presence
     // + CPU core count at construction; cached for subsequent reads.
@@ -1246,6 +1252,7 @@ fn main() {
                 tauri::async_runtime::spawn(start_cadence_coordinator(
                     Arc::clone(sql_runner),
                     Arc::clone(&cadence_event_broadcast),
+                    Arc::clone(&cadence_digest_trigger),
                     Arc::clone(&cue_broadcast),
                     Arc::clone(&cadence_channel),
                     Arc::clone(&hardware_profile),
@@ -1289,7 +1296,7 @@ fn main() {
                             .map(pulse_app::digest_runtime::workspace_to_digest_context)
                             .unwrap_or_default();
                         pulse_app::digest_runtime::spawn_cadence_subscriber(
-                            Arc::clone(&cadence_event_broadcast),
+                            Arc::clone(&cadence_digest_trigger),
                             Arc::clone(&assembler),
                             project_context,
                         );

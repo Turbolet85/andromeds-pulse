@@ -19,3 +19,4 @@ version-cursor scan reads those exclusively; the forensic note is a blockquote, 
 
 ## andromeda-pulse-0.3.0
 2026-06-28-deterministic-env-gated-l4-mode · complete · Deterministic env-gated L4 mode (canned L4Output, no GPU/3B) · → andromeda-pulse-0.3.0/chunks/2026-06-28-deterministic-env-gated-l4-mode/
+2026-06-28-tier1-incident-path-reliability · complete · Tier1 incident-path reliability — thread triggering cue cadence→digest so a storm yields one reliable incident · → andromeda-pulse-0.3.0/chunks/2026-06-28-tier1-incident-path-reliability/

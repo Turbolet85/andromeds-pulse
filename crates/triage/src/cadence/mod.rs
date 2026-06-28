@@ -24,7 +24,10 @@ mod broadcast;
 mod config;
 mod coordinator;
 
-pub use broadcast::{CadenceEvent, CadenceEventBroadcast, STREAM_NAME_CADENCE_EVENTS};
+pub use broadcast::{
+    CadenceEvent, CadenceEventBroadcast, DigestTrigger, DigestTriggerBroadcast,
+    STREAM_NAME_CADENCE_EVENTS,
+};
 pub use config::{
     CADENCE_ACCELERATED_SECONDS_MIN, CADENCE_BASELINE_SECONDS_MIN, CADENCE_REFLECTION_SECONDS_MIN,
     CadenceConfig, CadenceConfigError, DEFAULT_CADENCE_ACCELERATED_SECONDS,

@@ -111,10 +111,11 @@
     {
       "id": "P-074",
       "title": "Tier1 incident-path reliability under load",
-      "requirement": "Coalesce repeated identical hard-signals into one digest plus an elastic queue (with heartbeat ticks) so a sustained storm yields ONE reliable incident.",
-      "observed_gap": "The current TIER1_QUEUE_CAP=3 plus ~4s L4 latency drops ~75% of storm digests (a 426-exception storm produced no reliable single incident).",
-      "verification": { "method": "integration", "acceptance": "A sustained identical-fingerprint storm (e.g. >=100 events) yields exactly one incident with no dropped-by-cap loss under the elastic queue.", "ref": null, "status": "planned" },
-      "chunk": null
+      "requirement": "A sustained identical-fingerprint hard-signal storm yields exactly ONE incident, reproducibly. The triggering cue must thread cadence->digest so the digest->L4->incident chain completes; storm coalescing + incident dedup ensure exactly one.",
+      "observed_gap": "The triggering cue is dropped at the cadence->digest boundary (assemble(mode, None, ...)), so create_incident_from_l4_output returns early and a real storm produced NO incident. The earlier TIER1_QUEUE_CAP=3 / ~4s-L4-latency framing was falsified: the LwwQueue is unused on the L4 path (drain_all has zero production callers).",
+      "verification": { "method": "integration", "acceptance": "A sustained identical-fingerprint storm (>=100 events) drives the cue->cadence->digest->deterministic-L4 path to exactly ONE incident, reproducibly (not zero, not many).", "ref": "pulse-app/tests/integration_tier1_storm_one_incident.rs::sustained_identical_fingerprint_storm_yields_exactly_one_incident", "status": "verified" },
+      "chunk": "2026-06-28-tier1-incident-path-reliability",
+      "notes": "Premise-correction (research-corrects-intent at /phase 2026-06-28): the original requirement/observed_gap/acceptance were premised on an 'elastic queue / TIER1_QUEUE_CAP=3 drops 75%' mechanism that phase-3 research falsified. Real cause = un-threaded cue; outcome (one reliable storm incident) unchanged. See chunks/2026-06-28-tier1-incident-path-reliability/scope.md."
     },
     {
       "id": "P-075",

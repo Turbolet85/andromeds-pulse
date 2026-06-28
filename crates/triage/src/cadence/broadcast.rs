@@ -2,6 +2,7 @@ use serde::Serialize;
 use tokio::sync::broadcast;
 
 use crate::cadence::coordinator::CadenceMode;
+use crate::contract::AttentionCue;
 
 /// Tauri IPC broadcast topic identifier for L6 visibility events emitted
 /// by the cadence coordinator. Subscribers (webview / mcp / future tools)
@@ -62,9 +63,57 @@ impl Default for CadenceEventBroadcast {
     }
 }
 
+/// Internal (NON-L6) digest-assembly trigger. Distinct from [`CadenceEvent`]
+/// (the PII-free `pulse://stream/cadence-events` L6 topic): this carrier
+/// conveys the full triggering [`AttentionCue`] — including `scope_id` — to the
+/// L3 digest assembler so the digest -> L4 -> incident chain can attribute and
+/// dedup the incident. Deliberately NOT `Serialize`, never emitted on any
+/// user-visible / self-observation surface; the legitimate surfaces for
+/// `scope_id` are the digest + incident, not the cadence-events topic.
+#[derive(Debug, Clone)]
+pub struct DigestTrigger {
+    pub mode: CadenceMode,
+    pub executed_at_unix_nano: i64,
+    pub triggering_cue: Option<AttentionCue>,
+}
+
+/// Thin wrapper over `tokio::sync::broadcast::Sender<DigestTrigger>`. Mirrors
+/// [`CadenceEventBroadcast`]; the digest-assembler adapter
+/// (`pulse-app/src/digest_runtime.rs`) is the sole subscriber.
+#[derive(Debug, Clone)]
+pub struct DigestTriggerBroadcast {
+    sender: broadcast::Sender<DigestTrigger>,
+}
+
+impl DigestTriggerBroadcast {
+    pub fn new() -> Self {
+        let (sender, _initial_receiver) = broadcast::channel(BROADCAST_CAPACITY);
+        Self { sender }
+    }
+
+    pub fn sender(&self) -> &broadcast::Sender<DigestTrigger> {
+        &self.sender
+    }
+
+    pub fn subscribe(&self) -> broadcast::Receiver<DigestTrigger> {
+        self.sender.subscribe()
+    }
+
+    pub fn subscriber_count(&self) -> usize {
+        self.sender.receiver_count()
+    }
+}
+
+impl Default for DigestTriggerBroadcast {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::contract::{CueKind, CueScope, PriorityTier};
 
     fn sample_event() -> CadenceEvent {
         CadenceEvent {
@@ -150,5 +199,44 @@ mod tests {
     fn cadence_event_broadcast_default_matches_new() {
         let b = CadenceEventBroadcast::default();
         assert_eq!(b.subscriber_count(), 0);
+    }
+
+    fn sample_storm_cue() -> AttentionCue {
+        AttentionCue {
+            kind: CueKind::RetryStorm,
+            scope: CueScope::Service,
+            scope_id: Some("payment-service".to_string()),
+            magnitude: 5.0,
+            absolute_value: 50.0,
+            persistence_seconds: 30,
+            confidence: 1.0,
+            priority_tier: PriorityTier::Autonomous,
+            suppression_bypassed: false,
+        }
+    }
+
+    #[test]
+    fn digest_trigger_broadcast_round_trips_cue_including_scope_id() {
+        let b = DigestTriggerBroadcast::new();
+        let mut rx = b.subscribe();
+        b.sender()
+            .send(DigestTrigger {
+                mode: CadenceMode::Tier1,
+                executed_at_unix_nano: 1_700_000_000_000,
+                triggering_cue: Some(sample_storm_cue()),
+            })
+            .expect("send ok");
+        let received = rx.try_recv().expect("trigger received");
+        assert_eq!(received.mode, CadenceMode::Tier1);
+        let cue = received
+            .triggering_cue
+            .expect("internal carrier conveys the cue");
+        assert_eq!(cue.scope_id.as_deref(), Some("payment-service"));
+        assert_eq!(cue.kind, CueKind::RetryStorm);
+    }
+
+    #[test]
+    fn digest_trigger_broadcast_default_starts_zero_subscribers() {
+        assert_eq!(DigestTriggerBroadcast::default().subscriber_count(), 0);
     }
 }
