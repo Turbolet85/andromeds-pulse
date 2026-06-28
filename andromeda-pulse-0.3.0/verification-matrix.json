@@ -1,0 +1,144 @@
+{
+  "schema_version": 1,
+  "version": "andromeda-pulse-0.3.0",
+  "source": "intent",
+  "id_scheme": "P-NNN",
+  "capabilities": [
+    {
+      "id": "P-061",
+      "title": "Window geometry + movable shell",
+      "requirement": "Window opens at a sane default size/position (centered or remembered); the frameless custom titlebar is a working drag region so the window moves.",
+      "observed_gap": "Opens tiny, pinned to the top-left corner, cannot be moved (dragging the titlebar does nothing).",
+      "verification": { "method": "e2e", "acceptance": "Launched window opens at the configured default size and centered/remembered position and is movable by dragging the titlebar (window position delta > 0).", "ref": null, "status": "planned" },
+      "chunk": null
+    },
+    {
+      "id": "P-062",
+      "title": "Window size constraints",
+      "requirement": "Enforce a minimum size plus a sensible aspect-ratio constraint for the glance widget.",
+      "observed_gap": "Free-resizes to any dimensions; no min-size, no aspect lock; looks absurd when stretched.",
+      "verification": { "method": "e2e", "acceptance": "Attempting to resize below the min-size is clamped; the aspect ratio stays within the configured bound.", "ref": null, "status": "planned" },
+      "chunk": null
+    },
+    {
+      "id": "P-063",
+      "title": "Predictable close + honest tray",
+      "requirement": "Window-close quits or minimizes-to-tray with a clear still-running indication; the dashboard is closable; the tray is the single honest running surface.",
+      "observed_gap": "The dashboard cannot be closed; X and taskbar-close do not quit; the process keeps running (only Tray->Quit or a kill stops it).",
+      "verification": { "method": "e2e", "acceptance": "Window-close performs the configured action (quit, or minimize-to-tray with a visible running indication); the dashboard closes; tray Quit terminates the process.", "ref": null, "status": "planned" },
+      "chunk": null
+    },
+    {
+      "id": "P-064",
+      "title": "Suppress browser context menu",
+      "requirement": "No default WebView2 menu (Back/Refresh/Save-as/Print/Inspect) in a production build; suppressed app-wide or replaced with an app menu.",
+      "observed_gap": "Right-click anywhere shows the default WebView2 menu (Back/Refresh/Save-as/Print/Inspect) with zero app meaning.",
+      "verification": { "method": "webview", "acceptance": "A contextmenu event in a production build shows no default WebView2 menu (suppressed or app-replaced).", "ref": null, "status": "planned" },
+      "chunk": null
+    },
+    {
+      "id": "P-065",
+      "title": "Canvas not a browser image",
+      "requirement": "The halo/canvas is not treated as a saveable/draggable browser image.",
+      "observed_gap": "Clicking the halo/canvas triggers the browser's save-image interaction.",
+      "verification": { "method": "webview", "acceptance": "Canvas elements expose no image-save/drag affordance (no draggable image, no save-image on interaction).", "ref": null, "status": "planned" },
+      "chunk": null
+    },
+    {
+      "id": "P-066",
+      "title": "Widget-to-dashboard navigation",
+      "requirement": "An explicit in-app affordance expands the glance widget into the full dashboard (not tray-only).",
+      "observed_gap": "The full dashboard is reachable ONLY via the tray Open menu; the widget has no affordance to open it.",
+      "verification": { "method": "e2e", "acceptance": "Activating the in-widget affordance opens or focuses the full dashboard window.", "ref": null, "status": "planned" },
+      "chunk": null
+    },
+    {
+      "id": "P-067",
+      "title": "Live-only service truth",
+      "requirement": "Show only currently-live services; persisted/stale service_registry entries are hidden or clearly marked historical/inactive; recency labels never imply liveness that is not there.",
+      "observed_gap": "On a fresh start with zero live telemetry the constellation still renders ~6-7 service dots plus a 'Listening - last span - just now' tooltip (persisted registry shown as if live).",
+      "verification": { "method": "integration", "acceptance": "With zero live telemetry the constellation/list shows no live services (persisted entries hidden or labeled historical); no recency label implies current liveness.", "ref": null, "status": "planned" },
+      "chunk": null
+    },
+    {
+      "id": "P-068",
+      "title": "Anomaly surfacing",
+      "requirement": "Errors/anomalies surface to the TOP of the Traces table and/or are visually flagged and filterable; the user sees what is wrong first.",
+      "observed_gap": "Traces sorts by latency ascending, so the single erroring service (payment-service, 2500ms, 100% errors) sits at the very bottom off-screen; the visible top is all-healthy.",
+      "verification": { "method": "webview", "acceptance": "With a mixed dataset, erroring/anomalous services appear at the top (or are flagged) and are filterable; the top row is not all-healthy when errors exist.", "ref": null, "status": "planned" },
+      "chunk": null
+    },
+    {
+      "id": "P-069",
+      "title": "Legible labeled constellation",
+      "requirement": "Each constellation dot is identifiable (name on/near it or on hover) with health/severity clearly encoded.",
+      "observed_gap": "The dots are fuzzy unlabeled blue blobs with no names and no glanceable health.",
+      "verification": { "method": "webview", "acceptance": "Each rendered dot exposes its service name (label or hover) and a health/severity-encoded color.", "ref": null, "status": "planned" },
+      "chunk": null
+    },
+    {
+      "id": "P-070",
+      "title": "Plain-language connection status",
+      "requirement": "A human-readable status states sources connected / telemetry arriving / buffer state (e.g. 'Receiving from 5 services - ~540 spans/s - buffer 2 min / 10 min').",
+      "observed_gap": "Nowhere does the UI state, in words, how many sources are connected, whether telemetry is arriving, or the buffer state.",
+      "verification": { "method": "webview", "acceptance": "A visible status line reports connected-source count, ingest rate, and buffer fill in plain language.", "ref": null, "status": "planned" },
+      "chunk": null
+    },
+    {
+      "id": "P-071",
+      "title": "Self-explaining empty states",
+      "requirement": "Metrics/Logs (and other empty surfaces) explain themselves with an actionable hint.",
+      "observed_gap": "The Metrics and Logs tabs are blank with no explanation (the demo injector sent only traces, but the UI does not say so).",
+      "verification": { "method": "webview", "acceptance": "Empty Metrics/Logs surfaces render an explanatory message with an actionable hint (e.g. point an OTLP exporter at the port).", "ref": null, "status": "planned" },
+      "chunk": null
+    },
+    {
+      "id": "P-072",
+      "title": "Investigate actions functional",
+      "requirement": "Each Investigate action (diagnose latency outlier / find error correlation / trace failed request / summarize service health) runs a real LLM/MCP-backed analysis with visible progress and a result; failures surface, never silent.",
+      "observed_gap": "The Investigate modal opens and the snapshot generates correctly, but the 4 action buttons do NOTHING on click (no result, no feedback) even with live data.",
+      "verification": { "method": "e2e", "acceptance": "Clicking each of the 4 Investigate actions produces a visible progress state and a result (or a surfaced error), never a silent no-op.", "ref": null, "status": "planned" },
+      "chunk": null
+    },
+    {
+      "id": "P-073",
+      "title": "Deterministic env-gated L4 mode",
+      "requirement": "An env/flag-gated deterministic L4 mode (canned L4Output, no GPU/3B; reuse the StubInferenceRunner pattern) so the digest->L4->incident path completes reproducibly for demos/tests/external verification.",
+      "observed_gap": "A real retry-storm produced NO incident; the digest->L4->incident chain never completes because the L4/LLM step is degraded/fragile.",
+      "verification": { "method": "integration", "acceptance": "With the deterministic L4 env/flag set, a seeded digest yields a deterministic L4Output and a created incident, reproducibly, with no GPU/model.", "ref": null, "status": "planned" },
+      "chunk": null
+    },
+    {
+      "id": "P-074",
+      "title": "Tier1 incident-path reliability under load",
+      "requirement": "Coalesce repeated identical hard-signals into one digest plus an elastic queue (with heartbeat ticks) so a sustained storm yields ONE reliable incident.",
+      "observed_gap": "The current TIER1_QUEUE_CAP=3 plus ~4s L4 latency drops ~75% of storm digests (a 426-exception storm produced no reliable single incident).",
+      "verification": { "method": "integration", "acceptance": "A sustained identical-fingerprint storm (e.g. >=100 events) yields exactly one incident with no dropped-by-cap loss under the elastic queue.", "ref": null, "status": "planned" },
+      "chunk": null
+    },
+    {
+      "id": "P-075",
+      "title": "Conductor e2e + delegated-timing verification",
+      "requirement": "With the deterministic L4 mode (P-073), Conductor drives telemetry -> a known incident -> MCP read-back, proving end-to-end incident content-fidelity plus the 4 delegated timing caps P-025 (halo hue <=2s) / P-027 (constellation discovery <=5s) / P-037 (report render <=2s) / P-045 (counter refresh <=1s).",
+      "observed_gap": "Pulse delegated 4 timing caps plus the e2e to Conductor, but Conductor is blocked while incidents are non-deterministic (LLM-gated).",
+      "verification": { "method": "dynamic-external", "acceptance": "Conductor drives a deterministic incident and reads it back via MCP, asserting e2e content-fidelity plus P-025 <=2s / P-027 <=5s / P-037 <=2s / P-045 <=1s.", "ref": null, "status": "planned" },
+      "chunk": null
+    },
+    {
+      "id": "P-076",
+      "title": "Integration UX e2e test",
+      "requirement": "An integration/e2e test exercises the REAL assembled product path (launch -> telemetry -> Traces render -> storm -> incident -> Investigate) so integrated-UX breakage is caught going forward.",
+      "observed_gap": "1676 nextest + 640 webview + a11y all green, yet the integrated live UX was broken/illegible; the suite tests components in isolation, never the assembled product.",
+      "verification": { "method": "e2e", "acceptance": "A tauri-driver e2e test drives the full path under deterministic-L4 and asserts Traces render, incident creation, and an Investigate result; it fails if any stage breaks.", "ref": null, "status": "planned" },
+      "chunk": null
+    },
+    {
+      "id": "P-077",
+      "title": "Demo telemetry injector formalized",
+      "requirement": "crates/ingest/examples/inject_demo.rs becomes a supported, tracked dev/test tool.",
+      "observed_gap": "inject_demo.rs is currently untracked; it proved its worth in the live dogfood.",
+      "verification": { "method": "by-construction", "acceptance": "inject_demo.rs is tracked and builds; the integration UX e2e (P-076) uses it to drive telemetry.", "ref": null, "status": "planned" },
+      "chunk": null
+    }
+  ]
+}
