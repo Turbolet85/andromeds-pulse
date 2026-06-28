@@ -105,8 +105,8 @@
       "title": "Deterministic env-gated L4 mode",
       "requirement": "An env/flag-gated deterministic L4 mode (canned L4Output, no GPU/3B; reuse the StubInferenceRunner pattern) so the digest->L4->incident path completes reproducibly for demos/tests/external verification.",
       "observed_gap": "A real retry-storm produced NO incident; the digest->L4->incident chain never completes because the L4/LLM step is degraded/fragile.",
-      "verification": { "method": "integration", "acceptance": "With the deterministic L4 env/flag set, a seeded digest yields a deterministic L4Output and a created incident, reproducibly, with no GPU/model.", "ref": null, "status": "planned" },
-      "chunk": null
+      "verification": { "method": "integration", "acceptance": "With the deterministic L4 env/flag set, a seeded digest yields a deterministic L4Output and a created incident, reproducibly, with no GPU/model.", "ref": "pulse-app/tests/integration_deterministic_l4_mode.rs::deterministic_mode_yields_reproducible_red_dot_incident", "status": "verified" },
+      "chunk": "2026-06-28-deterministic-env-gated-l4-mode"
     },
     {
       "id": "P-074",

@@ -171,3 +171,10 @@ chunk #82 escape hatch). Two runaway generations during the spike (both from mis
 defense-in-depth `-n {max_tokens}` + `-st` + outer wall-clock-timeout discipline now in the body. The chunk #82
 `pub trait LlmInferenceRunner: Send + Sync` was specifically designed to anticipate this staged swap as the
 bus-factor mitigation pattern — only the concrete impl swapped (`MistralRsInference` → `LlamaCliInference`).
+
+---
+
+## 2026-06-28-deterministic-env-gated-l4-mode — Register ANDROMEDA_PULSE_L4_DETERMINISTIC env var
+**Section:** §Occupied Resources — Environment variables (reserved at arch level)
+**Change:** Added `ANDROMEDA_PULSE_L4_DETERMINISTIC` (truthy gate, default false) selecting the deterministic L4 runner (canned `L4Output`, no GPU/model) at pulse-app boot, alongside the existing `_LLAMA_{CUDA,CPU}_BIN_PATH` L4 env vars.
+**Why:** Chunk 2026-06-28-deterministic-env-gated-l4-mode (P-073) introduced the env-gated deterministic L4 mode; arch §Occupied Resources must register every new env var (D-arch-resources). The runner is a third impl behind the unchanged `LlmInferenceRunner` trait — §Established Decisions [LLM Inference Runtime] unchanged.

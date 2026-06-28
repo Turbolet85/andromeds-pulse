@@ -6,6 +6,7 @@ pub mod config_router;
 pub mod connection_router;
 pub mod corpus_retrieval;
 pub mod degraded_mode_runtime;
+pub mod deterministic_inference;
 pub mod diagnostics_router;
 pub mod digest_runtime;
 pub mod drain_persistence;

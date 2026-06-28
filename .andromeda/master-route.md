@@ -18,4 +18,4 @@ version-cursor scan reads those exclusively; the forensic note is a blockquote, 
 > amendment log) + `.andromeda/phases/` (per-chunk research + plan).
 
 ## andromeda-pulse-0.3.0
-_(no chunks promoted yet — run `/andromeda-route --version 0.3.0` to plan, then `/andromeda-phase` to promote)_
+2026-06-28-deterministic-env-gated-l4-mode · complete · Deterministic env-gated L4 mode (canned L4Output, no GPU/3B) · → andromeda-pulse-0.3.0/chunks/2026-06-28-deterministic-env-gated-l4-mode/

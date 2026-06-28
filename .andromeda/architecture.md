@@ -216,6 +216,7 @@
   - `ANDROMEDA_PULSE_PLUGIN_DIR` — override `~/.andromeda-pulse/plugins/`
   - `ANDROMEDA_PULSE_LLAMA_CUDA_BIN_PATH` — path to prebuilt `llama-cli.exe` CUDA build (b9305-pinned series); consumed by `pulse-app/src/llamacli_inference.rs` for GPU-primary / GPU-fallback tier inference per chunk #80 `HardwareProfileSource` routing (chunk #84)
   - `ANDROMEDA_PULSE_LLAMA_CPU_BIN_PATH` — path to prebuilt `llama-cli.exe` CPU build (b9305-pinned series); consumed by `pulse-app/src/llamacli_inference.rs` for CPU-primary / CPU-fallback / Unknown tier inference (chunk #84)
+  - `ANDROMEDA_PULSE_L4_DETERMINISTIC` — `true|false` truthy gate (`1|true|yes`, default false) selecting the deterministic L4 runner (canned `L4Output`, no GPU/model) at `pulse-app` boot for reproducible demos / tests / external (Conductor) verification; bounded truthy-parse per the `crates/mcp-server/src/feature_gate.rs` pattern; consumed by `pulse-app/src/deterministic_inference.rs` (chunk 2026-06-28-deterministic-env-gated-l4-mode, P-073)
   - `RUST_LOG` — honored as fallback for log level filter
   - `ANDROMEDA_PULSE_PIDFILE` — harness-only override of PID file location for `scripts/agent-run.{sh,ps1}` test harness; NOT consumed by production binary (`scripts/agent-run.sh:22` + `scripts/agent-run.ps1:15`)
   - `ANDROMEDA_PULSE_LOGFILE` — harness-only override of log file location for `scripts/agent-run.{sh,ps1}` test harness; NOT consumed by production binary (`scripts/agent-run.sh:23` + `scripts/agent-run.ps1:16`)

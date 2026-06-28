@@ -444,8 +444,29 @@ fn main() {
         detected_profile,
         model_status_broadcast.clone(),
     ));
+    // Deterministic env-gated L4 mode: when the gate is truthy the canned-output
+    // runner is the active L4 runner (reproducible incident path, no model);
+    // otherwise the real llama-cli subprocess runner. The llama-cli readiness
+    // check below still runs in either mode (cheap; file-existence only, no
+    // subprocess).
     let llm_runner: Arc<dyn interpretation::contract::LlmInferenceRunner> =
-        Arc::clone(&llamacli_inference) as Arc<dyn interpretation::contract::LlmInferenceRunner>;
+        if pulse_app::deterministic_inference::deterministic_mode_enabled() {
+            tracing::info!(
+                target: "interpretation.model.load",
+                inference_mode = "deterministic",
+                "L4 deterministic mode active (ANDROMEDA_PULSE_L4_DETERMINISTIC); canned output, no model",
+            );
+            Arc::new(
+                pulse_app::deterministic_inference::DeterministicInferenceRunner::new(model_tier),
+            )
+        } else {
+            tracing::info!(
+                target: "interpretation.model.load",
+                inference_mode = "real",
+                "L4 real mode (llama-cli subprocess D1)",
+            );
+            Arc::clone(&llamacli_inference) as Arc<dyn interpretation::contract::LlmInferenceRunner>
+        };
     let model_impl = ModelApiImpl::new(Arc::clone(&llm_runner), Arc::clone(&hardware_profile));
 
     // Chunk #84 — boot-time llama-cli readiness check. Fire-and-forget: if

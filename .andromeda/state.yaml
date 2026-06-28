@@ -1,7 +1,4 @@
 schema_version: 3
-# v3 schema reset at the 2026-06-28 v2->v3 migration. v0.1.0 + v0.2.0 (route 100/100, ~186 sessions)
-# ran under v2 schema-2; that ~238 KB state is preserved in git history (commit 93d9670 and earlier)
-# as forensic. v3 derives the "where am I" cursor from master-route + working-route -- not stored here.
-last_wrap: null                  # ISO-8601 UTC; null until first v3 wrap
-tree_db_refreshed_at: null       # last code-graph refresh (wrap P4)
-session_count: 0                 # v3 wrap counter; +1 per successful v3 wrap
+last_wrap: 2026-06-28T21:13:42Z                # ISO-8601 UTC
+tree_db_refreshed_at: 2026-06-28T21:13:42Z     # last code-graph refresh (wrap P4): 6408 nodes / 31583 edges
+session_count: 1                               # v3 wrap counter; +1 per successful v3 wrap
