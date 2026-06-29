@@ -114,3 +114,6 @@ AI-Model/
 
 # chunk #99 a11y regression-detector run artifact (embeds absolute user paths; regenerated per run)
 pulse-app/ui/tests-a11y/regression-set.json
+
+# Local scratch spikes (isolated own-[workspace] crates; keep out of the code-graph dirty check)
+experiments/
