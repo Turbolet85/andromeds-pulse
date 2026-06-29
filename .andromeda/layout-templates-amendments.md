@@ -92,3 +92,12 @@ panel-transition motion — see **Body now** below)._
   (Layout/token substance for each lives in the body; these record the original
   log's build-ownership boundaries.)
 - **Marker:** none (initial generation). By: `/andromeda-design` Phase 8.
+
+---
+
+## 2026-06-29-predictable-close-self-verify — Close-to-tray signpost added as notification trigger #4
+
+- **Section:** Component — Notifications (OS-native) → Trigger events (+ Primary screens → Notifications summary line).
+- **Change:** added a 4th OS-native notification trigger — the first window-close-to-tray "still running in the tray" signpost (fires once per session on the first window-close that minimizes to tray, gated on `notifications_enabled`). The trigger list now reads 1 snapshot · 2 MCP status · 3 update-available · 4 first-close signpost.
+- **Why:** P-063 (intent F3) made the explicit decision (arch §OS-notification-policy "no other subsystem emits without an explicit decision") to add a close-to-tray signpost so the existing hide-to-tray close becomes predictable. A genuinely-new user-facing notification surface this chunk introduced (report §Changes), so the notification-trigger registry is completed to current truth. See chunks/2026-06-29-predictable-close-self-verify/report.md.
+- **Marker:** 2026-06-29-predictable-close-self-verify.

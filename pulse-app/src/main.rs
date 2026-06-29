@@ -1,5 +1,6 @@
 use std::net::SocketAddr;
 use std::path::{Path, PathBuf};
+use std::sync::atomic::AtomicBool;
 use std::sync::{Arc, Mutex};
 use std::time::Instant;
 use std::{env, fs};
@@ -1013,13 +1014,22 @@ fn main() {
     let window_geometry = Arc::new(Mutex::new(window_geometry::GeometryStore::load(&data_dir)));
     let window_geometry_for_event = Arc::clone(&window_geometry);
     let data_dir_for_event = data_dir.clone();
+    // First-close "still running in the tray" signpost fires at most once per
+    // process run (intent F3 / P-063); the flag is owned by the event closure.
+    let close_signpost_shown = Arc::new(AtomicBool::new(false));
 
     tauri::Builder::default()
         .plugin(tauri_plugin_updater::Builder::new().build())
         .plugin(tauri_plugin_clipboard_manager::init())
         .plugin(tauri_plugin_notification::init())
         .on_window_event(move |w, e| {
-            window::on_window_event(w, e, window_geometry_for_event.as_ref(), &data_dir_for_event)
+            window::on_window_event(
+                w,
+                e,
+                window_geometry_for_event.as_ref(),
+                &data_dir_for_event,
+                close_signpost_shown.as_ref(),
+            )
         })
         .invoke_handler(invoke_router.into_handler())
         .setup(move |app| {

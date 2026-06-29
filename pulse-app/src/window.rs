@@ -9,9 +9,11 @@
 
 use std::path::Path;
 use std::sync::Mutex;
+use std::sync::atomic::{AtomicBool, Ordering};
 use std::time::Instant;
 
 use tauri::{Manager, PhysicalPosition, WindowEvent};
+use tauri_plugin_notification::NotificationExt;
 use tracing::{info, warn};
 use ui_bridge::contract::{Settings, WidgetPosition};
 
@@ -97,11 +99,50 @@ pub fn handle_close_to_tray<R: tauri::Runtime>(window: &tauri::Window<R>) {
     );
 }
 
+// The signpost shows on the FIRST close per session only, and only when the
+// user has not disabled notifications — so close→hide-to-tray is predictable
+// (intent F3) without nagging on every close. Pure seam for unit coverage.
+pub fn should_show_close_signpost(notifications_enabled: bool, already_shown: bool) -> bool {
+    notifications_enabled && !already_shown
+}
+
+// Emit the one-time "still running in the tray" signpost via the OS
+// notification plugin (Rust-side — not gated by the webview capability ACL),
+// honoring Settings.notifications_enabled per arch §OS-notification-policy.
+// Best-effort: a failed dispatch never blocks close. The body is a static
+// string and is never logged (security-plan §Logging NEVER-log).
+fn maybe_show_close_signpost<R: tauri::Runtime>(
+    window: &tauri::Window<R>,
+    data_dir: &Path,
+    signpost_shown: &AtomicBool,
+) {
+    let notifications_enabled = Settings::load_from_data_dir(data_dir).notifications_enabled;
+    if !should_show_close_signpost(
+        notifications_enabled,
+        signpost_shown.load(Ordering::Acquire),
+    ) {
+        return;
+    }
+    signpost_shown.store(true, Ordering::Release);
+    let _ = window
+        .app_handle()
+        .notification()
+        .builder()
+        .title("andromeda-pulse is still running")
+        .body("Closed to the tray — right-click the tray icon to quit.")
+        .show();
+    info!(
+        target: "tray.signpost.shown",
+        "close-to-tray running-state signpost shown",
+    );
+}
+
 pub fn on_window_event<R: tauri::Runtime>(
     window: &tauri::Window<R>,
     event: &WindowEvent,
     store: &Mutex<GeometryStore>,
     data_dir: &Path,
+    signpost_shown: &AtomicBool,
 ) {
     match event {
         WindowEvent::CloseRequested { api, .. } => {
@@ -109,6 +150,7 @@ pub fn on_window_event<R: tauri::Runtime>(
             if let Ok(store) = store.lock() {
                 store.flush(data_dir);
             }
+            maybe_show_close_signpost(window, data_dir, signpost_shown);
             handle_close_to_tray(window);
         }
         WindowEvent::Moved(position) => {

@@ -7,6 +7,7 @@
 #![allow(clippy::items_after_test_module)]
 
 mod bundle_format;
+mod self_verify;
 mod smoke;
 
 use std::collections::{BTreeMap, BTreeSet};
@@ -101,6 +102,11 @@ enum Cmd {
         format: BundleFormat,
     },
     #[command(
+        name = "self-verify",
+        about = "Agent-headful self-verify (P-078): boot the real pulse-app binary, assert shell health from agent-latest.jsonl (boot spans + window shown + heartbeat + zero panics) + run the a11y/contrast harness + clean quit with zero orphan; skip-clean on a display-less host"
+    )]
+    SelfVerify,
+    #[command(
         name = "perf:slo-load",
         about = "10k spans/sec sustained-load test + post-test metric.webgpu.frame_duration_ms p99 ≤33ms + metric.buffer.memory_bytes max ≤512MB gate"
     )]
@@ -158,6 +164,7 @@ async fn main() -> ExitCode {
         Cmd::CapabilityDrift => capability_drift().await,
         Cmd::CapabilityWideningCheck => capability_widening_check().await,
         Cmd::Smoke { bundle, format } => smoke::run_smoke(&bundle, format).await,
+        Cmd::SelfVerify => self_verify::run_self_verify().await,
         Cmd::PerfSloLoad => run_perf_slo_load().await,
         Cmd::CoverageRegression { current, baseline } => {
             run_coverage_regression(&current, &baseline).await

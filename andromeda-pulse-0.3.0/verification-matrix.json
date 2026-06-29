@@ -38,11 +38,12 @@
       "observed_gap": "The dashboard cannot be closed; X and taskbar-close do not quit; the process keeps running (only Tray->Quit or a kill stops it).",
       "verification": {
         "method": "e2e",
-        "acceptance": "Window-close performs the configured action (quit, or minimize-to-tray with a visible running indication); the dashboard closes; tray Quit terminates the process.",
-        "ref": null,
-        "status": "planned"
+        "acceptance": "Window-close keeps minimize-to-tray AND fires a clear first-close \"still running in the tray\" OS notification exactly once per session (suppressed when notifications_enabled=false); the dashboard window genuinely closes (hides); tray Quit terminates the process. Proven via unit tests (first-close idempotency + notifications_enabled gating) + the P-078 xtask self-verify clean-quit assertion; the full headful X-click close-interaction e2e is deferred to P-076.",
+        "ref": "pulse-app/tests/unit_close_signpost.rs (4 truth-table tests: notifications_enabled x already-shown) + cargo xtask self-verify (real-app clean quit, zero orphan)",
+        "status": "verified"
       },
-      "chunk": null
+      "chunk": "2026-06-29-predictable-close-self-verify",
+      "notes": "Premise correction (research-corrects-intent, /phase 2026-06-29): the observed_gap 'cannot be closed / X does not quit' is the SYMPTOM of an unsignposted hide-to-tray — close already does prevent_close()+hide() (chunk #24, window.rs:100-124, wired at main.rs:1021), the arch Tray-icon-policy default. The real gap is the MISSING 'still running' signpost; the OUTCOME (predictable, signposted close) is unchanged. Fix = first-close OS notification gated on Settings.notifications_enabled, NOT a new close mechanism. The working-route line + intent.md F3 stay as historical source. See chunks/2026-06-29-predictable-close-self-verify/{scope,plan}.md."
     },
     {
       "id": "P-064",
@@ -227,6 +228,20 @@
         "status": "planned"
       },
       "chunk": null
+    },
+    {
+      "id": "P-078",
+      "title": "Agent-headful self-verify harness",
+      "requirement": "A minimal agent-runnable `cargo xtask self-verify` boots the real app, asserts shell health (window up + boot spans + zero errors/panics + heartbeat) + runs the existing a11y/contrast harness, then quits cleanly with zero orphan, exiting 0/non-zero deterministically (skip-clean on a display-less environment) — so later UI chunks can be autonomously boot->verify->quit verified.",
+      "observed_gap": "v0.2.0 passed 1676 nextest + 640 webview + a11y yet shipped visually broken/illegible; per-chunk boot-smoke is skipped because the unsignposted/never-quitting close orphans the GUI process on Windows, so UI chunks ship visually unseen.",
+      "verification": {
+        "method": "e2e",
+        "acceptance": "`cargo xtask self-verify` boots the real release binary, asserts app.boot + child spans present with zero ERROR/app.panic.fatal + >=1 heartbeat tick + window up, runs `npm run test:a11y`, then terminates with zero orphan process, exiting 0 on full pass / non-zero on any failure; on a display-less environment it skips-clean (exit 0 + explicit notice).",
+        "ref": "xtask/src/self_verify.rs::tests (8: parse_shell_health x5 + headless_reason + pulse_binary_candidates) + cargo xtask self-verify (end-to-end real-app boot->shell-health(207 lines, boot trio+window-shown+heartbeat, 0 panics)->a11y(7 routes, 0 errors)->clean-quit, exit 0)",
+        "status": "verified"
+      },
+      "chunk": "2026-06-29-predictable-close-self-verify",
+      "notes": "NEW capability authored 2026-06-29 at /andromeda-phase per the working-route directive (folded into the P-063 close-fix chunk; the close-fix is its enabling prerequisite). The MINIMAL self-verify; the FULL integration-UX e2e + headful tauri-driver DOM/drag-delta is P-076 (Epoch 4). xtask is not bound by the test-plan 5-command discipline, so this adds no harness-contract amendment."
     }
   ]
 }

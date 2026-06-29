@@ -1,27 +1,24 @@
 # Session Handoff
 
-**Last Updated:** 2026-06-29T19:45:45Z
+**Last Updated:** 2026-06-29T22:04:30Z
 **Branch:** chore/migrate-pulse-to-v3
 **Status:** clean
-**Last Commit:** `chore(route)` — reprioritize P-063 to front of working-route (no chunk wrapped — session 5)
+**Last Commit:** `2026-06-29-predictable-close-self-verify` — predictable close signpost + agent-headful self-verify harness (P-063 + P-078)
 
 ## Position
-- Done: no chunk this session — route-only reprioritization (no `/phase`, no `/implement`). Master unchanged: 4 chunks complete, **0 pending**. **4/17 v0.3.0 capabilities verified** (P-061, P-072, P-073, P-074).
-- Next: `/andromeda-phase` to promote + plan the new first markerless entry — **Predictable close + agent-headful self-verify (P-063 + new ~P-078 cap · intent F3 · Epoch 2)**.
+- Done: `2026-06-29-predictable-close-self-verify` — first-close OS-notification signpost (hide-to-tray preserved; tray→Quit terminates) + the new `cargo xtask self-verify` harness. Master: 5 chunks complete, **0 pending**. **6/18 v0.3.0 capabilities verified** (P-061, P-063, P-072, P-073, P-074, P-078).
+- Next: **P-062 — Window size constraints** (min-size + aspect-ratio for the glance widget · intent F2) — the first markerless working-route entry → `/andromeda-phase` to promote + plan it.
 
 ## Work done
-User-directed route-resolve reprioritization. Pulled the existing **P-063** line ("Predictable close + honest tray") up to the **first markerless slot** (ahead of P-062), keeping close + honest-tray together as the one P-063 capability (NO duplicate insert), and tagged it `/phase to fold in a new agent-headful-self-verify cap (~P-078) when planning`. P-062 and the rest shifted back one; order preserved. Rationale: v0.2.0 passed 1676 tests yet shipped visually broken — landing predictable-close + a minimal agent-runnable headful self-verify path (boot → assert geometry/render/key-interactions + the existing a11y/contrast harness → clean quit) FIRST unblocks autonomous boot→verify→quit on every later UI chunk, instead of shipping them visually unseen (boot-smoke is skipped each chunk precisely because of this unfixed close bug = the Windows GUI-orphan hazard).
+Two coupled caps. **P-063:** premise-correction — close already did `prevent_close()`+`hide()` to tray (chunk #24), so the F3 fix was the MISSING first-close "still running in the tray" OS-notification signpost (Rust-side `NotificationExt`, gated on `notifications_enabled`), NOT a new close mechanism. **P-078 (new):** `cargo xtask self-verify` boots the real binary → asserts shell health from the date-suffixed agent log → runs `npm test:a11y` → clean-quits with a zero-orphan check; skip-clean on display-less/no-node_modules. Both implemented→verified. Gates green incl. full nextest **1713/1713 + 1 skip**; the self-verify smoke PASSED end-to-end (207 log lines; a11y 7 routes, 0 errors) and caught its own log-path bug mid-loop.
 
 ## Drift resolved
-None — no chunk, no code/spec changes (working-route markdown only). 0 detectors run (no-op path).
+P2 fan-out: 5 docs clean (arch/security/design/obs/a11y). **1 amendment applied** — layout-templates §Notifications (OS-native): added the close-signpost as trigger event #4 + the Primary-screens summary line + sidecar (genuinely-new notification surface). **1 escalation resolved WITH the user → handoff** — tests/D-tests-obs-harness flagged test-plan §3 `logs` `*.log` ≠ obs reality `agent-latest.jsonl.<date>`, but it's a PRE-EXISTING 3-way inconsistency the self-verify only EXPOSED (not this chunk's drift); handed off + codified a playbook rule for the "pre-existing harness-bind drift a chunk only exposes → handoff" class. Drift = 0.
 
 ## Notes
-- **0-pending + git-dirty handled as no-op path:** the only working-tree content was the directed route reprioritization (+ the transient handoff). No marker to attribute it to → landed as a `chore(route)` bookkeeping commit per the skill's "commit manually" remedy. The `/phase`-first remedy was excluded by your explicit deferral ("the new-cap authoring + the build happen next session").
-- **New-cap authoring deferred:** ~P-078 (agent-headful-self-verify) is NOT yet in `requirements.md` / `verification-matrix.json` — the next `/phase` authors it alongside the P-063 close-fix when it promotes the tagged line. Coverage matrix untouched this session (still 4/17).
-- **CARRY (still parked, Epoch 4):** headful drag-delta e2e → **P-076** (the FULL integration-UX e2e; the new ~P-078 is the *minimal* self-verify harness, not a duplicate); dead `LwwQueue::drain_all` removal → **P-077**.
-- Curation: nothing qualifying — the reprioritize-vs-insert lesson is already recorded in the working-route header ("Reorder = move up/down"). 0 Tier writes. CLAUDE.md 152/200.
-- Branch is local-only — **NOT pushed** (this wrap adds 1 commit).
-- Last failed command: none.
-
-## Session End Status
-Wrapped (no-op route reprioritization) at 2026-06-29T19:45:45Z
+- **Key decisions:** P4 user-selected (1) hide-to-tray + first-close signpost (no arch amendment), (2) xtask self-verify orchestrator (no new deps, full tauri-driver DOM/drag-delta stays P-076); P-078 authored at /phase per the working-route directive.
+- **CARRY (pinned to P-077 housekeeping):** fix the 3 latent bare-name agent-log readers (`smoke.rs::run_smoke` l.95 + `agent-run.sh` logs + `test-plan §3` logs `*.log`) to glob `agent-latest.jsonl*` (rolling::daily date-suffixes) — surfaced this chunk; the new self-verify already reads correctly.
+- **CARRY (still parked, Epoch 4):** P-076 headful drag-delta e2e (P-061 residual) + Investigate axe spec (P-072 residual); dead `LwwQueue::drain_all` removal → P-077.
+- **Curation:** 1 Tier-2 (verification-harness.md — agent-log readers must glob the date-suffixed family). 3 rejected (2 dup, 1 low-confidence). 0 conflicts, 0 deferred.
+- bindings.ts regenerated to canonical (self-verify boots the default-features binary → clobbers it; mcp-feature regen was the last cargo step). CLAUDE.md 152/200.
+- Branch local-only — **NOT pushed**. Last failed command: none.
