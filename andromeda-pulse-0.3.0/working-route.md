@@ -13,7 +13,7 @@ _Chunks separated by `   ↓` within an epoch; only `### Epoch K — {name}` hea
 [2026-06-28-investigate-actions-functional] Investigate actions functional — the four Investigate buttons run real LLM/MCP analysis with visible progress and a result; failures surface (P-072 · intent F12)
 
 ### Epoch 2 — Window & shell hygiene
-Window geometry + movable shell — sane default size/position (centered or remembered) and a working custom-titlebar drag region (P-061 · intent F1 · layout-templates)
+[2026-06-29-window-geometry-movable-shell] Window geometry + movable shell — sane default size/position (centered or remembered) and a working custom-titlebar drag region (P-061 · intent F1 · layout-templates)
    ↓
 Window size constraints — minimum size plus a sensible aspect-ratio constraint for the glance widget (P-062 · intent F2)
    ↓
@@ -37,7 +37,7 @@ Self-explaining empty states — Metrics and Logs empty surfaces explain themsel
 ### Epoch 4 — Polish & ship: verification
 Conductor e2e verification closure — a deterministic incident drives MCP read-back proving end-to-end fidelity and delegated timing caps P-025/P-027/P-037/P-045 (P-075 · intent F14)
    ↓
-Integration UX e2e test — real assembled path under deterministic-L4 (launch, telemetry, real-time push, Traces, storm, incident, Investigate) guards regressions (P-076 · intent F15)
+Integration UX e2e test — real assembled path under deterministic-L4 (launch, telemetry, real-time push, Traces, storm, incident, Investigate) guards regressions (P-076 · intent F15) · CARRY: assert window-position-delta > 0 by driving a real titlebar drag (P-061 headful e2e residual — the capability grant + boot-smoke + remembered-position unit fallback were proven at that chunk; the live drag-delta needs tauri-driver headful, which is this suite's job)
    ↓
 A11y verification — v0.3.0 interactive surfaces (window, widget-to-dashboard nav, anomaly controls, constellation, status, empty states): focus/keyboard/contrast/SR + SC 2.3.3 (per a11y-plan §3/§6/§7) · CARRY: add the deferred `p13` Playwright axe spec for the Investigate result/error/progress states (P-072) — their a11y is unit-verified (aria-busy / role=alert / aria-live / visible-label / focus-retained / Esc) but the Playwright axe spec was deferred at that chunk and belongs to this a11y-suite pass
    ↓

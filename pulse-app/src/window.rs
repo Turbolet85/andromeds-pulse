@@ -7,11 +7,15 @@
 // Chunk #30 extends with apply_widget_settings: applies persisted Settings
 // (widget_position + always_on_top) to the compact-widget window after show.
 
+use std::path::Path;
+use std::sync::Mutex;
 use std::time::Instant;
 
 use tauri::{Manager, PhysicalPosition, WindowEvent};
 use tracing::{info, warn};
 use ui_bridge::contract::{Settings, WidgetPosition};
+
+use crate::window_geometry::{GeometryStore, WindowGeometry};
 
 const COMPACT_WIDGET_LABEL: &str = "compact-widget";
 const MAIN_WINDOW_LABEL: &str = "main";
@@ -93,10 +97,29 @@ pub fn handle_close_to_tray<R: tauri::Runtime>(window: &tauri::Window<R>) {
     );
 }
 
-pub fn on_window_event<R: tauri::Runtime>(window: &tauri::Window<R>, event: &WindowEvent) {
-    if let WindowEvent::CloseRequested { api, .. } = event {
-        api.prevent_close();
-        handle_close_to_tray(window);
+pub fn on_window_event<R: tauri::Runtime>(
+    window: &tauri::Window<R>,
+    event: &WindowEvent,
+    store: &Mutex<GeometryStore>,
+    data_dir: &Path,
+) {
+    match event {
+        WindowEvent::CloseRequested { api, .. } => {
+            api.prevent_close();
+            if let Ok(store) = store.lock() {
+                store.flush(data_dir);
+            }
+            handle_close_to_tray(window);
+        }
+        WindowEvent::Moved(position) => {
+            let label = sanitize_window_label(window.label());
+            if label != "unknown" {
+                if let Ok(mut store) = store.lock() {
+                    store.record_move_throttled(label, position.x, position.y, data_dir);
+                }
+            }
+        }
+        _ => {}
     }
 }
 
@@ -169,7 +192,11 @@ pub(crate) fn compute_snap_position(
 // `ui.layout.transition` span on completion (or a warn target on
 // failure paths). Best-effort: any sub-step failure logs a warn and
 // continues — boot must not abort on settings-apply failure.
-pub fn apply_widget_settings<R: tauri::Runtime, M: Manager<R>>(app: &M, settings: &Settings) {
+pub fn apply_widget_settings<R: tauri::Runtime, M: Manager<R>>(
+    app: &M,
+    settings: &Settings,
+    geometry: &WindowGeometry,
+) {
     let start = Instant::now();
     let window = match app.get_webview_window(COMPACT_WIDGET_LABEL) {
         Some(w) => w,
@@ -194,45 +221,100 @@ pub fn apply_widget_settings<R: tauri::Runtime, M: Manager<R>>(app: &M, settings
         );
     }
 
-    match (window.current_monitor(), window.outer_size()) {
-        (Ok(Some(monitor)), Ok(outer_size)) => {
-            let monitor_pos = monitor.position();
-            let monitor_size = monitor.size();
-            let pos = compute_snap_position(
-                (monitor_pos.x, monitor_pos.y),
-                (monitor_size.width, monitor_size.height),
-                (outer_size.width, outer_size.height),
-                settings.widget_position,
-            );
-            if let Err(e) = window.set_position(pos) {
-                warn!(
-                    target: "app.boot.window.show",
-                    label = COMPACT_WIDGET_LABEL,
-                    error_kind = "set_position_failed",
-                    error_msg = %e,
-                    "failed to apply snap position",
-                );
-            }
-        }
-        _ => {
+    // A remembered free position (from a prior drag) overrides the corner
+    // snap; otherwise snap to the configured corner, and if the monitor is
+    // unavailable center the window rather than leaving it at the OS
+    // top-left default (intent F1 "pinned to the top-left corner").
+    let layout_mode_to: &str = if let Some(pos) = geometry.position(COMPACT_WIDGET_LABEL) {
+        if let Err(e) = window.set_position(PhysicalPosition::new(pos.x, pos.y)) {
             warn!(
                 target: "app.boot.window.show",
                 label = COMPACT_WIDGET_LABEL,
-                error_kind = "monitor_unavailable",
-                "current_monitor or outer_size unavailable; skipping snap position",
+                error_kind = "set_position_failed",
+                error_msg = %e,
+                "failed to restore remembered widget position",
             );
         }
-    }
+        "remembered"
+    } else {
+        match (window.current_monitor(), window.outer_size()) {
+            (Ok(Some(monitor)), Ok(outer_size)) => {
+                let monitor_pos = monitor.position();
+                let monitor_size = monitor.size();
+                let pos = compute_snap_position(
+                    (monitor_pos.x, monitor_pos.y),
+                    (monitor_size.width, monitor_size.height),
+                    (outer_size.width, outer_size.height),
+                    settings.widget_position,
+                );
+                if let Err(e) = window.set_position(pos) {
+                    warn!(
+                        target: "app.boot.window.show",
+                        label = COMPACT_WIDGET_LABEL,
+                        error_kind = "set_position_failed",
+                        error_msg = %e,
+                        "failed to apply snap position",
+                    );
+                }
+                widget_position_label(settings.widget_position)
+            }
+            _ => {
+                if let Err(e) = window.center() {
+                    warn!(
+                        target: "app.boot.window.show",
+                        label = COMPACT_WIDGET_LABEL,
+                        error_kind = "center_failed",
+                        error_msg = %e,
+                        "failed to center widget on monitor-unavailable fallback",
+                    );
+                }
+                "centered"
+            }
+        }
+    };
 
     let duration_ms = start.elapsed().as_millis() as u64;
     info!(
         target: "ui.layout.transition",
         layout_mode_from = "boot_default",
-        layout_mode_to = widget_position_label(settings.widget_position),
+        layout_mode_to,
         always_on_top = settings.always_on_top,
         duration_ms = duration_ms,
-        "applied persisted widget settings",
+        "applied widget geometry",
     );
+}
+
+// Restore the remembered position of the main dashboard window. The window
+// is created hidden + centered (tauri.conf `center: true`); a position
+// remembered from a prior session overrides the centered default.
+pub fn restore_main_window_position<R: tauri::Runtime, M: Manager<R>>(
+    app: &M,
+    geometry: &WindowGeometry,
+) {
+    let Some(pos) = geometry.position(MAIN_WINDOW_LABEL) else {
+        return;
+    };
+    match app.get_webview_window(MAIN_WINDOW_LABEL) {
+        Some(window) => {
+            if let Err(e) = window.set_position(PhysicalPosition::new(pos.x, pos.y)) {
+                warn!(
+                    target: "app.boot.window.show",
+                    label = MAIN_WINDOW_LABEL,
+                    error_kind = "set_position_failed",
+                    error_msg = %e,
+                    "failed to restore main window position",
+                );
+            }
+        }
+        None => {
+            warn!(
+                target: "app.boot.window.show",
+                label = MAIN_WINDOW_LABEL,
+                error_kind = "not_found",
+                "main window not registered; skipping position restore",
+            );
+        }
+    }
 }
 
 #[cfg(test)]

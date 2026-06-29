@@ -43,7 +43,7 @@ use ui_bridge::workspace_ipc::{WorkspaceApi, WorkspaceApiImpl};
 use viz::VizState;
 
 use pulse_app::taurpc_export_config;
-use pulse_app::{heartbeat, observability, tray, window};
+use pulse_app::{heartbeat, observability, tray, window, window_geometry};
 
 use pulse_app::baseline_observer::BaselineObserverAdapter;
 use pulse_app::baseline_persistence::{
@@ -1006,11 +1006,21 @@ fn main() {
     let incident_broadcast_for_observe = Arc::clone(&incident_broadcast);
     let incident_workspace_for_persist = incident_workspace_key.clone();
 
+    // Window geometry (remembered position) — Rust-owned, decoupled from the
+    // webview Settings contract so an update_settings can never clobber it.
+    // The event handler records moves (throttled) + flushes on close-to-tray;
+    // boot restores it from the snapshot taken in the setup closure.
+    let window_geometry = Arc::new(Mutex::new(window_geometry::GeometryStore::load(&data_dir)));
+    let window_geometry_for_event = Arc::clone(&window_geometry);
+    let data_dir_for_event = data_dir.clone();
+
     tauri::Builder::default()
         .plugin(tauri_plugin_updater::Builder::new().build())
         .plugin(tauri_plugin_clipboard_manager::init())
         .plugin(tauri_plugin_notification::init())
-        .on_window_event(window::on_window_event)
+        .on_window_event(move |w, e| {
+            window::on_window_event(w, e, window_geometry_for_event.as_ref(), &data_dir_for_event)
+        })
         .invoke_handler(invoke_router.into_handler())
         .setup(move |app| {
             // Chunk #44: populate the deferred AppHandle into SnapshotApiImpl.
@@ -1022,7 +1032,12 @@ fn main() {
 
             window::show_compact_widget(app);
             let settings = Settings::load_from_data_dir(&data_dir);
-            window::apply_widget_settings(app, &settings);
+            let geometry_snapshot = window_geometry
+                .lock()
+                .map(|s| s.snapshot())
+                .unwrap_or_default();
+            window::apply_widget_settings(app, &settings, &geometry_snapshot);
+            window::restore_main_window_position(app, &geometry_snapshot);
             let tray_icon = tray::setup_tray(app.handle(), Arc::clone(&broadcast_senders))?;
             app.manage(tray_icon);
 

@@ -43,6 +43,11 @@ coverage/
 .parcel-cache/
 .turbo/
 .vite/
+# Stray repo-root taurpc/Specta bindings export — the canonical webview is
+# pulse-app/ui/ (tauri frontendDist resolves under pulse-app); some export
+# invocation writes bindings to a repo-root-relative ui/src/bindings/ under a
+# repo-root CWD. Anchored (/ui/) so it never matches pulse-app/ui/.
+/ui/
 
 # Frontend env files
 .env

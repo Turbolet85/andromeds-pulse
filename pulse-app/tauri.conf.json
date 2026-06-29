@@ -24,6 +24,7 @@
         "title": "andromeda-pulse",
         "width": 1280,
         "height": 800,
+        "center": true,
         "decorations": false,
         "resizable": true,
         "visible": false

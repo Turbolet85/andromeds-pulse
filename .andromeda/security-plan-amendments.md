@@ -187,3 +187,10 @@ _Records key decisions during plan generation + manual additions between phase l
 **Change:** Added `ANDROMEDA_PULSE_L4_DETERMINISTIC` to the env-var inputs list + the How column (l4_deterministic: bool via bounded truthy-parse, `1|true|yes`, default false, no unbounded string).
 **Why:** Chunk 2026-06-28-deterministic-env-gated-l4-mode (P-073) added the env var; it is code-validated (bounded truthy-parse, unit-tested `env_gate_truthy_parse_table`) but was absent from the §Input Validation boundary enumeration (D-security-input registry-completeness). Resolved with the user; codified as routine via a new playbook rule so future code-validated env-var registrations do not re-escalate.
 
+---
+
+## 2026-06-29-window-geometry-movable-shell — Register window-geometry.json input boundary in §Input Validation
+**Section:** §Input Validation — boundary table (new row after Configuration values)
+**Change:** Added the `<data_dir>/window-geometry.json` boundary row: integer x/y per window label via `serde` to `Position { x: i32, y: i32 }`; missing/corrupt → default (centered/snap) via `unwrap_or_default` (non-fatal); atomic `.tmp`+rename; no coordinate values logged.
+**Why:** Chunk 2026-06-29-window-geometry-movable-shell (P-061) added the new persisted geometry file as a deserialized-at-boot input surface. D-security-input flagged it (escalate severity); the report shows it code-validated (integer-only serde + graceful default) + unit-tested (`unit_window_geometry.rs` roundtrip/missing/corrupt), so it matches the bounded-config-input playbook rule (routine registry-completeness, not an unvalidated-boundary HALT). Applied silently per that rule.
+
