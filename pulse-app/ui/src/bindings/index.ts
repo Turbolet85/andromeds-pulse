@@ -162,6 +162,23 @@ export type IncidentStatus = "active" | "acknowledged" | "resolved"
 export type IncidentsListPayload = { items: IncidentRecord[]; total: number; next_cursor: string | null }
 
 /**
+ * One ranked hypothesis surfaced to the webview (scrubbed L4Output subset).
+ */
+export type InvestigateHypothesis = { statement: string; justification: string }
+
+/**
+ * Transient analysis result returned by `investigate.run_action`. A scrubbed
+ * projection of the incident `L4Output` analysis fields; carries NO incident
+ * id (nothing is persisted).
+ */
+export type InvestigateResultDto = { action_id: string; title: string; symptom: string; timeline: string; hypotheses: InvestigateHypothesis[]; investigation_steps: InvestigateStep[] }
+
+/**
+ * One suggested investigation step surfaced to the webview.
+ */
+export type InvestigateStep = { step: string; expected_yield: string }
+
+/**
  * Single suggested investigation step с expected yield description.
  */
 export type InvestigationStepPayload = { step: string; expected_yield: string }
@@ -421,7 +438,7 @@ export type WidgetPosition = "top-left" | "top-right" | "bottom-left" | "bottom-
 
 export type WorkspaceContextDto = { root_basename: string; project_name: string | null; vcs_type: string | null; vcs_root_basename: string | null; has_andromeda_marker: boolean }
 
-const ARGS_MAP = { '':'{"app_info":[],"get_settings":[],"health":[],"ready":[],"update_settings":["settings"]}', 'config':'{"reload":[],"status":[]}', 'connection':'{"current_state":[]}', 'diagnostics':'{"history":["metric_name","window_seconds"],"reevaluate_recent_window":[],"retry_interpretation":[],"snapshot":[],"template_distribution":[]}', 'incidents':'{"acknowledge":["id"],"get_report":["id"],"list_active":[],"mark_all_read":[],"mark_resolved":["id"]}', 'logs':'{"query":["args"]}', 'mcp':'{"start":[],"status":[],"stop":[]}', 'metrics':'{"query":["args"]}', 'model':'{"current_profile":[]}', 'plugins':'{"invoke":["plugin_id","capability"],"list":[],"reload":[]}', 'services':'{"list_with_states":[]}', 'snapshot':'{"generate":["preset","workspace_root"]}', 'storage':'{"export_for_training":["target_path","confirm"],"inspect":[],"path":[]}', 'streams':'{"subscribe_logs":["channel"],"subscribe_metrics":["channel"],"subscribe_spans":["channel"]}', 'telemetry.frontend':'{"record_frame_ms":["input"]}', 'traces':'{"query":["args"]}', 'workspace':'{"detect":["candidate_root"]}' }
+const ARGS_MAP = { '':'{"app_info":[],"get_settings":[],"health":[],"ready":[],"update_settings":["settings"]}', 'config':'{"reload":[],"status":[]}', 'connection':'{"current_state":[]}', 'diagnostics':'{"history":["metric_name","window_seconds"],"reevaluate_recent_window":[],"retry_interpretation":[],"snapshot":[],"template_distribution":[]}', 'incidents':'{"acknowledge":["id"],"get_report":["id"],"list_active":[],"mark_all_read":[],"mark_resolved":["id"]}', 'investigate':'{"run_action":["action_id"]}', 'logs':'{"query":["args"]}', 'mcp':'{"start":[],"status":[],"stop":[]}', 'metrics':'{"query":["args"]}', 'model':'{"current_profile":[]}', 'plugins':'{"invoke":["plugin_id","capability"],"list":[],"reload":[]}', 'services':'{"list_with_states":[]}', 'snapshot':'{"generate":["preset","workspace_root"]}', 'storage':'{"export_for_training":["target_path","confirm"],"inspect":[],"path":[]}', 'streams':'{"subscribe_logs":["channel"],"subscribe_metrics":["channel"],"subscribe_spans":["channel"]}', 'telemetry.frontend':'{"record_frame_ms":["input"]}', 'traces':'{"query":["args"]}', 'workspace':'{"detect":["candidate_root"]}' }
 export type Router = { "": {app_info: () => Promise<AppInfo>, 
 get_settings: () => Promise<Settings>, 
 health: () => Promise<HealthEnvelope>, 
@@ -440,6 +457,7 @@ get_report: (id: number) => Promise<ReportPayload>,
 list_active: () => Promise<IncidentsListPayload>, 
 mark_all_read: () => Promise<MarkAllReadPayload>, 
 mark_resolved: (id: number) => Promise<null>},
+"investigate": {run_action: (actionId: string) => Promise<InvestigateResultDto>},
 "logs": {query: (args: LogsQueryArgs) => Promise<PaginatedResponse<LogRow>>},
 "mcp": {start: () => Promise<McpStartResult>, 
 status: () => Promise<McpStatusDto>, 

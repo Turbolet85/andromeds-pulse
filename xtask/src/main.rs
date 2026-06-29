@@ -1017,6 +1017,7 @@ const EXPECTED_PROCEDURES: &[&str] = &[
     "incidents.list_active",
     "incidents.mark_all_read",
     "incidents.mark_resolved",
+    "investigate.run_action",
     "logs.query",
     "metrics.query",
     "services.list_with_states",

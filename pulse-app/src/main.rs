@@ -57,6 +57,7 @@ use pulse_app::drain_persistence::CorpusDrainPersistence;
 use pulse_app::incident_observer::{AutoResolveObserver, run_auto_resolution_loop};
 use pulse_app::incident_persistence::CorpusIncidentPersistence;
 use pulse_app::incidents_router::{IncidentsApi, IncidentsApiImpl};
+use pulse_app::investigate_router::{InvestigateApi, InvestigateApiImpl};
 use pulse_app::lifecycle_persistence::CorpusLifecyclePersistence;
 use pulse_app::llamacli_inference::LlamaCliInference;
 #[cfg(feature = "mcp-server")]
@@ -864,6 +865,9 @@ fn main() {
     // IPC call.
     let snapshot_impl = SnapshotApiImpl::new(buffer_conn.clone(), data_dir.clone());
     let snapshot_impl_for_setup = snapshot_impl.clone();
+    // P-072 — Investigate-action resolver. Reuses the boot-built `llm_runner`
+    // (deterministic-aware) + the buffer connection for the telemetry context.
+    let investigate_impl = InvestigateApiImpl::new(buffer_conn.clone(), Arc::clone(&llm_runner));
 
     // Chunk #47: plugin host wiring. Engine is constructed at boot (shared
     // across all plugin operations); plugin dir is resolved + canonicalized
@@ -931,6 +935,7 @@ fn main() {
                 .merge(services_impl.clone().into_handler())
                 .merge(diagnostics_impl.clone().into_handler())
                 .merge(model_impl.clone().into_handler())
+                .merge(investigate_impl.clone().into_handler())
                 .merge(config_impl.clone().into_handler());
             let base = match storage_impl.as_ref() {
                 Some(s) => base.merge(s.clone().into_handler()),
@@ -957,6 +962,7 @@ fn main() {
                 .merge(services_impl.clone().into_handler())
                 .merge(diagnostics_impl.clone().into_handler())
                 .merge(model_impl.clone().into_handler())
+                .merge(investigate_impl.clone().into_handler())
                 .merge(config_impl.clone().into_handler());
             let base = match storage_impl.as_ref() {
                 Some(s) => base.merge(s.clone().into_handler()),
@@ -1832,6 +1838,18 @@ mod tests {
             ));
         let model_impl = ModelApiImpl::new(model_runner_test, model_hardware);
 
+        // P-072: InvestigateApiImpl participates in the emit so bindings.ts
+        // ARGS_MAP includes investigate.run_action. Deterministic runner keeps
+        // the bindings test hermetic (no env / model / subprocess).
+        let investigate_impl = InvestigateApiImpl::new(
+            Some(Arc::clone(&conn)),
+            Arc::new(
+                pulse_app::deterministic_inference::DeterministicInferenceRunner::new(
+                    interpretation::contract::ModelTier::Primary,
+                ),
+            ),
+        );
+
         // Chunk #96: ConfigApiImpl participates in the emit so bindings.ts
         // ARGS_MAP includes config.reload / config.status. Empty handle slot
         // (no watcher in the bindings test) + default status keep it hermetic.
@@ -1872,6 +1890,7 @@ mod tests {
                 .merge(diagnostics_impl.into_handler())
                 .merge(incidents_impl.into_handler())
                 .merge(model_impl.into_handler())
+                .merge(investigate_impl.into_handler())
                 .merge(config_impl.into_handler());
             #[cfg(feature = "mcp-server")]
             let base = base.merge(mcp_impl.into_handler());

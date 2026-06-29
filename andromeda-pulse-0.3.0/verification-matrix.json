@@ -97,8 +97,8 @@
       "title": "Investigate actions functional",
       "requirement": "Each Investigate action (diagnose latency outlier / find error correlation / trace failed request / summarize service health) runs a real LLM/MCP-backed analysis with visible progress and a result; failures surface, never silent.",
       "observed_gap": "The Investigate modal opens and the snapshot generates correctly, but the 4 action buttons do NOTHING on click (no result, no feedback) even with live data.",
-      "verification": { "method": "e2e", "acceptance": "Clicking each of the 4 Investigate actions produces a visible progress state and a result (or a surfaced error), never a silent no-op.", "ref": null, "status": "planned" },
-      "chunk": null
+      "verification": { "method": "e2e", "acceptance": "Clicking each of the 4 Investigate actions produces a visible progress state and a result (or a surfaced error), never a silent no-op.", "ref": "pulse-app/tests/integration_investigate_actions.rs::deterministic_mode_each_action_yields_a_populated_result", "status": "verified", "notes": "Acceptance proven by the deterministic-L4 backend integration suite (4 actions yield a result reproducibly; unknown id -> Validation; runner/parse errors surface) + the InvestigationModalForm vitest suite (click -> aria-busy -> result panel / role=alert error). The full tauri-driver button-click e2e is folded into P-076 (integration UX e2e)." },
+      "chunk": "2026-06-28-investigate-actions-functional"
     },
     {
       "id": "P-073",

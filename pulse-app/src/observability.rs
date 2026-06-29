@@ -1871,6 +1871,31 @@ impl AllowList {
             ["profile", "tier", "load_status"].iter().copied().collect(),
         );
 
+        // P-072 — Investigate-action (investigate.run_action) aggregate-only
+        // targets. Bounded `action_id` (one of 4 ids OR "unknown") + `status`
+        // enum + numeric `duration_ms`; NO prompt / analysis result / telemetry
+        // content per obs §5 + the 2026-05-17 session 84 aggregate-only mandate.
+        by_target.insert(
+            "investigate.run_action.request",
+            [
+                "action_id",
+                "status",
+                "duration_ms",
+                "deterministic_mode",
+                "model_tier",
+            ]
+            .iter()
+            .copied()
+            .collect(),
+        );
+        by_target.insert(
+            "metric.investigate.run_action.duration_ms",
+            ["value", "duration_ms", "action_id", "status", "model_tier"]
+                .iter()
+                .copied()
+                .collect(),
+        );
+
         // Chunk #83 — L4 LLM interpretation pipeline tracing targets.
         // Aggregate-only fields per CLAUDE.md observability Session
         // Learnings 2026-05-17 session 84 mandate (no per-service

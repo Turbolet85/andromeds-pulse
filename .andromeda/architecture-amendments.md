@@ -178,3 +178,10 @@ bus-factor mitigation pattern — only the concrete impl swapped (`MistralRsInfe
 **Section:** §Occupied Resources — Environment variables (reserved at arch level)
 **Change:** Added `ANDROMEDA_PULSE_L4_DETERMINISTIC` (truthy gate, default false) selecting the deterministic L4 runner (canned `L4Output`, no GPU/model) at pulse-app boot, alongside the existing `_LLAMA_{CUDA,CPU}_BIN_PATH` L4 env vars.
 **Why:** Chunk 2026-06-28-deterministic-env-gated-l4-mode (P-073) introduced the env-gated deterministic L4 mode; arch §Occupied Resources must register every new env var (D-arch-resources). The runner is a third impl behind the unchanged `LlmInferenceRunner` trait — §Established Decisions [LLM Inference Runtime] unchanged.
+
+---
+
+## 2026-06-28-investigate-actions-functional — Register investigate.run_action TauRPC procedure
+**Section:** §Occupied Resources — Tauri IPC routes (TauRPC procedures)
+**Change:** Added `investigate.run_action` (pulse-app `InvestigateApiImpl`) — runs a real `LlmInferenceRunner::generate_constrained` analysis of the curated telemetry for one of the 4 bounded Investigate actions, reusing the incident `L4Output` schema, and returns a TRANSIENT scrubbed `InvestigateResultDto`; no incident created/persisted, no broadcast; deterministic-L4-aware (P-073).
+**Why:** Chunk 2026-06-28-investigate-actions-functional (P-072, intent F12) wired the 4 dead Investigate buttons to a real L4-backed analysis; arch §Occupied Resources must register every new IPC procedure (D-arch-resources). The procedure is an additive second consumer of the unchanged `generate_constrained` trait method — §Established Decisions [LLM Inference Runtime] + §Stack unchanged (no new crate, no new dep).

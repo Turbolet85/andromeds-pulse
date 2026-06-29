@@ -127,6 +127,24 @@ fn load_recent_spans(
         })
 }
 
+/// Load the recent span window, curate it, and render the curated markdown
+/// context. Shared by `snapshot.generate` and `investigate.run_action` (P-072)
+/// so both consume one telemetry-context path. An empty buffer yields a bounded
+/// near-empty markdown (curate returns the default `CurationOutput`) — still a
+/// valid context, not an error.
+pub(crate) fn load_curated_markdown(conn: &Connection) -> Result<String, AppError> {
+    let now_ns = Utc::now().timestamp_nanos_opt().unwrap_or(0);
+    let since_ns = now_ns.saturating_sub(SNAPSHOT_TIME_WINDOW_NS);
+    let spans = load_recent_spans(conn, since_ns, SPANS_RECENT_LIMIT)?;
+    let curated: CurationOutput = curate(&spans)?;
+    let report = format_markdown(&curated, TokenBudget::Balanced).map_err(|_: FormatError| {
+        AppError::Internal {
+            message: "snapshot: format failed".to_string(),
+        }
+    })?;
+    Ok(report.markdown)
+}
+
 #[taurpc::procedures(path = "snapshot")]
 pub trait SnapshotApi {
     async fn generate(
