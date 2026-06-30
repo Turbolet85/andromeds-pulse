@@ -43,3 +43,15 @@ _Format per entry: `## {date} — {title}` with **Section** / **Change** / **Why
 - Remediation patterns (target-size, tertiary→secondary contrast, not-color-alone severity borders, no dangling `aria-controls`, focus-toggled skip link) are applications of rules already current in §6 / §11; kept here as history (no new body rule needed).
 
 **Marker:** Amendment record `.andromeda/runs/2026-06-10T00-36-00-spec-amendment-a11y-v020-reaudit-rebaseline/amendment.md`. Cross-references: test-plan §12 + obs-plan §12 entries dated 2026-06-10 (sibling amendment `2026-06-10T00-35-00-adopt-four-load-profiles`); design-system text-secondary / text-primary contrast pairs; `docs/v0_2_0/pulse-v0_2_0-route.md` §97 Phase 13 (chunk source); chunk #99 implement report (full remediation file list). **Authority:** a11y-plan §10 hard gates + §11 machine-verifiable-evidence invariant (tier = Standard) win over the stale v0.1.0 surface enumeration + dead-harness state.
+
+---
+
+## 2026-06-30-widget-to-dashboard-navigation — P5 button accessible name: "Expand to dashboard" → "Toggle dashboard"
+
+**Section:** §1 Critical Paths (P5 row).
+
+**Change:** The compact-widget's dashboard-navigation affordance ships as `<button aria-label="Toggle dashboard">` (opens the dashboard if hidden / hides it if visible; the glance widget always stays visible), not the originally-planned `<button aria-label="Expand to dashboard">` (expand-and-hide). Updated the P5 row's button label + focus-management note (the toggle never hides the widget; the same handler is bound to Cmd/Ctrl+Shift+P in both windows). Cascaded to `.claude/rules/a11y.md` + `.claude/docs/a11y-summary.md` + the 3 screen-reader manual-test scripts (`pulse-app/ui/tests-a11y/screen-reader/a11y-sr-{nvda,orca,voiceover}.md`).
+
+**Why:** Live dogfood (2026-06-30) showed the planned "expand & hide widget" stranded the user (no way back to the widget); reframed to a toggle that keeps the widget always visible. The button's accessible name changed accordingly — the a11y-plan P5 body cited the stale label. See `chunks/2026-06-30-widget-to-dashboard-navigation/report.md` §Deviations.
+
+**Marker:** 2026-06-30-widget-to-dashboard-navigation (P-066).

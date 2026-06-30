@@ -13,6 +13,10 @@ import {
 } from "../hooks/use-investigation";
 import { useFindings } from "../hooks/use-findings";
 import { useServiceConstellation } from "../hooks/use-service-constellation";
+import {
+  useToggleDashboard,
+  useDashboardToggleShortcut,
+} from "../hooks/use-toggle-dashboard";
 import { Report } from "../report/Report";
 import { ConstellationCanvas } from "./ConstellationCanvas";
 import { FindingsCounter } from "./FindingsCounter";
@@ -31,6 +35,8 @@ function CompactWidgetContents() {
     useInvestigation();
   const findings = useFindings();
   const services = useServiceConstellation();
+  const onToggleDashboard = useToggleDashboard();
+  useDashboardToggleShortcut();
   const [findingsOpen, setFindingsOpen] = useState(false);
   const [reportIncidentId, setReportIncidentId] = useState<number | null>(null);
   const findingsTriggerRef = useRef<HTMLButtonElement | null>(null);
@@ -52,7 +58,10 @@ function CompactWidgetContents() {
   };
   return (
     <>
-      <Titlebar onInvestigateClick={openInvestigation} />
+      <Titlebar
+        onInvestigateClick={openInvestigation}
+        onToggleDashboardClick={onToggleDashboard}
+      />
       <main
         id="main-content"
         tabIndex={-1}

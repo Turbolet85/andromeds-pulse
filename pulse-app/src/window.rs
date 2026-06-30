@@ -8,11 +8,11 @@
 // (widget_position + always_on_top) to the compact-widget window after show.
 
 use std::path::Path;
-use std::sync::atomic::{AtomicBool, AtomicU64, Ordering};
+use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::{Arc, Mutex};
 use std::time::{Duration, Instant};
 
-use tauri::{Manager, PhysicalPosition, PhysicalSize, WindowEvent};
+use tauri::{LogicalSize, Manager, PhysicalPosition, PhysicalSize, WindowEvent};
 use tauri_plugin_notification::NotificationExt;
 use tracing::{info, warn};
 use ui_bridge::contract::{Settings, WidgetPosition};
@@ -35,6 +35,12 @@ const _: () = {
     assert!(WIDGET_MIN_ASPECT > 0.0);
     assert!(WIDGET_MIN_ASPECT < WIDGET_MAX_ASPECT);
 };
+
+// Calibrated default size for the compact glance widget — matches tauri.conf
+// (480×270, 16:9, inside the P-062 min-size 400×225 + aspect band). Re-asserted
+// at boot so the widget never sizes to content or inherits a stale geometry.
+const WIDGET_DEFAULT_WIDTH: f64 = 480.0;
+const WIDGET_DEFAULT_HEIGHT: f64 = 270.0;
 
 // Let the resize SETTLE before clamping the aspect. Clamping on every Resized
 // during a drag fights the cursor frame-by-frame and flickers badly; waiting
@@ -118,11 +124,21 @@ pub fn handle_close_to_tray<R: tauri::Runtime>(window: &tauri::Window<R>) {
     );
 }
 
-// The signpost shows on the FIRST close per session only, and only when the
-// user has not disabled notifications — so close→hide-to-tray is predictable
-// (intent F3) without nagging on every close. Pure seam for unit coverage.
-pub fn should_show_close_signpost(notifications_enabled: bool, already_shown: bool) -> bool {
-    notifications_enabled && !already_shown
+// The signpost fires EVERY time the app goes fully to the tray (the deliberate,
+// infrequent widget-close — P-063 toast correction), gated only on the user's
+// notification preference. No first-close latch: the trigger is rare, so
+// every-time confirms the hide-to-tray without nagging. Pure seam.
+pub fn should_show_close_signpost(notifications_enabled: bool) -> bool {
+    notifications_enabled
+}
+
+// Primary/secondary close model (P-063 correction): the compact widget is the
+// primary surface, the dashboard secondary. Closing the WIDGET sends the whole
+// app to the tray (hide both windows + the first-close signpost); closing the
+// DASHBOARD merely collapses back to the widget (no extra hide, no signpost).
+// Pure seam for unit coverage.
+pub fn close_sends_app_to_tray(label: &str) -> bool {
+    label == COMPACT_WIDGET_LABEL
 }
 
 // Emit the one-time "still running in the tray" signpost via the OS
@@ -130,19 +146,11 @@ pub fn should_show_close_signpost(notifications_enabled: bool, already_shown: bo
 // honoring Settings.notifications_enabled per arch §OS-notification-policy.
 // Best-effort: a failed dispatch never blocks close. The body is a static
 // string and is never logged (security-plan §Logging NEVER-log).
-fn maybe_show_close_signpost<R: tauri::Runtime>(
-    window: &tauri::Window<R>,
-    data_dir: &Path,
-    signpost_shown: &AtomicBool,
-) {
+fn maybe_show_close_signpost<R: tauri::Runtime>(window: &tauri::Window<R>, data_dir: &Path) {
     let notifications_enabled = Settings::load_from_data_dir(data_dir).notifications_enabled;
-    if !should_show_close_signpost(
-        notifications_enabled,
-        signpost_shown.load(Ordering::Acquire),
-    ) {
+    if !should_show_close_signpost(notifications_enabled) {
         return;
     }
-    signpost_shown.store(true, Ordering::Release);
     let _ = window
         .app_handle()
         .notification()
@@ -161,7 +169,6 @@ pub fn on_window_event<R: tauri::Runtime>(
     event: &WindowEvent,
     store: &Mutex<GeometryStore>,
     data_dir: &Path,
-    signpost_shown: &AtomicBool,
     resize_gen: &Arc<AtomicU64>,
 ) {
     match event {
@@ -170,15 +177,27 @@ pub fn on_window_event<R: tauri::Runtime>(
             if let Ok(store) = store.lock() {
                 store.flush(data_dir);
             }
-            maybe_show_close_signpost(window, data_dir, signpost_shown);
+            if close_sends_app_to_tray(window.label()) {
+                // Widget (primary) closed → whole app to the tray: also hide the
+                // dashboard (if open) so no window stays visible, then fire the
+                // first-close "still running" signpost once. The dashboard close
+                // (secondary) just collapses to the widget — no extra hide, no
+                // signpost.
+                if let Some(main) = window.app_handle().get_webview_window(MAIN_WINDOW_LABEL) {
+                    let _ = main.hide();
+                }
+                maybe_show_close_signpost(window, data_dir);
+            }
             handle_close_to_tray(window);
         }
-        WindowEvent::Moved(position) => {
-            let label = sanitize_window_label(window.label());
-            if label != "unknown" {
-                if let Ok(mut store) = store.lock() {
-                    store.record_move_throttled(label, position.x, position.y, data_dir);
-                }
+        // Only the dashboard's position is remembered; the compact widget always
+        // boots to its fixed corner (P-061 correction — no widget remembered
+        // geometry to restore or drift off-screen).
+        WindowEvent::Moved(position)
+            if sanitize_window_label(window.label()) == MAIN_WINDOW_LABEL =>
+        {
+            if let Ok(mut store) = store.lock() {
+                store.record_move_throttled(MAIN_WINDOW_LABEL, position.x, position.y, data_dir);
             }
         }
         WindowEvent::Resized(size) => {
@@ -285,12 +304,16 @@ pub fn clamp_to_aspect_bounds(
     }
 }
 
+// Inset from the monitor edge so the snapped widget never sits flush against a
+// screen edge or the taskbar (P-061 correction — "a corner with a margin").
+const WIDGET_EDGE_MARGIN: i32 = 24;
+
 // Compute the per-display snap position. Inputs are absolute physical
 // pixel coordinates; output is the (x, y) origin to pass to set_position
 // such that the window snaps to the requested corner of the display
-// containing it. "Per-display memory" is implicit: the widget always
-// snaps relative to its current monitor's bounds, regardless of which
-// display that is.
+// containing it, inset by WIDGET_EDGE_MARGIN. "Per-display memory" is implicit:
+// the widget always snaps relative to its current monitor's bounds, regardless
+// of which display that is.
 pub(crate) fn compute_snap_position(
     monitor_pos: (i32, i32),
     monitor_size: (u32, u32),
@@ -302,25 +325,24 @@ pub(crate) fn compute_snap_position(
     let mon_h = monitor_size.1 as i32;
     let win_w = window_size.0 as i32;
     let win_h = window_size.1 as i32;
+    let m = WIDGET_EDGE_MARGIN;
     let (x, y) = match position {
-        WidgetPosition::TopLeft => (mon_x, mon_y),
-        WidgetPosition::TopRight => (mon_x + mon_w - win_w, mon_y),
-        WidgetPosition::BottomLeft => (mon_x, mon_y + mon_h - win_h),
-        WidgetPosition::BottomRight => (mon_x + mon_w - win_w, mon_y + mon_h - win_h),
+        WidgetPosition::TopLeft => (mon_x + m, mon_y + m),
+        WidgetPosition::TopRight => (mon_x + mon_w - win_w - m, mon_y + m),
+        WidgetPosition::BottomLeft => (mon_x + m, mon_y + mon_h - win_h - m),
+        WidgetPosition::BottomRight => (mon_x + mon_w - win_w - m, mon_y + mon_h - win_h - m),
     };
     PhysicalPosition::new(x, y)
 }
 
-// Apply persisted Settings to the compact-widget window: snap position
-// per WidgetPosition + current monitor, and always-on-top flag. Emits
-// `ui.layout.transition` span on completion (or a warn target on
-// failure paths). Best-effort: any sub-step failure logs a warn and
-// continues — boot must not abort on settings-apply failure.
-pub fn apply_widget_settings<R: tauri::Runtime, M: Manager<R>>(
-    app: &M,
-    settings: &Settings,
-    geometry: &WindowGeometry,
-) {
+// Apply persisted Settings to the compact-widget window: re-assert the
+// calibrated default size, snap to the configured corner (margin-inset) of the
+// current monitor, and the always-on-top flag. The buggy remembered
+// free-position restore was dropped (P-061 correction) — a stale off-screen x/y
+// could spawn the widget partly or fully off-screen. Emits `ui.layout.transition`
+// on completion. Best-effort: any sub-step failure logs a warn and continues —
+// boot must not abort on settings-apply failure.
+pub fn apply_widget_settings<R: tauri::Runtime, M: Manager<R>>(app: &M, settings: &Settings) {
     let start = Instant::now();
     let window = match app.get_webview_window(COMPACT_WIDGET_LABEL) {
         Some(w) => w,
@@ -345,55 +367,58 @@ pub fn apply_widget_settings<R: tauri::Runtime, M: Manager<R>>(
         );
     }
 
-    // A remembered free position (from a prior drag) overrides the corner
-    // snap; otherwise snap to the configured corner, and if the monitor is
-    // unavailable center the window rather than leaving it at the OS
-    // top-left default (intent F1 "pinned to the top-left corner").
-    let layout_mode_to: &str = if let Some(pos) = geometry.position(COMPACT_WIDGET_LABEL) {
-        if let Err(e) = window.set_position(PhysicalPosition::new(pos.x, pos.y)) {
-            warn!(
-                target: "app.boot.window.show",
-                label = COMPACT_WIDGET_LABEL,
-                error_kind = "set_position_failed",
-                error_msg = %e,
-                "failed to restore remembered widget position",
+    // Re-assert the calibrated fixed size so the widget never sizes to content
+    // or inherits a stale geometry (P-061 correction) — 480×270 logical, matching
+    // tauri.conf (inside the P-062 min-size + aspect band, so no re-clamp).
+    if let Err(e) = window.set_size(LogicalSize::new(WIDGET_DEFAULT_WIDTH, WIDGET_DEFAULT_HEIGHT)) {
+        warn!(
+            target: "app.boot.window.show",
+            label = COMPACT_WIDGET_LABEL,
+            error_kind = "set_size_failed",
+            error_msg = %e,
+            "failed to apply default widget size",
+        );
+    }
+
+    // Fixed on-screen position: snap to the configured corner (margin-inset) of
+    // the current monitor — sized from the known default × scale so it is correct
+    // regardless of any pending resize — or center when the monitor is
+    // unavailable. No remembered free-position restore (P-061 correction).
+    let layout_mode_to: &str = match window.current_monitor() {
+        Ok(Some(monitor)) => {
+            let monitor_pos = monitor.position();
+            let monitor_size = monitor.size();
+            let scale = monitor.scale_factor();
+            let win_w = (WIDGET_DEFAULT_WIDTH * scale).round() as u32;
+            let win_h = (WIDGET_DEFAULT_HEIGHT * scale).round() as u32;
+            let pos = compute_snap_position(
+                (monitor_pos.x, monitor_pos.y),
+                (monitor_size.width, monitor_size.height),
+                (win_w, win_h),
+                settings.widget_position,
             );
-        }
-        "remembered"
-    } else {
-        match (window.current_monitor(), window.outer_size()) {
-            (Ok(Some(monitor)), Ok(outer_size)) => {
-                let monitor_pos = monitor.position();
-                let monitor_size = monitor.size();
-                let pos = compute_snap_position(
-                    (monitor_pos.x, monitor_pos.y),
-                    (monitor_size.width, monitor_size.height),
-                    (outer_size.width, outer_size.height),
-                    settings.widget_position,
+            if let Err(e) = window.set_position(pos) {
+                warn!(
+                    target: "app.boot.window.show",
+                    label = COMPACT_WIDGET_LABEL,
+                    error_kind = "set_position_failed",
+                    error_msg = %e,
+                    "failed to apply snap position",
                 );
-                if let Err(e) = window.set_position(pos) {
-                    warn!(
-                        target: "app.boot.window.show",
-                        label = COMPACT_WIDGET_LABEL,
-                        error_kind = "set_position_failed",
-                        error_msg = %e,
-                        "failed to apply snap position",
-                    );
-                }
-                widget_position_label(settings.widget_position)
             }
-            _ => {
-                if let Err(e) = window.center() {
-                    warn!(
-                        target: "app.boot.window.show",
-                        label = COMPACT_WIDGET_LABEL,
-                        error_kind = "center_failed",
-                        error_msg = %e,
-                        "failed to center widget on monitor-unavailable fallback",
-                    );
-                }
-                "centered"
+            widget_position_label(settings.widget_position)
+        }
+        _ => {
+            if let Err(e) = window.center() {
+                warn!(
+                    target: "app.boot.window.show",
+                    label = COMPACT_WIDGET_LABEL,
+                    error_kind = "center_failed",
+                    error_msg = %e,
+                    "failed to center widget on monitor-unavailable fallback",
+                );
             }
+            "centered"
         }
     };
 
@@ -516,37 +541,37 @@ mod tests {
     }
 
     #[test]
-    fn compute_snap_position_top_left_returns_monitor_origin() {
+    fn compute_snap_position_top_left_insets_by_margin_from_origin() {
         let pos = compute_snap_position((0, 0), (1920, 1080), (480, 270), WidgetPosition::TopLeft);
-        assert_eq!(pos.x, 0);
-        assert_eq!(pos.y, 0);
+        assert_eq!(pos.x, 24);
+        assert_eq!(pos.y, 24);
     }
 
     #[test]
-    fn compute_snap_position_top_right_aligns_to_monitor_right_edge() {
+    fn compute_snap_position_top_right_insets_from_right_edge() {
         let pos = compute_snap_position((0, 0), (1920, 1080), (480, 270), WidgetPosition::TopRight);
-        assert_eq!(pos.x, 1920 - 480);
-        assert_eq!(pos.y, 0);
+        assert_eq!(pos.x, 1920 - 480 - 24);
+        assert_eq!(pos.y, 24);
     }
 
     #[test]
-    fn compute_snap_position_bottom_left_aligns_to_monitor_bottom_edge() {
+    fn compute_snap_position_bottom_left_insets_from_bottom_edge() {
         let pos =
             compute_snap_position((0, 0), (1920, 1080), (480, 270), WidgetPosition::BottomLeft);
-        assert_eq!(pos.x, 0);
-        assert_eq!(pos.y, 1080 - 270);
+        assert_eq!(pos.x, 24);
+        assert_eq!(pos.y, 1080 - 270 - 24);
     }
 
     #[test]
-    fn compute_snap_position_bottom_right_aligns_to_monitor_bottom_right_corner() {
+    fn compute_snap_position_bottom_right_insets_from_bottom_right_corner() {
         let pos = compute_snap_position(
             (0, 0),
             (1920, 1080),
             (480, 270),
             WidgetPosition::BottomRight,
         );
-        assert_eq!(pos.x, 1920 - 480);
-        assert_eq!(pos.y, 1080 - 270);
+        assert_eq!(pos.x, 1920 - 480 - 24);
+        assert_eq!(pos.y, 1080 - 270 - 24);
     }
 
     #[test]
@@ -559,8 +584,8 @@ mod tests {
             (480, 270),
             WidgetPosition::TopRight,
         );
-        assert_eq!(pos.x, 1920 + 1920 - 480);
-        assert_eq!(pos.y, 0);
+        assert_eq!(pos.x, 1920 + 1920 - 480 - 24);
+        assert_eq!(pos.y, 24);
     }
 
     #[test]
@@ -572,7 +597,7 @@ mod tests {
             (480, 270),
             WidgetPosition::BottomLeft,
         );
-        assert_eq!(pos.x, -1920);
-        assert_eq!(pos.y, 1080 - 270);
+        assert_eq!(pos.x, -1920 + 24);
+        assert_eq!(pos.y, 1080 - 270 - 24);
     }
 }

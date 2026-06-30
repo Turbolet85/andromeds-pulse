@@ -1,6 +1,6 @@
 use std::net::SocketAddr;
 use std::path::{Path, PathBuf};
-use std::sync::atomic::{AtomicBool, AtomicU64};
+use std::sync::atomic::AtomicU64;
 use std::sync::{Arc, Mutex};
 use std::time::Instant;
 use std::{env, fs};
@@ -1014,9 +1014,6 @@ fn main() {
     let window_geometry = Arc::new(Mutex::new(window_geometry::GeometryStore::load(&data_dir)));
     let window_geometry_for_event = Arc::clone(&window_geometry);
     let data_dir_for_event = data_dir.clone();
-    // First-close "still running in the tray" signpost fires at most once per
-    // process run (intent F3 / P-063); the flag is owned by the event closure.
-    let close_signpost_shown = Arc::new(AtomicBool::new(false));
     // Resize generation for the compact-widget aspect clamp (intent F2 /
     // P-062): the handler debounces on this so the clamp snaps once after the
     // resize settles instead of fighting the drag frame-by-frame.
@@ -1032,7 +1029,6 @@ fn main() {
                 e,
                 window_geometry_for_event.as_ref(),
                 &data_dir_for_event,
-                close_signpost_shown.as_ref(),
                 &aspect_resize_gen,
             )
         })
@@ -1051,7 +1047,7 @@ fn main() {
                 .lock()
                 .map(|s| s.snapshot())
                 .unwrap_or_default();
-            window::apply_widget_settings(app, &settings, &geometry_snapshot);
+            window::apply_widget_settings(app, &settings);
             window::restore_main_window_position(app, &geometry_snapshot);
             let tray_icon = tray::setup_tray(app.handle(), Arc::clone(&broadcast_senders))?;
             app.manage(tray_icon);

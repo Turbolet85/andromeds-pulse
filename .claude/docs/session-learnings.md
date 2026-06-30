@@ -6,6 +6,20 @@ _Entries are added in reverse chronological order (newest first). Each entry has
 
 _This file is entirely wrap-session's territory. `/setup-project` creates it if missing but NEVER regenerates it. Manual edits are preserved across all Andromeda skill runs._
 
+## 2026-06-30 (wrap) — window.rs corrections from the widget-to-dashboard dogfood: geometry, per-window close, every-time toast (confidence 0.75)
+
+Three `pulse-app/src/window.rs` corrections surfaced by the live dogfood of 2026-06-30-widget-to-dashboard-navigation (P-066), recorded as P-061/P-063 corrections.
+
+**Geometry (P-061 correction).** A remembered window FREE-position restored at boot MUST be clamped to the current monitor work-area — a stale off-screen x/y (e.g. from a prior multi-monitor drag) spawns the window partly/fully off-screen. Safer default for a glance widget: DROP the remembered free-position entirely (`apply_widget_settings` no longer restores it; the `Moved` handler records only the dashboard) and always snap to a fixed MARGIN-INSET corner (`compute_snap_position` + a ~24px edge margin), sized from the known default × `monitor.scale_factor()` (NOT a possibly-stale `outer_size()` read right after `set_size`), and re-assert the fixed configured size via `set_size(LogicalSize::new(W, H))` so the widget never sizes to content. Boot logs `layout_mode_to=top-right` (not "remembered") confirm it.
+
+**Per-window close model (P-063 correction).** With a primary (widget) + secondary (dashboard) two-window app, model close per-window: closing the PRIMARY = whole app to the tray (hide BOTH windows + the signpost); closing the SECONDARY = silent collapse to the primary (hide only itself, no signpost). A pure `close_sends_app_to_tray(label) -> bool` seam (`label == COMPACT_WIDGET_LABEL`) drives it; in the `CloseRequested` arm, the primary branch also `get_webview_window(MAIN)?.hide()`s the dashboard.
+
+**Toast frequency (P-063 correction).** Once the signpost fires only on a deliberate, infrequent action (the primary close = app-to-tray), the first-close LATCH (a `signpost_shown: AtomicBool`) is too quiet — fire it EVERY time. Removing the latch simplified `should_show_close_signpost` to a 1-arg notifications-gate; the trigger is rare, so every-time confirms without nagging.
+
+Also: clippy `collapsible_match` wants a match-arm body of `if <bool> { … }` to become a match GUARD (`Pattern if <bool> => { … }`), not a nested if — surfaced when the dashboard-only `Moved`-recording filter was added.
+
+---
+
 ## 2026-06-30 (wrap) — Window resize-constraint implementation: debounce the aspect clamp, and validate min-size against the real layout (confidence 0.7)
 
 Two gotchas from implementing the glance-widget size constraints (P-062, `pulse-app/src/window.rs`).

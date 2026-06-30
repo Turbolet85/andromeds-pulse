@@ -32,6 +32,7 @@ import { TabNav } from "./TabNav";
 import { TABS, TAB_IDS, type PaletteItem, type TabId } from "./dashboard-types";
 import { Titlebar } from "../components/Titlebar";
 import { useKeyboardShortcuts } from "./use-keyboard-shortcuts";
+import { useDashboardToggleShortcut } from "../hooks/use-toggle-dashboard";
 import { TracesRoute } from "./routes/TracesRoute";
 import { MetricsRoute } from "./routes/MetricsRoute";
 import { LogsRoute } from "./routes/LogsRoute";
@@ -133,6 +134,7 @@ function DashboardShell() {
   }, []);
 
   useKeyboardShortcuts({ onTogglePalette, onEscape });
+  useDashboardToggleShortcut();
 
   const onPaletteSelect = useCallback(
     (item: PaletteItem) => {

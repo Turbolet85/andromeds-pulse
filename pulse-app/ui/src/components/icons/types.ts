@@ -4,6 +4,7 @@ export type GlyphName =
   | "aperture"
   | "telescope"
   | "constellation-grid"
+  | "expand"
   | "star"
   | "circular-pulse";
 
