@@ -8,11 +8,11 @@
 // (widget_position + always_on_top) to the compact-widget window after show.
 
 use std::path::Path;
-use std::sync::Mutex;
-use std::sync::atomic::{AtomicBool, Ordering};
-use std::time::Instant;
+use std::sync::atomic::{AtomicBool, AtomicU64, Ordering};
+use std::sync::{Arc, Mutex};
+use std::time::{Duration, Instant};
 
-use tauri::{Manager, PhysicalPosition, WindowEvent};
+use tauri::{Manager, PhysicalPosition, PhysicalSize, WindowEvent};
 use tauri_plugin_notification::NotificationExt;
 use tracing::{info, warn};
 use ui_bridge::contract::{Settings, WidgetPosition};
@@ -21,6 +21,25 @@ use crate::window_geometry::{GeometryStore, WindowGeometry};
 
 const COMPACT_WIDGET_LABEL: &str = "compact-widget";
 const MAIN_WINDOW_LABEL: &str = "main";
+
+// Aspect-ratio band for the compact glance widget (intent F2). The widget is
+// 480×270 (16:9 ≈ 1.778) by default; the band keeps it "fixed-ish" without a
+// hard pin. Tauri 2.11 / tao 0.35 expose no native aspect-ratio API, so the
+// bound is held by a Resized-event clamp (clamp_to_aspect_bounds). The min-size
+// floor in tauri.conf.json (400×225) is itself 16:9, hence inside this band.
+#[doc(hidden)]
+pub const WIDGET_MIN_ASPECT: f32 = 1.4;
+#[doc(hidden)]
+pub const WIDGET_MAX_ASPECT: f32 = 2.1;
+const _: () = {
+    assert!(WIDGET_MIN_ASPECT > 0.0);
+    assert!(WIDGET_MIN_ASPECT < WIDGET_MAX_ASPECT);
+};
+
+// Let the resize SETTLE before clamping the aspect. Clamping on every Resized
+// during a drag fights the cursor frame-by-frame and flickers badly; waiting
+// for the events to stop means a single snap once the user lets go.
+const ASPECT_DEBOUNCE: Duration = Duration::from_millis(150);
 
 pub fn detect_webview_backend() -> &'static str {
     if cfg!(target_os = "windows") {
@@ -143,6 +162,7 @@ pub fn on_window_event<R: tauri::Runtime>(
     store: &Mutex<GeometryStore>,
     data_dir: &Path,
     signpost_shown: &AtomicBool,
+    resize_gen: &Arc<AtomicU64>,
 ) {
     match event {
         WindowEvent::CloseRequested { api, .. } => {
@@ -160,6 +180,39 @@ pub fn on_window_event<R: tauri::Runtime>(
                     store.record_move_throttled(label, position.x, position.y, data_dir);
                 }
             }
+        }
+        WindowEvent::Resized(size) => {
+            // Aspect band applies to the glance widget only; the dashboard is
+            // free-form (intent F2 names "the glance widget").
+            if sanitize_window_label(window.label()) != COMPACT_WIDGET_LABEL {
+                return;
+            }
+            // Debounce: bump the generation and clamp only once the resize
+            // settles (no newer Resized within ASPECT_DEBOUNCE), so we snap
+            // once on release instead of fighting the cursor every frame.
+            let generation = resize_gen.fetch_add(1, Ordering::AcqRel) + 1;
+            let (w0, h0) = (size.width, size.height);
+            let window = window.clone();
+            let resize_gen = Arc::clone(resize_gen);
+            tauri::async_runtime::spawn(async move {
+                tokio::time::sleep(ASPECT_DEBOUNCE).await;
+                if resize_gen.load(Ordering::Acquire) != generation {
+                    return;
+                }
+                if let Some((w, h)) =
+                    clamp_to_aspect_bounds((w0, h0), WIDGET_MIN_ASPECT, WIDGET_MAX_ASPECT)
+                {
+                    if let Err(e) = window.set_size(PhysicalSize::new(w, h)) {
+                        warn!(
+                            target: "app.boot.window.show",
+                            label = COMPACT_WIDGET_LABEL,
+                            error_kind = "set_size_failed",
+                            error_msg = %e,
+                            "failed to clamp compact-widget aspect ratio",
+                        );
+                    }
+                }
+            });
         }
         _ => {}
     }
@@ -200,6 +253,35 @@ pub(crate) fn widget_position_label(position: WidgetPosition) -> &'static str {
         WidgetPosition::TopRight => "top-right",
         WidgetPosition::BottomLeft => "bottom-left",
         WidgetPosition::BottomRight => "bottom-right",
+    }
+}
+
+// Pure aspect-band clamp (intent F2). Given a physical (width, height) and the
+// allowed aspect band, returns Some(corrected) when w/h falls outside
+// [min_aspect, max_aspect] — reducing the offending dimension so the result
+// sits inside the band — or None when already in-band (or degenerate). Reducing
+// (never growing) keeps the window from being pushed off-screen; truncation
+// keeps the corrected ratio within the band so the set_size echo does not
+// re-clamp. Pure + unit-tested, mirroring compute_snap_position.
+#[doc(hidden)]
+pub fn clamp_to_aspect_bounds(
+    size: (u32, u32),
+    min_aspect: f32,
+    max_aspect: f32,
+) -> Option<(u32, u32)> {
+    let (w, h) = size;
+    if w == 0 || h == 0 {
+        return None;
+    }
+    let aspect = w as f32 / h as f32;
+    if aspect > max_aspect {
+        let new_w = (h as f32 * max_aspect) as u32;
+        Some((new_w.max(1), h))
+    } else if aspect < min_aspect {
+        let new_h = (w as f32 / min_aspect) as u32;
+        Some((w, new_h.max(1)))
+    } else {
+        None
     }
 }
 

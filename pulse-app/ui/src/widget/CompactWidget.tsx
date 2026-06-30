@@ -59,7 +59,7 @@ function CompactWidgetContents() {
         style={{
           display: "flex",
           flexDirection: "column",
-          minHeight: "calc(100vh - 32px)",
+          height: "calc(100vh - 32px)",
           background: "var(--color-base)",
           color: "var(--color-text-primary)",
           fontFamily: "var(--font-body)",

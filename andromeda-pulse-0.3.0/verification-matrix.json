@@ -26,10 +26,11 @@
       "verification": {
         "method": "e2e",
         "acceptance": "Attempting to resize below the min-size is clamped; the aspect ratio stays within the configured bound.",
-        "ref": null,
-        "status": "planned"
+        "ref": "pulse-app/tests/unit_window_constraints.rs (6 aspect-band clamp tests: in_band/min_size_floor/near_edges/too_wide/too_tall/degenerate) + pulse-app/tauri.conf.json minWidth/minHeight (OS-enforced min-size, both windows) + window::clamp_to_aspect_bounds wired into on_window_event Resized arm; live headful resize-delta e2e carried to P-076",
+        "status": "verified"
       },
-      "chunk": null
+      "chunk": "2026-06-29-window-size-constraints",
+      "notes": "Scope (2026-06-29 /phase): Tauri 2.11/tao 0.35 has NO native aspect-ratio API, so min-size is OS-enforced via tauri.conf.json minWidth/minHeight (both windows per Q2) and aspect is a WindowEvent::Resized band-clamp on the compact-widget (pure clamp_to_aspect_bounds helper + unit tests, re-entrancy-guarded). In-chunk proof = static config + unit tests; the live headful resize-delta e2e carries to P-076 (mirrors the P-061 headful-drag-delta CARRY)."
     },
     {
       "id": "P-063",

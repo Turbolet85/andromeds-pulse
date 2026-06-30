@@ -17,7 +17,7 @@ _Chunks separated by `   ↓` within an epoch; only `### Epoch K — {name}` hea
    ↓
 [2026-06-29-predictable-close-self-verify] Predictable close + honest tray — close quits or minimizes-to-tray with a clear "still running" indication; the dashboard is closable (P-063 · intent F3) · /phase to fold in a new agent-headful-self-verify cap (~P-078) when planning
    ↓
-Window size constraints — minimum size plus a sensible aspect-ratio constraint for the glance widget (P-062 · intent F2)
+[2026-06-29-window-size-constraints] Window size constraints — minimum size plus a sensible aspect-ratio constraint for the glance widget (P-062 · intent F2)
    ↓
 Browser-chrome suppression — default WebView2 context menu and canvas image-save suppressed app-wide in production (P-064/P-065 · intent F4/F5)
    ↓
@@ -37,7 +37,7 @@ Self-explaining empty states — Metrics and Logs empty surfaces explain themsel
 ### Epoch 4 — Polish & ship: verification
 Conductor e2e verification closure — a deterministic incident drives MCP read-back proving end-to-end fidelity and delegated timing caps P-025/P-027/P-037/P-045 (P-075 · intent F14)
    ↓
-Integration UX e2e test — real assembled path under deterministic-L4 (launch, telemetry, real-time push, Traces, storm, incident, Investigate) guards regressions (P-076 · intent F15) · CARRY: assert window-position-delta > 0 by driving a real titlebar drag (P-061 headful e2e residual — the capability grant + boot-smoke + remembered-position unit fallback were proven at that chunk; the live drag-delta needs tauri-driver headful, which is this suite's job)
+Integration UX e2e test — real assembled path under deterministic-L4 (launch, telemetry, real-time push, Traces, storm, incident, Investigate) guards regressions (P-076 · intent F15) · CARRY: assert window-position-delta > 0 by driving a real titlebar drag (P-061 headful e2e residual — the capability grant + boot-smoke + remembered-position unit fallback were proven at that chunk; the live drag-delta needs tauri-driver headful, which is this suite's job) · CARRY: assert the live resize-clamp + aspect-band (resize below the min-size is clamped; aspect snaps back into the 1.4–2.1 band on release) by driving a real headful resize (P-062 residual — the clamp helper + min-size config were unit/config-proven + manually user-verified at that chunk; the automated live resize-delta needs tauri-driver headful, this suite's job)
    ↓
 A11y verification — v0.3.0 interactive surfaces (window, widget-to-dashboard nav, anomaly controls, constellation, status, empty states): focus/keyboard/contrast/SR + SC 2.3.3 (per a11y-plan §3/§6/§7) · CARRY: add the deferred `p13` Playwright axe spec for the Investigate result/error/progress states (P-072) — their a11y is unit-verified (aria-busy / role=alert / aria-live / visible-label / focus-retained / Esc) but the Playwright axe spec was deferred at that chunk and belongs to this a11y-suite pass
    ↓
