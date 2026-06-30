@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { useWindowLabel } from "./hooks/use-window-label";
+import { useSuppressBrowserChrome } from "./hooks/use-suppress-browser-chrome";
 import { CompactWidget } from "./widget/CompactWidget";
 import { Dashboard } from "./dashboard/Dashboard";
 
@@ -12,6 +13,8 @@ import { Dashboard } from "./dashboard/Dashboard";
 
 export function App() {
   const windowLabel = useWindowLabel();
+
+  useSuppressBrowserChrome();
 
   useEffect(() => {
     document.title = "andromeda-pulse";

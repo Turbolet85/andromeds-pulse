@@ -53,11 +53,12 @@
       "observed_gap": "Right-click anywhere shows the default WebView2 menu (Back/Refresh/Save-as/Print/Inspect) with zero app meaning.",
       "verification": {
         "method": "webview",
-        "acceptance": "A contextmenu event in a production build shows no default WebView2 menu (suppressed or app-replaced).",
-        "ref": null,
-        "status": "planned"
+        "acceptance": "A real contextmenu event dispatched in PROD mode (vitest fireEvent.contextMenu) on a non-editable element is preventDefault-ed by the installed app-wide handler (no default WebView2 menu); on an editable input/textarea it is NOT prevented (native menu + copy/paste preserved); in dev mode the handler is absent (right-click -> Inspect kept). Live headful right-click folded into P-076.",
+        "ref": "pulse-app/ui/src/hooks/use-suppress-browser-chrome.test.tsx::useSuppressBrowserChrome (prevents context menu on non-editable in PROD; keeps it on editable inputs; not installed in dev)",
+        "status": "verified"
       },
-      "chunk": null
+      "chunk": "2026-06-30-browser-chrome-suppression",
+      "notes": "Linked at /phase 2026-06-30. App.tsx-mounted use-suppress-browser-chrome hook (PROD-gated; editable-exempt per the /phase P4 user decision 'Exempt text fields'). Affordance-level proof = webview vitest dispatching a real contextmenu event; the live headful tauri-driver right-click CARRIES to P-076 (mirrors the P-061 drag-delta / P-062 resize-delta headful CARRYs)."
     },
     {
       "id": "P-065",
@@ -66,11 +67,12 @@
       "observed_gap": "Clicking the halo/canvas triggers the browser's save-image interaction.",
       "verification": {
         "method": "webview",
-        "acceptance": "Canvas elements expose no image-save/drag affordance (no draggable image, no save-image on interaction).",
-        "ref": null,
-        "status": "planned"
+        "acceptance": "A real dragstart on a <canvas> (vitest, PROD mode) and a contextmenu on a <canvas> are both preventDefault-ed (no drag-to-save, no Save-image-as), and the global `canvas { -webkit-user-drag: none; user-select: none }` rule covers all 5 canvas hosts. Live headful interaction folded into P-076.",
+        "ref": "pulse-app/ui/src/hooks/use-suppress-browser-chrome.test.tsx::useSuppressBrowserChrome (prevents drag-to-save on a canvas in PROD) + pulse-app/ui/src/styles/tokens.css global canvas user-drag/select rule (verified emitted into dist/tokens.css)",
+        "status": "verified"
       },
-      "chunk": null
+      "chunk": "2026-06-30-browser-chrome-suppression",
+      "notes": "Linked at /phase 2026-06-30. Global canvas CSS (tokens.css) + the PROD-gated dragstart-on-canvas/img handler in the same use-suppress-browser-chrome hook; the contextmenu handler additionally removes the canvas 'Save image as'. Affordance-level proof = webview vitest dispatching real dragstart/contextmenu on a canvas; live headful CARRIES to P-076."
     },
     {
       "id": "P-066",

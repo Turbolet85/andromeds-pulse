@@ -81,3 +81,10 @@
     --duration-investigation-collapse: 0ms;
   }
 }
+
+/* Canvas is never a saveable/draggable browser image (intent F5); the JS
+   dragstart handler is the functional guard, this is defense-in-depth. */
+canvas {
+  -webkit-user-drag: none;
+  user-select: none;
+}
