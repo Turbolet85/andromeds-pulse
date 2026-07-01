@@ -24,13 +24,13 @@ _Chunks separated by `   ↓` within an epoch; only `### Epoch K — {name}` hea
 [2026-06-30-widget-to-dashboard-navigation] Widget-to-dashboard navigation — an explicit in-app affordance expands the glance widget into the full dashboard (P-066 · intent F6)
 
 ### Epoch 3 — State honesty & legibility
-Live-only service truth — show only currently-live services; persisted/stale registry entries hidden or clearly marked historical (P-067 · intent F7)
+[2026-07-01-live-only-service-truth] Live-only service truth — show only currently-live services; persisted/stale registry entries hidden or clearly marked historical (P-067 · intent F7)
    ↓
 Anomaly surfacing — errors and anomalies sorted to the top of Traces, flagged with semantic error tokens, filterable (P-068 · intent F8 · design-system)
    ↓
 Legible labeled constellation — per-dot service names with health/severity encoded via design-system color + Halo (P-069 · intent F9)
    ↓
-Plain-language connection status — a human-readable services-connected, spans-per-second, and buffer-state line using design-system typography (P-070 · intent F10)
+Plain-language connection status — a human-readable services-connected, spans-per-second, and buffer-state line using design-system typography (P-070 · intent F10) · CARRY: make the ConnectionDot recency honest — its "Listening · last span · just now" tooltip (chunk #89) can read "just now" on zero telemetry; deferred from P-067 (RESEARCH-CORRECTS-INTENT — that phrasing was the intent's F7 evidence but belongs to the connection-status surface, not the constellation, which P-067 fixed)
    ↓
 Self-explaining empty states — Metrics and Logs empty surfaces explain themselves with an actionable hint and design-system iconography (P-071 · intent F11)
 

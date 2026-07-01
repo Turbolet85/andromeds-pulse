@@ -370,7 +370,10 @@ pub fn apply_widget_settings<R: tauri::Runtime, M: Manager<R>>(app: &M, settings
     // Re-assert the calibrated fixed size so the widget never sizes to content
     // or inherits a stale geometry (P-061 correction) — 480×270 logical, matching
     // tauri.conf (inside the P-062 min-size + aspect band, so no re-clamp).
-    if let Err(e) = window.set_size(LogicalSize::new(WIDGET_DEFAULT_WIDTH, WIDGET_DEFAULT_HEIGHT)) {
+    if let Err(e) = window.set_size(LogicalSize::new(
+        WIDGET_DEFAULT_WIDTH,
+        WIDGET_DEFAULT_HEIGHT,
+    )) {
         warn!(
             target: "app.boot.window.show",
             label = COMPACT_WIDGET_LABEL,

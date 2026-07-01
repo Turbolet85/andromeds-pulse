@@ -30,15 +30,26 @@ afterEach(() => {
   vi.clearAllMocks();
 });
 
+// The component reads Date.now() at render for the recency gate (P-067), so
+// fixtures are dated relative to it: 20s ago is comfortably live (< 60s
+// window, with slack for the test-file duration), 2min ago is stale.
+const LIVE_OFFSET_NANOS = 20 * 1_000_000_000;
+const STALE_OFFSET_NANOS = 120 * 1_000_000_000;
+
+function nowNano(): number {
+  return Date.now() * 1_000_000;
+}
+
 function item(
   service: string,
   state: ServiceLifecycleState,
   priorityTier: ServiceListItem["priority_tier"] = null,
+  lastSeenUnixNano: number = nowNano() - LIVE_OFFSET_NANOS,
 ): ServiceListItem {
   return {
     service,
     state,
-    last_seen_unix_nano: 1_000,
+    last_seen_unix_nano: lastSeenUnixNano,
     manual_override: null,
     priority_tier: priorityTier,
   };
@@ -73,6 +84,37 @@ describe("ConstellationCanvas (dashboard)", () => {
   it("hides Archived services from the dot count", () => {
     render(<ConstellationCanvas items={[item("svc-a", "active"), item("svc-z", "archived")]} />);
     expect(screen.getByTestId("constellation-canvas").getAttribute("data-service-count")).toBe("1");
+  });
+
+  it("shows no live services when every service is stale (zero live telemetry — P-067)", async () => {
+    const stale = [
+      item("svc-a", "active", "autonomous", nowNano() - STALE_OFFSET_NANOS),
+      item("svc-b", "quiet", null, nowNano() - STALE_OFFSET_NANOS),
+    ];
+    render(<ConstellationCanvas items={stale} />);
+    const wrapper = await screen.findByRole("region", { name: /no active services/ });
+    expect(wrapper.getAttribute("data-service-count")).toBe("0");
+  });
+
+  it("ages out a service that goes quiet past the live window (now recomputed each render)", () => {
+    vi.useFakeTimers({ toFake: ["Date"] });
+    try {
+      // 55s ago → live (within the 60s window).
+      const items = [item("svc-a", "active", null, nowNano() - 55 * 1_000_000_000)];
+      const { rerender } = render(<ConstellationCanvas items={items} />);
+      const wrapper = screen.getByTestId("constellation-canvas");
+      expect(wrapper.getAttribute("data-service-count")).toBe("1");
+
+      // Advance 15s → the same service is now 70s stale (past the window). A
+      // re-render must recompute Date.now() (not cache it at mount) to drop it.
+      vi.setSystemTime(Date.now() + 15_000);
+      rerender(<ConstellationCanvas items={items} />);
+
+      expect(wrapper.getAttribute("data-service-count")).toBe("0");
+      expect(wrapper.getAttribute("aria-label")).toContain("no active services");
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   it("renders Fallback (no canvas) when the WebGPU adapter is unavailable", async () => {

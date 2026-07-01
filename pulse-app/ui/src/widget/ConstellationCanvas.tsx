@@ -2,7 +2,8 @@
 // AggregatedBadgeCanvas. One soft Halo dot per service from the registry:
 // hue = per-service incident severity (LCH Earth Blue → Alert Burgundy),
 // brightness = lifecycle activity tier, position = stable hash(service_name)
-// scatter. Dormant dimmed; Archived hidden. The dots breathe (opacity-only
+// scatter. Only currently-live services (recent last_seen) shown; stale/
+// archived hidden (P-067). The dots breathe (opacity-only
 // envelope, never scale — P-026) when motion is allowed; reduced-motion
 // renders a single static frame (hue + brightness still encode state).
 //
@@ -62,8 +63,12 @@ export function ConstellationCanvas({ items }: ConstellationCanvasProps) {
   const [pipelineFailed, setPipelineFailed] = useState(false);
   const reducedMotion = useReducedMotion() ?? false;
 
-  const dots = useMemo(() => visibleDots(items), [items]);
-  const summary = useMemo(() => constellationSummary(items), [items]);
+  const nowUnixNano = Date.now() * 1_000_000;
+  const dots = useMemo(() => visibleDots(items, nowUnixNano), [items, nowUnixNano]);
+  const summary = useMemo(
+    () => constellationSummary(items, nowUnixNano),
+    [items, nowUnixNano],
+  );
   const dotsRef = useRef<readonly ConstellationDot[]>(dots);
 
   useEffect(() => {

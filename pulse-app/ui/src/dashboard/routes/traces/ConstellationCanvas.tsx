@@ -59,8 +59,12 @@ export function ConstellationCanvas({ items }: ConstellationCanvasProps) {
   const [pipelineFailed, setPipelineFailed] = useState(false);
   const reducedMotion = useReducedMotion() ?? false;
 
-  const dots = useMemo(() => visibleDots(items), [items]);
-  const summary = useMemo(() => constellationSummary(items), [items]);
+  const nowUnixNano = Date.now() * 1_000_000;
+  const dots = useMemo(() => visibleDots(items, nowUnixNano), [items, nowUnixNano]);
+  const summary = useMemo(
+    () => constellationSummary(items, nowUnixNano),
+    [items, nowUnixNano],
+  );
   const dotsRef = useRef<readonly ConstellationDot[]>(dots);
 
   useEffect(() => {

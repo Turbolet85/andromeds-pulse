@@ -6,7 +6,8 @@
 // Halo model): dot HUE = per-service incident severity (Earth Blue → Alert
 // Burgundy via severity-to-halo); dot BRIGHTNESS = lifecycle activity tier;
 // dot POSITION = stable hash(service_name) scatter for cross-session
-// consistency. Dormant dimmed; Archived hidden.
+// consistency. Only currently-live services (last span within
+// LIVE_RECENCY_WINDOW_NANOS) are shown; stale/archived hidden (P-067).
 
 import type { PriorityTier, ServiceLifecycleState, ServiceListItem } from "../bindings/index";
 import { severityToHueFraction } from "../halo/severity-to-halo";
@@ -18,6 +19,16 @@ export const MAX_CONSTELLATION_DOTS = 20;
 // Scatter half-extent in normalized [-1, 1] canvas space; the margin keeps
 // dots off the canvas edge.
 const SCATTER_EXTENT = 0.85;
+
+// A service counts as live only while its last span is within this window.
+// Mirrors the Rust FSM `ACTIVE_TO_QUIET_THRESHOLD_SECONDS` (60s), so a
+// corpus-restored or long-quiet service (old last_seen) is not surfaced as a
+// live dot (P-067 — intent F7).
+export const LIVE_RECENCY_WINDOW_NANOS = 60 * 1_000_000_000;
+
+export function isServiceLive(item: ServiceListItem, nowUnixNano: number): boolean {
+  return nowUnixNano - item.last_seen_unix_nano <= LIVE_RECENCY_WINDOW_NANOS;
+}
 
 export interface ConstellationDot {
   service: string;
@@ -83,9 +94,12 @@ export function lifecycleLabel(state: ServiceLifecycleState): string {
 
 // Build the renderable dots: drop Archived (hidden), stable-sort by name,
 // cap to MAX_CONSTELLATION_DOTS.
-export function visibleDots(items: readonly ServiceListItem[]): ConstellationDot[] {
+export function visibleDots(
+  items: readonly ServiceListItem[],
+  nowUnixNano: number,
+): ConstellationDot[] {
   return items
-    .filter((item) => item.state !== "archived")
+    .filter((item) => item.state !== "archived" && isServiceLive(item, nowUnixNano))
     .slice()
     .sort((a, b) => a.service.localeCompare(b.service))
     .slice(0, MAX_CONSTELLATION_DOTS)
@@ -107,8 +121,13 @@ export function visibleDots(items: readonly ServiceListItem[]): ConstellationDot
 // Off-canvas accessible summary (the `<canvas>` is opaque to screen readers
 // per a11y-plan §1); conveys count + per-state breakdown + active-findings
 // count in words so dot state is not color/brightness-only (SC 1.4.1).
-export function constellationSummary(items: readonly ServiceListItem[]): string {
-  const visible = items.filter((item) => item.state !== "archived");
+export function constellationSummary(
+  items: readonly ServiceListItem[],
+  nowUnixNano: number,
+): string {
+  const visible = items.filter(
+    (item) => item.state !== "archived" && isServiceLive(item, nowUnixNano),
+  );
   if (visible.length === 0) {
     return "Service constellation: no active services.";
   }

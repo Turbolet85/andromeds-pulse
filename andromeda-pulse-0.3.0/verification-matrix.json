@@ -95,11 +95,12 @@
       "observed_gap": "On a fresh start with zero live telemetry the constellation still renders ~6-7 service dots plus a 'Listening - last span - just now' tooltip (persisted registry shown as if live).",
       "verification": {
         "method": "integration",
-        "acceptance": "With zero live telemetry the constellation/list shows no live services (persisted entries hidden or labeled historical); no recency label implies current liveness.",
-        "ref": null,
-        "status": "planned"
+        "acceptance": "With zero live telemetry the constellation shows no live services (stale/persisted services hidden and excluded from the aria summary, which reads 'no active services'); a corpus-restored service retains its persisted last_seen (never boot time) so no recency check reads it as current.",
+        "ref": "crates/triage/src/lifecycle/registry.rs::set_state_on_corpus_restore_preserves_persisted_last_seen + pulse-app/ui/src/widget/constellation-types.test.ts (visibleDots/constellationSummary recency: stale hidden, zero-live empty) + pulse-app/ui/src/{widget,dashboard/routes/traces}/ConstellationCanvas.test.tsx (zero-live shows no services)",
+        "status": "verified"
       },
-      "chunk": null
+      "chunk": "2026-07-01-live-only-service-truth",
+      "notes": "Premise-correction (2026-07-01, /phase P4, user-approved): the intent's 'Listening - last span - just now' evidence was the whole-app ConnectionDot (chunk #89), NOT a per-service constellation tooltip; the chunk-#93 constellation has no per-dot label. Real root cause = phantom constellation dots on a fresh boot (persisted registry restored + set_state_on_corpus_restore clobbering last_seen to boot time, registry.rs:264). Fix = preserve last_seen on restore + a frontend recency gate that hides non-live dots. Approved decisions: recency-based liveness (60s window), hide-entirely, backend last_seen fix + frontend gate. Connection-dot 'just now' phrasing deferred to P-070."
     },
     {
       "id": "P-068",
