@@ -122,3 +122,8 @@ pulse-app/ui/tests-a11y/regression-set.json
 
 # Local scratch spikes (isolated own-[workspace] crates; keep out of the code-graph dirty check)
 experiments/
+
+# --- Future-version incubator (untracked planning material; not part of the current version) ---
+# 0.4.0 research/positioning docs; kept local + untracked until promoted into a version
+# (operator decision at the 2026-07-05-legible-labeled-constellation wrap — keep out of the 0.3.0 chunk commits).
+andromeda-pulse-0.4.0-incubator/

@@ -92,6 +92,33 @@ export function lifecycleLabel(state: ServiceLifecycleState): string {
   return LABEL_BY_STATE[state];
 }
 
+// Non-color severity token (SC 1.4.1): pairs with the dot hue so per-service
+// health is not conveyed by color alone. null = no active incident = "healthy".
+const TOKEN_BY_SEVERITY: Record<PriorityTier, string> = {
+  autonomous: "autonomous",
+  suggested: "suggested",
+  curious: "curious",
+};
+
+export function severityToken(tier: PriorityTier | null): string {
+  return tier === null ? "healthy" : TOKEN_BY_SEVERITY[tier];
+}
+
+export interface DotLabelPosition {
+  leftPct: number;
+  topPct: number;
+}
+
+// Map a dot's normalized clip-space coord (x,y in [-1,1], y-up) to CSS percent
+// offsets for the DOM label overlay positioned over the canvas box (y-down):
+// x=-1 -> 0% left, x=1 -> 100% left; y=1 (top) -> 0% top, y=-1 (bottom) -> 100% top.
+export function dotLabelPosition(dot: ConstellationDot): DotLabelPosition {
+  return {
+    leftPct: ((dot.x + 1) / 2) * 100,
+    topPct: ((1 - dot.y) / 2) * 100,
+  };
+}
+
 // Build the renderable dots: drop Archived (hidden), stable-sort by name,
 // cap to MAX_CONSTELLATION_DOTS.
 export function visibleDots(

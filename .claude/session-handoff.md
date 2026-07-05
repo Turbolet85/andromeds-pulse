@@ -1,24 +1,24 @@
 # Session Handoff
 
-**Last Updated:** 2026-07-05T16:21:51Z
+**Last Updated:** 2026-07-05T20:41:21Z
 **Branch:** chore/migrate-pulse-to-v3
 **Status:** clean
-**Last Commit:** `2026-07-05-anomaly-surfacing` — anomaly-first Traces ordering + "Errors only" filter + viz/mcp completion-order fix (P-068)
+**Last Commit:** `2026-07-05-legible-labeled-constellation` — legible labeled constellation (per-dot name + non-color severity token) + Fix #1 (P-069)
 
 ## Position
-- Done: `2026-07-05-anomaly-surfacing` (P-068) — Traces anomaly-first ordering + "Errors only" filter, **operator-verified on a live boot**; and the viz/mcp **completion-order fix** (`ORDER BY end_time_unix_nano DESC`) that let the slow erroring spans actually reach the table. **P-068 verified → 12/18 v0.3.0 caps.**
-- Next: **P-069 — Legible labeled constellation** (Epoch 3; per-dot service names + health/severity via design-system color + Halo · intent F9) — the next markerless working-route entry → `/andromeda-phase`.
+- Done: `2026-07-05-legible-labeled-constellation` (P-069) — always-on per-dot DOM labels (service **name** + non-color **severity token** + hue) on the dashboard constellation; **operator leave-running-verified** (Fix #1: label chip re-anchored BELOW the dot so it no longer hides it). **P-069 verified → 13/18 v0.3.0 caps.**
+- Next: **P-070 — Plain-language connection status** (Epoch 3; human-readable services-connected / spans-per-sec / buffer-state · intent F10) → `/andromeda-phase`. **Consider reprioritizing the new HIGH-VALUE "Constellation severity live-wiring" entry** first — it unblocks P-069's live severity + the incidents panel (both runtime-inert today).
 
 ## Work done
-Frontend: `sort.ts` anomaly-first unsorted baseline (`anomalyFirst` hoist) + `TraceTable.tsx` `aria-pressed` "Errors only" toggle (filter-then-sort + announce) + their tests (683 webview green). Backend (operator-surfaced on a LIVE boot): `viz/query.rs` + `mcp-server/tools.rs` `ORDER BY ts_unix_nano DESC` → `end_time_unix_nano DESC` — the `ts_unix_nano`=span-START-time + LIMIT-100 was excluding the 2500ms-slow payment error spans, so P-068's frontend logic had no errors to surface (viz 39/39 incl. a completion-order regression; mcp 78/78). Verified twice on a real warm boot (re-embed → inject_demo → obs-log), clean zero-orphan shutdown.
+Webview-only (6 files): `widget/constellation-types.ts` +2 pure helpers (`severityToken`, `dotLabelPosition`, additive → widget copy untouched) + dashboard `ConstellationCanvas.tsx` DOM label overlay (opaque `--color-inset` chip anchored below the dot) + 3 test files (+12 tests) + a11y live fixture. Gates: 693 vitest · p11 a11y 4/4 (dashboard axe + per-dot SC 1.4.1/4.1.2) · contrast 12/12 · warm-re-embed boot smoke (0 panics, 54k frames, clean shutdown). Rust workspace gates DEFERRED (zero `.rs` delta; binary rebuilt green for the boot re-embed). P-069 matrix → verified.
 
 ## Drift resolved
-1 layout proposal (D-layout-surface: document the "Errors only" toolbar in the Traces wireframe) **routine-REJECTED** per the playbook 2026-06-28 within-surface-refinement rule (a filter control within the already-documented Traces surface, below wireframe granularity) — homed to the new Traces-layout-polish route entry. 0 amendments applied · 0 escalations · cascade no-op. (arch/security/design/tests/obs/a11y all `proposals: []`.)
+0 amendments · 0 escalations — all 7 spec-source detectors returned `proposals: []` (webview-only additive chunk: no new arch resources/deps/APIs/crates/schema; design tokens used; tests + a11y present). The upstream findings below are pre-existing (not this chunk's Changes), so correctly not flagged. Cascade no-op.
 
 ## Notes
-- **Boot-smoke directive (operator, standing):** run a FULL warm boot smoke at /implement P3 for EVERY user-visible-surface chunk INCL. webview-only — the boot ≠ the deferred gate (the deferral is the COLD workspace rebuild). Curated to `testing.md` + project memory (`boot-smoke-webview-warm-reembed.md`); the HOW = warm `cargo build -p pulse-app` re-embed (Tauri compile-time-embeds the frontend).
-- **Deferral CLOSED:** P-068 became Rust-touching (viz+mcp), so the source-delta-proportional deferral resolved — the full Rust light-gate re-ran at P7 (`clippy --workspace` · `nextest --workspace` · `xtask self-verify` boot half · `xtask capability-drift`).
-- **Route:** CARRY #2 (lint:a11y Windows quoting bug) pinned to the P-077 housekeeping entry; new Epoch-3 markerless entry **"Traces table layout polish"** (internal scroll + wireframe-toolbar doc) for CARRY #1.
-- **CARRY #3 (handoff — no near-term owner):** the viz `next_cursor` still keys on `ts_unix_nano` (start) after the ORDER BY→`end_time` change — **latent only** (Traces route uses `cursor=null`, single page); align the cursor with the completion-ordering when pagination is next touched.
-- **Curation:** T2 ×1 (`testing.md` boot-smoke-webview-only) + T3 ×1 (`session-learnings.md` viz start-vs-completion ordering). 0 conflicts · 0 deferred.
-- Two trace-query copies (viz + mcp) — grep both when touching trace ordering. Branch local-only — **NOT pushed**. Last failed command: none.
+- **Operator leave-running verify caught 2 UPSTREAM issues** (not P-069; filed as new Epoch-3 route entries): (1) **HIGH-VALUE** `incident_workspace_key` (`main.rs` = `data_dir`) ≠ the incident producer's `digest.workspace` (detected project root) → the per-service severity join finds 0 active incidents → all dots read "healthy" + the incidents panel is inert (the chunk-#91 join was forward-inert pending exactly this); (2) Traces table `viz.query.traces` runs once at mount → "No traces yet" / never re-polls. Root causes in `docs/session-learnings.md` 2026-07-05.
+- **Curation:** T2 ×2 (`testing.md` obs-log-boot-smoke-is-layout-blind → pair with a visual verify · `frontend.md` DOM-label-over-canvas: offset the chip OFF the dot) + T3 ×1 (workspace-key inertness). Filtered: 1 dup (`priority_tier` nullable — frontend.md 2026-05-30). **Deferred learning (cap-3):** the a11y Playwright webServer serves an un-rebuilt `dist` — run `npm run build --prefix pulse-app/ui` before the p11 spec (apply via `/andromeda-wrap-session --review`).
+- **CARRY (widget — operator chose leave-aggregate):** per-dot labels on the compact widget are deferred/speculative (quarter-screen glance surface); revisit only if wanted (denser/hover). Not a route entry.
+- **Deviation:** label = bordered `--color-inset` chip (not the plain-text mockup) for guaranteed 4.5:1 contrast over a bright severity dot.
+- **Untracked:** `andromeda-pulse-0.4.0-incubator/` — pre-existing planning material, swept into this commit by `git add -A`; flag if it should be gitignored or committed separately.
+- Branch local-only — **NOT pushed**. Last failed command: none.

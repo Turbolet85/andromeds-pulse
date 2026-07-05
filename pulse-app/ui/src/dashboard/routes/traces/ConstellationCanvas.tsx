@@ -26,6 +26,8 @@ import { useReducedMotion } from "../../../hooks/use-reduced-motion";
 import { createConstellationPipeline } from "../../../widget/constellation-pipeline";
 import {
   constellationSummary,
+  dotLabelPosition,
+  severityToken,
   visibleDots,
   type ConstellationDot,
 } from "../../../widget/constellation-types";
@@ -246,6 +248,57 @@ export function ConstellationCanvas({ items }: ConstellationCanvasProps) {
             display: "block",
           }}
         />
+      )}
+      {dots.length > 0 && (
+        <div
+          data-testid="constellation-labels"
+          style={{ position: "absolute", inset: "var(--spacing-md)", pointerEvents: "none" }}
+        >
+          {dots.map((dot) => {
+            const { leftPct, topPct } = dotLabelPosition(dot);
+            return (
+              <div
+                key={dot.service}
+                style={{
+                  position: "absolute",
+                  left: `${leftPct}%`,
+                  // Anchor the chip BELOW the dot (the dot's soft glow is ~0.14
+                  // clip-norm ≈ 7% of the container height), so the opaque chip
+                  // never sits on top of and hides its own dot.
+                  top: `calc(${topPct}% + 12%)`,
+                  transform: "translate(-50%, 0)",
+                  display: "flex",
+                  gap: "var(--spacing-xs)",
+                  alignItems: "baseline",
+                  padding: "var(--spacing-micro) var(--spacing-xs)",
+                  background: "var(--color-inset)",
+                  border: "1px solid rgba(74, 144, 226, 0.3)",
+                  borderRadius: "var(--radius-sm)",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                <span
+                  style={{
+                    fontFamily: "var(--font-code)",
+                    fontSize: "12px",
+                    color: "var(--color-text-primary)",
+                  }}
+                >
+                  {dot.service}
+                </span>
+                <span
+                  style={{
+                    fontFamily: "var(--font-body)",
+                    fontSize: "11px",
+                    color: "var(--color-text-secondary)",
+                  }}
+                >
+                  {severityToken(dot.priorityTier)}
+                </span>
+              </div>
+            );
+          })}
+        </div>
       )}
     </section>
   );

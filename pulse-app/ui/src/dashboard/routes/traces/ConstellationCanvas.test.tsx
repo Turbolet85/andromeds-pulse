@@ -76,6 +76,18 @@ describe("ConstellationCanvas (dashboard)", () => {
     expect(label).toContain("1 with active findings");
   });
 
+  it("labels each visible dot with its service name and a non-color severity token (P-069)", () => {
+    render(<ConstellationCanvas items={ITEMS} />);
+    // Names + severity are DOM text (not canvas-only) → SR- and agent-reachable.
+    expect(screen.getByTestId("constellation-labels")).toBeTruthy();
+    expect(screen.getByText("svc-a")).toBeTruthy();
+    expect(screen.getByText("svc-b")).toBeTruthy();
+    // Severity carried by a text token, not hue alone (SC 1.4.1): svc-a is
+    // autonomous, svc-b (null tier) reads "healthy".
+    expect(screen.getByText("autonomous")).toBeTruthy();
+    expect(screen.getByText("healthy")).toBeTruthy();
+  });
+
   it("exposes the visible-dot count via data-service-count", () => {
     render(<ConstellationCanvas items={ITEMS} />);
     expect(screen.getByTestId("constellation-canvas").getAttribute("data-service-count")).toBe("2");

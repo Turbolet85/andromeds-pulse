@@ -1,13 +1,16 @@
 import { describe, expect, it } from "vitest";
-import type { ServiceLifecycleState, ServiceListItem } from "../bindings/index";
+import type { PriorityTier, ServiceLifecycleState, ServiceListItem } from "../bindings/index";
 import {
   constellationSummary,
+  type ConstellationDot,
+  dotLabelPosition,
   hashServiceName,
   isServiceLive,
   LIVE_RECENCY_WINDOW_NANOS,
   lifecycleToBrightness,
   MAX_CONSTELLATION_DOTS,
   scatterPosition,
+  severityToken,
   visibleDots,
 } from "./constellation-types";
 
@@ -198,5 +201,54 @@ describe("constellationSummary — off-canvas accessible name", () => {
     const summary = constellationSummary([item("a", "active")], NOW);
     expect(summary).toContain("1 service");
     expect(summary).not.toContain("active findings");
+  });
+});
+
+function dotAt(x: number, y: number): ConstellationDot {
+  return { service: "s", x, y, brightness: 1, hueFraction: 0, state: "active", priorityTier: null };
+}
+
+describe("severityToken — non-color severity cue (SC 1.4.1)", () => {
+  it.each<[PriorityTier | null, string]>([
+    [null, "healthy"],
+    ["curious", "curious"],
+    ["suggested", "suggested"],
+    ["autonomous", "autonomous"],
+  ])("maps %s → %s", (tier, expected) => {
+    expect(severityToken(tier)).toBe(expected);
+  });
+
+  it("produces a distinct token per tier (severity is not color-alone)", () => {
+    const tiers: (PriorityTier | null)[] = [null, "curious", "suggested", "autonomous"];
+    expect(new Set(tiers.map(severityToken)).size).toBe(4);
+  });
+});
+
+describe("dotLabelPosition — normalized coord → CSS percent (y-flipped)", () => {
+  it("maps centre (0,0) to 50%/50%", () => {
+    expect(dotLabelPosition(dotAt(0, 0))).toEqual({ leftPct: 50, topPct: 50 });
+  });
+
+  it("flips y: top (y=1) → 0% top, bottom (y=-1) → 100% top", () => {
+    expect(dotLabelPosition(dotAt(0, 1)).topPct).toBe(0);
+    expect(dotLabelPosition(dotAt(0, -1)).topPct).toBe(100);
+  });
+
+  it("maps x: left (x=-1) → 0% left, right (x=1) → 100% left", () => {
+    expect(dotLabelPosition(dotAt(-1, 0)).leftPct).toBe(0);
+    expect(dotLabelPosition(dotAt(1, 0)).leftPct).toBe(100);
+  });
+
+  it("keeps scatter-extent dots within [0,100]%", () => {
+    for (const [x, y] of [
+      [0.85, 0.85],
+      [-0.85, -0.85],
+    ] as const) {
+      const { leftPct, topPct } = dotLabelPosition(dotAt(x, y));
+      expect(leftPct).toBeGreaterThanOrEqual(0);
+      expect(leftPct).toBeLessThanOrEqual(100);
+      expect(topPct).toBeGreaterThanOrEqual(0);
+      expect(topPct).toBeLessThanOrEqual(100);
+    }
   });
 });

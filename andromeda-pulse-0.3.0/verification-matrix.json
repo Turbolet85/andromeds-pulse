@@ -122,11 +122,12 @@
       "observed_gap": "The dots are fuzzy unlabeled blue blobs with no names and no glanceable health.",
       "verification": {
         "method": "webview",
-        "acceptance": "Each rendered dot exposes its service name (label or hover) and a health/severity-encoded color.",
-        "ref": null,
-        "status": "planned"
+        "acceptance": "Each rendered dashboard dot exposes its service name as an always-on DOM label AND a health/severity-encoded color, with severity also carried by a non-color text token (SC 1.4.1); asserted via DOM/accessible-name queries + the p11 not-color-alone a11y assertion (render-level, no interaction).",
+        "ref": "pulse-app/ui/src/dashboard/routes/traces/ConstellationCanvas.test.tsx::labels each visible dot with its service name and a non-color severity token (P-069); pulse-app/ui/tests-a11y/axe/p11-constellation-semantics.spec.ts::each dot exposes its service name + a non-color severity token (SC 1.4.1 / 4.1.2)",
+        "status": "verified"
       },
-      "chunk": null
+      "chunk": "2026-07-05-legible-labeled-constellation",
+      "notes": "P4 (2026-07-05): always-on labels + text severity token chosen over hover-only/glyph. Pure-RENDER cap -> affordance-exempt (no click/hover). DOM overlay (not canvas text) per a11y-plan §1 + tests §1; severity from priority_tier via the existing 4-tier severityToHueFraction model (no new TauRPC field); widget stays aggregate-glance (layout boundary). Operator leave-running verify (2026-07-05): Fix #1 = label chip re-anchored BELOW the dot (was opaque + centered -> hid the dot; confirmed fixed on a live boot). Live severity differentiation is INERT upstream (NOT P-069): incident_workspace_key (main.rs:686 = data_dir) != the incident producer's digest.workspace (detected project root) so the per-service join finds zero active incidents -> all dots render 'healthy'; the render plumbing is correct + unit/p11 test-proven. Follow-ups filed for wrap: (a) reconcile incident_workspace_key vs digest.workspace; (b) traces table query-once-at-mount (no re-poll). Widget labels = CARRY (aggregate-glance)."
     },
     {
       "id": "P-070",

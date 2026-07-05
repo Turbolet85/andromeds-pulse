@@ -6,6 +6,16 @@ _Entries are added in reverse chronological order (newest first). Each entry has
 
 _This file is entirely wrap-session's territory. `/setup-project` creates it if missing but NEVER regenerates it. Manual edits are preserved across all Andromeda skill runs._
 
+## 2026-07-05 (wrap) — Constellation per-service severity is runtime-inert (incident workspace-key mismatch)
+
+The dashboard constellation encodes per-service health via `ServiceListItem.priority_tier` (dot hue + the P-069 non-color severity token). The `services.list_with_states` resolver (`pulse-app/src/services_router.rs`) enriches `priority_tier` by joining ACTIVE incidents on `scope == Service && scope_id == service_name`, filtered by a workspace key. At runtime this join finds ZERO active incidents — every dot reads "healthy" — even under a sustained retry-storm that DOES create an autonomous-tier incident (confirmed in obs: `interpretation.incident.created` with `priority_tier: autonomous`).
+
+Root cause: the resolver's incident workspace key (`pulse-app/src/main.rs` `incident_workspace_key = data_dir.to_string_lossy()`) is the DATA-DIR path, while the incident producer stores/dedups incidents keyed on the DETECTED PROJECT ROOT (`digest.workspace`, a `\\?\`-canonicalized path — seen verbatim in `corpus/corpus.db`'s `incidents.workspace`). The two keys never match, so the workspace-filtered `list_active()` returns empty. This ALSO makes the incidents panel inert (same filter). It is a documented placeholder (main.rs comment: "future chunks integrate workspace-detector for proper per-project keying") — the chunk-#91 per-service-severity join was landed FORWARD-INERT pending exactly this producer/keying reconciliation. Fix: reconcile the resolver's workspace key with the producer's `digest.workspace` (one detected-workspace source for both sides).
+
+Discovered while verifying P-069 (2026-07-05-legible-labeled-constellation): the constellation LABELS + the non-color token render correctly (unit + p11 test-proven with a populated tier), but the live SEVERITY never differentiates until this upstream keying lands. Separately, the Traces table shows "No traces yet" because `viz.query.traces` runs once at mount (row_count 0 before data lands) and never re-polls — a distinct pre-existing viz/`TracesRoute` gap. Both filed as follow-ups. Caught only by the operator's leave-running visual verify (the automated obs-log boot smoke showed incidents being created + the webview rendering, but not that the dots stayed "healthy") — see `.claude/rules/testing.md` 2026-07-05.
+
+---
+
 ## 2026-07-05 (wrap) — "recent traces" must order by COMPLETION (end_time), not start (confidence 0.8)
 
 The `spans` table's `ts_unix_nano` is the OTLP span **start** time (the buffer appender maps `span.start_time_unix_nano` → `ts_unix_nano`). Both trace queries ordered `ORDER BY ts_unix_nano DESC … LIMIT N` — the viz `crates/viz/src/query.rs` `SELECT_TRACES` (Traces table) AND the mcp-server `crates/mcp-server/src/tools.rs` `SELECT_SPANS_RECENT` (MCP `query_traces` tool). That ranks spans by when they STARTED, so a slow-duration span (long-running ⇒ an EARLY start) is ranked "old" and cut off by the LIMIT even though it just COMPLETED.

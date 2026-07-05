@@ -105,6 +105,38 @@ export const serviceListPayload = {
   next_cursor: null,
 };
 
+// Dashboard constellation fixture with LIVE last_seen (~5s ago, well within the
+// 60s recency window — P-067) so the per-dot labels (P-069) actually render;
+// serviceListPayload above is recency-stale by design (its ages hide the dots).
+const LIVE_AGO_NS = 5 * 1_000_000_000;
+export const liveServiceListPayload = {
+  items: [
+    {
+      service: "payment-service",
+      state: "active",
+      last_seen_unix_nano: NOW_NS - LIVE_AGO_NS,
+      manual_override: null,
+      priority_tier: "autonomous",
+    },
+    {
+      service: "checkout-api",
+      state: "active",
+      last_seen_unix_nano: NOW_NS - LIVE_AGO_NS,
+      manual_override: null,
+      priority_tier: "suggested",
+    },
+    {
+      service: "inventory-svc",
+      state: "quiet",
+      last_seen_unix_nano: NOW_NS - LIVE_AGO_NS,
+      manual_override: null,
+      priority_tier: null,
+    },
+  ],
+  total: 3,
+  next_cursor: null,
+};
+
 export const reportPayload = {
   incident_id: 1,
   title: "payment-service retry storm (fingerprint 9f3a)",
