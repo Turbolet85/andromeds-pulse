@@ -680,10 +680,17 @@ fn main() {
     // drain) from the same Arc<Corpus>. None ⇒ corpus unavailable at
     // boot; incident registry runs in-memory-only this session.
     // Hydrate the registry from corpus active-incidents on boot (P-042
-    // cross-session continuity). Workspace attribution uses data_dir as
-    // the workspace key for chunk #78 backend persistence; future chunks
-    // integrate workspace-detector for proper per-project keying.
-    let incident_workspace_key: String = data_dir.to_string_lossy().to_string();
+    // cross-session continuity). The workspace identity is single-sourced
+    // via workspace-detector so the FILTER key (services/incidents
+    // resolvers + persistence) equals the value incidents are STAMPED with
+    // (the producer's digest.workspace); the data_dir-vs-detected-root
+    // mismatch was the P-079 defect.
+    let (incident_workspace_key, digest_project_context) = {
+        let detected = std::env::current_dir()
+            .ok()
+            .and_then(|cwd| workspace_detector::detect::detect(&cwd).ok());
+        pulse_app::digest_runtime::resolve_workspace_for_incidents(detected.as_ref(), &data_dir)
+    };
     let incident_broadcast = Arc::new(IncidentLifecycleBroadcast::new());
     let incident_persistence: Option<Arc<dyn IncidentPersistence>> =
         corpus_writer.as_ref().map(|w| {
@@ -1321,16 +1328,10 @@ fn main() {
                     )),
                 ) {
                     Ok(assembler) => {
-                        let project_context = std::env::current_dir()
-                            .ok()
-                            .and_then(|cwd| workspace_detector::detect::detect(&cwd).ok())
-                            .as_ref()
-                            .map(pulse_app::digest_runtime::workspace_to_digest_context)
-                            .unwrap_or_default();
                         pulse_app::digest_runtime::spawn_cadence_subscriber(
                             Arc::clone(&cadence_digest_trigger),
                             Arc::clone(&assembler),
-                            project_context,
+                            digest_project_context,
                         );
                         pulse_app::digest_runtime::spawn_digest_persister(
                             Arc::clone(&digest_broadcast),

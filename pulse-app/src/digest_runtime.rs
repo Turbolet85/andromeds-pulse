@@ -27,6 +27,7 @@
 //! the chunk #68 `corpus_error_to_app_error` precedent (CLAUDE.md §Session
 //! Learnings 2026-05-18).
 
+use std::path::Path;
 use std::sync::{Arc, Mutex};
 use std::time::Duration;
 
@@ -94,6 +95,34 @@ pub fn workspace_to_digest_context(ctx: &WorkspaceContext) -> DigestProjectConte
         vcs_type: ctx.vcs.as_ref().map(|_| "git"),
         recent_commits: Vec::<DigestRecentCommit>::new(),
         framework_signals: Vec::new(),
+    }
+}
+
+/// Single-source the workspace identity for incidents: the returned key
+/// FILTERS active incidents (services/incidents resolvers + persistence)
+/// and the returned context STAMPS them (`digest.workspace` ->
+/// `incident.workspace`). Returning both from one call keeps the filter
+/// key and the stamped workspace byte-equal — the invariant the
+/// per-service severity join depends on (verification-matrix.json#P-079).
+/// Detection failure falls back to `data_dir` on both halves so they stay
+/// equal even when `detect()` fails.
+pub fn resolve_workspace_for_incidents(
+    detected: Option<&WorkspaceContext>,
+    data_dir: &Path,
+) -> (String, DigestProjectContext) {
+    match detected {
+        Some(ctx) => (
+            ctx.root.to_string_lossy().into_owned(),
+            workspace_to_digest_context(ctx),
+        ),
+        None => {
+            let key = data_dir.to_string_lossy().into_owned();
+            let context = DigestProjectContext {
+                workspace_canonical_path: key.clone(),
+                ..Default::default()
+            };
+            (key, context)
+        }
     }
 }
 

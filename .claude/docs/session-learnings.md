@@ -6,6 +6,16 @@ _Entries are added in reverse chronological order (newest first). Each entry has
 
 _This file is entirely wrap-session's territory. `/setup-project` creates it if missing but NEVER regenerates it. Manual edits are preserved across all Andromeda skill runs._
 
+## 2026-07-05 (wrap) — Constellation severity workspace-key mismatch RESOLVED — single-source (key, context) parity (P-079)
+
+The defect diagnosed in the entry below (per-service severity runtime-inert; incident workspace-key mismatch) is RESOLVED by P-079 (`2026-07-05-constellation-severity-live-wiring`). The resolver's `incident_workspace_key` (`pulse-app/src/main.rs`) now derives from `workspace-detector` (the canonicalized detected project root), matching the producer's `digest.workspace` — so `list_active(key)` finds the storm's incidents. Operator live-verify confirmed: constellation dots color-differentiate (payment-service red/autonomous, others blue/healthy) and the incidents panel (unread badge + dropdown) populates.
+
+**Reusable pattern — single-source two-must-agree values.** When two call sites must derive the SAME value and a silent divergence is a bug (here: the incident FILTER key must equal the producer's STAMPED workspace), return BOTH from ONE function and consume them via a single destructure: `let (key, context) = resolve_workspace_for_incidents(detected, data_dir)`. The two halves then structurally CANNOT diverge — a future edit can't desync them without splitting the call. This is stronger than two independent derivations kept in sync by convention (the original bug was exactly that: `data_dir` on the filter side vs the detected root on the producer side, drifted apart). Fall back to the SAME value on both halves when the source is absent (both → `data_dir` on detection failure) so parity holds on every path. Prove it with a parity unit test (`resolve_workspace_for_incidents(Some(&ctx)).0 == ….1.workspace_canonical_path`, incl. the Windows `\\?\` form) plus a deterministic-L4 storm integration test asserting `list_active(key) ≥ 1`.
+
+**Un-blocking a dead surface exposes latent bugs.** Lighting up the two previously-inert surfaces revealed 2 pre-existing frontend bugs (incidents-panel dropdown layout stretch/overflow; Traces "No traces yet" — `viz.query.traces` runs once at mount, never re-polls) — NOT P-079 regressions (the fix was 100% backend). Both filed as route follow-ups. General lesson: a backend fix that activates a dead surface can surface latent frontend bugs invisible while the surface was inert — budget a frontend follow-up when un-blocking a data path.
+
+---
+
 ## 2026-07-05 (wrap) — Constellation per-service severity is runtime-inert (incident workspace-key mismatch)
 
 The dashboard constellation encodes per-service health via `ServiceListItem.priority_tier` (dot hue + the P-069 non-color severity token). The `services.list_with_states` resolver (`pulse-app/src/services_router.rs`) enriches `priority_tier` by joining ACTIVE incidents on `scope == Service && scope_id == service_name`, filtered by a workspace key. At runtime this join finds ZERO active incidents — every dot reads "healthy" — even under a sustained retry-storm that DOES create an autonomous-tier incident (confirmed in obs: `interpretation.incident.created` with `priority_tier: autonomous`).

@@ -248,6 +248,20 @@
       },
       "chunk": "2026-06-29-predictable-close-self-verify",
       "notes": "NEW capability authored 2026-06-29 at /andromeda-phase per the working-route directive (folded into the P-063 close-fix chunk; the close-fix is its enabling prerequisite). The MINIMAL self-verify; the FULL integration-UX e2e + headful tauri-driver DOM/drag-delta is P-076 (Epoch 4). xtask is not bound by the test-plan 5-command discipline, so this adds no harness-contract amendment."
+    },
+    {
+      "id": "P-079",
+      "title": "Constellation severity live-wiring (workspace-key reconciliation)",
+      "requirement": "The workspace key used to FILTER active incidents (the services/incidents resolvers + persistence) is single-sourced with the key incidents are STAMPED with (the workspace-detector-derived canonical project root), so a live storm's incidents are found by list_active — lighting up per-service severity and the incidents panel.",
+      "observed_gap": "The filter/persist side uses data_dir (main.rs:686) while the producer stamps incidents with the canonicalized detected project root (main.rs:1324 -> digest.workspace -> incident.workspace), so list_active(data_dir) returns zero: all constellation dots read healthy and the incidents panel stays empty under a live storm (the chunk-#91 per-service severity join landed forward-inert pending this).",
+      "verification": {
+        "method": "integration",
+        "acceptance": "With deterministic-L4 (P-073) + a sustained identical-fingerprint storm, registry.list_active(filter_key) returns >=1 incident and the affected service's severity is non-healthy (Error), where BOTH the filter key and the producer's stamped workspace derive from ONE resolve_workspace_for_incidents(detected, data_dir) call so key == context.workspace_canonical_path (incl. the Windows extended-length canonical form; both == data_dir on the None fallback); a zero-active-incident state still yields empty/all-healthy (P-067 preserved).",
+        "ref": "pulse-app/tests/integration_constellation_severity_workspace_key.rs::storm_incident_is_found_by_the_resolver_derived_filter_key (+ ::resolver_key_equals_producer_workspace_on_detected, ::resolver_preserves_windows_extended_length_prefix, ::resolver_falls_back_to_data_dir_on_both_halves, ::zero_incident_state_stays_empty)",
+        "status": "verified"
+      },
+      "chunk": "2026-07-05-constellation-severity-live-wiring",
+      "notes": "Operator-surfaced at the 2026-07-05-legible-labeled-constellation (P-069) leave-running verify; NEW cap minted at /andromeda-phase P5 matrix-link (not in the original intent-sourced P-061..P-078 requirements). Pure data-flow correctness -> affordance-exempt (the constellation-dot + incidents-panel render surfaces it feeds are P-069-proven, pure-visual). Method integration (deterministic-L4 storm proof, no GPU/model). ref set at /andromeda-implement; verified at wrap."
     }
   ]
 }

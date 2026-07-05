@@ -1,24 +1,24 @@
 # Session Handoff
 
-**Last Updated:** 2026-07-05T20:41:21Z
+**Last Updated:** 2026-07-05T23:46:22Z
 **Branch:** chore/migrate-pulse-to-v3
 **Status:** clean
-**Last Commit:** `2026-07-05-legible-labeled-constellation` — legible labeled constellation (per-dot name + non-color severity token) + Fix #1 (P-069)
+**Last Commit:** `2026-07-05-constellation-severity-live-wiring` — constellation severity live-wiring (workspace-key single-source; P-079)
 
 ## Position
-- Done: `2026-07-05-legible-labeled-constellation` (P-069) — always-on per-dot DOM labels (service **name** + non-color **severity token** + hue) on the dashboard constellation; **operator leave-running-verified** (Fix #1: label chip re-anchored BELOW the dot so it no longer hides it). **P-069 verified → 13/18 v0.3.0 caps.**
-- Next: **P-070 — Plain-language connection status** (Epoch 3; human-readable services-connected / spans-per-sec / buffer-state · intent F10) → `/andromeda-phase`. **Consider reprioritizing the new HIGH-VALUE "Constellation severity live-wiring" entry** first — it unblocks P-069's live severity + the incidents panel (both runtime-inert today).
+- Done: `2026-07-05-constellation-severity-live-wiring` (P-079) — single-sourced the incident workspace key so the FILTER key = the producer's STAMPED workspace (detected project root). Per-service severity + the incidents panel now light up under a live storm. **Operator live-verify PASSED** (dots color-differentiate: payment-service red/autonomous, others blue/healthy; incidents panel + unread badge populate). **P-079 verified → 14/19 v0.3.0 caps.**
+- Next: **Incidents-panel dropdown layout bug** (first markerless, Epoch 3 — a focused frontend chunk: bounded popover, no window stretch, design-token background) → `/andromeda-phase`.
 
 ## Work done
-Webview-only (6 files): `widget/constellation-types.ts` +2 pure helpers (`severityToken`, `dotLabelPosition`, additive → widget copy untouched) + dashboard `ConstellationCanvas.tsx` DOM label overlay (opaque `--color-inset` chip anchored below the dot) + 3 test files (+12 tests) + a11y live fixture. Gates: 693 vitest · p11 a11y 4/4 (dashboard axe + per-dot SC 1.4.1/4.1.2) · contrast 12/12 · warm-re-embed boot smoke (0 panics, 54k frames, clean shutdown). Rust workspace gates DEFERRED (zero `.rs` delta; binary rebuilt green for the boot re-embed). P-069 matrix → verified.
+Backend-only (4 files): `digest_runtime.rs` +`resolve_workspace_for_incidents(detected, data_dir) -> (String, DigestProjectContext)` (single-source parity by one destructure) · `main.rs` hoist `detect(current_dir())` + derive both halves from the resolver · new `pulse-app/tests/integration_constellation_severity_workspace_key.rs` (5 tests: parity incl. `\\?\` / fallback / storm→`list_active(key)`≥1 / zero-state) · matrix P-079 → verified. Gates: fmt · nextest --workspace 1727/1727+1skip · clippy --all-features · integration 5/5 · storm boot-smoke (0 panics, 1 incident severity=error, `active_incident_queue_depth=5`, both resolvers querying, zero orphan).
 
 ## Drift resolved
-0 amendments · 0 escalations — all 7 spec-source detectors returned `proposals: []` (webview-only additive chunk: no new arch resources/deps/APIs/crates/schema; design tokens used; tests + a11y present). The upstream findings below are pre-existing (not this chunk's Changes), so correctly not flagged. Cascade no-op.
+none — all 7 spec-source detectors returned `proposals: []` (backend chunk: no new arch resources/deps/APIs/crates/schema/UI; PII redacted✓ per §8; tests present). 0 amendments · 0 escalations · cascade no-op.
 
 ## Notes
-- **Operator leave-running verify caught 2 UPSTREAM issues** (not P-069; filed as new Epoch-3 route entries): (1) **HIGH-VALUE** `incident_workspace_key` (`main.rs` = `data_dir`) ≠ the incident producer's `digest.workspace` (detected project root) → the per-service severity join finds 0 active incidents → all dots read "healthy" + the incidents panel is inert (the chunk-#91 join was forward-inert pending exactly this); (2) Traces table `viz.query.traces` runs once at mount → "No traces yet" / never re-polls. Root causes in `docs/session-learnings.md` 2026-07-05.
-- **Curation:** T2 ×2 (`testing.md` obs-log-boot-smoke-is-layout-blind → pair with a visual verify · `frontend.md` DOM-label-over-canvas: offset the chip OFF the dot) + T3 ×1 (workspace-key inertness). Filtered: 1 dup (`priority_tier` nullable — frontend.md 2026-05-30). **Deferred learning (cap-3):** the a11y Playwright webServer serves an un-rebuilt `dist` — run `npm run build --prefix pulse-app/ui` before the p11 spec (apply via `/andromeda-wrap-session --review`).
-- **CARRY (widget — operator chose leave-aggregate):** per-dot labels on the compact widget are deferred/speculative (quarter-screen glance surface); revisit only if wanted (denser/hover). Not a route entry.
-- **Deviation:** label = bordered `--color-inset` chip (not the plain-text mockup) for guaranteed 4.5:1 contrast over a bright severity dot.
-- **Untracked:** `andromeda-pulse-0.4.0-incubator/` — pre-existing planning material, swept into this commit by `git add -A`; flag if it should be gitignored or committed separately.
+- **2 pre-existing frontend bugs EXPOSED by lighting up the dead surfaces (NOT P-079 regressions — P-079 is 100% backend)** → filed as route entries (operator-directed): (1) **Incidents-panel dropdown layout bug** (~chunk #91 — stretches window, white/mis-clipped bg; now first markerless); (2) **Traces auto-refresh** (`viz.query.traces` runs once at mount, never re-polls — priority-BUMPED to second markerless; originally filed at P-069's wrap). Do NOT conflate with P-079.
+- **Gate-deferral closure:** P-079's `nextest --workspace` re-run CLOSED the source-delta-proportional deferral P-069 (webview-only) left open. self-verify release/a11y half deferred again (backend chunk, zero frontend delta) → re-runs at the next frontend-touching chunk.
+- **Curation:** Tier 3 ×1 (single-source `(key, context)` parity pattern) · filtered 1 dup (backend boot-smoke) + 1 low-confidence.
+- **Follow-up (obs, deferred — a future obs chunk):** `incidents.list_active.request` logs `item_count` but the default-deny AllowList redacts it, so the "row_count_returned ≥ 1" agent-verifiable signal isn't visible; allowlist the aggregate-safe count for that target. (Verified this chunk via `active_incident_queue_depth`=5 + `incidents_created_total`=1 + the integration test.)
+- **Carried deferred (pre-existing, still pending):** the a11y Playwright webServer serves an un-rebuilt `dist` — run `npm run build --prefix pulse-app/ui` before the p11 spec (apply via `/andromeda-wrap-session --review`).
 - Branch local-only — **NOT pushed**. Last failed command: none.
