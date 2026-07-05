@@ -10,10 +10,16 @@ use crate::state::VizState;
 pub const LIMIT_MAX: u32 = 1_000;
 pub const LIMIT_DEFAULT: u32 = 100;
 
+// Recent-traces ordering is by COMPLETION (end_time), not start: a slow span
+// that just finished is genuinely recent, so a slow erroring service surfaces
+// in the window instead of being ranked "old" by its early start and cut off
+// by LIMIT (intent F8 / P-068). The WHERE still windows on start-time
+// (ts_unix_nano); next_cursor keys on start-time too — a latent pagination
+// caveat only (the Traces route uses a single page, cursor=null).
 const SELECT_TRACES: &str = "SELECT trace_id, span_id, ts_unix_nano, service_name, end_time_unix_nano, status_code \
      FROM spans \
      WHERE ts_unix_nano >= ? AND ts_unix_nano < ? \
-     ORDER BY ts_unix_nano DESC, trace_id LIMIT ?";
+     ORDER BY end_time_unix_nano DESC, trace_id LIMIT ?";
 
 const SELECT_METRICS: &str = "SELECT metric_name, ts_unix_nano, resource_hash, value, data_point_kind \
      FROM metrics_points \
@@ -671,6 +677,47 @@ mod tests {
         assert_eq!(resp.next_cursor, None);
         assert!(resp.items[0].ts_unix_nano > resp.items[1].ts_unix_nano);
         assert!(resp.items[1].ts_unix_nano > resp.items[2].ts_unix_nano);
+    }
+
+    #[test]
+    fn query_traces_orders_by_completion_so_slow_erroring_spans_surface() {
+        // A slow span that JUST FINISHED (early start, recent end) must rank
+        // ABOVE a fast span that started later but finished earlier — otherwise
+        // the 2.5s-slow erroring service is ranked "old" by its start, cut off
+        // by LIMIT, and never reaches the Traces table (intent F8 / P-068).
+        let conn = open_in_memory_with_schema();
+        let now = now_ns();
+        // Slow erroring: started 3s ago, just completed now (status_code=2).
+        seed_span_full(&conn, 9, 9, now - 3_000_000_000, "payment-service", now, 2);
+        // Fast healthy: started 100ms ago, completed 90ms ago (status_code=1).
+        seed_span_full(
+            &conn,
+            8,
+            8,
+            now - 100_000_000,
+            "auth-service",
+            now - 90_000_000,
+            1,
+        );
+
+        let state = VizState::new();
+        let resp = query_traces(
+            &conn,
+            &state,
+            &TracesQueryArgs {
+                time_window_seconds: 60,
+                limit: 10,
+                cursor: None,
+            },
+        )
+        .expect("query");
+
+        assert_eq!(resp.items.len(), 2);
+        // Ordered by completion: the slow, just-finished erroring span is first
+        // even though its start-time is the oldest.
+        assert_eq!(resp.items[0].service, "payment-service");
+        assert_eq!(resp.items[0].error_count, 1);
+        assert_eq!(resp.items[1].service, "auth-service");
     }
 
     #[test]

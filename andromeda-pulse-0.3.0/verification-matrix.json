@@ -109,11 +109,11 @@
       "observed_gap": "Traces sorts by latency ascending, so the single erroring service (payment-service, 2500ms, 100% errors) sits at the very bottom off-screen; the visible top is all-healthy.",
       "verification": {
         "method": "webview",
-        "acceptance": "With a mixed dataset, erroring/anomalous services appear at the top (or are flagged) and are filterable; the top row is not all-healthy when errors exist.",
-        "ref": null,
-        "status": "planned"
+        "acceptance": "With a mixed dataset (healthy + erroring), the DEFAULT rendered order puts an erroring row first (top row is not all-healthy when errors exist); AND the 'Errors only' toggle is exercised by a REAL DOM event (userEvent/fireEvent on the actual control) that narrows rendered rows to error_count>0 and restores on toggle-off with aria-pressed flipping — a state-only/dead-control proxy is insufficient. Webview DOM-shape assertions.",
+        "ref": "pulse-app/ui/src/dashboard/routes/traces/TraceTable.test.tsx :: 'default view surfaces an erroring row first (anomaly-first, mixed dataset)' + 'Errors only filter narrows to erroring rows via a real DOM event, then restores'; sort.test.ts :: 'hoists erroring rows first when direction = none (anomaly-first baseline)'",
+        "status": "verified"
       },
-      "chunk": null
+      "chunk": "2026-07-05-anomaly-surfacing"
     },
     {
       "id": "P-069",

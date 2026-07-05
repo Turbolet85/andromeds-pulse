@@ -77,11 +77,15 @@ const DEFAULT_TIME_WINDOW_SECONDS: u64 = 300;
 
 // Spans table is lean per crates/buffer/src/schema.rs (chunk #44 reality
 // preserved from snapshot_runtime.rs); only 6 columns selected here.
+// Order recent spans by COMPLETION (end_time), not start — consistent with the
+// viz traces query: a slow span that just finished is recent, so a slow erroring
+// service surfaces instead of being ranked "old" by its early start and cut off
+// by LIMIT (intent F8 / P-068).
 const SELECT_SPANS_RECENT: &str = "\
     SELECT trace_id, span_id, ts_unix_nano, service_name, end_time_unix_nano, status_code \
     FROM spans \
     WHERE ts_unix_nano >= ? \
-    ORDER BY ts_unix_nano DESC \
+    ORDER BY end_time_unix_nano DESC \
     LIMIT ?";
 
 const SNAPSHOT_SPANS_LIMIT: usize = 5000;

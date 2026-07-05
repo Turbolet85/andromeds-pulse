@@ -51,11 +51,25 @@ describe("sortRows", () => {
     row({ trace_id: "b", service: "x", duration_ms: 100, error_count: 0 }),
   ];
 
-  it("returns insertion order when direction = none", () => {
+  it("hoists erroring rows first when direction = none (anomaly-first baseline)", () => {
     const sorted = sortRows(rows, SORT_STATE_NONE);
-    expect(sorted.map((r) => r.trace_id)).toEqual(["c", "a", "b"]);
+    // 'a' is the only erroring row (error_count 1) → surfaced first; the healthy
+    // rows keep query order (c before b). Intent F8 / P-068.
+    expect(sorted.map((r) => r.trace_id)).toEqual(["a", "c", "b"]);
     // Returns a copy, not a mutation.
     expect(sorted).not.toBe(rows);
+  });
+
+  it("preserves query order within the erroring and healthy groups (stable)", () => {
+    const mixed: TraceRow[] = [
+      row({ trace_id: "h1", error_count: 0 }),
+      row({ trace_id: "e1", error_count: 1 }),
+      row({ trace_id: "h2", error_count: 0 }),
+      row({ trace_id: "e2", error_count: 2 }),
+    ];
+    const sorted = sortRows(mixed, SORT_STATE_NONE);
+    // Erroring group first (e1 before e2), then healthy group (h1 before h2).
+    expect(sorted.map((r) => r.trace_id)).toEqual(["e1", "e2", "h1", "h2"]);
   });
 
   it("sorts asc by trace_id", () => {

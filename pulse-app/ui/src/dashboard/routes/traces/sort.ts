@@ -37,7 +37,7 @@ export function nextSortState(current: SortState, clicked: SortColumn): SortStat
 
 export function sortRows(rows: readonly TraceRow[], state: SortState): TraceRow[] {
   if (state.direction === "none") {
-    return rows.slice();
+    return anomalyFirst(rows);
   }
   const copy = rows.slice();
   copy.sort((a, b) => compareByColumn(a, b, state.column));
@@ -45,6 +45,16 @@ export function sortRows(rows: readonly TraceRow[], state: SortState): TraceRow[
     copy.reverse();
   }
   return copy;
+}
+
+// Default (unsorted) baseline: surface erroring rows first so anomalies are not
+// buried below healthy traces (intent F8 — the user sees what is wrong first).
+// Stable — query order is preserved within the erroring and the healthy groups;
+// any explicit column sort overrides this baseline.
+function anomalyFirst(rows: readonly TraceRow[]): TraceRow[] {
+  const erroring = rows.filter((r) => r.error_count > 0);
+  const healthy = rows.filter((r) => r.error_count === 0);
+  return [...erroring, ...healthy];
 }
 
 function compareByColumn(a: TraceRow, b: TraceRow, column: SortColumn): number {

@@ -6,6 +6,16 @@ _Entries are added in reverse chronological order (newest first). Each entry has
 
 _This file is entirely wrap-session's territory. `/setup-project` creates it if missing but NEVER regenerates it. Manual edits are preserved across all Andromeda skill runs._
 
+## 2026-07-05 (wrap) — "recent traces" must order by COMPLETION (end_time), not start (confidence 0.8)
+
+The `spans` table's `ts_unix_nano` is the OTLP span **start** time (the buffer appender maps `span.start_time_unix_nano` → `ts_unix_nano`). Both trace queries ordered `ORDER BY ts_unix_nano DESC … LIMIT N` — the viz `crates/viz/src/query.rs` `SELECT_TRACES` (Traces table) AND the mcp-server `crates/mcp-server/src/tools.rs` `SELECT_SPANS_RECENT` (MCP `query_traces` tool). That ranks spans by when they STARTED, so a slow-duration span (long-running ⇒ an EARLY start) is ranked "old" and cut off by the LIMIT even though it just COMPLETED.
+
+Concrete failure (2026-07-05-anomaly-surfacing / P-068, operator-surfaced on a LIVE boot): a 2500 ms-slow `payment-service` erroring span starts ~2.5 s behind the fast healthy spans of the same batch; at `time_window_seconds:60` + `LIMIT 100` and ~54 spans/s, ~105 healthy spans have newer starts, so ALL the error spans fell past the LIMIT and never reached the Traces table → the frontend anomaly-first ordering + "Errors only" filter had no error rows to act on (the filter returned empty). 683 webview + viz unit tests + the production build ALL passed — only the real boot surfaced it.
+
+Fix: order recent-traces views by `end_time_unix_nano DESC` (completion) — a slow span that just finished IS recent, so it surfaces in the window. Applied to BOTH query copies (grep both when touching trace ordering). Caveat carried forward: `next_cursor` still keys on `ts_unix_nano` (start) — latent-only (the Traces route uses a single page, `cursor=null`); align it if pagination is next touched.
+
+---
+
 ## 2026-06-30 (wrap) — window.rs corrections from the widget-to-dashboard dogfood: geometry, per-window close, every-time toast (confidence 0.75)
 
 Three `pulse-app/src/window.rs` corrections surfaced by the live dogfood of 2026-06-30-widget-to-dashboard-navigation (P-066), recorded as P-061/P-063 corrections.

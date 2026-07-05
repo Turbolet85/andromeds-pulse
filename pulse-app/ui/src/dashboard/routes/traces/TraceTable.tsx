@@ -27,10 +27,14 @@ const COLUMNS: readonly { id: SortColumn; label: string }[] = [
 
 export function TraceTable({ rows, isLoading }: TraceTableProps) {
   const [sortState, setSortState] = useState<SortState>(SORT_STATE_NONE);
+  const [errorsOnly, setErrorsOnly] = useState(false);
   const announce = useStatusAnnouncer();
   const { openInvestigation } = useInvestigation();
 
-  const sorted = useMemo(() => sortRows(rows, sortState), [rows, sortState]);
+  const sorted = useMemo(() => {
+    const filtered = errorsOnly ? rows.filter((r) => r.error_count > 0) : rows;
+    return sortRows(filtered, sortState);
+  }, [rows, sortState, errorsOnly]);
 
   const handleSort = (column: SortColumn): void => {
     setSortState((prev) => {
@@ -44,6 +48,12 @@ export function TraceTable({ rows, isLoading }: TraceTableProps) {
     });
   };
 
+  const handleToggleErrorsOnly = (): void => {
+    const next = !errorsOnly;
+    announce(next ? "Showing errors only" : "Showing all traces");
+    setErrorsOnly(next);
+  };
+
   return (
     <div
       style={{
@@ -54,6 +64,34 @@ export function TraceTable({ rows, isLoading }: TraceTableProps) {
       }}
       data-testid="trace-table-card"
     >
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "flex-end",
+          marginBottom: "var(--spacing-sm)",
+        }}
+        data-testid="trace-table-toolbar"
+      >
+        <button
+          type="button"
+          aria-pressed={errorsOnly}
+          onClick={handleToggleErrorsOnly}
+          data-testid="trace-errors-only-filter"
+          style={{
+            background: errorsOnly ? "var(--color-raised-2)" : "var(--color-inset)",
+            border: errorsOnly ? "1px solid #4A90E2" : "1px solid rgba(74, 144, 226, 0.3)",
+            borderRadius: "var(--radius-sm)",
+            padding: "var(--spacing-xs) var(--spacing-sm)",
+            color: "var(--color-text-primary)",
+            fontFamily: "var(--font-body)",
+            fontSize: "12px",
+            cursor: "pointer",
+            opacity: errorsOnly ? 1 : 0.6,
+          }}
+        >
+          Errors only
+        </button>
+      </div>
       <table
         data-testid="trace-table"
         style={{

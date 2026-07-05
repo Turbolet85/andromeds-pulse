@@ -115,4 +115,47 @@ describe("TraceTable", () => {
     // Truncated form contains an ellipsis.
     expect(rows[0].textContent).toMatch(/01234567…/);
   });
+
+  it("default view surfaces an erroring row first (anomaly-first, mixed dataset)", () => {
+    renderWithProvider([
+      row({ trace_id: "healthy1", error_count: 0 }),
+      row({ trace_id: "boom", error_count: 2 }),
+      row({ trace_id: "healthy2", error_count: 0 }),
+    ]);
+    const traceRows = screen.getAllByTestId("trace-row");
+    // The erroring row is hoisted to the top (intent F8); the top row is not
+    // all-healthy when an error exists.
+    expect(within(traceRows[0]).queryByTestId("trace-row-error")).not.toBeNull();
+    expect(traceRows[0].textContent).toContain("boom");
+  });
+
+  it("Errors only filter narrows to erroring rows via a real DOM event, then restores", async () => {
+    const user = userEvent.setup();
+    renderWithProvider([
+      row({ trace_id: "healthy1", error_count: 0 }),
+      row({ trace_id: "boom", error_count: 2 }),
+      row({ trace_id: "healthy2", error_count: 0 }),
+    ]);
+    const toggle = screen.getByTestId("trace-errors-only-filter");
+    expect(toggle.getAttribute("aria-pressed")).toBe("false");
+    expect(screen.getAllByTestId("trace-row")).toHaveLength(3);
+
+    await user.click(toggle);
+    expect(toggle.getAttribute("aria-pressed")).toBe("true");
+    const filtered = screen.getAllByTestId("trace-row");
+    expect(filtered).toHaveLength(1);
+    expect(filtered[0].textContent).toContain("boom");
+
+    await user.click(toggle);
+    expect(toggle.getAttribute("aria-pressed")).toBe("false");
+    expect(screen.getAllByTestId("trace-row")).toHaveLength(3);
+  });
+
+  it("toggling the filter announces via the polite live region", async () => {
+    const user = userEvent.setup();
+    renderWithProvider([row({ error_count: 1 })]);
+    await user.click(screen.getByTestId("trace-errors-only-filter"));
+    const status = screen.getByTestId("status-live-region");
+    expect(status.textContent).toMatch(/Showing errors only/i);
+  });
 });
