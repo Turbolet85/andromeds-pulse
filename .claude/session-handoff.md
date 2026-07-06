@@ -1,24 +1,28 @@
 # Session Handoff
 
-**Last Updated:** 2026-07-05T23:46:22Z
+**Last Updated:** 2026-07-06T19:44:31Z
 **Branch:** chore/migrate-pulse-to-v3
 **Status:** clean
-**Last Commit:** `2026-07-05-constellation-severity-live-wiring` — constellation severity live-wiring (workspace-key single-source; P-079)
+**Last Commit:** `2026-07-06-incidents-panel-dropdown-layout-bug` — bounded upward incidents (Findings) dropdown popover (P-080)
 
 ## Position
-- Done: `2026-07-05-constellation-severity-live-wiring` (P-079) — single-sourced the incident workspace key so the FILTER key = the producer's STAMPED workspace (detected project root). Per-service severity + the incidents panel now light up under a live storm. **Operator live-verify PASSED** (dots color-differentiate: payment-service red/autonomous, others blue/healthy; incidents panel + unread badge populate). **P-079 verified → 14/19 v0.3.0 caps.**
-- Next: **Incidents-panel dropdown layout bug** (first markerless, Epoch 3 — a focused frontend chunk: bounded popover, no window stretch, design-token background) → `/andromeda-phase`.
+- Done: `2026-07-06-incidents-panel-dropdown-layout-bug` (P-080) — the compact-widget Findings (incidents) dropdown now renders as a **bounded, opaque `#2D3139` popover fully within the widget** (opens UPWARD, `overflowY:auto`, no window stretch, no white/off-viewport). **Operator visual-verify PASSED** (screenshot). **P-080 verified → 15/20 v0.3.0 caps.**
+- Next (first markerless): **Traces table auto-refresh** → `/andromeda-phase`. **BUT NOTE:** the operator-directed **Incidents floating-window disclosure** chunk was added to the END of the Epoch-3 tail as "future work" — reorder it forward if you want it before Traces auto-refresh (see Notes).
 
 ## Work done
-Backend-only (4 files): `digest_runtime.rs` +`resolve_workspace_for_incidents(detected, data_dir) -> (String, DigestProjectContext)` (single-source parity by one destructure) · `main.rs` hoist `detect(current_dir())` + derive both halves from the resolver · new `pulse-app/tests/integration_constellation_severity_workspace_key.rs` (5 tests: parity incl. `\\?\` / fallback / storm→`list_active(key)`≥1 / zero-state) · matrix P-079 → verified. Gates: fmt · nextest --workspace 1727/1727+1skip · clippy --all-features · integration 5/5 · storm boot-smoke (0 panics, 1 incident severity=error, `active_incident_queue_depth=5`, both resolvers querying, zero orphan).
+Webview-only (2 files): `FindingsDropdown.tsx` `PANEL_BASE_STYLE` `top:`→`bottom: calc(100% + var(--spacing-xs))` (open upward) + `maxHeight: calc(100vh - 32px - var(--spacing-lg))` + `overflowY:"auto"`, kept `--color-raised-2` · `FindingsDropdown.test.tsx` +3 DOM-shape layout-lock tests · matrix P-080 → verified. Gates: webview green (vitest 696/696 +3 · lint · typecheck · build · test:a11y p8 axe + regression 0-new). Deferred (zero-`.rs`-delta): `clippy`/`nextest --workspace`/`capability-drift`. Smoke: warm re-embed boot (0 panics, deterministic-L4 storm → 11 incidents) + operator visual verify PASSED.
 
 ## Drift resolved
-none — all 7 spec-source detectors returned `proposals: []` (backend chunk: no new arch resources/deps/APIs/crates/schema/UI; PII redacted✓ per §8; tests present). 0 amendments · 0 escalations · cascade no-op.
+none — all 7 spec-source detectors returned `proposals: []` (webview-only, zero new arch resource/dep/API/crate/schema/telemetry; tokens✓; existing a11y-covered surface). 0 amendments · 0 escalations · cascade no-op.
 
 ## Notes
-- **2 pre-existing frontend bugs EXPOSED by lighting up the dead surfaces (NOT P-079 regressions — P-079 is 100% backend)** → filed as route entries (operator-directed): (1) **Incidents-panel dropdown layout bug** (~chunk #91 — stretches window, white/mis-clipped bg; now first markerless); (2) **Traces auto-refresh** (`viz.query.traces` runs once at mount, never re-polls — priority-BUMPED to second markerless; originally filed at P-069's wrap). Do NOT conflate with P-079.
-- **Gate-deferral closure:** P-079's `nextest --workspace` re-run CLOSED the source-delta-proportional deferral P-069 (webview-only) left open. self-verify release/a11y half deferred again (backend chunk, zero frontend delta) → re-runs at the next frontend-touching chunk.
-- **Curation:** Tier 3 ×1 (single-source `(key, context)` parity pattern) · filtered 1 dup (backend boot-smoke) + 1 low-confidence.
-- **Follow-up (obs, deferred — a future obs chunk):** `incidents.list_active.request` logs `item_count` but the default-deny AllowList redacts it, so the "row_count_returned ≥ 1" agent-verifiable signal isn't visible; allowlist the aggregate-safe count for that target. (Verified this chunk via `active_incident_queue_depth`=5 + `incidents_created_total`=1 + the integration test.)
-- **Carried deferred (pre-existing, still pending):** the a11y Playwright webServer serves an un-rebuilt `dist` — run `npm run build --prefix pulse-app/ui` before the p11 spec (apply via `/andromeda-wrap-session --review`).
+- **Operator re-opened after accepting the upward popover** → wants the incidents disclosure as a **SEPARATE floating window docked BELOW the widget** ("drops under the widget"; the upward popover can't extend past the fixed webview edge — that was the original bug). Landed this chunk as the interim bug-fix; **added "Incidents floating-window disclosure" to the Epoch-3 markerless tail** (operator-directed "future work"; placed at the tail END so it doesn't jump the Traces-auto-refresh priority — **reorder if you want it sooner**). `/andromeda-phase` it (new Tauri window + position-below-widget/off-screen + cross-window focus/a11y + capability — de-risk with a proper plan).
+- **Badge-reactivity bug found (operator):** `use-findings.ts` fetches incidents only at mount + on window-focus, never re-polls → the Findings badge stays hidden until a widget RESIZE forces a focus refetch (same class as the Traces auto-refresh follow-up). **CARRY-folded** onto the floating-window chunk (which reuses `use-findings.ts`): add a periodic re-poll (constellation ~1s precedent) or the `pulse://stream/incidents` subscription.
+- **Premise correction (operator-confirmed at /phase P4):** kept `--color-raised-2` (design-system popover token), NOT the working-route's suggested `--color-inset` — the "white bg" was the off-viewport-overflow symptom, not a wrong token.
+- **Curation:** Tier 2 ×3 — testing.md (jsdom 26 stores `calc()`/`var()` inline-style values → assert `element.style.*` directly) · frontend.md ×2 (fixed-webview popover can't extend past the window; webview live-data hooks that fetch-once-don't-re-poll go stale). Filtered: 2 dedup + 1 → this handoff.
+- **Deferred gates (zero-`.rs`-delta):** re-run `clippy`/`nextest --workspace`/`capability-drift` at the next `.rs`-touching chunk.
+- **Design "no unstyled scrollbar" ban (pre-existing project-wide gap):** the new `overflowY:auto` matches the Modal/CommandPalette bare-`overflowY` precedent; a project-wide scrollbar-styling pass is a future concern (not this chunk).
 - Branch local-only — **NOT pushed**. Last failed command: none.
+
+## Session End Status
+Wrapped `2026-07-06-incidents-panel-dropdown-layout-bug` at 2026-07-06T19:44:31Z (session 14).

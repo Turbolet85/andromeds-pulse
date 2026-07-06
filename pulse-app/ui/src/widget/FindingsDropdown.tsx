@@ -41,10 +41,14 @@ export interface FindingsDropdownProps {
 
 const PANEL_BASE_STYLE: CSSProperties = {
   position: "absolute",
-  top: "calc(100% + var(--spacing-xs))",
+  // Opens UPWARD: the trigger sits at the widget's fixed-height bottom edge, so
+  // a downward panel (top:) overflows off-viewport (the layout bug being fixed).
+  bottom: "calc(100% + var(--spacing-xs))",
   right: 0,
   minWidth: "240px",
   maxWidth: "320px",
+  maxHeight: "calc(100vh - 32px - var(--spacing-lg))",
+  overflowY: "auto",
   background: "var(--color-raised-2)",
   border: "1px solid rgba(74, 144, 226, 0.3)",
   borderRadius: "var(--radius-md)",

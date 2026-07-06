@@ -262,6 +262,20 @@
       },
       "chunk": "2026-07-05-constellation-severity-live-wiring",
       "notes": "Operator-surfaced at the 2026-07-05-legible-labeled-constellation (P-069) leave-running verify; NEW cap minted at /andromeda-phase P5 matrix-link (not in the original intent-sourced P-061..P-078 requirements). Pure data-flow correctness -> affordance-exempt (the constellation-dot + incidents-panel render surfaces it feeds are P-069-proven, pure-visual). Method integration (deterministic-L4 storm proof, no GPU/model). ref set at /andromeda-implement; verified at wrap."
+    },
+    {
+      "id": "P-080",
+      "title": "Incidents (Findings) dropdown bounded popover",
+      "requirement": "The compact-widget Findings (incidents) dropdown renders as a bounded popover fully within the widget viewport (anchored to the unread-count badge), with the opaque design-system popover background, and never stretches the window or shows an off-viewport / white / mis-clipped region; the chunk #87 disclosure a11y contract is preserved.",
+      "observed_gap": "Opening the dropdown STRETCHES the widget window and shows a white / mis-clipped background instead of a bounded popover (the panel opens downward off the widget's bottom edge, off the painted viewport). Pre-existing since ~chunk #91; never visible until P-079 populated list_active() and lit up the surface.",
+      "verification": {
+        "method": "webview",
+        "acceptance": "Clicking the real Findings badge (button[aria-haspopup]) opens the dropdown as a bounded popover rendered fully within the compact-widget viewport (no window stretch, no off-viewport/white region) with the opaque --color-raised-2 background; proven by the p8 axe spec (real headful click-open, zero critical/serious) + vitest DOM-shape locks (upward `bottom` anchor + overflowY:auto + bounded maxHeight + --color-raised-2 retained, NOT --color-inset) + the /implement P3 operator leave-running visual verify (bounded/on-screen/opaque/no-stretch — the obs-log smoke is layout-blind).",
+        "ref": "pulse-app/ui/src/widget/FindingsDropdown.test.tsx::FindingsDropdown — bounded-popover layout (P-080) (3 DOM-shape locks: upward bottom-anchor + overflowY:auto/maxHeight + --color-raised-2 not --color-inset) + pulse-app/ui/tests-a11y/axe/p8-findings-dropdown.spec.ts (real click-open, 3 rows, zero critical/serious; regression-detector 0 new). Operator leave-running visual verify at /implement P3 covers the pure-visual on-screen/no-stretch outcome (jsdom/obs-log are layout-blind).",
+        "status": "verified"
+      },
+      "chunk": "2026-07-06-incidents-panel-dropdown-layout-bug",
+      "notes": "Premise correction (operator-confirmed at /phase P4): the working-route line suggested --color-inset, but design-system + a11y assign popovers --color-raised-2 (already in code); the 'white bg' was the off-viewport-overflow symptom, not a wrong token. Fix = positioning (open upward) + height-bounding; keep --color-raised-2. Pure-visual outcome -> the operator leave-running visual verify + p8 axe real-open are the affordance-honest proof (jsdom/obs-log are layout-blind). NEW cap minted at /phase P5 (not in the original intent P-061..P-079); operator-surfaced at the P-079 live-verify. ref set at /andromeda-implement; verified at wrap."
     }
   ]
 }

@@ -304,3 +304,38 @@ describe("FindingsDropdown — click-outside closes", () => {
     expect(onClose).not.toHaveBeenCalled();
   });
 });
+
+describe("FindingsDropdown — bounded-popover layout (P-080)", () => {
+  function renderOpen(): HTMLElement {
+    render(
+      <FindingsDropdown
+        rows={[row()]}
+        isOpen={true}
+        onClose={() => {}}
+        onMarkAllRead={() => {}}
+        onRowClick={() => {}}
+        triggerRef={makeTriggerRef()}
+        nowUnixNano={NOW_NANO}
+      />,
+    );
+    return screen.getByTestId("findings-dropdown");
+  }
+
+  it("opens upward from the bottom-anchored trigger (not downward off-viewport)", () => {
+    const panel = renderOpen();
+    expect(panel.style.bottom).not.toBe("");
+    expect(panel.style.top).toBe("");
+  });
+
+  it("bounds its height and scrolls internally so it never stretches the widget", () => {
+    const panel = renderOpen();
+    expect(panel.style.overflowY).toBe("auto");
+    expect(panel.style.maxHeight).not.toBe("");
+  });
+
+  it("keeps the opaque --color-raised-2 popover background (not --color-inset)", () => {
+    const panel = renderOpen();
+    expect(panel.style.background).toContain("raised-2");
+    expect(panel.style.background).not.toContain("inset");
+  });
+});
