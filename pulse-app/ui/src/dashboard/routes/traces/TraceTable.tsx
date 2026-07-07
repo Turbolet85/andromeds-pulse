@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { TraceRow } from "../../../bindings";
 import { InvestigateButton } from "../../../components/InvestigateButton";
 import { useInvestigation } from "../../../hooks/use-investigation";
@@ -30,6 +30,14 @@ export function TraceTable({ rows, isLoading }: TraceTableProps) {
   const [errorsOnly, setErrorsOnly] = useState(false);
   const announce = useStatusAnnouncer();
   const { openInvestigation } = useInvestigation();
+  const prevRowCount = useRef(rows.length);
+
+  useEffect(() => {
+    if (prevRowCount.current === 0 && rows.length > 0) {
+      announce("Traces loaded");
+    }
+    prevRowCount.current = rows.length;
+  }, [rows.length, announce]);
 
   const sorted = useMemo(() => {
     const filtered = errorsOnly ? rows.filter((r) => r.error_count > 0) : rows;

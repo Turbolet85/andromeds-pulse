@@ -23,14 +23,18 @@ function row(overrides: Partial<TraceRow>): TraceRow {
   };
 }
 
-function renderWithProvider(rows: TraceRow[], isLoading = false) {
-  return render(
+function treeFor(rows: TraceRow[], isLoading = false) {
+  return (
     <StatusLiveRegionProvider>
       <InvestigationProvider>
         <TraceTable rows={rows} isLoading={isLoading} />
       </InvestigationProvider>
-    </StatusLiveRegionProvider>,
+    </StatusLiveRegionProvider>
   );
+}
+
+function renderWithProvider(rows: TraceRow[], isLoading = false) {
+  return render(treeFor(rows, isLoading));
 }
 
 describe("TraceTable", () => {
@@ -157,5 +161,54 @@ describe("TraceTable", () => {
     await user.click(screen.getByTestId("trace-errors-only-filter"));
     const status = screen.getByTestId("status-live-region");
     expect(status.textContent).toMatch(/Showing errors only/i);
+  });
+
+  it("announces once (polite) when the table goes from empty to populated", () => {
+    const { rerender } = render(treeFor([], false));
+    const status = screen.getByTestId("status-live-region");
+    expect(status.textContent).toBe("");
+
+    rerender(treeFor([row({ trace_id: "aa" })], false));
+    expect(status.textContent).toMatch(/Traces loaded/i);
+  });
+
+  it("does not announce when mounted already-populated, nor on later row changes", () => {
+    const { rerender } = render(treeFor([row({ trace_id: "aa" })], false));
+    const status = screen.getByTestId("status-live-region");
+    expect(status.textContent).toBe("");
+
+    rerender(treeFor([row({ trace_id: "aa" }), row({ trace_id: "bb" })], false));
+    expect(status.textContent).toBe("");
+  });
+
+  it("preserves focus on the Errors-only button across a rows update", () => {
+    const { rerender } = render(treeFor([row({ trace_id: "aa" })], false));
+    const toggle = screen.getByTestId("trace-errors-only-filter");
+    toggle.focus();
+    expect(document.activeElement).toBe(toggle);
+
+    rerender(treeFor([row({ trace_id: "aa" }), row({ trace_id: "bb" })], false));
+    expect(document.activeElement).toBe(toggle);
+  });
+
+  it("keeps Errors-only + active sort across a rows update (no reset)", async () => {
+    const user = userEvent.setup();
+    const dataset = (): TraceRow[] => [
+      row({ trace_id: "healthy", error_count: 0, duration_ms: 5 }),
+      row({ trace_id: "boom", error_count: 2, duration_ms: 9 }),
+    ];
+    const { rerender } = render(treeFor(dataset()));
+    const toggle = screen.getByTestId("trace-errors-only-filter");
+    await user.click(toggle);
+    await user.click(screen.getByTestId("sort-duration_ms"));
+    const latencyHeader = screen.getByRole("columnheader", { name: /Latency/i });
+    expect(toggle.getAttribute("aria-pressed")).toBe("true");
+    expect(latencyHeader.getAttribute("aria-sort")).toBe("ascending");
+    expect(screen.getAllByTestId("trace-row")).toHaveLength(1);
+
+    rerender(treeFor(dataset()));
+    expect(toggle.getAttribute("aria-pressed")).toBe("true");
+    expect(latencyHeader.getAttribute("aria-sort")).toBe("ascending");
+    expect(screen.getAllByTestId("trace-row")).toHaveLength(1);
   });
 });
