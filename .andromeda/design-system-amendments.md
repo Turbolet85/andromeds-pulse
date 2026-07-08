@@ -83,3 +83,8 @@ Centralized handoff index for downstream specialists. Source-of-truth content li
 - Materialize design rule files from Anti-Patterns Universal Bans (banned fonts → `.claude/rules/no-banned-fonts.md`).
 - Materialize from Self-Validation Protocol (Swap / Squint / Signature / Token / Sameness / Contrast → `.claude/rules/design-tokens.md` + `.claude/rules/expression-budget.md`).
 - Scaffold initial Tailwind v4 config with the `@theme` block from Surface: desktop-webview (route specialist subsequently verifies load).
+
+## 2026-07-08-self-explaining-empty-states — Empty-state message token Tertiary→Secondary + honest-error variant
+**Section:** Loading / Empty States (desktop-webview component patterns)
+**Change:** empty-state MESSAGE text token corrected #7D8697 (Tertiary) → #B4BCCB (Secondary) — body-size text needs ≥4.5:1 (a11y SC 1.4.3; Tertiary 4.2:1 is large-text-only). Documented the shared `EmptyState` (decorative glyph + message + optional actionable hint naming :4318/:4317) reused across Metrics/Logs/Snapshots, plus a distinct honest-error variant (static "Couldn't load …", no hint, checked before the empty branch).
+**Why:** P-071 shipped the self-explaining empty states on `--color-text-secondary`; the prose had said Tertiary since before the chunk-#99 LogTable/LogFilter tertiary→secondary remediation. Applied to register current truth (apply-side within-existing-structure; user-approved at the wrap).

@@ -110,3 +110,8 @@ panel-transition motion — see **Body now** below)._
 - **Change:** documented the dashboard-only plain-language `ConnectionStatusLine` footer readout — connected-source count ("Receiving from N services") + spans/s + buffer fill ("buffer 2 min / 10 min"), `font-body` words + `font-code` Data-role numerics, `color-text-primary`; compact widget stays aggregate-glance (no worded line); 1s live-poll, connected count reuses the P-067 recency gate.
 - **Why:** P-070 (intent F10) landed the worded connection-status line in the full-dashboard footer (FooterStatusBar); the Footer component previously documented only ingest-rate + error % for the dashboard. A genuinely-new user-facing readout this chunk introduced (report §Changes) — completed to current truth WITH the user (D-layout-surface). See chunks/2026-07-07-plain-language-connection-status/report.md.
 - **Marker:** 2026-07-07-plain-language-connection-status.
+
+## 2026-07-08-self-explaining-empty-states — New §Component: Empty / error state (data views)
+**Section:** Surface: desktop-webview → Component — Empty / error state (data views)
+**Change:** added a §Component entry documenting the shared empty/error-state region the Metrics/Logs/Snapshots data views render at zero data (decorative Observatory glyph + message + actionable exporter hint :4318/:4317 in `color-text-secondary`/`font-body`) + the distinct honest-error variant (static, no hint, checked first).
+**Why:** P-071 shipped these empty/error states + a shared `EmptyState` component, but layout-templates wireframed only Traces and documented zero-data states elsewhere (canvas fallback, tray Silent) — the data-view empty/error region was undocumented. Applied to register current truth (user-approved at the wrap).

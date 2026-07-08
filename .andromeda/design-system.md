@@ -256,8 +256,8 @@ These glyphs are built into the token system and referenced as `<Icon glyph="tel
 
 **Loading / Empty States:**
 - Skeleton: background #262A33 (Raised-1), animated opacity pulse (not smooth fade — discrete 50ms on/off per expression 0.3 constraint; use `animation: pulse 1.2s ease-in-out infinite;` with opacity 0.5–1.0).
-- Empty state: centered text "No traces yet" or "Snapshot not generated", color #7D8697 (Tertiary), with optional icon (telescope icon, 24px, color #7D8697).
-- Error state: error text color #C7556A (Alert Burgundy), optional error icon, message on one or two lines.
+- Empty state: a centered shared `EmptyState` — a decorative Observatory glyph (telescope, 24px, `aria-hidden`) + a message and an optional actionable hint (e.g. "No metrics received yet" / "Point an OTLP metrics exporter at :4318 / :4317", ports in `font-code`), all in color #B4BCCB (Secondary) / `font-body` 14px. Secondary NOT Tertiary (#7D8697): body-size message text needs ≥4.5:1 (a11y SC 1.4.3); Tertiary at 4.2:1 is large-text-only. Reused across the Metrics / Logs / Snapshots data views.
+- Error state: a distinct `EmptyState` variant, checked BEFORE the empty branch — a static message ("Couldn't load {metrics|logs}", never the raw AppError) in #B4BCCB (Secondary) with NO actionable hint, so a query failure never masquerades as "no data"; the #C7556A (Alert Burgundy) accent remains available for an optional error icon / border per the "never color alone" discipline.
 
 **Canvas Container (Halo State Pulse, Latency River, throughput counter):**
 - Background: #0F1117 (Inset) — recessive, allows glowing halos to pop.

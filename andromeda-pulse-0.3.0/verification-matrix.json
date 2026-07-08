@@ -150,11 +150,12 @@
       "observed_gap": "The Metrics and Logs tabs are blank with no explanation (the demo injector sent only traces, but the UI does not say so).",
       "verification": {
         "method": "webview",
-        "acceptance": "Empty Metrics/Logs surfaces render an explanatory message with an actionable hint (e.g. point an OTLP exporter at the port).",
-        "ref": null,
-        "status": "planned"
+        "acceptance": "On a settled zero-data state (not loading, no error), BOTH the Metrics and Logs full-dashboard surfaces render a self-explaining empty state: an explanatory message + an actionable hint naming the receiver ports :4318 (OTLP/HTTP) + :4317 (OTLP/gRPC) + an Observatory glyph; the empty state is NOT flashed during the initial fetch and is absent when populated; a genuine query error shows a distinct static error message WITHOUT the exporter hint. Pure-visual/render (no user-operated control) -> affordance-EXEMPT per verification-matrix-contract.md Affordance honesty; proven by EmptyState + route vitest DOM-shape assertions (message/hint/glyph present only on settled no-data; error-state distinct) + the p13-empty-states axe sweep of /metrics + /logs (0 critical/serious, regression 0 new) + the /implement P3 operator warm-boot VISUAL verify. a11y: message/hint use --color-text-secondary (SC 1.4.3 >=4.5:1), decorative glyph aria-hidden, plain semantic text (no role=status).",
+        "ref": "pulse-app/ui/src/components/EmptyState.test.tsx (7 DOM-shape: message/hint-with-:4318+:4317/decorative-aria-hidden-glyph/--color-text-secondary/no-live-region-or-focusable) + pulse-app/ui/src/dashboard/routes/MetricsRoute.test.tsx + LogsRoute.test.tsx (empty-on-settled-no-data naming the ports; not-flashed-while-loading; distinct error-state without hint; hidden-when-populated) + pulse-app/ui/tests-a11y/axe/p13-empty-states.spec.ts (metrics+logs empty-state 0 critical/serious; pa11y /metrics+/logs 0 errors; regression-detector 0/0 new). Operator warm-boot VISUAL verify -> /implement P3.",
+        "status": "verified"
       },
-      "chunk": null
+      "chunk": "2026-07-08-self-explaining-empty-states",
+      "notes": "chunk linked at /andromeda-phase P5 (2026-07-08). P4 user decisions: (1) 'promote & adopt' - the shared EmptyState is promoted from SnapshotsRoute's existing local copy and adopted by Metrics/Logs/Snapshots (de-dup + fixes Snapshots' latent tertiary->secondary contrast); (2) 'minimal honest error line' - a distinct static error message gates the empty state on error===null so the exporter hint never masquerades over a query failure. Frontend-only (zero .rs delta), no new TauRPC/capability/pulse:// topic. Affordance-EXEMPT (pure-visual render). ref set at /implement; verified at wrap."
     },
     {
       "id": "P-072",

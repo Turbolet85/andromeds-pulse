@@ -1,3 +1,4 @@
+import { EmptyState } from "../../components/EmptyState";
 import { MetricsChart } from "./metrics/MetricsChart";
 import { useMetrics } from "./metrics/use-metrics";
 
@@ -5,7 +6,7 @@ const QUERY_WINDOW_SECONDS = 60;
 const QUERY_LIMIT = 100;
 
 export function MetricsRoute() {
-  const { rows } = useMetrics({
+  const { rows, isLoading, error } = useMetrics({
     timeWindowSeconds: QUERY_WINDOW_SECONDS,
     limit: QUERY_LIMIT,
   });
@@ -33,7 +34,23 @@ export function MetricsRoute() {
       >
         Metrics
       </h1>
-      <MetricsChart rows={rows} windowSeconds={QUERY_WINDOW_SECONDS} />
+      {error !== null ? (
+        <EmptyState message="Couldn't load metrics" testId="metrics-error-state" />
+      ) : !isLoading && rows.length === 0 ? (
+        <EmptyState
+          message="No metrics received yet"
+          hint={
+            <>
+              Point an OTLP metrics exporter at{" "}
+              <code style={{ fontFamily: "var(--font-code)" }}>:4318</code> /{" "}
+              <code style={{ fontFamily: "var(--font-code)" }}>:4317</code>
+            </>
+          }
+          testId="metrics-empty-state"
+        />
+      ) : (
+        <MetricsChart rows={rows} windowSeconds={QUERY_WINDOW_SECONDS} />
+      )}
     </section>
   );
 }

@@ -153,6 +153,16 @@ time. Do not edit during implementation runs._
 
 **Pagination / virtualization:** TBD by downstream; rows may exceed viewport (telescope icon in header suggests "investigate" action triggers a detail view, not in-table inline expansion).
 
+### Component — Empty / error state (desktop-webview data views)
+
+**Applies to:** the Metrics / Logs / Snapshots data views — rendered in the primary content region in place of the chart / table / list when there is no data or a query fails. A single shared `EmptyState` component backs all three so the data views read as one system.
+
+**Layout:** centered column in the primary content region — a decorative Observatory glyph (telescope, 24px, `aria-hidden`) above a message (`font-body` 14px) and an optional actionable hint; `gap: space-sm`, `padding: space-xl`. No focusable element (read-only, affordance-exempt).
+
+**Empty (no data):** message + hint in `color-text-secondary` (a11y SC 1.4.3 — body-size text needs ≥4.5:1; NOT `color-text-tertiary`, 4.2:1 large-text-only). The hint names the OTLP receiver ports (`:4318` / `:4317`, in `font-code`) — e.g. "No metrics received yet" / "Point an OTLP metrics exporter at :4318 / :4317". Shown only on a settled zero-data load (never flashed while loading; hidden once populated).
+
+**Error (query failure):** a distinct variant checked BEFORE the empty branch — a static message ("Couldn't load {metrics|logs}", never the raw `AppError`) with NO exporter hint, so a failure never masquerades as "no data". `color-text-secondary`; `color-accent` (Alert Burgundy) remains available for an optional error icon / border per the "never color alone" discipline.
+
 ### Component — Investigation modal (supporting moment)
 
 **Trigger:** clicking the "Investigate" button (telescope icon) or clicking a trace row.

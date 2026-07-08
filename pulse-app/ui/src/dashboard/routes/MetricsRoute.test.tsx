@@ -42,6 +42,12 @@ function setupProxy(rows: MetricRow[]) {
   return queryFn;
 }
 
+function setupRejectProxy() {
+  const queryFn = vi.fn().mockRejectedValue({ kind: "internal", message: "boom" });
+  __setProxyForTest({ metrics: { query: queryFn } } as never);
+  return queryFn;
+}
+
 describe("MetricsRoute", () => {
   it("renders <section> with id='tabpanel-metrics' + aria-labelledby heading", async () => {
     setupProxy([]);
@@ -66,5 +72,44 @@ describe("MetricsRoute", () => {
         screen.getByTestId("metrics-chart-stub").getAttribute("data-row-count"),
       ).toBe("2");
     });
+  });
+
+  it("shows the self-explaining empty state on settled no-data, naming the ports", async () => {
+    setupProxy([]);
+    render(<MetricsRoute />);
+    const empty = await screen.findByTestId("metrics-empty-state");
+    expect(empty.textContent).toContain("No metrics received yet");
+    const hint = screen.getByTestId("metrics-empty-state-hint");
+    expect(hint.textContent).toContain(":4318");
+    expect(hint.textContent).toContain(":4317");
+    expect(screen.queryByTestId("metrics-chart-stub")).toBeNull();
+  });
+
+  it("does not flash the empty state while loading (chart until settled)", async () => {
+    setupProxy([]);
+    render(<MetricsRoute />);
+    expect(screen.queryByTestId("metrics-empty-state")).toBeNull();
+    expect(screen.getByTestId("metrics-chart-stub")).toBeDefined();
+    await screen.findByTestId("metrics-empty-state");
+  });
+
+  it("hides the empty state when populated", async () => {
+    setupProxy(sampleRows);
+    render(<MetricsRoute />);
+    await waitFor(() =>
+      expect(
+        screen.getByTestId("metrics-chart-stub").getAttribute("data-row-count"),
+      ).toBe("2"),
+    );
+    expect(screen.queryByTestId("metrics-empty-state")).toBeNull();
+  });
+
+  it("shows a distinct error state without the exporter hint when the query fails", async () => {
+    setupRejectProxy();
+    render(<MetricsRoute />);
+    const err = await screen.findByTestId("metrics-error-state");
+    expect(err.textContent).toContain("Couldn't load metrics");
+    expect(err.textContent).not.toContain(":4318");
+    expect(screen.queryByTestId("metrics-empty-state")).toBeNull();
   });
 });
