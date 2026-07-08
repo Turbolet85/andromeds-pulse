@@ -1,26 +1,23 @@
 # Session Handoff
 
-**Last Updated:** 2026-07-07T17:29:19Z
+**Last Updated:** 2026-07-08T18:38:03Z
 **Branch:** chore/migrate-pulse-to-v3
 **Status:** clean
-**Last Commit:** `2026-07-07-traces-table-auto-refresh` — Traces table auto-refresh: 1s re-poll of `viz.query.traces` + a11y SC 4.1.3 empty→populated announce (P-081)
+**Last Commit:** `2026-07-07-plain-language-connection-status` — Plain-language connection status: worded connected-sources + spans/s + buffer-fill footer line + honest ConnectionDot recency (P-070)
 
 ## Position
-- Done: `2026-07-07-traces-table-auto-refresh` (P-081) — the Traces table now **re-polls `viz.query.traces` every 1s as a SILENT background refresh**, transitioning out of "No traces yet" once data lands + staying current, preserving the P-068 anomaly-first order + Errors-only filter + sort + focus; plus a one-shot polite empty→populated announcement (SC 4.1.3). **Operator visual-verify PASSED. P-081 verified → 16/21 v0.3.0 caps.**
-- Next (first markerless): **Plain-language connection status** (P-070) → `/andromeda-phase`. **Standing operator option (from the P-080 handoff):** the **Incidents floating-window disclosure** chunk can be reordered forward — the operator's call.
+- Done: `2026-07-07-plain-language-connection-status` (P-070) — the full-dashboard footer now renders a **plain-language connection-status line** ("Receiving from N services · ~X spans/s · buffer Y min / Z min"), plus honest ConnectionDot "no spans yet" recency (the folded CARRY). Backend-delta scope: 3 new `ReadyChecks` fields on the EXISTING `ready` envelope (no new procedure/capability). **Operator visual-verify PASSED. P-070 verified → 17/21 v0.3.0 caps.**
+- Next (first markerless): **Self-explaining empty states** (P-071 · Metrics/Logs empty surfaces) → `/andromeda-phase`. **Standing operator option:** the **Incidents floating-window disclosure** chunk can still be reordered forward.
 
 ## Work done
-Webview-only (4 files): `use-traces.ts` — factored `poll()` + `setInterval(poll,1000)` + `window` focus listener + cleanup; SILENT background refresh (keep last-good rows on a post-load re-poll error via `prev.isLoading` branch; no loading re-flip; `cursor:null` retained → CARRY deferred). `TraceTable.tsx` — one-shot polite empty→populated `announce` via a `useRef`+`useEffect` (`useMemo` filter/sort untouched). +7 tests (`use-traces.test.ts` +3 fake-timer; `TraceTable.test.tsx` +4). Gates: webview green — vitest **703/703** (+7) · lint · typecheck · build · test:a11y (p4-live-trace-list + p1-traces axe 0 critical/serious · lighthouse 7/7 ≥90 · pa11y 7/7 · **regression 0/0 new**) · `cargo fmt`. **Deferred (zero-`.rs`):** clippy · nextest --workspace · capability-drift. **Smoke: warm re-embed boot PASSED** — 0 panics/0 ERROR, `viz.query.traces`=190 at a clean **1s cadence** (re-poll proven at runtime), storm/incident + heartbeats healthy, operator visual verify PASSED, clean-quit zero-orphan.
+Backend (4 `.rs`): `ReadyChecks` +3 u64 fields (`rows_ingested` / `buffer_used_seconds` / `retention_seconds`); `BufferState` set-once `first_append_at_nanos` (via `std::time::SystemTime` — chrono is buffer dev-dep-only); `ready()` computes the honest eviction-capped `buffer_used_seconds`; `main.rs` wiring. Frontend (2 new + 3 mod): `use-ingest-stats.ts` (spans/s from the cumulative `rows_ingested` delta) + `ConnectionStatusLine.tsx` (mono numerics / sans words, honest empty + degraded states, SC 4.1.3 once-on-edge announce, P-067 shared count) rendered by `FooterStatusBar`; `ConnectionDot` CARRY. Gates all green: webview typecheck/vitest **717**/lint · `cargo fmt`/`clippy`/`nextest --workspace` **1730 pass/1 skip**/`capability-drift` clean · `test:a11y` (axe 32/32 · lighthouse 7/7 · pa11y 7/7 · regression 0/0). **Smoke: warm re-embed boot PASSED** — 0 panics/0 ERROR, `ui-bridge.ready` polled 258× live, ingest/ticks/storm healthy, operator visual PASSED; app clean-quit exit 0 (a FIRST run self-exited 132/SIGILL at teardown — 0 panics, zero orphan; WebView2/wgpu Windows teardown class, not the chunk's fault).
 
 ## Drift resolved
-none — all 7 spec-source detectors returned `proposals: []` (webview-only, reuse-only: zero new arch resource/dep/API/crate/schema/telemetry; existing `traces.query`/`pulse:default`/`viz.query.traces` span/Tables tokens/p4-p1 a11y surface reused). 0 amendments · 0 escalations · cascade no-op.
+2 amendments applied WITH the user (both escalated as apply-vs-handoff → resolved apply-both): arch §Standard Contracts `ready` envelope +3 fields · layout-templates §Component—Footer documents the ConnectionStatusLine dashboard-footer readout. 5 detectors clean (security / design / tests / obs / a11y — reuse-only / aggregate-display / existing-token). Cascade no-op. 0 open escalations.
 
 ## Notes
-- **Curation:** Tier 2 ×2 — `frontend.md` (SILENT BACKGROUND REFRESH — re-poll keeps last-good on transient error, no loading re-flip, to avoid mid-poll blank; extends the 2026-07-06 fetch-once-stale entry) · `a11y.md` (making a fetch-once list LIVE incurs the SC 4.1.3 announce obligation + focus-preserved-by-construction/no-remount). Filters: 0 dup / task-specific / conflict / deferred.
-- **Route:** 2 CARRYs — **P-081 headful e2e residual → P-076** (Integration UX e2e: assert the auto-refresh under live telemetry via tauri-driver, mirroring the P-061/P-064 headful CARRYs) · **pre-existing `announce`-in-`setState`-updater cleanup → Traces table layout polish** (handleSort/handleToggleErrorsOnly call `announce` inside the `setState` updater → a "setState during render" warning; pre-existing, NOT this chunk — the P-081 announce is correctly in a `useEffect`).
-- **CARRY still deferred (no in-version owner-entry):** the viz `next_cursor` keying (start-time `ts_unix_nano` vs P-068's `ORDER BY end_time`) — the re-poll keeps `cursor:null` (page 1) so it is never exercised; a documented latent caveat (`crates/viz/src/query.rs:17-18`); a future pagination-touching chunk absorbs it.
-- **Deferred gates (zero-`.rs`-delta):** re-run `clippy` / `nextest --workspace` / `capability-drift` at the next `.rs`-touching chunk (continues the P-080 deferral).
+- **Curation:** Tier 2 ×1 (`frontend.md` — live-rate-from-cumulative-counter-delta webview technique) · Tier 3 ×2 (`session-learnings.md` — honest-readout-from-data-anchor-not-uptime-proxy; chrono-is-buffer-dev-dep + SystemTime-same-epoch). Filters: 0 dup / 0 task-specific / 0 conflict / 1 confidence-rejected (SIGILL-132 one-off) / 0 deferred.
+- **Candidate playbook rule (deferred to recurrence):** the apply-side of the within-existing-structure boundary — accurate this-chunk additions within already-documented structures → APPLY (register current truth), distinct from the 2026-06-28/06-30 over-reach REJECT rules (which target mis-attributed/inaccurate/pre-existing content). Codify if it recurs.
+- **Route:** 1 CARRY — P-070 headful residual → **P-076** (assert the footer line renders live under the assembled path via tauri-driver, mirroring the P-061/P-064/P-081 headful CARRYs).
+- **Deferred-gates:** none — the `.rs` delta re-ran the previously-deferred clippy / nextest --workspace / capability-drift (all green), clearing the P-080/P-081 zero-`.rs` deferral.
 - Branch local-only — **NOT pushed**. Last failed command: none.
-
-## Session End Status
-Wrapping normally at 2026-07-07 (session 15).

@@ -308,6 +308,8 @@ mod runtime {
         data_dir: PathBuf,
         features: Vec<String>,
         broadcast_senders: Option<std::sync::Arc<buffer::BroadcastSenders>>,
+        buffer_state: Option<std::sync::Arc<buffer::BufferState>>,
+        retention_seconds: u64,
     }
 
     impl IntrospectionApiImpl {
@@ -315,11 +317,15 @@ mod runtime {
             data_dir: PathBuf,
             features: Vec<String>,
             broadcast_senders: Option<std::sync::Arc<buffer::BroadcastSenders>>,
+            buffer_state: Option<std::sync::Arc<buffer::BufferState>>,
+            retention_seconds: u64,
         ) -> Self {
             Self {
                 data_dir,
                 features,
                 broadcast_senders,
+                buffer_state,
+                retention_seconds,
             }
         }
 
@@ -400,6 +406,24 @@ mod runtime {
                 })
                 .unwrap_or(0);
             let mcp_server_enabled = self.features.iter().any(|f| f == "mcp-server");
+            // Live buffer stats for the P-070 status line. buffer_used_seconds
+            // is the span of currently-buffered data (now - first-append),
+            // eviction-capped at the retention window so it never claims more
+            // than the buffer actually holds.
+            let (rows_ingested, buffer_used_seconds) = match &self.buffer_state {
+                Some(bs) => {
+                    let snap = bs.snapshot();
+                    let used = if snap.rows_ingested == 0 || snap.first_append_at_nanos == 0 {
+                        0
+                    } else {
+                        let now_nanos = Utc::now().timestamp_nanos_opt().unwrap_or(0).max(0) as u64;
+                        (now_nanos.saturating_sub(snap.first_append_at_nanos) / 1_000_000_000)
+                            .min(self.retention_seconds)
+                    };
+                    (snap.rows_ingested, used)
+                }
+                None => (0, 0),
+            };
             let checks = ReadyChecks {
                 duckdb_connection,
                 ingest_mpsc_capacity_pct,
@@ -408,6 +432,9 @@ mod runtime {
                 // host-loaded count surface (Epoch 7).
                 plugins_loaded: 0,
                 mcp_server_enabled,
+                rows_ingested,
+                buffer_used_seconds,
+                retention_seconds: self.retention_seconds,
             };
             let ready =
                 matches!(envelope.status, HealthStatus::Ok) && checks.duckdb_connection == "ok";
@@ -774,7 +801,7 @@ mod introspection_tests {
     use std::path::PathBuf;
 
     fn make_impl(data_dir: PathBuf, features: Vec<String>) -> IntrospectionApiImpl {
-        IntrospectionApiImpl::new(data_dir, features, None)
+        IntrospectionApiImpl::new(data_dir, features, None, None, 600)
     }
 
     #[tokio::test]
@@ -829,6 +856,9 @@ mod introspection_tests {
             "broadcast_subscribers",
             "plugins_loaded",
             "mcp_server_enabled",
+            "rows_ingested",
+            "buffer_used_seconds",
+            "retention_seconds",
         ] {
             assert!(
                 v["checks"].get(key).is_some(),
@@ -843,6 +873,30 @@ mod introspection_tests {
         let api = make_impl(dir.path().to_path_buf(), vec!["mcp-server".to_string()]);
         let env = api.ready().await.expect("ready ok");
         assert!(env.checks.mcp_server_enabled);
+    }
+
+    #[tokio::test]
+    async fn ready_populates_buffer_stats_from_buffer_state() {
+        let dir = tempfile::tempdir().expect("tempdir");
+        let bs = std::sync::Arc::new(buffer::BufferState::new());
+        bs.record_rows_appended(1234);
+        let api = IntrospectionApiImpl::new(dir.path().to_path_buf(), vec![], None, Some(bs), 600);
+        let env = api.ready().await.expect("ready ok");
+        assert_eq!(env.checks.rows_ingested, 1234);
+        assert_eq!(env.checks.retention_seconds, 600);
+        // buffer_used_seconds is (now - first_append) capped at retention; the
+        // anchor was just set so it is small, and never exceeds the window.
+        assert!(env.checks.buffer_used_seconds <= 600);
+    }
+
+    #[tokio::test]
+    async fn ready_buffer_stats_zero_without_buffer_state() {
+        let dir = tempfile::tempdir().expect("tempdir");
+        let api = make_impl(dir.path().to_path_buf(), vec![]);
+        let env = api.ready().await.expect("ready ok");
+        assert_eq!(env.checks.rows_ingested, 0);
+        assert_eq!(env.checks.buffer_used_seconds, 0);
+        assert_eq!(env.checks.retention_seconds, 600);
     }
 
     #[tokio::test]

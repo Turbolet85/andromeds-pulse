@@ -864,6 +864,8 @@ fn main() {
         data_dir.clone(),
         features,
         Some(Arc::clone(&broadcast_senders)),
+        Some(Arc::clone(&buffer_state)),
+        retention_seconds,
     );
 
     // Chunk #44: SnapshotApiImpl constructed BEFORE the router build so the
@@ -1715,6 +1717,8 @@ mod tests {
             data_dir.clone(),
             vec![],
             Some(Arc::clone(&broadcast_senders)),
+            None,
+            600,
         );
 
         let snapshot_impl = SnapshotApiImpl::new(Some(Arc::clone(&conn)), data_dir.clone());

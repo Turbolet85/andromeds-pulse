@@ -145,3 +145,31 @@ describe("ConnectionDot — hover tooltip", () => {
     expect(screen.getByTestId("connection-tooltip").style.transition).toBe("");
   });
 });
+
+describe("ConnectionDot — honest recency (CARRY, P-067)", () => {
+  it("reads 'no spans yet' (not 'just now') on the Listening zero-ingest sentinel", () => {
+    hookMock.value = payload({ state: "Listening" }, { last_span_ago_ms: 0 });
+    render(<ConnectionDot />);
+    const dot = screen.getByTestId("connection-dot");
+    expect(dot.getAttribute("aria-label")).toBe("Connection: Listening — no spans yet");
+    expect(dot.getAttribute("aria-label")).not.toContain("just now");
+  });
+
+  it("shows 'no spans yet' in the tooltip on the Listening sentinel", async () => {
+    hookMock.value = payload({ state: "Listening" }, { last_span_ago_ms: 0 });
+    const user = userEvent.setup();
+    render(<ConnectionDot />);
+    await user.hover(screen.getByTestId("connection-dot").parentElement as HTMLElement);
+    const tooltip = screen.getByTestId("connection-tooltip");
+    expect(tooltip.textContent).toContain("no spans yet");
+    expect(tooltip.textContent).not.toContain("just now");
+  });
+
+  it("still shows 'last span Ns ago' for a real recent span (Receiving)", () => {
+    hookMock.value = payload({ state: "Receiving" }, { last_span_ago_ms: 2000 });
+    render(<ConnectionDot />);
+    expect(screen.getByTestId("connection-dot").getAttribute("aria-label")).toBe(
+      "Connection: Receiving — last span 2s ago",
+    );
+  });
+});

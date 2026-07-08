@@ -77,6 +77,24 @@ export const connectionReceivingPayload = {
   reason: null,
 };
 
+// ready() envelope populated with live buffer stats so the footer
+// ConnectionStatusLine (P-070) renders the spans/s + buffer segments on the
+// full-dashboard axe sweep.
+export const readyPayload = {
+  ready: true,
+  checked_at: "2026-07-07T19:00:00Z",
+  checks: {
+    duckdb_connection: "ok",
+    ingest_mpsc_capacity_pct: 4,
+    broadcast_subscribers: 2,
+    plugins_loaded: 0,
+    mcp_server_enabled: false,
+    rows_ingested: 12_000,
+    buffer_used_seconds: 120,
+    retention_seconds: 600,
+  },
+};
+
 export const serviceListPayload = {
   items: [
     {
@@ -250,6 +268,7 @@ export const configStatusPayload = {
 export const v02WidgetOverrides = {
   "incidents.list_active": incidentsListPayload,
   "connection.current_state": connectionReceivingPayload,
+  ready: readyPayload,
   "services.list_with_states": serviceListPayload,
   "incidents.get_report": reportPayload,
   "incidents.mark_all_read": null,

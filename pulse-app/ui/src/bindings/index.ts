@@ -288,7 +288,7 @@ export type PreviouslySeenPayload = { incident_id: number; opened_at_unix_nano: 
  */
 export type PriorityTier = "autonomous" | "suggested" | "curious"
 
-export type ReadyChecks = { duckdb_connection: string; ingest_mpsc_capacity_pct: number; broadcast_subscribers: number; plugins_loaded: number; mcp_server_enabled: boolean }
+export type ReadyChecks = { duckdb_connection: string; ingest_mpsc_capacity_pct: number; broadcast_subscribers: number; plugins_loaded: number; mcp_server_enabled: boolean; rows_ingested: number; buffer_used_seconds: number; retention_seconds: number }
 
 export type ReadyEnvelope = { ready: boolean; checked_at: string; checks: ReadyChecks }
 

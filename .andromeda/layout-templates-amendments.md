@@ -101,3 +101,12 @@ panel-transition motion — see **Body now** below)._
 - **Change:** added a 4th OS-native notification trigger — the first window-close-to-tray "still running in the tray" signpost (fires once per session on the first window-close that minimizes to tray, gated on `notifications_enabled`). The trigger list now reads 1 snapshot · 2 MCP status · 3 update-available · 4 first-close signpost.
 - **Why:** P-063 (intent F3) made the explicit decision (arch §OS-notification-policy "no other subsystem emits without an explicit decision") to add a close-to-tray signpost so the existing hide-to-tray close becomes predictable. A genuinely-new user-facing notification surface this chunk introduced (report §Changes), so the notification-trigger registry is completed to current truth. See chunks/2026-06-29-predictable-close-self-verify/report.md.
 - **Marker:** 2026-06-29-predictable-close-self-verify.
+
+---
+
+## 2026-07-07-plain-language-connection-status — Full-dashboard footer: ConnectionStatusLine readout
+
+- **Section:** Component — Footer (read-only status bar) → Full dashboard.
+- **Change:** documented the dashboard-only plain-language `ConnectionStatusLine` footer readout — connected-source count ("Receiving from N services") + spans/s + buffer fill ("buffer 2 min / 10 min"), `font-body` words + `font-code` Data-role numerics, `color-text-primary`; compact widget stays aggregate-glance (no worded line); 1s live-poll, connected count reuses the P-067 recency gate.
+- **Why:** P-070 (intent F10) landed the worded connection-status line in the full-dashboard footer (FooterStatusBar); the Footer component previously documented only ingest-rate + error % for the dashboard. A genuinely-new user-facing readout this chunk introduced (report §Changes) — completed to current truth WITH the user (D-layout-surface). See chunks/2026-07-07-plain-language-connection-status/report.md.
+- **Marker:** 2026-07-07-plain-language-connection-status.

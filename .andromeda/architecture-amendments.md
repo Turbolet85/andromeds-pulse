@@ -192,3 +192,10 @@ bus-factor mitigation pattern — only the concrete impl swapped (`MistralRsInfe
 **Section:** §Occupied Resources — Filesystem locations (subpaths under the resolved data dir root)
 **Change:** Added `window-geometry.json` (remembered per-window positions — Rust-owned JSON map of window label → integer x/y; atomic `.tmp`+rename; written by `pulse-app/src/window_geometry.rs` on window-move, restored at boot).
 **Why:** Chunk 2026-06-29-window-geometry-movable-shell (P-061, intent F1) added a new persisted data-dir file for remembered window position. New occupied filesystem resources are registered in §Occupied Resources §Filesystem locations (precedent: `corpus/corpus.db` chunk #68, the Downloads export sink chunk #95). The D-arch-resources detector's literal scope is IPC/port/env-var/crate (it did not flag the filesystem file); registered as orchestrator-judged registry completeness. Candidate detector-growth: extend D-arch-resources to cover §Filesystem-locations additions if this recurs.
+
+---
+
+## 2026-07-07-plain-language-connection-status — ready envelope: ReadyChecks +3 fields
+**Section:** §Standard Contracts — `ready` command
+**Change:** Added `rows_ingested` / `buffer_used_seconds` / `retention_seconds` (u64) to the `ready` envelope's `checks` object, alongside the existing 5 checks.
+**Why:** Chunk 2026-07-07-plain-language-connection-status (P-070) exposes ingest rate + buffer fill on the EXISTING `ready` procedure (no new procedure/namespace/capability) to back the plain-language connection-status line; the §Standard Contracts example now matches the live `ReadyChecks` shape. D-arch-resources flagged the §Standard-Contracts envelope shape (fields on an existing method, not a new resource) — applied WITH the user as current-truth registry completeness.

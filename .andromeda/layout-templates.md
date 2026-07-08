@@ -190,6 +190,7 @@ time. Do not edit during implementation runs._
 - Left: time-range picker (e.g., "Last 5m") — styled as a button with dropdown caret.
 - Center: service filter (e.g., "All services" or selected service name) — styled as a button with dropdown caret.
 - Right: ingest rate and error % (read-only, `font-label`, `color-text-tertiary`).
+- Connection status (dashboard-only, P-070 — `ConnectionStatusLine`): a plain-language read-only line stating connected-source count ("Receiving from {N} services"), spans/s, and buffer fill ("buffer {used} min / {window} min") — human words in `font-body`, numerics in the `font-code` Data role (tabular-nums), `color-text-primary`. The compact widget stays aggregate-glance (no worded line). Live-updates via a 1s poll; the connected count reuses the P-067 live-recency gate.
 - Border-top: 1px subtle border.
 
 ### IA notes

@@ -136,11 +136,12 @@
       "observed_gap": "Nowhere does the UI state, in words, how many sources are connected, whether telemetry is arriving, or the buffer state.",
       "verification": {
         "method": "webview",
-        "acceptance": "A visible status line reports connected-source count, ingest rate, and buffer fill in plain language.",
-        "ref": null,
-        "status": "planned"
+        "acceptance": "A visible footer status line renders, in plain language, the connected-source count + ingest rate (spans/s) + buffer fill (used/window minutes), with honest empty/degraded phrasing. Pure-visual/render (read-only, no user-operated control) -> affordance-EXEMPT per verification-matrix-contract.md Affordance honesty. Proven by ConnectionStatusLine vitest DOM-shape assertions (all three values in the populated line; the honest zero-telemetry empty state; degraded-state wording) + the ready() field-population Rust test (rows_ingested / buffer_used_seconds / retention_seconds) + the /implement P3 operator warm-boot VISUAL verify (obs-log is layout-blind); the status-line text passes SC 1.4.3 on the full-dashboard axe sweep (NOT contrast-exempt) with 0 new violation tuple.",
+        "ref": "pulse-app/ui/src/dashboard/ConnectionStatusLine.test.tsx (6 DOM-shape: honest empty / receiving-all-three-in-plain-language / P-067 stale-count-excluded / degraded-no-misleading-rate / mono-Data-font numerics / announce-once-on-transition) + pulse-app/ui/src/hooks/use-ingest-stats.test.ts (4: buffer+retention exposure / spans-per-sec from rows_ingested delta / interval-cleanup / keep-last-on-repoll-error) + crates/ui-bridge/src/health.rs::introspection_tests::{ready_populates_buffer_stats_from_buffer_state, ready_buffer_stats_zero_without_buffer_state} + crates/buffer/src/state.rs::tests::first_append_is_zero_until_first_record_then_set_once + pulse-app/ui/src/components/ConnectionDot.test.tsx::'honest recency (CARRY)' (3) ; a11y p1/p4 axe sweep 0 new violation tuple ; /implement P3 operator warm-boot VISUAL verify PASSED (footer rendered 'Receiving from 5 services · ~54 spans/s · buffer 1 min / 10 min')",
+        "status": "verified"
       },
-      "chunk": null
+      "chunk": "2026-07-07-plain-language-connection-status",
+      "notes": "chunk linked at /andromeda-phase P5 (2026-07-07). Scope decision (operator-selected 'backend delta'): the connected-source count is frontend-only (reuse services.list_with_states + P-067 isServiceLive); ingest rate + buffer fill are exposed by ADDING FIELDS to the existing ReadyChecks (rows_ingested / buffer_used_seconds / retention_seconds) -- no new TauRPC namespace / capability JSON / arch Occupied-Resources entry. Affordance-EXEMPT (pure-visual read-only line); acceptance refined at P5 to correct the P1 scope's affordance-vs-contrast-exempt conflation (affordance-exempt YES, contrast-exempt NO). Folds the ConnectionDot honest-recency CARRY (no separate cap). ref set at /implement; verified at wrap."
     },
     {
       "id": "P-071",

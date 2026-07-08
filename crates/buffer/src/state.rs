@@ -1,10 +1,15 @@
 use std::sync::atomic::{AtomicBool, AtomicU64, Ordering};
+use std::time::{SystemTime, UNIX_EPOCH};
 
 #[derive(Debug, Default)]
 pub struct BufferState {
     rows_ingested: AtomicU64,
     eviction_count: AtomicU64,
     memory_bytes: AtomicU64,
+    // First-append wall-clock anchor (nanos), set once on the first append
+    // (0 until then). Backs ReadyChecks.buffer_used_seconds — the honest
+    // data-span for the P-070 status line, capped at retention downstream.
+    first_append_at_nanos: AtomicU64,
     // Latching sentinel — flipped to true after the first successful retention
     // sweep completes; never resets. Distinguishes "buffer has been alive
     // long enough for retention to fire at least once" from "first-tick state".
@@ -16,6 +21,7 @@ pub struct BufferStateSnapshot {
     pub rows_ingested: u64,
     pub eviction_count: u64,
     pub memory_bytes: u64,
+    pub first_append_at_nanos: u64,
     pub retention_window_active: bool,
 }
 
@@ -29,12 +35,27 @@ impl BufferState {
             rows_ingested: self.rows_ingested.load(Ordering::Relaxed),
             eviction_count: self.eviction_count.load(Ordering::Relaxed),
             memory_bytes: self.memory_bytes.load(Ordering::Relaxed),
+            first_append_at_nanos: self.first_append_at_nanos.load(Ordering::Relaxed),
             retention_window_active: self.retention_window_active.load(Ordering::Relaxed),
         }
     }
 
     pub fn record_rows_appended(&self, n: u64) {
         self.rows_ingested.fetch_add(n, Ordering::Relaxed);
+        // Anchor the first-append wall-clock once; the load-guard skips the
+        // now() cost on every append after the first has landed.
+        if self.first_append_at_nanos.load(Ordering::Relaxed) == 0 {
+            let now = SystemTime::now()
+                .duration_since(UNIX_EPOCH)
+                .map(|d| d.as_nanos() as u64)
+                .unwrap_or(0);
+            let _ = self.first_append_at_nanos.compare_exchange(
+                0,
+                now,
+                Ordering::Relaxed,
+                Ordering::Relaxed,
+            );
+        }
     }
 
     pub fn record_eviction(&self, n: u64) {
@@ -71,6 +92,21 @@ mod tests {
         s.record_rows_appended(5);
         s.record_rows_appended(7);
         assert_eq!(s.snapshot().rows_ingested, 12);
+    }
+
+    #[test]
+    fn first_append_is_zero_until_first_record_then_set_once() {
+        let s = BufferState::new();
+        assert_eq!(s.snapshot().first_append_at_nanos, 0);
+        s.record_rows_appended(1);
+        let first = s.snapshot().first_append_at_nanos;
+        assert_ne!(first, 0, "first append timestamp set on first record");
+        s.record_rows_appended(1);
+        assert_eq!(
+            s.snapshot().first_append_at_nanos,
+            first,
+            "set-once: later records do not move the anchor"
+        );
     }
 
     #[test]

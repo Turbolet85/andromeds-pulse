@@ -165,9 +165,13 @@ describe("TauRPC bindings (chunks #25 + #27 + #29)", () => {
         broadcast_subscribers: 2,
         plugins_loaded: 0,
         mcp_server_enabled: false,
+        rows_ingested: 1234,
+        buffer_used_seconds: 120,
+        retention_seconds: 600,
       },
     };
     const checks: ReadyChecks = ready.checks;
     expect(checks.broadcast_subscribers).toBe(2);
+    expect(checks.buffer_used_seconds).toBe(120);
   });
 });

@@ -6,6 +6,18 @@ _Entries are added in reverse chronological order (newest first). Each entry has
 
 _This file is entirely wrap-session's territory. `/setup-project` creates it if missing but NEVER regenerates it. Manual edits are preserved across all Andromeda skill runs._
 
+## 2026-07-08 — Honest recency/fill readouts derive from the DATA anchor, never a wall-clock/uptime proxy
+
+A status readout that claims "how much data is buffered" or "how recent" MUST derive from the actual DATA anchor (the oldest buffered span / a set-once first-append timestamp / the last-span time), never from app uptime or a bare wall-clock. An uptime-derived "buffer 5 min" when only 30s of data is actually buffered OVER-CLAIMS the data-span — the same dishonesty class as the ConnectionDot "last span just now" reading "just now" on zero telemetry (both invent recency/coverage that isn't there). Concretely at 2026-07-07-plain-language-connection-status (P-070): `buffer_used_seconds = min(now − first_append_at_nanos, retention_seconds)` — a set-once anchor on `BufferState`'s first append, eviction-capped at the retention window — NOT `min(uptime, retention)`; and the ConnectionDot shows honest "no spans yet" on the Listening zero-ingest sentinel (`last_span_ago_ms == 0`), not "just now". Extends the Epoch-3 state-honesty family (P-067 live-only-services, the P-070 CARRY): never surface liveness/recency/coverage the underlying data does not support; when in doubt, anchor the figure to real data and cap it, don't proxy it.
+
+---
+
+## 2026-07-08 — `chrono` is a `buffer` DEV-dep only; use `std::time::SystemTime` in non-test buffer code
+
+`crates/buffer` uses `chrono` only in `retention.rs` TEST code — it is NOT a normal dependency, so `chrono::Utc::now()` in non-test buffer code fails to compile (`E0433: cannot find crate chrono`). For a wall-clock timestamp in buffer production code, use `std::time::SystemTime::now().duration_since(UNIX_EPOCH).map(|d| d.as_nanos() as u64)` (std-only, zero new dep). Load-bearing cross-crate detail: `SystemTime` since `UNIX_EPOCH` yields UNIX-epoch nanoseconds — the SAME epoch as `chrono::DateTime::<Utc>::timestamp_nanos_opt()` — so a buffer-side `SystemTime` timestamp stays directly comparable with a ui-bridge-side `chrono` `now` (e.g. `now_nanos − first_append_at_nanos` in `health.rs::ready()`). Verified at 2026-07-07-plain-language-connection-status: `BufferState::record_rows_appended` anchors `first_append_at_nanos` via `SystemTime`; `ready()` computes `now_nanos` via chrono; the subtraction is epoch-consistent. Before reaching for `chrono` in a leaf crate, check its `Cargo.toml` — it may be dev-only, and the std alternative shares chrono's epoch anyway.
+
+---
+
 ## 2026-07-05 (wrap) — Constellation severity workspace-key mismatch RESOLVED — single-source (key, context) parity (P-079)
 
 The defect diagnosed in the entry below (per-service severity runtime-inert; incident workspace-key mismatch) is RESOLVED by P-079 (`2026-07-05-constellation-severity-live-wiring`). The resolver's `incident_workspace_key` (`pulse-app/src/main.rs`) now derives from `workspace-detector` (the canonicalized detected project root), matching the producer's `digest.workspace` — so `list_active(key)` finds the storm's incidents. Operator live-verify confirmed: constellation dots color-differentiate (payment-service red/autonomous, others blue/healthy) and the incidents panel (unread badge + dropdown) populates.

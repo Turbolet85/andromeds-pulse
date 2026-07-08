@@ -381,6 +381,14 @@ pub struct ReadyChecks {
     pub broadcast_subscribers: u32,
     pub plugins_loaded: u32,
     pub mcp_server_enabled: bool,
+    // Live buffer stats backing the plain-language connection-status line
+    // (P-070). `rows_ingested` is the cumulative appended-span counter (the
+    // webview derives spans/s from its delta); `buffer_used_seconds` is the
+    // honest span of currently-buffered data, capped at `retention_seconds`
+    // (arch §Standard Contracts readiness).
+    pub rows_ingested: u64,
+    pub buffer_used_seconds: u64,
+    pub retention_seconds: u64,
 }
 
 #[cfg_attr(feature = "taurpc-runtime", derive(specta::Type))]
@@ -2365,6 +2373,9 @@ mod tests {
                 broadcast_subscribers: 2,
                 plugins_loaded: 0,
                 mcp_server_enabled: false,
+                rows_ingested: 1234,
+                buffer_used_seconds: 120,
+                retention_seconds: 600,
             },
         };
         let v: serde_json::Value =
@@ -2376,6 +2387,9 @@ mod tests {
             "broadcast_subscribers",
             "plugins_loaded",
             "mcp_server_enabled",
+            "rows_ingested",
+            "buffer_used_seconds",
+            "retention_seconds",
         ] {
             assert!(
                 v["checks"].get(key).is_some(),
