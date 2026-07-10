@@ -17,9 +17,10 @@ export interface ReportProps {
   onClose: () => void;
   incidentId: number | null;
   triggerRef: RefObject<HTMLElement | null>;
+  variant?: "overlay" | "fill";
 }
 
-export function Report({ isOpen, onClose, incidentId, triggerRef }: ReportProps) {
+export function Report({ isOpen, onClose, incidentId, triggerRef, variant }: ReportProps) {
   const { report, loading, error, copyState, copyMarkdown } = useReport(
     isOpen ? incidentId : null,
   );
@@ -56,6 +57,7 @@ export function Report({ isOpen, onClose, incidentId, triggerRef }: ReportProps)
       busy={loading}
       liveRegionLevel="polite"
       liveMessage={liveMessage}
+      variant={variant}
     >
       {loading ? <LoadingSkeleton /> : null}
       {error !== null ? <ErrorState message={error} /> : null}

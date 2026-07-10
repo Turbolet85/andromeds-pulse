@@ -199,3 +199,8 @@ bus-factor mitigation pattern — only the concrete impl swapped (`MistralRsInfe
 **Section:** §Standard Contracts — `ready` command
 **Change:** Added `rows_ingested` / `buffer_used_seconds` / `retention_seconds` (u64) to the `ready` envelope's `checks` object, alongside the existing 5 checks.
 **Why:** Chunk 2026-07-07-plain-language-connection-status (P-070) exposes ingest rate + buffer fill on the EXISTING `ready` procedure (no new procedure/namespace/capability) to back the plain-language connection-status line; the §Standard Contracts example now matches the live `ReadyChecks` shape. D-arch-resources flagged the §Standard-Contracts envelope shape (fields on an existing method, not a new resource) — applied WITH the user as current-truth registry completeness.
+
+## 2026-07-10-incidents-floating-window-disclosure — Cross-window UI-coordination events registered
+**Section:** §Occupied Resources → Tauri IPC events (broadcast channels)
+**Change:** Registered the chunk's new first-party webview↔webview coordination events `findings:dismissed` / `report:open` (`{incidentId}`) / `report:closed` (`@tauri-apps/api/event`, gated by `core:event` in `pulse:default`) as a DISTINCT class from the `pulse://stream/*` Rust→webview broadcast/telemetry channels.
+**Why:** The chunk added a separate `findings` + `report` floating-window pair that coordinate dismiss / open-report / cross-window focus-restore via named frontend events; arch's event registry previously enumerated only the `pulse://stream/*` broadcast topics, so the new event contracts were unregistered (D-arch-resources). Capability grants (`allow-set-position`/`allow-set-size`) + window labels stay out of arch §Occupied Resources per the 2026-06-30 core-perm registry rule.

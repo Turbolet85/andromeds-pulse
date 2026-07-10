@@ -21,6 +21,8 @@ use crate::window_geometry::{GeometryStore, WindowGeometry};
 
 const COMPACT_WIDGET_LABEL: &str = "compact-widget";
 const MAIN_WINDOW_LABEL: &str = "main";
+const FINDINGS_WINDOW_LABEL: &str = "findings";
+const REPORT_WINDOW_LABEL: &str = "report";
 
 // Aspect-ratio band for the compact glance widget (intent F2). The widget is
 // 480×270 (16:9 ≈ 1.778) by default; the band keeps it "fixed-ish" without a
@@ -106,6 +108,8 @@ fn sanitize_window_label(label: &str) -> &'static str {
     match label {
         MAIN_WINDOW_LABEL => MAIN_WINDOW_LABEL,
         COMPACT_WIDGET_LABEL => COMPACT_WIDGET_LABEL,
+        FINDINGS_WINDOW_LABEL => FINDINGS_WINDOW_LABEL,
+        REPORT_WINDOW_LABEL => REPORT_WINDOW_LABEL,
         _ => "unknown",
     }
 }
@@ -525,6 +529,8 @@ mod tests {
     fn sanitize_window_label_collapses_unknown_to_constant() {
         assert_eq!(sanitize_window_label("main"), "main");
         assert_eq!(sanitize_window_label("compact-widget"), "compact-widget");
+        assert_eq!(sanitize_window_label("findings"), "findings");
+        assert_eq!(sanitize_window_label("report"), "report");
         assert_eq!(sanitize_window_label("evil-injection-attempt"), "unknown");
         assert_eq!(sanitize_window_label(""), "unknown");
     }

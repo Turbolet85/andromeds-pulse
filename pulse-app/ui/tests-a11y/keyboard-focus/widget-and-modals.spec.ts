@@ -58,37 +58,41 @@ test.describe("Keyboard + focus — compact widget and modals", () => {
     expect(seen.length, "widget must expose at least one keyboard-reachable control").toBeGreaterThan(0);
   });
 
-  test("findings dropdown — Escape closes and focus returns to the counter trigger", async ({ page }) => {
+  // The findings disclosure moved to a SEPARATE `findings` window (2026-07-10);
+  // its own keyboard surface is audited here. The cross-window Esc→badge focus
+  // restore + the row-select→Report open span two windows and are headful-only
+  // (P-076 tauri-driver CARRY) — not reachable in the single-page axe harness.
+  test("findings window — no positive tabindex and a visible focus ring on keyboard focus", async ({ page }) => {
+    await installTauriIpcMock(page, v02WidgetOverrides, "findings");
     await page.goto("/");
-    const counter = page.locator('[data-testid="findings-band"] button[aria-haspopup]');
-    await counter.waitFor({ state: "visible" });
-    await counter.click();
-    const dropdown = page.getByTestId("findings-dropdown");
-    await dropdown.waitFor({ state: "visible" });
-    await page.keyboard.press("Escape");
-    await dropdown.waitFor({ state: "hidden" });
-    const focusReturned = await page.evaluate(() => {
-      const el = document.activeElement as HTMLElement | null;
-      return Boolean(el?.getAttribute("aria-haspopup"));
-    });
-    expect(focusReturned, "Escape must restore focus to the findings counter trigger").toBe(true);
-  });
+    // Wait for a ROW (not just the panel shell) so focusable controls exist
+    // before Tabbing — the rows arrive after the useFindings fetch.
+    await page.getByTestId("findings-window-row").first().waitFor({ state: "visible" });
 
-  test("report modal — Escape closes the dialog and focus returns to the widget", async ({ page }) => {
-    await page.goto("/");
-    const counter = page.locator('[data-testid="findings-band"] button[aria-haspopup]');
-    await counter.waitFor({ state: "visible" });
-    await counter.click();
-    await page.getByTestId("findings-dropdown-row").first().click();
-    const dialog = page.getByRole("dialog");
-    await dialog.waitFor({ state: "visible" });
-    await page.keyboard.press("Escape");
-    await dialog.waitFor({ state: "hidden" });
-    const focusInWidget = await page.evaluate(() => {
-      const el = document.activeElement as HTMLElement | null;
-      return el !== null && el !== document.body;
-    });
-    expect(focusInWidget, "closing the report must restore focus into the widget, never drop to <body>").toBe(true);
+    const positiveTabindex = await page
+      .locator("[tabindex]")
+      .evaluateAll((els) => els.filter((el) => Number(el.getAttribute("tabindex")) > 0).length);
+    expect(positiveTabindex, "tabindex > 0 is forbidden (natural DOM order only)").toBe(0);
+
+    // Keyboard focus (Tab) triggers :focus-visible; find at least one focused
+    // control that shows a ring (the cross-window Esc→badge restore is headful,
+    // a P-076 tauri-driver CARRY).
+    let sawRing = false;
+    for (let i = 0; i < 8 && !sawRing; i += 1) {
+      await page.keyboard.press("Tab");
+      sawRing = await page.evaluate(() => {
+        const el = document.activeElement as HTMLElement | null;
+        if (!el || el === document.body) {
+          return false;
+        }
+        const cs = window.getComputedStyle(el);
+        return (
+          (cs.outlineStyle !== "none" && cs.outlineWidth !== "0px") ||
+          cs.boxShadow !== "none"
+        );
+      });
+    }
+    expect(sawRing, "a keyboard-focused findings control must show a visible focus indicator").toBe(true);
   });
 
   test("dashboard settings — Escape closes the settings modal", async ({ page }) => {

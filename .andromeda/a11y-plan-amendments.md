@@ -55,3 +55,8 @@ _Format per entry: `## {date} — {title}` with **Section** / **Change** / **Why
 **Why:** Live dogfood (2026-06-30) showed the planned "expand & hide widget" stranded the user (no way back to the widget); reframed to a toggle that keeps the widget always visible. The button's accessible name changed accordingly — the a11y-plan P5 body cited the stale label. See `chunks/2026-06-30-widget-to-dashboard-navigation/report.md` §Deviations.
 
 **Marker:** 2026-06-30-widget-to-dashboard-navigation (P-066).
+
+## 2026-07-10-incidents-floating-window-disclosure — Findings + Report window focus order + cross-window restoration
+**Section:** §5 Keyboard Navigation (Focus order per layout + Focus restoration)
+**Change:** Added focus-order entries for the `findings` window (opened via FindingsCounter `aria-haspopup="dialog"`; Tab rows → mark-all-read; Esc/blur/mark-all-read dismiss + cross-window focus restore to the badge; row-select opens the report window) and the `report` window (`role="dialog"` fill-variant; Esc/✕ closes + cross-window focus restore to findings); + a Focus-restoration bullet noting these restore across windows via Tauri events, not focus-trap-react.
+**Why:** The chunk added FindingsWindow + ReportWindow as separate always-on-top Tauri windows with cross-window focus/Esc restore; §5 only documented in-document layouts and described restoration via focus-trap-react `returnFocusOnDeactivate`, which cannot cross windows (D-a11y-surface).

@@ -30,6 +30,8 @@ time. Do not edit during implementation runs._
 - **Full dashboard (Logs view)** — log record table with severity color-coding; same header/nav structure.
 - **Full dashboard (Snapshots view)** — list of generated snapshots with timestamp, token count, and view/copy actions. Snapshots are generated via the TauRPC `snapshot.generate` command; the snapshot-detail viewer layout (modal vs. full-page) is deferred to the implementation route.
 - **Settings panel** — theme (dark/light/auto), widget snap position, retention duration, MCP server toggle (when feature is built).
+- **Findings window** — separate borderless always-on-top disclosure window docked directly below the compact widget (positioned from the widget's live geometry, work-area/multi-monitor clamped), opened from the compact-widget unread badge; lists unread incidents (reuses the P-080 FindingsDropdown row content on the opaque `--color-raised-2` popover surface) and **sizes itself to the incident count** (fits the rows, caps ~8 then the list scrolls). Replaces the interim in-widget upward popover. Chunk 2026-07-10-incidents-floating-window-disclosure. _(ASCII wireframe deferred — a future targeted touch-up, per the P-070/P-082 sketch-lag handoff pattern.)_
+- **Report window** — separate borderless always-on-top Diagnostic Report window (the six-section `Report` in the `Modal` **`fill`** variant — edge-to-edge on `--color-base`, no backdrop), positioned relative to the findings window (left of it, clamped), opened by selecting a findings row. Same chunk.
 
 ### Wireframe — Compact widget
 

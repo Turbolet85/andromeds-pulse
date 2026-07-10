@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { FindingsCounter, FINDINGS_DROPDOWN_PANEL_ID } from "./FindingsCounter";
+import { FindingsCounter } from "./FindingsCounter";
 
 describe("FindingsCounter — conditional render", () => {
   it("renders nothing when count is zero", () => {
@@ -48,16 +48,14 @@ describe("FindingsCounter — disclosure semantics", () => {
     expect(screen.getByTestId("findings-counter").getAttribute("aria-expanded")).toBe("true");
   });
 
-  it("points aria-controls к the dropdown panel id", () => {
+  it("does not set aria-controls (the disclosed panel lives in a separate window)", () => {
     render(<FindingsCounter count={1} severity="suggested" isOpen={false} onOpen={() => {}} />);
-    expect(screen.getByTestId("findings-counter").getAttribute("aria-controls")).toBe(
-      FINDINGS_DROPDOWN_PANEL_ID,
-    );
+    expect(screen.getByTestId("findings-counter").getAttribute("aria-controls")).toBeNull();
   });
 
-  it("declares aria-haspopup=true", () => {
+  it("declares aria-haspopup=dialog", () => {
     render(<FindingsCounter count={1} severity="suggested" isOpen={false} onOpen={() => {}} />);
-    expect(screen.getByTestId("findings-counter").getAttribute("aria-haspopup")).toBe("true");
+    expect(screen.getByTestId("findings-counter").getAttribute("aria-haspopup")).toBe("dialog");
   });
 });
 

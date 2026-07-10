@@ -441,6 +441,10 @@ The downstream skills derive the following bootstrap phases from the contract ab
 
 - **tray-menu:** Arrow keys navigate menuitem elements (up/down). Return / Space activates menuitem. Escape closes menu.
 
+- **findings-window (separate always-on-top disclosure window, chunk 2026-07-10):** opened from the compact-widget FindingsCounter badge (`aria-haspopup="dialog"`, no `aria-controls` — the panel is a separate document). Focus moves into the panel on open (first incident row); Tab cycles rows → "Mark all as read". Esc / window-blur / mark-all-read dismiss the window and restore focus **cross-window** to the FindingsCounter badge; row-select opens the report window (does not dismiss). SC 2.1.1 / 2.1.2 / 2.4.3 / 4.1.2; the live-badge 0→N announces once politely (SC 4.1.3).
+
+- **report-window (separate always-on-top Diagnostic Report window, chunk 2026-07-10):** `role="dialog"` (the `Report` in the `Modal` `fill` variant); focus trap within the window; Esc / ✕ closes the window and returns focus **cross-window** to the findings window.
+
 **Skip links:**
 - `skip-to-main` link as first focusable element on full-dashboard layouts (per WCAG SC 2.4.1 Bypass Blocks)
 - Hidden visually; appears on Tab/Focus
@@ -455,6 +459,7 @@ The downstream skills derive the following bootstrap phases from the contract ab
 - Modal close (settings, investigation) → focus to triggering button ("Settings" / "Investigate")
 - Tray icon click (minimize widget) → focus returns to compact-widget when re-expanded
 - Route change (SPA navigation) → focus to main heading or `<main>` landmark (per WCAG SC 2.4.3)
+- **Cross-window** (the separate `findings` / `report` Tauri windows, chunk 2026-07-10): focus restores ACROSS window boundaries via first-party Tauri events (`findings:dismissed` / `report:closed`), NOT `focus-trap-react` `returnFocusOnDeactivate` (which cannot cross separate windows) — findings-dismiss → the widget FindingsCounter badge; report-close → the findings window.
 
 **Per-surface keyboard shortcuts:** No additional shortcuts beyond standard patterns (Tab, Escape, Enter, Arrow, Space per component). Creator Brief does not request custom shortcuts.
 

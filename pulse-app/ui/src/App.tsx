@@ -2,6 +2,8 @@ import { useEffect } from "react";
 import { useWindowLabel } from "./hooks/use-window-label";
 import { useSuppressBrowserChrome } from "./hooks/use-suppress-browser-chrome";
 import { CompactWidget } from "./widget/CompactWidget";
+import { FindingsWindow } from "./widget/FindingsWindow";
+import { ReportWindow } from "./widget/ReportWindow";
 import { Dashboard } from "./dashboard/Dashboard";
 
 // Window-label router (chunk #32 §Step 9 extension): branches to the
@@ -22,6 +24,12 @@ export function App() {
 
   if (windowLabel === "compact-widget") {
     return <CompactWidget />;
+  }
+  if (windowLabel === "findings") {
+    return <FindingsWindow />;
+  }
+  if (windowLabel === "report") {
+    return <ReportWindow />;
   }
   return <Dashboard />;
 }

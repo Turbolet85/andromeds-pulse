@@ -2182,3 +2182,13 @@ When this file grows beyond ~200 lines, `/wrap-session` suggests promoting some 
 ## Demotion from CLAUDE.md
 
 If `CLAUDE.md` `USER:session-learnings` section gets too large (≥ 180 lines total CLAUDE.md), wrap-session suggests promoting old Tier 1 entries down to this file (Tier 3) to keep CLAUDE.md within size budget. This is also a user action.
+
+## 2026-07-10 — Live-verify operational gotchas (incidents demo)
+
+Two PRE-EXISTING app behaviors (NOT the findings-window chunk — it touches no ingest/buffer/viz/L4) bite an extended operator live-verify of the incident path:
+
+1. **Incidents require deterministic L4.** The constellation per-service SEVERITY (payment-service "healthy" vs "autonomous"/red) AND the findings BADGE are driven by ACTIVE INCIDENTS (the P-079 incident→service join), NOT by raw trace errors — so erroring/slow traces alone leave every service "healthy" with no badge. Incident creation needs the digest→L4→incident chain to complete, and the real 3B model isn't installed on the dev host → launch with `ANDROMEDA_PULSE_L4_DETERMINISTIC=true` (P-073) or there are ZERO incidents. Symptom of forgetting it: "payment-service shows errors in traces but reads healthy / no incidents."
+
+2. **The DuckDB append-path stalls after ~10 min of sustained storm + L4.** Ingest keeps RECEIVING (`ingest.tick` `span_count` climbs) but `duckdb.append` stops → `viz.query.traces` returns 0 rows (Traces table reads "no traces") + no NEW incidents form. This is the documented chunk-#99 DuckDB-connection-contention class (L1a/digest SQL starving the appender under load), not a regression. A FRESH RESTART clears the in-memory ring buffer; incidents PERSIST in the corpus (SQLite), so reusing the same `ANDROMEDA_PULSE_DATA_DIR` keeps the badge across a restart while the traces buffer is fresh (but corpus incidents auto-resolve at 120s no-reemission, so re-pump to keep them active).
+
+**Clean live-verify recipe:** fresh app + `ANDROMEDA_PULSE_L4_DETERMINISTIC=true` + fresh `ANDROMEDA_PULSE_DATA_DIR` → poll `:4317` → pump `inject_demo` → glance within the first few minutes (before the append-path stalls). The append-stall is flagged as a follow-up chunk (route carry, P5).
