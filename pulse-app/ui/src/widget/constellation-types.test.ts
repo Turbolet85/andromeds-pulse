@@ -9,6 +9,7 @@ import {
   LIVE_RECENCY_WINDOW_NANOS,
   lifecycleToBrightness,
   MAX_CONSTELLATION_DOTS,
+  resolveLabelPositions,
   scatterPosition,
   severityToken,
   visibleDots,
@@ -250,5 +251,41 @@ describe("dotLabelPosition — normalized coord → CSS percent (y-flipped)", ()
       expect(topPct).toBeGreaterThanOrEqual(0);
       expect(topPct).toBeLessThanOrEqual(100);
     }
+  });
+});
+
+describe("resolveLabelPositions — label collision-avoidance (P-069 CARRY)", () => {
+  function dotNamed(service: string, x: number, y: number): ConstellationDot {
+    return { service, x, y, brightness: 1, hueFraction: 0, state: "active", priorityTier: null };
+  }
+
+  it("leaves well-separated dots at their base label positions", () => {
+    const dots = [dotNamed("a", -0.8, 0.8), dotNamed("b", 0.8, -0.8)];
+    const placed = resolveLabelPositions(dots);
+    for (const dot of dots) {
+      const base = dotLabelPosition(dot);
+      const p = placed.find((q) => q.service === dot.service)!;
+      expect(p.leftPct).toBeCloseTo(base.leftPct);
+      expect(p.topPct).toBeCloseTo(base.topPct);
+    }
+  });
+
+  it("separates overlapping labels when dots cluster at the same position", () => {
+    const dots = [dotNamed("a", 0, 0), dotNamed("b", 0, 0), dotNamed("c", 0, 0)];
+    const placed = resolveLabelPositions(dots);
+    expect(placed).toHaveLength(3);
+    const tops = placed.map((p) => p.topPct).sort((m, n) => m - n);
+    // Each successive label clears the vertical band of the one above it.
+    for (let i = 1; i < tops.length; i += 1) {
+      expect(tops[i] - tops[i - 1]).toBeGreaterThanOrEqual(11);
+    }
+  });
+
+  it("preserves every dot (P-069 always-on label) and is deterministic", () => {
+    const dots = [dotNamed("a", 0.1, 0.1), dotNamed("b", 0.1, 0.1), dotNamed("c", -0.5, 0.3)];
+    const first = resolveLabelPositions(dots);
+    const second = resolveLabelPositions(dots);
+    expect(first.map((p) => p.service).sort()).toEqual(["a", "b", "c"]);
+    expect(first).toEqual(second);
   });
 });

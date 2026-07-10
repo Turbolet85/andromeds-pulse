@@ -88,3 +88,21 @@ canvas {
   -webkit-user-drag: none;
   user-select: none;
 }
+
+/* Bounded internal-scroll region for the Traces table (P-082): custom
+   scrollbar per design-system §Anti-Patterns Per-Surface Bans — never the
+   default web scrollbar. Dark inset track + Earth Blue thumb, tokens only. */
+.traces-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-primary) var(--color-inset);
+}
+.traces-scroll::-webkit-scrollbar {
+  width: 10px;
+}
+.traces-scroll::-webkit-scrollbar-track {
+  background: var(--color-inset);
+}
+.traces-scroll::-webkit-scrollbar-thumb {
+  background: var(--color-primary);
+  border-radius: var(--radius-sm);
+}

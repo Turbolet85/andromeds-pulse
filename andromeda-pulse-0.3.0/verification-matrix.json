@@ -292,6 +292,20 @@
       },
       "chunk": "2026-07-07-traces-table-auto-refresh",
       "notes": "NEW cap minted at /phase P5 (not in the original intent P-061..P-080); operator-surfaced at the 2026-07-05-legible-labeled-constellation (P-069) leave-running verify, PRIORITY-BUMPED at the 2026-07-05-constellation-severity-live-wiring (P-079) wrap. Webview-only (zero .rs delta); the working-route CARRY (viz next_cursor start-time vs P-068 ORDER BY end_time, query.rs:17-18) re-defers because the re-poll keeps cursor=null (single page) — handed to a future pagination-touching chunk. a11y SC 4.1.3 empty->populated announcement folded in per the /phase a11y extract (scope.md P5 val-1 intent-incomplete amendment). ref set at /implement; verified at wrap."
+    },
+    {
+      "id": "P-082",
+      "title": "Traces table internal scroll (fixed hero + toolbar)",
+      "requirement": "The full-dashboard Traces trace table has its own bounded internal scroll region (max-height + overflow-y:auto with a sticky opaque header) so the constellation hero and the Errors-only/sort toolbar stay fixed and visible as rows accumulate, instead of the whole dashboard page scrolling them off the top.",
+      "observed_gap": "The trace table has no height cap and the shell <main> uses minHeight with no overflow, so the whole page scrolls and the constellation hero + Errors-only toolbar scroll off the top once rows accumulate — defeating the P-068 anomaly-first read on a live boot.",
+      "verification": {
+        "method": "webview",
+        "acceptance": "The Traces route bounds itself to the shell-allotted viewport height (calc(100vh - titlebar - tabnav - footer), overflow:hidden) and the trace table flex-fills the remainder with its own overflow-y:auto scroll region (min-height:0) — so the constellation hero + the Errors-only/sort toolbar + a sticky opaque (--color-base) thead stay fixed AND the whole dashboard shows NO outer page scrollbar (footer stays visible) at any window size, instead of a hardcoded max-height. Proven by TraceTable.test.tsx DOM-shape locks (scroll wrapper overflowY:auto + minHeight:0 + the Errors-only toolbar rendered OUTSIDE it + thead position:sticky + opaque --color-base bg) + TracesRoute.test.tsx (route bounds + hero-above-table DOM order) + the p1-traces axe sweep 0-new baseline tuple + the /implement P3 operator warm-boot leave-running VISUAL verify. Pure-visual/render capability (browser-native scroll, no user-operated control) -> affordance-EXEMPT per verification-matrix-contract.md Affordance honesty.",
+        "ref": "pulse-app/ui/src/dashboard/routes/traces/TraceTable.test.tsx::(gives the table a flex-fill internal scroll region, with the toolbar outside it (P-082) | gives the table header a sticky opaque background (rows scroll under it)) + pulse-app/ui/src/dashboard/routes/TracesRoute.test.tsx (route bounds + DOM order) + pulse-app/ui/tests-a11y/axe/p1-traces.spec.ts (0 critical/serious; regression 0/0 new). /implement P3 operator warm-boot leave-running VISUAL verify PASSED (internal scroll + sticky opaque header + non-overlapping labels + NO outer page scroll / footer visible after the flex-fill fix; jsdom getBoundingClientRect=0 + obs-log are layout-blind).",
+        "status": "verified"
+      },
+      "chunk": "2026-07-09-traces-table-layout-polish",
+      "notes": "NEW cap minted at /phase P5 (not in the original intent P-061..P-081); operator-surfaced on the 2026-07-05-anomaly-surfacing (P-068) live boot as a pre-existing layout gap (internal-scroll NOT introduced by P-068). Webview-only (zero .rs delta). The chunk's other folded deliverables track under EXISTING caps, not separate matrix entries: D3 (constellation per-dot label collision-avoidance) refines P-069 (its p11 0-new + name/severity-token contract preserved); D4 (handleSort announce-in-updater fix) preserves P-081's SC 4.1.3 announce; D2 (Traces wireframe doc refresh) is a layout-templates doc, not a verifiable cap. ref set at /implement; verified at wrap."
     }
   ]
 }

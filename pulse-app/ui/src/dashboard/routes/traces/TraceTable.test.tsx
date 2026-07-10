@@ -211,4 +211,44 @@ describe("TraceTable", () => {
     expect(latencyHeader.getAttribute("aria-sort")).toBe("ascending");
     expect(screen.getAllByTestId("trace-row")).toHaveLength(1);
   });
+
+  it("gives the table a flex-fill internal scroll region, with the toolbar outside it (P-082)", () => {
+    renderWithProvider([row({})]);
+    const scroll = screen.getByTestId("trace-table-scroll");
+    // Flex-fills the card's remaining height (min-height:0 lets it shrink below
+    // content size) with its own vertical scroll, so the table body scrolls
+    // internally instead of the whole dashboard page growing a page scrollbar.
+    expect(scroll.style.overflowY).toBe("auto");
+    expect(scroll.style.minHeight).toMatch(/^0(px)?$/);
+    // The table lives inside the scroll region...
+    expect(within(scroll).getByTestId("trace-table")).toBeTruthy();
+    // ...but the Errors-only toolbar is rendered OUTSIDE it (stays fixed).
+    expect(within(scroll).queryByTestId("trace-table-toolbar")).toBeNull();
+    expect(screen.getByTestId("trace-table-toolbar")).toBeTruthy();
+  });
+
+  it("gives the table header a sticky opaque background (rows scroll under it)", () => {
+    renderWithProvider([row({})]);
+    const thead = screen.getByRole("table").querySelector("thead");
+    expect(thead?.style.position).toBe("sticky");
+    expect(thead?.style.background).toBe("var(--color-base)");
+  });
+
+  it("announces a sort with no render-phase update warning (announce out of the setState updater)", async () => {
+    const user = userEvent.setup();
+    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    renderWithProvider([
+      row({ trace_id: "a", duration_ms: 10 }),
+      row({ trace_id: "b", duration_ms: 20 }),
+    ]);
+    await user.click(screen.getByTestId("sort-duration_ms"));
+    // The announce still fires (behavior preserved)...
+    expect(screen.getByTestId("status-live-region").textContent).toMatch(/Sorted by Latency/i);
+    // ...and React logged no "cannot update a component while rendering" warning.
+    const warned = errorSpy.mock.calls.some((args) =>
+      args.some((a) => typeof a === "string" && /update a component while rendering/i.test(a)),
+    );
+    expect(warned).toBe(false);
+    errorSpy.mockRestore();
+  });
 });

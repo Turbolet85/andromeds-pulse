@@ -119,6 +119,47 @@ export function dotLabelPosition(dot: ConstellationDot): DotLabelPosition {
   };
 }
 
+export interface DotLabelPlacement extends DotLabelPosition {
+  service: string;
+}
+
+// Approximate label-chip footprint as a fraction of the hero box, for overlap
+// detection. Position-based heuristic (true chip widths vary with name length +
+// need layout) — resolves the common cluster case; the operator visual verify
+// is the geometry check.
+const LABEL_VERTICAL_BAND_PCT = 11;
+const LABEL_HORIZONTAL_BAND_PCT = 24;
+
+// De-stagger overlapping label chips: place dots top-to-bottom (stable by name)
+// and push each candidate down past any already-placed chip whose footprint it
+// intersects. Deterministic; every dot keeps a label (P-069 always-on).
+export function resolveLabelPositions(
+  dots: readonly ConstellationDot[],
+): DotLabelPlacement[] {
+  const ordered = dots
+    .map((dot) => ({ service: dot.service, ...dotLabelPosition(dot) }))
+    .sort((a, b) => a.topPct - b.topPct || a.service.localeCompare(b.service));
+  const placed: DotLabelPlacement[] = [];
+  for (const candidate of ordered) {
+    let topPct = candidate.topPct;
+    let collided = true;
+    while (collided) {
+      collided = false;
+      for (const p of placed) {
+        if (
+          Math.abs(p.leftPct - candidate.leftPct) < LABEL_HORIZONTAL_BAND_PCT &&
+          Math.abs(p.topPct - topPct) < LABEL_VERTICAL_BAND_PCT
+        ) {
+          topPct = p.topPct + LABEL_VERTICAL_BAND_PCT;
+          collided = true;
+        }
+      }
+    }
+    placed.push({ service: candidate.service, leftPct: candidate.leftPct, topPct });
+  }
+  return placed;
+}
+
 // Build the renderable dots: drop Archived (hidden), stable-sort by name,
 // cap to MAX_CONSTELLATION_DOTS.
 export function visibleDots(

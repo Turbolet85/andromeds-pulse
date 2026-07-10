@@ -27,6 +27,7 @@ import { createConstellationPipeline } from "../../../widget/constellation-pipel
 import {
   constellationSummary,
   dotLabelPosition,
+  resolveLabelPositions,
   severityToken,
   visibleDots,
   type ConstellationDot,
@@ -220,6 +221,10 @@ export function ConstellationCanvas({ items }: ConstellationCanvasProps) {
   const showFallback =
     (adapter !== null && adapter.kind === "unavailable") || pipelineFailed;
 
+  const labelPositions = new Map(
+    resolveLabelPositions(dots).map((p) => [p.service, p] as const),
+  );
+
   return (
     <section
       aria-label={summary}
@@ -255,7 +260,7 @@ export function ConstellationCanvas({ items }: ConstellationCanvasProps) {
           style={{ position: "absolute", inset: "var(--spacing-md)", pointerEvents: "none" }}
         >
           {dots.map((dot) => {
-            const { leftPct, topPct } = dotLabelPosition(dot);
+            const { leftPct, topPct } = labelPositions.get(dot.service) ?? dotLabelPosition(dot);
             return (
               <div
                 key={dot.service}

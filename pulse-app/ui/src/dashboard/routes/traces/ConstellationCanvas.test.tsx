@@ -147,4 +147,18 @@ describe("ConstellationCanvas (dashboard)", () => {
     const wrapper = await screen.findByRole("region", { name: /no active services/ });
     expect(wrapper.getAttribute("data-service-count")).toBe("0");
   });
+
+  it("keeps an always-on label for every dot after collision-avoidance (P-069)", () => {
+    const items = [
+      item("alpha", "active"),
+      item("bravo", "active"),
+      item("charlie", "active"),
+      item("delta", "active"),
+    ];
+    render(<ConstellationCanvas items={items} />);
+    expect(screen.getByTestId("constellation-labels")).toBeTruthy();
+    for (const name of ["alpha", "bravo", "charlie", "delta"]) {
+      expect(screen.getByText(name)).toBeTruthy();
+    }
+  });
 });

@@ -75,7 +75,7 @@ time. Do not edit during implementation runs._
 +------------------------------------------------+     color-text-tertiary, font-label)
 ```
 
-**Wireframe notes:** Full dashboard is resizable; default 2/3 to full-screen width. Constellation map dominates the hero area (signature Halo State Pulse appears on each service dot via WebGPU canvas). Below the map is a sortable data table (traces, metrics, or logs depending on active tab). Footer contains local controls (time range picker, service filter dropdown) and read-only status.
+**Wireframe notes:** Full dashboard is resizable; default 2/3 to full-screen width. The Traces primary screen is a **flex column bounded to the shell's `main` height** (`calc(100vh − titlebar 32px − tabnav 40px − footer var(--spacing-lg))`, `overflow:hidden`), so the **whole dashboard shows no outer page scrollbar at any window size** — only the table's own region scrolls. Two **fixed** (`flex-shrink:0`) regions stack on top: the constellation map hero (signature Halo State Pulse on each service dot via WebGPU canvas) and, directly above the table, a right-aligned **`Errors only` filter toolbar** (an `aria-pressed` toggle; the default order is anomaly-first, erroring rows hoisted to the top). Below them the **sortable data table flex-fills the remainder** (`flex:1 / min-height:0 / overflow-y:auto`, custom dark-track + Earth-Blue-thumb scrollbar) with a **sticky opaque `color-base` thead** — rows scroll internally *under* the fixed hero + toolbar + header. (Internal-scroll + bounded route: P-082; Errors-only toolbar above the table: P-068.) The ASCII above is an illustrative sketch: its footer row + per-dot label detail lag current truth (footer is now the plain-language connection-status line, P-070; the hero dots carry always-on per-dot name + severity-token labels, P-069) — see the amendment sidecar handoff note.
 
 ### Component — Custom titlebar (desktop-webview specific)
 
@@ -149,9 +149,13 @@ time. Do not edit during implementation runs._
 - **Latency:** `font-data` (monospace tabular numerals), `color-text-secondary`, right-aligned.
 - **Error:** `font-label`, status glyph (✓ in `color-feedback-success`, ✗ in `color-accent`).
 
-**Sorting:** column headers clickable; click cycles through ascending → descending → unsorted (visual feedback: text bold, small caret in `color-primary`).
+**Sorting:** column headers clickable; click cycles through ascending → descending → unsorted (visual feedback: text bold, small caret in `color-primary`). The default (unsorted) order is anomaly-first — erroring rows hoisted to the top (P-068).
 
-**Pagination / virtualization:** TBD by downstream; rows may exceed viewport (telescope icon in header suggests "investigate" action triggers a detail view, not in-table inline expansion).
+**Filter toolbar (above the table):** a right-aligned `Errors only` toggle (`aria-pressed`) sits in its own toolbar row directly above the table, narrowing to `error_count > 0` rows; the constellation hero + this toolbar stay fixed above the scrolling table (P-068 / P-082).
+
+**Internal scroll region:** the table sits in its own bounded scroll region (`flex:1 / min-height:0 / overflow-y:auto`, custom scrollbar per §Anti-Patterns Per-Surface Bans) with a **sticky opaque `color-base` thead**, so rows scroll internally while the hero + toolbar + header stay fixed and the dashboard never grows an outer page scrollbar — the route is bounded to the shell's `main` height (P-082).
+
+**Pagination / virtualization:** TBD by downstream; the table's own scroll region (above) handles overflow, and the telescope-icon "investigate" action triggers a detail view (not in-table inline expansion).
 
 ### Component — Empty / error state (desktop-webview data views)
 

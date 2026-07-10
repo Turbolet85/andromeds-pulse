@@ -45,15 +45,17 @@ export function TraceTable({ rows, isLoading }: TraceTableProps) {
   }, [rows, sortState, errorsOnly]);
 
   const handleSort = (column: SortColumn): void => {
-    setSortState((prev) => {
-      const next = nextSortState(prev, column);
-      if (next.direction === "none") {
-        announce(`Cleared sort on ${COLUMN_LABEL[column]}`);
-      } else {
-        announce(`Sorted by ${COLUMN_LABEL[column]}, ${DIRECTION_LABEL[next.direction]}`);
-      }
-      return next;
-    });
+    // announce() is a StatusLiveRegion setState; calling it INSIDE the
+    // setSortState updater runs during render -> "cannot update a component
+    // while rendering" (a11y-plan §7). Compute from current state, announce,
+    // then set — mirroring handleToggleErrorsOnly below.
+    const next = nextSortState(sortState, column);
+    if (next.direction === "none") {
+      announce(`Cleared sort on ${COLUMN_LABEL[column]}`);
+    } else {
+      announce(`Sorted by ${COLUMN_LABEL[column]}, ${DIRECTION_LABEL[next.direction]}`);
+    }
+    setSortState(next);
   };
 
   const handleToggleErrorsOnly = (): void => {
@@ -69,6 +71,10 @@ export function TraceTable({ rows, isLoading }: TraceTableProps) {
         border: "1px solid rgba(74, 144, 226, 0.3)",
         borderRadius: "var(--radius-md)",
         padding: "var(--spacing-md)",
+        flex: "1 1 0",
+        minHeight: 0,
+        display: "flex",
+        flexDirection: "column",
       }}
       data-testid="trace-table-card"
     >
@@ -77,6 +83,7 @@ export function TraceTable({ rows, isLoading }: TraceTableProps) {
           display: "flex",
           justifyContent: "flex-end",
           marginBottom: "var(--spacing-sm)",
+          flexShrink: 0,
         }}
         data-testid="trace-table-toolbar"
       >
@@ -100,16 +107,28 @@ export function TraceTable({ rows, isLoading }: TraceTableProps) {
           Errors only
         </button>
       </div>
-      <table
-        data-testid="trace-table"
-        style={{
-          width: "100%",
-          borderCollapse: "collapse",
-          fontFamily: "var(--font-body)",
-          fontSize: "12px",
-        }}
+      <div
+        className="traces-scroll"
+        data-testid="trace-table-scroll"
+        style={{ flex: "1 1 0", minHeight: 0, overflowY: "auto" }}
       >
-        <thead style={{ background: "var(--color-base)" }}>
+        <table
+          data-testid="trace-table"
+          style={{
+            width: "100%",
+            borderCollapse: "collapse",
+            fontFamily: "var(--font-body)",
+            fontSize: "12px",
+          }}
+        >
+          <thead
+            style={{
+              background: "var(--color-base)",
+              position: "sticky",
+              top: 0,
+              zIndex: 1,
+            }}
+          >
           <tr>
             {COLUMNS.map((col) => (
               <th
@@ -190,6 +209,7 @@ export function TraceTable({ rows, isLoading }: TraceTableProps) {
           )}
         </tbody>
       </table>
+      </div>
     </div>
   );
 }

@@ -1,4 +1,4 @@
 schema_version: 3
-last_wrap: 2026-07-08T20:06:14Z                # ISO-8601 UTC
-tree_db_refreshed_at: 2026-07-08T20:06:14Z     # last code-graph refresh (wrap P4): 6642 nodes / 32609 edges
-session_count: 17                              # v3 wrap counter; +1 per successful v3 wrap
+last_wrap: 2026-07-10T13:02:26Z                # ISO-8601 UTC
+tree_db_refreshed_at: 2026-07-10T13:02:26Z     # last code-graph refresh (wrap P4): 6642 nodes / 32609 edges
+session_count: 18                              # v3 wrap counter; +1 per successful v3 wrap
