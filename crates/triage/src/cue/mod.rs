@@ -13,7 +13,7 @@
 //!
 //! Capability spec coverage: P-021 (Algorithmic Attention Cues) +
 //! P-019 partial (PriorityTier classification — three-tier severity model).
-//! Threshold multipliers loaded from a `Thresholds` config struct с
+//! Threshold multipliers loaded from a `Thresholds` config struct with
 //! hardcoded defaults this chunk; hot-reload wiring lands in chunk #86.
 
 mod broadcast;

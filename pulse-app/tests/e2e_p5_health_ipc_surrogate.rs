@@ -1,5 +1,5 @@
 //! P5 partial coverage — `health` Standard Contract envelope shape.
-//! Per test-plan §6 P5 Status: full window/tray UI exercise DEFERRED к
+//! Per test-plan §6 P5 Status: full window/tray UI exercise DEFERRED to
 //! chunk #51 tauri-driver headful matrix. Chunk #50 covers the agent-driven
 //! IPC contract surrogate per arch §Standard Contracts (health envelope
 //! locked shape).
@@ -38,7 +38,7 @@ fn p5_health_envelope_shape_matches_standard_contract() {
 
     // pid + uptime_ms required per Standard Contract.
     assert!(envelope.pid > 0, "pid must be non-zero");
-    let _: u64 = envelope.uptime_ms; // type assertion only — value may be 0 в test context
+    let _: u64 = envelope.uptime_ms; // type assertion only — value may be 0 in test context
 }
 
 #[test]

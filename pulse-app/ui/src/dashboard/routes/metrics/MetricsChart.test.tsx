@@ -25,7 +25,7 @@ beforeEach(() => {
   vi.spyOn(HTMLCanvasElement.prototype, "getContext").mockImplementation(
     () =>
       // `as never` satisfies all `getContext` overload returns (the union now
-      // includes `GPUCanvasContext` since @types/web added WebGPU; а narrower
+      // includes `GPUCanvasContext` since @types/web added WebGPU; a narrower
       // cast picks one overload and fails the others). `never` is the bottom
       // type, assignable to every overload's return.
       ({

@@ -122,7 +122,7 @@ fn resolve_grpc_port() -> Result<OtlpPort, IngestError> {
 }
 
 // Resolves the path to the andromeda-pulse-mcp sidecar binary. Sibling of
-// the current executable (same dir, with .exe on Windows). Falls back to а
+// the current executable (same dir, with .exe on Windows). Falls back to a
 // non-resolving placeholder if the current binary path cannot be read —
 // `mcp.start` then surfaces AppError::Internal at spawn time. Chunk #49.
 #[cfg(feature = "mcp-server")]
@@ -318,10 +318,10 @@ fn main() {
     let corpus_reader: Option<Arc<dyn corpus::contract::CorpusReader>> = corpus_arc
         .as_ref()
         .map(|c| Arc::clone(c) as Arc<dyn corpus::contract::CorpusReader>);
-    // Chunk #69 Phase B Session 4 — CorpusWriter trait view от the same
+    // Chunk #69 Phase B Session 4 — CorpusWriter trait view from the same
     // underlying Arc<Corpus>. Both reader + writer share one rusqlite
     // connection mutex; CorpusReader stays read-only-by-design per P-051
-    // while CorpusWriter is the additive write surface для pipeline-metric
+    // while CorpusWriter is the additive write surface for pipeline-metric
     // persistence (drain template tree this chunk; future chunks #71+
     // digest archive writes).
     let corpus_writer: Option<Arc<dyn corpus::contract::CorpusWriter>> = corpus_arc
@@ -347,7 +347,7 @@ fn main() {
     // Chunk #70 — BaselineState corpus persistence adapter. Derives a
     // third trait view from the same Arc<Corpus> (alongside reader +
     // drain-writer); BaselineState moves from the chunk #61 flat-file
-    // bincode at `<data_dir>/triage/baseline-corpus.bin` к corpus SQLite
+    // bincode at `<data_dir>/triage/baseline-corpus.bin` to corpus SQLite
     // via Schema Option A (mirrors chunk #69 Drain — reuses the
     // `pipeline_metrics` blob slot with metric_name="baseline_state",
     // layer="l1b"). None ⇒ corpus unavailable at boot (keychain failure
@@ -425,11 +425,11 @@ fn main() {
     // Chunk #80 — cadence coordinator substrate. CadenceEventBroadcast is
     // the L6-visibility emission topic (`pulse://stream/cadence-events`).
     // CadenceConfig loads from persisted Settings; coordinator reads once
-    // at spawn (hot-reload deferred к chunk #94 per pulse-v0_2_0-route §80).
+    // at spawn (hot-reload deferred to chunk #94 per pulse-v0_2_0-route §80).
     // SqlQueryRunner is wired via CadenceSqlRunner adapter ONLY when buffer_conn
     // is Some — else coordinator is disabled (warn-logged below). Hardware
-    // profile defaults к Unknown (Tier-2-enabled posture) until chunk #82
-    // delivers а real detector.
+    // profile defaults to Unknown (Tier-2-enabled posture) until chunk #82
+    // delivers a real detector.
     let cadence_event_broadcast = Arc::new(CadenceEventBroadcast::new());
     // P-074 — the non-L6 digest-assembly trigger conveys the full triggering
     // cue (incl. scope_id) from the coordinator to the digest assembler, so a
@@ -479,9 +479,9 @@ fn main() {
 
     // Chunk #84 — boot-time llama-cli readiness check. Fire-and-forget: if
     // `ANDROMEDA_PULSE_LLAMA_{CUDA,CPU}_BIN_PATH` or `ANDROMEDA_PULSE_MODEL_PATH`
-    // are unset OR resolve to invalid paths, the runner stays в `ModelStatus::Error`
+    // are unset OR resolve to invalid paths, the runner stays in `ModelStatus::Error`
     // and `generate_constrained` returns `ModelNotConfigured` — the L4 subscriber
-    // catches it as а runtime_error and skips. App boots cleanly in graceful-
+    // catches it as a runtime_error and skips. App boots cleanly in graceful-
     // degraded mode either way. Subprocess D1 means no actual model load happens
     // here (load happens per-generation inside llama-cli).
     {
@@ -529,7 +529,7 @@ fn main() {
     // existing chunk #62 attention-cues broadcast channel.
     // StormObserverAdapter wraps the detector + broadcast for the
     // buffer-side FingerprintObserver hot path; trait declaration lives
-    // в the lower buffer crate per arch §Cross-cutting Patterns Module
+    // in the lower buffer crate per arch §Cross-cutting Patterns Module
     // dependency direction.
     //
     // Chunk #71 — restore state from corpus at boot. Ok(Some(snapshot))
@@ -675,7 +675,7 @@ fn main() {
         );
         registry
     };
-    // Chunk #78 — incident records + lifecycle persistence. Derive а 5th
+    // Chunk #78 — incident records + lifecycle persistence. Derive a 5th
     // CorpusWriter trait view (alongside baseline + lifecycle + storm +
     // drain) from the same Arc<Corpus>. None ⇒ corpus unavailable at
     // boot; incident registry runs in-memory-only this session.
@@ -739,15 +739,15 @@ fn main() {
         Arc::clone(&lifecycle_broadcast),
     );
 
-    // Chunk #69 Phase B Session 4 — Drain miner construction с corpus-backed
+    // Chunk #69 Phase B Session 4 — Drain miner construction with corpus-backed
     // persistence. `CorpusDrainPersistence` wraps the writer trait object
     // via trait-in-lower-crate pattern (per session-learnings 2026-05-16);
     // serializes DrainState via bincode → AES-256-GCM cell encrypt →
     // `pipeline_metrics(metric_name="drain_template_tree", layer="l1c")`.
     // Boot is non-fatal: if corpus_writer is None the miner runs
     // in-memory-only; if `load_from_persistence` fails, we log + proceed
-    // (template tree resets к empty). Settings-driven config (Step 14)
-    // lands в Session 5 alongside the SettingsModalForm Drain UI.
+    // (template tree resets to empty). Settings-driven config (Step 14)
+    // lands in Session 5 alongside the SettingsModalForm Drain UI.
     let drain_persistence: Option<Arc<dyn buffer::DrainPersistence>> =
         corpus_writer.as_ref().map(|writer| {
             Arc::new(CorpusDrainPersistence::new(Arc::clone(writer)))
@@ -755,10 +755,10 @@ fn main() {
         });
     // Chunk #69 Phase B Session 5 — Settings-driven Drain knobs. Load
     // Settings from disk; if file missing OR parse-error, silent fallback
-    // к defaults via `Settings::load_from_data_dir` per chunk #30 boot-
+    // to defaults via `Settings::load_from_data_dir` per chunk #30 boot-
     // load precedent. Settings.drain_* fields shape DrainConfig before
     // DrainMiner construction; runtime config changes (via Settings UI)
-    // persist но do NOT mutate the live miner — restart required (P-055).
+    // persist but do NOT mutate the live miner — restart required (P-055).
     // similarity_x100 is the percent-scaled integer storage form (50 ↔ 0.50).
     let boot_settings = Settings::load_from_data_dir(&data_dir);
     let mut drain_config = DrainConfig::default_config();
@@ -1259,7 +1259,7 @@ fn main() {
                 DEFAULT_HEARTBEAT_INTERVAL,
             ));
             // Chunk #66 — retry storm detector heartbeat tick (15s default;
-            // shares cadence с chunk #63 restart detector). Storm detection
+            // shares cadence with chunk #63 restart detector). Storm detection
             // itself happens inline at fingerprint-observation time via the
             // StormObserverAdapter buffer-side hot-path hook.
             tauri::async_runtime::spawn(start_storm_detector(
@@ -1269,9 +1269,9 @@ fn main() {
             // Chunk #80 — cadence coordinator + three-tier triggering.
             // CadenceConfig reads from persisted Settings (validated by
             // Settings::validate at load time); coordinator reads once at
-            // spawn per pulse-v0_2_0-route §80 (hot-reload deferred к chunk
+            // spawn per pulse-v0_2_0-route §80 (hot-reload deferred to chunk
             // #94). Spawn ONLY when buffer_conn is Some (cadence_sql_runner
-            // has а real DuckDB handle); else log warn + skip.
+            // has a real DuckDB handle); else log warn + skip.
             let cadence_config = Arc::new(
                 CadenceConfig::try_new(
                     settings.cadence_baseline_seconds,
@@ -1312,7 +1312,7 @@ fn main() {
             // chunk #80 / chunk #68 substrates). Spawns two tasks:
             // - cadence subscriber: invokes assembler.assemble() per
             //   CadenceEvent
-            // - digest persister: writes each assembled digest к
+            // - digest persister: writes each assembled digest to
             //   corpus.digest_archive via CorpusWriter::save_digest
             let digest_broadcast: Arc<DigestBroadcast> = Arc::new(DigestBroadcast::new());
             let digest_queue: Arc<std::sync::Mutex<LwwQueue>> =
@@ -1390,7 +1390,7 @@ fn main() {
             // Chunk #67 — service lifecycle heartbeat tick (15s default
             // sibling cadence). Reads BaselineState activity snapshots,
             // emits ServiceLifecycleEvent transitions on the broadcast,
-            // and subscribes к pulse://stream/restart-events to trigger
+            // and subscribes to pulse://stream/restart-events to trigger
             // Bootstrapping transitions on any-state restart-observed gap.
             // Thresholds source from persisted Settings (loaded above).
             let lifecycle_restart_rx = restart_broadcast.subscribe();
@@ -1856,7 +1856,7 @@ mod tests {
         // Chunk #82: ModelApiImpl participates in the emit so bindings.ts
         // ARGS_MAP includes model.current_profile (5-place binding 5th slot
         // per .claude/rules/security.md Session Additions 2026-05-12).
-        // Test uses UnknownHardwareProfile (deterministic) + а stub
+        // Test uses UnknownHardwareProfile (deterministic) + a stub
         // LlamaCliInference (status: Error, identity: None — env vars unset
         // in test process so binary_path + model_path both resolve to None).
         let model_hardware: Arc<dyn HardwareProfileSource> = Arc::new(UnknownHardwareProfile);

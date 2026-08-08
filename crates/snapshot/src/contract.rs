@@ -53,7 +53,7 @@ pub enum Error {
 }
 
 // chunk #41 — markdown formatter truncation tracking. None = full input fit
-// budget; Applied = phase B/C truncation occurred с reported drop counts.
+// budget; Applied = phase B/C truncation occurred with reported drop counts.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Default)]
 #[serde(rename_all = "snake_case")]
 pub enum TruncationState {

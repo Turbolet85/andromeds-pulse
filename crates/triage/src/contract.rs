@@ -118,7 +118,7 @@ pub use crate::cadence::{
 // Chunk #79 — L1a SQL aggregation queries. Re-export to enable chunk #80
 // Cadence Coordinator's `SqlQueryRunner` adapter at the binary boundary
 // (`pulse-app/src/cadence_runner.rs`) to construct the runner over
-// `TriageSqlState` без directly reaching into `triage::baseline`. Mirrors
+// `TriageSqlState` without directly reaching into `triage::baseline`. Mirrors
 // chunk #62 pattern of contract-as-single-import-surface for pulse-app.
 pub use crate::baseline::{
     Q1RedRow, Q2OperationRow, Q3FingerprintRow, Q4InteractionRow, Q5CardinalityRow, Q6LogRow,
@@ -175,7 +175,7 @@ pub enum CueKind {
 /// Scope an attention cue applies to: a single service, a single operation
 /// within a service, or the global pipeline. Bounded enumeration; variants
 /// serialize as snake_case strings. Chunk #78 added `Hash` derive +
-/// cfg-gated `specta::Type` derive (parallel к `CueKind`).
+/// cfg-gated `specta::Type` derive (parallel to `CueKind`).
 #[cfg_attr(feature = "taurpc-runtime", derive(specta::Type))]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
@@ -206,7 +206,7 @@ pub enum PriorityTier {
 /// serialize as snake_case strings. Chunk #78 added cfg-gated
 /// `specta::Type` derive (for cross-bridge `IncidentRecord` resolver
 /// envelope). The TypeScript binding is renamed `IncidentSeverity`
-/// к disambiguate from `ingest::connection::Severity` (same identifier,
+/// to disambiguate from `ingest::connection::Severity` (same identifier,
 /// distinct domain — connection severity vs incident severity); specta
 /// rejects duplicate type names across the bindings.ts emission.
 #[cfg_attr(feature = "taurpc-runtime", derive(specta::Type))]
@@ -324,13 +324,13 @@ pub struct AttentionCue {
 /// `read_at_unix_nano` (Report-opening event mutation; column exists in
 /// chunk #68 schema but UI trigger lands in chunk #87+).
 ///
-/// `id` is the corpus rowid (i64) assigned по `INSERT INTO incidents`;
+/// `id` is the corpus rowid (i64) assigned by `INSERT INTO incidents`;
 /// 0 = unpersisted sentinel for in-memory drafts. The `fingerprint`
 /// field is the UUID-shaped cross-incident grouping identifier (separate
 /// from id).
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Incident {
-    /// Corpus rowid assigned по INSERT. 0 = unpersisted sentinel.
+    /// Corpus rowid assigned by INSERT. 0 = unpersisted sentinel.
     pub id: i64,
     /// Workspace attribution; canonicalized path from workspace-detector
     /// at the producer side. Per security plan §Anti-Patterns Input row
@@ -373,7 +373,7 @@ pub struct Incident {
     pub priority_tier: PriorityTier,
     pub evidence_refs: EvidenceRefs,
     pub opened_at_unix_nano: i64,
-    /// Re-emission timestamp; bumped по `IncidentRegistry::observe_reemission`.
+    /// Re-emission timestamp; bumped by `IncidentRegistry::observe_reemission`.
     /// The auto-resolve evaluator at chunk #78
     /// `pulse-app/src/incident_observer.rs` compares
     /// `now - updated_at_unix_nano >= 120s` and transitions Active /
@@ -386,7 +386,7 @@ pub struct Incident {
     /// spec P-022 + P-059 (chunk #86). `#[serde(default)]` keeps pre-chunk-#86
     /// persisted rows deserializable (backward-compat for corpus BLOB payloads
     /// authored by chunk #78 persist cycle). MUST be populated via the
-    /// `IncidentRegistry::attach_resolution_summary` API path так что
+    /// `IncidentRegistry::attach_resolution_summary` API path so that
     /// `security::scrubber::scrub_attribute` runs before persistence per
     /// chunk #72 uniform-coverage invariant.
     #[serde(default)]
@@ -442,7 +442,7 @@ fn default_digest_cue_scope() -> CueScope {
     CueScope::Global
 }
 
-/// Compact attention-cue reference embedded in а digest's ATTENTION CUES
+/// Compact attention-cue reference embedded in a digest's ATTENTION CUES
 /// section. Carries enumerated cue kind + scope-summary string (NOT raw
 /// OTLP attributes — scrubbed at producer).
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -466,14 +466,14 @@ pub struct DigestCueRef {
     pub scope_id: Option<String>,
 }
 
-/// Output of the L3 distillation layer — а digest summarizing incidents,
+/// Output of the L3 distillation layer — a digest summarizing incidents,
 /// baselines, attention cues, services, and corpus matches for downstream
 /// L4 LLM consumption + corpus archival.
 ///
 /// Chunk #81 extension: adds workspace identification, window timestamps,
 /// SERVICES + ATTENTION CUES + CORPUS MATCHES structured fields, and
 /// LWW metadata (lww_mode + active_incident_bypass + resolution_event)
-/// per dist-arch v3 §Appendix C. f64 fields в `services` force dropping
+/// per dist-arch v3 §Appendix C. f64 fields in `services` force dropping
 /// the `Eq` derive (preserving `PartialEq`); existing tests use
 /// `assert_eq!` which works on `PartialEq`.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -491,7 +491,7 @@ pub struct Digest {
     pub generated_at_unix_nano: i64,
     /// Workspace canonical path (chunk #81). Drives corpus filter +
     /// active-incident lookup. Pre-canonicalized at workspace-detector;
-    /// not scrubbed (workspace path is а first-party detected identifier,
+    /// not scrubbed (workspace path is a first-party detected identifier,
     /// not OTLP-attribute-derived).
     pub workspace: String,
     /// Window start (chunk #81). Used for corpus retention / replay.
@@ -509,16 +509,16 @@ pub struct Digest {
     /// LWW queue mode (chunk #81). Drives `LwwQueue::push` decision.
     pub lww_mode: DigestLwwMode,
     /// True if active-incident exception bypassed LWW (chunk #81 / P-059).
-    /// Mirrored as а discriminating field в `digest.lww.replace` events
+    /// Mirrored as a discriminating field in `digest.lww.replace` events
     /// per obs plan binding.
     pub active_incident_bypass: bool,
-    /// True if this digest captures а Resolved transition (chunk #81 /
+    /// True if this digest captures a Resolved transition (chunk #81 /
     /// P-022). L4 prompt uses this flag to generate resolution summary.
     pub resolution_event: bool,
 }
 
 impl Digest {
-    /// Apply а scrubbing closure к every OTLP-attribute-derived string
+    /// Apply a scrubbing closure to every OTLP-attribute-derived string
     /// field per chunk #72 cross-crate `scrubbed_clone` pattern (CLAUDE.md
     /// §Session Learnings 2026-05-20). Pulse-app side dep-injects
     /// `security::scrubber::scrub_attribute`-wrapping closure; this

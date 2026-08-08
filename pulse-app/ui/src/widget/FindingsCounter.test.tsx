@@ -12,7 +12,7 @@ describe("FindingsCounter — conditional render", () => {
     expect(screen.queryByTestId("findings-counter")).toBeNull();
   });
 
-  it("renders а button when count is non-zero", () => {
+  it("renders a button when count is non-zero", () => {
     render(<FindingsCounter count={3} severity="autonomous" isOpen={false} onOpen={() => {}} />);
     const counter = screen.getByTestId("findings-counter");
     expect(counter.tagName).toBe("BUTTON");
@@ -21,7 +21,7 @@ describe("FindingsCounter — conditional render", () => {
 });
 
 describe("FindingsCounter — accessible name", () => {
-  it("formats accessible name с count + severity tier", () => {
+  it("formats accessible name with count + severity tier", () => {
     render(<FindingsCounter count={3} severity="autonomous" isOpen={false} onOpen={() => {}} />);
     const counter = screen.getByTestId("findings-counter");
     expect(counter.getAttribute("aria-label")).toBe(
@@ -74,7 +74,7 @@ describe("FindingsCounter — severity-color encoding", () => {
     expect(counter.dataset.severity).toBe("suggested");
   });
 
-  it("falls back к raised-2 when severity is null", () => {
+  it("falls back to raised-2 when severity is null", () => {
     render(<FindingsCounter count={1} severity={null} isOpen={false} onOpen={() => {}} />);
     const counter = screen.getByTestId("findings-counter");
     expect(counter.style.background).toContain("var(--color-raised-2)");

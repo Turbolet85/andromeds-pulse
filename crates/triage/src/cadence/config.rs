@@ -50,7 +50,7 @@ impl CadenceConfig {
     /// Construct a `CadenceConfig` with safety-floor validation. Returns
     /// the first violating-field `Err` variant; downstream callers MAY
     /// emit a `warn`-level event at `target = "cadence.config.safety_floor"`
-    /// before discarding the requested value and falling back к defaults.
+    /// before discarding the requested value and falling back to defaults.
     pub fn try_new(
         baseline_seconds: u32,
         accelerated_seconds: u32,

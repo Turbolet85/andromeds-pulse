@@ -1,17 +1,17 @@
 // install-launch-ingest-query smoke harness (chunk #51).
 //
 // Per route#51 + arch §Cross-cutting Patterns "Test-time telemetry
-// injection": the smoke launches an installed `pulse-app` bundle as а
-// subprocess, polls loopback OTLP ports, injects а synthetic OTLP span
+// injection": the smoke launches an installed `pulse-app` bundle as a
+// subprocess, polls loopback OTLP ports, injects a synthetic OTLP span
 // via the same boundary that external SDKs use (HTTP `/v1/traces` on
 // `127.0.0.1:4318` per arch §Occupied Resources Network ports), then
-// tails `agent-latest.jsonl` к assert platform-specific boot spans +
+// tails `agent-latest.jsonl` to assert platform-specific boot spans +
 // zero panics + PII canary scrubbed.
 //
-// The harness lives в `xtask/` per arch §Established Decisions
+// The harness lives in `xtask/` per arch §Established Decisions
 // [CI Task Runner] — `cargo xtask smoke --bundle <path> --format <fmt>`
 // is the canonical invocation. Mirrors the chunk #50 e2e_p1 pattern
-// (`pulse-app/tests/e2e_p1_otlp_grpc_to_traces_query.rs`) but targets а
+// (`pulse-app/tests/e2e_p1_otlp_grpc_to_traces_query.rs`) but targets a
 // bundled subprocess instead of in-process boot.
 //
 // OTLP injection uses HTTP (`:4318`) rather than gRPC (`:4317`) to
@@ -53,7 +53,7 @@ const DEFAULT_HTTP_PORT: u16 = 4318;
 const DEFAULT_GRPC_PORT: u16 = 4317;
 const READINESS_TIMEOUT: Duration = Duration::from_secs(10);
 const POLL_INTERVAL: Duration = Duration::from_millis(500);
-// After OTLP injection, give the receiver enough time к decode + scrub +
+// After OTLP injection, give the receiver enough time to decode + scrub +
 // flush spans to the JSON log file. 2s is generous on local dev.
 const POST_INJECT_FLUSH: Duration = Duration::from_secs(2);
 const SHUTDOWN_GRACE: Duration = Duration::from_secs(5);
@@ -76,7 +76,7 @@ pub async fn run_smoke(bundle: &Path, format: BundleFormat) -> Result<ExitCode> 
     if !format.matches_host() {
         // Cross-platform invocation (e.g., `cargo xtask smoke --format msi`
         // on macOS) — install recipe cannot run; surface clearly rather
-        // than crash with а cryptic per-tool error.
+        // than crash with a cryptic per-tool error.
         bail!(
             "smoke for format {:?} requires host platform '{}'; current host is '{}'",
             format,
@@ -86,9 +86,9 @@ pub async fn run_smoke(bundle: &Path, format: BundleFormat) -> Result<ExitCode> 
     }
 
     // Per arch §Occupied Resources Filesystem locations: bundled-app smoke
-    // tests set ANDROMEDA_PULSE_DATA_DIR к а temp dir per-job к keep
+    // tests set ANDROMEDA_PULSE_DATA_DIR to a temp dir per-job to keep
     // cross-platform `%APPDATA%` / `~/Library/Application Support/` /
-    // `~/.andromeda-pulse/` resolution от leaking state between matrix jobs.
+    // `~/.andromeda-pulse/` resolution from leaking state between matrix jobs.
     let tempdir = TempDir::new().context("create per-smoke tempdir")?;
     let data_dir = tempdir.path().to_path_buf();
     let log_dir = data_dir.join("logs");
@@ -148,7 +148,7 @@ async fn install_bundle(bundle: &Path, format: BundleFormat, data_dir: &Path) ->
 }
 
 async fn install_msi(bundle: &Path, data_dir: &Path) -> Result<PathBuf> {
-    // Windows MSI: install to a custom dir under data_dir к keep state
+    // Windows MSI: install to a custom dir under data_dir to keep state
     // isolated per matrix job. `msiexec /qn` is silent (no UI). INSTALLDIR
     // override + ALLUSERS=2 means current-user install (no admin needed).
     let install_dir = data_dir.join("install");
@@ -204,7 +204,7 @@ async fn install_dmg(bundle: &Path, data_dir: &Path) -> Result<PathBuf> {
 
 fn parse_hdiutil_mount(stdout: &[u8]) -> Option<PathBuf> {
     // hdiutil attach default output (text format) emits tab-separated rows
-    // ending с `<mount-point>` on the row whose device is а disk image.
+    // ending with `<mount-point>` on the row whose device is a disk image.
     // Take the last `/Volumes/...` token observed.
     let text = std::str::from_utf8(stdout).ok()?;
     text.lines()
@@ -217,7 +217,7 @@ fn parse_hdiutil_mount(stdout: &[u8]) -> Option<PathBuf> {
 }
 
 async fn install_appimage(bundle: &Path) -> Result<PathBuf> {
-    // AppImage is а self-contained executable; install = chmod +x.
+    // AppImage is a self-contained executable; install = chmod +x.
     // Returns the bundle path itself as the launchable binary.
     #[cfg(unix)]
     {
@@ -235,9 +235,9 @@ async fn install_appimage(bundle: &Path) -> Result<PathBuf> {
 }
 
 async fn install_deb() -> Result<PathBuf> {
-    // .deb requires sudo dpkg -i, which generally fails в CI без admin. Per
-    // plan Implementation notes, .deb smoke may be deferred к follow-on if
-    // CI sudo cost is prohibitive. Surface а clear "not supported here"
+    // .deb requires sudo dpkg -i, which generally fails in CI without admin. Per
+    // plan Implementation notes, .deb smoke may be deferred to follow-on if
+    // CI sudo cost is prohibitive. Surface a clear "not supported here"
     // message rather than crash; CI matrix can opt into .AppImage instead.
     bail!(
         "deb smoke requires `sudo dpkg -i` (privileged install); deferred per chunk #51 \
@@ -264,10 +264,10 @@ async fn launch_bundle(binary: &Path, data_dir: &Path) -> Result<Child> {
 
 async fn cleanup_bundle(child: &mut Child, data_dir: &Path) -> Result<()> {
     // tokio::process::Child::start_kill sends SIGKILL on Unix, TerminateProcess
-    // on Windows. For а smoke harness, terminate-without-graceful is acceptable
+    // on Windows. For a smoke harness, terminate-without-graceful is acceptable
     // — we're not testing graceful shutdown; we need the process gone. Pair
-    // с the `kill_on_drop(true)` set at spawn time as а belt-and-suspenders
-    // guard against а panic mid-cleanup.
+    // with the `kill_on_drop(true)` set at spawn time as a belt-and-suspenders
+    // guard against a panic mid-cleanup.
     let _ = child.start_kill();
     match tokio::time::timeout(SHUTDOWN_GRACE, child.wait()).await {
         Ok(Ok(_status)) => {}
@@ -277,7 +277,7 @@ async fn cleanup_bundle(child: &mut Child, data_dir: &Path) -> Result<()> {
         }
     }
 
-    // hdiutil detach if а .dmg was mounted earlier (macOS-only).
+    // hdiutil detach if a .dmg was mounted earlier (macOS-only).
     if let Ok(mp) = tokio::fs::read_to_string(data_dir.join("dmg-mount.txt")).await {
         let _ = Command::new("hdiutil")
             .arg("detach")
@@ -484,7 +484,7 @@ fn assert_log_invariants(log_file: &Path, format: BundleFormat) -> Result<()> {
     )?;
 
     println!(
-        "smoke: log invariants verified ({} log lines; boot trio present с expected platform values; zero panics; canary scrubbed)",
+        "smoke: log invariants verified ({} log lines; boot trio present with expected platform values; zero panics; canary scrubbed)",
         lines.len()
     );
     Ok(())
@@ -679,7 +679,7 @@ mod tests {
             r#"{{"timestamp":"2026-01-01T00:00:02Z","level":"INFO","target":"app.boot.tray.init","message":"boot","fields":{{}}}}"#
         )
         .unwrap();
-        // Simulate а scrubber regression where the canary value reaches the log.
+        // Simulate a scrubber regression where the canary value reaches the log.
         writeln!(
             f,
             r#"{{"timestamp":"2026-01-01T00:00:03Z","level":"INFO","target":"ingest.grpc.export.request","message":"leak","fields":{{"value":"secret-canary-bundle-smoke-12345"}}}}"#

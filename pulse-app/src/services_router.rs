@@ -8,7 +8,7 @@
 //! dependency direction.
 //!
 //! The registry trait + in-memory impl live in `triage::lifecycle::registry`;
-//! this file wraps them in а `ServicesApi` TauRPC procedure trait + emits
+//! this file wraps them in a `ServicesApi` TauRPC procedure trait + emits
 //! the request-side observability event per
 //! `.claude/rules/observability.md` Session Addition 2026-05-07 (exact-match
 //! AllowList entry for `services.list_with_states.request`).

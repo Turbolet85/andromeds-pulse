@@ -1,14 +1,14 @@
 //! Chunk #66 E2E coverage — exception fingerprinting + retry storm detector
 //! end-to-end. Drives the production OTLP gRPC receiver via tonic 0.14
-//! client on an ephemeral loopback port; bootstraps а real DuckDB
+//! client on an ephemeral loopback port; bootstraps a real DuckDB
 //! connection + buffer consumer task + RetryStormDetector wired through
 //! the FingerprintObserver hot-path hook + AttentionCueBroadcast
 //! subscription. Asserts:
 //!
-//! 1. The 5th identical-fingerprint exception event triggers а `RetryStorm`
-//!    cue с `priority_tier: Suggested` on the broadcast channel.
-//! 2. The 10th event triggers escalation к `priority_tier: Autonomous`.
-//! 3. `span_events.fingerprint BLOB` column populated с deterministic
+//! 1. The 5th identical-fingerprint exception event triggers a `RetryStorm`
+//!    cue with `priority_tier: Suggested` on the broadcast channel.
+//! 2. The 10th event triggers escalation to `priority_tier: Autonomous`.
+//! 3. `span_events.fingerprint BLOB` column populated with deterministic
 //!    16-byte hash bytes (chunk #65 substrate + chunk #66 compute).
 //! 4. All 10 fingerprints identical (deterministic — same `exception.type` +
 //!    normalized stacktrace → same hash).
@@ -183,7 +183,7 @@ async fn chunk_66_storm_detector_emits_suggested_at_5th_autonomous_at_10th() {
     let endpoint = format!("http://{}", bound);
     let mut client = TraceServiceClient::connect(endpoint)
         .await
-        .expect("client connects к loopback receiver");
+        .expect("client connects to loopback receiver");
 
     for i in 0..10 {
         let request = make_export_request((i + 1) as u8);

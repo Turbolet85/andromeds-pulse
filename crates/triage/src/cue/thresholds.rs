@@ -37,7 +37,7 @@ pub const DEFAULT_MIN_PERSISTENCE_SECONDS: u64 = 30;
 pub const DEFAULT_LATENCY_PERCENTILE: f64 = 0.99;
 
 /// Minimum EWMA samples required before a service participates in
-/// ErrorRateSpike detection — warm-up gate к suppress cold-start noise.
+/// ErrorRateSpike detection — warm-up gate to suppress cold-start noise.
 /// Belongs to the P-009 error-rate baseline (its spec floor is 10 spans
 /// per minute); distinct from the latency-path floor below.
 pub const MIN_EWMA_SAMPLES: u64 = 10;
@@ -54,7 +54,7 @@ pub const MIN_LATENCY_SAMPLES: u64 = 50;
 /// spec). When a cue's `magnitude > multiplier × baseline` the bypass
 /// short-circuits — cue survives restart-window suppression. Matches the
 /// chunk #62 `cue::classify::dual_condition_bypass` literal (10.0)
-/// extracted к Thresholds for hot-reload in chunk #86.
+/// extracted to Thresholds for hot-reload in chunk #86.
 pub const DEFAULT_MAGNITUDE_BYPASS_MULTIPLIER: f64 = 10.0;
 
 /// Default dual-condition bypass absolute error-rate threshold (5% per
@@ -106,8 +106,8 @@ pub const DEFAULT_QUIET_DURATION_PERCENTILE: f64 = 0.95;
 /// surface narrow.
 pub const MIN_QUIET_SECONDS: u64 = 30;
 
-/// Validation error for `Thresholds`. Local к the cue module so threshold
-/// validation does not couple к `BaselineError` shape (chunk #61). Future
+/// Validation error for `Thresholds`. Local to the cue module so threshold
+/// validation does not couple to `BaselineError` shape (chunk #61). Future
 /// config-path deserialization MAY convert to a unified error type at the
 /// boundary.
 #[derive(Debug, Error, PartialEq, Eq)]

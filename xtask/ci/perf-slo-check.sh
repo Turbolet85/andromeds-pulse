@@ -3,8 +3,8 @@
 # metric.webgpu.frame_duration_ms events; computes p99 of .fields.duration_ms;
 # asserts ≤33ms (= 30 fps minimum at p99 per obs-plan §10 row 2). Sibling
 # check: metric.buffer.memory_bytes max .fields.value ≤512_000_000 (per
-# obs-plan §10 row 3). Empty event streams map к NEUTRAL (exit 0) — full
-# gate activates когда production observability emits during load window.
+# obs-plan §10 row 3). Empty event streams map to NEUTRAL (exit 0) — full
+# gate activates when production observability emits during load window.
 
 set -euo pipefail
 

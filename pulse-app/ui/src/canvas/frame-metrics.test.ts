@@ -32,25 +32,25 @@ describe("clampDurationMs — defense-in-depth client-side validation", () => {
     expect(clampDurationMs(60_000)).toBe(60_000);
   });
 
-  it("clamps negative values к 0 (matches backend `out of range` rejection threshold)", () => {
+  it("clamps negative values to 0 (matches backend `out of range` rejection threshold)", () => {
     expect(clampDurationMs(-5)).toBe(0);
   });
 
-  it("clamps above-max values к 60_000", () => {
+  it("clamps above-max values to 60_000", () => {
     expect(clampDurationMs(120_000)).toBe(60_000);
   });
 
-  it("collapses NaN к 0 (avoid backend `non-finite` reject в the happy path)", () => {
+  it("collapses NaN to 0 (avoid backend `non-finite` reject in the happy path)", () => {
     expect(clampDurationMs(Number.NaN)).toBe(0);
   });
 
-  it("collapses Infinity к 0", () => {
+  it("collapses Infinity to 0", () => {
     expect(clampDurationMs(Number.POSITIVE_INFINITY)).toBe(0);
     expect(clampDurationMs(Number.NEGATIVE_INFINITY)).toBe(0);
   });
 });
 
-describe("normalizeWgpuBackend — bounded к 3-enum allowlist", () => {
+describe("normalizeWgpuBackend — bounded to 3-enum allowlist", () => {
   it("passes through metal / dx12 unchanged", () => {
     expect(normalizeWgpuBackend("metal")).toBe("metal");
     expect(normalizeWgpuBackend("dx12")).toBe("dx12");

@@ -146,7 +146,7 @@ describe("CompactWidget — focus order", () => {
 });
 
 describe("CompactWidget — findings live region", () => {
-  it("renders а polite aria-live region for findings announcements", () => {
+  it("renders a polite aria-live region for findings announcements", () => {
     setFindingsState({ count: 0 });
     render(<CompactWidget />);
     const liveRegion = screen.getByTestId("findings-live-region");
@@ -154,7 +154,7 @@ describe("CompactWidget — findings live region", () => {
     expect(liveRegion.getAttribute("aria-live")).toBe("polite");
   });
 
-  it("reflects findings lastAnnouncement string в the live region", () => {
+  it("reflects findings lastAnnouncement string in the live region", () => {
     setFindingsState({ count: 2, lastAnnouncement: "Findings: 2 unread" });
     render(<CompactWidget />);
     expect(screen.getByTestId("findings-live-region").textContent).toBe("Findings: 2 unread");

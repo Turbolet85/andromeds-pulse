@@ -2,7 +2,7 @@
 //! workspace) acknowledge cool-down per capability spec P-022 + P-023.
 //! Chunk #78.
 //!
-//! `IncidentRegistry` trait + `InMemoryIncidentRegistry` backed by а
+//! `IncidentRegistry` trait + `InMemoryIncidentRegistry` backed by a
 //! `DashMap<i64, Incident>` keyed on corpus rowid (Incident.id). Mirrors
 //! chunk #67 `InMemoryServiceRegistry` lock-free shard pattern.
 //!
@@ -22,7 +22,7 @@ use super::state_machine::{
     cooldown_expiry_unix_nano, is_valid_incident_transition, should_auto_resolve,
 };
 
-/// Trigger reason for а Resolved-state transition, carried on
+/// Trigger reason for a Resolved-state transition, carried on
 /// `IncidentLifecycleEvent` and surface logs. Distinguishes auto-resolution
 /// from explicit user resolve.
 #[cfg_attr(feature = "taurpc-runtime", derive(specta::Type))]
@@ -34,7 +34,7 @@ pub enum ResolutionTrigger {
 }
 
 /// Sanitized error envelope for incident registry operations. Distinct from
-/// `IncidentError` (persistence-side); registry errors are логические
+/// `IncidentError` (persistence-side); registry errors are logical
 /// (NotFound / InvalidTransition / CooldownActive). No corpus/io variants
 /// here.
 #[derive(Debug, Error, Clone, PartialEq, Eq)]
@@ -62,14 +62,14 @@ impl IncidentRegistryError {
 /// Debug` so callers can hold `Arc<dyn IncidentRegistry>` and thread it
 /// through TauRPC resolvers.
 pub trait IncidentRegistry: Send + Sync + Debug {
-    /// Insert а new incident (post-corpus-INSERT; caller already has the
+    /// Insert a new incident (post-corpus-INSERT; caller already has the
     /// assigned rowid in `incident.id`).
     fn insert(&self, incident: Incident);
 
     /// Lookup by corpus rowid.
     fn get(&self, id: i64) -> Option<Incident>;
 
-    /// Snapshot of all active (incl. acknowledged) incidents for а
+    /// Snapshot of all active (incl. acknowledged) incidents for a
     /// workspace. Used by `incidents.list_active()`.
     fn list_active(&self, workspace: &str) -> Vec<Incident>;
 
@@ -77,7 +77,7 @@ pub trait IncidentRegistry: Send + Sync + Debug {
     /// (kind, scope, workspace) cool-down and returns `CooldownActive`
     /// if active. On success sets the incident's
     /// `acknowledged_at_unix_nano` and `updated_at_unix_nano` and records
-    /// а new cool-down expiry for the tuple. Returns the updated
+    /// a new cool-down expiry for the tuple. Returns the updated
     /// Incident snapshot.
     fn acknowledge(
         &self,
@@ -100,11 +100,11 @@ pub trait IncidentRegistry: Send + Sync + Debug {
     /// supports the column but chunk #87+ wires the UI trigger).
     fn mark_read(&self, id: i64, now_unix_nano: i64) -> Result<Incident, IncidentRegistryError>;
 
-    /// Bulk-mark all unread non-Resolved incidents in а workspace as read
+    /// Bulk-mark all unread non-Resolved incidents in a workspace as read
     /// (chunk #87 — Findings counter "Mark all as read" action; capability
     /// P-029 dropdown footer). Iterates the workspace's incidents and sets
     /// `read_at_unix_nano = Some(now)` + `updated_at_unix_nano = now` for
-    /// each Active/Acknowledged incident с `read_at_unix_nano.is_none()`.
+    /// each Active/Acknowledged incident with `read_at_unix_nano.is_none()`.
     /// Returns the Vec<i64> of incident ids that transitioned from unread
     /// → read so the caller can drive per-incident persistence updates +
     /// aggregate-only observability emission. Already-read incidents and
@@ -115,7 +115,7 @@ pub trait IncidentRegistry: Send + Sync + Debug {
         now_unix_nano: i64,
     ) -> Result<Vec<i64>, IncidentRegistryError>;
 
-    /// Bump `updated_at_unix_nano` when а re-emission observed for а live
+    /// Bump `updated_at_unix_nano` when a re-emission observed for a live
     /// incident (resets the 120s no-reemission auto-resolve timer).
     fn observe_reemission(&self, id: i64, now_unix_nano: i64) -> Result<(), IncidentRegistryError>;
 
@@ -124,15 +124,15 @@ pub trait IncidentRegistry: Send + Sync + Debug {
     /// `now_unix_nano` — caller injects deterministic time for tests.
     fn evaluate_auto_resolution(&self, now_unix_nano: i64, window_secs: u64) -> Vec<i64>;
 
-    /// Attach an L4-generated resolution summary к а Resolved incident
+    /// Attach an L4-generated resolution summary to a Resolved incident
     /// (chunk #86; capabilities P-022 + P-059). The caller (L4 inference
     /// subscriber) ensures the `summary_text` payload has already passed
     /// through `security::scrubber::scrub_attribute` per chunk #72
     /// uniform-coverage invariant — the registry side does NOT re-scrub.
     /// Updates `resolution_summary_text` + `updated_at_unix_nano`. Errors:
     /// `NotFound` (no such incident); `InvalidTransition` when target
-    /// incident is NOT already Resolved (chunk spec: attach к Resolved
-    /// only). Returns the updated incident snapshot. Does NOT emit а
+    /// incident is NOT already Resolved (chunk spec: attach to Resolved
+    /// only). Returns the updated incident snapshot. Does NOT emit a
     /// `pulse://stream/incidents` lifecycle event per chunk #86 silent-
     /// attachment Phase 6 resolution.
     fn attach_resolution_summary(
@@ -142,7 +142,7 @@ pub trait IncidentRegistry: Send + Sync + Debug {
         now_unix_nano: i64,
     ) -> Result<Incident, IncidentRegistryError>;
 
-    /// Total incident count в the registry (Active + Acknowledged + Resolved
+    /// Total incident count in the registry (Active + Acknowledged + Resolved
     /// — for diagnostics + tests).
     fn count(&self) -> usize;
 }

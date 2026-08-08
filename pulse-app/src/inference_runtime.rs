@@ -6,17 +6,17 @@
 //! output via `interpretation::schema::parse_bounded`, and emits
 //! observability events along the way.
 //!
-//! Persistence of the parsed L4Output к incident records is deferred to
-//! а follow-up chunk (chunk #86+ Findings counter + corpus integration)
+//! Persistence of the parsed L4Output to incident records is deferred to
+//! a follow-up chunk (chunk #86+ Findings counter + corpus integration)
 //! because the IncidentPersistence trait surface from chunk #78 does NOT
-//! currently accept а payload arg on `save_incident_event` AND extending
+//! currently accept a payload arg on `save_incident_event` AND extending
 //! that surface is out of chunk #83's plan Files-to-modify scope. Chunk
 //! #83 substrate establishes the subscriber + observability instrumentation
 //! end-to-end; future chunks wire the persistence side once the parsed
 //! L4Output → Incident mapping is fully specified.
 //!
 //! Pattern: mirrors chunk #81 `spawn_cadence_subscriber` +
-//! `spawn_digest_persister` shape — long-running tokio task с recv loop
+//! `spawn_digest_persister` shape — long-running tokio task with recv loop
 //! handling Ok / Lagged / Closed broadcast cases. Per arch §Cross-cutting
 //! Patterns Module dependency direction, the subscriber lives at the
 //! binary boundary; library crates stay Tauri-free + runtime-free.
@@ -64,7 +64,7 @@ pub const TARGET_METRIC_L4_INFERENCE_LATENCY_P99_MS: &str =
 /// Metric target — queue depth gauge (emitted per heartbeat tick by the
 /// queue-depth task, not per-event).
 pub const TARGET_METRIC_L4_INFERENCE_QUEUE_DEPTH: &str = "metric.pipeline.l4.inference_queue_depth";
-/// Tracing target — L4 inference skipped due к active degraded-mode
+/// Tracing target — L4 inference skipped due to active degraded-mode
 /// backoff window (chunk #86).
 pub const TARGET_L4_INFERENCE_SKIPPED: &str = "interpretation.inference.skipped";
 /// Tracing target — resolution-summary persist failures (chunk #86).
@@ -98,7 +98,7 @@ pub const DEFAULT_QUEUE_DEPTH_TICK_INTERVAL: Duration = Duration::from_secs(15);
 
 /// Build the project-context string passed into [`build_primary_tier_prompt`].
 /// Pulls the workspace path + VCS hints from the L3 digest payload itself;
-/// future chunks may enrich с recent commits + framework signals from
+/// future chunks may enrich with recent commits + framework signals from
 /// chunk #81's `DigestProjectContext`.
 fn build_project_context(digest: &Digest) -> String {
     let mut ctx = String::with_capacity(256);
@@ -107,12 +107,12 @@ fn build_project_context(digest: &Digest) -> String {
     ctx
 }
 
-/// Spawn the L4 inference subscriber. Subscribes к `digest_broadcast`,
+/// Spawn the L4 inference subscriber. Subscribes to `digest_broadcast`,
 /// invokes `runner` per digest, emits observability events. Threads the
 /// chunk #86 degraded-mode FSM + incident registry/persistence so the
 /// subscriber can (a) skip generation during active backoff windows,
-/// (b) record success/failure outcomes к the FSM, (c) attach resolution
-/// summaries к Resolved incidents on `DigestKind::ResolutionSummary`.
+/// (b) record success/failure outcomes to the FSM, (c) attach resolution
+/// summaries to Resolved incidents on `DigestKind::ResolutionSummary`.
 ///
 /// Returns the JoinHandle so callers can await graceful shutdown if needed.
 pub fn spawn_l4_inference_subscriber(
@@ -136,7 +136,7 @@ pub fn spawn_l4_inference_subscriber(
                             reason = "backoff_active",
                             model_tier = tier_label,
                             backoff_seconds_remaining = snap.backoff_seconds_remaining,
-                            "L4 inference skipped due к active backoff window",
+                            "L4 inference skipped due to active backoff window",
                         );
                         continue;
                     }
@@ -201,7 +201,7 @@ pub fn current_unix_nanos() -> i64 {
 /// Spawn the chunk #86 backoff-remaining gauge tick. Emits
 /// `metric.pipeline.l4.backoff_remaining_seconds` every 15s (mirrors
 /// chunk #83 `spawn_l4_queue_depth_heartbeat` cadence + obs-plan §3
-/// Heartbeat ticks). Bounded к single `value` field per chunk #86 obs
+/// Heartbeat ticks). Bounded to single `value` field per chunk #86 obs
 /// constraint aggregate-only discipline.
 pub fn spawn_l4_backoff_remaining_heartbeat(
     degraded_mode: Arc<dyn DegradedModeStatus>,
@@ -227,11 +227,11 @@ pub fn spawn_l4_backoff_remaining_heartbeat(
 /// [`DEFAULT_QUEUE_DEPTH_TICK_INTERVAL`] (15s).
 ///
 /// `queued_count_fn` returns the current count of digests awaiting L4
-/// inference. At chunk #83 substrate the subscriber is а single-consumer
+/// inference. At chunk #83 substrate the subscriber is a single-consumer
 /// recv loop with no internal queue; the broadcast channel's
-/// `sender.len()` would return zero most of the time. Future chunks с
+/// `sender.len()` would return zero most of the time. Future chunks with
 /// LWW + active-incident bypass queues per dist-arch v3 §L4 will provide
-/// а richer counter.
+/// a richer counter.
 pub fn spawn_l4_queue_depth_heartbeat<F>(queued_count_fn: F) -> JoinHandle<()>
 where
     F: Fn() -> u64 + Send + Sync + 'static,
@@ -252,7 +252,7 @@ where
     })
 }
 
-/// Classified outcome of а single L4 digest processing pass. Drives the
+/// Classified outcome of a single L4 digest processing pass. Drives the
 /// chunk #86 degraded-mode FSM transitions in
 /// [`spawn_l4_inference_subscriber`] AND surfaces the parsed `L4Output`
 /// for the resolution-summary attachment path. `L4Output` is boxed
@@ -287,7 +287,7 @@ pub async fn handle_digest(runner: &dyn LlmInferenceRunner, digest: &Digest) {
 }
 
 /// Outcome-returning single-digest inference handler. Identical
-/// observability behavior к `handle_digest`; additionally surfaces а
+/// observability behavior to `handle_digest`; additionally surfaces a
 /// classified `L4DigestOutcome` so callers (e.g.,
 /// [`spawn_l4_inference_subscriber`]) can update the chunk #86
 /// degraded-mode FSM + handle the resolution-summary attachment path.
@@ -480,8 +480,8 @@ fn handle_parse_outcome(
         Err(other) => {
             // Other variants (ModelNotConfigured / etc) routed via the
             // runtime-error path inside `handle_digest_outcome`; reaching
-            // here would indicate а new InferenceError variant — fall
-            // through к counter increment for visibility.
+            // here would indicate a new InferenceError variant — fall
+            // through to counter increment for visibility.
             let category = inference_error_label(&other);
             tracing::warn!(
                 target: TARGET_L4_INFERENCE_ERROR,
@@ -500,22 +500,22 @@ fn handle_parse_outcome(
     }
 }
 
-/// Attach the parsed L4Output as а resolution summary к the resolved
+/// Attach the parsed L4Output as a resolution summary to the resolved
 /// incident referenced by the digest's `incident_refs[0]`. Chunk #86
 /// resolution-summary path; capability P-022 + P-059.
 ///
 /// Discipline:
 /// - Render summary as JSON-serialized L4Output (chunk #87 Report UI
-///   parses back; preserves structured fields without а new schema).
+///   parses back; preserves structured fields without a new schema).
 /// - Scrub via `security::scrubber::scrub_attribute` at the persistence
 ///   boundary per chunk #72 uniform-coverage invariant.
 /// - Call `registry.attach_resolution_summary` (updates in-memory state).
-/// - Call `persistence.update_incident_status` (rewrites full BLOB к
+/// - Call `persistence.update_incident_status` (rewrites full BLOB to
 ///   corpus via existing chunk #78 trait method; the new
 ///   `resolution_summary_text` field flows through via serde).
 /// - Defensive skip on malformed `incident_refs` / invalid id / registry
 ///   error (NotFound or InvalidTransition — incident may have been
-///   archived OR not yet transitioned к Resolved).
+///   archived OR not yet transitioned to Resolved).
 pub fn attach_resolution_summary_to_incident(
     registry: &dyn IncidentRegistry,
     persistence: &dyn IncidentPersistence,
@@ -613,7 +613,7 @@ fn priority_tier_label(tier: PriorityTier) -> &'static str {
 ///
 /// Discipline mirrors [`attach_resolution_summary_to_incident`]:
 /// - Creation predicate: skip resolution summaries, `Decision::Dismiss`,
-///   `Severity::None`, OR digests с no triggering cue (incidents are strictly
+///   `Severity::None`, OR digests with no triggering cue (incidents are strictly
 ///   cue-derived per the `Incident.kind` contract doc).
 /// - Scrub every telemetry-derived text field via `scrub_attribute` before
 ///   the corpus write (chunk #72 uniform-coverage invariant).
@@ -793,4 +793,4 @@ fn digest_kind_label(d: &Digest) -> &'static str {
 // Tests live at `pulse-app/tests/unit_inference_runtime.rs` (integration
 // test crate) per CLAUDE.md testing.md 2026-05-20 lesson — pulse-app's
 // `[lib] test = false` setting disables source-level `mod tests` blocks
-// on Windows due к WebView2 DLL load.
+// on Windows due to WebView2 DLL load.

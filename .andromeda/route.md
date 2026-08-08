@@ -201,7 +201,7 @@ Hardware profile detection + model loading + tokenizer — classify hardware tie
    ↓
 Prompt scaffolding + JSON schema + primary tier inference — system prompt; embedded JSON schema; JSON-constrained inference (capabilities P-019/P-020/P-033/P-034; detail in pulse-v0_2_0-route §83).
    ↓
-L4 LLM runtime swap — replace MistralRsInference impl с LlamaCliInference subprocess (llama.cpp b9305 D1); wire prebuilt llama-cli per chunk #80 HardwareProfileSource tier.
+L4 LLM runtime swap — replace MistralRsInference impl with LlamaCliInference subprocess (llama.cpp b9305 D1); wire prebuilt llama-cli per chunk #80 HardwareProfileSource tier.
    ↓
 Fallback model tier support — reduced-quality prompt/schema for 3-4B class models; single hypothesis; ≤2 investigation steps; full CPU inference (capability P-053; detail in pulse-v0_2_0-route §84).
    ↓

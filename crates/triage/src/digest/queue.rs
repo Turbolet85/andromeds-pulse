@@ -1,4 +1,4 @@
-//! LWW queue с active-incident exception per dist-arch v3 §Queue behavior
+//! LWW queue with active-incident exception per dist-arch v3 §Queue behavior
 //! (chunk #81).
 //!
 //! - Default cadence-mode digests LWW-replace prior cadence digest within
@@ -20,14 +20,14 @@ use std::collections::{HashMap, VecDeque};
 use crate::contract::{Digest, DigestLwwMode};
 
 /// Active-incident bypass queue depth cap per workspace per dist-arch v3
-/// §Queue behavior. Beyond cap: oldest queued dropped с L6 warning.
+/// §Queue behavior. Beyond cap: oldest queued dropped with L6 warning.
 pub const ACTIVE_INCIDENT_QUEUE_CAP: usize = 5;
 
 /// Tier-1 hard-signal queue depth cap per dist-arch v3 §Queue behavior.
-/// Beyond cap: oldest queued dropped с L6 warning.
+/// Beyond cap: oldest queued dropped with L6 warning.
 pub const TIER1_QUEUE_CAP: usize = 3;
 
-/// Outcome of а `LwwQueue::push` invocation. Used by the assembler к
+/// Outcome of a `LwwQueue::push` invocation. Used by the assembler to
 /// emit appropriate `digest.lww.{drop, replace}` events.
 #[derive(Debug, Clone)]
 pub enum QueueAction {
@@ -49,7 +49,7 @@ pub enum QueueAction {
 ///   bypass queue per workspace, capped at `ACTIVE_INCIDENT_QUEUE_CAP`.
 /// - `tier1: VecDeque<Digest>` — global Tier-1 queue capped at
 ///   `TIER1_QUEUE_CAP` (hard signals are typically rare; per-workspace
-///   sharding deferred к L4 routing chunk).
+///   sharding deferred to L4 routing chunk).
 /// - `reflection_per_workspace: HashMap<String, Option<Digest>>` — one
 ///   outstanding reflection digest per workspace (same LWW shape as
 ///   default).
@@ -66,9 +66,9 @@ impl LwwQueue {
         Self::default()
     }
 
-    /// Insert а digest. Returns an action describing what the queue did:
+    /// Insert a digest. Returns an action describing what the queue did:
     /// Queued (cap-free insert), Replaced (LWW displaced prior), or
-    /// DroppedOldest (cap-bounded queue evicted oldest к make room).
+    /// DroppedOldest (cap-bounded queue evicted oldest to make room).
     pub fn push(&mut self, digest: Digest) -> QueueAction {
         match digest.lww_mode {
             DigestLwwMode::Default => self.push_default(digest),

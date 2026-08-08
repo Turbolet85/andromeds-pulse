@@ -91,7 +91,7 @@ type SqlFuture<'a, T> = Pin<Box<dyn Future<Output = Result<T, SqlAggregationErro
 
 /// L1a SQL query runner contract. Concrete impl lives at the binary
 /// boundary (`pulse-app/src/cadence_runner.rs::CadenceSqlRunner`)
-/// delegating к chunk #79 `crates/triage/src/baseline/sql.rs` Q1-Q7
+/// delegating to chunk #79 `crates/triage/src/baseline/sql.rs` Q1-Q7
 /// async public API. Tests use an in-module stub mock impl.
 pub trait SqlQueryRunner: Send + Sync {
     fn run_q1<'a>(&'a self, window: Duration) -> SqlFuture<'a, Vec<Q1RedRow>>;
@@ -103,7 +103,7 @@ pub trait SqlQueryRunner: Send + Sync {
     fn run_q7<'a>(&'a self, window: Duration) -> SqlFuture<'a, Vec<Q7CriticalPathRow>>;
 }
 
-/// Per-cycle counter struct surfaced from `run_one_coordinator_cycle` для
+/// Per-cycle counter struct surfaced from `run_one_coordinator_cycle` for
 /// test assertions + heartbeat tick fields.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub struct CoordinatorCycleStats {
@@ -115,7 +115,7 @@ pub struct CoordinatorCycleStats {
 }
 
 /// Coordinator orchestrating cadence-driven L1a + L3 + L4 invocations.
-/// Composed at the binary boundary с `Arc<dyn SqlQueryRunner>` +
+/// Composed at the binary boundary with `Arc<dyn SqlQueryRunner>` +
 /// `Arc<CadenceEventBroadcast>` + `Arc<AttentionCueBroadcast>` (subscribed
 /// for Tier-1 Autonomous cues) + `Arc<CadenceTriggerChannel>` (subscribed
 /// for Tier-2 Suggested cues per chunk #62 routing) + `Arc<dyn
@@ -132,11 +132,11 @@ impl CadenceCoordinator {
 }
 
 /// Synchronous wrapper for deterministic test-target invocation. Async
-/// because the SQL runner methods are async — но callers may pass an
-/// explicit `now_nanos` к sidestep wall-clock dependence.
+/// because the SQL runner methods are async — but callers may pass an
+/// explicit `now_nanos` to sidestep wall-clock dependence.
 ///
 /// Tier-2 skip path: if `mode == Tier2 && hw.current_profile() ==
-/// CpuPrimary`, returns immediately с `tier2_skipped_cpu_primary = true`
+/// CpuPrimary`, returns immediately with `tier2_skipped_cpu_primary = true`
 /// and ZERO queries executed (per pulse-distillation-architecture v3
 /// §Tier 2 hardware-conditional availability).
 pub async fn run_one_coordinator_cycle(
@@ -232,7 +232,7 @@ pub async fn run_one_coordinator_cycle(
 
 /// Per-tier SQL-window k-value lookup. Tier-1/Tier-2 use the baseline
 /// 60s window for short-horizon detection; Tier-3 uses the same baseline
-/// window; Reflection uses а 30-minute window for cumulative pattern
+/// window; Reflection uses a 30-minute window for cumulative pattern
 /// detection per dist-arch v3 §Background reflection cadence.
 fn cycle_window_for(mode: CadenceMode) -> Duration {
     match mode {

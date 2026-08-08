@@ -1,11 +1,11 @@
-//! Integration tests для `pulse-app/src/diagnostics_router.rs`
+//! Integration tests for `pulse-app/src/diagnostics_router.rs`
 //! `diagnostics.retry_interpretation()` TauRPC procedure (chunk #86).
 //!
 //! Tests the resolver-level contract:
 //! - Positive path (Degraded state) → triggered=true + state reset
-//! - No-op path (Active state с zero counter) → triggered=false
+//! - No-op path (Active state with zero counter) → triggered=false
 //! - Serde round-trip of RetryInterpretationPayload (specta::Type)
-//! - Observability event emission с aggregate-only fields
+//! - Observability event emission with aggregate-only fields
 //! - AppError sanitization grep (assert NO stack traces / paths / lib versions)
 
 use std::sync::Arc;

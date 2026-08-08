@@ -208,7 +208,7 @@ describe("FindingsDropdown — footer action", () => {
 });
 
 describe("FindingsDropdown — Escape closes + focus restoration", () => {
-  it("invokes onClose + restores focus к trigger on Escape", async () => {
+  it("invokes onClose + restores focus to trigger on Escape", async () => {
     const onClose = vi.fn();
     const user = userEvent.setup();
     const triggerRef = makeTriggerRef();

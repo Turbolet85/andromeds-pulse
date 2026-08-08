@@ -53,7 +53,7 @@ pub struct ServiceRegistryRowRaw {
 /// `triage::contract::Incident` at the binary boundary; corpus crate
 /// stays domain-agnostic (no `triage` dep edge).
 ///
-/// The `id` field is the SQLite auto-rowid assigned по `INSERT INTO
+/// The `id` field is the SQLite auto-rowid assigned by `INSERT INTO
 /// incidents (...)` AND served as the external incident identifier
 /// over the TauRPC bridge (incidents.acknowledge / mark_resolved take
 /// the rowid string). The `payload` field carries the encrypted-then-
@@ -95,7 +95,7 @@ impl Debug for Corpus {
 
 impl Corpus {
     /// Open (or create) the corpus at `path`. Fetches the encryption
-    /// key from the keychain backend on first call; subsequent opens с
+    /// key from the keychain backend on first call; subsequent opens with
     /// the same backend reuse the same key. Runs first-launch schema
     /// migration if the file is new.
     pub fn open(path: PathBuf, keychain: Arc<dyn KeychainBackend>) -> Result<Self, Error> {
@@ -112,7 +112,7 @@ impl Corpus {
         })
     }
 
-    /// Open an in-memory corpus с the given keychain backend. Used by
+    /// Open an in-memory corpus with the given keychain backend. Used by
     /// tests + the bindings emission flow.
     pub fn open_in_memory(keychain: Arc<dyn KeychainBackend>) -> Result<Self, Error> {
         let key_bytes = keychain
@@ -156,7 +156,7 @@ impl Corpus {
 
 /// Read-only corpus operations consumed by the TauRPC resolver layer.
 /// Trait-in-lower-crate pattern per session-learnings 2026-05-16 —
-/// resolvers в `pulse-app` hold `Arc<dyn CorpusReader>`.
+/// resolvers in `pulse-app` hold `Arc<dyn CorpusReader>`.
 pub trait CorpusReader: Send + Sync + Debug {
     /// Per-table record counts + total file size + schema version.
     fn inspect(&self) -> Result<InspectionMetadata, Error>;
@@ -193,7 +193,7 @@ impl CorpusReader for Corpus {
 /// only exposed to consumers that explicitly bind `Arc<dyn CorpusWriter>`.
 ///
 /// Payloads MUST be pre-encrypted-free plaintext at this boundary; the
-/// impl wraps each payload в AES-256-GCM before the SQLite INSERT (per
+/// impl wraps each payload in AES-256-GCM before the SQLite INSERT (per
 /// chunk #68 cell-level encryption discipline). Caller's plaintext
 /// payload MUST already have been PII-scrubbed via
 /// `security::scrubber::scrub_attribute` at the producer side (chunk #72);
@@ -228,10 +228,10 @@ pub trait CorpusWriter: Send + Sync {
     /// `payload` is the plaintext-bytes to encrypt + store; the impl
     /// stamps `snapshot_unix_nano` from system time.
     ///
-    /// Implementation appends a new row each call; the latest row для
+    /// Implementation appends a new row each call; the latest row for
     /// the given `(metric_name, layer)` pair is what
     /// [`Self::load_pipeline_metric`] returns. A bounded-history sweep
-    /// is out of scope for chunk #69 (deferred к а follow-on retention
+    /// is out of scope for chunk #69 (deferred to a follow-on retention
     /// chunk).
     fn save_pipeline_metric(
         &self,
@@ -295,19 +295,19 @@ pub trait CorpusWriter: Send + Sync {
 
     /// INSERT a new row into `incidents` table (chunk #78). `payload` is
     /// the plaintext-bytes encoding (bincode-serialized
-    /// `triage::contract::Incident`) — encrypted via AES-256-GCM по the
+    /// `triage::contract::Incident`) — encrypted via AES-256-GCM by the
     /// cell-level discipline before write. Returns the auto-assigned
     /// SQLite rowid as the new external incident identifier. Prepared
-    /// statement с `?` placeholders per security plan §Input Validation.
+    /// statement with `?` placeholders per security plan §Input Validation.
     /// Workspace + status + timestamp columns store metadata redundantly
     /// for fast SQL filtering (P-045 counter SQL); payload BLOB is the
     /// authoritative source of full struct state.
     ///
     /// Producer-side PII scrubbing rule (chunk #72 uniform coverage):
-    /// the caller (incident persistence adapter в pulse-app) MUST have
-    /// pre-scrubbed any OTLP-derived attribute values в `incident.title`
+    /// the caller (incident persistence adapter in pulse-app) MUST have
+    /// pre-scrubbed any OTLP-derived attribute values in `incident.title`
     /// / `incident.detail` / `evidence_refs.fingerprint_hashes` BEFORE
-    /// passing к this method. Corpus impl does NOT double-scrub the BLOB
+    /// passing to this method. Corpus impl does NOT double-scrub the BLOB
     /// payload — see trait docstring above.
     #[allow(clippy::too_many_arguments)]
     fn save_incident(
@@ -323,10 +323,10 @@ pub trait CorpusWriter: Send + Sync {
 
     /// UPDATE an existing `incidents` row's status + timestamps + payload
     /// (chunk #78). Updates the metadata columns + replaces the encrypted
-    /// payload BLOB к keep BLOB-state в sync с column-state. Used по
+    /// payload BLOB to keep BLOB-state in sync with column-state. Used by
     /// `incidents.acknowledge(id)` + `incidents.mark_resolved(id)` +
     /// auto-resolution observer tick. Returns `Error::QueryFailed` when
-    /// `id` does not match а row (caller maps к `IncidentError::NotFound`
+    /// `id` does not match a row (caller maps to `IncidentError::NotFound`
     /// or `AppError::NotFound` at the binary boundary).
     fn update_incident_status(
         &self,
@@ -338,7 +338,7 @@ pub trait CorpusWriter: Send + Sync {
     ) -> Result<(), Error>;
 
     /// UPDATE only the `read_unix_nano` column for an incident (chunk #78).
-    /// Used по Report-opening event (chunk #87+ wires the UI trigger;
+    /// Used by Report-opening event (chunk #87+ wires the UI trigger;
     /// chunk #78 ships the schema + write path).
     fn mark_incident_read(&self, id: i64, read_unix_nano: i64) -> Result<(), Error>;
 
@@ -383,11 +383,11 @@ pub trait CorpusWriter: Send + Sync {
 
     /// P-045 counter SQL: returns the count of active + unread incidents
     /// for a workspace (`status = 'active' AND read_unix_nano IS NULL`).
-    /// SQL-only path; does NOT decrypt payloads. Fast counter для
+    /// SQL-only path; does NOT decrypt payloads. Fast counter for
     /// findings dropdown display.
     fn count_active_unread(&self, workspace: &str) -> Result<u64, Error>;
 
-    /// INSERT а row into `incident_events` table (chunk #78). Audit-trail
+    /// INSERT a row into `incident_events` table (chunk #78). Audit-trail
     /// lifecycle events; `payload` is the encrypted bincode of event-
     /// specific metadata (currently empty Vec is acceptable; chunk #78+
     /// may extend per-event payload shape).
@@ -399,7 +399,7 @@ pub trait CorpusWriter: Send + Sync {
         payload: &[u8],
     ) -> Result<(), Error>;
 
-    /// INSERT а row into `digest_archive` table (chunk #81 — L3 digest
+    /// INSERT a row into `digest_archive` table (chunk #81 — L3 digest
     /// assembler). `payload` is bincode-serialized plaintext-bytes of
     /// the triage `Digest` struct; encrypted via AES-256-GCM per the
     /// cell-level discipline before write. Returns the auto-assigned
@@ -407,16 +407,16 @@ pub trait CorpusWriter: Send + Sync {
     /// plan §Input Validation.
     ///
     /// Producer-side PII scrubbing rule (chunk #72 uniform coverage):
-    /// the caller (digest assembler в triage::digest::assembler::Assembler)
-    /// MUST have pre-scrubbed any OTLP-derived attribute values в the
+    /// the caller (digest assembler in triage::digest::assembler::Assembler)
+    /// MUST have pre-scrubbed any OTLP-derived attribute values in the
     /// Digest fields BEFORE bincode serialization. Corpus impl does
     /// NOT double-scrub the BLOB payload — see trait docstring above.
     ///
     /// Workspace filtering happens at read-time post-decryption (the
     /// digest_archive schema lacks a workspace column at chunk #81; the
-    /// workspace field is embedded в the bincode payload). Future
+    /// workspace field is embedded in the bincode payload). Future
     /// schema migration v1 → v2 may add a workspace column for SQL-side
-    /// filtering — deferred к chunk #82+ retrieval implementation.
+    /// filtering — deferred to chunk #82+ retrieval implementation.
     fn save_digest(
         &self,
         digest_kind: &str,

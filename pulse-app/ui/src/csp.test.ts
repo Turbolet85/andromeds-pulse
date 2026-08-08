@@ -14,7 +14,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 // `script-src` (security plan §Anti-Patterns API + §Threat Model Summary
 // "webview content").
 //
-// Path к tauri.conf.json: pulse-app/tauri.conf.json relative к repo root.
+// Path to tauri.conf.json: pulse-app/tauri.conf.json relative to repo root.
 // This test runs from `pulse-app/ui/` (Vitest cwd), so the path resolves
 // up two directories.
 
@@ -38,12 +38,12 @@ function extractDirective(csp: string, name: string): string | null {
 }
 
 describe("tauri.conf.json CSP — chunk #28 regression invariants", () => {
-  it("preserves `worker-src 'self' blob:` provision (WebGPU compute pipelines в chunk #29)", () => {
+  it("preserves `worker-src 'self' blob:` provision (WebGPU compute pipelines in chunk #29)", () => {
     const csp = readCsp();
     expect(csp).toContain("worker-src 'self' blob:");
   });
 
-  it("preserves `script-src 'self'` без `'unsafe-inline'` / `'unsafe-eval'` widening", () => {
+  it("preserves `script-src 'self'` without `'unsafe-inline'` / `'unsafe-eval'` widening", () => {
     const csp = readCsp();
     const scriptSrc = extractDirective(csp, "script-src");
     expect(scriptSrc).not.toBeNull();

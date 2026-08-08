@@ -12,12 +12,12 @@
 // a resize forced a focus refetch. The re-poll is a SILENT background refresh:
 // `refetch` keeps the last-good records on error (never empties, no loading
 // flag to re-flip). A future chunk wiring `streams.subscribe_incidents` can
-// swap the poll for push-driven invalidation без changing the public API.
+// swap the poll for push-driven invalidation without changing the public API.
 //
 // jsdom posture mirrors `use-widget-metrics.ts` (chunk #57): all proxy
-// invocations are wrapped в `.catch(() => {})` so jsdom test
+// invocations are wrapped in `.catch(() => {})` so jsdom test
 // environments + pre-init Tauri context fall back to empty rows
-// silently без console noise.
+// silently without console noise.
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { createTauRPCProxy, type IncidentRecord } from "../bindings/index";

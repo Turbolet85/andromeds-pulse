@@ -53,8 +53,8 @@ pub const TARGET_INCIDENT_PERSIST_ERROR: &str = "triage.incident.persist.error";
 pub const INCIDENT_PERSISTENCE_KIND: &str = "incident";
 
 /// Payload envelope for incident BLOB persistence. Currently identical to
-/// `Incident`; carries the full serialized state с serde. Defined as а
-/// distinct alias к keep future evolution flexibility (e.g., adding а
+/// `Incident`; carries the full serialized state with serde. Defined as a
+/// distinct alias to keep future evolution flexibility (e.g., adding a
 /// schema version field separate from the corpus PRAGMA version).
 pub type IncidentRecordPayload = Incident;
 
@@ -91,15 +91,15 @@ impl IncidentError {
     }
 }
 
-/// Abstraction over durable storage для `InMemoryIncidentRegistry`.
-/// `save_new_incident` INSERTs а new row and returns the corpus-assigned
+/// Abstraction over durable storage for `InMemoryIncidentRegistry`.
+/// `save_new_incident` INSERTs a new row and returns the corpus-assigned
 /// rowid as the new `Incident.id`. The `update_*` methods accept the
 /// rowid and perform UPDATE WHERE id = ?. `load_active_incidents` reads
 /// then decrypts all rows matching the workspace AND non-Resolved status.
-/// Counter SQL (`count_active_unread`) uses а plain SQL COUNT without
+/// Counter SQL (`count_active_unread`) uses a plain SQL COUNT without
 /// decryption per P-045 fast-path semantics.
 pub trait IncidentPersistence: Send + Sync {
-    /// INSERT а new incident row. Returns the corpus-assigned rowid (i64)
+    /// INSERT a new incident row. Returns the corpus-assigned rowid (i64)
     /// which the caller stores back into the in-memory `Incident.id`.
     /// Encryption + serialization handled internally by the adapter.
     fn save_new_incident(&self, incident: &Incident) -> Result<i64, IncidentError>;
@@ -113,13 +113,13 @@ pub trait IncidentPersistence: Send + Sync {
     /// trigger). Distinct from `update_incident_status` because the
     /// status-column UPDATE path does NOT touch the read_at column; this
     /// method ships the dedicated per-row read-state persistence write.
-    /// Delegates к `CorpusWriter::mark_incident_read` at the binary
+    /// Delegates to `CorpusWriter::mark_incident_read` at the binary
     /// boundary. Returns `NotFound` when no row matches the id.
     fn mark_read(&self, id: i64, read_unix_nano: i64) -> Result<(), IncidentError>;
 
     /// Load all active (incl. Acknowledged) incidents for a workspace.
-    /// Used at boot к hydrate the in-memory registry from corpus +
-    /// fallback path в `incidents.list_active()` if registry-empty.
+    /// Used at boot to hydrate the in-memory registry from corpus +
+    /// fallback path in `incidents.list_active()` if registry-empty.
     fn load_active_incidents(&self, workspace: &str) -> Result<Vec<Incident>, IncidentError>;
 
     /// Load incidents for a workspace created at or after `since_unix_nano`,
@@ -138,7 +138,7 @@ pub trait IncidentPersistence: Send + Sync {
     /// the workspace. SQL-only (no decryption); fast path.
     fn count_active_unread(&self, workspace: &str) -> Result<u64, IncidentError>;
 
-    /// Append а lifecycle event к the `incident_events` table. Lightweight
+    /// Append a lifecycle event to the `incident_events` table. Lightweight
     /// audit trail; payload carries the event type-specific metadata.
     fn save_incident_event(
         &self,
@@ -359,7 +359,7 @@ mod tests {
         let mock = Arc::clone(&persistence);
         // Downcast via raw pointer trick wouldn't work generically; verify
         // by re-querying the trait method. Since MockPersistence accumulates
-        // updates in а mutex, we re-test by reading the actives vector.
+        // updates in a mutex, we re-test by reading the actives vector.
         let _ = mock;
     }
 

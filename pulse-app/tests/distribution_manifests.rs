@@ -98,7 +98,7 @@ fn update_channels_workflow_homebrew_desc_under_80_chars() {
     );
     // Brand-voice anti-pattern check: no generic SaaS framing per design plan
     // §Anti-Patterns Universal Bans + §Self-Validation Protocol §5 Sameness
-    // Test. The install-time entry point IS а brand touchpoint.
+    // Test. The install-time entry point IS a brand touchpoint.
     for forbidden in [
         "powerful telemetry visualization platform",
         "modern observability for developers",
@@ -162,8 +162,8 @@ fn update_channels_workflow_sha_pin_discipline() {
                  Chain + CI (line: `{trimmed}`)"
             );
         }
-        // Positive check: the `uses:` value MUST contain `@` followed by а
-        // 40-char hex SHA. Look for the `@<40-hex>` pattern в the line.
+        // Positive check: the `uses:` value MUST contain `@` followed by a
+        // 40-char hex SHA. Look for the `@<40-hex>` pattern in the line.
         let after_at = trimmed.split_once('@').map(|(_, rest)| rest);
         let sha_part = after_at
             .unwrap_or("")
@@ -172,7 +172,7 @@ fn update_channels_workflow_sha_pin_discipline() {
             .unwrap_or("");
         assert!(
             sha_part.len() >= 40 && sha_part.chars().take(40).all(|c| c.is_ascii_hexdigit()),
-            "update-channels.yml `uses:` line MUST be pinned к а 40-char \
+            "update-channels.yml `uses:` line MUST be pinned to a 40-char \
              SHA per security plan §Supply Chain + CI (line: `{trimmed}`)"
         );
     }
@@ -181,7 +181,7 @@ fn update_channels_workflow_sha_pin_discipline() {
 #[test]
 fn update_channels_workflow_environment_scoping_on_secret_jobs() {
     // Per security plan §Secret Management + chunk #52 precedent: any job
-    // accessing HOMEBREW_TAP_PUSH_TOKEN или SCOOP_BUCKET_PUSH_TOKEN MUST
+    // accessing HOMEBREW_TAP_PUSH_TOKEN or SCOOP_BUCKET_PUSH_TOKEN MUST
     // declare `environment: production-release` to gate the job behind
     // manual approval. This invariant prevents PR-time CI from ever
     // touching trusted-publisher tokens.
@@ -201,22 +201,22 @@ fn update_channels_workflow_environment_scoping_on_secret_jobs() {
 fn update_channels_workflow_workflow_run_trigger_with_success_guard() {
     // Per arch §Infrastructure Patterns CI/CD approach + chunk #53 plan:
     // workflow_run trigger MUST guard via `conclusion == 'success'` to
-    // skip channel updates когда the originating release.yml run failed.
+    // skip channel updates when the originating release.yml run failed.
     let content = read_workflow();
     assert!(
         content.contains("workflows: [\"release\"]"),
-        "update-channels.yml MUST trigger on workflow_run от the `release` \
+        "update-channels.yml MUST trigger on workflow_run from the `release` \
          workflow (chunk #52 release.yml `name:` field)"
     );
     assert!(
         content.contains("types: [completed]"),
-        "update-channels.yml MUST trigger on `types: [completed]` к detect \
+        "update-channels.yml MUST trigger on `types: [completed]` to detect \
          release.yml completion"
     );
     assert!(
         content.contains("github.event.workflow_run.conclusion == 'success'"),
         "update-channels.yml MUST guard each job via \
-         `if: github.event.workflow_run.conclusion == 'success'` к skip \
-         channel updates на а failed release"
+         `if: github.event.workflow_run.conclusion == 'success'` to skip \
+         channel updates on a failed release"
     );
 }

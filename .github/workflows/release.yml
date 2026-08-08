@@ -16,7 +16,7 @@
 #     4. GitHub Environment `production-release` secret population per
 #        runbook §DEFERRED scope (Items 1-4).
 #
-# The workflow cannot execute а signed release until DEFERRED-scope secrets
+# The workflow cannot execute a signed release until DEFERRED-scope secrets
 # are populated. Re-run dependabot (config in .github/dependabot.yml
 # github-actions ecosystem) to verify all SHA pins are current before
 # tagging the first production release.
@@ -96,7 +96,7 @@ jobs:
         # OIDC federation eliminates long-lived Azure service principal
         # secrets per security plan §Secret Management Storage. The
         # federation trust is configured one-time on Azure mapping
-        # `repo:turbolet85/andromeda-pulse:environment:production-release` к
+        # `repo:turbolet85/andromeda-pulse:environment:production-release` to
         # the managed identity. Tauri-action consumes Azure Key Vault HSM-
         # backed EV certificate via AzureSignTool during the Windows build.
         if: runner.os == 'Windows'
@@ -113,11 +113,11 @@ jobs:
         # Windows, Apple Developer ID + notarytool on macOS, unsigned on
         # Linux), then emits Tauri updater `latest.json` Minisign Ed25519
         # signature and uploads bundle artifacts + signatures + latest.json
-        # к the GitHub Release as а draft (per arch §Established Decisions
+        # to the GitHub Release as a draft (per arch §Established Decisions
         # [Deployment / Release Pipeline] + security plan §Code Signing).
         uses: tauri-apps/tauri-action@e3d5c6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3 # v0.5.x (pre-release placeholder — dependabot validates)
         env:
-          # Tauri updater Minisign keypair (private key + password от
+          # Tauri updater Minisign keypair (private key + password from
           # production-release Environment per runbook §DEFERRED scope
           # item 3). Public key already baked into tauri.conf.json by chunk
           # #3 ACTIVE scope; signature verification cannot be disabled per
@@ -192,10 +192,10 @@ jobs:
           retention-days: 14
 
       - name: Upload tauri-action artifacts (bundle copies for chunk #51 smoke)
-        # Mirror the GitHub Release upload as а workflow artifact so chunk
+        # Mirror the GitHub Release upload as a workflow artifact so chunk
         # #51's `cargo xtask smoke --bundle <path> --format <fmt>` can
         # cross-validate signed production bundles via `gh run download`
-        # without needing к re-fetch от GitHub Releases API.
+        # without needing to re-fetch from GitHub Releases API.
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:

@@ -29,14 +29,14 @@ standalone for any OTel-emitting product.
    you flip to when something goes wrong. Pulse v2 ships a quarter-screen
    always-visible widget you keep on a side monitor — beautiful real-time
    infographics make it ambient context, not a tool you remember to open.
-   Click expands к full dashboard когда нужно drill in.
+   Click expands to full dashboard when needed drill in.
 
 2. **Token-efficient AI snapshots.** Existing snapshot tools dump raw OTLP
-   JSON — а production trace at moderate load = hundreds of thousands of
-   tokens к paste into Claude. Pulse v2 generates **curated** snapshots:
+   JSON — a production trace at moderate load = hundreds of thousands of
+   tokens to paste into Claude. Pulse v2 generates **curated** snapshots:
    deduplication of repetitive spans, anomaly highlighting, critical-path
    extraction, metrics aggregation (p50/p95/p99 instead of every data
-   point), smart truncation к target token budget. Snapshot is hierarchical
+   point), smart truncation to target token budget. Snapshot is hierarchical
    markdown with citation anchors — designed for LLM ingestion.
 
 3. **GPU-accelerated visualization.** Hand-built Canvas falls over at 10k+
@@ -49,11 +49,11 @@ compete with Uptrace / SigNoz on lightweight-ness; zero-config local install;
 **portfolio-worthy GPU-accelerated visualization**; AI debug workflow that
 saves real token cost per investigation.
 
-**TECH.** Rust + Tauri 2 for cross-platform desktop UI. WebGPU/WGSL для
-visualizations (compute shaders + render). WASM Component Model для plugin
+**TECH.** Rust + Tauri 2 for cross-platform desktop UI. WebGPU/WGSL for
+visualizations (compute shaders + render). WASM Component Model for plugin
 system (custom dashboards / data transforms / snapshot template engines).
 DuckDB embedded columnar database (telemetry storage; SQL queries). Apache
-Arrow для zero-copy ingest pipeline. Frontend framework TBD in arch
+Arrow for zero-copy ingest pipeline. Frontend framework TBD in arch
 (React / Svelte / Solid candidates). MIT-licensed open source, GitHub
 Releases distribution.
 
@@ -78,7 +78,7 @@ Releases distribution.
 
 ### Compact glance-monitor surface (NEW v2 — primary surface)
 
-- **Quarter-screen widget mode** — default surface; window snaps к
+- **Quarter-screen widget mode** — default surface; window snaps to
   side of screen (left / right / corner); always-on-top toggle;
   remembers position per display.
 - **Live infographics** — beautiful real-time visualizations:
@@ -86,19 +86,19 @@ Releases distribution.
     pulse rate indicate health; throughput visualized as ring intensity)
   - Recent traces (top-N latest spans, color-coded by status / latency)
   - Latency heatmap strip (last N minutes; sparkline-style; clickable
-    к drill into time window)
+    to drill into time window)
   - Error rate sparkline + count
   - Throughput counter (events/sec with smooth animation)
-- **Glance-readable от 2 meters** — typography legible at distance;
+- **Glance-readable from 2 meters** — typography legible at distance;
   high-contrast palette; motion convey state (pulse / flow / steady)
-  без requiring focused attention.
-- **Click к expand** — opens full dashboard window; widget remains
-  mounted (returns к compact mode on close).
+  without requiring focused attention.
+- **Click to expand** — opens full dashboard window; widget remains
+  mounted (returns to compact mode on close).
 - **Tray icon (secondary)** — traffic-light status; click cycles
   widget visibility (visible / minimized / hidden).
 - **Beautiful infographics requirement** — visual bar matches portfolio
   showcase tools (think Apple Activity rings, Cleanshot X, Things 3
-  polish). UI is part of the product, not just а tool.
+  polish). UI is part of the product, not just a tool.
 
 ### Investigate workflow (CORE feature)
 
@@ -106,7 +106,7 @@ Releases distribution.
 - Generates **token-efficient curated snapshot** (not raw OTLP dump).
 - **Snapshot generation pipeline** (configurable preset):
   1. **Time window selection** — last N minutes (default 5 min;
-     configurable 30s..30min) ИЛИ user-selected range from heatmap
+     configurable 30s..30min) OR user-selected range from heatmap
   2. **Filter** — by service / trace ID / error-only / latency-outlier
      (preset options + custom SQL filter)
   3. **Curate**:
@@ -120,7 +120,7 @@ Releases distribution.
      - Drop verbose / low-signal attributes (keep service.name,
        request_id, error; drop runtime.go.gc.heap stats unless they
        are anomalous)
-  4. **Format** — hierarchical markdown с citation anchors:
+  4. **Format** — hierarchical markdown with citation anchors:
      ```
      # Trace abc123 — POST /api/checkout (1.2s, error)
      ## Critical path (1.05s)
@@ -146,7 +146,7 @@ Releases distribution.
   - **"Cursor"**, **"ChatGPT"**, **"Custom"** — user-editable in Settings.
 - **Dual format** — both raw `.json` (OTLP-native, for tooling) and
   `.md` (curated, for AI consumption) written; clipboard link references
-  `.md` by default; Settings switch к `.json` for users who prefer raw.
+  `.md` by default; Settings switch to `.json` for users who prefer raw.
 - **Notification** — `Snapshot ready ({N} tokens). Paste in {AI tool}
   to investigate.`
 
@@ -160,23 +160,23 @@ Releases distribution.
   - `query_logs(filter, time_range, limit)`
   - `generate_snapshot(time_range, token_budget)` — agent invokes
     same curation pipeline as Investigate button
-- Eliminates copy-paste step entirely для MCP-aware AI tools.
+- Eliminates copy-paste step entirely for MCP-aware AI tools.
 
 ### Plugin system (NEW v2 — WASM Component Model)
 
-- **Custom dashboards** — load WASM module that defines а new dashboard
+- **Custom dashboards** — load WASM module that defines a new dashboard
   panel (input: query results from DuckDB; output: rendered viz spec).
 - **Data transforms** — WASM module receives ingest stream; emits
   transformed events (e.g., redact PII attributes; derive synthetic spans).
 - **Snapshot templates** — WASM module receives curated snapshot;
   emits formatted markdown / JSON / custom format. Replaces hardcoded
-  preset templates с user-extensible system.
+  preset templates with user-extensible system.
 - **Plugin sandbox** — WASM Component Model boundaries; capability-based
   access (plugins declare needed APIs via WIT interfaces; runtime grants
   per-plugin).
 - **Plugin marketplace** — v1 ships built-in templates; community plugins
   loadable from `~/.andromeda-pulse/plugins/` directory; signed plugin
-  verification optional (defer к post-v1 if scope creeps).
+  verification optional (defer to post-v1 if scope creeps).
 
 ### Settings
 
@@ -204,10 +204,10 @@ demonstrate technical depth — vibe-coders won't touch most of these:
 | **WGSL render shaders** | Trace timeline / flamegraph / metrics charts; smooth animation |
 | **WASM Component Model** | Plugin system (custom dashboards / transforms / snapshot templates) |
 | **wasmtime** | Sandboxed plugin runtime |
-| **DuckDB embedded** | Telemetry storage с SQL query power; columnar OLAP |
+| **DuckDB embedded** | Telemetry storage with SQL query power; columnar OLAP |
 | **Apache Arrow** | Zero-copy IPC between ingest and DuckDB; columnar in-memory |
 | **SIMD vectorization** | Hot-path OTLP protobuf parsing |
-| **Tauri 2** | Cross-platform desktop с small bundle (vs Electron) |
+| **Tauri 2** | Cross-platform desktop with small bundle (vs Electron) |
 | **OTLP HTTP + gRPC** | Multi-protocol receiver implementation |
 | **rmcp (MCP server)** | AI agent direct query interface |
 | **opentelemetry-stdout** | Self-observation exporter (recursive dogfood — see edge case below) |
@@ -311,37 +311,37 @@ For the design specialist's Color World + Signature Element work:
   (information overload). Not Status Hero / Pingdom (vacant marketing-
   app sterility). Not Neon / Supabase (heavy gradient SaaS aesthetic).
 - **Signature element candidates** (design specialist picks):
-  - "Service constellation" — animated dot field, each service а dot;
+  - "Service constellation" — animated dot field, each service a dot;
     pulse rate ∝ throughput; halo color ∝ error rate
   - "Latency river" — flowing horizontal stream of recent traces,
     color-coded; smooth GPU-rendered animation
   - "Investigation portal" — when Investigate clicked, a beautiful
-    transition animation gathers visible signal into а snapshot
+    transition animation gathers visible signal into a snapshot
     "object" before clipboard copy notification
-- **Typography:** monospace для timestamps / IDs (data); sans-serif
-  display для service names / counts. Reference: JetBrains Mono +
+- **Typography:** monospace for timestamps / IDs (data); sans-serif
+  display for service names / counts. Reference: JetBrains Mono +
   Inter / Geist / Berkeley Mono.
 - **Color:** dark + light themes. Status colors not-color-alone (paired
-  с iconography per WCAG). Accent color saturation modulates с anomaly
-  intensity (subtle when steady; vivid когда alerts fire).
-- **Motion:** every state change is а transition; respects
-  `prefers-reduced-motion` для accessibility (degrades к instant);
-  motion-as-data principle (motion reflects telemetry character, не
+  with iconography per WCAG). Accent color saturation modulates with anomaly
+  intensity (subtle when steady; vivid when alerts fire).
+- **Motion:** every state change is a transition; respects
+  `prefers-reduced-motion` for accessibility (degrades to instant);
+  motion-as-data principle (motion reflects telemetry character, not
   decoration).
 
 ---
 
-## Out of v1 scope (deferred к v2 Pulse OR scope-arch additions)
+## Out of v1 scope (deferred to v2 Pulse OR scope-arch additions)
 
 - **Persistent storage** — v1 is in-memory ring buffer (5-10 min). Disk
-  persistence + longer retention (hours / days) is а separate scope.
+  persistence + longer retention (hours / days) is a separate scope.
 - **Distributed tracing** — v1 is single-machine local. Multi-host
-  collection / federation is а separate scope.
+  collection / federation is a separate scope.
 - **Alerting** — v1 surfaces visible state. Threshold-based alert
-  dispatch (Slack / email / webhook) is а separate scope.
+  dispatch (Slack / email / webhook) is a separate scope.
 - **Saved searches** — v1 has runtime filter UI. Persistent saved
-  searches across restarts is а minor scope.
+  searches across restarts is a minor scope.
 - **Dashboard customization** — v1 ships fixed widget panels. User-
-  arrangeable layouts is а separate scope.
+  arrangeable layouts is a separate scope.
 - **Plugin marketplace UI** — v1 ships plugin runtime + filesystem
   loading. Online discovery / auto-install marketplace is post-v1.

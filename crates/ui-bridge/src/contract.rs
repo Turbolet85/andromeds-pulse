@@ -149,7 +149,7 @@ pub struct Settings {
     // via Settings precedent (CLAUDE.md 2026-05-09 Settings-extension
     // pattern avoids the security ↔ tests/CI ↔ arch capability-drift
     // triple binding). Coordinator reads once at boot per pulse-v0_2_0-
-    // route §80; hot-reload deferred к chunk #94.
+    // route §80; hot-reload deferred to chunk #94.
     #[serde(default = "default_cadence_baseline_seconds")]
     pub cadence_baseline_seconds: u32,
     #[serde(default = "default_cadence_accelerated_seconds")]
@@ -188,7 +188,7 @@ fn default_lifecycle_archived_after_secs() -> u64 {
 
 // Chunk #69 Phase B Session 5 — Drain knob defaults match the route-spec
 // values used by `buffer::drain::DrainConfig::default_config()` so
-// missing-Settings boot path produces identical DrainMiner state к
+// missing-Settings boot path produces identical DrainMiner state to
 // settings-driven boot path.
 fn default_drain_depth() -> u32 {
     4
@@ -272,8 +272,8 @@ pub const DRAIN_MAX_CLUSTERS_MAX: u32 = 10_000;
 
 // Chunk #80 cadence coordinator bounds. MIN values mirror the safety
 // floors in `triage::cadence::config` (baseline ≥ 5s, accelerated ≥ 1s,
-// reflection ≥ 300s per pulse-v0_2_0-route §80). MAX values bound к
-// 1h / 10min / 24h respectively к prevent silently-disabling tickers via
+// reflection ≥ 300s per pulse-v0_2_0-route §80). MAX values bound to
+// 1h / 10min / 24h respectively to prevent silently-disabling tickers via
 // extreme config.
 pub const CADENCE_BASELINE_SECONDS_MIN: u32 = 5;
 pub const CADENCE_BASELINE_SECONDS_MAX: u32 = 3_600;

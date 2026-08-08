@@ -46,7 +46,7 @@ pub const ENV_MODEL_PATH: &str = "ANDROMEDA_PULSE_MODEL_PATH";
 
 /// Env var resolving the prebuilt `llama-cli.exe` CUDA build (b9305-pinned
 /// series). Consumed by GPU-primary / GPU-fallback tiers. Naming follows
-/// arch §Conventions `_PATH` suffix discipline для path-shaped env vars.
+/// arch §Conventions `_PATH` suffix discipline for path-shaped env vars.
 pub const ENV_LLAMA_CUDA_BIN_PATH: &str = "ANDROMEDA_PULSE_LLAMA_CUDA_BIN_PATH";
 
 /// Env var resolving the prebuilt `llama-cli.exe` CPU build (b9305-pinned
@@ -57,8 +57,8 @@ pub const ENV_LLAMA_CPU_BIN_PATH: &str = "ANDROMEDA_PULSE_LLAMA_CPU_BIN_PATH";
 /// Wall-clock timeout for each subprocess invocation. Bounds runaway
 /// generation per arch §Established Decisions [LLM Inference Runtime]
 /// defense-in-depth paragraph + CLAUDE.md testing.md 2026-05-25 subprocess
-/// discipline. Sized для typical L4 envelope (warm-cache ~4s; cold ~5-10s
-/// plus cushion для outlier prompts). Settings exposure deferred per chunk
+/// discipline. Sized for typical L4 envelope (warm-cache ~4s; cold ~5-10s
+/// plus cushion for outlier prompts). Settings exposure deferred per chunk
 /// #84 plan implementation notes.
 pub const LLAMA_CLI_TIMEOUT: Duration = Duration::from_secs(60);
 
@@ -68,11 +68,11 @@ pub const LLAMA_CLI_TIMEOUT: Duration = Duration::from_secs(60);
 /// L4 output bound (~4 KB schema-conformant JSON) plus generous headroom.
 pub const LLAMA_CLI_MAX_OUTPUT_BYTES: usize = 64 * 1024;
 
-/// Default token cap для `-n` arg when caller does not specify. Sized
-/// при L4 envelope (typical ~530 bytes / ~250-tok schema-conformant JSON).
+/// Default token cap for `-n` arg when caller does not specify. Sized
+/// for L4 envelope (typical ~530 bytes / ~250-tok schema-conformant JSON).
 pub const DEFAULT_MAX_TOKENS: u32 = 1024;
 
-/// GPU layer-offload count for CUDA build (all layers offloaded к VRAM).
+/// GPU layer-offload count for CUDA build (all layers offloaded to VRAM).
 const NGL_GPU: u32 = 99;
 /// GPU layer-offload count for CPU build (all layers on CPU).
 const NGL_CPU: u32 = 0;
@@ -86,17 +86,17 @@ pub struct LlamaCliInference {
     state: Arc<RwLock<InferenceState>>,
     broadcast: ModelStatusBroadcast,
     profile: HardwareProfile,
-    /// Canonicalized path к the `llama-cli.exe` binary per tier routing
-    /// (CUDA build для GPU profiles, CPU build для CPU profiles). `None`
+    /// Canonicalized path to the `llama-cli.exe` binary per tier routing
+    /// (CUDA build for GPU profiles, CPU build for CPU profiles). `None`
     /// when the corresponding env var is unset OR resolution failed at
     /// construction (graceful-degraded mode).
     binary_path: Option<PathBuf>,
-    /// Canonicalized path к the GGUF model file per `ANDROMEDA_PULSE_MODEL_PATH`.
+    /// Canonicalized path to the GGUF model file per `ANDROMEDA_PULSE_MODEL_PATH`.
     /// `None` when env var unset OR resolution failed (graceful-degraded mode).
     model_path: Option<PathBuf>,
-    /// GPU layer-offload count: 99 для CUDA binaries, 0 для CPU binaries.
+    /// GPU layer-offload count: 99 for CUDA binaries, 0 for CPU binaries.
     ngl: u32,
-    /// Bounded snake_case label для tracing field cardinality discipline.
+    /// Bounded snake_case label for tracing field cardinality discipline.
     binary_kind: &'static str,
 }
 
@@ -106,11 +106,11 @@ struct InferenceState {
 }
 
 impl LlamaCliInference {
-    /// Constructs the runner without spawning а subprocess. Reads env
+    /// Constructs the runner without spawning a subprocess. Reads env
     /// vars + canonicalizes paths per tier routing. App boots in
     /// graceful-degraded mode (status: Error → ModelNotConfigured) when
     /// any required path is missing OR canonicalization fails; explicit
-    /// `load_from_env_if_configured()` post-construction transitions к
+    /// `load_from_env_if_configured()` post-construction transitions to
     /// Loaded when both paths resolve cleanly.
     pub fn new(tier: ModelTier, profile: HardwareProfile, broadcast: ModelStatusBroadcast) -> Self {
         let (env_name, ngl, binary_kind) = binary_target_for_profile(profile);
@@ -134,21 +134,21 @@ impl LlamaCliInference {
     }
 
     /// Reads `ANDROMEDA_PULSE_MODEL_PATH` and returns `Some(PathBuf)` if
-    /// set к а non-empty string. Does NOT canonicalize (graceful path
+    /// set to a non-empty string. Does NOT canonicalize (graceful path
     /// reporting helper for diagnostics; canonicalization happens at
     /// construction time via `canonicalize_path`).
     pub fn configured_model_path() -> Option<PathBuf> {
         read_env_path(ENV_MODEL_PATH)
     }
 
-    /// Returns the bounded snake_case label для the configured binary
-    /// (`"cuda"` или `"cpu"`). Cardinality-friendly identifier for
+    /// Returns the bounded snake_case label for the configured binary
+    /// (`"cuda"` or `"cpu"`). Cardinality-friendly identifier for
     /// observability events.
     pub fn binary_kind(&self) -> &'static str {
         self.binary_kind
     }
 
-    /// Emits а `ModelLoadEvent` on the broadcast topic. Used by load /
+    /// Emits a `ModelLoadEvent` on the broadcast topic. Used by load /
     /// unload / error transitions. Non-fatal if no subscribers attached.
     fn emit_event(
         &self,
@@ -177,8 +177,8 @@ impl LlamaCliInference {
     }
 
     /// Marks the runner as Loaded with the given identity + emits an
-    /// event. Subprocess D1 has no in-process model к cache, so "Loaded"
-    /// here is а readiness assertion (paths resolved + binary callable).
+    /// event. Subprocess D1 has no in-process model to cache, so "Loaded"
+    /// here is a readiness assertion (paths resolved + binary callable).
     pub fn mark_loaded(&self, identity: ModelIdentity) {
         {
             let mut s = self.state.write().expect("state lock poisoned");
@@ -188,7 +188,7 @@ impl LlamaCliInference {
         self.emit_event(ModelStatus::Loaded, Some(identity), None);
     }
 
-    /// Marks the runner as Error with а sanitized error message + emits
+    /// Marks the runner as Error with a sanitized error message + emits
     /// an event.
     pub fn mark_error(&self, sanitized_reason: String) {
         {
@@ -200,7 +200,7 @@ impl LlamaCliInference {
 
     /// Verifies the configured binary + model paths exist + are regular
     /// files. Transitions Loading → Loaded if both checks pass; otherwise
-    /// stays в Error. Subprocess D1 differs from the chunk #82 in-process
+    /// stays in Error. Subprocess D1 differs from the chunk #82 in-process
     /// path: no actual model load happens here (the model loads per-
     /// generation inside `llama-cli`); this method asserts readiness only.
     pub async fn load_from_env_if_configured(&self) -> Result<(), InferenceError> {
@@ -220,11 +220,11 @@ impl LlamaCliInference {
         );
 
         if !binary.is_file() {
-            self.mark_error("binary path not а regular file".to_string());
+            self.mark_error("binary path not a regular file".to_string());
             return Err(InferenceError::InvalidModelPath);
         }
         if !model.is_file() {
-            self.mark_error("model path not а regular file".to_string());
+            self.mark_error("model path not a regular file".to_string());
             return Err(InferenceError::InvalidModelPath);
         }
 
@@ -247,9 +247,9 @@ impl LlamaCliInference {
 
 /// Bounded category label derived from subprocess failure signals (exit
 /// code / stderr first-line content / timeout-fired). Never surfaces raw
-/// stderr verbatim — only а fixed enum tag per security extract
+/// stderr verbatim — only a fixed enum tag per security extract
 /// sanitization discipline. Pure-function shape enables exhaustive unit
-/// tests без spawning real subprocesses.
+/// tests without spawning real subprocesses.
 pub fn classify_subprocess_failure(
     exit_code: Option<i32>,
     stderr_first_line: &str,
@@ -276,28 +276,28 @@ pub fn classify_subprocess_failure(
     }
 }
 
-/// Maximum number of bytes from raw stdout к include в the
+/// Maximum number of bytes from raw stdout to include in the
 /// [`InferenceError::JsonParseFailed`] reason field when extraction fails.
-/// Small enough к keep error payloads bounded per security plan §Error
-/// Handling boundary discipline (sanitized one-liner) yet long enough к
-/// give а follow-up reader а representative sample of what came back.
+/// Small enough to keep error payloads bounded per security plan §Error
+/// Handling boundary discipline (sanitized one-liner) yet long enough to
+/// give a follow-up reader a representative sample of what came back.
 pub const EXTRACT_SNIPPET_MAX_BYTES: usize = 240;
 
 /// Extracts the JSON object body from raw `llama-cli` stdout. b9305
-/// surrounds the schema-constrained JSON with а startup banner (~1400
+/// surrounds the schema-constrained JSON with a startup banner (~1400
 /// bytes; "Loading model...", ASCII logo, build/model/modalities metadata,
-/// "available commands:" interactive-mode hint) and а trailing perf-stats
+/// "available commands:" interactive-mode hint) and a trailing perf-stats
 /// line (`[ Prompt: X t/s | Generation: Y t/s ]` + "Exiting..."). The
 /// schema-constrained generation (GBNF) + `-st` single-turn discipline
-/// guarantee exactly one top-level JSON object между the framing, so the
-/// "first `{` к matching closing `}`" slice is well-defined.
+/// guarantee exactly one top-level JSON object between the framing, so the
+/// "first `{` to matching closing `}`" slice is well-defined.
 ///
 /// The match-pair scan walks bytes counting `{`/`}` parity (string-aware:
-/// double-quote toggle с backslash escape) к find the END of the FIRST
+/// double-quote toggle with backslash escape) to find the END of the FIRST
 /// top-level object — robust against trailing perf-stats text that may
 /// contain stray punctuation. Returns the slice between (inclusive of
 /// both braces). If no `{` exists OR the parity never balances, returns
-/// [`InferenceError::JsonParseFailed`] с the truncated stdout snippet for
+/// [`InferenceError::JsonParseFailed`] with the truncated stdout snippet for
 /// diagnosability.
 pub fn extract_json_object_bounded(stdout: &str) -> Result<&str, InferenceError> {
     let bytes = stdout.as_bytes();
@@ -342,14 +342,14 @@ pub fn extract_json_object_bounded(stdout: &str) -> Result<&str, InferenceError>
 
     Err(InferenceError::JsonParseFailed {
         reason: format!(
-            "unbalanced braces от offset {start}; final_depth={depth}; snippet=<{}>",
+            "unbalanced braces from offset {start}; final_depth={depth}; snippet=<{}>",
             stdout_snippet(stdout)
         ),
     })
 }
 
-/// Truncates raw stdout к [`EXTRACT_SNIPPET_MAX_BYTES`] чтобы embed safely
-/// in error payloads без log-payload bloat. Replaces non-printable bytes
+/// Truncates raw stdout to [`EXTRACT_SNIPPET_MAX_BYTES`] to embed safely
+/// in error payloads without log-payload bloat. Replaces non-printable bytes
 /// to keep snippet readable.
 fn stdout_snippet(stdout: &str) -> String {
     let trimmed: String = stdout
@@ -370,13 +370,13 @@ fn stdout_snippet(stdout: &str) -> String {
     }
 }
 
-/// Builds the argument vector passed к `tokio::process::Command::args()`
-/// для а single L4 inference invocation. Extracted to а pure helper for
+/// Builds the argument vector passed to `tokio::process::Command::args()`
+/// for a single L4 inference invocation. Extracted to a pure helper for
 /// unit-testable spawn-arg-vector assertion (per chunk #84 plan acceptance
 /// criterion (a) — verifies all four subprocess defenses present in args).
 ///
 /// The `kill_on_drop(true)` discipline is applied at the `Command` level
-/// (not encoded в args); the unit test asserts it separately via the
+/// (not encoded in args); the unit test asserts it separately via the
 /// `LlamaCliInference` construction path.
 pub fn build_llama_cli_args(
     model_path: &Path,
@@ -394,10 +394,10 @@ pub fn build_llama_cli_args(
         "--simple-io".to_string(),
         "--no-display-prompt".to_string(),
         // `--log-disable` suppresses llama.cpp's load + perf-stats lines on
-        // stderr (б9305 common/log.cpp). Does NOT remove the interactive-mode
-        // banner llama-cli writes к stdout (build/model/modalities lines +
+        // stderr (b9305 common/log.cpp). Does NOT remove the interactive-mode
+        // banner llama-cli writes to stdout (build/model/modalities lines +
         // "available commands:" hint) — `-no-cnv` would handle that but is
-        // rejected by б9305 (output: "--no-conversation is not supported by
+        // rejected by b9305 (output: "--no-conversation is not supported by
         // llama-cli; please use llama-completion instead"). The banner is
         // therefore stripped post-hoc by `extract_json_object_bounded`.
         "--log-disable".to_string(),
@@ -410,12 +410,12 @@ pub fn build_llama_cli_args(
     ]
 }
 
-/// Returns the env var name plus `-ngl` value plus bounded label для the
-/// configured `HardwareProfile`. GPU-primary / GPU-fallback route к CUDA
-/// binary + `-ngl 99`; CPU-primary / CPU-fallback / Unknown route к CPU
-/// binary + `-ngl 0`. Unknown defaults к CPU as the safe-everywhere
+/// Returns the env var name plus `-ngl` value plus bounded label for the
+/// configured `HardwareProfile`. GPU-primary / GPU-fallback route to CUDA
+/// binary + `-ngl 99`; CPU-primary / CPU-fallback / Unknown route to CPU
+/// binary + `-ngl 0`. Unknown defaults to CPU as the safe-everywhere
 /// fallback per the chunk #82 `tier_for_profile` precedent that maps
-/// Unknown к Primary tier; pairing Unknown с CPU binary preserves the
+/// Unknown to Primary tier; pairing Unknown with CPU binary preserves the
 /// "boot on any hardware" invariant.
 pub fn binary_target_for_profile(profile: HardwareProfile) -> (&'static str, u32, &'static str) {
     match profile {
@@ -428,8 +428,8 @@ pub fn binary_target_for_profile(profile: HardwareProfile) -> (&'static str, u32
     }
 }
 
-/// Reads an env var + returns `Some(PathBuf)` if set к а non-empty
-/// string. Stripping здесь happens via `str::trim()` к accept env vars
+/// Reads an env var + returns `Some(PathBuf)` if set to a non-empty
+/// string. Stripping here happens via `str::trim()` to accept env vars
 /// with accidental surrounding whitespace.
 fn read_env_path(name: &str) -> Option<PathBuf> {
     std::env::var(name)
@@ -439,10 +439,10 @@ fn read_env_path(name: &str) -> Option<PathBuf> {
         .map(PathBuf::from)
 }
 
-/// Canonicalizes а path candidate + asserts it resolves к а regular file.
+/// Canonicalizes a path candidate + asserts it resolves to a regular file.
 /// Returns `Err(InferenceError::InvalidModelPath)` if canonicalization
 /// fails (symlink loop / unreadable parent / nonexistent path) OR if the
-/// resolved path is not а regular file (directory / symlink-к-directory).
+/// resolved path is not a regular file (directory / symlink-to-directory).
 /// Mirrors the chunk #41 `canonicalize_plugin_dir` security pattern from
 /// `crates/plugins/src/loader.rs` adapted for binary-file targets (no
 /// bounded confinement root since binary paths are intentionally user-
@@ -458,10 +458,10 @@ pub fn canonicalize_path(candidate: &Path) -> Result<PathBuf, InferenceError> {
     Ok(resolved)
 }
 
-/// RAII drop guard для the per-call temp file holding the JSON schema.
+/// RAII drop guard for the per-call temp file holding the JSON schema.
 /// Constructed before subprocess spawn; dropped after `wait_with_output`
 /// completes. Drop attempts cleanup but never panics (the file persists
-/// в the OS temp dir if cleanup fails; OS reaps eventually).
+/// in the OS temp dir if cleanup fails; OS reaps eventually).
 struct SchemaTempFile {
     path: PathBuf,
 }
@@ -607,7 +607,7 @@ impl LlmInferenceRunner for LlamaCliInference {
                     hardware_profile = profile_label(self.profile),
                     error_category = category,
                     recovery_action = "skip_digest",
-                    "llama-cli subprocess exited с failure",
+                    "llama-cli subprocess exited with failure",
                 );
                 return Err(InferenceError::InferenceFailed {
                     reason: category.to_string(),
@@ -622,7 +622,7 @@ impl LlmInferenceRunner for LlamaCliInference {
             // Strip llama-cli b9305's startup banner + trailing perf-stats by
             // extracting the schema-constrained JSON object. Defense-in-depth:
             // `--log-disable` shrinks the stderr-side noise; this extraction
-            // owns correctness on the stdout side regardless of banner drift в
+            // owns correctness on the stdout side regardless of banner drift in
             // future b9305+ builds. See `extract_json_object_bounded` docs.
             let extracted = extract_json_object_bounded(&stdout_string)?;
 

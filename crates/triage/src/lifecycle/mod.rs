@@ -10,7 +10,7 @@
 //! State derives at heartbeat tick (15s default) from chunk #61 baseline
 //! activity-floor snapshots (chunk #64 `ServiceSilenceSnapshot`). Restart
 //! events feed via subscription to chunk #63
-//! `pulse://stream/restart-events` broadcast — services transitioning к
+//! `pulse://stream/restart-events` broadcast — services transitioning to
 //! Bootstrapping bypass natural progression on restart-observed gap.
 //!
 //! Per arch §Cross-cutting Patterns Module dependency direction, this
@@ -176,10 +176,10 @@ pub fn emit_tick_observability(
         "tracked services total",
     );
     // State distribution metric emitted once per tick with the full count
-    // array; per-state values are bounded к the 7 enum tags. Field-name
+    // array; per-state values are bounded to the 7 enum tags. Field-name
     // discipline matches `.claude/rules/observability.md` Session Addition
     // 2026-05-03 plural-vs-singular: emit value=total + state="<enum-tag>"
-    // в separate events would inflate event count. Keep a single event
+    // in separate events would inflate event count. Keep a single event
     // carrying all counts as fields per chunk #61 baseline.tick precedent.
     tracing::info!(
         target: TARGET_METRIC_LIFECYCLE_STATE_DISTRIBUTION,
@@ -221,7 +221,7 @@ pub fn emit_tick_observability(
 /// Stable snake_case label for a `ServiceLifecycleState` — used in
 /// tracing field VALUES for aggregate transition events. Matches the
 /// `#[serde(rename_all = "snake_case")]` serialization on the enum so
-/// log emissions are consistent с broadcast payloads + TypeScript bindings.
+/// log emissions are consistent with broadcast payloads + TypeScript bindings.
 pub fn state_label(state: ServiceLifecycleState) -> &'static str {
     match state {
         ServiceLifecycleState::Unknown => "unknown",
@@ -434,7 +434,7 @@ mod tests {
 
     #[test]
     fn emit_tick_observability_excludes_per_service_pii_fields() {
-        // PII negative-canary: even with а canary substring in а transition
+        // PII negative-canary: even with a canary substring in a transition
         // event's service field, the canary MUST NOT reach the aggregate
         // tracing emission. Per-service detail lives on broadcast only.
         let (sub, events) = CapturingSubscriber::new();

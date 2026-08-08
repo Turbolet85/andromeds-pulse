@@ -1,7 +1,7 @@
 //! P6 E2E coverage — Channel pulse://stream/spans subscription + binary
 //! Arrow IPC decode. Per test-plan §6 P6 canonical structure.
 //!
-//! Subscribes к buffer::broadcast spans Sender → drives synthetic OTLP gRPC
+//! Subscribes to buffer::broadcast spans Sender → drives synthetic OTLP gRPC
 //! injection → awaits Arrow IPC payload from broadcast → decodes via
 //! arrow::ipc::reader::StreamReader → asserts schema column names + row count.
 

@@ -8,18 +8,18 @@
 //!   can create a cue-derived incident (P-074). The PII-free
 //!   `pulse://stream/cadence-events` L6 topic stays a separate channel.
 //! - **Digest persister:** subscribes to `DigestBroadcast` (chunk #81)
-//!   AND persists each emitted digest к corpus via
+//!   AND persists each emitted digest to corpus via
 //!   `CorpusWriter::save_digest` (chunk #81 trait extension). Bincode-
 //!   serializes the Digest struct; AES-256-GCM cell-level encryption
 //!   happens inside the CorpusWriter impl.
 //!
 //! Project context construction: maps `workspace_detector::detect()`
-//! output к `triage::contract::DigestProjectContext` (recent commits +
+//! output to `triage::contract::DigestProjectContext` (recent commits +
 //! framework signals are empty Vec at chunk #81 substrate; future
 //! chunk enriches via filesystem `.git/refs/heads/{branch}` walk +
 //! framework signal detection from `Cargo.toml` / `package.json`).
 //!
-//! PII scrubbing: injects а closure wrapping
+//! PII scrubbing: injects a closure wrapping
 //! `security::scrubber::scrub_attribute` per CLAUDE.md §Session Learnings
 //! 2026-05-20 cross-crate `scrubbed_clone` pattern.
 //!
@@ -47,7 +47,7 @@ const TARGET_DIGEST_RUNTIME_PERSIST: &str = "digest.runtime.persist";
 /// Tracing target — cadence subscriber tick log.
 const TARGET_DIGEST_RUNTIME_CADENCE_TICK: &str = "digest.runtime.cadence_tick";
 
-/// Construct а PII-scrubbing closure suitable for
+/// Construct a PII-scrubbing closure suitable for
 /// `Assembler::new`'s `Arc<dyn Fn(&str) -> String + Send + Sync>` slot.
 /// Wraps `security::scrubber::scrub_attribute` per CLAUDE.md §Session
 /// Learnings 2026-05-20.
@@ -59,7 +59,7 @@ pub fn pii_scrub_closure() -> Arc<dyn Fn(&str) -> String + Send + Sync> {
 }
 
 /// Build the digest assembler. Caller injects all dependencies; this fn
-/// pairs the tokenizer load (from build-time fixture) с the scrub
+/// pairs the tokenizer load (from build-time fixture) with the scrub
 /// closure construction. `corpus_source` supplies P-044 retrieval
 /// candidates (`NoopCorpusIncidentSource` when the corpus is absent at
 /// boot — digest assembly degrades to empty `corpus_matches`). Returns
@@ -84,9 +84,9 @@ pub fn build_assembler(
     Ok(Arc::new(assembler))
 }
 
-/// Map а `workspace_detector::WorkspaceContext` к the L3 assembler's
+/// Map a `workspace_detector::WorkspaceContext` to the L3 assembler's
 /// expected `DigestProjectContext` value type. Chunk #81 substrate:
-/// recent_commits + framework_signals empty (deferred к future chunk
+/// recent_commits + framework_signals empty (deferred to future chunk
 /// per chunk #81 implementation notes).
 pub fn workspace_to_digest_context(ctx: &WorkspaceContext) -> DigestProjectContext {
     DigestProjectContext {
@@ -128,8 +128,8 @@ pub fn resolve_workspace_for_incidents(
 
 /// Spawn the cadence subscriber task. Listens on `cadence_broadcast`,
 /// invokes assembler on each event. Project context derived once per
-/// task invocation from а static `WorkspaceContext` (chunk #81 substrate
-/// uses а fixed context; future chunk re-detects per event if workspace
+/// task invocation from a static `WorkspaceContext` (chunk #81 substrate
+/// uses a fixed context; future chunk re-detects per event if workspace
 /// changes mid-session, currently rare).
 pub fn spawn_cadence_subscriber(
     digest_trigger: Arc<DigestTriggerBroadcast>,
@@ -182,9 +182,9 @@ pub fn spawn_cadence_subscriber(
 }
 
 /// Spawn the digest persister task. Listens on `digest_broadcast`,
-/// serializes each digest к bincode, persists к corpus via
+/// serializes each digest to bincode, persists to corpus via
 /// `CorpusWriter::save_digest`. Errors from corpus writes are logged
-/// and dropped (digest is still broadcast к L4 consumers).
+/// and dropped (digest is still broadcast to L4 consumers).
 pub fn spawn_digest_persister(
     digest_broadcast: Arc<DigestBroadcast>,
     corpus_writer: Arc<dyn CorpusWriter>,
@@ -219,7 +219,7 @@ pub fn spawn_digest_persister(
                                 rowid,
                                 token_count = digest.token_count as u64,
                                 digest_kind = kind_label,
-                                "digest persisted к corpus",
+                                "digest persisted to corpus",
                             );
                         }
                         Err(e) => {
@@ -227,7 +227,7 @@ pub fn spawn_digest_persister(
                                 target: TARGET_DIGEST_RUNTIME_PERSIST,
                                 error_category = corpus_error_label(&e),
                                 digest_kind = kind_label,
-                                "digest persist к corpus failed",
+                                "digest persist to corpus failed",
                             );
                         }
                     }
@@ -292,7 +292,7 @@ fn corpus_error_label(e: &CorpusError) -> &'static str {
 }
 
 /// Suppress dead-code lint for `CorpusReader` import — kept available
-/// because future retrieval chunks will surface а `load_recent_digests_for_workspace`
+/// because future retrieval chunks will surface a `load_recent_digests_for_workspace`
 /// method here per plan step 9 deferred scope.
 #[allow(dead_code)]
 fn _hold_corpus_reader_ref<R: CorpusReader>(_r: &R) {}

@@ -22,13 +22,13 @@ const SERVICE_NAME: &str = "com.andromeda.pulse";
 /// route to the `ReceiverPanicked` reason variant. Read via the
 /// `panic_signaled()` accessor below; written exactly once by
 /// `install_panic_hook`'s closure. Module-level static rather than Arc-
-/// injected к minimize boot-time wiring surface (one accessor pulse-app-
+/// injected to minimize boot-time wiring surface (one accessor pulse-app-
 /// wide), per the security extract's "narrowest exposure" guidance.
 static PANIC_SIGNAL: std::sync::atomic::AtomicBool = std::sync::atomic::AtomicBool::new(false);
 
 /// Returns true if a panic has been signaled by `install_panic_hook` since
 /// process start. Used by `pulse-app::connection_router::HeartbeatBindStatus`
-/// to expose panic-state to the FSM поллер.
+/// to expose panic-state to the FSM poller.
 pub fn panic_signaled() -> bool {
     PANIC_SIGNAL.load(std::sync::atomic::Ordering::Relaxed)
 }
@@ -36,7 +36,7 @@ pub fn panic_signaled() -> bool {
 /// Test-only reset for the panic atomic. `#[doc(hidden)] pub` per
 /// testing.md 2026-05-20 session 107 integration-test-access pattern
 /// (signals "not external API but accessible for integration tests");
-/// per-process state means tests must reset between panics к avoid
+/// per-process state means tests must reset between panics to avoid
 /// cross-test contamination.
 #[doc(hidden)]
 pub fn reset_panic_signal_for_tests() {
@@ -1808,7 +1808,7 @@ impl AllowList {
         // .claude/rules/security.md §Logging & Monitoring NEVER-log list).
         // `model_identity` carries semantic model name only (e.g.,
         // "llama-3.2-3b-instruct-q4_k_m") per InterpretationContract;
-        // never а file path or URL.
+        // never a file path or URL.
         by_target.insert(
             "interpretation",
             [
@@ -2046,7 +2046,7 @@ impl AllowList {
         // bulk action. Aggregate-only fields per CLAUDE.md observability
         // 2026-05-17 session 84 mandate (no per-incident-id / per-service
         // / per-trace labels — bulk action is workspace-scoped at the
-        // resolver, не at the event field set). Capabilities P-028 /
+        // resolver, not at the event field set). Capabilities P-028 /
         // P-029 / P-030.
         by_target.insert(
             "incidents.mark_all_read.request",
@@ -2295,7 +2295,7 @@ pub(crate) fn install_panic_hook() {
     // panic handling still fire.
     let prev = std::panic::take_hook();
     std::panic::set_hook(Box::new(move |info| {
-        // Signal panic для the connection FSM BEFORE emitting tracing event
+        // Signal panic for the connection FSM BEFORE emitting tracing event
         // (so a panic during the tracing emission still leaves the atomic set).
         PANIC_SIGNAL.store(true, std::sync::atomic::Ordering::Relaxed);
 
@@ -3060,7 +3060,7 @@ mod tests {
         // chunk #70: BaselineState → corpus migration emits one-time legacy
         // migration tracing events at `triage.baseline.migrate` (info) +
         // `triage.baseline.migrate.failed` (warn). Both targets require
-        // explicit-leaf AllowList entries (no fall-through к the broader
+        // explicit-leaf AllowList entries (no fall-through to the broader
         // `triage` entry, whose field set is unrelated). PII discipline
         // per .claude/rules/observability.md 2026-05-17 session 84 +
         // chunks #62/#63/#64 aggregate-only mandate: bounded enum +
@@ -3315,10 +3315,10 @@ mod tests {
     #[test]
     fn allowlist_for_target_resolves_curation_field_set() {
         // chunk #58: curation primitives (dedupe / anomaly / critical_path /
-        // aggregation) moved from crates/snapshot к crates/curation. The
+        // aggregation) moved from crates/snapshot to crates/curation. The
         // #[tracing::instrument] decorators emit spans at default module-path
         // targets `curation::dedupe`, `curation::anomaly`, etc. for_target
-        // resolves via split("::").next() fall-through к the `curation`
+        // resolves via split("::").next() fall-through to the `curation`
         // entry, which MUST permit the union of fields emitted across the
         // 4 primitives or default-deny silently redacts them.
         let al = AllowList::production();
@@ -3541,7 +3541,7 @@ mod tests {
                 );
             }
         }
-        // Spot-check required fields на the primary detection target.
+        // Spot-check required fields on the primary detection target.
         let detected = al
             .for_target("triage.pattern.storm.detected")
             .expect("storm.detected entry");

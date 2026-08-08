@@ -1,11 +1,11 @@
 // WebGPU adapter detection + device acquisition for chunk #28 canvas substrate.
-// Returns a tagged union the consumer (CanvasContainer) branches on к decide
-// whether к render <canvas> + render pipelines или fallback message.
+// Returns a tagged union the consumer (CanvasContainer) branches on to decide
+// whether to render <canvas> + render pipelines or fallback message.
 //
 // Per security plan §Anti-Patterns Logging row 4: errors crossing the JS→Rust
-// boundary MUST be sanitized one-liners — никогда `error.stack` / `error.fileName` /
-// raw `error.message` passthrough. The reason field в `unavailable` is а
-// short, allowlist-style discriminator, не а browser-error string.
+// boundary MUST be sanitized one-liners — never `error.stack` / `error.fileName` /
+// raw `error.message` passthrough. The reason field in `unavailable` is a
+// short, allowlist-style discriminator, not a browser-error string.
 //
 // Per arch §Established Decisions [WebGPU Visualization Surface]: webview
 // WebGPU only; no native `wgpu` 25+ Rust render surface (post-v1 upgrade path).
@@ -32,7 +32,7 @@ export type AdapterResult =
 function backendKindFromAdapter(adapter: GPUAdapter): WebGPUBackendKind {
   // GPUAdapterInfo.backend is spec'd to return "vulkan" | "metal" | "dx12" |
   // "opengl" but is implementation-progressing across browsers; "opengl" is
-  // mapped к "unknown" here since the project's WGSL shaders target the
+  // mapped to "unknown" here since the project's WGSL shaders target the
   // three primary backends. Missing info → "unknown".
   const info = (adapter as GPUAdapter & { info?: { backend?: string } }).info;
   const backend = info?.backend;

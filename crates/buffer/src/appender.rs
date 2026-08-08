@@ -387,7 +387,7 @@ pub(crate) fn build_span_events_record_batch(
         return Ok(None);
     }
 
-    // Chunk #66: fan-out fingerprints к observer BEFORE consuming ts_unix_nanos
+    // Chunk #66: fan-out fingerprints to observer BEFORE consuming ts_unix_nanos
     // into the Arrow Int64Array. service_names + ts_unix_nanos remain owned
     // by the function until the array constructors below consume them; the
     // observer hook receives copies (i64 + &str borrow).

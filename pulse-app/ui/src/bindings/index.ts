@@ -63,7 +63,7 @@ export type CueKind = "error_rate_spike" | "latency_regression" | "restart_event
  * Scope an attention cue applies to: a single service, a single operation
  * within a service, or the global pipeline. Bounded enumeration; variants
  * serialize as snake_case strings. Chunk #78 added `Hash` derive +
- * cfg-gated `specta::Type` derive (parallel к `CueKind`).
+ * cfg-gated `specta::Type` derive (parallel to `CueKind`).
  */
 export type CueScope = "service" | "operation" | "global"
 
@@ -117,7 +117,7 @@ export type HealthStatus = "ok" | "degraded"
 
 /**
  * Single ranked hypothesis. Mirrors `interpretation::markdown::HypothesisView`
- * but с specta::Type derive for cross-bridge transport (interpretation
+ * but with specta::Type derive for cross-bridge transport (interpretation
  * crate has no taurpc/specta dep per arch §Module dependency direction).
  */
 export type HypothesisPayload = { statement: string; confidence_label: string; justification: string }
@@ -137,7 +137,7 @@ export type IncidentRecord = { id: number; workspace: string; kind: CueKind; sco
  * serialize as snake_case strings. Chunk #78 added cfg-gated
  * `specta::Type` derive (for cross-bridge `IncidentRecord` resolver
  * envelope). The TypeScript binding is renamed `IncidentSeverity`
- * к disambiguate from `ingest::connection::Severity` (same identifier,
+ * to disambiguate from `ingest::connection::Severity` (same identifier,
  * distinct domain — connection severity vs incident severity); specta
  * rejects duplicate type names across the bindings.ts emission.
  */
@@ -155,7 +155,7 @@ export type IncidentStatus = "active" | "acknowledged" | "resolved"
 
 /**
  * Paginated list envelope per arch §Standard Contracts. `next_cursor`
- * reserved для future pagination wire-up; chunk #78 returns the full
+ * reserved for future pagination wire-up; chunk #78 returns the full
  * active-incident set in one response (bounded by 120s auto-resolution
  * + 10-min recent-history display window).
  */
@@ -179,7 +179,7 @@ export type InvestigateResultDto = { action_id: string; title: string; symptom: 
 export type InvestigateStep = { step: string; expected_yield: string }
 
 /**
- * Single suggested investigation step с expected yield description.
+ * Single suggested investigation step with expected yield description.
  */
 export type InvestigationStepPayload = { step: string; expected_yield: string }
 
@@ -215,7 +215,7 @@ export type MetricsQueryArgs = { time_window_seconds: number; limit: number; cur
 
 /**
  * Payload returned by `model.current_profile`. All fields are String /
- * Option<String> к sidestep cross-crate specta derive plumbing — the
+ * Option<String> to sidestep cross-crate specta derive plumbing — the
  * strings are bounded snake_case labels (validated by the upstream
  * enum-to-label fns); webview consumers get string types in their
  * TypeScript bindings + assert against the same bounded set.
@@ -237,7 +237,7 @@ load_status: string;
 /**
  * Semantic name (e.g., `"llama-3.2-3b-instruct-q4_k_m"`); `None`
  * when the model is not loaded (Loading or Error state).
- * NEVER а file path or checkpoint URL per security extract.
+ * NEVER a file path or checkpoint URL per security extract.
  */
 model_identity_name: string | null }
 
@@ -273,7 +273,7 @@ export type PresetPromptDto = { id: string; label: string }
 /**
  * Cross-incident "Previously seen" match per P-036. Chunk #88 reserves
  * the field shape; current resolver always returns empty Vec (corpus
- * fingerprint-similarity query path is а follow-up chunk).
+ * fingerprint-similarity query path is a follow-up chunk).
  */
 export type PreviouslySeenPayload = { incident_id: number; opened_at_unix_nano: number; title: string; workspace: string }
 
@@ -309,15 +309,15 @@ export type ReevaluateWindowPayload = { services_reclassified: number; transitio
 /**
  * Six-section Report payload returned by `incidents.get_report(id)`
  * (chunk #88 — Epoch 9 Foundation v0.2.0). Carries structured fields
- * for the in-app webview surface AND а pre-serialized `markdown` string
- * for the Copy markdown action (P-038 byte-identical к future MCP
+ * for the in-app webview surface AND a pre-serialized `markdown` string
+ * for the Copy markdown action (P-038 byte-identical to future MCP
  * delivery #92 per project doc §87 contract).
  * 
  * Hybrid render contract (chunk #88 Phase 1 user-approved scope):
- * - `degraded_mode = false` indicates Resolved incident с parsed L4Output
+ * - `degraded_mode = false` indicates Resolved incident with parsed L4Output
  * payload — full six-section content.
  * - `degraded_mode = true` indicates Active/Acknowledged incident OR
- * Resolved incident с unparseable / redacted resolution_summary_text —
+ * Resolved incident with unparseable / redacted resolution_summary_text —
  * hypotheses + investigation_steps replaced by explicit "interpretation
  * pending" notice in the markdown OR webview.
  */
@@ -328,7 +328,7 @@ export type ReportPayload = { incident_id: number; title: string; workspace: str
  * Returned by `diagnostics.retry_interpretation()` after invoking the
  * manual-override path on the degraded-mode FSM.
  * 
- * Bounded к scalar / string-label fields per chunk #86 obs constraint
+ * Bounded to scalar / string-label fields per chunk #86 obs constraint
  * aggregate-only discipline; carries NO LLM-emitted content / incident
  * identifiers / per-trace IDs. The `current_state` label is the snake-
  * case bounded enum from `interpretation::degraded_mode::DegradedModeState`
@@ -337,8 +337,8 @@ export type ReportPayload = { incident_id: number; title: string; workspace: str
 export type RetryInterpretationPayload = { 
 /**
  * True if the manual-retry invocation transitioned FSM state OR
- * reset а live failure counter; false if FSM was already в clean
- * Active state с zero consecutive failures (no-op retry).
+ * reset a live failure counter; false if FSM was already in clean
+ * Active state with zero consecutive failures (no-op retry).
  */
 triggered: boolean; 
 /**

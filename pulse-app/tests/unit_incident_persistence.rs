@@ -3,7 +3,7 @@
 //! Covers capabilities P-041 (Persistent Incident Corpus), P-042
 //! (Cross-Session Continuity), P-043 (Project-Scoped Memory), P-045
 //! (Counter Derivation), plus negative SQL injection + at-rest encryption
-//! canary. Lives в `tests/` (integration test crate) per session-learnings
+//! canary. Lives in `tests/` (integration test crate) per session-learnings
 //! 2026-05-13 (`[lib] test = false` makes source-level `mod tests` dead
 //! in pulse-app).
 
@@ -137,8 +137,8 @@ fn count_active_unread_sql_injection_does_not_drop_table() {
             1_000,
         ))
         .expect("save");
-    // Injection payload — prepared statements MUST make this а literal
-    // workspace string match, NOT а SQL command.
+    // Injection payload — prepared statements MUST make this a literal
+    // workspace string match, NOT a SQL command.
     let injection = "'; DROP TABLE incidents; --";
     let result = adapter.count_active_unread(injection);
     assert!(result.is_ok(), "injection payload accepted as literal");
@@ -179,7 +179,7 @@ fn p042_cross_session_continuity() {
         inc.status = IncidentStatus::Acknowledged;
         saved_id = adapter.save_new_incident(&inc).expect("save");
     }
-    // Re-open с same key → incident persisted.
+    // Re-open with same key → incident persisted.
     let backend2: Arc<dyn KeychainBackend> = Arc::new(FakeKeychainBackend::with_seeded_key(
         "corpus-key",
         backend_key,

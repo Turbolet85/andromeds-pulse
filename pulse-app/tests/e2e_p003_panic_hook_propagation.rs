@@ -2,7 +2,7 @@
 //!
 //! Verifies the end-to-end path: a panic in a tokio task → panic hook
 //! signals shared atomic → connection FSM poller transitions to
-//! `ReceiverFailed` с `ReceiverPanicked` reason variant on the
+//! `ReceiverFailed` with `ReceiverPanicked` reason variant on the
 //! `pulse://stream/connection-state` broadcast topic.
 //!
 //! Plus the security negative-canary: the raw panic argument string
@@ -21,13 +21,13 @@ use ingest::state::IngestState;
 use pulse_app::observability;
 use tempfile::TempDir;
 
-/// Synthetic secret-shaped payload value к assert absence in the log file.
-/// Mirrors a JWT bearer token shape но is meaningless beyond the test.
+/// Synthetic secret-shaped payload value to assert absence in the log file.
+/// Mirrors a JWT bearer token shape but is meaningless beyond the test.
 const PANIC_CANARY: &str = "canary-secret-bearer-eyJhbGciOiJIUzI1NiJ9-payload";
 
 /// Bind-status stub reading the panic atomic via observability's accessor.
 /// Mirrors the production `HeartbeatBindStatus` adapter (in
-/// `pulse-app/src/connection_router.rs`) but без the HeartbeatState dep
+/// `pulse-app/src/connection_router.rs`) but without the HeartbeatState dep
 /// so the test stays focused on the panic path.
 #[derive(Debug, Default)]
 struct PanicSignaledBindStatus;
@@ -74,7 +74,7 @@ async fn p003_panic_propagates_to_receiver_panicked_broadcast_within_2s() {
         join_result
     );
 
-    // Wait для FSM poller к see the panic atomic + emit transition.
+    // Wait for FSM poller to see the panic atomic + emit transition.
     // Poller cadence is 1s (POLLER_INTERVAL); allow 3s safety margin.
     let event = tokio::time::timeout(Duration::from_secs(3), rx.recv())
         .await

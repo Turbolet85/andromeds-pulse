@@ -1,6 +1,6 @@
 //! Corpus-backed incident persistence adapter — chunk #78.
 //!
-//! Wires `triage::contract::IncidentPersistence` к
+//! Wires `triage::contract::IncidentPersistence` to
 //! `corpus::contract::CorpusWriter` at the pulse-app binary boundary,
 //! preserving the arch §Module dependency direction DAG (triage stays
 //! corpus-free; corpus stays triage-free; pulse-app owns the wire-up).
@@ -12,11 +12,11 @@
 //! SQLite table (chunk #68 schema, no version bump). Payload BLOB carries
 //! the bincode-encoded `Incident` struct (encrypted via AES-256-GCM at
 //! the corpus cell layer); metadata columns duplicate workspace + status
-//! + timestamps для fast SQL filtering (P-045 counter SQL).
+//! + timestamps for fast SQL filtering (P-045 counter SQL).
 //!
 //! PII discipline (chunk #72 uniform coverage): the producer side (cue
 //! emitter at chunk #62 + future interpretation layer) is responsible
-//! для pre-scrubbing OTLP-derived attribute values в `Incident.title` /
+//! for pre-scrubbing OTLP-derived attribute values in `Incident.title` /
 //! `Incident.detail` / `evidence_refs.fingerprint_hashes` BEFORE invoking
 //! `save_new_incident` / `update_incident_status`. The adapter does NOT
 //! double-scrub the bincode payload (layer-separation per corpus
@@ -154,13 +154,13 @@ impl IncidentPersistence for CorpusIncidentPersistence {
 
 /// Sanitized cross-crate error mapping. Per arch §Established Decisions
 /// [Error Handling Pattern]: no SQLite stack traces / file paths /
-/// library versions appear в the IncidentError surfaced upward. Mirrors
+/// library versions appear in the IncidentError surfaced upward. Mirrors
 /// chunk #70 `corpus_error_to_baseline_error` + chunk #71
 /// `corpus_error_to_lifecycle_error` precedents.
 ///
 /// Free function (not `From` impl) — orphan rule forbids
 /// `impl From<corpus::Error> for triage::IncidentError` here (both types
-/// foreign к pulse-app). Per session-learnings 2026-05-18.
+/// foreign to pulse-app). Per session-learnings 2026-05-18.
 #[doc(hidden)]
 pub fn corpus_error_to_incident_error(err: CorpusError) -> IncidentError {
     match err {
@@ -188,10 +188,10 @@ pub fn corpus_error_to_incident_error(err: CorpusError) -> IncidentError {
 // Unit tests live at `pulse-app/tests/unit_incident_persistence.rs`
 // (integration test crate) per session-learnings 2026-05-13 — Cargo.toml
 // `[lib] test = false` disables the lib auto-generated test binary on
-// Windows due к а WebView2 DLL load failure, so source-level
+// Windows due to a WebView2 DLL load failure, so source-level
 // `#[cfg(test)] mod tests` would compile but never run.
 //
-// `IncidentRowRaw` import preserved through this comment к keep the
+// `IncidentRowRaw` import preserved through this comment to keep the
 // audit-trail visible even if rustc later prunes the use as unused
 // (currently inlined into `load_active_incidents` via destructuring).
 #[allow(dead_code)]

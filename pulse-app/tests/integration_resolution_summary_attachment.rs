@@ -1,9 +1,9 @@
-//! Integration test для chunk #86 resolution-summary attachment path.
+//! Integration test for chunk #86 resolution-summary attachment path.
 //!
-//! Seeds а Resolved incident via in-memory IncidentRegistry, constructs
-//! а `Digest { kind: DigestKind::ResolutionSummary, ... }` referencing the
-//! incident, invokes the L4 inference subscriber via а stub runner returning
-//! а valid L4Output, and asserts:
+//! Seeds a Resolved incident via in-memory IncidentRegistry, constructs
+//! a `Digest { kind: DigestKind::ResolutionSummary, ... }` referencing the
+//! incident, invokes the L4 inference subscriber via a stub runner returning
+//! a valid L4Output, and asserts:
 //! - `Incident.resolution_summary_text` populated post-attachment
 //! - NO `pulse://stream/incidents` IncidentLifecycleEvent fires
 //!   (silent-attachment invariant per chunk #86 Phase 6 user resolution)
@@ -246,7 +246,7 @@ async fn l4_resolution_summary_attachment_silently_skips_unknown_incident() {
         1_700_000_003_000_000_000,
     );
     // Silent skip held: incident never existed → never created. The
-    // persistence layer was never called с id=999. We don't downcast
+    // persistence layer was never called with id=999. We don't downcast
     // through trait object to verify count (Arc<dyn Trait> → Arc<dyn Any>
     // requires an additional cast layer not present here); the registry
     // state is the canonical invariant.
@@ -298,7 +298,7 @@ async fn l4_resolution_summary_attachment_silently_skips_active_incident() {
         1_700_000_003_000_000_000,
     );
     // Incident's resolution_summary_text MUST remain None — attempt rejected
-    // by registry.attach_resolution_summary с InvalidTransition.
+    // by registry.attach_resolution_summary with InvalidTransition.
     let after = registry.get(42).expect("incident still exists");
     assert_eq!(after.resolution_summary_text, None);
 }
@@ -309,7 +309,7 @@ async fn l4_resolution_summary_no_broadcast_emission_on_attachment() {
     let persistence: Arc<dyn IncidentPersistence> = Arc::new(CountingPersistence::default());
     seed_resolved_incident(registry.as_ref(), 42);
 
-    // Subscribe к pulse://stream/incidents BEFORE attachment к verify no
+    // Subscribe to pulse://stream/incidents BEFORE attachment to verify no
     // event fires per chunk #86 silent-attachment invariant.
     let broadcast = Arc::new(IncidentLifecycleBroadcast::new());
     let mut rx = broadcast.subscribe();
@@ -324,7 +324,7 @@ async fn l4_resolution_summary_no_broadcast_emission_on_attachment() {
     );
 
     // 200ms timeout — generous given that the attachment is synchronous;
-    // если any event would fire, it'd fire long before timeout.
+    // if any event would fire, it'd fire long before timeout.
     let result = tokio::time::timeout(Duration::from_millis(200), rx.recv()).await;
     assert!(
         result.is_err(),
@@ -335,7 +335,7 @@ async fn l4_resolution_summary_no_broadcast_emission_on_attachment() {
 #[tokio::test]
 async fn handle_digest_outcome_on_resolution_summary_digest_returns_success_when_runner_ok() {
     // Verifies the outcome enum surfaces L4DigestOutcome::Success(parsed)
-    // for а ResolutionSummary digest when the runner returns parseable
+    // for a ResolutionSummary digest when the runner returns parseable
     // schema-conformant output.
     let valid_json = serde_json::to_string(&valid_resolution_summary_l4_output()).unwrap();
     let runner = Arc::new(StubResolutionRunner::ok(valid_json));
@@ -353,8 +353,8 @@ async fn handle_digest_outcome_on_resolution_summary_digest_returns_success_when
 #[tokio::test]
 async fn handle_digest_outcome_on_malformed_resolution_summary_returns_parse_failure() {
     // Defensive: parse failure produces ParseFailure outcome (no panic);
-    // upstream caller (subscriber) records the failure против degraded-mode
-    // FSM rather than attaching anything к the incident.
+    // upstream caller (subscriber) records the failure against degraded-mode
+    // FSM rather than attaching anything to the incident.
     let runner = Arc::new(StubResolutionRunner::malformed_json());
     let digest = resolution_summary_digest(42);
     let outcome = handle_digest_outcome(runner.as_ref(), &digest).await;

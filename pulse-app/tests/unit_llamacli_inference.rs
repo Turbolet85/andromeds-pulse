@@ -9,8 +9,8 @@
 //!   vector containing all four subprocess defenses (`-n {max_tokens}` +
 //!   `-st` + `kill_on_drop` discipline implicit) + tier-routing args
 //! - (b) **tier routing** — `binary_target_for_profile` maps each
-//!   `HardwareProfile` variant к correct env var name + `-ngl` flag
-//! - (c) **env-var-missing graceful** — construct с no env vars + invoke
+//!   `HardwareProfile` variant to correct env var name + `-ngl` flag
+//! - (c) **env-var-missing graceful** — construct with no env vars + invoke
 //!   `generate_constrained` returns `Err(InferenceError::ModelNotConfigured)`
 //!   without panicking
 //! - (d) **path-traversal rejected** — `canonicalize_path` returns
@@ -116,7 +116,7 @@ fn spawn_args_contain_ngl_routing_per_profile() {
 fn spawn_args_contain_prompt_via_p_arg() {
     let schema_path = PathBuf::from("/tmp/schema.json");
     let model_path = PathBuf::from("/tmp/model.gguf");
-    let prompt = "What is 2+2? Respond с JSON.";
+    let prompt = "What is 2+2? Respond with JSON.";
     let args = build_llama_cli_args(&model_path, 99, DEFAULT_MAX_TOKENS, &schema_path, prompt);
     let p_idx = args.iter().position(|a| a == "-p").expect("-p arg present");
     assert_eq!(args.get(p_idx + 1).map(String::as_str), Some(prompt));
@@ -173,7 +173,7 @@ fn binary_target_routes_unknown_to_cpu_safe_default() {
 #[test]
 fn construct_with_missing_env_vars_starts_in_error_state() {
     // Test relies on env vars being unset. Tests run in isolated processes
-    // per nextest profile, but defensively clear within а scope.
+    // per nextest profile, but defensively clear within a scope.
     let original_cuda = std::env::var(ENV_LLAMA_CUDA_BIN_PATH).ok();
     let original_cpu = std::env::var(ENV_LLAMA_CPU_BIN_PATH).ok();
     let original_model = std::env::var(ENV_MODEL_PATH).ok();
@@ -294,7 +294,7 @@ fn canonicalize_accepts_existing_regular_file() {
 #[test]
 fn canonicalize_rejects_traversal_payload() {
     // The traversal-payload itself (`../../etc/passwd`-style relative path
-    // resolved against а CWD that doesn't actually contain it) → nonexistent
+    // resolved against a CWD that doesn't actually contain it) → nonexistent
     // → canonicalize fails → InvalidModelPath returned. Mirrors the
     // chunk #77 path-canonicalization-rejection invariant pattern.
     let result = canonicalize_path(&PathBuf::from(
@@ -358,18 +358,18 @@ fn classify_subprocess_failure_returns_exit_zero_unexpected_when_exit_zero() {
 // Test (f) — subprocess timeout fires (manual run; requires platform binary)
 // ============================================================================
 
-/// Reserves а test slot для full end-to-end subprocess-timeout verification
-/// against а real platform binary that sleeps longer than `LLAMA_CLI_TIMEOUT`.
-/// Cross-platform sleep stub generation is out of scope для CI (would
-/// require either а Rust test-helper crate с а platform-specific
-/// build.rs OR vendoring а shell/cmd wrapper script). Per chunk #84 plan
+/// Reserves a test slot for full end-to-end subprocess-timeout verification
+/// against a real platform binary that sleeps longer than `LLAMA_CLI_TIMEOUT`.
+/// Cross-platform sleep stub generation is out of scope for CI (would
+/// require either a Rust test-helper crate with a platform-specific
+/// build.rs OR vendoring a shell/cmd wrapper script). Per chunk #84 plan
 /// implementation notes, the FOUR-bound discipline is verified via the
 /// (a) spawn-args tests + the pure-function (e) classifier tests; this
-/// `#[ignore]`-gated test reserves the smoke slot для manual verification.
+/// `#[ignore]`-gated test reserves the smoke slot for manual verification.
 ///
 /// Manual run (Unix): set `ANDROMEDA_PULSE_LLAMA_CPU_BIN_PATH=/bin/sleep`
 /// plus `ANDROMEDA_PULSE_MODEL_PATH=/tmp/touch-me` plus run with `--ignored`.
-/// Manual run (Windows): use а PowerShell sleep wrapper.
+/// Manual run (Windows): use a PowerShell sleep wrapper.
 #[test]
 #[ignore]
 fn manual_subprocess_timeout_smoke() {
@@ -447,7 +447,7 @@ fn spawn_args_contain_log_disable_flag() {
 
 #[test]
 fn extract_json_strips_real_b9305_banner_and_perf_stats_framing() {
-    // Verbatim layout captured от integration smoke (session 146):
+    // Verbatim layout captured from integration smoke (session 146):
     // banner -> JSON -> trailing perf-stats + "Exiting...".
     let raw = "\n\nLoading model... \n\n\
         ASCII llama logo redacted for unit-test brevity\n\

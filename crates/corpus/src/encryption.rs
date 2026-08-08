@@ -13,7 +13,7 @@
 //!
 //! Output format: `nonce (12 bytes) || ciphertext (variable, includes
 //! 16-byte GCM tag)`. Nonce is freshly generated per call from
-//! `OsRng`; never reused across calls с the same key.
+//! `OsRng`; never reused across calls with the same key.
 
 use aes_gcm::aead::{Aead, KeyInit};
 use aes_gcm::{Aes256Gcm, Key, Nonce};

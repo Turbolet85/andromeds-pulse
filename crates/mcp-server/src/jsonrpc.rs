@@ -119,7 +119,7 @@ pub fn empty_tools_list() -> Value {
 // Enumerate the #[tool] methods exposed by the rmcp sidecar. Schema follows
 // the MCP `Tool` shape (name + description + inputSchema). Input schemas are
 // JSON Schema draft-07 fragments; `additionalProperties: false` rejects
-// unknown args при `tools/call`. Chunk #49 shipped the first 4 (live-buffer
+// unknown args for `tools/call`. Chunk #49 shipped the first 4 (live-buffer
 // query tools); chunk #94 adds the 4 corpus-backed incident/report tools.
 pub fn tools_list_with_8_tools() -> Value {
     json!({

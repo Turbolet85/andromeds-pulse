@@ -2,12 +2,12 @@
 //! the `tauri.conf.json` updater section + `capabilities/updater.json`
 //! capability JSON contain the locked-by-chunk-#3-ACTIVE configuration
 //! values that release.yml depends on. Full Minisign signature
-//! verification (positive / negative / bypass-attempt) is deferred к а
+//! verification (positive / negative / bypass-attempt) is deferred to a
 //! follow-on testing chunk per /implement Phase 6 Open Question 3 = Path A.
 //!
 //! Path resolution uses env!("CARGO_MANIFEST_DIR") + relative paths per
 //! testing.md Session Additions 2026-05-13 (chunk #50 cross-crate pattern,
-//! adapted к same-crate file reads). Tests are pure file-read + JSON-
+//! adapted to same-crate file reads). Tests are pure file-read + JSON-
 //! parse + value-assert; no Tauri runtime context needed.
 
 use std::path::PathBuf;
@@ -55,8 +55,8 @@ fn config_updater_pubkey_is_non_empty() {
 #[test]
 fn config_updater_endpoint_matches_github_releases_pattern() {
     // Per arch §Occupied Resources Updater channel: latest.json is
-    // published к GitHub Releases under the canonical repository. The
-    // tauri-plugin-updater endpoint MUST resolve там; chunk #52
+    // published to GitHub Releases under the canonical repository. The
+    // tauri-plugin-updater endpoint MUST resolve there; chunk #52
     // release.yml emits the manifest via tauri-action's auto-upload.
     let conf = read_json("tauri.conf.json");
     let endpoints = conf
@@ -71,7 +71,7 @@ fn config_updater_endpoint_matches_github_releases_pattern() {
     );
     let primary = endpoints[0]
         .as_str()
-        .expect("primary endpoint is а string URL");
+        .expect("primary endpoint is a string URL");
     assert!(
         primary.starts_with("https://"),
         "updater endpoint MUST use HTTPS; got: {primary}"
@@ -89,13 +89,13 @@ fn config_updater_endpoint_matches_github_releases_pattern() {
 #[test]
 fn config_updater_dialog_is_false() {
     // Per arch §Cross-cutting Patterns Webview IPC capability policy:
-    // pulse:updater MUST NOT be exposed к webview JavaScript — bound к
+    // pulse:updater MUST NOT be exposed to webview JavaScript — bound to
     // the tauri-plugin-updater flow that consumes latest.json. Setting
     // `dialog: false` disables the plugin's built-in confirmation dialog
     // surface; future webview UI for "update available" notifications
     // goes through OS notification (tauri-plugin-notification) NOT
     // updater dialog (which would require widening pulse:updater capability
-    // к webview windows).
+    // to webview windows).
     let conf = read_json("tauri.conf.json");
     let dialog = conf
         .get("plugins")
@@ -106,7 +106,7 @@ fn config_updater_dialog_is_false() {
     assert!(
         !dialog,
         "updater dialog flag MUST be false (webview-IPC capability policy: \
-         updater surface не webview-facing)"
+         updater surface not webview-facing)"
     );
 }
 
@@ -114,9 +114,9 @@ fn config_updater_dialog_is_false() {
 fn capability_updater_permissions_scoped_to_updater_default() {
     // Per security plan §Anti-Patterns API row "pulse:updater": capability
     // permissions MUST be exactly `updater:default` (no widening); the
-    // capability MUST NOT bind к any webview window (windows: []). This
-    // ensures the updater flow remains plugin-internal and не invokable
-    // от webview JavaScript.
+    // capability MUST NOT bind to any webview window (windows: []). This
+    // ensures the updater flow remains plugin-internal and not invokable
+    // from webview JavaScript.
     let cap = read_json("capabilities/updater.json");
     let permissions = cap
         .get("permissions")
@@ -135,7 +135,7 @@ fn capability_updater_permissions_scoped_to_updater_default() {
         .expect("capabilities/updater.json windows array present");
     assert!(
         windows.is_empty(),
-        "updater capability MUST NOT bind к any webview window \
+        "updater capability MUST NOT bind to any webview window \
          (security plan §Anti-Patterns API row 'pulse:updater'); got: {windows:?}"
     );
 

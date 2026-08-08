@@ -138,7 +138,7 @@ fn ci_workflow_clippy_uses_deny_warnings() {
     assert!(
         content.contains("cargo clippy --workspace --all-targets --all-features -- -D warnings"),
         "ci.yml MUST invoke `cargo clippy --workspace --all-targets --all-features -- -D warnings` \
-         (chunk #55 lint gate regression backstop; `-D warnings` cannot be downgraded к `-W warnings` \
+         (chunk #55 lint gate regression backstop; `-D warnings` cannot be downgraded to `-W warnings` \
          per security plan §Dependency Security CI integration + CLAUDE.md §Workflow)"
     );
 }
@@ -250,7 +250,7 @@ fn ci_workflow_uploads_criterion_artifact_unchanged() {
     let content = read_workflow();
     assert!(
         content.contains("name: criterion-${{ runner.os }}"),
-        "ci.yml MUST preserve `Upload criterion bench artifact` step с \
+        "ci.yml MUST preserve `Upload criterion bench artifact` step with \
          `name: criterion-${{ runner.os }}` (chunk #56 regression backstop \
          — chunk #54 substrate must remain)"
     );
@@ -261,7 +261,7 @@ fn ci_workflow_uploads_logs_artifact_unchanged() {
     let content = read_workflow();
     assert!(
         content.contains("name: logs-${{ runner.os }}"),
-        "ci.yml MUST preserve `Upload logs artifact` step с `name: logs-${{ runner.os }}` \
+        "ci.yml MUST preserve `Upload logs artifact` step with `name: logs-${{ runner.os }}` \
          (chunk #56 regression backstop — chunk #54 substrate must remain; obs-plan §9 \
          CI failure → artifact triage workflow requires log file artifact upload)"
     );

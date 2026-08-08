@@ -71,7 +71,7 @@ impl From<&Incident> for IncidentRecord {
 }
 
 /// Paginated list envelope per arch §Standard Contracts. `next_cursor`
-/// reserved для future pagination wire-up; chunk #78 returns the full
+/// reserved for future pagination wire-up; chunk #78 returns the full
 /// active-incident set in one response (bounded by 120s auto-resolution
 /// + 10-min recent-history display window).
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq, specta::Type)]
@@ -82,7 +82,7 @@ pub struct IncidentsListPayload {
 }
 
 /// Single ranked hypothesis. Mirrors `interpretation::markdown::HypothesisView`
-/// but с specta::Type derive for cross-bridge transport (interpretation
+/// but with specta::Type derive for cross-bridge transport (interpretation
 /// crate has no taurpc/specta dep per arch §Module dependency direction).
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq, specta::Type)]
 pub struct HypothesisPayload {
@@ -91,7 +91,7 @@ pub struct HypothesisPayload {
     pub justification: String,
 }
 
-/// Single suggested investigation step с expected yield description.
+/// Single suggested investigation step with expected yield description.
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq, specta::Type)]
 pub struct InvestigationStepPayload {
     pub step: String,
@@ -100,7 +100,7 @@ pub struct InvestigationStepPayload {
 
 /// Cross-incident "Previously seen" match per P-036. Chunk #88 reserves
 /// the field shape; current resolver always returns empty Vec (corpus
-/// fingerprint-similarity query path is а follow-up chunk).
+/// fingerprint-similarity query path is a follow-up chunk).
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq, specta::Type)]
 pub struct PreviouslySeenPayload {
     pub incident_id: i64,
@@ -111,15 +111,15 @@ pub struct PreviouslySeenPayload {
 
 /// Six-section Report payload returned by `incidents.get_report(id)`
 /// (chunk #88 — Epoch 9 Foundation v0.2.0). Carries structured fields
-/// for the in-app webview surface AND а pre-serialized `markdown` string
-/// for the Copy markdown action (P-038 byte-identical к future MCP
+/// for the in-app webview surface AND a pre-serialized `markdown` string
+/// for the Copy markdown action (P-038 byte-identical to future MCP
 /// delivery #92 per project doc §87 contract).
 ///
 /// Hybrid render contract (chunk #88 Phase 1 user-approved scope):
-/// - `degraded_mode = false` indicates Resolved incident с parsed L4Output
+/// - `degraded_mode = false` indicates Resolved incident with parsed L4Output
 ///   payload — full six-section content.
 /// - `degraded_mode = true` indicates Active/Acknowledged incident OR
-///   Resolved incident с unparseable / redacted resolution_summary_text —
+///   Resolved incident with unparseable / redacted resolution_summary_text —
 ///   hypotheses + investigation_steps replaced by explicit "interpretation
 ///   pending" notice in the markdown OR webview.
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq, specta::Type)]
@@ -152,16 +152,16 @@ pub struct ReportPayload {
 // per CLAUDE.md observability 2026-05-17 session 84). NO broadcast
 // channel event emit — read-state changes propagate via pull-on-focus
 // per project-doc §86 "no separate state file"; future webview live
-// updates can land с а dedicated `streams.subscribe_incidents` chunk.
+// updates can land with a dedicated `streams.subscribe_incidents` chunk.
 //
 // Chunk #88 — `get_report` is the L5 Diagnostic Report surface. Fetches
 // Incident from registry; if Resolved + resolution_summary_text parses
-// as L4Output JSON, renders full six-section markdown с hypotheses +
-// investigation_steps from the LLM output. Otherwise renders с degraded-
+// as L4Output JSON, renders full six-section markdown with hypotheses +
+// investigation_steps from the LLM output. Otherwise renders with degraded-
 // mode notice in those two sections (Active/Acknowledged incidents OR
-// Resolved incidents с unparseable summary text). Project doc §87
+// Resolved incidents with unparseable summary text). Project doc §87
 // capabilities P-031 + P-035–P-038. Markdown output is byte-identical
-// к the future MCP delivery (#92) per P-038 single-source-of-truth.
+// to the future MCP delivery (#92) per P-038 single-source-of-truth.
 #[taurpc::procedures(path = "incidents")]
 pub trait IncidentsApi {
     async fn list_active() -> Result<IncidentsListPayload, AppError>;
@@ -339,7 +339,7 @@ impl IncidentsApi for IncidentsApiImpl {
                 })
             }
             Err(IncidentRegistryError::CooldownActive { remaining_secs }) => {
-                // Defensive — cool-down only applies к acknowledge; if reg
+                // Defensive — cool-down only applies to acknowledge; if reg
                 // somehow rejects mark_resolved on cool-down, surface as
                 // validation error rather than panic.
                 tracing::Span::current().record("outcome", "cooldown_rejected");

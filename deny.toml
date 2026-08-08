@@ -6,7 +6,7 @@ db-urls = ["https://github.com/rustsec/advisory-db"]
 yanked = "warn"
 # All ignored advisories below are unmaintained-warnings on transitive deps with
 # "No safe upgrade is available!" — i.e. no actionable fix at the source. Reviewed
-# 2026-05-20; revisit when Tauri 2 migrates к GTK4 (closes 10 GTK3 IDs) OR when
+# 2026-05-20; revisit when Tauri 2 migrates to GTK4 (closes 10 GTK3 IDs) OR when
 # tauri-utils swaps urlpattern → icu_properties (closes 5 unic-* IDs) OR when
 # rmcp / specta migrate off proc-macro-error / paste / older transitive chain.
 # The lru 0.12.5 UNSOUND advisory (RUSTSEC-2026-0002) is NOT in this list — it
@@ -41,7 +41,7 @@ ignore = [
     # has migrated. Closes when rmcp 0.7+ + specta 2 stable + GTK4 land.
     "RUSTSEC-2024-0370",
     # paste 1.0.15 unmaintained — transitive via rmcp 0.6 + specta 2.0.0-rc.22.
-    # Crate creator archived репозитарий; pastey is the drop-in replacement.
+    # Crate creator archived repository; pastey is the drop-in replacement.
     # Closes when rmcp + specta migrate off paste.
     "RUSTSEC-2024-0436",
     # bincode 1.3.3 unmaintained — direct dep in buffer + triage + pulse-app
@@ -186,7 +186,7 @@ skip = [
     # wasmtime + wry) keeps cpufeatures 0.2.x. Pure ABI bump in the cpufeatures
     # crate (same maintainer); both versions are build/runtime fine. Tightening
     # would require either downgrading blake3 (worse hashing perf) OR waiting for
-    # tauri-codegen to bump к cpufeatures 0.3 (out of our control).
+    # tauri-codegen to bump to cpufeatures 0.3 (out of our control).
     { crate = "cpufeatures" },
     # corpus crate (chunk #68, 2026-05-18) adds rusqlite 0.32 (bundled SQLite for
     # the persistent incident corpus). rusqlite 0.32 transitively pulls hashlink
@@ -207,15 +207,15 @@ skip = [
     # - `nom`: tokenizers 0.21 → spm_precompiled 0.1.4 pulls nom 7.x;
     #   tauri-utils + other transitive crates pull nom 8.x. Build/runtime fine;
     #   tightening would require waiting for tokenizers to bump spm_precompiled
-    #   к the nom 8.x line.
+    #   to the nom 8.x line.
     # - `webpki-roots`: ureq 2.12 (triage build-dep for tokenizer fixture
     #   download per build.rs Phase 2) pulls webpki-roots 0.26; reqwest 0.13
     #   (transitive via tauri / tauri-plugin-updater) pulls webpki-roots 1.x.
     #   Build vs runtime split (ureq is build-only — the tokenizer.json
     #   download happens once at compile time); reqwest is the runtime HTTPS
     #   client for the Tauri updater. Tightening would require either
-    #   downgrading reqwest (loss of tls upgrades) OR waiting для ureq 3.x
-    #   к bump к webpki-roots 1.x.
+    #   downgrading reqwest (loss of tls upgrades) OR waiting for ureq 3.x
+    #   to bump to webpki-roots 1.x.
     { crate = "nom" },
     { crate = "webpki-roots" },
 ]

@@ -50,4 +50,4 @@ pub(crate) const TARGET_CADENCE_CONFIG_RELOAD_APPLIED: &str = "cadence.config.re
 // `cadence.config.load` + `cadence.config.safety_floor` are emitted from
 // `pulse-app/src/main.rs` boot wiring (Settings-load path) — string
 // literal at emit site mirrors chunk #62 precedent for emit-only targets
-// owned by а different crate than the consumer.
+// owned by a different crate than the consumer.

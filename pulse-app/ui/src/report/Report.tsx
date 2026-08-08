@@ -1,8 +1,8 @@
 // Diagnostic Report container (chunk #88). Composes the existing Modal
 // primitive (`pulse-app/ui/src/components/Modal.tsx`, chunk #41/#44
-// precedent) с the chunk #88 ReportRenderer. Fetches the report via
-// useReport hook when `isOpen` flips к true + `incidentId` is non-null.
-// Modal handles focus trap + Esc dismissal + focus restoration к
+// precedent) with the chunk #88 ReportRenderer. Fetches the report via
+// useReport hook when `isOpen` flips to true + `incidentId` is non-null.
+// Modal handles focus trap + Esc dismissal + focus restoration to
 // `triggerRef` per a11y plan §5 + Modal primitive's built-in shape.
 
 import { useMemo, type RefObject } from "react";

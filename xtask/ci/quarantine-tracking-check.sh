@@ -2,7 +2,7 @@
 # Chunk #55 quarantine convention enforcement. Greps for #[ignore] in Rust
 # source under crates/*/src/, pulse-app/{src,tests}/, and xtask/src/; for
 # each match, scans the surrounding 5-line window for a GitHub issue URL
-# (https://github.com/.../issues/N). Fails с file:line citation if any
+# (https://github.com/.../issues/N). Fails with file:line citation if any
 # quarantine lacks tracking link. NEUTRAL (exit 0) when zero #[ignore]
 # found in source (current state — establishes the gate for future
 # quarantines per test-plan §11 "NEVER commit #[ignore] tests without

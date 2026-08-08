@@ -66,7 +66,7 @@ pub struct TemplateDistributionPayload {
 /// Returned by `diagnostics.retry_interpretation()` after invoking the
 /// manual-override path on the degraded-mode FSM.
 ///
-/// Bounded к scalar / string-label fields per chunk #86 obs constraint
+/// Bounded to scalar / string-label fields per chunk #86 obs constraint
 /// aggregate-only discipline; carries NO LLM-emitted content / incident
 /// identifiers / per-trace IDs. The `current_state` label is the snake-
 /// case bounded enum from `interpretation::degraded_mode::DegradedModeState`
@@ -74,8 +74,8 @@ pub struct TemplateDistributionPayload {
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq, specta::Type)]
 pub struct RetryInterpretationPayload {
     /// True if the manual-retry invocation transitioned FSM state OR
-    /// reset а live failure counter; false if FSM was already в clean
-    /// Active state с zero consecutive failures (no-op retry).
+    /// reset a live failure counter; false if FSM was already in clean
+    /// Active state with zero consecutive failures (no-op retry).
     pub triggered: bool,
     /// Post-invocation FSM state label ("active" | "degraded").
     pub current_state: String,
@@ -393,7 +393,7 @@ impl DiagnosticsApi for DiagnosticsApiImpl {
                 reason: "unknown diagnostics metric".to_string(),
             });
         }
-        // Window bounded к the 30-day corpus retention; clamp rather than
+        // Window bounded to the 30-day corpus retention; clamp rather than
         // reject so the contract is forgiving for a future producer chunk.
         let _bounded_window = window_seconds.min(DIAGNOSTICS_HISTORY_MAX_WINDOW_SECONDS);
 

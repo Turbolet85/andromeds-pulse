@@ -6,7 +6,7 @@
 // Disclosure pattern per a11y plan §4: rows are native <button>
 // elements (NOT role="menu" — chunk #87 rows open Report rather than
 // execute commands); Tab/Shift+Tab navigates rows + footer; Escape
-// closes + restores focus к counter trigger via the triggerRef prop.
+// closes + restores focus to counter trigger via the triggerRef prop.
 //
 // Click-outside dismissal via document mousedown listener (NOT
 // onClick on overlay — per CLAUDE.md a11y 2026-05-10 entry click-outside
@@ -15,7 +15,7 @@
 //
 // Motion budget: ≤200ms ease-out opacity fade. Respect
 // `prefers-reduced-motion: reduce` via the tokens.css `@media`
-// override (already wires --duration-standard к 0ms per design plan
+// override (already wires --duration-standard to 0ms per design plan
 // §Motion Accessibility).
 
 import type { CSSProperties, RefObject } from "react";

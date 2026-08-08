@@ -111,7 +111,7 @@ export function priorityTierForegroundVar(tier: PriorityTier): string {
 // display: "just now" / "Nm ago" / "Nh ago" / "Nd ago". Inputs are unix
 // nano timestamps as numbers (within JS Number precision per CLAUDE.md
 // testing.md 2026-05-10 no-loss-of-precision discipline). Negative deltas
-// (clock skew) collapse to "just now"; non-finite inputs collapse к "—".
+// (clock skew) collapse to "just now"; non-finite inputs collapse to "—".
 export function formatRelativeTime(thenUnixNano: number, nowUnixNano: number): string {
   if (!Number.isFinite(thenUnixNano) || !Number.isFinite(nowUnixNano)) {
     return "—";
@@ -134,7 +134,7 @@ export function formatRelativeTime(thenUnixNano: number, nowUnixNano: number): s
 // Builds the accessible name for the counter trigger button per a11y
 // extract: "Findings: {N} unread, {highest tier} severity". Singular vs
 // plural correct ("1 unread" / "3 unread"); singleton tier label
-// capitalized; null tier collapses к count-only ("Findings: 0 unread" —
+// capitalized; null tier collapses to count-only ("Findings: 0 unread" —
 // only used during transient zero-count render before counter unmounts).
 export function counterAriaLabel(count: number, tier: PriorityTier | null): string {
   const plural = count === 1 ? "" : "s";
@@ -142,9 +142,9 @@ export function counterAriaLabel(count: number, tier: PriorityTier | null): stri
   return `Findings: ${count} unread incident${plural}${tierSuffix}`;
 }
 
-// Returns the accessible name for а dropdown row per а11y extract:
+// Returns the accessible name for a dropdown row per a11y extract:
 // "{tier}: {title}, {relative-time}". Severity word IS the non-color
-// supplement к the colored dot per a11y SC 1.4.1.
+// supplement to the colored dot per a11y SC 1.4.1.
 export function dropdownRowAriaLabel(row: FindingsRow, nowUnixNano: number): string {
   return `${priorityTierLabel(row.priorityTier)}: ${row.title}, ${formatRelativeTime(row.openedAtUnixNano, nowUnixNano)}`;
 }

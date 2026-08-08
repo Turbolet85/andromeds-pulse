@@ -125,7 +125,7 @@ fn ci_workflow_uses_sha_pin_discipline_unchanged() {
             .unwrap_or("");
         assert!(
             sha_part.len() >= 40 && sha_part.chars().take(40).all(|c| c.is_ascii_hexdigit()),
-            "ci.yml `uses:` line MUST be pinned к а 40-char SHA per security \
+            "ci.yml `uses:` line MUST be pinned to a 40-char SHA per security \
              plan §Supply Chain + CI (line: `{trimmed}`)"
         );
     }
@@ -138,7 +138,7 @@ fn ci_workflow_preserves_workflow_level_contents_read_permission() {
     assert!(
         intro.contains("permissions:") && intro.contains("contents: read"),
         "ci.yml MUST preserve workflow-level `permissions: contents: read` \
-         per security plan §Secret Management (no widening к contents: \
+         per security plan §Secret Management (no widening to contents: \
          write at workflow level)"
     );
 }

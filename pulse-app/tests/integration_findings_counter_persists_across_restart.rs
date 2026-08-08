@@ -1,13 +1,13 @@
 //! Chunk #87 integration test: Findings counter derivation persists
 //! across simulated app restart. Seeds N unread incidents, marks all
-//! read via `incidents.mark_all_read()`, drops corpus, reopens с same
+//! read via `incidents.mark_all_read()`, drops corpus, reopens with same
 //! keychain seed, rehydrates registry from persisted state, asserts
 //! `read_at_unix_nano` survived the restart (counter would derive to 0).
 //!
 //! Mirrors chunk #78 `unit_incident_persistence.rs::p042_cross_session_continuity`
-//! cross-restart pattern. Lives в `pulse-app/tests/` per session-learnings
+//! cross-restart pattern. Lives in `pulse-app/tests/` per session-learnings
 //! 2026-05-13 (`[lib] test = false` makes source-level `mod tests` dead
-//! в pulse-app).
+//! in pulse-app).
 
 use std::sync::Arc;
 
@@ -108,7 +108,7 @@ async fn findings_counter_state_persists_across_app_restart() {
         );
     }
 
-    // Second session (simulated restart): reopen corpus с same seed,
+    // Second session (simulated restart): reopen corpus with same seed,
     // rehydrate registry via load_active_incidents, assert read_at
     // survived.
     let backend2: Arc<dyn KeychainBackend> = Arc::new(FakeKeychainBackend::with_seeded_key(

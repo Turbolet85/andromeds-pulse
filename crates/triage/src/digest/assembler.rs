@@ -1,6 +1,6 @@
 //! L3 digest assembler core implementation (chunk #81).
 //!
-//! `DigestAssembler` trait + `Assembler` concrete impl. Composes а
+//! `DigestAssembler` trait + `Assembler` concrete impl. Composes a
 //! `Digest` per dist-arch v3 §Appendix C from L1a Q1-Q7 (via
 //! `SqlQueryRunner` injected from chunk #80 substrate), attention cues
 //! (from `AttentionCue` triggering arg), project context (via
@@ -53,7 +53,7 @@ use crate::digest::{
 use crate::incident::IncidentRegistry;
 
 /// Build-time-embedded Llama-3 tokenizer.json fixture (per
-/// `crates/triage/build.rs` Phase 2). Future chunk #82+ may swap к а
+/// `crates/triage/build.rs` Phase 2). Future chunk #82+ may swap to a
 /// different tokenizer if LLM runtime choice mandates.
 const TOKENIZER_BYTES: &[u8] = include_bytes!(concat!(env!("OUT_DIR"), "/tokenizer.json"));
 
@@ -68,7 +68,7 @@ pub type DigestFuture<'a, T> = Pin<Box<dyn Future<Output = Result<T, DigestError
 /// adapter at `pulse-app/src/digest_runtime.rs` from
 /// `workspace_detector::ProjectContextProvider`. Triage owns this lower-
 /// level shape; binary-side does the mapping per arch §Module dependency
-/// direction (triage не depends on workspace-detector).
+/// direction (triage does not depend on workspace-detector).
 #[derive(Debug, Clone, Default)]
 pub struct DigestProjectContext {
     pub workspace_canonical_path: String,
@@ -85,8 +85,8 @@ pub struct DigestRecentCommit {
     pub files_changed_count: u32,
 }
 
-/// Trait для assembling а digest. Implemented by [`Assembler`]; tests
-/// can substitute а stub.
+/// Trait for assembling a digest. Implemented by [`Assembler`]; tests
+/// can substitute a stub.
 pub trait DigestAssembler: Send + Sync {
     fn assemble<'a>(
         &'a self,
@@ -98,7 +98,7 @@ pub trait DigestAssembler: Send + Sync {
     ) -> DigestFuture<'a, Digest>;
 }
 
-/// L3 digest assembler. Composes а digest from L1a queries + L2 cues +
+/// L3 digest assembler. Composes a digest from L1a queries + L2 cues +
 /// active-incident state + project context.
 ///
 /// Cross-crate dep injection per chunks #69/78 precedent:
@@ -111,11 +111,11 @@ pub trait DigestAssembler: Send + Sync {
 ///   (`security::scrubber::scrub_attribute`-wrapping at binary boundary)
 ///
 /// Corpus writes (digest_archive append) are routed through an injected
-/// adapter at the binary boundary к keep triage free of corpus crate dep
+/// adapter at the binary boundary to keep triage free of corpus crate dep
 /// (the assembler emits its digest and the binary boundary captures the
 /// emission, scrubs + persists). For chunk #81 substrate, this is
 /// implemented via the broadcast subscription pattern: pulse-app
-/// subscribes к `DigestBroadcast` and persists each emitted digest к
+/// subscribes to `DigestBroadcast` and persists each emitted digest to
 /// corpus via `CorpusWriter::save_digest` (chunk #81 trait extension).
 pub struct Assembler {
     tokenizer: Arc<Tokenizer>,
@@ -159,8 +159,8 @@ impl Assembler {
         })
     }
 
-    /// Test-only constructor that takes а pre-built tokenizer (lets unit
-    /// tests inject а tokenizer they constructed elsewhere). Production
+    /// Test-only constructor that takes a pre-built tokenizer (lets unit
+    /// tests inject a tokenizer they constructed elsewhere). Production
     /// callers use `new()`.
     #[cfg(test)]
     pub fn with_tokenizer(
@@ -242,8 +242,8 @@ impl DigestAssembler for Assembler {
                 .await
                 .map_err(map_sql_err)?;
             // Q2/Q4-Q7 fetched but not embedded in chunk #81 substrate digest;
-            // execution stays к ensure the SQL surface is exercised
-            // identically к the cadence coordinator (consistency +
+            // execution stays to ensure the SQL surface is exercised
+            // identically to the cadence coordinator (consistency +
             // diagnostics value). Future chunk integrates richer fields.
             // Q3 fingerprint rows feed the corpus-retrieval match below.
             let _q2 = self.sql_runner.run_q2(window_duration).await.ok();
@@ -573,7 +573,7 @@ fn priority_tier_label(tier: PriorityTier) -> &'static str {
 fn severity_at_least_suggested(s: Severity) -> bool {
     // Severity ≥ Warn means triggering of the active-incident exception
     // per dist-arch v3 §Queue behavior (severity ≥ Suggested per spec
-    // language; map к Severity::Warn since Severity enum lacks
+    // language; map to Severity::Warn since Severity enum lacks
     // explicit Suggested tier — Severity carries Info/Warn/Error/Critical
     // levels while PriorityTier carries the model-decision tiers).
     matches!(s, Severity::Warn | Severity::Error | Severity::Critical)
@@ -584,10 +584,10 @@ fn compose_services_from_q1(rows: &[crate::contract::Q1RedRow]) -> Vec<DigestSer
         .map(|r| {
             // Q1 rows expose RED-style aggregates (rate, error count, p99
             // latency over the window). Chunk #81 substrate maps directly;
-            // baselines per row default к the current observation так что
+            // baselines per row default to the current observation so that
             // the "vs baselines" comparison reads neutral (×1.0) until
             // chunk #82+ integrates L1b baseline state. Q1RedRow stores
-            // p99 в nanoseconds (per chunk #79 sql.rs); convert к ms for
+            // p99 in nanoseconds (per chunk #79 sql.rs); convert to ms for
             // digest payload.
             let p99_ms = r.p99_ns as f64 / 1_000_000.0;
             DigestServiceRow {

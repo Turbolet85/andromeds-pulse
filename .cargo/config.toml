@@ -2,11 +2,11 @@
 xtask = "run --quiet --package xtask --"
 
 # Chunk #81 — Windows MSVC linker workaround. Adding `tokenizers` (Hugging
-# Face) к the triage crate brought enough transitive deps that pulse-app's
+# Face) to the triage crate brought enough transitive deps that pulse-app's
 # integration-test link command exceeded the Windows MSVC link.exe
 # command-line length limit (exit code 1140). rust-lld is the standard
 # Rust-toolchain-bundled linker that does not have this limit. Applies
-# only к the Windows MSVC target; Linux/macOS continue to use the system
+# only to the Windows MSVC target; Linux/macOS continue to use the system
 # linker via the default toolchain settings.
 [target.x86_64-pc-windows-msvc]
 linker = "rust-lld.exe"

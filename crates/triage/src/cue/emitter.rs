@@ -20,7 +20,7 @@ use crate::pattern::{
 
 /// Synchronous helper that runs one emission cycle: evaluate thresholds, emit
 /// each resulting cue to the broadcast topic, additionally emit Tier-2
-/// (`PriorityTier::Suggested`) cues к cadence-triggers, fire per-emission
+/// (`PriorityTier::Suggested`) cues to cadence-triggers, fire per-emission
 /// metric event. Returns the cues emitted so callers can assert on outcome.
 ///
 /// Designed for direct unit-test invocation independent of the
@@ -168,7 +168,7 @@ pub fn run_one_emit_cycle(
     }
 }
 
-/// Emit a single cue к broadcast + (if Tier-2) cadence-triggers + per-cue
+/// Emit a single cue to broadcast + (if Tier-2) cadence-triggers + per-cue
 /// metric event. Bounded-cardinality fields only — `kind` + `priority` enum
 /// labels + structural numeric values; NEVER `scope_id` content per security
 /// plan §Anti-Patterns § Logging row 1 (cue scope_id may carry user-
@@ -243,7 +243,7 @@ pub struct EmitCycleStats {
 /// Fires `run_one_emit_cycle` on the supplied tick interval.
 ///
 /// Wall-clock time is read from `SystemTime::UNIX_EPOCH`; tests should
-/// exercise `run_one_emit_cycle` directly with injected `now_nanos` для
+/// exercise `run_one_emit_cycle` directly with injected `now_nanos` for
 /// deterministic timing (per chunk #61 + #20 testable-helper-extraction
 /// precedent).
 ///
@@ -650,7 +650,7 @@ mod tests {
     /// Integration: with an active restart suppression window for the
     /// affected service, a short-persistence ErrorRateSpike cue is dropped
     /// from the emit cycle (chunk #63 P-016 surgical suppression).
-    /// Uses high bypass thresholds к force `suppression_bypassed=false`
+    /// Uses high bypass thresholds to force `suppression_bypassed=false`
     /// so the surgical-drop branch fires.
     #[test]
     fn run_one_emit_cycle_drops_short_persistence_error_spike_in_active_window() {
@@ -668,7 +668,7 @@ mod tests {
         let cadence_handle = CadenceTriggerChannel::new();
         let _cad_rx = cadence_handle.subscribe();
 
-        // Force the cue к escape any bypass by raising the bypass
+        // Force the cue to escape any bypass by raising the bypass
         // thresholds far above the cue's expected magnitude+absolute.
         let high_thresholds = Thresholds {
             magnitude_bypass_multiplier: 1_000.0,
@@ -1046,7 +1046,7 @@ mod tests {
             Arc::clone(&suppression_state),
         ));
         // Real-time short wait — emitter ticks every 10ms; first tick is
-        // skipped by design, so 50ms is safe для at least one full cycle.
+        // skipped by design, so 50ms is safe for at least one full cycle.
         tokio::time::sleep(Duration::from_millis(50)).await;
         handle.abort();
         let result = handle.await;

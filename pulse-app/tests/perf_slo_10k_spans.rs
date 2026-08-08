@@ -1,22 +1,22 @@
 //! Chunk #54 perf SLO substrate — 10k spans/sec sustained-load test.
 //!
 //! Asserts the production ingest → buffer pipeline accepts 100k synthetic
-//! spans within а 12s window (10k spans/sec sustained throughput). Mirrors
+//! spans within a 12s window (10k spans/sec sustained throughput). Mirrors
 //! chunk #50 P1 in-process bootstrap pattern: ephemeral loopback gRPC
 //! receiver + real DuckDB connection + run_consumer task + tonic 0.14
 //! client driving the live receiver.
 //!
 //! Frame-rate ≥30 fps frame-buffer inspection is OUT of agent-driven scope
 //! per test-plan §1 `performance-budget: WebGPU canvas throughput` row —
-//! that activates with tauri-driver headful E2E suite in а future chunk.
+//! that activates with tauri-driver headful E2E suite in a future chunk.
 //! This test verifies the throughput layer only (ingest-channel + buffer
 //! consumer + DuckDB Arrow appender stays within budget at sustained load).
 //!
 //! Post-test `metric.webgpu.frame_duration_ms` p99 ≤33ms + `metric.buffer.
 //! memory_bytes` max ≤512MB gates fire via `cargo xtask perf:slo-load` →
 //! `xtask/ci/perf-slo-check.{sh,ps1}` reading `agent-latest.jsonl`. Empty
-//! event streams (webview not booted, heartbeat not running) map к NEUTRAL
-//! pass; full gate activates когда production observability subscribes
+//! event streams (webview not booted, heartbeat not running) map to NEUTRAL
+//! pass; full gate activates when production observability subscribes
 //! during the load window.
 
 use std::net::SocketAddr;
@@ -51,7 +51,7 @@ fn make_span(trace_id: [u8; 16], span_id: [u8; 8], start_ns: u64) -> Span {
 
 fn unique_trace_id(batch_seed: u64) -> [u8; 16] {
     // Distinct trace_id per batch — first 8 bytes = batch_seed LE, last 8 = 1s
-    // padding к keep а recognizable non-zero suffix (avoids OTLP zero-trace-id
+    // padding to keep a recognizable non-zero suffix (avoids OTLP zero-trace-id
     // semantic-vs-format ambiguity).
     let mut out = [1u8; 16];
     let bytes = batch_seed.to_le_bytes();
@@ -60,7 +60,7 @@ fn unique_trace_id(batch_seed: u64) -> [u8; 16] {
 }
 
 fn unique_span_id(batch_seed: u64, span_idx: usize) -> [u8; 8] {
-    // Distinct (trace_id, span_id) per span via а global counter derived от
+    // Distinct (trace_id, span_id) per span via a global counter derived from
     // batch_seed × BATCH_SIZE + span_idx. With 100 batches × 1000 spans the
     // counter range is ≤100_000 (well within u64 / 8-byte space).
     let counter = batch_seed.wrapping_mul(BATCH_SIZE as u64) + (span_idx as u64) + 1;
@@ -157,7 +157,7 @@ async fn perf_slo_sustained_10k_spans_per_sec_ingest_throughput_holds() {
     let endpoint = format!("http://{}", bound);
     let mut client = TraceServiceClient::connect(endpoint)
         .await
-        .expect("client connects к loopback receiver");
+        .expect("client connects to loopback receiver");
 
     let batch_count = (TARGET_SPANS as usize).div_ceil(BATCH_SIZE);
     let load_window = Duration::from_secs(10);

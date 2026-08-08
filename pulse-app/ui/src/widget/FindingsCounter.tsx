@@ -1,4 +1,4 @@
-// Compact circular counter button trigger для the Findings dropdown
+// Compact circular counter button trigger for the Findings dropdown
 // (chunk #87). Hidden when count is zero per project-doc §86
 // contemplative-discipline + design-system §Anti-Patterns. Severity-
 // colored background per priorityTier (Autonomous = accent burgundy,

@@ -276,7 +276,7 @@ fn migrate_legacy_failed_on_corrupt_bytes_preserves_legacy_file() {
     // Corrupt bytes with a valid-looking 8-byte usize length prefix —
     // first 8 bytes decode to ~8.9e18 entries. Plain `bincode::deserialize`
     // (bincode 1.3 default Config, no size limit) would pre-allocate a
-    // Vec of that capacity и trigger an OOM process abort. The chunk #72
+    // Vec of that capacity and trigger an OOM process abort. The chunk #72
     // follow-up `pulse_app::bincode_bounded::deserialize` helper bounds
     // length prefixes by `DEFAULT_MAX_SIZE_BYTES`, returning a graceful
     // `Err::SizeLimit` instead — this test verifies that protection.
@@ -299,7 +299,7 @@ fn migrate_legacy_failed_on_corrupt_bytes_preserves_legacy_file() {
 }
 
 // Chunk #72 follow-up — additional negative cases for the bounded
-// deserialize. Exercises the SizeLimit error path с several crafted
+// deserialize. Exercises the SizeLimit error path with several crafted
 // prefixes to catch any future regression of the bounded-deserialize
 // helper (e.g., accidental removal of `.with_limit(...)` from
 // `bincode_bounded::deserialize` would re-OOM here).
@@ -312,7 +312,7 @@ fn migrate_legacy_rejects_oversized_length_prefix_without_oom() {
     // Schema_version u32 prefix (4 bytes) + a u64 length prefix at the
     // services-map slot pointing at 2^40 entries. Without the chunk #72
     // follow-up `baseline_bytes_prefix_plausible` validator, bincode 1.3.3
-    // would pre-allocate а DashMap с that capacity и OOM-abort the test
+    // would pre-allocate a DashMap with that capacity and OOM-abort the test
     // process. With the validator, this rejects gracefully as `Failed`.
     let mut bytes = vec![0u8, 0, 0, 0]; // schema_version
     let huge_len: u64 = 1u64 << 40;

@@ -1,11 +1,11 @@
 // Diagnostic Report hook (chunk #88). Encapsulates the TauRPC fetch +
 // clipboard write + copy-state lifecycle so Report.tsx + ReportRenderer.tsx
-// stay focused на rendering. The hook fetches when `incidentId` flips
+// stay focused on rendering. The hook fetches when `incidentId` flips
 // non-null (single fetch per open cycle); webview consumers close the
 // Report and reopen it to re-fetch.
 //
 // Copy state machine: idle → copying → copied | error. The `copied`
-// state auto-resets к idle after AUTO_RESET_MS so the live region
+// state auto-resets to idle after AUTO_RESET_MS so the live region
 // announcement clears (per a11y plan §7 Live regions + CLAUDE.md
 // §Critical Warnings clipboard hygiene rule — visible event accompanies
 // every clipboard write).

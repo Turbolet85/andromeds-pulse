@@ -140,10 +140,10 @@ fn default_token_budget() -> u32 {
     25_000
 }
 
-// Maps a user-supplied token-budget number к the nearest TokenBudget preset
+// Maps a user-supplied token-budget number to the nearest TokenBudget preset
 // (10k / 25k / 50k per arch §Established Decisions [Snapshot Curation Default]).
-// MCP clients don't pick from а preset enum directly; they pass а number и
-// the dispatcher snaps к the closest spec-locked tier.
+// MCP clients don't pick from a preset enum directly; they pass a number and
+// the dispatcher snaps to the closest spec-locked tier.
 fn budget_for_count(target: u32) -> TokenBudget {
     if target < 17_500 {
         TokenBudget::Conservative

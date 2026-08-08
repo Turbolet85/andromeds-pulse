@@ -106,10 +106,10 @@ const DDL_STATEMENTS: &[&str] = &[
 /// - 0 → first launch; create all tables inside a transaction, set
 ///   `user_version = SCHEMA_VERSION`, return `SCHEMA_VERSION`.
 /// - equals `SCHEMA_VERSION` → no-op, return `SCHEMA_VERSION`.
-/// - other → `Error::SchemaVersionMismatch` (corpus opened с unexpected
+/// - other → `Error::SchemaVersionMismatch` (corpus opened with unexpected
 ///   schema; refuse to proceed rather than risk data corruption).
 ///
-/// Idempotent: re-running после first launch is а no-op.
+/// Idempotent: re-running after first launch is a no-op.
 pub(crate) fn apply_migrations(conn: &Connection) -> Result<u32, Error> {
     let current: u32 = conn
         .query_row("PRAGMA user_version", [], |row| row.get(0))

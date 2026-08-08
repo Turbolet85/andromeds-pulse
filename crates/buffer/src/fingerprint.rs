@@ -1,7 +1,7 @@
 //! Exception fingerprint computation + observer trait — chunk #66.
 //!
 //! L1c distillation layer per pulse v0.2.0 plan Phase 2: hash
-//! `(exception.type + normalized first-3-frame stacktrace)` к a deterministic
+//! `(exception.type + normalized first-3-frame stacktrace)` to a deterministic
 //! 16-byte fingerprint that is BOTH written to the `span_events.fingerprint`
 //! BLOB column (via `appender::build_span_events_record_batch`) AND fed to
 //! `triage::pattern::storm::RetryStormDetector` for retry-storm pattern
@@ -26,7 +26,7 @@
 //!   cannot influence the broadcast fingerprint OR the DuckDB column bytes.
 //! - Normalization strips absolute paths, memory addresses, and line numbers
 //!   BEFORE hashing so the hash is stable across host-environment differences
-//!   AND incidental path/address secrets do not co-mingle с the fingerprint.
+//!   AND incidental path/address secrets do not co-mingle with the fingerprint.
 //! - Output is 16 bytes (truncated `blake3` hash); ample collision-resistance
 //!   for in-memory `DashMap<[u8; 16], _>` cardinality bounds.
 
@@ -98,7 +98,7 @@ pub fn compute_exception_fingerprint(
 /// Format the fingerprint's first 4 bytes as 8-char lowercase hex for use as
 /// a bounded-cardinality tracing field value. Mirrors the `cue_kind_label`
 /// pattern from `triage::cue::classify` — opaque-but-stable identifier safe
-/// to log в self-observation events.
+/// to log in self-observation events.
 pub fn fingerprint_to_hex_prefix(fingerprint: &ExceptionFingerprint) -> String {
     let mut out = String::with_capacity(8);
     for byte in &fingerprint[..4] {
@@ -112,7 +112,7 @@ pub fn fingerprint_to_hex_prefix(fingerprint: &ExceptionFingerprint) -> String {
 /// hex memory addresses, and `:line(:col)?` suffixes; join with `\n`.
 ///
 /// The first-3-frame truncation per chunk #66 spec keeps the fingerprint
-/// stable when callers вызывают the same function from different deep stack
+/// stable when callers call the same function from different deep stack
 /// contexts — same proximate failure surface = same fingerprint regardless
 /// of how deep the rest of the stack goes.
 pub(crate) fn normalize_stacktrace(raw: &str) -> String {
@@ -293,7 +293,7 @@ mod tests {
             .expect("fingerprint computed");
         assert_eq!(
             a, b,
-            "same type+frame-function-names с different paths/line numbers MUST hash к same fingerprint"
+            "same type+frame-function-names with different paths/line numbers MUST hash to same fingerprint"
         );
     }
 

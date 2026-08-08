@@ -1,7 +1,7 @@
 //! Baseline observer adapter — chunk #62.
 //!
-//! Bridges `ingest::observer::SpanObserver` (trait declared в lower-level
-//! ingest crate) к `triage::BaselineState::observe_span` (chunk #61
+//! Bridges `ingest::observer::SpanObserver` (trait declared in lower-level
+//! ingest crate) to `triage::BaselineState::observe_span` (chunk #61
 //! streaming baseline tracker). Lives at the pulse-app binary boundary
 //! per arch §Cross-cutting Patterns Module dependency direction —
 //! preserves the DAG flow (deps flow toward pulse-app; library crates

@@ -151,9 +151,9 @@ Write smoke artifacts under `target/` (gitignored) to avoid polluting `git statu
 
 ## 2026-05-25 (session 150) — Outcome-enum backward-compat shim for refactoring void-returning handlers (confidence 0.70)
 
-When extending а handler fn to surface internal classified outcomes к а new consumer WITHOUT breaking N+ existing test callsites that depend on the void-returning signature, extract the handler body into а new `_outcome`-suffixed fn returning а classified enum, then make the original fn а thin shim that calls the new fn and discards the return value.
+When extending a handler fn to surface internal classified outcomes to a new consumer WITHOUT breaking N+ existing test callsites that depend on the void-returning signature, extract the handler body into a new `_outcome`-suffixed fn returning a classified enum, then make the original fn a thin shim that calls the new fn and discards the return value.
 
-Verified at chunk #86 `pulse-app/src/inference_runtime.rs::handle_digest` refactor: 11+ existing tests in `pulse-app/tests/unit_inference_runtime.rs` call `handle_digest(&runner, &digest).await` with no return-value handling. Chunk #86 needed the L4 inference outcome (Success/ParseFailure/SchemaViolation/OutputTooLarge/RuntimeError) к feed degraded-mode FSM record_failure/record_success calls + к surface `Box<L4Output>` payload к the resolution-summary attachment path. Refactor:
+Verified at chunk #86 `pulse-app/src/inference_runtime.rs::handle_digest` refactor: 11+ existing tests in `pulse-app/tests/unit_inference_runtime.rs` call `handle_digest(&runner, &digest).await` with no return-value handling. Chunk #86 needed the L4 inference outcome (Success/ParseFailure/SchemaViolation/OutputTooLarge/RuntimeError) to feed degraded-mode FSM record_failure/record_success calls + to surface `Box<L4Output>` payload to the resolution-summary attachment path. Refactor:
 
 ```rust
 pub enum L4DigestOutcome {
@@ -167,82 +167,82 @@ pub enum L4DigestOutcome {
 pub async fn handle_digest_outcome(runner: &dyn LlmInferenceRunner, digest: &Digest) -> L4DigestOutcome { /* moved body */ }
 
 pub async fn handle_digest(runner: &dyn LlmInferenceRunner, digest: &Digest) {
-    let _ = handle_digest_outcome(runner, digest).await;  // shim для existing tests
+    let _ = handle_digest_outcome(runner, digest).await;  // shim for existing tests
 }
 ```
 
-Zero test churn: the 11 existing callsites continue к work с the void contract. New degraded-mode-aware subscriber calls `handle_digest_outcome` directly + branches on the variants. The boxed `L4Output` sidesteps clippy `large_enum_variant` (~600-byte struct dominates the enum size; other variants are unit).
+Zero test churn: the 11 existing callsites continue to work with the void contract. New degraded-mode-aware subscriber calls `handle_digest_outcome` directly + branches on the variants. The boxed `L4Output` sidesteps clippy `large_enum_variant` (~600-byte struct dominates the enum size; other variants are unit).
 
 Trade-offs vs alternative refactor strategies:
-- Update all 11 test callsites к `let _ = handle_digest(...)`: pure churn; loses information that the original signature was void.
-- Add Option<Arc<dyn DegradedModeStatus>> with default-None impl к the original signature: changes the production hot path's parameter list to thread Option through; mocks need k construct stubs.
-- Make the original fn return the outcome + update test callsites к use `_`-prefix bindings: same as option 1 but slightly cleaner shape.
+- Update all 11 test callsites to `let _ = handle_digest(...)`: pure churn; loses information that the original signature was void.
+- Add Option<Arc<dyn DegradedModeStatus>> with default-None impl to the original signature: changes the production hot path's parameter list to thread Option through; mocks need k construct stubs.
+- Make the original fn return the outcome + update test callsites to use `_`-prefix bindings: same as option 1 but slightly cleaner shape.
 
-The shim approach minimizes diff radius (1 new fn + 1 unchanged-body fn becomes 2 fns с the original now а thin delegator). Generalizes к ANY future refactor where а void-returning handler needs к surface internal classification к а new consumer без re-shuffling N existing test callsites. Apply when N ≥ 5 (below that threshold the test-update cost may be lower than the shim-fn maintenance overhead).
+The shim approach minimizes diff radius (1 new fn + 1 unchanged-body fn becomes 2 fns with the original now a thin delegator). Generalizes to ANY future refactor where a void-returning handler needs to surface internal classification to a new consumer without re-shuffling N existing test callsites. Apply when N ≥ 5 (below that threshold the test-update cost may be lower than the shim-fn maintenance overhead).
 
 ---
 
 ## 2026-05-23 (session 121) — Specta type-name collision discipline across workspace crates (confidence 0.85)
 
-When two distinct workspace crates each define а type with the same name AND both derive `specta::Type` (gated by `taurpc-runtime` feature OR equivalent), the `emit_taurpc_bindings` test panics с `Unable to export type named 'X' from locations '...'`. The TS bindings target requires unique type names across all transitively-exported types.
+When two distinct workspace crates each define a type with the same name AND both derive `specta::Type` (gated by `taurpc-runtime` feature OR equivalent), the `emit_taurpc_bindings` test panics with `Unable to export type named 'X' from locations '...'`. The TS bindings target requires unique type names across all transitively-exported types.
 
-Resolution: use `#[cfg_attr(feature = "taurpc-runtime", specta(rename = "AliasName"))]` on the colliding type definition к disambiguate at the binding emission layer. Domain meaning preserved (the Rust type keeps its original name); only the exported TS shape is renamed.
+Resolution: use `#[cfg_attr(feature = "taurpc-runtime", specta(rename = "AliasName"))]` on the colliding type definition to disambiguate at the binding emission layer. Domain meaning preserved (the Rust type keeps its original name); only the exported TS shape is renamed.
 
-Verified at chunk #78 `triage::contract::Severity` (incident severity) collided с `ingest::connection::Severity` (connection severity). Resolution: triage Severity → TS `IncidentSeverity` via cfg_attr specta(rename). The two domain concepts are unrelated (incident lifecycle severity vs connection state severity); rename pins the alias к the more specific contextual usage.
+Verified at chunk #78 `triage::contract::Severity` (incident severity) collided with `ingest::connection::Severity` (connection severity). Resolution: triage Severity → TS `IncidentSeverity` via cfg_attr specta(rename). The two domain concepts are unrelated (incident lifecycle severity vs connection state severity); rename pins the alias to the more specific contextual usage.
 
-**Apply к:** any future cross-crate TauRPC binding addition that introduces а type sharing а name с an existing exported type. Audit candidate at planning time: grep workspace для existing `derive(specta::Type)` types matching the new type's name; if conflict surfaces, plan а rename. Pairs naturally с the 2026-05-13 / 2026-05-17 bindings.ts regen discipline — both are concerns at emission-time, surfaced when the `emit_taurpc_bindings` test runs.
+**Apply to:** any future cross-crate TauRPC binding addition that introduces a type sharing a name with an existing exported type. Audit candidate at planning time: grep workspace for existing `derive(specta::Type)` types matching the new type's name; if conflict surfaces, plan a rename. Pairs naturally with the 2026-05-13 / 2026-05-17 bindings.ts regen discipline — both are concerns at emission-time, surfaced when the `emit_taurpc_bindings` test runs.
 
 ---
 
 ## 2026-05-23 (session 121) — SQLite auto-rowid as the contract `id: i64` for corpus-persisted contract types (confidence 0.80)
 
-When а corpus-backed persistent entity has its schema column `id INTEGER PRIMARY KEY` (SQLite auto-rowid), the in-memory contract type for that entity should use `id: i64` rather than `id: String` (UUID-shaped). Rationale:
+When a corpus-backed persistent entity has its schema column `id INTEGER PRIMARY KEY` (SQLite auto-rowid), the in-memory contract type for that entity should use `id: i64` rather than `id: String` (UUID-shaped). Rationale:
 
-- Schema rowid is the natural lookup key для SQL `UPDATE WHERE id = ?` operations. Keeping the contract field as i64 enables direct UPDATE without scan-and-decrypt fallback.
-- The contract type's `Eq + Hash` derives benefit from а primitive integer type rather than а String UUID.
-- The 0-sentinel-for-unpersisted convention works cleanly с i64 (0 = "not yet INSERTed; the corpus has not assigned а rowid").
+- Schema rowid is the natural lookup key for SQL `UPDATE WHERE id = ?` operations. Keeping the contract field as i64 enables direct UPDATE without scan-and-decrypt fallback.
+- The contract type's `Eq + Hash` derives benefit from a primitive integer type rather than a String UUID.
+- The 0-sentinel-for-unpersisted convention works cleanly with i64 (0 = "not yet INSERTed; the corpus has not assigned a rowid").
 
-Verified at chunk #78 `triage::contract::Incident.id` changed from `String` → `i64`. The decision was driven by chunk #68's prior schema choice (`incidents.id INTEGER PRIMARY KEY`). Alternative paths considered + rejected: (а) adding а UUID column с schema migration к v2 (out-of-scope for chunk #78 + violates plan's "no DDL changes" §Files to leave untouched note); (b) keeping `id: String` + scan-decrypt every row на acknowledge/mark_resolved (O(N) lookup; acceptable for bounded counts but architecturally regressive).
+Verified at chunk #78 `triage::contract::Incident.id` changed from `String` → `i64`. The decision was driven by chunk #68's prior schema choice (`incidents.id INTEGER PRIMARY KEY`). Alternative paths considered + rejected: (a) adding a UUID column with schema migration to v2 (out-of-scope for chunk #78 + violates plan's "no DDL changes" §Files to leave untouched note); (b) keeping `id: String` + scan-decrypt every row on acknowledge/mark_resolved (O(N) lookup; acceptable for bounded counts but architecturally regressive).
 
-**Apply к:** any future v0.2.0+ chunk adding а new corpus-backed contract type (e.g., Digest archive entries chunk #81, future fingerprint records, etc.). Pre-emptively check the chunk #68 schema table's PK column shape; if it's `id INTEGER PRIMARY KEY`, mirror the i64 contract pattern. Preserves the `fingerprint: String` field separately as the cross-incident grouping identifier (UUID-shaped opaque hash for P-047 redaction-by-construction posture). Pairs с the 2026-05-19 N-trait-from-single-Arc<Corpus> pattern + 2026-05-18 free-function corpus_error_to_app_error pattern — all three are corpus-persisted-entity wiring discipline.
+**Apply to:** any future v0.2.0+ chunk adding a new corpus-backed contract type (e.g., Digest archive entries chunk #81, future fingerprint records, etc.). Pre-emptively check the chunk #68 schema table's PK column shape; if it's `id INTEGER PRIMARY KEY`, mirror the i64 contract pattern. Preserves the `fingerprint: String` field separately as the cross-incident grouping identifier (UUID-shaped opaque hash for P-047 redaction-by-construction posture). Pairs with the 2026-05-19 N-trait-from-single-Arc<Corpus> pattern + 2026-05-18 free-function corpus_error_to_app_error pattern — all three are corpus-persisted-entity wiring discipline.
 
 ---
 
 ## 2026-05-22 (session 119) — Andromeda v3 chunk-scoped manual specialist plan rewrite path (confidence 0.85)
 
-Pulse v0.2.0 Consolidation Phase 6 introduced а NEW Andromeda v3 path: explicit chunk-scoped manual specialist plan rewrites within а single chunk's declared scope. Chunks declaring "**Specialist plan touches:** {plan} (definitely — manual body rewrite of ...)" in their canonical chunk description (e.g., chunk #77 per `docs/v0_2_0/pulse-v0_2_0-route.md` §77) legitimize direct `Edit` operations against `.andromeda/{security,design,test,obs,a11y,layout-templates}-plan.md` AND `.claude/rules/*.md` during /implement WITHOUT а Trigger 4 spec-drift dialogue (which is for unexpected drift, not planned chunk scope), WITHOUT a separate amendment marker (chunk implementation commit IS the audit trail per route §77 Mechanism note), AND WITHOUT D4 drift fires (chunk attribution puts edits within scope).
+Pulse v0.2.0 Consolidation Phase 6 introduced a NEW Andromeda v3 path: explicit chunk-scoped manual specialist plan rewrites within a single chunk's declared scope. Chunks declaring "**Specialist plan touches:** {plan} (definitely — manual body rewrite of ...)" in their canonical chunk description (e.g., chunk #77 per `docs/v0_2_0/pulse-v0_2_0-route.md` §77) legitimize direct `Edit` operations against `.andromeda/{security,design,test,obs,a11y,layout-templates}-plan.md` AND `.claude/rules/*.md` during /implement WITHOUT a Trigger 4 spec-drift dialogue (which is for unexpected drift, not planned chunk scope), WITHOUT a separate amendment marker (chunk implementation commit IS the audit trail per route §77 Mechanism note), AND WITHOUT D4 drift fires (chunk attribution puts edits within scope).
 
-The /implement skill's MUST NOT clause categorically forbids modifying these paths except via Trigger 4 → Path A; chunk #77's plan required а user-dialogue Phase 1 question to authorize а "chunk-scoped exception" branch. P21 proposes first-class support (`/implement` Phase 1 step 0 routing к а new Phase 1c "chunk-scoped spec rewrite orchestration") to avoid the dialogue overhead на future v3 reconciliation chunks.
+The /implement skill's MUST NOT clause categorically forbids modifying these paths except via Trigger 4 → Path A; chunk #77's plan required a user-dialogue Phase 1 question to authorize a "chunk-scoped exception" branch. P21 proposes first-class support (`/implement` Phase 1 step 0 routing to a new Phase 1c "chunk-scoped spec rewrite orchestration") to avoid the dialogue overhead on future v3 reconciliation chunks.
 
-**Apply к:** any future v3 chunk performing in-scope manual specialist plan body rewrites (specialist-plan-reconciliation pattern). v3 design defers proper specialist re-derivation skill к future Andromeda iterations; chunk-scoped manual rewrites within declared "Specialist plan touches" metadata are the interim path. Pairs с chunk #77's Decisions Log entry в security-plan.md §Security Decisions Log + testing.md §Pending coverage triggers `**LANDED (chunk #77)**` annotation discipline (mirror of 2026-05-08 DEPRECATED annotation pattern).
+**Apply to:** any future v3 chunk performing in-scope manual specialist plan body rewrites (specialist-plan-reconciliation pattern). v3 design defers proper specialist re-derivation skill to future Andromeda iterations; chunk-scoped manual rewrites within declared "Specialist plan touches" metadata are the interim path. Pairs with chunk #77's Decisions Log entry in security-plan.md §Security Decisions Log + testing.md §Pending coverage triggers `**LANDED (chunk #77)**` annotation discipline (mirror of 2026-05-08 DEPRECATED annotation pattern).
 
 ---
 
 ## 2026-05-22 (session 116) — Pre-existing partial implementation discovery pattern during META chunk /implement (confidence 0.80)
 
-When implementing а META chunk that batches multiple `docs/andromeda-improvements.md` proposals (chunk #76 batched P7+P12+P15-P18), the proposal §Status field can be STALE relative к actual skill implementation state. Phase 3 codebase research during /andromeda-phase OR /andromeda-implement Phase 1 should explicitly check for pre-existing partial implementations BEFORE estimating scope from §Implementation cost tables. Empirical findings at chunk #76:
+When implementing a META chunk that batches multiple `docs/andromeda-improvements.md` proposals (chunk #76 batched P7+P12+P15-P18), the proposal §Status field can be STALE relative to actual skill implementation state. Phase 3 codebase research during /andromeda-phase OR /andromeda-implement Phase 1 should explicitly check for pre-existing partial implementations BEFORE estimating scope from §Implementation cost tables. Empirical findings at chunk #76:
 
 - **P7** (filed session 70, status PROPOSED): Option B (word-form warning) was ALREADY implemented in `validation-checks.md` Check 7.5 + `refuse-taxonomy.md` Refuse 1 Exception narrative-cascade clarification + `output-templates.md` Type 6 marker `narrative_cascade_warnings` field. Only Option A (numeric auto-update) needed implementation. Actual delta ~30 LOC vs proposal-estimated 75 LOC.
 - **P12** (filed session 94, status PROPOSED): the Type 7 sibling (P5 pointer-table cascade pre-populate) was ALREADY implemented in SKILL.md Phase 4 step 2g + `output-templates.md` Type 7 §downstream propagation Branch (a)/(b). Only the Type 6 parallel branch (step 2h) was missing. Actual delta ~50 LOC vs proposal-estimated 80 LOC.
-- **claude-md-template.md** GENERATED anchors (`:modules` / `:overview` / etc.) were already present per chunk #43+ infrastructure; the planned P12 file edit к add anchors was unneeded.
+- **claude-md-template.md** GENERATED anchors (`:modules` / `:overview` / etc.) were already present per chunk #43+ infrastructure; the planned P12 file edit to add anchors was unneeded.
 
-**Implication:** chunk-#76 actual scope was ~350 LOC across 13 files vs plan-estimated ~400-460 LOC / 16 files (15-25% reduction). The proposal §Status flag does NOT track incremental Option-B-only / sibling-only landings; PROPOSED status persists until the AUTHOR explicitly marks IMPLEMENTED. Future META chunks batching proposals SHOULD include а Phase 3 research sub-step "scan target skill files for pre-existing partial implementation evidence" before locking scope estimate.
+**Implication:** chunk-#76 actual scope was ~350 LOC across 13 files vs plan-estimated ~400-460 LOC / 16 files (15-25% reduction). The proposal §Status flag does NOT track incremental Option-B-only / sibling-only landings; PROPOSED status persists until the AUTHOR explicitly marks IMPLEMENTED. Future META chunks batching proposals SHOULD include a Phase 3 research sub-step "scan target skill files for pre-existing partial implementation evidence" before locking scope estimate.
 
-**Apply к:** future META chunks batching ≥2 proposals where some proposals have been filed for many sessions (e.g., P7 filed session 70, dogfooded 46 sessions later); the longer the filing-to-implementation lag, the higher the likelihood of partial implementation drift. Phase 3 research should explicitly grep target skill body для proposal-related markers (e.g., "Option B", "Proposal {N}", sibling-implementation references) before scope estimation.
+**Apply to:** future META chunks batching ≥2 proposals where some proposals have been filed for many sessions (e.g., P7 filed session 70, dogfooded 46 sessions later); the longer the filing-to-implementation lag, the higher the likelihood of partial implementation drift. Phase 3 research should explicitly grep target skill body for proposal-related markers (e.g., "Option B", "Proposal {N}", sibling-implementation references) before scope estimation.
 
 ---
 
 ## 2026-05-22 (session 116) — Self-bootstrap dogfooding paradox is one-skill-invocation-removed, not session-removed (confidence 0.70)
 
-When а META chunk modifies а skill that runs in the SAME session (e.g., chunk #76 modified `~/.claude/skills/andromeda-wrap-session/` + `~/.claude/skills/andromeda-new-session/` + `~/.claude/skills/andromeda-implement/` in /implement, then immediately ran /andromeda-wrap-session), the freshly-edited skill body IS the one loaded by the harness for the NEXT invocation of that skill — which can occur LATER в the SAME session.
+When a META chunk modifies a skill that runs in the SAME session (e.g., chunk #76 modified `~/.claude/skills/andromeda-wrap-session/` + `~/.claude/skills/andromeda-new-session/` + `~/.claude/skills/andromeda-implement/` in /implement, then immediately ran /andromeda-wrap-session), the freshly-edited skill body IS the one loaded by the harness for the NEXT invocation of that skill — which can occur LATER in the SAME session.
 
-**Empirical observation:** chunk #76 landed P15 (wrap-session Phase 2 step 5 dead-test scan) + P16 (Phase 8 step 7 State H housekeeping) + P18 (integrity-protocol.md D5 section-aware classification) AT the end of session 116's /implement. The immediately-following /wrap-session call в the same session 116 loaded the freshly-edited skill body — Phase 2 step 5 dead-test scan + Phase 8 step 7 + D5 section-aware section ALL exercised в the wrap that landed them.
+**Empirical observation:** chunk #76 landed P15 (wrap-session Phase 2 step 5 dead-test scan) + P16 (Phase 8 step 7 State H housekeeping) + P18 (integrity-protocol.md D5 section-aware classification) AT the end of session 116's /implement. The immediately-following /wrap-session call in the same session 116 loaded the freshly-edited skill body — Phase 2 step 5 dead-test scan + Phase 8 step 7 + D5 section-aware section ALL exercised in the wrap that landed them.
 
-**Implication:** the "dogfooding paradox" framing ("enhancements take effect on NEXT skill invocation") is more precisely "next skill invocation, which may be intra-session". Self-validation of skill enhancements happens immediately when the user runs the skill again. This is а good property — fast feedback on whether the just-landed enhancement actually works.
+**Implication:** the "dogfooding paradox" framing ("enhancements take effect on NEXT skill invocation") is more precisely "next skill invocation, which may be intra-session". Self-validation of skill enhancements happens immediately when the user runs the skill again. This is a good property — fast feedback on whether the just-landed enhancement actually works.
 
 **Caveat:** the SAME-session re-invocation property does NOT extend across skills that the modifying user-session has ALREADY invoked. E.g., chunk #76 also landed P17 in `andromeda-implement/SKILL.md`; this wrap session does NOT re-run /implement, so P17 will only be exercised on the next chunk's /implement invocation (chunk #77 or later). The "next-invocation-removed" property is per-skill.
 
-**Apply к:** future META chunks modifying skill bodies. Confidence the enhancement is correct can be tested IMMEDIATELY after /implement by running the modified skill (typically /wrap-session next) and observing whether the new behavior fires as expected.
+**Apply to:** future META chunks modifying skill bodies. Confidence the enhancement is correct can be tested IMMEDIATELY after /implement by running the modified skill (typically /wrap-session next) and observing whether the new behavior fires as expected.
 
 ---
 
@@ -304,7 +304,7 @@ When implementing capability spec "current short-term value exceeds long-term ba
 
 **Persistence:**
 - `#[serde(default)]` on new short-tracker fields handles forward+backward compat with corpus records. Pre-existing corpus entries deserialize with empty short trackers that re-accumulate from new observations.
-- For ServiceBaseline (which has Default derive), the new short EWMA needs a `#[serde(default = "default_short_ewma")]` attribute pointing к a helper that constructs with the correct (non-default-5min) alpha. The struct's own Default impl is manually implemented (cannot auto-derive when one field has a non-default constructor argument).
+- For ServiceBaseline (which has Default derive), the new short EWMA needs a `#[serde(default = "default_short_ewma")]` attribute pointing to a helper that constructs with the correct (non-default-5min) alpha. The struct's own Default impl is manually implemented (cannot auto-derive when one field has a non-default constructor argument).
 
 **Verified at:** `crates/triage/src/baseline/mod.rs` (ServiceBaseline + OperationBaseline) + `crates/triage/src/baseline/tdigest_pair.rs` (percentile_current_only) + `crates/triage/src/cue/evaluate.rs` (short/long ratio computation) + `crates/triage/src/cue/emitter.rs` (swap_short_tdigest_pairs_on_tick wired into run_one_emit_cycle). Implementation cost: ~280 LOC across 5 files + 2 new unit tests for collision-resistance + ~7 existing tests updated for the new semantics.
 
@@ -337,7 +337,7 @@ The t-digest percentile of UNION (current + previous windows) is dominated by ex
 
 To test short_p99 vs long_p99 properly:
 - Use 1000:5 count ratio (baseline 1000 obs at 50ms + spike 5 obs at 300ms). Long p99 = 50ms (spike obs don't reach top 1% of 1005 total obs); short p99 (current_only) = 300ms (just spike obs in short.current after manual swap).
-- Manually call `state.swap_short_tdigest_pairs_on_tick(now)` TWICE between baseline + spike phases (with `now += 16s` between each call к pass the 15s swap_window age-check). This drains short.current+previous so spike data lands cleanly in the next empty current window.
+- Manually call `state.swap_short_tdigest_pairs_on_tick(now)` TWICE between baseline + spike phases (with `now += 16s` between each call to pass the 15s swap_window age-check). This drains short.current+previous so spike data lands cleanly in the next empty current window.
 
 **Affected fixtures in chunk #73:** `seed_error_spike_service` (emitter.rs) + `seed_service` (evaluate.rs) + inline observation seeding in emitter.rs suppression tests (`for i in 0..25 { let status = if i >= 12 { 2 } else { 0 } }` — note the `>=` indicates baseline-first-then-spike order; the original tests had `< 13` indicating spike-first-then-zeros which fails under Path A).
 
@@ -708,13 +708,13 @@ P8 Phase 1 + P9 Phase 1 (landed in skill files at `~/.claude/skills/andromeda-ev
 
 ## 2026-05-17 (session 79) — EWMA convergence in N-sample tests is misleading at production alpha (confidence 0.85)
 
-When writing unit tests against `crates/triage/src/baseline/EwmaTracker` (alpha=0.00333, 5-min window), seeding strategies that assume "N errors in M samples → N/M error rate" produce wildly incorrect EWMA values at typical test scale (100 samples). With alpha=0.00333, a single initial error observation sets EWMA=1.0; 99 subsequent non-error observations decay it via `value = 0.99667 * value` к ~0.717 — STILL above any sub-50% threshold. Tests asserting "1 error in 100 → below 3% threshold" fail because actual EWMA is ~71% NOT 1%. Discovered at chunk #62 cue emitter tests (`evaluate_thresholds_low_error_rate_does_not_emit_cue` + `evaluate_thresholds_classification_flips_when_multiplier_raised` both failed on first run).
+When writing unit tests against `crates/triage/src/baseline/EwmaTracker` (alpha=0.00333, 5-min window), seeding strategies that assume "N errors in M samples → N/M error rate" produce wildly incorrect EWMA values at typical test scale (100 samples). With alpha=0.00333, a single initial error observation sets EWMA=1.0; 99 subsequent non-error observations decay it via `value = 0.99667 * value` to ~0.717 — STILL above any sub-50% threshold. Tests asserting "1 error in 100 → below 3% threshold" fail because actual EWMA is ~71% NOT 1%. Discovered at chunk #62 cue emitter tests (`evaluate_thresholds_low_error_rate_does_not_emit_cue` + `evaluate_thresholds_classification_flips_when_multiplier_raised` both failed on first run).
 
 **Resolution patterns for cue/baseline emit tests:**
 
 1. **Below threshold:** seed 0 errors. EWMA stays at exactly 0.0 (first observation = 0; all subsequent = 0). Reliable below-threshold without convergence wait.
 2. **Above threshold + clearly classified:** seed HIGH error counts (50/100) — EWMA converges to ~85%; safely above any sub-100% threshold; classify by setting multiplier to suppress (e.g., multiplier=100 → threshold=100% → cue suppressed when EWMA=85%).
-3. **Borderline cases:** AVOID — the 5-min window doesn't converge to 4%/10%/etc. в 100 samples regardless of seeding pattern. Use multipliers that flip Hard→Suggested transitions instead of magnitude-based tests.
+3. **Borderline cases:** AVOID — the 5-min window doesn't converge to 4%/10%/etc. in 100 samples regardless of seeding pattern. Use multipliers that flip Hard→Suggested transitions instead of magnitude-based tests.
 
 Apply to ANY future test in `crates/triage/` that uses BaselineState. The 5-min EWMA window is calibrated for streaming production traffic, not 100-sample unit tests; alternating injection (every Nth sample is error) would converge but adds test complexity. Pre-emptively reach for option 1 (0 errors) or option 2 (high errors + multiplier flip) over magnitude-based assertions.
 
@@ -722,7 +722,7 @@ Apply to ANY future test in `crates/triage/` that uses BaselineState. The 5-min 
 
 ## 2026-05-17 (session 79) — Buffer consumer is the canonical baseline-tap point (not ingest hot-path) for cross-crate span observation (confidence 0.80)
 
-When a downstream crate (chunk #62 `triage::BaselineState`) needs к observe every decoded OTLP span without taking a sibling dep on `ingest`, the buffer crate's `run_consumer` is the cleaner tap point than per-receiver wiring through `ingest/src/{grpc,http}.rs`. Rationale:
+When a downstream crate (chunk #62 `triage::BaselineState`) needs to observe every decoded OTLP span without taking a sibling dep on `ingest`, the buffer crate's `run_consumer` is the cleaner tap point than per-receiver wiring through `ingest/src/{grpc,http}.rs`. Rationale:
 
 1. **Buffer already iterates decoded spans** (`build_spans_record_batch` walks ResourceSpans → ScopeSpans → Span for the Arrow record batch); adding a parallel `observe_spans_for_baseline` walk is trivial vs threading `Arc<dyn SpanObserver>` through 2 separate receiver handlers + their generated tonic code paths.
 2. **Single tap point** covers all OTLP traffic regardless of transport (gRPC + HTTP).
@@ -730,7 +730,7 @@ When a downstream crate (chunk #62 `triage::BaselineState`) needs к observe eve
 4. **Trait-in-lower-crate + impl-in-pulse-app preserved**: `SpanObserver` trait lives in `crates/ingest/src/observer.rs` (call site); `BaselineObserverAdapter` impl lives at `pulse-app/src/baseline_observer.rs` boundary wrapping `Arc<triage::BaselineState>`. Mirrors chunk #59 `ReceiverBindStatus` precedent.
 5. **Trade-off:** observation happens BEFORE `spawn_blocking` for DuckDB write but AFTER the batch is constructed (already past invariant checks). Slightly later in pipeline vs per-receiver tap, but pre-spawn_blocking so doesn't block on DuckDB I/O. Acceptable for chunk #62 cadence (1s tick reads stable state regardless of mid-batch timing).
 
-**Generalization:** any future cross-crate state delivery where the consumer needs decoded spans (cross-spec metric aggregators, custom counters, future incident detectors) should default к buffer's consumer tap rather than per-receiver wiring. The chunk #62 plan originally specified per-receiver tap but Phase 1 research surfaced buffer as the simpler home; the deviation was in-scope per Phase 2 §Bounded retry caps + strict scope classification.
+**Generalization:** any future cross-crate state delivery where the consumer needs decoded spans (cross-spec metric aggregators, custom counters, future incident detectors) should default to buffer's consumer tap rather than per-receiver wiring. The chunk #62 plan originally specified per-receiver tap but Phase 1 research surfaced buffer as the simpler home; the deviation was in-scope per Phase 2 §Bounded retry caps + strict scope classification.
 
 ---
 
@@ -748,27 +748,27 @@ When extending the behavior or scope of an Andromeda flag (`--allow-arch-registr
 
 ## 2026-05-17 (session 77) — `#[allow(dead_code)]` impl-block pattern for chunk-substrate primitives consumed by future chunks
 
-**Context:** chunk #61 implementation delivered three callable + testable algorithm primitives (`EwmaTracker`, `RollingWindow<T>`, `TDigestPair`) in `crates/triage/src/baseline/{ewma,rolling_window,tdigest_pair}.rs`. Each primitive type exposes `pub` accessor methods (`alpha()` / `samples()` / `last_update_nanos()` for EwmaTracker; `len()` / `capacity()` / `iter()` / `sum()` / `mean()` for RollingWindow; `samples_current()` / `centroid_count()` for TDigestPair) that are exercised by `#[cfg(test)] mod tests` blocks but NOT called by the lib (non-test) code path. `BaselineState`'s public API (`error_rate(service)` / `latency_percentile(service, op, q)` / `total_centroid_count()`) intentionally does NOT drill into the primitives' internal accessors — it exposes only aggregate query semantics for chunk #62 (attention cue emitter) к consume. Result: `cargo clippy --workspace --all-targets --all-features -- -D warnings` reported 5 `clippy::dead_code` errors across lib build (`methods samples, last_update_nanos, alpha never used` etc.) blocking the standard gate baseline.
+**Context:** chunk #61 implementation delivered three callable + testable algorithm primitives (`EwmaTracker`, `RollingWindow<T>`, `TDigestPair`) in `crates/triage/src/baseline/{ewma,rolling_window,tdigest_pair}.rs`. Each primitive type exposes `pub` accessor methods (`alpha()` / `samples()` / `last_update_nanos()` for EwmaTracker; `len()` / `capacity()` / `iter()` / `sum()` / `mean()` for RollingWindow; `samples_current()` / `centroid_count()` for TDigestPair) that are exercised by `#[cfg(test)] mod tests` blocks but NOT called by the lib (non-test) code path. `BaselineState`'s public API (`error_rate(service)` / `latency_percentile(service, op, q)` / `total_centroid_count()`) intentionally does NOT drill into the primitives' internal accessors — it exposes only aggregate query semantics for chunk #62 (attention cue emitter) to consume. Result: `cargo clippy --workspace --all-targets --all-features -- -D warnings` reported 5 `clippy::dead_code` errors across lib build (`methods samples, last_update_nanos, alpha never used` etc.) blocking the standard gate baseline.
 
-**Discipline:** When a chunk delivers `pub` accessor methods on substrate types as **future-API surface** for a downstream consumer chunk (route number known + named, NOT speculative), add `#[allow(dead_code)]` к the **impl block** (not the type) with a comment naming the consuming chunk:
+**Discipline:** When a chunk delivers `pub` accessor methods on substrate types as **future-API surface** for a downstream consumer chunk (route number known + named, NOT speculative), add `#[allow(dead_code)]` to the **impl block** (not the type) with a comment naming the consuming chunk:
 
 ```rust
 // Chunk #61 deliverable: callable + testable primitives for chunk #62
 // attention cue emitter. Accessor methods (samples / last_update_nanos /
 // alpha) exercised via tests; allow(dead_code) signals future API surface
-// для emitter + percentile-snapshot consumers.
+// for emitter + percentile-snapshot consumers.
 #[allow(dead_code)]
 impl EwmaTracker { ... }
 ```
 
-This is preferable к: (a) silently deleting unused methods (deletes verified-tested future API); (b) `#[allow(dead_code)]` at the type level (overscoped — applies to ALL items including private internals); (c) calling the methods from lib code with `let _ = x.alpha();` (creates false coupling that's harder к refactor).
+This is preferable to: (a) silently deleting unused methods (deletes verified-tested future API); (b) `#[allow(dead_code)]` at the type level (overscoped — applies to ALL items including private internals); (c) calling the methods from lib code with `let _ = x.alpha();` (creates false coupling that's harder to refactor).
 
-**Pre-emptive method removal:** if a method is unused in BOTH lib AND tests, delete it outright (`RollingWindow::is_empty()`, `TDigestPair::samples()` + `last_swap_nanos()` were deleted at chunk #61 cleanup). The `#[allow(dead_code)]` exception applies only к the lib-vs-tests asymmetry — both consumer in tests + future-consumer-chunk-named.
+**Pre-emptive method removal:** if a method is unused in BOTH lib AND tests, delete it outright (`RollingWindow::is_empty()`, `TDigestPair::samples()` + `last_swap_nanos()` were deleted at chunk #61 cleanup). The `#[allow(dead_code)]` exception applies only to the lib-vs-tests asymmetry — both consumer in tests + future-consumer-chunk-named.
 
-**Verified:** chunk #61 `crates/triage/src/baseline/{ewma.rs,rolling_window.rs,tdigest_pair.rs}` — 3 impl-level `#[allow(dead_code)]` annotations + 3 method deletions cleared the gate. Total lib-side surface = methods used + future-chunk surface; both intentional, none accidental. Confidence 0.78 — pattern resolves a real-and-recurring clippy posture conflict; future infrastructure chunks (any chunk delivering primitives + persistence + state types for downstream chunks к consume) will encounter the same shape. Applies generally — not chunk-#61-specific.
+**Verified:** chunk #61 `crates/triage/src/baseline/{ewma.rs,rolling_window.rs,tdigest_pair.rs}` — 3 impl-level `#[allow(dead_code)]` annotations + 3 method deletions cleared the gate. Total lib-side surface = methods used + future-chunk surface; both intentional, none accidental. Confidence 0.78 — pattern resolves a real-and-recurring clippy posture conflict; future infrastructure chunks (any chunk delivering primitives + persistence + state types for downstream chunks to consume) will encounter the same shape. Applies generally — not chunk-#61-specific.
 
 **When applicable:** any chunk delivering substrate primitives (algorithm types, persistence layer, IPC contract types) where:
-- Methods are public surface к support testability OR future-chunk consumption
+- Methods are public surface to support testability OR future-chunk consumption
 - The current chunk's own lib code does NOT call those accessors (BaselineState-style aggregator-only API)
 - Future chunk is route-named (not speculative; concretely chunk #N+1 in route §2)
 
@@ -780,7 +780,7 @@ Currently chunk #62 (attention cue emitter), chunk #63 (restart event detector),
 
 **Context:** chunk #61 implementation introduced `BaselineState` (`crates/triage/src/baseline/mod.rs`) as the corpus-persistence aggregator. The struct holds DashMap<String, ServiceBaseline> / DashMap<String, OperationBaseline> (serde-supported via `dashmap` `serde` feature) PLUS two atomic fields: `persisted_at_unix_nanos: AtomicI64` (must round-trip through bincode so bootstrap-on-startup can compute state age) AND `drops_since_last_tick: AtomicU32` (per-tick counter; runtime-only, no round-trip needed). `AtomicI64` / `AtomicU32` do NOT implement `serde::Serialize` / `Deserialize` by default — naive `#[derive(Serialize, Deserialize)]` on the parent struct fails compile.
 
-**Discipline:** Two patterns coexist в the same struct:
+**Discipline:** Two patterns coexist in the same struct:
 
 1. **Round-trip atomic via `#[serde(with = "mod_name")]`:** define a module containing free `serialize::<S>` + `deserialize::<'de, D>` functions; annotate the field. The module uses `value.load(Ordering::Relaxed)` for the serialize side + `AtomicI64::new(n)` for the deserialize side. Memory ordering is Relaxed because the persistence boundary is not synchronizing with other threads' atomic ops (the field is single-writer at persist-time + single-reader at bootstrap-time; consistency across persist boundaries is sufficient).
 
@@ -818,7 +818,7 @@ Currently chunk #62 (attention cue emitter), chunk #63 (restart event detector),
 
 **Generalization:** any struct that mixes "across-boundary durable state" + "runtime-only counter state" benefits from the dual pattern. The `mod foo_serde` form is verbose but reusable: define once per atomic type, reuse across multiple fields (BaselineState had one AtomicI64 field; future struct might have several — single module serves all).
 
-**Verified:** `crates/triage/src/baseline/mod.rs::atomic_i64_serde` + `BaselineState::{persisted_at_unix_nanos, drops_since_last_tick}` fields; round-trip integration test (`run_persist_cycle_round_trip_preserves_service_state`) confirms `persisted_at_unix_nanos = 5_000` survives serialize → write к disk → read → deserialize. Confidence 0.80 — empirically verified; standard Rust serde idiom for non-derive types; documented in serde docs.
+**Verified:** `crates/triage/src/baseline/mod.rs::atomic_i64_serde` + `BaselineState::{persisted_at_unix_nanos, drops_since_last_tick}` fields; round-trip integration test (`run_persist_cycle_round_trip_preserves_service_state`) confirms `persisted_at_unix_nanos = 5_000` survives serialize → write to disk → read → deserialize. Confidence 0.80 — empirically verified; standard Rust serde idiom for non-derive types; documented in serde docs.
 
 **When applicable:** any future workspace crate persisting state containing atomic fields (e.g., next chunks may add per-service rolling counters that need both atomic concurrency on hot path + bincode persistence on tick). Mechanically: write the helper module once + reuse `#[serde(with = "atomic_i64_serde")]` across all fields of the same atomic type. Pairs naturally with `dashmap` `serde` feature (DashMap fields serialize natively when feature enabled).
 
@@ -852,7 +852,7 @@ Two question categories:
 
 2. **Filesystem-write confirmation (KEEP — never skip):** "Apply these {N} changes? (yes / cancel)" with the full proposed diff visible. This is the irreversibility gate, not intent clarification — user retains veto authority over what hits disk.
 
-**When applicable:** All Andromeda skills with explicit user-review phases (evolve Phase 5, setup-project Phase 7, implement Phase 6 spec-drift Path A/B prompts). Confidence 0.85 — one observation this session; reasoning is sound and generalizes к any autonomous-mode Andromeda skill invocation. Future invocations under `/loop` or `--auto` flags should follow the same split.
+**When applicable:** All Andromeda skills with explicit user-review phases (evolve Phase 5, setup-project Phase 7, implement Phase 6 spec-drift Path A/B prompts). Confidence 0.85 — one observation this session; reasoning is sound and generalizes to any autonomous-mode Andromeda skill invocation. Future invocations under `/loop` or `--auto` flags should follow the same split.
 
 ---
 
@@ -907,13 +907,13 @@ Rust's visibility rule: `pub use X;` requires X to have visibility at least as w
 
 **Grep-expansion (Detection step 8 defense-in-depth) saved the day.** Per `delta-rerun-protocol.md` §Grep-expansion, after assembling the initial delta scope from marker `expected_propagation` ∪ plan→file mapping table baseline, the protocol greps for primary "before" values from the marker's `## Plans amended → Before → After` section across `.claude/` + `CLAUDE.md` (excluding `.andromeda/runs/`). The session 67 marker's Before lines included `§1 Epochs: 8 → 9`. Grep for `8 epochs` found 1 stale hit in `CLAUDE.md:52` pointer-table row `| Roadmap (8 epochs / 56 chunks) |` — undercount NOT predicted by the marker's `expected_propagation: []` OR the plan→file mapping table's `route.md` row.
 
-**Resolution applied:** Auto-added CLAUDE.md к delta scope per protocol step ("If the path is NOT in the delta scope: auto-add к delta scope. Record the file in materialization-plan-delta.md under а separate subsection 'From Setup-detected stale-value grep matches'"). Phase 1 narrow edit к CLAUDE.md:52 changed `8 epochs` → `9 epochs`. Phase 8 validated byte-identity on the remaining ~30 preserved files; cyrillic check clean; cross-skill diff verified spec-amendment-protocol.md md5 identical across 3 skill copies.
+**Resolution applied:** Auto-added CLAUDE.md to delta scope per protocol step ("If the path is NOT in the delta scope: auto-add to delta scope. Record the file in materialization-plan-delta.md under a separate subsection 'From Setup-detected stale-value grep matches'"). Phase 1 narrow edit to CLAUDE.md:52 changed `8 epochs` → `9 epochs`. Phase 8 validated byte-identity on the remaining ~30 preserved files; cyrillic check clean; cross-skill diff verified spec-amendment-protocol.md md5 identical across 3 skill copies.
 
 **Audit trail for protocol hardening (recorded in materialization-plan-delta.md):** "marker's `expected_propagation: []` was undercount; CLAUDE.md pointer-table description references route.md §1 epoch count. Future Type 7 --allow-route-append amendments that touch §1 Route Scope Summary should include `CLAUDE.md (GENERATED:setup:pointer-table)` in expected_propagation." The grep-expansion design IS the safety net for marker authoring oversight (per delta-rerun-protocol.md §Anti-patterns bullet 7: "DO NOT trust marker `expected_propagation` blindly — always run grep-expansion as defense-in-depth"). This invocation validates that design empirically — the protocol caught what the marker author missed.
 
-**Lifecycle progression:** state.yaml.spec_amendments.active[0].propagated_by_run set к `.andromeda/runs/2026-05-16T13-45-00-setup-project-delta/`; marker file Lifecycle status checkboxes updated к `[x] Noted` + `[x] Propagated`. Commit `3a6714d` on main; 2 files changed (CLAUDE.md + state.yaml), 2 insertions + 2 deletions. Wrap-session Phase 8 (this session) will move the amendment from `active` к `archive`.
+**Lifecycle progression:** state.yaml.spec_amendments.active[0].propagated_by_run set to `.andromeda/runs/2026-05-16T13-45-00-setup-project-delta/`; marker file Lifecycle status checkboxes updated to `[x] Noted` + `[x] Propagated`. Commit `3a6714d` on main; 2 files changed (CLAUDE.md + state.yaml), 2 insertions + 2 deletions. Wrap-session Phase 8 (this session) will move the amendment from `active` to `archive`.
 
-**Pattern recurs:** any future Form 2 amendment whose §1 Route Scope Summary update implicitly cascades к CLAUDE.md pointer-table descriptions will exhibit the same marker undercount. Long-term fix: enhance `/andromeda-evolve` Type 7 marker authoring to pre-emptively grep for chunk/epoch-count strings in `.claude/` + `CLAUDE.md` before populating `expected_propagation`. Short-term fix: trust the grep-expansion fallback (which already works) + don't manually-author markers that bypass the protocol's defense-in-depth.
+**Pattern recurs:** any future Form 2 amendment whose §1 Route Scope Summary update implicitly cascades to CLAUDE.md pointer-table descriptions will exhibit the same marker undercount. Long-term fix: enhance `/andromeda-evolve` Type 7 marker authoring to pre-emptively grep for chunk/epoch-count strings in `.claude/` + `CLAUDE.md` before populating `expected_propagation`. Short-term fix: trust the grep-expansion fallback (which already works) + don't manually-author markers that bypass the protocol's defense-in-depth.
 
 **Cross-references:**
 
@@ -925,21 +925,21 @@ Rust's visibility rule: `pub use X;` requires X to have visibility at least as w
 
 ## 2026-05-16 (session 68) — Phase 2b runtime smoke check 60s/90s timeout misaligned with Windows cold-cache Tauri rebuild cost (~120s+ for ~780-crate debug build)
 
-**Observation:** chunk #57 implementation Phase 2b runtime smoke (via `/andromeda-implement`'s unconditional best-effort smoke check) timed out at link stage 779/780 builds when running `timeout 90 npx @tauri-apps/cli dev` on Windows from a cold (post-cargo-clean-like) cache state. The implement spec's 60s timeout (extended к 90s here) was insufficient for the cold-cache full Tauri compile cycle.
+**Observation:** chunk #57 implementation Phase 2b runtime smoke (via `/andromeda-implement`'s unconditional best-effort smoke check) timed out at link stage 779/780 builds when running `timeout 90 npx @tauri-apps/cli dev` on Windows from a cold (post-cargo-clean-like) cache state. The implement spec's 60s timeout (extended to 90s here) was insufficient for the cold-cache full Tauri compile cycle.
 
 **Symptom shape:** rustc reaches the final link step (`pulse-app` bin), invokes link.exe with ~257 object files + ~310 library archives, link.exe is mid-process when SIGTERM fires from the timeout wrapper → exit code 143 (terminated by signal). The build was ~99% complete; with another 5-15s, the boot signal would have fired. The link-stage timing dominates because pulse-app at this scale carries large transitive dep closures (wasmtime 43.0.2 + duckdb 1.10502.0 + tauri 2.11 + tokio + ~700 transitive crates).
 
 **Cost breakdown (Windows MSVC, NVMe-backed cargo cache, M2 Pro-class CPU equivalent):**
-- Cold incremental rebuild: ~90-120s к reach link stage when starting from clean post-test target/
+- Cold incremental rebuild: ~90-120s to reach link stage when starting from clean post-test target/
 - Link.exe step alone: ~15-30s (writing 70MB+ debug binary)
 - Vite dev server boot: ~10-15s (after Rust link succeeds)
 - WebView2 init + ready signal: ~5-10s
 - **Total cold smoke cycle on Windows: ~120-180s typically; 60s budget never sufficient**
 
 **Implications for implement spec:**
-- The current Phase 2b timeout (60s per spec; clamped к practical 90s in this session) is calibrated for warm-CI-cache environments where rustc has reuseable .rlib outputs. For local dev runs after a fresh `cargo nextest` (which rebuilds with different feature combos than `tauri dev`'s no-default-features path), the cache miss forces a near-full rebuild.
-- Workable mitigations: (a) extend timeout к 180s for Windows hosts (spec amendment); (b) pre-warm the dev profile via `cargo build --no-default-features` before invoking smoke (adds explicit warm-up step); (c) classify timeout-during-link as `skipped (environmental: cold-cache)` rather than `failure` (current behavior — implement Phase 3 surfacing already treats it as environmental, not chunk-implementation fault).
-- Phase 2b's value proposition holds (catches latent boot panics not visible in unit tests, e.g., chunk #27/#30 health.rs reactor panic surfaced at chunk #31 smoke gate). But the value is contingent on the smoke actually completing — а 60s timeout that always times out on Windows-cold-cache provides zero signal.
+- The current Phase 2b timeout (60s per spec; clamped to practical 90s in this session) is calibrated for warm-CI-cache environments where rustc has reuseable .rlib outputs. For local dev runs after a fresh `cargo nextest` (which rebuilds with different feature combos than `tauri dev`'s no-default-features path), the cache miss forces a near-full rebuild.
+- Workable mitigations: (a) extend timeout to 180s for Windows hosts (spec amendment); (b) pre-warm the dev profile via `cargo build --no-default-features` before invoking smoke (adds explicit warm-up step); (c) classify timeout-during-link as `skipped (environmental: cold-cache)` rather than `failure` (current behavior — implement Phase 3 surfacing already treats it as environmental, not chunk-implementation fault).
+- Phase 2b's value proposition holds (catches latent boot panics not visible in unit tests, e.g., chunk #27/#30 health.rs reactor panic surfaced at chunk #31 smoke gate). But the value is contingent on the smoke actually completing — a 60s timeout that always times out on Windows-cold-cache provides zero signal.
 
 **Chunk #57's specific posture:** plan explicitly noted "Boot-smoke gate NOT required for this chunk" per test-plan §12 Decisions Log 2026-05-09 boot-smoke-coverage scope (webview-only chunks bypass boot smoke). The implement-skill Phase 2b ran anyway (unconditional best-effort) and surfaced the environmental timeout. Chunk green per scope validated by 661/661 Rust + 518/518 webview + clippy + capability-drift; smoke skip documented as environmental, not chunk regression.
 
@@ -951,7 +951,7 @@ cargo build --no-default-features --bin pulse-app  # warm-up; ~90s cold, ~15s wa
 timeout 120 npx @tauri-apps/cli dev                 # link is already cached
 ```
 
-Apply when manually verifying a chunk's runtime behavior on Windows after `/andromeda-implement` skipped its Phase 2b smoke due to timeout. Not chunk-specific; documents the environment constraint для future Windows-host implement runs.
+Apply when manually verifying a chunk's runtime behavior on Windows after `/andromeda-implement` skipped its Phase 2b smoke due to timeout. Not chunk-specific; documents the environment constraint for future Windows-host implement runs.
 
 ---
 
@@ -961,25 +961,25 @@ Apply when manually verifying a chunk's runtime behavior on Windows after `/andr
 
 **Files modified at `~/.claude/skills/andromeda-evolve/`** (user-level skill, propagates across all Andromeda projects on this machine):
 
-- `SKILL.md` — `--allow-route-append` MUST/MUST NOT clauses extended; new "Flag-specific terminal-epoch rules" subsection с §1 mechanical update spec.
-- `references/refuse-taxonomy.md` — Refuse 6 Exception subsection extended to document Form 1 (chunk append к existing epoch, original case) + Form 2 (terminal new epoch creation).
+- `SKILL.md` — `--allow-route-append` MUST/MUST NOT clauses extended; new "Flag-specific terminal-epoch rules" subsection with §1 mechanical update spec.
+- `references/refuse-taxonomy.md` — Refuse 6 Exception subsection extended to document Form 1 (chunk append to existing epoch, original case) + Form 2 (terminal new epoch creation).
 - `references/classification-taxonomy.md` — Type 7 Definition extended; Form 2 examples + Form 2-specific marker fields documented (`new_epoch_created` / `new_epoch_title` / `new_epoch_position` / `epoch_boundary_rationale` / `scope_summary_updates`).
 - `references/validation-checks.md` — Check 8.1 + 8.2 updated; new Check 8.2.5 (terminal-position-only) + Check 8.2.6 (non-empty body); severity table + failure shape + anti-patterns extended.
-- `references/output-templates.md` — Type 7 marker template Flag authorization block + state.yaml entry additions extended с Form 2 fields.
+- `references/output-templates.md` — Type 7 marker template Flag authorization block + state.yaml entry additions extended with Form 2 fields.
 
 **Deferred follow-ups** (recorded in `docs/andromeda-improvements.md` Proposal 4 — pre-existing gap, not blocker):
 
-- `spec-amendment-protocol.md` (×3 byte-identical copies in triangle skills) Type 7 schema documentation never had Form 1 spec; extending к Form 2 now would require coordinated 3-copy update + Phase 8 byte-identity check verification.
+- `spec-amendment-protocol.md` (×3 byte-identical copies in triangle skills) Type 7 schema documentation never had Form 1 spec; extending to Form 2 now would require coordinated 3-copy update + Phase 8 byte-identity check verification.
 - `example-runs.md` Form 2 happy-path example.
 - `delta-rerun-protocol.md` Type 7 permit path Form 2 sub-case explicit documentation (functionally same as Form 1 — empty `expected_propagation` → lifecycle progression only).
 
 **First Form 2 invocation observations (chunk #57 widget real-data binding, this session):**
 
-1. **Skill phases telescoped under established context.** Standard evolve invocation runs Phase 1a-c dialog (sanity check + clarifying questions + classification confirmation). Here, dialog answers were already established through session 66 conversation (chunk text + epoch name + boundary rationale all pre-discussed). Telescoping к direct Phase 4-6 artifact construction was appropriate given full context. Future Form 2 invocations through fresh sessions (after `/clear`) should run full phase progression for clean audit trail — the telescoping shortcut is **session-continuity-only**.
+1. **Skill phases telescoped under established context.** Standard evolve invocation runs Phase 1a-c dialog (sanity check + clarifying questions + classification confirmation). Here, dialog answers were already established through session 66 conversation (chunk text + epoch name + boundary rationale all pre-discussed). Telescoping to direct Phase 4-6 artifact construction was appropriate given full context. Future Form 2 invocations through fresh sessions (after `/clear`) should run full phase progression for clean audit trail — the telescoping shortcut is **session-continuity-only**.
 
-2. **Pre-existing §1 staleness preserved by strict mechanical interpretation.** route.md §1 displayed "Total chunks: 55" prior к this evolve (stale by 1 vs actual §2 count of 56, from chunk #44 amendment session 51 which didn't include §1 update). Form 2 mechanical update applied strictly +1: 55 → 56. Result: §1 still stale by 1 vs §2 actual count (now 57). Acceptable per Proposal 4 strict spec ("Total chunks: {old N} → {new N+M}"); pre-existing drift NOT this amendment's job к fix. Will resolve at next `/andromeda-route` re-generation or manual edit.
+2. **Pre-existing §1 staleness preserved by strict mechanical interpretation.** route.md §1 displayed "Total chunks: 55" prior to this evolve (stale by 1 vs actual §2 count of 56, from chunk #44 amendment session 51 which didn't include §1 update). Form 2 mechanical update applied strictly +1: 55 → 56. Result: §1 still stale by 1 vs §2 actual count (now 57). Acceptable per Proposal 4 strict spec ("Total chunks: {old N} → {new N+M}"); pre-existing drift NOT this amendment's job to fix. Will resolve at next `/andromeda-route` re-generation or manual edit.
 
-3. **`Originating chunk` field N/A for cycle-start chunks.** Type 7 marker template asks for originating chunk reference (the in-progress or recently-completed chunk that motivated the append). For chunk #57 (FIRST chunk of pulse v0.2.0 cycle), no prior chunk motivated it — the motivation lives entirely в external planning material (`docs/v0_2_0/pulse-v0_2_0-route.md`) + validation report (`.andromeda/scope-validation/widget-state-validation-report-2026-05-14.md`). Marker reads `N/A — first chunk of pulse v0.2.0 cycle`. Per Check 8.6 motivation grounding spec, citing external planning material is acceptable concrete grounding (not abstract "future work"). Future Form 2 invocations starting new sub-phases (Epochs 10+) within v0.2.0 cycle will similarly cite v0.2.0 planning material rather than prior in-progress chunks.
+3. **`Originating chunk` field N/A for cycle-start chunks.** Type 7 marker template asks for originating chunk reference (the in-progress or recently-completed chunk that motivated the append). For chunk #57 (FIRST chunk of pulse v0.2.0 cycle), no prior chunk motivated it — the motivation lives entirely in external planning material (`docs/v0_2_0/pulse-v0_2_0-route.md`) + validation report (`.andromeda/scope-validation/widget-state-validation-report-2026-05-14.md`). Marker reads `N/A — first chunk of pulse v0.2.0 cycle`. Per Check 8.6 motivation grounding spec, citing external planning material is acceptable concrete grounding (not abstract "future work"). Future Form 2 invocations starting new sub-phases (Epochs 10+) within v0.2.0 cycle will similarly cite v0.2.0 planning material rather than prior in-progress chunks.
 
 4. **Wrap-session Phase 10 SHA-fixup amend creates dangling commit_sha by design.** Observed in session 66 (commit_sha=9abc8a5 set post-amend), this session 67 continuation, and session 65 retrospectively (handoff explicitly noted "previous session 64's state.yaml.commit_sha=b3b7727 dangling"). Mechanism: Phase 8 sets commit_sha=`pending` placeholder anticipating amend; Phase 10 commits (SHA=X); Phase 10.4 sets commit_sha=X then `git commit --amend` (new SHA=Y because tree changed); state.yaml inside Y references X (now dangling — not reachable from HEAD). Each wrap-session creates State H for the next new-session check. Per protocol, "self-clears next wrap" — but self-clearing means setting to new pre-amend SHA (which itself becomes dangling). Persistent oscillation; new-session State H detection should treat dangling commit_sha as expected post-amend artifact, not unresolved drift. Documented now so future agents don't waste time chasing this as a real drift.
 
@@ -1000,7 +1000,7 @@ Apply when manually verifying a chunk's runtime behavior on Windows after `/andr
 
 **Limits encountered when mapping 33-chunk plan against `/andromeda-evolve` mechanics** (reading `~/.claude/skills/andromeda-evolve/references/refuse-taxonomy.md` + `classification-taxonomy.md` + `validation-checks.md`):
 
-1. **Refuse 4 — >3 specialist plan touches per invocation is hard-refused.** Approximately 5-7 chunks из 33 (e.g., #67 Drain → arch + test + obs + security = 4; #74 LLM runtime → arch + test + security + obs = 4; #78/#79/#87 UI surfaces → design + layout + a11y + test = 4) exceed this limit. Each such chunk needs 2 separate evolve runs (split by plan).
+1. **Refuse 4 — >3 specialist plan touches per invocation is hard-refused.** Approximately 5-7 chunks of 33 (e.g., #67 Drain → arch + test + obs + security = 4; #74 LLM runtime → arch + test + security + obs = 4; #78/#79/#87 UI surfaces → design + layout + a11y + test = 4) exceed this limit. Each such chunk needs 2 separate evolve runs (split by plan).
 
 2. **Check 7.2 — `--allow-arch-registry` ONLY permits §Occupied Resources / §Workspace / §Capability Registry list-style sections.** §Established Decisions, §Cross-cutting Patterns, §Stack, §Project Intent, §Design Philosophy stay REFUSED even with the flag. Pulse v0.2.0 plan has 2-3 chunks that explicitly want §Established Decisions amendments:
    - Chunk #74: "§Established Decisions: LLM runtime choice with rationale"
@@ -1794,7 +1794,7 @@ The intent (no DIRECT tower_governor dep on ui-bridge) is captured better by:
 - `cargo tree -p ui-bridge --depth 1 | grep tower_governor` returns empty (only direct deps), OR
 - `grep tower_governor crates/ui-bridge/Cargo.toml` returns empty (declaration check).
 
-Both succeed for chunk #19's actual implementation (tower_governor declared only in `crates/ingest/Cargo.toml`). When future plans assert sibling-isolation, prefer one of these forms. The whole-tree grep is appropriate ONLY when the sibling pair has NO permitted dep edge between them. Document the edge in plan.md "Files к leave untouched" or research.md "Conventions to follow" section to make the constraint visible at planning time.
+Both succeed for chunk #19's actual implementation (tower_governor declared only in `crates/ingest/Cargo.toml`). When future plans assert sibling-isolation, prefer one of these forms. The whole-tree grep is appropriate ONLY when the sibling pair has NO permitted dep edge between them. Document the edge in plan.md "Files to leave untouched" or research.md "Conventions to follow" section to make the constraint visible at planning time.
 
 ---
 
@@ -1921,21 +1921,21 @@ The original Andromeda skill author writes English text with Russian-cyrillic pr
 
 ## 2026-05-03 — Manual upstream edit + /andromeda-setup-project rerun for minor specialist-plan additions (vs greenfield /andromeda-{specialist} rerun)
 
-`/andromeda-tests`, `/andromeda-security`, etc. are greenfield-only — they regenerate the entire specialist plan from scratch via 7 parallel sub-agents. Using them for а one-line addition (e.g., "Vitest landed at chunk #11" к `test-plan.md`) is overkill: rewrites the plan content, risks losing manual Decisions Log entries, и may diverge from cross-plan binding contracts (obs-plan §3 ↔ tests-plan §3 5-command discipline; a11y-plan §3.5 ↔ tests-plan §9 CI gate; a11y-plan structured violation JSON byte-identical к obs-plan §6 schema).
+`/andromeda-tests`, `/andromeda-security`, etc. are greenfield-only — they regenerate the entire specialist plan from scratch via 7 parallel sub-agents. Using them for a one-line addition (e.g., "Vitest landed at chunk #11" to `test-plan.md`) is overkill: rewrites the plan content, risks losing manual Decisions Log entries, and may diverge from cross-plan binding contracts (obs-plan §3 ↔ tests-plan §3 5-command discipline; a11y-plan §3.5 ↔ tests-plan §9 CI gate; a11y-plan structured violation JSON byte-identical to obs-plan §6 schema).
 
-The pragmatic alternative: **manually edit the specialist plan** + **run `/andromeda-setup-project`** to propagate downstream. Preserves всё manual content и keeps cross-plan bindings intact. The setup-project re-run then:
+The pragmatic alternative: **manually edit the specialist plan** + **run `/andromeda-setup-project`** to propagate downstream. Preserves all manual content and keeps cross-plan bindings intact. The setup-project re-run then:
 
-1. Backs up `CLAUDE.md` к `.claude/backup/CLAUDE.md.pre-setup-{ISO}.md`
-2. Regenerates only the `GENERATED:setup:*` sections of CLAUDE.md (`USER:*` preserved; almost always byte-identical если только anti-patterns / pointer table sources changed, which а minor framework addition typically doesn't trigger)
+1. Backs up `CLAUDE.md` to `.claude/backup/CLAUDE.md.pre-setup-{ISO}.md`
+2. Regenerates only the `GENERATED:setup:*` sections of CLAUDE.md (`USER:*` preserved; almost always byte-identical unless anti-patterns / pointer table sources changed, which a minor framework addition typically doesn't trigger)
 3. Regenerates rule + doc files (preserves `## Session Additions`; updates content above where the changed upstream propagates)
-4. Refreshes `state.yaml.plan_freshness.{name}_mtime` к match actual upstream mtime
+4. Refreshes `state.yaml.plan_freshness.{name}_mtime` to match actual upstream mtime
 5. Closes drift D5 (plan-to-CLAUDE.md mtime) + State J (specialist plan freshness mismatch) for the affected upstream
 
-The skill mandates regenerating всё materialized artifacts in Phases 1-6, но for re-runs where most upstream content is unchanged, the regenerated content will be byte-identical к existing files (atomic writes are idempotent on content; git sees no diff). **Pragmatic delta-rerun discipline:** write only the files whose content semantically changed; capture full synthesis intent в `materialization-plan.md` (run dir audit trail) so the rerun is fully auditable even when its file-write delta is minimal.
+The skill mandates regenerating all materialized artifacts in Phases 1-6, but for re-runs where most upstream content is unchanged, the regenerated content will be byte-identical to existing files (atomic writes are idempotent on content; git sees no diff). **Pragmatic delta-rerun discipline:** write only the files whose content semantically changed; capture full synthesis intent in `materialization-plan.md` (run dir audit trail) so the rerun is fully auditable even when its file-write delta is minimal.
 
-**Applies к:** minor framework addition (Vitest landing at chunk #11 was the worked example — modified `test-plan.md` §1 surface table + §4 framework section + downstream `tests-summary.md` Test pyramid + `testing.md` Framework + `state.yaml.plan_freshness.tests_mtime`); single Decisions Log append; minor Stack version bump; single anti-pattern revision; decision-rationale clarification.
+**Applies to:** minor framework addition (Vitest landing at chunk #11 was the worked example — modified `test-plan.md` §1 surface table + §4 framework section + downstream `tests-summary.md` Test pyramid + `testing.md` Framework + `state.yaml.plan_freshness.tests_mtime`); single Decisions Log append; minor Stack version bump; single anti-pattern revision; decision-rationale clarification.
 
-**Does NOT apply к:** fundamental tier change (Standard → Comprehensive); test framework swap (cargo test → criterion); major architectural decision (Tauri → Electron); auth library swap (no auth → OAuth); logging library swap. Those warrant the greenfield specialist rerun (`/andromeda-tests`, `/andromeda-arch`, etc.) с full sub-agent regeneration so cross-plan bindings re-derive correctly.
+**Does NOT apply to:** fundamental tier change (Standard → Comprehensive); test framework swap (cargo test → criterion); major architectural decision (Tauri → Electron); auth library swap (no auth → OAuth); logging library swap. Those warrant the greenfield specialist rerun (`/andromeda-tests`, `/andromeda-arch`, etc.) with full sub-agent regeneration so cross-plan bindings re-derive correctly.
 
 See: `.andromeda/runs/2026-05-03T20-26-49-setup-project/materialization-plan.md` (worked example for Vitest propagation, including rejected universal-warning candidates as audit trail); `.claude/rules/testing.md` Framework section (final propagated state); `.andromeda/test-plan.md` §1 surface table + §4 Framework (the upstream edits that triggered the rerun); chunk #11 wrap's drift D3 reading (initial flag + how it closed across two consecutive wrap-session passes).
 
@@ -1943,29 +1943,29 @@ See: `.andromeda/runs/2026-05-03T20-26-49-setup-project/materialization-plan.md`
 
 ## 2026-05-03 — Vite "asset doesn't exist at build time, will remain unchanged" warning is benign for chained-pipeline outputs
 
-When `index.html` references а static asset by absolute URL (e.g., `<link rel="stylesheet" href="/tokens.css">`) AND the asset is generated by а separate build step that runs BEFORE Vite (in andromeda-pulse: `scripts/build.mjs` orchestrating Tailwind → Vite), Vite's HTML transform during `vite build` emits the warning:
+When `index.html` references a static asset by absolute URL (e.g., `<link rel="stylesheet" href="/tokens.css">`) AND the asset is generated by a separate build step that runs BEFORE Vite (in andromeda-pulse: `scripts/build.mjs` orchestrating Tailwind → Vite), Vite's HTML transform during `vite build` emits the warning:
 
 > `/tokens.css doesn't exist at build time, it will remain unchanged to be resolved at runtime`
 
-This is benign и expected: Vite scans the HTML for assets it needs к bundle (modules referenced by `<script type="module">` и `<link rel="modulepreload">`); for everything else (absolute-URL CSS / font / image links), Vite preserves the literal href string in the transformed `dist/index.html` и trusts that the asset will exist at runtime. In the chunk #11 build pipeline, Tailwind has already written `dist/tokens.css` BEFORE Vite reads `index.html` — but Vite's project-root scan (looking at `pulse-app/ui/tokens.css` и `pulse-app/ui/public/tokens.css`) doesn't find it там. The dist-side file IS the intended target; the warning fires because Vite checks the wrong locations.
+This is benign and expected: Vite scans the HTML for assets it needs to bundle (modules referenced by `<script type="module">` and `<link rel="modulepreload">`); for everything else (absolute-URL CSS / font / image links), Vite preserves the literal href string in the transformed `dist/index.html` and trusts that the asset will exist at runtime. In the chunk #11 build pipeline, Tailwind has already written `dist/tokens.css` BEFORE Vite reads `index.html` — but Vite's project-root scan (looking at `pulse-app/ui/tokens.css` and `pulse-app/ui/public/tokens.css`) doesn't find it there. The dist-side file IS the intended target; the warning fires because Vite checks the wrong locations.
 
-Triage cost: easy к misinterpret as а build error during CI log inspection. Add к runbook / commit message context when the warning first appears so future maintainers don't chase phantom failures.
+Triage cost: easy to misinterpret as a build error during CI log inspection. Add to runbook / commit message context when the warning first appears so future maintainers don't chase phantom failures.
 
-NOT applicable to: assets imported by ES modules (`import "./tokens.css"` in main.tsx — Vite would bundle them); assets in `public/` (Vite's publicDir copy pattern; warning doesn't fire because Vite knows к copy them); relative-path links (e.g., `<link href="./tokens.css">` — Vite tries к resolve relative paths through the module graph).
+NOT applicable to: assets imported by ES modules (`import "./tokens.css"` in main.tsx — Vite would bundle them); assets in `public/` (Vite's publicDir copy pattern; warning doesn't fire because Vite knows to copy them); relative-path links (e.g., `<link href="./tokens.css">` — Vite tries to resolve relative paths through the module graph).
 
 See: `pulse-app/ui/scripts/build.mjs` chunk #11 Vite invocation; `pulse-app/ui/index.html` `<link rel="stylesheet" href="/tokens.css">`; Vite's HTML asset handling docs.
 
 ---
 
-## 2026-05-03 — Acceptance-criterion grep patterns over а directory tree match documentation as well as source
+## 2026-05-03 — Acceptance-criterion grep patterns over a directory tree match documentation as well as source
 
-Plan acceptance criteria of the form `grep -rE '<animate' src/components/icons/` (intended к enforce "no SVG animation tags in component sources") will match BOTH `.tsx` source files AND `.md` documentation that mentions the banned pattern as а quoted reference (e.g., README explaining the ban). Encountered in chunk #11 implementation: `README.md` documenting "icon components MUST NOT include `<animate>`" caused the criterion grep к return matches even though no actual SVG animation tag was emitted by the components.
+Plan acceptance criteria of the form `grep -rE '<animate' src/components/icons/` (intended to enforce "no SVG animation tags in component sources") will match BOTH `.tsx` source files AND `.md` documentation that mentions the banned pattern as a quoted reference (e.g., README explaining the ban). Encountered in chunk #11 implementation: `README.md` documenting "icon components MUST NOT include `<animate>`" caused the criterion grep to return matches even though no actual SVG animation tag was emitted by the components.
 
 Two fixes:
-1. **Scope the grep к source files only** — append filename glob filtering: `grep -rE '<animate' --include='*.tsx' --include='*.ts' src/components/icons/`. Cleanest; the criterion's intent is "no animation tags in component output". Use this when authoring future criterion grep patterns over directories that mix source + docs.
-2. **Rephrase documentation к avoid the literal substring** — change README from "icon components MUST NOT include `<animate>`" к "icon components MUST NOT include the SVG animation elements `animate`, `animateTransform`, `animateMotion`, or `set`". Same meaning к а human reader; doesn't trigger the literal grep. Use when (a) the criterion is already executed in CI / wrap-session AND (b) documentation lives in the same directory tree as the source it's documenting.
+1. **Scope the grep to source files only** — append filename glob filtering: `grep -rE '<animate' --include='*.tsx' --include='*.ts' src/components/icons/`. Cleanest; the criterion's intent is "no animation tags in component output". Use this when authoring future criterion grep patterns over directories that mix source + docs.
+2. **Rephrase documentation to avoid the literal substring** — change README from "icon components MUST NOT include `<animate>`" to "icon components MUST NOT include the SVG animation elements `animate`, `animateTransform`, `animateMotion`, or `set`". Same meaning to a human reader; doesn't trigger the literal grep. Use when (a) the criterion is already executed in CI / wrap-session AND (b) documentation lives in the same directory tree as the source it's documenting.
 
-General principle for future plan acceptance criteria authors: when writing `grep -rE PATTERN DIR/` over а directory that may contain README / API docs that quote the pattern itself, either scope the grep к source extensions OR document explicitly that the directory has both source + docs и the pattern must avoid the literal substring in docs. Otherwise the criterion has а silent false-positive surface.
+General principle for future plan acceptance criteria authors: when writing `grep -rE PATTERN DIR/` over a directory that may contain README / API docs that quote the pattern itself, either scope the grep to source extensions OR document explicitly that the directory has both source + docs and the pattern must avoid the literal substring in docs. Otherwise the criterion has a silent false-positive surface.
 
 See: `.andromeda/phases/phase-8/plan.md` Test Commands section grep array; `pulse-app/ui/src/components/icons/README.md` ("Motion deferral" section, post-rephrase form).
 

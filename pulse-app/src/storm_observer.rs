@@ -1,7 +1,7 @@
 //! Storm observer adapter — chunk #66.
 //!
 //! Bridges `buffer::fingerprint::FingerprintObserver` (trait declared in
-//! the lower buffer crate) к `triage::pattern::storm::observe_and_dispatch_storm`
+//! the lower buffer crate) to `triage::pattern::storm::observe_and_dispatch_storm`
 //! (chunk #66 retry-storm dispatch helper). Lives at the pulse-app binary
 //! boundary per arch §Cross-cutting Patterns Module dependency direction —
 //! preserves the DAG flow (deps flow toward pulse-app; library crates

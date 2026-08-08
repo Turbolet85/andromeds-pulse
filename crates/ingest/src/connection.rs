@@ -168,7 +168,7 @@ pub trait ReceiverBindStatus: Send + Sync {
     /// Returns true if a panic has been signaled by the application's
     /// `std::panic::set_hook` (chunk #73 P-003). Default impl returns false
     /// for backward compatibility; pulse-app's `HeartbeatBindStatus` adapter
-    /// overrides this к read a module-level atomic signaled by the panic
+    /// overrides this to read a module-level atomic signaled by the panic
     /// hook. When true, the FSM transitions to `ReceiverFailed` with reason
     /// `ReceiverPanicked` per capability spec P-003 "panics in receiver tasks".
     fn panic_signaled(&self) -> bool {

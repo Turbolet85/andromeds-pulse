@@ -7,7 +7,7 @@
 //! surface with Tauri-aware state.
 //!
 //! Sidecar lifecycle is managed via subprocess: `mcp.start` spawns the
-//! `andromeda-pulse-mcp` child process с `ANDROMEDA_PULSE_MCP_ENABLED=true`
+//! `andromeda-pulse-mcp` child process with `ANDROMEDA_PULSE_MCP_ENABLED=true`
 //! (re-validates double-gate first); `mcp.stop` sends SIGTERM. `mcp.status`
 //! reports the live gate state (Enabled / Disabled / Unavailable) per the
 //! 3-state `McpServerState` discriminator design-system §Surface:
@@ -15,7 +15,7 @@
 //!
 //! Per security plan §Anti-Patterns Code Patterns row 3: spawn re-validates
 //! BOTH compile-time `cfg!(feature = "mcp-server")` AND runtime
-//! `ANDROMEDA_PULSE_MCP_ENABLED=true` — single-gate at the IPC layer is а
+//! `ANDROMEDA_PULSE_MCP_ENABLED=true` — single-gate at the IPC layer is a
 //! regression even when the binary itself enforces the double-gate.
 
 use std::path::PathBuf;

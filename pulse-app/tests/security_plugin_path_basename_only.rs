@@ -5,11 +5,11 @@
 //! plugin file paths — basename of canonicalized path only") + obs-plan §5
 //! Section 5 Vector 3:
 //!
-//! Exercise `plugins::loader::discover_plugins` against а multi-segment
-//! canonicalized plugin dir containing а WASM file; assert (1) the returned
+//! Exercise `plugins::loader::discover_plugins` against a multi-segment
+//! canonicalized plugin dir containing a WASM file; assert (1) the returned
 //! `LoadedPlugin::basename` is the file basename only (no path separators),
 //! (2) error variants from the loader carry plugin_id as basename only,
-//! (3) tracing events emitted during discovery don't leak the full path в
+//! (3) tracing events emitted during discovery don't leak the full path in
 //! field values.
 
 use std::sync::{Arc, Mutex};
@@ -25,7 +25,7 @@ use tracing::{Event, Metadata, Subscriber};
 /// every emitted event AND span creation. Mirrors the chunk #44
 /// `pulse-app/src/snapshot_runtime.rs::tests::CapturingSubscriber` pattern
 /// extended to capture span attributes too (since `discover_plugins` emits
-/// span-recorded fields via `Span::current().record()`, не event fields).
+/// span-recorded fields via `Span::current().record()`, not event fields).
 struct CapturingSubscriber {
     events: Arc<Mutex<Vec<(String, String)>>>,
     spans: Arc<Mutex<Vec<(String, String)>>>,
@@ -76,7 +76,7 @@ impl Subscriber for CapturingSubscriber {
     }
     fn record(&self, _: &Id, values: &Record<'_>) {
         // Span field updates (e.g. via `span.record("plugin_dir_basename", ...)`)
-        // arrive here. Append к the latest span entry's field string for
+        // arrive here. Append to the latest span entry's field string for
         // post-hoc inspection.
         let mut collector = FieldCollector {
             sink: String::new(),
@@ -104,9 +104,9 @@ impl Subscriber for CapturingSubscriber {
 
 #[test]
 fn discover_plugins_returns_basename_only_in_loaded_plugin() {
-    // Build а plugin dir с category subdir + WASM file. The dir path is
-    // deeply nested (4 segments) to ensure а basename-only invariant is
-    // distinguishable from а full-path leak.
+    // Build a plugin dir with category subdir + WASM file. The dir path is
+    // deeply nested (4 segments) to ensure a basename-only invariant is
+    // distinguishable from a full-path leak.
     let tmp = TempDir::new().expect("tempdir");
     let category_dir = tmp
         .path()
@@ -121,7 +121,7 @@ fn discover_plugins_returns_basename_only_in_loaded_plugin() {
     std::fs::write(&wasm_path, &empty_component_bytes).expect("write wasm");
 
     let engine = build_engine().expect("build_engine");
-    // discover_plugins expects а canonical plugin dir (the root with
+    // discover_plugins expects a canonical plugin dir (the root with
     // `custom-dashboard/` / `data-transform/` / `snapshot-template/`
     // subdirs); use tmp.path().join("a").join("b").join("c") as the
     // synthetic root.
@@ -130,7 +130,7 @@ fn discover_plugins_returns_basename_only_in_loaded_plugin() {
 
     // Find the plugin we wrote — basename only, no path separators.
     // LoadedPlugin doesn't impl Debug (wasmtime::Component is non-Debug); list
-    // basenames instead на panic.
+    // basenames instead on panic.
     let found = plugins
         .iter()
         .find(|p| p.basename == "my-secret-plugin.wasm")
@@ -141,7 +141,7 @@ fn discover_plugins_returns_basename_only_in_loaded_plugin() {
 
     // Acceptance: basename field is the filename only.
     assert_eq!(found.basename, "my-secret-plugin.wasm");
-    // Defense: no path separator (Unix / / Windows \) appears anywhere в the
+    // Defense: no path separator (Unix / / Windows \) appears anywhere in the
     // basename field.
     assert!(
         !found.basename.contains('/'),
@@ -153,7 +153,7 @@ fn discover_plugins_returns_basename_only_in_loaded_plugin() {
         "plugin basename leaked Windows path separator: {}",
         found.basename
     );
-    // Defense: id (derived от basename без .wasm) is also basename-only.
+    // Defense: id (derived from basename without .wasm) is also basename-only.
     assert_eq!(found.id, "my-secret-plugin");
     assert!(!found.id.contains('/') && !found.id.contains('\\'));
 }
@@ -162,7 +162,7 @@ fn discover_plugins_returns_basename_only_in_loaded_plugin() {
 fn discover_plugins_emits_basename_only_in_tracing_spans() {
     let tmp = TempDir::new().expect("tempdir");
     // The leaky-path component: "deeply-nested-secret-dir" appears IN the
-    // path but should NOT appear в any tracing field per security plan
+    // path but should NOT appear in any tracing field per security plan
     // §Anti-Pattern Logging row 2.
     let category_dir = tmp
         .path()
@@ -196,7 +196,7 @@ fn discover_plugins_emits_basename_only_in_tracing_spans() {
 
     // Assertions: tracing fields (event AND span) must not leak path
     // segments that would reveal the user's filesystem layout. The basename
-    // helper в discover_plugins extracts ONLY the final segment.
+    // helper in discover_plugins extracts ONLY the final segment.
     let full_path_string = plugin_root.to_string_lossy().into_owned();
     let leaky_segments: [&str; 2] = [
         "deeply-nested-secret-dir",
@@ -224,7 +224,7 @@ fn discover_plugins_emits_basename_only_in_tracing_spans() {
 
 #[test]
 fn canonicalize_plugin_dir_returns_basename_in_traversal_rejection_error() {
-    // Construct а path с CWE-22 traversal segment — canonicalize_plugin_dir
+    // Construct a path with CWE-22 traversal segment — canonicalize_plugin_dir
     // should reject AND the resulting Error::PathCanonicalizationFailed reason
     // must not embed the full traversal path verbatim. Per security plan §Input
     // row 4 + obs-plan §5 Vector 6.
@@ -248,7 +248,7 @@ fn canonicalize_plugin_dir_returns_basename_in_traversal_rejection_error() {
             // Canonical path is the OS-resolved form; it may or may not
             // contain the marker depending on whether `..` resolves through
             // the tempdir layout. The discipline is that the loader doesn't
-            // leak path content к the AppError surface — that's tested
+            // leak path content to the AppError surface — that's tested
             // separately. Here just sanity-check no panic.
             let _ = canonical;
         }

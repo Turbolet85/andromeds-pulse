@@ -335,7 +335,7 @@ async fn run_ci_gates() -> Result<ExitCode> {
     // chunk #54 activation. The script tails `agent-latest.jsonl` for
     // `metric.webgpu.frame_duration_ms` events, computes p99 ≤33ms, and
     // checks `metric.buffer.memory_bytes` max ≤512MB. Missing script or
-    // empty event stream maps к NEUTRAL (pre-perf-instrumentation states).
+    // empty event stream maps to NEUTRAL (pre-perf-instrumentation states).
     match invoke_perf_slo_check(&log_files).await {
         Ok(true) => println!("ci-gates: perf-budget PASS"),
         Ok(false) => {
@@ -517,7 +517,7 @@ async fn invoke_perf_slo_check(log_files: &[PathBuf]) -> Result<bool> {
 async fn run_perf_slo_load() -> Result<ExitCode> {
     // 10k spans/sec sustained-load test runs the perf_slo_10k_spans
     // integration test via cargo-nextest; post-test p99 / max gates fire
-    // via run_ci_gates() (invoked as а separate xtask step in CI).
+    // via run_ci_gates() (invoked as a separate xtask step in CI).
     let mut cmd = tokio::process::Command::new("cargo");
     cmd.env("NEXTEST_EXPERIMENTAL_LIBTEST_JSON", "1");
     cmd.args([
@@ -545,7 +545,7 @@ async fn run_perf_slo_load() -> Result<ExitCode> {
 // `.config/nextest.toml` default-filter; `--profile load-profiles`
 // re-selects exactly the perf_load_profiles binary. After the suite, the
 // heartbeat-gap + perf-slo gates run over harness logs when present (the
-// booted-app ACTIVE window flow); absent logs map к NEUTRAL — the
+// booted-app ACTIVE window flow); absent logs map to NEUTRAL — the
 // in-process suite does not write agent-latest.jsonl itself.
 async fn run_perf_load_profiles() -> Result<ExitCode> {
     let run_start_utc19 = chrono::Utc::now().format("%Y-%m-%dT%H:%M:%S").to_string();
@@ -1140,7 +1140,7 @@ async fn capability_drift() -> Result<ExitCode> {
 //
 // 3 capabilities have NEVER-widen invariants that the existing
 // capability_drift check does NOT enforce (drift only verifies router↔JSON
-// procedure sync, not permission widening within а capability's permissions
+// procedure sync, not permission widening within a capability's permissions
 // array):
 //   - pulse:notification — outbound-emit only (NEVER include
 //     notification:allow-register-action-types OR notification:allow-register-listener
@@ -1149,7 +1149,7 @@ async fn capability_drift() -> Result<ExitCode> {
 //     permissions ending in -register-* / -listen-* / -on-* indicate
 //     input-event handlers banned per pulse-app/capabilities/tray.json:4
 //     description)
-//   - pulse:plugin-fs — backend-only (NEVER expose к webview JavaScript via
+//   - pulse:plugin-fs — backend-only (NEVER expose to webview JavaScript via
 //     `windows: [...]` array population NOR add any fs:* / shell:* / dialog:*
 //     / http:* permissions per pulse-app/capabilities/plugin-fs.json:4
 //     description)

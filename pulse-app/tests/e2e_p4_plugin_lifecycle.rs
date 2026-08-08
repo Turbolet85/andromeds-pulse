@@ -1,8 +1,8 @@
 //! P4 E2E coverage — plugin lifecycle critical path per test-plan §6 P4.
 //!
 //! Stages fixture WASM Component bytes via `wat::parse_str("(component)")`
-//! → invokes `plugins::loader::discover_plugins` against а tempdir с the
-//! category-directory layout → asserts registry populated с the test
+//! → invokes `plugins::loader::discover_plugins` against a tempdir with the
+//! category-directory layout → asserts registry populated with the test
 //! plugin. Path-traversal + capability-scoping negative canaries verify
 //! security boundaries hold per security plan §Input Validation +
 //! §API Security row "Plugin host capability sandbox".
@@ -21,7 +21,7 @@ fn p4_plugin_lifecycle_discovers_fixture_component_in_data_transform_dir() {
     let category_dir = plugin_dir.join(PluginCategory::DataTransform.as_str());
     fs::create_dir_all(&category_dir).expect("create category dir");
 
-    // Stage а minimal valid WASM Component via wat::parse_str (chunk #45
+    // Stage a minimal valid WASM Component via wat::parse_str (chunk #45
     // substrate per crates/plugins/src/wit_loader.rs::tests precedent —
     // avoids committing opaque .wasm fixtures).
     let bytes = wat::parse_str("(component)").expect("empty component compiles");
@@ -76,7 +76,7 @@ fn p4_negative_canary_nonexistent_plugin_dir_returns_empty_registry() {
 fn p4_negative_canary_path_traversal_in_plugin_dir_rejected_or_confined() {
     // Per security plan §Input Validation row 6 + plan.md security canary
     // for ANDROMEDA_PULSE_PLUGIN_DIR=../../../etc — `..` components MUST
-    // be rejected or canonicalized к а safe absolute path before plugin
+    // be rejected or canonicalized to a safe absolute path before plugin
     // discovery loads any component.
     let traversal = std::path::Path::new("../../../etc");
     let result = canonicalize_plugin_dir(traversal);

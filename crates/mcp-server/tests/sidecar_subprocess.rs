@@ -267,7 +267,7 @@ async fn send_tools_call_and_read(
     let parsed: serde_json::Value =
         serde_json::from_str(&response_line).expect("response is JSON-RPC envelope");
 
-    // Drain stderr opportunistically up к 500ms for assertion inspection.
+    // Drain stderr opportunistically up to 500ms for assertion inspection.
     let mut stderr_collected = String::new();
     let deadline = tokio::time::Instant::now() + Duration::from_millis(500);
     while tokio::time::Instant::now() < deadline {
@@ -368,8 +368,8 @@ async fn sidecar_response_body_never_in_stderr_for_query_traces() {
         }),
     )
     .await;
-    // The cursor value is а user-supplied string; if logged anywhere it would
-    // surface as а PII leak vector (Vector 4 from security plan). Allowlist
+    // The cursor value is a user-supplied string; if logged anywhere it would
+    // surface as a PII leak vector (Vector 4 from security plan). Allowlist
     // scrubber must redact `cursor` field at the subscriber layer.
     // Note: viz::query::compute_window may reject malformed cursor producing
     // an error response — both Ok and Err shapes are acceptable here; the
@@ -421,6 +421,6 @@ async fn sidecar_unknown_tool_returns_neg_32601() {
     assert_eq!(parsed["id"], 106);
     assert_eq!(
         parsed["error"]["code"], -32601,
-        "unknown tool routes к method-not-found code"
+        "unknown tool routes to method-not-found code"
     );
 }

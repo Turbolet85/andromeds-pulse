@@ -2,7 +2,7 @@
 // `telemetry.frontend.record_frame_ms` resolver after a webview frame
 // completes. Per obs-plan §11 Frontend bridge: webview measures via
 // `performance.now()` + `device.queue.onSubmittedWorkDone()`, hands the
-// duration к the backend via TauRPC, backend emits `tracing::info!(target:
+// duration to the backend via TauRPC, backend emits `tracing::info!(target:
 // "metric.webgpu.frame_duration_ms", ...)` against the chunk #28 pre-staged
 // AllowList entry.
 //
@@ -44,7 +44,7 @@ export function clampDurationMs(value: number): number {
 // `webgpu-adapter.ts` into the bounded enum here. "unknown" never reaches the
 // backend (the smart enum on the Rust side rejects any non-allowlist value);
 // we surface "vulkan" as a defensive fallback so the resolver still records
-// the frame rather than silently dropping it. The fallback is documented в
+// the frame rather than silently dropping it. The fallback is documented in
 // the obs-plan §11 cardinality discipline as the trade-off vs adding a 4th
 // "unknown" enum value (which would explode label cardinality forever).
 export function normalizeWgpuBackend(input: string): WgpuBackendKind {
@@ -58,7 +58,7 @@ export function detectWebviewBackend(): WebviewBackendKind {
   // Per arch §Stack Visualization surface row: WebView2 (Windows) /
   // WKWebView (macOS) / GTKWebKit (Linux). Discriminator order matters —
   // Linux WebKit UAs contain BOTH "X11" and "WebKit" / "AppleWebKit", so the
-  // Linux branch must precede the generic WebKit branch к avoid Linux being
+  // Linux branch must precede the generic WebKit branch to avoid Linux being
   // misclassified as macOS.
   if (typeof navigator === "undefined") {
     return "webview2";

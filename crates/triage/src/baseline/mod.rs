@@ -243,7 +243,7 @@ impl BaselineState {
             .swap(0, Ordering::Relaxed)
     }
 
-    /// Per-spec entry point. Drops spans с empty service.name (increments
+    /// Per-spec entry point. Drops spans with empty service.name (increments
     /// `drops_since_last_tick`; aggregate warn fires from per-tick emitter).
     /// Updates the service's error-rate EWMA + per-second activity bucket +
     /// activity-floor histogram (chunk #64) + the (service, operation)
@@ -450,7 +450,7 @@ impl BaselineState {
 
     /// Snapshot all per-operation latency metrics at the supplied percentile
     /// `q ∈ [0.0, 1.0]`. Service name is recovered from the operation key's
-    /// prefix (everything before the first `/`); operations с malformed keys
+    /// prefix (everything before the first `/`); operations with malformed keys
     /// are skipped. Used by the chunk #62 cue emitter for LatencyRegression
     /// detection.
     pub fn iter_operations(&self, percentile_q: f64) -> Vec<OperationMetricSnapshot> {
@@ -461,7 +461,7 @@ impl BaselineState {
                 let service_name = key.split('/').next()?.to_string();
                 let latency = entry.latency_tdigest.percentile(percentile_q);
                 // Chunk #73 P-012: SHORT t-digest queries `percentile_current_only`
-                // (recent window only) so the spike signal is не diluted by
+                // (recent window only) so the spike signal is not diluted by
                 // the prior rotation cycle. LONG t-digest stays on union for
                 // smoothed long-term baseline reference.
                 let short_latency = entry

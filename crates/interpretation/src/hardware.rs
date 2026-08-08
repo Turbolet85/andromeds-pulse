@@ -27,7 +27,7 @@ pub const ENV_HARDWARE_PROFILE_OVERRIDE: &str = "ANDROMEDA_PULSE_HARDWARE_PROFIL
 /// Default core-count threshold separating cpu-primary from cpu-fallback.
 /// Per pulse-distillation-architecture.md L4 §Hardware Profile Matrix:
 /// systems with ≥4 cores can run primary-tier CPU inference within latency
-/// budget; fewer cores route к fallback-tier (smaller models, less
+/// budget; fewer cores route to fallback-tier (smaller models, less
 /// constrained output).
 pub const CPU_PRIMARY_CORE_THRESHOLD: usize = 4;
 
@@ -42,7 +42,7 @@ pub struct HardwareProfileDetector {
 impl HardwareProfileDetector {
     /// Constructs the detector by probing host hardware. Reads env var
     /// override first (so tests + degraded-environment validation can
-    /// force а specific profile); falls back to real detection.
+    /// force a specific profile); falls back to real detection.
     pub fn new() -> Self {
         let profile = match std::env::var(ENV_HARDWARE_PROFILE_OVERRIDE) {
             Ok(raw) => match parse_profile_override(&raw) {
@@ -59,7 +59,7 @@ impl HardwareProfileDetector {
                     warn!(
                         target: "interpretation.hardware.detect",
                         override_source = "env",
-                        "invalid ANDROMEDA_PULSE_HARDWARE_PROFILE value; falling back к real detection"
+                        "invalid ANDROMEDA_PULSE_HARDWARE_PROFILE value; falling back to real detection"
                     );
                     detect_real()
                 }
@@ -70,7 +70,7 @@ impl HardwareProfileDetector {
         Self { profile }
     }
 
-    /// Constructs а detector с the supplied profile, bypassing detection
+    /// Constructs a detector with the supplied profile, bypassing detection
     /// entirely. Test-only constructor (mirrors `FixedProfile` test fixture
     /// at `crates/triage/src/cadence/coordinator.rs`).
     #[cfg(any(test, feature = "test-utils"))]
@@ -98,7 +98,7 @@ impl HardwareProfileSource for HardwareProfileDetector {
 /// - `CpuPrimary`: no GPU + cores ≥ [`CPU_PRIMARY_CORE_THRESHOLD`]
 /// - `CpuFallback`: no GPU + cores < [`CPU_PRIMARY_CORE_THRESHOLD`]
 /// - `GpuFallback`: NOT detected by real probe in this chunk (VRAM
-///   detection deferred к chunk #83+); only reachable via env var override
+///   detection deferred to chunk #83+); only reachable via env var override
 fn detect_real() -> HardwareProfile {
     let gpu_available = detect_gpu_present();
     let core_count = available_cpu_cores();
@@ -123,7 +123,7 @@ fn detect_real() -> HardwareProfile {
     profile
 }
 
-/// Cross-platform GPU presence probe. Returns `true` if а GPU-accelerated
+/// Cross-platform GPU presence probe. Returns `true` if a GPU-accelerated
 /// inference backend is likely available; `false` otherwise.
 ///
 /// Per security extract anti-pattern "NEVER hardcode model paths or URLs":
@@ -132,9 +132,9 @@ fn detect_gpu_present() -> bool {
     #[cfg(target_os = "macos")]
     {
         // macOS: assume Metal available (every Mac since 2012 supports Metal;
-        // Apple Silicon Macs have unified memory architecture suitable для
+        // Apple Silicon Macs have unified memory architecture suitable for
         // LLM inference). Refinement (Metal feature-set verification)
-        // deferred к chunk #83+.
+        // deferred to chunk #83+.
         true
     }
 
@@ -143,7 +143,7 @@ fn detect_gpu_present() -> bool {
         // Linux: check for libcuda.so existence in standard library paths.
         // Common locations: /usr/lib/x86_64-linux-gnu/libcuda.so,
         // /usr/local/cuda/lib64/libcuda.so. Heuristic — false negatives OK
-        // (will reclassify к cpu-primary which is safe default).
+        // (will reclassify to cpu-primary which is safe default).
         [
             "/usr/lib/x86_64-linux-gnu/libcuda.so",
             "/usr/local/cuda/lib64/libcuda.so",
@@ -155,7 +155,7 @@ fn detect_gpu_present() -> bool {
     #[cfg(target_os = "windows")]
     {
         // Windows: check for nvcuda.dll in System32 (CUDA Runtime DLL).
-        // Heuristic — false negatives OK; reclassifies к cpu-primary which
+        // Heuristic — false negatives OK; reclassifies to cpu-primary which
         // is safe default.
         std::path::Path::new(r"C:\Windows\System32\nvcuda.dll").exists()
     }
@@ -175,7 +175,7 @@ fn available_cpu_cores() -> usize {
         .unwrap_or(1)
 }
 
-/// Parses а user-supplied profile string into а bounded `HardwareProfile`.
+/// Parses a user-supplied profile string into a bounded `HardwareProfile`.
 /// Accepts both snake_case + kebab-case variants for the four known
 /// profiles. Returns `None` on unrecognized input.
 fn parse_profile_override(raw: &str) -> Option<HardwareProfile> {

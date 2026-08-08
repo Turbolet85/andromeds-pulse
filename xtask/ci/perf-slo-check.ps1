@@ -2,7 +2,7 @@
 # Tails agent-latest.jsonl for metric.webgpu.frame_duration_ms events;
 # asserts p99 .fields.duration_ms ≤33ms. Sibling check:
 # metric.buffer.memory_bytes max .fields.value ≤512_000_000.
-# Empty event streams map к NEUTRAL (exit 0).
+# Empty event streams map to NEUTRAL (exit 0).
 
 $ErrorActionPreference = 'Stop'
 

@@ -49,6 +49,36 @@ jobs:
       - name: cargo fmt --check
         run: cargo fmt --check
 
+      # Source files are English-only. Russian prepositions and Cyrillic homoglyphs
+      # (U+043A for "to", U+0430 for "a", U+0431 for "b") had leaked into comments,
+      # error strings and - critically - the L4 system prompts, degrading what the
+      # local model receives. `shell: python` is deliberate: BSD grep on the macOS
+      # runner has no -P, and GNU grep -P is locale-sensitive on Windows. Docs,
+      # rules and .andromeda/ are OUT of scope - they legitimately quote the
+      # operator in Russian.
+      - name: No Cyrillic in sources
+        shell: python
+        run: |
+          import pathlib, re, sys
+          CYRILLIC = re.compile("[%s-%s]" % (chr(0x0400), chr(0x04FF)))
+          ROOTS = ["crates", "pulse-app/src", "pulse-app/tests", "pulse-app/ui/src", "xtask/src"]
+          EXTS = {".rs", ".ts", ".tsx"}
+          hits = []
+          for root in ROOTS:
+              for path in pathlib.Path(root).rglob("*"):
+                  if not path.is_file() or path.suffix not in EXTS:
+                      continue
+                  text = path.read_text(encoding="utf-8", errors="replace")
+                  for n, line in enumerate(text.splitlines(), 1):
+                      if CYRILLIC.search(line):
+                          hits.append(f"{path.as_posix()}:{n}: {line.strip()[:120]}")
+          for h in hits:
+              print(f"::error::Cyrillic character in source - {h}")
+          if hits:
+              print(f"{len(hits)} line(s) carry Cyrillic characters; sources are English-only.")
+              sys.exit(1)
+          print("no Cyrillic in source files")
+
       - name: cargo clippy --workspace --all-targets --all-features -- -D warnings
         run: cargo clippy --workspace --all-targets --all-features -- -D warnings
 

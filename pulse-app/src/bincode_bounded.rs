@@ -8,23 +8,23 @@
 //! ~8.9e18 and trigger an immediate OOM process abort (rather than a
 //! graceful `Err`). This is dangerous on the legacy-bincode migration path
 //! (`baseline_persistence::migrate_legacy_inner`) where the input file is
-//! unencrypted and an attacker с filesystem write access could weaponize
+//! unencrypted and an attacker with filesystem write access could weaponize
 //! it; less acute on the encrypted corpus load paths, where the AES-256-GCM
 //! GCM tag MUST validate before bincode sees the plaintext, but still
 //! relevant if key material is ever compromised.
 //!
-//! [`deserialize`] uses `Options::with_limit(DEFAULT_MAX_SIZE_BYTES)` к
+//! [`deserialize`] uses `Options::with_limit(DEFAULT_MAX_SIZE_BYTES)` to
 //! cap the length-prefix value before allocation; oversized prefixes
 //! fail-fast as `Err::SizeLimit`. Encoding shape matches plain
 //! `bincode::serialize` (LittleEndian + FixintEncoding +
-//! RejectTrailingBytes) for binary compatibility с existing on-disk
+//! RejectTrailingBytes) for binary compatibility with existing on-disk
 //! payloads. Centralizes the per-adapter discipline in one helper so all
 //! four persistence load paths share identical bounds.
 
 use bincode::Options;
 use triage::contract::DEFAULT_MAX_SIZE_BYTES;
 
-/// Deserialize bincode bytes с the corpus-file-size cap applied as а
+/// Deserialize bincode bytes with the corpus-file-size cap applied as a
 /// length-prefix bound. Encoding shape matches plain `bincode::serialize`.
 pub fn deserialize<'a, T>(bytes: &'a [u8]) -> Result<T, bincode::Error>
 where

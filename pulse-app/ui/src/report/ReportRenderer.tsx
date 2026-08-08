@@ -3,14 +3,14 @@
 // steps / evidence / project context) + optional Resolution Summary
 // (Resolved incidents) + optional Previously Seen subsection (P-036
 // reserved; resolver returns empty Vec until corpus fingerprint-
-// similarity query path lands в а follow-up chunk). Degraded-mode
-// banner с icon + text label per a11y plan §6 not-color-alone discipline
+// similarity query path lands in a follow-up chunk). Degraded-mode
+// banner with icon + text label per a11y plan §6 not-color-alone discipline
 // when `report.degradedMode === true` (Active/Acknowledged incidents OR
-// Resolved incidents с unparseable resolution_summary_text). Copy
-// markdown action per P-038 — calls back through useReport hook к
+// Resolved incidents with unparseable resolution_summary_text). Copy
+// markdown action per P-038 — calls back through useReport hook to
 // clipboard via @tauri-apps/plugin-clipboard-manager + emits visible
 // "copied" status per CLAUDE.md §Critical Warnings clipboard hygiene
-// + а11y plan §7 Live regions.
+// + a11y plan §7 Live regions.
 //
 // Token discipline (chunk #88 acceptance criterion design.4): every
 // `style` value resolves through `var(--*)` Tailwind-v4 @theme custom

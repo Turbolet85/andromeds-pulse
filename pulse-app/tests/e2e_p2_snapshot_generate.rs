@@ -4,7 +4,7 @@
 //! → `snapshot::markdown::format_markdown`, asserts anomaly markers +
 //! p50/p95/p99 aggregates + token budget enforcement. Direct-library-call
 //! path per plan.md Open Question 3 (TauRPC mock_builder fallback);
-//! covers the canonical 7-step P2 invariants без needing Tauri webview
+//! covers the canonical 7-step P2 invariants without needing Tauri webview
 //! lift.
 
 use snapshot::contract::{SpanRecord, curate};
@@ -33,7 +33,7 @@ fn make_span(
 
 #[test]
 fn p2_snapshot_generate_emits_markdown_within_token_budget() {
-    // Construct 500 spans across 3 services с varying latency + errors.
+    // Construct 500 spans across 3 services with varying latency + errors.
     let mut spans = Vec::with_capacity(500);
     let base_ns = 1_700_000_000_000_000_000_i64;
 
@@ -67,7 +67,7 @@ fn p2_snapshot_generate_emits_markdown_within_token_budget() {
         ));
     }
 
-    let curated = curate(&spans).expect("curate succeeds на 500-span synthetic input");
+    let curated = curate(&spans).expect("curate succeeds on 500-span synthetic input");
 
     // Acceptance: dedup_count populated, anomaly markers present, percentiles
     // computed per arch §Established Decisions [Snapshot Curation Default].
@@ -95,7 +95,7 @@ fn p2_snapshot_generate_emits_markdown_within_token_budget() {
         );
     }
 
-    // CurationOutput-level invariants (markdown rendering is internal к
+    // CurationOutput-level invariants (markdown rendering is internal to
     // snapshot crate per its pub(crate) module visibility; chunk #50 P2
     // coverage stops at the curation contract). Markdown token budget
     // enforcement is exercised by snapshot crate's internal tests.
@@ -113,17 +113,17 @@ fn p2_snapshot_generate_emits_markdown_within_token_budget() {
 #[test]
 fn p2_pii_negative_canary_secret_attribute_not_in_markdown() {
     // Per security plan §Logging snapshot/clipboard hygiene + obs §PII
-    // Vector 1: synthetic OTLP injection that includes а secret-shaped
+    // Vector 1: synthetic OTLP injection that includes a secret-shaped
     // attribute value MUST be scrubbed before reaching snapshot markdown.
     // The snapshot crate's curate() preserves SpanRecord.attributes as-is;
     // the production AllowList layer (in pulse-app/src/observability.rs)
     // would redact at log emission time, NOT at curate() time.
     //
-    // This canary verifies а narrower invariant: snapshot markdown rendering
+    // This canary verifies a narrower invariant: snapshot markdown rendering
     // doesn't emit raw attribute values into the report body — only span
     // names + service names + durations. The actual PII-scrubber layer
-    // negative-canary belongs in а deeper integration test that exercises
-    // the tracing subscriber path (deferred к obs-CI-gates chunk #57).
+    // negative-canary belongs in a deeper integration test that exercises
+    // the tracing subscriber path (deferred to obs-CI-gates chunk #57).
     let canary = "Bearer secret-canary-API-key-12345";
     let span = SpanRecord {
         trace_id: [1u8; 16],
@@ -147,7 +147,7 @@ fn p2_pii_negative_canary_secret_attribute_not_in_markdown() {
     // CurationOutput shape level only.
     let _ = curated;
     // The canary stays in the original SpanRecord.attributes vec by design
-    // (attribute filtering is а separate layer); the test here is а
+    // (attribute filtering is a separate layer); the test here is a
     // smoke-shape assertion that curate() doesn't panic OR truncate the
     // input record set when attributes carry sensitive values.
     let _ = canary;
