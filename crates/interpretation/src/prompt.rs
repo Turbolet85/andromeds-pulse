@@ -17,10 +17,10 @@
 //!
 //! Total target: ~6-8K tokens for the primary tier prompt.
 //!
-//! Token counting itself is deferred to а future chunk because importing
+//! Token counting itself is deferred to a future chunk because importing
 //! the Hugging Face `tokenizers` crate adds substantial transitive build
 //! cost; chunk #81's tokenizer fixture in `crates/triage/build.rs` Phase 2
-//! is available for cross-crate reuse via а `pub` re-export pattern once
+//! is available for cross-crate reuse via a `pub` re-export pattern once
 //! the actual mistralrs runtime binding lands.
 
 use crate::schema::{
@@ -42,13 +42,13 @@ pub const CORPUS_OPEN_MARKER: &str = "<CORPUS>";
 pub const CORPUS_CLOSE_MARKER: &str = "</CORPUS>";
 
 /// Role definition section emitted at the top of every primary-tier
-/// prompt. Bounded к role + conventions; no project-specific facts here.
+/// prompt. Bounded to role + conventions; no project-specific facts here.
 const ROLE_DEFINITION: &str = "\
-You are а severity classifier for а local OpenTelemetry triage assistant. \
-Your job is к decide whether an observed signal warrants surfacing к the \
+You are a severity classifier for a local OpenTelemetry triage assistant. \
+Your job is to decide whether an observed signal warrants surfacing to the \
 developer, dismissing as noise, or watching for further evolution. \
-You receive а distilled digest of recent telemetry plus а project context \
-block. Your output MUST conform к the embedded JSON schema, with no prose \
+You receive a distilled digest of recent telemetry plus a project context \
+block. Your output MUST conform to the embedded JSON schema, with no prose \
 before or after the JSON object.";
 
 /// Convention snippet outlining decision categories + severity labels +
@@ -59,9 +59,9 @@ Decision categories: \"surface\" (create an incident the user should see), \
 \"dismiss\" (no action), \"watch\" (record but do not surface). \
 Severity labels: \"autonomous\" (act now), \"suggested\" (likely intervention), \
 \"curious\" (worth investigating), \"none\" (informational). \
-Hypotheses ranked highest-confidence-first; each carries а bounded \
-confidence label (high/medium/low) and а brief justification. \
-Investigation steps point к concrete checks the developer can run.";
+Hypotheses ranked highest-confidence-first; each carries a bounded \
+confidence label (high/medium/low) and a brief justification. \
+Investigation steps point to concrete checks the developer can run.";
 
 /// Output format reminder emitted at the bottom of every primary-tier
 /// prompt. Instructs strict JSON-only emission matching the embedded
@@ -69,20 +69,20 @@ Investigation steps point к concrete checks the developer can run.";
 const OUTPUT_REMINDER: &str = "\
 Emit exactly one JSON object matching the schema above. \
 Do not emit any text outside the JSON object. \
-Do not emit а markdown code fence around the JSON. \
+Do not emit a markdown code fence around the JSON. \
 Do not emit explanatory prose before or after the JSON object.";
 
 /// Role definition section emitted at the top of every fallback-tier
 /// prompt (chunk #85 — Epoch 9 Foundation v0.2.0). Reduced specificity vs
-/// primary; explicitly instructs single-hypothesis output для 3-4B class
+/// primary; explicitly instructs single-hypothesis output for 3-4B class
 /// models running on hardware-constrained hosts per P-053.
 const ROLE_DEFINITION_FALLBACK: &str = "\
-You are а severity classifier for а local OpenTelemetry triage assistant \
-running on а hardware-constrained host (fallback tier). Decide whether \
-an observed signal warrants surfacing к the developer, dismissing as \
+You are a severity classifier for a local OpenTelemetry triage assistant \
+running on a hardware-constrained host (fallback tier). Decide whether \
+an observed signal warrants surfacing to the developer, dismissing as \
 noise, or watching for further evolution. Emit exactly ONE hypothesis \
-(not а ranked list) and up к 2 investigation steps. Output MUST conform \
-к the embedded JSON schema; no prose outside the JSON.";
+(not a ranked list) and up to 2 investigation steps. Output MUST conform \
+to the embedded JSON schema; no prose outside the JSON.";
 
 /// Output format reminder emitted at the bottom of every fallback-tier
 /// prompt. Reinforces reduced-quality output contract (single hypothesis,
@@ -90,29 +90,29 @@ noise, or watching for further evolution. Emit exactly ONE hypothesis \
 const OUTPUT_REMINDER_FALLBACK: &str = "\
 Emit exactly one JSON object matching the schema above. \
 Set `model_tier` to \"fallback\" in the output. \
-Provide exactly ONE hypothesis (highest-confidence; not а ranked list of multiple). \
+Provide exactly ONE hypothesis (highest-confidence; not a ranked list of multiple). \
 Provide at most 2 investigation steps. \
 Do not emit text outside the JSON object. \
-Do not emit а markdown code fence around the JSON. \
+Do not emit a markdown code fence around the JSON. \
 Do not emit explanatory prose before or after the JSON object.";
 
 /// Role definition section emitted at the top of every reflection-tier
 /// prompt (chunk #98 — Epoch 9 Foundation v0.2.0). Emphasizes cumulative
 /// pattern detection over the 30-minute background reflection window
 /// rather than acute single-event interpretation; biases the default
-/// decision toward `curious` unless а high-confidence cumulative pattern
+/// decision toward `curious` unless a high-confidence cumulative pattern
 /// justifies higher severity. Runs at primary-tier quality (`model_tier:
 /// "primary"`), NOT fallback.
 const ROLE_DEFINITION_REFLECTION: &str = "\
-You are а severity classifier reviewing а 30-minute cumulative window of \
-local OpenTelemetry telemetry for а local triage assistant. Your job is к \
+You are a severity classifier reviewing a 30-minute cumulative window of \
+local OpenTelemetry telemetry for a local triage assistant. Your job is to \
 detect emergent patterns, drift, and recurring signatures ACROSS the window \
-— not to react к а single acute event. Weigh whether the cumulative trend \
-warrants surfacing к the developer, dismissing as noise, or watching for \
-further evolution. Default к the \"curious\" severity (record for pattern \
-learning, no interruption) UNLESS you identify а high-confidence cumulative \
+— not to react to a single acute event. Weigh whether the cumulative trend \
+warrants surfacing to the developer, dismissing as noise, or watching for \
+further evolution. Default to the \"curious\" severity (record for pattern \
+learning, no interruption) UNLESS you identify a high-confidence cumulative \
 pattern that justifies \"suggested\" or \"autonomous\". Your output MUST \
-conform к the embedded JSON schema, with no prose before or after the JSON \
+conform to the embedded JSON schema, with no prose before or after the JSON \
 object.";
 
 /// Output format reminder emitted at the bottom of every reflection-tier
@@ -121,11 +121,11 @@ object.";
 const OUTPUT_REMINDER_REFLECTION: &str = "\
 Emit exactly one JSON object matching the schema above. \
 Base your decision on the CUMULATIVE trend across the 30-minute window, not \
-а single event. Default `severity` к \"curious\" unless а high-confidence \
+a single event. Default `severity` to \"curious\" unless a high-confidence \
 recurring pattern justifies \"suggested\" or \"autonomous\". \
 Set `model_tier` to \"primary\" in the output. \
 Do not emit any text outside the JSON object. \
-Do not emit а markdown code fence around the JSON. \
+Do not emit a markdown code fence around the JSON. \
 Do not emit explanatory prose before or after the JSON object.";
 
 /// Composes the primary-tier prompt per [`PROMPT_VERSION_PRIMARY`].
@@ -136,9 +136,9 @@ Do not emit explanatory prose before or after the JSON object.";
 /// budget per chunk #81; project context + corpus retrieval are bounded by
 /// the digest pipeline upstream).
 ///
-/// Returns the assembled prompt as а single `String`. The string IS the
+/// Returns the assembled prompt as a single `String`. The string IS the
 /// prompt passed to `LlmInferenceRunner::generate_constrained(prompt,
-/// schema_json)`; the `schema_json` argument к that call is the same
+/// schema_json)`; the `schema_json` argument to that call is the same
 /// [`L4_OUTPUT_JSON_SCHEMA`] constant the prompt references.
 pub fn build_primary_tier_prompt(
     digest_payload: &str,
@@ -218,7 +218,7 @@ pub fn build_primary_tier_prompt(
 ///
 /// The reduced-quality contract is enforced TWICE in defense-in-depth:
 /// at prompt time (this fn instructs the model) AND at parse time
-/// ([`crate::schema::validate`] rejects fallback outputs с >1 hypothesis
+/// ([`crate::schema::validate`] rejects fallback outputs with >1 hypothesis
 /// OR >2 investigation steps).
 pub fn build_fallback_tier_prompt(
     digest_payload: &str,
@@ -296,7 +296,7 @@ pub fn build_fallback_tier_prompt(
 /// background reflection window. Runs at primary-tier quality (no
 /// fallback single-hypothesis constraint; the model emits `model_tier:
 /// "primary"`). Selected by the L4 subscriber when the digest kind is
-/// `DigestKind::Reflection` on а primary-tier runner; fallback-tier
+/// `DigestKind::Reflection` on a primary-tier runner; fallback-tier
 /// reflection digests reuse [`build_fallback_tier_prompt`].
 pub fn build_reflection_tier_prompt(
     digest_payload: &str,
@@ -616,7 +616,7 @@ mod tests {
         // Per P-053 reduced-output contract: fallback's ROLE_DEFINITION_FALLBACK
         // explicitly states the single-hypothesis + ≤2-steps constraints that
         // primary's ROLE_DEFINITION lacks. Asserting the distinguishing strings
-        // is а stronger regression guard than byte-count comparison (fallback
+        // is a stronger regression guard than byte-count comparison (fallback
         // adds explicit output-shape constraints + drops the "distilled digest"
         // educational text, net byte delta is approximately neutral).
         assert!(ROLE_DEFINITION_FALLBACK.contains("fallback tier"));
@@ -627,7 +627,7 @@ mod tests {
 
     #[test]
     fn fallback_prompt_total_bytes_bounded() {
-        // Sanity bound: fallback prompt с empty digest + empty project ctx
+        // Sanity bound: fallback prompt with empty digest + empty project ctx
         // + empty corpus should fit comfortably under 8 KB (the embedded
         // schema dominates at ~4.5 KB; framing text + markers + headers
         // contribute another ~1.5-2 KB). Regression guard against
