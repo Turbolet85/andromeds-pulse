@@ -6,6 +6,16 @@ _Entries are added in reverse chronological order (newest first). Each entry has
 
 _This file is entirely wrap-session's territory. `/setup-project` creates it if missing but NEVER regenerates it. Manual edits are preserved across all Andromeda skill runs._
 
+## 2026-08-14 — Route entry provenance goes in the trailing parenthetical, never a free-standing sentence
+
+A working-route entry has exactly three readable parts: the WHAT-not-HOW body, an optional trailing parenthetical carrying identity and provenance (`(P-070 · intent F10)`, `(operator-directed {date}; evidence: {pointer})`), and the named annotation classes `PREREQ:` / `CARRY:` / `BLOCKED-ON:` appended after a `·`. Anything else — including a grammatically fine free-standing provenance sentence like "Operator-directed at the {date} wrap; measured by {source}." — is structurally invisible: it is neither a title-hint nor a named annotation class, so the fold list that promotion (`/andromeda-phase`) walks when it folds an entry into chunk scope will not know the text exists. The facts silently fail to travel from route to scope.
+
+The practical rule when authoring or adapting entries: put identity and provenance inside the parenthetical, put obligations and discovered follow-ups behind the named annotation keywords, and let nothing carry meaning outside those two shapes. This keeps an entry to one line in register and keeps every fact reachable by a consumer that parses rather than reads.
+
+This generalizes past provenance: the same invisibility applies to any fact parked in prose. A gate deferral recorded only in report prose and handoff Notes travels unowned for exactly the same reason — the route's `PREREQ:` annotation is the only form the pipeline actually carries forward. (Observed live: the workspace-nextest deferral rode report/handoff prose across five consecutive chunks with zero `PREREQ` in the route file, so the age trigger that should halt at the third re-pin never fired.)
+
+---
+
 ## 2026-07-09 — inject_demo aging-out causes false "no traces" in a delayed operator visual verify
 
 `crates/ingest/examples/inject_demo.rs` runs a FINITE storm (a ~10s warmup + ~600 batches, ~16,200 unique spans with current timestamps) then EXITS. The Traces route queries `viz.query.traces` with a 60-second window. So the demo's spans are queryable for only `storm-run-duration + 60s` after a fresh boot — once the storm finishes and 60s elapses, the spans age out of the query window and the table honestly reads "No traces yet" even though the boot was healthy (0 panics, webview rendered, buffer still holds the rows within its 600s retention; `viz.query.traces` logs `row_count:0` while `rows_ingested` stays populated).
