@@ -14,6 +14,13 @@ pub struct BufferState {
     // sweep completes; never resets. Distinguishes "buffer has been alive
     // long enough for retention to fire at least once" from "first-tick state".
     retention_window_active: AtomicBool,
+    // Fingerprint-feed throughput. Without these, "nothing reached the storm
+    // detector" is only ever inferable from the ABSENCE of downstream signal,
+    // which is what let a dead feed go unnoticed. Accumulated per batch (not
+    // per event) to keep the appender's per-event loop free of atomics.
+    span_events_seen: AtomicU64,
+    fingerprints_computed: AtomicU64,
+    observer_invocations: AtomicU64,
 }
 
 #[derive(Debug, Clone, Copy, Default)]
@@ -23,6 +30,9 @@ pub struct BufferStateSnapshot {
     pub memory_bytes: u64,
     pub first_append_at_nanos: u64,
     pub retention_window_active: bool,
+    pub span_events_seen: u64,
+    pub fingerprints_computed: u64,
+    pub observer_invocations: u64,
 }
 
 impl BufferState {
@@ -37,6 +47,9 @@ impl BufferState {
             memory_bytes: self.memory_bytes.load(Ordering::Relaxed),
             first_append_at_nanos: self.first_append_at_nanos.load(Ordering::Relaxed),
             retention_window_active: self.retention_window_active.load(Ordering::Relaxed),
+            span_events_seen: self.span_events_seen.load(Ordering::Relaxed),
+            fingerprints_computed: self.fingerprints_computed.load(Ordering::Relaxed),
+            observer_invocations: self.observer_invocations.load(Ordering::Relaxed),
         }
     }
 
@@ -60,6 +73,22 @@ impl BufferState {
 
     pub fn record_eviction(&self, n: u64) {
         self.eviction_count.fetch_add(n, Ordering::Relaxed);
+    }
+
+    /// Fold one batch's fingerprint-feed tallies in. Called once per span
+    /// batch so the per-event loop stays atomic-free.
+    pub fn record_feed_counts(
+        &self,
+        span_events_seen: u64,
+        fingerprints_computed: u64,
+        observer_invocations: u64,
+    ) {
+        self.span_events_seen
+            .fetch_add(span_events_seen, Ordering::Relaxed);
+        self.fingerprints_computed
+            .fetch_add(fingerprints_computed, Ordering::Relaxed);
+        self.observer_invocations
+            .fetch_add(observer_invocations, Ordering::Relaxed);
     }
 
     pub fn set_memory_bytes(&self, n: u64) {

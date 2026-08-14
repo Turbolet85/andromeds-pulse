@@ -6,6 +6,16 @@ _Entries are added in reverse chronological order (newest first). Each entry has
 
 _This file is entirely wrap-session's territory. `/setup-project` creates it if missing but NEVER regenerates it. Manual edits are preserved across all Andromeda skill runs._
 
+## 2026-08-14 — The storm detector's gauge cannot be read as a total; the latched counters are the signal
+
+`tracked_fingerprints_count` on `triage.pattern.storm.tick` is a **windowed gauge of DISTINCT fingerprints, sampled after eviction** — not a running total. Three consequences, each of which inverts a reading someone would reasonably make. A healthy storm of N *identical* occurrences reads `1`, never `N`, because the storm's whole point is one recurring fault. A zero sampled after the 60s retention window closes proves nothing, because everything legitimately aged out. And a late sample on a fully working path is indistinguishable from a dead feed.
+
+The window-immune discriminators are **`storms_detected_total`** and **`fingerprints_evicted_total`**, both cumulative and both reset per process. `fingerprints_evicted_total ≥ 1` proves a fingerprint was tracked and later aged out, whatever the gauge says. Detection is inline rather than tick-driven, so a Suggested-threshold cue fires on the occurrence that crosses it and tick cadence is never the explanation for a missing cue.
+
+Measured deliberately at the fingerprint-feed capture: a canary storm producing 936 span-events and 936 observer invocations showed `gauge=1` alongside `storms_detected_total` 0→2, with `storm.detected` firing at occurrence 5 (suggested) and 10 (autonomous) on one shared fingerprint. Anyone reading that gauge expecting 6 — or expecting 936 — would have called a perfectly healthy run broken. Applies to any future acceptance criterion, probe, or verdict that reads storm-detector state: assert on the latched totals, and treat the gauge as a point-in-time distinct-count only.
+
+---
+
 ## 2026-08-14 — Route entry provenance goes in the trailing parenthetical, never a free-standing sentence
 
 A working-route entry has exactly three readable parts: the WHAT-not-HOW body, an optional trailing parenthetical carrying identity and provenance (`(P-070 · intent F10)`, `(operator-directed {date}; evidence: {pointer})`), and the named annotation classes `PREREQ:` / `CARRY:` / `BLOCKED-ON:` appended after a `·`. Anything else — including a grammatically fine free-standing provenance sentence like "Operator-directed at the {date} wrap; measured by {source}." — is structurally invisible: it is neither a title-hint nor a named annotation class, so the fold list that promotion (`/andromeda-phase`) walks when it folds an entry into chunk scope will not know the text exists. The facts silently fail to travel from route to scope.

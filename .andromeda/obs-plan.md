@@ -98,7 +98,7 @@ Optional fields supported per `fields` map: `trace_id` / `span_id` (W3C tracepar
 
 - **Trace context propagation:** W3C `traceparent` header (HTTP) and gRPC metadata (`grpc-trace-bin`) extracted at receiver entry per arch Standard Contracts. The extracted traceparent is attached to the local `tracing` span as a regular field (`%traceparent`); downstream `#[tracing::instrument]` calls inherit via `tracing::Span::current()` so a single trace_id ties together the gRPC ingest span → DuckDB append span → TauRPC `traces.query` span → frontend channel emit. IPC envelope (TauRPC command struct) carries optional `traceparent` field; receiver handlers extract and attach to span fields. Real-time push streams (`pulse://stream/spans`, etc.) carry trace context in Arrow metadata column (`_trace_context` schema field) for end-to-end correlation. NOTE: this propagation is for correlation across the product's internal pipeline — the `traceparent` value is treated as an opaque string in `tracing` events, not bound to any OTel SDK trace context.
 
-- **Heartbeat ticks:** Long-running subsystems emit `tracing::info!(target: "{module}.tick", ...)` events every 10–30 seconds via `tokio::time::interval`: `ingest.tick` (`span_count`, `buffer_capacity_pct`, `broadcast_subscribers`), `buffer.tick` (`rows_ingested`, `retention_window_active`, `eviction_count`), `viz.tick` (`query_latency_ms`, `subscribers_active`), `plugins.tick` (`loaded_count`, `active_invocations`). Stall detection: agent reads recent ticks via tail of JSON file; missing tick for >45s = stall signal. `health` IPC command exposes the same fields synchronously for active liveness probing per arch Standard Contracts.
+- **Heartbeat ticks:** Long-running subsystems emit `tracing::info!(target: "{module}.tick", ...)` events every 10–30 seconds via `tokio::time::interval`: `ingest.tick` (`span_count`, `buffer_capacity_pct`, `broadcast_subscribers`), `buffer.tick` (`rows_ingested`, `retention_window_active`, `eviction_count`, `span_events_seen`, `fingerprints_computed`, `observer_invocations`), `viz.tick` (`query_latency_ms`, `subscribers_active`), `plugins.tick` (`loaded_count`, `active_invocations`). Stall detection: agent reads recent ticks via tail of JSON file; missing tick for >45s = stall signal. `health` IPC command exposes the same fields synchronously for active liveness probing per arch Standard Contracts.
 
 **Critical paths (must-trace):**
 
@@ -352,6 +352,7 @@ The two surfaces NEVER intersect: external client OTLP data lives in DuckDB and 
 | Conceptual type | Use case | Example tracing targets |
 |-----------------|----------|-------------------------|
 | Counter (monotonic) | Count of events accumulated over time | `metric.buffer.evicted_span_count` (per tick increment), `metric.ingest.span.count` (per heartbeat) |
+| Counter (monotonic, tick-aggregated as FIELDS) | Fingerprint-feed throughput — `span_events_seen` / `fingerprints_computed` / `observer_invocations`, folded once per batch by `BufferState::record_feed_counts` and ridden out as fields on the existing 15s `buffer.tick` rather than as separate `metric.buffer.*` targets. Counts only, no labels. Equality of `observer_invocations` with `fingerprints_computed` is the signal that the storm detector's feed is actually being fed, rather than that being inferred from downstream silence. Per-span-event emission is barred by the §11 hot-path rule | fields on `buffer.tick` |
 | Distribution / "histogram" | Per-event value samples; agent computes p50/p95/p99/max from event stream | `metric.snapshot.token_count_ms`, `metric.webgpu.frame_duration_ms`, `metric.buffer.memory_bytes`, `metric.trace.latency_percentiles` |
 | Gauge | Current state value sampled per tick | `metric.ingest.channel.broadcast_subscribers`, `metric.buffer.rows_active`, `metric.plugins.loaded_count` |
 
@@ -409,7 +410,7 @@ The two surfaces NEVER intersect: external client OTLP data lives in DuckDB and 
 | Level | Use case | Example |
 |-------|----------|---------|
 | `error` | Module-boundary errors + captured panics + unrecoverable failures | `error!(target: "app.panic.fatal", "panic")`, `error!(target: "ingest.grpc.parse.error", ...)` on malformed OTLP |
-| `warn` | Recoverable errors + degraded performance + retry-able | `warn!(target: "config.load.path_validation", "path canonicalization rejected")` on CWE-22 violation; `warn!(target: "mcp.gate.check", "MCP enabled but feature flag absent")` |
+| `warn` | Recoverable errors + degraded performance + retry-able | `warn!(target: "config.load.path_validation", "path canonicalization rejected")` on CWE-22 violation; `warn!(target: "mcp.gate.check", "MCP enabled but feature flag absent")`; `warn!(target: "app.boot.buffer.degraded", reason, consequence)` — fires ONCE per boot when the buffer connection is absent, because the fallback drains and discards ingest batches while ingest's own counters keep climbing, making a degraded boot otherwise indistinguishable from a healthy one |
 | `info` | Boundary call summaries + state transitions + heartbeat ticks | `info!(target: "ingest.grpc", "export received N spans")`, `info!(target: "ingest.tick", "heartbeat")` |
 | `debug` | Internal control flow detail (gated by `ANDROMEDA_PULSE_LOG_LEVEL=debug` or `RUST_LOG=debug`) | `debug!(target: "buffer.append", "writing to ring buffer")` |
 | `trace` | Span events + per-record processing detail (gated by `ANDROMEDA_PULSE_LOG_LEVEL=trace` or `RUST_LOG=trace`) | `trace!(target: "arrow.ipc.decode", "column {:?} validated")` — log at entry only if unhidden by flag |
@@ -512,7 +513,8 @@ std::panic::set_hook(Box::new(|info| {
 
 **Default-deny posture:** unknown attribute types redacted by default; only explicitly allowlisted fields logged. Whitelist per module:
 - `ingest`: `span_count`, `service` (not attributes)
-- `buffer`: `rows_ingested`, `eviction_count`, `memory_bytes`, `retention_window_seconds`
+- `buffer`: `rows_ingested`, `eviction_count`, `memory_bytes`, `retention_window_seconds`, `span_events_seen`, `fingerprints_computed`, `observer_invocations` (the three feed counters are aggregate counts only — never service / span / fingerprint identity)
+- `app.boot.buffer.degraded`: `reason`, `consequence` (bounded static strings; explicit leaf entry — the `for_target` fallback would otherwise resolve this to an unrelated `app`-prefixed field set and redact both)
 - `plugin`: `plugin_name`, `plugin_path_basename`, `capability_name`, `error_msg`, `duration_ms`
 - `snapshot`: `token_budget`, `token_count_actual`, `dedup_count`, `time_range_start`, `time_range_end`
 - `viz`: `query_id`, `param_count`, `row_count`, `latency_ms`

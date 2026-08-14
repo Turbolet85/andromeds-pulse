@@ -1,0 +1,8 @@
+[
+{
+"sql": "SELECT symbol, crate, file FROM symbol WHERE file LIKE '%pulse-app/ui%' LIMIT 5;",
+"rows": 0,
+"result": [],
+"db_state": "fresh"
+}
+]

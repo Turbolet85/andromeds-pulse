@@ -1,0 +1,486 @@
+{
+  "passA_themes": [
+    {
+      "id": "T1",
+      "name": "raw-twin save contract heavier than the (already-clean) agent returns warrant",
+      "obstacle": "phase-distill 'save-raw-return-then-strip' + wrap-reconcile '7 per-doc .raw-fanout-{doc}.md' twin discipline",
+      "n": 11,
+      "chunks": [
+        "2026-07-05-constellation-severity-live-wiring",
+        "2026-07-05-legible-labeled-constellation",
+        "2026-07-06-incidents-panel-dropdown-layout-bug",
+        "2026-07-07-plain-language-connection-status",
+        "2026-07-07-traces-table-auto-refresh",
+        "2026-07-08-self-explaining-empty-states",
+        "2026-07-09-traces-table-layout-polish"
+      ],
+      "natures": {
+        "process": 11
+      },
+      "steps_seen": [
+        "phase/distill",
+        "wrap-session/reconcile"
+      ],
+      "above_threshold": true,
+      "facts": [
+        {
+          "chunk": "2026-07-05-legible-labeled-constellation",
+          "step": "phase/distill",
+          "nature": "process",
+          "note": "saved .raw-* via cp of stripped extracts + reconstructed obs preamble rather than re-emitting each agents verbatim return; content faithfully preserved"
+        },
+        {
+          "chunk": "2026-07-05-legible-labeled-constellation",
+          "step": "wrap-session/reconcile",
+          "nature": "process",
+          "note": "saved a consolidated .raw-fanout-summary.md instead of 7 per-doc .raw-fanout-{doc}.md files; all 7 returned proposals:[], consolidated for efficiency, verdicts+reasons faithfully preserved"
+        },
+        {
+          "chunk": "2026-07-05-constellation-severity-live-wiring",
+          "step": "phase/distill",
+          "nature": "process",
+          "note": "skipped the .raw-{specialty}.md raw-twin saves; distiller returns were clean (began at the header, no preamble/trailing to strip) so stripped == raw — wrote only the 7 stripped {specialty}.md as both audit + synthesis input"
+        },
+        {
+          "chunk": "2026-07-05-constellation-severity-live-wiring",
+          "step": "wrap-session/reconcile",
+          "nature": "process",
+          "note": "consolidated the 7 .raw-fanout-{doc}.md twins into one fanout-results.md — all 7 returned proposals: [] cleanly (nothing to strip/parse), a single audit table serves; mirrors the phase distill raw-twin compression"
+        },
+        {
+          "chunk": "2026-07-06-incidents-panel-dropdown-layout-bug",
+          "step": "wrap-session/reconcile",
+          "nature": "process",
+          "note": "saved one consolidated fanout-result.md instead of 7 individual .raw-fanout-{doc}.md files; all 7 returned proposals:[] + the raws are in-context, so the zero-drift trace is fully captured"
+        },
+        {
+          "chunk": "2026-07-07-traces-table-auto-refresh",
+          "step": "phase/distill",
+          "nature": "process",
+          "note": "extracts needed no stripping (raw==stripped); wrote canonical {specialty}.md from context then cp to .raw-* rather than save-raw-return-then-strip — byte-identical artifacts"
+        },
+        {
+          "chunk": "2026-07-07-traces-table-auto-refresh",
+          "step": "wrap-session/reconcile",
+          "nature": "process",
+          "note": "saved a consolidated fanout-summary.md capturing all 7 proposals:[] verdicts instead of 7 individual .raw-fanout-{doc}.md raw returns — all returns were empty so there was nothing to inspect; the consolidated form preserves the verdicts + reasons"
+        },
+        {
+          "chunk": "2026-07-07-plain-language-connection-status",
+          "step": "phase/distill",
+          "nature": "process",
+          "note": "wrote stripped extracts via Write then cp-d to .raw-* twins (not raw-first-then-strip); returns had no preamble/trailing so raw==stripped and both files match the contract"
+        },
+        {
+          "chunk": "2026-07-08-self-explaining-empty-states",
+          "step": "phase/distill",
+          "nature": "process",
+          "note": "saved stripped extract to {specialty}.md first then cp'd to .raw-{specialty}.md, vs the documented raw-first-then-strip order; agent returns had no preamble/trailing so raw==stripped, both files byte-identical either way"
+        },
+        {
+          "chunk": "2026-07-08-self-explaining-empty-states",
+          "step": "wrap-session/reconcile",
+          "nature": "process",
+          "note": "saved a consolidated {run_dir}/fanout-results.md capturing all 7 verdicts + the 1 proposal, instead of 7 per-doc .raw-fanout-{doc}.md files; audit content (proposals+verdicts) preserved in one file"
+        },
+        {
+          "chunk": "2026-07-09-traces-table-layout-polish",
+          "step": "phase/distill",
+          "nature": "process",
+          "note": "skipped writing the .raw-{specialty}.md twins — the 7 Explore returns were already clean (no preamble/trailing to strip, raw==stripped), so only the stripped {specialty}.md extracts were written; raw provenance is in the transcript."
+        }
+      ]
+    },
+    {
+      "id": "T2",
+      "name": "the headful smoke harness can't validate a fresh webview build (stale embedded frontend) + --release cold default",
+      "obstacle": "scripts/agent-run.sh + cargo xtask self-verify smoke default",
+      "n": 8,
+      "chunks": [
+        "2026-07-05-constellation-severity-live-wiring",
+        "2026-07-06-incidents-panel-dropdown-layout-bug",
+        "2026-07-07-plain-language-connection-status",
+        "2026-07-07-traces-table-auto-refresh",
+        "2026-07-08-self-explaining-empty-states",
+        "2026-07-09-traces-table-layout-polish",
+        "2026-07-10-incidents-floating-window-disclosure"
+      ],
+      "natures": {
+        "process": 8
+      },
+      "steps_seen": [
+        "implement/fix-loop",
+        "implement/smoke"
+      ],
+      "above_threshold": true,
+      "facts": [
+        {
+          "chunk": "2026-07-05-constellation-severity-live-wiring",
+          "step": "implement/smoke",
+          "nature": "process",
+          "note": "drove P3 via the 2026-07-05 memory-directive storm boot-smoke (launch debug pulse-app.exe + inject_demo storm + obs-log incident verify + specific-PID powershell Stop-Process cleanup) instead of scripts/agent-run.sh run/status — the harness boots+status-checks but does NOT inject telemetry, so it cannot verify this chunk fix effect (incident found under a live storm); Git Bash kill fails on Windows PIDs so cleanup used powershell Stop-Process -Id"
+        },
+        {
+          "chunk": "2026-07-06-incidents-panel-dropdown-layout-bug",
+          "step": "implement/smoke",
+          "nature": "process",
+          "note": "used manual warm-re-embed boot (cargo build -p pulse-app -> launch debug binary -> poll -> seed -> obs-log -> operator visual verify -> specific-PID Stop-Process) instead of agent-run.sh/self-verify, which boot the stale-embedded frontend"
+        },
+        {
+          "chunk": "2026-07-07-traces-table-auto-refresh",
+          "step": "implement/smoke",
+          "nature": "process",
+          "note": "drove the operator-directed warm re-embed boot smoke (npm build + cargo build -p pulse-app re-embed + launch + inject_demo + obs-log + operator visual verify + Stop-Process by PID) instead of the skill-default agent-run.sh harness — for a Tauri compile-time-embedded (generate_context) webview-only chunk, agent-run.sh boot is cargo run --release COLD and self-verify shows the OLD frontend, so the warm re-embed is the fitting smoke per testing.md 2026-07-05"
+        },
+        {
+          "chunk": "2026-07-07-plain-language-connection-status",
+          "step": "implement/fix-loop",
+          "nature": "process",
+          "note": "ran npm run test:a11y (a11y half) + the warm re-embed boot (fresh-frontend boot + clean-quit) instead of the plan-listed cargo xtask self-verify literal command; self-verify boots the release binary with the STALE embedded frontend (2026-07-05 directive) so the warm re-embed is the operator-directed fresher equivalent"
+        },
+        {
+          "chunk": "2026-07-07-plain-language-connection-status",
+          "step": "implement/smoke",
+          "nature": "process",
+          "note": "used the warm re-embed recipe (npm build + cargo build -p pulse-app to re-embed fresh frontend + launch the debug binary) instead of agent-run.sh (cold cargo run --release shows the STALE embedded frontend) — the 2026-07-05 UI-chunk boot-smoke directive"
+        },
+        {
+          "chunk": "2026-07-08-self-explaining-empty-states",
+          "step": "implement/smoke",
+          "nature": "process",
+          "note": "ran the operator-directed warm re-embed manual boot (npm build -> cargo build -p pulse-app -> launch -> obs-log + operator visual) instead of scripts/agent-run.sh or cargo xtask self-verify, per the boot-smoke-webview-warm-reembed memory + frontend.md 2026-07-05 — the harness/self-verify boot a STALE-embedded binary (old frontend) for a webview-only chunk"
+        },
+        {
+          "chunk": "2026-07-09-traces-table-layout-polish",
+          "step": "implement/smoke",
+          "nature": "process",
+          "note": "drove the P3 smoke via a custom warm-re-embed PowerShell driver (npm build -> cargo build -p pulse-app re-embed -> launch -> inject_demo -> obs-log verify -> Stop-Process cleanup) instead of scripts/agent-run.sh, per the 2026-07-05 boot-smoke memory (agent-run boots COLD via cargo run --release; warm re-embed is the webview-only-chunk method)."
+        },
+        {
+          "chunk": "2026-07-10-incidents-floating-window-disclosure",
+          "step": "implement/smoke",
+          "nature": "process",
+          "note": "warm-re-embed debug boot smoke used instead of plan's cargo xtask self-verify (--release cold rebuild costly on 26G); cleanup deferred — app left running (PID 79584) for the operator cross-window layout visual verify per the 2026-07-05 layout-blind directive"
+        }
+      ]
+    },
+    {
+      "id": "T3",
+      "name": "the recursive-delete deny rule blocks rm -rf in smoke setup",
+      "obstacle": "sandbox destructive-command / recursive-delete guard",
+      "n": 3,
+      "chunks": [
+        "2026-07-06-incidents-panel-dropdown-layout-bug",
+        "2026-07-07-traces-table-auto-refresh",
+        "2026-07-08-self-explaining-empty-states"
+      ],
+      "natures": {
+        "environment": 2,
+        "process": 1
+      },
+      "steps_seen": [
+        "implement/smoke"
+      ],
+      "above_threshold": true,
+      "facts": [
+        {
+          "chunk": "2026-07-06-incidents-panel-dropdown-layout-bug",
+          "step": "implement/smoke",
+          "nature": "environment",
+          "note": "rm -rf in a compound smoke-setup command was permission-denied (recursive-delete deny rule); restructured to granular mkdir-only steps + a fresh unique subdir instead of delete-then-recreate"
+        },
+        {
+          "chunk": "2026-07-07-traces-table-auto-refresh",
+          "step": "implement/smoke",
+          "nature": "process",
+          "note": "rm -rf of the temp data dir was permission-denied (destructive-command guard); used mkdir -p only per the testing.md 2026-07-05 split-into-granular-safe-steps guidance"
+        },
+        {
+          "chunk": "2026-07-08-self-explaining-empty-states",
+          "step": "implement/smoke",
+          "nature": "environment",
+          "note": "a compound command using rm -rf to reset the temp data dir was permission-denied; restructured to granular safe steps (mkdir -p on a fresh-named dir, no rm)"
+        }
+      ]
+    },
+    {
+      "id": "T4",
+      "name": "the v3 migration put the version dir at repo root (+ a gitignored -incubator sibling), not under .andromeda/",
+      "obstacle": "active-version / version-dir location assumption",
+      "n": 3,
+      "chunks": [
+        "2026-07-07-traces-table-auto-refresh",
+        "orientation"
+      ],
+      "natures": {
+        "environment": 2,
+        "process": 1
+      },
+      "steps_seen": [
+        "new-session/orientation",
+        "phase/take-up"
+      ],
+      "above_threshold": true,
+      "facts": [
+        {
+          "chunk": null,
+          "step": "new-session/orientation",
+          "nature": "environment",
+          "note": "version dir at repo root ./andromeda-pulse-0.3.0/ not under .andromeda/; initial glob .andromeda/{version}/* missed, located via repo-wide find (master-route arrows are root-relative)"
+        },
+        {
+          "chunk": "2026-07-07-traces-table-auto-refresh",
+          "step": "phase/take-up",
+          "nature": "process",
+          "note": "active-version rule highest {project}-X.Y.Z dir would pick andromeda-pulse-0.4.0-incubator over the correct andromeda-pulse-0.3.0; resolved by requiring clean X.Y.Z form + master-heading agreement + confirming the incubator dir has no working-route/chunks, not the skill ask-on-ambiguity fallback"
+        },
+        {
+          "chunk": null,
+          "step": "new-session/orientation",
+          "nature": "environment",
+          "note": "v3 version dir is at project root (./andromeda-pulse-0.3.0); first glob assumed a .andromeda/ subdir and found nothing, second find located working-route.md + verification-matrix.json"
+        }
+      ]
+    },
+    {
+      "id": "T5",
+      "name": "the full multi-tool a11y sweep (~1min) is too heavy to re-run on byte-identical inputs",
+      "obstacle": "the light-gate / fix-loop 'run the full test:a11y chain' expectation",
+      "n": 3,
+      "chunks": [
+        "2026-07-05-legible-labeled-constellation",
+        "2026-07-08-self-explaining-empty-states",
+        "2026-07-09-traces-table-layout-polish"
+      ],
+      "natures": {
+        "process": 1,
+        "resources": 2
+      },
+      "steps_seen": [
+        "implement/fix-loop",
+        "wrap-session/gates"
+      ],
+      "above_threshold": true,
+      "facts": [
+        {
+          "chunk": "2026-07-05-legible-labeled-constellation",
+          "step": "implement/fix-loop",
+          "nature": "process",
+          "note": "ran verify:contrast + the targeted p11 playwright spec instead of the full npm run test:a11y chain (lighthouse/pa11y/aggregator/regression-detector deferred as heavy/CI-only); needed a manual npm run build first because the playwright-a11y webServer serves pre-built dist without building"
+        },
+        {
+          "chunk": "2026-07-08-self-explaining-empty-states",
+          "step": "wrap-session/gates",
+          "nature": "resources",
+          "note": "did NOT repeat the ~1min multi-tool a11y sweep at the P7 light gate — it ran green at P2 THIS session with byte-identical webview-source inputs (only docs/specs/route/state changed since); re-ran the fast trio (typecheck/lint/vitest) instead. Source-delta-proportional spirit applied to an already-green frontend-meaningful gate on unchanged inputs."
+        },
+        {
+          "chunk": "2026-07-09-traces-table-layout-polish",
+          "step": "wrap-session/gates",
+          "nature": "resources",
+          "note": "light gate re-ran the fast webview gates (typecheck/lint/vitest 739 green) but did NOT re-run the heavy ~1min a11y sweep — the code + ui/dist are byte-identical to /implement (wrap touched no src/ + no rebuild) where the sweep passed 0/0, so the re-run is redundant."
+        }
+      ]
+    }
+  ],
+  "passA_singletons": [
+    {
+      "chunk": "2026-07-05-legible-labeled-constellation",
+      "step": "wrap-session/gates",
+      "nature": "process",
+      "solution": "removed-cause",
+      "note": "pre-existing untracked andromeda-pulse-0.4.0-incubator/ (out-of-chunk 0.4.0 planning material) would ride the chunk commit via git add -A; per operator choice gitignored it before commit so the P-069 commit stays chunk-scoped"
+    },
+    {
+      "chunk": "2026-07-05-constellation-severity-live-wiring",
+      "step": "phase/research",
+      "nature": "process",
+      "solution": "workaround",
+      "note": "skipped the documented code-graph-query-first step (tree.db available, not cold-start); used targeted Grep+Read — the defect was a value-flow question (what string main.rs:686 assigns vs what inference_runtime.rs:686 stamps) that symbol/refs/calls views do not surface but greps resolve directly"
+    },
+    {
+      "chunk": "2026-07-05-constellation-severity-live-wiring",
+      "step": "phase/validate",
+      "nature": "process",
+      "solution": "workaround",
+      "note": "extended P5.4 documented LINK-existing-cap action to MINT a new cap (P-079) for this operator-surfaced chunk — see the contract.matrix-claim friction"
+    },
+    {
+      "chunk": "2026-07-05-constellation-severity-live-wiring",
+      "step": "implement/code",
+      "nature": "process",
+      "solution": "workaround",
+      "note": "combined the plan resolve_incident_workspace_key->String + separate main.rs fallback into ONE resolve_workspace_for_incidents(detected,data_dir)->(String,DigestProjectContext) — parity guaranteed at one destructure call site, avoids naming DigestProjectContext in main.rs + a subtle closure move; a refinement of the plan single-source intent"
+    },
+    {
+      "chunk": "2026-07-05-constellation-severity-live-wiring",
+      "step": "implement/code",
+      "nature": "process",
+      "solution": "workaround",
+      "note": "proof tests in the integration file pulse-app/tests/*.rs (not the plan step-5 colocated phrasing) per research [lib]test=false — colocated pulse-app mod tests compile but never RUN under nextest (session-learnings 2026-05-20)"
+    },
+    {
+      "chunk": "2026-07-05-constellation-severity-live-wiring",
+      "step": "implement/fix-loop",
+      "nature": "environment",
+      "solution": "workaround",
+      "note": "ran cargo build --workspace --tests --jobs 4 before the plan cargo nextest --workspace to de-race the documented libduckdb_sys rlib-format race + throttle parallel rustc against OOM on this 200GB host (session-learnings 2026-05-31/2026-06-28)"
+    },
+    {
+      "chunk": "2026-07-07-plain-language-connection-status",
+      "step": "phase/distill",
+      "nature": "environment",
+      "solution": "workaround",
+      "note": "the cp step cd-d into the run dir; Bash cwd persisted so the next friction-append on a relative path failed (no such file) and was retried after cd back to project root"
+    },
+    {
+      "chunk": "2026-07-07-plain-language-connection-status",
+      "step": "implement/code",
+      "nature": "resources",
+      "solution": "workaround",
+      "note": "chrono is a buffer DEV-dep only (research grep saw it in retention.rs tests); switched record_rows_appended first-append anchor from chrono::Utc::now() to std::time::SystemTime (std-only, same unix-epoch nanos, comparable with health.rs chrono now)"
+    },
+    {
+      "chunk": "2026-07-07-plain-language-connection-status",
+      "step": "implement/fix-loop",
+      "nature": "process",
+      "solution": "workaround",
+      "note": "an fmt --check | tail && echo pipeline masked fmt non-zero exit (misleading FMT-CLEAN); caught the diff in the tail output, fixed health.rs, re-verified fmt --check raw"
+    },
+    {
+      "chunk": "2026-07-07-plain-language-connection-status",
+      "step": "wrap-session/curation",
+      "nature": "process",
+      "solution": "workaround",
+      "note": "Tier-2 frontend.md append used bash cat >> rather than the prescribed .tmp+rename atomic write (append preserves everything above the trailing Session Additions heading, adds at EOF only); Tier-3 used the atomic Edit tool"
+    },
+    {
+      "chunk": "2026-07-09-traces-table-layout-polish",
+      "step": "wrap-session/reconcile",
+      "nature": "process",
+      "solution": "workaround",
+      "note": "edited the Traces wireframe PROSE (Wireframe notes + Trace-data-table component) to current truth but left the ASCII sketch box-drawing unchanged (error-prone exact-match on the box chars; flagged as illustrative-lag in the notes + sidecar) — the prose is the reader-relied-upon surface."
+    },
+    {
+      "chunk": "2026-07-10-incidents-floating-window-disclosure",
+      "step": "implement/fix-loop",
+      "nature": "product-logic",
+      "solution": "workaround",
+      "note": "restructured Report hosting (widget cross-window → inside the findings window) to resolve the plan-gap + make the Report single-page a11y-testable (p9)"
+    }
+  ],
+  "passB": {
+    "deferred_forever": {
+      "facts": 7,
+      "signals": 15,
+      "chunks": [
+        "2026-07-05-anomaly-surfacing",
+        "2026-07-05-constellation-severity-live-wiring",
+        "2026-07-05-legible-labeled-constellation",
+        "2026-07-06-incidents-panel-dropdown-layout-bug",
+        "2026-07-07-traces-table-auto-refresh",
+        "2026-07-08-self-explaining-empty-states",
+        "2026-07-09-traces-table-layout-polish",
+        "2026-07-10-incidents-floating-window-disclosure"
+      ],
+      "fact_detail": [
+        {
+          "chunk": "2026-07-05-legible-labeled-constellation",
+          "step": "wrap-session/gates",
+          "nature": "resources",
+          "note": "Rust workspace compile-gates (clippy/nextest --workspace + capability-drift) deferred at the light gate - zero .rs delta webview-only chunk; cold workspace rebuild avoided; re-run at next source-touching chunk"
+        },
+        {
+          "chunk": "2026-07-05-constellation-severity-live-wiring",
+          "step": "wrap-session/gates",
+          "nature": "resources",
+          "note": "deferred the light-gate cold re-run of cargo nextest --workspace + clippy --workspace --all-features — green at /implement THIS session with no src/ delta during wrap, so a cold re-run is redundant + OOM/disk-costly on this 200GB host (source-delta-proportional); changed-surface + capability-drift (after bindings regen) re-verified green"
+        },
+        {
+          "chunk": "2026-07-06-incidents-panel-dropdown-layout-bug",
+          "step": "implement/code",
+          "nature": "product-logic",
+          "note": "design-system 'no unstyled web scrollbars' ban vs adding overflowY:auto; matched the pre-existing Modal.tsx/CommandPalette.tsx bare-overflowY precedent + deferred a project-wide scrollbar-styling pass (out of this chunk's layout-fix scope); surfaced for the report"
+        },
+        {
+          "chunk": "2026-07-06-incidents-panel-dropdown-layout-bug",
+          "step": "wrap-session/gates",
+          "nature": "resources",
+          "note": "workspace Rust gates (clippy/nextest --workspace, capability-drift) + self-verify boot half deferred at the light gate on zero-.rs-delta — a cold rebuild is costly/OOM-risky + a no-op for this webview chunk; build/test:a11y not re-run (verified-at-implement, unchanged webview source); re-run the deferred gates at the next .rs-touching chunk"
+        },
+        {
+          "chunk": "2026-07-07-traces-table-auto-refresh",
+          "step": "wrap-session/gates",
+          "nature": "resources",
+          "note": "honored the source-delta-proportional deferral of the Rust compile-half (clippy/nextest --workspace/capability-drift) at the wrap light-gate rather than a cold rebuild-and-run — zero .rs delta = a no-op + OOM/disk-risky cold rebuild avoided; due at the next .rs-touching chunk (continues the P-080 deferral)"
+        },
+        {
+          "chunk": "2026-07-09-traces-table-layout-polish",
+          "step": "implement/code",
+          "nature": "process",
+          "note": "D2 (Traces wireframe refresh) was planned as an implement edit of .andromeda/layout-templates.md, but implement is read-only on the specs -> deferred to wrap as a spec amendment; the 6 code/test files were edited normally."
+        },
+        {
+          "chunk": "2026-07-10-incidents-floating-window-disclosure",
+          "step": "wrap-session/gates",
+          "nature": "resources",
+          "note": "cargo nextest run --workspace RUN honored-deferred at the light gate — cold ~30-binary test-link OOM/disk-risky on 26G free; changed-surface gates re-ran green; isolated additive window.rs label enum is compile+lint+ACL+boot-smoke verified"
+        }
+      ]
+    },
+    "override": {
+      "n": 5,
+      "detail": [
+        {
+          "chunk": "2026-07-05-legible-labeled-constellation",
+          "step": "implement/smoke",
+          "note": "ran the operator warm-re-embed manual smoke (npm build -> cargo build -p pulse-app re-embed -> launch -> inject_demo -> obs-verify -> Stop-Process by PID) instead of scripts/agent-run.sh, per the standing directive that agent-run.sh cargo-run-release boot is COLD + shows the old embedded frontend for webview-only chunks"
+        },
+        {
+          "chunk": "2026-07-05-legible-labeled-constellation",
+          "step": "wrap-session/route-resolve",
+          "note": "the 2 new-chunk-ahead entries would normally HALT+dialogue at P5; operator pre-directed them via the option-1 choice earlier, so P5 applied the pre-approved trajectory without a fresh HALT"
+        },
+        {
+          "chunk": "2026-07-05-constellation-severity-live-wiring",
+          "step": "wrap-session/route-resolve",
+          "note": "P5 trajectory edits (new incidents-dropdown-bug entry + auto-refresh priority-bump) are HALT+dialogue-class; the operator PRE-PROVIDED the trajectory decisions + framing in the wrap-trigger message (carry the 2 issues forward as route entries with the above framing; do NOT fix them here), so I applied their directive without firing a live P5 AskUserQuestion HALT — dialogue front-loaded into the trigger, not skipped"
+        },
+        {
+          "chunk": "2026-07-06-incidents-panel-dropdown-layout-bug",
+          "step": "phase/plan",
+          "note": "working-route's stated --color-inset fix mechanism falsified by design-system+a11y research (popovers=--color-raised-2); surfaced via P4 AskUserQuestion; operator confirmed the correction (keep --color-raised-2). Outcome (bounded non-white popover) unchanged."
+        },
+        {
+          "chunk": "2026-07-07-plain-language-connection-status",
+          "step": "implement/smoke",
+          "note": "operator missed the first warm-boot start (which had also self-exited 132 at teardown); re-launched fresh at operator request for a watched visual verify — operator clean-quit exit 0, footer line confirmed"
+        }
+      ]
+    },
+    "chronic_degrade": {
+      "tooling.gate-deferral": [
+        "2026-07-05-anomaly-surfacing",
+        "2026-07-05-constellation-severity-live-wiring",
+        "2026-07-06-incidents-panel-dropdown-layout-bug",
+        "2026-07-07-plain-language-connection-status",
+        "2026-07-07-traces-table-auto-refresh",
+        "2026-07-08-self-explaining-empty-states",
+        "2026-07-09-traces-table-layout-polish",
+        "2026-07-10-incidents-floating-window-disclosure"
+      ],
+      "tooling.harness-friction": [
+        "2026-07-05-anomaly-surfacing",
+        "2026-07-05-constellation-severity-live-wiring",
+        "2026-07-06-incidents-panel-dropdown-layout-bug",
+        "2026-07-07-plain-language-connection-status",
+        "2026-07-09-traces-table-layout-polish",
+        "2026-07-10-incidents-floating-window-disclosure"
+      ],
+      "tooling.subprocess-bounds": [
+        "2026-07-05-legible-labeled-constellation",
+        "2026-07-07-traces-table-auto-refresh"
+      ]
+    }
+  }
+}

@@ -1,0 +1,9 @@
+chore(setup-project): delta-rerun for 1 amendment (chunk #92 incident-creation producer — route-append)
+
+Amendment 2026-05-30T11-31-57-append-chunk-92-incident-creation-producer propagated: route.md (Epoch 9 chunk #92 + Total chunks 91->92 + Decisions Log) -> CLAUDE.md pointer-table (9 epochs / 91 -> 92 chunks). Type 7 Form 1; flag_used --allow-route-append.
+
+Files touched: 3 (route.md evolve edits + state.yaml active-entry/propagated_by_run + CLAUDE.md GENERATED:setup:pointer-table). grep-expansion added nothing (stale count only at CLAUDE.md:57; session-handoff.md:22 is wrap-session territory). Tier 2 (7 rules) + Tier 3 (all docs) + harness + reviewer + settings + gitignore preserved byte-identical. Cross-skill diff: 6/6 shared contracts byte-identical across triangle skills.
+
+state.yaml.spec_amendments.active[1].propagated_by_run set; marker Lifecycle [x] Propagated. Next: /andromeda-wrap-session to archive the amendment + update session-handoff Spec Amendments section.
+
+Co-Authored-By: Claude Opus 4.8 (1M context) <noreply@anthropic.com>

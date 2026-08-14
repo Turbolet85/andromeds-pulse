@@ -1,0 +1,1208 @@
+[
+  {
+    "skill": "andromeda-implement",
+    "step": "smoke",
+    "type": "tooling.harness-friction",
+    "n": 6,
+    "chunks": [
+      "2026-07-05-anomaly-surfacing",
+      "2026-07-05-constellation-severity-live-wiring",
+      "2026-07-06-incidents-panel-dropdown-layout-bug",
+      "2026-07-07-plain-language-connection-status",
+      "2026-07-09-traces-table-layout-polish",
+      "2026-07-10-incidents-floating-window-disclosure"
+    ],
+    "impact": {
+      "dialogue_rounds": 4,
+      "retries": 1
+    },
+    "weight": 15,
+    "rate": 0.67,
+    "denom": 9,
+    "above_threshold": true,
+    "whats": [
+      {
+        "chunk": "2026-07-05-anomaly-surfacing",
+        "what": "npm run lint:a11y --prefix pulse-app/ui fails on Windows Git Bash: the script's inline --rule 'jsx-a11y/x: error' args do not survive shell/npm quoting (eslint: No files matching pattern error'). NOT a code violation — jsx-a11y coverage confirmed via npm run lint (extends jsx-a11y/recommended, passed exit 0). Pre-existing harness quirk.",
+        "impact": {},
+        "artifacts": [
+          "pulse-app/ui/package.json"
+        ]
+      },
+      {
+        "chunk": "2026-07-05-constellation-severity-live-wiring",
+        "what": "obs extract acceptance wanted agent-latest.jsonl to show the active-incident resolver query with row_count_returned >= 1, but incidents.list_active.request logs item_count REDACTED by the default-deny AllowList (not allowlisted for that target) — the intended agent-verifiable signal is not visible; boot-smoke decisiveness fell back to the visible metric.pipeline.l3.active_incident_queue_depth (=5) + incidents_created_total (=1) + the passing integration test. A future obs chunk could allowlist the aggregate-safe count for that target.",
+        "impact": {},
+        "artifacts": [
+          "pulse-app/src/observability.rs"
+        ]
+      },
+      {
+        "chunk": "2026-07-06-incidents-panel-dropdown-layout-bug",
+        "what": "the project's headful boot harnesses (cargo xtask self-verify + scripts/agent-run.ps1) boot the STALE compile-time-embedded frontend, so they cannot validate a fresh webview-only change; a UI chunk must manually re-embed (npm run build -> cargo build -p pulse-app) then launch the debug binary + operator visual verify (the 2026-07-05 directive codifies this recurring workaround). Cost: warm ~35s re-embed + a manual multi-step boot + 2 operator-visual-verify dialogue rounds",
+        "impact": {
+          "dialogue_rounds": 2
+        },
+        "artifacts": [
+          "xtask/src/self_verify.rs",
+          "scripts/agent-run.ps1"
+        ]
+      },
+      {
+        "chunk": "2026-07-07-plain-language-connection-status",
+        "what": "warm-re-embed app FIRST run exited 132 (SIGILL Illegal instruction) at teardown after ~68k obs lines / 64k frame metrics; 0 app.panic.fatal, zero orphan (ports 4317/4318 freed); SECOND run operator clean-quit exit 0; known WebView2/wgpu Windows teardown class, unrelated to the chunk backend/frontend-logic changes",
+        "impact": {
+          "retries": 1
+        },
+        "artifacts": [
+          "pulse-app"
+        ]
+      },
+      {
+        "chunk": "2026-07-09-traces-table-layout-polish",
+        "what": "inject_demo runs a finite storm then exits, and the traces query uses a 60s window, so demo spans age out; with operator-look latency this yielded 2 false empty-table episodes (the table read No traces yet despite a healthy boot) that cost several diagnostic + re-inject + operator round-trips before the fix could be confirmed on populated data (a continuous-stream demo or a wider smoke query window would remove this).",
+        "impact": {
+          "dialogue_rounds": 2
+        },
+        "artifacts": [
+          "inject_demo"
+        ]
+      },
+      {
+        "chunk": "2026-07-10-incidents-floating-window-disclosure",
+        "what": "plan listed cargo xtask self-verify as the headful UI gate, but it boots --release (cold rebuild, costly on 26G disk) and cannot verify cross-window docking anyway; substituted the warm-re-embed debug boot smoke (boot health) + the full a11y playwright/lighthouse/pa11y suite (a11y/contrast/render) — equivalent coverage, but the self-verify harness was not the right fit for a webview-heavy cross-window-layout chunk",
+        "impact": {},
+        "artifacts": []
+      }
+    ]
+  },
+  {
+    "skill": "andromeda-phase",
+    "step": "plan",
+    "type": "ambiguity.scope-question",
+    "n": 3,
+    "chunks": [
+      "2026-07-06-incidents-panel-dropdown-layout-bug",
+      "2026-07-09-traces-table-layout-polish",
+      "2026-07-10-incidents-floating-window-disclosure"
+    ],
+    "impact": {
+      "dialogue_rounds": 3
+    },
+    "weight": 9,
+    "rate": 0.33,
+    "denom": 9,
+    "above_threshold": true,
+    "whats": [
+      {
+        "chunk": "2026-07-06-incidents-panel-dropdown-layout-bug",
+        "what": "popover background token: design-system materials indicated the design-correct answer (raised-2 for popovers) but it contradicted the operator's written working-route intent (--color-inset); per RESEARCH-CORRECTS-INTENT surfaced as a P4 AskUserQuestion (recommendation-first) rather than silently overriding; operator confirmed keep --color-raised-2",
+        "impact": {
+          "dialogue_rounds": 1
+        },
+        "artifacts": [
+          "plan.md",
+          "working-route.md"
+        ]
+      },
+      {
+        "chunk": "2026-07-09-traces-table-layout-polish",
+        "what": "One recommended-first scope question at P4 on the D3 label collision-avoidance approach (pure-fn heuristic vs measure-based) — a testability-vs-visual-fidelity tradeoff genuinely a user decision to make; the extracts informed the accepted recommendation (pure-fn) but did not determine it.",
+        "impact": {
+          "dialogue_rounds": 1
+        },
+        "artifacts": [
+          "plan",
+          "scope"
+        ]
+      },
+      {
+        "chunk": "2026-07-10-incidents-floating-window-disclosure",
+        "what": "2 scope questions asked in 1 AskUserQuestion round (window mechanism frontend-vs-Rust; content-reuse wrapper-vs-refactor); both materials-leaned (use-toggle-dashboard precedent; leave P-080 tests untouched) and recommended-first — decidable from the materials but load-bearing (new-TauRPC-surface vs none; a P-080-verified component's tests) so confirmed rather than silently decided; user confirmed both recommendations",
+        "impact": {
+          "dialogue_rounds": 1
+        },
+        "artifacts": [
+          "andromeda-pulse-0.3.0/chunks/2026-07-10-incidents-floating-window-disclosure/plan.md"
+        ]
+      }
+    ]
+  },
+  {
+    "skill": "andromeda-implement",
+    "step": "fix-loop",
+    "type": "tooling.gate-deferral",
+    "n": 7,
+    "chunks": [
+      "2026-07-05-anomaly-surfacing",
+      "2026-07-05-constellation-severity-live-wiring",
+      "2026-07-06-incidents-panel-dropdown-layout-bug",
+      "2026-07-07-traces-table-auto-refresh",
+      "2026-07-08-self-explaining-empty-states",
+      "2026-07-09-traces-table-layout-polish",
+      "2026-07-10-incidents-floating-window-disclosure"
+    ],
+    "impact": {
+      "deferred": 19
+    },
+    "weight": 7,
+    "rate": 0.78,
+    "denom": 9,
+    "above_threshold": true,
+    "whats": [
+      {
+        "chunk": "2026-07-05-anomaly-surfacing",
+        "what": "Zero Rust-source delta (4 TS files) -> deferred clippy --workspace, nextest --workspace --profile ci, xtask self-verify (boot half), xtask capability-drift (provably clean, no TauRPC procedure added). Changed-surface gates all ran GREEN (typecheck, lint, 683 webview tests, webview build). Deferred gates re-run at the next Rust-source-touching chunk (P-067 precedent).",
+        "impact": {
+          "deferred": 4
+        },
+        "artifacts": [
+          "plan.md"
+        ]
+      },
+      {
+        "chunk": "2026-07-05-constellation-severity-live-wiring",
+        "what": "deferred cargo xtask self-verify release-build + a11y half — backend chunk (zero pulse-app/ui frontend delta; a11y/render unchanged + already P-069/p11-proven), so the frontend-meaningful a11y half defers; boot-safety covered by the P3 debug storm boot-smoke on the already-built debug binary (a ~15min release build for an a11y-unchanged backend chunk is disproportionate)",
+        "impact": {
+          "deferred": 1
+        },
+        "artifacts": []
+      },
+      {
+        "chunk": "2026-07-06-incidents-panel-dropdown-layout-bug",
+        "what": "source-delta-proportional deferral on a zero-.rs-delta webview chunk: deferred cargo clippy --workspace + nextest --workspace + xtask capability-drift + the self-verify release-boot half (fmt --check no-op); changed-surface gates (webview lint/typecheck/vitest + build + test:a11y) all ran; DEBUG warm-re-embed boot runs at P3; re-run deferred gates at the next .rs-touching chunk",
+        "impact": {
+          "deferred": 4
+        },
+        "artifacts": [
+          "plan.md"
+        ]
+      },
+      {
+        "chunk": "2026-07-07-traces-table-auto-refresh",
+        "what": "deferred clippy + nextest --workspace + capability-drift (zero .rs delta, continuing the P-080 webview-only deferral) — due at the next .rs-touching chunk. All changed-surface gates ran green (typecheck, lint, vitest 703/703, build, test:a11y p4-live-trace-list + regression 0/0, cargo fmt).",
+        "impact": {
+          "deferred": 3
+        },
+        "artifacts": [
+          "plan.md"
+        ]
+      },
+      {
+        "chunk": "2026-07-08-self-explaining-empty-states",
+        "what": "zero .rs-delta webview chunk deferred 5 gates per the source-delta-proportional rule: cargo fmt --check, clippy --workspace --all-targets --all-features, nextest --workspace --profile ci, xtask capability-drift, and the self-verify BOOT half. Changed-surface gates all ran green: webview typecheck + lint + vitest (732) + full a11y sweep (contrast 12/12, axe 34, lighthouse 7/7, pa11y 7/7, regression 0/0). No TauRPC surface touched, so bindings.ts/capability-drift are unaffected; the P3 warm re-embed boot still runs per the operator directive.",
+        "impact": {
+          "deferred": 5
+        },
+        "artifacts": []
+      },
+      {
+        "chunk": "2026-07-09-traces-table-layout-polish",
+        "what": "Zero .rs delta -> the cold workspace cargo gates (fmt / clippy / nextest --workspace / capability-drift / self-verify BOOT half) deferred to the next .rs-touching chunk per the source-delta-proportional rule; the changed-surface webview gates (typecheck / lint / vitest 739 / a11y sweep) all ran green.",
+        "impact": {
+          "deferred": 1
+        },
+        "artifacts": [
+          "plan"
+        ]
+      },
+      {
+        "chunk": "2026-07-10-incidents-floating-window-disclosure",
+        "what": "cargo nextest run --workspace RUN deferred — after check-mode clippy --all-targets, a build-mode nextest triggers the rlib-format mismatch + a cold ~30-binary test-link on a 26G-free disk (documented OOM/disk risk); the changed Rust surface (pulse-app/window.rs additive label enum) is compile+lint-verified (clippy --all-targets --all-features) + ACL-validated (cargo build -p pulse-app) + boot-smoke-bound; workspace test RUN re-verifies unchanged crates",
+        "impact": {
+          "deferred": 1
+        },
+        "artifacts": []
+      }
+    ]
+  },
+  {
+    "skill": "andromeda-wrap-session",
+    "step": "curation",
+    "type": "ambiguity.filter-borderline",
+    "n": 7,
+    "chunks": [
+      "2026-07-05-constellation-severity-live-wiring",
+      "2026-07-05-legible-labeled-constellation",
+      "2026-07-06-incidents-panel-dropdown-layout-bug",
+      "2026-07-07-plain-language-connection-status",
+      "2026-07-07-traces-table-auto-refresh",
+      "2026-07-09-traces-table-layout-polish",
+      "2026-07-10-incidents-floating-window-disclosure"
+    ],
+    "impact": {},
+    "weight": 7,
+    "rate": 0.78,
+    "denom": 9,
+    "above_threshold": true,
+    "whats": [
+      {
+        "chunk": "2026-07-05-legible-labeled-constellation",
+        "what": "C1 (automated obs-log boot smoke is layout-blind) sat at the Filter-1 dedup edge vs the same-day testing.md boot-smoke entry; judged distinct (new directive = a visual/operator verify catches occlusion the obs-log smoke cannot) and kept as a separate entry rather than folding in",
+        "impact": {},
+        "artifacts": [
+          ".claude/rules/testing.md"
+        ]
+      },
+      {
+        "chunk": "2026-07-05-constellation-severity-live-wiring",
+        "what": "the single-source parity candidate sat near the Filter-4 confidence threshold (~0.6) — the formula implicit BASE is unspecified, so specific-technical-detail +0.2 alone reads as 0.2 while a genuine reusable technique feels ~0.6; also a borderline Filter-1 Jaccard vs the existing P-069-wrap defect entry (moderate overlap, judged distinct: defect-diagnosis vs fix-pattern). Both resolved include; no redo/dialogue.",
+        "impact": {},
+        "artifacts": []
+      },
+      {
+        "chunk": "2026-07-06-incidents-panel-dropdown-layout-bug",
+        "what": "Filter-1 dedup edge: the frontend 'fixed-webview popover cannot extend beyond the window' entry overlaps the 2026-06-30 fixed-height-not-minHeight entry (same CompactWidget surface) — judged KEEP (additive: upward/grow/floating direction fix + why-downward-fails, not a paraphrase); also the fetch-once-no-repoll confidence ~0.65 sat near the 0.6 threshold, cleared by the repeated-pattern bonus (Traces+Findings)",
+        "impact": {},
+        "artifacts": [
+          ".claude/rules/frontend.md"
+        ]
+      },
+      {
+        "chunk": "2026-07-07-traces-table-auto-refresh",
+        "what": "candidate B (a11y make-live -> SC 4.1.3 announce obligation) sat near the Filter-4 0.6 confidence threshold (~0.65) with Filter-1 topical dedup overlap against the general a11y §Status-messages/P4 coverage; kept as Tier 2 a11y because the make-live<->a11y-obligation coupling + the prev-count-ref once-announce recipe are genuinely reusable, but a demote-to-Tier-3 or filter-out was defensible.",
+        "impact": {},
+        "artifacts": [
+          ".claude/rules/a11y.md"
+        ]
+      },
+      {
+        "chunk": "2026-07-07-plain-language-connection-status",
+        "what": "Filter 4 (confidence) heuristic sat several candidates near the 0.6 threshold — the SIGILL-132 warm-boot-teardown candidate (~0.5, one-off) rejected, the chrono/SystemTime + rate-from-delta candidates (~0.6) kept; the scoring model felt underdetermined at the margin",
+        "impact": {},
+        "artifacts": [
+          "curation-tier-decision.md"
+        ]
+      },
+      {
+        "chunk": "2026-07-09-traces-table-layout-polish",
+        "what": "The inject_demo aging-out candidate sat near the Filter 4 confidence threshold (~0.6) — a valuable-but-single-session smoke-tooling gotcha; kept at Tier 3. The other 3 candidates were clear (1 dup rejected, 1 task-specific rejected, 1 flex-fill Tier 2 ~0.65).",
+        "impact": {},
+        "artifacts": []
+      },
+      {
+        "chunk": "2026-07-10-incidents-floating-window-disclosure",
+        "what": "the operator-visual-verify-for-layout candidate sat at the Filter-1 dedup edge — high overlap with the 2026-07-05 layout-blind lesson, but this session's CROSS-WINDOW extension + 3-rounds-of-UX-rework is a new facet; decided reject-as-dup (the core 'pair layout-blind smoke with an operator visual verify' directive is already captured) rather than a Tier-3 near-duplicate",
+        "impact": {},
+        "artifacts": [
+          "docs/session-learnings.md"
+        ]
+      }
+    ]
+  },
+  {
+    "skill": "andromeda-wrap-session",
+    "step": "gates",
+    "type": "tooling.gate-deferral",
+    "n": 6,
+    "chunks": [
+      "2026-07-05-anomaly-surfacing",
+      "2026-07-05-constellation-severity-live-wiring",
+      "2026-07-06-incidents-panel-dropdown-layout-bug",
+      "2026-07-07-plain-language-connection-status",
+      "2026-07-09-traces-table-layout-polish",
+      "2026-07-10-incidents-floating-window-disclosure"
+    ],
+    "impact": {
+      "deferred": 10,
+      "iterations": 1
+    },
+    "weight": 7,
+    "rate": 0.67,
+    "denom": 9,
+    "above_threshold": true,
+    "whats": [
+      {
+        "chunk": "2026-07-05-anomaly-surfacing",
+        "what": "Source-delta-proportional deferral from /implement CLOSED at the wrap (P-068 became Rust-touching via the viz+mcp completion-order fix): the 4 previously-deferred Rust gates all re-ran GREEN — nextest --workspace (1722 +1 skip), clippy --workspace --all-features, xtask self-verify (boot+a11y, /traces 0 errors, 0 new violations), xtask capability-drift (clean, after the standard bindings.ts regen-with-mcp dance). ONE iteration: the deferred cargo fmt --check (first run at the wrap, not /implement) caught a viz-test seed_span_full formatting miss -> fixed with cargo fmt. Disk watched 30->25->30G (held, no OOM). Commit 7b51ecd.",
+        "impact": {
+          "deferred": 0,
+          "iterations": 1
+        },
+        "artifacts": []
+      },
+      {
+        "chunk": "2026-07-05-constellation-severity-live-wiring",
+        "what": "P7 light gate deferred the cold re-run of cargo nextest --workspace + clippy --workspace --all-features — they ran green at /implement this session (1727/1727 + clippy clean) and wrap touched no src/, so a cold re-run is a no-op + OOM/disk-costly; fmt + integration 5/5 + capability-drift (clean after bindings regen) re-verified the changed surface. Re-runs at the next source-touching chunk.",
+        "impact": {
+          "deferred": 2
+        },
+        "artifacts": []
+      },
+      {
+        "chunk": "2026-07-06-incidents-panel-dropdown-layout-bug",
+        "what": "wrap light gate honored the /implement zero-.rs-delta deferral: did NOT re-run clippy/nextest --workspace/capability-drift or the self-verify boot half (a cold rebuild for a webview-only chunk is costly/OOM-risky + a no-op); re-ran only the changed-surface webview gates (vitest/lint/typecheck green); build+test:a11y verified-at-implement on unchanged source; deferral remains open until the next .rs-touching chunk",
+        "impact": {
+          "deferred": 4
+        },
+        "artifacts": [
+          "plan.md"
+        ]
+      },
+      {
+        "chunk": "2026-07-07-plain-language-connection-status",
+        "what": "clippy --workspace + nextest --workspace deferred at the P7 light gate — both ran green in implement P2 THIS session (1730 pass) on the byte-identical Rust tree (wrap edited only docs/ledgers, zero .rs); re-running the unchanged tree is a no-op + feature-toggle-rebuild/OOM risk (the mcp-bindings regen left mcp-feature artifacts); the fast webview+fmt+capability-drift gates re-ran green",
+        "impact": {
+          "deferred": 2
+        },
+        "artifacts": [
+          "plan.md"
+        ]
+      },
+      {
+        "chunk": "2026-07-09-traces-table-layout-polish",
+        "what": "The wrap light gate honored the zero-.rs source-delta-proportional deferral of the cold cargo gates (fmt / clippy / nextest --workspace / capability-drift / self-verify BOOT half) — re-run at the next .rs-touching chunk; the changed-surface webview gates re-ran green.",
+        "impact": {
+          "deferred": 1
+        },
+        "artifacts": [
+          "plan"
+        ]
+      },
+      {
+        "chunk": "2026-07-10-incidents-floating-window-disclosure",
+        "what": "at the P7 light gate, the workspace cargo nextest run --workspace RUN was honored-deferred (source-delta-proportional) rather than re-run on a cold rebuild; the changed-surface gates all re-ran green; re-run at the next .rs chunk after freeing disk",
+        "impact": {
+          "deferred": 1
+        },
+        "artifacts": []
+      }
+    ]
+  },
+  {
+    "skill": "andromeda-wrap-session",
+    "step": "reconcile",
+    "type": "ambiguity.playbook-no-match",
+    "n": 2,
+    "chunks": [
+      "2026-07-07-plain-language-connection-status",
+      "2026-07-08-self-explaining-empty-states"
+    ],
+    "impact": {
+      "dialogue_rounds": 2
+    },
+    "weight": 6,
+    "rate": 0.22,
+    "denom": 9,
+    "above_threshold": false,
+    "whats": [
+      {
+        "chunk": "2026-07-07-plain-language-connection-status",
+        "what": "2 routine-warning proposals (arch ready-envelope +3 fields; layouts footer ConnectionStatusLine readout) had no clean playbook match — the 2026-06-28/06-30 over-reach REJECT rules target mis-attributed/inaccurate/pre-existing content, but these were ACCURATE this-chunk additions WITHIN already-documented structures; escalated by unease, user chose apply-both. Candidate rule: apply-side of the within-existing-structure boundary, distinct from the reject-over-reach rules — deferred to recurrence",
+        "impact": {
+          "dialogue_rounds": 1
+        },
+        "artifacts": [
+          "playbook.md"
+        ]
+      },
+      {
+        "chunk": "2026-07-08-self-explaining-empty-states",
+        "what": "the layouts §Component empty-state proposal + the design-system token Tertiary->Secondary correction sat on the apply-vs-over-reach-reject-vs-pre-existing-handoff boundary with NO codified playbook rule — the 'apply-side within-existing-structure -> register current truth' candidate was deferred-to-recurrence at the P-070 wrap; this recurrence cost 1 escalation round to resolve (apply-both), after which the rule was codified into playbook.md so it should not re-escalate.",
+        "impact": {
+          "dialogue_rounds": 1
+        },
+        "artifacts": [
+          "playbook.md",
+          "layout-templates.md",
+          "design-system.md"
+        ]
+      }
+    ]
+  },
+  {
+    "skill": "andromeda-implement",
+    "step": "smoke",
+    "type": "retry.smoke-reentry",
+    "n": 2,
+    "chunks": [
+      "2026-07-09-traces-table-layout-polish",
+      "2026-07-10-incidents-floating-window-disclosure"
+    ],
+    "impact": {
+      "retries": 4
+    },
+    "weight": 6,
+    "rate": 0.22,
+    "denom": 9,
+    "above_threshold": false,
+    "whats": [
+      {
+        "chunk": "2026-07-09-traces-table-layout-polish",
+        "what": "The operator visual verify surfaced a residual outer/page scrollbar (footer below fold) from the D1 hardcoded max-height (calc(100vh - 480px)); re-entered the P2 fix-loop with an in-scope fix — replaced the fixed max-height with a flex-fill (TracesRoute bounded to the shell height + overflow:hidden; TraceTable card + scroll wrapper flex:1/min-height:0), re-ran webview gates + a11y + rebuilt + re-verified; operator confirmed.",
+        "impact": {
+          "retries": 1
+        },
+        "artifacts": [
+          "source",
+          "plan"
+        ]
+      },
+      {
+        "chunk": "2026-07-10-incidents-floating-window-disclosure",
+        "what": "the automated obs-log boot smoke passed (0 panics, storm→incident chain, re-poll firing) but is layout-BLIND (2026-07-05); the operator leave-running visual verify caught 3 real UX issues the gates could not — (1) fixed-size findings window (should size-to-content), (2) the Report cramped + double-scroll inside the dropdown, (3) the modal backdrop showing as a grey frame in a standalone report window — each driving an in-chunk fix-loop re-entry (content-resize → SEPARATE report window → Modal fill variant); confirms operator visual verify is necessary-and-load-bearing for a cross-window layout chunk",
+        "impact": {
+          "retries": 3
+        },
+        "artifacts": [
+          "FindingsWindow.tsx",
+          "ReportWindow.tsx",
+          "use-findings-window.ts",
+          "components/Modal.tsx",
+          "tauri.conf.json",
+          "capabilities/default.json"
+        ]
+      }
+    ]
+  },
+  {
+    "skill": "andromeda-phase",
+    "step": "validate",
+    "type": "contract.mechanical-check",
+    "n": 4,
+    "chunks": [
+      "2026-07-05-anomaly-surfacing",
+      "2026-07-07-plain-language-connection-status",
+      "2026-07-07-traces-table-auto-refresh",
+      "2026-07-09-traces-table-layout-polish"
+    ],
+    "impact": {
+      "iterations": 1
+    },
+    "weight": 5,
+    "rate": 0.44,
+    "denom": 9,
+    "above_threshold": true,
+    "whats": [
+      {
+        "chunk": "2026-07-05-anomaly-surfacing",
+        "what": "Both soft P5 checks WARN on a small webview-only chunk by construction: size-band (70 raw lines < 150-400 nominal — unwrapped-prose line count, content complete) and code-graph-consulted (no tree-query trace — no Rust symbol to query, TS not in tree.db). Both justified/non-blocking; no real problem.",
+        "impact": {},
+        "artifacts": [
+          "plan.md",
+          "research.md"
+        ]
+      },
+      {
+        "chunk": "2026-07-07-traces-table-auto-refresh",
+        "what": "validation check-7 (code-graph consulted) soft-warns on the absent tree-query trace; its text excuses only cold-start/empty-DB, but the real reason here is graph-not-applicable (TypeScript change surface — the research playbook DOES sanction this + emits a graph-not-applicable signal). The mechanical check under-enumerates the legitimate no-query reasons vs the research playbook.",
+        "impact": {},
+        "artifacts": [
+          "validation.md",
+          "research.md"
+        ]
+      },
+      {
+        "chunk": "2026-07-07-plain-language-connection-status",
+        "what": "the P4 plan.md omitted the cargo xtask self-verify UI gate for a UI+.rs chunk; mechanical check 4 (UI-gate) condition was true (WARN); added self-verify to Test Commands at P5",
+        "impact": {
+          "iterations": 1
+        },
+        "artifacts": [
+          "plan.md"
+        ]
+      },
+      {
+        "chunk": "2026-07-09-traces-table-layout-polish",
+        "what": "Mechanical check 7 (code-graph consulted) WARNed on an absent tree-query trace, and check 6 (size) WARNed on 84 newlines below the 150 floor — both false positives: the graph is NOT-APPLICABLE for a TS/TSX change surface (not cold-start), and the plan is content-complete with long dense lines. Explained + proceeded; no rework.",
+        "impact": {},
+        "artifacts": [
+          "plan",
+          "research"
+        ]
+      }
+    ]
+  },
+  {
+    "skill": "andromeda-wrap-session",
+    "step": "route-resolve",
+    "type": "ambiguity.trajectory-halt",
+    "n": 2,
+    "chunks": [
+      "2026-07-06-incidents-panel-dropdown-layout-bug",
+      "2026-07-10-incidents-floating-window-disclosure"
+    ],
+    "impact": {
+      "dialogue_rounds": 1
+    },
+    "weight": 4,
+    "rate": 0.22,
+    "denom": 9,
+    "above_threshold": false,
+    "whats": [
+      {
+        "chunk": "2026-07-06-incidents-panel-dropdown-layout-bug",
+        "what": "new-chunk-ahead (floating window) was operator-pre-directed via the wrap args + prior AskUserQuestion, so no fresh HALT; the exact placement/priority within the future tail was a residual trajectory-detail resolved by appending at the Epoch-3 tail end (honoring 'future work' = not front-of-queue, not overriding the existing Traces-auto-refresh priority) + flagged for reorder in the handoff, rather than a halt",
+        "impact": {
+          "dialogue_rounds": 0
+        },
+        "artifacts": [
+          "working-route.md"
+        ]
+      },
+      {
+        "chunk": "2026-07-10-incidents-floating-window-disclosure",
+        "what": "the pre-existing DuckDB append-path stall (surfaced during the extended operator live-verify, not caused by this chunk) prompted a new-chunk-ahead trajectory decision — route a dedicated reliability chunk vs handoff-note-only; halted + asked, user chose handoff-note (chunk-#99 load-profile suite is the owner; stress-edge not normal usage), no route chunk added",
+        "impact": {
+          "dialogue_rounds": 1
+        },
+        "artifacts": [
+          "andromeda-pulse-0.3.0/working-route.md"
+        ]
+      }
+    ]
+  },
+  {
+    "skill": "andromeda-wrap-session",
+    "step": "route-resolve",
+    "type": "contract.carry-no-owner",
+    "n": 3,
+    "chunks": [
+      "2026-07-05-anomaly-surfacing",
+      "2026-07-05-legible-labeled-constellation",
+      "2026-07-07-traces-table-auto-refresh"
+    ],
+    "impact": {},
+    "weight": 3,
+    "rate": 0.33,
+    "denom": 9,
+    "above_threshold": true,
+    "whats": [
+      {
+        "chunk": "2026-07-05-anomaly-surfacing",
+        "what": "3 operator CARRYs homed: #2 (lint:a11y Windows bug) pinned to the P-077 housekeeping/tooling entry (owner found, AUTO); #1 (Traces internal-scroll + wireframe-toolbar doc) had no clean owner -> new Epoch-3 markerless entry (operator pre-authorized; trajectory without fresh HALT); #3 (viz pagination-cursor latent caveat) had no near-term owner (pagination unused/unplanned) -> handoff. Only #2 had a clean existing owner.",
+        "impact": {},
+        "artifacts": [
+          "working-route.md"
+        ]
+      },
+      {
+        "chunk": "2026-07-05-legible-labeled-constellation",
+        "what": "the widget per-dot-labels follow-up (operator chose CARRY=leave-aggregate, revisit-if-wanted) has no natural owner entry in-version and is speculative, routed to the handoff Notes instead of a route CARRY pin",
+        "impact": {},
+        "artifacts": [
+          "andromeda-pulse-0.3.0/working-route.md"
+        ]
+      },
+      {
+        "chunk": "2026-07-07-traces-table-auto-refresh",
+        "what": "the viz next_cursor keying CARRY (start-time vs P-068 end_time ORDER BY, deferred this chunk since the re-poll keeps cursor=null) has no in-version markerless entry that touches viz pagination to pin to — left as a documented in-code latent caveat (query.rs:17-18) + a handoff note rather than force-pinned to an unrelated entry.",
+        "impact": {},
+        "artifacts": [
+          "working-route.md",
+          "crates/viz/src/query.rs"
+        ]
+      }
+    ]
+  },
+  {
+    "skill": "andromeda-phase",
+    "step": "take-up",
+    "type": "ambiguity.version-derivation",
+    "n": 3,
+    "chunks": [
+      "2026-07-05-constellation-severity-live-wiring",
+      "2026-07-06-incidents-panel-dropdown-layout-bug",
+      "2026-07-07-traces-table-auto-refresh"
+    ],
+    "impact": {
+      "extra_reads": 2,
+      "dialogue_rounds": 0
+    },
+    "weight": 3,
+    "rate": 0.33,
+    "denom": 9,
+    "above_threshold": true,
+    "whats": [
+      {
+        "chunk": "2026-07-05-constellation-severity-live-wiring",
+        "what": "A gitignored andromeda-pulse-0.4.0-incubator/ dir at the project root could make the highest {project}-X.Y.Z-dir active-version heuristic pick 0.4.0 over the real 0.3.0; resolved mechanically via the master-route last-heading cross-check (## andromeda-pulse-0.3.0) and the non-clean -incubator suffix.",
+        "impact": {
+          "extra_reads": 0,
+          "dialogue_rounds": 0
+        },
+        "artifacts": [
+          "working-route",
+          "master-route",
+          "andromeda-pulse-0.4.0-incubator"
+        ]
+      },
+      {
+        "chunk": "2026-07-06-incidents-panel-dropdown-layout-bug",
+        "what": "a sibling andromeda-pulse-0.4.0-incubator/ dir coexists with the active andromeda-pulse-0.3.0/; active version resolved by the highest-clean-X.Y.Z-dir rule + confirming master has no 0.4.0 heading — no dialogue, no wrong pick",
+        "impact": {
+          "extra_reads": 1
+        },
+        "artifacts": [
+          "master-route.md"
+        ]
+      },
+      {
+        "chunk": "2026-07-07-traces-table-auto-refresh",
+        "what": "two root version dirs (andromeda-pulse-0.3.0 + andromeda-pulse-0.4.0-incubator); the literal highest-X.Y.Z active-version rule points at the -incubator dir while master last heading + the incomplete markerless tail identify 0.3.0 as active; disambiguated by clean-form + master agreement + 1 extra read (ls incubator dir contents)",
+        "impact": {
+          "extra_reads": 1
+        },
+        "artifacts": [
+          "master-route.md",
+          "working-route.md"
+        ]
+      }
+    ]
+  },
+  {
+    "skill": "andromeda-new-session",
+    "step": "orientation",
+    "type": "tooling.health-false-red",
+    "n": 3,
+    "chunks": [
+      null
+    ],
+    "impact": {
+      "extra_reads": 0
+    },
+    "weight": 3,
+    "rate": 0.33,
+    "denom": 9,
+    "above_threshold": true,
+    "whats": [
+      {
+        "chunk": null,
+        "what": "Health Check 6 (arch staleness) fired: architecture.md ~234h newer than CLAUDE.md. Inspection showed it benign: arch.md is amended per-chunk during active v0.3.0 work (plus the v3 migration) while CLAUDE.md @imports arch.md live, so content is never actually stale regardless of mtime.",
+        "impact": {
+          "extra_reads": 0
+        },
+        "artifacts": [
+          "architecture.md",
+          "CLAUDE.md"
+        ]
+      },
+      {
+        "chunk": null,
+        "what": "Health check 6 (architecture staleness) warned architecture.md newer than CLAUDE.md by ~234h (>24h threshold); inspection shows this is the expected manual-arch-edit workflow (arch.md hand-edited between setup-project runs, CLAUDE.md regenerated only by setup-project), not real staleness.",
+        "impact": {},
+        "artifacts": [
+          "architecture.md",
+          "CLAUDE.md"
+        ]
+      },
+      {
+        "chunk": null,
+        "what": "Check 6 arch-staleness warns (architecture.md newer than CLAUDE.md by ~234h); cause is normal chunk-driven /andromeda-scope-arch amendments to architecture.md, not a setup-integrity problem; the re-run-setup-project remedy is inapplicable and fires on essentially every session for this project",
+        "impact": {},
+        "artifacts": [
+          "architecture.md",
+          "CLAUDE.md"
+        ]
+      }
+    ]
+  },
+  {
+    "skill": "andromeda-implement",
+    "step": "fix-loop",
+    "type": "UNTYPED",
+    "n": 2,
+    "chunks": [
+      "2026-07-05-anomaly-surfacing",
+      "2026-07-05-constellation-severity-live-wiring"
+    ],
+    "impact": {},
+    "weight": 2,
+    "rate": 0.22,
+    "denom": 9,
+    "above_threshold": false,
+    "whats": [
+      {
+        "chunk": "2026-07-05-anomaly-surfacing",
+        "what": "Pre-existing React setState-in-render warning in TraceTable.tsx handleSort (announce() inside the setSortState updater) surfaced on the existing aria-sort test. New handler handleToggleErrorsOnly written WITHOUT the anti-pattern (announce before setState); handleSort left unchanged (out of chunk intent, refactoring tested cycle logic risks regression). Future-cleanup candidate.",
+        "impact": {},
+        "artifacts": [
+          "pulse-app/ui/src/dashboard/routes/traces/TraceTable.tsx"
+        ]
+      },
+      {
+        "chunk": "2026-07-05-constellation-severity-live-wiring",
+        "what": "capability-drift exited 1 with 3 missing mcp.start/status/stop (0 extra) — the known default-features bindings.ts regen transient (mcp.* dropped when nextest regenerates index.ts), NOT this chunk drift (added 0 TauRPC procedures); wrap regenerates via mcp-server-feature emit_taurpc_bindings as its last pre-commit step. Recurs on every implement running a default-features nextest.",
+        "impact": {},
+        "artifacts": []
+      }
+    ]
+  },
+  {
+    "skill": "andromeda-wrap-session",
+    "step": "curation",
+    "type": "ambiguity.tier-routing",
+    "n": 2,
+    "chunks": [
+      "2026-07-05-anomaly-surfacing",
+      "2026-07-07-plain-language-connection-status"
+    ],
+    "impact": {},
+    "weight": 2,
+    "rate": 0.22,
+    "denom": 9,
+    "above_threshold": false,
+    "whats": [
+      {
+        "chunk": "2026-07-05-anomaly-surfacing",
+        "what": "The boot-smoke-for-webview-only lesson is harness-adjacent (verification-harness.md is the canonical smoke home) but that rule file does NOT auto-load for pulse-app/ui/** chunks (its paths are agent-run/xtask/test-infra), whereas testing.md DOES load for webview tests — so it went to testing.md (target audience = a webview-chunk agent) + merged directive+how into one entry to avoid a cross-file near-dup. Resolved by audience-load-scope, not a demotion/fallback.",
+        "impact": {},
+        "artifacts": [
+          "testing.md",
+          "verification-harness.md"
+        ]
+      },
+      {
+        "chunk": "2026-07-07-plain-language-connection-status",
+        "what": "2 survivors (honesty-from-data-anchor spanning backend+frontend; chrono-buffer-dep gotcha) had no clean Tier-2 path-scope so were routed to Tier 3 per the over-route-to-Tier-3 fallback; only the rate-from-delta webview technique had a clean Tier-2 home (frontend.md)",
+        "impact": {},
+        "artifacts": [
+          "session-learnings.md",
+          "frontend.md"
+        ]
+      }
+    ]
+  },
+  {
+    "skill": "andromeda-implement",
+    "step": "smoke",
+    "type": "tooling.subprocess-bounds",
+    "n": 2,
+    "chunks": [
+      "2026-07-05-legible-labeled-constellation",
+      "2026-07-07-traces-table-auto-refresh"
+    ],
+    "impact": {},
+    "weight": 2,
+    "rate": 0.22,
+    "denom": 9,
+    "above_threshold": false,
+    "whats": [
+      {
+        "chunk": "2026-07-05-legible-labeled-constellation",
+        "what": "inject_demo is a continuous OTLP streamer; ran foreground with a 120s timeout which fired (SIGTERM/exit143) after ~2min of injection - the smoke recipe should background inject_demo + kill after seeding rather than foreground-with-timeout",
+        "impact": {},
+        "artifacts": [
+          "crates/ingest/examples/inject_demo.rs"
+        ]
+      },
+      {
+        "chunk": "2026-07-07-traces-table-auto-refresh",
+        "what": "inject_demo is a continuous injector; the first foreground run hit the 2min bash timeout (SIGTERM exit 143) after seeding ~2min of telemetry (the obs-log checks used that data), then a background reseed fed the operator live view. The timeout bounded it correctly; the mis-anticipation was running a continuous injector in the foreground.",
+        "impact": {},
+        "artifacts": [
+          "inject_demo.exe"
+        ]
+      }
+    ]
+  },
+  {
+    "skill": "andromeda-new-session",
+    "step": "orientation",
+    "type": "UNTYPED",
+    "n": 2,
+    "chunks": [
+      null
+    ],
+    "impact": {
+      "extra_reads": 4
+    },
+    "weight": 2,
+    "rate": 0.22,
+    "denom": 9,
+    "above_threshold": false,
+    "whats": [
+      {
+        "chunk": null,
+        "what": "working-route.md + verification-matrix.json live at repo-root ./andromeda-pulse-0.3.0/ (v3 migration layout), not under .andromeda/; the version-dir assumption cost a failed glob + a repo-wide find to locate",
+        "impact": {
+          "extra_reads": 2
+        },
+        "artifacts": [
+          "working-route.md",
+          "verification-matrix.json",
+          "master-route.md"
+        ]
+      },
+      {
+        "chunk": null,
+        "what": "v3 version dir is at project root (./andromeda-pulse-0.3.0) while .andromeda/ holds specialist plans; orientation first location probe assumed a .andromeda/andromeda-pulse-* subdir and found nothing, needing a second find to locate working-route.md + verification-matrix.json (branch chore/migrate-pulse-to-v3)",
+        "impact": {
+          "extra_reads": 2
+        },
+        "artifacts": [
+          "andromeda-pulse-0.3.0/working-route.md",
+          "andromeda-pulse-0.3.0/verification-matrix.json"
+        ]
+      }
+    ]
+  },
+  {
+    "skill": "andromeda-phase",
+    "step": "validate",
+    "type": "contract.intent-divergence",
+    "n": 2,
+    "chunks": [
+      "2026-07-07-plain-language-connection-status",
+      "2026-07-10-incidents-floating-window-disclosure"
+    ],
+    "impact": {},
+    "weight": 2,
+    "rate": 0.22,
+    "denom": 9,
+    "above_threshold": false,
+    "whats": [
+      {
+        "chunk": "2026-07-07-plain-language-connection-status",
+        "what": "val-1 intent-incomplete: scope.md P1 note guessed a11y/contrast-exempt, conflating affordance-exempt with contrast-exempt; a11y extract says the SC 1.4.3 text sweep applies; amended scope.md (affordance-exempt YES, contrast-exempt NO)",
+        "impact": {},
+        "artifacts": [
+          "scope.md"
+        ]
+      },
+      {
+        "chunk": "2026-07-10-incidents-floating-window-disclosure",
+        "what": "val-1 classified the panel-background token as intent-incomplete (scope.md said --color-inset; research + the a11y extract proved --color-raised-2 is the shipped popover token per design-tokens.md) and amended scope.md:54; downstream of the distill contract.binding-contradiction flag; no re-plan, single-edit amend",
+        "impact": {},
+        "artifacts": [
+          "andromeda-pulse-0.3.0/chunks/2026-07-10-incidents-floating-window-disclosure/scope.md"
+        ]
+      }
+    ]
+  },
+  {
+    "skill": "andromeda-implement",
+    "step": "smoke",
+    "type": "process",
+    "n": 1,
+    "chunks": [
+      "2026-07-05-anomaly-surfacing"
+    ],
+    "impact": {
+      "iterations": 1
+    },
+    "weight": 2,
+    "rate": 0.11,
+    "denom": 9,
+    "above_threshold": false,
+    "whats": [
+      {
+        "chunk": "2026-07-05-anomaly-surfacing",
+        "what": "OPERATOR OVERRIDE of the P2/P3 boot-deferral: directive to run a FULL warm boot smoke for EVERY user-visible-surface chunk incl. webview-only. Ran it: cargo build -p pulse-app re-embedded the fresh frontend (WARM 43s, deps cached — NOT cold), booted the real app, seeded 1377 spans/246 payment exceptions via inject_demo, verified obs log (0 panics, 0 ERROR, app.boot.webview.init, 21k webgpu frames, 3 viz.query.traces, storm/incident path), clean zero-orphan shutdown via PowerShell Stop-Process. Durable finding: Tauri embeds the frontend at compile time, so webview-only chunks need a warm re-embed to boot-smoke the new UI; deferral was the wrong call. Recorded to project memory as a standing directive.",
+        "impact": {
+          "iterations": 1
+        },
+        "artifacts": [
+          "pulse-app/src (re-embed)",
+          "crates/ingest/examples/inject_demo.rs"
+        ]
+      }
+    ]
+  },
+  {
+    "skill": "andromeda-implement",
+    "step": "fix-loop",
+    "type": "tooling.environmental",
+    "n": 1,
+    "chunks": [
+      "2026-07-05-legible-labeled-constellation"
+    ],
+    "impact": {
+      "iterations": 1
+    },
+    "weight": 2,
+    "rate": 0.11,
+    "denom": 9,
+    "above_threshold": false,
+    "whats": [
+      {
+        "chunk": "2026-07-05-legible-labeled-constellation",
+        "what": "playwright-a11y webServer runs http-server dist with no build step; the p11 dashboard spec first failed (labels absent) against a stale pre-change dist until a manual npm run build refreshed it",
+        "impact": {
+          "iterations": 1
+        },
+        "artifacts": [
+          "pulse-app/ui/playwright-a11y.config.ts",
+          "pulse-app/ui/tests-a11y/axe/p11-constellation-semantics.spec.ts"
+        ]
+      }
+    ]
+  },
+  {
+    "skill": "andromeda-implement",
+    "step": "code",
+    "type": "input.conventions-gap",
+    "n": 1,
+    "chunks": [
+      "2026-07-07-plain-language-connection-status"
+    ],
+    "impact": {
+      "iterations": 1
+    },
+    "weight": 2,
+    "rate": 0.11,
+    "denom": 9,
+    "above_threshold": false,
+    "whats": [
+      {
+        "chunk": "2026-07-07-plain-language-connection-status",
+        "what": "research assumed chrono usable in buffer non-test code (grep saw it in retention.rs) but it is a dev-dep only; cost one re-edit of record_rows_appended (chrono -> std::time::SystemTime)",
+        "impact": {
+          "iterations": 1
+        },
+        "artifacts": [
+          "crates/buffer/src/state.rs"
+        ]
+      }
+    ]
+  },
+  {
+    "skill": "andromeda-implement",
+    "step": "fix-loop",
+    "type": "input.plan-step-ambiguous",
+    "n": 1,
+    "chunks": [
+      "2026-07-10-incidents-floating-window-disclosure"
+    ],
+    "impact": {
+      "iterations": 1
+    },
+    "weight": 2,
+    "rate": 0.11,
+    "denom": 9,
+    "above_threshold": false,
+    "whats": [
+      {
+        "chunk": "2026-07-10-incidents-floating-window-disclosure",
+        "what": "plan under-specified where the incident Report opens once the disclosure rows move to a separate window (row-select → plan implied a cross-window widget-hosted report); surfaced at the a11y gate — p9 opened the report via the removed in-widget dropdown row + a cross-window report is not single-page reachable; resolved in-impl by hosting the Report inside the findings window (deviation from the plan's cross-window implication), cleaner UX + testable",
+        "impact": {
+          "iterations": 1
+        },
+        "artifacts": [
+          "FindingsWindow.tsx",
+          "CompactWidget.tsx",
+          "use-findings-window.ts",
+          "tests-a11y/axe/p9-diagnostic-report-modal.spec.ts"
+        ]
+      }
+    ]
+  },
+  {
+    "skill": "andromeda-phase",
+    "step": "research",
+    "type": "ambiguity.scope-boundary",
+    "n": 1,
+    "chunks": [
+      "2026-07-05-anomaly-surfacing"
+    ],
+    "impact": {
+      "extra_reads": 3
+    },
+    "weight": 1,
+    "rate": 0.11,
+    "denom": 9,
+    "above_threshold": false,
+    "whats": [
+      {
+        "chunk": "2026-07-05-anomaly-surfacing",
+        "what": "P-068 is partially pre-implemented — error-row flagging (accent left-border + checkmark-x glyph + count, non-color-only) already ships in TraceTable.tsx; delta collapses to default anomaly-first ordering + an errors-only filter. Surfaced to user at P4 (2026-06-01 inverse-of-hybrid pattern).",
+        "impact": {
+          "extra_reads": 3
+        },
+        "artifacts": [
+          "TraceTable.tsx",
+          "sort.ts",
+          "LogFilter.tsx"
+        ]
+      }
+    ]
+  },
+  {
+    "skill": "andromeda-phase",
+    "step": "research",
+    "type": "UNTYPED",
+    "n": 1,
+    "chunks": [
+      "2026-07-05-anomaly-surfacing"
+    ],
+    "impact": {},
+    "weight": 1,
+    "rate": 0.11,
+    "denom": 9,
+    "above_threshold": false,
+    "whats": [
+      {
+        "chunk": "2026-07-05-anomaly-surfacing",
+        "what": "Intent F8 mechanism 'Traces sorts by latency ascending' is falsified by crates/viz/src/query.rs (ORDER BY ts_unix_nano DESC, no default error-hoist); OBSERVED outcome 'erroring service buried off-screen, not first' still holds. Premise-correction noted in plan; fix unaffected.",
+        "impact": {},
+        "artifacts": [
+          "crates/viz/src/query.rs",
+          "andromeda-pulse-0.3.0/intent.md"
+        ]
+      }
+    ]
+  },
+  {
+    "skill": "andromeda-wrap-session",
+    "step": "reconcile",
+    "type": "contract.false-positive-proposal",
+    "n": 1,
+    "chunks": [
+      "2026-07-05-anomaly-surfacing"
+    ],
+    "impact": {},
+    "weight": 1,
+    "rate": 0.11,
+    "denom": 9,
+    "above_threshold": false,
+    "whats": [
+      {
+        "chunk": "2026-07-05-anomaly-surfacing",
+        "what": "D-layout-surface proposed documenting the 'Errors only' filter toolbar in the Traces wireframe; routine-REJECTED per the existing playbook 2026-06-28 within-surface-refinement rule (a filter control added within the already-documented Traces surface, below wireframe screen-region granularity — not a new wireframe surface). 0 amendments; handoff-noted to bundle with the operator's Traces-layout CARRY. Existing rule covered it, no new rule.",
+        "impact": {},
+        "artifacts": [
+          "layout-templates.md",
+          "playbook.md"
+        ]
+      }
+    ]
+  },
+  {
+    "skill": "andromeda-phase",
+    "step": "plan",
+    "type": "UNTYPED",
+    "n": 1,
+    "chunks": [
+      "2026-07-05-legible-labeled-constellation"
+    ],
+    "impact": {},
+    "weight": 1,
+    "rate": 0.11,
+    "denom": 9,
+    "above_threshold": false,
+    "whats": [
+      {
+        "chunk": "2026-07-05-legible-labeled-constellation",
+        "what": "layout-templates extract describes the compact widget as a single aggregated badge, but shipped code (chunks #90/#91) replaced it with a per-service constellation - a spec-vs-code drift; plan conclusion (widget stays label-free) holds either way so 0 rework",
+        "impact": {},
+        "artifacts": [
+          "layout-templates.md",
+          "pulse-app/ui/src/widget/ConstellationCanvas.tsx"
+        ]
+      }
+    ]
+  },
+  {
+    "skill": "andromeda-phase",
+    "step": "validate",
+    "type": "contract.matrix-claim",
+    "n": 1,
+    "chunks": [
+      "2026-07-05-constellation-severity-live-wiring"
+    ],
+    "impact": {
+      "iterations": 0,
+      "dialogue_rounds": 0
+    },
+    "weight": 1,
+    "rate": 0.11,
+    "denom": 9,
+    "above_threshold": false,
+    "whats": [
+      {
+        "chunk": "2026-07-05-constellation-severity-live-wiring",
+        "what": "P5.4 documents LINKING existing matrix caps (set chunk={marker}); this chunk addressed a NEW operator-surfaced capability absent from the intent-sourced P-061..P-078 set. Minted P-079 (chunk-linked, method integration, affordance-exempt) — justified by the matrix-is-phase-writable + ID-scheme-continue-+1 clauses + coverage-completeness; surfaced at the review gate. The contract does not explicitly cover minting a new cap mid-version (route normally creates caps).",
+        "impact": {
+          "iterations": 0,
+          "dialogue_rounds": 0
+        },
+        "artifacts": [
+          "verification-matrix.json"
+        ]
+      }
+    ]
+  },
+  {
+    "skill": "andromeda-phase",
+    "step": "distill",
+    "type": "contract.extract-format",
+    "n": 1,
+    "chunks": [
+      "2026-07-06-incidents-panel-dropdown-layout-bug"
+    ],
+    "impact": {
+      "retries": 0
+    },
+    "weight": 1,
+    "rate": 0.11,
+    "denom": 9,
+    "above_threshold": false,
+    "whats": [
+      {
+        "chunk": "2026-07-06-incidents-panel-dropdown-layout-bug",
+        "what": "obs distiller emitted a pre-header reasoning preamble before the '# obs extract' header despite the prompt's 'No preamble or trailing commentary' instruction; stripped cleanly per the strip rule, no retry",
+        "impact": {
+          "retries": 0
+        },
+        "artifacts": [
+          "obs.md"
+        ]
+      }
+    ]
+  },
+  {
+    "skill": "andromeda-phase",
+    "step": "distill",
+    "type": "contract.binding-contradiction",
+    "n": 1,
+    "chunks": [
+      "2026-07-10-incidents-floating-window-disclosure"
+    ],
+    "impact": {
+      "extra_reads": 1
+    },
+    "weight": 1,
+    "rate": 0.11,
+    "denom": 9,
+    "above_threshold": false,
+    "whats": [
+      {
+        "chunk": "2026-07-10-incidents-floating-window-disclosure",
+        "what": "design extract asserts reused FindingsDropdown background = --color-inset (per scope.md, authored from P-080 memory); a11y extract flags the shipped/design-correct popover token as --color-raised-2 — a token-identity divergence P3 codebase research must resolve by reading the actual component",
+        "impact": {
+          "extra_reads": 1
+        },
+        "artifacts": [
+          "runs/2026-07-10T13-21-13Z-phase/design.md",
+          "runs/2026-07-10T13-21-13Z-phase/a11y.md",
+          "scope.md"
+        ]
+      }
+    ]
+  },
+  {
+    "skill": "andromeda-implement",
+    "step": "fix-loop",
+    "type": "ambiguity.scope-pressure",
+    "n": 1,
+    "chunks": [
+      "2026-07-10-incidents-floating-window-disclosure"
+    ],
+    "impact": {},
+    "weight": 1,
+    "rate": 0.11,
+    "denom": 9,
+    "above_threshold": false,
+    "whats": [
+      {
+        "chunk": "2026-07-10-incidents-floating-window-disclosure",
+        "what": "2 a11y specs not in the plan's Files-to-modify (p8-findings-dropdown.spec.ts + p9-diagnostic-report-modal.spec.ts) required updating because removing the in-widget dropdown broke the surface + the report-open path they tested; proceeded as in-scope-by-extension (tests of the changed surface, per the component-migration test-fan-out discipline), not scope creep",
+        "impact": {},
+        "artifacts": [
+          "tests-a11y/axe/p8-findings-dropdown.spec.ts",
+          "tests-a11y/axe/p9-diagnostic-report-modal.spec.ts"
+        ]
+      }
+    ]
+  }
+]

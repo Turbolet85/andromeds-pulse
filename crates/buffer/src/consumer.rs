@@ -116,7 +116,9 @@ fn dispatch_batch(
             // independently via the duckdb.append tracing event.
             // chunk #66: fingerprint_observer (when Some) receives per-row
             // exception fingerprints during the build pass for storm detection.
-            if let Some(events_rb) = build_span_events_record_batch(&s, fingerprint_observer)? {
+            if let Some(events_rb) =
+                build_span_events_record_batch(&s, fingerprint_observer, state)?
+            {
                 append_table_traced(&guard, "span_events", events_rb)?;
             }
             (rows, &senders.spans, encoded)
@@ -669,6 +671,15 @@ mod tests {
             )
             .expect("count");
         assert_eq!(with_fp, 1);
+
+        // The feed counters must survive the full consumer path — the appender
+        // records into the same BufferState the heartbeat later snapshots, so a
+        // regression in that threading would make the tick under-report a live
+        // feed as a dead one.
+        let snap = state.snapshot();
+        assert_eq!(snap.span_events_seen, 2);
+        assert_eq!(snap.fingerprints_computed, 1);
+        assert_eq!(snap.observer_invocations, 1);
     }
 
     #[test]

@@ -10,6 +10,15 @@
 $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
 
+# UTF-8 relay: without these, Python helpers invoked from the harness decode
+# their own output under the host's legacy codepage and mangle non-ASCII.
+# The Console pair is the Windows-only half — PowerShell otherwise re-encodes
+# child-process output through the OEM codepage before it reaches a pipe.
+$env:PYTHONUTF8 = '1'
+$env:PYTHONIOENCODING = 'utf-8'
+[Console]::OutputEncoding = [System.Text.Encoding]::UTF8
+[Console]::InputEncoding = [System.Text.Encoding]::UTF8
+
 # Resolve harness paths (override-friendly via env vars per arch §Occupied Resources)
 $DataDir = if ($env:ANDROMEDA_PULSE_DATA_DIR) { $env:ANDROMEDA_PULSE_DATA_DIR } else { Join-Path $env:TEMP "agent-run-$PID" }
 $PidFile = if ($env:ANDROMEDA_PULSE_PIDFILE) { $env:ANDROMEDA_PULSE_PIDFILE } else { Join-Path $DataDir "run\andromeda-pulse.pid" }

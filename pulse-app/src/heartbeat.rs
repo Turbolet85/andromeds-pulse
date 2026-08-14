@@ -207,6 +207,9 @@ fn emit_buffer_tick(
         eviction_count_since_last_tick = payload.eviction_count_since_last_tick,
         drain_template_count = payload.drain_template_count,
         drain_lru_evictions_since_tick = payload.drain_lru_evictions_since_tick,
+        span_events_seen = payload.span_events_seen,
+        fingerprints_computed = payload.fingerprints_computed,
+        observer_invocations = payload.observer_invocations,
         "heartbeat",
     );
 

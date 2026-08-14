@@ -1,0 +1,18 @@
+# layouts extract — phase-70
+
+## No domain coverage
+
+Chunk #73 is backend-only — six numeric/semantic corrections under `crates/ingest/`, `crates/triage/`, and `pulse-app/`:
+
+1. P-001 `IDLE_THRESHOLD_NANOS` 5s→10s + `STALLED_THRESHOLD_NANOS` 30s→60s constants in `crates/ingest/src/connection.rs`
+2. P-003 `std::panic::set_hook` registration in `pulse-app/src/main.rs`
+3. P-010 baseline-relative error rate rewrite in `crates/triage/src/cue/evaluate.rs`
+4. P-011 `operation_name: Arc<str>` field addition to OperationBaseline/Snapshot
+5. P-012 `DEFAULT_LATENCY_PERCENTILE` 0.95→0.99
+6. P-014 `MIN_QUIET_SECONDS = 30` const + floor
+
+No surface is created or modified. No focusable element is added. No webview UI changes. No new TauRPC routes. No new components. Downstream surfaces (Connection dot per chunk #59, service constellation dots per chunk #67, attention cue badges per chunk #62) consume the existing `pulse://stream/connection-state`, `pulse://stream/service-lifecycle`, and `pulse://stream/attention-cues` broadcast topics — their placement, wireframe regions, component hierarchy, focus order, responsive breakpoints, modal/dialog patterns, navigation, and empty-states are all unchanged.
+
+Verified via grep against `layout-templates.md`: no layout-level wireframe or component-placement rule references the specific thresholds, percentile, operation identity, or quiet-floor semantics being adjusted. The threshold delta is purely a backend timing change — the dot's visual transition behavior is governed entirely by the broadcast topic's emitted state (Listening/Receiving/Idle/Stalled/ReceiverFailed), which keeps the same shape; only the timing of state transitions shifts. Layout consumers don't observe the threshold values themselves.
+
+No layout constraints, patterns, anti-patterns, contract bindings, or acceptance criteria contributions apply.

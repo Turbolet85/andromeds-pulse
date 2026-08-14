@@ -1,0 +1,40 @@
+{
+  "epoch": "Epoch 3 — State honesty & legibility",
+  "records": 196,
+  "step": 126,
+  "friction": 70,
+  "unparseable": 0,
+  "chunks": [
+    "2026-07-05-anomaly-surfacing",
+    "2026-07-05-constellation-severity-live-wiring",
+    "2026-07-05-legible-labeled-constellation",
+    "2026-07-06-incidents-panel-dropdown-layout-bug",
+    "2026-07-07-plain-language-connection-status",
+    "2026-07-07-traces-table-auto-refresh",
+    "2026-07-08-self-explaining-empty-states",
+    "2026-07-09-traces-table-layout-polish",
+    "2026-07-10-incidents-floating-window-disclosure"
+  ],
+  "step_runs_per_skill_step": {
+    "andromeda-implement/code": 9,
+    "andromeda-implement/fix-loop": 9,
+    "andromeda-implement/smoke": 9,
+    "andromeda-new-session/orientation": 9,
+    "andromeda-phase/distill": 9,
+    "andromeda-phase/plan": 9,
+    "andromeda-phase/research": 9,
+    "andromeda-phase/take-up": 9,
+    "andromeda-phase/validate": 9,
+    "andromeda-wrap-session/curation": 9,
+    "andromeda-wrap-session/gates": 9,
+    "andromeda-wrap-session/reconcile": 9,
+    "andromeda-wrap-session/report": 9,
+    "andromeda-wrap-session/route-resolve": 9
+  },
+  "untyped_total": 6,
+  "problem_fact_fill": {
+    "populated": 44,
+    "of": 126
+  },
+  "calibration": "capture began mid-Epoch-3 (earliest 2026-07-05); 2026-07-01-live-only-service-truth predates capture"
+}

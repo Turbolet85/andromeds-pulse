@@ -1,0 +1,95 @@
+    Checking getrandom v0.2.17
+   Compiling generic-array v0.14.7
+    Checking typenum v1.20.0
+   Compiling zerocopy v0.8.48
+   Compiling ahash v0.8.12
+    Checking cpufeatures v0.2.17
+    Checking memchr v2.8.0
+    Checking subtle v2.6.1
+    Checking opaque-debug v0.3.1
+    Checking proc-canonicalize v0.1.3
+    Checking smallvec v1.15.1
+    Checking zeroize v1.8.2
+    Checking dunce v1.0.5
+   Compiling serde_core v1.0.228
+   Compiling cc v1.2.61
+   Compiling num-traits v0.2.19
+   Compiling syn v2.0.117
+    Checking soft-canonicalize v0.5.6
+    Checking rand_core v0.6.4
+    Checking keyring v3.6.3
+    Checking strict-path v0.2.2
+    Checking aho-corasick v1.1.4
+   Compiling libsqlite3-sys v0.30.1
+    Checking regex-automata v0.4.14
+    Checking crypto-common v0.1.7
+    Checking inout v0.1.4
+error: failed to run custom build command for `libsqlite3-sys v0.30.1`
+
+Caused by:
+  process didn't exit successfully: `D:\dev\projects\andromeda-pulse\target\debug\build\libsqlite3-sys-6fee38206fa9b22f\build-script-build` (exit code: 1)
+  --- stdout
+  cargo:rerun-if-env-changed=LIBSQLITE3_SYS_USE_PKG_CONFIG
+  cargo:include=D:\dev\rust\cargo\registry\src\index.crates.io-1949cf8c6b5b557f\libsqlite3-sys-0.30.1/sqlite3
+  cargo:rerun-if-changed=sqlite3/sqlite3.c
+  cargo:rerun-if-changed=sqlite3/wasm32-wasi-vfs.c
+  cargo:rerun-if-env-changed=SQLITE_MAX_VARIABLE_NUMBER
+  cargo:rerun-if-env-changed=SQLITE_MAX_EXPR_DEPTH
+  cargo:rerun-if-env-changed=SQLITE_MAX_COLUMN
+  cargo:rerun-if-env-changed=LIBSQLITE3_FLAGS
+  cargo:rerun-if-env-changed=CC_FORCE_DISABLE
+  CC_FORCE_DISABLE = None
+  cargo:rerun-if-env-changed=VCINSTALLDIR
+  VCINSTALLDIR = None
+  cargo:rerun-if-env-changed=VSTEL_MSBuildProjectFullPath
+  VSTEL_MSBuildProjectFullPath = None
+  cargo:rerun-if-env-changed=VCToolsVersion
+  VCToolsVersion = None
+  cargo:rerun-if-env-changed=VSCMD_ARG_VCVARS_SPECTRE
+  VSCMD_ARG_VCVARS_SPECTRE = None
+  cargo:rerun-if-env-changed=WindowsSdkDir
+  WindowsSdkDir = None
+  cargo:rerun-if-env-changed=WindowsSDKVersion
+  WindowsSDKVersion = None
+  cargo:rerun-if-env-changed=LIB
+  LIB = None
+  PATH = Some(D:\dev\projects\andromeda-pulse\target\debug;D:\dev\projects\andromeda-pulse\target\debug\deps;D:\dev\rust\rustup\toolchains\nightly-x86_64-pc-windows-msvc\lib\rustlib\x86_64-pc-windows-msvc\lib;C:\Users\turbo\bin;C:\Program Files\Git\mingw64\bin;C:\Program Files\Git\usr\local\bin;C:\Program Files\Git\usr\bin;C:\Program Files\Git\usr\bin;C:\Program Files\Git\mingw64\bin;C:\Program Files\Git\usr\bin;C:\Users\turbo\bin;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0;C:\WINDOWS\System32\OpenSSH;C:\Program Files\dotnet;C:\Program Files\NVIDIA Corporation\NVIDIA App\NvDLISR;C:\Program Files (x86)\NVIDIA Corporation\PhysX\Common;C:\Program Files\nodejs;C:\Program Files\Git\cmd;C:\Program Files\GitHub CLI;C:\ffmpeg;C:\Program Files\Docker\Docker\resources\bin;C:\Program Files\Tailscale;C:\Program Files\Go\bin;D:\dev\node\pnpm;D:\dev\node\npm;D:\dev\rust\cargo\bin;D:\dev\go\bin;C:\Users\turbo\scoop\apps\imagemagick\current;C:\Users\turbo\scoop\apps\gcc\current\bin;C:\Users\turbo\scoop\shims;C:\ffmpeg;C:\Users\turbo\AppData\Roaming\npm;C:\Users\turbo\AppData\Local\Python\bin;C:\ffmpeg;C:\Users\turbo\go\bin;C:\Program Files\Git\usr\bin\vendor_perl;C:\Program Files\Git\usr\bin\core_perl;C:\Users\turbo\.claude\plugins\cache\claude-plugins-official\rust-analyzer-lsp\1.0.0\bin;D:\dev\rust\rustup\toolchains\nightly-x86_64-pc-windows-msvc\bin)
+  cargo:rerun-if-env-changed=INCLUDE
+  INCLUDE = None
+  cargo:rerun-if-env-changed=CC_x86_64-pc-windows-msvc
+  CC_x86_64-pc-windows-msvc = None
+  cargo:rerun-if-env-changed=CC_x86_64_pc_windows_msvc
+  CC_x86_64_pc_windows_msvc = None
+  cargo:rerun-if-env-changed=HOST_CC
+  HOST_CC = None
+  cargo:rerun-if-env-changed=CC
+  CC = None
+  cargo:rerun-if-env-changed=CRATE_CC_NO_DEFAULTS
+  CRATE_CC_NO_DEFAULTS = None
+  cargo:rerun-if-env-changed=CFLAGS
+  CFLAGS = None
+  cargo:rerun-if-env-changed=HOST_CFLAGS
+  HOST_CFLAGS = None
+  cargo:rerun-if-env-changed=CFLAGS_x86_64_pc_windows_msvc
+  CFLAGS_x86_64_pc_windows_msvc = None
+  cargo:rerun-if-env-changed=CFLAGS_x86_64-pc-windows-msvc
+  CFLAGS_x86_64-pc-windows-msvc = None
+  cargo:rerun-if-env-changed=CC_ENABLE_DEBUG_OUTPUT
+  sqlite3.c
+  cl : Command line error D8050 : cannot execute 'C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Tools\MSVC\14.44.35207\bin\HostX64\x64\c1.dll': failed to get command line into debug records
+
+  --- stderr
+
+
+  error occurred in cc-rs: command did not execute successfully (status code exit code: 2): "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\bin\\HostX64\\x64\\cl.exe" "-nologo" "-MD" "-Z7" "-Brepro" "-W0" "-DSQLITE_CORE" "-DSQLITE_DEFAULT_FOREIGN_KEYS=1" "-DSQLITE_ENABLE_API_ARMOR" "-DSQLITE_ENABLE_COLUMN_METADATA" "-DSQLITE_ENABLE_DBSTAT_VTAB" "-DSQLITE_ENABLE_FTS3" "-DSQLITE_ENABLE_FTS3_PARENTHESIS" "-DSQLITE_ENABLE_FTS5" "-DSQLITE_ENABLE_JSON1" "-DSQLITE_ENABLE_LOAD_EXTENSION=1" "-DSQLITE_ENABLE_MEMORY_MANAGEMENT" "-DSQLITE_ENABLE_RTREE" "-DSQLITE_ENABLE_STAT4" "-DSQLITE_SOUNDEX" "-DSQLITE_THREADSAFE=1" "-DSQLITE_USE_URI" "-DHAVE_USLEEP=1" "-DHAVE_ISNAN" "-D_POSIX_THREAD_SAFE_FUNCTIONS" "-FoD:\\dev\\projects\\andromeda-pulse\\target\\debug\\build\\libsqlite3-sys-1639b2d703cd0c09\\out\\c877a2978823c39d-sqlite3.o" "-c" "sqlite3/sqlite3.c"
+
+
+warning: build failed, waiting for other jobs to finish...
+Error: `"Cargo.toml"` is a virtual manifest.
+
+Listing or diffing the public API of an entire workspace is not supported.
+
+Try
+
+    cargo public-api -p specific-crate
+

@@ -1129,6 +1129,17 @@ fn main() {
                     // Drain the receiver to keep the OTLP ingest path live so
                     // chunk #16/#17 receivers don't cascade into channel saturation.
                     // Retention task is also skipped — no connection to sweep.
+                    //
+                    // Announce it: draining is indistinguishable from a healthy
+                    // path in ingest's own counters (they count at receipt), so
+                    // without this line a dead fingerprint feed and absent
+                    // DuckDB appends can only be inferred from missing signal.
+                    tracing::warn!(
+                        target: "app.boot.buffer.degraded",
+                        reason = "buffer_conn_absent",
+                        consequence = "duckdb_appends_and_fingerprint_feed_inert",
+                        "buffer connection absent; ingest batches are drained and discarded this boot",
+                    );
                     tauri::async_runtime::spawn(async move {
                         let mut rx = ingest_receiver;
                         while rx.recv().await.is_some() {}

@@ -119,6 +119,7 @@ These triggers are decided-and-recommended but not yet wired into the suite abov
 | `security-vector-coverage: Path env var canonicalization log redaction` | Set `ANDROMEDA_PULSE_PLUGIN_DIR=../../etc/passwd` → assert canonicalization rejects + logs only basename. (vector 6) |
 | `security-vector-coverage: Capability widening static analysis` | Xtask test parses each `pulse-app/capabilities/*.json` and asserts (a) `pulse:notification` holds only outbound emit permissions (no input handlers); (b) `pulse:tray` only outbound menu/icon (no incoming-event handlers); (c) `pulse:plugin-fs` limited to read of resolved plugin dir, no write/delete/execute, never exposed to webview JS. Fails with named permission + capability on widening detection. (catches declarative widening that runtime IPC gating cannot) |
 | `living-artifact-tooling-rerun-coverage` | wrap-session Phase 5 MUST execute the Tooling command from each `.andromeda/context/{artifact}.md` METADATA at every wrap; skip-on-webview-only is forbidden (documented root cause of api-surface.md staleness). Skill-level / out-of-project-scope; anchored here as the documented gap. |
+| `harness-encoding-relay-coverage` | `scripts/agent-run.sh` / `.ps1` export `PYTHONUTF8=1` + `PYTHONIOENCODING=utf-8` (PowerShell additionally sets `[Console]::OutputEncoding`/`InputEncoding`), but no harness leg asserts a child process actually receives UTF-8 — the relay ships verified only by parse-check + presence-of-export. Behavioural assertion pending. |
 
 (The `chunk-gate-baseline-coverage` and `boot-smoke-coverage` triggers are already active disciplines — see §3 "Per-chunk gate discipline".)
 
@@ -144,9 +145,9 @@ These triggers are decided-and-recommended but not yet wired into the suite abov
 - Self-bootstrapping fixtures — no developer-seeded data; all fixture data generated at test runtime via OTLP ingest or Rust builders
 
 **Test directory + naming conventions:**
-- **Directory pattern:** co-located with source under each crate's `src/` (no separate `tests/` directory per upstream-context arch Test-Relevant Conventions)
+- **Directory pattern:** co-located with source under each crate's `src/` (no separate `tests/` directory per upstream-context arch Test-Relevant Conventions) — **EXCEPT the `pulse-app` binary crate**, whose `[lib] test = false` (the Windows WebView2 load workaround) makes co-located `mod tests` compile under clippy but never run; pulse-app's unit-shaped probes therefore live as separate integration-target files under `pulse-app/tests/*.rs`, reaching module internals via `pub` + `#[doc(hidden)]` accessors
 - **File naming:** standard Rust test module naming (`#[cfg(test)] mod tests { … }`)
-- **Test function naming:** `#[test]` functions and `#[tokio::test]` for async; integration tests in `src/` per-module test submodule
+- **Test function naming:** `#[test]` functions and `#[tokio::test]` for async; per-module test submodules live in `src/` for the library crates, while pulse-app's are `#[test]` fns in `pulse-app/tests/*.rs`
 
 ---
 
@@ -297,7 +298,7 @@ The webview gates (`npm run lint` / `typecheck` / `test`) are excluded only when
 
 **Conventions:**
 - **Test file location:**
-  - **Rust:** co-located `#[cfg(test)] mod tests { … }` within each crate's source (ingest, buffer, viz, ui-bridge, snapshot, workspace-detector, plugins, mcp-server)
+  - **Rust:** co-located `#[cfg(test)] mod tests { … }` within each LIBRARY crate's source (ingest, buffer, viz, ui-bridge, snapshot, workspace-detector, plugins, mcp-server); `pulse-app` is the exception — `[lib] test = false` means its unit probes live in `pulse-app/tests/*.rs` and assert against `pub` + `#[doc(hidden)]` surfaces
   - **Webview:** co-located `*.test.tsx` adjacent to source under `pulse-app/ui/src/`
 - **Test function naming:** `#[test] fn test_<entity>_<scenario>()` (e.g., `#[test] fn test_trace_span_builder_with_12_byte_span_id_rejects()`)
 - **Test grouping:** flat functions per module (no nested describe blocks; Rust convention is flat)

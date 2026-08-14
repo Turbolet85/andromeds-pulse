@@ -1,0 +1,33 @@
+## 2. Security Plan Excerpt
+
+### Security Tier
+
+- **Tier:** Minimal (0)
+- **Justification:** "This is a local-first, zero-infrastructure single-user desktop app with no user accounts, no persistent user data store (in-memory DuckDB ring buffer with 5–10 min retention), no internet-exposed network surface (OTLP receivers bound to `127.0.0.1` only), and no compliance-regulated data classifications."
+
+### Logging-Sensitive Vectors
+
+- **Vector 1: public API (OTLP/gRPC `:4317` + OTLP/HTTP `:4318`)** — logging implication: raw OTLP attribute values, span/log/metric content payloads must NEVER appear in logs; they may contain incidentally captured secrets, IDs, URLs, error messages, and SQL fragments from the instrumented host application
+- **Vector 2: IPC (Tauri TauRPC bridge)** — logging implication: `AppError` enum variants crossing the bridge must be sanitized; never expose stack traces, Rust struct names, file paths, or library versions in content surfaced to webview
+- **Vector 3: plugin host (WASM Component Model)** — logging implication: plugin load failures must be logged for operational debugging, but never log full canonicalized plugin file paths (basename only is acceptable)
+- **Vector 4: MCP stdio surface** — logging implication: MCP tool response bodies must NEVER be logged; they surface OTLP attribute values to external LLM clients and are the indirect-prompt-injection surface
+- **Vector 5: filesystem reads (config + workspace detection)** — logging implication: DuckDB query parameters and workspace-detector output must NEVER be logged as-is; log query identifier + parameter count instead
+- **Vector 6: CLI input (env vars)** — logging implication: path env vars are subject to CWE-22 (Path Traversal) risks; canonicalize and validate paths during load, log basename only in errors
+
+### Anti-Patterns Rejected
+
+- **Raw OTLP attribute logging** — rejected because: OTLP values are user-controlled telemetry containing incidentally captured secrets, IDs, URLs, error messages from instrumented applications
+- **DuckDB string interpolation (`format!("SELECT … WHERE service_name = '{}'")`)** — rejected because: Dagster GHSA-mjw2-v2hm-wj34, Vanna CVE-2024-5827, dagster-duckdb CVE-2026-41490 document this as the dominant 2026 DuckDB vulnerability class; always use `Connection::prepare` with `?` placeholders
+- **Untrusted plugin-returned Arrow IPC without size cap** — rejected because: plugin-sourced Arrow IPC must be size-bounded before re-emitting on Tauri `Channel` API
+- **Snapshot file contents logged or unguarded** — rejected because: snapshots persist to disk containing OTLP-derived secrets; must surface user-facing warning and emit a non-suppressible clipboard-write toast event
+- **Token exposure in updater URLs** — rejected because: tauri-plugin-updater Minisign Ed25519 verification is mandatory and cannot be disabled; never log download URL query strings (may contain auth tokens in future scopes)
+- **MCP double-gate omission** — rejected because: MCP stdio surface must require both `--features mcp-server` compile-time gate AND `ANDROMEDA_PULSE_MCP_ENABLED=true` runtime gate; graceful-degrade `warn` when env-var set without feature flag MUST be preserved
+- **Suboptimal TauRPC bridge error handling** — rejected because: never serialize `anyhow::Error` directly; must convert to `serde`-friendly `AppError` enum to avoid leaking full error chain to webview
+- **Uncanonicalized path env vars** — rejected because: CWE-22 (Path Traversal) class attack via `ANDROMEDA_PULSE_*_PATH` / `*_DIR` env vars; must canonicalize and confine to resolved per-platform data dir or explicit override base
+
+### Data Classifications
+
+- **telemetry payloads (traces, metrics, logs)** (Sensitivity: High) — obs handling: scrub-required; appears in: OTLP receivers (ingest crate `:4317`/`:4318`), DuckDB in-memory ring buffer (buffer crate), broadcast fan-out to viz/MCP, curated snapshot files (`~/.andromeda-pulse/snapshots/`); Note: can contain incidentally captured secrets, IDs, URLs, error messages, SQL fragments from instrumented host application
+- **config (user settings)** (Sensitivity: Low) — obs handling: OK to log structured; appears in: `~/.andromeda-pulse/config.toml`, env vars `ANDROMEDA_PULSE_*` (enums, port ranges, file paths, retention seconds, log level, MCP enabled flag, plugin dir)
+- **config (signing/release credentials)** (Sensitivity: Critical) — obs handling: never-log; appears in: GitHub Actions encrypted secrets, Azure Key Vault, Apple Developer ID; Note: out of runtime scope; binary ships public key only
+- **third-party WASM plugin binaries** (Sensitivity: High) — obs handling: scrub-required; appears in: `~/.andromeda-pulse/plugins/` loaded by wasmtime Component Model host; Note: signed-plugin verification deferred post-v1; basenames only in logs

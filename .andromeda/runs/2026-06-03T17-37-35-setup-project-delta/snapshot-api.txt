@@ -1,0 +1,170 @@
+pub mod snapshot
+pub mod snapshot::contract
+pub use snapshot::contract::AggregationResult
+pub use snapshot::contract::AnomalyKind
+pub use snapshot::contract::AnomalyMarker
+pub use snapshot::contract::CriticalPathStep
+pub use snapshot::contract::CurationOutput
+pub use snapshot::contract::ServicePercentiles
+pub use snapshot::contract::SpanRecord
+pub use snapshot::contract::aggregate_metrics
+pub use snapshot::contract::dedupe_spans
+pub use snapshot::contract::detect_anomalies
+pub use snapshot::contract::extract_critical_path
+pub enum snapshot::contract::Error
+pub snapshot::contract::Error::EmptyInput
+pub snapshot::contract::Error::InvalidSpanRecord
+pub snapshot::contract::Error::InvalidSpanRecord::kind: &'static str
+pub snapshot::contract::Error::LatencyDistributionDegenerate
+pub snapshot::contract::Error::LatencyDistributionDegenerate::reason: &'static str
+pub snapshot::contract::Error::OrphanParentSpan
+pub snapshot::contract::Error::OrphanParentSpan::parent: [u8; 8]
+impl core::cmp::Eq for snapshot::contract::Error
+impl core::cmp::PartialEq for snapshot::contract::Error
+pub fn snapshot::contract::Error::eq(&self, other: &snapshot::contract::Error) -> bool
+impl core::error::Error for snapshot::contract::Error
+impl core::fmt::Debug for snapshot::contract::Error
+pub fn snapshot::contract::Error::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::fmt::Display for snapshot::contract::Error
+pub fn snapshot::contract::Error::fmt(&self, __formatter: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for snapshot::contract::Error
+impl core::marker::Freeze for snapshot::contract::Error
+impl core::marker::Send for snapshot::contract::Error
+impl core::marker::Sync for snapshot::contract::Error
+impl core::marker::Unpin for snapshot::contract::Error
+impl core::marker::UnsafeUnpin for snapshot::contract::Error
+impl core::panic::unwind_safe::RefUnwindSafe for snapshot::contract::Error
+impl core::panic::unwind_safe::UnwindSafe for snapshot::contract::Error
+pub enum snapshot::contract::FormatError
+pub snapshot::contract::FormatError::AnchorEncodingFailed
+pub snapshot::contract::FormatError::AnchorEncodingFailed::reason: &'static str
+pub snapshot::contract::FormatError::BudgetExceeded
+pub snapshot::contract::FormatError::BudgetExceeded::actual_tokens: usize
+pub snapshot::contract::FormatError::BudgetExceeded::budget_tokens: usize
+impl core::cmp::Eq for snapshot::contract::FormatError
+impl core::cmp::PartialEq for snapshot::contract::FormatError
+pub fn snapshot::contract::FormatError::eq(&self, other: &snapshot::contract::FormatError) -> bool
+impl core::error::Error for snapshot::contract::FormatError
+impl core::fmt::Debug for snapshot::contract::FormatError
+pub fn snapshot::contract::FormatError::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::fmt::Display for snapshot::contract::FormatError
+pub fn snapshot::contract::FormatError::fmt(&self, __formatter: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for snapshot::contract::FormatError
+impl core::marker::Freeze for snapshot::contract::FormatError
+impl core::marker::Send for snapshot::contract::FormatError
+impl core::marker::Sync for snapshot::contract::FormatError
+impl core::marker::Unpin for snapshot::contract::FormatError
+impl core::marker::UnsafeUnpin for snapshot::contract::FormatError
+impl core::panic::unwind_safe::RefUnwindSafe for snapshot::contract::FormatError
+impl core::panic::unwind_safe::UnwindSafe for snapshot::contract::FormatError
+pub enum snapshot::contract::TokenBudget
+pub snapshot::contract::TokenBudget::Balanced
+pub snapshot::contract::TokenBudget::Conservative
+pub snapshot::contract::TokenBudget::Detailed
+impl snapshot::contract::TokenBudget
+pub const fn snapshot::contract::TokenBudget::as_token_count(self) -> usize
+pub const fn snapshot::contract::TokenBudget::label(self) -> &'static str
+impl core::clone::Clone for snapshot::contract::TokenBudget
+pub fn snapshot::contract::TokenBudget::clone(&self) -> snapshot::contract::TokenBudget
+impl core::cmp::Eq for snapshot::contract::TokenBudget
+impl core::cmp::PartialEq for snapshot::contract::TokenBudget
+pub fn snapshot::contract::TokenBudget::eq(&self, other: &snapshot::contract::TokenBudget) -> bool
+impl core::default::Default for snapshot::contract::TokenBudget
+pub fn snapshot::contract::TokenBudget::default() -> snapshot::contract::TokenBudget
+impl core::fmt::Debug for snapshot::contract::TokenBudget
+pub fn snapshot::contract::TokenBudget::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Copy for snapshot::contract::TokenBudget
+impl core::marker::StructuralPartialEq for snapshot::contract::TokenBudget
+impl serde_core::ser::Serialize for snapshot::contract::TokenBudget
+pub fn snapshot::contract::TokenBudget::serialize<__S>(&self, __serializer: __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
+impl<'de> serde_core::de::Deserialize<'de> for snapshot::contract::TokenBudget
+pub fn snapshot::contract::TokenBudget::deserialize<__D>(__deserializer: __D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
+impl core::marker::Freeze for snapshot::contract::TokenBudget
+impl core::marker::Send for snapshot::contract::TokenBudget
+impl core::marker::Sync for snapshot::contract::TokenBudget
+impl core::marker::Unpin for snapshot::contract::TokenBudget
+impl core::marker::UnsafeUnpin for snapshot::contract::TokenBudget
+impl core::panic::unwind_safe::RefUnwindSafe for snapshot::contract::TokenBudget
+impl core::panic::unwind_safe::UnwindSafe for snapshot::contract::TokenBudget
+pub enum snapshot::contract::TruncationState
+pub snapshot::contract::TruncationState::Applied
+pub snapshot::contract::TruncationState::Applied::dropped_attribute_count: usize
+pub snapshot::contract::TruncationState::Applied::dropped_span_count: usize
+pub snapshot::contract::TruncationState::None
+impl core::clone::Clone for snapshot::contract::TruncationState
+pub fn snapshot::contract::TruncationState::clone(&self) -> snapshot::contract::TruncationState
+impl core::cmp::Eq for snapshot::contract::TruncationState
+impl core::cmp::PartialEq for snapshot::contract::TruncationState
+pub fn snapshot::contract::TruncationState::eq(&self, other: &snapshot::contract::TruncationState) -> bool
+impl core::default::Default for snapshot::contract::TruncationState
+pub fn snapshot::contract::TruncationState::default() -> snapshot::contract::TruncationState
+impl core::fmt::Debug for snapshot::contract::TruncationState
+pub fn snapshot::contract::TruncationState::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Copy for snapshot::contract::TruncationState
+impl core::marker::StructuralPartialEq for snapshot::contract::TruncationState
+impl serde_core::ser::Serialize for snapshot::contract::TruncationState
+pub fn snapshot::contract::TruncationState::serialize<__S>(&self, __serializer: __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
+impl<'de> serde_core::de::Deserialize<'de> for snapshot::contract::TruncationState
+pub fn snapshot::contract::TruncationState::deserialize<__D>(__deserializer: __D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
+impl core::marker::Freeze for snapshot::contract::TruncationState
+impl core::marker::Send for snapshot::contract::TruncationState
+impl core::marker::Sync for snapshot::contract::TruncationState
+impl core::marker::Unpin for snapshot::contract::TruncationState
+impl core::marker::UnsafeUnpin for snapshot::contract::TruncationState
+impl core::panic::unwind_safe::RefUnwindSafe for snapshot::contract::TruncationState
+impl core::panic::unwind_safe::UnwindSafe for snapshot::contract::TruncationState
+pub struct snapshot::contract::AttributeFilterResult
+pub snapshot::contract::AttributeFilterResult::dropped_attribute_count: usize
+pub snapshot::contract::AttributeFilterResult::kept_attribute_count: usize
+pub snapshot::contract::AttributeFilterResult::spans: alloc::vec::Vec<curation::contract::SpanRecord>
+impl core::clone::Clone for snapshot::contract::AttributeFilterResult
+pub fn snapshot::contract::AttributeFilterResult::clone(&self) -> snapshot::contract::AttributeFilterResult
+impl core::cmp::Eq for snapshot::contract::AttributeFilterResult
+impl core::cmp::PartialEq for snapshot::contract::AttributeFilterResult
+pub fn snapshot::contract::AttributeFilterResult::eq(&self, other: &snapshot::contract::AttributeFilterResult) -> bool
+impl core::default::Default for snapshot::contract::AttributeFilterResult
+pub fn snapshot::contract::AttributeFilterResult::default() -> snapshot::contract::AttributeFilterResult
+impl core::fmt::Debug for snapshot::contract::AttributeFilterResult
+pub fn snapshot::contract::AttributeFilterResult::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for snapshot::contract::AttributeFilterResult
+impl serde_core::ser::Serialize for snapshot::contract::AttributeFilterResult
+pub fn snapshot::contract::AttributeFilterResult::serialize<__S>(&self, __serializer: __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
+impl<'de> serde_core::de::Deserialize<'de> for snapshot::contract::AttributeFilterResult
+pub fn snapshot::contract::AttributeFilterResult::deserialize<__D>(__deserializer: __D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
+impl core::marker::Freeze for snapshot::contract::AttributeFilterResult
+impl core::marker::Send for snapshot::contract::AttributeFilterResult
+impl core::marker::Sync for snapshot::contract::AttributeFilterResult
+impl core::marker::Unpin for snapshot::contract::AttributeFilterResult
+impl core::marker::UnsafeUnpin for snapshot::contract::AttributeFilterResult
+impl core::panic::unwind_safe::RefUnwindSafe for snapshot::contract::AttributeFilterResult
+impl core::panic::unwind_safe::UnwindSafe for snapshot::contract::AttributeFilterResult
+pub struct snapshot::contract::MarkdownReport
+pub snapshot::contract::MarkdownReport::budget: snapshot::contract::TokenBudget
+pub snapshot::contract::MarkdownReport::markdown: alloc::string::String
+pub snapshot::contract::MarkdownReport::token_count: usize
+pub snapshot::contract::MarkdownReport::truncation_state: snapshot::contract::TruncationState
+impl core::clone::Clone for snapshot::contract::MarkdownReport
+pub fn snapshot::contract::MarkdownReport::clone(&self) -> snapshot::contract::MarkdownReport
+impl core::cmp::Eq for snapshot::contract::MarkdownReport
+impl core::cmp::PartialEq for snapshot::contract::MarkdownReport
+pub fn snapshot::contract::MarkdownReport::eq(&self, other: &snapshot::contract::MarkdownReport) -> bool
+impl core::default::Default for snapshot::contract::MarkdownReport
+pub fn snapshot::contract::MarkdownReport::default() -> snapshot::contract::MarkdownReport
+impl core::fmt::Debug for snapshot::contract::MarkdownReport
+pub fn snapshot::contract::MarkdownReport::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for snapshot::contract::MarkdownReport
+impl serde_core::ser::Serialize for snapshot::contract::MarkdownReport
+pub fn snapshot::contract::MarkdownReport::serialize<__S>(&self, __serializer: __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
+impl<'de> serde_core::de::Deserialize<'de> for snapshot::contract::MarkdownReport
+pub fn snapshot::contract::MarkdownReport::deserialize<__D>(__deserializer: __D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
+impl core::marker::Freeze for snapshot::contract::MarkdownReport
+impl core::marker::Send for snapshot::contract::MarkdownReport
+impl core::marker::Sync for snapshot::contract::MarkdownReport
+impl core::marker::Unpin for snapshot::contract::MarkdownReport
+impl core::marker::UnsafeUnpin for snapshot::contract::MarkdownReport
+impl core::panic::unwind_safe::RefUnwindSafe for snapshot::contract::MarkdownReport
+impl core::panic::unwind_safe::UnwindSafe for snapshot::contract::MarkdownReport
+pub const snapshot::contract::MAX_ATTRIBUTES_PER_SPAN: usize
+pub const snapshot::contract::MAX_ATTRIBUTE_VALUE_BYTES: usize
+pub fn snapshot::contract::curate(spans: &[curation::contract::SpanRecord]) -> core::result::Result<curation::contract::CurationOutput, snapshot::contract::Error>
+pub fn snapshot::contract::format_markdown(curated: &curation::contract::CurationOutput, budget: snapshot::contract::TokenBudget) -> core::result::Result<snapshot::contract::MarkdownReport, snapshot::contract::FormatError>

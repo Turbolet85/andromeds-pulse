@@ -1,0 +1,5 @@
+   Compiling num-traits v0.2.19
+    Checking curation v0.1.0 (D:\dev\projects\andromeda-pulse\crates\curation)
+    Checking chrono v0.4.44
+ Documenting snapshot v0.1.0 (D:\dev\projects\andromeda-pulse\crates\snapshot)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 2.50s

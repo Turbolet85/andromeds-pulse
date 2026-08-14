@@ -1,0 +1,8 @@
+[
+{
+"sql": "SELECT symbol, crate, file FROM symbol WHERE symbol LIKE '%FindingsDropdown%' OR symbol LIKE '%FindingsCounter%';",
+"rows": 0,
+"result": [],
+"db_state": "fresh"
+}
+]

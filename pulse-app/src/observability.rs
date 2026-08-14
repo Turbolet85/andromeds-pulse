@@ -122,12 +122,17 @@ fn resolve_deployment_environment() -> String {
 
 // Per-module field allowlist for the scrubber. Default-deny: a target with
 // no registered allowlist has every field redacted. Per obs-plan §8.
-struct AllowList {
+// `pub` + doc(hidden) so the resolver probes can run as integration tests:
+// `[lib] test = false` (the Windows WebView2 workaround) means a src-level
+// `mod tests` compiles but never executes.
+#[doc(hidden)]
+pub struct AllowList {
     by_target: HashMap<&'static str, HashSet<&'static str>>,
 }
 
 impl AllowList {
-    fn production() -> Self {
+    #[doc(hidden)]
+    pub fn production() -> Self {
         let mut by_target: HashMap<&'static str, HashSet<&'static str>> = HashMap::new();
 
         // obs-plan §8 per-module allowlists. The `ingest` entry covers heartbeat
@@ -184,6 +189,10 @@ impl AllowList {
                 // emission lands instead of redacting under default-deny.
                 "drain_template_count",
                 "drain_lru_evictions_since_tick",
+                // Fingerprint-feed throughput on buffer.tick.
+                "span_events_seen",
+                "fingerprints_computed",
+                "observer_invocations",
             ]
             .iter()
             .copied()
@@ -571,6 +580,12 @@ impl AllowList {
         by_target.insert(
             "app.boot.otlp.grpc.port",
             ["raw_len"].iter().copied().collect(),
+        );
+        // Explicit leaf entry: `for_target` would otherwise fall back through
+        // split('.') to the unrelated `app` field set and redact both fields.
+        by_target.insert(
+            "app.boot.buffer.degraded",
+            ["reason", "consequence"].iter().copied().collect(),
         );
         by_target.insert(
             "app.boot.otlp.http.bind",
@@ -2132,7 +2147,8 @@ impl AllowList {
         Self { by_target }
     }
 
-    fn for_target(&self, target: &str) -> Option<&HashSet<&'static str>> {
+    #[doc(hidden)]
+    pub fn for_target(&self, target: &str) -> Option<&HashSet<&'static str>> {
         if let Some(set) = self.by_target.get(target) {
             return Some(set);
         }

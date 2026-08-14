@@ -22,6 +22,7 @@ use crate::drain::DrainMiner;
 use crate::fingerprint::{
     ExceptionFingerprint, FingerprintObserver, compute_exception_fingerprint,
 };
+use crate::state::BufferState;
 
 const TS_TZ_UTC: &str = "UTC";
 
@@ -321,6 +322,7 @@ pub(crate) fn extract_string_attribute(attrs: &[KeyValue], key: &str) -> Option<
 pub(crate) fn build_span_events_record_batch(
     batch: &[ResourceSpans],
     fingerprint_observer: Option<&dyn FingerprintObserver>,
+    state: &BufferState,
 ) -> Result<Option<RecordBatch>, Error> {
     let mut trace_ids: Vec<Vec<u8>> = Vec::new();
     let mut span_ids: Vec<Vec<u8>> = Vec::new();
@@ -387,17 +389,30 @@ pub(crate) fn build_span_events_record_batch(
         return Ok(None);
     }
 
+    let span_events_seen = trace_ids.len() as u64;
+    let fingerprints_computed = fingerprints.iter().filter(|fp| fp.is_some()).count() as u64;
+
     // Chunk #66: fan-out fingerprints to observer BEFORE consuming ts_unix_nanos
     // into the Arrow Int64Array. service_names + ts_unix_nanos remain owned
     // by the function until the array constructors below consume them; the
     // observer hook receives copies (i64 + &str borrow).
+    let mut observer_invocations: u64 = 0;
     if let Some(observer) = fingerprint_observer {
         for (row_idx, fp_opt) in fingerprints.iter().enumerate() {
             if let Some(fp) = fp_opt {
                 observer.on_fingerprint(*fp, &service_names[row_idx], ts_unix_nanos[row_idx]);
+                observer_invocations += 1;
             }
         }
     }
+    // Counted independently of `fingerprints_computed` on purpose: equality of
+    // the two proves the fan-out actually ran, where a derived value would
+    // merely assert it should have.
+    state.record_feed_counts(
+        span_events_seen,
+        fingerprints_computed,
+        observer_invocations,
+    );
 
     let trace_id_array = BinaryArray::from_iter_values(trace_ids.iter().map(|v| v.as_slice()));
     let span_id_array = BinaryArray::from_iter_values(span_ids.iter().map(|v| v.as_slice()));
@@ -559,7 +574,8 @@ pub(crate) fn append_span_events_batch(
     batch: &[ResourceSpans],
 ) -> Result<u64, Error> {
     let start = Instant::now();
-    let Some(record_batch) = build_span_events_record_batch(batch, None)? else {
+    let state = BufferState::new();
+    let Some(record_batch) = build_span_events_record_batch(batch, None, &state)? else {
         return Ok(0);
     };
     let row_count = append_record_batch_to_table(conn, "span_events", record_batch)?;
@@ -1558,7 +1574,8 @@ mod tests {
         // Span exists but events vec is empty; expect Ok(None).
         let span = span_with_ids(vec![6u8; 16], vec![6u8; 8], 1_700_000_000_000_000_000);
         let batch = wrap_spans(vec![span]);
-        let result = build_span_events_record_batch(&batch, None).expect("build");
+        let result =
+            build_span_events_record_batch(&batch, None, &BufferState::new()).expect("build");
         assert!(result.is_none());
     }
 
@@ -1754,7 +1771,7 @@ mod tests {
             )],
         );
         let batch = wrap_spans(vec![span]);
-        let record_batch = build_span_events_record_batch(&batch, None)
+        let record_batch = build_span_events_record_batch(&batch, None, &BufferState::new())
             .expect("build")
             .expect("non-empty batch yields record_batch");
 
@@ -1801,9 +1818,19 @@ mod tests {
         );
         let batch = wrap_spans(vec![span]);
 
-        let _record_batch = build_span_events_record_batch(&batch, Some(&observer))
+        let state = BufferState::new();
+        let _record_batch = build_span_events_record_batch(&batch, Some(&observer), &state)
             .expect("build")
             .expect("record_batch built");
+
+        let snap = state.snapshot();
+        assert_eq!(snap.span_events_seen, 3);
+        assert_eq!(snap.fingerprints_computed, 2);
+        assert_eq!(
+            snap.observer_invocations, 2,
+            "observer_invocations is counted at the call, so it equalling \
+             fingerprints_computed proves the fan-out ran"
+        );
 
         let captured = captured.lock().expect("lock");
         assert_eq!(
@@ -1832,7 +1859,8 @@ mod tests {
         );
         let batch = wrap_spans(vec![span]);
 
-        let _record_batch = build_span_events_record_batch(&batch, Some(&observer))
+        let state = BufferState::new();
+        let _record_batch = build_span_events_record_batch(&batch, Some(&observer), &state)
             .expect("build")
             .expect("record_batch built");
 
@@ -1840,5 +1868,10 @@ mod tests {
             captured.lock().expect("lock").is_empty(),
             "observer MUST NOT be invoked for non-exception events"
         );
+
+        let snap = state.snapshot();
+        assert!(snap.span_events_seen > 0, "the events were still seen");
+        assert_eq!(snap.fingerprints_computed, 0);
+        assert_eq!(snap.observer_invocations, 0);
     }
 }

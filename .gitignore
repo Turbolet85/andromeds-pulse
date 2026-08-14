@@ -1,8 +1,9 @@
 # --- Andromeda planning artifacts ---
 # Track plans (architecture, 6 specialist plans, route, project.yaml, state.yaml,
 # context/ living artifacts) — they are the source of truth for the CLAUDE.md ecosystem.
-# Exclude only the audit-trail run directories (ephemeral; large; per-pipeline-invocation).
-.andromeda/runs/
+# The audit-trail run directories are tracked too (operator decision 2026-08-14):
+# they hold the forensic record — fan-out proposals, amendment and decision records —
+# that the per-chunk folders do not carry.
 # Code-graph DB cache (v3 — derived from rust-analyzer SCIP; rebuilt from code, never committed).
 .andromeda/cache/
 # Python bytecode from the code-graph pipeline (scripts/code-graph.py).

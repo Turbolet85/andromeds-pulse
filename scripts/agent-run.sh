@@ -16,6 +16,11 @@
 
 set -euo pipefail
 
+# UTF-8 relay: without these, Python helpers invoked from the harness decode
+# their own output under the host's legacy codepage and mangle non-ASCII.
+export PYTHONUTF8=1
+export PYTHONIOENCODING=utf-8
+
 # Resolve harness paths (override-friendly via env vars per arch §Occupied Resources)
 TMP_BASE="${TMPDIR:-/tmp}"
 DATA_DIR="${ANDROMEDA_PULSE_DATA_DIR:-$TMP_BASE/agent-run-$$}"

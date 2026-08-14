@@ -1,0 +1,17 @@
+# Obs validation — route draft
+
+## Insert
+
+- Between `Tracing self-observation harness` and `A11y dev stack install`: **"PII scrubbing rules wire — span attribute scrubber + log formatter Layer + Sentry before_send pattern (if enabled)"** (epoch: `Foundation`)
+  Reason: per obs plan §8 PII Scrubbing, scrubbing rules must be wired at subscriber-layer init before any feature chunks emit telemetry; prevents data leakage across logging-sensitive vectors 1–6.
+
+- Between `Ingest channel + post-decode invariants` and `Rate limiting + port-override validation`: **"Heartbeat ticks mechanism — long-running subsystem tick interval (10–30s) + {module}.tick event format for ingest/buffer/viz/plugins"** (epoch: `Ingest pipeline`)
+  Reason: per obs plan §3 Heartbeat ticks and §10 SLO Invariants, Standard tier requires periodic tick emissions from long-running tasks; sequencing here ensures tick instrumentation is established before Ingest receivers start emitting span events.
+
+- Between `Polish & ship` and the end: **"Obs CI gates + log aggregation — zero-panic verification, heartbeat-stall detection (>45s gap), perf-budget p99 assertion (snapshot ≤500ms / frame ≤33ms), criterion bench artifact uploads"** (epoch: `Polish & ship`)
+  Reason: per obs plan §9 CI Integration and §10 SLO Invariants, Standard tier requires explicit CI gates for zero unlogged panics, heartbeat continuity, and perf-budget enforcement; these gates must be wired into the release pipeline before shipping.
+
+## Reorder
+
+- Move `Tracing self-observation harness` before `Design tokens bundle`
+  Reason: per obs plan §3 Tracing init, structured logging initialization (tracing-subscriber registry composition + panic hook) must happen at app boot before any runtime spans are emitted, including design-system initialization spans.
