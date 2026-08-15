@@ -209,7 +209,8 @@
         "ref": null,
         "status": "planned"
       },
-      "chunk": null
+      "chunk": null,
+      "notes": "2026-08-14-workspace-key-alignment partially advanced this cap and DECLINED to claim it: that chunk removes the blocker that made every sidecar query_incident_list return zero (the sidecar filtered by data_dir while the app has stamped the detected project root since P-079). It does NOT deliver this cap's acceptance, which additionally requires end-to-end content-fidelity read-back plus the four delegated timing caps P-025/P-027/P-037/P-045 — those belong to the separate 'Conductor e2e verification closure' route entry. Cap stays pooled (chunk:null); do not re-derive this as a dead end."
     },
     {
       "id": "P-076",

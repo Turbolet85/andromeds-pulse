@@ -1,0 +1,217 @@
+[
+{
+"sql": "SELECT caller, file, line FROM calls WHERE callee LIKE '%resolve_workspace_for_incidents%' ORDER BY file, line;",
+"rows": 7,
+"result": [
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 main().",
+"file": "pulse-app/src/main.rs",
+"line": 691
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 crate/",
+"file": "pulse-app/tests/integration_constellation_severity_workspace_key.rs",
+"line": 15
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 resolver_key_equals_producer_workspace_on_detected().",
+"file": "pulse-app/tests/integration_constellation_severity_workspace_key.rs",
+"line": 42
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 resolver_preserves_windows_extended_length_prefix().",
+"file": "pulse-app/tests/integration_constellation_severity_workspace_key.rs",
+"line": 59
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 resolver_falls_back_to_data_dir_on_both_halves().",
+"file": "pulse-app/tests/integration_constellation_severity_workspace_key.rs",
+"line": 69
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 storm_incident_is_found_by_the_resolver_derived_filter_key().",
+"file": "pulse-app/tests/integration_constellation_severity_workspace_key.rs",
+"line": 157
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 zero_incident_state_stays_empty().",
+"file": "pulse-app/tests/integration_constellation_severity_workspace_key.rs",
+"line": 197
+}
+],
+"db_state": "fresh"
+},
+{
+"sql": "SELECT callee, file, line FROM refs WHERE callee LIKE '%resolve_workspace_for_incidents%' ORDER BY file, line;",
+"rows": 7,
+"result": [
+{
+"callee": "rust-analyzer cargo pulse-app 0.1.0 digest_runtime/resolve_workspace_for_incidents().",
+"file": "pulse-app/src/main.rs",
+"line": 691
+},
+{
+"callee": "rust-analyzer cargo pulse-app 0.1.0 digest_runtime/resolve_workspace_for_incidents().",
+"file": "pulse-app/tests/integration_constellation_severity_workspace_key.rs",
+"line": 15
+},
+{
+"callee": "rust-analyzer cargo pulse-app 0.1.0 digest_runtime/resolve_workspace_for_incidents().",
+"file": "pulse-app/tests/integration_constellation_severity_workspace_key.rs",
+"line": 42
+},
+{
+"callee": "rust-analyzer cargo pulse-app 0.1.0 digest_runtime/resolve_workspace_for_incidents().",
+"file": "pulse-app/tests/integration_constellation_severity_workspace_key.rs",
+"line": 59
+},
+{
+"callee": "rust-analyzer cargo pulse-app 0.1.0 digest_runtime/resolve_workspace_for_incidents().",
+"file": "pulse-app/tests/integration_constellation_severity_workspace_key.rs",
+"line": 69
+},
+{
+"callee": "rust-analyzer cargo pulse-app 0.1.0 digest_runtime/resolve_workspace_for_incidents().",
+"file": "pulse-app/tests/integration_constellation_severity_workspace_key.rs",
+"line": 157
+},
+{
+"callee": "rust-analyzer cargo pulse-app 0.1.0 digest_runtime/resolve_workspace_for_incidents().",
+"file": "pulse-app/tests/integration_constellation_severity_workspace_key.rs",
+"line": 197
+}
+],
+"db_state": "fresh"
+},
+{
+"sql": "SELECT from_crate, to_crate FROM crate_edges WHERE to_crate = 'workspace-detector' OR from_crate = 'workspace-detector';",
+"rows": 2,
+"result": [
+{
+"from_crate": "pulse-app",
+"to_crate": "workspace-detector"
+},
+{
+"from_crate": "ui-bridge",
+"to_crate": "workspace-detector"
+}
+],
+"db_state": "fresh"
+},
+{
+"sql": "SELECT from_crate, to_crate FROM crate_edges WHERE to_crate = 'mcp-server' OR from_crate = 'mcp-server';",
+"rows": 8,
+"result": [
+{
+"from_crate": "mcp-server",
+"to_crate": "interpretation"
+},
+{
+"from_crate": "mcp-server",
+"to_crate": "snapshot"
+},
+{
+"from_crate": "mcp-server",
+"to_crate": "corpus"
+},
+{
+"from_crate": "ui-bridge",
+"to_crate": "mcp-server"
+},
+{
+"from_crate": "mcp-server",
+"to_crate": "buffer"
+},
+{
+"from_crate": "mcp-server",
+"to_crate": "curation"
+},
+{
+"from_crate": "mcp-server",
+"to_crate": "triage"
+},
+{
+"from_crate": "mcp-server",
+"to_crate": "viz"
+}
+],
+"db_state": "fresh"
+},
+{
+"sql": "SELECT caller, file, line FROM calls WHERE callee LIKE '%load_active_incidents%' ORDER BY file, line;",
+"rows": 14,
+"result": [
+{
+"caller": "rust-analyzer cargo mcp-server 0.1.0 tools/dispatch_query_incident_list().",
+"file": "crates/mcp-server/src/tools.rs",
+"line": 339
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 incident_persistence/impl#[CorpusIncidentPersistence][IncidentPersistence]load_active_incidents().",
+"file": "pulse-app/src/incident_persistence.rs",
+"line": 89
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 main().",
+"file": "pulse-app/src/main.rs",
+"line": 700
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 auto_resolution_persists_resolved_state_in_corpus().",
+"file": "pulse-app/tests/e2e_incidents_lifecycle.rs",
+"line": 292
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 p043_workspace_switch_scopes_list_counter_and_previously_seen().",
+"file": "pulse-app/tests/e2e_p043_two_workspace_switch.rs",
+"line": 118
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 p043_workspace_switch_scopes_list_counter_and_previously_seen().",
+"file": "pulse-app/tests/e2e_p043_two_workspace_switch.rs",
+"line": 121
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 findings_counter_state_persists_across_app_restart().",
+"file": "pulse-app/tests/integration_findings_counter_persists_across_restart.rs",
+"line": 123
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 produced_incident_persists_across_restart_with_scope_id().",
+"file": "pulse-app/tests/integration_incident_producer_persists_across_restart.rs",
+"line": 117
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 save_then_load_round_trips_active_incident().",
+"file": "pulse-app/tests/unit_incident_persistence.rs",
+"line": 65
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 p042_cross_session_continuity().",
+"file": "pulse-app/tests/unit_incident_persistence.rs",
+"line": 189
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 p043_project_scoped_memory_isolates_workspaces().",
+"file": "pulse-app/tests/unit_incident_persistence.rs",
+"line": 217
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 p043_project_scoped_memory_isolates_workspaces().",
+"file": "pulse-app/tests/unit_incident_persistence.rs",
+"line": 218
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 update_incident_status_persists_acknowledge_state().",
+"file": "pulse-app/tests/unit_incident_persistence.rs",
+"line": 277
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 update_incident_status_resolved_excludes_from_active_list().",
+"file": "pulse-app/tests/unit_incident_persistence.rs",
+"line": 299
+}
+],
+"db_state": "fresh"
+}
+]

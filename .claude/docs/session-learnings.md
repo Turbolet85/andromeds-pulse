@@ -2212,3 +2212,34 @@ Two PRE-EXISTING app behaviors (NOT the findings-window chunk — it touches no 
 2. **The DuckDB append-path stalls after ~10 min of sustained storm + L4.** Ingest keeps RECEIVING (`ingest.tick` `span_count` climbs) but `duckdb.append` stops → `viz.query.traces` returns 0 rows (Traces table reads "no traces") + no NEW incidents form. This is the documented chunk-#99 DuckDB-connection-contention class (L1a/digest SQL starving the appender under load), not a regression. A FRESH RESTART clears the in-memory ring buffer; incidents PERSIST in the corpus (SQLite), so reusing the same `ANDROMEDA_PULSE_DATA_DIR` keeps the badge across a restart while the traces buffer is fresh (but corpus incidents auto-resolve at 120s no-reemission, so re-pump to keep them active).
 
 **Clean live-verify recipe:** fresh app + `ANDROMEDA_PULSE_L4_DETERMINISTIC=true` + fresh `ANDROMEDA_PULSE_DATA_DIR` → poll `:4317` → pump `inject_demo` → glance within the first few minutes (before the append-path stalls). The append-stall is flagged as a follow-up chunk (route carry, P5).
+
+## 2026-08-15 — Cross-process identity must be PUBLISHED, not re-derived, when the consumer's cwd is not the workspace
+
+A value that identifies "which project am I observing" cannot be re-derived independently by a helper
+process the user (or a third-party tool) launched. The MCP stdio sidecar's cwd belongs to whoever spawned
+it — an LLM client, or an external harness running from its own repo root — not to the workspace under
+observation. So "call the same detection function on both sides" produces two different answers and looks
+correct in code review.
+
+The working shape is: the process that OWNS the identity resolves it once and PUBLISHES it to the one
+location both sides already agree on (here the data dir, which the sidecar's own contract requires be
+propagated), and the consumer READS it with a fallback to the pre-publication behaviour. The shared
+derivation still moves down into a leaf crate both ends can reach, so there is exactly one definition —
+but only one side runs it.
+
+Two constraints that shaped it, worth remembering for the next cross-process value: importing the owner's
+crate was a dependency cycle (the binary already depends on the sidecar crate), and a new env var was
+rejected because it would have required a change inside a repo this project must not edit. The published
+file is read as untrusted input even though we wrote it — bounded, UTF-8-checked, control-characters
+rejected, and consumed only as an opaque string, never as a path.
+
+## 2026-08-15 — A filter-then-decrypt read path proves filter alignment by its FAILURE MODE
+
+`CorpusWriter::load_active_incidents` filters on a plaintext column, then decrypts the payload BLOB of each
+row the filter returned. That ordering makes the error a diagnostic: an empty result means the filter
+matched nothing, while a decryption error means the filter matched and the rows came back. When verifying a
+change to what the filter keys on, the transition from "returns empty" to "fails decrypting" is positive
+evidence that the key now aligns — even when a second, unrelated defect blocks the end-to-end read.
+
+Generalizes to any staged read where a cheap predicate precedes an expensive per-row transform: the stage
+an error comes from is information, so record WHICH stage failed rather than just that the call failed.

@@ -239,6 +239,33 @@ fn write_pid_file(data_dir: &Path) {
     tracing::info!(target: "app.boot.pid", pid = pid, path = ?pid_path, "PID file written");
 }
 
+/// Publish the resolved incident workspace key so the MCP stdio sidecar —
+/// a separate process that shares only the data dir — filters incidents by
+/// the identity this process stamps them with. Non-fatal: on failure the
+/// sidecar falls back to `data_dir`, which is the pre-publication behaviour.
+///
+/// Basename only in the log line, per the chunk #43 `workspace.detect`
+/// precedent (obs-plan §5 Vector 5).
+fn publish_workspace_key_for_sidecar(data_dir: &Path, key: &str) {
+    match workspace_detector::contract::publish_workspace_key(data_dir, key) {
+        Ok(()) => tracing::info!(
+            target: "app.boot.workspace_key",
+            workspace_root_basename = Path::new(key)
+                .file_name()
+                .and_then(|n| n.to_str())
+                .unwrap_or("unknown"),
+            key_bytes = key.len(),
+            "workspace key published for sidecar",
+        ),
+        Err(e) => tracing::warn!(
+            target: "app.boot.workspace_key",
+            error_category = "publish_failed",
+            error_detail = %e,
+            "workspace key publish failed; sidecar will fall back to data dir",
+        ),
+    }
+}
+
 fn main() {
     // taurpc's `Router::into_handler()` spawns a background handler-manager
     // task during binding emission and requires a tokio runtime in scope, but
@@ -691,6 +718,7 @@ fn main() {
             .and_then(|cwd| workspace_detector::detect::detect(&cwd).ok());
         pulse_app::digest_runtime::resolve_workspace_for_incidents(detected.as_ref(), &data_dir)
     };
+    publish_workspace_key_for_sidecar(&data_dir, &incident_workspace_key);
     let incident_broadcast = Arc::new(IncidentLifecycleBroadcast::new());
     let incident_persistence: Option<Arc<dyn IncidentPersistence>> =
         corpus_writer.as_ref().map(|w| {

@@ -110,20 +110,15 @@ pub fn resolve_workspace_for_incidents(
     detected: Option<&WorkspaceContext>,
     data_dir: &Path,
 ) -> (String, DigestProjectContext) {
-    match detected {
-        Some(ctx) => (
-            ctx.root.to_string_lossy().into_owned(),
-            workspace_to_digest_context(ctx),
-        ),
-        None => {
-            let key = data_dir.to_string_lossy().into_owned();
-            let context = DigestProjectContext {
-                workspace_canonical_path: key.clone(),
-                ..Default::default()
-            };
-            (key, context)
-        }
-    }
+    let key = workspace_detector::contract::workspace_key(detected, data_dir);
+    let context = match detected {
+        Some(ctx) => workspace_to_digest_context(ctx),
+        None => DigestProjectContext {
+            workspace_canonical_path: key.clone(),
+            ..Default::default()
+        },
+    };
+    (key, context)
 }
 
 /// Spawn the cadence subscriber task. Listens on `cadence_broadcast`,

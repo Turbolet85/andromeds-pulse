@@ -587,6 +587,21 @@ impl AllowList {
             "app.boot.buffer.degraded",
             ["reason", "consequence"].iter().copied().collect(),
         );
+        // Explicit leaf entry, same fallback hazard. Basename only — the full
+        // workspace path is never permitted here (obs-plan §5 Vector 5, the
+        // chunk #43 `workspace.detect` precedent).
+        by_target.insert(
+            "app.boot.workspace_key",
+            [
+                "workspace_root_basename",
+                "key_bytes",
+                "error_category",
+                "error_detail",
+            ]
+            .iter()
+            .copied()
+            .collect(),
+        );
         by_target.insert(
             "app.boot.otlp.http.bind",
             ["bind_address", "reason"].iter().copied().collect(),

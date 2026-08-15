@@ -4085,6 +4085,7 @@ dependencies = [
  "tracing-subscriber",
  "triage",
  "viz",
+ "workspace-detector",
 ]
 
 [[package]]

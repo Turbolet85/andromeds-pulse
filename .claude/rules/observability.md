@@ -55,6 +55,7 @@ Optional fields: `trace_id` / `span_id` (W3C traceparent strings), `duration_ms`
 ## PII scrubbing (Vectors 1–6)
 - NEVER log raw OTLP attribute values — use `attributes_count` + `service_name_tag` only. `#[instrument(skip(req))]` excludes the payload at the source.
 - NEVER log full canonicalized plugin file paths — basename only (`plugin_path_basename: "my-plugin.wasm"`).
+- NEVER log the full workspace root path or the published workspace-key value — the `app.boot.workspace_key` event carries `workspace_root_basename` + `key_bytes` only (WARN form: `error_category` + `error_detail`). It needs its own explicit allowlist leaf entry, since `for_target`'s prefix fallback would otherwise resolve this dotted `app.`-prefixed target to an unrelated field set and redact both fields — same trap as `app.boot.buffer.degraded`.
 - NEVER log DuckDB query parameter values — emit `query_id` + `param_count` + `param_types: ["string", "timestamp"]`.
 - NEVER log MCP tool response bodies — emit `result_type` + `result_count` only.
 - NEVER log clipboard contents (`snapshot.copy_to_clipboard` MUST emit a non-suppressible "X bytes copied" toast event instead).

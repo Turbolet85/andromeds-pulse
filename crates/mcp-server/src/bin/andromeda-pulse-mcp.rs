@@ -67,11 +67,16 @@ fn init_incident_context(data_dir: &Path) -> Option<IncidentToolContext> {
     match Corpus::open(corpus_db_path, keychain) {
         Ok(c) => {
             let corpus: Arc<dyn CorpusWriter> = Arc::new(c);
-            // Match the main process's workspace key derivation
-            // (`incident_workspace_key = data_dir.to_string_lossy()` at
-            // pulse-app/src/main.rs) so query_incident_list filters the same
-            // rows the in-app surface shows.
-            let workspace_root = data_dir.to_string_lossy().to_string();
+            // The app STAMPS incidents with its detected project root, which
+            // this process cannot derive: our cwd belongs to whoever spawned
+            // us (an MCP client, or Conductor from its own repo), not to the
+            // workspace under observation. So the app publishes the key it
+            // stamps and we read it. Absent ⇒ `data_dir`, which is both the
+            // app's own detection-failure fallback and the behaviour before
+            // publication existed.
+            let workspace_root =
+                workspace_detector::contract::read_published_workspace_key(data_dir)
+                    .unwrap_or_else(|| data_dir.to_string_lossy().to_string());
             Some(IncidentToolContext {
                 corpus,
                 workspace_root,

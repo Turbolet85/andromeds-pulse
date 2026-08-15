@@ -199,3 +199,53 @@ async fn zero_incident_state_stays_empty() {
     let registry = InMemoryIncidentRegistry::new();
     assert!(registry.list_active(&filter_key).is_empty());
 }
+
+// ---- cross-process parity: what the app stamps is what the sidecar filters ----
+
+/// The alignment contract. The app's resolver key, published at boot, is the
+/// byte-identical string the sidecar reads back — so a `query_incident_list`
+/// against a shared data dir sees the rows the app stamped. Before this,
+/// the sidecar derived `data_dir` while the app stamped the detected root,
+/// and every sidecar incident query came back empty.
+#[test]
+fn published_key_read_by_the_sidecar_equals_the_app_resolver_key() {
+    let tmp = tempfile::tempdir().expect("tempdir");
+    let data_dir = tmp.path();
+    let ctx = sample_ctx(r"\\?\C:\dev\payments");
+
+    let (app_key, context) = resolve_workspace_for_incidents(Some(&ctx), data_dir);
+    workspace_detector::contract::publish_workspace_key(data_dir, &app_key).expect("publish");
+
+    let sidecar_key = workspace_detector::contract::read_published_workspace_key(data_dir)
+        .expect("sidecar reads the published key");
+
+    assert_eq!(sidecar_key, app_key);
+    assert_eq!(
+        sidecar_key, context.workspace_canonical_path,
+        "the sidecar's filter key must equal the value the producer stamps",
+    );
+    assert_ne!(
+        sidecar_key,
+        data_dir.to_string_lossy(),
+        "a detected workspace must not collapse back to the data dir",
+    );
+}
+
+/// Fallback parity: with nothing published (no app has run against this data
+/// dir), the sidecar's key is `data_dir` — which is exactly what the app's
+/// resolver yields when detection fails, so the two still agree.
+#[test]
+fn absent_published_key_falls_back_to_data_dir_on_both_ends() {
+    let tmp = tempfile::tempdir().expect("tempdir");
+    let data_dir = tmp.path();
+
+    assert_eq!(
+        workspace_detector::contract::read_published_workspace_key(data_dir),
+        None,
+    );
+    let sidecar_key = workspace_detector::contract::read_published_workspace_key(data_dir)
+        .unwrap_or_else(|| data_dir.to_string_lossy().to_string());
+
+    let (app_key, _context) = resolve_workspace_for_incidents(None, data_dir);
+    assert_eq!(sidecar_key, app_key);
+}
