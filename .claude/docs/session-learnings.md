@@ -2243,3 +2243,23 @@ evidence that the key now aligns — even when a second, unrelated defect blocks
 
 Generalizes to any staged read where a cheap predicate precedes an expensive per-row transform: the stage
 an error comes from is information, so record WHICH stage failed rather than just that the call failed.
+
+## 2026-08-15 — A shell that rewrites switches makes an absence claim unfalsifiable
+
+Git Bash on Windows applies MSYS path conversion to arguments that look like POSIX paths, so a
+Windows-style switch such as `cmdkey /list` is rewritten into a filesystem path before the program sees
+it. The program then rejects its own arguments and prints a usage banner instead of doing anything.
+
+The failure is dangerous specifically because of how it composes with a grep. `cmdkey /list | grep -i
+<name>` returns nothing — which is exactly what a truthful "no such entry exists" answer looks like. It
+was used once here as evidence that a test had left no credential behind; re-run through
+`powershell -NoProfile -Command "cmdkey /list"` the same query showed the real list, including an entry
+the first form had reported absent.
+
+The general shape: any ABSENCE claim drawn from a command whose switches the shell may rewrite is
+unfalsifiable, because the broken invocation and the true-negative are indistinguishable downstream.
+Two defences, in order of preference: run the command through a shell that does not rewrite it
+(`powershell -NoProfile`), or prove the invocation works before trusting its silence — check the exit
+code, or first run it in a form you KNOW should produce output. Prefixing `MSYS_NO_PATHCONV=1` also
+suppresses the conversion. This is the same class as the earlier finding that Git Bash `kill <winpid>`
+cannot reach a Windows PID: a POSIX shell wrapper silently mistranslating a native-tool contract.

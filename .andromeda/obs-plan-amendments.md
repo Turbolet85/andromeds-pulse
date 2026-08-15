@@ -76,3 +76,22 @@ redundant, and must not be conflated. **Now current-truth in obs-plan §3 (compl
 **Section:** §8 PII Scrubbing default-deny whitelist; §4 Scenario P7; §1 Critical paths (P7 row)
 **Change:** Registered the new `app.boot.workspace_key` emission — explicit leaf entry permitting `workspace_root_basename` + `key_bytes` (INFO publish) and `error_category` + `error_detail` (WARN failure), basename and byte-count ONLY; the full workspace root path, the key value, and the key-file path are never emitted. Added the event to P7's must-trace chain and required-log-field lists at both restating sites.
 **Why:** the chunk added the emission and the smoke verified it live — `workspace_root_basename="andromeda-pulse"` unredacted (proving the leaf entry resolves) with zero full-path occurrences in the log. An explicit leaf entry is required for the same reason as `app.boot.buffer.degraded`: `for_target`'s prefix fallback would otherwise resolve an `app`-prefixed dotted target to an unrelated field set and redact both fields. Basename-only follows §5 Vector 5 and the chunk #43 `workspace.detect` precedent.
+
+## 2026-08-15-corpus-key-persistence — four corpus allowlist leaves (one a repair), the `*_PASSPHRASE` redaction convention, and the muted-diagnostic backlog
+**Section:** §8 PII Scrubbing → Data classification rules (env-var row) · §8 Default-deny posture → Whitelist per module · §6 Log Coverage → Log levels mapping (`warn` row)
+**Change:** Added explicit §8 leaves for `corpus.open.error` (a REPAIR — emitting since chunk #68 with no
+resolvable entry, so its `error_kind` was redacted), `corpus.keychain.fallback`, `corpus.read.undecryptable`
+and `corpus.orphan.disposition`, together with the invariant that NO bare `corpus` prefix key may exist.
+Extended the secret env-var naming convention with `*_PASSPHRASE` and named
+`ANDROMEDA_PULSE_CORPUS_PASSPHRASE` as never-emitted (not even as a presence flag). Recorded the three new
+WARN targets in the §6 `warn` row with their emission discipline (once per boot / once per query, never per
+row). Recorded a **muted-diagnostic backlog** for three further targets whose fields are redacted today —
+`incidents.list_active.request` · `triage.incident.persist` · `triage.incident.corpus_restore` — with their
+owner named.
+**Why:** The §8 whitelist carried no corpus entry at all, so the shipped default-deny config and the doc's
+enumeration disagreed, and the widening ban the new tests enforce was unrecorded. The `*_PASSPHRASE` gap
+mattered more: §8 classified `ANDROMEDA_PULSE_*` as OK-to-log and redacted only `*_SECRET` / `*_TOKEN` /
+`*_KEY`, so the doc's stated posture sanctioned logging a live secret the implementation deliberately
+withholds. The backlog is recorded as measured-not-fixed because the arm-zero classification was actively
+obstructed by those redactions — an out-of-band sqlite3 read was required — and a gap that costs an
+investigation should be visible to the next reader rather than rediscovered.

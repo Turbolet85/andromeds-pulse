@@ -44,6 +44,29 @@ ignore = [
     # Crate creator archived repository; pastey is the drop-in replacement.
     # Closes when rmcp + specta migrate off paste.
     "RUSTSEC-2024-0436",
+    # im-rc dependency cluster (3 IDs) — unmaintained, NO safe upgrade available.
+    # Transitive via the wasmtime/cranelift stack. Upstream bodil/im-rs is
+    # archived; there is no successor release to move to, so these are the only
+    # class the standing advisory posture permits ignoring (a finding WITH a
+    # stated upgrade path gets a named owner instead — see the 7 below).
+    # Reviewed 2026-08-15 WITH the operator; closes when wasmtime drops im-rc.
+    "RUSTSEC-2026-0247",  # bitmaps 2.1.0 unmaintained
+    "RUSTSEC-2026-0250",  # im-rc 15.1.0 unmaintained
+    "RUSTSEC-2026-0251",  # sized-chunks 0.6.5 unmaintained
+    #
+    # DELIBERATELY NOT IGNORED — 7 findings that DO have a stated safe upgrade.
+    # Ignoring them would be exactly the silent ignore-widening this file's
+    # posture bans, so they stay RED until upgraded. Owner: the working-route
+    # entry "Advisory backlog — upgradeable RustSec findings". Ratified
+    # 2026-08-15 WITH the operator at the corpus-key-persistence wrap:
+    #   RUSTSEC-2026-0189  rmcp 0.6.4            -> >=1.4.0     VULN (DNS rebinding, Streamable HTTP transport; Pulse uses stdio)
+    #   RUSTSEC-2026-0222  wasmtime 43.0.2       -> >=46.0.2    VULN (stores mix up type indices between engines)
+    #   RUSTSEC-2026-0194  quick-xml 0.37/0.39   -> >=0.41.0    VULN (quadratic duplicate-attribute scan)
+    #   RUSTSEC-2026-0195  quick-xml 0.37/0.39   -> >=0.41.0    VULN (unbounded namespace alloc -> memory DoS)
+    #   RUSTSEC-2026-0204  crossbeam-epoch 0.9.18 -> >=0.9.20   VULN (invalid pointer deref in fmt::Pointer)
+    #   RUSTSEC-2026-0190  anyhow 1.0.102        -> >=1.0.103   unsound (Error::downcast_mut)
+    #   RUSTSEC-2026-0253  lru 0.16.4            -> >=0.18.2    unsound (use-after-free in LruCache::pop)
+    #
     # bincode 1.3.3 unmaintained — direct dep in buffer + triage + pulse-app
     # for serialized state persistence (Drain templates / baseline / lifecycle /
     # storm snapshots). Bincode team ceased development after doxxing incident;
@@ -146,6 +169,18 @@ skip = [
     # tower_governor 0.8 transitive deps via governor 0.10 + axum-test (route#19, 2026-05-05)
     { crate = "rand" },
     { crate = "rand_core" },
+    # keyring 3.6.3 platform-backend features (2026-08-15-corpus-key-persistence).
+    # Owner: the corpus key-custody path (`crates/corpus/src/keychain.rs`).
+    # keyring itself depends on BOTH security-framework 2.11 and 3.7 — the
+    # duplicate is INTERNAL to that one crate, not a conflict between keyring
+    # and the rest of the tree, so no version choice here can resolve it.
+    # core-foundation 0.9/0.10 rides along as security-framework 2.x's own dep.
+    # Both are macOS-only code paths, unreachable on Windows/Linux builds.
+    # Not source-fixable: dropping `apple-native` would drop macOS key
+    # persistence entirely, which is the defect this chunk exists to fix.
+    # Revisit when keyring consolidates on a single security-framework major.
+    { crate = "core-foundation" },
+    { crate = "security-framework" },
     # duckdb 1.10502 / libduckdb-sys 1.10502 bundled C++ build pulls zip 6 via libduckdb-sys
     # build script; tauri-plugin-updater 2.10 keeps zip 4 for archive extraction (route#20, 2026-05-06)
     { crate = "zip" },

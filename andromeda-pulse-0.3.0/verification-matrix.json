@@ -210,7 +210,7 @@
         "status": "planned"
       },
       "chunk": null,
-      "notes": "2026-08-14-workspace-key-alignment partially advanced this cap and DECLINED to claim it: that chunk removes the blocker that made every sidecar query_incident_list return zero (the sidecar filtered by data_dir while the app has stamped the detected project root since P-079). It does NOT deliver this cap's acceptance, which additionally requires end-to-end content-fidelity read-back plus the four delegated timing caps P-025/P-027/P-037/P-045 — those belong to the separate 'Conductor e2e verification closure' route entry. Cap stays pooled (chunk:null); do not re-derive this as a dead end."
+      "notes": "2026-08-14-workspace-key-alignment partially advanced this cap and DECLINED to claim it: that chunk removes the blocker that made every sidecar query_incident_list return zero (the sidecar filtered by data_dir while the app has stamped the detected project root since P-079). It does NOT deliver this cap's acceptance, which additionally requires end-to-end content-fidelity read-back plus the four delegated timing caps P-025/P-027/P-037/P-045 — those belong to the separate 'Conductor e2e verification closure' route entry. Cap stays pooled (chunk:null); do not re-derive this as a dead end. 2026-08-15-corpus-key-persistence partially advanced this cap and DECLINED to claim it: that chunk removes the SECOND blocker on the same read-back path — the corpus AES-256-GCM cell key was per-process ephemeral (keyring resolved with no platform credential-store backend), so every cross-process incident read reached decryption and failed there, for every workspace key. It does NOT deliver this cap's acceptance (e2e content-fidelity read-back plus the four delegated timing caps). Cap stays pooled (chunk:null); do not re-derive this as a dead end."
     },
     {
       "id": "P-076",
@@ -223,7 +223,8 @@
         "ref": null,
         "status": "planned"
       },
-      "chunk": null
+      "chunk": null,
+      "notes": "2026-08-15-corpus-key-persistence partially advanced this cap and DECLINED to claim it: the assembled-path e2e could not reach a readable incident while the corpus cell key was per-process ephemeral, and a single undecryptable row failed the whole query. That chunk fixes key persistence, retires the orphaned rows, and hardens the read loops to skip-and-count. It does NOT deliver this cap's acceptance, which requires a tauri-driver e2e driving launch -> telemetry -> Traces -> storm -> incident -> Investigate. Cap stays pooled (chunk:null); do not re-derive this as a dead end."
     },
     {
       "id": "P-077",

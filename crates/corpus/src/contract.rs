@@ -23,6 +23,22 @@ use crate::db;
 use crate::encryption::{EncryptionKey, cell_decrypt, cell_encrypt};
 use crate::schema::{SCHEMA_VERSION, TABLE_NAMES};
 
+/// One aggregate emission per query when rows could not be decrypted, so a
+/// corpus holding undecryptable rows degrades instead of going dark. Count
+/// only — never row identity, workspace, or payload (obs-plan.md §5).
+/// `query_id` is a bounded static label, not caller-supplied text.
+fn warn_skipped_undecryptable(query_id: &'static str, skipped: usize) {
+    if skipped == 0 {
+        return;
+    }
+    tracing::warn!(
+        target: "corpus.read.undecryptable",
+        query_id,
+        rows_skipped = skipped,
+        "undecryptable rows skipped; corpus degraded, not dark",
+    );
+}
+
 /// Per-table record count + on-disk byte size + schema version. Returned
 /// by `Corpus::inspect()` + the `storage.inspect` TauRPC procedure.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -463,10 +479,13 @@ impl CorpusWriter for Corpus {
             .optional()
             .map_err(|_| Error::QueryFailed)?;
         match encrypted_opt {
-            Some(encrypted) => {
-                let plaintext = cell_decrypt(self.key(), &encrypted)?;
-                Ok(Some(plaintext))
-            }
+            Some(encrypted) => match cell_decrypt(self.key(), &encrypted) {
+                Ok(plaintext) => Ok(Some(plaintext)),
+                Err(_) => {
+                    warn_skipped_undecryptable("load_pipeline_metric", 1);
+                    Ok(None)
+                }
+            },
             None => Ok(None),
         }
     }
@@ -644,10 +663,14 @@ impl CorpusWriter for Corpus {
             })
             .map_err(|_| Error::QueryFailed)?;
         let mut result = Vec::new();
+        let mut skipped = 0usize;
         for row in rows {
             let (id, workspace, status, created, updated, resolved, read, encrypted) =
                 row.map_err(|_| Error::QueryFailed)?;
-            let payload = cell_decrypt(self.key(), &encrypted)?;
+            let Ok(payload) = cell_decrypt(self.key(), &encrypted) else {
+                skipped += 1;
+                continue;
+            };
             result.push(IncidentRowRaw {
                 id,
                 workspace,
@@ -659,6 +682,7 @@ impl CorpusWriter for Corpus {
                 payload,
             });
         }
+        warn_skipped_undecryptable("load_active_incidents", skipped);
         Ok(result)
     }
 
@@ -691,10 +715,14 @@ impl CorpusWriter for Corpus {
             })
             .map_err(|_| Error::QueryFailed)?;
         let mut result = Vec::new();
+        let mut skipped = 0usize;
         for row in rows {
             let (id, workspace, status, created, updated, resolved, read, encrypted) =
                 row.map_err(|_| Error::QueryFailed)?;
-            let payload = cell_decrypt(self.key(), &encrypted)?;
+            let Ok(payload) = cell_decrypt(self.key(), &encrypted) else {
+                skipped += 1;
+                continue;
+            };
             result.push(IncidentRowRaw {
                 id,
                 workspace,
@@ -706,6 +734,7 @@ impl CorpusWriter for Corpus {
                 payload,
             });
         }
+        warn_skipped_undecryptable("load_incidents_since", skipped);
         Ok(result)
     }
 
@@ -737,10 +766,16 @@ impl CorpusWriter for Corpus {
             .map_err(|_| Error::QueryFailed)?;
         match row_opt {
             None => Ok(None),
-            Some(mut raw) => {
-                raw.payload = cell_decrypt(self.key(), &raw.payload)?;
-                Ok(Some(raw))
-            }
+            Some(mut raw) => match cell_decrypt(self.key(), &raw.payload) {
+                Ok(plaintext) => {
+                    raw.payload = plaintext;
+                    Ok(Some(raw))
+                }
+                Err(_) => {
+                    warn_skipped_undecryptable("load_incident_by_id", 1);
+                    Ok(None)
+                }
+            },
         }
     }
 
@@ -769,10 +804,14 @@ impl CorpusWriter for Corpus {
             })
             .map_err(|_| Error::QueryFailed)?;
         let mut result = Vec::new();
+        let mut skipped = 0usize;
         for row in rows {
             let (id, workspace, status, created, updated, resolved, read, encrypted) =
                 row.map_err(|_| Error::QueryFailed)?;
-            let payload = cell_decrypt(self.key(), &encrypted)?;
+            let Ok(payload) = cell_decrypt(self.key(), &encrypted) else {
+                skipped += 1;
+                continue;
+            };
             result.push(IncidentRowRaw {
                 id,
                 workspace,
@@ -784,6 +823,7 @@ impl CorpusWriter for Corpus {
                 payload,
             });
         }
+        warn_skipped_undecryptable("load_all_incidents", skipped);
         Ok(result)
     }
 
@@ -938,6 +978,74 @@ mod tests {
         let meta = corpus2.inspect().expect("inspect");
         assert_eq!(meta.record_counts.get("incidents"), Some(&1));
         assert!(meta.total_bytes_on_disk > 0);
+    }
+
+    /// One undecryptable row used to fail the whole query. A mixed corpus must
+    /// now return what it can read — degraded, not dark.
+    #[test]
+    fn mixed_corpus_returns_readable_incidents_and_skips_the_undecryptable_ones() {
+        let tmp = TempDir::new().expect("tmp");
+        let path = tmp.path().join("mixed.db");
+        let key = [0x5Au8; 32];
+
+        let corpus = Corpus::open(
+            path,
+            Arc::new(FakeKeychainBackend::with_seeded_key("corpus-key", key)),
+        )
+        .expect("open");
+
+        corpus
+            .save_incident("ws-mixed", "active", 1_000, 1_000, None, None, b"readable")
+            .expect("readable incident");
+        {
+            let conn = corpus.connection();
+            let guard = conn.lock().expect("lock");
+            guard
+                .execute(
+                    "INSERT INTO incidents (workspace, status, created_unix_nano, updated_unix_nano, payload) VALUES (?, ?, ?, ?, ?)",
+                    rusqlite::params!["ws-mixed", "active", 2_000i64, 2_000i64, &b"not-ciphertext"[..]],
+                )
+                .expect("undecryptable incident");
+        }
+
+        let rows = corpus
+            .load_active_incidents("ws-mixed")
+            .expect("query succeeds despite the undecryptable row");
+
+        assert_eq!(rows.len(), 1);
+        assert_eq!(rows[0].payload, b"readable");
+        assert_eq!(rows[0].created_unix_nano, 1_000);
+    }
+
+    #[test]
+    fn load_incident_by_id_reports_not_found_for_an_undecryptable_row() {
+        let tmp = TempDir::new().expect("tmp");
+        let path = tmp.path().join("by-id.db");
+        let corpus = Corpus::open(
+            path,
+            Arc::new(FakeKeychainBackend::with_seeded_key(
+                "corpus-key",
+                [0x5Bu8; 32],
+            )),
+        )
+        .expect("open");
+        {
+            let conn = corpus.connection();
+            let guard = conn.lock().expect("lock");
+            guard
+                .execute(
+                    "INSERT INTO incidents (workspace, status, created_unix_nano, updated_unix_nano, payload) VALUES (?, ?, ?, ?, ?)",
+                    rusqlite::params!["ws", "active", 1i64, 1i64, &b"not-ciphertext"[..]],
+                )
+                .expect("insert");
+        }
+
+        assert!(
+            corpus
+                .load_incident_by_id(1)
+                .expect("no query error")
+                .is_none()
+        );
     }
 
     #[test]

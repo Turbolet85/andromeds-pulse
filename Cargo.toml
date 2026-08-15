@@ -157,9 +157,18 @@ blake3 = "1"
 # - rusqlite 0.32 with `bundled` feature: statically links SQLite C, no system
 #   dep — cross-platform reproducible Tauri build (same posture as duckdb).
 # - keyring 3: cross-platform OS-keychain abstraction (macOS Keychain, Linux
-#   Secret Service via dbus, Windows DPAPI/Credential Manager). Default features
-#   auto-select per target; tests use the in-memory FakeKeychainBackend trait
-#   impl (per test-plan §6 P5 surrogate pattern; no real keychain in CI).
+#   Secret Service via dbus, Windows Credential Manager). Backends are OPT-IN:
+#   keyring 3.x declares NO `default` feature, so a bare `keyring = "3"` links
+#   no platform store and silently falls back to a per-process in-memory mock —
+#   measured at 2026-08-14-workspace-key-alignment as 13 decryption failures
+#   against rows the previous process wrote. The three `*-native` /
+#   `sync-secret-service` features are keyring's own per-target optional deps
+#   (security-framework / windows-sys / dbus-secret-service), inert off-target.
+#   `crypto-rust` gives dbus-secret-service a pure-Rust session cipher —
+#   dbus-secret-service ships no default crypto, and the openssl alternative
+#   would add a system dep, breaking the reproducibility posture above.
+#   Tests use the in-memory FakeKeychainBackend trait impl (per test-plan §6 P5
+#   surrogate pattern; no real keychain in CI).
 # - aes-gcm 0.10: RustCrypto AES-256-GCM AEAD for per-cell encryption.
 #   Default features only — no platform-specific assembly intrinsics
 #   (preserves cross-platform reproducibility; performance acceptable for
@@ -171,7 +180,12 @@ blake3 = "1"
 # database; chunk #68 plan documents the rationale + flags the security plan
 # §Data Protection §At rest schema-level amendment as a wrap-time follow-up.
 rusqlite = { version = "0.32", features = ["bundled"] }
-keyring = "3"
+keyring = { version = "3", features = [
+    "apple-native",
+    "windows-native",
+    "sync-secret-service",
+    "crypto-rust",
+] }
 aes-gcm = "0.10"
 rand = "0.8"
 regex = "1"

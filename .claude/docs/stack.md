@@ -38,6 +38,7 @@ _Extracted from `.andromeda/architecture.md` Stack and Technologies section by `
 - **ORM / Migrations:** None — direct SQL via `duckdb` crate `Connection` + `Appender`; schema created on startup.
 - **Schema name:** `pulse_buffer` (single in-memory connection, schema `main`).
 - **Reserved tables:** `spans`, `span_events`, `span_links`, `metrics_points`, `log_records`, `resources`, `instrumentation_scopes`.
+- **Secret / key storage:** `keyring` 3.x declared with the explicit platform feature set (`apple-native` / `windows-native` / `sync-secret-service` / `crypto-rust`) — the OS credential store holding the corpus AES-256-GCM cell key (macOS Keychain / Linux Secret Service / Windows Credential Manager), plus `blake3` as the KDF for the opt-in `ANDROMEDA_PULSE_CORPUS_PASSPHRASE` fallback. **The feature set is load-bearing:** keyring 3.x declares no `default` feature, so a bare `keyring = "3"` links no backend and silently yields a per-process key (the defect fixed at chunk 2026-08-15-corpus-key-persistence).
 
 ## Messaging & Events
 - **In-process channels:** `tokio::sync::mpsc` (ingest → DuckDB appender hand-off, built-in backpressure) + `tokio::sync::broadcast` (buffer → live UI subscribers fan-out).

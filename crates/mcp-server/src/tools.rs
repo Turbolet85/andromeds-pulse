@@ -364,7 +364,13 @@ fn dispatch_retrieve_report(
     let ctx = require_incident_ctx(TOOL_RETRIEVE_REPORT, ctx)?;
     let args: IncidentIdArgs = parse_args(TOOL_RETRIEVE_REPORT, arguments)?;
     let row = load_incident_row(ctx, TOOL_RETRIEVE_REPORT, args.incident_id)?;
-    let incident = decode_incident(TOOL_RETRIEVE_REPORT, &row)?;
+    let mut incident = decode_incident(TOOL_RETRIEVE_REPORT, &row)?;
+    // The row id is the incident's identity; the bincode payload's `id` is
+    // whatever was serialized at write time. Without this stamp the report
+    // renders the payload's id and the previously-seen selection cannot
+    // self-exclude, so the incident appears as its own prior — the in-app
+    // resolver reads from the registry and never had the problem (P-038).
+    incident.id = row.id;
     let parsed_l4: Option<L4Output> = incident
         .resolution_summary_text
         .as_deref()

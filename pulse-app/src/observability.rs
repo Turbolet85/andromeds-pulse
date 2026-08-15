@@ -2151,6 +2151,43 @@ impl AllowList {
             .copied()
             .collect(),
         );
+        // Corpus key custody + orphan disposition. Every leaf below is an
+        // EXACT key: `for_target`'s prefix fallback would look up a bare
+        // `corpus` entry, which deliberately does not exist — a prefix key
+        // would silently widen every future `corpus.*` target to one field
+        // set (the 2026-05-07 resolver discipline).
+        //
+        // `corpus.open.error` is a REPAIR, not a new target: it has emitted
+        // from the boot path since chunk #68 with no resolvable entry, so its
+        // `error_kind` was redacted — the one diagnostic that would have named
+        // the per-process-ephemeral-key defect was itself muted.
+        by_target.insert(
+            "corpus.open.error",
+            ["error_kind"].iter().copied().collect(),
+        );
+        by_target.insert(
+            "corpus.keychain.fallback",
+            ["backend_kind", "reason", "consequence"]
+                .iter()
+                .copied()
+                .collect(),
+        );
+        by_target.insert(
+            "corpus.read.undecryptable",
+            ["query_id", "rows_skipped"].iter().copied().collect(),
+        );
+        by_target.insert(
+            "corpus.orphan.disposition",
+            [
+                "disposition_outcome",
+                "rows_purged",
+                "tables_affected",
+                "error_category",
+            ]
+            .iter()
+            .copied()
+            .collect(),
+        );
         by_target.insert(
             "metric.report.render_ms",
             ["value", "section_count", "degraded_mode"]

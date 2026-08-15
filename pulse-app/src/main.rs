@@ -359,6 +359,23 @@ fn main() {
         .zip(corpus_writer.as_ref())
         .map(|(r, w)| StorageApiImpl::new(Arc::clone(r), Arc::clone(w)));
 
+    // Retire content orphaned by an earlier key: inventory first, then purge.
+    // Runs before every other corpus consumer because one undecryptable row
+    // fails an entire query, so the reads below depend on it. Idempotent — a
+    // corpus with nothing orphaned is a no-op.
+    if let Some(c) = corpus_arc.as_ref() {
+        let now_nanos = std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .map(|d| i64::try_from(d.as_nanos()).unwrap_or(i64::MAX))
+            .unwrap_or(0);
+        let outcome = corpus::disposition::dispose_orphaned_content(
+            c.as_ref(),
+            &data_dir.join("corpus"),
+            now_nanos,
+        );
+        corpus::disposition::emit_disposition_outcome(&outcome);
+    }
+
     // Chunk #100 — P-041 pipeline-metrics 30-day retention purge, once per
     // boot. The corpus-side DELETE preserves the newest row per
     // (metric_name, layer) series so baseline / Drain / storm snapshots

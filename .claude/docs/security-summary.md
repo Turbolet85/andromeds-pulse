@@ -9,7 +9,8 @@ _Distilled from `.andromeda/security-plan.md` by `/setup-project`. Read on deman
 
 ## Data classifications
 - **user-content (telemetry payloads):** OTLP traces / metrics / logs in-memory in DuckDB ring buffer + curated snapshots persisted to `~/.andromeda-pulse/snapshots/`. Telemetry can incidentally contain secrets, IDs, URLs, error messages, SQL fragments from instrumented host applications — OTLP attributes are user-controlled content.
-- **config:** `~/.andromeda-pulse/config.toml` + env vars. Surface is small (enum settings, port ranges, file paths).
+- **config:** `~/.andromeda-pulse/config.toml` + env vars. Surface is small (enum settings, port ranges, file paths) — with ONE secret-bearing exception: `ANDROMEDA_PULSE_CORPUS_PASSPHRASE` (opt-in corpus-key fallback; bounded parse ≤1024 bytes, secret-class, never logged).
+- **secret (corpus encryption key):** 32-byte AES-256-GCM cell key for `~/.andromeda-pulse/corpus/corpus.db`, sourced from the OS credential store via `keyring` 3 declared with its explicit platform feature set (keyring 3.x has no `default` feature — a bare `keyring = "3"` links no backend and silently yields a per-process key). Opt-in `ANDROMEDA_PULSE_CORPUS_PASSPHRASE` BLAKE3 fallback, warning once per boot; nothing written to disk. Never logged, never exported (chunk 2026-08-15-corpus-key-persistence).
 - **config (signing/release):** GitHub Actions encrypted secrets + Azure Key Vault Premium SKU. Apple Developer ID. Updater public key baked into `tauri.conf.json`.
 - **user-content (third-party WASM plugins):** `~/.andromeda-pulse/plugins/` loaded by `wasmtime` Component Model host. Capability-scoped per WIT imports. Signed-plugin verification deferred post-v1.
 - **NONE:** credentials / PII / payment / health.

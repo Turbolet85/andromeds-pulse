@@ -199,3 +199,23 @@ _Records key decisions during plan generation + manual additions between phase l
 **Section:** §Input Validation (new boundary row); §Threat Model Summary → Attack surface (MCP stdio vector + filesystem-reads vector); §Secret Management → Runtime / Development / Production-dev separation / What counts as secret; §Data Protection → At rest (persistent incident corpus); §Threat Model Summary → Data classification (corpus row)
 **Change:** (1) Added an §Input Validation row for `<data_dir>/run/workspace-key` — bounded ≤ `MAX_WORKSPACE_KEY_BYTES` (4096), UTF-8 checked, trailing newline trimmed, empty + control-character values rejected, canonicalize-and-confine on write, and the value consumed ONLY as an opaque filter string so CWE-22 is closed by construction. (2) Recorded that the sidecar's stdio is no longer its only input, and added the key file to the filesystem-reads entry-point list with its now-declared validation discipline. (3) Corrected the corpus key-custody claim at all six restating sites from "OS keychain primary OR passphrase-fallback-with-warning" to measured reality: keyring resolves with no platform backend, so the non-persisting mock store yields a per-PROCESS key, no keychain entry is written, and the fallback warning never fires — with the data-loss consequence stated (historical encrypted cells unreadable by any later process).
 **Why:** (1)+(2) register a genuinely new cross-process input boundary this chunk landed, following the 2026-06-29 `window-geometry.json` precedent row (code-validated + unit-tested ⇒ routine registry completeness). (3) records measured truth per the chunk report's "Spec claims disproved by measurement" #1, which names §Secret Management explicitly. The impl fix (keyring platform features + a migration) is owned by the new "Corpus key persistence" working-route entry, not by this chunk.
+
+## 2026-08-15-corpus-key-persistence — corpus key custody closed at 6 restating sites; passphrase + deny carve-outs + a ratified external-decay deferral registered
+**Section:** §Threat Model Summary → Data classification (user-content corpus) · §Data Protection → At rest → Persistent incident corpus · §Secret Management → Storage → Runtime · → Development · → Production / dev separation · §Secret Management → What counts as secret · §Input Validation (CLI / env var row + its rule cell) · §Dependency Security → CI integration · §Bootstrap phases → dep-audit-tooling-install
+**Change:** The 2026-08-14 correction is itself corrected at all SIX sites it landed on: the corpus cell key
+is no longer per-process ephemeral from keyring's mock store — the explicit platform feature set links a real
+OS credential store, the key persists across processes (measured: 0 `decryption_failed` where 13 defined the
+defect; Windows entry `corpus-key.com.andromeda.pulse` present), and the P-049 fallback now has a named
+secret source. Registered `ANDROMEDA_PULSE_CORPUS_PASSPHRASE` in the §Input Validation env-var row with its
+bounded-parse rule (non-empty, ≤ 1024 bytes, unset ⇒ not-configured; KDF input only, never canonicalized,
+never a path, never logged) and added it to "What counts as secret". Recorded the ID-scoped `[bans] skip`
+carve-out discipline (`core-foundation` + `security-framework`, duplicates internal to `keyring`) with
+`multiple-versions = "deny"` unrelaxed and the `tonic` canary unskippable. Ratified a standing external-decay
+deferral for `cargo audit` with `cargo deny check advisories` as the named overlap signal.
+**Why:** The chunk measured the previous claim false and closed it. The fallback's opt-in semantics are
+recorded deliberately: it engages only when configured, so a transient store failure cannot silently switch
+keys — the failure mode that created the orphaned content in the first place. The deferral is bounded, not
+open-ended: `cargo audit` cannot LOAD the RustSec DB (upstream duplicate advisory ID, reproduced), the
+overlap signal still runs every wrap, and the overlap's own findings carry visible dispositions — 3
+no-safe-upgrade IDs ignore-listed, 7 upgradeable ones (5 vulnerabilities) left RED under a named owner
+rather than accepted.

@@ -129,12 +129,15 @@ fn resolver_markdown(incident: &Incident, previously_seen: Vec<PreviouslySeenMat
 #[test]
 fn mcp_retrieve_report_markdown_is_byte_identical_to_resolver() {
     let incident = resolved_incident_with_l4();
-    // The seeded corpus carries only this incident; self-exclusion in the
-    // previously-seen selection leaves the history section empty on both
-    // channels.
-    let expected = resolver_markdown(&incident, Vec::new());
-
     let (ctx, id) = seed_corpus(&incident);
+    // Both channels carry the ROW id, not the payload's serialized id — the
+    // resolver reads from the registry, the sidecar stamps `row.id` after
+    // decode. The seeded corpus carries only this incident; self-exclusion in
+    // the previously-seen selection leaves the history section empty on both.
+    let mut expected_incident = incident.clone();
+    expected_incident.id = id;
+    let expected = resolver_markdown(&expected_incident, Vec::new());
+
     let conn = fresh_buffer();
     let state = VizState::new();
     let value = dispatch_tool(
@@ -162,11 +165,26 @@ fn mcp_retrieve_report_previously_seen_matches_resolver_selection() {
     // P-036 × P-038: with a matching prior incident in the corpus, the
     // tool's "Previously seen" section must equal the canonical
     // resolver-side selection byte-for-byte.
-    let incident = resolved_incident_with_l4();
+    // Both rows must be now-relative: `load_previously_seen` filters on
+    // `created_unix_nano >= now - CORPUS_RETRIEVAL_WINDOW_SECONDS` (30 days).
+    // The shared fixture's ms-scale literals sit in 1970, so a fixed value can
+    // never satisfy that window and the section renders empty.
+    let now = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .map(|d| i64::try_from(d.as_nanos()).unwrap_or(i64::MAX))
+        .unwrap_or(0);
+    let day_nanos = 24 * 60 * 60 * 1_000_000_000i64;
+
+    let mut incident = resolved_incident_with_l4();
+    incident.opened_at_unix_nano = now - day_nanos;
+    incident.updated_at_unix_nano = now - day_nanos + 500;
+    incident.resolved_at_unix_nano = Some(now - day_nanos + 900);
+
     let mut prior = resolved_incident_with_l4();
     prior.title = "Earlier pool saturation".into();
-    prior.opened_at_unix_nano = 1_600_000_000_000;
-    prior.updated_at_unix_nano = 1_600_000_000_000;
+    prior.opened_at_unix_nano = now - 2 * day_nanos;
+    prior.updated_at_unix_nano = now - 2 * day_nanos;
+    prior.resolved_at_unix_nano = Some(now - 2 * day_nanos + 900);
 
     let backend: Arc<dyn KeychainBackend> = Arc::new(FakeKeychainBackend::new());
     let corpus = Corpus::open_in_memory(backend).expect("in-memory corpus");

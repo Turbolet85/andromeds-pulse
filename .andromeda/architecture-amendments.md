@@ -214,3 +214,20 @@ bus-factor mitigation pattern — only the concrete impl swapped (`MistralRsInfe
 **Section:** §Occupied Resources → Filesystem locations; §Occupied Resources → Corpus SQLite database / schema names → At-rest posture
 **Change:** (1) Registered `run/workspace-key` as a data-dir subpath — the resolved incident workspace key, published by the app at boot (atomic `.tmp`+rename, canonicalize-and-confine guard) and read cross-process by the `andromeda-pulse-mcp` sidecar; bounded ≤4096 bytes on read, consumed as an opaque filter string, never joined as a path. (2) Corrected the Corpus at-rest posture: OS-keychain key sourcing is INTENDED but UNIMPLEMENTED — `keyring 3.6.3` resolves with `[log, zeroize]` only, no platform credential-store backend linked, so the cell key is per-process ephemeral and historical encrypted content is orphaned until a backend fix plus migration lands. (3) Dropped the now-false "OS-keychain-encrypted" wording from the duplicate `corpus/corpus.db` subpath entry.
 **Why:** (1) was the chunk's planned Expected amendment, following the 2026-06-29 `window-geometry.json` registration precedent. (2)+(3) record MEASURED truth per the chunk report's "Spec claims disproved by measurement" #1 — the registry asserted a posture that measurement disproved (first process 0 decryption failures; second process 13 `decryption_failed` warnings against its own predecessor's rows; `cmdkey /list` zero entries). Pre-existing defect, unmasked not caused by this chunk; the impl fix is owned by the new "Corpus key persistence" working-route entry.
+
+## 2026-08-15-corpus-key-persistence — corpus key custody landed; two resources + a Stack row registered
+**Section:** §Occupied Resources → Corpus SQLite → At-rest posture · §Occupied Resources → Filesystem locations · §Occupied Resources → Environment variables · §Stack and Technologies
+**Change:** The At-rest posture no longer says key sourcing is INTENDED-but-UNIMPLEMENTED with a per-process
+ephemeral key: `keyring` 3 now carries the explicit platform feature set, so the OS credential store is the
+primary source and the key persists across processes; the opt-in `ANDROMEDA_PULSE_CORPUS_PASSPHRASE`
+fallback and the boot-time inventory-then-purge disposition of pre-fix orphaned content are described, and
+"Windows DPAPI" is corrected to "Windows Credential Manager". The duplicate "per-process ephemeral / no
+OS-keychain backend linked" wording on the `corpus/corpus.db` subpath entry is retired with it. Registered
+two new resources: the env var `ANDROMEDA_PULSE_CORPUS_PASSPHRASE` (bounded parse, secret-class, never
+logged) and the data-dir path `corpus/orphaned-inventory-{unix_nano}.md`. Added a §Stack "Secret / key
+storage" row — the credential-store runtime had never been registered as a stack layer, and the feature set
+is load-bearing because keyring 3.x has no `default` feature.
+**Why:** The chunk measured the previous claim false and closed it — a second boot decrypted its
+predecessor's rows with 0 `decryption_failed` against the 13 that defined the defect, with the Windows
+entry `corpus-key.com.andromeda.pulse` present. This is the inverse of the 2026-08-14 APPLY-AS-MEASURED
+amendment, which recorded the gap and named this chunk as its owner.

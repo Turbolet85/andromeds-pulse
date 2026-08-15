@@ -101,3 +101,18 @@ body markers (removed; rewritten as current-truth prose)._
 **Section:** §4 Unit Test Strategy (workspace-detector bullet); §1 Coverage scope (workspace-detector row); §5 Boundary types covered; §3 standard gate set; §1 Pending coverage triggers (capability-widening row + new `workspace-key-cross-process-coverage`)
 **Change:** (1) Extended workspace-detector's unit-coverage record to the new workspace-key surface (derivation, publish/read round-trip, bounded-read validation, canonicalize-and-confine write guard; crate suite 18 → 26) and noted the crate is now driven non-TauRPC as a library API plus a filesystem round-trip. (2) Added the `pulse-app` boot-publish → `<data_dir>/run/workspace-key` → `mcp-server` `init_incident_context` cross-process boundary to the §5 table. (3) Added `cargo xtask capability-widening-check` to the §3 standard gate set. (4) Reconciled the `Capability widening static analysis` pending row — the gate LANDED at chunk #77 and is CI-wired since #99, so the "not yet wired" framing was false. (5) Added a new `workspace-key-cross-process-coverage` pending trigger for the sidecar-subprocess end-to-end assertion.
 **Why:** (1)(2)(3) register accurate this-chunk truth per the report's Changes and Outcome (the widening gate ran green in this chunk's Test Commands but was named nowhere in the test-plan). (4) is a doc-only correction — the impl already exists, so nothing else needs fixing. (5) records the gap the report's Deviation 4 names: the end-to-end leg is blocked by the corpus key-persistence defect and unblocks with the "Corpus key persistence" route entry.
+
+## 2026-08-15-corpus-key-persistence — cross-process trigger unblocked; `corpus` crate added to the unit-coverage record
+**Section:** §1 Test Scope Summary → Pending coverage triggers (`workspace-key-cross-process-coverage`) · §2 Test Strategy → pyramid Unit row · §4 Unit Test Strategy → What unit tests cover · §4 Conventions → Test file location
+**Change:** Retired the trigger's BLOCKED-by-corpus-key-defect framing — the blocker is cleared, so the
+sidecar-subprocess leg is UNBLOCKED but still unimplemented, with the qualifier that it presumes a host
+with a credential store or a configured passphrase (the fallback is opt-in). Added a `corpus` crate bullet
+to the unit-coverage record covering both P-049 branches, the passphrase bounded parse, the BLAKE3
+derivation, the new `disposition` module, read-path skip-and-count, and the real-process-boundary key test
+(crate suite → 70). Added `corpus` to the two other places the library-crate set is enumerated (§2 pyramid
+Unit row, §4 test-file-location convention).
+**Why:** The trigger named "Corpus key persistence" as its unblocker and that chunk has now landed. The
+`corpus` crate has carried co-located tests since chunk #68 but appeared in none of the three enumerations —
+a pre-existing doc-only gap this chunk's 70-test suite made untenable to leave. The process-boundary
+note is recorded deliberately: the obvious in-process form of that test would have passed while the defect
+was live, so the enumeration states WHY the expensive form is required.
