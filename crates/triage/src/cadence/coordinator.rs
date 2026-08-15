@@ -858,6 +858,92 @@ mod tests {
         );
     }
 
+    /// The Tier-1 arm is Autonomous-ONLY, and that is what makes a short storm
+    /// produce no incident: the retry-storm detector emits `Suggested` at
+    /// `DEFAULT_SUGGESTED_THRESHOLD` occurrences and only escalates to
+    /// `Autonomous` at `DEFAULT_AUTONOMOUS_THRESHOLD`, so a burst that stops in
+    /// between is dropped here by design rather than by defect. Measured at
+    /// chunk `2026-08-15-tier-1-incident-path-investigation`, whose premise
+    /// check found a 6-occurrence external canary sitting in exactly that band.
+    ///
+    /// The Autonomous send at the end is a POSITIVE CONTROL, not decoration: it
+    /// proves the coordinator was alive and subscribed for the whole negative
+    /// window, so the no-Tier-1 assertion cannot pass vacuously.
+    #[tokio::test]
+    async fn start_cadence_coordinator_ignores_suggested_cue_on_the_attention_broadcast() {
+        let (counting, runner) = arc_runner();
+        let broadcast = Arc::new(CadenceEventBroadcast::new());
+        let mut event_rx = broadcast.subscribe();
+        let digest_trigger = Arc::new(DigestTriggerBroadcast::new());
+        let cue_broadcast = Arc::new(AttentionCueBroadcast::new());
+        let cadence_handle = Arc::new(CadenceTriggerChannel::new());
+        let profile = arc_profile(HardwareProfile::Unknown);
+        let config = Arc::new(CadenceConfig::default());
+
+        let handle = tokio::spawn(start_cadence_coordinator(
+            runner,
+            Arc::clone(&broadcast),
+            Arc::clone(&digest_trigger),
+            Arc::clone(&cue_broadcast),
+            cadence_handle,
+            profile,
+            config,
+            watch::channel(CadenceConfig::default()).1,
+        ));
+        tokio::time::sleep(Duration::from_millis(20)).await;
+
+        cue_broadcast
+            .sender()
+            .send(sample_cue(PriorityTier::Suggested))
+            .expect("send suggested cue ok");
+
+        let mut tier1_after_suggested = false;
+        for _ in 0..30 {
+            tokio::time::sleep(Duration::from_millis(10)).await;
+            while let Ok(event) = event_rx.try_recv() {
+                if event.mode == CadenceMode::Tier1 {
+                    tier1_after_suggested = true;
+                }
+            }
+        }
+        let q1_after_suggested = counting.invoked("q1");
+
+        cue_broadcast
+            .sender()
+            .send(sample_cue(PriorityTier::Autonomous))
+            .expect("send autonomous cue ok");
+
+        let mut tier1_after_autonomous = false;
+        for _ in 0..50 {
+            tokio::time::sleep(Duration::from_millis(10)).await;
+            while let Ok(event) = event_rx.try_recv() {
+                if event.mode == CadenceMode::Tier1 {
+                    tier1_after_autonomous = true;
+                }
+            }
+            if tier1_after_autonomous {
+                break;
+            }
+        }
+
+        handle.abort();
+        let _ = handle.await;
+
+        assert!(
+            !tier1_after_suggested,
+            "a Suggested cue on the attention-cue broadcast must NOT run a Tier-1 cycle"
+        );
+        assert!(
+            !q1_after_suggested,
+            "a Suggested cue must not reach the L1a query layer via Tier-1"
+        );
+        assert!(
+            tier1_after_autonomous,
+            "positive control: an Autonomous cue on the same channel MUST run Tier-1 — \
+             without this the negative assertions above could pass on a dead coordinator"
+        );
+    }
+
     #[tokio::test]
     async fn start_cadence_coordinator_responds_to_tier2_suggested_cadence_trigger() {
         let (counting, runner) = arc_runner();

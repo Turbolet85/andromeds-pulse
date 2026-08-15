@@ -2263,3 +2263,25 @@ Two defences, in order of preference: run the command through a shell that does 
 code, or first run it in a form you KNOW should produce output. Prefixing `MSYS_NO_PATHCONV=1` also
 suppresses the conversion. This is the same class as the earlier finding that Git Bash `kill <winpid>`
 cannot reach a Windows PID: a POSIX shell wrapper silently mistranslating a native-tool contract.
+
+## 2026-08-15 — the retry-storm detector's two tiers, and which signal actually names them
+
+The storm detector emits at two thresholds from one fingerprint's occurrence count inside a 30s
+sub-window: `DEFAULT_SUGGESTED_THRESHOLD` (5) yields a `PriorityTier::Suggested` cue, and
+`DEFAULT_AUTONOMOUS_THRESHOLD` (10) yields `Autonomous`. Only the Autonomous tier reaches the
+cadence coordinator's Tier-1 arm, so only a storm sustained past 10 same-fingerprint occurrences
+produces an incident. A burst that stops between 5 and 10 is dropped BY DESIGN, not by defect.
+
+The trap when reading this from a log: `storms_detected_total` increments on BOTH branches, so
+seeing it go 0→1 tells you a storm was detected but NOT which tier fired — and therefore nothing
+about whether an incident should have followed. The field that discriminates is `severity_hint` on
+`triage.pattern.storm.detected` (`"suggested"` vs `"autonomous"`). Any investigation into "a storm
+was detected but no incident exists" has to read the tier first; the counter alone will send you
+looking for a break that isn't there.
+
+A second consequence worth remembering: a Suggested storm has no onward path at all. The
+coordinator's comment says non-Autonomous cues "flow through their dedicated channels", which is
+true for BaselineState-derived cues (the emitter forwards Suggested ones to `CadenceTriggerChannel`)
+but false for storm-derived ones — the storm dispatcher never forwards, so a Suggested storm is
+simply dropped. The comment is recorded as misleading; the fix rides a future chunk that touches
+that file.

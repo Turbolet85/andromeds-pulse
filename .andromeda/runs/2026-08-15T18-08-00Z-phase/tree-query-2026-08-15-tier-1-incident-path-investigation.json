@@ -1,0 +1,431 @@
+[
+{
+"sql": "SELECT callee, file, line FROM refs WHERE callee LIKE '%resolve_workspace_for_incidents%' ORDER BY file, line;",
+"rows": 9,
+"result": [
+{
+"callee": "rust-analyzer cargo pulse-app 0.1.0 digest_runtime/resolve_workspace_for_incidents().",
+"file": "pulse-app/src/main.rs",
+"line": 735
+},
+{
+"callee": "rust-analyzer cargo pulse-app 0.1.0 digest_runtime/resolve_workspace_for_incidents().",
+"file": "pulse-app/tests/integration_constellation_severity_workspace_key.rs",
+"line": 15
+},
+{
+"callee": "rust-analyzer cargo pulse-app 0.1.0 digest_runtime/resolve_workspace_for_incidents().",
+"file": "pulse-app/tests/integration_constellation_severity_workspace_key.rs",
+"line": 42
+},
+{
+"callee": "rust-analyzer cargo pulse-app 0.1.0 digest_runtime/resolve_workspace_for_incidents().",
+"file": "pulse-app/tests/integration_constellation_severity_workspace_key.rs",
+"line": 59
+},
+{
+"callee": "rust-analyzer cargo pulse-app 0.1.0 digest_runtime/resolve_workspace_for_incidents().",
+"file": "pulse-app/tests/integration_constellation_severity_workspace_key.rs",
+"line": 69
+},
+{
+"callee": "rust-analyzer cargo pulse-app 0.1.0 digest_runtime/resolve_workspace_for_incidents().",
+"file": "pulse-app/tests/integration_constellation_severity_workspace_key.rs",
+"line": 157
+},
+{
+"callee": "rust-analyzer cargo pulse-app 0.1.0 digest_runtime/resolve_workspace_for_incidents().",
+"file": "pulse-app/tests/integration_constellation_severity_workspace_key.rs",
+"line": 197
+},
+{
+"callee": "rust-analyzer cargo pulse-app 0.1.0 digest_runtime/resolve_workspace_for_incidents().",
+"file": "pulse-app/tests/integration_constellation_severity_workspace_key.rs",
+"line": 215
+},
+{
+"callee": "rust-analyzer cargo pulse-app 0.1.0 digest_runtime/resolve_workspace_for_incidents().",
+"file": "pulse-app/tests/integration_constellation_severity_workspace_key.rs",
+"line": 248
+}
+],
+"db_state": "fresh"
+},
+{
+"sql": "SELECT callee, file, line FROM refs WHERE callee LIKE '%DigestTrigger%' ORDER BY file, line;",
+"rows": 74,
+"result": [
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cadence/broadcast/DigestTrigger#",
+"file": "crates/triage/src/cadence/broadcast.rs",
+"line": 84
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cadence/broadcast/DigestTriggerBroadcast#",
+"file": "crates/triage/src/cadence/broadcast.rs",
+"line": 87
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cadence/broadcast/DigestTriggerBroadcast#sender.",
+"file": "crates/triage/src/cadence/broadcast.rs",
+"line": 90
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cadence/broadcast/DigestTrigger#",
+"file": "crates/triage/src/cadence/broadcast.rs",
+"line": 93
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cadence/broadcast/DigestTriggerBroadcast#sender.",
+"file": "crates/triage/src/cadence/broadcast.rs",
+"line": 94
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cadence/broadcast/DigestTrigger#",
+"file": "crates/triage/src/cadence/broadcast.rs",
+"line": 97
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cadence/broadcast/DigestTriggerBroadcast#sender.",
+"file": "crates/triage/src/cadence/broadcast.rs",
+"line": 98
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cadence/broadcast/DigestTriggerBroadcast#sender.",
+"file": "crates/triage/src/cadence/broadcast.rs",
+"line": 102
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cadence/broadcast/DigestTriggerBroadcast#",
+"file": "crates/triage/src/cadence/broadcast.rs",
+"line": 106
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cadence/broadcast/impl#[DigestTriggerBroadcast]new().",
+"file": "crates/triage/src/cadence/broadcast.rs",
+"line": 108
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cadence/broadcast/impl#[DigestTriggerBroadcast]new().",
+"file": "crates/triage/src/cadence/broadcast.rs",
+"line": 219
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cadence/broadcast/DigestTriggerBroadcast#",
+"file": "crates/triage/src/cadence/broadcast.rs",
+"line": 219
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cadence/broadcast/impl#[DigestTriggerBroadcast]subscribe().",
+"file": "crates/triage/src/cadence/broadcast.rs",
+"line": 220
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cadence/broadcast/impl#[DigestTriggerBroadcast]sender().",
+"file": "crates/triage/src/cadence/broadcast.rs",
+"line": 221
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cadence/broadcast/DigestTrigger#",
+"file": "crates/triage/src/cadence/broadcast.rs",
+"line": 222
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cadence/broadcast/DigestTrigger#mode.",
+"file": "crates/triage/src/cadence/broadcast.rs",
+"line": 223
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cadence/broadcast/DigestTrigger#executed_at_unix_nano.",
+"file": "crates/triage/src/cadence/broadcast.rs",
+"line": 224
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cadence/broadcast/DigestTrigger#triggering_cue.",
+"file": "crates/triage/src/cadence/broadcast.rs",
+"line": 225
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cadence/broadcast/DigestTrigger#mode.",
+"file": "crates/triage/src/cadence/broadcast.rs",
+"line": 229
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cadence/broadcast/DigestTrigger#triggering_cue.",
+"file": "crates/triage/src/cadence/broadcast.rs",
+"line": 231
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cadence/broadcast/impl#[DigestTriggerBroadcast]subscriber_count().",
+"file": "crates/triage/src/cadence/broadcast.rs",
+"line": 239
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cadence/broadcast/DigestTriggerBroadcast#",
+"file": "crates/triage/src/cadence/broadcast.rs",
+"line": 239
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cadence/broadcast/impl#[DigestTriggerBroadcast][Default]default().",
+"file": "crates/triage/src/cadence/broadcast.rs",
+"line": 239
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cadence/broadcast/DigestTrigger#",
+"file": "crates/triage/src/cadence/coordinator.rs",
+"line": 13
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cadence/broadcast/DigestTriggerBroadcast#",
+"file": "crates/triage/src/cadence/coordinator.rs",
+"line": 13
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cadence/broadcast/DigestTriggerBroadcast#",
+"file": "crates/triage/src/cadence/coordinator.rs",
+"line": 275
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cadence/broadcast/impl#[DigestTriggerBroadcast]sender().",
+"file": "crates/triage/src/cadence/coordinator.rs",
+"line": 345
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cadence/broadcast/DigestTrigger#",
+"file": "crates/triage/src/cadence/coordinator.rs",
+"line": 345
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cadence/broadcast/DigestTrigger#mode.",
+"file": "crates/triage/src/cadence/coordinator.rs",
+"line": 346
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cadence/broadcast/DigestTrigger#executed_at_unix_nano.",
+"file": "crates/triage/src/cadence/coordinator.rs",
+"line": 347
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cadence/broadcast/DigestTrigger#triggering_cue.",
+"file": "crates/triage/src/cadence/coordinator.rs",
+"line": 348
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cadence/broadcast/DigestTrigger#",
+"file": "crates/triage/src/cadence/coordinator.rs",
+"line": 365
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cadence/broadcast/impl#[DigestTriggerBroadcast]sender().",
+"file": "crates/triage/src/cadence/coordinator.rs",
+"line": 365
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cadence/broadcast/DigestTrigger#mode.",
+"file": "crates/triage/src/cadence/coordinator.rs",
+"line": 366
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cadence/broadcast/DigestTrigger#executed_at_unix_nano.",
+"file": "crates/triage/src/cadence/coordinator.rs",
+"line": 367
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cadence/broadcast/DigestTrigger#triggering_cue.",
+"file": "crates/triage/src/cadence/coordinator.rs",
+"line": 368
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cadence/broadcast/DigestTrigger#",
+"file": "crates/triage/src/cadence/coordinator.rs",
+"line": 400
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cadence/broadcast/impl#[DigestTriggerBroadcast]sender().",
+"file": "crates/triage/src/cadence/coordinator.rs",
+"line": 400
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cadence/broadcast/DigestTrigger#mode.",
+"file": "crates/triage/src/cadence/coordinator.rs",
+"line": 401
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cadence/broadcast/DigestTrigger#executed_at_unix_nano.",
+"file": "crates/triage/src/cadence/coordinator.rs",
+"line": 402
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cadence/broadcast/DigestTrigger#triggering_cue.",
+"file": "crates/triage/src/cadence/coordinator.rs",
+"line": 403
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cadence/broadcast/impl#[DigestTriggerBroadcast]sender().",
+"file": "crates/triage/src/cadence/coordinator.rs",
+"line": 438
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cadence/broadcast/DigestTrigger#",
+"file": "crates/triage/src/cadence/coordinator.rs",
+"line": 438
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cadence/broadcast/DigestTrigger#mode.",
+"file": "crates/triage/src/cadence/coordinator.rs",
+"line": 439
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cadence/broadcast/DigestTrigger#executed_at_unix_nano.",
+"file": "crates/triage/src/cadence/coordinator.rs",
+"line": 440
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cadence/broadcast/DigestTrigger#triggering_cue.",
+"file": "crates/triage/src/cadence/coordinator.rs",
+"line": 441
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cadence/broadcast/DigestTriggerBroadcast#",
+"file": "crates/triage/src/cadence/coordinator.rs",
+"line": 770
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cadence/broadcast/impl#[DigestTriggerBroadcast]new().",
+"file": "crates/triage/src/cadence/coordinator.rs",
+"line": 770
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cadence/broadcast/DigestTriggerBroadcast#",
+"file": "crates/triage/src/cadence/coordinator.rs",
+"line": 789
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cadence/broadcast/impl#[DigestTriggerBroadcast]new().",
+"file": "crates/triage/src/cadence/coordinator.rs",
+"line": 789
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cadence/broadcast/impl#[DigestTriggerBroadcast]subscribe().",
+"file": "crates/triage/src/cadence/coordinator.rs",
+"line": 790
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cadence/broadcast/DigestTrigger#mode.",
+"file": "crates/triage/src/cadence/coordinator.rs",
+"line": 835
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cadence/broadcast/DigestTrigger#triggering_cue.",
+"file": "crates/triage/src/cadence/coordinator.rs",
+"line": 836
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cadence/broadcast/impl#[DigestTriggerBroadcast]new().",
+"file": "crates/triage/src/cadence/coordinator.rs",
+"line": 873
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cadence/broadcast/DigestTriggerBroadcast#",
+"file": "crates/triage/src/cadence/coordinator.rs",
+"line": 873
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cadence/broadcast/DigestTriggerBroadcast#",
+"file": "crates/triage/src/cadence/coordinator.rs",
+"line": 920
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cadence/broadcast/impl#[DigestTriggerBroadcast]new().",
+"file": "crates/triage/src/cadence/coordinator.rs",
+"line": 920
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cadence/broadcast/DigestTriggerBroadcast#",
+"file": "crates/triage/src/cadence/coordinator.rs",
+"line": 997
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cadence/broadcast/impl#[DigestTriggerBroadcast]new().",
+"file": "crates/triage/src/cadence/coordinator.rs",
+"line": 997
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cadence/broadcast/DigestTriggerBroadcast#",
+"file": "crates/triage/src/cadence/mod.rs",
+"line": 27
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cadence/broadcast/DigestTrigger#",
+"file": "crates/triage/src/cadence/mod.rs",
+"line": 27
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cadence/broadcast/DigestTrigger#",
+"file": "crates/triage/src/contract.rs",
+"line": 111
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cadence/broadcast/DigestTriggerBroadcast#",
+"file": "crates/triage/src/contract.rs",
+"line": 112
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cadence/broadcast/DigestTriggerBroadcast#",
+"file": "pulse-app/src/digest_runtime.rs",
+"line": 37
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cadence/broadcast/DigestTriggerBroadcast#",
+"file": "pulse-app/src/digest_runtime.rs",
+"line": 129
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cadence/broadcast/impl#[DigestTriggerBroadcast]subscribe().",
+"file": "pulse-app/src/digest_runtime.rs",
+"line": 134
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cadence/broadcast/DigestTrigger#mode.",
+"file": "pulse-app/src/digest_runtime.rs",
+"line": 138
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cadence/broadcast/DigestTrigger#executed_at_unix_nano.",
+"file": "pulse-app/src/digest_runtime.rs",
+"line": 140
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cadence/broadcast/DigestTrigger#triggering_cue.",
+"file": "pulse-app/src/digest_runtime.rs",
+"line": 144
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cadence/broadcast/DigestTrigger#triggering_cue.",
+"file": "pulse-app/src/digest_runtime.rs",
+"line": 150
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cadence/broadcast/impl#[DigestTriggerBroadcast]subscribe().",
+"file": "pulse-app/src/digest_runtime.rs",
+"line": 170
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cadence/broadcast/DigestTriggerBroadcast#",
+"file": "pulse-app/src/main.rs",
+"line": 26
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cadence/broadcast/impl#[DigestTriggerBroadcast]new().",
+"file": "pulse-app/src/main.rs",
+"line": 482
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 cadence/broadcast/DigestTriggerBroadcast#",
+"file": "pulse-app/src/main.rs",
+"line": 482
+}
+],
+"db_state": "fresh"
+}
+]

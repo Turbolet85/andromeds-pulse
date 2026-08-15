@@ -2188,6 +2188,37 @@ impl AllowList {
             .copied()
             .collect(),
         );
+        // Incident-path diagnostics. Each leaf is an EXACT key for the same
+        // reason the `corpus.*` leaves above are: `for_target`'s prefix
+        // fallback would resolve these dotted targets to a bare `incidents` /
+        // `triage` entry, and no such prefix key exists (nor may one be added
+        // — it would silently widen every sibling to one field set).
+        //
+        // All three emitted with their fields redacted, so the diagnostics
+        // that would have named the incident path's state were themselves
+        // mute: the storm→incident classification had to read `corpus.db`
+        // out-of-band instead. Aggregate counts + `&'static str` labels only
+        // (`persist_kind` is typed `&'static str` at the emit site, so its
+        // domain is bounded by construction) — never incident identity,
+        // never workspace strings.
+        by_target.insert(
+            "incidents.list_active.request",
+            ["item_count"].iter().copied().collect(),
+        );
+        by_target.insert(
+            "triage.incident.persist",
+            ["incident_count", "persist_kind", "duration_ms"]
+                .iter()
+                .copied()
+                .collect(),
+        );
+        by_target.insert(
+            "triage.incident.corpus_restore",
+            ["kind", "restored_incident_count"]
+                .iter()
+                .copied()
+                .collect(),
+        );
         by_target.insert(
             "metric.report.render_ms",
             ["value", "section_count", "degraded_mode"]
