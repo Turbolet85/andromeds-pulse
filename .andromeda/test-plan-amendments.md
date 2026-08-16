@@ -121,3 +121,19 @@ was live, so the enumeration states WHY the expensive form is required.
 **Section:** §3 Test Harness Contract → `run` (Test selection) · §3 Per-chunk gate discipline → Boot-smoke gate
 **Change:** (1) §3 `run` gains a measured constraint: narrow a `pulse-app` run with `--filter-expr` / `-E` **under `--workspace`**, not with `-p` — `--workspace` unifies features across members while `-p` resolves a narrower subgraph, so a `-p` selection is not guaranteed compatible with artifacts a `--workspace` build produced. Stated WITHOUT banning `-p` generally, since `cargo test --test <name> -p pulse-app` remains the documented single-binary path for the rlib family. (2) The Boot-smoke gate's trigger list gains `pulse-app/src/observability.rs` (boot-time subscriber/allowlist init, before the OTLP bind), and a new "Direct-binary smoke variant" paragraph records the accepted alternative form — fresh `ANDROMEDA_PULSE_DATA_DIR` + an env-gated mode + a sustained `inject_demo` load, asserted from the run's own log artifacts with clean shutdown by specific pid — for verifications the `npx @tauri-apps/cli dev` and harness `run` forms cannot express.
 **Why:** Measured this chunk. (1) `cargo nextest run -p pulse-app -E 'binary(…)'` failed to link the pulse-app test binaries with `crate X required to be available in rlib format` naming dependency crates, **immediately after a green `cargo build --workspace --tests`**; the identical selection under `--workspace` compiled and passed 1775/1 skipped. (2) The chunk's only production edit was `pulse-app/src/observability.rs`, which is a boot path absent from §3's trigger list, and its verification required two full boots with a live storm because the fields under test are only produced by one — no in-process form could observe them. Doc-only fixes: the chunk's own commands were already correct, so there is no impl half (playbook 2026-08-14 routine-APPLY).
+
+## 2026-08-16-baseline-family-reachability — enumerate the triage crate in all three unit-test sites
+**Section:** §2 Test Strategy → pyramid Unit row · §4 Unit Test Strategy → "What unit tests cover" ·
+§4 → Conventions → Test file location → Rust
+**Change:** `triage` now appears in all three library-crate enumerations (it appeared in NONE — `grep -c
+triage` over test-plan.md returned 0 before this amendment). Added the per-crate bullet describing what its
+unit tests cover: the `ANDROMEDA_PULSE_BASELINE_BOOTSTRAP_SECONDS` bounded-parse family, `Thresholds::from_env`
+carrying the resolved bound, the `BaselineState` bootstrap-window surface (short window reaches the gate,
+resume path applies it, deserialized default is non-zero), and `ActivityFloor::bootstrap_state` boundary
+behaviour — with the clock injected as an explicit `now_nanos` parameter rather than `tokio::time::pause()`,
+because these functions take the instant as an argument and there is no ambient clock to control.
+**Why:** Three restatements of the same crate list, all stale (D-tests-coverage, one primary + two
+`dependent-of`). Routine-APPLY per the playbook's 2026-08-14 rule: the discriminator is "is there an impl half
+to fix?" — no, the crate's tests already existed and this chunk added 12 more; only the doc was wrong, so the
+fix completes in one artifact. Same doc-gap shape `corpus` carried until 2026-08-15-corpus-key-persistence,
+and the chunk's plan queued it as an expected amendment.

@@ -457,14 +457,19 @@ fn main() {
     // surfaces (chunk #62); Thresholds carries hardcoded defaults this
     // chunk (hot-reload lands in #86).
     let baseline_now = chrono::Utc::now().timestamp_nanos_opt().unwrap_or(0);
+    // Resolved before the baseline state it configures: `Thresholds` carries
+    // the cold-start window, and the state receives that same value, so the
+    // silence evaluator, the emitter counters and the lifecycle registry all
+    // gate on one bound.
+    let thresholds = Arc::new(Thresholds::from_env());
     let baseline_state = Arc::new(bootstrap_state(
         baseline_persistence.as_deref(),
         DEFAULT_SERVICE_COUNT_CAP,
         baseline_now,
+        thresholds.bootstrap_window_seconds,
     ));
     let cue_broadcast = Arc::new(AttentionCueBroadcast::new());
     let cadence_channel = Arc::new(CadenceTriggerChannel::new());
-    let thresholds = Arc::new(Thresholds::default());
 
     // Chunk #80 — cadence coordinator substrate. CadenceEventBroadcast is
     // the L6-visibility emission topic (`pulse://stream/cadence-events`).

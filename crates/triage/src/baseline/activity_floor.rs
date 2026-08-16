@@ -27,9 +27,12 @@ pub const BUCKET_INTERVAL_SECONDS: u64 = 300;
 /// Total window the histogram covers (24h).
 pub const WINDOW_DURATION_SECONDS: u64 = 86_400;
 
-/// Per-service cold-start suppression window (1h) during which
+/// DEFAULT per-service cold-start suppression window (1h) during which
 /// `ServiceWentSilent` emission is universally suppressed regardless of
-/// quiet duration. Per pulse-v0_2_0-route §64 spec.
+/// quiet duration. Per pulse-v0_2_0-route §64 spec. This is the default only —
+/// the effective bound is resolved once at boot into
+/// `Thresholds::bootstrap_window_seconds` and passed to `bootstrap_state`,
+/// so a shortened window reaches the gate rather than sitting inert.
 pub const BOOTSTRAP_WINDOW_SECONDS: u64 = 3_600;
 
 /// Percentile used to gate `ServiceWentSilent` emission against the learned
@@ -167,15 +170,17 @@ impl ActivityFloor {
     }
 
     /// Bootstrap state derived purely from internal clock — `now_nanos` minus
-    /// `first_observed_unix_nanos` versus `BOOTSTRAP_WINDOW_SECONDS`. Per
+    /// `first_observed_unix_nanos` versus the caller-supplied `window_seconds`
+    /// (resolved once at boot; `BOOTSTRAP_WINDOW_SECONDS` is its default). Per
     /// security extract: attacker-controlled OTLP attributes MUST NOT bypass
-    /// this gate, so the derivation depends only on internal-clock state.
-    pub fn bootstrap_state(&self, now_nanos: i64) -> BootstrapState {
+    /// this gate, so the derivation depends only on internal-clock state and a
+    /// bound resolved before any telemetry is read.
+    pub fn bootstrap_state(&self, now_nanos: i64, window_seconds: u64) -> BootstrapState {
         if self.first_observed_unix_nanos == 0 {
             return BootstrapState::Learning;
         }
         let elapsed_nanos = now_nanos.saturating_sub(self.first_observed_unix_nanos);
-        let bootstrap_nanos = (BOOTSTRAP_WINDOW_SECONDS as i64).saturating_mul(1_000_000_000);
+        let bootstrap_nanos = (window_seconds as i64).saturating_mul(1_000_000_000);
         if elapsed_nanos < bootstrap_nanos {
             BootstrapState::Learning
         } else {
@@ -305,7 +310,10 @@ mod tests {
     fn bootstrap_state_returns_learning_when_never_observed() {
         let af = ActivityFloor::new();
         let now = 100 * NANOS_PER_SEC;
-        assert_eq!(af.bootstrap_state(now), BootstrapState::Learning);
+        assert_eq!(
+            af.bootstrap_state(now, BOOTSTRAP_WINDOW_SECONDS),
+            BootstrapState::Learning
+        );
     }
 
     #[test]
@@ -314,7 +322,10 @@ mod tests {
         let first = 1_000 * NANOS_PER_SEC;
         af.observe(first);
         let still_learning = first + (BOOTSTRAP_WINDOW_SECONDS as i64 - 1) * NANOS_PER_SEC;
-        assert_eq!(af.bootstrap_state(still_learning), BootstrapState::Learning);
+        assert_eq!(
+            af.bootstrap_state(still_learning, BOOTSTRAP_WINDOW_SECONDS),
+            BootstrapState::Learning
+        );
     }
 
     #[test]
@@ -323,7 +334,48 @@ mod tests {
         let first = 1_000 * NANOS_PER_SEC;
         af.observe(first);
         let post_bootstrap = first + (BOOTSTRAP_WINDOW_SECONDS as i64 + 1) * NANOS_PER_SEC;
-        assert_eq!(af.bootstrap_state(post_bootstrap), BootstrapState::Ready);
+        assert_eq!(
+            af.bootstrap_state(post_bootstrap, BOOTSTRAP_WINDOW_SECONDS),
+            BootstrapState::Ready
+        );
+    }
+
+    #[test]
+    fn bootstrap_state_honours_a_non_default_window() {
+        let mut af = ActivityFloor::new();
+        let first = 1_000 * NANOS_PER_SEC;
+        af.observe(first);
+        let window = 5_u64;
+
+        let inside = first + (window as i64 - 1) * NANOS_PER_SEC;
+        assert_eq!(
+            af.bootstrap_state(inside, window),
+            BootstrapState::Learning,
+            "still inside the supplied window"
+        );
+
+        let outside = first + (window as i64 + 1) * NANOS_PER_SEC;
+        assert_eq!(
+            af.bootstrap_state(outside, window),
+            BootstrapState::Ready,
+            "past the supplied window"
+        );
+        assert_eq!(
+            af.bootstrap_state(outside, BOOTSTRAP_WINDOW_SECONDS),
+            BootstrapState::Learning,
+            "the same instant is still Learning under the default — proves the argument drives \
+             the gate rather than the constant"
+        );
+    }
+
+    #[test]
+    fn bootstrap_state_is_ready_exactly_at_the_window_edge() {
+        let mut af = ActivityFloor::new();
+        let first = 1_000 * NANOS_PER_SEC;
+        af.observe(first);
+        let window = 5_u64;
+        let exactly = first + (window as i64) * NANOS_PER_SEC;
+        assert_eq!(af.bootstrap_state(exactly, window), BootstrapState::Ready);
     }
 
     #[test]
@@ -447,7 +499,7 @@ mod tests {
                 af.observe(*ts);
             }
             let now = timestamps.iter().copied().max().unwrap_or(0).saturating_add(NANOS_PER_SEC);
-            let _ = af.bootstrap_state(now);
+            let _ = af.bootstrap_state(now, BOOTSTRAP_WINDOW_SECONDS);
             let _ = af.current_quiet_duration_seconds(now);
             let _ = af.p95_historical_quiet_duration_seconds();
         }

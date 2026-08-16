@@ -1377,6 +1377,18 @@ impl AllowList {
             "triage.baseline.service_cap_exceeded",
             ["dropped_count", "cap"].iter().copied().collect(),
         );
+        // Once-per-boot notice that the per-service cold-start window is not
+        // the default (env override, or a rejected value falling back). EXACT
+        // leaf — a bare `triage` prefix key would widen every sibling target
+        // to one field set. All three fields the emit site emits are listed;
+        // all are bounded (two counts + a static reason label).
+        by_target.insert(
+            "triage.baseline.bootstrap_window.override",
+            ["resolved_seconds", "default_seconds", "reason"]
+                .iter()
+                .copied()
+                .collect(),
+        );
         by_target.insert(
             "metric.triage.activity_floor.bootstrap_state",
             [

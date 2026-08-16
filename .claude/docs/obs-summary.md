@@ -91,6 +91,14 @@ Every P1–P7 must emit parent + child spans with the `{module}.{operation}` nam
 | 5 | NEVER log DuckDB query parameter values — `query_id` + `param_count` + `param_types: ["string","timestamp"]`. |
 | 6 | NEVER log raw env-var path values — sanitize to canonicalized basename only. Secret env vars are identified by naming convention (`*_SECRET` / `*_TOKEN` / `*_KEY` / `*_PASSPHRASE` redacted): `ANDROMEDA_PULSE_CORPUS_PASSPHRASE` and any key derived from it are never emitted as a value, a field, or a presence flag. |
 
+**Cold-start-window override leaf (chunk 2026-08-16-baseline-family-reachability).** One EXACT `§8` leaf —
+`triage.baseline.bootstrap_window.override` (`resolved_seconds` / `default_seconds` / `reason`), all three
+fields the emit site emits, two integers plus a bounded static label. Registered in `§6`'s once-per-boot WARN
+enumeration too (it fires only when the resolved bound ≠ the 3600s default, because an env-shortened window
+silently changes when services become eligible for silence detection). Neither a bare `triage` nor a bare
+`triage.baseline` key may exist. Its guard lives at `pulse-app/tests/unit_observability_allowlist_bootstrap_window.rs`
+— under `tests/` because `[lib] test = false` makes a src-level guard compile and never run.
+
 **Corpus allowlist leaves (chunk 2026-08-15-corpus-key-persistence).** Four EXACT `§8` leaves — `corpus.open.error` (`error_kind`; a REPAIR, it had emitted since chunk #68 with no resolvable entry so its field was redacted), `corpus.keychain.fallback` (`backend_kind` / `reason` / `consequence`), `corpus.read.undecryptable` (`query_id` / `rows_skipped`), `corpus.orphan.disposition` (`disposition_outcome` / `rows_purged` / `tables_affected` / `error_category`). **No bare `corpus` prefix key may exist** — it would silently widen every future `corpus.*` target to one field set. 
 **Incident-path allowlist leaves (chunk 2026-08-15-tier-1-incident-path-investigation).** Three EXACT `§8` leaves, all previously redacted — `incidents.list_active.request` (`item_count`), `triage.incident.persist` (`incident_count` / `persist_kind` / `duration_ms` — all three, since the emit site emits `duration_ms` and a two-field entry leaves the target partly redacted), `triage.incident.corpus_restore` (`kind` / `restored_incident_count`). **No bare `incidents` or `triage` prefix key may exist** (same `for_target` trap). Guarded by `pulse-app/tests/unit_observability_allowlist_incident_diagnostics.rs`. The muted-diagnostic backlog in obs-plan §8 now names FIVE remaining redacted targets (`metric.pipeline.l1a.query_count_total`, `metric.pipeline.l1a.query_latency_p99_milliseconds`, `triage.cue.tick`, `triage.incident.auto_resolve.tick`, `interpretation.model.load`), owned by the "Diagnostics un-muting + harness-truth sweep" route entry.
 

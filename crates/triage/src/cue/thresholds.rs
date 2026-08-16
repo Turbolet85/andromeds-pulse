@@ -3,6 +3,62 @@ use std::time::Duration;
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
+use crate::baseline::{BOOTSTRAP_WINDOW_SECONDS, WINDOW_DURATION_SECONDS};
+
+/// Overrides the per-service cold-start window so a fresh service can reach
+/// the silence family inside a bounded warm-up instead of an hour of
+/// wall-clock. Production default is `BOOTSTRAP_WINDOW_SECONDS`; the app is
+/// byte-identical when unset.
+pub const ENV_BASELINE_BOOTSTRAP_SECONDS: &str = "ANDROMEDA_PULSE_BASELINE_BOOTSTRAP_SECONDS";
+
+/// Tracing target for the once-per-boot notice that a non-default cold-start
+/// window is in force. Needs its own EXACT allowlist leaf — a bare `triage`
+/// prefix key would widen every sibling target to one field set.
+pub const TARGET_BOOTSTRAP_WINDOW_OVERRIDE: &str = "triage.baseline.bootstrap_window.override";
+
+/// Resolve the effective cold-start window from the environment, falling back
+/// to the default on anything unusable. Accepts a non-zero value strictly
+/// below `WINDOW_DURATION_SECONDS`, preserving the invariant the
+/// `activity_floor` const-assert block enforces on the default.
+///
+/// Unset is silent (the default posture). Anything set but unusable falls back
+/// AND warns — a rejected value must never look like a silent success.
+pub fn resolve_bootstrap_window_seconds() -> u64 {
+    let raw = match std::env::var(ENV_BASELINE_BOOTSTRAP_SECONDS) {
+        Ok(raw) => raw,
+        Err(_) => return BOOTSTRAP_WINDOW_SECONDS,
+    };
+    let trimmed = raw.trim();
+    if trimmed.is_empty() {
+        return BOOTSTRAP_WINDOW_SECONDS;
+    }
+    let parsed = match trimmed.parse::<u64>() {
+        Ok(v) if v > 0 && v < WINDOW_DURATION_SECONDS => v,
+        Ok(_) => {
+            warn_bootstrap_window(BOOTSTRAP_WINDOW_SECONDS, "env_rejected_out_of_range");
+            return BOOTSTRAP_WINDOW_SECONDS;
+        }
+        Err(_) => {
+            warn_bootstrap_window(BOOTSTRAP_WINDOW_SECONDS, "env_rejected_unparseable");
+            return BOOTSTRAP_WINDOW_SECONDS;
+        }
+    };
+    if parsed != BOOTSTRAP_WINDOW_SECONDS {
+        warn_bootstrap_window(parsed, "env_override");
+    }
+    parsed
+}
+
+fn warn_bootstrap_window(resolved_seconds: u64, reason: &'static str) {
+    tracing::warn!(
+        target: TARGET_BOOTSTRAP_WINDOW_OVERRIDE,
+        resolved_seconds = resolved_seconds,
+        default_seconds = BOOTSTRAP_WINDOW_SECONDS,
+        reason = reason,
+        "per-service cold-start window is not the default",
+    );
+}
+
 /// Default error rate multiplier — current EWMA value must exceed
 /// `base_error_rate * multiplier` for an `ErrorRateSpike` cue to fire.
 /// 3.0× per route §62 chunk text + capability spec P-021.
@@ -167,6 +223,17 @@ impl Default for Thresholds {
 }
 
 impl Thresholds {
+    /// Defaults with `bootstrap_window_seconds` resolved from the environment.
+    /// The single resolution point: the value this carries is what boot hands
+    /// to `BaselineState`, so the field is the gate's bound rather than a
+    /// second spelling of the default.
+    pub fn from_env() -> Self {
+        Self {
+            bootstrap_window_seconds: resolve_bootstrap_window_seconds(),
+            ..Self::default()
+        }
+    }
+
     pub fn validate(&self) -> Result<(), ThresholdsError> {
         if !self.error_rate_multiplier.is_finite() || self.error_rate_multiplier <= 0.0 {
             return Err(ThresholdsError::InvalidConfig {
@@ -577,5 +644,86 @@ mod tests {
         let json = serde_json::to_string(&original).expect("serialize");
         let parsed: Thresholds = serde_json::from_str(&json).expect("deserialize");
         assert_eq!(parsed, original);
+    }
+
+    fn with_bootstrap_env<T>(value: Option<&str>, f: impl FnOnce() -> T) -> T {
+        unsafe {
+            match value {
+                Some(v) => std::env::set_var(ENV_BASELINE_BOOTSTRAP_SECONDS, v),
+                None => std::env::remove_var(ENV_BASELINE_BOOTSTRAP_SECONDS),
+            }
+        }
+        let out = f();
+        unsafe {
+            std::env::remove_var(ENV_BASELINE_BOOTSTRAP_SECONDS);
+        }
+        out
+    }
+
+    #[test]
+    fn resolve_bootstrap_window_unset_yields_default() {
+        let resolved = with_bootstrap_env(None, resolve_bootstrap_window_seconds);
+        assert_eq!(resolved, BOOTSTRAP_WINDOW_SECONDS);
+    }
+
+    #[test]
+    fn resolve_bootstrap_window_accepts_bounded_override() {
+        let resolved = with_bootstrap_env(Some("5"), resolve_bootstrap_window_seconds);
+        assert_eq!(resolved, 5);
+    }
+
+    #[test]
+    fn resolve_bootstrap_window_trims_surrounding_whitespace() {
+        let resolved = with_bootstrap_env(Some("  30\n"), resolve_bootstrap_window_seconds);
+        assert_eq!(resolved, 30);
+    }
+
+    #[test]
+    fn resolve_bootstrap_window_rejects_zero_empty_and_unparseable() {
+        for raw in ["0", "", "   ", "abc", "-1", "12.5"] {
+            let resolved = with_bootstrap_env(Some(raw), resolve_bootstrap_window_seconds);
+            assert_eq!(
+                resolved, BOOTSTRAP_WINDOW_SECONDS,
+                "`{raw}` must fall back to the default, never panic or adopt an unintended bound",
+            );
+        }
+    }
+
+    #[test]
+    fn resolve_bootstrap_window_rejects_at_or_above_window_duration() {
+        for raw in [
+            WINDOW_DURATION_SECONDS.to_string(),
+            (WINDOW_DURATION_SECONDS + 1).to_string(),
+        ] {
+            let resolved = with_bootstrap_env(Some(&raw), resolve_bootstrap_window_seconds);
+            assert_eq!(
+                resolved, BOOTSTRAP_WINDOW_SECONDS,
+                "`{raw}` breaks the activity_floor const-assert relation and must be rejected",
+            );
+        }
+    }
+
+    #[test]
+    fn from_env_carries_the_resolved_bound_into_the_field() {
+        let t = with_bootstrap_env(Some("7"), Thresholds::from_env);
+        assert_eq!(
+            t.bootstrap_window_seconds, 7,
+            "the field must carry the resolved bound — it is what boot hands to BaselineState",
+        );
+        assert_eq!(
+            t.error_rate_multiplier,
+            Thresholds::default().error_rate_multiplier,
+            "from_env must not disturb any other threshold",
+        );
+    }
+
+    #[test]
+    fn from_env_unset_is_byte_identical_to_default() {
+        let t = with_bootstrap_env(None, Thresholds::from_env);
+        assert_eq!(
+            t,
+            Thresholds::default(),
+            "an unset override must leave production behaviour untouched",
+        );
     }
 }

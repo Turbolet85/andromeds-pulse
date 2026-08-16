@@ -189,6 +189,19 @@ pub struct BaselineState {
     drops_since_last_tick: AtomicU32,
     #[serde(skip)]
     service_cap_exceeded_since_last_tick: AtomicU32,
+    /// Effective per-service cold-start window every consumer of
+    /// `iter_service_silence_snapshots` shares — the silence evaluator, the
+    /// emitter's bootstrap-state counters, and the lifecycle registry's
+    /// `Bootstrapping → Active` transition. Held here rather than passed per
+    /// call so those three cannot disagree. `serde(skip)` with an explicit
+    /// non-zero default: it is boot-resolved configuration, not persisted
+    /// state, and a deserialized zero would mark every service Ready at once.
+    #[serde(skip, default = "default_bootstrap_window_seconds")]
+    bootstrap_window_seconds: u64,
+}
+
+fn default_bootstrap_window_seconds() -> u64 {
+    BOOTSTRAP_WINDOW_SECONDS
 }
 
 impl Default for BaselineState {
@@ -206,11 +219,23 @@ impl BaselineState {
             persisted_at_unix_nanos: AtomicI64::new(0),
             drops_since_last_tick: AtomicU32::new(0),
             service_cap_exceeded_since_last_tick: AtomicU32::new(0),
+            bootstrap_window_seconds: default_bootstrap_window_seconds(),
         }
     }
 
     pub fn schema_version(&self) -> u32 {
         self.schema_version
+    }
+
+    /// Apply the boot-resolved cold-start window. Called once at boot for both
+    /// the fresh and resume-from-corpus paths — a resumed state carries the
+    /// serde default, not the operator's resolved bound, until this runs.
+    pub fn set_bootstrap_window_seconds(&mut self, seconds: u64) {
+        self.bootstrap_window_seconds = seconds;
+    }
+
+    pub fn bootstrap_window_seconds(&self) -> u64 {
+        self.bootstrap_window_seconds
     }
 
     pub fn service_count(&self) -> usize {
@@ -443,7 +468,9 @@ impl BaselineState {
                 p95_historical_quiet_duration_seconds: entry
                     .activity_floor
                     .p95_historical_quiet_duration_seconds(),
-                bootstrap_state: entry.activity_floor.bootstrap_state(now_nanos),
+                bootstrap_state: entry
+                    .activity_floor
+                    .bootstrap_state(now_nanos, self.bootstrap_window_seconds),
             })
             .collect()
     }
@@ -682,9 +709,10 @@ pub fn bootstrap_state(
     persistence: Option<&dyn BaselinePersistence>,
     service_count_cap: usize,
     now_nanos: i64,
+    bootstrap_window_seconds: u64,
 ) -> BaselineState {
     let kind: &'static str;
-    let state = match persistence {
+    let mut state = match persistence {
         Some(p) => match bootstrap_from_persistence(p, service_count_cap, now_nanos) {
             BootstrapResult::Loaded { state, age_nanos } => {
                 if age_nanos >= STATE_AGE_THRESHOLD_NANOS {
@@ -705,6 +733,7 @@ pub fn bootstrap_state(
             BaselineState::new()
         }
     };
+    state.set_bootstrap_window_seconds(bootstrap_window_seconds);
 
     tracing::info!(
         target: TARGET_PIPELINE_L1B_BOOTSTRAP_TOTAL,
@@ -853,7 +882,7 @@ mod tests {
 
     #[test]
     fn bootstrap_state_returns_fresh_when_persistence_none() {
-        let state = bootstrap_state(None, DEFAULT_SERVICE_COUNT_CAP, 0);
+        let state = bootstrap_state(None, DEFAULT_SERVICE_COUNT_CAP, 0, BOOTSTRAP_WINDOW_SECONDS);
         assert_eq!(state.service_count(), 0);
         assert_eq!(state.schema_version(), SCHEMA_VERSION);
     }
@@ -861,7 +890,12 @@ mod tests {
     #[test]
     fn bootstrap_state_returns_fresh_when_persistence_empty() {
         let persistence = FakeBaselinePersistence::new();
-        let state = bootstrap_state(Some(&persistence), DEFAULT_SERVICE_COUNT_CAP, 0);
+        let state = bootstrap_state(
+            Some(&persistence),
+            DEFAULT_SERVICE_COUNT_CAP,
+            0,
+            BOOTSTRAP_WINDOW_SECONDS,
+        );
         assert_eq!(state.service_count(), 0);
         assert_eq!(state.schema_version(), SCHEMA_VERSION);
     }
@@ -874,7 +908,12 @@ mod tests {
         original.set_persisted_at_unix_nanos(1_000);
         persistence.save(&original).expect("save");
 
-        let loaded = bootstrap_state(Some(&persistence), DEFAULT_SERVICE_COUNT_CAP, 2_000);
+        let loaded = bootstrap_state(
+            Some(&persistence),
+            DEFAULT_SERVICE_COUNT_CAP,
+            2_000,
+            BOOTSTRAP_WINDOW_SECONDS,
+        );
         assert_eq!(loaded.service_count(), 1);
     }
 
@@ -887,7 +926,12 @@ mod tests {
         persistence.save(&original).expect("save");
 
         let now = STATE_AGE_THRESHOLD_NANOS + 1;
-        let loaded = bootstrap_state(Some(&persistence), DEFAULT_SERVICE_COUNT_CAP, now);
+        let loaded = bootstrap_state(
+            Some(&persistence),
+            DEFAULT_SERVICE_COUNT_CAP,
+            now,
+            BOOTSTRAP_WINDOW_SECONDS,
+        );
         assert_eq!(loaded.service_count(), 0, "stale state should reset");
     }
 
@@ -1168,7 +1212,7 @@ mod tests {
     fn bootstrap_state_emits_cold_start_metric() {
         let (sub, events) = CapturingSubscriber::new();
         tracing::subscriber::with_default(sub, || {
-            let _ = bootstrap_state(None, DEFAULT_SERVICE_COUNT_CAP, 0);
+            let _ = bootstrap_state(None, DEFAULT_SERVICE_COUNT_CAP, 0, BOOTSTRAP_WINDOW_SECONDS);
         });
 
         let captured = events.lock().unwrap();
@@ -1183,6 +1227,77 @@ mod tests {
             .find(|(k, _)| k == "kind")
             .map(|(_, v)| v.clone());
         assert_eq!(kind, Some("cold_start".to_string()));
+    }
+
+    #[test]
+    fn silence_snapshot_reaches_ready_under_a_short_boot_resolved_window() {
+        // The guard plan step 7 asks for: assert the gate's BEHAVIOUR at a
+        // non-default bound, not equality between two constants. Comparing the
+        // two `3_600` spellings passed while the bound never reached the gate.
+        let window = 5_u64;
+        let mut state = BaselineState::new();
+        state.set_bootstrap_window_seconds(window);
+
+        let first = 1_000 * 1_000_000_000_i64;
+        state.observe_span("svc-a", "op", 0, 50, first);
+
+        let inside = first + (window as i64 - 1) * 1_000_000_000;
+        assert_eq!(
+            state.iter_service_silence_snapshots(inside)[0].bootstrap_state,
+            BootstrapState::Learning,
+        );
+
+        // Well past the short window but far below the 3600s default: under the
+        // pre-fix code this instant was still Learning.
+        let past_short_window = first + 60 * 1_000_000_000_i64;
+        assert_eq!(
+            state.iter_service_silence_snapshots(past_short_window)[0].bootstrap_state,
+            BootstrapState::Ready,
+            "a boot-resolved short window must reach the gate",
+        );
+
+        let default_state = BaselineState::new();
+        default_state.observe_span("svc-a", "op", 0, 50, first);
+        assert_eq!(
+            default_state.iter_service_silence_snapshots(past_short_window)[0].bootstrap_state,
+            BootstrapState::Learning,
+            "the same instant under the default window is still Learning — the difference is the \
+             bound, not the elapsed time",
+        );
+    }
+
+    #[test]
+    fn bootstrap_state_applies_window_on_the_resume_path_not_just_fresh() {
+        // A resumed state carries the serde default for the skipped field, so
+        // the boot entry point must apply the resolved bound on BOTH paths.
+        let persistence = FakeBaselinePersistence::new();
+        let seed = BaselineState::new();
+        seed.observe_span("svc-a", "op", 0, 50, 1_000);
+        seed.set_persisted_at_unix_nanos(1_000);
+        persistence.save(&seed).expect("save");
+
+        let resumed = bootstrap_state(Some(&persistence), DEFAULT_SERVICE_COUNT_CAP, 2_000, 5);
+        assert_eq!(resumed.service_count(), 1, "must be the resume path");
+        assert_eq!(
+            resumed.bootstrap_window_seconds(),
+            5,
+            "resume-from-corpus must carry the boot-resolved window, not the serde default",
+        );
+
+        let fresh = bootstrap_state(None, DEFAULT_SERVICE_COUNT_CAP, 0, 5);
+        assert_eq!(fresh.bootstrap_window_seconds(), 5);
+    }
+
+    #[test]
+    fn deserialized_state_defaults_to_the_non_zero_window() {
+        // A zero here would mark every service Ready the instant it is seen.
+        let seed = BaselineState::new();
+        let bytes = bincode::serialize(&seed).expect("serialize");
+        let restored: BaselineState = bincode::deserialize(&bytes).expect("deserialize");
+        assert_eq!(
+            restored.bootstrap_window_seconds(),
+            BOOTSTRAP_WINDOW_SECONDS
+        );
     }
 
     #[test]

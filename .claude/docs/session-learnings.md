@@ -583,6 +583,24 @@ This appears when cargo can't allocate fingerprint dir on the volume. If you see
 
 **Recurrence prevention:** add `cargo sweep` or periodic `cargo clean` to dev-env hygiene routine; monitor disk space proactively (`du -sh ./target` quick check before kicking off long test runs).
 
+**EXTENSION 2026-08-16 — a SECOND Windows linker disguise, with a different cause and a different fix.** Both
+recurred in one session, so treat "the linker failed" as a two-branch diagnosis, never one:
+- **Disk-full** (the entry above). Surfaces as `link.exe` exit **1318**, or as a bare
+  `rust-lld.exe failed: exit code: 1`. Confirm with `df -h`; fix with `cargo clean`. Measured again this
+  session: `D:` at 100% (7.4M free of 300G), `target/debug` 209G of which 172G was stale `deps`;
+  `cargo clean` freed 225.6 GiB and the gate passed.
+- **Commit-limit exhaustion** — surfaces as `could not exec the linker rust-lld.exe` +
+  `Insufficient quota to complete the requested service. (os error 1453)`. This is NOT disk: it hit
+  immediately after the clean above, with 154G free. The cause is several `rust-lld` processes linking
+  concurrently during a cold rebuild and exceeding the Windows commit limit / paging budget. `cargo clean`
+  does nothing for it. **Fix: reduce build parallelism** — `CARGO_BUILD_JOBS=2 cargo nextest run …`
+  (nextest's own `-j` sets TEST threads, not build jobs, so it is the wrong knob here). Re-ran green at 2
+  jobs with no code change.
+
+**The discriminator is `df -h`, not the error text.** Both disguises fail at link and both look like the
+toolchain broke. Check free space first: low ⇒ disk branch; ample ⇒ parallelism branch. A cold rebuild
+straight after a `cargo clean` is exactly when the second branch bites, because every crate links at once.
+
 ---
 
 ## 2026-05-19 (session 97) — Two-phase chunk wrap-state pattern: phase-A-complete does NOT advance last_completed_chunk; use in_progress to mark partial state (confidence 0.85)

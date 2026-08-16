@@ -100,3 +100,20 @@ investigation should be visible to the next reader rather than rediscovered.
 **Section:** §8 PII Scrubbing & Compliance → Default-deny posture / Whitelist per module
 **Change:** The three muted-diagnostic backlog targets are promoted from *measured-not-fixed* to landed EXACT allowlist leaves, restated as a sibling of the corpus-leaf block: `incidents.list_active.request` → `item_count`; `triage.incident.persist` → `incident_count`, `persist_kind`, **`duration_ms`**; `triage.incident.corpus_restore` → `kind`, `restored_incident_count`. The no-bare-`incidents`/`triage`-prefix-key ban is stated with its guarding test (`pulse-app/tests/unit_observability_allowlist_incident_diagnostics.rs`). A NEW backlog bullet records five FURTHER targets measured redacted in the same census — `metric.pipeline.l1a.query_count_total` → `query_name`; `metric.pipeline.l1a.query_latency_p99_milliseconds` → `duration_ms`/`query_name`/`row_count_returned`; `triage.cue.tick` → `bypass_triggered`/`cues_suppressed`; `triage.incident.auto_resolve.tick` → `duration_ms`/`evaluated_count`/`resolved_count`; `interpretation.model.load` → `inference_mode` — owned by the new "Diagnostics un-muting + harness-truth sweep" route entry.
 **Why:** The chunk was the named owner of the three-target backlog and discharged it; all three were live-verified emitting unredacted on a post-fix boot (`item_count` observable forming 0→1→2). `duration_ms` is a third field the plan's list omitted — the emit site emits it, so a two-field entry would have left the target partly redacted, the same defect in miniature. The five further targets were measured by a full redaction census over the log family while verifying the three; applying only the promotion would have left §8 asserting a clean backlog while five measured gaps went invisible — reintroducing exactly the dark-diagnostic condition the backlog bullet exists to prevent. Applied as measured, with the impl half named to its owner (playbook 2026-08-15 routine-APPLY-AS-MEASURED).
+
+## 2026-08-16-baseline-family-reachability — register the cold-start-window override WARN
+**Section:** §8 PII Scrubbing → Default-deny posture (whitelist) · §6 Log Coverage → Log levels mapping
+(`warn` row)
+**Change:** Registered `triage.baseline.bootstrap_window.override` as an EXACT allowlist leaf carrying ALL
+THREE fields its emit site emits — `resolved_seconds`, `default_seconds`, `reason` (bounded static label) —
+with the explicit note that neither a bare `triage` nor a bare `triage.baseline` key may exist, since either
+would widen every sibling `triage.*` target to one field set. Also added it to §6's once-per-boot WARN
+enumeration beside `app.boot.buffer.degraded` / `corpus.keychain.fallback`, with the reason it fires: an
+env-shortened or env-rejected bound silently changes when services become eligible for silence detection.
+**Why:** The chunk added a new logging target and §8's default-deny posture listed no entry for it, so the
+doc claimed these fields were redacted while production emits them un-redacted (measured in the smoke:
+emitted once, fields visible). D-obs-pii fired at escalate severity; escalated to the operator ONCE and ruled
+routine WITH them, because the fields are two integers plus a bounded label with an EXACT leaf and three
+guard tests — registry completeness, not a PII hole. The resolution is codified as a new playbook rule so the
+class does not re-escalate. The §6 entry is the duplicate-occurrence half: every sibling once-per-boot WARN is
+stated in BOTH §6 and §8, so a §8-only apply would have left §6 silently stale.
