@@ -6,6 +6,16 @@ _Entries are added in reverse chronological order (newest first). Each entry has
 
 _This file is entirely wrap-session's territory. `/setup-project` creates it if missing but NEVER regenerates it. Manual edits are preserved across all Andromeda skill runs._
 
+## 2026-08-16 — Incident dedupe keys on an OPEN incident, not on the fingerprint
+
+While an incident is open for a workspace, a subsequent storm carrying a **different** fingerprint does not create a second incident — it is absorbed into the open one (`created:false` / `deduped:true`). This was measured with a canary emitting a deliberately unique fault type, which deduped anyway. The only cure observed within the same data dir is the ~5-minute auto-resolve window elapsing, after which the next storm creates a fresh incident.
+
+Why it matters: any test or verification leg expecting "storm B produces its own incident" while storm A's incident is still open fails for a reason that has nothing to do with fingerprinting or detection. The detector fires correctly and the incident layer swallows the result, so the failure presents as a detection bug and is diagnosed in the wrong subsystem. Re-running such a leg in the same data dir inside the auto-resolve window reproduces the false negative indefinitely; a fresh data dir — or waiting the window out — is the reset.
+
+Deliberately NOT answered here: whether a distinct-fingerprint storm *should* open a second concurrent incident. That is a live design question routed as a route intake item; this entry records the measured behavior, not the intended one, so it must not be cited as the contract.
+
+---
+
 ## 2026-08-14 — The storm detector's gauge cannot be read as a total; the latched counters are the signal
 
 `tracked_fingerprints_count` on `triage.pattern.storm.tick` is a **windowed gauge of DISTINCT fingerprints, sampled after eviction** — not a running total. Three consequences, each of which inverts a reading someone would reasonably make. A healthy storm of N *identical* occurrences reads `1`, never `N`, because the storm's whole point is one recurring fault. A zero sampled after the 60s retention window closes proves nothing, because everything legitimately aged out. And a late sample on a fully working path is indistinguishable from a dead feed.

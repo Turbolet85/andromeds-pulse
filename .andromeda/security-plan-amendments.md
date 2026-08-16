@@ -219,3 +219,23 @@ open-ended: `cargo audit` cannot LOAD the RustSec DB (upstream duplicate advisor
 overlap signal still runs every wrap, and the overlap's own findings carry visible dispositions — 3
 no-safe-upgrade IDs ignore-listed, 7 upgradeable ones (5 vulnerabilities) left RED under a named owner
 rather than accepted.
+
+## 2026-08-16 (0-pending route-adaptation wrap) — cargo-audit standing deferral re-ratified at pin #3 with a re-run interval, and migrated onto the route
+**Section:** §Dependency Security → CI integration (Standing deferral — `cargo audit` unrunnable)
+**Change:** The deferral's Probe clause changes from "re-run `cargo audit` once per wrap" to a ratified
+INTERVAL of every 3rd wrap (ran at session 25, next at session 28), with the between-points discipline
+stated explicitly: re-verify basis + overlap, and the absorbing chunk's report records
+`probe skipped per ratified interval (next: {point})` — never a silent skip. Recorded the pin-#3
+re-ratification (age trigger: third consecutive re-pin HALTs once into dialogue) and the fact that the pin
+MIGRATED off `.claude/session-handoff.md`, where it had been floating, onto the working-route entry
+`Baseline-family reachability` with its origin marker `2026-08-15-corpus-key-persistence` preserved. Basis
+re-verified first-hand this wrap and strengthened: the DB-load failure reproduced byte-identical on
+2026-08-16 in this repo AND on the Conductor project the same day — one upstream event, two projects.
+**Why:** Route-resolve's age trigger fired (§Deferred-gate closure) and the operator ratified continuing
+with an interval rather than converting the deferral to a route entry or an escalation. The reference
+explicitly permits setting a re-run interval "when the named overlap runs green every chunk anyway", which
+is the case here — `cargo deny check advisories` reads the same advisory data through its own loader and
+runs every chunk. Recording it in the body was mandatory rather than optional: leaving "once per wrap" in
+the spec while the route pin said "every 3rd wrap" would have shipped a self-contradicting instruction, the
+same truth-in-diagnostics failure class this version's sweep entry already owns. The deferral's END
+condition is unchanged — it ends the first time `cargo audit` loads.
