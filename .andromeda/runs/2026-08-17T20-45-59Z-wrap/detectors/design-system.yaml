@@ -1,0 +1,5 @@
+- id: D-design-tokens
+  doc: design-system
+  invariant: new UI the chunk renders uses design tokens, not hardcoded values.
+  check: agent-read — read the Coverage `tokens` flag of each new UI element in the report; `hardcoded✗` is drift against §Color Palette / §Spacing / §Typography.
+  severity: warning

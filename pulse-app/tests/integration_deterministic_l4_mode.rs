@@ -125,4 +125,32 @@ async fn deterministic_mode_yields_reproducible_red_dot_incident() {
         "autonomous → Error (the red-dot severity)",
     );
     assert_eq!(persistence.saved.lock().expect("lock").len(), 1);
+
+    // The single production join: L4Output.evidence_refs -> the incident's
+    // EvidenceRefs.fingerprint_hashes. This is the only path by which the
+    // deterministic fixture reaches the MCP retrieve_telemetry_slice response
+    // and the Report Evidence section, so an empty vector here is what made
+    // every assertion against those surfaces vacuous.
+    assert_eq!(
+        active[0].evidence_refs.fingerprint_hashes, p1.evidence_refs,
+        "the producer carries L4Output.evidence_refs into fingerprint_hashes verbatim",
+    );
+    assert!(
+        !active[0].evidence_refs.fingerprint_hashes.is_empty(),
+        "populated, not empty — the whole point of the fixture repair",
+    );
+    assert_eq!(
+        active[0].evidence_refs.fingerprint_hashes.len(),
+        3,
+        "exactly the three fixture refs reach the incident",
+    );
+    // The persisted copy carries them too — the sidecar reads the BLOB, not
+    // the in-memory registry.
+    assert_eq!(
+        persistence.saved.lock().expect("lock")[0]
+            .evidence_refs
+            .fingerprint_hashes,
+        p1.evidence_refs,
+        "the persisted incident carries the refs the cross-process read-back will decode",
+    );
 }
