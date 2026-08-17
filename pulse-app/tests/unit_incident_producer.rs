@@ -21,6 +21,14 @@ use triage::contract::{
 
 const WORKSPACE: &str = "/home/dev/example";
 
+/// Full-width (16-byte) lowercase-hex L1 exception fingerprints, the shape
+/// `hex_lower` produces from Q3 `span_events.fingerprint` bytes. Deliberately
+/// NOT all-digit: the PII scrubber's credit-card pattern matches 13-19 digit
+/// runs, so an all-digit fixture would exercise a redaction path real blake3
+/// output effectively never hits.
+const FINGERPRINT_A: &str = "a3f91c0b7e2d4568a3f91c0b7e2d4568";
+const FINGERPRINT_B: &str = "bd07e4a2915c3f6ebd07e4a2915c3f6e";
+
 /// Recording `IncidentPersistence` mock: assigns incrementing rowids and
 /// captures every saved incident + status update + event for assertion.
 #[derive(Default)]
@@ -97,8 +105,20 @@ impl IncidentPersistence for RecordingPersistence {
 }
 
 /// Build a digest carrying a single triggering cue (the producer derives the
-/// `(kind, scope, scope_id)` incident identity from it).
+/// `(kind, scope, scope_id)` incident identity from it), with no cue-borne
+/// fingerprint — the baseline-family shape.
 fn digest_with_cue(kind: CueKind, scope: CueScope, scope_id: Option<&str>) -> Digest {
+    digest_with_fingerprinted_cue(kind, scope, scope_id, None)
+}
+
+/// As [`digest_with_cue`], but with the cue carrying an L1 exception
+/// fingerprint — the storm-detector shape.
+fn digest_with_fingerprinted_cue(
+    kind: CueKind,
+    scope: CueScope,
+    scope_id: Option<&str>,
+    fingerprint: Option<&str>,
+) -> Digest {
     Digest {
         kind: DigestKind::CadenceTier3,
         token_count: 512,
@@ -114,6 +134,7 @@ fn digest_with_cue(kind: CueKind, scope: CueScope, scope_id: Option<&str>) -> Di
             priority_tier: PriorityTier::Suggested,
             summary: "cue summary".to_string(),
             scope,
+            fingerprint: fingerprint.map(|f| f.to_string()),
             scope_id: scope_id.map(|s| s.to_string()),
         }],
         corpus_matches: vec![],
@@ -158,10 +179,11 @@ fn fresh() -> (Arc<InMemoryIncidentRegistry>, Arc<RecordingPersistence>) {
 #[test]
 fn surface_decision_creates_active_incident() {
     let (registry, persistence) = fresh();
-    let digest = digest_with_cue(
+    let digest = digest_with_fingerprinted_cue(
         CueKind::ErrorRateSpike,
         CueScope::Service,
         Some("auth-service"),
+        Some(FINGERPRINT_A),
     );
     let output = l4_output(
         Decision::Surface,
@@ -200,7 +222,10 @@ fn surface_decision_creates_active_incident() {
         Some("auth-service"),
         "scope_id threaded from the triggering cue",
     );
-    assert_eq!(inc.fingerprint, "incident-fp");
+    assert_eq!(
+        inc.fingerprint, FINGERPRINT_A,
+        "fingerprint threaded from the triggering cue, NOT from L4Output",
+    );
     assert_eq!(inc.evidence_refs.fingerprint_hashes, vec!["fp-1", "fp-2"]);
     assert!(inc.id > 0, "rowid assigned post-INSERT");
 }
@@ -360,32 +385,40 @@ fn reemission_dedup_does_not_create_duplicate() {
 #[test]
 fn distinct_fingerprint_same_service_still_coalesces_to_one_incident() {
     let (registry, persistence) = fresh();
-    let digest = digest_with_cue(
+    // The distinctness must live on the CUE, which is what now reaches
+    // `Incident.fingerprint`. Varying `L4Output.fingerprint` instead would make
+    // this test vacuous — that field no longer flows into the incident.
+    let digest_a = digest_with_fingerprinted_cue(
         CueKind::RetryStorm,
         CueScope::Service,
         Some("checkout-service"),
+        Some(FINGERPRINT_A),
     );
-
-    let mut first = l4_output(Decision::Surface, L4Severity::Suggested, "storm A");
-    first.fingerprint = "fingerprint-alpha".into();
-    let mut second = l4_output(Decision::Surface, L4Severity::Suggested, "storm B");
-    second.fingerprint = "fingerprint-beta".into();
+    let digest_b = digest_with_fingerprinted_cue(
+        CueKind::RetryStorm,
+        CueScope::Service,
+        Some("checkout-service"),
+        Some(FINGERPRINT_B),
+    );
     assert_ne!(
-        first.fingerprint, second.fingerprint,
+        FINGERPRINT_A, FINGERPRINT_B,
         "fixture must carry genuinely distinct fingerprints or the test is vacuous",
     );
+
+    let first = l4_output(Decision::Surface, L4Severity::Suggested, "storm A");
+    let second = l4_output(Decision::Surface, L4Severity::Suggested, "storm B");
 
     create_incident_from_l4_output(
         registry.as_ref(),
         persistence.as_ref(),
-        &digest,
+        &digest_a,
         &first,
         5_000,
     );
     create_incident_from_l4_output(
         registry.as_ref(),
         persistence.as_ref(),
-        &digest,
+        &digest_b,
         &second,
         9_000,
     );
@@ -406,9 +439,92 @@ fn distinct_fingerprint_same_service_still_coalesces_to_one_incident() {
         "the FIRST incident survives; the second storm is absorbed into it",
     );
     assert_eq!(
+        inc.fingerprint, FINGERPRINT_A,
+        "the surviving incident keeps the FIRST fault's fingerprint",
+    );
+    assert_eq!(
         inc.updated_at_unix_nano, 9_000,
         "re-emission bumped updated_at"
     );
+}
+
+/// The producer writes the cue-borne L1 fingerprint — the anonymized grouping
+/// hash `Incident.fingerprint` is contracted as, and the value the corpus-
+/// retrieval `fingerprint_match` arm compares against — not the model-authored
+/// `L4Output.fingerprint`.
+#[test]
+fn producer_writes_cue_fingerprint_not_the_model_authored_one() {
+    let (registry, persistence) = fresh();
+    let digest = digest_with_fingerprinted_cue(
+        CueKind::RetryStorm,
+        CueScope::Service,
+        Some("checkout-service"),
+        Some(FINGERPRINT_A),
+    );
+    let mut output = l4_output(Decision::Surface, L4Severity::Suggested, "storm");
+    output.fingerprint = "model-authored-string".into();
+
+    create_incident_from_l4_output(
+        registry.as_ref(),
+        persistence.as_ref(),
+        &digest,
+        &output,
+        5_000,
+    );
+
+    let inc = registry.list_active(WORKSPACE).remove(0);
+    assert_eq!(inc.fingerprint, FINGERPRINT_A);
+    assert_ne!(
+        inc.fingerprint, output.fingerprint,
+        "the model-authored string must not reach the field",
+    );
+    assert_eq!(
+        inc.fingerprint.len(),
+        32,
+        "must be the full-width hash the assembler's hex_lower produces",
+    );
+    assert_eq!(
+        persistence.saved().remove(0).fingerprint,
+        FINGERPRINT_A,
+        "the persisted row carries it too, not just the in-memory registry",
+    );
+}
+
+/// Incidents with no cue-borne fingerprint (reflection cadence; baseline
+/// families) carry an EMPTY one, which both retrieval selectors' `is_empty`
+/// guards drop to scope-only matching. Under the deterministic runner this is
+/// what stops every incident matching every other as "previously seen".
+#[test]
+fn incidents_without_a_cue_fingerprint_carry_an_empty_one() {
+    let (registry, persistence) = fresh();
+    let output = l4_output(Decision::Surface, L4Severity::Suggested, "trend");
+
+    let baseline = digest_with_cue(CueKind::ErrorRateSpike, CueScope::Service, Some("svc-a"));
+    create_incident_from_l4_output(
+        registry.as_ref(),
+        persistence.as_ref(),
+        &baseline,
+        &output,
+        5_000,
+    );
+
+    let reflection = reflection_digest();
+    create_incident_from_l4_output(
+        registry.as_ref(),
+        persistence.as_ref(),
+        &reflection,
+        &output,
+        6_000,
+    );
+
+    for inc in registry.list_active(WORKSPACE) {
+        assert!(
+            inc.fingerprint.is_empty(),
+            "{:?} has no cue fingerprint, so the field must be empty rather than \
+             the model-authored constant, or every such incident matches every other",
+            inc.kind,
+        );
+    }
 }
 
 #[test]

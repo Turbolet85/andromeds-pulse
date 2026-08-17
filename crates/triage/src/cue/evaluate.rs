@@ -70,6 +70,8 @@ pub fn evaluate_thresholds(
             confidence,
             priority_tier,
             suppression_bypassed,
+            // Baseline-derived: a statistical condition, not a specific fault.
+            fingerprint: None,
         });
     }
 
@@ -136,6 +138,7 @@ pub fn evaluate_thresholds(
             confidence,
             priority_tier,
             suppression_bypassed,
+            fingerprint: None,
         });
     }
 
@@ -193,6 +196,7 @@ pub fn evaluate_service_went_silent(
             confidence,
             priority_tier,
             suppression_bypassed: false,
+            fingerprint: None,
         });
     }
     cues

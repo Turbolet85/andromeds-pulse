@@ -101,6 +101,7 @@ mod tests {
             confidence: 0.85,
             priority_tier: PriorityTier::Suggested,
             suppression_bypassed: false,
+            fingerprint: None,
         }
     }
 

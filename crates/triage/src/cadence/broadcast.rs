@@ -212,6 +212,7 @@ mod tests {
             confidence: 1.0,
             priority_tier: PriorityTier::Autonomous,
             suppression_bypassed: false,
+            fingerprint: None,
         }
     }
 

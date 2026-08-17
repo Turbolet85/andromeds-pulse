@@ -35,7 +35,7 @@ use tokenizers::Tokenizer;
 use crate::cadence::CadenceMode;
 use crate::contract::{
     AttentionCue, CueKind, Digest, DigestCueRef, DigestKind, DigestLwwMode, DigestServiceRow,
-    IncidentStatus, PriorityTier, Severity, SqlAggregationError, SqlQueryRunner,
+    IncidentStatus, PriorityTier, Severity, SqlAggregationError, SqlQueryRunner, hex_lower,
 };
 use crate::digest::broadcast::DigestBroadcast;
 use crate::digest::queue::{LwwQueue, QueueAction};
@@ -269,6 +269,7 @@ impl DigestAssembler for Assembler {
                             .map(|s| format!("{} scope_id={s}", cue_kind_label(c.kind)))
                             .unwrap_or_else(|| cue_kind_label(c.kind).to_string()),
                         scope: c.scope,
+                        fingerprint: c.fingerprint.clone(),
                         scope_id: c.scope_id.clone(),
                     }]
                 })
@@ -678,17 +679,6 @@ fn render_payload(
         }
     }
     s
-}
-
-/// Lowercase-hex encode raw fingerprint bytes from Q3 rows so they can
-/// match the string form carried on `Incident.fingerprint` (the
-/// `{b:02x}` shape used across the workspace's fingerprint surfaces).
-fn hex_lower(bytes: &[u8]) -> String {
-    let mut out = String::with_capacity(bytes.len() * 2);
-    for b in bytes {
-        out.push_str(&format!("{b:02x}"));
-    }
-    out
 }
 
 fn lowest_priority_cue_index(cues: &[DigestCueRef]) -> usize {

@@ -646,10 +646,15 @@ pub fn create_incident_from_l4_output(
     // per-service constellation join (which keys on scope_id). All other
     // non-cue digests (baseline cadence) still skip — incidents stay strictly
     // cue-or-reflection-derived.
-    let (kind, scope, scope_id) = if digest.kind == DigestKind::Reflection {
-        (CueKind::ReflectionTrend, CueScope::Global, None)
+    let (kind, scope, scope_id, cue_fingerprint) = if digest.kind == DigestKind::Reflection {
+        (CueKind::ReflectionTrend, CueScope::Global, None, None)
     } else if let Some(cue) = digest.attention_cues.first() {
-        (cue.kind, cue.scope, cue.scope_id.as_deref().map(scrub_text))
+        (
+            cue.kind,
+            cue.scope,
+            cue.scope_id.as_deref().map(scrub_text),
+            cue.fingerprint.clone(),
+        )
     } else {
         return;
     };
@@ -663,14 +668,21 @@ pub fn create_incident_from_l4_output(
     // DECIDED SEMANTIC — incident identity is coalesce-per-cue-identity, which
     // for storms means per-service. A storm carrying a DIFFERENT exception
     // fingerprint on a service that already has an open incident is absorbed
-    // here BY DESIGN, not by oversight. Fingerprint is deliberately absent from
-    // this key for two reasons: the cue does not carry one (`synthesize_cue`
-    // fixes kind/scope and sets scope_id = service, dropping the per-fingerprint
-    // distinction the detector tracks internally), and the only fingerprint in
-    // scope here — `parsed.fingerprint` — is model-authored, a constant under the
-    // deterministic runner, so keying on it would be a no-op in exactly the mode
-    // used for reproducible verification. Do not add it without first threading a
-    // real fingerprint through `AttentionCue`.
+    // here BY DESIGN, not by oversight (arch §Established Decisions [Fault
+    // Identity], Layer 2).
+    //
+    // The cue NOW carries a real fingerprint, so the availability argument that
+    // once justified this key no longer applies — the decision rests on the
+    // ground that survives: incident-per-identity buys no correctness today
+    // because every downstream surface is already N-safe (the per-service
+    // constellation join reduces by max tier over all matching active
+    // incidents; the digest assembler reads `list_active` only as a boolean).
+    // A second concurrent incident would change no rendering and no L4
+    // behaviour — it would only add rows. Adding `fingerprint` to this key is
+    // therefore a product decision that is now POSSIBLE but not taken; it
+    // belongs to a route entry that weighs it, not to an edit here.
+    // `parsed.fingerprint` remains unusable for it regardless: model-authored,
+    // and a constant under the deterministic runner.
     if let Some(existing) = registry
         .list_active(&digest.workspace)
         .into_iter()
@@ -697,7 +709,17 @@ pub fn create_incident_from_l4_output(
     let mut incident = Incident {
         id: 0,
         workspace: digest.workspace.clone(),
-        fingerprint: parsed.fingerprint.clone(),
+        // The L1 exception fingerprint the triggering cue carried — the
+        // anonymized lowercase-hex grouping hash `Incident.fingerprint` is
+        // contracted as, and the value the corpus-retrieval `fingerprint_match`
+        // arm compares against. Empty when no cue supplied one (reflection
+        // cadence, baseline families); both retrieval selectors guard on
+        // non-empty and fall through to scope matching.
+        //
+        // NOT `parsed.fingerprint`: that is model-authored free text, and a
+        // constant under the deterministic runner — writing it here is the
+        // defect this producer previously had.
+        fingerprint: cue_fingerprint.unwrap_or_default(),
         title: scrub_text(&parsed.title),
         detail: scrub_text(&parsed.symptom),
         kind,

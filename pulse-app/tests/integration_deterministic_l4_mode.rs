@@ -83,6 +83,7 @@ fn digest_with_cue() -> Digest {
             priority_tier: PriorityTier::Autonomous,
             summary: "retry storm".to_string(),
             scope: CueScope::Global,
+            fingerprint: None,
             scope_id: None,
         }],
         corpus_matches: vec![],

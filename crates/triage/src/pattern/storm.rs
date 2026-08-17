@@ -49,7 +49,9 @@ use serde::{Deserialize, Serialize};
 use tracing::info;
 
 use super::persistence::StormStateSnapshot;
-use crate::contract::{AttentionCue, AttentionCueBroadcast, CueKind, CueScope, PriorityTier};
+use crate::contract::{
+    AttentionCue, AttentionCueBroadcast, CueKind, CueScope, PriorityTier, hex_lower,
+};
 
 use super::{
     TARGET_METRIC_FINGERPRINT_EVICTED_COUNT, TARGET_METRIC_FINGERPRINTS_TRACKED,
@@ -260,8 +262,8 @@ pub fn record_occurrence(
             PriorityTier::Autonomous,
             now_nanos,
             &state_ref.timestamps_nanos,
-            detector.suggested_threshold,
-            detector.autonomous_threshold,
+            detector,
+            &fingerprint,
         );
         state_ref.last_emitted = Some((now_nanos, PriorityTier::Autonomous));
         return Some(cue);
@@ -280,8 +282,8 @@ pub fn record_occurrence(
             PriorityTier::Suggested,
             now_nanos,
             &state_ref.timestamps_nanos,
-            detector.suggested_threshold,
-            detector.autonomous_threshold,
+            detector,
+            &fingerprint,
         );
         state_ref.last_emitted = Some((now_nanos, PriorityTier::Suggested));
         return Some(cue);
@@ -296,9 +298,11 @@ fn synthesize_cue(
     tier: PriorityTier,
     now_nanos: i64,
     timestamps: &[i64],
-    suggested_threshold: u64,
-    autonomous_threshold: u64,
+    detector: &RetryStormDetector,
+    fingerprint: &[u8; 16],
 ) -> AttentionCue {
+    let suggested_threshold = detector.suggested_threshold;
+    let autonomous_threshold = detector.autonomous_threshold;
     let magnitude = count as f64 / (suggested_threshold.max(1) as f64);
     let absolute_value = count as f64;
     let confidence = (count as f64 / (autonomous_threshold.max(1) as f64)).min(1.0);
@@ -316,6 +320,10 @@ fn synthesize_cue(
         confidence,
         priority_tier: tier,
         suppression_bypassed: false,
+        // FULL-width hex, not `fingerprint_to_hex_prefix` (4 bytes): the
+        // corpus-retrieval arm compares against `hex_lower` of all 16 Q3
+        // bytes, so a prefix here could never match.
+        fingerprint: Some(hex_lower(fingerprint)),
     }
 }
 
@@ -481,6 +489,46 @@ mod tests {
         assert_eq!(DEFAULT_DETECTION_SUB_WINDOW_SECONDS, 30);
         assert_eq!(DEFAULT_SUGGESTED_THRESHOLD, 5);
         assert_eq!(DEFAULT_AUTONOMOUS_THRESHOLD, 10);
+    }
+
+    /// Emit one cue by crossing the suggested threshold, returning it.
+    fn emit_cue_with_fingerprint(fp: [u8; 16]) -> AttentionCue {
+        let d = fresh_detector();
+        let mut cue = None;
+        for i in 0..DEFAULT_SUGGESTED_THRESHOLD {
+            cue = record_occurrence(&d, fp, "svc", (1_000 + i as i64) * NANOS_PER_SEC);
+        }
+        cue.expect("suggested threshold must emit a cue")
+    }
+
+    #[test]
+    fn synthesized_cue_carries_full_width_hex_fingerprint_not_the_tracing_prefix() {
+        let cue = emit_cue_with_fingerprint(FP_A);
+        let fp = cue.fingerprint.expect("storm cue must carry a fingerprint");
+
+        // Width is the load-bearing assertion. The adjacent, correctly-named
+        // `fingerprint_to_hex_prefix` yields 8 chars; the corpus-retrieval arm
+        // compares against `hex_lower` of all 16 bytes, so a prefix could never
+        // match and a shape-only "is it hex?" check would pass either way.
+        assert_eq!(fp.len(), 32, "must encode all 16 bytes, got {fp}");
+        assert_eq!(fp, hex_lower(&FP_A));
+        assert_ne!(
+            fp,
+            fingerprint_to_hex_prefix(&FP_A),
+            "the 4-byte tracing prefix must never be used as the cue fingerprint"
+        );
+        assert!(
+            fp.chars()
+                .all(|c| c.is_ascii_hexdigit() && !c.is_uppercase())
+        );
+    }
+
+    #[test]
+    fn distinct_fingerprints_yield_distinct_cue_fingerprints() {
+        let a = emit_cue_with_fingerprint(FP_A).fingerprint;
+        let b = emit_cue_with_fingerprint(FP_B).fingerprint;
+        assert!(a.is_some() && b.is_some());
+        assert_ne!(a, b, "distinct faults must stay distinguishable");
     }
 
     #[test]

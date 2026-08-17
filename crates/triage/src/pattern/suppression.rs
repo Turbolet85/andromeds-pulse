@@ -230,6 +230,7 @@ mod tests {
             confidence: 0.9,
             priority_tier: PriorityTier::Suggested,
             suppression_bypassed,
+            fingerprint: None,
         }
     }
 
@@ -439,6 +440,7 @@ mod tests {
             confidence: 0.9,
             priority_tier: PriorityTier::Suggested,
             suppression_bypassed: false,
+            fingerprint: None,
         }];
         let outcome = evaluate_with_suppression(cues, &s, &p, 1_030 * NANOS_PER_SEC);
         assert_eq!(outcome.cues_kept.len(), 1);

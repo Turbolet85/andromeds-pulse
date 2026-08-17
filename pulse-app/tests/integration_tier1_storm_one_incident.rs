@@ -93,6 +93,7 @@ fn storm_digest(seq: usize) -> Digest {
             priority_tier: PriorityTier::Autonomous,
             summary: "retry storm".to_string(),
             scope: CueScope::Service,
+            fingerprint: None,
             scope_id: Some(STORM_SERVICE.to_string()),
         }],
         corpus_matches: vec![],

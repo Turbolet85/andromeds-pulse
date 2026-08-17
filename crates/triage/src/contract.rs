@@ -145,6 +145,25 @@ pub use crate::digest::{
     format_corpus_match_line, select_corpus_matches, select_previously_seen,
 };
 
+/// Lowercase-hex encode raw fingerprint bytes (the `{b:02x}` shape used
+/// across the workspace's fingerprint surfaces).
+///
+/// Lives here rather than in either consumer because BOTH sides of a
+/// fingerprint comparison must encode identically: the digest assembler
+/// builds the current-window set from Q3 `span_events.fingerprint` bytes,
+/// and the storm detector stamps the same encoding onto the cue that
+/// becomes `Incident.fingerprint`. One function makes that agreement
+/// structural. Note `pattern::storm::fingerprint_to_hex_prefix` is a
+/// DIFFERENT, deliberately narrower encoder (4 bytes, for bounded-
+/// cardinality tracing per obs-plan §5) — not interchangeable with this one.
+pub(crate) fn hex_lower(bytes: &[u8]) -> String {
+    let mut out = String::with_capacity(bytes.len() * 2);
+    for b in bytes {
+        out.push_str(&format!("{b:02x}"));
+    }
+    out
+}
+
 /// Kind of detected condition emitted as an attention cue. Bounded
 /// enumeration; future kinds are added explicitly (no `Other(String)`
 /// catch-all). Variants serialize as snake_case strings. Chunk #78 added
@@ -307,6 +326,20 @@ pub struct AttentionCue {
     /// (e.g., `magnitude > 10x` baseline OR `absolute_error_rate > 5%`
     /// overrides restart-window suppression).
     pub suppression_bypassed: bool,
+    /// Lowercase-hex L1 exception fingerprint of the fault that triggered
+    /// this cue, when the detector has one. Threaded structurally so the
+    /// incident-creation producer can populate `Incident.fingerprint` with
+    /// the anonymized grouping hash its contract and consumers expect,
+    /// instead of the model-authored `L4Output.fingerprint`.
+    ///
+    /// `None` for baseline-derived families (silence / error-rate /
+    /// latency), which detect a statistical condition rather than a
+    /// specific fault and so have no fingerprint in scope. Encoded via
+    /// [`hex_lower`] over the full 16 bytes — the SAME encoding the digest
+    /// assembler applies to Q3 rows, which is what lets
+    /// `select_corpus_matches` match the two.
+    #[serde(default)]
+    pub fingerprint: Option<String>,
 }
 
 /// User-visible incident produced when the model interprets an attention
@@ -457,6 +490,23 @@ pub struct DigestCueRef {
     /// archived digest BLOBs deserializable.
     #[serde(default = "default_digest_cue_scope")]
     pub scope: CueScope,
+    /// Lowercase-hex L1 exception fingerprint carried from
+    /// `AttentionCue.fingerprint`, when the originating detector had one.
+    /// Threaded structurally so the incident-creation producer can populate
+    /// `Incident.fingerprint` with the grouping hash its contract and the
+    /// corpus-retrieval `fingerprint_match` arm expect. `None` for
+    /// baseline-derived families. `#[serde(default)]` keeps archived digest
+    /// BLOBs written before this field deserializable.
+    ///
+    /// Deliberately NOT routed through the scrub closure in
+    /// [`Digest::scrubbed_clone`], unlike `summary` and `scope_id`: the value
+    /// is a blake3 digest computed in-process from post-`prost`-validated
+    /// bytes, so it carries no user content by construction. Scrubbing it
+    /// would be a no-op on real values while risking corruption of all-digit
+    /// hex (the credit-card pattern matches 13-19 digit runs), which would
+    /// silently re-starve the retrieval arm this field exists to feed.
+    #[serde(default)]
+    pub fingerprint: Option<String>,
     /// Originating service attribution (`AttentionCue.scope_id`; chunk #92).
     /// Threaded structurally (not only folded into `summary`) so the producer
     /// can populate `Incident.scope_id` and light up the per-service severity
@@ -561,6 +611,8 @@ impl Digest {
                     priority_tier: cue.priority_tier,
                     summary: scrub(&cue.summary),
                     scope: cue.scope,
+                    // Not scrubbed by construction — see `DigestCueRef::fingerprint`.
+                    fingerprint: cue.fingerprint.clone(),
                     scope_id: cue.scope_id.as_deref().map(&scrub),
                 })
                 .collect(),
@@ -596,6 +648,7 @@ mod tests {
             confidence: 0.87,
             priority_tier: PriorityTier::Suggested,
             suppression_bypassed: false,
+            fingerprint: None,
         }
     }
 
@@ -646,6 +699,7 @@ mod tests {
                 priority_tier: PriorityTier::Suggested,
                 summary: "auth-service error rate 12.3% vs 0.8% baseline".to_string(),
                 scope: CueScope::Service,
+                fingerprint: None,
                 scope_id: Some("auth-service".to_string()),
             }],
             corpus_matches: vec!["fp-a3f9".to_string()],
@@ -904,6 +958,52 @@ mod tests {
             serde_json::from_str(pre_chunk_86_json).expect("deserialize pre-chunk-#86 row");
         assert_eq!(parsed.resolution_summary_text, None);
         assert_eq!(parsed.id, 42);
+    }
+
+    #[test]
+    fn hex_lower_encodes_full_width_lowercase() {
+        assert_eq!(hex_lower(&[0xAA, 0x0F, 0x00]), "aa0f00");
+        assert_eq!(hex_lower(&[0xAB; 16]).len(), 32);
+    }
+
+    #[test]
+    fn scrubbed_clone_passes_cue_fingerprint_through_untouched() {
+        // The fingerprint is a blake3 digest computed in-process from
+        // post-`prost`-validated bytes — construction-exempt from scrubbing.
+        // A scrub pass here would be a no-op on real values but could redact an
+        // all-digit hex run, silently re-starving the retrieval arm this field
+        // exists to feed. Guarded so the exemption cannot be "tidied away".
+        let mut d = sample_digest();
+        d.attention_cues[0].fingerprint = Some("a3f91c0b7e2d4568a3f91c0b7e2d4568".to_string());
+
+        let scrubbed = d.scrubbed_clone(|_| "[redacted]".to_string());
+
+        assert_eq!(
+            scrubbed.attention_cues[0].fingerprint.as_deref(),
+            Some("a3f91c0b7e2d4568a3f91c0b7e2d4568"),
+            "fingerprint must survive the scrub closure byte-identical",
+        );
+        assert_eq!(
+            scrubbed.attention_cues[0].summary, "[redacted]",
+            "the closure must genuinely have run, or this test is vacuous",
+        );
+    }
+
+    #[test]
+    fn digest_cue_ref_deserializes_payload_without_fingerprint_field() {
+        // Archived `digest_archive` BLOBs written before the fingerprint field
+        // existed must stay deserializable via `#[serde(default)]`.
+        let pre_field_json = r#"{
+            "kind": "retry_storm",
+            "priority_tier": "suggested",
+            "summary": "retry storm scope_id=checkout",
+            "scope": "service",
+            "scope_id": "checkout"
+        }"#;
+        let parsed: DigestCueRef =
+            serde_json::from_str(pre_field_json).expect("deserialize pre-fingerprint cue ref");
+        assert_eq!(parsed.fingerprint, None);
+        assert_eq!(parsed.scope_id.as_deref(), Some("checkout"));
     }
 
     #[test]

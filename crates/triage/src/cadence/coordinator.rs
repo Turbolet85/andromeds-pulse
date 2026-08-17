@@ -578,6 +578,7 @@ mod tests {
             confidence: 0.85,
             priority_tier: priority,
             suppression_bypassed: false,
+            fingerprint: None,
         }
     }
 
