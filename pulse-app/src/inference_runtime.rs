@@ -619,7 +619,8 @@ fn priority_tier_label(tier: PriorityTier) -> &'static str {
 ///   the corpus write (chunk #72 uniform-coverage invariant).
 /// - Re-emission dedup on the `(kind, scope, scope_id)` per-service identity:
 ///   bump an existing active incident rather than creating a duplicate, so
-///   distinct services keep distinct incidents.
+///   distinct services keep distinct incidents. This is COALESCE-PER-CUE-IDENTITY,
+///   a decided semantic rather than an omission — see the note at the predicate.
 /// - Persist-then-insert: `save_new_incident` assigns the rowid → set
 ///   `Incident.id` → `registry.insert` → `save_incident_event`.
 /// - Aggregate-only observability; never panics on a corpus result.
@@ -658,6 +659,18 @@ pub fn create_incident_from_l4_output(
 
     // Re-emission dedup on the identity tuple — distinct services (distinct
     // scope_id) keep distinct incidents; reflection trends dedup per workspace.
+    //
+    // DECIDED SEMANTIC — incident identity is coalesce-per-cue-identity, which
+    // for storms means per-service. A storm carrying a DIFFERENT exception
+    // fingerprint on a service that already has an open incident is absorbed
+    // here BY DESIGN, not by oversight. Fingerprint is deliberately absent from
+    // this key for two reasons: the cue does not carry one (`synthesize_cue`
+    // fixes kind/scope and sets scope_id = service, dropping the per-fingerprint
+    // distinction the detector tracks internally), and the only fingerprint in
+    // scope here — `parsed.fingerprint` — is model-authored, a constant under the
+    // deterministic runner, so keying on it would be a no-op in exactly the mode
+    // used for reproducible verification. Do not add it without first threading a
+    // real fingerprint through `AttentionCue`.
     if let Some(existing) = registry
         .list_active(&digest.workspace)
         .into_iter()

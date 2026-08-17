@@ -99,6 +99,15 @@ silently changes when services become eligible for silence detection). Neither a
 `triage.baseline` key may exist. Its guard lives at `pulse-app/tests/unit_observability_allowlist_bootstrap_window.rs`
 — under `tests/` because `[lib] test = false` makes a src-level guard compile and never run.
 
+**Incident-producer outcome leaf (chunk 2026-08-16-fault-identity-semantics-decided).** One EXACT `§8` leaf —
+`interpretation.incident.created` (`created` / `deduped` bools + `severity` / `priority_tier` bounded labels — all
+four the emit site emits). **No bare `interpretation` key may exist** (it would widen the muted
+`interpretation.model.load` sibling). Registered AS MEASURED: the leaf had shipped in `AllowList::production()`
+before §8 enumerated it, so this closed a doc gap rather than a production one. **Completeness is documented but
+NOT enforced** — that guard sits in `observability.rs`'s dead `mod tests`; only the PII half runs
+(`pulse-app/tests/unit_incident_producer.rs`). Guard migration is owned by the "Diagnostics un-muting +
+harness-truth sweep" entry.
+
 **Corpus allowlist leaves (chunk 2026-08-15-corpus-key-persistence).** Four EXACT `§8` leaves — `corpus.open.error` (`error_kind`; a REPAIR, it had emitted since chunk #68 with no resolvable entry so its field was redacted), `corpus.keychain.fallback` (`backend_kind` / `reason` / `consequence`), `corpus.read.undecryptable` (`query_id` / `rows_skipped`), `corpus.orphan.disposition` (`disposition_outcome` / `rows_purged` / `tables_affected` / `error_category`). **No bare `corpus` prefix key may exist** — it would silently widen every future `corpus.*` target to one field set. 
 **Incident-path allowlist leaves (chunk 2026-08-15-tier-1-incident-path-investigation).** Three EXACT `§8` leaves, all previously redacted — `incidents.list_active.request` (`item_count`), `triage.incident.persist` (`incident_count` / `persist_kind` / `duration_ms` — all three, since the emit site emits `duration_ms` and a two-field entry leaves the target partly redacted), `triage.incident.corpus_restore` (`kind` / `restored_incident_count`). **No bare `incidents` or `triage` prefix key may exist** (same `for_target` trap). Guarded by `pulse-app/tests/unit_observability_allowlist_incident_diagnostics.rs`. The muted-diagnostic backlog in obs-plan §8 now names FIVE remaining redacted targets (`metric.pipeline.l1a.query_count_total`, `metric.pipeline.l1a.query_latency_p99_milliseconds`, `triage.cue.tick`, `triage.incident.auto_resolve.tick`, `interpretation.model.load`), owned by the "Diagnostics un-muting + harness-truth sweep" route entry.
 

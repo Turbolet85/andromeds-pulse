@@ -77,6 +77,14 @@ impl CorpusIncidentSource for NoopCorpusIncidentSource {
 /// fingerprint appears in the current window's fingerprint set OR whose
 /// `scope_id` matches a currently-active service scope; rank by recency
 /// (newest first); cap at `limit`.
+///
+/// The fingerprint arm is correct by contract and currently STARVED, not dead.
+/// `current_fingerprints` arrives as `hex_lower` of Q3's `span_events.fingerprint`
+/// blake3 bytes, and `Incident.fingerprint` is documented as an anonymized
+/// fingerprint hash, so both sides are meant to be the same hex namespace.
+/// The L4 producer instead writes the model-authored `L4Output.fingerprint`
+/// there, so in the current wiring the arm cannot fire and only `scope_match`
+/// does. The mismatch is the producer's; do not "simplify" this arm away.
 pub fn select_corpus_matches(
     mut candidates: Vec<Incident>,
     current_fingerprints: &[String],

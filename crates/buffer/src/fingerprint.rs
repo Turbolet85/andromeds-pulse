@@ -131,7 +131,9 @@ pub(crate) fn normalize_stacktrace(raw: &str) -> String {
 }
 
 /// Strip variable parts of a single stack frame line:
-/// - absolute file paths (Unix `/...` or Windows `C:\...`)
+/// - absolute file paths (Unix `/...` or Windows `C:\...`) — ONLY absolute ones;
+///   a relative path such as `src/a.rs` is identity-significant and is preserved
+///   in full (see `is_token_boundary`)
 /// - hex memory addresses (`0x...`)
 /// - line/column suffixes after a colon-anchored path remnant (`:42` or `:42:7`)
 ///
@@ -183,7 +185,20 @@ fn skip_hex_address(bytes: &[u8], mut i: usize) -> usize {
     i
 }
 
+/// A path token counts as ABSOLUTE only when it STARTS a token (position 0, or
+/// preceded by a non-path byte). Without this precondition the Unix arm fires on
+/// every `/`, and since `is_path_char` itself admits `/`, `skip_absolute_path`
+/// then swallows the remainder of the token so only the leading segment survives
+/// — making `src/a.rs` and `src/b/c.rs` one fingerprint. Relative path structure
+/// is identity-significant.
+fn is_token_boundary(bytes: &[u8], i: usize) -> bool {
+    i == 0 || !is_path_char(bytes[i - 1])
+}
+
 fn is_absolute_path_start(bytes: &[u8], i: usize) -> bool {
+    if !is_token_boundary(bytes, i) {
+        return false;
+    }
     if i < bytes.len() && bytes[i] == b'/' && i + 1 < bytes.len() && is_path_char(bytes[i + 1]) {
         return true;
     }
@@ -375,6 +390,34 @@ mod tests {
         let raw = "    at com.example.Foo.bar\n\n    at com.example.Foo.baz";
         let normalized = normalize_stacktrace(raw);
         assert_eq!(normalized.lines().count(), 2);
+    }
+
+    #[test]
+    fn compute_differs_for_relative_paths_differing_below_leading_segment() {
+        let stack_a = "    at handler(src/a.rs:10)";
+        let stack_b = "    at handler(src/b/c.rs:10)";
+        let a = compute_exception_fingerprint(Some(SAMPLE_TYPE), Some(stack_a)).expect("ok");
+        let b = compute_exception_fingerprint(Some(SAMPLE_TYPE), Some(stack_b)).expect("ok");
+        assert_ne!(
+            a, b,
+            "relative path structure is identity-significant — src/a.rs and src/b/c.rs are distinct faults"
+        );
+    }
+
+    #[test]
+    fn normalize_stacktrace_preserves_relative_paths_in_full() {
+        assert_eq!(
+            normalize_stacktrace("    at handler(src/b/c.rs:10)"),
+            "at handler(src/b/c.rs)"
+        );
+    }
+
+    #[rstest]
+    #[case("/usr/lib/thing.rs", "")]
+    #[case("    at handler(/usr/lib/thing.rs:10)", "at handler()")]
+    #[case("    at handler(C:\\proj\\thing.rs:10)", "at handler()")]
+    fn normalize_stacktrace_strips_only_absolute_paths(#[case] raw: &str, #[case] expected: &str) {
+        assert_eq!(normalize_stacktrace(raw), expected);
     }
 
     #[test]

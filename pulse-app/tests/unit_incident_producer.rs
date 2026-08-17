@@ -352,6 +352,65 @@ fn reemission_dedup_does_not_create_duplicate() {
     );
 }
 
+/// DECIDED SEMANTIC (coalesce-per-cue-identity): a storm carrying a DIFFERENT
+/// fingerprint on a service that already has an open incident is absorbed into
+/// it. Pinned so the decision cannot silently drift into per-fingerprint
+/// identity — which would additionally be a no-op under the deterministic
+/// runner, whose `fingerprint` is a constant.
+#[test]
+fn distinct_fingerprint_same_service_still_coalesces_to_one_incident() {
+    let (registry, persistence) = fresh();
+    let digest = digest_with_cue(
+        CueKind::RetryStorm,
+        CueScope::Service,
+        Some("checkout-service"),
+    );
+
+    let mut first = l4_output(Decision::Surface, L4Severity::Suggested, "storm A");
+    first.fingerprint = "fingerprint-alpha".into();
+    let mut second = l4_output(Decision::Surface, L4Severity::Suggested, "storm B");
+    second.fingerprint = "fingerprint-beta".into();
+    assert_ne!(
+        first.fingerprint, second.fingerprint,
+        "fixture must carry genuinely distinct fingerprints or the test is vacuous",
+    );
+
+    create_incident_from_l4_output(
+        registry.as_ref(),
+        persistence.as_ref(),
+        &digest,
+        &first,
+        5_000,
+    );
+    create_incident_from_l4_output(
+        registry.as_ref(),
+        persistence.as_ref(),
+        &digest,
+        &second,
+        9_000,
+    );
+
+    assert_eq!(
+        registry.count(),
+        1,
+        "a distinct-fingerprint storm on the same service coalesces by decision",
+    );
+    assert_eq!(
+        persistence.save_count(),
+        1,
+        "the second storm re-emits rather than INSERTing",
+    );
+    let inc = registry.list_active(WORKSPACE).remove(0);
+    assert_eq!(
+        inc.title, "storm A",
+        "the FIRST incident survives; the second storm is absorbed into it",
+    );
+    assert_eq!(
+        inc.updated_at_unix_nano, 9_000,
+        "re-emission bumped updated_at"
+    );
+}
+
 #[test]
 fn distinct_services_create_distinct_incidents() {
     let (registry, persistence) = fresh();
