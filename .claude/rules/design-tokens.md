@@ -109,7 +109,7 @@ NEVER use organic curves. Mixed strategy: most chrome at sm/md; only badges + to
 ## Self-Validation (run before presenting any UI)
 1. **Swap test** — replace fonts/palette/icons/Halo with Inter + Tailwind defaults + Lucide + spinner; if no meaningful difference → defaulted, redo.
 2. **Squint test** — blur eyes; hierarchy still perceptible? Nothing screams?
-3. **Signature test** — Halo present in 3 places (full dashboard / compact widget / tray icon)?
+3. **Signature test** — is the severity signature present on the surfaces that actually render? Measured 2026-08-21: the Halo canvas is unbuilt on BOTH webview surfaces (full dashboard + compact widget), so the shipped signature is the constellation dot hue; the tray layer was not probed. Grade against what renders, not against the 3-place spec, until "Halo State Pulse canvas disposition" resolves.
 4. **Token test** — every value traces to Color World / spacing scale / font stack?
 5. **Sameness test** — would another AI produce the same output? If yes, re-anchor to Observatory metaphor.
 6. **Contrast test** — values match Text Hierarchy table ratios?

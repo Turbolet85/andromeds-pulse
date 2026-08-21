@@ -17,7 +17,9 @@ Cross-platform desktop app (Windows / macOS / Linux via Tauri 2.x) with 2 primar
 - **AAA escalation (motion-sensitive trigger):** **SC 2.3.3 Animation from Interactions** — Lighthouse 12.x prefers-reduced-motion audit + custom Playwright `page.emulateMedia({ reducedMotion: 'reduce' })` assertion.
 - **Explicitly N/A SCs (12 with documented reasons):** SC 1.2.1/1.2.2/1.2.3/1.4.2 (no audio), 1.4.4/1.4.5 (no text-as-image), 1.4.10 (desktop-only viewport), 1.4.13 (re-evaluated chunk #99: the header connection-dot tooltip is a non-interactive `role="img"` summary with an `aria-hidden` decorative tooltip — no hover/focus-triggered ADDITIONAL content in the SC sense; still N/A), 2.2.1/2.2.2 (no time-dependent content), 2.4.4 (verified via 4.1.2), 3.1.1 (single-language), 3.2.1/3.2.2 (covered in P7), 3.3.3/3.3.4 (covered via P2/P7), 4.1.1 (parsing — deprecated WCAG 2.2; React 19 + TS + ESLint enforce).
 
-## Critical paths (P1–P7 must-be-accessible)
+## Critical paths (P1–P12 must-be-accessible)
+
+_Extended from P1–P7 to **P1–P12** at chunk #99: **p8** findings dropdown · **p9** diagnostic report modal · **p10** diagnostics view · **p11** constellation semantics · **p12** export preview — each with its own axe spec plus `keyboard-focus/widget-and-modals.spec.ts`. The universal minimums (SC 2.1.1 / 2.4.3 / 4.1.2) and the §10 SLO coverage apply across all twelve. The P1–P7 rows below are the original set; p8–p12 follow the same role/focus/SC discipline._
 
 | Path | Required ARIA roles | Required focus order | Required WCAG SC |
 |---|---|---|---|

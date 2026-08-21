@@ -13,7 +13,7 @@ Cross-platform Tauri 2 desktop dashboard for local OpenTelemetry — receives OT
 - `pulse-app/` — Tauri binary crate; `tauri.conf.json` + `capabilities/` JSON + `src/main.rs` + `ui/` webview source
 - `xtask/` — cargo-xtask: release / sign / notarize / capability-drift / agent-run harness
 - `.github/workflows/` — `ci.yml` matrix Linux/macOS/Windows + `release.yml` (`tauri-action`) + `update-channels.yml` (Homebrew + Scoop)
-- `.andromeda/` — planning artifacts (arch / 6 specialist plans / route / scopes / runs / `context/` living artifacts)
+- `.andromeda/` — planning artifacts (arch / 6 specialist plans / master-route + route history / runs / `cache/` code-graph DBs, gitignored)
 <!-- GENERATED:setup:overview end -->
 
 ## Modules
@@ -71,11 +71,9 @@ Cross-platform Tauri 2 desktop dashboard for local OpenTelemetry — receives OT
 | A11y plan (WCAG 2.1 AA + SC 2.3.3 AAA) + harness (axe / Lighthouse / pa11y / Playwright / colorjs.io) | `.andromeda/a11y-plan.md` §3 |
 | Design system (NASA Deep Space palette + Halo State Pulse) | `.andromeda/design-system.md` |
 | Layout templates (compact widget + full dashboard + tray) | `.andromeda/layout-templates.md` |
-| Code map / impact (symbols · callers · crate deps) | `.andromeda/cache/tree.db` via `scripts/code-graph.py query` (cookbook `scripts/code-graph-cookbook.md`; built on first phase/wrap) |
-| Module dependency graph (living artifact — superseded by tree.db; retire after first build) | `.andromeda/context/dependency-tree.md` |
-| API surface (living artifact — superseded by tree.db; retire after first build) | `.andromeda/context/api-surface.md` |
+| Code map / impact (symbols · callers · crate deps) | `.andromeda/cache/{plane}/tree.db` — planes `rust` · `ts`; query via `scripts/code-graph.py query <run_dir> <marker> "<sql>" [plane]` (cookbook `scripts/code-graph-cookbook.md`; built on first phase/wrap) |
 | Specialist summaries (security / design / tests / obs / a11y) | `.claude/docs/{specialist}-summary.md` |
-| Per-module implementation notes (12 crates) | `.claude/docs/services/{module}.md` |
+| Per-module implementation notes (14 crates) | `.claude/docs/services/{module}.md` |
 | Stack / commands / conventions / gotchas / workflow | `.claude/docs/{topic}.md` |
 | Path-scoped rules (security / testing / observability / a11y / verification-harness / design-tokens / frontend) | `.claude/rules/{rule}.md` |
 | Session learnings (curated) + handoff (state across sessions) | `.claude/docs/session-learnings.md` + `.claude/session-handoff.md` |
@@ -98,7 +96,7 @@ See `.claude/docs/commands.md` for the full reference.
 
 ## Architecture
 <!-- GENERATED:setup:architecture start -->
-Local-first, zero-infrastructure modular monolith: every byte of telemetry stays on the developer's machine; twelve library crates linked into the `pulse-app` Tauri binary (fourteen workspace members total: twelve library crates + the `pulse-app` binary + the `xtask` task-runner crate) share memory via tokio mpsc + broadcast (ingest → buffer → viz / MCP / snapshot subscribers) so the OS sees one process and ingest→viz latency is microseconds. Standards-track at the edges (OTLP at `:4317`/`:4318`, MCP over stdio, WASM Component Model plugins) and tightly opinionated in the middle (TauRPC bridge, Arrow zero-copy hand-off, `serde`-friendly `AppError`) — external tooling Just Works while agent-driven development stays unambiguous. Capability-scoped extensibility: WASM plugins receive only the host imports declared in their WIT; Tauri's `pulse:default` capability is the negative-default trust model (no auth required because there are no user accounts).
+Local-first, zero-infrastructure modular monolith: every byte of telemetry stays on the developer's machine; fourteen library crates linked into the `pulse-app` Tauri binary (sixteen workspace members total: fourteen library crates + the `pulse-app` binary + the `xtask` task-runner crate — the canonical list is arch §Occupied Resources §Cargo workspace crate names, which any count word defers to) share memory via tokio mpsc + broadcast (ingest → buffer → viz / MCP / snapshot subscribers) so the OS sees one process and ingest→viz latency is microseconds. Standards-track at the edges (OTLP at `:4317`/`:4318`, MCP over stdio, WASM Component Model plugins) and tightly opinionated in the middle (TauRPC bridge, Arrow zero-copy hand-off, `serde`-friendly `AppError`) — external tooling Just Works while agent-driven development stays unambiguous. Capability-scoped extensibility: WASM plugins receive only the host imports declared in their WIT; Tauri's `pulse:default` capability is the negative-default trust model (no auth required because there are no user accounts).
 
 **Primary source:** architecture.md (imported below).
 <!-- GENERATED:setup:architecture end -->
@@ -116,7 +114,7 @@ Local-first, zero-infrastructure modular monolith: every byte of telemetry stays
 On-demand references in `.claude/docs/` (Claude reads when relevant):
 - Specialist summaries: `security-summary.md` / `design-summary.md` / `tests-summary.md` / `obs-summary.md` / `a11y-summary.md`
 - Core: `stack.md` / `conventions.md` / `commands.md` / `gotchas.md` / `workflow.md`
-- `services/{name}.md` — per-module implementation notes (`ingest` / `buffer` / `viz` / `ui-bridge` / `snapshot` / `curation` / `triage` / `corpus` / `security` / `workspace-detector` / `plugins` / `mcp-server`)
+- `services/{name}.md` — per-module implementation notes (`ingest` / `buffer` / `viz` / `ui-bridge` / `snapshot` / `curation` / `triage` / `corpus` / `security` / `interpretation` / `config-watcher` / `workspace-detector` / `plugins` / `mcp-server`)
 - `session-learnings.md` — curated by /wrap-session
 
 Path-scoped rules in `.claude/rules/` (auto-load when matching files touched):

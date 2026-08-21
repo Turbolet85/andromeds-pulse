@@ -156,9 +156,16 @@ samply record cargo run --bin pulse-app --release   # macOS / Linux
 ## Git
 - See `.claude/docs/workflow.md` for branch / commit / PR conventions.
 
-## Living artifact reconcile (manual override)
-- Auto-runs in `/wrap-session` Phase 5. Manual:
+## Code-graph (symbol graph — replaces the retired markdown living-trees)
+Derived + gitignored under `.andromeda/cache/`, **one DuckDB database per language PLANE** (`rust` · `ts`), each at `cache/{plane}/tree.db`. Planes are detected from manifests at run time: `rust` = root `Cargo.toml` (+ `rust-analyzer`); `ts` = tracked `tsconfig.json` (+ `scip-typescript`). Both are live in this project.
+
 ```bash
-cargo modules generate tree --bin pulse-app    # Refresh dependency-tree.md
-cargo public-api --simplified --workspace      # Refresh api-surface.md
+pip install -r scripts/requirements.txt          # one-time: duckdb + protobuf
+python scripts/code-graph.py refresh             # build EVERY detected plane
+python scripts/code-graph.py refresh ts          # or just one plane
+python scripts/code-graph.py query <run_dir> <marker> "<sql>" <plane>
 ```
+- `refresh` is backgrounded by `/wrap-session`; `/andromeda-phase` calls `query`, which regenerates only the plane it needs on a miss. **Do not run `refresh` by hand** — the next wrap or a phase query does it.
+- `plane` is REQUIRED on `query` when several planes are detected (both are here) — the chunk's modify-set says which.
+- A missing indexer skips that plane (recipe in `.andromeda/cache/.refresh-done`) and never blocks; if no plane can build you get `.refresh-stale`, exit 0.
+- Views: `symbol` / `refs` / `calls` / `contains` / `crate_edges` / `calls_m`. Schema + canonical query shapes: `scripts/code-graph-cookbook.md` (authoritative definitions in `scripts/code-graph-views.sql`).

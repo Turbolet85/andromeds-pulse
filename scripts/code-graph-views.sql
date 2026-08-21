@@ -8,7 +8,8 @@ CREATE OR REPLACE TABLE occ  AS SELECT * FROM read_json_auto('.andromeda/cache/o
 CREATE OR REPLACE TABLE wsdef AS SELECT DISTINCT symbol FROM defs;
 
 -- symbol: the node view — symbol + parsed crate + its definition file:line
--- SCIP symbol = "<scheme> <manager> <package> <version> <descriptors>" -> crate = field 3.
+-- SCIP symbol = "<scheme> <manager> <package> <version> <descriptors>" -> crate = field 3
+-- (the package: a cargo crate on the rust plane, an npm package on the ts plane).
 CREATE OR REPLACE VIEW symbol AS
   SELECT symbol, split_part(symbol, ' ', 3) AS crate, file, def_line
   FROM defs;
