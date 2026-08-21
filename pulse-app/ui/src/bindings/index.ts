@@ -37,6 +37,10 @@ export type ConnectionState = { state: "Listening" } | { state: "Receiving" } | 
  */
 export type ConnectionStatePayload = { state: ConnectionState; last_span_ago_ms: number; severity: Severity; message: string | null; reason: ReceiverFailureReason | null }
 
+export type ConstellationDiscoveryInput = { duration_ms: number; discovered_count: number }
+
+export type ConstellationHueLatencyInput = { duration_ms: number; severity_tier: HueSeverityTier }
+
 /**
  * Kind of detected condition emitted as an attention cue. Bounded
  * enumeration; future kinds are added explicitly (no `Other(String)`
@@ -107,6 +111,8 @@ export type ExportCategoryCount = { dimension: string; label: string; count: num
  */
 export type ExportPreviewPayload = { categories: ExportCategoryCount[]; total_records: number; date_range_start_unix_nano: number | null; date_range_end_unix_nano: number | null; anonymization_confirmed: boolean; written: boolean; written_path_basename: string | null }
 
+export type FindingsCounterRefreshInput = { duration_ms: number }
+
 export type FrameDurationInput = { duration_ms: number; wgpu_backend: WgpuBackend; webview_backend: WebviewBackend; timing_method: TimingMethod }
 
 export type HardwareSectionPayload = { profile_label: string; detection_detail: string | null }
@@ -114,6 +120,8 @@ export type HardwareSectionPayload = { profile_label: string; detection_detail: 
 export type HealthEnvelope = { status: HealthStatus; checked_at: string; subsystems: SubsystemStatuses; pid: number; uptime_ms: number }
 
 export type HealthStatus = "ok" | "degraded"
+
+export type HueSeverityTier = "none" | "curious" | "suggested" | "autonomous"
 
 /**
  * Single ranked hypothesis. Mirrors `interpretation::markdown::HypothesisView`
@@ -438,7 +446,7 @@ export type WidgetPosition = "top-left" | "top-right" | "bottom-left" | "bottom-
 
 export type WorkspaceContextDto = { root_basename: string; project_name: string | null; vcs_type: string | null; vcs_root_basename: string | null; has_andromeda_marker: boolean }
 
-const ARGS_MAP = { '':'{"app_info":[],"get_settings":[],"health":[],"ready":[],"update_settings":["settings"]}', 'config':'{"reload":[],"status":[]}', 'connection':'{"current_state":[]}', 'diagnostics':'{"history":["metric_name","window_seconds"],"reevaluate_recent_window":[],"retry_interpretation":[],"snapshot":[],"template_distribution":[]}', 'incidents':'{"acknowledge":["id"],"get_report":["id"],"list_active":[],"mark_all_read":[],"mark_resolved":["id"]}', 'investigate':'{"run_action":["action_id"]}', 'logs':'{"query":["args"]}', 'mcp':'{"start":[],"status":[],"stop":[]}', 'metrics':'{"query":["args"]}', 'model':'{"current_profile":[]}', 'plugins':'{"invoke":["plugin_id","capability"],"list":[],"reload":[]}', 'services':'{"list_with_states":[]}', 'snapshot':'{"generate":["preset","workspace_root"]}', 'storage':'{"export_for_training":["target_path","confirm"],"inspect":[],"path":[]}', 'streams':'{"subscribe_logs":["channel"],"subscribe_metrics":["channel"],"subscribe_spans":["channel"]}', 'telemetry.frontend':'{"record_frame_ms":["input"]}', 'traces':'{"query":["args"]}', 'workspace':'{"detect":["candidate_root"]}' }
+const ARGS_MAP = { '':'{"app_info":[],"get_settings":[],"health":[],"ready":[],"update_settings":["settings"]}', 'config':'{"reload":[],"status":[]}', 'connection':'{"current_state":[]}', 'diagnostics':'{"history":["metric_name","window_seconds"],"reevaluate_recent_window":[],"retry_interpretation":[],"snapshot":[],"template_distribution":[]}', 'incidents':'{"acknowledge":["id"],"get_report":["id"],"list_active":[],"mark_all_read":[],"mark_resolved":["id"]}', 'investigate':'{"run_action":["action_id"]}', 'logs':'{"query":["args"]}', 'mcp':'{"start":[],"status":[],"stop":[]}', 'metrics':'{"query":["args"]}', 'model':'{"current_profile":[]}', 'plugins':'{"invoke":["plugin_id","capability"],"list":[],"reload":[]}', 'services':'{"list_with_states":[]}', 'snapshot':'{"generate":["preset","workspace_root"]}', 'storage':'{"export_for_training":["target_path","confirm"],"inspect":[],"path":[]}', 'streams':'{"subscribe_logs":["channel"],"subscribe_metrics":["channel"],"subscribe_spans":["channel"]}', 'telemetry.frontend':'{"record_constellation_discovery_latency":["input"],"record_constellation_hue_latency":["input"],"record_findings_counter_refresh":["input"],"record_frame_ms":["input"]}', 'traces':'{"query":["args"]}', 'workspace':'{"detect":["candidate_root"]}' }
 export type Router = { "": {app_info: () => Promise<AppInfo>, 
 get_settings: () => Promise<Settings>, 
 health: () => Promise<HealthEnvelope>, 
@@ -475,7 +483,10 @@ path: () => Promise<StoragePathPayload>},
 "streams": {subscribe_logs: (channel: TAURI_CHANNEL<number[]>) => Promise<null>, 
 subscribe_metrics: (channel: TAURI_CHANNEL<number[]>) => Promise<null>, 
 subscribe_spans: (channel: TAURI_CHANNEL<number[]>) => Promise<null>},
-"telemetry.frontend": {record_frame_ms: (input: FrameDurationInput) => Promise<null>},
+"telemetry.frontend": {record_constellation_discovery_latency: (input: ConstellationDiscoveryInput) => Promise<null>, 
+record_constellation_hue_latency: (input: ConstellationHueLatencyInput) => Promise<null>, 
+record_findings_counter_refresh: (input: FindingsCounterRefreshInput) => Promise<null>, 
+record_frame_ms: (input: FrameDurationInput) => Promise<null>},
 "traces": {query: (args: TracesQueryArgs) => Promise<PaginatedResponse<TraceRow>>},
 "workspace": {detect: (candidateRoot: string) => Promise<WorkspaceContextDto>} };
 

@@ -938,6 +938,26 @@ impl AllowList {
             .copied()
             .collect(),
         );
+        // Delegated timing observables (P-025 / P-027 / P-045). Each needs its
+        // OWN exact leaf: a bare `metric` key IS registered below with only
+        // ["value", "unit", "module"], and `for_target` falls back to the first
+        // `.`-segment — so a leaf-less `metric.*` target keeps `value` and has
+        // every other field redacted. Aggregate-only: no service identifier.
+        by_target.insert(
+            "metric.constellation.hue_update_ms",
+            ["duration_ms", "severity_tier"].iter().copied().collect(),
+        );
+        by_target.insert(
+            "metric.constellation.discovery_ms",
+            ["duration_ms", "discovered_count"]
+                .iter()
+                .copied()
+                .collect(),
+        );
+        by_target.insert(
+            "metric.findings.counter_refresh_ms",
+            ["duration_ms"].iter().copied().collect(),
+        );
         by_target.insert("app.boot.tray.init", ["tray_api"].iter().copied().collect());
         by_target.insert(
             "app.boot.window.show",

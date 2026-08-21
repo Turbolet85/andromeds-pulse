@@ -16,7 +16,7 @@ _Extracted from `.andromeda/architecture.md` Stack and Technologies section by `
 - **Plugin runtime:** `wasmtime` 25+ with WASM Component Model + WIT — capability-scoped third-party extensions.
 - **MCP server:** `rmcp` (official Rust SDK) over stdio — `query_traces` / `query_metrics` / `query_logs` / `generate_snapshot` `#[tool]` methods (gated by `--features mcp-server`).
 - **Frontend:** React 19.x + Vite + TanStack Router + Tailwind CSS v4.x + shadcn/ui (Radix UI primitives + Tailwind, copy-not-install).
-- **Visualization:** Webview WebGPU (`<canvas>` + `navigator.gpu`, WGSL shaders) for trace timeline / flamegraph / metrics charts / Halo State Pulse.
+- **Visualization:** Webview WebGPU (`<canvas>` + `navigator.gpu`, WGSL shaders) for trace timeline / flamegraph / metrics charts / service constellation. (The Halo State Pulse canvas layer is specified but unbuilt on desktop-webview — measured 2026-08-21.)
 - **Error handling:** `thiserror` 2.x (modules) + `anyhow` 1.x (boundaries) + `serde`-friendly `AppError` enum at the IPC bridge.
 - **Validation:** `serde` + smart enum types + `TryFrom<u16>` (no validation library by default; defer `garde` 0.20+ to plugin manifest cross-field validation if/when needed).
 

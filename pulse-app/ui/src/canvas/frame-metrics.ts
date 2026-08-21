@@ -122,3 +122,75 @@ export async function recordFrameMs(input: FrameMetricInput): Promise<void> {
 export function __setProxyForTest(proxy: ReturnType<typeof createTauRPCProxy> | null): void {
   cachedClient = proxy;
 }
+
+// Delegated timing observables (P-025 / P-027 / P-045). Each bound ends at a
+// paint inside this webview, so the backend cannot observe it; obs-plan §1/§4
+// makes `telemetry.frontend.*` the only sanctioned route to the log. Same
+// posture as recordFrameMs: clamp client-side, never throw into a render path.
+
+export type HueSeverityTierKind = "none" | "curious" | "suggested" | "autonomous";
+
+export interface ConstellationHueLatencyInputJs {
+  duration_ms: number;
+  severity_tier: HueSeverityTierKind;
+}
+
+export interface ConstellationDiscoveryInputJs {
+  duration_ms: number;
+  discovered_count: number;
+}
+
+export interface FindingsCounterRefreshInputJs {
+  duration_ms: number;
+}
+
+const DISCOVERED_COUNT_MAX = 10_000;
+
+export function clampDiscoveredCount(value: number): number {
+  if (!Number.isFinite(value) || value < 0) {
+    return 0;
+  }
+  return Math.min(Math.floor(value), DISCOVERED_COUNT_MAX);
+}
+
+async function invokeTelemetry<T>(method: string, payload: T): Promise<void> {
+  try {
+    const proxyRoot = getClient() as unknown as {
+      telemetry?: {
+        frontend?: Record<string, ((input: T) => Promise<void>) | undefined>;
+      };
+    };
+    const resolver = proxyRoot.telemetry?.frontend?.[method];
+    if (typeof resolver !== "function") {
+      return;
+    }
+    await resolver(payload);
+  } catch {
+    // Never throw into a render/poll path — an absent emission surfaces to the
+    // obs gate as a missing metric stream, not as a broken surface.
+  }
+}
+
+export async function recordConstellationHueLatency(input: ConstellationHueLatencyInputJs): Promise<void> {
+  await invokeTelemetry("record_constellation_hue_latency", {
+    ...input,
+    duration_ms: clampDurationMs(input.duration_ms),
+  });
+}
+
+export async function recordConstellationDiscoveryLatency(
+  input: ConstellationDiscoveryInputJs,
+): Promise<void> {
+  await invokeTelemetry("record_constellation_discovery_latency", {
+    duration_ms: clampDurationMs(input.duration_ms),
+    discovered_count: clampDiscoveredCount(input.discovered_count),
+  });
+}
+
+export async function recordFindingsCounterRefresh(
+  input: FindingsCounterRefreshInputJs,
+): Promise<void> {
+  await invokeTelemetry("record_findings_counter_refresh", {
+    duration_ms: clampDurationMs(input.duration_ms),
+  });
+}

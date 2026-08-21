@@ -30,7 +30,7 @@ Path-scoped rules for the desktop-webview React frontend (Tauri 2 webview).
 - Real-time push: subscribe to `pulse://stream/spans` / `pulse://stream/metrics` / `pulse://stream/logs` / `pulse://stream/snapshot-progress` / `pulse://stream/plugin-events` via `Channel<Uint8Array>` API; payloads are binary Arrow IPC.
 
 ## Capability discipline
-- Adding a new TauRPC procedure invocation in the frontend REQUIRES the corresponding `pulse-app/capabilities/` JSON entry. The `xtask capability-drift` check enforces in CI.
+- Adding a new TauRPC procedure REQUIRES its `EXPECTED_PROCEDURES` pin in `xtask/src/main.rs` — `pulse-app/capabilities/` carries no per-procedure entries (one TauRPC invoke handler; measured 2026-08-21). The `xtask capability-drift` check enforces the pin in CI. A new Tauri CORE API or `core:window:*` permission DOES need a capability grant, and is silently rejected without one.
 - The webview runs under `pulse:default` capability — webview cannot invoke `pulse:updater` / `pulse:plugin-fs` / Tauri core APIs (`fs`, `shell`, `dialog`, `http`).
 - NEVER attempt to call Tauri core APIs from the webview without an explicit per-feature capability addition with stated rationale.
 

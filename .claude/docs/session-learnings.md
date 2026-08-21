@@ -4,6 +4,28 @@ _This file is curated by `/wrap-session`. Learnings captured here are too detail
 
 _Entries are added in reverse chronological order (newest first). Each entry has an ISO date, short title, and body._
 
+## 2026-08-21 — Editing a hand-formatted JSON file: replay the edit, don't re-serialize
+
+`docs/v0_2_0/capability-verification-matrix.json` is authored with **one compact line per capability**
+(`{ "id": "P-001", "title": …, "scenarios": [ … ] },`). Changing three `notes` strings via the obvious
+`json.load` → mutate → `json.dumps(indent=2)` round-trip re-serialized the entire file and produced a
+**1068-line diff for a 3-string edit** — the semantic change was intact but invisible, buried under
+formatting churn that would have shipped in the chunk commit.
+
+The fix is to treat the file as TEXT and replay the edit surgically: read the committed version
+(`git show HEAD:path`), locate each old value's exact JSON-escaped literal (`json.dumps(old_value)`),
+assert it occurs exactly once, and replace it with the new literal. Then verify semantics by
+parse-comparing against the intended object (`json.load(patched) == intended`) — which also proves ids
+and nested arrays are untouched. Final diff: 3 lines.
+
+Two notes on scope. First, this is specific to files a HUMAN formatted; the sibling
+`andromeda-pulse-0.3.0/verification-matrix.json` is already `indent=2`, so a round-trip there is a no-op
+and the diffstat confirmed it (1 line changed). Check the diffstat before assuming either way. Second,
+the detection point matters: nothing failed — every gate stayed green and the matrix validator passed
+60/60. It surfaced only from reading `git diff --stat` at wrap and asking why a 3-string edit moved a
+thousand lines. Worth the glance on any generated-looking artifact a chunk touches.
+
+
 _This file is entirely wrap-session's territory. `/setup-project` creates it if missing but NEVER regenerates it. Manual edits are preserved across all Andromeda skill runs._
 
 ## 2026-08-16 — Incident dedupe keys on an OPEN incident, not on the fingerprint

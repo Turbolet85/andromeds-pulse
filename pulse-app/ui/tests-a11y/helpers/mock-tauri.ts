@@ -19,6 +19,12 @@ export async function installTauriIpcMock(
   await page.addInitScript(
     ({ extraResponses, label }: { extraResponses: Record<string, unknown>; label: string }) => {
       const responses: Record<string, unknown> = {
+      // Delegated timing observables (P-025 / P-027 / P-045). Fire-and-forget
+      // from render/poll paths, so they must resolve rather than fall through
+      // — an unmocked command is the class that silently killed this suite once.
+      "telemetry.frontend.record_constellation_hue_latency": null,
+      "telemetry.frontend.record_constellation_discovery_latency": null,
+      "telemetry.frontend.record_findings_counter_refresh": null,
       app_info: {
         name: "andromeda-pulse",
         version: "0.1.0",

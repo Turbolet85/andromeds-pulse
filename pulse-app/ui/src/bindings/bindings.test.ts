@@ -32,10 +32,20 @@ describe("TauRPC bindings (chunks #25 + #27 + #29)", () => {
     expect(expected.length).toBe(6);
   });
 
-  it("Router exposes telemetry.frontend.record_frame_ms (chunk #29)", () => {
+  it("Router exposes the telemetry.frontend bridge incl. the three delegated timing observables", () => {
     type TelemetryFrontend = keyof Router["telemetry.frontend"];
-    const procedures: TelemetryFrontend[] = ["record_frame_ms"];
-    expect(procedures).toEqual(["record_frame_ms"]);
+    const procedures: TelemetryFrontend[] = [
+      "record_constellation_discovery_latency",
+      "record_constellation_hue_latency",
+      "record_findings_counter_refresh",
+      "record_frame_ms",
+    ];
+    expect(procedures.slice().sort()).toEqual([
+      "record_constellation_discovery_latency",
+      "record_constellation_hue_latency",
+      "record_findings_counter_refresh",
+      "record_frame_ms",
+    ]);
   });
 
   it("Router top-level (empty key) carries the chunk #27 introspection envelope", () => {

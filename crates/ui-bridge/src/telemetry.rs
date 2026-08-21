@@ -90,13 +90,90 @@ pub fn validate_duration_ms(duration_ms: f64) -> Result<(), AppError> {
     Ok(())
 }
 
+// Cumulative-incident-severity tier driving the rendered dot hue. Mirrors the
+// `triage::contract::PriorityTier` label set plus an explicit `None` for "no
+// active incidents", rather than depending on the triage crate — the same
+// local-bounded-enum shape the backend enums above use, keeping ui-bridge free
+// of a sibling dep per architecture.md §Cross-cutting Module dependency
+// direction.
+#[cfg_attr(feature = "taurpc-runtime", derive(specta::Type))]
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(rename_all = "lowercase")]
+pub enum HueSeverityTier {
+    None,
+    Curious,
+    Suggested,
+    Autonomous,
+}
+
+impl HueSeverityTier {
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::None => "none",
+            Self::Curious => "curious",
+            Self::Suggested => "suggested",
+            Self::Autonomous => "autonomous",
+        }
+    }
+}
+
+#[cfg_attr(feature = "taurpc-runtime", derive(specta::Type))]
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq)]
+pub struct ConstellationHueLatencyInput {
+    pub duration_ms: f64,
+    pub severity_tier: HueSeverityTier,
+}
+
+#[cfg_attr(feature = "taurpc-runtime", derive(specta::Type))]
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq)]
+pub struct ConstellationDiscoveryInput {
+    pub duration_ms: f64,
+    pub discovered_count: u32,
+}
+
+#[cfg_attr(feature = "taurpc-runtime", derive(specta::Type))]
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq)]
+pub struct FindingsCounterRefreshInput {
+    pub duration_ms: f64,
+}
+
+// Upper bound on services reported newly-discovered in one constellation
+// render. The lifecycle registry is itself capped, so a count beyond this is a
+// malformed webview payload rather than a large deployment.
+const DISCOVERED_COUNT_MAX: u32 = 10_000;
+
+pub fn validate_discovered_count(discovered_count: u32) -> Result<(), AppError> {
+    if discovered_count > DISCOVERED_COUNT_MAX {
+        return Err(AppError::Validation {
+            field: "discovered_count".to_string(),
+            reason: "out of range".to_string(),
+        });
+    }
+    Ok(())
+}
+
 #[cfg(feature = "taurpc-runtime")]
 mod runtime {
     use super::*;
 
+    // record_constellation_hue_latency / record_constellation_discovery_latency /
+    // record_findings_counter_refresh carry the three delegated timing bounds
+    // (P-025 / P-027 / P-045) from their rendered surfaces to the self-observation
+    // log, so an external harness can grade bounds the backend cannot see.
+    // Doc prose lives here rather than as `///` inside the trait: the
+    // taurpc::procedures macro rejects multi-line doc attributes on its methods.
     #[taurpc::procedures(path = "telemetry.frontend")]
     pub trait TelemetryApi {
         async fn record_frame_ms(input: FrameDurationInput) -> Result<(), AppError>;
+        async fn record_constellation_hue_latency(
+            input: ConstellationHueLatencyInput,
+        ) -> Result<(), AppError>;
+        async fn record_constellation_discovery_latency(
+            input: ConstellationDiscoveryInput,
+        ) -> Result<(), AppError>;
+        async fn record_findings_counter_refresh(
+            input: FindingsCounterRefreshInput,
+        ) -> Result<(), AppError>;
     }
 
     #[derive(Clone, Default)]
@@ -123,6 +200,54 @@ mod runtime {
                     webview_backend = input.webview_backend.as_str(),
                     timing_method = input.timing_method.as_str(),
                     "frame duration recorded",
+                );
+            }
+            Ok(())
+        }
+
+        async fn record_constellation_hue_latency(
+            self,
+            input: ConstellationHueLatencyInput,
+        ) -> Result<(), AppError> {
+            validate_duration_ms(input.duration_ms)?;
+            if tracing::enabled!(tracing::Level::INFO) {
+                tracing::info!(
+                    target: "metric.constellation.hue_update_ms",
+                    duration_ms = input.duration_ms,
+                    severity_tier = input.severity_tier.as_str(),
+                    "constellation hue update latency recorded",
+                );
+            }
+            Ok(())
+        }
+
+        async fn record_constellation_discovery_latency(
+            self,
+            input: ConstellationDiscoveryInput,
+        ) -> Result<(), AppError> {
+            validate_duration_ms(input.duration_ms)?;
+            validate_discovered_count(input.discovered_count)?;
+            if tracing::enabled!(tracing::Level::INFO) {
+                tracing::info!(
+                    target: "metric.constellation.discovery_ms",
+                    duration_ms = input.duration_ms,
+                    discovered_count = input.discovered_count,
+                    "constellation discovery latency recorded",
+                );
+            }
+            Ok(())
+        }
+
+        async fn record_findings_counter_refresh(
+            self,
+            input: FindingsCounterRefreshInput,
+        ) -> Result<(), AppError> {
+            validate_duration_ms(input.duration_ms)?;
+            if tracing::enabled!(tracing::Level::INFO) {
+                tracing::info!(
+                    target: "metric.findings.counter_refresh_ms",
+                    duration_ms = input.duration_ms,
+                    "findings counter refresh latency recorded",
                 );
             }
             Ok(())
@@ -359,6 +484,264 @@ mod tests {
             Err(AppError::Validation { field, reason }) => {
                 assert_eq!(field, "duration_ms");
                 assert_eq!(reason, "non-finite");
+            }
+            other => panic!("expected Validation error, got {other:?}"),
+        }
+    }
+
+    // Field-materializing sink for the delegated-timing pins: the tuple-only
+    // CapturingSubscriber above cannot assert a label's VALUE, and a
+    // target-only pin cannot tell a correct severity label from a wrong one.
+    struct FieldCollector {
+        sink: String,
+    }
+
+    impl tracing::field::Visit for FieldCollector {
+        fn record_debug(&mut self, field: &tracing::field::Field, value: &dyn std::fmt::Debug) {
+            self.sink
+                .push_str(&format!("{}={:?};", field.name(), value));
+        }
+        fn record_str(&mut self, field: &tracing::field::Field, value: &str) {
+            self.sink.push_str(&format!("{}={};", field.name(), value));
+        }
+        fn record_u64(&mut self, field: &tracing::field::Field, value: u64) {
+            self.sink.push_str(&format!("{}={};", field.name(), value));
+        }
+        fn record_f64(&mut self, field: &tracing::field::Field, value: f64) {
+            self.sink.push_str(&format!("{}={};", field.name(), value));
+        }
+    }
+
+    struct FieldCapturingSubscriber {
+        events: Arc<Mutex<Vec<(String, String)>>>,
+    }
+
+    impl Subscriber for FieldCapturingSubscriber {
+        fn enabled(&self, _: &Metadata<'_>) -> bool {
+            true
+        }
+        fn new_span(&self, _: &Attributes<'_>) -> Id {
+            Id::from_u64(1)
+        }
+        fn record(&self, _: &Id, _: &Record<'_>) {}
+        fn record_follows_from(&self, _: &Id, _: &Id) {}
+        fn event(&self, event: &Event<'_>) {
+            let mut collector = FieldCollector {
+                sink: String::new(),
+            };
+            event.record(&mut collector);
+            self.events
+                .lock()
+                .expect("event lock not poisoned")
+                .push((event.metadata().target().to_string(), collector.sink));
+        }
+        fn enter(&self, _: &Id) {}
+        fn exit(&self, _: &Id) {}
+    }
+
+    // Async-safe capture: `set_default` scopes the subscriber to this thread
+    // across the `.await`, per the with_default-takes-a-sync-closure constraint
+    // (a `block_on` inside a #[tokio::test] would panic instead).
+    #[cfg(feature = "taurpc-runtime")]
+    type FieldEvents = Arc<Mutex<Vec<(String, String)>>>;
+
+    #[cfg(feature = "taurpc-runtime")]
+    fn field_sink() -> (FieldEvents, FieldCapturingSubscriber) {
+        let events: Arc<Mutex<Vec<(String, String)>>> = Arc::new(Mutex::new(Vec::new()));
+        let subscriber = FieldCapturingSubscriber {
+            events: events.clone(),
+        };
+        (events, subscriber)
+    }
+
+    #[test]
+    fn hue_severity_tier_serializes_lowercase_bounded_labels() {
+        for (tier, expected) in [
+            (HueSeverityTier::None, "\"none\""),
+            (HueSeverityTier::Curious, "\"curious\""),
+            (HueSeverityTier::Suggested, "\"suggested\""),
+            (HueSeverityTier::Autonomous, "\"autonomous\""),
+        ] {
+            let json = serde_json::to_string(&tier).expect("serializes");
+            assert_eq!(json, expected);
+        }
+    }
+
+    #[test]
+    fn constellation_hue_latency_input_rejects_unknown_severity_tier() {
+        let json = r#"{"duration_ms":12.0,"severity_tier":"catastrophic"}"#;
+        let result: Result<ConstellationHueLatencyInput, _> = serde_json::from_str(json);
+        assert!(
+            result.is_err(),
+            "closed enum must reject an unknown severity_tier (no free-form String escape)",
+        );
+    }
+
+    #[test]
+    fn validate_discovered_count_accepts_zero_and_max_boundary() {
+        assert!(validate_discovered_count(0).is_ok());
+        assert!(validate_discovered_count(DISCOVERED_COUNT_MAX).is_ok());
+    }
+
+    #[test]
+    fn validate_discovered_count_rejects_above_max() {
+        let err =
+            validate_discovered_count(DISCOVERED_COUNT_MAX + 1).expect_err("above max must reject");
+        match err {
+            AppError::Validation { field, reason } => {
+                assert_eq!(field, "discovered_count");
+                assert_eq!(reason, "out of range");
+            }
+            other => panic!("expected Validation, got {other:?}"),
+        }
+    }
+
+    #[cfg(feature = "taurpc-runtime")]
+    #[tokio::test]
+    async fn record_constellation_hue_latency_emits_exact_target_with_severity_label() {
+        let api = TelemetryApiImpl::new();
+        let (events, subscriber) = field_sink();
+        let guard = tracing::subscriber::set_default(subscriber);
+        api.record_constellation_hue_latency(ConstellationHueLatencyInput {
+            duration_ms: 42.5,
+            severity_tier: HueSeverityTier::Suggested,
+        })
+        .await
+        .expect("ok");
+        drop(guard);
+        let captured = events.lock().expect("lock").clone();
+
+        let hit = captured
+            .iter()
+            .find(|(target, _)| target == "metric.constellation.hue_update_ms")
+            .unwrap_or_else(|| {
+                panic!("expected metric.constellation.hue_update_ms; got {captured:?}")
+            });
+        assert!(
+            hit.1.contains("severity_tier=suggested"),
+            "expected the bounded severity label verbatim; fields were: {}",
+            hit.1
+        );
+        assert!(
+            hit.1.contains("duration_ms=42.5"),
+            "expected the measured duration verbatim; fields were: {}",
+            hit.1
+        );
+    }
+
+    #[cfg(feature = "taurpc-runtime")]
+    #[tokio::test]
+    async fn record_constellation_discovery_latency_emits_exact_target_with_aggregate_count() {
+        let api = TelemetryApiImpl::new();
+        let (events, subscriber) = field_sink();
+        let guard = tracing::subscriber::set_default(subscriber);
+        api.record_constellation_discovery_latency(ConstellationDiscoveryInput {
+            duration_ms: 1200.0,
+            discovered_count: 3,
+        })
+        .await
+        .expect("ok");
+        drop(guard);
+        let captured = events.lock().expect("lock").clone();
+
+        let hit = captured
+            .iter()
+            .find(|(target, _)| target == "metric.constellation.discovery_ms")
+            .unwrap_or_else(|| {
+                panic!("expected metric.constellation.discovery_ms; got {captured:?}")
+            });
+        assert!(
+            hit.1.contains("discovered_count=3"),
+            "expected the aggregate count verbatim; fields were: {}",
+            hit.1
+        );
+        assert!(
+            !hit.1.contains("service"),
+            "aggregate-only: no per-service identifier may appear; fields were: {}",
+            hit.1
+        );
+    }
+
+    #[cfg(feature = "taurpc-runtime")]
+    #[tokio::test]
+    async fn record_findings_counter_refresh_emits_exact_target() {
+        let api = TelemetryApiImpl::new();
+        let (events, subscriber) = field_sink();
+        let guard = tracing::subscriber::set_default(subscriber);
+        api.record_findings_counter_refresh(FindingsCounterRefreshInput { duration_ms: 850.0 })
+            .await
+            .expect("ok");
+        drop(guard);
+        let captured = events.lock().expect("lock").clone();
+
+        let hit = captured
+            .iter()
+            .find(|(target, _)| target == "metric.findings.counter_refresh_ms")
+            .unwrap_or_else(|| {
+                panic!("expected metric.findings.counter_refresh_ms; got {captured:?}")
+            });
+        assert!(
+            hit.1.contains("duration_ms=850"),
+            "expected the measured duration verbatim; fields were: {}",
+            hit.1
+        );
+    }
+
+    #[cfg(feature = "taurpc-runtime")]
+    #[tokio::test]
+    async fn delegated_timing_resolvers_reject_non_finite_duration() {
+        let api = TelemetryApiImpl::new();
+
+        let halo = api
+            .clone()
+            .record_constellation_hue_latency(ConstellationHueLatencyInput {
+                duration_ms: f64::NAN,
+                severity_tier: HueSeverityTier::None,
+            })
+            .await;
+        assert!(matches!(
+            halo,
+            Err(AppError::Validation { ref field, ref reason })
+                if field == "duration_ms" && reason == "non-finite"
+        ));
+
+        let constellation = api
+            .clone()
+            .record_constellation_discovery_latency(ConstellationDiscoveryInput {
+                duration_ms: f64::INFINITY,
+                discovered_count: 1,
+            })
+            .await;
+        assert!(matches!(
+            constellation,
+            Err(AppError::Validation { ref field, ref reason })
+                if field == "duration_ms" && reason == "non-finite"
+        ));
+
+        let findings = api
+            .record_findings_counter_refresh(FindingsCounterRefreshInput { duration_ms: -1.0 })
+            .await;
+        assert!(matches!(
+            findings,
+            Err(AppError::Validation { ref field, ref reason })
+                if field == "duration_ms" && reason == "out of range"
+        ));
+    }
+
+    #[cfg(feature = "taurpc-runtime")]
+    #[tokio::test]
+    async fn record_constellation_discovery_latency_rejects_implausible_count() {
+        let api = TelemetryApiImpl::new();
+        let result = api
+            .record_constellation_discovery_latency(ConstellationDiscoveryInput {
+                duration_ms: 10.0,
+                discovered_count: DISCOVERED_COUNT_MAX + 1,
+            })
+            .await;
+        match result {
+            Err(AppError::Validation { field, reason }) => {
+                assert_eq!(field, "discovered_count");
+                assert_eq!(reason, "out of range");
             }
             other => panic!("expected Validation error, got {other:?}"),
         }

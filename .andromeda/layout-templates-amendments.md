@@ -125,3 +125,9 @@ panel-transition motion — see **Body now** below)._
 **Section:** §Surface: desktop-webview → Primary screens
 **Change:** Added two new user-facing surfaces — the `findings` window (borderless always-on-top disclosure list docked below the compact widget, sizes to incident count, reuses P-080 FindingsDropdown content, replaces the interim in-widget popover) and the `report` window (separate Diagnostic Report using the new Modal `fill` variant, positioned relative to findings).
 **Why:** The chunk introduced these two windows (report §Changes → Coverage of new surfaces + `tauri.conf.json app.windows`); neither appeared in layout-templates Primary screens / Wireframes (D-layout-surface). ASCII wireframes deferred to a future targeted touch-up per the P-070/P-082 sketch-lag pattern.
+
+## 2026-08-21-delegated-timing-observables — desktop-webview Halo canvas recorded as unbuilt; hue driver corrected
+**Section:** §Surface: desktop-webview (Expression level, Signature placement, Primary screens, §Component — Halo State Pulse canvas, IA notes); §Surface: desktop-native (cross-surface bullets, webview halves only)
+**Change:** Recorded as measured that the Halo State Pulse WebGPU canvas has NO production render site on either webview surface, that the shipped desktop-webview signature is the constellation DOT hue, and that build-or-retire is owned by the working-route entry "Halo State Pulse canvas disposition". Corrected the hue driver from error rate to cumulative incident severity per design-system-amendments 2026-05-29. Twelve sites swept so no contradictory half survives.
+**Why:** Report §Spec claims disproved by measurement 1 + 2. The desktop-native (tray) halo was NOT probed by this chunk and is deliberately untouched — its own error-rate wording remains for the entry that owns it.
+

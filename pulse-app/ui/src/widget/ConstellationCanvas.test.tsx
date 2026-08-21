@@ -13,6 +13,8 @@ vi.mock("../canvas/webgpu-adapter", () => ({
 
 vi.mock("../canvas/frame-metrics", () => ({
   recordFrameMs: vi.fn().mockResolvedValue(undefined),
+  recordConstellationDiscoveryLatency: vi.fn().mockResolvedValue(undefined),
+  recordConstellationHueLatency: vi.fn().mockResolvedValue(undefined),
   normalizeWgpuBackend: () => "vulkan" as const,
   detectWebviewBackend: () => "webview2" as const,
 }));
@@ -128,6 +130,40 @@ describe("ConstellationCanvas", () => {
   it("requests the WebGPU adapter on mount", () => {
     render(<ConstellationCanvas items={ITEMS} />);
     expect(adapterMock.requestWebGPUAdapter).toHaveBeenCalled();
+  });
+
+  it("emits the delegated timing observables on a live render (never forward-inert)", async () => {
+    const metrics = await import("../canvas/frame-metrics");
+    render(<ConstellationCanvas items={ITEMS} />);
+
+    // P-027: both services are newly discovered on this first render.
+    await vi.waitFor(() => {
+      expect(metrics.recordConstellationDiscoveryLatency).toHaveBeenCalled();
+    });
+    const discovery = vi.mocked(metrics.recordConstellationDiscoveryLatency).mock.calls[0][0];
+    expect(discovery.discovered_count).toBe(2);
+    expect(Number.isFinite(discovery.duration_ms)).toBe(true);
+
+    // P-025: svc-a carries a non-null tier, so its dot hue is a real update.
+    // svc-b is calm on first sighting and must NOT be counted as a hue change.
+    await vi.waitFor(() => {
+      expect(metrics.recordConstellationHueLatency).toHaveBeenCalled();
+    });
+    const hue = vi.mocked(metrics.recordConstellationHueLatency).mock.calls[0][0];
+    expect(hue.severity_tier).toBe("autonomous");
+    expect(Number.isFinite(hue.duration_ms)).toBe(true);
+  });
+
+  it("does not report a hue update when every live service is at the calm baseline", async () => {
+    const metrics = await import("../canvas/frame-metrics");
+    render(<ConstellationCanvas items={[item("svc-calm", "active")]} />);
+
+    await vi.waitFor(() => {
+      expect(metrics.recordConstellationDiscoveryLatency).toHaveBeenCalled();
+    });
+    // Discovery fired, so the effect definitely ran — which is what makes this
+    // absence assertion mean something rather than pass vacuously.
+    expect(metrics.recordConstellationHueLatency).not.toHaveBeenCalled();
   });
 
   it("handles empty items without crashing", async () => {

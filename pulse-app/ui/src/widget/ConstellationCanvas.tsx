@@ -22,7 +22,10 @@ import { Fallback } from "../canvas/Fallback";
 import {
   detectWebviewBackend,
   normalizeWgpuBackend,
+  recordConstellationDiscoveryLatency,
+  recordConstellationHueLatency,
   recordFrameMs,
+  type HueSeverityTierKind,
 } from "../canvas/frame-metrics";
 import { requestWebGPUAdapter, type AdapterResult } from "../canvas/webgpu-adapter";
 import { lchInterpolate } from "../halo/lch";
@@ -33,7 +36,7 @@ import {
   visibleDots,
   type ConstellationDot,
 } from "./constellation-types";
-import type { ServiceListItem } from "../bindings/index";
+import type { PriorityTier, ServiceListItem } from "../bindings/index";
 
 interface ConstellationCanvasProps {
   items: readonly ServiceListItem[];
@@ -70,10 +73,87 @@ export function ConstellationCanvas({ items }: ConstellationCanvasProps) {
     [items, nowUnixNano],
   );
   const dotsRef = useRef<readonly ConstellationDot[]>(dots);
+  const discoveredRef = useRef<Set<string>>(new Set());
+  const hueTierRef = useRef<Map<string, PriorityTier | null>>(new Map());
 
   useEffect(() => {
     dotsRef.current = dots;
   }, [dots]);
+
+  // P-027 discovery bound: a service's span arrival (`last_seen_unix_nano`,
+  // already on the wire) → its dot's first appearance in the rendered set.
+  // Emitted AGGREGATE-only — a count plus the slowest arrival in this batch —
+  // because `service` is an OTLP resource attribute and may never be a label
+  // (security-plan §Logging; obs-plan §5 cardinality).
+  useEffect(() => {
+    const fresh = dots.filter((dot) => !discoveredRef.current.has(dot.service));
+    if (fresh.length === 0) {
+      return;
+    }
+    const nowMs = Date.now();
+    let slowestMs = 0;
+    for (const dot of fresh) {
+      discoveredRef.current.add(dot.service);
+      const item = items.find((candidate) => candidate.service === dot.service);
+      if (item === undefined) {
+        continue;
+      }
+      const elapsedMs = nowMs - item.last_seen_unix_nano / 1_000_000;
+      if (elapsedMs > slowestMs) {
+        slowestMs = elapsedMs;
+      }
+    }
+    void recordConstellationDiscoveryLatency({
+      duration_ms: slowestMs,
+      discovered_count: fresh.length,
+    });
+  }, [dots, items]);
+
+  // P-025 hue bound: a service's span arrival → the severity-driven hue its dot
+  // renders. This is the surface where `severityToHueFraction` actually runs
+  // (`constellation-types.ts`); the Halo State Pulse canvas the design system
+  // describes has no production render site, so timing it there would emit
+  // nothing. Fires on a tier CHANGE, which is what "hue updated" means.
+  useEffect(() => {
+    const nowMs = Date.now();
+    let slowestMs = 0;
+    let slowestTier: HueSeverityTierKind = "none";
+    let changed = 0;
+
+    for (const dot of dots) {
+      const tier = dot.priorityTier ?? null;
+      const known = hueTierRef.current.has(dot.service);
+      const previous = hueTierRef.current.get(dot.service) ?? null;
+      hueTierRef.current.set(dot.service, tier);
+
+      // A first sighting at the calm baseline is not a hue update — timing it
+      // would report every discovery as a severity change.
+      if (!known && tier === null) {
+        continue;
+      }
+      if (known && previous === tier) {
+        continue;
+      }
+      changed += 1;
+      const item = items.find((candidate) => candidate.service === dot.service);
+      if (item === undefined) {
+        continue;
+      }
+      const elapsedMs = nowMs - item.last_seen_unix_nano / 1_000_000;
+      if (elapsedMs > slowestMs) {
+        slowestMs = elapsedMs;
+        slowestTier = tier ?? "none";
+      }
+    }
+
+    if (changed === 0) {
+      return;
+    }
+    void recordConstellationHueLatency({
+      duration_ms: slowestMs,
+      severity_tier: slowestTier,
+    });
+  }, [dots, items]);
 
   useEffect(() => {
     let cancelled = false;

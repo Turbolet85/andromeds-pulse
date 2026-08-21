@@ -4,6 +4,11 @@ import { act, renderHook, waitFor } from "@testing-library/react";
 const mocks = vi.hoisted(() => ({
   listActiveFn: vi.fn(),
   markAllReadFn: vi.fn(),
+  recordFindingsCounterRefreshFn: vi.fn(),
+}));
+
+vi.mock("../canvas/frame-metrics", () => ({
+  recordFindingsCounterRefresh: mocks.recordFindingsCounterRefreshFn,
 }));
 
 vi.mock("../bindings/index", () => ({
@@ -238,5 +243,37 @@ describe("useFindings — announcement state", () => {
     const { result } = renderHook(() => useFindings());
     await waitFor(() => expect(mocks.listActiveFn).toHaveBeenCalled());
     expect(result.current.lastAnnouncement).toBe("");
+  });
+});
+
+describe("P-045 counter-refresh observable", () => {
+  it("emits a refresh latency on a successful poll (never forward-inert)", async () => {
+    mocks.listActiveFn.mockResolvedValue({ items: [makeRecord()], total: 1, next_cursor: null });
+    const { result } = renderHook(() => useFindings());
+
+    await waitFor(() => {
+      expect(result.current.count).toBe(1);
+    });
+    await waitFor(() => {
+      expect(mocks.recordFindingsCounterRefreshFn).toHaveBeenCalled();
+    });
+    const arg = mocks.recordFindingsCounterRefreshFn.mock.calls[0][0];
+    expect(Object.keys(arg)).toEqual(["duration_ms"]);
+    expect(Number.isFinite(arg.duration_ms)).toBe(true);
+    expect(arg.duration_ms).toBeGreaterThanOrEqual(0);
+  });
+
+  it("does NOT emit when the poll rejects (the mark measures a committed refresh)", async () => {
+    mocks.listActiveFn.mockRejectedValue(new Error("ipc closed"));
+    const { result } = renderHook(() => useFindings());
+
+    // Wait for the rejected poll to settle through the hook's catch branch —
+    // this is what makes the absence assertion below non-vacuous rather than
+    // merely racing the first render.
+    await waitFor(() => {
+      expect(mocks.listActiveFn).toHaveBeenCalled();
+    });
+    expect(result.current.count).toBe(0);
+    expect(mocks.recordFindingsCounterRefreshFn).not.toHaveBeenCalled();
   });
 });

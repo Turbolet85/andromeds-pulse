@@ -34,7 +34,7 @@ Architecture's Stack table specified `rustc 1.84+` initially, but Edition 2024 c
 ## Tauri capability silent rejections
 - Adding a TauRPC procedure to a router crate without a matching entry in `pulse-app/capabilities/` JSON produces a silent runtime rejection — hard-to-diagnose UX bug.
 - The `xtask capability-drift` check is the enforcement mechanism. Wire into CI on every PR.
-- `pulse:default` enumerates exactly the procedures listed in arch §Occupied Resources Tauri IPC routes.
+- `pulse:default` admits the webview to the IPC layer as a whole — it does NOT enumerate procedures (TauRPC uses one invoke handler; measured 2026-08-21). The per-procedure list that must stay in sync is `EXPECTED_PROCEDURES` in `xtask/src/main.rs` vs arch §Occupied Resources Tauri IPC routes.
 
 ## Snapshot / clipboard / MCP tool response — OTLP attribute leakage
 - Telemetry can incidentally contain secrets, IDs, URLs, error messages, SQL fragments from the host application being instrumented. OTLP attributes are user-controlled content.

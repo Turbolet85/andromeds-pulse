@@ -20,6 +20,7 @@
 // silently without console noise.
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { recordFindingsCounterRefresh } from "../canvas/frame-metrics";
 import { createTauRPCProxy, type IncidentRecord } from "../bindings/index";
 import type { FindingsRow } from "../widget/findings-types";
 import { maxPriorityTier, selectUnreadRows } from "../widget/findings-types";
@@ -47,9 +48,14 @@ export function useFindings(): UseFindingsResult {
 
   const refetch = useCallback(async (): Promise<void> => {
     const proxy = createTauRPCProxy();
+    const startedAt = performance.now();
     try {
       const payload = await proxy.incidents.list_active();
       setRecords(payload.items);
+      // P-045 counter-refresh bound: request → committed counter state. The
+      // measure is webview-local by construction, so no backend reference is
+      // needed. Fire-and-forget so a telemetry failure never stalls the poll.
+      void recordFindingsCounterRefresh({ duration_ms: performance.now() - startedAt });
     } catch {
       // jsdom / pre-init Tauri context. Empty rows; no console noise.
     }

@@ -17,7 +17,7 @@ _Distilled from `.andromeda/security-plan.md` by `/setup-project`. Read on deman
 
 ## Attack surface (vectors)
 1. **OTLP/gRPC `:4317` + OTLP/HTTP `:4318`** — bound `127.0.0.1` ONLY. `tonic` 0.14 + `axum` 0.8 servers; `prost`/`tonic` decode validates wire format.
-2. **TauRPC IPC bridge** — `pulse:default` capability enumerates exactly the procedures listed in arch §Occupied Resources. Errors collapse to `serde`-friendly `AppError` enum.
+2. **TauRPC IPC bridge** — `pulse:default` admits the webview to the IPC layer as a whole (no per-procedure enumeration; one TauRPC invoke handler, measured 2026-08-21); per-procedure coverage is the validated argument struct + the `EXPECTED_PROCEDURES` drift gate. Errors collapse to `serde`-friendly `AppError` enum.
 3. **Plugin host (WASM Component Model)** — `~/.andromeda-pulse/plugins/` filesystem load by `wasmtime` 25+. Capability-scoped sandboxing; guests receive only host imports declared in WIT.
 4. **MCP stdio surface** — `andromeda-pulse-mcp` rmcp sidecar. JSON-RPC 2.0 over stdin/stdout. Feature double-gated (`--features mcp-server` + `ANDROMEDA_PULSE_MCP_ENABLED=true`).
 5. **Filesystem reads (config + workspace detection)** — env-overridable paths require `strict-path` canonicalization + confinement.
@@ -41,7 +41,7 @@ Per security plan §Bootstrap phases:
 - NEVER `format!("SELECT … WHERE service_name = '{}'")` against the `duckdb` crate — ALWAYS prepared statements with `?` placeholders.
 - NEVER skip post-`prost`-decode invariant checks (`span_id` is 8 bytes, `trace_id` is 16 bytes).
 - NEVER read path env vars without `strict-path` canonicalize + confinement.
-- NEVER add a TauRPC procedure without `pulse-app/capabilities/` JSON entry — silent runtime rejection.
+- NEVER add a TauRPC procedure without its `EXPECTED_PROCEDURES` pin in `xtask/src/main.rs` + a validated argument struct (per-procedure capability JSON entries do NOT exist — one TauRPC invoke handler). NEVER grant a core API (`fs`/`shell`/`dialog`/`http`) or a `core:window:*` permission without an explicit capability addition — THOSE are silently rejected at runtime.
 - NEVER override `tauri-plugin-updater` Minisign verification; NEVER ship the Minisign **private** key in repo.
 - NEVER reference 3rd-party Actions by `@v2` / floating tag — pin by 40-char SHA (tj-actions/changed-files CVE-2025-30066, 23k repos).
 - NEVER widen `pulse:default` with Tauri core APIs (`fs`, `shell`, `dialog`, `http`).
