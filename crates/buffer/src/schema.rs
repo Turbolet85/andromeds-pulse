@@ -89,7 +89,8 @@ CREATE TABLE IF NOT EXISTS log_records (
     trace_id BLOB NOT NULL DEFAULT X'',
     span_id BLOB NOT NULL DEFAULT X'',
     template_id BIGINT,
-    PRIMARY KEY (ts_unix_nano, resource_hash, severity_number)
+    seq BIGINT NOT NULL,
+    PRIMARY KEY (ts_unix_nano, resource_hash, severity_number, seq)
 );";
 
 #[allow(dead_code)]
@@ -182,7 +183,8 @@ const SCHEMA_DDL: &str = concat!(
     trace_id BLOB NOT NULL DEFAULT X'',
     span_id BLOB NOT NULL DEFAULT X'',
     template_id BIGINT,
-    PRIMARY KEY (ts_unix_nano, resource_hash, severity_number)
+    seq BIGINT NOT NULL,
+    PRIMARY KEY (ts_unix_nano, resource_hash, severity_number, seq)
 );",
     "CREATE TABLE IF NOT EXISTS resources (
     resource_hash BLOB NOT NULL,
@@ -348,6 +350,44 @@ mod tests {
             names.contains(&"span_id"),
             "span_id must be part of spans primary key; got {names:?}"
         );
+    }
+
+    // The contract half of the log-record identity fix; the behavioural half
+    // is appender::tests::append_logs_batch_same_tick_same_severity_keeps_both_records.
+    // An OTLP LogRecord has no spec-defined unique id, so `seq` carries the
+    // identity its OTLP-native columns cannot.
+    #[test]
+    fn log_records_primary_key_includes_seq_ordinal() {
+        let conn = open_in_memory();
+        create_schema(&conn).expect("schema create must succeed");
+
+        let mut stmt = conn
+            .prepare(
+                "SELECT column_name, ordinal_position FROM information_schema.key_column_usage \
+                 WHERE table_schema = 'main' AND table_name = 'log_records' \
+                 ORDER BY ordinal_position",
+            )
+            .expect("prepare must succeed");
+        let rows: Vec<(String, i64)> = stmt
+            .query_map([], |row| {
+                Ok((row.get::<_, String>(0)?, row.get::<_, i64>(1)?))
+            })
+            .expect("query_map must succeed")
+            .map(|r| r.expect("row must read"))
+            .collect();
+
+        assert_eq!(
+            rows.len(),
+            4,
+            "log_records primary key must have exactly 4 columns; got {rows:?}"
+        );
+        let names: Vec<&str> = rows.iter().map(|(n, _)| n.as_str()).collect();
+        for expected in ["ts_unix_nano", "resource_hash", "severity_number", "seq"] {
+            assert!(
+                names.contains(&expected),
+                "{expected} must be part of log_records primary key; got {names:?}"
+            );
+        }
     }
 
     #[test]

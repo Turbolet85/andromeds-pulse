@@ -496,11 +496,20 @@ mod tests {
                 severity_text VARCHAR NOT NULL DEFAULT '',
                 trace_id BLOB NOT NULL DEFAULT X'',
                 span_id BLOB NOT NULL DEFAULT X'',
-                PRIMARY KEY (ts_unix_nano, resource_hash, severity_number)
+                seq BIGINT NOT NULL,
+                PRIMARY KEY (ts_unix_nano, resource_hash, severity_number, seq)
             );",
         )
         .expect("create_schema");
         Arc::new(Mutex::new(conn))
+    }
+
+    // `seq` is a primary-key column, so every seeded row must supply one.
+    // A counter also keeps two same-nanosecond seeds from colliding.
+    static SEED_LOG_SEQ: std::sync::atomic::AtomicI64 = std::sync::atomic::AtomicI64::new(0);
+
+    fn next_log_seq() -> i64 {
+        SEED_LOG_SEQ.fetch_add(1, std::sync::atomic::Ordering::Relaxed)
     }
 
     fn seed_metric_full(
@@ -533,7 +542,7 @@ mod tests {
         let resource_hash: Vec<u8> = vec![1u8; 16];
         guard
             .execute(
-                "INSERT INTO log_records (ts, ts_unix_nano, resource_hash, severity_number, body, severity_text, trace_id, span_id) VALUES ('2026-05-06T00:00:00Z'::TIMESTAMPTZ, ?, ?, ?, ?, ?, ?, ?)",
+                "INSERT INTO log_records (ts, ts_unix_nano, resource_hash, severity_number, body, severity_text, trace_id, span_id, seq) VALUES ('2026-05-06T00:00:00Z'::TIMESTAMPTZ, ?, ?, ?, ?, ?, ?, ?, ?)",
                 duckdb::params![
                     ts_ns,
                     resource_hash.as_slice(),
@@ -542,6 +551,7 @@ mod tests {
                     severity_text,
                     trace_id,
                     span_id,
+                    next_log_seq(),
                 ],
             )
             .expect("insert log");
@@ -584,8 +594,8 @@ mod tests {
         let resource_hash: Vec<u8> = vec![1u8; 16];
         guard
             .execute(
-                "INSERT INTO log_records (ts, ts_unix_nano, resource_hash, severity_number) VALUES ('2026-05-06T00:00:00Z'::TIMESTAMPTZ, ?, ?, ?)",
-                duckdb::params![ts_ns, resource_hash.as_slice(), severity],
+                "INSERT INTO log_records (ts, ts_unix_nano, resource_hash, severity_number, seq) VALUES ('2026-05-06T00:00:00Z'::TIMESTAMPTZ, ?, ?, ?, ?)",
+                duckdb::params![ts_ns, resource_hash.as_slice(), severity, next_log_seq()],
             )
             .expect("insert log");
     }

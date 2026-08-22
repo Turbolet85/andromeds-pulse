@@ -27,6 +27,9 @@ pub struct BufferState {
     // exception stacktrace) — NOT the drain/template path, which carries its
     // own tick fields. Accumulated per batch, never per field.
     redactions_applied: AtomicU64,
+    // Monotonic allocator for the `log_records.seq` primary-key ordinal. Not
+    // an observable: never folded into BufferStateSnapshot or `buffer.tick`.
+    log_seq: AtomicU64,
 }
 
 #[derive(Debug, Clone, Copy, Default)]
@@ -106,6 +109,20 @@ impl BufferState {
         if n > 0 {
             self.redactions_applied.fetch_add(n, Ordering::Relaxed);
         }
+    }
+
+    /// Reserve `n` contiguous `log_records.seq` values and return the first.
+    ///
+    /// An OTLP LogRecord carries no spec-defined unique id, and its OTLP-native
+    /// columns do not separate two records emitted by one resource in the same
+    /// nanosecond at the same severity — so the primary key needs an ordinal.
+    /// A per-batch ordinal would not do: it resets, so records colliding across
+    /// two export batches would both take index 0. This counter is buffer-global.
+    ///
+    /// Deliberately absent from [`BufferStateSnapshot`] — it is an allocator,
+    /// not an observable, and `buffer.tick` must not carry it.
+    pub fn reserve_log_seq_block(&self, n: u64) -> u64 {
+        self.log_seq.fetch_add(n, Ordering::Relaxed)
     }
 
     pub fn set_memory_bytes(&self, n: u64) {

@@ -883,7 +883,8 @@ CREATE TABLE IF NOT EXISTS log_records (
     severity_text VARCHAR NOT NULL DEFAULT '',
     trace_id BLOB,
     span_id BLOB,
-    PRIMARY KEY (ts_unix_nano, resource_hash, severity_number)
+    seq BIGINT NOT NULL,
+    PRIMARY KEY (ts_unix_nano, resource_hash, severity_number, seq)
 );
 ",
         )
@@ -957,14 +958,21 @@ CREATE TABLE IF NOT EXISTS log_records (
             .expect("insert span_event");
     }
 
+    // `seq` is a primary-key column, so every seeded row must supply one. It
+    // also decouples these seeds from the wall clock: `current_test_nanos` can
+    // return the same value for two calls on a coarse timer, which without an
+    // ordinal would collide on the key.
+    static SEED_LOG_SEQ: std::sync::atomic::AtomicI64 = std::sync::atomic::AtomicI64::new(0);
+
     fn insert_log(conn: &Arc<Mutex<Connection>>, resource_hash: &[u8], severity_number: i32) {
         let now_ns = current_test_nanos();
+        let seq = SEED_LOG_SEQ.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
         let guard = conn.lock().unwrap();
         guard
             .execute(
-                "INSERT INTO log_records (ts, ts_unix_nano, resource_hash, severity_number, body, severity_text) \
-                 VALUES (now(), ?, ?, ?, '', '')",
-                duckdb::params![now_ns, resource_hash, severity_number],
+                "INSERT INTO log_records (ts, ts_unix_nano, resource_hash, severity_number, body, severity_text, seq) \
+                 VALUES (now(), ?, ?, ?, '', '', ?)",
+                duckdb::params![now_ns, resource_hash, severity_number, seq],
             )
             .expect("insert log");
     }

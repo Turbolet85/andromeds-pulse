@@ -1,6 +1,26 @@
 # Session Learnings
 
 
+## 2026-08-22 — The DuckDB Arrow Appender DOES enforce PRIMARY KEY, at `flush()`
+
+Measured on the `log_records` same-tick collision: two records sharing `(ts_unix_nano, resource_hash, severity_number)` returned `Err("flush(log_records): Failed to append: PRIMARY KEY or UNIQUE constraint violation: duplicate key …")` and **zero rows landed** — the loss is the WHOLE batch, not the second record, because the error propagates out of `dispatch_batch` and skips both `record_rows_appended` and the broadcast emit. It is not silent either: `run_consumer` logs it at ERROR on `duckdb.append` with a `reject_reason`.
+
+This discharges a deferral that had stood since chunk #22. `crates/buffer/src/schema.rs` carries a comment stating that a runtime PK check via the duplicate-INSERT path "was observed to hang" on this libduckdb-sys build, that schema introspection is therefore the contract assertion "**not** behavioral PK enforcement", and that behavioural enforcement would be "exercised at the appender path". Nothing had exercised it until now.
+
+Two boundaries on what this establishes. **The duplicate-INSERT hang is neither confirmed nor refuted** — only the Appender path was driven, and it completed in 0.09s. Do not read this as retiring that caution; a future chunk wanting to probe constraints should still prefer the Appender path and bound it (the collision test runs on a worker thread under a `recv_timeout`, so a hang fails rather than wedges the suite). And **`rows_appended` cannot witness a partial landing** — `append_record_batch_to_table` computes it from `record_batch.num_rows()` *before* appending, so it reports rows REQUESTED. Ingest also counts log records at the receiver before the buffer, so a rejected batch leaves the ingest counter climbing while zero rows land: the same counter-divergence shape as `app.boot.buffer.degraded`.
+
+---
+
+## 2026-08-22 — A plan instruction whose predicate can never be false understates mandatory scope
+
+A chunk plan directed that two test-fixture INSERT statements be updated "**if** the fixture takes the column as `NOT NULL`". The column was a PRIMARY KEY column, so it can never be NULL — the condition is necessarily true, and the sentence reads as optional work while describing mandatory work. Read literally at implement time it would have licensed skipping all three INSERT sites.
+
+Nothing mechanical catches this class. The wrap's seven mechanical checks inspect sections, paths, placeholders and size; none evaluates whether a stated condition can be false. And because these were SQL strings embedded in Rust, the compiler cannot catch a missed site either — it surfaces only in a test run that happens to exercise that fixture path, which for a divergent minimal fixture may be no run at all. The operator caught it at the P5 review.
+
+The generalizable move once such a conditional is spotted: replace it with the exhaustive list (name every site), add an acceptance criterion that can actually fail (here a `grep` asserting each site names the column), and explicitly reject the shortcut that would hide the same miss (giving the column a `DEFAULT` would have made every INSERT compile and silently take a wrong ordinal). A conditional in a plan is worth a second read whenever its predicate restates a property the type system already guarantees.
+
+---
+
 ## 2026-08-22 — A report's header counts are detector input, not prose
 
 The wrap report is the SINGLE artifact every drift detector reads — they are explicitly forbidden from re-deriving facts from git or the codebase. That makes its internal consistency load-bearing in a way ordinary prose is not: a **Files** bullet whose header says "Modified (6)" while listing seven paths gives any detector that counts files a different answer than the one that reads them, and neither is checkable against reality from inside the fan-out.

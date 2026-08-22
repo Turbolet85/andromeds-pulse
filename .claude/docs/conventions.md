@@ -29,7 +29,9 @@ _Extracted from `.andromeda/architecture.md` Conventions section by `/setup-proj
 
 ## Primary keys
 - Spans: OTLP-native 16-byte `trace_id` + 8-byte `span_id` composite (no surrogate UUID).
-- Metric points + log records: OTLP-native identity (timestamp + resource hash + name).
+- Metric points: OTLP-native identity (`metric_name` + `ts_unix_nano` + `resource_hash`).
+- Log records: `(ts_unix_nano, resource_hash, severity_number, seq)`. An OTLP LogRecord has no spec-defined unique id and the table has no `name` column, so the OTLP-native columns alone cannot separate two records from one resource in the same nanosecond at the same severity; `seq` is a monotonic in-process ordinal allocated per batch by `BufferState::reserve_log_seq_block`.
+- No UUID or random surrogate keys. `seq` is the one declared exception — an internal disambiguating ordinal, never an observable (absent from `BufferStateSnapshot`, `buffer.tick`, `viz` `SELECT_LOGS`, and the MCP response shape).
 
 ## Timestamp handling
 - All DuckDB timestamp columns: `TIMESTAMPTZ` (microsecond precision, UTC-stored).

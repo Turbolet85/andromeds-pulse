@@ -240,6 +240,13 @@ pub(crate) fn build_logs_record_batch(
 
     state.record_redactions(redactions_applied);
 
+    // One reservation per batch keeps the per-record loop above atomic-free,
+    // matching record_feed_counts / record_redactions.
+    let seq_base = state.reserve_log_seq_block(tss.len() as u64);
+    let seqs: Vec<i64> = (0..tss.len())
+        .map(|i| (seq_base + i as u64) as i64)
+        .collect();
+
     let ts_array = TimestampMicrosecondArray::from(tss).with_timezone(TS_TZ_UTC);
     let ts_unix_nano_array = Int64Array::from(ts_unix_nanos);
     let resource_hash_array =
@@ -250,6 +257,7 @@ pub(crate) fn build_logs_record_batch(
     let trace_id_array = BinaryArray::from_iter_values(trace_ids.iter().map(|v| v.as_slice()));
     let span_id_array = BinaryArray::from_iter_values(span_ids.iter().map(|v| v.as_slice()));
     let template_id_array = Int64Array::from(template_ids);
+    let seq_array = Int64Array::from(seqs);
 
     let schema = Arc::new(Schema::new(vec![
         Field::new("ts", timestamp_tz_type(), false),
@@ -264,6 +272,9 @@ pub(crate) fn build_logs_record_batch(
         // Drain disabled retain NULL template_id per chunk #69 Phase B
         // plan §Acceptance Criteria (tests) schema migration scenario.
         Field::new("template_id", DataType::Int64, true),
+        // Appended last so no existing column position shifts (same shape as
+        // the chunk #69 template_id addition).
+        Field::new("seq", DataType::Int64, false),
     ]));
 
     let record_batch = RecordBatch::try_new(
@@ -278,6 +289,7 @@ pub(crate) fn build_logs_record_batch(
             Arc::new(trace_id_array),
             Arc::new(span_id_array),
             Arc::new(template_id_array),
+            Arc::new(seq_array),
         ],
     )
     .map_err(|e| Error::Append {
@@ -1018,6 +1030,75 @@ mod tests {
             .query_row("SELECT COUNT(*) FROM log_records", [], |row| row.get(0))
             .expect("count");
         assert_eq!(actual, 1);
+    }
+
+    fn colliding_log_record(body: &str) -> LogRecord {
+        LogRecord {
+            time_unix_nano: 1_700_000_000_000_000_000,
+            observed_time_unix_nano: 0,
+            severity_number: 9,
+            severity_text: "INFO".into(),
+            body: Some(AnyValue {
+                value: Some(any_value::Value::StringValue(body.into())),
+            }),
+            attributes: Vec::new(),
+            dropped_attributes_count: 0,
+            flags: 0,
+            trace_id: Vec::new(),
+            span_id: Vec::new(),
+            event_name: String::new(),
+        }
+    }
+
+    // A duplicate-key probe via INSERT was observed to hang on this DuckDB
+    // build (see schema.rs::spans_primary_key_is_composite_trace_id_span_id),
+    // so the append runs on a worker thread and a timeout fails the test
+    // rather than wedging the suite.
+    #[test]
+    fn append_logs_batch_same_tick_same_severity_keeps_both_records() {
+        let (tx, rx) = std::sync::mpsc::channel();
+        std::thread::spawn(move || {
+            let conn = fresh_conn_with_schema();
+            let batch = vec![ResourceLogs {
+                resource: Some(make_resource("svc-collide")),
+                scope_logs: vec![ScopeLogs {
+                    scope: None,
+                    log_records: vec![
+                        colliding_log_record("first distinct body"),
+                        colliding_log_record("second distinct body"),
+                    ],
+                    schema_url: String::new(),
+                }],
+                schema_url: String::new(),
+            }];
+
+            let appended = append_logs_batch(&conn, &batch).map_err(|e| e.to_string());
+            let bodies: Vec<String> = conn
+                .prepare("SELECT body FROM log_records ORDER BY body")
+                .and_then(|mut stmt| {
+                    stmt.query_map([], |row| row.get::<_, String>(0))
+                        .map(|rows| rows.filter_map(Result::ok).collect())
+                })
+                .unwrap_or_default();
+            let _ = tx.send((appended, bodies));
+        });
+
+        let (appended, bodies) = rx
+            .recv_timeout(std::time::Duration::from_secs(30))
+            .expect("append must complete, not hang");
+
+        assert!(
+            appended.is_ok(),
+            "a same-tick same-severity pair must not fail the batch: {appended:?}"
+        );
+        assert_eq!(
+            bodies,
+            vec![
+                "first distinct body".to_string(),
+                "second distinct body".to_string()
+            ],
+            "both distinct records must survive ingestion"
+        );
     }
 
     #[test]
