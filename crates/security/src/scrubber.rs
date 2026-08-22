@@ -1,6 +1,6 @@
 //! PII scrubber primitive — chunk #68.
 //!
-//! Pattern catalog covering the 7 P-047 categories. Compiled-once via
+//! Pattern catalog covering the 8 P-047 categories. Compiled-once via
 //! `OnceLock`; per-call lookup is regex-set scan. Each pattern carries a
 //! stable `category` label — only the category appears in scrubbed
 //! output, never the matched value content.
@@ -85,6 +85,28 @@ fn patterns() -> &'static [(Regex, &'static str)] {
                         .expect("secret_kv regex compiles"),
                     "secret_kv",
                 ),
+                // Bare provider credential — a standalone token carrying no
+                // key name, so the keyed arms above cannot reach it. Anchored
+                // on published issuer prefixes plus a length floor rather than
+                // entropy scoring, per obs-plan §8 (which names this shape
+                // family and warns that over-broad patterns false-positive on
+                // ordinary high-entropy identifiers). Placed after the keyed
+                // arms so `api_key=…` keeps its own category, and before
+                // credit_card so a digit-heavy key is not mis-labelled.
+                (
+                    Regex::new(concat!(
+                        r"\b(?:",
+                        r"[sr]k_(?:live|test)_[A-Za-z0-9]{16,}",
+                        r"|sk-[A-Za-z0-9_\-]{20,}",
+                        r"|gh[pousr]_[A-Za-z0-9]{36}",
+                        r"|AKIA[0-9A-Z]{16}",
+                        r"|xox[baprs]-[A-Za-z0-9\-]{10,}",
+                        r"|AIza[0-9A-Za-z_\-]{35}",
+                        r")",
+                    ))
+                    .expect("provider_key regex compiles"),
+                    "provider_key",
+                ),
                 // Email — RFC 5322 simplified (sufficient for most PII recall).
                 (
                     Regex::new(r"[A-Za-z0-9._%+\-]+@[A-Za-z0-9.\-]+\.[A-Za-z]{2,}")
@@ -124,6 +146,10 @@ mod tests {
     #[case("Authorization: Bearer abc123def456ghi789jkl", "bearer")]
     #[case("api_key=sk-proj-1234567890abcdef", "api_key")]
     #[case("password=hunter2", "secret_kv")]
+    #[case("sk_live_51NotARealKeyOnlyForPulseTests00", "provider_key")] // gitleaks:allow
+    #[case("sk-proj-NotARealKeyOnlyForPulseTests0000", "provider_key")] // gitleaks:allow
+    #[case("ghp_NotARealTokenOnlyForPulseTests000000", "provider_key")] // gitleaks:allow
+    #[case("AKIANOTAREALKEYID000", "provider_key")] // gitleaks:allow
     #[case("user@example.com signed up", "email")]
     #[case("4532-1234-5678-9010", "credit_card")]
     #[case("123-45-6789", "ssn")]
@@ -141,6 +167,13 @@ mod tests {
     #[case("user logged in")]
     #[case("trace_id=abc-123")]
     #[case("status=200")]
+    // Ordinary high-entropy identifiers the provider_key arm must NOT claim —
+    // the recall/false-positive boundary this catalog trades on.
+    #[case("a3f5b8c2d1e4f6a7b8c9d0e1f2a3b4c5d6e7f8a9")]
+    #[case("550e8400-e29b-41d4-a716-446655440000")]
+    #[case("dGhpcyBpcyBub3QgYSBzZWNyZXQgYXQgYWxs")]
+    #[case("task-runner-scheduled-batch-0000000042")]
+    #[case("checkout-service.orders.v2.handler")]
     fn scrubber_allows_non_pii_values(#[case] input: &str) {
         let result = scrub_attribute(input);
         assert!(

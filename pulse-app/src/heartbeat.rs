@@ -210,6 +210,7 @@ fn emit_buffer_tick(
         span_events_seen = payload.span_events_seen,
         fingerprints_computed = payload.fingerprints_computed,
         observer_invocations = payload.observer_invocations,
+        redactions_applied = payload.redactions_applied,
         "heartbeat",
     );
 

@@ -136,7 +136,7 @@ fn dispatch_batch(
             // template_id per log record between OTLP decode and DuckDB
             // append; populates the nullable log_records.template_id
             // column. When None, template_id stays NULL.
-            let Some(rb) = build_logs_record_batch(&l, drain_miner)? else {
+            let Some(rb) = build_logs_record_batch(&l, drain_miner, state)? else {
                 return Ok(());
             };
             let encoded = encode_or_log(broadcast::encode_logs(&rb), STREAM_NAME_LOGS);

@@ -21,6 +21,12 @@ pub struct BufferState {
     span_events_seen: AtomicU64,
     fingerprints_computed: AtomicU64,
     observer_invocations: AtomicU64,
+    // PII redactions applied on the OTLP persistence path, so scrubber recall
+    // is gradeable from outside the process instead of only by reading stored
+    // rows. Covers the `scrub_otlp_field` sites (log body, exception message,
+    // exception stacktrace) — NOT the drain/template path, which carries its
+    // own tick fields. Accumulated per batch, never per field.
+    redactions_applied: AtomicU64,
 }
 
 #[derive(Debug, Clone, Copy, Default)]
@@ -33,6 +39,7 @@ pub struct BufferStateSnapshot {
     pub span_events_seen: u64,
     pub fingerprints_computed: u64,
     pub observer_invocations: u64,
+    pub redactions_applied: u64,
 }
 
 impl BufferState {
@@ -50,6 +57,7 @@ impl BufferState {
             span_events_seen: self.span_events_seen.load(Ordering::Relaxed),
             fingerprints_computed: self.fingerprints_computed.load(Ordering::Relaxed),
             observer_invocations: self.observer_invocations.load(Ordering::Relaxed),
+            redactions_applied: self.redactions_applied.load(Ordering::Relaxed),
         }
     }
 
@@ -89,6 +97,15 @@ impl BufferState {
             .fetch_add(fingerprints_computed, Ordering::Relaxed);
         self.observer_invocations
             .fetch_add(observer_invocations, Ordering::Relaxed);
+    }
+
+    /// Fold one batch's PII-redaction tally in. Separate from
+    /// [`Self::record_feed_counts`] because the log-record path applies
+    /// redactions without producing any fingerprint-feed counts.
+    pub fn record_redactions(&self, n: u64) {
+        if n > 0 {
+            self.redactions_applied.fetch_add(n, Ordering::Relaxed);
+        }
     }
 
     pub fn set_memory_bytes(&self, n: u64) {

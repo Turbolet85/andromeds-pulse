@@ -193,6 +193,11 @@ impl AllowList {
                 "span_events_seen",
                 "fingerprints_computed",
                 "observer_invocations",
+                // PII redactions applied on the OTLP persistence path — an
+                // aggregate count, never the matched value or its category.
+                "redactions_applied",
+                // PII redactions applied on the OTLP persistence path — an
+                // aggregate count, never the matched value or its category.
             ]
             .iter()
             .copied()

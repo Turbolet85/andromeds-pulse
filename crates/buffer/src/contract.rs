@@ -47,6 +47,10 @@ pub struct BufferHeartbeat {
     pub span_events_seen: u64,
     pub fingerprints_computed: u64,
     pub observer_invocations: u64,
+    // PII redactions applied on the OTLP persistence path (P-047 recall made
+    // gradeable from outside the process). Aggregate count only — never the
+    // matched value, its category, or the attribute it came from.
+    pub redactions_applied: u64,
 }
 
 pub fn heartbeat_payload(
@@ -69,6 +73,7 @@ pub fn heartbeat_payload(
         span_events_seen: snap.span_events_seen,
         fingerprints_computed: snap.fingerprints_computed,
         observer_invocations: snap.observer_invocations,
+        redactions_applied: snap.redactions_applied,
     }
 }
 

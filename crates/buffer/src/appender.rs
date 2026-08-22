@@ -195,7 +195,9 @@ pub(crate) fn build_metrics_record_batch(
 pub(crate) fn build_logs_record_batch(
     batch: &[ResourceLogs],
     drain_miner: Option<&DrainMiner>,
+    state: &BufferState,
 ) -> Result<Option<RecordBatch>, Error> {
+    let mut redactions_applied: u64 = 0;
     let mut tss: Vec<i64> = Vec::new();
     let mut ts_unix_nanos: Vec<i64> = Vec::new();
     let mut resource_hashes: Vec<Vec<u8>> = Vec::new();
@@ -215,7 +217,7 @@ pub(crate) fn build_logs_record_batch(
         for sl in &rl.scope_logs {
             for log in &sl.log_records {
                 let ns = log.time_unix_nano as i64;
-                let body = extract_log_body(log.body.as_ref());
+                let body = extract_log_body(log.body.as_ref(), &mut redactions_applied);
                 let template_id = drain_miner
                     .and_then(|m| m.assign_at(&body, ns))
                     .map(|id| id as i64);
@@ -235,6 +237,8 @@ pub(crate) fn build_logs_record_batch(
     if tss.is_empty() {
         return Ok(None);
     }
+
+    state.record_redactions(redactions_applied);
 
     let ts_array = TimestampMicrosecondArray::from(tss).with_timezone(TS_TZ_UTC);
     let ts_unix_nano_array = Int64Array::from(ts_unix_nanos);
@@ -283,12 +287,12 @@ pub(crate) fn build_logs_record_batch(
     Ok(Some(record_batch))
 }
 
-fn extract_log_body(body: Option<&AnyValue>) -> String {
+fn extract_log_body(body: Option<&AnyValue>, redactions: &mut u64) -> String {
     let Some(av) = body else {
         return String::new();
     };
     match &av.value {
-        Some(any_value::Value::StringValue(s)) => scrub_otlp_field(s),
+        Some(any_value::Value::StringValue(s)) => scrub_otlp_field(s, redactions),
         _ => String::new(),
     }
 }
@@ -300,10 +304,13 @@ fn extract_log_body(body: Option<&AnyValue>) -> String {
 /// `crates/corpus/src/contract.rs::CorpusWriter` trait docstring (the
 /// MUST pre-scrub contract enforced via per-adapter PII negative-canary
 /// tests).
-fn scrub_otlp_field(value: &str) -> String {
+fn scrub_otlp_field(value: &str, redactions: &mut u64) -> String {
     match scrub_attribute(value) {
         ScrubbedValue::Allowed(s) => s,
-        ScrubbedValue::Redacted { category } => format!("[REDACTED:{}]", category),
+        ScrubbedValue::Redacted { category } => {
+            *redactions += 1;
+            format!("[REDACTED:{}]", category)
+        }
     }
 }
 
@@ -335,6 +342,7 @@ pub(crate) fn build_span_events_record_batch(
     let mut exception_stacktraces: Vec<Option<String>> = Vec::new();
     let mut fingerprints: Vec<Option<ExceptionFingerprint>> = Vec::new();
     let mut service_names: Vec<String> = Vec::new();
+    let mut redactions_applied: u64 = 0;
 
     for rs in batch {
         let service_name = extract_service_name(rs.resource.as_ref());
@@ -365,8 +373,10 @@ pub(crate) fn build_span_events_record_batch(
                     // (chunk #72 capability P-006 closure — exception.message
                     // after PII scrubbing per P-047). exception_type stays
                     // raw (class identifier, not user content).
-                    let exception_message = exception_message.map(|s| scrub_otlp_field(&s));
-                    let exception_stacktrace = exception_stacktrace.map(|s| scrub_otlp_field(&s));
+                    let exception_message =
+                        exception_message.map(|s| scrub_otlp_field(&s, &mut redactions_applied));
+                    let exception_stacktrace =
+                        exception_stacktrace.map(|s| scrub_otlp_field(&s, &mut redactions_applied));
 
                     trace_ids.push(span.trace_id.clone());
                     span_ids.push(span.span_id.clone());
@@ -408,6 +418,7 @@ pub(crate) fn build_span_events_record_batch(
     // Counted independently of `fingerprints_computed` on purpose: equality of
     // the two proves the fan-out actually ran, where a derived value would
     // merely assert it should have.
+    state.record_redactions(redactions_applied);
     state.record_feed_counts(
         span_events_seen,
         fingerprints_computed,
@@ -551,7 +562,7 @@ pub(crate) fn append_logs_batch(conn: &Connection, batch: &[ResourceLogs]) -> Re
     // Test helper passes None for drain_miner; Drain integration tests live
     // in `crates/buffer/src/drain.rs::tests` + the Session 5 e2e integration
     // test at `pulse-app/tests/e2e_drain_template_assignment.rs`.
-    let Some(record_batch) = build_logs_record_batch(batch, None)? else {
+    let Some(record_batch) = build_logs_record_batch(batch, None, &BufferState::new())? else {
         return Ok(0);
     };
     let row_count = append_record_batch_to_table(conn, "log_records", record_batch)?;
@@ -1159,7 +1170,7 @@ mod tests {
             schema_url: String::new(),
         }];
 
-        let record_batch = build_logs_record_batch(&batch, Some(&miner))
+        let record_batch = build_logs_record_batch(&batch, Some(&miner), &BufferState::new())
             .expect("build batch ok")
             .expect("non-empty batch");
         append_record_batch_to_table(&conn, "log_records", record_batch).expect("append rows");

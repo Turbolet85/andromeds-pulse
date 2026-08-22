@@ -1,5 +1,16 @@
 # Session Learnings
 
+
+## 2026-08-22 — A report's header counts are detector input, not prose
+
+The wrap report is the SINGLE artifact every drift detector reads — they are explicitly forbidden from re-deriving facts from git or the codebase. That makes its internal consistency load-bearing in a way ordinary prose is not: a **Files** bullet whose header says "Modified (6)" while listing seven paths gives any detector that counts files a different answer than the one that reads them, and neither is checkable against reality from inside the fan-out.
+
+The failure is easy to make because the header is written first and the list grows afterwards. The cheap guard is to derive the count FROM the list at authoring time rather than stating it independently — or to drop the count and let the list speak. Caught this session by the operator against `git status`; the miscount originated in the /implement P4 console summary and would have propagated into the report unchallenged.
+
+Generalizes to any count a report states about its own contents (files, tests added, sites amended): if the same fact appears twice in one artifact, one of the two is redundant and will eventually disagree with the other.
+
+---
+
 _This file is curated by `/wrap-session`. Learnings captured here are too detailed or specific for CLAUDE.md but worth preserving as reference material for future sessions._
 
 _Entries are added in reverse chronological order (newest first). Each entry has an ISO date, short title, and body._
