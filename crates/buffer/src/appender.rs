@@ -149,6 +149,7 @@ pub(crate) fn build_metrics_record_batch(
     let mut resource_hashes: Vec<Vec<u8>> = Vec::new();
     let mut values: Vec<f64> = Vec::new();
     let mut kinds: Vec<i32> = Vec::new();
+    let mut labels: Vec<String> = Vec::new();
 
     for rm in batch {
         let resource_hash = hash_resource(rm);
@@ -156,7 +157,8 @@ pub(crate) fn build_metrics_record_batch(
             for m in &sm.metrics {
                 if let Some(data) = &m.data {
                     // Scrubbed once per metric rather than per data point —
-                    // every point of one metric shares the name.
+                    // every point of one metric shares the name. Labels differ
+                    // per point, so they scrub inside the collector.
                     let metric_name = scrub_otlp_field(&m.name, &mut redactions_applied);
                     collect_metric_points(
                         &metric_name,
@@ -168,6 +170,8 @@ pub(crate) fn build_metrics_record_batch(
                         &mut resource_hashes,
                         &mut values,
                         &mut kinds,
+                        &mut labels,
+                        &mut redactions_applied,
                     );
                 }
             }
@@ -193,6 +197,7 @@ pub(crate) fn build_metrics_record_batch(
     let value_array = Float64Array::from(values);
     let kind_array = Int32Array::from(kinds);
     let seq_array = Int64Array::from(seqs);
+    let labels_array = StringArray::from(labels);
 
     let schema = Arc::new(Schema::new(vec![
         Field::new("metric_name", DataType::Utf8, false),
@@ -202,6 +207,7 @@ pub(crate) fn build_metrics_record_batch(
         Field::new("value", DataType::Float64, false),
         Field::new("data_point_kind", DataType::Int32, false),
         Field::new("seq", DataType::Int64, false),
+        Field::new("labels", DataType::Utf8, false),
     ]));
 
     let record_batch = RecordBatch::try_new(
@@ -214,6 +220,7 @@ pub(crate) fn build_metrics_record_batch(
             Arc::new(value_array),
             Arc::new(kind_array),
             Arc::new(seq_array),
+            Arc::new(labels_array),
         ],
     )
     .map_err(|e| Error::Append {
@@ -359,6 +366,94 @@ fn scrub_otlp_field(value: &str, redactions: &mut u64) -> String {
             format!("[REDACTED:{}]", category)
         }
     }
+}
+
+/// Renders one OTLP `AnyValue` for storage inside a label pair.
+///
+/// Every arm is spelled out rather than falling back to `Debug`, so a future
+/// variant is a compile error instead of a silently reshaped stored value.
+fn render_any_value(value: &any_value::Value) -> String {
+    match value {
+        any_value::Value::StringValue(s) => s.clone(),
+        any_value::Value::BoolValue(b) => b.to_string(),
+        any_value::Value::IntValue(i) => i.to_string(),
+        any_value::Value::DoubleValue(d) => d.to_string(),
+        any_value::Value::ArrayValue(a) => {
+            let rendered: Vec<String> = a
+                .values
+                .iter()
+                .map(|v| v.value.as_ref().map(render_any_value).unwrap_or_default())
+                .collect();
+            format!("[{}]", rendered.join(","))
+        }
+        any_value::Value::KvlistValue(kv) => {
+            let rendered: Vec<String> = kv
+                .values
+                .iter()
+                .map(|pair| {
+                    let v = pair
+                        .value
+                        .as_ref()
+                        .and_then(|av| av.value.as_ref())
+                        .map(render_any_value)
+                        .unwrap_or_default();
+                    format!("{}={}", pair.key, v)
+                })
+                .collect();
+            format!("{{{}}}", rendered.join(","))
+        }
+        any_value::Value::BytesValue(b) => format!("0x{}", hex_lower(b)),
+    }
+}
+
+fn hex_lower(bytes: &[u8]) -> String {
+    bytes.iter().map(|b| format!("{:02x}", b)).collect()
+}
+
+/// Encodes a data point's attribute set into the stored `labels` cell.
+///
+/// The scrub input is the JOINED `key=value` form, not the bare value: the
+/// `secret_kv` and `api_key` catalog arms are key-name-anchored, so a split
+/// value (`hunter2`) matches nothing and the whole keyed class would be stored
+/// verbatim. The bare value is evaluated too and either match redacts — no
+/// catalog arm is `^`/`$`-anchored today, but the union stays correct if an
+/// anchored arm is ever added. On a redaction the KEY is preserved and only the
+/// value becomes a marker, so two distinct dimensions never collapse into one
+/// (per security-plan §Anti-Patterns → Logging).
+fn encode_labels(attrs: &[KeyValue], redactions: &mut u64) -> String {
+    if attrs.is_empty() {
+        return String::new();
+    }
+
+    let mut pairs: Vec<String> = Vec::with_capacity(attrs.len());
+    for kv in attrs {
+        let rendered = kv
+            .value
+            .as_ref()
+            .and_then(|av| av.value.as_ref())
+            .map(render_any_value)
+            .unwrap_or_default();
+
+        let joined = format!("{}={}", kv.key, rendered);
+        let redacted_category = match scrub_attribute(&joined) {
+            ScrubbedValue::Redacted { category } => Some(category),
+            ScrubbedValue::Allowed(_) => match scrub_attribute(&rendered) {
+                ScrubbedValue::Redacted { category } => Some(category),
+                ScrubbedValue::Allowed(_) => None,
+            },
+        };
+
+        match redacted_category {
+            Some(category) => {
+                *redactions += 1;
+                pairs.push(format!("{}=[REDACTED:{}]", kv.key, category));
+            }
+            None => pairs.push(joined),
+        }
+    }
+
+    pairs.sort();
+    pairs.join(",")
 }
 
 pub(crate) fn extract_string_attribute(attrs: &[KeyValue], key: &str) -> Option<String> {
@@ -674,6 +769,8 @@ fn collect_metric_points(
     resource_hashes: &mut Vec<Vec<u8>>,
     values: &mut Vec<f64>,
     kinds: &mut Vec<i32>,
+    labels: &mut Vec<String>,
+    redactions: &mut u64,
 ) {
     match data {
         metric::Data::Gauge(g) => {
@@ -690,6 +787,8 @@ fn collect_metric_points(
                     resource_hashes,
                     values,
                     kinds,
+                    labels,
+                    encode_labels(&p.attributes, redactions),
                 );
             }
         }
@@ -707,6 +806,8 @@ fn collect_metric_points(
                     resource_hashes,
                     values,
                     kinds,
+                    labels,
+                    encode_labels(&p.attributes, redactions),
                 );
             }
         }
@@ -724,6 +825,8 @@ fn collect_metric_points(
                     resource_hashes,
                     values,
                     kinds,
+                    labels,
+                    encode_labels(&p.attributes, redactions),
                 );
             }
         }
@@ -741,6 +844,8 @@ fn collect_metric_points(
                     resource_hashes,
                     values,
                     kinds,
+                    labels,
+                    encode_labels(&p.attributes, redactions),
                 );
             }
         }
@@ -758,6 +863,8 @@ fn collect_metric_points(
                     resource_hashes,
                     values,
                     kinds,
+                    labels,
+                    encode_labels(&p.attributes, redactions),
                 );
             }
         }
@@ -777,6 +884,8 @@ fn push_metric_row(
     resource_hashes: &mut Vec<Vec<u8>>,
     values: &mut Vec<f64>,
     kinds: &mut Vec<i32>,
+    labels: &mut Vec<String>,
+    encoded_labels: String,
 ) {
     metric_names.push(name.to_string());
     tss.push(ts_ns / 1_000);
@@ -784,6 +893,7 @@ fn push_metric_row(
     resource_hashes.push(resource_hash.to_vec());
     values.push(value);
     kinds.push(kind);
+    labels.push(encoded_labels);
 }
 
 fn hash_resource(rm: &ResourceMetrics) -> Vec<u8> {
@@ -1658,6 +1768,151 @@ mod tests {
         assert_eq!(rows[1].0, "request.duration_ms");
         assert_eq!(rows[1].1, 7.5);
         assert_eq!(rows[1].2, 1); // Sum
+    }
+
+    /// One gauge whose points differ ONLY by their attribute set.
+    fn labelled_metric_batch(name: &str, labels: &[&[(&str, &str)]]) -> Vec<ResourceMetrics> {
+        let data_points: Vec<NumberDataPoint> = labels
+            .iter()
+            .enumerate()
+            .map(|(i, pairs)| NumberDataPoint {
+                attributes: pairs
+                    .iter()
+                    .map(|(k, v)| KeyValue {
+                        key: (*k).into(),
+                        value: Some(AnyValue {
+                            value: Some(any_value::Value::StringValue((*v).into())),
+                        }),
+                    })
+                    .collect(),
+                start_time_unix_nano: 0,
+                time_unix_nano: 1_700_000_000_000_000_000,
+                exemplars: Vec::new(),
+                flags: 0,
+                value: Some(number_data_point::Value::AsInt(i as i64)),
+            })
+            .collect();
+
+        vec![ResourceMetrics {
+            resource: Some(make_resource("svc-labels")),
+            scope_metrics: vec![ScopeMetrics {
+                scope: None,
+                metrics: vec![Metric {
+                    name: name.into(),
+                    description: String::new(),
+                    unit: String::new(),
+                    metadata: Vec::new(),
+                    data: Some(metric::Data::Gauge(Gauge { data_points })),
+                }],
+                schema_url: String::new(),
+            }],
+            schema_url: String::new(),
+        }]
+    }
+
+    fn stored_labels(batch: &[ResourceMetrics]) -> Vec<String> {
+        let conn = fresh_conn_with_schema();
+        append_metrics_batch(&conn, batch).expect("append metrics");
+        conn.prepare("SELECT labels FROM metrics_points ORDER BY seq")
+            .expect("prepare")
+            .query_map([], |r| r.get::<_, String>(0))
+            .expect("query")
+            .map(|r| r.expect("row"))
+            .collect()
+    }
+
+    // The chunk's outcome: two points of one metric differing ONLY by label set
+    // read back DISTINGUISHABLE. Before the `labels` column they both stored
+    // nothing and were identical on every readable column.
+    #[test]
+    fn label_differing_points_read_back_distinguishable() {
+        let stored = stored_labels(&labelled_metric_batch(
+            "collision.probe.requests",
+            &[&[("http.route", "/alpha")], &[("http.route", "/bravo")]],
+        ));
+
+        assert_eq!(stored.len(), 2, "both points must persist");
+        assert_eq!(stored[0], "http.route=/alpha");
+        assert_eq!(stored[1], "http.route=/bravo");
+        assert_ne!(
+            stored[0], stored[1],
+            "the pair must be distinguishable by its stored labels"
+        );
+    }
+
+    // BOTH credential classes redact and the KEY survives in both. The keyed
+    // class is the one a value-only scrub cannot reach: `secret_kv` is
+    // key-name-anchored, so scrubbing the bare `hunter2` matches nothing.
+    #[test]
+    fn credential_label_values_redact_in_both_classes_and_keys_survive() {
+        let stored = stored_labels(&labelled_metric_batch(
+            "collision.probe.label_canary",
+            &[
+                &[("password", "hunter2")],
+                &[("route", PROVIDER_KEY_CANARY)],
+            ],
+        ));
+
+        assert_eq!(stored.len(), 2);
+        assert_eq!(
+            stored[0], "password=[REDACTED:secret_kv]",
+            "keyed class must redact via the joined key=value form"
+        );
+        assert_eq!(stored[1], format!("route=[REDACTED:provider_key]"));
+        for cell in &stored {
+            assert!(!cell.contains("hunter2"), "keyed secret stored verbatim");
+            assert!(
+                !cell.contains(PROVIDER_KEY_CANARY),
+                "bare credential stored verbatim"
+            );
+        }
+    }
+
+    // Negative control: the scrub must be selective, not blanket. A benign pair
+    // survives byte-identical and an ordinary high-entropy identifier — the
+    // scrubber's own false-positive corpus shape — stays Allowed.
+    #[test]
+    fn benign_and_high_entropy_label_values_survive_byte_identical() {
+        let hex_digest = "9f3a1c04e7b2d85f6a0b3c1d2e4f5a6b";
+        let uuid = "3f2504e0-4f89-11d3-9a0c-0305e82c3301";
+        let stored = stored_labels(&labelled_metric_batch(
+            "collision.probe.benign",
+            &[
+                &[("http.method", "GET")],
+                &[("trace.digest", hex_digest)],
+                &[("request.id", uuid)],
+            ],
+        ));
+
+        assert_eq!(stored.len(), 3);
+        assert_eq!(stored[0], "http.method=GET");
+        assert_eq!(stored[1], format!("trace.digest={hex_digest}"));
+        assert_eq!(stored[2], format!("request.id={uuid}"));
+    }
+
+    #[test]
+    fn empty_attribute_set_stores_the_empty_string() {
+        let stored = stored_labels(&labelled_metric_batch("collision.probe.bare", &[&[]]));
+        assert_eq!(stored.len(), 1);
+        assert_eq!(stored[0], "");
+    }
+
+    // Encoding must be order-independent: the same label SET in a different
+    // attribute order encodes identically, or the distinguishability pin above
+    // would be measuring attribute ordering rather than label content.
+    #[test]
+    fn label_encoding_is_attribute_order_independent() {
+        let stored = stored_labels(&labelled_metric_batch(
+            "collision.probe.order",
+            &[
+                &[("b.key", "2"), ("a.key", "1")],
+                &[("a.key", "1"), ("b.key", "2")],
+            ],
+        ));
+
+        assert_eq!(stored.len(), 2);
+        assert_eq!(stored[0], stored[1]);
+        assert_eq!(stored[0], "a.key=1,b.key=2");
     }
 
     #[test]

@@ -75,6 +75,7 @@ CREATE TABLE IF NOT EXISTS metrics_points (
     value DOUBLE NOT NULL DEFAULT 0.0,
     data_point_kind INTEGER NOT NULL DEFAULT 0,
     seq BIGINT NOT NULL,
+    labels VARCHAR NOT NULL DEFAULT '',
     PRIMARY KEY (metric_name, ts_unix_nano, resource_hash, seq)
 );";
 
@@ -173,6 +174,7 @@ const SCHEMA_DDL: &str = concat!(
     value DOUBLE NOT NULL DEFAULT 0.0,
     data_point_kind INTEGER NOT NULL DEFAULT 0,
     seq BIGINT NOT NULL,
+    labels VARCHAR NOT NULL DEFAULT '',
     PRIMARY KEY (metric_name, ts_unix_nano, resource_hash, seq)
 );",
     "CREATE TABLE IF NOT EXISTS log_records (

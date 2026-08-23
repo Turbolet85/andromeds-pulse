@@ -67,6 +67,7 @@ const sampleRow = (ts_ns: number, value: number): MetricRow => ({
   resource_hash: "abc",
   value,
   data_point_kind: 0,
+  labels: "",
 });
 
 describe("MetricsChart", () => {

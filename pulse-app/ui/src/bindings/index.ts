@@ -217,7 +217,7 @@ export type McpStopResult = { state: McpServerState }
 
 export type MetricHistoryPoint = { snapshot_unix_nano: number; value_basis_points: number }
 
-export type MetricRow = { metric_name: string; ts_unix_nano: number; resource_hash: string; value: number; data_point_kind: number }
+export type MetricRow = { metric_name: string; ts_unix_nano: number; resource_hash: string; value: number; data_point_kind: number; labels: string }
 
 export type MetricsQueryArgs = { time_window_seconds: number; limit: number; cursor: string | null }
 

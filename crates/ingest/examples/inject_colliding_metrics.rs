@@ -45,11 +45,34 @@ const CREDENTIAL_NAME_BRAVO: &str = "sk_live_51BravoNotARealKeyForPulseTests00";
 /// Rides in the same batch and must land: distinct name, so it never collides.
 const CONTROL_METRIC: &str = "collision.probe.control";
 
+/// Carries the two label-VALUE canaries. Its own name is clean, so any redaction
+/// counted against it comes from the label path and nowhere else.
+const LABEL_CANARY_METRIC: &str = "collision.probe.label_canary";
+
+/// KEYED class — `secret_kv` is `(password|passwd|secret|token)[\s=:]+\S+`, so it
+/// needs the key name and the value in ONE string. A value-only scrub sees just
+/// `hunter2` and matches nothing; only the joined `key=value` form reaches it.
+const LABEL_KEYED_KEY: &str = "password";
+const LABEL_KEYED_VALUE: &str = "hunter2";
+
+/// BARE class — the eighth arm is anchored on the issuer prefix alone, so this
+/// one is caught either way. It is the control for the keyed case above.
+const LABEL_BARE_KEY: &str = "route";
+const LABEL_BARE_VALUE: &str = "sk_live_51CanaryNotARealKeyForPulse00"; // gitleaks:allow
+
+/// Negative control — a benign pair must survive byte-identical, so the leg
+/// proves selectivity rather than blanket redaction.
+const LABEL_BENIGN_KEY: &str = "http.method";
+const LABEL_BENIGN_VALUE: &str = "GET";
+
 const VALUE_ROUTE_A: i64 = 11;
 const VALUE_ROUTE_B: i64 = 22;
 const VALUE_CREDENTIAL_ALPHA: i64 = 33;
 const VALUE_CREDENTIAL_BRAVO: i64 = 44;
 const VALUE_CONTROL: i64 = 55;
+const VALUE_LABEL_KEYED: i64 = 66;
+const VALUE_LABEL_BARE: i64 = 77;
+const VALUE_LABEL_BENIGN: i64 = 88;
 
 fn now_ns() -> u64 {
     SystemTime::now()
@@ -134,6 +157,26 @@ async fn main() {
                         vec![point(ts, VALUE_CREDENTIAL_BRAVO, None)],
                     ),
                     gauge(CONTROL_METRIC, vec![point(ts, VALUE_CONTROL, None)]),
+                    gauge(
+                        LABEL_CANARY_METRIC,
+                        vec![
+                            point(
+                                ts,
+                                VALUE_LABEL_KEYED,
+                                Some((LABEL_KEYED_KEY, LABEL_KEYED_VALUE)),
+                            ),
+                            point(
+                                ts,
+                                VALUE_LABEL_BARE,
+                                Some((LABEL_BARE_KEY, LABEL_BARE_VALUE)),
+                            ),
+                            point(
+                                ts,
+                                VALUE_LABEL_BENIGN,
+                                Some((LABEL_BENIGN_KEY, LABEL_BENIGN_VALUE)),
+                            ),
+                        ],
+                    ),
                 ],
                 schema_url: String::new(),
             }],
@@ -146,11 +189,21 @@ async fn main() {
         .await
         .expect("export must be accepted by the receiver");
 
-    println!("sent 5 metric points at ts_unix_nano={ts}, service={SERVICE}");
+    println!("sent 8 metric points at ts_unix_nano={ts}, service={SERVICE}");
     println!("  label pair : {LABELLED_METRIC} values {VALUE_ROUTE_A}/{VALUE_ROUTE_B}");
     println!(
         "  redacted   : 2 distinct provider-key names, values {VALUE_CREDENTIAL_ALPHA}/{VALUE_CREDENTIAL_BRAVO}"
     );
     println!("  control    : {CONTROL_METRIC} value {VALUE_CONTROL}");
-    println!("all 5 must be readable back; pre-fix the batch was rejected whole.");
+    println!(
+        "  label keyed: {LABEL_CANARY_METRIC} {LABEL_KEYED_KEY}=<secret_kv> value {VALUE_LABEL_KEYED}"
+    );
+    println!(
+        "  label bare : {LABEL_CANARY_METRIC} {LABEL_BARE_KEY}=<provider_key> value {VALUE_LABEL_BARE}"
+    );
+    println!(
+        "  label plain: {LABEL_CANARY_METRIC} {LABEL_BENIGN_KEY}={LABEL_BENIGN_VALUE} value {VALUE_LABEL_BENIGN}"
+    );
+    println!("all 8 must be readable back; the two label canaries must read back redacted,");
+    println!("the benign label byte-identical. Pre-fix no label survives at all.");
 }

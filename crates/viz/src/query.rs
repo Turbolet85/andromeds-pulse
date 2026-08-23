@@ -21,7 +21,7 @@ const SELECT_TRACES: &str = "SELECT trace_id, span_id, ts_unix_nano, service_nam
      WHERE ts_unix_nano >= ? AND ts_unix_nano < ? \
      ORDER BY end_time_unix_nano DESC, trace_id LIMIT ?";
 
-const SELECT_METRICS: &str = "SELECT metric_name, ts_unix_nano, resource_hash, value, data_point_kind \
+const SELECT_METRICS: &str = "SELECT metric_name, ts_unix_nano, resource_hash, value, data_point_kind, labels \
      FROM metrics_points \
      WHERE ts_unix_nano >= ? AND ts_unix_nano < ? \
      ORDER BY ts_unix_nano DESC, metric_name LIMIT ?";
@@ -85,6 +85,9 @@ pub struct MetricRow {
     pub value: f64,
     // 0=Gauge, 1=Sum, 2=Histogram, 3=ExponentialHistogram, 4=Summary per OTLP `metric::Data`.
     pub data_point_kind: u8,
+    // Scrubbed `key=value` pairs, comma-joined, sorted. Empty when the data
+    // point carried no attributes.
+    pub labels: String,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, specta::Type)]
@@ -234,12 +237,14 @@ pub fn query_metrics(
                 let resource_hash_blob: Vec<u8> = row.get(2)?;
                 let value: f64 = row.get(3)?;
                 let data_point_kind: i32 = row.get(4)?;
+                let labels: String = row.get(5)?;
                 Ok((
                     metric_name,
                     ts_unix_nano,
                     resource_hash_blob,
                     value,
                     data_point_kind,
+                    labels,
                 ))
             },
         )
@@ -249,7 +254,7 @@ pub fn query_metrics(
 
     let mut items: Vec<MetricRow> = Vec::new();
     for row in rows {
-        let (metric_name, ts_unix_nano, resource_hash_blob, value, data_point_kind) =
+        let (metric_name, ts_unix_nano, resource_hash_blob, value, data_point_kind, labels) =
             row.map_err(|e| Error::Decode {
                 reason: format!("row: {}", short_err(&e.to_string())),
             })?;
@@ -259,6 +264,7 @@ pub fn query_metrics(
             resource_hash: hex_encode(&resource_hash_blob),
             value,
             data_point_kind: data_point_kind.clamp(0, u8::MAX as i32) as u8,
+            labels,
         });
     }
 
@@ -486,6 +492,7 @@ mod tests {
                 value DOUBLE NOT NULL DEFAULT 0.0,
                 data_point_kind INTEGER NOT NULL DEFAULT 0,
                 seq BIGINT NOT NULL,
+                labels VARCHAR NOT NULL DEFAULT '',
                 PRIMARY KEY (metric_name, ts_unix_nano, resource_hash, seq)
             );
             CREATE TABLE IF NOT EXISTS log_records (
@@ -978,6 +985,80 @@ mod tests {
         assert_eq!(resp.items[1].data_point_kind, 1); // Sum
     }
 
+    fn seed_metric_with_labels(
+        conn: &Arc<Mutex<Connection>>,
+        name: &str,
+        ts_ns: i64,
+        value: f64,
+        labels: &str,
+    ) {
+        let guard = conn.lock().expect("lock");
+        let resource_hash: Vec<u8> = vec![2u8; 16];
+        guard
+            .execute(
+                "INSERT INTO metrics_points (metric_name, ts, ts_unix_nano, resource_hash, value, data_point_kind, seq, labels) VALUES (?, '2026-05-06T00:00:00Z'::TIMESTAMPTZ, ?, ?, ?, 0, ?, ?)",
+                duckdb::params![
+                    name,
+                    ts_ns,
+                    resource_hash.as_slice(),
+                    value,
+                    next_metric_seq(),
+                    labels
+                ],
+            )
+            .expect("insert labelled metric");
+    }
+
+    // The chunk's witness surface: labels must survive the READ path, not just
+    // the write. Two points of one metric differing only by label set come back
+    // distinguishable through `query_metrics` itself.
+    #[test]
+    fn query_metrics_returns_labels_distinguishing_otherwise_identical_points() {
+        let conn = open_in_memory_with_schema();
+        let now = now_ns();
+        seed_metric_with_labels(&conn, "req", now - 1_000_000, 11.0, "http.route=/alpha");
+        seed_metric_with_labels(&conn, "req", now - 2_000_000, 22.0, "http.route=/bravo");
+        let state = VizState::new();
+        let resp = query_metrics(
+            &conn,
+            &state,
+            &MetricsQueryArgs {
+                time_window_seconds: 60,
+                limit: 10,
+                cursor: None,
+            },
+        )
+        .expect("query");
+
+        assert_eq!(resp.items.len(), 2);
+        assert_eq!(resp.items[0].labels, "http.route=/alpha");
+        assert_eq!(resp.items[1].labels, "http.route=/bravo");
+        assert_ne!(
+            resp.items[0].labels, resp.items[1].labels,
+            "read-back must distinguish the pair by labels"
+        );
+    }
+
+    #[test]
+    fn query_metrics_returns_empty_labels_for_attributeless_points() {
+        let conn = open_in_memory_with_schema();
+        let now = now_ns();
+        seed_metric_full(&conn, "cpu", now - 1_000_000, 42.0, 0);
+        let state = VizState::new();
+        let resp = query_metrics(
+            &conn,
+            &state,
+            &MetricsQueryArgs {
+                time_window_seconds: 60,
+                limit: 10,
+                cursor: None,
+            },
+        )
+        .expect("query");
+        assert_eq!(resp.items.len(), 1);
+        assert_eq!(resp.items[0].labels, "");
+    }
+
     #[test]
     fn query_logs_returns_seeded_rows() {
         let conn = open_in_memory_with_schema();
@@ -1038,11 +1119,13 @@ mod tests {
             resource_hash: "deadbeef".to_string(),
             value: 7.5,
             data_point_kind: 1,
+            labels: "http.route=/alpha".to_string(),
         };
         let s = serde_json::to_string(&row).expect("serialize");
         let parsed: MetricRow = serde_json::from_str(&s).expect("deserialize");
         assert_eq!(parsed.value, 7.5);
         assert_eq!(parsed.data_point_kind, 1);
+        assert_eq!(parsed.labels, "http.route=/alpha");
     }
 
     #[test]

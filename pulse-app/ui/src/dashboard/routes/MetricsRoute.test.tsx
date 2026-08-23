@@ -17,6 +17,7 @@ const sampleRows: MetricRow[] = [
     resource_hash: "abc",
     value: 42,
     data_point_kind: 0,
+    labels: "",
   },
   {
     metric_name: "mem",
@@ -24,6 +25,7 @@ const sampleRows: MetricRow[] = [
     resource_hash: "def",
     value: 8,
     data_point_kind: 1,
+    labels: "",
   },
 ];
 
