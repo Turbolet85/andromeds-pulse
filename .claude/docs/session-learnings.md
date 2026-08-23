@@ -2411,3 +2411,24 @@ grep-collision shape is worth suspecting for any short column name that appears 
 the corpus; check which writer populates the hit before reasoning from it. Encountered when a proposed risk
 ("scrubbing `metric_name` breaks the corpus lookup") was traced to the corpus callers and found to be about
 the internal namespace entirely.
+
+
+## 2026-08-23 — A chunk report answers every statement its scope demanded of it
+
+`scope.md` can commit a chunk to producing a specific FINDING — not just code, but an answer ("state
+whether this fix generalizes to X", "record whether the producer exists", "say which option was taken").
+That commitment is invisible to every automated check downstream, because the drift detectors read
+`report.md` and never open `scope.md`. So a scope-mandated answer that the report simply omits is lost
+silently: gates pass, drift reads zero, and the next chunk that needs the answer re-derives it from
+scratch.
+
+Measured at the `log_records` identity chunk, whose scope listed "the report's statement on whether the
+fix generalizes to `metrics_points`" as in-scope in two places; its report contains zero mentions of
+`metrics_points`. The successor chunk paid for it by deriving the generalization first-hand — cheap here
+(one grep of the sibling report), but the same shape hides a genuinely expensive re-derivation when the
+mandated answer was a measurement rather than a judgement.
+
+Practical form when authoring a report: re-read the chunk's own scope Boundaries and any "the report
+must state…" clause, and check each one has a home in the report. The scope's in-scope list is a
+checklist for the report, not only for the code. A mechanical check would be the better remedy and is
+pipeline-side, not project-side; until one exists this is the author's job.

@@ -485,7 +485,8 @@ mod tests {
                 resource_hash BLOB NOT NULL,
                 value DOUBLE NOT NULL DEFAULT 0.0,
                 data_point_kind INTEGER NOT NULL DEFAULT 0,
-                PRIMARY KEY (metric_name, ts_unix_nano, resource_hash)
+                seq BIGINT NOT NULL,
+                PRIMARY KEY (metric_name, ts_unix_nano, resource_hash, seq)
             );
             CREATE TABLE IF NOT EXISTS log_records (
                 ts TIMESTAMPTZ NOT NULL,
@@ -512,6 +513,12 @@ mod tests {
         SEED_LOG_SEQ.fetch_add(1, std::sync::atomic::Ordering::Relaxed)
     }
 
+    static SEED_METRIC_SEQ: std::sync::atomic::AtomicI64 = std::sync::atomic::AtomicI64::new(0);
+
+    fn next_metric_seq() -> i64 {
+        SEED_METRIC_SEQ.fetch_add(1, std::sync::atomic::Ordering::Relaxed)
+    }
+
     fn seed_metric_full(
         conn: &Arc<Mutex<Connection>>,
         name: &str,
@@ -523,8 +530,15 @@ mod tests {
         let resource_hash: Vec<u8> = vec![2u8; 16];
         guard
             .execute(
-                "INSERT INTO metrics_points (metric_name, ts, ts_unix_nano, resource_hash, value, data_point_kind) VALUES (?, '2026-05-06T00:00:00Z'::TIMESTAMPTZ, ?, ?, ?, ?)",
-                duckdb::params![name, ts_ns, resource_hash.as_slice(), value, kind],
+                "INSERT INTO metrics_points (metric_name, ts, ts_unix_nano, resource_hash, value, data_point_kind, seq) VALUES (?, '2026-05-06T00:00:00Z'::TIMESTAMPTZ, ?, ?, ?, ?, ?)",
+                duckdb::params![
+                    name,
+                    ts_ns,
+                    resource_hash.as_slice(),
+                    value,
+                    kind,
+                    next_metric_seq()
+                ],
             )
             .expect("insert metric");
     }
@@ -605,8 +619,8 @@ mod tests {
         let resource_hash: Vec<u8> = vec![2u8; 16];
         guard
             .execute(
-                "INSERT INTO metrics_points (metric_name, ts, ts_unix_nano, resource_hash) VALUES (?, '2026-05-06T00:00:00Z'::TIMESTAMPTZ, ?, ?)",
-                duckdb::params![name, ts_ns, resource_hash.as_slice()],
+                "INSERT INTO metrics_points (metric_name, ts, ts_unix_nano, resource_hash, seq) VALUES (?, '2026-05-06T00:00:00Z'::TIMESTAMPTZ, ?, ?, ?)",
+                duckdb::params![name, ts_ns, resource_hash.as_slice(), next_metric_seq()],
             )
             .expect("insert metric");
     }

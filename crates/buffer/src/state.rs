@@ -23,13 +23,18 @@ pub struct BufferState {
     observer_invocations: AtomicU64,
     // PII redactions applied on the OTLP persistence path, so scrubber recall
     // is gradeable from outside the process instead of only by reading stored
-    // rows. Covers the `scrub_otlp_field` sites (log body, exception message,
-    // exception stacktrace) — NOT the drain/template path, which carries its
-    // own tick fields. Accumulated per batch, never per field.
+    // rows. Spans all four record-batch builders — NOT the drain/template
+    // path, which carries its own tick fields. Counts PERSISTED cells only:
+    // the builders return their tally and the append site folds it after the
+    // table's own append succeeds, so a batch rejected at `flush()` adds
+    // nothing. Accumulated per batch, never per field.
     redactions_applied: AtomicU64,
-    // Monotonic allocator for the `log_records.seq` primary-key ordinal. Not
-    // an observable: never folded into BufferStateSnapshot or `buffer.tick`.
+    // Monotonic allocators for the `log_records.seq` / `metrics_points.seq`
+    // primary-key ordinals. Separate per table: one shared counter would
+    // couple two tables' allocation for no gain. Not observables: never
+    // folded into BufferStateSnapshot or `buffer.tick`.
     log_seq: AtomicU64,
+    metric_seq: AtomicU64,
 }
 
 #[derive(Debug, Clone, Copy, Default)]
@@ -123,6 +128,22 @@ impl BufferState {
     /// not an observable, and `buffer.tick` must not carry it.
     pub fn reserve_log_seq_block(&self, n: u64) -> u64 {
         self.log_seq.fetch_add(n, Ordering::Relaxed)
+    }
+
+    /// Reserve `n` contiguous `metrics_points.seq` values and return the first.
+    ///
+    /// `metrics_points` stores no attributes column, so two data points of one
+    /// metric differing only by label set are identical on every OTLP-native key
+    /// column; since the metric name is scrubbed at ingestion, two distinct
+    /// credential-shaped names also redact to one placeholder and collide. Both
+    /// need an ordinal. A per-batch ordinal would not do — `metrics_points` has
+    /// no unique parent scoping it, so points colliding across two export
+    /// batches would both take index 0. This counter is buffer-global.
+    ///
+    /// Deliberately absent from [`BufferStateSnapshot`] — it is an allocator,
+    /// not an observable, and `buffer.tick` must not carry it.
+    pub fn reserve_metric_seq_block(&self, n: u64) -> u64 {
+        self.metric_seq.fetch_add(n, Ordering::Relaxed)
     }
 
     pub fn set_memory_bytes(&self, n: u64) {
@@ -222,5 +243,85 @@ mod tests {
             h.await.unwrap();
         }
         assert_eq!(s.snapshot().rows_ingested, 800);
+    }
+
+    // Both ordinal allocators shipped proven only through their one caller, so a
+    // caller-side change could silently retire their only coverage. These assert
+    // the allocator contract directly: block width, monotonicity, and that the
+    // two counters are independent.
+    #[test]
+    fn reserve_seq_blocks_are_contiguous_and_monotonic() {
+        let s = BufferState::new();
+
+        assert_eq!(s.reserve_log_seq_block(3), 0, "first block starts at 0");
+        assert_eq!(s.reserve_log_seq_block(2), 3, "next block starts past it");
+        assert_eq!(s.reserve_log_seq_block(1), 5);
+
+        assert_eq!(s.reserve_metric_seq_block(4), 0);
+        assert_eq!(s.reserve_metric_seq_block(1), 4);
+    }
+
+    #[test]
+    fn reserve_seq_block_of_zero_does_not_advance() {
+        let s = BufferState::new();
+        assert_eq!(s.reserve_log_seq_block(0), 0);
+        assert_eq!(
+            s.reserve_log_seq_block(1),
+            0,
+            "an empty batch consumes none"
+        );
+        assert_eq!(s.reserve_metric_seq_block(0), 0);
+        assert_eq!(s.reserve_metric_seq_block(1), 0);
+    }
+
+    // A shared counter would couple two tables' allocation; keep them separate.
+    #[test]
+    fn log_and_metric_seq_allocators_are_independent() {
+        let s = BufferState::new();
+        s.reserve_log_seq_block(10);
+        assert_eq!(
+            s.reserve_metric_seq_block(1),
+            0,
+            "metric ordinals must not advance with log ordinals"
+        );
+        s.reserve_metric_seq_block(10);
+        assert_eq!(s.reserve_log_seq_block(1), 10);
+    }
+
+    // Neither allocator may become an observable.
+    #[test]
+    fn seq_allocators_are_absent_from_the_snapshot() {
+        let s = BufferState::new();
+        s.reserve_log_seq_block(7);
+        s.reserve_metric_seq_block(7);
+        let snap = s.snapshot();
+        assert_eq!(snap.rows_ingested, 0);
+        assert_eq!(snap.redactions_applied, 0);
+        assert_eq!(snap.span_events_seen, 0);
+    }
+
+    #[tokio::test(flavor = "multi_thread", worker_threads = 4)]
+    async fn concurrent_metric_seq_reservations_never_overlap() {
+        let s = std::sync::Arc::new(BufferState::new());
+        let mut handles = Vec::new();
+        for _ in 0..8 {
+            let s = s.clone();
+            handles.push(tokio::spawn(async move {
+                let mut bases = Vec::new();
+                for _ in 0..50 {
+                    bases.push(s.reserve_metric_seq_block(2));
+                }
+                bases
+            }));
+        }
+        let mut all = Vec::new();
+        for h in handles {
+            all.extend(h.await.unwrap());
+        }
+        all.sort_unstable();
+        // 8 tasks x 50 reservations of width 2 = 400 disjoint blocks.
+        assert_eq!(all.len(), 400);
+        let expected: Vec<u64> = (0..400).map(|i| i * 2).collect();
+        assert_eq!(all, expected, "every reserved block must be disjoint");
     }
 }

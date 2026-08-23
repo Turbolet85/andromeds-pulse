@@ -41,7 +41,7 @@ Owns the query layer feeding webview WebGPU charts. Hosts the `traces.*` / `metr
 
 ## Testing this service
 - **Unit tests:** `cargo nextest run --filter-expr 'package(viz)'`
-- **Integration:** seed buffer via `MockArrowBatch`; invoke `traces.query` via `tauri::test::mock_builder()` + `get_ipc_response()`; assert response shape + row count.
+- **Integration:** seed the in-memory DuckDB directly or via OTLP ingest (the specified `MockArrowBatch` builder is not implemented — 0 workspace hits, measured 2026-08-23); invoke `traces.query` via `tauri::test::mock_builder()` + `get_ipc_response()`; assert response shape + row count.
 - **Cross-surface coordination test (test-plan §10):** subscribe to `pulse://stream/spans` → ingest gRPC → call `traces.query` → assert returned row set includes span from channel event (no desync).
 
 ## Local development

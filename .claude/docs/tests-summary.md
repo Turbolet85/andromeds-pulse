@@ -62,7 +62,7 @@ JSON-per-line; fields: `timestamp` (ISO-8601), `level`, `target`, `message`, `fi
 ## Self-bootstrapping fixtures
 - NO pre-baked DuckDB snapshots, NO `.sql` scripts.
 - OTLP ingest via `tonic` client (fixture seeding through the live receiver path).
-- Builder factories: `MockTraceSpan::builder()` (`ingest`), `MockArrowBatch::builder()` (`buffer`), `MockMetricPoint::builder()` (`viz`).
+- Builder factories: `MockTraceSpan::builder()` (`ingest`), `MockArrowBatch::builder()` (`buffer`), `MockMetricPoint::builder()` (`viz`) — **none of the three exists yet** (0 workspace hits each, measured 2026-08-23; tracked as test-plan §1 `test-data-bootstrap-factories-unimplemented`). Self-bootstrapping is met meanwhile by OTLP ingest + per-test in-memory DuckDB seeding + `rstest` fixtures.
 - Fixture composition: `rstest` 0.26.1 with `#[fixture]`.
 - Per-test isolation: `tempfile::TempDir` + `ANDROMEDA_PULSE_DATA_DIR=$TMPDIR/test-$$`.
 - WASM plugin fixtures: pre-compiled minimal Component Model `.wasm` binaries in `tests/fixtures/plugins/` (committed read-only).

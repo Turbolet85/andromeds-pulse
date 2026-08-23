@@ -55,6 +55,17 @@ for the report to carry it (extend report-template) — never re-derive from git
   check: agent-read — check the report's new Dependencies against the §Dependency Security bans; a banned / unvetted dependency is drift.
   severity: escalate
 
+- id: D-security-logging
+  doc: security-plan
+  invariant: the PII / scrub / redaction posture stated in §Security Anti-Patterns → Logging matches what the chunk's report says the write + log boundaries now do — including the coverage set (which columns scrub, which are deliberately excluded) and any stated FAILURE MODE of that treatment.
+  check: agent-read — if the report's Changes touch a scrubbed column, a redaction counter, a store/log boundary, or a stated failure mode of one, confirm §Security Anti-Patterns → Logging still describes it; a stale coverage or behaviour claim is drift. Grep the restating sites too (§Threat Model Summary → Data classification sensitivity note; §Data Protection → At rest), which have carried duplicates of this posture before.
+  severity: warning
+  # Added 2026-08-23 (chunk 2026-08-23-metrics-points-identity) WITH the operator. Rationale: this
+  # section needed amendment at THREE consecutive chunks — 2026-08-22-pii-scrubber-recall,
+  # 2026-08-23-ingestion-scrub-coverage, 2026-08-23-metrics-points-identity — and no detector covered
+  # it; each was caught only by the chunk plan's own "Expected amendments (wrap)" list, which depends
+  # on the phase author foreseeing the amendment. A recurring uncovered class per P2 step 3.
+
 # — design-system —
 - id: D-design-tokens
   doc: design-system

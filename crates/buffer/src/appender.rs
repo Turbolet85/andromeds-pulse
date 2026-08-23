@@ -32,8 +32,7 @@ fn timestamp_tz_type() -> DataType {
 
 pub(crate) fn build_spans_record_batch(
     batch: &[ResourceSpans],
-    state: &BufferState,
-) -> Result<Option<RecordBatch>, Error> {
+) -> Result<Option<(RecordBatch, u64)>, Error> {
     let mut redactions_applied: u64 = 0;
     let mut trace_ids: Vec<Vec<u8>> = Vec::new();
     let mut span_ids: Vec<Vec<u8>> = Vec::new();
@@ -70,8 +69,6 @@ pub(crate) fn build_spans_record_batch(
         return Ok(None);
     }
 
-    state.record_redactions(redactions_applied);
-
     let trace_id_array = BinaryArray::from_iter_values(trace_ids.iter().map(|v| v.as_slice()));
     let span_id_array = BinaryArray::from_iter_values(span_ids.iter().map(|v| v.as_slice()));
     let ts_array = TimestampMicrosecondArray::from(tss).with_timezone(TS_TZ_UTC);
@@ -106,7 +103,7 @@ pub(crate) fn build_spans_record_batch(
         reason: format!("record_batch(spans): {}", short_err(&e.to_string())),
     })?;
 
-    Ok(Some(record_batch))
+    Ok(Some((record_batch, redactions_applied)))
 }
 
 /// Scrubs here rather than at the `spans.service_name` push site because this
@@ -144,7 +141,7 @@ pub(crate) fn extract_service_name(
 pub(crate) fn build_metrics_record_batch(
     batch: &[ResourceMetrics],
     state: &BufferState,
-) -> Result<Option<RecordBatch>, Error> {
+) -> Result<Option<(RecordBatch, u64)>, Error> {
     let mut redactions_applied: u64 = 0;
     let mut metric_names: Vec<String> = Vec::new();
     let mut tss: Vec<i64> = Vec::new();
@@ -181,7 +178,12 @@ pub(crate) fn build_metrics_record_batch(
         return Ok(None);
     }
 
-    state.record_redactions(redactions_applied);
+    // One reservation per batch keeps the per-point loop above atomic-free,
+    // matching the `log_records.seq` allocation.
+    let seq_base = state.reserve_metric_seq_block(metric_names.len() as u64);
+    let seqs: Vec<i64> = (0..metric_names.len())
+        .map(|i| (seq_base + i as u64) as i64)
+        .collect();
 
     let metric_name_array = StringArray::from(metric_names);
     let ts_array = TimestampMicrosecondArray::from(tss).with_timezone(TS_TZ_UTC);
@@ -190,6 +192,7 @@ pub(crate) fn build_metrics_record_batch(
         BinaryArray::from_iter_values(resource_hashes.iter().map(|v| v.as_slice()));
     let value_array = Float64Array::from(values);
     let kind_array = Int32Array::from(kinds);
+    let seq_array = Int64Array::from(seqs);
 
     let schema = Arc::new(Schema::new(vec![
         Field::new("metric_name", DataType::Utf8, false),
@@ -198,6 +201,7 @@ pub(crate) fn build_metrics_record_batch(
         Field::new("resource_hash", DataType::Binary, false),
         Field::new("value", DataType::Float64, false),
         Field::new("data_point_kind", DataType::Int32, false),
+        Field::new("seq", DataType::Int64, false),
     ]));
 
     let record_batch = RecordBatch::try_new(
@@ -209,6 +213,7 @@ pub(crate) fn build_metrics_record_batch(
             Arc::new(resource_hash_array),
             Arc::new(value_array),
             Arc::new(kind_array),
+            Arc::new(seq_array),
         ],
     )
     .map_err(|e| Error::Append {
@@ -218,14 +223,14 @@ pub(crate) fn build_metrics_record_batch(
         ),
     })?;
 
-    Ok(Some(record_batch))
+    Ok(Some((record_batch, redactions_applied)))
 }
 
 pub(crate) fn build_logs_record_batch(
     batch: &[ResourceLogs],
     drain_miner: Option<&DrainMiner>,
     state: &BufferState,
-) -> Result<Option<RecordBatch>, Error> {
+) -> Result<Option<(RecordBatch, u64)>, Error> {
     let mut redactions_applied: u64 = 0;
     let mut tss: Vec<i64> = Vec::new();
     let mut ts_unix_nanos: Vec<i64> = Vec::new();
@@ -269,8 +274,6 @@ pub(crate) fn build_logs_record_batch(
     if tss.is_empty() {
         return Ok(None);
     }
-
-    state.record_redactions(redactions_applied);
 
     // One reservation per batch keeps the per-record loop above atomic-free,
     // matching record_feed_counts / record_redactions.
@@ -328,7 +331,7 @@ pub(crate) fn build_logs_record_batch(
         reason: format!("record_batch(log_records): {}", short_err(&e.to_string())),
     })?;
 
-    Ok(Some(record_batch))
+    Ok(Some((record_batch, redactions_applied)))
 }
 
 fn extract_log_body(body: Option<&AnyValue>, redactions: &mut u64) -> String {
@@ -374,7 +377,7 @@ pub(crate) fn build_span_events_record_batch(
     batch: &[ResourceSpans],
     fingerprint_observer: Option<&dyn FingerprintObserver>,
     state: &BufferState,
-) -> Result<Option<RecordBatch>, Error> {
+) -> Result<Option<(RecordBatch, u64)>, Error> {
     let mut trace_ids: Vec<Vec<u8>> = Vec::new();
     let mut span_ids: Vec<Vec<u8>> = Vec::new();
     let mut event_indices: Vec<i32> = Vec::new();
@@ -465,7 +468,6 @@ pub(crate) fn build_span_events_record_batch(
     // Counted independently of `fingerprints_computed` on purpose: equality of
     // the two proves the fan-out actually ran, where a derived value would
     // merely assert it should have.
-    state.record_redactions(redactions_applied);
     state.record_feed_counts(
         span_events_seen,
         fingerprints_computed,
@@ -521,7 +523,7 @@ pub(crate) fn build_span_events_record_batch(
         reason: format!("record_batch(span_events): {}", short_err(&e.to_string())),
     })?;
 
-    Ok(Some(record_batch))
+    Ok(Some((record_batch, redactions_applied)))
 }
 
 fn extract_data_point_value(p: &NumberDataPoint) -> f64 {
@@ -563,7 +565,10 @@ pub(crate) fn append_record_batch_to_table(
 #[cfg(test)]
 pub(crate) fn append_spans_batch(conn: &Connection, batch: &[ResourceSpans]) -> Result<u64, Error> {
     let start = Instant::now();
-    let Some(record_batch) = build_spans_record_batch(batch, &BufferState::new())? else {
+    // The redaction tally is discarded here: these helpers own a throwaway
+    // BufferState, so there is no tick for it to reach. Production folds it at
+    // the append site in consumer::dispatch_batch.
+    let Some((record_batch, _redactions)) = build_spans_record_batch(batch)? else {
         return Ok(0);
     };
     let row_count = append_record_batch_to_table(conn, "spans", record_batch)?;
@@ -586,7 +591,8 @@ pub(crate) fn append_metrics_batch(
     batch: &[ResourceMetrics],
 ) -> Result<u64, Error> {
     let start = Instant::now();
-    let Some(record_batch) = build_metrics_record_batch(batch, &BufferState::new())? else {
+    let Some((record_batch, _redactions)) = build_metrics_record_batch(batch, &BufferState::new())?
+    else {
         return Ok(0);
     };
     let row_count = append_record_batch_to_table(conn, "metrics_points", record_batch)?;
@@ -609,7 +615,9 @@ pub(crate) fn append_logs_batch(conn: &Connection, batch: &[ResourceLogs]) -> Re
     // Test helper passes None for drain_miner; Drain integration tests live
     // in `crates/buffer/src/drain.rs::tests` + the Session 5 e2e integration
     // test at `pulse-app/tests/e2e_drain_template_assignment.rs`.
-    let Some(record_batch) = build_logs_record_batch(batch, None, &BufferState::new())? else {
+    let Some((record_batch, _redactions)) =
+        build_logs_record_batch(batch, None, &BufferState::new())?
+    else {
         return Ok(0);
     };
     let row_count = append_record_batch_to_table(conn, "log_records", record_batch)?;
@@ -633,7 +641,8 @@ pub(crate) fn append_span_events_batch(
 ) -> Result<u64, Error> {
     let start = Instant::now();
     let state = BufferState::new();
-    let Some(record_batch) = build_span_events_record_batch(batch, None, &state)? else {
+    let Some((record_batch, _redactions)) = build_span_events_record_batch(batch, None, &state)?
+    else {
         return Ok(0);
     };
     let row_count = append_record_batch_to_table(conn, "span_events", record_batch)?;
@@ -909,8 +918,8 @@ mod tests {
             vec![1u8; 8],
             1_700_000_000_000_000_000,
         )]);
-        let result = build_spans_record_batch(&batch, &BufferState::new()).expect("build");
-        let rb = result.expect("must be Some for valid input");
+        let result = build_spans_record_batch(&batch).expect("build");
+        let (rb, _) = result.expect("must be Some for valid input");
         assert_eq!(rb.num_rows(), 1);
         assert_eq!(rb.num_columns(), 7);
     }
@@ -971,7 +980,7 @@ mod tests {
 
     #[test]
     fn build_spans_record_batch_returns_none_for_empty_input() {
-        let result = build_spans_record_batch(&[], &BufferState::new()).expect("build");
+        let result = build_spans_record_batch(&[]).expect("build");
         assert!(result.is_none(), "empty input must return None");
     }
 
@@ -980,7 +989,7 @@ mod tests {
         let mut malformed = span_with_ids(vec![], vec![], 0);
         malformed.start_time_unix_nano = 1;
         let batch = wrap_spans(vec![malformed]);
-        let result = build_spans_record_batch(&batch, &BufferState::new()).expect("build");
+        let result = build_spans_record_batch(&batch).expect("build");
         assert!(result.is_none(), "all-malformed input must return None");
     }
 
@@ -990,6 +999,9 @@ mod tests {
     // (a legitimate value must survive byte-identical), because the recall half
     // alone would pass under a treatment that redacted everything.
     const PROVIDER_KEY_CANARY: &str = "sk_live_51NotARealKeyOnlyForPulseTests00"; // gitleaks:allow
+    // A DIFFERENT credential that redacts to the SAME category-only placeholder —
+    // the pair that collides on `metrics_points.metric_name`.
+    const PROVIDER_KEY_CANARY_TWO: &str = "sk_live_51AlsoNotARealKeyForPulseTests9"; // gitleaks:allow
 
     fn spans_with_service(service: &str) -> Vec<ResourceSpans> {
         let span = span_with_ids(vec![9u8; 16], vec![9u8; 8], 1_700_000_000_000_000_000);
@@ -1156,20 +1168,23 @@ mod tests {
         }
     }
 
-    // The `buffer-redaction-counter-unit-coverage` trigger: the fold arithmetic
-    // itself, that ALL FOUR builders contribute to one tally, and that the fold
-    // stays separate from `record_feed_counts`.
+    // The `buffer-redaction-counter-unit-coverage` trigger: the tally arithmetic
+    // itself, that ALL FOUR builders report one redaction each, and — since the
+    // fold moved to the append site — that building alone folds NOTHING into
+    // `state`. A builder that folded here would count cells no append ever
+    // persisted.
     #[test]
     fn redaction_counter_folds_once_per_batch_across_all_four_builders() {
         let state = BufferState::new();
         assert_eq!(state.snapshot().redactions_applied, 0);
 
-        build_spans_record_batch(&spans_with_service(PROVIDER_KEY_CANARY), &state)
-            .expect("spans build");
+        let (_, spans_redactions) =
+            build_spans_record_batch(&spans_with_service(PROVIDER_KEY_CANARY))
+                .expect("spans build")
+                .expect("non-empty spans batch");
         assert_eq!(
-            state.snapshot().redactions_applied,
-            1,
-            "spans builder must fold its service_name redaction"
+            spans_redactions, 1,
+            "spans builder must report its service_name redaction"
         );
 
         let events_span = span_with_events(
@@ -1182,9 +1197,11 @@ mod tests {
                 Vec::new(),
             )],
         );
-        build_span_events_record_batch(&wrap_spans(vec![events_span]), None, &state)
-            .expect("span_events build");
-        assert_eq!(state.snapshot().redactions_applied, 2);
+        let (_, events_redactions) =
+            build_span_events_record_batch(&wrap_spans(vec![events_span]), None, &state)
+                .expect("span_events build")
+                .expect("non-empty span_events batch");
+        assert_eq!(events_redactions, 1);
 
         let metrics = vec![ResourceMetrics {
             resource: Some(make_resource("svc-a")),
@@ -1210,8 +1227,10 @@ mod tests {
             }],
             schema_url: String::new(),
         }];
-        build_metrics_record_batch(&metrics, &state).expect("metrics build");
-        assert_eq!(state.snapshot().redactions_applied, 3);
+        let (_, metrics_redactions) = build_metrics_record_batch(&metrics, &state)
+            .expect("metrics build")
+            .expect("non-empty metrics batch");
+        assert_eq!(metrics_redactions, 1);
 
         let logs = vec![ResourceLogs {
             resource: Some(make_resource("svc-b")),
@@ -1234,25 +1253,35 @@ mod tests {
             }],
             schema_url: String::new(),
         }];
-        build_logs_record_batch(&logs, None, &state).expect("logs build");
+        let (_, logs_redactions) = build_logs_record_batch(&logs, None, &state)
+            .expect("logs build")
+            .expect("non-empty logs batch");
+        assert_eq!(logs_redactions, 1);
+
         assert_eq!(
-            state.snapshot().redactions_applied,
+            spans_redactions + events_redactions + metrics_redactions + logs_redactions,
             4,
-            "all four builders must fold into the same tally"
+            "all four builders must contribute to one tally"
         );
 
-        // The fold is deliberately separate from record_feed_counts.
+        // Nothing was appended, so nothing may have been counted. This is the
+        // persisted-cells-only rule: the fold belongs at the append site.
         let snap = state.snapshot();
+        assert_eq!(
+            snap.redactions_applied, 0,
+            "building alone must fold nothing into state"
+        );
+        // The tally is deliberately separate from record_feed_counts.
         assert_eq!(snap.span_events_seen, 1);
         assert_eq!(snap.rows_ingested, 0);
     }
 
     #[test]
     fn clean_batch_leaves_the_redaction_counter_at_zero() {
-        let state = BufferState::new();
-        build_spans_record_batch(&spans_with_service("checkout-service"), &state)
-            .expect("spans build");
-        assert_eq!(state.snapshot().redactions_applied, 0);
+        let (_, redactions) = build_spans_record_batch(&spans_with_service("checkout-service"))
+            .expect("spans build")
+            .expect("non-empty spans batch");
+        assert_eq!(redactions, 0);
     }
 
     fn make_resource(service: &str) -> Resource {
@@ -1407,6 +1436,158 @@ mod tests {
         );
     }
 
+    fn gauge_point(ts: u64, value: i64, label: Option<(&str, &str)>) -> NumberDataPoint {
+        NumberDataPoint {
+            attributes: label
+                .map(|(k, v)| {
+                    vec![KeyValue {
+                        key: k.into(),
+                        value: Some(AnyValue {
+                            value: Some(any_value::Value::StringValue(v.into())),
+                        }),
+                    }]
+                })
+                .unwrap_or_default(),
+            start_time_unix_nano: 0,
+            time_unix_nano: ts,
+            exemplars: Vec::new(),
+            flags: 0,
+            value: Some(number_data_point::Value::AsInt(value)),
+        }
+    }
+
+    fn gauge_metric(name: &str, data_points: Vec<NumberDataPoint>) -> Metric {
+        Metric {
+            name: name.into(),
+            description: String::new(),
+            unit: String::new(),
+            metadata: Vec::new(),
+            data: Some(metric::Data::Gauge(Gauge { data_points })),
+        }
+    }
+
+    fn append_metrics_on_worker(metrics: Vec<Metric>) -> (Result<u64, String>, Vec<(String, f64)>) {
+        let (tx, rx) = std::sync::mpsc::channel();
+        std::thread::spawn(move || {
+            let conn = fresh_conn_with_schema();
+            let batch = vec![ResourceMetrics {
+                resource: Some(make_resource("svc-collide")),
+                scope_metrics: vec![ScopeMetrics {
+                    scope: None,
+                    metrics,
+                    schema_url: String::new(),
+                }],
+                schema_url: String::new(),
+            }];
+
+            let appended = append_metrics_batch(&conn, &batch).map_err(|e| e.to_string());
+            let rows: Vec<(String, f64)> = conn
+                .prepare("SELECT metric_name, value FROM metrics_points ORDER BY value")
+                .and_then(|mut stmt| {
+                    stmt.query_map([], |row| {
+                        Ok((row.get::<_, String>(0)?, row.get::<_, f64>(1)?))
+                    })
+                    .map(|rows| rows.filter_map(Result::ok).collect())
+                })
+                .unwrap_or_default();
+            let _ = tx.send((appended, rows));
+        });
+
+        rx.recv_timeout(std::time::Duration::from_secs(30))
+            .expect("append must complete, not hang")
+    }
+
+    // Collision source (1): `metrics_points` stores no attributes column, so two
+    // points of one metric differing only by label set are identical on every
+    // OTLP-native key column. Worker thread + timeout for the same reason as the
+    // log-record pair above.
+    #[test]
+    fn append_metrics_batch_same_tick_label_differing_points_keep_both() {
+        const TS: u64 = 1_700_000_000_000_000_000;
+        let (appended, rows) = append_metrics_on_worker(vec![gauge_metric(
+            "http.server.duration",
+            vec![
+                gauge_point(TS, 11, Some(("http.route", "/alpha"))),
+                gauge_point(TS, 22, Some(("http.route", "/bravo"))),
+            ],
+        )]);
+
+        assert!(
+            appended.is_ok(),
+            "a label-differing pair must not fail the batch: {appended:?}"
+        );
+        assert_eq!(
+            rows,
+            vec![
+                ("http.server.duration".to_string(), 11.0),
+                ("http.server.duration".to_string(), 22.0),
+            ],
+            "both label-differing points must survive ingestion"
+        );
+    }
+
+    // Collision source (2), added by the ingestion scrub: two DISTINCT
+    // credential-shaped names redact to the same category-only placeholder, so
+    // they collide on `metric_name` at one tick from one resource.
+    #[test]
+    fn append_metrics_batch_distinct_names_redacting_alike_keep_both() {
+        const TS: u64 = 1_700_000_000_000_000_000;
+        let (appended, rows) = append_metrics_on_worker(vec![
+            gauge_metric(PROVIDER_KEY_CANARY, vec![gauge_point(TS, 33, None)]),
+            gauge_metric(PROVIDER_KEY_CANARY_TWO, vec![gauge_point(TS, 44, None)]),
+        ]);
+
+        assert!(
+            appended.is_ok(),
+            "two names redacting alike must not fail the batch: {appended:?}"
+        );
+        let values: Vec<f64> = rows.iter().map(|(_, v)| *v).collect();
+        assert_eq!(
+            values,
+            vec![33.0, 44.0],
+            "both points must survive even though their names redact identically"
+        );
+        for (name, _) in &rows {
+            assert_ne!(
+                name, PROVIDER_KEY_CANARY,
+                "raw credential must not be stored"
+            );
+            assert_ne!(
+                name, PROVIDER_KEY_CANARY_TWO,
+                "raw credential must not be stored"
+            );
+            assert!(
+                name.starts_with("[REDACTED:"),
+                "credential-shaped name must be redacted; got {name}"
+            );
+        }
+    }
+
+    // The control: a distinct clean name in the same batch as a colliding pair
+    // must land too. Pre-fix the rejection was WHOLE-BATCH, so this row died
+    // alongside the collision.
+    #[test]
+    fn append_metrics_batch_control_point_survives_alongside_a_collision() {
+        const TS: u64 = 1_700_000_000_000_000_000;
+        let (appended, rows) = append_metrics_on_worker(vec![
+            gauge_metric(
+                "http.server.duration",
+                vec![
+                    gauge_point(TS, 11, Some(("http.route", "/alpha"))),
+                    gauge_point(TS, 22, Some(("http.route", "/bravo"))),
+                ],
+            ),
+            gauge_metric("control.total", vec![gauge_point(TS, 55, None)]),
+        ]);
+
+        assert!(appended.is_ok(), "batch must be accepted: {appended:?}");
+        assert_eq!(rows.len(), 3, "colliding pair AND control must all land");
+        assert!(
+            rows.iter().any(|(n, v)| n == "control.total" && *v == 55.0),
+            "the non-colliding control must survive; got {rows:?}"
+        );
+    }
+
     #[test]
     fn build_metrics_record_batch_extracts_value_and_kind() {
         let conn = fresh_conn_with_schema();
@@ -1557,7 +1738,7 @@ mod tests {
             schema_url: String::new(),
         }];
 
-        let record_batch = build_logs_record_batch(&batch, Some(&miner), &BufferState::new())
+        let (record_batch, _) = build_logs_record_batch(&batch, Some(&miner), &BufferState::new())
             .expect("build batch ok")
             .expect("non-empty batch");
         append_record_batch_to_table(&conn, "log_records", record_batch).expect("append rows");
@@ -2169,7 +2350,7 @@ mod tests {
             )],
         );
         let batch = wrap_spans(vec![span]);
-        let record_batch = build_span_events_record_batch(&batch, None, &BufferState::new())
+        let (record_batch, _) = build_span_events_record_batch(&batch, None, &BufferState::new())
             .expect("build")
             .expect("non-empty batch yields record_batch");
 

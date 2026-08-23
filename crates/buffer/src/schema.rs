@@ -74,7 +74,8 @@ CREATE TABLE IF NOT EXISTS metrics_points (
     resource_hash BLOB NOT NULL,
     value DOUBLE NOT NULL DEFAULT 0.0,
     data_point_kind INTEGER NOT NULL DEFAULT 0,
-    PRIMARY KEY (metric_name, ts_unix_nano, resource_hash)
+    seq BIGINT NOT NULL,
+    PRIMARY KEY (metric_name, ts_unix_nano, resource_hash, seq)
 );";
 
 #[allow(dead_code)]
@@ -171,7 +172,8 @@ const SCHEMA_DDL: &str = concat!(
     resource_hash BLOB NOT NULL,
     value DOUBLE NOT NULL DEFAULT 0.0,
     data_point_kind INTEGER NOT NULL DEFAULT 0,
-    PRIMARY KEY (metric_name, ts_unix_nano, resource_hash)
+    seq BIGINT NOT NULL,
+    PRIMARY KEY (metric_name, ts_unix_nano, resource_hash, seq)
 );",
     "CREATE TABLE IF NOT EXISTS log_records (
     ts TIMESTAMPTZ NOT NULL,
@@ -386,6 +388,46 @@ mod tests {
             assert!(
                 names.contains(&expected),
                 "{expected} must be part of log_records primary key; got {names:?}"
+            );
+        }
+    }
+
+    // Schema-introspection for the same reason as the two above (the
+    // duplicate-INSERT probe hangs on this build); the behavioural pair is
+    // appender::tests::append_metrics_batch_*_keeps_both_points. `metrics_points`
+    // stores no attributes column, so two points of one metric differing only by
+    // label set are identical on every OTLP-native column — `seq` carries the
+    // identity they cannot.
+    #[test]
+    fn metrics_points_primary_key_includes_seq_ordinal() {
+        let conn = open_in_memory();
+        create_schema(&conn).expect("schema create must succeed");
+
+        let mut stmt = conn
+            .prepare(
+                "SELECT column_name, ordinal_position FROM information_schema.key_column_usage \
+                 WHERE table_schema = 'main' AND table_name = 'metrics_points' \
+                 ORDER BY ordinal_position",
+            )
+            .expect("prepare must succeed");
+        let rows: Vec<(String, i64)> = stmt
+            .query_map([], |row| {
+                Ok((row.get::<_, String>(0)?, row.get::<_, i64>(1)?))
+            })
+            .expect("query_map must succeed")
+            .map(|r| r.expect("row must read"))
+            .collect();
+
+        assert_eq!(
+            rows.len(),
+            4,
+            "metrics_points primary key must have exactly 4 columns; got {rows:?}"
+        );
+        let names: Vec<&str> = rows.iter().map(|(n, _)| n.as_str()).collect();
+        for expected in ["metric_name", "ts_unix_nano", "resource_hash", "seq"] {
+            assert!(
+                names.contains(&expected),
+                "{expected} must be part of metrics_points primary key; got {names:?}"
             );
         }
     }
