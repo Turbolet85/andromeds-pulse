@@ -94,9 +94,28 @@ export async function installTauriIpcMock(
         currentWebview: { label },
         currentWindow: { label },
       },
+      // A canned response may instead describe HOW to settle, so a spec can
+      // audit a rejected or still-in-flight state (p14): `__mockReject` rejects
+      // with that message; `__mockDelayMs` resolves the remaining fields after
+      // that delay. Plain values keep resolving immediately as before.
+      settle: (value: unknown): Promise<unknown> => {
+        if (value !== null && typeof value === "object") {
+          const spec = value as Record<string, unknown>;
+          if (typeof spec.__mockReject === "string") {
+            return Promise.reject(new Error(spec.__mockReject));
+          }
+          if (typeof spec.__mockDelayMs === "number") {
+            const { __mockDelayMs: delayMs, ...payload } = spec;
+            return new Promise((resolve) => {
+              setTimeout(() => resolve(payload), delayMs as number);
+            });
+          }
+        }
+        return Promise.resolve(value);
+      },
       invoke: (cmd: string, args?: { handler?: number }) => {
         if (cmd in responses) {
-          return Promise.resolve(responses[cmd]);
+          return internals.settle(responses[cmd]);
         }
         // taurpc 0.7 runtime invokes procedures as `TauRPC__<router.path>`
         // (chunk #99 probe finding — the `plugin:taurpc|` form assumed at
@@ -108,7 +127,7 @@ export async function installTauriIpcMock(
         if (taurpcMatch) {
           const proc = taurpcMatch[1];
           if (proc in responses) {
-            return Promise.resolve(responses[proc]);
+            return internals.settle(responses[proc]);
           }
         }
         // Tauri event plugin: subscriptions resolve with the handler id so

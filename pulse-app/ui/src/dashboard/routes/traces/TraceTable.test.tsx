@@ -2,7 +2,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import type { TraceRow } from "../../../bindings";
-import { InvestigationProvider } from "../../../hooks/use-investigation";
+import { InvestigationProvider, useInvestigation } from "../../../hooks/use-investigation";
 import { StatusLiveRegionProvider } from "../../StatusLiveRegion";
 import { TraceTable } from "./TraceTable";
 
@@ -35,6 +35,19 @@ function treeFor(rows: TraceRow[], isLoading = false) {
 
 function renderWithProvider(rows: TraceRow[], isLoading = false) {
   return render(treeFor(rows, isLoading));
+}
+
+function InvestigationProbe() {
+  const { open } = useInvestigation();
+  return <span data-testid="investigation-open">{open ? "open" : "closed"}</span>;
+}
+
+function threeRows(): TraceRow[] {
+  return [
+    row({ trace_id: "aa" }),
+    row({ trace_id: "bb", span_id: "02" }),
+    row({ trace_id: "cc", span_id: "03" }),
+  ];
 }
 
 describe("TraceTable", () => {
@@ -250,5 +263,121 @@ describe("TraceTable", () => {
     );
     expect(warned).toBe(false);
     errorSpy.mockRestore();
+  });
+
+  it("makes the active row the table body's only tab stop (roving tabindex, never > 0)", () => {
+    const { container } = renderWithProvider(threeRows());
+    const traceRows = screen.getAllByTestId("trace-row");
+    expect(traceRows[0].getAttribute("tabindex")).toBe("0");
+    expect(traceRows[1].getAttribute("tabindex")).toBe("-1");
+    expect(traceRows[2].getAttribute("tabindex")).toBe("-1");
+
+    // The in-row Investigate button must not be a second tab stop nested
+    // inside the focusable row (a11y-plan §11).
+    for (const button of screen.getAllByTestId("trace-row-investigate")) {
+      expect(button.getAttribute("tabindex")).toBe("-1");
+    }
+
+    const withTabIndex = Array.from(container.querySelectorAll("[tabindex]"));
+    expect(withTabIndex.length).toBeGreaterThan(0);
+    for (const element of withTabIndex) {
+      expect(Number(element.getAttribute("tabindex"))).toBeLessThanOrEqual(0);
+    }
+  });
+
+  it("moves focus between rows with ArrowDown / ArrowUp", async () => {
+    const user = userEvent.setup();
+    renderWithProvider(threeRows());
+    const traceRows = screen.getAllByTestId("trace-row");
+    traceRows[0].focus();
+    expect(document.activeElement).toBe(traceRows[0]);
+
+    await user.keyboard("{ArrowDown}");
+    expect(document.activeElement).toBe(traceRows[1]);
+    expect(traceRows[1].getAttribute("tabindex")).toBe("0");
+    expect(traceRows[0].getAttribute("tabindex")).toBe("-1");
+
+    await user.keyboard("{ArrowUp}");
+    expect(document.activeElement).toBe(traceRows[0]);
+    expect(traceRows[0].getAttribute("tabindex")).toBe("0");
+  });
+
+  it("does not move past the ends with ArrowUp on the first / ArrowDown on the last row", async () => {
+    const user = userEvent.setup();
+    renderWithProvider(threeRows());
+    const traceRows = screen.getAllByTestId("trace-row");
+    traceRows[0].focus();
+
+    await user.keyboard("{ArrowUp}");
+    expect(document.activeElement).toBe(traceRows[0]);
+
+    await user.keyboard("{End}");
+    expect(document.activeElement).toBe(traceRows[2]);
+    await user.keyboard("{ArrowDown}");
+    expect(document.activeElement).toBe(traceRows[2]);
+  });
+
+  it("jumps to the first / last row with Home / End", async () => {
+    const user = userEvent.setup();
+    renderWithProvider(threeRows());
+    const traceRows = screen.getAllByTestId("trace-row");
+    traceRows[0].focus();
+
+    await user.keyboard("{End}");
+    expect(document.activeElement).toBe(traceRows[2]);
+
+    await user.keyboard("{Home}");
+    expect(document.activeElement).toBe(traceRows[0]);
+  });
+
+  it("opens the investigation with Enter on the focused row", async () => {
+    const user = userEvent.setup();
+    render(
+      <StatusLiveRegionProvider>
+        <InvestigationProvider>
+          <TraceTable rows={[row({ trace_id: "aa" })]} isLoading={false} />
+          <InvestigationProbe />
+        </InvestigationProvider>
+      </StatusLiveRegionProvider>,
+    );
+    expect(screen.getByTestId("investigation-open").textContent).toBe("closed");
+
+    screen.getAllByTestId("trace-row")[0].focus();
+    await user.keyboard("{Enter}");
+    expect(screen.getByTestId("investigation-open").textContent).toBe("open");
+  });
+
+  it("returns focus to the Errors-only toggle on Escape", async () => {
+    const user = userEvent.setup();
+    renderWithProvider(threeRows());
+    screen.getAllByTestId("trace-row")[0].focus();
+
+    await user.keyboard("{Escape}");
+    expect(document.activeElement).toBe(screen.getByTestId("trace-errors-only-filter"));
+  });
+
+  it("keeps the focused row focused across a rows update (P-081)", () => {
+    const base = threeRows();
+    const { rerender } = render(treeFor(base.slice(0, 2)));
+    const traceRows = screen.getAllByTestId("trace-row");
+    traceRows[1].focus();
+    expect(document.activeElement).toBe(traceRows[1]);
+
+    rerender(treeFor(base));
+    expect(document.activeElement).toBe(traceRows[1]);
+  });
+
+  it("clamps the active row when a refresh shrinks the result set", async () => {
+    const user = userEvent.setup();
+    const base = threeRows();
+    const { rerender } = render(treeFor(base));
+    screen.getAllByTestId("trace-row")[0].focus();
+    await user.keyboard("{End}");
+    expect(screen.getAllByTestId("trace-row")[2].getAttribute("tabindex")).toBe("0");
+
+    rerender(treeFor(base.slice(0, 1)));
+    const remaining = screen.getAllByTestId("trace-row");
+    expect(remaining).toHaveLength(1);
+    expect(remaining[0].getAttribute("tabindex")).toBe("0");
   });
 });

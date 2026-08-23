@@ -8,11 +8,14 @@
 // machinery (three-surface coherence per layout-templates.md §IA notes).
 //
 // The <canvas> is opaque to screen readers (a11y-plan §1), so the wrapper
-// <section> carries a complete-sentence accessible name (count + per-state
-// breakdown + active-findings count) — the not-color-alone (SC 1.4.1) text
-// equivalent for the color/brightness dots.
+// <section> is the landmark: a STABLE accessible name plus an aria-describedby
+// pointing at the live state summary (count + per-state breakdown +
+// active-findings count) — the not-color-alone (SC 1.4.1) text equivalent for
+// the color/brightness dots. The summary is a description, not the name,
+// because a landmark whose name changes with the data churns the screen-reader
+// landmark list on every poll.
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { type CSSProperties, useEffect, useMemo, useRef, useState } from "react";
 import { createFrameLoop } from "../../../canvas/frame-loop";
 import { Fallback } from "../../../canvas/Fallback";
 import {
@@ -49,6 +52,20 @@ const UNIFORM_BUFFER_USAGE = 0x40 | 0x08;
 const DOT_RADIUS_NORM = 0.14;
 // Gentle shared breathing period (ms); within the design-system quiet band.
 const BREATHING_PERIOD_MS = 3500;
+const SUMMARY_ID = "constellation-summary";
+// No visually-hidden utility exists in this codebase; the summary must stay in
+// the accessibility tree while the canvas carries the visual signal.
+const VISUALLY_HIDDEN: CSSProperties = {
+  position: "absolute",
+  width: "1px",
+  height: "1px",
+  margin: "-1px",
+  padding: 0,
+  overflow: "hidden",
+  clipPath: "inset(50%)",
+  whiteSpace: "nowrap",
+  border: 0,
+};
 
 function readDesignToken(name: string, fallback: string): string {
   if (typeof document === "undefined") return fallback;
@@ -227,7 +244,11 @@ export function ConstellationCanvas({ items }: ConstellationCanvasProps) {
 
   return (
     <section
-      aria-label={summary}
+      // A landmark's accessible name must be STABLE — a name that changed with
+      // the data reshuffled the screen-reader landmark list on every poll. The
+      // live state summary moves to a description instead (a11y-plan §7).
+      aria-label="Telemetry traces chart"
+      aria-describedby={SUMMARY_ID}
       data-testid="constellation-canvas"
       data-service-count={dots.length}
       style={{
@@ -241,6 +262,9 @@ export function ConstellationCanvas({ items }: ConstellationCanvasProps) {
         boxSizing: "border-box",
       }}
     >
+      <p id={SUMMARY_ID} style={VISUALLY_HIDDEN} data-testid="constellation-summary">
+        {summary}
+      </p>
       {showFallback ? (
         <Fallback />
       ) : (

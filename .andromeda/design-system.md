@@ -37,7 +37,7 @@
 | Secondary | #2C3E7F | Supporting actions, secondary navigation, panel backgrounds | Stellar Indigo — deep indigo of the night sky at twilight, after nautical darkness sets but before full astronomical darkness; used for secondary surfaces (panel backgrounds, borders) to maintain hierarchy without introducing a fourth hue. |
 | Accent | #C7556A | Alerts, error states, anomaly indicators, emphasis | Alert Burgundy — lunar anorthite mineral crystalline pattern in Artemis Mission Control carpeting (burgundy veins in gray basalt); also the standard anomaly-state hue in NASA's color-coded alert taxonomy; error and outlier indicator. |
 
-**Accent usage (non-text token):** Accent (#C7556A) is classified as a non-text token — input borders, error icons, alert badges, divider emphasis. Contrast on Base #1A1D24 is ≈3.8:1: clears WCAG SC 1.4.11 (non-text, 3:1) and SC 1.4.3 large-text, but is below SC 1.4.3 normal-text (4.5:1). For body-size error message text (≤14px regular), use `--color-text-primary` with an accent border + icon for state conveyance (never color alone — SC 1.4.1). The "Error state" component patterns below currently retain #C7556A for the text role; migrating message text to `--color-text-primary` is pending the error-UI chunk.
+**Accent usage (non-text token):** Accent (#C7556A) is classified as a non-text token — input borders, error icons, alert badges, divider emphasis. Contrast on Base #1A1D24 is ≈3.8:1: clears WCAG SC 1.4.11 (non-text, 3:1) and SC 1.4.3 large-text, but is below SC 1.4.3 normal-text (4.5:1). For body-size error message text (≤14px regular), use `--color-text-primary` with an accent border + icon for state conveyance (never color alone — SC 1.4.1). **The migration is COMPLETE as of 2026-08-23-a11y-verification** (measured, not planned): the shipped error surfaces render `var(--color-text-primary)` with the accent carried as a border only — `InvestigationModalForm.tsx:280` and `:381`. The 2026-05-03 deferral to "the error-UI chunk" is retired; accent is now non-text-only in fact as well as in policy.
 
 ### Surface Scale (elevation hierarchy)
 
@@ -64,7 +64,7 @@
 |-------|------------|--------|------|
 | Success | #0F1117 | #17B3A3 | #17B3A3 |
 | Warning | #1A1D24 | #C7556A | #E8EEF7 |
-| Error | #1A1D24 | #C7556A | #C7556A |
+| Error | #1A1D24 | #C7556A | #E8EEF7 |
 | Info | #1A1D24 | #4A90E2 | #4A90E2 |
 
 Feedback Cyan (#17B3A3) is used for Success — teal-cyan of emergency lighting in advanced spacecraft cabins (ISS module accent lighting); used sparingly for confirmation states and non-critical feedback (form validation success, investigative actions completed).
@@ -236,7 +236,7 @@ These glyphs are built into the token system and referenced as `<Icon glyph="tel
 **Input Fields / Form Controls:**
 - Background: #0F1117 (Inset), 1px border rgba(74, 144, 226, 0.3) (subtle).
 - Focused: 1px border #4A90E2 (emphasis) + 3px outset box-shadow (0 0 0 3px rgba(74, 144, 226, 0.2)).
-- Error state: border 1px rgba(199, 85, 106, 0.5) (Alert Burgundy), error text color #C7556A below the input.
+- Error state: border 1px rgba(199, 85, 106, 0.5) (Alert Burgundy), message text `var(--color-text-primary)` (#E8EEF7) below the input — the accent is carried as border/icon only and is never the body-size error text color (SC 1.4.3 normal-text; measured shipped 2026-08-23).
 - Placeholder text: color #56606E (Muted), font-style italic.
 - Padding: space-sm (8px) horizontal, space-xs (4px) vertical (14px font).
 

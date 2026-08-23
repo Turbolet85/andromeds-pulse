@@ -58,22 +58,30 @@ function item(
 const ITEMS: ServiceListItem[] = [item("svc-a", "active", "autonomous"), item("svc-b", "quiet")];
 
 describe("ConstellationCanvas (dashboard)", () => {
-  it("renders a <section> region (implicit role) with the summary as accessible name", async () => {
+  it("renders a <section> region (implicit role) under the STABLE landmark name", async () => {
     render(<ConstellationCanvas items={ITEMS} />);
-    const wrapper = await screen.findByRole("region", {
-      name: /Service constellation: 2 services/,
-    });
+    // a11y-plan §7 names this landmark literally. The name must NOT vary with
+    // the data — a mutating landmark name churns the screen-reader rotor.
+    const wrapper = await screen.findByRole("region", { name: "Telemetry traces chart" });
     expect(wrapper.tagName).toBe("SECTION");
     expect(wrapper.hasAttribute("role")).toBe(false);
+    expect(wrapper.getAttribute("aria-label")).toBe("Telemetry traces chart");
   });
 
-  it("conveys per-state counts + active findings in the accessible name (not color-alone)", () => {
+  it("conveys per-state counts + active findings via the description (not color-alone)", () => {
     render(<ConstellationCanvas items={ITEMS} />);
     const wrapper = screen.getByTestId("constellation-canvas");
-    const label = wrapper.getAttribute("aria-label") ?? "";
-    expect(label).toContain("1 active");
-    expect(label).toContain("1 quiet");
-    expect(label).toContain("1 with active findings");
+    // The live summary survives the stable-name change — it moved from the
+    // name to an aria-describedby target, so the information is still exposed.
+    const describedBy = wrapper.getAttribute("aria-describedby") ?? "";
+    expect(describedBy).not.toBe("");
+    const summary = document.getElementById(describedBy);
+    expect(summary).not.toBeNull();
+    const text = summary?.textContent ?? "";
+    expect(text).toContain("Service constellation: 2 services");
+    expect(text).toContain("1 active");
+    expect(text).toContain("1 quiet");
+    expect(text).toContain("1 with active findings");
   });
 
   it("labels each visible dot with its service name and a non-color severity token (P-069)", () => {
@@ -104,8 +112,11 @@ describe("ConstellationCanvas (dashboard)", () => {
       item("svc-b", "quiet", null, nowNano() - STALE_OFFSET_NANOS),
     ];
     render(<ConstellationCanvas items={stale} />);
-    const wrapper = await screen.findByRole("region", { name: /no active services/ });
+    const wrapper = await screen.findByRole("region", { name: "Telemetry traces chart" });
     expect(wrapper.getAttribute("data-service-count")).toBe("0");
+    expect(screen.getByTestId("constellation-summary").textContent).toContain(
+      "no active services",
+    );
   });
 
   it("ages out a service that goes quiet past the live window (now recomputed each render)", () => {
@@ -123,7 +134,9 @@ describe("ConstellationCanvas (dashboard)", () => {
       rerender(<ConstellationCanvas items={items} />);
 
       expect(wrapper.getAttribute("data-service-count")).toBe("0");
-      expect(wrapper.getAttribute("aria-label")).toContain("no active services");
+      expect(screen.getByTestId("constellation-summary").textContent).toContain(
+        "no active services",
+      );
     } finally {
       vi.useRealTimers();
     }
@@ -144,8 +157,11 @@ describe("ConstellationCanvas (dashboard)", () => {
 
   it("handles empty items without crashing", async () => {
     render(<ConstellationCanvas items={[]} />);
-    const wrapper = await screen.findByRole("region", { name: /no active services/ });
+    const wrapper = await screen.findByRole("region", { name: "Telemetry traces chart" });
     expect(wrapper.getAttribute("data-service-count")).toBe("0");
+    expect(screen.getByTestId("constellation-summary").textContent).toContain(
+      "no active services",
+    );
   });
 
   it("keeps an always-on label for every dot after collision-avoidance (P-069)", () => {

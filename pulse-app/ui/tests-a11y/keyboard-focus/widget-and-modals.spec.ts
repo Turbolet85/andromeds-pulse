@@ -105,4 +105,66 @@ test.describe("Keyboard + focus — compact widget and modals", () => {
     await page.keyboard.press("Escape");
     await expect(dialog).toBeHidden();
   });
+
+  // Trace-list row traversal (a11y-plan §5 full-dashboard-traces). Asserted by
+  // REAL keypresses in Chromium — the affordance is a keyboard interaction, so
+  // calling the handler directly would not prove it.
+  test("traces — row traversal moves focus by real keypresses, with Escape exiting the list", async ({
+    page,
+  }) => {
+    await installTauriIpcMock(page, { ...v02WidgetOverrides, ...tracesRowsOverride() }, "main");
+    await page.goto("/traces");
+    const rows = page.getByTestId("trace-row");
+    await rows.first().waitFor({ state: "visible" });
+    expect(await rows.count(), "the traversal needs more than one row to be meaningful").toBeGreaterThan(1);
+
+    // The active row is the body's single tab stop; the rest are -1.
+    await expect(rows.nth(0)).toHaveAttribute("tabindex", "0");
+    await expect(rows.nth(1)).toHaveAttribute("tabindex", "-1");
+
+    await rows.nth(0).focus();
+    await page.keyboard.press("ArrowDown");
+    await expect(rows.nth(1)).toBeFocused();
+    await expect(rows.nth(1)).toHaveAttribute("tabindex", "0");
+
+    await page.keyboard.press("ArrowUp");
+    await expect(rows.nth(0)).toBeFocused();
+
+    await page.keyboard.press("End");
+    await expect(rows.last()).toBeFocused();
+    await page.keyboard.press("Home");
+    await expect(rows.nth(0)).toBeFocused();
+
+    // The focused row must show the token ring (SC 2.4.7).
+    const ring = await rows.nth(0).evaluate((el) => {
+      const cs = window.getComputedStyle(el);
+      return (cs.outlineStyle !== "none" && cs.outlineWidth !== "0px") || cs.boxShadow !== "none";
+    });
+    expect(ring, "a keyboard-focused trace row must show a visible focus indicator").toBe(true);
+
+    await page.keyboard.press("Escape");
+    await expect(page.getByTestId("trace-errors-only-filter")).toBeFocused();
+  });
 });
+
+function tracesRowsOverride(): Record<string, unknown> {
+  const row = (traceId: string, spanId: string, errorCount: number) => ({
+    trace_id: traceId,
+    span_id: spanId,
+    ts_unix_nano: 1_700_000_000_000,
+    service: "checkout-api",
+    duration_ms: 12,
+    error_count: errorCount,
+  });
+  return {
+    "traces.query": {
+      items: [
+        row("aaaaaaaaaaaaaaaa", "0000000000000001", 0),
+        row("bbbbbbbbbbbbbbbb", "0000000000000002", 0),
+        row("cccccccccccccccc", "0000000000000003", 0),
+      ],
+      total: 3,
+      next_cursor: null,
+    },
+  };
+}
