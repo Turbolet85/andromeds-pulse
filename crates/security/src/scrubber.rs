@@ -182,6 +182,43 @@ mod tests {
         );
     }
 
+    #[rstest]
+    // Key / predicate columns routed through the scrubber by the ingestion
+    // scrub-coverage chunk. These are IDENTITIES, not free text: a false
+    // positive here does not merely over-redact one cell, it forks a service
+    // or metric into two identities across every GROUP BY, and on
+    // `metrics_points.metric_name` it can collide the primary key.
+    #[case("checkout-service")]
+    #[case("payment-api")]
+    #[case("api-gateway")]
+    #[case("auth-service-v2")]
+    #[case("svc.orders.worker-03")]
+    // `span_events.name` — the literal that gates Q3_EXCEPTION_FINGERPRINTS.
+    #[case("exception")]
+    #[case("http.server.request")]
+    // `metrics_points.metric_name` — PK member.
+    #[case("requests.total")]
+    #[case("http.server.duration")]
+    #[case("process.runtime.jvm.memory.used")]
+    // `log_records.severity_text` — the standard level vocabulary.
+    #[case("TRACE")]
+    #[case("DEBUG")]
+    #[case("INFO")]
+    #[case("WARN")]
+    #[case("ERROR")]
+    #[case("FATAL")]
+    fn scrubber_preserves_key_and_predicate_column_identities(#[case] input: &str) {
+        let result = scrub_attribute(input);
+        assert!(
+            !result.is_redacted(),
+            "identity column value was redacted — this forks one identity into two: {input:?}"
+        );
+        match result {
+            ScrubbedValue::Allowed(s) => assert_eq!(s, input, "identity value was altered"),
+            ScrubbedValue::Redacted { .. } => unreachable!("asserted not redacted above"),
+        }
+    }
+
     #[test]
     fn scrubbed_value_is_redacted_returns_true_for_redacted_variant() {
         let v = ScrubbedValue::Redacted { category: "email" };

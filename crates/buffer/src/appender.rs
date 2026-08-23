@@ -32,7 +32,9 @@ fn timestamp_tz_type() -> DataType {
 
 pub(crate) fn build_spans_record_batch(
     batch: &[ResourceSpans],
+    state: &BufferState,
 ) -> Result<Option<RecordBatch>, Error> {
+    let mut redactions_applied: u64 = 0;
     let mut trace_ids: Vec<Vec<u8>> = Vec::new();
     let mut span_ids: Vec<Vec<u8>> = Vec::new();
     let mut tss: Vec<i64> = Vec::new();
@@ -42,7 +44,8 @@ pub(crate) fn build_spans_record_batch(
     let mut status_codes: Vec<i32> = Vec::new();
 
     for rs in batch {
-        let service_name = extract_service_name(rs.resource.as_ref());
+        let service_name =
+            extract_service_name(rs.resource.as_ref(), Some(&mut redactions_applied));
         for ss in &rs.scope_spans {
             for span in &ss.spans {
                 if span.trace_id.is_empty() || span.span_id.is_empty() {
@@ -66,6 +69,8 @@ pub(crate) fn build_spans_record_batch(
     if trace_ids.is_empty() {
         return Ok(None);
     }
+
+    state.record_redactions(redactions_applied);
 
     let trace_id_array = BinaryArray::from_iter_values(trace_ids.iter().map(|v| v.as_slice()));
     let span_id_array = BinaryArray::from_iter_values(span_ids.iter().map(|v| v.as_slice()));
@@ -104,16 +109,33 @@ pub(crate) fn build_spans_record_batch(
     Ok(Some(record_batch))
 }
 
-pub(crate) fn extract_service_name(resource: Option<&Resource>) -> String {
+/// Scrubs here rather than at the `spans.service_name` push site because this
+/// fn is the single choke point for THREE consumers — the column, the storm
+/// `FingerprintObserver`, and the baseline `SpanObserver` tap. Scrubbing only
+/// the column would leave the two observer paths carrying raw values and would
+/// desynchronise DuckDB's service identity from the baseline registry that the
+/// per-service joins key on (security-plan §Anti-Patterns → Logging).
+///
+/// `redactions` is `Some` only where the value is actually stored, so the
+/// counter stays a count of redactions applied to persisted cells.
+pub(crate) fn extract_service_name(
+    resource: Option<&Resource>,
+    redactions: Option<&mut u64>,
+) -> String {
     let Some(r) = resource else {
         return String::new();
+    };
+    let mut discarded = 0;
+    let counter = match redactions {
+        Some(c) => c,
+        None => &mut discarded,
     };
     for kv in &r.attributes {
         if kv.key == "service.name"
             && let Some(av) = &kv.value
             && let Some(any_value::Value::StringValue(s)) = &av.value
         {
-            return s.clone();
+            return scrub_otlp_field(s, counter);
         }
     }
     String::new()
@@ -121,7 +143,9 @@ pub(crate) fn extract_service_name(resource: Option<&Resource>) -> String {
 
 pub(crate) fn build_metrics_record_batch(
     batch: &[ResourceMetrics],
+    state: &BufferState,
 ) -> Result<Option<RecordBatch>, Error> {
+    let mut redactions_applied: u64 = 0;
     let mut metric_names: Vec<String> = Vec::new();
     let mut tss: Vec<i64> = Vec::new();
     let mut ts_unix_nanos: Vec<i64> = Vec::new();
@@ -134,8 +158,11 @@ pub(crate) fn build_metrics_record_batch(
         for sm in &rm.scope_metrics {
             for m in &sm.metrics {
                 if let Some(data) = &m.data {
+                    // Scrubbed once per metric rather than per data point —
+                    // every point of one metric shares the name.
+                    let metric_name = scrub_otlp_field(&m.name, &mut redactions_applied);
                     collect_metric_points(
-                        &m.name,
+                        &metric_name,
                         data,
                         &resource_hash,
                         &mut metric_names,
@@ -153,6 +180,8 @@ pub(crate) fn build_metrics_record_batch(
     if metric_names.is_empty() {
         return Ok(None);
     }
+
+    state.record_redactions(redactions_applied);
 
     let metric_name_array = StringArray::from(metric_names);
     let ts_array = TimestampMicrosecondArray::from(tss).with_timezone(TS_TZ_UTC);
@@ -226,7 +255,10 @@ pub(crate) fn build_logs_record_batch(
                 resource_hashes.push(resource_hash.clone());
                 severities.push(log.severity_number);
                 bodies.push(body);
-                severity_texts.push(log.severity_text.clone());
+                severity_texts.push(scrub_otlp_field(
+                    &log.severity_text,
+                    &mut redactions_applied,
+                ));
                 trace_ids.push(log.trace_id.clone());
                 span_ids.push(log.span_id.clone());
                 template_ids.push(template_id);
@@ -357,7 +389,10 @@ pub(crate) fn build_span_events_record_batch(
     let mut redactions_applied: u64 = 0;
 
     for rs in batch {
-        let service_name = extract_service_name(rs.resource.as_ref());
+        // `None`: this value is never written to a column (span_events has no
+        // service_name field) — it only feeds the fingerprint observer, so
+        // counting it would inflate the persisted-cell redaction tally.
+        let service_name = extract_service_name(rs.resource.as_ref(), None);
         for ss in &rs.scope_spans {
             for span in &ss.spans {
                 if span.trace_id.is_empty() || span.span_id.is_empty() {
@@ -396,7 +431,7 @@ pub(crate) fn build_span_events_record_batch(
                     let ns = event.time_unix_nano as i64;
                     tss.push(ns / 1_000);
                     ts_unix_nanos.push(ns);
-                    names.push(event.name.clone());
+                    names.push(scrub_otlp_field(&event.name, &mut redactions_applied));
                     exception_types.push(exception_type);
                     exception_messages.push(exception_message);
                     exception_stacktraces.push(exception_stacktrace);
@@ -528,7 +563,7 @@ pub(crate) fn append_record_batch_to_table(
 #[cfg(test)]
 pub(crate) fn append_spans_batch(conn: &Connection, batch: &[ResourceSpans]) -> Result<u64, Error> {
     let start = Instant::now();
-    let Some(record_batch) = build_spans_record_batch(batch)? else {
+    let Some(record_batch) = build_spans_record_batch(batch, &BufferState::new())? else {
         return Ok(0);
     };
     let row_count = append_record_batch_to_table(conn, "spans", record_batch)?;
@@ -551,7 +586,7 @@ pub(crate) fn append_metrics_batch(
     batch: &[ResourceMetrics],
 ) -> Result<u64, Error> {
     let start = Instant::now();
-    let Some(record_batch) = build_metrics_record_batch(batch)? else {
+    let Some(record_batch) = build_metrics_record_batch(batch, &BufferState::new())? else {
         return Ok(0);
     };
     let row_count = append_record_batch_to_table(conn, "metrics_points", record_batch)?;
@@ -874,7 +909,7 @@ mod tests {
             vec![1u8; 8],
             1_700_000_000_000_000_000,
         )]);
-        let result = build_spans_record_batch(&batch).expect("build");
+        let result = build_spans_record_batch(&batch, &BufferState::new()).expect("build");
         let rb = result.expect("must be Some for valid input");
         assert_eq!(rb.num_rows(), 1);
         assert_eq!(rb.num_columns(), 7);
@@ -936,7 +971,7 @@ mod tests {
 
     #[test]
     fn build_spans_record_batch_returns_none_for_empty_input() {
-        let result = build_spans_record_batch(&[]).expect("build");
+        let result = build_spans_record_batch(&[], &BufferState::new()).expect("build");
         assert!(result.is_none(), "empty input must return None");
     }
 
@@ -945,8 +980,279 @@ mod tests {
         let mut malformed = span_with_ids(vec![], vec![], 0);
         malformed.start_time_unix_nano = 1;
         let batch = wrap_spans(vec![malformed]);
-        let result = build_spans_record_batch(&batch).expect("build");
+        let result = build_spans_record_batch(&batch, &BufferState::new()).expect("build");
         assert!(result.is_none(), "all-malformed input must return None");
+    }
+
+    // Ingestion scrub coverage — the four client-controlled columns that
+    // previously reached DuckDB unscrubbed. Each column gets a recall pin (a
+    // credential-shaped canary must not be stored verbatim) AND an identity pin
+    // (a legitimate value must survive byte-identical), because the recall half
+    // alone would pass under a treatment that redacted everything.
+    const PROVIDER_KEY_CANARY: &str = "sk_live_51NotARealKeyOnlyForPulseTests00"; // gitleaks:allow
+
+    fn spans_with_service(service: &str) -> Vec<ResourceSpans> {
+        let span = span_with_ids(vec![9u8; 16], vec![9u8; 8], 1_700_000_000_000_000_000);
+        vec![ResourceSpans {
+            resource: Some(make_resource(service)),
+            scope_spans: vec![ScopeSpans {
+                scope: None,
+                spans: vec![span],
+                schema_url: String::new(),
+            }],
+            schema_url: String::new(),
+        }]
+    }
+
+    fn stored_service_name(batch: &[ResourceSpans]) -> String {
+        let conn = fresh_conn_with_schema();
+        append_spans_batch(&conn, batch).expect("append");
+        conn.query_row("SELECT service_name FROM spans LIMIT 1", [], |r| r.get(0))
+            .expect("service_name read")
+    }
+
+    #[test]
+    fn spans_service_name_credential_canary_is_redacted() {
+        let stored = stored_service_name(&spans_with_service(PROVIDER_KEY_CANARY));
+        assert!(
+            !stored.contains(PROVIDER_KEY_CANARY),
+            "raw provider key leaked into spans.service_name: {stored:?}"
+        );
+        assert_eq!(stored, "[REDACTED:provider_key]");
+    }
+
+    #[test]
+    fn spans_service_name_legitimate_value_survives_byte_identical() {
+        for service in ["checkout-service", "payment-api", "svc-traces"] {
+            let stored = stored_service_name(&spans_with_service(service));
+            assert_eq!(
+                stored, service,
+                "legitimate service name was altered — this forks one service into two identities"
+            );
+        }
+    }
+
+    #[test]
+    fn service_name_is_identical_on_the_column_and_the_observer_paths() {
+        // The F2 consistency property: one extractor feeds the spans column,
+        // the fingerprint observer and the baseline tap. If these diverge, the
+        // per-service joins between DuckDB and the triage registry miss.
+        let batch = spans_with_service(PROVIDER_KEY_CANARY);
+        let observer_value = extract_service_name(batch[0].resource.as_ref(), None);
+        assert_eq!(stored_service_name(&batch), observer_value);
+    }
+
+    #[test]
+    fn span_events_name_credential_canary_is_redacted_and_exception_preserved() {
+        let conn = fresh_conn_with_schema();
+        let span = span_with_events(
+            vec![2u8; 16],
+            vec![2u8; 8],
+            1_700_000_000_000_000_000,
+            vec![
+                span_event(PROVIDER_KEY_CANARY, 1_700_000_000_000_000_001, Vec::new()),
+                span_event("exception", 1_700_000_000_000_000_002, Vec::new()),
+            ],
+        );
+        append_span_events_batch(&conn, &wrap_spans(vec![span])).expect("append");
+
+        let mut stmt = conn
+            .prepare("SELECT name FROM span_events ORDER BY event_index")
+            .expect("prepare");
+        let names: Vec<String> = stmt
+            .query_map([], |r| r.get(0))
+            .expect("query")
+            .map(|r| r.expect("row"))
+            .collect();
+
+        assert_eq!(names.len(), 2);
+        assert!(
+            !names[0].contains(PROVIDER_KEY_CANARY),
+            "raw provider key leaked into span_events.name: {:?}",
+            names[0]
+        );
+        assert_eq!(names[0], "[REDACTED:provider_key]");
+        // Load-bearing: Q3_EXCEPTION_FINGERPRINTS gates on `name = 'exception'`.
+        assert_eq!(names[1], "exception");
+    }
+
+    #[test]
+    fn metrics_metric_name_credential_canary_is_redacted_and_legitimate_preserved() {
+        for (input, expected) in [
+            (PROVIDER_KEY_CANARY, "[REDACTED:provider_key]"),
+            ("requests.total", "requests.total"),
+        ] {
+            let conn = fresh_conn_with_schema();
+            let batch = vec![ResourceMetrics {
+                resource: Some(make_resource("svc-a")),
+                scope_metrics: vec![ScopeMetrics {
+                    scope: None,
+                    metrics: vec![Metric {
+                        name: input.into(),
+                        description: String::new(),
+                        unit: String::new(),
+                        metadata: Vec::new(),
+                        data: Some(metric::Data::Gauge(Gauge {
+                            data_points: vec![NumberDataPoint {
+                                attributes: Vec::new(),
+                                start_time_unix_nano: 0,
+                                time_unix_nano: 1_700_000_000_000_000_000,
+                                exemplars: Vec::new(),
+                                flags: 0,
+                                value: Some(number_data_point::Value::AsInt(42)),
+                            }],
+                        })),
+                    }],
+                    schema_url: String::new(),
+                }],
+                schema_url: String::new(),
+            }];
+            append_metrics_batch(&conn, &batch).expect("append metrics");
+            let stored: String = conn
+                .query_row("SELECT metric_name FROM metrics_points LIMIT 1", [], |r| {
+                    r.get(0)
+                })
+                .expect("metric_name read");
+            assert_eq!(stored, expected);
+        }
+    }
+
+    #[test]
+    fn logs_severity_text_credential_canary_is_redacted_and_levels_preserved() {
+        for (input, expected) in [
+            (PROVIDER_KEY_CANARY, "[REDACTED:provider_key]"),
+            ("ERROR", "ERROR"),
+            ("INFO", "INFO"),
+        ] {
+            let conn = fresh_conn_with_schema();
+            let batch = vec![ResourceLogs {
+                resource: Some(make_resource("svc-b")),
+                scope_logs: vec![ScopeLogs {
+                    scope: None,
+                    log_records: vec![LogRecord {
+                        time_unix_nano: 1_700_000_000_000_000_000,
+                        observed_time_unix_nano: 0,
+                        severity_number: 9,
+                        severity_text: input.into(),
+                        body: None,
+                        attributes: Vec::new(),
+                        dropped_attributes_count: 0,
+                        flags: 0,
+                        trace_id: Vec::new(),
+                        span_id: Vec::new(),
+                        event_name: String::new(),
+                    }],
+                    schema_url: String::new(),
+                }],
+                schema_url: String::new(),
+            }];
+            append_logs_batch(&conn, &batch).expect("append logs");
+            let stored: String = conn
+                .query_row("SELECT severity_text FROM log_records LIMIT 1", [], |r| {
+                    r.get(0)
+                })
+                .expect("severity_text read");
+            assert_eq!(stored, expected);
+        }
+    }
+
+    // The `buffer-redaction-counter-unit-coverage` trigger: the fold arithmetic
+    // itself, that ALL FOUR builders contribute to one tally, and that the fold
+    // stays separate from `record_feed_counts`.
+    #[test]
+    fn redaction_counter_folds_once_per_batch_across_all_four_builders() {
+        let state = BufferState::new();
+        assert_eq!(state.snapshot().redactions_applied, 0);
+
+        build_spans_record_batch(&spans_with_service(PROVIDER_KEY_CANARY), &state)
+            .expect("spans build");
+        assert_eq!(
+            state.snapshot().redactions_applied,
+            1,
+            "spans builder must fold its service_name redaction"
+        );
+
+        let events_span = span_with_events(
+            vec![3u8; 16],
+            vec![3u8; 8],
+            1_700_000_000_000_000_000,
+            vec![span_event(
+                PROVIDER_KEY_CANARY,
+                1_700_000_000_000_000_001,
+                Vec::new(),
+            )],
+        );
+        build_span_events_record_batch(&wrap_spans(vec![events_span]), None, &state)
+            .expect("span_events build");
+        assert_eq!(state.snapshot().redactions_applied, 2);
+
+        let metrics = vec![ResourceMetrics {
+            resource: Some(make_resource("svc-a")),
+            scope_metrics: vec![ScopeMetrics {
+                scope: None,
+                metrics: vec![Metric {
+                    name: PROVIDER_KEY_CANARY.into(),
+                    description: String::new(),
+                    unit: String::new(),
+                    metadata: Vec::new(),
+                    data: Some(metric::Data::Gauge(Gauge {
+                        data_points: vec![NumberDataPoint {
+                            attributes: Vec::new(),
+                            start_time_unix_nano: 0,
+                            time_unix_nano: 1_700_000_000_000_000_000,
+                            exemplars: Vec::new(),
+                            flags: 0,
+                            value: Some(number_data_point::Value::AsInt(1)),
+                        }],
+                    })),
+                }],
+                schema_url: String::new(),
+            }],
+            schema_url: String::new(),
+        }];
+        build_metrics_record_batch(&metrics, &state).expect("metrics build");
+        assert_eq!(state.snapshot().redactions_applied, 3);
+
+        let logs = vec![ResourceLogs {
+            resource: Some(make_resource("svc-b")),
+            scope_logs: vec![ScopeLogs {
+                scope: None,
+                log_records: vec![LogRecord {
+                    time_unix_nano: 1_700_000_000_000_000_000,
+                    observed_time_unix_nano: 0,
+                    severity_number: 9,
+                    severity_text: PROVIDER_KEY_CANARY.into(),
+                    body: None,
+                    attributes: Vec::new(),
+                    dropped_attributes_count: 0,
+                    flags: 0,
+                    trace_id: Vec::new(),
+                    span_id: Vec::new(),
+                    event_name: String::new(),
+                }],
+                schema_url: String::new(),
+            }],
+            schema_url: String::new(),
+        }];
+        build_logs_record_batch(&logs, None, &state).expect("logs build");
+        assert_eq!(
+            state.snapshot().redactions_applied,
+            4,
+            "all four builders must fold into the same tally"
+        );
+
+        // The fold is deliberately separate from record_feed_counts.
+        let snap = state.snapshot();
+        assert_eq!(snap.span_events_seen, 1);
+        assert_eq!(snap.rows_ingested, 0);
+    }
+
+    #[test]
+    fn clean_batch_leaves_the_redaction_counter_at_zero() {
+        let state = BufferState::new();
+        build_spans_record_batch(&spans_with_service("checkout-service"), &state)
+            .expect("spans build");
+        assert_eq!(state.snapshot().redactions_applied, 0);
     }
 
     fn make_resource(service: &str) -> Resource {

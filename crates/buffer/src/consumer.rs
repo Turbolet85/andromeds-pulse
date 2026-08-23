@@ -105,7 +105,7 @@ fn dispatch_batch(
 
     let (rows, sender, encoded) = match batch {
         Batch::Spans(s) => {
-            let Some(rb) = build_spans_record_batch(&s)? else {
+            let Some(rb) = build_spans_record_batch(&s, state)? else {
                 return Ok(());
             };
             let encoded = encode_or_log(broadcast::encode_spans(&rb), STREAM_NAME_SPANS);
@@ -124,7 +124,7 @@ fn dispatch_batch(
             (rows, &senders.spans, encoded)
         }
         Batch::Metrics(m) => {
-            let Some(rb) = build_metrics_record_batch(&m)? else {
+            let Some(rb) = build_metrics_record_batch(&m, state)? else {
                 return Ok(());
             };
             let encoded = encode_or_log(broadcast::encode_metrics(&rb), STREAM_NAME_METRICS);
@@ -230,7 +230,10 @@ fn observe_spans_for_baseline(batch: &[ResourceSpans], observer: &Arc<dyn SpanOb
         .map(|d| d.as_nanos() as i64)
         .unwrap_or(0);
     for rs in batch {
-        let service_name = extract_service_name(rs.resource.as_ref());
+        // `None`: the baseline tap is not a write path, so its redactions are
+        // not persisted-cell redactions. The value is still scrubbed, keeping
+        // this tap's service identity equal to the one stored in `spans`.
+        let service_name = extract_service_name(rs.resource.as_ref(), None);
         for ss in &rs.scope_spans {
             for span in &ss.spans {
                 if span.trace_id.is_empty() || span.span_id.is_empty() {

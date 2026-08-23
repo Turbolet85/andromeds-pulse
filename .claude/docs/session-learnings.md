@@ -2370,3 +2370,44 @@ that file.
 ## 2026-08-17 — Starved is not dead: which side of a never-firing comparison is the defect
 
 Before removing a comparison / matching branch that "can never fire", establish which SIDE of it is wrong. The diagnostic that looks conclusive (trace what the producer writes, trace what the consumer compares, observe they can never be equal) proves only that the pair is broken; it does NOT say the consumer is the defect. Two further sources decide that, and both are cheap: (1) the field's own DOCUMENTED CONTRACT where the type is declared — if the doc says the field holds one shape and the producer writes another, the producer is the defect; (2) the CONSUMER'S OWN TEST FIXTURES — if they populate the field in the contracted shape, the consumer was written against the contract and the branch is correct-but-starved, whereas fixtures matching the producer's shape would mean the contract is the stale artifact. A branch whose unit tests pass only because they supply the same made-up shape on BOTH sides is uninformative on its own and is exactly what makes the wrong attribution feel safe. Getting this backwards is expensive in a specific way: removing a starved-but-correct mechanism is invisible at review (the tests you kept still pass, the ones that fail look like they need updating) and it silently retires the repair path for the real defect. The tell that you are about to make the mistake: the "fix" requires editing tests you did not intend to touch, in a file outside the change's scope — treat that as the contract objecting, not as collateral. Encountered when a fingerprint-matching arm was diagnosed as unreachable dead code and narrowed away; the consumer's hex-shaped fixtures and the field's "anonymized hash" contract both showed the arm was right and the producer was writing model-authored text into it, so the removal was fully reverted and the producer repair became its own route entry.
+
+## 2026-08-23 — Transform at the shared extractor, not at one consumer: where a value-rewrite belongs
+
+When a chunk changes the VALUE a field carries (a scrub, a normalization, a canonicalization) and that
+value comes from a shared extractor, the transform belongs INSIDE the extractor, not at the one call site
+the task happens to name. The failure mode is not a missed leak — it is silent identity divergence between
+consumers that must agree.
+
+The tell is cheap to check and easy to skip: a task that names a value's destination (a column, a payload
+field) reads as if that destination is where the value is produced. Run the impact query on the EXTRACTOR
+instead. If it has more than one production caller, decide explicitly which callers get the transformed
+value — and if any two of them feed things that are later JOINED or compared, they must all get the same
+one. Measured here: a route entry described `spans.service_name` as a four-hop chain from
+`extract_service_name` to the column, which reads as one path; the code-graph showed that fn has THREE
+production call sites, and two never reach a column at all — one feeds the storm `FingerprintObserver`, the
+other the baseline `SpanObserver` tap. Scrubbing at the column alone would have satisfied the task as
+written, passed a column-level test, and left the two observer paths carrying raw values into `triage` —
+so DuckDB's service identity and the baseline registry's would have disagreed, and the per-service joins
+that light the constellation would have quietly missed.
+
+The counting question is separate from the correctness question and worth answering on its own: transform
+everywhere the consumers must agree, but COUNT only where the value is actually persisted. Here
+`extract_service_name` gained an `Option<&mut u64>` so the two non-storing callers pass `None`; the wire
+smoke then reads 4 redactions for a canary in four columns rather than 5, and that exact number is what
+confirms the rule held rather than merely compiling.
+
+## 2026-08-23 — `metric_name` names two different columns in two different databases
+
+`metrics_points.metric_name` (DuckDB ring buffer) is CLIENT-controlled — whatever an instrumented host app
+puts in an OTLP metric name. `pipeline_metrics.metric_name` (the corpus SQLite database) is
+PRODUCT-INTERNAL — the app's own L1a/L1b/L2/L3 pipeline snapshot keys, written by
+`save_pipeline_metric("drain_template_tree", "l1c")` and read back by `load_pipeline_metric`. They share a
+column name, a plausible-sounding role ("the metric name"), and nothing else: different databases,
+different writers, different trust levels.
+
+This matters because a grep for `metric_name` returns both, and the corpus hit looks like evidence that a
+change to the client-controlled column would break a lookup. It would not — the two never meet. The same
+grep-collision shape is worth suspecting for any short column name that appears in both the ring buffer and
+the corpus; check which writer populates the hit before reasoning from it. Encountered when a proposed risk
+("scrubbing `metric_name` breaks the corpus lookup") was traced to the corpus callers and found to be about
+the internal namespace entirely.

@@ -23,7 +23,7 @@ _Extracted from `.andromeda/architecture.md` Conventions section by `/setup-proj
 - **MCP server:** spec-fixed JSON-RPC 2.0 method names — `initialize`, `tools/list`, `tools/call`, `notifications/*`. Tool methods: `query_traces`, `query_metrics`, `query_logs`, `generate_snapshot`.
 
 ## Database entity naming
-- DuckDB tables use plural `snake_case` matching OTLP entity: `spans`, `span_events`, `span_links`, `metrics_points`, `log_records`, `resources`, `instrumentation_scopes`.
+- DuckDB tables use plural `snake_case` matching OTLP entity: `spans`, `span_events`, `span_links`, `metrics_points`, `log_records`, `resources`, `instrumentation_scopes` — but only `spans`, `span_events`, `metrics_points` and `log_records` have a producer; the other three are declared and retention-swept yet never written (measured 2026-08-23), so the periodic cutoff task sweeps three permanently-empty tables.
 - Columns: `snake_case`.
 - Ring-buffer cutoff via periodic `DELETE FROM <table> WHERE ts < now() - INTERVAL '<retention> minutes'`.
 

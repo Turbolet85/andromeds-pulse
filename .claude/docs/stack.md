@@ -37,7 +37,7 @@ _Extracted from `.andromeda/architecture.md` Stack and Technologies section by `
 - **Columnar interchange:** Apache Arrow via `Appender::append_record_batch()` / `stream_arrow()` — zero-copy hand-off between OTLP decode → DuckDB → viz/MCP.
 - **ORM / Migrations:** None — direct SQL via `duckdb` crate `Connection` + `Appender`; schema created on startup.
 - **Schema name:** `pulse_buffer` (single in-memory connection, schema `main`).
-- **Reserved tables:** `spans`, `span_events`, `span_links`, `metrics_points`, `log_records`, `resources`, `instrumentation_scopes`.
+- **Reserved tables:** `spans`, `span_events`, `span_links`, `metrics_points`, `log_records`, `resources`, `instrumentation_scopes` (+ `log_templates`). Reservation ≠ a live write path: only `spans`, `span_events`, `metrics_points` and `log_records` are written; `span_links`, `resources` and `instrumentation_scopes` are declared and swept but producer-less (measured 2026-08-23).
 - **Secret / key storage:** `keyring` 3.x declared with the explicit platform feature set (`apple-native` / `windows-native` / `sync-secret-service` / `crypto-rust`) — the OS credential store holding the corpus AES-256-GCM cell key (macOS Keychain / Linux Secret Service / Windows Credential Manager), plus `blake3` as the KDF for the opt-in `ANDROMEDA_PULSE_CORPUS_PASSPHRASE` fallback. **The feature set is load-bearing:** keyring 3.x declares no `default` feature, so a bare `keyring = "3"` links no backend and silently yields a per-process key (the defect fixed at chunk 2026-08-15-corpus-key-persistence).
 
 ## Messaging & Events

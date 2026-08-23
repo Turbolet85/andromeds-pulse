@@ -1,0 +1,193 @@
+[
+{
+"sql": "SELECT callee, file, line FROM refs WHERE callee LIKE '%scrub_attribute%' ORDER BY file, line",
+"rows": 26,
+"result": [
+{
+"callee": "rust-analyzer cargo security 0.1.0 scrubber/scrub_attribute().",
+"file": "crates/buffer/src/appender.rs",
+"line": 17
+},
+{
+"callee": "rust-analyzer cargo security 0.1.0 scrubber/scrub_attribute().",
+"file": "crates/buffer/src/appender.rs",
+"line": 319
+},
+{
+"callee": "rust-analyzer cargo security 0.1.0 scrubber/scrub_attribute().",
+"file": "crates/buffer/src/drain.rs",
+"line": 45
+},
+{
+"callee": "rust-analyzer cargo security 0.1.0 scrubber/scrub_attribute().",
+"file": "crates/buffer/src/drain.rs",
+"line": 374
+},
+{
+"callee": "rust-analyzer cargo security 0.1.0 scrubber/scrub_attribute().",
+"file": "crates/buffer/src/drain.rs",
+"line": 634
+},
+{
+"callee": "rust-analyzer cargo security 0.1.0 scrubber/scrub_attribute().",
+"file": "crates/interpretation/src/markdown.rs",
+"line": 28
+},
+{
+"callee": "rust-analyzer cargo security 0.1.0 scrubber/scrub_attribute().",
+"file": "crates/interpretation/src/markdown.rs",
+"line": 336
+},
+{
+"callee": "rust-analyzer cargo security 0.1.0 scrubber/scrub_attribute().",
+"file": "crates/security/src/scrubber.rs",
+"line": 156
+},
+{
+"callee": "rust-analyzer cargo security 0.1.0 scrubber/scrub_attribute().",
+"file": "crates/security/src/scrubber.rs",
+"line": 177
+},
+{
+"callee": "rust-analyzer cargo security 0.1.0 scrubber/scrub_attribute().",
+"file": "crates/security/src/scrubber.rs",
+"line": 205
+},
+{
+"callee": "rust-analyzer cargo security 0.1.0 scrubber/scrub_attribute().",
+"file": "pulse-app/src/baseline_persistence.rs",
+"line": 39
+},
+{
+"callee": "rust-analyzer cargo security 0.1.0 scrubber/scrub_attribute().",
+"file": "pulse-app/src/baseline_persistence.rs",
+"line": 108
+},
+{
+"callee": "rust-analyzer cargo security 0.1.0 scrubber/scrub_attribute().",
+"file": "pulse-app/src/digest_runtime.rs",
+"line": 33
+},
+{
+"callee": "rust-analyzer cargo security 0.1.0 scrubber/scrub_attribute().",
+"file": "pulse-app/src/digest_runtime.rs",
+"line": 54
+},
+{
+"callee": "rust-analyzer cargo security 0.1.0 scrubber/scrub_attribute().",
+"file": "pulse-app/src/inference_runtime.rs",
+"line": 35
+},
+{
+"callee": "rust-analyzer cargo security 0.1.0 scrubber/scrub_attribute().",
+"file": "pulse-app/src/inference_runtime.rs",
+"line": 537
+},
+{
+"callee": "rust-analyzer cargo security 0.1.0 scrubber/scrub_attribute().",
+"file": "pulse-app/src/inference_runtime.rs",
+"line": 560
+},
+{
+"callee": "rust-analyzer cargo security 0.1.0 scrubber/scrub_attribute().",
+"file": "pulse-app/src/investigate_router.rs",
+"line": 20
+},
+{
+"callee": "rust-analyzer cargo security 0.1.0 scrubber/scrub_attribute().",
+"file": "pulse-app/src/investigate_router.rs",
+"line": 113
+},
+{
+"callee": "rust-analyzer cargo security 0.1.0 scrubber/scrub_attribute().",
+"file": "pulse-app/src/lifecycle_persistence.rs",
+"line": 30
+},
+{
+"callee": "rust-analyzer cargo security 0.1.0 scrubber/scrub_attribute().",
+"file": "pulse-app/src/lifecycle_persistence.rs",
+"line": 102
+},
+{
+"callee": "rust-analyzer cargo security 0.1.0 scrubber/scrub_attribute().",
+"file": "pulse-app/src/storm_persistence.rs",
+"line": 31
+},
+{
+"callee": "rust-analyzer cargo security 0.1.0 scrubber/scrub_attribute().",
+"file": "pulse-app/src/storm_persistence.rs",
+"line": 87
+},
+{
+"callee": "rust-analyzer cargo security 0.1.0 scrubber/scrub_attribute().",
+"file": "pulse-app/src/training_export.rs",
+"line": 26
+},
+{
+"callee": "rust-analyzer cargo security 0.1.0 scrubber/scrub_attribute().",
+"file": "pulse-app/src/training_export.rs",
+"line": 85
+},
+{
+"callee": "rust-analyzer cargo security 0.1.0 scrubber/scrub_attribute().",
+"file": "pulse-app/tests/unit_deterministic_inference.rs",
+"line": 95
+}
+],
+"db_state": "fresh",
+"plane": "rust"
+},
+{
+"sql": "SELECT callee, file, line FROM refs WHERE callee LIKE '%scrub_otlp_field%' OR callee LIKE '%extract_service_name%' OR callee LIKE '%record_redactions%' ORDER BY callee, file, line",
+"rows": 9,
+"result": [
+{
+"callee": "rust-analyzer cargo buffer 0.1.0 appender/extract_service_name().",
+"file": "crates/buffer/src/appender.rs",
+"line": 44
+},
+{
+"callee": "rust-analyzer cargo buffer 0.1.0 appender/extract_service_name().",
+"file": "crates/buffer/src/appender.rs",
+"line": 359
+},
+{
+"callee": "rust-analyzer cargo buffer 0.1.0 appender/extract_service_name().",
+"file": "crates/buffer/src/consumer.rs",
+"line": 12
+},
+{
+"callee": "rust-analyzer cargo buffer 0.1.0 appender/extract_service_name().",
+"file": "crates/buffer/src/consumer.rs",
+"line": 232
+},
+{
+"callee": "rust-analyzer cargo buffer 0.1.0 appender/scrub_otlp_field().",
+"file": "crates/buffer/src/appender.rs",
+"line": 306
+},
+{
+"callee": "rust-analyzer cargo buffer 0.1.0 appender/scrub_otlp_field().",
+"file": "crates/buffer/src/appender.rs",
+"line": 388
+},
+{
+"callee": "rust-analyzer cargo buffer 0.1.0 appender/scrub_otlp_field().",
+"file": "crates/buffer/src/appender.rs",
+"line": 390
+},
+{
+"callee": "rust-analyzer cargo buffer 0.1.0 state/impl#[BufferState]record_redactions().",
+"file": "crates/buffer/src/appender.rs",
+"line": 240
+},
+{
+"callee": "rust-analyzer cargo buffer 0.1.0 state/impl#[BufferState]record_redactions().",
+"file": "crates/buffer/src/appender.rs",
+"line": 432
+}
+],
+"db_state": "fresh",
+"plane": "rust"
+}
+]
