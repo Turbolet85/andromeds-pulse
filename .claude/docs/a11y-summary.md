@@ -23,7 +23,7 @@ _Extended from P1–P7 to **P1–P12** at chunk #99: **p8** findings dropdown ·
 
 | Path | Required ARIA roles | Required focus order | Required WCAG SC |
 |---|---|---|---|
-| **P1** Receive OTLP + visualize | `main` / `region[aria-label="Telemetry traces chart"]` / `button` / `table` | Initial focus first trace table; Tab through cells | 1.3.1 / 2.1.1 / 2.4.3 / 1.4.3 / 4.1.2 |
+| **P1** Receive OTLP + visualize | `main` / `button` ship. `region[aria-label="Telemetry traces chart"]` + `table` are **required but NOT SHIPPED** (measured absent at HEAD 2026-08-23; `TraceTable.tsx` is `data-testid`-only) — owner: the A11y verification entry | Initial focus main content region via the `data-testid` trace list; cell-level Tab/arrow navigation presumes the unshipped `table` role and is not assertable yet | 1.3.1 / 2.1.1 / 2.4.3 / 1.4.3 / 4.1.2 |
 | **P2** Generate snapshot | `main` / `dialog[aria-label="Investigation Snapshot"]` / `button[aria-busy]` / `slider` / `radiogroup` / `status[aria-live="polite"]` | Generate → budget slider → preset → Generate; on submit → progress message | 2.1.1 / 2.4.3 / 3.3.1 / 3.3.2 / 4.1.2 / 4.1.3 |
 | **P3** MCP toggle in settings | `dialog[aria-label="Settings"]` / `switch[aria-checked]` + OS notification | Tab to MCP switch → Space toggles → focus stays on switch | 2.1.1 / 2.4.3 / 4.1.2 / 4.1.3 |
 | **P4** Real-time push | `region[aria-live="polite"]` / `status` / `table` (incremental rows) | Live updates do NOT steal focus | 2.1.1 / 2.4.3 / 4.1.2 / 4.1.3 / 1.4.3 |

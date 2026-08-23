@@ -1,0 +1,418 @@
+[
+{
+"sql": "SELECT caller, file, line FROM calls WHERE callee LIKE '%run_action%' ORDER BY file, line;",
+"rows": 9,
+"result": [
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 deterministic_mode_each_action_yields_a_populated_result().",
+"file": "pulse-app/tests/integration_investigate_actions.rs",
+"line": 68
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 deterministic_mode_is_reproducible().",
+"file": "pulse-app/tests/integration_investigate_actions.rs",
+"line": 84
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 deterministic_mode_is_reproducible().",
+"file": "pulse-app/tests/integration_investigate_actions.rs",
+"line": 89
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 empty_buffer_still_yields_a_result().",
+"file": "pulse-app/tests/integration_investigate_actions.rs",
+"line": 104
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 unknown_action_id_is_validation_error().",
+"file": "pulse-app/tests/integration_investigate_actions.rs",
+"line": 113
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 missing_buffer_is_storage_error().",
+"file": "pulse-app/tests/integration_investigate_actions.rs",
+"line": 126
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 runner_error_surfaces_never_silent().",
+"file": "pulse-app/tests/integration_investigate_actions.rs",
+"line": 158
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 unparseable_output_surfaces_never_silent().",
+"file": "pulse-app/tests/integration_investigate_actions.rs",
+"line": 190
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 investigate_does_not_log_telemetry_canary().",
+"file": "pulse-app/tests/integration_investigate_actions.rs",
+"line": 271
+}
+],
+"db_state": "fresh",
+"plane": "rust"
+},
+{
+"sql": "SELECT symbol, crate, file FROM symbol WHERE symbol LIKE '%/TraceTable%' OR symbol LIKE '%/EmptyState%' OR symbol LIKE '%ConnectionStatusLine%' ORDER BY file;",
+"rows": 71,
+"result": [
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/components/`EmptyState.tsx`/EmptyStateProps#",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/components/EmptyState.tsx"
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/components/`EmptyState.tsx`/EmptyState().",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/components/EmptyState.tsx"
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/components/`EmptyState.tsx`/EmptyStateProps#testId.",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/components/EmptyState.tsx"
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/components/`EmptyState.tsx`/EmptyStateProps#glyph.",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/components/EmptyState.tsx"
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/components/`EmptyState.tsx`/EmptyStateProps#hint.",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/components/EmptyState.tsx"
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/components/`EmptyState.tsx`/EmptyStateProps#message.",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/components/EmptyState.tsx"
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/dashboard/`ConnectionStatusLine.test.tsx`/retentionSeconds3:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/dashboard/ConnectionStatusLine.test.tsx"
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/dashboard/`ConnectionStatusLine.test.tsx`/bufferUsedSeconds3:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/dashboard/ConnectionStatusLine.test.tsx"
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/dashboard/`ConnectionStatusLine.test.tsx`/spansPerSec6:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/dashboard/ConnectionStatusLine.test.tsx"
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/dashboard/`ConnectionStatusLine.test.tsx`/hasData5:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/dashboard/ConnectionStatusLine.test.tsx"
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/dashboard/`ConnectionStatusLine.test.tsx`/retentionSeconds5:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/dashboard/ConnectionStatusLine.test.tsx"
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/dashboard/`ConnectionStatusLine.test.tsx`/bufferUsedSeconds5:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/dashboard/ConnectionStatusLine.test.tsx"
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/dashboard/`ConnectionStatusLine.test.tsx`/spansPerSec5:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/dashboard/ConnectionStatusLine.test.tsx"
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/dashboard/`ConnectionStatusLine.test.tsx`/hasData4:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/dashboard/ConnectionStatusLine.test.tsx"
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/dashboard/`ConnectionStatusLine.test.tsx`/retentionSeconds4:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/dashboard/ConnectionStatusLine.test.tsx"
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/dashboard/`ConnectionStatusLine.test.tsx`/bufferUsedSeconds4:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/dashboard/ConnectionStatusLine.test.tsx"
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/dashboard/`ConnectionStatusLine.test.tsx`/spansPerSec4:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/dashboard/ConnectionStatusLine.test.tsx"
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/dashboard/`ConnectionStatusLine.test.tsx`/hasData3:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/dashboard/ConnectionStatusLine.test.tsx"
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/dashboard/`ConnectionStatusLine.test.tsx`/retentionSeconds7:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/dashboard/ConnectionStatusLine.test.tsx"
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/dashboard/`ConnectionStatusLine.test.tsx`/retentionSeconds6:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/dashboard/ConnectionStatusLine.test.tsx"
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/dashboard/`ConnectionStatusLine.test.tsx`/hasData6:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/dashboard/ConnectionStatusLine.test.tsx"
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/dashboard/`ConnectionStatusLine.test.tsx`/spansPerSec7:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/dashboard/ConnectionStatusLine.test.tsx"
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/dashboard/`ConnectionStatusLine.test.tsx`/bufferUsedSeconds7:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/dashboard/ConnectionStatusLine.test.tsx"
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/dashboard/`ConnectionStatusLine.test.tsx`/hasData7:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/dashboard/ConnectionStatusLine.test.tsx"
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/dashboard/`ConnectionStatusLine.test.tsx`/",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/dashboard/ConnectionStatusLine.test.tsx"
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/dashboard/`ConnectionStatusLine.test.tsx`/mocks.",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/dashboard/ConnectionStatusLine.test.tsx"
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/dashboard/`ConnectionStatusLine.test.tsx`/useServiceConstellation0:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/dashboard/ConnectionStatusLine.test.tsx"
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/dashboard/`ConnectionStatusLine.test.tsx`/useConnectionState0:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/dashboard/ConnectionStatusLine.test.tsx"
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/dashboard/`ConnectionStatusLine.test.tsx`/useIngestStats0:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/dashboard/ConnectionStatusLine.test.tsx"
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/dashboard/`ConnectionStatusLine.test.tsx`/useStatusAnnouncer0:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/dashboard/ConnectionStatusLine.test.tsx"
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/dashboard/`ConnectionStatusLine.test.tsx`/LIVE.",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/dashboard/ConnectionStatusLine.test.tsx"
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/dashboard/`ConnectionStatusLine.test.tsx`/STALE.",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/dashboard/ConnectionStatusLine.test.tsx"
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/dashboard/`ConnectionStatusLine.test.tsx`/svc().",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/dashboard/ConnectionStatusLine.test.tsx"
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/dashboard/`ConnectionStatusLine.test.tsx`/svc().(service)",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/dashboard/ConnectionStatusLine.test.tsx"
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/dashboard/`ConnectionStatusLine.test.tsx`/svc().(agoNano)",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/dashboard/ConnectionStatusLine.test.tsx"
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/dashboard/`ConnectionStatusLine.test.tsx`/conn().",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/dashboard/ConnectionStatusLine.test.tsx"
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/dashboard/`ConnectionStatusLine.test.tsx`/conn().(state)",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/dashboard/ConnectionStatusLine.test.tsx"
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/dashboard/`ConnectionStatusLine.test.tsx`/conn().(message)",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/dashboard/ConnectionStatusLine.test.tsx"
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/dashboard/`ConnectionStatusLine.test.tsx`/spansPerSec0:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/dashboard/ConnectionStatusLine.test.tsx"
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/dashboard/`ConnectionStatusLine.test.tsx`/bufferUsedSeconds0:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/dashboard/ConnectionStatusLine.test.tsx"
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/dashboard/`ConnectionStatusLine.test.tsx`/retentionSeconds0:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/dashboard/ConnectionStatusLine.test.tsx"
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/dashboard/`ConnectionStatusLine.test.tsx`/hasData0:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/dashboard/ConnectionStatusLine.test.tsx"
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/dashboard/`ConnectionStatusLine.test.tsx`/spansPerSec1:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/dashboard/ConnectionStatusLine.test.tsx"
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/dashboard/`ConnectionStatusLine.test.tsx`/bufferUsedSeconds1:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/dashboard/ConnectionStatusLine.test.tsx"
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/dashboard/`ConnectionStatusLine.test.tsx`/retentionSeconds1:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/dashboard/ConnectionStatusLine.test.tsx"
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/dashboard/`ConnectionStatusLine.test.tsx`/hasData1:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/dashboard/ConnectionStatusLine.test.tsx"
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/dashboard/`ConnectionStatusLine.test.tsx`/spansPerSec2:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/dashboard/ConnectionStatusLine.test.tsx"
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/dashboard/`ConnectionStatusLine.test.tsx`/bufferUsedSeconds2:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/dashboard/ConnectionStatusLine.test.tsx"
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/dashboard/`ConnectionStatusLine.test.tsx`/retentionSeconds2:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/dashboard/ConnectionStatusLine.test.tsx"
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/dashboard/`ConnectionStatusLine.test.tsx`/hasData2:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/dashboard/ConnectionStatusLine.test.tsx"
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/dashboard/`ConnectionStatusLine.test.tsx`/spansPerSec3:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/dashboard/ConnectionStatusLine.test.tsx"
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/dashboard/`ConnectionStatusLine.test.tsx`/bufferUsedSeconds6:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/dashboard/ConnectionStatusLine.test.tsx"
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/dashboard/`ConnectionStatusLine.tsx`/",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/dashboard/ConnectionStatusLine.tsx"
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/dashboard/`ConnectionStatusLine.tsx`/humanizeRate().",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/dashboard/ConnectionStatusLine.tsx"
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/dashboard/`ConnectionStatusLine.tsx`/textOverflow0:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/dashboard/ConnectionStatusLine.tsx"
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/dashboard/`ConnectionStatusLine.tsx`/overflow0:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/dashboard/ConnectionStatusLine.tsx"
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/dashboard/`ConnectionStatusLine.tsx`/whiteSpace0:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/dashboard/ConnectionStatusLine.tsx"
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/dashboard/`ConnectionStatusLine.tsx`/color0:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/dashboard/ConnectionStatusLine.tsx"
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/dashboard/`ConnectionStatusLine.tsx`/fontSize0:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/dashboard/ConnectionStatusLine.tsx"
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/dashboard/`ConnectionStatusLine.tsx`/fontFamily0:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/dashboard/ConnectionStatusLine.tsx"
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/dashboard/`ConnectionStatusLine.tsx`/ConnectionStatusLine().",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/dashboard/ConnectionStatusLine.tsx"
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/dashboard/`ConnectionStatusLine.tsx`/Num().(`{ children }`)typeLiteral2:children.",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/dashboard/ConnectionStatusLine.tsx"
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/dashboard/`ConnectionStatusLine.tsx`/Num().",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/dashboard/ConnectionStatusLine.tsx"
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/dashboard/`ConnectionStatusLine.tsx`/numStyle.",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/dashboard/ConnectionStatusLine.tsx"
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/dashboard/`ConnectionStatusLine.tsx`/humanizeRate().(rate)",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/dashboard/ConnectionStatusLine.tsx"
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/dashboard/`ConnectionStatusLine.tsx`/nowUnixNano().",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/dashboard/ConnectionStatusLine.tsx"
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/dashboard/routes/`TracesRoute.test.tsx`/TraceTable0:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/dashboard/routes/TracesRoute.test.tsx"
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/dashboard/routes/traces/`TraceTable.tsx`/TraceTable().",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/dashboard/routes/traces/TraceTable.tsx"
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/dashboard/routes/traces/`TraceTable.tsx`/TraceTableProps#isLoading.",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/dashboard/routes/traces/TraceTable.tsx"
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/dashboard/routes/traces/`TraceTable.tsx`/TraceTableProps#rows.",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/dashboard/routes/traces/TraceTable.tsx"
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/dashboard/routes/traces/`TraceTable.tsx`/TraceTableProps#",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/dashboard/routes/traces/TraceTable.tsx"
+}
+],
+"db_state": "fresh",
+"plane": "ts"
+}
+]

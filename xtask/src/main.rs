@@ -109,11 +109,13 @@ enum Cmd {
     SelfVerify,
     #[command(
         name = "webview-drive",
-        about = "Headful webview drive: press the real custom-titlebar close control in the live Tauri window and assert the app's own ui.layout.transition record shows compact-widget → hidden. Closes the gap self-verify cannot (it never clicks). --expect-absent inverts the assertion for the capability mutation check"
+        about = "Headful webview drive: drive the assembled product path (launch → traces → storm → incident → Investigate) in the live Tauri window and assert each stage against the app's own obs record. Closes the gap self-verify cannot (it never clicks). --expect-absent <stage> inverts one stage's assertion for the mutation check; --no-inject suppresses telemetry so the telemetry-dependent stages must go red"
     )]
     WebviewDrive {
+        #[arg(long, value_name = "STAGE")]
+        expect_absent: Option<String>,
         #[arg(long)]
-        expect_absent: bool,
+        no_inject: bool,
     },
     #[command(
         name = "perf:slo-load",
@@ -174,9 +176,10 @@ async fn main() -> ExitCode {
         Cmd::CapabilityWideningCheck => capability_widening_check().await,
         Cmd::Smoke { bundle, format } => smoke::run_smoke(&bundle, format).await,
         Cmd::SelfVerify => self_verify::run_self_verify().await,
-        Cmd::WebviewDrive { expect_absent } => {
-            webview_drive::run_webview_drive(expect_absent).await
-        }
+        Cmd::WebviewDrive {
+            expect_absent,
+            no_inject,
+        } => webview_drive::run_webview_drive(expect_absent, no_inject).await,
         Cmd::PerfSloLoad => run_perf_slo_load().await,
         Cmd::CoverageRegression { current, baseline } => {
             run_coverage_regression(&current, &baseline).await
