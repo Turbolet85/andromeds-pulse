@@ -49,7 +49,12 @@ export default [
   },
 
   {
-    files: ["scripts/**/*.{js,mjs}", "tests-a11y/**/*.{js,mjs}", "*.config.{js,mjs,ts}"],
+    files: [
+      "scripts/**/*.{js,mjs}",
+      "tests-a11y/**/*.{js,mjs}",
+      "tests-e2e/**/*.{js,mjs}",
+      "*.config.{js,mjs,ts}",
+    ],
     languageOptions: {
       globals: {
         ...globals.node,

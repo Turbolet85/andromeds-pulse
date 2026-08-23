@@ -266,7 +266,7 @@ async fn run_a11y(workspace_root: &Path) -> Result<A11yOutcome> {
 
 // ===== environment + binary resolution =====
 
-fn headless_skip_reason() -> Option<String> {
+pub(crate) fn headless_skip_reason() -> Option<String> {
     headless_reason(
         cfg!(target_os = "linux"),
         std::env::var("DISPLAY").ok().filter(|s| !s.is_empty()),
@@ -291,7 +291,7 @@ fn headless_reason(
     }
 }
 
-fn workspace_root() -> Result<PathBuf> {
+pub(crate) fn workspace_root() -> Result<PathBuf> {
     Ok(Path::new(env!("CARGO_MANIFEST_DIR"))
         .parent()
         .context("xtask manifest has no workspace parent")?
@@ -311,7 +311,7 @@ fn pulse_binary_candidates(workspace_root: &Path) -> Vec<PathBuf> {
     ]
 }
 
-fn locate_pulse_binary(workspace_root: &Path) -> Option<PathBuf> {
+pub(crate) fn locate_pulse_binary(workspace_root: &Path) -> Option<PathBuf> {
     pulse_binary_candidates(workspace_root)
         .into_iter()
         .find(|p| p.exists())
@@ -321,7 +321,7 @@ fn locate_pulse_binary(workspace_root: &Path) -> Option<PathBuf> {
 // (pulse-app/src/observability.rs), which names files `agent-latest.jsonl.<date>`,
 // not the bare name — so glob the prefix and concatenate, mirroring the obs
 // ci-gates collect_log_files pattern. Missing dir (pre-boot) yields no lines.
-fn read_log_lines(log_dir: &Path) -> Vec<String> {
+pub(crate) fn read_log_lines(log_dir: &Path) -> Vec<String> {
     let Ok(entries) = std::fs::read_dir(log_dir) else {
         return Vec::new();
     };

@@ -59,6 +59,7 @@ _Extracted from `.andromeda/architecture.md` Stack and Technologies section by `
 - **Coverage:** `cargo-llvm-cov` 0.8.5 (LLVM source-based, cross-platform).
 - **Property testing:** `proptest` 1.10.0 (regression files in `proptest-regressions/`).
 - **CI task runner:** `cargo-xtask` (release / sign / notarize / changelog + agent-run harness).
+- **GUI verification harness (dev-only):** `@crabnebula/tauri-driver` 2.x + `webdriverio` 9.x (`pulse-app/ui` devDependencies), driven by `cargo xtask webview-drive` — a headful WebDriver press of a real production control in the live Tauri window. The win32 native driver arrives via the napi optional dep; the host `msedgedriver` must match the installed WebView2 Runtime and is located via `ANDROMEDA_PULSE_MSEDGEDRIVER_PATH` (never committed). No Rust dependency, no runtime/bundle impact.
 - **CI platform:** GitHub Actions with `tauri-action` + `harden-runner` (SHA-pinned).
 - **Supply chain:** `cargo-audit` 0.22.1 + `cargo-deny` 0.19.4 + `cargo-auditable` 0.7.4 + Dependabot (cargo + github-actions ecosystems).
 

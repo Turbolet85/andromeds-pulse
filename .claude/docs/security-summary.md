@@ -40,7 +40,7 @@ Per security plan §Bootstrap phases:
 - NEVER bind OTLP receivers to `0.0.0.0` or any non-loopback interface.
 - NEVER `format!("SELECT … WHERE service_name = '{}'")` against the `duckdb` crate — ALWAYS prepared statements with `?` placeholders.
 - NEVER skip post-`prost`-decode invariant checks (`span_id` is 8 bytes, `trace_id` is 16 bytes).
-- NEVER read path env vars without `strict-path` canonicalize + confinement.
+- NEVER read a **product-binary** path env var without `strict-path` canonicalize + confinement. Harness/xtask-only tool-locator vars (`ANDROMEDA_PULSE_MSEDGEDRIVER_PATH`, `_PIDFILE`, `_LOGFILE`) are carved out — trim + `is_file()` + clean skip.
 - NEVER add a TauRPC procedure without its `EXPECTED_PROCEDURES` pin in `xtask/src/main.rs` + a validated argument struct (per-procedure capability JSON entries do NOT exist — one TauRPC invoke handler). NEVER grant a core API (`fs`/`shell`/`dialog`/`http`) or a `core:window:*` permission without an explicit capability addition — THOSE are silently rejected at runtime.
 - NEVER override `tauri-plugin-updater` Minisign verification; NEVER ship the Minisign **private** key in repo.
 - NEVER reference 3rd-party Actions by `@v2` / floating tag — pin by 40-char SHA (tj-actions/changed-files CVE-2025-30066, 23k repos).

@@ -44,7 +44,7 @@ JSON-per-line; fields: `timestamp` (ISO-8601), `level`, `target`, `message`, `fi
 | **P2** | buffer + snapshot + TauRPC + Channel `pulse://stream/snapshot-progress` | Populate 500 spans → `snapshot.generate({token_budget: 25000})` → assert anomaly markers + `token_count <= 25000` + `dedup_count > 0` + p50/p95/p99 aggregates |
 | **P3** | MCP stdio sidecar + buffer | Spawn with `--features mcp-server` + `ANDROMEDA_PULSE_MCP_ENABLED=true` → JSON-RPC `tools/call query_traces` → assert array of trace objects |
 | **P4** | plugins + WASM Component Model + TauRPC | Stage fixture WASM → `plugins.reload` → `plugins.list` → `plugins.invoke({capability})` → negative test on disallowed capability |
-| **P5** | webview + tray + IPC | IPC contract surrogate (window/tray UI deferred to tauri-driver headful suite) |
+| **P5** | webview + tray + IPC | Widget→hidden proven by a real headful press (`cargo xtask webview-drive`, asserts `ui.layout.transition {compact-widget → hidden}`); resize / tray-repaint / notification stay IPC-surrogate |
 | **P6** | buffer + Tauri Channel + Arrow IPC | Subscribe to `pulse://stream/spans` → ingest gRPC → decode Arrow IPC → schema match |
 | **P7** | workspace-detector + TauRPC | `workspace.detect` → assert `{project_name, root_path, vcs_type: "git", vcs_root}` |
 
@@ -54,7 +54,7 @@ JSON-per-line; fields: `timestamp` (ISO-8601), `level`, `target`, `message`, `fi
 | Unit (Rust) | ≥75% line / ≥70% branch / ≥85% function | `cargo test` + `cargo-nextest` 0.9 |
 | Unit (webview, since chunk #11) | Presentational components (e.g., icons/) EXCLUDED at Foundation pre-shell stage; integration coverage via tauri-driver from chunk #25 | `vitest` 3 + `jsdom` 26 + `@testing-library/react` 16 |
 | Integration | All Standard Contracts + boundary types | `tauri::test::mock_builder()` + `tonic` 0.14.5 + `axum-test` 18.7 + `duckdb-rs` 1.5 |
-| E2E | All 7 critical paths | `tauri-driver` 2.x + `WebdriverIO` 9.x + `mocha` (headless `xvfb-run` Linux; native macOS/Windows) |
+| E2E | All 7 critical paths | `@crabnebula/tauri-driver` 2.x + `webdriverio` 9.x via `cargo xtask webview-drive` (no `mocha`, no `@wdio/*` runner — measured 2026-08-23); native Windows live, Linux `xvfb-run` not yet exercised |
 | Property | Selective per trigger | `proptest` 1.10 |
 | Performance / Load | Four dist-arch v3 profiles (release/tag gate) + per-PR 10k profile | `pulse-app/tests/perf_load_profiles.rs` (nextest `load-profiles` profile via `cargo xtask perf:load-profiles`); `perf_slo_10k_spans.rs` per-PR; live injector `crates/ingest/examples/load_profiles.rs`; `criterion` 0.5 in `xtask benches/` |
 | Chaos / Fault | Trigger-driven | `tokio::time::pause()` + manual broadcast disconnect |

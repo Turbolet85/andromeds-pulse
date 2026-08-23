@@ -9,6 +9,7 @@
 mod bundle_format;
 mod self_verify;
 mod smoke;
+mod webview_drive;
 
 use std::collections::{BTreeMap, BTreeSet};
 use std::path::{Path, PathBuf};
@@ -107,6 +108,14 @@ enum Cmd {
     )]
     SelfVerify,
     #[command(
+        name = "webview-drive",
+        about = "Headful webview drive: press the real custom-titlebar close control in the live Tauri window and assert the app's own ui.layout.transition record shows compact-widget → hidden. Closes the gap self-verify cannot (it never clicks). --expect-absent inverts the assertion for the capability mutation check"
+    )]
+    WebviewDrive {
+        #[arg(long)]
+        expect_absent: bool,
+    },
+    #[command(
         name = "perf:slo-load",
         about = "10k spans/sec sustained-load test + post-test metric.webgpu.frame_duration_ms p99 ≤33ms + metric.buffer.memory_bytes max ≤512MB gate"
     )]
@@ -165,6 +174,9 @@ async fn main() -> ExitCode {
         Cmd::CapabilityWideningCheck => capability_widening_check().await,
         Cmd::Smoke { bundle, format } => smoke::run_smoke(&bundle, format).await,
         Cmd::SelfVerify => self_verify::run_self_verify().await,
+        Cmd::WebviewDrive { expect_absent } => {
+            webview_drive::run_webview_drive(expect_absent).await
+        }
         Cmd::PerfSloLoad => run_perf_slo_load().await,
         Cmd::CoverageRegression { current, baseline } => {
             run_coverage_regression(&current, &baseline).await

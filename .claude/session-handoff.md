@@ -1,41 +1,41 @@
 # Session Handoff
 
-**Last Updated:** 2026-08-23T11:59:30Z
-**Branch:** chore/migrate-pulse-to-v3 (tracks `origin/chore/migrate-pulse-to-v3`; 20 ahead before this commit — unpushed)
+**Last Updated:** 2026-08-23T14:00:00Z
+**Branch:** chore/migrate-pulse-to-v3 (tracks `origin/chore/migrate-pulse-to-v3`; 21 ahead before this commit — unpushed)
 **Status:** clean (wrapped)
-**Last Commit:** `chore(route): operator-requested adaptation — 0-pending wrap`
+**Last Commit:** `feat(2026-08-23-webview-self-verify): an agent presses a real control in the live Tauri window`
 
 ## Position
-- Done: no chunk — **0-pending adaptation wrap** (session 37). The markerless tail was reordered on operator request; no code, no spec, no master-route write.
-- Next (first markerless): **Webview self-verify on the Windows host** — stand up an agent-driven driver that can press a control in the real Tauri window. It now carries the `cargo audit` PREREQ as **pin #10**; that pin is **DISCHARGED for point 37** (fired this wrap), so the next probe point is **40**, not the next wrap.
-- Then: **Integration UX e2e test** (P-076), unchanged, with all 13 CARRYs.
+- Done: **2026-08-23-webview-self-verify** — the headful driver gap closed. `cargo xtask webview-drive` presses the production custom-titlebar ✕ in the live Tauri window and asserts the app's own `ui.layout.transition {compact-widget → hidden}`; a RED arm with the capability revoked proves the leg discriminates a dead affordance.
+- Next (first markerless): **Integration UX e2e test** (P-076) — now carries the `cargo audit` PREREQ as **pin #11** plus its own 13 CARRYs. Probe point 37 discharged; **next point is 40**, so session 39 owes no probe either.
+- Then: A11y verification · Halo canvas disposition · Advisory backlog · **npm advisory coverage** (new this wrap) · Diagnostics un-muting · Staged-bindings assertion (+1 new CARRY) · Metrics label surface · Demo injector.
 
 ## Work done
-One file changed — `andromeda-pulse-0.3.0/working-route.md`. Markerless positions 1 ↔ 2 swapped so *Webview self-verify* precedes *Integration UX e2e test*.
+Two new files (`xtask/src/webview_drive.rs` with 9 unit tests · `pulse-app/ui/tests-e2e/webview-drive.mjs`), four modified (`xtask/src/main.rs` · `xtask/src/self_verify.rs` · `pulse-app/ui/package.json`+lock · `pulse-app/ui/eslint.config.mjs`).
 
-**Premise verified at HEAD before applying, not taken on trust.** P-076's matrix acceptance names *"A tauri-driver e2e test"* verbatim, and the self-verify entry's own SCOPE says *"stand up that driver … this entry is their prerequisite, which is why it sits ahead of them"* — while it sat behind. The entry's ordering claim was **unenforced prose that had silently gone false**: route-resolve's dependency-reorder rule fires only when a chunk outcome surfaces a dependency, and nothing re-reads the standing tail for order-vs-declared-dependency contradictions. Logged as friction `contract.structural-blind-spot`.
+**Both driver shapes were probed before either was built, per the directive.** Shape (a) tauri-driver + WebdriverIO WON on measurement and owes no amendment. Shape (b) CDP + Playwright also attaches (all four windows enumerable as page targets) but has no CDP path at HEAD and runs against `test-plan.md:148` — probed, recorded, not adopted; `playwright.config.ts` left untouched and still inert.
 
-**Annotations moved with their entries** per route-resolve §Operator-requested adaptation: P-076's 13 CARRYs intact on their entry; the audit PREREQ migrated onto the new head (origin `2026-08-15-corpus-key-persistence` preserved); the stale NOTE naming its departure re-dated 2026-08-23 and given a target. All seven other entries' annotation counts unchanged.
+**The directive's framing needed one correction that changed what the leg proves.** `core:window:allow-close` is granted today, so the ✕ works — the leg is a **regression guard, not a bug repro**, which is exactly why the mutation check was mandatory. The assertion needed no new obs target and no new allowlist leaf: `ui.layout.transition` already existed with a leaf permitting every field, and `layout_mode_from` names which window closed for free.
 
-**Integrity verified against a pre-edit snapshot:** 101 → 101 lines · 41 → 41 entries · **all 32 frozen lines byte-identical** · positions 3–9 byte-identical · exactly 2 content-changed lines. The long entry (9,975 chars) was never transcribed — the short entry was moved instead.
-
-**`cargo audit` probe point 37 — FIRED IN FULL FORM**, exit status read directly, never through a pipe: `cargo audit` exit **1** with `parse error: duplicate advisory ID: RUSTSEC-2026-0244` (signature byte-identical); overlap `cargo deny check advisories` designed-RED at exactly the **8 owned IDs** (0189/0190/0194/0195/0204/0222/0253/0258); pass/fail half `cargo deny check bans licenses sources` **ok**. → probe-auto-satisfy, **5th consecutive** (25/28/31/34/37). Basis re-verified, not echoed: zero dependency delta this wrap. **Next point 40.**
-
-**Code-graph refreshed:** rust 7005n/34067e (61s) · ts 4035n/7350e (5s), both planes.
+**Gates all green:** fmt · clippy `--workspace --all-targets --all-features` · **nextest 1886/1886 + 1 skip** (1877 + 9) · capability-drift clean · capability-widening-check clean · `cargo deny check bans licenses sources` ok · advisories at the 8 owned IDs unchanged · webview lint/typecheck/**801 vitest** · playwright `--list` 33/15 · **self-verify PASS**. Boot smoke fired as the Direct-binary variant four times on separate fresh data dirs.
 
 ## Drift resolved
-None — the no-op path runs no P1 report and no P2 fan-out (no chunk to attribute changes to). Master-route untouched: 0 pending, and wrap's only master write is the `pending → complete` flip, which needs a pending record. Drift = 0 on exit.
+**16 proposals · 15 applied · 1 rejected · 4 escalations resolved · drift = 0 on exit.**
+- **arch** — registered `ANDROMEDA_PULSE_MSEDGEDRIVER_PATH` (harness-only class) + a §Stack row for the dev-only GUI harness.
+- **security** — narrowed the categorical `ANDROMEDA_PULSE_*_PATH` canonicalize-and-confine ban to **product-binary** reads across all 3 restating sites, carving out harness-only tool locators (operator-approved; the exemption already existed by precedent via `_PIDFILE`/`_LOGFILE` but no doc stated it). Recorded the measured npm advisory-scanning gap.
+- **test-plan** — headful agent-driven GUI automation is now IN scope (§2), P5 moved DEFERRED → PARTIALLY DISCHARGED, the shipped runner recorded (no mocha, no `@wdio/*`), §9 applied-as-measured (**not yet CI-wired**), +2 pending-coverage triggers.
+- **a11y-plan** — the phantom `button[aria-label="Minimize to tray"]` (**zero occurrences in the codebase**) replaced with the shipped `Minimize` + `Close to tray`, at both restating sites.
+- **1 REJECTED on validate check 4:** the detector claimed no npm Dependabot ecosystem; `.github/dependabot.yml` demonstrably configures npm at `/pulse-app/ui`. Only the verified residue was applied.
+- Cascade also caught two test-plan sites quoting the security ban over *all* path vars, and correctly left `obs-plan.md:124` alone (it scopes to the product config-load path).
 
 ## Notes
 
-- **One deliberate deviation from a literal reading of the request, for correction if wrong.** The request said pin #9 migrates "untouched". Its text read *"the NEXT wrap is point 37 and fires the probe in FULL form"* — and this wrap **is** 37 and fired it, so migrating those bytes verbatim would have left the pin self-contradictory at rest. The status line was re-authored (points → 25/28/31/34/**37**; next → **40**; pin #9 → **#10**) while **basis, signature, origin and closing condition stayed unchanged**. Route-resolve independently requires the basis be re-verified at each pin and the outcome recorded as `probe unchanged, {N}th consecutive`, so an update was owed regardless.
-
-- **A route annotation carrying a forward-looking session-counted claim cannot migrate verbatim across the wrap that satisfies it.** Generalizes past this pin: any annotation phrased "the NEXT wrap will …" decays the moment the wrap count advances or the annotation moves.
-
-- **Route entries have outgrown the Edit-tool write path.** The first markerless entry is 9,975 chars on ONE line (13 CARRYs + PREREQ + NOTE), so any edit whose `old_string` must span it costs a full verbatim transcription. The reorder stayed safe only because the *other* entry was short (974 chars) and could be moved instead — two adjacent long entries would have no such escape.
-
-- **Curation: zero candidates.** The session's only content is evolve telemetry (excluded from curation scope by contract — the friction stream is never curated) plus the route directive, already recorded in the route itself. No corrections, dependencies, repeated commands, or conventions. CLAUDE.md unchanged at **153/200**.
-
+- **The RED mutation arm is MANUAL — this is a discipline, not a gate.** Only `--expect-absent` is code; the revoke → rebuild → press → restore cycle was by hand. **No shipped gate catches a left-revoked capability grant** (`capability-drift` parses procedures from `bindings.ts` and never reads grants; `capability-widening-check` covers only the 3 NEVER-widen caps, widening direction only). Recorded three ways so it cannot go silent: test-plan trigger `webview-drive-mutation-arm-not-gated`, a CARRY on the Staged-bindings assertion entry, and a `rules/verification-harness.md` Session Addition.
+- **`resolve_msedgedriver` ships with no unit test** — both branches were observed manually but neither is pinned. Trigger `webview-drive-msedgedriver-resolver-unit-coverage`.
+- **The version pairing will decay.** msedgedriver **151.0.4129.101** ↔ WebView2 Runtime ↔ Edge, confirmed by build-hash equality with the CDP-reported `WebKit-Version`. The first Windows update that moves the runtime breaks it silently (the driver just refuses the session) and red-flags **both** projects — Conductor's Epoch-5 head reuses this exact install. Recipe + diagnosis in `docs/session-learnings.md`.
+- **Self-caught during implement:** the first driver used fixed `sleep(N)` (violating this chunk's own acceptance criterion and racing teardown against the click's IPC) → replaced with bounded polls; and setting the node CWD under the repo made the spawned app emit a stray `pulse-app/ui/ui/src/bindings/index.ts`, since TauRPC dev-mode `export_types()` writes relative to CWD. One level higher would have **clobbered** the real bindings.
+- **Disk:** D: hit 0.1 GB of 300 GB mid-gate, surfacing as `rust-lld` exit 1 (the documented signature). `cargo clean -p pulse-app` freed 97.6 GiB. No gate result was accepted from a disk-failed run.
+- Curation: T1 ×1 (in-place extension — companion-repo config ≠ host capability) · T2 ×1 · T3 ×1. CLAUDE.md **153/200**.
 - Last failed command: none.
 
 ## Deferred learnings
