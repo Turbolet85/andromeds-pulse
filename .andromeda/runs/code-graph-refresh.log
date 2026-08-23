@@ -1,1 +1,2 @@
-tree-refresh: 6604 nodes / 32344 edges - 60s
+tree-refresh[rust]: 7005 nodes / 34067 edges - 61s
+tree-refresh[ts]: 4035 nodes / 7350 edges - 5s

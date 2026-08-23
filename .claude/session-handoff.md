@@ -1,42 +1,42 @@
 # Session Handoff
 
-**Last Updated:** 2026-08-23T11:35:41Z
-**Branch:** chore/migrate-pulse-to-v3 (tracks `origin/chore/migrate-pulse-to-v3`; 19 ahead before this commit — unpushed)
+**Last Updated:** 2026-08-23T11:59:30Z
+**Branch:** chore/migrate-pulse-to-v3 (tracks `origin/chore/migrate-pulse-to-v3`; 20 ahead before this commit — unpushed)
 **Status:** clean (wrapped)
-**Last Commit:** `2026-08-23-metrics-points-labels` — a metric point's label set survives ingestion and reads back
+**Last Commit:** `chore(route): operator-requested adaptation — 0-pending wrap`
 
 ## Position
-- Done: `2026-08-23-metrics-points-labels` — `metrics_points` gained a scrubbed `labels VARCHAR NOT NULL DEFAULT ''` column across all three DDL representations, deliberately OUTSIDE the 4-column PK. Labels reach `SELECT_METRICS`, `MetricRow`, the `metrics.*` IPC response, MCP `query_metrics` and `pulse://stream/metrics`. **Measured RED first at HEAD**, then GREEN.
-- Next (first markerless): **Integration UX e2e test** (P-076). Carries the re-pinned `cargo audit` PREREQ (**pin #9**) — and **the next wrap IS probe point 37**, so it fires in FULL form with the exit status read directly, never through a pipe.
+- Done: no chunk — **0-pending adaptation wrap** (session 37). The markerless tail was reordered on operator request; no code, no spec, no master-route write.
+- Next (first markerless): **Webview self-verify on the Windows host** — stand up an agent-driven driver that can press a control in the real Tauri window. It now carries the `cargo audit` PREREQ as **pin #10**; that pin is **DISCHARGED for point 37** (fired this wrap), so the next probe point is **40**, not the next wrap.
+- Then: **Integration UX e2e test** (P-076), unchanged, with all 13 CARRYs.
 
 ## Work done
-8 files, **+403/−6**. The scrub input is the **JOINED `key=value` form unioned with the bare value** — an operator correction at the phase P5 review, and load-bearing: `scrub_attribute` takes one `&str` while `secret_kv` and `api_key` are key-name-anchored, so a value-only scrub sees `hunter2` and matches nothing, leaking the entire keyed class. Keys are stored verbatim; only values become `[REDACTED:{category}]`, so two distinct keys never collapse into one placeholder. Ingest already bounded attributes (128/point · 256 B/key · 4096 B/value), so the bound half was inherited, not built. `consumer.rs` and `mcp-server/tools.rs` were verified unchanged, as the plan predicted.
+One file changed — `andromeda-pulse-0.3.0/working-route.md`. Markerless positions 1 ↔ 2 swapped so *Webview self-verify* precedes *Integration UX e2e test*.
 
-**Gates green:** fmt · clippy `-D warnings` · nextest **1877** + 1 skip (1870 → +7, exactly the pins added) · `-p buffer -p viz` **225/225** · ui lint/typecheck/vitest **801** · capability-drift clean · capability-widening 0/3 · `cargo deny check bans licenses sources` ok · advisories designed-RED at exactly the 8 owned IDs, no new findings. **Zero gate deferrals.**
+**Premise verified at HEAD before applying, not taken on trust.** P-076's matrix acceptance names *"A tauri-driver e2e test"* verbatim, and the self-verify entry's own SCOPE says *"stand up that driver … this entry is their prerequisite, which is why it sits ahead of them"* — while it sat behind. The entry's ordering claim was **unenforced prose that had silently gone false**: route-resolve's dependency-reorder rule fires only when a chunk outcome surfaces a dependency, and nothing re-reads the standing tail for order-vs-declared-dependency contradictions. Logged as friction `contract.structural-blind-spot`.
 
-**RED → GREEN, real OTLP path, separate fresh data dirs:** RED at HEAD gave `rows_ingested` **8** with `redactions_applied` **2** (metric names only — zero label redactions); GREEN gave **8** / **4**. The +2 is exactly the two label canaries; the benign `http.method=GET` did not increment, proving selectivity at the wire. Both legs 0 ERROR / 0 panics — this defect was information loss, not batch rejection, so the RED evidence is the counter, not a `duckdb.append` failure. 0 canary literals across 1417 lines. Clean shutdown by specific PID, both ports released, 0 orphans.
+**Annotations moved with their entries** per route-resolve §Operator-requested adaptation: P-076's 13 CARRYs intact on their entry; the audit PREREQ migrated onto the new head (origin `2026-08-15-corpus-key-persistence` preserved); the stale NOTE naming its departure re-dated 2026-08-23 and given a target. All seven other entries' annotation counts unchanged.
 
-**Mutation check — both families discriminate.** Neutralising the label scrub reddened the redaction pin with the defect verbatim (`left: "password=hunter2"`); dropping `labels` from the read reddened the distinguishability pin while the empty-labels pin stayed green — the expected asymmetry for a conditional property.
+**Integrity verified against a pre-edit snapshot:** 101 → 101 lines · 41 → 41 entries · **all 32 frozen lines byte-identical** · positions 3–9 byte-identical · exactly 2 content-changed lines. The long entry (9,975 chars) was never transcribed — the short entry was moved instead.
+
+**`cargo audit` probe point 37 — FIRED IN FULL FORM**, exit status read directly, never through a pipe: `cargo audit` exit **1** with `parse error: duplicate advisory ID: RUSTSEC-2026-0244` (signature byte-identical); overlap `cargo deny check advisories` designed-RED at exactly the **8 owned IDs** (0189/0190/0194/0195/0204/0222/0253/0258); pass/fail half `cargo deny check bans licenses sources` **ok**. → probe-auto-satisfy, **5th consecutive** (25/28/31/34/37). Basis re-verified, not echoed: zero dependency delta this wrap. **Next point 40.**
+
+**Code-graph refreshed:** rust 7005n/34067e (61s) · ts 4035n/7350e (5s), both planes.
 
 ## Drift resolved
-**9 amendments across 4 masters · 0 escalations · drift = 0.** security-plan ×5 (2 primaries — coverage 4→5 cells, and a THIRD scrub shape with its failure mode — plus 3 restating sites, one of which needed the two different fives disambiguated rather than incremented) · arch ×1 (§Conventions primary-key convention; §Occupied Resources explicitly disposed as tables-not-columns) · obs-plan ×1 (§5 scope 4→5 sites AND the counting unit refined to per-redacted-label-PAIR) · test-plan ×2 (§4 pin set + the §1 audit row). Cascade re-derived **5 leaves**; closure grep over six retired forms: **0 stale claims**.
+None — the no-op path runs no P1 report and no P2 fan-out (no chunk to attribute changes to). Master-route untouched: 0 pending, and wrap's only master write is the `pending → complete` flip, which needs a pending record. Drift = 0 on exit.
 
 ## Notes
 
-- **The cascade table is still wrong, and the playbook rule saved it again.** `amendment-flow.md` names only `stack.md` as architecture.md's leaf, but the provenance header shows TWO — `conventions.md` distills §Conventions verbatim and carried the retired "stores no attributes column" claim. The 2026-08-22 enumerate-by-provenance rule, codified after this exact leak one chunk ago, caught it a second time. The rule works; the reference it compensates for has not been fixed.
+- **One deliberate deviation from a literal reading of the request, for correction if wrong.** The request said pin #9 migrates "untouched". Its text read *"the NEXT wrap is point 37 and fires the probe in FULL form"* — and this wrap **is** 37 and fired it, so migrating those bytes verbatim would have left the pin self-contradictory at rest. The status line was re-authored (points → 25/28/31/34/**37**; next → **40**; pin #9 → **#10**) while **basis, signature, origin and closing condition stayed unchanged**. Route-resolve independently requires the basis be re-verified at each pin and the outcome recorded as `probe unchanged, {N}th consecutive`, so an update was owed regardless.
 
-- **`D-security-logging` fired correctly on its first live run** — added one chunk ago after the section needed amendment at three consecutive chunks. It produced the richest proposal set (5 of 9) and caught the two-different-fives ambiguity no floor entry had anticipated. Its report-fact needs went beyond the stock Changes bullets, so a dedicated Scrub-posture subsection was written; the agent cited it by name in all five proposals.
+- **A route annotation carrying a forward-looking session-counted claim cannot migrate verbatim across the wrap that satisfies it.** Generalizes past this pin: any annotation phrased "the NEXT wrap will …" decays the moment the wrap count advances or the annotation moves.
 
-- **A mutation check can report the INVERSE finding.** A heredoc-quoted Python edit script whose target line ends in a line-continuation backslash raises `SyntaxError` and changes nothing, while the following test run prints its usual PASS lines — indistinguishable from a pin that fails to discriminate. It happened twice this session; the second was the mutation check itself. Curated to `rules/testing.md` as a facet on the 2026-08-17 entry.
+- **Route entries have outgrown the Edit-tool write path.** The first markerless entry is 9,975 chars on ONE line (13 CARRYs + PREREQ + NOTE), so any edit whose `old_string` must span it costs a full verbatim transcription. The reorder stayed safe only because the *other* entry was short (974 chars) and could be moved instead — two adjacent long entries would have no such escape.
 
-- **`agent-run.sh run` is `cargo nextest run --workspace`, not an OTLP send.** The first Test Commands draft used it as the live leg and also called `mktemp -d` twice per leg, which would have split boot and the log read across different data dirs. Both caught at the phase P5 review. Curated to `rules/verification-harness.md`.
-
-- **`cargo audit`:** session 36 is BETWEEN ratified probe points (25/28/31/34, DISCHARGED at 34) → **skipped in the ratified form, next point 37**. Basis re-verified rather than echoed: the upstream RustSec load failure cannot be cleared by a repo change, which holds a fortiori here since the chunk added and bumped zero dependencies. Overlap re-derived this wrap: stable at the 8 owned IDs.
+- **Curation: zero candidates.** The session's only content is evolve telemetry (excluded from curation scope by contract — the friction stream is never curated) plus the route directive, already recorded in the route itself. No corrections, dependencies, repeated commands, or conventions. CLAUDE.md unchanged at **153/200**.
 
 - Last failed command: none.
 
 ## Deferred learnings
-None — curation landed exactly at the Filter-5 cap of 3 with no overflow.
-
-## Curation
-T1 0 · **T2 3** · T3 0 · corrections 0. At the cap, nothing deferred. Two landed as new `## Session Additions` entries (`rules/security.md` — a regex catalog's arms can require the COMPOSED form, so scrubbing a decomposed value silently disables the key-anchored subset; `rules/verification-harness.md` — the live-leg invocation form) and one as an in-place additive facet on the 2026-08-17 mutation-check entry in `rules/testing.md`. Filtered 2 as duplicates — the conditional-property pin asymmetry (a third confirming instance of an entry already extended 2026-08-23) and the provenance-vs-table cascade (the playbook rule worked, so not a recurrence-despite-learning). CLAUDE.md **153/200**.
+None.
