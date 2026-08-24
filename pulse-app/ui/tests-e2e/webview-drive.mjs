@@ -26,16 +26,28 @@ import { readdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 
 const require = createRequire(import.meta.url)
-const { remote } = require('webdriverio')
+const { remote, Key } = require('webdriverio')
 
 const PULSE_BIN = process.env.PULSE_BIN
 const PULSE_DATA_DIR = process.env.PULSE_DATA_DIR
 const MSEDGEDRIVER_PATH = process.env.MSEDGEDRIVER_PATH
 const PULSE_INJECTOR = process.env.PULSE_INJECTOR ?? ''
 
-const TRACE_TABLE = '[data-testid="trace-table"]'
+// Traces anchors re-pointed onto the accessible names/roles the surface ships
+// (2026-08-23-a11y-verification made them load-bearing): the hero landmark by
+// its STABLE literal name, the trace list by its native table element (the
+// implicit `table` role), rows by their semantic class. The empty state ships
+// no accessible anchor (a plain <td> message cell), so its testid stays —
+// test-plan §6 permits data-testid exactly where no accessible name ships.
+const TRACE_REGION = 'section[aria-label="Telemetry traces chart"]'
+const TRACE_TABLE = 'table'
 const TRACE_TABLE_EMPTY = '[data-testid="trace-table-empty"]'
-const TRACE_ROW = '[data-testid="trace-row"]'
+const TRACE_ROW = '.trace-row'
+const TRACE_SCROLL = '[data-testid="trace-table-scroll"]'
+const CONNECTION_STATUS_LINE = '[data-testid="connection-status-line"]'
+const FINDINGS_COUNTER = '[data-testid="findings-counter"]'
+const FINDINGS_ROW = '[data-testid="findings-window-row"]'
+const MODAL_DIALOG = '[data-testid="modal-dialog"]'
 const INVESTIGATE = 'button[aria-label="Investigate"]'
 const CLOSE_TO_TRAY = 'button[aria-label="Close to tray"]'
 const TOGGLE_DASHBOARD = 'button[aria-label="Toggle dashboard"]'
@@ -128,34 +140,51 @@ function portAccepts(port) {
 
 // Synchronization only. The xtask caller re-reads the same family afterwards
 // and owns the verdict; reading here just decides when a stage may advance.
-function logMentions(dataDir, predicate) {
+function logRecords(dataDir) {
   const logDir = join(dataDir, 'logs')
   let names
   try {
     names = readdirSync(logDir)
   } catch {
-    return false
+    return []
   }
-  return names
-    .filter((n) => n.startsWith('agent-latest.jsonl'))
-    .some((n) => {
-      let body
+  const records = []
+  for (const n of names.filter((n) => n.startsWith('agent-latest.jsonl'))) {
+    let body
+    try {
+      body = readFileSync(join(logDir, n), 'utf8')
+    } catch {
+      continue
+    }
+    for (const line of body.split('\n').filter(Boolean)) {
       try {
-        body = readFileSync(join(logDir, n), 'utf8')
+        records.push(JSON.parse(line))
       } catch {
-        return false
+        /* partial line mid-write */
       }
-      return body
-        .split('\n')
-        .filter(Boolean)
-        .some((line) => {
-          try {
-            return predicate(JSON.parse(line))
-          } catch {
-            return false
-          }
-        })
-    })
+    }
+  }
+  return records
+}
+
+function logMentions(dataDir, predicate) {
+  return logRecords(dataDir).some((rec) => {
+    try {
+      return predicate(rec)
+    } catch {
+      return false
+    }
+  })
+}
+
+function logCount(dataDir, predicate) {
+  return logRecords(dataDir).filter((rec) => {
+    try {
+      return predicate(rec)
+    } catch {
+      return false
+    }
+  }).length
 }
 
 const sawIncidentCreated = (dataDir) =>
@@ -216,6 +245,125 @@ async function switchToDashboard(browser) {
   return null
 }
 
+// Switch by the REAL Tauri window label — the one identity URL + markers can't
+// fake. NOTE (measured): the label is injected via an initialization script
+// that runs on about:blank too, so label readability is NOT a navigation
+// signal — a window can answer its label while still blank. Navigation is
+// proven only by getUrl() leaving about:blank.
+async function switchToLabel(browser, label) {
+  const handles = await browser.getWindowHandles()
+  for (const handle of handles) {
+    await browser.switchToWindow(handle)
+    let found = null
+    try {
+      found = await browser.execute(
+        () => globalThis.__TAURI_INTERNALS__?.metadata?.currentWindow?.label ?? null,
+      )
+    } catch {
+      found = null
+    }
+    if (found === label) return handle
+  }
+  return null
+}
+
+// Window getters via the Tauri IPC the app itself uses cross-window
+// (use-toggle-dashboard finds `main` from the widget webview) — the getters
+// live in core:window:default, so no extra grant. Callers must be switched to
+// a NAVIGATED tauri webview; the target window is named by label.
+// Last invoke failure, surfaced into stage details so a broken transport is
+// distinguishable from a genuinely-false visibility read (null vs false).
+let lastInvokeError = null
+
+async function windowInvoke(browser, cmd, label) {
+  try {
+    const result = await browser.executeAsync(
+      (cmd, label, done) => {
+        const t = globalThis.__TAURI_INTERNALS__
+        if (!t || typeof t.invoke !== 'function') return done({ error: 'no-tauri-internals' })
+        t.invoke(`plugin:window|${cmd}`, { label })
+          .then((value) => done({ value }))
+          .catch((e) => done({ error: String(e) }))
+      },
+      cmd,
+      label,
+    )
+    if (result && 'value' in result) return result.value
+    lastInvokeError = `${cmd}(${label}): ${result?.error ?? 'no result'}`
+    return null
+  } catch (e) {
+    lastInvokeError = `${cmd}(${label}): ${e?.message ?? e}`
+    return null
+  }
+}
+
+// Position/size payloads normalize across the two serde shapes tauri versions
+// have used ({x,y} plain vs {Physical:{x,y}}).
+const asPoint = (v) =>
+  v && typeof v.x === 'number' ? { x: v.x, y: v.y } : (v?.Physical ?? null)
+const asSize = (v) =>
+  v && typeof v.width === 'number'
+    ? { width: v.width, height: v.height }
+    : (v?.Physical ?? null)
+
+async function isWindowVisible(browser, label) {
+  return (await windowInvoke(browser, 'is_visible', label)) === true
+}
+
+// Root-cause remediation for the measured startup race: each boot under the
+// automation environment loses ~ONE of the four webviews' initial navigation
+// (victim ~random — main run A, findings run B, report run C), and nothing
+// ever re-navigates it — which is exactly why a toggle press could never
+// recover a blank main (show ≠ navigate; 0/10 measured). Re-navigate every
+// about:blank victim to the app origin (copied from a healthy sibling), and
+// record WHO was recovered so the race stays visible in every report. Runs at
+// launch, before any stage asserts anything, so the traces no-reload invariant
+// (which starts at traces-empty) is untouched.
+async function recoverBlankWindows(browser) {
+  const recovered = []
+  let origin = null
+  for (const handle of await browser.getWindowHandles()) {
+    await browser.switchToWindow(handle)
+    let url = null
+    try {
+      url = await browser.getUrl()
+    } catch {
+      continue
+    }
+    if (url && url !== 'about:blank') {
+      origin = new URL(url).origin
+      break
+    }
+  }
+  if (!origin) return recovered
+  for (const handle of await browser.getWindowHandles()) {
+    await browser.switchToWindow(handle)
+    let url = null
+    try {
+      url = await browser.getUrl()
+    } catch {
+      continue
+    }
+    if (url !== 'about:blank') continue
+    let label = null
+    try {
+      label = await browser.execute(
+        () => globalThis.__TAURI_INTERNALS__?.metadata?.currentWindow?.label ?? null,
+      )
+    } catch {
+      /* label stays null */
+    }
+    try {
+      await browser.url(`${origin}/`)
+      recovered.push(label ?? 'unknown')
+      console.log(`webview-drive: recovered blank webview (label=${label}) via ${origin}/`)
+    } catch (err) {
+      console.log(`webview-drive: FAILED to recover blank webview (label=${label}): ${err?.message ?? err}`)
+    }
+  }
+  return recovered
+}
+
 async function switchToInvestigateHost(browser) {
   const handles = await browser.getWindowHandles()
   for (const handle of handles) {
@@ -228,8 +376,11 @@ async function switchToInvestigateHost(browser) {
 // One-shot ground truth about what each webview actually contains. A stage that
 // never satisfies is otherwise indistinguishable between "wrong window" and
 // "selector wrong", and guessing between those costs a full run each time.
+// Returns a derived per-handle summary so a failing launch record carries its
+// own diagnosis instead of only console scrollback.
 async function dumpHandles(browser, label) {
   const handles = await browser.getWindowHandles()
+  const summary = []
   console.log(`webview-drive: --- handles (${label}): ${handles.length} ---`)
   for (const handle of handles) {
     await browser.switchToWindow(handle)
@@ -252,16 +403,18 @@ async function dumpHandles(browser, label) {
     // The Tauri window label is the only unambiguous identity: App.tsx renders
     // <Dashboard /> for BOTH `main` and the `unknown` fallback, so URL plus
     // marker presence cannot tell those apart while the SPA is still mounting.
-    let label = '<unknown>'
+    let winLabel = '<unknown>'
     try {
-      label = await browser.execute(
+      winLabel = await browser.execute(
         () => globalThis.__TAURI_INTERNALS__?.metadata?.currentWindow?.label ?? '<none>',
       )
     } catch {
       /* not a Tauri webview, or internals not exposed */
     }
-    console.log(`webview-drive:   ${handle} label=${label} url=${url} ${JSON.stringify(marks)}`)
+    console.log(`webview-drive:   ${handle} label=${winLabel} url=${url} ${JSON.stringify(marks)}`)
+    summary.push({ label: winLabel, navigated: url !== 'about:blank', ...marks })
   }
+  return summary
 }
 
 // Every window boots `visible: false` (tauri.conf.json); the widget is shown at
@@ -335,34 +488,64 @@ async function main() {
   })
 
   try {
-    // Stage 1 — launch: the dashboard surface is reachable, which on this shell
-    // means pressing the real in-widget affordance that opens it.
-    await dumpHandles(browser, 'before toggle')
-    // The dashboard webview mounts on its own schedule — measured present at
-    // /traces before any toggle in some runs and still at / in others. So wait
-    // for a self-mount FIRST, and only press the toggle if it stays absent;
-    // pressing while it is merely slow would hide a window that was coming up.
-    let found = await pollUntil(
-      'dashboard self-mount',
-      MOUNT_GRACE_MS,
-      async () => (await switchToDashboard(browser)) !== null,
-    )
+    // Stage 1 — launch. Wait on the POSITIVE NAVIGATION SIGNAL first: a
+    // webview that left about:blank exposes __TAURI_INTERNALS__, so `main`'s
+    // label becomes readable — which separates "SPA still mounting" (navigated;
+    // keep waiting for the tab nav) from the measured startup race ("main"
+    // never navigates; a toggle press cannot mount an unnavigated SPA — 0/10
+    // across 14 runs, 50s already elapsing in failing runs).
+    await dumpHandles(browser, 'before launch')
+    const recoveredBlank = await recoverBlankWindows(browser)
+    // Labels are readable on about:blank (initialization-script injection), so
+    // the navigation signal is the URL itself leaving about:blank.
+    const mainNavigated = async () => {
+      if ((await switchToLabel(browser, 'main')) === null) return false
+      let url = null
+      try {
+        url = await browser.getUrl()
+      } catch {
+        return false
+      }
+      return !!url && url !== 'about:blank'
+    }
+    const navigated = await pollUntil('main webview navigated', MOUNT_GRACE_MS, mainNavigated)
     // Press ONCE, never inside a poll: re-pressing each interval would toggle
     // the dashboard shut again, a ~120-press flicker whose outcome is decided
     // by which parity the deadline lands on.
     let toggled = false
-    if (!found) {
-      toggled = await openDashboard(browser)
+    let found = false
+    if (navigated) {
       found = await pollUntil(
-        'dashboard window',
+        'dashboard mount',
         DASHBOARD_TIMEOUT_MS,
         async () => (await switchToDashboard(browser)) !== null,
       )
+    } else {
+      // Never-navigated: press the real affordance ONCE anyway — the press is
+      // free evidence (its measured uselessness here is the race's signature),
+      // and a hypothetical show-triggered late navigation would still be
+      // caught by the re-check.
+      toggled = await openDashboard(browser)
+      const lateNavigated = await pollUntil(
+        'main webview navigated (post-toggle)',
+        DASHBOARD_TIMEOUT_MS,
+        mainNavigated,
+      )
+      if (lateNavigated) {
+        found = await pollUntil(
+          'dashboard mount (post-toggle)',
+          DASHBOARD_TIMEOUT_MS,
+          async () => (await switchToDashboard(browser)) !== null,
+        )
+      }
     }
-    if (!found) await dumpHandles(browser, 'after failed toggle')
+    const handles = await dumpHandles(browser, found ? 'launch' : 'after failed launch')
     record('launch', found, {
-      windows: (await browser.getWindowHandles()).length,
+      windows: handles.length,
       toggle_pressed: toggled,
+      main_navigated: await mainNavigated(),
+      recovered_from_blank: recoveredBlank,
+      handles,
     })
     if (!found) return 3
     await switchToDashboard(browser)
@@ -374,7 +557,13 @@ async function main() {
       await switchToDashboard(browser)
       return browser.$(TRACE_TABLE_EMPTY).isExisting()
     })
-    record('traces-empty', emptyShown, { rows_before: await countRows(browser) })
+    record('traces-empty', emptyShown, {
+      rows_before: await countRows(browser),
+      // The a11y anchors the leg now binds to — a regression on either
+      // reddens the run's diagnosis even though `observed` keys on the cell.
+      region_present: await browser.$(TRACE_REGION).isExisting(),
+      table_present: await browser.$(TRACE_TABLE).isExisting(),
+    })
 
     // Stage 3 — traces-populate: telemetry starts flowing and the table fills
     // ON ITS OWN. No reload, no re-navigation between here and the assertion.
@@ -389,7 +578,86 @@ async function main() {
       rows_after: await countRows(browser),
     })
 
-    // Stage 4 — storm-incident: wait for the app's own incident record. This is
+    // Stage 4 — traces-scroll (P-082, default window size): the table body
+    // scrolls INSIDE its own region while the page does not. Rows keep
+    // arriving while the injector runs, so poll until the region overflows —
+    // asserting page containment in the SAME probe, because the defect mode
+    // is precisely "the outer page scrolls instead".
+    const scrollProbe = () =>
+      browser.execute((scrollSel) => {
+        const el = globalThis.document.querySelector(scrollSel)
+        const doc = globalThis.document.scrollingElement || globalThis.document.documentElement
+        return {
+          scroll_region_found: !!el,
+          region_overflows: !!el && el.scrollHeight > el.clientHeight,
+          page_overflows: doc.scrollHeight > doc.clientHeight,
+        }
+      }, TRACE_SCROLL)
+    await pollUntil('trace table internal overflow', POPULATE_TIMEOUT_MS, async () => {
+      await switchToDashboard(browser)
+      const s = await scrollProbe()
+      return s.scroll_region_found && s.region_overflows && !s.page_overflows
+    })
+    await switchToDashboard(browser)
+    const scrollFacts = await scrollProbe()
+    record(
+      'traces-scroll',
+      scrollFacts.scroll_region_found &&
+        scrollFacts.region_overflows &&
+        !scrollFacts.page_overflows,
+      scrollFacts,
+    )
+
+    // Stage 5 — connection-status (P-070): the dashboard footer's worded line
+    // goes live under flowing telemetry; the compact widget must NOT carry it
+    // (layout-templates keeps the widget aggregate-glance).
+    const statusProbe = () =>
+      browser.execute((sel) => {
+        const el = globalThis.document.querySelector(sel)
+        if (!el) return { line_found: false }
+        const text = el.textContent ?? ''
+        return {
+          line_found: true,
+          live_kind: !!el.querySelector('[data-status-kind="live"]'),
+          matched_services: /Receiving from \d+ services?/.test(text),
+          matched_spans_rate: /spans\/s/.test(text),
+          matched_buffer: /buffer \d+ min \/ \d+ min/.test(text),
+        }
+      }, CONNECTION_STATUS_LINE)
+    await pollUntil('connection status line live', POPULATE_TIMEOUT_MS, async () => {
+      await switchToDashboard(browser)
+      const s = await statusProbe()
+      return (
+        s.line_found &&
+        s.live_kind &&
+        s.matched_services &&
+        s.matched_spans_rate &&
+        s.matched_buffer
+      )
+    })
+    await switchToDashboard(browser)
+    const statusFacts = await statusProbe()
+    await switchToWidget(browser)
+    const lineOnWidget = await browser.$(CONNECTION_STATUS_LINE).isExisting()
+    record(
+      'connection-status',
+      statusFacts.line_found === true &&
+        statusFacts.live_kind === true &&
+        statusFacts.matched_services === true &&
+        statusFacts.matched_spans_rate === true &&
+        statusFacts.matched_buffer === true &&
+        !lineOnWidget,
+      {
+        line_on_dashboard: statusFacts.line_found === true,
+        live_kind: statusFacts.live_kind === true,
+        matched_services: statusFacts.matched_services === true,
+        matched_spans_rate: statusFacts.matched_spans_rate === true,
+        matched_buffer: statusFacts.matched_buffer === true,
+        line_on_widget: lineOnWidget,
+      },
+    )
+
+    // Stage 6 — storm-incident: wait for the app's own incident record. This is
     // synchronization; the xtask side re-reads the log and owns the verdict.
     const stormBudget = injecting ? STORM_TIMEOUT_MS : ABSENT_TIMEOUT_MS
     const incident = await pollUntil('incident created', stormBudget, async () =>
@@ -397,7 +665,171 @@ async function main() {
     )
     record('storm-incident', incident, {})
 
-    // Stage 5 — investigate: press the REAL control by its accessible name, so
+    // Stage 7 — findings-window: the incident lights the widget's unread
+    // badge; pressing it opens the SEPARATE findings window docked below the
+    // widget (2026-07-10 disclosure). Geometry lands as derived booleans and
+    // deltas only — never raw coordinates (security-plan §Input Validation).
+    // Runs BEFORE investigate so no focus-trapping modal occludes the widget.
+    const badgeShown = await pollUntil('findings badge', ABSENT_TIMEOUT_MS, async () => {
+      await switchToWidget(browser)
+      return browser.$(FINDINGS_COUNTER).isExisting()
+    })
+    let badgePressed = false
+    if (badgeShown) {
+      await switchToWidget(browser)
+      await (await browser.$(FINDINGS_COUNTER)).click()
+      badgePressed = true
+    }
+    lastInvokeError = null
+    const findingsVisible = await pollUntil('findings window visible', ABSENT_TIMEOUT_MS, async () => {
+      await switchToWidget(browser)
+      return isWindowVisible(browser, 'findings')
+    })
+    // The findings webview can sit at about:blank (the same startup-race class
+    // the launch stage measures — observed live on THIS window): visible but
+    // never navigated means no SPA, no rows, no Esc handler. Record each layer
+    // so a red stage names which one died.
+    let findingsNavigated = false
+    let findingsSpaMounted = false
+    if ((await switchToLabel(browser, 'findings')) !== null) {
+      findingsNavigated = await pollUntil('findings webview navigated', ABSENT_TIMEOUT_MS, async () => {
+        if ((await switchToLabel(browser, 'findings')) === null) return false
+        let url = null
+        try {
+          url = await browser.getUrl()
+        } catch {
+          return false
+        }
+        return !!url && url !== 'about:blank'
+      })
+    }
+    if (findingsNavigated) {
+      findingsSpaMounted = await pollUntil('findings SPA mount', ABSENT_TIMEOUT_MS, async () => {
+        if ((await switchToLabel(browser, 'findings')) === null) return false
+        return browser.$('[data-testid="findings-window"]').isExisting()
+      })
+    }
+    let findingsRows = 0
+    if (findingsSpaMounted) {
+      await pollUntil('findings rows', ABSENT_TIMEOUT_MS, async () => {
+        return (await browser.$$(FINDINGS_ROW)).length > 0
+      })
+      findingsRows = (await browser.$$(FINDINGS_ROW)).length
+    }
+    await switchToWidget(browser)
+    const widgetPos = asPoint(await windowInvoke(browser, 'outer_position', 'compact-widget'))
+    const widgetSize = asSize(await windowInvoke(browser, 'outer_size', 'compact-widget'))
+    const findingsPos = asPoint(await windowInvoke(browser, 'outer_position', 'findings'))
+    const dockGap =
+      widgetPos && widgetSize && findingsPos
+        ? findingsPos.y - (widgetPos.y + widgetSize.height)
+        : null
+    const dockedBelow = dockGap !== null && dockGap >= 0
+    record('findings-window', badgePressed && findingsVisible && findingsRows > 0 && dockedBelow, {
+      badge_pressed: badgePressed,
+      findings_visible: findingsVisible,
+      findings_navigated: findingsNavigated,
+      spa_mounted: findingsSpaMounted,
+      row_count: findingsRows,
+      docked_below: dockedBelow,
+      dock_gap_px: dockGap,
+      invoke_error: lastInvokeError,
+    })
+
+    // Stage 8 — report-window: a row-select opens the report window BESIDE the
+    // findings window, and the Esc chain unwinds it — report hides with focus
+    // returning to findings, findings hides with DOM focus restored to the
+    // widget's badge (a11y-plan §5 Focus restoration, SC 2.1.2).
+    let rowPressed = false
+    if ((await switchToLabel(browser, 'findings')) !== null) {
+      const row = await browser.$(FINDINGS_ROW)
+      if (await row.isExisting()) {
+        await row.click()
+        rowPressed = true
+      }
+    }
+    const reportVisible =
+      rowPressed &&
+      (await pollUntil('report window visible', ABSENT_TIMEOUT_MS, async () => {
+        await switchToWidget(browser)
+        return isWindowVisible(browser, 'report')
+      }))
+    // Gate the DOM probe on visibility: the report webview renders its Report
+    // with a first-active-incident FALLBACK even while hidden (measured — a
+    // hidden window's dialog satisfied this probe on the first run), so an
+    // ungated read is vacuously green.
+    let dialogShown = false
+    if (reportVisible && (await switchToLabel(browser, 'report')) !== null) {
+      dialogShown = await pollUntil('report dialog', ABSENT_TIMEOUT_MS, async () =>
+        browser.$(MODAL_DIALOG).isExisting(),
+      )
+    }
+    await switchToWidget(browser)
+    let positionedBeside = false
+    if (reportVisible) {
+      const fPos = asPoint(await windowInvoke(browser, 'outer_position', 'findings'))
+      const fSize = asSize(await windowInvoke(browser, 'outer_size', 'findings'))
+      const rPos = asPoint(await windowInvoke(browser, 'outer_position', 'report'))
+      const rSize = asSize(await windowInvoke(browser, 'outer_size', 'report'))
+      // Left of findings preferred, right fallback (computeReportWindowPosition);
+      // slack absorbs the dock gap + rounding.
+      const BESIDE_SLACK_PX = 16
+      positionedBeside =
+        !!(fPos && fSize && rPos && rSize) &&
+        (rPos.x + rSize.width <= fPos.x + BESIDE_SLACK_PX ||
+          rPos.x >= fPos.x + fSize.width - BESIDE_SLACK_PX)
+    }
+    let reportHidden = false
+    if (dialogShown && (await switchToLabel(browser, 'report')) !== null) {
+      await browser.keys([Key.Escape])
+      reportHidden = await pollUntil('report hidden after Escape', ABSENT_TIMEOUT_MS, async () => {
+        await switchToWidget(browser)
+        return (await windowInvoke(browser, 'is_visible', 'report')) === false
+      })
+    }
+    let findingsHidden = false
+    if ((await switchToLabel(browser, 'findings')) !== null) {
+      await browser.keys([Key.Escape])
+      findingsHidden = await pollUntil('findings hidden after Escape', ABSENT_TIMEOUT_MS, async () => {
+        await switchToWidget(browser)
+        return (await windowInvoke(browser, 'is_visible', 'findings')) === false
+      })
+    }
+    // Gate on the dismissal: after the badge CLICK the badge is already the
+    // widget's focused element, so an ungated read cannot distinguish
+    // click-focus from restored focus (measured vacuously green on run 1).
+    let badgeFocusRestored = false
+    if (findingsHidden) {
+      badgeFocusRestored = await pollUntil('badge focus restored', ABSENT_TIMEOUT_MS, async () => {
+        await switchToWidget(browser)
+        const active = await browser.execute(
+          () => globalThis.document.activeElement?.getAttribute('data-testid') ?? null,
+        )
+        return active === 'findings-counter'
+      })
+    }
+    record(
+      'report-window',
+      rowPressed &&
+        reportVisible &&
+        dialogShown &&
+        positionedBeside &&
+        reportHidden &&
+        findingsHidden &&
+        badgeFocusRestored,
+      {
+        row_pressed: rowPressed,
+        report_visible: reportVisible,
+        dialog_shown: dialogShown,
+        positioned_beside: positionedBeside,
+        report_hidden_after_escape: reportHidden,
+        findings_hidden_after_escape: findingsHidden,
+        badge_focus_restored: badgeFocusRestored,
+        invoke_error: lastInvokeError,
+      },
+    )
+
+    // Stage 9 — investigate: press the REAL control by its accessible name, so
     // a name regression fails this stage.
     // Investigate lives on the WIDGET titlebar, not the dashboard: `Titlebar`
     // renders the control only when handed `onInvestigateClick`, and only the
@@ -449,7 +881,7 @@ async function main() {
       modal_dismissed: modalDismissed,
     })
 
-    // Stage 6 — empty-states: the stream is traces-only, so Metrics and Logs
+    // Stage 10 — empty-states: the stream is traces-only, so Metrics and Logs
     // stay empty for the whole run. The HINT is the discriminator — the honest
     // error variant renders a message with no hint.
     const routes = {}
@@ -466,7 +898,135 @@ async function main() {
     }
     record('empty-states', routes.metrics.empty && routes.logs.empty, routes)
 
-    // Stage 7 — widget-close: terminal, because this press sends the app to the
+    // Stage 11 — dashboard-toggle (P-066): the button and the Ctrl+Shift+P
+    // binding each prove a direction, across both windows, and the widget
+    // stays visible throughout. Both directions run through JS hide()/show()
+    // (no Rust record), so the verdict is the window API's own visibility.
+    // Press ONCE then poll — never press inside a poll.
+    lastInvokeError = null
+    const mainVisible = async () => {
+      await switchToWidget(browser)
+      return isWindowVisible(browser, 'main')
+    }
+    const pressToggle = async () => {
+      await switchToWidget(browser)
+      const t = await browser.$(TOGGLE_DASHBOARD)
+      if (!(await t.isExisting())) return false
+      await t.click()
+      return true
+    }
+    // FLIP assertions, not fixed directions: the toggle contract is
+    // open-if-hidden / hide-if-shown, so each press must INVERT the visibility
+    // it found — robust to whatever state earlier stages left, where a fixed
+    // hide-then-show script drifts off by one and every poll asserts the wrong
+    // direction (measured on run 2: presses toggled, the script's state
+    // machine did not). Two button presses cover both directions between them;
+    // the shortcut fires once from each window.
+    const visReadback = async () => {
+      await switchToWidget(browser)
+      return windowInvoke(browser, 'is_visible', 'main')
+    }
+    const flip = async (label, pressFn) => {
+      const before = await visReadback()
+      const pressed = await pressFn()
+      let flipped = false
+      if (pressed && before !== null) {
+        flipped = await pollUntil(`${label} flips dashboard`, ABSENT_TIMEOUT_MS, async () => {
+          await switchToWidget(browser)
+          return (await windowInvoke(browser, 'is_visible', 'main')) === !before
+        })
+      }
+      const after = await visReadback()
+      return { pressed, before, after, flipped }
+    }
+    const button1 = await flip('toggle button (1st)', pressToggle)
+    const button2 = await flip('toggle button (2nd)', pressToggle)
+    // The binding is mounted in BOTH windows; a hidden dashboard still hosts
+    // its handler, so sending there is valid in either direction.
+    const shortcutDashboard = await flip('shortcut from dashboard', async () => {
+      if ((await switchToDashboard(browser)) === null) return false
+      await browser.keys([Key.Ctrl, Key.Shift, 'p'])
+      return true
+    })
+    const shortcutWidget = await flip('shortcut from widget', async () => {
+      await switchToWidget(browser)
+      await browser.keys([Key.Ctrl, Key.Shift, 'p'])
+      return true
+    })
+    await switchToWidget(browser)
+    const widgetStayed =
+      (await isWindowVisible(browser, 'compact-widget')) &&
+      (await browser.$(TOGGLE_DASHBOARD).isExisting())
+    // Leave the dashboard SHOWN for the dashboard-close stage: after an even
+    // number of flips it is back to shown, but state-correct rather than
+    // assumed — press once more if the last readback says hidden.
+    if (shortcutWidget.after === false) {
+      await pressToggle()
+      await pollUntil('dashboard restored for close stage', ABSENT_TIMEOUT_MS, mainVisible)
+    }
+    record(
+      'dashboard-toggle',
+      button1.flipped && button2.flipped && shortcutDashboard.flipped && shortcutWidget.flipped && widgetStayed,
+      {
+        button_flip_1: button1.flipped,
+        button_flip_2: button2.flipped,
+        shortcut_flip_dashboard: shortcutDashboard.flipped,
+        shortcut_flip_widget: shortcutWidget.flipped,
+        widget_stayed: widgetStayed,
+        button_press_1: button1.pressed,
+        button_press_2: button2.pressed,
+        shortcut_sent_dashboard: shortcutDashboard.pressed,
+        shortcut_sent_widget: shortcutWidget.pressed,
+        main_before_1: button1.before,
+        main_after_1: button1.after,
+        main_after_2: button2.after,
+        main_after_3: shortcutDashboard.after,
+        main_after_4: shortcutWidget.after,
+        invoke_error: lastInvokeError,
+      },
+    )
+
+    // Stage 12 — dashboard-close (P-063): the dashboard's own ✕ collapses to
+    // the widget. The `main → hidden` record is written ONLY by this path
+    // (the toggle hides via JS with no record), and the close is SILENT — the
+    // signpost count must not move; the toast belongs to the widget close.
+    const signpostCount = () =>
+      logCount(PULSE_DATA_DIR, (rec) => rec.target === 'tray.signpost.shown')
+    const signpostsBefore = signpostCount()
+    let dashboardClosePressed = false
+    if ((await switchToDashboard(browser)) !== null) {
+      const dashClose = await browser.$(CLOSE_TO_TRAY)
+      if (await dashClose.isExisting()) {
+        await dashClose.click()
+        dashboardClosePressed = true
+      }
+    }
+    const mainHiddenRecord = await pollUntil('main→hidden transition', ABSENT_TIMEOUT_MS, async () =>
+      logMentions(
+        PULSE_DATA_DIR,
+        (rec) =>
+          rec.target === 'ui.layout.transition' &&
+          rec.fields?.layout_mode_from === 'main' &&
+          rec.fields?.layout_mode_to === 'hidden',
+      ),
+    )
+    const mainHiddenNow = await pollUntil('main hidden after close', ABSENT_TIMEOUT_MS, async () => {
+      await switchToWidget(browser)
+      return (await windowInvoke(browser, 'is_visible', 'main')) === false
+    })
+    const signpostDelta = signpostCount() - signpostsBefore
+    record(
+      'dashboard-close',
+      dashboardClosePressed && mainHiddenRecord && mainHiddenNow && signpostDelta === 0,
+      {
+        close_pressed: dashboardClosePressed,
+        main_hidden: mainHiddenNow,
+        transition_seen: mainHiddenRecord,
+        signpost_delta: signpostDelta,
+      },
+    )
+
+    // Stage 13 — widget-close: terminal, because this press sends the app to the
     // tray. Carried forward from the single-press leg: it is the only guard on
     // `core:window:allow-close`, which the ACL drops silently when ungranted.
     const widget = await switchToWidget(browser)
@@ -489,10 +1049,21 @@ async function main() {
           rec.fields?.layout_mode_from === 'compact-widget',
       ),
     )
+    // The every-time P-063 signpost, by its bounded label FIELD — record
+    // presence alone is exactly what the exact allowlist leaf rules out.
+    const signpostSeen = await pollUntil('close signpost', ABSENT_TIMEOUT_MS, async () =>
+      logMentions(
+        PULSE_DATA_DIR,
+        (rec) =>
+          rec.target === 'tray.signpost.shown' &&
+          rec.fields?.window_label === 'compact-widget',
+      ),
+    )
     record('widget-close', closePressed, {
       widget_found: widget !== null,
       accessible_name: closeName,
       transition_seen: hidden,
+      signpost_seen: signpostSeen,
     })
 
     return 0

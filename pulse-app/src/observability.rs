@@ -1000,6 +1000,13 @@ impl AllowList {
             "tray.notification.action",
             ["notification_id", "action"].iter().copied().collect(),
         );
+        // Close-to-tray signpost (P-063): bounded window label only — there is
+        // no bare `tray` key, so without this exact leaf `for_target` resolves
+        // the target to None and the field would be redacted.
+        by_target.insert(
+            "tray.signpost.shown",
+            ["window_label"].iter().copied().collect(),
+        );
         by_target.insert(
             "app.panic.fatal",
             // Chunk #73 P-003: `panic_message` removed — panic payload may
@@ -5520,6 +5527,7 @@ mod tests {
         assert!(al.for_target("tray.menu.interaction").is_some());
         assert!(al.for_target("tray.notification.dismiss").is_some());
         assert!(al.for_target("tray.notification.action").is_some());
+        assert!(al.for_target("tray.signpost.shown").is_some());
     }
 
     #[test]

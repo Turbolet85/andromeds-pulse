@@ -253,7 +253,7 @@ time. Do not edit during implementation runs._
 
 - **Tray icon** — always-visible status glyph with Halo State Pulse (unified badge encoding aggregated service health and ingest volume).
 - **Tray menu** — flat hierarchy menu triggered by right-click on the tray icon. Actions: open / focus main window, generate snapshot, toggle MCP server (when feature is built), open settings, quit.
-- **Notifications (OS-native)** — toasts fired on snapshot generation completion, MCP server state changes, updater state transitions, and the first window-close-to-tray signpost (P-063).
+- **Notifications (OS-native)** — toasts fired on snapshot generation completion, MCP server state changes, updater state transitions, and the window-close-to-tray signpost (P-063; fires on every close-to-tray while `notifications_enabled` is true).
 
 ### Wireframe — Tray icon
 
@@ -338,7 +338,7 @@ Quit                                        <- action (terminates the process)
 1. Snapshot generation completion (via `snapshot.generate` TauRPC command).
 2. MCP server status change (start / stop, when feature is built).
 3. Update available (Tauri updater plugin fires the notification when a new release is detected).
-4. First window-close to tray (the predictable-close signpost): fires ONCE per session on the first window-close (compact widget or dashboard) that minimizes to the tray, when `notifications_enabled` is true — a clear "still running in the tray — right-click the tray icon to quit" indication so close→hide-to-tray is predictable (P-063, intent F3).
+4. Window-close to tray (the predictable-close signpost): fires on EVERY close that sends the app to the tray — the compact-widget ✕; the dashboard ✕ merely collapses to the widget and never signposts — gated on `notifications_enabled` alone, with no once-per-process latch (measured at HEAD: `should_show_close_signpost`, `pulse-app/src/window.rs`; the P-063 intent F3 wording as corrected by P-066). A clear "still running in the tray — right-click the tray icon to quit" indication so close→hide-to-tray is predictable.
 
 **Notification format:**
 - Title: terse (1–2 words). Examples: "Snapshot ready", "MCP Server started", "Update available".

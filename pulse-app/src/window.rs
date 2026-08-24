@@ -145,11 +145,14 @@ pub fn close_sends_app_to_tray(label: &str) -> bool {
     label == COMPACT_WIDGET_LABEL
 }
 
-// Emit the one-time "still running in the tray" signpost via the OS
-// notification plugin (Rust-side — not gated by the webview capability ACL),
-// honoring Settings.notifications_enabled per arch §OS-notification-policy.
+// Emit the "still running in the tray" signpost via the OS notification
+// plugin (Rust-side — not gated by the webview capability ACL), honoring
+// Settings.notifications_enabled per arch §OS-notification-policy. Fires on
+// EVERY widget close (see should_show_close_signpost — no first-close latch).
 // Best-effort: a failed dispatch never blocks close. The body is a static
-// string and is never logged (security-plan §Logging NEVER-log).
+// string and is never logged (security-plan §Logging NEVER-log); the record
+// carries only the bounded window label so the verification harness can
+// assert a field rather than bare record presence.
 fn maybe_show_close_signpost<R: tauri::Runtime>(window: &tauri::Window<R>, data_dir: &Path) {
     let notifications_enabled = Settings::load_from_data_dir(data_dir).notifications_enabled;
     if !should_show_close_signpost(notifications_enabled) {
@@ -164,6 +167,7 @@ fn maybe_show_close_signpost<R: tauri::Runtime>(window: &tauri::Window<R>, data_
         .show();
     info!(
         target: "tray.signpost.shown",
+        window_label = sanitize_window_label(window.label()),
         "close-to-tray running-state signpost shown",
     );
 }
@@ -184,7 +188,7 @@ pub fn on_window_event<R: tauri::Runtime>(
             if close_sends_app_to_tray(window.label()) {
                 // Widget (primary) closed → whole app to the tray: also hide the
                 // dashboard (if open) so no window stays visible, then fire the
-                // first-close "still running" signpost once. The dashboard close
+                // every-time "still running" signpost. The dashboard close
                 // (secondary) just collapses to the widget — no extra hide, no
                 // signpost.
                 if let Some(main) = window.app_handle().get_webview_window(MAIN_WINDOW_LABEL) {

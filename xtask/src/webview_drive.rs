@@ -38,6 +38,8 @@ const DRIVE_TIMEOUT: Duration = Duration::from_secs(420);
 const TRANSITION_TARGET: &str = "ui.layout.transition";
 const HIDDEN_MODE: &str = "hidden";
 const WIDGET_LABEL: &str = "compact-widget";
+const MAIN_LABEL: &str = "main";
+const SIGNPOST_TARGET: &str = "tray.signpost.shown";
 const PANIC_TARGET: &str = "app.panic.fatal";
 const STAGE_REPORT_BASENAME: &str = "webview-drive-stages.json";
 
@@ -62,8 +64,24 @@ pub const STAGES: &[Stage] = &[
         what: "viz.query.traces reports row_count > 0 and the table filled with no reload",
     },
     Stage {
+        id: "traces-scroll",
+        what: "the trace table scrolls inside its own region while the page does not (P-082)",
+    },
+    Stage {
+        id: "connection-status",
+        what: "the dashboard footer words services + spans/s + buffer, absent on the widget (P-070)",
+    },
+    Stage {
         id: "storm-incident",
         what: "interpretation.incident.created reports created = true",
+    },
+    Stage {
+        id: "findings-window",
+        what: "the widget badge opens the findings window docked below it with incident rows",
+    },
+    Stage {
+        id: "report-window",
+        what: "a findings row opens the report beside it; Esc unwinds with focus restored to the badge",
     },
     Stage {
         id: "investigate",
@@ -73,9 +91,17 @@ pub const STAGES: &[Stage] = &[
         id: "empty-states",
         what: "metrics and logs render the empty state with its exporter hint",
     },
+    Stage {
+        id: "dashboard-toggle",
+        what: "the toggle button and Ctrl+Shift+P each hide/show the dashboard; the widget stays (P-066)",
+    },
+    Stage {
+        id: "dashboard-close",
+        what: "the dashboard's own close collapses to the widget: main → hidden, no signpost (P-063)",
+    },
     // Terminal by nature: this press sends the whole app to the tray. Carried
-    // forward from the single-press leg rather than retired with it — it is the
-    // only guard on `core:window:allow-close`, which the ACL drops silently.
+    // forward from the single-press leg; `allow-close` is guarded here and by
+    // dashboard-close (the ACL drops either close silently when revoked).
     Stage {
         id: "widget-close",
         what: "ui.layout.transition reports compact-widget → hidden after a real close press",
@@ -285,9 +311,30 @@ pub fn stage_halves(id: &str, records: &[Value], dom: &[Value]) -> StageHalves {
             obs: obs(records.iter().any(is_traces_rendered)),
             dom: seen("traces-populate"),
         },
+        // DOM-only, field-level: the driver records layout facts; the verdict
+        // re-derives from those fields here rather than trusting `observed`.
+        "traces-scroll" => StageHalves {
+            obs: None,
+            dom: Some(dom_traces_scroll_ok(dom)),
+        },
+        "connection-status" => StageHalves {
+            obs: None,
+            dom: Some(dom_connection_status_ok(dom)),
+        },
         "storm-incident" => StageHalves {
             obs: obs(records.iter().any(is_incident_created)),
             dom: None,
+        },
+        // The findings/report lifecycle is JS `hide()`/`show()` end to end —
+        // no Rust hook, no obs record — so these two are DOM-only by
+        // construction (the launch/traces-empty precedent).
+        "findings-window" => StageHalves {
+            obs: None,
+            dom: Some(dom_findings_window_ok(dom)),
+        },
+        "report-window" => StageHalves {
+            obs: None,
+            dom: Some(dom_report_window_ok(dom)),
         },
         "investigate" => StageHalves {
             obs: obs(records.iter().any(is_investigate_success)),
@@ -297,8 +344,23 @@ pub fn stage_halves(id: &str, records: &[Value], dom: &[Value]) -> StageHalves {
             obs: None,
             dom: Some(dom_observed(dom, "empty-states") && dom_empty_states_have_hints(dom)),
         },
+        // Toggle hide/show run through JS `hide()`/`show()` (no record either
+        // direction), so the toggle is DOM-only — which is also why the
+        // `main → hidden` record below is unique to the dashboard ✕.
+        "dashboard-toggle" => StageHalves {
+            obs: None,
+            dom: Some(dom_dashboard_toggle_ok(dom)),
+        },
+        "dashboard-close" => StageHalves {
+            obs: obs(records.iter().any(is_dashboard_hidden_transition)),
+            dom: Some(dom_dashboard_close_ok(dom)),
+        },
+        // Both records are required: the transition proves the hide reached the
+        // Rust handler, the signpost (with its bounded label field) proves the
+        // every-time P-063 toast fired for the widget and not another window.
         "widget-close" => StageHalves {
-            obs: obs(records.iter().any(is_widget_hidden_transition)),
+            obs: obs(records.iter().any(is_widget_hidden_transition)
+                && records.iter().any(is_close_signpost)),
             dom: seen("widget-close"),
         },
         _ => StageHalves {
@@ -381,6 +443,138 @@ fn is_widget_hidden_transition(record: &Value) -> bool {
     };
     fields.get("layout_mode_to").and_then(Value::as_str) == Some(HIDDEN_MODE)
         && fields.get("layout_mode_from").and_then(Value::as_str) == Some(WIDGET_LABEL)
+}
+
+/// The toggle path hides `main` via JS `hide()` (no Rust hook, no record), so
+/// a `main → hidden` transition is written ONLY by the dashboard ✕
+/// (CloseRequested → handle_close_to_tray) — the record attributes the press.
+fn is_dashboard_hidden_transition(record: &Value) -> bool {
+    if record.get("target").and_then(Value::as_str) != Some(TRANSITION_TARGET) {
+        return false;
+    }
+    let Some(fields) = record.get("fields") else {
+        return false;
+    };
+    fields.get("layout_mode_to").and_then(Value::as_str) == Some(HIDDEN_MODE)
+        && fields.get("layout_mode_from").and_then(Value::as_str) == Some(MAIN_LABEL)
+}
+
+/// The P-063 signpost record. The bounded `window_label` field is what makes
+/// this assertable at field level (its exact allowlist leaf permits it); a
+/// label other than the widget's would mean the toast fired for the wrong
+/// close, so bare target presence is deliberately not enough.
+fn is_close_signpost(record: &Value) -> bool {
+    if record.get("target").and_then(Value::as_str) != Some(SIGNPOST_TARGET) {
+        return false;
+    }
+    record
+        .get("fields")
+        .and_then(|f| f.get("window_label"))
+        .and_then(Value::as_str)
+        == Some(WIDGET_LABEL)
+}
+
+fn stage_bool(stage: &Value, field: &str) -> Option<bool> {
+    stage.get(field).and_then(Value::as_bool)
+}
+
+/// Internal scroll (P-082): the table's own region overflows while the page
+/// does not. Presence of the region alone would pass on a page that scrolls at
+/// the outer level — the exact defect the layout chunk closed.
+fn dom_traces_scroll_ok(dom: &[Value]) -> bool {
+    let Some(stage) = dom_stage(dom, "traces-scroll") else {
+        return false;
+    };
+    stage_bool(&stage, "scroll_region_found") == Some(true)
+        && stage_bool(&stage, "region_overflows") == Some(true)
+        && stage_bool(&stage, "page_overflows") == Some(false)
+}
+
+/// Footer line (P-070): the worded services / spans-per-second / buffer parts
+/// each matched on the dashboard, and the line is absent on the compact widget
+/// (layout-templates keeps the widget aggregate-glance — a line there is a
+/// defect, not extra coverage).
+fn dom_connection_status_ok(dom: &[Value]) -> bool {
+    let Some(stage) = dom_stage(dom, "connection-status") else {
+        return false;
+    };
+    stage_bool(&stage, "line_on_dashboard") == Some(true)
+        && stage_bool(&stage, "live_kind") == Some(true)
+        && stage_bool(&stage, "matched_services") == Some(true)
+        && stage_bool(&stage, "matched_spans_rate") == Some(true)
+        && stage_bool(&stage, "matched_buffer") == Some(true)
+        && stage_bool(&stage, "line_on_widget") == Some(false)
+}
+
+/// Findings disclosure, first half: a real badge press, the findings window
+/// reported visible by the window API, at least one incident row in its DOM,
+/// and the dock relation (below the widget) derived from the geometry getters
+/// — derived booleans only, never raw coordinates (security-plan §Input
+/// Validation → Persisted window geometry).
+fn dom_findings_window_ok(dom: &[Value]) -> bool {
+    let Some(stage) = dom_stage(dom, "findings-window") else {
+        return false;
+    };
+    stage_bool(&stage, "badge_pressed") == Some(true)
+        && stage_bool(&stage, "findings_visible") == Some(true)
+        && stage_bool(&stage, "docked_below") == Some(true)
+        && stage
+            .get("row_count")
+            .and_then(Value::as_u64)
+            .is_some_and(|n| n > 0)
+}
+
+/// Findings disclosure, second half: row-select opens the report beside the
+/// findings window, and the Esc chain unwinds it — report hides with focus
+/// returning to findings, findings hides with DOM focus restored to the
+/// widget's badge (a11y-plan §5 Focus restoration, SC 2.1.2).
+fn dom_report_window_ok(dom: &[Value]) -> bool {
+    let Some(stage) = dom_stage(dom, "report-window") else {
+        return false;
+    };
+    [
+        "row_pressed",
+        "report_visible",
+        "dialog_shown",
+        "positioned_beside",
+        "report_hidden_after_escape",
+        "findings_hidden_after_escape",
+        "badge_focus_restored",
+    ]
+    .iter()
+    .all(|field| stage_bool(&stage, field) == Some(true))
+}
+
+/// Widget↔dashboard toggle (P-066): every press must FLIP the visibility it
+/// found (open-if-hidden / hide-if-shown) — two button presses cover both
+/// directions between them, the shortcut fires once from each window, and the
+/// widget stays visible throughout. One route passing does not cover the
+/// other, and a flip predicate cannot pass on a press that did nothing.
+fn dom_dashboard_toggle_ok(dom: &[Value]) -> bool {
+    let Some(stage) = dom_stage(dom, "dashboard-toggle") else {
+        return false;
+    };
+    [
+        "button_flip_1",
+        "button_flip_2",
+        "shortcut_flip_dashboard",
+        "shortcut_flip_widget",
+        "widget_stayed",
+    ]
+    .iter()
+    .all(|field| stage_bool(&stage, field) == Some(true))
+}
+
+/// Dashboard ✕ (P-063): the press landed, the window API reports `main`
+/// hidden, and the signpost count did not move — the dashboard collapse is
+/// silent by design; only the widget close signposts.
+fn dom_dashboard_close_ok(dom: &[Value]) -> bool {
+    let Some(stage) = dom_stage(dom, "dashboard-close") else {
+        return false;
+    };
+    stage_bool(&stage, "close_pressed") == Some(true)
+        && stage_bool(&stage, "main_hidden") == Some(true)
+        && stage.get("signpost_delta").and_then(Value::as_u64) == Some(0)
 }
 
 fn unhealthy_records(records: &[Value]) -> Vec<String> {
@@ -656,10 +850,16 @@ mod tests {
 
     #[test]
     fn widget_close_needs_both_the_press_and_the_transition() {
-        let records = vec![json!({
-            "target": "ui.layout.transition",
-            "fields": { "layout_mode_from": "compact-widget", "layout_mode_to": "hidden" }
-        })];
+        let records = vec![
+            json!({
+                "target": "ui.layout.transition",
+                "fields": { "layout_mode_from": "compact-widget", "layout_mode_to": "hidden" }
+            }),
+            json!({
+                "target": "tray.signpost.shown",
+                "fields": { "window_label": "compact-widget" }
+            }),
+        ];
         let pressed = dom(vec![json!({ "stage": "widget-close", "observed": true })]);
         let not_pressed = dom(vec![json!({ "stage": "widget-close", "observed": false })]);
         assert!(stage_observed("widget-close", &records, &pressed));
@@ -667,6 +867,40 @@ mod tests {
         // The dead-affordance mode this whole harness exists to catch: the
         // press lands, the ACL drops the IPC, no transition is ever written.
         assert!(!stage_observed("widget-close", &[], &pressed));
+    }
+
+    #[test]
+    fn widget_close_transition_alone_no_longer_satisfies() {
+        // The P-063 signpost is part of the close contract: a run where the
+        // hide landed but the every-time toast never fired must go red.
+        let transition_only = vec![json!({
+            "target": "ui.layout.transition",
+            "fields": { "layout_mode_from": "compact-widget", "layout_mode_to": "hidden" }
+        })];
+        let pressed = dom(vec![json!({ "stage": "widget-close", "observed": true })]);
+        assert!(!stage_observed("widget-close", &transition_only, &pressed));
+    }
+
+    #[test]
+    fn signpost_with_another_windows_label_does_not_satisfy() {
+        let record = json!({
+            "target": "tray.signpost.shown",
+            "fields": { "window_label": "main" }
+        });
+        assert!(!is_close_signpost(&record));
+    }
+
+    #[test]
+    fn close_signpost_requires_its_label_field() {
+        // A fieldless record is bare presence — exactly what the exact
+        // allowlist leaf + the field predicate exist to rule out.
+        let record = json!({ "target": "tray.signpost.shown", "fields": {} });
+        assert!(!is_close_signpost(&record));
+        let with_label = json!({
+            "target": "tray.signpost.shown",
+            "fields": { "window_label": "compact-widget" }
+        });
+        assert!(is_close_signpost(&with_label));
     }
 
     #[test]
@@ -750,6 +984,198 @@ mod tests {
             "fields": { "layout_mode_to": "hidden", "layout_mode_from": "compact-widget" }
         });
         assert!(!is_widget_hidden_transition(&record));
+    }
+
+    #[test]
+    fn dashboard_hidden_transition_is_recognized() {
+        let record = json!({
+            "target": "ui.layout.transition",
+            "fields": { "layout_mode_from": "main", "layout_mode_to": "hidden" }
+        });
+        assert!(is_dashboard_hidden_transition(&record));
+    }
+
+    #[test]
+    fn widget_close_is_not_the_dashboard_close() {
+        let record = json!({
+            "target": "ui.layout.transition",
+            "fields": { "layout_mode_from": "compact-widget", "layout_mode_to": "hidden" }
+        });
+        assert!(!is_dashboard_hidden_transition(&record));
+    }
+
+    #[test]
+    fn boot_geometry_is_not_the_dashboard_close() {
+        let record = json!({
+            "target": "ui.layout.transition",
+            "fields": { "layout_mode_from": "boot_default", "layout_mode_to": "top-right" }
+        });
+        assert!(!is_dashboard_hidden_transition(&record));
+    }
+
+    #[test]
+    fn traces_scroll_requires_region_overflow_without_page_overflow() {
+        let good = dom(vec![json!({
+            "stage": "traces-scroll", "observed": true,
+            "scroll_region_found": true, "region_overflows": true, "page_overflows": false
+        })]);
+        assert!(dom_traces_scroll_ok(&good));
+        assert!(stage_observed("traces-scroll", &[], &good));
+    }
+
+    #[test]
+    fn a_scrolling_page_fails_traces_scroll() {
+        // The outer page scrolling is the P-082 defect itself — a stage that
+        // only checked the region's presence would pass here.
+        let page_scrolls = dom(vec![json!({
+            "stage": "traces-scroll", "observed": true,
+            "scroll_region_found": true, "region_overflows": true, "page_overflows": true
+        })]);
+        assert!(!dom_traces_scroll_ok(&page_scrolls));
+        let no_overflow = dom(vec![json!({
+            "stage": "traces-scroll", "observed": true,
+            "scroll_region_found": true, "region_overflows": false, "page_overflows": false
+        })]);
+        assert!(!dom_traces_scroll_ok(&no_overflow));
+    }
+
+    #[test]
+    fn connection_status_requires_every_worded_part_and_widget_absence() {
+        let good = dom(vec![json!({
+            "stage": "connection-status", "observed": true,
+            "line_on_dashboard": true, "live_kind": true, "matched_services": true,
+            "matched_spans_rate": true, "matched_buffer": true, "line_on_widget": false
+        })]);
+        assert!(dom_connection_status_ok(&good));
+    }
+
+    #[test]
+    fn a_line_on_the_widget_fails_connection_status() {
+        // layout-templates keeps the compact widget aggregate-glance: a worded
+        // line there is a defect, so its presence must redden the stage.
+        let widget_line = dom(vec![json!({
+            "stage": "connection-status", "observed": true,
+            "line_on_dashboard": true, "live_kind": true, "matched_services": true,
+            "matched_spans_rate": true, "matched_buffer": true, "line_on_widget": true
+        })]);
+        assert!(!dom_connection_status_ok(&widget_line));
+        let empty_state_kind = dom(vec![json!({
+            "stage": "connection-status", "observed": true,
+            "line_on_dashboard": true, "live_kind": false, "matched_services": false,
+            "matched_spans_rate": false, "matched_buffer": false, "line_on_widget": false
+        })]);
+        assert!(!dom_connection_status_ok(&empty_state_kind));
+    }
+
+    #[test]
+    fn findings_window_requires_press_visibility_rows_and_dock() {
+        let good = dom(vec![json!({
+            "stage": "findings-window", "observed": true,
+            "badge_pressed": true, "findings_visible": true,
+            "docked_below": true, "row_count": 2
+        })]);
+        assert!(dom_findings_window_ok(&good));
+    }
+
+    #[test]
+    fn an_undocked_or_empty_findings_window_fails() {
+        let undocked = dom(vec![json!({
+            "stage": "findings-window", "observed": true,
+            "badge_pressed": true, "findings_visible": true,
+            "docked_below": false, "row_count": 2
+        })]);
+        assert!(!dom_findings_window_ok(&undocked));
+        let no_rows = dom(vec![json!({
+            "stage": "findings-window", "observed": true,
+            "badge_pressed": true, "findings_visible": true,
+            "docked_below": true, "row_count": 0
+        })]);
+        assert!(!dom_findings_window_ok(&no_rows));
+    }
+
+    #[test]
+    fn report_window_requires_the_full_escape_chain() {
+        let good = dom(vec![json!({
+            "stage": "report-window", "observed": true,
+            "row_pressed": true, "report_visible": true, "dialog_shown": true,
+            "positioned_beside": true, "report_hidden_after_escape": true,
+            "findings_hidden_after_escape": true, "badge_focus_restored": true
+        })]);
+        assert!(dom_report_window_ok(&good));
+    }
+
+    #[test]
+    fn a_lost_focus_restore_fails_report_window() {
+        // SC 2.1.2: the escape chain is only proven when focus lands back on
+        // the badge — a report that closes into a focus void must go red.
+        let focus_lost = dom(vec![json!({
+            "stage": "report-window", "observed": true,
+            "row_pressed": true, "report_visible": true, "dialog_shown": true,
+            "positioned_beside": true, "report_hidden_after_escape": true,
+            "findings_hidden_after_escape": true, "badge_focus_restored": false
+        })]);
+        assert!(!dom_report_window_ok(&focus_lost));
+    }
+
+    #[test]
+    fn dashboard_toggle_requires_both_routes_and_the_widget_staying() {
+        let good = dom(vec![json!({
+            "stage": "dashboard-toggle", "observed": true,
+            "button_flip_1": true, "button_flip_2": true,
+            "shortcut_flip_dashboard": true, "shortcut_flip_widget": true,
+            "widget_stayed": true
+        })]);
+        assert!(dom_dashboard_toggle_ok(&good));
+    }
+
+    #[test]
+    fn a_dead_shortcut_route_fails_the_toggle() {
+        // Design requires a verdict per route: the button passing does not
+        // cover Ctrl+Shift+P (the shortcut once fell through to the browser
+        // print dialog while the button worked).
+        let shortcut_dead = dom(vec![json!({
+            "stage": "dashboard-toggle", "observed": true,
+            "button_flip_1": true, "button_flip_2": true,
+            "shortcut_flip_dashboard": false, "shortcut_flip_widget": false,
+            "widget_stayed": true
+        })]);
+        assert!(!dom_dashboard_toggle_ok(&shortcut_dead));
+        let widget_vanished = dom(vec![json!({
+            "stage": "dashboard-toggle", "observed": true,
+            "button_flip_1": true, "button_flip_2": true,
+            "shortcut_flip_dashboard": true, "shortcut_flip_widget": true,
+            "widget_stayed": false
+        })]);
+        assert!(!dom_dashboard_toggle_ok(&widget_vanished));
+    }
+
+    #[test]
+    fn dashboard_close_needs_press_hide_and_a_silent_signpost() {
+        let good = dom(vec![json!({
+            "stage": "dashboard-close", "observed": true,
+            "close_pressed": true, "main_hidden": true, "signpost_delta": 0
+        })]);
+        assert!(dom_dashboard_close_ok(&good));
+        let records = vec![json!({
+            "target": "ui.layout.transition",
+            "fields": { "layout_mode_from": "main", "layout_mode_to": "hidden" }
+        })];
+        assert!(stage_observed("dashboard-close", &records, &good));
+        // Both halves required: the record without the press facts, or the
+        // press facts without the record, each leave the stage red.
+        assert!(!stage_observed("dashboard-close", &records, &[]));
+        assert!(!stage_observed("dashboard-close", &[], &good));
+    }
+
+    #[test]
+    fn a_signposting_dashboard_close_fails() {
+        // The dashboard collapse is silent by design (P-063): a toast firing
+        // here means the close model regressed to the widget's path.
+        let toasted = dom(vec![json!({
+            "stage": "dashboard-close", "observed": true,
+            "close_pressed": true, "main_hidden": true, "signpost_delta": 1
+        })]);
+        assert!(!dom_dashboard_close_ok(&toasted));
     }
 
     #[test]

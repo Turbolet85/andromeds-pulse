@@ -1,41 +1,36 @@
 # Session Handoff
 
-**Last Updated:** 2026-08-23T22:45:00Z
-**Branch:** chore/migrate-pulse-to-v3 (tracks `origin/chore/migrate-pulse-to-v3`; 23 ahead before this commit — unpushed)
+**Last Updated:** 2026-08-24T18:12:47Z
+**Branch:** chore/migrate-pulse-to-v3 (tracks `origin/chore/migrate-pulse-to-v3`; 24 ahead before this commit — unpushed)
 **Status:** clean (wrapped)
-**Last Commit:** `feat(2026-08-23-a11y-verification): the Traces surface is verified, and the claim that it was unverifiable is retracted`
+**Last Commit:** `feat(2026-08-23-headful-leg-extension): the leg grows to 13 stages and the launch race is root-caused`
 
 ## Position
-- Done: **2026-08-23-a11y-verification** — row-level keyboard traversal + a stable landmark name landed, and the "Traces semantics are absent" claim **five artifacts** carried was measured FALSE and retracted.
-- Next (first markerless): **Headful leg extension** — now carries **9 CARRYs + 2 PREREQs** (see Notes; the entry is very long).
+- Done: **2026-08-23-headful-leg-extension** — six window-mechanics stages landed (13-stage leg, all green ×2 on pristine source), the launch race root-caused (per-boot lost initial navigation, victim ~random) and driver-remediated with loud recorded re-navigation; both PREREQs discharged (Rust gates ran; audit point 41 skip-note recorded).
+- Next (first markerless): **Headful mechanics probe + navigation-race disposition** — 6 CARRYs (the deferred drag/resize/native-menu mechanics + the operator-directed race disposition) + PREREQ pin #14 (`cargo audit`, next point 43).
 - Then: Halo canvas disposition · Advisory backlog · npm advisory coverage · Diagnostics un-muting · Staged-bindings assertion · Metrics label surface · Demo injector.
 
 ## Work done
-7 files modified + 1 new, **all under `pulse-app/ui/`**, zero compiled-source delta. Trace rows became a roving-tabindex single tab stop (Up/Down/Home/End/Enter/Esc, `--border-focus` on `:focus-visible`, in-row Investigate → `tabIndex={-1}`); the constellation wrapper got the stable literal name `"Telemetry traces chart"` with the live summary moved to an `aria-describedby` hidden description; new `p14-investigate-states.spec.ts` covers the Investigate result/error/progress states; `installTauriIpcMock` gained `__mockReject` / `__mockDelayMs`.
+5 files modified + 1 new: `xtask/src/webview_drive.rs` (6 stages + field-level verdict readers + strengthened widget-close arm; 88 colocated tests), `pulse-app/ui/tests-e2e/webview-drive.mjs` (selector re-point onto the a11y anchors, navigation-signal launch + blank-victim recovery, 6 stage drivers), `pulse-app/src/window.rs` (bounded `window_label` on `tray.signpost.shown` + stale-comment fix), `pulse-app/src/observability.rs` (exact leaf), new `pulse-app/tests/unit_observability_allowlist_close_signpost.rs`.
 
-**Gates:** lint · typecheck · **vitest 809/809** (was 801) · `playwright --list` 37 tests/16 files · **`cargo xtask test:a11y`** (37/37 · Lighthouse 7 surfaces ≥90 · pa11y 7/7 0 errors · regression **0 new vs baseline**) · **self-verify PASS** · fmt · capability-drift clean · capability-widening clean (0/3) · `cargo deny bans licenses sources` ok. **Boot smoke ✓** — warm re-embed verified by matching the embedded bundle to `ui/dist`, 2970 rows over real OTLP, 0 ERROR / 0 panics, zero orphans.
+**Gates:** fmt · clippy all-features · **nextest 1925/1925 + 1 skip** (PREREQ A closed) · capability-drift clean (staged copy carries `"mcp":`) · widening 0/3 · npm lint/typecheck/**vitest 809/809** · `deny bans licenses sources` ok · advisories designed-red at the same **8** owned IDs · self-verify PASS · **webview-drive GREEN ×2 (all 13) + RED arm PASS**. Mutation checks: allowlist leaf (3/3 red→green) · capability revoke (**5 stages red with controls still pressed**; restored byte-identical, hash-verified) · widget-line (red; reverted) · traces-scroll source mutation = **reported partial** (two mutations absorbed by the LAYERED P-082 containment; unit fixtures + `--no-inject` carry the discrimination).
 
-**Both new pin tiers mutation-checked**: neutralising `focusRow` reddened exactly the 4 movement pins while Enter/Escape/roving-tabindex/P-081 stayed green; the Playwright arm was only read after rebuilding `ui/dist` (a stale bundle would have passed the mutation silently).
+**The race:** 7 boots → victims findings/report/main/none/report/findings/main; recovery 6/6. **Boundary (operator directive): measured under the automation environment; production exposure UNMEASURED; no confining mechanism identified** — worded so at test-plan §6; the open half (plain-boot per-webview URL measurement OR a `window.rs` re-navigate-on-show guard) is a CARRY on the new first entry.
 
 ## Drift resolved
-**19 proposals from 7 detectors · 19 applied · 2 escalations resolved · drift = 0 on exit.**
-- **a11y-plan** — 7 sites (6 proposed + 1 the orchestrator's residue grep caught). The NOT-SHIPPED claim retired on both halves, §5 restated as row-level, §7 region moved into the landmark inventory, surface set **P1–P12 → P1–P14**, and §11's "NEVER nest focusables" ban narrowed to nested **TAB STOPS** with a grid-lite carve-out (escalated; operator approved).
-- **test-plan** — 5 sites. `traces-surface-a11y-semantics-absent` marked LANDED with its premise retracted; §2 gained the browser-driven a11y tier as an **adopted** runner and scoped "Playwright UNADOPTED" to `connectOverCDP`; §9 gained the **A11y suite** CI row (it runs at `ci.yml:125` and the table had never said so); §6 records the second driver + the flake (escalated; operator approved).
-- **layout-templates** 4 · **design-system** 3 (the 2026-05-03 accent-as-error-text deferral measured already discharged) · **security-plan** 1 (owned advisory IDs **7 → 8**).
-- **arch** and **obs-plan** clean, both with stated sweeps.
-- Cascade: 3 leaves re-derived (`rules/a11y.md`, `docs/a11y-summary.md`, `rules/security.md`); 5 measured already-correct; preserve-verbatim homes and judgment bases had zero hits.
-- **New playbook rule** approved: an escalate-severity detector firing outside its escalate class is routine when the report substantiates the actual class — generalizes two narrow siblings (third instance).
+**16 amendments from 5 detectors + 2 orchestrator-raised · 2 rejected (security over-reach pair: `window_label` is a bounded internal label, not an "attribute value"; the allowlist IS the subscriber-layer redaction) · 0 escalations · drift = 0 on exit.**
+- arch (Role cell 7→13) · layouts (trigger #4 once-per-session retired ×2 sites) · obs (§8 signpost leaf) · tests (×10: counts at 6 sites, flake root-cause rewrite with the operator boundary, widget-close strengthened ×2, msedgedriver-trigger 27→88) · a11y (§1 P1 re-pointing discharged).
+- Cascade: 6 leaves re-derived (stack.md, tests-summary, rules/testing ×2 sites, rules/observability, obs-summary); 1 preserve-verbatim hit routed to curation (harness SEVEN→THIRTEEN correction); 1 stale code comment fixed (`webview_drive.rs` "only guard"). Zero residue on the sweep.
 
 ## Notes
-
-- **The chunk's headline is a retraction.** Five artifacts said the Traces surface shipped neither a `region` label nor a `table` role. Both halves were false: the native `<table>` was always there, and the region lives on the **sibling** `ConstellationCanvas.tsx` while every site had checked `TraceTable.tsx`. An absence measured against the wrong file spawned amendments in five artifacts, a pending-coverage trigger and a route entry — all aimed at work that did not exist. Curated as a Tier-1 extension: **verify a claimed ABSENCE against the component that OWNS the surface.**
-- **`cargo audit` PREREQ discharged in FULL form at point 40** — true exit 1 (read directly, not through a pipe), basis byte-identical, DB still cannot load, so the deferral does **not** end. **Next point 43**; sessions 41–42 owe no probe. Pin #13 could NOT take the ratified compact form: the overlap **shifted** 7 → 8 IDs, and an overlap shift restores the full form.
-- **The headful leg is FLAKY and it is PRE-EXISTING** — `launch` fails intermittently (the `main` window never leaves `about:blank`): 1/5 loaded-with-changes, **1/4 loaded-WITHOUT-changes**, 2/5 quiesced. An intermediate 3-fail-vs-one-baseline-pass reading looked like a regression I had caused; only sampling the baseline properly (stash → rebuild → re-embed) disproved it. Toggle-press recovery is **0/10 across all 14 runs**, so a longer wait cannot fix it. Not CI-wired, so it gates nothing today. CARRY'd onto the Headful leg extension entry.
-- **Two Rust gates deferred** (zero compiled-source delta): `clippy --workspace --all-features` + `nextest --workspace`. PREREQ pinned to the Headful leg extension entry with this chunk as origin.
-- **The Headful leg extension entry is now very long** (9 CARRYs + 2 PREREQs). A prior evolve diagnosis already flagged this accretion shape; it may deserve splitting at its promotion.
-- **Reversible-on-request:** the constellation summary shipped WITHOUT `role="status"` (the approved preview sketch included it) — a ~1s poll plus the dashboard's existing live region would stack announcements. Say the word and it goes in.
-- Curation: T1 ×2 (1 new + 1 in-place extension) · T2 ×1 · 0 deferred · 0 conflicts. CLAUDE.md **154/200**.
+- **Curation:** T1 ×1 (in-place extension: environment-scoped claims need a confining mechanism — the boundary lesson) · T2 ×2 new (headful-driver round-2 bundle; PUA codepoint probe) + 1 exempt correction · filtered 2. CLAUDE.md **154/200**.
+- **`cargo audit`:** point 41 — `probe skipped per ratified interval (next: 43)`; overlap re-derived first-hand at the same 8 IDs; **pin #14 took the ratified COMPACT form** (basis + overlap unchanged). Session 42 owes no probe; **next probe point 43**.
+- **The traces-scroll mutation partial is deliberate and recorded** — the layered containment absorbed two single-element mutations; a future defect-reproducing mutation must break the top of the chain (noted in the new entry's resize CARRY).
+- The report's Counts bullet mis-claimed "no doc states the xtask test count" — test-plan §1 stated 27; the tests detector caught it and the amendment carries the accurate form (27→88).
 - Last failed command: none.
 
 ## Deferred learnings
-None deferred. Two 0.6-confidence candidates tied at the Filter-5 cap and were MERGED rather than dropped — "attribute a flake by sampling both sides" absorbed "a mutation must rebuild the artifact the tier consumes" as its second clause, since both turn on the same mechanism.
+None deferred. Two candidates dropped at Filter 5/dedup: the navigation-race learning (masters now carry it verbatim) and the session narrative (report + route entry carry it).
+
+## Session End Status
+Wrap completing at 2026-08-24T18:12Z (P7 commit follows).

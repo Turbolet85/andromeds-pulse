@@ -97,6 +97,11 @@ fields the emit site emits, two integers plus a bounded static label. Registered
 enumeration too (it fires only when the resolved bound ≠ the 3600s default, because an env-shortened window
 silently changes when services become eligible for silence detection). Neither a bare `triage` nor a bare
 `triage.baseline` key may exist. Its guard lives at `pulse-app/tests/unit_observability_allowlist_bootstrap_window.rs`
+
+**Close-to-tray signpost leaf (chunk 2026-08-23-headful-leg-extension).** One EXACT `§8` leaf —
+`tray.signpost.shown` (`window_label` ONLY, bounded via `sanitize_window_label`; never content, title, or
+coordinates). No bare `tray` key may exist. Guard: `pulse-app/tests/unit_observability_allowlist_close_signpost.rs`
+(mutation-checked RED 3/3 → GREEN).
 — under `tests/` because `[lib] test = false` makes a src-level guard compile and never run.
 
 **Incident-producer outcome leaf (chunk 2026-08-16-fault-identity-semantics-decided).** One EXACT `§8` leaf —

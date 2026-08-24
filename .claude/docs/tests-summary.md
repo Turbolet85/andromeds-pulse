@@ -44,7 +44,7 @@ JSON-per-line; fields: `timestamp` (ISO-8601), `level`, `target`, `message`, `fi
 | **P2** | buffer + snapshot + TauRPC + Channel `pulse://stream/snapshot-progress` | Populate 500 spans → `snapshot.generate({token_budget: 25000})` → assert anomaly markers + `token_count <= 25000` + `dedup_count > 0` + p50/p95/p99 aggregates |
 | **P3** | MCP stdio sidecar + buffer | Spawn with `--features mcp-server` + `ANDROMEDA_PULSE_MCP_ENABLED=true` → JSON-RPC `tools/call query_traces` → assert array of trace objects |
 | **P4** | plugins + WASM Component Model + TauRPC | Stage fixture WASM → `plugins.reload` → `plugins.list` → `plugins.invoke({capability})` → negative test on disallowed capability |
-| **P5** | webview + tray + IPC | 7-stage headful path (`cargo xtask webview-drive`) asserting obs+DOM halves per stage; `widget-close` is terminal and still asserts `ui.layout.transition {compact-widget → hidden}`; resize / tray-repaint / notification stay IPC-surrogate |
+| **P5** | webview + tray + IPC | 13-stage headful path (`cargo xtask webview-drive`) asserting obs+DOM halves per stage; `widget-close` is terminal and requires the `ui.layout.transition {compact-widget → hidden}` record AND the `tray.signpost.shown` record with `window_label == "compact-widget"`; resize / tray-repaint / notification stay IPC-surrogate |
 | **P6** | buffer + Tauri Channel + Arrow IPC | Subscribe to `pulse://stream/spans` → ingest gRPC → decode Arrow IPC → schema match |
 | **P7** | workspace-detector + TauRPC | `workspace.detect` → assert `{project_name, root_path, vcs_type: "git", vcs_root}` |
 
