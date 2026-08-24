@@ -245,6 +245,62 @@ pub fn on_window_event<R: tauri::Runtime>(
     }
 }
 
+// Every window label declared in tauri.conf.json. Bounded by construction —
+// these ARE the sanitized set, so they can be emitted as labels directly.
+const ALL_WINDOW_LABELS: [&str; 4] = [
+    COMPACT_WIDGET_LABEL,
+    MAIN_WINDOW_LABEL,
+    FINDINGS_WINDOW_LABEL,
+    REPORT_WINDOW_LABEL,
+];
+
+const BLANK_URL: &str = "about:blank";
+
+// Long enough that an ordinary first navigation has completed, so a window
+// still blank here lost it rather than being mid-flight.
+const NAVIGATION_SETTLE: Duration = Duration::from_secs(5);
+
+/// Record, once per boot, whether each declared window actually navigated.
+///
+/// A webview that loses its initial navigation stays on `about:blank` and
+/// nothing re-navigates it — `show()` is not navigation — so it surfaces as a
+/// blank window whenever it is first opened. That state is otherwise invisible:
+/// the app boots, ticks, and logs normally, and no shipped smoke reads a
+/// per-webview URL. This emits a positive record per window so a healthy boot is
+/// evidence rather than mere absence of a complaint.
+pub fn spawn_navigation_check<R: tauri::Runtime>(app: tauri::AppHandle<R>) {
+    tauri::async_runtime::spawn(async move {
+        tokio::time::sleep(NAVIGATION_SETTLE).await;
+        for label in ALL_WINDOW_LABELS {
+            let (navigated, reason) = match app.get_webview_window(label) {
+                None => (false, "window_absent"),
+                Some(window) => match window.url() {
+                    Err(_) => (false, "url_unavailable"),
+                    Ok(url) if url.as_str() == BLANK_URL => (false, "blank"),
+                    Ok(_) => (true, "navigated"),
+                },
+            };
+            if navigated {
+                info!(
+                    target: "app.boot.window.navigation",
+                    window_label = label,
+                    navigated = true,
+                    reason = reason,
+                    "webview navigated",
+                );
+            } else {
+                warn!(
+                    target: "app.boot.window.navigation",
+                    window_label = label,
+                    navigated = false,
+                    reason = reason,
+                    "webview never navigated; this window renders blank when shown",
+                );
+            }
+        }
+    });
+}
+
 // Show the compact widget after Tauri setup finishes. Failure is non-fatal
 // (boot continues) but emits a warn so the harness can detect.
 pub fn show_compact_widget<R: tauri::Runtime, M: Manager<R>>(app: &M) {

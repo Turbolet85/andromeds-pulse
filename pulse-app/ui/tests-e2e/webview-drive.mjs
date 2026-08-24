@@ -51,6 +51,10 @@ const MODAL_DIALOG = '[data-testid="modal-dialog"]'
 const INVESTIGATE = 'button[aria-label="Investigate"]'
 const CLOSE_TO_TRAY = 'button[aria-label="Close to tray"]'
 const TOGGLE_DASHBOARD = 'button[aria-label="Toggle dashboard"]'
+// The titlebar's flex spacer: inside `data-tauri-drag-region` and clear of every
+// control, so a synthesized press here lands on the drag surface rather than on
+// a button that would swallow it.
+const DRAG_REGION = '.titlebar__grow'
 const TAB_NAV = '[data-testid="tab-nav"]'
 const PRESET_PROMPT_LIST = '[data-testid="preset-prompt-list"]'
 // The titlebar Investigate button OPENS the modal; `investigate.run_action`
@@ -78,6 +82,12 @@ const INVESTIGATE_TIMEOUT_MS = 30_000
 // nothing necessarily spends its whole budget; keep these inside the xtask-side
 // timeout rather than letting one stage eat it.
 const ABSENT_TIMEOUT_MS = 15_000
+// Probe displacements: large enough that a real OS move/resize is unambiguous
+// against any incidental jitter, small enough to stay on-screen.
+const PROBE_DRAG_DX = 120
+const PROBE_DRAG_DY = 90
+const PROBE_RESIZE_DW = 60
+const PROBE_RESIZE_DH = 40
 
 for (const [name, value] of Object.entries({ PULSE_BIN, PULSE_DATA_DIR, MSEDGEDRIVER_PATH })) {
   if (!value) {
@@ -364,6 +374,93 @@ async function recoverBlankWindows(browser) {
   return recovered
 }
 
+// Mechanics probe. W3C pointer Actions and WebDriver window-rect manipulation
+// have never been exercised against a WRY window on this host, so whether a drag
+// or resize stage can exist AT ALL is a measurement, not an assumption. Finding
+// a mechanism unsupported is a RESULT — the probe records what it found and
+// never fails the leg.
+//
+// Input is what is under test (Actions / setWindowRect); READBACK deliberately
+// uses the Tauri window getters already proven by the other stages, so a null
+// delta means the input did nothing rather than that the measurement is unproven.
+// Runs against `main`, whose geometry no later stage keys on (findings docks off
+// the WIDGET), and restores what it moved.
+async function probeWindowMechanics(browser) {
+  const out = {
+    geometry_readable: false,
+    drag_region_found: false,
+    pointer_actions_ran: false,
+    pointer_actions_error: null,
+    drag_delta: null,
+    set_window_rect_ran: false,
+    set_window_rect_error: null,
+    resize_delta: null,
+  }
+  if ((await switchToDashboard(browser)) === null) {
+    out.pointer_actions_error = 'dashboard handle not resolvable'
+    return out
+  }
+
+  const posBefore = asPoint(await windowInvoke(browser, 'outer_position', 'main'))
+  const sizeBefore = asSize(await windowInvoke(browser, 'outer_size', 'main'))
+  out.geometry_readable = Boolean(posBefore && sizeBefore)
+
+  const region = await browser.$(DRAG_REGION)
+  out.drag_region_found = await region.isExisting()
+  if (out.drag_region_found) {
+    try {
+      await browser
+        .action('pointer', { parameters: { pointerType: 'mouse' } })
+        .move({ origin: region })
+        .down({ button: 0 })
+        .move({ origin: 'pointer', x: PROBE_DRAG_DX, y: PROBE_DRAG_DY, duration: 200 })
+        .up({ button: 0 })
+        .perform()
+      out.pointer_actions_ran = true
+    } catch (err) {
+      out.pointer_actions_error = String(err?.message ?? err)
+    }
+  }
+  const posAfter = asPoint(await windowInvoke(browser, 'outer_position', 'main'))
+  if (posBefore && posAfter) {
+    out.drag_delta = { dx: posAfter.x - posBefore.x, dy: posAfter.y - posBefore.y }
+  }
+
+  if (sizeBefore) {
+    try {
+      await browser.setWindowRect(
+        null,
+        null,
+        sizeBefore.width + PROBE_RESIZE_DW,
+        sizeBefore.height + PROBE_RESIZE_DH,
+      )
+      out.set_window_rect_ran = true
+    } catch (err) {
+      out.set_window_rect_error = String(err?.message ?? err)
+    }
+    const sizeAfter = asSize(await windowInvoke(browser, 'outer_size', 'main'))
+    if (sizeAfter) {
+      out.resize_delta = {
+        dw: sizeAfter.width - sizeBefore.width,
+        dh: sizeAfter.height - sizeBefore.height,
+      }
+    }
+  }
+
+  // Best-effort restore so later stages see the geometry they booted with.
+  try {
+    await browser.setWindowRect(
+      posBefore?.x ?? null,
+      posBefore?.y ?? null,
+      sizeBefore?.width ?? null,
+      sizeBefore?.height ?? null,
+    )
+  } catch {
+    /* the report records what was measured; a failed restore is not a stage */
+  }
+  return out
+}
+
 async function switchToInvestigateHost(browser) {
   const handles = await browser.getWindowHandles()
   for (const handle of handles) {
@@ -550,6 +647,18 @@ async function main() {
     if (!found) return 3
     await switchToDashboard(browser)
 
+    // Mechanics probe — runs before any stage asserts, so its findings can gate
+    // which window-mechanic stages exist. Not a stage: `observed` records only
+    // that the probe completed, and the Rust side reads the detail fields.
+    let mechanics = null
+    try {
+      mechanics = await probeWindowMechanics(browser)
+      record('mechanics-probe', true, mechanics)
+    } catch (err) {
+      record('mechanics-probe', false, { probe_error: String(err?.message ?? err) })
+    }
+    await switchToDashboard(browser)
+
     // Stage 2 — traces-empty: the pre-state stage 3 needs. Nothing has been
     // injected yet, so an empty table here is what makes empty→populated real.
     await clickTab(browser, 'traces')
@@ -607,6 +716,58 @@ async function main() {
         !scrollFacts.page_overflows,
       scrollFacts,
     )
+
+    // Stage 4b — native-menu-suppressed (P-064/P-065 residual). The mechanics
+    // probe measured that no synthesized OS pointer input reaches this window,
+    // so a NATIVE WebView2 context menu can neither be opened nor observed by
+    // the driver — the CARRY's "if unobservable, assert the suppression side"
+    // branch. Dispatching a REAL contextmenu in the shipped production bundle is
+    // evidence vitest cannot give: it exercises the hook in jsdom under a
+    // stubbed PROD flag, never the bundle the user actually runs.
+    //
+    // Placed HERE, not late in the leg: the dashboard is already on /traces so
+    // the canvas needed for the P-065 half is present WITHOUT navigating. An
+    // earlier revision sat after `empty-states` and clicked back to /traces,
+    // which left the downstream window state different from the pristine flow
+    // and killed the RED arm's WebDriver session at `dashboard-close`
+    // (measured: pristine 184s PASS, with the route change >1200s and no
+    // completion). A read-only observer stage must not perturb what follows it.
+    await switchToDashboard(browser)
+    let suppression = null
+    try {
+      suppression = await browser.execute(() => {
+        // Browser globals via `globalThis` — this callback is serialized into
+        // the webview, but the file is linted with Node globals (the existing
+        // `__TAURI_INTERNALS__` probes take the same route).
+        const doc = globalThis.document
+        const menu = new globalThis.MouseEvent('contextmenu', {
+          bubbles: true,
+          cancelable: true,
+        })
+        doc.body.dispatchEvent(menu)
+        const canvas = doc.querySelector('canvas')
+        let dragPrevented = null
+        if (canvas) {
+          const drag = new globalThis.Event('dragstart', { bubbles: true, cancelable: true })
+          canvas.dispatchEvent(drag)
+          dragPrevented = drag.defaultPrevented
+        }
+        return {
+          menuPrevented: menu.defaultPrevented,
+          canvasFound: Boolean(canvas),
+          dragPrevented,
+        }
+      })
+    } catch (err) {
+      suppression = { error: String(err?.message ?? err) }
+    }
+    record('native-menu-suppressed', suppression?.menuPrevented === true, {
+      context_menu_prevented: suppression?.menuPrevented ?? null,
+      canvas_found: suppression?.canvasFound ?? null,
+      canvas_dragstart_prevented: suppression?.dragPrevented ?? null,
+      native_menu_observable: false,
+      dispatch_error: suppression?.error ?? null,
+    })
 
     // Stage 5 — connection-status (P-070): the dashboard footer's worded line
     // goes live under flowing telemetry; the compact widget must NOT carry it
@@ -898,7 +1059,7 @@ async function main() {
     }
     record('empty-states', routes.metrics.empty && routes.logs.empty, routes)
 
-    // Stage 11 — dashboard-toggle (P-066): the button and the Ctrl+Shift+P
+    // Stage 12 — dashboard-toggle (P-066): the button and the Ctrl+Shift+P
     // binding each prove a direction, across both windows, and the widget
     // stays visible throughout. Both directions run through JS hide()/show()
     // (no Rust record), so the verdict is the window API's own visibility.
@@ -986,7 +1147,7 @@ async function main() {
       },
     )
 
-    // Stage 12 — dashboard-close (P-063): the dashboard's own ✕ collapses to
+    // Stage 13 — dashboard-close (P-063): the dashboard's own ✕ collapses to
     // the widget. The `main → hidden` record is written ONLY by this path
     // (the toggle hides via JS with no record), and the close is SILENT — the
     // signpost count must not move; the toast belongs to the widget close.
@@ -1026,8 +1187,10 @@ async function main() {
       },
     )
 
-    // Stage 13 — widget-close: terminal, because this press sends the app to the
-    // tray. Carried forward from the single-press leg: it is the only guard on
+    // Stage 14 — widget-close: this press sends the app to the tray. It WAS the
+    // terminal stage; signpost-repeat now follows it deliberately, restoring the
+    // widget to prove the toast fires on every close rather than only the first.
+    // Carried forward from the single-press leg: a guard on
     // `core:window:allow-close`, which the ACL drops silently when ungranted.
     const widget = await switchToWidget(browser)
     let closePressed = false
@@ -1064,6 +1227,45 @@ async function main() {
       accessible_name: closeName,
       transition_seen: hidden,
       signpost_seen: signpostSeen,
+    })
+
+    // Stage 15 — signpost-repeat (P-063 every-time half). One close proves the
+    // signpost fires; it cannot prove it fires EVERY time. A second close needs
+    // the widget back, and tray restore is an OS surface no synthesized input
+    // reaches (the probe measured pointer Actions arriving with no effect), so
+    // the re-show is programmatic SETUP. The ASSERTION still rests only on real
+    // presses: both closes are clicks on the production control.
+    const labelledSignposts = () =>
+      logCount(
+        PULSE_DATA_DIR,
+        (rec) =>
+          rec.target === 'tray.signpost.shown' &&
+          rec.fields?.window_label === 'compact-widget',
+      )
+    const signpostsAfterFirst = labelledSignposts()
+    const reshown = await windowInvoke(browser, 'show', 'compact-widget')
+    const widgetBack = await pollUntil('widget re-shown for second close', ABSENT_TIMEOUT_MS, () =>
+      isWindowVisible(browser, 'compact-widget'),
+    )
+    let secondClosePressed = false
+    if (widgetBack && (await switchToWidget(browser)) !== null) {
+      const closeAgain = await browser.$(CLOSE_TO_TRAY)
+      if (await closeAgain.isExisting()) {
+        await closeAgain.click()
+        secondClosePressed = true
+      }
+    }
+    const signpostRepeated = await pollUntil('second close signpost', ABSENT_TIMEOUT_MS, async () =>
+      labelledSignposts() > signpostsAfterFirst,
+    )
+    record('signpost-repeat', secondClosePressed && signpostRepeated, {
+      second_close_pressed: secondClosePressed,
+      widget_reshown: widgetBack,
+      reshow_result: reshown,
+      signposts_after_first: signpostsAfterFirst,
+      signposts_after_second: labelledSignposts(),
+      restore_mechanism: 'programmatic-show (tray is an OS surface the driver cannot reach)',
+      invoke_error: lastInvokeError,
     })
 
     return 0

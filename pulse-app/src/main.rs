@@ -1108,6 +1108,7 @@ fn main() {
                 .unwrap_or_default();
             window::apply_widget_settings(app, &settings);
             window::restore_main_window_position(app, &geometry_snapshot);
+            window::spawn_navigation_check(app.handle().clone());
             let tray_icon = tray::setup_tray(app.handle(), Arc::clone(&broadcast_senders))?;
             app.manage(tray_icon);
 

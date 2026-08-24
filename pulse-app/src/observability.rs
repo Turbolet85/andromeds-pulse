@@ -971,6 +971,19 @@ impl AllowList {
                 .copied()
                 .collect(),
         );
+        // Its OWN exact leaf. No bare `app` key is registered (measured), so
+        // `for_target`'s first-`.`-segment fallback finds nothing and EVERY
+        // field is redacted without this entry. All three the emit site emits —
+        // a short leaf leaves the target partly redacted. `window_label` is a
+        // bounded declared label, `reason` a bounded static; neither the URL nor
+        // any window content is emitted.
+        by_target.insert(
+            "app.boot.window.navigation",
+            ["window_label", "navigated", "reason"]
+                .iter()
+                .copied()
+                .collect(),
+        );
         by_target.insert(
             "ui.layout.transition",
             [

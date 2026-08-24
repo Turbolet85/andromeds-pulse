@@ -102,6 +102,14 @@ silently changes when services become eligible for silence detection). Neither a
 `tray.signpost.shown` (`window_label` ONLY, bounded via `sanitize_window_label`; never content, title, or
 coordinates). No bare `tray` key may exist. Guard: `pulse-app/tests/unit_observability_allowlist_close_signpost.rs`
 (mutation-checked RED 3/3 → GREEN).
+
+**Boot navigation-check leaf (chunk 2026-08-24-headful-mechanics-probe-race-disposition).** One EXACT `§8`
+leaf — `app.boot.window.navigation` (`window_label` / `navigated` / `reason`, ALL THREE the emit site emits;
+label bounded via the same `sanitize_window_label`, `reason` a bounded static; never the webview URL, title,
+or coordinates). NO bare `app` key is registered, so without the exact leaf the fallback resolves nothing and
+every field is redacted. Registered at BOTH `§6`'s warn row and `§8` per the dual-site rule. Guard:
+`pulse-app/tests/unit_observability_allowlist_window_navigation.rs` (4 tests, mutation-checked — leaf renamed
+→ 3/4 RED, the fallback-leak pin correctly green).
 — under `tests/` because `[lib] test = false` makes a src-level guard compile and never run.
 
 **Incident-producer outcome leaf (chunk 2026-08-16-fault-identity-semantics-decided).** One EXACT `§8` leaf —

@@ -67,6 +67,17 @@ pub const STAGES: &[Stage] = &[
         id: "traces-scroll",
         what: "the trace table scrolls inside its own region while the page does not (P-082)",
     },
+    // The mechanics probe measured that no synthesized OS pointer input reaches
+    // this window, so a NATIVE WebView2 menu can neither be opened nor observed
+    // by the driver. This is the sanctioned fallback: the SUPPRESSION side, in
+    // the shipped production bundle — which vitest cannot reach (it runs the
+    // hook in jsdom under a stubbed PROD flag). Ordered right after
+    // traces-scroll so it observes the /traces route the leg is already on,
+    // rather than navigating and perturbing every stage downstream.
+    Stage {
+        id: "native-menu-suppressed",
+        what: "a real contextmenu in the live window is defaultPrevented, so no WebView2 menu shows (P-064)",
+    },
     Stage {
         id: "connection-status",
         what: "the dashboard footer words services + spans/s + buffer, absent on the widget (P-070)",
@@ -99,12 +110,23 @@ pub const STAGES: &[Stage] = &[
         id: "dashboard-close",
         what: "the dashboard's own close collapses to the widget: main → hidden, no signpost (P-063)",
     },
-    // Terminal by nature: this press sends the whole app to the tray. Carried
-    // forward from the single-press leg; `allow-close` is guarded here and by
-    // dashboard-close (the ACL drops either close silently when revoked).
+    // This press sends the whole app to the tray. It WAS terminal;
+    // signpost-repeat now follows it deliberately, restoring the widget to prove
+    // the toast fires on every close. Carried forward from the single-press leg;
+    // `allow-close` is guarded here and by dashboard-close (the ACL drops either
+    // close silently when revoked).
     Stage {
         id: "widget-close",
         what: "ui.layout.transition reports compact-widget → hidden after a real close press",
+    },
+    // The every-time half of P-063: one close proves the signpost fires, never
+    // that it fires EVERY time. Proving repetition needs a second close, hence a
+    // restore — and tray restore is an OS surface no synthesized input reaches
+    // (measured by the probe), so the re-show is programmatic SETUP while both
+    // closes stay real affordance presses.
+    Stage {
+        id: "signpost-repeat",
+        what: "a SECOND real widget close emits a second labelled tray.signpost.shown (P-063 every-time)",
     },
 ];
 
@@ -202,6 +224,7 @@ pub async fn run_webview_drive(expect_absent: Option<String>, no_inject: bool) -
         .filter_map(|line| serde_json::from_str::<Value>(line).ok())
         .collect();
     let dom = read_stage_report(&data_dir);
+    print_mechanics_probe(&dom);
 
     // Per test-plan §3 Direct-binary smoke variant the clean-log assertion binds
     // the GREEN leg only: a RED leg is by construction an unhealthy run, and
@@ -344,6 +367,17 @@ pub fn stage_halves(id: &str, records: &[Value], dom: &[Value]) -> StageHalves {
             obs: None,
             dom: Some(dom_observed(dom, "empty-states") && dom_empty_states_have_hints(dom)),
         },
+        // DOM-only by construction: suppression is a webview-side preventDefault
+        // with no Rust hook. The field, not the stage flag, is the verdict — a
+        // dispatch that never ran would leave it null and read as false.
+        "native-menu-suppressed" => StageHalves {
+            obs: None,
+            dom: Some(
+                dom_stage(dom, "native-menu-suppressed")
+                    .and_then(|s| s.get("context_menu_prevented").and_then(Value::as_bool))
+                    .unwrap_or(false),
+            ),
+        },
         // Toggle hide/show run through JS `hide()`/`show()` (no record either
         // direction), so the toggle is DOM-only — which is also why the
         // `main → hidden` record below is unique to the dashboard ✕.
@@ -362,6 +396,18 @@ pub fn stage_halves(id: &str, records: &[Value], dom: &[Value]) -> StageHalves {
             obs: obs(records.iter().any(is_widget_hidden_transition)
                 && records.iter().any(is_close_signpost)),
             dom: seen("widget-close"),
+        },
+        // COUNT, not presence: widget-close above already proves one labelled
+        // signpost exists, so a presence check here would pass on that same
+        // record and prove nothing about repetition. Two is what "every time"
+        // needs, and the DOM half requires the second press actually landed.
+        "signpost-repeat" => StageHalves {
+            obs: obs(records.iter().filter(|r| is_close_signpost(r)).count() >= 2),
+            dom: Some(
+                dom_stage(dom, "signpost-repeat")
+                    .and_then(|s| s.get("second_close_pressed").and_then(Value::as_bool))
+                    .unwrap_or(false),
+            ),
         },
         _ => StageHalves {
             obs: Some(false),
@@ -659,6 +705,58 @@ async fn run_driver(
     Ok(())
 }
 
+/// Print what the driver's mechanics probe measured about this host's transport.
+///
+/// Deliberately NOT a stage: an unsupported mechanism is a finding, not a
+/// failure, so it must never move the leg's verdict. `verdict` reads the delta
+/// rather than whether the call threw — a driver command can return cleanly and
+/// move nothing, which is the whole reason the probe measures the effect.
+pub fn print_mechanics_probe(dom: &[Value]) {
+    let Some(probe) = dom_stage(dom, "mechanics-probe") else {
+        println!("webview-drive: mechanics-probe — not recorded (driver did not reach it)");
+        return;
+    };
+    let field = |k: &str| probe.get(k).cloned().unwrap_or(Value::Null);
+    let delta_moved = |k: &str, a: &str, b: &str| match probe.get(k) {
+        Some(Value::Object(d)) => {
+            let get = |n: &str| d.get(n).and_then(Value::as_i64).unwrap_or(0);
+            Some(get(a) != 0 || get(b) != 0)
+        }
+        _ => None,
+    };
+    let verdict = |moved: Option<bool>| match moved {
+        Some(true) => "SUPPORTED",
+        Some(false) => "no effect",
+        None => "unmeasured",
+    };
+    println!(
+        "webview-drive: mechanics-probe — geometry_readable={} drag_region_found={}",
+        field("geometry_readable"),
+        field("drag_region_found")
+    );
+    println!(
+        "webview-drive:   pointer Actions  ran={} delta={} => {}",
+        field("pointer_actions_ran"),
+        field("drag_delta"),
+        verdict(delta_moved("drag_delta", "dx", "dy"))
+    );
+    println!(
+        "webview-drive:   setWindowRect    ran={} delta={} => {}",
+        field("set_window_rect_ran"),
+        field("resize_delta"),
+        verdict(delta_moved("resize_delta", "dw", "dh"))
+    );
+    for key in [
+        "pointer_actions_error",
+        "set_window_rect_error",
+        "probe_error",
+    ] {
+        if let Some(Value::String(msg)) = probe.get(key) {
+            println!("webview-drive:   {key}: {msg}");
+        }
+    }
+}
+
 fn report(observed: &[(Stage, bool)], expect_absent: Option<&str>) -> Result<ExitCode> {
     for (stage, seen) in observed {
         println!(
@@ -817,6 +915,87 @@ mod tests {
             "logs": { "empty": true, "hint": true, "error": false }
         })]);
         assert!(!dom_empty_states_have_hints(&stages));
+    }
+
+    fn signpost(label: &str) -> Value {
+        json!({
+            "target": "tray.signpost.shown",
+            "fields": { "window_label": label }
+        })
+    }
+
+    #[test]
+    fn signpost_repeat_needs_two_signposts_not_one() {
+        // widget-close already proves ONE labelled signpost exists, so a
+        // presence check here would pass on that same record and prove nothing
+        // about repetition — the count is the whole assertion.
+        let pressed = dom(vec![json!({
+            "stage": "signpost-repeat",
+            "observed": true,
+            "second_close_pressed": true
+        })]);
+        let one = vec![signpost("compact-widget")];
+        let two = vec![signpost("compact-widget"), signpost("compact-widget")];
+        assert!(!stage_observed("signpost-repeat", &one, &pressed));
+        assert!(stage_observed("signpost-repeat", &two, &pressed));
+    }
+
+    #[test]
+    fn signpost_repeat_ignores_other_windows_signposts() {
+        // A second signpost carrying a different window label is not a second
+        // WIDGET close; counting bare records would let it pass.
+        let pressed = dom(vec![json!({
+            "stage": "signpost-repeat",
+            "observed": true,
+            "second_close_pressed": true
+        })]);
+        let mixed = vec![signpost("compact-widget"), signpost("main")];
+        assert!(!stage_observed("signpost-repeat", &mixed, &pressed));
+    }
+
+    #[test]
+    fn signpost_repeat_needs_the_second_press_to_have_landed() {
+        // Two signposts with no second press means the count came from
+        // somewhere other than the affordance under test.
+        let unpressed = dom(vec![json!({
+            "stage": "signpost-repeat",
+            "observed": false,
+            "second_close_pressed": false
+        })]);
+        let two = vec![signpost("compact-widget"), signpost("compact-widget")];
+        assert!(!stage_observed("signpost-repeat", &two, &unpressed));
+    }
+
+    #[test]
+    fn native_menu_keys_on_the_prevented_field_not_the_stage_flag() {
+        // A dispatch that never ran leaves the field null; the stage flag alone
+        // would report a suppression that was never measured.
+        let prevented = dom(vec![json!({
+            "stage": "native-menu-suppressed",
+            "observed": true,
+            "context_menu_prevented": true
+        })]);
+        let not_prevented = dom(vec![json!({
+            "stage": "native-menu-suppressed",
+            "observed": true,
+            "context_menu_prevented": false
+        })]);
+        let never_dispatched = dom(vec![json!({
+            "stage": "native-menu-suppressed",
+            "observed": true,
+            "context_menu_prevented": Value::Null
+        })]);
+        assert!(stage_observed("native-menu-suppressed", &[], &prevented));
+        assert!(!stage_observed(
+            "native-menu-suppressed",
+            &[],
+            &not_prevented
+        ));
+        assert!(!stage_observed(
+            "native-menu-suppressed",
+            &[],
+            &never_dispatched
+        ));
     }
 
     #[test]
