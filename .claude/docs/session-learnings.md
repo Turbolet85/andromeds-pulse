@@ -1,6 +1,16 @@
 # Session Learnings
 
 
+## 2026-08-25 — An anchored edit that ends at a line terminus can swallow the next line's break
+
+Removing a trailing annotation from a working-route entry — an `old_string` ending at the last character of the line, replaced with nothing — left the following `   ↓` separator MERGED onto the edited line rather than standing on its own. The entry text was correct; the file's structure was not. Nothing in the edit's own result signalled it, and the rendered diff read as a clean reorder, because the lost break showed up only as an alignment shift in the hunk.
+
+Why it matters here specifically: in `working-route.md` the line structure IS the data. The markerless/frozen boundary is the derived cursor, `   ↓` separates entries, and two entries silently merged into one line would corrupt the next session's position derivation — while still looking like ordinary prose to a reader.
+
+The cheap guard is a structural invariant check after any edit to these files, not a re-read of the prose: count entry lines, separator lines and frozen (`[marker]`-prefixed) lines and compare against the pre-edit counts plus the intended delta, then diff the frozen set for byte-identity. That check is what caught this one (separators 39 against an expected 40). Applies to every structured-line ledger in the repo — `working-route.md`, `master-route.md`, the amendment sidecars, and the NDJSON telemetry files — where a line boundary carries meaning that prose review will not miss.
+
+---
+
 ## 2026-08-22 — The DuckDB Arrow Appender DOES enforce PRIMARY KEY, at `flush()`
 
 Measured on the `log_records` same-tick collision: two records sharing `(ts_unix_nano, resource_hash, severity_number)` returned `Err("flush(log_records): Failed to append: PRIMARY KEY or UNIQUE constraint violation: duplicate key …")` and **zero rows landed** — the loss is the WHOLE batch, not the second record, because the error propagates out of `dispatch_batch` and skips both `record_rows_appended` and the broadcast emit. It is not silent either: `run_consumer` logs it at ERROR on `duckdb.append` with a `reject_reason`.

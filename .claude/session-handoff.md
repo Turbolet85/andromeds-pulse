@@ -1,37 +1,36 @@
 # Session Handoff
 
-**Last Updated:** 2026-08-25T00:05:00Z
-**Branch:** chore/migrate-pulse-to-v3 (tracks `origin/chore/migrate-pulse-to-v3`; 25 ahead before this commit — unpushed)
+**Last Updated:** 2026-08-25T16:11:09Z
+**Branch:** chore/migrate-pulse-to-v3 (tracks `origin/chore/migrate-pulse-to-v3`; 26 ahead before this commit — unpushed)
 **Status:** clean (wrapped)
-**Last Commit:** `feat(2026-08-24-headful-mechanics-probe-race-disposition): the probe decides which stages exist, and the race stops being unmeasured`
+**Last Commit:** `chore(route): operator-requested adaptation — 0-pending wrap`
 
 ## Position
-- Done: **2026-08-24-headful-mechanics-probe-race-disposition** — the mechanics probe measured W3C pointer Actions and `setWindowRect` UNSUPPORTED against a WRY window (both execute without throwing and move nothing), so drag + resize DECLINED on measurement while native-menu-suppressed + signpost-repeat LANDED (leg 13 → 15). Half B shipped the navigation detector and measured **0 blank windows / 36 windows / 9 plain boots** — no product guard, by measurement.
-- Next (first markerless): **Halo State Pulse canvas disposition** — carries **PREREQ pin #15 (`cargo audit`), and that wrap IS interval point 43, so it OWES the probe in full form** (points 41/42 owed none).
-- Then: Advisory backlog · npm advisory coverage · Diagnostics un-muting (now also owns the re-homed boot-geometry CARRY) · Staged-bindings assertion · Metrics label surface · Demo injector.
+- Done: **no chunk** — this was a 0-pending operator-requested route-adaptation wrap (session 43). No P1 report, no P2 fan-out, no master write, no matrix write.
+- Next (first markerless, **changed this wrap**): **Demo injector formalized + api-surface retire** (P-077) — lifted from tail-last. Its verification leg is now the FIRST live REAL-model chain proof (injector-driven sustained scenario under real L4, incident forms, operator judges the brief — ManualCheck class); det-L4 stays the deterministic arm. It carries the re-pinned `cargo audit` PREREQ, **next interval point 46** (43 was discharged here).
+- Then: Halo State Pulse canvas disposition · Advisory backlog · npm advisory coverage · Diagnostics un-muting · Staged-bindings assertion · Metrics label surface. Order otherwise unchanged.
 
 ## Work done
-5 files modified + 1 new: `xtask/src/webview_drive.rs` (2 stages + verdict arms + `print_mechanics_probe`; 88 → 92 colocated tests), `pulse-app/ui/tests-e2e/webview-drive.mjs` (`probeWindowMechanics` + 2 stage drivers), `pulse-app/src/window.rs` (`spawn_navigation_check`), `pulse-app/src/observability.rs` (exact leaf), `pulse-app/src/main.rs` (one boot registration), new `pulse-app/tests/unit_observability_allowlist_window_navigation.rs`.
+**Item 1 — the lift (trajectory, operator-ruled).** `Demo injector formalized + api-surface retire` moved tail-last → first markerless, ahead of the Halo entry. Annotations travelled: the `cargo audit` PREREQ re-pinned off the Halo entry (origin + pin #15 ratification preserved), five CARRYs rode along with one augmented — the CONTINUOUS-UNIQUE-STREAM carry is now **load-bearing, not optional**, since a finite ~600-batch storm cannot hold a sustained scenario across the L2→L3 20–60s window plus the L4 queue. Operator's scope hint folded in as `SCOPE:`.
 
-**Gates:** fmt · clippy all-features · **nextest 1933/1933 + 1 skip** (1925 → 1933) · capability-drift clean (staged copy carries `"mcp":`) · widening 0/3 · npm lint/typecheck/**vitest 809/809** · `deny bans licenses sources` ok · advisories designed-red at the same **8** owned IDs · self-verify PASS · **webview-drive GREEN 15/15 + RED arm PASS (183s)**. Four mutation checks, each reddening exactly the intended pins: repeat-count (2), native-menu field-vs-flag (1), allowlist leaf (3 of 4), settle-window (detector fires).
+**The operator's three cited blockers were re-derived first-hand before entering route text** (verify-at-HEAD): bootstrap env-override at `crates/triage/src/cue/thresholds.rs:12` · `2961f4e` = the workspace-key-alignment commit · seq/identity family `8e9856c` + `d4b432b`. All three reproduced; no premise correction needed.
 
-**The RED-arm regression I caused and fixed:** the new observer stage navigated to `/traces` to make a canvas present; that perturbed downstream window state and killed the arm's WebDriver session at `dashboard-close`. Three ceiling raises (420→660→1200s) were a misdiagnosis — block-buffered stdout made two runs stop at the same VISIBLE stage, which read as a hang location and is not. A pristine-baseline run settled attribution in one shot (184s PASS vs no completion); re-homing the stage to where the leg is already on `/traces` restored it to 183s PASS, ceiling back at 420s.
+**Item 2 — `cargo audit` point 43, IN FULL FORM.** Probe RAN: exit **1** read directly (never through a pipe), cargo-audit 0.22.2; basis **byte-identical** (`parse error: duplicate advisory ID: RUSTSEC-2026-0244`, upstream, DB still unloadable); overlap re-enumerated first-hand — `deny check bans licenses sources` → **ok** (exit 0), `deny check advisories` → exit 1 at the **same 8** owned IDs (0189/0190/0194/0195/0204/0222/0253/0258), set unchanged. Deferral continues; **next point 46**.
 
 ## Drift resolved
-**12 amendments applied (arch 1 · obs 2 · test-plan 9) · 3 REJECTED (security over-reach) · 1 playbook rule codified with the operator · 0 escalations open · drift = 0 on exit.**
-- arch §Stack Role cell 13 → 15 · obs §6 warn row + §8 whitelist (the `app.boot.window.navigation` dual-site pair) · test-plan across **6 stating sites** (§6 drivers + §6 P5 Status + §6 full-P5 + §1 P5 row + §2 invariants + §9 CI), the race boundary corrected UNMEASURED → MEASURED, §1 msedgedriver trigger re-based 88 → 92, and a NEW pending trigger `window-navigation-check-behaviour-unit-coverage`.
-- **Rejected:** the D-security-logging trio claimed this chunk introduced a bounded-label log class making the scrubber posture over-broad — but the class predates it by one chunk (`tray.signpost.shown`), the gate sentence is already scoped to *attribute values*, and the allowlist IS the subscriber-layer redaction. Identical pair rejected at the previous wrap, so a targeted playbook rule now names it.
-- Cascade: 5 leaves re-derived (stack.md, tests-summary, obs-summary, rules/testing ×2, rules/observability); 1 preserve-verbatim hit routed to curation as a correction.
+**3 body writes + 1 sidecar, all from this wrap's own measurement** (no detector fan-out runs on this path):
+- `.andromeda/security-plan.md` §Dependency Security probe clause said "next at session 43" — falsified by the probe run here; corrected to the session-43 discharge + next point 46, plus two measured counting rules.
+- Same correction cascaded to the leaf `.claude/rules/security.md`; history appended to `.andromeda/security-plan-amendments.md`.
+- **Counting rule (a):** advisory ERROR BLOCKS ≠ ID count — this run showed **10 blocks for 8 distinct IDs** (a crate at two lockfile versions raises one block per version; quick-xml's 0194/0195 twice each, `Cargo.lock:509`/`:510`). Reporting blocks as owned-set size manufactures a false "the set grew" alarm.
+- **Counting rule (b):** an interval POINT belongs to the wrap that actually OCCURS — inserting a wrap moves the count. Generalizes the operator's instruction so the next inserted wrap need not re-derive it.
 
 ## Notes
-- **Curation:** T1 ×1 (a disposition is not inherited — operator ruling) · T2 ×2 (observer stage must not perturb what follows → verification-harness; block-buffered stdout makes a hang look slow → testing) + 1 cap-exempt correction + 1 in-place additive facet (stash-recipe folded into the 2026-08-23 attribution entry). Filtered 2. CLAUDE.md **155/200**.
-- **`cargo audit`:** point 42 — `probe skipped per ratified interval (next: 43)`; overlap re-derived first-hand at the same 8 IDs. **The next wrap owes the probe in FULL form.**
-- **P-061/P-062 hollow-`verified` closed honestly** (operator ruling this wrap): both refs gained `operator manual affordance check 2026-08-25 — driver mechanics measured unavailable (this chunk's probe)`, plus premise-correction notes recording that the P-075/P-076 deferral destinations never absorbed the evidence. Neither cap was un-verified. P-061's geometry half is noted driver-READABLE and is the piece a future chunk can still automate (the re-homed CARRY).
-- Re-observed pre-existing: `xtask::self_verify::launch_pulse` sets no CWD → a stray root `ui/src/bindings/index.ts` on every self-verify run (gitignored; CARRY'd on the Diagnostics entry).
+- **A defect I introduced and caught:** the anchored edit removing the PREREQ from the Halo line also swallowed the following line's break, merging the `↓` separator onto it. The prose read fine; the **separator count (39 vs 40)** caught it, and a second edit restored it. Post-repair integrity: 104 lines · frozen set **byte-identical** (37) · 7 markerless · 40 separators · **0 frozen lines touched**. Curated Tier 3.
+- **Surfaced, not absorbed — P-077's matrix bar.** The entry reads `method: by-construction` with acceptance "inject_demo.rs is tracked and builds; the integration UX e2e (P-076) uses it to drive telemetry" — and **P-076 is already `verified`**, so that acceptance is satisfiable **without ever running the real model**. The operator's scope hint raises it to a live ManualCheck proof. Matrix deliberately NOT written here (no cap claimed; concretization is the claiming chunk's at promotion) — recorded as a `NOTE:` on the entry so `/andromeda-phase` must confront it.
+- **Curation:** T1 0 · T2 0 · T3 ×1 (the line-terminus edit hazard). Two further candidates were routed OUT of curation into the spec master — their proper home was the probe clause they correct, and curating them too would have duplicated a fact written to the source the leaf derives from. Filters: 0 dup · 1 task-specific · 0 conflict · 0 deferred. CLAUDE.md **155/200**, unchanged.
+- Coverage unchanged: **20/22 verified**, 2 unclaimed (P-075 declined-with-notes, P-077 — now the next chunk).
+- Audit trail: `.andromeda/runs/2026-08-25T16-11-09Z-wrap/adaptation-record.md`.
 - Last failed command: none.
 
 ## Deferred learnings
-One candidate deferred at the Filter-5 cap: the **deferral-destination generalization** — a capability whose `ref` defers evidence to another cap must be re-checked when that destination completes, because a destination can complete WITHOUT absorbing the deferred evidence, leaving a hollow `verified`. Measured twice here (P-075 declined, P-076 verified with no drag/resize stage). Worth curating next wrap if it recurs; the concrete instance is already recorded in the matrix notes.
-
-## Session End Status
-Wrap completing at 2026-08-25T00:05Z (P7 commit follows).
+Still open from the previous wrap (not re-surfaced this session, no new evidence): the **deferral-destination generalization** — a capability whose `ref` defers evidence to another cap must be re-checked when that destination completes, since a destination can complete WITHOUT absorbing the deferred evidence, leaving a hollow `verified`. Curate if it recurs.
