@@ -54,6 +54,27 @@ pub const ENV_LLAMA_CUDA_BIN_PATH: &str = "ANDROMEDA_PULSE_LLAMA_CUDA_BIN_PATH";
 /// arch §Conventions `_PATH` suffix discipline.
 pub const ENV_LLAMA_CPU_BIN_PATH: &str = "ANDROMEDA_PULSE_LLAMA_CPU_BIN_PATH";
 
+/// Env var declaring an OPT-IN confinement root for the three L4 path
+/// inputs. When set, every resolved model / binary path must live under it;
+/// when unset the paths stay unconfined and one record per boot says so.
+/// Opt-in rather than defaulting to the data dir because the GGUF and the
+/// prebuilt `llama-cli.exe` are user-managed and live outside it by design
+/// per arch §Established Decisions [LLM Inference Runtime] — a data-dir
+/// default would reject every shipped configuration.
+pub const ENV_L4_ALLOW_ROOT: &str = "ANDROMEDA_PULSE_L4_ALLOW_ROOT";
+
+/// Byte ceiling on a raw path env-var value before canonicalization.
+/// Mirrors `workspace_detector`'s `MAX_WORKSPACE_KEY_BYTES` bound.
+pub const MAX_PATH_INPUT_BYTES: usize = 4096;
+
+/// Byte ceiling on the assembled prompt before it becomes the `-p` argv
+/// value. Measured basis: 154 real-model assemblies spanned 5947..=6297
+/// bytes, so this is ~2.6x the observed maximum. It also sits below the
+/// Windows `CreateProcess` command-line limit (32767), so an over-long
+/// prompt is rejected here with a bounded category instead of failing
+/// opaquely at spawn.
+pub const MAX_PROMPT_BYTES: usize = 16 * 1024;
+
 /// Wall-clock timeout for each subprocess invocation. Bounds runaway
 /// generation per arch §Established Decisions [LLM Inference Runtime]
 /// defense-in-depth paragraph + CLAUDE.md testing.md 2026-05-25 subprocess
@@ -114,8 +135,10 @@ impl LlamaCliInference {
     /// Loaded when both paths resolve cleanly.
     pub fn new(tier: ModelTier, profile: HardwareProfile, broadcast: ModelStatusBroadcast) -> Self {
         let (env_name, ngl, binary_kind) = binary_target_for_profile(profile);
-        let binary_path = read_env_path(env_name).and_then(|raw| canonicalize_path(&raw).ok());
-        let model_path = read_env_path(ENV_MODEL_PATH).and_then(|raw| canonicalize_path(&raw).ok());
+        let allow_root = resolve_allow_root();
+        emit_allow_root_posture(&allow_root);
+        let binary_path = resolve_guarded_path(env_name, &allow_root);
+        let model_path = resolve_guarded_path(ENV_MODEL_PATH, &allow_root);
 
         let state = Arc::new(RwLock::new(InferenceState {
             status: ModelStatus::Error,
@@ -439,23 +462,213 @@ fn read_env_path(name: &str) -> Option<PathBuf> {
         .map(PathBuf::from)
 }
 
+/// Bounded rejection categories for the path guard. Carries the reason
+/// class only — never the rejected path, per obs-plan §8 Data
+/// classification.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum PathRejection {
+    TraversalComponent,
+    PathTooLong,
+    CanonicalizeFailed,
+    NotRegularFile,
+    OutsideAllowRoot,
+    AllowRootUnresolvable,
+}
+
+impl PathRejection {
+    /// Bounded snake_case label for the `error_category` tracing field.
+    pub fn label(self) -> &'static str {
+        match self {
+            Self::TraversalComponent => "traversal_component",
+            Self::PathTooLong => "path_too_long",
+            Self::CanonicalizeFailed => "canonicalize_failed",
+            Self::NotRegularFile => "not_regular_file",
+            Self::OutsideAllowRoot => "outside_allow_root",
+            Self::AllowRootUnresolvable => "allow_root_unresolvable",
+        }
+    }
+}
+
+/// Resolution of the opt-in confinement root declared by
+/// [`ENV_L4_ALLOW_ROOT`].
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum AllowRoot {
+    /// Unset or empty — resolved paths are not confined.
+    NotConfigured,
+    /// Set and canonicalized to an existing directory.
+    Enforced(PathBuf),
+    /// Set but not resolvable to a directory. Every candidate is rejected
+    /// rather than silently falling back to unconfined: a typo must not
+    /// disable the guard the operator explicitly asked for.
+    Unresolvable,
+}
+
+/// Resolves [`ENV_L4_ALLOW_ROOT`] into an [`AllowRoot`]. Bounded parse per
+/// the `ANDROMEDA_PULSE_BASELINE_BOOTSTRAP_SECONDS` precedent: trimmed,
+/// empty treated as unset, never panics, never blocks boot.
+pub fn resolve_allow_root() -> AllowRoot {
+    let Some(raw) = read_env_path(ENV_L4_ALLOW_ROOT) else {
+        return AllowRoot::NotConfigured;
+    };
+    if raw.as_os_str().len() > MAX_PATH_INPUT_BYTES || path_contains_traversal(&raw) {
+        return AllowRoot::Unresolvable;
+    }
+    match raw.canonicalize() {
+        Ok(root) if root.is_dir() => AllowRoot::Enforced(root),
+        _ => AllowRoot::Unresolvable,
+    }
+}
+
+/// True when any component is a `..` parent-directory hop. Checked BEFORE
+/// canonicalization, which resolves `..` away — a post-canonicalize check
+/// can never observe it. Mirrors `crates/plugins/src/loader.rs`.
+fn path_contains_traversal(path: &Path) -> bool {
+    use std::path::Component;
+    path.components().any(|c| matches!(c, Component::ParentDir))
+}
+
+/// Basename of a path for observability. The full path is never emitted
+/// per obs-plan §11 Spans/Traces.
+fn path_basename(path: &Path) -> String {
+    path.file_name()
+        .map(|n| n.to_string_lossy().into_owned())
+        .unwrap_or_else(|| "unknown".to_string())
+}
+
+/// Validates a path env-var input: rejects a traversal component and an
+/// over-long value BEFORE canonicalizing, canonicalizes, asserts a regular
+/// file, then applies the opt-in confinement root.
+///
+/// Both sides of the confinement comparison are canonicalized — on Windows
+/// `canonicalize` yields an extended-length `\\?\` prefix, so comparing a
+/// prefixed child against a bare root would fail regardless of the true
+/// relationship. Mirrors `workspace_detector::contract::publish_workspace_key`.
+pub fn validate_path_input(
+    candidate: &Path,
+    allow_root: &AllowRoot,
+) -> Result<PathBuf, PathRejection> {
+    if path_contains_traversal(candidate) {
+        return Err(PathRejection::TraversalComponent);
+    }
+    if candidate.as_os_str().len() > MAX_PATH_INPUT_BYTES {
+        return Err(PathRejection::PathTooLong);
+    }
+    let resolved = candidate
+        .canonicalize()
+        .map_err(|_| PathRejection::CanonicalizeFailed)?;
+    let metadata = std::fs::metadata(&resolved).map_err(|_| PathRejection::CanonicalizeFailed)?;
+    if !metadata.is_file() {
+        return Err(PathRejection::NotRegularFile);
+    }
+    match allow_root {
+        AllowRoot::NotConfigured => Ok(resolved),
+        AllowRoot::Unresolvable => Err(PathRejection::AllowRootUnresolvable),
+        AllowRoot::Enforced(root) => {
+            if resolved.starts_with(root) {
+                Ok(resolved)
+            } else {
+                Err(PathRejection::OutsideAllowRoot)
+            }
+        }
+    }
+}
+
 /// Canonicalizes a path candidate + asserts it resolves to a regular file.
 /// Returns `Err(InferenceError::InvalidModelPath)` if canonicalization
 /// fails (symlink loop / unreadable parent / nonexistent path) OR if the
 /// resolved path is not a regular file (directory / symlink-to-directory).
 /// Mirrors the chunk #41 `canonicalize_plugin_dir` security pattern from
-/// `crates/plugins/src/loader.rs` adapted for binary-file targets (no
-/// bounded confinement root since binary paths are intentionally user-
-/// managed in dev mode per chunk #84 plan).
+/// `crates/plugins/src/loader.rs` adapted for binary-file targets.
+///
+/// Confinement-free by construction: delegates to [`validate_path_input`]
+/// with [`AllowRoot::NotConfigured`]. The confined form used at
+/// construction is [`resolve_guarded_path`].
 pub fn canonicalize_path(candidate: &Path) -> Result<PathBuf, InferenceError> {
-    let resolved = candidate
-        .canonicalize()
-        .map_err(|_| InferenceError::InvalidModelPath)?;
-    let metadata = std::fs::metadata(&resolved).map_err(|_| InferenceError::InvalidModelPath)?;
-    if !metadata.is_file() {
-        return Err(InferenceError::InvalidModelPath);
+    validate_path_input(candidate, &AllowRoot::NotConfigured)
+        .map_err(|_| InferenceError::InvalidModelPath)
+}
+
+/// Reads a path env var and validates it against the confinement root,
+/// emitting a bounded rejection record on failure. `None` puts the runner
+/// into graceful-degraded mode rather than failing the boot.
+pub fn resolve_guarded_path(env_name: &str, allow_root: &AllowRoot) -> Option<PathBuf> {
+    let raw = read_env_path(env_name)?;
+    match validate_path_input(&raw, allow_root) {
+        Ok(resolved) => Some(resolved),
+        Err(rejection) => {
+            tracing::warn!(
+                target: "interpretation.model.load.error",
+                env_var = env_name,
+                path_basename = path_basename(&raw),
+                error_category = rejection.label(),
+                recovery_action = "degraded_boot",
+                "L4 path input rejected",
+            );
+            None
+        }
     }
-    Ok(resolved)
+}
+
+/// Announces the confinement posture exactly once per process.
+fn emit_allow_root_posture(allow_root: &AllowRoot) {
+    static ANNOUNCED: std::sync::Once = std::sync::Once::new();
+    ANNOUNCED.call_once(|| match allow_root {
+        AllowRoot::NotConfigured => tracing::warn!(
+            target: "interpretation.model.allow_root",
+            confinement = "unconfined",
+            "L4 model and binary paths are unconfined; set ANDROMEDA_PULSE_L4_ALLOW_ROOT to enforce a root",
+        ),
+        AllowRoot::Enforced(root) => tracing::info!(
+            target: "interpretation.model.allow_root",
+            confinement = "enforced",
+            root_basename = path_basename(root),
+            "L4 path confinement enforced",
+        ),
+        AllowRoot::Unresolvable => tracing::warn!(
+            target: "interpretation.model.allow_root",
+            confinement = "unresolvable",
+            "ANDROMEDA_PULSE_L4_ALLOW_ROOT does not resolve to a directory; all L4 paths are rejected",
+        ),
+    });
+}
+
+/// Bounded rejection categories for the prompt guard.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum PromptRejection {
+    TooLong,
+    ControlCharacter,
+}
+
+impl PromptRejection {
+    /// Bounded snake_case label for the `error_category` tracing field.
+    pub fn label(self) -> &'static str {
+        match self {
+            Self::TooLong => "prompt_too_long",
+            Self::ControlCharacter => "prompt_control_character",
+        }
+    }
+}
+
+/// Bounds the assembled prompt before it becomes the `-p` argv value,
+/// closing the `Command::arg(user_input)` shape security-plan §Security
+/// Anti-Patterns → Code Patterns bans.
+///
+/// `\n`, `\r` and `\t` are layout characters the prompt builder emits by
+/// construction (section headers and blank lines), so only NUL and the
+/// remaining C0/C1 controls are rejected — the same predicate
+/// [`stdout_snippet`] already applies in this module.
+pub fn validate_prompt_bounded(prompt: &str) -> Result<(), PromptRejection> {
+    if prompt.len() > MAX_PROMPT_BYTES {
+        return Err(PromptRejection::TooLong);
+    }
+    if prompt.chars().any(is_forbidden_control) {
+        return Err(PromptRejection::ControlCharacter);
+    }
+    Ok(())
+}
+
+fn is_forbidden_control(c: char) -> bool {
+    c.is_control() && c != '\n' && c != '\r' && c != '\t'
 }
 
 /// RAII drop guard for the per-call temp file holding the JSON schema.
@@ -525,6 +738,20 @@ impl LlmInferenceRunner for LlamaCliInference {
             };
             if !matches!(self.current_status(), ModelStatus::Loaded) {
                 return Err(InferenceError::ModelNotConfigured);
+            }
+
+            if let Err(rejection) = validate_prompt_bounded(prompt) {
+                tracing::warn!(
+                    target: "interpretation.inference.error",
+                    model_tier = interpretation::contract::model_tier_label(self.tier),
+                    hardware_profile = profile_label(self.profile),
+                    error_category = rejection.label(),
+                    recovery_action = "skip_digest",
+                    "prompt rejected before subprocess spawn",
+                );
+                return Err(InferenceError::InferenceFailed {
+                    reason: rejection.label().to_string(),
+                });
             }
 
             let schema_file = SchemaTempFile::create(schema_json)?;

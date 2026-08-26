@@ -19,7 +19,7 @@ Detects host project context for telemetry correlation: `.andromeda/` marker + V
 - `serde` for `Workspace` struct serialization.
 
 ## Internal conventions
-- **Path canonicalization REQUIRED** — all input paths (env vars `ANDROMEDA_PULSE_*_PATH` / `*_DIR`, current working directory) canonicalize via `strict-path`; assert resolved path lives under the resolved data dir or current project root.
+- **Path canonicalization REQUIRED** — all input paths (env vars `ANDROMEDA_PULSE_*_PATH` / `*_DIR`, current working directory) canonicalize via `std::fs::canonicalize` (NOT `strict-path` — measured 2026-08-26: `strict-path` is declared in five crate manifests with zero `.rs` users repo-wide, and this crate's `publish_workspace_key` canonicalizes BOTH sides then `starts_with`, which is the repo's reference confinement pattern); assert resolved path lives under the resolved data dir or current project root.
 - **`.andromeda/` marker detection** — walk parents from cwd looking for `.andromeda/` directory; first match wins.
 - **VCS detection** — try git first (`git rev-parse --show-toplevel`); fall back to filesystem scan if git not available.
 - **Anonymized logging** — `tracing` events emit `workspace.root_path_basename` and `workspace.project_name` only; NEVER full canonicalized path (security plan vector 6).

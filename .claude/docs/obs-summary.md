@@ -119,7 +119,13 @@ every field is redacted. Registered at BOTH `§6`'s warn row and `§8` per the d
 four the emit site emits). **No bare `interpretation` key may exist** (it would widen the muted
 `interpretation.model.load` sibling) — **but one DOES exist today** at `pulse-app/src/observability.rs:1934`
 (measured 2026-08-26), so the requirement stands while the code violates it; latent because each live
-`interpretation.*` target carries its own exact leaf. Owner: the same sweep entry. Registered AS MEASURED: the leaf had shipped in `AllowList::production()`
+`interpretation.*` target carries its own exact leaf — and that held on its first test: chunk
+`2026-08-26-l4-runtime-security-residuals` added `interpretation.model.allow_root` (`confinement`,
+`root_basename`) WITH its own leaf and completed `interpretation.model.load.error` 4 → 6 fields
+(`env_var`, `path_basename`), the latter having had ZERO producers until then. That chunk also
+mutation-PROVED the mechanism: deleting the new exact leaf left `for_target` resolving via the bare key
+while only the field-set pin failed — which is why a leaf guard must assert the field SET, never merely
+that the target resolves. Owner: the same sweep entry. Registered AS MEASURED: the leaf had shipped in `AllowList::production()`
 before §8 enumerated it, so this closed a doc gap rather than a production one. **Completeness is documented but
 NOT enforced** — that guard sits in `observability.rs`'s dead `mod tests`; only the PII half runs
 (`pulse-app/tests/unit_incident_producer.rs`). Guard migration is owned by the "Diagnostics un-muting +

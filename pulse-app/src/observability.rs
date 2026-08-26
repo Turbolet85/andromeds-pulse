@@ -1972,10 +1972,16 @@ impl AllowList {
                 "model_identity",
                 "recovery_action",
                 "error_category",
+                "env_var",
+                "path_basename",
             ]
             .iter()
             .copied()
             .collect(),
+        );
+        by_target.insert(
+            "interpretation.model.allow_root",
+            ["confinement", "root_basename"].iter().copied().collect(),
         );
         by_target.insert(
             "interpretation.tokenizer.init",
