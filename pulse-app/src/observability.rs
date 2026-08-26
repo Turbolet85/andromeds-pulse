@@ -1303,6 +1303,14 @@ impl AllowList {
         // PII discipline (per security plan §Anti-Patterns § Logging row 1):
         // no `scope_id` admitted (carries user-controlled service.name);
         // only bounded-cardinality enum tags + structural numeric values.
+        // `cues_suppressed` + `bypass_triggered` shipped at chunk #63 but were
+        // never added here, so they rendered `"<redacted>"` in production and
+        // the question "did suppression engage?" was unanswerable from any log
+        // (obs-plan §8 muted-diagnostic backlog). `cues_latched` +
+        // `latch_tracked` arrive with the `CueLatch` bound. Enumerated from the
+        // emit site in `crates/triage/src/cue/emitter.rs` — a leaf naming fewer
+        // fields than the site emits leaves the target PARTLY redacted, which
+        // every gate passes.
         by_target.insert(
             "triage.cue.tick",
             [
@@ -1311,6 +1319,10 @@ impl AllowList {
                 "cadence_triggers_emitted",
                 "services_tracked",
                 "operations_tracked",
+                "cues_suppressed",
+                "bypass_triggered",
+                "cues_latched",
+                "latch_tracked",
             ]
             .iter()
             .copied()
@@ -1748,6 +1760,7 @@ impl AllowList {
             [
                 "tier",
                 "mode",
+                "cycles_executed",
                 "queries_executed",
                 "queries_succeeded",
                 "next_due_ms",
@@ -4047,6 +4060,7 @@ mod tests {
         for required in [
             "tier",
             "mode",
+            "cycles_executed",
             "queries_executed",
             "queries_succeeded",
             "next_due_ms",

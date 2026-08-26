@@ -166,3 +166,34 @@ stated in BOTH §6 and §8, so a §8-only apply would have left §6 silently sta
 **Section:** §1 Obs Scope Summary → Heartbeat ticks · §3 Observability Harness Contract → Stall detection · §5 Metric Coverage → tick-aggregated Counter rows · §6 Log Coverage → `warn` row · §8 PII Scrubbing → Default-deny posture (`buffer` whitelist + a new exact leaf) · §10 SLO Invariants → Standard+ invariants + DuckDB Connection Isolation
 **Change:** Six sections, three amendment groups. (a) `buffer.tick` gains `rows_ingested_delta` + `last_append_age_seconds` (12 → 14 fields), applied at all THREE restating sites (§1 field list, §5 as its own tick-aggregated Counter row, §8 `buffer` whitelist) per the triple-site rule. (b) The new transition target `buffer.consumer.stalled` registered at BOTH §6 (warn row: once per healthy→stalled transition and once on recovery, never per batch, firing only after 30 consecutive non-draining ticks = 450s) and §8 (EXACT leaf: `reason` · `consequence` · `stalled_seconds` · `buffer_capacity_pct`), per the dual-site rule. Its exactness is load-bearing in the OPPOSITE direction to the `app.`-prefixed leaves: a bare `buffer` key DOES exist, so the `for_target` fallback would resolve this target to the tick field set — which contains none of the four — and redact everything. (c) The stall DEFINITION qualified at all three sites that restate it (§1, §3, §10 Standard+): tick presence is LIVENESS, and drain progress is the companion PROGRESS signal. §10's DuckDB Connection Isolation additionally records viz's three production query fns joining the isolated set via `viz::query::read_connection`. §10's CI-gate bullet (heartbeat-gap-check) was checked and deliberately NOT amended — it describes what that script does, which remains true and asserts no exclusivity.
 **Why:** The chunk measured a wedge in which `rows_ingested` froze for 16 minutes while all four ticks emitted normally with 0 ERROR and 0 panics — satisfying every liveness check while persisting nothing, so the doc's tick-absence definition could not express the condition the chunk's instrumentation exists to surface (report §Outcome + §Changes → Counts). The 450s threshold is sited deliberately above §10's own 420s sustained-drain cap so an in-spec drain cannot trip it. The viz isolation entry records a VIOLATION of the existing §10 mandate rather than a new rule — the invariant was already correct and the code had diverged; verified live at 0 fallback WARNs with 405 queries still served.
+
+## 2026-08-26-cadence-runaway-blocking-pool — cue-latch bound + cadence cycle rate; muted-backlog mechanism corrected
+**Section:** §5 Metric Coverage (conceptual instrument types) · §8 PII Scrubbing → Default-deny posture
+**Change:**
+- §8 — added the EXACT `triage.cue.tick` leaf enumerating ALL NINE emitted fields (`cues_evaluated`,
+  `cues_emitted`, `cadence_triggers_emitted`, `services_tracked`, `operations_tracked`,
+  `cues_suppressed`, `bypass_triggered`, `cues_latched`, `latch_tracked`), recording that this was a
+  leaf COMPLETION (a 5-of-7 leaf already existed, so the target was PARTLY redacted, not muted), that
+  no bare `triage` / `triage.cue` key exists, and the three-way mutation check incl. the narrowed-leaf
+  arm in which the exact-resolve pin PASSES while the field-set pin fails.
+- §8 — registered the `cadence.tick` leaf (all EIGHT emitted fields). `cycles_executed` is this
+  chunk's addition (the cadence cycle rate, previously accumulated then discarded via `let _ =`); the
+  other seven pre-existed unregistered — §8 had never enumerated this target.
+- §8 — muted-diagnostic backlog FIVE → FOUR (`triage.cue.tick` left it) AND its mechanism corrected
+  per-target by first-hand measurement: the census claim "resolve to no allowlist entry" is accurate
+  for exactly ONE of the five (`triage.incident.auto_resolve.tick`); two `metric.pipeline.l1a.*`
+  targets fall back to the bare `metric` key (keeping `value`, losing labels) and
+  `interpretation.model.load` has an exact leaf missing only `inference_mode`. Owner of the remaining
+  four unchanged: "Diagnostics un-muting + harness-truth sweep".
+- §8 — recorded that the stated invariant "no bare `interpretation` key may exist" is **VIOLATED IN
+  CODE** at `pulse-app/src/observability.rs:1934` (a bare key carrying `model_profile`/`model_tier`/…).
+  The requirement stands as written; the code is out of compliance. Latent today because each live
+  `interpretation.*` target carries its own exact leaf. Owner: the same sweep entry.
+- §5 — two tick-aggregated-as-FIELDS rows: the cue-admission bound (`cues_latched` + `latch_tracked`
+  on `triage.cue.tick`, field set → 9) and the cadence cycle rate (`cycles_executed` on `cadence.tick`,
+  field set → 8), both barred from per-cue / per-trigger emission by the §11 hot-path rule.
+**Why:** the chunk completed the `triage.cue.tick` leaf and added the two bound counters plus the
+cadence cycle rate; measuring the backlog to substantiate the removal disproved the census's stated
+mechanism for 4 of its 5 targets and surfaced the bare-`interpretation` breach. Applied as measured
+per playbook 2026-08-15 (record measured truth + name the owner; fix no impl half here), with the
+five-target scope and the invariant-breach recording both operator-approved at this wrap.

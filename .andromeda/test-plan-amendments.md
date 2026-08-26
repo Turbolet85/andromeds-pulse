@@ -206,3 +206,27 @@ and the chunk's plan queued it as an expected amendment.
 **Section:** §3 Test Harness Contract → Per-chunk gate discipline · §1 Test Scope Summary → Pending coverage triggers · §4 Unit Test Strategy → What unit tests cover → viz crate
 **Change:** §3 adds `cargo xtask check:ingest-progress` to the unconditional standard gate set, with its four verdict arms recorded (stalled ⇒ exit 1 · recovered ⇒ green · advancing ⇒ PASS · absent stream ⇒ NEUTRAL) — the NEUTRAL arm is what makes unconditional listing safe, matching the §10 load-profile check scripts. The same edit moves `cargo xtask capability-drift` to LAST in the block with an explicit ordering note pointing at playbook.md 2026-08-22, since every command above it can regenerate `bindings/index.ts` — including this list's own `nextest --workspace`. §1 mints the pending trigger `viz-read-connection-router-wiring-coverage`. §4's viz bullet records the landed `read_connection_returns_a_distinct_usable_connection` pin AND states that its scope stops at the helper.
 **Why:** The gate is this chunk's shipped enforcement half and §3's command list predates it, so a chunk following §3 verbatim would omit it (report §Changes → Symbols; §Outcome gates). The trigger records a REAL gap the fan-out surfaced and the orchestrator re-derived first-hand: the obs-plan §10 isolation fix depends on three `pulse-app` router constructors calling `viz::query::read_connection`, `grep` outside `crates/viz/src/query.rs` returns only those three call sites, and no test constructs any of the three routers — so reverting them would silently restore the shared-connection violation with every test green. Its only present evidence is one live observation (0 fallback WARNs on a 10-minute leg), the same one-time-proof-standing-in-for-a-gate class as the two rows above it. Not fixed in code: one wrap-time code edit was already a recorded process deviation and a second would compound it.
+
+## 2026-08-26-cadence-runaway-blocking-pool — two coverage triggers minted; smoke profile broadened
+**Section:** §1 Test Scope Summary → Pending coverage triggers · §3 Test Harness Contract → Direct-binary smoke variant
+**Change:**
+- §1 — minted `cadence-cycle-rate-in-crate-coverage`: `crates/triage/src/cadence/coordinator.rs` gained
+  the `cycles_executed` cycle-rate fold with no in-crate test (the chunk's +13 delta is fully accounted
+  for by `cue/emitter.rs` 15→23 and the new `pulse-app/tests/` file), so its only pin is a cross-crate
+  obs-allowlist boundary assertion, not a behavioural one — and restoring the `let _ =` discard the
+  chunk repaired would leave every test green.
+- §1 — minted `cue-latch-emitter-wiring-coverage`: the `CueLatch`'s production LIFETIME inside
+  `start_emitter` (constructed once before the tick loop) is unpinned; every latch test drives
+  `run_one_emit_cycle` with a caller-supplied latch, so a per-tick re-construction would neuter the
+  refractory window with every test green. Sole evidence is one live smoke observation (887 refused vs
+  22 admitted).
+- §3 — the direct-binary smoke variant now names EITHER profile (`target/debug/pulse-app.exe` or
+  `target/release/pulse-app.exe`), citing that the harness `boot` verb itself uses release
+  (`scripts/agent-run.ps1:95`); freshness of the rebuild is the load-bearing requirement, not the
+  profile.
+**Why:** the two triggers record owed-but-unwritten tests through §1's documented channel rather than
+leaving one-time live observations standing in as gates (same class as the
+`viz-read-connection-router-wiring-coverage` row minted the previous chunk). The §3 broadening is a
+doc-only correction — the chunk ran the sanctioned form on a release binary, which §3's debug-only
+wording did not cover while the harness it documents already uses release (playbook 2026-08-14
+routine-APPLY: no impl half to fix).

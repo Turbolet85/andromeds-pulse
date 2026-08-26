@@ -27,7 +27,9 @@ pub use broadcast::{
     CadenceTriggerChannel, STREAM_NAME_ATTENTION_CUES,
 };
 pub use classify::{classify_priority, dual_condition_bypass};
-pub use emitter::{run_one_emit_cycle, start_emitter};
+pub use emitter::{
+    CUE_LATCH_REFRACTORY_NANOS, CueLatch, LatchOutcome, run_one_emit_cycle, start_emitter,
+};
 pub use evaluate::{evaluate_service_went_silent, evaluate_thresholds};
 pub use thresholds::{
     DEFAULT_ABSOLUTE_BYPASS_ERROR_RATE, DEFAULT_ABSOLUTE_BYPASS_LATENCY_MS,

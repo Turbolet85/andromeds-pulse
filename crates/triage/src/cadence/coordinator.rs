@@ -377,6 +377,11 @@ pub async fn start_cadence_coordinator(
                     target: TARGET_CADENCE_TICK,
                     tier = "tier3",
                     mode = "tier3",
+                    // The cycle rate was counted but discarded, so the only way
+                    // to read it was to count per-trigger `cadence.trigger`
+                    // records out of the log — a 131 MB read at the volume that
+                    // makes the question worth asking.
+                    cycles_executed = cumulative_cycles,
                     queries_executed = cumulative_queries,
                     queries_succeeded = cumulative_queries,
                     next_due_ms = (current.baseline_seconds as u64) * 1_000,
@@ -453,7 +458,6 @@ pub async fn start_cadence_coordinator(
                 }
             }
         }
-        let _ = cumulative_cycles; // suppress unused-warning on stub variant
     }
 }
 

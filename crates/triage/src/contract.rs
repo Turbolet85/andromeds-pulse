@@ -38,15 +38,17 @@ pub use crate::baseline::{
 // `pattern::suppression` filter.
 pub use crate::cue::{
     AttentionCueBroadcast, BROADCAST_CAPACITY, CHANNEL_NAME_CADENCE_TRIGGERS,
-    CadenceTriggerChannel, DEFAULT_ABSOLUTE_BYPASS_ERROR_RATE, DEFAULT_ABSOLUTE_BYPASS_LATENCY_MS,
+    CUE_LATCH_REFRACTORY_NANOS, CadenceTriggerChannel, CueLatch,
+    DEFAULT_ABSOLUTE_BYPASS_ERROR_RATE, DEFAULT_ABSOLUTE_BYPASS_LATENCY_MS,
     DEFAULT_BASE_ERROR_RATE, DEFAULT_BASE_LATENCY_MS, DEFAULT_BOOTSTRAP_WINDOW_SECONDS,
     DEFAULT_ERROR_RATE_MULTIPLIER, DEFAULT_LATENCY_MULTIPLIER, DEFAULT_LATENCY_PERCENTILE,
     DEFAULT_MAGNITUDE_BYPASS_MULTIPLIER, DEFAULT_MIN_PERSISTENCE_SECONDS,
     DEFAULT_QUIET_DURATION_PERCENTILE, DEFAULT_RESTART_GAP_THRESHOLD_SECONDS,
     DEFAULT_RESTART_SUPPRESSION_WINDOW_SECONDS, DEFAULT_SUPPRESSION_PERSISTENCE_CUTOFF_SECONDS,
-    DEFAULT_TICK_INTERVAL, MIN_EWMA_SAMPLES, MIN_LATENCY_SAMPLES, STREAM_NAME_ATTENTION_CUES,
-    Thresholds, ThresholdsError, classify_priority, dual_condition_bypass,
-    evaluate_service_went_silent, evaluate_thresholds, run_one_emit_cycle, start_emitter,
+    DEFAULT_TICK_INTERVAL, LatchOutcome, MIN_EWMA_SAMPLES, MIN_LATENCY_SAMPLES,
+    STREAM_NAME_ATTENTION_CUES, Thresholds, ThresholdsError, classify_priority,
+    dual_condition_bypass, evaluate_service_went_silent, evaluate_thresholds, run_one_emit_cycle,
+    start_emitter,
 };
 
 // Chunk #63 — restart event detector + dual-condition bypass. Re-export
