@@ -59,7 +59,8 @@ The status endpoint MUST NOT include sensitive data (no env vars, no secrets, no
 
 ## Heartbeat verification (obs invariant)
 - Daemon emits `{module}.tick` events at fixed intervals (15s for ingest/buffer/viz/plugins; 100ms for realtime throughput counter).
-- Stall threshold: missing tick for >45s = harness flags failure.
+- Stall threshold (LIVENESS): missing tick for >45s = harness flags failure.
+- Stall threshold (PROGRESS): tick presence does not certify progress — a wedged buffer consumer keeps ticking while `rows_ingested` stays frozen (measured 2026-08-26: 16 minutes, 0 ERROR, every liveness check healthy). The harness-side companion is `cargo xtask check:ingest-progress`, which fails on a `buffer.consumer.stalled` record whose `reason` is not `recovered` and reports NEUTRAL when the stream carries no `buffer.tick` at all.
 - Harness verifies at least one tick per long-running subsystem present in logs after `boot`.
 - CI step `xtask/ci/heartbeat-gap-check.sh` parses log timestamps per tick target, computes consecutive deltas, asserts max ≤45000ms or exits 1.
 

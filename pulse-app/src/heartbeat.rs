@@ -1,7 +1,7 @@
 use std::sync::Arc;
 use std::sync::Mutex;
 use std::sync::atomic::{AtomicU64, Ordering};
-use std::time::Duration;
+use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
 use buffer::{BroadcastSenders, BufferState, DrainMiner};
 use chrono::Utc;
@@ -17,6 +17,69 @@ use ui_bridge::health::HeartbeatState;
 use viz::VizState;
 
 const TICK_INTERVAL_SECS: u64 = 15;
+
+/// Transition-scoped target announcing that the buffer consumer stopped
+/// draining. Needs its OWN exact allowlist leaf: `for_target` strips `.tick`
+/// then falls back to the first `.`-segment, so this would otherwise resolve to
+/// the `buffer` field set and every field below would be silently redacted.
+#[doc(hidden)]
+pub const TARGET_CONSUMER_STALLED: &str = "buffer.consumer.stalled";
+
+/// Consecutive non-draining ticks before the stall is announced. 30 × 15s =
+/// 450s, deliberately clear of the bounds obs-plan §10 declares in-spec: a
+/// single append can block >60s under DuckDB row-group maintenance, and the
+/// sustained-drain profile is allowed 420s. A shorter window would fire on
+/// healthy load.
+#[doc(hidden)]
+pub const STALL_CONSECUTIVE_TICKS: u32 = 30;
+
+const _: () = {
+    assert!(STALL_CONSECUTIVE_TICKS as u64 * TICK_INTERVAL_SECS > 420);
+};
+
+/// Consumer drain progress for one heartbeat tick.
+#[doc(hidden)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum DrainProgress {
+    /// Rows landed since the previous tick.
+    Advancing,
+    /// No rows landed and the ingest channel holds nothing — the producer is
+    /// idle, which is not a defect.
+    ProducerIdle,
+    /// No rows landed while the ingest channel still holds queued work: the
+    /// consumer is not taking what the receiver accepted.
+    NotDraining,
+}
+
+/// The discriminator half B exists for. `rows_ingested` alone cannot separate a
+/// stalled consumer from an idle producer — both leave it static. The ingest
+/// channel's occupancy is what separates them: an idle producer drains to
+/// empty, a stalled consumer leaves work queued.
+#[doc(hidden)]
+pub fn classify_drain_progress(rows_delta: u64, buffer_capacity_pct: f64) -> DrainProgress {
+    if rows_delta > 0 {
+        DrainProgress::Advancing
+    } else if buffer_capacity_pct > 0.0 {
+        DrainProgress::NotDraining
+    } else {
+        DrainProgress::ProducerIdle
+    }
+}
+
+#[doc(hidden)]
+pub fn last_append_age_seconds(last_append_at_nanos: u64, now_nanos: u64) -> u64 {
+    if last_append_at_nanos == 0 {
+        return 0;
+    }
+    now_nanos.saturating_sub(last_append_at_nanos) / 1_000_000_000
+}
+
+fn now_unix_nanos() -> u64 {
+    SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .map(|d| d.as_nanos() as u64)
+        .unwrap_or(0)
+}
 
 #[allow(clippy::too_many_arguments)]
 pub fn spawn(
@@ -40,12 +103,13 @@ pub fn spawn(
         tokio::spawn(run_ingest(
             state.clone(),
             Arc::clone(&ingest_state),
-            ingest_sender,
+            Arc::clone(&ingest_sender),
             broadcast_senders,
         )),
         tokio::spawn(run_buffer(
             state.clone(),
             buffer_state,
+            ingest_sender,
             retention_seconds,
             drain_miner,
         )),
@@ -71,20 +135,55 @@ async fn run_ingest(
 async fn run_buffer(
     state: Arc<HeartbeatState>,
     buffer_state: Arc<BufferState>,
+    ingest_sender: Arc<IngestSender>,
     retention_seconds: u64,
     drain_miner: Option<Arc<DrainMiner>>,
 ) {
     let mut interval = tokio::time::interval(Duration::from_secs(TICK_INTERVAL_SECS));
     let last_eviction = AtomicU64::new(0);
+    let last_rows = AtomicU64::new(0);
+    let mut stalled_ticks: u32 = 0;
+    let mut stall_announced = false;
     loop {
         interval.tick().await;
-        emit_buffer_tick(
+        let progress = emit_buffer_tick(
             &state,
             &buffer_state,
+            &ingest_sender,
             retention_seconds,
             &last_eviction,
+            &last_rows,
             drain_miner.as_deref(),
         );
+
+        stalled_ticks = match progress {
+            DrainProgress::NotDraining => stalled_ticks.saturating_add(1),
+            _ => 0,
+        };
+
+        if stalled_ticks >= STALL_CONSECUTIVE_TICKS {
+            if !stall_announced {
+                stall_announced = true;
+                tracing::warn!(
+                    target: TARGET_CONSUMER_STALLED,
+                    reason = "rows_static_while_channel_queued",
+                    consequence = "accepted_spans_not_persisted",
+                    stalled_seconds = stalled_ticks as u64 * TICK_INTERVAL_SECS,
+                    buffer_capacity_pct = ingest_sender.capacity_pct(),
+                    "buffer consumer is not draining; accepted spans are not reaching DuckDB",
+                );
+            }
+        } else if stall_announced && matches!(progress, DrainProgress::Advancing) {
+            stall_announced = false;
+            tracing::warn!(
+                target: TARGET_CONSUMER_STALLED,
+                reason = "recovered",
+                consequence = "drain_resumed",
+                stalled_seconds = 0_u64,
+                buffer_capacity_pct = ingest_sender.capacity_pct(),
+                "buffer consumer resumed draining",
+            );
+        }
     }
 }
 
@@ -170,14 +269,21 @@ fn emit_broadcast_gauge(channel_name: &'static str, value: usize) {
 fn emit_buffer_tick(
     state: &HeartbeatState,
     buffer_state: &BufferState,
+    ingest_sender: &IngestSender,
     retention_seconds: u64,
     last_eviction: &AtomicU64,
+    last_rows: &AtomicU64,
     drain_miner: Option<&DrainMiner>,
-) {
+) -> DrainProgress {
     let snap = buffer_state.snapshot();
     let prev = last_eviction.swap(snap.eviction_count, Ordering::Relaxed);
     let delta = snap.eviction_count.saturating_sub(prev);
     let rows_active = snap.rows_ingested.saturating_sub(snap.eviction_count);
+
+    let prev_rows = last_rows.swap(snap.rows_ingested, Ordering::Relaxed);
+    let rows_ingested_delta = snap.rows_ingested.saturating_sub(prev_rows);
+    let buffer_capacity_pct = ingest_sender.capacity_pct();
+    let last_append_age = last_append_age_seconds(snap.last_append_at_nanos, now_unix_nanos());
 
     // Chunk #69 Phase B Session 7+: pull Drain heartbeat counters (zero
     // when no miner threaded in). `take_lru_evictions_since_tick` resets
@@ -211,6 +317,8 @@ fn emit_buffer_tick(
         fingerprints_computed = payload.fingerprints_computed,
         observer_invocations = payload.observer_invocations,
         redactions_applied = payload.redactions_applied,
+        rows_ingested_delta = rows_ingested_delta,
+        last_append_age_seconds = last_append_age,
         "heartbeat",
     );
 
@@ -246,6 +354,8 @@ fn emit_buffer_tick(
             "drain template count",
         );
     }
+
+    classify_drain_progress(rows_ingested_delta, buffer_capacity_pct)
 }
 
 fn emit_viz_tick(state: &HeartbeatState, viz_state: &VizState) {
@@ -312,6 +422,33 @@ mod tests {
     use std::sync::Mutex;
     use tracing_subscriber::Registry;
     use tracing_subscriber::layer::SubscriberExt;
+
+    fn buffer_tick_for_test(
+        state: &HeartbeatState,
+        buffer_state: &BufferState,
+        last_eviction: &AtomicU64,
+    ) {
+        buffer_tick_with_miner_for_test(state, buffer_state, last_eviction, None);
+    }
+
+    fn buffer_tick_with_miner_for_test(
+        state: &HeartbeatState,
+        buffer_state: &BufferState,
+        last_eviction: &AtomicU64,
+        drain_miner: Option<&DrainMiner>,
+    ) {
+        let (sender, _rx) = build_channel();
+        let last_rows = AtomicU64::new(0);
+        let _ = emit_buffer_tick(
+            state,
+            buffer_state,
+            &sender,
+            600,
+            last_eviction,
+            &last_rows,
+            drain_miner,
+        );
+    }
 
     #[derive(Clone)]
     struct VecMakeWriter(Arc<Mutex<Vec<u8>>>);
@@ -419,8 +556,7 @@ mod tests {
         let state = HeartbeatState::new();
         let buffer_state = BufferState::new();
         let last_eviction = AtomicU64::new(0);
-        let lines =
-            capture_lines(|| emit_buffer_tick(&state, &buffer_state, 600, &last_eviction, None));
+        let lines = capture_lines(|| buffer_tick_for_test(&state, &buffer_state, &last_eviction));
         // First tick emits buffer.tick + metric.buffer.memory_bytes; no eviction
         // delta so metric.buffer.evicted_span_count is suppressed.
         assert_eq!(lines.len(), 2);
@@ -441,8 +577,7 @@ mod tests {
         let buffer_state = BufferState::new();
         buffer_state.record_rows_appended(11);
         let last_eviction = AtomicU64::new(0);
-        let lines =
-            capture_lines(|| emit_buffer_tick(&state, &buffer_state, 600, &last_eviction, None));
+        let lines = capture_lines(|| buffer_tick_for_test(&state, &buffer_state, &last_eviction));
         assert_eq!(lines[0]["fields"]["rows_ingested"], 11);
     }
 
@@ -455,7 +590,7 @@ mod tests {
         // First tick: no eviction yet; delta should be 0
         buffer_state.record_eviction(5);
         let lines_first =
-            capture_lines(|| emit_buffer_tick(&state, &buffer_state, 600, &last_eviction, None));
+            capture_lines(|| buffer_tick_for_test(&state, &buffer_state, &last_eviction));
         assert_eq!(lines_first[0]["fields"]["eviction_count"], 5);
         assert_eq!(
             lines_first[0]["fields"]["eviction_count_since_last_tick"],
@@ -465,7 +600,7 @@ mod tests {
         // Second tick: another 3 evictions; delta should be 3 (5 was previous)
         buffer_state.record_eviction(3);
         let lines_second =
-            capture_lines(|| emit_buffer_tick(&state, &buffer_state, 600, &last_eviction, None));
+            capture_lines(|| buffer_tick_for_test(&state, &buffer_state, &last_eviction));
         assert_eq!(lines_second[0]["fields"]["eviction_count"], 8);
         assert_eq!(
             lines_second[0]["fields"]["eviction_count_since_last_tick"],
@@ -479,8 +614,7 @@ mod tests {
         let buffer_state = BufferState::new();
         buffer_state.set_memory_bytes(4096);
         let last_eviction = AtomicU64::new(0);
-        let lines =
-            capture_lines(|| emit_buffer_tick(&state, &buffer_state, 600, &last_eviction, None));
+        let lines = capture_lines(|| buffer_tick_for_test(&state, &buffer_state, &last_eviction));
         assert_eq!(lines[0]["fields"]["memory_bytes"], 4096);
     }
 
@@ -491,12 +625,12 @@ mod tests {
         let last_eviction = AtomicU64::new(0);
 
         let lines_pre =
-            capture_lines(|| emit_buffer_tick(&state, &buffer_state, 600, &last_eviction, None));
+            capture_lines(|| buffer_tick_for_test(&state, &buffer_state, &last_eviction));
         assert_eq!(lines_pre[0]["fields"]["retention_window_active"], false);
 
         buffer_state.mark_retention_active();
         let lines_post =
-            capture_lines(|| emit_buffer_tick(&state, &buffer_state, 600, &last_eviction, None));
+            capture_lines(|| buffer_tick_for_test(&state, &buffer_state, &last_eviction));
         assert_eq!(lines_post[0]["fields"]["retention_window_active"], true);
     }
 
@@ -508,8 +642,7 @@ mod tests {
         buffer_state.set_memory_bytes(2560);
         let last_eviction = AtomicU64::new(0);
 
-        let lines =
-            capture_lines(|| emit_buffer_tick(&state, &buffer_state, 600, &last_eviction, None));
+        let lines = capture_lines(|| buffer_tick_for_test(&state, &buffer_state, &last_eviction));
         let memory_event = lines
             .iter()
             .find(|l| l["target"] == "metric.buffer.memory_bytes")
@@ -528,8 +661,7 @@ mod tests {
         buffer_state.record_eviction(7);
         let last_eviction = AtomicU64::new(0);
 
-        let lines =
-            capture_lines(|| emit_buffer_tick(&state, &buffer_state, 600, &last_eviction, None));
+        let lines = capture_lines(|| buffer_tick_for_test(&state, &buffer_state, &last_eviction));
         let evicted_event = lines
             .iter()
             .find(|l| l["target"] == "metric.buffer.evicted_span_count")
@@ -545,8 +677,7 @@ mod tests {
         let buffer_state = BufferState::new();
         let last_eviction = AtomicU64::new(0);
 
-        let lines =
-            capture_lines(|| emit_buffer_tick(&state, &buffer_state, 600, &last_eviction, None));
+        let lines = capture_lines(|| buffer_tick_for_test(&state, &buffer_state, &last_eviction));
         assert!(
             lines
                 .iter()
@@ -568,10 +699,9 @@ mod tests {
         miner.assign("connection from server completed at startup");
 
         let lines = capture_lines(|| {
-            emit_buffer_tick(
+            buffer_tick_with_miner_for_test(
                 &state,
                 &buffer_state,
-                600,
                 &last_eviction,
                 Some(miner.as_ref()),
             )
@@ -597,10 +727,9 @@ mod tests {
         miner.assign("event log beta occurred at startup");
 
         let lines = capture_lines(|| {
-            emit_buffer_tick(
+            buffer_tick_with_miner_for_test(
                 &state,
                 &buffer_state,
-                600,
                 &last_eviction,
                 Some(miner.as_ref()),
             )
@@ -619,8 +748,7 @@ mod tests {
         let buffer_state = BufferState::new();
         let last_eviction = AtomicU64::new(0);
 
-        let lines =
-            capture_lines(|| emit_buffer_tick(&state, &buffer_state, 600, &last_eviction, None));
+        let lines = capture_lines(|| buffer_tick_for_test(&state, &buffer_state, &last_eviction));
 
         assert!(
             lines
@@ -651,10 +779,9 @@ mod tests {
         }
 
         let lines_first = capture_lines(|| {
-            emit_buffer_tick(
+            buffer_tick_with_miner_for_test(
                 &state,
                 &buffer_state,
-                600,
                 &last_eviction,
                 Some(miner.as_ref()),
             )
@@ -674,10 +801,9 @@ mod tests {
 
         // Second tick (immediately after) — counter reset; no new assigns.
         let lines_second = capture_lines(|| {
-            emit_buffer_tick(
+            buffer_tick_with_miner_for_test(
                 &state,
                 &buffer_state,
-                600,
                 &last_eviction,
                 Some(miner.as_ref()),
             )

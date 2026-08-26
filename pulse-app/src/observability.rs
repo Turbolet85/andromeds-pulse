@@ -196,8 +196,30 @@ impl AllowList {
                 // PII redactions applied on the OTLP persistence path — an
                 // aggregate count, never the matched value or its category.
                 "redactions_applied",
-                // PII redactions applied on the OTLP persistence path — an
-                // aggregate count, never the matched value or its category.
+                // Drain progress on buffer.tick: rows landed since the previous
+                // tick, and the age of the most recent append. Aggregate
+                // numerics — no service, span, or fingerprint identity.
+                "rows_ingested_delta",
+                "last_append_age_seconds",
+            ]
+            .iter()
+            .copied()
+            .collect(),
+        );
+        // Consumer-stall transition target. Its OWN exact leaf is load-bearing:
+        // `for_target` strips `.tick` then falls back to the first `.`-segment,
+        // so without this entry "buffer.consumer.stalled" resolves to the
+        // `buffer` set above and all four fields below redact — which would
+        // make the one signal that distinguishes a wedged consumer from a
+        // healthy one unreadable in production. Bounded static labels + two
+        // numerics; never a service name, span id, or batch content.
+        by_target.insert(
+            "buffer.consumer.stalled",
+            [
+                "reason",
+                "consequence",
+                "stalled_seconds",
+                "buffer_capacity_pct",
             ]
             .iter()
             .copied()

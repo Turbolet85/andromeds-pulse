@@ -1,6 +1,18 @@
 # Session Learnings
 
 
+## 2026-08-26 — Attributing a defect that will not reproduce: look for the original log, then ask which consumers died
+
+A chunk whose job is "root-cause X" plans a RED leg to reproduce X. When the leg comes back clean, the instinct is to escalate the reproduction — run longer, load harder, add variables. Two cheaper moves came first this session and both paid.
+
+**The original evidence may still be on disk.** The wedge under investigation was measured by the previous chunk, in the previous session, and that session's scratchpad still held its full 386,279-line obs log. Finding it took one `find` for `agent-latest.jsonl*` newer than a date. A route entry is written FROM a measurement, so the measurement's artifact usually exists somewhere — check before trying to re-manufacture it. The reproduction leg then stops being the only path to attribution and becomes a control: my 15-minute leg reproduced every stated precondition and stayed healthy, which is what made the comparison meaningful rather than merely negative.
+
+**Then ask which consumers stopped and which kept going, and what they share.** Both `spawn_blocking` users died — the buffer consumer at 17:20:50, viz at 17:24:13 — while every async task ran on for 16 more minutes. The decisive part is that those two use DIFFERENT mutexes (viz held the appender connection, L1a a separate clone), so no single lock can explain both; the only resource they share is the tokio blocking pool. That one question separated pool starvation from lock contention without any new instrumentation, and it falsified the chunk's own prime hypothesis (viz shared-connection contention) using the wedge run's own data. Max append duration was 11 ms in both runs, which independently excluded DuckDB contention.
+
+The generalizable shape: when a concurrency defect will not reproduce, partition the surviving and dead work by the RESOURCE CLASS each depends on, not by proximity to the symptom. A cause that explains only some of the dead consumers is not the cause. And compare the two runs on rates rather than on presence — the runaway showed as 26,821 L1a queries against 220, a 122× difference that no absence-check would have surfaced.
+
+---
+
 ## 2026-08-25 — An anchored edit that ends at a line terminus can swallow the next line's break
 
 Removing a trailing annotation from a working-route entry — an `old_string` ending at the last character of the line, replaced with nothing — left the following `   ↓` separator MERGED onto the edited line rather than standing on its own. The entry text was correct; the file's structure was not. Nothing in the edit's own result signalled it, and the rendered diff read as a clean reorder, because the lost break showed up only as an alignment shift in the hunk.

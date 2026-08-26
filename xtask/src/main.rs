@@ -7,6 +7,7 @@
 #![allow(clippy::items_after_test_module)]
 
 mod bundle_format;
+mod ingest_progress;
 mod self_verify;
 mod smoke;
 mod webview_drive;
@@ -49,6 +50,11 @@ enum Cmd {
         #[arg(trailing_var_arg = true)]
         extra: Vec<String>,
     },
+    #[command(
+        name = "check:ingest-progress",
+        about = "fail a run whose buffer consumer stopped draining (progress, not liveness); NEUTRAL on an absent log stream"
+    )]
+    CheckIngestProgress,
     #[command(name = "audit", about = "cargo audit (RustSec advisory DB)")]
     Audit,
     #[command(name = "deny-bans", about = "cargo deny check bans licenses sources")]
@@ -166,6 +172,7 @@ async fn main() -> ExitCode {
         Cmd::HarnessStatus => harness_status().await,
         Cmd::Test { extra } => run_cargo_nextest(extra).await,
         Cmd::TestCoverage { extra } => run_cargo_llvm_cov(extra).await,
+        Cmd::CheckIngestProgress => run_check_ingest_progress(),
         Cmd::Audit => run_cargo("audit", &[]).await,
         Cmd::DenyBans => run_cargo("deny", &["check", "bans", "licenses", "sources"]).await,
         Cmd::CiGates => run_ci_gates().await,
@@ -363,6 +370,41 @@ async fn run_ci_gates() -> Result<ExitCode> {
     }
 
     Ok(ExitCode::SUCCESS)
+}
+
+// Progress gate. The existing obs gates key on tick PRESENCE (obs-plan §3/§10
+// define a stall as tick absence >45s), which the measured 2026-08-26 wedge
+// satisfied throughout — heartbeats ticked while nothing drained. This one
+// keys on the app's own drain-progress record instead.
+fn run_check_ingest_progress() -> Result<ExitCode> {
+    let log_files = collect_log_files();
+    let lines = ingest_progress::parse_lines(&log_files);
+
+    match ingest_progress::evaluate(&lines) {
+        ingest_progress::Verdict::Neutral(reason) => {
+            println!("check:ingest-progress: NEUTRAL — {reason}");
+            Ok(ExitCode::SUCCESS)
+        }
+        ingest_progress::Verdict::Pass {
+            ticks,
+            longest_zero_delta_run,
+        } => {
+            println!(
+                "check:ingest-progress: PASS — {ticks} buffer ticks, longest zero-delta run {longest_zero_delta_run}"
+            );
+            Ok(ExitCode::SUCCESS)
+        }
+        ingest_progress::Verdict::Fail {
+            reason,
+            consequence,
+            stalled_seconds,
+        } => {
+            eprintln!(
+                "::error::check:ingest-progress: FAIL — buffer consumer stalled for {stalled_seconds}s (reason={reason}, consequence={consequence})"
+            );
+            Ok(ExitCode::FAILURE)
+        }
+    }
 }
 
 fn collect_log_files() -> Vec<PathBuf> {

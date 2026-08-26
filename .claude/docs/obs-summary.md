@@ -59,7 +59,8 @@ W3C `traceparent` (HTTP) and gRPC `grpc-trace-bin` extracted at receiver entry; 
 - 15s interval for ingest/buffer/viz/plugins via `tokio::time::interval(Duration::from_secs(15))`.
 - 100ms for realtime throughput counter (animation source).
 - Format: `tracing::info!(target: "{module}.tick", span_count=N, buffer_capacity_pct=M, broadcast_subscribers=X, ...)`.
-- **Stall threshold:** missing tick for >45s = stall signal. CI fails build via `xtask/ci/heartbeat-gap-check.sh`.
+- **Stall threshold (liveness):** missing tick for >45s = stall signal. CI fails build via `xtask/ci/heartbeat-gap-check.sh`.
+- **Stall threshold (progress):** tick presence is not progress. `buffer.tick` carries `rows_ingested_delta` + `last_append_age_seconds`; a 0 delta across consecutive ticks while the ingest channel holds queued work is a stalled consumer → `buffer.consumer.stalled` (after 30 ticks = 450s, above §10's 420s sustained-drain cap), asserted by `cargo xtask check:ingest-progress`. Added 2026-08-26 after a wedge froze `rows_ingested` for 16 minutes while passing every liveness check.
 - **Heartbeat ticks vs TauRPC `health` command:** these are TWO DIFFERENT liveness mechanisms; both must remain. Ticks = asynchronous emission for retroactive analysis (was the subsystem alive during this window?); `health` IPC = synchronous probe for active liveness (used for boot readiness polling per `tests-summary.md` §Test harness contract — poll every 500ms up to 10s, plus runtime health checks). Implementations MUST NOT replace tick emission with `health`-only state, MUST NOT treat absence of tick as failure of `health` (or vice versa). No shared state between the two paths required. Per amendment `2026-05-08T17-28-28Z-cross-ref-heartbeat-vs-health`.
 
 ## Critical paths (P1–P7 — must-trace)
@@ -70,6 +71,7 @@ Every P1–P7 must emit parent + child spans with the `{module}.{operation}` nam
 |---|---|
 | **Zero unlogged panics** | `std::panic::set_hook` → `tracing::error!(target: "app.panic.fatal", ...)`; CI greps for `app.panic.fatal` spans (any match = build fail) |
 | **Heartbeat ticks (>45s gap = stall)** | Post-test gap analysis: parse log timestamps per `{module}.tick` target, compute deltas, assert max ≤45000ms |
+| **Drain progress (consumer wedge)** | `cargo xtask check:ingest-progress` — fails on a `buffer.consumer.stalled` record whose `reason` is not `recovered`; NEUTRAL when the stream carries no `buffer.tick`. The companion to the gap check, which the measured wedge passed throughout |
 | **Snapshot p99 ≤500ms** | `metric.snapshot.token_count_ms` events; CI tail aggregation via `jq` |
 | **WebGPU frame p99 ≤33ms (ms-form governs; ≈30 fps descriptive)** | `metric.webgpu.frame_duration_ms` events bridged from frontend via TauRPC; ACTIVE-verified session 183 (p99 27.3ms, n=56,642 real frames) |
 | **Buffer memory ≤512MB** | `metric.buffer.memory_bytes` per heartbeat tick; chaos test (10k spans/sec for 15min) post-test max check |
@@ -79,7 +81,7 @@ Every P1–P7 must emit parent + child spans with the `{module}.{operation}` nam
 ### NEUTRAL/ACTIVE gate posture + connection isolation (chunk #99, per obs-plan §12 2026-06-10)
 - The check scripts (`xtask/ci/{perf-slo-check,heartbeat-gap-check,l4-latency-p99}`) are **NEUTRAL-tolerant**: absent metric stream → NEUTRAL, not FAIL — one script set serves headless CI and booted-app (ACTIVE) sessions. `cargo xtask perf:load-profiles` time-windows collected logs to the current run (`target/load-profiles/agent-window.jsonl`); unscoped dev daily-rolled logs false-FAIL heartbeat on cross-session gaps.
 - ACTIVE evidence flow: `scripts/agent-run boot` (or direct binary) → `cargo run -p ingest --example load_profiles -- custom <rate> <secs>` → stop app → run gate scripts via `pwsh` (5.1 misparses `l4-latency-p99.ps1`'s UTF-8 punctuation; `tracing-appender` holds the live log without read-share on Windows).
-- **DuckDB connection isolation:** multi-second statements take a dedicated `Connection::try_clone()` — write (appender) / sweep (retention) / read (L1a) topology; never hold the shared appender connection (three production defects found+fixed at 50k spans/s by the load suite).
+- **DuckDB connection isolation:** multi-second statements take a dedicated `Connection::try_clone()` — write (appender) / sweep (retention) / read (L1a + viz) topology; never hold the shared appender connection (three production defects found+fixed at 50k spans/s by the load suite). `viz`'s three query fns joined the isolated set 2026-08-26 via `viz::query::read_connection` — they had held the shared connection while the Traces surface re-polls on a timer, a violation of this invariant rather than a change to it.
 
 ## PII scrubbing (Vectors 1–6 from security plan)
 | Vector | Rule |

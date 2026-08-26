@@ -29,6 +29,12 @@ pub struct BufferState {
     // table's own append succeeds, so a batch rejected at `flush()` adds
     // nothing. Accumulated per batch, never per field.
     redactions_applied: AtomicU64,
+    // Wall-clock (nanos) of the MOST RECENT append, refreshed on every batch —
+    // distinct from `first_append_at_nanos`, which latches once. Without it a
+    // stalled consumer is indistinguishable from an idle producer: both leave
+    // `rows_ingested` static, and the heartbeat carries no notion of when the
+    // last row actually landed.
+    last_append_at_nanos: AtomicU64,
     // Monotonic allocators for the `log_records.seq` / `metrics_points.seq`
     // primary-key ordinals. Separate per table: one shared counter would
     // couple two tables' allocation for no gain. Not observables: never
@@ -43,6 +49,7 @@ pub struct BufferStateSnapshot {
     pub eviction_count: u64,
     pub memory_bytes: u64,
     pub first_append_at_nanos: u64,
+    pub last_append_at_nanos: u64,
     pub retention_window_active: bool,
     pub span_events_seen: u64,
     pub fingerprints_computed: u64,
@@ -61,6 +68,7 @@ impl BufferState {
             eviction_count: self.eviction_count.load(Ordering::Relaxed),
             memory_bytes: self.memory_bytes.load(Ordering::Relaxed),
             first_append_at_nanos: self.first_append_at_nanos.load(Ordering::Relaxed),
+            last_append_at_nanos: self.last_append_at_nanos.load(Ordering::Relaxed),
             retention_window_active: self.retention_window_active.load(Ordering::Relaxed),
             span_events_seen: self.span_events_seen.load(Ordering::Relaxed),
             fingerprints_computed: self.fingerprints_computed.load(Ordering::Relaxed),
@@ -71,13 +79,14 @@ impl BufferState {
 
     pub fn record_rows_appended(&self, n: u64) {
         self.rows_ingested.fetch_add(n, Ordering::Relaxed);
-        // Anchor the first-append wall-clock once; the load-guard skips the
-        // now() cost on every append after the first has landed.
+        // One now() per batch serves both anchors — the append itself is
+        // DuckDB I/O, so a single clock read here is not a hot-path cost.
+        let now = SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .map(|d| d.as_nanos() as u64)
+            .unwrap_or(0);
+        self.last_append_at_nanos.store(now, Ordering::Relaxed);
         if self.first_append_at_nanos.load(Ordering::Relaxed) == 0 {
-            let now = SystemTime::now()
-                .duration_since(UNIX_EPOCH)
-                .map(|d| d.as_nanos() as u64)
-                .unwrap_or(0);
             let _ = self.first_append_at_nanos.compare_exchange(
                 0,
                 now,
@@ -176,6 +185,39 @@ mod tests {
         s.record_rows_appended(5);
         s.record_rows_appended(7);
         assert_eq!(s.snapshot().rows_ingested, 12);
+    }
+
+    #[test]
+    fn last_append_is_zero_until_first_record() {
+        let s = BufferState::new();
+        assert_eq!(s.snapshot().last_append_at_nanos, 0);
+    }
+
+    #[test]
+    fn last_append_refreshes_while_first_append_latches() {
+        // The two anchors must NOT be the same semantic: `first` latches once
+        // (it dates the buffer), `last` refreshes on every batch (it dates the
+        // most recent row). A `last` that latched would report an ever-growing
+        // age on a perfectly healthy buffer.
+        let s = BufferState::new();
+        s.record_rows_appended(1);
+        let after_first = s.snapshot();
+        assert_ne!(after_first.last_append_at_nanos, 0);
+        assert_eq!(
+            after_first.first_append_at_nanos,
+            after_first.last_append_at_nanos,
+        );
+
+        s.record_rows_appended(1);
+        let after_second = s.snapshot();
+        assert_eq!(
+            after_second.first_append_at_nanos, after_first.first_append_at_nanos,
+            "first_append_at_nanos must latch on the first append only",
+        );
+        assert!(
+            after_second.last_append_at_nanos >= after_first.last_append_at_nanos,
+            "last_append_at_nanos must be refreshed by every append",
+        );
     }
 
     #[test]

@@ -102,6 +102,29 @@ pub struct LogRow {
     pub span_id: String,
 }
 
+/// DEDICATED read connection cloned from the shared appender connection, per
+/// obs-plan §10 DuckDB Connection Isolation: any consumer issuing multi-second
+/// statements must not hold the shared appender mutex. The Traces surface
+/// re-polls on a timer, so these reads recur for the lifetime of the window and
+/// a slow one on the shared connection stalls the buffer consumer outright.
+/// Mirrors `buffer::retention` + `triage::baseline::sql::TriageSqlState::new`;
+/// falls back to the shared connection if cloning fails — degraded but
+/// functional, and loudly logged.
+pub fn read_connection(conn: &Arc<Mutex<Connection>>) -> Arc<Mutex<Connection>> {
+    let cloned = conn.lock().ok().and_then(|guard| guard.try_clone().ok());
+    match cloned {
+        Some(c) => Arc::new(Mutex::new(c)),
+        None => {
+            tracing::warn!(
+                target: "viz.query",
+                fallback = "shared_connection",
+                "viz read connection clone failed; querying on the shared connection"
+            );
+            Arc::clone(conn)
+        }
+    }
+}
+
 pub fn query_traces(
     conn: &Arc<Mutex<Connection>>,
     state: &VizState,
@@ -470,6 +493,30 @@ mod tests {
     use super::*;
     use crate::contract::Error as VizError;
     use std::sync::{Arc, Mutex};
+
+    #[test]
+    fn read_connection_returns_a_distinct_usable_connection() {
+        // The point of the clone is that viz stops queueing on the appender's
+        // mutex, so "distinct Arc" is the property under test, not an
+        // implementation detail — a fallback that handed back the SAME Arc
+        // would satisfy every query assertion while restoring the contention
+        // obs-plan §10 forbids.
+        let shared = open_in_memory_with_schema();
+        let read = read_connection(&shared);
+
+        assert!(
+            !Arc::ptr_eq(&shared, &read),
+            "read_connection must not hand back the shared appender connection",
+        );
+
+        let guard = read.lock().expect("read connection lock");
+        let count: i64 = guard
+            .prepare(COUNT_TRACES)
+            .expect("prepare on the cloned connection")
+            .query_row([0_i64, i64::MAX], |row| row.get(0))
+            .expect("the clone must see the same in-memory database");
+        assert_eq!(count, 0);
+    }
 
     fn open_in_memory_with_schema() -> Arc<Mutex<Connection>> {
         let conn = Connection::open_in_memory().expect("open_in_memory");
