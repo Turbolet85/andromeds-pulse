@@ -1,0 +1,41 @@
+# layouts extract
+
+## Relevance
+Partial — the chunk builds no layout, but its headline ManualCheck leg is observed through desktop-webview surfaces (constellation dot hue, Traces table, findings/report windows), so layout constraints bound what the proof may assert.
+
+## Constraints
+- The terminal visual signal of an incident on desktop-webview is the per-service constellation **dot hue** (LCH `color-primary` → `color-accent`), driven by **cumulative incident severity tiers** — not error rate; the Halo State Pulse WebGPU layer is SPECIFIED-BUT-UNBUILT on both webview surfaces, so a chain proof may not depend on a halo rendering (per layout-templates §Surface: desktop-webview — Signature placement + §Component — Halo State Pulse canvas, MEASURED 2026-08-21 note).
+- The Traces hero is a landmark `region` carrying the STABLE literal name `"Telemetry traces chart"`, described by a visually-hidden aggregate summary (`data-testid="constellation-summary"`) that carries lifecycle counts + findings tally only — no service name enters the accessible tree, and `role="status"` is deliberately not applied; any injector-driven assertion on the hero must read the description element, not the landmark name (per layout-templates §Wireframe notes — Full dashboard (Traces primary screen)).
+- Trace rows live in a bounded internal-scroll region (`flex:1 / min-height:0 / overflow-y:auto`, sticky opaque `color-base` thead) under a fixed hero + fixed `Errors only` toolbar, with the route bounded to the shell's `main` height so the dashboard grows **no outer page scrollbar at any window size** — a sustained high-volume feed must not violate that (per layout-templates §Component — Trace data table, Internal scroll region; §Wireframe notes — Traces).
+- The findings window **sizes itself to the incident count** (fits rows, caps ~8 then the list scrolls), is docked below the compact widget from the widget's live geometry (work-area / multi-monitor clamped), and is opened from the compact-widget unread badge (per layout-templates §Primary screens — Findings window).
+- The operator-facing report surface is the **Report window**: the six-section `Report` in the `Modal` **`fill`** variant (edge-to-edge on `--color-base`, no backdrop), positioned left of the findings window and clamped, opened by selecting a findings row (per layout-templates §Primary screens — Report window).
+- The shared `EmptyState` component is documented for the **Metrics / Logs / Snapshots** data views only, and its rules are: settled-zero-data only (never flashed while loading, hidden once populated), with the query-failure variant checked BEFORE the empty branch so a failure never masquerades as "no data". Whether the Traces table's `"No traces yet"` string is that component or a Traces-local string is research's question (per layout-templates §Component — Empty / error state (desktop-webview data views)).
+
+## Patterns to follow
+- Read the incident through the shipped dot-hue path the plan records as live (`severityToHueFraction(tier)` feeding `ConstellationDot.priorityTier`), not through a canvas probe (per layout-templates §Component — Halo State Pulse canvas).
+- Drill path for the operator judgement: compact-widget unread badge → findings window row → Report window — reusing the P-080 FindingsDropdown row content on the `--color-raised-2` popover surface (per layout-templates §Primary screens — Findings / Report windows).
+- Anomaly-first default ordering hoists erroring rows to the top with no filter interaction; the right-aligned `aria-pressed` `Errors only` toggle narrows to `error_count > 0` (per layout-templates §Component — Trace data table, Sorting + Filter toolbar).
+- The dashboard-only `ConnectionStatusLine` footer readout ("Receiving from {N} services", spans/s, "buffer {used} min / {window} min", 1s poll, P-067 recency gate) is the plain-language surface that shows whether the injector feed is landing — the compact widget stays aggregate-glance with no worded line (per layout-templates §Component — Footer (read-only status bar), Full dashboard).
+
+## Anti-patterns to avoid
+- Do not add a Halo State Pulse canvas render site as a side effect of making the proof observable — build-or-retire is owned by the working-route entry "Halo State Pulse canvas disposition" (per layout-templates §Component — Halo State Pulse canvas).
+- Do not let live counts migrate into the Traces landmark's accessible NAME (rotor churn); live values belong in the `aria-describedby` summary (per layout-templates §Wireframe notes — Traces).
+- Do not let a failed/absent feed render as the neutral empty state — the honest-error variant is static, hint-free, and checked first; this is the layout mirror of the chunk's `rows_ingested > 0` feed-precondition assertion (per layout-templates §Component — Empty / error state).
+
+## Contract bindings
+- **Report window (`Modal` `fill`, no backdrop)** binds to a11y §Modal focus trap — Escape dismiss + restore focus — even though the fill variant drops the backdrop (layout owns structure, a11y owns the trap).
+- **Trace-table keyboard contract** (roving `tabindex`, one tab stop, Up/Down/Home/End, Enter investigates, Esc → `Errors only` toggle, in-row Investigate `tabIndex={-1}`) binds to a11y §11 grid-lite carve-out; the chunk's 4c `lint:a11y` harness fix is a tests/harness contract, **not** a layout change — layouts asserts nothing about the rule wiring.
+- **Dot hue interpolation endpoints** bind to design (`color-primary` → `color-accent`, severity driver per design-system-amendments 2026-05-29); layouts owns only placement of the dot in the hero region.
+- **`metric.constellation.hue_update_ms` (P-025)** binds to obs — it measures the dot-hue surface layouts specifies, so a real-L4 run's hue-change instrumentation lands on that surface.
+
+## Acceptance criteria contributions
+- (layouts) The sustained real-L4 run's incident is observable as a severity-tier hue shift on the per-service constellation dot inside the Traces hero region, with no dependence on a halo canvas layer (per layout-templates §Component — Halo State Pulse canvas / §Signature placement).
+- (layouts) Across the whole formation window the Traces table's internal scroll region holds rows rather than the zero-data message, with the hero + `Errors only` toolbar staying fixed and no outer page scrollbar appearing (per layout-templates §Component — Trace data table, Internal scroll region).
+- (layouts) The operator's interpretation brief is judged in the Report window (six-section `Report`, `Modal` `fill` variant), reached from the compact-widget unread badge → findings row; whether the brief already renders there is research's question (per layout-templates §Primary screens — Findings window / Report window).
+- (layouts) The chunk introduces no new Halo State Pulse render site and leaves the canvas disposition with its working-route entry (per layout-templates §Component — Halo State Pulse canvas, MEASURED note).
+
+## Relevant amendment history
+- **2026-08-21-delegated-timing-observables** — recorded as measured that the Halo canvas has no production render site on either webview surface, that the shipped desktop-webview signature is the constellation DOT hue, and corrected the hue driver from error rate to cumulative incident severity (twelve sites swept). Directly governs how this chunk's "incident → red dot" proof may be worded.
+- **2026-07-10-incidents-floating-window-disclosure** — added the findings window (sizes to incident count, docked below the widget) and the Report window (`Modal` `fill`, positioned relative to findings) to Primary screens; ASCII wireframes deliberately deferred. These are the surfaces the ManualCheck operator reads.
+- **2026-07-09-traces-table-layout-polish** — documented the bounded flex-column route, fixed hero + `Errors only` toolbar, flex-fill internal-scroll table with sticky thead, and anomaly-first default order (P-082 / P-068); also flagged the wireframe ASCII's footer + per-dot-label lag as illustrative-only. Bounds what a sustained feed may do to the Traces layout.
+- **2026-07-08-self-explaining-empty-states** — added the shared `EmptyState` component scoped to Metrics/Logs/Snapshots with the honest-error-before-empty rule; why Traces' `"No traces yet"` is not automatically covered by it.

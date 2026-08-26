@@ -1,0 +1,20 @@
+[
+{
+"sql": "SELECT caller, file, line FROM calls WHERE callee LIKE '%drain_all%' ORDER BY file, line;",
+"rows": 2,
+"result": [
+{
+"caller": "rust-analyzer cargo triage 0.1.0 digest/queue/tests/drain_all_returns_tier1_first_then_bypass_then_default().",
+"file": "crates/triage/src/digest/queue.rs",
+"line": 393
+},
+{
+"caller": "rust-analyzer cargo triage 0.1.0 digest/queue/tests/drain_all_empties_state().",
+"file": "crates/triage/src/digest/queue.rs",
+"line": 408
+}
+],
+"db_state": "fresh",
+"plane": "rust"
+}
+]

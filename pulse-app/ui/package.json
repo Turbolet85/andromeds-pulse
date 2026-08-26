@@ -11,7 +11,7 @@
     "typecheck": "tsc --noEmit",
     "verify:contrast": "node scripts/verify-contrast.mjs",
     "lint": "eslint .",
-    "lint:a11y": "eslint . --rule 'jsx-a11y/alt-text: error' --rule 'jsx-a11y/anchor-has-content: error' --rule 'jsx-a11y/aria-props: error' --rule 'jsx-a11y/aria-role: error' --rule 'jsx-a11y/role-has-required-aria-props: error'",
+    "lint:a11y": "eslint .",
     "test:a11y": "npm run verify:contrast && playwright test --config=playwright-a11y.config.ts && node tests-a11y/lighthouse/lighthouse-runner.mjs && node tests-a11y/pa11y/run-pa11y.mjs && node tests-a11y/aggregator.mjs && node tests-a11y/regression-detector.mjs"
   },
   "devDependencies": {

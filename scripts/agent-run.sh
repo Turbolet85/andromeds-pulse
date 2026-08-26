@@ -108,18 +108,26 @@ case "${1:-}" in
     ;;
 
   logs)
-    # Tail the structured JSON log file (obs-plan §3 sink path)
-    if [ -f "$LOGFILE" ]; then
-      tail -F "$LOGFILE"
-    else
-      # Fallback chain
-      for candidate in "$HOME/.andromeda-pulse/logs/agent-latest.jsonl" "$DATA_DIR/logs/agent-latest.jsonl"; do
-        if [ -f "$candidate" ]; then
-          tail -F "$candidate"
-          exit 0
-        fi
+    # Tail the structured JSON log family (obs-plan §3 sink path).
+    # tracing_appender's daily roller date-suffixes the sink
+    # (agent-latest.jsonl.YYYY-MM-DD), so each candidate is a GLOB: a
+    # bare-name read finds nothing on a healthy boot and reports an empty log.
+    resolved=""
+    for base in "$LOGFILE" \
+                "$HOME/.andromeda-pulse/logs/agent-latest.jsonl" \
+                "$DATA_DIR/logs/agent-latest.jsonl"; do
+      # Within one base, the last existing match is the newest: the glob
+      # expands in lexical order and the date suffix sorts ascending.
+      for candidate in "$base"*; do
+        [ -f "$candidate" ] && resolved="$candidate"
       done
-      echo "logs: no log file found at $LOGFILE or fallback locations" >&2
+      # Earlier bases take precedence, so stop at the first that resolved.
+      [ -n "$resolved" ] && break
+    done
+    if [ -n "$resolved" ]; then
+      tail -F "$resolved"
+    else
+      echo "logs: no log file found at $LOGFILE* or fallback locations" >&2
       exit 1
     fi
     ;;

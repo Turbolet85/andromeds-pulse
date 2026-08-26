@@ -1,4 +1,4 @@
 schema_version: 3
-last_wrap: 2026-08-25T16:11:09Z                # ISO-8601 UTC
-tree_db_refreshed_at: 2026-08-24T22:42:30Z     # last code-graph refresh (wrap Setup): rust 7122n/34444e · ts 4044n/7399e — unchanged: the 0-pending path fires no refresh (no source delta)
-session_count: 43                              # v3 wrap counter; +1 per successful v3 wrap
+last_wrap: 2026-08-26T06:40:00Z                # ISO-8601 UTC
+tree_db_refreshed_at: 2026-08-26T06:03:42Z     # last code-graph refresh (wrap Setup): rust 7134n/34427e · ts 4044n/7399e
+session_count: 44                              # v3 wrap counter; +1 per successful v3 wrap

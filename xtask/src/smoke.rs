@@ -512,14 +512,42 @@ fn expect_field(
     }
 }
 
+/// Reads the whole rotated log family, not one file. `tracing_appender`'s
+/// daily roller date-suffixes the sink (`agent-latest.jsonl.YYYY-MM-DD`), so a
+/// bare-name read silently returns nothing and the caller reports an empty log
+/// on a perfectly healthy boot (obs-plan §3 Log file location).
 fn read_jsonl_lines(path: &Path) -> Result<Vec<String>> {
-    let content = std::fs::read_to_string(path)
-        .with_context(|| format!("read log file at {}", path.display()))?;
-    Ok(content
-        .lines()
-        .filter(|l| !l.trim().is_empty())
-        .map(|l| l.to_string())
-        .collect())
+    let dir = path.parent().unwrap_or_else(|| Path::new("."));
+    let stem = path
+        .file_name()
+        .map(|n| n.to_string_lossy().into_owned())
+        .unwrap_or_default();
+
+    let mut paths: Vec<PathBuf> = std::fs::read_dir(dir)
+        .with_context(|| format!("read log dir at {}", dir.display()))?
+        .flatten()
+        .map(|e| e.path())
+        .filter(|p| {
+            p.file_name()
+                .map(|n| n.to_string_lossy().starts_with(&stem))
+                .unwrap_or(false)
+        })
+        .collect();
+    paths.sort();
+
+    let mut lines = Vec::new();
+    for p in paths {
+        let Ok(content) = std::fs::read_to_string(&p) else {
+            continue;
+        };
+        lines.extend(
+            content
+                .lines()
+                .filter(|l| !l.trim().is_empty())
+                .map(str::to_string),
+        );
+    }
+    Ok(lines)
 }
 
 fn current_host() -> &'static str {

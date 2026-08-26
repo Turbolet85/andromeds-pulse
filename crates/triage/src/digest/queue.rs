@@ -165,41 +165,6 @@ impl LwwQueue {
             .map(|s| s.is_some())
             .unwrap_or(false)
     }
-
-    /// Drain everything currently queued (for L4 inference invocation).
-    /// Returns digests in priority order: Tier-1 first, then
-    /// active-incident bypass (per workspace), then default (per
-    /// workspace), then reflection (per workspace).
-    pub fn drain_all(&mut self) -> Vec<Digest> {
-        let mut out = Vec::new();
-        // Tier-1 first.
-        while let Some(d) = self.tier1.pop_front() {
-            out.push(d);
-        }
-        // Active-incident bypass next.
-        for (_workspace, queue) in self.active_incident_per_workspace.iter_mut() {
-            while let Some(d) = queue.pop_front() {
-                out.push(d);
-            }
-        }
-        self.active_incident_per_workspace
-            .retain(|_, q| !q.is_empty());
-        // Default cadence digests.
-        for (_workspace, slot) in self.default_per_workspace.iter_mut() {
-            if let Some(d) = slot.take() {
-                out.push(d);
-            }
-        }
-        self.default_per_workspace.retain(|_, s| s.is_some());
-        // Reflection digests last.
-        for (_workspace, slot) in self.reflection_per_workspace.iter_mut() {
-            if let Some(d) = slot.take() {
-                out.push(d);
-            }
-        }
-        self.reflection_per_workspace.retain(|_, s| s.is_some());
-        out
-    }
 }
 
 fn kind_label(d: &Digest) -> String {
@@ -371,44 +336,5 @@ mod tests {
             DigestKind::Reflection,
         ));
         assert!(matches!(r2, QueueAction::Replaced { .. }));
-    }
-
-    #[test]
-    fn drain_all_returns_tier1_first_then_bypass_then_default() {
-        let mut q = LwwQueue::new();
-        let _ = q.push(mk_digest(
-            "/ws/a",
-            DigestLwwMode::Default,
-            DigestKind::CadenceTier3,
-        ));
-        let _ = q.push(mk_digest(
-            "/ws/a",
-            DigestLwwMode::ActiveIncidentBypass,
-            DigestKind::CadenceTier3,
-        ));
-        let _ = q.push(mk_digest(
-            "/ws/a",
-            DigestLwwMode::Tier1NeverLww,
-            DigestKind::CadenceTier1,
-        ));
-        let drained = q.drain_all();
-        assert_eq!(drained.len(), 3);
-        assert_eq!(drained[0].lww_mode, DigestLwwMode::Tier1NeverLww);
-        assert_eq!(drained[1].lww_mode, DigestLwwMode::ActiveIncidentBypass);
-        assert_eq!(drained[2].lww_mode, DigestLwwMode::Default);
-    }
-
-    #[test]
-    fn drain_all_empties_state() {
-        let mut q = LwwQueue::new();
-        let _ = q.push(mk_digest(
-            "/ws/a",
-            DigestLwwMode::Default,
-            DigestKind::CadenceTier3,
-        ));
-        let _ = q.drain_all();
-        assert!(!q.default_slot_occupied("/ws/a"));
-        assert_eq!(q.active_incident_depth(), 0);
-        assert_eq!(q.tier1_depth(), 0);
     }
 }

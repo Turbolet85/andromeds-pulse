@@ -13,7 +13,7 @@ Cross-platform desktop app (Windows/macOS/Linux via Tauri 2) with 19 testable en
 | `run` | `cargo nextest run --workspace --profile ci --message-format libtest-json` |
 | `status` | TauRPC `health` via `tauri::test::mock_builder()` |
 | `cleanup` | `kill -TERM $(cat $PID_FILE)` + 5s wait + verify ports `:4317`/`:4318` released |
-| `logs` | `cat ~/.andromeda-pulse/logs/agent-latest.jsonl` (or `$ANDROMEDA_PULSE_DATA_DIR` fallback) |
+| `logs` | `tail -F` the newest match of the ROTATED family `agent-latest.jsonl*`, resolved across three precedence-ordered bases (`ANDROMEDA_PULSE_LOGFILE` / `$ANDROMEDA_PULSE_DATA_DIR/logs/`, then `~/.andromeda-pulse/logs/`, then the data-dir `logs/`) — never a bare name, never `*.log` (`rolling::daily` date-suffixes the sink) |
 
 ## Status endpoint shape (binding)
 ```json
