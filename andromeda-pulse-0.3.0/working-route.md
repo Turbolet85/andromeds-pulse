@@ -93,9 +93,7 @@ _Chunks separated by `   ↓` within an epoch; only `### Epoch K — {name}` hea
    ↓
 [2026-08-26-cadence-runaway-blocking-pool] Cadence runaway starves the blocking pool — the cue→cadence→digest loop stays bounded under sustained load, and the buffer keeps draining
    ↓
-[2026-08-26-l4-runtime-security-residuals] L4 runtime security residuals — the three product-consumed L4 path vars and the digest-derived `-p` argv prompt carry an enforced, stated guard: always-on traversal/length/canonicalize/regular-file hardening plus OPT-IN confinement under the new `ANDROMEDA_PULSE_L4_ALLOW_ROOT` (fail-closed when set-but-unresolvable), and a measured 16 KiB prompt ceiling whitelisting `
-
-	`. Opt-in, not defaulted, because the GGUF and `llama-cli.exe` live outside the data dir by design — so the exception NARROWS with a truthful ground rather than deleting, and the unconfined posture is announced once per boot instead of being a silent convention. Gave the zero-producer `interpretation.model.load.error` leaf its first live emit. Three smoke legs incl. the operator-directed POSITIVE arm (a legitimate out-of-tree model loads under an enforced root) — the does-not-brick proof the other two could not give. An operator coordinate measured FALSE and was corrected before landing: the dev-vs-bundled binary confusion cost ONE plan, not two
+[2026-08-26-l4-runtime-security-residuals] L4 runtime security residuals — the product's model/binary path inputs and its inference prompt argument carry a stated guard, not a convention
    ↓
 [2026-08-26-interpretation-brief-completeness] Interpretation brief completeness — an incident's report carries the model's hypotheses and real evidence ids, not "interpretation pending" and invented ones
    ↓

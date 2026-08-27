@@ -34,3 +34,6 @@
 - The wrap-directive-as-pre-resolved-dialogue shape worked well twice now (route adaptation 2026-08-25, this wrap): trajectory rulings arriving IN the invocation mean P5 halts zero times — but the coordinate-verification duty transfers wholesale to the wrap (two relayed values needed correction this session: a 1 ms timestamp, and earlier a "two consecutive plans" count).
 - Still open from prior wraps: the **deferral-destination generalization** (a capability whose `ref` defers evidence to another cap must be re-checked when that destination completes).
 - The **bindings clobber** ordering rule held this session (drift LAST after regen, staged-copy checked); the mechanical assertion is still owned by the Staged-bindings entry.
+
+## Session End Status
+Completed normally at 2026-08-27 18:59:30
