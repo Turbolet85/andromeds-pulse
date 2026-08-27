@@ -426,6 +426,7 @@ export function ReportRenderer({
           type="button"
           onClick={onCopyMarkdown}
           disabled={copyState === "copying"}
+          aria-busy={copyState === "copying"}
           data-testid="report-copy-markdown"
           data-copy-state={copyState}
           style={{

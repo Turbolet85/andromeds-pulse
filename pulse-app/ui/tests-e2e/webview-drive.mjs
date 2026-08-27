@@ -48,6 +48,10 @@ const CONNECTION_STATUS_LINE = '[data-testid="connection-status-line"]'
 const FINDINGS_COUNTER = '[data-testid="findings-counter"]'
 const FINDINGS_ROW = '[data-testid="findings-window-row"]'
 const MODAL_DIALOG = '[data-testid="modal-dialog"]'
+// The Copy control's accessible name CHANGES with copy state ("Copy markdown" /
+// "Copying…" / "Copied" / "Copy failed — retry"), so a name-bound selector is
+// unstable by construction — the sanctioned testid exception (test-plan §6).
+const REPORT_COPY = '[data-testid="report-copy-markdown"]'
 const INVESTIGATE = 'button[aria-label="Investigate"]'
 const CLOSE_TO_TRAY = 'button[aria-label="Close to tray"]'
 const TOGGLE_DASHBOARD = 'button[aria-label="Toggle dashboard"]'
@@ -925,6 +929,73 @@ async function main() {
         browser.$(MODAL_DIALOG).isExisting(),
       )
     }
+    // Stage 8b — report-copy: press the REAL Copy control while the report is
+    // open, and read the EFFECT field. A press that returns without throwing
+    // proves nothing here — `copyMarkdown` swallows a rejected clipboard write
+    // into component state, so the click succeeds identically whether or not
+    // the write was admitted. Runs before the Escape chain below, where the
+    // window is already open and focused: re-opening later would perturb the
+    // downstream stages that never asked for it.
+    let copyPressed = false
+    let copyState = null
+    let copyLive = null
+    if (dialogShown && (await switchToLabel(browser, 'report')) !== null) {
+      const copyButton = await browser.$(REPORT_COPY)
+      if (await copyButton.isExisting()) {
+        await copyButton.click()
+        copyPressed = true
+        // `data-copy-state` decays to `idle` after use-report.ts AUTO_RESET_MS
+        // (2s), so a late read discriminates nothing — poll for a TERMINAL
+        // value and latch the first one seen. The live region is
+        // visually-hidden (clip-rect), so read it through the DOM rather than
+        // getText(), which applies visibility semantics.
+        await pollUntil('copy state terminal', ABSENT_TIMEOUT_MS, async () => {
+          const seen = await browser.execute(() => {
+            const btn = globalThis.document.querySelector('[data-testid="report-copy-markdown"]')
+            const live = globalThis.document.querySelector('[data-testid="modal-live-region"]')
+            return {
+              state: btn?.getAttribute('data-copy-state') ?? null,
+              live: live?.textContent ?? null,
+            }
+          })
+          if (seen?.state === 'copied' || seen?.state === 'error') {
+            copyState = seen.state
+            copyLive = seen.live
+            return true
+          }
+          return false
+        })
+      }
+    }
+    // FAILURE-ONLY: name the rejection the product's catch swallows. Without
+    // it a red stage reports "copy_state: error" and nothing else, which is
+    // where this defect hid for weeks — the same opaque state covers a missing
+    // ACL grant, a stale binary, and a broken write alike. Runs only when the
+    // stage has already failed, and reports the resolved window/webview labels
+    // because the grant is matched against them.
+    let copyRejection = null
+    if (copyPressed && copyState === 'error') {
+      copyRejection = await browser.execute(async () => {
+        const meta = globalThis.__TAURI_INTERNALS__?.metadata
+        const where = `win=${meta?.currentWindow?.label} wv=${meta?.currentWebview?.label}`
+        try {
+          await globalThis.__TAURI_INTERNALS__.invoke('plugin:clipboard-manager|write_text', {
+            label: null,
+            text: 'diagnostic',
+          })
+          return `${where} :: raw write_text ALLOWED (rejection is not the ACL)`
+        } catch (err) {
+          return `${where} :: ${String(err?.message ?? err)}`
+        }
+      })
+    }
+    record('report-copy', copyPressed && copyState === 'copied', {
+      copy_pressed: copyPressed,
+      copy_state: copyState,
+      copy_live_message: copyLive,
+      copy_rejection: copyRejection,
+    })
+
     await switchToWidget(browser)
     let positionedBeside = false
     if (reportVisible) {

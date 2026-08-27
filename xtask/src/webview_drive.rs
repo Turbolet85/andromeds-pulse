@@ -94,6 +94,16 @@ pub const STAGES: &[Stage] = &[
         id: "report-window",
         what: "a findings row opens the report beside it; Esc unwinds with focus restored to the badge",
     },
+    // The Copy control was a DEAD AFFORDANCE until this stage existed: the
+    // `report` window was missing from clipboard.json's window list, so the
+    // webview's clipboard write was silently ACL-rejected and `copyMarkdown`
+    // swallowed it into component state. Nothing static catches that class —
+    // capability-drift parses procedures and never reads grants, and
+    // capability-widening-check covers only the three NEVER-widen caps.
+    Stage {
+        id: "report-copy",
+        what: "a real press of the report's Copy control reaches data-copy-state = copied",
+    },
     Stage {
         id: "investigate",
         what: "investigate.run_action.request reports status = success after a real press",
@@ -359,6 +369,10 @@ pub fn stage_halves(id: &str, records: &[Value], dom: &[Value]) -> StageHalves {
             obs: None,
             dom: Some(dom_report_window_ok(dom)),
         },
+        "report-copy" => StageHalves {
+            obs: None,
+            dom: Some(dom_report_copy_ok(dom)),
+        },
         "investigate" => StageHalves {
             obs: obs(records.iter().any(is_investigate_success)),
             dom: seen("investigate"),
@@ -589,6 +603,26 @@ fn dom_report_window_ok(dom: &[Value]) -> bool {
     ]
     .iter()
     .all(|field| stage_bool(&stage, field) == Some(true))
+}
+
+/// Report Copy control: the press must reach a COPIED terminal state, and the
+/// live region must announce it. Asserting `copy_pressed` alone would pass in
+/// both worlds — a webview clipboard write dropped by the ACL still resolves
+/// the click, which is the dead-affordance mode this stage exists to catch.
+/// `copy_state == "error"` is precisely the pre-fix reading, so it must fail.
+fn dom_report_copy_ok(dom: &[Value]) -> bool {
+    let Some(stage) = dom_stage(dom, "report-copy") else {
+        return false;
+    };
+    let copied = stage
+        .get("copy_state")
+        .and_then(Value::as_str)
+        .is_some_and(|s| s == "copied");
+    let announced = stage
+        .get("copy_live_message")
+        .and_then(Value::as_str)
+        .is_some_and(|m| m.contains("copied to clipboard"));
+    stage_bool(&stage, "copy_pressed") == Some(true) && copied && announced
 }
 
 /// Widget↔dashboard toggle (P-066): every press must FLIP the visibility it
@@ -1270,6 +1304,38 @@ mod tests {
             "docked_below": true, "row_count": 0
         })]);
         assert!(!dom_findings_window_ok(&no_rows));
+    }
+
+    #[test]
+    fn report_copy_requires_a_copied_terminal_state() {
+        let good = dom(vec![json!({
+            "stage": "report-copy", "observed": true,
+            "copy_pressed": true, "copy_state": "copied",
+            "copy_live_message": "Report copied to clipboard."
+        })]);
+        assert!(dom_report_copy_ok(&good));
+    }
+
+    #[test]
+    fn a_pressed_but_rejected_copy_fails_report_copy() {
+        // The pre-fix reading: the ACL drops the clipboard write, the click
+        // still resolves, and `copyMarkdown` swallows it into copyState.
+        // A predicate keyed on the press alone would pass here — which is the
+        // whole reason this stage keys on the effect field instead.
+        let rejected = dom(vec![json!({
+            "stage": "report-copy", "observed": true,
+            "copy_pressed": true, "copy_state": "error",
+            "copy_live_message": "Failed to copy report to clipboard."
+        })]);
+        assert!(!dom_report_copy_ok(&rejected));
+        // A press that never landed, and a copy that never reached a terminal
+        // state before the 2s auto-reset, are both red for the same reason:
+        // no evidence the write was admitted.
+        let never_pressed = dom(vec![json!({
+            "stage": "report-copy", "observed": false,
+            "copy_pressed": false, "copy_state": null, "copy_live_message": null
+        })]);
+        assert!(!dom_report_copy_ok(&never_pressed));
     }
 
     #[test]
