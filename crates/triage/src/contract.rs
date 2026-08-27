@@ -135,16 +135,17 @@ pub use crate::baseline::{
 // Capabilities P-031 / P-032 / P-044 / P-059.
 pub use crate::digest::{
     ACTIVE_INCIDENT_QUEUE_CAP, Assembler, BROADCAST_CAPACITY as DIGEST_BROADCAST_CAPACITY,
-    CORPUS_RETRIEVAL_WINDOW_SECONDS, CorpusIncidentSource, DIGEST_CORPUS_RETRIEVAL_LIMIT,
-    DIGEST_TOKEN_BUDGET_HARD_CAP, DIGEST_TOKEN_BUDGET_SOFT_MAX, DIGEST_TOKEN_BUDGET_SOFT_MIN,
-    DigestAssembler, DigestBroadcast, DigestError, DigestFuture, LwwQueue,
+    CORPUS_RETRIEVAL_WINDOW_SECONDS, CorpusIncidentSource, DAMPER_CUE_EVICTION_SECONDS,
+    DAMPER_INTERVAL_EVICTION_SECONDS, DIGEST_CORPUS_RETRIEVAL_LIMIT, DIGEST_TOKEN_BUDGET_HARD_CAP,
+    DIGEST_TOKEN_BUDGET_SOFT_MAX, DIGEST_TOKEN_BUDGET_SOFT_MIN, DamperVerdict, DigestAssembler,
+    DigestBroadcast, DigestError, DigestFuture, GenerateReason, GenerationDamper, LwwQueue,
     NoopCorpusIncidentSource, QueueAction, RetrievalError, RetrievalFuture, STREAM_NAME_DIGESTS,
     TARGET_DIGEST_ASSEMBLE, TARGET_DIGEST_CORPUS_RETRIEVE, TARGET_DIGEST_LWW_DROP,
     TARGET_DIGEST_LWW_REPLACE, TARGET_DIGEST_TOKEN_COUNT_VALIDATE,
     TARGET_METRIC_ACTIVE_INCIDENT_QUEUE_DEPTH, TARGET_METRIC_DIGEST_TOKEN_COUNT_MS,
     TARGET_METRIC_LWW_DROP_COUNT_TOTAL, TIER1_QUEUE_CAP,
     assembler::{DigestProjectContext, DigestRecentCommit},
-    format_corpus_match_line, select_corpus_matches, select_previously_seen,
+    format_corpus_match_line, generate_reason_label, select_corpus_matches, select_previously_seen,
 };
 
 /// Lowercase-hex encode raw fingerprint bytes (the `{b:02x}` shape used
@@ -263,7 +264,7 @@ pub enum IncidentStatus {
 /// Chunk #81 extension: cadence-mode tier variants
 /// (`CadenceTier1`/`Tier2`/`Tier3`/`Reflection`) + `ResolutionSummary`
 /// per dist-arch v3 §L3 invocation modes + §Queue behavior.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum DigestKind {
     Snapshot,

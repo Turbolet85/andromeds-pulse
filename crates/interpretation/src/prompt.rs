@@ -59,7 +59,7 @@ fn push_citable_ids_section(prompt: &mut String, citable_evidence_ids: &[String]
     prompt.push_str(CITABLE_OPEN_MARKER);
     prompt.push('\n');
     if citable_evidence_ids.is_empty() {
-        prompt.push_str("(none — emit an empty evidence_refs array)");
+        prompt.push_str("(none - emit an empty evidence_refs array)");
     } else {
         for (idx, id) in citable_evidence_ids.iter().enumerate() {
             if idx > 0 {
@@ -145,8 +145,8 @@ Do not emit explanatory prose before or after the JSON object.";
 const ROLE_DEFINITION_REFLECTION: &str = "\
 You are a severity classifier reviewing a 30-minute cumulative window of \
 local OpenTelemetry telemetry for a local triage assistant. Your job is to \
-detect emergent patterns, drift, and recurring signatures ACROSS the window \
-— not to react to a single acute event. Weigh whether the cumulative trend \
+detect emergent patterns, drift, and recurring signatures ACROSS the window, \
+not to react to a single acute event. Weigh whether the cumulative trend \
 warrants surfacing to the developer, dismissing as noise, or watching for \
 further evolution. Default to the \"curious\" severity (record for pattern \
 learning, no interruption) UNLESS you identify a high-confidence cumulative \
@@ -769,6 +769,40 @@ mod tests {
     }
 
     #[test]
+    fn composed_prompt_templates_are_ascii_clean_for_argv_transport() {
+        // The prompt travels to llama-cli as an argv operand, and the
+        // b9305 Windows build decodes argv through the ANSI codepage: a
+        // non-ASCII template character (a single U+2014 em-dash in the
+        // reflection role, pre-fix) reaches the subprocess as a lone
+        // codepage byte and comes back in stdout as invalid UTF-8 —
+        // failing EVERY reflection generation (22/22 measured over the
+        // 11h record). Template text therefore stays ASCII; digest
+        // content is scrubbed upstream and out of scope here.
+        for (label, prompt) in [
+            (
+                "primary",
+                build_primary_tier_prompt("digest", "project", "", &[]),
+            ),
+            (
+                "fallback",
+                build_fallback_tier_prompt("digest", "project", "", &[]),
+            ),
+            (
+                "reflection",
+                build_reflection_tier_prompt("digest", "project", "", &[]),
+            ),
+        ] {
+            let non_ascii: Vec<char> = prompt.chars().filter(|c| !c.is_ascii()).collect();
+            assert!(
+                non_ascii.is_empty(),
+                "{label} prompt template carries non-ASCII chars {non_ascii:?} — \
+                 they cross the Windows ANSI argv boundary as codepage bytes and \
+                 poison llama-cli stdout as invalid UTF-8",
+            );
+        }
+    }
+
+    #[test]
     fn reflection_prompt_instructs_default_curious() {
         // L5 surfacing contract (source §96): reflection incidents default
         // to curious unless the model finds a high-confidence pattern.
@@ -859,7 +893,7 @@ mod tests {
             build_reflection_tier_prompt("digest", "project", "", &[]),
         ] {
             assert!(prompt.contains("# Citable Evidence Ids"));
-            assert!(prompt.contains("(none — emit an empty evidence_refs array)"));
+            assert!(prompt.contains("(none - emit an empty evidence_refs array)"));
         }
     }
 

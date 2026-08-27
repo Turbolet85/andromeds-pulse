@@ -349,3 +349,18 @@ bumped" and the bans/licenses/sources gate is green, so the escalate condition i
 **Section:** §Security Anti-Patterns → Logging → Uniform scrubber coverage (MEASURED-reality enumeration)
 **Change:** The corpus-persist enumeration gains the incident-summary write boundary: `Incident.resolution_summary_text` holds a `scrub_attribute`-scrubbed JSON projection of the parsed `L4Output`, written at THREE paths — incident creation, dedupe re-generation refresh, and the resolution-summary final write (`scrubbed_l4_json` in `pulse-app/src/inference_runtime.rs`) — with `ScrubbedValue::Redacted` collapsing to the category marker in place (honest-degraded: the report renders the pending notice, never fabricated content). Ring-buffer five-cell set, the 8-category catalog, and the `exception_type` / producer-less exclusions are unchanged.
 **Why:** report §Changes → BEHAVIOR + the attach-seam coverage row; the enumeration previously listed only Drain/Baseline/ServiceRegistry/RetryStorm persists + ring-buffer cells, so its coverage set was stale for a store boundary this chunk changed. The restating sites (§Threat Model / §Data Protection → At rest) carry only the categorical every-corpus-write claim, which this extends rather than retires — no dependent edits owed there.
+
+## 2026-08-27-idle-observer-generation-damper — L4-argv measurement re-base + inference.error posture extension
+**Section:** §Input Validation → L4 inference argv prompt row
+**Change:** The prompt-byte measurement context re-based: the 6715..=6830 B figure is re-labelled the 2026-08-26 sustained-leg reading, joined by the 2026-08-27 damper-chunk readings (reflection 6,932 B — the new observed maximum; sparse-digest v2.2 legs 6,386–6,387 B), all stated as session measurement notes, never bounds (~2.4× headroom now cited against 6,932 B, ~9.2 KiB). Same row extended: `interpretation.inference.error` also carries the two formerly-SILENT `InferenceFailed` sites (`io_error` / `stdout_utf8_invalid`) as bounded categories with no output bytes.
+**Why:** the chunk's live legs measured a reflection prompt above the documented range's upper end (report §Counts / qualifiers moved), and the CARRY de-silenced the two error sites (report §Tracing / allowlist surface) — the row's redaction-posture claim was incomplete without them.
+
+## 2026-08-27-idle-observer-generation-damper — Code Patterns duplicate re-based in lockstep
+**Section:** §Security Anti-Patterns → Code Patterns (the argv-ban L4 `-p` bound sentence)
+**Change:** The duplicate prompt-byte claim re-based to the 6,932 B observed maximum (2026-08-27 reflection), keeping the 2026-08-26 sustained range as context, flagged as measurement notes.
+**Why:** the §Input Validation row's retired wording was restated verbatim here (dependent-of the primary re-base); a single-site apply would have left the stale range alive in the bans section.
+
+## 2026-08-27-idle-observer-generation-damper — standing-deferral point 49 discharged
+**Section:** §Dependency Security → Standing deferral — `cargo audit` unrunnable
+**Change:** Recorded the session-49 discharge (probe RAN, exit read DIRECTLY = 1, basis byte-identical, overlap re-enumerated first-hand: `bans licenses sources` exit 0; `advisories` exit 1 at the SAME 8 DISTINCT ids, fifth consecutive unchanged probe); next interval point 52.
+**Why:** the interval clause said "next at session 49" — this wrap IS session 49 and ran the full-form probe (report §Outcome criterion 8); the no-op-path this-wrap-fact channel sanctions recording it.

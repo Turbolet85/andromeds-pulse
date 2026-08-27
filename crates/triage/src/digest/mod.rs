@@ -26,11 +26,16 @@
 
 pub(crate) mod assembler;
 pub(crate) mod broadcast;
+pub(crate) mod damper;
 pub(crate) mod queue;
 pub(crate) mod retrieval;
 
 pub use assembler::{Assembler, DigestAssembler, DigestFuture};
 pub use broadcast::{BROADCAST_CAPACITY, DigestBroadcast, STREAM_NAME_DIGESTS};
+pub use damper::{
+    DAMPER_CUE_EVICTION_SECONDS, DAMPER_INTERVAL_EVICTION_SECONDS, DamperVerdict, GenerateReason,
+    GenerationDamper, generate_reason_label,
+};
 pub use queue::{ACTIVE_INCIDENT_QUEUE_CAP, LwwQueue, QueueAction, TIER1_QUEUE_CAP};
 pub use retrieval::{
     CORPUS_RETRIEVAL_WINDOW_SECONDS, CorpusIncidentSource, NoopCorpusIncidentSource,

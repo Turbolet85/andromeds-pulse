@@ -37,9 +37,9 @@ use security::scrubber::{ScrubbedValue, scrub_attribute};
 use tokio::sync::broadcast::error::RecvError;
 use tokio::task::JoinHandle;
 use triage::contract::{
-    CueKind, CueScope, Digest, DigestBroadcast, DigestKind, EvidenceRefs, Incident,
-    IncidentPersistence, IncidentRegistry, IncidentStatus, PriorityTier,
-    Severity as IncidentSeverity,
+    CueKind, CueScope, DamperVerdict, Digest, DigestBroadcast, DigestKind, EvidenceRefs,
+    GenerationDamper, Incident, IncidentPersistence, IncidentRegistry, IncidentStatus,
+    PriorityTier, Severity as IncidentSeverity, generate_reason_label,
 };
 
 /// Tracing target — top-level L4 inference request span (per L3 digest).
@@ -67,6 +67,11 @@ pub const TARGET_METRIC_L4_INFERENCE_QUEUE_DEPTH: &str = "metric.pipeline.l4.inf
 /// Tracing target — L4 inference skipped due to active degraded-mode
 /// backoff window (chunk #86).
 pub const TARGET_L4_INFERENCE_SKIPPED: &str = "interpretation.inference.skipped";
+/// Tracing target — generation-damper state transitions. ONCE per
+/// engage (first suppression of a run) and once per release (the
+/// generate ending a run) — never per decision, per obs-plan §11
+/// hot-path discipline. Aggregate/bounded fields only.
+pub const TARGET_L4_DAMPER_TRANSITION: &str = "interpretation.generation.damper";
 /// Tracing target — resolution-summary persist failures (chunk #86).
 /// Sanitized error_category only.
 pub const TARGET_L4_RESOLUTION_SUMMARY_PERSIST_ERROR: &str =
@@ -139,6 +144,7 @@ pub fn spawn_l4_inference_subscriber(
     degraded_mode: Arc<dyn DegradedModeStatus>,
     incident_registry: Arc<dyn IncidentRegistry>,
     incident_persistence: Arc<dyn IncidentPersistence>,
+    damper: Arc<GenerationDamper>,
 ) -> JoinHandle<()> {
     tokio::spawn(async move {
         let mut rx = digest_broadcast.subscribe();
@@ -146,49 +152,16 @@ pub fn spawn_l4_inference_subscriber(
             match rx.recv().await {
                 Ok(digest) => {
                     let now = current_unix_nanos();
-                    if degraded_mode.is_in_backoff(now) {
-                        let snap = degraded_mode.current_snapshot(now);
-                        let tier_label = interpretation::contract::model_tier_label(runner.tier());
-                        tracing::info!(
-                            target: TARGET_L4_INFERENCE_SKIPPED,
-                            reason = "backoff_active",
-                            model_tier = tier_label,
-                            backoff_seconds_remaining = snap.backoff_seconds_remaining,
-                            "L4 inference skipped due to active backoff window",
-                        );
-                        continue;
-                    }
-                    let outcome = handle_digest_outcome(&*runner, &digest).await;
-                    match &outcome {
-                        L4DigestOutcome::Success(parsed) => {
-                            degraded_mode.record_success(now);
-                            if matches!(digest.kind, DigestKind::ResolutionSummary)
-                                || parsed.is_resolution_summary
-                            {
-                                attach_resolution_summary_to_incident(
-                                    incident_registry.as_ref(),
-                                    incident_persistence.as_ref(),
-                                    &digest.incident_refs,
-                                    parsed,
-                                    now,
-                                );
-                            } else {
-                                create_incident_from_l4_output(
-                                    incident_registry.as_ref(),
-                                    incident_persistence.as_ref(),
-                                    &digest,
-                                    parsed,
-                                    now,
-                                );
-                            }
-                        }
-                        L4DigestOutcome::ParseFailure
-                        | L4DigestOutcome::SchemaViolation
-                        | L4DigestOutcome::OutputTooLarge
-                        | L4DigestOutcome::RuntimeError => {
-                            degraded_mode.record_failure(now);
-                        }
-                    }
+                    process_digest(
+                        &*runner,
+                        &*degraded_mode,
+                        incident_registry.as_ref(),
+                        incident_persistence.as_ref(),
+                        &damper,
+                        &digest,
+                        now,
+                    )
+                    .await;
                 }
                 Err(RecvError::Lagged(skipped)) => {
                     tracing::warn!(
@@ -204,6 +177,101 @@ pub fn spawn_l4_inference_subscriber(
             }
         }
     })
+}
+
+/// Single-digest processing pass: backoff gate → generation damper →
+/// generation → outcome handling. Extracted from the subscriber loop so
+/// integration tests can drive it without the broadcast machinery.
+/// Returns the outcome when a generation ran; `None` when the digest was
+/// skipped (active backoff, or damper suppression of unchanged input).
+///
+/// The damper is consulted AFTER the backoff gate and its key is updated
+/// ONLY on `L4DigestOutcome::Success` — a failed generation must never
+/// mark its content analyzed (a failing kind would self-suppress after
+/// one attempt).
+pub async fn process_digest(
+    runner: &dyn LlmInferenceRunner,
+    degraded_mode: &dyn DegradedModeStatus,
+    incident_registry: &dyn IncidentRegistry,
+    incident_persistence: &dyn IncidentPersistence,
+    damper: &GenerationDamper,
+    digest: &Digest,
+    now: i64,
+) -> Option<L4DigestOutcome> {
+    if degraded_mode.is_in_backoff(now) {
+        let snap = degraded_mode.current_snapshot(now);
+        let tier_label = interpretation::contract::model_tier_label(runner.tier());
+        tracing::info!(
+            target: TARGET_L4_INFERENCE_SKIPPED,
+            reason = "backoff_active",
+            model_tier = tier_label,
+            backoff_seconds_remaining = snap.backoff_seconds_remaining,
+            "L4 inference skipped due to active backoff window",
+        );
+        return None;
+    }
+    match damper.decide(digest, now) {
+        DamperVerdict::Suppress { engaged, run_len } => {
+            if engaged {
+                tracing::info!(
+                    target: TARGET_L4_DAMPER_TRANSITION,
+                    decision = "engaged",
+                    reason = "unchanged_digest",
+                    digest_kind = digest_kind_label(digest),
+                    suppressed_run_len = run_len,
+                    "generation damper engaged — unchanged digest, generation suppressed",
+                );
+            }
+            return None;
+        }
+        DamperVerdict::Generate {
+            reason,
+            released_run_len,
+        } => {
+            if released_run_len > 0 {
+                tracing::info!(
+                    target: TARGET_L4_DAMPER_TRANSITION,
+                    decision = "released",
+                    reason = generate_reason_label(reason),
+                    digest_kind = digest_kind_label(digest),
+                    suppressed_run_len = released_run_len,
+                    "generation damper released — digest content changed",
+                );
+            }
+        }
+    }
+    let outcome = handle_digest_outcome(runner, digest).await;
+    match &outcome {
+        L4DigestOutcome::Success(parsed) => {
+            degraded_mode.record_success(now);
+            damper.record_generated(digest, now);
+            if matches!(digest.kind, DigestKind::ResolutionSummary) || parsed.is_resolution_summary
+            {
+                attach_resolution_summary_to_incident(
+                    incident_registry,
+                    incident_persistence,
+                    &digest.incident_refs,
+                    parsed,
+                    now,
+                );
+            } else {
+                create_incident_from_l4_output(
+                    incident_registry,
+                    incident_persistence,
+                    digest,
+                    parsed,
+                    now,
+                );
+            }
+        }
+        L4DigestOutcome::ParseFailure
+        | L4DigestOutcome::SchemaViolation
+        | L4DigestOutcome::OutputTooLarge
+        | L4DigestOutcome::RuntimeError => {
+            degraded_mode.record_failure(now);
+        }
+    }
+    Some(outcome)
 }
 
 /// Wall-clock unix-nano helper. Mirrors `pulse-app/src/diagnostics_router.rs`
@@ -223,6 +291,7 @@ pub fn current_unix_nanos() -> i64 {
 /// constraint aggregate-only discipline.
 pub fn spawn_l4_backoff_remaining_heartbeat(
     degraded_mode: Arc<dyn DegradedModeStatus>,
+    damper: Arc<GenerationDamper>,
 ) -> JoinHandle<()> {
     tokio::spawn(async move {
         let mut ticker = tokio::time::interval(DEFAULT_QUEUE_DEPTH_TICK_INTERVAL);
@@ -231,9 +300,13 @@ pub fn spawn_l4_backoff_remaining_heartbeat(
             ticker.tick().await;
             let now = current_unix_nanos();
             let snap = degraded_mode.current_snapshot(now);
+            // Damper counters ride this existing heartbeat as tick-
+            // aggregated fields (obs-plan §11 bars per-decision records).
             tracing::info!(
                 target: TARGET_METRIC_L4_BACKOFF_REMAINING_SECONDS,
                 value = snap.backoff_seconds_remaining,
+                generations_suppressed_total = damper.generations_suppressed_total(),
+                generations_run_total = damper.generations_run_total(),
                 "L4 backoff remaining heartbeat",
             );
         }

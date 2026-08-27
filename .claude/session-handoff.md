@@ -1,39 +1,29 @@
 # Session Handoff
 
-**Last Updated:** 2026-08-27T16:53:04Z
-**Branch:** chore/migrate-pulse-to-v3 (tracks `origin/chore/migrate-pulse-to-v3`; 31 ahead before this commit — unpushed)
+**Last Updated:** 2026-08-27T20:27:14Z
+**Branch:** chore/migrate-pulse-to-v3 (tracks `origin/chore/migrate-pulse-to-v3`; 34 ahead after this wrap's commit — unpushed)
 **Status:** clean (wrapped)
-**Last Commit:** `feat(2026-08-26-interpretation-brief-completeness): a clean parse reaches the report and citing becomes copying`
+**Last Commit:** `feat(2026-08-27-idle-observer-generation-damper): unchanged conditions stop re-generating and reflection produces its first generation`
 
 ## Position
-- Done: **2026-08-26-interpretation-brief-completeness** — the latest cleanly-parsed L4Output attaches at incident creation + refreshes on dedupe (reusing `resolution_summary_text`; zero wire change, so the MCP sidecar picked it up purely from data), and the prompt carries the digest cues' real full-hex fingerprints behind a copy-don't-invent instruction. Live-proven twice: fresh-leg cross-process (`degraded_mode: false`, the model COPIED the cue fingerprint — slice `fingerprint_refs` == exactly the cited id) and the operator judgment leg (verdict: MET; two nuances recorded — the 3B Timeline self-incoherence note, and the Copy-control live failure now owning a route entry).
-- Next (first markerless): **Idle-observer generation damper** — HIGH priority (operator ruling 2026-08-27): 11h08m on zero ingest burned 3,680 generations / 4.35 GPU-h / 39.1% duty, driver `service_went_silent` → tier1 at 5/min (5 services × 60s CueLatch refractory, triple-locked); auto-resolve defeated by churn (59 incidents/day, ~5 active population permanent). Design directions carried operator-open (content-hash damper · growing refractory · stopped-source semantics · no benign-window reset on unchanged re-emission). CARRY: reflection emitted 0 digests in 11h. **Carries the audit PREREQ — next interval point 49: the probe RUNS at that wrap** (session 48 was an interval skip with basis+overlap re-verified first-hand, same 8 ids).
-- Then: **Report-window Copy affordance** (clipboard.json windows list lacks `report` — measured; one-line grant + a press-copy gate candidate) · Ingest consumer initiating freeze · Halo canvas disposition · Advisory backlog (+`strict-path` CARRY) · npm advisory coverage · Diagnostics un-muting (+NEW CARRY: `incident_events` records only `created` — 59×1 measured) · Staged-bindings assertion · Metrics label surface.
+- Done: **2026-08-27-idle-observer-generation-damper** — subscriber-gate `GenerationDamper` (condition identity `(workspace, kind, cue-tuple)`, projection excludes corpus-churn fields, success-only record, per-kind eviction 300s/3900s): RED 6 gens/min on unchanged silence → GREEN ~0 (24 suppressed, engage/release transitions on the new exact leaf `interpretation.generation.damper`); auto-resolve convergence 5→0 STAYED 0 (churn closed upstream — no generation → no `updated_at` bump). Reflection CARRY fully discharged: root cause = llama.cpp b9305 Windows ANSI argv transcoding non-ASCII template chars (U+2014→0x97 → invalid-UTF-8 stdout); all-template-ASCII discipline + pin landed; **first successful reflection generation ever** (real model, clean parse).
+- Next (first markerless): **Report-window Copy affordance** — carries the audit PREREQ (pin #16, next interval point **52**; sessions 50–51 are between-points: re-verify basis+overlap, record `probe skipped per ratified interval (next: 52)`).
+- Then (operator-placed 2nd this wrap): **Incident persist-vs-resolve write race** — NEW entry, owns the fix for intake-#12 (Diagnostics-sweep CARRY annotated mechanism-found). Evidence verbatim on the entry: persist cycle completed 19:21:59.942 count=5 dur=74ms vs resolutions at 19:21:59.87; the 11h record's eternally-active row #2 carries the same signature; both tasks spawned ~34ms apart at boot.
 
 ## Work done
-**The chunk (all 11 acceptance criteria MET).** RED-first pins captured live (3 red at HEAD → green post-fix); 4 mutation checks all discriminating; nextest **2004/2004 + 1 skip** (+16 = the pins exactly); clippy all-features 0 warnings; widening/ingest-progress/drift clean; deny bans-licenses-sources exit 0, advisories designed-red at the same 8 DISTINCT ids; webview-drive **15/15**; sustained real-L4 leg green (11/11 parses on live v2.2 prompts 6,715–6,830 B, 0 ERROR/panic across the full 11.7M-line session log). Two pre-existing pins had pinned the OLD contract and were STRENGTHENED (e2e_p3 `:536`, producer `:229`); a runner-dependent flake fixed via `set_global_default` + sibling-robust asserts; `unit_inference_runtime.rs` + `integration_real_llama_cli.rs` joined the touch set (version labels; a 4th builder caller).
-
-**The observation arc (operator-directed, findings → route not amendments).** The P4 GREEN-leg app ran **11h08m on zero ingest**; whole data dir preserved durably at `D:/dev/evidence/pulse-l4run-20260827-064312/` (4.05 GB log · 27.9 MB corpus · `analysis/attribution-11h.txt` · `repro-legs/`). Both operator hypotheses falsified (dedupe-attach produces no generations; reflection produced zero digests). Leg-4 reproduction deliberately ABORTED (operator ruling): partials stated — 18 generations, 2 incidents, boot 16:18Z → tray-quit 16:32Z, injector completed its bound, ports released.
+All 12 acceptance criteria MET. nextest **2024/2024 + 1 skip** (+20 = the pins exactly) · clippy all-features 0 warnings · widening/ingest-progress clean · webview-drive **15/15** · mcp-bindings regen → capability-drift clean LAST (staged copy checked). Three live legs: RED (6/min baseline), GREEN (18 total, 24 suppressed, 0 ERROR, heartbeat-gap PASS), reflection ×2 (root-cause + first-generation proof). Overseer diff counts re-derived first-hand: schema.json −4 non-ASCII lines exactly; prompt.rs −3 including the line beginning with U+2014.
 
 ## Drift resolved
-**8 amendments across 3 masters · 0 escalations · drift = 0.**
-- **arch ×2** — the `ANDROMEDA_PULSE_L4_DETERMINISTIC` degraded_mode clause retired → creation+dedupe attach mechanism + producer-union restatement; [Fault Identity] L1 blast radius extended ("reaches no rendered surface" retired — fingerprints now reach the prompt + MCP refs + Report Evidence; the FIELD itself stays unrendered).
-- **security-plan ×3** — L4-argv row + Code Patterns duplicate site re-based on the live 6,715–6,830 B measurement (~2.4×, ~9.5 KiB headroom) with the citable section joining the content set; the scrub enumeration gains the incident-summary write boundary (three write paths, Redacted → category marker).
-- **test-plan ×3** (one dependent group) — `interpretation` registered at §2 Unit row · §4 file-location list · §4 What-unit-tests-cover (new bullet), per the corpus/triage/security precedent.
-- **Cascade:** retired wordings confined to the amended sites (grep-swept with known-present controls); all leaves verified-and-correctly-skipped; one preserve-verbatim hit routed to curation (below). 4 docs clean (design/layouts/obs/a11y).
+**7 applied (5 detector + 2 orchestrator-raised) across 3 masters · 0 escalations · drift = 0.** security-plan ×3 (L4-argv re-base to observed max 6,932 B; Code Patterns lockstep; audit point-49 discharge, next 52) · test-plan ×2 (§1 trigger rows: damper-shared-instance-wiring, llamacli-inference-error-emission) · obs-plan ×2 (§8 fresh leaf registrations: damper leaf + backoff-heartbeat 1→3 fields). Cascade: rules/security.md (deferral chain + Session Addition) · rules/observability.md (damper leaf bullet). 4 docs clean.
 
 ## Notes
-- **Curation:** T2 2 (testing.md runner-flake second-mechanism extension; security.md wire-compat-must-name-the-codec entry) + 1 in-place correction (testing.md 2026-08-16 entry clause (b) — the degraded_mode mechanism moved this chunk). 4 rejected. CLAUDE.md untouched at **156/200**.
-- **Coverage:** this chunk claimed 0 caps (as linked at phase); version stays **21/22 verified, P-075 pooled** (Conductor's).
-- **PREREQ record (session 48):** `cargo audit` **probe skipped per ratified interval (next: 49)** — basis + overlap re-verified first-hand, 8 DISTINCT ids unchanged.
-- The wrap-directive's overseer numbers were re-derived first-hand before entering durable artifacts: 7,360 records / 3,680 generations exact; first silence cue **05:43:36.480Z** (the relayed .479 was 1 ms off — immaterial, first-hand value cited).
-- Audit trail: `.andromeda/runs/2026-08-27T16-37-11Z-wrap/` (+ the phase run dir `2026-08-26T19-30-00Z-phase/`).
+- **Curation:** T2 1 (security.md ASCII-argv-template entry) · T3 1 (session-learnings stale-snapshot persist race) · filtered 4. CLAUDE.md untouched at 156/200.
+- **Coverage:** chunk claimed 0 caps; version stays **21/22 verified, P-075 pooled** (Conductor's).
+- **Audit PREREQ (session 49):** probe **RAN full form** — true exit 1 direct under cargo-audit 0.22.2, basis byte-identical, `bans licenses sources` exit 0, advisories designed-red at the same **8 DISTINCT ids** (0189/0190/0194/0195/0204/0222/0253/0258), fifth consecutive identical. Next point **52**.
+- Wrap-directive items all landed: race own-entry (operator placed 2nd) · intake-#12 mechanism-found annotation · milestone stated plainly in the report.
+- Audit trail: `.andromeda/runs/2026-08-27T20-04-28Z-wrap/` (+ phase run dir `2026-08-27T17-17-08Z-phase/`).
 - Last failed command: none.
 
 ## Deferred learnings
-- The wrap-directive-as-pre-resolved-dialogue shape worked well twice now (route adaptation 2026-08-25, this wrap): trajectory rulings arriving IN the invocation mean P5 halts zero times — but the coordinate-verification duty transfers wholesale to the wrap (two relayed values needed correction this session: a 1 ms timestamp, and earlier a "two consecutive plans" count).
+- The pin-numbering chain on the audit PREREQ is now #16; re-derive the count from the route line, never carry it from memory.
 - Still open from prior wraps: the **deferral-destination generalization** (a capability whose `ref` defers evidence to another cap must be re-checked when that destination completes).
-- The **bindings clobber** ordering rule held this session (drift LAST after regen, staged-copy checked); the mechanical assertion is still owned by the Staged-bindings entry.
-
-## Session End Status
-Completed normally at 2026-08-27 18:59:30

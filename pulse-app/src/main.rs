@@ -1412,6 +1412,11 @@ fn main() {
                         // attachment happens in-memory but the durable
                         // write is deferred — defensive skip prevents
                         // None unwrap on Path A non-corpus boot).
+                        // Generation damper — shared by the L4 subscriber
+                        // (the unchanged-input gate) and the backoff
+                        // heartbeat (cumulative counters as tick fields).
+                        let generation_damper =
+                            Arc::new(triage::contract::GenerationDamper::new());
                         if let Some(persistence) = incident_persistence_for_persist.as_ref() {
                             pulse_app::inference_runtime::spawn_l4_inference_subscriber(
                                 Arc::clone(&digest_broadcast),
@@ -1419,6 +1424,7 @@ fn main() {
                                 Arc::clone(&degraded_mode_for_subscriber),
                                 Arc::clone(&incident_registry_for_persist),
                                 Arc::clone(persistence),
+                                Arc::clone(&generation_damper),
                             );
                         } else {
                             tracing::warn!(
@@ -1429,6 +1435,7 @@ fn main() {
                         pulse_app::inference_runtime::spawn_l4_queue_depth_heartbeat(|| 0);
                         pulse_app::inference_runtime::spawn_l4_backoff_remaining_heartbeat(
                             Arc::clone(&degraded_mode_for_heartbeat),
+                            Arc::clone(&generation_damper),
                         );
                         tracing::info!(
                             target: "digest.runtime.boot",

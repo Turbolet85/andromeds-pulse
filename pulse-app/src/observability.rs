@@ -2125,6 +2125,17 @@ impl AllowList {
                 .copied()
                 .collect(),
         );
+        // Generation-damper state transitions (idle-observer damper).
+        // ONCE per engage/release, never per decision; bounded labels +
+        // one aggregate numeric. Exact leaf — the bare `interpretation`
+        // key must never serve this target.
+        by_target.insert(
+            "interpretation.generation.damper",
+            ["decision", "reason", "digest_kind", "suppressed_run_len"]
+                .iter()
+                .copied()
+                .collect(),
+        );
         by_target.insert(
             "interpretation.resolution_summary.persist.error",
             ["error_category"].iter().copied().collect(),
@@ -2139,7 +2150,14 @@ impl AllowList {
         );
         by_target.insert(
             "metric.pipeline.l4.backoff_remaining_seconds",
-            ["value"].iter().copied().collect(),
+            [
+                "value",
+                "generations_suppressed_total",
+                "generations_run_total",
+            ]
+            .iter()
+            .copied()
+            .collect(),
         );
         by_target.insert(
             "interpretation.incident.created",

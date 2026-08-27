@@ -813,9 +813,22 @@ impl LlmInferenceRunner for LlamaCliInference {
                 }
             };
 
-            let status = status_result.map_err(|_| InferenceError::InferenceFailed {
-                reason: "io_error".to_string(),
-            })?;
+            let status = match status_result {
+                Ok(status) => status,
+                Err(_) => {
+                    tracing::warn!(
+                        target: "interpretation.inference.error",
+                        model_tier = interpretation::contract::model_tier_label(self.tier),
+                        hardware_profile = profile_label(self.profile),
+                        error_category = "io_error",
+                        recovery_action = "skip_digest",
+                        "llama-cli subprocess wait failed",
+                    );
+                    return Err(InferenceError::InferenceFailed {
+                        reason: "io_error".to_string(),
+                    });
+                }
+            };
 
             if stdout_bytes.len() > LLAMA_CLI_MAX_OUTPUT_BYTES {
                 return Err(InferenceError::OutputTooLarge {
@@ -841,10 +854,22 @@ impl LlmInferenceRunner for LlamaCliInference {
                 });
             }
 
-            let stdout_string =
-                String::from_utf8(stdout_bytes).map_err(|_| InferenceError::InferenceFailed {
-                    reason: "stdout_utf8_invalid".to_string(),
-                })?;
+            let stdout_string = match String::from_utf8(stdout_bytes) {
+                Ok(stdout_string) => stdout_string,
+                Err(_) => {
+                    tracing::warn!(
+                        target: "interpretation.inference.error",
+                        model_tier = interpretation::contract::model_tier_label(self.tier),
+                        hardware_profile = profile_label(self.profile),
+                        error_category = "stdout_utf8_invalid",
+                        recovery_action = "skip_digest",
+                        "llama-cli stdout is not valid UTF-8",
+                    );
+                    return Err(InferenceError::InferenceFailed {
+                        reason: "stdout_utf8_invalid".to_string(),
+                    });
+                }
+            };
 
             // Strip llama-cli b9305's startup banner + trailing perf-stats by
             // extracting the schema-constrained JSON object. Defense-in-depth:
