@@ -28,7 +28,7 @@
       "enum": ["2.0"]
     },
     "prompt_version": {
-      "description": "Prompt template version. Primary tier uses v2.1; fallback tier (chunk #84) reserves v2.1-fallback.",
+      "description": "Prompt template version. Primary tier follows the v2.x lineage; fallback tier the v1.x-fallback lineage; reflection tier the v1.x-reflection lineage.",
       "type": "string",
       "minLength": 1,
       "maxLength": 32
@@ -108,7 +108,7 @@
       }
     },
     "evidence_refs": {
-      "description": "Identifiers pointing back to source telemetry (span_id / template_id / fingerprint hex string / etc.).",
+      "description": "Identifiers pointing back to source telemetry, copied VERBATIM from the prompt's Citable Evidence Ids section (full-hex fingerprint strings); empty when that section lists none. Never invented.",
       "type": "array",
       "minItems": 0,
       "maxItems": 32,

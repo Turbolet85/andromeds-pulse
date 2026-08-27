@@ -226,7 +226,15 @@ fn surface_decision_creates_active_incident() {
         inc.fingerprint, FINGERPRINT_A,
         "fingerprint threaded from the triggering cue, NOT from L4Output",
     );
-    assert_eq!(inc.evidence_refs.fingerprint_hashes, vec!["fp-1", "fp-2"]);
+    assert_eq!(
+        inc.evidence_refs.fingerprint_hashes,
+        vec![
+            "fp-1".to_string(),
+            "fp-2".to_string(),
+            FINGERPRINT_A.to_string()
+        ],
+        "grounded union: model refs first, then the cue's real fingerprint",
+    );
     assert!(inc.id > 0, "rowid assigned post-INSERT");
 }
 
@@ -490,6 +498,95 @@ fn producer_writes_cue_fingerprint_not_the_model_authored_one() {
     );
 }
 
+/// Evidence grounding (chunk 2026-08-26 interpretation-brief-completeness):
+/// `fingerprint_hashes` is the order-preserving union of the model's refs
+/// and the cue's REAL fingerprint — the incident record carries a real id
+/// regardless of model behavior, with parsed refs FIRST (the deterministic
+/// P-073 contains-pins ride them).
+#[test]
+fn fingerprint_hashes_union_appends_cue_fingerprint_to_model_refs() {
+    let (registry, persistence) = fresh();
+    let digest = digest_with_fingerprinted_cue(
+        CueKind::RetryStorm,
+        CueScope::Service,
+        Some("checkout-service"),
+        Some(FINGERPRINT_A),
+    );
+    let output = l4_output(Decision::Surface, L4Severity::Suggested, "storm");
+
+    create_incident_from_l4_output(
+        registry.as_ref(),
+        persistence.as_ref(),
+        &digest,
+        &output,
+        5_000,
+    );
+
+    let inc = registry.list_active(WORKSPACE).remove(0);
+    assert_eq!(
+        inc.evidence_refs.fingerprint_hashes,
+        vec![
+            "fp-1".to_string(),
+            "fp-2".to_string(),
+            FINGERPRINT_A.to_string()
+        ],
+        "union appends the cue's real fingerprint after the model's refs",
+    );
+}
+
+/// The dedup half of the union: a model that COPIED the cue fingerprint
+/// (the intended post-fix behavior) must not produce a duplicate entry.
+#[test]
+fn fingerprint_hashes_union_does_not_duplicate_a_copied_fingerprint() {
+    let (registry, persistence) = fresh();
+    let digest = digest_with_fingerprinted_cue(
+        CueKind::RetryStorm,
+        CueScope::Service,
+        Some("checkout-service"),
+        Some(FINGERPRINT_A),
+    );
+    let mut output = l4_output(Decision::Surface, L4Severity::Suggested, "storm");
+    output.evidence_refs = vec![FINGERPRINT_A.to_string()];
+
+    create_incident_from_l4_output(
+        registry.as_ref(),
+        persistence.as_ref(),
+        &digest,
+        &output,
+        5_000,
+    );
+
+    let inc = registry.list_active(WORKSPACE).remove(0);
+    assert_eq!(
+        inc.evidence_refs.fingerprint_hashes,
+        vec![FINGERPRINT_A.to_string()],
+        "a copied fingerprint appears exactly once",
+    );
+}
+
+/// The negative half of the pair: with NO cue fingerprint the union adds
+/// nothing — the model's refs land unchanged, no phantom entry.
+#[test]
+fn fingerprint_hashes_carry_only_model_refs_without_a_cue_fingerprint() {
+    let (registry, persistence) = fresh();
+    let digest = digest_with_cue(CueKind::ErrorRateSpike, CueScope::Service, Some("svc-a"));
+    let output = l4_output(Decision::Surface, L4Severity::Suggested, "spike");
+
+    create_incident_from_l4_output(
+        registry.as_ref(),
+        persistence.as_ref(),
+        &digest,
+        &output,
+        5_000,
+    );
+
+    let inc = registry.list_active(WORKSPACE).remove(0);
+    assert_eq!(
+        inc.evidence_refs.fingerprint_hashes,
+        vec!["fp-1".to_string(), "fp-2".to_string()],
+    );
+}
+
 /// Incidents with no cue-borne fingerprint (reflection cadence; baseline
 /// families) carry an EMPTY one, which both retrieval selectors' `is_empty`
 /// guards drop to scope-only matching. Under the deterministic runner this is
@@ -609,25 +706,38 @@ fn producer_observability_is_aggregate_only() {
         &format!("title with {canary}"),
     );
 
+    // Process-global subscriber, NOT the thread-local `with_default`: this
+    // binary's sibling tests exercise the same tracing callsites in parallel
+    // with no subscriber installed, and under parallel libtest the
+    // thread-local form races the callsite interest cache — the capture
+    // comes back empty on exactly the event under assertion (testing.md
+    // 2026-06-28 runner-dependent-flake class; safe because this is the
+    // binary's ONLY subscriber-setting test, and nextest isolates
+    // per-process regardless).
     let (subscriber, events) = CapturingSubscriber::new();
-    tracing::subscriber::with_default(subscriber, || {
-        create_incident_from_l4_output(
-            registry.as_ref(),
-            persistence.as_ref(),
-            &digest,
-            &output,
-            5_000,
-        );
-    });
+    tracing::subscriber::set_global_default(subscriber)
+        .expect("sole subscriber-setting test in this binary");
+    create_incident_from_l4_output(
+        registry.as_ref(),
+        persistence.as_ref(),
+        &digest,
+        &output,
+        5_000,
+    );
 
     let captured = events.lock().expect("lock").clone();
-    let created_evt = captured
-        .iter()
-        .find(|(t, _)| t == "interpretation.incident.created")
-        .expect("producer outcome event present");
-    assert!(created_evt.1.contains("created=true"));
-    assert!(created_evt.1.contains("severity=error"));
-    assert!(created_evt.1.contains("priority_tier=autonomous"));
+    // A process-global subscriber can also capture sibling tests' events
+    // under parallel libtest, so assert THIS test's emission by its full
+    // signature rather than find-first.
+    assert!(
+        captured.iter().any(|(t, fields)| {
+            t == "interpretation.incident.created"
+                && fields.contains("created=true")
+                && fields.contains("severity=error")
+                && fields.contains("priority_tier=autonomous")
+        }),
+        "producer outcome event present with the aggregate-only shape",
+    );
     assert!(
         captured
             .iter()

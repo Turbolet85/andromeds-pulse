@@ -321,13 +321,16 @@ export type ReevaluateWindowPayload = { services_reclassified: number; transitio
  * for the Copy markdown action (P-038 byte-identical to future MCP
  * delivery #92 per project doc §87 contract).
  * 
- * Hybrid render contract (chunk #88 Phase 1 user-approved scope):
- * - `degraded_mode = false` indicates Resolved incident with parsed L4Output
- * payload — full six-section content.
- * - `degraded_mode = true` indicates Active/Acknowledged incident OR
- * Resolved incident with unparseable / redacted resolution_summary_text —
- * hypotheses + investigation_steps replaced by explicit "interpretation
- * pending" notice in the markdown OR webview.
+ * Hybrid render contract (chunk #88, BROADENED by chunk 2026-08-26
+ * interpretation-brief-completeness — the latest interpretation attaches
+ * from creation onward, so status no longer gates the full render):
+ * - `degraded_mode = false` indicates a parseable attached interpretation
+ * (any status) — full six-section content.
+ * - `degraded_mode = true` indicates interpretation genuinely absent /
+ * unparseable / redacted — hypotheses + investigation_steps replaced by
+ * the explicit "interpretation pending" notice in the markdown OR
+ * webview (honest degradation, never a false verdict over a clean
+ * parse).
  */
 export type ReportPayload = { incident_id: number; title: string; workspace: string; opened_at_unix_nano: number; status: IncidentStatus; severity: IncidentSeverity; symptom: string; timeline: string; hypotheses: HypothesisPayload[]; investigation_steps: InvestigationStepPayload[]; evidence_refs: string[]; project_context: string; degraded_mode: boolean; resolution_summary: string | null; previously_seen: PreviouslySeenPayload[]; markdown: string }
 

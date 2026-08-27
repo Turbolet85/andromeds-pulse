@@ -11,9 +11,11 @@
 //!    [`crate::schema::L4_OUTPUT_JSON_SCHEMA`])
 //! 4. Current L3 digest payload (~500-2000 tokens; supplied by caller)
 //! 5. Project context block (~100-500 tokens; supplied by caller)
-//! 6. Corpus retrieval context (~0-1000 tokens; supplied by caller; empty
+//! 6. Citable evidence ids (the digest cues' real full-hex fingerprints;
+//!    supplied by caller — the copy-don't-invent source for evidence_refs)
+//! 7. Corpus retrieval context (~0-1000 tokens; supplied by caller; empty
 //!    string at chunk #83 substrate per chunk #81 corpus retrieval deferral)
-//! 7. Output format reminder (~200-300 tokens)
+//! 8. Output format reminder (~200-300 tokens)
 //!
 //! Total target: ~6-8K tokens for the primary tier prompt.
 //!
@@ -40,6 +42,43 @@ pub const PROJECT_CLOSE_MARKER: &str = "</PROJECT>";
 pub const CORPUS_OPEN_MARKER: &str = "<CORPUS>";
 /// Marker closing the corpus retrieval insertion.
 pub const CORPUS_CLOSE_MARKER: &str = "</CORPUS>";
+/// Marker bounding the citable-evidence-ids insertion — the digest's REAL
+/// full-hex L1 fingerprints, so the model's `evidence_refs` are copies of
+/// identifiers that exist rather than inventions (citing = copying).
+pub const CITABLE_OPEN_MARKER: &str = "<CITABLE_EVIDENCE_IDS>";
+/// Marker closing the citable-evidence-ids insertion.
+pub const CITABLE_CLOSE_MARKER: &str = "</CITABLE_EVIDENCE_IDS>";
+
+/// Renders the citable-evidence-ids section shared by all three tier
+/// builders: one identifier per line between delimited markers, or the
+/// explicit none-instruction so an empty list still reads unambiguously
+/// (honest empty over invention — baseline-family digests carry no
+/// fingerprint by design).
+fn push_citable_ids_section(prompt: &mut String, citable_evidence_ids: &[String]) {
+    prompt.push_str("# Citable Evidence Ids\n");
+    prompt.push_str(CITABLE_OPEN_MARKER);
+    prompt.push('\n');
+    if citable_evidence_ids.is_empty() {
+        prompt.push_str("(none — emit an empty evidence_refs array)");
+    } else {
+        for (idx, id) in citable_evidence_ids.iter().enumerate() {
+            if idx > 0 {
+                prompt.push('\n');
+            }
+            prompt.push_str(id);
+        }
+    }
+    prompt.push('\n');
+    prompt.push_str(CITABLE_CLOSE_MARKER);
+    prompt.push_str("\n\n");
+}
+
+/// Shared citing instruction appended to every tier's output reminder —
+/// the copy-don't-invent contract over the Citable Evidence Ids section.
+const CITING_INSTRUCTION: &str = "\
+Populate evidence_refs ONLY by copying identifiers verbatim from the \
+Citable Evidence Ids section; when it lists none, emit an empty \
+evidence_refs array. Never invent an identifier.";
 
 /// Role definition section emitted at the top of every primary-tier
 /// prompt. Bounded to role + conventions; no project-specific facts here.
@@ -144,6 +183,7 @@ pub fn build_primary_tier_prompt(
     digest_payload: &str,
     project_context: &str,
     corpus_retrieval: &str,
+    citable_evidence_ids: &[String],
 ) -> String {
     let mut prompt = String::with_capacity(
         ROLE_DEFINITION.len()
@@ -152,8 +192,13 @@ pub fn build_primary_tier_prompt(
             + digest_payload.len()
             + project_context.len()
             + corpus_retrieval.len()
+            + citable_evidence_ids
+                .iter()
+                .map(|id| id.len() + 1)
+                .sum::<usize>()
             + OUTPUT_REMINDER.len()
-            + 512, // markers + section headers
+            + CITING_INSTRUCTION.len()
+            + 640, // markers + section headers
     );
 
     prompt.push_str("# Role\n");
@@ -189,6 +234,8 @@ pub fn build_primary_tier_prompt(
     prompt.push_str(DIGEST_CLOSE_MARKER);
     prompt.push_str("\n\n");
 
+    push_citable_ids_section(&mut prompt, citable_evidence_ids);
+
     if !corpus_retrieval.trim().is_empty() {
         prompt.push_str("# Corpus Retrieval (past similar incidents)\n");
         prompt.push_str(CORPUS_OPEN_MARKER);
@@ -202,6 +249,8 @@ pub fn build_primary_tier_prompt(
     prompt.push_str("# Output Instructions\n");
     prompt.push_str(OUTPUT_REMINDER);
     prompt.push('\n');
+    prompt.push_str(CITING_INSTRUCTION);
+    prompt.push('\n');
 
     prompt
 }
@@ -210,8 +259,8 @@ pub fn build_primary_tier_prompt(
 /// (chunk #85 — Epoch 9 Foundation v0.2.0).
 ///
 /// Mirrors [`build_primary_tier_prompt`] section structure (Role →
-/// Conventions → Schema → Project Context → Current Digest → optional
-/// Corpus Retrieval → Output Instructions) but substitutes reduced-
+/// Conventions → Schema → Project Context → Current Digest → Citable
+/// Evidence Ids → optional Corpus Retrieval → Output Instructions) but substitutes reduced-
 /// quality framing per P-053: smaller role definition emphasizing
 /// single-hypothesis output, reinforced output reminder restating
 /// the ≤1 hypothesis + ≤2 investigation steps constraints.
@@ -224,6 +273,7 @@ pub fn build_fallback_tier_prompt(
     digest_payload: &str,
     project_context: &str,
     corpus_retrieval: &str,
+    citable_evidence_ids: &[String],
 ) -> String {
     let mut prompt = String::with_capacity(
         ROLE_DEFINITION_FALLBACK.len()
@@ -232,8 +282,13 @@ pub fn build_fallback_tier_prompt(
             + digest_payload.len()
             + project_context.len()
             + corpus_retrieval.len()
+            + citable_evidence_ids
+                .iter()
+                .map(|id| id.len() + 1)
+                .sum::<usize>()
             + OUTPUT_REMINDER_FALLBACK.len()
-            + 512,
+            + CITING_INSTRUCTION.len()
+            + 640,
     );
 
     prompt.push_str("# Role\n");
@@ -269,6 +324,8 @@ pub fn build_fallback_tier_prompt(
     prompt.push_str(DIGEST_CLOSE_MARKER);
     prompt.push_str("\n\n");
 
+    push_citable_ids_section(&mut prompt, citable_evidence_ids);
+
     if !corpus_retrieval.trim().is_empty() {
         prompt.push_str("# Corpus Retrieval (past similar incidents)\n");
         prompt.push_str(CORPUS_OPEN_MARKER);
@@ -282,6 +339,8 @@ pub fn build_fallback_tier_prompt(
     prompt.push_str("# Output Instructions\n");
     prompt.push_str(OUTPUT_REMINDER_FALLBACK);
     prompt.push('\n');
+    prompt.push_str(CITING_INSTRUCTION);
+    prompt.push('\n');
 
     prompt
 }
@@ -290,8 +349,8 @@ pub fn build_fallback_tier_prompt(
 /// (chunk #98 — Epoch 9 Foundation v0.2.0).
 ///
 /// Mirrors [`build_primary_tier_prompt`] section structure (Role →
-/// Conventions → Schema → Project Context → Current Digest → optional
-/// Corpus Retrieval → Output Instructions) but substitutes the
+/// Conventions → Schema → Project Context → Current Digest → Citable
+/// Evidence Ids → optional Corpus Retrieval → Output Instructions) but substitutes the
 /// cumulative-trend-emphasis role + output reminder for the 30-minute
 /// background reflection window. Runs at primary-tier quality (no
 /// fallback single-hypothesis constraint; the model emits `model_tier:
@@ -302,6 +361,7 @@ pub fn build_reflection_tier_prompt(
     digest_payload: &str,
     project_context: &str,
     corpus_retrieval: &str,
+    citable_evidence_ids: &[String],
 ) -> String {
     let mut prompt = String::with_capacity(
         ROLE_DEFINITION_REFLECTION.len()
@@ -310,8 +370,13 @@ pub fn build_reflection_tier_prompt(
             + digest_payload.len()
             + project_context.len()
             + corpus_retrieval.len()
+            + citable_evidence_ids
+                .iter()
+                .map(|id| id.len() + 1)
+                .sum::<usize>()
             + OUTPUT_REMINDER_REFLECTION.len()
-            + 512,
+            + CITING_INSTRUCTION.len()
+            + 640,
     );
 
     prompt.push_str("# Role\n");
@@ -347,6 +412,8 @@ pub fn build_reflection_tier_prompt(
     prompt.push_str(DIGEST_CLOSE_MARKER);
     prompt.push_str("\n\n");
 
+    push_citable_ids_section(&mut prompt, citable_evidence_ids);
+
     if !corpus_retrieval.trim().is_empty() {
         prompt.push_str("# Corpus Retrieval (past similar incidents)\n");
         prompt.push_str(CORPUS_OPEN_MARKER);
@@ -360,6 +427,8 @@ pub fn build_reflection_tier_prompt(
     prompt.push_str("# Output Instructions\n");
     prompt.push_str(OUTPUT_REMINDER_REFLECTION);
     prompt.push('\n');
+    prompt.push_str(CITING_INSTRUCTION);
+    prompt.push('\n');
 
     prompt
 }
@@ -370,20 +439,20 @@ mod tests {
 
     #[test]
     fn primary_prompt_embeds_schema_string() {
-        let prompt = build_primary_tier_prompt("digest body", "project body", "");
+        let prompt = build_primary_tier_prompt("digest body", "project body", "", &[]);
         assert!(prompt.contains(L4_OUTPUT_JSON_SCHEMA));
     }
 
     #[test]
     fn primary_prompt_embeds_role_definition() {
-        let prompt = build_primary_tier_prompt("digest", "project", "");
+        let prompt = build_primary_tier_prompt("digest", "project", "", &[]);
         assert!(prompt.contains("severity classifier"));
         assert!(prompt.contains("# Role"));
     }
 
     #[test]
     fn primary_prompt_embeds_conventions_snippet() {
-        let prompt = build_primary_tier_prompt("digest", "project", "");
+        let prompt = build_primary_tier_prompt("digest", "project", "", &[]);
         assert!(prompt.contains("# Conventions"));
         assert!(prompt.contains("\"surface\""));
         assert!(prompt.contains("\"dismiss\""));
@@ -397,7 +466,7 @@ mod tests {
     #[test]
     fn primary_prompt_wraps_digest_in_markers() {
         let digest = "WINDOW: ... SERVICES: ...";
-        let prompt = build_primary_tier_prompt(digest, "ctx", "");
+        let prompt = build_primary_tier_prompt(digest, "ctx", "", &[]);
         assert!(prompt.contains(DIGEST_OPEN_MARKER));
         assert!(prompt.contains(DIGEST_CLOSE_MARKER));
         assert!(prompt.contains(digest));
@@ -413,7 +482,7 @@ mod tests {
     #[test]
     fn primary_prompt_wraps_project_context_in_markers() {
         let project = "workspace=/home/dev/example; vcs=git";
-        let prompt = build_primary_tier_prompt("digest", project, "");
+        let prompt = build_primary_tier_prompt("digest", project, "", &[]);
         assert!(prompt.contains(PROJECT_OPEN_MARKER));
         assert!(prompt.contains(PROJECT_CLOSE_MARKER));
         assert!(prompt.contains(project));
@@ -421,7 +490,7 @@ mod tests {
 
     #[test]
     fn primary_prompt_omits_corpus_section_when_empty() {
-        let prompt = build_primary_tier_prompt("digest", "project", "");
+        let prompt = build_primary_tier_prompt("digest", "project", "", &[]);
         assert!(!prompt.contains(CORPUS_OPEN_MARKER));
         assert!(!prompt.contains(CORPUS_CLOSE_MARKER));
         assert!(!prompt.contains("# Corpus Retrieval"));
@@ -430,7 +499,7 @@ mod tests {
     #[test]
     fn primary_prompt_includes_corpus_section_when_present() {
         let corpus = "prior incident: db-saturation:service-a (3 days ago)";
-        let prompt = build_primary_tier_prompt("digest", "project", corpus);
+        let prompt = build_primary_tier_prompt("digest", "project", corpus, &[]);
         assert!(prompt.contains(CORPUS_OPEN_MARKER));
         assert!(prompt.contains(CORPUS_CLOSE_MARKER));
         assert!(prompt.contains(corpus));
@@ -439,7 +508,7 @@ mod tests {
 
     #[test]
     fn primary_prompt_emits_output_format_reminder() {
-        let prompt = build_primary_tier_prompt("digest", "project", "");
+        let prompt = build_primary_tier_prompt("digest", "project", "", &[]);
         assert!(prompt.contains("Emit exactly one JSON object"));
         assert!(prompt.contains("Do not emit"));
         assert!(prompt.contains("# Output Instructions"));
@@ -447,14 +516,14 @@ mod tests {
 
     #[test]
     fn primary_prompt_embeds_versioning_metadata() {
-        let prompt = build_primary_tier_prompt("digest", "project", "");
+        let prompt = build_primary_tier_prompt("digest", "project", "", &[]);
         assert!(prompt.contains(SCHEMA_VERSION));
         assert!(prompt.contains(PROMPT_VERSION_PRIMARY));
     }
 
     #[test]
     fn primary_prompt_section_ordering_is_stable() {
-        let prompt = build_primary_tier_prompt("digest", "project", "corpus");
+        let prompt = build_primary_tier_prompt("digest", "project", "corpus", &[]);
         let role_idx = prompt.find("# Role").expect("role section");
         let conv_idx = prompt.find("# Conventions").expect("conventions section");
         let schema_idx = prompt.find("# Output Schema").expect("schema section");
@@ -479,7 +548,7 @@ mod tests {
         // outside of the schema's evidence_refs description per security
         // extract anti-pattern "no raw OTLP content in tracing or prompts
         // beyond the digest_payload supplied by the caller".
-        let prompt = build_primary_tier_prompt("safe digest body", "safe project ctx", "");
+        let prompt = build_primary_tier_prompt("safe digest body", "safe project ctx", "", &[]);
         // Trim out the embedded schema chunk so we don't false-positive
         // against schema description text mentioning span_id etc.
         let schema_start = prompt.find(L4_OUTPUT_JSON_SCHEMA).expect("schema present");
@@ -497,13 +566,13 @@ mod tests {
 
     #[test]
     fn fallback_prompt_embeds_schema_string() {
-        let prompt = build_fallback_tier_prompt("digest body", "project body", "");
+        let prompt = build_fallback_tier_prompt("digest body", "project body", "", &[]);
         assert!(prompt.contains(L4_OUTPUT_JSON_SCHEMA));
     }
 
     #[test]
     fn fallback_prompt_embeds_reduced_role_definition() {
-        let prompt = build_fallback_tier_prompt("digest", "project", "");
+        let prompt = build_fallback_tier_prompt("digest", "project", "", &[]);
         assert!(prompt.contains("severity classifier"));
         assert!(prompt.contains("# Role"));
         assert!(prompt.contains("fallback tier"));
@@ -512,7 +581,7 @@ mod tests {
 
     #[test]
     fn fallback_prompt_embeds_conventions_snippet() {
-        let prompt = build_fallback_tier_prompt("digest", "project", "");
+        let prompt = build_fallback_tier_prompt("digest", "project", "", &[]);
         assert!(prompt.contains("# Conventions"));
         assert!(prompt.contains("\"surface\""));
         assert!(prompt.contains("\"dismiss\""));
@@ -525,7 +594,7 @@ mod tests {
 
     #[test]
     fn fallback_prompt_emits_reduced_output_reminder() {
-        let prompt = build_fallback_tier_prompt("digest", "project", "");
+        let prompt = build_fallback_tier_prompt("digest", "project", "", &[]);
         assert!(prompt.contains("# Output Instructions"));
         assert!(prompt.contains("exactly ONE hypothesis"));
         assert!(prompt.contains("at most 2 investigation steps"));
@@ -535,7 +604,7 @@ mod tests {
     #[test]
     fn fallback_prompt_wraps_digest_in_markers() {
         let digest = "WINDOW: ... SERVICES: ...";
-        let prompt = build_fallback_tier_prompt(digest, "ctx", "");
+        let prompt = build_fallback_tier_prompt(digest, "ctx", "", &[]);
         assert!(prompt.contains(DIGEST_OPEN_MARKER));
         assert!(prompt.contains(DIGEST_CLOSE_MARKER));
         assert!(prompt.contains(digest));
@@ -551,7 +620,7 @@ mod tests {
     #[test]
     fn fallback_prompt_wraps_project_context_in_markers() {
         let project = "workspace=/home/dev/example; vcs=git";
-        let prompt = build_fallback_tier_prompt("digest", project, "");
+        let prompt = build_fallback_tier_prompt("digest", project, "", &[]);
         assert!(prompt.contains(PROJECT_OPEN_MARKER));
         assert!(prompt.contains(PROJECT_CLOSE_MARKER));
         assert!(prompt.contains(project));
@@ -559,7 +628,7 @@ mod tests {
 
     #[test]
     fn fallback_prompt_omits_corpus_section_when_empty() {
-        let prompt = build_fallback_tier_prompt("digest", "project", "");
+        let prompt = build_fallback_tier_prompt("digest", "project", "", &[]);
         assert!(!prompt.contains(CORPUS_OPEN_MARKER));
         assert!(!prompt.contains(CORPUS_CLOSE_MARKER));
         assert!(!prompt.contains("# Corpus Retrieval"));
@@ -568,7 +637,7 @@ mod tests {
     #[test]
     fn fallback_prompt_includes_corpus_section_when_present() {
         let corpus = "prior incident: db-saturation:service-a (3 days ago)";
-        let prompt = build_fallback_tier_prompt("digest", "project", corpus);
+        let prompt = build_fallback_tier_prompt("digest", "project", corpus, &[]);
         assert!(prompt.contains(CORPUS_OPEN_MARKER));
         assert!(prompt.contains(CORPUS_CLOSE_MARKER));
         assert!(prompt.contains(corpus));
@@ -577,7 +646,7 @@ mod tests {
 
     #[test]
     fn fallback_prompt_embeds_versioning_metadata() {
-        let prompt = build_fallback_tier_prompt("digest", "project", "");
+        let prompt = build_fallback_tier_prompt("digest", "project", "", &[]);
         assert!(prompt.contains(SCHEMA_VERSION));
         // The metadata line uses "prompt_version: " (colon + space) prefix;
         // assert fallback's exact metadata-line form is present AND primary's
@@ -593,7 +662,7 @@ mod tests {
 
     #[test]
     fn fallback_prompt_section_ordering_is_stable() {
-        let prompt = build_fallback_tier_prompt("digest", "project", "corpus");
+        let prompt = build_fallback_tier_prompt("digest", "project", "corpus", &[]);
         let role_idx = prompt.find("# Role").expect("role section");
         let conv_idx = prompt.find("# Conventions").expect("conventions section");
         let schema_idx = prompt.find("# Output Schema").expect("schema section");
@@ -632,7 +701,7 @@ mod tests {
         // schema dominates at ~4.5 KB; framing text + markers + headers
         // contribute another ~1.5-2 KB). Regression guard against
         // accidental schema bloat OR framing-text runaway.
-        let prompt = build_fallback_tier_prompt("", "", "");
+        let prompt = build_fallback_tier_prompt("", "", "", &[]);
         assert!(
             prompt.len() < 8000,
             "fallback prompt bytes ({}) exceeded 8000-byte sanity bound",
@@ -645,7 +714,7 @@ mod tests {
         // Mirror primary's negative-canary discipline — fallback's
         // framing text MUST NOT mention raw OTLP attribute field names
         // outside the embedded schema region.
-        let prompt = build_fallback_tier_prompt("safe digest body", "safe project ctx", "");
+        let prompt = build_fallback_tier_prompt("safe digest body", "safe project ctx", "", &[]);
         let schema_start = prompt.find(L4_OUTPUT_JSON_SCHEMA).expect("schema present");
         let schema_end = schema_start + L4_OUTPUT_JSON_SCHEMA.len();
         let outside_schema = format!("{}{}", &prompt[..schema_start], &prompt[schema_end..]);
@@ -661,13 +730,13 @@ mod tests {
 
     #[test]
     fn reflection_prompt_embeds_schema_string() {
-        let prompt = build_reflection_tier_prompt("digest body", "project body", "");
+        let prompt = build_reflection_tier_prompt("digest body", "project body", "", &[]);
         assert!(prompt.contains(L4_OUTPUT_JSON_SCHEMA));
     }
 
     #[test]
     fn reflection_prompt_embeds_trend_emphasis_role() {
-        let prompt = build_reflection_tier_prompt("digest", "project", "");
+        let prompt = build_reflection_tier_prompt("digest", "project", "", &[]);
         assert!(prompt.contains("# Role"));
         assert!(prompt.contains("severity classifier"));
         assert!(prompt.contains("cumulative"));
@@ -681,8 +750,8 @@ mod tests {
         // but neither in the primary prompt's framing nor in the embedded
         // schema.json (verified at chunk #98 implement per CLAUDE.md
         // 2026-05-25 framing-exclusive assertion discipline).
-        let reflection = build_reflection_tier_prompt("digest", "project", "");
-        let primary = build_primary_tier_prompt("digest", "project", "");
+        let reflection = build_reflection_tier_prompt("digest", "project", "", &[]);
+        let primary = build_primary_tier_prompt("digest", "project", "", &[]);
         assert!(reflection.contains("cumulative"));
         assert!(!primary.contains("cumulative"));
         assert!(ROLE_DEFINITION_REFLECTION.contains("cumulative"));
@@ -691,7 +760,7 @@ mod tests {
 
     #[test]
     fn reflection_prompt_embeds_versioning_metadata() {
-        let prompt = build_reflection_tier_prompt("digest", "project", "");
+        let prompt = build_reflection_tier_prompt("digest", "project", "", &[]);
         assert!(prompt.contains(SCHEMA_VERSION));
         let reflection_meta = format!("prompt_version: {PROMPT_VERSION_REFLECTION}");
         let primary_meta = format!("prompt_version: {PROMPT_VERSION_PRIMARY}");
@@ -703,14 +772,14 @@ mod tests {
     fn reflection_prompt_instructs_default_curious() {
         // L5 surfacing contract (source §96): reflection incidents default
         // to curious unless the model finds a high-confidence pattern.
-        let prompt = build_reflection_tier_prompt("digest", "project", "");
+        let prompt = build_reflection_tier_prompt("digest", "project", "", &[]);
         assert!(prompt.contains("curious"));
         assert!(prompt.contains("# Output Instructions"));
     }
 
     #[test]
     fn reflection_prompt_section_ordering_is_stable() {
-        let prompt = build_reflection_tier_prompt("digest", "project", "corpus");
+        let prompt = build_reflection_tier_prompt("digest", "project", "corpus", &[]);
         let role_idx = prompt.find("# Role").expect("role section");
         let conv_idx = prompt.find("# Conventions").expect("conventions section");
         let schema_idx = prompt.find("# Output Schema").expect("schema section");
@@ -730,7 +799,7 @@ mod tests {
 
     #[test]
     fn reflection_prompt_does_not_leak_internal_field_names_outside_schema() {
-        let prompt = build_reflection_tier_prompt("safe digest body", "safe project ctx", "");
+        let prompt = build_reflection_tier_prompt("safe digest body", "safe project ctx", "", &[]);
         let schema_start = prompt.find(L4_OUTPUT_JSON_SCHEMA).expect("schema present");
         let schema_end = schema_start + L4_OUTPUT_JSON_SCHEMA.len();
         let outside_schema = format!("{}{}", &prompt[..schema_start], &prompt[schema_end..]);
@@ -740,5 +809,89 @@ mod tests {
                 "reflection prompt scaffolding outside schema must not leak raw OTLP field name `{banned}`"
             );
         }
+    }
+
+    // ---- Citable Evidence Ids section (citing = copying) ----
+
+    #[test]
+    fn citable_section_renders_ids_verbatim_between_markers_in_all_tiers() {
+        let ids = vec![
+            "a3f91c0b7e2d4568a3f91c0b7e2d4568".to_string(),
+            "bd07e4a2915c3f6ebd07e4a2915c3f6e".to_string(),
+        ];
+        for prompt in [
+            build_primary_tier_prompt("digest", "project", "", &ids),
+            build_fallback_tier_prompt("digest", "project", "", &ids),
+            build_reflection_tier_prompt("digest", "project", "", &ids),
+        ] {
+            assert!(prompt.contains("# Citable Evidence Ids"));
+            let open_idx = prompt.find(CITABLE_OPEN_MARKER).expect("open marker");
+            let close_idx = prompt.find(CITABLE_CLOSE_MARKER).expect("close marker");
+            for id in &ids {
+                let id_idx = prompt.find(id.as_str()).expect("id present verbatim");
+                assert!(open_idx < id_idx && id_idx < close_idx);
+            }
+        }
+    }
+
+    #[test]
+    fn citable_section_orders_after_digest_before_output_instructions() {
+        let ids = vec!["a3f91c0b7e2d4568a3f91c0b7e2d4568".to_string()];
+        let prompt = build_primary_tier_prompt("digest", "project", "corpus", &ids);
+        let digest_idx = prompt.find("# Current Digest").expect("digest section");
+        let citable_idx = prompt
+            .find("# Citable Evidence Ids")
+            .expect("citable section");
+        let corpus_idx = prompt.find("# Corpus Retrieval").expect("corpus section");
+        let output_idx = prompt
+            .find("# Output Instructions")
+            .expect("output section");
+        assert!(digest_idx < citable_idx);
+        assert!(citable_idx < corpus_idx);
+        assert!(corpus_idx < output_idx);
+    }
+
+    #[test]
+    fn citable_section_empty_list_renders_explicit_none_instruction() {
+        for prompt in [
+            build_primary_tier_prompt("digest", "project", "", &[]),
+            build_fallback_tier_prompt("digest", "project", "", &[]),
+            build_reflection_tier_prompt("digest", "project", "", &[]),
+        ] {
+            assert!(prompt.contains("# Citable Evidence Ids"));
+            assert!(prompt.contains("(none — emit an empty evidence_refs array)"));
+        }
+    }
+
+    #[test]
+    fn citing_instruction_present_in_every_tier_output_instructions() {
+        for prompt in [
+            build_primary_tier_prompt("digest", "project", "", &[]),
+            build_fallback_tier_prompt("digest", "project", "", &[]),
+            build_reflection_tier_prompt("digest", "project", "", &[]),
+        ] {
+            let output_idx = prompt
+                .find("# Output Instructions")
+                .expect("output section");
+            let citing_idx = prompt
+                .find("copying identifiers verbatim")
+                .expect("citing instruction present");
+            assert!(output_idx < citing_idx);
+            assert!(prompt.contains("Never invent an identifier"));
+        }
+    }
+
+    #[test]
+    fn citable_ids_are_deduped_upstream_not_here_but_render_order_stable() {
+        // The section renders exactly what the caller supplies, in order —
+        // dedup is the caller's job (`citable_evidence_ids` in pulse-app).
+        let ids = vec![
+            "bd07e4a2915c3f6ebd07e4a2915c3f6e".to_string(),
+            "a3f91c0b7e2d4568a3f91c0b7e2d4568".to_string(),
+        ];
+        let prompt = build_primary_tier_prompt("digest", "project", "", &ids);
+        let first = prompt.find(&ids[0]).expect("first id");
+        let second = prompt.find(&ids[1]).expect("second id");
+        assert!(first < second, "supplied order preserved");
     }
 }

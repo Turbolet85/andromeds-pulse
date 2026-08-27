@@ -25,23 +25,26 @@ pub const L4_OUTPUT_JSON_SCHEMA: &str = include_str!("schema.json");
 pub const SCHEMA_VERSION: &str = "2.0";
 
 /// Prompt template version. Primary-tier prompt assembled by
-/// [`crate::prompt::build_primary_tier_prompt`] (chunk #83).
-pub const PROMPT_VERSION_PRIMARY: &str = "v2.1";
+/// [`crate::prompt::build_primary_tier_prompt`] (chunk #83; v2.2 adds the
+/// Citable Evidence Ids section + copy-don't-invent citing instruction).
+pub const PROMPT_VERSION_PRIMARY: &str = "v2.2";
 
 /// Prompt template version. Fallback-tier prompt assembled by
 /// [`crate::prompt::build_fallback_tier_prompt`] (chunk #85 — Epoch 9
 /// Foundation v0.2.0). Distinct namespace from primary's `v2.1` lineage;
 /// future fallback prompt iterations bump to `"v1.1-fallback"` etc.
-pub const PROMPT_VERSION_FALLBACK: &str = "v1.0-fallback";
+pub const PROMPT_VERSION_FALLBACK: &str = "v1.1-fallback";
 
 /// Prompt template version. Reflection-tier prompt assembled by
 /// [`crate::prompt::build_reflection_tier_prompt`] (chunk #98 — Epoch 9
 /// Foundation v0.2.0). Cumulative-pattern-emphasis variant of the
 /// primary prompt for the 30-minute background reflection window;
-/// distinct namespace from primary's `v2.1` + fallback's `v1.0-fallback`
+/// distinct namespace from primary's `v2.x` + fallback's `v1.x-fallback`
 /// lineages. Reflection runs at primary-tier quality (the model emits
-/// `model_tier: "primary"`); it is NOT a fallback-tier prompt.
-pub const PROMPT_VERSION_REFLECTION: &str = "v1.0-reflection";
+/// `model_tier: "primary"`); it is NOT a fallback-tier prompt
+/// (v1.1-reflection adds the Citable Evidence Ids section + citing
+/// instruction).
+pub const PROMPT_VERSION_REFLECTION: &str = "v1.1-reflection";
 
 /// Defense-in-depth pre-parse cap on raw inference output bytes.
 /// mistralrs strict-schema-mode caps total tokens, but the byte budget

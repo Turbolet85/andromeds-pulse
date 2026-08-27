@@ -559,9 +559,18 @@ fn mcp_retrieve_report_renders_the_deterministic_evidence_section() {
             "Evidence section must render ref `{r}`:\n{markdown}"
         );
     }
-    // An Active incident has no persisted L4Output, so this renders through the
-    // degraded branch, which prefixes each fingerprint hash with `fp:`. That is
-    // the branch the report ACTUALLY takes for a live incident.
-    assert_eq!(value["degraded_mode"].as_bool(), Some(true));
-    assert!(markdown.contains("fp:det-span-9f2c4a7e1b6d0358"));
+    // REPAIRED CONTRACT (chunk 2026-08-26 interpretation-brief-completeness):
+    // the producer attaches the parsed interpretation AT CREATION, so a live
+    // incident renders the FULL branch cross-process — degraded_mode false,
+    // populated sections, refs rendered raw from `l4.evidence_refs`. The old
+    // assertion here (degraded_mode == true + the degraded branch's `fp:`
+    // prefix) pinned the false-degraded defect and was STRENGTHENED to the
+    // repaired truth, not relaxed.
+    assert_eq!(value["degraded_mode"].as_bool(), Some(false));
+    assert!(
+        !markdown.contains("Interpretation pending"),
+        "a live incident with a cleanly-parsed interpretation must not render \
+         the pending notice:\n{markdown}"
+    );
+    assert!(markdown.contains("det-span-9f2c4a7e1b6d0358"));
 }

@@ -4,9 +4,11 @@
 //! pulse-app binary boundary (the only place that depends on `corpus`,
 //! `triage`, and `security` together). Each incident becomes one record
 //! carrying its trigger context (`kind`, `scope`, `scope_id`, `title`,
-//! `detail`), model interpretation (`resolution_summary_text`, null until
-//! Resolved per chunk #86), user feedback (`acknowledged`, `read`), and
-//! resolution outcome (`status`, `resolved_at_unix_nano`).
+//! `detail`), model interpretation (`resolution_summary_text` — the latest
+//! cleanly-parsed interpretation, attached from creation onward since chunk
+//! 2026-08-26; the resolution-summary generation is the final write), user
+//! feedback (`acknowledged`, `read`), and resolution outcome (`status`,
+//! `resolved_at_unix_nano`).
 //!
 //! Every user-facing text field is routed through
 //! `security::scrubber::scrub_attribute` at this egress boundary — defense
@@ -32,7 +34,9 @@ use ui_bridge::contract::AppError;
 /// One anonymized export record per incident. Bounded enums serialize as
 /// snake_case per their `#[serde(rename_all)]` derives; text fields are
 /// pre-scrubbed via [`scrub_string`]. `interpretation` carries the scrubbed
-/// `resolution_summary_text` (null for non-Resolved incidents).
+/// `resolution_summary_text` (the latest attached interpretation — present
+/// for live incidents too once their first generation parses; null only
+/// before that).
 #[derive(Debug, Clone, Serialize)]
 pub struct ExportRecord {
     pub id: i64,

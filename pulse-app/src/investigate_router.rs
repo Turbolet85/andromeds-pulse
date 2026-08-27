@@ -243,10 +243,14 @@ impl InvestigateApi for InvestigateApiImpl {
             }
         };
 
+        // Investigate runs over ad-hoc curated context with no digest cues,
+        // so the citable-ids list is empty — the prompt's citing instruction
+        // then mandates an empty evidence_refs array (honest empty).
         let prompt = build_primary_tier_prompt(
             &format!("INVESTIGATION FOCUS: {framing}\n\n{context}"),
             "",
             "",
+            &[],
         );
 
         let raw = match self

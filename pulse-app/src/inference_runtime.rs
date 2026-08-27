@@ -107,6 +107,24 @@ fn build_project_context(digest: &Digest) -> String {
     ctx
 }
 
+/// Collect the digest's REAL citable evidence ids — the attention cues'
+/// full-hex L1 exception fingerprints (arch §Fault Identity: the 32-char
+/// `hex_lower` form, the only encoding a citation can resolve against).
+/// Deduped, order-stable; baseline-family cues carry `fingerprint: None`
+/// and contribute nothing, so a cue-less or baseline-only digest yields an
+/// empty list and the prompt instructs an empty `evidence_refs`.
+fn citable_evidence_ids(digest: &Digest) -> Vec<String> {
+    let mut ids: Vec<String> = Vec::new();
+    for cue in &digest.attention_cues {
+        if let Some(fp) = &cue.fingerprint {
+            if !ids.iter().any(|existing| existing == fp) {
+                ids.push(fp.clone());
+            }
+        }
+    }
+    ids
+}
+
 /// Spawn the L4 inference subscriber. Subscribes to `digest_broadcast`,
 /// invokes `runner` per digest, emits observability events. Threads the
 /// chunk #86 degraded-mode FSM + incident registry/persistence so the
@@ -306,19 +324,25 @@ pub async fn handle_digest_outcome(
     // #83 substrate); the schema's `model_tier` field discriminates downstream.
     let prompt_started = Instant::now();
     let project_context = build_project_context(digest);
+    let citable_ids = citable_evidence_ids(digest);
     let (prompt, prompt_version_label): (String, &'static str) = match (tier, digest.kind) {
         (ModelTier::Primary, DigestKind::Reflection) => (
-            build_reflection_tier_prompt(&digest.payload_summary, &project_context, ""),
+            build_reflection_tier_prompt(
+                &digest.payload_summary,
+                &project_context,
+                "",
+                &citable_ids,
+            ),
             PROMPT_VERSION_REFLECTION,
         ),
         (ModelTier::Primary, _) => (
-            build_primary_tier_prompt(&digest.payload_summary, &project_context, ""),
+            build_primary_tier_prompt(&digest.payload_summary, &project_context, "", &citable_ids),
             PROMPT_VERSION_PRIMARY,
         ),
         // Fallback-tier reflection digests reuse the fallback acute builder —
         // cumulative-trend emphasis is a primary-tier enrichment (chunk #98).
         (ModelTier::Fallback, _) => (
-            build_fallback_tier_prompt(&digest.payload_summary, &project_context, ""),
+            build_fallback_tier_prompt(&digest.payload_summary, &project_context, "", &citable_ids),
             PROMPT_VERSION_FALLBACK,
         ),
     };
@@ -530,14 +554,8 @@ pub fn attach_resolution_summary_to_incident(
         return;
     };
 
-    let raw_summary = match serde_json::to_string(parsed) {
-        Ok(s) => s,
-        Err(_) => return,
-    };
-
-    let scrubbed_text = match scrub_attribute(&raw_summary) {
-        ScrubbedValue::Allowed(s) => s,
-        ScrubbedValue::Redacted { category } => format!("[redacted: {category}]"),
+    let Some(scrubbed_text) = scrubbed_l4_json(parsed) else {
+        return;
     };
 
     let updated = match registry.attach_resolution_summary(id, scrubbed_text, now_unix_nano) {
@@ -552,6 +570,31 @@ pub fn attach_resolution_summary_to_incident(
             "resolution summary persist failed",
         );
     }
+}
+
+/// Order-preserving dedup union of the model's evidence refs and the
+/// triggering cue's real full-hex fingerprint (when the cue carried one).
+fn grounded_fingerprint_hashes(parsed_refs: &[String], cue_fp: Option<&str>) -> Vec<String> {
+    let mut out = parsed_refs.to_vec();
+    if let Some(fp) = cue_fp {
+        if !out.iter().any(|r| r == fp) {
+            out.push(fp.to_string());
+        }
+    }
+    out
+}
+
+/// Serialize + scrub a parsed `L4Output` for attachment as the incident's
+/// `resolution_summary_text` (the chunk #72 uniform-coverage invariant
+/// applies at every persistence boundary; a `Redacted` verdict collapses to
+/// the bounded category marker, which downstream parses treat as absent —
+/// the honest-degraded branch). `None` only when serialization fails.
+fn scrubbed_l4_json(parsed: &L4Output) -> Option<String> {
+    let raw = serde_json::to_string(parsed).ok()?;
+    Some(match scrub_attribute(&raw) {
+        ScrubbedValue::Allowed(s) => s,
+        ScrubbedValue::Redacted { category } => format!("[redacted: {category}]"),
+    })
 }
 
 /// Scrub a telemetry-derived text field at the persistence boundary per the
@@ -623,6 +666,12 @@ fn priority_tier_label(tier: PriorityTier) -> &'static str {
 ///   a decided semantic rather than an omission — see the note at the predicate.
 /// - Persist-then-insert: `save_new_incident` assigns the rowid → set
 ///   `Incident.id` → `registry.insert` → `save_incident_event`.
+/// - Latest-interpretation attach: the scrubbed L4Output JSON lands on
+///   `resolution_summary_text` at creation and refreshes on every dedupe,
+///   so the report renders the model's content for LIVE incidents (the
+///   resolution-summary generation, when it fires, is the final write).
+/// - Evidence grounding: `fingerprint_hashes` is the union of the model's
+///   refs and the cue's real fingerprint.
 /// - Aggregate-only observability; never panics on a corpus result.
 pub fn create_incident_from_l4_output(
     registry: &dyn IncidentRegistry,
@@ -692,6 +741,14 @@ pub fn create_incident_from_l4_output(
             .observe_reemission(existing.id, now_unix_nano)
             .is_ok()
         {
+            // Refresh the latest interpretation on the deduped incident so
+            // the report tracks the newest cleanly-parsed generation. Silent
+            // attachment (chunk #86 precedent); a failure skips defensively
+            // (Resolved is unreachable here — observe_reemission rejected it)
+            // and the single persist below carries whatever state stands.
+            if let Some(json) = scrubbed_l4_json(parsed) {
+                let _ = registry.attach_interpretation_summary(existing.id, json, now_unix_nano);
+            }
             if let Some(updated) = registry.get(existing.id) {
                 if let Err(err) = persistence.update_incident_status(existing.id, &updated) {
                     tracing::warn!(
@@ -705,6 +762,14 @@ pub fn create_incident_from_l4_output(
         emit_incident_outcome(false, true, severity, priority_tier);
         return;
     }
+
+    // Ground-truth union BEFORE the construction below moves
+    // `cue_fingerprint`: the model's (now prompt-copied) refs plus the
+    // triggering cue's real fingerprint, deduped. The incident record
+    // carries a real id regardless of model behavior; parsed refs stay
+    // FIRST (the deterministic P-073 contains-pins ride them).
+    let fingerprint_hashes =
+        grounded_fingerprint_hashes(&parsed.evidence_refs, cue_fingerprint.as_deref());
 
     let mut incident = Incident {
         id: 0,
@@ -731,7 +796,7 @@ pub fn create_incident_from_l4_output(
         evidence_refs: EvidenceRefs {
             trace_id: None,
             span_ids: Vec::new(),
-            fingerprint_hashes: parsed.evidence_refs.clone(),
+            fingerprint_hashes,
             timestamps_unix_nano: Vec::new(),
         },
         opened_at_unix_nano: now_unix_nano,
@@ -739,7 +804,11 @@ pub fn create_incident_from_l4_output(
         acknowledged_at_unix_nano: None,
         resolved_at_unix_nano: None,
         read_at_unix_nano: None,
-        resolution_summary_text: None,
+        // The latest cleanly-parsed interpretation attaches AT CREATION, so
+        // the report renders the model's content for a live incident instead
+        // of a false-degraded notice. The resolution-summary generation, when
+        // it fires, is the final write to this field.
+        resolution_summary_text: scrubbed_l4_json(parsed),
     };
 
     let id = match persistence.save_new_incident(&incident) {

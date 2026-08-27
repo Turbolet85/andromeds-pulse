@@ -417,13 +417,20 @@ pub struct Incident {
     pub acknowledged_at_unix_nano: Option<i64>,
     pub resolved_at_unix_nano: Option<i64>,
     pub read_at_unix_nano: Option<i64>,
-    /// L4-generated summary attached on Resolved transition per capability
-    /// spec P-022 + P-059 (chunk #86). `#[serde(default)]` keeps pre-chunk-#86
-    /// persisted rows deserializable (backward-compat for corpus BLOB payloads
-    /// authored by chunk #78 persist cycle). MUST be populated via the
-    /// `IncidentRegistry::attach_resolution_summary` API path so that
-    /// `security::scrubber::scrub_attribute` runs before persistence per
-    /// chunk #72 uniform-coverage invariant.
+    /// The LATEST cleanly-parsed L4 interpretation, JSON-serialized —
+    /// attached at incident creation and refreshed on every deduped
+    /// re-generation (chunk 2026-08-26 interpretation-brief-completeness),
+    /// so `incidents.get_report` renders the model's content for LIVE
+    /// incidents. The resolution-summary generation (chunk #86, P-022 +
+    /// P-059), when it fires, is the FINAL write. Field name unchanged for
+    /// bincode wire compat (`#[serde(default)]` keeps pre-chunk-#86 JSON
+    /// payloads deserializable; the corpus BLOB codec is bincode, where a
+    /// shape change would fail the whole hydration load). Every write path
+    /// scrubs via `security::scrubber::scrub_attribute` BEFORE persistence
+    /// per the chunk #72 uniform-coverage invariant: creation sets the
+    /// pre-scrubbed JSON directly; refresh goes through
+    /// `IncidentRegistry::attach_interpretation_summary`; resolution goes
+    /// through `IncidentRegistry::attach_resolution_summary`.
     #[serde(default)]
     pub resolution_summary_text: Option<String>,
 }

@@ -142,6 +142,24 @@ pub trait IncidentRegistry: Send + Sync + Debug {
         now_unix_nano: i64,
     ) -> Result<Incident, IncidentRegistryError>;
 
+    /// Attach the latest cleanly-parsed L4 interpretation to a LIVE
+    /// (Active or Acknowledged) incident — the sibling of
+    /// [`IncidentRegistry::attach_resolution_summary`] for the
+    /// pre-resolution lifecycle, so a report renders the model's actual
+    /// content instead of a false-degraded notice. Same caller contract:
+    /// `summary_text` is already scrubbed (the registry does NOT re-scrub)
+    /// and no lifecycle event is emitted (silent attachment). Writes the
+    /// same `resolution_summary_text` field; a Resolved incident is
+    /// REJECTED with `InvalidTransition` so a late regular generation can
+    /// never clobber a resolution summary — the resolution-summary path
+    /// stays the final write. Errors: `NotFound` / `InvalidTransition`.
+    fn attach_interpretation_summary(
+        &self,
+        id: i64,
+        summary_text: String,
+        now_unix_nano: i64,
+    ) -> Result<Incident, IncidentRegistryError>;
+
     /// Total incident count in the registry (Active + Acknowledged + Resolved
     /// — for diagnostics + tests).
     fn count(&self) -> usize;
@@ -318,6 +336,24 @@ impl IncidentRegistry for InMemoryIncidentRegistry {
             .get_mut(&id)
             .ok_or(IncidentRegistryError::NotFound)?;
         if entry.status != IncidentStatus::Resolved {
+            return Err(IncidentRegistryError::InvalidTransition);
+        }
+        entry.resolution_summary_text = Some(summary_text);
+        entry.updated_at_unix_nano = now_unix_nano;
+        Ok(entry.clone())
+    }
+
+    fn attach_interpretation_summary(
+        &self,
+        id: i64,
+        summary_text: String,
+        now_unix_nano: i64,
+    ) -> Result<Incident, IncidentRegistryError> {
+        let mut entry = self
+            .incidents
+            .get_mut(&id)
+            .ok_or(IncidentRegistryError::NotFound)?;
+        if entry.status == IncidentStatus::Resolved {
             return Err(IncidentRegistryError::InvalidTransition);
         }
         entry.resolution_summary_text = Some(summary_text);
@@ -715,6 +751,66 @@ mod tests {
     fn attach_resolution_summary_returns_not_found_for_unknown_id() {
         let r = fresh_registry();
         let result = r.attach_resolution_summary(999, "summary".to_string(), 5_000_000_000);
+        assert!(matches!(result, Err(IncidentRegistryError::NotFound)));
+    }
+
+    #[test]
+    fn attach_interpretation_summary_writes_to_active_incident() {
+        let r = fresh_registry();
+        r.insert(sample_incident(
+            1,
+            "ws-a",
+            CueKind::ErrorRateSpike,
+            CueScope::Service,
+        ));
+        let now = 5_000_000_000_i64;
+        let text = "{\"timeline\":\"[redacted] live interpretation\"}".to_string();
+        let updated = r
+            .attach_interpretation_summary(1, text.clone(), now)
+            .expect("attach succeeds on Active");
+        assert_eq!(updated.resolution_summary_text, Some(text));
+        assert_eq!(updated.updated_at_unix_nano, now);
+        assert_eq!(updated.status, IncidentStatus::Active);
+    }
+
+    #[test]
+    fn attach_interpretation_summary_writes_to_acknowledged_incident() {
+        let r = fresh_registry();
+        let mut inc = sample_incident(1, "ws-a", CueKind::ErrorRateSpike, CueScope::Service);
+        inc.status = IncidentStatus::Acknowledged;
+        inc.acknowledged_at_unix_nano = Some(2_000_000_000);
+        r.insert(inc);
+        let updated = r
+            .attach_interpretation_summary(1, "text".to_string(), 5_000_000_000)
+            .expect("attach succeeds on Acknowledged");
+        assert!(updated.resolution_summary_text.is_some());
+    }
+
+    #[test]
+    fn attach_interpretation_summary_rejects_resolved_incident() {
+        // The resolution-summary path stays the FINAL write: a late regular
+        // generation must never clobber an attached resolution summary.
+        let r = fresh_registry();
+        let mut inc = sample_incident(1, "ws-a", CueKind::ErrorRateSpike, CueScope::Service);
+        inc.status = IncidentStatus::Resolved;
+        inc.resolved_at_unix_nano = Some(2_000_000_000);
+        inc.resolution_summary_text = Some("final resolution summary".to_string());
+        r.insert(inc);
+        let result = r.attach_interpretation_summary(1, "late".to_string(), 5_000_000_000);
+        assert!(matches!(
+            result,
+            Err(IncidentRegistryError::InvalidTransition)
+        ));
+        assert_eq!(
+            r.get(1).unwrap().resolution_summary_text,
+            Some("final resolution summary".to_string())
+        );
+    }
+
+    #[test]
+    fn attach_interpretation_summary_returns_not_found_for_unknown_id() {
+        let r = fresh_registry();
+        let result = r.attach_interpretation_summary(999, "text".to_string(), 5_000_000_000);
         assert!(matches!(result, Err(IncidentRegistryError::NotFound)));
     }
 

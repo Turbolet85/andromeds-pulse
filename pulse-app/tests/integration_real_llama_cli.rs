@@ -128,10 +128,14 @@ async fn real_subprocess_round_trip_returns_schema_conformant_l4_output() {
     eprintln!("[integration-real] load_from_env_if_configured -> Loaded ({load_elapsed_ms} ms)");
     assert_eq!(runner.current_status(), ModelStatus::Loaded);
 
+    // One representative citable id so the real model exercises the
+    // copy-don't-invent citing path (full-hex L1 fingerprint shape).
+    let citable = vec!["a3f91c0b7e2d4568a3f91c0b7e2d4568".to_string()];
     let prompt = build_primary_tier_prompt(
         REPRESENTATIVE_DIGEST,
         REPRESENTATIVE_PROJECT_CTX,
         "", // corpus retrieval empty at chunk #83 substrate
+        &citable,
     );
     eprintln!("[integration-real] prompt bytes: {}", prompt.len());
 
