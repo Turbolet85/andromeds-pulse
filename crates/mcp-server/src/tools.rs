@@ -458,12 +458,19 @@ fn dispatch_mark_incident_resolved(
         tool_name: TOOL_MARK_INCIDENT_RESOLVED.to_string(),
         reason: "incident payload encode failed".to_string(),
     })?;
-    ctx.corpus
+    let outcome = ctx
+        .corpus
         .update_incident_status(row.id, "resolved", now, Some(now), &payload)
         .map_err(|e| Error::ToolDispatchFailed {
             tool_name: TOOL_MARK_INCIDENT_RESOLVED.to_string(),
             reason: short_reason(&e.to_string()),
         })?;
+    if outcome == corpus::contract::IncidentWriteOutcome::DeclinedStale {
+        return Err(Error::ToolDispatchFailed {
+            tool_name: TOOL_MARK_INCIDENT_RESOLVED.to_string(),
+            reason: "incident changed concurrently; resolution not applied".to_string(),
+        });
+    }
     Ok(json!({ "resolved": true, "incident_id": row.id }))
 }
 

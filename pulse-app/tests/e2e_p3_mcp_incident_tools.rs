@@ -386,8 +386,8 @@ impl triage::contract::IncidentPersistence for CountingPersistence {
         &self,
         _id: i64,
         _incident: &Incident,
-    ) -> Result<(), triage::contract::IncidentError> {
-        Ok(())
+    ) -> Result<triage::contract::IncidentWriteOutcome, triage::contract::IncidentError> {
+        Ok(triage::contract::IncidentWriteOutcome::Applied)
     }
     fn mark_read(&self, _id: i64, _read_at: i64) -> Result<(), triage::contract::IncidentError> {
         Ok(())

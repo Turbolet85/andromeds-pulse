@@ -25,8 +25,12 @@
 use std::io;
 use std::sync::Arc;
 
-use corpus::contract::{CorpusWriter, Error as CorpusError, IncidentRowRaw};
-use triage::contract::{Incident, IncidentError, IncidentPersistence, incident_status_label};
+use corpus::contract::{
+    CorpusWriter, Error as CorpusError, IncidentRowRaw, IncidentWriteOutcome as CorpusWriteOutcome,
+};
+use triage::contract::{
+    Incident, IncidentError, IncidentPersistence, IncidentWriteOutcome, incident_status_label,
+};
 
 /// Adapter implementing `triage::IncidentPersistence` over a
 /// `corpus::contract::CorpusWriter`. Cheap to clone (single Arc inside).
@@ -59,7 +63,11 @@ impl IncidentPersistence for CorpusIncidentPersistence {
         Ok(id)
     }
 
-    fn update_incident_status(&self, id: i64, payload: &Incident) -> Result<(), IncidentError> {
+    fn update_incident_status(
+        &self,
+        id: i64,
+        payload: &Incident,
+    ) -> Result<IncidentWriteOutcome, IncidentError> {
         let bytes = bincode::serialize(payload).map_err(|_| IncidentError::Serialize)?;
         self.writer
             .update_incident_status(
@@ -69,6 +77,10 @@ impl IncidentPersistence for CorpusIncidentPersistence {
                 payload.resolved_at_unix_nano,
                 &bytes,
             )
+            .map(|outcome| match outcome {
+                CorpusWriteOutcome::Applied => IncidentWriteOutcome::Applied,
+                CorpusWriteOutcome::DeclinedStale => IncidentWriteOutcome::DeclinedStale,
+            })
             .map_err(|err| match err {
                 CorpusError::QueryFailed => IncidentError::NotFound,
                 other => corpus_error_to_incident_error(other),

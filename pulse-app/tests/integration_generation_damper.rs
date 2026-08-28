@@ -150,8 +150,8 @@ impl IncidentPersistence for NoopPersistence {
         &self,
         _id: i64,
         _payload: &Incident,
-    ) -> Result<(), triage::contract::IncidentError> {
-        Ok(())
+    ) -> Result<triage::contract::IncidentWriteOutcome, triage::contract::IncidentError> {
+        Ok(triage::contract::IncidentWriteOutcome::Applied)
     }
     fn mark_read(
         &self,

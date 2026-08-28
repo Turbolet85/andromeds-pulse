@@ -38,15 +38,42 @@ fn incident_persist_allows_its_counts_and_bounded_kind() {
         .for_target("triage.incident.persist")
         .expect("triage.incident.persist must have an explicit leaf entry");
 
-    // `duration_ms` is emitted alongside the other two at the emit site
-    // (`crates/triage/src/incident/persistence.rs`); omitting it would leave the
-    // target partly redacted, which is the defect this entry exists to close.
-    for field in ["incident_count", "persist_kind", "duration_ms"] {
-        assert!(
-            set.contains(field),
-            "incident persist cycle must allow `{field}`"
-        );
-    }
+    // Asserted as SET EQUALITY, not containment: a leaf that resolves but omits
+    // one field renders the rest fine and redacts only that one, so a
+    // containment probe passes while the target is partly muted. The emit site
+    // (`crates/triage/src/incident/persistence.rs::run_incident_persist_cycle`)
+    // is the authority for this list.
+    let expected: std::collections::BTreeSet<&str> = [
+        "incident_count",
+        "persist_kind",
+        "duration_ms",
+        "declined_count",
+    ]
+    .into_iter()
+    .collect();
+    let actual: std::collections::BTreeSet<&str> = set.iter().copied().collect();
+
+    assert_eq!(
+        actual, expected,
+        "the persist leaf must name exactly the fields its emit site emits"
+    );
+}
+
+/// `declined_count` is the whole point of the guarded write being observable:
+/// without it a stale write that the corpus refuses is indistinguishable from
+/// one that never happened. A narrowed leaf keeps every OTHER field rendering,
+/// so this pin is what catches the omission.
+#[test]
+fn incident_persist_allows_the_declined_write_count() {
+    let al = AllowList::production();
+    let set = al
+        .for_target("triage.incident.persist")
+        .expect("triage.incident.persist must have an explicit leaf entry");
+
+    assert!(
+        set.contains("declined_count"),
+        "a declined stale write must be countable at the wire"
+    );
 }
 
 #[test]

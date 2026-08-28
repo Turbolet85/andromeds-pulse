@@ -79,10 +79,11 @@ pub use crate::incident::{
     DEFAULT_INCIDENT_ACK_COOLDOWN_SECS, DEFAULT_INCIDENT_AUTO_RESOLVE_WINDOW_SECS,
     DEFAULT_INCIDENT_PERSIST_INTERVAL_SECS, INCIDENT_PERSISTENCE_KIND, InMemoryIncidentRegistry,
     IncidentError, IncidentLifecycleBroadcast, IncidentLifecycleEvent, IncidentPersistence,
-    IncidentRecordPayload, IncidentRegistry, IncidentRegistryError, ResolutionTrigger,
-    STREAM_NAME_INCIDENTS, TARGET_INCIDENT_PERSIST, TARGET_INCIDENT_PERSIST_ERROR,
-    cooldown_expiry_unix_nano, is_valid_incident_transition, run_incident_persist_cycle,
-    run_incident_persist_loop, should_auto_resolve, status_label as incident_status_label,
+    IncidentRecordPayload, IncidentRegistry, IncidentRegistryError, IncidentWriteOutcome,
+    ResolutionTrigger, STREAM_NAME_INCIDENTS, TARGET_INCIDENT_PERSIST,
+    TARGET_INCIDENT_PERSIST_ERROR, cooldown_expiry_unix_nano, is_valid_incident_transition,
+    run_incident_persist_cycle, run_incident_persist_loop, should_auto_resolve,
+    status_label as incident_status_label,
 };
 
 // Chunk #67 — service registry + lifecycle state machine. Re-export

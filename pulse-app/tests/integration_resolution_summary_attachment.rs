@@ -92,10 +92,10 @@ impl IncidentPersistence for CountingPersistence {
         &self,
         _id: i64,
         payload: &Incident,
-    ) -> Result<(), triage::contract::IncidentError> {
+    ) -> Result<triage::contract::IncidentWriteOutcome, triage::contract::IncidentError> {
         *self.update_count.lock().unwrap() += 1;
         *self.last_updated.lock().unwrap() = Some(payload.clone());
-        Ok(())
+        Ok(triage::contract::IncidentWriteOutcome::Applied)
     }
     fn mark_read(
         &self,

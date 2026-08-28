@@ -91,6 +91,15 @@ impl IncidentError {
     }
 }
 
+/// Outcome of a guarded incident write. Mirrors the corpus-side enum
+/// without depending on that crate — `triage` sits below `corpus` in the
+/// dependency DAG, so the adapter at the binary boundary maps between them.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum IncidentWriteOutcome {
+    Applied,
+    DeclinedStale,
+}
+
 /// Abstraction over durable storage for `InMemoryIncidentRegistry`.
 /// `save_new_incident` INSERTs a new row and returns the corpus-assigned
 /// rowid as the new `Incident.id`. The `update_*` methods accept the
@@ -105,8 +114,15 @@ pub trait IncidentPersistence: Send + Sync {
     fn save_new_incident(&self, incident: &Incident) -> Result<i64, IncidentError>;
 
     /// UPDATE an existing incident's status + timestamps. Returns
-    /// `NotFound` when no row matches the id.
-    fn update_incident_status(&self, id: i64, payload: &Incident) -> Result<(), IncidentError>;
+    /// `NotFound` when no row matches the id, and `DeclinedStale` when the
+    /// stored row is NEWER than `payload` — a write losing to a fresher
+    /// writer is an expected outcome, not a fault, so callers must not
+    /// route it to an error target.
+    fn update_incident_status(
+        &self,
+        id: i64,
+        payload: &Incident,
+    ) -> Result<IncidentWriteOutcome, IncidentError>;
 
     /// UPDATE only the `read_unix_nano` column for an incident (chunk #87
     /// — Findings counter "Mark all as read" + future Report-opening
@@ -165,11 +181,14 @@ pub fn run_incident_persist_cycle(
 ) -> Result<(), IncidentError> {
     let persist_start = std::time::Instant::now();
     let mut persisted_count: u64 = 0;
+    let mut declined_count: u64 = 0;
     for workspace in workspaces {
         let actives = registry.list_active(workspace);
         for incident in actives {
-            persistence.update_incident_status(incident.id, &incident)?;
-            persisted_count += 1;
+            match persistence.update_incident_status(incident.id, &incident)? {
+                IncidentWriteOutcome::Applied => persisted_count += 1,
+                IncidentWriteOutcome::DeclinedStale => declined_count += 1,
+            }
         }
     }
     let duration_ms = persist_start.elapsed().as_millis() as u64;
@@ -178,6 +197,7 @@ pub fn run_incident_persist_cycle(
         incident_count = persisted_count,
         persist_kind = persist_kind,
         duration_ms = duration_ms,
+        declined_count = declined_count,
         "incident persist cycle complete",
     );
     Ok(())
@@ -278,12 +298,16 @@ mod tests {
             self.save_new.lock().expect("lock").push(incident.clone());
             Ok(id)
         }
-        fn update_incident_status(&self, id: i64, payload: &Incident) -> Result<(), IncidentError> {
+        fn update_incident_status(
+            &self,
+            id: i64,
+            payload: &Incident,
+        ) -> Result<IncidentWriteOutcome, IncidentError> {
             self.updates
                 .lock()
                 .expect("lock")
                 .push((id, payload.clone()));
-            Ok(())
+            Ok(IncidentWriteOutcome::Applied)
         }
         fn mark_read(&self, _id: i64, _read_unix_nano: i64) -> Result<(), IncidentError> {
             Ok(())

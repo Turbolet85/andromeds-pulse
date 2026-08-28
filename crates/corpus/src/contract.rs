@@ -89,6 +89,16 @@ pub struct IncidentRowRaw {
     pub payload: Vec<u8>,
 }
 
+/// Outcome of a guarded incident write. A stale write is DECLINED rather
+/// than failing, so callers must handle it as a value: encoding it as an
+/// `Error` would make "log it as a failure" the default at every call site,
+/// and a write losing to a fresher writer is expected, not a fault.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum IncidentWriteOutcome {
+    Applied,
+    DeclinedStale,
+}
+
 /// Corpus handle — wraps the rusqlite Connection + tracks the resolved
 /// on-disk path + the loaded encryption key. Construct via
 /// [`Corpus::open`] (on-disk) or [`Corpus::open_in_memory`] (tests).
@@ -339,11 +349,14 @@ pub trait CorpusWriter: Send + Sync {
 
     /// UPDATE an existing `incidents` row's status + timestamps + payload
     /// (chunk #78). Updates the metadata columns + replaces the encrypted
-    /// payload BLOB to keep BLOB-state in sync with column-state. Used by
-    /// `incidents.acknowledge(id)` + `incidents.mark_resolved(id)` +
-    /// auto-resolution observer tick. Returns `Error::QueryFailed` when
-    /// `id` does not match a row (caller maps to `IncidentError::NotFound`
-    /// or `AppError::NotFound` at the binary boundary).
+    /// payload BLOB to keep BLOB-state in sync with column-state.
+    ///
+    /// This is the single choke point every incident writer traverses,
+    /// including the `andromeda-pulse-mcp` sidecar in a separate process,
+    /// so the monotonic guard lives here rather than at any caller: a write
+    /// whose `updated_unix_nano` is older than the stored row's is DECLINED
+    /// (`IncidentWriteOutcome::DeclinedStale`) instead of clobbering it.
+    /// `Error::QueryFailed` still means the row does not exist.
     fn update_incident_status(
         &self,
         id: i64,
@@ -351,7 +364,7 @@ pub trait CorpusWriter: Send + Sync {
         updated_unix_nano: i64,
         resolved_unix_nano: Option<i64>,
         payload: &[u8],
-    ) -> Result<(), Error>;
+    ) -> Result<IncidentWriteOutcome, Error>;
 
     /// UPDATE only the `read_unix_nano` column for an incident (chunk #78).
     /// Used by Report-opening event (chunk #87+ wires the UI trigger;
@@ -607,20 +620,32 @@ impl CorpusWriter for Corpus {
         updated_unix_nano: i64,
         resolved_unix_nano: Option<i64>,
         payload: &[u8],
-    ) -> Result<(), Error> {
+    ) -> Result<IncidentWriteOutcome, Error> {
         let encrypted = cell_encrypt(self.key(), payload)?;
         let conn = self.connection();
         let guard = conn.lock().map_err(|_| Error::QueryFailed)?;
         let rows = guard
             .execute(
-                "UPDATE incidents SET status = ?1, updated_unix_nano = ?2, resolved_unix_nano = ?3, payload = ?4 WHERE id = ?5",
+                "UPDATE incidents SET status = ?1, updated_unix_nano = ?2, resolved_unix_nano = ?3, payload = ?4 WHERE id = ?5 AND updated_unix_nano <= ?2",
                 rusqlite::params![status, updated_unix_nano, resolved_unix_nano, &encrypted[..], id],
             )
             .map_err(|_| Error::QueryFailed)?;
         if rows == 0 {
+            let exists = guard
+                .query_row(
+                    "SELECT 1 FROM incidents WHERE id = ?1",
+                    rusqlite::params![id],
+                    |_| Ok(()),
+                )
+                .optional()
+                .map_err(|_| Error::QueryFailed)?
+                .is_some();
+            if exists {
+                return Ok(IncidentWriteOutcome::DeclinedStale);
+            }
             return Err(Error::QueryFailed);
         }
-        Ok(())
+        Ok(IncidentWriteOutcome::Applied)
     }
 
     fn mark_incident_read(&self, id: i64, read_unix_nano: i64) -> Result<(), Error> {
@@ -1268,9 +1293,10 @@ mod tests {
         let id = writer
             .save_incident("ws-b", "active", 2_000, 2_000, None, None, b"blob")
             .expect("save");
-        writer
+        let outcome = writer
             .update_incident_status(id, "resolved", 3_000, Some(3_000), b"blob-resolved")
             .expect("resolve");
+        assert_eq!(outcome, IncidentWriteOutcome::Applied);
         let row = writer
             .load_incident_by_id(id)
             .expect("load")
@@ -1278,6 +1304,75 @@ mod tests {
         assert_eq!(row.status, "resolved");
         assert_eq!(row.resolved_unix_nano, Some(3_000));
         assert_eq!(row.payload, b"blob-resolved");
+    }
+
+    #[test]
+    fn update_incident_status_declines_a_write_older_than_the_stored_row() {
+        let corpus = test_corpus();
+        let writer: Arc<dyn CorpusWriter> = Arc::new(corpus);
+        let id = writer
+            .save_incident(
+                "ws-race",
+                "active",
+                1_000,
+                1_000,
+                None,
+                None,
+                b"blob-active",
+            )
+            .expect("save");
+        writer
+            .update_incident_status(id, "resolved", 3_000, Some(3_000), b"blob-resolved")
+            .expect("resolve");
+
+        // The stale-snapshot write: an older `updated_unix_nano` carrying the
+        // pre-resolution state, exactly what the persist cycle replays.
+        let outcome = writer
+            .update_incident_status(id, "active", 2_000, None, b"blob-stale")
+            .expect("stale write must not error");
+
+        assert_eq!(outcome, IncidentWriteOutcome::DeclinedStale);
+        let row = writer
+            .load_incident_by_id(id)
+            .expect("load")
+            .expect("Some(row)");
+        assert_eq!(row.status, "resolved", "the resolution must survive");
+        assert_eq!(row.resolved_unix_nano, Some(3_000));
+        assert_eq!(row.payload, b"blob-resolved");
+    }
+
+    #[test]
+    fn update_incident_status_applies_an_equal_timestamp_write() {
+        let corpus = test_corpus();
+        let writer: Arc<dyn CorpusWriter> = Arc::new(corpus);
+        let id = writer
+            .save_incident("ws-eq", "active", 1_000, 5_000, None, None, b"blob-a")
+            .expect("save");
+
+        // The ordinary persist-cycle case: re-writing an unchanged row at the
+        // same timestamp must still land, or every steady-state cycle declines.
+        let outcome = writer
+            .update_incident_status(id, "active", 5_000, None, b"blob-b")
+            .expect("equal-timestamp write");
+
+        assert_eq!(outcome, IncidentWriteOutcome::Applied);
+        let row = writer
+            .load_incident_by_id(id)
+            .expect("load")
+            .expect("Some(row)");
+        assert_eq!(row.payload, b"blob-b");
+    }
+
+    #[test]
+    fn update_incident_status_still_errors_for_a_missing_row() {
+        let corpus = test_corpus();
+        let writer: Arc<dyn CorpusWriter> = Arc::new(corpus);
+
+        // A declined write and an absent row must stay distinguishable — the
+        // adapter maps only the latter to `NotFound`.
+        let result = writer.update_incident_status(404_404, "resolved", 9_000, Some(9_000), b"x");
+
+        assert!(matches!(result, Err(Error::QueryFailed)));
     }
 
     #[test]

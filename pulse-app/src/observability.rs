@@ -2323,10 +2323,15 @@ impl AllowList {
         );
         by_target.insert(
             "triage.incident.persist",
-            ["incident_count", "persist_kind", "duration_ms"]
-                .iter()
-                .copied()
-                .collect(),
+            [
+                "incident_count",
+                "persist_kind",
+                "duration_ms",
+                "declined_count",
+            ]
+            .iter()
+            .copied()
+            .collect(),
         );
         by_target.insert(
             "triage.incident.corpus_restore",

@@ -48,12 +48,16 @@ impl IncidentPersistence for RecordingPersistence {
         self.saved.lock().expect("lock").push(incident.clone());
         Ok(*next)
     }
-    fn update_incident_status(&self, id: i64, payload: &Incident) -> Result<(), IncidentError> {
+    fn update_incident_status(
+        &self,
+        id: i64,
+        payload: &Incident,
+    ) -> Result<triage::contract::IncidentWriteOutcome, IncidentError> {
         self.updates
             .lock()
             .expect("lock")
             .push((id, payload.clone()));
-        Ok(())
+        Ok(triage::contract::IncidentWriteOutcome::Applied)
     }
     fn mark_read(&self, _id: i64, _read_unix_nano: i64) -> Result<(), IncidentError> {
         Ok(())
