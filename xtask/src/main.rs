@@ -58,11 +58,13 @@ enum Cmd {
     CheckIngestProgress,
     #[command(
         name = "smoke:gap-resume",
-        about = "Drive the ingest wedge's real shape — seed, GAP until every service crosses its bootstrap window and the silence family escalates to tier1, then resume — and read the verdict from the shipped drain-progress detector. A pass with no storm in the log is INCONCLUSIVE, not a pass. --sustained runs the control arm (continuous feed, no gap: the shape the predecessor's leg ran, where no storm can form)"
+        about = "Drive the ingest wedge's real shape — seed, GAP until every service crosses its bootstrap window and the silence family escalates to tier1, then resume — and read the verdict from the shipped drain-progress detector. A pass with no storm in the log is INCONCLUSIVE, not a pass. --sustained runs the control arm (continuous feed, no gap: the shape the predecessor's leg ran, where no storm can form). --reconnect-only runs the separator arm (seed then reconnect with NO idle gap), which isolates the new gRPC connection from the idle window the default arm varies alongside it"
     )]
     SmokeGapResume {
-        #[arg(long)]
+        #[arg(long, conflicts_with = "reconnect_only")]
         sustained: bool,
+        #[arg(long)]
+        reconnect_only: bool,
         #[arg(long, value_name = "SECONDS")]
         bootstrap_seconds: Option<u64>,
         #[arg(long, value_name = "SECONDS")]
@@ -190,13 +192,19 @@ async fn main() -> ExitCode {
         Cmd::CheckIngestProgress => run_check_ingest_progress(),
         Cmd::SmokeGapResume {
             sustained,
+            reconnect_only,
             bootstrap_seconds,
             gap_seconds,
             observe_minutes,
         } => {
             let defaults = gap_resume::GapResumeOptions::default();
+            let arm = match (sustained, reconnect_only) {
+                (true, _) => gap_resume::LegArm::Sustained,
+                (_, true) => gap_resume::LegArm::ReconnectOnly,
+                _ => gap_resume::LegArm::GapResume,
+            };
             gap_resume::run_gap_resume(gap_resume::GapResumeOptions {
-                sustained,
+                arm,
                 bootstrap_seconds: bootstrap_seconds.unwrap_or(defaults.bootstrap_seconds),
                 gap_seconds: gap_seconds.unwrap_or(defaults.gap_seconds),
                 observe_minutes: observe_minutes.unwrap_or(defaults.observe_minutes),

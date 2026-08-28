@@ -42,12 +42,41 @@ const DEFAULT_OBSERVE_MINUTES: u64 = 9;
 
 const OTLP_GRPC_PORT: u16 = 4317;
 const OTLP_HTTP_PORT: u16 = 4318;
+/// One record per table append. Its presence proves the producer delivered and
+/// the consumer reached DuckDB at least once — the reconnect arm's precondition.
+const TARGET_DUCKDB_APPEND: &str = "duckdb.append";
 /// `tracing_appender`'s non-blocking writer holds the log open; give it room to
 /// flush before the process is torn down and the family is read.
 const FLUSH_SETTLE: Duration = Duration::from_secs(5);
 
+/// Which scenario this run drives. The gap arm changes TWO variables at once —
+/// an idle window long enough for the silence family to escalate, AND a new
+/// gRPC connection (the injector connects once per process) — so it cannot say
+/// which one triggers the wedge. `ReconnectOnly` removes the idle and keeps the
+/// reconnect; the pair separates them.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub enum LegArm {
+    /// seed -> GAP -> resume. Reproduces the wedge.
+    #[default]
+    GapResume,
+    /// One unbroken feed. No gap, so no storm can form.
+    Sustained,
+    /// seed -> resume with NO gap between the two producer processes.
+    ReconnectOnly,
+}
+
+impl LegArm {
+    pub fn label(&self) -> &'static str {
+        match self {
+            LegArm::GapResume => "gap-resume",
+            LegArm::Sustained => "sustained-control",
+            LegArm::ReconnectOnly => "reconnect-only",
+        }
+    }
+}
+
 pub struct GapResumeOptions {
-    pub sustained: bool,
+    pub arm: LegArm,
     pub bootstrap_seconds: u64,
     pub gap_seconds: u64,
     pub observe_minutes: u64,
@@ -56,7 +85,7 @@ pub struct GapResumeOptions {
 impl Default for GapResumeOptions {
     fn default() -> Self {
         Self {
-            sustained: false,
+            arm: LegArm::GapResume,
             bootstrap_seconds: DEFAULT_BOOTSTRAP_SECONDS,
             gap_seconds: DEFAULT_GAP_SECONDS,
             observe_minutes: DEFAULT_OBSERVE_MINUTES,
@@ -72,11 +101,21 @@ pub struct StormEvidence {
     pub silence_cues: usize,
     pub tier1_triggers: usize,
     pub buffer_ticks: usize,
+    pub appends: usize,
 }
 
 impl StormEvidence {
     pub fn fired(&self) -> bool {
         self.silence_cues > 0 && self.tier1_triggers > 0
+    }
+
+    /// The reconnect arm's own precondition. It has no storm by construction, so
+    /// it cannot borrow `fired()`; what makes its verdict countable is that the
+    /// producer actually delivered — at least one batch reached DuckDB. Without
+    /// this a run where the injector never connected would report a clean PASS
+    /// while exercising nothing.
+    pub fn fed(&self) -> bool {
+        self.appends > 0
     }
 }
 
@@ -112,6 +151,7 @@ pub fn storm_evidence(lines: &[Value]) -> StormEvidence {
                 }
             }
             ingest_progress::TARGET_BUFFER_TICK => evidence.buffer_ticks += 1,
+            TARGET_DUCKDB_APPEND => evidence.appends += 1,
             _ => {}
         }
     }
@@ -130,8 +170,10 @@ pub enum LegOutcome {
 /// Combine the shipped verdict with the precondition evidence. In the gap arm a
 /// storm is REQUIRED (its absence makes any pass vacuous); in the sustained
 /// control arm the storm must be ABSENT, which is what makes the two arms
-/// different tests rather than the same one run twice.
-pub fn judge(verdict: &Verdict, evidence: &StormEvidence, sustained: bool) -> LegOutcome {
+/// different tests rather than the same one run twice. The reconnect arm has no
+/// storm by construction, so it carries its own precondition — that the
+/// producer actually delivered across the reconnect (`fed`).
+pub fn judge(verdict: &Verdict, evidence: &StormEvidence, arm: LegArm) -> LegOutcome {
     if let Verdict::Fail {
         reason,
         consequence,
@@ -152,7 +194,7 @@ pub fn judge(verdict: &Verdict, evidence: &StormEvidence, sustained: bool) -> Le
         };
     }
 
-    if sustained {
+    if arm == LegArm::Sustained {
         if evidence.fired() {
             return LegOutcome::Inconclusive {
                 reason: format!(
@@ -165,6 +207,28 @@ pub fn judge(verdict: &Verdict, evidence: &StormEvidence, sustained: bool) -> Le
             detail: format!(
                 "sustained control: no silence storm (as designed), {} buffer ticks, consumer kept draining",
                 evidence.buffer_ticks
+            ),
+        };
+    }
+
+    if arm == LegArm::ReconnectOnly {
+        if evidence.fired() {
+            return LegOutcome::Inconclusive {
+                reason: format!(
+                    "reconnect arm produced a silence storm it should not have ({} cues / {} tier1 triggers) — the gap-free run lapsed, so it is not isolating the reconnect",
+                    evidence.silence_cues, evidence.tier1_triggers
+                ),
+            };
+        }
+        if !evidence.fed() {
+            return LegOutcome::Inconclusive {
+                reason: "no `duckdb.append` records — the producer never delivered across the reconnect, so the arm exercised nothing and its pass would prove nothing".to_string(),
+            };
+        }
+        return LegOutcome::Pass {
+            detail: format!(
+                "reconnect-only: producer reconnected with no idle gap and no storm formed (as designed), {} appends across {} buffer ticks, consumer kept draining — the idle window, not the reconnect, is implicated",
+                evidence.appends, evidence.buffer_ticks
             ),
         };
     }
@@ -209,11 +273,7 @@ pub async fn run_gap_resume(options: GapResumeOptions) -> Result<std::process::E
     let data_dir = tempdir(&root)?;
     println!(
         "smoke:gap-resume: arm={} data_dir={}",
-        if options.sustained {
-            "sustained-control"
-        } else {
-            "gap-resume"
-        },
+        options.arm.label(),
         data_dir.display()
     );
 
@@ -227,7 +287,7 @@ pub async fn run_gap_resume(options: GapResumeOptions) -> Result<std::process::E
     let verdict = ingest_progress::evaluate(&lines);
     let evidence = storm_evidence(&lines);
 
-    match judge(&verdict, &evidence, options.sustained) {
+    match judge(&verdict, &evidence, options.arm) {
         LegOutcome::Pass { detail } => {
             println!("smoke:gap-resume: PASS — {detail}");
             Ok(std::process::ExitCode::SUCCESS)
@@ -246,35 +306,56 @@ pub async fn run_gap_resume(options: GapResumeOptions) -> Result<std::process::E
 async fn drive(injector: &Path, data_dir: &Path, options: &GapResumeOptions) -> Result<()> {
     wait_for_receiver().await?;
 
-    if options.sustained {
-        println!("smoke:gap-resume: sustained control — no gap, continuous feed");
-        seed(
-            injector,
-            &[
-                "--sustained".to_string(),
-                format!("--minutes={}", options.observe_minutes),
-            ],
-        )
-        .await?;
-    } else {
-        println!("smoke:gap-resume: seed 1 ({}m)", DEFAULT_SEED_MINUTES);
-        seed(injector, &[format!("--minutes={DEFAULT_SEED_MINUTES}")]).await?;
+    match options.arm {
+        LegArm::Sustained => {
+            println!("smoke:gap-resume: sustained control — no gap, continuous feed");
+            seed(
+                injector,
+                &[
+                    "--sustained".to_string(),
+                    format!("--minutes={}", options.observe_minutes),
+                ],
+            )
+            .await?;
+        }
+        LegArm::ReconnectOnly => {
+            println!("smoke:gap-resume: seed 1 ({}m)", DEFAULT_SEED_MINUTES);
+            seed(injector, &[format!("--minutes={DEFAULT_SEED_MINUTES}")]).await?;
 
-        println!(
-            "smoke:gap-resume: gap {}s — every service crosses the {}s bootstrap window",
-            options.gap_seconds, options.bootstrap_seconds
-        );
-        tokio::time::sleep(Duration::from_secs(options.gap_seconds)).await;
+            // No sleep between the two producer processes: the injector connects
+            // once per process, so run 2 is a NEW gRPC connection with no idle
+            // window. That is the whole point of this arm — the gap arm varies
+            // both at once.
+            println!(
+                "smoke:gap-resume: reconnect immediately — new gRPC connection, NO idle gap ({}m)",
+                options.observe_minutes
+            );
+            seed(
+                injector,
+                &[format!("--minutes={}", options.observe_minutes)],
+            )
+            .await?;
+        }
+        LegArm::GapResume => {
+            println!("smoke:gap-resume: seed 1 ({}m)", DEFAULT_SEED_MINUTES);
+            seed(injector, &[format!("--minutes={DEFAULT_SEED_MINUTES}")]).await?;
 
-        println!(
-            "smoke:gap-resume: resume ({}m, outlasting the 450s stall threshold)",
-            options.observe_minutes
-        );
-        seed(
-            injector,
-            &[format!("--minutes={}", options.observe_minutes)],
-        )
-        .await?;
+            println!(
+                "smoke:gap-resume: gap {}s — every service crosses the {}s bootstrap window",
+                options.gap_seconds, options.bootstrap_seconds
+            );
+            tokio::time::sleep(Duration::from_secs(options.gap_seconds)).await;
+
+            println!(
+                "smoke:gap-resume: resume ({}m, outlasting the 450s stall threshold)",
+                options.observe_minutes
+            );
+            seed(
+                injector,
+                &[format!("--minutes={}", options.observe_minutes)],
+            )
+            .await?;
+        }
     }
 
     tokio::time::sleep(FLUSH_SETTLE).await;
@@ -429,6 +510,10 @@ mod tests {
         json!({"target": "buffer.tick", "fields": {"rows_ingested_delta": delta}})
     }
 
+    fn append(rows: u64) -> Value {
+        json!({"target": "duckdb.append", "fields": {"rows_appended": rows}})
+    }
+
     #[test]
     fn storm_evidence_counts_only_the_silence_family() {
         let lines = vec![
@@ -444,6 +529,25 @@ mod tests {
         assert_eq!(e.tier1_triggers, 1);
         assert_eq!(e.buffer_ticks, 1);
         assert!(e.fired());
+    }
+
+    #[test]
+    fn feed_evidence_counts_appends_and_is_independent_of_the_storm() {
+        // The reconnect arm's precondition must not be satisfiable by storm
+        // records, and must not require them — the two are separate signals.
+        let fed_no_storm = storm_evidence(&[append(10), append(4), tick(3)]);
+        assert_eq!(fed_no_storm.appends, 2);
+        assert!(fed_no_storm.fed());
+        assert!(!fed_no_storm.fired());
+
+        let storm_no_feed = storm_evidence(&[
+            cue("service_went_silent"),
+            trigger("tier1", "service_went_silent"),
+            tick(0),
+        ]);
+        assert_eq!(storm_no_feed.appends, 0);
+        assert!(!storm_no_feed.fed());
+        assert!(storm_no_feed.fired());
     }
 
     #[test]
@@ -464,8 +568,9 @@ mod tests {
             silence_cues: 0,
             tier1_triggers: 0,
             buffer_ticks: 40,
+            appends: 12,
         };
-        match judge(&verdict, &evidence, false) {
+        match judge(&verdict, &evidence, LegArm::GapResume) {
             LegOutcome::Inconclusive { reason } => assert!(reason.contains("never formed")),
             other => panic!("expected Inconclusive, got {other:?}"),
         }
@@ -481,9 +586,10 @@ mod tests {
             silence_cues: 20,
             tier1_triggers: 4,
             buffer_ticks: 40,
+            appends: 30,
         };
         assert!(matches!(
-            judge(&verdict, &evidence, false),
+            judge(&verdict, &evidence, LegArm::GapResume),
             LegOutcome::Pass { .. }
         ));
     }
@@ -496,10 +602,10 @@ mod tests {
             stalled_seconds: 450,
         };
         let evidence = StormEvidence::default();
-        for sustained in [false, true] {
-            match judge(&verdict, &evidence, sustained) {
+        for arm in [LegArm::GapResume, LegArm::Sustained, LegArm::ReconnectOnly] {
+            match judge(&verdict, &evidence, arm) {
                 LegOutcome::Fail { reason } => assert!(reason.contains("450")),
-                other => panic!("expected Fail, got {other:?}"),
+                other => panic!("expected Fail in {arm:?}, got {other:?}"),
             }
         }
     }
@@ -514,9 +620,10 @@ mod tests {
             silence_cues: 0,
             tier1_triggers: 0,
             buffer_ticks: 40,
+            appends: 30,
         };
         assert!(matches!(
-            judge(&verdict, &quiet, true),
+            judge(&verdict, &quiet, LegArm::Sustained),
             LegOutcome::Pass { .. }
         ));
 
@@ -524,21 +631,73 @@ mod tests {
             silence_cues: 9,
             tier1_triggers: 2,
             buffer_ticks: 40,
+            appends: 30,
         };
-        match judge(&verdict, &stormed, true) {
+        match judge(&verdict, &stormed, LegArm::Sustained) {
             LegOutcome::Inconclusive { reason } => assert!(reason.contains("should not have")),
             other => panic!("expected Inconclusive, got {other:?}"),
         }
     }
 
     #[test]
-    fn a_tickless_run_is_inconclusive_in_either_arm() {
+    fn the_reconnect_arm_requires_a_delivered_feed_and_no_storm() {
+        let verdict = Verdict::Pass {
+            ticks: 40,
+            longest_zero_delta_run: 0,
+        };
+
+        // The arm it exists to be: reconnect happened, feed landed, no storm.
+        let clean = StormEvidence {
+            silence_cues: 0,
+            tier1_triggers: 0,
+            buffer_ticks: 40,
+            appends: 25,
+        };
+        match judge(&verdict, &clean, LegArm::ReconnectOnly) {
+            LegOutcome::Pass { detail } => {
+                assert!(detail.contains("reconnect-only"));
+                assert!(detail.contains("25 appends"));
+            }
+            other => panic!("expected Pass, got {other:?}"),
+        }
+
+        // A storm means the gap-free run lapsed — it is no longer isolating the
+        // reconnect, so its verdict says nothing about the trigger.
+        let stormed = StormEvidence {
+            silence_cues: 4,
+            tier1_triggers: 1,
+            buffer_ticks: 40,
+            appends: 25,
+        };
+        match judge(&verdict, &stormed, LegArm::ReconnectOnly) {
+            LegOutcome::Inconclusive { reason } => assert!(reason.contains("gap-free run lapsed")),
+            other => panic!("expected Inconclusive, got {other:?}"),
+        }
+
+        // The precondition that stops a vacuous pass: the producer never
+        // delivered, so a clean drain-progress verdict proves nothing.
+        let unfed = StormEvidence {
+            silence_cues: 0,
+            tier1_triggers: 0,
+            buffer_ticks: 40,
+            appends: 0,
+        };
+        match judge(&verdict, &unfed, LegArm::ReconnectOnly) {
+            LegOutcome::Inconclusive { reason } => {
+                assert!(reason.contains("never delivered across the reconnect"));
+            }
+            other => panic!("expected Inconclusive, got {other:?}"),
+        }
+    }
+
+    #[test]
+    fn a_tickless_run_is_inconclusive_in_every_arm() {
         let verdict = Verdict::Neutral("no ticks".to_string());
         let evidence = StormEvidence::default();
-        for sustained in [false, true] {
-            match judge(&verdict, &evidence, sustained) {
+        for arm in [LegArm::GapResume, LegArm::Sustained, LegArm::ReconnectOnly] {
+            match judge(&verdict, &evidence, arm) {
                 LegOutcome::Inconclusive { reason } => assert!(reason.contains("never ticked")),
-                other => panic!("expected Inconclusive, got {other:?}"),
+                other => panic!("expected Inconclusive in {arm:?}, got {other:?}"),
             }
         }
     }

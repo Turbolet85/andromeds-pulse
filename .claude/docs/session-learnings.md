@@ -1,6 +1,36 @@
 # Session Learnings
 
 
+## 2026-08-28 — Collapse a candidate field with a step probe, not with inference from indirect signals
+
+When attribution has narrowed to "the work stops somewhere inside this function" and there are several
+competing explanations, the temptation is to reason from indirect evidence — which sibling subsystems also
+stopped, which locks they share, what the timing implies. That reasoning is cheap to produce and expensive
+to trust: this session it excluded one candidate correctly and would have excluded the right one wrongly.
+
+The direct instrument is a **step probe**: an env-gated marker emitted at each boundary the suspect path
+crosses (loop entry · the synchronous tap · the `spawn_blocking` submit · the closure actually running · the
+lock acquired · each build · each append · the guard dropped). A single wedged run then names the last step
+reached, and every candidate upstream of that marker is excluded by direct evidence rather than by argument.
+Here it collapsed a three-candidate field in one run: the tap's marker printed (so the tap completed), the
+`spawn_blocking:running` marker printed (so the pool scheduled it — pool starvation excluded), the appender
+opened and `append_record_batch` returned, and only `flush()` never did. A second, finer probe inside the
+append pinned it exactly.
+
+Three things make the probe cheap enough to reach for. It is **env-gated** (`if std::env::var_os(...)`), so
+it costs nothing when off and needs no obs target, allowlist leaf, or spec amendment. It writes to **stderr**
+rather than the tracing sink, so it sidesteps the default-deny field redaction entirely — only the target and
+message survive redaction, and a probe that must encode its data in fields would be silently emptied. And it
+is **temporary by construction**: written, read, reverted, with a `grep` afterwards to prove zero residue.
+
+Two cautions. Concurrent `eprintln!` from an async task and a blocking pool thread **interleaves and tears**,
+so per-step COUNTS across a run are unreliable (this run's counts were internally inconsistent, with three
+torn lines) — read the LAST marker of the wedged sequence, which is what the probe is for, and do not build
+an argument on the tallies. And a probe placed only at the outer function is not enough: the first pass here
+localized the hang to a three-call helper, and the answer needed a second pass inside it.
+
+---
+
 ## 2026-08-26 — Attributing a defect that will not reproduce: look for the original log, then ask which consumers died
 
 A chunk whose job is "root-cause X" plans a RED leg to reproduce X. When the leg comes back clean, the instinct is to escalate the reproduction — run longer, load harder, add variables. Two cheaper moves came first this session and both paid.
