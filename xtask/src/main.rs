@@ -7,6 +7,7 @@
 #![allow(clippy::items_after_test_module)]
 
 mod bundle_format;
+mod gap_resume;
 mod ingest_progress;
 mod self_verify;
 mod smoke;
@@ -55,6 +56,20 @@ enum Cmd {
         about = "fail a run whose buffer consumer stopped draining (progress, not liveness); NEUTRAL on an absent log stream"
     )]
     CheckIngestProgress,
+    #[command(
+        name = "smoke:gap-resume",
+        about = "Drive the ingest wedge's real shape — seed, GAP until every service crosses its bootstrap window and the silence family escalates to tier1, then resume — and read the verdict from the shipped drain-progress detector. A pass with no storm in the log is INCONCLUSIVE, not a pass. --sustained runs the control arm (continuous feed, no gap: the shape the predecessor's leg ran, where no storm can form)"
+    )]
+    SmokeGapResume {
+        #[arg(long)]
+        sustained: bool,
+        #[arg(long, value_name = "SECONDS")]
+        bootstrap_seconds: Option<u64>,
+        #[arg(long, value_name = "SECONDS")]
+        gap_seconds: Option<u64>,
+        #[arg(long, value_name = "MINUTES")]
+        observe_minutes: Option<u64>,
+    },
     #[command(name = "audit", about = "cargo audit (RustSec advisory DB)")]
     Audit,
     #[command(name = "deny-bans", about = "cargo deny check bans licenses sources")]
@@ -173,6 +188,21 @@ async fn main() -> ExitCode {
         Cmd::Test { extra } => run_cargo_nextest(extra).await,
         Cmd::TestCoverage { extra } => run_cargo_llvm_cov(extra).await,
         Cmd::CheckIngestProgress => run_check_ingest_progress(),
+        Cmd::SmokeGapResume {
+            sustained,
+            bootstrap_seconds,
+            gap_seconds,
+            observe_minutes,
+        } => {
+            let defaults = gap_resume::GapResumeOptions::default();
+            gap_resume::run_gap_resume(gap_resume::GapResumeOptions {
+                sustained,
+                bootstrap_seconds: bootstrap_seconds.unwrap_or(defaults.bootstrap_seconds),
+                gap_seconds: gap_seconds.unwrap_or(defaults.gap_seconds),
+                observe_minutes: observe_minutes.unwrap_or(defaults.observe_minutes),
+            })
+            .await
+        }
         Cmd::Audit => run_cargo("audit", &[]).await,
         Cmd::DenyBans => run_cargo("deny", &["check", "bans", "licenses", "sources"]).await,
         Cmd::CiGates => run_ci_gates().await,

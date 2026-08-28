@@ -1447,4 +1447,31 @@ mod tests {
             "one admission per condition per window, not per tick"
         );
     }
+
+    #[test]
+    fn cue_latch_holds_the_bound_across_the_scenario_s_multi_window_gap() {
+        // The sibling above spans exactly ONE refractory window. The gap-resume
+        // scenario holds every service silent for ~3 minutes, so the bound that
+        // matters is the RATE across several windows: the window must re-open
+        // (or a persistent fault would be silenced forever) without re-opening
+        // per tick (which is the wedge). 180 ticks => admissions at t=0/60/120.
+        let latch = CueLatch::with_refractory_nanos(CUE_LATCH_REFRACTORY_NANOS);
+        let services = ["svc-a", "svc-b", "svc-c", "svc-d", "svc-e"];
+        let cycle = || services.iter().map(|s| silent(s)).collect::<Vec<_>>();
+
+        let mut admitted_total = 0_usize;
+        for tick in 0..180_i64 {
+            admitted_total += latch
+                .admit_cycle(cycle(), tick * 1_000_000_000)
+                .admitted
+                .len();
+        }
+
+        assert_eq!(
+            admitted_total,
+            15,
+            "5 services x 3 windows; unlatched this shape is {} admissions",
+            services.len() * 180
+        );
+    }
 }
