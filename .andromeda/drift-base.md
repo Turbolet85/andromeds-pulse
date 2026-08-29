@@ -117,6 +117,21 @@ for the report to carry it (extend report-template) — never re-derive from git
   invariant: the chunk does not log raw user input / PII (§8 PII Scrubbing).
   check: agent-read — if the report adds logging that touches user data, confirm redaction per §8; raw PII in logs is drift.
   severity: escalate
+- id: D-obs-defect-narrative
+  doc: obs-plan
+  invariant: a defect / mechanism NARRATIVE §10 states as current — an OPEN-vs-closed status, a measured causal chain, a fixed-vs-open tally, a named owner — still matches what the chunk measured.
+  check: agent-read — read the report's `Spec claims disproved by measurement` bullet, its Outcome, and any Coverage row describing a CHANGED failure mode at an existing boundary; if any touches a defect §10 describes, confirm §10 still states its status, its causal chain and its owner correctly. A stale status, a falsified mechanism, or an owner pointer the chunk discharged is drift. §10's LEAD-IN restates the fixed-vs-open tally, so treat it as a second occurrence and propose it as a `dependent-of`. NOTE this detector binds to PROSE the chunk disproved, not to a new symbol — the report's Changes bullets may list nothing new at all and the invariant can still be violated.
+  severity: warning
+  # Added 2026-08-29 (chunk 2026-08-28-duplicate-span-replay-fails-loudly) WITH the operator.
+  # Rationale: §10 defect 4's narrative needed amendment at TWO CONSECUTIVE chunks — its mechanism
+  # corrected at 2026-08-28-ingest-consumer-block-under-gap-resume, then corrected AGAIN and the
+  # defect closed here — and on BOTH occasions the three existing obs detectors returned
+  # `proposals: []`, because instrumentation / logger-stack / PII all bind to something NEW in the
+  # report's Changes, and a falsified narrative adds nothing new. Both times only the chunk plan's
+  # "Expected amendments (wrap)" floor caught it, which depends on the phase author foreseeing the
+  # amendment. A recurring uncovered class per P2 step 3. Scoped to obs-plan deliberately: both
+  # measured occurrences are §10's defect list, and a speculative copy in the other six masters
+  # would be over-reach — extend it there when evidence appears, not before.
 
 # — a11y-plan —
 - id: D-a11y-surface
