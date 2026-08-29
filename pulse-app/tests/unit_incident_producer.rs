@@ -12,6 +12,7 @@
 use std::sync::{Arc, Mutex};
 
 use interpretation::schema::{Decision, L4Output, Severity as L4Severity};
+use pulse_app::deterministic_inference::CANNED_L4_OUTPUT_JSON;
 use pulse_app::inference_runtime::create_incident_from_l4_output;
 use triage::contract::{
     CueKind, CueScope, Digest, DigestCueRef, DigestKind, DigestLwwMode, InMemoryIncidentRegistry,
@@ -957,4 +958,61 @@ impl tracing::Subscriber for CapturingSubscriber {
     }
     fn enter(&self, _: &tracing::span::Id) {}
     fn exit(&self, _: &tracing::span::Id) {}
+}
+
+/// Det-L4 blind-spot pin (b): the producer hardcodes the three
+/// non-fingerprint `EvidenceRefs` fields empty in EVERY mode, so the MCP
+/// slice's `span_refs` / `timestamps_unix_nano` are permanently empty in
+/// production and an absence check over them passes for the wrong reason
+/// (arch §Occupied Resources → `ANDROMEDA_PULSE_L4_DETERMINISTIC`). This pin
+/// records that emptiness as BY CONSTRUCTION: the chunk that populates the
+/// producer must flip it and rewrite those vacuous absence checks. The
+/// populated `fingerprint_hashes` union is the in-test selectivity control
+/// proving the pin reads the produced incident.
+#[test]
+fn producer_evidence_trace_span_and_timestamps_are_empty_by_construction() {
+    let (registry, persistence) = fresh();
+    let digest = digest_with_fingerprinted_cue(
+        CueKind::ErrorRateSpike,
+        CueScope::Service,
+        Some("payment-service"),
+        Some(FINGERPRINT_A),
+    );
+    let parsed: L4Output =
+        serde_json::from_str(CANNED_L4_OUTPUT_JSON).expect("canned deterministic output parses");
+
+    create_incident_from_l4_output(
+        registry.as_ref(),
+        persistence.as_ref(),
+        &digest,
+        &parsed,
+        5_000,
+    );
+
+    let inc = registry.list_active(WORKSPACE).remove(0);
+    assert_eq!(
+        inc.evidence_refs.trace_id, None,
+        "no trace-id source exists at this seam in any mode",
+    );
+    assert_eq!(
+        inc.evidence_refs.span_ids,
+        Vec::<[u8; 8]>::new(),
+        "span ids are not threaded by any mode",
+    );
+    assert_eq!(
+        inc.evidence_refs.timestamps_unix_nano,
+        Vec::<i64>::new(),
+        "timestamps are not threaded by any mode",
+    );
+    assert_eq!(
+        inc.evidence_refs.fingerprint_hashes,
+        vec![
+            "det-span-9f2c4a7e1b6d0358".to_string(),
+            "det-template-0007".to_string(),
+            "det-fingerprint-4a7f2b91c6e05d3849b1e7a2c5f08d63".to_string(),
+            FINGERPRINT_A.to_string(),
+        ],
+        "selectivity control: the canned refs land FIRST, then the cue's real \
+         fingerprint — the populated union proves this pin is live",
+    );
 }

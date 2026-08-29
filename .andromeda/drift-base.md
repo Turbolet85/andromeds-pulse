@@ -73,12 +73,35 @@ for the report to carry it (extend report-template) — never re-derive from git
   check: agent-read — read the Coverage `tokens` flag of each new UI element in the report; `hardcoded✗` is drift against §Color Palette / §Spacing / §Typography.
   severity: warning
 
+- id: D-design-status-narrative
+  doc: design-system
+  invariant: a CURRENT-STATUS claim this doc states about an existing surface / layer / signature element — renders vs unbuilt vs DEFERRED, an owner pointer, a build-or-retire fork — still matches what the chunk's report measured or ruled.
+  check: agent-read — read the report's Spec-master-edits bullet, its `Spec claims disproved by measurement` bullet, and any operator RULING it records; if any touches a surface whose status this doc states (§Brand Identity Signature element, §Motion high-impact moments, §Surface: desktop-native component patterns, §Self-Validation checks), confirm the doc still states the status, the spec-vs-shipped distinction, and the owner pointer correctly — proposing one amendment per restating occurrence (this doc duplicates status claims across Brand Identity / Motion / native / Self-Validation). NOTE this detector binds to PROSE the chunk moved, not to a new symbol — the Changes bullets may list nothing new and the invariant can still be violated (the D-obs-defect-narrative shape, extended here on evidence).
+  severity: warning
+  # Added 2026-08-29 (chunk 2026-08-29-halo-state-pulse-signature-deferred) WITH the operator.
+  # Rationale: THIRD measured instance of the status-change-binds-to-no-detector class (after the
+  # D-security-logging and D-obs-defect-narrative rationales' instances): this chunk's 14-edit
+  # defer-disposition amendment set across design-system + layout-templates drew proposals: [] from
+  # all 7 detectors and entered solely via the plan's Expected-amendments floor — which held only
+  # because the amendments WERE the deliverable the phase author enumerated. The gap bites when a
+  # status moves unforeseen (e.g. the deferred layer landing next version). D-obs-defect-narrative's
+  # own rationale deferred extending beyond obs-plan "when evidence appears, not before" — it appeared.
+
 # — layout-templates —
 - id: D-layout-surface
   doc: layout-templates
   invariant: a new user-facing surface / region the chunk adds is described in §Primary Surfaces / the wireframes.
   check: agent-read — if the report adds a UI surface or region, confirm it maps to a §Wireframe entry; an undocumented surface is drift.
   severity: warning
+
+- id: D-layout-status-narrative
+  doc: layout-templates
+  invariant: a CURRENT-STATUS claim this doc states about an existing surface / layer / signature placement — renders vs unbuilt vs DEFERRED, an owner pointer, cross-surface consistency asserted as maintained — still matches what the chunk's report measured or ruled.
+  check: agent-read — read the report's Spec-master-edits bullet, its `Spec claims disproved by measurement` bullet, and any operator RULING it records; if any touches a surface whose status this doc states (§Signature placement on either surface, §Component status blocks, §IA / Cross-surface coordination notes), confirm the doc still states the status and owner correctly — one amendment per restating occurrence (this doc restates status claims across Expression / Signature placement / Primary screens / Wireframe notes / Component / IA on each surface; the 2026-08-21 sweep needed twelve sites). Sketch labels are exempt while a governing section-level status note stands (the standing sketch-lag pattern). Binds to PROSE the chunk moved, not to a new symbol.
+  severity: warning
+  # Added 2026-08-29 with D-design-status-narrative (same operator approval, same rationale) —
+  # layout-templates is the co-owning master of every signature-status claim and historically the
+  # widest restater (12-site sweep at 2026-08-21; 11 edits at 2026-08-29).
 
 # — test-plan —
 - id: D-tests-coverage

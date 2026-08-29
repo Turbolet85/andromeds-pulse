@@ -12,7 +12,7 @@ _Distilled from `.andromeda/design-system.md` + `.andromeda/layout-templates.md`
 
 ## Signature element: Halo State Pulse
 
-> **Measured 2026-08-21:** the dedicated WebGPU halo canvas layer does NOT render on desktop-webview (no production render site). The shipped signature there is the constellation DOT carrying the severity hue via `severityToHueFraction`; the tray layer was not probed. Build-or-retire is owned by the "Halo State Pulse canvas disposition" route entry.
+> **Measured 2026-08-21; DEFERRED 2026-08-29 (operator ruling, chunk 2026-08-29-halo-state-pulse-signature-deferred):** the dedicated WebGPU halo canvas layer does NOT render on desktop-webview (no production render site; re-verified at HEAD 2026-08-29) and the whole glow layer — webview AND tray (never probed; defers on its own ground) — is DEFERRED to the next version, neither built in 0.3.0 nor deleted from the spec. The shipped signature is the constellation DOT carrying the severity hue via `severityToHueFraction`. The render half rides `.andromeda/residuals.md` (target 0.4.0); design direction gathers in `andromeda-pulse-0.4.0-incubator/signature-orb/`. The spec below is the deferred design record.
 WebGPU shader-driven circular animated glow rendered on a dedicated canvas layer around each service constellation dot:
 - **Frequency:** breathing period 4–5 s when quiet → ~2 s under active flow (≈0.2–0.5 Hz; driven by activity state, not raw throughput). Opacity + blur modulation only, never scale (P-026). Supersedes the chunk #31-era 0.8–2.4 Hz `throughput_hz / 1000` band per design-system.md Decisions Log 2026-05-29.
 - **Hue:** LCH interpolation Earth Blue (`#4A90E2`) ↔ Alert Burgundy (`#C7556A`) by cumulative incident severity.
@@ -61,7 +61,7 @@ WebGPU shader-driven circular animated glow rendered on a dedicated canvas layer
 - Durations: hover/focus 150ms; panel transition 200ms; Investigation Capture Collapse 250–350ms (supporting moment, exempt from 200ms hard limit).
 - Halo State Pulse: data-driven, exempt from chrome budget.
 - **Hard limits (NEVER):** parallax / scroll animations / spring / staggered reveals / 3D transforms / canvas-WebGL except Halo / opacity fades >200ms.
-- **All transitions respect `prefers-reduced-motion: reduce`** (becomes instant; Halo → static glow with hue updates).
+- **All transitions respect `prefers-reduced-motion: reduce`** (app-wide, token-bound; becomes instant). The Halo → static-glow-with-hue-updates degrade is a deferred-layer requirement that ships WITH the layer.
 
 ## Iconography
 - **Custom Observatory glyphs:** `aperture`, `telescope`, `constellation-grid`, `star`, `circular-pulse` — built into token system, registered as React components at `pulse-app/ui/src/components/icons/`. Monochrome `#E8EEF7` default.
@@ -80,7 +80,7 @@ WebGPU shader-driven circular animated glow rendered on a dedicated canvas layer
 - CSP: `script-src 'self'`; WOFF2 fonts bundled locally.
 
 ### desktop-native (Tauri tray icon + menu)
-- **Tray icon:** monochrome SVG glyph (constellation-star/aperture) at 16–22px platform-dependent. Halo State Pulse composited as secondary WebGPU canvas layer (or SVG-filter fallback ≥95% visual equivalence).
+- **Tray icon:** monochrome SVG glyph (constellation-star/aperture) at 16–22px platform-dependent. Halo State Pulse composited as secondary WebGPU canvas layer (or SVG-filter fallback ≥95% visual equivalence) — DEFERRED to the next version on its own ground (never probed; nothing renders it in 0.3.0).
 - **Tray menu (OS-native, flat hierarchy):** Open andromeda-pulse / read-only summary line / Generate Snapshot / Toggle MCP Server (when feature built) / Open Settings / Quit.
 - **OS notifications:** "Snapshot ready ({N} tokens). Paste in {AI tool} to investigate." — 2 lines max via `tauri-plugin-notification`.
 - Per-platform conventions honored: macOS template-image flag + traffic-light buttons; Windows NotifyIcon + Action Center toast; Linux AppIndicator/StatusNotifier + libnotify.
@@ -88,7 +88,7 @@ WebGPU shader-driven circular animated glow rendered on a dedicated canvas layer
 ## Self-Validation Protocol (run before presenting any UI)
 1. **Swap test** — replace fonts/palette/icons/Halo with defaults; meaningful diff?
 2. **Squint test** — hierarchy still perceptible at blur?
-3. **Signature test** — Halo present in 3 places (full dashboard / compact widget / tray)?
+3. **Signature test** — the severity signature (constellation DOT hue via `severityToHueFraction`) present on the surfaces that render it (full dashboard + compact widget constellation canvases)? The 3-place HALO test (dashboard dots / widget badge / tray badge) is deferred with the glow layer and resumes when it lands; meanwhile verify no output claims the glow layer renders.
 4. **Token test** — values trace to Color World / spacing / font stack?
 5. **Sameness test** — would another AI produce same output? Re-anchor to Observatory if yes.
 6. **Contrast test** — match Text Hierarchy ratios (Primary ≥4.5:1, etc.)?

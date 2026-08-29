@@ -18,14 +18,14 @@ time. Do not edit during implementation runs._
 
 **Expression level (this surface):** 0.35 (skeleton pulsing, panel transitions, form state confirmation, command-palette emergence). Halo State Pulse (WebGPU shader-driven) would be exempt from chrome budget per design-system Motion.
 
-**Signature placement (SPECIFIED-BUT-UNBUILT on this surface — see the measured note under §Component — Halo State Pulse canvas):** "Halo State Pulse" was specified to animate in two distinct contexts on desktop-webview. Neither renders today; the shipped desktop-webview signature is the constellation dot hue keyed to cumulative incident severity:
+**Signature placement (DEFERRED to the next version — operator ruling 2026-08-29; see the status note under §Component — Halo State Pulse canvas):** "Halo State Pulse" was specified to animate in two distinct contexts on desktop-webview. Neither renders today; the shipped desktop-webview signature is the constellation dot hue keyed to cumulative incident severity:
 1. **Full dashboard constellation map** — a WebGPU canvas layer was specified to render per-service halo dots pulsing at the design-system frequency range with hue interpolation `color-primary` → `color-accent`. The hue driver is **cumulative incident severity** (design-system-amendments 2026-05-29 superseded the error-rate model); the halo layer itself is unbuilt, and the live dot hue carries that interpolation instead. Blur radius span per the Brand Identity signature spec.
 2. **Compact widget aggregated badge** — single unified halo circles the service-count badge in the bottom-right quadrant of the canvas, encoding aggregated service health and ingest volume.
 
 ### Primary screens
 
-- **Compact widget** — quarter-screen glance surface (always-on, snap-to-edge, custom frameless titlebar). Displays the service constellation (the aggregated Halo State Pulse badge is unbuilt — see §Component) + read-only metadata footer (ingest rate, retention used, error %).
-- **Full dashboard (Traces view)** — expanded window; constellation service map whose per-service dots carry a severity-tier hue (the per-service Halo State Pulse layer is unbuilt — see §Component), rendered as a named landmark **region `"Telemetry traces chart"`** with a visually-hidden aggregate summary as its `aria-describedby` description; sortable table of trace samples below, keyboard-traversable one row at a time.
+- **Compact widget** — quarter-screen glance surface (always-on, snap-to-edge, custom frameless titlebar). Displays the service constellation (the aggregated Halo State Pulse badge is deferred to the next version — see §Component) + read-only metadata footer (ingest rate, retention used, error %).
+- **Full dashboard (Traces view)** — expanded window; constellation service map whose per-service dots carry a severity-tier hue (the per-service Halo State Pulse layer is deferred to the next version — see §Component), rendered as a named landmark **region `"Telemetry traces chart"`** with a visually-hidden aggregate summary as its `aria-describedby` description; sortable table of trace samples below, keyboard-traversable one row at a time.
 - **Full dashboard (Metrics view)** — time-series overlay for throughput + latency; same header/nav structure as Traces.
 - **Full dashboard (Logs view)** — log record table with severity color-coding; same header/nav structure.
 - **Full dashboard (Snapshots view)** — list of generated snapshots with timestamp, token count, and view/copy actions. Snapshots are generated via the TauRPC `snapshot.generate` command; the snapshot-detail viewer layout (modal vs. full-page) is deferred to the implementation route.
@@ -77,7 +77,7 @@ time. Do not edit during implementation runs._
 +------------------------------------------------+     color-text-tertiary, font-label)
 ```
 
-**Wireframe notes:** Full dashboard is resizable; default 2/3 to full-screen width. The Traces primary screen is a **flex column bounded to the shell's `main` height** (`calc(100vh − titlebar 32px − tabnav 40px − footer var(--spacing-lg))`, `overflow:hidden`), so the **whole dashboard shows no outer page scrollbar at any window size** — only the table's own region scrolls. Two **fixed** (`flex-shrink:0`) regions stack on top: the constellation map hero (signature Halo State Pulse on each service dot via WebGPU canvas) and, directly above the table, a right-aligned **`Errors only` filter toolbar** (an `aria-pressed` toggle; the default order is anomaly-first, erroring rows hoisted to the top). Below them the **sortable data table flex-fills the remainder** (`flex:1 / min-height:0 / overflow-y:auto`, custom dark-track + Earth-Blue-thumb scrollbar) with a **sticky opaque `color-base` thead** — rows scroll internally *under* the fixed hero + toolbar + header. (Internal-scroll + bounded route: P-082; Errors-only toolbar above the table: P-068.) **The hero is a landmark region** (2026-08-23-a11y-verification): a `<section>` carrying the STABLE literal accessible name `"Telemetry traces chart"` — deliberately static, since a landmark whose name tracks the data churns the screen-reader rotor — described by a visually-hidden aggregate summary element (`data-testid="constellation-summary"`) wired as its `aria-describedby` target, carrying lifecycle counts + a findings tally only (no service name enters the accessible tree). `role="status"` on that element is deliberately NOT applied. The ASCII above is an illustrative sketch: its footer row + per-dot label detail lag current truth (footer is now the plain-language connection-status line, P-070; the hero dots carry always-on per-dot name + severity-token labels, P-069) — see the amendment sidecar handoff note.
+**Wireframe notes:** Full dashboard is resizable; default 2/3 to full-screen width. The Traces primary screen is a **flex column bounded to the shell's `main` height** (`calc(100vh − titlebar 32px − tabnav 40px − footer var(--spacing-lg))`, `overflow:hidden`), so the **whole dashboard shows no outer page scrollbar at any window size** — only the table's own region scrolls. Two **fixed** (`flex-shrink:0`) regions stack on top: the constellation map hero (the severity-hue constellation dots; the per-dot Halo State Pulse glow is deferred — §Component) and, directly above the table, a right-aligned **`Errors only` filter toolbar** (an `aria-pressed` toggle; the default order is anomaly-first, erroring rows hoisted to the top). Below them the **sortable data table flex-fills the remainder** (`flex:1 / min-height:0 / overflow-y:auto`, custom dark-track + Earth-Blue-thumb scrollbar) with a **sticky opaque `color-base` thead** — rows scroll internally *under* the fixed hero + toolbar + header. (Internal-scroll + bounded route: P-082; Errors-only toolbar above the table: P-068.) **The hero is a landmark region** (2026-08-23-a11y-verification): a `<section>` carrying the STABLE literal accessible name `"Telemetry traces chart"` — deliberately static, since a landmark whose name tracks the data churns the screen-reader rotor — described by a visually-hidden aggregate summary element (`data-testid="constellation-summary"`) wired as its `aria-describedby` target, carrying lifecycle counts + a findings tally only (no service name enters the accessible tree). `role="status"` on that element is deliberately NOT applied. The ASCII above is an illustrative sketch: its footer row + per-dot label detail lag current truth (footer is now the plain-language connection-status line, P-070; the hero dots carry always-on per-dot name + severity-token labels, P-069) — see the amendment sidecar handoff note.
 
 ### Component — Custom titlebar (desktop-webview specific)
 
@@ -97,7 +97,7 @@ time. Do not edit during implementation runs._
 
 ### Component — Halo State Pulse canvas (hero / signature)
 
-> **MEASURED 2026-08-21 (chunk 2026-08-21-delegated-timing-observables) — this canvas does NOT render.** Three independent probes at HEAD found no production render site on desktop-webview: `<HaloCanvas` over `pulse-app/ui/src` (non-test) returns zero hits, and `Halo|halo` over `dashboard/Dashboard.tsx` and `widget/CompactWidget.tsx` returns zero hits — every non-test reference is a `vi.mock` factory or a comment. The signature this section describes is therefore SPECIFIED-BUT-UNBUILT on both webview surfaces. What IS live is the constellation DOT hue: `severity-to-halo.ts::severityToHueFraction(tier: PriorityTier | null)` feeding `ConstellationDot.priorityTier`, driven by **cumulative incident severity** (tiers none/curious/suggested/autonomous) — NOT by error rate, which the chunk-#31-era model used and design-system-amendments 2026-05-29 superseded. P-025's timing observable (`metric.constellation.hue_update_ms`) measures that real surface. Whether the canvas is built or the section retired is a product decision owned by the working-route entry "Halo State Pulse canvas disposition". The desktop-native (tray) halo below was NOT probed by that chunk and is unaffected by this note.
+> **MEASURED 2026-08-21 (chunk 2026-08-21-delegated-timing-observables) — this canvas does NOT render. DEFERRED 2026-08-29 (operator ruling, chunk 2026-08-29-halo-state-pulse-signature-deferred): the signature glow layer is deferred to the next version — neither built in 0.3.0 nor deleted from this spec.** Three independent probes at HEAD found no production render site on desktop-webview (re-verified at HEAD 2026-08-29): `<HaloCanvas` over `pulse-app/ui/src` (non-test) returns zero hits, and `Halo|halo` over `dashboard/Dashboard.tsx` and `widget/CompactWidget.tsx` returns zero hits — every non-test reference is a `vi.mock` factory or a comment. What IS live is the constellation DOT hue: `severity-to-halo.ts::severityToHueFraction(tier: PriorityTier | null)` feeding `ConstellationDot.priorityTier`, driven by **cumulative incident severity** (tiers none/curious/suggested/autonomous) — NOT by error rate, which the chunk-#31-era model used and design-system-amendments 2026-05-29 superseded. P-025's timing observable (`metric.constellation.hue_update_ms`) measures that real surface. The build-or-retire product decision the 2026-08-21 note pinned on the "Halo State Pulse canvas disposition" route entry is RESOLVED as defer: the render half rides `.andromeda/residuals.md` (target 0.4.0), the design direction gathering in `andromeda-pulse-0.4.0-incubator/signature-orb/`. The desktop-native (tray) halo below was NOT probed by that chunk and does not inherit this measurement — it is deferred on its own ground (nothing renders it in 0.3.0 either; see §Surface: desktop-native). This section's spec is the deferred design record. The ASCII sketches keep their halo labels; this status note governs.
 
 
 **Layout:**
@@ -118,7 +118,7 @@ time. Do not edit during implementation runs._
 **Signature element details:**
 - On compact widget: a unified single halo around an aggregated badge (e.g., "24 services, avg 1.2% error").
 - On full dashboard Traces view: per-service halos on each constellation dot.
-- Motion is data-driven (not decorative) — activity state drives the breathing period and cumulative incident severity drives hue (design-system-amendments 2026-05-29). Both bullets above are unbuilt on desktop-webview per the measured note at the top of this section.
+- Motion is data-driven (not decorative) — activity state drives the breathing period and cumulative incident severity drives hue (design-system-amendments 2026-05-29). Both bullets above are deferred to the next version per the status note at the top of this section.
 
 ### Component — Primary navigation (desktop-webview)
 
@@ -219,7 +219,7 @@ time. Do not edit during implementation runs._
 **Navigation model:**
 - Compact widget is the primary glance surface — minimalist chrome, always-on-top, snap-to-edge per Settings. Esc minimizes the widget to the system tray.
 - Full dashboard is reached by expanding the compact widget via the Settings toggle or a keyboard shortcut (TBD by downstream — design suggests `Cmd+Shift+P` / `Ctrl+Shift+P`).
-- Both surfaces share the same underlying data feeds (TauRPC `traces.*`, `metrics.*`, `logs.*` routers). (They were also specified to share one Halo State Pulse WebGPU rendering; that layer is unbuilt on both — see §Component.)
+- Both surfaces share the same underlying data feeds (TauRPC `traces.*`, `metrics.*`, `logs.*` routers). (They were also specified to share one Halo State Pulse WebGPU rendering; that layer is deferred to the next version on both — see §Component.)
 
 **Responsive behavior:**
 - Compact widget: fixed quarter-screen size — no CSS media-query breakpoints (user-resizable, but the layout does not reflow). Minimum recommended size stays readable on a 13-inch laptop display.
@@ -235,7 +235,7 @@ time. Do not edit during implementation runs._
 - `Esc`: minimize widget or close modal.
 
 **Multi-surface coordination:**
-- Compact widget canvas + full dashboard Traces view + tray icon (desktop-native) were specified to render the same WebGPU Halo State Pulse visualization for cross-surface consistency; the two WEBVIEW halves are unbuilt (measured 2026-08-21 — see §Component), and the tray layer was not probed. The data feed is shared via Tauri 2 broadcast channels (`pulse://stream/spans`, `pulse://stream/metrics`).
+- Compact widget canvas + full dashboard Traces view + tray icon (desktop-native) were specified to render the same WebGPU Halo State Pulse visualization for cross-surface consistency; the whole layer is DEFERRED to the next version (webview halves measured non-rendering 2026-08-21, tray never probed and deferred on its own ground — see §Component and §Surface: desktop-native Signature placement). The data feed is shared via Tauri 2 broadcast channels (`pulse://stream/spans`, `pulse://stream/metrics`).
 
 ---
 
@@ -245,13 +245,13 @@ time. Do not edit during implementation runs._
 
 **Expression level (this surface):** 0.2 (minimal motion — icon state changes, traffic-light color transitions, badge emergence only). Tray menu is OS-native; no custom chrome animation.
 
-**Signature placement:** "Halo State Pulse" renders as a unified animated glow around the aggregated service-count badge in the tray icon area:
+**Signature placement (DEFERRED to the next version — operator ruling 2026-08-29; this layer was never probed by the 2026-08-21 webview measurement and defers ON ITS OWN GROUND — nothing renders it in 0.3.0):** "Halo State Pulse" is SPECIFIED to render as a unified animated glow around the aggregated service-count badge in the tray icon area:
 1. **Tray icon glyph** — monochrome SVG template image (platform-dependent size). Shape: a stylized constellation star or pulsar with a circular outline (aperture metaphor). The OS handles template-image tinting.
 2. **Halo State Pulse (secondary composited layer)** — WebGPU canvas in a small click-through overlay window positioned behind / around the tray icon glyph, rendering the unified halo per the Brand Identity spec. SVG-filter fallback substitutes when WebGPU is unavailable in the tray context, honoring the visual equivalence criteria from design-system Surface: desktop-native (blur radius envelope, LCH fidelity ≥95%, opacity envelope).
 
 ### Primary screens
 
-- **Tray icon** — always-visible status glyph with Halo State Pulse (unified badge encoding aggregated service health and ingest volume).
+- **Tray icon** — always-visible status glyph; its Halo State Pulse unified-badge layer (encoding aggregated service health and ingest volume) is deferred to the next version — see §Signature placement.
 - **Tray menu** — flat hierarchy menu triggered by right-click on the tray icon. Actions: open / focus main window, generate snapshot, toggle MCP server (when feature is built), open settings, quit.
 - **Notifications (OS-native)** — toasts fired on snapshot generation completion, MCP server state changes, updater state transitions, and the window-close-to-tray signpost (P-063; fires on every close-to-tray while `notifications_enabled` is true).
 
@@ -296,7 +296,7 @@ Quit                                        <- action (terminates the process)
   - Inner star or aperture cross (4–6 strokes forming a simple glyph).
   - No gradients, no shadows, no embellishment.
 
-**Halo State Pulse (secondary layer):**
+**Halo State Pulse (secondary layer) — DEFERRED to the next version (see §Signature placement above); the deferred spec, preserved as-worded incl. its error-rate hue driver (this layer was never reconciled to the severity driver and defers as specified):**
 - **Option A (WebGPU, preferred):** a separate transparent, click-through, always-on-top window hosting a small `<canvas>` element rendering the Halo State Pulse via the same WebGPU shader used on desktop-webview. Pulsing frequency, blur radius envelope, LCH hue shift, and opacity envelope all per the Brand Identity signature spec. Positioned to overlap the tray icon glyph (platform-specific positioning via Tauri 2 window APIs).
 - **Option B (SVG-filter fallback):** inline SVG with CSS `filter: blur(...)` and CSS animations matching the WebGPU output. Hue shift via `<feColorMatrix>` interpolating between `color-primary` and `color-accent` per error rate. Visual equivalence ≥95% per design-system Surface: desktop-native criteria.
 
@@ -372,8 +372,8 @@ Quit                                        <- action (terminates the process)
 - Tray menu: arrow keys navigate, Return selects, Escape closes. No global hotkeys at the tray level (e.g., `Ctrl+Shift+P` does NOT toggle tray menu visibility).
 
 **Cross-surface coordination:**
-- Tray icon Halo State Pulse and compact widget Halo State Pulse are fed by the same real-time data stream (`pulse://stream/spans` broadcast channel). Visual consistency is maintained: both render the unified halo at the same frequency and hue.
-- Full dashboard Traces view was specified to render per-service halos (separate from the tray's unified halo) with all three surfaces sharing one Halo State Pulse shader; the webview half is unbuilt (see §Component). The tray's own layer is unaffected by that measurement.
+- Tray icon Halo State Pulse and compact widget Halo State Pulse were specified to be fed by the same real-time data stream (`pulse://stream/spans` broadcast channel), rendering the unified halo at the same frequency and hue — a deferred-layer consistency requirement that ships WITH the layer (both halves deferred to the next version).
+- Full dashboard Traces view was specified to render per-service halos (separate from the tray's unified halo) with all three surfaces sharing one Halo State Pulse shader; the WHOLE layer is deferred to the next version (webview half measured non-rendering 2026-08-21 — see §Component; the tray's own layer, never probed, defers on its own ground — see §Signature placement).
 
 **Platform-specific notes:**
 
