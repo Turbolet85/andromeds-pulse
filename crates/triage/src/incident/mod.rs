@@ -24,9 +24,10 @@ mod state_machine;
 pub use broadcast::{IncidentLifecycleBroadcast, IncidentLifecycleEvent, STREAM_NAME_INCIDENTS};
 pub use persistence::{
     DEFAULT_INCIDENT_ACK_COOLDOWN_SECS, DEFAULT_INCIDENT_AUTO_RESOLVE_WINDOW_SECS,
-    DEFAULT_INCIDENT_PERSIST_INTERVAL_SECS, INCIDENT_PERSISTENCE_KIND, IncidentError,
-    IncidentPersistence, IncidentRecordPayload, IncidentWriteOutcome, TARGET_INCIDENT_PERSIST,
-    TARGET_INCIDENT_PERSIST_ERROR, run_incident_persist_cycle, run_incident_persist_loop,
+    DEFAULT_INCIDENT_PERSIST_INTERVAL_SECS, DurableActiveIncidents, INCIDENT_PERSISTENCE_KIND,
+    INCIDENT_RECONCILE_KIND, IncidentError, IncidentPersistence, IncidentRecordPayload,
+    IncidentWriteOutcome, TARGET_INCIDENT_PERSIST, TARGET_INCIDENT_PERSIST_ERROR,
+    run_incident_persist_cycle, run_incident_persist_loop,
 };
 pub use registry::{
     InMemoryIncidentRegistry, IncidentRegistry, IncidentRegistryError, ResolutionTrigger,

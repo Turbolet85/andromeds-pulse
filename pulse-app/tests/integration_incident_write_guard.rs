@@ -121,8 +121,8 @@ impl IncidentPersistence for InterleavingPersistence {
 #[test]
 fn a_resolution_landing_inside_the_persist_write_span_survives() {
     let writer = build_corpus();
-    let inner: Arc<dyn IncidentPersistence> =
-        Arc::new(CorpusIncidentPersistence::new(Arc::clone(&writer)));
+    let adapter = Arc::new(CorpusIncidentPersistence::new(Arc::clone(&writer)));
+    let inner: Arc<dyn IncidentPersistence> = Arc::clone(&adapter) as _;
     let registry: Arc<dyn IncidentRegistry> = Arc::new(InMemoryIncidentRegistry::new());
     let broadcast = Arc::new(IncidentLifecycleBroadcast::new());
 
@@ -147,8 +147,10 @@ fn a_resolution_landing_inside_the_persist_write_span_survives() {
     run_incident_persist_cycle(
         registry.as_ref(),
         &interleaving,
+        adapter.as_ref(),
         INCIDENT_PERSISTENCE_KIND,
         &[WS.to_string()],
+        resolve_at,
     )
     .expect("cycle ok");
 
@@ -176,8 +178,8 @@ fn an_externally_resolved_row_is_not_reverted_by_the_next_persist_cycle() {
     // the app's registry never learns of it (the registry is only hydrated at
     // boot), so the very next persist cycle replays the row as Active.
     let writer = build_corpus();
-    let persistence: Arc<dyn IncidentPersistence> =
-        Arc::new(CorpusIncidentPersistence::new(Arc::clone(&writer)));
+    let adapter = Arc::new(CorpusIncidentPersistence::new(Arc::clone(&writer)));
+    let persistence: Arc<dyn IncidentPersistence> = Arc::clone(&adapter) as _;
     let registry: Arc<dyn IncidentRegistry> = Arc::new(InMemoryIncidentRegistry::new());
 
     let opened_at = 2_000_000_000_i64;
@@ -192,11 +194,20 @@ fn an_externally_resolved_row_is_not_reverted_by_the_next_persist_cycle() {
         .expect("external resolve");
     assert_eq!(outcome, CorpusWriteOutcome::Applied);
 
+    assert_eq!(
+        registry.list_active(WS).len(),
+        1,
+        "precondition: the registry still holds the row Active — it never re-reads \
+         the corpus after boot, which is the divergence under test",
+    );
+
     run_incident_persist_cycle(
         registry.as_ref(),
         persistence.as_ref(),
+        adapter.as_ref(),
         INCIDENT_PERSISTENCE_KIND,
         &[WS.to_string()],
+        resolved_at + 1_000,
     )
     .expect("cycle ok");
 
@@ -207,6 +218,15 @@ fn an_externally_resolved_row_is_not_reverted_by_the_next_persist_cycle() {
     assert_eq!(
         row.status, "resolved",
         "an externally-resolved row must survive the app's next persist cycle"
+    );
+
+    // The app-side half. The corpus staying resolved was the predecessor's
+    // guard doing its job; this is the registry learning of it, so the running
+    // app stops displaying an incident that no longer exists.
+    assert!(
+        registry.list_active(WS).is_empty(),
+        "the persist cycle must reconcile the externally-resolved row out of the \
+         in-memory registry, not merely fail to revert it in the corpus",
     );
 }
 

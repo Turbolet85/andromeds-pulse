@@ -48,6 +48,7 @@ fn incident_persist_allows_its_counts_and_bounded_kind() {
         "persist_kind",
         "duration_ms",
         "declined_count",
+        "reconciled_count",
     ]
     .into_iter()
     .collect();
@@ -74,6 +75,44 @@ fn incident_persist_allows_the_declined_write_count() {
         set.contains("declined_count"),
         "a declined stale write must be countable at the wire"
     );
+}
+
+/// `reconciled_count` is the observable the app-registry reconciliation is
+/// measured by: it is what separates "the registry learned of an external
+/// resolve" from "nothing happened this cycle". Both readings are otherwise a
+/// silent cycle, so a narrowed leaf would make the measurement read as zero.
+#[test]
+fn incident_persist_allows_the_reconciled_count() {
+    let al = AllowList::production();
+    let set = al
+        .for_target("triage.incident.persist")
+        .expect("triage.incident.persist must have an explicit leaf entry");
+
+    assert!(
+        set.contains("reconciled_count"),
+        "externally-resolved rows reconciled into the registry must be countable at the wire"
+    );
+}
+
+/// The fallback discriminator. `triage.incident.persist` sits under the
+/// `triage` module namespace, so if its exact leaf were deleted the resolver
+/// would fall back — and a resolve-only probe would still pass. This pins that
+/// the fallback set does NOT carry the persist fields, so the exact leaf is
+/// what is actually doing the work.
+#[test]
+fn persist_fields_are_absent_from_any_triage_prefix_fallback() {
+    let al = AllowList::production();
+    for fallback in ["triage", "triage.incident"] {
+        if let Some(set) = al.for_target(fallback) {
+            for field in ["declined_count", "reconciled_count", "incident_count"] {
+                assert!(
+                    !set.contains(field),
+                    "`{fallback}` must not carry `{field}` — a bare prefix key would let a \
+                     deleted exact leaf resolve successfully while the fields vanish",
+                );
+            }
+        }
+    }
 }
 
 #[test]

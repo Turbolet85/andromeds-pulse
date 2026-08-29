@@ -29,7 +29,8 @@ use corpus::contract::{
     CorpusWriter, Error as CorpusError, IncidentRowRaw, IncidentWriteOutcome as CorpusWriteOutcome,
 };
 use triage::contract::{
-    Incident, IncidentError, IncidentPersistence, IncidentWriteOutcome, incident_status_label,
+    DurableActiveIncidents, Incident, IncidentError, IncidentPersistence, IncidentWriteOutcome,
+    incident_status_label,
 };
 
 /// Adapter implementing `triage::IncidentPersistence` over a
@@ -42,6 +43,19 @@ pub struct CorpusIncidentPersistence {
 impl CorpusIncidentPersistence {
     pub fn new(writer: Arc<dyn CorpusWriter>) -> Self {
         Self { writer }
+    }
+}
+
+/// The reconciliation read view over the SAME underlying writer. Returns row
+/// ids only — the payload BLOB is never decrypted or decoded here, because the
+/// reconciler compares identity, not content.
+impl DurableActiveIncidents for CorpusIncidentPersistence {
+    fn active_incident_ids(&self, workspace: &str) -> Result<Vec<i64>, IncidentError> {
+        let rows = self
+            .writer
+            .load_active_incidents(workspace)
+            .map_err(corpus_error_to_incident_error)?;
+        Ok(rows.iter().map(|row| row.id).collect())
     }
 }
 

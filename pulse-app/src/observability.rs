@@ -2328,6 +2328,7 @@ impl AllowList {
                 "persist_kind",
                 "duration_ms",
                 "declined_count",
+                "reconciled_count",
             ]
             .iter()
             .copied()

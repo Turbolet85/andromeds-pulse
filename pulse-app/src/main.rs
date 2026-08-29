@@ -24,15 +24,16 @@ use triage::contract::{
     DEFAULT_LIFECYCLE_HEARTBEAT_INTERVAL, DEFAULT_LIFECYCLE_PERSIST_INTERVAL_SECS,
     DEFAULT_PERSIST_INTERVAL_NANOS, DEFAULT_SERVICE_COUNT_CAP, DEFAULT_STORM_PERSIST_INTERVAL_SECS,
     DEFAULT_STORM_WINDOW_SECONDS, DEFAULT_SUGGESTED_THRESHOLD, DigestBroadcast,
-    DigestTriggerBroadcast, HardwareProfileSource, InMemoryIncidentRegistry,
-    InMemoryServiceRegistry, IncidentLifecycleBroadcast, IncidentPersistence, IncidentRegistry,
-    LifecyclePersistence, LwwQueue, RestartDetector, RestartEventBroadcast, RetryStormDetector,
-    ServiceLifecycleBroadcast, ServiceRegistry, SqlQueryRunner, StormPersistence, SuppressionState,
-    TARGET_LIFECYCLE_CORPUS_RESTORE, TARGET_LIFECYCLE_PERSIST_ERROR,
-    TARGET_PATTERN_STORM_CORPUS_RESTORE, TARGET_PATTERN_STORM_PERSIST_ERROR, Thresholds,
-    TriageSqlState, bootstrap_state, run_incident_persist_loop, run_lifecycle_persist_loop,
-    run_persist_loop, run_storm_persist_loop, start_cadence_coordinator, start_emitter,
-    start_lifecycle_heartbeat, start_restart_detector, start_storm_detector,
+    DigestTriggerBroadcast, DurableActiveIncidents, HardwareProfileSource,
+    InMemoryIncidentRegistry, InMemoryServiceRegistry, IncidentLifecycleBroadcast,
+    IncidentPersistence, IncidentRegistry, LifecyclePersistence, LwwQueue, RestartDetector,
+    RestartEventBroadcast, RetryStormDetector, ServiceLifecycleBroadcast, ServiceRegistry,
+    SqlQueryRunner, StormPersistence, SuppressionState, TARGET_LIFECYCLE_CORPUS_RESTORE,
+    TARGET_LIFECYCLE_PERSIST_ERROR, TARGET_PATTERN_STORM_CORPUS_RESTORE,
+    TARGET_PATTERN_STORM_PERSIST_ERROR, Thresholds, TriageSqlState, bootstrap_state,
+    run_incident_persist_loop, run_lifecycle_persist_loop, run_persist_loop,
+    run_storm_persist_loop, start_cadence_coordinator, start_emitter, start_lifecycle_heartbeat,
+    start_restart_detector, start_storm_detector,
 };
 use ui_bridge::Settings;
 use ui_bridge::health::{
@@ -742,10 +743,18 @@ fn main() {
     };
     publish_workspace_key_for_sidecar(&data_dir, &incident_workspace_key);
     let incident_broadcast = Arc::new(IncidentLifecycleBroadcast::new());
-    let incident_persistence: Option<Arc<dyn IncidentPersistence>> =
-        corpus_writer.as_ref().map(|w| {
-            Arc::new(CorpusIncidentPersistence::new(Arc::clone(w))) as Arc<dyn IncidentPersistence>
-        });
+    // One adapter instance, two trait views (write + the reconciliation read
+    // port) — the concrete Arc is the intermediate so both views share the
+    // single underlying corpus connection.
+    let incident_adapter: Option<Arc<CorpusIncidentPersistence>> = corpus_writer
+        .as_ref()
+        .map(|w| Arc::new(CorpusIncidentPersistence::new(Arc::clone(w))));
+    let incident_persistence: Option<Arc<dyn IncidentPersistence>> = incident_adapter
+        .as_ref()
+        .map(|a| Arc::clone(a) as Arc<dyn IncidentPersistence>);
+    let incident_durable: Option<Arc<dyn DurableActiveIncidents>> = incident_adapter
+        .as_ref()
+        .map(|a| Arc::clone(a) as Arc<dyn DurableActiveIncidents>);
     let restored_incidents: Vec<triage::contract::Incident> = incident_persistence
         .as_ref()
         .and_then(|p| match p.load_active_incidents(&incident_workspace_key) {
@@ -1056,6 +1065,7 @@ fn main() {
     // workspace key for the setup closure spawn site (persist loop + auto-
     // resolution observer loop). Cloning Option<Arc<...>> is cheap (Arc).
     let incident_persistence_for_persist = incident_persistence.clone();
+    let incident_durable_for_persist = incident_durable.clone();
     let incident_registry_for_persist = Arc::clone(&incident_registry);
     // Chunk #86 — capture degraded_mode for the setup closure spawn site
     // (L4 inference subscriber + backoff-remaining heartbeat). Mirrors the
@@ -1501,12 +1511,15 @@ fn main() {
             // (30s tick) evaluates Active+Acknowledged incidents for the
             // 120s no-reemission window (capability P-022).
             if let Some(persistence) = incident_persistence_for_persist.as_ref() {
-                tauri::async_runtime::spawn(run_incident_persist_loop(
-                    Arc::clone(&incident_registry_for_persist),
-                    Arc::clone(persistence),
-                    vec![incident_workspace_for_persist.clone()],
-                    DEFAULT_INCIDENT_PERSIST_INTERVAL_SECS,
-                ));
+                if let Some(durable) = incident_durable_for_persist.as_ref() {
+                    tauri::async_runtime::spawn(run_incident_persist_loop(
+                        Arc::clone(&incident_registry_for_persist),
+                        Arc::clone(persistence),
+                        Arc::clone(durable),
+                        vec![incident_workspace_for_persist.clone()],
+                        DEFAULT_INCIDENT_PERSIST_INTERVAL_SECS,
+                    ));
+                }
                 let observer = AutoResolveObserver::new(
                     Arc::clone(&incident_registry_for_persist),
                     Arc::clone(persistence),

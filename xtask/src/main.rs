@@ -7,6 +7,7 @@
 #![allow(clippy::items_after_test_module)]
 
 mod bundle_format;
+mod external_resolve;
 mod gap_resume;
 mod ingest_progress;
 mod self_verify;
@@ -71,6 +72,16 @@ enum Cmd {
         gap_seconds: Option<u64>,
         #[arg(long, value_name = "MINUTES")]
         observe_minutes: Option<u64>,
+    },
+    #[command(
+        name = "smoke:external-resolve",
+        about = "Drive an incident to Active, resolve it through a REAL andromeda-pulse-mcp subprocess (the cross-process writer an agent uses), then observe the app's own persist cycles. GREEN: reconciled_count goes positive and item_count drops within two cycles, without a restart. RED (pre-fix): item_count static while declined_count climbs. The verdict rests on field VALUES, never a clean log — a declined write is not an ERROR. Reports INCONCLUSIVE, never PASS, when no incident formed or the sidecar resolve did not apply"
+    )]
+    SmokeExternalResolve {
+        #[arg(long, value_name = "SECONDS")]
+        bootstrap_seconds: Option<u64>,
+        #[arg(long, value_name = "SECONDS")]
+        observe_seconds: Option<u64>,
     },
     #[command(name = "audit", about = "cargo audit (RustSec advisory DB)")]
     Audit,
@@ -208,6 +219,18 @@ async fn main() -> ExitCode {
                 bootstrap_seconds: bootstrap_seconds.unwrap_or(defaults.bootstrap_seconds),
                 gap_seconds: gap_seconds.unwrap_or(defaults.gap_seconds),
                 observe_minutes: observe_minutes.unwrap_or(defaults.observe_minutes),
+            })
+            .await
+        }
+        Cmd::SmokeExternalResolve {
+            bootstrap_seconds,
+            observe_seconds,
+        } => {
+            let defaults = external_resolve::ExternalResolveOptions::default();
+            external_resolve::run_external_resolve(external_resolve::ExternalResolveOptions {
+                bootstrap_seconds: bootstrap_seconds.unwrap_or(defaults.bootstrap_seconds),
+                observe_seconds: observe_seconds.unwrap_or(defaults.observe_seconds),
+                incident_wait_seconds: defaults.incident_wait_seconds,
             })
             .await
         }

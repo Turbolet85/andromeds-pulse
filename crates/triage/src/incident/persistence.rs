@@ -17,6 +17,7 @@
 //! Send + Sync bounds required because `Arc<dyn IncidentPersistence>` is
 //! cross-spawned into the periodic persist task + auto-resolution observer.
 
+use std::collections::HashSet;
 use std::io;
 use std::sync::Arc;
 
@@ -25,7 +26,7 @@ use thiserror::Error;
 
 use crate::contract::Incident;
 
-use super::registry::IncidentRegistry;
+use super::registry::{IncidentRegistry, ResolutionTrigger};
 
 /// Default cadence for the periodic incident persist loop. Mirrors the
 /// chunk #70 baseline persist cadence (60s) so all corpus writers share
@@ -51,6 +52,11 @@ pub const TARGET_INCIDENT_PERSIST_ERROR: &str = "triage.incident.persist.error";
 
 /// Stable `persist_kind` field value emitted on `TARGET_INCIDENT_PERSIST`.
 pub const INCIDENT_PERSISTENCE_KIND: &str = "incident";
+
+/// `persist_kind` discriminator for a failed durable-active-ids read, emitted
+/// on `TARGET_INCIDENT_PERSIST_ERROR`. Joins the existing bounded set
+/// (`incident_auto_resolve` / `incident_mark_resolved` / `incident_boot_restore`).
+pub const INCIDENT_RECONCILE_KIND: &str = "incident_reconcile";
 
 /// Payload envelope for incident BLOB persistence. Currently identical to
 /// `Incident`; carries the full serialized state with serde. Defined as a
@@ -98,6 +104,26 @@ impl IncidentError {
 pub enum IncidentWriteOutcome {
     Applied,
     DeclinedStale,
+}
+
+/// Read port over durable storage answering "which incidents does the durable
+/// store still consider active?" — the input to reconciling the in-memory
+/// registry against writers OUTSIDE this process (the `andromeda-pulse-mcp`
+/// sidecar resolves rows via its own connection, and the registry has no other
+/// way to learn of it: the boot restore is its only durable read).
+///
+/// Deliberately narrower than `IncidentPersistence`: ids ONLY, so nothing
+/// decrypts or decodes a payload here and no storage type crosses into
+/// `triage`, which sits below `corpus` in the dependency DAG (arch
+/// §Established Decisions [Corpus Write Arbitration]). The adapter at the
+/// `pulse-app` binary boundary owns both sides.
+pub trait DurableActiveIncidents: Send + Sync {
+    /// Ids the durable store still considers active for `workspace`.
+    ///
+    /// An `Err` MUST NOT be interpreted as "no incidents are active" —
+    /// see `run_incident_persist_cycle`, which skips reconciliation entirely
+    /// on this error rather than resolving every row.
+    fn active_incident_ids(&self, workspace: &str) -> Result<Vec<i64>, IncidentError>;
 }
 
 /// Abstraction over durable storage for `InMemoryIncidentRegistry`.
@@ -176,13 +202,18 @@ pub trait IncidentPersistence: Send + Sync {
 pub fn run_incident_persist_cycle(
     registry: &dyn IncidentRegistry,
     persistence: &dyn IncidentPersistence,
+    durable: &dyn DurableActiveIncidents,
     persist_kind: &'static str,
     workspaces: &[String],
+    now_unix_nano: i64,
 ) -> Result<(), IncidentError> {
     let persist_start = std::time::Instant::now();
     let mut persisted_count: u64 = 0;
     let mut declined_count: u64 = 0;
+    let mut reconciled_count: u64 = 0;
     for workspace in workspaces {
+        reconciled_count +=
+            reconcile_externally_resolved(registry, durable, workspace, now_unix_nano);
         let actives = registry.list_active(workspace);
         for incident in actives {
             match persistence.update_incident_status(incident.id, &incident)? {
@@ -198,9 +229,57 @@ pub fn run_incident_persist_cycle(
         persist_kind = persist_kind,
         duration_ms = duration_ms,
         declined_count = declined_count,
+        reconciled_count = reconciled_count,
         "incident persist cycle complete",
     );
     Ok(())
+}
+
+/// Resolve registry rows an external writer already resolved in durable
+/// storage. Runs BEFORE the cycle's write loop so the same pass stops
+/// re-offering a row it just reconciled.
+///
+/// A row present in the registry's active set but ABSENT from the durable
+/// active set has been resolved elsewhere: an incident's id originates from
+/// the durable INSERT before it enters the registry, so every registry row
+/// has a durable row, and the durable read filters on non-resolved status.
+///
+/// On a read error this reconciles NOTHING and returns 0. Treating the error
+/// as an empty set would match every registry row and resolve the entire
+/// active list.
+fn reconcile_externally_resolved(
+    registry: &dyn IncidentRegistry,
+    durable: &dyn DurableActiveIncidents,
+    workspace: &str,
+    now_unix_nano: i64,
+) -> u64 {
+    let durable_ids: HashSet<i64> = match durable.active_incident_ids(workspace) {
+        Ok(ids) => ids.into_iter().collect(),
+        Err(err) => {
+            tracing::warn!(
+                target: TARGET_INCIDENT_PERSIST_ERROR,
+                error_category = err.error_category(),
+                persist_kind = INCIDENT_RECONCILE_KIND,
+                "durable active-incident read failed; reconciliation skipped this cycle",
+            );
+            return 0;
+        }
+    };
+    let mut reconciled = 0;
+    for incident in registry.list_active(workspace) {
+        if !durable_ids.contains(&incident.id)
+            && registry
+                .mark_resolved(
+                    incident.id,
+                    now_unix_nano,
+                    ResolutionTrigger::ExplicitResolve,
+                )
+                .is_ok()
+        {
+            reconciled += 1;
+        }
+    }
+    reconciled
 }
 
 /// Long-running periodic persist task. Spawned at boot in
@@ -209,6 +288,7 @@ pub fn run_incident_persist_cycle(
 pub async fn run_incident_persist_loop(
     registry: Arc<dyn IncidentRegistry>,
     persistence: Arc<dyn IncidentPersistence>,
+    durable: Arc<dyn DurableActiveIncidents>,
     workspaces: Vec<String>,
     interval_secs: u64,
 ) {
@@ -219,8 +299,10 @@ pub async fn run_incident_persist_loop(
         let result = run_incident_persist_cycle(
             registry.as_ref(),
             persistence.as_ref(),
+            durable.as_ref(),
             INCIDENT_PERSISTENCE_KIND,
             &workspaces,
+            current_unix_nanos(),
         );
         if let Err(err) = result {
             tracing::warn!(
@@ -231,6 +313,13 @@ pub async fn run_incident_persist_loop(
             );
         }
     }
+}
+
+fn current_unix_nanos() -> i64 {
+    std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .map(|d| d.as_nanos() as i64)
+        .unwrap_or(0)
 }
 
 // Suppress unused-import warning for Deserialize/Serialize which are used
@@ -340,6 +429,39 @@ mod tests {
         }
     }
 
+    /// Durable-read double. `ids` is the durable active set; `fail` makes the
+    /// read return `Err`, which is the fail-safe arm under test.
+    struct MockDurable {
+        ids: Vec<i64>,
+        fail: bool,
+    }
+
+    impl MockDurable {
+        fn with(ids: &[i64]) -> Self {
+            Self {
+                ids: ids.to_vec(),
+                fail: false,
+            }
+        }
+        fn failing() -> Self {
+            Self {
+                ids: Vec::new(),
+                fail: true,
+            }
+        }
+    }
+
+    impl DurableActiveIncidents for MockDurable {
+        fn active_incident_ids(&self, _workspace: &str) -> Result<Vec<i64>, IncidentError> {
+            if self.fail {
+                return Err(IncidentError::Io {
+                    kind: io::ErrorKind::PermissionDenied,
+                });
+            }
+            Ok(self.ids.clone())
+        }
+    }
+
     #[test]
     fn error_category_labels_stable() {
         assert_eq!(
@@ -376,8 +498,10 @@ mod tests {
         run_incident_persist_cycle(
             registry.as_ref(),
             persistence.as_ref(),
+            &MockDurable::with(&[1, 2]),
             INCIDENT_PERSISTENCE_KIND,
             &["ws-a".to_string()],
+            2_000,
         )
         .expect("cycle ok");
         let mock = Arc::clone(&persistence);
@@ -385,6 +509,127 @@ mod tests {
         // by re-querying the trait method. Since MockPersistence accumulates
         // updates in a mutex, we re-test by reading the actives vector.
         let _ = mock;
+    }
+
+    #[test]
+    fn reconcile_resolves_registry_rows_absent_from_the_durable_active_set() {
+        let registry: Arc<dyn IncidentRegistry> = Arc::new(InMemoryIncidentRegistry::new());
+        registry.insert(sample_incident(1, "ws-a"));
+        registry.insert(sample_incident(2, "ws-a"));
+
+        // Durable store still holds 1 active; 2 was resolved by a writer
+        // outside this process (the MCP sidecar).
+        let reconciled = reconcile_externally_resolved(
+            registry.as_ref(),
+            &MockDurable::with(&[1]),
+            "ws-a",
+            2_000,
+        );
+
+        assert_eq!(reconciled, 1, "exactly the externally-resolved row");
+        let remaining: Vec<i64> = registry.list_active("ws-a").iter().map(|i| i.id).collect();
+        assert_eq!(remaining, vec![1], "row 2 left the active set");
+    }
+
+    #[test]
+    fn reconcile_is_a_no_op_when_registry_and_durable_agree() {
+        let registry: Arc<dyn IncidentRegistry> = Arc::new(InMemoryIncidentRegistry::new());
+        registry.insert(sample_incident(1, "ws-a"));
+        registry.insert(sample_incident(2, "ws-a"));
+
+        let reconciled = reconcile_externally_resolved(
+            registry.as_ref(),
+            &MockDurable::with(&[1, 2]),
+            "ws-a",
+            2_000,
+        );
+
+        assert_eq!(reconciled, 0);
+        assert_eq!(registry.list_active("ws-a").len(), 2, "nothing resolved");
+    }
+
+    /// The fail-safe. A durable read error must NOT be read as an empty active
+    /// set — that predicate matches every registry row and would resolve the
+    /// entire active list on a transient storage fault.
+    #[test]
+    fn reconcile_resolves_nothing_when_the_durable_read_fails() {
+        let registry: Arc<dyn IncidentRegistry> = Arc::new(InMemoryIncidentRegistry::new());
+        registry.insert(sample_incident(1, "ws-a"));
+        registry.insert(sample_incident(2, "ws-a"));
+
+        let reconciled = reconcile_externally_resolved(
+            registry.as_ref(),
+            &MockDurable::failing(),
+            "ws-a",
+            2_000,
+        );
+
+        assert_eq!(reconciled, 0, "an error is not an empty active set");
+        assert_eq!(
+            registry.list_active("ws-a").len(),
+            2,
+            "the whole active list survives a durable read error",
+        );
+    }
+
+    #[test]
+    fn reconcile_only_touches_the_named_workspace() {
+        let registry: Arc<dyn IncidentRegistry> = Arc::new(InMemoryIncidentRegistry::new());
+        registry.insert(sample_incident(1, "ws-a"));
+        registry.insert(sample_incident(2, "ws-b"));
+
+        // Durable read for ws-a reports nothing active there.
+        let reconciled = reconcile_externally_resolved(
+            registry.as_ref(),
+            &MockDurable::with(&[]),
+            "ws-a",
+            2_000,
+        );
+
+        assert_eq!(reconciled, 1);
+        assert_eq!(registry.list_active("ws-a").len(), 0);
+        assert_eq!(
+            registry.list_active("ws-b").len(),
+            1,
+            "a sibling workspace is untouched",
+        );
+    }
+
+    #[test]
+    fn persist_cycle_reconciles_before_writing_so_the_stale_row_is_not_re_offered() {
+        let registry: Arc<dyn IncidentRegistry> = Arc::new(InMemoryIncidentRegistry::new());
+        registry.insert(sample_incident(1, "ws-a"));
+        registry.insert(sample_incident(2, "ws-a"));
+        let persistence = Arc::new(MockPersistence::default());
+        let persistence_dyn: Arc<dyn IncidentPersistence> = Arc::clone(&persistence) as _;
+
+        run_incident_persist_cycle(
+            registry.as_ref(),
+            persistence_dyn.as_ref(),
+            &MockDurable::with(&[1]),
+            INCIDENT_PERSISTENCE_KIND,
+            &["ws-a".to_string()],
+            2_000,
+        )
+        .expect("cycle ok");
+
+        let written: Vec<i64> = persistence
+            .updates
+            .lock()
+            .expect("lock")
+            .iter()
+            .map(|(id, _)| *id)
+            .collect();
+        assert_eq!(
+            written,
+            vec![1],
+            "the externally-resolved row is reconciled before the write loop, so it is never re-offered",
+        );
+    }
+
+    #[test]
+    fn reconcile_kind_label_is_stable() {
+        assert_eq!(INCIDENT_RECONCILE_KIND, "incident_reconcile");
     }
 
     #[test]
