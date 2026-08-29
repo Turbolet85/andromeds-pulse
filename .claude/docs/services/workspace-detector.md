@@ -6,7 +6,7 @@ Detects host project context for telemetry correlation: `.andromeda/` marker + V
 ## Key integrations
 
 ### Consumes from
-- Filesystem (canonicalized paths via `strict-path` crate).
+- Filesystem (paths canonicalized via `std::fs::canonicalize`, both-sides on confinement checks).
 - VCS metadata (`git rev-parse --show-toplevel`, `Cargo.toml` package.name).
 
 ### Publishes to
@@ -14,12 +14,12 @@ Detects host project context for telemetry correlation: `.andromeda/` marker + V
 - `tracing` events: `workspace.detect`, `app.boot.workspace.detect`, `filesystem.scan.gitroot`, `workspace.marker.check`.
 
 ### Dependencies
-- `strict-path` — canonicalize-and-confine primitive for env-var path overrides.
+- `std` both-sides-canonicalize — the canonicalize-and-confine primitive for env-var path overrides (this crate's `publish_workspace_key` is the repo's reference pattern; `strict-path` dropped 2026-08-29).
 - `git2` (or shell-out to `git`) for VCS metadata.
 - `serde` for `Workspace` struct serialization.
 
 ## Internal conventions
-- **Path canonicalization REQUIRED** — all input paths (env vars `ANDROMEDA_PULSE_*_PATH` / `*_DIR`, current working directory) canonicalize via `std::fs::canonicalize` (NOT `strict-path` — measured 2026-08-26: `strict-path` is declared in five crate manifests with zero `.rs` users repo-wide, and this crate's `publish_workspace_key` canonicalizes BOTH sides then `starts_with`, which is the repo's reference confinement pattern); assert resolved path lives under the resolved data dir or current project root.
+- **Path canonicalization REQUIRED** — all input paths (env vars `ANDROMEDA_PULSE_*_PATH` / `*_DIR`, current working directory) canonicalize via `std::fs::canonicalize` (`strict-path` was measured 2026-08-26 at zero `.rs` users repo-wide and DROPPED from the dependency graph at chunk 2026-08-29-advisory-backlog; this crate's `publish_workspace_key` canonicalizes BOTH sides then `starts_with`, the repo's reference confinement pattern); assert resolved path lives under the resolved data dir or current project root.
 - **`.andromeda/` marker detection** — walk parents from cwd looking for `.andromeda/` directory; first match wins.
 - **VCS detection** — try git first (`git rev-parse --show-toplevel`); fall back to filesystem scan if git not available.
 - **Anonymized logging** — `tracing` events emit `workspace.root_path_basename` and `workspace.project_name` only; NEVER full canonicalized path (security plan vector 6).
@@ -42,7 +42,7 @@ struct Workspace {
 
 ## Entry points for modification
 - **Detection logic:** `crates/workspace-detector/src/detect.rs`
-- **Path canonicalization:** `crates/workspace-detector/src/path.rs` (wraps `strict-path`)
+- **Path canonicalization:** `workspace_detector::contract::publish_workspace_key` (std both-sides-canonicalize + `starts_with` confinement)
 - **VCS metadata:** `crates/workspace-detector/src/vcs.rs`
 - **TauRPC router:** `crates/workspace-detector/src/router.rs`
 - **Tests:** colocated per module + `tests/fixtures/workspaces/` for fixture project structures

@@ -34,7 +34,6 @@ tauri-plugin-notification.workspace = true
 taurpc.workspace = true
 bytes.workspace = true
 bincode.workspace = true
-strict-path.workspace = true
 duckdb.workspace = true
 wasmtime.workspace = true
 ui-bridge = { path = "../crates/ui-bridge" }

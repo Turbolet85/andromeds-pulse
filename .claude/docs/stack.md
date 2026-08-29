@@ -14,7 +14,7 @@ _Extracted from `.andromeda/architecture.md` Stack and Technologies section by `
 - **HTTP server (OTLP `:4318`):** `axum` 0.8.x on `hyper` 1.x + `tower` (sharing tokio runtime with tonic).
 - **Tauri IPC bridge:** TauRPC (`taurpc` crate) — derive macros generate fully-typed TypeScript bindings; eliminates manual TS re-declaration drift.
 - **Plugin runtime:** `wasmtime` 25+ with WASM Component Model + WIT — capability-scoped third-party extensions.
-- **MCP server:** `rmcp` (official Rust SDK) over stdio — `query_traces` / `query_metrics` / `query_logs` / `generate_snapshot` `#[tool]` methods (gated by `--features mcp-server`).
+- **MCP server:** hand-rolled serde JSON-RPC 2.0 over stdio (`crates/mcp-server/src/jsonrpc.rs`, MCP protocol `2024-11-05`); `rmcp` rides as a feature-gated anchor dep (req `"3"`, resolved 3.1.4) — 8 name-dispatched tools incl. `query_traces` / `query_metrics` / `query_logs` / `generate_snapshot` (gated by `--features mcp-server`).
 - **Frontend:** React 19.x + Vite + TanStack Router + Tailwind CSS v4.x + shadcn/ui (Radix UI primitives + Tailwind, copy-not-install).
 - **Visualization:** Webview WebGPU (`<canvas>` + `navigator.gpu`, WGSL shaders) for trace timeline / flamegraph / metrics charts / service constellation. (The Halo State Pulse canvas layer is specified but unbuilt on desktop-webview — measured 2026-08-21.)
 - **Error handling:** `thiserror` 2.x (modules) + `anyhow` 1.x (boundaries) + `serde`-friendly `AppError` enum at the IPC bridge.
@@ -80,7 +80,7 @@ For architectural rationale behind these choices, see `.andromeda/architecture.m
 
 ## Open reconciliations (deferred)
 - `tonic 0.14.x` vs `opentelemetry-otlp 0.31` (which still pins `tonic 0.13` in some feature combinations) — `cargo deny check bans` enforces; resolve before tagging v0.1.0.
-- `rmcp` "1.5.0" reference vs published `0.3.x` line — verify whether forward-looking, internal spec name, or unrelated `4t145/rmcp` fork.
+- ~~`rmcp` "1.5.0" reference vs published `0.3.x` line~~ — CLOSED by measurement at chunk 2026-08-29-advisory-backlog: the published line reached 3.x; pinned `"3"`, resolved 3.1.4.
 - `rust-toolchain.toml` minimum was `1.84` — bump to `1.85.0` to align with `Cargo.toml edition = "2024"`.
 
 ## Version updates

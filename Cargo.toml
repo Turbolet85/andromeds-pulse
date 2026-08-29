@@ -46,7 +46,6 @@ tauri-plugin-notification = "2"
 taurpc = "0.7"
 specta = { version = "=2.0.0-rc.22", features = ["chrono"] }
 specta-typescript = "0.0.9"
-strict-path = "0.2"
 chrono = { version = "0.4", features = ["serde"] }
 clap = { version = "4", features = ["derive"] }
 toml = "0.8"
@@ -104,16 +103,17 @@ tower_governor = { version = "0.8", default-features = false, features = ["axum"
 duckdb = { version = "1.10500", features = ["bundled", "appender-arrow"] }
 arrow = "58"
 
-# rmcp stdio sidecar (route#48 — Epoch 7 Plugin runtime + MCP server continues).
-# Per arch §Established Decisions [MCP Server Surface] + §Inherited Defaults
-# "API style — external MCP" Open Question reconciliation: input-cited
-# "rmcp 1.5.0" not sourceable on crates.io (likely confused with MCP spec
-# version 2024-11-05 / 1.5.0 protocol), so chunk #48 pins the latest published
-# 0.x line (`0.6`). `optional = true` per arch §Cross-cutting Patterns
-# "Feature-gate hygiene" — rmcp only enters the build graph under
-# `--features mcp-server`. Feature set kept minimal: `server` (the
-# ServerHandler-side traits) + `transport-io` (stdio transport).
-rmcp = { version = "0.6", features = ["server", "transport-io"] }
+# rmcp stdio sidecar (route#48 origin; re-pinned at 2026-08-29-advisory-backlog).
+# Bumped 0.6 → 3 to close RUSTSEC-2026-0189 (DNS rebinding, Streamable HTTP
+# transport; stated safe upgrade >=1.4.0 — the 3.x line is the current major,
+# so the bump does not land on an already-superseded line). This also retires
+# the chunk #48 reconciliation note: the old "rmcp 1.5.0 not sourceable, pin
+# the 0.x line" caveat (arch §Established Decisions [MCP Server Surface]) is
+# obsolete by measurement — the published line reached 3.x.
+# `optional = true` per arch §Cross-cutting Patterns "Feature-gate hygiene" —
+# rmcp only enters the build graph under `--features mcp-server`. Feature set
+# kept minimal: `server` + `transport-io` (both verified present at 3.1.4).
+rmcp = { version = "3", features = ["server", "transport-io"] }
 
 # Plugin host runtime (route#45 — Epoch 7 Plugin runtime + MCP server opens).
 # wasmtime 25+ with WASM Component Model per arch §Stack and Technologies + §Established
@@ -123,11 +123,12 @@ rmcp = { version = "0.6", features = ["server", "transport-io"] }
 # "Plugin host capability sandbox"); attaches per-Store ResourceLimiter at chunk #46.
 # `wat` dev-dep used in tests to compile WAT text → WASM bytes for fixture Components
 # (no committed .wasm binaries this chunk; sidesteps build-time WAT toolchain dep).
-# wasmtime 43+ pins the patched line per cargo audit at chunk #45 implementation
-# (wasmtime 25.0.x line is unmaintained — RUSTSEC-2025-0046 / -0118 + RUSTSEC-2026-0020/-0021/-0085..-0096
-# all unpatched on 25.x; solutions specify >=24.0.7 OR >=36.0.7 OR >=42.0.2 OR >=43.0.1).
-# Route spec is "wasmtime 25+" (minimum); 43+ satisfies and brings full patch coverage.
-wasmtime = { version = "43", features = ["component-model"] }
+# wasmtime 46 pins the patched line per 2026-08-29-advisory-backlog: closes
+# RUSTSEC-2026-0222 (stores mix up type indices between engines; stated safe
+# upgrade >=46.0.2). The 46 line was chosen over the newer 48 per the same
+# precedent that picked 43 at chunk #45 — land the advisory-patched line the
+# finding states. Route spec is "wasmtime 25+" (minimum); 46 satisfies it.
+wasmtime = { version = "46", features = ["component-model"] }
 wat = "1"
 
 # Triage baseline trackers + corpus persistence (route#61 — Epoch 9 Foundation v0.2.0 fifth chunk).
@@ -198,9 +199,11 @@ regex = "1"
 # (.andromeda/decisions/pre-d2-drain-spike.md PROCEED decision; 167 LOC algo core; 2μs p99
 # per-event latency = 25× under <50μs production target).
 # Bumped 0.12 → 0.16 to close RUSTSEC-2026-0002 (IterMut violates Stacked Borrows by
-# invalidating internal pointer); fix per advisory's "Upgrade to >=0.16.3". API surface
-# used (new(NonZeroUsize), put, get, pop_lru) stable across 0.12 → 0.16.
-lru = "0.16"
+# invalidating internal pointer); fix per advisory's "Upgrade to >=0.16.3". Then
+# 0.16 → 0.18 at 2026-08-29-advisory-backlog to close RUSTSEC-2026-0253
+# (use-after-free in LruCache::pop; stated safe upgrade >=0.18.2). API surface
+# used (new(NonZeroUsize), put, get, pop_lru) stable across 0.12 → 0.18.
+lru = "0.18"
 
 # Digest assembler tokenizer (route#81 — Epoch 9 Foundation v0.2.0 L3 layer).
 # tokenizers (Hugging Face): production-grade BPE/WordPiece/Unigram tokenizer

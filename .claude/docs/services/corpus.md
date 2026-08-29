@@ -32,7 +32,7 @@ SQLite-backed persistent storage layer (chunk #68 — Epoch 9 Foundation v0.2.0)
 - **First-launch keychain prompt:** `OsKeychainBackend::get_or_create_encryption_key()` may surface an OS-level keychain unlock prompt on macOS / Linux; tests use `FakeKeychainBackend` to bypass.
 - **Concurrent access:** rusqlite default connection serializes via internal mutex; no parallel writers. If write throughput becomes a concern, document migration to `Arc<Mutex<Connection>>` + `tokio::task::spawn_blocking` pattern.
 - **`storage.{inspect,path}` are read-only by design** — `pulse-app/capabilities/default.json` notes "read-only-by-design per capability P-051"; no write methods exposed via TauRPC.
-- **Path canonicalization:** `corpus_db_path = data_dir.join("corpus").join("corpus.db")` resolved via existing `strict-path` canonicalization at boot per security.md universal path-env-var rule.
+- **Path canonicalization:** `corpus_db_path = data_dir.join("corpus").join("corpus.db")` resolved via the `std` both-sides-canonicalize boot path per security.md's universal path-env-var rule (the project's single path primitive since 2026-08-29 — `strict-path` dropped, never used).
 
 ## Entry points for modification
 - **Public contract:** `crates/corpus/src/contract.rs` (only `pub` surface beyond `lib.rs` re-exports)

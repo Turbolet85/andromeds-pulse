@@ -7,8 +7,8 @@ Component-specific known issues. Grows over time via `/wrap-session`. Read on de
 ### `tonic 0.14` vs `opentelemetry-otlp 0.31`
 `opentelemetry-otlp 0.31` still pins `tonic 0.13` in some feature combinations. The workspace targets `tonic 0.14.x` for the OTLP receiver server. **Resolution required before tagging v0.1.0** — `cargo deny check bans` (`multiple-versions = "deny"`) is the enforcement mechanism. If the duplicate cannot be resolved at lock time, the documented fallback is to downgrade Stack to `tonic 0.13.x` (matching `opentelemetry-otlp`) rather than fork or wait for upstream; the Stack/Decisions/Defaults rows are then re-pinned in the same iteration. Note: the receiver path doesn't actually use `opentelemetry-otlp` (we parse OTLP via `prost` + `opentelemetry-proto` directly), so the duplicate is purely transitive.
 
-### `rmcp` "1.5.0" reference vs published 0.3.x line
-The architecture references "rmcp 1.5.0" but the published line is `0.3.x`. **Reconcile before locking versions** — verify whether the reference is forward-looking, an internal spec name, or refers to the unrelated `4t145/rmcp` fork. Fall back to latest published `0.3.x` if 1.5.0 cannot be sourced; re-pin Stack accordingly.
+### `rmcp` version reconciliation — CLOSED by measurement (2026-08-29)
+The old "rmcp 1.5.0 vs published 0.3.x" open question is resolved: the published line reached 3.x and the workspace pins requirement `"3"` (lockfile-resolved 3.1.4, chunk 2026-08-29-advisory-backlog). Note the measured mechanism while touching rmcp: the crate is a feature-gated ANCHOR dependency (`use rmcp as _;` is the sole source contact) — the MCP protocol itself is the hand-rolled serde JSON-RPC 2.0 layer at `crates/mcp-server/src/jsonrpc.rs`.
 
 ### `rust-toolchain.toml` 1.84 → 1.85 bump
 Architecture's Stack table specified `rustc 1.84+` initially, but Edition 2024 cannot parse below `1.85.0`. **Bump `rust-toolchain.toml` to `1.85.0` minimum** — the security-positive defaults (`unsafe_op_in_unsafe_fn`, `unsafe extern`, `static mut` reference denial, tightened `if let` temporary scopes) require this. CLAUDE.md universal warnings list the bump as a hard requirement.
@@ -44,7 +44,7 @@ Architecture's Stack table specified `rustc 1.84+` initially, but Edition 2024 c
   - MCP `query_*` and `generate_snapshot` tool responses are the indirect-prompt-injection surface that the calling LLM client must defend against — receiver app cannot fully sanitize OTLP-derived attribute values. Documented behavior, not a defect.
 
 ## rmcp stdio reservation
-- When running as the rmcp stdio sidecar, stdout is reserved for JSON-RPC 2.0 framing.
+- When running as the `andromeda-pulse-mcp` stdio sidecar, stdout is reserved for JSON-RPC 2.0 framing.
 - ANY accidental `println!` / `dbg!` / library stdout write corrupts the protocol and silently disconnects the MCP client.
 - ALL `tracing` output forced to stderr (JSON formatter); TTY check disabled for the sidecar.
 

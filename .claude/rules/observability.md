@@ -20,7 +20,7 @@ Path-scoped rules for telemetry instrumentation across Rust crates + webview fro
 - **Init order at boot, before HTTP/gRPC bind:** load env (`ANDROMEDA_PULSE_LOG_LEVEL` / `RUST_LOG` fallback) → build `tracing_subscriber::registry()` composing stderr + non-blocking file appender + `EnvFilter` + `ErrorLayer` → install `std::panic::set_hook` calling `tracing::error!(target: "app.panic.fatal", ...)` → spawn Tauri.
 
 ## Service identity (default subscriber fields)
-- `service.name` = compile-time `"com.andromeda.pulse"` (Tauri bundle id); for the rmcp sidecar = `"andromeda-pulse-mcp"`.
+- `service.name` = compile-time `"com.andromeda.pulse"` (Tauri bundle id); for the MCP sidecar = `"andromeda-pulse-mcp"`.
 - `service.version` = `env!("CARGO_PKG_VERSION")`.
 - `deployment.environment` = `"production"` (hardcoded).
 - Register once at subscriber init via `Layer::with_default_fields([service_name, service_version, deployment_environment])` — every JSON line carries identity without per-call boilerplate.
@@ -36,7 +36,7 @@ Optional fields: `trace_id` / `span_id` (W3C traceparent strings), `duration_ms`
 - **Path:** `~/.andromeda-pulse/logs/agent-latest.jsonl` (per-platform per arch §Occupied Resources Filesystem locations).
 - **Rotation:** daily via `tracing_appender::rolling::daily(log_dir, "agent-latest.jsonl")`.
 - **Dual sink (app):** stderr (JSON when not a TTY, pretty-printed when TTY) + file (always JSON).
-- **rmcp sidecar:** stderr forced JSON (no TTY check) — stdout reserved for JSON-RPC 2.0 framing. ANY accidental `println!` / `dbg!` / library stdout write corrupts MCP protocol and silently disconnects the client.
+- **MCP sidecar (`andromeda-pulse-mcp`; hand-rolled JSON-RPC 2.0):** stderr forced JSON (no TTY check) — stdout reserved for JSON-RPC 2.0 framing. ANY accidental `println!` / `dbg!` / library stdout write corrupts MCP protocol and silently disconnects the client.
 
 ## Span discipline
 - Span naming: `{module}.{operation}` (e.g., `ingest.grpc.export.request`, `duckdb.append`, `snapshot.generate.request`, `plugin.invoke.request`). Avoid high-cardinality names (no per-trace-ID names).

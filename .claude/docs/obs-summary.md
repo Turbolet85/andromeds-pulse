@@ -25,7 +25,7 @@ std::panic::set_hook(Box::new(panic_to_tracing_error));
 ```
 
 ## Service identity (default subscriber fields)
-- `service.name` = compile-time `"com.andromeda.pulse"` (Tauri bundle id); rmcp sidecar = `"andromeda-pulse-mcp"`
+- `service.name` = compile-time `"com.andromeda.pulse"` (Tauri bundle id); MCP sidecar = `"andromeda-pulse-mcp"`
 - `service.version` = `env!("CARGO_PKG_VERSION")`
 - `deployment.environment` = `"production"` (hardcoded)
 
@@ -50,7 +50,7 @@ Optional fields: `trace_id`, `span_id` (W3C traceparent strings), `duration_ms`,
 - **Path:** `~/.andromeda-pulse/logs/agent-latest.jsonl` (per-platform per arch §Filesystem locations).
 - **Rotation:** daily via `tracing_appender::rolling::daily()`.
 - **App dual sink:** stderr (JSON when not TTY, pretty when TTY) + file (always JSON).
-- **rmcp sidecar:** stderr forced JSON (no TTY check); stdout reserved for JSON-RPC 2.0 framing — ANY accidental `println!` corrupts MCP protocol.
+- **MCP sidecar (`andromeda-pulse-mcp`; hand-rolled JSON-RPC 2.0):** stderr forced JSON (no TTY check); stdout reserved for JSON-RPC 2.0 framing — ANY accidental `println!` corrupts MCP protocol.
 
 ## Trace context propagation
 W3C `traceparent` (HTTP) and gRPC `grpc-trace-bin` extracted at receiver entry; attached as a regular `tracing` field; downstream `tracing::Span::current()` inherits. IPC envelope (TauRPC) carries optional `traceparent`. Real-time push streams carry trace context in Arrow `_trace_context` metadata. **Treated as opaque string** — not bound to any OTel SDK trace context.
@@ -157,7 +157,7 @@ harness-truth sweep" entry.
 
 ## Top anti-patterns (obs §11)
 - NEVER link OTel SDK into self-observation runtime.
-- NEVER write to stdout from any subsystem when running as rmcp stdio sidecar.
+- NEVER write to stdout from any subsystem when running as the `andromeda-pulse-mcp` stdio sidecar.
 - NEVER hold a `tracing::Span` guard across `.await` without `.in_current_span()`.
 - NEVER use unbounded label cardinality in event fields.
 - NEVER log in hot path at `info` level — use `trace`/`debug` gated by env var.

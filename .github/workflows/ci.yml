@@ -246,6 +246,9 @@ jobs:
       - name: cargo deny check bans licenses sources
         uses: EmbarkStudios/cargo-deny-action@a4d2d701318fdc1c6ae17ba8cea8f329c5110eb2 # v2.0.17
 
+      - name: Cranelift-only WASM backend assertion (test-plan §9)
+        run: cargo tree -p wasmtime | grep -q "cranelift" || exit 1
+
       - name: Install cargo-auditable
         uses: taiki-e/install-action@db5fb34fa772531a3ece57ca434f579eb334e0fb # v2.75.30
         with:

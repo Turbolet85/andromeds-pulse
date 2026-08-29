@@ -174,20 +174,33 @@ async fn body_over_8mb_returns_413_or_4xx() {
     };
     let body = req.encode_to_vec();
     assert!(body.len() > 8 * 1024 * 1024, "test ballast must exceed 8MB");
-    let resp = reqwest::Client::new()
+    let send_result = reqwest::Client::new()
         .post(endpoint(addr, "/v1/traces"))
         .header("content-type", "application/x-protobuf")
         .body(body)
         .send()
-        .await
-        .expect("HTTP POST must reach loopback receiver");
-    // axum's DefaultBodyLimit returns 413 (Payload Too Large) when body exceeds cap.
-    let status = resp.status();
-    assert!(
-        status == StatusCode::PAYLOAD_TOO_LARGE || status.is_client_error(),
-        "expected 413 or 4xx body-rejection status, got {}",
-        status
-    );
+        .await;
+    // axum's DefaultBodyLimit rejects WITHOUT draining the body, so the client
+    // races the server's close: it either reads the 413, or its still-in-flight
+    // 8MB write dies on the reset (ConnectionAborted, os error 10053 on Windows).
+    // Both arms ARE the rejection; a connect-phase failure (dead receiver) or a
+    // timeout must still fail. The invariant both arms share: nothing ingested.
+    match send_result {
+        Ok(resp) => {
+            let status = resp.status();
+            assert!(
+                status == StatusCode::PAYLOAD_TOO_LARGE || status.is_client_error(),
+                "expected 413 or 4xx body-rejection status, got {}",
+                status
+            );
+        }
+        Err(err) => {
+            assert!(
+                err.is_request() && !err.is_connect() && !err.is_timeout(),
+                "oversized POST may only fail as a send-side abort after connect, got {err:?}"
+            );
+        }
+    }
     assert_eq!(
         state.snapshot().span_count,
         0,

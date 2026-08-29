@@ -1,4 +1,4 @@
-# `mcp-server` — rmcp stdio Sidecar
+# `mcp-server` — MCP stdio Sidecar (hand-rolled JSON-RPC 2.0)
 
 ## Responsibility
 Optional MCP server sidecar for AI agents to query telemetry directly. JSON-RPC 2.0 over stdin/stdout per MCP spec. Tool methods (8): `query_traces`, `query_metrics`, `query_logs`, `generate_snapshot` (shares the snapshot crate's curation pipeline) + `query_incident_list`, `retrieve_report`, `retrieve_telemetry_slice`, `mark_incident_resolved` (corpus-backed incident/report, chunk #94). Hosts `mcp.{status,start,stop}` TauRPC routers. **Feature double-gated:** compile-time `--features mcp-server` AND runtime `ANDROMEDA_PULSE_MCP_ENABLED=true`.
@@ -17,7 +17,7 @@ Optional MCP server sidecar for AI agents to query telemetry directly. JSON-RPC 
 - `tracing` events: `mcp.session`, `mcp.tools.call.request`, `mcp.tools.call.response`, `mcp.feature.gate.check`.
 
 ### Dependencies
-- `rmcp` (official Rust SDK) — `0.3.x` published line; reconciliation against arch's "1.5.0" reference open.
+- `rmcp` — feature-gated ANCHOR dependency only (requirement `"3"`, lockfile-resolved 3.1.4 as of 2026-08-29; sole source contact `use rmcp as _;` in the bin — the protocol layer is hand-rolled, not rmcp-provided). The old 1.5.0-vs-0.3.x reconciliation is CLOSED by measurement.
 - `serde_json` for JSON-RPC framing.
 - `tokio` for async stdio.
 - `duckdb` crate (read-side via `viz` shared code).
@@ -35,14 +35,14 @@ Optional MCP server sidecar for AI agents to query telemetry directly. JSON-RPC 
 
 ## Service-specific gotchas
 - **Sidecar binary identity:** distinct from `pulse-app` — `andromeda-pulse-mcp` (per arch §Occupied Resources Process / service identity).
-- **rmcp 1.5.0 reconciliation open** — published line is `0.3.x`. Verify whether the arch reference is forward-looking, internal spec name, or unrelated `4t145/rmcp` fork. Pin to `0.3` until reconciled.
+- **rmcp is declared-but-unused** — the sidecar links rmcp under the feature flag (anchor import) but no rmcp API executes; the MCP protocol is the hand-rolled `jsonrpc.rs` layer (MCP protocol `2024-11-05`). Measured at chunk 2026-08-29-advisory-backlog, which also closed the old 1.5.0-vs-0.3.x reconciliation (pinned `"3"`, resolved 3.1.4).
 - **OTLP attribute leakage to LLM clients** — MCP `query_*` and `generate_snapshot` tool responses surface attribute values to external LLM clients. Documented as the indirect-prompt-injection surface that the calling LLM client must defend itself against; the receiver app cannot fully sanitize OTLP-derived attribute values. Surfaced in README under "Using MCP with andromeda-pulse" and in security plan §Decisions Log.
 
 ## Entry points for modification
-- **Sidecar entrypoint:** `crates/mcp-server/src/main.rs` (the binary; gated by `--features mcp-server`)
-- **Tool method definitions:** `crates/mcp-server/src/tools/{query_traces,query_metrics,query_logs,generate_snapshot}.rs` with `#[tool]` annotations; chunk #94 incident/report tools (`query_incident_list` / `retrieve_report` / `retrieve_telemetry_slice` / `mark_incident_resolved`) are dispatch fns in `crates/mcp-server/src/tools.rs`, corpus-backed (read/write `corpus/corpus.db` cross-process)
-- **JSON-RPC framing:** `crates/mcp-server/src/rpc.rs` (rmcp-provided)
-- **Feature gate check:** `crates/mcp-server/src/gate.rs` (compile-time + runtime)
+- **Sidecar entrypoint:** `crates/mcp-server/src/bin/andromeda-pulse-mcp.rs` (the binary; gated by `--features mcp-server`, `required-features` on the `[[bin]]`)
+- **Tool method definitions:** ALL tools — the 4 telemetry tools and the chunk #94 incident/report tools (`query_incident_list` / `retrieve_report` / `retrieve_telemetry_slice` / `mark_incident_resolved`) — are name-dispatch fns in `crates/mcp-server/src/tools.rs` (`ALL_TOOL_NAMES` + `dispatch_tool`; no macro annotations), the incident tools corpus-backed (read/write `corpus/corpus.db` cross-process)
+- **JSON-RPC framing:** `crates/mcp-server/src/jsonrpc.rs` (hand-rolled serde; MCP protocol `2024-11-05` — measured 2026-08-29, nothing rmcp-provided)
+- **Feature gate check:** `crates/mcp-server/src/feature_gate.rs` (compile-time + runtime double-gate)
 - **TauRPC router:** `crates/mcp-server/src/router.rs` (mcp.status / mcp.start / mcp.stop visible from main app)
 - **Tests:** colocated + `tests/integration/mcp/` for E2E P3
 
@@ -57,7 +57,7 @@ Optional MCP server sidecar for AI agents to query telemetry directly. JSON-RPC 
 - **Test sidecar interactively:** `echo '{"jsonrpc":"2.0","id":1,"method":"tools/list"}' | ./target/debug/andromeda-pulse-mcp` → expect tools array on stdout.
 
 ## References
-- `.andromeda/architecture.md` §Stack (rmcp) + §Established Decisions MCP Server Surface + §Occupied Resources MCP stdio surface + §Workspace crates
+- `.andromeda/architecture.md` §Stack (MCP server row) + §Established Decisions [MCP Server Surface] (hand-rolled JSON-RPC 2.0, rmcp anchor dep — amended 2026-08-29) + §Occupied Resources MCP stdio surface + §Workspace crates
 - `.andromeda/security-plan.md` §API Security MCP feature double-gate + §Logging Vector 4 (response body never logged) + §Anti-Patterns (MCP double-gate omission ban)
 - `.andromeda/test-plan.md` §6 P3
 - `.andromeda/obs-plan.md` §1 P3 (must-trace `mcp.session` family) + §3 stderr forced JSON / stdout reservation
