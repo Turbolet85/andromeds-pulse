@@ -1,6 +1,36 @@
 # Session Learnings
 
 
+## 2026-08-29 — Price the cheap explanation before building the expensive fix
+
+Two disciplines from one chunk, both about what you check before you conclude.
+
+**A stale lockfile can be the entire defect.** The consumer-wedge this chunk existed to repair was a
+third-party bug: at libduckdb-sys 1.10502 a constraint-violating `Appender::flush()` blocked forever and
+never returned an error. The approved repair — reset the connection after a failed flush — turned out to be
+unimplementable, because there was no error to hook onto. The actual fix was `cargo update -p duckdb`: the
+lockfile sat at 1.10502 while `Cargo.toml`'s `version = "1.10500"` caret requirement already permitted
+1.10505, where the same flush returns `Err`. **`Cargo.toml` was never edited.** So before designing around a
+third-party defect, spend one command finding out whether a permitted-but-unresolved newer version already
+fixes it — `cargo search <crate>` against the resolved version in `Cargo.lock`. The red→green on a single
+unchanged test (30 s timeout at 1.10502, 0.06 s pass at 1.10505) is what made the attribution airtight, and
+it cost one build. Generalizes past Rust: a version-range dependency whose lock has drifted is the cheapest
+hypothesis for any "the library does something impossible" bug.
+
+**A probe that never reached its target is inconclusive, not a result — and it will read as a result.** While
+checking whether a plain duplicate `INSERT` also hung, the first probe printed a confident
+"plain INSERT duplicate RETURNS (does not hang)". It had inserted nothing: both statements died on a
+`NOT NULL service_name` column before reaching primary-key enforcement, so the probe measured the wrong
+constraint entirely and its verdict was meaningless. Only supplying every NOT NULL column turned it into
+evidence (and the real answer — a plain INSERT genuinely returns in 0.05 s — disproved an in-repo comment
+that three PK tests had been routed around for months). **Before believing a probe's verdict, confirm from
+its own output that it exercised the condition under test**: a row actually inserted, an error of the
+expected class, a counter that moved. This is the setup-side sibling of the mutation-check rule in
+`rules/testing.md` (2026-08-17: an unapplied mutation reports the INVERSE finding) — there the change fails
+to land, here the precondition fails to hold, and both print something that looks like an answer.
+
+---
+
 ## 2026-08-28 — Collapse a candidate field with a step probe, not with inference from indirect signals
 
 When attribution has narrowed to "the work stops somewhere inside this function" and there are several

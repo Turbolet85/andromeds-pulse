@@ -988,6 +988,51 @@ mod tests {
         assert_eq!(actual, 2);
     }
 
+    // A producer restart replays span identities already stored, so the
+    // composite PK rejects the batch at `flush()`. The rejection is expected;
+    // what must not happen is the NEXT batch blocking forever on residual
+    // connection state (obs-plan §10 defect 4). Driven on a worker thread under
+    // an explicit timeout so a regression FAILS rather than wedges the suite.
+    #[test]
+    fn append_after_a_constraint_violating_flush_returns_instead_of_hanging() {
+        let (tx, rx) = std::sync::mpsc::channel();
+        std::thread::spawn(move || {
+            let conn = fresh_conn_with_schema();
+            let seeded = wrap_spans(vec![span_with_ids(
+                vec![1u8; 16],
+                vec![1u8; 8],
+                1_700_000_000_000_000_000,
+            )]);
+            let first = append_spans_batch(&conn, &seeded).map_err(|e| e.to_string());
+            let replayed = append_spans_batch(&conn, &seeded).map_err(|e| e.to_string());
+            let fresh = wrap_spans(vec![span_with_ids(
+                vec![2u8; 16],
+                vec![2u8; 8],
+                1_700_000_000_000_000_001,
+            )]);
+            let third = append_spans_batch(&conn, &fresh).map_err(|e| e.to_string());
+            let rows: i64 = conn
+                .query_row("SELECT COUNT(*) FROM spans", [], |row| row.get(0))
+                .unwrap_or(-1);
+            let _ = tx.send((first, replayed, third, rows));
+        });
+
+        let (first, replayed, third, rows) = rx
+            .recv_timeout(std::time::Duration::from_secs(30))
+            .expect("append must not hang after a constraint-violating flush");
+
+        assert!(first.is_ok(), "the seeding batch must land: {first:?}");
+        assert!(
+            replayed.is_err(),
+            "a replayed identity must be rejected, not silently accepted"
+        );
+        assert!(
+            third.is_ok(),
+            "the batch after a rejected one must still land: {third:?}"
+        );
+        assert_eq!(rows, 2, "the seeded and the fresh row must both be stored");
+    }
+
     #[test]
     fn append_spans_batch_round_trips_nanosecond_precision() {
         let conn = fresh_conn_with_schema();

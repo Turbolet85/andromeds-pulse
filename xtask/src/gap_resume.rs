@@ -45,6 +45,10 @@ const OTLP_HTTP_PORT: u16 = 4318;
 /// One record per table append. Its presence proves the producer delivered and
 /// the consumer reached DuckDB at least once — the reconnect arm's precondition.
 const TARGET_DUCKDB_APPEND: &str = "duckdb.append";
+/// The stall announcement fires after 30 non-draining ticks at 15s each. A run
+/// whose observe window cannot reach this CANNOT fail — `evaluate` would be
+/// structurally incapable of reporting the stall, so its PASS would be vacuous.
+const STALL_ANNOUNCEMENT_SECONDS: u64 = 450;
 /// `tracing_appender`'s non-blocking writer holds the log open; give it room to
 /// flush before the process is torn down and the family is read.
 const FLUSH_SETTLE: Duration = Duration::from_secs(5);
@@ -102,6 +106,11 @@ pub struct StormEvidence {
     pub tier1_triggers: usize,
     pub buffer_ticks: usize,
     pub appends: usize,
+    /// Appends the buffer REJECTED — `duckdb.append` carrying a `reject_reason`.
+    /// The gap arm replays span identities on purpose, so a rejection here is
+    /// the positive evidence that the constraint-violation path was exercised
+    /// rather than quietly avoided.
+    pub append_rejections: usize,
 }
 
 impl StormEvidence {
@@ -151,7 +160,16 @@ pub fn storm_evidence(lines: &[Value]) -> StormEvidence {
                 }
             }
             ingest_progress::TARGET_BUFFER_TICK => evidence.buffer_ticks += 1,
-            TARGET_DUCKDB_APPEND => evidence.appends += 1,
+            TARGET_DUCKDB_APPEND => {
+                evidence.appends += 1;
+                if fields
+                    .and_then(|f| f.get("reject_reason"))
+                    .and_then(Value::as_str)
+                    .is_some_and(|r| !r.is_empty())
+                {
+                    evidence.append_rejections += 1;
+                }
+            }
             _ => {}
         }
     }
@@ -242,15 +260,50 @@ pub fn judge(verdict: &Verdict, evidence: &StormEvidence, arm: LegArm) -> LegOut
         };
     }
 
+    // The gap arm replays identities on purpose (`--replay`), so the append
+    // path MUST have rejected at least one batch. Without that the arm proves
+    // only that nothing stalled — which it would also report if the collision
+    // never happened, i.e. a pass for the wrong reason.
+    if evidence.append_rejections == 0 {
+        return LegOutcome::Inconclusive {
+            reason: format!(
+                "no rejected `duckdb.append` in {} appends — the replayed identities never reached the primary key, so a clean drain proves the collision was absent rather than survived",
+                evidence.appends
+            ),
+        };
+    }
+
     LegOutcome::Pass {
         detail: format!(
-            "gap arm: storm formed ({} cues / {} tier1 triggers) and the consumer kept draining across {} buffer ticks",
-            evidence.silence_cues, evidence.tier1_triggers, evidence.buffer_ticks
+            "gap arm: storm formed ({} cues / {} tier1 triggers), {} of {} appends rejected on replayed identities, and the consumer kept draining across {} buffer ticks",
+            evidence.silence_cues,
+            evidence.tier1_triggers,
+            evidence.append_rejections,
+            evidence.appends,
+            evidence.buffer_ticks
         ),
     }
 }
 
+/// Refuse a verdict the run window cannot support. `evaluate` keys on a stall
+/// announced only after `STALL_ANNOUNCEMENT_SECONDS`, so a shorter observe
+/// window makes the failure branch unreachable and every run reports PASS.
+pub fn observe_window_supports_verdict(observe_minutes: u64) -> Result<(), String> {
+    let window_seconds = observe_minutes.saturating_mul(60);
+    if window_seconds < STALL_ANNOUNCEMENT_SECONDS {
+        return Err(format!(
+            "--observe-minutes={observe_minutes} gives a {window_seconds}s window, below the {STALL_ANNOUNCEMENT_SECONDS}s stall announcement threshold the verdict reads — the leg could not fail, so its PASS would be vacuous"
+        ));
+    }
+    Ok(())
+}
+
 pub async fn run_gap_resume(options: GapResumeOptions) -> Result<std::process::ExitCode> {
+    if let Err(reason) = observe_window_supports_verdict(options.observe_minutes) {
+        eprintln!("::error::smoke:gap-resume: INCONCLUSIVE — {reason}");
+        return Ok(std::process::ExitCode::FAILURE);
+    }
+
     let root = workspace_root()?;
     let Some(binary) = locate_pulse_binary(&root) else {
         println!(
@@ -337,8 +390,23 @@ async fn drive(injector: &Path, data_dir: &Path, options: &GapResumeOptions) -> 
             .await?;
         }
         LegArm::GapResume => {
-            println!("smoke:gap-resume: seed 1 ({}m)", DEFAULT_SEED_MINUTES);
-            seed(injector, &[format!("--minutes={DEFAULT_SEED_MINUTES}")]).await?;
+            // BOTH runs carry `--replay`, which pins the injector's identity
+            // salt so run 2 deliberately re-emits run 1's `(trace_id, span_id)`
+            // pairs. Without it the salted default never collides and the arm
+            // would pass because the collision was absent, not survived —
+            // modelling a retrying OTLP exporter is the point of the arm.
+            println!(
+                "smoke:gap-resume: seed 1 ({}m, --replay)",
+                DEFAULT_SEED_MINUTES
+            );
+            seed(
+                injector,
+                &[
+                    format!("--minutes={DEFAULT_SEED_MINUTES}"),
+                    "--replay".to_string(),
+                ],
+            )
+            .await?;
 
             println!(
                 "smoke:gap-resume: gap {}s — every service crosses the {}s bootstrap window",
@@ -347,12 +415,15 @@ async fn drive(injector: &Path, data_dir: &Path, options: &GapResumeOptions) -> 
             tokio::time::sleep(Duration::from_secs(options.gap_seconds)).await;
 
             println!(
-                "smoke:gap-resume: resume ({}m, outlasting the 450s stall threshold)",
-                options.observe_minutes
+                "smoke:gap-resume: resume ({}m, --replay, outlasting the {}s stall threshold)",
+                options.observe_minutes, STALL_ANNOUNCEMENT_SECONDS
             );
             seed(
                 injector,
-                &[format!("--minutes={}", options.observe_minutes)],
+                &[
+                    format!("--minutes={}", options.observe_minutes),
+                    "--replay".to_string(),
+                ],
             )
             .await?;
         }
@@ -569,6 +640,7 @@ mod tests {
             tier1_triggers: 0,
             buffer_ticks: 40,
             appends: 12,
+            append_rejections: 0,
         };
         match judge(&verdict, &evidence, LegArm::GapResume) {
             LegOutcome::Inconclusive { reason } => assert!(reason.contains("never formed")),
@@ -587,11 +659,70 @@ mod tests {
             tier1_triggers: 4,
             buffer_ticks: 40,
             appends: 30,
+            append_rejections: 2,
         };
         assert!(matches!(
             judge(&verdict, &evidence, LegArm::GapResume),
             LegOutcome::Pass { .. }
         ));
+    }
+
+    // The gap arm replays identities deliberately, so a drain with NOTHING
+    // rejected means the collision never happened — the pass would be for the
+    // wrong reason. This is the discriminating half: the pass-arm test above
+    // stays green whether or not the rule exists.
+    #[test]
+    fn a_gap_arm_drain_with_no_rejected_append_is_inconclusive() {
+        let verdict = Verdict::Pass {
+            ticks: 40,
+            longest_zero_delta_run: 12,
+        };
+        let evidence = StormEvidence {
+            silence_cues: 20,
+            tier1_triggers: 4,
+            buffer_ticks: 40,
+            appends: 30,
+            append_rejections: 0,
+        };
+        match judge(&verdict, &evidence, LegArm::GapResume) {
+            LegOutcome::Inconclusive { reason } => {
+                assert!(reason.contains("rejected"), "got {reason}")
+            }
+            other => panic!("expected Inconclusive, got {other:?}"),
+        }
+    }
+
+    #[test]
+    fn a_rejected_append_is_counted_from_the_reject_reason_field() {
+        let rejected = serde_json::json!({
+            "target": "duckdb.append",
+            "fields": { "reject_reason": "append_failed" }
+        });
+        let accepted = serde_json::json!({
+            "target": "duckdb.append",
+            "fields": { "rows_appended": 12, "table_name": "spans" }
+        });
+        let evidence = storm_evidence(&[rejected, accepted, tick(1)]);
+        assert_eq!(evidence.appends, 2, "both records are appends");
+        assert_eq!(
+            evidence.append_rejections, 1,
+            "only the record carrying reject_reason is a rejection"
+        );
+    }
+
+    #[test]
+    fn an_observe_window_below_the_stall_threshold_is_refused() {
+        // Measured 2026-08-28: --observe-minutes=3 reported PASS over a
+        // consumer that had in fact stopped, because 180s cannot reach the
+        // 450s announcement the verdict reads.
+        let err = observe_window_supports_verdict(3).expect_err("3m must be refused");
+        assert!(err.contains("450"), "got {err}");
+        assert!(err.contains("vacuous"), "got {err}");
+
+        assert!(observe_window_supports_verdict(7).is_err(), "420s < 450s");
+        observe_window_supports_verdict(8).expect("480s clears the threshold");
+        observe_window_supports_verdict(DEFAULT_OBSERVE_MINUTES)
+            .expect("the default must support its own verdict");
     }
 
     #[test]
@@ -621,6 +752,7 @@ mod tests {
             tier1_triggers: 0,
             buffer_ticks: 40,
             appends: 30,
+            append_rejections: 0,
         };
         assert!(matches!(
             judge(&verdict, &quiet, LegArm::Sustained),
@@ -632,6 +764,7 @@ mod tests {
             tier1_triggers: 2,
             buffer_ticks: 40,
             appends: 30,
+            append_rejections: 0,
         };
         match judge(&verdict, &stormed, LegArm::Sustained) {
             LegOutcome::Inconclusive { reason } => assert!(reason.contains("should not have")),
@@ -652,6 +785,7 @@ mod tests {
             tier1_triggers: 0,
             buffer_ticks: 40,
             appends: 25,
+            append_rejections: 0,
         };
         match judge(&verdict, &clean, LegArm::ReconnectOnly) {
             LegOutcome::Pass { detail } => {
@@ -668,6 +802,7 @@ mod tests {
             tier1_triggers: 1,
             buffer_ticks: 40,
             appends: 25,
+            append_rejections: 0,
         };
         match judge(&verdict, &stormed, LegArm::ReconnectOnly) {
             LegOutcome::Inconclusive { reason } => assert!(reason.contains("gap-free run lapsed")),
@@ -681,6 +816,7 @@ mod tests {
             tier1_triggers: 0,
             buffer_ticks: 40,
             appends: 0,
+            append_rejections: 0,
         };
         match judge(&verdict, &unfed, LegArm::ReconnectOnly) {
             LegOutcome::Inconclusive { reason } => {

@@ -1,0 +1,78 @@
+[
+{
+"sql": "SELECT caller, file, line FROM calls WHERE callee LIKE '%append_record_batch_to_table%' ORDER BY file, line;",
+"rows": 7,
+"result": [
+{
+"caller": "rust-analyzer cargo buffer 0.1.0 appender/append_spans_batch().",
+"file": "crates/buffer/src/appender.rs",
+"line": 668
+},
+{
+"caller": "rust-analyzer cargo buffer 0.1.0 appender/append_metrics_batch().",
+"file": "crates/buffer/src/appender.rs",
+"line": 692
+},
+{
+"caller": "rust-analyzer cargo buffer 0.1.0 appender/append_logs_batch().",
+"file": "crates/buffer/src/appender.rs",
+"line": 717
+},
+{
+"caller": "rust-analyzer cargo buffer 0.1.0 appender/append_span_events_batch().",
+"file": "crates/buffer/src/appender.rs",
+"line": 742
+},
+{
+"caller": "rust-analyzer cargo buffer 0.1.0 appender/tests/drain_pii_canary_email_redacted_in_log_templates().",
+"file": "crates/buffer/src/appender.rs",
+"line": 1998
+},
+{
+"caller": "rust-analyzer cargo buffer 0.1.0 consumer/",
+"file": "crates/buffer/src/consumer.rs",
+"line": 11
+},
+{
+"caller": "rust-analyzer cargo buffer 0.1.0 consumer/append_table_traced().",
+"file": "crates/buffer/src/consumer.rs",
+"line": 188
+}
+],
+"db_state": "fresh",
+"plane": "rust"
+},
+{
+"sql": "SELECT caller, file, line FROM calls WHERE callee LIKE '%append_table_traced%' OR callee LIKE '%dispatch_batch%' ORDER BY file, line;",
+"rows": 5,
+"result": [
+{
+"caller": "rust-analyzer cargo buffer 0.1.0 consumer/run_consumer().",
+"file": "crates/buffer/src/consumer.rs",
+"line": 62
+},
+{
+"caller": "rust-analyzer cargo buffer 0.1.0 consumer/dispatch_batch().",
+"file": "crates/buffer/src/consumer.rs",
+"line": 111
+},
+{
+"caller": "rust-analyzer cargo buffer 0.1.0 consumer/dispatch_batch().",
+"file": "crates/buffer/src/consumer.rs",
+"line": 125
+},
+{
+"caller": "rust-analyzer cargo buffer 0.1.0 consumer/dispatch_batch().",
+"file": "crates/buffer/src/consumer.rs",
+"line": 135
+},
+{
+"caller": "rust-analyzer cargo buffer 0.1.0 consumer/dispatch_batch().",
+"file": "crates/buffer/src/consumer.rs",
+"line": 148
+}
+],
+"db_state": "fresh",
+"plane": "rust"
+}
+]

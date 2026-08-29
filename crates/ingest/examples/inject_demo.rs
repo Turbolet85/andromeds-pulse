@@ -146,6 +146,10 @@ struct Profile {
     /// the sustained profile sets this — the bounded storm fails fast so a
     /// broken receiver surfaces immediately.
     resilient: bool,
+    /// Fixed identity salt when `--replay` is set, so a restart deliberately
+    /// re-emits the previous run's span identities; `None` takes a fresh salt
+    /// per process and never collides across restarts.
+    replay_salt: Option<u64>,
 }
 
 impl Profile {
@@ -155,6 +159,7 @@ impl Profile {
             total_batches: Some(TOTAL_BATCHES),
             error_pct_override: None,
             resilient: false,
+            replay_salt: None,
         }
     }
 
@@ -164,7 +169,13 @@ impl Profile {
             total_batches: None,
             error_pct_override: Some(SUSTAINED_ERROR_PCT),
             resilient: true,
+            replay_salt: None,
         }
+    }
+
+    /// The identity salt this run emits under.
+    fn run_salt(&self) -> u64 {
+        self.replay_salt.unwrap_or_else(fresh_run_salt)
     }
 
     /// The error percentage in force for `svc`. A service configured healthy
@@ -192,10 +203,13 @@ fn parse_profile<I: Iterator<Item = String>>(args: I) -> Result<Profile, String>
     let mut profile = Profile::storm();
     let mut minutes: Option<u64> = None;
     let mut error_pct: Option<u64> = None;
+    let mut replay = false;
 
     for arg in args {
         if arg == "--sustained" {
             profile = Profile::sustained();
+        } else if arg == "--replay" {
+            replay = true;
         } else if let Some(v) = arg.strip_prefix("--minutes=") {
             minutes = Some(v.parse().map_err(|_| format!("bad --minutes value: {v}"))?);
         } else if let Some(v) = arg.strip_prefix("--error-pct=") {
@@ -218,18 +232,40 @@ fn parse_profile<I: Iterator<Item = String>>(args: I) -> Result<Profile, String>
     if let Some(pct) = error_pct {
         profile.error_pct_override = Some(pct);
     }
+    if replay {
+        profile.replay_salt = Some(REPLAY_RUN_SALT);
+    }
     Ok(profile)
 }
 
-fn trace_id(seq: u64) -> [u8; 16] {
+/// Identity salt for one run. `seq` alone restarts at 0 in every process, so
+/// two runs re-emit the same `(trace_id, span_id)` pairs and the second one is
+/// rejected by the `spans` composite primary key. The salt enters ONLY the two
+/// id derivations — never `seq` itself, which also drives `error_roll` and the
+/// latency jitter, so the emitted storm profile (batch count, span count, error
+/// count, durations) is identical whatever the salt is.
+fn fresh_run_salt() -> u64 {
+    let pid = u64::from(std::process::id());
+    let nanos = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .map(|d| d.as_nanos() as u64)
+        .unwrap_or(0);
+    (pid << 32) ^ nanos
+}
+
+/// The salt `--replay` pins, so two runs deliberately collide. Models a
+/// retrying OTLP exporter resending spans the receiver already stored.
+const REPLAY_RUN_SALT: u64 = 0x5245_504C_4159_0001;
+
+fn trace_id(seq: u64, salt: u64) -> [u8; 16] {
     let mut id = [0u8; 16];
     id[0..8].copy_from_slice(&seq.to_le_bytes());
-    id[8..16].copy_from_slice(&seq.wrapping_mul(2_654_435_761).to_le_bytes());
+    id[8..16].copy_from_slice(&(seq.wrapping_mul(2_654_435_761) ^ salt).to_le_bytes());
     id[15] = 1;
     id
 }
-fn span_id(seq: u64) -> [u8; 8] {
-    let mut id = seq.wrapping_add(1).to_le_bytes();
+fn span_id(seq: u64, salt: u64) -> [u8; 8] {
+    let mut id = (seq.wrapping_add(1) ^ salt.rotate_left(32)).to_le_bytes();
     id[7] |= 1;
     id
 }
@@ -250,12 +286,14 @@ async fn main() {
         Err(e) => {
             eprintln!("inject_demo: {e}");
             eprintln!(
-                "usage: inject_demo [--sustained] [--minutes=N] [--error-pct=0..100]\n\
+                "usage: inject_demo [--sustained] [--minutes=N] [--error-pct=0..100] [--replay]\n\
                  no arguments = the default finite storm profile"
             );
             std::process::exit(2);
         }
     };
+
+    let run_salt = profile.run_salt();
 
     let endpoint = "http://127.0.0.1:4317";
     println!("connecting to {endpoint} ...");
@@ -309,8 +347,8 @@ async fn main() {
                         Vec::new()
                     };
                     spans.push(Span {
-                        trace_id: trace_id(seq).to_vec(),
-                        span_id: span_id(seq).to_vec(),
+                        trace_id: trace_id(seq, run_salt).to_vec(),
+                        span_id: span_id(seq, run_salt).to_vec(),
                         name: (*op).to_string(),
                         kind: 2,
                         start_time_unix_nano: now.saturating_sub(dur_ns),
@@ -383,4 +421,107 @@ async fn main() {
     println!(
         "\nDONE — {total} spans, {exc} identical-fingerprint exceptions. Watch the payment dot."
     );
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn parse(args: &[&str]) -> Result<Profile, String> {
+        parse_profile(args.iter().map(|s| s.to_string()))
+    }
+
+    #[test]
+    fn no_arguments_keeps_the_default_storm_profile() {
+        let p = parse(&[]).expect("the arg-less default must parse");
+        assert_eq!(p.label, "storm");
+        assert_eq!(p.total_batches, Some(TOTAL_BATCHES));
+        assert_eq!(p.error_pct_override, None);
+        assert!(!p.resilient);
+        assert_eq!(
+            p.replay_salt, None,
+            "the default must take a fresh salt, never the replay one"
+        );
+    }
+
+    #[test]
+    fn replay_pins_the_salt_so_two_runs_emit_identical_identities() {
+        let a = parse(&["--replay"]).expect("--replay must parse");
+        let b = parse(&["--replay"]).expect("--replay must parse");
+        assert_eq!(a.replay_salt, Some(REPLAY_RUN_SALT));
+        assert_eq!(
+            a.run_salt(),
+            b.run_salt(),
+            "two --replay runs must share one salt, or the arm cannot collide on purpose"
+        );
+        let seq = 4_242;
+        assert_eq!(trace_id(seq, a.run_salt()), trace_id(seq, b.run_salt()));
+        assert_eq!(span_id(seq, a.run_salt()), span_id(seq, b.run_salt()));
+    }
+
+    #[test]
+    fn the_default_profile_does_not_collide_across_runs() {
+        let a = parse(&[]).expect("parse").run_salt();
+        let b = parse(&[]).expect("parse").run_salt();
+        assert_ne!(a, b, "two default runs must not share an identity salt");
+        let seq = 4_242;
+        assert_ne!(
+            trace_id(seq, a),
+            trace_id(seq, b),
+            "the same seq under two runs must not reproduce one trace_id"
+        );
+        assert_ne!(span_id(seq, a), span_id(seq, b));
+    }
+
+    #[test]
+    fn identities_stay_distinct_within_one_run() {
+        let salt = parse(&[]).expect("parse").run_salt();
+        let ids: std::collections::BTreeSet<_> = (0..5_000u64).map(|s| span_id(s, salt)).collect();
+        assert_eq!(ids.len(), 5_000, "span_id must stay injective in seq");
+        let traces: std::collections::BTreeSet<_> =
+            (0..5_000u64).map(|s| trace_id(s, salt)).collect();
+        assert_eq!(traces.len(), 5_000, "trace_id must stay injective in seq");
+    }
+
+    #[test]
+    fn the_salt_never_reaches_the_emission_profile() {
+        // `seq` drives error_roll and the latency jitter as well as identity.
+        // Salting identity alone is what keeps the arg-less storm byte-budget
+        // stable for the headful leg, which threads no arguments.
+        for seq in [0u64, 1, 99, 100_000, 599_999] {
+            let rolled = error_roll(seq);
+            assert_eq!(
+                rolled,
+                error_roll(seq),
+                "error_roll must depend on seq only"
+            );
+            assert!(rolled < 100);
+        }
+    }
+
+    #[test]
+    fn identity_shape_invariants_hold_under_any_salt() {
+        for salt in [0u64, 1, REPLAY_RUN_SALT, u64::MAX] {
+            let t = trace_id(7, salt);
+            let s = span_id(7, salt);
+            assert_eq!(t.len(), 16, "trace_id must stay 16 bytes (OTLP invariant)");
+            assert_eq!(s.len(), 8, "span_id must stay 8 bytes (OTLP invariant)");
+            assert!(t.iter().any(|b| *b != 0), "trace_id must never be all-zero");
+            assert!(s.iter().any(|b| *b != 0), "span_id must never be all-zero");
+        }
+    }
+
+    #[test]
+    fn unknown_arguments_are_rejected_rather_than_ignored() {
+        assert!(parse(&["--replayy"]).is_err());
+        assert!(parse(&["--error-pct=101"]).is_err());
+        assert!(parse(&["--minutes=abc"]).is_err());
+    }
+
+    #[test]
+    fn replay_composes_with_the_other_flags() {
+        let p = parse(&["--sustained", "--replay"]).expect("parse");
+        assert_eq!(p.label, "sustained");
+        assert_eq!(p.replay_salt, Some(REPLAY_RUN_SALT));
+    }
 }

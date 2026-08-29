@@ -157,11 +157,21 @@ skip = [
     { crate = "jni" },
     { crate = "jni-sys" },
     { crate = "redox_syscall" },
-    # taurpc 0.7 + specta 2.0.0-rc.22 transitive deps (route#4, 2026-05-03)
+    # taurpc 0.7 + specta 2.0.0-rc.22 transitive deps (route#4, 2026-05-03).
+    # windows-core / windows-result / windows-strings were skipped here until
+    # 2026-08-29: the duckdb 1.10502 -> 1.10505 bump dropped the second copy of
+    # each, so cargo-deny flags the entries as unnecessary-skip. Removed rather
+    # than kept — a stale skip hides the duplicate's return.
     { crate = "ctor" },
-    { crate = "windows-core" },
-    { crate = "windows-result" },
-    { crate = "windows-strings" },
+    # duckdb 1.10505's libduckdb-sys build script pulls ureq 3.4.0 while
+    # crates/triage's own build.rs (tokenizer fetch) pulls ureq 2.12.1. BOTH are
+    # [build-dependencies] only — neither links into any shipped binary, so the
+    # duplicate costs build time and nothing else. Not source-fixable without
+    # migrating triage/build.rs to the ureq 3 API, which is a breaking rewrite of
+    # a downloader that already carries its own cap-hit hard-error discipline.
+    # Closes when triage/build.rs moves to ureq 3 or stops needing an HTTP client
+    # (chunk 2026-08-28-duplicate-span-replay-fails-loudly, 2026-08-29).
+    { crate = "ureq" },
     # tonic-prost-build 0.14 build-dep stack pulls foldhash 0.1 via hashbrown / petgraph;
     # tauri-utils / dom_query pull foldhash 0.2. Both transitive, both build-time only,
     # benign per route#16 (2026-05-04).

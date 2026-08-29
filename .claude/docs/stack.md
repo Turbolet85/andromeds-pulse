@@ -33,7 +33,7 @@ _Extracted from `.andromeda/architecture.md` Stack and Technologies section by `
 - **Implementation status:** chunk #82 trait surface + stub concrete `MistralRsInference` substrate landed (session 139 commit cf6686b); chunk #83 prompt scaffolding + subscriber substrate landed (session 142 commit 0e37159); runtime-swap chunk (replace `MistralRsInference` → `LlamaCliInference`) is the next implementation work to plan via `/andromeda-phase`, positioned in route §Epoch 9 before chunk #84 fallback-tier work.
 
 ## Data Storage
-- **Storage engine:** DuckDB 1.5.x via `duckdb` crate 1.10500.x — embedded columnar OLAP, in-memory `:memory:` ring buffer (5–10 min retention, configurable via `ANDROMEDA_PULSE_RETENTION_SECONDS`).
+- **Storage engine:** DuckDB 1.5.x via the `duckdb` crate — Cargo.toml requirement `1.10500` (caret), lockfile-resolved 1.10505.0 as of 2026-08-28 — embedded columnar OLAP, in-memory `:memory:` ring buffer (5–10 min retention, configurable via `ANDROMEDA_PULSE_RETENTION_SECONDS`).
 - **Columnar interchange:** Apache Arrow via `Appender::append_record_batch()` / `stream_arrow()` — zero-copy hand-off between OTLP decode → DuckDB → viz/MCP.
 - **ORM / Migrations:** None — direct SQL via `duckdb` crate `Connection` + `Appender`; schema created on startup.
 - **Schema name:** `pulse_buffer` (single in-memory connection, schema `main`).
