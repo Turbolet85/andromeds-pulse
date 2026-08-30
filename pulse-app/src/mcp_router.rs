@@ -82,7 +82,8 @@ impl McpApiImpl {
     }
 }
 
-fn gate_state_to_mcp_state(gs: GateState) -> McpServerState {
+#[doc(hidden)]
+pub fn gate_state_to_mcp_state(gs: GateState) -> McpServerState {
     match gs {
         GateState::Enabled => McpServerState::Enabled,
         GateState::EnvDisabled => McpServerState::Disabled,
@@ -90,7 +91,8 @@ fn gate_state_to_mcp_state(gs: GateState) -> McpServerState {
     }
 }
 
-fn state_label(state: McpServerState) -> &'static str {
+#[doc(hidden)]
+pub fn state_label(state: McpServerState) -> &'static str {
     match state {
         McpServerState::Enabled => "enabled",
         McpServerState::Disabled => "disabled",
@@ -247,82 +249,5 @@ impl McpApi for McpApiImpl {
     }
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    fn impl_with_stub_path() -> McpApiImpl {
-        let path = Arc::new(std::env::temp_dir().join("nonexistent-mcp-binary-for-tests"));
-        McpApiImpl::new(path)
-    }
-
-    #[tokio::test]
-    async fn status_returns_dto_with_double_gate_mapped_state() {
-        let api = impl_with_stub_path();
-        let result = api.status().await.expect("status returns ok");
-        // State depends on cfg!(feature = "mcp-server") + env var at test time;
-        // we assert only that sidecar_running is false (no spawn yet).
-        assert!(!result.sidecar_running);
-        assert!(result.pid.is_none());
-    }
-
-    #[tokio::test]
-    async fn status_state_distinguishes_three_gates() {
-        let api = impl_with_stub_path();
-        let result = api.status().await.expect("status returns ok");
-        // Just verify the field carries one of the 3 enum values.
-        assert!(matches!(
-            result.state,
-            McpServerState::Enabled | McpServerState::Disabled | McpServerState::Unavailable
-        ));
-    }
-
-    #[tokio::test]
-    async fn start_refused_when_double_gate_inactive() {
-        let api = impl_with_stub_path();
-        // Ensure env var is unset so double-gate cannot be Enabled.
-        unsafe {
-            std::env::remove_var("ANDROMEDA_PULSE_MCP_ENABLED");
-        }
-        let err = api.start().await.expect_err("start refuses");
-        match err {
-            AppError::Internal { message } => {
-                assert!(message.contains("feature flag and env var must both be active"));
-            }
-            other => panic!("expected AppError::Internal, got {other:?}"),
-        }
-    }
-
-    #[tokio::test]
-    async fn stop_is_idempotent_when_sidecar_not_running() {
-        let api = impl_with_stub_path();
-        let result = api.stop().await.expect("stop ok");
-        assert!(matches!(
-            result.state,
-            McpServerState::Enabled | McpServerState::Disabled | McpServerState::Unavailable
-        ));
-    }
-
-    #[test]
-    fn gate_state_to_mcp_state_maps_three_variants() {
-        assert!(matches!(
-            gate_state_to_mcp_state(GateState::Enabled),
-            McpServerState::Enabled
-        ));
-        assert!(matches!(
-            gate_state_to_mcp_state(GateState::EnvDisabled),
-            McpServerState::Disabled
-        ));
-        assert!(matches!(
-            gate_state_to_mcp_state(GateState::FeatureMissing),
-            McpServerState::Unavailable
-        ));
-    }
-
-    #[test]
-    fn state_label_returns_lowercase_for_each_variant() {
-        assert_eq!(state_label(McpServerState::Enabled), "enabled");
-        assert_eq!(state_label(McpServerState::Disabled), "disabled");
-        assert_eq!(state_label(McpServerState::Unavailable), "unavailable");
-    }
-}
+// Tests migrated to `pulse-app/tests/unit_mcp_router.rs` — a src-level `mod tests`
+// compiles but never runs under `[lib] test = false` (2026-05-20 precedent).

@@ -200,29 +200,12 @@ fn cue_leaves_carry_persistence_not_the_seconds_lie() {
 
 #[test]
 fn pulse_app_src_carries_no_new_dead_test_attributes() {
-    // Ratchet, not a flat zero: this guard's FIRST run measured ~101 MORE
-    // dead src-level tests across the 14 lib files below (beyond the 130 in
-    // observability.rs the route entry named — migrated 2026-08-30). Their
-    // migration is a surfaced follow-up, not this chunk; meanwhile the
-    // ratchet reds on ANY new file gaining a `#[test]` and on ANY legacy
-    // file GROWING. `main.rs` is the [[bin]] target — its tests genuinely
-    // run under nextest — so it is exempt.
-    const LEGACY_DEAD_BASELINE: &[(&str, usize)] = &[
-        ("baseline_observer.rs", 2),
-        ("connection_router.rs", 4),
-        ("diagnostics_router.rs", 11),
-        ("digest_runtime.rs", 2),
-        ("heartbeat.rs", 25),
-        ("mcp_router.rs", 6),
-        ("plugins_router.rs", 7),
-        ("restart_observer.rs", 4),
-        ("snapshot_runtime.rs", 7),
-        ("storage_router.rs", 7),
-        ("storm_observer.rs", 2),
-        ("streams.rs", 2),
-        ("tray.rs", 10),
-        ("window.rs", 13),
-    ];
+    // The baseline is EMPTY: the 2026-08-30 dead-lib-src-test-migration
+    // chunk drained all 14 legacy files (102 tests) into `pulse-app/tests/`
+    // targets collected by name, so ANY `#[test]`/`#[tokio::test]` in a lib
+    // src file now reds this guard. `main.rs` is the [[bin]] target — its
+    // tests genuinely run under nextest — so it is exempt.
+    const LEGACY_DEAD_BASELINE: &[(&str, usize)] = &[];
     let baseline: std::collections::BTreeMap<&str, usize> =
         LEGACY_DEAD_BASELINE.iter().copied().collect();
 

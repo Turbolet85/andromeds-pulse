@@ -46,24 +46,5 @@ impl SpanObserver for BaselineObserverAdapter {
     }
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn adapter_delegates_observe_span_to_baseline_state() {
-        let state = Arc::new(BaselineState::new());
-        let adapter = BaselineObserverAdapter::new(Arc::clone(&state));
-
-        assert_eq!(state.service_count(), 0);
-        adapter.observe_span("svc-a", "op-x", 0, 100, 1_000_000);
-        assert_eq!(state.service_count(), 1);
-    }
-
-    #[test]
-    fn adapter_can_be_held_as_dyn_span_observer() {
-        let state = Arc::new(BaselineState::new());
-        let observer: Arc<dyn SpanObserver> = Arc::new(BaselineObserverAdapter::new(state));
-        observer.observe_span("svc-a", "op", 0, 100, 1_000_000);
-    }
-}
+// Tests migrated to `pulse-app/tests/unit_span_observers.rs` — a src-level `mod tests`
+// compiles but never runs under `[lib] test = false` (2026-05-20 precedent).

@@ -292,22 +292,5 @@ fn corpus_error_label(e: &CorpusError) -> &'static str {
 #[allow(dead_code)]
 fn _hold_corpus_reader_ref<R: CorpusReader>(_r: &R) {}
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn pii_scrub_closure_redacts_jwt() {
-        let scrub = pii_scrub_closure();
-        let input = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIn0.signaturedata123456";
-        let out = scrub(input);
-        assert!(out.starts_with("[redacted:"), "expected redaction: {out}");
-    }
-
-    #[test]
-    fn pii_scrub_closure_allows_clean_text() {
-        let scrub = pii_scrub_closure();
-        let out = scrub("hello world");
-        assert_eq!(out, "hello world");
-    }
-}
+// Tests migrated to `pulse-app/tests/unit_digest_runtime_scrub.rs` — a src-level `mod tests`
+// compiles but never runs under `[lib] test = false` (2026-05-20 precedent).
