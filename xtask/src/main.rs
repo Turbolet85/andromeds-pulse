@@ -14,6 +14,7 @@ mod ingest_progress;
 mod npm_gate;
 mod self_verify;
 mod smoke;
+mod staged_gate;
 mod webview_drive;
 
 use std::collections::{BTreeMap, BTreeSet};
@@ -134,6 +135,11 @@ enum Cmd {
     )]
     CapabilityWideningCheck,
     #[command(
+        name = "check:staged-artifacts",
+        about = "diff the STAGED (git index) copies of pulse-app/ui/src/bindings/index.ts + pulse-app/capabilities/*.json against EXPECTED_PROCEDURES + EXPECTED_GRANTS — the committed copy is the subject, never the worktree (exit 0 staged-clean / 1 staged-drift / 2 cannot-evaluate); also runs inside capability-drift"
+    )]
+    CheckStagedArtifacts,
+    #[command(
         name = "smoke",
         about = "install-launch-ingest-query smoke per bundle format (chunk #51)"
     )]
@@ -250,6 +256,7 @@ async fn main() -> ExitCode {
         Cmd::TestA11y { extra } => run_npm_script("test:a11y", extra).await,
         Cmd::CapabilityDrift => capability_drift().await,
         Cmd::CapabilityWideningCheck => capability_widening_check().await,
+        Cmd::CheckStagedArtifacts => staged_gate::run().await,
         Cmd::Smoke { bundle, format } => smoke::run_smoke(&bundle, format).await,
         Cmd::SelfVerify => self_verify::run_self_verify().await,
         Cmd::WebviewDrive {
@@ -1238,7 +1245,13 @@ async fn capability_drift() -> Result<ExitCode> {
     }
     eprintln!("  report: {}", report_path.display());
 
-    if drift_state == "clean" {
+    // The staged assertion rides capability-drift's cannot-be-skipped slot
+    // (it runs LAST in every gate list and in CI): any non-clean staged
+    // outcome fails this verb too, preserving its 0/1 exit contract.
+    let staged = staged_gate::evaluate_at(&workspace_root).await;
+    staged_gate::emit(&workspace_root, &staged)?;
+
+    if drift_state == "clean" && staged.exit == 0 {
         Ok(ExitCode::SUCCESS)
     } else {
         Ok(ExitCode::FAILURE)

@@ -103,6 +103,9 @@ jobs:
       - name: cargo xtask capability-drift (TauRPC procedures vs arch §Occupied Resources)
         run: cargo xtask capability-drift
 
+      - name: cargo xtask check:staged-artifacts (staged bindings + capability grants vs pins)
+        run: cargo xtask check:staged-artifacts
+
       - name: cargo xtask capability-widening-check (chunk #77 — NEVER-widen bans on pulse:notification/tray/plugin-fs)
         run: cargo xtask capability-widening-check
 

@@ -32,8 +32,8 @@ Architecture's Stack table specified `rustc 1.84+` initially, but Edition 2024 c
 - Any future `ANDROMEDA_OBSERVER_URL`-shaped variable MUST explicitly distinguish "outbound observer" (we ARE the observer — do not dial) from "inbound receivers" (the OTLP ports we listen on).
 
 ## Tauri capability silent rejections
-- Adding a TauRPC procedure to a router crate without a matching entry in `pulse-app/capabilities/` JSON produces a silent runtime rejection — hard-to-diagnose UX bug.
-- The `xtask capability-drift` check is the enforcement mechanism. Wire into CI on every PR.
+- A missing Tauri CORE API / `core:window:*` grant produces a silent runtime rejection — hard-to-diagnose dead-affordance bug (per-procedure capability entries do NOT exist; TauRPC uses one invoke handler, measured 2026-08-21).
+- The `xtask capability-drift` check is the enforcement mechanism for the procedure pin — and since 2026-08-30 it also asserts the STAGED git-index copies (bindings + `capabilities/*.json` grants vs their pins) via the folded-in `check:staged-artifacts`, so a left-revoked or silently-added grant reds CI mechanically. Wire into CI on every PR.
 - `pulse:default` admits the webview to the IPC layer as a whole — it does NOT enumerate procedures (TauRPC uses one invoke handler; measured 2026-08-21). The per-procedure list that must stay in sync is `EXPECTED_PROCEDURES` in `xtask/src/main.rs` vs arch §Occupied Resources Tauri IPC routes.
 
 ## Snapshot / clipboard / MCP tool response — OTLP attribute leakage

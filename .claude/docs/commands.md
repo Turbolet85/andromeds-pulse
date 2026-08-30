@@ -98,6 +98,7 @@ cargo deny check bans licenses sources                         # Duplicate / lic
 cargo deny check advisories                                    # Same as cargo audit but via deny
 cargo xtask check:npm-supply-chain                             # npm advisory/license/ban gate (pulse-app/ui; policy npm-policy.json; lockfile-only)
 cargo xtask harness:status                                     # Real-process status verdict JSON {verdict,pid,log_file_basename,last_write_age_seconds,stale_after_seconds}; exits 0/1/1/2
+cargo xtask check:staged-artifacts                             # Staged git-index bindings + capability grants vs EXPECTED_PROCEDURES/EXPECTED_GRANTS; exit 0 staged-clean / 1 staged-drift / 2 cannot-evaluate
 
 # CI-side
 gitleaks detect --redact                                       # Secret scanning (pre-commit + CI)
@@ -105,7 +106,7 @@ gitleaks detect --redact                                       # Secret scanning
 # xtask wrappers
 cargo xtask audit                                              # Wraps cargo audit
 cargo xtask deny-bans                                          # Wraps cargo deny check bans
-cargo xtask capability-drift                                   # Diff TauRPC procedures vs pulse-app/capabilities/ JSON
+cargo xtask capability-drift                                   # Diff TauRPC procedures (worktree bindings) vs EXPECTED_PROCEDURES + run the staged-artifacts assertion (since 2026-08-30)
 ```
 
 ## Tooling install (Bootstrap phase install commands)

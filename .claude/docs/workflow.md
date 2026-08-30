@@ -24,7 +24,7 @@ Co-Authored-By footer when AI-assisted: `Co-Authored-By: Claude Opus 4.7 (1M con
 - Use `gh` CLI for ALL GitHub operations (do NOT suggest MCP or web UI).
 - Title: short imperative (under 70 chars). Body has Summary + Test plan sections.
 - One topic per PR — split if it touches multiple unrelated concerns.
-- All CI gates must pass before merge: lint + clippy + nextest + coverage thresholds + supply-chain + a11y + capability-drift.
+- All CI gates must pass before merge: lint + clippy + nextest + coverage thresholds + supply-chain + a11y + capability-drift + staged-artifacts.
 - Squash on merge (single conventional commit per PR).
 
 ## Release flow
@@ -44,7 +44,7 @@ Co-Authored-By footer when AI-assisted: `Co-Authored-By: Claude Opus 4.7 (1M con
 - Performance budgets respected (snapshot p99 ≤500ms, WebGPU frame p99 ≤33ms — measured via `criterion` + log-tail aggregation)
 - `cargo audit` zero findings above warning
 - `cargo deny check bans licenses sources` clean (catches `tonic` 0.14/0.13 duplicate)
-- `xtask capability-drift` passes (TauRPC procedures match `pulse-app/capabilities/` JSON)
+- `xtask capability-drift` passes (TauRPC procedures match the `EXPECTED_PROCEDURES` pin — worktree AND staged git-index copies; staged `capabilities/*.json` grants match `staged_gate::EXPECTED_GRANTS`; `cargo xtask check:staged-artifacts` is the direct verb)
 - A11y suite passes (axe-core no critical/serious, Lighthouse a11y ≥90, no per-PR regression vs base branch)
 - Heartbeat-stall detection passes (no `{module}.tick` gap >45s during test run)
 - Zero `app.panic.fatal` spans in test logs
