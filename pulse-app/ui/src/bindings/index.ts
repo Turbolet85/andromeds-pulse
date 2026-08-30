@@ -191,6 +191,10 @@ export type InvestigateStep = { step: string; expected_yield: string }
  */
 export type InvestigationStepPayload = { step: string; expected_yield: string }
 
+export type IpcRejectionCategory = "acl_rejected" | "other"
+
+export type IpcRejectionInput = { error_category: IpcRejectionCategory; window_label: string; payload_bytes: number }
+
 export type LogRow = { ts_unix_nano: number; resource_hash: string; severity_number: number; body: string; severity_text: string; trace_id: string; span_id: string }
 
 export type LogsQueryArgs = { time_window_seconds: number; limit: number; cursor: string | null }
@@ -449,7 +453,7 @@ export type WidgetPosition = "top-left" | "top-right" | "bottom-left" | "bottom-
 
 export type WorkspaceContextDto = { root_basename: string; project_name: string | null; vcs_type: string | null; vcs_root_basename: string | null; has_andromeda_marker: boolean }
 
-const ARGS_MAP = { '':'{"app_info":[],"get_settings":[],"health":[],"ready":[],"update_settings":["settings"]}', 'config':'{"reload":[],"status":[]}', 'connection':'{"current_state":[]}', 'diagnostics':'{"history":["metric_name","window_seconds"],"reevaluate_recent_window":[],"retry_interpretation":[],"snapshot":[],"template_distribution":[]}', 'incidents':'{"acknowledge":["id"],"get_report":["id"],"list_active":[],"mark_all_read":[],"mark_resolved":["id"]}', 'investigate':'{"run_action":["action_id"]}', 'logs':'{"query":["args"]}', 'mcp':'{"start":[],"status":[],"stop":[]}', 'metrics':'{"query":["args"]}', 'model':'{"current_profile":[]}', 'plugins':'{"invoke":["plugin_id","capability"],"list":[],"reload":[]}', 'services':'{"list_with_states":[]}', 'snapshot':'{"generate":["preset","workspace_root"]}', 'storage':'{"export_for_training":["target_path","confirm"],"inspect":[],"path":[]}', 'streams':'{"subscribe_logs":["channel"],"subscribe_metrics":["channel"],"subscribe_spans":["channel"]}', 'telemetry.frontend':'{"record_constellation_discovery_latency":["input"],"record_constellation_hue_latency":["input"],"record_findings_counter_refresh":["input"],"record_frame_ms":["input"]}', 'traces':'{"query":["args"]}', 'workspace':'{"detect":["candidate_root"]}' }
+const ARGS_MAP = { '':'{"app_info":[],"get_settings":[],"health":[],"ready":[],"update_settings":["settings"]}', 'config':'{"reload":[],"status":[]}', 'connection':'{"current_state":[]}', 'diagnostics':'{"history":["metric_name","window_seconds"],"reevaluate_recent_window":[],"retry_interpretation":[],"snapshot":[],"template_distribution":[]}', 'incidents':'{"acknowledge":["id"],"get_report":["id"],"list_active":[],"mark_all_read":[],"mark_resolved":["id"]}', 'investigate':'{"run_action":["action_id"]}', 'logs':'{"query":["args"]}', 'mcp':'{"start":[],"status":[],"stop":[]}', 'metrics':'{"query":["args"]}', 'model':'{"current_profile":[]}', 'plugins':'{"invoke":["plugin_id","capability"],"list":[],"reload":[]}', 'services':'{"list_with_states":[]}', 'snapshot':'{"generate":["preset","workspace_root"]}', 'storage':'{"export_for_training":["target_path","confirm"],"inspect":[],"path":[]}', 'streams':'{"subscribe_logs":["channel"],"subscribe_metrics":["channel"],"subscribe_spans":["channel"]}', 'telemetry.frontend':'{"record_constellation_discovery_latency":["input"],"record_constellation_hue_latency":["input"],"record_findings_counter_refresh":["input"],"record_frame_ms":["input"],"record_ipc_rejection":["input"]}', 'traces':'{"query":["args"]}', 'workspace':'{"detect":["candidate_root"]}' }
 export type Router = { "": {app_info: () => Promise<AppInfo>, 
 get_settings: () => Promise<Settings>, 
 health: () => Promise<HealthEnvelope>, 
@@ -489,7 +493,8 @@ subscribe_spans: (channel: TAURI_CHANNEL<number[]>) => Promise<null>},
 "telemetry.frontend": {record_constellation_discovery_latency: (input: ConstellationDiscoveryInput) => Promise<null>, 
 record_constellation_hue_latency: (input: ConstellationHueLatencyInput) => Promise<null>, 
 record_findings_counter_refresh: (input: FindingsCounterRefreshInput) => Promise<null>, 
-record_frame_ms: (input: FrameDurationInput) => Promise<null>},
+record_frame_ms: (input: FrameDurationInput) => Promise<null>, 
+record_ipc_rejection: (input: IpcRejectionInput) => Promise<null>},
 "traces": {query: (args: TracesQueryArgs) => Promise<PaginatedResponse<TraceRow>>},
 "workspace": {detect: (candidateRoot: string) => Promise<WorkspaceContextDto>} };
 

@@ -1035,6 +1035,19 @@ impl AllowList {
             .copied()
             .collect(),
         );
+        // Capability-rejected webview IPC record (security-plan §Logging &
+        // Monitoring "What to log"): bounded category + coerced window label +
+        // byte count only — never the payload, the command name, or the raw
+        // rejection text. Its OWN exact leaf: NO bare `ui` key is registered
+        // (measured), so without this entry `for_target`'s first-`.`-segment
+        // fallback resolves nothing and every field is silently redacted.
+        by_target.insert(
+            "ui.ipc.rejection",
+            ["error_category", "window_label", "payload_bytes"]
+                .iter()
+                .copied()
+                .collect(),
+        );
         by_target.insert(
             "tray.visibility.toggle",
             ["tray_visible"].iter().copied().collect(),

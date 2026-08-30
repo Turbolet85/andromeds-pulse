@@ -1161,6 +1161,7 @@ const EXPECTED_PROCEDURES: &[&str] = &[
     "telemetry.frontend.record_constellation_hue_latency",
     "telemetry.frontend.record_findings_counter_refresh",
     "telemetry.frontend.record_frame_ms",
+    "telemetry.frontend.record_ipc_rejection",
     "traces.query",
     "workspace.detect",
     // future-deferred (per epoch landing):

@@ -152,6 +152,69 @@ pub fn validate_discovered_count(discovered_count: u32) -> Result<(), AppError> 
     Ok(())
 }
 
+// Capability-rejected webview IPC record (security-plan §Logging & Monitoring
+// "What to log"). The category is classified webview-side from the invoke
+// rejection value — Tauri 2.11 rejects a denied command back to the webview
+// with a message containing "not allowed" (release: `Command {cmd} not
+// allowed by ACL`, src/webview/mod.rs; debug: resolve_access_message,
+// src/ipc/authority.rs) — and a non-matching rejection degrades to `Other`
+// rather than misclassifying, so a Tauri rewording can never silently drop
+// the record class.
+#[cfg_attr(feature = "taurpc-runtime", derive(specta::Type))]
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(rename_all = "snake_case")]
+pub enum IpcRejectionCategory {
+    AclRejected,
+    Other,
+}
+
+impl IpcRejectionCategory {
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::AclRejected => "acl_rejected",
+            Self::Other => "other",
+        }
+    }
+}
+
+#[cfg_attr(feature = "taurpc-runtime", derive(specta::Type))]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+pub struct IpcRejectionInput {
+    pub error_category: IpcRejectionCategory,
+    pub window_label: String,
+    pub payload_bytes: u32,
+}
+
+// Upper bound on the reported payload byte count. A rejected clipboard write
+// carries at most a few hundred KB of markdown; anything past this is a
+// malformed webview payload, not a large report.
+const PAYLOAD_BYTES_MAX: u32 = 100_000_000;
+
+pub fn validate_payload_bytes(payload_bytes: u32) -> Result<(), AppError> {
+    if payload_bytes > PAYLOAD_BYTES_MAX {
+        return Err(AppError::Validation {
+            field: "payload_bytes".to_string(),
+            reason: "out of range".to_string(),
+        });
+    }
+    Ok(())
+}
+
+// Third copy of the bounded window-label set, mirroring
+// `pulse-app/src/window.rs::sanitize_window_label` (unreachable from this
+// crate — the dependency DAG roots at pulse-app) and the webview's
+// `use-window-label.ts::sanitizeWindowLabel`. Coerces rather than rejects:
+// a mislabeled window must still land its rejection record, as `unknown`.
+pub fn coerce_window_label(label: &str) -> &'static str {
+    match label {
+        "main" => "main",
+        "compact-widget" => "compact-widget",
+        "findings" => "findings",
+        "report" => "report",
+        _ => "unknown",
+    }
+}
+
 #[cfg(feature = "taurpc-runtime")]
 mod runtime {
     use super::*;
@@ -174,6 +237,7 @@ mod runtime {
         async fn record_findings_counter_refresh(
             input: FindingsCounterRefreshInput,
         ) -> Result<(), AppError>;
+        async fn record_ipc_rejection(input: IpcRejectionInput) -> Result<(), AppError>;
     }
 
     #[derive(Clone, Default)]
@@ -250,6 +314,22 @@ mod runtime {
                     "findings counter refresh latency recorded",
                 );
             }
+            Ok(())
+        }
+
+        async fn record_ipc_rejection(self, input: IpcRejectionInput) -> Result<(), AppError> {
+            validate_payload_bytes(input.payload_bytes)?;
+            let window_label = coerce_window_label(&input.window_label);
+            // WARN, once per rejection event — rejections are rare by
+            // construction and never on a hot path (obs-plan §6), so no
+            // level-gating like the INFO metric emits above.
+            tracing::warn!(
+                target: "ui.ipc.rejection",
+                error_category = input.error_category.as_str(),
+                window_label,
+                payload_bytes = input.payload_bytes,
+                "capability-rejected webview IPC recorded",
+            );
             Ok(())
         }
     }
@@ -758,6 +838,153 @@ mod tests {
                 .iter()
                 .any(|(t, l)| t == "metric.webgpu.frame_duration_ms" && *l == tracing::Level::INFO),
             "capture() helper must record sync tracing emissions; got: {events:?}"
+        );
+    }
+
+    #[test]
+    fn ipc_rejection_category_serializes_snake_case_bounded_labels() {
+        for (category, expected) in [
+            (IpcRejectionCategory::AclRejected, "\"acl_rejected\""),
+            (IpcRejectionCategory::Other, "\"other\""),
+        ] {
+            let json = serde_json::to_string(&category).expect("serializes");
+            assert_eq!(json, expected);
+        }
+    }
+
+    #[test]
+    fn ipc_rejection_input_rejects_unknown_category() {
+        let json = r#"{"error_category":"panic","window_label":"report","payload_bytes":10}"#;
+        let result: Result<IpcRejectionInput, _> = serde_json::from_str(json);
+        assert!(
+            result.is_err(),
+            "closed enum must reject an unknown error_category (no free-form String escape)",
+        );
+    }
+
+    #[test]
+    fn coerce_window_label_collapses_unknown_to_constant() {
+        assert_eq!(coerce_window_label("main"), "main");
+        assert_eq!(coerce_window_label("compact-widget"), "compact-widget");
+        assert_eq!(coerce_window_label("findings"), "findings");
+        assert_eq!(coerce_window_label("report"), "report");
+        assert_eq!(coerce_window_label("evil-injection-attempt"), "unknown");
+        assert_eq!(coerce_window_label(""), "unknown");
+    }
+
+    #[test]
+    fn validate_payload_bytes_accepts_zero_and_max_boundary() {
+        assert!(validate_payload_bytes(0).is_ok());
+        assert!(validate_payload_bytes(PAYLOAD_BYTES_MAX).is_ok());
+    }
+
+    #[test]
+    fn validate_payload_bytes_rejects_above_max() {
+        let err = validate_payload_bytes(PAYLOAD_BYTES_MAX + 1).expect_err("above max must reject");
+        match err {
+            AppError::Validation { field, reason } => {
+                assert_eq!(field, "payload_bytes");
+                assert_eq!(reason, "out of range");
+            }
+            other => panic!("expected Validation, got {other:?}"),
+        }
+    }
+
+    #[cfg(feature = "taurpc-runtime")]
+    #[tokio::test]
+    async fn record_ipc_rejection_emits_exact_target_with_coerced_label_and_category() {
+        let api = TelemetryApiImpl::new();
+        let (events, subscriber) = field_sink();
+        let guard = tracing::subscriber::set_default(subscriber);
+        api.record_ipc_rejection(IpcRejectionInput {
+            error_category: IpcRejectionCategory::AclRejected,
+            window_label: "evil-injection-attempt".to_string(),
+            payload_bytes: 1234,
+        })
+        .await
+        .expect("ok");
+        drop(guard);
+        let captured = events.lock().expect("lock").clone();
+
+        let hit = captured
+            .iter()
+            .find(|(target, _)| target == "ui.ipc.rejection")
+            .unwrap_or_else(|| panic!("expected ui.ipc.rejection; got {captured:?}"));
+        assert!(
+            hit.1.contains("error_category=acl_rejected"),
+            "expected the bounded category verbatim; fields were: {}",
+            hit.1
+        );
+        assert!(
+            hit.1.contains("window_label=unknown"),
+            "an out-of-set label must land COERCED, never verbatim; fields were: {}",
+            hit.1
+        );
+        assert!(
+            !hit.1.contains("evil-injection-attempt"),
+            "the raw webview-supplied label must never reach the record; fields were: {}",
+            hit.1
+        );
+        assert!(
+            hit.1.contains("payload_bytes=1234"),
+            "expected the byte count verbatim; fields were: {}",
+            hit.1
+        );
+    }
+
+    #[cfg(feature = "taurpc-runtime")]
+    #[tokio::test]
+    async fn record_ipc_rejection_emits_at_warn_level() {
+        let events: Arc<Mutex<Vec<(String, tracing::Level)>>> = Arc::new(Mutex::new(Vec::new()));
+        let subscriber = CapturingSubscriber {
+            events: events.clone(),
+        };
+        let guard = tracing::subscriber::set_default(subscriber);
+        let api = TelemetryApiImpl::new();
+        api.record_ipc_rejection(IpcRejectionInput {
+            error_category: IpcRejectionCategory::Other,
+            window_label: "report".to_string(),
+            payload_bytes: 0,
+        })
+        .await
+        .expect("ok");
+        drop(guard);
+
+        let captured = events.lock().expect("lock").clone();
+        assert!(
+            captured
+                .iter()
+                .any(|(t, l)| t == "ui.ipc.rejection" && *l == tracing::Level::WARN),
+            "the rejection record is a WARN-class security event; captured: {captured:?}"
+        );
+    }
+
+    #[cfg(feature = "taurpc-runtime")]
+    #[tokio::test]
+    async fn record_ipc_rejection_rejects_implausible_payload_bytes_without_emitting() {
+        let api = TelemetryApiImpl::new();
+        let (events, subscriber) = field_sink();
+        let guard = tracing::subscriber::set_default(subscriber);
+        let result = api
+            .record_ipc_rejection(IpcRejectionInput {
+                error_category: IpcRejectionCategory::AclRejected,
+                window_label: "report".to_string(),
+                payload_bytes: PAYLOAD_BYTES_MAX + 1,
+            })
+            .await;
+        drop(guard);
+
+        match result {
+            Err(AppError::Validation { field, reason }) => {
+                assert_eq!(field, "payload_bytes");
+                assert_eq!(reason, "out of range");
+            }
+            other => panic!("expected Validation error, got {other:?}"),
+        }
+        let captured = events.lock().expect("lock").clone();
+        assert!(
+            !captured.iter().any(|(t, _)| t == "ui.ipc.rejection"),
+            "a rejected input must not emit a record — the emit rides valid input only; got {captured:?}"
         );
     }
 }

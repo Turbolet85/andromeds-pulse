@@ -108,7 +108,9 @@ function ErrorState({ message }: { message: string }) {
         background: "var(--color-raised-1)",
         border: "1px solid var(--color-accent)",
         borderRadius: "var(--radius-md)",
-        color: "var(--color-accent)",
+        // Body-size error text takes the ≥4.5:1 text token; accent stays on
+        // the border only (design-system §Color Palette, accent = non-text).
+        color: "var(--color-text-primary)",
         fontFamily: "var(--font-body)",
         fontSize: "14px",
       }}

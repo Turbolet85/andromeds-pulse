@@ -13,6 +13,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { writeText } from "@tauri-apps/plugin-clipboard-manager";
 import { createTauRPCProxy } from "../bindings/index";
+import { classifyIpcRejection, reportIpcRejection } from "./ipc-rejection";
 import type { CopyState, ReportPayload } from "./report-types";
 
 export interface UseReportResult {
@@ -90,8 +91,14 @@ export function useReport(incidentId: number | null): UseReportResult {
     try {
       await writeText(report.markdown);
       setCopyState("copied");
-    } catch {
+    } catch (err) {
+      // State first — the UX is unchanged; the wire record rides behind it
+      // fire-and-forget, so a failed report can never affect the copy flow.
       setCopyState("error");
+      void reportIpcRejection(
+        classifyIpcRejection(err),
+        new TextEncoder().encode(report.markdown).length,
+      );
     }
   }, [report]);
 
