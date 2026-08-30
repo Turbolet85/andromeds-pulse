@@ -36,14 +36,14 @@ _**Agent-driven invariant:** every WCAG criterion described in this plan MUST ha
 
 | Surface | Automated Tool Reach | Manual Verification (supplemental) | ARIA Roles Inventory | Service Identity Tagging | Notes |
 |---------|---------------------|--------------------------------|---------------------|------------------------|-------|
-| **desktop-webview (web-spa)** | **axe-core** (`@axe-core/playwright` 4.11.x for E2E + `axe-core` 4.11.x standalone for rendered DOM) + **Lighthouse** 12.x a11y category (Chrome DevTools / `lighthouse` CLI) + **pa11y** 9.x / **pa11y-ci** 4.x for parallel rule matrix | **NVDA** (Windows) / **VoiceOver** (macOS) / **Orca** (Linux) — supplemental to automated assertions, never sole | **Landmark roles:** `main` / `navigation` / `contentinfo` (layout templates); **Interactive roles:** `button` / `tab` / `dialog` / `alert` / `status` (modal patterns); **Live regions:** `aria-live="polite"` for toasts, `aria-live="assertive"` for error focus shifts | `service.name`: `"com.andromeda.pulse"` (compile-time constant, Tauri bundle identifier); `deployment.environment`: `"production"` | Tauri webview a11y tree exposed via DevTools Protocol; full axe-core reach for React 19 rendered DOM. Canvas (`<canvas>` + WebGPU) has no built-in ARIA; semantics enforced via label elements and ARIA attributes on wrapper/control elements. |
+| **desktop-webview (web-spa)** | **axe-core** (`@axe-core/playwright` 4.11.x for E2E + `axe-core` 4.11.x standalone for rendered DOM) + **Lighthouse** 13.x a11y category (Chrome DevTools / `lighthouse` CLI) + **pa11y** 10.x / **pa11y-ci** 4.x for parallel rule matrix (pa11y 9→10 + lighthouse 12→13 landed at chunk `2026-08-30-npm-advisory-coverage` per the operator P4 ruling — advisory fixes crossing these pinned majors upgrade + re-baseline in-chunk; the full chain ran green with ZERO new violation tuples, so the baseline held; pa11y-ci 4.1.1 remains latest and internally nests pa11y 9, covered by the npm-policy extract-zip exception) | **NVDA** (Windows) / **VoiceOver** (macOS) / **Orca** (Linux) — supplemental to automated assertions, never sole | **Landmark roles:** `main` / `navigation` / `contentinfo` (layout templates); **Interactive roles:** `button` / `tab` / `dialog` / `alert` / `status` (modal patterns); **Live regions:** `aria-live="polite"` for toasts, `aria-live="assertive"` for error focus shifts | `service.name`: `"com.andromeda.pulse"` (compile-time constant, Tauri bundle identifier); `deployment.environment`: `"production"` | Tauri webview a11y tree exposed via DevTools Protocol; full axe-core reach for React 19 rendered DOM. Canvas (`<canvas>` + WebGPU) has no built-in ARIA; semantics enforced via label elements and ARIA attributes on wrapper/control elements. |
 | **desktop-native (tray-icon menu)** | **axe-core via DevTools Protocol** (`@axe-core/playwright` / `@axe-core/puppeteer` against webview when available); **fallback: OS-native a11y APIs** (Windows UIA / macOS NSAccessibility / Linux ATK — no automated tool reach for native menu internals) | **VoiceOver** (macOS) / **NVDA** (Windows) / **Orca** (Linux) — manual SR pass required for menu navigation and item selection; OS keyboard discipline (arrow keys / Return) verified manually | **Interactive roles:** `menu` / `menuitem` (tray action menu); **State roles:** button state via native menu item attributes | `service.name`: `"com.andromeda.pulse"` | OS-native tray surfaces (NotifyIcon / NSStatusItem / AppIndicator) expose limited a11y tree to automated tools; manual keyboard + screen reader testing required. No axe-core reach for tray menu internals. |
 | **OS notification (toast)** | No automated tool reach (OS-level API) | **VoiceOver** (macOS) / **NVDA** (Windows) / **Orca** (Linux) / **TalkBack** (if web-accessible fallback provided) — manual verification of notification readability and timing | No ARIA; OS notification content exposed via native a11y APIs (`NSAccessibilityNotificationKey` / UIA notification event) | `service.name`: `"com.andromeda.pulse"` | Content authored in code ("Snapshot ready ({N} tokens). Paste in {AI tool} to investigate.") must be screen-reader readable; OS-level a11y handled by Tauri / system framework. |
 
 **A11y assertion harness specification:** [VERBATIM from a11y-scope Section 3]
 
 ### A11y Testing Tool Pick
-- **Primary tool (desktop-webview):** **@axe-core/playwright** 4.11.x for E2E + **Lighthouse** 12.x CLI for CI gate + **pa11y** 9.x for parallel rule matrix
+- **Primary tool (desktop-webview):** **@axe-core/playwright** 4.11.x for E2E + **Lighthouse** 13.x CLI for CI gate + **pa11y** 10.x for parallel rule matrix (majors moved at `2026-08-30-npm-advisory-coverage`)
 - **Secondary tool (desktop-native / OS surfaces):** No automated tool reach for tray menu / native file picker / OS notifications. Manual screen reader testing supplemental. Focus management + keyboard discipline verified via Playwright against webview surface.
 
 ### WCAG Criteria Mapping
@@ -253,7 +253,7 @@ cargo xtask test:a11y
 | Perceivable | Color contrast / non-text content / text alternatives | axe-core + Lighthouse color-contrast rule (default); colorjs.io token-binding assertions for all foreground/background pairs |
 | Operable | Keyboard navigation / focus management / target size | Playwright Tab/Shift+Tab/Escape/Arrow key navigation harness; tabbable 6.4.x focus order ground-truth; axe-core target-size rule (enabled for WCAG 2.2 AA mapping) |
 | Understandable | Form labels / error messages / readable language | React Aria Components / Headless UI (semantically correct form elements with aria-label / aria-describedby); eslint-plugin-jsx-a11y 6.10.x compile-time lint gate |
-| Robust | ARIA conformance / semantic HTML / parsing | axe-core 4.11.x default rules + pa11y 9.x parallel matrix; eslint-plugin-jsx-a11y strict mode rejects ARIA-on-non-semantic patterns |
+| Robust | ARIA conformance / semantic HTML / parsing | axe-core 4.11.x default rules + pa11y 10.x parallel matrix; eslint-plugin-jsx-a11y strict mode rejects ARIA-on-non-semantic patterns |
 | Agent-driven | Machine-verifiable paths for every WCAG SC | axe-core JSON + Lighthouse JSON + pa11y JSON + Playwright test JSON + colorjs.io numeric assertion + GitHub Actions CI artifact upload (no manual-only verification) |
 
 **Agent-runnable invariants (apply across all WCAG SCs):**
@@ -277,12 +277,12 @@ This section specifies the SPECIFIC contract for how a11y assertions run from CI
 
 ### A11y testing tool pick
 
-- **Primary tool per surface:** **@axe-core/playwright** 4.11.x for desktop-webview E2E + **Lighthouse** 12.x CLI for CI gate + **pa11y** 9.x for parallel rule matrix
+- **Primary tool per surface:** **@axe-core/playwright** 4.11.x for desktop-webview E2E + **Lighthouse** 13.x CLI for CI gate + **pa11y** 10.x for parallel rule matrix
 - **Configuration:** 
   - axe-core: `runOnly: { type: 'tag', values: ['wcag2a', 'wcag2aa', 'wcag21aa'] }` for Standard tier baseline
   - axe-core: add `'wcag22aa'` to include WCAG 2.2 AA target-size rule (SC 2.5.8)
-  - Lighthouse 12.x: built-in a11y category includes focus-visible + prefers-reduced-motion audits (SC 2.4.7 + SC 2.3.3 AAA trigger coverage)
-  - pa11y 9.x: `--runner axe` for full axe ruleset coverage parallel to standalone axe-core
+  - Lighthouse 13.x: built-in a11y category includes focus-visible + prefers-reduced-motion audits (SC 2.4.7 + SC 2.3.3 AAA trigger coverage)
+  - pa11y 10.x: `--runner axe` for full axe ruleset coverage parallel to standalone axe-core
   - eslint-plugin-jsx-a11y 6.10.x: extend `'plugin:jsx-a11y/recommended'` in ESLint config (compile-time gate for ARIA on non-semantic HTML + missing labels)
 
 ### WCAG criteria mapping
@@ -385,7 +385,7 @@ Binding contract from upstream-context Section 6 Obs Plan Excerpt. Required fiel
 
 The downstream skills derive the following bootstrap phases from the contract above:
 
-- **a11y-tooling-install:** `npm install --save-dev @axe-core/playwright@4.11.x lighthouse@12.x pa11y@9.x pa11y-ci@4.x` + configure axe with `runOnly: { type: 'tag', values: ['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa'] }` for Standard tier WCAG 2.1 AA + WCAG 2.2 AA target-size support (SC 2.5.8)
+- **a11y-tooling-install:** `npm install --save-dev @axe-core/playwright@4.11.x lighthouse@13.x pa11y@10.x pa11y-ci@4.x` (lighthouse 12→13 + pa11y 9→10 as of chunk `2026-08-30-npm-advisory-coverage`, advisory-driven majors per the operator ruling) + configure axe with `runOnly: { type: 'tag', values: ['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa'] }` for Standard tier WCAG 2.1 AA + WCAG 2.2 AA target-size support (SC 2.5.8)
 - **focus-management-library-install:** `npm install focus-trap-react@12.x tabbable@6.4.x` (focus-trap-react for modals; tabbable for focus order ground-truth)
 - **aria-component-library-install:** `npm install react-aria-components@1.17.x @headlessui/react@2.2.x` (semantic HTML + ARIA; recommend React Aria for 32 components; Headless UI for Tailwind v4 integration)
 - **contrast-verification-harness-setup:** `npm install --save-dev colorjs.io@0.6.x` + scaffold Playwright test reading design tokens via `getComputedStyle` + colorjs.io contrast() algorithm
@@ -583,7 +583,7 @@ N/A — no cognitive-accessibility trigger (professional developer users; no int
 |-------|-----------|----------|----------|
 | Lint | eslint-plugin-jsx-a11y 6.10.x | structured stderr (violations in ESLint JSON format) | GitHub Actions annotations (PR check); CI fail if critical violations |
 | Unit | (no UI unit tests for a11y; a11y is integration-level) | n/a | n/a |
-| E2E | @axe-core/playwright 4.11.x + Lighthouse 12.x + pa11y 9.x | `a11y-axe-core-results.jsonl`, `a11y-lighthouse-results.json`, `a11y-pa11y-results.json`, `a11y-keyboard-focus-results.jsonl`, `a11y-violations-summary.json` | uploaded artifact; PR comment with new violations vs base branch |
+| E2E | @axe-core/playwright 4.11.x + Lighthouse 13.x + pa11y 10.x | `a11y-axe-core-results.jsonl`, `a11y-lighthouse-results.json`, `a11y-pa11y-results.json`, `a11y-keyboard-focus-results.jsonl`, `a11y-violations-summary.json` | uploaded artifact; PR comment with new violations vs base branch |
 | Aggregation | custom aggregator script (Node.js jq-style) | `a11y-violations-summary.json` (per surface + per WCAG SC pass/fail history) | uploaded artifact; Decisions Log entry if regression |
 
 **Pipeline integration:**

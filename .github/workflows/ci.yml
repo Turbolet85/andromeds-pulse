@@ -249,6 +249,17 @@ jobs:
       - name: Cranelift-only WASM backend assertion (test-plan §9)
         run: cargo tree -p wasmtime | grep -q "cranelift" || exit 1
 
+      - name: Setup Node
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '22'
+
+      # npm advisory + license + ban gate over pulse-app/ui. No npm ci needed:
+      # license/class data comes from package-lock.json and `npm audit` reads
+      # the lockfile + registry, never node_modules.
+      - name: cargo xtask check:npm-supply-chain (npm advisory + license + ban gate)
+        run: cargo xtask check:npm-supply-chain
+
       - name: Install cargo-auditable
         uses: taiki-e/install-action@db5fb34fa772531a3ece57ca434f579eb334e0fb # v2.75.30
         with:

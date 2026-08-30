@@ -50,7 +50,7 @@ _Extracted from `.andromeda/architecture.md` Stack and Technologies section by `
 - **NO OTel SDK linked** into the self-observation runtime (recursion-free by construction; product IS the local observer).
 - **Log file:** `~/.andromeda-pulse/logs/agent-latest.jsonl` (per-platform per arch §Filesystem locations); JSON-per-line; daily rotation.
 - **Optional error reporting:** `sentry-rust` 0.46 + `sentry-tauri` 0.5 — opt-in via `ANDROMEDA_PULSE_SENTRY_DSN`, default OFF, requires `before_send` scrubbing.
-- **Frontend telemetry:** `web-vitals` 5.x + DOM `performance.now()` + `device.queue.onSubmittedWorkDone()` → TauRPC `telemetry.frontend.record_*` → backend `tracing` log. NO browser OTel SDK.
+- **Frontend telemetry:** DOM `performance.now()` + `device.queue.onSubmittedWorkDone()` → the hand-rolled TauRPC `telemetry.frontend.record_*` bridge → backend `tracing` log (`web-vitals` RETIRED 2026-08-30 — never installed; the hand-rolled bridge is the decided mechanism). NO browser OTel SDK.
 
 ## Development & CI
 - **Lint:** `cargo fmt --check` + `cargo clippy --workspace --all-targets --all-features -- -D warnings`.

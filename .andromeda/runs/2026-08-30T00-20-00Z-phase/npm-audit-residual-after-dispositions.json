@@ -1,0 +1,273 @@
+{
+  "auditReportVersion": 2,
+  "vulnerabilities": {
+    "@puppeteer/browsers": {
+      "name": "@puppeteer/browsers",
+      "severity": "high",
+      "isDirect": false,
+      "via": [
+        "extract-zip"
+      ],
+      "effects": [
+        "puppeteer",
+        "puppeteer-core"
+      ],
+      "range": "<=2.13.2",
+      "nodes": [
+        "node_modules/@puppeteer/browsers"
+      ],
+      "fixAvailable": {
+        "name": "pa11y-ci",
+        "version": "3.1.0",
+        "isSemVerMajor": true
+      }
+    },
+    "@wdio/config": {
+      "name": "@wdio/config",
+      "severity": "high",
+      "isDirect": false,
+      "via": [
+        "@wdio/utils",
+        "deepmerge-ts"
+      ],
+      "effects": [
+        "webdriverio"
+      ],
+      "range": ">=8.0.0-alpha.213",
+      "nodes": [
+        "node_modules/@wdio/config"
+      ],
+      "fixAvailable": {
+        "name": "webdriverio",
+        "version": "7.40.0",
+        "isSemVerMajor": true
+      }
+    },
+    "@wdio/utils": {
+      "name": "@wdio/utils",
+      "severity": "high",
+      "isDirect": false,
+      "via": [
+        "@puppeteer/browsers",
+        "deepmerge-ts"
+      ],
+      "effects": [
+        "@wdio/config",
+        "webdriver",
+        "webdriverio"
+      ],
+      "range": ">=8.15.0",
+      "nodes": [
+        "node_modules/@wdio/utils"
+      ],
+      "fixAvailable": {
+        "name": "webdriverio",
+        "version": "7.40.0",
+        "isSemVerMajor": true
+      }
+    },
+    "deepmerge-ts": {
+      "name": "deepmerge-ts",
+      "severity": "high",
+      "isDirect": false,
+      "via": [
+        {
+          "source": 1145093,
+          "name": "deepmerge-ts",
+          "dependency": "deepmerge-ts",
+          "title": "DeepmergeTS has stack exhaustion when merging recursive object graphs",
+          "url": "https://github.com/advisories/GHSA-ggr8-5vv4-36mx",
+          "severity": "high",
+          "cwe": [
+            "CWE-674"
+          ],
+          "cvss": {
+            "score": 0,
+            "vectorString": null
+          },
+          "range": "<8.0.0"
+        }
+      ],
+      "effects": [
+        "@wdio/config",
+        "@wdio/utils",
+        "webdriver"
+      ],
+      "range": "<8.0.0",
+      "nodes": [
+        "node_modules/deepmerge-ts"
+      ],
+      "fixAvailable": {
+        "name": "webdriverio",
+        "version": "7.40.0",
+        "isSemVerMajor": true
+      }
+    },
+    "extract-zip": {
+      "name": "extract-zip",
+      "severity": "high",
+      "isDirect": false,
+      "via": [
+        {
+          "source": 1139346,
+          "name": "extract-zip",
+          "dependency": "extract-zip",
+          "title": "extract-zip unvalidated symlink path traversal",
+          "url": "https://github.com/advisories/GHSA-jmr9-qjv8-65gv",
+          "severity": "high",
+          "cwe": [
+            "CWE-22"
+          ],
+          "cvss": {
+            "score": 8.1,
+            "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:N"
+          },
+          "range": "<=2.0.1"
+        }
+      ],
+      "effects": [
+        "@puppeteer/browsers"
+      ],
+      "range": "*",
+      "nodes": [
+        "node_modules/extract-zip"
+      ],
+      "fixAvailable": {
+        "name": "pa11y-ci",
+        "version": "3.1.0",
+        "isSemVerMajor": true
+      }
+    },
+    "pa11y": {
+      "name": "pa11y",
+      "severity": "high",
+      "isDirect": false,
+      "via": [
+        "puppeteer"
+      ],
+      "effects": [],
+      "range": "7.0.0 - 9.1.1",
+      "nodes": [
+        "node_modules/pa11y-ci/node_modules/pa11y"
+      ],
+      "fixAvailable": true
+    },
+    "pa11y-ci": {
+      "name": "pa11y-ci",
+      "severity": "high",
+      "isDirect": true,
+      "via": [
+        "pa11y",
+        "puppeteer"
+      ],
+      "effects": [],
+      "range": ">=4.0.0",
+      "nodes": [
+        "node_modules/pa11y-ci"
+      ],
+      "fixAvailable": {
+        "name": "pa11y-ci",
+        "version": "3.1.0",
+        "isSemVerMajor": true
+      }
+    },
+    "puppeteer": {
+      "name": "puppeteer",
+      "severity": "high",
+      "isDirect": false,
+      "via": [
+        "@puppeteer/browsers",
+        "puppeteer-core"
+      ],
+      "effects": [
+        "pa11y",
+        "pa11y-ci"
+      ],
+      "range": "19.8.1 - 24.43.1",
+      "nodes": [
+        "node_modules/puppeteer"
+      ],
+      "fixAvailable": {
+        "name": "pa11y-ci",
+        "version": "3.1.0",
+        "isSemVerMajor": true
+      }
+    },
+    "puppeteer-core": {
+      "name": "puppeteer-core",
+      "severity": "high",
+      "isDirect": false,
+      "via": [
+        "@puppeteer/browsers"
+      ],
+      "effects": [
+        "puppeteer",
+        "webdriverio"
+      ],
+      "range": "19.8.4 - 24.43.1",
+      "nodes": [
+        "node_modules/puppeteer-core"
+      ],
+      "fixAvailable": {
+        "name": "pa11y-ci",
+        "version": "3.1.0",
+        "isSemVerMajor": true
+      }
+    },
+    "webdriver": {
+      "name": "webdriver",
+      "severity": "high",
+      "isDirect": false,
+      "via": [
+        "@wdio/config",
+        "@wdio/utils",
+        "deepmerge-ts"
+      ],
+      "effects": [],
+      "range": ">=8.0.0-alpha.213",
+      "nodes": [
+        "node_modules/webdriver"
+      ],
+      "fixAvailable": true
+    },
+    "webdriverio": {
+      "name": "webdriverio",
+      "severity": "high",
+      "isDirect": true,
+      "via": [
+        "@wdio/config",
+        "@wdio/utils",
+        "puppeteer-core",
+        "webdriver"
+      ],
+      "effects": [],
+      "range": ">=8.0.0-alpha.213",
+      "nodes": [
+        "node_modules/webdriverio"
+      ],
+      "fixAvailable": {
+        "name": "webdriverio",
+        "version": "7.40.0",
+        "isSemVerMajor": true
+      }
+    }
+  },
+  "metadata": {
+    "vulnerabilities": {
+      "info": 0,
+      "low": 0,
+      "moderate": 0,
+      "high": 11,
+      "critical": 0,
+      "total": 11
+    },
+    "dependencies": {
+      "prod": 38,
+      "dev": 866,
+      "optional": 96,
+      "peer": 7,
+      "peerOptional": 0,
+      "total": 903
+    }
+  }
+}

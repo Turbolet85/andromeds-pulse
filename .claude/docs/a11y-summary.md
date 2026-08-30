@@ -8,13 +8,13 @@ Cross-platform desktop app (Windows / macOS / Linux via Tauri 2.x) with 2 primar
 ## A11y testing tool pick (binding)
 | Surface | Primary tool | Secondary / fallback |
 |---|---|---|
-| **desktop-webview (React UI)** | `@axe-core/playwright` 4.11.x for E2E + Lighthouse 12.x CLI for CI gate + pa11y 9.x for parallel rule matrix | Manual SR pass (NVDA / VoiceOver / Orca) supplemental |
+| **desktop-webview (React UI)** | `@axe-core/playwright` 4.11.x for E2E + Lighthouse 13.x CLI for CI gate + pa11y 10.x for parallel rule matrix (majors moved 2026-08-30, advisory-driven) | Manual SR pass (NVDA / VoiceOver / Orca) supplemental |
 | **desktop-native (tray-icon menu)** | No automated tool reach; OS-native a11y APIs (Windows UIA / macOS NSAccessibility / Linux ATK) | Manual SR + keyboard pass required |
 | **OS notification (toast)** | No automated tool reach (OS-level API) | Manual SR pass via NVDA / VoiceOver / Orca |
 
 ## WCAG criteria (Standard tier)
 - **Baseline:** WCAG 2.1 AA full (~50 SCs). axe-core config: `runOnly: { type: 'tag', values: ['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa'] }` (adds SC 2.5.8 target-size from WCAG 2.2 AA).
-- **AAA escalation (motion-sensitive trigger):** **SC 2.3.3 Animation from Interactions** — Lighthouse 12.x prefers-reduced-motion audit + custom Playwright `page.emulateMedia({ reducedMotion: 'reduce' })` assertion.
+- **AAA escalation (motion-sensitive trigger):** **SC 2.3.3 Animation from Interactions** — Lighthouse 13.x prefers-reduced-motion audit + custom Playwright `page.emulateMedia({ reducedMotion: 'reduce' })` assertion.
 - **Explicitly N/A SCs (12 with documented reasons):** SC 1.2.1/1.2.2/1.2.3/1.4.2 (no audio), 1.4.4/1.4.5 (no text-as-image), 1.4.10 (desktop-only viewport), 1.4.13 (re-evaluated chunk #99: the header connection-dot tooltip is a non-interactive `role="img"` summary with an `aria-hidden` decorative tooltip — no hover/focus-triggered ADDITIONAL content in the SC sense; still N/A), 2.2.1/2.2.2 (no time-dependent content), 2.4.4 (verified via 4.1.2), 3.1.1 (single-language), 3.2.1/3.2.2 (covered in P7), 3.3.3/3.3.4 (covered via P2/P7), 4.1.1 (parsing — deprecated WCAG 2.2; React 19 + TS + ESLint enforce).
 
 ## Critical paths (P1–P14 must-be-accessible)
@@ -42,7 +42,7 @@ _Extended from P1–P7 to **P1–P12** at chunk #99: **p8** findings dropdown ·
 | **target-size** | Compact widget design implies small form factors | axe-core target-size rule + design token `--target-button-min` / `--target-input-min` ≥24×24 (SC 2.5.8 AA) |
 
 ## Bootstrap phases (a11y-plan §3.5)
-1. **a11y-tooling-install:** `@axe-core/playwright@4.11` + `lighthouse@12` + `pa11y@9` + `pa11y-ci@4`
+1. **a11y-tooling-install:** `@axe-core/playwright@4.11` + `lighthouse@13` + `pa11y@10` + `pa11y-ci@4`
 2. **focus-management-library-install:** `focus-trap-react@12` + `tabbable@6.4`
 3. **aria-component-library-install:** `react-aria-components@1.17` (preferred) OR `@headlessui/react@2.2` — pick ONE; mixing causes conflicts
 4. **contrast-verification-harness-setup:** `colorjs.io@0.6` + Playwright test reading design tokens via `getComputedStyle`

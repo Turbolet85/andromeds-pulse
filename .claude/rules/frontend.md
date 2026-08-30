@@ -61,7 +61,7 @@ Path-scoped rules for the desktop-webview React frontend (Tauri 2 webview).
 - Code-split at route boundaries via TanStack Router lazy loaders.
 - Lazy-load below-the-fold panels (Snapshots view, Plugin manager).
 - Real-time data updates: route through Zustand store, NOT React state (VDOM diff cost at 10k spans/sec is unacceptable).
-- Web vitals (LCP / CLS / INP / FCP / TTFB) emitted via `web-vitals` 5.x callbacks → TauRPC `telemetry.frontend.record_web_vital(name, value)` → backend `tracing` log.
+- Frontend timing telemetry goes through the hand-rolled TauRPC `telemetry.frontend.record_*` bridge (frame timing, skeleton-pulse, the delegated timing observables) — `web-vitals` and `record_web_vital` were RETIRED 2026-08-30 (never installed; never a registered procedure): do not add the package or the procedure.
 - NEVER fetch inside render — move to effect, IPC subscription, or loader.
 - Always handle loading / error / empty states explicitly (skeleton component for loading; `font-body` muted message for empty; `--color-accent` text + icon for error).
 

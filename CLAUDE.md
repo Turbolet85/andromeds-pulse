@@ -89,7 +89,7 @@ Cross-platform Tauri 2 desktop dashboard for local OpenTelemetry — receives OT
 - `cargo nextest run --workspace --profile ci` — test suite (per-process isolation)
 - `cargo llvm-cov nextest --workspace --lcov` — coverage gate (≥75% line / ≥70% branch / ≥85% function)
 - `cargo tauri build` (or `cargo xtask release`) — produce `.msi` / `.dmg` / `.AppImage` / `.deb` bundles
-- `cargo audit` + `cargo deny check bans licenses sources` — supply-chain gates (catches `tonic 0.14 ↔ 0.13` duplicate)
+- `cargo audit` + `cargo deny check bans licenses sources` — Rust supply-chain gates (catches `tonic 0.14 ↔ 0.13` duplicate); `cargo xtask check:npm-supply-chain` — the npm-channel gate (policy: `pulse-app/ui/npm-policy.json`)
 
 See `.claude/docs/commands.md` for the full reference.
 <!-- GENERATED:setup:workflow end -->

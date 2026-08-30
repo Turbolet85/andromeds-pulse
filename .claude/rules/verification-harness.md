@@ -81,6 +81,7 @@ The status endpoint MUST NOT include sensitive data (no env vars, no secrets, no
 - `xtask capability-drift` — diff TauRPC procedures (introspected from `taurpc` derive) against `pulse-app/capabilities/` JSON; fail CI on mismatch.
 - `xtask deny-bans` — wraps `cargo deny check bans licenses sources`; catches `tonic 0.14 ↔ tonic 0.13 (via opentelemetry-otlp 0.31)` duplicate.
 - `xtask audit` — wraps `cargo audit` against RustSec advisory DB.
+- `xtask check:npm-supply-chain` — npm advisory/license/ban gate over `pulse-app/ui` (policy `pulse-app/ui/npm-policy.json`; lockfile-only license+class source, no `npm ci`; exit 0 green · 1 findings/policy red · 2 cannot-evaluate; registry-unreachable is a distinct infra arm, never a findings pass) — runs in ci.yml's `supply-chain` job (chunk 2026-08-30-npm-advisory-coverage).
 - `xtask test:a11y` — runs Playwright + axe-core + Lighthouse + pa11y; emits violation JSON + uploads as CI artifact.
 
 ## Scenario legs (NOT gates)

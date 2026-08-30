@@ -99,7 +99,7 @@ Optional fields: `trace_id` / `span_id` (W3C traceparent strings), `duration_ms`
 - **Gate-script invocation discipline (Windows):** run the `xtask/ci/*.ps1` scripts via `pwsh` (PowerShell 7 — `l4-latency-p99.ps1` contains UTF-8 punctuation that Windows PowerShell 5.1 misparses) and only AFTER the app stops (`tracing-appender` holds the log file open without read-share).
 
 ## Frontend bridge
-- `web-vitals` 5.x callbacks (LCP / CLS / INP / FCP / TTFB) → TauRPC `telemetry.frontend.record_web_vital(name, value)` → backend `tracing::info!(target: "metric.web_vital.{name}", ...)`.
+- The hand-rolled TauRPC `telemetry.frontend.*` surface is the DECIDED frontend mechanism (`web-vitals` RETIRED 2026-08-30 per operator ruling — measured never installed; `record_web_vital` / `metric.web_vital.*` never existed as a procedure or emitted target; do not reintroduce them).
 - WebGPU frame timing: DOM `performance.now()` + `device.queue.onSubmittedWorkDone()` → TauRPC `telemetry.frontend.record_frame_ms(duration_ms, wgpu_backend)` → backend `tracing::info!(target: "metric.webgpu.frame_duration_ms", ...)`.
 - NO browser OTel SDK. Frontend has NO direct file access — all telemetry routes through TauRPC → backend tracing.
 

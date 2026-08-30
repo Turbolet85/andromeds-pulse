@@ -10,6 +10,7 @@ mod bundle_format;
 mod external_resolve;
 mod gap_resume;
 mod ingest_progress;
+mod npm_gate;
 mod self_verify;
 mod smoke;
 mod webview_drive;
@@ -87,6 +88,11 @@ enum Cmd {
     Audit,
     #[command(name = "deny-bans", about = "cargo deny check bans licenses sources")]
     DenyBans,
+    #[command(
+        name = "check:npm-supply-chain",
+        about = "npm advisory + license + ban gate over pulse-app/ui (policy: pulse-app/ui/npm-policy.json; license/class source: package-lock.json)"
+    )]
+    CheckNpmSupplyChain,
     #[command(
         name = "ci-gates",
         about = "obs SLO gates: zero-spans + zero-panic + heartbeat-gap (perf-budget deferred)"
@@ -236,6 +242,7 @@ async fn main() -> ExitCode {
         }
         Cmd::Audit => run_cargo("audit", &[]).await,
         Cmd::DenyBans => run_cargo("deny", &["check", "bans", "licenses", "sources"]).await,
+        Cmd::CheckNpmSupplyChain => npm_gate::run_npm_gate().await,
         Cmd::CiGates => run_ci_gates().await,
         Cmd::Lint { extra } => run_npm_script("lint", extra).await,
         Cmd::Typecheck { extra } => run_npm_script("typecheck", extra).await,

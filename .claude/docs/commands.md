@@ -96,6 +96,7 @@ PowerShell variant: `.\scripts\agent-run.ps1 boot|run|status|cleanup|logs`.
 cargo audit                                                    # RustSec advisory check
 cargo deny check bans licenses sources                         # Duplicate / license / source policy
 cargo deny check advisories                                    # Same as cargo audit but via deny
+cargo xtask check:npm-supply-chain                             # npm advisory/license/ban gate (pulse-app/ui; policy npm-policy.json; lockfile-only)
 
 # CI-side
 gitleaks detect --redact                                       # Secret scanning (pre-commit + CI)
@@ -132,8 +133,8 @@ cargo install tauri-cli --version "^2"
 # A11y stack (webview-side)
 cd pulse-app/ui && npm install --save-dev \
   @axe-core/playwright@4.11 \
-  lighthouse@12 \
-  pa11y@9 pa11y-ci@4 \
+  lighthouse@13 \
+  pa11y@10 pa11y-ci@4 \
   eslint-plugin-jsx-a11y@6.10 \
   colorjs.io@0.6
 ```
