@@ -97,7 +97,7 @@ mod tests {
             scope_id: Some("svc-a".to_string()),
             magnitude: 4.0,
             absolute_value: 0.04,
-            persistence_seconds: 30,
+            persistence: 30,
             confidence: 0.85,
             priority_tier: PriorityTier::Suggested,
             suppression_bypassed: false,

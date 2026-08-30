@@ -19,13 +19,14 @@ These two contracts are **byte-bound**: the test harness consumes the obs harnes
 ## 5-command discipline
 `scripts/agent-run.{sh,ps1}` MUST expose exactly 5 commands. Do not add a 6th without amending both binding contracts.
 
-- **`boot`** — `cargo run --bin pulse-app --release` with env `ANDROMEDA_PULSE_DATA_DIR=$TMPDIR/agent-run-$$` + `RUST_LOG=debug`; poll TauRPC `health` every 500ms up to 10s; assert `status == "ok"` and `subsystems.{otlp_grpc_receiver,otlp_http_receiver,buffer,ingest_channel}.status == "initialized"|"ready"`; confirm TCP handshake on `:4317` and `:4318`; write PID to PID file. Exit 0 on ready, non-zero on timeout.
+- **`boot`** — `cargo run --bin pulse-app --release` with env `ANDROMEDA_PULSE_DATA_DIR=$TMPDIR/agent-run-$$` + `RUST_LOG=debug`; poll the `cargo xtask harness:status` verdict (the scripts thread `ANDROMEDA_PULSE_{DATA_DIR,PIDFILE,LOGFILE}` into the xtask child) until `running-healthy`; confirm TCP handshake on `:4317` and `:4318`. Exit 0 on ready, non-zero on timeout — `HARNESS_STATUS_TIMEOUT` overrides the 10s default (a cold build legitimately exceeds it). Since chunk 2026-08-30-diagnostics-un-muting-harness-truth-sweep.
 - **`run`** — `cargo nextest run --workspace --profile ci --message-format libtest-json` (or per-target `cargo nextest run --filter-expr 'package(ingest)'`); exit code is failure count.
-- **`status`** — invoke TauRPC `health` via test client (`tauri::test::mock_builder()` + `get_ipc_response()`) OR direct subprocess if Unix socket exposed; parse JSON.
+- **`status`** — `cargo xtask harness:status` (`xtask/src/harness_status.rs`): one verdict JSON on stdout `{verdict, pid, log_file_basename, last_write_age_seconds, stale_after_seconds}`; arms `running-healthy`(0) / `stale`(1) / `not-running`(1) / `cannot-evaluate`(2), derived out-of-process from the PID file + log-family mtime (`STALE_AFTER_SECONDS` 60). Replaces the in-xtask-process `current_health()` envelope, which exited 0 unconditionally — a no-app run now exits non-zero (live-proven 2026-08-30).
 - **`cleanup`** — `kill -TERM $(cat $PID_FILE)`; wait 5s; verify ports `:4317`/`:4318` no longer accept TCP; SIGKILL escalation if needed; remove TempDir. Idempotent: safe to call twice.
 - **`logs`** — resolve the ROTATED family `agent-latest.jsonl*` across three precedence-ordered bases (env override `ANDROMEDA_PULSE_LOGFILE`, else `$ANDROMEDA_PULSE_DATA_DIR/logs/agent-latest.jsonl`; then `~/.andromeda-pulse/logs/agent-latest.jsonl`; then the data-dir `logs/`), take the NEWEST match within the first base that resolves, and `tail -F` it; exit 1 with a diagnostic when none resolves. Supports `jq` for level filtering. **Never a bare name and never a `*.log` glob** — the sink is `rolling::daily`, so it date-suffixes every file and a bare-name read silently finds nothing.
 
 ## Status endpoint shape (binding)
+_This is the TauRPC `health` IPC payload (arch §Standard Contracts) — NOT the `status` verb's output: since chunk 2026-08-30-diagnostics-un-muting-harness-truth-sweep the verb emits the `harness:status` verdict JSON above; this envelope is reached only through IPC._
 ```json
 {
   "status": "ok" | "degraded" | "unhealthy",

@@ -52,8 +52,8 @@ pub fn evaluate_thresholds(
             0.0
         };
         let confidence = (snapshot.samples as f64 / CONFIDENCE_SATURATION_SAMPLES).min(1.0);
-        let persistence_seconds = snapshot.samples;
-        let priority_tier = classify_priority(magnitude, confidence, persistence_seconds);
+        let persistence = snapshot.samples;
+        let priority_tier = classify_priority(magnitude, confidence, persistence);
         let suppression_bypassed = dual_condition_bypass(
             magnitude,
             snapshot.short_term_error_rate,
@@ -66,7 +66,7 @@ pub fn evaluate_thresholds(
             scope_id: Some(snapshot.service_name),
             magnitude,
             absolute_value: snapshot.short_term_error_rate,
-            persistence_seconds,
+            persistence,
             confidence,
             priority_tier,
             suppression_bypassed,
@@ -110,8 +110,8 @@ pub fn evaluate_thresholds(
             0.0
         };
         let confidence = (snapshot.samples as f64 / CONFIDENCE_SATURATION_SAMPLES).min(1.0);
-        let persistence_seconds = snapshot.samples;
-        let priority_tier = classify_priority(magnitude, confidence, persistence_seconds);
+        let persistence = snapshot.samples;
+        let priority_tier = classify_priority(magnitude, confidence, persistence);
         let suppression_bypassed = dual_condition_bypass(
             magnitude,
             latency_short,
@@ -134,7 +134,7 @@ pub fn evaluate_thresholds(
             scope_id: Some(scope_id),
             magnitude,
             absolute_value: latency_short,
-            persistence_seconds,
+            persistence,
             confidence,
             priority_tier,
             suppression_bypassed,
@@ -184,15 +184,15 @@ pub fn evaluate_service_went_silent(
             snapshot.current_quiet_duration_seconds as f64 / effective_threshold as f64
         };
         let confidence = 1.0;
-        let persistence_seconds = snapshot.current_quiet_duration_seconds;
-        let priority_tier = classify_priority(magnitude, confidence, persistence_seconds);
+        let persistence = snapshot.current_quiet_duration_seconds;
+        let priority_tier = classify_priority(magnitude, confidence, persistence);
         cues.push(AttentionCue {
             kind: CueKind::ServiceWentSilent,
             scope: CueScope::Service,
             scope_id: Some(snapshot.service_name),
             magnitude,
             absolute_value: snapshot.current_quiet_duration_seconds as f64,
-            persistence_seconds,
+            persistence,
             confidence,
             priority_tier,
             suppression_bypassed: false,

@@ -614,6 +614,37 @@ mod tests {
     }
 
     #[test]
+    fn read_jsonl_lines_resolves_date_suffixed_family_with_no_bare_file() {
+        // The family branch: ONLY rotated members exist (tracing_appender's
+        // daily roller date-suffixes every file), no bare-name file at all.
+        // The 6 pre-existing tests never enter this branch — a bare name
+        // still matches the prefix — which is why this pin was owed
+        // (test-plan §1 `harness-log-family-resolution-coverage`).
+        let dir = tempfile::tempdir().unwrap();
+        let base = dir.path().join("agent-latest.jsonl");
+        std::fs::write(
+            dir.path().join("agent-latest.jsonl.2026-08-29"),
+            "{\"day\":1}\n",
+        )
+        .unwrap();
+        std::fs::write(
+            dir.path().join("agent-latest.jsonl.2026-08-30"),
+            "{\"day\":2}\n",
+        )
+        .unwrap();
+        // A non-family neighbour must NOT be swept in.
+        std::fs::write(dir.path().join("boot.log"), "{\"noise\":true}\n").unwrap();
+
+        let lines = read_jsonl_lines(&base).expect("family resolves with no bare file");
+        assert_eq!(lines.len(), 2, "both rotated members concatenate");
+        assert!(lines[0].contains("\"day\":1") && lines[1].contains("\"day\":2"));
+        assert!(
+            lines.iter().all(|l| !l.contains("noise")),
+            "non-family files stay out"
+        );
+    }
+
+    #[test]
     fn assert_log_invariants_passes_on_complete_boot_trio_and_clean_log() {
         let dir = tempfile::tempdir().unwrap();
         let log = dir.path().join("agent-latest.jsonl");

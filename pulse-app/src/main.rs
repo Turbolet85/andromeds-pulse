@@ -226,8 +226,10 @@ fn write_pid_file(data_dir: &Path) {
     if !canonical_run.starts_with(&canonical_data) {
         tracing::error!(
             target: "app.boot.pid",
-            run_dir = ?canonical_run,
-            data_dir = ?canonical_data,
+            run_dir_basename = pulse_app::observability::log_basename(&canonical_run)
+                .unwrap_or("unknown"),
+            data_dir_basename = pulse_app::observability::log_basename(&canonical_data)
+                .unwrap_or("unknown"),
             "run dir escaped data dir; refusing to write PID",
         );
         return;
@@ -237,7 +239,12 @@ fn write_pid_file(data_dir: &Path) {
         tracing::warn!(target: "app.boot.pid", error = %e, "failed to write PID file");
         return;
     }
-    tracing::info!(target: "app.boot.pid", pid = pid, path = ?pid_path, "PID file written");
+    tracing::info!(
+        target: "app.boot.pid",
+        pid = pid,
+        path_basename = pulse_app::observability::log_basename(&pid_path).unwrap_or("unknown"),
+        "PID file written",
+    );
 }
 
 /// Publish the resolved incident workspace key so the MCP stdio sidecar —

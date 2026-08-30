@@ -1,6 +1,27 @@
 # Session Learnings
 
 
+## 2026-08-30 — Windows DWM invisible borders: outer frame ≠ set-position width; verdicts re-derive the app's own formula
+
+A Tauri/WRY window on Windows 11 reports an OUTER frame wider than the width the app set: DWM adds
+invisible resize borders (~8 px per left/right side, +16 px total at 100 % scale) to `outer_size`,
+while the TOP edge is exempt — so a widget the app snapped with `x = monitor_right − 480×scale − 24`
+reads back at an x 16 px HIGHER than a naive expected-rect, while `y = monitor_top + 24` matches
+exactly. A geometry assertion built as "compare against the recorded expected outer rect" is
+therefore wrong on every host and silently scale-dependent.
+
+The durable fix shape: the verdict RE-DERIVES the application's OWN placement formula from the same
+inputs the app used — record monitor rect + scale factor alongside the window's outer
+position/size, and assert `wx == mx + mw − round(APP_WIDTH × scale) − MARGIN && wy == my + 24`
+(the `boot-geometry` stage, `xtask/src/webview_drive.rs`). That keeps the check invariant across
+monitors and DPI scales, and its discrimination is provable by committed fixture pins (accepts the
+measured value, rejects the wrong-inset one) instead of a one-off live mutation. Applies to any
+future window-geometry assertion on Windows: never hardcode an expected outer rect; derive from the
+formula plus recorded monitor/scale, and remember left/right carry the invisible border while top
+does not.
+
+---
+
 ## 2026-08-29 — Price the cheap explanation before building the expensive fix
 
 Two disciplines from one chunk, both about what you check before you conclude.

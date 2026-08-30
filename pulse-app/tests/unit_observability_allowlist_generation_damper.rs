@@ -62,17 +62,15 @@ fn damper_leaf_carries_exactly_the_emitted_field_set() {
 /// never pass vacuously against the fallback.
 #[test]
 fn damper_fields_are_absent_from_the_interpretation_fallback_set() {
+    // STRENGTHENED 2026-08-30: the recorded breach (a populated bare
+    // `interpretation` key) was REMOVED by the diagnostics sweep, so the
+    // fallback this pin guarded against no longer exists at all — a deleted
+    // damper leaf now resolves NOTHING, the stronger guarantee.
     let al = AllowList::production();
-    let fallback = al
-        .for_target("interpretation")
-        .expect("the bare `interpretation` key exists (recorded breach, sweep-owned)");
-    for field in DAMPER_FIELDS {
-        assert!(
-            !fallback.contains(field),
-            "`{field}` is in the bare `interpretation` fallback set, so this probe cannot \
-             detect a deleted `{DAMPER}` leaf — the guard would pass vacuously",
-        );
-    }
+    assert!(
+        al.for_target("interpretation").is_none(),
+        "a bare `interpretation` key would reintroduce the fallback this pin          was written against (obs-plan section 8 no-bare-prefix invariant)",
+    );
 }
 
 #[test]

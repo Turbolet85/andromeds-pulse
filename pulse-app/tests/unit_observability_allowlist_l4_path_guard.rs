@@ -96,24 +96,10 @@ fn allow_root_leaf_carries_exactly_the_emitted_field_set() {
 
 #[test]
 fn the_bare_interpretation_fallback_cannot_serve_either_target() {
-    // The discriminator. A bare `interpretation` key exists and is POPULATED,
-    // so deleting either exact leaf still resolves — to a sibling set that
-    // contains none of these fields. Without this pin the two resolver probes
-    // above would pass against a deleted leaf while production redacted
-    // everything.
+    // STRENGTHENED 2026-08-30: the populated bare `interpretation` key this
+    // pin guarded against was REMOVED by the diagnostics sweep. A deleted
+    // exact leaf now resolves NOTHING instead of a sibling set — assert the
+    // bare key stays gone (obs-plan §8 no-bare-prefix invariant).
     let al = AllowList::production();
-    let bare = al
-        .for_target(BARE_PREFIX)
-        .expect("a bare `interpretation` key is present today (obs-plan §8 records the breach)");
-    for field in LOAD_ERROR_FIELDS
-        .iter()
-        .chain(ALLOW_ROOT_FIELDS.iter())
-        .filter(|f| **f != "model_identity")
-    {
-        assert!(
-            !bare.contains(*field),
-            "the bare `{BARE_PREFIX}` set contains `{field}`, so the fallback would mask a \
-             deleted exact leaf and this guard would pass vacuously",
-        );
-    }
+    assert!(al.for_target(BARE_PREFIX).is_none());
 }

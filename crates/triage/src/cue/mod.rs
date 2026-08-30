@@ -37,7 +37,7 @@ pub use thresholds::{
     DEFAULT_ERROR_RATE_MULTIPLIER, DEFAULT_LATENCY_MULTIPLIER, DEFAULT_LATENCY_PERCENTILE,
     DEFAULT_MAGNITUDE_BYPASS_MULTIPLIER, DEFAULT_MIN_PERSISTENCE_SECONDS,
     DEFAULT_QUIET_DURATION_PERCENTILE, DEFAULT_RESTART_GAP_THRESHOLD_SECONDS,
-    DEFAULT_RESTART_SUPPRESSION_WINDOW_SECONDS, DEFAULT_SUPPRESSION_PERSISTENCE_CUTOFF_SECONDS,
+    DEFAULT_RESTART_SUPPRESSION_WINDOW_SECONDS, DEFAULT_SUPPRESSION_PERSISTENCE_CUTOFF_SAMPLES,
     DEFAULT_TICK_INTERVAL, MIN_EWMA_SAMPLES, MIN_LATENCY_SAMPLES, Thresholds, ThresholdsError,
 };
 
@@ -47,7 +47,7 @@ pub(crate) const TARGET_CUE_EMIT: &str = "triage.cue.emit";
 pub(crate) const TARGET_METRIC_CUE_EMIT_COUNT: &str = "metric.cue.emit_count_total";
 /// Per-cue surgical-suppression decision event (chunk #63) — fires every
 /// tick per evaluated cue carrying the decision inputs (`cue_kind`,
-/// `persistence_seconds`, `restart_window_active`, `suppression_bypassed`,
+/// `persistence`, `restart_window_active`, `suppression_bypassed`,
 /// `bypass_reason`). Drives observability of the restart-window surgical
 /// suppression posture per capability P-016.
 pub(crate) const TARGET_CUE_SUPPRESSION_CHECK: &str = "triage.cue.suppression_check";

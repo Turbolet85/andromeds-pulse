@@ -43,10 +43,14 @@ case "${1:-}" in
     DAEMON_PID=$!
     echo "$DAEMON_PID" > "$PIDFILE"
 
-    # Poll TauRPC `health` via cargo xtask harness:status (xtask has Tauri test runtime access)
+    # Poll `cargo xtask harness:status` — a REAL-process verdict (PID file +
+    # the app's own log-family freshness), so ready is only reported once the
+    # spawned app is actually writing (2026-08-30; the old form returned an
+    # in-xtask-process envelope and was ready-green unconditionally).
     deadline=$(($(date +%s) + STATUS_TIMEOUT_SEC))
     while [ "$(date +%s)" -lt "$deadline" ]; do
-      if cargo xtask harness:status >/dev/null 2>&1; then
+      if ANDROMEDA_PULSE_PIDFILE="$PIDFILE" ANDROMEDA_PULSE_LOGFILE="$LOGFILE" \
+        cargo xtask harness:status >/dev/null 2>&1; then
         echo "boot: ready (PID=$DAEMON_PID, data_dir=$DATA_DIR)"
         echo "  OTLP gRPC:    127.0.0.1:$GRPC_PORT"
         echo "  OTLP HTTP:    127.0.0.1:$HTTP_PORT"
@@ -67,9 +71,13 @@ case "${1:-}" in
     ;;
 
   status)
-    # Invoke TauRPC `health` via xtask (xtask uses tauri::test::mock_builder + get_ipc_response)
-    # Returns JSON with {status, subsystems, uptime_ms, pid}
-    cargo xtask harness:status
+    # Real-process verdict about THIS harness's resolved paths: JSON with
+    # {verdict, pid, log_file_basename, last_write_age_seconds}; exit 0 only
+    # for running-healthy (pid file present + log family written <= 60s ago).
+    ANDROMEDA_PULSE_DATA_DIR="$DATA_DIR" \
+      ANDROMEDA_PULSE_PIDFILE="$PIDFILE" \
+      ANDROMEDA_PULSE_LOGFILE="$LOGFILE" \
+      cargo xtask harness:status
     ;;
 
   cleanup)

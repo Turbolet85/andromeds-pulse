@@ -76,6 +76,7 @@ pub async fn run_consumer(
                 // Successful dispatch; row count already recorded into BufferState.
             }
             Ok(Err(e)) => {
+                state.record_append_rejection();
                 tracing::error!(
                     target: "duckdb.append",
                     reject_reason = %describe_error(&e),
@@ -83,6 +84,7 @@ pub async fn run_consumer(
                 );
             }
             Err(join_err) => {
+                state.record_append_rejection();
                 tracing::error!(
                     target: "duckdb.append",
                     reject_reason = if join_err.is_panic() { "panic" } else { "join_error" },
@@ -639,6 +641,10 @@ mod tests {
             snap.redactions_applied, 1,
             "a persisted redacted cell must be counted"
         );
+        // The conditional pair's positive half: a SUCCESSFUL dispatch folds
+        // zero rejections (only the reject-arm test can discriminate alone;
+        // together they pin "once per FAILED batch, never per batch").
+        assert_eq!(snap.append_rejections, 0);
     }
 
     #[tokio::test]
@@ -669,6 +675,11 @@ mod tests {
         assert_eq!(
             snap.redactions_applied, 0,
             "a rejected batch must not count cells it never stored"
+        );
+        assert_eq!(
+            snap.append_rejections, 1,
+            "one failed dispatch folds exactly one rejection — the count the \
+             ERROR record cannot supply"
         );
     }
 

@@ -21,8 +21,8 @@ use crate::error::Error;
 
 /// Reserved tables holding an encrypted `payload BLOB`. `service_registry` is
 /// absent by design — it stores no BLOB, so a lost key never orphans it.
+/// (`baseline_state` left both lists at schema v2, 2026-08-30 — dropped.)
 const PAYLOAD_TABLES: &[&str] = &[
-    "baseline_state",
     "pipeline_metrics",
     "incidents",
     "incident_events",
@@ -34,7 +34,6 @@ const PAYLOAD_TABLES: &[&str] = &[
 const PURGE_ORDER: &[&str] = &[
     "incident_events",
     "incidents",
-    "baseline_state",
     "pipeline_metrics",
     "digest_archive",
 ];
@@ -352,13 +351,6 @@ mod tests {
                 .expect("digest");
             guard
                 .execute(
-                    "INSERT INTO baseline_state (service_name, operation, snapshot_unix_nano, payload) \
-                     VALUES (?, ?, ?, ?)",
-                    rusqlite::params!["svc", Option::<String>::None, 1_000i64, &b"cipher"[..]],
-                )
-                .expect("baseline");
-            guard
-                .execute(
                     "INSERT INTO pipeline_metrics (metric_name, layer, snapshot_unix_nano, payload) \
                      VALUES (?, ?, ?, ?)",
                     rusqlite::params!["m", "l1", 1_000i64, &b"cipher"[..]],
@@ -382,8 +374,8 @@ mod tests {
 
         let scan = scan_orphaned(&corpus).expect("scan");
 
-        assert_eq!(scan.total_rows(), 5);
-        assert_eq!(scan.tables_affected(), 5);
+        assert_eq!(scan.total_rows(), 4);
+        assert_eq!(scan.tables_affected(), 4);
         assert!(!scan.per_table.contains_key("service_registry"));
     }
 
@@ -416,8 +408,8 @@ mod tests {
         else {
             panic!("expected Completed, got {outcome:?}");
         };
-        assert_eq!(rows_purged, 5);
-        assert_eq!(tables_affected, 5);
+        assert_eq!(rows_purged, 4);
+        assert_eq!(tables_affected, 4);
 
         let rendered = fs::read_to_string(&inventory_path).expect("inventory readable");
         assert!(rendered.contains("ws-a"), "incident metadata retained");

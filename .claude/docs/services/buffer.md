@@ -21,7 +21,7 @@ Owns the in-memory DuckDB ring buffer (5–10 min retention, configurable) + Apa
 
 ## Internal conventions
 - **Schema name:** `pulse_buffer` (single in-memory `:memory:` DuckDB connection, schema `main`).
-- **Reserved tables (canonical OTLP entities):** `spans`, `span_events`, `span_links`, `metrics_points`, `log_records`, `resources`, `instrumentation_scopes`.
+- **Reserved tables (canonical OTLP entities):** `spans`, `span_events`, `metrics_points`, `log_records` (+ `log_templates`) — the producer-less `span_links`/`resources`/`instrumentation_scopes` CREATEs were deleted at chunk 2026-08-30-diagnostics-un-muting-harness-truth-sweep; retention DELETEs 7 → 4.
 - **Schema creation:** on startup; no migrations (per arch §Established Decisions ORM/Migrations None).
 - **Primary keys:** OTLP-native — spans use `(trace_id BLOB(16), span_id BLOB(8))` composite; metric points + log records use `(timestamp, resource_hash, name)`.
 - **Timestamps:** `TIMESTAMPTZ` (microsecond precision, UTC-stored) + sibling `BIGINT ts_unix_nano` when nanosecond precision required.

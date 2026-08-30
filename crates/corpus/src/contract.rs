@@ -357,6 +357,12 @@ pub trait CorpusWriter: Send + Sync {
     /// whose `updated_unix_nano` is older than the stored row's is DECLINED
     /// (`IncidentWriteOutcome::DeclinedStale`) instead of clobbering it.
     /// `Error::QueryFailed` still means the row does not exist.
+    ///
+    /// An Applied write whose status VALUE changed additionally records one
+    /// `incident_events` row (`event_kind` = the new status) in the same
+    /// transaction — the lifecycle ledger covers all seven writers from
+    /// this one site (2026-08-30). Same-status refreshes and declined
+    /// writes record nothing.
     fn update_incident_status(
         &self,
         id: i64,
@@ -624,27 +630,47 @@ impl CorpusWriter for Corpus {
         let encrypted = cell_encrypt(self.key(), payload)?;
         let conn = self.connection();
         let guard = conn.lock().map_err(|_| Error::QueryFailed)?;
-        let rows = guard
+        // One transaction covers read + guarded write + event so the
+        // cross-process sidecar cannot interleave between them. The prior
+        // status read doubles as the existence probe.
+        let tx = guard
+            .unchecked_transaction()
+            .map_err(|_| Error::QueryFailed)?;
+        let prior_status: Option<String> = tx
+            .query_row(
+                "SELECT status FROM incidents WHERE id = ?1",
+                rusqlite::params![id],
+                |row| row.get(0),
+            )
+            .optional()
+            .map_err(|_| Error::QueryFailed)?;
+        let Some(prior_status) = prior_status else {
+            return Err(Error::QueryFailed);
+        };
+        let rows = tx
             .execute(
                 "UPDATE incidents SET status = ?1, updated_unix_nano = ?2, resolved_unix_nano = ?3, payload = ?4 WHERE id = ?5 AND updated_unix_nano <= ?2",
                 rusqlite::params![status, updated_unix_nano, resolved_unix_nano, &encrypted[..], id],
             )
             .map_err(|_| Error::QueryFailed)?;
         if rows == 0 {
-            let exists = guard
-                .query_row(
-                    "SELECT 1 FROM incidents WHERE id = ?1",
-                    rusqlite::params![id],
-                    |_| Ok(()),
-                )
-                .optional()
-                .map_err(|_| Error::QueryFailed)?
-                .is_some();
-            if exists {
-                return Ok(IncidentWriteOutcome::DeclinedStale);
-            }
-            return Err(Error::QueryFailed);
+            // Row exists (just read) but carries a fresher write — declined;
+            // the dropped transaction rolls back having written nothing.
+            return Ok(IncidentWriteOutcome::DeclinedStale);
         }
+        // Status-VALUE-change only: a summary-attach refresh at unchanged
+        // status writes no event, so dedupe re-generations cannot spam the
+        // ledger, and only Applied writes ever record one.
+        if prior_status != status {
+            let event_payload = cell_encrypt(self.key(), &[])?;
+            tx.execute(
+                "INSERT INTO incident_events (incident_id, event_kind, occurred_unix_nano, payload) \
+                 VALUES (?1, ?2, ?3, ?4)",
+                rusqlite::params![id, status, updated_unix_nano, &event_payload[..]],
+            )
+            .map_err(|_| Error::QueryFailed)?;
+        }
+        tx.commit().map_err(|_| Error::QueryFailed)?;
         Ok(IncidentWriteOutcome::Applied)
     }
 
@@ -1373,6 +1399,89 @@ mod tests {
         let result = writer.update_incident_status(404_404, "resolved", 9_000, Some(9_000), b"x");
 
         assert!(matches!(result, Err(Error::QueryFailed)));
+    }
+
+    fn event_kinds(
+        conn: &std::sync::Arc<std::sync::Mutex<Connection>>,
+        incident_id: i64,
+    ) -> Vec<String> {
+        let guard = conn.lock().expect("lock");
+        let mut stmt = guard
+            .prepare("SELECT event_kind FROM incident_events WHERE incident_id = ?1 ORDER BY id")
+            .expect("prepare");
+        stmt.query_map(rusqlite::params![incident_id], |r| r.get::<_, String>(0))
+            .expect("query")
+            .map(|r| r.expect("row"))
+            .collect()
+    }
+
+    #[test]
+    fn status_value_change_records_one_lifecycle_event_per_transition() {
+        // The 2026-08-30 ledger: an Applied write whose status VALUE changed
+        // inserts one incident_events row at the choke point, covering all
+        // seven production writers (the cross-process sidecar included).
+        let corpus = std::sync::Arc::new(test_corpus());
+        let conn = corpus.connection();
+        let writer: std::sync::Arc<dyn CorpusWriter> = corpus;
+        let id = writer
+            .save_incident("ws-ev", "active", 1_000, 1_000, None, None, b"blob")
+            .expect("save");
+        assert!(event_kinds(&conn, id).is_empty());
+
+        writer
+            .update_incident_status(id, "acknowledged", 2_000, None, b"blob")
+            .expect("ack");
+        writer
+            .update_incident_status(id, "resolved", 3_000, Some(3_000), b"blob")
+            .expect("resolve");
+
+        assert_eq!(event_kinds(&conn, id), vec!["acknowledged", "resolved"]);
+    }
+
+    #[test]
+    fn same_status_refresh_records_no_event() {
+        // The dedupe re-generation shape: `attach_interpretation_summary`
+        // refreshes the payload at an UNCHANGED status every re-generation —
+        // an event per refresh would spam the ledger.
+        let corpus = std::sync::Arc::new(test_corpus());
+        let conn = corpus.connection();
+        let writer: std::sync::Arc<dyn CorpusWriter> = corpus;
+        let id = writer
+            .save_incident("ws-refresh", "active", 1_000, 1_000, None, None, b"a")
+            .expect("save");
+
+        writer
+            .update_incident_status(id, "active", 2_000, None, b"b")
+            .expect("refresh");
+        writer
+            .update_incident_status(id, "active", 3_000, None, b"c")
+            .expect("refresh again");
+
+        assert!(event_kinds(&conn, id).is_empty());
+    }
+
+    #[test]
+    fn declined_write_records_no_event() {
+        let corpus = std::sync::Arc::new(test_corpus());
+        let conn = corpus.connection();
+        let writer: std::sync::Arc<dyn CorpusWriter> = corpus;
+        let id = writer
+            .save_incident("ws-decl", "active", 1_000, 1_000, None, None, b"a")
+            .expect("save");
+        writer
+            .update_incident_status(id, "resolved", 3_000, Some(3_000), b"b")
+            .expect("resolve");
+
+        let outcome = writer
+            .update_incident_status(id, "active", 2_000, None, b"stale")
+            .expect("stale write must not error");
+        assert_eq!(outcome, IncidentWriteOutcome::DeclinedStale);
+
+        assert_eq!(
+            event_kinds(&conn, id),
+            vec!["resolved"],
+            "a declined write rolls back having written nothing",
+        );
     }
 
     #[test]

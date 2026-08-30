@@ -306,7 +306,7 @@ fn synthesize_cue(
     let magnitude = count as f64 / (suggested_threshold.max(1) as f64);
     let absolute_value = count as f64;
     let confidence = (count as f64 / (autonomous_threshold.max(1) as f64)).min(1.0);
-    let persistence_seconds = timestamps
+    let persistence = timestamps
         .first()
         .map(|oldest| (now_nanos.saturating_sub(*oldest) / 1_000_000_000).max(0) as u64)
         .unwrap_or(0);
@@ -316,7 +316,7 @@ fn synthesize_cue(
         scope_id: Some(service.to_string()),
         magnitude,
         absolute_value,
-        persistence_seconds,
+        persistence,
         confidence,
         priority_tier: tier,
         suppression_bypassed: false,

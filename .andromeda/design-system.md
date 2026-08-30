@@ -213,7 +213,7 @@ These glyphs are built into the token system and referenced as `<Icon glyph="tel
 
 **Platform:** Windows (WebView2), macOS (WKWebView), Linux (WKWebView equivalent)
 
-**Toolkit / Framework:** React 19.x (Vite + TanStack Router), Tailwind CSS v4.x, shadcn/ui (Radix UI primitives + Tailwind classes, copy-not-install distribution), WebGPU canvas (`<canvas>` + `navigator.gpu`, WGSL shaders)
+**Toolkit / Framework:** React 19.x (Vite + TanStack Router), Tailwind CSS v4.x, `react-aria-components` as the a11y-primitive layer (the SHIPPED stack — corrected as measured 2026-08-30: the shadcn/Radix stack this row previously named never landed, the radix family is lockfile-absent and now denylisted by `pulse-app/ui/npm-policy.json`), WebGPU canvas (`<canvas>` + `navigator.gpu`, WGSL shaders)
 
 ### Tokens (platform-specific)
 
@@ -224,7 +224,7 @@ These glyphs are built into the token system and referenced as `<Icon glyph="tel
 ### Component Patterns
 
 **Navigation / App Shell:**
-- Compact widget (primary surface): quarter-screen size, custom frameless titlebar with snap-to-edge + always-on-top behavior. Single-window mode (full dashboard expansion via settings icon or keyboard shortcut). Dark background (#1A1D24), minimal chrome.
+- Compact widget (primary surface): quarter-screen size, custom frameless titlebar with snap-to-CORNER + always-on-top behavior — the shipped position model is the FOUR-corner `WidgetPosition` set (top-left / top-right / bottom-left / bottom-right, default top-right; corrected as measured 2026-08-30 against `crates/ui-bridge/src/contract.rs`, test-pinned — not the nine-value corners+edges+center grid earlier drafts assumed). Single-window mode (full dashboard expansion via settings icon or keyboard shortcut). Dark background (#1A1D24), minimal chrome.
 - Full dashboard: expanded window (2/3 to full screen), same custom titlebar. Tab or sidebar navigation (TBD by Phase 8 layout templates) leading to Traces / Metrics / Logs / Snapshots / Settings views.
 - Titlebar (custom-drawn, not OS): 32px height, contains app icon (16px), title ("andromeda-pulse"), settings button (aperture icon, 20px), and window controls (minimize/maximize/close on Windows/Linux, traffic-light buttons on macOS). Drag region: full titlebar width except buttons.
 
@@ -388,7 +388,7 @@ These glyphs are built into the token system and referenced as `<Icon glyph="tel
 - NEVER use hover-only interactions without keyboard alternatives. All interactive elements must be keyboard-accessible via Tab and focusable.
 - NEVER ignore OS-level keyboard shortcuts (Cmd+Q, Ctrl+W, Alt+F4). Tauri 2 respects these by default.
 - NEVER make the window non-resizable without strong justification. Compact widget is resizable; full dashboard is resizable.
-- NEVER use `alert()` / `confirm()` / `prompt()` — use styled modals (shadcn/ui Dialog component).
+- NEVER use `alert()` / `confirm()` / `prompt()` — use styled modals (the first-party `Modal` on `react-aria-components`, the shipped dialog primitive).
 
 **desktop-native:**
 - NEVER use web-style design language (cards, shadows, rounded corners) in native menus — it clashes with OS chrome. Tray menu is OS-native; no custom styling.

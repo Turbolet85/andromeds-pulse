@@ -135,12 +135,15 @@ pub const DEFAULT_RESTART_GAP_THRESHOLD_SECONDS: u64 = 20;
 /// magnitude bypass fires.
 pub const DEFAULT_RESTART_SUPPRESSION_WINDOW_SECONDS: u64 = 60;
 
-/// Default suppression persistence cutoff (30s per chunk #63 spec).
-/// `ErrorRateSpike` cues with `persistence_seconds < cutoff` are
-/// suppression-eligible; cues with persistence ≥ cutoff survive even
-/// during active restart windows (long-persistence cues are real signals,
-/// not restart-induced noise).
-pub const DEFAULT_SUPPRESSION_PERSISTENCE_CUTOFF_SECONDS: u64 = 30;
+/// Default suppression persistence cutoff — 30 SAMPLES: only
+/// `ErrorRateSpike` cues reach this comparison, and the spike families
+/// carry an EWMA sample count in `persistence` (the chunk #63 spec wrote
+/// "30s" on the then-unexamined premise the field held seconds). Cues with
+/// `persistence < cutoff` are suppression-eligible; cues at or above it
+/// survive even during active restart windows (long-persistence cues are
+/// real signals, not restart-induced noise). Value unchanged at the
+/// 2026-08-30 rename.
+pub const DEFAULT_SUPPRESSION_PERSISTENCE_CUTOFF_SAMPLES: u64 = 30;
 
 /// Default activity-floor bootstrap window (1h per chunk #64 spec).
 /// During the first hour of observations for a service, `ServiceWentSilent`
@@ -193,7 +196,7 @@ pub struct Thresholds {
     pub absolute_bypass_latency_ms: f64,
     pub restart_gap_threshold_seconds: u64,
     pub restart_suppression_window_seconds: u64,
-    pub suppression_persistence_cutoff_seconds: u64,
+    pub suppression_persistence_cutoff_samples: u64,
     pub bootstrap_window_seconds: u64,
     pub quiet_duration_percentile: f64,
 }
@@ -215,7 +218,7 @@ impl Default for Thresholds {
             absolute_bypass_latency_ms: DEFAULT_ABSOLUTE_BYPASS_LATENCY_MS,
             restart_gap_threshold_seconds: DEFAULT_RESTART_GAP_THRESHOLD_SECONDS,
             restart_suppression_window_seconds: DEFAULT_RESTART_SUPPRESSION_WINDOW_SECONDS,
-            suppression_persistence_cutoff_seconds: DEFAULT_SUPPRESSION_PERSISTENCE_CUTOFF_SECONDS,
+            suppression_persistence_cutoff_samples: DEFAULT_SUPPRESSION_PERSISTENCE_CUTOFF_SAMPLES,
             bootstrap_window_seconds: DEFAULT_BOOTSTRAP_WINDOW_SECONDS,
             quiet_duration_percentile: DEFAULT_QUIET_DURATION_PERCENTILE,
         }
@@ -297,9 +300,9 @@ impl Thresholds {
                 field: "restart_suppression_window_seconds",
             });
         }
-        if self.suppression_persistence_cutoff_seconds == 0 {
+        if self.suppression_persistence_cutoff_samples == 0 {
             return Err(ThresholdsError::InvalidConfig {
-                field: "suppression_persistence_cutoff_seconds",
+                field: "suppression_persistence_cutoff_samples",
             });
         }
         if self.min_latency_samples == 0 {
@@ -339,7 +342,7 @@ const _: () = {
     assert!(DEFAULT_ABSOLUTE_BYPASS_LATENCY_MS > 0.0);
     assert!(DEFAULT_RESTART_GAP_THRESHOLD_SECONDS > 0);
     assert!(DEFAULT_RESTART_SUPPRESSION_WINDOW_SECONDS > 0);
-    assert!(DEFAULT_SUPPRESSION_PERSISTENCE_CUTOFF_SECONDS > 0);
+    assert!(DEFAULT_SUPPRESSION_PERSISTENCE_CUTOFF_SAMPLES > 0);
     assert!(DEFAULT_BOOTSTRAP_WINDOW_SECONDS > 0);
     assert!(DEFAULT_QUIET_DURATION_PERCENTILE > 0.0);
     assert!(DEFAULT_QUIET_DURATION_PERCENTILE < 1.0);
@@ -370,7 +373,7 @@ mod tests {
         assert_eq!(t.absolute_bypass_latency_ms, 1000.0);
         assert_eq!(t.restart_gap_threshold_seconds, 20);
         assert_eq!(t.restart_suppression_window_seconds, 60);
-        assert_eq!(t.suppression_persistence_cutoff_seconds, 30);
+        assert_eq!(t.suppression_persistence_cutoff_samples, 30);
         assert_eq!(t.bootstrap_window_seconds, 3_600);
         assert_eq!(t.quiet_duration_percentile, 0.95);
     }
@@ -516,15 +519,15 @@ mod tests {
     }
 
     #[test]
-    fn validate_rejects_zero_suppression_persistence_cutoff_seconds() {
+    fn validate_rejects_zero_suppression_persistence_cutoff_samples() {
         let t = Thresholds {
-            suppression_persistence_cutoff_seconds: 0,
+            suppression_persistence_cutoff_samples: 0,
             ..Thresholds::default()
         };
         assert_eq!(
             t.validate().unwrap_err(),
             ThresholdsError::InvalidConfig {
-                field: "suppression_persistence_cutoff_seconds"
+                field: "suppression_persistence_cutoff_samples"
             }
         );
     }

@@ -413,8 +413,12 @@ pub async fn start_cadence_coordinator(
                         cumulative_queries += stats.queries_executed as u64;
                     }
                     Ok(_) => {
-                        // Non-Autonomous cues (Suggested / Curious) flow through
-                        // their dedicated channels — ignored here.
+                        // Non-Autonomous cues are ignored here. BaselineState-
+                        // derived Suggested cues reach cadence via `emit_cue`'s
+                        // forward to CadenceTriggerChannel; storm-derived ones do
+                        // NOT — `observe_and_dispatch_storm` never forwards, so a
+                        // Suggested storm is dropped outright (measured
+                        // 2026-08-15; the seam's behavior, not this arm's).
                     }
                     Err(tokio::sync::broadcast::error::RecvError::Lagged(_)) => {
                         cue_rx = cue_broadcast.subscribe();
@@ -578,7 +582,7 @@ mod tests {
             scope_id: Some("svc-a".to_string()),
             magnitude: 4.0,
             absolute_value: 0.04,
-            persistence_seconds: 30,
+            persistence: 30,
             confidence: 0.85,
             priority_tier: priority,
             suppression_bypassed: false,

@@ -55,6 +55,15 @@ pub const STAGES: &[Stage] = &[
         id: "launch",
         what: "the dashboard surface is reachable in the live window",
     },
+    // P-061 residual, re-homed 2026-08-25 with its own disposition: drag was
+    // DECLINED (synthesized pointer input moves nothing) but geometry is
+    // READABLE through the same transport, so the boot placement is the one
+    // piece of P-061 the leg can automate. Read-only: three window-API reads
+    // right after launch, before anything perturbs window state.
+    Stage {
+        id: "boot-geometry",
+        what: "the compact widget boots at the margin-inset default corner on a fresh data dir (P-061)",
+    },
     Stage {
         id: "traces-empty",
         what: "the trace table renders its empty state before injection",
@@ -334,6 +343,13 @@ pub fn stage_halves(id: &str, records: &[Value], dom: &[Value]) -> StageHalves {
             obs: None,
             dom: seen("launch"),
         },
+        // DOM-only, field-level: the driver records raw geometry; the corner
+        // math is re-derived HERE so a driver-side arithmetic bug cannot
+        // self-certify.
+        "boot-geometry" => StageHalves {
+            obs: None,
+            dom: Some(dom_boot_geometry_ok(dom)),
+        },
         "traces-empty" => StageHalves {
             obs: None,
             dom: seen("traces-empty"),
@@ -541,6 +557,40 @@ fn stage_bool(stage: &Value, field: &str) -> Option<bool> {
 /// Internal scroll (P-082): the table's own region overflows while the page
 /// does not. Presence of the region alone would pass on a page that scrolls at
 /// the outer level — the exact defect the layout chunk closed.
+/// P-061 boot geometry, field-level: the app snaps using the SCALED LOGICAL
+/// default width — `compute_snap_position(monitor, WIDGET_DEFAULT_WIDTH *
+/// scale, TopRight)` at `pulse-app/src/window.rs` (480.0 logical; margin 24;
+/// TopRight is the `Settings` default on the leg's always-fresh data dir) —
+/// and `set_position` lands the OUTER frame at exactly that x. The realized
+/// outer WIDTH is NOT the formula input (Windows adds invisible DWM resize
+/// borders left/right; measured +16 at scale 1.0), so the verdict re-derives
+/// the app's own formula rather than back-computing from `widget_w`.
+fn dom_boot_geometry_ok(dom: &[Value]) -> bool {
+    let Some(stage) = dom_stage(dom, "boot-geometry") else {
+        return false;
+    };
+    let field = |k: &str| stage.get(k).and_then(Value::as_i64);
+    let (Some(wx), Some(wy), Some(mx), Some(my), Some(mw)) = (
+        field("widget_x"),
+        field("widget_y"),
+        field("monitor_x"),
+        field("monitor_y"),
+        field("monitor_w"),
+    ) else {
+        return false;
+    };
+    let scale = stage
+        .get("monitor_scale")
+        .and_then(Value::as_f64)
+        .unwrap_or(1.0);
+    // Mirrors pulse-app/src/window.rs: WIDGET_DEFAULT_WIDTH = 480.0,
+    // WIDGET_EDGE_MARGIN = 24.
+    const WIDGET_DEFAULT_LOGICAL_WIDTH: f64 = 480.0;
+    const MARGIN: i64 = 24;
+    let scaled_default_w = (WIDGET_DEFAULT_LOGICAL_WIDTH * scale).round() as i64;
+    wx == mx + mw - scaled_default_w - MARGIN && wy == my + MARGIN
+}
+
 fn dom_traces_scroll_ok(dom: &[Value]) -> bool {
     let Some(stage) = dom_stage(dom, "traces-scroll") else {
         return false;
@@ -853,6 +903,44 @@ fn resolve_msedgedriver() -> Option<PathBuf> {
 
 #[cfg(test)]
 mod tests {
+    // B6 discrimination pin over the exact fields measured live 2026-08-30
+    // (scale-1.0 2560x1440 monitor): the verdict must accept the app's real
+    // placement and reject a wrong-inset one — committed instead of a
+    // one-off mutation check, so the discrimination survives re-runs.
+    #[test]
+    fn boot_geometry_verdict_accepts_the_measured_live_placement() {
+        let dom = vec![serde_json::json!({
+            "stage": "boot-geometry",
+            "observed": true,
+            "widget_x": 2056, "widget_y": 24,
+            "monitor_x": 0, "monitor_y": 0, "monitor_w": 2560,
+            "monitor_scale": 1.0,
+        })];
+        assert!(super::dom_boot_geometry_ok(&dom));
+    }
+
+    #[test]
+    fn boot_geometry_verdict_rejects_a_wrong_inset_placement() {
+        // 16px off the formula corner — the exact delta the DWM-border
+        // misread produced on this verdict's first draft.
+        let dom = vec![serde_json::json!({
+            "stage": "boot-geometry",
+            "observed": true,
+            "widget_x": 2040, "widget_y": 24,
+            "monitor_x": 0, "monitor_y": 0, "monitor_w": 2560,
+            "monitor_scale": 1.0,
+        })];
+        assert!(!super::dom_boot_geometry_ok(&dom));
+    }
+
+    #[test]
+    fn boot_geometry_verdict_rejects_missing_geometry_fields() {
+        let dom = vec![serde_json::json!({
+            "stage": "boot-geometry", "observed": true,
+        })];
+        assert!(!super::dom_boot_geometry_ok(&dom));
+    }
+
     use super::*;
     use serde_json::json;
 

@@ -13,7 +13,7 @@ Path-scoped rules for the desktop-webview React frontend (Tauri 2 webview).
 ## Framework
 - **Framework:** React 19.x (Vite + TanStack Router)
 - **CSS:** Tailwind CSS v4.x with `@theme` block (consumes `--color-*` / `--spacing-*` / `--font-*` / `--duration-*` tokens)
-- **Component library:** shadcn/ui (Radix UI primitives + Tailwind, copy-not-install distribution)
+- **Component library:** `react-aria-components` + Tailwind (the SHIPPED stack — corrected as measured 2026-08-30: shadcn/Radix never landed; radix is lockfile-absent and denylisted by `pulse-app/ui/npm-policy.json`)
 - **Canvas:** WebGPU `<canvas>` + `navigator.gpu` + WGSL shaders (Halo State Pulse, latency river, throughput counter)
 
 ## State management
@@ -86,7 +86,7 @@ See `.claude/rules/design-tokens.md` for full token spec + component patterns + 
 - NEVER ship visible Chromium/WebView2 artifacts (default context menu, dev tools open, text selection on non-text elements).
 - NEVER use unstyled web scrollbars — apply Tailwind v4 `scrollbar-*` utilities (dark bg + Earth Blue thumb).
 - NEVER use browser navigation chrome (back/forward, URL bar).
-- NEVER use `alert()` / `confirm()` / `prompt()` — use shadcn/ui Dialog component.
+- NEVER use `alert()` / `confirm()` / `prompt()` — use the first-party `Modal` on `react-aria-components`.
 - NEVER fight OS-level keyboard shortcuts (Cmd+Q, Ctrl+W, Alt+F4) — Tauri 2 respects by default.
 - NEVER make the window non-resizable without strong justification.
 - NEVER mix React Aria Components + Headless UI in the same app.

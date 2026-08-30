@@ -179,7 +179,13 @@ async fn collect_shell_health(log_dir: &Path) -> Result<String> {
 
 async fn launch_pulse(binary: &Path, data_dir: &Path) -> Result<Child> {
     let mut cmd = Command::new(binary);
-    cmd.env("ANDROMEDA_PULSE_DATA_DIR", data_dir)
+    // CWD = the per-run temp data dir (mirrors webview_drive::run_driver):
+    // TauRPC dev-mode `export_types()` writes `ui/src/bindings/index.ts`
+    // relative to the CWD, so inheriting the workspace root emitted a stray
+    // root-level `ui/` tree on every run — one directory level from
+    // clobbering the real bindings.
+    cmd.current_dir(data_dir)
+        .env("ANDROMEDA_PULSE_DATA_DIR", data_dir)
         .env("ANDROMEDA_PULSE_LOG_LEVEL", "debug")
         .stdin(Stdio::null())
         .stdout(Stdio::piped())

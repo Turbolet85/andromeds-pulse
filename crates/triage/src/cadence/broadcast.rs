@@ -208,7 +208,7 @@ mod tests {
             scope_id: Some("payment-service".to_string()),
             magnitude: 5.0,
             absolute_value: 50.0,
-            persistence_seconds: 30,
+            persistence: 30,
             confidence: 1.0,
             priority_tier: PriorityTier::Autonomous,
             suppression_bypassed: false,

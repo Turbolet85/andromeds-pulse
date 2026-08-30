@@ -317,6 +317,7 @@ fn emit_buffer_tick(
         fingerprints_computed = payload.fingerprints_computed,
         observer_invocations = payload.observer_invocations,
         redactions_applied = payload.redactions_applied,
+        append_rejections = payload.append_rejections,
         rows_ingested_delta = rows_ingested_delta,
         last_append_age_seconds = last_append_age,
         "heartbeat",

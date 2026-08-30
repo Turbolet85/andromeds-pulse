@@ -33,7 +33,7 @@ pub use crate::baseline::{
 // `DEFAULT_ABSOLUTE_BYPASS_ERROR_RATE` + `DEFAULT_ABSOLUTE_BYPASS_LATENCY_MS`
 // + `DEFAULT_RESTART_GAP_THRESHOLD_SECONDS` +
 // `DEFAULT_RESTART_SUPPRESSION_WINDOW_SECONDS` +
-// `DEFAULT_SUPPRESSION_PERSISTENCE_CUTOFF_SECONDS` cover the new
+// `DEFAULT_SUPPRESSION_PERSISTENCE_CUTOFF_SAMPLES` cover the new
 // `Thresholds` fields wired through `dual_condition_bypass` + the
 // `pattern::suppression` filter.
 pub use crate::cue::{
@@ -44,7 +44,7 @@ pub use crate::cue::{
     DEFAULT_ERROR_RATE_MULTIPLIER, DEFAULT_LATENCY_MULTIPLIER, DEFAULT_LATENCY_PERCENTILE,
     DEFAULT_MAGNITUDE_BYPASS_MULTIPLIER, DEFAULT_MIN_PERSISTENCE_SECONDS,
     DEFAULT_QUIET_DURATION_PERCENTILE, DEFAULT_RESTART_GAP_THRESHOLD_SECONDS,
-    DEFAULT_RESTART_SUPPRESSION_WINDOW_SECONDS, DEFAULT_SUPPRESSION_PERSISTENCE_CUTOFF_SECONDS,
+    DEFAULT_RESTART_SUPPRESSION_WINDOW_SECONDS, DEFAULT_SUPPRESSION_PERSISTENCE_CUTOFF_SAMPLES,
     DEFAULT_TICK_INTERVAL, LatchOutcome, MIN_EWMA_SAMPLES, MIN_LATENCY_SAMPLES,
     STREAM_NAME_ATTENTION_CUES, Thresholds, ThresholdsError, classify_priority,
     dual_condition_bypass, evaluate_service_went_silent, evaluate_thresholds, run_one_emit_cycle,
@@ -319,8 +319,14 @@ pub struct AttentionCue {
     /// Absolute value of the detected metric (e.g., absolute error rate
     /// as a fraction; absolute p95 latency in milliseconds).
     pub absolute_value: f64,
-    /// How long the condition has persisted, in seconds.
-    pub persistence_seconds: u64,
+    /// How long the condition has persisted, in FAMILY-SPECIFIC units:
+    /// the spike families (error-rate / latency) assign the EWMA SAMPLE
+    /// count observed so far; the silence family assigns quiet SECONDS.
+    /// Renamed from `persistence_seconds` 2026-08-30 — that name lied for
+    /// two of the three producing families, and the `>= 30` Autonomous
+    /// gate in `classify_priority` therefore gates on 30 samples for
+    /// spikes (values unchanged by the rename).
+    pub persistence: u64,
     /// Detector confidence in (0.0, 1.0].
     pub confidence: f64,
     /// Priority tier assigned by the detector based on magnitude +
@@ -655,7 +661,7 @@ mod tests {
             scope_id: Some("checkout".to_string()),
             magnitude: 3.5,
             absolute_value: 0.075,
-            persistence_seconds: 45,
+            persistence: 45,
             confidence: 0.87,
             priority_tier: PriorityTier::Suggested,
             suppression_bypassed: false,

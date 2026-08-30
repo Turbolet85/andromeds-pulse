@@ -222,14 +222,17 @@ pub fn run_one_emit_cycle(
     // for each evaluated cue so the surgical-suppression posture (chunk #63
     // P-016) is observable. Decision = (in active restart window AND ErrorRateSpike
     // AND persistence < cutoff AND NOT suppression_bypassed → drop).
+    // debug!, not info!: one record PER RAW CUE PER TICK (4,599 measured in
+    // one wedge log) is an obs-plan §11 hot-path shape — the aggregates ride
+    // `triage.cue.tick`; the per-cue detail stays reachable under RUST_LOG.
     for cue in &raw_cues {
         let service = cue.scope_id.as_deref().unwrap_or("");
         let restart_window_active =
             !service.is_empty() && suppression_state.is_active(service, now_nanos);
-        tracing::info!(
+        tracing::debug!(
             target: TARGET_CUE_SUPPRESSION_CHECK,
             cue_kind = cue_kind_label(cue.kind),
-            persistence_seconds = cue.persistence_seconds,
+            persistence = cue.persistence,
             restart_window_active = restart_window_active,
             suppression_bypassed = cue.suppression_bypassed,
             bypass_reason = "none",
@@ -237,7 +240,7 @@ pub fn run_one_emit_cycle(
     }
 
     let params = SuppressionParams {
-        persistence_cutoff_seconds: thresholds.suppression_persistence_cutoff_seconds,
+        persistence_cutoff_samples: thresholds.suppression_persistence_cutoff_samples,
         magnitude_bypass_multiplier: thresholds.magnitude_bypass_multiplier,
         absolute_bypass_error_rate: thresholds.absolute_bypass_error_rate,
         absolute_bypass_latency_ms: thresholds.absolute_bypass_latency_ms,
@@ -334,7 +337,7 @@ fn emit_cue(
         scope = scope_label,
         magnitude = cue.magnitude,
         absolute_value = cue.absolute_value,
-        persistence_seconds = cue.persistence_seconds,
+        persistence = cue.persistence,
         confidence = cue.confidence,
         suppression_bypassed = cue.suppression_bypassed,
         "attention cue emitted",
@@ -861,7 +864,7 @@ mod tests {
         let state = BaselineState::new();
         // Chunk #73 P-010 baseline-relative: seed 12 zeros (baseline) then
         // 13 errors (recent spike) so short EWMA > long EWMA × multiplier.
-        // 25 samples < `suppression_persistence_cutoff_seconds` (30) → cue
+        // 25 samples < `suppression_persistence_cutoff_samples` (30) → cue
         // is suppression-eligible during the active restart window.
         for i in 0..25 {
             let status = if i >= 12 { 2 } else { 0 };
@@ -913,7 +916,7 @@ mod tests {
     /// Integration: the P-016 POSITIVE case — a SUSTAINED (>30s
     /// persistence) ErrorRateSpike SURFACES inside the active 60s restart
     /// window. Suppression only drops short-persistence cues
-    /// (`persistence_seconds < suppression_persistence_cutoff_seconds`);
+    /// (`persistence < suppression_persistence_cutoff_samples`);
     /// long-persistence cues are real signals, not restart-induced noise.
     /// Bypass thresholds are raised so survival is attributable to
     /// persistence alone (not the P-057 magnitude bypass).
@@ -921,7 +924,7 @@ mod tests {
     fn run_one_emit_cycle_surfaces_sustained_spike_inside_active_restart_window() {
         let state = BaselineState::new();
         // 40 samples (12 baseline zeros + 28 tail errors) at 1s spacing →
-        // persistence_seconds = 40 ≥ cutoff (30) → suppression-INELIGIBLE.
+        // persistence = 40 ≥ cutoff (30) → suppression-INELIGIBLE.
         for i in 0..40 {
             let status = if i >= 12 { 2 } else { 0 };
             state.observe_span("svc-restarted", "op", status, 50, 1_000_000 + i * 1_000_000);
@@ -971,9 +974,9 @@ mod tests {
         assert_eq!(cue.kind, crate::contract::CueKind::ErrorRateSpike);
         assert_eq!(cue.scope_id.as_deref(), Some("svc-restarted"));
         assert!(
-            cue.persistence_seconds >= 30,
+            cue.persistence >= 30,
             "persistence must be at/above the suppression cutoff; got {}",
-            cue.persistence_seconds
+            cue.persistence
         );
         assert!(
             !cue.suppression_bypassed,
@@ -1082,7 +1085,7 @@ mod tests {
         let (_, _, fields) = check_events[0];
         for required in [
             "cue_kind",
-            "persistence_seconds",
+            "persistence",
             "restart_window_active",
             "suppression_bypassed",
             "bypass_reason",
@@ -1274,7 +1277,7 @@ mod tests {
             scope_id: Some(service.to_string()),
             magnitude: 2.0,
             absolute_value: 1.0,
-            persistence_seconds: 30,
+            persistence: 30,
             confidence: 1.0,
             priority_tier: tier,
             suppression_bypassed: false,

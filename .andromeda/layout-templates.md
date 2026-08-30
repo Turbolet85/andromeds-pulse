@@ -14,7 +14,7 @@ time. Do not edit during implementation runs._
 
 ## Surface: desktop-webview
 
-**Tooling context:** Framework React 19.x (Vite + TanStack Router), CSS Tailwind CSS v4.x, Components shadcn/ui (Radix UI primitives + Tailwind).
+**Tooling context:** Framework React 19.x (Vite + TanStack Router), CSS Tailwind CSS v4.x, Components `react-aria-components` + Tailwind (the SHIPPED stack — corrected as measured 2026-08-30: the shadcn/Radix stack this line previously named never landed; the radix family is lockfile-absent and denylisted by `pulse-app/ui/npm-policy.json`).
 
 **Expression level (this surface):** 0.35 (skeleton pulsing, panel transitions, form state confirmation, command-palette emergence). Halo State Pulse (WebGPU shader-driven) would be exempt from chrome budget per design-system Motion.
 
@@ -24,7 +24,7 @@ time. Do not edit during implementation runs._
 
 ### Primary screens
 
-- **Compact widget** — quarter-screen glance surface (always-on, snap-to-edge, custom frameless titlebar). Displays the service constellation (the aggregated Halo State Pulse badge is deferred to the next version — see §Component) + read-only metadata footer (ingest rate, retention used, error %).
+- **Compact widget** — quarter-screen glance surface (always-on, snap-to-corner per Settings — four corner positions, custom frameless titlebar). Displays the service constellation (the aggregated Halo State Pulse badge is deferred to the next version — see §Component) + read-only metadata footer (ingest rate, retention used, error %).
 - **Full dashboard (Traces view)** — expanded window; constellation service map whose per-service dots carry a severity-tier hue (the per-service Halo State Pulse layer is deferred to the next version — see §Component), rendered as a named landmark **region `"Telemetry traces chart"`** with a visually-hidden aggregate summary as its `aria-describedby` description; sortable table of trace samples below, keyboard-traversable one row at a time.
 - **Full dashboard (Metrics view)** — time-series overlay for throughput + latency; same header/nav structure as Traces.
 - **Full dashboard (Logs view)** — log record table with severity color-coding; same header/nav structure.
@@ -142,7 +142,7 @@ time. Do not edit during implementation runs._
 ### Component — Trace data table (primary content block)
 
 **Layout:**
-- Grid: shadcn `Table` component (thead + tbody + rows).
+- Grid: native `<table>` markup (thead + tbody + rows; first-party component — no shadcn, per the corrected Tooling context).
 - Header row: `background: color-base`, `color: color-text-primary`, `font-weight: 600`, `font: font-label`.
 - Data rows: transparent background (parent surface shows through); 1px bottom border subtle.
 - Padding: each cell `padding: space-sm`.
@@ -192,7 +192,7 @@ time. Do not edit during implementation runs._
 
 **Form controls:**
 - **Theme selector:** radio buttons or dropdown (dark / light / auto). Labels in `font-body`.
-- **Widget snap position:** grid of nine radio buttons (corners + edges + center), with a visual preview of the widget position on screen.
+- **Widget snap position:** grid of FOUR radio buttons (top-left / top-right / bottom-left / bottom-right, default top-right), with a visual preview of the widget position on screen — the shipped `WidgetPosition` enum is corner-only (corrected as measured 2026-08-30 against `crates/ui-bridge/src/contract.rs`, test-pinned; not the nine-value corners+edges+center grid earlier drafts assumed).
 - **Retention seconds:** numeric input, range 300–600, label + helper text in `font-label`.
 - **MCP server toggle:** checkbox (visible only when the `mcp-server` Cargo feature is built), label "Enable MCP Server", helper text "Exposes query tools to Claude Code and other MCP clients."
 
@@ -217,7 +217,7 @@ time. Do not edit during implementation runs._
 ### IA notes
 
 **Navigation model:**
-- Compact widget is the primary glance surface — minimalist chrome, always-on-top, snap-to-edge per Settings. Esc minimizes the widget to the system tray.
+- Compact widget is the primary glance surface — minimalist chrome, always-on-top, snap-to-corner per Settings (four corners, default top-right). Esc minimizes the widget to the system tray.
 - Full dashboard is reached by expanding the compact widget via the Settings toggle or a keyboard shortcut (TBD by downstream — design suggests `Cmd+Shift+P` / `Ctrl+Shift+P`).
 - Both surfaces share the same underlying data feeds (TauRPC `traces.*`, `metrics.*`, `logs.*` routers). (They were also specified to share one Halo State Pulse WebGPU rendering; that layer is deferred to the next version on both — see §Component.)
 

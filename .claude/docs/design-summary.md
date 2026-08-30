@@ -71,8 +71,8 @@ WebGPU shader-driven circular animated glow rendered on a dedicated canvas layer
 
 ## Surfaces
 
-### desktop-webview (React 19 + Tailwind v4 + shadcn/ui + WebGPU)
-- **Compact widget (primary surface):** quarter-screen, custom frameless titlebar, snap-to-edge, always-on-top toggle, single-window. Esc minimizes to tray.
+### desktop-webview (React 19 + Tailwind v4 + react-aria-components + WebGPU)
+- **Compact widget (primary surface):** quarter-screen, custom frameless titlebar, snap-to-corner (four positions per Settings, default top-right), always-on-top toggle, single-window. Esc minimizes to tray.
 - **Full dashboard:** resizable 2/3 to full screen, same custom titlebar, tab or sidebar nav (TBD downstream) — Traces / Metrics / Logs / Snapshots / Settings views.
 - **Settings modal:** theme / widget snap position / retention / MCP toggle / snapshot preset / plugin manager.
 - **Investigation modal:** triggered by Investigate button (telescope glyph) or trace row click; Capture Collapse motion 350ms.

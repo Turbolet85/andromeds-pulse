@@ -9,6 +9,7 @@
 mod bundle_format;
 mod external_resolve;
 mod gap_resume;
+mod harness_status;
 mod ingest_progress;
 mod npm_gate;
 mod self_verify;
@@ -203,7 +204,7 @@ enum Cmd {
 async fn main() -> ExitCode {
     let cli = Cli::parse();
     let result: Result<ExitCode> = match cli.command {
-        Cmd::HarnessStatus => harness_status().await,
+        Cmd::HarnessStatus => harness_status::run(),
         Cmd::Test { extra } => run_cargo_nextest(extra).await,
         Cmd::TestCoverage { extra } => run_cargo_llvm_cov(extra).await,
         Cmd::CheckIngestProgress => run_check_ingest_progress(),
@@ -273,24 +274,6 @@ async fn main() -> ExitCode {
             ExitCode::FAILURE
         }
     }
-}
-
-async fn harness_status() -> Result<ExitCode> {
-    // ui-bridge built without taurpc-runtime feature here — xtask is non-IPC
-    // and Tauri runtime DLLs aren't available on Windows without WebView2.
-    // current_health() returns the same envelope that the TauRPC resolver
-    // would emit; full IPC roundtrip lands at the integration-test chunk
-    // when actual subsystems (chunks #15-#18) exist to hit.
-    let envelope = ui_bridge::health::current_health();
-
-    let json = serde_json::to_string_pretty(&envelope)?;
-    println!("{json}");
-
-    let exit = match envelope.status {
-        ui_bridge::health::HealthStatus::Ok => ExitCode::SUCCESS,
-        ui_bridge::health::HealthStatus::Degraded => ExitCode::FAILURE,
-    };
-    Ok(exit)
 }
 
 async fn run_cargo(subcommand: &str, args: &[&str]) -> Result<ExitCode> {

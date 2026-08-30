@@ -262,6 +262,7 @@ impl LlamaCliInference {
             target: "interpretation.model.load",
             tier = interpretation::contract::model_tier_label(self.tier),
             load_status = "loaded",
+            model_identity = %semantic_name,
             "llama-cli readiness check complete",
         );
         Ok(())

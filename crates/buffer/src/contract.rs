@@ -51,6 +51,10 @@ pub struct BufferHeartbeat {
     // gradeable from outside the process). Aggregate count only — never the
     // matched value, its category, or the attribute it came from.
     pub redactions_applied: u64,
+    // Batches the appender rejected — separates a colliding/faulting
+    // producer from a dead feed at the aggregate level. One per failed
+    // batch, never per row.
+    pub append_rejections: u64,
 }
 
 pub fn heartbeat_payload(
@@ -74,6 +78,7 @@ pub fn heartbeat_payload(
         fingerprints_computed: snap.fingerprints_computed,
         observer_invocations: snap.observer_invocations,
         redactions_applied: snap.redactions_applied,
+        append_rejections: snap.append_rejections,
     }
 }
 

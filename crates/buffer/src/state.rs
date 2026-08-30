@@ -29,6 +29,11 @@ pub struct BufferState {
     // table's own append succeeds, so a batch rejected at `flush()` adds
     // nothing. Accumulated per batch, never per field.
     redactions_applied: AtomicU64,
+    // Batches the appender REJECTED (append error or dispatch panic) — the
+    // count the ERROR-level duckdb.append record cannot supply. One fold per
+    // failed batch; without it a rejected batch is invisible to every
+    // aggregate (rows_ingested counts rows REQUESTED upstream of the gate).
+    append_rejections: AtomicU64,
     // Wall-clock (nanos) of the MOST RECENT append, refreshed on every batch —
     // distinct from `first_append_at_nanos`, which latches once. Without it a
     // stalled consumer is indistinguishable from an idle producer: both leave
@@ -55,6 +60,7 @@ pub struct BufferStateSnapshot {
     pub fingerprints_computed: u64,
     pub observer_invocations: u64,
     pub redactions_applied: u64,
+    pub append_rejections: u64,
 }
 
 impl BufferState {
@@ -74,6 +80,7 @@ impl BufferState {
             fingerprints_computed: self.fingerprints_computed.load(Ordering::Relaxed),
             observer_invocations: self.observer_invocations.load(Ordering::Relaxed),
             redactions_applied: self.redactions_applied.load(Ordering::Relaxed),
+            append_rejections: self.append_rejections.load(Ordering::Relaxed),
         }
     }
 
@@ -123,6 +130,13 @@ impl BufferState {
         if n > 0 {
             self.redactions_applied.fetch_add(n, Ordering::Relaxed);
         }
+    }
+
+    /// Fold one REJECTED batch in — called once per failed dispatch, never
+    /// per row. A colliding-id producer or append fault is otherwise
+    /// indistinguishable from a dead feed at the aggregate level.
+    pub fn record_append_rejection(&self) {
+        self.append_rejections.fetch_add(1, Ordering::Relaxed);
     }
 
     /// Reserve `n` contiguous `log_records.seq` values and return the first.

@@ -7,7 +7,7 @@ paths:
 
 # Design Token Rules
 
-Path-scoped rules for the desktop-webview surface (React 19 + Tailwind CSS v4 + shadcn/ui). Loaded only when Claude is working with files matching the `paths:` frontmatter above.
+Path-scoped rules for the desktop-webview surface (React 19 + Tailwind CSS v4 + react-aria-components). Loaded only when Claude is working with files matching the `paths:` frontmatter above.
 
 **Authoritative source:** `.andromeda/design-system.md` §Color Palette + §Typography + §Spacing + §Motion + §Anti-Patterns + §Self-Validation Protocol. Brand: NASA Deep Space Mission Control Station (Modern Artemis Design). Signature element: Halo State Pulse (WebGPU shader-driven).
 
@@ -104,7 +104,7 @@ NEVER use organic curves. Mixed strategy: most chrome at sm/md; only badges + to
 - NEVER use browser navigation chrome (back/forward, URL bar).
 - NEVER use hover-only interactions without keyboard alternatives.
 - NEVER make windows non-resizable without strong justification.
-- NEVER use `alert()` / `confirm()` / `prompt()` — use shadcn/ui Dialog.
+- NEVER use `alert()` / `confirm()` / `prompt()` — use the first-party `Modal` on `react-aria-components`.
 
 ## Self-Validation (run before presenting any UI)
 1. **Swap test** — replace fonts/palette/icons/Halo with Inter + Tailwind defaults + Lucide + spinner; if no meaningful difference → defaulted, redo.

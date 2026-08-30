@@ -83,9 +83,9 @@ cargo run --bin pulse-app
 
 ## Agent-run harness (5-command discipline)
 ```bash
-./scripts/agent-run.sh boot       # Start app, await ready (10s timeout)
+./scripts/agent-run.sh boot       # Start app, await ready via harness:status verdict (10s default; HARNESS_STATUS_TIMEOUT overrides)
 ./scripts/agent-run.sh run        # Execute test suite
-./scripts/agent-run.sh status     # Poll TauRPC health
+./scripts/agent-run.sh status     # cargo xtask harness:status — real-process verdict JSON, exits 0/1/1/2 (not-running is non-zero)
 ./scripts/agent-run.sh cleanup    # SIGTERM + verify ports released
 ./scripts/agent-run.sh logs       # Tail JSON log file
 ```
@@ -97,6 +97,7 @@ cargo audit                                                    # RustSec advisor
 cargo deny check bans licenses sources                         # Duplicate / license / source policy
 cargo deny check advisories                                    # Same as cargo audit but via deny
 cargo xtask check:npm-supply-chain                             # npm advisory/license/ban gate (pulse-app/ui; policy npm-policy.json; lockfile-only)
+cargo xtask harness:status                                     # Real-process status verdict JSON {verdict,pid,log_file_basename,last_write_age_seconds,stale_after_seconds}; exits 0/1/1/2
 
 # CI-side
 gitleaks detect --redact                                       # Secret scanning (pre-commit + CI)

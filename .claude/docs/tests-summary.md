@@ -9,9 +9,9 @@ Cross-platform desktop app (Windows/macOS/Linux via Tauri 2) with 19 testable en
 
 | Command | Body |
 |---|---|
-| `boot` | `cargo run --bin pulse-app --release` + `ANDROMEDA_PULSE_DATA_DIR=$TMPDIR/test-$$` + `RUST_LOG=debug`; poll TauRPC `health` every 500ms up to 10s; assert `status == "ok"` and subsystems initialized |
+| `boot` | `cargo run --bin pulse-app --release` + `ANDROMEDA_PULSE_DATA_DIR=$TMPDIR/test-$$` + `RUST_LOG=debug`; poll the `cargo xtask harness:status` verdict until `running-healthy` (10s default; `HARNESS_STATUS_TIMEOUT` overrides — a cold build legitimately exceeds it) |
 | `run` | `cargo nextest run --workspace --profile ci --message-format libtest-json` |
-| `status` | TauRPC `health` via `tauri::test::mock_builder()` |
+| `status` | `cargo xtask harness:status` — real-process verdict JSON `{verdict, pid, log_file_basename, last_write_age_seconds, stale_after_seconds}`, exits 0/1/1/2 from PID file + log-family mtime (since 2026-08-30; replaces the exit-0-unconditional in-process `health` form) |
 | `cleanup` | `kill -TERM $(cat $PID_FILE)` + 5s wait + verify ports `:4317`/`:4318` released |
 | `logs` | `tail -F` the newest match of the ROTATED family `agent-latest.jsonl*`, resolved across three precedence-ordered bases (`ANDROMEDA_PULSE_LOGFILE` / `$ANDROMEDA_PULSE_DATA_DIR/logs/`, then `~/.andromeda-pulse/logs/`, then the data-dir `logs/`) — never a bare name, never `*.log` (`rolling::daily` date-suffixes the sink) |
 
@@ -44,7 +44,7 @@ JSON-per-line; fields: `timestamp` (ISO-8601), `level`, `target`, `message`, `fi
 | **P2** | buffer + snapshot + TauRPC + Channel `pulse://stream/snapshot-progress` | Populate 500 spans → `snapshot.generate({token_budget: 25000})` → assert anomaly markers + `token_count <= 25000` + `dedup_count > 0` + p50/p95/p99 aggregates |
 | **P3** | MCP stdio sidecar + buffer | Spawn with `--features mcp-server` + `ANDROMEDA_PULSE_MCP_ENABLED=true` → JSON-RPC `tools/call query_traces` → assert array of trace objects |
 | **P4** | plugins + WASM Component Model + TauRPC | Stage fixture WASM → `plugins.reload` → `plugins.list` → `plugins.invoke({capability})` → negative test on disallowed capability |
-| **P5** | webview + tray + IPC | 16-stage headful path (`cargo xtask webview-drive`) asserting obs+DOM halves per stage; `widget-close` is no longer terminal (`signpost-repeat` follows it, proving the P-063 signpost fires on every close) and requires the `ui.layout.transition {compact-widget → hidden}` record AND the `tray.signpost.shown` record with `window_label == "compact-widget"`; resize / tray-repaint / notification stay IPC-surrogate |
+| **P5** | webview + tray + IPC | 17-stage headful path (`cargo xtask webview-drive`) asserting obs+DOM halves per stage; `widget-close` is no longer terminal (`signpost-repeat` follows it, proving the P-063 signpost fires on every close) and requires the `ui.layout.transition {compact-widget → hidden}` record AND the `tray.signpost.shown` record with `window_label == "compact-widget"`; resize / tray-repaint / notification stay IPC-surrogate |
 | **P6** | buffer + Tauri Channel + Arrow IPC | Subscribe to `pulse://stream/spans` → ingest gRPC → decode Arrow IPC → schema match |
 | **P7** | workspace-detector + TauRPC | `workspace.detect` → assert `{project_name, root_path, vcs_type: "git", vcs_root}` |
 

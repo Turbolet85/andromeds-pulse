@@ -319,6 +319,14 @@ const asSize = (v) =>
   v && typeof v.width === 'number'
     ? { width: v.width, height: v.height }
     : (v?.Physical ?? null)
+const asMonitor = (v) => {
+  if (!v) return null
+  const size = asSize(v.size)
+  const pos = asPoint(v.position)
+  if (!size || !pos) return null
+  const scale = typeof v.scaleFactor === 'number' ? v.scaleFactor : null
+  return { x: pos.x, y: pos.y, width: size.width, height: size.height, scale }
+}
 
 async function isWindowVisible(browser, label) {
   return (await windowInvoke(browser, 'is_visible', label)) === true
@@ -650,6 +658,29 @@ async function main() {
     })
     if (!found) return 3
     await switchToDashboard(browser)
+
+    // Stage — boot-geometry (P-061 residual): the widget boots at the
+    // margin-inset default corner on this leg's always-fresh data dir.
+    // READ-ONLY by the observer-placement rule: three window-API reads, no
+    // navigation/focus/resize. The driver records FIELDS only; the corner
+    // math (margin, default corner) lives in the Rust verdict.
+    const bootPos = asPoint(await windowInvoke(browser, 'outer_position', 'compact-widget'))
+    const bootSize = asSize(await windowInvoke(browser, 'outer_size', 'compact-widget'))
+    const bootMonitor = asMonitor(
+      await windowInvoke(browser, 'current_monitor', 'compact-widget'),
+    )
+    record('boot-geometry', bootPos !== null && bootSize !== null && bootMonitor !== null, {
+      widget_x: bootPos?.x,
+      widget_y: bootPos?.y,
+      widget_w: bootSize?.width,
+      widget_h: bootSize?.height,
+      monitor_x: bootMonitor?.x,
+      monitor_y: bootMonitor?.y,
+      monitor_w: bootMonitor?.width,
+      monitor_h: bootMonitor?.height,
+      monitor_scale: bootMonitor?.scale,
+      invoke_error: lastInvokeError,
+    })
 
     // Mechanics probe — runs before any stage asserts, so its findings can gate
     // which window-mechanic stages exist. Not a stage: `observed` records only

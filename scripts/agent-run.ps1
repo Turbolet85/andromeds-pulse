@@ -32,8 +32,12 @@ if (-not (Test-Path (Join-Path $DataDir 'run'))) { New-Item -ItemType Directory 
 if (-not (Test-Path (Join-Path $DataDir 'logs'))) { New-Item -ItemType Directory -Path (Join-Path $DataDir 'logs') -Force | Out-Null }
 
 function Invoke-Status {
-    # Invoke TauRPC `health` via xtask (xtask uses tauri::test::mock_builder + get_ipc_response)
-    # Returns JSON with {status, subsystems, uptime_ms, pid}
+    # Real-process verdict about this harness's resolved paths: JSON with
+    # {verdict, pid, log_file_basename, last_write_age_seconds}; exit 0 only
+    # for running-healthy (pid file present + log family written <= 60s ago).
+    $env:ANDROMEDA_PULSE_DATA_DIR = $DataDir
+    $env:ANDROMEDA_PULSE_PIDFILE = $PidFile
+    $env:ANDROMEDA_PULSE_LOGFILE = $LogFile
     & cargo xtask 'harness:status'
     if ($LASTEXITCODE -ne 0) { throw "harness:status returned $LASTEXITCODE" }
 }
