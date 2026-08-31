@@ -9,10 +9,10 @@ Cross-platform desktop app (Windows/macOS/Linux via Tauri 2) with 19 testable en
 
 | Command | Body |
 |---|---|
-| `boot` | `cargo run --bin pulse-app --release` + `ANDROMEDA_PULSE_DATA_DIR=$TMPDIR/test-$$` + `RUST_LOG=debug`; poll the `cargo xtask harness:status` verdict until `running-healthy` (10s default; `HARNESS_STATUS_TIMEOUT` overrides — a cold build legitimately exceeds it) |
+| `boot` | pre-build under the verb's own env (`cargo build --bin pulse-app --release` + `cargo build -p xtask`), then spawn `target/release/pulse-app[.exe]` BY PATH (no `cargo run` wrapper — the spawn pid IS the app) + `ANDROMEDA_PULSE_DATA_DIR=$TMPDIR/test-$$` + `RUST_LOG=debug`; poll the `cargo xtask harness:status` verdict until `running-healthy` (10s default, honest — builds absorbed before the window; `HARNESS_STATUS_TIMEOUT` overrides) |
 | `run` | `cargo nextest run --workspace --profile ci --message-format libtest-json` |
 | `status` | `cargo xtask harness:status` — real-process verdict JSON `{verdict, pid, log_file_basename, last_write_age_seconds, stale_after_seconds}`, exits 0/1/1/2 from PID file + log-family mtime (since 2026-08-30; replaces the exit-0-unconditional in-process `health` form) |
-| `cleanup` | `kill -TERM $(cat $PID_FILE)` + 5s wait + verify ports `:4317`/`:4318` released |
+| `cleanup` | terminate the pidfile's pid (app-written value canonical; msys `kill` + PowerShell fallback), bounded wait, KILL escalation; verdict from INDEPENDENT probes (pid liveness + resolved OTLP ports at loopback): one bounded token `clean`/`app-survived`/`ports-lingering`/`no-pid-ports-accepting`, exit 0 only on `clean` (since 2026-08-30-agent-harness-teardown-truth) |
 | `logs` | `tail -F` the newest match of the ROTATED family `agent-latest.jsonl*`, resolved across three precedence-ordered bases (`ANDROMEDA_PULSE_LOGFILE` / `$ANDROMEDA_PULSE_DATA_DIR/logs/`, then `~/.andromeda-pulse/logs/`, then the data-dir `logs/`) — never a bare name, never `*.log` (`rolling::daily` date-suffixes the sink) |
 
 ## Status endpoint shape (binding)
@@ -31,7 +31,7 @@ Cross-platform desktop app (Windows/macOS/Linux via Tauri 2) with 19 testable en
 ```
 
 ## PID file
-`$XDG_RUNTIME_DIR/andromeda-pulse.pid` (Linux) / `$TMPDIR/andromeda-pulse.pid` (macOS) / `%LOCALAPPDATA%\andromeda-pulse\pid` (Windows). Fallback: `~/.andromeda-pulse/run/andromeda-pulse.pid`. Single decimal PID per line.
+`<data_dir>/run/andromeda-pulse.pid` on every platform (`<data_dir>` = `resolve_data_dir()`, `ANDROMEDA_PULSE_DATA_DIR` override; harness-only `ANDROMEDA_PULSE_PIDFILE` overrides the whole path). The app's own `write_pid_file` value is canonical — it overwrites boot's provisional spawn pid. Single decimal PID per line. (The per-OS `$XDG_RUNTIME_DIR`/`$TMPDIR`/`%LOCALAPPDATA%` set was stale v1 text, corrected at 2026-08-30-agent-harness-teardown-truth.)
 
 ## Log format (binding contract)
 JSON-per-line; fields: `timestamp` (ISO-8601), `level`, `target`, `message`, `fields`. Optional: `trace_id`, `span_id`, `duration_ms`, `span_count`, `service`. Source: `tracing-subscriber::fmt::Layer::json()` per obs §3.

@@ -4,10 +4,12 @@
 # Maintenance: re-run /andromeda-setup-project after either plan changes.
 #
 # 5-command discipline:
-#   boot     — start pulse-app in background, wait for TauRPC `health` ready (10s timeout)
+#   boot     — pre-build under the boot env, spawn target/release/pulse-app BY PATH,
+#              wait for the harness:status verdict (10s timeout; build absorbed before it)
 #   run      — execute cargo-nextest test suite
-#   status   — poll TauRPC `health` via cargo xtask harness:status
-#   cleanup  — SIGTERM the running pulse-app PID, verify ports released, remove tempdir
+#   status   — real-process verdict via cargo xtask harness:status
+#   cleanup  — terminate the app pid, then verify pid gone + ports released; exit 0
+#              only on verified teardown (bounded verdict token on stdout)
 #   logs     — tail the structured JSON log file
 #
 # Bound contracts:
@@ -39,7 +41,34 @@ case "${1:-}" in
     export ANDROMEDA_PULSE_LOG_LEVEL="${ANDROMEDA_PULSE_LOG_LEVEL:-debug}"
     export RUST_LOG="${RUST_LOG:-debug}"
 
-    cargo run --bin pulse-app --release > "$DATA_DIR/logs/boot.log" 2>&1 &
+    # Pre-build OUTSIDE the timed readiness window, under the same exported
+    # env the app runs with — the env participates in cargo's fingerprint, so
+    # a warm binary can still cost a full thin-LTO relink (measured
+    # 2026-08-30: a 180s ceiling died mid-rustc; absorbed here instead).
+    if ! cargo build --bin pulse-app --release > "$DATA_DIR/logs/build.log" 2>&1; then
+      echo "boot: cargo build --bin pulse-app --release failed" >&2
+      echo "  Build log: $DATA_DIR/logs/build.log" >&2
+      exit 1
+    fi
+    # xtask too — the readiness poll runs `cargo xtask harness:status`, so a
+    # stale xtask would otherwise rebuild INSIDE the timed window.
+    if ! cargo build -p xtask >> "$DATA_DIR/logs/build.log" 2>&1; then
+      echo "boot: cargo build -p xtask failed" >&2
+      echo "  Build log: $DATA_DIR/logs/build.log" >&2
+      exit 1
+    fi
+
+    # Spawn the dev-build binary BY PATH — no cargo wrapper: $! IS the app,
+    # and the app itself overwrites the default pidfile with the same
+    # identity at boot (pulse-app/src/main.rs::write_pid_file).
+    APP_BIN="target/release/pulse-app"
+    if [ -f "$APP_BIN.exe" ]; then
+      APP_BIN="$APP_BIN.exe"
+    elif [ ! -f "$APP_BIN" ]; then
+      echo "boot: built binary not found at target/release/pulse-app[.exe]" >&2
+      exit 1
+    fi
+    "$APP_BIN" > "$DATA_DIR/logs/boot.log" 2>&1 &
     DAEMON_PID=$!
     echo "$DAEMON_PID" > "$PIDFILE"
 
@@ -81,38 +110,91 @@ case "${1:-}" in
     ;;
 
   cleanup)
-    # SIGTERM the running pulse-app, verify ports released, remove tempdir
+    # Terminate the app by the pidfile identity (the app's own write is
+    # canonical; the boot-time $! covers only the crashed-before-write
+    # window), then derive the verdict ONLY from independent probes — pid
+    # liveness + TCP handshake on the resolved loopback ports — never from
+    # the kill's own exit (test-plan §3 cleanup, the measured
+    # wrong-reason-pass).
+    pid=""
     if [ -f "$PIDFILE" ]; then
-      pid=$(cat "$PIDFILE")
-      if kill -0 "$pid" 2>/dev/null; then
-        kill -TERM "$pid" 2>/dev/null || true
-        # Wait up to 5s for graceful shutdown
-        for i in 1 2 3 4 5; do
-          if ! kill -0 "$pid" 2>/dev/null; then
-            break
-          fi
-          sleep 1
-        done
-        # Escalate to SIGKILL if still alive
-        if kill -0 "$pid" 2>/dev/null; then
-          kill -KILL "$pid" 2>/dev/null || true
-        fi
+      pid=$(tr -d '[:space:]' < "$PIDFILE" 2>/dev/null || true)
+    fi
+
+    # Liveness across both pid spaces: msys kill -0 knows shell children;
+    # PowerShell knows native Windows pids. The PowerShell branch answers
+    # only by genuinely probing — no fallback may manufacture the answer.
+    pid_alive() {
+      if kill -0 "$1" 2>/dev/null; then return 0; fi
+      if command -v powershell.exe >/dev/null 2>&1; then
+        powershell.exe -NoProfile -Command "if (Get-Process -Id $1 -ErrorAction SilentlyContinue) { exit 0 } else { exit 1 }" >/dev/null 2>&1
+        return $?
       fi
+      return 1
+    }
+    terminate_pid() {
+      if kill -TERM "$1" 2>/dev/null; then return 0; fi
+      if command -v powershell.exe >/dev/null 2>&1; then
+        powershell.exe -NoProfile -Command "Stop-Process -Id $1 -ErrorAction SilentlyContinue" >/dev/null 2>&1 || true
+      fi
+    }
+    force_kill_pid() {
+      if kill -KILL "$1" 2>/dev/null; then return 0; fi
+      if command -v powershell.exe >/dev/null 2>&1; then
+        powershell.exe -NoProfile -Command "Stop-Process -Id $1 -Force -ErrorAction SilentlyContinue" >/dev/null 2>&1 || true
+      fi
+    }
+
+    if [ -n "$pid" ] && pid_alive "$pid"; then
+      terminate_pid "$pid"
+      # Bounded wait, polling pid liveness each second
+      for i in 1 2 3 4 5; do
+        if ! pid_alive "$pid"; then
+          break
+        fi
+        sleep 1
+      done
+      if pid_alive "$pid"; then
+        force_kill_pid "$pid"
+        sleep 1
+      fi
+    fi
+    if [ -f "$PIDFILE" ]; then
       rm -f "$PIDFILE"
     fi
 
-    # Verify OTLP ports released (TCP handshake should fail)
+    # Independent verification: pid liveness + OTLP ports on loopback
+    pid_still_alive=0
+    if [ -n "$pid" ] && pid_alive "$pid"; then
+      pid_still_alive=1
+    fi
+    ports_accepting=0
     for port in "$GRPC_PORT" "$HTTP_PORT"; do
       if timeout 1 bash -c "cat < /dev/null > /dev/tcp/127.0.0.1/$port" 2>/dev/null; then
-        echo "cleanup: warning — port $port still accepting connections" >&2
+        ports_accepting=1
       fi
     done
+
+    verdict="clean"
+    if [ "$pid_still_alive" -eq 1 ]; then
+      verdict="app-survived"
+    elif [ "$ports_accepting" -eq 1 ]; then
+      if [ -n "$pid" ]; then
+        verdict="ports-lingering"
+      else
+        verdict="no-pid-ports-accepting"
+      fi
+    fi
 
     # Remove tempdir if we created it (only when ANDROMEDA_PULSE_DATA_DIR was unset)
     if [ -z "${ANDROMEDA_PULSE_DATA_DIR_KEEP:-}" ] && [ -d "$DATA_DIR" ] && [[ "$DATA_DIR" == */agent-run-* ]]; then
       rm -rf "$DATA_DIR"
     fi
-    echo "cleanup: done"
+    echo "cleanup: $verdict"
+    if [ "$verdict" = "clean" ]; then
+      exit 0
+    fi
+    exit 1
     ;;
 
   logs)

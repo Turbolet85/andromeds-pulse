@@ -1,0 +1,298 @@
+[
+{
+"sql": "SELECT caller, file, line FROM calls WHERE callee LIKE '%write_pid_file%' ORDER BY file, line",
+"rows": 1,
+"result": [
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 main().",
+"file": "pulse-app/src/main.rs",
+"line": 293
+}
+],
+"db_state": "fresh",
+"plane": "rust"
+},
+{
+"sql": "SELECT callee, file, line FROM refs WHERE callee LIKE '%harness_status%' ORDER BY file, line",
+"rows": 55,
+"result": [
+{
+"callee": "rust-analyzer cargo xtask 0.1.0 harness_status/resolve_paths().",
+"file": "xtask/src/harness_status.rs",
+"line": 37
+},
+{
+"callee": "rust-analyzer cargo xtask 0.1.0 harness_status/read_pid().",
+"file": "xtask/src/harness_status.rs",
+"line": 39
+},
+{
+"callee": "rust-analyzer cargo xtask 0.1.0 harness_status/newest_family_member().",
+"file": "xtask/src/harness_status.rs",
+"line": 40
+},
+{
+"callee": "rust-analyzer cargo xtask 0.1.0 harness_status/classify().",
+"file": "xtask/src/harness_status.rs",
+"line": 41
+},
+{
+"callee": "rust-analyzer cargo xtask 0.1.0 harness_status/Verdict#",
+"file": "xtask/src/harness_status.rs",
+"line": 43
+},
+{
+"callee": "rust-analyzer cargo xtask 0.1.0 harness_status/Verdict#arm.",
+"file": "xtask/src/harness_status.rs",
+"line": 44
+},
+{
+"callee": "rust-analyzer cargo xtask 0.1.0 harness_status/Verdict#pid.",
+"file": "xtask/src/harness_status.rs",
+"line": 45
+},
+{
+"callee": "rust-analyzer cargo xtask 0.1.0 harness_status/Verdict#log_file_basename.",
+"file": "xtask/src/harness_status.rs",
+"line": 46
+},
+{
+"callee": "rust-analyzer cargo xtask 0.1.0 harness_status/Verdict#last_write_age_seconds.",
+"file": "xtask/src/harness_status.rs",
+"line": 47
+},
+{
+"callee": "rust-analyzer cargo xtask 0.1.0 harness_status/Verdict#arm.",
+"file": "xtask/src/harness_status.rs",
+"line": 52
+},
+{
+"callee": "rust-analyzer cargo xtask 0.1.0 harness_status/Verdict#pid.",
+"file": "xtask/src/harness_status.rs",
+"line": 53
+},
+{
+"callee": "rust-analyzer cargo xtask 0.1.0 harness_status/Verdict#log_file_basename.",
+"file": "xtask/src/harness_status.rs",
+"line": 54
+},
+{
+"callee": "rust-analyzer cargo xtask 0.1.0 harness_status/Verdict#last_write_age_seconds.",
+"file": "xtask/src/harness_status.rs",
+"line": 55
+},
+{
+"callee": "rust-analyzer cargo xtask 0.1.0 harness_status/STALE_AFTER_SECONDS.",
+"file": "xtask/src/harness_status.rs",
+"line": 56
+},
+{
+"callee": "rust-analyzer cargo xtask 0.1.0 harness_status/Verdict#arm.",
+"file": "xtask/src/harness_status.rs",
+"line": 60
+},
+{
+"callee": "rust-analyzer cargo xtask 0.1.0 harness_status/Verdict#",
+"file": "xtask/src/harness_status.rs",
+"line": 68
+},
+{
+"callee": "rust-analyzer cargo xtask 0.1.0 harness_status/Verdict#",
+"file": "xtask/src/harness_status.rs",
+"line": 70
+},
+{
+"callee": "rust-analyzer cargo xtask 0.1.0 harness_status/Verdict#arm.",
+"file": "xtask/src/harness_status.rs",
+"line": 71
+},
+{
+"callee": "rust-analyzer cargo xtask 0.1.0 harness_status/Verdict#pid.",
+"file": "xtask/src/harness_status.rs",
+"line": 72
+},
+{
+"callee": "rust-analyzer cargo xtask 0.1.0 harness_status/Verdict#log_file_basename.",
+"file": "xtask/src/harness_status.rs",
+"line": 73
+},
+{
+"callee": "rust-analyzer cargo xtask 0.1.0 harness_status/Verdict#last_write_age_seconds.",
+"file": "xtask/src/harness_status.rs",
+"line": 74
+},
+{
+"callee": "rust-analyzer cargo xtask 0.1.0 harness_status/Verdict#",
+"file": "xtask/src/harness_status.rs",
+"line": 76
+},
+{
+"callee": "rust-analyzer cargo xtask 0.1.0 harness_status/Verdict#arm.",
+"file": "xtask/src/harness_status.rs",
+"line": 77
+},
+{
+"callee": "rust-analyzer cargo xtask 0.1.0 harness_status/Verdict#pid.",
+"file": "xtask/src/harness_status.rs",
+"line": 78
+},
+{
+"callee": "rust-analyzer cargo xtask 0.1.0 harness_status/Verdict#log_file_basename.",
+"file": "xtask/src/harness_status.rs",
+"line": 79
+},
+{
+"callee": "rust-analyzer cargo xtask 0.1.0 harness_status/Verdict#last_write_age_seconds.",
+"file": "xtask/src/harness_status.rs",
+"line": 80
+},
+{
+"callee": "rust-analyzer cargo xtask 0.1.0 harness_status/Verdict#",
+"file": "xtask/src/harness_status.rs",
+"line": 82
+},
+{
+"callee": "rust-analyzer cargo xtask 0.1.0 harness_status/Verdict#arm.",
+"file": "xtask/src/harness_status.rs",
+"line": 83
+},
+{
+"callee": "rust-analyzer cargo xtask 0.1.0 harness_status/STALE_AFTER_SECONDS.",
+"file": "xtask/src/harness_status.rs",
+"line": 83
+},
+{
+"callee": "rust-analyzer cargo xtask 0.1.0 harness_status/Verdict#pid.",
+"file": "xtask/src/harness_status.rs",
+"line": 88
+},
+{
+"callee": "rust-analyzer cargo xtask 0.1.0 harness_status/Verdict#log_file_basename.",
+"file": "xtask/src/harness_status.rs",
+"line": 89
+},
+{
+"callee": "rust-analyzer cargo xtask 0.1.0 harness_status/Verdict#last_write_age_seconds.",
+"file": "xtask/src/harness_status.rs",
+"line": 90
+},
+{
+"callee": "rust-analyzer cargo xtask 0.1.0 harness_status/default_data_dir().",
+"file": "xtask/src/harness_status.rs",
+"line": 105
+},
+{
+"callee": "rust-analyzer cargo xtask 0.1.0 harness_status/",
+"file": "xtask/src/harness_status.rs",
+"line": 165
+},
+{
+"callee": "rust-analyzer cargo xtask 0.1.0 harness_status/classify().",
+"file": "xtask/src/harness_status.rs",
+"line": 169
+},
+{
+"callee": "rust-analyzer cargo xtask 0.1.0 harness_status/Verdict#arm.",
+"file": "xtask/src/harness_status.rs",
+"line": 170
+},
+{
+"callee": "rust-analyzer cargo xtask 0.1.0 harness_status/Verdict#pid.",
+"file": "xtask/src/harness_status.rs",
+"line": 171
+},
+{
+"callee": "rust-analyzer cargo xtask 0.1.0 harness_status/classify().",
+"file": "xtask/src/harness_status.rs",
+"line": 176
+},
+{
+"callee": "rust-analyzer cargo xtask 0.1.0 harness_status/Verdict#arm.",
+"file": "xtask/src/harness_status.rs",
+"line": 177
+},
+{
+"callee": "rust-analyzer cargo xtask 0.1.0 harness_status/Verdict#pid.",
+"file": "xtask/src/harness_status.rs",
+"line": 178
+},
+{
+"callee": "rust-analyzer cargo xtask 0.1.0 harness_status/classify().",
+"file": "xtask/src/harness_status.rs",
+"line": 183
+},
+{
+"callee": "rust-analyzer cargo xtask 0.1.0 harness_status/Verdict#arm.",
+"file": "xtask/src/harness_status.rs",
+"line": 187
+},
+{
+"callee": "rust-analyzer cargo xtask 0.1.0 harness_status/Verdict#last_write_age_seconds.",
+"file": "xtask/src/harness_status.rs",
+"line": 188
+},
+{
+"callee": "rust-analyzer cargo xtask 0.1.0 harness_status/classify().",
+"file": "xtask/src/harness_status.rs",
+"line": 193
+},
+{
+"callee": "rust-analyzer cargo xtask 0.1.0 harness_status/STALE_AFTER_SECONDS.",
+"file": "xtask/src/harness_status.rs",
+"line": 195
+},
+{
+"callee": "rust-analyzer cargo xtask 0.1.0 harness_status/Verdict#arm.",
+"file": "xtask/src/harness_status.rs",
+"line": 197
+},
+{
+"callee": "rust-analyzer cargo xtask 0.1.0 harness_status/classify().",
+"file": "xtask/src/harness_status.rs",
+"line": 202
+},
+{
+"callee": "rust-analyzer cargo xtask 0.1.0 harness_status/STALE_AFTER_SECONDS.",
+"file": "xtask/src/harness_status.rs",
+"line": 204
+},
+{
+"callee": "rust-analyzer cargo xtask 0.1.0 harness_status/Verdict#arm.",
+"file": "xtask/src/harness_status.rs",
+"line": 206
+},
+{
+"callee": "rust-analyzer cargo xtask 0.1.0 harness_status/newest_family_member().",
+"file": "xtask/src/harness_status.rs",
+"line": 217
+},
+{
+"callee": "rust-analyzer cargo xtask 0.1.0 harness_status/read_pid().",
+"file": "xtask/src/harness_status.rs",
+"line": 226
+},
+{
+"callee": "rust-analyzer cargo xtask 0.1.0 harness_status/read_pid().",
+"file": "xtask/src/harness_status.rs",
+"line": 228
+},
+{
+"callee": "rust-analyzer cargo xtask 0.1.0 harness_status/",
+"file": "xtask/src/main.rs",
+"line": 11
+},
+{
+"callee": "rust-analyzer cargo xtask 0.1.0 harness_status/run().",
+"file": "xtask/src/main.rs",
+"line": 212
+},
+{
+"callee": "rust-analyzer cargo xtask 0.1.0 harness_status/",
+"file": "xtask/src/main.rs",
+"line": 212
+}
+],
+"db_state": "fresh",
+"plane": "rust"
+}
+]

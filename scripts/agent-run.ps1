@@ -43,29 +43,41 @@ function Invoke-Status {
 }
 
 function Invoke-Cleanup {
+    # The verdict derives ONLY from independent probes (pid liveness + TCP
+    # handshake on the resolved loopback ports), never from the terminate
+    # call's own status — test-plan §3 cleanup, the measured wrong-reason-pass.
+    $procId = $null
     if (Test-Path $PidFile) {
-        $procId = Get-Content $PidFile -ErrorAction SilentlyContinue
-        if ($procId) {
-            $proc = Get-Process -Id $procId -ErrorAction SilentlyContinue
-            if ($proc) {
-                Stop-Process -Id $procId -ErrorAction SilentlyContinue
-                # Wait up to 5s for graceful shutdown
-                for ($i = 0; $i -lt 5; $i++) {
-                    Start-Sleep -Seconds 1
-                    $stillAlive = Get-Process -Id $procId -ErrorAction SilentlyContinue
-                    if (-not $stillAlive) { break }
-                }
-                # Escalate to forced kill if still alive
+        $raw = Get-Content $PidFile -ErrorAction SilentlyContinue
+        if ($raw) { $procId = "$raw".Trim() }
+    }
+
+    if ($procId) {
+        $proc = Get-Process -Id $procId -ErrorAction SilentlyContinue
+        if ($proc) {
+            Stop-Process -Id $procId -ErrorAction SilentlyContinue
+            # Bounded wait, polling pid liveness each second
+            for ($i = 0; $i -lt 5; $i++) {
+                Start-Sleep -Seconds 1
                 $stillAlive = Get-Process -Id $procId -ErrorAction SilentlyContinue
-                if ($stillAlive) {
-                    Stop-Process -Id $procId -Force -ErrorAction SilentlyContinue
-                }
+                if (-not $stillAlive) { break }
+            }
+            # Escalate to forced kill if still alive
+            $stillAlive = Get-Process -Id $procId -ErrorAction SilentlyContinue
+            if ($stillAlive) {
+                Stop-Process -Id $procId -Force -ErrorAction SilentlyContinue
+                Start-Sleep -Seconds 1
             }
         }
         Remove-Item $PidFile -ErrorAction SilentlyContinue
     }
 
-    # Verify OTLP ports released
+    # Independent verification: pid liveness + OTLP ports on loopback
+    $pidAlive = $false
+    if ($procId) {
+        if (Get-Process -Id $procId -ErrorAction SilentlyContinue) { $pidAlive = $true }
+    }
+    $portsAccepting = $false
     foreach ($port in @($GrpcPort, $HttpPort)) {
         try {
             $tcp = New-Object System.Net.Sockets.TcpClient
@@ -73,11 +85,15 @@ function Invoke-Cleanup {
             $tcp.ReceiveTimeout = 1000
             $async = $tcp.BeginConnect('127.0.0.1', $port, $null, $null)
             $waited = $async.AsyncWaitHandle.WaitOne(1000, $false)
-            if ($waited -and $tcp.Connected) {
-                Write-Warning "cleanup: port $port still accepting connections"
-            }
+            if ($waited -and $tcp.Connected) { $portsAccepting = $true }
             $tcp.Close()
         } catch { }
+    }
+
+    $verdict = 'clean'
+    if ($pidAlive) { $verdict = 'app-survived' }
+    elseif ($portsAccepting) {
+        if ($procId) { $verdict = 'ports-lingering' } else { $verdict = 'no-pid-ports-accepting' }
     }
 
     # Remove tempdir if we created it
@@ -86,7 +102,8 @@ function Invoke-Cleanup {
             Remove-Item $DataDir -Recurse -Force -ErrorAction SilentlyContinue
         }
     }
-    Write-Output 'cleanup: done'
+    Write-Output "cleanup: $verdict"
+    if ($verdict -eq 'clean') { $script:CleanupExit = 0 } else { $script:CleanupExit = 1 }
 }
 
 switch ($args[0]) {
@@ -95,9 +112,43 @@ switch ($args[0]) {
         if (-not $env:ANDROMEDA_PULSE_LOG_LEVEL) { $env:ANDROMEDA_PULSE_LOG_LEVEL = 'debug' }
         if (-not $env:RUST_LOG) { $env:RUST_LOG = 'debug' }
 
+        # Pre-build OUTSIDE the timed readiness window, under the same exported
+        # env the app runs with — the env participates in cargo's fingerprint,
+        # so a warm binary can still cost a full thin-LTO relink (measured
+        # 2026-08-30: a 180s ceiling died mid-rustc; absorbed here instead).
+        $buildLog = Join-Path $DataDir 'logs\build.log'
+        $buildErr = Join-Path $DataDir 'logs\build.err.log'
+        $build = Start-Process -FilePath 'cargo' -ArgumentList 'build','--bin','pulse-app','--release' `
+            -RedirectStandardOutput $buildLog -RedirectStandardError $buildErr `
+            -PassThru -NoNewWindow -Wait
+        if ($build.ExitCode -ne 0) {
+            Write-Warning "boot: cargo build --bin pulse-app --release failed (log: $buildErr)"
+            exit 1
+        }
+        # xtask too — the readiness poll runs `cargo xtask harness:status`, so
+        # a stale xtask would otherwise rebuild INSIDE the timed window.
+        $xtaskLog = Join-Path $DataDir 'logs\build-xtask.log'
+        $xtaskErr = Join-Path $DataDir 'logs\build-xtask.err.log'
+        $buildX = Start-Process -FilePath 'cargo' -ArgumentList 'build','-p','xtask' `
+            -RedirectStandardOutput $xtaskLog -RedirectStandardError $xtaskErr `
+            -PassThru -NoNewWindow -Wait
+        if ($buildX.ExitCode -ne 0) {
+            Write-Warning "boot: cargo build -p xtask failed (log: $xtaskErr)"
+            exit 1
+        }
+
+        # Spawn the dev-build binary BY PATH — no cargo wrapper: $proc.Id IS
+        # the app, and the app itself overwrites the default pidfile with the
+        # same identity at boot (pulse-app/src/main.rs::write_pid_file).
+        $appBin = Join-Path 'target' (Join-Path 'release' 'pulse-app.exe')
+        if (-not (Test-Path $appBin)) {
+            Write-Warning "boot: built binary not found at $appBin"
+            exit 1
+        }
         $bootLog = Join-Path $DataDir 'logs\boot.log'
-        $proc = Start-Process -FilePath 'cargo' -ArgumentList 'run','--bin','pulse-app','--release' `
-            -RedirectStandardOutput $bootLog -RedirectStandardError $bootLog `
+        $bootErr = Join-Path $DataDir 'logs\boot.err.log'
+        $proc = Start-Process -FilePath $appBin `
+            -RedirectStandardOutput $bootLog -RedirectStandardError $bootErr `
             -PassThru -NoNewWindow
         $proc.Id | Out-File -FilePath $PidFile -Encoding ASCII
 
@@ -115,8 +166,7 @@ switch ($args[0]) {
                 Start-Sleep -Seconds 1
             }
         }
-        Write-Error "boot: failed to reach ready state within $StatusTimeoutSec`s"
-        Write-Output "  Boot log: $bootLog"
+        Write-Warning "boot: failed to reach ready state within $StatusTimeoutSec`s (boot log: $bootLog)"
         Invoke-Cleanup
         exit 1
     }
@@ -130,6 +180,7 @@ switch ($args[0]) {
     }
     'cleanup' {
         Invoke-Cleanup
+        exit $script:CleanupExit
     }
     'logs' {
         # Tail the structured JSON log file (obs-plan §3 sink path)

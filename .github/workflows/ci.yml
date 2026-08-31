@@ -144,7 +144,6 @@ jobs:
 
       - name: Boot pulse-app smoke (Linux only)
         if: runner.os == 'Linux'
-        continue-on-error: true
         run: |
           bash scripts/agent-run.sh boot
           bash scripts/agent-run.sh status
