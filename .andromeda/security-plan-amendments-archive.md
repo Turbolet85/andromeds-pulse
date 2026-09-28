@@ -1,0 +1,318 @@
+# security-plan — archived amendment originals
+Writer = wrap P7 only · read by NO loop skill · cold history, never cited for current truth; each run's originals under its own heading.
+
+# Consolidated at the 2026-09-28T21-45-38Z-wrap 0-pending wrap — 37 re-worded · 0 pruned
+
+## 2026-06-28 — v3 normalization: externalize the Security Decisions Log
+
+**Section:** `## Security Decisions Log` (was the body's final section)
+**Change:** Moved all five dated entries (`2026-05-02` … `2026-05-22`) plus the section intro and
+the "Subsequent entry format" template out of the body and into this sidecar (preserved verbatim
+under _Externalized Security Decisions Log_ below). Removed the section from the body.
+**Why:** v3 shape — the Decisions Log is append-only history, not current truth; current truth lives
+in the body sections, this changelog lives here.
+**Marker:** removed the `## Security Decisions Log` heading + the `(Append new entries at the bottom; do not modify historical entries.)` template from the body.
+
+**Info-loss cross-check (every current-truth item in the 2026-05-02 entry was already in the body, except one — folded first):**
+- Tier = Minimal (0) + justification → already in body §Threat Model Summary.
+- Authorization model (Tauri capability gating + loopback OTLP + wasmtime WIT) → already in body §Threat Model (Auth model) + §API Security + §Data Protection.
+- Code-signing key custody (Azure Key Vault Premium + GitHub OIDC; updater Minisign key) → already in body §Secret Management + §Data Protection (Code-signing key custody).
+- OTLP `:4318` Host-header allowlist + CORS deny-by-default + body-size cap → already in body §API Security.
+- Plugin host `ResourceLimiter` + `epoch_interruption(true)` + wasi-http field bound → already in body §API Security + §Input Validation.
+- `tonic` 0.14 ↔ `opentelemetry-otlp` 0.31 / `tonic` 0.13 duplicate → already in body §Dependency Security + §Anti-Patterns §Universal + §Bootstrap.
+- `rmcp` "1.5.0" vs 0.3.x reconciliation → already in body §Dependency Security + §Input Validation.
+- `rust-toolchain` ≥ 1.85.0 (Edition 2024) → control already in body §Anti-Patterns §Universal ("NEVER let the rust-toolchain drift below 1.85.0").
+- Snapshot / clipboard / MCP OTLP-attribute leakage handled by warnings, not sanitization → already in body §Logging & Monitoring + §Data Protection.
+- Tauri updater Minisign key-rotation runbook (transitional dual-key release) → already in body §Secret Management (Rotation cadence).
+- **FOLDED (was only in the log):** WASM plugin signature verification deferred post-v1 → third-party plugins run unverified in v1; capability-scoped WIT + `ResourceLimiter` mitigate impact, not provenance; accepted residual risk, surfaced in the plugin-install README. Folded into body §Data Protection (At rest — Plugins bullet) before externalizing (the body bullet previously only said "Documented as a residual risk in §Security Decisions Log").
+
+**Note:** the `2026-05-22` entry (chunk #77) records four body rewrites that are ALL already present
+in the current body — §Threat Model corpus.db data-type, §Data Protection corpus.db at-rest row,
+§Secret Management runtime corpus key + "What counts as secret" entry, §Anti-Patterns §Logging
+uniform-scrubber framing. No re-fold needed; the entry is pure history of changes already in the body.
+
+## 2026-06-28 — Fold + externalize: `opentelemetry-stdout` → tracing-only self-observation
+
+**Section:** §Data Protection (Logs medium) · §Bootstrap phases (`logging-redaction-wire`) · §Logging & Monitoring (Log format) · §Error Handling (internal logging)
+**Change:** Replaced the superseded `opentelemetry-stdout` / file-exporter references in the body with
+the current self-observation truth: `tracing` + `tracing-subscriber` JSON formatter writing to
+`~/.andromeda-pulse/logs/agent-latest.jsonl` (tracing-only; **no OTel SDK linked into the
+self-runtime**). Removed the three `[DEPRECATED 2026-05-08]` blockquotes. Also corrected the
+**unannotated** `opentelemetry-stdout` reference in §Error Handling (it never carried a deprecation
+blockquote but was the same superseded term). Superseded text preserved verbatim below.
+**Why:** obs-plan §12 Phase 3.5 pivot — drop the OTel SDK from the self-runtime; `tracing-subscriber`
+JSON is the canonical self-observation surface. Functionally equivalent (JSON-per-line at the same
+path); no security-posture change. (See the `2026-05-08` Decisions Log entries below for the original
+reconciliation + annotation history.)
+**Marker:** removed 3× `> **DEPRECATED (2026-05-08):** …` blockquotes; current truth is now stated
+inline at each of the four sites.
+
+Superseded body text, preserved for audit trail:
+
+- §Data Protection (Logs medium) blockquote + body:
+  > **DEPRECATED (2026-05-08):** see Decisions Log entry "2026-05-08 — Annotate body deprecation: §Data Protection / §Bootstrap / §Logging opentelemetry-stdout refs". The `opentelemetry-stdout` reference below is superseded by obs-plan §12 Phase 3.5 pivot (no OTel SDK in self-runtime); `tracing-subscriber` JSON formatter at `~/.andromeda-pulse/logs/agent-latest.jsonl` is the canonical self-observation surface. Body preserved for audit trail.
+
+  `opentelemetry-stdout`/file exporter destination per Cross-cutting Patterns Self-observation; redaction rules in §Logging & Monitoring apply.
+
+- §Bootstrap phases (`logging-redaction-wire`) blockquote + body:
+  > **DEPRECATED (2026-05-08):** see Decisions Log entry "2026-05-08 — Annotate body deprecation: §Data Protection / §Bootstrap / §Logging opentelemetry-stdout refs". The `opentelemetry-stdout` reference below is superseded by obs-plan §12 Phase 3.5 pivot; `tracing-subscriber` JSON formatter is the canonical self-observation primitive. Body preserved for audit trail.
+
+  Wire logger redact paths per §Logging & Monitoring. Self-observation uses `opentelemetry-stdout` to `~/.andromeda-pulse/logs/` per Cross-cutting Patterns. Snapshot/clipboard/MCP-tool-response paths must apply attribute-value redaction for incidentally captured secrets per the snapshot/clipboard hygiene note.
+
+- §Logging & Monitoring (Log format) blockquote + body:
+  > **DEPRECATED (2026-05-08):** see Decisions Log entry "2026-05-08 — Annotate body deprecation: §Data Protection / §Bootstrap / §Logging opentelemetry-stdout refs". The `opentelemetry-stdout` reference in the paragraph below is superseded by obs-plan §12 Phase 3.5 pivot; `tracing-subscriber` is the sole self-observation primitive (no OTel SDK linked). Body preserved for audit trail.
+
+  **Log format:** structured (JSON) via `tracing` + `tracing-subscriber` (the Rust ecosystem standard that pairs with `opentelemetry-stdout` exporter per Cross-cutting Patterns); consistent fields per the obs plan's eventual schema. Field redaction is applied at the subscriber layer, not at log call sites.
+
+- §Error Handling (internal logging) — original superseded phrase (no blockquote existed here):
+  "full error details to `opentelemetry-stdout` / file exporter at `~/.andromeda-pulse/logs/` per Cross-cutting Patterns Self-observation".
+
+## 2026-06-28 — Fold + externalize: `max_wasm_http_fields_size` correction (was `[AMENDED 2026-05-11]`)
+
+**Section:** §Input Validation (Plugin host inputs row) · §API Security (Plugin host capability sandbox row)
+**Change:** Replaced the body's `Config::max_wasm_http_fields_size` mentions and the two inline
+`[AMENDED 2026-05-11 — see Decisions Log …]` markers with the corrected current truth: the canonical
+bound is the `MAX_WASM_HTTP_FIELDS_SIZE_BYTES` const in `crates/plugins/src/engine.rs` (this is **NOT**
+a `wasmtime::Config` method); enforcement attaches via the wasi-http context
+(`WasiHttpCtxBuilder::max_field_size`) when wasi-http imports are introduced at chunk #46+. The
+CVE-2026-27572 (April 2026 wasi-http header-explosion) anchor is preserved.
+**Why:** spec↔reality drift fixed during `/andromeda-implement` chunk #45 (full `2026-05-11` Decisions
+Log entry preserved below). The non-existent method call was removed from `engine.rs`; the const is the
+substrate-level bound.
+**Marker:** removed 2× inline `**[AMENDED 2026-05-11 — see Decisions Log: …]**` markers; corrected
+truth is now stated inline in both table rows.
+
+## 2026-06-28 — Trim: §Authentication & Authorization SKIPPED section → one-line N/A note
+
+**Section:** §Authentication & Authorization
+**Change:** Reduced the full `_[SKIPPED — …]_` block to a one-line deliberate-N/A note. Kept the
+load-bearing substance (Tauri capability gating — `pulse:default`/`pulse:tray`/`pulse:notification`/`pulse:updater`/`pulse:plugin-fs` — substitutes for runtime authorization) and the pointer to §API Security + §Security Anti-Patterns.
+**Why:** v3 lean — a deliberate N/A is a one-line note, not a full section. No control removed.
+**Marker:** n/a.
+
+## 2026-06-28-deterministic-env-gated-l4-mode — Register ANDROMEDA_PULSE_L4_DETERMINISTIC in §Input Validation
+**Section:** §Input Validation — CLI / env var inputs row
+**Change:** Added `ANDROMEDA_PULSE_L4_DETERMINISTIC` to the env-var inputs list + the How column (l4_deterministic: bool via bounded truthy-parse, `1|true|yes`, default false, no unbounded string).
+**Why:** Chunk 2026-06-28-deterministic-env-gated-l4-mode (P-073) added the env var; it is code-validated (bounded truthy-parse, unit-tested `env_gate_truthy_parse_table`) but was absent from the §Input Validation boundary enumeration (D-security-input registry-completeness). Resolved with the user; codified as routine via a new playbook rule so future code-validated env-var registrations do not re-escalate.
+
+## 2026-06-29-window-geometry-movable-shell — Register window-geometry.json input boundary in §Input Validation
+**Section:** §Input Validation — boundary table (new row after Configuration values)
+**Change:** Added the `<data_dir>/window-geometry.json` boundary row: integer x/y per window label via `serde` to `Position { x: i32, y: i32 }`; missing/corrupt → default (centered/snap) via `unwrap_or_default` (non-fatal); atomic `.tmp`+rename; no coordinate values logged.
+**Why:** Chunk 2026-06-29-window-geometry-movable-shell (P-061) added the new persisted geometry file as a deserialized-at-boot input surface. D-security-input flagged it (escalate severity); the report shows it code-validated (integer-only serde + graceful default) + unit-tested (`unit_window_geometry.rs` roundtrip/missing/corrupt), so it matches the bounded-config-input playbook rule (routine registry-completeness, not an unvalidated-boundary HALT). Applied silently per that rule.
+
+## 2026-08-14-workspace-key-alignment — published-key input boundary + measured corpus key custody
+**Section:** §Input Validation (new boundary row); §Threat Model Summary → Attack surface (MCP stdio vector + filesystem-reads vector); §Secret Management → Runtime / Development / Production-dev separation / What counts as secret; §Data Protection → At rest (persistent incident corpus); §Threat Model Summary → Data classification (corpus row)
+**Change:** (1) Added an §Input Validation row for `<data_dir>/run/workspace-key` — bounded ≤ `MAX_WORKSPACE_KEY_BYTES` (4096), UTF-8 checked, trailing newline trimmed, empty + control-character values rejected, canonicalize-and-confine on write, and the value consumed ONLY as an opaque filter string so CWE-22 is closed by construction. (2) Recorded that the sidecar's stdio is no longer its only input, and added the key file to the filesystem-reads entry-point list with its now-declared validation discipline. (3) Corrected the corpus key-custody claim at all six restating sites from "OS keychain primary OR passphrase-fallback-with-warning" to measured reality: keyring resolves with no platform backend, so the non-persisting mock store yields a per-PROCESS key, no keychain entry is written, and the fallback warning never fires — with the data-loss consequence stated (historical encrypted cells unreadable by any later process).
+**Why:** (1)+(2) register a genuinely new cross-process input boundary this chunk landed, following the 2026-06-29 `window-geometry.json` precedent row (code-validated + unit-tested ⇒ routine registry completeness). (3) records measured truth per the chunk report's "Spec claims disproved by measurement" #1, which names §Secret Management explicitly. The impl fix (keyring platform features + a migration) is owned by the new "Corpus key persistence" working-route entry, not by this chunk.
+
+## 2026-08-15-corpus-key-persistence — corpus key custody closed at 6 restating sites; passphrase + deny carve-outs + a ratified external-decay deferral registered
+**Section:** §Threat Model Summary → Data classification (user-content corpus) · §Data Protection → At rest → Persistent incident corpus · §Secret Management → Storage → Runtime · → Development · → Production / dev separation · §Secret Management → What counts as secret · §Input Validation (CLI / env var row + its rule cell) · §Dependency Security → CI integration · §Bootstrap phases → dep-audit-tooling-install
+**Change:** The 2026-08-14 correction is itself corrected at all SIX sites it landed on: the corpus cell key
+is no longer per-process ephemeral from keyring's mock store — the explicit platform feature set links a real
+OS credential store, the key persists across processes (measured: 0 `decryption_failed` where 13 defined the
+defect; Windows entry `corpus-key.com.andromeda.pulse` present), and the P-049 fallback now has a named
+secret source. Registered `ANDROMEDA_PULSE_CORPUS_PASSPHRASE` in the §Input Validation env-var row with its
+bounded-parse rule (non-empty, ≤ 1024 bytes, unset ⇒ not-configured; KDF input only, never canonicalized,
+never a path, never logged) and added it to "What counts as secret". Recorded the ID-scoped `[bans] skip`
+carve-out discipline (`core-foundation` + `security-framework`, duplicates internal to `keyring`) with
+`multiple-versions = "deny"` unrelaxed and the `tonic` canary unskippable. Ratified a standing external-decay
+deferral for `cargo audit` with `cargo deny check advisories` as the named overlap signal.
+**Why:** The chunk measured the previous claim false and closed it. The fallback's opt-in semantics are
+recorded deliberately: it engages only when configured, so a transient store failure cannot silently switch
+keys — the failure mode that created the orphaned content in the first place. The deferral is bounded, not
+open-ended: `cargo audit` cannot LOAD the RustSec DB (upstream duplicate advisory ID, reproduced), the
+overlap signal still runs every wrap, and the overlap's own findings carry visible dispositions — 3
+no-safe-upgrade IDs ignore-listed, 7 upgradeable ones (5 vulnerabilities) left RED under a named owner
+rather than accepted.
+
+## 2026-08-16 (0-pending route-adaptation wrap) — cargo-audit standing deferral re-ratified at pin #3 with a re-run interval, and migrated onto the route
+**Section:** §Dependency Security → CI integration (Standing deferral — `cargo audit` unrunnable)
+**Change:** The deferral's Probe clause changes from "re-run `cargo audit` once per wrap" to a ratified
+INTERVAL of every 3rd wrap (ran at session 25, next at session 28), with the between-points discipline
+stated explicitly: re-verify basis + overlap, and the absorbing chunk's report records
+`probe skipped per ratified interval (next: {point})` — never a silent skip. Recorded the pin-#3
+re-ratification (age trigger: third consecutive re-pin HALTs once into dialogue) and the fact that the pin
+MIGRATED off `.claude/session-handoff.md`, where it had been floating, onto the working-route entry
+`Baseline-family reachability` with its origin marker `2026-08-15-corpus-key-persistence` preserved. Basis
+re-verified first-hand this wrap and strengthened: the DB-load failure reproduced byte-identical on
+2026-08-16 in this repo AND on the Conductor project the same day — one upstream event, two projects.
+**Why:** Route-resolve's age trigger fired (§Deferred-gate closure) and the operator ratified continuing
+with an interval rather than converting the deferral to a route entry or an escalation. The reference
+explicitly permits setting a re-run interval "when the named overlap runs green every chunk anyway", which
+is the case here — `cargo deny check advisories` reads the same advisory data through its own loader and
+runs every chunk. Recording it in the body was mandatory rather than optional: leaving "once per wrap" in
+the spec while the route pin said "every 3rd wrap" would have shipped a self-contradicting instruction, the
+same truth-in-diagnostics failure class this version's sweep entry already owns. The deferral's END
+condition is unchanged — it ends the first time `cargo audit` loads.
+
+## 2026-08-16-baseline-family-reachability — register the baseline-bootstrap env boundary
+**Section:** §Input Validation → CLI / env var inputs row
+**Change:** Added `ANDROMEDA_PULSE_BASELINE_BOOTSTRAP_SECONDS` to the row's name list and its validation
+column: bounded `u64` parse, whitespace-trimmed, non-zero and strictly below `WINDOW_DURATION_SECONDS`
+(86400); unset / empty / unparseable / zero / out-of-range all fall back to the 3600s default, never
+panicking and never silently adopting an unintended bound. It is not a path, is never canonicalized, and
+carries no user data.
+**Why:** A new external-input boundary shipped unregistered (D-security-input, escalate severity). Ruled
+routine by the playbook's 2026-06-28 rule, which names this row explicitly and scopes D-security-input's
+escalate severity to ACTUALLY-unvalidated boundaries — the report shows this one validated (bounded parse)
+and unit-tested (reject-zero / reject-empty / reject-unparseable / reject-at-or-above-window / whitespace-trim
+/ unset-identical-to-default). Recorded here so the boundary enumeration stays the complete list it claims
+to be.
+
+## 2026-08-17-incident-fingerprint-producer-repaired — `cargo audit` standing deferral: interval point DISCHARGED, re-pinned
+
+**Section:** §Dependency Security → Standing deferral — `cargo audit` unrunnable (external decay)
+**Change:** The probe-interval clause now records the session-28 interval point as **DISCHARGED by a real probe** rather than naming it as merely upcoming: `cargo audit` RAN (exit 1), the basis reproduced byte-identical (`error loading advisory database: parse error: duplicate advisory ID: RUSTSEC-2026-0244`), and the named overlap `cargo deny check advisories` was re-observed reporting exactly the 7 owned upgradeable IDs — no new finding. Interval reset: next probe at **session 31**. The stale "ran at session 25, next at session 28" reading is retired; the near-zero-information rationale is restated over three probe points rather than two.
+**Why:** chunk `2026-08-17-incident-fingerprint-producer-repaired` carried the pin as a folded PREREQ and discharged it. This maintains requirement (d) of the 2026-08-15 routine-BOUNDED-WAIT playbook rule (a probe re-run interval must exist and stay current); a spec still naming a discharged point as pending would misdirect the next wrap into treating session 28 as unmet. Raised by the orchestrator at Validate check 5 — the security fan-out detector surfaced the staleness but correctly declined to propose it, since no dependency was added or bumped and it falls outside D-security-deps' invariant. Report §Decisions & corrections carries the full provenance.
+
+## 2026-08-21-delegated-timing-observables — `telemetry.*` boundary registered; per-procedure capability claim retired at 6 sites
+**Section:** §Threat Model Summary (IPC + webview vectors); §Input Validation (TauRPC row); §API Security (TauRPC capability authorization); §Bootstrap phases (`dep-security-ci-gate`); §Security Anti-Patterns (API)
+**Change:** Added `telemetry.frontend.*` to the TauRPC boundary row with its validators (`validate_duration_ms`, `validate_discovered_count` bound 10_000, closed `HueSeverityTier`, each rejection unit-tested by name). Retired "capability JSON enumerates exactly these procedures" and the two-enforcement-pieces claim at every site: capability gating admits the webview to the IPC layer as a whole, and the per-procedure enforcement is the validated argument struct plus the `EXPECTED_PROCEDURES` drift gate. The §Anti-Patterns NEVER ban was RETARGETED, not deleted — it now bans an unpinned procedure, and gains a second clause banning an ungranted core API / `core:window:*` permission, which genuinely IS silently rejected at runtime.
+**Why:** Measured at this chunk (three procedures added, capabilities untouched, drift clean). Operator-ratified with an explicit guardrail that the core-API half of the invariant must survive intact.
+
+## 2026-08-22-pii-scrubber-recall — catalog is eight categories; the `spans` coverage claim corrected as measured
+**Section:** §Security Anti-Patterns → Logging (Uniform scrubber coverage paragraph) · §Data Protection Sensitivity note · §Persistent incident corpus
+**Change:** (a) Recorded the catalog's EIGHTH category `provider_key` — the bare-credential recall arm (anchored-prefix + length floor), ordered after the keyed arms and before `credit_card`, with the recall-over-precision posture and its bounding false-positive corpus stated. No prior amendment had ever enumerated a scrubber pattern. (b) APPLIED AS MEASURED: the paragraph claimed coverage of "OTLP appender DuckDB writes for `spans` / `log_records` / `span_events`" — the `spans` half is false. The body now separates INTENDED posture from MEASURED reality, names the five client-controlled columns that never reach `scrub_attribute` (`spans.service_name` · `span_events.name` · `metrics_points.metric_name` · `log_records.severity_text` · `instrumentation_scopes.scope_name`/`.scope_version`), states the consequence plainly (the DuckDB ring buffer is unencrypted, so such values are stored and read in plaintext), and NAMES the owning route entry. (c) Qualified the two same-master duplicates at §Data Protection and §Persistent incident corpus that restated "at all persistence boundaries" — the corpus paths ARE covered; the generalization was not.
+**Why:** The chunk measured the recall gap RED before fixing it (both canaries stored verbatim) and, in doing so, mapped the boundary precisely — surfacing that five columns are outside the mandate entirely. Per the APPLY-AS-MEASURED rule the doc records the gap AND its owner rather than deferring, because a body that states measured truth plus an owner describes reality better than one asserting coverage that does not exist. The impl half is NOT closed here: owner is the working-route entry "Ingestion scrub coverage — the five client-controlled columns that never reach `scrub_attribute`", minted at this wrap (operator-decided: a standalone entry, not a CARRY on the diagnostics sweep, because a security-grade coverage hole should not inherit a housekeeping entry's priority).
+
+## 2026-08-23-ingestion-scrub-coverage — ring-buffer scrub coverage flipped from open gap to covered
+
+**Section:** §Security Anti-Patterns → Logging (primary) · §Threat Model Summary → Data classification, Sensitivity note (restating site) · §Data Protection → At rest — per medium, Persistent incident corpus bullet (restating site)
+
+**Change:** The MEASURED-reality clause flipped from "the intended posture does NOT yet hold for five columns" to holding for every client-controlled ring-buffer column a producer can reach. The four live columns — `spans.service_name`, `span_events.name`, `metrics_points.metric_name`, `log_records.severity_text` — now pass through `scrub_attribute` at the write boundary; the sentence "The `spans` table receives NO scrub at all" is retired. The **count was corrected from five to four-live-plus-one-vacuous**: `instrumentation_scopes.scope_name`/`.scope_version` have no producer, so they cannot receive host data, cannot leak, and cannot be scrubbed. The section now also records WHERE the `service_name` scrub sits and why (inside `extract_service_name`, the choke point for three consumers — the column, the storm `FingerprintObserver`, the baseline `SpanObserver` tap), the uniform-redaction treatment decision with its rejected alternatives, and the accepted `metrics_points.metric_name` PK-collision risk as a loud rather than silent failure. Two restating sites that carried the same five-column claim were updated in the same pass. Explicitly PRESERVED as unchanged: the ring buffer remains unencrypted (redaction at the write boundary is the control, not confidentiality at rest), `span_events.exception_type` remains a deliberate exclusion, and the 8-category catalog is untouched.
+
+**Why:** chunk `2026-08-23-ingestion-scrub-coverage` closed the coverage half this section named itself the owner of. Verified RED-before / GREEN-after on the real OTLP path, with a mutation check proving the pins discriminate (neutralizing the four scrub sites turns 5 pins red) and a live wire run recording `redactions_applied` 0 → 4 with the canary literal and the bare `sk_live_` format each at 0 occurrences across 21,846 log lines. The five-count was measurably wrong at HEAD: `append_record_batch_to_table` is the only DuckDB write path in `crates/buffer` and fires for exactly four tables.
+
+## 2026-08-23-metrics-points-identity — the accepted LOUD collision failure is closed, and its residual recorded
+**Section:** §Security Anti-Patterns → Logging (uniform scrubber coverage paragraph)
+**Change:** The clause recording the `metrics_points.metric_name` redaction collision as "an accepted, LOUD failure (ERROR at `flush()`), never a silent one" is retired: the key gained a `seq` ordinal, so two distinct credential-shaped names redacting identically no longer collide and both rows persist. Recorded in its place — the rejected alternative STILL stands (the discriminator is content-independent, a per-table monotonic counter never derived from the secret, so no stable identifier of the credential is minted); scrubbing `metric_name` remains mandatory; and the RESIDUAL, that the two names still redact to one placeholder so the rows now land indistinguishable — redaction holds and there is no new leak, but the whole-batch ERROR was the only signal a credential-shaped collision had occurred, and closing it removes that signal.
+**Why:** the chunk deliberately removed the behaviour this section asserted (report Spec-claims item 2; RED leg measured the ERROR at HEAD with `rows_ingested` 0, GREEN leg 5 rows and 0 ERROR). Leaving the clause would have described a failure mode the code can no longer produce. Raised by the wrap orchestrator under the plan's expected-amendments floor — NO drift-base detector covered this section, a gap closed at this same wrap by the new `D-security-logging` detector.
+
+## 2026-08-23-metrics-points-labels — five scrubbed cells and a third scrub shape
+**Section:** §Security Anti-Patterns → Logging (coverage paragraph · treatment paragraph · count-correction paragraph); §Threat Model Summary → Data classification → Sensitivity note; §Data Protection → At rest → Persistent incident corpus bullet
+**Change:** Coverage restated as **FIVE** persisted client-controlled ring-buffer cells — the four columns plus `metrics_points.labels`. A **THIRD scrub SHAPE** recorded beside choke-point and push-site: labels scrub the JOINED `key=value` form UNIONED with the bare value, because `secret_kv` and `api_key` are key-name-anchored and structurally unreachable on a split value — a value-only scrub would store the entire keyed class verbatim. Label KEYS are stored verbatim; only the VALUE becomes `[REDACTED:{category}]`. The treatment's **failure mode** is stated: over-redaction when the KEY alone trips a match, accepted per the catalog's recall-over-precision posture — and because the key survives, two distinct keys never collapse into one placeholder, so the redaction-collision class the predecessor chunk closed is NOT reintroduced. "Uniform redaction across all four" rescoped to the four COLUMN targets so the labels shape is not swept under it. The count-correction paragraph disambiguated: the RETIRED five was four live plus one vacuous; the CURRENT five is a genuine live count. Both restating sites moved four → five with their `instrumentation_scopes`-producer-less and still-UNENCRYPTED clauses preserved verbatim.
+**Why:** Chunk `2026-08-23-metrics-points-labels`. The joined-form requirement was an operator correction at the phase P5 review and is load-bearing, not defensive — verified by mutation check, which stores `password=hunter2` verbatim when the label scrub is neutralised. Wire-proven: `redactions_applied` 2 → 4 with 0 canary literals across 1417 log lines. `instrumentation_scopes.*` (producer-less) and `span_events.exception_type` (deliberate class-identifier exclusion) remain the stated non-coverage; the ring buffer remains unencrypted, so write-boundary redaction is still the control.
+
+## 2026-08-23-webview-self-verify — harness-only path carve-out + measured npm-channel gap
+**Section:** §Input Validation → CLI / env var inputs · §Security Anti-Patterns → Input · §Bootstrap phases → input-validation-library-install · §Dependency Security → CI integration
+**Change:** (1) Scoped the categorical `ANDROMEDA_PULSE_*_PATH` / `*_DIR` canonicalize-and-confine ban to **product-binary** reads, carving out harness/xtask-only tool-locator vars that resolve an external tool living outside the data dir by design — guarded instead by trim + `is_file()` + clean skip. Applied at all THREE restating sites (the §Input ban, the §Input Validation controls column, the §Bootstrap `strict-path` bullet). Registered `ANDROMEDA_PULSE_MSEDGEDRIVER_PATH` as that carve-out's first member, noting the resolved value is never logged. (2) Recorded as MEASURED that the `pulse-app/ui` npm channel gets Dependabot version updates but **no advisory/license/ban scanning** — `cargo audit` / `cargo deny` / `cargo-auditable` all stop at the Rust boundary and `ci.yml` runs `npm ci` but no `npm audit` — a PRE-EXISTING gap (27 → 29 direct devDeps) that this chunk widened by +2 direct / +132 transitive plus a native `.exe` delivered via an npm optional dependency; named the owning route entry.
+**Why:** Chunk `2026-08-23-webview-self-verify`. The carve-out was escalated (D-security-input, escalate severity) and resolved WITH the operator: the exemption already existed by precedent — `_PIDFILE` / `_LOGFILE` are harness-only path vars long absent from the §Input Validation row — but no doc stated it, so the ban read as a standing self-violation. **One proposal was REJECTED on validation check 4 (absence needs evidence):** the detector claimed no npm Dependabot ecosystem, but `.github/dependabot.yml` demonstrably configures `npm` at `/pulse-app/ui` alongside `cargo` and `github-actions`; the surviving note records the narrower, verified gap (advisory scanning, not update coverage) per the APPLY-AS-MEASURED disposition.
+
+## 2026-08-23-a11y-verification — owned upgradeable advisory count corrected 7 to 8
+**Section:** §Dependency Security → CI integration (Standing deferral — `cargo audit` unrunnable, Probe clause)
+**Change:** The probe clause now records the interval points actually run (25 / 28 / 31 / 34 / 37) and the session-40 discharge on 2026-08-23: probe RAN, exit 1, basis reproduced byte-identical (`error loading advisory database: parse error: duplicate advisory ID: RUSTSEC-2026-0244`), overlap re-observed at exactly **8** owned upgradeable IDs — RUSTSEC-2026-0189 / 0190 / 0194 / 0195 / 0204 / 0222 / 0253 / 0258; next point session 43. The former **7** is retired to history as the session-28 reading rather than current truth.
+**Why:** Chunk `2026-08-23-a11y-verification` discharged the standing `cargo audit` PREREQ in full form at its interval point and measured the overlap set at eight, matching the working-route annotation against the plan body's stale seven. The deferral itself does NOT end — the RustSec DB still cannot load. Detector D-security-deps raised this at its `escalate` severity, but the finding is a stale measured COUNT, not a banned or unvetted dependency (the report's Dependencies bullet reads "none added, none bumped" and `cargo deny check bans licenses sources` ran ok); it was dispositioned routine-APPLY by actual class. That severity/class mismatch — the third across three different escalate-severity detectors — was codified WITH the operator as a new playbook rule in the same wrap. Verified single-occurrence: the claim appears once in the body (the other hits are append-only history in this sidecar).
+
+## 2026-08-25 operator-adaptation wrap (0-pending) — interval point 43 discharged + two counting rules
+**Section:** §Dependency Security → CI integration (Standing deferral — `cargo audit` unrunnable, Probe clause)
+**Change:** Recorded the session-43 discharge (2026-08-25): probe RAN, exit read DIRECTLY (never through a pipe) = 1 under cargo-audit 0.22.2, basis reproduced byte-identical (`error loading advisory database: parse error: duplicate advisory ID: RUSTSEC-2026-0244`), overlap re-enumerated first-hand — `cargo deny check bans licenses sources` → bans ok / licenses ok / sources ok (exit 0), `cargo deny check advisories` → exit 1 at the SAME 8 owned IDs (0189 / 0190 / 0194 / 0195 / 0204 / 0222 / 0253 / 0258), set unchanged; next point session 46. Added TWO counting rules measured at this probe: (a) error BLOCKS are not the ID count — the run emitted **10 blocks for 8 distinct IDs** because a crate present at two lockfile versions raises one block per version (quick-xml's 0194 / 0195 each twice, `Cargo.lock:509` and `:510`), so enumerate distinct `RUSTSEC-` ids and never report a block count as an owned-set size; (b) an interval POINT belongs to the wrap that actually occurs — inserting a wrap moves the count, so a point owed "at the next entry's wrap" falls on the inserted wrap instead.
+**Why:** No chunk was in flight — this is the 0-pending operator-requested route-adaptation wrap, and the operator's invocation explicitly directed that the probe was owed here IN FULL FORM because the count moved when this wrap was inserted (rule (b) generalizes exactly that instruction). The body's "next at session 43" was falsified by the probe this wrap ran, so it is corrected to current truth under the same body-is-current-truth stance the session-40 entry above followed. The deferral itself does NOT end — the RustSec DB still cannot load. Rule (a) was surfaced by re-enumerating first-hand rather than trusting the block count: a naive read of that output reports 10 owned IDs against a recorded 8 and manufactures a false "the set grew" alarm. The pin was simultaneously re-pinned from the Halo entry onto the lifted Demo-injector entry (route-resolve P5, origin preserved).
+
+## 2026-08-25-demo-injector-formalized-api-surface-retire — the categorical path-confinement claim was false; recorded as a measured exception
+**Section:** §Security Anti-Patterns → Input (the product-binary `*_PATH` / `*_DIR` ban + its carve-out) · §Input Validation (CLI / env var inputs row)
+**Change:** The closing sentence "Everything the product reads stays under the categorical rule" no longer stands as an assertion — it is quoted as retired and replaced by a MEASURED EXCEPTION block naming the three product-consumed path vars that are canonicalized but NOT confined: `ANDROMEDA_PULSE_MODEL_PATH` · `ANDROMEDA_PULSE_LLAMA_CUDA_BIN_PATH` · `ANDROMEDA_PULSE_LLAMA_CPU_BIN_PATH`, all read by the shipped binary via `pulse-app/src/llamacli_inference.rs`. The block separates what they DO enforce (trim + reject-empty, `canonicalize()`, assert regular-file — the half that resolves `..` and symlink chains) from what they deliberately OMIT (the data-dir confinement assert, with the rationale quoted from `canonicalize_path`: binary paths are intentionally user-managed per the chunk-#84 plan), states the consequence plainly (an actor who can set these env vars can point the product at an arbitrary on-disk file — read as a model, or EXECUTED as the inference binary — a real escalation over the msedgedriver carve-out, whose var never reaches the shipped binary), bounds it to this tier's local-single-user trust boundary, and NAMES its owner. The §Input Validation enumeration, which listed none of the three, now carries them explicitly plus the build-only `ANDROMEDA_LLAMA3_TOKENIZER_PATH`.
+**Why:** the chunk's live real-L4 leg exercised `ANDROMEDA_PULSE_MODEL_PATH` + `_LLAMA_CUDA_BIN_PATH` against the shipped binary, which surfaced that the categorical ban had been false since chunk #84 — the harness-only carve-out is scoped to vars that never reach the product, and these do. Applied as-measured rather than by widening the carve-out (which would BLESS the exception as policy and drop the CWE-22 consequence from view) and rather than deferring (which would leave the spec measurably false and break this wrap's drift=0 invariant). Operator ruling at this wrap: escalate wider — bundle the fix with the sibling argv-prompt residual (`llamacli_inference.rs:409` passes digest-derived OTLP-sourced prompt text as the `-p` argv value) under ONE route entry, since both trace to the same chunk-#84 subprocess design. Owner recorded in the body as the working-route entry "L4 runtime security residuals". No detector proposed this — D-security-input reasoned correctly that no NEW path env var was introduced; the gap is that the spec's CATEGORICAL claim is false about PRE-EXISTING product-consumed vars, which is the blind class the plan's Expected-amendments coverage floor exists to catch.
+
+## 2026-08-26-cadence-runaway-blocking-pool — cargo audit interval point 46 discharged
+**Section:** §Dependency Security → CI integration → Standing deferral (`cargo audit` unrunnable)
+**Change:** Recorded interval point 46 as DISCHARGED IN FULL FORM on 2026-08-26 — probe RAN under
+cargo-audit 0.22.2, true exit **1** read DIRECTLY (never through a pipe), basis reproduced
+byte-identical (`parse error: duplicate advisory ID: RUSTSEC-2026-0244`, DB still unloadable), overlap
+re-enumerated first-hand (`cargo deny check bans licenses sources` exit 0; `advisories` exit 1) at the
+SAME 8 distinct owned IDs (0189/0190/0194/0195/0204/0222/0253/0258), unchanged for a fourth
+consecutive probe, with counting rule (a) re-confirmed at 10 error blocks for those 8 ids. Re-pinned
+`next at session 46` → `next at session 49`. The deferral itself does NOT end.
+**Why:** the pin named a point this wrap discharged; leaving "next at session 46" would name a
+discharged point as pending, breaking requirement (d) of the 2026-08-15 routine-BOUNDED-WAIT rule.
+Disposition per playbook 2026-08-23 routine-APPLY-BY-ACTUAL-CLASS — D-security-deps fired at escalate
+severity on a stale measured pin while the report's Dependencies bullet reads "none added, none
+bumped" and the bans/licenses/sources gate is green, so the escalate condition is affirmatively absent.
+
+## 2026-08-26-l4-runtime-security-residuals — L4 path guard lands; the exception narrows, the argv residual closes
+**Section:** §Input Validation (CLI / env var row · How column · NEW L4-argv row) · §Security Anti-Patterns → Input (MEASURED→NARROWED exception paragraph, three clauses) · §Threat Model Summary → CLI input trust boundary · §Bootstrap phases → `input-validation-library-install` · §Security Anti-Patterns → Code Patterns · §Security Anti-Patterns → Logging · §Logging & Monitoring → What NEVER to log
+**Change:** ELEVEN edits across seven sites, all one drift family.
+(1) §Input Validation's CLI row: the "canonicalized but NOT confined" posture is retired for the three L4 path vars and replaced with the landed guard — traversal-reject BEFORE canonicalize, 4096-byte bound, `canonicalize()`, regular-file assert, plus opt-in confinement under the newly enumerated `ANDROMEDA_PULSE_L4_ALLOW_ROOT` with its fail-closed disposition.
+(2) The row's How column: the `strict-path` mandate is narrowed off this boundary — `std` both-sides-canonicalize on the `publish_workspace_key` precedent is what shipped.
+(3) A NEW row registers the L4 `-p` argv boundary, which the table previously described nowhere: `validate_prompt_bounded`'s 16 KiB ceiling + NUL/C0/C1 rejection with `\n\r\t` whitelisted, and the measured derivation of the ceiling.
+(4-6) §Anti-Patterns → Input: MEASURED→NARROWED heading; the OMIT clause rewritten to separate what is now enforced from the categorical data-dir assert still deliberately omitted, with the consequence SCOPED to hosts that leave the root unset; the `Use strict-path` directive replaced by the primitive actually used.
+(7) The same paragraph's Owner clause: DISCHARGED — the owning route entry landed, and the sibling argv-prompt residual it named is closed.
+(8) §Threat Model: "Path env vars have no declared canonicalization" retired.
+(9) §Bootstrap: two carve-outs from the `strict-path` install mandate, including the measured declared-but-unused state (five manifests, zero `.rs` users).
+(10) §Code Patterns: the `Command::arg(user_input)` ban now names the one product path that does it and the bound admitting it, with an explicit note that the bound is a SHAPE control, not a confidentiality fix, since the OTLP-derived substring is already scrubbed upstream.
+(11) §Anti-Patterns → Logging + §Logging & Monitoring: the basename-only rule is broadened from plugin paths to every product-consumed filesystem path, with the two PRE-EXISTING full-path boot records (`app.boot.tracing.init` `log_dir`, `app.boot.pid` `path`) recorded as a named carried exception owned by the "Diagnostics un-muting + harness-truth sweep" entry.
+**Why:** the chunk shipped the guard, so every site stating the unconfined-convention posture was stale against reality (report §Changes → Schema/config + §Symbols/APIs; smoke legs A/B/C measured all three arms live, including leg C's positive arm proving a legitimate out-of-tree model still loads under an enforced root). The `strict-path` narrowing is the recorded consequence of the P4 primitive decision, which the report states explicitly as owing this amendment. The exception is NARROWED rather than deleted because confinement is opt-in by design — a data-dir default would break every host that has run L4 — so the arbitrary-file consequence persists where the root is unset, and the amendment says so rather than implying closure.
+
+## 2026-08-26-interpretation-brief-completeness — L4-argv row re-based; citable section joins the content set
+**Section:** §Input Validation → "L4 inference argv prompt" row · §Security Anti-Patterns → Code Patterns (the `Command::arg` L4 `-p` bullet — the duplicate derivation site)
+**Change:** Both sites now (1) list the `<CITABLE_EVIDENCE_IDS>` section (deduped order-stable `digest.attention_cues[].fingerprint` ids — blake3 full-hex, non-PII by construction, bounded by the cue set) in the `-p` operand's content sources beside `digest.payload_summary` + `project_context`, and (2) re-derive the `MAX_PROMPT_BYTES` (16384) ceiling from the live post-citable measurement — prompts 6715..=6830 bytes, ~2.4× the observed maximum with ~9.5 KiB headroom — retiring the 154-record 5947..=6297 / ~2.6× basis at both sites. The guard itself is unchanged and still fires at `validate_prompt_bounded`'s single production caller; the shape-not-confidentiality note and the below-`CreateProcess`-32767 clause stand.
+**Why:** report §Counts/qualifiers moved states the derivation basis moved; §Coverage of new surfaces measures the grown prompt through the guard live (6,830 B max vs 16,384). Applied at both sites in one pass because :452 mirrors :139 verbatim — a single-site apply would leave the superseded figure standing in the bans section.
+
+## 2026-08-26-interpretation-brief-completeness — incident-summary write boundary joins the scrub enumeration
+**Section:** §Security Anti-Patterns → Logging → Uniform scrubber coverage (MEASURED-reality enumeration)
+**Change:** The corpus-persist enumeration gains the incident-summary write boundary: `Incident.resolution_summary_text` holds a `scrub_attribute`-scrubbed JSON projection of the parsed `L4Output`, written at THREE paths — incident creation, dedupe re-generation refresh, and the resolution-summary final write (`scrubbed_l4_json` in `pulse-app/src/inference_runtime.rs`) — with `ScrubbedValue::Redacted` collapsing to the category marker in place (honest-degraded: the report renders the pending notice, never fabricated content). Ring-buffer five-cell set, the 8-category catalog, and the `exception_type` / producer-less exclusions are unchanged.
+**Why:** report §Changes → BEHAVIOR + the attach-seam coverage row; the enumeration previously listed only Drain/Baseline/ServiceRegistry/RetryStorm persists + ring-buffer cells, so its coverage set was stale for a store boundary this chunk changed. The restating sites (§Threat Model / §Data Protection → At rest) carry only the categorical every-corpus-write claim, which this extends rather than retires — no dependent edits owed there.
+
+## 2026-08-27-idle-observer-generation-damper — L4-argv measurement re-base + inference.error posture extension
+**Section:** §Input Validation → L4 inference argv prompt row
+**Change:** The prompt-byte measurement context re-based: the 6715..=6830 B figure is re-labelled the 2026-08-26 sustained-leg reading, joined by the 2026-08-27 damper-chunk readings (reflection 6,932 B — the new observed maximum; sparse-digest v2.2 legs 6,386–6,387 B), all stated as session measurement notes, never bounds (~2.4× headroom now cited against 6,932 B, ~9.2 KiB). Same row extended: `interpretation.inference.error` also carries the two formerly-SILENT `InferenceFailed` sites (`io_error` / `stdout_utf8_invalid`) as bounded categories with no output bytes.
+**Why:** the chunk's live legs measured a reflection prompt above the documented range's upper end (report §Counts / qualifiers moved), and the CARRY de-silenced the two error sites (report §Tracing / allowlist surface) — the row's redaction-posture claim was incomplete without them.
+
+## 2026-08-27-idle-observer-generation-damper — Code Patterns duplicate re-based in lockstep
+**Section:** §Security Anti-Patterns → Code Patterns (the argv-ban L4 `-p` bound sentence)
+**Change:** The duplicate prompt-byte claim re-based to the 6,932 B observed maximum (2026-08-27 reflection), keeping the 2026-08-26 sustained range as context, flagged as measurement notes.
+**Why:** the §Input Validation row's retired wording was restated verbatim here (dependent-of the primary re-base); a single-site apply would have left the stale range alive in the bans section.
+
+## 2026-08-27-idle-observer-generation-damper — standing-deferral point 49 discharged
+**Section:** §Dependency Security → Standing deferral — `cargo audit` unrunnable
+**Change:** Recorded the session-49 discharge (probe RAN, exit read DIRECTLY = 1, basis byte-identical, overlap re-enumerated first-hand: `bans licenses sources` exit 0; `advisories` exit 1 at the SAME 8 DISTINCT ids, fifth consecutive unchanged probe); next interval point 52.
+**Why:** the interval clause said "next at session 49" — this wrap IS session 49 and ran the full-form probe (report §Outcome criterion 8); the no-op-path this-wrap-fact channel sanctions recording it.
+
+## 2026-08-28-ingest-consumer-block-under-gap-resume — point 52 recorded, next point 55, and the running probe ordinal retired
+**Section:** §Dependency Security → Standing deferral — `cargo audit` unrunnable (external decay)
+**Change:** Two edits. (1) The interval trail gains the session-52 discharge (2026-08-28, chunk `2026-08-28-ingest-consumer-initiating-freeze`: probe RAN full-form, exit read DIRECTLY = 1 under cargo-audit 0.22.2, basis reproduced byte-identical, overlap re-enumerated first-hand at the same 8 DISTINCT ids) and the trailing pointer moves from "next at session 52" to "next at session 55 (sessions 53 and 54 are between-points)" — the clause had gone stale, still naming a point already spent. (2) A new **counting rule (c)** retires the running "Nth consecutive" ordinal from probe records, and the two existing ordinal phrasings ("fourth consecutive probe", "fifth consecutive probe") are replaced with "set identical to the prior enumeration".
+**Why:** (1) is the staleness the /phase security distiller surfaced (the body and the newest sidecar entry both still read "next at session 52" while session 52 had already discharged it) — a doc-only correction with no impl half, the playbook's 2026-08-14 rule, verdict routine. (2) is operator wrap directive item 5: two different cadences were both narrated as "Nth consecutive" — the every-3rd-wrap PROBE and the every-wrap OVERLAP — so the counts diverged and drifted; the replacement phrasing states the same fact without a number that must be maintained to stay true. This wrap is session 53, a between-point: basis + overlap re-verified, `probe skipped per ratified interval (next: 55)` recorded in the chunk report, never a silent skip.
+
+## 2026-08-28-duplicate-span-replay-fails-loudly — ureq carve-out, stale skips pruned, session-54 between-point
+**Section:** §Dependency Security (Duplicate-version carve-outs · Standing deferral — `cargo audit` unrunnable)
+**Change:** Added the `ureq` duplicate-version carve-out with provenance and closing condition — `libduckdb-sys` 1.10505's build script pulls `ureq` 3.4.0 while `crates/triage/build.rs` uses 2.12.1; **both are `[build-dependencies]` only**, so nothing reaches a shipped binary, and it is not source-fixable without migrating that build script to the breaking `ureq` 3 API. Recorded that the same bump dropped the second copies of `windows-core`/`windows-result`/`windows-strings`, whose skips were **pruned rather than kept** (a stale skip hides the duplicate's return). Appended the session-54 between-point discharge to the standing-deferral chain: basis + overlap re-verified first-hand, same 8 DISTINCT ids, `probe skipped per ratified interval (next: 55)`.
+**Why:** `multiple-versions = "deny"` is never relaxed, so a live carve-out admitting a new transitive dependency must be enumerated where the section claims to enumerate them; and the deferral chain must carry every interval point, never a silent skip.
+
+## 2026-08-29-app-registry-reconciliation — cargo-audit deferral, session-55 interval point discharged
+**Section:** §Dependency Security → Standing deferral — `cargo audit` unrunnable (external decay)
+**Change:** Records the session-55 full-form probe: `cargo audit` exit read DIRECTLY = 1 under cargo-audit 0.22.2, basis reproduced byte-identically (`parse error: duplicate advisory ID: RUSTSEC-2026-0244`); overlap re-enumerated first-hand — `cargo deny check bans licenses sources` exit 0, `cargo deny check advisories` exit 1 at the same 8 DISTINCT ids (0189/0190/0194/0195/0204/0222/0253/0258), set identical to the prior enumeration; counting rule (a) re-confirmed at 10 blocks for 8 distinct ids. Next interval point: session 58.
+**Why:** Session 55 was the owed interval point per the ratified every-3rd-wrap cadence, carried as this entry's PREREQ. The deferral does not end — `cargo audit` still cannot load the database.
+
+## 2026-08-29-advisory-backlog — owned set 8 → 0 · strict-path mandate retired (DROP executed) · rmcp pin/mechanism corrected · session-58 probe discharged
+**Section:** §Dependency Security → CI integration (standing-deferral clause) + → Pinning (item (b)) · §Input Validation (plugin-host row · CLI/env-var row · MCP stdio row) · §Bootstrap phases → input-validation-library-install · §Security Anti-Patterns → Input (NARROWED EXCEPTION tail) + → Code Patterns (sidecar ban naming) · §Threat Model Summary → MCP vector entry point
+**Change:** (1) Session-58 full-form probe discharged: `cargo audit` exit read DIRECTLY = 1 under cargo-audit 0.22.2, basis byte-identical — the deferral does NOT end; the overlap re-enumerated FROM SCRATCH is ZERO owned-and-upgradeable ids (`cargo deny check advisories` exit 0, first green since 2026-08-15; `bans licenses sources` exit 0); the 8-id enumeration retired to history (each upgraded at the source: rmcp 3 · wasmtime 46 · quick-xml 0.41 single · crossbeam-epoch 0.9.20 · anyhow 1.0.104 · lru 0.18 · h2 0.4.19); next interval point session 61. (2) Pinning item (b) closed (rmcp pinned `"3"`, resolved 3.1.4). (3) The strict-path install mandate is RETIRED as executed-DROP: `std` both-sides-canonicalize is the single product path primitive; the plugin-host and env-var rows lose their strict-path arms, carve-out (b) is closed, and the Anti-Patterns "intended primitive" clause is retired. (4) The MCP row's mechanism corrected to the measured hand-rolled serde JSON-RPC 2.0 layer with `rmcp` as the feature-gated anchor import; the Threat-Model entry point and the Code-Patterns ban renamed accordingly (the 4-tool enumerations at those sites are left untouched — the pre-existing 4-vs-8 gap stays owned by the Diagnostics-un-muting route entry).
+**Why:** Chunk `2026-08-29-advisory-backlog` upgraded all 8 owned findings, executed the operator-ratified strict-path DROP (workspace + five member manifests, zero `.rs` users), and measured the rmcp-macro mechanism as never implemented; its wrap was the owed session-58 interval point.
+
+## 2026-08-30-npm-advisory-coverage — npm-channel gate shipped; dev-only blast-radius claim corrected
+**Section:** §Dependency Security → CI integration (npm-channel bullet REWRITTEN gap-closed · build-failure roster extended) · §Bootstrap phases → dep-security-ci-gate (roster extended)
+**Change:** (1) The MEASURED 2026-08-23 npm-gap bullet is rewritten to the shipped state: `cargo xtask check:npm-supply-chain` runs in ci.yml's `supply-chain` job (SHA-pinned setup-node, NO `npm ci` — lockfile-only license/class source at 906/909 coverage), exit contract 0/1/2, policy `pulse-app/ui/npm-policy.json` with mandatory-provenance GHSA-scoped exceptions, per-class license allowlists and a package-name denylist (never duplicate-version deny — measured non-portable at 43/830 multi-version by design); current state green-with-dispositions (2 advisory + 2 license exceptions, 0 unexcepted; residual roots GHSA-ggr8-5vv4-36mx + GHSA-jmr9-qjv8-65gv, both no-forward-fix); prune-not-keep applied live (parse-cache-control); the owning route entry DISCHARGED. (2) The whole-channel "dev/harness-only, no runtime or bundle path" claim is CORRECTED as measured: it holds for the 29 devDependencies only — 9 runtime `dependencies` (37 runtime-class lockfile packages) Vite-bundle into the shipped webview. (3) The build-failure roster and the dep-security-ci-gate bootstrap roster both gain the npm gate, so neither reads Rust-boundary-only.
+**Why:** The chunk shipped the gate this section owned as a measured gap (report §Counts/qualifiers moved (2) + §Spec claims disproved (1)); D-security-deps group applied via the 2026-08-23 APPLY-BY-ACTUAL-CLASS rule (no banned/unvetted dependency exists — deny gates green, zero Rust dep changes).
+
+## 2026-08-30-diagnostics-un-muting-harness-truth-sweep — full-path exception retired · dead-schema re-base (ring buffer + corpus) · incident_events no-scrub boundary · MCP tool roster 4→8
+**Section:** §Security Anti-Patterns → Logging (full-path bullet · "Two different fives" · MEASURED-reality coverage spans · NEW `incident_events` paragraph) · §Logging & Monitoring → What NEVER to log · §Threat Model Summary (user-content Where + Sensitivity note · corpus Where/Volume · MCP vector Entry point) · §Data Protection (At rest Covers + ring-buffer parenthetical · Data lifecycle Corpus retention) · §Input Validation matrix (MCP stdio row)
+**Change:** (1) The KNOWN CARRIED EXCEPTION on the never-log-full-paths rule is DELETED at both sites — `app.boot.tracing.init` / `app.boot.pid` now emit basenames via `pulse_app::observability::log_basename` (`log_dir_basename` / `path_basename` / `run_dir_basename` / `data_dir_basename`), the rule is categorical, and the boot smoke measured 0 full paths on the un-muted set. (2) Every producer-less-tables clause is re-based: the `span_links`/`resources`/`instrumentation_scopes` CREATEs are deleted (ring buffer 8→5 tables), so reserved == written and no scrub target can be vacuous by construction; the Threat-Model table enumeration is trimmed to the shipped set. (3) All `baseline_state` claims re-based to the corpus v2 drop (Holds 5 tables; BaselineState out of the encrypted-corpus Covers list, the coverage-span enumeration, and the retention clause — it persists via the chunk-#72 file-based path). (4) NEW: `incident_events` lifecycle writes recorded as a deliberate no-scrub boundary — `event_kind` is a bounded status label, payload empty-encrypted, one row per status value-change at the seven-writer choke point. (5) Orchestrator-raised: the MCP tool roster at the Threat-Model vector and the Input-Validation row corrected 4 → 8 (the chunk-#94 corpus-backed tools were missing at both sites).
+**Why:** The chunk landed the basename emits, the schema drops (operator fork: DROP both dead-schema sets), and the lifecycle persistence (operator fork: PERSIST at the choke point); the working-route entry named in the carried exception is this chunk, so leaving the exception text would preserve a discharged obligation. The 4-tool roster predates chunk #94 — caught by the orchestrator's cross-master grep, since every other master already lists 8.
+
+## 2026-08-30-staged-bindings-assertion — staged-artifacts gate joins the CI roster; capability-drift enforcement re-described
+**Section:** §Dependency Security → CI integration (build-failure roster) · §Bootstrap phases → `dep-security-ci-gate` · §API Security → TauRPC capability authorization · §Security Anti-Patterns → API
+**Change:** (1) Build-failure roster gains `cargo xtask check:staged-artifacts` exit 1 (`staged-drift`: staged bindings/grants disagree with `EXPECTED_PROCEDURES`/`staged_gate::EXPECTED_GRANTS`, a staged subject deletion, or an unpinned capability file) and exit 2 (`cannot-evaluate`: git health probe fails), with capability-drift folding any non-clean staged outcome into its own FAILURE exit — the roster now covers the commit's STAGED content. (2) `dep-security-ci-gate` wires the verb as a plain named `run:` step after capability-drift (no third-party action — SHA-pin rule not triggered; workflow `permissions:` untouched) and re-points the capability-drift wiring sentence at the extended mechanism. (3) The §API Security TauRPC row re-describes the shipped gate: worktree + git-index bindings diff PLUS the staged `capabilities/*.json` grants vs the `EXPECTED_GRANTS` semantic triple (both directions; unpinned file / staged deletion red) — a missing or silently widened `core:window:*` grant is caught mechanically in CI. (4) The §Anti-Patterns API bullet's enforcement clause extended likewise; silent runtime rejection is no longer the sole stated enforcement for core:window grants.
+**Why:** Report §Counts moved names the roster gaining one fail condition and §Spec-master edits carries all four sites in the Expected-amendments floor; the D-security-deps pair's escalate severity was disposed routine per the 2026-08-30 playbook rule routine-APPLY-BY-ACTUAL-CLASS predecessor (2026-08-23) — Dependencies affirmatively "none added, none bumped". Live-proven both directions (fixture reds + real-repo green).
+
+## 2026-08-30-acl-rejection-logging — deferral pointer advanced · `ui.ipc.rejection` no-scrub boundary · clipboard ban de-scoped
+**Section:** §Dependency Security → Standing deferral (trailing pointer) · §Security Anti-Patterns → Logging (new boundary paragraph) · §Logging & Monitoring → What NEVER to log (clipboard bullet)
+**Change:** (1) The standing-deferral record gains session 61's DISCHARGE (full-form probe at 2026-08-30-staged-bindings-assertion; basis byte-identical; overlap re-enumerated from scratch EMPTY, advisories exit 0) and the trailing pointer advances to session 64 (62/63 between-points) — the stale-trailing-pointer class of the 2026-08-28 precedent. (2) §Anti-Patterns → Logging gains the `ui.ipc.rejection` deliberate NO-SCRUB boundary paragraph beside the `incident_events` one: bounded-by-construction triple (closed enum · coerced 4+unknown label · u32 byte count), exact leaf load-bearing (no bare `ui` key), payload/command/raw-text excluded, wire-measured markdown 0× across 6,033 revoked-run lines, pinned ×4. (3) The NEVER-log clipboard bullet de-scoped from `snapshot.copy_to_clipboard` alone to EVERY clipboard-payload path, naming the webview `copyMarkdown` failure route that now reports through `record_ipc_rejection` carrying only the bounded triple.
+**Why:** Report §Spec claims disproved (the measured-stale pointer, disposed here) + §Changes (the new log boundary + its Coverage PII rows) + §Outcome (the wire measurements). D-security-deps disposed routine per APPLY-BY-ACTUAL-CLASS (Dependencies affirmatively none); D-security-logging primary + dependent applied atomically.
+
+## 2026-08-30-dead-lib-src-test-migration — snapshot/clipboard no-log arm marked UNVERIFIED (owned)
+**Section:** §Security Anti-Patterns → Logging (first NEVER bullet, verification-status note) · §Logging & Monitoring → What NEVER to log (Snapshot file contents + Clipboard contents bullets)
+**Change:** The `snapshot.generate` / `snapshot.copy_to_clipboard` resolver arm of the no-log ban now carries an explicit UNVERIFIED qualifier at both restating sites: its only canary (`generate_does_not_log_snapshot_or_clipboard_or_workspace_path_canaries`) was dead-by-construction under `[lib] test = false` and was DELETED at this chunk (any test binary linking the resolver aborts at load — `STATUS_ENTRYPOINT_NOT_FOUND` via the tauri clipboard/notification import chain), so executed coverage moved 0→0 and the gap is now VISIBLE; the clipboard bullet's wire measurement is scoped to the WEBVIEW `copyMarkdown` route it actually covered. The rule stands; verification is owed via test-plan §1 `snapshot-resolver-level-coverage` (the `mock_builder` lift, blocked by the Wry-typed `AppHandle<Wry>` OnceLock).
+**Why:** Report §Coverage records the no-executed-carrier fact and §Deviations #1 the deletion rationale; every neighbouring boundary claim in the section carries an explicit wire measurement, so an unqualified snapshot arm overstated the evidence held. D-security-logging primary + dependent, applied atomically; routine per the 2026-08-28 record-as-open rule (records the gap, names the owner, claims no fix).
+
+## 2026-08-30-agent-harness-teardown-truth — pin #22 session-64 FULL-FORM discharge recorded; pointer → session 67
+**Section:** §Dependency Security → CI integration → Standing deferral (`cargo audit` unrunnable)
+**Change:** Appended the session-64 discharge record (the owed INTERVAL POINT, session count confirmed 63 → 64 at the wrap): probe RAN full-form, exit read DIRECTLY = 1, basis byte-identical (`duplicate advisory ID: RUSTSEC-2026-0244`); overlap re-enumerated FROM SCRATCH — `cargo deny check advisories` exit 0 with the owned upgradeable set EMPTY, `bans licenses sources` exit 0. Trailing pointer advanced: next interval point session 67 (65/66 between-points).
+**Why:** Report §Outcome records the discharge first-hand. Orchestrator-raised (the security doc-agent returned `proposals: []` on its detectors but flagged the stale "Next interval point: session 64" as spent); routine — the standing-deferral clause's own maintenance shape, and exactly the stale-trailing-pointer failure class its history warns about.

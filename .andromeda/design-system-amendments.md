@@ -5,22 +5,27 @@
 ---
 
 ## 2026-05-02 — Initial design system generated (`/andromeda-design` Phase 4)
-
-- **Section:** Whole system.
-- **Change:** Initial generation. Locked: brand personality (*Ambient constellation* — Observatory / Mission Control voice); surfaces (desktop-webview = compact widget + full dashboard, React 19 + Tailwind v4 + shadcn/ui + WebGPU canvas; desktop-native = tray icon via Tauri 2 `tauri-plugin-notification`); **Halo State Pulse** signature; **Color World** (Deep Control Gray #1A1D24 / Alert Burgundy #C7556A / Earth Blue #4A90E2 / Status White-Blue #E8EEF7 / Stellar Indigo #2C3E7F / Feedback Cyan #17B3A3, user-confirmed Q3); **typography** (JetBrains Mono = immutable telemetry fact + IBM Plex Sans = operator communication, local WOFF2, CSP-safe); **expression level** (0.3 base / 0.35 webview / 0.2 native; canvas motion a separate dimension); **Design Direction** (Data & Analysis); **Snapshot generation** (curated observation log — 5–10 min ring buffer → persistent markdown for LLM-investigator digest; "Generate Snapshot" trigger; OS-native completion notification; Investigation Capture Collapse visual handshake).
-  - *Original* Halo drivers were throughput (0.8–2.4 Hz, clamped `throughput_hz / 1000`) + error rate — later superseded (see 2026-05-29).
-- **Why:** First materialization from the design exploration + library-shortlist (Color World from the NASA Artemis mood board, user-confirmed in Q3; library-shortlist used only for palette/structure reference, not literal values).
-- **Marker:** Current truth lives in body sections — Brand Identity, Color Palette, Typography, Spacing / Depth Strategy / Border Radius, Motion, Iconography, Surface: desktop-webview, Surface: desktop-native, Anti-Patterns, Self-Validation Protocol. Snapshot concept folded into Brand Identity "Ring buffer ephemeris" domain anchor.
+**Section:** Whole system.
+**Change:** Initial generation. Locked:
+- brand personality *Ambient constellation* (Observatory / Mission Control voice);
+- surfaces: desktop-webview = compact widget + full dashboard (React 19 + Tailwind v4 + shadcn/ui + WebGPU canvas); desktop-native = tray icon via Tauri 2 `tauri-plugin-notification`;
+- the **Halo State Pulse** signature;
+- **Color World**: Deep Control Gray #1A1D24 / Alert Burgundy #C7556A / Earth Blue #4A90E2 / Status White-Blue #E8EEF7 / Stellar Indigo #2C3E7F / Feedback Cyan #17B3A3;
+- **typography**: JetBrains Mono = immutable telemetry fact, IBM Plex Sans = operator communication, local WOFF2, CSP-safe;
+- **expression level** 0.3 base / 0.35 webview / 0.2 native (canvas motion a separate dimension);
+- **Design Direction** Data & Analysis;
+- **Snapshot generation**: curated observation log — 5–10 min ring buffer → persistent markdown for an LLM-investigator digest; "Generate Snapshot" trigger; OS-native completion notification; Investigation Capture Collapse visual handshake. The snapshot concept is folded into the Brand Identity "Ring buffer ephemeris" domain anchor.
+- The ORIGINAL Halo drivers were throughput (0.8–2.4 Hz, clamped `throughput_hz / 1000`) + error rate — later superseded (2026-05-29).
+**Why:** First materialization from the design exploration + library shortlist. Color World comes from the NASA Artemis mood board, user-confirmed (Q3); the library shortlist was used only for palette/structure reference, not literal values.
+**Ref:** NOT DERIVED
 
 ---
 
 ## 2026-05-03 — Lift `--color-accent` from `#8B2E3B` to `#C7556A`
-
-- **Section:** Color Palette → Core Colors (Accent); Surface: desktop-webview → Component Patterns (Error state).
-- **Change:** Alert Burgundy `#8B2E3B` → `#C7556A`. New accent/base (`#1A1D24`) contrast ≈3.8:1 (was 2.05:1) — clears SC 1.4.11 non-text (3:1) + SC 1.4.3 large-text, still below SC 1.4.3 normal-text (4.5:1). Accent **reclassified as a non-text token** (input borders, error icons, alert badges, divider emphasis). For body-size error message TEXT (≤14px regular), use `--color-text-primary` + accent border/icon (SC 1.4.1, never color alone). "Error state" component patterns retain `#C7556A` for the text role at this revision; migrating message text to `--color-text-primary` is deferred to the error-UI chunk (#25 webview shell or a follow-up a11y audit).
-- **Why:** Chunk #12 contrast harness (route#12) flagged accent/base at 2.05:1 — below SC 1.4.11 (3:1) and SC 1.4.3 (4.5:1). a11y-plan §6 takes precedence over Color-Palette aesthetics under a11y-tier=Standard (a11y > design on conflict). Brand impact: anomaly semantic preserved (slight shift toward dusty rose); Halo Earth Blue ↔ Alert Burgundy LCH endpoint shifts ~12 chroma units, rhythm/frequency unchanged.
-- **Cross-references:** a11y-plan §6 "accent/base" row; harness output `pulse-app/ui/dist/contrast-report.json` (accent/base FAIL 2.05 → PASS 3.8 ≥ 3.0 non-text); pair classification in `pulse-app/ui/src/contrast/pairs.mjs` (target_ratio 4.5 → 3.0, wcag_criterion SC 1.4.3 → SC 1.4.11, usage "normal-text-or-non-text" → "non-text"). Authority: Andromeda living-artifact discipline (direct edit).
-- **Marker:** Current accent `#C7556A` throughout the body Color Palette and component patterns. Non-text classification + error-text guidance folded into the **"Accent usage (non-text token)"** note under Color Palette → Core Colors.
+**Section:** Color Palette → Core Colors (Accent); Surface: desktop-webview → Component Patterns (Error state).
+**Change:** Alert Burgundy was `#8B2E3B`; now `#C7556A`. Accent/base (`#1A1D24`) contrast ≈3.8:1 (was 2.05:1) — clears SC 1.4.11 non-text (3:1) and SC 1.4.3 large-text, still below SC 1.4.3 normal-text (4.5:1). The accent is **reclassified as a non-text token** (input borders, error icons, alert badges, divider emphasis), recorded in the **"Accent usage (non-text token)"** note under Color Palette → Core Colors. Body-size error message TEXT (≤14px regular) uses `--color-text-primary` + an accent border/icon (SC 1.4.1, never color alone). The "Error state" component patterns retain `#C7556A` for the text role at this revision; migrating message text to `--color-text-primary` is deferred to the error-UI chunk (#25 webview shell or a follow-up a11y audit). The contrast pair is reclassified to target 3.0 / SC 1.4.11 / usage "non-text".
+**Why:** The chunk #12 contrast harness flagged accent/base at 2.05:1, below SC 1.4.11 and SC 1.4.3. a11y-plan §6 takes precedence over Color-Palette aesthetics under a11y-tier=Standard (a11y > design on conflict). Brand impact: the anomaly semantic is preserved (slight shift toward dusty rose); the Halo Earth Blue ↔ Alert Burgundy LCH endpoint shifts ~12 chroma units, rhythm/frequency unchanged.
+**Ref:** NOT DERIVED
 
 ---
 
@@ -36,18 +41,15 @@
 ---
 
 ## 2026-05-29 — Halo State Pulse re-driven by incident severity + activity + connection state
-
-*Supersedes the chunk #31 / 2026-05-03-era throughput + error-rate Halo model.*
-
-- **Section:** Brand Identity (Signature element); Motion (High-impact moments → Halo State Pulse breathing); Surface: desktop-native (Tray Icon).
-- **Change:**
-  - **(a) Breathing frequency:** `0.8–2.4 Hz` (clamped `throughput_hz / 1000`) → period **4–5 s quiet → ~2 s active** (≈0.2–0.5 Hz), driven by an **activity-state** tier (not raw throughput). Calmer cadence fits an always-on ambient widget and keeps luminance change well under WCAG SC 2.3.1 three-flashes (0.5 Hz ≪ 3 Hz).
-  - **(b) Hue + blur radius** (LCH Earth Blue → Alert Burgundy, blur 4–16 px) driven by **cumulative incident severity** (max active-incident priority tier), not error rate.
-  - **(c) Connection state** added as an **orthogonal grayout/desaturation axis** (P-004 health-vs-severity orthogonality), independent of the severity-hue axis.
-  - Breathing remains **opacity + blur ONLY, never scale** (P-026 unchanged). LCH endpoints + blur envelope (4–16 px) unchanged.
-- **Why:** Chunk #90 (route#90 "Halo formula refactor", Epoch 9 — Foundation v0.2.0). The v0.2.0 distillation pipeline produces LLM-derived incident severity (chunk #83) + a connection state machine (chunk #59); the Halo's original chunk #31 inputs (`throughput_hz`, `error_rate`) are pre-distillation rule-based signals. Re-driving the signature from the new pipeline = route-plan intent (P-025 Halo Hue Encoding + P-026 Halo Breathing Encoding). User-authorized the locked-token change during /andromeda-phase Phase 6 (Q2 "Switch to 4–5 s / 2 s").
-- **Cross-references:** capabilities P-025 / P-026 / P-004; chunk #90 plan `.andromeda/phases/phase-87/plan.md`; mirrored in `.claude/rules/design-tokens.md` §Motion. Authority: Andromeda living-artifact discipline.
-- **Marker:** Current truth in body — Motion High-impact "Halo State Pulse breathing" bullet (4–5 s / 2 s, ≈0.2–0.5 Hz, ≪3 Hz, severity hue, blur 4–16 px, connection grayout), Brand Identity signature element, and Surface: desktop-native Tray Icon encoding (all reconciled off the stale 0.8–2.4 Hz throughput model).
+**Section:** Brand Identity (Signature element); Motion (High-impact moments → Halo State Pulse breathing); Surface: desktop-native (Tray Icon).
+**Change:** Retires the chunk #31 throughput + error-rate Halo model.
+- (a) Breathing frequency was `0.8–2.4 Hz` (clamped `throughput_hz / 1000`); now period **4–5 s quiet → ~2 s active** (≈0.2–0.5 Hz), driven by an **activity-state** tier, not raw throughput — luminance change stays well under WCAG SC 2.3.1 three-flashes (0.5 Hz ≪ 3 Hz).
+- (b) Hue + blur radius (LCH Earth Blue → Alert Burgundy, blur 4–16 px) driven by **cumulative incident severity** (max active-incident priority tier), not error rate.
+- (c) Connection state added as an **orthogonal grayout/desaturation axis** (P-004 health-vs-severity orthogonality), independent of the severity-hue axis.
+- Breathing remains **opacity + blur ONLY, never scale** (P-026 unchanged); LCH endpoints + blur envelope (4–16 px) unchanged.
+- Reconciled in the Motion "Halo State Pulse breathing" bullet, the Brand Identity signature element and the desktop-native Tray Icon encoding.
+**Why:** Chunk #90 (Halo formula refactor, Epoch 9 — Foundation v0.2.0). The v0.2.0 distillation pipeline produces LLM-derived incident severity (chunk #83) + a connection state machine (chunk #59); the original chunk #31 inputs (`throughput_hz`, `error_rate`) are pre-distillation rule-based signals, so re-driving the signature from the new pipeline is the route-plan intent (P-025 Halo Hue Encoding + P-026 Halo Breathing Encoding). The calmer cadence fits an always-on ambient widget. The user authorized the locked-token change at /andromeda-phase. Mirrored in `.claude/rules/design-tokens.md` §Motion.
+**Ref:** NOT DERIVED
 
 ---
 
@@ -86,33 +88,46 @@ Centralized handoff index for downstream specialists. Source-of-truth content li
 
 ## 2026-07-08-self-explaining-empty-states — Empty-state message token Tertiary→Secondary + honest-error variant
 **Section:** Loading / Empty States (desktop-webview component patterns)
-**Change:** empty-state MESSAGE text token corrected #7D8697 (Tertiary) → #B4BCCB (Secondary) — body-size text needs ≥4.5:1 (a11y SC 1.4.3; Tertiary 4.2:1 is large-text-only). Documented the shared `EmptyState` (decorative glyph + message + optional actionable hint naming :4318/:4317) reused across Metrics/Logs/Snapshots, plus a distinct honest-error variant (static "Couldn't load …", no hint, checked before the empty branch).
-**Why:** P-071 shipped the self-explaining empty states on `--color-text-secondary`; the prose had said Tertiary since before the chunk-#99 LogTable/LogFilter tertiary→secondary remediation. Applied to register current truth (apply-side within-existing-structure; user-approved at the wrap).
+**Change:** Empty-state MESSAGE text token was #7D8697 (Tertiary); now #B4BCCB (Secondary) — body-size text needs ≥4.5:1 (SC 1.4.3; Tertiary 4.2:1 is large-text-only). Documents the shared `EmptyState` (decorative glyph + message + optional actionable hint naming :4318/:4317) reused across Metrics/Logs/Snapshots, plus a distinct honest-error variant (static "Couldn't load …", no hint, checked before the empty branch).
+**Why:** P-071 shipped the self-explaining empty states on `--color-text-secondary`; the prose had said Tertiary since before the chunk-#99 LogTable/LogFilter tertiary→secondary remediation. Applied to register current truth; user-approved at the wrap.
+**Ref:** NOT DERIVED
 
 ## 2026-08-21-delegated-timing-observables — Signature element recorded as specified-but-unbuilt
 **Section:** §Brand Identity → Signature element; §Motion → High-impact moments (1)
-**Change:** The Halo State Pulse canvas layer is marked SPECIFIED with the measured finding that it does not render on desktop-webview; what ships is the constellation dot carrying the severity hue via `severityToHueFraction`. Build-or-retire named to the "Halo State Pulse canvas disposition" route entry. The hue driver itself needed no change — the 2026-05-29 severity amendment had already landed here.
-**Why:** Report §Spec claims disproved by measurement 1 (three independent HEAD probes). The tray layer was not probed and is unaffected.
+**Change:** The Halo State Pulse canvas layer is marked SPECIFIED — it does not render on desktop-webview; what ships is the constellation dot carrying the severity hue via `severityToHueFraction`. Build-or-retire is owned by the "Halo State Pulse canvas disposition" route entry. The hue driver needed no change (the 2026-05-29 severity amendment had already landed). The tray layer was not probed and is unaffected.
+**Why:** The canvas-renders claim was disproved by measurement in this chunk.
+**Ref:** NOT DERIVED
 
 
 ## 2026-08-23-a11y-verification — accent-as-error-text deferral discharged (3 sites)
 **Section:** §Color Palette → Accent usage (non-text token) · §Color Palette → Semantic Colors (Error row) · §Surface: desktop-webview → Component Patterns → Input Fields (Error state)
-**Change:** The 2026-05-03 deferral — "migrating message text to `--color-text-primary` is pending the error-UI chunk" — is retired as COMPLETE. Body-size error message text renders `var(--color-text-primary)` (#E8EEF7) with the accent carried as a border (plus optional icon) only; the Semantic Colors Error row's Text cell moves #C7556A to #E8EEF7 (matching the Warning row), and the Input Fields Error-state pattern states the token rather than the hardcoded hex.
-**Why:** Chunk `2026-08-23-a11y-verification` MEASURED the migration already shipped at `InvestigationModalForm.tsx:280` and `:381` while writing the `p14` Investigate error-state axe spec. Disposition routine-APPLY (playbook 2026-08-14): the impl was already correct and only the doc was wrong, so the fix completes in one artifact per site. Two sites beyond the primary restated the retired value — a prose deferral and a table cell — and the table cell mattered most: left at #C7556A it would have kept a hardcoded, sub-4.5:1 normal-text value alive after the prose was fixed. The chunk's own new UI is clean on tokens (`--border-focus` via `:focus-visible`, no hardcoded hex or px literal), so this amendment corrects the doc's baseline rather than any shipped drift.
+**Change:** The 2026-05-03 deferral ("migrating message text to `--color-text-primary` is pending the error-UI chunk") is retired as COMPLETE. Body-size error message text renders `var(--color-text-primary)` (#E8EEF7) with the accent carried as a border (plus optional icon) only. The Semantic Colors Error row's Text cell was #C7556A; now #E8EEF7 (matching the Warning row). The Input Fields Error-state pattern states the token rather than the hardcoded hex.
+**Why:** The chunk measured the migration already shipped (in `InvestigationModalForm`) while writing the `p14` Investigate error-state axe spec; the impl was already correct and only the doc was wrong, so this is a routine APPLY. The table cell mattered most: left at #C7556A it would have kept a hardcoded, sub-4.5:1 normal-text value alive after the prose was fixed. The chunk's own new UI is clean on tokens (`--border-focus` via `:focus-visible`, no hardcoded hex or px literal), so this corrects the doc's baseline, not shipped drift.
+**Ref:** NOT DERIVED
 ---
 
 ## 2026-08-29-halo-state-pulse-signature-deferred — Signature glow layer DEFERRED to the next version
 **Section:** §Brand Identity Signature element · §Motion High-impact moments (1) + §Motion Accessibility · §Component Patterns → Navigation Pattern (compact widget item 2) + Performance notes · §Surface: desktop-native → Tokens (Colors) + Component Patterns → Tray Icon (Halo encoding) + Performance notes · §Self-Validation Protocol #3
-**Change:** The Halo State Pulse signature glow layer is recorded as DEFERRED to the next version at every status-bearing site — neither "renders" nor deleted; the full spec (breathing cadence, LCH hue drivers, blur/opacity envelopes, tray visual-equivalence thresholds) is preserved as the deferred design record. The 2026-08-21 build-or-retire owner pointer (the "Halo State Pulse canvas disposition" route entry) is superseded by the cross-version residual (`.andromeda/residuals.md`, target 0.4.0; design direction gathers in `andromeda-pulse-0.4.0-incubator/signature-orb/`). The desktop-native tray layer defers ON ITS OWN GROUND (never probed by the 2026-08-21 measurement; nothing renders it in 0.3.0 either), spec preserved as-worded. §Self-Validation #3 (Signature Test) is re-pointed at the surfaces that actually render the severity signature — the constellation DOT hue via `severityToHueFraction` — with the three-place halo test resuming verbatim when the deferred layer lands. §Motion Accessibility now scopes the halo degrade-to-static-glow rule as a deferred-layer requirement while the app-wide token-bound `prefers-reduced-motion` mandate (a11y-plan §6) stands unchanged. The §Motion canvas/gradient exemption clauses are KEPT (deferred ≠ deleted).
-**Why:** Operator ruling 2026-08-29 (recorded at the 0-pending adaptation wrap; executed by chunk 2026-08-29-halo-state-pulse-signature-deferred): the signature does not render in 0.3.0, so the specs stop claiming it in the present tense. Basis re-verified at HEAD 2026-08-29 (chunk research.md): `HaloCanvas.tsx` has no production render site; the `halo/` directory is PARTLY LIVE (`severityToHueFraction` feeds the shipping dot). This entry also supersedes the §Downstream Readiness "For obs specialist" halo pulse-frequency/color logging hooks narrative earlier in this sidecar: no such hook exists in code and the hooks defer WITH the layer (sidecar history preserved verbatim above, per append-only discipline).
+**Change:**
+- The Halo State Pulse signature glow layer is DEFERRED to the next version at every status-bearing site — neither "renders" nor deleted; the full spec (breathing cadence, LCH hue drivers, blur/opacity envelopes, tray visual-equivalence thresholds) is preserved as the deferred design record.
+- The 2026-08-21 build-or-retire owner (the "Halo State Pulse canvas disposition" route entry) is replaced by the cross-version residual (`.andromeda/residuals.md`, target 0.4.0; design direction gathers in `andromeda-pulse-0.4.0-incubator/signature-orb/`).
+- The desktop-native tray layer defers ON ITS OWN GROUND (never probed; nothing renders it in 0.3.0), spec preserved as-worded.
+- §Self-Validation #3 (Signature Test) re-pointed at the surface that renders the severity signature — the constellation DOT hue via `severityToHueFraction` — with the three-place halo test resuming verbatim when the deferred layer lands.
+- §Motion Accessibility scopes the halo degrade-to-static-glow rule as a deferred-layer requirement; the app-wide token-bound `prefers-reduced-motion` mandate (a11y-plan §6) stands unchanged.
+- The earlier "For obs specialist" halo pulse-frequency/color logging-hooks narrative is retired: no such hook exists in code and the hooks defer WITH the layer.
+**Why:** Operator ruling 2026-08-29: the signature does not render in 0.3.0, so the specs stop claiming it in the present tense. `HaloCanvas.tsx` has no production render site; the `halo/` directory is PARTLY LIVE (`severityToHueFraction` feeds the shipping dot).
+**Kept:** The §Motion canvas/gradient exemption clauses (deferred ≠ deleted).
+**Ref:** NOT DERIVED
 ---
 
 ## 2026-08-30-diagnostics-un-muting-harness-truth-sweep — four-corner snap model + shipped component stack (react-aria-components)
 **Section:** §Navigation / App Shell (Compact widget bullet) · §Toolkit / Framework · §desktop-webview NEVER-modal bullet
-**Change:** (1) The compact widget's position model corrected from snap-to-edge to snap-to-CORNER — the shipped `WidgetPosition` enum is the FOUR-corner set (top-left/top-right/bottom-left/bottom-right, default top-right; `crates/ui-bridge/src/contract.rs`, test-pinned), not the nine-value corners+edges+center grid earlier drafts assumed. (2) The Toolkit row's shadcn/ui (Radix) claim replaced by the SHIPPED `react-aria-components` a11y-primitive layer — the radix family is lockfile-absent and now denylisted by `pulse-app/ui/npm-policy.json`. (3) The NEVER-alert bullet's remedy re-pointed from "shadcn/ui Dialog" to the first-party `Modal` on react-aria-components.
-**Why:** Report `Spec claims disproved by measurement` #2 (nine-value snap vs the shipped four-corner enum — the new headful `boot-geometry` stage re-derives the TopRight formula live); the stack fix discharges the CARRY recorded at the 2026-08-30-npm-advisory-coverage wrap (layout-templates :17/:145 named the same phantom stack) — orchestrator-raised here because no detector owns toolkit pins, matching the 2026-08-30 pa11y/lighthouse precedent.
+**Change:** (1) The compact widget's position model was snap-to-edge; now snap-to-CORNER — the shipped, test-pinned `WidgetPosition` enum is the FOUR-corner set (top-left/top-right/bottom-left/bottom-right, default top-right), not the nine-value corners+edges+center grid earlier drafts assumed. (2) The Toolkit row's shadcn/ui (Radix) claim is replaced by the SHIPPED `react-aria-components` a11y-primitive layer; the radix family is lockfile-absent and denylisted by `pulse-app/ui/npm-policy.json`. (3) The NEVER-alert bullet's remedy was "shadcn/ui Dialog"; now the first-party `Modal` on react-aria-components.
+**Why:** The nine-value snap claim was disproved by measurement against the shipped four-corner enum (the headful `boot-geometry` stage re-derives the TopRight formula live). The stack fix discharges the CARRY from the 2026-08-30-npm-advisory-coverage wrap (layout-templates named the same phantom stack); raised by the orchestrator because no detector owns toolkit pins.
+**Ref:** NOT DERIVED
 
 ## 2026-08-30-acl-rejection-logging — accent-as-error-text completion re-dated; fourth site added
 **Section:** §Color Palette → Accent usage (non-text token) · §Surface: desktop-webview → Component Patterns → Input Fields / Form Controls (Error state)
-**Change:** (1) The migration-COMPLETE claim re-dated 2026-08-23 → 2026-08-30: the 2026-08-23-a11y-verification discharge was a PARTIAL (form-input) measurement that missed `Report.tsx::ErrorState`, whose body-size text carried the accent at ≈3.8:1 until this chunk fixed it to `--color-text-primary` (accent border kept); the shipped-site roster now reads `InvestigationModalForm.tsx:280` · `:381` · `Report.tsx::ErrorState`, pinned by `Report.test.tsx` + the new `p9-report-load-error` axe spec that actually renders the state. (2) The Input Fields Error-state parenthetical scoped to the form inputs with §Color Palette named as completion-status owner — the doc's second occurrence of the retired date.
-**Why:** Report §Spec-master edits (the Expected-amendments floor) + §Changes/Coverage (the fix, tokens ✓, a11y evidence). D-design-status-narrative primary + dependent, applied atomically.
+**Change:** (1) The migration-COMPLETE claim was dated 2026-08-23; now 2026-08-30. The 2026-08-23-a11y-verification discharge was a PARTIAL (form-input) measurement that missed `Report.tsx::ErrorState`, whose body-size text carried the accent at ≈3.8:1 until this chunk fixed it to `--color-text-primary` (accent border kept). The shipped-site roster reads `InvestigationModalForm.tsx:280` · `:381` · `Report.tsx::ErrorState`, pinned by `Report.test.tsx` + the `p9-report-load-error` axe spec that renders the state. (2) The Input Fields Error-state parenthetical is scoped to the form inputs, with §Color Palette named as the completion-status owner (it was the doc's second occurrence of the retired date).
+**Why:** The fourth site's fix landed in this chunk, so the completion claim and its date had to follow; the status narrative and its dependent occurrence were amended together.
+**Ref:** NOT DERIVED
