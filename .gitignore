@@ -8,6 +8,8 @@
 .andromeda/cache/
 # Python bytecode from the code-graph pipeline (scripts/code-graph.py).
 scripts/__pycache__/
+# Python bytecode at any depth — the pipeline's python also runs in run dirs and chunk evidence.
+__pycache__/
 
 # --- Rust ---
 # Build output

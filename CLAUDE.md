@@ -45,7 +45,6 @@ Cross-platform Tauri 2 desktop dashboard for local OpenTelemetry — receives OT
 - Every TauRPC procedure MUST have its `EXPECTED_PROCEDURES` pin in `xtask/src/main.rs` (what `capability-drift` diffs — against the worktree AND, since 2026-08-30, the staged git-index bindings, with the staged `capabilities/*.json` grants asserted vs `staged_gate::EXPECTED_GRANTS`) plus a validated argument struct — NOT a per-procedure `pulse-app/capabilities/` entry, which does not exist in this project (TauRPC dispatches every method through one invoke handler; measured 2026-08-21). Tauri capabilities remain NEGATIVE-DEFAULT at the IPC-layer and per-CORE-API granularity: `fs` / `shell` / `dialog` / `http` and each `core:window:*` permission require an explicit grant with rationale, and ARE silently rejected at runtime when missing.
 - Self-observation NEVER dials own OTLP — `tracing` ecosystem only (no OTel SDK in self-runtime); a network exporter pointed at own `:4317`/`:4318` is infinite recursion.
 - NEVER log raw OTLP attribute values, snapshot file contents, clipboard contents, MCP tool response bodies, full plugin paths, or DuckDB query parameter values — incidentally captured secrets from instrumented host apps.
-- Pin every third-party GitHub Action by 40-char SHA — never `@v2` or floating tag (`tj-actions/changed-files` CVE-2025-30066 anchor).
 - Errors crossing the TauRPC bridge MUST be `serde`-friendly `AppError` enum variants — convert from `thiserror`/`anyhow` via `From` impls; strip stack traces, file paths, library versions, Rust struct names.
 - Every transition MUST respect `prefers-reduced-motion: reduce` (app-wide, token-bound; WCAG 2.1 AAA SC 2.3.3). The Halo State Pulse glow layer is DEFERRED to the next version (ruling 2026-08-29); its degrade-to-static-glow rule (hue still updates per cumulative incident severity) ships WITH it — the live severity signature is the constellation dot hue.
 - Fault identity is DECIDED, not inferable from code shape (arch §Established Decisions [Fault Identity]): stacktrace normalization strips only TOKEN-LEADING absolute paths — relative structure is identity-significant, so `src/a.rs` ≠ `src/b/c.rs`; incidents coalesce per cue identity `(kind, scope, scope_id)`, never per `L4Output.fingerprint` (model-authored, constant under the deterministic runner). `Incident.fingerprint` carries the L1 exception fingerprint threaded via `AttentionCue` → `DigestCueRef`, encoded with `triage::contract::hex_lower` (full 32-char hex) — NEVER `fingerprint_to_hex_prefix` (4 bytes, tracing-only; a prefix can never match the retrieval arm). The corpus-retrieval `fingerprint_match` arm is FED — never "simplify" it away.
@@ -55,10 +54,10 @@ Cross-platform Tauri 2 desktop dashboard for local OpenTelemetry — receives OT
 <!-- GENERATED:setup:pointer-table start -->
 | Topic | Source |
 |---|---|
-| Architecture overview + Established Decisions | `.andromeda/architecture.md` |
-| Roadmap — cross-version master index (forward / current) | `.andromeda/master-route.md` |
+| Architecture overview + Established Decisions (not imported — read explicitly) | `.andromeda/architecture.md` |
+| Roadmap — cross-version master index (forward / current; not imported — read explicitly) | `.andromeda/master-route.md` |
 | Roadmap — v0.1.0 + v0.2.0 history (100 chunks / 9 epochs; v2 forensic) | `.andromeda/route.md` + `.andromeda/phases/` |
-| Workspace crates + Occupied Resources (ports / IPC routes / env vars / tables / capabilities) | `.andromeda/architecture.md` §Inherited Defaults / §Occupied Resources |
+| Directory tree · workspace crates · Occupied Resources (ports / IPC routes / env vars / tables / capabilities) | `.andromeda/architecture.md` §Infrastructure Patterns / §Inherited Defaults / §Occupied Resources |
 | Standard Contracts (`app_info` / `health` / `ready` envelopes; OTLP / MCP / IPC error schemas) | `.andromeda/architecture.md` §Standard Contracts |
 | Threat model + tier (Minimal) + data classifications | `.andromeda/security-plan.md` §Threat Model Summary |
 | Bootstrap phases (security) + supply-chain CI gates | `.andromeda/security-plan.md` §Bootstrap phases |
@@ -75,7 +74,7 @@ Cross-platform Tauri 2 desktop dashboard for local OpenTelemetry — receives OT
 | Specialist summaries (security / design / tests / obs / a11y) | `.claude/docs/{specialist}-summary.md` |
 | Per-module implementation notes (14 crates) | `.claude/docs/services/{module}.md` |
 | Stack / commands / conventions / gotchas / workflow | `.claude/docs/{topic}.md` |
-| Path-scoped rules (security / testing / observability / a11y / verification-harness / design-tokens / frontend) | `.claude/rules/{rule}.md` |
+| Path-scoped rules (security / testing / observability / a11y / verification-harness / design-tokens / frontend / host-win32) | `.claude/rules/{rule}.md` |
 | Session learnings (curated) + handoff (state across sessions) | `.claude/docs/session-learnings.md` + `.claude/session-handoff.md` |
 | Andromeda post-MVP workflow (4 patterns + drift table + decision tree per chunk + skill mechanics refs) | `.claude/docs/andromeda-after-mvp-playbook.md` |
 | Andromeda improvement proposals + dogfood friction log (where to record pipeline gaps as they surface during chunk work) | `docs/andromeda-improvements.md` |
@@ -98,16 +97,14 @@ See `.claude/docs/commands.md` for the full reference.
 <!-- GENERATED:setup:architecture start -->
 Local-first, zero-infrastructure modular monolith: every byte of telemetry stays on the developer's machine; fourteen library crates linked into the `pulse-app` Tauri binary (sixteen workspace members total: fourteen library crates + the `pulse-app` binary + the `xtask` task-runner crate — the canonical list is arch §Occupied Resources §Cargo workspace crate names, which any count word defers to) share memory via tokio mpsc + broadcast (ingest → buffer → viz / MCP / snapshot subscribers) so the OS sees one process and ingest→viz latency is microseconds. Standards-track at the edges (OTLP at `:4317`/`:4318`, MCP over stdio, WASM Component Model plugins) and tightly opinionated in the middle (TauRPC bridge, Arrow zero-copy hand-off, `serde`-friendly `AppError`) — external tooling Just Works while agent-driven development stays unambiguous. Capability-scoped extensibility: WASM plugins receive only the host imports declared in their WIT; Tauri's `pulse:default` capability is the negative-default trust model (no auth required because there are no user accounts).
 
-**Primary source:** architecture.md (imported below).
+**Primary source:** `.andromeda/architecture.md` (the pointer table's row — not imported; read explicitly where a step needs it).
 <!-- GENERATED:setup:architecture end -->
 
 <!-- GENERATED:setup:imports start -->
-@.andromeda/architecture.md
-@.andromeda/master-route.md
 @.claude/session-handoff.md
 <!-- GENERATED:setup:imports end -->
 
-<!-- Maintainer note: The @ imports above MUST each be on their own line — Claude Code only recognizes standalone @path lines as import directives. Inline references like `See @path` or `- @path` are NOT expanded. Imported files may be 300-800 lines each; the 200-line limit applies to CLAUDE.md itself, not post-expansion total. Keep @ imports minimal (3 standalone lines: arch.md / master-route.md / session-handoff.md). master-route.md is the cross-version nav hub (forward chunk records); the v0.1.0+v0.2.0 history stays in .andromeda/route.md as v2 forensic. This comment is stripped from Claude's runtime context per Anthropic comment-stripping rule. See section-markers.md. -->
+<!-- Maintainer note: The @ imports above MUST each be on their own line — Claude Code only recognizes standalone @path lines as import directives. Inline references like `See @path` or `- @path` are NOT expanded. The 200-line limit applies to CLAUDE.md itself, not to what it imports. Keep @ imports minimal — an import rides every turn of every session, so the block carries only what a session needs before it can ask: the handoff (the bridge). architecture.md and master-route.md are deliberately NOT imported: both grow every version, every skill that needs them reads them explicitly (the loop reads arch's directory tree and resource registry structurally where a plan creates files or mints a resource), and the pointer table names both. This comment is stripped from Claude's runtime context per Anthropic comment-stripping rule. See section-markers.md. -->
 
 ## Deeper Topics
 <!-- GENERATED:setup:deeper-topics start -->
@@ -125,6 +122,7 @@ Path-scoped rules in `.claude/rules/` (auto-load when matching files touched):
 - `verification-harness.md` (xtask + scripts/agent-run.*)
 - `design-tokens.md` (webview UI)
 - `frontend.md` (webview React)
+- `host-win32.md` (Windows/MSYS host recipes — the generating host)
 
 For complete Andromeda documentation: `/andromeda-help`
 <!-- GENERATED:setup:deeper-topics end -->
