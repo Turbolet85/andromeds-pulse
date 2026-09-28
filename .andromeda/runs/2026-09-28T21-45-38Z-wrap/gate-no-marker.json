@@ -1,0 +1,235 @@
+[
+{
+"tool": "gate",
+"v": "1.4",
+"sha8": "c63b37d3",
+"ts": "2026-09-28T21:45:53Z",
+"argv": [
+"hygiene",
+"--run-dir",
+".andromeda/runs/2026-09-28T21-45-38Z-wrap",
+"--marker",
+"no-marker"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"root D:\\dev\\projects\\andromeda-pulse · planes rust, ts",
+"control: P1 drive · P1 device · P1 home · P1 users · P1 root · P1 msys · P1 wsl · P2 · P3 rust · P3 ts — each fired on its synthetic known positive",
+"P1 .andromeda/runs/2026-08-31T07-46-32Z-evolve-diagnose/proposals.md:661 ×2 · drive",
+"P1 .andromeda/runs/2026-08-31T07-46-32Z-evolve-diagnose/q-level.json:1121 ×1 · drive",
+"P1 .andromeda/runs/2026-08-31T07-46-32Z-evolve-diagnose/q-typed.json:2151 ×9 · drive",
+"P1 .andromeda/runs/2026-08-31T08-07-26Z-code-audit/supplement-heavy-trio/mutants-pulse-app.log:6 ×17 · drive",
+"hygiene: refused 4 files — P1 4 · P2 0 · P3 0 · read 55 (runs 55 · evidence 0) · trails 0 not read · binary 0 not read by P1"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"root": "D:\\dev\\projects\\andromeda-pulse",
+"planes": [
+"rust",
+"ts"
+],
+"rows": [
+"P1 .andromeda/runs/2026-08-31T07-46-32Z-evolve-diagnose/proposals.md:661 ×2 · drive",
+"P1 .andromeda/runs/2026-08-31T07-46-32Z-evolve-diagnose/q-level.json:1121 ×1 · drive",
+"P1 .andromeda/runs/2026-08-31T07-46-32Z-evolve-diagnose/q-typed.json:2151 ×9 · drive",
+"P1 .andromeda/runs/2026-08-31T08-07-26Z-code-audit/supplement-heavy-trio/mutants-pulse-app.log:6 ×17 · drive"
+],
+"counts": {
+"P1": 4,
+"P2": 0,
+"P3": 0,
+"runs": 55,
+"evidence": 0,
+"trails": 0,
+"binary": 0
+},
+"indeterminate": 0
+}
+},
+{
+"tool": "gate",
+"v": "1.4",
+"sha8": "c63b37d3",
+"ts": "2026-09-28T21:47:07Z",
+"argv": [
+"hygiene",
+"--run-dir",
+".andromeda/runs/2026-09-28T21-45-38Z-wrap",
+"--marker",
+"no-marker"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"root D:\\dev\\projects\\andromeda-pulse · planes rust, ts",
+"control: P1 drive · P1 device · P1 home · P1 users · P1 root · P1 msys · P1 wsl · P2 · P3 rust · P3 ts — each fired on its synthetic known positive",
+"hygiene: clean — read 56 (runs 56 · evidence 0) · trails 1 not read · binary 0 not read by P1"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"root": "D:\\dev\\projects\\andromeda-pulse",
+"planes": [
+"rust",
+"ts"
+],
+"rows": [],
+"counts": {
+"P1": 0,
+"P2": 0,
+"P3": 0,
+"runs": 56,
+"evidence": 0,
+"trails": 1,
+"binary": 0
+},
+"indeterminate": 0
+}
+},
+{
+"tool": "gate",
+"v": "1.4",
+"sha8": "c63b37d3",
+"ts": "2026-09-28T22:00:20Z",
+"argv": [
+"hygiene",
+"--run-dir",
+".andromeda/runs/2026-09-28T21-45-38Z-wrap",
+"--marker",
+"no-marker"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"root D:\\dev\\projects\\andromeda-pulse · planes rust, ts",
+"control: P1 drive · P1 device · P1 home · P1 users · P1 root · P1 msys · P1 wsl · P2 · P3 rust · P3 ts — each fired on its synthetic known positive",
+"P1 .andromeda/runs/2026-09-28T21-45-38Z-wrap/consolidate-architecture.txt:36 ×1 · drive",
+"P1 .andromeda/runs/2026-09-28T21-45-38Z-wrap/consolidate-dry-architecture.txt:36 ×1 · drive",
+"P1 .andromeda/runs/2026-09-28T21-45-38Z-wrap/consolidate/architecture/045.md:4 ×1 · drive",
+"hygiene: refused 3 files — P1 3 · P2 0 · P3 0 · read 511 (runs 511 · evidence 0) · trails 3 not read · binary 0 not read by P1"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"root": "D:\\dev\\projects\\andromeda-pulse",
+"planes": [
+"rust",
+"ts"
+],
+"rows": [
+"P1 .andromeda/runs/2026-09-28T21-45-38Z-wrap/consolidate-architecture.txt:36 ×1 · drive",
+"P1 .andromeda/runs/2026-09-28T21-45-38Z-wrap/consolidate-dry-architecture.txt:36 ×1 · drive",
+"P1 .andromeda/runs/2026-09-28T21-45-38Z-wrap/consolidate/architecture/045.md:4 ×1 · drive"
+],
+"counts": {
+"P1": 3,
+"P2": 0,
+"P3": 0,
+"runs": 511,
+"evidence": 0,
+"trails": 3,
+"binary": 0
+},
+"indeterminate": 0
+}
+},
+{
+"tool": "gate",
+"v": "1.4",
+"sha8": "c63b37d3",
+"ts": "2026-09-28T22:00:28Z",
+"argv": [
+"hygiene",
+"--run-dir",
+".andromeda/runs/2026-09-28T21-45-38Z-wrap",
+"--marker",
+"no-marker"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"root D:\\dev\\projects\\andromeda-pulse · planes rust, ts",
+"control: P1 drive · P1 device · P1 home · P1 users · P1 root · P1 msys · P1 wsl · P2 · P3 rust · P3 ts — each fired on its synthetic known positive",
+"P1 .andromeda/runs/2026-09-28T21-45-38Z-wrap/consolidate-architecture.txt:36 ×1 · drive",
+"P1 .andromeda/runs/2026-09-28T21-45-38Z-wrap/consolidate-dry-architecture.txt:36 ×1 · drive",
+"P1 .andromeda/runs/2026-09-28T21-45-38Z-wrap/consolidate/architecture/045.md:4 ×1 · drive",
+"hygiene: refused 3 files — P1 3 · P2 0 · P3 0 · read 511 (runs 511 · evidence 0) · trails 3 not read · binary 0 not read by P1"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"root": "D:\\dev\\projects\\andromeda-pulse",
+"planes": [
+"rust",
+"ts"
+],
+"rows": [
+"P1 .andromeda/runs/2026-09-28T21-45-38Z-wrap/consolidate-architecture.txt:36 ×1 · drive",
+"P1 .andromeda/runs/2026-09-28T21-45-38Z-wrap/consolidate-dry-architecture.txt:36 ×1 · drive",
+"P1 .andromeda/runs/2026-09-28T21-45-38Z-wrap/consolidate/architecture/045.md:4 ×1 · drive"
+],
+"counts": {
+"P1": 3,
+"P2": 0,
+"P3": 0,
+"runs": 511,
+"evidence": 0,
+"trails": 3,
+"binary": 0
+},
+"indeterminate": 0
+}
+},
+{
+"tool": "gate",
+"v": "1.4",
+"sha8": "c63b37d3",
+"ts": "2026-09-28T22:00:52Z",
+"argv": [
+"hygiene",
+"--run-dir",
+".andromeda/runs/2026-09-28T21-45-38Z-wrap",
+"--marker",
+"no-marker"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"root D:\\dev\\projects\\andromeda-pulse · planes rust, ts",
+"control: P1 drive · P1 device · P1 home · P1 users · P1 root · P1 msys · P1 wsl · P2 · P3 rust · P3 ts — each fired on its synthetic known positive",
+"hygiene: clean — read 497 (runs 497 · evidence 0) · trails 3 not read · binary 0 not read by P1"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"root": "D:\\dev\\projects\\andromeda-pulse",
+"planes": [
+"rust",
+"ts"
+],
+"rows": [],
+"counts": {
+"P1": 0,
+"P2": 0,
+"P3": 0,
+"runs": 497,
+"evidence": 0,
+"trails": 3,
+"binary": 0
+},
+"indeterminate": 0
+}
+}
+]

@@ -1,0 +1,448 @@
+[
+{
+"sql": "WITH RECURSIVE walk(start, cur, path, depth) AS (SELECT from_crate, to_crate, from_crate || '>' || to_crate, 1 FROM crate_edges UNION ALL SELECT w.start, e.to_crate, w.path || '>' || e.to_crate, w.depth + 1 FROM crate_edges e JOIN walk w ON e.from_crate = w.cur WHERE w.depth < (SELECT count(DISTINCT from_crate) + 1 FROM crate_edges) AND (position(e.to_crate IN w.path) = 0 OR e.to_crate = w.start)) SELECT DISTINCT start, path FROM walk WHERE cur = start",
+"rows": 0,
+"result": [],
+"db_state": "fresh",
+"plane": "rust"
+},
+{
+"sql": "SELECT callee, count(DISTINCT caller) AS n FROM calls_m GROUP BY callee ORDER BY n DESC LIMIT 20",
+"rows": 20,
+"result": [
+{
+"callee": "rust-analyzer cargo ui-bridge 0.1.0 contract/AppError#",
+"n": 215
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/CueKind#",
+"n": 183
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 crate/",
+"n": 151
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 baseline/BaselineState#",
+"n": 127
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/CueScope#",
+"n": 115
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/CueKind#ErrorRateSpike#",
+"n": 111
+},
+{
+"callee": "rust-analyzer cargo pulse-app 0.1.0 observability/AllowList#",
+"n": 111
+},
+{
+"callee": "rust-analyzer cargo pulse-app 0.1.0 observability/impl#[AllowList]production().",
+"n": 108
+},
+{
+"callee": "rust-analyzer cargo pulse-app 0.1.0 observability/impl#[AllowList]for_target().",
+"n": 107
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/",
+"n": 106
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/Incident#",
+"n": 106
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/PriorityTier#",
+"n": 101
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/IncidentStatus#",
+"n": 97
+},
+{
+"callee": "rust-analyzer cargo corpus 0.1.0 error/Error#",
+"n": 95
+},
+{
+"callee": "rust-analyzer cargo buffer 0.1.0 state/BufferState#",
+"n": 90
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 baseline/impl#[BaselineState]new().",
+"n": 84
+},
+{
+"callee": "rust-analyzer cargo ui-bridge 0.1.0 contract/Settings#",
+"n": 82
+},
+{
+"callee": "rust-analyzer cargo pulse-app 0.1.0 capture_json_lines().",
+"n": 79
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 lifecycle/state_machine/ServiceLifecycleState#",
+"n": 79
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 contract/CueScope#Service#",
+"n": 79
+}
+],
+"db_state": "fresh",
+"plane": "rust"
+},
+{
+"sql": "SELECT from_crate, count(DISTINCT to_crate) AS n FROM crate_edges GROUP BY from_crate ORDER BY n DESC",
+"rows": 8,
+"result": [
+{
+"from_crate": "pulse-app",
+"n": 13
+},
+{
+"from_crate": "mcp-server",
+"n": 8
+},
+{
+"from_crate": "ui-bridge",
+"n": 7
+},
+{
+"from_crate": "buffer",
+"n": 2
+},
+{
+"from_crate": "interpretation",
+"n": 2
+},
+{
+"from_crate": "config-watcher",
+"n": 1
+},
+{
+"from_crate": "xtask",
+"n": 1
+},
+{
+"from_crate": "snapshot",
+"n": 1
+}
+],
+"db_state": "fresh",
+"plane": "rust"
+},
+{
+"sql": "SELECT count(*) AS edges FROM crate_edges",
+"rows": 1,
+"result": [
+{
+"edges": 35
+}
+],
+"db_state": "fresh",
+"plane": "rust"
+},
+{
+"sql": "SELECT count(*) AS total_zero_ref FROM symbol s LEFT JOIN refs r ON r.callee = s.symbol WHERE r.callee IS NULL",
+"rows": 1,
+"result": [
+{
+"total_zero_ref": 2949
+}
+],
+"db_state": "fresh",
+"plane": "rust"
+},
+{
+"sql": "SELECT count(*) AS post_test_zero_ref FROM symbol s LEFT JOIN refs r ON r.callee = s.symbol WHERE r.callee IS NULL AND instr(s.symbol, 'tests/') = 0",
+"rows": 1,
+"result": [
+{
+"post_test_zero_ref": 1125
+}
+],
+"db_state": "fresh",
+"plane": "rust"
+},
+{
+"sql": "SELECT s.symbol, s.file FROM symbol s LEFT JOIN refs r ON r.callee = s.symbol WHERE r.callee IS NULL AND instr(s.symbol, 'tests/') = 0 LIMIT 20",
+"rows": 20,
+"result": [
+{
+"symbol": "rust-analyzer cargo pulse-app 0.1.0 compute_snap_position_bottom_right_insets_from_bottom_right_corner().",
+"file": "pulse-app/tests/unit_window_shell.rs"
+},
+{
+"symbol": "rust-analyzer cargo pulse-app 0.1.0 build_glyph_pixels_returns_32x32_rgba_buffer().",
+"file": "pulse-app/tests/unit_tray_glyph_menu.rs"
+},
+{
+"symbol": "rust-analyzer cargo pulse-app 0.1.0 scrub_redacts_pii_in_exported_text_fields().",
+"file": "pulse-app/tests/unit_training_export.rs"
+},
+{
+"symbol": "rust-analyzer cargo pulse-app 0.1.0 corpus_error_io_sanitized_no_kind_detail_in_message().",
+"file": "pulse-app/tests/unit_storage_router.rs"
+},
+{
+"symbol": "rust-analyzer cargo pulse-app 0.1.0 preset_label_maps_each_variant_to_lowercase_string().",
+"file": "pulse-app/tests/unit_snapshot_runtime.rs"
+},
+{
+"symbol": "rust-analyzer cargo pulse-app 0.1.0 list_returns_empty_envelope_when_registry_empty().",
+"file": "pulse-app/tests/unit_plugins_router.rs"
+},
+{
+"symbol": "rust-analyzer cargo pulse-app 0.1.0 invoke_allowed_capability_returns_success().",
+"file": "pulse-app/tests/unit_plugins_router.rs"
+},
+{
+"symbol": "rust-analyzer cargo pulse-app 0.1.0 invoke_not_found_plugin_returns_app_error_plugin().",
+"file": "pulse-app/tests/unit_plugins_router.rs"
+},
+{
+"symbol": "rust-analyzer cargo pulse-app 0.1.0 l1a_query_latency_leaf_matches_emit_site_exactly().",
+"file": "pulse-app/tests/unit_observability_allowlist_sweep.rs"
+},
+{
+"symbol": "rust-analyzer cargo pulse-app 0.1.0 cue_tick_resolves_to_an_exact_leaf().",
+"file": "pulse-app/tests/unit_observability_allowlist_cue_tick.rs"
+},
+{
+"symbol": "rust-analyzer cargo pulse-app 0.1.0 spawn_args_contain_simple_io_and_no_display_prompt_flags().",
+"file": "pulse-app/tests/unit_llamacli_inference.rs"
+},
+{
+"symbol": "rust-analyzer cargo pulse-app 0.1.0 binary_target_routes_gpu_fallback_to_cuda_ngl_99().",
+"file": "pulse-app/tests/unit_llamacli_inference.rs"
+},
+{
+"symbol": "rust-analyzer cargo pulse-app 0.1.0 load_from_env_returns_not_configured_when_env_vars_missing().",
+"file": "pulse-app/tests/unit_llamacli_inference.rs"
+},
+{
+"symbol": "rust-analyzer cargo pulse-app 0.1.0 canonicalize_rejects_nonexistent_path().",
+"file": "pulse-app/tests/unit_llamacli_inference.rs"
+},
+{
+"symbol": "rust-analyzer cargo pulse-app 0.1.0 canonicalize_rejects_traversal_payload().",
+"file": "pulse-app/tests/unit_llamacli_inference.rs"
+},
+{
+"symbol": "rust-analyzer cargo pulse-app 0.1.0 classify_subprocess_failure_returns_exit_nonzero_silent_when_stderr_empty().",
+"file": "pulse-app/tests/unit_llamacli_inference.rs"
+},
+{
+"symbol": "rust-analyzer cargo pulse-app 0.1.0 extract_json_truncates_long_snippet_in_error().",
+"file": "pulse-app/tests/unit_llamacli_inference.rs"
+},
+{
+"symbol": "rust-analyzer cargo pulse-app 0.1.0 handle_digest_output_too_large_increments_output_too_large_counter().",
+"file": "pulse-app/tests/unit_inference_runtime.rs"
+},
+{
+"symbol": "rust-analyzer cargo pulse-app 0.1.0 handle_digest_never_logs_prompt_or_output_content().",
+"file": "pulse-app/tests/unit_inference_runtime.rs"
+},
+{
+"symbol": "rust-analyzer cargo pulse-app 0.1.0 resolution_summary_output_creates_no_incident().",
+"file": "pulse-app/tests/unit_incident_producer.rs"
+}
+],
+"db_state": "fresh",
+"plane": "rust"
+},
+{
+"sql": "SELECT count(*) AS edges FROM crate_edges",
+"rows": 1,
+"result": [
+{
+"edges": 0
+}
+],
+"db_state": "fresh",
+"plane": "ts"
+},
+{
+"sql": "SELECT count(*) AS candidates FROM symbol s LEFT JOIN refs r ON r.callee = s.symbol WHERE r.callee IS NULL AND instr(s.symbol, 'tests/') = 0 AND instr(s.file, 'tests/') = 0",
+"rows": 1,
+"result": [
+{
+"candidates": 162
+}
+],
+"db_state": "fresh",
+"plane": "rust"
+},
+{
+"sql": "SELECT s.symbol, s.file FROM symbol s LEFT JOIN refs r ON r.callee = s.symbol WHERE r.callee IS NULL AND instr(s.symbol, 'tests/') = 0 AND instr(s.file, 'tests/') = 0 LIMIT 40",
+"rows": 40,
+"result": [
+{
+"symbol": "rust-analyzer cargo pulse-app 0.1.0 streams/StreamsApi#subscribe_spans().",
+"file": "pulse-app/src/streams.rs"
+},
+{
+"symbol": "rust-analyzer cargo pulse-app 0.1.0 observability/impl#[`JsonFieldVisitor<'_>`][Visit]record_u64().",
+"file": "pulse-app/src/observability.rs"
+},
+{
+"symbol": "rust-analyzer cargo pulse-app 0.1.0 observability/impl#[`JsonFieldVisitor<'_>`][Visit]record_f64().",
+"file": "pulse-app/src/observability.rs"
+},
+{
+"symbol": "rust-analyzer cargo pulse-app 0.1.0 llamacli_inference/impl#[LlamaCliInference]configured_model_path().",
+"file": "pulse-app/src/llamacli_inference.rs"
+},
+{
+"symbol": "rust-analyzer cargo pulse-app 0.1.0 incidents_router/impl#[IncidentsApiImpl][IncidentsApi]get_report().",
+"file": "pulse-app/src/incidents_router.rs"
+},
+{
+"symbol": "rust-analyzer cargo pulse-app 0.1.0 corpus_retrieval/impl#[CorpusBackedIncidentSource][CorpusIncidentSource]load_candidates().",
+"file": "pulse-app/src/corpus_retrieval.rs"
+},
+{
+"symbol": "rust-analyzer cargo pulse-app 0.1.0 cadence_runner/impl#[CadenceSqlRunner][SqlQueryRunner]run_q2().",
+"file": "pulse-app/src/cadence_runner.rs"
+},
+{
+"symbol": "rust-analyzer cargo ui-bridge 0.1.0 health/runtime/IntrospectionApi#health().",
+"file": "crates/ui-bridge/src/health.rs"
+},
+{
+"symbol": "rust-analyzer cargo mcp-server 0.1.0 tools/default_token_budget().",
+"file": "crates/mcp-server/src/tools.rs"
+},
+{
+"symbol": "rust-analyzer cargo triage 0.1.0 incident/persistence/_force_serde_imports_used().",
+"file": "crates/triage/src/incident/persistence.rs"
+},
+{
+"symbol": "rust-analyzer cargo corpus 0.1.0 contract/impl#[Corpus][CorpusWriter]save_digest().",
+"file": "crates/corpus/src/contract.rs"
+},
+{
+"symbol": "rust-analyzer cargo xtask 0.1.0 bundle_format/impl#[BundleFormat][FromStr]from_str().",
+"file": "xtask/src/bundle_format.rs"
+},
+{
+"symbol": "rust-analyzer cargo pulse-app 0.1.0 streams/StreamsApi#subscribe_logs().",
+"file": "pulse-app/src/streams.rs"
+},
+{
+"symbol": "rust-analyzer cargo pulse-app 0.1.0 model_router/ModelApi#current_profile().",
+"file": "pulse-app/src/model_router.rs"
+},
+{
+"symbol": "rust-analyzer cargo pulse-app 0.1.0 incidents_router/IncidentsApi#mark_resolved().",
+"file": "pulse-app/src/incidents_router.rs"
+},
+{
+"symbol": "rust-analyzer cargo pulse-app 0.1.0 incident_persistence/impl#[CorpusIncidentPersistence][IncidentPersistence]mark_read().",
+"file": "pulse-app/src/incident_persistence.rs"
+},
+{
+"symbol": "rust-analyzer cargo pulse-app 0.1.0 config_router/impl#[ConfigApiImpl][ConfigApi]reload().",
+"file": "pulse-app/src/config_router.rs"
+},
+{
+"symbol": "rust-analyzer cargo pulse-app 0.1.0 cadence_runner/impl#[CadenceSqlRunner][SqlQueryRunner]run_q7().",
+"file": "pulse-app/src/cadence_runner.rs"
+},
+{
+"symbol": "rust-analyzer cargo config-watcher 0.1.0 watcher/impl#[ConfigWatchHandle]status_snapshot().",
+"file": "crates/config-watcher/src/watcher.rs"
+},
+{
+"symbol": "rust-analyzer cargo mcp-server 0.1.0 tools/default_time_window().",
+"file": "crates/mcp-server/src/tools.rs"
+},
+{
+"symbol": "rust-analyzer cargo pulse-app 0.1.0 observability/impl#[`JsonFieldVisitor<'_>`][Visit]record_debug().",
+"file": "pulse-app/src/observability.rs"
+},
+{
+"symbol": "rust-analyzer cargo pulse-app 0.1.0 llamacli_inference/impl#[LlamaCliInference]binary_kind().",
+"file": "pulse-app/src/llamacli_inference.rs"
+},
+{
+"symbol": "rust-analyzer cargo pulse-app 0.1.0 diagnostics_router/MetricHistoryPoint#snapshot_unix_nano.",
+"file": "pulse-app/src/diagnostics_router.rs"
+},
+{
+"symbol": "rust-analyzer cargo pulse-app 0.1.0 diagnostics_router/DiagnosticsApi#template_distribution().",
+"file": "pulse-app/src/diagnostics_router.rs"
+},
+{
+"symbol": "rust-analyzer cargo ingest 0.1.0 main().",
+"file": "crates/ingest/build.rs"
+},
+{
+"symbol": "rust-analyzer cargo ingest 0.1.0 main().",
+"file": "crates/ingest/examples/load_profiles.rs"
+},
+{
+"symbol": "rust-analyzer cargo ingest 0.1.0 main().",
+"file": "crates/ingest/examples/inject_scrub_canaries.rs"
+},
+{
+"symbol": "rust-analyzer cargo ingest 0.1.0 main().",
+"file": "crates/ingest/examples/inject_demo.rs"
+},
+{
+"symbol": "rust-analyzer cargo ingest 0.1.0 main().",
+"file": "crates/ingest/examples/inject_colliding_metrics.rs"
+},
+{
+"symbol": "rust-analyzer cargo ingest 0.1.0 main().",
+"file": "crates/ingest/examples/inject_colliding_logs.rs"
+},
+{
+"symbol": "rust-analyzer cargo snapshot 0.1.0 contract/FormatError#AnchorEncodingFailed#",
+"file": "crates/snapshot/src/contract.rs"
+},
+{
+"symbol": "rust-analyzer cargo triage 0.1.0 digest/DigestError#TokenBudgetExceeded#limit.",
+"file": "crates/triage/src/digest/mod.rs"
+},
+{
+"symbol": "rust-analyzer cargo triage 0.1.0 digest/queue/impl#[LwwQueue]active_incident_depth_for().",
+"file": "crates/triage/src/digest/queue.rs"
+},
+{
+"symbol": "rust-analyzer cargo triage 0.1.0 cue/emitter/impl#[CueLatch][Default]default().",
+"file": "crates/triage/src/cue/emitter.rs"
+},
+{
+"symbol": "rust-analyzer cargo ingest 0.1.0 grpc/impl#[MetricsServiceImpl][MetricsService]export().",
+"file": "crates/ingest/src/grpc.rs"
+},
+{
+"symbol": "rust-analyzer cargo ingest 0.1.0 connection/STREAM_NAME_CONNECTION_STATE.",
+"file": "crates/ingest/src/connection.rs"
+},
+{
+"symbol": "rust-analyzer cargo ingest 0.1.0 connection/impl#[ConnectionBroadcast][Default]default().",
+"file": "crates/ingest/src/connection.rs"
+},
+{
+"symbol": "rust-analyzer cargo pulse-app 0.1.0 streams/impl#[StreamsApiImpl][StreamsApi]subscribe_spans().",
+"file": "pulse-app/src/streams.rs"
+},
+{
+"symbol": "rust-analyzer cargo pulse-app 0.1.0 services_router/ServicesApi#list_with_states().",
+"file": "pulse-app/src/services_router.rs"
+},
+{
+"symbol": "rust-analyzer cargo pulse-app 0.1.0 plugins_router/PluginsApi#list().",
+"file": "pulse-app/src/plugins_router.rs"
+}
+],
+"db_state": "fresh",
+"plane": "rust"
+}
+]

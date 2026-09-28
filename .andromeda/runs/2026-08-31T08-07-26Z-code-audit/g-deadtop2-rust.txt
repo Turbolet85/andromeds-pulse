@@ -1,0 +1,162 @@
+[
+  {
+    "symbol": "rust-analyzer cargo pulse-app 0.1.0 streams/StreamsApi#subscribe_spans().",
+    "file": "pulse-app/src/streams.rs"
+  },
+  {
+    "symbol": "rust-analyzer cargo pulse-app 0.1.0 observability/impl#[`JsonFieldVisitor<'_>`][Visit]record_u64().",
+    "file": "pulse-app/src/observability.rs"
+  },
+  {
+    "symbol": "rust-analyzer cargo pulse-app 0.1.0 observability/impl#[`JsonFieldVisitor<'_>`][Visit]record_f64().",
+    "file": "pulse-app/src/observability.rs"
+  },
+  {
+    "symbol": "rust-analyzer cargo pulse-app 0.1.0 llamacli_inference/impl#[LlamaCliInference]configured_model_path().",
+    "file": "pulse-app/src/llamacli_inference.rs"
+  },
+  {
+    "symbol": "rust-analyzer cargo pulse-app 0.1.0 incidents_router/impl#[IncidentsApiImpl][IncidentsApi]get_report().",
+    "file": "pulse-app/src/incidents_router.rs"
+  },
+  {
+    "symbol": "rust-analyzer cargo pulse-app 0.1.0 corpus_retrieval/impl#[CorpusBackedIncidentSource][CorpusIncidentSource]load_candidates().",
+    "file": "pulse-app/src/corpus_retrieval.rs"
+  },
+  {
+    "symbol": "rust-analyzer cargo pulse-app 0.1.0 cadence_runner/impl#[CadenceSqlRunner][SqlQueryRunner]run_q2().",
+    "file": "pulse-app/src/cadence_runner.rs"
+  },
+  {
+    "symbol": "rust-analyzer cargo ui-bridge 0.1.0 health/runtime/IntrospectionApi#health().",
+    "file": "crates/ui-bridge/src/health.rs"
+  },
+  {
+    "symbol": "rust-analyzer cargo mcp-server 0.1.0 tools/default_token_budget().",
+    "file": "crates/mcp-server/src/tools.rs"
+  },
+  {
+    "symbol": "rust-analyzer cargo triage 0.1.0 incident/persistence/_force_serde_imports_used().",
+    "file": "crates/triage/src/incident/persistence.rs"
+  },
+  {
+    "symbol": "rust-analyzer cargo corpus 0.1.0 contract/impl#[Corpus][CorpusWriter]save_digest().",
+    "file": "crates/corpus/src/contract.rs"
+  },
+  {
+    "symbol": "rust-analyzer cargo xtask 0.1.0 bundle_format/impl#[BundleFormat][FromStr]from_str().",
+    "file": "xtask/src/bundle_format.rs"
+  },
+  {
+    "symbol": "rust-analyzer cargo pulse-app 0.1.0 streams/StreamsApi#subscribe_logs().",
+    "file": "pulse-app/src/streams.rs"
+  },
+  {
+    "symbol": "rust-analyzer cargo pulse-app 0.1.0 model_router/ModelApi#current_profile().",
+    "file": "pulse-app/src/model_router.rs"
+  },
+  {
+    "symbol": "rust-analyzer cargo pulse-app 0.1.0 incidents_router/IncidentsApi#mark_resolved().",
+    "file": "pulse-app/src/incidents_router.rs"
+  },
+  {
+    "symbol": "rust-analyzer cargo pulse-app 0.1.0 incident_persistence/impl#[CorpusIncidentPersistence][IncidentPersistence]mark_read().",
+    "file": "pulse-app/src/incident_persistence.rs"
+  },
+  {
+    "symbol": "rust-analyzer cargo pulse-app 0.1.0 config_router/impl#[ConfigApiImpl][ConfigApi]reload().",
+    "file": "pulse-app/src/config_router.rs"
+  },
+  {
+    "symbol": "rust-analyzer cargo pulse-app 0.1.0 cadence_runner/impl#[CadenceSqlRunner][SqlQueryRunner]run_q7().",
+    "file": "pulse-app/src/cadence_runner.rs"
+  },
+  {
+    "symbol": "rust-analyzer cargo config-watcher 0.1.0 watcher/impl#[ConfigWatchHandle]status_snapshot().",
+    "file": "crates/config-watcher/src/watcher.rs"
+  },
+  {
+    "symbol": "rust-analyzer cargo mcp-server 0.1.0 tools/default_time_window().",
+    "file": "crates/mcp-server/src/tools.rs"
+  },
+  {
+    "symbol": "rust-analyzer cargo pulse-app 0.1.0 observability/impl#[`JsonFieldVisitor<'_>`][Visit]record_debug().",
+    "file": "pulse-app/src/observability.rs"
+  },
+  {
+    "symbol": "rust-analyzer cargo pulse-app 0.1.0 llamacli_inference/impl#[LlamaCliInference]binary_kind().",
+    "file": "pulse-app/src/llamacli_inference.rs"
+  },
+  {
+    "symbol": "rust-analyzer cargo pulse-app 0.1.0 diagnostics_router/MetricHistoryPoint#snapshot_unix_nano.",
+    "file": "pulse-app/src/diagnostics_router.rs"
+  },
+  {
+    "symbol": "rust-analyzer cargo pulse-app 0.1.0 diagnostics_router/DiagnosticsApi#template_distribution().",
+    "file": "pulse-app/src/diagnostics_router.rs"
+  },
+  {
+    "symbol": "rust-analyzer cargo ingest 0.1.0 main().",
+    "file": "crates/ingest/build.rs"
+  },
+  {
+    "symbol": "rust-analyzer cargo ingest 0.1.0 main().",
+    "file": "crates/ingest/examples/load_profiles.rs"
+  },
+  {
+    "symbol": "rust-analyzer cargo ingest 0.1.0 main().",
+    "file": "crates/ingest/examples/inject_scrub_canaries.rs"
+  },
+  {
+    "symbol": "rust-analyzer cargo ingest 0.1.0 main().",
+    "file": "crates/ingest/examples/inject_demo.rs"
+  },
+  {
+    "symbol": "rust-analyzer cargo ingest 0.1.0 main().",
+    "file": "crates/ingest/examples/inject_colliding_metrics.rs"
+  },
+  {
+    "symbol": "rust-analyzer cargo ingest 0.1.0 main().",
+    "file": "crates/ingest/examples/inject_colliding_logs.rs"
+  },
+  {
+    "symbol": "rust-analyzer cargo snapshot 0.1.0 contract/FormatError#AnchorEncodingFailed#",
+    "file": "crates/snapshot/src/contract.rs"
+  },
+  {
+    "symbol": "rust-analyzer cargo triage 0.1.0 digest/DigestError#TokenBudgetExceeded#limit.",
+    "file": "crates/triage/src/digest/mod.rs"
+  },
+  {
+    "symbol": "rust-analyzer cargo triage 0.1.0 digest/queue/impl#[LwwQueue]active_incident_depth_for().",
+    "file": "crates/triage/src/digest/queue.rs"
+  },
+  {
+    "symbol": "rust-analyzer cargo triage 0.1.0 cue/emitter/impl#[CueLatch][Default]default().",
+    "file": "crates/triage/src/cue/emitter.rs"
+  },
+  {
+    "symbol": "rust-analyzer cargo ingest 0.1.0 grpc/impl#[MetricsServiceImpl][MetricsService]export().",
+    "file": "crates/ingest/src/grpc.rs"
+  },
+  {
+    "symbol": "rust-analyzer cargo ingest 0.1.0 connection/STREAM_NAME_CONNECTION_STATE.",
+    "file": "crates/ingest/src/connection.rs"
+  },
+  {
+    "symbol": "rust-analyzer cargo ingest 0.1.0 connection/impl#[ConnectionBroadcast][Default]default().",
+    "file": "crates/ingest/src/connection.rs"
+  },
+  {
+    "symbol": "rust-analyzer cargo pulse-app 0.1.0 streams/impl#[StreamsApiImpl][StreamsApi]subscribe_spans().",
+    "file": "pulse-app/src/streams.rs"
+  },
+  {
+    "symbol": "rust-analyzer cargo pulse-app 0.1.0 services_router/ServicesApi#list_with_states().",
+    "file": "pulse-app/src/services_router.rs"
+  },
+  {
+    "symbol": "rust-analyzer cargo pulse-app 0.1.0 plugins_router/PluginsApi#list().",
+    "file": "pulse-app/src/plugins_router.rs"
+  }
+]

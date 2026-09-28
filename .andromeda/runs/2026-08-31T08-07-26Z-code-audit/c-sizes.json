@@ -1,0 +1,54 @@
+{
+ "file_p50": 105,
+ "file_p90": 465,
+ "file_max": 3057,
+ "over_800": 22,
+ "top": [
+  [
+   "pulse-app/tests/observability_pins.rs",
+   3057
+  ],
+  [
+   "crates/buffer/src/appender.rs",
+   2366
+  ],
+  [
+   "pulse-app/src/observability.rs",
+   2157
+  ],
+  [
+   "crates/ui-bridge/src/contract.rs",
+   2115
+  ],
+  [
+   "pulse-app/src/main.rs",
+   1547
+  ],
+  [
+   "xtask/src/main.rs",
+   1510
+  ],
+  [
+   "crates/corpus/src/contract.rs",
+   1262
+  ],
+  [
+   "xtask/src/webview_drive.rs",
+   1258
+  ],
+  [
+   "crates/triage/src/cue/emitter.rs",
+   1171
+  ],
+  [
+   "crates/viz/src/query.rs",
+   1095
+  ]
+ ],
+ "totals": {
+  "loc": 98573,
+  "files": 484
+ },
+ "population": "git-tracked *.rs/*.ts/*.tsx under crates/ pulse-app/ xtask/ minus pulse-app/ui/src/bindings/ (generated)",
+ "units": 16
+}

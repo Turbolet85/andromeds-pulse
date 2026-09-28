@@ -1,26 +1,28 @@
 # Session Handoff
 
-**Last Updated:** 2026-08-31T06:07:00Z
-**Branch:** chore/migrate-pulse-to-v3 (tracks `origin/chore/migrate-pulse-to-v3`; 50 ahead after this wrap's commit — unpushed)
-**Status:** clean (wrapped)
-**Last Commit:** `feat(2026-08-30-agent-harness-teardown-truth)` — cleanup terminates the APP and boot's ceiling fits the relink, so harness exit codes stop lying
+**Last Updated:** 2026-09-28T21:59:52Z
+**Branch:** chore/migrate-pulse-to-v3 · 0 ahead of origin/chore/migrate-pulse-to-v3 as read at this wrap's Setup (four commits follow it, then the push)
+**Status:** clean
+**Last Commit:** no chunk — chore(session): no chunk wrapped — session 65
 
 ## Position
-- Done: **2026-08-30-agent-harness-teardown-truth** — the harness stops lying on all four measured defect shapes, script-side only (zero product/xtask/dep delta): `boot` pre-builds under its own exported env (`pulse-app --release` + `xtask` — the poll shells `cargo xtask`) and spawns `target/release/pulse-app[.exe]` BY PATH, dissolving the `cargo run` wrapper (10s default ceiling honest again; measured boot-to-ready **1.953s** warm); `cleanup` derives its verdict ONLY from independent probes (pidfile-content pid liveness across msys/Windows pid spaces + TCP handshake on the resolved loopback OTLP ports) emitting one bounded token — `clean | app-survived | ports-lingering | no-pid-ports-accepting` — exit 0 only on `clean`. Measure-first live pair: RED at HEAD reproduced the wrong-reason-pass exactly (wrapper msys pid 127966 registered while the app wrote 35288; cleanup exit 0 + app ALIVE + ports accepting), GREEN proved all three non-clean arms exit 1 and true teardown exits 0 (0 ERROR / 0 panic); bonus bare-shape arm ended the fourth lie (`$$`-divergent cleanup now exits 1 `no-pid-ports-accepting`). ci.yml smoke step GATES (continue-on-error dropped, operator-approved; workflow-level DATA_DIR already shared — the research claim it wasn't was falsified at implement, narrow-basis, disposed in-report). Two latent ps1 bugs fixed in touched arms (same-file redirect throw; Write-Error-under-EAP-Stop skipping cleanup); ps1 parse-validated + logic-mirrored but NOT live-driven — owed with the shell verdict arms via NEW test-plan §1 trigger `harness-cleanup-verdict-and-boot-spawn-shell-coverage`.
-- Next (first markerless): **Conductor return — the external P-075 assert round runs and the version's last unclaimed capability verifies** — carries **PREREQ: close rust gate deferral** (deferred since 2026-08-30-agent-harness-teardown-truth; clippy --workspace --all-targets --all-features + workspace nextest at the next Rust-touching chunk) and **pin #22 in compact form: next owed FULL-FORM `cargo audit` interval point is SESSION 67** (65/66 between-points; session-64 point DISCHARGED this wrap first-hand — true exit 1 read directly, basis byte-identical `duplicate advisory ID: RUSTSEC-2026-0244`; `deny advisories` exit 0 with the owned set EMPTY from scratch; `bans licenses sources` exit 0).
-- Then: that chunk closes the version (matrix 21/22 → 22/22; P-075 is the one unclaimed cap).
+- Done: 0-pending operator wrap (session 65) after the setup upgrade `8b86529` — run-dir hygiene · U13 sidecar consolidation · U08 seed-rule supersession · the P-025 route insertion. Last complete chunk still `2026-08-30-agent-harness-teardown-truth`.
+- Next (first markerless, `working-route.md:130`): **P-025 hue-shift observable made gradable** — per Conductor's `pulse-p025-measurement-contract.md`; claims no capability (P-025 rides P-075). Carries CONTEXT: first step is U05's `cargo fmt --all` reflow with `cargo fmt --all -- --check` as a Test Command; CONTEXT: the contract's coordinates (re-verify every one at HEAD at /phase); **PREREQ: close rust gate deferral**; **PREREQ: `cargo audit` pin #22** — session 65 was a between-point; P-025's wrap = 66 (between-point), FULL-FORM owed at session 67.
+- Then: Conductor return — the external P-075 assert round; closes the version (matrix 21/22 → 22/22).
 
 ## Work done
-Full cycle in one session: /andromeda-new-session (14/14 health) → /andromeda-phase (promoted + planned; MSYS-divergence hypothesis falsified by live probe at research; CI-gating fork operator-ruled Gate-it) → /andromeda-implement (3 modified · 0 new; RED-at-HEAD before any edit; gates green in 1 iteration; GREEN legs a/b/c + bonus arm) → this wrap.
+Four doors, one wrap. Hygiene: the two 2026-08-31 run dirs refused 4 files (host paths), rewritten to placeholders → clean. U13: 7 sidecars consolidated (206 → 204 on-form entries, archives created). U08: 6 seed rules appended; `:16` `:30` `:34` `:50` `:58` kept verbatim and marked SUPERSEDED. Route: P-025 inserted at the head; `:130`'s PREREQs moved onto it. `upgrade.py detect`: 0 for setup · 0 awaiting a door.
 
 ## Drift resolved
-**14 amendments (tests 9 · obs 2 · arch 2 · security 1) · 0 escalations · drift = 0.** test-plan: §3 boot/cleanup/PID re-aligned AS-OPEN → as-designed (pre-build + direct spawn; four-token verdict contract; PID Location per-OS stale set → the measured `<data_dir>/run/andromeda-pulse.pid`; bootstrap item 5; direct-binary-variant citation) + §1 summary caveat retired + NEW §1 shell-coverage trigger + §9 gating boot-smoke stage row. obs-plan: §3+§1 per-platform log-dir claims corrected to `resolve_data_dir()` (Windows+Linux halves; macOS kept). arch: agent-run registered as a formalized CLI contract (§xtask CLI surfaces) + pid-file entry's "only THROUGH that xtask verb" narrowed (cleanup probes independently; pidfile content canonical). security-plan: pin #22 session-64 discharge recorded, pointer → 67. Cascade: 7 leaf edits (rules/verification-harness ×3 — boot/cleanup/PID blocks re-derived; docs/tests-summary ×3; rules/security ×1 deferral chain).
+none — 0-pending path, no fan-out.
 
 ## Notes
-- **Curation:** T1 0 · T2 1 (rules/verification-harness.md — MSYS converts exported path-shaped env values for native children (live probe) + never key cross-invocation harness state on `$$`) · T3 0 · filtered 3 (2 dedup-via-cascade — the wrap's own cascade wrote the xtask-prebuild + pid-space facts into the rule body; 1 confidence 0.4 — the CI-env narrow-basis lesson, friction stream carries it). CLAUDE.md unchanged this wrap (156/200).
-- **Raw `cargo audit` still exit 1 by design** (pin #22 standing deferral; next FULL-FORM: session 67). Raw `npm audit` still designed-red; the GATES are the signal.
-- **The Linux CI boot-smoke step now GATES** — first newly-gating surface; watch the next CI run for runner flake (the step runs post release-build, boot pre-build mostly cache-hits).
-- Audit trail: `.andromeda/runs/2026-08-30T21-38-42Z-wrap/` (fanout-results + 4 raw twins) + phase run dir `2026-08-30T20-39-49Z-phase/` (7 extracts + 4 raw twins + graph trace).
+- **`sidecar.py` Ref defect (relayed to overseer1):** `ref_for` takes the LATEST wrap whose .md text mentions the marker — 148 of 204 Refs text-derived, 86 named later runs, 44 the 2026-08-23T11-52 route snapshot. Operator ruled all 148 → `NOT DERIVED`; originals verbatim in `{doc}-amendments-archive.md`. Fix before Conductor consolidates.
+- Rewriters wrote 3 partial-retirement `Supersedes` (whole-entry prune would drop current history) — removed; see `.andromeda/runs/2026-09-28T21-45-38Z-wrap/consolidation-record.md`.
+- Epoch 4 at 40 chunks — operator ruled no split; the version close is the boundary.
+- **Operator next, on an EMPTY `git status --porcelain --untracked-files=all`:** the `.gitattributes` re-checkout. Pulse CI failing at 0 s on every push is a founder question, not owned here.
+- Raw `cargo audit` still exit 1 by design (pin #22); raw `npm audit` designed-red; the gates are the signal.
+- Audit trail: `.andromeda/runs/2026-09-28T21-45-38Z-wrap/` (adaptation-record + consolidation-record + consolidate/).
 - Last failed command: none.
 
 ## Deferred learnings

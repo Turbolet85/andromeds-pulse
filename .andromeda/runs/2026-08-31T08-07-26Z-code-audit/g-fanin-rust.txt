@@ -1,0 +1,82 @@
+[
+  {
+    "callee": "rust-analyzer cargo ui-bridge 0.1.0 contract/AppError#",
+    "n": 215
+  },
+  {
+    "callee": "rust-analyzer cargo triage 0.1.0 contract/CueKind#",
+    "n": 183
+  },
+  {
+    "callee": "rust-analyzer cargo triage 0.1.0 crate/",
+    "n": 151
+  },
+  {
+    "callee": "rust-analyzer cargo triage 0.1.0 baseline/BaselineState#",
+    "n": 127
+  },
+  {
+    "callee": "rust-analyzer cargo triage 0.1.0 contract/CueScope#",
+    "n": 115
+  },
+  {
+    "callee": "rust-analyzer cargo triage 0.1.0 contract/CueKind#ErrorRateSpike#",
+    "n": 111
+  },
+  {
+    "callee": "rust-analyzer cargo pulse-app 0.1.0 observability/AllowList#",
+    "n": 111
+  },
+  {
+    "callee": "rust-analyzer cargo pulse-app 0.1.0 observability/impl#[AllowList]production().",
+    "n": 108
+  },
+  {
+    "callee": "rust-analyzer cargo pulse-app 0.1.0 observability/impl#[AllowList]for_target().",
+    "n": 107
+  },
+  {
+    "callee": "rust-analyzer cargo triage 0.1.0 contract/",
+    "n": 106
+  },
+  {
+    "callee": "rust-analyzer cargo triage 0.1.0 contract/Incident#",
+    "n": 106
+  },
+  {
+    "callee": "rust-analyzer cargo triage 0.1.0 contract/PriorityTier#",
+    "n": 101
+  },
+  {
+    "callee": "rust-analyzer cargo triage 0.1.0 contract/IncidentStatus#",
+    "n": 97
+  },
+  {
+    "callee": "rust-analyzer cargo corpus 0.1.0 error/Error#",
+    "n": 95
+  },
+  {
+    "callee": "rust-analyzer cargo buffer 0.1.0 state/BufferState#",
+    "n": 90
+  },
+  {
+    "callee": "rust-analyzer cargo triage 0.1.0 baseline/impl#[BaselineState]new().",
+    "n": 84
+  },
+  {
+    "callee": "rust-analyzer cargo ui-bridge 0.1.0 contract/Settings#",
+    "n": 82
+  },
+  {
+    "callee": "rust-analyzer cargo pulse-app 0.1.0 capture_json_lines().",
+    "n": 79
+  },
+  {
+    "callee": "rust-analyzer cargo triage 0.1.0 lifecycle/state_machine/ServiceLifecycleState#",
+    "n": 79
+  },
+  {
+    "callee": "rust-analyzer cargo triage 0.1.0 contract/CueScope#Service#",
+    "n": 79
+  }
+]

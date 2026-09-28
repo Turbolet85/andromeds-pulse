@@ -1,0 +1,101 @@
+{
+ "file": "D:/dev/projects/andromeda-pulse/.andromeda/design-system-amendments.md",
+ "file_sha256": "96be66ccae480907c0d414a5847d7b63254cca89b4f6fc8ca667c2e4c110661c",
+ "file_bytes": 19529,
+ "entries": 9,
+ "set": [
+  {
+   "row": 1,
+   "line": 7,
+   "heading": "## 2026-05-02 — Initial design system generated (`/andromeda-design` Phase 4)",
+   "sha256": "1840130f485268baa7cedb872127c8e5453b3ee57c40b696dbd97bf7c35ec52e",
+   "bytes": 1853,
+   "ref": "NOT DERIVED",
+   "why": "text before the first field; no **Section:**; no **Change:**; no **Why:**; no **Ref:**",
+   "file": "001.md"
+  },
+  {
+   "row": 2,
+   "line": 17,
+   "heading": "## 2026-05-03 — Lift `--color-accent` from `#8B2E3B` to `#C7556A`",
+   "sha256": "9b854cd85f7906e243ed6d7317ecbe3d775a9f834ff50be84596f7d2c29dee63",
+   "bytes": 1916,
+   "ref": "NOT DERIVED",
+   "why": "text before the first field; no **Section:**; no **Change:**; no **Why:**; no **Ref:**",
+   "file": "002.md"
+  },
+  {
+   "row": 3,
+   "line": 38,
+   "heading": "## 2026-05-29 — Halo State Pulse re-driven by incident severity + activity + connection state",
+   "sha256": "e5db64bb497113895a964973d9c7cebc4f6a3bb605241f18757998697e553404",
+   "bytes": 2251,
+   "ref": "NOT DERIVED",
+   "why": "text before the first field; no **Section:**; no **Change:**; no **Why:**; no **Ref:**",
+   "file": "003.md"
+  },
+  {
+   "row": 4,
+   "line": 87,
+   "heading": "## 2026-07-08-self-explaining-empty-states — Empty-state message token Tertiary→Secondary + honest-error variant",
+   "sha256": "29d97023e2924eb1daceb7c40f0d6aac36f4d1d816ca6149ac86f4272d9f3423",
+   "bytes": 923,
+   "ref": ".andromeda/runs/2026-08-23T11-52-00Z-wrap/",
+   "why": "no **Ref:**",
+   "file": "004.md"
+  },
+  {
+   "row": 5,
+   "line": 92,
+   "heading": "## 2026-08-21-delegated-timing-observables — Signature element recorded as specified-but-unbuilt",
+   "sha256": "041ac67af10b56c7d5e567a05590ee8cf44280f2de44cd3d78159e5ade040906",
+   "bytes": 737,
+   "ref": ".andromeda/runs/2026-08-23T11-52-00Z-wrap/",
+   "why": "no **Ref:**",
+   "file": "005.md"
+  },
+  {
+   "row": 6,
+   "line": 98,
+   "heading": "## 2026-08-23-a11y-verification — accent-as-error-text deferral discharged (3 sites)",
+   "sha256": "a91cf9a6f17898e33d77a0f70c417eff092f2258c919e5ac9f15cdca95ed190b",
+   "bytes": 1532,
+   "ref": ".andromeda/runs/2026-08-30T17-19-47Z-wrap/",
+   "why": "no **Ref:**",
+   "file": "006.md"
+  },
+  {
+   "row": 7,
+   "line": 104,
+   "heading": "## 2026-08-29-halo-state-pulse-signature-deferred — Signature glow layer DEFERRED to the next version",
+   "sha256": "c64db9231b9c33371c73ba09d75eb2d0ee1c756557f09689225a80e85b91b817",
+   "bytes": 2456,
+   "ref": ".andromeda/runs/2026-08-29T20-41-44Z-wrap/",
+   "why": "no **Ref:**",
+   "file": "007.md"
+  },
+  {
+   "row": 8,
+   "line": 110,
+   "heading": "## 2026-08-30-diagnostics-un-muting-harness-truth-sweep — four-corner snap model + shipped component stack (react-aria-components)",
+   "sha256": "cb127b211a413c3957b098cf9960a701c5468d84ad65656cf60b068162237b93",
+   "bytes": 1390,
+   "ref": ".andromeda/runs/2026-08-30T21-38-42Z-wrap/",
+   "why": "no **Ref:**",
+   "file": "008.md"
+  },
+  {
+   "row": 9,
+   "line": 115,
+   "heading": "## 2026-08-30-acl-rejection-logging — accent-as-error-text completion re-dated; fourth site added",
+   "sha256": "4e05235d201f37eb54dd9f3aef94c5e88142dce8e25059a1bec0d81cdfa41e19",
+   "bytes": 1173,
+   "ref": ".andromeda/runs/2026-08-30T21-38-42Z-wrap/",
+   "why": "no **Ref:**",
+   "file": "009.md"
+  }
+ ],
+ "batches": [
+  "batch-1.txt"
+ ]
+}

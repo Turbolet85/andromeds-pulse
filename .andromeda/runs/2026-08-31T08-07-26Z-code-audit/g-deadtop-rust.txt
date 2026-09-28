@@ -1,0 +1,82 @@
+[
+  {
+    "symbol": "rust-analyzer cargo pulse-app 0.1.0 compute_snap_position_bottom_right_insets_from_bottom_right_corner().",
+    "file": "pulse-app/tests/unit_window_shell.rs"
+  },
+  {
+    "symbol": "rust-analyzer cargo pulse-app 0.1.0 build_glyph_pixels_returns_32x32_rgba_buffer().",
+    "file": "pulse-app/tests/unit_tray_glyph_menu.rs"
+  },
+  {
+    "symbol": "rust-analyzer cargo pulse-app 0.1.0 scrub_redacts_pii_in_exported_text_fields().",
+    "file": "pulse-app/tests/unit_training_export.rs"
+  },
+  {
+    "symbol": "rust-analyzer cargo pulse-app 0.1.0 corpus_error_io_sanitized_no_kind_detail_in_message().",
+    "file": "pulse-app/tests/unit_storage_router.rs"
+  },
+  {
+    "symbol": "rust-analyzer cargo pulse-app 0.1.0 preset_label_maps_each_variant_to_lowercase_string().",
+    "file": "pulse-app/tests/unit_snapshot_runtime.rs"
+  },
+  {
+    "symbol": "rust-analyzer cargo pulse-app 0.1.0 list_returns_empty_envelope_when_registry_empty().",
+    "file": "pulse-app/tests/unit_plugins_router.rs"
+  },
+  {
+    "symbol": "rust-analyzer cargo pulse-app 0.1.0 invoke_allowed_capability_returns_success().",
+    "file": "pulse-app/tests/unit_plugins_router.rs"
+  },
+  {
+    "symbol": "rust-analyzer cargo pulse-app 0.1.0 invoke_not_found_plugin_returns_app_error_plugin().",
+    "file": "pulse-app/tests/unit_plugins_router.rs"
+  },
+  {
+    "symbol": "rust-analyzer cargo pulse-app 0.1.0 l1a_query_latency_leaf_matches_emit_site_exactly().",
+    "file": "pulse-app/tests/unit_observability_allowlist_sweep.rs"
+  },
+  {
+    "symbol": "rust-analyzer cargo pulse-app 0.1.0 cue_tick_resolves_to_an_exact_leaf().",
+    "file": "pulse-app/tests/unit_observability_allowlist_cue_tick.rs"
+  },
+  {
+    "symbol": "rust-analyzer cargo pulse-app 0.1.0 spawn_args_contain_simple_io_and_no_display_prompt_flags().",
+    "file": "pulse-app/tests/unit_llamacli_inference.rs"
+  },
+  {
+    "symbol": "rust-analyzer cargo pulse-app 0.1.0 binary_target_routes_gpu_fallback_to_cuda_ngl_99().",
+    "file": "pulse-app/tests/unit_llamacli_inference.rs"
+  },
+  {
+    "symbol": "rust-analyzer cargo pulse-app 0.1.0 load_from_env_returns_not_configured_when_env_vars_missing().",
+    "file": "pulse-app/tests/unit_llamacli_inference.rs"
+  },
+  {
+    "symbol": "rust-analyzer cargo pulse-app 0.1.0 canonicalize_rejects_nonexistent_path().",
+    "file": "pulse-app/tests/unit_llamacli_inference.rs"
+  },
+  {
+    "symbol": "rust-analyzer cargo pulse-app 0.1.0 canonicalize_rejects_traversal_payload().",
+    "file": "pulse-app/tests/unit_llamacli_inference.rs"
+  },
+  {
+    "symbol": "rust-analyzer cargo pulse-app 0.1.0 classify_subprocess_failure_returns_exit_nonzero_silent_when_stderr_empty().",
+    "file": "pulse-app/tests/unit_llamacli_inference.rs"
+  },
+  {
+    "symbol": "rust-analyzer cargo pulse-app 0.1.0 extract_json_truncates_long_snippet_in_error().",
+    "file": "pulse-app/tests/unit_llamacli_inference.rs"
+  },
+  {
+    "symbol": "rust-analyzer cargo pulse-app 0.1.0 handle_digest_output_too_large_increments_output_too_large_counter().",
+    "file": "pulse-app/tests/unit_inference_runtime.rs"
+  },
+  {
+    "symbol": "rust-analyzer cargo pulse-app 0.1.0 handle_digest_never_logs_prompt_or_output_content().",
+    "file": "pulse-app/tests/unit_inference_runtime.rs"
+  },
+  {
+    "symbol": "rust-analyzer cargo pulse-app 0.1.0 resolution_summary_output_creates_no_incident().",
+    "file": "pulse-app/tests/unit_incident_producer.rs"
+  }
+]
