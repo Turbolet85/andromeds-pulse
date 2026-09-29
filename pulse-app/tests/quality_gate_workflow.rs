@@ -265,6 +265,13 @@ fn ci_workflow_uploads_logs_artifact_unchanged() {
          (chunk #56 regression backstop — chunk #54 substrate must remain; obs-plan §9 \
          CI failure → artifact triage workflow requires log file artifact upload)"
     );
+    // The boot smoke writes the log ci-gates reads in its own job, so its
+    // upload needs a name that cannot collide with lint-test's per-OS one.
+    assert!(
+        content.contains("name: logs-boot-${{ runner.os }}"),
+        "ci.yml MUST upload the boot job's logs as `logs-boot-${{ runner.os }}` \
+         (obs-plan §9 artifact triage; upload-artifact v4 refuses a duplicate name)"
+    );
 }
 
 fn read_named_workflow(name: &str) -> String {
@@ -347,7 +354,7 @@ fn workflow_env_references_no_step_only_context() {
 #[test]
 fn data_dir_export_precedes_every_consumer() {
     let expected = [
-        ("ci.yml", 3),
+        ("ci.yml", 5),
         ("release.yml", 1),
         ("update-channels.yml", 2),
     ];

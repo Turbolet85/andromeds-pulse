@@ -1,0 +1,98 @@
+[
+{
+"tool": "registry",
+"v": "1.0",
+"sha8": "e78877bf",
+"ts": "2026-09-29T15:56:48Z",
+"argv": [
+"contracts",
+"--master",
+".andromeda/architecture.md",
+"--out",
+".andromeda/runs/2026-09-29T15-54-46Z-phase/arch-contracts.md",
+"--run-dir",
+".andromeda/runs/2026-09-29T15-54-46Z-phase",
+"--marker",
+"2026-09-29-ci-wall-time-and-round-trips"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 3,
+"stdout": [],
+"stderr": "NOT MIGRATED — read §Infrastructure Patterns in the body",
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "registry",
+"v": "1.0",
+"sha8": "e78877bf",
+"ts": "2026-09-29T15:56:48Z",
+"argv": [
+"contracts",
+"--master",
+".andromeda/test-plan.md",
+"--out",
+".andromeda/runs/2026-09-29T15-54-46Z-phase/tests-contracts.md",
+"--run-dir",
+".andromeda/runs/2026-09-29T15-54-46Z-phase",
+"--marker",
+"2026-09-29-ci-wall-time-and-round-trips"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 3,
+"stdout": [],
+"stderr": "NOT MIGRATED — read §3. Test Harness Contract in the body",
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "registry",
+"v": "1.0",
+"sha8": "e78877bf",
+"ts": "2026-09-29T15:56:49Z",
+"argv": [
+"contracts",
+"--master",
+".andromeda/obs-plan.md",
+"--out",
+".andromeda/runs/2026-09-29T15-54-46Z-phase/obs-contracts.md",
+"--run-dir",
+".andromeda/runs/2026-09-29T15-54-46Z-phase",
+"--marker",
+"2026-09-29-ci-wall-time-and-round-trips"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 3,
+"stdout": [],
+"stderr": "NOT MIGRATED — read §3. Observability Harness Contract in the body",
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "registry",
+"v": "1.0",
+"sha8": "e78877bf",
+"ts": "2026-09-29T15:56:49Z",
+"argv": [
+"contracts",
+"--master",
+".andromeda/a11y-plan.md",
+"--out",
+".andromeda/runs/2026-09-29T15-54-46Z-phase/a11y-contracts.md",
+"--run-dir",
+".andromeda/runs/2026-09-29T15-54-46Z-phase",
+"--marker",
+"2026-09-29-ci-wall-time-and-round-trips"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 3,
+"stdout": [],
+"stderr": "NOT MIGRATED — read §3. A11y Assertion Harness Contract in the body",
+"wrote": [],
+"before": null,
+"after": null
+}
+]

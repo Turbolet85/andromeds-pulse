@@ -15,9 +15,13 @@ env:
   GIT_COMMIT_SHA: ${{ github.sha }}
   CARGO_TERM_COLOR: always
 
+# Five independent jobs: a round lasts as long as its longest job, not the sum.
+# Cache keys are budgeted against the 10 GB repository cap: one target cache per
+# lint-test OS plus one for boot; a11y and supply-chain restore read-only, and
+# coverage keeps only the registry.
 jobs:
-  lint-test-build:
-    name: lint / test / build (${{ matrix.os }})
+  lint-test:
+    name: lint / test (${{ matrix.os }})
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -42,12 +46,13 @@ jobs:
       - name: Cache cargo
         uses: Swatinem/rust-cache@23869a5bd66c73db3c0ac40331f3206eb23791dc # v2.9.1
         with:
-          shared-key: ${{ runner.os }}-cargo
+          shared-key: lint-test-${{ runner.os }}
+          cache-on-failure: true
 
-      - name: Install cargo-nextest + cargo-llvm-cov
+      - name: Install cargo-nextest
         uses: taiki-e/install-action@db5fb34fa772531a3ece57ca434f579eb334e0fb # v2.75.30
         with:
-          tool: cargo-nextest,cargo-llvm-cov
+          tool: cargo-nextest
 
       # pulse-app links Tauri's WebKitGTK stack plus dbus (keyring, notify);
       # the build scripts find them through pkg-config.
@@ -132,57 +137,20 @@ jobs:
       - name: cargo xtask test (no-tests=pass at Foundation epoch)
         run: cargo xtask test
 
-      - name: npm run build --prefix pulse-app/ui (Vite dist for a11y harness)
-        working-directory: pulse-app/ui
-        run: npm run build
-
-      # A fresh runner has no Playwright browser build for the pinned
-      # @playwright/test; the axe/contrast suites launch chromium.
-      - name: Install Playwright chromium (a11y harness)
-        working-directory: pulse-app/ui
-        run: npx playwright install --with-deps chromium
-
-      - name: Download base-branch a11y-violations baseline (PR only)
-        if: github.event_name == 'pull_request'
-        uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16 # v4
-        continue-on-error: true
-        with:
-          name: a11y-violations-base
-          path: pulse-app/ui/tests-a11y/baselines/
-
-      - name: cargo xtask test:a11y (axe + Lighthouse + pa11y + colorjs.io + aggregator + regression)
-        run: cargo xtask test:a11y
-
+      # Selects its one test under --workspace, so it reuses the test build above.
       - name: cargo xtask perf:slo-load (10k spans/sec sustained-load) (Linux only)
         if: runner.os == 'Linux'
         run: cargo xtask perf:slo-load
-
-      - name: cargo build --workspace --release
-        run: cargo build --workspace --release
-
-      - name: cargo build --features mcp-server (Linux only)
-        if: runner.os == 'Linux'
-        run: cargo build --workspace --release --features mcp-server
 
       - name: cargo nextest run --features mcp-server (Linux only)
         if: runner.os == 'Linux'
         run: cargo nextest run --workspace --features mcp-server --profile ci --no-tests=pass
 
-      - name: Boot pulse-app smoke (Linux only)
-        if: runner.os == 'Linux'
-        # The runner is headless: without a display tao panics initialising
-        # GTK. One xvfb-run spans all three verbs so the X server outlives
-        # boot's backgrounded app.
-        run: |
-          xvfb-run -a --server-args="-screen 0 1280x1024x24" bash -c '
-            set -e
-            bash scripts/agent-run.sh boot
-            bash scripts/agent-run.sh status
-            bash scripts/agent-run.sh cleanup
-          '
-
-      - name: cargo xtask ci-gates
-        run: cargo xtask ci-gates
+      # On Linux the supply-chain job's `cargo auditable build --workspace --release`
+      # builds the same scope, profile and features.
+      - name: cargo build --workspace --release (macOS + Windows)
+        if: runner.os != 'Linux'
+        run: cargo build --workspace --release
 
       - name: Upload logs artifact
         if: always()
@@ -231,6 +199,76 @@ jobs:
           if-no-files-found: ignore
           retention-days: 14
 
+  a11y:
+    name: a11y (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-22.04, macos-latest, windows-latest]
+    steps:
+      - name: Harden runner
+        uses: step-security/harden-runner@a5ad31d6a139d249332a2605b85202e8c0b78450 # v2.19.1
+        with:
+          egress-policy: audit
+
+      - name: Export ANDROMEDA_PULSE_DATA_DIR
+        shell: bash
+        run: echo "ANDROMEDA_PULSE_DATA_DIR=$RUNNER_TEMP/andromeda-pulse-ci-data" >> "$GITHUB_ENV"
+
+      - name: Checkout
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+
+      - name: Install Rust toolchain (respects rust-toolchain.toml)
+        uses: dtolnay/rust-toolchain@29eef336d9b2848a0b548edc03f92a220660cdb8 # stable
+
+      # Only the xtask binary is compiled here; lint-test owns the key.
+      - name: Cache cargo (restore only)
+        uses: Swatinem/rust-cache@23869a5bd66c73db3c0ac40331f3206eb23791dc # v2.9.1
+        with:
+          shared-key: lint-test-${{ runner.os }}
+          save-if: false
+
+      # pulse-app links Tauri's WebKitGTK stack plus dbus (keyring, notify);
+      # the build scripts find them through pkg-config.
+      - name: Install Linux system libraries (Tauri + dbus)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends pkg-config libssl-dev \
+            libdbus-1-dev libgtk-3-dev libwebkit2gtk-4.1-dev libsoup-3.0-dev \
+            libjavascriptcoregtk-4.1-dev libayatana-appindicator3-dev librsvg2-dev libxdo-dev xvfb
+
+      - name: Setup Node
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '24'
+
+      - name: npm ci (pulse-app/ui)
+        working-directory: pulse-app/ui
+        run: npm ci
+
+      - name: npm run build --prefix pulse-app/ui (Vite dist for a11y harness)
+        working-directory: pulse-app/ui
+        run: npm run build
+
+      # A fresh runner has no Playwright browser build for the pinned
+      # @playwright/test; the axe/contrast suites launch chromium.
+      - name: Install Playwright chromium (a11y harness)
+        working-directory: pulse-app/ui
+        run: npx playwright install --with-deps chromium
+
+      - name: Download base-branch a11y-violations baseline (PR only)
+        if: github.event_name == 'pull_request'
+        uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16 # v4
+        continue-on-error: true
+        with:
+          name: a11y-violations-base
+          path: pulse-app/ui/tests-a11y/baselines/
+
+      - name: cargo xtask test:a11y (axe + Lighthouse + pa11y + colorjs.io + aggregator + regression)
+        run: cargo xtask test:a11y
+
       - name: Upload a11y violations summary + regression set + contrast report
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
@@ -249,6 +287,81 @@ jobs:
         with:
           name: playwright-a11y-report-${{ runner.os }}
           path: target/playwright-a11y-report/
+          if-no-files-found: ignore
+          retention-days: 14
+
+  boot:
+    name: boot smoke (ubuntu-22.04)
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Harden runner
+        uses: step-security/harden-runner@a5ad31d6a139d249332a2605b85202e8c0b78450 # v2.19.1
+        with:
+          egress-policy: audit
+
+      - name: Export ANDROMEDA_PULSE_DATA_DIR
+        shell: bash
+        run: echo "ANDROMEDA_PULSE_DATA_DIR=$RUNNER_TEMP/andromeda-pulse-ci-data" >> "$GITHUB_ENV"
+
+      - name: Checkout
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+
+      - name: Install Rust toolchain (respects rust-toolchain.toml)
+        uses: dtolnay/rust-toolchain@29eef336d9b2848a0b548edc03f92a220660cdb8 # stable
+
+      - name: Cache cargo
+        uses: Swatinem/rust-cache@23869a5bd66c73db3c0ac40331f3206eb23791dc # v2.9.1
+        with:
+          shared-key: boot-Linux
+          cache-on-failure: true
+
+      # pulse-app links Tauri's WebKitGTK stack plus dbus (keyring, notify);
+      # the build scripts find them through pkg-config.
+      - name: Install Linux system libraries (Tauri + dbus)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends pkg-config libssl-dev \
+            libdbus-1-dev libgtk-3-dev libwebkit2gtk-4.1-dev libsoup-3.0-dev \
+            libjavascriptcoregtk-4.1-dev libayatana-appindicator3-dev librsvg2-dev libxdo-dev xvfb
+
+      - name: Setup Node
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '24'
+
+      - name: npm ci (pulse-app/ui)
+        working-directory: pulse-app/ui
+        run: npm ci
+
+      - name: npm run build (ui/dist, embedded by tauri::generate_context!)
+        working-directory: pulse-app/ui
+        run: npm run build
+
+      - name: cargo build --features mcp-server (feature-gated binary build smoke)
+        run: cargo build --workspace --release --features mcp-server
+
+      - name: Boot pulse-app smoke
+        # The runner is headless: without a display tao panics initialising
+        # GTK. One xvfb-run spans all three verbs so the X server outlives
+        # boot's backgrounded app.
+        run: |
+          xvfb-run -a --server-args="-screen 0 1280x1024x24" bash -c '
+            set -e
+            bash scripts/agent-run.sh boot
+            bash scripts/agent-run.sh status
+            bash scripts/agent-run.sh cleanup
+          '
+
+      # Reads the log the boot smoke above wrote under ANDROMEDA_PULSE_DATA_DIR.
+      - name: cargo xtask ci-gates
+        run: cargo xtask ci-gates
+
+      - name: Upload boot logs artifact
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: logs-boot-${{ runner.os }}
+          path: ${{ env.ANDROMEDA_PULSE_DATA_DIR }}/logs/
           if-no-files-found: ignore
           retention-days: 14
 
@@ -271,10 +384,12 @@ jobs:
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@29eef336d9b2848a0b548edc03f92a220660cdb8 # stable
 
-      - name: Cache cargo
+      # The release dependency graph largely coincides with boot's; boot owns the key.
+      - name: Cache cargo (restore only)
         uses: Swatinem/rust-cache@23869a5bd66c73db3c0ac40331f3206eb23791dc # v2.9.1
         with:
-          shared-key: ubuntu-22.04-cargo
+          shared-key: boot-Linux
+          save-if: false
 
       - name: cargo audit (RustSec advisory DB)
         uses: rustsec/audit-check@69366f33c96575abad1ee0dba8212993eecbe998 # v2.0.0
@@ -323,6 +438,7 @@ jobs:
         with:
           tool: cargo-auditable
 
+      # Also the Linux workspace release build smoke.
       - name: cargo auditable build smoke (workspace release)
         run: cargo auditable build --workspace --release
 
@@ -345,10 +461,13 @@ jobs:
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@29eef336d9b2848a0b548edc03f92a220660cdb8 # stable
 
+      # Registry only: an instrumented target cache would not fit the repo cap.
       - name: Cache cargo
         uses: Swatinem/rust-cache@23869a5bd66c73db3c0ac40331f3206eb23791dc # v2.9.1
         with:
-          shared-key: ubuntu-22.04-cargo
+          shared-key: coverage
+          cache-targets: false
+          cache-on-failure: true
 
       - name: Install cargo-nextest + cargo-llvm-cov
         uses: taiki-e/install-action@db5fb34fa772531a3ece57ca434f579eb334e0fb # v2.75.30

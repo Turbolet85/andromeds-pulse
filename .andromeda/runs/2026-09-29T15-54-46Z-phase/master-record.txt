@@ -1,0 +1,1 @@
+2026-09-29-ci-wall-time-and-round-trips · pending · CI wall time and round-trips — parallel jobs, a kept cache, no duplicate rebuilds, a local WSL Linux pre-push check · → andromeda-pulse-0.3.0/chunks/2026-09-29-ci-wall-time-and-round-trips/

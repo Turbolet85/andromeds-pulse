@@ -13,6 +13,7 @@ mod harness_status;
 mod hue_shift;
 mod ingest_progress;
 mod npm_gate;
+mod pre_push;
 mod self_verify;
 mod smoke;
 mod staged_gate;
@@ -210,6 +211,11 @@ enum Cmd {
         about = "Chunk #99 — dist-arch v3 four-profile load suite (baseline 1k / high 10k / burst 50k / sustained-extreme 50k spans/s) via nextest --profile load-profiles, then heartbeat-gap + perf-slo gates over harness logs when present"
     )]
     PerfLoadProfiles,
+    #[command(
+        name = "pre-push:linux",
+        about = "Run the Linux-reachable CI gates (script modes, npm build, clippy, xtask test, ci-gates) in a WSL Ubuntu clone synced to HEAD + the working tree, before a push. One JSON verdict; exit 0 green / 1 red / 2 cannot-evaluate (not Windows, no distro, or a pinned tool or apt package missing — the remediation command is printed). Never binds a port"
+    )]
+    PrePushLinux,
 }
 
 #[tokio::main]
@@ -280,6 +286,7 @@ async fn main() -> ExitCode {
         }
         Cmd::VerifyCapabilityMatrix => verify_capability_matrix().await,
         Cmd::PerfLoadProfiles => run_perf_load_profiles().await,
+        Cmd::PrePushLinux => pre_push::run(),
     };
     match result {
         Ok(code) => code,
@@ -648,15 +655,16 @@ async fn run_perf_slo_load() -> Result<ExitCode> {
     // 10k spans/sec sustained-load test runs the perf_slo_10k_spans
     // integration test via cargo-nextest; post-test p99 / max gates fire
     // via run_ci_gates() (invoked as a separate xtask step in CI).
+    // Narrowed with -E under --workspace, never -p: a -p selection unifies
+    // features differently and recompiles the graph `cargo xtask test` built.
     let mut cmd = tokio::process::Command::new("cargo");
     cmd.env("NEXTEST_EXPERIMENTAL_LIBTEST_JSON", "1");
     cmd.args([
         "nextest",
         "run",
-        "-p",
-        "pulse-app",
-        "--test",
-        "perf_slo_10k_spans",
+        "--workspace",
+        "-E",
+        "binary(perf_slo_10k_spans)",
         "--profile",
         "ci",
         "--no-tests=pass",
@@ -666,7 +674,7 @@ async fn run_perf_slo_load() -> Result<ExitCode> {
     let status = cmd
         .status()
         .await
-        .context("failed to spawn `cargo nextest run --test perf_slo_10k_spans`")?;
+        .context("failed to spawn `cargo nextest run -E binary(perf_slo_10k_spans)`")?;
     Ok(status_to_code(status))
 }
 

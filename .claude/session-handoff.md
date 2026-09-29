@@ -26,3 +26,6 @@ Architecture (wasmtime 48.0.3 ×3, the hue interval, harness:status liveness, ag
 ## Deferred learnings
 - Max-3 cap this wrap (confidence 0.8 each): macOS `SystemTime` ticks in whole µs, so a wall clock is never a uniqueness source; Windows embeds the `.ico`, so a palette PNG icon fails only on macOS/Linux `generate_context!`.
 - Still open from prior wraps: the deferral-destination generalization; `inject_demo --sustained` cannot form an incident (EWMA convergence) — a CHECK for the leg-authoring reference.
+
+## Session End Status
+Completed normally at 2026-09-29 18:57:43

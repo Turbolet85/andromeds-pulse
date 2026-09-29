@@ -1,0 +1,71 @@
+[
+{
+"sql": "SELECT caller, callee_name, file, line FROM calls WHERE callee_name IN ('run_perf_slo_load','run_cargo_nextest','run_cargo_llvm_cov','run_ci_gates','run_npm_script') AND callee_kind = 'fn' ORDER BY callee_name, file, line",
+"rows": 7,
+"result": [
+{
+"caller": "rust-analyzer cargo xtask 0.1.0 main().",
+"callee_name": "run_cargo_llvm_cov",
+"file": "xtask/src/main.rs",
+"line": 220
+},
+{
+"caller": "rust-analyzer cargo xtask 0.1.0 main().",
+"callee_name": "run_cargo_nextest",
+"file": "xtask/src/main.rs",
+"line": 219
+},
+{
+"caller": "rust-analyzer cargo xtask 0.1.0 main().",
+"callee_name": "run_ci_gates",
+"file": "xtask/src/main.rs",
+"line": 259
+},
+{
+"caller": "rust-analyzer cargo xtask 0.1.0 main().",
+"callee_name": "run_npm_script",
+"file": "xtask/src/main.rs",
+"line": 260
+},
+{
+"caller": "rust-analyzer cargo xtask 0.1.0 main().",
+"callee_name": "run_npm_script",
+"file": "xtask/src/main.rs",
+"line": 261
+},
+{
+"caller": "rust-analyzer cargo xtask 0.1.0 main().",
+"callee_name": "run_npm_script",
+"file": "xtask/src/main.rs",
+"line": 262
+},
+{
+"caller": "rust-analyzer cargo xtask 0.1.0 main().",
+"callee_name": "run_perf_slo_load",
+"file": "xtask/src/main.rs",
+"line": 272
+}
+],
+"db_state": "fresh",
+"plane": "rust"
+},
+{
+"sql": "SELECT symbol, crate, kind, file FROM symbol WHERE (name LIKE 'pre_push%' OR name LIKE 'PrePush%' OR name LIKE 'wsl%' OR name LIKE 'Wsl%') AND kind <> 'meta'",
+"rows": 0,
+"result": [],
+"db_state": "fresh",
+"plane": "rust"
+},
+{
+"sql": "SELECT from_crate, to_crate FROM crate_edges WHERE to_crate = 'xtask' OR from_crate = 'xtask'",
+"rows": 1,
+"result": [
+{
+"from_crate": "xtask",
+"to_crate": "ingest"
+}
+],
+"db_state": "fresh",
+"plane": "rust"
+}
+]

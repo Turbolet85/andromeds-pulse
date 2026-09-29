@@ -1,0 +1,35 @@
+# security extract
+
+## Relevance
+partial — no product-surface change; the chunk rewrites `ci.yml` job topology, caching and a local pre-push harness, which is the CI supply-chain / security-gate surface this plan governs.
+
+## Constraints
+- Every job created by the split (A) must satisfy three rules. Its first step is `step-security/harden-runner`, pinned by 40-char SHA, with `egress-policy: audit` until a clean window promotes it to `block`. The workflow-level `permissions:` block stays `contents: read`, and no job is elevated to `write` (no job here publishes). Every third-party Action it adds, including any new cache action or a changed `Swatinem/rust-cache` usage, is referenced as `<owner>/<repo>@<40-char-SHA> # vX.Y.Z`, never a floating tag. Per security-plan §Bootstrap phases → dep-security-ci-gate, §Secret Management → GitHub Environment scoping, §Security Anti-Patterns → Secrets.
+- The supply-chain gate roster must still run after the split and dedup, with exit semantics unchanged. It is `cargo audit` (plain pass/fail again), `cargo deny check bans licenses sources` (the pass/fail form, kept separate from `advisories`), `cargo xtask check:npm-supply-chain` (0/1/2, no `npm ci`), `cargo xtask capability-drift` with `cargo xtask check:staged-artifacts` as its own named step, and `capability-widening-check`. A gate that moves jobs moves whole. It is never folded into a combined invocation that masks its verdict. Per security-plan §Dependency Security → CI integration, §Bootstrap phases → dep-security-ci-gate.
+- The per-PR secret-scanning gate (gitleaks, SHA-pinned) keeps running on every PR. The split must not orphan it or make it conditional. Per security-plan §Secret Management → Secret scanning in CI, §Bootstrap phases → secret-scanning-ci-gate.
+- `cargo audit` reads the advisory-db under `$CARGO_HOME`. The chunk must not persist a stale advisory database across rounds: a cache that restores `$CARGO_HOME` must not stand in for the database the gate reads, and whether the current cache paths include `$CARGO_HOME/advisory-db` is research's question. The same goes for the WSL pre-push leg (D) if it runs `cargo audit`. Per security-plan §Dependency Security → CI integration (`cargo audit` database copy).
+- Signing and release secrets stay inside the `production-release` Environment with manual approval. A job split out of `lint-test-build` must not gain access to `TAURI_SIGNING_PRIVATE_KEY*`, Apple credentials or Azure federation, and a cache kept on failure must not capture any secret-bearing path. Per security-plan §Secret Management → What counts as secret, → GitHub Environment scoping.
+- The WSL pre-push boot leg (D) may bind only `127.0.0.1`. A port collision with the Windows host's `:4317`/`:4318` listener, caused by WSL2 localhost forwarding, is solved by a distinct port or networking mode, never by binding `0.0.0.0` or a non-loopback interface. Per security-plan §Security Anti-Patterns → API (loopback-only binding), §API Security.
+- The WSL pre-push harness's path/tool-locator env vars are harness-only. They take the carve-out shape (trim, `is_file()`, clean skip) and never introduce a product-binary `ANDROMEDA_PULSE_*_PATH`/`*_DIR` without the both-sides-canonicalize guard. Per security-plan §Security Anti-Patterns → Input (carve-out for harness/xtask-only tool locators).
+
+## Patterns to follow
+- Wire an xtask gate as a plain named `run:` step with no third-party action, so the SHA-pinning convention is not triggered. This is the `check:staged-artifacts` precedent in security-plan §Bootstrap phases → dep-security-ci-gate. A new pre-push or CI orchestration verb should follow it.
+- Use the lockfile-only npm gate: SHA-pinned setup-node, no `npm ci`, so the job needs no `node_modules`. This keeps the `supply-chain` job cheap and independent of any build job, which suits the parallel split (security-plan §Dependency Security → npm channel).
+- Every exception needs a visible disposition. If a gate must be skipped, conditioned or relaxed, it gets a named owner and a closing condition, never a silent drop (security-plan §Dependency Security → CI integration, advisory dispositions / duplicate-version carve-outs).
+- Keep an exit contract: 0 clean, 1 findings, 2 cannot-evaluate. Infra failure is its own arm, never a pass. A WSL pre-push verb should reuse this three-way contract so "WSL unreachable" never reads as green (security-plan §Dependency Security → npm channel exit contract).
+
+## Anti-patterns to avoid
+- Never reference a third-party GitHub Action by `@vN` or a floating tag. This includes any cache, artifact-upload or artifact-download action added to share builds between parallel jobs (per security-plan §Security Anti-Patterns → Secrets).
+- Never grant `permissions: { contents: write }` at workflow level. Cache save-on-failure or artifact hand-off between jobs needs no write elevation (per security-plan §Security Anti-Patterns → Secrets).
+- Never bind the OTLP receivers to `0.0.0.0` or any non-loopback interface, including in the WSL boot leg (per security-plan §Security Anti-Patterns → API).
+
+## Contract bindings
+- CI security gate ↔ test-plan §9 CI Integration: the supply-chain, capability-drift, staged-artifacts, widening-check and secret-scan steps are security-owned gates hosted in the test-plan's CI layout. The job split must keep each one present and blocking in both documents' sense.
+- harden-runner egress audit ↔ cache/artifact actions: harden-runner `audit` logs the egress of new cache or artifact endpoints. The promotion to `block` depends on the endpoint set that parallel jobs and kept caches introduce (security-plan §Secret Management → Access auditing).
+- WSL pre-push harness ↔ verification-harness rule / `scripts/agent-run.*`: a harness-only tool-locator var falls under the Input carve-out, not the product path rule.
+
+## Acceptance criteria contributions
+- Every job in the rewritten `ci.yml` has `step-security/harden-runner@<40-char-SHA>` as its first step. Every `uses:` line references a 40-char SHA with a version comment. Workflow-level `permissions:` is `contents: read`. Verify by grep over `.github/workflows/ci.yml` (per security-plan §Bootstrap phases → dep-security-ci-gate; §Security Anti-Patterns → Secrets).
+- `cargo audit`, `cargo deny check bans licenses sources`, `cargo xtask check:npm-supply-chain`, `cargo xtask capability-drift`, `cargo xtask check:staged-artifacts`, `cargo xtask capability-widening-check` and the gitleaks secret-scan step each still appear as a blocking step in exactly one job after the change. Check with a before/after roster diff (per security-plan §Dependency Security → CI integration; §Secret Management → Secret scanning in CI).
+- No job outside the `production-release`-scoped release flow references a signing secret, and no cache `path:` covers a secret-bearing location (per security-plan §Secret Management → GitHub Environment scoping).
+- If the WSL pre-push check runs a boot leg, it binds only `127.0.0.1`. Show this with the harness's bind address in its output or log (per security-plan §Security Anti-Patterns → API).
