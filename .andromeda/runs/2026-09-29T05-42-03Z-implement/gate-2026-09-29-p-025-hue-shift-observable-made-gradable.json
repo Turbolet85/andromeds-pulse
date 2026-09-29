@@ -4053,5 +4053,1162 @@
 "unparsed": 0,
 "widening_without_word": 0
 }
+},
+{
+"tool": "gate",
+"v": "1.4",
+"sha8": "c63b37d3",
+"ts": "2026-09-29T07:51:26Z",
+"argv": [
+"run",
+"--plan",
+"andromeda-pulse-0.3.0/chunks/2026-09-29-p-025-hue-shift-observable-made-gradable/plan.md",
+"--run-dir",
+".andromeda/runs/2026-09-29T05-42-03Z-implement",
+"--marker",
+"2026-09-29-p-025-hue-shift-observable-made-gradable",
+"--only",
+"12,13,14"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"shell C:\\Program Files\\Git\\bin\\bash.exe (from $SHELL; -c, non-login)",
+"root D:\\dev\\projects\\andromeda-pulse · marker 2026-09-29-p-025-hue-shift-observable-made-gradable · entries 28",
+"logs C:\\Users\\turbo\\AppData\\Local\\Temp\\andromeda-gate\\2026-09-29-p-025-hue-shift-observable-made-gradable\\implement-2026-09-29T05-42-03Z · bound: GNU timeout",
+"delta docs 2 · rust 2 · unmapped 2",
+"prose L234-237: These are the standard gate set (test-plan §3 Per-chunk gate discipline) plus the webview … (413 chars)",
+"prose L239-244: Pin #22 (the folded `cargo audit` standing deferral) is listed STRUCTURALLY, never as a pa… (551 chars)",
+"prose L246-247: Session 66 is a between-point: the signature read IS the basis re-verification. The report… (210 chars)",
+"prose L249-251: No `role = 'smoke'` entry: the modify-set holds none of test-plan §3's boot-smoke trigger … (324 chars)",
+"prose L253-255: The live leg (`smoke:hue-shift`) boots and stops its own app. Its non-priming probe is the… (301 chars)",
+"prose L257-262: Operator entries run in the OPERATOR PASS, never in /implement: - the seeded hygiene probe… (285 chars)",
+"prose L264-265: `ci.yml`'s wall-clock is unmeasured (no job has run in two months), hence the 3 600 s wait… (219 chars)",
+"  1 lint        not run — excluded · cargo fmt --all -- --check",
+"  2 lint        not run — excluded · cargo clippy --workspace --all-targets --all-features -- -… (68 chars)",
+"  3 build       not run — excluded · cargo build --workspace --tests --jobs 4",
+"  4 unit        not run — excluded · cargo nextest run --workspace --profile ci",
+"  5 unit        not run — excluded · cargo nextest run --workspace --profile ci --no-tests=fail… (200 chars)",
+"  6 lint        not run — excluded · npm run lint --prefix pulse-app/ui",
+"  7 lint        not run — excluded · npm run typecheck --prefix pulse-app/ui",
+"  8 unit        not run — excluded · npm run test --prefix pulse-app/ui",
+"  9 build       not run — excluded · cargo nextest run -p pulse-app --features mcp-server --bin… (100 chars)",
+" 10 probe       not run — excluded · grep -c tier_effective_at_unix_nano pulse-app/ui/src/bindi… (70 chars)",
+" 11 build       not run — excluded · npm run build --prefix pulse-app/ui",
+" 12 build       green · exit 0 · 346.16s · 2207 B → 12.log · cargo build -p pulse-app --release",
+" 13 self-verify green · exit 0 · 31.14s · 10063 B → 13.log · cargo xtask self-verify",
+" 14 probe       green · exit 0 · 4.16s · 0 B → 14.log · test -f target/release/pulse-app.exe && python -X utf8 -c … (161 chars)",
+" 15 e2e         not run — excluded · cargo xtask smoke:hue-shift",
+" 16 probe       not run — excluded · cd pulse-app/ui && npx playwright test --config=playwright… (80 chars)",
+" 17 probe       not run — excluded · git -C \"$HOME/.cargo/advisory-db/advisory-db-3157b0e258782… (76 chars)",
+" 18 probe       not run — excluded · cargo audit",
+" 19 probe       not run — excluded · cargo deny check advisories",
+" 20 probe       not run — excluded · cargo deny check bans licenses sources",
+" 21 probe       not run — excluded · cargo xtask capability-widening-check",
+" 22 probe       not run — excluded · cargo xtask check:ingest-progress",
+" 23 probe       not run — excluded · cargo xtask check:staged-artifacts",
+" 24 probe       not run — excluded · cargo xtask capability-drift",
+" 25 probe       not run — excluded · python -X utf8 C:/Users/turbo/.claude/skills/andromeda-too… (84 chars)",
+" 26 probe       not run — excluded · git diff --quiet && git diff --cached --quiet && git push … (90 chars)",
+" 27 probe       not run — excluded · git diff --quiet && git diff --cached --quiet && { gh pr v… (467 chars)",
+" 28 probe       not run — excluded · python -X utf8 C:/Users/turbo/.claude/skills/andromeda-too… (108 chars)",
+"entries 28 · green 3 · red 0 · recorded 0 · timeout 0 · not-run 25"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"marker": "2026-09-29-p-025-hue-shift-observable-made-gradable",
+"plan": "D:\\dev\\projects\\andromeda-pulse\\andromeda-pulse-0.3.0\\chunks\\2026-09-29-p-025-hue-shift-observable-made-gradable\\plan.md",
+"root": "D:\\dev\\projects\\andromeda-pulse",
+"shell": "C:\\Program Files\\Git\\bin\\bash.exe",
+"out_dir": "C:\\Users\\turbo\\AppData\\Local\\Temp\\andromeda-gate\\2026-09-29-p-025-hue-shift-observable-made-gradable\\implement-2026-09-29T05-42-03Z",
+"delta": {
+"rust": [
+"Cargo.lock",
+"Cargo.toml"
+],
+"docs": [
+"andromeda-pulse-0.3.0/chunks/2026-09-29-p-025-hue-shift-observable-made-gradable/scope-record.md",
+"andromeda-pulse-0.3.0/chunks/2026-09-29-p-025-hue-shift-observable-made-gradable/evidence/operator-pass.md"
+]
+},
+"unmapped": [
+".github/workflows/ci.yml",
+".gitleaksignore"
+],
+"prose": [
+{
+"from": 234,
+"to": 237,
+"text": "These are the standard gate set (test-plan §3 Per-chunk gate discipline) plus the webview gates, since the chunk touches `pulse-app/ui/**`. The rust gates are NOT deferred: the chunk is Rust-touching, which discharges the carried rust-gate PREREQ. The bindings regen runs after every default-features cargo op. `capability-drift` is the last gate /implement runs; the operator entries after it regenerate nothing."
+},
+{
+"from": 239,
+"to": 244,
+"text": "Pin #22 (the folded `cargo audit` standing deferral) is listed STRUCTURALLY, never as a pass/fail gate: - a currency entry for the local advisory-DB copy `cargo audit` reads; - the probe asserting the ratified RED SIGNATURE (`exit 1` + `duplicate advisory ID: RUSTSEC-2026-0244`); - the overlap pair: `cargo deny check advisories`, whose owned set is EMPTY since `2026-08-29-advisory-backlog`,   so exit 0 is expected; and `cargo deny check bans licenses sources` as its own invocation, the pass/fail gate   (the security rule bans the combined form)."
+},
+{
+"from": 246,
+"to": 247,
+"text": "Session 66 is a between-point: the signature read IS the basis re-verification. The report records `probe skipped per ratified interval (next: 67)` for the full form, and enumerates the DISTINCT `RUSTSEC-` ids."
+},
+{
+"from": 249,
+"to": 251,
+"text": "No `role = 'smoke'` entry: the modify-set holds none of test-plan §3's boot-smoke trigger paths (`main.rs`, `crates/ui-bridge/src/`, `observability.rs`, `tauri.conf.json`, `capabilities/`). The real app is booted anyway by the self-verify entry and by the live leg, which is this chunk's warm boot of a user-visible surface."
+},
+{
+"from": 253,
+"to": 255,
+"text": "The live leg (`smoke:hue-shift`) boots and stops its own app. Its non-priming probe is the release binary's presence plus both OTLP ports refusing, so a stale app from an earlier run reads as a failed precondition. The ui-smoke is `cargo xtask self-verify`: this is a UI chunk, and the harness exists."
+},
+{
+"from": 257,
+"to": 262,
+"text": "Operator entries run in the OPERATOR PASS, never in /implement: - the seeded hygiene probe; - a clean-tree push; - ONE draft PR (operator ruling). It fires `pull_request` CI now and on every later push. The builder never merges   or closes it; its fate is the founder's. - the CI read."
+},
+{
+"from": 264,
+"to": 265,
+"text": "`ci.yml`'s wall-clock is unmeasured (no job has run in two months), hence the 3 600 s wait. The CI read's expected verdict is green. A red read is fixed by further commits in the pass, per the template's operator rules."
+}
+],
+"entries": [
+{
+"n": 1,
+"role": "lint",
+"run": "cargo fmt --all -- --check",
+"run_sha8": "810e75f0",
+"expect": null,
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — excluded"
+},
+{
+"n": 2,
+"role": "lint",
+"run": "cargo clippy --workspace --all-targets --all-features -- -D warnings",
+"run_sha8": "f835224c",
+"expect": null,
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — excluded"
+},
+{
+"n": 3,
+"role": "build",
+"run": "cargo build --workspace --tests --jobs 4",
+"run_sha8": "daae8fe5",
+"expect": null,
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — excluded"
+},
+{
+"n": 4,
+"role": "unit",
+"run": "cargo nextest run --workspace --profile ci",
+"run_sha8": "bf6e813a",
+"expect": null,
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — excluded"
+},
+{
+"n": 5,
+"role": "unit",
+"run": "cargo nextest run --workspace --profile ci --no-tests=fail -E 'test(/tier_effective|hue_shift|workflow_env_references_no_step_only_context|data_dir_export_precedes_every_consumer|list_for_workspace/)'",
+"run_sha8": "153a266f",
+"expect": null,
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — excluded"
+},
+{
+"n": 6,
+"role": "lint",
+"run": "npm run lint --prefix pulse-app/ui",
+"run_sha8": "a2b8c586",
+"expect": null,
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — excluded"
+},
+{
+"n": 7,
+"role": "lint",
+"run": "npm run typecheck --prefix pulse-app/ui",
+"run_sha8": "dda688fc",
+"expect": null,
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — excluded"
+},
+{
+"n": 8,
+"role": "unit",
+"run": "npm run test --prefix pulse-app/ui",
+"run_sha8": "9436b307",
+"expect": null,
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — excluded"
+},
+{
+"n": 9,
+"role": "build",
+"run": "cargo nextest run -p pulse-app --features mcp-server --bin pulse-app -E 'test(emit_taurpc_bindings)'",
+"run_sha8": "6ca9ebb1",
+"expect": null,
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — excluded"
+},
+{
+"n": 10,
+"role": "probe",
+"run": "grep -c tier_effective_at_unix_nano pulse-app/ui/src/bindings/index.ts",
+"run_sha8": "e154bd44",
+"expect": null,
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — excluded"
+},
+{
+"n": 11,
+"role": "build",
+"run": "npm run build --prefix pulse-app/ui",
+"run_sha8": "26008215",
+"expect": null,
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — excluded"
+},
+{
+"n": 12,
+"role": "build",
+"run": "cargo build -p pulse-app --release",
+"run_sha8": "94f1787c",
+"expect": null,
+"log": "C:\\Users\\turbo\\AppData\\Local\\Temp\\andromeda-gate\\2026-09-29-p-025-hue-shift-observable-made-gradable\\implement-2026-09-29T05-42-03Z\\12.log",
+"bytes": 2207,
+"log_sha8": "b1ddfd35",
+"exit": 0,
+"seconds": 346.16,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 13,
+"role": "self-verify",
+"run": "cargo xtask self-verify",
+"run_sha8": "db8c3248",
+"expect": [
+"exit 0",
+"contains self-verify: PASS"
+],
+"log": "C:\\Users\\turbo\\AppData\\Local\\Temp\\andromeda-gate\\2026-09-29-p-025-hue-shift-observable-made-gradable\\implement-2026-09-29T05-42-03Z\\13.log",
+"bytes": 10063,
+"log_sha8": "3f6c05bb",
+"exit": 0,
+"seconds": 31.14,
+"readings": [
+"exit 0 ✓",
+"contains 'self-verify: PASS' ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 14,
+"role": "probe",
+"run": "test -f target/release/pulse-app.exe && python -X utf8 -c \"import socket,sys; sys.exit(sum(socket.socket().connect_ex(('127.0.0.1',p))==0 for p in (4317,4318)))\"",
+"run_sha8": "fa571ab0",
+"expect": null,
+"log": "C:\\Users\\turbo\\AppData\\Local\\Temp\\andromeda-gate\\2026-09-29-p-025-hue-shift-observable-made-gradable\\implement-2026-09-29T05-42-03Z\\14.log",
+"bytes": 0,
+"log_sha8": "e3b0c442",
+"exit": 0,
+"seconds": 4.16,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 15,
+"role": "e2e",
+"run": "cargo xtask smoke:hue-shift",
+"run_sha8": "418f6256",
+"expect": [
+"exit 0"
+],
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — excluded"
+},
+{
+"n": 16,
+"role": "probe",
+"run": "cd pulse-app/ui && npx playwright test --config=playwright-a11y.config.ts --list",
+"run_sha8": "e850458a",
+"expect": [
+"exit 0",
+"lacks Total: 0 tests"
+],
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — excluded"
+},
+{
+"n": 17,
+"role": "probe",
+"run": "git -C \"$HOME/.cargo/advisory-db/advisory-db-3157b0e258782691\" fetch --quiet",
+"run_sha8": "18c42c13",
+"expect": [
+"no output"
+],
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — excluded"
+},
+{
+"n": 18,
+"role": "probe",
+"run": "cargo audit",
+"run_sha8": "317b8907",
+"expect": [
+"exit 1",
+"contains duplicate advisory ID: RUSTSEC-2026-0244"
+],
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — excluded"
+},
+{
+"n": 19,
+"role": "probe",
+"run": "cargo deny check advisories",
+"run_sha8": "a502d912",
+"expect": null,
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — excluded"
+},
+{
+"n": 20,
+"role": "probe",
+"run": "cargo deny check bans licenses sources",
+"run_sha8": "7593f094",
+"expect": null,
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — excluded"
+},
+{
+"n": 21,
+"role": "probe",
+"run": "cargo xtask capability-widening-check",
+"run_sha8": "c09451af",
+"expect": null,
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — excluded"
+},
+{
+"n": 22,
+"role": "probe",
+"run": "cargo xtask check:ingest-progress",
+"run_sha8": "123ffa0a",
+"expect": null,
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — excluded"
+},
+{
+"n": 23,
+"role": "probe",
+"run": "cargo xtask check:staged-artifacts",
+"run_sha8": "052b4e95",
+"expect": null,
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — excluded"
+},
+{
+"n": 24,
+"role": "probe",
+"run": "cargo xtask capability-drift",
+"run_sha8": "fb5fd088",
+"expect": null,
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — excluded"
+},
+{
+"n": 25,
+"role": "probe",
+"run": "python -X utf8 C:/Users/turbo/.claude/skills/andromeda-tools/scripts/gate.py hygiene",
+"run_sha8": "f0648308",
+"expect": [
+"exit 0",
+"contains hygiene: clean"
+],
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — excluded"
+},
+{
+"n": 26,
+"role": "probe",
+"run": "git diff --quiet && git diff --cached --quiet && git push origin chore/migrate-pulse-to-v3",
+"run_sha8": "adb66f19",
+"expect": null,
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — excluded"
+},
+{
+"n": 27,
+"role": "probe",
+"run": "git diff --quiet && git diff --cached --quiet && { gh pr view chore/migrate-pulse-to-v3 --json number >/dev/null 2>&1 || gh pr create --draft --base main --head chore/migrate-pulse-to-v3 --title \"chore: migrate Pulse to v3 (draft - CI carrier)\" --body \"Draft PR opened by the operator pass of chunk 2026-09-29-p-025-hue-shift-observable-made-gradable so ci.yml (pull_request-triggered) runs on this branch. Not for merge by the builder; its fate is the founder's.\"; }",
+"run_sha8": "5189056d",
+"expect": null,
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — excluded"
+},
+{
+"n": 28,
+"role": "probe",
+"run": "python -X utf8 C:/Users/turbo/.claude/skills/andromeda-tools/scripts/ci.py conclusion --sha HEAD --wait 3600",
+"run_sha8": "7b7ce4af",
+"expect": [
+"exit 0",
+"contains verdict: green"
+],
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — excluded"
+}
+]
+}
+},
+{
+"tool": "gate",
+"v": "1.4",
+"sha8": "c63b37d3",
+"ts": "2026-09-29T07:54:49Z",
+"argv": [
+"run",
+"--plan",
+"andromeda-pulse-0.3.0/chunks/2026-09-29-p-025-hue-shift-observable-made-gradable/plan.md",
+"--run-dir",
+".andromeda/runs/2026-09-29T05-42-03Z-implement",
+"--marker",
+"2026-09-29-p-025-hue-shift-observable-made-gradable",
+"--only",
+"16,17,18,19,20,21,22,23,24"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"shell C:\\Program Files\\Git\\bin\\bash.exe (from $SHELL; -c, non-login)",
+"root D:\\dev\\projects\\andromeda-pulse · marker 2026-09-29-p-025-hue-shift-observable-made-gradable · entries 28",
+"logs C:\\Users\\turbo\\AppData\\Local\\Temp\\andromeda-gate\\2026-09-29-p-025-hue-shift-observable-made-gradable\\implement-2026-09-29T05-42-03Z · bound: GNU timeout",
+"delta docs 4 · rust 2 · unmapped 2",
+"prose L234-237: These are the standard gate set (test-plan §3 Per-chunk gate discipline) plus the webview … (413 chars)",
+"prose L239-244: Pin #22 (the folded `cargo audit` standing deferral) is listed STRUCTURALLY, never as a pa… (551 chars)",
+"prose L246-247: Session 66 is a between-point: the signature read IS the basis re-verification. The report… (210 chars)",
+"prose L249-251: No `role = 'smoke'` entry: the modify-set holds none of test-plan §3's boot-smoke trigger … (324 chars)",
+"prose L253-255: The live leg (`smoke:hue-shift`) boots and stops its own app. Its non-priming probe is the… (301 chars)",
+"prose L257-262: Operator entries run in the OPERATOR PASS, never in /implement: - the seeded hygiene probe… (285 chars)",
+"prose L264-265: `ci.yml`'s wall-clock is unmeasured (no job has run in two months), hence the 3 600 s wait… (219 chars)",
+"  1 lint        not run — excluded · cargo fmt --all -- --check",
+"  2 lint        not run — excluded · cargo clippy --workspace --all-targets --all-features -- -… (68 chars)",
+"  3 build       not run — excluded · cargo build --workspace --tests --jobs 4",
+"  4 unit        not run — excluded · cargo nextest run --workspace --profile ci",
+"  5 unit        not run — excluded · cargo nextest run --workspace --profile ci --no-tests=fail… (200 chars)",
+"  6 lint        not run — excluded · npm run lint --prefix pulse-app/ui",
+"  7 lint        not run — excluded · npm run typecheck --prefix pulse-app/ui",
+"  8 unit        not run — excluded · npm run test --prefix pulse-app/ui",
+"  9 build       not run — excluded · cargo nextest run -p pulse-app --features mcp-server --bin… (100 chars)",
+" 10 probe       not run — excluded · grep -c tier_effective_at_unix_nano pulse-app/ui/src/bindi… (70 chars)",
+" 11 build       not run — excluded · npm run build --prefix pulse-app/ui",
+" 12 build       not run — excluded · cargo build -p pulse-app --release",
+" 13 self-verify not run — excluded · cargo xtask self-verify",
+" 14 probe       not run — excluded · test -f target/release/pulse-app.exe && python -X utf8 -c … (161 chars)",
+" 15 e2e         not run — excluded · cargo xtask smoke:hue-shift",
+" 16 probe       green · exit 0 · 1.58s · 6978 B → 16.log · cd pulse-app/ui && npx playwright test --config=playwright… (80 chars)",
+" 17 probe       green · exit 0 · 1.14s · 0 B → 17.log · git -C \"$HOME/.cargo/advisory-db/advisory-db-3157b0e258782… (76 chars)",
+" 18 probe       red · exit 1 ✗ (exit 0) · exit 0 · 2.95s · 2581 B → 18.log · cargo audit",
+" 19 probe       green · exit 0 · 1.73s · 2765 B → 19.log · cargo deny check advisories",
+" 20 probe       green · exit 0 · 1.6s · 9454 B → 20.log · cargo deny check bans licenses sources",
+" 21 probe       green · exit 0 · 0.62s · 382 B → 21.log · cargo xtask capability-widening-check",
+" 22 probe       green · exit 0 · 6.75s · 75 B → 22.log · cargo xtask check:ingest-progress",
+" 23 probe       green · exit 0 · 0.73s · 342 B → 23.log · cargo xtask check:staged-artifacts",
+" 24 probe       green · exit 0 · 0.8s · 702 B → 24.log · cargo xtask capability-drift",
+" 25 probe       not run — excluded · python -X utf8 C:/Users/turbo/.claude/skills/andromeda-too… (84 chars)",
+" 26 probe       not run — excluded · git diff --quiet && git diff --cached --quiet && git push … (90 chars)",
+" 27 probe       not run — excluded · git diff --quiet && git diff --cached --quiet && { gh pr v… (467 chars)",
+" 28 probe       not run — excluded · python -X utf8 C:/Users/turbo/.claude/skills/andromeda-too… (108 chars)",
+"entries 28 · green 8 · red 1 (18) · recorded 0 · timeout 0 · not-run 19"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"marker": "2026-09-29-p-025-hue-shift-observable-made-gradable",
+"plan": "D:\\dev\\projects\\andromeda-pulse\\andromeda-pulse-0.3.0\\chunks\\2026-09-29-p-025-hue-shift-observable-made-gradable\\plan.md",
+"root": "D:\\dev\\projects\\andromeda-pulse",
+"shell": "C:\\Program Files\\Git\\bin\\bash.exe",
+"out_dir": "C:\\Users\\turbo\\AppData\\Local\\Temp\\andromeda-gate\\2026-09-29-p-025-hue-shift-observable-made-gradable\\implement-2026-09-29T05-42-03Z",
+"delta": {
+"docs": [
+".andromeda/runs/2026-09-29T05-42-03Z-implement/gate-2026-09-29-p-025-hue-shift-observable-made-gradable.json",
+"andromeda-pulse-0.3.0/chunks/2026-09-29-p-025-hue-shift-observable-made-gradable/evidence/green-leg.md",
+"andromeda-pulse-0.3.0/chunks/2026-09-29-p-025-hue-shift-observable-made-gradable/scope-record.md",
+"andromeda-pulse-0.3.0/chunks/2026-09-29-p-025-hue-shift-observable-made-gradable/evidence/operator-pass.md"
+],
+"rust": [
+"Cargo.lock",
+"Cargo.toml"
+]
+},
+"unmapped": [
+".github/workflows/ci.yml",
+".gitleaksignore"
+],
+"prose": [
+{
+"from": 234,
+"to": 237,
+"text": "These are the standard gate set (test-plan §3 Per-chunk gate discipline) plus the webview gates, since the chunk touches `pulse-app/ui/**`. The rust gates are NOT deferred: the chunk is Rust-touching, which discharges the carried rust-gate PREREQ. The bindings regen runs after every default-features cargo op. `capability-drift` is the last gate /implement runs; the operator entries after it regenerate nothing."
+},
+{
+"from": 239,
+"to": 244,
+"text": "Pin #22 (the folded `cargo audit` standing deferral) is listed STRUCTURALLY, never as a pass/fail gate: - a currency entry for the local advisory-DB copy `cargo audit` reads; - the probe asserting the ratified RED SIGNATURE (`exit 1` + `duplicate advisory ID: RUSTSEC-2026-0244`); - the overlap pair: `cargo deny check advisories`, whose owned set is EMPTY since `2026-08-29-advisory-backlog`,   so exit 0 is expected; and `cargo deny check bans licenses sources` as its own invocation, the pass/fail gate   (the security rule bans the combined form)."
+},
+{
+"from": 246,
+"to": 247,
+"text": "Session 66 is a between-point: the signature read IS the basis re-verification. The report records `probe skipped per ratified interval (next: 67)` for the full form, and enumerates the DISTINCT `RUSTSEC-` ids."
+},
+{
+"from": 249,
+"to": 251,
+"text": "No `role = 'smoke'` entry: the modify-set holds none of test-plan §3's boot-smoke trigger paths (`main.rs`, `crates/ui-bridge/src/`, `observability.rs`, `tauri.conf.json`, `capabilities/`). The real app is booted anyway by the self-verify entry and by the live leg, which is this chunk's warm boot of a user-visible surface."
+},
+{
+"from": 253,
+"to": 255,
+"text": "The live leg (`smoke:hue-shift`) boots and stops its own app. Its non-priming probe is the release binary's presence plus both OTLP ports refusing, so a stale app from an earlier run reads as a failed precondition. The ui-smoke is `cargo xtask self-verify`: this is a UI chunk, and the harness exists."
+},
+{
+"from": 257,
+"to": 262,
+"text": "Operator entries run in the OPERATOR PASS, never in /implement: - the seeded hygiene probe; - a clean-tree push; - ONE draft PR (operator ruling). It fires `pull_request` CI now and on every later push. The builder never merges   or closes it; its fate is the founder's. - the CI read."
+},
+{
+"from": 264,
+"to": 265,
+"text": "`ci.yml`'s wall-clock is unmeasured (no job has run in two months), hence the 3 600 s wait. The CI read's expected verdict is green. A red read is fixed by further commits in the pass, per the template's operator rules."
+}
+],
+"entries": [
+{
+"n": 1,
+"role": "lint",
+"run": "cargo fmt --all -- --check",
+"run_sha8": "810e75f0",
+"expect": null,
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — excluded"
+},
+{
+"n": 2,
+"role": "lint",
+"run": "cargo clippy --workspace --all-targets --all-features -- -D warnings",
+"run_sha8": "f835224c",
+"expect": null,
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — excluded"
+},
+{
+"n": 3,
+"role": "build",
+"run": "cargo build --workspace --tests --jobs 4",
+"run_sha8": "daae8fe5",
+"expect": null,
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — excluded"
+},
+{
+"n": 4,
+"role": "unit",
+"run": "cargo nextest run --workspace --profile ci",
+"run_sha8": "bf6e813a",
+"expect": null,
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — excluded"
+},
+{
+"n": 5,
+"role": "unit",
+"run": "cargo nextest run --workspace --profile ci --no-tests=fail -E 'test(/tier_effective|hue_shift|workflow_env_references_no_step_only_context|data_dir_export_precedes_every_consumer|list_for_workspace/)'",
+"run_sha8": "153a266f",
+"expect": null,
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — excluded"
+},
+{
+"n": 6,
+"role": "lint",
+"run": "npm run lint --prefix pulse-app/ui",
+"run_sha8": "a2b8c586",
+"expect": null,
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — excluded"
+},
+{
+"n": 7,
+"role": "lint",
+"run": "npm run typecheck --prefix pulse-app/ui",
+"run_sha8": "dda688fc",
+"expect": null,
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — excluded"
+},
+{
+"n": 8,
+"role": "unit",
+"run": "npm run test --prefix pulse-app/ui",
+"run_sha8": "9436b307",
+"expect": null,
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — excluded"
+},
+{
+"n": 9,
+"role": "build",
+"run": "cargo nextest run -p pulse-app --features mcp-server --bin pulse-app -E 'test(emit_taurpc_bindings)'",
+"run_sha8": "6ca9ebb1",
+"expect": null,
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — excluded"
+},
+{
+"n": 10,
+"role": "probe",
+"run": "grep -c tier_effective_at_unix_nano pulse-app/ui/src/bindings/index.ts",
+"run_sha8": "e154bd44",
+"expect": null,
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — excluded"
+},
+{
+"n": 11,
+"role": "build",
+"run": "npm run build --prefix pulse-app/ui",
+"run_sha8": "26008215",
+"expect": null,
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — excluded"
+},
+{
+"n": 12,
+"role": "build",
+"run": "cargo build -p pulse-app --release",
+"run_sha8": "94f1787c",
+"expect": null,
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — excluded"
+},
+{
+"n": 13,
+"role": "self-verify",
+"run": "cargo xtask self-verify",
+"run_sha8": "db8c3248",
+"expect": [
+"exit 0",
+"contains self-verify: PASS"
+],
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — excluded"
+},
+{
+"n": 14,
+"role": "probe",
+"run": "test -f target/release/pulse-app.exe && python -X utf8 -c \"import socket,sys; sys.exit(sum(socket.socket().connect_ex(('127.0.0.1',p))==0 for p in (4317,4318)))\"",
+"run_sha8": "fa571ab0",
+"expect": null,
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — excluded"
+},
+{
+"n": 15,
+"role": "e2e",
+"run": "cargo xtask smoke:hue-shift",
+"run_sha8": "418f6256",
+"expect": [
+"exit 0"
+],
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — excluded"
+},
+{
+"n": 16,
+"role": "probe",
+"run": "cd pulse-app/ui && npx playwright test --config=playwright-a11y.config.ts --list",
+"run_sha8": "e850458a",
+"expect": [
+"exit 0",
+"lacks Total: 0 tests"
+],
+"log": "C:\\Users\\turbo\\AppData\\Local\\Temp\\andromeda-gate\\2026-09-29-p-025-hue-shift-observable-made-gradable\\implement-2026-09-29T05-42-03Z\\16.log",
+"bytes": 6978,
+"log_sha8": "e408052f",
+"exit": 0,
+"seconds": 1.58,
+"readings": [
+"exit 0 ✓",
+"lacks 'Total: 0 tests' ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 17,
+"role": "probe",
+"run": "git -C \"$HOME/.cargo/advisory-db/advisory-db-3157b0e258782691\" fetch --quiet",
+"run_sha8": "18c42c13",
+"expect": [
+"no output"
+],
+"log": "C:\\Users\\turbo\\AppData\\Local\\Temp\\andromeda-gate\\2026-09-29-p-025-hue-shift-observable-made-gradable\\implement-2026-09-29T05-42-03Z\\17.log",
+"bytes": 0,
+"log_sha8": "e3b0c442",
+"exit": 0,
+"seconds": 1.14,
+"readings": [
+"no output ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 18,
+"role": "probe",
+"run": "cargo audit",
+"run_sha8": "317b8907",
+"expect": [
+"exit 1",
+"contains duplicate advisory ID: RUSTSEC-2026-0244"
+],
+"log": "C:\\Users\\turbo\\AppData\\Local\\Temp\\andromeda-gate\\2026-09-29-p-025-hue-shift-observable-made-gradable\\implement-2026-09-29T05-42-03Z\\18.log",
+"bytes": 2581,
+"log_sha8": "15188a5e",
+"exit": 0,
+"seconds": 2.95,
+"readings": [
+"exit 1 ✗ (exit 0)",
+"contains 'duplicate advisory ID: RUSTSEC-2026-0244' ✗"
+],
+"survivors": [],
+"outcome": "red · exit 1 ✗ (exit 0)"
+},
+{
+"n": 19,
+"role": "probe",
+"run": "cargo deny check advisories",
+"run_sha8": "a502d912",
+"expect": null,
+"log": "C:\\Users\\turbo\\AppData\\Local\\Temp\\andromeda-gate\\2026-09-29-p-025-hue-shift-observable-made-gradable\\implement-2026-09-29T05-42-03Z\\19.log",
+"bytes": 2765,
+"log_sha8": "00e4af41",
+"exit": 0,
+"seconds": 1.73,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 20,
+"role": "probe",
+"run": "cargo deny check bans licenses sources",
+"run_sha8": "7593f094",
+"expect": null,
+"log": "C:\\Users\\turbo\\AppData\\Local\\Temp\\andromeda-gate\\2026-09-29-p-025-hue-shift-observable-made-gradable\\implement-2026-09-29T05-42-03Z\\20.log",
+"bytes": 9454,
+"log_sha8": "771fe216",
+"exit": 0,
+"seconds": 1.6,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 21,
+"role": "probe",
+"run": "cargo xtask capability-widening-check",
+"run_sha8": "c09451af",
+"expect": null,
+"log": "C:\\Users\\turbo\\AppData\\Local\\Temp\\andromeda-gate\\2026-09-29-p-025-hue-shift-observable-made-gradable\\implement-2026-09-29T05-42-03Z\\21.log",
+"bytes": 382,
+"log_sha8": "b96d8e44",
+"exit": 0,
+"seconds": 0.62,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 22,
+"role": "probe",
+"run": "cargo xtask check:ingest-progress",
+"run_sha8": "123ffa0a",
+"expect": null,
+"log": "C:\\Users\\turbo\\AppData\\Local\\Temp\\andromeda-gate\\2026-09-29-p-025-hue-shift-observable-made-gradable\\implement-2026-09-29T05-42-03Z\\22.log",
+"bytes": 75,
+"log_sha8": "c8b0edd8",
+"exit": 0,
+"seconds": 6.75,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 23,
+"role": "probe",
+"run": "cargo xtask check:staged-artifacts",
+"run_sha8": "052b4e95",
+"expect": null,
+"log": "C:\\Users\\turbo\\AppData\\Local\\Temp\\andromeda-gate\\2026-09-29-p-025-hue-shift-observable-made-gradable\\implement-2026-09-29T05-42-03Z\\23.log",
+"bytes": 342,
+"log_sha8": "c94d39e4",
+"exit": 0,
+"seconds": 0.73,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 24,
+"role": "probe",
+"run": "cargo xtask capability-drift",
+"run_sha8": "fb5fd088",
+"expect": null,
+"log": "C:\\Users\\turbo\\AppData\\Local\\Temp\\andromeda-gate\\2026-09-29-p-025-hue-shift-observable-made-gradable\\implement-2026-09-29T05-42-03Z\\24.log",
+"bytes": 702,
+"log_sha8": "6db8ce55",
+"exit": 0,
+"seconds": 0.8,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 25,
+"role": "probe",
+"run": "python -X utf8 C:/Users/turbo/.claude/skills/andromeda-tools/scripts/gate.py hygiene",
+"run_sha8": "f0648308",
+"expect": [
+"exit 0",
+"contains hygiene: clean"
+],
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — excluded"
+},
+{
+"n": 26,
+"role": "probe",
+"run": "git diff --quiet && git diff --cached --quiet && git push origin chore/migrate-pulse-to-v3",
+"run_sha8": "adb66f19",
+"expect": null,
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — excluded"
+},
+{
+"n": 27,
+"role": "probe",
+"run": "git diff --quiet && git diff --cached --quiet && { gh pr view chore/migrate-pulse-to-v3 --json number >/dev/null 2>&1 || gh pr create --draft --base main --head chore/migrate-pulse-to-v3 --title \"chore: migrate Pulse to v3 (draft - CI carrier)\" --body \"Draft PR opened by the operator pass of chunk 2026-09-29-p-025-hue-shift-observable-made-gradable so ci.yml (pull_request-triggered) runs on this branch. Not for merge by the builder; its fate is the founder's.\"; }",
+"run_sha8": "5189056d",
+"expect": null,
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — excluded"
+},
+{
+"n": 28,
+"role": "probe",
+"run": "python -X utf8 C:/Users/turbo/.claude/skills/andromeda-tools/scripts/ci.py conclusion --sha HEAD --wait 3600",
+"run_sha8": "7b7ce4af",
+"expect": [
+"exit 0",
+"contains verdict: green"
+],
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — excluded"
+}
+]
+}
 }
 ]

@@ -31,3 +31,7 @@ The service registry lists a service only after its first lifecycle heartbeat (`
 first non-empty poll by 4 ms. A tier change on a service the registry already lists is bounded by the 1 s poll instead:
 the fall measured 510 ms. The observable now reports this interval honestly. Before the fix it read ~0.5 s, anchored
 on `last_seen`.
+
+**Re-run after the wasmtime 46 → 48.0.3 bump (RUSTSEC-2026-0316), on a fresh release build (gate #12, 346 s):** exit 0,
+`smoke:hue-shift: PASS`: rise duration_ms=9841 anchor_error_ms=36, fall duration_ms=578 anchor_error_ms=28. The preserved
+log family is `target/hue-shift/2026-09-29T07-51-35Z/`. After the leg, no process remained and both ports were refusing.

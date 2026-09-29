@@ -1,0 +1,8 @@
+# Each line is one gitleaks finding fingerprint (commit:file:rule:line), so an
+# entry silences exactly that finding and never widens a rule.
+#
+# Planning audit trail describing a PII negative-canary test fixture. The
+# matched value is the literal placeholder "REDACTME-SECRET-1234", written to
+# prove the scrubber redacts it; it is not a credential.
+b08e10acee3112903bfe12c1fd7c879ae521ef54:.andromeda/runs/2026-05-11T00-39-00-phase-41/tests.md:generic-api-key:26
+b08e10acee3112903bfe12c1fd7c879ae521ef54:.andromeda/runs/2026-05-11T00-39-00-phase-41/.raw-tests.md:generic-api-key:28
