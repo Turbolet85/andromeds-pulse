@@ -62,7 +62,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
-          node-version: '22'
+          node-version: '24'
 
       - name: npm ci (pulse-app/ui)
         working-directory: pulse-app/ui
@@ -280,13 +280,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
-          node-version: '22'
-
-      # npm advisory + license + ban gate over pulse-app/ui. No npm ci needed:
-      # license/class data comes from package-lock.json and `npm audit` reads
-      # the lockfile + registry, never node_modules.
-      - name: cargo xtask check:npm-supply-chain (npm advisory + license + ban gate)
-        run: cargo xtask check:npm-supply-chain
+          node-version: '24'
 
       # pulse-app links Tauri's WebKitGTK stack plus dbus (keyring, notify);
       # the build scripts find them through pkg-config.
@@ -297,6 +291,12 @@ jobs:
           sudo apt-get install -y --no-install-recommends pkg-config libssl-dev \
             libdbus-1-dev libgtk-3-dev libwebkit2gtk-4.1-dev libsoup-3.0-dev \
             libjavascriptcoregtk-4.1-dev libayatana-appindicator3-dev librsvg2-dev libxdo-dev
+
+      # npm advisory + license + ban gate over pulse-app/ui. No npm ci needed:
+      # license/class data comes from package-lock.json and `npm audit` reads
+      # the lockfile + registry, never node_modules.
+      - name: cargo xtask check:npm-supply-chain (npm advisory + license + ban gate)
+        run: cargo xtask check:npm-supply-chain
 
       - name: npm ci (pulse-app/ui)
         working-directory: pulse-app/ui
@@ -356,7 +356,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
-          node-version: '22'
+          node-version: '24'
 
       - name: npm ci (pulse-app/ui)
         working-directory: pulse-app/ui
