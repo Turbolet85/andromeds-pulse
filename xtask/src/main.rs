@@ -325,6 +325,12 @@ async fn run_cargo_nextest(extra: Vec<String>) -> Result<ExitCode> {
     Ok(status_to_code(status))
 }
 
+/// TEMPORARY scope of the coverage measure (founder ruling 2026-09-29): the
+/// xtask dev task-runner is excluded, thresholds unchanged. Owned by the next
+/// epoch-boundary code audit, which revisits coverage quality, thresholds
+/// above 85 % and xtask's inclusion (test-plan §10).
+const COVERAGE_IGNORE_FILENAME_REGEX: &str = r"(^|[/\\])xtask[/\\]";
+
 async fn run_cargo_llvm_cov(extra: Vec<String>) -> Result<ExitCode> {
     let mut cmd = tokio::process::Command::new("cargo");
     cmd.args([
@@ -335,6 +341,8 @@ async fn run_cargo_llvm_cov(extra: Vec<String>) -> Result<ExitCode> {
         "--output-path",
         "lcov.info",
         "--no-tests=pass",
+        "--ignore-filename-regex",
+        COVERAGE_IGNORE_FILENAME_REGEX,
     ]);
     for arg in extra {
         cmd.arg(arg);

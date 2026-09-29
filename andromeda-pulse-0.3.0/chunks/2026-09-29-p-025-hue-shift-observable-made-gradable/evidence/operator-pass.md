@@ -21,3 +21,22 @@
 - **This is a GitHub account billing / spending-limit block, not a finding about the code.** No step ran, so the
   first real CI run has measured nothing about the workflows' jobs yet. The chunk was not widened to chase it; the
   remedy is the account owner's. PR #39 re-fires CI on every later push once billing is restored.
+
+## Coverage gate — first real measurement and the founder's TEMPORARY scope ruling
+
+- **Measured on CI, e904cb1** (the `coverage-linux` lcov artifact): line 35513/42151 = **84.3 %** (≥ 75 ✓),
+  function 3739/4454 = **83.95 %** (≥ 85 ✗), branch 0/0 (not instrumented). Of the 715 uncovered functions, 251 are
+  in `xtask/` (the dev task-runner, 61.5 %; process-spawning harness code) and 179 in `pulse-app` (Tauri boot and
+  runtime resolvers). LLVM counts each compiled copy of a function separately, so library code tested in its own
+  crate also reads uncovered in the copies linked into other test binaries. Running the measure with
+  `--features mcp-server` did NOT close the gap (local: 83.75 %).
+- **Founder ruling, 2026-09-29, verbatim:** «Давай исключим но временно, после конца эпохи и код анализа посмотрим как
+  качественно покрытие увеличить а то 85 процентов маловато так то». In English: exclude xtask, but temporarily;
+  after the epoch ends and the code analysis, look at how to raise coverage properly, since 85 % is on the low side.
+- **Applied (TEMPORARY):** `cargo xtask test:coverage` passes `--ignore-filename-regex (^|[/\])xtask[/\]`
+  (`xtask/src/main.rs::COVERAGE_IGNORE_FILENAME_REGEX`); the thresholds are unchanged. Re-measured locally on the
+  instrumented profile: 0 xtask files left; line 88.2 %, function 87.54 %. The same exclusion over the CI lcov gives
+  line 88.6 %, function 87.80 %.
+- **Owed by the wrap:** amend test-plan §10 so the xtask exclusion reads as TEMPORARY with this word. Its review point
+  is the next epoch-boundary code audit, which revisits coverage quality, raising the thresholds above 85 %, and
+  including xtask again.
