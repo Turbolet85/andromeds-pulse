@@ -1,33 +1,28 @@
 # Session Handoff
 
-**Last Updated:** 2026-09-28T21:59:52Z
-**Branch:** chore/migrate-pulse-to-v3 · 0 ahead of origin/chore/migrate-pulse-to-v3 as read at this wrap's Setup (four commits follow it, then the push)
+**Last Updated:** 2026-09-29T15:42:30Z
+**Branch:** chore/migrate-pulse-to-v3 · 0 ahead of origin/chore/migrate-pulse-to-v3 as read at this wrap's Setup (the chunk commit follows it, then the push)
 **Status:** clean
-**Last Commit:** no chunk — chore(session): no chunk wrapped — session 65
+**Last Commit:** 2026-09-29-p-025-hue-shift-observable-made-gradable — chunk wrap (P-025 hue-shift observable made gradable; CI rehabilitated to green)
 
 ## Position
-- Done: 0-pending operator wrap (session 65) after the setup upgrade `8b86529` — run-dir hygiene · U13 sidecar consolidation · U08 seed-rule supersession · the P-025 route insertion. Last complete chunk still `2026-08-30-agent-harness-teardown-truth`.
-- Next (first markerless, `working-route.md:130`): **P-025 hue-shift observable made gradable** — per Conductor's `pulse-p025-measurement-contract.md`; claims no capability (P-025 rides P-075). Carries CONTEXT: first step is U05's `cargo fmt --all` reflow with `cargo fmt --all -- --check` as a Test Command; CONTEXT: the contract's coordinates (re-verify every one at HEAD at /phase); **PREREQ: close rust gate deferral**; **PREREQ: `cargo audit` pin #22** — session 65 was a between-point; P-025's wrap = 66 (between-point), FULL-FORM owed at session 67.
-- Then: Conductor return — the external P-075 assert round; closes the version (matrix 21/22 → 22/22).
+- Done: `2026-09-29-p-025-hue-shift-observable-made-gradable` — `hue_update_ms` now measures tier-effective instant → paint per changed service; the first real CI in two months worked to GREEN 6/6 on `464f2a3` (run `ci#36574279289`, draft PR #39).
+- Next (first markerless, `working-route.md:132`): **CI wall time and round-trips** — parallel jobs, kept cache, no duplicate rebuilds, a local WSL Linux pre-push check (Viola precedent). Carries the Linux-boot WATCH (1/3) and a CARRY to register `smoke:gap-resume` / `smoke:external-resolve` in arch.
+- Then, in the founder's order: Dual license (MIT OR Apache-2.0) → P-027 discovery bound → Perf-budget gate reads real samples → Conductor return (P-075, matrix 21/22 → 22/22).
 
 ## Work done
-Four doors, one wrap. Hygiene: the two 2026-08-31 run dirs refused 4 files (host paths), rewritten to placeholders → clean. U13: 7 sidecars consolidated (206 → 204 on-form entries, archives created). U08: 6 seed rules appended; `:16` `:30` `:34` `:50` `:58` kept verbatim and marked SUPERSEDED. Route: P-025 inserted at the head; `:130`'s PREREQs moved onto it. `upgrade.py detect`: 0 for setup · 0 awaiting a door.
+Resumed wrap from P2 (report was on disk). 7 detectors → 31 proposals; 28 applied (3 wasmtime pins orchestrator-raised) + 2 cascade folds, 1 rejected, 0 escalations; 14 sidecar entries. `cargo audit` standing deferral ENDED (pin #22 discharged); the rust-gate deferral closed.
 
 ## Drift resolved
-none — 0-pending path, no fan-out.
+Architecture (wasmtime 48.0.3 ×3, the hue interval, harness:status liveness, agent-run CI env + boot diagnosis, smoke:hue-shift) · security-plan (deferral ended, `$CARGO_HOME` note, npm residuals) · obs-plan (hue leaf interval; the CI perf gates recorded VACUOUS, owned) · test-plan (vitest 4, liveness, boot path, CI rows, scenario leg, TEMPORARY xtask coverage exclusion, 2 pending triggers). Cascade re-derived CLAUDE.md overview + 4 rule files + 2 summaries. Trail: `.andromeda/runs/2026-09-29T15-21-19Z-wrap/`.
 
 ## Notes
-- **`sidecar.py` Ref defect (relayed to overseer1):** `ref_for` takes the LATEST wrap whose .md text mentions the marker — 148 of 204 Refs text-derived, 86 named later runs, 44 the 2026-08-23T11-52 route snapshot. Operator ruled all 148 → `NOT DERIVED`; originals verbatim in `{doc}-amendments-archive.md`. Fix before Conductor consolidates.
-- Rewriters wrote 3 partial-retirement `Supersedes` (whole-entry prune would drop current history) — removed; see `.andromeda/runs/2026-09-28T21-45-38Z-wrap/consolidation-record.md`.
-- Epoch 4 at 40 chunks — operator ruled no split; the version close is the boundary.
-- **Operator next, on an EMPTY `git status --porcelain --untracked-files=all`:** the `.gitattributes` re-checkout. Pulse CI failing at 0 s on every push is a founder question, not owned here.
-- Raw `cargo audit` still exit 1 by design (pin #22); raw `npm audit` designed-red; the gates are the signal.
-- Audit trail: `.andromeda/runs/2026-09-28T21-45-38Z-wrap/` (adaptation-record + consolidation-record + consolidate/).
+- Coverage: the `xtask/` exclusion is TEMPORARY (founder) — the next epoch-boundary code audit revisits quality, thresholds above 85 % and xtask's re-inclusion.
+- Not this wrap (founder's hand): the `.gitattributes` re-checkout on an empty `git status --porcelain --untracked-files=all`; the U35 door (after Viola's). PR #39 stays a draft — never merged or closed by the builder.
+- Still open: the `sidecar.py` Ref defect relayed to overseer1 at session 65.
+- Epoch 4 at 45 entries — operator ruled no split (the version close is the boundary).
 - Last failed command: none.
 
 ## Deferred learnings
-- Still open from prior wraps: the **deferral-destination generalization** (a capability whose `ref` defers evidence to another cap must be re-checked when that destination completes).
-- Still open: **`inject_demo --sustained` cannot form an incident** (EWMA convergence) — third bite moves the fix into the leg-authoring reference as a CHECK.
-
-## Session End Status
-Completed normally at 2026-09-29 07:38:46
+- Max-3 cap this wrap (confidence 0.8 each): macOS `SystemTime` ticks in whole µs, so a wall clock is never a uniqueness source; Windows embeds the `.ico`, so a palette PNG icon fails only on macOS/Linux `generate_context!`.
+- Still open from prior wraps: the deferral-destination generalization; `inject_demo --sustained` cannot form an incident (EWMA convergence) — a CHECK for the leg-authoring reference.

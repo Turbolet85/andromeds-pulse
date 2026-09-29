@@ -22,7 +22,35 @@
   first real CI run has measured nothing about the workflows' jobs yet. The chunk was not widened to chase it; the
   remedy is the account owner's. PR #39 re-fires CI on every later push once billing is restored.
 
-## Coverage gate — first real measurement and the founder's TEMPORARY scope ruling
+## Entry 28 re-read after the fix pushes — GREEN
+
+`ci.py conclusion --sha HEAD --wait 3600` on **`464f2a3`**: **`verdict: green · checks 6/6`**, wall 7185 s; runs
+`ci#36574279289` (pull_request, success) and `secret-scan#36574279070` (pull_request, success). The entry's atoms
+`exit 0` and `contains verdict: green` hold.
+
+The repo was made public (the founder's remedy for the billing block, so Actions are free). The chunk then worked
+the first real CI run to green, one class of failure at a time. Each fix is a commit on the branch:
+- `200e5ed` — build prerequisites (ui/dist before the first compile, Linux Tauri/dbus libraries), capability-drift
+  ordered before the test run, the cargo-deny step's command, wasmtime 46 → 48.0.3 (RUSTSEC-2026-0316), and gitleaks
+  fingerprint entries for fake fixture text.
+- `edfd8b3` — CI Node 24 (npm 11, the lockfile's writer); dbus before the supply-chain xtask gate.
+- `28c3238` — RGBA PNG icons (macOS/Linux generate_context!).
+- `e904cb1` — Playwright chromium before the a11y harness; npm advisories (vitest 4.1.11, qs, undici, webdriverio;
+  a GHSA-7pqw exception added and the GHSA-ggr8 exception pruned); vitest-4 follow-ups; the empty `#[ignore]`d
+  placeholder test deleted.
+- `33abd9b` — inject_demo salts stay distinct on coarse clocks (macOS); the Linux boot smoke runs under xvfb.
+- `46c3aac` — harness:status reports a dead app as not-running (founder ruling).
+- `eac30d9` — coverage excludes xtask (TEMPORARY, founder ruling; see below).
+- `546d3f0` — perf-slo-check reads an empty metric stream as NEUTRAL instead of dying under pipefail.
+- `464f2a3` — agent-run boot names how a failed app ended; cleanup-on-failure runs through bash (mode 100755).
+
+**Green-run Linux readings:** boot smoke `boot: ready` → `running-healthy` → `cleanup: clean`; ci-gates zero-spans
+PASS (52 records), zero-panic PASS, heartbeat-gap PASS, perf-budget PASS (frame and snapshot streams NEUTRAL,
+buffer.memory_bytes max 0 ≤ 512 000 000); criterion-regression NEUTRAL (no bench output); perf:slo-load (10k spans/s)
+PASS. **Open, for the wrap:** on `546d3f0` the Linux app died about 0.5 s after its webview began polling (no
+panic, silent stderr). The cause was not identified, and it did not recur on `464f2a3`. Boot's failure path now
+reports the signal or exit status, so a recurrence names its own cause.
+
 
 - **Measured on CI, e904cb1** (the `coverage-linux` lcov artifact): line 35513/42151 = **84.3 %** (≥ 75 ✓),
   function 3739/4454 = **83.95 %** (≥ 85 ✗), branch 0/0 (not instrumented). Of the 715 uncovered functions, 251 are

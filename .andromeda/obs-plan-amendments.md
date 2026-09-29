@@ -248,3 +248,15 @@ Owner moves to the working-route entry "Duplicate-span replay fails loudly" (mod
 **Change:** Both sites' `ANDROMEDA_PULSE_DATA_DIR`-unset per-platform dirs now follow `resolve_data_dir()`: Windows `%APPDATA%\andromeda-pulse\` (was `%APPDATA%\Andromeda Pulse\logs\`); Linux `$XDG_CONFIG_HOME/andromeda-pulse/` else `~/.andromeda-pulse/` (was `~/.local/share/com.andromeda.pulse/logs/`); macOS `~/Library/Application Support/com.andromeda.pulse/` kept. Both sites cite arch §Filesystem locations as the aligned source.
 **Why:** The Windows and Linux halves measured false against `resolve_data_dir` and arch §Filesystem locations. Moot for the harness, which always exports DATA_DIR, but false for any bare-default boot. Routine per the 2026-08-14 doc-only APPLY rule (impl correct, doc alone wrong).
 **Ref:** NOT DERIVED
+
+## 2026-09-29-p-025-hue-shift-observable-made-gradable — hue_update_ms measures tier-effective → paint
+**Section:** §8 PII Scrubbing → DELEGATED TIMING leaves → `metric.constellation.hue_update_ms`
+**Change:** Was "measures span-arrival → the severity-driven hue the constellation DOT renders"; now `duration_ms` is the paint instant minus the service's `ServiceListItem.tier_effective_at_unix_nano` (rise = the opening incident's `opened_at_unix_nano`, fall = the last max-tier holder's `resolved_at_unix_nano`, Acknowledged keeps its tier), one record per service whose tier changed, emitted by `hueShiftSamples` only for changes witnessed after mount, graded by `cargo xtask smoke:hue-shift`. Fields, the dot-hue / not-a-Halo clause and the metric-fallback clause unchanged.
+**Why:** the old interval did not measure the quantity the P-025 ≤ 2 s budget bounds (Conductor's measurement contract).
+**Ref:** .andromeda/runs/2026-09-29T15-21-19Z-wrap/
+
+## 2026-09-29-p-025-hue-shift-observable-made-gradable — the CI perf-budget gates are recorded VACUOUS, owned
+**Section:** §1 Telemetry triggers → perf-budget-instruments (WebGPU row) · §10 Performance budgets (WebGPU frame row; Buffer memory row) · §10 CI gates (perf-budget p99 bullet; snapshot p99 bullet)
+**Change:** Each site keeps its intended gate and now states that it is measured VACUOUS in CI: the `ci-gates` step feeds `perf-slo-check` only the boot-smoke log (52 records, 0 frame / memory / snapshot samples), so it reads NEUTRAL and cannot fail, and the p99 SLOs are not CI-enforced today. Owner at every site: the working-route entry "Perf-budget gate reads real samples".
+**Why:** measured at the chunk's first real CI run; recorded as an OPEN defect with a named owner (playbook 2026-08-28) rather than leaving the sections reading as enforced.
+**Ref:** .andromeda/runs/2026-09-29T15-21-19Z-wrap/

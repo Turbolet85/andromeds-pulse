@@ -393,3 +393,45 @@ The load suite found and fixed in-chunk 3 pipeline defects: retention-sweep conn
 - NEW §1 trigger `harness-cleanup-verdict-and-boot-spawn-shell-coverage` records the untested shell arms.
 **Why:** A live RED/GREEN pair proved the new contract; the per-OS PID set was disproved against the scripts, app and arch. Per the durable-text caveat discipline, the "closed" claims carry the owed ps1 leg via the trigger.
 **Ref:** NOT DERIVED
+
+## 2026-09-29-p-025-hue-shift-observable-made-gradable — webview runner vitest 4; wasmtime row 48.x
+**Section:** §1 Surfaces under test (desktop-webview unit row) · §4 Framework (webview unit tests) · §5 plugins → runtime row
+**Change:** Was `vitest` 3.x; now `vitest` 4.x (4.1.11 with `@vitest/mocker` 4.1.11 — the vitest 3 mocker is vulnerable, GHSA-82fw). The §5 plugins row was `wasmtime` 46.x / 46.0.3; now 48.x / 48.0.3 as of 2026-09-29 (floor 25+ unchanged).
+**Why:** both upgrades landed in-chunk to clear advisories on the first real CI run.
+**Ref:** .andromeda/runs/2026-09-29T15-21-19Z-wrap/
+
+## 2026-09-29-p-025-hue-shift-observable-made-gradable — harness:status liveness; boot names how a failed app ended
+**Section:** §1 Test harness requirements · §3 `boot` (Exit code) · §3 `status` (Command body; Exit code semantics) · §3 PID file → Lifecycle
+**Change:**
+- status: was derived from the pidfile + log-family mtime; now also a liveness probe of the pid (`ps -o stat=`, a zombie `Z` counts as dead; `tasklist` on Windows) — a dead pid is `not-running` whatever the log says. `classify(pid, alive, newest_log)` is pinned per arm incl. dead-pid and exited-child (was "7 unit pins").
+- boot: on a failed poll the sh verb names how the app ended (signal name, exit status, or still running) and runs `bash "$0" cleanup`; `scripts/agent-run.sh` is git mode 100755 (at 100644 the branch died with exit 126).
+**Why:** a CI boot smoke whose app panicked in 12 ms read `running-healthy`; fixed in-chunk on a founder ruling.
+**Ref:** .andromeda/runs/2026-09-29T15-21-19Z-wrap/
+
+## 2026-09-29-p-025-hue-shift-observable-made-gradable — CI rows: per-job DATA_DIR export, xvfb, a11y measured green
+**Section:** §9 Pipeline structure → Boot smoke (harness) row · A11y suite row
+**Change:**
+- Boot smoke: was "sharing the workflow-level `ANDROMEDA_PULSE_DATA_DIR` (ci.yml:12)"; now the cycle runs inside one `xvfb-run` after the Linux system libraries install, and every job exports the variable to `$GITHUB_ENV` right after harden-runner (`runner.*` is unavailable in workflow/job `env:`), pinned by two workflow self-lint guards.
+- A11y suite: "runs in CI today" is now measured green on run `ci#36574279289` (6/6, `464f2a3`), with the Playwright chromium browser installed before it.
+**Why:** the workflow-level form never parsed; the chunk's CI rehabilitation produced the first real green run.
+**Ref:** .andromeda/runs/2026-09-29T15-21-19Z-wrap/
+
+## 2026-09-29-p-025-hue-shift-observable-made-gradable — smoke:hue-shift registered as the third scenario leg
+**Section:** §3 Per-chunk gate discipline → scenario legs
+**Change:** New: `cargo xtask smoke:hue-shift` (`xtask/src/hue_shift.rs`) — not a standard gate, dev-host only, not CI-wired. Grades `metric.constellation.hue_update_ms`: the rise against `interpretation.incident.created`, the fall against the first `triage.incident.auto_resolve.tick` with `resolved_count ≥ 1`, each on anchor error ≤ 1000 ms (the ≤ 2000 ms budget is context; Conductor grades P-025). The storm stops once the rise paints; both samples are graded. Exit 0 PASS · 1 FAIL · 2 INCONCLUSIVE (a precondition unmet); artifact under `target/hue-shift/`.
+**Why:** the chunk's live leg, RED at the pre-fix HEAD and GREEN after.
+**Ref:** .andromeda/runs/2026-09-29T15-21-19Z-wrap/
+
+## 2026-09-29-p-025-hue-shift-observable-made-gradable — coverage measure excludes xtask TEMPORARILY
+**Section:** §4 Coverage target · §9 Coverage report row · §10 Cumulative across workspace
+**Change:** New: `xtask/` is excluded from the coverage measure via `COVERAGE_IGNORE_FILENAME_REGEX` in `cargo xtask test:coverage` — TEMPORARILY. Measured on the CI lcov: line 84.3 % / function 83.95 % with xtask, 88.6 % / 87.80 % without (the function gate failed with it). Review point: the next epoch-boundary code audit, covering coverage quality, thresholds above 85 % and xtask's re-inclusion. The thresholds (75 / 70 / 85) are unchanged.
+**Why:** founder ruling 2026-09-29 — exclude now, but only temporarily; the 85 % bar itself is to be revisited upward.
+**Ref:** .andromeda/runs/2026-09-29T15-21-19Z-wrap/
+
+## 2026-09-29-p-025-hue-shift-observable-made-gradable — pending coverage triggers: boot failure branch, perf-slo-check arms
+**Section:** §1 Pending coverage triggers → `harness-cleanup-verdict-and-boot-spawn-shell-coverage` · `perf-slo-check-arm-coverage` (new)
+**Change:**
+- Widened: the sh `boot` failure-diagnosis branch also ships with no committed test; it is the instrument of the open Linux-boot watch. Owed now: an assertion per verdict arm and per boot failure-reason arm, plus the ps1 boot leg.
+- New row: `xtask/ci/perf-slo-check.sh` reads an empty metric stream as NEUTRAL (it died under `pipefail` on an empty `grep | sort`), and none of its arms has a committed test. Owed: empty ⇒ NEUTRAL, in-budget ⇒ PASS, over-budget ⇒ FAIL. It points to the CI vacuity owned by "Perf-budget gate reads real samples".
+**Why:** both branches changed in the chunk's operator pass with CI exit behaviour as their only evidence.
+**Ref:** .andromeda/runs/2026-09-29T15-21-19Z-wrap/

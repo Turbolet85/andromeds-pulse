@@ -1,0 +1,589 @@
+[
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "5afc7864",
+"ts": "2026-09-29T15:37:21Z",
+"argv": [
+"append",
+"--file",
+".andromeda/architecture-amendments.md",
+"--payload-file",
+".andromeda/runs/2026-09-29T15-21-19Z-wrap/architecture-entry-1.md",
+"--lines",
+"6",
+"--run-dir",
+".andromeda/runs/2026-09-29T15-21-19Z-wrap",
+"--marker",
+"2026-09-29-p-025-hue-shift-observable-made-gradable"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"append architecture-amendments.md:+6 at line 477 · lines 476→482 · bytes 62309→63164 · term lf",
+"last line now: **Ref:** .andromeda/runs/2026-09-29T15-21-19Z-wrap/"
+],
+"stderr": null,
+"wrote": [
+".andromeda/architecture-amendments.md"
+],
+"before": {
+"lines": 476,
+"bytes": 62309,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 482,
+"bytes": 63164
+}
+},
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "5afc7864",
+"ts": "2026-09-29T15:37:21Z",
+"argv": [
+"append",
+"--file",
+".andromeda/architecture-amendments.md",
+"--payload-file",
+".andromeda/runs/2026-09-29T15-21-19Z-wrap/architecture-entry-2.md",
+"--lines",
+"7",
+"--run-dir",
+".andromeda/runs/2026-09-29T15-21-19Z-wrap",
+"--marker",
+"2026-09-29-p-025-hue-shift-observable-made-gradable"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"append architecture-amendments.md:+7 at line 483 · lines 482→489 · bytes 63164→64315 · term lf",
+"last line now: **Ref:** .andromeda/runs/2026-09-29T15-21-19Z-wrap/"
+],
+"stderr": null,
+"wrote": [
+".andromeda/architecture-amendments.md"
+],
+"before": {
+"lines": 482,
+"bytes": 63164,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 489,
+"bytes": 64315
+}
+},
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "5afc7864",
+"ts": "2026-09-29T15:37:21Z",
+"argv": [
+"append",
+"--file",
+".andromeda/architecture-amendments.md",
+"--payload-file",
+".andromeda/runs/2026-09-29T15-21-19Z-wrap/architecture-entry-3.md",
+"--lines",
+"6",
+"--run-dir",
+".andromeda/runs/2026-09-29T15-21-19Z-wrap",
+"--marker",
+"2026-09-29-p-025-hue-shift-observable-made-gradable"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"append architecture-amendments.md:+6 at line 490 · lines 489→495 · bytes 64315→65162 · term lf",
+"last line now: **Ref:** .andromeda/runs/2026-09-29T15-21-19Z-wrap/"
+],
+"stderr": null,
+"wrote": [
+".andromeda/architecture-amendments.md"
+],
+"before": {
+"lines": 489,
+"bytes": 64315,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 495,
+"bytes": 65162
+}
+},
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "5afc7864",
+"ts": "2026-09-29T15:37:21Z",
+"argv": [
+"append",
+"--file",
+".andromeda/architecture-amendments.md",
+"--payload-file",
+".andromeda/runs/2026-09-29T15-21-19Z-wrap/architecture-entry-4.md",
+"--lines",
+"8",
+"--run-dir",
+".andromeda/runs/2026-09-29T15-21-19Z-wrap",
+"--marker",
+"2026-09-29-p-025-hue-shift-observable-made-gradable"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"append architecture-amendments.md:+8 at line 496 · lines 495→503 · bytes 65162→66485 · term lf",
+"last line now: **Ref:** .andromeda/runs/2026-09-29T15-21-19Z-wrap/"
+],
+"stderr": null,
+"wrote": [
+".andromeda/architecture-amendments.md"
+],
+"before": {
+"lines": 495,
+"bytes": 65162,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 503,
+"bytes": 66485
+}
+},
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "5afc7864",
+"ts": "2026-09-29T15:37:22Z",
+"argv": [
+"append",
+"--file",
+".andromeda/security-plan-amendments.md",
+"--payload-file",
+".andromeda/runs/2026-09-29T15-21-19Z-wrap/security-plan-entry-1.md",
+"--lines",
+"11",
+"--run-dir",
+".andromeda/runs/2026-09-29T15-21-19Z-wrap",
+"--marker",
+"2026-09-29-p-025-hue-shift-observable-made-gradable"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"append security-plan-amendments.md:+11 at line 390 · lines 389→400 · bytes 71268→73222 · term lf",
+"last line now: **Ref:** .andromeda/runs/2026-09-29T15-21-19Z-wrap/"
+],
+"stderr": null,
+"wrote": [
+".andromeda/security-plan-amendments.md"
+],
+"before": {
+"lines": 389,
+"bytes": 71268,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 400,
+"bytes": 73222
+}
+},
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "5afc7864",
+"ts": "2026-09-29T15:37:22Z",
+"argv": [
+"append",
+"--file",
+".andromeda/security-plan-amendments.md",
+"--payload-file",
+".andromeda/runs/2026-09-29T15-21-19Z-wrap/security-plan-entry-2.md",
+"--lines",
+"6",
+"--run-dir",
+".andromeda/runs/2026-09-29T15-21-19Z-wrap",
+"--marker",
+"2026-09-29-p-025-hue-shift-observable-made-gradable"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"append security-plan-amendments.md:+6 at line 401 · lines 400→406 · bytes 73222→74321 · term lf",
+"last line now: **Ref:** .andromeda/runs/2026-09-29T15-21-19Z-wrap/"
+],
+"stderr": null,
+"wrote": [
+".andromeda/security-plan-amendments.md"
+],
+"before": {
+"lines": 400,
+"bytes": 73222,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 406,
+"bytes": 74321
+}
+},
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "5afc7864",
+"ts": "2026-09-29T15:37:22Z",
+"argv": [
+"append",
+"--file",
+".andromeda/obs-plan-amendments.md",
+"--payload-file",
+".andromeda/runs/2026-09-29T15-21-19Z-wrap/obs-plan-entry-1.md",
+"--lines",
+"6",
+"--run-dir",
+".andromeda/runs/2026-09-29T15-21-19Z-wrap",
+"--marker",
+"2026-09-29-p-025-hue-shift-observable-made-gradable"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"append obs-plan-amendments.md:+6 at line 251 · lines 250→256 · bytes 46033→46998 · term lf",
+"last line now: **Ref:** .andromeda/runs/2026-09-29T15-21-19Z-wrap/"
+],
+"stderr": null,
+"wrote": [
+".andromeda/obs-plan-amendments.md"
+],
+"before": {
+"lines": 250,
+"bytes": 46033,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 256,
+"bytes": 46998
+}
+},
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "5afc7864",
+"ts": "2026-09-29T15:37:22Z",
+"argv": [
+"append",
+"--file",
+".andromeda/obs-plan-amendments.md",
+"--payload-file",
+".andromeda/runs/2026-09-29T15-21-19Z-wrap/obs-plan-entry-2.md",
+"--lines",
+"6",
+"--run-dir",
+".andromeda/runs/2026-09-29T15-21-19Z-wrap",
+"--marker",
+"2026-09-29-p-025-hue-shift-observable-made-gradable"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"append obs-plan-amendments.md:+6 at line 257 · lines 256→262 · bytes 46998→47922 · term lf",
+"last line now: **Ref:** .andromeda/runs/2026-09-29T15-21-19Z-wrap/"
+],
+"stderr": null,
+"wrote": [
+".andromeda/obs-plan-amendments.md"
+],
+"before": {
+"lines": 256,
+"bytes": 46998,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 262,
+"bytes": 47922
+}
+},
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "5afc7864",
+"ts": "2026-09-29T15:37:22Z",
+"argv": [
+"append",
+"--file",
+".andromeda/test-plan-amendments.md",
+"--payload-file",
+".andromeda/runs/2026-09-29T15-21-19Z-wrap/test-plan-entry-1.md",
+"--lines",
+"6",
+"--run-dir",
+".andromeda/runs/2026-09-29T15-21-19Z-wrap",
+"--marker",
+"2026-09-29-p-025-hue-shift-observable-made-gradable"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"append test-plan-amendments.md:+6 at line 396 · lines 395→401 · bytes 68925→69541 · term lf",
+"last line now: **Ref:** .andromeda/runs/2026-09-29T15-21-19Z-wrap/"
+],
+"stderr": null,
+"wrote": [
+".andromeda/test-plan-amendments.md"
+],
+"before": {
+"lines": 395,
+"bytes": 68925,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 401,
+"bytes": 69541
+}
+},
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "5afc7864",
+"ts": "2026-09-29T15:37:23Z",
+"argv": [
+"append",
+"--file",
+".andromeda/test-plan-amendments.md",
+"--payload-file",
+".andromeda/runs/2026-09-29T15-21-19Z-wrap/test-plan-entry-2.md",
+"--lines",
+"8",
+"--run-dir",
+".andromeda/runs/2026-09-29T15-21-19Z-wrap",
+"--marker",
+"2026-09-29-p-025-hue-shift-observable-made-gradable"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"append test-plan-amendments.md:+8 at line 402 · lines 401→409 · bytes 69541→70534 · term lf",
+"last line now: **Ref:** .andromeda/runs/2026-09-29T15-21-19Z-wrap/"
+],
+"stderr": null,
+"wrote": [
+".andromeda/test-plan-amendments.md"
+],
+"before": {
+"lines": 401,
+"bytes": 69541,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 409,
+"bytes": 70534
+}
+},
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "5afc7864",
+"ts": "2026-09-29T15:37:23Z",
+"argv": [
+"append",
+"--file",
+".andromeda/test-plan-amendments.md",
+"--payload-file",
+".andromeda/runs/2026-09-29T15-21-19Z-wrap/test-plan-entry-3.md",
+"--lines",
+"8",
+"--run-dir",
+".andromeda/runs/2026-09-29T15-21-19Z-wrap",
+"--marker",
+"2026-09-29-p-025-hue-shift-observable-made-gradable"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"append test-plan-amendments.md:+8 at line 410 · lines 409→417 · bytes 70534→71409 · term lf",
+"last line now: **Ref:** .andromeda/runs/2026-09-29T15-21-19Z-wrap/"
+],
+"stderr": null,
+"wrote": [
+".andromeda/test-plan-amendments.md"
+],
+"before": {
+"lines": 409,
+"bytes": 70534,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 417,
+"bytes": 71409
+}
+},
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "5afc7864",
+"ts": "2026-09-29T15:37:23Z",
+"argv": [
+"append",
+"--file",
+".andromeda/test-plan-amendments.md",
+"--payload-file",
+".andromeda/runs/2026-09-29T15-21-19Z-wrap/test-plan-entry-4.md",
+"--lines",
+"6",
+"--run-dir",
+".andromeda/runs/2026-09-29T15-21-19Z-wrap",
+"--marker",
+"2026-09-29-p-025-hue-shift-observable-made-gradable"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"append test-plan-amendments.md:+6 at line 418 · lines 417→423 · bytes 71409→72281 · term lf",
+"last line now: **Ref:** .andromeda/runs/2026-09-29T15-21-19Z-wrap/"
+],
+"stderr": null,
+"wrote": [
+".andromeda/test-plan-amendments.md"
+],
+"before": {
+"lines": 417,
+"bytes": 71409,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 423,
+"bytes": 72281
+}
+},
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "5afc7864",
+"ts": "2026-09-29T15:37:23Z",
+"argv": [
+"append",
+"--file",
+".andromeda/test-plan-amendments.md",
+"--payload-file",
+".andromeda/runs/2026-09-29T15-21-19Z-wrap/test-plan-entry-5.md",
+"--lines",
+"6",
+"--run-dir",
+".andromeda/runs/2026-09-29T15-21-19Z-wrap",
+"--marker",
+"2026-09-29-p-025-hue-shift-observable-made-gradable"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"append test-plan-amendments.md:+6 at line 424 · lines 423→429 · bytes 72281→73102 · term lf",
+"last line now: **Ref:** .andromeda/runs/2026-09-29T15-21-19Z-wrap/"
+],
+"stderr": null,
+"wrote": [
+".andromeda/test-plan-amendments.md"
+],
+"before": {
+"lines": 423,
+"bytes": 72281,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 429,
+"bytes": 73102
+}
+},
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "5afc7864",
+"ts": "2026-09-29T15:37:23Z",
+"argv": [
+"append",
+"--file",
+".andromeda/test-plan-amendments.md",
+"--payload-file",
+".andromeda/runs/2026-09-29T15-21-19Z-wrap/test-plan-entry-6.md",
+"--lines",
+"8",
+"--run-dir",
+".andromeda/runs/2026-09-29T15-21-19Z-wrap",
+"--marker",
+"2026-09-29-p-025-hue-shift-observable-made-gradable"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"append test-plan-amendments.md:+8 at line 430 · lines 429→437 · bytes 73102→74094 · term lf",
+"last line now: **Ref:** .andromeda/runs/2026-09-29T15-21-19Z-wrap/"
+],
+"stderr": null,
+"wrote": [
+".andromeda/test-plan-amendments.md"
+],
+"before": {
+"lines": 429,
+"bytes": 73102,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 437,
+"bytes": 74094
+}
+},
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "5afc7864",
+"ts": "2026-09-29T15:41:24Z",
+"argv": [
+"append",
+"--file",
+"andromeda-pulse-0.3.0/working-route.md",
+"--payload-file",
+".andromeda/runs/2026-09-29T15-21-19Z-wrap/route-insert.txt",
+"--lines",
+"8",
+"--after-line",
+"131",
+"--run-dir",
+".andromeda/runs/2026-09-29T15-21-19Z-wrap",
+"--marker",
+"2026-09-29-p-025-hue-shift-observable-made-gradable"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"append working-route.md:+8 at line 132 · lines 132→140 · bytes 21649→25497 · term lf",
+"last line now: Conductor return — the external P-075 assert round runs and the version's last"
+],
+"stderr": null,
+"wrote": [
+"andromeda-pulse-0.3.0/working-route.md"
+],
+"before": {
+"lines": 132,
+"bytes": 21649,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 140,
+"bytes": 25497
+}
+}
+]

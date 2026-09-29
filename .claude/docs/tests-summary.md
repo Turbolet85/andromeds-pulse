@@ -11,7 +11,7 @@ Cross-platform desktop app (Windows/macOS/Linux via Tauri 2) with 19 testable en
 |---|---|
 | `boot` | pre-build under the verb's own env (`cargo build --bin pulse-app --release` + `cargo build -p xtask`), then spawn `target/release/pulse-app[.exe]` BY PATH (no `cargo run` wrapper — the spawn pid IS the app) + `ANDROMEDA_PULSE_DATA_DIR=$TMPDIR/test-$$` + `RUST_LOG=debug`; poll the `cargo xtask harness:status` verdict until `running-healthy` (10s default, honest — builds absorbed before the window; `HARNESS_STATUS_TIMEOUT` overrides) |
 | `run` | `cargo nextest run --workspace --profile ci --message-format libtest-json` |
-| `status` | `cargo xtask harness:status` — real-process verdict JSON `{verdict, pid, log_file_basename, last_write_age_seconds, stale_after_seconds}`, exits 0/1/1/2 from PID file + log-family mtime (since 2026-08-30; replaces the exit-0-unconditional in-process `health` form) |
+| `status` | `cargo xtask harness:status` — real-process verdict JSON `{verdict, pid, log_file_basename, last_write_age_seconds, stale_after_seconds}`, exits 0/1/1/2 from PID file + pid liveness (a dead pid is `not-running`, since 2026-09-29) + log-family mtime (since 2026-08-30; replaces the exit-0-unconditional in-process `health` form) |
 | `cleanup` | terminate the pidfile's pid (app-written value canonical; msys `kill` + PowerShell fallback), bounded wait, KILL escalation; verdict from INDEPENDENT probes (pid liveness + resolved OTLP ports at loopback): one bounded token `clean`/`app-survived`/`ports-lingering`/`no-pid-ports-accepting`, exit 0 only on `clean` (since 2026-08-30-agent-harness-teardown-truth) |
 | `logs` | `tail -F` the newest match of the ROTATED family `agent-latest.jsonl*`, resolved across three precedence-ordered bases (`ANDROMEDA_PULSE_LOGFILE` / `$ANDROMEDA_PULSE_DATA_DIR/logs/`, then `~/.andromeda-pulse/logs/`, then the data-dir `logs/`) — never a bare name, never `*.log` (`rolling::daily` date-suffixes the sink) |
 
@@ -52,7 +52,7 @@ JSON-per-line; fields: `timestamp` (ISO-8601), `level`, `target`, `message`, `fi
 | Level | Coverage | Tools |
 |---|---|---|
 | Unit (Rust) | ≥75% line / ≥70% branch / ≥85% function | `cargo test` + `cargo-nextest` 0.9 |
-| Unit (webview, since chunk #11) | Presentational components (e.g., icons/) EXCLUDED at Foundation pre-shell stage; integration coverage via tauri-driver from chunk #25 | `vitest` 3 + `jsdom` 26 + `@testing-library/react` 16 |
+| Unit (webview, since chunk #11) | Presentational components (e.g., icons/) EXCLUDED at Foundation pre-shell stage; integration coverage via tauri-driver from chunk #25 | `vitest` 4 + `jsdom` 26 + `@testing-library/react` 16 |
 | Integration | All Standard Contracts + boundary types | `tauri::test::mock_builder()` + `tonic` 0.14.5 + `axum-test` 18.7 + `duckdb-rs` 1.5 |
 | E2E | All 7 critical paths | `@crabnebula/tauri-driver` 2.x + `webdriverio` 9.x via `cargo xtask webview-drive [--expect-absent <STAGE>] [--no-inject]` (no `mocha`, no `@wdio/*` runner — measured 2026-08-23); DOM-driven, so selectors are measured per surface: accessible name where one ships, `data-testid` where none does. Native Windows live, Linux `xvfb-run` not yet exercised; NOT CI-wired |
 | Property | Selective per trigger | `proptest` 1.10 |
@@ -69,7 +69,7 @@ JSON-per-line; fields: `timestamp` (ISO-8601), `level`, `target`, `message`, `fi
 - **Webview unit-test fixtures (since chunk #11):** Vitest's default test pool + `@testing-library/react` `render()` per test; `afterEach(cleanup)` registered via `pulse-app/ui/src/test-setup.ts`. Parameterized cases via `describe.each(...)` / `it.each(...)` (mirrors `rstest` parameterization at the JS layer). DOM-shape assertions only (no Percy/Chromatic; no visual diff per agent-driven discipline).
 
 ## Quality gates (CI)
-- Coverage ≥75% line / ≥70% branch / ≥85% function via `cargo-llvm-cov` 0.8.5.
+- Coverage ≥75% line / ≥70% branch / ≥85% function via `cargo-llvm-cov` 0.8.5 — measured with `xtask/` excluded TEMPORARILY (founder ruling 2026-09-29; revisited at the next epoch-boundary code audit).
 - **Zero-flakiness budget** — flake = real bug; quarantine + fix or delete (NO retry-once policy).
 - Performance budgets (p99): OTLP gRPC <100ms, OTLP HTTP <120ms, TauRPC `traces.query` <150ms, snapshot 25k budget <500ms, DuckDB Arrow appender <50ms, WebGPU 10k spans/sec ≥30 fps sustained (descriptive — the ASSERTED frame budget is obs §10's `metric.webgpu.frame_duration_ms` p99 ≤33ms, per test-plan §12 2026-06-10).
 - **Capability verification matrix (chunk #99):** `docs/v0_2_0/capability-verification-matrix.json` (60 P-entries → named scenarios) validated by `cargo xtask verify:capability-matrix` in CI; P-061+ extend the matrix in the landing chunk.

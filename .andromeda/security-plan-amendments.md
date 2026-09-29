@@ -387,3 +387,20 @@ _Records key decisions during plan generation + manual additions between phase l
 **Change:** Appended the session-64 discharge record (the owed INTERVAL POINT, session count confirmed 63 → 64 at the wrap): probe RAN full-form, exit read DIRECTLY = 1, basis byte-identical (`duplicate advisory ID: RUSTSEC-2026-0244`); overlap re-enumerated FROM SCRATCH — `cargo deny check advisories` exit 0 with the owned upgradeable set EMPTY, `bans licenses sources` exit 0. Trailing pointer was "Next interval point: session 64" (spent); now session 67 (65/66 between-points).
 **Why:** the standing-deferral clause's own maintenance shape — a spent pointer left in place is exactly the stale-trailing-pointer failure class its history warns about.
 **Ref:** NOT DERIVED
+
+## 2026-09-29-p-025-hue-shift-observable-made-gradable — the `cargo audit` standing deferral ENDED (pin #22 discharged)
+**Section:** §Dependency Security → CI integration → the standing-deferral bullet
+**Change:** Was a standing deferral — `cargo audit` cannot load the RustSec DB (`duplicate advisory ID: RUSTSEC-2026-0244`), overlap `cargo deny check advisories`, probe every 3rd wrap, a running list of discharged interval points, next point session 67. Now the bullet records the deferral ENDED: `cargo audit` loads the DB (1273 advisories) and exits 0 after the rustls 0.23.45 / quinn-proto 0.11.15 / wasmtime 48.0.3 bumps (RUSTSEC-2026-0285 / -0185 / -0316); it is a plain pass/fail gate again. New: it reads the advisory-db under `$CARGO_HOME`, not `$HOME/.cargo/advisory-db` (a probe of the latter measured a copy 359 commits behind). Kept in the body: the distinct-ids counting rule, the no-ordinal rule, visible advisory dispositions. The probe-point history leaves the body; the entries below and the origin report hold it. Partial retirement of the 2026-08-16 re-ratification, the 2026-08-25 counting-rules and the 2026-08-28 ordinal entries: their rules stand, their probe points do not.
+**Why:** the bullet's own terminating clause ("ends the first time `cargo audit` loads") fired at this chunk's gates; the operator relay directed the retirement.
+**Supersedes:** 2026-08-17-incident-fingerprint-producer-repaired — `cargo audit` standing deferral: interval point DISCHARGED, re-pinned
+2026-08-26-cadence-runaway-blocking-pool — cargo audit interval point 46 discharged
+2026-08-27-idle-observer-generation-damper — standing-deferral point 49 discharged
+2026-08-29-app-registry-reconciliation — cargo-audit deferral, session-55 interval point discharged
+2026-08-30-agent-harness-teardown-truth — pin #22 session-64 FULL-FORM discharge recorded; pointer → session 67
+**Ref:** .andromeda/runs/2026-09-29T15-21-19Z-wrap/
+
+## 2026-09-29-p-025-hue-shift-observable-made-gradable — npm residuals: GHSA-ggr8 pruned, GHSA-7pqw accepted
+**Section:** §Dependency Security → npm channel (`pulse-app/ui`) → current state
+**Change:** Was residual roots GHSA-ggr8-5vv4-36mx (deepmerge-ts, "pinned <8 by the entire webdriverio 9 line") and GHSA-jmr9-qjv8-65gv (extract-zip). Now both advisory exceptions are extract-zip — GHSA-jmr9 and GHSA-7pqw-9j4j-h8q3 (range `*`, 2.0.1 the latest release, no fixed release anywhere; npm's remedy a rejected pa11y-ci downgrade; dev-only via the puppeteer chains) — and GHSA-7pqw is the one residual accepted at this chunk. GHSA-ggr8 was pruned: its closing condition fired (webdriverio 9.32.0 brings deepmerge-ts 8.0.2). The chunk's dev-only bumps are recorded: vitest 4.1.11 (GHSA-82fw), qs 6.16.0, undici 6.29.0, webdriverio 9.32.0. Exception counts unchanged (2 advisory + 2 license).
+**Why:** the no-safe-upgrade class is exactly what the exception form exists for; the operator relay named GHSA-7pqw the one accepted residual.
+**Ref:** .andromeda/runs/2026-09-29T15-21-19Z-wrap/

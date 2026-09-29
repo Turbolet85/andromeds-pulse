@@ -474,3 +474,30 @@ The entry also carries both rejected alternatives, the deferred `AttentionCue` t
 - Pid-file entry: was "the scripts reach status only THROUGH that xtask verb"; now narrowed to the status verdict (boot poll + `status` verb) — `cleanup` judges liveness independently, with pidfile CONTENT canonical (the app's `write_pid_file` overwrites the provisional spawn pid; msys ≠ Windows pid space).
 **Why:** the chunk shipped the new verdict/exit contract and removed the wrapper; CI gating was operator-approved at P4; the verdict shape follows the harness:status precedent. Routine per the 2026-08-25 formalized-CLI-contract rule and the 2026-07-08 accurate-addition rule; both sites applied atomically.
 **Ref:** NOT DERIVED
+
+## 2026-09-29-p-025-hue-shift-observable-made-gradable — wasmtime requirement 46 → 48.0.3
+**Section:** §Stack and Technologies → Plugin runtime · §Established Decisions → [Plugin Runtime] · §Inherited Defaults → Plugin runtime
+**Change:** Was requirement `"46"`, lockfile-resolved 46.0.3 (Cranelift 0.133.3); now requirement `"48.0.3"`, lockfile-resolved 48.0.3 as of 2026-09-29 (Cranelift 0.135.3, read from the lockfile at this wrap). The Stack row adds that the bump closed RUSTSEC-2026-0316 and that 49.x is out of reach while the toolchain is pinned at 1.95 (49.0.1 needs Rust 1.96). The 25+ family floor is unchanged.
+**Why:** the chunk upgraded wasmtime in-chunk to clear its first real CI run's advisory (founder ruling, via the overseer); three body sites restated the old pin.
+**Ref:** .andromeda/runs/2026-09-29T15-21-19Z-wrap/
+
+## 2026-09-29-p-025-hue-shift-observable-made-gradable — P-025 hue interval stated at the IPC route
+**Section:** §Occupied Resources → Tauri IPC routes → `telemetry.frontend.record_*` delegated-timing entry
+**Change:** The `metric.constellation.hue_update_ms` clause now states its `duration_ms`: the paint instant minus the service's `ServiceListItem.tier_effective_at_unix_nano` (replayed by `triage::contract::tier_effective_at` — rise = the opening incident's `opened_at_unix_nano`, fall = the last max-tier holder's `resolved_at_unix_nano`), one record per service whose tier changed, emitted by `hueShiftSamples` only for changes witnessed after mount, no service id. Leaf name and fields unchanged.
+**Why:** the chunk re-anchored the observable to the interval the P-025 budget bounds, per Conductor's measurement contract.
+**Kept:** the `services.list_with_states` entry — the new `tier_effective_at_unix_nano` payload field is a field inside an already-registered procedure, which this registry does not enumerate (chunk #91's `priority_tier` join was never registered either).
+**Ref:** .andromeda/runs/2026-09-29T15-21-19Z-wrap/
+
+## 2026-09-29-p-025-hue-shift-observable-made-gradable — harness:status derives liveness from the pid
+**Section:** §Occupied Resources → xtask CLI surfaces → `cargo xtask harness:status` · §Occupied Resources → Filesystem locations → `run/andromeda-pulse.pid`
+**Change:** Was "derived from the pidfile plus the log family's mtime"; now from the pidfile, the liveness of the pid it holds, and the log family's mtime — a dead pid is `not-running` whatever the log says (`ps -o stat=` on Unix, a zombie counts as dead; `tasklist` on Windows). Before it, a crashed app read `running-healthy` for up to 60 s. The verdict JSON and its four arms are unchanged.
+**Why:** measured on a CI boot smoke whose app panicked in 12 ms and still read healthy; fixed in-chunk on a founder ruling.
+**Ref:** .andromeda/runs/2026-09-29T15-21-19Z-wrap/
+
+## 2026-09-29-p-025-hue-shift-observable-made-gradable — agent-run CI env export + boot failure path; smoke:hue-shift registered
+**Section:** §Occupied Resources → xtask CLI surfaces → `scripts/agent-run.{sh,ps1}` · `cargo xtask smoke:hue-shift` (new)
+**Change:**
+- agent-run: was "the three invocations share the workflow-level `ANDROMEDA_PULSE_DATA_DIR`, ci.yml:12"; now they run inside one `xvfb-run` and share the variable every job exports to `$GITHUB_ENV` right after harden-runner, because `runner.*` is unavailable in workflow- and job-level `env:`. On a failed readiness poll `boot` reports how the app ended (signal name, exit status, or still running) and runs `bash "$0" cleanup`.
+- New registration: `cargo xtask smoke:hue-shift` (`xtask/src/hue_shift.rs`), the P-025 scenario leg — grades the rise against `interpretation.incident.created` and the fall against the first `triage.incident.auto_resolve.tick` with `resolved_count ≥ 1`, each on anchor error ≤ 1000 ms; exit 0 PASS · 1 FAIL · 2 INCONCLUSIVE; artifact under `target/hue-shift/`; dev-host only, not CI-wired.
+**Why:** the workflow-level form never parsed, so CI had not run for two months; the leg is a new formalized xtask CLI contract, a registry item per the 2026-08-25 rule.
+**Ref:** .andromeda/runs/2026-09-29T15-21-19Z-wrap/
