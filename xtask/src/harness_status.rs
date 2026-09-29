@@ -38,8 +38,9 @@ pub(crate) fn run() -> Result<ExitCode> {
     let verdict = match resolve_paths() {
         Some((pidfile, log_base)) => {
             let pid = read_pid(&pidfile);
+            let alive = pid.and_then(pid_alive);
             let newest = newest_family_member(&log_base);
-            classify(pid, newest)
+            classify(pid, alive, newest)
         }
         None => Verdict {
             arm: "cannot-evaluate",
@@ -66,8 +67,23 @@ pub(crate) fn run() -> Result<ExitCode> {
 }
 
 /// The verdict core — pure so the arms are pinnable without a filesystem.
-pub(crate) fn classify(pid: Option<u32>, newest_log: Option<(String, u64)>) -> Verdict {
+///
+/// `alive` is the pid's measured liveness (`None` when no probe could run).
+/// A dead pid is `not-running` whatever the log says: an app that crashed
+/// a few milliseconds after boot leaves a pidfile and a fresh log behind,
+/// which write-freshness alone reads as healthy for the whole window.
+pub(crate) fn classify(
+    pid: Option<u32>,
+    alive: Option<bool>,
+    newest_log: Option<(String, u64)>,
+) -> Verdict {
     match (pid, newest_log) {
+        (Some(pid), newest) if alive == Some(false) => Verdict {
+            arm: "not-running",
+            pid: Some(pid),
+            log_file_basename: newest.as_ref().map(|(b, _)| b.clone()),
+            last_write_age_seconds: newest.map(|(_, age)| age),
+        },
         (None, newest) => Verdict {
             arm: "not-running",
             pid: None,
@@ -126,6 +142,49 @@ fn default_data_dir() -> Option<PathBuf> {
     }
 }
 
+/// Whether `pid` names a live process; `None` when the probe cannot run.
+fn pid_alive(pid: u32) -> Option<bool> {
+    #[cfg(windows)]
+    {
+        let out = std::process::Command::new("tasklist")
+            .args(["/FI", &format!("PID eq {pid}"), "/NH", "/FO", "CSV"])
+            .output()
+            .ok()?;
+        Some(tasklist_lists_pid(
+            &String::from_utf8_lossy(&out.stdout),
+            pid,
+        ))
+    }
+    #[cfg(not(windows))]
+    {
+        let out = std::process::Command::new("ps")
+            .args(["-o", "stat=", "-p", &pid.to_string()])
+            .output()
+            .ok()?;
+        Some(ps_state_is_live(
+            out.status.success(),
+            &String::from_utf8_lossy(&out.stdout),
+        ))
+    }
+}
+
+/// `ps -o stat=` prints nothing and fails for an absent pid; an exited but
+/// unreaped child is still listed, as a zombie (`Z`), and is not running.
+#[cfg_attr(windows, allow(dead_code))]
+fn ps_state_is_live(success: bool, stat: &str) -> bool {
+    let state = stat.trim();
+    success && !state.is_empty() && !state.starts_with('Z')
+}
+
+/// `tasklist /FO CSV /NH` quotes the pid as its own field; a miss prints an
+/// INFO line with no fields.
+#[cfg_attr(not(windows), allow(dead_code))]
+fn tasklist_lists_pid(csv: &str, pid: u32) -> bool {
+    let quoted = format!("\"{pid}\"");
+    csv.lines()
+        .any(|line| line.split(',').any(|field| field.trim() == quoted))
+}
+
 fn read_pid(pidfile: &Path) -> Option<u32> {
     std::fs::read_to_string(pidfile)
         .ok()
@@ -167,14 +226,14 @@ mod tests {
 
     #[test]
     fn no_pidfile_is_not_running_regardless_of_logs() {
-        let v = classify(None, Some(("agent-latest.jsonl".into(), 1)));
+        let v = classify(None, None, Some(("agent-latest.jsonl".into(), 1)));
         assert_eq!(v.arm, "not-running");
         assert_eq!(v.pid, None);
     }
 
     #[test]
     fn pid_without_any_log_family_is_stale() {
-        let v = classify(Some(1234), None);
+        let v = classify(Some(1234), Some(true), None);
         assert_eq!(v.arm, "stale");
         assert_eq!(v.pid, Some(1234));
     }
@@ -183,6 +242,7 @@ mod tests {
     fn pid_with_fresh_log_writes_is_running_healthy() {
         let v = classify(
             Some(1234),
+            Some(true),
             Some(("agent-latest.jsonl.2026-08-30".into(), 3)),
         );
         assert_eq!(v.arm, "running-healthy");
@@ -193,6 +253,7 @@ mod tests {
     fn pid_with_old_log_writes_is_stale() {
         let v = classify(
             Some(1234),
+            Some(true),
             Some(("agent-latest.jsonl".into(), STALE_AFTER_SECONDS + 1)),
         );
         assert_eq!(v.arm, "stale");
@@ -202,6 +263,7 @@ mod tests {
     fn boundary_age_is_still_healthy() {
         let v = classify(
             Some(1),
+            Some(true),
             Some(("agent-latest.jsonl".into(), STALE_AFTER_SECONDS)),
         );
         assert_eq!(v.arm, "running-healthy");
@@ -217,6 +279,56 @@ mod tests {
         std::fs::write(&dated, "x").expect("write");
         let (basename, _age) = newest_family_member(&base).expect("family member found");
         assert_eq!(basename, "agent-latest.jsonl.2026-08-30");
+    }
+
+    #[test]
+    fn a_dead_pid_with_fresh_log_writes_is_not_running() {
+        // The measured CI shape: the app panicked 12 ms after boot, leaving
+        // a pidfile and a just-written log.
+        let v = classify(
+            Some(71667),
+            Some(false),
+            Some(("agent-latest.jsonl.2026-09-29".into(), 0)),
+        );
+        assert_eq!(v.arm, "not-running");
+        assert_eq!(v.pid, Some(71667));
+    }
+
+    #[test]
+    fn an_unprobeable_pid_falls_back_to_write_freshness() {
+        let v = classify(Some(1234), None, Some(("agent-latest.jsonl".into(), 3)));
+        assert_eq!(v.arm, "running-healthy");
+    }
+
+    #[test]
+    fn pid_alive_tells_a_running_process_from_an_exited_one() {
+        assert_eq!(pid_alive(std::process::id()), Some(true));
+        #[cfg(windows)]
+        let mut child = std::process::Command::new("cmd")
+            .args(["/C", "exit 0"])
+            .spawn()
+            .expect("spawn");
+        #[cfg(not(windows))]
+        let mut child = std::process::Command::new("true").spawn().expect("spawn");
+        let pid = child.id();
+        child.wait().expect("wait");
+        assert_eq!(pid_alive(pid), Some(false));
+    }
+
+    #[test]
+    fn a_zombie_or_absent_ps_row_is_not_live() {
+        assert!(ps_state_is_live(true, "Ss\n"));
+        assert!(!ps_state_is_live(true, "Z+\n"));
+        assert!(!ps_state_is_live(false, ""));
+    }
+
+    #[test]
+    fn tasklist_matches_the_pid_field_exactly() {
+        let hit = "\"pulse-app.exe\",\"4321\",\"Console\",\"1\",\"50,000 K\"\r\n";
+        assert!(tasklist_lists_pid(hit, 4321));
+        assert!(!tasklist_lists_pid(hit, 432));
+        let miss = "INFO: No tasks are running which match the specified criteria.\r\n";
+        assert!(!tasklist_lists_pid(miss, 4321));
     }
 
     #[test]
