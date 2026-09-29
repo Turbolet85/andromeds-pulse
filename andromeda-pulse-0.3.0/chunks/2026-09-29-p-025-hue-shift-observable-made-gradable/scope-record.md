@@ -11,3 +11,4 @@
 - `pulse-app/ui/src/hooks/use-findings.test.tsx` · widening · serves step 1 · word: "no deferral, so this chunk fixes them to a green CI read … fix class by class, record the widening in scope-record" — overseer (CI directive, 2026-09-29)
 - `pulse-app/ui/src/contrast/parse-tokens.test.ts` · widening · serves step 1 · word: "no deferral, so this chunk fixes them to a green CI read … fix class by class, record the widening in scope-record" — overseer (CI directive, 2026-09-29)
 - `pulse-app/ui/src/csp.test.ts` · widening · serves step 1 · word: "no deferral, so this chunk fixes them to a green CI read … fix class by class, record the widening in scope-record" — overseer (CI directive, 2026-09-29)
+- `crates/ingest/examples/inject_demo.rs` · widening · serves step 3 · word: "no deferral, so this chunk fixes them to a green CI read … fix class by class, record the widening in scope-record" — overseer (CI directive, 2026-09-29)

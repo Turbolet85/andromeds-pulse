@@ -40,6 +40,7 @@
 //! drives cadence into tier1, where the LWW queue drops digests before L4 can
 //! consume them (~4s/inference).
 
+use std::sync::atomic::{AtomicU64, Ordering};
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
 use ingest::grpc::proto::opentelemetry::proto::collector::trace::v1::ExportTraceServiceRequest;
@@ -245,12 +246,20 @@ fn parse_profile<I: Iterator<Item = String>>(args: I) -> Result<Profile, String>
 /// latency jitter, so the emitted storm profile (batch count, span count, error
 /// count, durations) is identical whatever the salt is.
 fn fresh_run_salt() -> u64 {
+    // The clock is not a uniqueness source: macOS SystemTime ticks in whole
+    // microseconds, so two calls can read the same instant. The counter keeps
+    // every salt minted in one process distinct.
+    static MINTED: AtomicU64 = AtomicU64::new(0);
     let pid = u64::from(std::process::id());
     let nanos = SystemTime::now()
         .duration_since(UNIX_EPOCH)
         .map(|d| d.as_nanos() as u64)
         .unwrap_or(0);
-    (pid << 32) ^ nanos
+    mint_salt(pid, nanos, MINTED.fetch_add(1, Ordering::Relaxed))
+}
+
+fn mint_salt(pid: u64, nanos: u64, nth: u64) -> u64 {
+    (pid << 32) ^ nanos ^ nth.wrapping_mul(0x9E37_79B9_7F4A_7C15)
 }
 
 /// The salt `--replay` pins, so two runs deliberately collide. Models a
@@ -457,6 +466,16 @@ mod tests {
         let seq = 4_242;
         assert_eq!(trace_id(seq, a.run_salt()), trace_id(seq, b.run_salt()));
         assert_eq!(span_id(seq, a.run_salt()), span_id(seq, b.run_salt()));
+    }
+
+    #[test]
+    fn salts_minted_within_one_clock_tick_stay_distinct() {
+        // One pid and one clock reading, as when the clock ticks coarser
+        // than two consecutive calls (macOS: whole microseconds).
+        let salts: std::collections::HashSet<u64> = (0..10_000)
+            .map(|nth| mint_salt(4_242, 1_790_000_000_000_000, nth))
+            .collect();
+        assert_eq!(salts.len(), 10_000, "every minted salt must be distinct");
     }
 
     #[test]
