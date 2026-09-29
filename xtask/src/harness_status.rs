@@ -35,24 +35,32 @@ pub(crate) struct Verdict {
 }
 
 pub(crate) fn run() -> Result<ExitCode> {
-    let verdict = match resolve_paths() {
+    let (verdict, ended) = match resolve_paths() {
         Some((pidfile, log_base)) => {
             let pid = read_pid(&pidfile);
             let alive = pid.and_then(pid_alive);
             let newest = newest_family_member(&log_base);
-            classify(pid, alive, newest)
+            let verdict = classify(pid, alive, newest);
+            let ended = (verdict.arm != "running-healthy")
+                .then(|| read_ended(&end_file(&pidfile)))
+                .flatten();
+            (verdict, ended)
         }
-        None => Verdict {
-            arm: "cannot-evaluate",
-            pid: None,
-            log_file_basename: None,
-            last_write_age_seconds: None,
-        },
+        None => (
+            Verdict {
+                arm: "cannot-evaluate",
+                pid: None,
+                log_file_basename: None,
+                last_write_age_seconds: None,
+            },
+            None,
+        ),
     };
 
     let payload = json!({
         "verdict": verdict.arm,
         "pid": verdict.pid,
+        "ended": ended,
         "log_file_basename": verdict.log_file_basename,
         "last_write_age_seconds": verdict.last_write_age_seconds,
         "stale_after_seconds": STALE_AFTER_SECONDS,
@@ -183,6 +191,22 @@ fn tasklist_lists_pid(csv: &str, pid: u32) -> bool {
     let quoted = format!("\"{pid}\"");
     csv.lines()
         .any(|line| line.split(',').any(|field| field.trim() == quoted))
+}
+
+/// Where `agent-run.sh boot`'s waiting wrapper records how the app ended,
+/// beside the pidfile. The app is an orphan once boot returns, so no later
+/// verb can reap it and read its status any other way.
+fn end_file(pidfile: &Path) -> PathBuf {
+    pidfile.with_file_name("andromeda-pulse.exit")
+}
+
+/// The recorded end (`exit N` / `signal N (NAME)`), bounded to one short
+/// printable line; anything else reads as no record.
+fn read_ended(path: &Path) -> Option<String> {
+    let text = std::fs::read_to_string(path).ok()?;
+    let line = text.trim();
+    (!line.is_empty() && line.len() <= 48 && line.chars().all(|c| c.is_ascii_graphic() || c == ' '))
+        .then(|| line.to_owned())
 }
 
 fn read_pid(pidfile: &Path) -> Option<u32> {
@@ -329,6 +353,22 @@ mod tests {
         assert!(!tasklist_lists_pid(hit, 432));
         let miss = "INFO: No tasks are running which match the specified criteria.\r\n";
         assert!(!tasklist_lists_pid(miss, 4321));
+    }
+
+    #[test]
+    fn read_ended_takes_one_bounded_line_beside_the_pidfile() {
+        let dir = tempfile::TempDir::new().expect("tmp");
+        let exit = end_file(&dir.path().join("andromeda-pulse.pid"));
+        assert_eq!(exit, dir.path().join("andromeda-pulse.exit"));
+        assert_eq!(read_ended(&exit), None, "no record");
+        std::fs::write(&exit, "signal 11 (SEGV)\n").expect("write");
+        assert_eq!(read_ended(&exit).as_deref(), Some("signal 11 (SEGV)"));
+        std::fs::write(&exit, "exit 0").expect("write");
+        assert_eq!(read_ended(&exit).as_deref(), Some("exit 0"));
+        std::fs::write(&exit, "exit\u{1b}[31m 1").expect("write");
+        assert_eq!(read_ended(&exit), None, "control bytes");
+        std::fs::write(&exit, "x".repeat(49)).expect("write");
+        assert_eq!(read_ended(&exit), None, "over the bound");
     }
 
     #[test]

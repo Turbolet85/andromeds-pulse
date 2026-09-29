@@ -68,8 +68,34 @@ case "${1:-}" in
       echo "boot: built binary not found at target/release/pulse-app[.exe]" >&2
       exit 1
     fi
-    "$APP_BIN" > "$DATA_DIR/logs/boot.log" 2>&1 &
-    DAEMON_PID=$!
+    # The app runs under a waiting subshell that records how it ended: once
+    # boot returns, the app is an orphan nothing else can reap, so a death
+    # after `ready` would otherwise leave no status anywhere (harness:status
+    # reads this record as `ended`).
+    EXIT_FILE="$(dirname "$PIDFILE")/andromeda-pulse.exit"
+    SPAWN_FILE="$(dirname "$PIDFILE")/andromeda-pulse.spawn"
+    rm -f "$EXIT_FILE" "$SPAWN_FILE"
+    (
+      "$APP_BIN" > "$DATA_DIR/logs/boot.log" 2>&1 &
+      app=$!
+      echo "$app" > "$SPAWN_FILE"
+      rc=0
+      wait "$app" || rc=$?
+      if [ "$rc" -gt 128 ]; then
+        echo "signal $((rc - 128)) ($(kill -l $((rc - 128)) 2>/dev/null || echo unknown))" > "$EXIT_FILE"
+      else
+        echo "exit $rc" > "$EXIT_FILE"
+      fi
+    ) < /dev/null > /dev/null 2>&1 &
+    for _ in $(seq 50); do
+      [ -s "$SPAWN_FILE" ] && break
+      sleep 0.1
+    done
+    DAEMON_PID=$(tr -d '[:space:]' < "$SPAWN_FILE" 2>/dev/null || true)
+    if [ -z "$DAEMON_PID" ]; then
+      echo "boot: the app did not start (no spawn record)" >&2
+      exit 1
+    fi
     echo "$DAEMON_PID" > "$PIDFILE"
 
     # Poll `cargo xtask harness:status` — a REAL-process verdict (PID file +
@@ -92,18 +118,15 @@ case "${1:-}" in
     echo "  Boot log: $DATA_DIR/logs/boot.log" >&2
     # Name HOW the app ended when it is already gone: a native crash prints
     # nothing of its own, and a clean exit (every window closed) is silent too.
-    # A dead child is a zombie until reaped, so `kill -0` alone reads it alive.
-    app_state=$(ps -o stat= -p "$DAEMON_PID" 2>/dev/null || true)
-    if ! kill -0 "$DAEMON_PID" 2>/dev/null || [ "${app_state#Z}" != "$app_state" ]; then
-      app_code=0
-      wait "$DAEMON_PID" 2>/dev/null || app_code=$?
-      if [ "$app_code" -gt 128 ]; then
-        echo "  app died by signal $((app_code - 128)) ($(kill -l $((app_code - 128)) 2>/dev/null || echo unknown))" >&2
-      else
-        echo "  app exited on its own with status $app_code" >&2
-      fi
-    else
+    # The waiting wrapper writes the record the moment it reaps the app.
+    if kill -0 "$DAEMON_PID" 2>/dev/null; then
       echo "  app still running (pid $DAEMON_PID) but never reported healthy" >&2
+    else
+      for _ in $(seq 20); do
+        [ -s "$EXIT_FILE" ] && break
+        sleep 0.1
+      done
+      echo "  app ended: $(cat "$EXIT_FILE" 2>/dev/null || echo 'not recorded')" >&2
     fi
     # Through bash, not as an executable: the checkout's mode bit is not
     # guaranteed (a Windows commit records 100644).
