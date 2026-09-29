@@ -7,6 +7,9 @@
 # gate activates when production observability emits during load window.
 
 set -euo pipefail
+# Under pipefail a grep over an EMPTY metric stream exits 1 and set -e would
+# abort silently before the NEUTRAL branch; each sample pipeline therefore
+# tolerates "no matches" and the branches below decide.
 
 if [ "$#" -lt 1 ]; then
     echo "::error::perf-slo-check: missing log file argument" >&2
@@ -25,7 +28,7 @@ if ! command -v jq >/dev/null 2>&1; then
     exit 0
 fi
 
-FRAME_SAMPLES=$(jq -r '. | select(.target == "metric.webgpu.frame_duration_ms") | .fields.duration_ms' "$LOG" 2>/dev/null | grep -v '^null$' | sort -n)
+FRAME_SAMPLES=$(jq -r '. | select(.target == "metric.webgpu.frame_duration_ms") | .fields.duration_ms' "$LOG" 2>/dev/null | grep -v '^null$' | sort -n || true)
 FRAME_COUNT=$(echo "$FRAME_SAMPLES" | grep -c . || true)
 
 if [ "$FRAME_COUNT" -eq 0 ]; then
@@ -42,7 +45,7 @@ else
     fi
 fi
 
-MEM_MAX=$(jq -r '. | select(.target == "metric.buffer.memory_bytes") | .fields.value' "$LOG" 2>/dev/null | grep -v '^null$' | sort -n | tail -1)
+MEM_MAX=$(jq -r '. | select(.target == "metric.buffer.memory_bytes") | .fields.value' "$LOG" 2>/dev/null | grep -v '^null$' | sort -n | tail -1 || true)
 
 if [ -z "$MEM_MAX" ]; then
     echo "perf-slo-check: zero buffer.memory_bytes events; NEUTRAL (heartbeat not running)"
@@ -57,7 +60,7 @@ fi
 
 # Chunk #56 snapshot p99 gate: aggregate `metric.snapshot.token_count_ms`
 # events; p99 .fields.duration_ms ≤500ms per obs-plan §10 row 1.
-SNAPSHOT_SAMPLES=$(jq -r '. | select(.target == "metric.snapshot.token_count_ms") | .fields.duration_ms' "$LOG" 2>/dev/null | grep -v '^null$' | sort -n)
+SNAPSHOT_SAMPLES=$(jq -r '. | select(.target == "metric.snapshot.token_count_ms") | .fields.duration_ms' "$LOG" 2>/dev/null | grep -v '^null$' | sort -n || true)
 SNAPSHOT_COUNT=$(echo "$SNAPSHOT_SAMPLES" | grep -c . || true)
 
 if [ "$SNAPSHOT_COUNT" -eq 0 ]; then
