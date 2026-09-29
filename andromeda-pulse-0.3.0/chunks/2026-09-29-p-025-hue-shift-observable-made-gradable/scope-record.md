@@ -14,3 +14,4 @@
 - `crates/ingest/examples/inject_demo.rs` · widening · serves step 3 · word: "no deferral, so this chunk fixes them to a green CI read … fix class by class, record the widening in scope-record" — overseer (CI directive, 2026-09-29)
 - `xtask/src/harness_status.rs` · widening · serves step 3 · word: "founder ruling 2026-09-29: a problem met is solved now; a status that calls a crashed app healthy is a harness lie. Pin it with the dead-pid test and its mutation check." — founder (relayed by the overseer)
 - `xtask/ci/perf-slo-check.sh` · widening · serves step 1 · word: "Find what perf-budget measured on the Linux runner … fix the cause, not the budget, and push" — overseer (2026-09-29)
+- `scripts/agent-run.sh` · widening · serves step 3 · word: "(a) the failure path self-invokes the script as an executable but its git mode is 100644 … (b) why boot missed 10 s this time … fix the cause, not the 10 s ceiling. Then push." — overseer (2026-09-29)

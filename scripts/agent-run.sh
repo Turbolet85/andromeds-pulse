@@ -90,7 +90,24 @@ case "${1:-}" in
     done
     echo "boot: failed to reach ready state within ${STATUS_TIMEOUT_SEC}s" >&2
     echo "  Boot log: $DATA_DIR/logs/boot.log" >&2
-    "$0" cleanup
+    # Name HOW the app ended when it is already gone: a native crash prints
+    # nothing of its own, and a clean exit (every window closed) is silent too.
+    # A dead child is a zombie until reaped, so `kill -0` alone reads it alive.
+    app_state=$(ps -o stat= -p "$DAEMON_PID" 2>/dev/null || true)
+    if ! kill -0 "$DAEMON_PID" 2>/dev/null || [ "${app_state#Z}" != "$app_state" ]; then
+      app_code=0
+      wait "$DAEMON_PID" 2>/dev/null || app_code=$?
+      if [ "$app_code" -gt 128 ]; then
+        echo "  app died by signal $((app_code - 128)) ($(kill -l $((app_code - 128)) 2>/dev/null || echo unknown))" >&2
+      else
+        echo "  app exited on its own with status $app_code" >&2
+      fi
+    else
+      echo "  app still running (pid $DAEMON_PID) but never reported healthy" >&2
+    fi
+    # Through bash, not as an executable: the checkout's mode bit is not
+    # guaranteed (a Windows commit records 100644).
+    bash "$0" cleanup
     exit 1
     ;;
 
