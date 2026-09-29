@@ -50,6 +50,9 @@ function makeRecord(overrides: Partial<Record<string, unknown>> = {}) {
 beforeEach(() => {
   mocks.listActiveFn.mockReset();
   mocks.markAllReadFn.mockReset();
+  // vitest 4's restoreAllMocks no longer clears vi.fn() call history, so an
+  // absence assertion on the recorder would read earlier tests' calls.
+  mocks.recordFindingsCounterRefreshFn.mockReset();
 });
 
 afterEach(() => {

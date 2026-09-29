@@ -5264,5 +5264,66 @@
 "unparsed": 0,
 "widening_without_word": 0
 }
+},
+{
+"tool": "gate",
+"v": "1.4",
+"sha8": "c63b37d3",
+"ts": "2026-09-29T08:29:40Z",
+"argv": [
+"scope",
+"--chunk-dir",
+"andromeda-pulse-0.3.0/chunks/2026-09-29-p-025-hue-shift-observable-made-gradable",
+"--run-dir",
+".andromeda/runs/2026-09-29T05-42-03Z-implement",
+"--marker",
+"2026-09-29-p-025-hue-shift-observable-made-gradable"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"root D:\\dev\\projects\\andromeda-pulse · base f15536b9 (the parent of the oldest pre-CI commit f2a131ac) · lists new 2 · modify 18 · derived 0 · record 13",
+"control: lists · glob · record — each fired on its synthetic known positive; C1 · C2 held",
+"recorded widening Cargo.lock",
+"recorded widening Cargo.toml",
+"recorded widening .gitleaksignore",
+"recorded widening pulse-app/icons/32x32.png",
+"recorded widening pulse-app/icons/128x128.png",
+"recorded widening pulse-app/icons/128x128@2x.png",
+"recorded widening pulse-app/tests/unit_llamacli_inference.rs",
+"recorded widening pulse-app/ui/package.json",
+"recorded widening pulse-app/ui/package-lock.json",
+"recorded widening pulse-app/ui/npm-policy.json",
+"recorded widening pulse-app/ui/src/hooks/use-findings.test.tsx",
+"recorded widening pulse-app/ui/src/contrast/parse-tokens.test.ts",
+"recorded widening pulse-app/ui/src/csp.test.ts",
+"scope: clean — changed 33 · listed 20 · recorded 13 (companion 0 · mechanical 0 · in-intent 0 · widening 13) · absorbed 0 · excluded 38"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"root": "D:\\dev\\projects\\andromeda-pulse",
+"base": "f15536b909af814e35eba43a50988cb863223d16",
+"base_why": "the parent of the oldest pre-CI commit f2a131ac",
+"counts": {
+"changed": 33,
+"listed": 20,
+"recorded": 13,
+"unrecorded": 0,
+"indet": 0,
+"absorbed": 0
+},
+"by_class": {
+"companion": 0,
+"mechanical": 0,
+"in-intent": 0,
+"widening": 13
+},
+"excluded": 38,
+"unparsed": 0,
+"widening_without_word": 0
+}
 }
 ]

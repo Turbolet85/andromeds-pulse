@@ -357,28 +357,6 @@ fn classify_subprocess_failure_returns_exit_zero_unexpected_when_exit_zero() {
 }
 
 // ============================================================================
-// Test (f) — subprocess timeout fires (manual run; requires platform binary)
-// ============================================================================
-
-/// Reserves a test slot for full end-to-end subprocess-timeout verification
-/// against a real platform binary that sleeps longer than `LLAMA_CLI_TIMEOUT`.
-/// Cross-platform sleep stub generation is out of scope for CI (would
-/// require either a Rust test-helper crate with a platform-specific
-/// build.rs OR vendoring a shell/cmd wrapper script). Per chunk #84 plan
-/// implementation notes, the FOUR-bound discipline is verified via the
-/// (a) spawn-args tests + the pure-function (e) classifier tests; this
-/// `#[ignore]`-gated test reserves the smoke slot for manual verification.
-///
-/// Manual run (Unix): set `ANDROMEDA_PULSE_LLAMA_CPU_BIN_PATH=/bin/sleep`
-/// plus `ANDROMEDA_PULSE_MODEL_PATH=/tmp/touch-me` plus run with `--ignored`.
-/// Manual run (Windows): use a PowerShell sleep wrapper.
-#[test]
-#[ignore]
-fn manual_subprocess_timeout_smoke() {
-    // Intentionally empty — manual smoke slot. See doc comment for run protocol.
-}
-
-// ============================================================================
 // Lifecycle transitions + broadcast verification (mirror chunk #82 precedent)
 // ============================================================================
 
