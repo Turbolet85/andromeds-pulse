@@ -453,7 +453,7 @@ fn read_log_lines(data_dir: &Path) -> Vec<Value> {
     out
 }
 
-fn spawn_app(binary: &Path, data_dir: &Path, bootstrap_seconds: u64) -> Result<Child> {
+pub(crate) fn spawn_app(binary: &Path, data_dir: &Path, bootstrap_seconds: u64) -> Result<Child> {
     // CWD is the throwaway data dir, not the workspace: TauRPC's dev-mode
     // `export_types()` writes bindings RELATIVE to the working directory.
     Command::new(binary)
@@ -470,12 +470,12 @@ fn spawn_app(binary: &Path, data_dir: &Path, bootstrap_seconds: u64) -> Result<C
         .context("spawn pulse-app")
 }
 
-async fn shutdown(child: &mut Child) -> Result<()> {
+pub(crate) async fn shutdown(child: &mut Child) -> Result<()> {
     let _ = child.kill().await;
     Ok(())
 }
 
-async fn wait_for_receiver() -> Result<()> {
+pub(crate) async fn wait_for_receiver() -> Result<()> {
     let deadline = Instant::now() + Duration::from_secs(60);
     while Instant::now() < deadline {
         if tokio::net::TcpStream::connect(("127.0.0.1", OTLP_GRPC_PORT))
@@ -489,7 +489,7 @@ async fn wait_for_receiver() -> Result<()> {
     bail!("OTLP gRPC receiver never accepted on :{OTLP_GRPC_PORT} within 60s")
 }
 
-async fn wait_ports_released() {
+pub(crate) async fn wait_ports_released() {
     let deadline = Instant::now() + Duration::from_secs(15);
     while Instant::now() < deadline {
         let grpc = tokio::net::TcpStream::connect(("127.0.0.1", OTLP_GRPC_PORT))
@@ -506,7 +506,7 @@ async fn wait_ports_released() {
     eprintln!("smoke:external-resolve: warning — OTLP ports still accepting after shutdown");
 }
 
-fn binary_age(binary: &Path) -> String {
+pub(crate) fn binary_age(binary: &Path) -> String {
     let Ok(modified) = std::fs::metadata(binary).and_then(|m| m.modified()) else {
         return "mtime unavailable".to_string();
     };
@@ -516,7 +516,7 @@ fn binary_age(binary: &Path) -> String {
     }
 }
 
-fn tempdir(root: &Path) -> Result<PathBuf> {
+pub(crate) fn tempdir(root: &Path) -> Result<PathBuf> {
     let dir = root
         .join("target")
         .join("external-resolve")
@@ -527,7 +527,7 @@ fn tempdir(root: &Path) -> Result<PathBuf> {
 
 // The obs sink is `rolling::daily`, so every file is date-suffixed and the bare
 // name matches nothing — resolve the family.
-fn log_family(data_dir: &Path) -> Vec<PathBuf> {
+pub(crate) fn log_family(data_dir: &Path) -> Vec<PathBuf> {
     let Ok(entries) = std::fs::read_dir(data_dir.join("logs")) else {
         return Vec::new();
     };
@@ -544,7 +544,7 @@ fn log_family(data_dir: &Path) -> Vec<PathBuf> {
     files
 }
 
-fn locate_app_binary(root: &Path) -> Result<PathBuf> {
+pub(crate) fn locate_app_binary(root: &Path) -> Result<PathBuf> {
     let exe = if cfg!(windows) {
         "pulse-app.exe"
     } else {
@@ -577,7 +577,7 @@ fn locate_sidecar_binary(root: &Path) -> Result<PathBuf> {
     )
 }
 
-async fn build_injector(workspace_root: &Path) -> Result<PathBuf> {
+pub(crate) async fn build_injector(workspace_root: &Path) -> Result<PathBuf> {
     println!("smoke:external-resolve: building inject_demo (outside the timed section)");
     let status = Command::new("cargo")
         .args(["build", "-p", "ingest", "--example", "inject_demo"])

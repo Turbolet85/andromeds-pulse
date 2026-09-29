@@ -9,7 +9,6 @@ permissions:
   contents: read
 
 env:
-  ANDROMEDA_PULSE_DATA_DIR: ${{ runner.temp }}/andromeda-pulse-ci-data
   SERVICE_NAME: com.andromeda.pulse
   DEPLOYMENT_ENVIRONMENT: production
   CI_RUN_ID: ${{ github.run_id }}
@@ -29,6 +28,10 @@ jobs:
         uses: step-security/harden-runner@a5ad31d6a139d249332a2605b85202e8c0b78450 # v2.19.1
         with:
           egress-policy: audit
+
+      - name: Export ANDROMEDA_PULSE_DATA_DIR
+        shell: bash
+        run: echo "ANDROMEDA_PULSE_DATA_DIR=$RUNNER_TEMP/andromeda-pulse-ci-data" >> "$GITHUB_ENV"
 
       - name: Checkout
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
@@ -229,6 +232,10 @@ jobs:
         with:
           egress-policy: audit
 
+      - name: Export ANDROMEDA_PULSE_DATA_DIR
+        shell: bash
+        run: echo "ANDROMEDA_PULSE_DATA_DIR=$RUNNER_TEMP/andromeda-pulse-ci-data" >> "$GITHUB_ENV"
+
       - name: Checkout
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
 
@@ -278,6 +285,10 @@ jobs:
         uses: step-security/harden-runner@a5ad31d6a139d249332a2605b85202e8c0b78450 # v2.19.1
         with:
           egress-policy: audit
+
+      - name: Export ANDROMEDA_PULSE_DATA_DIR
+        shell: bash
+        run: echo "ANDROMEDA_PULSE_DATA_DIR=$RUNNER_TEMP/andromeda-pulse-ci-data" >> "$GITHUB_ENV"
 
       - name: Checkout
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4

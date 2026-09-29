@@ -83,7 +83,7 @@ pub use crate::incident::{
     IncidentRegistryError, IncidentWriteOutcome, ResolutionTrigger, STREAM_NAME_INCIDENTS,
     TARGET_INCIDENT_PERSIST, TARGET_INCIDENT_PERSIST_ERROR, cooldown_expiry_unix_nano,
     is_valid_incident_transition, run_incident_persist_cycle, run_incident_persist_loop,
-    should_auto_resolve, status_label as incident_status_label,
+    should_auto_resolve, status_label as incident_status_label, tier_effective_at,
 };
 
 // Chunk #67 — service registry + lifecycle state machine. Re-export

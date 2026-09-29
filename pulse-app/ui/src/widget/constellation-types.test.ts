@@ -5,6 +5,7 @@ import {
   type ConstellationDot,
   dotLabelPosition,
   hashServiceName,
+  hueShiftSamples,
   isServiceLive,
   LIVE_RECENCY_WINDOW_NANOS,
   lifecycleToBrightness,
@@ -287,5 +288,171 @@ describe("resolveLabelPositions — label collision-avoidance (P-069 CARRY)", ()
     const second = resolveLabelPositions(dots);
     expect(first.map((p) => p.service).sort()).toEqual(["a", "b", "c"]);
     expect(first).toEqual(second);
+  });
+});
+
+describe("hueShiftSamples — P-025 per-service anchored samples", () => {
+  const MOUNT_MS = 1_700_000_000_000;
+  const MS = 1_000_000;
+
+  function tierDot(service: string, tier: PriorityTier | null): ConstellationDot {
+    return {
+      service,
+      x: 0,
+      y: 0,
+      brightness: 1,
+      hueFraction: 0,
+      state: "active",
+      priorityTier: tier,
+    };
+  }
+
+  function tierItem(
+    service: string,
+    tier: PriorityTier | null,
+    effectiveMs: number | null,
+    lastSeenMs: number = MOUNT_MS,
+  ): ServiceListItem {
+    return {
+      service,
+      state: "active",
+      last_seen_unix_nano: lastSeenMs * MS,
+      manual_override: null,
+      priority_tier: tier,
+      tier_effective_at_unix_nano: effectiveMs === null ? null : effectiveMs * MS,
+    };
+  }
+
+  it("anchors a rise sample to tier_effective_at, not to last_seen", () => {
+    const previous = new Map([["svc-a", null]]);
+    const { samples, next } = hueShiftSamples(
+      previous,
+      [tierDot("svc-a", "autonomous")],
+      [tierItem("svc-a", "autonomous", MOUNT_MS + 1_000)],
+      MOUNT_MS,
+      MOUNT_MS + 2_400,
+    );
+    expect(samples).toHaveLength(1);
+    expect(samples[0].duration_ms).toBeCloseTo(1_400, 2);
+    expect(samples[0].severity_tier).toBe("autonomous");
+    expect(next.get("svc-a")).toBe("autonomous");
+  });
+
+  it("tags a fall sample 'none'", () => {
+    const previous = new Map<string, PriorityTier | null>([["svc-a", "autonomous"]]);
+    const { samples } = hueShiftSamples(
+      previous,
+      [tierDot("svc-a", null)],
+      [tierItem("svc-a", null, MOUNT_MS + 5_000)],
+      MOUNT_MS,
+      MOUNT_MS + 5_800,
+    );
+    expect(samples).toHaveLength(1);
+    expect(samples[0].duration_ms).toBeCloseTo(800, 2);
+    expect(samples[0].severity_tier).toBe("none");
+  });
+
+  it("emits one sample per changed service, each with its own duration", () => {
+    const previous = new Map([
+      ["svc-a", null],
+      ["svc-b", null],
+    ]);
+    const { samples } = hueShiftSamples(
+      previous,
+      [tierDot("svc-a", "suggested"), tierDot("svc-b", "curious")],
+      [
+        tierItem("svc-a", "suggested", MOUNT_MS + 1_000),
+        tierItem("svc-b", "curious", MOUNT_MS + 1_500),
+      ],
+      MOUNT_MS,
+      MOUNT_MS + 3_000,
+    );
+    expect(samples.map((s) => Math.round(s.duration_ms))).toEqual([2_000, 1_500]);
+    expect(samples.map((s) => s.severity_tier)).toEqual(["suggested", "curious"]);
+  });
+
+  it("emits nothing for an unchanged tier", () => {
+    const previous = new Map<string, PriorityTier | null>([["svc-a", "suggested"]]);
+    const { samples } = hueShiftSamples(
+      previous,
+      [tierDot("svc-a", "suggested")],
+      [tierItem("svc-a", "suggested", MOUNT_MS + 1_000)],
+      MOUNT_MS,
+      MOUNT_MS + 9_000,
+    );
+    expect(samples).toEqual([]);
+  });
+
+  it("emits nothing for a calm first sighting, but records it", () => {
+    const { samples, next } = hueShiftSamples(
+      new Map(),
+      [tierDot("svc-a", null)],
+      [tierItem("svc-a", null, null)],
+      MOUNT_MS,
+      MOUNT_MS + 1_000,
+    );
+    expect(samples).toEqual([]);
+    expect(next.has("svc-a")).toBe(true);
+  });
+
+  it("emits a sample for a witnessed non-null first sighting", () => {
+    const { samples } = hueShiftSamples(
+      new Map(),
+      [tierDot("svc-a", "suggested")],
+      [tierItem("svc-a", "suggested", MOUNT_MS + 500)],
+      MOUNT_MS,
+      MOUNT_MS + 1_200,
+    );
+    expect(samples).toHaveLength(1);
+    expect(samples[0].duration_ms).toBeCloseTo(700, 2);
+  });
+
+  it("emits nothing for a tier restored before the canvas mounted", () => {
+    const { samples, next } = hueShiftSamples(
+      new Map(),
+      [tierDot("svc-a", "autonomous")],
+      [tierItem("svc-a", "autonomous", MOUNT_MS - 3_600_000)],
+      MOUNT_MS,
+      MOUNT_MS + 1_000,
+    );
+    expect(samples).toEqual([]);
+    expect(next.get("svc-a")).toBe("autonomous");
+  });
+
+  it("emits nothing when tier_effective_at is null", () => {
+    const previous = new Map([["svc-a", null]]);
+    const { samples } = hueShiftSamples(
+      previous,
+      [tierDot("svc-a", "suggested")],
+      [tierItem("svc-a", "suggested", null)],
+      MOUNT_MS,
+      MOUNT_MS + 1_000,
+    );
+    expect(samples).toEqual([]);
+  });
+
+  it("clamps a future tier_effective_at to 0", () => {
+    const previous = new Map([["svc-a", null]]);
+    const { samples } = hueShiftSamples(
+      previous,
+      [tierDot("svc-a", "suggested")],
+      [tierItem("svc-a", "suggested", MOUNT_MS + 5_000)],
+      MOUNT_MS,
+      MOUNT_MS + 4_000,
+    );
+    expect(samples[0].duration_ms).toBe(0);
+  });
+
+  it("is independent of last_seen_unix_nano (the anti-staleness pin)", () => {
+    const run = (lastSeenMs: number) =>
+      hueShiftSamples(
+        new Map([["svc-a", null]]),
+        [tierDot("svc-a", "autonomous")],
+        [tierItem("svc-a", "autonomous", MOUNT_MS + 1_000, lastSeenMs)],
+        MOUNT_MS,
+        MOUNT_MS + 2_000,
+      ).samples[0].duration_ms;
+    expect(run(MOUNT_MS - 14_000)).toBeCloseTo(run(MOUNT_MS + 1_900), 6);
+    expect(run(MOUNT_MS - 14_000)).toBeCloseTo(1_000, 2);
   });
 });

@@ -315,6 +315,7 @@ mod tests {
                 last_seen_unix_nano: 1_000,
                 manual_override: None,
                 priority_tier: None,
+                tier_effective_at_unix_nano: None,
             },
             ServiceListItem {
                 service: "svc-b".to_string(),
@@ -322,6 +323,7 @@ mod tests {
                 last_seen_unix_nano: 2_000,
                 manual_override: Some(ServiceLifecycleState::Active),
                 priority_tier: None,
+                tier_effective_at_unix_nano: None,
             },
         ];
         let entries = services_to_entries(&items);

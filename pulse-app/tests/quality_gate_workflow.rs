@@ -266,3 +266,128 @@ fn ci_workflow_uploads_logs_artifact_unchanged() {
          CI failure → artifact triage workflow requires log file artifact upload)"
     );
 }
+
+fn read_named_workflow(name: &str) -> String {
+    let full_path = project_root().join(".github/workflows").join(name);
+    std::fs::read_to_string(&full_path)
+        .unwrap_or_else(|e| panic!("read {} failed: {e}", full_path.display()))
+}
+
+// The `runner`, `job` and `steps` contexts (and `env` self-reference) exist only
+// at step level; a workflow- or job-level `env:` value naming one fails workflow
+// parsing before any job starts (GitHub Actions context-availability table).
+const STEP_ONLY_CONTEXTS: [&str; 4] = ["runner.", "job.", "steps.", "env."];
+
+fn names_step_only_context(value: &str) -> Option<&'static str> {
+    let mut rest = value;
+    while let Some(open) = rest.find("${{") {
+        let after = &rest[open + 3..];
+        let close = after.find("}}").unwrap_or(after.len());
+        let expr = &after[..close];
+        for ctx in STEP_ONLY_CONTEXTS {
+            for (idx, _) in expr.match_indices(ctx) {
+                let boundary = expr[..idx]
+                    .chars()
+                    .next_back()
+                    .is_none_or(|c| !(c.is_ascii_alphanumeric() || c == '_' || c == '.'));
+                if boundary {
+                    return Some(ctx);
+                }
+            }
+        }
+        rest = &after[close..];
+    }
+    None
+}
+
+fn env_block_lines<'a>(lines: &[&'a str], header_idx: usize, indent: usize) -> Vec<&'a str> {
+    lines[header_idx + 1..]
+        .iter()
+        .take_while(|l| l.trim().is_empty() || l.len() - l.trim_start().len() > indent)
+        .copied()
+        .collect()
+}
+
+#[test]
+fn workflow_env_references_no_step_only_context() {
+    let mut blocks_checked = 0;
+    for name in [
+        "ci.yml",
+        "release.yml",
+        "update-channels.yml",
+        "secret-scan.yml",
+    ] {
+        let content = read_named_workflow(name);
+        let lines: Vec<&str> = content.lines().collect();
+        for (idx, line) in lines.iter().enumerate() {
+            let indent = match *line {
+                "env:" => 0,
+                "    env:" => 4,
+                _ => continue,
+            };
+            blocks_checked += 1;
+            for value in env_block_lines(&lines, idx, indent) {
+                if let Some(ctx) = names_step_only_context(value) {
+                    panic!(
+                        "{name}: a workflow- or job-level `env:` value references the step-only \
+                         `{ctx}` context, which fails workflow parsing before any job starts \
+                         (export it from a step via $GITHUB_ENV instead): {value:?}"
+                    );
+                }
+            }
+        }
+    }
+    assert!(
+        blocks_checked >= 3,
+        "expected at least the three workflow-level `env:` blocks (ci, release, \
+         update-channels); found {blocks_checked}"
+    );
+}
+
+#[test]
+fn data_dir_export_precedes_every_consumer() {
+    let expected = [
+        ("ci.yml", 3),
+        ("release.yml", 1),
+        ("update-channels.yml", 2),
+    ];
+    for (name, job_count) in expected {
+        let content = read_named_workflow(name);
+        let lines: Vec<&str> = content.lines().collect();
+        let jobs_idx = lines
+            .iter()
+            .position(|l| *l == "jobs:")
+            .unwrap_or_else(|| panic!("{name} has no `jobs:` key"));
+        let job_starts: Vec<usize> = (jobs_idx + 1..lines.len())
+            .filter(|&i| {
+                let l = lines[i];
+                l.starts_with("  ") && !l.starts_with("   ") && l.trim_end().ends_with(':')
+            })
+            .collect();
+        assert_eq!(
+            job_starts.len(),
+            job_count,
+            "{name}: expected {job_count} jobs, found {}",
+            job_starts.len()
+        );
+        for (n, &start) in job_starts.iter().enumerate() {
+            let end = job_starts.get(n + 1).copied().unwrap_or(lines.len());
+            let step_names: Vec<&str> = lines[start..end]
+                .iter()
+                .filter_map(|l| l.strip_prefix("      - name: "))
+                .collect();
+            let job = lines[start].trim();
+            assert_eq!(
+                step_names.first().copied(),
+                Some("Harden runner"),
+                "{name} {job}: `Harden runner` must stay the first step"
+            );
+            assert_eq!(
+                step_names.get(1).copied(),
+                Some("Export ANDROMEDA_PULSE_DATA_DIR"),
+                "{name} {job}: the `Export ANDROMEDA_PULSE_DATA_DIR` step must sit directly \
+                 after `Harden runner`, before any step that reads the data dir"
+            );
+        }
+    }
+}

@@ -28,3 +28,6 @@ none — 0-pending path, no fan-out.
 ## Deferred learnings
 - Still open from prior wraps: the **deferral-destination generalization** (a capability whose `ref` defers evidence to another cap must be re-checked when that destination completes).
 - Still open: **`inject_demo --sustained` cannot form an incident** (EWMA convergence) — third bite moves the fix into the leg-authoring reference as a CHECK.
+
+## Session End Status
+Completed normally at 2026-09-29 07:38:46

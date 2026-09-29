@@ -384,7 +384,11 @@ export type ServiceListItem = { service: string; state: ServiceLifecycleState; l
  * `services.list_with_states` resolver enriches this by joining the
  * incident registry on `scope_id`. Drives the constellation dot hue.
  */
-priority_tier?: PriorityTier | null }
+priority_tier?: PriorityTier | null; 
+/**
+ * Instant the max active-incident tier last changed: the raising incident's open (rise) or the last max holder's resolution (fall); resolver-enriched, `None` from `list_all`.
+ */
+tier_effective_at_unix_nano?: number | null }
 
 /**
  * Paginated list envelope per arch §Standard Contracts. `next_cursor`

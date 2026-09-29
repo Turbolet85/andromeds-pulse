@@ -63,6 +63,9 @@ pub struct ServiceListItem {
     /// incident registry on `scope_id`. Drives the constellation dot hue.
     #[serde(default)]
     pub priority_tier: Option<PriorityTier>,
+    /// Instant the max active-incident tier last changed: the raising incident's open (rise) or the last max holder's resolution (fall); resolver-enriched, `None` from `list_all`.
+    #[serde(default)]
+    pub tier_effective_at_unix_nano: Option<i64>,
 }
 
 /// Service registry — per-service lifecycle state holder + tick evaluator.
@@ -192,6 +195,7 @@ impl ServiceRegistry for InMemoryServiceRegistry {
                 last_seen_unix_nano: entry.last_seen_unix_nano,
                 manual_override: entry.manual_override,
                 priority_tier: None,
+                tier_effective_at_unix_nano: None,
             })
             .collect()
     }

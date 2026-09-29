@@ -20,6 +20,7 @@ mod broadcast;
 mod persistence;
 mod registry;
 mod state_machine;
+mod tier_effective;
 
 pub use broadcast::{IncidentLifecycleBroadcast, IncidentLifecycleEvent, STREAM_NAME_INCIDENTS};
 pub use persistence::{
@@ -35,3 +36,4 @@ pub use registry::{
 pub use state_machine::{
     cooldown_expiry_unix_nano, is_valid_incident_transition, should_auto_resolve, status_label,
 };
+pub use tier_effective::tier_effective_at;

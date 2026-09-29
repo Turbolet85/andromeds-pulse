@@ -1,0 +1,2 @@
+- `Cargo.lock` · widening · serves step 11 · word: "Upgrade in-chunk — founder ruling 2026-09-29: a problem met is solved now, nothing deferred. Cargo.lock only, recorded as a scope-record widening; pin 22 reported DISCHARGED for the wrap." — operator (founder ruling, relayed at /implement P2)
+- `Cargo.toml` · widening · serves step 10 · word: "find WHY debug grew ~150 GB in this chunk (the self-verify path, per-feature rebuilds, debuginfo, duplicated test binaries) and fix the cause in-chunk" — overseer (URGENT directive, 2026-09-29)

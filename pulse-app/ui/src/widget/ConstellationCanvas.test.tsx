@@ -11,6 +11,27 @@ vi.mock("../canvas/webgpu-adapter", () => ({
   requestWebGPUAdapter: adapterMock.requestWebGPUAdapter,
 }));
 
+const motionMock = vi.hoisted(() => ({
+  useReducedMotion: vi.fn(() => false),
+  start: vi.fn(),
+  stop: vi.fn(),
+}));
+
+vi.mock("../hooks/use-reduced-motion", () => ({
+  useReducedMotion: motionMock.useReducedMotion,
+}));
+
+vi.mock("../canvas/frame-loop", () => ({
+  createFrameLoop: () => ({ start: motionMock.start, stop: motionMock.stop }),
+}));
+
+vi.mock("./constellation-pipeline", () => ({
+  createConstellationPipeline: () => ({
+    kind: "created",
+    pipeline: { getBindGroupLayout: () => ({}) },
+  }),
+}));
+
 vi.mock("../canvas/frame-metrics", () => ({
   recordFrameMs: vi.fn().mockResolvedValue(undefined),
   recordConstellationDiscoveryLatency: vi.fn().mockResolvedValue(undefined),
@@ -20,6 +41,7 @@ vi.mock("../canvas/frame-metrics", () => ({
 }));
 
 beforeEach(() => {
+  motionMock.useReducedMotion.mockReturnValue(false);
   adapterMock.requestWebGPUAdapter.mockReset();
   adapterMock.requestWebGPUAdapter.mockResolvedValue({
     kind: "unavailable",
@@ -30,6 +52,7 @@ beforeEach(() => {
 afterEach(() => {
   vi.unstubAllGlobals();
   vi.clearAllMocks();
+  vi.restoreAllMocks();
 });
 
 // The component reads Date.now() at render for the recency gate (P-067), so
@@ -47,6 +70,7 @@ function item(
   state: ServiceLifecycleState,
   priorityTier: ServiceListItem["priority_tier"] = null,
   lastSeenUnixNano: number = nowNano() - LIVE_OFFSET_NANOS,
+  tierEffectiveAtUnixNano: number | null = null,
 ): ServiceListItem {
   return {
     service,
@@ -54,6 +78,7 @@ function item(
     last_seen_unix_nano: lastSeenUnixNano,
     manual_override: null,
     priority_tier: priorityTier,
+    tier_effective_at_unix_nano: tierEffectiveAtUnixNano,
   };
 }
 
@@ -134,24 +159,111 @@ describe("ConstellationCanvas", () => {
 
   it("emits the delegated timing observables on a live render (never forward-inert)", async () => {
     const metrics = await import("../canvas/frame-metrics");
-    render(<ConstellationCanvas items={ITEMS} />);
+    vi.useFakeTimers({ toFake: ["Date"] });
+    try {
+      const calm = [item("svc-a", "active"), item("svc-b", "quiet")];
+      const { rerender } = render(<ConstellationCanvas items={calm} />);
 
-    // P-027: both services are newly discovered on this first render.
+      // P-027: both services are newly discovered on this first render.
+      await vi.waitFor(() => {
+        expect(metrics.recordConstellationDiscoveryLatency).toHaveBeenCalled();
+      });
+      const discovery = vi.mocked(metrics.recordConstellationDiscoveryLatency).mock.calls[0][0];
+      expect(discovery.discovered_count).toBe(2);
+      expect(Number.isFinite(discovery.duration_ms)).toBe(true);
+      expect(metrics.recordConstellationHueLatency).not.toHaveBeenCalled();
+
+      // P-025: svc-a's tier rises after mount; the sample measures the paint
+      // instant minus the backend's tier_effective_at, never last_seen.
+      vi.setSystemTime(Date.now() + 1_000);
+      const effectiveNanos = nowNano();
+      vi.setSystemTime(Date.now() + 1_400);
+      rerender(
+        <ConstellationCanvas
+          items={[
+            item("svc-a", "active", "autonomous", undefined, effectiveNanos),
+            item("svc-b", "quiet"),
+          ]}
+        />,
+      );
+
+      await vi.waitFor(() => {
+        expect(metrics.recordConstellationHueLatency).toHaveBeenCalledTimes(1);
+      });
+      const hue = vi.mocked(metrics.recordConstellationHueLatency).mock.calls[0][0];
+      expect(hue.severity_tier).toBe("autonomous");
+      expect(hue.duration_ms).toBeCloseTo(1_400, 1);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("emits one hue sample per service when two tiers change in one pass", async () => {
+    const metrics = await import("../canvas/frame-metrics");
+    const { rerender } = render(
+      <ConstellationCanvas items={[item("svc-a", "active"), item("svc-b", "quiet")]} />,
+    );
     await vi.waitFor(() => {
       expect(metrics.recordConstellationDiscoveryLatency).toHaveBeenCalled();
     });
-    const discovery = vi.mocked(metrics.recordConstellationDiscoveryLatency).mock.calls[0][0];
-    expect(discovery.discovered_count).toBe(2);
-    expect(Number.isFinite(discovery.duration_ms)).toBe(true);
-
-    // P-025: svc-a carries a non-null tier, so its dot hue is a real update.
-    // svc-b is calm on first sighting and must NOT be counted as a hue change.
+    const effectiveNanos = nowNano() + 1_000_000;
+    rerender(
+      <ConstellationCanvas
+        items={[
+          item("svc-a", "active", "suggested", undefined, effectiveNanos),
+          item("svc-b", "quiet", "curious", undefined, effectiveNanos),
+        ]}
+      />,
+    );
     await vi.waitFor(() => {
-      expect(metrics.recordConstellationHueLatency).toHaveBeenCalled();
+      expect(metrics.recordConstellationHueLatency).toHaveBeenCalledTimes(2);
     });
-    const hue = vi.mocked(metrics.recordConstellationHueLatency).mock.calls[0][0];
-    expect(hue.severity_tier).toBe("autonomous");
-    expect(Number.isFinite(hue.duration_ms)).toBe(true);
+    const tiers = vi
+      .mocked(metrics.recordConstellationHueLatency)
+      .mock.calls.map((call) => call[0].severity_tier);
+    expect(tiers).toEqual(["suggested", "curious"]);
+  });
+
+  it("does not report a tier restored before mount as a hue update", async () => {
+    const metrics = await import("../canvas/frame-metrics");
+    const restoredNanos = nowNano() - 3_600 * 1_000_000_000;
+    render(
+      <ConstellationCanvas
+        items={[item("svc-a", "active", "autonomous", undefined, restoredNanos)]}
+      />,
+    );
+    await vi.waitFor(() => {
+      expect(metrics.recordConstellationDiscoveryLatency).toHaveBeenCalled();
+    });
+    // Discovery fired, so the hue effect ran too — the absence is not vacuous.
+    expect(metrics.recordConstellationHueLatency).not.toHaveBeenCalled();
+  });
+
+  it("repaints under reduced motion when a tier changes", async () => {
+    motionMock.useReducedMotion.mockReturnValue(true);
+    adapterMock.requestWebGPUAdapter.mockResolvedValue({
+      kind: "available",
+      device: {
+        createBuffer: () => ({}),
+        createBindGroup: () => ({}),
+      },
+      backendKind: "vulkan",
+    });
+    vi.spyOn(HTMLCanvasElement.prototype, "getContext").mockImplementation(
+      () => ({ configure: vi.fn() }) as never,
+    );
+    const { rerender } = render(<ConstellationCanvas items={[item("svc-a", "active")]} />);
+    await vi.waitFor(() => {
+      expect(motionMock.start).toHaveBeenCalled();
+    });
+    const before = motionMock.start.mock.calls.length;
+
+    rerender(
+      <ConstellationCanvas items={[item("svc-a", "active", "autonomous", undefined, nowNano())]} />,
+    );
+    await vi.waitFor(() => {
+      expect(motionMock.start.mock.calls.length).toBeGreaterThan(before);
+    });
   });
 
   it("does not report a hue update when every live service is at the calm baseline", async () => {

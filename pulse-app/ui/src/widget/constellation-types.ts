@@ -226,3 +226,51 @@ export function constellationSummary(
   const findingsClause = withFindings > 0 ? ` ${withFindings} with active findings.` : "";
   return `Service constellation: ${visible.length} ${plural} — ${stateParts.join(", ")}.${findingsClause}`;
 }
+
+export interface HueShiftSample {
+  duration_ms: number;
+  severity_tier: PriorityTier | "none";
+}
+
+export interface HueShiftResult {
+  samples: HueShiftSample[];
+  next: Map<string, PriorityTier | null>;
+}
+
+// P-025: one sample per dot whose tier changed, measuring paint instant −
+// the instant that tier became true on the backend (`tier_effective_at`).
+// Only changes this canvas WITNESSED count (effective ≥ mount): a tier
+// restored at boot is not a hue-update latency.
+export function hueShiftSamples(
+  previous: ReadonlyMap<string, PriorityTier | null>,
+  dots: readonly ConstellationDot[],
+  items: readonly ServiceListItem[],
+  mountedAtMs: number,
+  paintNowMs: number,
+): HueShiftResult {
+  const next = new Map(previous);
+  const samples: HueShiftSample[] = [];
+  for (const dot of dots) {
+    const tier = dot.priorityTier ?? null;
+    const known = previous.has(dot.service);
+    const before = previous.get(dot.service) ?? null;
+    next.set(dot.service, tier);
+    if ((!known && tier === null) || (known && before === tier)) {
+      continue;
+    }
+    const item = items.find((candidate) => candidate.service === dot.service);
+    const effectiveNanos = item?.tier_effective_at_unix_nano ?? null;
+    if (effectiveNanos === null) {
+      continue;
+    }
+    const effectiveMs = effectiveNanos / 1_000_000;
+    if (effectiveMs < mountedAtMs) {
+      continue;
+    }
+    samples.push({
+      duration_ms: Math.max(0, paintNowMs - effectiveMs),
+      severity_tier: tier ?? "none",
+    });
+  }
+  return { samples, next };
+}

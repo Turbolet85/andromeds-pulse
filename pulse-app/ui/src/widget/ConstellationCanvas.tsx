@@ -5,7 +5,8 @@
 // scatter. Only currently-live services (recent last_seen) shown; stale/
 // archived hidden (P-067). The dots breathe (opacity-only
 // envelope, never scale — P-026) when motion is allowed; reduced-motion
-// renders a single static frame (hue + brightness still encode state).
+// renders a static frame, repainted on a data change (hue + brightness still
+// encode state).
 //
 // Mirrors halo/HaloCanvas.tsx + dashboard ConstellationCanvas: owns its own
 // <canvas> + WebGPU pipeline outside React's render tree; the per-dot draw
@@ -25,14 +26,15 @@ import {
   recordConstellationDiscoveryLatency,
   recordConstellationHueLatency,
   recordFrameMs,
-  type HueSeverityTierKind,
 } from "../canvas/frame-metrics";
+import type { FrameLoopHandle } from "../canvas/types";
 import { requestWebGPUAdapter, type AdapterResult } from "../canvas/webgpu-adapter";
 import { lchInterpolate } from "../halo/lch";
 import { useReducedMotion } from "../hooks/use-reduced-motion";
 import { createConstellationPipeline } from "./constellation-pipeline";
 import {
   constellationSummary,
+  hueShiftSamples,
   visibleDots,
   type ConstellationDot,
 } from "./constellation-types";
@@ -75,6 +77,11 @@ export function ConstellationCanvas({ items }: ConstellationCanvasProps) {
   const dotsRef = useRef<readonly ConstellationDot[]>(dots);
   const discoveredRef = useRef<Set<string>>(new Set());
   const hueTierRef = useRef<Map<string, PriorityTier | null>>(new Map());
+  const loopRef = useRef<FrameLoopHandle | null>(null);
+  const mountedAtRef = useRef(0);
+  if (mountedAtRef.current === 0) {
+    mountedAtRef.current = Date.now();
+  }
 
   useEffect(() => {
     dotsRef.current = dots;
@@ -109,51 +116,33 @@ export function ConstellationCanvas({ items }: ConstellationCanvasProps) {
     });
   }, [dots, items]);
 
-  // P-025 hue bound: a service's span arrival → the severity-driven hue its dot
-  // renders. This is the surface where `severityToHueFraction` actually runs
-  // (`constellation-types.ts`); the Halo State Pulse canvas the design system
-  // describes has no production render site, so timing it there would emit
-  // nothing. Fires on a tier CHANGE, which is what "hue updated" means.
+  // P-025 hue bound: the instant a service's tier became true on the backend
+  // (`tier_effective_at_unix_nano`) → the instant this effect observes the
+  // dot repainted in its new hue. One sample per service whose tier changed,
+  // and only for changes this canvas witnessed — a tier restored at boot is
+  // not a hue-update latency.
   useEffect(() => {
-    const nowMs = Date.now();
-    let slowestMs = 0;
-    let slowestTier: HueSeverityTierKind = "none";
-    let changed = 0;
-
-    for (const dot of dots) {
-      const tier = dot.priorityTier ?? null;
-      const known = hueTierRef.current.has(dot.service);
-      const previous = hueTierRef.current.get(dot.service) ?? null;
-      hueTierRef.current.set(dot.service, tier);
-
-      // A first sighting at the calm baseline is not a hue update — timing it
-      // would report every discovery as a severity change.
-      if (!known && tier === null) {
-        continue;
-      }
-      if (known && previous === tier) {
-        continue;
-      }
-      changed += 1;
-      const item = items.find((candidate) => candidate.service === dot.service);
-      if (item === undefined) {
-        continue;
-      }
-      const elapsedMs = nowMs - item.last_seen_unix_nano / 1_000_000;
-      if (elapsedMs > slowestMs) {
-        slowestMs = elapsedMs;
-        slowestTier = tier ?? "none";
-      }
+    const { samples, next } = hueShiftSamples(
+      hueTierRef.current,
+      dots,
+      items,
+      mountedAtRef.current,
+      Date.now(),
+    );
+    hueTierRef.current = next;
+    for (const sample of samples) {
+      void recordConstellationHueLatency(sample);
     }
-
-    if (changed === 0) {
-      return;
-    }
-    void recordConstellationHueLatency({
-      duration_ms: slowestMs,
-      severity_tier: slowestTier,
-    });
   }, [dots, items]);
+
+  // Under reduced motion the loop paints one static frame per start() and
+  // schedules no rAF, so a data change must re-call start() to repaint the
+  // new hue (frame-loop.ts contract).
+  useEffect(() => {
+    if (reducedMotion) {
+      loopRef.current?.start();
+    }
+  }, [dots, reducedMotion]);
 
   useEffect(() => {
     let cancelled = false;
@@ -293,9 +282,11 @@ export function ConstellationCanvas({ items }: ConstellationCanvasProps) {
         });
       },
     });
+    loopRef.current = loop;
     loop.start();
     return () => {
       loop.stop();
+      loopRef.current = null;
     };
   }, [adapter, reducedMotion]);
 

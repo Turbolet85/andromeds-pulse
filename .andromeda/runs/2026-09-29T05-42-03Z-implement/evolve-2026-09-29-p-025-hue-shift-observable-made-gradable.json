@@ -1,0 +1,150 @@
+[
+{
+"tool": "evolve",
+"v": "1.0",
+"sha8": "df8fc62a",
+"ts": "2026-09-29T06:02:55Z",
+"argv": [
+"append",
+"--root",
+".",
+"--count",
+"2",
+"--records-file",
+"-",
+"--run-dir",
+".andromeda/runs/2026-09-29T05-42-03Z-implement",
+"--marker",
+"2026-09-29-p-025-hue-shift-observable-made-gradable"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"appended 2 record(s) · friction-log.ndjson lines 1352→1354 · bytes 1524944→1526994 · term lf",
+"ts 2026-09-29T06:02:30Z · clock 2026-09-29T06:02:55Z · bound 2026-09-29T05:41:04Z (line 1352)",
+"ids 2026-09-29T06:02:30Z-a … 2026-09-29T06:02:30Z-b (2)"
+],
+"stderr": null,
+"wrote": [
+".\\.andromeda\\friction-log.ndjson"
+],
+"before": {
+"lines": 1352,
+"bytes": 1524944,
+"terminator": "LF",
+"bound": "2026-09-29T05:41:04Z"
+},
+"after": {
+"lines": 1354,
+"bytes": 1526994
+}
+},
+{
+"tool": "evolve",
+"v": "1.0",
+"sha8": "df8fc62a",
+"ts": "2026-09-29T07:09:11Z",
+"argv": [
+"append",
+"--root",
+".",
+"--count",
+"5",
+"--records-file",
+"-",
+"--run-dir",
+".andromeda/runs/2026-09-29T05-42-03Z-implement",
+"--marker",
+"2026-09-29-p-025-hue-shift-observable-made-gradable"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"appended 5 record(s) · friction-log.ndjson lines 1354→1359 · bytes 1526994→1531550 · term lf",
+"ts 2026-09-29T07:08:41Z · clock 2026-09-29T07:09:11Z · bound 2026-09-29T06:02:30Z (line 1354)",
+"ids 2026-09-29T07:08:41Z-a … 2026-09-29T07:08:41Z-e (5)"
+],
+"stderr": null,
+"wrote": [
+".\\.andromeda\\friction-log.ndjson"
+],
+"before": {
+"lines": 1354,
+"bytes": 1526994,
+"terminator": "LF",
+"bound": "2026-09-29T06:02:30Z"
+},
+"after": {
+"lines": 1359,
+"bytes": 1531550
+}
+},
+{
+"tool": "evolve",
+"v": "1.0",
+"sha8": "df8fc62a",
+"ts": "2026-09-29T07:09:21Z",
+"argv": [
+"append",
+"--root",
+".",
+"--count",
+"1",
+"--records-file",
+"-",
+"--run-dir",
+".andromeda/runs/2026-09-29T05-42-03Z-implement",
+"--marker",
+"2026-09-29-p-025-hue-shift-observable-made-gradable"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 3,
+"stdout": [
+"REFUSED ts: 2026-09-29T07:09:30Z · 2026-09-29T07:09:30Z-a — later than the clock 2026-09-29T07:09:21Z"
+],
+"stderr": "refused — nothing written: 1 of 1 record(s) out of time; re-read `date -u`, re-letter the ids, re-fire",
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "evolve",
+"v": "1.0",
+"sha8": "df8fc62a",
+"ts": "2026-09-29T07:09:36Z",
+"argv": [
+"append",
+"--root",
+".",
+"--count",
+"1",
+"--records-file",
+"-",
+"--run-dir",
+".andromeda/runs/2026-09-29T05-42-03Z-implement",
+"--marker",
+"2026-09-29-p-025-hue-shift-observable-made-gradable"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"appended 1 record(s) · friction-log.ndjson lines 1359→1360 · bytes 1531550→1532381 · term lf",
+"ts 2026-09-29T07:09:26Z · clock 2026-09-29T07:09:36Z · bound 2026-09-29T07:08:41Z (line 1359)",
+"ids 2026-09-29T07:09:26Z-a"
+],
+"stderr": null,
+"wrote": [
+".\\.andromeda\\friction-log.ndjson"
+],
+"before": {
+"lines": 1359,
+"bytes": 1531550,
+"terminator": "LF",
+"bound": "2026-09-29T07:08:41Z"
+},
+"after": {
+"lines": 1360,
+"bytes": 1532381
+}
+}
+]

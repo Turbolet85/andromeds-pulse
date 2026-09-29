@@ -235,6 +235,17 @@ sha2 = "0.10"
 # licenses sources`.
 notify = "8"
 
+# Every pulse-app integration test is its own binary that statically links
+# duckdb + wasmtime + tauri; at full debuginfo each carried a ~0.67 GB PDB and
+# one workspace test build reached ~95 GB of target/debug (measured
+# 2026-09-29). Line tables keep file:line in our own panic backtraces;
+# third-party crates carry no debuginfo.
+[profile.dev]
+debug = "line-tables-only"
+
+[profile.dev.package."*"]
+debug = false
+
 [profile.release]
 lto = "thin"
 codegen-units = 1

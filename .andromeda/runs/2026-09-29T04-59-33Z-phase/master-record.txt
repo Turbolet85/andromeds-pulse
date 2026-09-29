@@ -1,0 +1,1 @@
+2026-09-29-p-025-hue-shift-observable-made-gradable · pending · P-025 hue-shift observable made gradable — hue_update_ms measures tier-effective instant → paint per changed service (Conductor contract); CI workflows parse again · → andromeda-pulse-0.3.0/chunks/2026-09-29-p-025-hue-shift-observable-made-gradable/

@@ -73,6 +73,12 @@ pub trait IncidentRegistry: Send + Sync + Debug {
     /// workspace. Used by `incidents.list_active()`.
     fn list_active(&self, workspace: &str) -> Vec<Incident>;
 
+    /// Snapshot of EVERY incident for a workspace, Resolved included.
+    /// Resolved rows stay in the registry for the process lifetime, so this
+    /// is the only view that still carries `resolved_at_unix_nano` — the
+    /// instant a service's maximum tier falls.
+    fn list_for_workspace(&self, workspace: &str) -> Vec<Incident>;
+
     /// Transition an Active incident to Acknowledged. Checks the
     /// (kind, scope, workspace) cool-down and returns `CooldownActive`
     /// if active. On success sets the incident's
@@ -216,6 +222,14 @@ impl IncidentRegistry for InMemoryIncidentRegistry {
             .filter(|entry| {
                 entry.workspace == workspace && entry.status != IncidentStatus::Resolved
             })
+            .map(|entry| entry.clone())
+            .collect()
+    }
+
+    fn list_for_workspace(&self, workspace: &str) -> Vec<Incident> {
+        self.incidents
+            .iter()
+            .filter(|entry| entry.workspace == workspace)
             .map(|entry| entry.clone())
             .collect()
     }
@@ -416,6 +430,46 @@ mod tests {
         assert_eq!(r.count(), 0);
         assert!(r.list_active("ws-a").is_empty());
         assert!(r.get(42).is_none());
+    }
+
+    #[test]
+    fn list_for_workspace_returns_every_status_and_filters_by_workspace() {
+        let r = fresh_registry();
+        r.insert(sample_incident(
+            1,
+            "ws-a",
+            CueKind::ErrorRateSpike,
+            CueScope::Service,
+        ));
+        r.insert(sample_incident(
+            2,
+            "ws-a",
+            CueKind::LatencyRegression,
+            CueScope::Service,
+        ));
+        r.insert(sample_incident(
+            3,
+            "ws-a",
+            CueKind::RestartEvent,
+            CueScope::Service,
+        ));
+        r.insert(sample_incident(
+            4,
+            "ws-b",
+            CueKind::ErrorRateSpike,
+            CueScope::Service,
+        ));
+        r.acknowledge(2, 2_000_000_000, 0).expect("ack");
+        r.mark_resolved(3, 3_000_000_000, ResolutionTrigger::AutoResolve)
+            .expect("resolve");
+
+        let mut ids: Vec<i64> = r.list_for_workspace("ws-a").iter().map(|i| i.id).collect();
+        ids.sort_unstable();
+        assert_eq!(ids, vec![1, 2, 3]);
+        let resolved = r.get(3).expect("resolved row retained");
+        assert_eq!(resolved.resolved_at_unix_nano, Some(3_000_000_000));
+        assert_eq!(r.list_active("ws-a").len(), 2);
+        assert!(r.list_for_workspace("ws-c").is_empty());
     }
 
     #[test]

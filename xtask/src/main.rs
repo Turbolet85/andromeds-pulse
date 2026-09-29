@@ -10,6 +10,7 @@ mod bundle_format;
 mod external_resolve;
 mod gap_resume;
 mod harness_status;
+mod hue_shift;
 mod ingest_progress;
 mod npm_gate;
 mod self_verify;
@@ -86,6 +87,11 @@ enum Cmd {
         #[arg(long, value_name = "SECONDS")]
         observe_seconds: Option<u64>,
     },
+    #[command(
+        name = "smoke:hue-shift",
+        about = "Drive a tier rise (finite storm) and fall (120 s auto-resolve under a healthy feed) through the release app and grade the P-025 hue-shift samples by ANCHOR: each sample's timestamp minus duration_ms must land within 1000 ms of the incident creation record (rise) and the resolving auto-resolve tick (fall). The 2000 ms budget line is context only. Exit 0 PASS, 1 FAIL, 2 INCONCLUSIVE (no incident, or a sample never appeared)"
+    )]
+    SmokeHueShift,
     #[command(name = "audit", about = "cargo audit (RustSec advisory DB)")]
     Audit,
     #[command(name = "deny-bans", about = "cargo deny check bans licenses sources")]
@@ -247,6 +253,7 @@ async fn main() -> ExitCode {
             })
             .await
         }
+        Cmd::SmokeHueShift => hue_shift::run_hue_shift().await,
         Cmd::Audit => run_cargo("audit", &[]).await,
         Cmd::DenyBans => run_cargo("deny", &["check", "bans", "licenses", "sources"]).await,
         Cmd::CheckNpmSupplyChain => npm_gate::run_npm_gate().await,

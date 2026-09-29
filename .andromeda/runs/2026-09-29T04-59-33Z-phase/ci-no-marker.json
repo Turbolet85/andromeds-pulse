@@ -1,0 +1,90 @@
+[
+{
+"tool": "ci",
+"v": "1.0",
+"sha8": "bf89b279",
+"ts": "2026-09-29T04:59:49Z",
+"argv": [
+"conclusion",
+"--sha",
+"f15536b909af814e35eba43a50988cb863223d16",
+"--sha",
+"8fc47f1aba99153fe7a9eae87d0975feecc23c3d",
+"--sha",
+"99d2f9ccacc86bebf10ef418c2575bbe81969036",
+"--sha",
+"ca5d7ee30a92dfd23408ddf2bf6ff3544d4ffe8e",
+"--sha",
+"8b86529d10b06e6b6b559f56696a7e0b90c7ba04",
+"--sha",
+"83d40601fdb3758ec82650a9d06a22f4b7c94387",
+"--run-dir",
+".andromeda/runs/2026-09-29T04-59-33Z-phase"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"repo Turbolet85/andromeds-pulse (the push remote `origin`)",
+"f15536b909af verdict: red · checks 0/0 · runs .github/workflows/ci.yml#36489885394 completed/failure .github/workflows/…",
+"8fc47f1aba99 verdict: none recorded · checks 0/0 · runs 0 · active workflows 4",
+"99d2f9ccacc8 verdict: none recorded · checks 0/0 · runs 0 · active workflows 4",
+"ca5d7ee30a92 verdict: none recorded · checks 0/0 · runs 0 · active workflows 4",
+"8b86529d10b0 verdict: red · checks 0/0 · runs .github/workflows/ci.yml#36487767925 completed/failure .github/workflows/…",
+"83d40601fdb3 verdict: red · checks 0/0 · runs .github/workflows/update-channels.yml#34535079754 completed/failure .gith…"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"repo": "Turbolet85/andromeds-pulse",
+"host": "github.com",
+"repo_source": "the push remote `origin`",
+"names": [],
+"shas": [
+{
+"sha": "f15536b909af814e35eba43a50988cb863223d16",
+"word": "red",
+"polls": [
+"red"
+]
+},
+{
+"sha": "8fc47f1aba99153fe7a9eae87d0975feecc23c3d",
+"word": "none recorded",
+"polls": [
+"none recorded"
+]
+},
+{
+"sha": "99d2f9ccacc86bebf10ef418c2575bbe81969036",
+"word": "none recorded",
+"polls": [
+"none recorded"
+]
+},
+{
+"sha": "ca5d7ee30a92dfd23408ddf2bf6ff3544d4ffe8e",
+"word": "none recorded",
+"polls": [
+"none recorded"
+]
+},
+{
+"sha": "8b86529d10b06e6b6b559f56696a7e0b90c7ba04",
+"word": "red",
+"polls": [
+"red"
+]
+},
+{
+"sha": "83d40601fdb3758ec82650a9d06a22f4b7c94387",
+"word": "red",
+"polls": [
+"red"
+]
+}
+]
+}
+}
+]
