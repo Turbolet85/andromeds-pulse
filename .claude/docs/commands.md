@@ -97,7 +97,8 @@ cargo audit                                                    # RustSec advisor
 cargo deny check bans licenses sources                         # Duplicate / license / source policy
 cargo deny check advisories                                    # Same as cargo audit but via deny
 cargo xtask check:npm-supply-chain                             # npm advisory/license/ban gate (pulse-app/ui; policy npm-policy.json; lockfile-only)
-cargo xtask harness:status                                     # Real-process status verdict JSON {verdict,pid,log_file_basename,last_write_age_seconds,stale_after_seconds}; exits 0/1/1/2
+cargo xtask harness:status                                     # Real-process status verdict JSON {verdict,pid,ended,log_file_basename,last_write_age_seconds,stale_after_seconds}; exits 0/1/1/2
+cargo xtask pre-push:linux                                     # Windows host: Linux-reachable gates in a WSL Ubuntu clone of HEAD + worktree; exit 0 green / 1 red / 2 cannot-evaluate
 cargo xtask check:staged-artifacts                             # Staged git-index bindings + capability grants vs EXPECTED_PROCEDURES/EXPECTED_GRANTS; exit 0 staged-clean / 1 staged-drift / 2 cannot-evaluate
 
 # CI-side

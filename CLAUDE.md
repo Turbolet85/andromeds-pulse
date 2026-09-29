@@ -11,8 +11,8 @@ Cross-platform Tauri 2 desktop dashboard for local OpenTelemetry — receives OT
 **Key directories:**
 - `crates/` — 14 library crates (`ingest` / `buffer` / `viz` / `ui-bridge` / `snapshot` / `curation` / `triage` / `workspace-detector` / `plugins` / `mcp-server` / `corpus` / `security` / `interpretation` / `config-watcher`)
 - `pulse-app/` — Tauri binary crate; `tauri.conf.json` + `capabilities/` JSON + `src/main.rs` + `ui/` webview source
-- `xtask/` — cargo-xtask: release / sign / notarize / capability-drift / agent-run harness
-- `.github/workflows/` — `ci.yml` matrix Linux/macOS/Windows + `release.yml` (`tauri-action`) + `update-channels.yml` (Homebrew + Scoop)
+- `xtask/` — cargo-xtask: release / sign / notarize / capability-drift / agent-run harness / `pre-push:linux` (WSL Linux pre-push check)
+- `.github/workflows/` — `ci.yml` (seven parallel jobs over Linux/macOS/Windows: lint-test · release · mcp-test · a11y · boot · supply-chain · coverage) + `release.yml` (`tauri-action`) + `update-channels.yml` (Homebrew + Scoop)
 - `.andromeda/` — planning artifacts (arch / 6 specialist plans / master-route + route history / runs / `cache/` code-graph DBs, gitignored)
 <!-- GENERATED:setup:overview end -->
 
@@ -33,7 +33,7 @@ Cross-platform Tauri 2 desktop dashboard for local OpenTelemetry — receives OT
 - **`interpretation`** — L4 LLM interpretation layer (chunk #82 — Epoch 9 Foundation v0.2.0): `LlmInferenceRunner` async trait (Pin<Box<dyn Future + Send + 'a>> returns mirroring 2026-05-23 `SqlQueryRunner` precedent) + `ModelTier` / `ModelStatus` / `ModelIdentity` / `ModelLoadEvent` / `InferenceError` contract types in `interpretation::contract` + `HardwareProfileDetector` implementing chunk #80 `HardwareProfileSource` trait (cross-platform GPU probe: Metal on macOS, libcuda.so on Linux, nvcuda.dll on Windows; env var override via `ANDROMEDA_PULSE_HARDWARE_PROFILE`) + `ModelStatusBroadcast` for `pulse://stream/model-status` topic. NO direct `mistralrs` import at this crate level — concrete `MistralRsInference` impl lives at the binary boundary in `pulse-app/` per arch §Established Decisions [LLM Inference Runtime — L4 interpretation layer] bus factor mitigation entry. Capabilities P-053 (Fallback Model Tier — detection side) + P-054 (Hardware Profile Awareness).
 - **`config-watcher`** — Configuration hot-reload watcher (chunk #96 — Epoch 9 Foundation v0.2.0): `notify` 8.x filesystem watcher on `<data_dir>/config.toml` + `tokio::sync::watch` fan-out at the pulse-app boot boundary; `partition_changed_keys` classifies each Settings delta into hot_applied (cadence/lifecycle) / restart_required / silent; prospective-only re-application (no retroactive recompute) + opt-in FULL retrospective via `diagnostics.reevaluate_recent_window`. Emits aggregate-only `pulse://stream/config-events`; consumed by `pulse-app::config_router` (`config.{reload,status}`). Capabilities P-055 (hot reload) + P-056 (prospective + opt-in reevaluate).
 - **`pulse-app`** — Tauri 2 binary crate; tokio runtime owner; `pulse-app/capabilities/` JSON files; bundle id `com.andromeda.pulse`.
-- **`xtask`** — cargo-xtask: release / sign / notarize / changelog + agent-run 5-command harness (boot/run/status/cleanup/logs).
+- **`xtask`** — cargo-xtask: release / sign / notarize / changelog + agent-run 5-command harness (boot/run/status/cleanup/logs) + `pre-push:linux`, the WSL Linux pre-push check.
 <!-- GENERATED:setup:modules end -->
 
 ## Critical Warnings (universal invariants)

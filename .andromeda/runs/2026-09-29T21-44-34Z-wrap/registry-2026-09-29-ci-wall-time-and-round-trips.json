@@ -1,0 +1,26 @@
+[
+{
+"tool": "registry",
+"v": "1.1",
+"sha8": "c6c20a84",
+"ts": "2026-09-29T21:48:30Z",
+"argv": [
+"contracts",
+"--master",
+".andromeda/architecture.md",
+"--out",
+".andromeda/runs/2026-09-29T21-44-34Z-wrap/architecture-contracts.md",
+"--run-dir",
+".andromeda/runs/2026-09-29T21-44-34Z-wrap",
+"--marker",
+"2026-09-29-ci-wall-time-and-round-trips"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 3,
+"stdout": [],
+"stderr": "NOT MIGRATED — read §Infrastructure Patterns in the body",
+"wrote": [],
+"before": null,
+"after": null
+}
+]

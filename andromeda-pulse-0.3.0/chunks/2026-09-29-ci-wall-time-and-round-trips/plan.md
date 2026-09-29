@@ -181,7 +181,7 @@ role = 'lint'
 run = '''python -X utf8 -c "import yaml; d = yaml.safe_load(open('.github/workflows/ci.yml', encoding='utf-8')); print(' '.join(sorted(d['jobs'])))"'''
 role = 'probe'
 new = true
-expect = ['exit 0', 'last line a11y boot coverage lint-test supply-chain']
+expect = ['exit 0', 'last line a11y boot coverage lint-test mcp-test release supply-chain']
 baseline = 'red — exit 0, last line "coverage lint-test-build supply-chain" (the untouched three-job layout fails the five-job atom: its own known-positive control)'
 note = 'the workflow parses as YAML and carries exactly the five planned jobs (Step 1); a parse error is what kept CI silent for two months before P-025'
 

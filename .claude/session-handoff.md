@@ -1,31 +1,28 @@
 # Session Handoff
 
-**Last Updated:** 2026-09-29T15:42:30Z
+**Last Updated:** 2026-09-29T22:01:40Z
 **Branch:** chore/migrate-pulse-to-v3 · 0 ahead of origin/chore/migrate-pulse-to-v3 as read at this wrap's Setup (the chunk commit follows it, then the push)
 **Status:** clean
-**Last Commit:** 2026-09-29-p-025-hue-shift-observable-made-gradable — chunk wrap (P-025 hue-shift observable made gradable; CI rehabilitated to green)
+**Last Commit:** 2026-09-29-ci-wall-time-and-round-trips — chunk wrap (CI round 44.8 → 25.5 min warm; WSL pre-push verb; boot end-status recorder)
 
 ## Position
-- Done: `2026-09-29-p-025-hue-shift-observable-made-gradable` — `hue_update_ms` now measures tier-effective instant → paint per changed service; the first real CI in two months worked to GREEN 6/6 on `464f2a3` (run `ci#36574279289`, draft PR #39).
-- Next (first markerless, `working-route.md:132`): **CI wall time and round-trips** — parallel jobs, kept cache, no duplicate rebuilds, a local WSL Linux pre-push check (Viola precedent). Carries the Linux-boot WATCH (1/3) and a CARRY to register `smoke:gap-resume` / `smoke:external-resolve` in arch.
-- Then, in the founder's order: Dual license (MIT OR Apache-2.0) → P-027 discovery bound → Perf-budget gate reads real samples → Conductor return (P-075, matrix 21/22 → 22/22).
+- Done: `2026-09-29-ci-wall-time-and-round-trips` — ci.yml split into seven parallel jobs with a budgeted cache; xtask's child cargo no longer inherits `cargo run`'s package variables (the ring rebuild thrash); `cargo xtask pre-push:linux`; `harness:status.ended`. Final HEAD `dd5c700` green 13/13, 25.5 min (ci#36632205717).
+- Next (first markerless): **Scrubber path false positive** — a digit run in a path / workspace key is not a card number (founder: fix the cause; Conductor's v3-09 series waits on it). Carries the Linux-boot WATCH (1/3, re-watched after the `4502d5d` recurrence; instrument `harness:status.ended`).
+- Then: Dual license → P-027 discovery bound → Perf-budget gate reads real samples (now carrying the release-job cache CARRY and the `agent-run.ps1` recorder-mirror CARRY) → Conductor return (P-075).
 
 ## Work done
-Resumed wrap from P2 (report was on disk). 7 detectors → 31 proposals; 28 applied (3 wasmtime pins orchestrator-raised) + 2 cascade folds, 1 rejected, 0 escalations; 14 sidecar entries. `cargo audit` standing deferral ENDED (pin #22 discharged); the rust-gate deferral closed.
+Three operator passes: cold round 80.9 min; warm attempt 2 47.6 min (the CARGO_PKG leak measured as the cause); 27.6 min on `4502d5d` with a boot red (the post-ready Linux death, 0/30 reproduced in WSL); the recorder, then green 25.5 min.
 
 ## Drift resolved
-Architecture (wasmtime 48.0.3 ×3, the hue interval, harness:status liveness, agent-run CI env + boot diagnosis, smoke:hue-shift) · security-plan (deferral ended, `$CARGO_HOME` note, npm residuals) · obs-plan (hue leaf interval; the CI perf gates recorded VACUOUS, owned) · test-plan (vitest 4, liveness, boot path, CI rows, scenario leg, TEMPORARY xtask coverage exclusion, 2 pending triggers). Cascade re-derived CLAUDE.md overview + 4 rule files + 2 summaries. Trail: `.andromeda/runs/2026-09-29T15-21-19Z-wrap/`.
+7 detectors → 19 proposals: 18 applied, 1 rejected (a §Stack row for the WSL distro — registry over-reach), plus 2 raised by check 5 (obs §9, a11y §3/§9); 0 escalations. Architecture (CI/CD, xtask surfaces incl. pre-push + the two smoke verbs, `ended`, run-dir files), test-plan (§1/§3 harness, §9 job rows, a trigger row), obs §9 artifacts, a11y CI job. Cascade: verification-harness, tests-summary, commands, CLAUDE.md. Trail: `.andromeda/runs/2026-09-29T21-44-34Z-wrap/`.
 
 ## Notes
-- Coverage: the `xtask/` exclusion is TEMPORARY (founder) — the next epoch-boundary code audit revisits quality, thresholds above 85 % and xtask's re-inclusion.
-- Not this wrap (founder's hand): the `.gitattributes` re-checkout on an empty `git status --porcelain --untracked-files=all`; the U35 door (after Viola's). PR #39 stays a draft — never merged or closed by the builder.
+- Plan gate entry 3 re-pinned to the seven-job roster at this wrap (operator word).
+- Fragility: `pre-push:linux` takes Node 24 from the Viola repo's `~/.local/viola-node` in the WSL distro (apt ships Node 22).
+- Epoch 4 at 46 entries — operator ruled no split (the version close is the boundary).
+- Not this wrap (founder's hand): the `.gitattributes` re-checkout; the U35 door. PR #39 stays a draft — never merged or closed by the builder.
 - Still open: the `sidecar.py` Ref defect relayed to overseer1 at session 65.
-- Epoch 4 at 45 entries — operator ruled no split (the version close is the boundary).
 - Last failed command: none.
 
 ## Deferred learnings
-- Max-3 cap this wrap (confidence 0.8 each): macOS `SystemTime` ticks in whole µs, so a wall clock is never a uniqueness source; Windows embeds the `.ico`, so a palette PNG icon fails only on macOS/Linux `generate_context!`.
-- Still open from prior wraps: the deferral-destination generalization; `inject_demo --sustained` cannot form an incident (EWMA convergence) — a CHECK for the leg-authoring reference.
-
-## Session End Status
-Completed normally at 2026-09-29 18:57:43
+- From prior wraps (still open): macOS `SystemTime` ticks in whole µs (never a uniqueness source); Windows embeds the `.ico`, so a palette PNG icon fails only on macOS/Linux `generate_context!`; the deferral-destination generalization; `inject_demo --sustained` cannot form an incident (EWMA convergence) — a CHECK for the leg-authoring reference.

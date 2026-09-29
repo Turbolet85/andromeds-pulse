@@ -77,3 +77,9 @@ _Format per entry: `## {date} — {title}` with **Section** / **Change** / **Why
 **Change:** Pinned majors moved to the installed reality: pa11y 9.x → 10.x (the advisory's only fix, `isSemVerMajor`) and Lighthouse 12.x → 13.x (all of ^12 vulnerable, fix at 13.4.1). The full a11y chain ran green under both with ZERO new violation tuples (regression 0/0), so the baseline held without churn. pa11y-ci stays 4.x (4.1.1 = latest; internally nests pa11y 9, covered by the npm-policy extract-zip exception with its closing condition). axe-core 4.11.x and all rule-set/tag configuration unchanged.
 **Why:** The security disposition crossed this plan's pinned majors — the joint-decision case §3's pins imply — and the operator ruled that advisory fixes crossing these pins upgrade + re-baseline in-chunk. No detector invariant covers tool-version pins, so such crossings surface only at validate.
 **Ref:** NOT DERIVED
+
+## 2026-09-29-ci-wall-time-and-round-trips — the a11y gate as its own CI job
+**Section:** §3 CI integration → Pipeline integration · §9 Pipeline integration
+**Change:** the a11y assertions run as their own `a11y` matrix job (Linux/macOS/Windows, blocking, parallel with the test jobs): `npm run build --prefix pulse-app/ui` → Playwright chromium → the PR-only `a11y-violations-base` download → `cargo xtask test:a11y`, artifacts uploaded `if: always()` under per-OS names (was: steps inside the shared lint/test/build job); the harness contract shared with tests is unchanged.
+**Why:** ci.yml split into seven jobs to cut round wall time; the a11y ↔ tests binding holds.
+**Ref:** .andromeda/runs/2026-09-29T21-44-34Z-wrap/

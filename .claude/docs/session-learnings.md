@@ -1,6 +1,24 @@
 # Session Learnings
 
 
+## 2026-09-29 — GitHub Actions Rust cache: a full-match restore never re-saves; budget keys against the repo cap
+
+`Swatinem/rust-cache` saves only when the job succeeds unless `cache-on-failure: true` is set, so every red round
+starts cold again. And a restore with `full match: true` ends in `Cache up-to-date` — the key is never re-saved
+until its lockfile/toolchain hash changes. A key saved once is therefore FROZEN in whatever state its first saving
+job left it, and a job that shares another job's key restores a cache built for that job's purpose (here the
+coverage job rode a release-shaped cache and was never warm).
+
+The repository cap is 10 GB, and per-OS target caches run about 1.6–2.5 GB each, so one key per job evicts other
+keys and brings the cold rounds back. The working allocation gives one owning key per purpose (it saves, with
+`cache-on-failure`). Jobs that need the same dependency graph restore it read-only (`save-if: false`), and a job
+whose build cannot be cached usefully (an instrumented coverage build) keeps the registry only
+(`cache-targets: false`). The cost of read-only sharing: when the owning job stops building a profile the reader
+needs, the reader goes cold at the next key change, so the owner/reader pairing has to be revisited whenever
+either job's build set changes.
+
+---
+
 ## 2026-08-30 — Windows DWM invisible borders: outer frame ≠ set-position width; verdicts re-derive the app's own formula
 
 A Tauri/WRY window on Windows 11 reports an OUTER frame wider than the width the app set: DWM adds

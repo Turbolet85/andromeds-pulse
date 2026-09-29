@@ -88,3 +88,43 @@ logged `Cache up-to-date`. a11y ran 4.7–12.1 min against the ≤10 min budget 
 
 ## Entry 14 — Actions cache usage
 - `{"active_caches_size_in_bytes":8576022877,"active_caches_count":6}` — unchanged, no new keys
+
+# Operator pass 3 — the end-status recorder (overseer: "Push the end-status recorder so the next CI red names how the app ended")
+
+Between passes, local reproduction of the post-ready Linux death in the WSL clone (CI's xvfb-run boot → status →
+cleanup shape, fresh data dir per trial): 10 trials unconstrained + 20 pinned to 4 CPUs (`taskset -c 0-3`, status
+fired straight after boot and again at +3 s) — 30/30 healthy, each recorded `signal 15 (TERM)` by cleanup; the app
+reached its webview IPC phase (`services.list_with_states`, `connection.current_state`, `viz.query.traces`) in the
+trials. Not reproduced off the ubuntu-22.04 runner.
+
+## Entry 10 — hygiene
+- `hygiene: clean — read 1 (runs 0 · evidence 1)` · exit 0
+
+## Entry 11 — pre-CI commit + push
+- commit `dd5c700` (staged bindings `"mcp":` ×1) · guarded push exit 0 · `4502d5d..dd5c700`
+
+## Entry 12 — CI conclusion
+- exit 0 · atom `contains verdict: green` held — `dd5c700d0b3f verdict: green · checks 13/13 · wall 1533 s`;
+  `ci#36632205717` completed/success
+- boot job: `boot: ready (PID=7046)` · status `"verdict": "running-healthy"` · `cleanup: clean`
+
+## Entry 13 — per-job wall-clock (ci#36632205717, warm)
+| job | minutes |
+|---|---|
+| coverage gate | 25.5 |
+| lint / test (macos-latest) | 17.8 |
+| lint / test (windows-latest) | 16.8 |
+| release build (windows-latest) | 13.0 |
+| boot smoke (ubuntu-22.04) | 10.5 |
+| release build (macos-latest) | 9.6 |
+| a11y (windows-latest) | 9.1 |
+| supply-chain | 7.8 |
+| lint / test (ubuntu-22.04) | 6.1 |
+| mcp-server tests (ubuntu-22.04) | 5.4 |
+| a11y (ubuntu-22.04) | 5.0 |
+| a11y (macos-latest) | 4.2 |
+
+Round 25.5 min. No job logged `No cache found`. a11y 4.2–9.1 min, all within the ≤10 min budget.
+
+## Entry 14 — Actions cache usage
+- unchanged (no new keys; the recorder touches no cache step)

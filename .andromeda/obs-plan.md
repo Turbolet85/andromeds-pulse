@@ -580,7 +580,7 @@ The PII scrubbing vectors (1–6) forbid leakage of real OTLP attribute values, 
 
 | Artifact | When | Storage | Agent access |
 |----------|------|---------|--------------|
-| Log file (`logs/agent-latest.jsonl`) | every CI job (fmt + clippy + xtask test + release) | uploaded as CI artifact (14-day retention by GitHub default) | download via `gh run download <run_id>` + tail / `jq` for filtering |
+| Log file (`logs/agent-latest.jsonl*`) | the `lint-test` job per OS (`logs-${{ runner.os }}`) and the Linux `boot` job (`logs-boot-${{ runner.os }}` — the boot smoke's log, the one `ci-gates` reads in that job), each `if: always()`; distinct names because upload-artifact v4 refuses a duplicate within a run (chunk 2026-09-29-ci-wall-time-and-round-trips) | uploaded as CI artifact (14-day retention) | download via `gh run download <run_id>` + tail / `jq` for filtering |
 | Snapshot markdown (on test failure) | when integration test fails | uploaded as CI artifact | download for paste-to-AI debug; markdown is curated (token-budgeted, deduped) per the product's external snapshot pipeline |
 | Criterion bench JSON (on perf-budget regression) | on `xtask bench` step | uploaded as CI artifact (`target/criterion/<bench>/new/estimates.json`) | parsed for SLO regression detection (e.g., `snapshot.token_count_ms` p99 ≤ 500ms) |
 
