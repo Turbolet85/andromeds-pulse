@@ -579,7 +579,7 @@ fn locate_sidecar_binary(root: &Path) -> Result<PathBuf> {
 
 pub(crate) async fn build_injector(workspace_root: &Path) -> Result<PathBuf> {
     println!("smoke:external-resolve: building inject_demo (outside the timed section)");
-    let status = Command::new("cargo")
+    let status = crate::cargo_command()
         .args(["build", "-p", "ingest", "--example", "inject_demo"])
         .current_dir(workspace_root)
         .stdin(Stdio::null())

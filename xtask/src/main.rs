@@ -297,8 +297,89 @@ async fn main() -> ExitCode {
     }
 }
 
-async fn run_cargo(subcommand: &str, args: &[&str]) -> Result<ExitCode> {
+/// Variables `cargo run` sets on the program it launches, describing xtask's own
+/// package. They leak into every child cargo this process spawns.
+fn is_cargo_run_injected(name: &str) -> bool {
+    name.starts_with("CARGO_PKG_")
+        || matches!(
+            name,
+            "CARGO_MANIFEST_DIR"
+                | "CARGO_MANIFEST_PATH"
+                | "CARGO_MANIFEST_LINKS"
+                | "CARGO_CRATE_NAME"
+                | "CARGO_BIN_NAME"
+                | "CARGO_PRIMARY_PACKAGE"
+        )
+}
+
+/// A child `cargo` without the `cargo run`-injected package variables. Build
+/// scripts track some of them (ring's reruns on `CARGO_MANIFEST_DIR` and
+/// `CARGO_PKG_*`), so a child build seeing xtask's values while a shell build
+/// sees none reruns ring on every alternation — and ring's rebuild recompiles
+/// rustls, libduckdb-sys and the whole workspace above it.
+pub(crate) fn cargo_command() -> tokio::process::Command {
     let mut cmd = tokio::process::Command::new("cargo");
+    for (key, _) in env::vars_os() {
+        if key.to_str().is_some_and(is_cargo_run_injected) {
+            cmd.env_remove(&key);
+        }
+    }
+    cmd
+}
+
+#[cfg(test)]
+mod cargo_command_tests {
+    use super::*;
+
+    #[test]
+    fn cargo_run_package_variables_are_recognized() {
+        for name in [
+            "CARGO_PKG_NAME",
+            "CARGO_PKG_VERSION_MAJOR",
+            "CARGO_MANIFEST_DIR",
+            "CARGO_MANIFEST_PATH",
+            "CARGO_BIN_NAME",
+        ] {
+            assert!(is_cargo_run_injected(name), "{name}");
+        }
+        for name in [
+            "CARGO",
+            "CARGO_HOME",
+            "CARGO_TARGET_DIR",
+            "CARGO_INCREMENTAL",
+            "CARGO_TERM_COLOR",
+            "CC",
+        ] {
+            assert!(!is_cargo_run_injected(name), "{name}");
+        }
+    }
+
+    // The test runner itself sets CARGO_PKG_NAME and CARGO_MANIFEST_DIR on this
+    // process, exactly as `cargo run` does for xtask.
+    #[test]
+    fn cargo_command_drops_the_inherited_package_variables() {
+        assert!(env::var_os("CARGO_PKG_NAME").is_some(), "precondition");
+        let cmd = cargo_command();
+        let removed: Vec<String> = cmd
+            .as_std()
+            .get_envs()
+            .filter(|(_, value)| value.is_none())
+            .map(|(key, _)| key.to_string_lossy().into_owned())
+            .collect();
+        assert!(
+            removed.contains(&"CARGO_PKG_NAME".to_owned()),
+            "{removed:?}"
+        );
+        assert!(
+            removed.contains(&"CARGO_MANIFEST_DIR".to_owned()),
+            "{removed:?}"
+        );
+        assert!(!removed.iter().any(|k| k == "CARGO_HOME" || k == "PATH"));
+    }
+}
+
+async fn run_cargo(subcommand: &str, args: &[&str]) -> Result<ExitCode> {
+    let mut cmd = cargo_command();
     cmd.arg(subcommand).args(args);
     let status = cmd
         .status()
@@ -308,7 +389,7 @@ async fn run_cargo(subcommand: &str, args: &[&str]) -> Result<ExitCode> {
 }
 
 async fn run_cargo_nextest(extra: Vec<String>) -> Result<ExitCode> {
-    let mut cmd = tokio::process::Command::new("cargo");
+    let mut cmd = cargo_command();
     // libtest-json is gated behind an experimental flag in cargo-nextest 0.9.x;
     // set the env var unconditionally so the message-format parses agent-side.
     cmd.env("NEXTEST_EXPERIMENTAL_LIBTEST_JSON", "1");
@@ -339,7 +420,7 @@ async fn run_cargo_nextest(extra: Vec<String>) -> Result<ExitCode> {
 const COVERAGE_IGNORE_FILENAME_REGEX: &str = r"(^|[/\\])xtask[/\\]";
 
 async fn run_cargo_llvm_cov(extra: Vec<String>) -> Result<ExitCode> {
-    let mut cmd = tokio::process::Command::new("cargo");
+    let mut cmd = cargo_command();
     cmd.args([
         "llvm-cov",
         "nextest",
@@ -657,7 +738,7 @@ async fn run_perf_slo_load() -> Result<ExitCode> {
     // via run_ci_gates() (invoked as a separate xtask step in CI).
     // Narrowed with -E under --workspace, never -p: a -p selection unifies
     // features differently and recompiles the graph `cargo xtask test` built.
-    let mut cmd = tokio::process::Command::new("cargo");
+    let mut cmd = cargo_command();
     cmd.env("NEXTEST_EXPERIMENTAL_LIBTEST_JSON", "1");
     cmd.args([
         "nextest",
@@ -687,7 +768,7 @@ async fn run_perf_slo_load() -> Result<ExitCode> {
 // in-process suite does not write agent-latest.jsonl itself.
 async fn run_perf_load_profiles() -> Result<ExitCode> {
     let run_start_utc19 = chrono::Utc::now().format("%Y-%m-%dT%H:%M:%S").to_string();
-    let mut cmd = tokio::process::Command::new("cargo");
+    let mut cmd = cargo_command();
     cmd.env("NEXTEST_EXPERIMENTAL_LIBTEST_JSON", "1");
     cmd.args([
         "nextest",

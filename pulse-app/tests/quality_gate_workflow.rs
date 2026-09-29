@@ -354,7 +354,7 @@ fn workflow_env_references_no_step_only_context() {
 #[test]
 fn data_dir_export_precedes_every_consumer() {
     let expected = [
-        ("ci.yml", 5),
+        ("ci.yml", 7),
         ("release.yml", 1),
         ("update-channels.yml", 2),
     ];
