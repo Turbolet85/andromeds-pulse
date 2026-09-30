@@ -1,65 +1,62 @@
 # Session Handoff
 
-**Last Updated:** 2026-09-30T11:41:40Z
+**Last Updated:** 2026-09-30T15:57:10Z
 **Branch:** chore/migrate-pulse-to-v3 · 0 ahead of origin/chore/migrate-pulse-to-v3 as read at this wrap's Setup (the chunk commit follows it, then the push)
 **Status:** clean
-**Last Commit:** 2026-09-30-p-027-discovery-bound — chunk wrap (first-sighting registration; the smoke:discovery leg)
+**Last Commit:** 2026-09-30-perf-budget-gate-reads-real-samples — chunk wrap (the perf-budget gate grades real samples; frame gate on the dev host)
 
 ## Position
-- Done: `2026-09-30-p-027-discovery-bound`.
-  - A service is registered in the lifecycle registry at its FIRST span, by a third `SpanObserver`
-    (`DiscoveryObserverAdapter`, composed after the baseline adapter) instead of at the 15 s registry tick.
-  - New scenario leg `cargo xtask smoke:discovery`: RED at `71f3369` 15 219 ms; GREEN 177 ms (anchor error 6 ms).
-    P-025 `smoke:hue-shift` PASS, rise 644 ms (was 9 986).
-  - Operator pass on the operator's word: pre-CI commit `87fe658`; CI green (ci#36706243490 13/13 + secret-scan).
-- Next (first markerless): **Perf-budget gate reads real samples** — it carries the release-job cache CARRY and the
-  `agent-run.ps1` recorder-mirror CARRY.
+- Done: `2026-09-30-perf-budget-gate-reads-real-samples`.
+  - `xtask::perf_budget` (`cargo xtask perf:budget`) replaces the deleted `perf-slo-check` scripts. CI lint-test Linux
+    feeds it the in-process `perf_budget_samples` producer and requires memory + snapshot (both PASS on CI).
+  - Frame p99 is the dev-host `cargo xtask perf:frame-sample` (p99 2.6 ms, n = 7971). The hosted Windows runner gave
+    0 frames (`ci#36723465727`), so on the operator's decision CI prints a named `frame: cannot-evaluate` line.
+  - Release owns `release-${{ runner.os }}`; `agent-run.ps1` records `.spawn`/`.exit` (`ended` real on Windows);
+    `app.boot.gpu.check` lost its hardcoded `gpu_available`.
+  - Operator pass on the operator's word: pre-CI commits `d708ad7` (round 1 red — the frame reading) and `c6eb395`;
+    `ci#36729367693` green both rounds; cache 10 605 172 169 of 10 737 418 240 B.
+- Next (first markerless, minted this wrap on the relay's direction): **Perf instruments measure what their budgets
+  name** — the snapshot timer (formatting only: 0 ms vs 61–76 ms) and an adapter-state record; it carries the
+  release-cache `cache-on-failure` CARRY and the cache-headroom re-read.
 - Then: Span-level redaction → Real-model incident surfacing → Conductor return (P-075).
 
 ## Work done
-- Files: registry (`register_first_sighting` / `take_first_sightings`) · tick-fold into
-  `triage.lifecycle.transition` · `BaselineState::tracks_service` · `pulse-app/src/discovery_observer.rs` ·
-  the `main.rs` composition · `xtask/src/discovery.rs` · the v0.2.0 matrix P-027 note.
-- 14 new tests; workspace 2447/2447. No dependency, procedure, bindings or `pulse-app/ui/**` change.
-- Cross-project (Conductor :63 evidence): the GREEN-leg `target/release/pulse-app.exe` sha256 is
-  `9e51d1d92e80fdc0b998fe5e1c65fbbd9c5eef4dd9e6b7c4883c5ccad1bf9ab4`. It was built from the product sources
-  committed at `87fe658` (recorded in `report.md` Cross-project).
+- New: `xtask/src/perf_budget.rs` (15 pins), `xtask/src/perf_frame.rs` (2 pins), `pulse-app/tests/perf_budget_samples.rs`
+  (`--profile perf-samples`). Changed: `xtask/src/main.rs`, `ci.yml`, `.config/nextest.toml`, `scripts/agent-run.ps1`,
+  `window.rs` + allowlist + pins. Workspace 2466/2466. No dependency, procedure or bindings change.
+- Evidence: `chunks/2026-09-30-perf-budget-gate-reads-real-samples/evidence/` (red-at-base, slot-legs, operator-pass,
+  frame-gate-decision, ci-cache).
 
 ## Drift resolved
-The six plan expected amendments all arrived as detector proposals, all routine; 0 escalations.
-- architecture: `smoke:discovery` in the xtask CLI surfaces; the P-027 `discovery_ms` anchor in the delegated-timing
-  entry.
-- security-plan Logging: the tap's composite fan-out now keys the lifecycle registry; the choke point's consumers
-  stay three.
-- test-plan: the fourth SCENARIO leg (§3); the new open trigger `discovery-observer-wiring-coverage` (§1).
-- obs-plan §8: the anchor sentence.
-- Leaves re-derived: tests-summary, obs-summary, `rules/{observability,security,verification-harness}.md`. The
-  last also gained `smoke:hue-shift`, which the P-025 cascade had missed.
-
-Trail: `.andromeda/runs/2026-09-30T11-29-23Z-wrap/`.
+35 detector proposals, all routine, 0 escalations (`.andromeda/runs/2026-09-30T15-36-30Z-wrap/fanout-results.md`).
+- obs-plan (12): the perf gate is real; ONE p99 rule (nearest rank, quoted from the grader); frame gate on the dev
+  host; memory gauge = rows × 256 B, no RSS gate; snapshot timer scope recorded as measured, owned by the minted
+  entry; `app.boot.gpu.check` = `wgpu_backend` only.
+- test-plan (13): `perf-slo-check-arm-coverage` DISCHARGED; the ps1 half of
+  `harness-cleanup-verdict-and-boot-spawn-shell-coverage` WIDENED, not discharged (one by-hand run is a proof, not a
+  committed test); §9 rows; `[profile.perf-samples]`.
+- architecture (8): the two verbs, `WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS` (harness-set, child only), the ps1
+  recorder, release cache ownership.
+- security-plan (2): the `.spawn`/`.exit` state files join the harness-only class.
+- Leaves re-derived: obs/tests/security summaries, rules `observability`/`security`/`testing`/`verification-harness`,
+  `commands.md`, `workflow.md`, CLAUDE.md overview/modules/warnings.
 
 ## Notes
-- Ports 4317/4318 are shared with conductor-builder (operator protocol this session): STOP and ask the operator for
-  the slot before any live leg or `self-verify`. The operator may also hold a quiet-desktop window with no app
-  windows.
-- Pre-existing tool verdicts, not this chunk's:
-  - `route.py` prints 7 UNPARSED/INDETERMINATE on frozen working-route lines (:52, :54 ×2, :60, :100, :116, :125).
-  - `matrix.py show` prints `UNPARSED: P-072 — legacy notes placement` at `verification-matrix.json:161`.
-- Epoch 4 is at 48 entries. The operator's no-split ruling stands; the version close is the boundary.
+- Ports 4317/4318 are shared with conductor-builder: STOP and ask the operator for the slot before any window-opening
+  run (`self-verify`, `perf:frame-sample`, the ps1 boot leg).
+- The phase run's entry-#8 control fixture moved to `.andromeda/cache/phase-ctl-2026-09-30/` (gitignored) on the
+  operator's instruction — a committed run dir cannot hold a `.rs` file under the hygiene check.
+- Not re-run after the fallback edit: `self-verify` and `perf:frame-sample` (no product change; desktop held).
+- Pre-existing tool verdicts, not this chunk's: `route.py` UNPARSED/INDETERMINATE on frozen lines (:52, :54 ×2, :60,
+  :100, :116, :125); `matrix.py show` UNPARSED P-072 at `verification-matrix.json:161`.
+- Epoch 4 grew by one entry; the operator's no-split ruling stands.
 - Not this wrap (founder's hand): the `.gitattributes` re-checkout; the U35 door. PR #39 stays a draft.
 - Still open: the `sidecar.py` Ref defect relayed to overseer1 at session 65.
 - Last failed command: none.
 
 ## Deferred learnings
-- `recurrence-despite-learning`: implement reported the tick fold "unit-only" from one short leg's log, while a
-  longer run in the same slot had proven it live. The corpus already carries the absence-needs-its-probe and
-  run-window rules; the remedy is a CHECK in implement's report step, not a third entry.
-- Still open from prior wraps:
-  - The bindings-regen PIPELINE half: the plan template's gate order.
-  - macOS `SystemTime` µs ticks.
-  - Windows `.ico` vs palette PNG.
-  - The deferral-destination generalization.
-  - `inject_demo --sustained` cannot form an incident — a CHECK for the leg-authoring reference.
-
-## Session End Status
-Completed normally at 2026-09-30 14:54:13
+- `recurrence-despite-learning`: the curated cache-allocation rule says owning keys save with `cache-on-failure`;
+  the new release key omitted it and a red round saved nothing (fix pinned as a CARRY on the next entry).
+- Still open from prior wraps: the implement report-step CHECK (unit-only claims vs a longer live run); the
+  bindings-regen PIPELINE half; macOS `SystemTime` µs ticks; Windows `.ico` vs palette PNG; the deferral-destination
+  generalization; `inject_demo --sustained` cannot form an incident.

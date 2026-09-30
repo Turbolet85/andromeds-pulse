@@ -528,3 +528,20 @@ The entry also carries both rejected alternatives, the deferred `AttentionCue` t
 - Delegated timing: was a bare `→ metric.constellation.discovery_ms (P-027)`; now its anchor — `duration_ms` = paint instant − `ServiceListItem.last_seen_unix_nano`, stamped at a brand-new service's FIRST SIGHTING by `DiscoveryObserverAdapter` (composed after the baseline adapter) via `ServiceRegistry::register_first_sighting`, before the heartbeat's first 15 s tick, so the first-appearance sample measures first-seen-to-dot; a service re-entering liveness later is anchored on a tick-refreshed `last_seen` and is not a first discovery.
 **Why:** the chunk registered a service at its first sighting instead of at the 15 s registry tick, and its measurement showed the old anchor hid the wait (a 435 ms sample over a 15 219 ms true interval at the base; 177 ms, anchor error 6 ms after).
 **Ref:** .andromeda/runs/2026-09-30T11-29-23Z-wrap/
+
+## 2026-09-30-perf-budget-gate-reads-real-samples — perf:budget and perf:frame-sample; the frame leg's env var; release owns its cache
+**Section:** §Occupied Resources → xtask CLI surfaces · §Occupied Resources → Environment variables · §Infrastructure Patterns → CI/CD approach
+**Change:**
+- Registered `cargo xtask perf:budget --data-dir <DIR> --require <arm,arm>` (grades every `agent-latest.jsonl*` member; nearest-rank p99; Unreadable or required-empty fails; exit 0/1/2; a non-required empty frame arm prints the named cannot-evaluate line). `ci-gates` and `perf:load-profiles` use it in-process with no arm required; the `perf-slo-check` scripts are deleted.
+- Registered `cargo xtask perf:frame-sample` — Windows dev-host frame gate, exit 0 PASS / 1 FAIL / 2 INCONCLUSIVE, artifact `target/perf-frame/`, NOT CI-wired.
+- Env var `WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS`: harness-only, SET on the frame leg's app child only, never read by the product, never in product config.
+- CI/CD: lint-test Linux adds the perf-samples producer → `perf:budget --require memory,snapshot` → upload; `release` owns `release-{os}` (was a read-only restore of lint-test's key) and has no frame boot step; 8 cache entries, 10 605 172 169 of the 10 737 418 240 B cap (a watch).
+**Why:** new CLI verbs and an env var are registry resources; the frame leg left CI after the hosted runner exposed no WebGPU adapter (operator decision). Release was going cold whenever lint-test re-saved without release dependencies.
+**Ref:** .andromeda/runs/2026-09-30T15-36-30Z-wrap/
+
+## 2026-09-30-perf-budget-gate-reads-real-samples — agent-run.ps1 writes the boot end-status records
+**Section:** §Occupied Resources → xtask CLI surfaces (`scripts/agent-run.{sh,ps1}`, `harness:status` `ended`) · §Occupied Resources → Filesystem locations (`run/andromeda-pulse.spawn` + `.exit`)
+**Change:** was "`agent-run.ps1` does not mirror the recorder" and "`ended` null under `agent-run.ps1`"; now the ps1 `boot` hidden `powershell -EncodedCommand` wrapper writes the app pid to `.spawn` and `exit N` (ASCII, no BOM) to `.exit`, with the ≤ 5 s spawn poll, the no-spawn-record exit 1 and the ended / still-running diagnosis; `ended` is real under both scripts (`exit -1` after `Stop-Process -Force`). Both files remain harness-written, never by the product.
+**Why:** the chunk discharged the CARRY that left Windows `harness:status` unable to say how the app ended.
+**Kept:** the five verbs, exit semantics and status/cleanup field set.
+**Ref:** .andromeda/runs/2026-09-30T15-36-30Z-wrap/

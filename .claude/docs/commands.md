@@ -100,6 +100,9 @@ cargo xtask check:npm-supply-chain                             # npm advisory/li
 cargo xtask harness:status                                     # Real-process status verdict JSON {verdict,pid,ended,log_file_basename,last_write_age_seconds,stale_after_seconds}; exits 0/1/1/2
 cargo xtask pre-push:linux                                     # Windows host: Linux-reachable gates in a WSL Ubuntu clone of HEAD + worktree; exit 0 green / 1 red / 2 cannot-evaluate
 cargo xtask check:staged-artifacts                             # Staged git-index bindings + capability grants vs EXPECTED_PROCEDURES/EXPECTED_GRANTS; exit 0 staged-clean / 1 staged-drift / 2 cannot-evaluate
+cargo nextest run --workspace --profile perf-samples           # The in-process perf-sample producer (writes target/tmp/perf-budget-samples/)
+cargo xtask perf:budget --data-dir target/tmp/perf-budget-samples --require memory,snapshot  # Perf-budget grader over <DIR>/logs/agent-latest.jsonl*; exit 0 PASS / 1 FAIL / 2 cannot-evaluate
+cargo xtask perf:frame-sample                                  # Windows dev host only: frame p99 ≤ 33 ms under a software WebGPU adapter; exit 0 PASS / 1 FAIL / 2 INCONCLUSIVE (opens a window)
 
 # CI-side
 gitleaks detect --redact                                       # Secret scanning (pre-commit + CI)

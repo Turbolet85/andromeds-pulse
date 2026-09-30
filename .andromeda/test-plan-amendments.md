@@ -470,3 +470,23 @@ The load suite found and fixed in-chunk 3 pipeline defects: retention-sweep conn
 - §1: new open trigger `discovery-observer-wiring-coverage` — `main.rs` composes `DiscoveryObserverAdapter` after the baseline adapter (order load-bearing), but the only order pin builds its own composite; owed: an assertion over the production composition (a seam out of `main.rs`).
 **Why:** the chunk shipped a new scenario leg and a production wiring site proven only by that leg, the same one-time-proof class as the viz-read-connection and damper wiring triggers.
 **Ref:** .andromeda/runs/2026-09-30T11-29-23Z-wrap/
+
+## 2026-09-30-perf-budget-gate-reads-real-samples — perf grader coverage, the dev-host frame gate, the CI perf-sample producer
+**Section:** §1 `perf-slo-check-arm-coverage` · §1 `performance-budget: WebGPU canvas throughput` · §3 Per-chunk gate discipline (the `check:ingest-progress` analogy; the new `perf:frame-sample` / `perf:budget` paragraph) · §9 lint-test row (commands, cache cell) · §9 release row · §10 frame-budget note · §10 Load profiles
+**Change:**
+- `perf-slo-check-arm-coverage` DISCHARGED: the scripts are deleted; `xtask::perf_budget`, 15 unit pins (per arm empty ⇒ NEUTRAL, in ⇒ PASS, over ⇒ FAIL; non-numeric ⇒ FAIL; required-empty ⇒ FAIL; all-empty ⇒ NEUTRAL, never PASS). Its present-tense "CI gate VACUOUS" text is retired.
+- Frame budget: was "deferred to tauri-driver headful E2E"; now the dev-host `perf:frame-sample` (Windows, frame arm required; exit 0/1/2), not CI-wired; the CI frame arm prints the named cannot-evaluate line. The §10 note no longer says "all CI assertions".
+- §9 lint-test Linux adds `--profile perf-samples` → `perf:budget --require memory,snapshot` → the `logs-perf-samples-*` upload; §10 records `[profile.perf-samples]` and the default filter's second exclusion; `perf:load-profiles` grades in-process (was "the check scripts").
+- §9 release: owns and saves `release-${{ runner.os }}` (was restore-only lint-test); no CI frame leg; lint-test's key is restored read-only by mcp-test and a11y only.
+**Why:** the chunk replaced the untested script with a pinned grader and fed CI real samples. The frame gate moved to the dev host on the operator's decision after the hosted runner read 0 samples. Release got its own cache key.
+**Ref:** .andromeda/runs/2026-09-30T15-36-30Z-wrap/
+
+## 2026-09-30-perf-budget-gate-reads-real-samples — agent-run.ps1 boot mirrors the spawn/exit recorder
+**Section:** §3 `boot` · §3 `status` · §1 `harness-cleanup-verdict-and-boot-spawn-shell-coverage`
+**Change:**
+- `boot`: was "`agent-run.ps1` does not mirror this recorder"; now a hidden `powershell -EncodedCommand` wrapper writes `run/andromeda-pulse.spawn` and `run/andromeda-pulse.exit` (`exit N`, ASCII, no BOM); ≤ 5 s spawn poll with the no-spawn-record exit 1; `app ended:` / still-running diagnosis on a failed poll.
+- `status`: was "`ended` always null under ps1"; now real under both scripts (measured `exit -1` after `Stop-Process -Force`).
+- The trigger is WIDENED, not discharged: the ps1 `ended` leg ran once by hand, a one-time proof; owed: a committed ps1 boot-cycle leg over the recorder's arms. The ps1 cleanup live leg is still unmeasured.
+**Why:** the chunk closed the CARRY that left `ended` empty on Windows. By this trigger's own one-time-proof standard, a by-hand run does not discharge a committed-test obligation.
+**Kept:** the verb set, exit semantics and status/cleanup fields — unchanged.
+**Ref:** .andromeda/runs/2026-09-30T15-36-30Z-wrap/
