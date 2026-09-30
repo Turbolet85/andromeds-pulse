@@ -1,9 +1,19 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { requestWebGPUAdapter } from "./webgpu-adapter";
 
+const { reportAdapterOutcome } = vi.hoisted(() => ({
+  reportAdapterOutcome: vi.fn(async () => {}),
+}));
+
+vi.mock("./adapter-state", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("./adapter-state")>();
+  return { ...actual, reportAdapterOutcome };
+});
+
 describe("requestWebGPUAdapter — adapter detection + sanitized fallback", () => {
   afterEach(() => {
     vi.unstubAllGlobals();
+    reportAdapterOutcome.mockClear();
   });
 
   it("returns unavailable with `navigator.gpu undefined` when navigator.gpu is missing", async () => {
@@ -87,5 +97,56 @@ describe("requestWebGPUAdapter — adapter detection + sanitized fallback", () =
       expect(result.reason).not.toContain("OperationError");
       expect(result.reason).not.toContain("src/webgpu");
     }
+  });
+  it("returns unavailable with `requestAdapter rejected` when the adapter request rejects", async () => {
+    vi.stubGlobal("navigator", {
+      gpu: {
+        requestAdapter: vi.fn().mockRejectedValue(new Error("GPU process crashed at gpu_main.cc:88")),
+      },
+    });
+    const result = await requestWebGPUAdapter();
+    expect(result).toEqual({ kind: "unavailable", reason: "requestAdapter rejected" });
+  });
+});
+
+describe("requestWebGPUAdapter — reports each outcome once", () => {
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    reportAdapterOutcome.mockClear();
+  });
+
+  const adapterWith = (requestDevice: () => Promise<unknown>) =>
+    ({ requestDevice: vi.fn(requestDevice), info: { backend: "dx12" } }) as unknown as GPUAdapter;
+
+  it.each([
+    ["no_navigator_gpu", () => ({ gpu: undefined })],
+    ["adapter_null", () => ({ gpu: { requestAdapter: vi.fn().mockResolvedValue(null) } })],
+    [
+      "adapter_request_rejected",
+      () => ({ gpu: { requestAdapter: vi.fn().mockRejectedValue(new Error("lost")) } }),
+    ],
+    [
+      "device_request_failed",
+      () => ({
+        gpu: {
+          requestAdapter: vi
+            .fn()
+            .mockResolvedValue(adapterWith(() => Promise.reject(new Error("bad descriptor")))),
+        },
+      }),
+    ],
+    [
+      "obtained",
+      () => ({
+        gpu: {
+          requestAdapter: vi.fn().mockResolvedValue(adapterWith(() => Promise.resolve({}))),
+        },
+      }),
+    ],
+  ])("reports %s exactly once", async (outcome, navigatorStub) => {
+    vi.stubGlobal("navigator", navigatorStub());
+    await requestWebGPUAdapter();
+    expect(reportAdapterOutcome).toHaveBeenCalledTimes(1);
+    expect(reportAdapterOutcome).toHaveBeenCalledWith(outcome);
   });
 });

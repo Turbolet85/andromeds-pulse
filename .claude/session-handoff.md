@@ -60,3 +60,6 @@
 - Still open from prior wraps: the implement report-step CHECK (unit-only claims vs a longer live run); the
   bindings-regen PIPELINE half; macOS `SystemTime` µs ticks; Windows `.ico` vs palette PNG; the deferral-destination
   generalization; `inject_demo --sustained` cannot form an incident.
+
+## Session End Status
+Completed normally at 2026-09-30 20:05:58

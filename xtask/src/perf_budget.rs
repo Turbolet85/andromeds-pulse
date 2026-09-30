@@ -20,6 +20,11 @@ pub const SNAPSHOT_P99_BUDGET_MS: f64 = 500.0;
 
 const LOG_FAMILY_STEM: &str = "agent-latest.jsonl";
 
+/// The webview's per-request WebGPU adapter outcome
+/// (`telemetry.frontend.record_webgpu_adapter`).
+const ADAPTER_TARGET: &str = "ui.webgpu.adapter";
+const ADAPTER_OBTAINED: &str = "obtained";
+
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Arm {
     Frame,
@@ -129,6 +134,30 @@ fn samples(lines: &[Value], arm: Arm) -> (Vec<f64>, usize) {
     (numbers, unreadable)
 }
 
+/// Why a log carries no frame sample, read from the adapter records in the same
+/// log: none at all (no webview reached the request), an obtained adapter (frames
+/// need only one), or the non-obtained outcomes seen.
+pub fn frame_cause(lines: &[Value]) -> String {
+    let outcomes: std::collections::BTreeSet<&str> = lines
+        .iter()
+        .filter(|l| l.get("target").and_then(Value::as_str) == Some(ADAPTER_TARGET))
+        .map(|l| {
+            l.get("fields")
+                .and_then(|f| f.get("outcome"))
+                .and_then(Value::as_str)
+                .unwrap_or("unreadable")
+        })
+        .collect();
+    if outcomes.is_empty() {
+        "no adapter record in this log".to_string()
+    } else if outcomes.contains(ADAPTER_OBTAINED) {
+        "adapter obtained but no frame recorded".to_string()
+    } else {
+        let seen: Vec<&str> = outcomes.into_iter().collect();
+        format!("no WebGPU adapter ({})", seen.join(", "))
+    }
+}
+
 fn p99(mut values: Vec<f64>) -> f64 {
     values.sort_by(f64::total_cmp);
     values[nearest_rank_p99_index(values.len())]
@@ -146,12 +175,11 @@ pub fn grade_arm(lines: &[Value], arm: Arm) -> ArmResult {
         return result(ArmState::Unreadable { unreadable, n }, None);
     }
     if n == 0 {
-        return result(
-            ArmState::Neutral {
-                reason: format!("no {} record", arm.target()),
-            },
-            None,
-        );
+        let reason = match arm {
+            Arm::Frame => frame_cause(lines),
+            Arm::Memory | Arm::Snapshot => format!("no {} record", arm.target()),
+        };
+        return result(ArmState::Neutral { reason }, None);
     }
     let (stat, budget, populated) = match arm {
         Arm::Frame => (p99(values), FRAME_P99_BUDGET_MS, None),
@@ -249,13 +277,10 @@ pub fn arm_lines(results: &[ArmResult], required: &[Arm]) -> Vec<String> {
                 ArmState::Neutral { reason } if required.contains(&r.arm) => {
                     format!("perf-budget: {name} NEUTRAL — {reason} (required) FAIL")
                 }
-                // A hosted runner exposes no WebGPU adapter to WebView2 even under
-                // the software-adapter flag set (ci#36723465727), so the frame arm
-                // is graded by `perf:frame-sample` on a GPU host. Where it reads
-                // empty it says so by name, never as a pass.
-                ArmState::Neutral { .. } if r.arm == Arm::Frame => {
-                    "perf-budget: frame: cannot-evaluate: 0 samples, no WebGPU adapter in this run"
-                        .to_string()
+                // The frame arm is graded by `perf:frame-sample` on a GPU host; where
+                // it reads empty it says so by name with its cause, never as a pass.
+                ArmState::Neutral { reason } if r.arm == Arm::Frame => {
+                    format!("perf-budget: frame: cannot-evaluate: 0 samples, {reason}")
                 }
                 ArmState::Neutral { reason } => format!("perf-budget: {name} NEUTRAL — {reason}"),
             }
@@ -397,9 +422,78 @@ mod tests {
         let line = &arm_lines(std::slice::from_ref(&r), &[])[0];
         assert_eq!(
             line,
-            "perf-budget: frame: cannot-evaluate: 0 samples, no WebGPU adapter in this run"
+            "perf-budget: frame: cannot-evaluate: 0 samples, no adapter record in this log"
         );
         assert!(!line.contains("PASS"), "{line}");
+    }
+
+    fn adapter(outcome: &str) -> Value {
+        record("ui.webgpu.adapter", "outcome", json!(outcome))
+    }
+
+    fn frame_line(lines: &[Value], required: &[Arm]) -> String {
+        let r = grade_arm(lines, Arm::Frame);
+        arm_lines(std::slice::from_ref(&r), required)[0].clone()
+    }
+
+    #[test]
+    fn frame_cause_no_adapter_record_names_that_cause() {
+        assert_eq!(frame_cause(&noise()), "no adapter record in this log");
+    }
+
+    #[test]
+    fn frame_cause_obtained_adapter_without_frames() {
+        let mut lines = noise();
+        lines.push(adapter("obtained"));
+        assert_eq!(
+            frame_line(&lines, &[]),
+            "perf-budget: frame: cannot-evaluate: 0 samples, adapter obtained but no frame recorded"
+        );
+    }
+
+    #[test]
+    fn frame_cause_names_the_distinct_non_obtained_outcomes_sorted() {
+        let lines = vec![
+            adapter("no_navigator_gpu"),
+            adapter("adapter_null"),
+            adapter("no_navigator_gpu"),
+        ];
+        assert_eq!(
+            frame_line(&lines, &[]),
+            "perf-budget: frame: cannot-evaluate: 0 samples, \
+             no WebGPU adapter (adapter_null, no_navigator_gpu)"
+        );
+    }
+
+    #[test]
+    fn frame_cause_mixed_log_reads_obtained() {
+        let lines = vec![adapter("device_request_failed"), adapter("obtained")];
+        assert_eq!(
+            frame_cause(&lines),
+            "adapter obtained but no frame recorded"
+        );
+    }
+
+    #[test]
+    fn frame_cause_required_empty_frame_arm_still_fails() {
+        let lines = vec![adapter("adapter_request_rejected")];
+        let results = grade(&lines);
+        assert_eq!(evaluate(&results, &[Arm::Frame]), Verdict::Fail);
+        assert_eq!(
+            frame_line(&lines, &[Arm::Frame]),
+            "perf-budget: frame NEUTRAL — no WebGPU adapter (adapter_request_rejected) \
+             (required) FAIL"
+        );
+    }
+
+    #[test]
+    fn frame_cause_is_not_consulted_when_frames_exist() {
+        let mut lines = frames(&[2.0]);
+        lines.push(adapter("no_navigator_gpu"));
+        assert_eq!(
+            grade_arm(&lines, Arm::Frame).state,
+            ArmState::Pass { stat: 2.0, n: 1 }
+        );
     }
 
     #[test]

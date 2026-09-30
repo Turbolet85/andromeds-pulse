@@ -1,0 +1,36 @@
+[
+{
+"tool": "route",
+"v": "1.5",
+"sha8": "9fc8708e",
+"ts": "2026-09-30T16:07:26Z",
+"argv": [
+"route.py",
+"promote",
+"--root",
+".",
+"--chunk",
+"2026-09-30-perf-instruments-measure-their-budgets",
+"--expect-prefix",
+"Perf instruments measure what their budgets name",
+"--record-file",
+".andromeda/runs/2026-09-30T16-06-19Z-phase/master-record.txt",
+"--run-dir",
+".andromeda/runs/2026-09-30T16-06-19Z-phase"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"stamp working-route.md:142 - [2026-09-30-perf-instruments-measure-their-budgets]",
+"record master-route.md:84 - appended under `## andromeda-pulse-0.3.0`",
+"promoted 2026-09-30-perf-instruments-measure-their-budgets - working-route:142 frozen - master record appended"
+],
+"stderr": null,
+"wrote": [
+".\\andromeda-pulse-0.3.0\\working-route.md",
+".\\.andromeda\\master-route.md"
+],
+"before": null,
+"after": null
+}
+]

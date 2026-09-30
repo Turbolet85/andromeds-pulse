@@ -240,8 +240,8 @@ pub async fn run_perf_frame_sample() -> Result<ExitCode> {
         println!("perf:frame-sample: {line}");
     }
     let frame = results.iter().find(|r| r.arm == Arm::Frame);
-    if matches!(frame.map(|r| &r.state), Some(ArmState::Neutral { .. })) {
-        println!("perf:frame-sample: frame: 0 samples — no WebGPU adapter in this run");
+    if let Some(ArmState::Neutral { reason }) = frame.map(|r| &r.state) {
+        println!("perf:frame-sample: frame: 0 samples — {reason}");
     }
     let verdict = perf_budget::evaluate(&results, &required);
     println!("perf:frame-sample: {}", verdict.word());

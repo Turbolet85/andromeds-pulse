@@ -1048,6 +1048,12 @@ impl AllowList {
                 .copied()
                 .collect(),
         );
+        // One webview WebGPU adapter request: its closed outcome + a coerced
+        // window label, nothing else. Same no-bare-`ui`-key reason as above.
+        by_target.insert(
+            "ui.webgpu.adapter",
+            ["outcome", "window_label"].iter().copied().collect(),
+        );
         by_target.insert(
             "tray.visibility.toggle",
             ["tray_visible"].iter().copied().collect(),

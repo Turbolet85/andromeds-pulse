@@ -1,0 +1,542 @@
+[
+{
+"sql": "SELECT caller, callee_name, file, line FROM calls WHERE callee_name IN ('format_markdown','curate','load_curated_markdown','load_recent_spans') AND callee_kind = 'fn' ORDER BY callee_name, file, line",
+"rows": 40,
+"result": [
+{
+"caller": "rust-analyzer cargo mcp-server 0.1.0 tools/",
+"callee_name": "curate",
+"file": "crates/mcp-server/src/tools.rs",
+"line": 30
+},
+{
+"caller": "rust-analyzer cargo mcp-server 0.1.0 tools/dispatch_generate_snapshot().",
+"callee_name": "curate",
+"file": "crates/mcp-server/src/tools.rs",
+"line": 289
+},
+{
+"caller": "rust-analyzer cargo snapshot 0.1.0 contract/tests/curate_empty_input_returns_empty_output().",
+"callee_name": "curate",
+"file": "crates/snapshot/src/contract.rs",
+"line": 196
+},
+{
+"caller": "rust-analyzer cargo snapshot 0.1.0 contract/tests/curate_single_span_returns_trivial_output().",
+"callee_name": "curate",
+"file": "crates/snapshot/src/contract.rs",
+"line": 208
+},
+{
+"caller": "rust-analyzer cargo snapshot 0.1.0 contract/tests/curate_two_identical_spans_collapses_dedup_count().",
+"callee_name": "curate",
+"file": "crates/snapshot/src/contract.rs",
+"line": 220
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 snapshot_runtime/",
+"callee_name": "curate",
+"file": "pulse-app/src/snapshot_runtime.rs",
+"line": 20
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 snapshot_runtime/load_curated_markdown().",
+"callee_name": "curate",
+"file": "pulse-app/src/snapshot_runtime.rs",
+"line": 141
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 snapshot_runtime/impl#[SnapshotApiImpl][SnapshotApi]generate().",
+"callee_name": "curate",
+"file": "pulse-app/src/snapshot_runtime.rs",
+"line": 212
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 crate/",
+"callee_name": "curate",
+"file": "pulse-app/tests/e2e_p2_snapshot_generate.rs",
+"line": 9
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 p2_snapshot_generate_emits_markdown_within_token_budget().",
+"callee_name": "curate",
+"file": "pulse-app/tests/e2e_p2_snapshot_generate.rs",
+"line": 69
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 p2_pii_negative_canary_secret_attribute_not_in_markdown().",
+"callee_name": "curate",
+"file": "pulse-app/tests/e2e_p2_snapshot_generate.rs",
+"line": 139
+},
+{
+"caller": "rust-analyzer cargo mcp-server 0.1.0 tools/",
+"callee_name": "format_markdown",
+"file": "crates/mcp-server/src/tools.rs",
+"line": 30
+},
+{
+"caller": "rust-analyzer cargo mcp-server 0.1.0 tools/dispatch_generate_snapshot().",
+"callee_name": "format_markdown",
+"file": "crates/mcp-server/src/tools.rs",
+"line": 294
+},
+{
+"caller": "rust-analyzer cargo snapshot 0.1.0 contract/",
+"callee_name": "format_markdown",
+"file": "crates/snapshot/src/contract.rs",
+"line": 18
+},
+{
+"caller": "rust-analyzer cargo snapshot 0.1.0 markdown/tests/format_markdown_emits_h1_h2_h3_hierarchy().",
+"callee_name": "format_markdown",
+"file": "crates/snapshot/src/markdown.rs",
+"line": 740
+},
+{
+"caller": "rust-analyzer cargo snapshot 0.1.0 markdown/tests/format_markdown_anomaly_section_appears_before_critical_path_before_aggregation().",
+"callee_name": "format_markdown",
+"file": "crates/snapshot/src/markdown.rs",
+"line": 770
+},
+{
+"caller": "rust-analyzer cargo snapshot 0.1.0 markdown/tests/format_markdown_with_balanced_budget_500_spans_under_budget().",
+"callee_name": "format_markdown",
+"file": "crates/snapshot/src/markdown.rs",
+"line": 790
+},
+{
+"caller": "rust-analyzer cargo snapshot 0.1.0 markdown/tests/format_markdown_with_conservative_budget_500_spans_truncates_attributes_or_spans().",
+"callee_name": "format_markdown",
+"file": "crates/snapshot/src/markdown.rs",
+"line": 801
+},
+{
+"caller": "rust-analyzer cargo snapshot 0.1.0 markdown/tests/format_markdown_anomaly_evidence_survives_under_budget_pressure().",
+"callee_name": "format_markdown",
+"file": "crates/snapshot/src/markdown.rs",
+"line": 828
+},
+{
+"caller": "rust-analyzer cargo snapshot 0.1.0 markdown/tests/format_markdown_h1_h2_anchors_stable_across_budget_presets().",
+"callee_name": "format_markdown",
+"file": "crates/snapshot/src/markdown.rs",
+"line": 851
+},
+{
+"caller": "rust-analyzer cargo snapshot 0.1.0 markdown/tests/format_markdown_h1_h2_anchors_stable_across_budget_presets().",
+"callee_name": "format_markdown",
+"file": "crates/snapshot/src/markdown.rs",
+"line": 852
+},
+{
+"caller": "rust-analyzer cargo snapshot 0.1.0 markdown/tests/format_markdown_h1_h2_anchors_stable_across_budget_presets().",
+"callee_name": "format_markdown",
+"file": "crates/snapshot/src/markdown.rs",
+"line": 853
+},
+{
+"caller": "rust-analyzer cargo snapshot 0.1.0 markdown/tests/format_markdown_no_orphan_anchors().",
+"callee_name": "format_markdown",
+"file": "crates/snapshot/src/markdown.rs",
+"line": 861
+},
+{
+"caller": "rust-analyzer cargo snapshot 0.1.0 markdown/tests/format_markdown_voice_audit_no_banned_strings().",
+"callee_name": "format_markdown",
+"file": "crates/snapshot/src/markdown.rs",
+"line": 882
+},
+{
+"caller": "rust-analyzer cargo snapshot 0.1.0 markdown/tests/format_markdown_monospace_split_trace_ids_in_backticks().",
+"callee_name": "format_markdown",
+"file": "crates/snapshot/src/markdown.rs",
+"line": 904
+},
+{
+"caller": "rust-analyzer cargo snapshot 0.1.0 markdown/tests/format_markdown_attribute_value_truncated_with_ellipsis().",
+"callee_name": "format_markdown",
+"file": "crates/snapshot/src/markdown.rs",
+"line": 922
+},
+{
+"caller": "rust-analyzer cargo snapshot 0.1.0 markdown/tests/format_markdown_attribute_value_escapes_markdown_structural_chars().",
+"callee_name": "format_markdown",
+"file": "crates/snapshot/src/markdown.rs",
+"line": 942
+},
+{
+"caller": "rust-analyzer cargo snapshot 0.1.0 markdown/tests/format_markdown_phase_d_returns_err_when_anomalies_alone_exceed_budget().",
+"callee_name": "format_markdown",
+"file": "crates/snapshot/src/markdown.rs",
+"line": 975
+},
+{
+"caller": "rust-analyzer cargo snapshot 0.1.0 markdown/tests/format_markdown_empty_input_produces_minimal_output().",
+"callee_name": "format_markdown",
+"file": "crates/snapshot/src/markdown.rs",
+"line": 991
+},
+{
+"caller": "rust-analyzer cargo snapshot 0.1.0 markdown/tests/format_markdown_global_aggregation_emitted_in_constellation_section().",
+"callee_name": "format_markdown",
+"file": "crates/snapshot/src/markdown.rs",
+"line": 1001
+},
+{
+"caller": "rust-analyzer cargo snapshot 0.1.0 markdown/tests/format_markdown_token_count_invariant().",
+"callee_name": "format_markdown",
+"file": "crates/snapshot/src/markdown.rs",
+"line": 1026
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 snapshot_runtime/",
+"callee_name": "format_markdown",
+"file": "pulse-app/src/snapshot_runtime.rs",
+"line": 20
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 snapshot_runtime/load_curated_markdown().",
+"callee_name": "format_markdown",
+"file": "pulse-app/src/snapshot_runtime.rs",
+"line": 142
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 snapshot_runtime/impl#[SnapshotApiImpl][SnapshotApi]generate().",
+"callee_name": "format_markdown",
+"file": "pulse-app/src/snapshot_runtime.rs",
+"line": 213
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 investigate_router/",
+"callee_name": "load_curated_markdown",
+"file": "pulse-app/src/investigate_router.rs",
+"line": 26
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 investigate_router/impl#[InvestigateApiImpl][InvestigateApi]run_action().",
+"callee_name": "load_curated_markdown",
+"file": "pulse-app/src/investigate_router.rs",
+"line": 218
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 perf_budget_samples_are_produced_by_the_real_pipeline().",
+"callee_name": "load_curated_markdown",
+"file": "pulse-app/tests/perf_budget_samples.rs",
+"line": 208
+},
+{
+"caller": "rust-analyzer cargo mcp-server 0.1.0 tools/dispatch_generate_snapshot().",
+"callee_name": "load_recent_spans",
+"file": "crates/mcp-server/src/tools.rs",
+"line": 288
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 snapshot_runtime/load_curated_markdown().",
+"callee_name": "load_recent_spans",
+"file": "pulse-app/src/snapshot_runtime.rs",
+"line": 140
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 snapshot_runtime/impl#[SnapshotApiImpl][SnapshotApi]generate().",
+"callee_name": "load_recent_spans",
+"file": "pulse-app/src/snapshot_runtime.rs",
+"line": 207
+}
+],
+"db_state": "fresh",
+"plane": "rust"
+},
+{
+"sql": "SELECT caller_name, file, line FROM calls WHERE callee_name = 'requestWebGPUAdapter' ORDER BY file, line",
+"rows": 18,
+"result": [
+{
+"caller_name": "CanvasContainer.tsx",
+"file": "pulse-app/ui/src/canvas/CanvasContainer.tsx",
+"line": 33
+},
+{
+"caller_name": "CanvasContainer",
+"file": "pulse-app/ui/src/canvas/CanvasContainer.tsx",
+"line": 51
+},
+{
+"caller_name": "webgpu-adapter.test.ts",
+"file": "pulse-app/ui/src/canvas/webgpu-adapter.test.ts",
+"line": 1
+},
+{
+"caller_name": "webgpu-adapter.test.ts",
+"file": "pulse-app/ui/src/canvas/webgpu-adapter.test.ts",
+"line": 10
+},
+{
+"caller_name": "webgpu-adapter.test.ts",
+"file": "pulse-app/ui/src/canvas/webgpu-adapter.test.ts",
+"line": 23
+},
+{
+"caller_name": "webgpu-adapter.test.ts",
+"file": "pulse-app/ui/src/canvas/webgpu-adapter.test.ts",
+"line": 41
+},
+{
+"caller_name": "webgpu-adapter.test.ts",
+"file": "pulse-app/ui/src/canvas/webgpu-adapter.test.ts",
+"line": 60
+},
+{
+"caller_name": "webgpu-adapter.test.ts",
+"file": "pulse-app/ui/src/canvas/webgpu-adapter.test.ts",
+"line": 79
+},
+{
+"caller_name": "MetricsChart.test.tsx",
+"file": "pulse-app/ui/src/dashboard/routes/metrics/MetricsChart.test.tsx",
+"line": 17
+},
+{
+"caller_name": "mockAdapter",
+"file": "pulse-app/ui/src/dashboard/routes/metrics/MetricsChart.test.tsx",
+"line": 51
+},
+{
+"caller_name": "MetricsChart.tsx",
+"file": "pulse-app/ui/src/dashboard/routes/metrics/MetricsChart.tsx",
+"line": 10
+},
+{
+"caller_name": "MetricsChart",
+"file": "pulse-app/ui/src/dashboard/routes/metrics/MetricsChart.tsx",
+"line": 43
+},
+{
+"caller_name": "ConstellationCanvas.tsx",
+"file": "pulse-app/ui/src/dashboard/routes/traces/ConstellationCanvas.tsx",
+"line": 25
+},
+{
+"caller_name": "ConstellationCanvas",
+"file": "pulse-app/ui/src/dashboard/routes/traces/ConstellationCanvas.tsx",
+"line": 95
+},
+{
+"caller_name": "HaloCanvas.tsx",
+"file": "pulse-app/ui/src/halo/HaloCanvas.tsx",
+"line": 32
+},
+{
+"caller_name": "HaloCanvas",
+"file": "pulse-app/ui/src/halo/HaloCanvas.tsx",
+"line": 93
+},
+{
+"caller_name": "ConstellationCanvas.tsx",
+"file": "pulse-app/ui/src/widget/ConstellationCanvas.tsx",
+"line": 30
+},
+{
+"caller_name": "ConstellationCanvas",
+"file": "pulse-app/ui/src/widget/ConstellationCanvas.tsx",
+"line": 148
+}
+],
+"db_state": "fresh",
+"plane": "ts"
+},
+{
+"sql": "SELECT caller_name, callee_name, file, line FROM calls WHERE callee_name IN ('arm_lines','grade','grade_arm','read_family') AND callee_file LIKE '%perf_budget.rs' ORDER BY callee_name, file, line",
+"rows": 31,
+"result": [
+{
+"caller_name": "run_ci_gates",
+"callee_name": "arm_lines",
+"file": "xtask/src/main.rs",
+"line": 548
+},
+{
+"caller_name": "run_perf_load_profiles",
+"callee_name": "arm_lines",
+"file": "xtask/src/main.rs",
+"line": 819
+},
+{
+"caller_name": "run_perf_budget",
+"callee_name": "arm_lines",
+"file": "xtask/src/perf_budget.rs",
+"line": 330
+},
+{
+"caller_name": "frame_absent_is_neutral",
+"callee_name": "arm_lines",
+"file": "xtask/src/perf_budget.rs",
+"line": 396
+},
+{
+"caller_name": "required_but_empty_fails",
+"callee_name": "arm_lines",
+"file": "xtask/src/perf_budget.rs",
+"line": 493
+},
+{
+"caller_name": "run_perf_frame_sample",
+"callee_name": "arm_lines",
+"file": "xtask/src/perf_frame.rs",
+"line": 238
+},
+{
+"caller_name": "run_ci_gates",
+"callee_name": "grade",
+"file": "xtask/src/main.rs",
+"line": 547
+},
+{
+"caller_name": "run_perf_load_profiles",
+"callee_name": "grade",
+"file": "xtask/src/main.rs",
+"line": 818
+},
+{
+"caller_name": "run_perf_budget",
+"callee_name": "grade",
+"file": "xtask/src/perf_budget.rs",
+"line": 329
+},
+{
+"caller_name": "unreadable_field_fails_even_when_not_required",
+"callee_name": "grade",
+"file": "xtask/src/perf_budget.rs",
+"line": 473
+},
+{
+"caller_name": "required_but_empty_fails",
+"callee_name": "grade",
+"file": "xtask/src/perf_budget.rs",
+"line": 487
+},
+{
+"caller_name": "all_empty_with_nothing_required_is_neutral_not_pass",
+"callee_name": "grade",
+"file": "xtask/src/perf_budget.rs",
+"line": 499
+},
+{
+"caller_name": "all_empty_with_nothing_required_is_neutral_not_pass",
+"callee_name": "grade",
+"file": "xtask/src/perf_budget.rs",
+"line": 501
+},
+{
+"caller_name": "family_read_concatenates_two_date_suffixed_members",
+"callee_name": "grade",
+"file": "xtask/src/perf_budget.rs",
+"line": 526
+},
+{
+"caller_name": "run_perf_frame_sample",
+"callee_name": "grade",
+"file": "xtask/src/perf_frame.rs",
+"line": 236
+},
+{
+"caller_name": "grade",
+"callee_name": "grade_arm",
+"file": "xtask/src/perf_budget.rs",
+"line": 183
+},
+{
+"caller_name": "frame_in_budget_passes",
+"callee_name": "grade_arm",
+"file": "xtask/src/perf_budget.rs",
+"line": 379
+},
+{
+"caller_name": "frame_over_budget_fails",
+"callee_name": "grade_arm",
+"file": "xtask/src/perf_budget.rs",
+"line": 388
+},
+{
+"caller_name": "frame_absent_is_neutral",
+"callee_name": "grade_arm",
+"file": "xtask/src/perf_budget.rs",
+"line": 394
+},
+{
+"caller_name": "memory_in_budget_passes",
+"callee_name": "grade_arm",
+"file": "xtask/src/perf_budget.rs",
+"line": 406
+},
+{
+"caller_name": "memory_over_budget_fails",
+"callee_name": "grade_arm",
+"file": "xtask/src/perf_budget.rs",
+"line": 419
+},
+{
+"caller_name": "memory_absent_is_neutral",
+"callee_name": "grade_arm",
+"file": "xtask/src/perf_budget.rs",
+"line": 431
+},
+{
+"caller_name": "memory_zeros_are_not_informative",
+"callee_name": "grade_arm",
+"file": "xtask/src/perf_budget.rs",
+"line": 437
+},
+{
+"caller_name": "snapshot_in_budget_passes",
+"callee_name": "grade_arm",
+"file": "xtask/src/perf_budget.rs",
+"line": 449
+},
+{
+"caller_name": "snapshot_over_budget_fails",
+"callee_name": "grade_arm",
+"file": "xtask/src/perf_budget.rs",
+"line": 455
+},
+{
+"caller_name": "snapshot_absent_is_neutral",
+"callee_name": "grade_arm",
+"file": "xtask/src/perf_budget.rs",
+"line": 461
+},
+{
+"caller_name": "run_ci_gates",
+"callee_name": "read_family",
+"file": "xtask/src/main.rs",
+"line": 547
+},
+{
+"caller_name": "run_perf_budget",
+"callee_name": "read_family",
+"file": "xtask/src/perf_budget.rs",
+"line": 323
+},
+{
+"caller_name": "family_read_concatenates_two_date_suffixed_members",
+"callee_name": "read_family",
+"file": "xtask/src/perf_budget.rs",
+"line": 526
+},
+{
+"caller_name": "read_lines",
+"callee_name": "read_family",
+"file": "xtask/src/perf_frame.rs",
+"line": 74
+},
+{
+"caller_name": "run_perf_frame_sample",
+"callee_name": "read_family",
+"file": "xtask/src/perf_frame.rs",
+"line": 236
+}
+],
+"db_state": "fresh",
+"plane": "rust"
+}
+]

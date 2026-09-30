@@ -1,0 +1,1 @@
+2026-09-30-perf-instruments-measure-their-budgets · pending · Perf instruments measure what their budgets name — the snapshot sample spans the whole generation; a frame-less run names its cause; release cache saves on failure · → andromeda-pulse-0.3.0/chunks/2026-09-30-perf-instruments-measure-their-budgets/

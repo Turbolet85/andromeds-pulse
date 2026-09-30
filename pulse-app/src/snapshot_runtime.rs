@@ -18,7 +18,7 @@ use std::sync::{Arc, Mutex, OnceLock};
 use chrono::Utc;
 use duckdb::Connection;
 use snapshot::contract::{
-    CurationOutput, FormatError, SpanRecord, TokenBudget, curate, format_markdown,
+    CurationOutput, FormatError, GenerationTimer, SpanRecord, TokenBudget, curate, format_markdown,
 };
 use tauri::{AppHandle, Emitter, Wry};
 use tauri_plugin_clipboard_manager::ClipboardExt;
@@ -138,12 +138,13 @@ fn load_recent_spans(
 pub fn load_curated_markdown(conn: &Connection) -> Result<String, AppError> {
     let now_ns = Utc::now().timestamp_nanos_opt().unwrap_or(0);
     let since_ns = now_ns.saturating_sub(SNAPSHOT_TIME_WINDOW_NS);
+    let timer = GenerationTimer::start();
     let spans = load_recent_spans(conn, since_ns, SPANS_RECENT_LIMIT)?;
     let curated: CurationOutput = curate(&spans)?;
-    let report = format_markdown(&curated, TokenBudget::Balanced).map_err(|_: FormatError| {
-        AppError::Internal {
-            message: "snapshot: format failed".to_string(),
-        }
+    let formatted = format_markdown(&curated, TokenBudget::Balanced);
+    timer.finish(&formatted, &curated, TokenBudget::Balanced);
+    let report = formatted.map_err(|_: FormatError| AppError::Internal {
+        message: "snapshot: format failed".to_string(),
     })?;
     Ok(report.markdown)
 }
@@ -200,6 +201,7 @@ impl SnapshotApi for SnapshotApiImpl {
         let now_ns = Utc::now().timestamp_nanos_opt().unwrap_or(0);
         let since_ns = now_ns.saturating_sub(SNAPSHOT_TIME_WINDOW_NS);
 
+        let timer = GenerationTimer::start();
         let conn_for_load = Arc::clone(&conn);
         let spans = tokio::task::spawn_blocking(move || {
             let guard = conn_for_load.lock().map_err(|_| AppError::Storage {
@@ -211,7 +213,9 @@ impl SnapshotApi for SnapshotApiImpl {
         .map_err(|_| AppError::internal("snapshot: query task failed"))??;
 
         let curated: CurationOutput = curate(&spans)?;
-        let report = format_markdown(&curated, budget).map_err(|e: FormatError| {
+        let formatted = format_markdown(&curated, budget);
+        timer.finish(&formatted, &curated, budget);
+        let report = formatted.map_err(|e: FormatError| {
             // Sanitized per security plan §Error Handling — internals
             // (kinds / limits) do not cross the bridge.
             let _ = e;

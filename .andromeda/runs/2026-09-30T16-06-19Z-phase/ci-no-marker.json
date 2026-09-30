@@ -1,0 +1,84 @@
+[
+{
+"tool": "ci",
+"v": "1.0",
+"sha8": "bf89b279",
+"ts": "2026-09-30T16:06:26Z",
+"argv": [
+"conclusion",
+"--sha",
+"ea50ca2fde897ce4a8d7526bd32bb31dc1cafd25",
+"--run-dir",
+".andromeda/runs/2026-09-30T16-06-19Z-phase"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"repo Turbolet85/andromeds-pulse (the push remote `origin`)",
+"ea50ca2fde89 verdict: in progress · checks 13/13 · runs ci#36741143328 in_progress/- secret-scan#36741143347 completed/…",
+"runs: ci#36741143328 pull_request in_progress/- · secret-scan#36741143347 pull_request completed/success",
+"running 11: oldest a11y (windows-latest) 300 s",
+"run open: ci#36741143328 in_progress"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"repo": "Turbolet85/andromeds-pulse",
+"host": "github.com",
+"repo_source": "the push remote `origin`",
+"names": [],
+"shas": [
+{
+"sha": "ea50ca2fde897ce4a8d7526bd32bb31dc1cafd25",
+"word": "in progress",
+"polls": [
+"in progress"
+]
+}
+]
+}
+},
+{
+"tool": "ci",
+"v": "1.0",
+"sha8": "bf89b279",
+"ts": "2026-09-30T16:17:39Z",
+"argv": [
+"conclusion",
+"--sha",
+"ea50ca2fde897ce4a8d7526bd32bb31dc1cafd25",
+"--run-dir",
+".andromeda/runs/2026-09-30T16-06-19Z-phase"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"repo Turbolet85/andromeds-pulse (the push remote `origin`)",
+"ea50ca2fde89 verdict: in progress · checks 13/13 · runs ci#36741143328 in_progress/- secret-scan#36741143347 completed/…",
+"runs: ci#36741143328 pull_request in_progress/- · secret-scan#36741143347 pull_request completed/success",
+"running 5: oldest lint / test (windows-latest) 973 s",
+"run open: ci#36741143328 in_progress"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"repo": "Turbolet85/andromeds-pulse",
+"host": "github.com",
+"repo_source": "the push remote `origin`",
+"names": [],
+"shas": [
+{
+"sha": "ea50ca2fde897ce4a8d7526bd32bb31dc1cafd25",
+"word": "in progress",
+"polls": [
+"in progress"
+]
+}
+]
+}
+}
+]

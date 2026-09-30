@@ -1258,6 +1258,7 @@ const EXPECTED_PROCEDURES: &[&str] = &[
     "telemetry.frontend.record_findings_counter_refresh",
     "telemetry.frontend.record_frame_ms",
     "telemetry.frontend.record_ipc_rejection",
+    "telemetry.frontend.record_webgpu_adapter",
     "traces.query",
     "workspace.detect",
     // future-deferred (per epoch landing):

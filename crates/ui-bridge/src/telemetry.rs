@@ -215,6 +215,40 @@ pub fn coerce_window_label(label: &str) -> &'static str {
     }
 }
 
+// The outcome of one webview WebGPU adapter request, classified webview-side
+// (`canvas/adapter-state.ts`). A frame-less log reads its cause from these
+// records (`xtask::perf_budget::frame_cause`), so the set stays closed: no raw
+// error text crosses.
+#[cfg_attr(feature = "taurpc-runtime", derive(specta::Type))]
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(rename_all = "snake_case")]
+pub enum WebgpuAdapterOutcome {
+    Obtained,
+    NoNavigatorGpu,
+    AdapterNull,
+    AdapterRequestRejected,
+    DeviceRequestFailed,
+}
+
+impl WebgpuAdapterOutcome {
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::Obtained => "obtained",
+            Self::NoNavigatorGpu => "no_navigator_gpu",
+            Self::AdapterNull => "adapter_null",
+            Self::AdapterRequestRejected => "adapter_request_rejected",
+            Self::DeviceRequestFailed => "device_request_failed",
+        }
+    }
+}
+
+#[cfg_attr(feature = "taurpc-runtime", derive(specta::Type))]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+pub struct WebgpuAdapterInput {
+    pub outcome: WebgpuAdapterOutcome,
+    pub window_label: String,
+}
+
 #[cfg(feature = "taurpc-runtime")]
 mod runtime {
     use super::*;
@@ -223,6 +257,9 @@ mod runtime {
     // record_findings_counter_refresh carry the three delegated timing bounds
     // (P-025 / P-027 / P-045) from their rendered surfaces to the self-observation
     // log, so an external harness can grade bounds the backend cannot see.
+    // record_webgpu_adapter carries each webview adapter request's closed outcome
+    // plus its coerced window label, once per request (never per frame), so a
+    // frame-less run can name why it drew nothing.
     // Doc prose lives here rather than as `///` inside the trait: the
     // taurpc::procedures macro rejects multi-line doc attributes on its methods.
     #[taurpc::procedures(path = "telemetry.frontend")]
@@ -238,6 +275,7 @@ mod runtime {
             input: FindingsCounterRefreshInput,
         ) -> Result<(), AppError>;
         async fn record_ipc_rejection(input: IpcRejectionInput) -> Result<(), AppError>;
+        async fn record_webgpu_adapter(input: WebgpuAdapterInput) -> Result<(), AppError>;
     }
 
     #[derive(Clone, Default)]
@@ -330,6 +368,29 @@ mod runtime {
                 payload_bytes = input.payload_bytes,
                 "capability-rejected webview IPC recorded",
             );
+            Ok(())
+        }
+
+        async fn record_webgpu_adapter(self, input: WebgpuAdapterInput) -> Result<(), AppError> {
+            let window_label = coerce_window_label(&input.window_label);
+            let outcome = input.outcome.as_str();
+            // Once per canvas mount, off any hot path (obs-plan §6 warn row): an
+            // obtained adapter is INFO, every other outcome a WARN.
+            if input.outcome == WebgpuAdapterOutcome::Obtained {
+                tracing::info!(
+                    target: "ui.webgpu.adapter",
+                    outcome,
+                    window_label,
+                    "webgpu adapter request recorded",
+                );
+            } else {
+                tracing::warn!(
+                    target: "ui.webgpu.adapter",
+                    outcome,
+                    window_label,
+                    "webgpu adapter request recorded",
+                );
+            }
             Ok(())
         }
     }
@@ -985,6 +1046,118 @@ mod tests {
         assert!(
             !captured.iter().any(|(t, _)| t == "ui.ipc.rejection"),
             "a rejected input must not emit a record — the emit rides valid input only; got {captured:?}"
+        );
+    }
+
+    #[cfg(feature = "taurpc-runtime")]
+    const NON_OBTAINED: [WebgpuAdapterOutcome; 4] = [
+        WebgpuAdapterOutcome::NoNavigatorGpu,
+        WebgpuAdapterOutcome::AdapterNull,
+        WebgpuAdapterOutcome::AdapterRequestRejected,
+        WebgpuAdapterOutcome::DeviceRequestFailed,
+    ];
+
+    #[test]
+    fn webgpu_adapter_outcome_serializes_snake_case_bounded_labels() {
+        for (outcome, expected) in [
+            (WebgpuAdapterOutcome::Obtained, "obtained"),
+            (WebgpuAdapterOutcome::NoNavigatorGpu, "no_navigator_gpu"),
+            (WebgpuAdapterOutcome::AdapterNull, "adapter_null"),
+            (
+                WebgpuAdapterOutcome::AdapterRequestRejected,
+                "adapter_request_rejected",
+            ),
+            (
+                WebgpuAdapterOutcome::DeviceRequestFailed,
+                "device_request_failed",
+            ),
+        ] {
+            let json = serde_json::to_string(&outcome).expect("serializes");
+            assert_eq!(json, format!("\"{expected}\""));
+            assert_eq!(outcome.as_str(), expected);
+        }
+    }
+
+    #[test]
+    fn webgpu_adapter_input_rejects_unknown_outcome() {
+        let json = r#"{"outcome":"GPUAdapter lost: driver reset","window_label":"main"}"#;
+        let result: Result<WebgpuAdapterInput, _> = serde_json::from_str(json);
+        assert!(
+            result.is_err(),
+            "closed enum must reject an unknown outcome (no raw error text crosses)",
+        );
+    }
+
+    #[cfg(feature = "taurpc-runtime")]
+    async fn adapter_levels(outcome: WebgpuAdapterOutcome) -> Vec<(String, tracing::Level)> {
+        let events: Arc<Mutex<Vec<(String, tracing::Level)>>> = Arc::new(Mutex::new(Vec::new()));
+        let subscriber = CapturingSubscriber {
+            events: events.clone(),
+        };
+        let guard = tracing::subscriber::set_default(subscriber);
+        TelemetryApiImpl::new()
+            .record_webgpu_adapter(WebgpuAdapterInput {
+                outcome,
+                window_label: "compact-widget".to_string(),
+            })
+            .await
+            .expect("ok");
+        drop(guard);
+        let captured = events.lock().expect("lock").clone();
+        captured
+            .into_iter()
+            .filter(|(t, _)| t == "ui.webgpu.adapter")
+            .collect()
+    }
+
+    #[cfg(feature = "taurpc-runtime")]
+    #[tokio::test]
+    async fn record_webgpu_adapter_emits_one_info_record_on_obtained() {
+        let hits = adapter_levels(WebgpuAdapterOutcome::Obtained).await;
+        assert_eq!(
+            hits,
+            vec![("ui.webgpu.adapter".to_string(), tracing::Level::INFO)]
+        );
+    }
+
+    #[cfg(feature = "taurpc-runtime")]
+    #[tokio::test]
+    async fn record_webgpu_adapter_emits_one_warn_record_on_every_other_outcome() {
+        for outcome in NON_OBTAINED {
+            let hits = adapter_levels(outcome).await;
+            assert_eq!(
+                hits,
+                vec![("ui.webgpu.adapter".to_string(), tracing::Level::WARN)],
+                "outcome {outcome:?}"
+            );
+        }
+    }
+
+    #[cfg(feature = "taurpc-runtime")]
+    #[tokio::test]
+    async fn record_webgpu_adapter_carries_the_outcome_and_a_coerced_label_only() {
+        let api = TelemetryApiImpl::new();
+        let (events, subscriber) = field_sink();
+        let guard = tracing::subscriber::set_default(subscriber);
+        api.record_webgpu_adapter(WebgpuAdapterInput {
+            outcome: WebgpuAdapterOutcome::AdapterNull,
+            window_label: "evil-injection-attempt".to_string(),
+        })
+        .await
+        .expect("ok");
+        drop(guard);
+        let captured = events.lock().expect("lock").clone();
+
+        let hit = captured
+            .iter()
+            .find(|(target, _)| target == "ui.webgpu.adapter")
+            .unwrap_or_else(|| panic!("expected ui.webgpu.adapter; got {captured:?}"));
+        assert!(hit.1.contains("outcome=adapter_null"), "fields: {}", hit.1);
+        assert!(hit.1.contains("window_label=unknown"), "fields: {}", hit.1);
+        assert!(
+            !hit.1.contains("evil-injection-attempt"),
+            "fields: {}",
+            hit.1
         );
     }
 }

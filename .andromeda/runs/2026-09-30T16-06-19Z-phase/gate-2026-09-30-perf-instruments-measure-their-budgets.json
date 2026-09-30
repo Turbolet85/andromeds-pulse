@@ -1,0 +1,67 @@
+[
+{
+"tool": "gate",
+"v": "1.5",
+"sha8": "018a3122",
+"ts": "2026-09-30T16:19:22Z",
+"argv": [
+"scope",
+"--lists-only",
+"--research",
+"andromeda-pulse-0.3.0/chunks/2026-09-30-perf-instruments-measure-their-budgets/research.md",
+"--run-dir",
+".andromeda/runs/2026-09-30T16-06-19Z-phase",
+"--marker",
+"2026-09-30-perf-instruments-measure-their-budgets"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"control: lists · glob · record — each fired on its synthetic known positive",
+"UNPARSED: research.md:75 — not an item (§Scope) · Sweep records:",
+"UNPARSED: research.md:76 — not an item (§Scope) · - `token_count_ms` over the tree (excluding `target/`): 5 files · 3 c…",
+"UNPARSED: research.md:77 — not an item (§Scope) · - `no WebGPU adapter in this run` over code (`--include=*.rs --includ…",
+"UNPARSED: research.md:78 — not an item (§Scope) · - `requestWebGPUAdapter` test mocks (`MetricsChart.test.tsx:17-52`): …",
+"UNPARSED: research.md:79 — not an item (§Scope) · - `TelemetryApiImpl` wiring (`pulse-app/src/main.rs:1017`, `:1044`): …",
+"scope lists: UNPARSED 5 · parsed 18 items (new 4 · modify 13 · derived 1)"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"items": 18,
+"unparsed": 5
+}
+},
+{
+"tool": "gate",
+"v": "1.5",
+"sha8": "018a3122",
+"ts": "2026-09-30T16:19:34Z",
+"argv": [
+"scope",
+"--lists-only",
+"--research",
+"andromeda-pulse-0.3.0/chunks/2026-09-30-perf-instruments-measure-their-budgets/research.md",
+"--run-dir",
+".andromeda/runs/2026-09-30T16-06-19Z-phase",
+"--marker",
+"2026-09-30-perf-instruments-measure-their-budgets"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"control: lists · glob · record — each fired on its synthetic known positive",
+"scope lists: parsed 18 items (new 4 · modify 13 · derived 1)"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"items": 18,
+"unparsed": 0
+}
+}
+]

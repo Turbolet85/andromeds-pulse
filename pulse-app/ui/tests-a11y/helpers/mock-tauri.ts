@@ -25,6 +25,7 @@ export async function installTauriIpcMock(
       "telemetry.frontend.record_constellation_hue_latency": null,
       "telemetry.frontend.record_constellation_discovery_latency": null,
       "telemetry.frontend.record_findings_counter_refresh": null,
+      "telemetry.frontend.record_webgpu_adapter": null,
       app_info: {
         name: "andromeda-pulse",
         version: "0.1.0",

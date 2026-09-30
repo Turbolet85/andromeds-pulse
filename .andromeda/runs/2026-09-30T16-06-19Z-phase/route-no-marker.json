@@ -1,0 +1,30 @@
+[
+{
+"tool": "route",
+"v": "1.5",
+"sha8": "9fc8708e",
+"ts": "2026-09-30T16:06:40Z",
+"argv": [
+"route.py",
+"pins",
+"--root",
+".",
+"--run-dir",
+".andromeda/runs/2026-09-30T16-06-19Z-phase"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"working-route.md · markerless 4 of 67 entries · freight blocks 4 · rows are an INDEX, not the text",
+"142 · CONTEXT: · 1079 chars · CONTEXT: overseer relay 2026-09-30 (`pc-overseer/relays/pulse-wrap-perf-2026-09-30.md` §3…",
+"142 · CARRY: · 483 chars · CARRY: the CI `release` job's `release-${{ runner.os }}` rust-cache step lacks `cache-on-fai…",
+"144 · CONTEXT: · 524 chars · CONTEXT: founder 2026-09-30 verbatim «да маскировать фрагмент» (overseer relay `pc-oversee…",
+"146 · CONTEXT: · 773 chars · CONTEXT: founder 2026-09-30 (asked, answered) «Чинить в Pulse 0.3.0» (same relay §2); meas…",
+"… +7 abstention(s) OUTSIDE this listing (frozen entries · the master) — `markerless` and `cursor` print them"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+}
+]

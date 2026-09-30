@@ -28,7 +28,7 @@ use interpretation::markdown::{
 use interpretation::schema::L4Output;
 use serde::Deserialize;
 use serde_json::{Value, json};
-use snapshot::contract::{SpanRecord, TokenBudget, curate, format_markdown};
+use snapshot::contract::{GenerationTimer, SpanRecord, TokenBudget, curate, format_markdown};
 use triage::contract::{
     CORPUS_RETRIEVAL_WINDOW_SECONDS, DIGEST_CORPUS_RETRIEVAL_LIMIT, Incident,
     select_previously_seen,
@@ -286,13 +286,16 @@ fn dispatch_generate_snapshot(
     arguments: &Value,
 ) -> Result<Value, Error> {
     let args: GenerateSnapshotArgs = parse_args(TOOL_GENERATE_SNAPSHOT, arguments)?;
+    let timer = GenerationTimer::start();
     let spans = load_recent_spans(conn, args.time_window_seconds)?;
     let curation = curate(&spans).map_err(|e| Error::ToolDispatchFailed {
         tool_name: TOOL_GENERATE_SNAPSHOT.to_string(),
         reason: short_reason(&e.to_string()),
     })?;
     let budget = budget_for_count(args.token_budget);
-    let report = format_markdown(&curation, budget).map_err(|e| Error::ToolDispatchFailed {
+    let formatted = format_markdown(&curation, budget);
+    timer.finish(&formatted, &curation, budget);
+    let report = formatted.map_err(|e| Error::ToolDispatchFailed {
         tool_name: TOOL_GENERATE_SNAPSHOT.to_string(),
         reason: short_reason(&e.to_string()),
     })?;
