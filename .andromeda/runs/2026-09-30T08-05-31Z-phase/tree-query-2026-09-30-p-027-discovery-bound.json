@@ -1,0 +1,596 @@
+[
+{
+"sql": "SELECT caller_name, file, line FROM calls WHERE callee_name IN ('tick_all','list_all','set_state_on_restart') AND callee_kind = 'fn' ORDER BY callee_name, file, line",
+"rows": 23,
+"result": [
+{
+"caller_name": "run_lifecycle_persist_cycle",
+"file": "crates/triage/src/lifecycle/persistence.rs",
+"line": 104
+},
+{
+"caller_name": "registry_starts_empty",
+"file": "crates/triage/src/lifecycle/registry.rs",
+"line": 496
+},
+{
+"caller_name": "set_state_on_corpus_restore_preserves_persisted_last_seen",
+"file": "crates/triage/src/lifecycle/registry.rs",
+"line": 740
+},
+{
+"caller_name": "set_state_on_corpus_restore_stamps_boot_time_when_no_prior_entry",
+"file": "crates/triage/src/lifecycle/registry.rs",
+"line": 761
+},
+{
+"caller_name": "list_all_returns_per_service_items_with_effective_state",
+"file": "crates/triage/src/lifecycle/registry.rs",
+"line": 813
+},
+{
+"caller_name": "list_with_states",
+"file": "pulse-app/src/services_router.rs",
+"line": 95
+},
+{
+"caller_name": "start_lifecycle_heartbeat",
+"file": "crates/triage/src/lifecycle/mod.rs",
+"line": 117
+},
+{
+"caller_name": "set_state_on_restart_creates_bootstrapping_entry",
+"file": "crates/triage/src/lifecycle/registry.rs",
+"line": 648
+},
+{
+"caller_name": "set_state_on_restart_bypasses_archived",
+"file": "crates/triage/src/lifecycle/registry.rs",
+"line": 675
+},
+{
+"caller_name": "set_state_on_restart_skips_when_already_bootstrapping",
+"file": "crates/triage/src/lifecycle/registry.rs",
+"line": 684
+},
+{
+"caller_name": "set_state_on_restart_skips_when_already_bootstrapping",
+"file": "crates/triage/src/lifecycle/registry.rs",
+"line": 687
+},
+{
+"caller_name": "set_state_on_restart_drops_empty_service",
+"file": "crates/triage/src/lifecycle/registry.rs",
+"line": 695
+},
+{
+"caller_name": "set_state_on_restart_respects_manual_override",
+"file": "crates/triage/src/lifecycle/registry.rs",
+"line": 708
+},
+{
+"caller_name": "start_lifecycle_heartbeat",
+"file": "crates/triage/src/lifecycle/mod.rs",
+"line": 104
+},
+{
+"caller_name": "reevaluate_now",
+"file": "crates/triage/src/lifecycle/mod.rs",
+"line": 138
+},
+{
+"caller_name": "tick_all_returns_empty_when_baseline_empty",
+"file": "crates/triage/src/lifecycle/registry.rs",
+"line": 504
+},
+{
+"caller_name": "tick_all_first_observation_creates_bootstrapping_entry",
+"file": "crates/triage/src/lifecycle/registry.rs",
+"line": 514
+},
+{
+"caller_name": "tick_all_advances_bootstrapping_to_active_when_bootstrap_ready",
+"file": "crates/triage/src/lifecycle/registry.rs",
+"line": 535
+},
+{
+"caller_name": "tick_all_advances_bootstrapping_to_active_when_bootstrap_ready",
+"file": "crates/triage/src/lifecycle/registry.rs",
+"line": 539
+},
+{
+"caller_name": "tick_all_emits_one_event_per_transition",
+"file": "crates/triage/src/lifecycle/registry.rs",
+"line": 559
+},
+{
+"caller_name": "tick_all_emits_one_event_per_transition",
+"file": "crates/triage/src/lifecycle/registry.rs",
+"line": 567
+},
+{
+"caller_name": "set_manual_override_forces_state_regardless_of_activity",
+"file": "crates/triage/src/lifecycle/registry.rs",
+"line": 595
+},
+{
+"caller_name": "tick_all_skips_empty_service_name_snapshots",
+"file": "crates/triage/src/lifecycle/registry.rs",
+"line": 1015
+}
+],
+"db_state": "fresh",
+"plane": "rust"
+},
+{
+"sql": "SELECT callee_name, file, line FROM refs WHERE callee_name IN ('CompositeSpanObserver','BaselineObserverAdapter','ServiceRegistry') ORDER BY callee_name, file, line",
+"rows": 57,
+"result": [
+{
+"callee_name": "BaselineObserverAdapter",
+"file": "pulse-app/src/baseline_observer.rs",
+"line": 23
+},
+{
+"callee_name": "BaselineObserverAdapter",
+"file": "pulse-app/src/baseline_observer.rs",
+"line": 29
+},
+{
+"callee_name": "BaselineObserverAdapter",
+"file": "pulse-app/src/main.rs",
+"line": 49
+},
+{
+"callee_name": "BaselineObserverAdapter",
+"file": "pulse-app/src/main.rs",
+"line": 572
+},
+{
+"callee_name": "BaselineObserverAdapter",
+"file": "pulse-app/tests/unit_span_observers.rs",
+"line": 16
+},
+{
+"callee_name": "BaselineObserverAdapter",
+"file": "pulse-app/tests/unit_span_observers.rs",
+"line": 25
+},
+{
+"callee_name": "BaselineObserverAdapter",
+"file": "pulse-app/tests/unit_span_observers.rs",
+"line": 35
+},
+{
+"callee_name": "BaselineObserverAdapter",
+"file": "pulse-app/tests/unit_span_observers.rs",
+"line": 69
+},
+{
+"callee_name": "CompositeSpanObserver",
+"file": "pulse-app/src/main.rs",
+"line": 69
+},
+{
+"callee_name": "CompositeSpanObserver",
+"file": "pulse-app/src/main.rs",
+"line": 577
+},
+{
+"callee_name": "CompositeSpanObserver",
+"file": "pulse-app/src/restart_observer.rs",
+"line": 65
+},
+{
+"callee_name": "CompositeSpanObserver",
+"file": "pulse-app/src/restart_observer.rs",
+"line": 73
+},
+{
+"callee_name": "CompositeSpanObserver",
+"file": "pulse-app/src/restart_observer.rs",
+"line": 79
+},
+{
+"callee_name": "CompositeSpanObserver",
+"file": "pulse-app/tests/unit_span_observers.rs",
+"line": 17
+},
+{
+"callee_name": "CompositeSpanObserver",
+"file": "pulse-app/tests/unit_span_observers.rs",
+"line": 74
+},
+{
+"callee_name": "CompositeSpanObserver",
+"file": "pulse-app/tests/unit_span_observers.rs",
+"line": 89
+},
+{
+"callee_name": "ServiceRegistry",
+"file": "crates/triage/src/contract.rs",
+"line": 98
+},
+{
+"callee_name": "ServiceRegistry",
+"file": "crates/triage/src/lifecycle/mod.rs",
+"line": 44
+},
+{
+"callee_name": "ServiceRegistry",
+"file": "crates/triage/src/lifecycle/mod.rs",
+"line": 87
+},
+{
+"callee_name": "ServiceRegistry",
+"file": "crates/triage/src/lifecycle/mod.rs",
+"line": 132
+},
+{
+"callee_name": "ServiceRegistry",
+"file": "crates/triage/src/lifecycle/mod.rs",
+"line": 155
+},
+{
+"callee_name": "ServiceRegistry",
+"file": "crates/triage/src/lifecycle/persistence.rs",
+"line": 25
+},
+{
+"callee_name": "ServiceRegistry",
+"file": "crates/triage/src/lifecycle/persistence.rs",
+"line": 99
+},
+{
+"callee_name": "ServiceRegistry",
+"file": "crates/triage/src/lifecycle/persistence.rs",
+"line": 142
+},
+{
+"callee_name": "ServiceRegistry",
+"file": "crates/triage/src/lifecycle/persistence.rs",
+"line": 164
+},
+{
+"callee_name": "ServiceRegistry",
+"file": "crates/triage/src/lifecycle/registry.rs",
+"line": 181
+},
+{
+"callee_name": "ServiceRegistry",
+"file": "pulse-app/src/main.rs",
+"line": 29
+},
+{
+"callee_name": "ServiceRegistry",
+"file": "pulse-app/src/main.rs",
+"line": 676
+},
+{
+"callee_name": "ServiceRegistry",
+"file": "pulse-app/src/main.rs",
+"line": 693
+},
+{
+"callee_name": "ServiceRegistry",
+"file": "pulse-app/src/main.rs",
+"line": 696
+},
+{
+"callee_name": "ServiceRegistry",
+"file": "pulse-app/src/main.rs",
+"line": 707
+},
+{
+"callee_name": "ServiceRegistry",
+"file": "pulse-app/src/main.rs",
+"line": 713
+},
+{
+"callee_name": "ServiceRegistry",
+"file": "pulse-app/src/main.rs",
+"line": 1846
+},
+{
+"callee_name": "ServiceRegistry",
+"file": "pulse-app/src/main.rs",
+"line": 1885
+},
+{
+"callee_name": "ServiceRegistry",
+"file": "pulse-app/src/reevaluation.rs",
+"line": 19
+},
+{
+"callee_name": "ServiceRegistry",
+"file": "pulse-app/src/reevaluation.rs",
+"line": 42
+},
+{
+"callee_name": "ServiceRegistry",
+"file": "pulse-app/src/reevaluation.rs",
+"line": 50
+},
+{
+"callee_name": "ServiceRegistry",
+"file": "pulse-app/src/services_router.rs",
+"line": 35
+},
+{
+"callee_name": "ServiceRegistry",
+"file": "pulse-app/src/services_router.rs",
+"line": 56
+},
+{
+"callee_name": "ServiceRegistry",
+"file": "pulse-app/src/services_router.rs",
+"line": 65
+},
+{
+"callee_name": "ServiceRegistry",
+"file": "pulse-app/tests/e2e_service_lifecycle.rs",
+"line": 20
+},
+{
+"callee_name": "ServiceRegistry",
+"file": "pulse-app/tests/e2e_service_lifecycle.rs",
+"line": 32
+},
+{
+"callee_name": "ServiceRegistry",
+"file": "pulse-app/tests/e2e_service_lifecycle.rs",
+"line": 37
+},
+{
+"callee_name": "ServiceRegistry",
+"file": "pulse-app/tests/e2e_service_lifecycle.rs",
+"line": 204
+},
+{
+"callee_name": "ServiceRegistry",
+"file": "pulse-app/tests/unit_config_watcher.rs",
+"line": 18
+},
+{
+"callee_name": "ServiceRegistry",
+"file": "pulse-app/tests/unit_config_watcher.rs",
+"line": 64
+},
+{
+"callee_name": "ServiceRegistry",
+"file": "pulse-app/tests/unit_config_watcher.rs",
+"line": 76
+},
+{
+"callee_name": "ServiceRegistry",
+"file": "pulse-app/tests/unit_config_watcher.rs",
+"line": 95
+},
+{
+"callee_name": "ServiceRegistry",
+"file": "pulse-app/tests/unit_diagnostics_router_retry_interpretation.rs",
+"line": 25
+},
+{
+"callee_name": "ServiceRegistry",
+"file": "pulse-app/tests/unit_diagnostics_router_snapshot.rs",
+"line": 34
+},
+{
+"callee_name": "ServiceRegistry",
+"file": "pulse-app/tests/unit_services_router.rs",
+"line": 21
+},
+{
+"callee_name": "ServiceRegistry",
+"file": "pulse-app/tests/unit_services_router.rs",
+"line": 55
+},
+{
+"callee_name": "ServiceRegistry",
+"file": "pulse-app/tests/unit_services_router.rs",
+"line": 68
+},
+{
+"callee_name": "ServiceRegistry",
+"file": "pulse-app/tests/unit_services_router.rs",
+"line": 79
+},
+{
+"callee_name": "ServiceRegistry",
+"file": "pulse-app/tests/unit_services_router.rs",
+"line": 96
+},
+{
+"callee_name": "ServiceRegistry",
+"file": "pulse-app/tests/unit_services_router.rs",
+"line": 157
+},
+{
+"callee_name": "ServiceRegistry",
+"file": "pulse-app/tests/unit_services_router.rs",
+"line": 158
+}
+],
+"db_state": "fresh",
+"plane": "rust"
+},
+{
+"sql": "SELECT callee_name, file, line FROM refs WHERE callee_name IN ('recordConstellationDiscoveryLatency','useServiceConstellation','hueShiftSamples') ORDER BY callee_name, file, line",
+"rows": 34,
+"result": [
+{
+"callee_name": "hueShiftSamples",
+"file": "pulse-app/ui/src/widget/ConstellationCanvas.tsx",
+"line": 36
+},
+{
+"callee_name": "hueShiftSamples",
+"file": "pulse-app/ui/src/widget/ConstellationCanvas.tsx",
+"line": 124
+},
+{
+"callee_name": "hueShiftSamples",
+"file": "pulse-app/ui/src/widget/constellation-types.test.ts",
+"line": 7
+},
+{
+"callee_name": "hueShiftSamples",
+"file": "pulse-app/ui/src/widget/constellation-types.test.ts",
+"line": 327
+},
+{
+"callee_name": "hueShiftSamples",
+"file": "pulse-app/ui/src/widget/constellation-types.test.ts",
+"line": 342
+},
+{
+"callee_name": "hueShiftSamples",
+"file": "pulse-app/ui/src/widget/constellation-types.test.ts",
+"line": 359
+},
+{
+"callee_name": "hueShiftSamples",
+"file": "pulse-app/ui/src/widget/constellation-types.test.ts",
+"line": 375
+},
+{
+"callee_name": "hueShiftSamples",
+"file": "pulse-app/ui/src/widget/constellation-types.test.ts",
+"line": 386
+},
+{
+"callee_name": "hueShiftSamples",
+"file": "pulse-app/ui/src/widget/constellation-types.test.ts",
+"line": 398
+},
+{
+"callee_name": "hueShiftSamples",
+"file": "pulse-app/ui/src/widget/constellation-types.test.ts",
+"line": 410
+},
+{
+"callee_name": "hueShiftSamples",
+"file": "pulse-app/ui/src/widget/constellation-types.test.ts",
+"line": 423
+},
+{
+"callee_name": "hueShiftSamples",
+"file": "pulse-app/ui/src/widget/constellation-types.test.ts",
+"line": 435
+},
+{
+"callee_name": "hueShiftSamples",
+"file": "pulse-app/ui/src/widget/constellation-types.test.ts",
+"line": 447
+},
+{
+"callee_name": "recordConstellationDiscoveryLatency",
+"file": "pulse-app/ui/src/canvas/frame-metrics.test.ts",
+"line": 7
+},
+{
+"callee_name": "recordConstellationDiscoveryLatency",
+"file": "pulse-app/ui/src/canvas/frame-metrics.test.ts",
+"line": 221
+},
+{
+"callee_name": "recordConstellationDiscoveryLatency",
+"file": "pulse-app/ui/src/canvas/frame-metrics.test.ts",
+"line": 241
+},
+{
+"callee_name": "recordConstellationDiscoveryLatency",
+"file": "pulse-app/ui/src/widget/ConstellationCanvas.test.tsx",
+"line": 168
+},
+{
+"callee_name": "recordConstellationDiscoveryLatency",
+"file": "pulse-app/ui/src/widget/ConstellationCanvas.test.tsx",
+"line": 170
+},
+{
+"callee_name": "recordConstellationDiscoveryLatency",
+"file": "pulse-app/ui/src/widget/ConstellationCanvas.test.tsx",
+"line": 206
+},
+{
+"callee_name": "recordConstellationDiscoveryLatency",
+"file": "pulse-app/ui/src/widget/ConstellationCanvas.test.tsx",
+"line": 235
+},
+{
+"callee_name": "recordConstellationDiscoveryLatency",
+"file": "pulse-app/ui/src/widget/ConstellationCanvas.test.tsx",
+"line": 273
+},
+{
+"callee_name": "recordConstellationDiscoveryLatency",
+"file": "pulse-app/ui/src/widget/ConstellationCanvas.tsx",
+"line": 25
+},
+{
+"callee_name": "recordConstellationDiscoveryLatency",
+"file": "pulse-app/ui/src/widget/ConstellationCanvas.tsx",
+"line": 112
+},
+{
+"callee_name": "useServiceConstellation",
+"file": "pulse-app/ui/src/dashboard/ConnectionStatusLine.tsx",
+"line": 13
+},
+{
+"callee_name": "useServiceConstellation",
+"file": "pulse-app/ui/src/dashboard/ConnectionStatusLine.tsx",
+"line": 39
+},
+{
+"callee_name": "useServiceConstellation",
+"file": "pulse-app/ui/src/dashboard/routes/TracesRoute.tsx",
+"line": 11
+},
+{
+"callee_name": "useServiceConstellation",
+"file": "pulse-app/ui/src/dashboard/routes/TracesRoute.tsx",
+"line": 24
+},
+{
+"callee_name": "useServiceConstellation",
+"file": "pulse-app/ui/src/hooks/use-service-constellation.test.ts",
+"line": 3
+},
+{
+"callee_name": "useServiceConstellation",
+"file": "pulse-app/ui/src/hooks/use-service-constellation.test.ts",
+"line": 41
+},
+{
+"callee_name": "useServiceConstellation",
+"file": "pulse-app/ui/src/hooks/use-service-constellation.test.ts",
+"line": 48
+},
+{
+"callee_name": "useServiceConstellation",
+"file": "pulse-app/ui/src/hooks/use-service-constellation.test.ts",
+"line": 61
+},
+{
+"callee_name": "useServiceConstellation",
+"file": "pulse-app/ui/src/hooks/use-service-constellation.test.ts",
+"line": 68
+},
+{
+"callee_name": "useServiceConstellation",
+"file": "pulse-app/ui/src/widget/CompactWidget.tsx",
+"line": 14
+},
+{
+"callee_name": "useServiceConstellation",
+"file": "pulse-app/ui/src/widget/CompactWidget.tsx",
+"line": 39
+}
+],
+"db_state": "fresh",
+"plane": "ts"
+}
+]

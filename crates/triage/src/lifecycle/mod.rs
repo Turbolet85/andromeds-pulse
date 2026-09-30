@@ -207,6 +207,17 @@ pub fn emit_tick_observability(
             .entry((event.from_state, event.to_state))
             .or_insert(0) += 1;
     }
+    // A first sighting performs the tick's first-observation transition
+    // early, off the hot path; it is counted here, never per span.
+    let first_sightings = registry.take_first_sightings();
+    if first_sightings > 0 {
+        *buckets
+            .entry((
+                ServiceLifecycleState::Unknown,
+                ServiceLifecycleState::Bootstrapping,
+            ))
+            .or_insert(0) += first_sightings;
+    }
     for ((from, to), count) in buckets {
         tracing::info!(
             target: TARGET_LIFECYCLE_TRANSITION,
@@ -430,6 +441,33 @@ mod tests {
                 );
             }
         }
+    }
+
+    #[test]
+    fn first_sighting_transitions_fold_into_tick_aggregate() {
+        let (sub, events) = CapturingSubscriber::new();
+        let registry = InMemoryServiceRegistry::new();
+        assert!(registry.register_first_sighting("svc-a", 1_000).is_some());
+        tracing::subscriber::with_default(sub, || {
+            emit_tick_observability(&registry, &[]);
+        });
+        let captured = events.lock().expect("lock");
+        let transitions: Vec<&CapturedFields> = captured
+            .iter()
+            .filter(|(t, _, _)| t == TARGET_LIFECYCLE_TRANSITION)
+            .map(|(_, _, fields)| fields)
+            .collect();
+        assert_eq!(transitions.len(), 1);
+        let value = |name: &str| {
+            transitions[0]
+                .iter()
+                .find(|(k, _)| k == name)
+                .map(|(_, v)| v.as_str())
+        };
+        assert_eq!(value("from_state"), Some("unknown"));
+        assert_eq!(value("to_state"), Some("bootstrapping"));
+        assert_eq!(value("count"), Some("1"));
+        assert_eq!(registry.take_first_sightings(), 0);
     }
 
     #[test]

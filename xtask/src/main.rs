@@ -7,6 +7,7 @@
 #![allow(clippy::items_after_test_module)]
 
 mod bundle_format;
+mod discovery;
 mod external_resolve;
 mod gap_resume;
 mod harness_status;
@@ -95,6 +96,11 @@ enum Cmd {
         about = "Drive a tier rise (finite storm) and fall (120 s auto-resolve under a healthy feed) through the release app and grade the P-025 hue-shift samples by ANCHOR: each sample's timestamp minus duration_ms must land within 1000 ms of the incident creation record (rise) and the resolving auto-resolve tick (fall). The 2000 ms budget line is context only. Exit 0 PASS, 1 FAIL, 2 INCONCLUSIVE (no incident, or a sample never appeared)"
     )]
     SmokeHueShift,
+    #[command(
+        name = "smoke:discovery",
+        about = "Boot the release app on a fresh data dir, wait until the webview polls services.list_with_states, start a healthy feed over real OTLP, and grade the P-027 discovery bound: the first metric.constellation.discovery_ms record must land within 5000 ms of the first duckdb.append {table_name: spans} record (the first sighting), with its own anchor (timestamp minus duration_ms) within 1000 ms of that record, and the log must hold 0 app.panic.fatal and 0 ERROR. Exit 0 PASS, 1 FAIL, 2 INCONCLUSIVE (no spans appended, or the webview was not polling first)"
+    )]
+    SmokeDiscovery,
     #[command(name = "audit", about = "cargo audit (RustSec advisory DB)")]
     Audit,
     #[command(name = "deny-bans", about = "cargo deny check bans licenses sources")]
@@ -262,6 +268,7 @@ async fn main() -> ExitCode {
             .await
         }
         Cmd::SmokeHueShift => hue_shift::run_hue_shift().await,
+        Cmd::SmokeDiscovery => discovery::run_discovery().await,
         Cmd::Audit => run_cargo("audit", &[]).await,
         Cmd::DenyBans => run_cargo("deny", &["check", "bans", "licenses", "sources"]).await,
         Cmd::CheckNpmSupplyChain => npm_gate::run_npm_gate().await,

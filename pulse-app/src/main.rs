@@ -55,6 +55,7 @@ use pulse_app::cadence_runner::CadenceSqlRunner;
 use pulse_app::config_router::{self, ConfigApi, ConfigApiImpl};
 use pulse_app::connection_router::{ConnectionApi, ConnectionApiImpl, HeartbeatBindStatus};
 use pulse_app::diagnostics_router::{DiagnosticsApi, DiagnosticsApiImpl};
+use pulse_app::discovery_observer::DiscoveryObserverAdapter;
 use pulse_app::drain_persistence::CorpusDrainPersistence;
 use pulse_app::incident_observer::{AutoResolveObserver, run_auto_resolution_loop};
 use pulse_app::incident_persistence::CorpusIncidentPersistence;
@@ -562,7 +563,8 @@ fn main() {
     // holds per-service post-restart suppression windows consumed by the cue
     // emitter's surgical-suppression filter. RestartObserverAdapter wraps the
     // detector + broadcast for the span-observer hot path; CompositeSpanObserver
-    // fan-outs each ingested span to BOTH baseline + restart adapters.
+    // fan-outs each ingested span to the baseline, restart and first-sighting
+    // adapters (composed below, once the lifecycle registry exists).
     let restart_broadcast = Arc::new(RestartEventBroadcast::new());
     let restart_detector = Arc::new(RestartDetector::new(
         thresholds.restart_gap_threshold_seconds,
@@ -575,10 +577,6 @@ fn main() {
         Arc::clone(&restart_detector),
         Arc::clone(&restart_broadcast),
     ));
-    let span_observer: Arc<dyn SpanObserver> = Arc::new(CompositeSpanObserver::new(vec![
-        baseline_adapter,
-        restart_adapter,
-    ]));
 
     // Chunk #66 + chunk #71 corpus persistence — retry storm detector.
     // Tracks per-fingerprint occurrences in a 60s rolling window; ≥5/30s
@@ -732,6 +730,19 @@ fn main() {
         );
         registry
     };
+    // P-027 discovery bound: the first-sighting adapter lists a service at its
+    // first span rather than at the heartbeat's first 15 s tick. It is LAST so
+    // the baseline has admitted the service (cap check) in the same fan-out.
+    let discovery_adapter: Arc<dyn SpanObserver> = Arc::new(DiscoveryObserverAdapter::new(
+        Arc::clone(&lifecycle_registry),
+        Arc::clone(&baseline_state),
+        Arc::clone(&lifecycle_broadcast),
+    ));
+    let span_observer: Arc<dyn SpanObserver> = Arc::new(CompositeSpanObserver::new(vec![
+        baseline_adapter,
+        restart_adapter,
+        discovery_adapter,
+    ]));
     // Chunk #78 — incident records + lifecycle persistence. Derive a 5th
     // CorpusWriter trait view (alongside baseline + lifecycle + storm +
     // drain) from the same Arc<Corpus>. None ⇒ corpus unavailable at

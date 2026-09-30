@@ -47,3 +47,6 @@ Leaves re-derived: CLAUDE.md overview (license), `rules/testing.md` + `docs/test
   - Windows embeds the `.ico`, so a palette PNG icon fails only on macOS/Linux `generate_context!`.
   - The deferral-destination generalization.
   - `inject_demo --sustained` cannot form an incident (EWMA convergence) — a CHECK for the leg-authoring reference.
+
+## Session End Status
+Completed normally at 2026-09-30 11:57:42

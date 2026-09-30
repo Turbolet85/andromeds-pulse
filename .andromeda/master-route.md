@@ -79,3 +79,4 @@ version-cursor scan reads those exclusively; the forensic note is a blockquote, 
 2026-09-29-ci-wall-time-and-round-trips · complete · CI wall time and round-trips — parallel jobs, a kept cache, no duplicate rebuilds, a local WSL Linux pre-push check · → andromeda-pulse-0.3.0/chunks/2026-09-29-ci-wall-time-and-round-trips/
 2026-09-29-scrubber-path-false-positive · complete · Scrubber path false positive — card arm stops redacting non-card digit runs in paths/keys · → andromeda-pulse-0.3.0/chunks/2026-09-29-scrubber-path-false-positive/
 2026-09-30-dual-license · complete · Dual license — MIT OR Apache-2.0: LICENSE-MIT + LICENSE-APACHE, every Cargo and npm manifest · → andromeda-pulse-0.3.0/chunks/2026-09-30-dual-license/
+2026-09-30-p-027-discovery-bound · pending · P-027 discovery bound — a new service's first dot within 5 s of first sighting, not at the 15 s registry tick · → andromeda-pulse-0.3.0/chunks/2026-09-30-p-027-discovery-bound/

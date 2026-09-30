@@ -369,6 +369,12 @@ impl BaselineState {
             .sum()
     }
 
+    /// Whether `observe_span` admitted the service (under
+    /// `ACTIVITY_FLOOR_SERVICE_CAP`).
+    pub fn tracks_service(&self, service_name: &str) -> bool {
+        self.services.contains_key(service_name)
+    }
+
     /// Per-service error-rate EWMA snapshot. Returns None when no spans
     /// observed for the service yet.
     pub fn error_rate(&self, service_name: &str) -> Option<f64> {

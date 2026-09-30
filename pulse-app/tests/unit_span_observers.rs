@@ -10,11 +10,13 @@ use std::sync::Arc;
 use buffer::fingerprint::FingerprintObserver;
 use ingest::observer::SpanObserver;
 use triage::contract::{
-    AttentionCueBroadcast, BaselineState, CueKind, PriorityTier, RestartDetector,
-    RestartEventBroadcast, RetryStormDetector,
+    AttentionCueBroadcast, BaselineState, CueKind, InMemoryServiceRegistry, PriorityTier,
+    RestartDetector, RestartEventBroadcast, RetryStormDetector, ServiceLifecycleBroadcast,
+    ServiceLifecycleState, ServiceRegistry,
 };
 
 use pulse_app::baseline_observer::BaselineObserverAdapter;
+use pulse_app::discovery_observer::DiscoveryObserverAdapter;
 use pulse_app::restart_observer::{CompositeSpanObserver, RestartObserverAdapter};
 use pulse_app::storm_observer::StormObserverAdapter;
 
@@ -126,4 +128,76 @@ fn storm_adapter_can_be_held_as_dyn_fingerprint_observer() {
     let observer: Arc<dyn FingerprintObserver> =
         Arc::new(StormObserverAdapter::new(detector, broadcast));
     observer.on_fingerprint(FP, "svc", 1_000 * NANOS_PER_SEC);
+}
+
+// ── discovery_observer.rs ────────────────────────────────────────────
+
+struct DiscoveryFixture {
+    registry: Arc<dyn ServiceRegistry>,
+    baseline: Arc<BaselineState>,
+    broadcast: Arc<ServiceLifecycleBroadcast>,
+    adapter: DiscoveryObserverAdapter,
+}
+
+fn discovery_fixture() -> DiscoveryFixture {
+    let registry: Arc<dyn ServiceRegistry> = Arc::new(InMemoryServiceRegistry::new());
+    let baseline = Arc::new(BaselineState::new());
+    let broadcast = Arc::new(ServiceLifecycleBroadcast::new());
+    let adapter = DiscoveryObserverAdapter::new(
+        Arc::clone(&registry),
+        Arc::clone(&baseline),
+        Arc::clone(&broadcast),
+    );
+    DiscoveryFixture {
+        registry,
+        baseline,
+        broadcast,
+        adapter,
+    }
+}
+
+#[test]
+fn discovery_adapter_registers_admitted_service_and_broadcasts() {
+    let f = discovery_fixture();
+    let mut rx = f.broadcast.subscribe();
+    f.baseline.observe_span("svc-a", "op", 0, 10, 1_000);
+    f.adapter.observe_span("svc-a", "op", 0, 10, 1_000);
+
+    let items = f.registry.list_all();
+    assert_eq!(items.len(), 1);
+    assert_eq!(items[0].service, "svc-a");
+    assert_eq!(items[0].state, ServiceLifecycleState::Bootstrapping);
+    assert_eq!(items[0].last_seen_unix_nano, 1_000);
+    let event = rx.try_recv().expect("one lifecycle event");
+    assert_eq!(event.to_state, ServiceLifecycleState::Bootstrapping);
+
+    f.adapter.observe_span("svc-a", "op", 0, 10, 2_000);
+    assert!(rx.try_recv().is_err(), "a second span broadcasts nothing");
+}
+
+#[test]
+fn discovery_adapter_skips_service_the_baseline_did_not_admit() {
+    let f = discovery_fixture();
+    let mut rx = f.broadcast.subscribe();
+    f.adapter.observe_span("svc-a", "op", 0, 10, 1_000);
+    assert_eq!(f.registry.count(), 0);
+    assert!(rx.try_recv().is_err());
+}
+
+#[test]
+fn discovery_adapter_composed_after_baseline_lists_service_on_first_span() {
+    let f = discovery_fixture();
+    let composite = CompositeSpanObserver::new(vec![
+        Arc::new(BaselineObserverAdapter::new(Arc::clone(&f.baseline))),
+        Arc::new(RestartObserverAdapter::new(
+            Arc::new(RestartDetector::new(20)),
+            Arc::new(RestartEventBroadcast::new()),
+        )),
+        Arc::new(f.adapter.clone()),
+    ]);
+    composite.observe_span("svc-a", "op", 0, 10, 1_000);
+    assert_eq!(
+        f.registry.current_state("svc-a"),
+        Some(ServiceLifecycleState::Bootstrapping)
+    );
 }
