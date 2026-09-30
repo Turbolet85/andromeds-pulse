@@ -1,11 +1,12 @@
-//! `cargo xtask perf:frame-sample` — the frame arm of the perf budget, read
-//! from the release binary on Windows.
+//! `cargo xtask perf:frame-sample` — the frame budget gate, read from the
+//! release binary on a Windows GPU dev host.
 //!
-//! A hosted runner has no GPU, so WebView2 is handed a software WebGPU adapter
-//! (SwiftShader over Vulkan). The flag set rides the CHILD's environment only:
-//! product config never carries it, because it would change the shipped
-//! webview's GPU posture. On the dev host this set was the only one of three
-//! that exposed an adapter (0 / 0 / 496 frame samples).
+//! WebView2 is handed a software WebGPU adapter (SwiftShader over Vulkan). The
+//! flag set rides the CHILD's environment only: product config never carries
+//! it, because it would change the shipped webview's GPU posture. On the dev
+//! host this set was the only one of three that exposed an adapter (0 / 0 / 496
+//! frame samples). A hosted Windows runner under the same set produced 0
+//! (ci#36723465727, app healthy), so the leg is not CI-wired.
 //!
 //! Exit 0 PASS · 1 FAIL · 2 INCONCLUSIVE.
 

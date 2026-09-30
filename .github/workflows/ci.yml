@@ -253,29 +253,12 @@ jobs:
         working-directory: pulse-app/ui
         run: npm run build
 
+      # No frame boot here: the hosted Windows runner exposed no WebGPU adapter
+      # to WebView2 even under the software-adapter flag set (ci#36723465727,
+      # 0 frame samples, app healthy), so the frame budget is graded by
+      # `cargo xtask perf:frame-sample` on a GPU dev host.
       - name: cargo build --workspace --release (macOS + Windows)
         run: cargo build --workspace --release
-
-      - name: cargo build --release -p ingest --example inject_demo (Windows only)
-        if: runner.os == 'Windows'
-        run: cargo build --release -p ingest --example inject_demo
-
-      # The frame arm of the perf budget, under a software WebGPU adapter set on
-      # the app child only. xtask runs by path: `cargo xtask` would rebuild it
-      # in debug.
-      - name: xtask perf:frame-sample (software WebGPU adapter) (Windows only)
-        if: runner.os == 'Windows'
-        shell: bash
-        run: ./target/release/xtask.exe perf:frame-sample
-
-      - name: Upload perf-frame logs artifact
-        if: always()
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
-        with:
-          name: logs-perf-frame-${{ runner.os }}
-          path: target/perf-frame/
-          if-no-files-found: ignore
-          retention-days: 14
 
   mcp-test:
     name: mcp-server tests (ubuntu-22.04)

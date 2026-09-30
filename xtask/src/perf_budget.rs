@@ -249,6 +249,14 @@ pub fn arm_lines(results: &[ArmResult], required: &[Arm]) -> Vec<String> {
                 ArmState::Neutral { reason } if required.contains(&r.arm) => {
                     format!("perf-budget: {name} NEUTRAL — {reason} (required) FAIL")
                 }
+                // A hosted runner exposes no WebGPU adapter to WebView2 even under
+                // the software-adapter flag set (ci#36723465727), so the frame arm
+                // is graded by `perf:frame-sample` on a GPU host. Where it reads
+                // empty it says so by name, never as a pass.
+                ArmState::Neutral { .. } if r.arm == Arm::Frame => {
+                    "perf-budget: frame: cannot-evaluate: 0 samples, no WebGPU adapter in this run"
+                        .to_string()
+                }
                 ArmState::Neutral { reason } => format!("perf-budget: {name} NEUTRAL — {reason}"),
             }
         })
@@ -386,6 +394,12 @@ mod tests {
     fn frame_absent_is_neutral() {
         let r = grade_arm(&noise(), Arm::Frame);
         assert!(matches!(r.state, ArmState::Neutral { .. }), "{:?}", r.state);
+        let line = &arm_lines(std::slice::from_ref(&r), &[])[0];
+        assert_eq!(
+            line,
+            "perf-budget: frame: cannot-evaluate: 0 samples, no WebGPU adapter in this run"
+        );
+        assert!(!line.contains("PASS"), "{line}");
     }
 
     #[test]
