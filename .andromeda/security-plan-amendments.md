@@ -424,3 +424,10 @@ _Records key decisions during plan generation + manual additions between phase l
 **Change:** The `cargo deny check bans licenses sources` bullet now states that the `licenses` check covers the workspace's OWN crates as well as its dependencies: `deny.toml` sets no `private` key, so cargo-deny's default (`private.ignore = false`) keeps every member in the checked set — as measured at this chunk (a scratch config without `"MIT"` in `[licenses] allow` rejected all 16 members, cargo-deny 0.20.2). The project's own expression `MIT OR Apache-2.0` passes because both `MIT` and `Apache-2.0` sit in `[licenses] allow`.
 **Why:** the project moved to `MIT OR Apache-2.0`; the sibling project had to REMOVE a `private = { ignore = true }` exemption to get the same coverage, which this project never set — so the fact is recorded as measured rather than inferred, and `deny.toml` stayed untouched.
 **Ref:** .andromeda/runs/2026-09-30T07-44-36Z-wrap/
+
+## 2026-09-30-p-027-discovery-bound — the scrubbed tap name now also keys the lifecycle registry
+**Section:** §Security Anti-Patterns → Logging (the `extract_service_name` choke-point paragraph)
+**Change:** `extract_service_name` still has THREE consumers (the `spans` column, the storm `FingerprintObserver`, the baseline `SpanObserver` tap). New: the tap drives one `CompositeSpanObserver` fanning each span to baseline · restart · the first-sighting `DiscoveryObserverAdapter`, which registers a baseline-admitted service in the lifecycle `ServiceRegistry` at its first span — so the tap's scrubbed name now also keys that registry directly, where before only `tick_all` inserted it from the baseline's own map. The desync argument now covers the lifecycle registry as well as the baseline registry.
+**Why:** the tap's downstream fan-out grew by one observer while the choke point's callers did not, so a consumer count read off the function's callers would miss the new write path.
+**Kept:** not a boundary widening — the registry receives the same scrubbed names it already received from `tick_all`, only earlier; no new input class and no new crossing.
+**Ref:** .andromeda/runs/2026-09-30T11-29-23Z-wrap/

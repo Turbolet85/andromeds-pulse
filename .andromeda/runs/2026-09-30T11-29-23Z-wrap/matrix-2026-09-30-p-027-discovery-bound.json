@@ -1,0 +1,27 @@
+[
+{
+"tool": "matrix",
+"v": "1.2",
+"sha8": "0753a5e6",
+"ts": "2026-09-30T11:44:25Z",
+"argv": [
+"flip",
+"--dir",
+"andromeda-pulse-0.3.0",
+"--chunk",
+"2026-09-30-p-027-discovery-bound",
+"--run-dir",
+".andromeda/runs/2026-09-30T11-29-23Z-wrap"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"claimed 0 — gate no-op (no entry carries chunk 2026-09-30-p-027-discovery-bound)",
+"pool: unclaimed 1 [P-075]"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+}
+]

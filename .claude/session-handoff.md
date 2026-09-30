@@ -1,52 +1,62 @@
 # Session Handoff
 
-**Last Updated:** 2026-09-30T07:59:50Z
+**Last Updated:** 2026-09-30T11:41:40Z
 **Branch:** chore/migrate-pulse-to-v3 · 0 ahead of origin/chore/migrate-pulse-to-v3 as read at this wrap's Setup (the chunk commit follows it, then the push)
 **Status:** clean
-**Last Commit:** 2026-09-30-dual-license — chunk wrap (MIT OR Apache-2.0: both texts, every manifest, a mutation-checked xtask witness)
+**Last Commit:** 2026-09-30-p-027-discovery-bound — chunk wrap (first-sighting registration; the smoke:discovery leg)
 
 ## Position
-- Done: `2026-09-30-dual-license`.
-  - `LICENSE-MIT` + `LICENSE-APACHE` at the root (Conductor `cdb7082` bytes). Cargo `[workspace.package]`, npm manifest + lock root, and the generated Homebrew/Scoop manifests now read `MIT OR Apache-2.0` in their native syntax.
-  - The witness is the test-only `xtask` module `license_check`: RED 4/4 at base, GREEN after, each surface mutation-checked.
-  - Pre-CI commit `7229bab`, CI green 13/13 (ci#36682995161).
-- Next (first markerless): **P-027 discovery bound**.
-- Then: Perf-budget gate reads real samples (carries the release-job cache CARRY and the `agent-run.ps1` recorder-mirror CARRY) → Span-level redaction → Real-model incident surfacing (Conductor's third v3-09 series waits on it) → Conductor return (P-075).
+- Done: `2026-09-30-p-027-discovery-bound`.
+  - A service is registered in the lifecycle registry at its FIRST span, by a third `SpanObserver`
+    (`DiscoveryObserverAdapter`, composed after the baseline adapter) instead of at the 15 s registry tick.
+  - New scenario leg `cargo xtask smoke:discovery`: RED at `71f3369` 15 219 ms; GREEN 177 ms (anchor error 6 ms).
+    P-025 `smoke:hue-shift` PASS, rise 644 ms (was 9 986).
+  - Operator pass on the operator's word: pre-CI commit `87fe658`; CI green (ci#36706243490 13/13 + secret-scan).
+- Next (first markerless): **Perf-budget gate reads real samples** — it carries the release-job cache CARRY and the
+  `agent-run.ps1` recorder-mirror CARRY.
+- Then: Span-level redaction → Real-model incident surfacing → Conductor return (P-075).
 
 ## Work done
-- One companion edit outside research's lists: `pulse-app/tests/distribution_manifests.rs` pinned the Scoop substring `"license": "MIT"`. Updated to `"MIT|Apache-2.0"` and scope-recorded.
-- Operator pass: hygiene clean. `pre-push:linux` green, wall time 107.6 s (stages sum 52.1 s) vs the 9-min warm baseline, with the WSL VM capped at 20 GB (operator's statement). Push `1dfca74..7229bab`.
+- Files: registry (`register_first_sighting` / `take_first_sightings`) · tick-fold into
+  `triage.lifecycle.transition` · `BaselineState::tracks_service` · `pulse-app/src/discovery_observer.rs` ·
+  the `main.rs` composition · `xtask/src/discovery.rs` · the v0.2.0 matrix P-027 note.
+- 14 new tests; workspace 2447/2447. No dependency, procedure, bindings or `pulse-app/ui/**` change.
+- Cross-project (Conductor :63 evidence): the GREEN-leg `target/release/pulse-app.exe` sha256 is
+  `9e51d1d92e80fdc0b998fe5e1c65fbbd9c5eef4dd9e6b7c4883c5ccad1bf9ab4`. It was built from the product sources
+  committed at `87fe658` (recorded in `report.md` Cross-project).
 
 ## Drift resolved
-The detectors returned 3 proposals (arch 1, test-plan 2) and the orchestrator raised 2 more (the security-plan expected amendment; the arch count fix). All 5 were applied, plus one cascade-found restatement (arch :242):
-- architecture: a new [License] decision; counts corrected at :4 and :258 (twelve/fourteen → fourteen library crates / sixteen members); the :242 "slot that runs LAST" line.
-- security-plan: cargo-deny license-checks the workspace's own crates (no `private` key; measured 16/16).
-- test-plan §3: `capability-drift` now runs BEFORE the default-features workspace nextest; the mcp-server regen is the last cargo step; a chunk-base `git diff --quiet` bindings probe closes the gate block.
+The six plan expected amendments all arrived as detector proposals, all routine; 0 escalations.
+- architecture: `smoke:discovery` in the xtask CLI surfaces; the P-027 `discovery_ms` anchor in the delegated-timing
+  entry.
+- security-plan Logging: the tap's composite fan-out now keys the lifecycle registry; the choke point's consumers
+  stay three.
+- test-plan: the fourth SCENARIO leg (§3); the new open trigger `discovery-observer-wiring-coverage` (§1).
+- obs-plan §8: the anchor sentence.
+- Leaves re-derived: tests-summary, obs-summary, `rules/{observability,security,verification-harness}.md`. The
+  last also gained `smoke:hue-shift`, which the P-025 cascade had missed.
 
-The one escalation was playbook rule :74 (capability-drift LAST). It was resolved WITH the operator: the rule is superseded and the new order is appended as a routine rule. Its provenance is the overseer's founder-delegated directive, not a founder ruling.
-
-Leaves re-derived: CLAUDE.md overview (license), `rules/testing.md` + `docs/tests-summary.md` (gate set), `rules/security.md` + `docs/security-summary.md` (own-crate license check). Trail: `.andromeda/runs/2026-09-30T07-44-36Z-wrap/`.
+Trail: `.andromeda/runs/2026-09-30T11-29-23Z-wrap/`.
 
 ## Notes
-- Open gap, recorded in test-plan §3 and the new playbook rule: the chunk-base bindings close was measured only for a chunk that adds no TauRPC procedure. A chunk that changes the procedure set needs a close that reads the new shape. Escalate at that chunk until one is specified.
-- Pipeline record (operator's carry): `matrix.py show` prints `UNPARSED: P-072 — legacy notes placement (verification.notes)` at `andromeda-pulse-0.3.0/verification-matrix.json:161`. P-072 is not this chunk's. Logged as friction; the matrix was not touched.
+- Ports 4317/4318 are shared with conductor-builder (operator protocol this session): STOP and ask the operator for
+  the slot before any live leg or `self-verify`. The operator may also hold a quiet-desktop window with no app
+  windows.
 - Pre-existing tool verdicts, not this chunk's:
-  - `route.py` prints 6 UNPARSED/INDETERMINATE on frozen working-route lines (:52, :54 ×2, :60, :100, :116, :125).
-  - The architecture and security-plan sidecars carry 2 UNPARSED blocks each; test-plan's has 1 UNRESOLVED supersession.
-- Epoch 4 is now at 48 entries. The operator's no-split ruling stands; the version close is the boundary.
-- Not this wrap (founder's hand): the `.gitattributes` re-checkout; the U35 door. PR #39 stays a draft — never merged or closed by the builder.
+  - `route.py` prints 7 UNPARSED/INDETERMINATE on frozen working-route lines (:52, :54 ×2, :60, :100, :116, :125).
+  - `matrix.py show` prints `UNPARSED: P-072 — legacy notes placement` at `verification-matrix.json:161`.
+- Epoch 4 is at 48 entries. The operator's no-split ruling stands; the version close is the boundary.
+- Not this wrap (founder's hand): the `.gitattributes` re-checkout; the U35 door. PR #39 stays a draft.
 - Still open: the `sidecar.py` Ref defect relayed to overseer1 at session 65.
 - Last failed command: none.
 
 ## Deferred learnings
-- `recurrence-despite-learning`: the bindings-regen family (testing.md 2026-05-13/05-17/08-15; security.md 2026-06-12).
-  - The PROJECT half landed at this wrap: the playbook gate-order rule + test-plan §3.
-  - The PIPELINE half stays owed: the plan template's gate order, so /phase authors the new order by construction.
-- From prior wraps (still open):
-  - macOS `SystemTime` ticks in whole µs (never a uniqueness source).
-  - Windows embeds the `.ico`, so a palette PNG icon fails only on macOS/Linux `generate_context!`.
+- `recurrence-despite-learning`: implement reported the tick fold "unit-only" from one short leg's log, while a
+  longer run in the same slot had proven it live. The corpus already carries the absence-needs-its-probe and
+  run-window rules; the remedy is a CHECK in implement's report step, not a third entry.
+- Still open from prior wraps:
+  - The bindings-regen PIPELINE half: the plan template's gate order.
+  - macOS `SystemTime` µs ticks.
+  - Windows `.ico` vs palette PNG.
   - The deferral-destination generalization.
-  - `inject_demo --sustained` cannot form an incident (EWMA convergence) — a CHECK for the leg-authoring reference.
-
-## Session End Status
-Completed normally at 2026-09-30 11:57:42
+  - `inject_demo --sustained` cannot form an incident — a CHECK for the leg-authoring reference.

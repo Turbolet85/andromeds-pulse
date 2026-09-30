@@ -238,3 +238,6 @@ and the P5 summaries. -->
 
 ## 2026-09-30-dual-license — archived at the 2026-09-30 wrap
 [2026-09-30-dual-license] Dual license — the project ships under MIT OR Apache-2.0 with both license texts, and every manifest says so · CONTEXT: founder 2026-09-29 verbatim «надо будет добавить лицензии апачи мит»; `LICENSE-MIT` + `LICENSE-APACHE` at the root; today `Cargo.toml:26` reads `license = "MIT"` (member crates inherit it through `license.workspace = true`) and `pulse-app/ui/package.json:6` reads `"license": "MIT"`, and no LICENSE file exists (measured at the 2026-09-29 wrap); the repo is public since 2026-09-29
+
+## 2026-09-30-p-027-discovery-bound — archived at the 2026-09-30 wrap
+[2026-09-30-p-027-discovery-bound] P-027 discovery bound — a new service's first constellation dot appears within the 5 s bound, not at the registry's first lifecycle tick · CONTEXT: measured at 2026-09-29-p-025-hue-shift-observable-made-gradable — first rise 9986 ms: a new service's first dot appeared only at the registry's first 15 s lifecycle tick, and the paint followed 4 ms after the dot existed; P-027 bounds discovery at ≤ 5 s and sits inside P-075, which Conductor return verifies, so this precedes that entry

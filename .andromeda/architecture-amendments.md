@@ -520,3 +520,11 @@ The entry also carries both rejected alternatives, the deferred `AttentionCue` t
 **Why:** the founder's license decision of 2026-09-29 (the repository public that day), in the Conductor `cdb7082` shape; the counts had gone stale against the 16-member list; the gate order moved by the overseer's founder-delegated directive (test-plan §3).
 **Kept:** "12-module" inside the [Backend Framework] / [Tauri IPC Bridge] / [Module Boundaries] rationales — decision-time reasoning, not a current count.
 **Ref:** .andromeda/runs/2026-09-30T07-44-36Z-wrap/
+
+## 2026-09-30-p-027-discovery-bound — smoke:discovery registered; the P-027 discovery_ms anchor stated
+**Section:** §Occupied Resources → xtask CLI surfaces · §Occupied Resources → Tauri IPC routes (the delegated-timing entry, P-027)
+**Change:**
+- xtask CLI surfaces: new `cargo xtask smoke:discovery` (`xtask/src/discovery.rs`), the P-027 scenario leg: boot the release binary on a fresh data dir, wait (≤ 60 s) for `services.list_with_states.request`, start `inject_demo --sustained --error-pct=0`, grade the first `metric.constellation.discovery_ms` at or after the first `duckdb.append {table_name: spans}` in a 30 s window — PASS iff interval ≤ 5000 ms, anchor within 1000 ms of that append, 0 `app.panic.fatal`, 0 ERROR; exit 0 PASS · 1 FAIL · 2 INCONCLUSIVE; artifact `target/discovery/`; dev-host only, not CI-wired. Was "the two sibling scenario legs" (gap-resume, external-resolve); now "the two remaining sibling scenario legs".
+- Delegated timing: was a bare `→ metric.constellation.discovery_ms (P-027)`; now its anchor — `duration_ms` = paint instant − `ServiceListItem.last_seen_unix_nano`, stamped at a brand-new service's FIRST SIGHTING by `DiscoveryObserverAdapter` (composed after the baseline adapter) via `ServiceRegistry::register_first_sighting`, before the heartbeat's first 15 s tick, so the first-appearance sample measures first-seen-to-dot; a service re-entering liveness later is anchored on a tick-refreshed `last_seen` and is not a first discovery.
+**Why:** the chunk registered a service at its first sighting instead of at the 15 s registry tick, and its measurement showed the old anchor hid the wait (a 435 ms sample over a 15 219 ms true interval at the base; 177 ms, anchor error 6 ms after).
+**Ref:** .andromeda/runs/2026-09-30T11-29-23Z-wrap/
