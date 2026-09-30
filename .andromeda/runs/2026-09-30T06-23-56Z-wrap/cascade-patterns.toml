@@ -1,0 +1,17 @@
+[[pattern]]
+id = "recall-prec"
+regex = 'recall[ -]over[ -]precision'
+ignore_case = true
+
+[[pattern]]
+id = "credit-card"
+regex = 'credit[_ ]card'
+ignore_case = true
+
+[[pattern]]
+id = "suite-count"
+fixed = 'crate suite 14'
+
+[[pattern]]
+id = "no-arm-retuned"
+fixed = 'no arm added'

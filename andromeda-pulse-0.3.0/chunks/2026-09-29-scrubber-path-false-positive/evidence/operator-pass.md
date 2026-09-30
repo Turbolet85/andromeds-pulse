@@ -27,3 +27,7 @@ The overseer said: "Run the operator pass now, entries 11-14 in order".
   - webview gates: lint / typecheck / test (848/848) / build all exit 0.
   - pre-push:linux: green, tree `e6a178b34f4deae1fd8607a08e9220e5bbb768ea`.
 - Scope-record line: `widening` on the founder's word, relayed by the overseer.
+
+## CI round 2 (85e0736)
+- `ci.py conclusion --sha HEAD --wait 2400`: `verdict: green` · checks 13/13 · wall 1380 s.
+- Runs: ci#36675962820 success, secret-scan#36675962803 success.

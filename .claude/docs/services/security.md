@@ -1,7 +1,7 @@
 # `security` — PII Scrubber Primitive
 
 ## Responsibility
-PII scrubbing primitive for OTLP attribute values (chunk #68 — Epoch 9 Foundation v0.2.0). Seven P-047 categories detected via OnceLock-cached compiled regex set. Consumed by `corpus` at ingestion boundary AND eventually by `pulse-app::observability` subscriber Layer (defense-in-depth; deferred to chunk #70+).
+PII scrubbing primitive for OTLP attribute values (chunk #68 — Epoch 9 Foundation v0.2.0). Eight P-047 categories, detected via an OnceLock-cached compiled pattern catalog. Consumed at every persistence / egress scrub boundary (buffer appender + labels, Drain, corpus persists, digest `scrubbed_clone`, Report projection, MCP / training export) — security-plan §Security Anti-Patterns → Logging "Uniform scrubber coverage" owns the enumeration.
 
 ## Key integrations
 
@@ -19,31 +19,33 @@ PII scrubbing primitive for OTLP attribute values (chunk #68 — Epoch 9 Foundat
 - Workspace-inherited: `serde` (for `ScrubbedValue` serde derives), `thiserror` (error enum). Zero external deps beyond regex.
 
 ## Internal conventions
-- **Module layout:** `lib.rs` (re-exports `scrubber::ScrubbedValue` + `scrubber::scrub_attribute`) / `scrubber.rs` (pattern catalog + OnceLock cache + scrub fn + 180-line impl + tests).
-- **7 P-047 redaction categories:**
-  - `jwt` — JWT bearer header pattern `eyJ[A-Za-z0-9_-]+\.eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+`
-  - `bearer-token` — `Bearer\s+[A-Za-z0-9._~+/=-]{20,}` (≥20 chars after `Bearer `)
-  - `api-key` — heuristic prefixed-key shapes (`sk-...` / `pk_...` / `Bearer ghp_...` etc.)
-  - `secret-kv` — KV with sensitive key patterns (`api_key=...` / `password=...` / `token=...`)
+- **Module layout:** `lib.rs` (re-exports `scrubber::ScrubbedValue` + `scrubber::scrub_attribute`) / `scrubber.rs` (pattern catalog + OnceLock cache + scrub fn + tests).
+- **8 P-047 redaction categories, first match wins, in this order:**
+  - `jwt` — `eyJ[A-Za-z0-9_\-]+\.[A-Za-z0-9_\-]+\.[A-Za-z0-9_\-]+` (three base64url segments)
+  - `bearer` — `(?i)bearer\s+[A-Za-z0-9_\-\.=]{16,}`
+  - `api_key` — key-name-anchored: `(?i)(api[_\-]?key|access[_\-]?token|secret[_\-]?key|auth[_\-]?token)[\s=:]+[\w\-]{12,}`
+  - `secret_kv` — key-name-anchored: `(?i)(password|passwd|secret|token)[\s=:]+\S+`
+  - `provider_key` — a BARE credential: anchored issuer prefixes plus a length floor (`sk_live_`/`sk_test_`/`rk_…`, `sk-`, `gh[pousr]_`, `AKIA`, `xox[baprs]-`, `AIza`), never entropy scoring
   - `email` — RFC 5322 simplified pattern
-  - `credit-card` — Luhn-validated 13-19 digit sequences with optional separators
-  - `ssn` — `\d{3}-\d{2}-\d{4}` US SSN format
-- **OnceLock-cached compiled regex set:** first call to `scrub_attribute()` compiles all 7 patterns; subsequent calls hit the cached `Vec<(&'static str, Regex)>`.
-- **`ScrubbedValue` derives:** `Clone`, `Debug`, `PartialEq`, `Eq`, `Hash`, `Serialize`, `Deserialize`.
-- **Public contract surface:** `pub fn scrub_attribute(value: &str) -> ScrubbedValue` + the enum + accessors (`is_redacted` / `category`).
+  - `credit_card` — a candidate run of ASCII digit groups joined by single ` `/`-` (`\b[0-9]+(?:[ \-][0-9]+)*\b`) matches only when some window of consecutive WHOLE groups with 13–19 digits passes Luhn (chunk 2026-09-29-scrubber-path-false-positive)
+  - `ssn` — `\b\d{3}[ \-]?\d{2}[ \-]?\d{4}\b`
+- **OnceLock-cached catalog:** the first `scrub_attribute()` call compiles all 8 patterns into `Vec<(Regex, &'static str, ArmPredicate)>`. The per-arm predicate is `regex_matches` for seven arms and `card_number_matches` (candidate → windows → Luhn) for `credit_card`.
+- **`ScrubbedValue` derives:** `Clone`, `Debug`, `PartialEq`, `Eq`, `Serialize`, `Deserialize`.
+- **Public contract surface:** `pub fn scrub_attribute(value: &str) -> ScrubbedValue` + the enum + accessors (`is_redacted` / `category`). Everything else in `scrubber.rs` is private.
 
 ## Service-specific gotchas
-- **Regex false-positive rate is bounded but non-zero** — e.g., a 13-19 digit numeric sequence may match credit-card pattern even when it's a legitimate ID. The trade-off is intentional per P-051 capability spec (false-positive scrub is preferred over false-negative leak).
+- **Recall over precision for seven arms, precision-gated for `credit_card`.** The keyed arms over-redact on a key match (`password=1`), which is the intended trade (false-positive scrub over false-negative leak). The card arm is Luhn-gated, so a date-time stamp (`rm-20260923-093840`) or a 19-digit nanosecond timestamp no longer redacts. The accepted recall trade is that a mistyped (Luhn-invalid) card number, or one fused into a longer single digit group, does not redact either. Luhn at arbitrary digit offsets was rejected: most long digit runs would pass by chance.
+- **A redaction replaces the WHOLE value** (P-048: `Redacted` carries only the category). One true positive anywhere in a multi-line value — e.g. a digest `payload_summary` — replaces the entire value with the placeholder.
 - **Allowed values pass through verbatim** — only the FIRST matching category triggers redaction; values that match none pass as `Allowed(String)`. Callers should NOT layer additional scrubbers on top of `Allowed` without explicit reason.
-- **Performance:** ~1 µs/call after OnceLock warm-up; not a hot-path bottleneck at chunk #68 ingestion volumes.
-- **Pattern catalog evolution:** adding a new category requires:
-  1. New regex + category name in `scrubber.rs::CATALOG`
-  2. New test case asserting redaction
-  3. Update P-047 capability spec doc
-  4. Coordinate with `crates/corpus` consumption if persistence semantics shift
+- **The key-anchored arms need the key INSIDE the string** — a structured key/value boundary scrubs the joined `key=value` form (see `.claude/rules/security.md` Session Additions 2026-08-23).
+- **Pattern catalog evolution:** adding or retuning a category requires:
+  1. The arm in `scrubber.rs::patterns()` (order is load-bearing)
+  2. Recall AND false-positive `#[rstest]` cases, mutation-checked
+  3. The security-plan §Security Anti-Patterns → Logging catalog paragraph
+  4. Coordinate with the consumers if persistence semantics shift
 
 ## Entry points for modification
-- **Pattern catalog:** `crates/security/src/scrubber.rs::CATALOG` (the 7-category OnceLock-initialized list)
+- **Pattern catalog:** `crates/security/src/scrubber.rs::patterns()` (the 8-arm OnceLock-initialized list)
 - **`ScrubbedValue` enum:** `crates/security/src/scrubber.rs` (Allowed + Redacted variants)
 - **Public re-exports:** `crates/security/src/lib.rs`
-- **Tests:** 14 security tests (chunk #68 landed); per-category match + non-match scenarios + Hash/Eq invariants.
+- **Tests:** 54 in the crate suite, as measured by `cargo nextest run -p security` at chunk 2026-09-29-scrubber-path-false-positive. They cover per-category recall, the false-positive corpora (high-entropy identifiers, key/predicate column identities, non-card digit runs), Luhn-valid card forms, and a proptest that `Redacted` never carries content.
