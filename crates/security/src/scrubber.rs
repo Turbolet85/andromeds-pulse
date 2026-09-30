@@ -39,17 +39,77 @@ impl ScrubbedValue {
 /// Returns `Redacted` on first matching category; `Allowed` otherwise.
 /// First-match wins — order matters when patterns overlap.
 pub fn scrub_attribute(value: &str) -> ScrubbedValue {
-    for (pattern, category) in patterns() {
-        if pattern.is_match(value) {
+    for (pattern, category, matches) in patterns() {
+        if matches(pattern, value) {
             return ScrubbedValue::Redacted { category };
         }
     }
     ScrubbedValue::Allowed(value.to_string())
 }
 
+/// How an arm decides a match from its compiled regex.
+type ArmPredicate = fn(&Regex, &str) -> bool;
+
+fn regex_matches(pattern: &Regex, value: &str) -> bool {
+    pattern.is_match(value)
+}
+
+const CARD_DIGITS_MIN: usize = 13;
+const CARD_DIGITS_MAX: usize = 19;
+
+fn card_number_matches(candidates: &Regex, value: &str) -> bool {
+    candidates
+        .find_iter(value)
+        .any(|candidate| has_luhn_valid_window(candidate.as_str()))
+}
+
+/// True when some run of consecutive WHOLE separator groups carries 13-19
+/// digits and passes Luhn. Windows never split a group: at arbitrary digit
+/// offsets a long run offers so many windows that most non-card runs would
+/// contain a Luhn-valid one by chance.
+fn has_luhn_valid_window(candidate: &str) -> bool {
+    let groups: Vec<&[u8]> = candidate
+        .as_bytes()
+        .split(|b| !b.is_ascii_digit())
+        .filter(|group| !group.is_empty())
+        .collect();
+    let mut digits: Vec<u8> = Vec::with_capacity(CARD_DIGITS_MAX);
+    for start in 0..groups.len() {
+        digits.clear();
+        for group in &groups[start..] {
+            digits.extend_from_slice(group);
+            if digits.len() > CARD_DIGITS_MAX {
+                break;
+            }
+            if digits.len() >= CARD_DIGITS_MIN && luhn_valid(&digits) {
+                return true;
+            }
+        }
+    }
+    false
+}
+
+fn luhn_valid(digits: &[u8]) -> bool {
+    let sum: u32 = digits
+        .iter()
+        .rev()
+        .enumerate()
+        .map(|(position, b)| {
+            let digit = u32::from(b - b'0');
+            if position % 2 == 1 {
+                let doubled = digit * 2;
+                if doubled > 9 { doubled - 9 } else { doubled }
+            } else {
+                digit
+            }
+        })
+        .sum();
+    sum % 10 == 0
+}
+
 /// Lazy-init pattern catalog. Compiled regexes cached for process lifetime.
-fn patterns() -> &'static [(Regex, &'static str)] {
-    static PATTERNS: OnceLock<Vec<(Regex, &'static str)>> = OnceLock::new();
+fn patterns() -> &'static [(Regex, &'static str, ArmPredicate)] {
+    static PATTERNS: OnceLock<Vec<(Regex, &'static str, ArmPredicate)>> = OnceLock::new();
     PATTERNS
         .get_or_init(|| {
             // Order: more-specific patterns first; bearer/JWT before generic
@@ -63,12 +123,14 @@ fn patterns() -> &'static [(Regex, &'static str)] {
                     Regex::new(r"eyJ[A-Za-z0-9_\-]+\.[A-Za-z0-9_\-]+\.[A-Za-z0-9_\-]+")
                         .expect("JWT regex compiles"),
                     "jwt",
+                    regex_matches,
                 ),
                 // Bearer token in HTTP header form.
                 (
                     Regex::new(r"(?i)bearer\s+[A-Za-z0-9_\-\.=]{16,}")
                         .expect("bearer regex compiles"),
                     "bearer",
+                    regex_matches,
                 ),
                 // Generic API key in key=value form. `(?i)` for case-insensitive
                 // key name; `[\w\-]{12,}` for the value (≥12 chars filters
@@ -77,6 +139,7 @@ fn patterns() -> &'static [(Regex, &'static str)] {
                     Regex::new(r"(?i)(api[_\-]?key|access[_\-]?token|secret[_\-]?key|auth[_\-]?token)[\s=:]+[\w\-]{12,}")
                         .expect("api_key regex compiles"),
                     "api_key",
+                    regex_matches,
                 ),
                 // Secret-like key=value pairs (password, secret, token in key
                 // name with any value). Matches headers + structured logging.
@@ -84,6 +147,7 @@ fn patterns() -> &'static [(Regex, &'static str)] {
                     Regex::new(r"(?i)(password|passwd|secret|token)[\s=:]+\S+")
                         .expect("secret_kv regex compiles"),
                     "secret_kv",
+                    regex_matches,
                 ),
                 // Bare provider credential — a standalone token carrying no
                 // key name, so the keyed arms above cannot reach it. Anchored
@@ -106,19 +170,29 @@ fn patterns() -> &'static [(Regex, &'static str)] {
                     ))
                     .expect("provider_key regex compiles"),
                     "provider_key",
+                    regex_matches,
                 ),
                 // Email — RFC 5322 simplified (sufficient for most PII recall).
                 (
                     Regex::new(r"[A-Za-z0-9._%+\-]+@[A-Za-z0-9.\-]+\.[A-Za-z]{2,}")
                         .expect("email regex compiles"),
                     "email",
+                    regex_matches,
                 ),
-                // Credit card — 13-19 digits with optional `-` or ` ` separators.
-                // Doesn't check Luhn; intent is recall-over-precision.
+                // Credit card — a run of ASCII digit groups joined by single
+                // ` ` or `-` matches only when some window of whole groups
+                // with 13-19 digits passes Luhn, which every issued card
+                // number does (ISO/IEC 7812). Luhn is a structural check like
+                // provider_key's anchored prefix, never entropy scoring; it
+                // stops date stamps, timestamps and path segments from
+                // redacting as cards. Accepted recall trade: a mistyped
+                // (Luhn-invalid) card number, or one fused into a longer
+                // digit group, is no longer redacted.
                 (
-                    Regex::new(r"\b(?:\d[ \-]?){13,19}\b")
+                    Regex::new(r"\b[0-9]+(?:[ \-][0-9]+)*\b")
                         .expect("credit_card regex compiles"),
                     "credit_card",
+                    card_number_matches,
                 ),
                 // US Social Security Number — three digits, two digits, four
                 // digits with optional separators.
@@ -126,6 +200,7 @@ fn patterns() -> &'static [(Regex, &'static str)] {
                     Regex::new(r"\b\d{3}[ \-]?\d{2}[ \-]?\d{4}\b")
                         .expect("ssn regex compiles"),
                     "ssn",
+                    regex_matches,
                 ),
             ]
         })
@@ -151,7 +226,7 @@ mod tests {
     #[case("ghp_NotARealTokenOnlyForPulseTests000000", "provider_key")] // gitleaks:allow
     #[case("AKIANOTAREALKEYID000", "provider_key")] // gitleaks:allow
     #[case("user@example.com signed up", "email")]
-    #[case("4532-1234-5678-9010", "credit_card")]
+    #[case("4532-0151-1283-0366", "credit_card")]
     #[case("123-45-6789", "ssn")]
     fn scrubber_redacts_each_p047_category(#[case] input: &str, #[case] expected: &str) {
         let result = scrub_attribute(input);
@@ -160,6 +235,47 @@ mod tests {
             "expected redaction for {input:?}, got {result:?}"
         );
         assert_eq!(result.category(), Some(expected));
+    }
+
+    #[rstest]
+    #[case("4532015112830366")]
+    #[case("4532 0151 1283 0366")]
+    #[case("4111111111111111")]
+    #[case("378282246310005")]
+    #[case("3782 822463 10005")]
+    #[case("card=4111111111111111")]
+    #[case("ref 12 4111111111111111")]
+    #[case("4111 1111 1111 1111 22")]
+    fn scrubber_redacts_luhn_valid_card_forms(#[case] input: &str) {
+        let result = scrub_attribute(input);
+        assert_eq!(
+            result.category(),
+            Some("credit_card"),
+            "expected a credit_card redaction for {input:?}, got {result:?}"
+        );
+    }
+
+    /// Digit runs that are not card numbers. The date-time stamp is the shape
+    /// of a harness data-dir basename that reached the model's digest and the
+    /// Report as `[redacted: credit_card]` (Conductor `c97f697`, b2 capture);
+    /// the values here are synthetic literals of that shape.
+    #[rstest]
+    #[case("rm-20260923-093840")]
+    #[case("/tmp/rm-20260923-093840")]
+    #[case(r"C:\Users\runner\AppData\Local\Temp\rm-20260923-093840")]
+    #[case("workspace=/tmp/rm-20260923-093840")]
+    #[case("PROJECT: rm-20260923-093840 (vcs=git)")]
+    #[case("1790699962319180900")]
+    // Card-shaped but Luhn-invalid: the documented precision boundary.
+    #[case("4532-1234-5678-9010")]
+    fn scrubber_allows_non_card_digit_runs(#[case] input: &str) {
+        let result = scrub_attribute(input);
+        match result {
+            ScrubbedValue::Allowed(s) => assert_eq!(s, input, "allowed value was altered"),
+            ScrubbedValue::Redacted { category } => {
+                panic!("non-card digit run {input:?} was redacted as {category}")
+            }
+        }
     }
 
     #[rstest]

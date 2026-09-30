@@ -18,3 +18,23 @@ fn pii_scrub_closure_allows_clean_text() {
     let out = scrub("hello world");
     assert_eq!(out, "hello world");
 }
+
+const DIGEST_WITH_DATE_STAMPED_PROJECT: &str = "WINDOW: 300s, tier1 cadence\n\
+PROJECT: rm-20260923-093840 (vcs=git)\n\
+OVERALL: nominal (0 active-bypass incident(s); 1 cue(s))\n\
+SERVICES (rate, error%, p99 vs baselines):\n  checkout-service     12.5/s | 0.0% | 41ms\n";
+
+#[test]
+fn pii_scrub_closure_keeps_a_digest_whose_project_line_carries_a_date_stamp() {
+    let scrub = pii_scrub_closure();
+    let out = scrub(DIGEST_WITH_DATE_STAMPED_PROJECT);
+    assert_eq!(out, DIGEST_WITH_DATE_STAMPED_PROJECT);
+}
+
+#[test]
+fn pii_scrub_closure_still_collapses_a_digest_carrying_a_card() {
+    let scrub = pii_scrub_closure();
+    let payload = format!("{DIGEST_WITH_DATE_STAMPED_PROJECT}  note: card 4111 1111 1111 1111\n");
+    let out = scrub(&payload);
+    assert_eq!(out, "[redacted:credit_card]");
+}

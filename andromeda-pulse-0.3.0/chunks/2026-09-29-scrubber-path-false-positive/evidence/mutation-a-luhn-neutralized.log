@@ -1,0 +1,196 @@
+    Blocking waiting for file lock on artifact directory
+   Compiling security v0.1.0 (D:\dev\projects\andromeda-pulse\crates\security)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1m 01s
+────────────
+ Nextest run ID 2bfaa3fa-39f5-4f0a-9248-b2089a8a4066 with nextest profile: default
+    Starting 54 tests across 1 binary
+        PASS [   0.020s] ( 1/54) security scrubber::tests::scrubbed_value_is_redacted_returns_false_for_allowed_variant
+        PASS [   0.035s] ( 2/54) security scrubber::tests::scrubbed_value_is_redacted_returns_true_for_redacted_variant
+        PASS [   0.037s] ( 3/54) security scrubber::tests::scrubber_preserves_key_and_predicate_column_identities::case_13
+        FAIL [   0.043s] ( 4/54) security scrubber::tests::scrubber_allows_non_card_digit_runs::case_1
+  stdout ───
+
+    running 1 test
+    test scrubber::tests::scrubber_allows_non_card_digit_runs::case_1 ... FAILED
+
+    failures:
+
+    failures:
+        scrubber::tests::scrubber_allows_non_card_digit_runs::case_1
+
+    test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 53 filtered out; finished in 0.03s
+
+  stderr ───
+
+    thread 'scrubber::tests::scrubber_allows_non_card_digit_runs::case_1' (54500) panicked at crates\security\src\scrubber.rs:276:17:
+    non-card digit run "rm-20260923-093840" was redacted as credit_card
+    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+        FAIL [   0.052s] ( 5/54) security scrubber::tests::scrubber_allows_non_card_digit_runs::case_3
+  stdout ───
+
+    running 1 test
+    test scrubber::tests::scrubber_allows_non_card_digit_runs::case_3 ... FAILED
+
+    failures:
+
+    failures:
+        scrubber::tests::scrubber_allows_non_card_digit_runs::case_3
+
+    test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 53 filtered out; finished in 0.03s
+
+  stderr ───
+
+    thread 'scrubber::tests::scrubber_allows_non_card_digit_runs::case_3' (20640) panicked at crates\security\src\scrubber.rs:276:17:
+    non-card digit run "<case_3 synthetic windows-path literal>\\rm-20260923-093840" was redacted as credit_card
+    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+        FAIL [   0.057s] ( 6/54) security scrubber::tests::scrubber_allows_non_card_digit_runs::case_4
+  stdout ───
+
+    running 1 test
+    test scrubber::tests::scrubber_allows_non_card_digit_runs::case_4 ... FAILED
+
+    failures:
+
+    failures:
+        scrubber::tests::scrubber_allows_non_card_digit_runs::case_4
+
+    test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 53 filtered out; finished in 0.03s
+
+  stderr ───
+
+    thread 'scrubber::tests::scrubber_allows_non_card_digit_runs::case_4' (57824) panicked at crates\security\src\scrubber.rs:276:17:
+    non-card digit run "workspace=/tmp/rm-20260923-093840" was redacted as credit_card
+    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+        PASS [   0.069s] ( 7/54) security scrubber::tests::scrubber_allows_non_pii_values::case_8
+        PASS [   0.072s] ( 8/54) security scrubber::tests::scrubber_allows_non_pii_values::case_4
+        PASS [   0.082s] ( 9/54) security scrubber::tests::scrubber_preserves_key_and_predicate_column_identities::case_08
+        PASS [   0.087s] (10/54) security scrubber::tests::scrubber_allows_non_pii_values::case_5
+        FAIL [   0.091s] (11/54) security scrubber::tests::scrubber_allows_non_card_digit_runs::case_7
+  stdout ───
+
+    running 1 test
+    test scrubber::tests::scrubber_allows_non_card_digit_runs::case_7 ... FAILED
+
+    failures:
+
+    failures:
+        scrubber::tests::scrubber_allows_non_card_digit_runs::case_7
+
+    test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 53 filtered out; finished in 0.03s
+
+  stderr ───
+
+    thread 'scrubber::tests::scrubber_allows_non_card_digit_runs::case_7' (44628) panicked at crates\security\src\scrubber.rs:276:17:
+    non-card digit run "4532-1234-5678-9010" was redacted as credit_card
+    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+        PASS [   0.095s] (12/54) security scrubber::tests::scrubber_allows_non_pii_values::case_1
+        PASS [   0.100s] (13/54) security scrubber::tests::scrubber_preserves_key_and_predicate_column_identities::case_02
+        PASS [   0.105s] (14/54) security scrubber::tests::scrubber_preserves_key_and_predicate_column_identities::case_09
+        PASS [   0.110s] (15/54) security scrubber::tests::scrubber_preserves_key_and_predicate_column_identities::case_12
+        PASS [   0.116s] (16/54) security scrubber::tests::scrubber_allows_non_pii_values::case_2
+        FAIL [   0.119s] (17/54) security scrubber::tests::scrubber_allows_non_card_digit_runs::case_6
+  stdout ───
+
+    running 1 test
+    test scrubber::tests::scrubber_allows_non_card_digit_runs::case_6 ... FAILED
+
+    failures:
+
+    failures:
+        scrubber::tests::scrubber_allows_non_card_digit_runs::case_6
+
+    test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 53 filtered out; finished in 0.03s
+
+  stderr ───
+
+    thread 'scrubber::tests::scrubber_allows_non_card_digit_runs::case_6' (22116) panicked at crates\security\src\scrubber.rs:276:17:
+    non-card digit run "1790699962319180900" was redacted as credit_card
+    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+        PASS [   0.126s] (18/54) security scrubber::tests::scrubber_allows_non_pii_values::case_6
+        PASS [   0.130s] (19/54) security scrubber::tests::scrubber_allows_non_pii_values::case_7
+        PASS [   0.135s] (20/54) security scrubber::tests::scrubber_preserves_key_and_predicate_column_identities::case_05
+        FAIL [   0.138s] (21/54) security scrubber::tests::scrubber_allows_non_card_digit_runs::case_2
+  stdout ───
+
+    running 1 test
+    test scrubber::tests::scrubber_allows_non_card_digit_runs::case_2 ... FAILED
+
+    failures:
+
+    failures:
+        scrubber::tests::scrubber_allows_non_card_digit_runs::case_2
+
+    test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 53 filtered out; finished in 0.03s
+
+  stderr ───
+
+    thread 'scrubber::tests::scrubber_allows_non_card_digit_runs::case_2' (47536) panicked at crates\security\src\scrubber.rs:276:17:
+    non-card digit run "/tmp/rm-20260923-093840" was redacted as credit_card
+    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+        PASS [   0.145s] (22/54) security scrubber::tests::scrubber_preserves_key_and_predicate_column_identities::case_07
+        PASS [   0.148s] (23/54) security scrubber::tests::redacted_variant_never_carries_value_content
+        PASS [   0.151s] (24/54) security scrubber::tests::scrubber_allows_non_pii_values::case_3
+        PASS [   0.156s] (25/54) security scrubber::tests::scrubber_preserves_key_and_predicate_column_identities::case_01
+        PASS [   0.160s] (26/54) security scrubber::tests::scrubber_preserves_key_and_predicate_column_identities::case_11
+        PASS [   0.170s] (27/54) security scrubber::tests::scrubber_preserves_key_and_predicate_column_identities::case_03
+        PASS [   0.172s] (28/54) security scrubber::tests::scrubber_preserves_key_and_predicate_column_identities::case_04
+        PASS [   0.174s] (29/54) security scrubber::tests::scrubber_allows_non_pii_values::case_9
+        PASS [   0.184s] (30/54) security scrubber::tests::scrubber_preserves_key_and_predicate_column_identities::case_06
+        PASS [   0.188s] (31/54) security scrubber::tests::scrubber_preserves_key_and_predicate_column_identities::case_10
+        FAIL [   0.193s] (32/54) security scrubber::tests::scrubber_allows_non_card_digit_runs::case_5
+  stdout ───
+
+    running 1 test
+    test scrubber::tests::scrubber_allows_non_card_digit_runs::case_5 ... FAILED
+
+    failures:
+
+    failures:
+        scrubber::tests::scrubber_allows_non_card_digit_runs::case_5
+
+    test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 53 filtered out; finished in 0.03s
+
+  stderr ───
+
+    thread 'scrubber::tests::scrubber_allows_non_card_digit_runs::case_5' (29836) panicked at crates\security\src\scrubber.rs:276:17:
+    non-card digit run "PROJECT: rm-20260923-093840 (vcs=git)" was redacted as credit_card
+    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+        PASS [   0.178s] (33/54) security scrubber::tests::scrubber_preserves_key_and_predicate_column_identities::case_14
+        PASS [   0.169s] (34/54) security scrubber::tests::scrubber_preserves_key_and_predicate_column_identities::case_15
+        PASS [   0.173s] (35/54) security scrubber::tests::scrubber_preserves_key_and_predicate_column_identities::case_16
+        PASS [   0.171s] (36/54) security scrubber::tests::scrubber_redacts_each_p047_category::case_01
+        PASS [   0.166s] (37/54) security scrubber::tests::scrubber_redacts_each_p047_category::case_02
+        PASS [   0.166s] (38/54) security scrubber::tests::scrubber_redacts_each_p047_category::case_03
+        PASS [   0.160s] (39/54) security scrubber::tests::scrubber_redacts_each_p047_category::case_04
+        PASS [   0.164s] (40/54) security scrubber::tests::scrubber_redacts_each_p047_category::case_05
+        PASS [   0.158s] (41/54) security scrubber::tests::scrubber_redacts_each_p047_category::case_06
+        PASS [   0.158s] (42/54) security scrubber::tests::scrubber_redacts_each_p047_category::case_07
+        PASS [   0.160s] (43/54) security scrubber::tests::scrubber_redacts_each_p047_category::case_08
+        PASS [   0.160s] (44/54) security scrubber::tests::scrubber_redacts_each_p047_category::case_09
+        PASS [   0.161s] (45/54) security scrubber::tests::scrubber_redacts_each_p047_category::case_10
+        PASS [   0.159s] (46/54) security scrubber::tests::scrubber_redacts_each_p047_category::case_11
+        PASS [   0.160s] (47/54) security scrubber::tests::scrubber_redacts_luhn_valid_card_forms::case_1
+        PASS [   0.160s] (48/54) security scrubber::tests::scrubber_redacts_luhn_valid_card_forms::case_2
+        PASS [   0.160s] (49/54) security scrubber::tests::scrubber_redacts_luhn_valid_card_forms::case_3
+        PASS [   0.161s] (50/54) security scrubber::tests::scrubber_redacts_luhn_valid_card_forms::case_5
+        PASS [   0.166s] (51/54) security scrubber::tests::scrubber_redacts_luhn_valid_card_forms::case_4
+        PASS [   0.161s] (52/54) security scrubber::tests::scrubber_redacts_luhn_valid_card_forms::case_6
+        PASS [   0.163s] (53/54) security scrubber::tests::scrubber_redacts_luhn_valid_card_forms::case_7
+        PASS [   0.160s] (54/54) security scrubber::tests::scrubber_redacts_luhn_valid_card_forms::case_8
+────────────
+     Summary [   0.306s] 54 tests run: 47 passed, 7 failed, 0 skipped
+        FAIL [   0.043s] ( 4/54) security scrubber::tests::scrubber_allows_non_card_digit_runs::case_1
+        FAIL [   0.052s] ( 5/54) security scrubber::tests::scrubber_allows_non_card_digit_runs::case_3
+        FAIL [   0.057s] ( 6/54) security scrubber::tests::scrubber_allows_non_card_digit_runs::case_4
+        FAIL [   0.091s] (11/54) security scrubber::tests::scrubber_allows_non_card_digit_runs::case_7
+        FAIL [   0.119s] (17/54) security scrubber::tests::scrubber_allows_non_card_digit_runs::case_6
+        FAIL [   0.138s] (21/54) security scrubber::tests::scrubber_allows_non_card_digit_runs::case_2
+        FAIL [   0.193s] (32/54) security scrubber::tests::scrubber_allows_non_card_digit_runs::case_5
+error: test run failed

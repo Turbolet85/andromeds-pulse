@@ -26,3 +26,6 @@ Three operator passes: cold round 80.9 min; warm attempt 2 47.6 min (the CARGO_P
 
 ## Deferred learnings
 - From prior wraps (still open): macOS `SystemTime` ticks in whole µs (never a uniqueness source); Windows embeds the `.ico`, so a palette PNG icon fails only on macOS/Linux `generate_context!`; the deferral-destination generalization; `inject_demo --sustained` cannot form an incident (EWMA convergence) — a CHECK for the leg-authoring reference.
+
+## Session End Status
+Completed normally at 2026-09-30 06:27:52

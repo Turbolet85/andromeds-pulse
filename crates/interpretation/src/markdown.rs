@@ -548,6 +548,14 @@ mod tests {
     }
 
     #[test]
+    fn assemble_report_keeps_a_date_stamped_workspace_verbatim() {
+        let mut incident = sample_incident(42, "[redacted] current incident");
+        incident.workspace = "/tmp/rm-20260923-093840".to_string();
+        let report = assemble_report(&incident, None, Vec::new());
+        assert_eq!(report.project_context, "workspace=/tmp/rm-20260923-093840");
+    }
+
+    #[test]
     fn assemble_report_empty_matches_render_no_previously_seen_section() {
         let incident = sample_incident(42, "[redacted] current incident");
         let report = assemble_report(&incident, None, Vec::new());
