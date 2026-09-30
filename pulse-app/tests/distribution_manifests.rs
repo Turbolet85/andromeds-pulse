@@ -124,7 +124,7 @@ fn update_channels_workflow_scoop_manifest_required_keys() {
         r#""version": "${VERSION}""#,
         r#""description""#,
         r#""homepage""#,
-        r#""license": "MIT""#,
+        r#""license": "MIT|Apache-2.0""#,
         r#""architecture""#,
         r#""64bit""#,
         r#""url""#,

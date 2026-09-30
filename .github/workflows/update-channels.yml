@@ -193,7 +193,7 @@ jobs:
             desc "Local OpenTelemetry observability dashboard for developers"
             homepage "https://github.com/turbolet85/andromeda-pulse"
             version "${VERSION}"
-            license "MIT"
+            license any_of: ["MIT", "Apache-2.0"]
 
             on_macos do
               on_arm do
@@ -354,7 +354,7 @@ jobs:
             "version": "${VERSION}",
             "description": "Local OpenTelemetry observability dashboard for developers",
             "homepage": "https://github.com/turbolet85/andromeda-pulse",
-            "license": "MIT",
+            "license": "MIT|Apache-2.0",
             "architecture": {
               "64bit": {
                 "url": "${BASE_URL}/andromeda-pulse_${VERSION}_x64-setup.msi",

@@ -12,6 +12,8 @@ mod gap_resume;
 mod harness_status;
 mod hue_shift;
 mod ingest_progress;
+#[cfg(test)]
+mod license_check;
 mod npm_gate;
 mod pre_push;
 mod self_verify;
