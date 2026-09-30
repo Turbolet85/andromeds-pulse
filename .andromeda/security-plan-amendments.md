@@ -437,3 +437,15 @@ _Records key decisions during plan generation + manual additions between phase l
 **Change:** the carve-out gains a sibling class — STATE FILES, not env vars: `run/andromeda-pulse.spawn` (app pid) and `run/andromeda-pulse.exit` (one-line end), written by the `scripts/agent-run.{sh,ps1}` boot waiting wrapper (ps1 since this chunk) and read only by the harness — `boot` polls the spawn record ≤ 5 s, and `cargo xtask harness:status` reads the exit record through `read_ended`'s bounded grammar (one line, ≤ 48 printable ASCII). The product never reads either, so canonicalize-and-confine has nothing to guard. Was: the trust-boundary line said "the harness-only tool-locator carve-out is unchanged".
 **Why:** the ps1 recorder made these records a cross-shell harness surface; the sh records had never been named in this plan. Validated at the wrap as routine by actual class — no product boundary crossed, the read is grammar-bounded.
 **Ref:** .andromeda/runs/2026-09-30T15-36-30Z-wrap/
+
+## 2026-09-30-perf-instruments-measure-their-budgets — record_webgpu_adapter validated input
+**Section:** §Input Validation → TauRPC bridge row
+**Change:** `telemetry.frontend.record_webgpu_adapter` validates `outcome` as the closed serde `snake_case` enum `WebgpuAdapterOutcome` (5 values; an unknown value is rejected at deserialization, pinned by name) and coerces `window_label` through `coerce_window_label` (4 + `unknown`); pinned in `EXPECTED_PROCEDURES` (44). The body quotes the founder's ratification at P4 2026-09-30, «Да, делай».
+**Why:** a new webview → Rust input class; it is a Boundary widening, ratified by the founder at P4, and it is validated at the boundary.
+**Ref:** .andromeda/runs/2026-09-30T19-50-57Z-wrap/
+
+## 2026-09-30-perf-instruments-measure-their-budgets — ui.webgpu.adapter no-scrub log boundary
+**Section:** §Security Anti-Patterns → Logging
+**Change:** NEW deliberate NO-SCRUB webview-originated log boundary `ui.webgpu.adapter`: one record per canvas-mount adapter request (INFO on `obtained`, WARN otherwise) behind its own exact leaf `{outcome, window_label}` beside `ui.ipc.rejection`; nothing client-controlled or free-text crosses it (closed enum + coerced label; the raw adapter / error text excluded); still no bare `ui` key; pinned ×3; its only live witness the dev-host frame leg — no CI job witnesses it. The body quotes the founder's ratification at P4 2026-09-30, «Да, делай».
+**Why:** the Logging section enumerates every deliberate no-scrub boundary; this is the second webview-originated one, a Boundary widening ratified by the founder at P4.
+**Ref:** .andromeda/runs/2026-09-30T19-50-57Z-wrap/

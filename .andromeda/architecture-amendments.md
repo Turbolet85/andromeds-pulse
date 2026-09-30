@@ -545,3 +545,21 @@ The entry also carries both rejected alternatives, the deferred `AttentionCue` t
 **Why:** the chunk discharged the CARRY that left Windows `harness:status` unable to say how the app ended.
 **Kept:** the five verbs, exit semantics and status/cleanup field set.
 **Ref:** .andromeda/runs/2026-09-30T15-36-30Z-wrap/
+
+## 2026-09-30-perf-instruments-measure-their-budgets — telemetry.frontend.record_webgpu_adapter registered
+**Section:** §Occupied Resources → Tauri IPC routes
+**Change:** NEW `telemetry.frontend.record_webgpu_adapter` — the 6th `TelemetryApi` method (roster 5 → 6): `WebgpuAdapterInput { outcome: WebgpuAdapterOutcome (closed serde enum of 5; unknown rejected), window_label (coerced 4 + unknown) }` → `ui.webgpu.adapter` {outcome, window_label} behind its own exact leaf; no capability-JSON change; `EXPECTED_PROCEDURES` 43 → 44; its only live witness the dev-host frame leg. The body quotes the founder's ratification at P4 2026-09-30, «Да, делай».
+**Why:** every added TauRPC procedure needs its Occupied Resources entry; this one is a Boundary widening, ratified by the founder at P4.
+**Ref:** .andromeda/runs/2026-09-30T19-50-57Z-wrap/
+
+## 2026-09-30-perf-instruments-measure-their-budgets — perf-budget frame line names a cause
+**Section:** §Occupied Resources → xtask CLI surfaces (`perf:budget` · `perf:frame-sample`)
+**Change:** An empty frame arm names its cause via `xtask::perf_budget::frame_cause` over the same log's `ui.webgpu.adapter` records: unrequired → `frame: cannot-evaluate: 0 samples, {cause}`; `--require`d → `frame NEUTRAL — {cause} (required) FAIL`; `perf:frame-sample` 0-sample → `frame: 0 samples — {cause}`. Exit codes and the nearest-rank rule unchanged. Was: the fixed `frame: cannot-evaluate: 0 samples, no WebGPU adapter in this run`.
+**Why:** the registered CLI contract stated retired output text.
+**Ref:** .andromeda/runs/2026-09-30T19-50-57Z-wrap/
+
+## 2026-09-30-perf-instruments-measure-their-budgets — release cache saves on failure
+**Section:** §Infrastructure Patterns → CI/CD (Rust cache budget)
+**Change:** `release-{os}` saves on failure too (`cache-on-failure: true`), like the `lint-test` and `boot` owning keys. Re-read after the change on `ci#36765040464`: byte-identical, 8 entries, 132 246 071 B (1.23 %) headroom, no key evicted — still a watch.
+**Why:** a red release round had saved nothing, so the next rebuilt cold; the same key re-saves and no lockfile moved, so the change adds no cache growth.
+**Ref:** .andromeda/runs/2026-09-30T19-50-57Z-wrap/

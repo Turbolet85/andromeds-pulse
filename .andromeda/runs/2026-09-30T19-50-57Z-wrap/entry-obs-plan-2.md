@@ -1,0 +1,6 @@
+
+## 2026-09-30-perf-instruments-measure-their-budgets — a frame-less run names its cause
+**Section:** §1 perf-budget-instruments frame row · §10 frame row · §10 CI gates perf-budget bullet
+**Change:** A 0-frame run names its cause from its own log: `xtask::perf_budget::frame_cause` reads the `ui.webgpu.adapter` records — none → `no adapter record in this log`; any `obtained` → `adapter obtained but no frame recorded`; else → `no WebGPU adapter ({outcomes})` — printed `frame: cannot-evaluate: 0 samples, {cause}` (unrequired), `frame NEUTRAL — {cause} (required) FAIL`, and `perf:frame-sample: frame: 0 samples — {cause}`. On CI both frame lines read `… no adapter record in this log`, true for those logs: the boot job stops the app before the webview issues any IPC, so no CI job witnesses the adapter record; its only live witness is the dev-host `perf:frame-sample` leg. Was: the fixed `no WebGPU adapter in this run` and "the app records no adapter-state event", with a route-entry owner.
+**Why:** the fixed text asserted a cause the in-process producer log cannot contain; the cause now comes from evidence in the same log. The research-derived expectation that the CI boot job would witness the record measured false and is not written into the body.
+**Ref:** .andromeda/runs/2026-09-30T19-50-57Z-wrap/

@@ -262,7 +262,7 @@ These glyphs are built into the token system and referenced as `<Icon glyph="tel
 **Canvas Container (Halo State Pulse, Latency River, throughput counter):**
 - Background: #0F1117 (Inset) — recessive, allows glowing halos to pop.
 - Canvas dimensions: responsive to container (full width/height in full dashboard, quarter-screen in compact widget). Aspect ratio: free (chart determines shape).
-- WebGPU initialization: fallback to `<canvas>` with message "WebGPU not supported in this browser" if `navigator.gpu` is undefined.
+- WebGPU initialization: fallback to `<canvas>` with message "WebGPU not supported in this browser" whenever the adapter request yields no usable device — `navigator.gpu` undefined, a null adapter, a rejected adapter request (caught since chunk 2026-09-30-perf-instruments-measure-their-budgets; before it the rejection escaped and nothing rendered), or a failed device request — every `unavailable` result renders the shared fallback.
 
 **Focus / Keyboard Navigation:**
 - All interactive elements (buttons, inputs, links, table rows) are keyboard-navigable via Tab.

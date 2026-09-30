@@ -1,0 +1,338 @@
+[
+{
+"tool": "sidecar",
+"v": "1.2",
+"sha8": "1872a4a3",
+"ts": "2026-09-30T20:06:34Z",
+"argv": [
+"check",
+"--entry-file",
+".andromeda/runs/2026-09-30T19-50-57Z-wrap/entry-a11y-plan-1.md",
+"--run-dir",
+".andromeda/runs/2026-09-30T19-50-57Z-wrap",
+"--marker",
+"2026-09-30-perf-instruments-measure-their-budgets"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"on-form · 759 B"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "sidecar",
+"v": "1.2",
+"sha8": "1872a4a3",
+"ts": "2026-09-30T20:06:34Z",
+"argv": [
+"check",
+"--entry-file",
+".andromeda/runs/2026-09-30T19-50-57Z-wrap/entry-architecture-1.md",
+"--run-dir",
+".andromeda/runs/2026-09-30T19-50-57Z-wrap",
+"--marker",
+"2026-09-30-perf-instruments-measure-their-budgets"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"on-form · 863 B"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "sidecar",
+"v": "1.2",
+"sha8": "1872a4a3",
+"ts": "2026-09-30T20:06:35Z",
+"argv": [
+"check",
+"--entry-file",
+".andromeda/runs/2026-09-30T19-50-57Z-wrap/entry-architecture-2.md",
+"--run-dir",
+".andromeda/runs/2026-09-30T19-50-57Z-wrap",
+"--marker",
+"2026-09-30-perf-instruments-measure-their-budgets"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"on-form · 760 B"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "sidecar",
+"v": "1.2",
+"sha8": "1872a4a3",
+"ts": "2026-09-30T20:06:35Z",
+"argv": [
+"check",
+"--entry-file",
+".andromeda/runs/2026-09-30T19-50-57Z-wrap/entry-architecture-3.md",
+"--run-dir",
+".andromeda/runs/2026-09-30T19-50-57Z-wrap",
+"--marker",
+"2026-09-30-perf-instruments-measure-their-budgets"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"on-form · 625 B"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "sidecar",
+"v": "1.2",
+"sha8": "1872a4a3",
+"ts": "2026-09-30T20:06:36Z",
+"argv": [
+"check",
+"--entry-file",
+".andromeda/runs/2026-09-30T19-50-57Z-wrap/entry-design-system-1.md",
+"--run-dir",
+".andromeda/runs/2026-09-30T19-50-57Z-wrap",
+"--marker",
+"2026-09-30-perf-instruments-measure-their-budgets"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"on-form · 727 B"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "sidecar",
+"v": "1.2",
+"sha8": "1872a4a3",
+"ts": "2026-09-30T20:06:36Z",
+"argv": [
+"check",
+"--entry-file",
+".andromeda/runs/2026-09-30T19-50-57Z-wrap/entry-obs-plan-1.md",
+"--run-dir",
+".andromeda/runs/2026-09-30T19-50-57Z-wrap",
+"--marker",
+"2026-09-30-perf-instruments-measure-their-budgets"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"on-form · 1352 B"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "sidecar",
+"v": "1.2",
+"sha8": "1872a4a3",
+"ts": "2026-09-30T20:06:37Z",
+"argv": [
+"check",
+"--entry-file",
+".andromeda/runs/2026-09-30T19-50-57Z-wrap/entry-obs-plan-2.md",
+"--run-dir",
+".andromeda/runs/2026-09-30T19-50-57Z-wrap",
+"--marker",
+"2026-09-30-perf-instruments-measure-their-budgets"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"on-form · 1336 B"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "sidecar",
+"v": "1.2",
+"sha8": "1872a4a3",
+"ts": "2026-09-30T20:06:37Z",
+"argv": [
+"check",
+"--entry-file",
+".andromeda/runs/2026-09-30T19-50-57Z-wrap/entry-obs-plan-3.md",
+"--run-dir",
+".andromeda/runs/2026-09-30T19-50-57Z-wrap",
+"--marker",
+"2026-09-30-perf-instruments-measure-their-budgets"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"on-form · 1133 B"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "sidecar",
+"v": "1.2",
+"sha8": "1872a4a3",
+"ts": "2026-09-30T20:06:38Z",
+"argv": [
+"check",
+"--entry-file",
+".andromeda/runs/2026-09-30T19-50-57Z-wrap/entry-security-plan-1.md",
+"--run-dir",
+".andromeda/runs/2026-09-30T19-50-57Z-wrap",
+"--marker",
+"2026-09-30-perf-instruments-measure-their-budgets"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"on-form · 748 B"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "sidecar",
+"v": "1.2",
+"sha8": "1872a4a3",
+"ts": "2026-09-30T20:06:38Z",
+"argv": [
+"check",
+"--entry-file",
+".andromeda/runs/2026-09-30T19-50-57Z-wrap/entry-security-plan-2.md",
+"--run-dir",
+".andromeda/runs/2026-09-30T19-50-57Z-wrap",
+"--marker",
+"2026-09-30-perf-instruments-measure-their-budgets"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"on-form · 930 B"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "sidecar",
+"v": "1.2",
+"sha8": "1872a4a3",
+"ts": "2026-09-30T20:06:38Z",
+"argv": [
+"check",
+"--entry-file",
+".andromeda/runs/2026-09-30T19-50-57Z-wrap/entry-test-plan-1.md",
+"--run-dir",
+".andromeda/runs/2026-09-30T19-50-57Z-wrap",
+"--marker",
+"2026-09-30-perf-instruments-measure-their-budgets"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"on-form · 781 B"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "sidecar",
+"v": "1.2",
+"sha8": "1872a4a3",
+"ts": "2026-09-30T20:06:39Z",
+"argv": [
+"check",
+"--entry-file",
+".andromeda/runs/2026-09-30T19-50-57Z-wrap/entry-test-plan-2.md",
+"--run-dir",
+".andromeda/runs/2026-09-30T19-50-57Z-wrap",
+"--marker",
+"2026-09-30-perf-instruments-measure-their-budgets"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"on-form · 748 B"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "sidecar",
+"v": "1.2",
+"sha8": "1872a4a3",
+"ts": "2026-09-30T20:06:39Z",
+"argv": [
+"check",
+"--entry-file",
+".andromeda/runs/2026-09-30T19-50-57Z-wrap/entry-test-plan-3.md",
+"--run-dir",
+".andromeda/runs/2026-09-30T19-50-57Z-wrap",
+"--marker",
+"2026-09-30-perf-instruments-measure-their-budgets"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"on-form · 920 B"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "sidecar",
+"v": "1.2",
+"sha8": "1872a4a3",
+"ts": "2026-09-30T20:06:40Z",
+"argv": [
+"check",
+"--entry-file",
+".andromeda/runs/2026-09-30T19-50-57Z-wrap/entry-test-plan-4.md",
+"--run-dir",
+".andromeda/runs/2026-09-30T19-50-57Z-wrap",
+"--marker",
+"2026-09-30-perf-instruments-measure-their-budgets"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"on-form · 490 B"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+}
+]

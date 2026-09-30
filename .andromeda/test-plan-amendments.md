@@ -490,3 +490,27 @@ The load suite found and fixed in-chunk 3 pipeline defects: retention-sweep conn
 **Why:** the chunk closed the CARRY that left `ended` empty on Windows. By this trigger's own one-time-proof standard, a by-hand run does not discharge a committed-test obligation.
 **Kept:** the verb set, exit semantics and status/cleanup fields — unchanged.
 **Ref:** .andromeda/runs/2026-09-30T15-36-30Z-wrap/
+
+## 2026-09-30-perf-instruments-measure-their-budgets — perf arm coverage + frame row reflect the cause-derived line
+**Section:** §1 perf-slo-check-arm-coverage row · §1 performance-budget: WebGPU canvas throughput row
+**Change:** `xtask::perf_budget` is pinned by 21 unit tests (6 `frame_cause_*`); the frame arm's 0-sample line names a cause from the log's `ui.webgpu.adapter` records and reads `… no adapter record in this log` on CI (`ci#36765040464`); the snapshot value spans the whole generation (`GenerationTimer`, `generation_timer_*` ×5). Was: 15 pins, the fixed `no WebGPU adapter in this run`, and "the snapshot value times formatting only".
+**Why:** the rows stated the retired frame text and snapshot scope.
+**Ref:** .andromeda/runs/2026-09-30T19-50-57Z-wrap/
+
+## 2026-09-30-perf-instruments-measure-their-budgets — ipc-rejection-wire-coverage widened to the adapter wire
+**Section:** §1 ipc-rejection-wire-coverage row
+**Change:** Widened to the second fire-and-forget webview → Rust wire (`reportAdapterOutcome` → `telemetry.frontend.record_webgpu_adapter` → `ui.webgpu.adapter`): its committed pins (ui-bridge ×5, allowlist ×3, vitest 9 + 6) stay green if the reporter silently no-ops, and its only witness is the dev-host frame leg — no CI job can witness it. Owed: one committed cross-boundary assertion for BOTH procedures.
+**Why:** the same one-time-proof class: the stale-bundle silent no-op recurred in this chunk before its live leg.
+**Ref:** .andromeda/runs/2026-09-30T19-50-57Z-wrap/
+
+## 2026-09-30-perf-instruments-measure-their-budgets — procedure-changing bindings close specified
+**Section:** §3 Per-chunk gate discipline
+**Change:** A chunk that CHANGES the procedure set closes with: the mcp-feature regen after the workspace run → two content probes on the worktree bindings → `git add` of the bindings WITH the `EXPECTED_PROCEDURES` pin (index only) → `check:staged-artifacts`, then `capability-drift` LAST. The regen must also PRECEDE the `ui/dist` build and every release build a live leg drives (the bundled `ARGS_MAP` decides the method's runtime existence). Was: "a chunk that changes the procedure set needs a close that reads the new shape, not yet specified".
+**Why:** this chunk ran the first such close; the operator approved it at this wrap, together with the matching in-place extension of the playbook bindings-order rule.
+**Ref:** .andromeda/runs/2026-09-30T19-50-57Z-wrap/
+
+## 2026-09-30-perf-instruments-measure-their-budgets — release row saves on failure
+**Section:** §9 Release build row
+**Change:** `release-${{ runner.os }}` saves on failure too (`cache-on-failure: true`); post-change re-read on `ci#36765040464`: 10 605 172 169 B, 8 entries, 1.23 % headroom, no eviction — a watch.
+**Why:** the owning keys save on a red round; the release key had not, and a red release round rebuilt Windows cold.
+**Ref:** .andromeda/runs/2026-09-30T19-50-57Z-wrap/

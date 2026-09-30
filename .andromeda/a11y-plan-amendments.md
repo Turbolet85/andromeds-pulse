@@ -83,3 +83,9 @@ _Format per entry: `## {date} — {title}` with **Section** / **Change** / **Why
 **Change:** the a11y assertions run as their own `a11y` matrix job (Linux/macOS/Windows, blocking, parallel with the test jobs): `npm run build --prefix pulse-app/ui` → Playwright chromium → the PR-only `a11y-violations-base` download → `cargo xtask test:a11y`, artifacts uploaded `if: always()` under per-OS names (was: steps inside the shared lint/test/build job); the harness contract shared with tests is unchanged.
 **Why:** ci.yml split into seven jobs to cut round wall time; the a11y ↔ tests binding holds.
 **Ref:** .andromeda/runs/2026-09-29T21-44-34Z-wrap/
+
+## 2026-09-30-perf-instruments-measure-their-budgets — suite-health probe names the a11y config
+**Section:** §3 Harness wiring & conventions → Adding a surface
+**Change:** Verify suite health with `npx playwright test --config=playwright-a11y.config.ts --list`. The bare `npx playwright test --list` reads the deliberately inert default `playwright.config.ts` and prints `Total: 0 tests in 0 files`, exit 1, whatever the suite state (measured: bare → exit 1, 0 tests; config-named → exit 0, 41 tests in 18 files). Was: the bare form.
+**Why:** a probe aimed at the inert config can never pass, so a chunk plan copying it inherits a permanent red; test-plan §2 already states the config-named form.
+**Ref:** .andromeda/runs/2026-09-30T19-50-57Z-wrap/

@@ -131,3 +131,9 @@ Centralized handoff index for downstream specialists. Source-of-truth content li
 **Change:** (1) The migration-COMPLETE claim was dated 2026-08-23; now 2026-08-30. The 2026-08-23-a11y-verification discharge was a PARTIAL (form-input) measurement that missed `Report.tsx::ErrorState`, whose body-size text carried the accent at ≈3.8:1 until this chunk fixed it to `--color-text-primary` (accent border kept). The shipped-site roster reads `InvestigationModalForm.tsx:280` · `:381` · `Report.tsx::ErrorState`, pinned by `Report.test.tsx` + the `p9-report-load-error` axe spec that renders the state. (2) The Input Fields Error-state parenthetical is scoped to the form inputs, with §Color Palette named as the completion-status owner (it was the doc's second occurrence of the retired date).
 **Why:** The fourth site's fix landed in this chunk, so the completion claim and its date had to follow; the status narrative and its dependent occurrence were amended together.
 **Ref:** NOT DERIVED
+
+## 2026-09-30-perf-instruments-measure-their-budgets — canvas fallback renders on every unavailable adapter result
+**Section:** §Surface: desktop-webview → Component Patterns (WebGPU initialization)
+**Change:** The fallback renders whenever the adapter request yields no usable device — `navigator.gpu` undefined, a null adapter, a rejected adapter request (caught since this chunk; before it the rejection escaped and nothing rendered), or a failed device request. Was: "if `navigator.gpu` is undefined" only.
+**Why:** every `unavailable` result already rendered the shared fallback; this chunk added the rejected-request reason, and the line named only one trigger.
+**Ref:** .andromeda/runs/2026-09-30T19-50-57Z-wrap/

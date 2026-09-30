@@ -1,0 +1,27 @@
+[
+{
+"tool": "matrix",
+"v": "1.2",
+"sha8": "0753a5e6",
+"ts": "2026-09-30T20:28:36Z",
+"argv": [
+"flip",
+"--dir",
+"andromeda-pulse-0.3.0",
+"--chunk",
+"2026-09-30-perf-instruments-measure-their-budgets",
+"--run-dir",
+".andromeda/runs/2026-09-30T19-50-57Z-wrap"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"claimed 0 — gate no-op (no entry carries chunk 2026-09-30-perf-instruments-measure-their-budgets)",
+"pool: unclaimed 1 [P-075]"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+}
+]

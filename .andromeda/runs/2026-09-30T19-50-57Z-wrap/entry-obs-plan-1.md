@@ -1,0 +1,6 @@
+
+## 2026-09-30-perf-instruments-measure-their-budgets — snapshot sample spans the whole generation
+**Section:** §1 perf-budget-instruments snapshot row · §5 Snapshot generation row · §10 snapshot row · §10 CI gates snapshot bullet
+**Change:** The `metric.snapshot.token_count_ms` sample is emitted once per generation by `snapshot::contract::GenerationTimer` (its sole emitter), started before the span load and finished right after `format_markdown` returns in each of the three orchestrators; `duration_ms` / `value` are fractional ms spanning load + curate + format, excluding the resolver's file writes, clipboard and notification; no sample on `AnchorEncodingFailed` or a load / curate failure; `format_markdown` emits none. Measured p99 94.0 ms ≤ 500 ms (n = 50, debug build). Was: `duration_ms` timed `format_markdown` only (whole ms, 50 × 0 ms), so the 500 ms bounded formatting, with a route-entry owner — per "2026-09-30-perf-budget-gate-reads-real-samples — perf-budget gate reads real samples; frame gate on the dev host" (its snapshot clause only).
+**Why:** the budget names generation (the §4 P2 chain), so the instrument now times what it bounds; the owner pointer is discharged by this chunk. Target, leaf and field set kept, on the P-025 / P-027 re-anchor precedent.
+**Ref:** .andromeda/runs/2026-09-30T19-50-57Z-wrap/
