@@ -29,7 +29,7 @@ _Distilled from `.andromeda/security-plan.md` by `/setup-project`. Read on deman
 ## Bootstrap phases (route ordering)
 Per security plan §Bootstrap phases:
 1. `input-validation-library-install` — `serde` + `TryFrom<u16>`; path canonicalization via `std` both-sides-canonicalize (the former `strict-path` mandate RETIRED, executed as DROP at 2026-08-29-advisory-backlog). Defer `garde` 0.20+ until plugin manifest cross-field validation needed.
-2. `dep-audit-tooling-install` — `cargo-audit` 0.22.1 + `cargo-deny` 0.19.4 (with `[bans] multiple-versions = "deny"` + explicit `tonic` ban entry until reconciliation lands; `[licenses]` SPDX allowlist; `[sources]` restricted to `crates-io`) + `cargo-auditable` 0.7.4 + Dependabot.
+2. `dep-audit-tooling-install` — `cargo-audit` 0.22.1 + `cargo-deny` 0.19.4 (with `[bans] multiple-versions = "deny"` + explicit `tonic` ban entry until reconciliation lands; `[licenses]` SPDX allowlist, which checks the workspace's own crates too (no `private` key; the project's own `MIT OR Apache-2.0` passes it); `[sources]` restricted to `crates-io`) + `cargo-auditable` 0.7.4 + Dependabot.
 3. `secret-management-init` — Azure Key Vault Premium SKU (HSM-RSA Windows EV) + GitHub OIDC federation; Tauri updater Minisign Ed25519 keypair generation; private keys never leave Vault.
 4. `secret-scanning-ci-gate` — pre-commit + per-PR (gitleaks or trufflehog SHA-pinned). `.gitignore` covers `*.p12`, `*.pem`, `*.cer`, `.env*`, `*.key`, `~/.tauri/*.key`.
 5. `error-sanitization-wire` — `AppError` boundary collapse; `tonic::Status` for OTLP; JSON-RPC 2.0 error object for MCP. No stack traces / paths / library versions / Rust struct names leak.
