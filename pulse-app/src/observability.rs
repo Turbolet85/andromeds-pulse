@@ -967,7 +967,7 @@ impl AllowList {
         );
         by_target.insert(
             "app.boot.gpu.check",
-            ["gpu_available", "wgpu_backend"].iter().copied().collect(),
+            ["wgpu_backend"].iter().copied().collect(),
         );
         by_target.insert(
             "metric.webgpu.frame_duration_ms",

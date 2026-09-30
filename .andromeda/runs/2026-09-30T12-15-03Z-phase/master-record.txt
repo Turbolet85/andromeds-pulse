@@ -1,0 +1,1 @@
+2026-09-30-perf-budget-gate-reads-real-samples · pending · Perf-budget gate reads real samples — CI perf gate fed a sample-bearing log so it can fail; release-job cache; Windows boot end-status recorder · → andromeda-pulse-0.3.0/chunks/2026-09-30-perf-budget-gate-reads-real-samples/

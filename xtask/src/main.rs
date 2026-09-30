@@ -16,6 +16,8 @@ mod ingest_progress;
 #[cfg(test)]
 mod license_check;
 mod npm_gate;
+mod perf_budget;
+mod perf_frame;
 mod pre_push;
 mod self_verify;
 mod smoke;
@@ -112,9 +114,24 @@ enum Cmd {
     CheckNpmSupplyChain,
     #[command(
         name = "ci-gates",
-        about = "obs SLO gates: zero-spans + zero-panic + heartbeat-gap (perf-budget deferred)"
+        about = "obs SLO gates: zero-spans + zero-panic + heartbeat-gap + perf-budget (NEUTRAL over a log carrying no perf samples, never PASS)"
     )]
     CiGates,
+    #[command(
+        name = "perf:budget",
+        about = "Grade <DIR>/logs/agent-latest.jsonl* against the obs-plan §10 perf budgets (frame p99 <= 33 ms, metric.buffer.memory_bytes max <= 512000000, snapshot p99 <= 500 ms). A --require arm with no readable sample fails; a non-numeric graded field always fails. Exit 0 PASS, 1 FAIL, 2 cannot-evaluate (no log family, an unknown arm, or nothing to grade)"
+    )]
+    PerfBudget {
+        #[arg(long, value_name = "DIR")]
+        data_dir: PathBuf,
+        #[arg(long, value_name = "ARM,ARM", value_delimiter = ',')]
+        require: Vec<String>,
+    },
+    #[command(
+        name = "perf:frame-sample",
+        about = "Windows only: boot target/release/pulse-app.exe on a fresh data dir with a software WebGPU adapter exposed to WebView2 (child env only), drive target/release/examples/inject_demo.exe --sustained for 30 s, then grade the frame arm as required. Exit 0 PASS, 1 FAIL (0 frame samples once healthy, or p99 over 33 ms), 2 INCONCLUSIVE (not Windows, a binary missing, :4317/:4318 in use, or the app never healthy). Artifact target/perf-frame/"
+    )]
+    PerfFrameSample,
     #[command(
         name = "lint",
         about = "npm run lint (ESLint flat config in pulse-app/ui/)"
@@ -273,6 +290,8 @@ async fn main() -> ExitCode {
         Cmd::DenyBans => run_cargo("deny", &["check", "bans", "licenses", "sources"]).await,
         Cmd::CheckNpmSupplyChain => npm_gate::run_npm_gate().await,
         Cmd::CiGates => run_ci_gates().await,
+        Cmd::PerfBudget { data_dir, require } => perf_budget::run_perf_budget(&data_dir, &require),
+        Cmd::PerfFrameSample => perf_frame::run_perf_frame_sample().await,
         Cmd::Lint { extra } => run_npm_script("lint", extra).await,
         Cmd::Typecheck { extra } => run_npm_script("typecheck", extra).await,
         Cmd::TestA11y { extra } => run_npm_script("test:a11y", extra).await,
@@ -462,7 +481,7 @@ async fn run_ci_gates() -> Result<ExitCode> {
         );
         println!("ci-gates: zero-panic NEUTRAL (no log file to scan)");
         println!("ci-gates: heartbeat-gap NEUTRAL (no log file to scan)");
-        println!("ci-gates: perf-budget DEFERRED (no criterion bench yet)");
+        println!("ci-gates: perf-budget NEUTRAL (no log file to grade)");
         return Ok(ExitCode::SUCCESS);
     }
 
@@ -523,20 +542,19 @@ async fn run_ci_gates() -> Result<ExitCode> {
         }
     }
 
-    // Perf-budget gate: shell out to xtask/ci/perf-slo-check.{sh,ps1} per
-    // chunk #54 activation. The script tails `agent-latest.jsonl` for
-    // `metric.webgpu.frame_duration_ms` events, computes p99 ≤33ms, and
-    // checks `metric.buffer.memory_bytes` max ≤512MB. Missing script or
-    // empty event stream maps to NEUTRAL (pre-perf-instrumentation states).
-    match invoke_perf_slo_check(&log_files).await {
-        Ok(true) => println!("ci-gates: perf-budget PASS"),
-        Ok(false) => {
+    // No arm is required here: the boot-smoke log and pre-push:linux's seeded
+    // record legitimately carry no perf samples. The gates that expect samples
+    // run `perf:budget --require` over their own producer's log.
+    let perf_results = perf_budget::grade(&perf_budget::read_family(&resolve_log_dir())?);
+    for line in perf_budget::arm_lines(&perf_results, &[]) {
+        println!("ci-gates: {line}");
+    }
+    match perf_budget::evaluate(&perf_results, &[]) {
+        perf_budget::Verdict::Fail => {
             eprintln!("::error::ci-gates: perf-budget FAIL");
             return Ok(ExitCode::FAILURE);
         }
-        Err(e) => {
-            eprintln!("ci-gates: perf-budget script unavailable ({e:#}) — treating as NEUTRAL");
-        }
+        verdict => println!("ci-gates: perf-budget {}", verdict.word()),
     }
 
     Ok(ExitCode::SUCCESS)
@@ -702,45 +720,6 @@ async fn invoke_heartbeat_check(log_files: &[PathBuf]) -> Result<bool> {
     Ok(status.success())
 }
 
-async fn invoke_perf_slo_check(log_files: &[PathBuf]) -> Result<bool> {
-    let workspace_root = Path::new(env!("CARGO_MANIFEST_DIR"))
-        .parent()
-        .context("xtask manifest has no workspace parent")?
-        .to_path_buf();
-    let script = if cfg!(target_os = "windows") {
-        workspace_root
-            .join("xtask")
-            .join("ci")
-            .join("perf-slo-check.ps1")
-    } else {
-        workspace_root
-            .join("xtask")
-            .join("ci")
-            .join("perf-slo-check.sh")
-    };
-    if !script.exists() {
-        bail!("perf-slo-check script missing at {}", script.display());
-    }
-    let primary_log = log_files
-        .last()
-        .context("no log file to pass to perf-slo-check script")?;
-    let status = if cfg!(target_os = "windows") {
-        tokio::process::Command::new("pwsh")
-            .args(["-NoProfile", "-File"])
-            .arg(&script)
-            .arg(primary_log)
-            .status()
-            .await?
-    } else {
-        tokio::process::Command::new("bash")
-            .arg(&script)
-            .arg(primary_log)
-            .status()
-            .await?
-    };
-    Ok(status.success())
-}
-
 async fn run_perf_slo_load() -> Result<ExitCode> {
     // 10k spans/sec sustained-load test runs the perf_slo_10k_spans
     // integration test via cargo-nextest; post-test p99 / max gates fire
@@ -825,7 +804,7 @@ async fn run_perf_load_profiles() -> Result<ExitCode> {
         "perf:load-profiles: {in_window} in-window log line(s) — running obs gates over {}",
         window_path.display()
     );
-    let windowed_files = vec![window_path];
+    let windowed_files = vec![window_path.clone()];
     match invoke_heartbeat_check(&windowed_files).await {
         Ok(true) => println!("perf:load-profiles: heartbeat-gap PASS"),
         Ok(false) => {
@@ -836,13 +815,17 @@ async fn run_perf_load_profiles() -> Result<ExitCode> {
             eprintln!("perf:load-profiles: heartbeat-gap script unavailable ({e:#}) — NEUTRAL")
         }
     }
-    match invoke_perf_slo_check(&windowed_files).await {
-        Ok(true) => println!("perf:load-profiles: perf-slo PASS"),
-        Ok(false) => {
-            eprintln!("::error::perf:load-profiles: perf-slo FAIL");
+    let window_lines = perf_budget::parse_lines(&smoke::read_jsonl_lines(&window_path)?);
+    let perf_results = perf_budget::grade(&window_lines);
+    for line in perf_budget::arm_lines(&perf_results, &[]) {
+        println!("perf:load-profiles: {line}");
+    }
+    match perf_budget::evaluate(&perf_results, &[]) {
+        perf_budget::Verdict::Fail => {
+            eprintln!("::error::perf:load-profiles: perf-budget FAIL");
             return Ok(ExitCode::FAILURE);
         }
-        Err(e) => eprintln!("perf:load-profiles: perf-slo script unavailable ({e:#}) — NEUTRAL"),
+        verdict => println!("perf:load-profiles: perf-budget {}", verdict.word()),
     }
     Ok(ExitCode::SUCCESS)
 }

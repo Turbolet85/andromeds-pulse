@@ -17,8 +17,8 @@ env:
 
 # Independent jobs: a round lasts as long as its longest job, not the sum.
 # Cache keys are budgeted against the 10 GB repository cap: one target cache per
-# lint-test OS plus one for boot; a11y, release, mcp-test and supply-chain restore
-# read-only, and coverage keeps only the registry.
+# lint-test OS, one per release OS (macOS, Windows) and one for boot; a11y,
+# mcp-test and supply-chain restore read-only, and coverage keeps only the registry.
 jobs:
   lint-test:
     name: lint / test (${{ matrix.os }})
@@ -142,6 +142,25 @@ jobs:
         if: runner.os == 'Linux'
         run: cargo xtask perf:slo-load
 
+      # The in-process producer of the memory + snapshot perf samples (no
+      # window), then the budget gate over its log with both arms required.
+      - name: cargo nextest run --workspace --profile perf-samples (Linux only)
+        if: runner.os == 'Linux'
+        run: cargo nextest run --workspace --profile perf-samples
+
+      - name: cargo xtask perf:budget (memory + snapshot required) (Linux only)
+        if: runner.os == 'Linux'
+        run: cargo xtask perf:budget --data-dir target/tmp/perf-budget-samples --require memory,snapshot
+
+      - name: Upload perf-samples logs artifact
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: logs-perf-samples-${{ runner.os }}
+          path: target/tmp/perf-budget-samples/logs/
+          if-no-files-found: ignore
+          retention-days: 14
+
       - name: Upload logs artifact
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
@@ -214,12 +233,12 @@ jobs:
       - name: Install Rust toolchain (respects rust-toolchain.toml)
         uses: dtolnay/rust-toolchain@29eef336d9b2848a0b548edc03f92a220660cdb8 # stable
 
-      # lint-test owns the key; its cache already carries these release dependencies.
-      - name: Cache cargo (restore only)
+      # The release job owns its key: a lint-test re-save after a Cargo.lock
+      # change drops the release dependencies, which would leave this job cold.
+      - name: Cache cargo
         uses: Swatinem/rust-cache@23869a5bd66c73db3c0ac40331f3206eb23791dc # v2.9.1
         with:
-          shared-key: lint-test-${{ runner.os }}
-          save-if: false
+          shared-key: release-${{ runner.os }}
 
       - name: Setup Node
         uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
@@ -236,6 +255,27 @@ jobs:
 
       - name: cargo build --workspace --release (macOS + Windows)
         run: cargo build --workspace --release
+
+      - name: cargo build --release -p ingest --example inject_demo (Windows only)
+        if: runner.os == 'Windows'
+        run: cargo build --release -p ingest --example inject_demo
+
+      # The frame arm of the perf budget, under a software WebGPU adapter set on
+      # the app child only. xtask runs by path: `cargo xtask` would rebuild it
+      # in debug.
+      - name: xtask perf:frame-sample (software WebGPU adapter) (Windows only)
+        if: runner.os == 'Windows'
+        shell: bash
+        run: ./target/release/xtask.exe perf:frame-sample
+
+      - name: Upload perf-frame logs artifact
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: logs-perf-frame-${{ runner.os }}
+          path: target/perf-frame/
+          if-no-files-found: ignore
+          retention-days: 14
 
   mcp-test:
     name: mcp-server tests (ubuntu-22.04)

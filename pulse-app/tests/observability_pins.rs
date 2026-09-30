@@ -2774,13 +2774,11 @@ fn scrubber_passes_app_boot_gpu_check_fields() {
     let lines = capture_json_lines(defaults, || {
         tracing::info!(
             target: "app.boot.gpu.check",
-            gpu_available = true,
             wgpu_backend = "metal",
-            "GPU adapter check",
+            "compile-target default wgpu backend",
         );
     });
     let fields = &lines[0]["fields"];
-    assert_eq!(fields["gpu_available"], true);
     assert_eq!(fields["wgpu_backend"], "metal");
 }
 
@@ -2793,11 +2791,15 @@ fn scrubber_redacts_non_allowlisted_app_boot_gpu_check_field() {
             gpu_available = false,
             wgpu_backend = "vulkan",
             adapter_vendor_id = "0xDEADBEEF",
-            "GPU adapter check",
+            "compile-target default wgpu backend",
         );
     });
     let fields = &lines[0]["fields"];
     assert_eq!(fields["wgpu_backend"], "vulkan");
+    assert_eq!(
+        fields["gpu_available"], "<redacted>",
+        "the record measures no adapter, so an adapter-availability claim MUST NOT pass"
+    );
     assert_eq!(
         fields["adapter_vendor_id"], "<redacted>",
         "raw adapter identifiers MUST NOT leak (cardinality discipline)"

@@ -91,9 +91,8 @@ pub fn emit_boot_spans() {
     );
     info!(
         target: "app.boot.gpu.check",
-        gpu_available = false,
         wgpu_backend = detect_wgpu_backend(),
-        "GPU adapter check (boot-time pre-render; runtime adapter check at chunk #28)",
+        "compile-target default wgpu backend; no adapter probe runs here (the frame loop's adapter branch is the adapter evidence)",
     );
     info!(
         target: "app.boot.tray.init",

@@ -12,12 +12,10 @@
 //! This test verifies the throughput layer only (ingest-channel + buffer
 //! consumer + DuckDB Arrow appender stays within budget at sustained load).
 //!
-//! Post-test `metric.webgpu.frame_duration_ms` p99 ≤33ms + `metric.buffer.
-//! memory_bytes` max ≤512MB gates fire via `cargo xtask perf:slo-load` →
-//! `xtask/ci/perf-slo-check.{sh,ps1}` reading `agent-latest.jsonl`. Empty
-//! event streams (webview not booted, heartbeat not running) map to NEUTRAL
-//! pass; full gate activates when production observability subscribes
-//! during the load window.
+//! This test installs no obs sink and emits no perf samples. The memory and
+//! snapshot budgets are graded over `perf_budget_samples.rs`'s log by
+//! `cargo xtask perf:budget`; the frame budget by `cargo xtask
+//! perf:frame-sample`.
 
 use std::net::SocketAddr;
 use std::sync::{Arc, Mutex};

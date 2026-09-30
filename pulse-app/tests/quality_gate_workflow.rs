@@ -59,6 +59,59 @@ fn nextest_default_profile_excludes_load_profiles_suite() {
 }
 
 #[test]
+fn nextest_default_profile_excludes_perf_budget_samples_producer() {
+    let content = read_nextest_config();
+    let window = nextest_profile_window(&content, "[profile.default]");
+    assert!(
+        window.contains("not binary(perf_budget_samples)"),
+        "`[profile.default]` MUST exclude `binary(perf_budget_samples)`: the producer runs \
+         only under `[profile.perf-samples]`, so workspace and coverage runs never pay for it"
+    );
+    let samples = nextest_profile_window(&content, "[profile.perf-samples]");
+    assert!(
+        samples.contains("\"binary(perf_budget_samples)\"") && samples.contains("retries = 0"),
+        "`[profile.perf-samples]` MUST select exactly the producer with retries = 0"
+    );
+}
+
+// The job block runs from its `  {name}:` header to the next job header at
+// the same two-space indent.
+fn workflow_job_block(content: &str, job: &str) -> String {
+    let lines: Vec<&str> = content.lines().collect();
+    let header = format!("  {job}:");
+    let start = lines
+        .iter()
+        .position(|l| *l == header)
+        .unwrap_or_else(|| panic!("ci.yml MUST declare the `{job}` job"));
+    lines[start + 1..]
+        .iter()
+        .take_while(|l| {
+            let is_job_header = l.starts_with("  ")
+                && !l.starts_with("   ")
+                && !l.trim_start().starts_with('#')
+                && l.trim_end().ends_with(':');
+            !is_job_header
+        })
+        .copied()
+        .collect::<Vec<&str>>()
+        .join("\n")
+}
+
+#[test]
+fn ci_workflow_release_job_owns_and_saves_its_cache_key() {
+    let block = workflow_job_block(&read_workflow(), "release");
+    assert!(
+        block.contains("shared-key: release-${{ runner.os }}"),
+        "the release job MUST own `release-${{{{ runner.os }}}}`: restoring lint-test's key \
+         leaves it cold once lint-test re-saves without the release dependencies"
+    );
+    assert!(
+        !block.contains("save-if: false"),
+        "the release job MUST save its own key (no `save-if: false`); block:\n{block}"
+    );
+}
+
+#[test]
 fn nextest_load_profiles_profile_preserves_zero_flake_posture() {
     let content = read_nextest_config();
     let window = nextest_profile_window(&content, "[profile.load-profiles]");
@@ -159,6 +212,9 @@ fn ci_workflow_test_gates_no_continue_on_error() {
         "cargo xtask test:a11y",
         "cargo xtask perf:slo-load",
         "cargo xtask capability-drift",
+        "--profile perf-samples",
+        "perf:budget --data-dir",
+        "perf:frame-sample",
     ];
     let step_pattern = "      - name: ";
     let step_starts: Vec<usize> = content

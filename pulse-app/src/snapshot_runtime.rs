@@ -135,7 +135,7 @@ fn load_recent_spans(
 /// so both consume one telemetry-context path. An empty buffer yields a bounded
 /// near-empty markdown (curate returns the default `CurationOutput`) — still a
 /// valid context, not an error.
-pub(crate) fn load_curated_markdown(conn: &Connection) -> Result<String, AppError> {
+pub fn load_curated_markdown(conn: &Connection) -> Result<String, AppError> {
     let now_ns = Utc::now().timestamp_nanos_opt().unwrap_or(0);
     let since_ns = now_ns.saturating_sub(SNAPSHOT_TIME_WINDOW_NS);
     let spans = load_recent_spans(conn, since_ns, SPANS_RECENT_LIMIT)?;

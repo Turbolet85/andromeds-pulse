@@ -4,9 +4,9 @@
 //! (the same surface external SDKs use; arch §Cross-cutting Test-time
 //! telemetry injection) at one of the dist-arch v3 load-profile rates so
 //! the production observability pipeline emits the frame / memory /
-//! heartbeat / L4 metrics that `cargo xtask perf:load-profiles` and the
-//! `xtask/ci/{perf-slo-check,heartbeat-gap-check,l4-latency-p99}` gates
-//! read from `agent-latest.jsonl`. This flips those gates from NEUTRAL to
+//! heartbeat / L4 metrics that `cargo xtask perf:load-profiles` (its
+//! perf-budget grader) and the `xtask/ci/{heartbeat-gap-check,l4-latency-p99}`
+//! gates read from `agent-latest.jsonl`. This flips those gates from NEUTRAL to
 //! ACTIVE locally — the release-gate evidence flow is `scripts/agent-run
 //! boot`, then this injector, then the gate scripts over the produced log.
 //!

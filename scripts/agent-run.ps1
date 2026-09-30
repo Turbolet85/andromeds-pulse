@@ -137,9 +137,9 @@ switch ($args[0]) {
             exit 1
         }
 
-        # Spawn the dev-build binary BY PATH — no cargo wrapper: $proc.Id IS
-        # the app, and the app itself overwrites the default pidfile with the
-        # same identity at boot (pulse-app/src/main.rs::write_pid_file).
+        # Spawn the release binary BY PATH — no cargo wrapper: the spawn record
+        # holds the app's own pid, and the app itself overwrites the default
+        # pidfile with the same identity at boot (main.rs::write_pid_file).
         $appBin = Join-Path 'target' (Join-Path 'release' 'pulse-app.exe')
         if (-not (Test-Path $appBin)) {
             Write-Warning "boot: built binary not found at $appBin"
@@ -147,17 +147,48 @@ switch ($args[0]) {
         }
         $bootLog = Join-Path $DataDir 'logs\boot.log'
         $bootErr = Join-Path $DataDir 'logs\boot.err.log'
-        $proc = Start-Process -FilePath $appBin `
-            -RedirectStandardOutput $bootLog -RedirectStandardError $bootErr `
-            -PassThru -NoNewWindow
-        $proc.Id | Out-File -FilePath $PidFile -Encoding ASCII
+
+        # The app runs under a hidden waiting wrapper that records how it ended:
+        # once boot returns, nothing else holds the app, so a death after `ready`
+        # would otherwise leave no status anywhere (harness:status reads this
+        # record as `ended`). Records are one ASCII line with no BOM, the grammar
+        # xtask's read_ended accepts.
+        $runDir = Split-Path -Parent $PidFile
+        $exitFile = Join-Path $runDir 'andromeda-pulse.exit'
+        $spawnFile = Join-Path $runDir 'andromeda-pulse.spawn'
+        Remove-Item $exitFile, $spawnFile -ErrorAction SilentlyContinue
+        $q = { param($s) "'" + ($s -replace "'", "''") + "'" }
+        $wrapper = @(
+            "`$p = Start-Process -FilePath $(& $q (Resolve-Path $appBin).Path) -RedirectStandardOutput $(& $q $bootLog) -RedirectStandardError $(& $q $bootErr) -PassThru -NoNewWindow",
+            '$null = $p.Handle',
+            "[System.IO.File]::WriteAllText($(& $q $spawnFile), [string]`$p.Id, [System.Text.Encoding]::ASCII)",
+            '$p.WaitForExit()',
+            "[System.IO.File]::WriteAllText($(& $q $exitFile), ('exit ' + `$p.ExitCode), [System.Text.Encoding]::ASCII)"
+        ) -join "`n"
+        $encoded = [Convert]::ToBase64String([System.Text.Encoding]::Unicode.GetBytes($wrapper))
+        Start-Process -FilePath 'powershell' -WindowStyle Hidden `
+            -ArgumentList '-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass', '-EncodedCommand', $encoded | Out-Null
+
+        $appPid = $null
+        for ($i = 0; $i -lt 50; $i++) {
+            if (Test-Path $spawnFile) {
+                $raw = Get-Content $spawnFile -ErrorAction SilentlyContinue
+                if ($raw) { $appPid = "$raw".Trim(); break }
+            }
+            Start-Sleep -Milliseconds 100
+        }
+        if (-not $appPid) {
+            Write-Output 'boot: the app did not start (no spawn record)'
+            exit 1
+        }
+        [System.IO.File]::WriteAllText($PidFile, $appPid, [System.Text.Encoding]::ASCII)
 
         # Poll for ready
         $deadline = (Get-Date).AddSeconds($StatusTimeoutSec)
         while ((Get-Date) -lt $deadline) {
             try {
                 Invoke-Status | Out-Null
-                Write-Output "boot: ready (PID=$($proc.Id), data_dir=$DataDir)"
+                Write-Output "boot: ready (PID=$appPid, data_dir=$DataDir)"
                 Write-Output "  OTLP gRPC:    127.0.0.1:$GrpcPort"
                 Write-Output "  OTLP HTTP:    127.0.0.1:$HttpPort"
                 Write-Output "  Log file:     $LogFile"
@@ -167,6 +198,18 @@ switch ($args[0]) {
             }
         }
         Write-Warning "boot: failed to reach ready state within $StatusTimeoutSec`s (boot log: $bootLog)"
+        # Name HOW the app ended when it is already gone: a native crash prints
+        # nothing of its own, and a clean exit is silent too.
+        if (Get-Process -Id $appPid -ErrorAction SilentlyContinue) {
+            Write-Output "  app still running (pid $appPid) but never reported healthy"
+        } else {
+            for ($i = 0; $i -lt 20; $i++) {
+                if (Test-Path $exitFile) { break }
+                Start-Sleep -Milliseconds 100
+            }
+            $ended = if (Test-Path $exitFile) { (Get-Content $exitFile -ErrorAction SilentlyContinue) } else { 'not recorded' }
+            Write-Output "  app ended: $ended"
+        }
         Invoke-Cleanup
         exit 1
     }

@@ -516,7 +516,7 @@ fn expect_field(
 /// daily roller date-suffixes the sink (`agent-latest.jsonl.YYYY-MM-DD`), so a
 /// bare-name read silently returns nothing and the caller reports an empty log
 /// on a perfectly healthy boot (obs-plan §3 Log file location).
-fn read_jsonl_lines(path: &Path) -> Result<Vec<String>> {
+pub(crate) fn read_jsonl_lines(path: &Path) -> Result<Vec<String>> {
     let dir = path.parent().unwrap_or_else(|| Path::new("."));
     let stem = path
         .file_name()

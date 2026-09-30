@@ -60,3 +60,6 @@ Trail: `.andromeda/runs/2026-09-30T11-29-23Z-wrap/`.
   - Windows `.ico` vs palette PNG.
   - The deferral-destination generalization.
   - `inject_demo --sustained` cannot form an incident — a CHECK for the leg-authoring reference.
+
+## Session End Status
+Completed normally at 2026-09-30 14:54:13
