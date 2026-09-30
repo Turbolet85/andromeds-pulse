@@ -1158,5 +1158,103 @@
 "unparsed": 0,
 "widening_without_word": 0
 }
+},
+{
+"tool": "gate",
+"v": "1.5",
+"sha8": "018a3122",
+"ts": "2026-09-30T05:56:06Z",
+"argv": [
+"scope",
+"--chunk-dir",
+"andromeda-pulse-0.3.0/chunks/2026-09-29-scrubber-path-false-positive",
+"--run-dir",
+".andromeda/runs/2026-09-30T04-28-09Z-implement",
+"--marker",
+"2026-09-29-scrubber-path-false-positive"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"root D:\\dev\\projects\\andromeda-pulse · base a08ae29d (the parent of the oldest pre-CI commit fcc31b21) · lists new 0 · modify 3 · derived 0 · record 1",
+"control: lists · glob · record — each fired on its synthetic known positive; C1 · C2 held",
+"recorded widening pulse-app/ui/package-lock.json",
+"scope: clean — changed 4 · listed 3 · recorded 1 (companion 0 · mechanical 0 · in-intent 0 · widening 1) · absorbed 0 · excluded 39"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"root": "D:\\dev\\projects\\andromeda-pulse",
+"base": "a08ae29dcad7c05cd118be3476eaad37bd697231",
+"base_why": "the parent of the oldest pre-CI commit fcc31b21",
+"counts": {
+"changed": 4,
+"listed": 3,
+"recorded": 1,
+"unrecorded": 0,
+"indet": 0,
+"absorbed": 0
+},
+"by_class": {
+"companion": 0,
+"mechanical": 0,
+"in-intent": 0,
+"widening": 1
+},
+"excluded": 39,
+"unparsed": 0,
+"widening_without_word": 0
+}
+},
+{
+"tool": "gate",
+"v": "1.5",
+"sha8": "018a3122",
+"ts": "2026-09-30T05:56:19Z",
+"argv": [
+"scope",
+"--chunk-dir",
+"andromeda-pulse-0.3.0/chunks/2026-09-29-scrubber-path-false-positive",
+"--run-dir",
+".andromeda/runs/2026-09-30T04-28-09Z-implement",
+"--marker",
+"2026-09-29-scrubber-path-false-positive"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"root D:\\dev\\projects\\andromeda-pulse · base a08ae29d (the parent of the oldest pre-CI commit fcc31b21) · lists new 0 · modify 3 · derived 0 · record 1",
+"control: lists · glob · record — each fired on its synthetic known positive; C1 · C2 held",
+"recorded widening pulse-app/ui/package-lock.json",
+"scope: clean — changed 4 · listed 3 · recorded 1 (companion 0 · mechanical 0 · in-intent 0 · widening 1) · absorbed 0 · excluded 39"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"root": "D:\\dev\\projects\\andromeda-pulse",
+"base": "a08ae29dcad7c05cd118be3476eaad37bd697231",
+"base_why": "the parent of the oldest pre-CI commit fcc31b21",
+"counts": {
+"changed": 4,
+"listed": 3,
+"recorded": 1,
+"unrecorded": 0,
+"indet": 0,
+"absorbed": 0
+},
+"by_class": {
+"companion": 0,
+"mechanical": 0,
+"in-intent": 0,
+"widening": 1
+},
+"excluded": 39,
+"unparsed": 0,
+"widening_without_word": 0
+}
 }
 ]
