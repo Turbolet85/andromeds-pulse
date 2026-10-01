@@ -1,0 +1,16 @@
+## m1-summary.txt
+# m1 — keyed extent narrowed to the exact match
+# mutation: ArmClass::Keyed => (found.start(), found.end())  [restored after this run]
+        FAIL [   0.070s] ( 3/45) security scrubber::tests::span_mask_keyed_extent_covers_a_base64_bearer_tail
+        FAIL [   0.082s] ( 4/45) interpretation markdown::tests::scrub_string_span_masks_a_token_and_keeps_its_sentence
+        FAIL [   0.083s] ( 5/45) pulse-app::unit_digest_runtime_scrub pii_scrub_closure_span_masks_a_card_line_and_a_keyed_line_independently
+        FAIL [   0.100s] ( 8/45) security scrubber::tests::span_mask_masks_one_embedded_canary_per_category::case_3
+        FAIL [   0.229s] (13/45) security scrubber::tests::span_mask_masks_one_embedded_canary_per_category::case_4
+        FAIL [   0.236s] (14/45) security scrubber::tests::span_mask_masks_one_embedded_canary_per_category::case_2
+        FAIL [   0.283s] (30/45) security scrubber::tests::span_mask_merges_a_token_bearer_overlap_under_bearer
+        FAIL [   0.286s] (21/45) security scrubber::tests::span_mask_keyed_extent_runs_to_the_end_of_the_line
+        FAIL [   0.334s] (27/45) pulse-app::unit_span_masking_consumers span_mask_l4_summary_with_a_keyed_secret_stays_parseable
+        FAIL [   0.335s] (28/45) security scrubber::tests::span_mask_keyed_match_crossing_a_newline_ends_at_the_value_line
+        FAIL [   0.337s] (29/45) buffer appender::tests::span_mask_exception_message_keeps_the_text_before_the_key
+        FAIL [   0.674s] (44/45) pulse-app::e2e_pii_span_masking_stored_field span_mask_keeps_context_around_embedded_secrets_in_stored_columns
+     Summary [   0.691s] 45 tests run: 33 passed, 12 failed, 2484 skipped

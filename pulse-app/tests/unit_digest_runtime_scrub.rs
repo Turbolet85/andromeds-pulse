@@ -32,9 +32,29 @@ fn pii_scrub_closure_keeps_a_digest_whose_project_line_carries_a_date_stamp() {
 }
 
 #[test]
-fn pii_scrub_closure_still_collapses_a_digest_carrying_a_card() {
+fn pii_scrub_closure_span_masks_only_the_card_in_a_digest() {
     let scrub = pii_scrub_closure();
     let payload = format!("{DIGEST_WITH_DATE_STAMPED_PROJECT}  note: card 4111 1111 1111 1111\n");
     let out = scrub(&payload);
-    assert_eq!(out, "[redacted:credit_card]");
+    assert_eq!(
+        out,
+        format!("{DIGEST_WITH_DATE_STAMPED_PROJECT}  note: card [redacted:credit_card]\n")
+    );
+}
+
+#[test]
+fn pii_scrub_closure_span_masks_a_card_line_and_a_keyed_line_independently() {
+    let scrub = pii_scrub_closure();
+    let payload = format!(
+        "{DIGEST_WITH_DATE_STAMPED_PROJECT}  note: card 4111 1111 1111 1111\n  \
+         cue: retry with password=hunter2 failed\n  tail: checkout recovered\n"
+    );
+    let out = scrub(&payload);
+    assert_eq!(
+        out,
+        format!(
+            "{DIGEST_WITH_DATE_STAMPED_PROJECT}  note: card [redacted:credit_card]\n  \
+             cue: retry with [redacted:secret_kv]\n  tail: checkout recovered\n"
+        )
+    );
 }

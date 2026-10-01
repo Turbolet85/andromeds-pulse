@@ -19,7 +19,7 @@
 //! runs in-memory-only for the session. Storm fingerprint bytes (16-byte
 //! hashes of exception.type + normalized stack) are non-PII by
 //! construction; FingerprintState.service field IS PII-bearing and is
-//! passed through `security::scrubber::scrub_attribute` via
+//! passed through `security::scrubber::mask_secret_spans` via
 //! `StormStateSnapshot::scrubbed_clone` at save time (chunk #72) — the
 //! producer-side defense-in-depth alongside corpus-wide AES-256-GCM
 //! at-rest encryption. Aggregation-collapse note: PII-shaped service
@@ -29,7 +29,7 @@
 use std::sync::Arc;
 
 use corpus::contract::{CorpusWriter, Error as CorpusError};
-use security::scrubber::{ScrubbedValue, scrub_attribute};
+use security::scrubber::mask_secret_spans;
 use triage::contract::{SCHEMA_VERSION, StormError, StormPersistence, StormStateSnapshot};
 
 /// Stable `metric_name` value in `pipeline_metrics` for StormState.
@@ -81,14 +81,14 @@ impl StormPersistence for CorpusStormPersistence {
 }
 
 /// Producer-side PII scrub for `FingerprintState.service` before bincode
-/// (chunk #72). Renders the `[REDACTED:{category}]` marker per the chunk
-/// #68/#69 convention; dep-injected into `StormStateSnapshot::scrubbed_clone`
-/// to keep the triage crate security-crate-free.
-fn scrub_fingerprint_service(service: &str) -> String {
-    match scrub_attribute(service) {
-        ScrubbedValue::Allowed(s) => s,
-        ScrubbedValue::Redacted { category } => format!("[REDACTED:{}]", category),
-    }
+/// (chunk #72). Masks each secret as the `[REDACTED:{category}]` marker per
+/// the chunk #68/#69 convention — the same masking as the
+/// `extract_service_name` choke point; dep-injected into
+/// `StormStateSnapshot::scrubbed_clone` to keep the triage crate
+/// security-crate-free.
+#[doc(hidden)]
+pub fn scrub_fingerprint_service(service: &str) -> String {
+    mask_secret_spans(service, |category| format!("[REDACTED:{category}]")).text
 }
 
 /// Sanitized cross-crate error mapping. Per arch §Established Decisions

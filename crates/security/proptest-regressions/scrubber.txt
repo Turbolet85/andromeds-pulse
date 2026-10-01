@@ -1,0 +1,8 @@
+# Seeds for failure cases proptest has generated in the past. It is
+# automatically read and these particular cases re-run before any
+# novel cases are generated.
+#
+# It is recommended to check this file in to source control so that
+# everyone who runs the test benefits from these saved cases.
+cc cb6f13b1925de5a63e83a914f2cdbb13caadc29b4c5465f345cc2ba7aeb94735 # shrinks to parts = ["sk_live_51NotARealKeyOnlyForPulseTests00", "=", "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIn0.sig123"] gitleaks:allow
+cc 2a1377719a648974eb5d70c2d4d4dbd4a2225390e81d24883dae12a371f2a848 # shrinks to parts = ["4111 1111 1111 1111", "password", " ", "="]

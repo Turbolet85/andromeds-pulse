@@ -686,10 +686,9 @@ fn pii_canary_in_l4_text_is_scrubbed_before_persist() {
         "email canary MUST be scrubbed before the corpus write; got title: {}",
         persisted.title,
     );
-    assert!(
-        persisted.title.starts_with("[redacted:"),
-        "a title embedding PII must collapse to a category marker; got: {}",
-        persisted.title,
+    assert_eq!(
+        persisted.title, "error referencing [redacted: email] in title",
+        "a title embedding PII must mask the secret in place and keep its words",
     );
     // The registry copy is the post-scrub incident (insert happens post-scrub).
     let active = registry.list_active(WORKSPACE);

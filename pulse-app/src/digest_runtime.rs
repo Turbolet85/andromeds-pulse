@@ -20,7 +20,7 @@
 //! framework signal detection from `Cargo.toml` / `package.json`).
 //!
 //! PII scrubbing: injects a closure wrapping
-//! `security::scrubber::scrub_attribute` per CLAUDE.md §Session Learnings
+//! `security::scrubber::mask_secret_spans` per CLAUDE.md §Session Learnings
 //! 2026-05-20 cross-crate `scrubbed_clone` pattern.
 //!
 //! Error mapping: free-fn `corpus_error_to_digest_runtime_error` follows
@@ -31,7 +31,7 @@ use std::path::Path;
 use std::sync::{Arc, Mutex};
 use std::time::Duration;
 
-use security::scrubber::{ScrubbedValue, scrub_attribute};
+use security::scrubber::mask_secret_spans;
 use tokio::sync::broadcast::error::RecvError;
 use triage::contract::{
     Assembler, CadenceMode, CorpusIncidentSource, Digest, DigestAssembler, DigestBroadcast,
@@ -49,13 +49,11 @@ const TARGET_DIGEST_RUNTIME_CADENCE_TICK: &str = "digest.runtime.cadence_tick";
 
 /// Construct a PII-scrubbing closure suitable for
 /// `Assembler::new`'s `Arc<dyn Fn(&str) -> String + Send + Sync>` slot.
-/// Wraps `security::scrubber::scrub_attribute` per CLAUDE.md §Session
-/// Learnings 2026-05-20.
+/// Wraps `security::scrubber::mask_secret_spans` per CLAUDE.md §Session
+/// Learnings 2026-05-20, so a secret in one line of a digest masks only that
+/// span and the rest of the digest still reaches the model.
 pub fn pii_scrub_closure() -> Arc<dyn Fn(&str) -> String + Send + Sync> {
-    Arc::new(|val: &str| match scrub_attribute(val) {
-        ScrubbedValue::Allowed(s) => s,
-        ScrubbedValue::Redacted { category } => format!("[redacted:{category}]"),
-    })
+    Arc::new(|val: &str| mask_secret_spans(val, |category| format!("[redacted:{category}]")).text)
 }
 
 /// Build the digest assembler. Caller injects all dependencies; this fn

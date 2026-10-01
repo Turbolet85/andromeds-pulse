@@ -1,0 +1,11 @@
+## m2-summary.txt
+# m2 — overlapping-span merge removed
+# mutation: Some(last) if false && start <= last.1  [restored after this run]
+        FAIL [   0.109s] ( 8/45) buffer appender::tests::span_mask_exception_message_keeps_the_text_before_the_key
+        FAIL [   0.162s] (16/45) security scrubber::tests::span_mask_is_idempotent_over_the_recall_corpus
+        FAIL [   0.312s] (36/45) security scrubber::tests::span_mask_redaction_verdict_equals_scrub_attribute_over_both_corpora
+        FAIL [   0.329s] (32/45) security scrubber::tests::span_mask_merges_an_api_key_and_its_provider_value_under_api_key
+        FAIL [   0.343s] (33/45) security scrubber::tests::span_mask_merges_a_token_bearer_overlap_under_bearer
+        FAIL [   0.416s] (44/45) security scrubber::tests::span_mask_verdict_matches_scrub_attribute_for_secret_mixes
+        FAIL [   0.435s] (39/45) security scrubber::tests::span_mask_is_idempotent_for_secret_mixes
+     Summary [   0.660s] 45 tests run: 38 passed, 7 failed, 2484 skipped

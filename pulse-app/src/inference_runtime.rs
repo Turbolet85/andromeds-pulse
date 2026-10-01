@@ -33,7 +33,7 @@ use interpretation::schema::{
     Decision, L4_OUTPUT_JSON_SCHEMA, L4Output, PROMPT_VERSION_FALLBACK, PROMPT_VERSION_PRIMARY,
     PROMPT_VERSION_REFLECTION, Severity as L4Severity,
 };
-use security::scrubber::{ScrubbedValue, scrub_attribute};
+use security::scrubber::mask_secret_spans;
 use tokio::sync::broadcast::error::RecvError;
 use tokio::task::JoinHandle;
 use triage::contract::{
@@ -604,8 +604,8 @@ fn handle_parse_outcome(
 /// Discipline:
 /// - Render summary as JSON-serialized L4Output (chunk #87 Report UI
 ///   parses back; preserves structured fields without a new schema).
-/// - Scrub via `security::scrubber::scrub_attribute` at the persistence
-///   boundary per chunk #72 uniform-coverage invariant.
+/// - Mask each string field via `security::scrubber::mask_secret_spans` at
+///   the persistence boundary per chunk #72 uniform-coverage invariant.
 /// - Call `registry.attach_resolution_summary` (updates in-memory state).
 /// - Call `persistence.update_incident_status` (rewrites full BLOB to
 ///   corpus via existing chunk #78 trait method; the new
@@ -659,25 +659,31 @@ fn grounded_fingerprint_hashes(parsed_refs: &[String], cue_fp: Option<&str>) -> 
 
 /// Serialize + scrub a parsed `L4Output` for attachment as the incident's
 /// `resolution_summary_text` (the chunk #72 uniform-coverage invariant
-/// applies at every persistence boundary; a `Redacted` verdict collapses to
-/// the bounded category marker, which downstream parses treat as absent —
-/// the honest-degraded branch). `None` only when serialization fails.
-fn scrubbed_l4_json(parsed: &L4Output) -> Option<String> {
-    let raw = serde_json::to_string(parsed).ok()?;
-    Some(match scrub_attribute(&raw) {
-        ScrubbedValue::Allowed(s) => s,
-        ScrubbedValue::Redacted { category } => format!("[redacted: {category}]"),
-    })
+/// applies at every persistence boundary). Every string leaf is masked
+/// before serializing — never the serialized text, where `secret_kv`'s `\S+`
+/// would run across compact-JSON delimiters — so the summary stays
+/// parseable. `None` only when serialization fails.
+#[doc(hidden)]
+pub fn scrubbed_l4_json(parsed: &L4Output) -> Option<String> {
+    let mut value = serde_json::to_value(parsed).ok()?;
+    mask_string_leaves(&mut value);
+    serde_json::to_string(&value).ok()
+}
+
+fn mask_string_leaves(value: &mut serde_json::Value) {
+    match value {
+        serde_json::Value::String(text) => *text = scrub_text(text),
+        serde_json::Value::Array(items) => items.iter_mut().for_each(mask_string_leaves),
+        serde_json::Value::Object(fields) => fields.values_mut().for_each(mask_string_leaves),
+        _ => {}
+    }
 }
 
 /// Scrub a telemetry-derived text field at the persistence boundary per the
-/// chunk #72 uniform-coverage invariant. `Redacted` collapses to a bounded
-/// category marker so no raw secret content reaches the corpus BLOB.
+/// chunk #72 uniform-coverage invariant. Each secret is masked in place as a
+/// bounded category marker so no raw secret content reaches the corpus BLOB.
 fn scrub_text(raw: &str) -> String {
-    match scrub_attribute(raw) {
-        ScrubbedValue::Allowed(s) => s,
-        ScrubbedValue::Redacted { category } => format!("[redacted: {category}]"),
-    }
+    mask_secret_spans(raw, |category| format!("[redacted: {category}]")).text
 }
 
 /// Map the L4 surface severity onto the triage incident `PriorityTier`
@@ -731,7 +737,7 @@ fn priority_tier_label(tier: PriorityTier) -> &'static str {
 /// - Creation predicate: skip resolution summaries, `Decision::Dismiss`,
 ///   `Severity::None`, OR digests with no triggering cue (incidents are strictly
 ///   cue-derived per the `Incident.kind` contract doc).
-/// - Scrub every telemetry-derived text field via `scrub_attribute` before
+/// - Scrub every telemetry-derived text field via `mask_secret_spans` before
 ///   the corpus write (chunk #72 uniform-coverage invariant).
 /// - Re-emission dedup on the `(kind, scope, scope_id)` per-service identity:
 ///   bump an existing active incident rather than creating a duplicate, so

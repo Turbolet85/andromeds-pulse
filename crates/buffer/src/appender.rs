@@ -15,7 +15,7 @@ use ingest::grpc::proto::opentelemetry::proto::metrics::v1::{
 };
 use ingest::grpc::proto::opentelemetry::proto::resource::v1::Resource;
 use ingest::grpc::proto::opentelemetry::proto::trace::v1::ResourceSpans;
-use security::scrubber::{ScrubbedValue, scrub_attribute};
+use security::scrubber::{ScrubbedValue, mask_secret_spans, scrub_attribute};
 
 use crate::contract::Error;
 use crate::drain::DrainMiner;
@@ -352,20 +352,19 @@ fn extract_log_body(body: Option<&AnyValue>, redactions: &mut u64) -> String {
 }
 
 /// PII-scrub an OTLP attribute / log-body string before persistence (chunk
-/// #72). Mirrors the pattern at `crates/buffer/src/drain.rs:600-603`: render
-/// scrubber Redacted matches as `[REDACTED:{category}]` markers, preserving
-/// the chunk #68 + #69 stable-marker convention. Caller responsibility per
+/// #72). Each secret is masked in place as a `[REDACTED:{category}]` marker
+/// (the chunk #68 + #69 stable-marker convention) and the rest of the value is
+/// kept. The counter advances once per redacted VALUE however many spans it
+/// masked (obs-plan §5). Caller responsibility per
 /// `crates/corpus/src/contract.rs::CorpusWriter` trait docstring (the
 /// MUST pre-scrub contract enforced via per-adapter PII negative-canary
 /// tests).
 fn scrub_otlp_field(value: &str, redactions: &mut u64) -> String {
-    match scrub_attribute(value) {
-        ScrubbedValue::Allowed(s) => s,
-        ScrubbedValue::Redacted { category } => {
-            *redactions += 1;
-            format!("[REDACTED:{}]", category)
-        }
+    let masked = mask_secret_spans(value, |category| format!("[REDACTED:{category}]"));
+    if masked.redacted {
+        *redactions += 1;
     }
+    masked.text
 }
 
 /// Renders one OTLP `AnyValue` for storage inside a label pair.
@@ -2209,6 +2208,95 @@ mod tests {
             stored.contains("[REDACTED:email]"),
             "expected span_events.exception_stacktrace to carry [REDACTED:email] marker; got: {stored:?}"
         );
+    }
+
+    #[test]
+    fn span_mask_log_body_keeps_its_other_words() {
+        let conn = fresh_conn_with_schema();
+        let batch = vec![ResourceLogs {
+            resource: Some(make_resource("svc-span-mask")),
+            scope_logs: vec![ScopeLogs {
+                scope: None,
+                log_records: vec![LogRecord {
+                    time_unix_nano: 1_700_000_000_000_000_000,
+                    observed_time_unix_nano: 0,
+                    severity_number: 17,
+                    severity_text: "ERROR".into(),
+                    body: Some(AnyValue {
+                        value: Some(any_value::Value::StringValue(
+                            "login failed for span-mask-user@example.com from host-a".into(),
+                        )),
+                    }),
+                    attributes: Vec::new(),
+                    dropped_attributes_count: 0,
+                    flags: 0,
+                    trace_id: Vec::new(),
+                    span_id: Vec::new(),
+                    event_name: String::new(),
+                }],
+                schema_url: String::new(),
+            }],
+            schema_url: String::new(),
+        }];
+
+        append_logs_batch(&conn, &batch).expect("append");
+
+        let body: String = conn
+            .query_row("SELECT body FROM log_records LIMIT 1", [], |r| r.get(0))
+            .expect("read body");
+        assert_eq!(body, "login failed for [REDACTED:email] from host-a");
+    }
+
+    #[test]
+    fn span_mask_exception_message_keeps_the_text_before_the_key() {
+        let conn = fresh_conn_with_schema();
+        let span = span_with_events(
+            vec![4u8; 16],
+            vec![4u8; 8],
+            1_700_000_000_000_000_000,
+            vec![span_event(
+                "exception",
+                1_700_000_000_000_000_001,
+                exception_attrs(
+                    "AuthError",
+                    "AuthError: token Bearer abc123def456ghi789jklXYZ rejected",
+                    "    at handler.rs:42",
+                ),
+            )],
+        );
+        append_span_events_batch(&conn, &wrap_spans(vec![span])).expect("append");
+
+        let stored: Option<String> = conn
+            .query_row(
+                "SELECT exception_message FROM span_events LIMIT 1",
+                [],
+                |r| r.get(0),
+            )
+            .expect("read exception_message");
+        assert_eq!(stored.as_deref(), Some("AuthError: [REDACTED:bearer]"));
+    }
+
+    #[test]
+    fn span_mask_value_carrying_two_secrets_counts_one_redaction() {
+        let mut redactions = 0;
+        let stored = scrub_otlp_field(
+            "notify span-mask-a@example.com and ssn 123-45-6789 today",
+            &mut redactions,
+        );
+        assert_eq!(
+            stored,
+            "notify [REDACTED:email] and ssn [REDACTED:ssn] today"
+        );
+        assert_eq!(redactions, 1);
+    }
+
+    #[test]
+    fn span_mask_two_word_service_name_keeps_its_first_word() {
+        let mut redactions = 0;
+        let resource = make_resource("checkout span-mask-owner@example.com");
+        let service = extract_service_name(Some(&resource), Some(&mut redactions));
+        assert_eq!(service, "checkout [REDACTED:email]");
+        assert_eq!(redactions, 1);
     }
 
     #[test]

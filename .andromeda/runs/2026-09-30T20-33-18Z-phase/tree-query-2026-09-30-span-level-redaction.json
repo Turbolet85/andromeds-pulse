@@ -1,0 +1,160 @@
+[
+{
+"sql": "SELECT caller_name, file, line FROM calls WHERE callee_name = 'scrub_attribute' AND callee_kind = 'fn' AND file NOT LIKE '%/tests/%' ORDER BY file, line",
+"rows": 30,
+"result": [
+{
+"caller_name": "appender",
+"file": "crates/buffer/src/appender.rs",
+"line": 17
+},
+{
+"caller_name": "scrub_otlp_field",
+"file": "crates/buffer/src/appender.rs",
+"line": 361
+},
+{
+"caller_name": "encode_labels",
+"file": "crates/buffer/src/appender.rs",
+"line": 437
+},
+{
+"caller_name": "encode_labels",
+"file": "crates/buffer/src/appender.rs",
+"line": 439
+},
+{
+"caller_name": "drain",
+"file": "crates/buffer/src/drain.rs",
+"line": 45
+},
+{
+"caller_name": "snapshot_state",
+"file": "crates/buffer/src/drain.rs",
+"line": 374
+},
+{
+"caller_name": "write_template_to_table",
+"file": "crates/buffer/src/drain.rs",
+"line": 634
+},
+{
+"caller_name": "markdown",
+"file": "crates/interpretation/src/markdown.rs",
+"line": 28
+},
+{
+"caller_name": "scrub_string",
+"file": "crates/interpretation/src/markdown.rs",
+"line": 336
+},
+{
+"caller_name": "scrubber_redacts_each_p047_category",
+"file": "crates/security/src/scrubber.rs",
+"line": 231
+},
+{
+"caller_name": "scrubber_redacts_luhn_valid_card_forms",
+"file": "crates/security/src/scrubber.rs",
+"line": 249
+},
+{
+"caller_name": "scrubber_allows_non_card_digit_runs",
+"file": "crates/security/src/scrubber.rs",
+"line": 271
+},
+{
+"caller_name": "scrubber_allows_non_pii_values",
+"file": "crates/security/src/scrubber.rs",
+"line": 293
+},
+{
+"caller_name": "scrubber_preserves_key_and_predicate_column_identities",
+"file": "crates/security/src/scrubber.rs",
+"line": 326
+},
+{
+"caller_name": "redacted_variant_never_carries_value_content",
+"file": "crates/security/src/scrubber.rs",
+"line": 358
+},
+{
+"caller_name": "baseline_persistence",
+"file": "pulse-app/src/baseline_persistence.rs",
+"line": 39
+},
+{
+"caller_name": "scrub_service_key",
+"file": "pulse-app/src/baseline_persistence.rs",
+"line": 108
+},
+{
+"caller_name": "digest_runtime",
+"file": "pulse-app/src/digest_runtime.rs",
+"line": 33
+},
+{
+"caller_name": "pii_scrub_closure",
+"file": "pulse-app/src/digest_runtime.rs",
+"line": 54
+},
+{
+"caller_name": "inference_runtime",
+"file": "pulse-app/src/inference_runtime.rs",
+"line": 35
+},
+{
+"caller_name": "scrubbed_l4_json",
+"file": "pulse-app/src/inference_runtime.rs",
+"line": 666
+},
+{
+"caller_name": "scrub_text",
+"file": "pulse-app/src/inference_runtime.rs",
+"line": 676
+},
+{
+"caller_name": "investigate_router",
+"file": "pulse-app/src/investigate_router.rs",
+"line": 20
+},
+{
+"caller_name": "scrub",
+"file": "pulse-app/src/investigate_router.rs",
+"line": 113
+},
+{
+"caller_name": "lifecycle_persistence",
+"file": "pulse-app/src/lifecycle_persistence.rs",
+"line": 30
+},
+{
+"caller_name": "scrub_service_name",
+"file": "pulse-app/src/lifecycle_persistence.rs",
+"line": 102
+},
+{
+"caller_name": "storm_persistence",
+"file": "pulse-app/src/storm_persistence.rs",
+"line": 31
+},
+{
+"caller_name": "scrub_fingerprint_service",
+"file": "pulse-app/src/storm_persistence.rs",
+"line": 87
+},
+{
+"caller_name": "training_export",
+"file": "pulse-app/src/training_export.rs",
+"line": 28
+},
+{
+"caller_name": "scrub_string",
+"file": "pulse-app/src/training_export.rs",
+"line": 89
+}
+],
+"db_state": "fresh",
+"plane": "rust"
+}
+]

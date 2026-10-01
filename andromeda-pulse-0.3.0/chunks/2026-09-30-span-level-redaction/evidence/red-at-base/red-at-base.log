@@ -1,0 +1,83 @@
+## red-at-base.log
+     Running tests\e2e_pii_span_masking_stored_field.rs (target\debug\deps\e2e_pii_span_masking_stored_field-3cb8c14e875e1300.exe)
+
+running 1 test
+test span_mask_keeps_context_around_embedded_secrets_in_stored_columns ... FAILED
+
+failures:
+
+---- span_mask_keeps_context_around_embedded_secrets_in_stored_columns stdout ----
+
+thread 'span_mask_keeps_context_around_embedded_secrets_in_stored_columns' (41976) panicked at pulse-app\tests\e2e_pii_span_masking_stored_field.rs:192:5:
+log_records.body is not the span-masked form (value withheld); stored_len=20, expected_len=139
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    span_mask_keeps_context_around_embedded_secrets_in_stored_columns
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.35s
+
+error: test failed, to rerun pass `-p pulse-app --test e2e_pii_span_masking_stored_field`
+
+## red-at-base-2.log
+     Running tests\unit_digest_runtime_scrub.rs (target\debug\deps\unit_digest_runtime_scrub-bbbd1593cef72f5b.exe)
+
+running 4 tests
+test pii_scrub_closure_redacts_jwt ... ok
+test pii_scrub_closure_allows_clean_text ... ok
+test pii_scrub_closure_span_masks_only_the_card_in_a_digest ... FAILED
+test pii_scrub_closure_keeps_a_digest_whose_project_line_carries_a_date_stamp ... ok
+
+failures:
+
+---- pii_scrub_closure_span_masks_only_the_card_in_a_digest stdout ----
+
+thread 'pii_scrub_closure_span_masks_only_the_card_in_a_digest' (17156) panicked at pulse-app\tests\unit_digest_runtime_scrub.rs:39:5:
+assertion `left == right` failed
+  left: "[redacted:credit_card]"
+ right: "WINDOW: 300s, tier1 cadence\nPROJECT: rm-20260923-093840 (vcs=git)\nOVERALL: nominal (0 active-bypass incident(s); 1 cue(s))\nSERVICES (rate, error%, p99 vs baselines):\n  checkout-service     12.5/s | 0.0% | 41ms\n  note: card [redacted:credit_card]\n"
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    pii_scrub_closure_span_masks_only_the_card_in_a_digest
+
+test result: FAILED. 3 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+error: test failed, to rerun pass `-p pulse-app --test unit_digest_runtime_scrub`
+     Running tests\unit_training_export.rs (target\debug\deps\unit_training_export-185acccc4e7bf77c.exe)
+
+running 11 tests
+test build_preview_summary_handles_empty_corpus ... ok
+test resolve_default_target_uses_injected_timestamp_under_downloads ... ok
+test validate_export_target_rejects_parent_dir_traversal ... ok
+test validate_export_target_rejects_nonexistent_parent ... ok
+test validate_export_target_accepts_existing_parent ... ok
+test build_preview_summary_counts_by_status_and_severity_with_date_range ... ok
+test scrub_redacts_pii_in_exported_text_fields ... ok
+test serialize_jsonl_produces_one_valid_json_object_per_line ... ok
+test count_redactions_counts_redacted_fields ... ok
+test incident_row_to_export_record_maps_fields_and_restamps_metadata ... ok
+test count_redactions_span_mask_counts_a_mid_value_placeholder ... FAILED
+
+failures:
+
+---- count_redactions_span_mask_counts_a_mid_value_placeholder stdout ----
+
+thread 'count_redactions_span_mask_counts_a_mid_value_placeholder' (21232) panicked at pulse-app\tests\unit_training_export.rs:258:5:
+assertion `left == right` failed
+  left: 0
+ right: 1
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    count_redactions_span_mask_counts_a_mid_value_placeholder
+
+test result: FAILED. 10 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+error: test failed, to rerun pass `-p pulse-app --test unit_training_export`
+error: 2 targets failed:
+    `-p pulse-app --test unit_digest_runtime_scrub`
+    `-p pulse-app --test unit_training_export`

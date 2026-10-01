@@ -13,7 +13,7 @@
 //! projection lives here as [`assemble_report`] (moved from pulse-app so the
 //! MCP `retrieve_report` tool and the `incidents.get_report` resolver share
 //! one source per P-038); that projection DOES apply defense-in-depth
-//! scrubbing via `security::scrubber::scrub_attribute`, which is why this
+//! scrubbing via `security::scrubber::mask_secret_spans`, which is why this
 //! crate now carries a `security` dep edge (security is a leaf crate — no
 //! cycle introduced).
 //!
@@ -26,7 +26,7 @@
 //!   serializer surfaces explicit "interpretation pending" notice in
 //!   place of those sections per chunk #86 degraded-mode UX pattern.
 
-use security::scrubber::{ScrubbedValue, scrub_attribute};
+use security::scrubber::mask_secret_spans;
 use serde::{Deserialize, Serialize};
 use triage::contract::{Incident, IncidentStatus, Severity};
 
@@ -329,15 +329,12 @@ pub fn assemble_report(
 }
 
 /// Defense-in-depth scrubber application. Routes a text field through
-/// `security::scrubber::scrub_attribute` BEFORE markdown composition per
-/// the chunk #72 uniform-coverage invariant. Already-scrubbed input passes
-/// through verbatim (idempotent at the scrubber boundary); raw OTLP-derived
-/// bytes that somehow bypassed upstream scrubbing get redacted here.
+/// `security::scrubber::mask_secret_spans` BEFORE markdown composition per
+/// the chunk #72 uniform-coverage invariant. Already-masked input passes
+/// through verbatim (masking is idempotent); a secret in raw OTLP-derived
+/// bytes that somehow bypassed upstream scrubbing is masked where it sits.
 pub fn scrub_string(text: &str) -> String {
-    match scrub_attribute(text) {
-        ScrubbedValue::Allowed(s) => s,
-        ScrubbedValue::Redacted { category } => format!("[redacted: {category}]"),
-    }
+    mask_secret_spans(text, |category| format!("[redacted: {category}]")).text
 }
 
 fn hex_lower(bytes: &[u8]) -> String {
@@ -682,6 +679,14 @@ mod tests {
         assert!(hypotheses_pos < steps_pos);
         assert!(steps_pos < evidence_pos);
         assert!(evidence_pos < context_pos);
+    }
+
+    #[test]
+    fn scrub_string_span_masks_a_token_and_keeps_its_sentence() {
+        assert_eq!(
+            scrub_string("checkout rejected token=abc123 for the cart\nretry scheduled"),
+            "checkout rejected [redacted: secret_kv]\nretry scheduled"
+        );
     }
 
     #[test]

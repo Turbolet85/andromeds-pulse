@@ -20,7 +20,7 @@
 //! PII discipline (chunk #72): `BaselineState` per-service `DashMap` keys
 //! and per-operation key prefixes carry raw `service.name` strings
 //! (user-content classification). `save` calls
-//! `BaselineState::scrubbed_clone` with `security::scrubber::scrub_attribute`
+//! `BaselineState::scrubbed_clone` with `security::scrubber::mask_secret_spans`
 //! to pre-scrub the keys before bincode, rendering `[REDACTED:{category}]`
 //! markers for matched categories. Aggregation-collapse note: PII-shaped
 //! service names collapse to the same scrubbed bucket per chunk #72 plan
@@ -37,7 +37,7 @@ use std::sync::Arc;
 use std::time::Instant;
 
 use corpus::contract::{CorpusWriter, Error as CorpusError};
-use security::scrubber::{ScrubbedValue, scrub_attribute};
+use security::scrubber::mask_secret_spans;
 use triage::contract::{BaselineError, BaselinePersistence, BaselineState, DEFAULT_MAX_SIZE_BYTES};
 
 /// Stable `metric_name` value in `pipeline_metrics` for BaselineState.
@@ -102,14 +102,14 @@ impl BaselinePersistence for CorpusBaselinePersistence {
 
 /// Producer-side PII scrub for `BaselineState` per-service map keys + the
 /// `service` prefix of per-operation keys before bincode (chunk #72).
-/// Renders the `[REDACTED:{category}]` marker per the chunk #68/#69
-/// convention; dep-injected into `BaselineState::scrubbed_clone` to keep
-/// the triage crate security-crate-free.
-fn scrub_service_key(service: &str) -> String {
-    match scrub_attribute(service) {
-        ScrubbedValue::Allowed(s) => s,
-        ScrubbedValue::Redacted { category } => format!("[REDACTED:{}]", category),
-    }
+/// Masks each secret as the `[REDACTED:{category}]` marker per the chunk
+/// #68/#69 convention — the same masking as the `extract_service_name` choke
+/// point, so a key that already passed it comes back unchanged;
+/// dep-injected into `BaselineState::scrubbed_clone` to keep the triage
+/// crate security-crate-free.
+#[doc(hidden)]
+pub fn scrub_service_key(service: &str) -> String {
+    mask_secret_spans(service, |category| format!("[REDACTED:{category}]")).text
 }
 
 /// Sanitized cross-crate error mapping. Per arch §Established Decisions

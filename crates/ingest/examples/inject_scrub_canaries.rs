@@ -38,6 +38,23 @@ const CONTROL_SERVICE: &str = "scrub-canary-control";
 const CONTROL_EVENT: &str = "exception";
 const CONTROL_METRIC: &str = "scrub.canary.control.total";
 const CONTROL_SEVERITY: &str = "ERROR";
+
+/// `--embedded` places the SAME canary in the SAME four columns, mid-text
+/// between context words carrying the `spanmask-ctx` token, so a run observes
+/// span-level masking: the canary must not be stored and the context must
+/// survive around its placeholder. Without the flag the canary is the whole
+/// value, as before.
+const EMBEDDED_FLAG: &str = "--embedded";
+const EMBEDDED_LEAD: &str = "spanmask-ctx-lead";
+const EMBEDDED_TAIL: &str = "spanmask-ctx-tail";
+
+fn canary_value(embedded: bool) -> String {
+    if embedded {
+        format!("{EMBEDDED_LEAD} {CANARY} {EMBEDDED_TAIL}")
+    } else {
+        CANARY.to_string()
+    }
+}
 const SEVERITY_ERROR: i32 = 17;
 
 fn now_ns() -> u64 {
@@ -127,6 +144,7 @@ async fn main() {
     let endpoint = "http://127.0.0.1:4317";
     println!("connecting to {endpoint} ...");
     let ts = now_ns();
+    let canary = canary_value(std::env::args().any(|arg| arg == EMBEDDED_FLAG));
 
     // spans.service_name (canary resource) + span_events.name (canary event),
     // each paired with a control emitted under a legitimate identity.
@@ -137,10 +155,10 @@ async fn main() {
         .export(ExportTraceServiceRequest {
             resource_spans: vec![
                 ResourceSpans {
-                    resource: Some(resource(CANARY)),
+                    resource: Some(resource(&canary)),
                     scope_spans: vec![ScopeSpans {
                         scope: None,
-                        spans: vec![span_with_event(0xA1, ts, CANARY)],
+                        spans: vec![span_with_event(0xA1, ts, &canary)],
                         schema_url: String::new(),
                     }],
                     schema_url: String::new(),
@@ -170,7 +188,7 @@ async fn main() {
                 scope_metrics: vec![ScopeMetrics {
                     scope: None,
                     metrics: vec![
-                        gauge_metric(CANARY, ts, 1),
+                        gauge_metric(&canary, ts, 1),
                         gauge_metric(CONTROL_METRIC, ts, 2),
                     ],
                     schema_url: String::new(),
@@ -191,7 +209,7 @@ async fn main() {
             scope_logs: vec![ScopeLogs {
                 scope: None,
                 log_records: vec![
-                    log_record(ts, CANARY, "scrub canary in severity_text"),
+                    log_record(ts, &canary, "scrub canary in severity_text"),
                     log_record(ts + 1, CONTROL_SEVERITY, "scrub canary control record"),
                 ],
                 schema_url: String::new(),
@@ -203,9 +221,9 @@ async fn main() {
     .expect("logs export must be accepted");
 
     println!("sent canaries at ts_unix_nano={ts}");
-    println!("  spans.service_name          canary={CANARY:?} control={CONTROL_SERVICE:?}");
-    println!("  span_events.name            canary={CANARY:?} control={CONTROL_EVENT:?}");
-    println!("  metrics_points.metric_name  canary={CANARY:?} control={CONTROL_METRIC:?}");
-    println!("  log_records.severity_text   canary={CANARY:?} control={CONTROL_SEVERITY:?}");
+    println!("  spans.service_name          canary={canary:?} control={CONTROL_SERVICE:?}");
+    println!("  span_events.name            canary={canary:?} control={CONTROL_EVENT:?}");
+    println!("  metrics_points.metric_name  canary={canary:?} control={CONTROL_METRIC:?}");
+    println!("  log_records.severity_text   canary={canary:?} control={CONTROL_SEVERITY:?}");
     println!("none of the four canaries may be stored verbatim; every control must survive as-is.");
 }

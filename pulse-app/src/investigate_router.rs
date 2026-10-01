@@ -18,7 +18,7 @@ use duckdb::Connection;
 use interpretation::contract::{LlmInferenceRunner, model_tier_label};
 use interpretation::prompt::build_primary_tier_prompt;
 use interpretation::schema::{L4_OUTPUT_JSON_SCHEMA, L4Output, parse_bounded};
-use security::scrubber::{ScrubbedValue, scrub_attribute};
+use security::scrubber::mask_secret_spans;
 use serde::{Deserialize, Serialize};
 use ui_bridge::contract::AppError;
 
@@ -110,11 +110,10 @@ impl InvestigateApiImpl {
 
 /// Scrub a model-derived text field at the resolver egress boundary
 /// (defense-in-depth on top of any producer-side scrubbing per chunk #72/#88).
-fn scrub(raw: &str) -> String {
-    match scrub_attribute(raw) {
-        ScrubbedValue::Allowed(s) => s,
-        ScrubbedValue::Redacted { category } => format!("[redacted: {category}]"),
-    }
+/// Each secret is masked where it sits; the rest of the field is kept.
+#[doc(hidden)]
+pub fn scrub(raw: &str) -> String {
+    mask_secret_spans(raw, |category| format!("[redacted: {category}]")).text
 }
 
 fn to_result_dto(action_id: &str, parsed: &L4Output) -> InvestigateResultDto {

@@ -1,0 +1,20 @@
+## live-leg.txt
+# live leg — 2026-10-01, operator slot granted (overseer)
+boot: target/debug/pulse-app.exe by path, fresh exported ANDROMEDA_PULSE_DATA_DIR (temp), app pid 45024 (pidfile = only pulse-app process), :4317 accepting ~1s
+entry 16 (liveness): green, exit 0
+entry 17 (producer --embedded, by path): exit 0 — stdout below
+connecting to http://127.0.0.1:4317 ...
+sent canaries at ts_unix_nano=1790843736443338300
+  spans.service_name          canary="spanmask-ctx-lead <CANARY:provider_key> spanmask-ctx-tail" control="scrub-canary-control"
+  span_events.name            canary="spanmask-ctx-lead <CANARY:provider_key> spanmask-ctx-tail" control="exception"
+  metrics_points.metric_name  canary="spanmask-ctx-lead <CANARY:provider_key> spanmask-ctx-tail" control="scrub.canary.control.total"
+  log_records.severity_text   canary="spanmask-ctx-lead <CANARY:provider_key> spanmask-ctx-tail" control="ERROR"
+none of the four canaries may be stored verbatim; every control must survive as-is.
+entry 18 (redactions_applied): green — last line: redactions_applied":4; trajectory over the log family:
+      1 "redactions_applied":0
+      7 "redactions_applied":4
+entry 19 (canary on the wire): green — count 0
+entry 20 (app.panic.fatal + ERROR): green — count 0
+entry 21 (spanmask-ctx on the wire, report-only): recorded — count 0
+entry 18 note: the poll never broke early (ran its full ~61 s): the gate tool runs bash -o pipefail, and on this ~10 MB log cat takes SIGPIPE when grep -q matches, so the predicate reads as failure on a match; the final file read is unaffected (measured: same predicate -> match without pipefail, NO match with pipefail)
+teardown: Stop-Process -Id 45024 -Force; pid gone; no pulse-app process; 4317 released; 4318 released (08:37:25Z)

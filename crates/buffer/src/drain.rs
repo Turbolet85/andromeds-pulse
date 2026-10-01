@@ -43,7 +43,7 @@ use std::time::Instant;
 use duckdb::Connection;
 use lru::LruCache;
 use regex::Regex;
-use security::scrubber::{ScrubbedValue, scrub_attribute};
+use security::scrubber::mask_secret_spans;
 use serde::{Deserialize, Serialize};
 
 use crate::contract::Error;
@@ -356,13 +356,13 @@ impl DrainMiner {
     /// than per assignment.
     ///
     /// Each [`TemplateRecord::tokens`] entry is PII-scrubbed via
-    /// [`security::scrubber::scrub_attribute`] before being returned (chunk
+    /// [`security::scrubber::mask_secret_spans`] before being returned (chunk
     /// #72). Pattern mirrors the in-memory DuckDB `log_templates` write at
-    /// [`write_template_to_table`]: join tokens, scrub, re-split. This makes
+    /// [`write_template_to_table`]: join tokens, mask, re-split. This makes
     /// the persisted bincode payload (`CorpusDrainPersistence::save`) carry
     /// already-redacted markers (`[REDACTED:{category}]`) rather than raw
-    /// matched content. Idempotent: a Redacted marker re-scrubbed is a no-op
-    /// per the security::scrubber primitive's first-match semantics.
+    /// matched content; a marker holds no whitespace, so it stays one token.
+    /// Idempotent: masking already-masked text changes nothing.
     pub fn snapshot_state(&self) -> Result<DrainState, Error> {
         let state = self.state.lock().map_err(|_| Error::Drain {
             reason: "drain state mutex poisoned".to_string(),
@@ -372,10 +372,8 @@ impl DrainMiner {
             .values()
             .map(|t| {
                 let joined = t.tokens.join(" ");
-                let scrubbed = match scrub_attribute(&joined) {
-                    ScrubbedValue::Allowed(s) => s,
-                    ScrubbedValue::Redacted { category } => format!("[REDACTED:{}]", category),
-                };
+                let scrubbed =
+                    mask_secret_spans(&joined, |category| format!("[REDACTED:{category}]")).text;
                 let tokens: Vec<String> =
                     scrubbed.split_whitespace().map(|s| s.to_string()).collect();
                 TemplateRecord {
@@ -611,9 +609,9 @@ impl DrainMiner {
 /// Persist a newly-created template to the in-memory DuckDB `log_templates`
 /// table via a prepared statement (NO `format!()`; per security plan
 /// universal invariant on DuckDB SQL composition). The template's
-/// joined-token text is scrubbed via [`security::scrubber::scrub_attribute`]
+/// joined-token text is masked via [`security::scrubber::mask_secret_spans`]
 /// BEFORE the write per capability P-047 + security plan §Logging NEVER-log
-/// discipline extended to a new persistence surface; redacted matches store
+/// discipline extended to a new persistence surface; each redacted span stores
 /// the stable `[REDACTED:{category}]` marker rather than the raw matched
 /// content.
 ///
@@ -632,10 +630,7 @@ pub(crate) fn write_template_to_table(
     record: &TemplateRecord,
 ) -> Result<(), Error> {
     let raw_text = record.tokens.join(" ");
-    let scrubbed = match scrub_attribute(&raw_text) {
-        ScrubbedValue::Allowed(s) => s,
-        ScrubbedValue::Redacted { category } => format!("[REDACTED:{}]", category),
-    };
+    let scrubbed = mask_secret_spans(&raw_text, |category| format!("[REDACTED:{category}]")).text;
 
     let mut stmt = conn
         .prepare(

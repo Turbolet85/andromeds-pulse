@@ -11,7 +11,7 @@
 //! `resolved_at_unix_nano`).
 //!
 //! Every user-facing text field is routed through
-//! `security::scrubber::scrub_attribute` at this egress boundary — defense
+//! `security::scrubber::mask_secret_spans` at this egress boundary — defense
 //! in depth on top of the chunk #72 producer-side scrub, mirroring the
 //! chunk #88 `incidents.get_report` resolver-boundary discipline. The
 //! export writes a local file only and NEVER transmits to any endpoint
@@ -26,7 +26,7 @@ use std::collections::BTreeMap;
 use std::path::{Component, Path, PathBuf};
 
 use corpus::contract::IncidentRowRaw;
-use security::scrubber::{ScrubbedValue, scrub_attribute};
+use security::scrubber::mask_secret_spans;
 use serde::{Deserialize, Serialize};
 use triage::contract::{CueKind, CueScope, Incident, IncidentStatus, PriorityTier, Severity};
 use ui_bridge::contract::AppError;
@@ -83,13 +83,31 @@ pub struct ExportCategoryCount {
 
 const REDACTED_PREFIX: &str = "[redacted:";
 
-/// Scrub a single text field at the egress boundary. Redactions render as
-/// `[redacted: {category}]` (only the bounded category label, never the
-/// matched value) per the chunk #88 resolver-scrub precedent.
+/// Scrub a single text field at the egress boundary. Each secret is masked in
+/// place as `[redacted: {category}]` (only the bounded category label, never
+/// the matched value) per the chunk #88 resolver-scrub precedent.
 fn scrub_string(value: &str) -> String {
-    match scrub_attribute(value) {
-        ScrubbedValue::Allowed(s) => s,
-        ScrubbedValue::Redacted { category } => format!("{REDACTED_PREFIX} {category}]"),
+    mask_secret_spans(value, |category| format!("{REDACTED_PREFIX} {category}]")).text
+}
+
+/// Scrub the serialized interpretation per string leaf, as its write site
+/// does, so a keyed match can never run across compact-JSON delimiters and
+/// leave the exported field unparseable. Text that is not JSON (a legacy
+/// marker) is scrubbed whole.
+fn scrub_interpretation(text: &str) -> String {
+    let Ok(mut value) = serde_json::from_str::<serde_json::Value>(text) else {
+        return scrub_string(text);
+    };
+    mask_string_leaves(&mut value);
+    serde_json::to_string(&value).unwrap_or_else(|_| scrub_string(text))
+}
+
+fn mask_string_leaves(value: &mut serde_json::Value) {
+    match value {
+        serde_json::Value::String(text) => *text = scrub_string(text),
+        serde_json::Value::Array(items) => items.iter_mut().for_each(mask_string_leaves),
+        serde_json::Value::Object(fields) => fields.values_mut().for_each(mask_string_leaves),
+        _ => {}
     }
 }
 
@@ -137,7 +155,7 @@ pub fn incident_row_to_export_record(row: &IncidentRowRaw) -> Result<ExportRecor
         interpretation: incident
             .resolution_summary_text
             .as_deref()
-            .map(scrub_string),
+            .map(scrub_interpretation),
         fingerprint_hashes: incident
             .evidence_refs
             .fingerprint_hashes
@@ -170,7 +188,7 @@ pub fn serialize_jsonl(records: &[ExportRecord]) -> Result<String, AppError> {
 /// the `storage.export_for_training.request` tracing event — never the
 /// redacted values themselves).
 pub fn count_redactions(records: &[ExportRecord]) -> u64 {
-    let is_redacted = |s: &str| s.starts_with(REDACTED_PREFIX);
+    let is_redacted = |s: &str| s.contains(REDACTED_PREFIX);
     let mut n: u64 = 0;
     for record in records {
         if is_redacted(&record.workspace) {
