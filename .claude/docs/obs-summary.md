@@ -115,6 +115,14 @@ every field is redacted. Registered at BOTH `§6`'s warn row and `§8` per the d
 → 3/4 RED, the fallback-leak pin correctly green).
 — under `tests/` because `[lib] test = false` makes a src-level guard compile and never run.
 
+**Incident-producer skip leaf (chunk 2026-10-01-real-model-incident-surfacing).** EXACT `§8` leaf
+`interpretation.incident.skipped` — `skip_reason` (`model_resolution_summary`|`decision_dismiss`|`severity_none`|`no_cue`,
+the first gate in code order) + `decision` + `severity` + `digest_kind`, all four bounded labels the emit site emits;
+INFO once per cleanly-parsed L4 generation that creates no incident (never scope_id, title, symptom, digest or model
+text). It makes the no-incident outcome observable: before it, a parse-`ok` generation that created nothing left no
+record, and "the model dismissed" was read from that silence (measured 1 dismiss in 30; the rest `severity: none`).
+Guarded by `pulse-app/tests/unit_observability_allowlist_incident_skip.rs` + 7 producer pins.
+
 **Incident-producer outcome leaf (chunk 2026-08-16-fault-identity-semantics-decided).** One EXACT `§8` leaf —
 `interpretation.incident.created` (`created` / `deduped` bools + `severity` / `priority_tier` bounded labels — all
 four the emit site emits). **No bare `interpretation` key may exist** — and the invariant HOLDS IN CODE since chunk

@@ -87,3 +87,10 @@ my word, in plan order"); each entry's exact `run`, its exit and its atoms.
 - What the pair supports: the same commit booted healthy on the re-run, so the exit 1 did not reproduce
   (1 failure in 2 attempts at one sha). It does not establish the cause of the first exit, which stays
   unexplained; no confining mechanism is identified.
+
+## The fix push
+- hygiene clean; `cargo xtask pre-push:linux` exit 0, `verdict: green`, all six stages ok (tree
+  `3c4317155c11f49d24b5eb735d5c6cce704180ba`; its npm stage ran `npm ci` on the new lockfile).
+- second operator pre-CI commit `f37cd3e`; pushed `69f0b93..f37cd3e`.
+- Entry 28 re-read: `f37cd3e75978 verdict: green · checks 13/13 · wall 1227 s` -
+  `ci#36902837947` success, `secret-scan#36902838296` success.

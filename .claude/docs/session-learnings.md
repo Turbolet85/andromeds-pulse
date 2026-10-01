@@ -1,6 +1,27 @@
 # Session Learnings
 
 
+## 2026-10-01 — Measure a real-model decision defect with a pre-registered, one-factor arm matrix before choosing a fix
+
+When the real L4 model "does the wrong thing" on some inputs, do not iterate prompt or sampling variants until a sample
+passes; that tunes against noise. Build a dev-only probe instead, a cargo `[[example]]` rather than a test, because a
+real-model generation cannot give a deterministic verdict. The probe renders SYNTHETIC inputs through the REAL renderer
+and prompt builder (expose them `#[doc(hidden)] pub` rather than copying the template), spawns the model with the
+production argv and bounds, and records only bounded labels per generation. Define arms that each differ from the
+baseline in ONE factor (sampling, a status line, quantities in the input, guidance text, schema field order), measure
+the baseline FIRST on the untouched tree, and fix the decision rule (threshold, selection order, what happens when
+nothing qualifies) in the plan before the run. A `--dry-run` that composes every arm and spawns nothing proves the
+transforms before the slot is spent.
+
+Two things this buys. The measurement can falsify the premise: "the model dismissed the storm" turned out to be 1
+dismiss in 30, with the misses all `severity: none`. And it separates a fix from an accident: several arms can
+qualify, and the pre-registered order, not the best-looking number, decides which one ships, so a rejected candidate
+(here, a ratification-gated sampling change) falls through to the next qualifier without re-running anything. Record
+the generated key order and a per-run output hash too: they answered "does the grammar keep schema order?" and "does
+the default seed vary per run?" from the same runs.
+
+---
+
 ## 2026-10-01 — A gate entry's time bound can read as a link failure and leave an orphaned build
 
 A `[[gate]]` entry with no `timeout` key is bounded by the gate tool's default (1800 s). When that bound fires

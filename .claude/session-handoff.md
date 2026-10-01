@@ -1,43 +1,52 @@
 # Session Handoff
 
-**Last Updated:** 2026-10-01T11:38:18Z
+**Last Updated:** 2026-10-01T18:30:53Z
 **Branch:** chore/migrate-pulse-to-v3 · 0 ahead of origin/chore/migrate-pulse-to-v3 as read at this wrap's Setup (the chunk commit follows it, then the push)
 **Status:** clean
-**Last Commit:** 2026-09-30-span-level-redaction — chunk wrap (a secret inside a larger value redacts only its matched span)
+**Last Commit:** 2026-10-01-real-model-incident-surfacing — chunk wrap (the real model turns a storm digest into an incident for a measured cause)
 
 ## Position
-- Done: `2026-09-30-span-level-redaction`.
-  - **Primitive:** `security::scrubber::mask_secret_spans` masks each secret where it sits, using the founder-ratified class-aware extent («Ок давай по типу правила»): keyed arms mask to the end of the line, bare arms the whole token, a card its digit run. `scrub_attribute` stays the detection verdict, and the only whole-value site left is `metrics_points.labels`.
-  - **JSON payloads:** `resolution_summary_text` and the training export's `interpretation` are masked per string leaf and stay parseable.
-  - **Operator pass:** `9d14166` was red on `ci#36842111417` (a Cyrillic test literal tripped the CI source lint). The fix commit `7949d81` is green on `ci#36851508616`, 13/13.
-- Next (first markerless): **Real-model incident surfacing**, carrying the new CI-lint PREREQ, then Conductor return (P-075).
+- Done: `2026-10-01-real-model-incident-surfacing`.
+  - **Surfacing — the fix:** A5 (the L4 schema emits `decision` / `severity` after the analysis) plus a truthful `OVERALL:` line. The shipped tree read 29/30 would-create, against 24/30 on the untouched base.
+  - **Surfacing — selection:** A1 (`--temp 0`) was declined by founder ruling (2026-10-01), so the pre-registered order fell through to A5.
+  - **Premise correction:** "the model dismissed" measured 1 of 30; the rest were `severity: none`.
+  - **Observability:** the new `interpretation.incident.skipped` record makes a no-incident outcome visible.
+  - **PREREQ:** `cargo xtask check:english-sources`, ASCII-only, in CI and as the sixth `pre-push:linux` stage.
+  - **Operator pass:** two CI reds on `69f0b93` were solved in-chunk:
+    - a `basic-ftp` npm override (a widening on the overseer's word);
+    - the boot-smoke death re-ran healthy.
+  - **Final CI:** `f37cd3e` green, `ci#36902837947`, 13/13.
+- Next: **Conductor return** (P-075). It carries a new PREREQ: every non-zero exit path logs its cause before exiting, because the Linux CI boot smoke's app died once with `exit 1` at 0.27 s, cause unexplained.
 
 ## Work done
-- Code: `crates/security` (primitive + 31 `span_mask` pins + proptest seeds), `crates/buffer` (appender, drain), `crates/interpretation` (markdown), seven `pulse-app/src` consumers, `inject_scrub_canaries --embedded`, and five pulse-app test files (two new).
-- Workspace nextest 2485 → 2530; the security crate suite 54 → 85. No dependency, capability, IPC or bindings change.
-- Evidence: `chunks/2026-09-30-span-level-redaction/evidence/` holds red-at-base, mutation m1–m4, live-leg and operator-pass.
+- Code: the xtask `source_lint` verb plus its pre-push stage and the ci.yml step; the skip emit and its exact allowlist leaf; `render_payload` / `cue_summary` exposed (doc-hidden); the OVERALL rule; the schema reorder with prompt v2.3 / v1.2-fallback / v1.2-reflection; the dev probe `pulse-app/examples/l4_decision_probe.rs`; the npm override.
+- Workspace nextest 2530 → 2551 (+21). Webview 863/863.
+- Evidence is in `chunks/2026-10-01-real-model-incident-surfacing/evidence/`: the arm matrix, the plant proof, mutation ×4, Slot 2 and the operator pass.
 
 ## Drift resolved
-10 amendments across 4 masters, with 0 escalations open (`.andromeda/runs/2026-10-01T11-19-47Z-wrap/fanout-results.md`).
-- **The escalation:** this chunk is a Boundary widening. It was resolved by the founder's P4 ratification, and the word is quoted in all four sidecar entries per the wrap directive.
-- **security-plan:** Logging catalog · INTENDED posture · incident-summary clause · identity columns + Residual · Threat Model sensitivity note · At-rest corpus.
-- **architecture:** PK convention, training-export egress sink.
-- **test-plan:** §4 security crate.
-- **obs-plan:** §5 `redactions_applied` unit.
-- **Leaves re-derived:** `rules/security.md` (a new body bullet), `rules/observability.md`, `docs/services/{security,corpus}.md`, `docs/conventions.md` and the CLAUDE.md modules line.
+8 amendments across 3 masters, 0 escalations (`.andromeda/runs/2026-10-01T18-16-18Z-wrap/fanout-results.md`).
+- **architecture:** `check:english-sources` registered; `pre-push:linux` has six stages.
+- **test-plan:** §3 six stages · §4 interpretation (lineage v2.3, schema-order pin) · §4 triage (OVERALL pins) · §1 new trigger `l4-decision-probe-arg-parse-unit-coverage` · §9 the lint-test row names the source gate.
+- **obs-plan:** §8 `interpretation.incident.skipped`.
+- **Leaves re-derived:** `CLAUDE.md` (xtask lines), `docs/commands.md`, `docs/tests-summary.md`, `docs/obs-summary.md`, `rules/verification-harness.md`, `rules/observability.md`. The sweep caught two stale five-stage leaves.
 
 ## Notes
-- **Ports:** 4317/4318 are shared with conductor-builder. Ask the operator for the slot before any run that launches pulse-app or opens a window.
-- **LSP flycheck:** this session's rust-analyzer flycheck (`cargo check --workspace --all-targets`) contends with clean/builds. On the operator's ruling it is stopped by PID; rust-analyzer itself is never stopped. Curated to `host-win32.md`.
-- **Watch:** Actions cache headroom was 1.23 % at the last read.
+- **Ports:** 4317/4318 are shared with conductor-builder. Ask the operator for the slot before any run that launches pulse-app, a window or the model.
+- **LSP flycheck:** rust-analyzer respawns a `cargo check` after every source edit. Stop it by PID before cargo runs, identified by its `rust-analyzer.exe` parent; clippy's own `cargo check` child looks the same (curated to `host-win32.md`).
+- **Founder rulings:** record by name and date, relayed by the pc overseer, never as "Viola" (the driver tool); sidecars name the ruling, never quote it.
+- **Watch:** Actions cache headroom was 1.23 % at an earlier read (not re-read this wrap).
 - **Pre-existing tool verdicts, not this chunk's:** `route.py` UNPARSED/INDETERMINATE on frozen lines; `matrix.py show` UNPARSED P-072; `registry.py contracts` NOT MIGRATED (arch · tests · obs · a11y).
-- **Epoch 4** is at 49 entries; the operator's no-split ruling stands.
+- **Epoch 4** is at 49 entries; the operator's no-split ruling stands. It closes when Conductor return completes.
 - **Not this wrap (founder's hand):** the `.gitattributes` re-checkout, and the U35 door. PR #39 stays a draft.
 - **Still open:** the `sidecar.py` Ref defect relayed to overseer1 at session 65.
 - **Last failed command:** none.
 
 ## Deferred learnings
-- `recurrence-despite-learning`: testing.md 2026-06-05, extended 2026-08-30 ("under pipefail `producer | grep -q` inverts on match"). This plan's `redactions_applied` live probe polls with `cat {log} | grep -q … && break`, and the gate tool runs `bash -o pipefail`. Its early break can never fire, so it always waits the full 60 s; the final read is still correct. The remedy is a CHECK in phase's plan authoring.
+- `recurrence-despite-learning`:
+  - Matched: the Tier 3 entry "A gate entry's time bound can read as a link failure…" (2026-10-01) and testing.md 2026-06-28 ("-E filters RUN not COMPILE").
+  - What recurred: this plan's targeted nextest entry carried no `timeout` key and timed out twice at the 1800 s default, compiling every test binary after source edits.
+  - Remedy: a CHECK in phase's plan authoring — a targeted nextest entry carries a `timeout` sized for a cold test build.
+- `recurrence-despite-learning` (from the prior wrap, still open): a `producer | grep -q` poll under pipefail. The remedy is the same plan-authoring CHECK class.
 - Still open from prior wraps:
   - the implement report-step CHECK (unit-only claims vs a longer live run);
   - the bindings-regen PIPELINE half;
@@ -45,6 +54,3 @@
   - Windows `.ico` vs palette PNG;
   - the deferral-destination generalization;
   - `inject_demo --sustained` cannot form an incident.
-
-## Session End Status
-Completed normally at 2026-10-01 14:35:41

@@ -88,4 +88,4 @@ not hypothetical. (Rendered only on Windows-host projects; inert elsewhere.)
 
 ## Session Additions
 
-- 2026-10-01: The session's own rust-analyzer LSP runs a `cargo check --workspace --all-targets` flycheck into the shared `target/` and respawns after source edits; before a `cargo clean` or a long build, stop that flycheck cargo tree by PID — never rust-analyzer itself — and re-check for a respawn, or the two contend for the build lock and the disk.
+- 2026-10-01: The session's own rust-analyzer LSP runs a `cargo check --workspace --all-targets` flycheck into the shared `target/` and respawns after source edits; before a `cargo clean` or a long build, stop that flycheck cargo tree by PID — never rust-analyzer itself — and re-check for a respawn, or the two contend for the build lock and the disk. Extended 2026-10-01: `cargo clippy` spawns its own `cargo check` child, which looks like the flycheck, so identify the flycheck by its `rust-analyzer.exe` parent (`Get-CimInstance Win32_Process` ParentProcessId) before stopping anything.

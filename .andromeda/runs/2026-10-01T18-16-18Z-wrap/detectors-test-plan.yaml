@@ -1,0 +1,17 @@
+- id: D-tests-coverage
+  doc: test-plan
+  invariant: new code paths the chunk adds carry tests at the tier the test-plan requires (§2 Test Strategy).
+  check: agent-read — compare the report's new symbols / modules against its Outcome (tests run); a new path with no test at the mandated tier is drift.
+  severity: warning
+- id: D-tests-framework
+  doc: test-plan
+  invariant: the test framework / runner the chunk uses matches the test-plan (§2 + §4 unit strategy).
+  check: agent-read — compare the report's test commands / runner against §2 / §4; an off-spec framework or runner is drift.
+  severity: warning
+- id: D-tests-obs-harness
+  doc: test-plan
+  invariant: the 5-command harness / status shape / log format stays consistent between test-plan §3 and obs-plan §3.
+  check: agent-read — if the report changes the harness, status endpoint, or log format, confirm §3 ↔ obs-plan §3 still agree; a one-sided change is drift.
+  severity: warning
+
+# — obs-plan —
