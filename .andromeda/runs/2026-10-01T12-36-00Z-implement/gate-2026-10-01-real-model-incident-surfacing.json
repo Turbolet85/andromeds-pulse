@@ -3795,5 +3795,55 @@
 "unparsed": 0,
 "widening_without_word": 0
 }
+},
+{
+"tool": "gate",
+"v": "1.5",
+"sha8": "018a3122",
+"ts": "2026-10-01T17:30:36Z",
+"argv": [
+"scope",
+"--chunk-dir",
+"andromeda-pulse-0.3.0/chunks/2026-10-01-real-model-incident-surfacing",
+"--run-dir",
+".andromeda/runs/2026-10-01T12-36-00Z-implement",
+"--marker",
+"2026-10-01-real-model-incident-surfacing"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"root D:\\dev\\projects\\andromeda-pulse · base 09d08091 (the parent of the oldest pre-CI commit 69f0b930) · lists new 3 · modify 20 · derived 0 · record 2",
+"control: lists · glob · record — each fired on its synthetic known positive; C1 · C2 held",
+"recorded widening pulse-app/ui/package.json",
+"recorded mechanical pulse-app/ui/package-lock.json",
+"scope: clean — changed 21 · listed 19 · recorded 2 (companion 0 · mechanical 1 · in-intent 0 · widening 1) · absorbed 0 · excluded 40"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"root": "D:\\dev\\projects\\andromeda-pulse",
+"base": "09d08091d392745c38062f0400c2b4bd32a06179",
+"base_why": "the parent of the oldest pre-CI commit 69f0b930",
+"counts": {
+"changed": 21,
+"listed": 19,
+"recorded": 2,
+"unrecorded": 0,
+"indet": 0,
+"absorbed": 0
+},
+"by_class": {
+"companion": 0,
+"mechanical": 1,
+"in-intent": 0,
+"widening": 1
+},
+"excluded": 40,
+"unparsed": 0,
+"widening_without_word": 0
+}
 }
 ]
