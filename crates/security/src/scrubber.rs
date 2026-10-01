@@ -742,8 +742,9 @@ mod tests {
 
     #[test]
     fn span_mask_handles_multibyte_text_around_a_secret() {
-        let masked = mask_secret_spans("ошибка для bob@example.com — повтор", mark);
-        assert_eq!(masked.text, "ошибка для <email> — повтор");
+        // `é` and `ü` are 2-byte and `—` is 3-byte in UTF-8.
+        let masked = mask_secret_spans("échec für bob@example.com — réessai", mark);
+        assert_eq!(masked.text, "échec für <email> — réessai");
     }
 
     fn secret_or_word() -> impl Strategy<Value = String> {
