@@ -180,5 +180,187 @@
 "entries": 25
 }
 }
+},
+{
+"tool": "health",
+"v": "1.0",
+"sha8": "a1bbe341",
+"ts": "2026-10-01T11:59:42Z",
+"argv": [
+"check",
+"--root",
+".",
+"--run-dir",
+".andromeda/runs/2026-10-01T11-19-47Z-wrap",
+"--marker",
+"2026-09-30-span-level-redaction"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"pre-flight · ✓ · CLAUDE.md at ./CLAUDE.md",
+"check 1 · ⚠ · CLAUDE.md 154/200 lines · T1 28.8 KB · 15 of 18 bullets over 600 B (+19.2 KB)",
+"  line 139 · 810 B",
+"  line 140 · 848 B",
+"  line 141 · 1311 B",
+"  line 142 · 1157 B",
+"  line 143 · 1291 B",
+"  line 144 · 1951 B",
+"  line 145 · 2094 B",
+"  line 146 · 1619 B",
+"  line 147 · 1820 B",
+"  line 148 · 1756 B",
+"  line 149 · 5133 B",
+"  line 150 · 2848 B",
+"  line 151 · 1765 B",
+"  line 152 · 1504 B",
+"  line 153 · 2726 B",
+"check 2 · ✓ · 20 markers · 10 starts · 0 orphan / mismatch / unclosed",
+"check 4 · ⚠ · 8 rule files · frontmatter 6/6 parsed · always-loaded 2 (92.7 KB)",
+"  a11y.md 21.2 KB · paths 3 · 5 Session Additions, 1 over 1.5 KB",
+"  design-tokens.md 11.7 KB · paths 3 · 2 Session Additions, 0 over 1.5 KB",
+"  frontend.md 40.4 KB · paths 2 · 22 Session Additions, 8 over 1.5 KB",
+"  host-win32.md 6.7 KB · always loaded · 1 Session Additions, 0 over 1.5 KB",
+"  observability.md 57.1 KB · paths 4 · 13 Session Additions, 5 over 1.5 KB",
+"  security.md 86.0 KB · always loaded · 36 Session Additions, 22 over 1.5 KB · past the read cap",
+"  testing.md 179.7 KB · paths 5 · 95 Session Additions, 38 over 1.5 KB · past the read cap",
+"  verification-harness.md 57.4 KB · paths 4 · 21 Session Additions, 10 over 1.5 KB",
+"check 5 · ✓ · core docs 5/5",
+"check 8 · INDETERMINATE: 2/2 entries satisfied by the root .gitignore (fragment: unread)",
+"  INDETERMINATE: fragment arm — no --stack given (one of: go, node, python, rust)",
+"check 9 · ✓ · plans 6/6 by name · summaries 5/5 by name",
+"check 10 · ✓ · .andromeda/master-route.md present",
+"check 11 · ✓ · seeded 2/2 · planes rust, ts · pipeline 4/4 · behind py 0 · sql 0 · cookbook 0",
+"check 13 · INDETERMINATE: no --style given (architecture's Development Style)",
+"check 14 · ✓ · pointer table 25 entries (threshold 5)",
+"checks run: 6 ✓ / 2 ⚠ / 0 – · INDETERMINATE: 2 (renders ⚠) · the letter's hand reads: 3 · 6 · 7 · 12"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"claude_md": "CLAUDE.md",
+"check1": {
+"status": "⚠",
+"lines": 154,
+"t1_bytes": 29538,
+"bullets": 18,
+"over": 15,
+"excess": 19633
+},
+"check2": {
+"status": "✓",
+"markers": 20,
+"problems": []
+},
+"check4": {
+"status": "⚠",
+"files": {
+"a11y.md": {
+"bytes": 21701,
+"frontmatter": "ok",
+"paths": true,
+"sa": 5,
+"sa_over": 1,
+"read_cap": false
+},
+"design-tokens.md": {
+"bytes": 12000,
+"frontmatter": "ok",
+"paths": true,
+"sa": 2,
+"sa_over": 0,
+"read_cap": false
+},
+"frontend.md": {
+"bytes": 41414,
+"frontmatter": "ok",
+"paths": true,
+"sa": 22,
+"sa_over": 8,
+"read_cap": false
+},
+"host-win32.md": {
+"bytes": 6825,
+"frontmatter": "absent",
+"paths": false,
+"sa": 1,
+"sa_over": 0,
+"read_cap": false
+},
+"observability.md": {
+"bytes": 58442,
+"frontmatter": "ok",
+"paths": true,
+"sa": 13,
+"sa_over": 5,
+"read_cap": false
+},
+"security.md": {
+"bytes": 88098,
+"frontmatter": "absent",
+"paths": false,
+"sa": 36,
+"sa_over": 22,
+"read_cap": true
+},
+"testing.md": {
+"bytes": 184044,
+"frontmatter": "ok",
+"paths": true,
+"sa": 95,
+"sa_over": 38,
+"read_cap": true
+},
+"verification-harness.md": {
+"bytes": 58790,
+"frontmatter": "ok",
+"paths": true,
+"sa": 21,
+"sa_over": 10,
+"read_cap": false
+}
+},
+"always_loaded_bytes": 94923
+},
+"check5": {
+"status": "✓",
+"missing": []
+},
+"check8": {
+"status": "INDETERMINATE:",
+"missing": [],
+"indeterminate": [],
+"stack": null
+},
+"check9": {
+"status": "✓",
+"missing": []
+},
+"check10": {
+"status": "✓",
+"present": true
+},
+"check11": {
+"status": "✓",
+"planes": [
+"rust",
+"ts"
+],
+"currency": {
+"scripts/code-graph.py": 0,
+"scripts/code-graph-views.sql": 0,
+"scripts/code-graph-cookbook.md": 0
+}
+},
+"check13": {
+"status": "INDETERMINATE:"
+},
+"check14": {
+"status": "✓",
+"entries": 25
+}
+}
 }
 ]

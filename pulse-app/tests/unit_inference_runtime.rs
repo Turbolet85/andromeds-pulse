@@ -521,7 +521,7 @@ async fn handle_digest_selects_fallback_prompt_when_runner_tier_is_fallback() {
 }
 
 #[tokio::test]
-async fn handle_digest_emits_prompt_version_v2_2_for_primary_tier() {
+async fn handle_digest_emits_prompt_version_v2_3_for_primary_tier() {
     let (subscriber, events) = CapturingSubscriber::new();
     let runner = StubInferenceRunner::new_ok(ModelTier::Primary, valid_l4_output_json());
     let digest = sample_digest();
@@ -536,8 +536,8 @@ async fn handle_digest_emits_prompt_version_v2_2_for_primary_tier() {
         .find(|(t, _, _)| t == "interpretation.prompt.assemble")
         .expect("interpretation.prompt.assemble event present");
     assert!(
-        assemble_evt.2.contains("prompt_version=v2.2"),
-        "primary tier must emit prompt_version=v2.2; got fields: {}",
+        assemble_evt.2.contains("prompt_version=v2.3"),
+        "primary tier must emit prompt_version=v2.3; got fields: {}",
         assemble_evt.2
     );
 }
@@ -558,8 +558,8 @@ async fn handle_digest_emits_prompt_version_v1_fallback_for_fallback_tier() {
         .find(|(t, _, _)| t == "interpretation.prompt.assemble")
         .expect("interpretation.prompt.assemble event present");
     assert!(
-        assemble_evt.2.contains("prompt_version=v1.1-fallback"),
-        "fallback tier must emit prompt_version=v1.1-fallback; got fields: {}",
+        assemble_evt.2.contains("prompt_version=v1.2-fallback"),
+        "fallback tier must emit prompt_version=v1.2-fallback; got fields: {}",
         assemble_evt.2
     );
 }
@@ -625,8 +625,8 @@ async fn handle_digest_selects_reflection_prompt_for_reflection_digest() {
         .find(|(t, _, _)| t == "interpretation.prompt.assemble")
         .expect("interpretation.prompt.assemble event present");
     assert!(
-        assemble_evt.2.contains("prompt_version=v1.1-reflection"),
-        "reflection digest must emit prompt_version=v1.1-reflection; got fields: {}",
+        assemble_evt.2.contains("prompt_version=v1.2-reflection"),
+        "reflection digest must emit prompt_version=v1.2-reflection; got fields: {}",
         assemble_evt.2
     );
 }

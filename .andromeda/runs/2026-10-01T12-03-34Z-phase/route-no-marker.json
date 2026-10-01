@@ -1,0 +1,28 @@
+[
+{
+"tool": "route",
+"v": "1.5",
+"sha8": "9fc8708e",
+"ts": "2026-10-01T12:03:55Z",
+"argv": [
+"route.py",
+"pins",
+"--root",
+".",
+"--run-dir",
+".andromeda/runs/2026-10-01T12-03-34Z-phase"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"working-route.md · markerless 2 of 67 entries · freight blocks 2 · rows are an INDEX, not the text",
+"146 · CONTEXT: · 773 chars · CONTEXT: founder 2026-09-30 (asked, answered) «Чинить в Pulse 0.3.0» (same relay §2); meas…",
+"146 · PREREQ: · 727 chars · PREREQ: the CI source-lint pair from 2026-09-30-span-level-redaction (operator-directed at …",
+"… +7 abstention(s) OUTSIDE this listing (frozen entries · the master) — `markerless` and `cursor` print them"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+}
+]

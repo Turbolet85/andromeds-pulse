@@ -185,6 +185,7 @@ fn drive(root: &Path, doc: &mut Doc) -> Result<(), Stop> {
 #[derive(Clone, Copy)]
 enum Stage {
     ScriptModes,
+    SourceLint,
     Npm,
     Clippy,
     Test,
@@ -192,8 +193,9 @@ enum Stage {
 }
 
 impl Stage {
-    const ALL: [Stage; 5] = [
+    const ALL: [Stage; 6] = [
         Stage::ScriptModes,
+        Stage::SourceLint,
         Stage::Npm,
         Stage::Clippy,
         Stage::Test,
@@ -203,6 +205,7 @@ impl Stage {
     fn name(self) -> &'static str {
         match self {
             Stage::ScriptModes => "script-modes",
+            Stage::SourceLint => "source-lint",
             Stage::Npm => "npm",
             Stage::Clippy => "clippy",
             Stage::Test => "test",
@@ -230,6 +233,7 @@ impl Stage {
                 }
                 mode == Some("100755")
             }
+            Stage::SourceLint => status(&linux.clone, &["cargo", "xtask", "check:english-sources"]),
             Stage::Npm => status(&ui, &["npm", "ci"]) && status(&ui, &["npm", "run", "build"]),
             Stage::Clippy => status(
                 &linux.clone,

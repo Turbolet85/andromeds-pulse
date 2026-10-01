@@ -1,0 +1,1 @@
+2026-10-01-real-model-incident-surfacing · pending · the real model turns a storm digest into an incident reliably, for a measured cause; CI's Cyrillic lint reads on Windows and runs in pre-push · → andromeda-pulse-0.3.0/chunks/2026-10-01-real-model-incident-surfacing/

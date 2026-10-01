@@ -192,7 +192,7 @@ impl IncidentPersistence for NoopPersistence {
 fn canned_l4_output() -> L4Output {
     L4Output {
         schema_version: SCHEMA_VERSION.into(),
-        prompt_version: "v2.2".into(),
+        prompt_version: "v2.3".into(),
         decision: Decision::Watch,
         severity: L4Severity::None,
         title: "Quiet window".into(),

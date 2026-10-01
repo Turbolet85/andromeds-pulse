@@ -21,6 +21,7 @@ mod perf_frame;
 mod pre_push;
 mod self_verify;
 mod smoke;
+mod source_lint;
 mod staged_gate;
 mod webview_drive;
 
@@ -112,6 +113,11 @@ enum Cmd {
         about = "npm advisory + license + ban gate over pulse-app/ui (policy: pulse-app/ui/npm-policy.json; license/class source: package-lock.json)"
     )]
     CheckNpmSupplyChain,
+    #[command(
+        name = "check:english-sources",
+        about = "Scan crates, pulse-app/src, pulse-app/tests, pulse-app/ui/src and xtask/src (.rs/.ts/.tsx) for Cyrillic characters (U+0400..U+04FF). One GitHub ::error annotation per hit naming file:line, rendered ASCII-only, then one JSON verdict; twin at target/english-sources/report.json. Exit 0 clean, 1 findings, 2 cannot-evaluate (a root absent or unreadable)"
+    )]
+    CheckEnglishSources,
     #[command(
         name = "ci-gates",
         about = "obs SLO gates: zero-spans + zero-panic + heartbeat-gap + perf-budget (NEUTRAL over a log carrying no perf samples, never PASS)"
@@ -238,7 +244,7 @@ enum Cmd {
     PerfLoadProfiles,
     #[command(
         name = "pre-push:linux",
-        about = "Run the Linux-reachable CI gates (script modes, npm build, clippy, xtask test, ci-gates) in a WSL Ubuntu clone synced to HEAD + the working tree, before a push. One JSON verdict; exit 0 green / 1 red / 2 cannot-evaluate (not Windows, no distro, or a pinned tool or apt package missing — the remediation command is printed). Never binds a port"
+        about = "Run the Linux-reachable CI gates (script modes, the English-only source lint, npm build, clippy, xtask test, ci-gates) in a WSL Ubuntu clone synced to HEAD + the working tree, before a push. One JSON verdict; exit 0 green / 1 red / 2 cannot-evaluate (not Windows, no distro, or a pinned tool or apt package missing — the remediation command is printed). Never binds a port"
     )]
     PrePushLinux,
 }
@@ -289,6 +295,7 @@ async fn main() -> ExitCode {
         Cmd::Audit => run_cargo("audit", &[]).await,
         Cmd::DenyBans => run_cargo("deny", &["check", "bans", "licenses", "sources"]).await,
         Cmd::CheckNpmSupplyChain => npm_gate::run_npm_gate().await,
+        Cmd::CheckEnglishSources => source_lint::run(),
         Cmd::CiGates => run_ci_gates().await,
         Cmd::PerfBudget { data_dir, require } => perf_budget::run_perf_budget(&data_dir, &require),
         Cmd::PerfFrameSample => perf_frame::run_perf_frame_sample().await,

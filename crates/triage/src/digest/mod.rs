@@ -31,6 +31,8 @@ pub(crate) mod queue;
 pub(crate) mod retrieval;
 
 pub use assembler::{Assembler, DigestAssembler, DigestFuture};
+#[doc(hidden)]
+pub use assembler::{cue_summary, render_payload};
 pub use broadcast::{BROADCAST_CAPACITY, DigestBroadcast, STREAM_NAME_DIGESTS};
 pub use damper::{
     DAMPER_CUE_EVICTION_SECONDS, DAMPER_INTERVAL_EVICTION_SECONDS, DamperVerdict, GenerateReason,

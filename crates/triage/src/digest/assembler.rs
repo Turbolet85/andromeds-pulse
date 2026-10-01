@@ -263,11 +263,7 @@ impl DigestAssembler for Assembler {
                     vec![DigestCueRef {
                         kind: c.kind,
                         priority_tier: c.priority_tier,
-                        summary: c
-                            .scope_id
-                            .as_deref()
-                            .map(|s| format!("{} scope_id={s}", cue_kind_label(c.kind)))
-                            .unwrap_or_else(|| cue_kind_label(c.kind).to_string()),
+                        summary: cue_summary(c),
                         scope: c.scope,
                         fingerprint: c.fingerprint.clone(),
                         scope_id: c.scope_id.clone(),
@@ -604,8 +600,20 @@ fn compose_services_from_q1(rows: &[crate::contract::Q1RedRow]) -> Vec<DigestSer
         .collect()
 }
 
+/// The cue-summary text a digest's ATTENTION CUES line carries.
+#[doc(hidden)]
+pub fn cue_summary(c: &AttentionCue) -> String {
+    c.scope_id
+        .as_deref()
+        .map(|s| format!("{} scope_id={s}", cue_kind_label(c.kind)))
+        .unwrap_or_else(|| cue_kind_label(c.kind).to_string())
+}
+
+/// Renders a digest's `payload_summary` text. Public only so a dev tool can
+/// render synthetic digests through the real code; not a stable API.
+#[doc(hidden)]
 #[allow(clippy::too_many_arguments)]
-fn render_payload(
+pub fn render_payload(
     window: Duration,
     mode_label: &str,
     project: &DigestProjectContext,
@@ -639,13 +647,17 @@ fn render_payload(
             ));
         }
     }
+    // A Tier1 digest never carries the active-incident bypass, so keying the
+    // state word on the bypass alone told the model "nominal" during every storm.
+    let overall = if active_incident_bypass {
+        "degraded"
+    } else if !cues.is_empty() {
+        "anomalous"
+    } else {
+        "nominal"
+    };
     s.push_str(&format!(
-        "OVERALL: {} ({} active-bypass incident(s); {} cue(s))\n",
-        if active_incident_bypass {
-            "degraded"
-        } else {
-            "nominal"
-        },
+        "OVERALL: {overall} ({} active incident(s); {} cue(s))\n",
         incident_refs.len(),
         cues.len()
     ));
@@ -1033,6 +1045,78 @@ mod tests {
         assert!(
             !rendered.contains("commit-6"),
             "render caps at 5 commits per spec P-032"
+        );
+    }
+
+    fn storm_cue_ref() -> DigestCueRef {
+        DigestCueRef {
+            kind: CueKind::RetryStorm,
+            priority_tier: PriorityTier::Autonomous,
+            summary: "retry_storm scope_id=svc".to_string(),
+            scope: CueScope::Service,
+            fingerprint: None,
+            scope_id: Some("svc".to_string()),
+        }
+    }
+
+    fn overall_line_of(rendered: &str) -> &str {
+        rendered
+            .lines()
+            .find(|l| l.starts_with("OVERALL: "))
+            .expect("the render carries an OVERALL line")
+    }
+
+    #[test]
+    fn overall_line_reads_anomalous_for_a_cue_bearing_tier1_digest() {
+        let rendered = render_payload(
+            Duration::from_secs(60),
+            "tier1",
+            &project_context(),
+            &[],
+            &[storm_cue_ref()],
+            &[],
+            &[],
+            false,
+        );
+        assert_eq!(
+            overall_line_of(&rendered),
+            "OVERALL: anomalous (0 active incident(s); 1 cue(s))"
+        );
+    }
+
+    #[test]
+    fn overall_line_reads_nominal_without_cue_or_incident() {
+        let rendered = render_payload(
+            Duration::from_secs(60),
+            "tier3",
+            &project_context(),
+            &[],
+            &[],
+            &[],
+            &[],
+            false,
+        );
+        assert_eq!(
+            overall_line_of(&rendered),
+            "OVERALL: nominal (0 active incident(s); 0 cue(s))"
+        );
+    }
+
+    #[test]
+    fn overall_line_reads_degraded_with_an_active_incident() {
+        let rendered = render_payload(
+            Duration::from_secs(60),
+            "tier2",
+            &project_context(),
+            &[],
+            &[storm_cue_ref()],
+            &[],
+            &["7".to_string()],
+            true,
+        );
+        assert_eq!(
+            overall_line_of(&rendered),
+            "OVERALL: degraded (1 active incident(s); 1 cue(s))"
         );
     }
 

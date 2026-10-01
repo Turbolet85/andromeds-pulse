@@ -26,14 +26,15 @@ pub const SCHEMA_VERSION: &str = "2.0";
 
 /// Prompt template version. Primary-tier prompt assembled by
 /// [`crate::prompt::build_primary_tier_prompt`] (chunk #83; v2.2 adds the
-/// Citable Evidence Ids section + copy-don't-invent citing instruction).
-pub const PROMPT_VERSION_PRIMARY: &str = "v2.2";
+/// Citable Evidence Ids section + copy-don't-invent citing instruction; v2.3
+/// orders the embedded schema so `decision` / `severity` follow the analysis).
+pub const PROMPT_VERSION_PRIMARY: &str = "v2.3";
 
 /// Prompt template version. Fallback-tier prompt assembled by
 /// [`crate::prompt::build_fallback_tier_prompt`] (chunk #85 — Epoch 9
 /// Foundation v0.2.0). Distinct namespace from primary's `v2.1` lineage;
 /// future fallback prompt iterations bump to `"v1.1-fallback"` etc.
-pub const PROMPT_VERSION_FALLBACK: &str = "v1.1-fallback";
+pub const PROMPT_VERSION_FALLBACK: &str = "v1.2-fallback";
 
 /// Prompt template version. Reflection-tier prompt assembled by
 /// [`crate::prompt::build_reflection_tier_prompt`] (chunk #98 — Epoch 9
@@ -43,8 +44,8 @@ pub const PROMPT_VERSION_FALLBACK: &str = "v1.1-fallback";
 /// lineages. Reflection runs at primary-tier quality (the model emits
 /// `model_tier: "primary"`); it is NOT a fallback-tier prompt
 /// (v1.1-reflection adds the Citable Evidence Ids section + citing
-/// instruction).
-pub const PROMPT_VERSION_REFLECTION: &str = "v1.1-reflection";
+/// instruction; v1.2-reflection carries the reordered schema).
+pub const PROMPT_VERSION_REFLECTION: &str = "v1.2-reflection";
 
 /// Defense-in-depth pre-parse cap on raw inference output bytes.
 /// mistralrs strict-schema-mode caps total tokens, but the byte budget

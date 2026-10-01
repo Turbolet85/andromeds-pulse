@@ -9,15 +9,21 @@
 //! Lives in pulse-app/tests/ per CLAUDE.md testing.md 2026-05-20: source-level
 //! `mod tests` in pulse-app never run (`[lib] test = false`).
 
-use std::sync::{Arc, Mutex};
+use std::pin::Pin;
+use std::sync::{Arc, Mutex, OnceLock};
+use std::thread::ThreadId;
 
+use interpretation::contract::{
+    InferenceFuture, LlmInferenceRunner, ModelIdentity, ModelStatus, ModelTier,
+};
+use interpretation::degraded_mode::{BackoffSnapshot, DegradedModeStatus};
 use interpretation::schema::{Decision, L4Output, Severity as L4Severity};
 use pulse_app::deterministic_inference::CANNED_L4_OUTPUT_JSON;
-use pulse_app::inference_runtime::create_incident_from_l4_output;
+use pulse_app::inference_runtime::{create_incident_from_l4_output, process_digest};
 use triage::contract::{
-    CueKind, CueScope, Digest, DigestCueRef, DigestKind, DigestLwwMode, InMemoryIncidentRegistry,
-    Incident, IncidentError, IncidentPersistence, IncidentRegistry, IncidentStatus, PriorityTier,
-    Severity as IncidentSeverity,
+    CueKind, CueScope, Digest, DigestCueRef, DigestKind, DigestLwwMode, GenerationDamper,
+    InMemoryIncidentRegistry, Incident, IncidentError, IncidentPersistence, IncidentRegistry,
+    IncidentStatus, PriorityTier, Severity as IncidentSeverity,
 };
 
 const WORKSPACE: &str = "/home/dev/example";
@@ -710,17 +716,7 @@ fn producer_observability_is_aggregate_only() {
         &format!("title with {canary}"),
     );
 
-    // Process-global subscriber, NOT the thread-local `with_default`: this
-    // binary's sibling tests exercise the same tracing callsites in parallel
-    // with no subscriber installed, and under parallel libtest the
-    // thread-local form races the callsite interest cache — the capture
-    // comes back empty on exactly the event under assertion (testing.md
-    // 2026-06-28 runner-dependent-flake class; safe because this is the
-    // binary's ONLY subscriber-setting test, and nextest isolates
-    // per-process regardless).
-    let (subscriber, events) = CapturingSubscriber::new();
-    tracing::subscriber::set_global_default(subscriber)
-        .expect("sole subscriber-setting test in this binary");
+    let events = global_capture();
     create_incident_from_l4_output(
         registry.as_ref(),
         persistence.as_ref(),
@@ -734,7 +730,7 @@ fn producer_observability_is_aggregate_only() {
     // under parallel libtest, so assert THIS test's emission by its full
     // signature rather than find-first.
     assert!(
-        captured.iter().any(|(t, fields)| {
+        captured.iter().any(|(t, fields, _)| {
             t == "interpretation.incident.created"
                 && fields.contains("created=true")
                 && fields.contains("severity=error")
@@ -745,10 +741,10 @@ fn producer_observability_is_aggregate_only() {
     assert!(
         captured
             .iter()
-            .any(|(t, _)| t == "metric.pipeline.l4.incidents_created_total"),
+            .any(|(t, _, _)| t == "metric.pipeline.l4.incidents_created_total"),
         "producer counter metric emitted",
     );
-    for (target, fields) in &captured {
+    for (target, fields, _) in &captured {
         assert!(
             !fields.contains(canary),
             "title canary leaked into self-observation target {target}: {fields}",
@@ -892,8 +888,24 @@ fn reflection_dismiss_creates_no_incident() {
     );
 }
 
-/// One captured event: `(target, concatenated-fields)`.
-type Captured = Arc<Mutex<Vec<(String, String)>>>;
+/// One captured event: `(target, concatenated-fields, emitting thread)`.
+type Captured = Arc<Mutex<Vec<(String, String, ThreadId)>>>;
+
+/// The process-global capture, installed once. Process-global, NOT the
+/// thread-local `with_default`: sibling tests exercise the same tracing
+/// callsites in parallel, and under parallel libtest the thread-local form
+/// races the callsite interest cache — the capture comes back empty on
+/// exactly the event under assertion (testing.md 2026-06-28). Each event
+/// carries its thread so a test can count only its own emissions.
+fn global_capture() -> Captured {
+    static CAPTURE: OnceLock<Captured> = OnceLock::new();
+    Arc::clone(CAPTURE.get_or_init(|| {
+        let (subscriber, events) = CapturingSubscriber::new();
+        tracing::subscriber::set_global_default(subscriber)
+            .expect("the capture is the binary's only global subscriber");
+        events
+    }))
+}
 
 /// Minimal field-capturing `tracing::Subscriber` (sync; driven via
 /// `with_default`). Mirrors the CLAUDE.md testing.md 2026-05-11
@@ -950,10 +962,11 @@ impl tracing::Subscriber for CapturingSubscriber {
         }
         let mut visitor = V(&mut fields);
         event.record(&mut visitor);
-        self.events
-            .lock()
-            .expect("lock")
-            .push((event.metadata().target().to_string(), fields));
+        self.events.lock().expect("lock").push((
+            event.metadata().target().to_string(),
+            fields,
+            std::thread::current().id(),
+        ));
     }
     fn enter(&self, _: &tracing::span::Id) {}
     fn exit(&self, _: &tracing::span::Id) {}
@@ -1013,5 +1026,249 @@ fn producer_evidence_trace_span_and_timestamps_are_empty_by_construction() {
         ],
         "selectivity control: the canned refs land FIRST, then the cue's real \
          fingerprint — the populated union proves this pin is live",
+    );
+}
+
+// ---- No-incident outcome observability ----
+
+const SKIPPED: &str = "interpretation.incident.skipped";
+
+/// This thread's `interpretation.incident.skipped` records, fields only.
+fn own_skip_records(events: &Captured) -> Vec<String> {
+    let me = std::thread::current().id();
+    events
+        .lock()
+        .expect("lock")
+        .iter()
+        .filter(|(t, _, thread)| t == SKIPPED && *thread == me)
+        .map(|(_, fields, _)| fields.clone())
+        .collect()
+}
+
+fn assert_one_skip(events: &Captured, reason: &str, decision: &str, severity: &str, kind: &str) {
+    let records = own_skip_records(events);
+    assert_eq!(
+        records.len(),
+        1,
+        "exactly one skip record per no-incident generation: {records:?}",
+    );
+    let fields = &records[0];
+    for expected in [
+        format!("skip_reason={reason}"),
+        format!("decision={decision}"),
+        format!("severity={severity}"),
+        format!("digest_kind={kind}"),
+    ] {
+        assert!(
+            fields.contains(&expected),
+            "skip record lacks `{expected}`: {fields}"
+        );
+    }
+}
+
+#[test]
+fn incident_skip_records_a_dismiss_decision() {
+    let events = global_capture();
+    let (registry, persistence) = fresh();
+    let digest = digest_with_cue(CueKind::ErrorRateSpike, CueScope::Service, Some("svc"));
+    let output = l4_output(Decision::Dismiss, L4Severity::Suggested, "noise");
+    create_incident_from_l4_output(
+        registry.as_ref(),
+        persistence.as_ref(),
+        &digest,
+        &output,
+        5_000,
+    );
+    assert_eq!(registry.count(), 0);
+    assert_one_skip(
+        &events,
+        "decision_dismiss",
+        "dismiss",
+        "suggested",
+        "cadence_tier3",
+    );
+}
+
+#[test]
+fn incident_skip_records_a_none_severity() {
+    let events = global_capture();
+    let (registry, persistence) = fresh();
+    let digest = digest_with_cue(CueKind::ErrorRateSpike, CueScope::Service, Some("svc"));
+    let output = l4_output(Decision::Surface, L4Severity::None, "ambiguous");
+    create_incident_from_l4_output(
+        registry.as_ref(),
+        persistence.as_ref(),
+        &digest,
+        &output,
+        5_000,
+    );
+    assert_eq!(registry.count(), 0);
+    assert_one_skip(&events, "severity_none", "surface", "none", "cadence_tier3");
+}
+
+#[test]
+fn incident_skip_records_a_model_resolution_summary_at_the_predicate() {
+    let events = global_capture();
+    let (registry, persistence) = fresh();
+    let digest = digest_with_cue(CueKind::ErrorRateSpike, CueScope::Service, Some("svc"));
+    let mut output = l4_output(Decision::Surface, L4Severity::Autonomous, "resolved");
+    output.is_resolution_summary = true;
+    create_incident_from_l4_output(
+        registry.as_ref(),
+        persistence.as_ref(),
+        &digest,
+        &output,
+        5_000,
+    );
+    assert_eq!(registry.count(), 0);
+    assert_one_skip(
+        &events,
+        "model_resolution_summary",
+        "surface",
+        "autonomous",
+        "cadence_tier3",
+    );
+}
+
+#[test]
+fn incident_skip_records_a_cue_less_digest() {
+    let events = global_capture();
+    let (registry, persistence) = fresh();
+    let output = l4_output(Decision::Surface, L4Severity::Autonomous, "no cue");
+    create_incident_from_l4_output(
+        registry.as_ref(),
+        persistence.as_ref(),
+        &digest_without_cue(),
+        &output,
+        5_000,
+    );
+    assert_eq!(registry.count(), 0);
+    assert_one_skip(&events, "no_cue", "surface", "autonomous", "cadence_tier3");
+}
+
+#[test]
+fn incident_skip_is_absent_when_an_incident_is_created() {
+    let events = global_capture();
+    let (registry, persistence) = fresh();
+    let digest = digest_with_cue(CueKind::ErrorRateSpike, CueScope::Service, Some("svc"));
+    let output = l4_output(Decision::Surface, L4Severity::Autonomous, "real");
+    create_incident_from_l4_output(
+        registry.as_ref(),
+        persistence.as_ref(),
+        &digest,
+        &output,
+        5_000,
+    );
+    assert_eq!(registry.count(), 1);
+    assert!(
+        own_skip_records(&events).is_empty(),
+        "a created incident must leave no skip record",
+    );
+}
+
+/// Constant-output runner for the `process_digest` routing seam.
+struct CannedRunner {
+    json: String,
+}
+
+impl LlmInferenceRunner for CannedRunner {
+    fn current_status(&self) -> ModelStatus {
+        ModelStatus::Loaded
+    }
+    fn identity(&self) -> Option<ModelIdentity> {
+        None
+    }
+    fn tier(&self) -> ModelTier {
+        ModelTier::Primary
+    }
+    fn generate_constrained<'a>(
+        &'a self,
+        _prompt: &'a str,
+        _schema_json: &'a str,
+    ) -> InferenceFuture<'a, String> {
+        let out = self.json.clone();
+        Pin::from(Box::new(async move { Ok(out) }))
+    }
+}
+
+struct NeverBackoff;
+
+impl DegradedModeStatus for NeverBackoff {
+    fn record_failure(&self, _now_unix_nano: i64) -> BackoffSnapshot {
+        BackoffSnapshot::fresh_active()
+    }
+    fn record_success(&self, _now_unix_nano: i64) -> BackoffSnapshot {
+        BackoffSnapshot::fresh_active()
+    }
+    fn current_snapshot(&self, _now_unix_nano: i64) -> BackoffSnapshot {
+        BackoffSnapshot::fresh_active()
+    }
+    fn is_in_backoff(&self, _now_unix_nano: i64) -> bool {
+        false
+    }
+    fn trigger_manual_retry(&self, _now_unix_nano: i64) -> BackoffSnapshot {
+        BackoffSnapshot::fresh_active()
+    }
+}
+
+fn resolution_summary_runner() -> CannedRunner {
+    let mut parsed: L4Output =
+        serde_json::from_str(CANNED_L4_OUTPUT_JSON).expect("canned deterministic output parses");
+    parsed.is_resolution_summary = true;
+    CannedRunner {
+        json: serde_json::to_string(&parsed).expect("serializes"),
+    }
+}
+
+#[tokio::test]
+async fn incident_skip_records_a_model_resolution_summary_on_a_storm_digest() {
+    let events = global_capture();
+    let (registry, persistence) = fresh();
+    let mut digest = digest_with_cue(CueKind::RetryStorm, CueScope::Service, Some("svc"));
+    digest.kind = DigestKind::CadenceTier1;
+    let outcome = process_digest(
+        &resolution_summary_runner(),
+        &NeverBackoff,
+        registry.as_ref(),
+        persistence.as_ref(),
+        &GenerationDamper::new(),
+        &digest,
+        5_000,
+    )
+    .await;
+    assert!(matches!(
+        outcome,
+        Some(pulse_app::inference_runtime::L4DigestOutcome::Success(_))
+    ));
+    assert_eq!(registry.count(), 0);
+    let records = own_skip_records(&events);
+    assert_eq!(records.len(), 1, "one skip record: {records:?}");
+    assert!(
+        records[0].contains("skip_reason=model_resolution_summary")
+            && records[0].contains("digest_kind=cadence_tier1"),
+        "the routing seam names the model-set flag: {}",
+        records[0],
+    );
+}
+
+#[tokio::test]
+async fn incident_skip_is_absent_for_a_resolution_summary_digest() {
+    let events = global_capture();
+    let (registry, persistence) = fresh();
+    let mut digest = digest_with_cue(CueKind::RetryStorm, CueScope::Service, Some("svc"));
+    digest.kind = DigestKind::ResolutionSummary;
+    let _ = process_digest(
+        &resolution_summary_runner(),
+        &NeverBackoff,
+        registry.as_ref(),
+        persistence.as_ref(),
+        &GenerationDamper::new(),
+        &digest,
+        5_000,
+    )
+    .await;
+    assert!(
+        own_skip_records(&events).is_empty(),
+        "a resolution-summary digest attaching its summary is not a skipped incident",
     );
 }

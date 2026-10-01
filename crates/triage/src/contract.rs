@@ -148,6 +148,8 @@ pub use crate::digest::{
     assembler::{DigestProjectContext, DigestRecentCommit},
     format_corpus_match_line, generate_reason_label, select_corpus_matches, select_previously_seen,
 };
+#[doc(hidden)]
+pub use crate::digest::{cue_summary, render_payload};
 
 /// Lowercase-hex encode raw fingerprint bytes (the `{b:02x}` shape used
 /// across the workspace's fingerprint surfaces).

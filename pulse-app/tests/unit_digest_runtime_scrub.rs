@@ -21,8 +21,58 @@ fn pii_scrub_closure_allows_clean_text() {
 
 const DIGEST_WITH_DATE_STAMPED_PROJECT: &str = "WINDOW: 300s, tier1 cadence\n\
 PROJECT: rm-20260923-093840 (vcs=git)\n\
-OVERALL: nominal (0 active-bypass incident(s); 1 cue(s))\n\
+OVERALL: anomalous (0 active incident(s); 1 cue(s))\n\
 SERVICES (rate, error%, p99 vs baselines):\n  checkout-service     12.5/s | 0.0% | 41ms\n";
+
+/// The fixture's OVERALL line is the line the real renderer writes for a
+/// one-cue Tier1 digest, so the scrub pins above exercise the shipped shape.
+#[test]
+fn pii_scrub_fixture_overall_line_matches_the_render() {
+    use std::time::Duration;
+    use triage::contract::{
+        CueKind, CueScope, DigestCueRef, DigestProjectContext, PriorityTier, render_payload,
+    };
+
+    let project = DigestProjectContext {
+        workspace_canonical_path: "/ws/project".to_string(),
+        project_name: Some("rm-20260923-093840".to_string()),
+        vcs_type: Some("git"),
+        recent_commits: Vec::new(),
+        framework_signals: Vec::new(),
+    };
+    let cue = DigestCueRef {
+        kind: CueKind::RetryStorm,
+        priority_tier: PriorityTier::Autonomous,
+        summary: "retry_storm scope_id=checkout-service".to_string(),
+        scope: CueScope::Service,
+        fingerprint: None,
+        scope_id: Some("checkout-service".to_string()),
+    };
+    let rendered = render_payload(
+        Duration::from_secs(300),
+        "tier1",
+        &project,
+        &[],
+        &[cue],
+        &[],
+        &[],
+        false,
+    );
+    let line_of = |text: &str| -> String {
+        text.lines()
+            .find(|l| l.starts_with("OVERALL: "))
+            .expect("an OVERALL line")
+            .to_string()
+    };
+    assert_eq!(
+        line_of(DIGEST_WITH_DATE_STAMPED_PROJECT),
+        line_of(&rendered)
+    );
+    assert!(
+        rendered
+            .starts_with("WINDOW: 300s, tier1 cadence\nPROJECT: rm-20260923-093840 (vcs=git)\n")
+    );
+}
 
 #[test]
 fn pii_scrub_closure_keeps_a_digest_whose_project_line_carries_a_date_stamp() {

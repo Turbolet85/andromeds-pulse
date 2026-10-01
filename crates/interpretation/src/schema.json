@@ -33,16 +33,6 @@
       "minLength": 1,
       "maxLength": 32
     },
-    "decision": {
-      "description": "Surface decision: surface (create incident), dismiss (no action), watch (record but do not surface).",
-      "type": "string",
-      "enum": ["surface", "dismiss", "watch"]
-    },
-    "severity": {
-      "description": "Severity classification per P-019 Three-Tier Severity Model.",
-      "type": "string",
-      "enum": ["autonomous", "suggested", "curious", "none"]
-    },
     "title": {
       "description": "Short human-readable incident title (<=200 chars).",
       "type": "string",
@@ -84,6 +74,16 @@
           }
         }
       }
+    },
+    "decision": {
+      "description": "Surface decision: surface (create incident), dismiss (no action), watch (record but do not surface).",
+      "type": "string",
+      "enum": ["surface", "dismiss", "watch"]
+    },
+    "severity": {
+      "description": "Severity classification per P-019 Three-Tier Severity Model.",
+      "type": "string",
+      "enum": ["autonomous", "suggested", "curious", "none"]
     },
     "investigation_steps": {
       "description": "Suggested investigation actions per P-034 (primary tier emits up to 5; fallback tier emits up to 2).",

@@ -521,6 +521,33 @@ mod tests {
         assert!(prompt.contains(PROMPT_VERSION_PRIMARY));
     }
 
+    /// Constrained generation emits keys in the schema's property order, so
+    /// `decision` / `severity` listed first made the model commit to a
+    /// decision before writing any analysis (measured: decision was the 3rd
+    /// generated key in every run until the reorder).
+    #[test]
+    fn primary_prompt_schema_lists_decision_and_severity_after_the_analysis() {
+        let prompt = build_primary_tier_prompt("digest", "project", "", &[]);
+        let at = |key: &str| {
+            prompt
+                .find(&format!("\n    \"{key}\": {{"))
+                .unwrap_or_else(|| panic!("schema property {key} present"))
+        };
+        for analysis in ["title", "symptom", "timeline", "hypotheses"] {
+            assert!(
+                at(analysis) < at("decision"),
+                "{analysis} precedes decision"
+            );
+            assert!(
+                at(analysis) < at("severity"),
+                "{analysis} precedes severity"
+            );
+        }
+        assert!(at("decision") < at("severity"));
+        assert!(at("severity") < at("investigation_steps"));
+        assert_eq!(PROMPT_VERSION_PRIMARY, "v2.3");
+    }
+
     #[test]
     fn primary_prompt_section_ordering_is_stable() {
         let prompt = build_primary_tier_prompt("digest", "project", "corpus", &[]);

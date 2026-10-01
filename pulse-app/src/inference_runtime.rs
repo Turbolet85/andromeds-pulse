@@ -89,6 +89,11 @@ pub const TARGET_METRIC_L4_BACKOFF_REMAINING_SECONDS: &str =
 /// (chunk #92). Aggregate-only fields per the triage AllowList convention;
 /// NEVER carries scope_id / service_name / incident_id / title / detail.
 pub const TARGET_L4_INCIDENT_CREATED: &str = "interpretation.incident.created";
+/// Tracing target — a cleanly-parsed generation that created no incident.
+/// Once per such generation, naming which gate held; bounded labels only
+/// (`skip_reason` / `decision` / `severity` / `digest_kind`), never
+/// scope_id / title / symptom / digest or model text.
+pub const TARGET_L4_INCIDENT_SKIPPED: &str = "interpretation.incident.skipped";
 /// Tracing target — incident persist failures from the chunk #92 producer.
 /// Sanitized `error_category` only.
 pub const TARGET_L4_INCIDENT_PERSIST_ERROR: &str = "interpretation.incident.persist.error";
@@ -247,6 +252,9 @@ pub async fn process_digest(
             damper.record_generated(digest, now);
             if matches!(digest.kind, DigestKind::ResolutionSummary) || parsed.is_resolution_summary
             {
+                if !matches!(digest.kind, DigestKind::ResolutionSummary) {
+                    emit_incident_skipped(SKIP_MODEL_RESOLUTION_SUMMARY, digest, parsed);
+                }
                 attach_resolution_summary_to_incident(
                     incident_registry,
                     incident_persistence,
@@ -759,10 +767,17 @@ pub fn create_incident_from_l4_output(
     parsed: &L4Output,
     now_unix_nano: i64,
 ) {
-    if parsed.is_resolution_summary
-        || parsed.decision == Decision::Dismiss
-        || parsed.severity == L4Severity::None
-    {
+    let skip_reason = if parsed.is_resolution_summary {
+        Some(SKIP_MODEL_RESOLUTION_SUMMARY)
+    } else if parsed.decision == Decision::Dismiss {
+        Some("decision_dismiss")
+    } else if parsed.severity == L4Severity::None {
+        Some("severity_none")
+    } else {
+        None
+    };
+    if let Some(reason) = skip_reason {
+        emit_incident_skipped(reason, digest, parsed);
         return;
     }
 
@@ -784,6 +799,7 @@ pub fn create_incident_from_l4_output(
             cue.fingerprint.clone(),
         )
     } else {
+        emit_incident_skipped("no_cue", digest, parsed);
         return;
     };
 
@@ -911,6 +927,40 @@ pub fn create_incident_from_l4_output(
         );
     }
     emit_incident_outcome(true, false, severity, priority_tier);
+}
+
+const SKIP_MODEL_RESOLUTION_SUMMARY: &str = "model_resolution_summary";
+
+fn decision_label(decision: Decision) -> &'static str {
+    match decision {
+        Decision::Surface => "surface",
+        Decision::Dismiss => "dismiss",
+        Decision::Watch => "watch",
+    }
+}
+
+fn l4_severity_label(severity: L4Severity) -> &'static str {
+    match severity {
+        L4Severity::Autonomous => "autonomous",
+        L4Severity::Suggested => "suggested",
+        L4Severity::Curious => "curious",
+        L4Severity::None => "none",
+    }
+}
+
+/// Emit the no-incident outcome of a cleanly-parsed generation. Without it a
+/// model dismissal, a `severity: none`, a model-set `is_resolution_summary`
+/// and a cue-less digest all leave the same footprint (parse ok, no
+/// `interpretation.incident.created`).
+fn emit_incident_skipped(skip_reason: &'static str, digest: &Digest, parsed: &L4Output) {
+    tracing::info!(
+        target: TARGET_L4_INCIDENT_SKIPPED,
+        skip_reason = skip_reason,
+        decision = decision_label(parsed.decision),
+        severity = l4_severity_label(parsed.severity),
+        digest_kind = digest_kind_label(digest),
+        "incident producer skipped",
+    );
 }
 
 /// Emit the aggregate-only producer-outcome event + counter. Bounded fields

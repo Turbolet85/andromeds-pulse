@@ -2223,6 +2223,13 @@ impl AllowList {
                 .collect(),
         );
         by_target.insert(
+            "interpretation.incident.skipped",
+            ["skip_reason", "decision", "severity", "digest_kind"]
+                .iter()
+                .copied()
+                .collect(),
+        );
+        by_target.insert(
             "interpretation.incident.persist.error",
             ["error_category"].iter().copied().collect(),
         );
