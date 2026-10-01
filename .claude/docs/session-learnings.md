@@ -1,6 +1,22 @@
 # Session Learnings
 
 
+## 2026-10-01 — A gate entry's time bound can read as a link failure and leave an orphaned build
+
+A `[[gate]]` entry with no `timeout` key is bounded by the gate tool's default (1800 s). When that bound fires
+while cargo is still compiling — typically under host contention from another build — the SIGTERM reaches the
+in-flight `rust-lld` / rustc children, and the entry's log ends in `linking with rust-lld.exe failed: exit code: 143`
+plus `could not compile …` lines. That reads like a real link defect; it is not. Exit 143 is 128 + 15 (SIGTERM),
+and the outcome word the tool prints is `timeout`, never `red`.
+
+The bound kills the entry's shell, but not necessarily its `cargo` tree: the `cargo` → `cargo-nextest` → `cargo`
+chain can outlive its shell, orphaned (parent gone) and still holding the build lock. Before re-firing, list the
+cargo processes, attribute each to its launcher by parent and command line (other sessions' builds may be running
+on the same host — leave those alone), stop only the orphaned tree by PID, then de-race with an unbounded throttled
+`cargo build --workspace --tests` before re-firing the entry, so the timed run only executes pre-built binaries.
+
+---
+
 ## 2026-09-29 — GitHub Actions Rust cache: a full-match restore never re-saves; budget keys against the repo cap
 
 `Swatinem/rust-cache` saves only when the job succeeds unless `cache-on-failure: true` is set, so every red round

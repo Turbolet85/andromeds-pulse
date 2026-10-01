@@ -38,3 +38,12 @@ Fired on the overseer's word (2026-10-01), by /implement, in plan order.
 - Bindings byte-identical to the base (no default-features bindings emission ran).
 - `cargo xtask pre-push:linux` → exit 0, `"verdict": "green"`, tree
   `65385c91092393411776803710f88f72ffb9f1b3`; script-modes · npm · clippy · test · ci-gates all ok.
+- Hygiene clean (read 2) → commit `7949d81 chore(2026-09-30-span-level-redaction): operator pre-CI commit`
+  (the project's fix-push form, as `d708ad7` → `c6eb395`; the fix is named in the body).
+- Entry 24 — clean-tree guard held; push exit 0, `9d14166..7949d81`; HEAD = origin.
+- Entry 25 — `ci.py conclusion --sha HEAD --wait 2400` → exit 0 · **`7949d8173ea0 verdict: green`** ·
+  checks 13/13 · wall 1680 s · `ci#36851508616` completed/success · `secret-scan#36851508610`
+  completed/success (expect `exit 0` + `contains verdict: green` → held).
+- For the wrap's route-resolve (overseer's word): (1) the ci.yml Cyrillic step crashes with
+  `UnicodeEncodeError` (cp1252) on the Windows runner whenever it has hits to print, so there it can only
+  fail as a bare `exit code 1`; (2) `cargo xtask pre-push:linux` does not mirror that inline lint.

@@ -87,3 +87,5 @@ not hypothetical. (Rendered only on Windows-host projects; inert elsewhere.)
   against the intended edit count; the diff size is what surfaced (3).
 
 ## Session Additions
+
+- 2026-10-01: The session's own rust-analyzer LSP runs a `cargo check --workspace --all-targets` flycheck into the shared `target/` and respawns after source edits; before a `cargo clean` or a long build, stop that flycheck cargo tree by PID — never rust-analyzer itself — and re-check for a respawn, or the two contend for the build lock and the disk.

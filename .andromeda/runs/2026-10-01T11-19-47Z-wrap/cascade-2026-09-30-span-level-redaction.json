@@ -1,0 +1,105 @@
+[
+{
+"tool": "cascade",
+"v": "1.1",
+"sha8": "1550f3bc",
+"ts": "2026-10-01T11:31:54Z",
+"argv": [
+"sweep",
+"--patterns-file",
+".andromeda/runs/2026-10-01T11-19-47Z-wrap/cascade-patterns.toml",
+"--run-dir",
+".andromeda/runs/2026-10-01T11-19-47Z-wrap",
+"--marker",
+"2026-09-30-span-level-redaction"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"baseline 7bb56ea3 (pre-CI parent — the oldest of 2 pre-CI commit(s), 9d141665)",
+"whole-value · new 2 · standing 1 · leaf 2 · curation 0 · base 0 · control security-plan.md:428 (prose)",
+"scrub-attr · new 1 · standing 5 · leaf 5 · curation 3 · base 1 · control architecture.md:218 (prose)",
+"collapse-marker · new 0 · standing 1 · leaf 1 · curation 1 · base 0 · control security-plan.md:432 (prose)",
+"one-placeholder · new 0 · standing 1 · leaf 2 · curation 0 · base 0 · control architecture.md:88 (prose)",
+"pending-notice · new 0 · standing 1 · leaf 0 · curation 0 · base 0 · control security-plan.md:432 (prose)",
+".andromeda/security-plan.md:428 whole-value standing edited mixed ×3 @c2425,3559/4050 … replaces whole-value replacemen…",
+".andromeda/security-plan.md:428 whole-value @c+3882/4050",
+".andromeda/security-plan.md:430 whole-value new …ls`, which takes the `scrub_attribute()` verdict whole-value per label.",
+".andromeda/test-plan.md:373 whole-value new @c1873/2249 …e-token parity with whole-value replacement, byte-identical al…",
+".claude/rules/security.md:58 whole-value leaf …nce. A redaction still replaces the WHOLE value (P-048), so one true pos…",
+".claude/docs/services/security.md:38 whole-value leaf - **A redaction replaces the WHOLE value** (P-048: `Redacted` car…",
+".andromeda/security-plan.md:48 scrub-attr standing edited … masking gated by `scrub_attribute`'s verdict, since 2026-09…",
+".andromeda/security-plan.md:166 scrub-attr standing edited … masking gated by `scrub_attribute`'s verdict, since 2026-0…",
+".andromeda/security-plan.md:428 scrub-attr new ×3 @c295,3328,3991/4050 …dary but one, `scrub_attribute` staying its det…",
+".andromeda/security-plan.md:430 scrub-attr standing edited mixed ×2 …rst — gated by `scrub_attribute()`'s `ScrubbedValu…",
+".andromeda/security-plan.md:436 scrub-attr standing …ing, not defensive: `scrub_attribute` takes a single `&str`, and T…",
+".andromeda/test-plan.md:373 scrub-attr standing edited mixed ×2 @c700,1673/2249 …lowed(_)`. `scrub_attribute` and the `…",
+"CLAUDE.md:142 scrub-attr curation …asses `security::scrubber::scrub_attribute` as the closure body), preserving the lea…",
+".claude/rules/security.md:147 scrub-attr curation ×4 @c380,1027,1668,1978/2437 …::scrubber::scrub_attribute` one more t…",
+".claude/rules/security.md:163 scrub-attr curation @c142/2081 …anchored subset. `scrub_attribute` takes one `&str` and m…",
+".andromeda/playbook.md:86 scrub-attr base …proposal qualifying the `scrub_attribute` gate (§Security Anti-Patterns → Lo…",
+"CLAUDE.md:32 scrub-attr leaf …{Allowed, Redacted}` enum + `scrub_attribute()` fn. The 8th (`provider_key`, chunk 2026-0…",
+".claude/docs/services/corpus.md:9 scrub-attr leaf - `crates/security::scrub_attribute` for PII scrubbing at ingestion b…",
+".claude/docs/services/security.md:22 scrub-attr leaf …dValue` + `scrubber::scrub_attribute`) / `scrubber.rs` (pattern c…",
+".claude/docs/services/security.md:32 scrub-attr leaf …atalog:** the first `scrub_attribute()` call compiles all 8 patte…",
+".claude/docs/services/security.md:34 scrub-attr leaf …t surface:** `pub fn scrub_attribute(value: &str) -> ScrubbedValu…",
+".andromeda/security-plan.md:436 collapse-marker standing …inct keys can never collapse into one placeholder — the redac…",
+".claude/rules/security.md:163 collapse-marker curation @c1362/2081 …imensions never collapse into one placeholder. Acce…",
+".claude/rules/security.md:59 collapse-marker leaf @c976/3205 …stinct keys never collapse into one placeholder. Accepted…",
+".andromeda/security-plan.md:434 one-placeholder standing edited @c1969/2857 …shaped names redacting identically at the …",
+".claude/rules/security.md:59 one-placeholder leaf ×2 @c2097,2403/3205 …l-shaped names redacting identically at the same…",
+".claude/docs/conventions.md:32 one-placeholder leaf …dential-shaped names redact to one placeholder and collide there t…",
+".andromeda/security-plan.md:432 pending-notice standing edited …the report to the pending notice (the training export's…",
+"whole-value · new 2 · standing 1 · leaf 2 · curation 0 · base 0 · control security-plan.md:428 (prose)",
+"scrub-attr · new 1 · standing 5 · leaf 5 · curation 3 · base 1 · control architecture.md:218 (prose)",
+"collapse-marker · new 0 · standing 1 · leaf 1 · curation 1 · base 0 · control security-plan.md:432 (prose)",
+"one-placeholder · new 0 · standing 1 · leaf 2 · curation 0 · base 0 · control architecture.md:88 (prose)",
+"pending-notice · new 0 · standing 1 · leaf 0 · curation 0 · base 0 · control security-plan.md:432 (prose)"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"baseline": "7bb56ea361102ee3d4712582488162226baea00d",
+"how": "pre-CI parent — the oldest of 2 pre-CI commit(s), 9d141665",
+"counts": {
+"whole-value": {
+"new": 2,
+"standing": 1,
+"leaf": 2,
+"curation": 0,
+"base": 0
+},
+"scrub-attr": {
+"new": 1,
+"standing": 5,
+"leaf": 5,
+"curation": 3,
+"base": 1
+},
+"collapse-marker": {
+"new": 0,
+"standing": 1,
+"leaf": 1,
+"curation": 1,
+"base": 0
+},
+"one-placeholder": {
+"new": 0,
+"standing": 1,
+"leaf": 2,
+"curation": 0,
+"base": 0
+},
+"pending-notice": {
+"new": 0,
+"standing": 1,
+"leaf": 0,
+"curation": 0,
+"base": 0
+}
+}
+}
+}
+]

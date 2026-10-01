@@ -310,3 +310,10 @@ Owner moves to the working-route entry "Duplicate-span replay fails loudly" (mod
 **Change:** NEW target `ui.webgpu.adapter` {`outcome`, `window_label`}: once per canvas-mount adapter request (never per frame), INFO on `obtained`, WARN on `no_navigator_gpu` | `adapter_null` | `adapter_request_rejected` | `device_request_failed`; reported fire-and-forget through `telemetry.frontend.record_webgpu_adapter`. An EXACT §8 leaf beside `ui.ipc.rejection`, no bare `ui` key, guarded ×3 under `pulse-app/tests/`; its only live witness is the dev-host frame leg. The body quotes the founder's ratification at P4 2026-09-30, «Да, делай». Was (§1): "no truthful adapter-state record exists yet", with a route-entry owner.
 **Why:** the webview is the only place the adapter outcome is known, so it crosses the bridge as a closed enum + coerced label and lands behind its own leaf (both fields the emit site sends). The crossing is a Boundary widening, ratified by the founder at P4.
 **Ref:** .andromeda/runs/2026-09-30T19-50-57Z-wrap/
+
+## 2026-09-30-span-level-redaction — redactions_applied unit at the column sites
+**Section:** §5 Metric Coverage → `redactions_applied` row
+**Change:** Beside the labels unit (one increment per REDACTED LABEL PAIR, unchanged), the row now states the column-site unit: one increment per redacted VALUE however many spans it masked — `scrub_otlp_field` masks each secret in place (`mask_secret_spans`) and increments once when the value carried any (4 values carrying 10 masked spans → 4; live wire 0 → 4). The drain/template path was said to call `scrub_attribute` directly; it now masks through `mask_secret_spans`.
+**Why:** span masking left the counter's unit at the column sites unstated; the unit is unchanged per value, so the five-cell canary and the counter's meaning hold. Ratified span extent: founder at P4 2026-10-01, «Ок давай по типу правила».
+**Kept:** §1 and §8 list the field with no unit or mechanism — no change there.
+**Ref:** .andromeda/runs/2026-10-01T11-19-47Z-wrap/

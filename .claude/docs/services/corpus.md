@@ -6,7 +6,7 @@ SQLite-backed persistent storage layer (chunk #68 — Epoch 9 Foundation v0.2.0)
 ## Key integrations
 
 ### Consumes from
-- `crates/security::scrub_attribute` for PII scrubbing at ingestion boundary (defense at corpus write; observability subscriber Layer scrubbing deferred to chunk #70+).
+- `security::scrubber::mask_secret_spans` (span-level masking gated by `scrub_attribute`'s verdict, since chunk 2026-09-30-span-level-redaction) for PII scrubbing at ingestion boundary (defense at corpus write; observability subscriber Layer scrubbing deferred to chunk #70+).
 - OS keychain via `keyring` crate (macOS Keychain / Linux Secret Service / Windows DPAPI) for encryption key retrieval at first-launch + restoration on subsequent boots.
 
 ### Publishes to
