@@ -290,7 +290,10 @@ fn main() {
     tauri::async_runtime::set(tokio::runtime::Handle::current());
 
     let data_dir = resolve_data_dir();
-    let _guard = observability::init(&data_dir);
+    observability::hold_log_guard(observability::init(&data_dir));
+    observability::install_exit_hook();
+    #[cfg(unix)]
+    observability::install_signal_listener();
     record_start();
     write_pid_file(&data_dir);
     window::emit_boot_spans();
@@ -1106,7 +1109,7 @@ fn main() {
     // resize settles instead of fighting the drag frame-by-frame.
     let aspect_resize_gen = Arc::new(AtomicU64::new(0));
 
-    tauri::Builder::default()
+    let app = tauri::Builder::default()
         .plugin(tauri_plugin_updater::Builder::new().build())
         .plugin(tauri_plugin_clipboard_manager::init())
         .plugin(tauri_plugin_notification::init())
@@ -1564,8 +1567,12 @@ fn main() {
             );
             Ok(())
         })
-        .run(tauri::generate_context!())
-        .expect("error while running tauri application");
+        .build(tauri::generate_context!())
+        .expect("error while building tauri application");
+    // `run` would end in tao's `process::exit` with the log worker undrained;
+    // `run_return` hands the code back so the exit is recorded first.
+    let exit_code = app.run_return(|_, _| {});
+    observability::exit_after_event_loop(exit_code);
 }
 
 fn init_buffer(heartbeat_state: &Arc<HeartbeatState>) -> Option<Arc<Mutex<Connection>>> {

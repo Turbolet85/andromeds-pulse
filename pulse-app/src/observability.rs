@@ -1,5 +1,8 @@
 use std::collections::{HashMap, HashSet};
 use std::path::Path;
+use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::{Condvar, Mutex, Once, PoisonError};
+use std::time::Duration;
 use std::{env, fs};
 
 use serde_json::{Map, Value};
@@ -1084,6 +1087,15 @@ impl AllowList {
             // (file:line of pulse source) + spantrace (user-defined span
             // hierarchy) are agent-readable surfaces.
             ["location", "spantrace"].iter().copied().collect(),
+        );
+        // One record per process end (`record_exit`): closed-enum labels, an
+        // exit code and a bool. No path, payload or free text.
+        by_target.insert(
+            "app.exit",
+            ["exit_class", "exit_code", "exit_code_known", "signal"]
+                .iter()
+                .copied()
+                .collect(),
         );
 
         // a11y plan §3 violation JSON Required + Extension fields (forward-binding
@@ -2685,6 +2697,215 @@ fn set_logs_dir_permissions(_logs_dir: &Path) {
 #[doc(hidden)]
 pub fn log_basename(path: &Path) -> Option<&str> {
     path.file_name().and_then(|s| s.to_str())
+}
+
+// ─────────────────────────────────────────────────────────
+// Process-end record (`app.exit`)
+//
+// One bounded record per process end on every class that can log. The file
+// sink is a non-blocking worker whose ONLY drain is `WorkerGuard::drop`, and
+// the Tauri run ends in `process::exit` (no destructor runs), so the guard
+// lives in a process-wide slot and the emitter drops it after writing.
+// Unloggable by construction: SIGKILL, `_exit`, Windows `TerminateProcess`,
+// and a Rust `process::exit` on Windows (`ExitProcess` runs no `atexit`
+// handler and stops every other thread first).
+// ─────────────────────────────────────────────────────────
+
+#[doc(hidden)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ExitClass {
+    EventLoop,
+    OutsideEventLoop,
+    Signal,
+}
+
+impl ExitClass {
+    pub fn label(self) -> &'static str {
+        match self {
+            ExitClass::EventLoop => "event_loop",
+            ExitClass::OutsideEventLoop => "outside_event_loop",
+            ExitClass::Signal => "signal",
+        }
+    }
+}
+
+#[doc(hidden)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ExitSignal {
+    None,
+    Sigterm,
+    Sigint,
+}
+
+impl ExitSignal {
+    pub fn label(self) -> &'static str {
+        match self {
+            ExitSignal::None => "none",
+            ExitSignal::Sigterm => "sigterm",
+            ExitSignal::Sigint => "sigint",
+        }
+    }
+}
+
+static EXIT_RECORDED: AtomicBool = AtomicBool::new(false);
+static LOG_GUARD: Mutex<Option<WorkerGuard>> = Mutex::new(None);
+
+#[doc(hidden)]
+pub fn hold_log_guard(guard: WorkerGuard) {
+    *LOG_GUARD.lock().unwrap_or_else(PoisonError::into_inner) = Some(guard);
+}
+
+// Idempotent: the first call drains the worker and shuts it down; later calls
+// find the slot empty.
+#[doc(hidden)]
+pub fn flush_log_sink() {
+    let guard = LOG_GUARD
+        .lock()
+        .unwrap_or_else(PoisonError::into_inner)
+        .take();
+    drop(guard);
+}
+
+// The first emitter wins; returns whether this call wrote the record.
+#[doc(hidden)]
+pub fn record_exit(class: ExitClass, exit_code: Option<i32>, signal: ExitSignal) -> bool {
+    if EXIT_RECORDED.swap(true, Ordering::SeqCst) {
+        return false;
+    }
+    let exit_class = class.label();
+    let exit_code_known = exit_code.is_some();
+    let exit_code = exit_code.unwrap_or(0);
+    let signal = signal.label();
+    match (class, exit_code) {
+        (ExitClass::EventLoop, 0) => tracing::info!(
+            target: "app.exit",
+            exit_class,
+            exit_code,
+            exit_code_known,
+            signal,
+            "process exit",
+        ),
+        (ExitClass::Signal, _) => tracing::warn!(
+            target: "app.exit",
+            exit_class,
+            exit_code,
+            exit_code_known,
+            signal,
+            "process exit",
+        ),
+        _ => tracing::error!(
+            target: "app.exit",
+            exit_class,
+            exit_code,
+            exit_code_known,
+            signal,
+            "process exit",
+        ),
+    }
+    flush_log_sink();
+    true
+}
+
+// The tail of the Tauri event loop: record, drain, then exit with the SAME
+// code the loop returned.
+#[doc(hidden)]
+pub fn exit_after_event_loop(code: i32) -> ! {
+    record_exit(ExitClass::EventLoop, Some(code), ExitSignal::None);
+    std::process::exit(code)
+}
+
+// The at-exit handler runs on the exiting thread, whose thread-locals may
+// already be destroyed (glibc runs TLS destructors before `atexit` handlers)
+// while the formatter needs them. So the record is written by a reporter
+// thread spawned at install; the handler only hands off and waits, bounded.
+#[derive(PartialEq, Eq)]
+enum ReporterState {
+    Idle,
+    Requested,
+    Done,
+}
+
+static REPORTER_STATE: Mutex<ReporterState> = Mutex::new(ReporterState::Idle);
+static REPORTER_CV: Condvar = Condvar::new();
+const EXIT_REPORT_WAIT: Duration = Duration::from_secs(2);
+
+#[doc(hidden)]
+pub fn install_exit_hook() {
+    static INSTALLED: Once = Once::new();
+    INSTALLED.call_once(|| {
+        let spawned = std::thread::Builder::new()
+            .name("pulse-exit-reporter".into())
+            .spawn(run_exit_reporter);
+        if spawned.is_ok() {
+            // SAFETY: registers a plain `extern "C" fn()` that captures nothing
+            // and never unwinds.
+            unsafe {
+                libc::atexit(on_process_exit);
+            }
+        }
+    });
+}
+
+fn run_exit_reporter() {
+    let mut state = REPORTER_STATE
+        .lock()
+        .unwrap_or_else(PoisonError::into_inner);
+    while *state != ReporterState::Requested {
+        state = REPORTER_CV
+            .wait(state)
+            .unwrap_or_else(PoisonError::into_inner);
+    }
+    drop(state);
+    record_exit(ExitClass::OutsideEventLoop, None, ExitSignal::None);
+    *REPORTER_STATE
+        .lock()
+        .unwrap_or_else(PoisonError::into_inner) = ReporterState::Done;
+    REPORTER_CV.notify_all();
+}
+
+extern "C" fn on_process_exit() {
+    if EXIT_RECORDED.load(Ordering::SeqCst) {
+        return;
+    }
+    let mut state = REPORTER_STATE
+        .lock()
+        .unwrap_or_else(PoisonError::into_inner);
+    *state = ReporterState::Requested;
+    REPORTER_CV.notify_all();
+    let _ = REPORTER_CV.wait_timeout_while(state, EXIT_REPORT_WAIT, |s| *s != ReporterState::Done);
+}
+
+// SIGTERM / SIGINT: the record is written from a runtime task, never from the
+// async-signal context; then the default disposition is restored and the same
+// signal re-raised, so the process still ends BY that signal and the harness
+// keeps recording `signal N`. Needs an entered tokio runtime; without one, or
+// when registration fails, the default disposition stays in force.
+#[cfg(unix)]
+#[doc(hidden)]
+pub fn install_signal_listener() {
+    use tokio::signal::unix::{SignalKind, signal};
+    let Ok(handle) = tokio::runtime::Handle::try_current() else {
+        return;
+    };
+    let (Ok(mut term), Ok(mut int)) = (
+        signal(SignalKind::terminate()),
+        signal(SignalKind::interrupt()),
+    ) else {
+        return;
+    };
+    handle.spawn(async move {
+        let (which, signum) = tokio::select! {
+            _ = term.recv() => (ExitSignal::Sigterm, libc::SIGTERM),
+            _ = int.recv() => (ExitSignal::Sigint, libc::SIGINT),
+        };
+        record_exit(ExitClass::Signal, None, which);
+        // SAFETY: plain libc calls with a valid signal number and the default
+        // disposition constant.
+        unsafe {
+            libc::signal(signum, libc::SIG_DFL);
+            libc::raise(signum);
+        }
+    });
 }
 
 // ─────────────────────────────────────────────────────────

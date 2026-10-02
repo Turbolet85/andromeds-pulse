@@ -5376,6 +5376,7 @@ dependencies = [
  "duckdb",
  "ingest",
  "interpretation",
+ "libc",
  "mcp-server",
  "plugins",
  "prost",
