@@ -12,7 +12,7 @@
 //!
 //! Per chunk #86 user-confirmed Phase 6 resolution, the FSM is GLOBAL
 //! (one shared instance per L4 subscriber); per-(kind, scope, workspace)
-//! tuple granularity defers to а follow-up chunk if observed-needed.
+//! tuple granularity defers to a follow-up chunk if observed-needed.
 
 use serde::{Deserialize, Serialize};
 
@@ -32,7 +32,7 @@ pub const FAILURE_THRESHOLD: u32 = 3;
 pub const BACKOFF_PROGRESSION_SECS: &[u64] = &[120, 300, 600];
 
 /// Cap (in seconds) once `BACKOFF_PROGRESSION_SECS` is exhausted. Subsequent
-/// failures hold backoff at this value. Equal к the last progression entry.
+/// failures hold backoff at this value. Equal to the last progression entry.
 pub const BACKOFF_CAP_SECS: u64 = 600;
 
 /// Distillation-pipeline degraded-mode state. Active = healthy path; the
@@ -55,12 +55,12 @@ pub fn degraded_mode_state_label(state: DegradedModeState) -> &'static str {
     }
 }
 
-/// Snapshot of the degraded-mode FSM at а moment in time. Returned by
+/// Snapshot of the degraded-mode FSM at a moment in time. Returned by
 /// `DegradedModeStatus` trait methods; consumed by `diagnostics.retry_
 /// interpretation()` resolver payload + L4 subscriber backoff-skip logic
 /// + obs metric tick task.
 ///
-/// All fields bounded к scalar / enum / Option<scalar>; no LLM-emitted
+/// All fields bounded to scalar / enum / Option<scalar>; no LLM-emitted
 /// content or per-incident identifiers (per chunk #86 obs constraint
 /// "aggregate-only fields").
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -70,7 +70,7 @@ pub struct BackoffSnapshot {
     /// FAILURE_WINDOW_SECS. Resets to 0 on `record_success`.
     pub consecutive_failures: u32,
     /// Wall-clock unix-nanosecond timestamp at which the next L4 inference
-    /// invocation is eligible. `None` in Active state. Set on entry к
+    /// invocation is eligible. `None` in Active state. Set on entry to
     /// Degraded and on each additional failure (backoff progression).
     pub next_retry_at_unix_nano: Option<i64>,
     /// Remaining seconds until next eligible retry. 0 in Active state OR
@@ -93,7 +93,7 @@ impl BackoffSnapshot {
 
 /// L4 degraded-mode FSM trait. Concrete impl lives at the binary boundary
 /// (`pulse-app/src/degraded_mode_runtime.rs`). Methods are SYNCHRONOUS —
-/// the FSM state is held in а `std::sync::Mutex` (or equivalent); no
+/// the FSM state is held in a `std::sync::Mutex` (or equivalent); no
 /// I/O involved, so async-trait dyn-compat patterns do not apply here.
 ///
 /// All methods accept `now_unix_nano: i64` as injected time — enables
@@ -109,7 +109,7 @@ pub trait DegradedModeStatus: Send + Sync {
 
     /// Record an L4 inference success (parse + validate succeeded).
     /// Resets the consecutive-failure counter to 0 + transitions
-    /// Degraded → Active immediately if в Degraded state. Returns the
+    /// Degraded → Active immediately if in Degraded state. Returns the
     /// post-update snapshot.
     fn record_success(&self, now_unix_nano: i64) -> BackoffSnapshot;
 
@@ -124,13 +124,13 @@ pub trait DegradedModeStatus: Send + Sync {
     /// Returns `true` iff the FSM is in Degraded state AND the current
     /// `now_unix_nano` is BEFORE `next_retry_at_unix_nano`. The L4
     /// subscriber consults this BEFORE invoking generation; `true`
-    /// indicates the cadence-driven invocation should skip (log а
+    /// indicates the cadence-driven invocation should skip (log a
     /// dropped-digest event + return without subprocess spawn).
     fn is_in_backoff(&self, now_unix_nano: i64) -> bool;
 
     /// Manual override invoked by the Settings → Diagnostics "Retry
     /// interpretation now" button (via `diagnostics.retry_interpretation()`
-    /// TauRPC). Resets the FSM к Active с consecutive_failures=0
+    /// TauRPC). Resets the FSM to Active with consecutive_failures=0
     /// regardless of current state. The next L4 inference invocation
     /// proceeds normally; if it fails, the failure counter restarts from 1.
     /// Returns the post-reset snapshot.

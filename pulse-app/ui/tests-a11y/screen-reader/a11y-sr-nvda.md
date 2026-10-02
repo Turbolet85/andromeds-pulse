@@ -251,8 +251,8 @@ Boot app in compact widget mode (default startup). NVDA pass:
 - Tab cycles through compact widget chrome:
   1. Custom titlebar drag region — decorative, not focusable
   2. Settings gear button → "Settings, button"
-  3. Expand button → "Expand to dashboard, button" (verifies
-     `<button aria-label="Expand to dashboard">`)
+  3. Dashboard-toggle button → "Toggle dashboard, button" (verifies
+     `<button aria-label="Toggle dashboard">`)
   4. Minimize button → "Minimize to tray, button" (verifies
      `<button aria-label="Minimize to tray">`)
 - Activating Minimize (Enter or Space): widget minimizes to tray; NVDA

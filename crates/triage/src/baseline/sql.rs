@@ -2,7 +2,7 @@
 //!
 //! Implements the L1a layer per `docs/v0_2_0/pulse-distillation-architecture.md`
 //! §Appendix A — seven SQL templates (Q1-Q7) executed against the L0 DuckDB
-//! ring buffer with а Q7-fallback shallow non-recursive variant invoked on
+//! ring buffer with a Q7-fallback shallow non-recursive variant invoked on
 //! timeout OR row-limit hit. Queries are consumed in-process by the future
 //! chunk #80 Cadence Coordinator; this chunk introduces zero TauRPC surface,
 //! zero broadcast topics, zero arch-registry deltas.
@@ -31,12 +31,12 @@
 //! - outer `LIMIT 100` (output capped)
 //! - 200ms wall-clock timeout (Q7_DEFAULT_TIMEOUT) — on timeout fires Q7-fallback
 //!
-//! Q7-fallback is а shallow non-recursive variant (no CTE) that takes only
+//! Q7-fallback is a shallow non-recursive variant (no CTE) that takes only
 //! root spans + direct children. Same `slow_traces LIMIT 5` seed.
 //!
 //! ### dead-code allowance
 //!
-//! Chunk #79 is а prerequisite substrate; chunk #80 Cadence Coordinator
+//! Chunk #79 is a prerequisite substrate; chunk #80 Cadence Coordinator
 //! consumes Q1-Q7 outputs. Until chunk #80 lands, the public API has no
 //! in-crate caller — `#[allow(dead_code)]` at the module level silences the
 //! transient unused-warning, removed when chunk #80 wires the consumer
@@ -50,7 +50,7 @@ use std::time::{Duration, Instant, SystemTime, UNIX_EPOCH};
 use duckdb::Connection;
 use thiserror::Error;
 
-/// Compute the cutoff timestamp (nanoseconds since Unix epoch) for а window
+/// Compute the cutoff timestamp (nanoseconds since Unix epoch) for a window
 /// query. Rows newer than the cutoff are included; rows older are excluded.
 ///
 /// Matches the existing `viz/query.rs` pattern of pre-computing the absolute
@@ -205,7 +205,7 @@ pub struct Q1RedRow {
 }
 
 /// Q2 row — RED per service operation (currently per-service-only; refined when
-/// `operation_name` becomes а distinct span attribute column).
+/// `operation_name` becomes a distinct span attribute column).
 #[derive(Debug, Clone, PartialEq)]
 pub struct Q2OperationRow {
     pub service_name: String,
@@ -433,7 +433,7 @@ pub async fn run_q7(
 }
 
 /// Run Q7 with explicit timeout duration. Tests use this directly for
-/// deterministic timeout assertions с injected duration knob.
+/// deterministic timeout assertions with injected duration knob.
 ///
 /// The primary recursive CTE runs on a DEDICATED `try_clone()`d connection
 /// (own private mutex), and on timeout that clone is `interrupt()`ed.
@@ -709,7 +709,7 @@ fn run_q7_fallback_blocking(
 fn emit_query_telemetry(query_name: &'static str, elapsed: Duration, row_count: usize) {
     // Per session 41 (2026-05-10), tracing::info!(target: ...) requires
     // &'static str — unrolled per query_name rather than runtime variable.
-    // Use match к dispatch к the correct target literal.
+    // Use match to dispatch to the correct target literal.
     match query_name {
         "q1" => {
             tracing::info!(
@@ -850,7 +850,7 @@ mod tests {
 
     fn open_test_connection() -> Arc<Mutex<Connection>> {
         let conn = Connection::open_in_memory().expect("open_in_memory");
-        // Create the L0 schema (subset needed для Q1-Q7 — спans + span_events + log_records).
+        // Create the L0 schema (subset needed for Q1-Q7 — spans + span_events + log_records).
         conn.execute_batch(
             "\
 CREATE TABLE IF NOT EXISTS spans (
@@ -883,7 +883,8 @@ CREATE TABLE IF NOT EXISTS log_records (
     severity_text VARCHAR NOT NULL DEFAULT '',
     trace_id BLOB,
     span_id BLOB,
-    PRIMARY KEY (ts_unix_nano, resource_hash, severity_number)
+    seq BIGINT NOT NULL,
+    PRIMARY KEY (ts_unix_nano, resource_hash, severity_number, seq)
 );
 ",
         )
@@ -957,14 +958,21 @@ CREATE TABLE IF NOT EXISTS log_records (
             .expect("insert span_event");
     }
 
+    // `seq` is a primary-key column, so every seeded row must supply one. It
+    // also decouples these seeds from the wall clock: `current_test_nanos` can
+    // return the same value for two calls on a coarse timer, which without an
+    // ordinal would collide on the key.
+    static SEED_LOG_SEQ: std::sync::atomic::AtomicI64 = std::sync::atomic::AtomicI64::new(0);
+
     fn insert_log(conn: &Arc<Mutex<Connection>>, resource_hash: &[u8], severity_number: i32) {
         let now_ns = current_test_nanos();
+        let seq = SEED_LOG_SEQ.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
         let guard = conn.lock().unwrap();
         guard
             .execute(
-                "INSERT INTO log_records (ts, ts_unix_nano, resource_hash, severity_number, body, severity_text) \
-                 VALUES (now(), ?, ?, ?, '', '')",
-                duckdb::params![now_ns, resource_hash, severity_number],
+                "INSERT INTO log_records (ts, ts_unix_nano, resource_hash, severity_number, body, severity_text, seq) \
+                 VALUES (now(), ?, ?, ?, '', '', ?)",
+                duckdb::params![now_ns, resource_hash, severity_number, seq],
             )
             .expect("insert log");
     }
@@ -1156,7 +1164,7 @@ CREATE TABLE IF NOT EXISTS log_records (
         let result = run_q7(&state, Duration::from_secs(60))
             .await
             .expect("q7 ok");
-        // Default 200ms timeout is plenty for а single-span fixture
+        // Default 200ms timeout is plenty for a single-span fixture
         assert!(!result.is_empty());
     }
 
@@ -1164,8 +1172,8 @@ CREATE TABLE IF NOT EXISTS log_records (
     async fn q7_outer_limit_100_caps_results() {
         let conn = open_test_connection();
         // 5 traces × (1 root + 25 children) = 130 total tree nodes; LIMIT 100 caps.
-        // Each trace's root has а unique span_id; 25 children each have
-        // parent_span_id pointing к the root. Use 4-byte unique encoding к avoid
+        // Each trace's root has a unique span_id; 25 children each have
+        // parent_span_id pointing to the root. Use 4-byte unique encoding to avoid
         // primary-key collisions across (trace_id, span_id) pairs.
         for trace_idx in 0..5_u8 {
             let trace_id = [trace_idx + 1; 16];
@@ -1201,9 +1209,9 @@ CREATE TABLE IF NOT EXISTS log_records (
 
     #[tokio::test]
     async fn window_filter_excludes_old_rows() {
-        // Insert one span, then query с very narrow window — но since DuckDB's now()
+        // Insert one span, then query with very narrow window — but since DuckDB's now()
         // and the row's `ts now()` are essentially the same instant at test execution,
-        // we verify the WHERE clause structure works by passing а 0-second window
+        // we verify the WHERE clause structure works by passing a 0-second window
         // (effectively NOW() - INTERVAL 0 SECOND = NOW()) which still includes
         // rows inserted via `ts now()`. Tighter time-based filtering would require
         // time injection via tokio test-util feature (not enabled in triage crate).
@@ -1221,11 +1229,11 @@ CREATE TABLE IF NOT EXISTS log_records (
     #[tokio::test]
     async fn sql_injection_via_duration_param_is_blocked() {
         // The Duration → i64 BIGINT bind path is type-safe by construction:
-        // Q1's `(? * INTERVAL '1 second')` placeholder receives а bound i64
+        // Q1's `(? * INTERVAL '1 second')` placeholder receives a bound i64
         // (window.as_secs() as i64). A would-be injector cannot smuggle SQL
-        // tokens через а typed integer — Duration::from_secs() accepts u64
-        // and as_secs() returns u64; cast к i64 is а value-only operation.
-        // The assertion here is positive: we verify а normal Duration flows
+        // tokens via a typed integer — Duration::from_secs() accepts u64
+        // and as_secs() returns u64; cast to i64 is a value-only operation.
+        // The assertion here is positive: we verify a normal Duration flows
         // through the bind site, executes safely, and the spans table is
         // intact afterwards.
         let conn = open_test_connection();

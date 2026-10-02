@@ -1,0 +1,43 @@
+# design extract
+
+## Relevance
+Partial — the ACL grant and gate wiring are outside design, but scope items 3 and 4 (a discriminating COPY-SUCCEEDED observable and a legible failure diagnostic) may render new state on the Copy control, which design governs.
+
+## Constraints
+- Any rendered copy-state change (a `copied` label, status line, or failure detail) must carry a text label or icon alongside any color shift — color alone is banned (per design-system §Color Palette → Accent usage (non-text token); §Anti-Patterns → Universal Bans "NEVER use color purely for decoration").
+- Body-size failure text must render `var(--color-text-primary)` with Alert Burgundy `#C7556A` carried as border/icon only — accent is a non-text token at ≈3.8:1 on Base, below SC 1.4.3 normal-text (per design-system §Color Palette → Accent usage (non-text token)). Whether the existing `Copy failed — retry` label already satisfies this is research's question.
+- A success confirmation, if one is rendered as the discriminating observable, is the Feedback Cyan `#17B3A3` role used sparingly for "investigative actions completed" (per design-system §Color Palette → Semantic Colors).
+- All values must resolve through the Tailwind v4 `@theme` custom properties (`--color-*`, `--spacing-*`, `--radius-*`, `--font-*`, `--duration-*`, `--easing-*`); no hardcoded hex, no raw px (per design-system §Surface: desktop-webview → Tokens; §Self-Validation Protocol → 4. Token Test).
+- Any transition on the control is capped at 150ms (hover/focus) / 200ms (state fade) `ease-out cubic-bezier(0.4, 0, 0.2, 1)`, with no entrance animation, no spring/bounce, and a `prefers-reduced-motion: reduce` path to instant (per design-system §Motion → duration scale, Hard limits, Accessibility).
+- Control text is the Label role (IBM Plex Sans 500 / 12px); any technical or diagnostic value shown to the operator is the Code role (JetBrains Mono 400 / 12px / 0.5 tracking) — the mono-vs-sans split encodes "immutable fact vs. operator communication" (per design-system §Typography).
+
+## Patterns to follow
+- Button component pattern — Secondary variant (Raised-1 `#262A33` background, `--color-text-primary`, 1px `rgba(74,144,226,0.3)` border, hover border `#4A90E2` at 150ms, `radius-sm` 4px, `space-sm`/`space-xs` padding) and the Disabled/Focused states beside it (per design-system §Surface: desktop-webview → Component Patterns → Buttons).
+- Honest-error variant discipline — the error branch is evaluated BEFORE the success/empty branch and shows a static, human-written message, never the raw `AppError`; this is the established shape for any operator-facing copy-failure detail added under scope item 4 (per design-system §Surface: desktop-webview → Component Patterns → Loading / Empty States, Error state).
+- Focus / keyboard pattern — the Copy control must be Tab-reachable with the 3–4px outset `#4A90E2` ring via `:focus-visible`; a headful gate that presses the real control exercises the same affordance the design mandates (per design-system §Surface: desktop-webview → Focus / Keyboard Navigation; §Anti-Patterns → Per-Surface Bans "NEVER use hover-only interactions without keyboard alternatives").
+- Iconography rule — no domain glyph exists for "copy"; a Lucide/Heroicons fallback is permitted only where it carries meaning ("Icons clarify, not decorate. If removing an icon loses no meaning, remove it") (per design-system §Iconography → Secondary library, Rule).
+- Copy tone — terse, contemplative, observational action labels ("Generate Snapshot" not "Export Data"); any new status string inherits that voice (per design-system §Brand Identity → Design direction; §Surface: desktop-native → Tray Menu → Tone as the stated exemplar).
+
+## Anti-patterns to avoid
+- NEVER surface the ACL rejection through `alert()` / `confirm()` / `prompt()` — styled in-surface state or a shadcn/ui Dialog only (per design-system §Anti-Patterns → Per-Surface Bans, desktop-webview).
+- NEVER introduce hardcoded hex or Tailwind default palette values for the success/failure state, and NEVER add gradient or glassmorphic treatment to the control (per design-system §Anti-Patterns → Universal Bans).
+- NEVER exceed the motion ceiling with a >200ms opacity fade, spring easing, or a staggered/entrance reveal for the confirmation (per design-system §Motion → Hard limits).
+
+## Contract bindings
+- **a11y §Use of Color (SC 1.4.1)** — the "state color paired with label or icon" rule above is the design half; a11y owns the formal conformance derivation.
+- **a11y §Contrast (SC 1.4.3 / 1.4.11)** — design supplies target ratios (Primary ≈8.5:1, Secondary ≈6.8:1, Tertiary 4.2:1 large-text-only, accent 3.8:1 non-text-only); a11y derives conformance (per design-system §Self-Validation Protocol → 6. Contrast Test; amendments §Downstream Readiness → For a11y specialist).
+- **a11y §Animation (SC 2.3.3)** — the `prefers-reduced-motion` override is mandatory on any transition this chunk adds (per design-system §Motion → Accessibility).
+- **obs** — if research picks the obs-log-record observable, obs may instrument transitions into/out of the copy success/error visuals but must not modify the visual tokens (per design-system-amendments §Downstream Readiness → For obs specialist).
+- **tests** — the headful gate asserting on a label string binds to design-owned copy; tests also lint motion durations/easings and verify component-pattern hex/spacing/radius against the Color Palette and Spacing tables (per design-system-amendments §Downstream Readiness → For tests specialist).
+
+## Acceptance criteria contributions
+- (design) Any copy-state affordance touched or added uses only `@theme` tokens — no hardcoded hex, no raw px literal (per design-system §Surface: desktop-webview → Tokens / §Self-Validation Protocol → 4. Token Test).
+- (design) The copy-failure state conveys failure by text label plus an accent border/icon, with body-size text on `var(--color-text-primary)` — the accent is never the message text color (per design-system §Color Palette → Accent usage (non-text token)).
+- (design) A rendered copy-success confirmation, if used as the discriminating observable, is a text label (not color alone) and uses the Feedback Cyan `#17B3A3` success role sparingly (per design-system §Color Palette → Semantic Colors; §Anti-Patterns → Universal Bans).
+- (design) Any state transition on the Copy control stays ≤200ms `ease-out` and collapses to instant under `prefers-reduced-motion: reduce` (per design-system §Motion → duration scale, Hard limits, Accessibility).
+
+## Relevant amendment history
+- **2026-08-23-a11y-verification — accent-as-error-text deferral discharged (3 sites).** Directly governs this chunk's failure label: body-size error text moved to `var(--color-text-primary)` with the accent as border/icon only, and the amendment's own stated lesson was that a leftover hardcoded sub-4.5:1 normal-text value in a secondary site kept the defect alive after the prose was fixed. The `Copy failed — retry` label is exactly that class of site.
+- **2026-07-08-self-explaining-empty-states — message token Tertiary→Secondary + honest-error variant.** Establishes that body-size message text needs ≥4.5:1 (Tertiary `#7D8697` is large-text-only) and that the error branch is checked BEFORE the empty/success branch showing a static message, never a raw error — the precedent for any status-detail line added under scope item 4.
+- **2026-05-03 — accent lifted `#8B2E3B` → `#C7556A`, reclassified non-text.** Origin of the non-text accent classification the two entries above build on; included for the "why" behind the border-not-text posture.
+- **§Downstream Readiness → For obs specialist** (sidecar META): obs instruments transitions into/out of loading/error visuals *without modifying the visual tokens* — the standing boundary if the obs-record observable is chosen.

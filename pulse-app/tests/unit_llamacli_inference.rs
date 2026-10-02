@@ -9,8 +9,8 @@
 //!   vector containing all four subprocess defenses (`-n {max_tokens}` +
 //!   `-st` + `kill_on_drop` discipline implicit) + tier-routing args
 //! - (b) **tier routing** — `binary_target_for_profile` maps each
-//!   `HardwareProfile` variant к correct env var name + `-ngl` flag
-//! - (c) **env-var-missing graceful** — construct с no env vars + invoke
+//!   `HardwareProfile` variant to correct env var name + `-ngl` flag
+//! - (c) **env-var-missing graceful** — construct with no env vars + invoke
 //!   `generate_constrained` returns `Err(InferenceError::ModelNotConfigured)`
 //!   without panicking
 //! - (d) **path-traversal rejected** — `canonicalize_path` returns
@@ -29,9 +29,11 @@ use std::path::PathBuf;
 use interpretation::broadcast::ModelStatusBroadcast;
 use interpretation::contract::{InferenceError, LlmInferenceRunner, ModelStatus, ModelTier};
 use pulse_app::llamacli_inference::{
-    DEFAULT_MAX_TOKENS, ENV_LLAMA_CPU_BIN_PATH, ENV_LLAMA_CUDA_BIN_PATH, ENV_MODEL_PATH,
-    LlamaCliInference, binary_target_for_profile, build_llama_cli_args, canonicalize_path,
-    classify_subprocess_failure, extract_json_object_bounded,
+    AllowRoot, DEFAULT_MAX_TOKENS, ENV_L4_ALLOW_ROOT, ENV_LLAMA_CPU_BIN_PATH,
+    ENV_LLAMA_CUDA_BIN_PATH, ENV_MODEL_PATH, LlamaCliInference, MAX_PATH_INPUT_BYTES,
+    MAX_PROMPT_BYTES, PathRejection, PromptRejection, binary_target_for_profile,
+    build_llama_cli_args, canonicalize_path, classify_subprocess_failure,
+    extract_json_object_bounded, resolve_allow_root, validate_path_input, validate_prompt_bounded,
 };
 use tempfile::TempDir;
 use triage::contract::HardwareProfile;
@@ -116,7 +118,7 @@ fn spawn_args_contain_ngl_routing_per_profile() {
 fn spawn_args_contain_prompt_via_p_arg() {
     let schema_path = PathBuf::from("/tmp/schema.json");
     let model_path = PathBuf::from("/tmp/model.gguf");
-    let prompt = "What is 2+2? Respond с JSON.";
+    let prompt = "What is 2+2? Respond with JSON.";
     let args = build_llama_cli_args(&model_path, 99, DEFAULT_MAX_TOKENS, &schema_path, prompt);
     let p_idx = args.iter().position(|a| a == "-p").expect("-p arg present");
     assert_eq!(args.get(p_idx + 1).map(String::as_str), Some(prompt));
@@ -173,7 +175,7 @@ fn binary_target_routes_unknown_to_cpu_safe_default() {
 #[test]
 fn construct_with_missing_env_vars_starts_in_error_state() {
     // Test relies on env vars being unset. Tests run in isolated processes
-    // per nextest profile, but defensively clear within а scope.
+    // per nextest profile, but defensively clear within a scope.
     let original_cuda = std::env::var(ENV_LLAMA_CUDA_BIN_PATH).ok();
     let original_cpu = std::env::var(ENV_LLAMA_CPU_BIN_PATH).ok();
     let original_model = std::env::var(ENV_MODEL_PATH).ok();
@@ -294,7 +296,7 @@ fn canonicalize_accepts_existing_regular_file() {
 #[test]
 fn canonicalize_rejects_traversal_payload() {
     // The traversal-payload itself (`../../etc/passwd`-style relative path
-    // resolved against а CWD that doesn't actually contain it) → nonexistent
+    // resolved against a CWD that doesn't actually contain it) → nonexistent
     // → canonicalize fails → InvalidModelPath returned. Mirrors the
     // chunk #77 path-canonicalization-rejection invariant pattern.
     let result = canonicalize_path(&PathBuf::from(
@@ -352,28 +354,6 @@ fn classify_subprocess_failure_returns_exit_zero_unexpected_when_exit_zero() {
     // (it shouldn't, but defense-in-depth), it returns the bounded marker.
     let tag = classify_subprocess_failure(Some(0), "");
     assert_eq!(tag, "exit_zero_unexpected");
-}
-
-// ============================================================================
-// Test (f) — subprocess timeout fires (manual run; requires platform binary)
-// ============================================================================
-
-/// Reserves а test slot для full end-to-end subprocess-timeout verification
-/// against а real platform binary that sleeps longer than `LLAMA_CLI_TIMEOUT`.
-/// Cross-platform sleep stub generation is out of scope для CI (would
-/// require either а Rust test-helper crate с а platform-specific
-/// build.rs OR vendoring а shell/cmd wrapper script). Per chunk #84 plan
-/// implementation notes, the FOUR-bound discipline is verified via the
-/// (a) spawn-args tests + the pure-function (e) classifier tests; this
-/// `#[ignore]`-gated test reserves the smoke slot для manual verification.
-///
-/// Manual run (Unix): set `ANDROMEDA_PULSE_LLAMA_CPU_BIN_PATH=/bin/sleep`
-/// plus `ANDROMEDA_PULSE_MODEL_PATH=/tmp/touch-me` plus run with `--ignored`.
-/// Manual run (Windows): use а PowerShell sleep wrapper.
-#[test]
-#[ignore]
-fn manual_subprocess_timeout_smoke() {
-    // Intentionally empty — manual smoke slot. See doc comment for run protocol.
 }
 
 // ============================================================================
@@ -447,7 +427,7 @@ fn spawn_args_contain_log_disable_flag() {
 
 #[test]
 fn extract_json_strips_real_b9305_banner_and_perf_stats_framing() {
-    // Verbatim layout captured от integration smoke (session 146):
+    // Verbatim layout captured from integration smoke (session 146):
     // banner -> JSON -> trailing perf-stats + "Exiting...".
     let raw = "\n\nLoading model... \n\n\
         ASCII llama logo redacted for unit-test brevity\n\
@@ -559,4 +539,290 @@ fn extract_json_truncates_long_snippet_in_error() {
         }
         other => panic!("expected JsonParseFailed; got {other:?}"),
     }
+}
+
+// ============================================================================
+// Test (f) — path guard: structural hardening + opt-in confinement root
+// ============================================================================
+
+/// A regular file inside a fresh temp dir, returned with its owning dir so
+/// the caller keeps the `TempDir` alive for the test's duration.
+fn temp_file(name: &str) -> (TempDir, PathBuf) {
+    let tmp = TempDir::new().expect("tempdir");
+    let path = tmp.path().join(name);
+    std::fs::write(&path, b"fake contents").expect("write file");
+    (tmp, path)
+}
+
+#[test]
+fn validate_path_rejects_traversal_component_before_canonicalizing() {
+    // The `..` is caught structurally, so a traversal is refused even when
+    // the target would otherwise resolve — canonicalization erases `..`, so
+    // a post-canonicalize check could never observe it.
+    let (tmp, file) = temp_file("model.gguf");
+    let via_parent = tmp.path().join("..").join(
+        tmp.path()
+            .file_name()
+            .expect("tempdir has a final component"),
+    );
+    let candidate = via_parent.join(file.file_name().expect("file name"));
+    assert_eq!(
+        validate_path_input(&candidate, &AllowRoot::NotConfigured),
+        Err(PathRejection::TraversalComponent)
+    );
+}
+
+#[test]
+fn validate_path_rejects_over_long_input() {
+    let candidate = PathBuf::from("x".repeat(MAX_PATH_INPUT_BYTES + 1));
+    assert_eq!(
+        validate_path_input(&candidate, &AllowRoot::NotConfigured),
+        Err(PathRejection::PathTooLong)
+    );
+}
+
+#[test]
+fn validate_path_rejects_nonexistent_target() {
+    let candidate = PathBuf::from("/definitely/not/a/real/path/llama-cli.exe");
+    assert_eq!(
+        validate_path_input(&candidate, &AllowRoot::NotConfigured),
+        Err(PathRejection::CanonicalizeFailed)
+    );
+}
+
+#[test]
+fn validate_path_rejects_directory_target() {
+    let tmp = TempDir::new().expect("tempdir");
+    assert_eq!(
+        validate_path_input(tmp.path(), &AllowRoot::NotConfigured),
+        Err(PathRejection::NotRegularFile)
+    );
+}
+
+#[test]
+fn validate_path_rejects_target_outside_the_allow_root() {
+    let (_outside_dir, outside_file) = temp_file("model.gguf");
+    let root_dir = TempDir::new().expect("tempdir");
+    let root = root_dir.path().canonicalize().expect("canonical root");
+    assert_eq!(
+        validate_path_input(&outside_file, &AllowRoot::Enforced(root)),
+        Err(PathRejection::OutsideAllowRoot)
+    );
+}
+
+#[test]
+fn validate_path_rejects_every_candidate_when_the_allow_root_is_unresolvable() {
+    // Fail closed: a typo in the operator's root must not silently degrade
+    // to unconfined.
+    let (_tmp, file) = temp_file("model.gguf");
+    assert_eq!(
+        validate_path_input(&file, &AllowRoot::Unresolvable),
+        Err(PathRejection::AllowRootUnresolvable)
+    );
+}
+
+#[test]
+fn validate_path_accepts_an_out_of_tree_file_when_the_root_contains_it() {
+    // The positive case that keeps the shipped configuration working: a
+    // user-managed GGUF living outside the data dir still loads when the
+    // operator names its directory as the root.
+    let (tmp, file) = temp_file("model.gguf");
+    let root = tmp.path().canonicalize().expect("canonical root");
+    let resolved = validate_path_input(&file, &AllowRoot::Enforced(root))
+        .expect("a file under the declared root must be accepted");
+    assert!(resolved.is_absolute());
+}
+
+#[test]
+fn validate_path_accepts_an_out_of_tree_file_when_no_root_is_declared() {
+    let (_tmp, file) = temp_file("llama-cli.exe");
+    let resolved = validate_path_input(&file, &AllowRoot::NotConfigured)
+        .expect("an unconfined resolve must still accept a regular file");
+    assert!(resolved.is_absolute());
+}
+
+#[test]
+fn confinement_comparison_canonicalizes_both_sides() {
+    // On Windows `canonicalize` yields a `\\?\` extended-length prefix.
+    // Comparing a prefixed child against a NON-canonicalized root fails
+    // regardless of the true relationship, so the guard must canonicalize
+    // the root too. This pins that it does: the same file is accepted
+    // against the canonicalized root and rejected against a root that is
+    // merely a different real directory.
+    let (tmp, file) = temp_file("model.gguf");
+    let canonical_root = tmp.path().canonicalize().expect("canonical root");
+    assert!(validate_path_input(&file, &AllowRoot::Enforced(canonical_root)).is_ok());
+
+    let sibling = TempDir::new().expect("tempdir");
+    let sibling_root = sibling.path().canonicalize().expect("canonical sibling");
+    assert_eq!(
+        validate_path_input(&file, &AllowRoot::Enforced(sibling_root)),
+        Err(PathRejection::OutsideAllowRoot)
+    );
+}
+
+#[test]
+fn path_rejection_labels_are_bounded_and_distinct() {
+    let labels = [
+        PathRejection::TraversalComponent.label(),
+        PathRejection::PathTooLong.label(),
+        PathRejection::CanonicalizeFailed.label(),
+        PathRejection::NotRegularFile.label(),
+        PathRejection::OutsideAllowRoot.label(),
+        PathRejection::AllowRootUnresolvable.label(),
+    ];
+    let unique: std::collections::BTreeSet<&str> = labels.iter().copied().collect();
+    assert_eq!(unique.len(), labels.len(), "labels must be distinct");
+    for label in labels {
+        assert!(
+            label
+                .chars()
+                .all(|c| c.is_ascii_lowercase() || c == '_' || c.is_ascii_digit()),
+            "label must be bounded snake_case; got {label}"
+        );
+    }
+}
+
+// ============================================================================
+// Test (g) — prompt bound before the `-p` argv value
+// ============================================================================
+
+#[test]
+fn prompt_bound_accepts_a_realistic_multi_line_prompt() {
+    // The prompt builder emits markdown sections separated by blank lines,
+    // so `\n` MUST be accepted — a naive `char::is_control()` predicate
+    // would reject every legitimate prompt and turn L4 off entirely.
+    let prompt = "# Role\nYou are an analyst.\n\n# Conventions\n\tindented\r\n\n# Output\n{}\n";
+    assert_eq!(validate_prompt_bounded(prompt), Ok(()));
+}
+
+#[test]
+fn prompt_bound_rejects_an_embedded_nul() {
+    let prompt = "# Role\nYou are an analyst.\0injected";
+    assert_eq!(
+        validate_prompt_bounded(prompt),
+        Err(PromptRejection::ControlCharacter)
+    );
+}
+
+#[test]
+fn prompt_bound_rejects_other_c0_control_characters() {
+    let prompt = "# Role\nYou are an analyst.\u{1b}[31m";
+    assert_eq!(
+        validate_prompt_bounded(prompt),
+        Err(PromptRejection::ControlCharacter)
+    );
+}
+
+#[test]
+fn prompt_bound_rejects_an_over_long_prompt() {
+    let prompt = "a".repeat(MAX_PROMPT_BYTES + 1);
+    assert_eq!(
+        validate_prompt_bounded(&prompt),
+        Err(PromptRejection::TooLong)
+    );
+}
+
+/// Largest prompt observed across 154 real-model assemblies in the durable
+/// evidence log (they spanned 5947..=6297 bytes).
+const OBSERVED_MAX_PROMPT_BYTES: usize = 6297;
+
+/// Windows `CreateProcess` command-line limit. The prompt ceiling sits below
+/// it so an over-long prompt is rejected with a bounded category here rather
+/// than failing opaquely at spawn.
+const WINDOWS_COMMAND_LINE_LIMIT: usize = 32_767;
+
+// Compile-time bounds on the ceiling. Expressed as a const block rather than
+// runtime assertions because a constant-vs-constant `assert!` inside a
+// `#[test]` trips `clippy::assertions_on_constants` under `-D warnings`.
+const _: () = {
+    assert!(MAX_PROMPT_BYTES > OBSERVED_MAX_PROMPT_BYTES);
+    assert!(MAX_PROMPT_BYTES < WINDOWS_COMMAND_LINE_LIMIT);
+};
+
+#[test]
+fn prompt_bound_accepts_the_measured_real_model_envelope() {
+    let prompt = "a".repeat(OBSERVED_MAX_PROMPT_BYTES);
+    assert_eq!(validate_prompt_bounded(&prompt), Ok(()));
+}
+
+#[test]
+fn prompt_rejection_labels_are_bounded_and_distinct() {
+    assert_ne!(
+        PromptRejection::TooLong.label(),
+        PromptRejection::ControlCharacter.label()
+    );
+    for label in [
+        PromptRejection::TooLong.label(),
+        PromptRejection::ControlCharacter.label(),
+    ] {
+        assert!(
+            label.chars().all(|c| c.is_ascii_lowercase() || c == '_'),
+            "label must be bounded snake_case; got {label}"
+        );
+    }
+}
+
+// ============================================================================
+// Test (h) — allow-root env resolution
+// ============================================================================
+
+#[test]
+fn allow_root_resolves_not_configured_when_unset() {
+    let original = std::env::var(ENV_L4_ALLOW_ROOT).ok();
+    unsafe {
+        std::env::remove_var(ENV_L4_ALLOW_ROOT);
+    }
+    let resolved = resolve_allow_root();
+    if let Some(v) = original {
+        unsafe {
+            std::env::set_var(ENV_L4_ALLOW_ROOT, v);
+        }
+    }
+    assert_eq!(resolved, AllowRoot::NotConfigured);
+}
+
+#[test]
+fn allow_root_resolves_enforced_for_a_real_directory() {
+    let tmp = TempDir::new().expect("tempdir");
+    let original = std::env::var(ENV_L4_ALLOW_ROOT).ok();
+    unsafe {
+        std::env::set_var(ENV_L4_ALLOW_ROOT, tmp.path());
+    }
+    let resolved = resolve_allow_root();
+    match original {
+        Some(v) => unsafe { std::env::set_var(ENV_L4_ALLOW_ROOT, v) },
+        None => unsafe { std::env::remove_var(ENV_L4_ALLOW_ROOT) },
+    }
+    let expected = tmp.path().canonicalize().expect("canonical");
+    assert_eq!(resolved, AllowRoot::Enforced(expected));
+}
+
+#[test]
+fn allow_root_resolves_unresolvable_for_a_missing_directory() {
+    let original = std::env::var(ENV_L4_ALLOW_ROOT).ok();
+    unsafe {
+        std::env::set_var(ENV_L4_ALLOW_ROOT, "/definitely/not/a/real/root/dir");
+    }
+    let resolved = resolve_allow_root();
+    match original {
+        Some(v) => unsafe { std::env::set_var(ENV_L4_ALLOW_ROOT, v) },
+        None => unsafe { std::env::remove_var(ENV_L4_ALLOW_ROOT) },
+    }
+    assert_eq!(resolved, AllowRoot::Unresolvable);
+}
+
+#[test]
+fn allow_root_resolves_unresolvable_for_a_file_rather_than_a_directory() {
+    let (_tmp, file) = temp_file("not-a-dir");
+    let original = std::env::var(ENV_L4_ALLOW_ROOT).ok();
+    unsafe {
+        std::env::set_var(ENV_L4_ALLOW_ROOT, &file);
+    }
+    let resolved = resolve_allow_root();
+    match original {
+        Some(v) => unsafe { std::env::set_var(ENV_L4_ALLOW_ROOT, v) },
+        None => unsafe { std::env::remove_var(ENV_L4_ALLOW_ROOT) },
+    }
+    assert_eq!(resolved, AllowRoot::Unresolvable);
 }

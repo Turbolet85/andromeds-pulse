@@ -1,0 +1,2 @@
+NOT MIGRATED — read §3. Test Harness Contract in the body
+registry v1.1 · c6c20a84

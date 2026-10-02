@@ -1,0 +1,1 @@
+2026-09-30-p-027-discovery-bound · pending · P-027 discovery bound — a new service's first dot within 5 s of first sighting, not at the 15 s registry tick · → andromeda-pulse-0.3.0/chunks/2026-09-30-p-027-discovery-bound/

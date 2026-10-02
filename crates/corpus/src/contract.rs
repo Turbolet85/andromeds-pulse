@@ -23,6 +23,22 @@ use crate::db;
 use crate::encryption::{EncryptionKey, cell_decrypt, cell_encrypt};
 use crate::schema::{SCHEMA_VERSION, TABLE_NAMES};
 
+/// One aggregate emission per query when rows could not be decrypted, so a
+/// corpus holding undecryptable rows degrades instead of going dark. Count
+/// only — never row identity, workspace, or payload (obs-plan.md §5).
+/// `query_id` is a bounded static label, not caller-supplied text.
+fn warn_skipped_undecryptable(query_id: &'static str, skipped: usize) {
+    if skipped == 0 {
+        return;
+    }
+    tracing::warn!(
+        target: "corpus.read.undecryptable",
+        query_id,
+        rows_skipped = skipped,
+        "undecryptable rows skipped; corpus degraded, not dark",
+    );
+}
+
 /// Per-table record count + on-disk byte size + schema version. Returned
 /// by `Corpus::inspect()` + the `storage.inspect` TauRPC procedure.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -53,7 +69,7 @@ pub struct ServiceRegistryRowRaw {
 /// `triage::contract::Incident` at the binary boundary; corpus crate
 /// stays domain-agnostic (no `triage` dep edge).
 ///
-/// The `id` field is the SQLite auto-rowid assigned по `INSERT INTO
+/// The `id` field is the SQLite auto-rowid assigned by `INSERT INTO
 /// incidents (...)` AND served as the external incident identifier
 /// over the TauRPC bridge (incidents.acknowledge / mark_resolved take
 /// the rowid string). The `payload` field carries the encrypted-then-
@@ -71,6 +87,24 @@ pub struct IncidentRowRaw {
     pub resolved_unix_nano: Option<i64>,
     pub read_unix_nano: Option<i64>,
     pub payload: Vec<u8>,
+}
+
+/// One `incident_events` lifecycle row as read back. The encrypted `payload`
+/// column is never selected — it is empty by construction.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub struct IncidentEventRow {
+    pub event_kind: String,
+    pub occurred_unix_nano: i64,
+}
+
+/// Outcome of a guarded incident write. A stale write is DECLINED rather
+/// than failing, so callers must handle it as a value: encoding it as an
+/// `Error` would make "log it as a failure" the default at every call site,
+/// and a write losing to a fresher writer is expected, not a fault.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum IncidentWriteOutcome {
+    Applied,
+    DeclinedStale,
 }
 
 /// Corpus handle — wraps the rusqlite Connection + tracks the resolved
@@ -95,7 +129,7 @@ impl Debug for Corpus {
 
 impl Corpus {
     /// Open (or create) the corpus at `path`. Fetches the encryption
-    /// key from the keychain backend on first call; subsequent opens с
+    /// key from the keychain backend on first call; subsequent opens with
     /// the same backend reuse the same key. Runs first-launch schema
     /// migration if the file is new.
     pub fn open(path: PathBuf, keychain: Arc<dyn KeychainBackend>) -> Result<Self, Error> {
@@ -112,7 +146,7 @@ impl Corpus {
         })
     }
 
-    /// Open an in-memory corpus с the given keychain backend. Used by
+    /// Open an in-memory corpus with the given keychain backend. Used by
     /// tests + the bindings emission flow.
     pub fn open_in_memory(keychain: Arc<dyn KeychainBackend>) -> Result<Self, Error> {
         let key_bytes = keychain
@@ -156,7 +190,7 @@ impl Corpus {
 
 /// Read-only corpus operations consumed by the TauRPC resolver layer.
 /// Trait-in-lower-crate pattern per session-learnings 2026-05-16 —
-/// resolvers в `pulse-app` hold `Arc<dyn CorpusReader>`.
+/// resolvers in `pulse-app` hold `Arc<dyn CorpusReader>`.
 pub trait CorpusReader: Send + Sync + Debug {
     /// Per-table record counts + total file size + schema version.
     fn inspect(&self) -> Result<InspectionMetadata, Error>;
@@ -193,7 +227,7 @@ impl CorpusReader for Corpus {
 /// only exposed to consumers that explicitly bind `Arc<dyn CorpusWriter>`.
 ///
 /// Payloads MUST be pre-encrypted-free plaintext at this boundary; the
-/// impl wraps each payload в AES-256-GCM before the SQLite INSERT (per
+/// impl wraps each payload in AES-256-GCM before the SQLite INSERT (per
 /// chunk #68 cell-level encryption discipline). Caller's plaintext
 /// payload MUST already have been PII-scrubbed via
 /// `security::scrubber::scrub_attribute` at the producer side (chunk #72);
@@ -228,10 +262,10 @@ pub trait CorpusWriter: Send + Sync {
     /// `payload` is the plaintext-bytes to encrypt + store; the impl
     /// stamps `snapshot_unix_nano` from system time.
     ///
-    /// Implementation appends a new row each call; the latest row для
+    /// Implementation appends a new row each call; the latest row for
     /// the given `(metric_name, layer)` pair is what
     /// [`Self::load_pipeline_metric`] returns. A bounded-history sweep
-    /// is out of scope for chunk #69 (deferred к а follow-on retention
+    /// is out of scope for chunk #69 (deferred to a follow-on retention
     /// chunk).
     fn save_pipeline_metric(
         &self,
@@ -295,19 +329,19 @@ pub trait CorpusWriter: Send + Sync {
 
     /// INSERT a new row into `incidents` table (chunk #78). `payload` is
     /// the plaintext-bytes encoding (bincode-serialized
-    /// `triage::contract::Incident`) — encrypted via AES-256-GCM по the
+    /// `triage::contract::Incident`) — encrypted via AES-256-GCM by the
     /// cell-level discipline before write. Returns the auto-assigned
     /// SQLite rowid as the new external incident identifier. Prepared
-    /// statement с `?` placeholders per security plan §Input Validation.
+    /// statement with `?` placeholders per security plan §Input Validation.
     /// Workspace + status + timestamp columns store metadata redundantly
     /// for fast SQL filtering (P-045 counter SQL); payload BLOB is the
     /// authoritative source of full struct state.
     ///
     /// Producer-side PII scrubbing rule (chunk #72 uniform coverage):
-    /// the caller (incident persistence adapter в pulse-app) MUST have
-    /// pre-scrubbed any OTLP-derived attribute values в `incident.title`
+    /// the caller (incident persistence adapter in pulse-app) MUST have
+    /// pre-scrubbed any OTLP-derived attribute values in `incident.title`
     /// / `incident.detail` / `evidence_refs.fingerprint_hashes` BEFORE
-    /// passing к this method. Corpus impl does NOT double-scrub the BLOB
+    /// passing to this method. Corpus impl does NOT double-scrub the BLOB
     /// payload — see trait docstring above.
     #[allow(clippy::too_many_arguments)]
     fn save_incident(
@@ -323,11 +357,20 @@ pub trait CorpusWriter: Send + Sync {
 
     /// UPDATE an existing `incidents` row's status + timestamps + payload
     /// (chunk #78). Updates the metadata columns + replaces the encrypted
-    /// payload BLOB к keep BLOB-state в sync с column-state. Used по
-    /// `incidents.acknowledge(id)` + `incidents.mark_resolved(id)` +
-    /// auto-resolution observer tick. Returns `Error::QueryFailed` when
-    /// `id` does not match а row (caller maps к `IncidentError::NotFound`
-    /// or `AppError::NotFound` at the binary boundary).
+    /// payload BLOB to keep BLOB-state in sync with column-state.
+    ///
+    /// This is the single choke point every incident writer traverses,
+    /// including the `andromeda-pulse-mcp` sidecar in a separate process,
+    /// so the monotonic guard lives here rather than at any caller: a write
+    /// whose `updated_unix_nano` is older than the stored row's is DECLINED
+    /// (`IncidentWriteOutcome::DeclinedStale`) instead of clobbering it.
+    /// `Error::QueryFailed` still means the row does not exist.
+    ///
+    /// An Applied write whose status VALUE changed additionally records one
+    /// `incident_events` row (`event_kind` = the new status) in the same
+    /// transaction — the lifecycle ledger covers all seven writers from
+    /// this one site (2026-08-30). Same-status refreshes and declined
+    /// writes record nothing.
     fn update_incident_status(
         &self,
         id: i64,
@@ -335,10 +378,10 @@ pub trait CorpusWriter: Send + Sync {
         updated_unix_nano: i64,
         resolved_unix_nano: Option<i64>,
         payload: &[u8],
-    ) -> Result<(), Error>;
+    ) -> Result<IncidentWriteOutcome, Error>;
 
     /// UPDATE only the `read_unix_nano` column for an incident (chunk #78).
-    /// Used по Report-opening event (chunk #87+ wires the UI trigger;
+    /// Used by Report-opening event (chunk #87+ wires the UI trigger;
     /// chunk #78 ships the schema + write path).
     fn mark_incident_read(&self, id: i64, read_unix_nano: i64) -> Result<(), Error>;
 
@@ -372,6 +415,18 @@ pub trait CorpusWriter: Send + Sync {
     /// security plan §Input Validation.
     fn load_incident_by_id(&self, id: i64) -> Result<Option<IncidentRowRaw>, Error>;
 
+    /// SELECT up to `limit` lifecycle events of one incident, oldest first
+    /// (`ORDER BY id`). Consumed cross-process by the MCP
+    /// `retrieve_incident_events(id)` tool. Reads `event_kind` and
+    /// `occurred_unix_nano` only; an incident with no status transition yet
+    /// returns an empty Vec. Prepared statement with `?` placeholders per
+    /// security plan §Input Validation.
+    fn load_incident_events(
+        &self,
+        incident_id: i64,
+        limit: u32,
+    ) -> Result<Vec<IncidentEventRow>, Error>;
+
     /// SELECT ALL incidents (every status, every workspace) ordered by rowid
     /// ascending. Returns decrypted `payload` bytes per row. Consumed by the
     /// `storage.export_for_training` resolver (chunk #95) to produce a full
@@ -383,11 +438,11 @@ pub trait CorpusWriter: Send + Sync {
 
     /// P-045 counter SQL: returns the count of active + unread incidents
     /// for a workspace (`status = 'active' AND read_unix_nano IS NULL`).
-    /// SQL-only path; does NOT decrypt payloads. Fast counter для
+    /// SQL-only path; does NOT decrypt payloads. Fast counter for
     /// findings dropdown display.
     fn count_active_unread(&self, workspace: &str) -> Result<u64, Error>;
 
-    /// INSERT а row into `incident_events` table (chunk #78). Audit-trail
+    /// INSERT a row into `incident_events` table (chunk #78). Audit-trail
     /// lifecycle events; `payload` is the encrypted bincode of event-
     /// specific metadata (currently empty Vec is acceptable; chunk #78+
     /// may extend per-event payload shape).
@@ -399,7 +454,7 @@ pub trait CorpusWriter: Send + Sync {
         payload: &[u8],
     ) -> Result<(), Error>;
 
-    /// INSERT а row into `digest_archive` table (chunk #81 — L3 digest
+    /// INSERT a row into `digest_archive` table (chunk #81 — L3 digest
     /// assembler). `payload` is bincode-serialized plaintext-bytes of
     /// the triage `Digest` struct; encrypted via AES-256-GCM per the
     /// cell-level discipline before write. Returns the auto-assigned
@@ -407,16 +462,16 @@ pub trait CorpusWriter: Send + Sync {
     /// plan §Input Validation.
     ///
     /// Producer-side PII scrubbing rule (chunk #72 uniform coverage):
-    /// the caller (digest assembler в triage::digest::assembler::Assembler)
-    /// MUST have pre-scrubbed any OTLP-derived attribute values в the
+    /// the caller (digest assembler in triage::digest::assembler::Assembler)
+    /// MUST have pre-scrubbed any OTLP-derived attribute values in the
     /// Digest fields BEFORE bincode serialization. Corpus impl does
     /// NOT double-scrub the BLOB payload — see trait docstring above.
     ///
     /// Workspace filtering happens at read-time post-decryption (the
     /// digest_archive schema lacks a workspace column at chunk #81; the
-    /// workspace field is embedded в the bincode payload). Future
+    /// workspace field is embedded in the bincode payload). Future
     /// schema migration v1 → v2 may add a workspace column for SQL-side
-    /// filtering — deferred к chunk #82+ retrieval implementation.
+    /// filtering — deferred to chunk #82+ retrieval implementation.
     fn save_digest(
         &self,
         digest_kind: &str,
@@ -463,10 +518,13 @@ impl CorpusWriter for Corpus {
             .optional()
             .map_err(|_| Error::QueryFailed)?;
         match encrypted_opt {
-            Some(encrypted) => {
-                let plaintext = cell_decrypt(self.key(), &encrypted)?;
-                Ok(Some(plaintext))
-            }
+            Some(encrypted) => match cell_decrypt(self.key(), &encrypted) {
+                Ok(plaintext) => Ok(Some(plaintext)),
+                Err(_) => {
+                    warn_skipped_undecryptable("load_pipeline_metric", 1);
+                    Ok(None)
+                }
+            },
             None => Ok(None),
         }
     }
@@ -588,20 +646,52 @@ impl CorpusWriter for Corpus {
         updated_unix_nano: i64,
         resolved_unix_nano: Option<i64>,
         payload: &[u8],
-    ) -> Result<(), Error> {
+    ) -> Result<IncidentWriteOutcome, Error> {
         let encrypted = cell_encrypt(self.key(), payload)?;
         let conn = self.connection();
         let guard = conn.lock().map_err(|_| Error::QueryFailed)?;
-        let rows = guard
+        // One transaction covers read + guarded write + event so the
+        // cross-process sidecar cannot interleave between them. The prior
+        // status read doubles as the existence probe.
+        let tx = guard
+            .unchecked_transaction()
+            .map_err(|_| Error::QueryFailed)?;
+        let prior_status: Option<String> = tx
+            .query_row(
+                "SELECT status FROM incidents WHERE id = ?1",
+                rusqlite::params![id],
+                |row| row.get(0),
+            )
+            .optional()
+            .map_err(|_| Error::QueryFailed)?;
+        let Some(prior_status) = prior_status else {
+            return Err(Error::QueryFailed);
+        };
+        let rows = tx
             .execute(
-                "UPDATE incidents SET status = ?1, updated_unix_nano = ?2, resolved_unix_nano = ?3, payload = ?4 WHERE id = ?5",
+                "UPDATE incidents SET status = ?1, updated_unix_nano = ?2, resolved_unix_nano = ?3, payload = ?4 WHERE id = ?5 AND updated_unix_nano <= ?2",
                 rusqlite::params![status, updated_unix_nano, resolved_unix_nano, &encrypted[..], id],
             )
             .map_err(|_| Error::QueryFailed)?;
         if rows == 0 {
-            return Err(Error::QueryFailed);
+            // Row exists (just read) but carries a fresher write — declined;
+            // the dropped transaction rolls back having written nothing.
+            return Ok(IncidentWriteOutcome::DeclinedStale);
         }
-        Ok(())
+        // Status-VALUE-change only: a summary-attach refresh at unchanged
+        // status writes no event, so dedupe re-generations cannot spam the
+        // ledger, and only Applied writes ever record one.
+        if prior_status != status {
+            let event_payload = cell_encrypt(self.key(), &[])?;
+            tx.execute(
+                "INSERT INTO incident_events (incident_id, event_kind, occurred_unix_nano, payload) \
+                 VALUES (?1, ?2, ?3, ?4)",
+                rusqlite::params![id, status, updated_unix_nano, &event_payload[..]],
+            )
+            .map_err(|_| Error::QueryFailed)?;
+        }
+        tx.commit().map_err(|_| Error::QueryFailed)?;
+        Ok(IncidentWriteOutcome::Applied)
     }
 
     fn mark_incident_read(&self, id: i64, read_unix_nano: i64) -> Result<(), Error> {
@@ -644,10 +734,14 @@ impl CorpusWriter for Corpus {
             })
             .map_err(|_| Error::QueryFailed)?;
         let mut result = Vec::new();
+        let mut skipped = 0usize;
         for row in rows {
             let (id, workspace, status, created, updated, resolved, read, encrypted) =
                 row.map_err(|_| Error::QueryFailed)?;
-            let payload = cell_decrypt(self.key(), &encrypted)?;
+            let Ok(payload) = cell_decrypt(self.key(), &encrypted) else {
+                skipped += 1;
+                continue;
+            };
             result.push(IncidentRowRaw {
                 id,
                 workspace,
@@ -659,6 +753,7 @@ impl CorpusWriter for Corpus {
                 payload,
             });
         }
+        warn_skipped_undecryptable("load_active_incidents", skipped);
         Ok(result)
     }
 
@@ -691,10 +786,14 @@ impl CorpusWriter for Corpus {
             })
             .map_err(|_| Error::QueryFailed)?;
         let mut result = Vec::new();
+        let mut skipped = 0usize;
         for row in rows {
             let (id, workspace, status, created, updated, resolved, read, encrypted) =
                 row.map_err(|_| Error::QueryFailed)?;
-            let payload = cell_decrypt(self.key(), &encrypted)?;
+            let Ok(payload) = cell_decrypt(self.key(), &encrypted) else {
+                skipped += 1;
+                continue;
+            };
             result.push(IncidentRowRaw {
                 id,
                 workspace,
@@ -706,6 +805,7 @@ impl CorpusWriter for Corpus {
                 payload,
             });
         }
+        warn_skipped_undecryptable("load_incidents_since", skipped);
         Ok(result)
     }
 
@@ -737,11 +837,42 @@ impl CorpusWriter for Corpus {
             .map_err(|_| Error::QueryFailed)?;
         match row_opt {
             None => Ok(None),
-            Some(mut raw) => {
-                raw.payload = cell_decrypt(self.key(), &raw.payload)?;
-                Ok(Some(raw))
-            }
+            Some(mut raw) => match cell_decrypt(self.key(), &raw.payload) {
+                Ok(plaintext) => {
+                    raw.payload = plaintext;
+                    Ok(Some(raw))
+                }
+                Err(_) => {
+                    warn_skipped_undecryptable("load_incident_by_id", 1);
+                    Ok(None)
+                }
+            },
         }
+    }
+
+    fn load_incident_events(
+        &self,
+        incident_id: i64,
+        limit: u32,
+    ) -> Result<Vec<IncidentEventRow>, Error> {
+        let conn = self.connection();
+        let guard = conn.lock().map_err(|_| Error::QueryFailed)?;
+        let mut stmt = guard
+            .prepare(
+                "SELECT event_kind, occurred_unix_nano FROM incident_events \
+                 WHERE incident_id = ?1 ORDER BY id ASC LIMIT ?2",
+            )
+            .map_err(|_| Error::QueryFailed)?;
+        let rows = stmt
+            .query_map(rusqlite::params![incident_id, limit], |row| {
+                Ok(IncidentEventRow {
+                    event_kind: row.get(0)?,
+                    occurred_unix_nano: row.get(1)?,
+                })
+            })
+            .map_err(|_| Error::QueryFailed)?;
+        rows.collect::<Result<Vec<_>, _>>()
+            .map_err(|_| Error::QueryFailed)
     }
 
     fn load_all_incidents(&self) -> Result<Vec<IncidentRowRaw>, Error> {
@@ -769,10 +900,14 @@ impl CorpusWriter for Corpus {
             })
             .map_err(|_| Error::QueryFailed)?;
         let mut result = Vec::new();
+        let mut skipped = 0usize;
         for row in rows {
             let (id, workspace, status, created, updated, resolved, read, encrypted) =
                 row.map_err(|_| Error::QueryFailed)?;
-            let payload = cell_decrypt(self.key(), &encrypted)?;
+            let Ok(payload) = cell_decrypt(self.key(), &encrypted) else {
+                skipped += 1;
+                continue;
+            };
             result.push(IncidentRowRaw {
                 id,
                 workspace,
@@ -784,6 +919,7 @@ impl CorpusWriter for Corpus {
                 payload,
             });
         }
+        warn_skipped_undecryptable("load_all_incidents", skipped);
         Ok(result)
     }
 
@@ -938,6 +1074,74 @@ mod tests {
         let meta = corpus2.inspect().expect("inspect");
         assert_eq!(meta.record_counts.get("incidents"), Some(&1));
         assert!(meta.total_bytes_on_disk > 0);
+    }
+
+    /// One undecryptable row used to fail the whole query. A mixed corpus must
+    /// now return what it can read — degraded, not dark.
+    #[test]
+    fn mixed_corpus_returns_readable_incidents_and_skips_the_undecryptable_ones() {
+        let tmp = TempDir::new().expect("tmp");
+        let path = tmp.path().join("mixed.db");
+        let key = [0x5Au8; 32];
+
+        let corpus = Corpus::open(
+            path,
+            Arc::new(FakeKeychainBackend::with_seeded_key("corpus-key", key)),
+        )
+        .expect("open");
+
+        corpus
+            .save_incident("ws-mixed", "active", 1_000, 1_000, None, None, b"readable")
+            .expect("readable incident");
+        {
+            let conn = corpus.connection();
+            let guard = conn.lock().expect("lock");
+            guard
+                .execute(
+                    "INSERT INTO incidents (workspace, status, created_unix_nano, updated_unix_nano, payload) VALUES (?, ?, ?, ?, ?)",
+                    rusqlite::params!["ws-mixed", "active", 2_000i64, 2_000i64, &b"not-ciphertext"[..]],
+                )
+                .expect("undecryptable incident");
+        }
+
+        let rows = corpus
+            .load_active_incidents("ws-mixed")
+            .expect("query succeeds despite the undecryptable row");
+
+        assert_eq!(rows.len(), 1);
+        assert_eq!(rows[0].payload, b"readable");
+        assert_eq!(rows[0].created_unix_nano, 1_000);
+    }
+
+    #[test]
+    fn load_incident_by_id_reports_not_found_for_an_undecryptable_row() {
+        let tmp = TempDir::new().expect("tmp");
+        let path = tmp.path().join("by-id.db");
+        let corpus = Corpus::open(
+            path,
+            Arc::new(FakeKeychainBackend::with_seeded_key(
+                "corpus-key",
+                [0x5Bu8; 32],
+            )),
+        )
+        .expect("open");
+        {
+            let conn = corpus.connection();
+            let guard = conn.lock().expect("lock");
+            guard
+                .execute(
+                    "INSERT INTO incidents (workspace, status, created_unix_nano, updated_unix_nano, payload) VALUES (?, ?, ?, ?, ?)",
+                    rusqlite::params!["ws", "active", 1i64, 1i64, &b"not-ciphertext"[..]],
+                )
+                .expect("insert");
+        }
+
+        assert!(
+            corpus
+                .load_incident_by_id(1)
+                .expect("no query error")
+                .is_none()
+        );
     }
 
     #[test]
@@ -1160,9 +1364,10 @@ mod tests {
         let id = writer
             .save_incident("ws-b", "active", 2_000, 2_000, None, None, b"blob")
             .expect("save");
-        writer
+        let outcome = writer
             .update_incident_status(id, "resolved", 3_000, Some(3_000), b"blob-resolved")
             .expect("resolve");
+        assert_eq!(outcome, IncidentWriteOutcome::Applied);
         let row = writer
             .load_incident_by_id(id)
             .expect("load")
@@ -1170,6 +1375,263 @@ mod tests {
         assert_eq!(row.status, "resolved");
         assert_eq!(row.resolved_unix_nano, Some(3_000));
         assert_eq!(row.payload, b"blob-resolved");
+    }
+
+    #[test]
+    fn update_incident_status_declines_a_write_older_than_the_stored_row() {
+        let corpus = test_corpus();
+        let writer: Arc<dyn CorpusWriter> = Arc::new(corpus);
+        let id = writer
+            .save_incident(
+                "ws-race",
+                "active",
+                1_000,
+                1_000,
+                None,
+                None,
+                b"blob-active",
+            )
+            .expect("save");
+        writer
+            .update_incident_status(id, "resolved", 3_000, Some(3_000), b"blob-resolved")
+            .expect("resolve");
+
+        // The stale-snapshot write: an older `updated_unix_nano` carrying the
+        // pre-resolution state, exactly what the persist cycle replays.
+        let outcome = writer
+            .update_incident_status(id, "active", 2_000, None, b"blob-stale")
+            .expect("stale write must not error");
+
+        assert_eq!(outcome, IncidentWriteOutcome::DeclinedStale);
+        let row = writer
+            .load_incident_by_id(id)
+            .expect("load")
+            .expect("Some(row)");
+        assert_eq!(row.status, "resolved", "the resolution must survive");
+        assert_eq!(row.resolved_unix_nano, Some(3_000));
+        assert_eq!(row.payload, b"blob-resolved");
+    }
+
+    #[test]
+    fn update_incident_status_applies_an_equal_timestamp_write() {
+        let corpus = test_corpus();
+        let writer: Arc<dyn CorpusWriter> = Arc::new(corpus);
+        let id = writer
+            .save_incident("ws-eq", "active", 1_000, 5_000, None, None, b"blob-a")
+            .expect("save");
+
+        // The ordinary persist-cycle case: re-writing an unchanged row at the
+        // same timestamp must still land, or every steady-state cycle declines.
+        let outcome = writer
+            .update_incident_status(id, "active", 5_000, None, b"blob-b")
+            .expect("equal-timestamp write");
+
+        assert_eq!(outcome, IncidentWriteOutcome::Applied);
+        let row = writer
+            .load_incident_by_id(id)
+            .expect("load")
+            .expect("Some(row)");
+        assert_eq!(row.payload, b"blob-b");
+    }
+
+    #[test]
+    fn update_incident_status_still_errors_for_a_missing_row() {
+        let corpus = test_corpus();
+        let writer: Arc<dyn CorpusWriter> = Arc::new(corpus);
+
+        // A declined write and an absent row must stay distinguishable — the
+        // adapter maps only the latter to `NotFound`.
+        let result = writer.update_incident_status(404_404, "resolved", 9_000, Some(9_000), b"x");
+
+        assert!(matches!(result, Err(Error::QueryFailed)));
+    }
+
+    fn event_kinds(
+        conn: &std::sync::Arc<std::sync::Mutex<Connection>>,
+        incident_id: i64,
+    ) -> Vec<String> {
+        let guard = conn.lock().expect("lock");
+        let mut stmt = guard
+            .prepare("SELECT event_kind FROM incident_events WHERE incident_id = ?1 ORDER BY id")
+            .expect("prepare");
+        stmt.query_map(rusqlite::params![incident_id], |r| r.get::<_, String>(0))
+            .expect("query")
+            .map(|r| r.expect("row"))
+            .collect()
+    }
+
+    #[test]
+    fn status_value_change_records_one_lifecycle_event_per_transition() {
+        // The 2026-08-30 ledger: an Applied write whose status VALUE changed
+        // inserts one incident_events row at the choke point, covering all
+        // seven production writers (the cross-process sidecar included).
+        let corpus = std::sync::Arc::new(test_corpus());
+        let conn = corpus.connection();
+        let writer: std::sync::Arc<dyn CorpusWriter> = corpus;
+        let id = writer
+            .save_incident("ws-ev", "active", 1_000, 1_000, None, None, b"blob")
+            .expect("save");
+        assert!(event_kinds(&conn, id).is_empty());
+
+        writer
+            .update_incident_status(id, "acknowledged", 2_000, None, b"blob")
+            .expect("ack");
+        writer
+            .update_incident_status(id, "resolved", 3_000, Some(3_000), b"blob")
+            .expect("resolve");
+
+        assert_eq!(event_kinds(&conn, id), vec!["acknowledged", "resolved"]);
+    }
+
+    #[test]
+    fn same_status_refresh_records_no_event() {
+        // The dedupe re-generation shape: `attach_interpretation_summary`
+        // refreshes the payload at an UNCHANGED status every re-generation —
+        // an event per refresh would spam the ledger.
+        let corpus = std::sync::Arc::new(test_corpus());
+        let conn = corpus.connection();
+        let writer: std::sync::Arc<dyn CorpusWriter> = corpus;
+        let id = writer
+            .save_incident("ws-refresh", "active", 1_000, 1_000, None, None, b"a")
+            .expect("save");
+
+        writer
+            .update_incident_status(id, "active", 2_000, None, b"b")
+            .expect("refresh");
+        writer
+            .update_incident_status(id, "active", 3_000, None, b"c")
+            .expect("refresh again");
+
+        assert!(event_kinds(&conn, id).is_empty());
+    }
+
+    #[test]
+    fn declined_write_records_no_event() {
+        let corpus = std::sync::Arc::new(test_corpus());
+        let conn = corpus.connection();
+        let writer: std::sync::Arc<dyn CorpusWriter> = corpus;
+        let id = writer
+            .save_incident("ws-decl", "active", 1_000, 1_000, None, None, b"a")
+            .expect("save");
+        writer
+            .update_incident_status(id, "resolved", 3_000, Some(3_000), b"b")
+            .expect("resolve");
+
+        let outcome = writer
+            .update_incident_status(id, "active", 2_000, None, b"stale")
+            .expect("stale write must not error");
+        assert_eq!(outcome, IncidentWriteOutcome::DeclinedStale);
+
+        assert_eq!(
+            event_kinds(&conn, id),
+            vec!["resolved"],
+            "a declined write rolls back having written nothing",
+        );
+    }
+
+    fn event(kind: &str, at: i64) -> IncidentEventRow {
+        IncidentEventRow {
+            event_kind: kind.to_string(),
+            occurred_unix_nano: at,
+        }
+    }
+
+    #[test]
+    fn load_incident_events_reads_empty_for_a_fresh_incident() {
+        let writer: Arc<dyn CorpusWriter> = Arc::new(test_corpus());
+        let id = writer
+            .save_incident("ws-fresh", "active", 1_000, 1_000, None, None, b"a")
+            .expect("save");
+
+        let events = writer.load_incident_events(id, 16).expect("load events");
+
+        assert!(events.is_empty(), "creation records no event: {events:?}");
+    }
+
+    #[test]
+    fn load_incident_events_reads_transitions_oldest_first_with_written_timestamps() {
+        let writer: Arc<dyn CorpusWriter> = Arc::new(test_corpus());
+        let id = writer
+            .save_incident("ws-order", "active", 1_000, 1_000, None, None, b"a")
+            .expect("save");
+        writer
+            .update_incident_status(id, "acknowledged", 2_222, None, b"a")
+            .expect("ack");
+        writer
+            .update_incident_status(id, "resolved", 3_333, Some(3_333), b"a")
+            .expect("resolve");
+
+        let events = writer.load_incident_events(id, 16).expect("load events");
+
+        assert_eq!(
+            events,
+            vec![event("acknowledged", 2_222), event("resolved", 3_333)]
+        );
+    }
+
+    #[test]
+    fn load_incident_events_excludes_another_incidents_events() {
+        let writer: Arc<dyn CorpusWriter> = Arc::new(test_corpus());
+        let mine = writer
+            .save_incident("ws-x", "active", 1_000, 1_000, None, None, b"a")
+            .expect("save mine");
+        let other = writer
+            .save_incident("ws-x", "active", 1_000, 1_000, None, None, b"b")
+            .expect("save other");
+        writer
+            .update_incident_status(other, "resolved", 4_444, Some(4_444), b"b")
+            .expect("resolve other");
+        writer
+            .update_incident_status(mine, "acknowledged", 5_555, None, b"a")
+            .expect("ack mine");
+
+        let events = writer.load_incident_events(mine, 16).expect("load events");
+
+        assert_eq!(events, vec![event("acknowledged", 5_555)]);
+    }
+
+    #[test]
+    fn load_incident_events_honours_the_limit() {
+        let writer: Arc<dyn CorpusWriter> = Arc::new(test_corpus());
+        let id = writer
+            .save_incident("ws-limit", "active", 1_000, 1_000, None, None, b"a")
+            .expect("save");
+        writer
+            .update_incident_status(id, "acknowledged", 2_000, None, b"a")
+            .expect("ack");
+        writer
+            .update_incident_status(id, "active", 3_000, None, b"a")
+            .expect("reactivate");
+        writer
+            .update_incident_status(id, "resolved", 4_000, Some(4_000), b"a")
+            .expect("resolve");
+
+        let events = writer.load_incident_events(id, 2).expect("load events");
+
+        assert_eq!(
+            events,
+            vec![event("acknowledged", 2_000), event("active", 3_000)]
+        );
+    }
+
+    #[test]
+    fn load_incident_events_unchanged_by_a_declined_stale_write() {
+        let writer: Arc<dyn CorpusWriter> = Arc::new(test_corpus());
+        let id = writer
+            .save_incident("ws-stale", "active", 1_000, 1_000, None, None, b"a")
+            .expect("save");
+        writer
+            .update_incident_status(id, "resolved", 3_000, Some(3_000), b"b")
+            .expect("resolve");
+        let before = writer.load_incident_events(id, 16).expect("before");
+
+        let outcome = writer
+            .update_incident_status(id, "acknowledged", 2_000, None, b"stale")
+            .expect("stale write must not error");
+
+        assert_eq!(outcome, IncidentWriteOutcome::DeclinedStale);
+        assert_eq!(writer.load_incident_events(id, 16).expect("after"), before);
+        assert_eq!(before, vec![event("resolved", 3_000)]);
     }
 
     #[test]

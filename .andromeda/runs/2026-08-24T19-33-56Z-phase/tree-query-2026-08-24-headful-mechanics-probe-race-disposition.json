@@ -1,0 +1,2059 @@
+[
+{
+"sql": "SELECT caller, file, line FROM calls WHERE callee LIKE '%clamp_to_aspect_bounds%' ORDER BY file, line;",
+"rows": 10,
+"result": [
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 window/on_window_event().",
+"file": "pulse-app/src/window.rs",
+"line": 229
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 crate/",
+"file": "pulse-app/tests/unit_window_constraints.rs",
+"line": 5
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 in_band_returns_none().",
+"file": "pulse-app/tests/unit_window_constraints.rs",
+"line": 11
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 min_size_floor_is_in_band().",
+"file": "pulse-app/tests/unit_window_constraints.rs",
+"line": 21
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 near_band_edges_return_none().",
+"file": "pulse-app/tests/unit_window_constraints.rs",
+"line": 30
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 near_band_edges_return_none().",
+"file": "pulse-app/tests/unit_window_constraints.rs",
+"line": 34
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 too_wide_reduces_width_into_band().",
+"file": "pulse-app/tests/unit_window_constraints.rs",
+"line": 42
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 too_tall_reduces_height_into_band().",
+"file": "pulse-app/tests/unit_window_constraints.rs",
+"line": 60
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 degenerate_zero_returns_none().",
+"file": "pulse-app/tests/unit_window_constraints.rs",
+"line": 78
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 degenerate_zero_returns_none().",
+"file": "pulse-app/tests/unit_window_constraints.rs",
+"line": 82
+}
+],
+"db_state": "fresh",
+"plane": "rust"
+},
+{
+"sql": "SELECT caller, file, line FROM calls WHERE callee LIKE '%stage_halves%' OR callee LIKE '%stage_observed%' OR callee LIKE '%stage_ids%' ORDER BY file, line;",
+"rows": 26,
+"result": [
+{
+"caller": "rust-analyzer cargo xtask 0.1.0 webview_drive/run_webview_drive().",
+"file": "xtask/src/webview_drive.rs",
+"line": 120
+},
+{
+"caller": "rust-analyzer cargo xtask 0.1.0 webview_drive/run_webview_drive().",
+"file": "xtask/src/webview_drive.rs",
+"line": 222
+},
+{
+"caller": "rust-analyzer cargo xtask 0.1.0 webview_drive/run_webview_drive().",
+"file": "xtask/src/webview_drive.rs",
+"line": 238
+},
+{
+"caller": "rust-analyzer cargo xtask 0.1.0 webview_drive/run_webview_drive().",
+"file": "xtask/src/webview_drive.rs",
+"line": 249
+},
+{
+"caller": "rust-analyzer cargo xtask 0.1.0 webview_drive/stage_observed().",
+"file": "xtask/src/webview_drive.rs",
+"line": 373
+},
+{
+"caller": "rust-analyzer cargo xtask 0.1.0 webview_drive/tests/empty_states_require_the_hint_on_both_routes().",
+"file": "xtask/src/webview_drive.rs",
+"line": 804
+},
+{
+"caller": "rust-analyzer cargo xtask 0.1.0 webview_drive/tests/traces_populate_needs_both_the_record_and_the_dom().",
+"file": "xtask/src/webview_drive.rs",
+"line": 833
+},
+{
+"caller": "rust-analyzer cargo xtask 0.1.0 webview_drive/tests/traces_populate_needs_both_the_record_and_the_dom().",
+"file": "xtask/src/webview_drive.rs",
+"line": 834
+},
+{
+"caller": "rust-analyzer cargo xtask 0.1.0 webview_drive/tests/traces_populate_needs_both_the_record_and_the_dom().",
+"file": "xtask/src/webview_drive.rs",
+"line": 835
+},
+{
+"caller": "rust-analyzer cargo xtask 0.1.0 webview_drive/tests/investigate_needs_both_the_press_and_the_outcome().",
+"file": "xtask/src/webview_drive.rs",
+"line": 846
+},
+{
+"caller": "rust-analyzer cargo xtask 0.1.0 webview_drive/tests/investigate_needs_both_the_press_and_the_outcome().",
+"file": "xtask/src/webview_drive.rs",
+"line": 847
+},
+{
+"caller": "rust-analyzer cargo xtask 0.1.0 webview_drive/tests/widget_close_needs_both_the_press_and_the_transition().",
+"file": "xtask/src/webview_drive.rs",
+"line": 864
+},
+{
+"caller": "rust-analyzer cargo xtask 0.1.0 webview_drive/tests/widget_close_needs_both_the_press_and_the_transition().",
+"file": "xtask/src/webview_drive.rs",
+"line": 865
+},
+{
+"caller": "rust-analyzer cargo xtask 0.1.0 webview_drive/tests/widget_close_needs_both_the_press_and_the_transition().",
+"file": "xtask/src/webview_drive.rs",
+"line": 868
+},
+{
+"caller": "rust-analyzer cargo xtask 0.1.0 webview_drive/tests/widget_close_transition_alone_no_longer_satisfies().",
+"file": "xtask/src/webview_drive.rs",
+"line": 880
+},
+{
+"caller": "rust-analyzer cargo xtask 0.1.0 webview_drive/tests/halves_separate_a_missing_record_from_a_missing_render().",
+"file": "xtask/src/webview_drive.rs",
+"line": 914
+},
+{
+"caller": "rust-analyzer cargo xtask 0.1.0 webview_drive/tests/halves_separate_a_missing_record_from_a_missing_render().",
+"file": "xtask/src/webview_drive.rs",
+"line": 922
+},
+{
+"caller": "rust-analyzer cargo xtask 0.1.0 webview_drive/tests/an_inapplicable_half_does_not_veto_a_stage().",
+"file": "xtask/src/webview_drive.rs",
+"line": 935
+},
+{
+"caller": "rust-analyzer cargo xtask 0.1.0 webview_drive/tests/a_missing_stage_report_leaves_dom_stages_absent().",
+"file": "xtask/src/webview_drive.rs",
+"line": 942
+},
+{
+"caller": "rust-analyzer cargo xtask 0.1.0 webview_drive/tests/a_missing_stage_report_leaves_dom_stages_absent().",
+"file": "xtask/src/webview_drive.rs",
+"line": 943
+},
+{
+"caller": "rust-analyzer cargo xtask 0.1.0 webview_drive/tests/unknown_stage_ids_are_never_observed().",
+"file": "xtask/src/webview_drive.rs",
+"line": 949
+},
+{
+"caller": "rust-analyzer cargo xtask 0.1.0 webview_drive/tests/traces_scroll_requires_region_overflow_without_page_overflow().",
+"file": "xtask/src/webview_drive.rs",
+"line": 1022
+},
+{
+"caller": "rust-analyzer cargo xtask 0.1.0 webview_drive/tests/dashboard_close_needs_press_hide_and_a_silent_signpost().",
+"file": "xtask/src/webview_drive.rs",
+"line": 1162
+},
+{
+"caller": "rust-analyzer cargo xtask 0.1.0 webview_drive/tests/dashboard_close_needs_press_hide_and_a_silent_signpost().",
+"file": "xtask/src/webview_drive.rs",
+"line": 1165
+},
+{
+"caller": "rust-analyzer cargo xtask 0.1.0 webview_drive/tests/dashboard_close_needs_press_hide_and_a_silent_signpost().",
+"file": "xtask/src/webview_drive.rs",
+"line": 1166
+},
+{
+"caller": "rust-analyzer cargo xtask 0.1.0 webview_drive/tests/stage_ids_are_unique_and_nonempty().",
+"file": "xtask/src/webview_drive.rs",
+"line": 1233
+}
+],
+"db_state": "fresh",
+"plane": "rust"
+},
+{
+"sql": "SELECT callee, file, line FROM refs WHERE callee LIKE '%use-findings-window%' ORDER BY file, line;",
+"rows": 365,
+"result": [
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.test.ts`/mocks.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 11
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.test.ts`/mocks.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 15
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.test.ts`/mocks.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 16
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.test.ts`/mocks.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 39
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.test.ts`/mocks.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 40
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/computeFindingsWindowPosition().",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 44
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/computeReportWindowPosition().",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 45
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/clampIntoMonitor().",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 46
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/resizeFindingsWindow().",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 47
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/openFindingsWindow().",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 48
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/hideFindingsWindow().",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 49
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/openReportWindow().",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 50
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/closeReportWindow().",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 51
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/dismissFindings().",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 52
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/onFindingsDismissed().",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 53
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/onReportOpen().",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 54
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/onReportClosed().",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 55
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/FINDINGS_DISMISSED_EVENT.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 56
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/REPORT_OPEN_EVENT.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 57
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/REPORT_CLOSED_EVENT.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 58
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 59
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.test.ts`/mocks.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 90
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.test.ts`/fakeWindows().(monitor)",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 91
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.test.ts`/fakeWindows().(monitor)",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 92
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.test.ts`/mocks.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 99
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/computeFindingsWindowPosition().",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 110
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/Rect#x.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 111
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/Rect#y.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 111
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/Rect#width.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 111
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/Rect#height.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 111
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/computeFindingsWindowPosition().(panel)typeLiteral22:width.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 112
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/computeFindingsWindowPosition().(panel)typeLiteral22:height.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 112
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/computeFindingsWindowPosition().",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 119
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/Rect#x.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 120
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/Rect#y.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 120
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/Rect#width.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 120
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/Rect#height.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 120
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/computeFindingsWindowPosition().(panel)typeLiteral22:width.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 121
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/computeFindingsWindowPosition().(panel)typeLiteral22:height.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 121
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/WindowPos#y.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 125
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/computeFindingsWindowPosition().",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 129
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/Rect#x.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 130
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/Rect#y.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 130
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/Rect#width.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 130
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/Rect#height.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 130
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/computeFindingsWindowPosition().(panel)typeLiteral22:width.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 131
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/computeFindingsWindowPosition().(panel)typeLiteral22:height.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 131
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/WindowPos#x.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 135
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/computeFindingsWindowPosition().",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 139
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/Rect#x.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 140
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/Rect#y.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 140
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/Rect#width.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 140
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/Rect#height.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 140
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/computeFindingsWindowPosition().(panel)typeLiteral22:width.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 141
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/computeFindingsWindowPosition().(panel)typeLiteral22:height.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 141
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/Rect#x.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 142
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/Rect#y.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 142
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/Rect#width.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 142
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/Rect#height.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 142
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/clampIntoMonitor().",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 152
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/WindowPos#x.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 152
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/WindowPos#y.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 152
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/clampIntoMonitor().(size)typeLiteral0:width.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 152
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/clampIntoMonitor().(size)typeLiteral0:height.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 152
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/clampIntoMonitor().",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 159
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/WindowPos#x.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 159
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/WindowPos#y.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 159
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/clampIntoMonitor().(size)typeLiteral0:width.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 159
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/clampIntoMonitor().(size)typeLiteral0:height.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 159
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/clampIntoMonitor().",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 166
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/WindowPos#x.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 166
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/WindowPos#y.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 166
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/clampIntoMonitor().(size)typeLiteral0:width.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 166
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/clampIntoMonitor().(size)typeLiteral0:height.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 166
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.test.ts`/mocks.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 181
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.test.ts`/mocks.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 182
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/resizeFindingsWindow().",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 186
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.test.ts`/setSize0:",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 187
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.test.ts`/setSize0:",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 188
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.test.ts`/setPosition2:",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 192
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.test.ts`/setPosition2:",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 193
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.test.ts`/mocks.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 203
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.test.ts`/mocks.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 204
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/resizeFindingsWindow().",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 208
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.test.ts`/setSize1:",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 209
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.test.ts`/setPosition3:",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 210
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.test.ts`/mocks.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 214
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/resizeFindingsWindow().",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 217
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.test.ts`/findings0:",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 223
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.test.ts`/list0:",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 223
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.test.ts`/fakeWindows().",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 223
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.test.ts`/mocks.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 224
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/openFindingsWindow().",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 225
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.test.ts`/setPosition0:",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 226
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.test.ts`/setPosition0:",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 227
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.test.ts`/show0:",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 230
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.test.ts`/setFocus0:",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 231
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.test.ts`/findings0:",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 235
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.test.ts`/list0:",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 235
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.test.ts`/fakeWindows().",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 235
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.test.ts`/mocks.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 236
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/openFindingsWindow().",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 237
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.test.ts`/setPosition0:",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 238
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.test.ts`/show0:",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 239
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.test.ts`/mocks.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 243
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/openFindingsWindow().",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 244
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.test.ts`/mocks.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 248
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/openFindingsWindow().",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 251
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.test.ts`/findings0:",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 257
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.test.ts`/list0:",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 257
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.test.ts`/fakeWindows().",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 257
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.test.ts`/mocks.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 258
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/hideFindingsWindow().",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 259
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.test.ts`/hide0:",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 260
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.test.ts`/findings0:",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 266
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.test.ts`/widget0:",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 266
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.test.ts`/list0:",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 266
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.test.ts`/fakeWindows().",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 266
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.test.ts`/mocks.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 267
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.test.ts`/mocks.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 268
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/dismissFindings().",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 269
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.test.ts`/hide0:",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 270
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.test.ts`/setFocus1:",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 271
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.test.ts`/mocks.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 272
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/FINDINGS_DISMISSED_EVENT.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 272
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.test.ts`/mocks.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 281
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/onFindingsDismissed().",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 286
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.test.ts`/mocks.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 296
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/onFindingsDismissed().",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 299
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/computeReportWindowPosition().",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 309
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/Rect#x.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 310
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/Rect#y.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 310
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/Rect#width.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 310
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/Rect#height.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 310
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/computeReportWindowPosition().(report)typeLiteral41:width.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 311
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/computeReportWindowPosition().(report)typeLiteral41:height.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 311
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/computeReportWindowPosition().",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 318
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/Rect#x.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 319
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/Rect#y.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 319
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/Rect#width.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 319
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/Rect#height.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 319
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/computeReportWindowPosition().(report)typeLiteral41:width.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 320
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/computeReportWindowPosition().(report)typeLiteral41:height.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 320
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/WindowPos#x.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 324
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/computeReportWindowPosition().",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 328
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/Rect#x.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 329
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/Rect#y.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 329
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/Rect#width.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 329
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/Rect#height.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 329
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/computeReportWindowPosition().(report)typeLiteral41:width.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 330
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/computeReportWindowPosition().(report)typeLiteral41:height.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 330
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/WindowPos#y.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 334
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.test.ts`/report0:",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 340
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.test.ts`/list0:",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 340
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.test.ts`/fakeWindows().",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 340
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.test.ts`/mocks.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 341
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.test.ts`/mocks.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 342
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/openReportWindow().",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 343
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.test.ts`/mocks.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 344
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/REPORT_OPEN_EVENT.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 344
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.test.ts`/setPosition1:",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 345
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.test.ts`/setPosition1:",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 346
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.test.ts`/show1:",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 347
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.test.ts`/setFocus2:",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 348
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.test.ts`/mocks.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 352
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/openReportWindow().",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 353
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.test.ts`/report0:",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 359
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.test.ts`/findings0:",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 359
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.test.ts`/list0:",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 359
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.test.ts`/fakeWindows().",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 359
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.test.ts`/mocks.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 360
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.test.ts`/mocks.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 361
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/closeReportWindow().",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 362
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.test.ts`/hide1:",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 363
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.test.ts`/setFocus0:",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 364
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.test.ts`/mocks.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 365
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/REPORT_CLOSED_EVENT.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 365
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.test.ts`/mocks.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 373
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/onReportOpen().",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 378
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.test.ts`/mocks.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 387
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/onReportClosed().",
+"file": "pulse-app/ui/src/hooks/use-findings-window.test.ts",
+"line": 392
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/clamp().(value)",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 42
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/clamp().(lo)",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 42
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/clamp().(hi)",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 42
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/WindowPos#",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 48
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/Rect#",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 50
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/WindowPos#",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 51
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/clamp().",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 52
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/clampIntoMonitor().(pos)",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 52
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/WindowPos#x.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 52
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/clampIntoMonitor().(monitor)",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 52
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/Rect#x.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 52
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/Rect#width.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 52
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/clampIntoMonitor().(size)",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 52
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/clampIntoMonitor().(size)typeLiteral0:width.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 52
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/clamp().",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 53
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/clampIntoMonitor().(pos)",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 53
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/WindowPos#y.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 53
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/clampIntoMonitor().(monitor)",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 53
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/Rect#y.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 53
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/Rect#height.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 53
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/clampIntoMonitor().(size)",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 53
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/clampIntoMonitor().(size)typeLiteral0:height.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 53
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/WindowPos#x.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 54
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/WindowPos#y.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 54
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/resizeFindingsWindow().(width)",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 63
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/resizeFindingsWindow().(height)",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 63
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/clampIntoMonitor().",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 68
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/WindowPos#x.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 69
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/WindowPos#y.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 69
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/clampIntoMonitor().(size)typeLiteral0:width.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 70
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/clampIntoMonitor().(size)typeLiteral0:height.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 70
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/Rect#x.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 72
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/Rect#y.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 73
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/Rect#width.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 74
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/Rect#height.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 75
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/WindowPos#x.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 78
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/WindowPos#y.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 78
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/WindowPos#x.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 79
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/WindowPos#y.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 79
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/Rect#",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 91
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/Rect#",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 93
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/WindowPos#",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 94
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/computeFindingsWindowPosition().(monitor)",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 95
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/Rect#x.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 95
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/Rect#width.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 95
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/computeFindingsWindowPosition().(monitor)",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 96
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/Rect#y.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 96
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/Rect#height.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 96
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/computeFindingsWindowPosition().(widget)",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 98
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/Rect#x.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 98
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/Rect#width.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 98
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/computeFindingsWindowPosition().(panel)",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 98
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/computeFindingsWindowPosition().(panel)typeLiteral22:width.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 98
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/clamp().",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 99
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/computeFindingsWindowPosition().(monitor)",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 99
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/Rect#x.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 99
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/computeFindingsWindowPosition().(panel)",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 99
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/computeFindingsWindowPosition().(panel)typeLiteral22:width.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 99
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/computeFindingsWindowPosition().(widget)",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 101
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/Rect#y.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 101
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/Rect#height.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 101
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/DOCK_GAP.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 101
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/computeFindingsWindowPosition().(panel)",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 103
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/computeFindingsWindowPosition().(panel)typeLiteral22:height.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 103
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/computeFindingsWindowPosition().(widget)",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 104
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/Rect#y.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 104
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/computeFindingsWindowPosition().(panel)",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 104
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/computeFindingsWindowPosition().(panel)typeLiteral22:height.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 104
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/DOCK_GAP.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 104
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/computeFindingsWindowPosition().(monitor)",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 105
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/Rect#y.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 105
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/clamp().",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 109
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/computeFindingsWindowPosition().(monitor)",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 109
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/Rect#y.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 109
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/computeFindingsWindowPosition().(panel)",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 109
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/computeFindingsWindowPosition().(panel)typeLiteral22:height.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 109
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/WindowPos#x.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 111
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/WindowPos#y.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 111
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/Rect#",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 118
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/Rect#",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 120
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/WindowPos#",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 121
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/computeReportWindowPosition().(findings)",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 122
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/Rect#x.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 122
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/computeReportWindowPosition().(report)",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 122
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/computeReportWindowPosition().(report)typeLiteral41:width.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 122
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/DOCK_GAP.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 122
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/computeReportWindowPosition().(monitor)",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 123
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/Rect#x.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 123
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/computeReportWindowPosition().(findings)",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 124
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/Rect#x.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 124
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/Rect#width.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 124
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/DOCK_GAP.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 124
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/clampIntoMonitor().",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 126
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/WindowPos#x.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 126
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/WindowPos#y.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 126
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/computeReportWindowPosition().(findings)",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 126
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/Rect#y.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 126
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/computeReportWindowPosition().(report)",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 126
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/computeReportWindowPosition().(monitor)",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 126
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/WIDGET_WINDOW_LABEL.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 132
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/FINDINGS_WINDOW_LABEL.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 133
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/Rect#",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 140
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/Rect#x.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 142
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/Rect#y.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 143
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/Rect#width.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 144
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/Rect#height.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 145
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/Rect#x.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 148
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/Rect#y.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 149
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/Rect#width.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 150
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/Rect#height.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 151
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/computeFindingsWindowPosition().",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 154
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/Rect#x.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 155
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/Rect#y.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 155
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/Rect#width.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 155
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/Rect#height.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 155
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/computeFindingsWindowPosition().(panel)typeLiteral22:width.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 156
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/computeFindingsWindowPosition().(panel)typeLiteral22:height.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 156
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/WindowPos#x.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 160
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/WindowPos#y.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 160
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/FINDINGS_WINDOW_LABEL.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 171
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/FINDINGS_WINDOW_LABEL.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 184
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/REPORT_WINDOW_LABEL.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 185
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/REPORT_OPEN_EVENT.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 187
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/ReportOpenPayload#incidentId.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 187
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/ReportOpenPayload#",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 187
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/computeReportWindowPosition().",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 194
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/Rect#x.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 195
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/Rect#y.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 195
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/Rect#width.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 195
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/Rect#height.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 195
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/computeReportWindowPosition().(report)typeLiteral41:width.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 196
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/computeReportWindowPosition().(report)typeLiteral41:height.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 196
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/Rect#x.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 198
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/Rect#y.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 199
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/Rect#width.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 200
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/Rect#height.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 201
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/WindowPos#x.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 204
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/WindowPos#y.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 204
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/REPORT_WINDOW_LABEL.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 220
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/FINDINGS_WINDOW_LABEL.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 221
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/REPORT_CLOSED_EVENT.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 224
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/FINDINGS_WINDOW_LABEL.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 237
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/WIDGET_WINDOW_LABEL.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 238
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/FINDINGS_DISMISSED_EVENT.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 241
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/subscribeEvent().[T]",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 249
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/subscribeEvent().[T]",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 253
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/subscribeEvent().(event)",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 253
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/subscribeEvent().(onPayload)",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 253
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/subscribeEvent().",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 270
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/FINDINGS_DISMISSED_EVENT.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 270
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/onFindingsDismissed().(handler)",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 270
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/subscribeEvent().",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 275
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/ReportOpenPayload#",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 275
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/REPORT_OPEN_EVENT.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 275
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/ReportOpenPayload#incidentId.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 276
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/onReportOpen().(handler)",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 277
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/ReportOpenPayload#incidentId.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 277
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/subscribeEvent().",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 284
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/REPORT_CLOSED_EVENT.",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 284
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/onReportClosed().(handler)",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"line": 284
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/openFindingsWindow().",
+"file": "pulse-app/ui/src/widget/CompactWidget.tsx",
+"line": 20
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/hideFindingsWindow().",
+"file": "pulse-app/ui/src/widget/CompactWidget.tsx",
+"line": 21
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/onFindingsDismissed().",
+"file": "pulse-app/ui/src/widget/CompactWidget.tsx",
+"line": 22
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/",
+"file": "pulse-app/ui/src/widget/CompactWidget.tsx",
+"line": 23
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/hideFindingsWindow().",
+"file": "pulse-app/ui/src/widget/CompactWidget.tsx",
+"line": 47
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/onFindingsDismissed().",
+"file": "pulse-app/ui/src/widget/CompactWidget.tsx",
+"line": 54
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/hideFindingsWindow().",
+"file": "pulse-app/ui/src/widget/CompactWidget.tsx",
+"line": 63
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/openFindingsWindow().",
+"file": "pulse-app/ui/src/widget/CompactWidget.tsx",
+"line": 66
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/dismissFindings().",
+"file": "pulse-app/ui/src/widget/FindingsWindow.tsx",
+"line": 19
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/resizeFindingsWindow().",
+"file": "pulse-app/ui/src/widget/FindingsWindow.tsx",
+"line": 20
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/openReportWindow().",
+"file": "pulse-app/ui/src/widget/FindingsWindow.tsx",
+"line": 21
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/onReportClosed().",
+"file": "pulse-app/ui/src/widget/FindingsWindow.tsx",
+"line": 22
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/",
+"file": "pulse-app/ui/src/widget/FindingsWindow.tsx",
+"line": 23
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/resizeFindingsWindow().",
+"file": "pulse-app/ui/src/widget/FindingsWindow.tsx",
+"line": 153
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/onReportClosed().",
+"file": "pulse-app/ui/src/widget/FindingsWindow.tsx",
+"line": 157
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/dismissFindings().",
+"file": "pulse-app/ui/src/widget/FindingsWindow.tsx",
+"line": 165
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/dismissFindings().",
+"file": "pulse-app/ui/src/widget/FindingsWindow.tsx",
+"line": 170
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/dismissFindings().",
+"file": "pulse-app/ui/src/widget/FindingsWindow.tsx",
+"line": 183
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/openReportWindow().",
+"file": "pulse-app/ui/src/widget/FindingsWindow.tsx",
+"line": 190
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/onReportOpen().",
+"file": "pulse-app/ui/src/widget/ReportWindow.tsx",
+"line": 9
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/closeReportWindow().",
+"file": "pulse-app/ui/src/widget/ReportWindow.tsx",
+"line": 9
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/",
+"file": "pulse-app/ui/src/widget/ReportWindow.tsx",
+"line": 9
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/onReportOpen().",
+"file": "pulse-app/ui/src/widget/ReportWindow.tsx",
+"line": 17
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/closeReportWindow().",
+"file": "pulse-app/ui/src/widget/ReportWindow.tsx",
+"line": 26
+}
+],
+"db_state": "fresh",
+"plane": "ts"
+},
+{
+"sql": "SELECT symbol, file, def_line FROM symbol WHERE symbol LIKE '%openReport%' OR symbol LIKE '%openFindings%' ORDER BY file;",
+"rows": 4,
+"result": [
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/openFindingsWindow().",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"def_line": 129
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/openReportWindow().",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"def_line": 181
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-findings-window.ts`/openReportWindow().(incidentId)",
+"file": "pulse-app/ui/src/hooks/use-findings-window.ts",
+"def_line": 181
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/widget/`FindingsWindow.test.tsx`/openReportWindow1:",
+"file": "pulse-app/ui/src/widget/FindingsWindow.test.tsx",
+"def_line": 30
+}
+],
+"db_state": "fresh",
+"plane": "ts"
+}
+]

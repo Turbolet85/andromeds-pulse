@@ -28,7 +28,7 @@ use interpretation::markdown::{
 use interpretation::schema::L4Output;
 use serde::Deserialize;
 use serde_json::{Value, json};
-use snapshot::contract::{SpanRecord, TokenBudget, curate, format_markdown};
+use snapshot::contract::{GenerationTimer, SpanRecord, TokenBudget, curate, format_markdown};
 use triage::contract::{
     CORPUS_RETRIEVAL_WINDOW_SECONDS, DIGEST_CORPUS_RETRIEVAL_LIMIT, Incident,
     select_previously_seen,
@@ -49,6 +49,7 @@ pub const TOOL_QUERY_INCIDENT_LIST: &str = "query_incident_list";
 pub const TOOL_RETRIEVE_REPORT: &str = "retrieve_report";
 pub const TOOL_RETRIEVE_TELEMETRY_SLICE: &str = "retrieve_telemetry_slice";
 pub const TOOL_MARK_INCIDENT_RESOLVED: &str = "mark_incident_resolved";
+pub const TOOL_RETRIEVE_INCIDENT_EVENTS: &str = "retrieve_incident_events";
 
 pub const ALL_TOOL_NAMES: &[&str] = &[
     TOOL_QUERY_TRACES,
@@ -59,6 +60,7 @@ pub const ALL_TOOL_NAMES: &[&str] = &[
     TOOL_RETRIEVE_REPORT,
     TOOL_RETRIEVE_TELEMETRY_SLICE,
     TOOL_MARK_INCIDENT_RESOLVED,
+    TOOL_RETRIEVE_INCIDENT_EVENTS,
 ];
 
 /// Cross-process corpus access for the chunk #94 incident/report/telemetry
@@ -77,11 +79,15 @@ const DEFAULT_TIME_WINDOW_SECONDS: u64 = 300;
 
 // Spans table is lean per crates/buffer/src/schema.rs (chunk #44 reality
 // preserved from snapshot_runtime.rs); only 6 columns selected here.
+// Order recent spans by COMPLETION (end_time), not start — consistent with the
+// viz traces query: a slow span that just finished is recent, so a slow erroring
+// service surfaces instead of being ranked "old" by its early start and cut off
+// by LIMIT (intent F8 / P-068).
 const SELECT_SPANS_RECENT: &str = "\
     SELECT trace_id, span_id, ts_unix_nano, service_name, end_time_unix_nano, status_code \
     FROM spans \
     WHERE ts_unix_nano >= ? \
-    ORDER BY ts_unix_nano DESC \
+    ORDER BY end_time_unix_nano DESC \
     LIMIT ?";
 
 const SNAPSHOT_SPANS_LIMIT: usize = 5000;
@@ -136,10 +142,10 @@ fn default_token_budget() -> u32 {
     25_000
 }
 
-// Maps a user-supplied token-budget number к the nearest TokenBudget preset
+// Maps a user-supplied token-budget number to the nearest TokenBudget preset
 // (10k / 25k / 50k per arch §Established Decisions [Snapshot Curation Default]).
-// MCP clients don't pick from а preset enum directly; they pass а number и
-// the dispatcher snaps к the closest spec-locked tier.
+// MCP clients don't pick from a preset enum directly; they pass a number and
+// the dispatcher snaps to the closest spec-locked tier.
 fn budget_for_count(target: u32) -> TokenBudget {
     if target < 17_500 {
         TokenBudget::Conservative
@@ -171,6 +177,7 @@ pub fn dispatch_tool(
         TOOL_RETRIEVE_REPORT => dispatch_retrieve_report(incident_ctx, arguments),
         TOOL_RETRIEVE_TELEMETRY_SLICE => dispatch_retrieve_telemetry_slice(incident_ctx, arguments),
         TOOL_MARK_INCIDENT_RESOLVED => dispatch_mark_incident_resolved(incident_ctx, arguments),
+        TOOL_RETRIEVE_INCIDENT_EVENTS => dispatch_retrieve_incident_events(incident_ctx, arguments),
         other => Err(Error::ToolDispatchFailed {
             tool_name: other.to_string(),
             reason: "unknown tool".to_string(),
@@ -282,13 +289,16 @@ fn dispatch_generate_snapshot(
     arguments: &Value,
 ) -> Result<Value, Error> {
     let args: GenerateSnapshotArgs = parse_args(TOOL_GENERATE_SNAPSHOT, arguments)?;
+    let timer = GenerationTimer::start();
     let spans = load_recent_spans(conn, args.time_window_seconds)?;
     let curation = curate(&spans).map_err(|e| Error::ToolDispatchFailed {
         tool_name: TOOL_GENERATE_SNAPSHOT.to_string(),
         reason: short_reason(&e.to_string()),
     })?;
     let budget = budget_for_count(args.token_budget);
-    let report = format_markdown(&curation, budget).map_err(|e| Error::ToolDispatchFailed {
+    let formatted = format_markdown(&curation, budget);
+    timer.finish(&formatted, &curation, budget);
+    let report = formatted.map_err(|e| Error::ToolDispatchFailed {
         tool_name: TOOL_GENERATE_SNAPSHOT.to_string(),
         reason: short_reason(&e.to_string()),
     })?;
@@ -360,7 +370,13 @@ fn dispatch_retrieve_report(
     let ctx = require_incident_ctx(TOOL_RETRIEVE_REPORT, ctx)?;
     let args: IncidentIdArgs = parse_args(TOOL_RETRIEVE_REPORT, arguments)?;
     let row = load_incident_row(ctx, TOOL_RETRIEVE_REPORT, args.incident_id)?;
-    let incident = decode_incident(TOOL_RETRIEVE_REPORT, &row)?;
+    let mut incident = decode_incident(TOOL_RETRIEVE_REPORT, &row)?;
+    // The row id is the incident's identity; the bincode payload's `id` is
+    // whatever was serialized at write time. Without this stamp the report
+    // renders the payload's id and the previously-seen selection cannot
+    // self-exclude, so the incident appears as its own prior — the in-app
+    // resolver reads from the registry and never had the problem (P-038).
+    incident.id = row.id;
     let parsed_l4: Option<L4Output> = incident
         .resolution_summary_text
         .as_deref()
@@ -448,13 +464,74 @@ fn dispatch_mark_incident_resolved(
         tool_name: TOOL_MARK_INCIDENT_RESOLVED.to_string(),
         reason: "incident payload encode failed".to_string(),
     })?;
-    ctx.corpus
+    let outcome = ctx
+        .corpus
         .update_incident_status(row.id, "resolved", now, Some(now), &payload)
         .map_err(|e| Error::ToolDispatchFailed {
             tool_name: TOOL_MARK_INCIDENT_RESOLVED.to_string(),
             reason: short_reason(&e.to_string()),
         })?;
+    if outcome == corpus::contract::IncidentWriteOutcome::DeclinedStale {
+        return Err(Error::ToolDispatchFailed {
+            tool_name: TOOL_MARK_INCIDENT_RESOLVED.to_string(),
+            reason: "incident changed concurrently; resolution not applied".to_string(),
+        });
+    }
     Ok(json!({ "resolved": true, "incident_id": row.id }))
+}
+
+// An authoring bound, not a working limit: the ledger records one row per
+// status VALUE change over three statuses, so a real incident sits far below.
+const INCIDENT_EVENTS_READ_LIMIT: u32 = 256;
+
+const UNKNOWN_EVENT_KIND: &str = "unknown";
+
+// Coerce on egress: only the closed status-label set leaves the sidecar.
+fn coerce_event_kind(kind: &str) -> &'static str {
+    use triage::contract::{IncidentStatus, incident_status_label};
+    [
+        IncidentStatus::Active,
+        IncidentStatus::Acknowledged,
+        IncidentStatus::Resolved,
+    ]
+    .into_iter()
+    .map(incident_status_label)
+    .find(|label| *label == kind)
+    .unwrap_or(UNKNOWN_EVENT_KIND)
+}
+
+fn dispatch_retrieve_incident_events(
+    ctx: Option<&IncidentToolContext>,
+    arguments: &Value,
+) -> Result<Value, Error> {
+    let ctx = require_incident_ctx(TOOL_RETRIEVE_INCIDENT_EVENTS, ctx)?;
+    let args: IncidentIdArgs = parse_args(TOOL_RETRIEVE_INCIDENT_EVENTS, arguments)?;
+    let row = load_incident_row(ctx, TOOL_RETRIEVE_INCIDENT_EVENTS, args.incident_id)?;
+    let mut rows = ctx
+        .corpus
+        .load_incident_events(row.id, INCIDENT_EVENTS_READ_LIMIT + 1)
+        .map_err(|e| Error::ToolDispatchFailed {
+            tool_name: TOOL_RETRIEVE_INCIDENT_EVENTS.to_string(),
+            reason: short_reason(&e.to_string()),
+        })?;
+    let truncated = rows.len() > INCIDENT_EVENTS_READ_LIMIT as usize;
+    rows.truncate(INCIDENT_EVENTS_READ_LIMIT as usize);
+    let events: Vec<Value> = rows
+        .iter()
+        .map(|event| {
+            json!({
+                "event_kind": coerce_event_kind(&event.event_kind),
+                "occurred_unix_nano": event.occurred_unix_nano,
+            })
+        })
+        .collect();
+    let total = events.len();
+    Ok(json!({
+        "incident_id": row.id,
+        "events": events,
+        "total": total,
+        "truncated": truncated,
+    }))
 }
 
 fn load_incident_row(
@@ -549,6 +626,7 @@ fn result_type_label(tool_name: &str) -> &'static str {
         TOOL_RETRIEVE_REPORT => "markdown_report",
         TOOL_RETRIEVE_TELEMETRY_SLICE => "telemetry_slice",
         TOOL_MARK_INCIDENT_RESOLVED => "resolve_ack",
+        TOOL_RETRIEVE_INCIDENT_EVENTS => "incident_events",
         _ => "unknown",
     }
 }
@@ -568,6 +646,11 @@ fn result_count_for(tool_name: &str, value: &Value) -> u64 {
             .unwrap_or(0),
         TOOL_RETRIEVE_TELEMETRY_SLICE => value
             .get("span_refs")
+            .and_then(|v| v.as_array())
+            .map(|a| a.len() as u64)
+            .unwrap_or(0),
+        TOOL_RETRIEVE_INCIDENT_EVENTS => value
+            .get("events")
             .and_then(|v| v.as_array())
             .map(|a| a.len() as u64)
             .unwrap_or(0),
@@ -797,8 +880,9 @@ mod tests {
     }
 
     #[test]
-    fn all_tool_names_count_is_eight() {
-        assert_eq!(ALL_TOOL_NAMES.len(), 8);
+    fn all_tool_names_count_is_nine() {
+        assert_eq!(ALL_TOOL_NAMES.len(), 9);
+        assert!(ALL_TOOL_NAMES.contains(&TOOL_RETRIEVE_INCIDENT_EVENTS));
     }
 
     #[test]
@@ -967,5 +1051,138 @@ mod tests {
         )
         .expect("dispatch ok");
         assert_eq!(value["total"].as_u64(), Some(1));
+    }
+
+    fn event_pairs(value: &Value) -> Vec<(String, i64)> {
+        value["events"]
+            .as_array()
+            .expect("events array")
+            .iter()
+            .map(|e| {
+                (
+                    e["event_kind"].as_str().expect("kind").to_string(),
+                    e["occurred_unix_nano"].as_i64().expect("ts"),
+                )
+            })
+            .collect()
+    }
+
+    #[test]
+    fn retrieve_incident_events_reads_transitions_in_order() {
+        let conn = fresh_buffer();
+        let state = VizState::new();
+        let (ctx, id) = incident_ctx_with_one_incident();
+        ctx.corpus
+            .update_incident_status(id, "acknowledged", 1_700_000_000_111, None, b"p")
+            .expect("ack");
+        ctx.corpus
+            .update_incident_status(id, "resolved", 1_700_000_000_222, Some(1), b"p")
+            .expect("resolve");
+
+        let value = dispatch_tool(
+            &conn,
+            &state,
+            Some(&ctx),
+            TOOL_RETRIEVE_INCIDENT_EVENTS,
+            &json!({"incident_id": id}),
+        )
+        .expect("dispatch ok");
+
+        assert_eq!(
+            event_pairs(&value),
+            vec![
+                ("acknowledged".to_string(), 1_700_000_000_111),
+                ("resolved".to_string(), 1_700_000_000_222),
+            ]
+        );
+        assert_eq!(value["incident_id"].as_i64(), Some(id));
+        assert_eq!(value["total"].as_u64(), Some(2));
+        assert_eq!(value["truncated"].as_bool(), Some(false));
+    }
+
+    #[test]
+    fn retrieve_incident_events_reads_empty_for_a_fresh_incident() {
+        let (ctx, id) = incident_ctx_with_one_incident();
+        let value = dispatch_retrieve_incident_events(Some(&ctx), &json!({"incident_id": id}))
+            .expect("dispatch ok");
+        assert_eq!(value["events"].as_array().map(Vec::len), Some(0));
+        assert_eq!(value["total"].as_u64(), Some(0));
+        assert_eq!(value["truncated"].as_bool(), Some(false));
+    }
+
+    #[test]
+    fn retrieve_incident_events_errors_on_missing_incident() {
+        let (ctx, _id) = incident_ctx_with_one_incident();
+        let err = dispatch_retrieve_incident_events(Some(&ctx), &json!({"incident_id": 99_999}))
+            .expect_err("not found");
+        match err {
+            Error::ToolDispatchFailed { tool_name, reason } => {
+                assert_eq!(tool_name, TOOL_RETRIEVE_INCIDENT_EVENTS);
+                assert_eq!(reason, "incident not found");
+            }
+            other => panic!("expected ToolDispatchFailed, got {other:?}"),
+        }
+    }
+
+    #[test]
+    fn retrieve_incident_events_coerces_an_out_of_set_kind_to_unknown() {
+        let (ctx, id) = incident_ctx_with_one_incident();
+        ctx.corpus
+            .save_incident_event(id, "client text <b>", 1_700_000_000_333, &[])
+            .expect("hand insert");
+        ctx.corpus
+            .update_incident_status(id, "resolved", 1_700_000_000_444, Some(1), b"p")
+            .expect("resolve");
+
+        let value = dispatch_retrieve_incident_events(Some(&ctx), &json!({"incident_id": id}))
+            .expect("dispatch ok");
+
+        assert_eq!(
+            event_pairs(&value),
+            vec![
+                ("unknown".to_string(), 1_700_000_000_333),
+                ("resolved".to_string(), 1_700_000_000_444),
+            ]
+        );
+        assert!(!value.to_string().contains("client text"));
+    }
+
+    #[test]
+    fn retrieve_incident_events_truncates_past_the_read_limit() {
+        let (ctx, id) = incident_ctx_with_one_incident();
+        for i in 0..=i64::from(INCIDENT_EVENTS_READ_LIMIT) {
+            ctx.corpus
+                .save_incident_event(id, "active", 1_000 + i, &[])
+                .expect("insert");
+        }
+
+        let value = dispatch_retrieve_incident_events(Some(&ctx), &json!({"incident_id": id}))
+            .expect("dispatch ok");
+
+        assert_eq!(
+            value["total"].as_u64(),
+            Some(u64::from(INCIDENT_EVENTS_READ_LIMIT))
+        );
+        assert_eq!(value["truncated"].as_bool(), Some(true));
+        let pairs = event_pairs(&value);
+        assert_eq!(pairs.first().map(|p| p.1), Some(1_000));
+        assert_eq!(
+            pairs.last().map(|p| p.1),
+            Some(1_000 + i64::from(INCIDENT_EVENTS_READ_LIMIT) - 1)
+        );
+    }
+
+    #[test]
+    fn retrieve_incident_events_result_type_and_count() {
+        assert_eq!(
+            result_type_label(TOOL_RETRIEVE_INCIDENT_EVENTS),
+            "incident_events"
+        );
+        let value = json!({"events": [{"event_kind": "resolved"}, {"event_kind": "active"}]});
+        assert_eq!(result_count_for(TOOL_RETRIEVE_INCIDENT_EVENTS, &value), 2);
+        assert_eq!(
+            result_count_for(TOOL_RETRIEVE_INCIDENT_EVENTS, &json!({})),
+            0
+        );
     }
 }

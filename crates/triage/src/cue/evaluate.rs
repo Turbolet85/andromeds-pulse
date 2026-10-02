@@ -4,7 +4,7 @@ use crate::cue::classify::{classify_priority, dual_condition_bypass};
 use crate::cue::thresholds::{MIN_QUIET_SECONDS, Thresholds};
 
 /// Confidence cap — samples ≥ this value yield confidence = 1.0. Mid-range
-/// samples scale linearly от `min_ewma_samples`. Module-private к keep the
+/// samples scale linearly from `min_ewma_samples`. Module-private to keep the
 /// derivation curve local; tune at /implement if calibration warrants.
 const CONFIDENCE_SATURATION_SAMPLES: f64 = 100.0;
 
@@ -16,10 +16,10 @@ const CONFIDENCE_SATURATION_SAMPLES: f64 = 100.0;
 /// for direct unit-test invocation without `tokio::time` orchestration per
 /// chunk #62 plan Implementation Steps step 4.
 ///
-/// The `now_nanos` parameter is passed through к the cue construction
-/// pipeline (currently unused в the magnitude/persistence derivation but
+/// The `now_nanos` parameter is passed through to the cue construction
+/// pipeline (currently unused in the magnitude/persistence derivation but
 /// reserved for future per-cue timestamp annotation when a `recorded_at`
-/// field is added к `AttentionCue` per capability spec evolution).
+/// field is added to `AttentionCue` per capability spec evolution).
 pub fn evaluate_thresholds(
     state: &BaselineState,
     thresholds: &Thresholds,
@@ -31,7 +31,7 @@ pub fn evaluate_thresholds(
     // compares short-term (30s) EWMA against long-term (5min) EWMA per
     // capability spec. The long-term value floors at `thresholds.base_error_rate`
     // (former fixed-denominator, now a minimum-baseline floor) so services
-    // с near-zero error rate don't trigger division-explosion magnitudes;
+    // with near-zero error rate don't trigger division-explosion magnitudes;
     // the floor degrades gracefully into the prior fixed-baseline behavior
     // before convergence.
     for snapshot in state.iter_services() {
@@ -52,8 +52,8 @@ pub fn evaluate_thresholds(
             0.0
         };
         let confidence = (snapshot.samples as f64 / CONFIDENCE_SATURATION_SAMPLES).min(1.0);
-        let persistence_seconds = snapshot.samples;
-        let priority_tier = classify_priority(magnitude, confidence, persistence_seconds);
+        let persistence = snapshot.samples;
+        let priority_tier = classify_priority(magnitude, confidence, persistence);
         let suppression_bypassed = dual_condition_bypass(
             magnitude,
             snapshot.short_term_error_rate,
@@ -66,10 +66,12 @@ pub fn evaluate_thresholds(
             scope_id: Some(snapshot.service_name),
             magnitude,
             absolute_value: snapshot.short_term_error_rate,
-            persistence_seconds,
+            persistence,
             confidence,
             priority_tier,
             suppression_bypassed,
+            // Baseline-derived: a statistical condition, not a specific fault.
+            fingerprint: None,
         });
     }
 
@@ -77,7 +79,7 @@ pub fn evaluate_thresholds(
     // relative): compares short-window t-digest p99 against long-window
     // t-digest p99 per capability spec. The long-term value floors at
     // `thresholds.base_latency_ms` (former fixed-denominator, now a minimum-
-    // baseline floor) so operations с near-zero latency don't trigger
+    // baseline floor) so operations with near-zero latency don't trigger
     // division-explosion magnitudes; the floor degrades gracefully into
     // the prior fixed-baseline behavior before convergence.
     for snapshot in state.iter_operations(thresholds.latency_percentile) {
@@ -108,8 +110,8 @@ pub fn evaluate_thresholds(
             0.0
         };
         let confidence = (snapshot.samples as f64 / CONFIDENCE_SATURATION_SAMPLES).min(1.0);
-        let persistence_seconds = snapshot.samples;
-        let priority_tier = classify_priority(magnitude, confidence, persistence_seconds);
+        let persistence = snapshot.samples;
+        let priority_tier = classify_priority(magnitude, confidence, persistence);
         let suppression_bypassed = dual_condition_bypass(
             magnitude,
             latency_short,
@@ -119,7 +121,7 @@ pub fn evaluate_thresholds(
         // Per capability spec P-011: surface the human-readable
         // `operation_name` so downstream consumers (Findings dropdown, model
         // interpretation) can describe the regression as "p99 of GET /endpoint
-        // regressed". Falls back к the opaque `operation_key` when the
+        // regressed". Falls back to the opaque `operation_key` when the
         // baseline record predates chunk #73 (pre-existing corpus state).
         let scope_id = if snapshot.operation_name.is_empty() {
             snapshot.operation_key
@@ -132,10 +134,11 @@ pub fn evaluate_thresholds(
             scope_id: Some(scope_id),
             magnitude,
             absolute_value: latency_short,
-            persistence_seconds,
+            persistence,
             confidence,
             priority_tier,
             suppression_bypassed,
+            fingerprint: None,
         });
     }
 
@@ -169,7 +172,7 @@ pub fn evaluate_service_went_silent(
         };
         // Per capability spec P-014: minimum threshold of 30 seconds, applied
         // as a max-floor over the learned p95. High-frequency services with
-        // sub-30s p95 are clamped к 30s; low-frequency services с p95 >30s
+        // sub-30s p95 are clamped to 30s; low-frequency services with p95 >30s
         // honor the learned value.
         let effective_threshold = p95_seconds.max(MIN_QUIET_SECONDS);
         if snapshot.current_quiet_duration_seconds <= effective_threshold {
@@ -181,18 +184,19 @@ pub fn evaluate_service_went_silent(
             snapshot.current_quiet_duration_seconds as f64 / effective_threshold as f64
         };
         let confidence = 1.0;
-        let persistence_seconds = snapshot.current_quiet_duration_seconds;
-        let priority_tier = classify_priority(magnitude, confidence, persistence_seconds);
+        let persistence = snapshot.current_quiet_duration_seconds;
+        let priority_tier = classify_priority(magnitude, confidence, persistence);
         cues.push(AttentionCue {
             kind: CueKind::ServiceWentSilent,
             scope: CueScope::Service,
             scope_id: Some(snapshot.service_name),
             magnitude,
             absolute_value: snapshot.current_quiet_duration_seconds as f64,
-            persistence_seconds,
+            persistence,
             confidence,
             priority_tier,
             suppression_bypassed: false,
+            fingerprint: None,
         });
     }
     cues
@@ -275,7 +279,7 @@ mod tests {
         let state = BaselineState::new();
         // 100 spans, 0 errors → EWMA stays at 0.0 (well below 3% threshold).
         // Note: the 5-minute EWMA window (alpha=0.00333) needs many more
-        // samples to converge from a non-zero start; testing с zero errors
+        // samples to converge from a non-zero start; testing with zero errors
         // is the cleanest way to assert "below threshold" without lengthy
         // alternating injection.
         seed_service(&state, "svc-stable", 0, 100);
@@ -431,7 +435,7 @@ mod tests {
     #[test]
     fn evaluate_thresholds_classification_flips_when_multiplier_raised() {
         // EWMA with alpha=0.00333 (5-min window) starting from a 50%-error
-        // burst converges slowly. After 100 samples с the seed pattern below
+        // burst converges slowly. After 100 samples with the seed pattern below
         // (50 errors then 50 good) the EWMA is ~0.846. Default multiplier
         // 3.0 × 0.01 = 0.03 threshold → cue fires (0.846 >> 0.03).
         // Multiplier 100.0 × 0.01 = 1.0 threshold → cue suppressed
@@ -644,7 +648,7 @@ mod tests {
         let cues = evaluate_service_went_silent(&state, &Thresholds::default(), now);
         assert!(
             cues.is_empty(),
-            "25s quiet on chatty service (p95=20s) must be clamped к MIN_QUIET_SECONDS=30s floor; got {cues:?}"
+            "25s quiet on chatty service (p95=20s) must be clamped to MIN_QUIET_SECONDS=30s floor; got {cues:?}"
         );
     }
 
@@ -669,7 +673,7 @@ mod tests {
         let cues = evaluate_service_went_silent(&state, &Thresholds::default(), now);
         assert!(
             cues.is_empty(),
-            "280s quiet on low-freq service (p95=300s) must honor learned p95, не clamped to 30s; got {cues:?}"
+            "280s quiet on low-freq service (p95=300s) must honor learned p95, not clamped to 30s; got {cues:?}"
         );
     }
 }

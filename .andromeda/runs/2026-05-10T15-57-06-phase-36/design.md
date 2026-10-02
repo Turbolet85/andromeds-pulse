@@ -1,0 +1,39 @@
+# design extract — phase-36
+
+## Chunk relevance
+
+- **route#39 "Curation primitives"** — minimal direct design relevance. This chunk lives in the `snapshot` crate (Rust backend curation logic: dedupe spans, anomaly highlight, critical-path extraction). It produces in-memory curated data structures, NOT UI. Visual rendering of curated output happens at chunk #41 (markdown formatter — text-output, no chrome) and chunk #42 (Investigate trigger button + capture-collapse motion — first user-facing UI in this epoch). However, chunk #39 establishes the **anomaly-classification semantic vocabulary** that downstream chunk #41 markdown formatting and chunk #42 UI must respect; design semantics for anomaly tagging cross-bind to color encoding when those downstream chunks render.
+
+## Constraints
+
+- **Anomaly semantic vocabulary alignment with Color Palette taxonomy** (per design-system §Color Palette Semantic Colors + §Decisions Log 2026-05-03 lift) — when chunk #39 emits anomaly classification tags (latency outlier / error correlation / cardinality spike) in the curated data structure, the tag values MUST be domain-stable enum variants that downstream chunks #41/#42 can map to the semantic-color taxonomy: `Error` → Alert Burgundy `#C7556A`, `Warning` → Alert Burgundy with text-primary, `Info` → Earth Blue `#4A90E2`, `Success` → Feedback Cyan `#17B3A3`. Use `serde`-friendly enum names (e.g., `AnomalyKind::LatencyOutlier`, `AnomalyKind::ErrorCorrelation`, `AnomalyKind::CardinalitySpike`) so downstream rendering does not need string parsing.
+
+- **Curation primitives are data-driven, not chrome-driven** (per design-system §Motion + §Brand Identity "motion is data-driven and never decorative") — anomaly highlight semantics must derive from telemetry signal (latency p99 deviation, error rate inflection, cardinality delta), not from arbitrary aesthetic preference. The anomaly-tagged span set chunk #39 produces becomes the input for chunk #41's "smart truncation prioritizing anomalies" budget decision; emit deterministic, ranked anomaly outputs so the markdown formatter can apply the budget priority predictably.
+
+## Patterns to follow
+
+- **Snapshot generation = persistent narrative from ring-buffer ephemeris** (per design-system §Brand Identity "ring buffer ephemeris" + §Decisions Log 2026-05-02 "Snapshot generation (curated observation log)") — chunk #39 is the first concrete materialization of the design's "transient telemetry → persistent observation" metaphor. The curation primitive vocabulary (dedupe / anomaly / critical-path) maps directly to the spectroscopy domain anchor (decomposing telemetry by signal-vs-noise wavelength).
+
+- **Contemplative voice in tag/field naming** (per design-system §Brand Identity "contemplative, observational voice" + §desktop-native Tray Menu "Generate Snapshot' not 'Export Data'") — public-API enum variants and field names exposed by chunk #39's curation primitives should reflect the observational tone. Prefer `AnomalyKind`, `CriticalPath`, `DedupeWindow` over generic terms like `Issue`, `Path`, `Window`.
+
+## Anti-patterns to avoid
+
+- **NEVER classify anomaly types using color directly in the curated output structure** (per design-system §Anti-Patterns Universal Bans "NEVER use color purely for decoration" + a11y not-color-alone binding) — chunk #39 must emit anomaly *semantics* (kind enum + severity scalar + rationale string), not color tokens. Color binding happens at the rendering layer (markdown formatter chunk #41 or UI chunk #42), where state color is paired with text label / icon per design discipline. A curation primitive returning `color: "#C7556A"` would invert the layer separation.
+
+- **NEVER conflate anomaly highlight with chrome-style "delightful" framing** (per design-system §Motion "rejects 'delightful' framing in favor of 'state-confirming' motion") — anomaly tags are diagnostic facts, not user-celebration markers. Tag rationale strings should be terse, factual, observational ("p99 exceeded baseline by 3.2σ"), not interpretive ("Yikes!" / "Whoa, that's slow!").
+
+## Contract bindings
+
+- **Anomaly semantic enum binds to Color Palette §Semantic Colors at downstream rendering** — chunk #39's `AnomalyKind` variants will be consumed by chunk #41 markdown formatter (status emoji / text styling) and chunk #42 Investigate button visual state. A11y binding: when downstream chunks render anomaly state, the state color (`#C7556A` Alert Burgundy or `#4A90E2` Earth Blue Info) MUST be paired with text label or icon (per design-system §Color Palette Semantic Colors + a11y SC 1.4.1) — chunk #39's enum + rationale string output gives downstream the text-pairing material it needs.
+
+- **Anomaly ranking determinism binds to chunk #41 token-budget prioritization** (per route.md epoch 6 sequencing "Chunk #41 builds the markdown formatter consuming all upstream curation outputs + token budget enforcement" + design-system §Brand Identity "pattern-seeking visual hierarchy") — chunk #39 must emit anomalies in deterministic priority order (e.g., severity-descending) so chunk #41's "smart truncation prioritizing anomalies" can reliably keep the most-significant N anomalies under each token budget threshold.
+
+- **Curation output binds to MCP `generate_snapshot` tool method** (per route.md Decisions Log "Snapshot pipeline shared with MCP — Snapshot epoch precedes MCP sub-block") — chunk #39's curated data structure is consumed by both the Investigate UI workflow (chunks #42/#43) and the MCP `generate_snapshot` `#[tool]` method (chunk #51). Design semantics (anomaly enum naming, rationale tone, contemplative voice) must hold for both consumers since both surface the same curation vocabulary to end-users / agents.
+
+## Acceptance criteria contributions
+
+- **(design)** Anomaly classification output uses domain-stable `serde`-friendly enum variants (e.g., `AnomalyKind::LatencyOutlier` / `ErrorCorrelation` / `CardinalitySpike`) with no inline color tokens or hex values — color binding deferred to rendering layer (chunk #41/#42) per design-system §Anti-Patterns "color purely for decoration" + layer-separation discipline.
+
+- **(design)** Anomaly rationale strings are terse, factual, observational (no exclamatory or interpretive phrasing) per design-system §Brand Identity "contemplative, observational voice" — verifiable via test fixture asserting rationale strings match pattern `^[A-Z][a-z]+ .* [0-9.]+(σ|%|ms|x).*$` or similar factual-form regex (test specialist owns concrete pattern; design contributes the constraint).
+
+- **(design)** Anomaly output ordering is deterministic by severity-descending so chunk #41 markdown formatter can rely on input ordering for "smart truncation prioritizing anomalies" per design-system §Brand Identity "pattern-seeking visual hierarchy" — verifiable by repeated invocation against same input span set producing byte-identical curated output.

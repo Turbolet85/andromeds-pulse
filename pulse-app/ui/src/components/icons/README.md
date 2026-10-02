@@ -43,7 +43,7 @@ interface IconProps {
 ## Decorative-vs-meaningful pattern
 
 Every glyph component supports BOTH modes. Default is decorative; provide an
-accessible name to flip к meaningful:
+accessible name to flip to meaningful:
 
 ```tsx
 // DECORATIVE — icon supplements an already-labeled control. Screen readers
@@ -64,7 +64,7 @@ duplicate screen-reader announcements (a11y-plan §11 SR anti-patterns).
 
 ## Color tokens (currentColor propagation)
 
-Icons render с `fill="currentColor"` / `stroke="currentColor"` so the inherited
+Icons render with `fill="currentColor"` / `stroke="currentColor"` so the inherited
 CSS `color` property determines the visual color. Use Tailwind v4 text-color
 utilities mapped to the chunk-#10 `@theme` tokens:
 
@@ -81,7 +81,7 @@ icon source — registry honors propagation by design.
 
 ## Not-color-alone state-indicator pattern (SC 1.4.1)
 
-When using an icon as a state indicator, ALWAYS pair с а text label or
+When using an icon as a state indicator, ALWAYS pair with a text label or
 icon-glyph that distinguishes the state independently of color (per a11y-plan §6
 not-color-alone discipline + design plan §Anti-Patterns Universal Bans):
 
@@ -93,7 +93,7 @@ not-color-alone discipline + design plan §Anti-Patterns Universal Bans):
 </span>
 
 // ✗ NON-compliant — color alone signals success. Color-blind users
-// see no distinguishing signal versus а neutral state.
+// see no distinguishing signal versus a neutral state.
 <span className="text-feedback-success">Saved</span>
 ```
 
@@ -114,7 +114,7 @@ not the icon itself. The 16/20px icons are valid only when their wrapper hits
 
 ## Motion deferral
 
-The `circular-pulse` glyph LOOKS like а pulse but is а STATIC SVG. The actual
+The `circular-pulse` glyph LOOKS like a pulse but is a STATIC SVG. The actual
 rhythmic pulsing motion lives on the WebGPU canvas at chunk #28 (Halo State
 Pulse signature element); icon components MUST NOT include the SVG animation
 elements `animate`, `animateTransform`, `animateMotion`, or `set` per a11y-plan §11 Motion

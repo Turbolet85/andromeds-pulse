@@ -1,0 +1,49 @@
+# Codebase Research — 2026-06-30-widget-to-dashboard-navigation
+
+## Scope
+- **Depth:** deep (mature codebase; webview + capability-JSON change) · **Reads:** 11 · **Globs/Greps:** 4
+- **Code-graph query:** SKIPPED with rationale — this chunk's delta is webview TypeScript + one capability JSON file; it modifies **zero Rust source**, so the Rust symbol graph (`tree.db`) has no impacted workspace symbol. The one Rust symbol consulted (`window::focus_or_show_window`) is read-only precedent, not modified. Per the cookbook's "consulted-but-not-applicable is a real finding" guidance.
+
+## The premise correction (RESEARCH-CORRECTS-INTENT — the headline finding)
+Intent F6 OBSERVED "the widget has no affordance to open it"; EXPECT "an explicit in-app way (button/click)". Research confirms the missing button BUT surfaces a deeper, unstated mechanism (the P-061/P-063 family recurring):
+
+1. **A cross-window show/focus path already exists** — `use-keyboard-shortcuts.ts::toggleCompactDashboard()` (`pulse-app/ui/src/dashboard/use-keyboard-shortcuts.ts:53`) resolves both windows via `getAllWebviewWindows()` and does `main.show()` + `main.setFocus()` + `compact.hide()` (and the reverse). It is the Cmd+Shift+P handler, wired **only** into the dashboard shell (`router.tsx:135`) — never into the compact-widget. So from the glance widget there is neither a button nor a working shortcut.
+2. **That existing path is silently broken** — `default.json` permissions are `core:default` + `core:window:allow-start-dragging` / `allow-minimize` / `allow-toggle-maximize` / `allow-close` (+ `updater:default`). It does **NOT** grant `core:window:allow-show` / `allow-set-focus` / `allow-hide`. Per the verified P-061 learning (CLAUDE.md security 2026-06-29), `core:window:default` (in `core:default`) is read-only getters + `allow-internal-toggle-maximize` ONLY. So `toggleCompactDashboard`'s `.show()/.setFocus()/.hide()` are **silently rejected at runtime** — the Cmd+Shift+P toggle currently does nothing. Its own comment ("covered by core:default capability") encodes the same false assumption P-061's drag-region did.
+3. **Implication for P-066:** the mechanism is settled by precedent (direct `@tauri-apps/api/webviewWindow` + a `core:window:*` grant — NOT a new TauRPC procedure; that is how the titlebar minimize/maximize/close + the existing toggle all work). The chunk must (a) add the visible in-widget affordance AND (b) grant the missing `core:window` permissions — granting them also repairs the dead Cmd+Shift+P toggle for free. Outcome (in-widget affordance opens the dashboard) is unchanged; the capability grant is the unstated mechanism.
+
+## Files inspected
+- `pulse-app/tauri.conf.json` (full) — two windows: `compact-widget` (480×270, alwaysOnTop, visible:false) + `main` (1280×800, center, visible:false). **Both windows start hidden**; `main` is shown on demand. Both `decorations:false` (frameless).
+- `pulse-app/capabilities/default.json` (full) — `windows: ["compact-widget","main"]` (one capability covers both webviews). Permissions list lacks `allow-show`/`allow-set-focus`/`allow-hide` (the gap). The long `description` documents every prior grant rationale — this chunk appends its own.
+- `pulse-app/ui/src/dashboard/use-keyboard-shortcuts.ts` (full) — the existing `toggleCompactDashboard()` (the reusable show/focus/hide logic) + the Cmd+Shift+P wiring; the canonical webview-side window-op pattern (with try/catch jsdom fallback).
+- `pulse-app/ui/src/dashboard/use-keyboard-shortcuts.test.ts` (full) — the canonical test shape for this: `vi.hoisted` mocks + `vi.mock("@tauri-apps/api/webviewWindow", { getAllWebviewWindows })` returning fake windows with `show/hide/setFocus/isVisible`; asserts `showFn` called on Cmd+Shift+P.
+- `pulse-app/ui/src/widget/CompactWidget.tsx` (full) — renders `<Titlebar onInvestigateClick={…} />` + constellation + findings. The host for the new affordance's wiring.
+- `pulse-app/ui/src/components/Titlebar.tsx` (full) — shared titlebar; segment order `[app-icon | ConnectionDot | title | grow | Investigate? | Settings | WindowControls]`. **Investigate button is conditionally rendered iff `onInvestigateClick` is provided** — the exact pattern to mirror for a conditional `onExpandClick` (so the button shows on the widget, not the dashboard). Buttons are native `<button aria-label=…>` with `--target-input-min` (24px) hit-target + `--duration-fast`/`--easing-out` + `motion-reduce:` classes + `Icon` glyphs (telescope=Investigate, aperture=Settings, constellation-grid=app-icon).
+- `pulse-app/src/tray.rs` (full) — `focus_or_show_window(app, label)` (`:271`): `get_webview_window(label).show() + set_focus()` — the Rust show/focus reference (used by tray "Open"→compact-widget, "Open Settings"→main). Read-only precedent; not modified.
+- `pulse-app/src/window.rs` (full) — close→hide-to-tray policy (`handle_close_to_tray`, `:109`) + the `ui.layout.transition` span emitters (Rust-side only). Confirms `main` is created hidden and shown on demand.
+- `pulse-app/ui/src/hooks/use-window-controls.ts` + `components/WindowControls.tsx` (full) — the titlebar minimize/maximize/close buttons call `getCurrentWindow().minimize()/.toggleMaximize()/.close()` directly via `@tauri-apps/api/window` (the per-window op pattern; `getCurrentWindow` vs `getAllWebviewWindows` for cross-window).
+
+## Patterns detected
+- **Conditional titlebar action button** (`Titlebar.tsx:93`): `{onInvestigateClick ? <button …/> : null}` — add a sibling `{onExpandClick ? <button aria-label="Expand to dashboard" …/> : null}`; only the compact-widget passes the handler.
+- **Cross-window op via `getAllWebviewWindows()`** (`use-keyboard-shortcuts.ts:53`): resolve by `.label`, guard with try/catch (jsdom-safe), call `show()/setFocus()/hide()`. The new affordance reuses this exact shape.
+- **Webview window-op test** (`use-keyboard-shortcuts.test.ts`): `vi.hoisted` + `vi.mock("@tauri-apps/api/webviewWindow")` returning fake window objects; dispatch real event; assert `show`/`setFocus` mock called. The template for the new affordance's unit test.
+- **Capability grant with rationale** (`default.json` description): every prior `core:window` grant (P-061/P-063) appended a dated rationale sentence + listed the permission — this chunk follows suit.
+
+## Conventions to follow
+- Direct `@tauri-apps/api` window op + explicit `core:window:*` grant (NOT a new TauRPC procedure) — the established mechanism for webview-triggered window ops (`use-window-controls.ts`, `use-keyboard-shortcuts.ts`, P-061/P-063). Keeps `xtask capability-drift` unaffected (core:window perms aren't TauRPC procedures) and is NOT one of the 3 NEVER-widen caps (`capability-widening-check` unaffected) — per security 2026-06-29.
+- Native `<button aria-label="Expand to dashboard">` (a11y P5 names this exact label) + `--target-input-min` hit-target + `--border-focus` focus ring + `motion-reduce:` + design-token styling (design/a11y/layouts extracts).
+- Capability JSON touched ⇒ boot-smoke gate required (testing extract / amendment 2026-05-09); `cargo build` is the ACL validation gate (an invalid permission id fails tauri-build — verification-harness 2026-06-29).
+
+## New files to create
+- `pulse-app/ui/src/hooks/use-expand-to-dashboard.ts` — the open/expand handler (`getAllWebviewWindows()` → `main.show()`+`setFocus()` [+ `compact.hide()` per the P4 expand-semantics decision]), mirroring `toggleCompactDashboard`. (Optionally extract a shared helper that `use-keyboard-shortcuts.ts` also consumes — P4 decision.)
+- `pulse-app/ui/src/hooks/use-expand-to-dashboard.test.ts` — webview-API-mocked unit test (real-call → `show`/`setFocus` asserted), mirroring `use-keyboard-shortcuts.test.ts`.
+
+## Files to modify
+- `pulse-app/capabilities/default.json` — add `core:window:allow-show` + `core:window:allow-set-focus` (+ `core:window:allow-hide` iff the expand-and-hide semantics are chosen) with a dated rationale sentence in `description`.
+- `pulse-app/ui/src/components/Titlebar.tsx` — add `onExpandClick?: () => void` prop + conditional `<button aria-label="Expand to dashboard">` (icon TBD: a domain glyph if a fitting one exists, else a Lucide expand/maximize fallback per design §Iconography).
+- `pulse-app/ui/src/widget/CompactWidget.tsx` — wire `onExpandClick={expandToDashboard}` from the new hook.
+- `pulse-app/ui/src/components/Titlebar.test.tsx` — assert the Expand button renders + fires `onExpandClick` when provided, absent otherwise.
+- (Conditional) `pulse-app/ui/src/dashboard/use-keyboard-shortcuts.ts` — if a shared helper is extracted, repoint `toggleCompactDashboard` at it; the new `allow-hide` grant repairs this path regardless. Fix its stale "covered by core:default" comment.
+
+## Open questions (resolve at P4)
+- **Q1 — Expand semantics (the genuine choice):** (a) **expand & hide widget** (`main.show()`+`setFocus()`+`compact.hide()`; matches F6 "expand INTO"; the alwaysOnTop widget won't obscure the dashboard; symmetric with Cmd+Shift+P; needs `allow-hide`, which also repairs the broken toggle) vs (b) **open & keep widget** (`main.show()`+`setFocus()` only; matches the matrix's literal "opens or focuses"; needs only show+set-focus; but the alwaysOnTop widget floats over the dashboard and the Cmd+Shift+P `.hide()` stays broken). → AskUserQuestion.
+- **Resolved (no question): mechanism** = direct `@tauri-apps/api` + `core:window:*` grant (codebase precedent is decisive). **Placement** = a conditional titlebar icon-button on the compact-widget (mirrors the Investigate/Settings pattern + layout "actionable element belongs in titlebar" + a11y P5). **Obs** = no new Rust `ui.layout.transition` span — the webview→core window op has no Rust seam (same as the existing toggle + minimize/maximize, which emit none); forcing a TauRPC procedure purely for a span is the rejected over-reach (handoff playbook rule). Documented, consistent with precedent.

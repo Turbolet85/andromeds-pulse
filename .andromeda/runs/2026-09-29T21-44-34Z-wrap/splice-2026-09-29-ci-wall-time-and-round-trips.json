@@ -1,0 +1,158 @@
+[
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "5afc7864",
+"ts": "2026-09-29T21:57:51Z",
+"argv": [
+"append",
+"--file",
+".andromeda/architecture-amendments.md",
+"--payload-file",
+".andromeda/runs/2026-09-29T21-44-34Z-wrap/architecture-entry.md",
+"--lines",
+"9",
+"--run-dir",
+".andromeda/runs/2026-09-29T21-44-34Z-wrap",
+"--marker",
+"2026-09-29-ci-wall-time-and-round-trips"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"append architecture-amendments.md:+9 at line 504 · lines 503→512 · bytes 66485→69440 · term lf",
+"last line now: **Ref:** .andromeda/runs/2026-09-29T21-44-34Z-wrap/"
+],
+"stderr": null,
+"wrote": [
+".andromeda/architecture-amendments.md"
+],
+"before": {
+"lines": 503,
+"bytes": 66485,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 512,
+"bytes": 69440
+}
+},
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "5afc7864",
+"ts": "2026-09-29T21:57:52Z",
+"argv": [
+"append",
+"--file",
+".andromeda/test-plan-amendments.md",
+"--payload-file",
+".andromeda/runs/2026-09-29T21-44-34Z-wrap/test-plan-entry.md",
+"--lines",
+"11",
+"--run-dir",
+".andromeda/runs/2026-09-29T21-44-34Z-wrap",
+"--marker",
+"2026-09-29-ci-wall-time-and-round-trips"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"append test-plan-amendments.md:+11 at line 438 · lines 437→448 · bytes 74094→76272 · term lf",
+"last line now: **Ref:** .andromeda/runs/2026-09-29T21-44-34Z-wrap/"
+],
+"stderr": null,
+"wrote": [
+".andromeda/test-plan-amendments.md"
+],
+"before": {
+"lines": 437,
+"bytes": 74094,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 448,
+"bytes": 76272
+}
+},
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "5afc7864",
+"ts": "2026-09-29T21:57:52Z",
+"argv": [
+"append",
+"--file",
+".andromeda/obs-plan-amendments.md",
+"--payload-file",
+".andromeda/runs/2026-09-29T21-44-34Z-wrap/obs-plan-entry.md",
+"--lines",
+"7",
+"--run-dir",
+".andromeda/runs/2026-09-29T21-44-34Z-wrap",
+"--marker",
+"2026-09-29-ci-wall-time-and-round-trips"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"append obs-plan-amendments.md:+7 at line 263 · lines 262→269 · bytes 47922→48720 · term lf",
+"last line now: **Ref:** .andromeda/runs/2026-09-29T21-44-34Z-wrap/"
+],
+"stderr": null,
+"wrote": [
+".andromeda/obs-plan-amendments.md"
+],
+"before": {
+"lines": 262,
+"bytes": 47922,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 269,
+"bytes": 48720
+}
+},
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "5afc7864",
+"ts": "2026-09-29T21:57:53Z",
+"argv": [
+"append",
+"--file",
+".andromeda/a11y-plan-amendments.md",
+"--payload-file",
+".andromeda/runs/2026-09-29T21-44-34Z-wrap/a11y-plan-entry.md",
+"--lines",
+"6",
+"--run-dir",
+".andromeda/runs/2026-09-29T21-44-34Z-wrap",
+"--marker",
+"2026-09-29-ci-wall-time-and-round-trips"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"append a11y-plan-amendments.md:+6 at line 80 · lines 79→85 · bytes 12296→13035 · term lf",
+"last line now: **Ref:** .andromeda/runs/2026-09-29T21-44-34Z-wrap/"
+],
+"stderr": null,
+"wrote": [
+".andromeda/a11y-plan-amendments.md"
+],
+"before": {
+"lines": 79,
+"bytes": 12296,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 85,
+"bytes": 13035
+}
+}
+]

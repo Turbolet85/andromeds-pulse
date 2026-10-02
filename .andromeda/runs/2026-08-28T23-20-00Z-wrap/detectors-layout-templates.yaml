@@ -1,0 +1,7 @@
+- id: D-layout-surface
+  doc: layout-templates
+  invariant: a new user-facing surface / region the chunk adds is described in §Primary Surfaces / the wireframes.
+  check: agent-read — if the report adds a UI surface or region, confirm it maps to a §Wireframe entry; an undocumented surface is drift.
+  severity: warning
+
+# — test-plan —

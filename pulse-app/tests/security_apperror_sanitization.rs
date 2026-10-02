@@ -6,8 +6,8 @@
 //! `AppError::Internal { message }` content surfaced to the webview —
 //! sanitize at the `From<thiserror::Error> for AppError` impl"):
 //!
-//! Exercise the `From<E> for AppError` impls в `crates/ui-bridge/src/contract.rs`
-//! (chunks #26 / #44 / #68 + downstream) и assert the serialized AppError JSON
+//! Exercise the `From<E> for AppError` impls in `crates/ui-bridge/src/contract.rs`
+//! (chunks #26 / #44 / #68 + downstream) and assert the serialized AppError JSON
 //! across the TauRPC bridge contains no PII-vector substrings (Rust struct
 //! names, file paths, stack traces, library versions, source-chain markers).
 //!
@@ -88,7 +88,7 @@ fn apperror_not_found_does_not_leak_pii_vectors() {
 #[test]
 fn apperror_internal_from_constant_message_does_not_leak_pii_vectors() {
     // The `AppError::internal()` constructor accepts any string. Exercise
-    // both а short summary AND а longer sanitized message; both must serialize
+    // both a short summary AND a longer sanitized message; both must serialize
     // without PII markers.
     let short = AppError::internal("operation failed");
     assert_no_pii_leak(&short, "Internal(short)");
@@ -126,10 +126,10 @@ fn apperror_ingest_does_not_leak_pii_vectors() {
 
 #[test]
 fn from_buffer_error_init_produces_sanitized_storage_variant() {
-    // Construct а BufferError::Init carrying а file path + library name в its
+    // Construct a BufferError::Init carrying a file path + library name in its
     // `reason` field — the From impl MUST collapse to the constant "buffer
     // init failed" message per `crates/ui-bridge/src/contract.rs:382-415`
-    // impl block. Verify по serializing the resulting AppError.
+    // impl block. Verify by serializing the resulting AppError.
     let buffer_err = BufferError::Init {
         reason: "failed to open database at /home/secret/path/database.db with anyhow::Error chain"
             .into(),
@@ -163,7 +163,7 @@ fn from_viz_error_query_failed_produces_sanitized_storage_variant() {
 
 #[test]
 fn from_snapshot_error_propagates_sanitized_message_only() {
-    // Construct а SnapshotError variant carrying potentially leaky reason;
+    // Construct a SnapshotError variant carrying potentially leaky reason;
     // From impl should sanitize per `crates/ui-bridge/src/contract.rs:474+`.
     let snapshot_err = SnapshotError::InvalidSpanRecord {
         kind: "missing trace_id",
@@ -199,7 +199,7 @@ fn apperror_internal_constructor_does_not_inject_caller_context() {
     // in the Internal variant's `message` field. The CALLER is responsible
     // for passing only sanitized strings. This test documents that contract
     // by asserting the constructor does NOT add file:line / module path /
-    // SpanTrace context от calling site automatically — the message is taken
+    // SpanTrace context from calling site automatically — the message is taken
     // verbatim.
     let msg = "deliberately-checked-marker-string";
     let err = AppError::internal(msg);

@@ -1,0 +1,31 @@
+# Tests validation — route draft
+
+## Rewrite
+
+- `xtask agent-run harness — 5-command discipline (boot/run/status/cleanup/logs) + health endpoint + PID file + JSON log format`: change "health endpoint" → "health TauRPC command with status/subsystems/pid/uptime_ms fields"
+  Reason: Test plan §3 Test Harness Contract specifies exact JSON schema for status endpoint including subsystems object with otlp_grpc_receiver/otlp_http_receiver/buffer/ingest_channel nested status fields; current wording lacks this structural detail critical for agent polling contract.
+
+- `Base CI workflow — matrix Linux/macOS/Windows + harden-runner SHA-pinned + cargo-nextest + cargo-llvm-cov coverage gate`: change "coverage gate" → "cargo-llvm-cov coverage gate (≥75% line / ≥70% branch / ≥85% function per Standard tier)"
+  Reason: Test plan §10 Quality Gates specifies exact coverage thresholds that must be enforced in CI; current wording omits the numerical targets required for deterministic build-pass/fail logic.
+
+- `End-to-end test pass — synthetic OTLP via :4317/:4318 + TauRPC roundtrip + Channels + MCP subprocess + plugin lifecycle + workspace detection (P1-P7)`: change "End-to-end test pass" → "End-to-end test pass — all 7 critical paths (P1-P7: ingest+visualize, snapshot generation, MCP query, plugin lifecycle, widget toggle, real-time push, workspace detection)"
+  Reason: Test plan §1 Test Scope Summary defines 7 named critical paths (P1–P7) that must each be verified; current wording abbreviates to "(P1-P7)" without expansion for clarity.
+
+- `Smoke tests + tauri-driver matrix — install-launch-ingest-query smoke per .msi/.dmg/.AppImage/.deb, tauri-driver headful for tray + window state P5`: change "smoke per .msi/.dmg/.AppImage/.deb" → "smoke tests per distribution bundle (.msi/.dmg/.AppImage/.deb) with app boot, OTLP ingest, query roundtrip per 5-command harness"
+  Reason: Test plan §3 Test Harness Contract specifies 5-command implementation (boot/run/status/cleanup/logs); smoke tests should explicitly invoke and verify this harness contract per bundle type.
+
+## Insert
+
+- Between `Base CI workflow — matrix Linux/macOS/Windows + harden-runner SHA-pinned + cargo-nextest + cargo-llvm-cov coverage gate` and `Supply-chain CI gates + secret-scanning — cargo-audit/deny/auditable + Dependabot + gitleaks + GitHub Environment production-release`: **"Test harness bootstrap — 5-command discipline wire (boot/run/status/cleanup/logs scripts), status TauRPC health endpoint schema, PID file mechanism, JSON tracing-subscriber config"** (epoch: `Foundation`)
+  Reason: Per tests plan §3 Test Harness Contract §Bootstrap phases items 2–5 (5-command-discipline-wire, status-endpoint-implement, log-format-bind-with-obs, pid-file-commitment-wire) must be explicitly materialized as bootstrap infrastructure before any test execution; current route folds these into "xtask agent-run harness" but does not guarantee they are standalone completable chunks.
+
+- Between `Snapshot & Investigate` epoch and `Plugin runtime + MCP server` epoch: **"Test data bootstrap — MockTraceSpan / MockArrowBatch / MockMetricPoint builder factories, rstest fixture composition, DuckDB ephemeral in-memory per-test isolation"** (epoch: `Foundation` — precedes all feature epochs)
+  Reason: Per tests plan §3 Test Harness Contract §Bootstrap phases item 6 (test-data-bootstrap-wire) and §Self-bootstrapping Fixture Mechanism, fixture factories must be implemented and available before any integration or E2E tests run; moving to Foundation ensures all downstream feature chunks can rely on self-bootstrapping ingest-via-OTLP data seeding.
+
+- Between `A11y audit + perf SLO + violation-JSON gates` and end of Polish epoch: **"Flakiness quarantine + quality gate enforcement — zero-flake retry policy, coverage regression block, performance budget regression block, lint/typecheck gate integration"** (epoch: `Polish & ship`)
+  Reason: Per tests plan §10 Quality Gates "Zero-flakiness budget: Flaky tests are NOT tolerated … if a test flakes once: quarantine immediately"; build failure conditions explicitly require flaky test observation to fail the build; this gate must be materially represented in Polish epoch CI automation.
+
+## Remove
+
+- `Smoke tests + tauri-driver matrix — install-launch-ingest-query smoke per .msi/.dmg/.AppImage/.deb, tauri-driver headful for tray + window state P5`
+  Reason: Smoke tests are subsumed by "End-to-end test pass" chunk in Polish epoch (both exercise the 5-command harness boot/run/status/cleanup and verify TauRPC roundtrip); having both chunks creates ambiguity about which is the critical-path E2E suite and which is supplementary smoke coverage; consolidating under one E2E chunk clarifies that Polish epoch's E2E pass is the quality gate, and smoke is an optional secondary check per distribution bundle (can be mentioned as coverage trigger in test plan rather than as separate route chunk).

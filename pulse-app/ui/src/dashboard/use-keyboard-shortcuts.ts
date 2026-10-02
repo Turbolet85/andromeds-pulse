@@ -1,21 +1,19 @@
 // Global keyboard-shortcut handler for the full dashboard surface per
 // layout-templates.md §IA notes "Keyboard shortcuts":
 //   - Cmd+K / Ctrl+K   → toggle command palette
-//   - Cmd+Shift+P / Ctrl+Shift+P → toggle compact widget ↔ full dashboard
 //   - Escape           → forwarded to onEscape (DashboardShell closes palette
 //                         if open; otherwise no-op)
 //
-// The compact↔full toggle invokes Tauri 2 webview API directly:
-// `getAllWebviewWindows()` → resolve compact-widget + main → show inactive +
-// hide active. No new TauRPC procedure (covered by core:default capability
-// per pulse-app/capabilities/default.json).
+// The compact-widget ↔ dashboard toggle (Cmd+Shift+P) lives in
+// `useDashboardToggleShortcut` (hooks/use-toggle-dashboard) so the in-widget
+// button and the shortcut share ONE handler and the shortcut is mounted in
+// BOTH windows (widget + dashboard).
 //
 // All listeners detached on unmount. Handler runs at window level so the
 // shortcut fires even when focus is in tabpanel content or inside the
 // command palette dialog.
 
 import { useEffect } from "react";
-import { getAllWebviewWindows } from "@tauri-apps/api/webviewWindow";
 
 interface KeyboardShortcutsHookProps {
   onTogglePalette: () => void;
@@ -34,11 +32,6 @@ export function useKeyboardShortcuts({
         onTogglePalette();
         return;
       }
-      if (isMod && event.shiftKey && (event.key === "p" || event.key === "P")) {
-        event.preventDefault();
-        void toggleCompactDashboard();
-        return;
-      }
       if (event.key === "Escape") {
         onEscape();
       }
@@ -48,40 +41,4 @@ export function useKeyboardShortcuts({
       window.removeEventListener("keydown", handler);
     };
   }, [onTogglePalette, onEscape]);
-}
-
-async function toggleCompactDashboard(): Promise<void> {
-  let windows;
-  try {
-    windows = await getAllWebviewWindows();
-  } catch {
-    return;
-  }
-  const compact = windows.find((w) => w.label === "compact-widget");
-  const main = windows.find((w) => w.label === "main");
-  if (!compact || !main) return;
-  let compactVisible = false;
-  let mainVisible = false;
-  try {
-    compactVisible = await compact.isVisible();
-  } catch {
-    compactVisible = false;
-  }
-  try {
-    mainVisible = await main.isVisible();
-  } catch {
-    mainVisible = false;
-  }
-  if (compactVisible) {
-    await main.show();
-    await main.setFocus();
-    await compact.hide();
-  } else if (mainVisible) {
-    await compact.show();
-    await compact.setFocus();
-    await main.hide();
-  } else {
-    await main.show();
-    await main.setFocus();
-  }
 }

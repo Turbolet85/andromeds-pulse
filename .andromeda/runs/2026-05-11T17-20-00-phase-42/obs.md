@@ -1,0 +1,45 @@
+# obs extract — phase-42
+
+## Chunk relevance
+
+- route#45 "wasmtime Component Model + WIT — wasmtime 25+ Cranelift-on-x86_64, 3 plugin categories (custom-dashboard/data-transform/snapshot-template), epoch_interruption" — relevant (plugins are an instrumentable module; chunk establishes host-side spans, basename-only path logging, `plugins.tick` heartbeat semantics, P4 critical-path opener)
+
+## Constraints
+
+- Plugin host MUST emit `plugin.load.request` and `plugin.invoke.request` spans via manual `#[tracing::instrument(skip(input, output))]` on host-side wasmtime wrappers; WASM guests have NO host-side observability access (capability-scoped sandbox; host-only instrumentation per must-trace P4) (per obs-plan §1 Telemetry surfaces Library-only row + §4 Instrumentation per surface "Plugin host (wasmtime)" row).
+- Plugin file paths MUST be logged basename-only via `path.file_name().and_then(|s| s.to_str())` before field emission — emit `plugin_path_basename: "my-plugin.wasm"` instead of full canonicalized path; security plan Vector 3 (per obs-plan §1 Telemetry triggers logging-sensitive Vector 3 + §8 PII Scrubbing data-classification "Plugin file paths" row).
+- Span naming pattern `{module}.{operation}` — chunk-relevant span names: `plugin.load.request`, `plugin.invoke.request`, `plugin.capability.check`, `plugin.invoke.error`, `wasmtime.instantiate`; `span.kind = "internal"` for these host-side ops (per obs-plan §4 Span naming convention + Span kind convention).
+- Plugin host long-running tasks MUST emit `plugins.tick` heartbeat event every 15s via `tokio::time::interval(Duration::from_secs(15))` with fields `loaded_count`, `active_invocations`; absence >45s is a stall signal (per obs-plan §3 Heartbeat ticks + §10 Standard+ invariants).
+- WASM size cap + schema validation MUST be the only telemetry around plugin-returned Arrow IPC payloads — NEVER log raw WASM binary content or plugin-returned payloads (8 MB bound enforced at host boundary; size violation emits `error`-level `tracing::error!` event) (per obs-plan §11 Project-specific anti-pattern row 3 + §1 Telemetry surfaces "Apache Arrow IPC" row).
+- `plugins` module log level discipline: `info` for load/invoke summary; `debug` for per-capability gate checks; module field allowlist limited to `plugin_name`, `plugin_path_basename`, `capability_name`, `error_msg`, `duration_ms` (default-deny posture for unlisted fields) (per obs-plan §6 Per-module log levels "plugins" row + §8 Default-deny posture "plugin" allowlist).
+- Cranelift-only WASM backend is NOT a runtime telemetry concern — it is a compile-time gate verified by build-time test only (per obs-plan §1 Instrumentation scope "Cranelift-only WASM backend" row "not-instrumentable / Build-time feature").
+
+## Patterns to follow
+
+- Manual `#[tracing::instrument(skip(input, output))]` on host-side plugin invocation wrappers — host span wraps `wasmtime::component::Instance::call(...)`; emit input/output via `skip(...)` macro so untrusted Arrow payload bytes never enter the span (per obs-plan §4 Instrumentation per surface "Plugin host (wasmtime)" row).
+- P4 must-trace span chain pattern: TauRPC `plugins.reload` (entry) → `plugin.load.request` (load WASM file) → `wasmtime.instantiate` (module instantiation) → ... `plugin.capability.check` (capability gating) → `plugin.invoke.request` (execute) — parent span `plugin.lifecycle` for the workflow (per obs-plan §4 Scenario P4 must-trace spans).
+- Required span attributes per P4: `plugin.load.request` carries `plugin_path_basename`, `wasm_size_bytes`, `duration_ms`; `wasmtime.instantiate` carries `module_name`, `export_count`; required log fields: `trace_id`, `plugin_name`, `plugin_path_basename`, `capability_name`, `capability_allowed`, `error_msg`, `duration_ms`, `wasm_size_bytes` (per obs-plan §4 Scenario P4 attributes + log fields).
+- Path basename extraction at SOURCE via `#[instrument(skip(...))]` + explicit `fields(...)` allowlist — first line of defense; defense-in-depth via custom `tracing-subscriber` Layer at the formatter stage (per obs-plan §8 Integration points "At source" + "At subscriber Layer").
+- Boundary-call wrapper for plugin invocations MUST log `plugin_name`, `capability_name`, `duration_ms` at `info` level with span name `plugin.invoke.request` (per obs-plan §6 Boundary-call wrappers Plugin invocation row).
+- Heartbeat tick emission convention: `tracing::info!(target: "plugins.tick", loaded_count=N, active_invocations=M, "heartbeat")` — rides the same JSON file sink (per obs-plan §3 Heartbeat ticks + §1 Heartbeat ticks).
+
+## Anti-patterns to avoid
+
+- NEVER log full canonicalized plugin file paths — basename only (Vector 3); plugin path `/home/user/.andromeda-pulse/plugins/my-plugin.wasm` MUST be reduced to `my-plugin.wasm` before tracing emission (per obs-plan §11 Spans/Traces ban + §11 Project-specific row 1 indirect).
+- NEVER log plugin-returned Arrow IPC payloads (untrusted) — size-cap + schema validation only; NEVER serialize plugin-returned Arrow IPC without 8 MB cap (per obs-plan §11 PII Scrubbing ban + §11 Project-specific anti-pattern row 3).
+- NEVER expose host functions to plugin guests outside the WIT contract — guests have NO host-side observability access; host-only instrumentation (per obs-plan §1 Telemetry surfaces Library-only row + §4 Instrumentation "Plugin host" row).
+- NEVER over-instrument hot paths inside plugin invocation inner loops — span overhead matters; profile before adding spans to per-call hot paths (per obs-plan §11 Telemetry Strategy ban row 1).
+
+## Contract bindings
+
+- **obs ↔ security**: §Logging Vector 3 (basename-only path logging) flows directly into chunk #45's `plugin.load.request` span attributes — security defines the redaction rule; obs implements the basename extractor at the `#[instrument]` site. PII data-classification "Plugin file paths" + "Plugin binaries (WASM)" both High / scrub-required (per obs-plan §8 PII Scrubbing data-classification rows).
+- **obs ↔ tests**: P4 plugin lifecycle is a Standard-tier must-trace path; tests harness asserts `plugins.tick` heartbeat presence (max gap ≤ 45s) and zero `app.panic.fatal` events across the plugin load/invoke flow; `xtask/ci/heartbeat-gap-check.sh` parses `plugins.tick` timestamps (per obs-plan §10 CI gates "heartbeat tick stalls" + §4 Scenario P4).
+- **obs ↔ tests** (status endpoint shape): `health` IPC command exposes `plugins.{loaded_count, active_invocations}` synchronously for active liveness probing — same fields as `plugins.tick` event (per obs-plan §3 Heartbeat ticks + §1 Heartbeat ticks).
+- **obs ↔ arch** (epoch_interruption + tick alignment): wasmtime `epoch_interruption(true)` provides 2-3× faster plugin-call timeout than fuel; tick semantics for plugin call timeouts should bind to obs `plugins.tick` cadence for stall-detection observability — epoch advance interval is NOT the same as heartbeat tick interval but should be observable from the same surface (per obs-plan §1 Instrumentation scope plugins row + arch §Cross-cutting Patterns).
+
+## Acceptance criteria contributions
+
+- (obs) Plugin host emits `plugin.load.request` span with required attributes `plugin_path_basename` (basename, not full path), `wasm_size_bytes`, `duration_ms` — verified by `jq '.[] | select(.target == "plugin.load.request") | .fields | has("plugin_path_basename") and (.plugin_path_basename | contains("/") | not)' agent-latest.jsonl` returns `true` (per obs-plan §4 Scenario P4 attributes + §11 Spans NEVER full paths).
+- (obs) Plugin host emits `plugins.tick` heartbeat event every ≤15s with `loaded_count` + `active_invocations` fields — verified by post-test gap analysis: consecutive `plugins.tick` deltas ≤ 45000ms across the test run (per obs-plan §10 CI gates heartbeat-stall + §3 Heartbeat ticks).
+- (obs) Plugin path basename-only redaction: `grep -E '/home/|/Users/|C:\\\\' agent-latest.jsonl | grep plugin` returns empty for any plugin-related log line (Vector 3 negative-canary test: load fixture with symlink chain → resolved path NOT logged) (per obs-plan §1 Telemetry triggers logging-sensitive Vector 3 + §8 PII Scrubbing).
+- (obs) `plugins` module field allowlist enforced: no field outside `{plugin_name, plugin_path_basename, capability_name, error_msg, duration_ms, wasm_size_bytes, module_name, export_count}` appears in `plugin.*` `tracing` events emitted by chunk #45 host code (per obs-plan §8 Default-deny posture "plugin" allowlist).

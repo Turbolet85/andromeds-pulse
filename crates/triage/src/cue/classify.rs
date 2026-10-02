@@ -12,15 +12,11 @@ use crate::cue::thresholds::Thresholds;
 ///   Quiet counter increment, minimal halo. **Tier-2 cues additionally emit
 ///   to `cadence-triggers` channel for chunk #72 Cadence Coordinator.**
 /// - `Curious`    — everything else worth recording. No interruption.
-pub fn classify_priority(
-    magnitude: f64,
-    confidence: f64,
-    persistence_seconds: u64,
-) -> PriorityTier {
+pub fn classify_priority(magnitude: f64, confidence: f64, persistence: u64) -> PriorityTier {
     if !magnitude.is_finite() || !confidence.is_finite() {
         return PriorityTier::Curious;
     }
-    if magnitude >= 5.0 && confidence >= 0.9 && persistence_seconds >= 30 {
+    if magnitude >= 5.0 && confidence >= 0.9 && persistence >= 30 {
         PriorityTier::Autonomous
     } else if magnitude >= 3.0 && confidence >= 0.7 {
         PriorityTier::Suggested
@@ -102,11 +98,11 @@ mod tests {
     fn classify_priority_decision_boundary(
         #[case] magnitude: f64,
         #[case] confidence: f64,
-        #[case] persistence_seconds: u64,
+        #[case] persistence: u64,
         #[case] expected: PriorityTier,
     ) {
         assert_eq!(
-            classify_priority(magnitude, confidence, persistence_seconds),
+            classify_priority(magnitude, confidence, persistence),
             expected
         );
     }

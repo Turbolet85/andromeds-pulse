@@ -1,0 +1,94 @@
+[
+{
+"sql": "SELECT caller_name, callee_name, file, line FROM calls WHERE callee_name IN ('run_ci_gates','invoke_perf_slo_check','collect_log_files','read_ended','end_file') AND callee_kind = 'fn' ORDER BY callee_name, file, line",
+"rows": 14,
+"result": [
+{
+"caller_name": "run_ci_gates",
+"callee_name": "collect_log_files",
+"file": "xtask/src/main.rs",
+"line": 454
+},
+{
+"caller_name": "run_check_ingest_progress",
+"callee_name": "collect_log_files",
+"file": "xtask/src/main.rs",
+"line": 549
+},
+{
+"caller_name": "run_perf_load_profiles",
+"callee_name": "collect_log_files",
+"file": "xtask/src/main.rs",
+"line": 802
+},
+{
+"caller_name": "run",
+"callee_name": "end_file",
+"file": "xtask/src/harness_status.rs",
+"line": 44
+},
+{
+"caller_name": "read_ended_takes_one_bounded_line_beside_the_pidfile",
+"callee_name": "end_file",
+"file": "xtask/src/harness_status.rs",
+"line": 360
+},
+{
+"caller_name": "run_ci_gates",
+"callee_name": "invoke_perf_slo_check",
+"file": "xtask/src/main.rs",
+"line": 530
+},
+{
+"caller_name": "run_perf_load_profiles",
+"callee_name": "invoke_perf_slo_check",
+"file": "xtask/src/main.rs",
+"line": 838
+},
+{
+"caller_name": "run",
+"callee_name": "read_ended",
+"file": "xtask/src/harness_status.rs",
+"line": 44
+},
+{
+"caller_name": "read_ended_takes_one_bounded_line_beside_the_pidfile",
+"callee_name": "read_ended",
+"file": "xtask/src/harness_status.rs",
+"line": 362
+},
+{
+"caller_name": "read_ended_takes_one_bounded_line_beside_the_pidfile",
+"callee_name": "read_ended",
+"file": "xtask/src/harness_status.rs",
+"line": 364
+},
+{
+"caller_name": "read_ended_takes_one_bounded_line_beside_the_pidfile",
+"callee_name": "read_ended",
+"file": "xtask/src/harness_status.rs",
+"line": 366
+},
+{
+"caller_name": "read_ended_takes_one_bounded_line_beside_the_pidfile",
+"callee_name": "read_ended",
+"file": "xtask/src/harness_status.rs",
+"line": 368
+},
+{
+"caller_name": "read_ended_takes_one_bounded_line_beside_the_pidfile",
+"callee_name": "read_ended",
+"file": "xtask/src/harness_status.rs",
+"line": 370
+},
+{
+"caller_name": "main",
+"callee_name": "run_ci_gates",
+"file": "xtask/src/main.rs",
+"line": 274
+}
+],
+"db_state": "fresh",
+"plane": "rust"
+}
+]

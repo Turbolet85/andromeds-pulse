@@ -1,0 +1,768 @@
+[
+{
+"sql": "SELECT symbol, crate, file, def_line FROM symbol WHERE symbol LIKE '%HaloCanvas%' OR symbol LIKE '%useReducedMotion%' ORDER BY file",
+"rows": 90,
+"result": [
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/canvas/`CanvasContainer.test.tsx`/useReducedMotion0:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/canvas/CanvasContainer.test.tsx",
+"def_line": 4
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/dashboard/`Dashboard.test.tsx`/HaloCanvas0:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/dashboard/Dashboard.test.tsx",
+"def_line": 17
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/dashboard/`InvestigationModalForm.test.tsx`/useReducedMotion0:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/dashboard/InvestigationModalForm.test.tsx",
+"def_line": 9
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/dashboard/`router.test.tsx`/HaloCanvas0:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/dashboard/router.test.tsx",
+"def_line": 24
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/dashboard/routes/metrics/`MetricsChart.test.tsx`/useReducedMotion0:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/dashboard/routes/metrics/MetricsChart.test.tsx",
+"def_line": 14
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.test.tsx`/reason0:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/halo/HaloCanvas.test.tsx",
+"def_line": 132
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.test.tsx`/",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/halo/HaloCanvas.test.tsx",
+"def_line": 0
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.test.tsx`/name0:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/halo/HaloCanvas.test.tsx",
+"def_line": 91
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.test.tsx`/getBindGroupLayout1:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/halo/HaloCanvas.test.tsx",
+"def_line": 81
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.test.tsx`/pipeline1:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/halo/HaloCanvas.test.tsx",
+"def_line": 80
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.test.tsx`/gpu1:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/halo/HaloCanvas.test.tsx",
+"def_line": 71
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.test.tsx`/stubGpuUnavailable().",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/halo/HaloCanvas.test.tsx",
+"def_line": 70
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.test.tsx`/createView0:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/halo/HaloCanvas.test.tsx",
+"def_line": 65
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.test.tsx`/getCurrentTexture0:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/halo/HaloCanvas.test.tsx",
+"def_line": 64
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.test.tsx`/configure0:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/halo/HaloCanvas.test.tsx",
+"def_line": 63
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.test.tsx`/userAgent0:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/halo/HaloCanvas.test.tsx",
+"def_line": 59
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.test.tsx`/requestAdapter0:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/halo/HaloCanvas.test.tsx",
+"def_line": 57
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.test.tsx`/gpu0:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/halo/HaloCanvas.test.tsx",
+"def_line": 56
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.test.tsx`/backend0:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/halo/HaloCanvas.test.tsx",
+"def_line": 53
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.test.tsx`/info0:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/halo/HaloCanvas.test.tsx",
+"def_line": 53
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.test.tsx`/requestDevice0:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/halo/HaloCanvas.test.tsx",
+"def_line": 52
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.test.tsx`/finish0:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/halo/HaloCanvas.test.tsx",
+"def_line": 48
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.test.tsx`/end0:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/halo/HaloCanvas.test.tsx",
+"def_line": 46
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.test.tsx`/draw0:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/halo/HaloCanvas.test.tsx",
+"def_line": 45
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.test.tsx`/setBindGroup0:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/halo/HaloCanvas.test.tsx",
+"def_line": 44
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.test.tsx`/setPipeline0:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/halo/HaloCanvas.test.tsx",
+"def_line": 43
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.test.tsx`/createCommandEncoder0:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/halo/HaloCanvas.test.tsx",
+"def_line": 41
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.test.tsx`/createBindGroup0:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/halo/HaloCanvas.test.tsx",
+"def_line": 40
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.test.tsx`/createBuffer0:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/halo/HaloCanvas.test.tsx",
+"def_line": 39
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.test.tsx`/submit0:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/halo/HaloCanvas.test.tsx",
+"def_line": 37
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.test.tsx`/writeBuffer0:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/halo/HaloCanvas.test.tsx",
+"def_line": 36
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.test.tsx`/onSubmittedWorkDone0:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/halo/HaloCanvas.test.tsx",
+"def_line": 35
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.test.tsx`/queue0:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/halo/HaloCanvas.test.tsx",
+"def_line": 34
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.test.tsx`/stubGpuAvailable().",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/halo/HaloCanvas.test.tsx",
+"def_line": 32
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.test.tsx`/frameMetricsModule.",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/halo/HaloCanvas.test.tsx",
+"def_line": 29
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.test.tsx`/haloPipelineModule.",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/halo/HaloCanvas.test.tsx",
+"def_line": 28
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.test.tsx`/normalizeWgpuBackend0:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/halo/HaloCanvas.test.tsx",
+"def_line": 19
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.test.tsx`/detectWebviewBackend0:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/halo/HaloCanvas.test.tsx",
+"def_line": 18
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.test.tsx`/recordFrameMs0:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/halo/HaloCanvas.test.tsx",
+"def_line": 17
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.test.tsx`/getBindGroupLayout0:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/halo/HaloCanvas.test.tsx",
+"def_line": 11
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.test.tsx`/pipeline0:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/halo/HaloCanvas.test.tsx",
+"def_line": 10
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.test.tsx`/kind0:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/halo/HaloCanvas.test.tsx",
+"def_line": 9
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.test.tsx`/createHaloPipeline0:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/halo/HaloCanvas.test.tsx",
+"def_line": 8
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.test.tsx`/useReducedMotion0:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/halo/HaloCanvas.test.tsx",
+"def_line": 4
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.test.tsx`/beginRenderPass0:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/halo/HaloCanvas.test.tsx",
+"def_line": 42
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.tsx`/height1:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/halo/HaloCanvas.tsx",
+"def_line": 254
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.tsx`/buffer0:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/halo/HaloCanvas.tsx",
+"def_line": 136
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.tsx`/width1:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/halo/HaloCanvas.tsx",
+"def_line": 253
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.tsx`/HaloCanvasProps#connectionState.",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/halo/HaloCanvas.tsx",
+"def_line": 46
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.tsx`/display0:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/halo/HaloCanvas.tsx",
+"def_line": 255
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.tsx`/",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/halo/HaloCanvas.tsx",
+"def_line": 0
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.tsx`/height0:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/halo/HaloCanvas.tsx",
+"def_line": 242
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.tsx`/width0:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/halo/HaloCanvas.tsx",
+"def_line": 241
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.tsx`/position0:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/halo/HaloCanvas.tsx",
+"def_line": 240
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.tsx`/padding0:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/halo/HaloCanvas.tsx",
+"def_line": 239
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.tsx`/borderRadius0:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/halo/HaloCanvas.tsx",
+"def_line": 238
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.tsx`/border0:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/halo/HaloCanvas.tsx",
+"def_line": 237
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.tsx`/background0:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/halo/HaloCanvas.tsx",
+"def_line": 236
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.tsx`/a0:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/halo/HaloCanvas.tsx",
+"def_line": 169
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.tsx`/b0:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/halo/HaloCanvas.tsx",
+"def_line": 169
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.tsx`/g0:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/halo/HaloCanvas.tsx",
+"def_line": 169
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.tsx`/r0:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/halo/HaloCanvas.tsx",
+"def_line": 169
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.tsx`/clearValue0:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/halo/HaloCanvas.tsx",
+"def_line": 169
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.tsx`/storeOp0:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/halo/HaloCanvas.tsx",
+"def_line": 168
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.tsx`/loadOp0:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/halo/HaloCanvas.tsx",
+"def_line": 167
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.tsx`/view0:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/halo/HaloCanvas.tsx",
+"def_line": 166
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.tsx`/colorAttachments0:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/halo/HaloCanvas.tsx",
+"def_line": 164
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.tsx`/label0:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/halo/HaloCanvas.tsx",
+"def_line": 162
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.tsx`/HaloCanvasProps#",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/halo/HaloCanvas.tsx",
+"def_line": 44
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.tsx`/boxSizing0:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/halo/HaloCanvas.tsx",
+"def_line": 243
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.tsx`/resource0:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/halo/HaloCanvas.tsx",
+"def_line": 136
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.tsx`/binding0:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/halo/HaloCanvas.tsx",
+"def_line": 136
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.tsx`/entries0:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/halo/HaloCanvas.tsx",
+"def_line": 136
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.tsx`/layout0:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/halo/HaloCanvas.tsx",
+"def_line": 135
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.tsx`/usage0:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/halo/HaloCanvas.tsx",
+"def_line": 131
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.tsx`/size0:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/halo/HaloCanvas.tsx",
+"def_line": 130
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.tsx`/alphaMode0:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/halo/HaloCanvas.tsx",
+"def_line": 116
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.tsx`/format0:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/halo/HaloCanvas.tsx",
+"def_line": 116
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.tsx`/device0:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/halo/HaloCanvas.tsx",
+"def_line": 116
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.tsx`/HaloCanvas().",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/halo/HaloCanvas.tsx",
+"def_line": 69
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.tsx`/readDesignToken().(fallback)",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/halo/HaloCanvas.tsx",
+"def_line": 63
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.tsx`/readDesignToken().(name)",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/halo/HaloCanvas.tsx",
+"def_line": 63
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.tsx`/readDesignToken().",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/halo/HaloCanvas.tsx",
+"def_line": 63
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.tsx`/UNIFORM_BUFFER_USAGE.",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/halo/HaloCanvas.tsx",
+"def_line": 61
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.tsx`/UNIFORM_BUFFER_SIZE.",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/halo/HaloCanvas.tsx",
+"def_line": 56
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.tsx`/PREFERRED_FORMAT.",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/halo/HaloCanvas.tsx",
+"def_line": 51
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.tsx`/HaloCanvasProps#activityState.",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/halo/HaloCanvas.tsx",
+"def_line": 48
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.tsx`/HaloCanvasProps#cumulativeSeverity.",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/halo/HaloCanvas.tsx",
+"def_line": 47
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.tsx`/HaloCanvasProps#ariaLabel.",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/halo/HaloCanvas.tsx",
+"def_line": 45
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.tsx`/position1:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/halo/HaloCanvas.tsx",
+"def_line": 252
+}
+],
+"db_state": "fresh",
+"plane": "ts"
+},
+{
+"sql": "SELECT callee, file, line FROM refs WHERE callee LIKE '%HaloCanvas.tsx%/HaloCanvas%' ORDER BY file, line",
+"rows": 42,
+"result": [
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.tsx`/HaloCanvas().",
+"file": "pulse-app/ui/src/halo/HaloCanvas.test.tsx",
+"line": 30
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.tsx`/HaloCanvasProps#ariaLabel.",
+"file": "pulse-app/ui/src/halo/HaloCanvas.test.tsx",
+"line": 90
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.tsx`/HaloCanvasProps#connectionState.",
+"file": "pulse-app/ui/src/halo/HaloCanvas.test.tsx",
+"line": 90
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.tsx`/HaloCanvasProps#cumulativeSeverity.",
+"file": "pulse-app/ui/src/halo/HaloCanvas.test.tsx",
+"line": 90
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.tsx`/HaloCanvasProps#activityState.",
+"file": "pulse-app/ui/src/halo/HaloCanvas.test.tsx",
+"line": 90
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.tsx`/HaloCanvasProps#ariaLabel.",
+"file": "pulse-app/ui/src/halo/HaloCanvas.test.tsx",
+"line": 97
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.tsx`/HaloCanvasProps#connectionState.",
+"file": "pulse-app/ui/src/halo/HaloCanvas.test.tsx",
+"line": 97
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.tsx`/HaloCanvasProps#cumulativeSeverity.",
+"file": "pulse-app/ui/src/halo/HaloCanvas.test.tsx",
+"line": 97
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.tsx`/HaloCanvasProps#activityState.",
+"file": "pulse-app/ui/src/halo/HaloCanvas.test.tsx",
+"line": 97
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.tsx`/HaloCanvasProps#ariaLabel.",
+"file": "pulse-app/ui/src/halo/HaloCanvas.test.tsx",
+"line": 107
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.tsx`/HaloCanvasProps#connectionState.",
+"file": "pulse-app/ui/src/halo/HaloCanvas.test.tsx",
+"line": 107
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.tsx`/HaloCanvasProps#cumulativeSeverity.",
+"file": "pulse-app/ui/src/halo/HaloCanvas.test.tsx",
+"line": 107
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.tsx`/HaloCanvasProps#activityState.",
+"file": "pulse-app/ui/src/halo/HaloCanvas.test.tsx",
+"line": 107
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.tsx`/HaloCanvasProps#activityState.",
+"file": "pulse-app/ui/src/halo/HaloCanvas.test.tsx",
+"line": 119
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.tsx`/HaloCanvasProps#ariaLabel.",
+"file": "pulse-app/ui/src/halo/HaloCanvas.test.tsx",
+"line": 119
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.tsx`/HaloCanvasProps#connectionState.",
+"file": "pulse-app/ui/src/halo/HaloCanvas.test.tsx",
+"line": 119
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.tsx`/HaloCanvasProps#cumulativeSeverity.",
+"file": "pulse-app/ui/src/halo/HaloCanvas.test.tsx",
+"line": 119
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.tsx`/HaloCanvasProps#activityState.",
+"file": "pulse-app/ui/src/halo/HaloCanvas.test.tsx",
+"line": 135
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.tsx`/HaloCanvasProps#cumulativeSeverity.",
+"file": "pulse-app/ui/src/halo/HaloCanvas.test.tsx",
+"line": 135
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.tsx`/HaloCanvasProps#connectionState.",
+"file": "pulse-app/ui/src/halo/HaloCanvas.test.tsx",
+"line": 135
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.tsx`/HaloCanvasProps#ariaLabel.",
+"file": "pulse-app/ui/src/halo/HaloCanvas.test.tsx",
+"line": 135
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.tsx`/HaloCanvasProps#activityState.",
+"file": "pulse-app/ui/src/halo/HaloCanvas.test.tsx",
+"line": 147
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.tsx`/HaloCanvasProps#ariaLabel.",
+"file": "pulse-app/ui/src/halo/HaloCanvas.test.tsx",
+"line": 147
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.tsx`/HaloCanvasProps#connectionState.",
+"file": "pulse-app/ui/src/halo/HaloCanvas.test.tsx",
+"line": 147
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.tsx`/HaloCanvasProps#cumulativeSeverity.",
+"file": "pulse-app/ui/src/halo/HaloCanvas.test.tsx",
+"line": 147
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.tsx`/HaloCanvasProps#activityState.",
+"file": "pulse-app/ui/src/halo/HaloCanvas.test.tsx",
+"line": 158
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.tsx`/HaloCanvasProps#connectionState.",
+"file": "pulse-app/ui/src/halo/HaloCanvas.test.tsx",
+"line": 158
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.tsx`/HaloCanvasProps#cumulativeSeverity.",
+"file": "pulse-app/ui/src/halo/HaloCanvas.test.tsx",
+"line": 158
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.tsx`/HaloCanvasProps#ariaLabel.",
+"file": "pulse-app/ui/src/halo/HaloCanvas.test.tsx",
+"line": 158
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.tsx`/HaloCanvasProps#ariaLabel.",
+"file": "pulse-app/ui/src/halo/HaloCanvas.test.tsx",
+"line": 178
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.tsx`/HaloCanvasProps#connectionState.",
+"file": "pulse-app/ui/src/halo/HaloCanvas.test.tsx",
+"line": 179
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.tsx`/HaloCanvasProps#cumulativeSeverity.",
+"file": "pulse-app/ui/src/halo/HaloCanvas.test.tsx",
+"line": 180
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.tsx`/HaloCanvasProps#activityState.",
+"file": "pulse-app/ui/src/halo/HaloCanvas.test.tsx",
+"line": 181
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.tsx`/HaloCanvasProps#ariaLabel.",
+"file": "pulse-app/ui/src/halo/HaloCanvas.test.tsx",
+"line": 190
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.tsx`/HaloCanvasProps#connectionState.",
+"file": "pulse-app/ui/src/halo/HaloCanvas.test.tsx",
+"line": 191
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.tsx`/HaloCanvasProps#cumulativeSeverity.",
+"file": "pulse-app/ui/src/halo/HaloCanvas.test.tsx",
+"line": 192
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.tsx`/HaloCanvasProps#activityState.",
+"file": "pulse-app/ui/src/halo/HaloCanvas.test.tsx",
+"line": 193
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.tsx`/HaloCanvasProps#ariaLabel.",
+"file": "pulse-app/ui/src/halo/HaloCanvas.tsx",
+"line": 70
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.tsx`/HaloCanvasProps#connectionState.",
+"file": "pulse-app/ui/src/halo/HaloCanvas.tsx",
+"line": 71
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.tsx`/HaloCanvasProps#cumulativeSeverity.",
+"file": "pulse-app/ui/src/halo/HaloCanvas.tsx",
+"line": 72
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.tsx`/HaloCanvasProps#activityState.",
+"file": "pulse-app/ui/src/halo/HaloCanvas.tsx",
+"line": 73
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.tsx`/HaloCanvasProps#",
+"file": "pulse-app/ui/src/halo/HaloCanvas.tsx",
+"line": 74
+}
+],
+"db_state": "fresh",
+"plane": "ts"
+}
+]

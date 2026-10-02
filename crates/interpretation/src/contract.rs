@@ -92,7 +92,7 @@ pub struct ModelLoadEvent {
 }
 
 /// Sanitization-friendly error enum at the LlmInferenceRunner trait
-/// boundary. Maps к `AppError` via free-fn at `pulse-app/src/model_router.rs`
+/// boundary. Maps to `AppError` via free-fn at `pulse-app/src/model_router.rs`
 /// per CLAUDE.md 2026-05-18 cross-crate-error free-fn pattern.
 #[derive(Debug, Error, Serialize)]
 #[serde(tag = "kind", rename_all = "snake_case")]
@@ -127,7 +127,7 @@ pub enum InferenceError {
     InferenceFailed { reason: String },
 
     /// Raw inference output exceeded the defense-in-depth byte cap before
-    /// `serde_json::from_slice` could allocate а parse buffer. Per security
+    /// `serde_json::from_slice` could allocate a parse buffer. Per security
     /// plan §Anti-Pattern Code Patterns serde_json+size-cap rule.
     #[error("L4 output too large: {actual_bytes} > {max_bytes}")]
     OutputTooLarge {
@@ -140,7 +140,7 @@ pub enum InferenceError {
     #[error("L4 JSON parse failed: {reason}")]
     JsonParseFailed { reason: String },
 
-    /// Output deserialized cleanly but violated а bounded-length or bounded-
+    /// Output deserialized cleanly but violated a bounded-length or bounded-
     /// enum invariant per the schema's defense-in-depth post-parse check.
     #[error("L4 schema violation: {reason}")]
     SchemaViolation { reason: String },
@@ -150,7 +150,7 @@ pub enum InferenceError {
 /// `Pin<Box<dyn Future + Send + 'a>>` returns keep the trait object-safe
 /// (`Arc<dyn LlmInferenceRunner>`) without the `async-trait` crate dep.
 /// Per CLAUDE.md 2026-05-23 session-learning (extends 2026-05-16 / 2026-05-18
-/// / 2026-05-19 cross-crate state delivery family from SYNC к ASYNC traits).
+/// / 2026-05-19 cross-crate state delivery family from SYNC to ASYNC traits).
 pub type InferenceFuture<'a, T> =
     Pin<Box<dyn Future<Output = Result<T, InferenceError>> + Send + 'a>>;
 
@@ -167,9 +167,9 @@ pub trait LlmInferenceRunner: Send + Sync {
     /// + non-blocking; safe to invoke from TauRPC `model.current_profile()`.
     fn current_status(&self) -> ModelStatus;
 
-    /// Returns the semantic model identity if а model is loaded. `None`
+    /// Returns the semantic model identity if a model is loaded. `None`
     /// indicates either Loading (transient) OR Error (no model loaded;
-    /// app в graceful-degraded mode per `ModelNotConfigured` path).
+    /// app in graceful-degraded mode per `ModelNotConfigured` path).
     fn identity(&self) -> Option<ModelIdentity>;
 
     /// Returns the configured tier for this runner. Set at boot time per
@@ -217,7 +217,7 @@ mod tests {
             error_message: None,
         };
         let json = serde_json::to_string(&event).expect("serializes");
-        // Bounded shape assertion: no path-like fields в the JSON output.
+        // Bounded shape assertion: no path-like fields in the JSON output.
         assert!(!json.contains("model_path"));
         assert!(!json.contains("checkpoint_url"));
         assert!(!json.contains("file_path"));

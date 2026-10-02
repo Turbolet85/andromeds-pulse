@@ -54,7 +54,7 @@ pub fn should_auto_resolve(
 /// Stable snake_case label for an `IncidentStatus` — used in SQL TEXT
 /// column writes + tracing field VALUES. Matches `#[serde(rename_all =
 /// "snake_case")]` serialization on the enum so log emissions are
-/// consistent с broadcast payloads + corpus column reads + TypeScript
+/// consistent with broadcast payloads + corpus column reads + TypeScript
 /// bindings.
 pub fn status_label(status: IncidentStatus) -> &'static str {
     match status {

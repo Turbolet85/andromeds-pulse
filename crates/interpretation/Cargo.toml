@@ -12,7 +12,7 @@ authors.workspace = true
 # bus factor mitigation entry: this crate exposes the `LlmInferenceRunner` trait +
 # `HardwareProfileDetector` + supporting contract types. NO direct `mistralrs`
 # dep at this crate level — that's the binary boundary (`pulse-app/`) per arch
-# §Module dependency direction. Trait abstraction lets future swap к candle
+# §Module dependency direction. Trait abstraction lets future swap to candle
 # (or other runtime) without workspace-wide rewrite.
 
 [dependencies]
@@ -49,6 +49,6 @@ tokio = { workspace = true, features = ["test-util"] }
 [features]
 default = []
 # Exposes test-only constructors (`HardwareProfileDetector::with_profile`)
-# к integration tests in sibling crates. Enabled by `pulse-app/tests/`
+# to integration tests in sibling crates. Enabled by `pulse-app/tests/`
 # when needed; not part of the default build surface.
 test-utils = []

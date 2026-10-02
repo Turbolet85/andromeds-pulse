@@ -1,0 +1,32 @@
+{
+ "arch": [
+  "- id: D-arch-resources\n  doc: arch\n  invariant: every new IPC method / endpoint / event / socket / port / env var / workspace crate the chunk lands is registered in arch \u00a7Occupied Resources / \u00a7Standard Contracts / \u00a7Inherited Defaults workspace crates.\n  check: agent-read \u2014 for each new symbol / API / crate in the report's Changes, confirm it appears in the arch registry sections; an unregistered resource is drift.\n  severity: warning",
+  "- id: D-arch-decisions\n  doc: arch\n  invariant: the chunk uses only the stack / runtime / patterns arch \u00a7Stack + \u00a7Established Decisions allow.\n  check: agent-read \u2014 compare the report's Dependencies + symbols against \u00a7Stack / \u00a7Established Decisions; a new library, runtime, or a contradicted locked decision is drift.\n  severity: warning"
+ ],
+ "security-plan": [
+  "- id: D-security-input\n  doc: security-plan\n  invariant: every new external-input surface (IPC / HTTP / deserialized struct) the chunk adds is validated per \u00a7Input Validation.\n  check: agent-read \u2014 for each new external-input symbol in the report, confirm the validation \u00a7Input Validation mandates (e.g. a garde derive) is present; an unvalidated boundary is drift.\n  severity: escalate",
+  "- id: D-security-auth\n  doc: security-plan\n  invariant: the auth / crypto / secret handling the chunk uses matches \u00a7Authentication + \u00a7Secret Management (no off-spec auth library or secret source).\n  check: agent-read \u2014 if the report touches identity / session / token / keys, confirm the library + flow match \u00a7Authentication / \u00a7Secret Management; a mismatch is drift.\n  severity: warning",
+  "- id: D-security-deps\n  doc: security-plan\n  invariant: every new dependency the chunk adds is allowed by \u00a7Dependency Security (not on the ban list).\n  check: agent-read \u2014 check the report's new Dependencies against the \u00a7Dependency Security bans; a banned / unvetted dependency is drift.\n  severity: escalate",
+  "- id: D-security-logging\n  doc: security-plan\n  invariant: the PII / scrub / redaction posture stated in \u00a7Security Anti-Patterns \u2192 Logging matches what the chunk's report says the write + log boundaries now do \u2014 including the coverage set (which columns scrub, which are deliberately excluded) and any stated FAILURE MODE of that treatment.\n  check: agent-read \u2014 if the report's Changes touch a scrubbed column, a redaction counter, a store/log boundary, or a stated failure mode of one, confirm \u00a7Security Anti-Patterns \u2192 Logging still describes it; a stale coverage or behaviour claim is drift. Grep the restating sites too (\u00a7Threat Model Summary \u2192 Data classification sensitivity note; \u00a7Data Protection \u2192 At rest), which have carried duplicates of this posture before.\n  severity: warning"
+ ],
+ "design-system": [
+  "- id: D-design-tokens\n  doc: design-system\n  invariant: new UI the chunk renders uses design tokens, not hardcoded values.\n  check: agent-read \u2014 read the Coverage `tokens` flag of each new UI element in the report; `hardcoded\u2717` is drift against \u00a7Color Palette / \u00a7Spacing / \u00a7Typography.\n  severity: warning"
+ ],
+ "layout-templates": [
+  "- id: D-layout-surface\n  doc: layout-templates\n  invariant: a new user-facing surface / region the chunk adds is described in \u00a7Primary Surfaces / the wireframes.\n  check: agent-read \u2014 if the report adds a UI surface or region, confirm it maps to a \u00a7Wireframe entry; an undocumented surface is drift.\n  severity: warning"
+ ],
+ "test-plan": [
+  "- id: D-tests-coverage\n  doc: test-plan\n  invariant: new code paths the chunk adds carry tests at the tier the test-plan requires (\u00a72 Test Strategy).\n  check: agent-read \u2014 compare the report's new symbols / modules against its Outcome (tests run); a new path with no test at the mandated tier is drift.\n  severity: warning",
+  "- id: D-tests-framework\n  doc: test-plan\n  invariant: the test framework / runner the chunk uses matches the test-plan (\u00a72 + \u00a74 unit strategy).\n  check: agent-read \u2014 compare the report's test commands / runner against \u00a72 / \u00a74; an off-spec framework or runner is drift.\n  severity: warning",
+  "- id: D-tests-obs-harness\n  doc: test-plan\n  invariant: the 5-command harness / status shape / log format stays consistent between test-plan \u00a73 and obs-plan \u00a73.\n  check: agent-read \u2014 if the report changes the harness, status endpoint, or log format, confirm \u00a73 \u2194 obs-plan \u00a73 still agree; a one-sided change is drift.\n  severity: warning"
+ ],
+ "obs-plan": [
+  "- id: D-obs-instrumentation\n  doc: obs-plan\n  invariant: new hot-path operations the chunk adds carry the spans / metrics / logs \u00a74\u2013\u00a76 require.\n  check: agent-read \u2014 for each new operation symbol in the report, confirm instrumentation per \u00a74 / \u00a75 / \u00a76; an uninstrumented hot path is drift.\n  severity: warning",
+  "- id: D-obs-stack\n  doc: obs-plan\n  invariant: the logging / telemetry library the chunk uses matches the obs harness \u00a73.\n  check: agent-read \u2014 compare the report's telemetry Dependencies / symbols against \u00a73; an off-spec logger or OTel setup is drift.\n  severity: warning",
+  "- id: D-obs-pii\n  doc: obs-plan\n  invariant: the chunk does not log raw user input / PII (\u00a78 PII Scrubbing).\n  check: agent-read \u2014 if the report adds logging that touches user data, confirm redaction per \u00a78; raw PII in logs is drift.\n  severity: escalate"
+ ],
+ "a11y-plan": [
+  "- id: D-a11y-surface\n  doc: a11y-plan\n  invariant: a new interactive UI element the chunk adds carries the WCAG / focus / keyboard coverage \u00a75\u2013\u00a77 require.\n  check: agent-read \u2014 if the report adds an interactive UI element, confirm a11y coverage per \u00a75 / \u00a76 / \u00a77; an uncovered element is drift.\n  severity: warning",
+  "- id: D-a11y-obs-schema\n  doc: a11y-plan\n  invariant: the a11y violation JSON schema stays consistent with obs \u00a76 (the structured-log schema a11y emits to).\n  check: agent-read \u2014 if the report changes the a11y violation schema or the obs log schema, confirm the two still match; a divergence is drift.\n  severity: warning"
+ ]
+}

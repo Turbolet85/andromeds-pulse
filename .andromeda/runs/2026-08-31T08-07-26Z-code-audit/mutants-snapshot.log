@@ -1,0 +1,49 @@
+Found 98 mutants to test
+ok       Unmutated baseline in 11s build + 1s test
+ INFO Auto-set test timeout to 20s
+MISSED   crates/snapshot/src/attribute_filter.rs:80:32: replace > with == in truncate_value in 1s build + 1s test
+MISSED   crates/snapshot/src/attribute_filter.rs:80:32: replace > with < in truncate_value in 1s build + 1s test
+MISSED   crates/snapshot/src/attribute_filter.rs:80:32: replace > with >= in truncate_value in 1s build + 1s test
+MISSED   crates/snapshot/src/attribute_filter.rs:83:20: replace += with *= in truncate_value in 1s build + 1s test
+MISSED   crates/snapshot/src/markdown.rs:53:23: replace > with >= in format_markdown in 1s build + 1s test
+MISSED   crates/snapshot/src/markdown.rs:104:43: replace <= with > in format_markdown in 1s build + 1s test
+MISSED   crates/snapshot/src/markdown.rs:148:62: replace && with || in finish_ok in 2s build + 1s test
+MISSED   crates/snapshot/src/markdown.rs:282:32: replace > with == in truncate_to_byte_cap in 1s build + 1s test
+MISSED   crates/snapshot/src/markdown.rs:282:32: replace > with < in truncate_to_byte_cap in 1s build + 1s test
+MISSED   crates/snapshot/src/markdown.rs:282:32: replace > with >= in truncate_to_byte_cap in 1s build + 1s test
+MISSED   crates/snapshot/src/markdown.rs:285:20: replace += with *= in truncate_to_byte_cap in 2s build + 1s test
+MISSED   crates/snapshot/src/markdown.rs:294:5: replace span_id_hex -> String with String::new() in 2s build + 1s test
+MISSED   crates/snapshot/src/markdown.rs:294:5: replace span_id_hex -> String with "xyzzy".into() in 2s build + 1s test
+MISSED   crates/snapshot/src/markdown.rs:326:56: replace == with != in render_section_anomalies in 2s build + 1s test
+MISSED   crates/snapshot/src/markdown.rs:344:8: delete ! in render_anomaly_subsection in 2s build + 1s test
+MISSED   crates/snapshot/src/markdown.rs:347:20: replace > with == in render_anomaly_subsection in 1s build + 1s test
+MISSED   crates/snapshot/src/markdown.rs:347:20: replace > with < in render_anomaly_subsection in 2s build + 1s test
+MISSED   crates/snapshot/src/markdown.rs:347:20: replace > with >= in render_anomaly_subsection in 1s build + 1s test
+MISSED   crates/snapshot/src/markdown.rs:359:8: delete ! in render_anomaly_subsection in 1s build + 1s test
+MISSED   crates/snapshot/src/markdown.rs:364:20: replace > with == in render_anomaly_subsection in 1s build + 1s test
+MISSED   crates/snapshot/src/markdown.rs:364:20: replace > with < in render_anomaly_subsection in 2s build + 1s test
+MISSED   crates/snapshot/src/markdown.rs:364:20: replace > with >= in render_anomaly_subsection in 1s build + 1s test
+MISSED   crates/snapshot/src/markdown.rs:435:5: replace render_service_block with () in 2s build + 1s test
+MISSED   crates/snapshot/src/markdown.rs:450:30: replace && with || in render_section_unique_spans in 1s build + 1s test
+MISSED   crates/snapshot/src/markdown.rs:472:36: replace / with % in render_span_block in 2s build + 1s test
+MISSED   crates/snapshot/src/markdown.rs:472:36: replace / with * in render_span_block in 2s build + 1s test
+MISSED   crates/snapshot/src/markdown.rs:475:9: delete match arm 0 in render_span_block in 1s build + 1s test
+MISSED   crates/snapshot/src/markdown.rs:476:9: delete match arm 1 in render_span_block in 1s build + 1s test
+MISSED   crates/snapshot/src/markdown.rs:477:9: delete match arm 2 in render_span_block in 1s build + 1s test
+MISSED   crates/snapshot/src/markdown.rs:486:26: replace && with || in render_span_block in 1s build + 1s test
+MISSED   crates/snapshot/src/markdown.rs:513:5: replace render_truncation_marker_attributes with () in 1s build + 1s test
+MISSED   crates/snapshot/src/markdown.rs:513:16: replace == with != in render_truncation_marker_attributes in 2s build + 1s test
+MISSED   crates/snapshot/src/markdown.rs:526:5: replace render_truncation_marker_spans with () in 1s build + 1s test
+MISSED   crates/snapshot/src/markdown.rs:526:16: replace == with != in render_truncation_marker_spans in 2s build + 1s test
+MISSED   crates/snapshot/src/markdown.rs:539:5: replace classify_alert_services -> HashSet<String> with HashSet::new() in 2s build + 1s test
+MISSED   crates/snapshot/src/markdown.rs:539:5: replace classify_alert_services -> HashSet<String> with HashSet::from_iter([String::new()]) in 2s build + 1s test
+MISSED   crates/snapshot/src/markdown.rs:539:5: replace classify_alert_services -> HashSet<String> with HashSet::from_iter(["xyzzy".into()]) in 2s build + 1s test
+MISSED   crates/snapshot/src/markdown.rs:541:26: replace == with != in classify_alert_services in 2s build + 1s test
+MISSED   crates/snapshot/src/markdown.rs:559:5: replace collect_high_priority_span_ids -> HashSet<[u8; 8]> with HashSet::new() in 2s build + 1s test
+MISSED   crates/snapshot/src/markdown.rs:559:5: replace collect_high_priority_span_ids -> HashSet<[u8; 8]> with HashSet::from_iter([[0; 8]]) in 2s build + 1s test
+MISSED   crates/snapshot/src/markdown.rs:559:5: replace collect_high_priority_span_ids -> HashSet<[u8; 8]> with HashSet::from_iter([[1; 8]]) in 2s build + 1s test
+MISSED   crates/snapshot/src/markdown.rs:588:5: replace total_attribute_count -> usize with 0 in 1s build + 1s test
+MISSED   crates/snapshot/src/markdown.rs:588:5: replace total_attribute_count -> usize with 1 in 1s build + 1s test
+MISSED   crates/snapshot/src/markdown.rs:592:5: replace section_h2_count -> usize with 0 in 2s build + 1s test
+MISSED   crates/snapshot/src/markdown.rs:592:5: replace section_h2_count -> usize with 1 in 2s build + 1s test
+98 mutants tested in 7m: 45 missed, 50 caught, 3 unviable

@@ -1,6 +1,6 @@
 //! L4 degraded-mode FSM concrete impl (chunk #86 — Epoch 9 Foundation v0.2.0).
 //!
-//! Holds the shared `LocalDegradedModeStatus` state behind а `std::sync::Mutex`;
+//! Holds the shared `LocalDegradedModeStatus` state behind a `std::sync::Mutex`;
 //! injected into `pulse-app/src/inference_runtime.rs::spawn_l4_inference_subscriber`
 //! AND `pulse-app/src/diagnostics_router.rs::DiagnosticsApiImpl` via cloneable
 //! `Arc<dyn DegradedModeStatus>` (one shared instance per L4 subscriber per chunk
@@ -27,7 +27,7 @@ use ui_bridge::contract::AppError;
 const NANOS_PER_SEC: i64 = 1_000_000_000;
 
 /// Internal FSM state held behind `Mutex`. Separate from `BackoffSnapshot`
-/// because the snapshot also exposes а derived `backoff_seconds_remaining`
+/// because the snapshot also exposes a derived `backoff_seconds_remaining`
 /// computed against the caller's `now_unix_nano` — internal state stores
 /// the absolute `next_retry_at_unix_nano` only.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -36,7 +36,7 @@ struct BackoffState {
     /// Count of consecutive failures within the rolling FAILURE_WINDOW_SECS.
     consecutive_failures: u32,
     /// Wall-clock unix-nano of the most recent recorded failure. `None`
-    /// before any failures observed; used к compute window-bound resets.
+    /// before any failures observed; used to compute window-bound resets.
     last_failure_unix_nano: Option<i64>,
     /// Wall-clock unix-nano at which the next L4 invocation is eligible.
     /// `None` in Active state.
@@ -113,7 +113,7 @@ impl DegradedModeStatus for LocalDegradedModeStatus {
         state.consecutive_failures = new_count;
         state.last_failure_unix_nano = Some(now_unix_nano);
 
-        // Already в degraded? Advance backoff progression on this additional
+        // Already in degraded? Advance backoff progression on this additional
         // failure.
         if state.state == DegradedModeState::Degraded {
             let progression_idx = additional_failure_index(new_count, FAILURE_THRESHOLD)
@@ -196,7 +196,7 @@ impl DegradedModeStatus for LocalDegradedModeStatus {
     fn trigger_manual_retry(&self, now_unix_nano: i64) -> BackoffSnapshot {
         let mut state = self.state.lock().expect("degraded-mode state lock");
 
-        // Emit exit event if previously в Degraded (manual retry IS а
+        // Emit exit event if previously in Degraded (manual retry IS a
         // recovery transition for telemetry purposes).
         if state.state == DegradedModeState::Degraded {
             let duration_secs = state
@@ -223,11 +223,11 @@ impl DegradedModeStatus for LocalDegradedModeStatus {
 
 fn additional_failure_index(consecutive_failures: u32, threshold: u32) -> usize {
     // FAILURE_THRESHOLD-th failure → progression[0]; threshold+1 → progression[1];
-    // threshold+2 → progression[2]; subsequent capped к last progression entry.
+    // threshold+2 → progression[2]; subsequent capped to last progression entry.
     (consecutive_failures.saturating_sub(threshold)) as usize
 }
 
-/// Sanitized boundary conversion для the L4 interpretation retry path.
+/// Sanitized boundary conversion for the L4 interpretation retry path.
 /// Per arch §Established Decisions [Error Handling Pattern]: no stack
 /// traces, file paths, library versions, Rust struct names, or LLM-emitted
 /// `reason` strings escape across the TauRPC bridge. Strips the inner
@@ -237,12 +237,12 @@ fn additional_failure_index(consecutive_failures: u32, threshold: u32) -> usize 
 /// security plan §Anti-Patterns §Logging row 4 generalization bans across
 /// the bridge.
 ///
-/// Free function (not `From` impl) для symmetry с
+/// Free function (not `From` impl) for symmetry with
 /// `pulse-app/src/diagnostics_router.rs::drain_error_to_app_error` (chunk
 /// #69) + the orphan-rule resolution pattern per CLAUDE.md 2026-05-18
 /// session-learning (orphan rule blocks `impl From<InferenceError> for
 /// AppError` at the binary boundary since neither trait nor types belong
-/// к pulse-app).
+/// to pulse-app).
 pub fn interpretation_retry_error_to_app_error(err: InferenceError) -> AppError {
     use InferenceError as I;
     let message = match err {
@@ -263,4 +263,4 @@ pub fn interpretation_retry_error_to_app_error(err: InferenceError) -> AppError 
 // Tests live at `pulse-app/tests/unit_degraded_mode_runtime.rs` (integration
 // test crate) per CLAUDE.md testing.md 2026-05-20 lesson — pulse-app's
 // `[lib] test = false` setting disables source-level `mod tests` blocks
-// on Windows due к WebView2 DLL load.
+// on Windows due to WebView2 DLL load.

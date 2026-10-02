@@ -119,9 +119,9 @@ pub fn empty_tools_list() -> Value {
 // Enumerate the #[tool] methods exposed by the rmcp sidecar. Schema follows
 // the MCP `Tool` shape (name + description + inputSchema). Input schemas are
 // JSON Schema draft-07 fragments; `additionalProperties: false` rejects
-// unknown args при `tools/call`. Chunk #49 shipped the first 4 (live-buffer
+// unknown args for `tools/call`. Chunk #49 shipped the first 4 (live-buffer
 // query tools); chunk #94 adds the 4 corpus-backed incident/report tools.
-pub fn tools_list_with_8_tools() -> Value {
+pub fn tools_list_manifest() -> Value {
     json!({
         "tools": [
             {
@@ -211,6 +211,18 @@ pub fn tools_list_with_8_tools() -> Value {
             {
                 "name": "mark_incident_resolved",
                 "description": "Mark an incident resolved in the persistent corpus by id. The main app's in-memory registry reflects the change on next launch (eventual consistency).",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "incident_id": { "type": "integer" }
+                    },
+                    "required": ["incident_id"],
+                    "additionalProperties": false
+                }
+            },
+            {
+                "name": "retrieve_incident_events",
+                "description": "Retrieve the lifecycle events of one incident by id: its status transitions, oldest first, each with event_kind (active, acknowledged, resolved) and occurred_unix_nano. Bounded; truncated is true when more exist. Creation records no event, so an incident read before its first status change returns none.",
                 "inputSchema": {
                     "type": "object",
                     "properties": {
@@ -352,10 +364,10 @@ mod tests {
     }
 
     #[test]
-    fn tools_list_with_8_tools_returns_8_named_tools() {
-        let r = tools_list_with_8_tools();
+    fn tools_list_manifest_returns_every_named_tool() {
+        let r = tools_list_manifest();
         let arr = r["tools"].as_array().expect("array");
-        assert_eq!(arr.len(), 8);
+        assert_eq!(arr.len(), 9);
         let names: Vec<&str> = arr
             .iter()
             .map(|t| t["name"].as_str().expect("name"))
@@ -368,11 +380,12 @@ mod tests {
         assert!(names.contains(&"retrieve_report"));
         assert!(names.contains(&"retrieve_telemetry_slice"));
         assert!(names.contains(&"mark_incident_resolved"));
+        assert!(names.contains(&"retrieve_incident_events"));
     }
 
     #[test]
-    fn tools_list_with_8_tools_each_has_description_and_input_schema() {
-        let r = tools_list_with_8_tools();
+    fn tools_list_manifest_each_has_description_and_input_schema() {
+        let r = tools_list_manifest();
         for tool in r["tools"].as_array().expect("array") {
             assert!(tool["description"].as_str().is_some());
             assert!(tool["inputSchema"]["type"].as_str() == Some("object"));
@@ -381,8 +394,8 @@ mod tests {
     }
 
     #[test]
-    fn tools_list_with_8_tools_query_schemas_share_time_window_property() {
-        let r = tools_list_with_8_tools();
+    fn tools_list_manifest_query_schemas_share_time_window_property() {
+        let r = tools_list_manifest();
         for name in ["query_traces", "query_metrics", "query_logs"] {
             let tool = r["tools"]
                 .as_array()
@@ -399,12 +412,13 @@ mod tests {
     }
 
     #[test]
-    fn tools_list_with_8_tools_incident_id_tools_require_incident_id() {
-        let r = tools_list_with_8_tools();
+    fn tools_list_manifest_incident_id_tools_require_incident_id() {
+        let r = tools_list_manifest();
         for name in [
             "retrieve_report",
             "retrieve_telemetry_slice",
             "mark_incident_resolved",
+            "retrieve_incident_events",
         ] {
             let tool = r["tools"]
                 .as_array()

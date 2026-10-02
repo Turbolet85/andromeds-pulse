@@ -1,0 +1,181 @@
+Found 908 mutants to test
+ok       Unmutated baseline in 106s build + 5s test
+ INFO Auto-set test timeout to 30s
+MISSED   crates/triage/src/baseline/mod.rs:227:9: replace BaselineState::schema_version -> u32 with 1 in 6s build + 4s test
+MISSED   crates/triage/src/baseline/mod.rs:246:9: replace BaselineState::operation_count -> usize with 0 in 6s build + 3s test
+MISSED   crates/triage/src/baseline/mod.rs:334:9: replace BaselineState::swap_tdigest_pairs_on_tick -> usize with 0 in 6s build + 3s test
+MISSED   crates/triage/src/baseline/mod.rs:334:9: replace BaselineState::swap_tdigest_pairs_on_tick -> usize with 1 in 6s build + 3s test
+MISSED   crates/triage/src/baseline/mod.rs:340:25: replace += with *= in BaselineState::swap_tdigest_pairs_on_tick in 6s build + 4s test
+MISSED   crates/triage/src/baseline/mod.rs:357:25: replace += with *= in BaselineState::swap_short_tdigest_pairs_on_tick in 6s build + 3s test
+MISSED   crates/triage/src/baseline/mod.rs:366:9: replace BaselineState::total_centroid_count -> usize with 0 in 6s build + 3s test
+MISSED   crates/triage/src/baseline/mod.rs:366:9: replace BaselineState::total_centroid_count -> usize with 1 in 6s build + 3s test
+MISSED   crates/triage/src/baseline/mod.rs:415:9: replace BaselineState::scrubbed_clone -> Self with Default::default() in 7s build + 3s test
+MISSED   crates/triage/src/baseline/mod.rs:599:14: replace > with >= in run_persist_cycle in 6s build + 4s test
+MISSED   crates/triage/src/baseline/mod.rs:608:18: replace > with >= in run_persist_cycle in 6s build + 3s test
+MISSED   crates/triage/src/baseline/mod.rs:682:5: replace run_persist_loop with () in 6s build + 3s test
+MISSED   crates/triage/src/baseline/mod.rs:749:5: replace current_unix_nanos -> i64 with 1 in 6s build + 3s test
+MISSED   crates/triage/src/lifecycle/mod.rs:95:5: replace start_lifecycle_heartbeat with () in 8s build + 3s test
+MISSED   crates/triage/src/lifecycle/mod.rs:139:5: replace reevaluate_now -> usize with 0 in 7s build + 3s test
+MISSED   crates/triage/src/lifecycle/mod.rs:139:5: replace reevaluate_now -> usize with 1 in 6s build + 3s test
+MISSED   crates/triage/src/lifecycle/mod.rs:208:27: replace += with *= in emit_tick_observability in 6s build + 4s test
+MISSED   crates/triage/src/lifecycle/mod.rs:238:5: replace current_time_unix_nano -> i64 with 0 in 6s build + 3s test
+MISSED   crates/triage/src/lifecycle/mod.rs:238:5: replace current_time_unix_nano -> i64 with 1 in 6s build + 3s test
+MISSED   crates/triage/src/lifecycle/mod.rs:238:5: replace current_time_unix_nano -> i64 with -1 in 6s build + 3s test
+MISSED   crates/triage/src/baseline/activity_floor.rs:124:49: replace >= with < in ActivityFloor::observe in 6s build + 4s test
+MISSED   crates/triage/src/baseline/activity_floor.rs:154:88: replace == with != in ActivityFloor::p95_historical_quiet_duration_seconds in 6s build + 3s test
+MISSED   crates/triage/src/baseline/activity_floor.rs:212:9: replace ActivityFloor::flush_buffer with () in 6s build + 3s test
+MISSED   crates/triage/src/baseline/corpus.rs:20:46: replace * with + in 6s build + 3s test
+MISSED   crates/triage/src/baseline/corpus.rs:20:46: replace * with / in 6s build + 3s test
+MISSED   crates/triage/src/baseline/corpus.rs:76:38: replace > with == in bootstrap_from_persistence in 6s build + 3s test
+MISSED   crates/triage/src/baseline/corpus.rs:76:38: replace > with >= in bootstrap_from_persistence in 6s build + 3s test
+MISSED   crates/triage/src/baseline/ewma.rs:54:9: replace EwmaTracker::alpha -> f64 with 0.0 in 6s build + 3s test
+MISSED   crates/triage/src/baseline/ewma.rs:54:9: replace EwmaTracker::alpha -> f64 with 1.0 in 6s build + 3s test
+MISSED   crates/triage/src/baseline/ewma.rs:54:9: replace EwmaTracker::alpha -> f64 with -1.0 in 6s build + 3s test
+TIMEOUT  crates/triage/src/baseline/rolling_window.rs:28:32: replace >= with < in RollingWindow<T>::push in 6s build + 30s test
+MISSED   crates/triage/src/baseline/rolling_window.rs:39:9: replace RollingWindow<T>::capacity -> usize with 0 in 6s build + 3s test
+MISSED   crates/triage/src/baseline/rolling_window.rs:39:9: replace RollingWindow<T>::capacity -> usize with 1 in 6s build + 3s test
+MISSED   crates/triage/src/baseline/sql.rs:62:5: replace cutoff_ns -> i64 with 0 in 7s build + 3s test
+MISSED   crates/triage/src/baseline/sql.rs:62:5: replace cutoff_ns -> i64 with 1 in 6s build + 3s test
+MISSED   crates/triage/src/baseline/sql.rs:62:5: replace cutoff_ns -> i64 with -1 in 6s build + 3s test
+MISSED   crates/triage/src/baseline/sql.rs:676:5: replace run_q7_fallback_blocking -> Result<Vec<Q7CriticalPathRow>, SqlAggregationError> with Ok(vec![]) in 7s build + 4s test
+MISSED   crates/triage/src/baseline/sql.rs:713:5: replace emit_query_telemetry with () in 7s build + 3s test
+MISSED   crates/triage/src/baseline/sql.rs:714:9: delete match arm "q1" in emit_query_telemetry in 7s build + 3s test
+MISSED   crates/triage/src/baseline/sql.rs:729:9: delete match arm "q2" in emit_query_telemetry in 6s build + 3s test
+MISSED   crates/triage/src/baseline/sql.rs:744:9: delete match arm "q3" in emit_query_telemetry in 7s build + 3s test
+MISSED   crates/triage/src/baseline/sql.rs:759:9: delete match arm "q4" in emit_query_telemetry in 7s build + 3s test
+MISSED   crates/triage/src/baseline/sql.rs:774:9: delete match arm "q5" in emit_query_telemetry in 7s build + 4s test
+MISSED   crates/triage/src/baseline/sql.rs:789:9: delete match arm "q6" in emit_query_telemetry in 6s build + 3s test
+MISSED   crates/triage/src/baseline/sql.rs:812:5: replace emit_q7_telemetry with () in 7s build + 3s test
+MISSED   crates/triage/src/baseline/sql.rs:813:9: delete match arm "q7" in emit_q7_telemetry in 7s build + 3s test
+MISSED   crates/triage/src/baseline/sql.rs:828:9: delete match arm "q7-fallback" in emit_q7_telemetry in 6s build + 3s test
+MISSED   crates/triage/src/baseline/tdigest_pair.rs:44:38: replace >= with < in TDigestPair::insert in 6s build + 3s test
+MISSED   crates/triage/src/baseline/tdigest_pair.rs:59:38: replace || with && in TDigestPair::swap_on_tick in 6s build + 3s test
+MISSED   crates/triage/src/baseline/tdigest_pair.rs:98:38: replace && with || in TDigestPair::percentile_current_only in 7s build + 4s test
+MISSED   crates/triage/src/baseline/tdigest_pair.rs:98:33: replace == with != in TDigestPair::percentile_current_only in 6s build + 3s test
+MISSED   crates/triage/src/baseline/tdigest_pair.rs:121:9: replace TDigestPair::centroid_count -> usize with 0 in 6s build + 3s test
+MISSED   crates/triage/src/baseline/tdigest_pair.rs:121:9: replace TDigestPair::centroid_count -> usize with 1 in 7s build + 4s test
+MISSED   crates/triage/src/baseline/tdigest_pair.rs:121:31: replace + with * in TDigestPair::centroid_count in 6s build + 3s test
+MISSED   crates/triage/src/cadence/broadcast.rs:103:9: replace DigestTriggerBroadcast::subscriber_count -> usize with 0 in 6s build + 3s test
+MISSED   crates/triage/src/cadence/coordinator.rs:238:5: replace cycle_window_for -> Duration with Default::default() in 7s build + 3s test
+MISSED   crates/triage/src/cadence/coordinator.rs:469:5: replace current_unix_nanos -> i64 with 0 in 8s build + 3s test
+MISSED   crates/triage/src/cadence/coordinator.rs:469:5: replace current_unix_nanos -> i64 with 1 in 6s build + 3s test
+MISSED   crates/triage/src/cadence/coordinator.rs:469:5: replace current_unix_nanos -> i64 with -1 in 6s build + 4s test
+MISSED   crates/triage/src/cue/broadcast.rs:78:9: replace CadenceTriggerChannel::subscriber_count -> usize with 0 in 7s build + 3s test
+MISSED   crates/triage/src/cue/classify.rs:45:18: replace > with >= in dual_condition_bypass in 6s build + 3s test
+MISSED   crates/triage/src/cue/classify.rs:49:51: replace > with >= in dual_condition_bypass in 6s build + 3s test
+MISSED   crates/triage/src/cue/classify.rs:50:54: replace > with >= in dual_condition_bypass in 6s build + 4s test
+MISSED   crates/triage/src/cue/emitter.rs:198:63: replace += with *= in run_one_emit_cycle in 6s build + 3s test
+MISSED   crates/triage/src/cue/emitter.rs:199:53: replace += with *= in run_one_emit_cycle in 6s build + 4s test
+MISSED   crates/triage/src/cue/emitter.rs:219:64: replace + with - in run_one_emit_cycle in 7s build + 3s test
+MISSED   crates/triage/src/cue/emitter.rs:219:64: replace + with * in run_one_emit_cycle in 6s build + 4s test
+MISSED   crates/triage/src/cue/emitter.rs:219:43: replace + with - in run_one_emit_cycle in 6s build + 3s test
+MISSED   crates/triage/src/cue/emitter.rs:219:43: replace + with * in run_one_emit_cycle in 6s build + 3s test
+MISSED   crates/triage/src/cue/emitter.rs:231:33: replace && with || in run_one_emit_cycle in 6s build + 3s test
+MISSED   crates/triage/src/cue/emitter.rs:231:13: delete ! in run_one_emit_cycle in 6s build + 3s test
+MISSED   crates/triage/src/cue/emitter.rs:357:5: replace cue_scope_label -> &'static str with "" in 7s build + 3s test
+MISSED   crates/triage/src/cue/emitter.rs:357:5: replace cue_scope_label -> &'static str with "xyzzy" in 6s build + 3s test
+MISSED   crates/triage/src/cue/emitter.rs:445:5: replace drain_restart_events with () in 7s build + 3s test
+MISSED   crates/triage/src/cue/emitter.rs:466:5: replace current_unix_nanos -> i64 with 0 in 7s build + 3s test
+MISSED   crates/triage/src/cue/emitter.rs:466:5: replace current_unix_nanos -> i64 with 1 in 6s build + 4s test
+MISSED   crates/triage/src/cue/emitter.rs:466:5: replace current_unix_nanos -> i64 with -1 in 6s build + 3s test
+MISSED   crates/triage/src/cue/evaluate.rs:38:29: replace < with == in evaluate_thresholds in 7s build + 3s test
+MISSED   crates/triage/src/cue/evaluate.rs:38:29: replace < with <= in evaluate_thresholds in 6s build + 3s test
+MISSED   crates/triage/src/cue/evaluate.rs:41:56: replace || with && in evaluate_thresholds in 6s build + 4s test
+MISSED   crates/triage/src/cue/evaluate.rs:46:43: replace < with <= in evaluate_thresholds in 6s build + 3s test
+MISSED   crates/triage/src/cue/evaluate.rs:49:37: replace > with >= in evaluate_thresholds in 6s build + 3s test
+MISSED   crates/triage/src/cue/evaluate.rs:54:51: replace / with * in evaluate_thresholds in 6s build + 3s test
+MISSED   crates/triage/src/cue/evaluate.rs:90:29: replace < with == in evaluate_thresholds in 6s build + 3s test
+MISSED   crates/triage/src/cue/evaluate.rs:90:29: replace < with <= in evaluate_thresholds in 6s build + 3s test
+MISSED   crates/triage/src/cue/evaluate.rs:100:24: replace match guard l.is_finite() with true in evaluate_thresholds in 6s build + 4s test
+MISSED   crates/triage/src/cue/evaluate.rs:100:24: replace match guard l.is_finite() with false in evaluate_thresholds in 6s build + 3s test
+MISSED   crates/triage/src/cue/evaluate.rs:103:34: replace * with + in evaluate_thresholds in 6s build + 3s test
+MISSED   crates/triage/src/cue/evaluate.rs:104:26: replace < with <= in evaluate_thresholds in 6s build + 4s test
+MISSED   crates/triage/src/cue/evaluate.rs:107:37: replace > with >= in evaluate_thresholds in 6s build + 3s test
+MISSED   crates/triage/src/cue/evaluate.rs:108:27: replace / with * in evaluate_thresholds in 6s build + 3s test
+MISSED   crates/triage/src/cue/evaluate.rs:112:51: replace / with % in evaluate_thresholds in 6s build + 3s test
+MISSED   crates/triage/src/cue/evaluate.rs:112:51: replace / with * in evaluate_thresholds in 6s build + 3s test
+MISSED   crates/triage/src/cue/evaluate.rs:181:48: replace == with != in evaluate_service_went_silent in 6s build + 3s test
+MISSED   crates/triage/src/cue/evaluate.rs:184:60: replace / with * in evaluate_service_went_silent in 6s build + 3s test
+MISSED   crates/triage/src/cue/thresholds.rs:46:15: replace != with == in resolve_bootstrap_window_seconds in 6s build + 4s test
+MISSED   crates/triage/src/cue/thresholds.rs:53:5: replace warn_bootstrap_window with () in 7s build + 3s test
+MISSED   crates/triage/src/cue/thresholds.rs:252:13: replace || with && in Thresholds::validate in 6s build + 3s test
+MISSED   crates/triage/src/cue/thresholds.rs:253:37: replace > with >= in Thresholds::validate in 6s build + 3s test
+MISSED   crates/triage/src/cue/thresholds.rs:281:13: replace || with && in Thresholds::validate in 6s build + 4s test
+MISSED   crates/triage/src/cue/thresholds.rs:282:48: replace > with >= in Thresholds::validate in 6s build + 3s test
+MISSED   crates/triage/src/digest/assembler.rs:132:9: replace <impl std::fmt::Debug for Assembler>::fmt -> std::fmt::Result with Ok(Default::default()) in 7s build + 4s test
+MISSED   crates/triage/src/digest/assembler.rs:191:9: replace Assembler::count_tokens -> usize with 0 in 7s build + 3s test
+MISSED   crates/triage/src/digest/assembler.rs:191:9: replace Assembler::count_tokens -> usize with 1 in 6s build + 3s test
+MISSED   crates/triage/src/digest/assembler.rs:223:54: replace && with || in <impl DigestAssembler for Assembler>::assemble in 7s build + 3s test
+MISSED   crates/triage/src/digest/assembler.rs:223:26: replace != with == in <impl DigestAssembler for Assembler>::assemble in 7s build + 4s test
+MISSED   crates/triage/src/digest/assembler.rs:359:28: replace > with == in <impl DigestAssembler for Assembler>::assemble in 7s build + 3s test
+MISSED   crates/triage/src/digest/assembler.rs:359:28: replace > with >= in <impl DigestAssembler for Assembler>::assemble in 7s build + 3s test
+MISSED   crates/triage/src/digest/assembler.rs:376:66: replace && with || in <impl DigestAssembler for Assembler>::assemble in 7s build + 3s test
+MISSED   crates/triage/src/digest/assembler.rs:376:35: replace > with == in <impl DigestAssembler for Assembler>::assemble in 7s build + 3s test
+MISSED   crates/triage/src/digest/assembler.rs:376:35: replace > with < in <impl DigestAssembler for Assembler>::assemble in 7s build + 3s test
+MISSED   crates/triage/src/digest/assembler.rs:376:35: replace > with >= in <impl DigestAssembler for Assembler>::assemble in 7s build + 3s test
+MISSED   crates/triage/src/digest/assembler.rs:376:69: delete ! in <impl DigestAssembler for Assembler>::assemble in 7s build + 3s test
+MISSED   crates/triage/src/digest/assembler.rs:392:66: replace && with || in <impl DigestAssembler for Assembler>::assemble in 7s build + 3s test
+MISSED   crates/triage/src/digest/assembler.rs:392:35: replace > with == in <impl DigestAssembler for Assembler>::assemble in 7s build + 3s test
+MISSED   crates/triage/src/digest/assembler.rs:392:35: replace > with < in <impl DigestAssembler for Assembler>::assemble in 7s build + 3s test
+MISSED   crates/triage/src/digest/assembler.rs:392:35: replace > with >= in <impl DigestAssembler for Assembler>::assemble in 7s build + 3s test
+MISSED   crates/triage/src/digest/assembler.rs:392:69: delete ! in <impl DigestAssembler for Assembler>::assemble in 7s build + 4s test
+MISSED   crates/triage/src/digest/assembler.rs:420:32: replace && with || in <impl DigestAssembler for Assembler>::assemble in 7s build + 3s test
+MISSED   crates/triage/src/digest/assembler.rs:420:47: replace > with == in <impl DigestAssembler for Assembler>::assemble in 7s build + 3s test
+MISSED   crates/triage/src/digest/assembler.rs:420:47: replace > with < in <impl DigestAssembler for Assembler>::assemble in 7s build + 3s test
+MISSED   crates/triage/src/digest/assembler.rs:420:47: replace > with >= in <impl DigestAssembler for Assembler>::assemble in 7s build + 3s test
+MISSED   crates/triage/src/digest/assembler.rs:430:35: replace < with == in <impl DigestAssembler for Assembler>::assemble in 7s build + 3s test
+MISSED   crates/triage/src/digest/assembler.rs:430:35: replace < with > in <impl DigestAssembler for Assembler>::assemble in 7s build + 3s test
+MISSED   crates/triage/src/digest/assembler.rs:430:35: replace < with <= in <impl DigestAssembler for Assembler>::assemble in 7s build + 3s test
+MISSED   crates/triage/src/digest/assembler.rs:441:35: replace > with == in <impl DigestAssembler for Assembler>::assemble in 7s build + 3s test
+MISSED   crates/triage/src/digest/assembler.rs:441:35: replace > with < in <impl DigestAssembler for Assembler>::assemble in 7s build + 3s test
+MISSED   crates/triage/src/digest/assembler.rs:441:35: replace > with >= in <impl DigestAssembler for Assembler>::assemble in 7s build + 3s test
+MISSED   crates/triage/src/digest/assembler.rs:461:56: replace - with + in <impl DigestAssembler for Assembler>::assemble in 7s build + 3s test
+MISSED   crates/triage/src/digest/assembler.rs:461:56: replace - with / in <impl DigestAssembler for Assembler>::assemble in 7s build + 3s test
+MISSED   crates/triage/src/digest/assembler.rs:556:5: replace cue_kind_label -> &'static str with "" in 7s build + 3s test
+MISSED   crates/triage/src/digest/assembler.rs:556:5: replace cue_kind_label -> &'static str with "xyzzy" in 6s build + 3s test
+MISSED   crates/triage/src/digest/assembler.rs:567:5: replace priority_tier_label -> &'static str with "" in 7s build + 3s test
+MISSED   crates/triage/src/digest/assembler.rs:567:5: replace priority_tier_label -> &'static str with "xyzzy" in 6s build + 3s test
+MISSED   crates/triage/src/digest/assembler.rs:580:5: replace severity_at_least_suggested -> bool with true in 7s build + 3s test
+MISSED   crates/triage/src/digest/assembler.rs:580:5: replace severity_at_least_suggested -> bool with false in 6s build + 3s test
+MISSED   crates/triage/src/digest/assembler.rs:593:42: replace / with % in compose_services_from_q1 in 7s build + 3s test
+MISSED   crates/triage/src/digest/assembler.rs:593:42: replace / with * in compose_services_from_q1 in 6s build + 3s test
+MISSED   crates/triage/src/digest/assembler.rs:596:54: replace / with % in compose_services_from_q1 in 6s build + 3s test
+MISSED   crates/triage/src/digest/assembler.rs:596:54: replace / with * in compose_services_from_q1 in 6s build + 3s test
+MISSED   crates/triage/src/digest/assembler.rs:597:63: replace / with % in compose_services_from_q1 in 6s build + 4s test
+MISSED   crates/triage/src/digest/assembler.rs:597:63: replace / with * in compose_services_from_q1 in 6s build + 3s test
+MISSED   crates/triage/src/digest/assembler.rs:652:8: delete ! in render_payload in 6s build + 3s test
+MISSED   crates/triage/src/digest/assembler.rs:664:8: delete ! in render_payload in 6s build + 3s test
+MISSED   crates/triage/src/digest/assembler.rs:685:5: replace lowest_priority_cue_index -> usize with 0 in 7s build + 3s test
+MISSED   crates/triage/src/digest/assembler.rs:685:5: replace lowest_priority_cue_index -> usize with 1 in 6s build + 3s test
+MISSED   crates/triage/src/digest/assembler.rs:693:5: replace priority_tier_rank -> u8 with 0 in 7s build + 3s test
+MISSED   crates/triage/src/digest/assembler.rs:693:5: replace priority_tier_rank -> u8 with 1 in 6s build + 3s test
+MISSED   crates/triage/src/digest/assembler.rs:701:5: replace lowest_anomaly_service_index -> usize with 0 in 7s build + 3s test
+MISSED   crates/triage/src/digest/assembler.rs:701:5: replace lowest_anomaly_service_index -> usize with 1 in 6s build + 4s test
+MISSED   crates/triage/src/digest/assembler.rs:704:40: replace + with - in lowest_anomaly_service_index in 7s build + 3s test
+MISSED   crates/triage/src/digest/assembler.rs:704:40: replace + with * in lowest_anomaly_service_index in 6s build + 3s test
+MISSED   crates/triage/src/digest/assembler.rs:704:60: replace / with % in lowest_anomaly_service_index in 6s build + 3s test
+MISSED   crates/triage/src/digest/assembler.rs:704:60: replace / with * in lowest_anomaly_service_index in 6s build + 3s test
+MISSED   crates/triage/src/digest/assembler.rs:705:40: replace + with - in lowest_anomaly_service_index in 6s build + 3s test
+MISSED   crates/triage/src/digest/assembler.rs:705:40: replace + with * in lowest_anomaly_service_index in 6s build + 4s test
+MISSED   crates/triage/src/digest/assembler.rs:705:60: replace / with % in lowest_anomaly_service_index in 6s build + 3s test
+MISSED   crates/triage/src/digest/assembler.rs:705:60: replace / with * in lowest_anomaly_service_index in 6s build + 3s test
+MISSED   crates/triage/src/digest/damper.rs:52:5: replace generate_reason_label -> &'static str with "" in 6s build + 3s test
+MISSED   crates/triage/src/digest/damper.rs:52:5: replace generate_reason_label -> &'static str with "xyzzy" in 6s build + 3s test
+MISSED   crates/triage/src/digest/damper.rs:115:9: replace GenerationDamper::generations_run_total -> u64 with 1 in 6s build + 3s test
+MISSED   crates/triage/src/digest/damper.rs:199:26: delete ! in GenerationDamper::record_generated in 6s build + 3s test
+MISSED   crates/triage/src/digest/damper.rs:213:17: replace < with <= in GenerationDamper::evict_stale in 6s build + 3s test
+MISSED   crates/triage/src/digest/queue.rs:150:9: replace LwwQueue::active_incident_depth_for -> usize with 0 in 7s build + 3s test
+MISSED   crates/triage/src/digest/queue.rs:150:9: replace LwwQueue::active_incident_depth_for -> usize with 1 in 6s build + 3s test
+MISSED   crates/triage/src/digest/queue.rs:163:9: replace LwwQueue::default_slot_occupied -> bool with true in 7s build + 3s test
+MISSED   crates/triage/src/digest/queue.rs:171:5: replace kind_label -> String with String::new() in 7s build + 3s test
+MISSED   crates/triage/src/digest/queue.rs:171:5: replace kind_label -> String with "xyzzy".into() in 6s build + 3s test
+MISSED   crates/triage/src/digest/retrieval.rs:27:63: replace * with + in 7s build + 3s test
+MISSED   crates/triage/src/digest/retrieval.rs:27:63: replace * with / in 6s build + 3s test
+MISSED   crates/triage/src/digest/retrieval.rs:27:58: replace * with + in 6s build + 3s test
+MISSED   crates/triage/src/digest/retrieval.rs:27:58: replace * with / in 6s build + 3s test
+MISSED   crates/triage/src/digest/retrieval.rs:27:53: replace * with + in 6s build + 3s test
+MISSED   crates/triage/src/digest/retrieval.rs:27:53: replace * with / in 6s build + 3s test
+MISSED   crates/triage/src/incident/persistence.rs:215:26: replace += with *= in run_incident_persist_cycle in 6s build + 3s test
+MISSED   crates/triage/src/incident/persistence.rs:220:66: replace += with *= in run_incident_persist_cycle in 6s build + 3s test
+MISSED   crates/triage/src/incident/persistence.rs:221:71: replace += with -= in run_incident_persist_cycle in 6s build + 3s test
+MISSED   crates/triage/src/incident/persistence.rs:221:71: replace += with *= in run_incident_persist_cycle in 6s build + 3s test

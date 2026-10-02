@@ -1,0 +1,6 @@
+design: proposals: [] — no rmcp occurrence in doc; status sites untouched (verified by agent grep)
+layouts: proposals: [] — MCP contacts UI-level and affirmed, not disproved; DEFERRED blocks are baseline
+a11y: proposals: [] — no new surface; wasmtime row carries no version claim; MCP refs are UI-toggle-level
+obs: 5 proposals (1 primary D-obs-stack + 4 dependent-of) — the rmcp-0.6 label sweep incl. the P3 Cleanup 'rmcp auto-closes' mechanism claim
+arch: 7 proposals (2 primaries + 5 dependent-of) — rmcp mechanism+caveat cluster x4, wasmtime req+resolved restate x3; negatives: Conventions/Standard-Contracts hold as wire-only; 14-members prose inconsistency pre-existing
+validation staging: obs x5 routine-APPLY (2026-07-08 + 2026-08-14 rules) · arch wasmtime x3 routine-APPLY (duckdb precedent) · arch rmcp x4 STAGED-ESCALATE (Established Decision rewording; plan committed the choice to the operator)

@@ -1,0 +1,36 @@
+[
+{
+"tool": "route",
+"v": "1.5",
+"sha8": "9fc8708e",
+"ts": "2026-09-29T05:01:46Z",
+"argv": [
+"route.py",
+"promote",
+"--root",
+".",
+"--chunk",
+"2026-09-29-p-025-hue-shift-observable-made-gradable",
+"--expect-prefix",
+"P-025 hue-shift observable made gradable",
+"--record-file",
+".andromeda/runs/2026-09-29T04-59-33Z-phase/master-record.txt",
+"--run-dir",
+".andromeda/runs/2026-09-29T04-59-33Z-phase"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"stamp working-route.md:130 - [2026-09-29-p-025-hue-shift-observable-made-gradable]",
+"record master-route.md:78 - appended under `## andromeda-pulse-0.3.0`",
+"promoted 2026-09-29-p-025-hue-shift-observable-made-gradable - working-route:130 frozen - master record appended"
+],
+"stderr": null,
+"wrote": [
+".\\andromeda-pulse-0.3.0\\working-route.md",
+".\\.andromeda\\master-route.md"
+],
+"before": null,
+"after": null
+}
+]

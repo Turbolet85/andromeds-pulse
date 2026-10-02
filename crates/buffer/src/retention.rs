@@ -19,14 +19,11 @@ use crate::state::BufferState;
 // / `last_seen_unix_nano` window-based metadata is informational. Evicting
 // templates by retention cutoff would orphan `log_records.template_id`
 // references; LRU-on-write keeps the cap without that issue.
-const DELETE_BY_CUTOFF: [&str; 7] = [
+const DELETE_BY_CUTOFF: [&str; 4] = [
     "DELETE FROM spans WHERE ts_unix_nano < ?",
     "DELETE FROM span_events WHERE ts_unix_nano < ?",
-    "DELETE FROM span_links WHERE ts_unix_nano < ?",
     "DELETE FROM metrics_points WHERE ts_unix_nano < ?",
     "DELETE FROM log_records WHERE ts_unix_nano < ?",
-    "DELETE FROM resources WHERE ts_unix_nano < ?",
-    "DELETE FROM instrumentation_scopes WHERE ts_unix_nano < ?",
 ];
 
 /// Reserved tables NOT subject to retention sweep. Excluded because their
@@ -36,8 +33,8 @@ const DELETE_BY_CUTOFF: [&str; 7] = [
 const RETENTION_EXCLUDED_TABLES: &[&str] = &["log_templates"];
 
 /// Long-running periodic task that issues `DELETE WHERE ts_unix_nano < ?`
-/// against each of the 7 reserved tables to enforce the in-memory ring-
-/// buffer retention window. Runs DuckDB calls inside `tokio::task::spawn_blocking`
+/// against each retention-swept reserved table to enforce the in-memory
+/// ring-buffer retention window. Runs DuckDB calls inside `tokio::task::spawn_blocking`
 /// to keep the tokio runtime healthy under DuckDB's blocking-IO semantics
 /// (per chunk #20 `crates/buffer/src/consumer.rs::run_consumer` precedent).
 ///
@@ -155,9 +152,9 @@ pub(crate) async fn run_one_sweep(
 
 const BYTES_PER_ROW_ESTIMATE: u64 = 256;
 
-/// Synchronous helper that performs one retention sweep across all 7
-/// reserved tables. Called inside `tokio::task::spawn_blocking` from
-/// `run_retention`. Returns total rows evicted.
+/// Synchronous helper that performs one retention sweep across every
+/// retention-swept reserved table. Called inside `tokio::task::spawn_blocking`
+/// from `run_retention`. Returns total rows evicted.
 pub(crate) fn retention_sweep_inner(
     conn: &Arc<Mutex<Connection>>,
     cutoff_ts_unix_nano: i64,
@@ -319,9 +316,9 @@ mod tests {
     }
 
     #[test]
-    fn retention_sweep_inner_iterates_all_seven_tables_returns_zero_when_empty() {
+    fn retention_sweep_inner_iterates_all_swept_tables_returns_zero_when_empty() {
         let conn = fresh_conn_with_schema();
-        // Empty schema, sweep should iterate all 7 tables without error.
+        // Empty schema, sweep should iterate all swept tables without error.
         let evicted = retention_sweep_inner(&conn, 1_800_000_000_000_000_000)
             .expect("sweep must succeed against empty tables");
         assert_eq!(evicted, 0);

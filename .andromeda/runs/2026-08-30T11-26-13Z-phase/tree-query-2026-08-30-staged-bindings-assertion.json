@@ -1,0 +1,70 @@
+[
+{
+"sql": "SELECT caller, file, line FROM calls WHERE callee LIKE '%capability_drift%' OR callee LIKE '%capability_widening_check%' ORDER BY file, line",
+"rows": 2,
+"result": [
+{
+"caller": "rust-analyzer cargo xtask 0.1.0 main().",
+"file": "xtask/src/main.rs",
+"line": 250
+},
+{
+"caller": "rust-analyzer cargo xtask 0.1.0 main().",
+"file": "xtask/src/main.rs",
+"line": 251
+}
+],
+"db_state": "fresh",
+"plane": "rust"
+},
+{
+"sql": "SELECT caller, file, line FROM calls WHERE callee LIKE '%parse_bindings%' ORDER BY file, line",
+"rows": 7,
+"result": [
+{
+"caller": "rust-analyzer cargo xtask 0.1.0 capability_drift().",
+"file": "xtask/src/main.rs",
+"line": 1177
+},
+{
+"caller": "rust-analyzer cargo xtask 0.1.0 capability_drift_tests/parse_bindings_extracts_namespaced_procedures().",
+"file": "xtask/src/main.rs",
+"line": 1481
+},
+{
+"caller": "rust-analyzer cargo xtask 0.1.0 capability_drift_tests/parse_bindings_handles_streams_router().",
+"file": "xtask/src/main.rs",
+"line": 1490
+},
+{
+"caller": "rust-analyzer cargo xtask 0.1.0 capability_drift_tests/parse_bindings_handles_top_level_procedures_via_empty_router().",
+"file": "xtask/src/main.rs",
+"line": 1502
+},
+{
+"caller": "rust-analyzer cargo xtask 0.1.0 capability_drift_tests/parse_bindings_missing_args_map_returns_err().",
+"file": "xtask/src/main.rs",
+"line": 1511
+},
+{
+"caller": "rust-analyzer cargo xtask 0.1.0 capability_drift_tests/drift_detected_when_extra_procedure_present().",
+"file": "xtask/src/main.rs",
+"line": 1678
+},
+{
+"caller": "rust-analyzer cargo xtask 0.1.0 capability_drift_tests/drift_clean_when_sets_match().",
+"file": "xtask/src/main.rs",
+"line": 1687
+}
+],
+"db_state": "fresh",
+"plane": "rust"
+},
+{
+"sql": "SELECT symbol, crate, file FROM symbol WHERE symbol LIKE '%staged%' OR symbol LIKE '%EXPECTED_GRANTS%'",
+"rows": 0,
+"result": [],
+"db_state": "fresh",
+"plane": "rust"
+}
+]

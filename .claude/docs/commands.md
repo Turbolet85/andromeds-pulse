@@ -83,9 +83,9 @@ cargo run --bin pulse-app
 
 ## Agent-run harness (5-command discipline)
 ```bash
-./scripts/agent-run.sh boot       # Start app, await ready (10s timeout)
+./scripts/agent-run.sh boot       # Start app, await ready via harness:status verdict (10s default; HARNESS_STATUS_TIMEOUT overrides)
 ./scripts/agent-run.sh run        # Execute test suite
-./scripts/agent-run.sh status     # Poll TauRPC health
+./scripts/agent-run.sh status     # cargo xtask harness:status — real-process verdict JSON, exits 0/1/1/2 (not-running is non-zero)
 ./scripts/agent-run.sh cleanup    # SIGTERM + verify ports released
 ./scripts/agent-run.sh logs       # Tail JSON log file
 ```
@@ -96,6 +96,14 @@ PowerShell variant: `.\scripts\agent-run.ps1 boot|run|status|cleanup|logs`.
 cargo audit                                                    # RustSec advisory check
 cargo deny check bans licenses sources                         # Duplicate / license / source policy
 cargo deny check advisories                                    # Same as cargo audit but via deny
+cargo xtask check:npm-supply-chain                             # npm advisory/license/ban gate (pulse-app/ui; policy npm-policy.json; lockfile-only)
+cargo xtask harness:status                                     # Real-process status verdict JSON {verdict,pid,ended,log_file_basename,last_write_age_seconds,stale_after_seconds}; exits 0/1/1/2
+cargo xtask pre-push:linux                                     # Windows host: six Linux-reachable stages (script-modes, source-lint, npm, clippy, test, ci-gates) in a WSL Ubuntu clone of HEAD + worktree; exit 0 green / 1 red / 2 cannot-evaluate
+cargo xtask check:english-sources                              # English-only source lint (crates, pulse-app/src+tests+ui/src, xtask/src); ASCII ::error annotations; exit 0 clean / 1 findings / 2 cannot-evaluate
+cargo xtask check:staged-artifacts                             # Staged git-index bindings + capability grants vs EXPECTED_PROCEDURES/EXPECTED_GRANTS; exit 0 staged-clean / 1 staged-drift / 2 cannot-evaluate
+cargo nextest run --workspace --profile perf-samples           # The in-process perf-sample producer (writes target/tmp/perf-budget-samples/)
+cargo xtask perf:budget --data-dir target/tmp/perf-budget-samples --require memory,snapshot  # Perf-budget grader over <DIR>/logs/agent-latest.jsonl*; exit 0 PASS / 1 FAIL / 2 cannot-evaluate
+cargo xtask perf:frame-sample                                  # Windows dev host only: frame p99 ≤ 33 ms under a software WebGPU adapter; exit 0 PASS / 1 FAIL / 2 INCONCLUSIVE (opens a window)
 
 # CI-side
 gitleaks detect --redact                                       # Secret scanning (pre-commit + CI)
@@ -103,7 +111,7 @@ gitleaks detect --redact                                       # Secret scanning
 # xtask wrappers
 cargo xtask audit                                              # Wraps cargo audit
 cargo xtask deny-bans                                          # Wraps cargo deny check bans
-cargo xtask capability-drift                                   # Diff TauRPC procedures vs pulse-app/capabilities/ JSON
+cargo xtask capability-drift                                   # Diff TauRPC procedures (worktree bindings) vs EXPECTED_PROCEDURES + run the staged-artifacts assertion (since 2026-08-30)
 ```
 
 ## Tooling install (Bootstrap phase install commands)
@@ -132,8 +140,8 @@ cargo install tauri-cli --version "^2"
 # A11y stack (webview-side)
 cd pulse-app/ui && npm install --save-dev \
   @axe-core/playwright@4.11 \
-  lighthouse@12 \
-  pa11y@9 pa11y-ci@4 \
+  lighthouse@13 \
+  pa11y@10 pa11y-ci@4 \
   eslint-plugin-jsx-a11y@6.10 \
   colorjs.io@0.6
 ```
@@ -156,9 +164,16 @@ samply record cargo run --bin pulse-app --release   # macOS / Linux
 ## Git
 - See `.claude/docs/workflow.md` for branch / commit / PR conventions.
 
-## Living artifact reconcile (manual override)
-- Auto-runs in `/wrap-session` Phase 5. Manual:
+## Code-graph (symbol graph — replaces the retired markdown living-trees)
+Derived + gitignored under `.andromeda/cache/`, **one DuckDB database per language PLANE** (`rust` · `ts`), each at `cache/{plane}/tree.db`. Planes are detected from manifests at run time: `rust` = root `Cargo.toml` (+ `rust-analyzer`); `ts` = tracked `tsconfig.json` (+ `scip-typescript`). Both are live in this project.
+
 ```bash
-cargo modules generate tree --bin pulse-app    # Refresh dependency-tree.md
-cargo public-api --simplified --workspace      # Refresh api-surface.md
+pip install -r scripts/requirements.txt          # one-time: duckdb + protobuf
+python scripts/code-graph.py refresh             # build EVERY detected plane
+python scripts/code-graph.py refresh ts          # or just one plane
+python scripts/code-graph.py query <run_dir> <marker> "<sql>" <plane>
 ```
+- `refresh` is backgrounded by `/wrap-session`; `/andromeda-phase` calls `query`, which regenerates only the plane it needs on a miss. **Do not run `refresh` by hand** — the next wrap or a phase query does it.
+- `plane` is REQUIRED on `query` when several planes are detected (both are here) — the chunk's modify-set says which.
+- A missing indexer skips that plane (recipe in `.andromeda/cache/.refresh-done`) and never blocks; if no plane can build you get `.refresh-stale`, exit 0.
+- Views: `symbol` / `refs` / `calls` / `contains` / `crate_edges` / `calls_m`. Schema + canonical query shapes: `scripts/code-graph-cookbook.md` (authoritative definitions in `scripts/code-graph-views.sql`).

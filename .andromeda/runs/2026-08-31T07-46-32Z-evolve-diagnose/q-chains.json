@@ -1,0 +1,1980 @@
+{
+ "anchors": 176,
+ "joins": [
+  {
+   "kind": "consumed-verdict",
+   "chunk": "2026-08-14-fingerprint-feed-capture-repair",
+   "line": 204,
+   "consumer": "phase/take-up",
+   "artifact": "working-entry",
+   "quality": "thin",
+   "note": "one line naming outcome + region; the substantive scope basis was an EXTERNAL third-party artifact (Conductor fingerprint-feed-verdict.md), not the route entry or any in-repo doc",
+   "producer": null
+  },
+  {
+   "kind": "consumed-verdict",
+   "chunk": "2026-08-14-fingerprint-feed-capture-repair",
+   "line": 213,
+   "consumer": "implement/code",
+   "artifact": "research",
+   "quality": "thin",
+   "note": "boundary list under-enumerated by one file — buffer/src/contract.rs carries the BufferHeartbeat the tick fields transit; the graph query covered the appender signature blast radius but no query targeted the tick payload path",
+   "producer": "phase/research",
+   "producer_outcome": "ok",
+   "producer_signals": [
+    "unresolved-questions"
+   ],
+   "producer_note": "2 open questions carried to P4; Files-to-modify intentionally provisional — the repair site is the live capture's output",
+   "producer_frictions": [
+    "the repair half of this diagnose-then-fix chunk has no determinable Files-to-modify at P3~"
+   ]
+  },
+  {
+   "kind": "input-friction",
+   "chunk": "2026-08-14-fingerprint-feed-capture-repair",
+   "line": 214,
+   "consumer": "implement/code",
+   "artifact": "research.md",
+   "quality": "input.research-files-wrong",
+   "note": "crates/buffer/src/contract.rs was required by plan step 4 but absent from Files-to-modify — buffer.tick fields transit BufferHeartbeat rather than being read from BufferState directly; judged in-scope (same crate's own contract module, the declared transport between two listed files) and proceeded rather than soft-exiting",
+   "producer": null
+  },
+  {
+   "kind": "input-friction",
+   "chunk": "2026-08-14-fingerprint-feed-capture-repair",
+   "line": 214,
+   "consumer": "implement/code",
+   "artifact": "crates/buffer/src/contract.rs",
+   "quality": "input.research-files-wrong",
+   "note": "crates/buffer/src/contract.rs was required by plan step 4 but absent from Files-to-modify — buffer.tick fields transit BufferHeartbeat rather than being read from BufferState directly; judged in-scope (same crate's own contract module, the declared transport between two listed files) and proceeded rather than soft-exiting",
+   "producer": null
+  },
+  {
+   "kind": "input-friction",
+   "chunk": "2026-08-14-fingerprint-feed-capture-repair",
+   "line": 215,
+   "consumer": "implement/code",
+   "artifact": "pulse-app/src/observability.rs",
+   "quality": "input.plan-step-ambiguous",
+   "note": "plan step 6 mandated allowlist resolver probes without naming a location; the conventional home (observability.rs mod tests) is dead code under [lib] test = false — the baseline run confirmed zero pulse-app src-level tests execute while ~15 existing allowlist_for_target_resolves_* probes sit there; resolved by elevating AllowList/production/for_target to pub + doc(hidden) and writing the probes as an integration test that actually runs",
+   "producer": null
+  },
+  {
+   "kind": "input-friction",
+   "chunk": "2026-08-14-fingerprint-feed-capture-repair",
+   "line": 215,
+   "consumer": "implement/code",
+   "artifact": "pulse-app/tests/unit_observability_allowlist_feed.rs",
+   "quality": "input.plan-step-ambiguous",
+   "note": "plan step 6 mandated allowlist resolver probes without naming a location; the conventional home (observability.rs mod tests) is dead code under [lib] test = false — the baseline run confirmed zero pulse-app src-level tests execute while ~15 existing allowlist_for_target_resolves_* probes sit there; resolved by elevating AllowList/production/for_target to pub + doc(hidden) and writing the probes as an integration test that actually runs",
+   "producer": null
+  },
+  {
+   "kind": "consumed-verdict",
+   "chunk": "2026-08-14-fingerprint-feed-capture-repair",
+   "line": 224,
+   "consumer": "wrap-session/reconcile",
+   "artifact": "spec:test-plan",
+   "quality": "wrong",
+   "note": "its blanket no-separate-tests-directory claim was false against 59 files already in pulse-app/tests/ and had gone uncorrected for many chunks",
+   "producer": null
+  },
+  {
+   "kind": "consumed-verdict",
+   "chunk": "2026-08-14-fingerprint-feed-capture-repair",
+   "line": 224,
+   "consumer": "wrap-session/reconcile",
+   "artifact": "wrap-playbook",
+   "quality": "thin",
+   "note": "two existing rules matched the same proposal in opposing directions (line-50 routine-APPLY vs 2026-06-29 routine-HANDOFF) with no discriminator between them — the gap that forced the escalation",
+   "producer": null
+  },
+  {
+   "kind": "input-friction",
+   "chunk": "2026-08-14-workspace-key-alignment",
+   "line": 238,
+   "consumer": "phase/distill",
+   "artifact": ".andromeda/obs-plan.md",
+   "quality": "input.spec-source-gap",
+   "note": "the obs distiller surfaced an unresolved contradiction INSIDE obs-plan.md: §5 Vector 5 requires workspace-detector output not be logged as-is, while §4 P7 and the §8 workspace-detector allowlist name workspace.root_path as a required/permitted field; the plan does not say which governs a full derived key string, so the distiller handed it to research rather than picking one",
+   "producer": null
+  },
+  {
+   "kind": "consumed-verdict",
+   "chunk": "2026-08-14-workspace-key-alignment",
+   "line": 241,
+   "consumer": "phase/plan",
+   "artifact": "research",
+   "quality": "thin",
+   "note": "adequate on the codebase but under-enumerated the decisive fork: its open question 1 offered only cwd-based vs env-passthrough and did not probe the external instruments launch topology, so the publish-to-data-dir option it never listed had to be generated at synthesis after reading Conductors arch doc",
+   "producer": "phase/research",
+   "producer_outcome": "ok",
+   "producer_signals": [
+    "unresolved-questions"
+   ],
+   "producer_note": "3 open questions carried to P4 — 2 plan-decision (which launch mode parity must hold for; whether the chunk owes the unimplemented obs P7 span set), 1 implementation-scope (committed test vs one-off capture for the before-evidence). The 6 test caller sites in the modify list came FROM the graph result, and the mcp-server manifest rides it per the boundary-member rule",
+   "producer_frictions": [
+    "two premises scope stated were falsified by research: (1) the normalization framing impli~"
+   ]
+  },
+  {
+   "kind": "input-friction",
+   "chunk": "2026-08-14-workspace-key-alignment",
+   "line": 242,
+   "consumer": "phase/plan",
+   "artifact": "andromeda-pulse-0.3.0/chunks/2026-08-14-workspace-key-alignment/research.md",
+   "quality": "input.research-thin",
+   "note": "research framed the launch-mode fork as cwd-based-derivation vs env-passthrough and did not examine how the external Conductor instrument spawns the sidecar; reading Conductors architecture doc at synthesis time showed it propagates ANDROMEDA_PULSE_DATA_DIR but NOT cwd, which falsified the viability of the cwd-based option for the chunks stated purpose and produced a third design (app publishes the key under the data dir) that research never listed",
+   "producer": null
+  },
+  {
+   "kind": "input-friction",
+   "chunk": "2026-08-14-workspace-key-alignment",
+   "line": 243,
+   "consumer": "phase/plan",
+   "artifact": ".andromeda/runs/2026-08-14T22-35-07Z-phase/security.md",
+   "quality": "input.extracts-conflict",
+   "note": "the security extract requires the shared derivation not preserve a raw to_string_lossy path (strict-path canonicalize+confine), but the P-079 test locks to_string_lossy of an already-canonicalized root as the key VERBATIM and names re-canonicalization the divergence trap; P2 aggregate check C did not catch it because it compares declared bindings, not an extract constraint against a code-locked contract; resolved at synthesis by separating the roles — the key is an opaque identity string, the canonicalize+confine mandate binds the data-dir input",
+   "producer": null
+  },
+  {
+   "kind": "input-friction",
+   "chunk": "2026-08-14-workspace-key-alignment",
+   "line": 243,
+   "consumer": "phase/plan",
+   "artifact": "pulse-app/tests/integration_constellation_severity_workspace_key.rs",
+   "quality": "input.extracts-conflict",
+   "note": "the security extract requires the shared derivation not preserve a raw to_string_lossy path (strict-path canonicalize+confine), but the P-079 test locks to_string_lossy of an already-canonicalized root as the key VERBATIM and names re-canonicalization the divergence trap; P2 aggregate check C did not catch it because it compares declared bindings, not an extract constraint against a code-locked contract; resolved at synthesis by separating the roles — the key is an opaque identity string, the canonicalize+confine mandate binds the data-dir input",
+   "producer": null
+  },
+  {
+   "kind": "consumed-verdict",
+   "chunk": "2026-08-14-workspace-key-alignment",
+   "line": 244,
+   "consumer": "phase/validate",
+   "artifact": "plan",
+   "quality": "thin",
+   "note": "gate verdict: structurally sound (all 7 mechanical checks pass, graph trace present, 315 lines) but THIN on the acceptance-list dimension — both evidence legs existed as plan steps 6 and 8 while no acceptance criterion asserted either, so the plan as first written would have let implement declare the chunk done without ever performing its stated FIRST STEP",
+   "producer": "phase/plan",
+   "producer_outcome": "ok",
+   "producer_signals": [],
+   "producer_note": "8 steps, 14 acceptance criteria, all 3 research open questions resolved — one by operator dialogue, one by decisive lean (obs P7 is a pre-existing gap, not this chunks work), one folded into steps 6+7; graph citations all hard, zero soft",
+   "producer_frictions": [
+    "research framed the launch-mode fork as cwd-based-derivation vs env-passthrough and did n~",
+    "the security extract requires the shared derivation not preserve a raw to_string_lossy pa~"
+   ]
+  },
+  {
+   "kind": "input-friction",
+   "chunk": "2026-08-14-workspace-key-alignment",
+   "line": 248,
+   "consumer": "implement/code",
+   "artifact": "pulse-app/tests/integration_constellation_severity_workspace_key.rs",
+   "quality": "input.plan-step-ambiguous",
+   "note": "step 7 named a placement RULE (pulse-app/tests/*.rs if it reaches pulse-app internals, co-located otherwise) rather than a file, and the plans New-files list contained no test file — so the only in-boundary resolution was to extend the existing P-079 test file listed in Files-to-modify; creating the unlisted file the rule implied would have been out of scope",
+   "producer": null
+  },
+  {
+   "kind": "consumed-verdict",
+   "chunk": "2026-08-14-workspace-key-alignment",
+   "line": 254,
+   "consumer": "implement/smoke",
+   "artifact": "agent-harness",
+   "quality": "thin",
+   "note": "agent-run.sh status returned exit 0 with a valid envelope but reported pid 13536 / uptime_ms 0 / subsystems initialized — not the app under test; and agent-run.sh boot is cargo run --release (cold), so it cannot serve a warm boot smoke without a full release rebuild",
+   "producer": null
+  },
+  {
+   "kind": "consumed-verdict",
+   "chunk": "2026-08-14-workspace-key-alignment",
+   "line": 257,
+   "consumer": "wrap-session/reconcile",
+   "artifact": "wrap-playbook",
+   "quality": "thin",
+   "note": "the 2026-08-14 rules discriminator (impl half? YES → HANDOFF) mis-routed the keyring family; a third disposition was missing and was appended this pass",
+   "producer": null
+  },
+  {
+   "kind": "consumed-verdict",
+   "chunk": "2026-08-15-corpus-key-persistence",
+   "line": 273,
+   "consumer": "phase/research",
+   "artifact": "cookbook",
+   "quality": "thin",
+   "note": "canonical shapes copy-adapted with 0 off-cookbook SQL, but it does not warn that trait-object dispatch is invisible to the calls view",
+   "producer": null
+  },
+  {
+   "kind": "input-friction",
+   "chunk": "2026-08-15-corpus-key-persistence",
+   "line": 274,
+   "consumer": "phase/research",
+   "artifact": "scripts/code-graph-cookbook.md",
+   "quality": "input.cookbook-gap",
+   "note": "The canonical IMPACT query over the calls view returned 7 rows for fetch_or_create_key, ALL of them test callers inside keychain.rs — the production call sites were absent because the call goes through Arc<dyn KeychainBackend> and trait-object dispatch resolves to no caller-callee edge. Taken at face value that reads as 'no production caller' (the exact narrow-basis trap). Reformulating to the refs view surfaced the two real sites (contract.rs:102 and :118). The cookbook offers refs as the 'all references incl. non-call uses' variant but does not warn that dynamic dispatch makes calls structurally blind to it.",
+   "producer": null
+  },
+  {
+   "kind": "input-friction",
+   "chunk": "2026-08-15-corpus-key-persistence",
+   "line": 282,
+   "consumer": "implement/code",
+   "artifact": "andromeda-pulse-0.3.0/chunks/2026-08-15-corpus-key-persistence/plan.md",
+   "quality": "input.plan-step-ambiguous",
+   "note": "Plan Step 2 said the fallback derives 'a passphrase-derived key' without naming the passphrase SOURCE, and the two readings differ materially: an environment-supplied passphrase versus an auto-generated on-disk secret file (the latter would add a registered data-dir path and change the at-rest posture). Resolved WITHOUT asking because security-plan.md answers it in three places — 'derived per-user', 'secrets MUST come from environment', and 'No plaintext runtime state on disk' — which jointly exclude the on-disk variant. Recorded because the plan, not the spec, was the ambiguous artifact.",
+   "producer": null
+  },
+  {
+   "kind": "input-friction",
+   "chunk": "2026-08-15-corpus-key-persistence",
+   "line": 282,
+   "consumer": "implement/code",
+   "artifact": ".andromeda/security-plan.md",
+   "quality": "input.plan-step-ambiguous",
+   "note": "Plan Step 2 said the fallback derives 'a passphrase-derived key' without naming the passphrase SOURCE, and the two readings differ materially: an environment-supplied passphrase versus an auto-generated on-disk secret file (the latter would add a registered data-dir path and change the at-rest posture). Resolved WITHOUT asking because security-plan.md answers it in three places — 'derived per-user', 'secrets MUST come from environment', and 'No plaintext runtime state on disk' — which jointly exclude the on-disk variant. Recorded because the plan, not the spec, was the ambiguous artifact.",
+   "producer": null
+  },
+  {
+   "kind": "consumed-verdict",
+   "chunk": "2026-08-15-corpus-key-persistence",
+   "line": 295,
+   "consumer": "wrap-session/reconcile",
+   "artifact": "wrap-playbook",
+   "quality": "thin",
+   "note": "10 rules covered all 22 proposals, but had NO rule for an external-decay gate failure — the cargo-audit disposition had no sanctioned home until one was proposed and approved",
+   "producer": null
+  },
+  {
+   "kind": "consumed-verdict",
+   "chunk": "2026-08-15-tier-1-incident-path-investigation",
+   "line": 314,
+   "consumer": "implement/fix-loop",
+   "artifact": "plan",
+   "quality": "thin",
+   "note": "two Test Commands did not run as written: the -p pulse-app -E binary() form hit a feature-scope rlib mismatch (workspace build unifies features, -p resolves a narrower subgraph) and the a11y suite-health line carried a malformed --prefix flag (an npm flag, not npx/playwright). Its Step 6 field list also omitted duration_ms, which the emit site does emit",
+   "producer": "phase/plan",
+   "producer_outcome": "ok",
+   "producer_signals": [],
+   "producer_note": "decision-procedure plan rather than a predetermined fix, per operator directives 1 and 3; file list split certain-vs-provisional; claims no verification-matrix capability (unblocks P-075 without verifying it)",
+   "producer_frictions": [
+    "First-pass plan carried an a11y acceptance criterion (zero new violation tuples) with no ~"
+   ]
+  },
+  {
+   "kind": "consumed-verdict",
+   "chunk": "2026-08-15-tier-1-incident-path-investigation",
+   "line": 316,
+   "consumer": "implement/smoke",
+   "artifact": "agent-harness",
+   "quality": "thin",
+   "note": "scripts/agent-run.sh status ran and exited 0 with a structurally valid envelope, but reported pid 25512 with uptime_ms 0 and last_tick_at null — not the smoke process under test (37520). The status leg was truthful about SOMETHING, just not about the run being verified",
+   "producer": null
+  },
+  {
+   "kind": "input-friction",
+   "chunk": "2026-08-16-baseline-family-reachability",
+   "line": 335,
+   "consumer": "phase/take-up",
+   "artifact": "working-route.md",
+   "quality": "input.working-entry-thin",
+   "note": "The working entry names TWO baseline-derived families (silence, activity-floor) while the route-adaptation dialogue one wrap earlier named a THIRD (error-baseline-spike) as this chunk immediate consumer - and that family sits behind the same bootstrap window, so it is baseline-derived too. The entry text alone cannot settle whether the acceptance covers two families or three; carried into scope as a tagged open question for P3/P4 rather than silently picking one",
+   "producer": null
+  },
+  {
+   "kind": "input-friction",
+   "chunk": "2026-08-16-baseline-family-reachability",
+   "line": 335,
+   "consumer": "phase/take-up",
+   "artifact": "scope.md",
+   "quality": "input.working-entry-thin",
+   "note": "The working entry names TWO baseline-derived families (silence, activity-floor) while the route-adaptation dialogue one wrap earlier named a THIRD (error-baseline-spike) as this chunk immediate consumer - and that family sits behind the same bootstrap window, so it is baseline-derived too. The entry text alone cannot settle whether the acceptance covers two families or three; carried into scope as a tagged open question for P3/P4 rather than silently picking one",
+   "producer": null
+  },
+  {
+   "kind": "consumed-verdict",
+   "chunk": "2026-08-16-baseline-family-reachability",
+   "line": 336,
+   "consumer": "phase/distill",
+   "artifact": "spec:test-plan",
+   "quality": "thin",
+   "note": "triage is named in NONE of the three places test-plan enumerates library crates, yet it is the crate this chunk edits",
+   "producer": null
+  },
+  {
+   "kind": "input-friction",
+   "chunk": "2026-08-16-baseline-family-reachability",
+   "line": 337,
+   "consumer": "phase/distill",
+   "artifact": "test-plan.md",
+   "quality": "input.spec-source-gap",
+   "note": "The tests distiller reported that crate triage appears in NONE of the three places test-plan.md enumerates library crates (pyramid Unit row, what-unit-tests-cover, test-file-location) - yet triage is the crate this chunk edits and where its new tests must land. Same doc-gap shape corpus carried since chunk 68 and that the corpus-key chunk closed by amendment, so the precedent for closing it exists",
+   "producer": null
+  },
+  {
+   "kind": "consumed-verdict",
+   "chunk": "2026-08-16-baseline-family-reachability",
+   "line": 344,
+   "consumer": "implement/code",
+   "artifact": "research",
+   "quality": "wrong",
+   "note": "the Files-to-modify caller set was under-enumerated: cue/emitter.rs and lifecycle/registry.rs are production callers of the reshaped fn and appear nowhere in the list, because the graph query targeted the CONSTANT rather than the function whose signature changed",
+   "producer": "phase/research",
+   "producer_outcome": "ok",
+   "producer_signals": [
+    "unresolved-questions"
+   ],
+   "producer_note": "1 graph query, 6 rows, usable first pass; 2 open questions carried to P4, both plan-decision, inside the 0-3 design band; file list is explicitly CONDITIONAL on the mechanism choice and says so rather than guessing",
+   "producer_frictions": []
+  },
+  {
+   "kind": "input-friction",
+   "chunk": "2026-08-16-baseline-family-reachability",
+   "line": 345,
+   "consumer": "implement/code",
+   "artifact": "research.md",
+   "quality": "input.research-files-wrong",
+   "note": "Research listed the modify-set from a graph query on the CONSTANT, so it never enumerated the callers of the FUNCTION whose signature the plan directs changing. Two production callers were missing - cue/emitter.rs (which produces the very services_ready counter the acceptance asserts on) and lifecycle/registry.rs::tick_all, a TRAIT method in an unscoped module whose Bootstrapping-to-Active transition reads the same gate. Surfaced rather than silently expanded; the operator chose a design holding the bound on BaselineState, which avoided editing either file. codebase-research.md already prescribes exactly this (the caller-threading note says the impact query CALLER SET for modified functions is part of the file list) - the query just targeted the wrong symbol",
+   "producer": null
+  },
+  {
+   "kind": "input-friction",
+   "chunk": "2026-08-16-baseline-family-reachability",
+   "line": 345,
+   "consumer": "implement/code",
+   "artifact": "plan.md",
+   "quality": "input.research-files-wrong",
+   "note": "Research listed the modify-set from a graph query on the CONSTANT, so it never enumerated the callers of the FUNCTION whose signature the plan directs changing. Two production callers were missing - cue/emitter.rs (which produces the very services_ready counter the acceptance asserts on) and lifecycle/registry.rs::tick_all, a TRAIT method in an unscoped module whose Bootstrapping-to-Active transition reads the same gate. Surfaced rather than silently expanded; the operator chose a design holding the bound on BaselineState, which avoided editing either file. codebase-research.md already prescribes exactly this (the caller-threading note says the impact query CALLER SET for modified functions is part of the file list) - the query just targeted the wrong symbol",
+   "producer": null
+  },
+  {
+   "kind": "consumed-verdict",
+   "chunk": "2026-08-16-baseline-family-reachability",
+   "line": 348,
+   "consumer": "implement/smoke",
+   "artifact": "agent-harness",
+   "quality": "wrong",
+   "note": "agent-run.sh boot runs cargo run --release (a full release rebuild, prohibitive right after cargo clean) and agent-run.sh status delegates to cargo xtask harness:status, which builds an in-process tauri::test::mock_builder app - so the status verb reports on a MOCK and is structurally incapable of describing a running pulse-app. Used the test-plan section 3 direct-binary variant instead",
+   "producer": null
+  },
+  {
+   "kind": "consumed-verdict",
+   "chunk": "2026-08-16-baseline-family-reachability",
+   "line": 352,
+   "consumer": "wrap-session/reconcile",
+   "artifact": "spec:test-plan",
+   "quality": "thin",
+   "note": "triage appeared ZERO times across the whole doc despite the crate carrying tests since chunk 62 - three separate enumerations all stale",
+   "producer": null
+  },
+  {
+   "kind": "consumed-verdict",
+   "chunk": "2026-08-16-baseline-family-reachability",
+   "line": 352,
+   "consumer": "wrap-session/reconcile",
+   "artifact": "spec:obs-plan",
+   "quality": "thin",
+   "note": "line 26 still claims 8 instrumentable modules and omits 6 library crates incl. triage; pre-existing since chunk 62, deliberately NOT amended under this marker",
+   "producer": null
+  },
+  {
+   "kind": "consumed-verdict",
+   "chunk": "2026-08-16-baseline-family-reachability",
+   "line": 352,
+   "consumer": "wrap-session/reconcile",
+   "artifact": "wrap-playbook",
+   "quality": "thin",
+   "note": "had a substantively matching rule (2026-07-08 routine-APPLY) but nothing addressing D-obs-pii escalate SEVERITY, unlike the codified D-security-input override - the gap that forced the halt",
+   "producer": null
+  },
+  {
+   "kind": "input-friction",
+   "chunk": "2026-08-16-fault-identity-semantics-decided",
+   "line": 370,
+   "consumer": "implement/code",
+   "artifact": "crates/triage/src/digest/retrieval.rs",
+   "quality": "input.plan-step-ambiguous",
+   "note": "Plan step 7 said to remove the unreachable fingerprint comparison from select_corpus_matches but did not address the consequence: the current_fingerprints parameter becomes unused, and removing it would change the signature and force an edit to assembler.rs, which is NOT in the Files-to-modify list. The step therefore underdetermined the in-scope-vs-out-of-scope boundary. Resolved determinately by the code-writing discipline's scope rule (keep the signature, underscore the parameter, document why) rather than by asking.",
+   "producer": null
+  },
+  {
+   "kind": "input-friction",
+   "chunk": "2026-08-16-fault-identity-semantics-decided",
+   "line": 370,
+   "consumer": "implement/code",
+   "artifact": "crates/triage/src/digest/assembler.rs",
+   "quality": "input.plan-step-ambiguous",
+   "note": "Plan step 7 said to remove the unreachable fingerprint comparison from select_corpus_matches but did not address the consequence: the current_fingerprints parameter becomes unused, and removing it would change the signature and force an edit to assembler.rs, which is NOT in the Files-to-modify list. The step therefore underdetermined the in-scope-vs-out-of-scope boundary. Resolved determinately by the code-writing discipline's scope rule (keep the signature, underscore the parameter, document why) rather than by asking.",
+   "producer": null
+  },
+  {
+   "kind": "input-friction",
+   "chunk": "2026-08-16-fault-identity-semantics-decided",
+   "line": 371,
+   "consumer": "implement/code",
+   "artifact": "crates/triage/src/digest/retrieval.rs",
+   "quality": "input.plan-step-ambiguous",
+   "note": "Plan step 8 named TWO tests as depending on the dead fingerprint arm (retrieval.rs:176 and :211); THREE did. select_corpus_matches_ranks_by_recency_and_caps_at_limit (:198) also selected purely via the fingerprint set with an empty scope list, so it would have gone red on removal. Found by reading the test block before editing rather than by a failing gate; in-scope (same file), so iterated per the fix-loop rule instead of soft-exiting.",
+   "producer": null
+  },
+  {
+   "kind": "consumed-verdict",
+   "chunk": "2026-08-16-fault-identity-semantics-decided",
+   "line": 372,
+   "consumer": "implement/fix-loop",
+   "artifact": "plan",
+   "quality": "thin",
+   "note": "Test Commands ran as written EXCEPT one listing defect: 'cargo deny check bans licenses sources advisories' is a single command that can never be green, because advisories is red BY DESIGN (7 owned RUSTSEC ids deliberately not ignore-listed, owned by the Advisory-backlog route entry). Split into two runs to separate designed-red from regression: bans/licenses/sources ok, advisories red with exactly those 7 ids. Separately, step 7's premise was falsified by the gates (see friction).",
+   "producer": "phase/plan",
+   "producer_outcome": "ok",
+   "producer_signals": [],
+   "producer_note": "11 acceptance criteria, 9 steps, 6 touchpoint files, 4 graph citations all confident (0 soft). Claims NO capability - matrix link is a designed no-op. 3/3 dialogue questions were genuinely the operator's call (product semantics + scope disposition); all 3 recommendations accepted in one round with no follow-up.",
+   "producer_frictions": [
+    "The obs extract stated obs-plan §8 enumerates NO allowlist leaf for the incident-outcome ~"
+   ]
+  },
+  {
+   "kind": "consumed-verdict",
+   "chunk": "2026-08-16-fault-identity-semantics-decided",
+   "line": 372,
+   "consumer": "implement/fix-loop",
+   "artifact": "research",
+   "quality": "wrong",
+   "note": "the P3 headline finding ('the fingerprint arm is unreachable, so narrow it') was WRONG in its attribution. It correctly established that the producer writes model prose and the assembler compares hex, but did not check the field's documented contract or the assembler's own fixtures, both of which say hex. The arm is correct; the producer is the defect.",
+   "producer": "phase/research",
+   "producer_outcome": "ok",
+   "producer_signals": [
+    "unresolved-questions"
+   ],
+   "producer_note": "2 open questions, both plan-decision, by design for a DECIDE chunk; Files-to-modify deliberately provisional pending the operator's P4 answers",
+   "producer_frictions": [
+    "Two premises stated by the working entry were falsified by research: (a) the auto-resolve~"
+   ]
+  },
+  {
+   "kind": "consumed-verdict",
+   "chunk": "2026-08-16-fault-identity-semantics-decided",
+   "line": 374,
+   "consumer": "implement/smoke",
+   "artifact": "agent-harness",
+   "quality": "wrong",
+   "note": "status verb is untruthful by construction - reported pid 19008 / uptime_ms 0 / last_tick_at null with exit 0 while the process under test was pid 31308 per its own pidfile. 3 of the 5 verbs (boot/run/cleanup) were bypassed by design: boot runs cargo run --release, which forces a release rebuild.",
+   "producer": null
+  },
+  {
+   "kind": "consumed-verdict",
+   "chunk": "2026-08-16-fault-identity-semantics-decided",
+   "line": 378,
+   "consumer": "wrap-session/reconcile",
+   "artifact": "wrap-playbook",
+   "quality": "thin",
+   "note": "13 rules on entry; TWO matched this one proposal with OPPOSING verdicts - the 2026-08-16 D-obs-pii rule ('both conditions must hold, else escalate') vs the 2026-08-15 APPLY-AS-MEASURED rule ('impl half too large -> apply and name the owner'). The collision is what forced the escalation, and it was resolved by codifying a 14th rule.",
+   "producer": null
+  },
+  {
+   "kind": "consumed-verdict",
+   "chunk": "2026-08-16-fault-identity-semantics-decided",
+   "line": 385,
+   "consumer": "wrap-session/gates",
+   "artifact": "plan",
+   "quality": "thin",
+   "note": "Test Commands re-ran GREEN and reproduced implement's result exactly (1796 passed / 1 skipped / 0 FAIL). Same listing defect as at implement: the combined 'cargo deny check bans licenses sources advisories' line can never be green, so it was again run as two invocations - now curated into rules/security.md so future plans do not carry the combined form.",
+   "producer": "phase/plan",
+   "producer_outcome": "ok",
+   "producer_signals": [],
+   "producer_note": "11 acceptance criteria, 9 steps, 6 touchpoint files, 4 graph citations all confident (0 soft). Claims NO capability - matrix link is a designed no-op. 3/3 dialogue questions were genuinely the operator's call (product semantics + scope disposition); all 3 recommendations accepted in one round with no follow-up.",
+   "producer_frictions": [
+    "The obs extract stated obs-plan §8 enumerates NO allowlist leaf for the incident-outcome ~"
+   ]
+  },
+  {
+   "kind": "consumed-verdict",
+   "chunk": "2026-08-17-incident-fingerprint-producer-repaired",
+   "line": 401,
+   "consumer": "implement/smoke",
+   "artifact": "agent-harness",
+   "quality": "wrong",
+   "note": "not used for boot/status by plan direction; the known defect stands — harness:status constructs a tauri::test::mock_builder app, so its green describes a mock, never the process under test (owned by the Diagnostics-sweep entry, re-confirmed not re-measured this run)",
+   "producer": null
+  },
+  {
+   "kind": "consumed-verdict",
+   "chunk": "2026-08-17-conductor-e2e-verification-closure",
+   "line": 413,
+   "consumer": "phase/distill",
+   "artifact": "spec:layout-templates.md",
+   "quality": "wrong",
+   "note": "states P-025 halo hue is driven by error rate; superseded by design-system 2026-05-29 which moved hue to cumulative incident severity",
+   "producer": null
+  },
+  {
+   "kind": "consumed-verdict",
+   "chunk": "2026-08-17-conductor-e2e-verification-closure",
+   "line": 422,
+   "consumer": "implement/code",
+   "artifact": "plan",
+   "quality": "wrong",
+   "note": "step 5 specifies a real andromeda-pulse-mcp subprocess JSON-RPC tools/call while naming e2e_p3_mcp_incident_tools.rs, which is in-process dispatch_tool by its own docstring; the two cannot both be satisfied",
+   "producer": "phase/plan",
+   "producer_outcome": "ok",
+   "producer_signals": [
+    "decline-recorded"
+   ],
+   "producer_note": "9 acceptance criteria, 7 steps, 4 modify paths and zero new files; the cap is explicitly declined rather than claimed",
+   "producer_frictions": []
+  },
+  {
+   "kind": "consumed-verdict",
+   "chunk": "2026-08-17-conductor-e2e-verification-closure",
+   "line": 422,
+   "consumer": "implement/code",
+   "artifact": "research",
+   "quality": "thin",
+   "note": "the 4 Files-to-modify paths were all correct and the single-producer boundary claim held, but research described e2e_p3_mcp_incident_tools.rs as the sidecar-subprocess test and did not enumerate the IncidentPersistence trait surface, so a hand-written double came out 2 methods short",
+   "producer": "phase/research",
+   "producer_outcome": "ok",
+   "producer_signals": [
+    "unresolved-questions"
+   ],
+   "producer_note": "2 open questions carried to P4, both plan-decision class, within the 0-3 band",
+   "producer_frictions": [
+    "the working-entry CARRY states the deterministic surface is ungradeable partly because de~",
+    "the P-075 matrix acceptance requires asserting four delegated timing caps, but only one o~"
+   ]
+  },
+  {
+   "kind": "input-friction",
+   "chunk": "2026-08-17-conductor-e2e-verification-closure",
+   "line": 423,
+   "consumer": "implement/code",
+   "artifact": "andromeda-pulse-0.3.0/chunks/2026-08-17-conductor-e2e-verification-closure/plan.md",
+   "quality": "input.plan-step-ambiguous",
+   "note": "plan step 5 and its own named touchpoint contradict each other: the step prose demands a real andromeda-pulse-mcp subprocess JSON-RPC call, the named file e2e_p3_mcp_incident_tools.rs is in-process dispatch_tool and its docstring points cross-process framing at crates/mcp-server/tests/sidecar_subprocess.rs; the contradiction traces back to research describing that file as the sidecar-subprocess test without opening it",
+   "producer": null
+  },
+  {
+   "kind": "input-friction",
+   "chunk": "2026-08-17-conductor-e2e-verification-closure",
+   "line": 423,
+   "consumer": "implement/code",
+   "artifact": "pulse-app/tests/e2e_p3_mcp_incident_tools.rs",
+   "quality": "input.plan-step-ambiguous",
+   "note": "plan step 5 and its own named touchpoint contradict each other: the step prose demands a real andromeda-pulse-mcp subprocess JSON-RPC call, the named file e2e_p3_mcp_incident_tools.rs is in-process dispatch_tool and its docstring points cross-process framing at crates/mcp-server/tests/sidecar_subprocess.rs; the contradiction traces back to research describing that file as the sidecar-subprocess test without opening it",
+   "producer": null
+  },
+  {
+   "kind": "input-friction",
+   "chunk": "2026-08-17-conductor-e2e-verification-closure",
+   "line": 425,
+   "consumer": "implement/code",
+   "artifact": "crates/triage/src/incident/persistence.rs",
+   "quality": "input.conventions-gap",
+   "note": "research did not enumerate the IncidentPersistence trait surface even though the plan required a test double for it, so the hand-written impl covered 5 of 7 methods and omitted load_active_incidents and count_active_unread; caught by reading the trait definition rather than by a compile error",
+   "producer": null
+  },
+  {
+   "kind": "input-friction",
+   "chunk": "2026-08-17-conductor-e2e-verification-closure",
+   "line": 425,
+   "consumer": "implement/code",
+   "artifact": "pulse-app/tests/e2e_p3_mcp_incident_tools.rs",
+   "quality": "input.conventions-gap",
+   "note": "research did not enumerate the IncidentPersistence trait surface even though the plan required a test double for it, so the hand-written impl covered 5 of 7 methods and omitted load_active_incidents and count_active_unread; caught by reading the trait definition rather than by a compile error",
+   "producer": null
+  },
+  {
+   "kind": "consumed-verdict",
+   "chunk": "2026-08-17-conductor-e2e-verification-closure",
+   "line": 429,
+   "consumer": "implement/smoke",
+   "artifact": "agent-harness",
+   "quality": "wrong",
+   "note": "agent-run.sh status ran as the plan's listed gate and returned a well-formed envelope, but it describes a tauri mock_builder app with uptime_ms 0 and a different pid than the process under test, so it carries no information about the booted binary — the known structural untrustworthiness, unchanged",
+   "producer": null
+  },
+  {
+   "kind": "consumed-verdict",
+   "chunk": "2026-08-17-conductor-e2e-verification-closure",
+   "line": 434,
+   "consumer": "wrap-session/reconcile",
+   "artifact": "spec:architecture.md",
+   "quality": "thin",
+   "note": "the env-var entry was incomplete rather than false, so no detector fired; the orchestrator raised it per check 5",
+   "producer": null
+  },
+  {
+   "kind": "consumed-verdict",
+   "chunk": "2026-08-17-conductor-e2e-verification-closure",
+   "line": 434,
+   "consumer": "wrap-session/reconcile",
+   "artifact": "spec:test-plan.md",
+   "quality": "wrong",
+   "note": "§6 P3 would have read as satisfied by this chunk's test lines, and the workspace-key pending row carried a framing the smoke had just superseded",
+   "producer": null
+  },
+  {
+   "kind": "input-friction",
+   "chunk": "2026-08-21-delegated-timing-observables",
+   "line": 453,
+   "consumer": "phase/take-up",
+   "artifact": "andromeda-pulse-0.3.0/working-route.md",
+   "quality": "input.working-entry-thin",
+   "note": "The working entry names P-025/P-027/P-045 as the chunk targets without recording that those ids belong to the PRIOR version's matrix (docs/v0_2_0/capability-verification-matrix.json); the active v0.3.0 matrix holds only P-061..P-082, so a lookup for them raised StopIteration and the real definitions had to be re-derived from the v0.2.0 file. Consequence for P5: this chunk will link NOTHING in the active matrix, which is correct but non-obvious from the entry alone.",
+   "producer": null
+  },
+  {
+   "kind": "input-friction",
+   "chunk": "2026-08-21-delegated-timing-observables",
+   "line": 453,
+   "consumer": "phase/take-up",
+   "artifact": "andromeda-pulse-0.3.0/verification-matrix.json",
+   "quality": "input.working-entry-thin",
+   "note": "The working entry names P-025/P-027/P-045 as the chunk targets without recording that those ids belong to the PRIOR version's matrix (docs/v0_2_0/capability-verification-matrix.json); the active v0.3.0 matrix holds only P-061..P-082, so a lookup for them raised StopIteration and the real definitions had to be re-derived from the v0.2.0 file. Consequence for P5: this chunk will link NOTHING in the active matrix, which is correct but non-obvious from the entry alone.",
+   "producer": null
+  },
+  {
+   "kind": "input-friction",
+   "chunk": "2026-08-21-delegated-timing-observables",
+   "line": 453,
+   "consumer": "phase/take-up",
+   "artifact": "docs/v0_2_0/capability-verification-matrix.json",
+   "quality": "input.working-entry-thin",
+   "note": "The working entry names P-025/P-027/P-045 as the chunk targets without recording that those ids belong to the PRIOR version's matrix (docs/v0_2_0/capability-verification-matrix.json); the active v0.3.0 matrix holds only P-061..P-082, so a lookup for them raised StopIteration and the real definitions had to be re-derived from the v0.2.0 file. Consequence for P5: this chunk will link NOTHING in the active matrix, which is correct but non-obvious from the entry alone.",
+   "producer": null
+  },
+  {
+   "kind": "input-friction",
+   "chunk": "2026-08-21-delegated-timing-observables",
+   "line": 459,
+   "consumer": "phase/plan",
+   "artifact": ".andromeda/layout-templates.md",
+   "quality": "input.extracts-conflict",
+   "note": "A three-way conflict that P2 aggregate check C did not catch because it spans a spec BODY, a sibling spec's AMENDMENT, and the code: layout-templates §Component describes the halo hue as driven by ERROR RATE, design-system-amendments 2026-05-29 re-drove it to CUMULATIVE INCIDENT SEVERITY, and HaloCanvas.tsx:145-147 follows severity. Both extracts were individually valid and internally consistent, so only synthesis against research exposed it. Surfaced by the plan-step evolve interrogation itself, after plan.md was first written, and added as an Expected amendment.",
+   "producer": null
+  },
+  {
+   "kind": "input-friction",
+   "chunk": "2026-08-21-delegated-timing-observables",
+   "line": 459,
+   "consumer": "phase/plan",
+   "artifact": ".andromeda/design-system-amendments.md",
+   "quality": "input.extracts-conflict",
+   "note": "A three-way conflict that P2 aggregate check C did not catch because it spans a spec BODY, a sibling spec's AMENDMENT, and the code: layout-templates §Component describes the halo hue as driven by ERROR RATE, design-system-amendments 2026-05-29 re-drove it to CUMULATIVE INCIDENT SEVERITY, and HaloCanvas.tsx:145-147 follows severity. Both extracts were individually valid and internally consistent, so only synthesis against research exposed it. Surfaced by the plan-step evolve interrogation itself, after plan.md was first written, and added as an Expected amendment.",
+   "producer": null
+  },
+  {
+   "kind": "input-friction",
+   "chunk": "2026-08-21-delegated-timing-observables",
+   "line": 459,
+   "consumer": "phase/plan",
+   "artifact": "pulse-app/ui/src/halo/HaloCanvas.tsx",
+   "quality": "input.extracts-conflict",
+   "note": "A three-way conflict that P2 aggregate check C did not catch because it spans a spec BODY, a sibling spec's AMENDMENT, and the code: layout-templates §Component describes the halo hue as driven by ERROR RATE, design-system-amendments 2026-05-29 re-drove it to CUMULATIVE INCIDENT SEVERITY, and HaloCanvas.tsx:145-147 follows severity. Both extracts were individually valid and internally consistent, so only synthesis against research exposed it. Surfaced by the plan-step evolve interrogation itself, after plan.md was first written, and added as an Expected amendment.",
+   "producer": null
+  },
+  {
+   "kind": "consumed-verdict",
+   "chunk": "2026-08-21-delegated-timing-observables",
+   "line": 460,
+   "consumer": "phase/validate",
+   "artifact": "matrix",
+   "quality": "thin",
+   "note": "cannot express what this chunk does: the caps it serves (P-025/P-027/P-045) live in the PRIOR version's matrix, so the active-version matrix has nothing to link",
+   "producer": null
+  },
+  {
+   "kind": "consumed-verdict",
+   "chunk": "2026-08-21-delegated-timing-observables",
+   "line": 462,
+   "consumer": "implement/code",
+   "artifact": "research",
+   "quality": "thin",
+   "note": "listed HaloCanvas.tsx as a modify target and cited its rAF lines, but never checked whether the component has a production render site — it has none",
+   "producer": "phase/research",
+   "producer_outcome": "ok",
+   "producer_signals": [
+    "unresolved-questions"
+   ],
+   "producer_note": "2 open questions carried to P4, both implementation-scope (within the 0-3 band)",
+   "producer_frictions": [
+    "The cost claim \"each target is a full TauRPC quadruple binding + an obs-allowlist leaf + ~"
+   ]
+  },
+  {
+   "kind": "consumed-verdict",
+   "chunk": "2026-08-21-delegated-timing-observables",
+   "line": 472,
+   "consumer": "wrap-session/reconcile",
+   "artifact": "report",
+   "quality": "wrong",
+   "note": "the test-plan detector caught the report Coverage bullet grading the webview leg tests-unit when frame-metrics.ts real body and the P-045 mark had no test — the claim outran its evidence and was corrected",
+   "producer": "wrap-session/report",
+   "producer_outcome": "ok",
+   "producer_signals": [],
+   "producer_note": "drift-base detector checks scanned before authoring Changes; all bind to stock bullets, no bullet extension needed. 4 coverage rows all determinable.",
+   "producer_frictions": [
+    "Editing a few string values in a hand-formatted JSON file by parse-mutate-json.dumps re-s~"
+   ]
+  },
+  {
+   "kind": "consumed-verdict",
+   "chunk": "2026-08-21-delegated-timing-observables",
+   "line": 472,
+   "consumer": "wrap-session/reconcile",
+   "artifact": "drift-base",
+   "quality": "thin",
+   "note": "no detector owns whether a documented surface/mechanism actually EXISTS at HEAD; both the halo-canvas and the per-procedure-capability claims slipped every existing invariant and were surfaced by the report instead",
+   "producer": null
+  },
+  {
+   "kind": "input-friction",
+   "chunk": "2026-08-21-delegated-timing-observables",
+   "line": 473,
+   "consumer": "wrap-session/reconcile",
+   "artifact": "andromeda-pulse-0.3.0/chunks/2026-08-21-delegated-timing-observables/report.md",
+   "quality": "input.report-insufficient",
+   "note": "The report Coverage-of-new-surfaces bullet graded the webview mark sites tests-unit while frame-metrics.ts five new exports executed in no test (vi.mock replaced the module at its only call site) and use-findings.ts P-045 mark had none; the webview suite delta was exactly +2, both in ConstellationCanvas.test.tsx. The D-tests-coverage detector caught it against the report. Resolved by CLOSING the gap (11 tests added, suite 790->801) rather than documenting it, so the proposed pending-trigger row was rejected-as-resolved.",
+   "producer": null
+  },
+  {
+   "kind": "input-friction",
+   "chunk": "2026-08-21-delegated-timing-observables",
+   "line": 473,
+   "consumer": "wrap-session/reconcile",
+   "artifact": "pulse-app/ui/src/canvas/frame-metrics.test.ts",
+   "quality": "input.report-insufficient",
+   "note": "The report Coverage-of-new-surfaces bullet graded the webview mark sites tests-unit while frame-metrics.ts five new exports executed in no test (vi.mock replaced the module at its only call site) and use-findings.ts P-045 mark had none; the webview suite delta was exactly +2, both in ConstellationCanvas.test.tsx. The D-tests-coverage detector caught it against the report. Resolved by CLOSING the gap (11 tests added, suite 790->801) rather than documenting it, so the proposed pending-trigger row was rejected-as-resolved.",
+   "producer": null
+  },
+  {
+   "kind": "input-friction",
+   "chunk": "2026-08-21-delegated-timing-observables",
+   "line": 473,
+   "consumer": "wrap-session/reconcile",
+   "artifact": "pulse-app/ui/src/hooks/use-findings.test.tsx",
+   "quality": "input.report-insufficient",
+   "note": "The report Coverage-of-new-surfaces bullet graded the webview mark sites tests-unit while frame-metrics.ts five new exports executed in no test (vi.mock replaced the module at its only call site) and use-findings.ts P-045 mark had none; the webview suite delta was exactly +2, both in ConstellationCanvas.test.tsx. The D-tests-coverage detector caught it against the report. Resolved by CLOSING the gap (11 tests added, suite 790->801) rather than documenting it, so the proposed pending-trigger row was rejected-as-resolved.",
+   "producer": null
+  },
+  {
+   "kind": "consumed-verdict",
+   "chunk": "2026-08-21-delegated-timing-observables",
+   "line": 479,
+   "consumer": "wrap-session/gates",
+   "artifact": "plan",
+   "quality": "wrong",
+   "note": "one authored Test Command named the wrong playwright config (root config testDir ./tests-e2e does not exist), so the suite-health probe reported 0 tests in 0 files — a FALSE GREEN for exactly the check that exists to catch a zero-collected suite; corrected to playwright-a11y.config.ts, which lists 33 tests in 15 files",
+   "producer": "phase/plan",
+   "producer_outcome": "ok",
+   "producer_signals": [],
+   "producer_note": "178 lines, within the 150-400 band; graph-impact citation written confidently (record_frame_ms 3 callers @ telemetry.rs:313,336,356), 0 soft citations",
+   "producer_frictions": [
+    "A three-way conflict that P2 aggregate check C did not catch because it spans a spec BODY~"
+   ]
+  },
+  {
+   "kind": "consumed-verdict",
+   "chunk": "2026-08-22-pii-scrubber-recall",
+   "line": 497,
+   "consumer": "implement/fix-loop",
+   "artifact": "plan",
+   "quality": "wrong",
+   "note": "Test Commands asserted no boot-smoke gate on the ground that none of the chunk's paths are boot-path, but step 5 modifies pulse-app/src/observability.rs, which test-plan §3's boot-smoke trigger list names literally; P3 was run rather than taking the exemption",
+   "producer": "phase/plan",
+   "producer_outcome": "ok",
+   "producer_signals": [],
+   "producer_note": "245 lines, 9 sections, 16 acceptance criteria, 12 graph-cited call sites, 7 rejected-approach guards",
+   "producer_frictions": [
+    "the chunk directive (and the scope written from it) framed the design tension as 'over-re~"
+   ]
+  },
+  {
+   "kind": "consumed-verdict",
+   "chunk": "2026-08-22-pii-scrubber-recall",
+   "line": 500,
+   "consumer": "implement/smoke",
+   "artifact": "agent-harness",
+   "quality": "thin",
+   "note": "not used — the direct-binary variant was taken per test-plan §3, since the run needed a fresh ANDROMEDA_PULSE_DATA_DIR and a live counter read; agent-run.sh status is documented-untruthful (describes a mock)",
+   "producer": null
+  },
+  {
+   "kind": "consumed-verdict",
+   "chunk": "2026-08-22-pii-scrubber-recall",
+   "line": 500,
+   "consumer": "implement/smoke",
+   "artifact": "plan",
+   "quality": "wrong",
+   "note": "plan omitted the smoke; fired on the boot-path touchpoint condition",
+   "producer": "phase/plan",
+   "producer_outcome": "ok",
+   "producer_signals": [],
+   "producer_note": "245 lines, 9 sections, 16 acceptance criteria, 12 graph-cited call sites, 7 rejected-approach guards",
+   "producer_frictions": [
+    "the chunk directive (and the scope written from it) framed the design tension as 'over-re~"
+   ]
+  },
+  {
+   "kind": "consumed-verdict",
+   "chunk": "2026-08-22-pii-scrubber-recall",
+   "line": 503,
+   "consumer": "wrap-session/reconcile",
+   "artifact": "spec:security-plan.md",
+   "quality": "thin",
+   "note": "agent returned a bare proposals:[] with no reasoning and under-ran the plan's expected-amendments floor; both amendments were orchestrator-raised",
+   "producer": null
+  },
+  {
+   "kind": "input-friction",
+   "chunk": "2026-08-22-pii-scrubber-recall",
+   "line": 504,
+   "consumer": "wrap-session/reconcile",
+   "artifact": ".andromeda/security-plan.md",
+   "quality": "input.spec-source-gap",
+   "note": "the security-plan detector returned an empty proposal set with no reasoning while its own doc carried the chunk's strongest disproved claim — a paragraph naming `spans` as scrub-covered when that table receives no scrub at all; the plan's expected-amendments floor is what caught the miss",
+   "producer": null
+  },
+  {
+   "kind": "input-friction",
+   "chunk": "2026-08-22-log-records-identity",
+   "line": 513,
+   "consumer": "phase/take-up",
+   "artifact": "andromeda-pulse-0.3.0/working-route.md",
+   "quality": "input.working-entry-thin",
+   "note": "the lineage clause (the 2026-08-15 identity class landing on a second table, intake #11) names neither the FIRST table nor where the class was measured, so folding it into scope required reconstructing it from a different working-route entry (the diagnostics sweep CARRY describing the span trace_id/span_id append-reject measured 2026-08-16); recoverable only because that entry was already in the window from the session-start read",
+   "producer": null
+  },
+  {
+   "kind": "input-friction",
+   "chunk": "2026-08-22-log-records-identity",
+   "line": 524,
+   "consumer": "implement/code",
+   "artifact": "andromeda-pulse-0.3.0/chunks/2026-08-22-log-records-identity/plan.md",
+   "quality": "input.plan-step-ambiguous",
+   "note": "the plan underdetermined where the new column goes: step 4 said to add the Arrow Field in the same position as the DDL column, while step 5 said only to add the column and extend the PK, never fixing a DDL position - so the two steps refer to each other without either deciding. Resolved from repo precedent rather than by invention, per the code-writing discipline preference for existing project style: template_id, the previous column added to this same table, was appended last, and appending keeps every existing column position stable for the positional Arrow-to-DuckDB append and the broadcast encode. Surfaced in the implement report rather than silently interpreted",
+   "producer": null
+  },
+  {
+   "kind": "input-friction",
+   "chunk": "2026-08-22-log-records-identity",
+   "line": 524,
+   "consumer": "implement/code",
+   "artifact": "crates/buffer/src/appender.rs",
+   "quality": "input.plan-step-ambiguous",
+   "note": "the plan underdetermined where the new column goes: step 4 said to add the Arrow Field in the same position as the DDL column, while step 5 said only to add the column and extend the PK, never fixing a DDL position - so the two steps refer to each other without either deciding. Resolved from repo precedent rather than by invention, per the code-writing discipline preference for existing project style: template_id, the previous column added to this same table, was appended last, and appending keeps every existing column position stable for the positional Arrow-to-DuckDB append and the broadcast encode. Surfaced in the implement report rather than silently interpreted",
+   "producer": null
+  },
+  {
+   "kind": "input-friction",
+   "chunk": "2026-08-22-log-records-identity",
+   "line": 524,
+   "consumer": "implement/code",
+   "artifact": "crates/buffer/src/schema.rs",
+   "quality": "input.plan-step-ambiguous",
+   "note": "the plan underdetermined where the new column goes: step 4 said to add the Arrow Field in the same position as the DDL column, while step 5 said only to add the column and extend the PK, never fixing a DDL position - so the two steps refer to each other without either deciding. Resolved from repo precedent rather than by invention, per the code-writing discipline preference for existing project style: template_id, the previous column added to this same table, was appended last, and appending keeps every existing column position stable for the positional Arrow-to-DuckDB append and the broadcast encode. Surfaced in the implement report rather than silently interpreted",
+   "producer": null
+  },
+  {
+   "kind": "input-friction",
+   "chunk": "2026-08-22-log-records-identity",
+   "line": 537,
+   "consumer": "wrap-session/route-resolve",
+   "artifact": "andromeda-pulse-0.3.0/working-route.md",
+   "quality": "input.outcome-unclear",
+   "note": "one of the six operator route items arrived TRUNCATED - item 2 began mid-sentence at 'resource_hash) with NO label column', so its title and the head of its SCOPE were missing, while its placement instruction ('right after Ingestion scrub coverage') survived. The subject was recoverable only because this chunk had independently measured the same facts at implement (three metrics_points PK sites; no attributes column), so the entry could be authored from first-hand measurement rather than from the fragment. Surfaced to the operator rather than guessed, and confirmed before writing: a route entry is a durable commitment and inventing the half of an instruction that did not arrive is exactly how a route entry ends up aimed at work nobody asked for",
+   "producer": null
+  },
+  {
+   "kind": "consumed-verdict",
+   "chunk": "2026-08-23-ingestion-scrub-coverage",
+   "line": 543,
+   "consumer": "phase/take-up",
+   "artifact": "working-entry",
+   "quality": "wrong",
+   "note": "unusually rich (CONTEXT/SCOPE/NOTE/EVIDENCE/PREREQ all present) but its target-set count is falsified at HEAD: it names five columns, and the fifth (instrumentation_scopes.scope_name/.scope_version) has no producer, so four are live",
+   "producer": null
+  },
+  {
+   "kind": "consumed-verdict",
+   "chunk": "2026-08-23-ingestion-scrub-coverage",
+   "line": 551,
+   "consumer": "phase/validate",
+   "artifact": "plan",
+   "quality": "wrong",
+   "note": "the gate caught a real defect in the P4 output: the live leg was authored as SCENARIO=scrub-canary agent-run.sh run, but no SCENARIO support exists in the harness and run is the nextest suite rather than a telemetry injector, so the acceptance criteria reading agent-latest.jsonl had no producer; resolved in place per check 4 REQUIRED-RESOLUTION (added the producer example, corrected the invocation to build-before-boot + invoke-by-path + delta-assert), not by a P4 re-plan",
+   "producer": "phase/plan",
+   "producer_outcome": "ok",
+   "producer_signals": [],
+   "producer_note": "263 lines, inside the 150-400 band; 9 implementation steps, 15 acceptance criteria across 6 domains, all 3 research open questions resolved (2 by operator dialogue, 1 by decisive lean); graph citations written confidently with 0 left soft",
+   "producer_frictions": [
+    "the phase directive argued metric_name is risky to scrub because it is the lookup key in ~"
+   ]
+  },
+  {
+   "kind": "consumed-verdict",
+   "chunk": "2026-08-23-ingestion-scrub-coverage",
+   "line": 557,
+   "consumer": "implement/smoke",
+   "artifact": "agent-harness",
+   "quality": "thin",
+   "note": "the 5-command contract was NOT exercised: agent-run.sh boot runs cargo run --bin pulse-app --release and exports its own ANDROMEDA_PULSE_DATA_DIR, so it can serve neither a debug-build wire proof nor a caller-chosen fresh data dir; the test-plan Direct-binary smoke variant was used instead, which is the sanctioned form for exactly this shape",
+   "producer": null
+  },
+  {
+   "kind": "consumed-verdict",
+   "chunk": "2026-08-23-ingestion-scrub-coverage",
+   "line": 557,
+   "consumer": "implement/smoke",
+   "artifact": "plan",
+   "quality": "thin",
+   "note": "its live-leg recipe still named agent-run.sh boot after the P5 correction fixed the producer half; the boot vehicle itself was the remaining wrong part and was substituted at run time",
+   "producer": "phase/plan",
+   "producer_outcome": "ok",
+   "producer_signals": [],
+   "producer_note": "263 lines, inside the 150-400 band; 9 implementation steps, 15 acceptance criteria across 6 domains, all 3 research open questions resolved (2 by operator dialogue, 1 by decisive lean); graph citations written confidently with 0 left soft",
+   "producer_frictions": [
+    "the phase directive argued metric_name is risky to scrub because it is the lookup key in ~"
+   ]
+  },
+  {
+   "kind": "consumed-verdict",
+   "chunk": "2026-08-23-metrics-points-identity",
+   "line": 585,
+   "consumer": "implement/smoke",
+   "artifact": "agent-harness",
+   "quality": "wrong",
+   "note": "the status verb returned exit 0 with a payload naming pid 46740 and uptime_ms 0, while PowerShell confirmed that pid is not running and no pulse-app process exists - it reported RESIDUE, not this run, exactly the bare-status-verb weakness the live-leg rule names. Boot and cleanup were driven directly (direct-binary variant), so only the status verb was exercised.",
+   "producer": null
+  },
+  {
+   "kind": "consumed-verdict",
+   "chunk": "2026-08-23-metrics-points-identity",
+   "line": 589,
+   "consumer": "wrap-session/reconcile",
+   "artifact": "drift-base",
+   "quality": "thin",
+   "note": "no detector covers security-plan §Security Anti-Patterns → Logging, the section amended at three consecutive chunks; the security agent returned clean and flagged the gap itself. Closed this wrap by adding D-security-logging.",
+   "producer": null
+  },
+  {
+   "kind": "input-friction",
+   "chunk": "2026-08-23-metrics-points-labels",
+   "line": 605,
+   "consumer": "phase/research",
+   "artifact": "pulse-app/ui/tests-a11y/helpers/mock-tauri.ts",
+   "quality": "input.extract-signal-gap",
+   "note": "the a11y extract cited its harness coordinates as tests-a11y/helpers/mock-tauri.ts and tests-a11y/helpers/v02-fixtures.ts, paths that do not resolve from the repo root — the harness lives under pulse-app/ui/tests-a11y/, since the only package.json in the project is pulse-app/ui/package.json. The extract echoed its plan faithfully, so the gap is that the plan writes harness paths relative to the ui package root while every other extract cited repo-root-relative paths; the mixed frame cost two searches to resolve. The answer once found was decisive: the metrics route IS in the audited set but its mock returns an empty items array, so the audit renders only the empty state and could not exercise a label field either way",
+   "producer": null
+  },
+  {
+   "kind": "input-friction",
+   "chunk": "2026-08-23-metrics-points-labels",
+   "line": 605,
+   "consumer": "phase/research",
+   "artifact": ".andromeda/runs/2026-08-23T10-14-00Z-phase/a11y.md",
+   "quality": "input.extract-signal-gap",
+   "note": "the a11y extract cited its harness coordinates as tests-a11y/helpers/mock-tauri.ts and tests-a11y/helpers/v02-fixtures.ts, paths that do not resolve from the repo root — the harness lives under pulse-app/ui/tests-a11y/, since the only package.json in the project is pulse-app/ui/package.json. The extract echoed its plan faithfully, so the gap is that the plan writes harness paths relative to the ui package root while every other extract cited repo-root-relative paths; the mixed frame cost two searches to resolve. The answer once found was decisive: the metrics route IS in the audited set but its mock returns an empty items array, so the audit renders only the empty state and could not exercise a label field either way",
+   "producer": null
+  },
+  {
+   "kind": "consumed-verdict",
+   "chunk": "2026-08-23-metrics-points-labels",
+   "line": 606,
+   "consumer": "phase/plan",
+   "artifact": "research",
+   "quality": "thin",
+   "note": "complete on the change surface but silent on the LIVE-LEG invocation form: it never inspected crates/ingest/examples/, so the first Test Commands draft was authored from the generic 5-command harness shape and was wrong twice over",
+   "producer": "phase/research",
+   "producer_outcome": "ok",
+   "producer_signals": [
+    "unresolved-questions"
+   ],
+   "producer_note": "3 open questions carried to P4, inside the 0-3 band by design: two block plan-decision (representation shape, label-key storage disposition) and one blocks implementation-scope (whether to build any webview surface)",
+   "producer_frictions": [
+    "the a11y extract cited its harness coordinates as tests-a11y/helpers/mock-tauri.ts and te~"
+   ]
+  },
+  {
+   "kind": "input-friction",
+   "chunk": "2026-08-23-metrics-points-labels",
+   "line": 607,
+   "consumer": "phase/plan",
+   "artifact": "crates/ingest/examples/inject_colliding_metrics.rs",
+   "quality": "input.research-thin",
+   "note": "research established the change surface fully but never looked at the live-leg producer, so the first Test Commands draft made two independent errors that would both have reached /implement as a broken gate: it used agent-run.sh run as the OTLP send when that verb is cargo nextest run --workspace, and it called mktemp -d separately for boot and for the follow-up verb, which would have put the boot and the log read in DIFFERENT data dirs. The fix came from the plan-template LIVE-LEG rule pointing at the harness rules file, which led to crates/ingest/examples/inject_colliding_metrics.rs — the predecessor chunk own witness, which ALREADY emits the label-differing pair and carries its own build-outside-the-timed-section, invoke-by-path discipline in its doc comment. Research should have surfaced the producer as part of the modify-set, since the chunk extends it",
+   "producer": null
+  },
+  {
+   "kind": "input-friction",
+   "chunk": "2026-08-23-metrics-points-labels",
+   "line": 607,
+   "consumer": "phase/plan",
+   "artifact": "andromeda-pulse-0.3.0/chunks/2026-08-23-metrics-points-labels/research.md",
+   "quality": "input.research-thin",
+   "note": "research established the change surface fully but never looked at the live-leg producer, so the first Test Commands draft made two independent errors that would both have reached /implement as a broken gate: it used agent-run.sh run as the OTLP send when that verb is cargo nextest run --workspace, and it called mktemp -d separately for boot and for the follow-up verb, which would have put the boot and the log read in DIFFERENT data dirs. The fix came from the plan-template LIVE-LEG rule pointing at the harness rules file, which led to crates/ingest/examples/inject_colliding_metrics.rs — the predecessor chunk own witness, which ALREADY emits the label-differing pair and carries its own build-outside-the-timed-section, invoke-by-path discipline in its doc comment. Research should have surfaced the producer as part of the modify-set, since the chunk extends it",
+   "producer": null
+  },
+  {
+   "kind": "input-friction",
+   "chunk": "2026-08-23-metrics-points-labels",
+   "line": 607,
+   "consumer": "phase/plan",
+   "artifact": ".claude/rules/verification-harness.md",
+   "quality": "input.research-thin",
+   "note": "research established the change surface fully but never looked at the live-leg producer, so the first Test Commands draft made two independent errors that would both have reached /implement as a broken gate: it used agent-run.sh run as the OTLP send when that verb is cargo nextest run --workspace, and it called mktemp -d separately for boot and for the follow-up verb, which would have put the boot and the log read in DIFFERENT data dirs. The fix came from the plan-template LIVE-LEG rule pointing at the harness rules file, which led to crates/ingest/examples/inject_colliding_metrics.rs — the predecessor chunk own witness, which ALREADY emits the label-differing pair and carries its own build-outside-the-timed-section, invoke-by-path discipline in its doc comment. Research should have surfaced the producer as part of the modify-set, since the chunk extends it",
+   "producer": null
+  },
+  {
+   "kind": "input-friction",
+   "chunk": "2026-08-23-webview-self-verify",
+   "line": 638,
+   "consumer": "phase/research",
+   "artifact": "pulse-app/src/observability.rs",
+   "quality": "input.extract-signal-gap",
+   "note": "The obs extract asserted as fact that the observability allowlist enumerates no tray, ui, window or app.boot.webview.* entry, and built an acceptance bullet requiring the chunk to add a new target plus an EXACT leaf. Research found every one of them already present in pulse-app/src/observability.rs — app.boot.webview.init:927, app.boot.tray.init:966, ui.layout.transition:975 (permitting exactly the three fields the close path emits), tray.visibility.toggle:988, tray.menu.interaction:992, tray.notification.dismiss:996, tray.notification.action:1000 — so the chunk needs no new target and no new leaf, and that acceptance bullet does not fire. The allowlist lives in CODE, which a spec-only distiller cannot attest; the same extract correctly hedged its downstream conclusion as research question but stated the underlying inventory as fact",
+   "producer": null
+  },
+  {
+   "kind": "input-friction",
+   "chunk": "2026-08-23-webview-self-verify",
+   "line": 638,
+   "consumer": "phase/research",
+   "artifact": ".andromeda/runs/2026-08-23T12-15-00Z-phase/obs.md",
+   "quality": "input.extract-signal-gap",
+   "note": "The obs extract asserted as fact that the observability allowlist enumerates no tray, ui, window or app.boot.webview.* entry, and built an acceptance bullet requiring the chunk to add a new target plus an EXACT leaf. Research found every one of them already present in pulse-app/src/observability.rs — app.boot.webview.init:927, app.boot.tray.init:966, ui.layout.transition:975 (permitting exactly the three fields the close path emits), tray.visibility.toggle:988, tray.menu.interaction:992, tray.notification.dismiss:996, tray.notification.action:1000 — so the chunk needs no new target and no new leaf, and that acceptance bullet does not fire. The allowlist lives in CODE, which a spec-only distiller cannot attest; the same extract correctly hedged its downstream conclusion as research question but stated the underlying inventory as fact",
+   "producer": null
+  },
+  {
+   "kind": "input-friction",
+   "chunk": "2026-08-23-webview-self-verify",
+   "line": 638,
+   "consumer": "phase/research",
+   "artifact": "andromeda-pulse-0.3.0/chunks/2026-08-23-webview-self-verify/research.md",
+   "quality": "input.extract-signal-gap",
+   "note": "The obs extract asserted as fact that the observability allowlist enumerates no tray, ui, window or app.boot.webview.* entry, and built an acceptance bullet requiring the chunk to add a new target plus an EXACT leaf. Research found every one of them already present in pulse-app/src/observability.rs — app.boot.webview.init:927, app.boot.tray.init:966, ui.layout.transition:975 (permitting exactly the three fields the close path emits), tray.visibility.toggle:988, tray.menu.interaction:992, tray.notification.dismiss:996, tray.notification.action:1000 — so the chunk needs no new target and no new leaf, and that acceptance bullet does not fire. The allowlist lives in CODE, which a spec-only distiller cannot attest; the same extract correctly hedged its downstream conclusion as research question but stated the underlying inventory as fact",
+   "producer": null
+  },
+  {
+   "kind": "input-friction",
+   "chunk": "2026-08-23-integration-ux-e2e-test",
+   "line": 661,
+   "consumer": "phase/take-up",
+   "artifact": "andromeda-pulse-0.3.0/working-route.md",
+   "quality": "input.carry-context-gap",
+   "note": "The taken-up entry carries two annotations that contradict each other on the same obligation: a NOTE stating the cargo-audit PREREQ re-pinned AWAY and is no longer this entry-s obligation, and a later PREREQ annotation stating it was re-pinned BACK here as pin #11. Resolved by reading the wrap timestamps inside each annotation (NOTE = the adaptation wrap, PREREQ = the later webview-self-verify wrap) and cross-checking the handoff and the operator directive, both of which name pin #11 as riding here. Folding the NOTE at face value would have silently dropped the pin.",
+   "producer": null
+  },
+  {
+   "kind": "input-friction",
+   "chunk": "2026-08-23-integration-ux-e2e-test",
+   "line": 661,
+   "consumer": "phase/take-up",
+   "artifact": "andromeda-pulse-0.3.0/chunks/2026-08-23-integration-ux-e2e-test/scope.md",
+   "quality": "input.carry-context-gap",
+   "note": "The taken-up entry carries two annotations that contradict each other on the same obligation: a NOTE stating the cargo-audit PREREQ re-pinned AWAY and is no longer this entry-s obligation, and a later PREREQ annotation stating it was re-pinned BACK here as pin #11. Resolved by reading the wrap timestamps inside each annotation (NOTE = the adaptation wrap, PREREQ = the later webview-self-verify wrap) and cross-checking the handoff and the operator directive, both of which name pin #11 as riding here. Folding the NOTE at face value would have silently dropped the pin.",
+   "producer": null
+  },
+  {
+   "kind": "input-friction",
+   "chunk": "2026-08-23-integration-ux-e2e-test",
+   "line": 669,
+   "consumer": "phase/plan",
+   "artifact": "pulse-app/ui/src/components/EmptyState.tsx",
+   "quality": "input.extracts-conflict",
+   "note": "The design extracts acceptance contribution required the empty-state assertion to key on the FULL mandated composition including the Observatory glyph, but the shipped EmptyState renders that glyph deliberately aria-hidden and without a test id (decorative, SC 1.1.1 — meaning lives in the message and hint). So the glyph is by construction unaddressable by a WebDriver selector, and the criterion could not be carried into the plan verbatim. The plan narrows it to message + hint present, with the hint as the discriminator the error variant cannot satisfy. P2 aggregate check C could not have caught this: it is an extract-versus-shipped-code conflict, not a contradiction between two extracts, so only research surfaces it.",
+   "producer": null
+  },
+  {
+   "kind": "input-friction",
+   "chunk": "2026-08-23-integration-ux-e2e-test",
+   "line": 669,
+   "consumer": "phase/plan",
+   "artifact": ".andromeda/runs/2026-08-23T14-18-02Z-phase/design.md",
+   "quality": "input.extracts-conflict",
+   "note": "The design extracts acceptance contribution required the empty-state assertion to key on the FULL mandated composition including the Observatory glyph, but the shipped EmptyState renders that glyph deliberately aria-hidden and without a test id (decorative, SC 1.1.1 — meaning lives in the message and hint). So the glyph is by construction unaddressable by a WebDriver selector, and the criterion could not be carried into the plan verbatim. The plan narrows it to message + hint present, with the hint as the discriminator the error variant cannot satisfy. P2 aggregate check C could not have caught this: it is an extract-versus-shipped-code conflict, not a contradiction between two extracts, so only research surfaces it.",
+   "producer": null
+  },
+  {
+   "kind": "input-friction",
+   "chunk": "2026-08-23-integration-ux-e2e-test",
+   "line": 675,
+   "consumer": "implement/code",
+   "artifact": "andromeda-pulse-0.3.0/chunks/2026-08-23-integration-ux-e2e-test/plan.md",
+   "quality": "input.plan-step-ambiguous",
+   "note": "Plan Step 1 says to replace the single is_widget_hidden_transition boolean WITH A PER-STAGE PREDICATE SET, while Step 3s stage table enumerates six stages none of which is the widget close. Following the table literally would have orphaned that predicate, which is the ONLY guard on core:window:allow-close and the entire deliverable of the immediately preceding chunk — retiring a shipped guard one chunk after it landed. Resolved in the direction Step 1s own wording supports rather than silently deleting: the close became a seventh TERMINAL stage (terminal because the press sends the app to the tray). Surfaced to the operator mid-flight and carried into the P4 report rather than interpreted silently.",
+   "producer": null
+  },
+  {
+   "kind": "input-friction",
+   "chunk": "2026-08-23-integration-ux-e2e-test",
+   "line": 675,
+   "consumer": "implement/code",
+   "artifact": "xtask/src/webview_drive.rs",
+   "quality": "input.plan-step-ambiguous",
+   "note": "Plan Step 1 says to replace the single is_widget_hidden_transition boolean WITH A PER-STAGE PREDICATE SET, while Step 3s stage table enumerates six stages none of which is the widget close. Following the table literally would have orphaned that predicate, which is the ONLY guard on core:window:allow-close and the entire deliverable of the immediately preceding chunk — retiring a shipped guard one chunk after it landed. Resolved in the direction Step 1s own wording supports rather than silently deleting: the close became a seventh TERMINAL stage (terminal because the press sends the app to the tray). Surfaced to the operator mid-flight and carried into the P4 report rather than interpreted silently.",
+   "producer": null
+  },
+  {
+   "kind": "consumed-verdict",
+   "chunk": "2026-08-23-a11y-verification",
+   "line": 693,
+   "consumer": "phase/take-up",
+   "artifact": "working-entry",
+   "quality": "wrong",
+   "note": "rich context but two false premises: CARRY-3 asserts the Traces surface ships neither a region label nor a table role (both falsified at HEAD), and CARRY-1 names spec slot p13 which is already occupied by p13-empty-states.spec.ts",
+   "producer": null
+  },
+  {
+   "kind": "consumed-verdict",
+   "chunk": "2026-08-23-a11y-verification",
+   "line": 702,
+   "consumer": "phase/plan",
+   "artifact": "research",
+   "quality": "thin",
+   "note": "did not record the visually-hidden/sr-only convention (or its absence), which step 2 needed; discovered by a mid-synthesis probe that no sr-only utility exists, so the plan had to specify a local inline technique instead of naming a phantom class",
+   "producer": "phase/research",
+   "producer_outcome": "ok",
+   "producer_signals": [
+    "unresolved-questions"
+   ],
+   "producer_note": "3 open questions, within the 0-3 band by design: two plan-decision forks for P4 and one implementation-scope probe (cargo audit point 40)",
+   "producer_frictions": [
+    "Two truncated probes in one step were read as complete, same mechanism, opposite outcomes~"
+   ]
+  },
+  {
+   "kind": "input-friction",
+   "chunk": "2026-08-23-a11y-verification",
+   "line": 703,
+   "consumer": "phase/plan",
+   "artifact": "andromeda-pulse-0.3.0/chunks/2026-08-23-a11y-verification/research.md",
+   "quality": "input.research-thin",
+   "note": "P3 research.md recorded a Conventions-to-follow section but omitted the visually-hidden text convention, which the operator-selected aria-describedby design in step 2 depends on. Caught only by probing mid-synthesis: no sr-only or visually-hidden utility exists anywhere in pulse-app/ui, and the nearest primitive (StatusLiveRegion) is a TRANSIENT role=status announcement channel, not a persistent description. Without the probe the plan would have named a phantom class — the same phantom-selector class this very chunk exists to correct.",
+   "producer": null
+  },
+  {
+   "kind": "input-friction",
+   "chunk": "2026-08-23-a11y-verification",
+   "line": 703,
+   "consumer": "phase/plan",
+   "artifact": "pulse-app/ui/src/dashboard/StatusLiveRegion.tsx",
+   "quality": "input.research-thin",
+   "note": "P3 research.md recorded a Conventions-to-follow section but omitted the visually-hidden text convention, which the operator-selected aria-describedby design in step 2 depends on. Caught only by probing mid-synthesis: no sr-only or visually-hidden utility exists anywhere in pulse-app/ui, and the nearest primitive (StatusLiveRegion) is a TRANSIENT role=status announcement channel, not a persistent description. Without the probe the plan would have named a phantom class — the same phantom-selector class this very chunk exists to correct.",
+   "producer": null
+  },
+  {
+   "kind": "consumed-verdict",
+   "chunk": "2026-08-23-a11y-verification",
+   "line": 707,
+   "consumer": "implement/code",
+   "artifact": "research",
+   "quality": "thin",
+   "note": "the Files-to-modify boundary list under-enumerated by three: tokens.css (focus ring), tests-a11y/helpers/mock-tauri.ts (reject/delay support the p14 spec needs), ConstellationCanvas.test.tsx (co-located companion); it also listed v02-fixtures.ts which was not needed",
+   "producer": "phase/research",
+   "producer_outcome": "ok",
+   "producer_signals": [
+    "unresolved-questions"
+   ],
+   "producer_note": "3 open questions, within the 0-3 band by design: two plan-decision forks for P4 and one implementation-scope probe (cargo audit point 40)",
+   "producer_frictions": [
+    "Two truncated probes in one step were read as complete, same mechanism, opposite outcomes~"
+   ]
+  },
+  {
+   "kind": "input-friction",
+   "chunk": "2026-08-23-a11y-verification",
+   "line": 708,
+   "consumer": "implement/code",
+   "artifact": "andromeda-pulse-0.3.0/chunks/2026-08-23-a11y-verification/plan.md",
+   "quality": "input.plan-step-ambiguous",
+   "note": "Plan step 1 could not be followed as written, in two independent ways. (1) CONTRADICTION: it prescribed roving tabindex on <tr> while its own parenthetical banned nested focusables per a11y-plan section 11 — but every row already contains an Investigate button, so a focusable row containing a focusable button is exactly the banned shape. Resolved by making the in-row button tabIndex=-1 so the row is the single tab stop and Enter activates it (the standard grid-lite pattern satisfying both constraints), surfaced rather than silently interpreted. (2) HARMFUL PRESCRIPTION: the same step directed announcing row-focus changes through useStatusAnnouncer, but focusing a row already announces it natively, so a live-region announcement per arrow key would double-speak — the stacking anti-pattern a11y-plan section 4 bans. Implemented without the per-row announce.",
+   "producer": null
+  },
+  {
+   "kind": "input-friction",
+   "chunk": "2026-08-23-a11y-verification",
+   "line": 708,
+   "consumer": "implement/code",
+   "artifact": "pulse-app/ui/src/dashboard/routes/traces/TraceTable.tsx",
+   "quality": "input.plan-step-ambiguous",
+   "note": "Plan step 1 could not be followed as written, in two independent ways. (1) CONTRADICTION: it prescribed roving tabindex on <tr> while its own parenthetical banned nested focusables per a11y-plan section 11 — but every row already contains an Investigate button, so a focusable row containing a focusable button is exactly the banned shape. Resolved by making the in-row button tabIndex=-1 so the row is the single tab stop and Enter activates it (the standard grid-lite pattern satisfying both constraints), surfaced rather than silently interpreted. (2) HARMFUL PRESCRIPTION: the same step directed announcing row-focus changes through useStatusAnnouncer, but focusing a row already announces it natively, so a live-region announcement per arrow key would double-speak — the stacking anti-pattern a11y-plan section 4 bans. Implemented without the per-row announce.",
+   "producer": null
+  },
+  {
+   "kind": "input-friction",
+   "chunk": "2026-08-23-a11y-verification",
+   "line": 709,
+   "consumer": "implement/code",
+   "artifact": "andromeda-pulse-0.3.0/chunks/2026-08-23-a11y-verification/research.md",
+   "quality": "input.research-files-wrong",
+   "note": "The research boundary list was incomplete in a way only writing the code exposed: the token focus ring needs tokens.css (a :focus-visible rule cannot be an inline style, and the acceptance criterion demands the token ring), and the p14 error/progress specs need mock-tauri.ts to support rejection and delay (it only ever called Promise.resolve). Both were judged in-scope gray areas rather than soft-exits. The list also named v02-fixtures.ts, which turned out unnecessary once the fixtures were inlined in the spec — so the list was wrong in both directions.",
+   "producer": null
+  },
+  {
+   "kind": "input-friction",
+   "chunk": "2026-08-23-a11y-verification",
+   "line": 709,
+   "consumer": "implement/code",
+   "artifact": "pulse-app/ui/src/styles/tokens.css",
+   "quality": "input.research-files-wrong",
+   "note": "The research boundary list was incomplete in a way only writing the code exposed: the token focus ring needs tokens.css (a :focus-visible rule cannot be an inline style, and the acceptance criterion demands the token ring), and the p14 error/progress specs need mock-tauri.ts to support rejection and delay (it only ever called Promise.resolve). Both were judged in-scope gray areas rather than soft-exits. The list also named v02-fixtures.ts, which turned out unnecessary once the fixtures were inlined in the spec — so the list was wrong in both directions.",
+   "producer": null
+  },
+  {
+   "kind": "input-friction",
+   "chunk": "2026-08-23-a11y-verification",
+   "line": 709,
+   "consumer": "implement/code",
+   "artifact": "pulse-app/ui/tests-a11y/helpers/mock-tauri.ts",
+   "quality": "input.research-files-wrong",
+   "note": "The research boundary list was incomplete in a way only writing the code exposed: the token focus ring needs tokens.css (a :focus-visible rule cannot be an inline style, and the acceptance criterion demands the token ring), and the p14 error/progress specs need mock-tauri.ts to support rejection and delay (it only ever called Promise.resolve). Both were judged in-scope gray areas rather than soft-exits. The list also named v02-fixtures.ts, which turned out unnecessary once the fixtures were inlined in the spec — so the list was wrong in both directions.",
+   "producer": null
+  },
+  {
+   "kind": "consumed-verdict",
+   "chunk": "2026-08-23-a11y-verification",
+   "line": 710,
+   "consumer": "implement/fix-loop",
+   "artifact": "research",
+   "quality": "thin",
+   "note": "same boundary-list gap recorded at the code step",
+   "producer": "phase/research",
+   "producer_outcome": "ok",
+   "producer_signals": [
+    "unresolved-questions"
+   ],
+   "producer_note": "3 open questions, within the 0-3 band by design: two plan-decision forks for P4 and one implementation-scope probe (cargo audit point 40)",
+   "producer_frictions": [
+    "Two truncated probes in one step were read as complete, same mechanism, opposite outcomes~"
+   ]
+  },
+  {
+   "kind": "consumed-verdict",
+   "chunk": "2026-08-23-a11y-verification",
+   "line": 720,
+   "consumer": "wrap-session/reconcile",
+   "artifact": "wrap-playbook",
+   "quality": "thin",
+   "note": "17 rules matched 16 of 19 proposals; the two structural narrowings had no rule and escalated by unease, and a third escalate-severity-vs-actual-class mismatch had only narrow per-detector siblings",
+   "producer": null
+  },
+  {
+   "kind": "input-friction",
+   "chunk": "2026-08-23-headful-leg-extension",
+   "line": 732,
+   "consumer": "phase/take-up",
+   "artifact": "working-route.md",
+   "quality": "input.carry-context-gap",
+   "note": "The entry CONTEXT names the extension seam as a STAGES table with per-stage obs/dom predicates without saying which side of the two-sided harness owns it; grepping STAGES in the driver file a reader checks first (webview-drive.mjs) returned zero hits, and the table was located Rust-side at xtask/src/webview_drive.rs:51 with the predicate pair at stage_halves:270 and the DOM half produced by the .mjs recorder.",
+   "producer": null
+  },
+  {
+   "kind": "input-friction",
+   "chunk": "2026-08-23-headful-leg-extension",
+   "line": 732,
+   "consumer": "phase/take-up",
+   "artifact": "xtask/src/webview_drive.rs",
+   "quality": "input.carry-context-gap",
+   "note": "The entry CONTEXT names the extension seam as a STAGES table with per-stage obs/dom predicates without saying which side of the two-sided harness owns it; grepping STAGES in the driver file a reader checks first (webview-drive.mjs) returned zero hits, and the table was located Rust-side at xtask/src/webview_drive.rs:51 with the predicate pair at stage_halves:270 and the DOM half produced by the .mjs recorder.",
+   "producer": null
+  },
+  {
+   "kind": "input-friction",
+   "chunk": "2026-08-23-headful-leg-extension",
+   "line": 732,
+   "consumer": "phase/take-up",
+   "artifact": "pulse-app/ui/tests-e2e/webview-drive.mjs",
+   "quality": "input.carry-context-gap",
+   "note": "The entry CONTEXT names the extension seam as a STAGES table with per-stage obs/dom predicates without saying which side of the two-sided harness owns it; grepping STAGES in the driver file a reader checks first (webview-drive.mjs) returned zero hits, and the table was located Rust-side at xtask/src/webview_drive.rs:51 with the predicate pair at stage_halves:270 and the DOM half produced by the .mjs recorder.",
+   "producer": null
+  },
+  {
+   "kind": "consumed-verdict",
+   "chunk": "2026-08-23-headful-leg-extension",
+   "line": 736,
+   "consumer": "phase/plan",
+   "artifact": "research",
+   "quality": "thin",
+   "note": "located the two ui.layout.transition emit sites but not their layout_mode_from/to VALUES, which the toggle+close stages must match; converted into an explicit read-the-emit-site implementation note rather than a guessed predicate",
+   "producer": "phase/research",
+   "producer_outcome": "ok",
+   "producer_signals": [
+    "unresolved-questions"
+   ],
+   "producer_note": "3 open questions, all plan-decision band; blast radius proven single-file by the graph so no caller threading",
+   "producer_frictions": []
+  },
+  {
+   "kind": "input-friction",
+   "chunk": "2026-08-23-headful-leg-extension",
+   "line": 741,
+   "consumer": "implement/code",
+   "artifact": "plan.md",
+   "quality": "input.plan-step-ambiguous",
+   "note": "plan.md Test Commands listed the standing RED arm as webview-drive --expect-absent dashboard-toggle without --no-inject; against a healthy app the named stage IS observed so the arm exits FAILURE by design — the correct firing form pairs --no-inject with a telemetry-dependent stage (findings-window). P5 validation checked producer-presence but not the arm polarity.",
+   "producer": null
+  },
+  {
+   "kind": "input-friction",
+   "chunk": "2026-08-23-headful-leg-extension",
+   "line": 741,
+   "consumer": "implement/code",
+   "artifact": "xtask/src/webview_drive.rs",
+   "quality": "input.plan-step-ambiguous",
+   "note": "plan.md Test Commands listed the standing RED arm as webview-drive --expect-absent dashboard-toggle without --no-inject; against a healthy app the named stage IS observed so the arm exits FAILURE by design — the correct firing form pairs --no-inject with a telemetry-dependent stage (findings-window). P5 validation checked producer-presence but not the arm polarity.",
+   "producer": null
+  },
+  {
+   "kind": "input-friction",
+   "chunk": "2026-08-24-headful-mechanics-probe-race-disposition",
+   "line": 757,
+   "consumer": "phase/take-up",
+   "artifact": "andromeda-pulse-0.3.0/working-route.md",
+   "quality": "input.carry-context-gap",
+   "note": "The navigation-race CARRY dictates the guard site as a re-navigate-on-show guard in pulse-app/src/window.rs, but that file handles only CloseRequested/Moved/Resized and Tauri 2 WindowEvent exposes no Shown variant, while findings/report are shown from the frontend — so the dictated coordinate has no hook at the named site and folded as a hypothesis rather than a fact.",
+   "producer": null
+  },
+  {
+   "kind": "input-friction",
+   "chunk": "2026-08-24-headful-mechanics-probe-race-disposition",
+   "line": 757,
+   "consumer": "phase/take-up",
+   "artifact": "pulse-app/src/window.rs",
+   "quality": "input.carry-context-gap",
+   "note": "The navigation-race CARRY dictates the guard site as a re-navigate-on-show guard in pulse-app/src/window.rs, but that file handles only CloseRequested/Moved/Resized and Tauri 2 WindowEvent exposes no Shown variant, while findings/report are shown from the frontend — so the dictated coordinate has no hook at the named site and folded as a hypothesis rather than a fact.",
+   "producer": null
+  },
+  {
+   "kind": "input-friction",
+   "chunk": "2026-08-24-headful-mechanics-probe-race-disposition",
+   "line": 757,
+   "consumer": "phase/take-up",
+   "artifact": "pulse-app/tauri.conf.json",
+   "quality": "input.carry-context-gap",
+   "note": "The navigation-race CARRY dictates the guard site as a re-navigate-on-show guard in pulse-app/src/window.rs, but that file handles only CloseRequested/Moved/Resized and Tauri 2 WindowEvent exposes no Shown variant, while findings/report are shown from the frontend — so the dictated coordinate has no hook at the named site and folded as a hypothesis rather than a fact.",
+   "producer": null
+  },
+  {
+   "kind": "input-friction",
+   "chunk": "2026-08-24-headful-mechanics-probe-race-disposition",
+   "line": 767,
+   "consumer": "implement/code",
+   "artifact": "pulse-app/ui/tests-e2e/webview-drive.mjs",
+   "quality": "input.conventions-gap",
+   "note": "Two Rust-side constants (MAIN_LABEL, WIDGET_LABEL) were reached for in the node driver where only string literals exist, caught by eslint no-undef on both occasions; research named the driver file but not that its label vocabulary is duplicated as literals rather than shared.",
+   "producer": null
+  },
+  {
+   "kind": "input-friction",
+   "chunk": "2026-08-25-demo-injector-formalized-api-surface-retire",
+   "line": 797,
+   "consumer": "phase/research",
+   "artifact": "xtask/src/main.rs",
+   "quality": "input.extract-signal-gap",
+   "note": "the tests extract treated the capability verification matrix as ONE artifact and asked whether P-077 has an entry to concretize, implying the `cargo xtask verify:capability-matrix` gate would cover it. There are TWO matrices: the gate reads docs/v0_2_0/capability-verification-matrix.json (P-001-P-060), while P-077 lives in the v3 andromeda-pulse-0.3.0/verification-matrix.json which that command never opens (grep -rn P-077 xtask/ returns nothing). Left unchecked, P4 would have assumed CI enforcement that does not exist for this chunk's claimed capability.",
+   "producer": null
+  },
+  {
+   "kind": "input-friction",
+   "chunk": "2026-08-25-demo-injector-formalized-api-surface-retire",
+   "line": 797,
+   "consumer": "phase/research",
+   "artifact": "docs/v0_2_0/capability-verification-matrix.json",
+   "quality": "input.extract-signal-gap",
+   "note": "the tests extract treated the capability verification matrix as ONE artifact and asked whether P-077 has an entry to concretize, implying the `cargo xtask verify:capability-matrix` gate would cover it. There are TWO matrices: the gate reads docs/v0_2_0/capability-verification-matrix.json (P-001-P-060), while P-077 lives in the v3 andromeda-pulse-0.3.0/verification-matrix.json which that command never opens (grep -rn P-077 xtask/ returns nothing). Left unchecked, P4 would have assumed CI enforcement that does not exist for this chunk's claimed capability.",
+   "producer": null
+  },
+  {
+   "kind": "input-friction",
+   "chunk": "2026-08-25-demo-injector-formalized-api-surface-retire",
+   "line": 797,
+   "consumer": "phase/research",
+   "artifact": "andromeda-pulse-0.3.0/verification-matrix.json",
+   "quality": "input.extract-signal-gap",
+   "note": "the tests extract treated the capability verification matrix as ONE artifact and asked whether P-077 has an entry to concretize, implying the `cargo xtask verify:capability-matrix` gate would cover it. There are TWO matrices: the gate reads docs/v0_2_0/capability-verification-matrix.json (P-001-P-060), while P-077 lives in the v3 andromeda-pulse-0.3.0/verification-matrix.json which that command never opens (grep -rn P-077 xtask/ returns nothing). Left unchecked, P4 would have assumed CI enforcement that does not exist for this chunk's claimed capability.",
+   "producer": null
+  },
+  {
+   "kind": "input-friction",
+   "chunk": "2026-08-25-demo-injector-formalized-api-surface-retire",
+   "line": 806,
+   "consumer": "implement/code",
+   "artifact": "pulse-app/ui/package.json",
+   "quality": "input.plan-step-ambiguous",
+   "note": "the plan offered two options for the lint:a11y repair and the FIRST is structurally impossible, which neither phase research nor the a11y extract could have known without running it: eslint --rule builds a TOP-LEVEL flat-config object, but the jsx-a11y plugin is declared only inside the files:[**/*.{ts,tsx,jsx}] block, so `eslint . --rule jsx-a11y/alt-text:error` fails with \"could not find plugin jsx-a11y\" (exit 2) even after the Windows quoting is fixed. Quoting was a real defect and the FIRST error seen, which masks the second: fixing quoting alone converts one failure into another. Took the plan-sanctioned second option (relocate into eslint.config.mjs). Recorded because a future chunk reaching for --rule under flat config will hit the same wall.",
+   "producer": null
+  },
+  {
+   "kind": "input-friction",
+   "chunk": "2026-08-25-demo-injector-formalized-api-surface-retire",
+   "line": 806,
+   "consumer": "implement/code",
+   "artifact": "pulse-app/ui/eslint.config.mjs",
+   "quality": "input.plan-step-ambiguous",
+   "note": "the plan offered two options for the lint:a11y repair and the FIRST is structurally impossible, which neither phase research nor the a11y extract could have known without running it: eslint --rule builds a TOP-LEVEL flat-config object, but the jsx-a11y plugin is declared only inside the files:[**/*.{ts,tsx,jsx}] block, so `eslint . --rule jsx-a11y/alt-text:error` fails with \"could not find plugin jsx-a11y\" (exit 2) even after the Windows quoting is fixed. Quoting was a real defect and the FIRST error seen, which masks the second: fixing quoting alone converts one failure into another. Took the plan-sanctioned second option (relocate into eslint.config.mjs). Recorded because a future chunk reaching for --rule under flat config will hit the same wall.",
+   "producer": null
+  },
+  {
+   "kind": "input-friction",
+   "chunk": "2026-08-26-ingest-consumer-stall-under-sustained-load",
+   "line": 834,
+   "consumer": "phase/research",
+   "artifact": "extracts",
+   "quality": "input.extract-signal-gap",
+   "note": "The decisive finding was NOT at any extract-signalled location. Every extract that named the obs-plan §10 isolation invariant pointed at the buffer/triage paths that honour it (retention.rs:73, baseline/sql.rs:314); the violation is in crates/viz, which no extract named and the scope Surfaces table listed only as a read-only anchor. It surfaced from a lock-site sweep across crates rather than from following a signal, and it is what falsified scope premise 3 and widened the fix surface beyond the buffer crate the working entry names.",
+   "producer": "phase/distill",
+   "producer_outcome": "ok",
+   "producer_signals": [
+    "binding-unilateral"
+   ],
+   "producer_note": "7/7 returned, 5 substantive (41-48 lines) + 2 No-domain-coverage; check C: a11y→obs binding is unilateral (obs names tests/CI/arch/ui-bridge/security, not a11y) — noted for synthesis, no contradiction found",
+   "producer_frictions": [
+    "Named check 6 (no entity escapes) fired on 5 of 7 returns — arch, security, tests, obs, a~"
+   ]
+  },
+  {
+   "kind": "input-friction",
+   "chunk": "2026-08-26-ingest-consumer-stall-under-sustained-load",
+   "line": 834,
+   "consumer": "phase/research",
+   "artifact": "scope",
+   "quality": "input.extract-signal-gap",
+   "note": "The decisive finding was NOT at any extract-signalled location. Every extract that named the obs-plan §10 isolation invariant pointed at the buffer/triage paths that honour it (retention.rs:73, baseline/sql.rs:314); the violation is in crates/viz, which no extract named and the scope Surfaces table listed only as a read-only anchor. It surfaced from a lock-site sweep across crates rather than from following a signal, and it is what falsified scope premise 3 and widened the fix surface beyond the buffer crate the working entry names.",
+   "producer": "phase/research",
+   "producer_outcome": "ok",
+   "producer_signals": [
+    "premise-corrected"
+   ],
+   "producer_note": "2 of 5 premises corrected: the obs-plan §10-is-honoured premise FALSIFIED (viz locks the shared connection, no try_clone in the crate, no timeout; Q7 fallback likewise), and permanent-vs-slow promoted to an open question as not decidable by code reading",
+   "producer_frictions": [
+    "The decisive finding was NOT at any extract-signalled location. Every extract that named ~",
+    "The graph query output was piped through tail -40, which clipped the head of a 33-row res~"
+   ]
+  },
+  {
+   "kind": "input-friction",
+   "chunk": "2026-08-26-ingest-consumer-stall-under-sustained-load",
+   "line": 834,
+   "consumer": "phase/research",
+   "artifact": "research",
+   "quality": "input.extract-signal-gap",
+   "note": "The decisive finding was NOT at any extract-signalled location. Every extract that named the obs-plan §10 isolation invariant pointed at the buffer/triage paths that honour it (retention.rs:73, baseline/sql.rs:314); the violation is in crates/viz, which no extract named and the scope Surfaces table listed only as a read-only anchor. It surfaced from a lock-site sweep across crates rather than from following a signal, and it is what falsified scope premise 3 and widened the fix surface beyond the buffer crate the working entry names.",
+   "producer": "phase/research",
+   "producer_outcome": "ok",
+   "producer_signals": [
+    "unresolved-questions"
+   ],
+   "producer_note": "3 open questions, each naming its blocked step; Files-to-modify explicitly provisional pending Deliverable A attribution",
+   "producer_frictions": [
+    "The decisive finding was NOT at any extract-signalled location. Every extract that named ~",
+    "The graph query output was piped through tail -40, which clipped the head of a 33-row res~"
+   ]
+  },
+  {
+   "kind": "consumed-verdict",
+   "chunk": "2026-08-26-ingest-consumer-stall-under-sustained-load",
+   "line": 841,
+   "consumer": "implement/code",
+   "artifact": "research",
+   "quality": "wrong",
+   "note": "asserted TWO obs-plan §10 violators; only ONE exists. The Q7 fallback claim was false — TriageSqlState::new clones at construction (sql.rs:314) so the fallback already runs on the L1a read clone, not the appender connection. Read the code comment phrase shared connection as meaning the appender conn when it means shared among L1a queries.",
+   "producer": "phase/research",
+   "producer_outcome": "ok",
+   "producer_signals": [
+    "unresolved-questions"
+   ],
+   "producer_note": "3 open questions, each naming its blocked step; Files-to-modify explicitly provisional pending Deliverable A attribution",
+   "producer_frictions": [
+    "The decisive finding was NOT at any extract-signalled location. Every extract that named ~",
+    "The graph query output was piped through tail -40, which clipped the head of a 33-row res~"
+   ]
+  },
+  {
+   "kind": "consumed-verdict",
+   "chunk": "2026-08-26-ingest-consumer-stall-under-sustained-load",
+   "line": 843,
+   "consumer": "implement/fix-loop",
+   "artifact": "research",
+   "quality": "wrong",
+   "note": "same verdict as the code step — one of its two named §10 violators does not exist, and its prime causal hypothesis was falsified by the RED leg",
+   "producer": "phase/research",
+   "producer_outcome": "ok",
+   "producer_signals": [
+    "unresolved-questions"
+   ],
+   "producer_note": "3 open questions, each naming its blocked step; Files-to-modify explicitly provisional pending Deliverable A attribution",
+   "producer_frictions": [
+    "The decisive finding was NOT at any extract-signalled location. Every extract that named ~",
+    "The graph query output was piped through tail -40, which clipped the head of a 33-row res~"
+   ]
+  },
+  {
+   "kind": "input-friction",
+   "chunk": "2026-08-26-cadence-runaway-blocking-pool",
+   "line": 861,
+   "consumer": "phase/take-up",
+   "artifact": "working-route",
+   "quality": "input.carry-context-gap",
+   "note": "The folded cargo-audit PREREQ carried its full history but NOT the arithmetic that changes what it demands. Its text says next interval point 46 and records the last pin as a skip; deciding whether THIS chunk skips or runs required reading state.yaml (session_count 45) and inferring that the next wrap IS point 46. So the pin states the point but never states which wrap satisfies it, and a reader following the annotation alone would plausibly repeat the skip. Folded into scope with the obligation spelled out — the probe must actually RUN, in full form, exit status read directly rather than through a pipe.",
+   "producer": "phase/take-up",
+   "producer_outcome": "ok",
+   "producer_signals": [
+    "freeze-stamp"
+   ],
+   "producer_note": null,
+   "producer_frictions": [
+    "The folded cargo-audit PREREQ carried its full history but NOT the arithmetic that change~"
+   ]
+  },
+  {
+   "kind": "input-friction",
+   "chunk": "2026-08-26-cadence-runaway-blocking-pool",
+   "line": 861,
+   "consumer": "phase/take-up",
+   "artifact": "scope",
+   "quality": "input.carry-context-gap",
+   "note": "The folded cargo-audit PREREQ carried its full history but NOT the arithmetic that changes what it demands. Its text says next interval point 46 and records the last pin as a skip; deciding whether THIS chunk skips or runs required reading state.yaml (session_count 45) and inferring that the next wrap IS point 46. So the pin states the point but never states which wrap satisfies it, and a reader following the annotation alone would plausibly repeat the skip. Folded into scope with the obligation spelled out — the probe must actually RUN, in full form, exit status read directly rather than through a pipe.",
+   "producer": "phase/take-up",
+   "producer_outcome": "ok",
+   "producer_signals": [
+    "scope-inferred",
+    "carry-folded"
+   ],
+   "producer_note": "5 [inferred] bullets for P3 closure. Promotion-time reading added two facts the entry did not state and P3 will test: the L1a flood is EXACTLY ~10 queries per trigger (26,821/2,683), so the runaway is entirely in trigger frequency rather than per-cycle cost; and cadence/config.rs safety floors are described as bounding the TICKER, while cadence.tick fired 51 against 2,683 triggers.",
+   "producer_frictions": [
+    "The folded cargo-audit PREREQ carried its full history but NOT the arithmetic that change~"
+   ]
+  },
+  {
+   "kind": "input-friction",
+   "chunk": "2026-08-26-cadence-runaway-blocking-pool",
+   "line": 861,
+   "consumer": "phase/take-up",
+   "artifact": "state.yaml",
+   "quality": "input.carry-context-gap",
+   "note": "The folded cargo-audit PREREQ carried its full history but NOT the arithmetic that changes what it demands. Its text says next interval point 46 and records the last pin as a skip; deciding whether THIS chunk skips or runs required reading state.yaml (session_count 45) and inferring that the next wrap IS point 46. So the pin states the point but never states which wrap satisfies it, and a reader following the annotation alone would plausibly repeat the skip. Folded into scope with the obligation spelled out — the probe must actually RUN, in full form, exit status read directly rather than through a pipe.",
+   "producer": null
+  },
+  {
+   "kind": "input-friction",
+   "chunk": "2026-08-26-cadence-runaway-blocking-pool",
+   "line": 866,
+   "consumer": "phase/research",
+   "artifact": "obs-plan",
+   "quality": "input.extract-signal-gap",
+   "note": "A muted diagnostic blocked a research question outright rather than merely slowing it. obs named triage.cue.tick -> cues_suppressed / bypass_triggered as still in the §8 muted backlog; confirmed live at HEAD in this session own healthy leg, where the record reads cues_evaluated:19 beside cues_suppressed:<redacted>. Whether the silence family latches per service or re-emits every tick — which decides whether the fix is a latch, a rate limit, or both — is therefore unanswerable from any log until that leaf is un-muted. The muted-backlog entry is 11 days old and owned by a different route entry, so the cost landed on a chunk that does not own the remedy.",
+   "producer": null
+  },
+  {
+   "kind": "input-friction",
+   "chunk": "2026-08-26-cadence-runaway-blocking-pool",
+   "line": 866,
+   "consumer": "phase/research",
+   "artifact": "observability.rs",
+   "quality": "input.extract-signal-gap",
+   "note": "A muted diagnostic blocked a research question outright rather than merely slowing it. obs named triage.cue.tick -> cues_suppressed / bypass_triggered as still in the §8 muted backlog; confirmed live at HEAD in this session own healthy leg, where the record reads cues_evaluated:19 beside cues_suppressed:<redacted>. Whether the silence family latches per service or re-emits every tick — which decides whether the fix is a latch, a rate limit, or both — is therefore unanswerable from any log until that leaf is un-muted. The muted-backlog entry is 11 days old and owned by a different route entry, so the cost landed on a chunk that does not own the remedy.",
+   "producer": null
+  },
+  {
+   "kind": "consumed-verdict",
+   "chunk": "2026-08-26-cadence-runaway-blocking-pool",
+   "line": 874,
+   "consumer": "implement/smoke",
+   "artifact": "plan",
+   "quality": "thin",
+   "note": "fired on the boot-path condition (pulse-app/src/observability.rs is a named trigger path). The plan named the Direct-binary variant and the verdict source correctly, but its --sustained --minutes=15 command would have measured the wrong thing — under constant sustained load the error-spike ratio decays below threshold and no cue repeats, so cues_latched would have read 0 and the bound would have been unexercised",
+   "producer": null
+  },
+  {
+   "kind": "consumed-verdict",
+   "chunk": "2026-08-26-cadence-runaway-blocking-pool",
+   "line": 878,
+   "consumer": "wrap-session/reconcile",
+   "artifact": "spec:obs-plan",
+   "quality": "wrong",
+   "note": "§8:540 census asserted all five muted targets resolve to no allowlist entry; measured accurate for ONE of five. §8:534 states no bare interpretation key may exist while one does at observability.rs:1934",
+   "producer": null
+  },
+  {
+   "kind": "input-friction",
+   "chunk": "2026-08-26-l4-runtime-security-residuals",
+   "line": 897,
+   "consumer": "phase/plan",
+   "artifact": ".andromeda/runs/2026-08-26T13-40-53Z-phase/security.md",
+   "quality": "input.extracts-conflict",
+   "note": "two domain authorities pointed opposite ways on the same implementation choice and P2's aggregate check C did not surface it: the security extract states strict-path is the plan's NAMED primitive so choosing std 'is a deviation from a named mandate, not a free implementation choice - it owes an amendment', while the arch extract states adopting strict-path makes it a load-bearing runtime dependency needing a new Stack row and that 'the std fallback requires no arch change'. Neither is wrong and they do not contradict on any BINDING, which is all check C examines - the divergence lives in the two Constraints sections, so it only became visible at synthesis. Both paths owe an amendment on different sides; resolved by operator dialogue rather than by an artifact",
+   "producer": null
+  },
+  {
+   "kind": "input-friction",
+   "chunk": "2026-08-26-l4-runtime-security-residuals",
+   "line": 897,
+   "consumer": "phase/plan",
+   "artifact": ".andromeda/runs/2026-08-26T13-40-53Z-phase/arch.md",
+   "quality": "input.extracts-conflict",
+   "note": "two domain authorities pointed opposite ways on the same implementation choice and P2's aggregate check C did not surface it: the security extract states strict-path is the plan's NAMED primitive so choosing std 'is a deviation from a named mandate, not a free implementation choice - it owes an amendment', while the arch extract states adopting strict-path makes it a load-bearing runtime dependency needing a new Stack row and that 'the std fallback requires no arch change'. Neither is wrong and they do not contradict on any BINDING, which is all check C examines - the divergence lives in the two Constraints sections, so it only became visible at synthesis. Both paths owe an amendment on different sides; resolved by operator dialogue rather than by an artifact",
+   "producer": null
+  },
+  {
+   "kind": "consumed-verdict",
+   "chunk": "2026-08-26-l4-runtime-security-residuals",
+   "line": 906,
+   "consumer": "implement/smoke",
+   "artifact": "plan",
+   "quality": "thin",
+   "note": "the smoke fired under the boot-path condition (observability.rs is a literal test-plan section-3 trigger path) and the plan listed the producing env prefixes in firing form, which was load-bearing - but the invocation named a binary path that does not exist on this host",
+   "producer": "phase/plan",
+   "producer_outcome": "ok",
+   "producer_signals": [],
+   "producer_note": "256 lines, inside the 150-400 band; 8 acceptance criteria all anchored; 3 graph-impact citations written confidently from the trace rows, 0 left soft; claims no capability (all 22 matrix entries reviewed, none covers the subject)",
+   "producer_frictions": [
+    "two domain authorities pointed opposite ways on the same implementation choice and P2's a~"
+   ]
+  },
+  {
+   "kind": "consumed-verdict",
+   "chunk": "2026-08-26-l4-runtime-security-residuals",
+   "line": 908,
+   "consumer": "wrap-session/report",
+   "artifact": "plan",
+   "quality": "thin",
+   "note": "implement's deviations-with-justifications were available and reused verbatim, but the plan's own Test Commands named a binary path that exists on no host - carried into the report as a disproved chunk-artifact claim",
+   "producer": "phase/plan",
+   "producer_outcome": "ok",
+   "producer_signals": [],
+   "producer_note": "256 lines, inside the 150-400 band; 8 acceptance criteria all anchored; 3 graph-impact citations written confidently from the trace rows, 0 left soft; claims no capability (all 22 matrix entries reviewed, none covers the subject)",
+   "producer_frictions": [
+    "two domain authorities pointed opposite ways on the same implementation choice and P2's a~"
+   ]
+  },
+  {
+   "kind": "input-friction",
+   "chunk": "2026-08-26-interpretation-brief-completeness",
+   "line": 930,
+   "consumer": "implement/code",
+   "artifact": "pulse-app/tests/integration_real_llama_cli.rs",
+   "quality": "input.research-files-wrong",
+   "note": "Research/plan under-enumerated the builder caller set: integration_real_llama_cli.rs:131 calls build_primary_tier_prompt (env-gated test the graph query did not surface as a caller row), and the plan predicted existing e2e_p3 pins stay green while :536 pinned the exact old contract being changed. Both resolved in-scope (thread + strengthen); cost 2 extra reads, 0 iterations.",
+   "producer": null
+  },
+  {
+   "kind": "input-friction",
+   "chunk": "2026-08-26-interpretation-brief-completeness",
+   "line": 930,
+   "consumer": "implement/code",
+   "artifact": "pulse-app/tests/e2e_p3_mcp_incident_tools.rs",
+   "quality": "input.research-files-wrong",
+   "note": "Research/plan under-enumerated the builder caller set: integration_real_llama_cli.rs:131 calls build_primary_tier_prompt (env-gated test the graph query did not surface as a caller row), and the plan predicted existing e2e_p3 pins stay green while :536 pinned the exact old contract being changed. Both resolved in-scope (thread + strengthen); cost 2 extra reads, 0 iterations.",
+   "producer": null
+  },
+  {
+   "kind": "input-friction",
+   "chunk": "2026-08-27-report-window-copy-affordance",
+   "line": 964,
+   "consumer": "phase/research",
+   "artifact": "pulse-app/ui/src/report/Report.tsx",
+   "quality": "input.extract-signal-gap",
+   "note": "the single most decisive research finding — that a live region for the copy outcome ALREADY SHIPS — lives in pulse-app/ui/src/report/Report.tsx, a file NO extract named. The a11y extract raised exactly the right question (whether a live region already exists is research question) and the design, layouts and tests extracts all reasoned about the copy control, but every one of them pointed at use-report.ts or ReportRenderer.tsx; the answer sits one hop UP the consumer chain in the container that wires COPY_LIVE_REGION_MESSAGES into Modal liveMessage. The graph refs query on useReport surfaced it immediately (2 refs, both Report.tsx), so it cost no redo cycle — but without that query P4 would have planned a live region that already exists, which is the documented 2026-06-01 already-exists duplicate-resource failure mode",
+   "producer": null
+  },
+  {
+   "kind": "input-friction",
+   "chunk": "2026-08-27-report-window-copy-affordance",
+   "line": 964,
+   "consumer": "phase/research",
+   "artifact": ".andromeda/runs/2026-08-27T20-41-09Z-phase/a11y.md",
+   "quality": "input.extract-signal-gap",
+   "note": "the single most decisive research finding — that a live region for the copy outcome ALREADY SHIPS — lives in pulse-app/ui/src/report/Report.tsx, a file NO extract named. The a11y extract raised exactly the right question (whether a live region already exists is research question) and the design, layouts and tests extracts all reasoned about the copy control, but every one of them pointed at use-report.ts or ReportRenderer.tsx; the answer sits one hop UP the consumer chain in the container that wires COPY_LIVE_REGION_MESSAGES into Modal liveMessage. The graph refs query on useReport surfaced it immediately (2 refs, both Report.tsx), so it cost no redo cycle — but without that query P4 would have planned a live region that already exists, which is the documented 2026-06-01 already-exists duplicate-resource failure mode",
+   "producer": null
+  },
+  {
+   "kind": "consumed-verdict",
+   "chunk": "2026-08-28-ingest-consumer-initiating-freeze",
+   "line": 1032,
+   "consumer": "wrap-session/reconcile",
+   "artifact": "report",
+   "quality": "thin",
+   "note": "THE consumer verdict: sufficient for six of seven detectors, but the test-plan detector found a disproved spec claim the report had MISSED entirely - §3s RED-leg rule (a RED leg MUST produce the ERROR it is measuring), which arm A falsified by carrying 0 ERROR across a 450s stall. Added to the report at P2 as disproved-claims entries 5 and 6 so Validate check 6 saw the full set.",
+   "producer": "wrap-session/report",
+   "producer_outcome": "ok",
+   "producer_signals": [],
+   "producer_note": "one targeted extra read - grepping the seven spec masters for the survivable/amplifier phrasing - which is what established that the wrap directives item-3 claim lives only in the master-route RECORD and therefore takes a report entry rather than a spec amendment",
+   "producer_frictions": [
+    "The Spec-claims-disproved-by-measurement bullet carried FOUR entries this chunk, and for ~"
+   ]
+  },
+  {
+   "kind": "input-friction",
+   "chunk": "2026-08-28-ingest-consumer-initiating-freeze",
+   "line": 1033,
+   "consumer": "wrap-session/reconcile",
+   "artifact": "report.md",
+   "quality": "input.report-insufficient",
+   "note": "The P1 report authored a Spec-claims-disproved-by-measurement bullet with four entries and MISSED a fifth that the chunks own measurement falsified: test-plan §3s Direct-binary smoke variant asserts a MEASURE-FIRST RED leg is by construction an unhealthy run that MUST produce the ERROR it is measuring. Arm A is a RED leg that produced 0 ERROR and 0 app.panic.fatal across a 450s stall, because the defect is BLOCK-shaped rather than REJECT-shaped - so §3s own rule would have mandated evidence that shape cannot produce, and its clean-log assertion passes vacuously over such a leg. Found by the D-tests-obs-harness detector, not by the report author. The report was extended at P2 (entries 5 and 6) so Validate check 6 could dispose the full set. Root shape: the author reasoned about which claims the chunk CONTRADICTED in the domain it was investigating (ingest/obs), and did not scan the claims governing the METHOD it used to investigate.",
+   "producer": null
+  },
+  {
+   "kind": "input-friction",
+   "chunk": "2026-08-28-ingest-consumer-initiating-freeze",
+   "line": 1033,
+   "consumer": "wrap-session/reconcile",
+   "artifact": ".andromeda/test-plan.md",
+   "quality": "input.report-insufficient",
+   "note": "The P1 report authored a Spec-claims-disproved-by-measurement bullet with four entries and MISSED a fifth that the chunks own measurement falsified: test-plan §3s Direct-binary smoke variant asserts a MEASURE-FIRST RED leg is by construction an unhealthy run that MUST produce the ERROR it is measuring. Arm A is a RED leg that produced 0 ERROR and 0 app.panic.fatal across a 450s stall, because the defect is BLOCK-shaped rather than REJECT-shaped - so §3s own rule would have mandated evidence that shape cannot produce, and its clean-log assertion passes vacuously over such a leg. Found by the D-tests-obs-harness detector, not by the report author. The report was extended at P2 (entries 5 and 6) so Validate check 6 could dispose the full set. Root shape: the author reasoned about which claims the chunk CONTRADICTED in the domain it was investigating (ingest/obs), and did not scan the claims governing the METHOD it used to investigate.",
+   "producer": null
+  },
+  {
+   "kind": "consumed-verdict",
+   "chunk": "2026-08-28-ingest-consumer-block-under-gap-resume",
+   "line": 1042,
+   "consumer": "phase/distill",
+   "artifact": "sidecar:security-plan",
+   "quality": "thin",
+   "note": "newest entry and plan body both read next-at-session-52 while session 52 already discharged full-form; the distiller surfaced it as an owed amendment",
+   "producer": null
+  },
+  {
+   "kind": "input-friction",
+   "chunk": "2026-08-28-ingest-consumer-block-under-gap-resume",
+   "line": 1044,
+   "consumer": "phase/distill",
+   "artifact": ".andromeda/security-plan.md",
+   "quality": "input.spec-source-gap",
+   "note": "The security distiller found the cargo-audit standing-deferral state stale in its own master: security-plan body and the newest sidecar entry both read next-probe-at-session-52, while session 52 already RAN the probe full-form (sixth consecutive identical 8-id result) with the next interval point at 55 — so the spec master lags the route entry and the handoff by one discharge, and an amendment is owed at wrap.",
+   "producer": null
+  },
+  {
+   "kind": "input-friction",
+   "chunk": "2026-08-28-ingest-consumer-block-under-gap-resume",
+   "line": 1044,
+   "consumer": "phase/distill",
+   "artifact": ".andromeda/security-plan-amendments.md",
+   "quality": "input.spec-source-gap",
+   "note": "The security distiller found the cargo-audit standing-deferral state stale in its own master: security-plan body and the newest sidecar entry both read next-probe-at-session-52, while session 52 already RAN the probe full-form (sixth consecutive identical 8-id result) with the next interval point at 55 — so the spec master lags the route entry and the handoff by one discharge, and an amendment is owed at wrap.",
+   "producer": null
+  },
+  {
+   "kind": "consumed-verdict",
+   "chunk": "2026-08-28-ingest-consumer-block-under-gap-resume",
+   "line": 1051,
+   "consumer": "implement/fix-loop",
+   "artifact": "plan",
+   "quality": "wrong",
+   "note": "Test Commands ran as written and all gates are green, but the plan Step 2 enumerated three candidate causes and the measurement matched NONE of them; the repair Step 3 prescribes therefore has no applicable branch. The gate list itself was correct.",
+   "producer": "phase/plan",
+   "producer_outcome": "ok",
+   "producer_signals": [],
+   "producer_note": "332 lines, in band; 12 acceptance criteria; 3 scope ambiguities resolved as decisive material leans (repair-shape deferral per scope §4 + the handoff carried lesson; permanent third arm per scope §5; arm-A gate-grade promotion routed to the P5 review card as confirm-class), 0 asked; 0 soft graph citations",
+   "producer_frictions": []
+  },
+  {
+   "kind": "consumed-verdict",
+   "chunk": "2026-08-28-ingest-consumer-block-under-gap-resume",
+   "line": 1057,
+   "consumer": "wrap-session/reconcile",
+   "artifact": "drift-base",
+   "quality": "thin",
+   "note": "no detector covers a falsified NARRATIVE MECHANISM in a spec body — obs returned clean, correctly, since D-obs-instrumentation/-stack/-pii all scope to instrumentation, stack and PII. The plan Expected-amendments floor caught it instead.",
+   "producer": null
+  },
+  {
+   "kind": "input-friction",
+   "chunk": "2026-08-28-ingest-consumer-block-under-gap-resume",
+   "line": 1058,
+   "consumer": "wrap-session/reconcile",
+   "artifact": ".andromeda/drift-base.md",
+   "quality": "input.report-insufficient",
+   "note": "The obs fan-out returned proposals:[] while obs-plan §10 defect 4 carried three claims the chunk measured false. Not a detector defect: none of D-obs-instrumentation / D-obs-stack / D-obs-pii has an invariant covering a spec body narrative mechanism, so the drift-base has no detector for the class falsified-causal-explanation-in-a-spec. The amendment was raised by the orchestrator from the plan Expected-amendments floor (Validate check 5) and the report Spec-claims-disproved bullet (check 6) — both working as designed, but the detection depended on the phase author having foreseen the amendment.",
+   "producer": null
+  },
+  {
+   "kind": "input-friction",
+   "chunk": "2026-08-28-ingest-consumer-block-under-gap-resume",
+   "line": 1058,
+   "consumer": "wrap-session/reconcile",
+   "artifact": ".andromeda/obs-plan.md",
+   "quality": "input.report-insufficient",
+   "note": "The obs fan-out returned proposals:[] while obs-plan §10 defect 4 carried three claims the chunk measured false. Not a detector defect: none of D-obs-instrumentation / D-obs-stack / D-obs-pii has an invariant covering a spec body narrative mechanism, so the drift-base has no detector for the class falsified-causal-explanation-in-a-spec. The amendment was raised by the orchestrator from the plan Expected-amendments floor (Validate check 5) and the report Spec-claims-disproved bullet (check 6) — both working as designed, but the detection depended on the phase author having foreseen the amendment.",
+   "producer": null
+  },
+  {
+   "kind": "consumed-verdict",
+   "chunk": "2026-08-28-duplicate-span-replay-fails-loudly",
+   "line": 1079,
+   "consumer": "implement/code",
+   "artifact": "plan",
+   "quality": "wrong",
+   "note": "Step 1 (the probe) executed as written and its measurement falsified Step 2 premise — flush() never returns on the FIRST violating batch, so there is no error to catch and reset; Steps 2-7 were not written",
+   "producer": "phase/plan",
+   "producer_outcome": "ok",
+   "producer_signals": [
+    "probe-gated-fallback"
+   ],
+   "producer_note": "248 lines, 8 steps, 12 acceptance criteria; the M2 branch is conditional on a Step-1 probe with an explicit surface-before-building guard, and its touchpoints are marked do-not-touch under M1",
+   "producer_frictions": [
+    "The obs extract acceptance requires the duckdb.append failure ERROR present in arm A whil~"
+   ]
+  },
+  {
+   "kind": "consumed-verdict",
+   "chunk": "2026-08-28-duplicate-span-replay-fails-loudly",
+   "line": 1092,
+   "consumer": "wrap-session/reconcile",
+   "artifact": "spec:obs-plan.md",
+   "quality": "thin",
+   "note": "its three detectors cover instrumentation, logger stack and PII — none covers a defect narrative, so it returned clean while its own section 10 defect 4 owed the chunk amendment; raised under Validate check 5",
+   "producer": null
+  },
+  {
+   "kind": "consumed-verdict",
+   "chunk": "2026-08-28-duplicate-span-replay-fails-loudly",
+   "line": 1092,
+   "consumer": "wrap-session/reconcile",
+   "artifact": "drift-base",
+   "quality": "thin",
+   "note": "same gap: no detector binds to a falsified narrative mechanism in a spec body — arguably its third occurrence",
+   "producer": null
+  },
+  {
+   "kind": "input-friction",
+   "chunk": "2026-08-29-app-registry-reconciliation",
+   "line": 1105,
+   "consumer": "phase/take-up",
+   "artifact": "working-entry",
+   "quality": "input.working-entry-thin",
+   "note": "The working entry offers declined_count on triage.incident.persist as the defect signature, phrased as an existing visible reading; the predecessor chunk report (a different artifact, reached via the handoff) records it as read 0 throughout with its arithmetic test-only. The mechanism claim is sound but the observable has never fired in production, which changes it from a pointer into the RED evidence the chunk must produce",
+   "producer": null
+  },
+  {
+   "kind": "input-friction",
+   "chunk": "2026-08-29-app-registry-reconciliation",
+   "line": 1105,
+   "consumer": "phase/take-up",
+   "artifact": "handoff",
+   "quality": "input.working-entry-thin",
+   "note": "The working entry offers declined_count on triage.incident.persist as the defect signature, phrased as an existing visible reading; the predecessor chunk report (a different artifact, reached via the handoff) records it as read 0 throughout with its arithmetic test-only. The mechanism claim is sound but the observable has never fired in production, which changes it from a pointer into the RED evidence the chunk must produce",
+   "producer": null
+  },
+  {
+   "kind": "consumed-verdict",
+   "chunk": "2026-08-29-app-registry-reconciliation",
+   "line": 1108,
+   "consumer": "phase/research",
+   "artifact": "tree-db",
+   "quality": "thin",
+   "note": "available and fresh on both queries, but the calls view mis-attributed a caller — see the friction record",
+   "producer": null
+  },
+  {
+   "kind": "input-friction",
+   "chunk": "2026-08-30-acl-rejection-logging",
+   "line": 1253,
+   "consumer": "wrap-session/reconcile",
+   "artifact": "report.md",
+   "quality": "input.report-insufficient",
+   "note": "the report's Deviation 4 wrote 'outruns the 180s default' where 180 was the session's own HARNESS_STATUS_TIMEOUT override — a detector faithfully proposed amending test-plan's (correct) 10s default to the unmeasured 180; caught at validation check 4, report corrected, proposal narrowed to the measured cause",
+   "producer": null
+  },
+  {
+   "kind": "input-friction",
+   "chunk": "2026-08-30-acl-rejection-logging",
+   "line": 1253,
+   "consumer": "wrap-session/reconcile",
+   "artifact": "test-plan.md",
+   "quality": "input.report-insufficient",
+   "note": "the report's Deviation 4 wrote 'outruns the 180s default' where 180 was the session's own HARNESS_STATUS_TIMEOUT override — a detector faithfully proposed amending test-plan's (correct) 10s default to the unmeasured 180; caught at validation check 4, report corrected, proposal narrowed to the measured cause",
+   "producer": null
+  }
+ ],
+ "shapes": [
+  {
+   "producer": "phase/research",
+   "artifact": "research",
+   "consumer": "implement/code",
+   "chunks": 6
+  },
+  {
+   "producer": "phase/research",
+   "artifact": "research",
+   "consumer": "phase/plan",
+   "chunks": 4
+  },
+  {
+   "producer": "phase/plan",
+   "artifact": "plan",
+   "consumer": "implement/fix-loop",
+   "chunks": 4
+  },
+  {
+   "producer": "phase/research",
+   "artifact": "research",
+   "consumer": "implement/fix-loop",
+   "chunks": 3
+  },
+  {
+   "producer": "phase/plan",
+   "artifact": "plan",
+   "consumer": "implement/smoke",
+   "chunks": 3
+  },
+  {
+   "producer": "phase/plan",
+   "artifact": "plan",
+   "consumer": "phase/validate",
+   "chunks": 2
+  },
+  {
+   "producer": "phase/plan",
+   "artifact": "plan",
+   "consumer": "wrap-session/gates",
+   "chunks": 2
+  },
+  {
+   "producer": "phase/plan",
+   "artifact": "plan",
+   "consumer": "implement/code",
+   "chunks": 2
+  },
+  {
+   "producer": "wrap-session/report",
+   "artifact": "report",
+   "consumer": "wrap-session/reconcile",
+   "chunks": 2
+  },
+  {
+   "producer": "phase/distill",
+   "artifact": "extracts",
+   "consumer": "phase/research",
+   "chunks": 1
+  },
+  {
+   "producer": "phase/research",
+   "artifact": "scope",
+   "consumer": "phase/research",
+   "chunks": 1
+  },
+  {
+   "producer": "phase/research",
+   "artifact": "research",
+   "consumer": "phase/research",
+   "chunks": 1
+  },
+  {
+   "producer": "phase/take-up",
+   "artifact": "working-route",
+   "consumer": "phase/take-up",
+   "chunks": 1
+  },
+  {
+   "producer": "phase/take-up",
+   "artifact": "scope",
+   "consumer": "phase/take-up",
+   "chunks": 1
+  },
+  {
+   "producer": "phase/plan",
+   "artifact": "plan",
+   "consumer": "wrap-session/report",
+   "chunks": 1
+  }
+ ]
+}

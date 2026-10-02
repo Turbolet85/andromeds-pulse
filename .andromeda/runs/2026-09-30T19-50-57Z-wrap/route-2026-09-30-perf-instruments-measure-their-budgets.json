@@ -1,0 +1,135 @@
+[
+{
+"tool": "route",
+"v": "1.5",
+"sha8": "9fc8708e",
+"ts": "2026-09-30T20:29:05Z",
+"argv": [
+"route.py",
+"flip",
+"--root",
+".",
+"--chunk",
+"2026-09-30-perf-instruments-measure-their-budgets",
+"--run-dir",
+".andromeda/runs/2026-09-30T19-50-57Z-wrap"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"flip master-route.md:84 - 2026-09-30-perf-instruments-measure-their-budgets pending -> complete"
+],
+"stderr": null,
+"wrote": [
+".\\.andromeda\\master-route.md"
+],
+"before": null,
+"after": null
+},
+{
+"tool": "route",
+"v": "1.5",
+"sha8": "9fc8708e",
+"ts": "2026-09-30T20:29:06Z",
+"argv": [
+"route.py",
+"compact",
+"--root",
+".",
+"--chunk",
+"2026-09-30-perf-instruments-measure-their-budgets",
+"--date",
+"2026-09-30",
+"--run-dir",
+".andromeda/runs/2026-09-30T19-50-57Z-wrap",
+"--dry-run"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"pin :142 strip CONTEXT: 1079ch \"CONTEXT: overseer relay 2026-09-30 (`pc-\"",
+"pin :142 strip CARRY: 483ch \"CARRY: the CI `release` job's `release-$\"",
+"pin next markerless :144 holds CONTEXT:×1",
+"142 · 2026-09-30-perf-instruments-measure-their-budgets · strip 2 block(s) · archive APPEND",
+"6 complete line(s) carry text the grammar cannot take -- left in place: L52, L54, L60, L100, L116, L125",
+"dry-run - would archive 1 and compact 1 line(s)"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"targets": [
+{
+"n": 142,
+"marker": "2026-09-30-perf-instruments-measure-their-budgets",
+"blocks": 2,
+"archived": false
+}
+],
+"skips": [],
+"kept_notes": [
+52,
+54,
+60,
+100,
+116,
+125
+]
+}
+},
+{
+"tool": "route",
+"v": "1.5",
+"sha8": "9fc8708e",
+"ts": "2026-09-30T20:29:13Z",
+"argv": [
+"route.py",
+"compact",
+"--root",
+".",
+"--chunk",
+"2026-09-30-perf-instruments-measure-their-budgets",
+"--date",
+"2026-09-30",
+"--run-dir",
+".andromeda/runs/2026-09-30T19-50-57Z-wrap"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"pin :142 strip CONTEXT: 1079ch \"CONTEXT: overseer relay 2026-09-30 (`pc-\"",
+"pin :142 strip CARRY: 483ch \"CARRY: the CI `release` job's `release-$\"",
+"pin next markerless :144 holds CONTEXT:×1",
+"142 · 2026-09-30-perf-instruments-measure-their-budgets · strip 2 block(s) · archive APPEND",
+"6 complete line(s) carry text the grammar cannot take -- left in place: L52, L54, L60, L100, L116, L125",
+"compacted 1 complete line(s) -> route-archive.md (1 archived, 0 already there)"
+],
+"stderr": null,
+"wrote": [
+".\\andromeda-pulse-0.3.0\\route-archive.md",
+".\\andromeda-pulse-0.3.0\\working-route.md"
+],
+"before": null,
+"after": null,
+"extra": {
+"targets": [
+{
+"n": 142,
+"marker": "2026-09-30-perf-instruments-measure-their-budgets",
+"blocks": 2,
+"archived": false
+}
+],
+"skips": [],
+"kept_notes": [
+52,
+54,
+60,
+100,
+116,
+125
+]
+}
+}
+]

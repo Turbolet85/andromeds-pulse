@@ -24,9 +24,9 @@ use serde::{Deserialize, Serialize};
 use triage::contract::{HardwareProfile, HardwareProfileSource};
 use ui_bridge::contract::AppError;
 
-/// Derives the appropriate `ModelTier` from а detected `HardwareProfile`
+/// Derives the appropriate `ModelTier` from a detected `HardwareProfile`
 /// per pulse-distillation-architecture.md L4 §Hardware Profile Matrix.
-/// `Unknown` defaults к Primary (most-capable safe-default until a real
+/// `Unknown` defaults to Primary (most-capable safe-default until a real
 /// detector lands at boot per chunk #82).
 pub fn tier_for_profile(profile: HardwareProfile) -> ModelTier {
     match profile {
@@ -38,7 +38,7 @@ pub fn tier_for_profile(profile: HardwareProfile) -> ModelTier {
 }
 
 /// Payload returned by `model.current_profile`. All fields are String /
-/// Option<String> к sidestep cross-crate specta derive plumbing — the
+/// Option<String> to sidestep cross-crate specta derive plumbing — the
 /// strings are bounded snake_case labels (validated by the upstream
 /// enum-to-label fns); webview consumers get string types in their
 /// TypeScript bindings + assert against the same bounded set.
@@ -53,7 +53,7 @@ pub struct ModelProfilePayload {
     pub load_status: String,
     /// Semantic name (e.g., `"llama-3.2-3b-instruct-q4_k_m"`); `None`
     /// when the model is not loaded (Loading or Error state).
-    /// NEVER а file path or checkpoint URL per security extract.
+    /// NEVER a file path or checkpoint URL per security extract.
     pub model_identity_name: Option<String>,
 }
 
@@ -117,14 +117,14 @@ impl ModelApi for ModelApiImpl {
     }
 }
 
-/// Free-fn map of `InferenceError` к `AppError` for use at the resolver
+/// Free-fn map of `InferenceError` to `AppError` for use at the resolver
 /// boundary. Per CLAUDE.md 2026-05-18 session-learning cross-crate-error
 /// free-fn pattern (orphan rule: neither From trait nor source type nor
 /// target type belongs to pulse-app, so trait impl is forbidden;
-/// free-function в pulse-app router file is the canonical resolution).
+/// free-function in pulse-app router file is the canonical resolution).
 ///
-/// Sanitization invariant: error variants map к bounded `AppError`
-/// variants с sanitized messages — no stack traces, mistralrs internal
+/// Sanitization invariant: error variants map to bounded `AppError`
+/// variants with sanitized messages — no stack traces, mistralrs internal
 /// types, or file paths leak through.
 pub fn inference_error_to_app_error(err: InferenceError) -> AppError {
     match err {
@@ -162,7 +162,7 @@ pub fn inference_error_to_app_error(err: InferenceError) -> AppError {
 
 #[allow(dead_code)]
 fn _check_model_status_handling(_status: ModelStatus) {
-    // Compile-time exhaustiveness anchor — adding а new ModelStatus
+    // Compile-time exhaustiveness anchor — adding a new ModelStatus
     // variant breaks compile here, forcing payload extension.
     match _status {
         ModelStatus::Loading | ModelStatus::Loaded | ModelStatus::Error => {}
@@ -171,7 +171,7 @@ fn _check_model_status_handling(_status: ModelStatus) {
 
 #[allow(dead_code)]
 fn _check_model_tier_handling(_tier: ModelTier) {
-    // Compile-time exhaustiveness anchor — adding а new ModelTier variant
+    // Compile-time exhaustiveness anchor — adding a new ModelTier variant
     // breaks compile here, forcing payload extension.
     match _tier {
         ModelTier::Primary | ModelTier::Fallback => {}

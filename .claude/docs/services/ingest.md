@@ -19,7 +19,7 @@ Owns the two OTLP receiver surfaces (`:4317` gRPC + `:4318` HTTP) bound `127.0.0
 - `prost` 0.14 — protobuf wire format decode.
 - `opentelemetry-proto` — OTLP message definitions.
 - `tower_governor` — coarse global + per-source-port rate limiting (pinned at bootstrap; SHA-pinned in CI).
-- `strict-path` — env var path canonicalization (port overrides via `ANDROMEDA_PULSE_OTLP_*_PORT`).
+- `std` both-sides-canonicalize — env var path canonicalization where a path var applies (port overrides via `ANDROMEDA_PULSE_OTLP_*_PORT` are `TryFrom<u16>`, not paths).
 - `tower_http::cors::CorsLayer::new()` — default-deny CORS on `:4318`.
 
 ## Internal conventions

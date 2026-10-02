@@ -1,0 +1,635 @@
+[
+{
+"sql": "SELECT caller, file, line FROM calls WHERE callee LIKE '%normalize_stacktrace%' OR callee LIKE '%normalize_frame%' OR callee LIKE '%is_absolute_path_start%' ORDER BY file, line;",
+"rows": 5,
+"result": [
+{
+"caller": "rust-analyzer cargo buffer 0.1.0 fingerprint/compute_exception_fingerprint().",
+"file": "crates/buffer/src/fingerprint.rs",
+"line": 86
+},
+{
+"caller": "rust-analyzer cargo buffer 0.1.0 fingerprint/normalize_stacktrace().",
+"file": "crates/buffer/src/fingerprint.rs",
+"line": 124
+},
+{
+"caller": "rust-analyzer cargo buffer 0.1.0 fingerprint/normalize_frame().",
+"file": "crates/buffer/src/fingerprint.rs",
+"line": 150
+},
+{
+"caller": "rust-analyzer cargo buffer 0.1.0 fingerprint/tests/normalize_stacktrace_handles_empty_input().",
+"file": "crates/buffer/src/fingerprint.rs",
+"line": 369
+},
+{
+"caller": "rust-analyzer cargo buffer 0.1.0 fingerprint/tests/normalize_stacktrace_skips_empty_lines().",
+"file": "crates/buffer/src/fingerprint.rs",
+"line": 375
+}
+],
+"db_state": "fresh"
+},
+{
+"sql": "SELECT callee, file, line FROM refs WHERE callee LIKE '%compute_exception_fingerprint%' OR callee LIKE '%ExceptionFingerprint%' OR callee LIKE '%fingerprint_to_hex_prefix%' ORDER BY file, line;",
+"rows": 41,
+"result": [
+{
+"callee": "rust-analyzer cargo buffer 0.1.0 fingerprint/compute_exception_fingerprint().",
+"file": "crates/buffer/src/appender.rs",
+"line": 22
+},
+{
+"callee": "rust-analyzer cargo buffer 0.1.0 fingerprint/ExceptionFingerprint#",
+"file": "crates/buffer/src/appender.rs",
+"line": 22
+},
+{
+"callee": "rust-analyzer cargo buffer 0.1.0 fingerprint/ExceptionFingerprint#",
+"file": "crates/buffer/src/appender.rs",
+"line": 335
+},
+{
+"callee": "rust-analyzer cargo buffer 0.1.0 fingerprint/compute_exception_fingerprint().",
+"file": "crates/buffer/src/appender.rs",
+"line": 359
+},
+{
+"callee": "rust-analyzer cargo buffer 0.1.0 fingerprint/ExceptionFingerprint#",
+"file": "crates/buffer/src/appender.rs",
+"line": 1724
+},
+{
+"callee": "rust-analyzer cargo buffer 0.1.0 fingerprint/ExceptionFingerprint#",
+"file": "crates/buffer/src/appender.rs",
+"line": 1728
+},
+{
+"callee": "rust-analyzer cargo buffer 0.1.0 fingerprint/ExceptionFingerprint#",
+"file": "crates/buffer/src/appender.rs",
+"line": 1742
+},
+{
+"callee": "rust-analyzer cargo buffer 0.1.0 fingerprint/ExceptionFingerprint#",
+"file": "crates/buffer/src/consumer.rs",
+"line": 550
+},
+{
+"callee": "rust-analyzer cargo buffer 0.1.0 fingerprint/ExceptionFingerprint#",
+"file": "crates/buffer/src/consumer.rs",
+"line": 557
+},
+{
+"callee": "rust-analyzer cargo buffer 0.1.0 fingerprint/ExceptionFingerprint#",
+"file": "crates/buffer/src/consumer.rs",
+"line": 562
+},
+{
+"callee": "rust-analyzer cargo buffer 0.1.0 fingerprint/ExceptionFingerprint#",
+"file": "crates/buffer/src/fingerprint.rs",
+"line": 49
+},
+{
+"callee": "rust-analyzer cargo buffer 0.1.0 fingerprint/ExceptionFingerprint#",
+"file": "crates/buffer/src/fingerprint.rs",
+"line": 63
+},
+{
+"callee": "rust-analyzer cargo buffer 0.1.0 fingerprint/ExceptionFingerprint#",
+"file": "crates/buffer/src/fingerprint.rs",
+"line": 81
+},
+{
+"callee": "rust-analyzer cargo buffer 0.1.0 fingerprint/ExceptionFingerprint#",
+"file": "crates/buffer/src/fingerprint.rs",
+"line": 101
+},
+{
+"callee": "rust-analyzer cargo buffer 0.1.0 fingerprint/compute_exception_fingerprint().",
+"file": "crates/buffer/src/fingerprint.rs",
+"line": 248
+},
+{
+"callee": "rust-analyzer cargo buffer 0.1.0 fingerprint/compute_exception_fingerprint().",
+"file": "crates/buffer/src/fingerprint.rs",
+"line": 253
+},
+{
+"callee": "rust-analyzer cargo buffer 0.1.0 fingerprint/compute_exception_fingerprint().",
+"file": "crates/buffer/src/fingerprint.rs",
+"line": 258
+},
+{
+"callee": "rust-analyzer cargo buffer 0.1.0 fingerprint/compute_exception_fingerprint().",
+"file": "crates/buffer/src/fingerprint.rs",
+"line": 260
+},
+{
+"callee": "rust-analyzer cargo buffer 0.1.0 fingerprint/compute_exception_fingerprint().",
+"file": "crates/buffer/src/fingerprint.rs",
+"line": 267
+},
+{
+"callee": "rust-analyzer cargo buffer 0.1.0 fingerprint/compute_exception_fingerprint().",
+"file": "crates/buffer/src/fingerprint.rs",
+"line": 274
+},
+{
+"callee": "rust-analyzer cargo buffer 0.1.0 fingerprint/compute_exception_fingerprint().",
+"file": "crates/buffer/src/fingerprint.rs",
+"line": 275
+},
+{
+"callee": "rust-analyzer cargo buffer 0.1.0 fingerprint/compute_exception_fingerprint().",
+"file": "crates/buffer/src/fingerprint.rs",
+"line": 289
+},
+{
+"callee": "rust-analyzer cargo buffer 0.1.0 fingerprint/compute_exception_fingerprint().",
+"file": "crates/buffer/src/fingerprint.rs",
+"line": 291
+},
+{
+"callee": "rust-analyzer cargo buffer 0.1.0 fingerprint/compute_exception_fingerprint().",
+"file": "crates/buffer/src/fingerprint.rs",
+"line": 303
+},
+{
+"callee": "rust-analyzer cargo buffer 0.1.0 fingerprint/compute_exception_fingerprint().",
+"file": "crates/buffer/src/fingerprint.rs",
+"line": 304
+},
+{
+"callee": "rust-analyzer cargo buffer 0.1.0 fingerprint/compute_exception_fingerprint().",
+"file": "crates/buffer/src/fingerprint.rs",
+"line": 312
+},
+{
+"callee": "rust-analyzer cargo buffer 0.1.0 fingerprint/compute_exception_fingerprint().",
+"file": "crates/buffer/src/fingerprint.rs",
+"line": 313
+},
+{
+"callee": "rust-analyzer cargo buffer 0.1.0 fingerprint/compute_exception_fingerprint().",
+"file": "crates/buffer/src/fingerprint.rs",
+"line": 322
+},
+{
+"callee": "rust-analyzer cargo buffer 0.1.0 fingerprint/compute_exception_fingerprint().",
+"file": "crates/buffer/src/fingerprint.rs",
+"line": 323
+},
+{
+"callee": "rust-analyzer cargo buffer 0.1.0 fingerprint/compute_exception_fingerprint().",
+"file": "crates/buffer/src/fingerprint.rs",
+"line": 333
+},
+{
+"callee": "rust-analyzer cargo buffer 0.1.0 fingerprint/compute_exception_fingerprint().",
+"file": "crates/buffer/src/fingerprint.rs",
+"line": 335
+},
+{
+"callee": "rust-analyzer cargo buffer 0.1.0 fingerprint/compute_exception_fingerprint().",
+"file": "crates/buffer/src/fingerprint.rs",
+"line": 347
+},
+{
+"callee": "rust-analyzer cargo buffer 0.1.0 fingerprint/compute_exception_fingerprint().",
+"file": "crates/buffer/src/fingerprint.rs",
+"line": 348
+},
+{
+"callee": "rust-analyzer cargo buffer 0.1.0 fingerprint/compute_exception_fingerprint().",
+"file": "crates/buffer/src/fingerprint.rs",
+"line": 358
+},
+{
+"callee": "rust-analyzer cargo buffer 0.1.0 fingerprint/compute_exception_fingerprint().",
+"file": "crates/buffer/src/fingerprint.rs",
+"line": 360
+},
+{
+"callee": "rust-analyzer cargo buffer 0.1.0 fingerprint/ExceptionFingerprint#",
+"file": "crates/buffer/src/fingerprint.rs",
+"line": 381
+},
+{
+"callee": "rust-analyzer cargo buffer 0.1.0 fingerprint/fingerprint_to_hex_prefix().",
+"file": "crates/buffer/src/fingerprint.rs",
+"line": 385
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 pattern/storm/fingerprint_to_hex_prefix().",
+"file": "crates/triage/src/pattern/storm.rs",
+"line": 338
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 pattern/storm/fingerprint_to_hex_prefix().",
+"file": "crates/triage/src/pattern/storm.rs",
+"line": 686
+},
+{
+"callee": "rust-analyzer cargo buffer 0.1.0 fingerprint/ExceptionFingerprint#",
+"file": "pulse-app/src/storm_observer.rs",
+"line": 12
+},
+{
+"callee": "rust-analyzer cargo buffer 0.1.0 fingerprint/ExceptionFingerprint#",
+"file": "pulse-app/src/storm_observer.rs",
+"line": 37
+}
+],
+"db_state": "fresh"
+},
+{
+"sql": "SELECT callee, file, line FROM refs WHERE (callee LIKE '%compute_exception_fingerprint%' OR callee LIKE '%ExceptionFingerprint%' OR callee LIKE '%FingerprintObserver%') AND file NOT LIKE '%fingerprint.rs' ORDER BY file, line;",
+"rows": 43,
+"result": [
+{
+"callee": "rust-analyzer cargo buffer 0.1.0 fingerprint/ExceptionFingerprint#",
+"file": "crates/buffer/src/appender.rs",
+"line": 22
+},
+{
+"callee": "rust-analyzer cargo buffer 0.1.0 fingerprint/compute_exception_fingerprint().",
+"file": "crates/buffer/src/appender.rs",
+"line": 22
+},
+{
+"callee": "rust-analyzer cargo buffer 0.1.0 fingerprint/FingerprintObserver#",
+"file": "crates/buffer/src/appender.rs",
+"line": 22
+},
+{
+"callee": "rust-analyzer cargo buffer 0.1.0 fingerprint/FingerprintObserver#",
+"file": "crates/buffer/src/appender.rs",
+"line": 323
+},
+{
+"callee": "rust-analyzer cargo buffer 0.1.0 fingerprint/ExceptionFingerprint#",
+"file": "crates/buffer/src/appender.rs",
+"line": 335
+},
+{
+"callee": "rust-analyzer cargo buffer 0.1.0 fingerprint/compute_exception_fingerprint().",
+"file": "crates/buffer/src/appender.rs",
+"line": 359
+},
+{
+"callee": "rust-analyzer cargo buffer 0.1.0 fingerprint/FingerprintObserver#on_fingerprint().",
+"file": "crates/buffer/src/appender.rs",
+"line": 402
+},
+{
+"callee": "rust-analyzer cargo buffer 0.1.0 fingerprint/FingerprintObserver#",
+"file": "crates/buffer/src/appender.rs",
+"line": 1724
+},
+{
+"callee": "rust-analyzer cargo buffer 0.1.0 fingerprint/ExceptionFingerprint#",
+"file": "crates/buffer/src/appender.rs",
+"line": 1724
+},
+{
+"callee": "rust-analyzer cargo buffer 0.1.0 fingerprint/ExceptionFingerprint#",
+"file": "crates/buffer/src/appender.rs",
+"line": 1728
+},
+{
+"callee": "rust-analyzer cargo buffer 0.1.0 appender/tests/chunk_66/CapturingFingerprintObserver#",
+"file": "crates/buffer/src/appender.rs",
+"line": 1731
+},
+{
+"callee": "rust-analyzer cargo buffer 0.1.0 appender/tests/chunk_66/CapturingFingerprintObserver#captured.",
+"file": "crates/buffer/src/appender.rs",
+"line": 1734
+},
+{
+"callee": "rust-analyzer cargo buffer 0.1.0 appender/tests/chunk_66/CapturingFingerprintObserver#",
+"file": "crates/buffer/src/appender.rs",
+"line": 1739
+},
+{
+"callee": "rust-analyzer cargo buffer 0.1.0 fingerprint/FingerprintObserver#",
+"file": "crates/buffer/src/appender.rs",
+"line": 1739
+},
+{
+"callee": "rust-analyzer cargo buffer 0.1.0 fingerprint/ExceptionFingerprint#",
+"file": "crates/buffer/src/appender.rs",
+"line": 1742
+},
+{
+"callee": "rust-analyzer cargo buffer 0.1.0 appender/tests/chunk_66/CapturingFingerprintObserver#captured.",
+"file": "crates/buffer/src/appender.rs",
+"line": 1746
+},
+{
+"callee": "rust-analyzer cargo buffer 0.1.0 appender/tests/chunk_66/impl#[CapturingFingerprintObserver]new().",
+"file": "crates/buffer/src/appender.rs",
+"line": 1797
+},
+{
+"callee": "rust-analyzer cargo buffer 0.1.0 appender/tests/chunk_66/CapturingFingerprintObserver#",
+"file": "crates/buffer/src/appender.rs",
+"line": 1797
+},
+{
+"callee": "rust-analyzer cargo buffer 0.1.0 appender/tests/chunk_66/CapturingFingerprintObserver#captured.",
+"file": "crates/buffer/src/appender.rs",
+"line": 1798
+},
+{
+"callee": "rust-analyzer cargo buffer 0.1.0 appender/tests/chunk_66/impl#[CapturingFingerprintObserver]new().",
+"file": "crates/buffer/src/appender.rs",
+"line": 1850
+},
+{
+"callee": "rust-analyzer cargo buffer 0.1.0 appender/tests/chunk_66/CapturingFingerprintObserver#",
+"file": "crates/buffer/src/appender.rs",
+"line": 1850
+},
+{
+"callee": "rust-analyzer cargo buffer 0.1.0 appender/tests/chunk_66/CapturingFingerprintObserver#captured.",
+"file": "crates/buffer/src/appender.rs",
+"line": 1851
+},
+{
+"callee": "rust-analyzer cargo buffer 0.1.0 fingerprint/FingerprintObserver#",
+"file": "crates/buffer/src/consumer.rs",
+"line": 20
+},
+{
+"callee": "rust-analyzer cargo buffer 0.1.0 fingerprint/FingerprintObserver#",
+"file": "crates/buffer/src/consumer.rs",
+"line": 39
+},
+{
+"callee": "rust-analyzer cargo buffer 0.1.0 fingerprint/FingerprintObserver#",
+"file": "crates/buffer/src/consumer.rs",
+"line": 100
+},
+{
+"callee": "rust-analyzer cargo buffer 0.1.0 fingerprint/FingerprintObserver#",
+"file": "crates/buffer/src/consumer.rs",
+"line": 550
+},
+{
+"callee": "rust-analyzer cargo buffer 0.1.0 fingerprint/ExceptionFingerprint#",
+"file": "crates/buffer/src/consumer.rs",
+"line": 550
+},
+{
+"callee": "rust-analyzer cargo buffer 0.1.0 fingerprint/ExceptionFingerprint#",
+"file": "crates/buffer/src/consumer.rs",
+"line": 557
+},
+{
+"callee": "rust-analyzer cargo buffer 0.1.0 fingerprint/FingerprintObserver#",
+"file": "crates/buffer/src/consumer.rs",
+"line": 559
+},
+{
+"callee": "rust-analyzer cargo buffer 0.1.0 fingerprint/ExceptionFingerprint#",
+"file": "crates/buffer/src/consumer.rs",
+"line": 562
+},
+{
+"callee": "rust-analyzer cargo buffer 0.1.0 fingerprint/FingerprintObserver#",
+"file": "crates/buffer/src/consumer.rs",
+"line": 575
+},
+{
+"callee": "rust-analyzer cargo buffer 0.1.0 fingerprint/FingerprintObserver#",
+"file": "pulse-app/src/main.rs",
+"line": 648
+},
+{
+"callee": "rust-analyzer cargo buffer 0.1.0 fingerprint/FingerprintObserver#",
+"file": "pulse-app/src/storm_observer.rs",
+"line": 12
+},
+{
+"callee": "rust-analyzer cargo buffer 0.1.0 fingerprint/ExceptionFingerprint#",
+"file": "pulse-app/src/storm_observer.rs",
+"line": 12
+},
+{
+"callee": "rust-analyzer cargo buffer 0.1.0 fingerprint/FingerprintObserver#",
+"file": "pulse-app/src/storm_observer.rs",
+"line": 34
+},
+{
+"callee": "rust-analyzer cargo buffer 0.1.0 fingerprint/ExceptionFingerprint#",
+"file": "pulse-app/src/storm_observer.rs",
+"line": 37
+},
+{
+"callee": "rust-analyzer cargo pulse-app 0.1.0 storm_observer/impl#[StormObserverAdapter][FingerprintObserver]on_fingerprint().",
+"file": "pulse-app/src/storm_observer.rs",
+"line": 72
+},
+{
+"callee": "rust-analyzer cargo buffer 0.1.0 fingerprint/FingerprintObserver#",
+"file": "pulse-app/src/storm_observer.rs",
+"line": 85
+},
+{
+"callee": "rust-analyzer cargo buffer 0.1.0 fingerprint/FingerprintObserver#on_fingerprint().",
+"file": "pulse-app/src/storm_observer.rs",
+"line": 87
+},
+{
+"callee": "rust-analyzer cargo buffer 0.1.0 fingerprint/FingerprintObserver#",
+"file": "pulse-app/tests/e2e_drain_template_assignment.rs",
+"line": 28
+},
+{
+"callee": "rust-analyzer cargo buffer 0.1.0 fingerprint/FingerprintObserver#",
+"file": "pulse-app/tests/e2e_drain_template_assignment.rs",
+"line": 153
+},
+{
+"callee": "rust-analyzer cargo buffer 0.1.0 fingerprint/FingerprintObserver#",
+"file": "pulse-app/tests/e2e_storm_detection.rs",
+"line": 19
+},
+{
+"callee": "rust-analyzer cargo buffer 0.1.0 fingerprint/FingerprintObserver#",
+"file": "pulse-app/tests/e2e_storm_detection.rs",
+"line": 143
+}
+],
+"db_state": "fresh"
+},
+{
+"sql": "SELECT caller, file, line FROM calls WHERE callee LIKE '%create_incident_from_l4_output%' OR callee LIKE '%observe_reemission%' ORDER BY file, line;",
+"rows": 32,
+"result": [
+{
+"caller": "rust-analyzer cargo triage 0.1.0 incident/registry/tests/observe_reemission_updates_timestamp().",
+"file": "crates/triage/src/incident/registry.rs",
+"line": 573
+},
+{
+"caller": "rust-analyzer cargo triage 0.1.0 incident/registry/tests/observe_reemission_on_resolved_rejects().",
+"file": "crates/triage/src/incident/registry.rs",
+"line": 583
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 inference_runtime/spawn_l4_inference_subscriber().",
+"file": "pulse-app/src/inference_runtime.rs",
+"line": 157
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 inference_runtime/create_incident_from_l4_output().",
+"file": "pulse-app/src/inference_runtime.rs",
+"line": 666
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 crate/",
+"file": "pulse-app/tests/integration_constellation_severity_workspace_key.rs",
+"line": 17
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 storm_incident_is_found_by_the_resolver_derived_filter_key().",
+"file": "pulse-app/tests/integration_constellation_severity_workspace_key.rs",
+"line": 168
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 crate/",
+"file": "pulse-app/tests/integration_deterministic_l4_mode.rs",
+"line": 14
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 deterministic_mode_yields_reproducible_red_dot_incident().",
+"file": "pulse-app/tests/integration_deterministic_l4_mode.rs",
+"line": 115
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 crate/",
+"file": "pulse-app/tests/integration_incident_producer_persists_across_restart.rs",
+"line": 15
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 produced_incident_persists_across_restart_with_scope_id().",
+"file": "pulse-app/tests/integration_incident_producer_persists_across_restart.rs",
+"line": 90
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 crate/",
+"file": "pulse-app/tests/integration_tier1_storm_one_incident.rs",
+"line": 20
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 run_storm().",
+"file": "pulse-app/tests/integration_tier1_storm_one_incident.rs",
+"line": 116
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 cueless_digest_creates_no_incident().",
+"file": "pulse-app/tests/integration_tier1_storm_one_incident.rs",
+"line": 178
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 crate/",
+"file": "pulse-app/tests/unit_incident_producer.rs",
+"line": 14
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 surface_decision_creates_active_incident().",
+"file": "pulse-app/tests/unit_incident_producer.rs",
+"line": 171
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 dismiss_decision_creates_no_incident().",
+"file": "pulse-app/tests/unit_incident_producer.rs",
+"line": 212
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 severity_none_creates_no_incident().",
+"file": "pulse-app/tests/unit_incident_producer.rs",
+"line": 228
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 watch_decision_creates_curious_incident().",
+"file": "pulse-app/tests/unit_incident_producer.rs",
+"line": 243
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 autonomous_severity_maps_to_error_and_autonomous_tier().",
+"file": "pulse-app/tests/unit_incident_producer.rs",
+"line": 262
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 no_triggering_cue_creates_no_incident().",
+"file": "pulse-app/tests/unit_incident_producer.rs",
+"line": 285
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 resolution_summary_output_creates_no_incident().",
+"file": "pulse-app/tests/unit_incident_producer.rs",
+"line": 301
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 reemission_dedup_does_not_create_duplicate().",
+"file": "pulse-app/tests/unit_incident_producer.rs",
+"line": 321
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 reemission_dedup_does_not_create_duplicate().",
+"file": "pulse-app/tests/unit_incident_producer.rs",
+"line": 329
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 distinct_services_create_distinct_incidents().",
+"file": "pulse-app/tests/unit_incident_producer.rs",
+"line": 361
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 distinct_services_create_distinct_incidents().",
+"file": "pulse-app/tests/unit_incident_producer.rs",
+"line": 368
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 pii_canary_in_l4_text_is_scrubbed_before_persist().",
+"file": "pulse-app/tests/unit_incident_producer.rs",
+"line": 395
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 producer_observability_is_aggregate_only().",
+"file": "pulse-app/tests/unit_incident_producer.rs",
+"line": 438
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 reflection_surface_creates_workspace_global_incident().",
+"file": "pulse-app/tests/unit_incident_producer.rs",
+"line": 494
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 reflection_high_confidence_surfaces_suggested().",
+"file": "pulse-app/tests/unit_incident_producer.rs",
+"line": 537
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 reflection_dedups_one_per_workspace().",
+"file": "pulse-app/tests/unit_incident_producer.rs",
+"line": 555
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 reflection_dedups_one_per_workspace().",
+"file": "pulse-app/tests/unit_incident_producer.rs",
+"line": 562
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 reflection_dismiss_creates_no_incident().",
+"file": "pulse-app/tests/unit_incident_producer.rs",
+"line": 591
+}
+],
+"db_state": "fresh"
+}
+]

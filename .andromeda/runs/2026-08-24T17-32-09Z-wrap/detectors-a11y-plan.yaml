@@ -1,0 +1,10 @@
+- id: D-a11y-surface
+  doc: a11y-plan
+  invariant: a new interactive UI element the chunk adds carries the WCAG / focus / keyboard coverage §5–§7 require.
+  check: agent-read — if the report adds an interactive UI element, confirm a11y coverage per §5 / §6 / §7; an uncovered element is drift.
+  severity: warning
+- id: D-a11y-obs-schema
+  doc: a11y-plan
+  invariant: the a11y violation JSON schema stays consistent with obs §6 (the structured-log schema a11y emits to).
+  check: agent-read — if the report changes the a11y violation schema or the obs log schema, confirm the two still match; a divergence is drift.
+  severity: warning

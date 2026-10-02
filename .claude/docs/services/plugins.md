@@ -6,7 +6,7 @@ Hosts the WASM Component Model plugin runtime via `wasmtime` 25+. Capability-sco
 ## Key integrations
 
 ### Consumes from
-- Filesystem `~/.andromeda-pulse/plugins/` (path resolution via `strict-path` + Tauri capability `pulse:plugin-fs`).
+- Filesystem `~/.andromeda-pulse/plugins/` (path resolution via `std` both-sides-canonicalize + confinement under the resolved plugin dir + Tauri capability `pulse:plugin-fs`).
 - WIT interface definitions in `crates/plugins/wit/` (declares host imports plugins may receive).
 
 ### Publishes to
@@ -17,7 +17,7 @@ Hosts the WASM Component Model plugin runtime via `wasmtime` 25+. Capability-sco
 ### Dependencies
 - `wasmtime` 25+ with `component-model` feature (Cranelift backend on x86_64 — verified).
 - `wit-bindgen` for guest binding generation (build-time).
-- `strict-path` for plugin file path canonicalization.
+- `std` both-sides-canonicalize for plugin file path canonicalization (the `publish_workspace_key` precedent; `strict-path` dropped 2026-08-29, never used).
 - `tauri` capability `pulse:plugin-fs`.
 - `arrow-rs` for plugin input/output (size-bounded + schema-validated at host boundary).
 

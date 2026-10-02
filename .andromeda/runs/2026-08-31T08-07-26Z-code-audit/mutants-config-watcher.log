@@ -1,0 +1,24 @@
+Found 55 mutants to test
+ok       Unmutated baseline in 133s build + 2s test
+ INFO Auto-set test timeout to 20s
+MISSED   crates/config-watcher/src/event.rs:35:5: replace kind_label -> &'static str with "" in 7s build + 1s test
+MISSED   crates/config-watcher/src/event.rs:35:5: replace kind_label -> &'static str with "xyzzy" in 7s build + 1s test
+MISSED   crates/config-watcher/src/event.rs:80:9: replace ConfigEventBroadcast::subscriber_count -> usize with 0 in 8s build + 1s test
+MISSED   crates/config-watcher/src/partition.rs:26:9: replace ChangedKeys::is_empty -> bool with true in 7s build + 1s test
+MISSED   crates/config-watcher/src/partition.rs:26:73: replace && with || in ChangedKeys::is_empty in 7s build + 1s test
+MISSED   crates/config-watcher/src/partition.rs:26:37: replace && with || in ChangedKeys::is_empty in 7s build + 1s test
+MISSED   crates/config-watcher/src/watcher.rs:146:38: replace == with != in ConfigWatchHandle::reload_now in 7s build + 1s test
+MISSED   crates/config-watcher/src/watcher.rs:163:9: replace ConfigWatchHandle::apply with () in 8s build + 1s test
+MISSED   crates/config-watcher/src/watcher.rs:170:29: replace += with -= in ConfigWatchHandle::apply in 7s build + 1s test
+MISSED   crates/config-watcher/src/watcher.rs:170:29: replace += with *= in ConfigWatchHandle::apply in 7s build + 1s test
+MISSED   crates/config-watcher/src/watcher.rs:173:12: delete ! in ConfigWatchHandle::apply in 7s build + 1s test
+MISSED   crates/config-watcher/src/watcher.rs:192:9: replace ConfigWatchHandle::record_rejection with () in 8s build + 1s test
+MISSED   crates/config-watcher/src/watcher.rs:212:9: replace ConfigWatchHandle::status_snapshot -> ConfigStatus with Default::default() in 8s build + 1s test
+MISSED   crates/config-watcher/src/watcher.rs:223:5: replace emit_event with () in 9s build + 1s test
+MISSED   crates/config-watcher/src/watcher.rs:265:9: replace ConfigWatchTask::run with () in 8s build + 1s test
+MISSED   crates/config-watcher/src/watcher.rs:266:16: delete ! in ConfigWatchTask::run in 8s build + 1s test
+MISSED   crates/config-watcher/src/watcher.rs:309:40: replace == with != in start_config_watcher in 8s build + 1s test
+MISSED   crates/config-watcher/src/watcher.rs:329:5: replace now_unix_nano -> i64 with 0 in 8s build + 1s test
+MISSED   crates/config-watcher/src/watcher.rs:329:5: replace now_unix_nano -> i64 with 1 in 7s build + 1s test
+MISSED   crates/config-watcher/src/watcher.rs:329:5: replace now_unix_nano -> i64 with -1 in 7s build + 1s test
+55 mutants tested in 11m: 20 missed, 24 caught, 11 unviable

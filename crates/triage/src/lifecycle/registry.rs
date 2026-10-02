@@ -12,8 +12,10 @@
 //! events on boot for downstream constellation observers.
 
 use std::fmt::Debug;
+use std::sync::atomic::{AtomicU64, Ordering};
 
 use dashmap::DashMap;
+use dashmap::mapref::entry::Entry;
 use serde::{Deserialize, Serialize};
 
 use crate::baseline::{BaselineState, BootstrapState, ServiceSilenceSnapshot};
@@ -63,6 +65,9 @@ pub struct ServiceListItem {
     /// incident registry on `scope_id`. Drives the constellation dot hue.
     #[serde(default)]
     pub priority_tier: Option<PriorityTier>,
+    /// Instant the max active-incident tier last changed: the raising incident's open (rise) or the last max holder's resolution (fall); resolver-enriched, `None` from `list_all`.
+    #[serde(default)]
+    pub tier_effective_at_unix_nano: Option<i64>,
 }
 
 /// Service registry — per-service lifecycle state holder + tick evaluator.
@@ -98,9 +103,13 @@ pub trait ServiceRegistry: Send + Sync + Debug {
     ) -> Option<ServiceLifecycleEvent>;
 
     /// Restore a service to a specific state from corpus persistence at
-    /// boot (chunk #71). Inserts or overwrites the entry in the registry
-    /// with the restored state + sets first_seen / last_seen /
-    /// last_transition = `restored_at_unix_nano`. Emits a synthetic
+    /// boot (chunk #71). Updates the entry's state + records the restore
+    /// moment as `last_transition = restored_at_unix_nano`, but PRESERVES
+    /// the persisted `first_seen` / `last_seen` from the entry `from_entries`
+    /// inserted at boot (a defensive fallback stamps `restored_at` for all
+    /// three only when no prior entry exists). Preserving `last_seen` keeps
+    /// recency honest so a stale restored service is not surfaced as a
+    /// phantom-live constellation dot (P-067). Emits a synthetic
     /// `ServiceLifecycleEvent { from_state, to_state, trigger:
     /// CorpusRestore }` where `from_state == to_state == restored_state`
     /// — boot-path restore is conceptually a no-transition-but-mark for
@@ -134,6 +143,21 @@ pub trait ServiceRegistry: Send + Sync + Debug {
         archived_after_secs: u64,
     ) -> Vec<ServiceLifecycleEvent>;
 
+    /// Register a service at its first sighting in this session, as the
+    /// `Bootstrapping` entry the first `tick_all` observation would create,
+    /// so it is listed before the heartbeat's first tick. `last_seen` is the
+    /// sighting instant. Returns the `Unknown → Bootstrapping` event when an
+    /// entry was created; `None` for an empty name or an existing entry
+    /// (which is left untouched).
+    fn register_first_sighting(
+        &self,
+        service: &str,
+        now_unix_nano: i64,
+    ) -> Option<ServiceLifecycleEvent>;
+
+    /// First sightings registered since the previous call; resets to 0.
+    fn take_first_sightings(&self) -> u64;
+
     /// Total service count.
     fn count(&self) -> usize;
 
@@ -147,13 +171,12 @@ pub trait ServiceRegistry: Send + Sync + Debug {
 #[derive(Debug, Default)]
 pub struct InMemoryServiceRegistry {
     entries: DashMap<String, ServiceRegistryEntry>,
+    first_sightings: AtomicU64,
 }
 
 impl InMemoryServiceRegistry {
     pub fn new() -> Self {
-        Self {
-            entries: DashMap::new(),
-        }
+        Self::default()
     }
 
     /// Construct an `InMemoryServiceRegistry` from previously-persisted
@@ -168,7 +191,10 @@ impl InMemoryServiceRegistry {
         for (service, entry) in entries {
             map.insert(service, entry);
         }
-        Self { entries: map }
+        Self {
+            entries: map,
+            first_sightings: AtomicU64::new(0),
+        }
     }
 }
 
@@ -188,6 +214,7 @@ impl ServiceRegistry for InMemoryServiceRegistry {
                 last_seen_unix_nano: entry.last_seen_unix_nano,
                 manual_override: entry.manual_override,
                 priority_tier: None,
+                tier_effective_at_unix_nano: None,
             })
             .collect()
     }
@@ -270,16 +297,25 @@ impl ServiceRegistry for InMemoryServiceRegistry {
         if service.is_empty() {
             return None;
         }
-        self.entries.insert(
-            service.to_string(),
-            ServiceRegistryEntry {
+        // Preserve the persisted first_seen/last_seen from the entry
+        // `from_entries` inserted at boot — clobbering last_seen to
+        // restored_at makes a stale service read as freshly-seen, which the
+        // constellation would surface as a phantom-live dot (P-067). The
+        // defensive default (no prior entry) stamps restored_at for all three.
+        let mut entry = self
+            .entries
+            .entry(service.to_string())
+            .or_insert(ServiceRegistryEntry {
                 state: restored_state,
                 first_seen_unix_nano: restored_at_unix_nano,
                 last_seen_unix_nano: restored_at_unix_nano,
                 last_transition_unix_nano: restored_at_unix_nano,
                 manual_override: None,
-            },
-        );
+            });
+        entry.state = restored_state;
+        entry.last_transition_unix_nano = restored_at_unix_nano;
+        entry.manual_override = None;
+        drop(entry);
         // Self-loop event SHAPE: from_state == to_state == restored_state.
         // Bypasses `is_valid_transition` gate intentionally — boot-path
         // restore is a no-transition-but-mark for downstream constellation
@@ -371,6 +407,40 @@ impl ServiceRegistry for InMemoryServiceRegistry {
             });
         }
         events
+    }
+
+    fn register_first_sighting(
+        &self,
+        service: &str,
+        now_unix_nano: i64,
+    ) -> Option<ServiceLifecycleEvent> {
+        if service.is_empty() {
+            return None;
+        }
+        // The vacant arm makes this race-safe against `tick_all`'s
+        // `or_insert`: whichever inserts first owns the first observation.
+        let Entry::Vacant(vacant) = self.entries.entry(service.to_string()) else {
+            return None;
+        };
+        vacant.insert(ServiceRegistryEntry {
+            state: ServiceLifecycleState::Bootstrapping,
+            first_seen_unix_nano: now_unix_nano,
+            last_seen_unix_nano: now_unix_nano,
+            last_transition_unix_nano: now_unix_nano,
+            manual_override: None,
+        });
+        self.first_sightings.fetch_add(1, Ordering::Relaxed);
+        Some(ServiceLifecycleEvent {
+            service: service.to_string(),
+            from_state: ServiceLifecycleState::Unknown,
+            to_state: ServiceLifecycleState::Bootstrapping,
+            transitioned_at_unix_nano: now_unix_nano,
+            trigger: TransitionTrigger::Activity,
+        })
+    }
+
+    fn take_first_sightings(&self) -> u64 {
+        self.first_sightings.swap(0, Ordering::Relaxed)
     }
 
     fn count(&self) -> usize {
@@ -502,6 +572,58 @@ mod tests {
         assert_eq!(events[0].trigger, TransitionTrigger::Activity);
         assert_eq!(events[0].service, "svc-a");
         assert_eq!(r.count(), 1);
+        assert_eq!(
+            r.current_state("svc-a"),
+            Some(ServiceLifecycleState::Bootstrapping),
+        );
+    }
+
+    #[test]
+    fn first_sighting_registers_bootstrapping_entry_listed_before_any_tick() {
+        let r = fresh_registry();
+        let now = 1_000 * NANOS_PER_SEC;
+        assert!(r.register_first_sighting("svc-a", now).is_some());
+        let items = r.list_all();
+        assert_eq!(items.len(), 1);
+        assert_eq!(items[0].service, "svc-a");
+        assert_eq!(items[0].state, ServiceLifecycleState::Bootstrapping);
+        assert_eq!(items[0].last_seen_unix_nano, now);
+        assert_eq!(r.take_first_sightings(), 1);
+        assert_eq!(r.take_first_sightings(), 0);
+    }
+
+    #[test]
+    fn first_sighting_returns_the_activity_event_once() {
+        let r = fresh_registry();
+        let now = 1_000 * NANOS_PER_SEC;
+        let event = r.register_first_sighting("svc-a", now).expect("first");
+        assert_eq!(event.service, "svc-a");
+        assert_eq!(event.from_state, ServiceLifecycleState::Unknown);
+        assert_eq!(event.to_state, ServiceLifecycleState::Bootstrapping);
+        assert_eq!(event.trigger, TransitionTrigger::Activity);
+        assert_eq!(event.transitioned_at_unix_nano, now);
+        assert!(r.register_first_sighting("svc-a", now + 1).is_none());
+        assert_eq!(r.list_all()[0].last_seen_unix_nano, now);
+        assert_eq!(r.take_first_sightings(), 1);
+    }
+
+    #[test]
+    fn first_sighting_drops_empty_service() {
+        let r = fresh_registry();
+        assert!(r.register_first_sighting("", 1_000).is_none());
+        assert_eq!(r.count(), 0);
+        assert_eq!(r.take_first_sightings(), 0);
+    }
+
+    #[test]
+    fn first_sighting_then_tick_emits_no_duplicate_event() {
+        let r = fresh_registry();
+        let baseline = BaselineState::new();
+        let now = 1_000 * NANOS_PER_SEC;
+        baseline.observe_span("svc-a", "op-1", 0, 50, now);
+        assert!(r.register_first_sighting("svc-a", now).is_some());
+        let events = r.tick_all(now + 15 * NANOS_PER_SEC, &baseline, 3600, 86_400);
+        assert!(events.is_empty(), "{events:?}");
         assert_eq!(
             r.current_state("svc-a"),
             Some(ServiceLifecycleState::Bootstrapping),
@@ -696,6 +818,66 @@ mod tests {
             r.current_state("svc-a"),
             Some(ServiceLifecycleState::Dormant),
         );
+    }
+
+    #[test]
+    fn set_state_on_corpus_restore_preserves_persisted_last_seen() {
+        // A service restored from corpus (preloaded via `from_entries` with its
+        // prior-session timestamps) must keep its real last_seen — clobbering
+        // it to boot time would make a stale service read as freshly-seen,
+        // surfacing a phantom-live constellation dot (P-067).
+        let r = InMemoryServiceRegistry::from_entries(vec![(
+            "svc-a".to_string(),
+            ServiceRegistryEntry {
+                state: ServiceLifecycleState::Active,
+                first_seen_unix_nano: 100 * NANOS_PER_SEC,
+                last_seen_unix_nano: 200 * NANOS_PER_SEC,
+                last_transition_unix_nano: 200 * NANOS_PER_SEC,
+                manual_override: None,
+            },
+        )]);
+        let boot = 10_000 * NANOS_PER_SEC;
+        let event = r
+            .set_state_on_corpus_restore("svc-a", ServiceLifecycleState::Active, boot)
+            .expect("restore emits event");
+        assert_eq!(event.from_state, ServiceLifecycleState::Active);
+        assert_eq!(event.to_state, ServiceLifecycleState::Active);
+        assert_eq!(event.trigger, TransitionTrigger::CorpusRestore);
+        let items = r.list_all();
+        assert_eq!(items.len(), 1);
+        assert_eq!(
+            items[0].last_seen_unix_nano,
+            200 * NANOS_PER_SEC,
+            "restore must preserve the persisted last_seen, not stamp boot time",
+        );
+        assert_eq!(items[0].state, ServiceLifecycleState::Active);
+    }
+
+    #[test]
+    fn set_state_on_corpus_restore_stamps_boot_time_when_no_prior_entry() {
+        // Defensive fallback: with no preloaded entry, restore stamps
+        // restored_at for all timestamps (the `from_entries` preload is the
+        // normal boot path).
+        let r = fresh_registry();
+        let boot = 5_000 * NANOS_PER_SEC;
+        let event = r
+            .set_state_on_corpus_restore("svc-new", ServiceLifecycleState::Quiet, boot)
+            .expect("restore emits event");
+        assert_eq!(event.to_state, ServiceLifecycleState::Quiet);
+        let items = r.list_all();
+        assert_eq!(items.len(), 1);
+        assert_eq!(items[0].last_seen_unix_nano, boot);
+        assert_eq!(items[0].state, ServiceLifecycleState::Quiet);
+    }
+
+    #[test]
+    fn set_state_on_corpus_restore_drops_empty_service() {
+        let r = fresh_registry();
+        assert!(
+            r.set_state_on_corpus_restore("", ServiceLifecycleState::Active, 1_000)
+                .is_none()
+        );
+        assert_eq!(r.count(), 0);
     }
 
     #[test]

@@ -10,7 +10,7 @@
 
 use super::{BaselineError, BaselinePersistence, BaselineState, SCHEMA_VERSION};
 
-/// Legacy bincode size cap surfaced for the migration helper в
+/// Legacy bincode size cap surfaced for the migration helper in
 /// `pulse-app/src/baseline_persistence.rs::migrate_legacy_baseline_if_present`.
 /// Bounded to 1 MB — sufficient for the maximum expected
 /// `DEFAULT_SERVICE_COUNT_CAP × per-service bincode shape` AND defensive

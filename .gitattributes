@@ -1,0 +1,2 @@
+# Line endings: the pipeline records are LF; eol=lf overrides core.autocrlf at checkout.
+* text=auto eol=lf

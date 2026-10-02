@@ -1,0 +1,405 @@
+[
+{
+"sql": "SELECT caller, file, line FROM calls WHERE callee LIKE '%CueLatch%' ORDER BY file, line",
+"rows": 79,
+"result": [
+{
+"caller": "rust-analyzer cargo triage 0.1.0 contract/",
+"file": "crates/triage/src/contract.rs",
+"line": 40
+},
+{
+"caller": "rust-analyzer cargo triage 0.1.0 cue/emitter/",
+"file": "crates/triage/src/cue/emitter.rs",
+"line": 77
+},
+{
+"caller": "rust-analyzer cargo triage 0.1.0 cue/emitter/impl#[CueLatch]new().",
+"file": "crates/triage/src/cue/emitter.rs",
+"line": 79
+},
+{
+"caller": "rust-analyzer cargo triage 0.1.0 cue/emitter/impl#[CueLatch]with_refractory_nanos().",
+"file": "crates/triage/src/cue/emitter.rs",
+"line": 85
+},
+{
+"caller": "rust-analyzer cargo triage 0.1.0 cue/emitter/impl#[CueLatch]with_refractory_nanos().",
+"file": "crates/triage/src/cue/emitter.rs",
+"line": 86
+},
+{
+"caller": "rust-analyzer cargo triage 0.1.0 cue/emitter/impl#[CueLatch]admit_cycle().",
+"file": "crates/triage/src/cue/emitter.rs",
+"line": 100
+},
+{
+"caller": "rust-analyzer cargo triage 0.1.0 cue/emitter/impl#[CueLatch]admit_cycle().",
+"file": "crates/triage/src/cue/emitter.rs",
+"line": 105
+},
+{
+"caller": "rust-analyzer cargo triage 0.1.0 cue/emitter/impl#[CueLatch]admit_cycle().",
+"file": "crates/triage/src/cue/emitter.rs",
+"line": 115
+},
+{
+"caller": "rust-analyzer cargo triage 0.1.0 cue/emitter/impl#[CueLatch]admit().",
+"file": "crates/triage/src/cue/emitter.rs",
+"line": 122
+},
+{
+"caller": "rust-analyzer cargo triage 0.1.0 cue/emitter/impl#[CueLatch]admit().",
+"file": "crates/triage/src/cue/emitter.rs",
+"line": 125
+},
+{
+"caller": "rust-analyzer cargo triage 0.1.0 cue/emitter/impl#[CueLatch]admit().",
+"file": "crates/triage/src/cue/emitter.rs",
+"line": 130
+},
+{
+"caller": "rust-analyzer cargo triage 0.1.0 cue/emitter/",
+"file": "crates/triage/src/cue/emitter.rs",
+"line": 141
+},
+{
+"caller": "rust-analyzer cargo triage 0.1.0 cue/emitter/impl#[CueLatch][Default]default().",
+"file": "crates/triage/src/cue/emitter.rs",
+"line": 143
+},
+{
+"caller": "rust-analyzer cargo triage 0.1.0 cue/emitter/run_one_emit_cycle().",
+"file": "crates/triage/src/cue/emitter.rs",
+"line": 162
+},
+{
+"caller": "rust-analyzer cargo triage 0.1.0 cue/emitter/run_one_emit_cycle().",
+"file": "crates/triage/src/cue/emitter.rs",
+"line": 268
+},
+{
+"caller": "rust-analyzer cargo triage 0.1.0 cue/emitter/start_emitter().",
+"file": "crates/triage/src/cue/emitter.rs",
+"line": 405
+},
+{
+"caller": "rust-analyzer cargo triage 0.1.0 cue/emitter/start_emitter().",
+"file": "crates/triage/src/cue/emitter.rs",
+"line": 405
+},
+{
+"caller": "rust-analyzer cargo triage 0.1.0 cue/emitter/tests/run_one_emit_cycle_emits_tick_event_with_zero_cues_on_empty_state().",
+"file": "crates/triage/src/cue/emitter.rs",
+"line": 570
+},
+{
+"caller": "rust-analyzer cargo triage 0.1.0 cue/emitter/tests/run_one_emit_cycle_emits_tick_event_with_zero_cues_on_empty_state().",
+"file": "crates/triage/src/cue/emitter.rs",
+"line": 570
+},
+{
+"caller": "rust-analyzer cargo triage 0.1.0 cue/emitter/tests/run_one_emit_cycle_emits_metric_per_cue().",
+"file": "crates/triage/src/cue/emitter.rs",
+"line": 601
+},
+{
+"caller": "rust-analyzer cargo triage 0.1.0 cue/emitter/tests/run_one_emit_cycle_emits_metric_per_cue().",
+"file": "crates/triage/src/cue/emitter.rs",
+"line": 601
+},
+{
+"caller": "rust-analyzer cargo triage 0.1.0 cue/emitter/tests/run_one_emit_cycle_emits_cue_to_broadcast_topic().",
+"file": "crates/triage/src/cue/emitter.rs",
+"line": 644
+},
+{
+"caller": "rust-analyzer cargo triage 0.1.0 cue/emitter/tests/run_one_emit_cycle_emits_cue_to_broadcast_topic().",
+"file": "crates/triage/src/cue/emitter.rs",
+"line": 644
+},
+{
+"caller": "rust-analyzer cargo triage 0.1.0 cue/emitter/tests/run_one_emit_cycle_tier_two_fans_to_cadence_triggers().",
+"file": "crates/triage/src/cue/emitter.rs",
+"line": 675
+},
+{
+"caller": "rust-analyzer cargo triage 0.1.0 cue/emitter/tests/run_one_emit_cycle_tier_two_fans_to_cadence_triggers().",
+"file": "crates/triage/src/cue/emitter.rs",
+"line": 675
+},
+{
+"caller": "rust-analyzer cargo triage 0.1.0 cue/emitter/tests/run_one_emit_cycle_autonomous_tier_does_not_fan_to_cadence_triggers().",
+"file": "crates/triage/src/cue/emitter.rs",
+"line": 725
+},
+{
+"caller": "rust-analyzer cargo triage 0.1.0 cue/emitter/tests/run_one_emit_cycle_autonomous_tier_does_not_fan_to_cadence_triggers().",
+"file": "crates/triage/src/cue/emitter.rs",
+"line": 725
+},
+{
+"caller": "rust-analyzer cargo triage 0.1.0 cue/emitter/tests/run_one_emit_cycle_pii_canary_does_not_leak_into_tracing_fields().",
+"file": "crates/triage/src/cue/emitter.rs",
+"line": 790
+},
+{
+"caller": "rust-analyzer cargo triage 0.1.0 cue/emitter/tests/run_one_emit_cycle_pii_canary_does_not_leak_into_tracing_fields().",
+"file": "crates/triage/src/cue/emitter.rs",
+"line": 790
+},
+{
+"caller": "rust-analyzer cargo triage 0.1.0 cue/emitter/tests/run_one_emit_cycle_emits_evaluation_span_with_threshold_fields().",
+"file": "crates/triage/src/cue/emitter.rs",
+"line": 832
+},
+{
+"caller": "rust-analyzer cargo triage 0.1.0 cue/emitter/tests/run_one_emit_cycle_emits_evaluation_span_with_threshold_fields().",
+"file": "crates/triage/src/cue/emitter.rs",
+"line": 832
+},
+{
+"caller": "rust-analyzer cargo triage 0.1.0 cue/emitter/tests/run_one_emit_cycle_drops_short_persistence_error_spike_in_active_window().",
+"file": "crates/triage/src/cue/emitter.rs",
+"line": 901
+},
+{
+"caller": "rust-analyzer cargo triage 0.1.0 cue/emitter/tests/run_one_emit_cycle_drops_short_persistence_error_spike_in_active_window().",
+"file": "crates/triage/src/cue/emitter.rs",
+"line": 901
+},
+{
+"caller": "rust-analyzer cargo triage 0.1.0 cue/emitter/tests/run_one_emit_cycle_surfaces_sustained_spike_inside_active_restart_window().",
+"file": "crates/triage/src/cue/emitter.rs",
+"line": 958
+},
+{
+"caller": "rust-analyzer cargo triage 0.1.0 cue/emitter/tests/run_one_emit_cycle_surfaces_sustained_spike_inside_active_restart_window().",
+"file": "crates/triage/src/cue/emitter.rs",
+"line": 958
+},
+{
+"caller": "rust-analyzer cargo triage 0.1.0 cue/emitter/tests/run_one_emit_cycle_keeps_high_magnitude_spike_in_active_window_via_bypass().",
+"file": "crates/triage/src/cue/emitter.rs",
+"line": 1025
+},
+{
+"caller": "rust-analyzer cargo triage 0.1.0 cue/emitter/tests/run_one_emit_cycle_keeps_high_magnitude_spike_in_active_window_via_bypass().",
+"file": "crates/triage/src/cue/emitter.rs",
+"line": 1025
+},
+{
+"caller": "rust-analyzer cargo triage 0.1.0 cue/emitter/tests/run_one_emit_cycle_emits_suppression_check_per_cue().",
+"file": "crates/triage/src/cue/emitter.rs",
+"line": 1067
+},
+{
+"caller": "rust-analyzer cargo triage 0.1.0 cue/emitter/tests/run_one_emit_cycle_emits_suppression_check_per_cue().",
+"file": "crates/triage/src/cue/emitter.rs",
+"line": 1067
+},
+{
+"caller": "rust-analyzer cargo triage 0.1.0 cue/emitter/tests/run_one_emit_cycle_emits_service_went_silent_cue_post_bootstrap().",
+"file": "crates/triage/src/cue/emitter.rs",
+"line": 1122
+},
+{
+"caller": "rust-analyzer cargo triage 0.1.0 cue/emitter/tests/run_one_emit_cycle_emits_service_went_silent_cue_post_bootstrap().",
+"file": "crates/triage/src/cue/emitter.rs",
+"line": 1122
+},
+{
+"caller": "rust-analyzer cargo triage 0.1.0 cue/emitter/tests/run_one_emit_cycle_does_not_emit_service_went_silent_during_bootstrap().",
+"file": "crates/triage/src/cue/emitter.rs",
+"line": 1165
+},
+{
+"caller": "rust-analyzer cargo triage 0.1.0 cue/emitter/tests/run_one_emit_cycle_does_not_emit_service_went_silent_during_bootstrap().",
+"file": "crates/triage/src/cue/emitter.rs",
+"line": 1165
+},
+{
+"caller": "rust-analyzer cargo triage 0.1.0 cue/emitter/tests/run_one_emit_cycle_emits_service_went_silent_evaluate_aggregate_event().",
+"file": "crates/triage/src/cue/emitter.rs",
+"line": 1194
+},
+{
+"caller": "rust-analyzer cargo triage 0.1.0 cue/emitter/tests/run_one_emit_cycle_emits_service_went_silent_evaluate_aggregate_event().",
+"file": "crates/triage/src/cue/emitter.rs",
+"line": 1194
+},
+{
+"caller": "rust-analyzer cargo triage 0.1.0 cue/emitter/tests/cue_latch_admits_a_newly_observed_condition().",
+"file": "crates/triage/src/cue/emitter.rs",
+"line": 1290
+},
+{
+"caller": "rust-analyzer cargo triage 0.1.0 cue/emitter/tests/cue_latch_admits_a_newly_observed_condition().",
+"file": "crates/triage/src/cue/emitter.rs",
+"line": 1290
+},
+{
+"caller": "rust-analyzer cargo triage 0.1.0 cue/emitter/tests/cue_latch_admits_a_newly_observed_condition().",
+"file": "crates/triage/src/cue/emitter.rs",
+"line": 1292
+},
+{
+"caller": "rust-analyzer cargo triage 0.1.0 cue/emitter/tests/cue_latch_refuses_an_unchanged_repeat_inside_the_refractory_window().",
+"file": "crates/triage/src/cue/emitter.rs",
+"line": 1301
+},
+{
+"caller": "rust-analyzer cargo triage 0.1.0 cue/emitter/tests/cue_latch_refuses_an_unchanged_repeat_inside_the_refractory_window().",
+"file": "crates/triage/src/cue/emitter.rs",
+"line": 1301
+},
+{
+"caller": "rust-analyzer cargo triage 0.1.0 cue/emitter/tests/cue_latch_refuses_an_unchanged_repeat_inside_the_refractory_window().",
+"file": "crates/triage/src/cue/emitter.rs",
+"line": 1304
+},
+{
+"caller": "rust-analyzer cargo triage 0.1.0 cue/emitter/tests/cue_latch_refuses_an_unchanged_repeat_inside_the_refractory_window().",
+"file": "crates/triage/src/cue/emitter.rs",
+"line": 1310
+},
+{
+"caller": "rust-analyzer cargo triage 0.1.0 cue/emitter/tests/cue_latch_admits_immediately_when_the_tier_escalates().",
+"file": "crates/triage/src/cue/emitter.rs",
+"line": 1324
+},
+{
+"caller": "rust-analyzer cargo triage 0.1.0 cue/emitter/tests/cue_latch_admits_immediately_when_the_tier_escalates().",
+"file": "crates/triage/src/cue/emitter.rs",
+"line": 1324
+},
+{
+"caller": "rust-analyzer cargo triage 0.1.0 cue/emitter/tests/cue_latch_admits_immediately_when_the_tier_escalates().",
+"file": "crates/triage/src/cue/emitter.rs",
+"line": 1325
+},
+{
+"caller": "rust-analyzer cargo triage 0.1.0 cue/emitter/tests/cue_latch_admits_immediately_when_the_tier_escalates().",
+"file": "crates/triage/src/cue/emitter.rs",
+"line": 1334
+},
+{
+"caller": "rust-analyzer cargo triage 0.1.0 cue/emitter/tests/cue_latch_admits_immediately_when_the_tier_escalates().",
+"file": "crates/triage/src/cue/emitter.rs",
+"line": 1342
+},
+{
+"caller": "rust-analyzer cargo triage 0.1.0 cue/emitter/tests/cue_latch_refuses_a_de_escalation_inside_the_window().",
+"file": "crates/triage/src/cue/emitter.rs",
+"line": 1357
+},
+{
+"caller": "rust-analyzer cargo triage 0.1.0 cue/emitter/tests/cue_latch_refuses_a_de_escalation_inside_the_window().",
+"file": "crates/triage/src/cue/emitter.rs",
+"line": 1357
+},
+{
+"caller": "rust-analyzer cargo triage 0.1.0 cue/emitter/tests/cue_latch_refuses_a_de_escalation_inside_the_window().",
+"file": "crates/triage/src/cue/emitter.rs",
+"line": 1358
+},
+{
+"caller": "rust-analyzer cargo triage 0.1.0 cue/emitter/tests/cue_latch_refuses_a_de_escalation_inside_the_window().",
+"file": "crates/triage/src/cue/emitter.rs",
+"line": 1367
+},
+{
+"caller": "rust-analyzer cargo triage 0.1.0 cue/emitter/tests/cue_latch_admits_again_after_the_refractory_window_elapses().",
+"file": "crates/triage/src/cue/emitter.rs",
+"line": 1382
+},
+{
+"caller": "rust-analyzer cargo triage 0.1.0 cue/emitter/tests/cue_latch_admits_again_after_the_refractory_window_elapses().",
+"file": "crates/triage/src/cue/emitter.rs",
+"line": 1382
+},
+{
+"caller": "rust-analyzer cargo triage 0.1.0 cue/emitter/tests/cue_latch_admits_again_after_the_refractory_window_elapses().",
+"file": "crates/triage/src/cue/emitter.rs",
+"line": 1383
+},
+{
+"caller": "rust-analyzer cargo triage 0.1.0 cue/emitter/tests/cue_latch_admits_again_after_the_refractory_window_elapses().",
+"file": "crates/triage/src/cue/emitter.rs",
+"line": 1385
+},
+{
+"caller": "rust-analyzer cargo triage 0.1.0 cue/emitter/tests/cue_latch_admits_again_after_the_refractory_window_elapses().",
+"file": "crates/triage/src/cue/emitter.rs",
+"line": 1386
+},
+{
+"caller": "rust-analyzer cargo triage 0.1.0 cue/emitter/tests/cue_latch_evicts_a_cleared_condition_so_recurrence_admits_immediately().",
+"file": "crates/triage/src/cue/emitter.rs",
+"line": 1394
+},
+{
+"caller": "rust-analyzer cargo triage 0.1.0 cue/emitter/tests/cue_latch_evicts_a_cleared_condition_so_recurrence_admits_immediately().",
+"file": "crates/triage/src/cue/emitter.rs",
+"line": 1394
+},
+{
+"caller": "rust-analyzer cargo triage 0.1.0 cue/emitter/tests/cue_latch_evicts_a_cleared_condition_so_recurrence_admits_immediately().",
+"file": "crates/triage/src/cue/emitter.rs",
+"line": 1395
+},
+{
+"caller": "rust-analyzer cargo triage 0.1.0 cue/emitter/tests/cue_latch_evicts_a_cleared_condition_so_recurrence_admits_immediately().",
+"file": "crates/triage/src/cue/emitter.rs",
+"line": 1397
+},
+{
+"caller": "rust-analyzer cargo triage 0.1.0 cue/emitter/tests/cue_latch_evicts_a_cleared_condition_so_recurrence_admits_immediately().",
+"file": "crates/triage/src/cue/emitter.rs",
+"line": 1398
+},
+{
+"caller": "rust-analyzer cargo triage 0.1.0 cue/emitter/tests/cue_latch_keys_on_kind_and_scope_so_distinct_conditions_stay_independent().",
+"file": "crates/triage/src/cue/emitter.rs",
+"line": 1410
+},
+{
+"caller": "rust-analyzer cargo triage 0.1.0 cue/emitter/tests/cue_latch_keys_on_kind_and_scope_so_distinct_conditions_stay_independent().",
+"file": "crates/triage/src/cue/emitter.rs",
+"line": 1410
+},
+{
+"caller": "rust-analyzer cargo triage 0.1.0 cue/emitter/tests/cue_latch_keys_on_kind_and_scope_so_distinct_conditions_stay_independent().",
+"file": "crates/triage/src/cue/emitter.rs",
+"line": 1419
+},
+{
+"caller": "rust-analyzer cargo triage 0.1.0 cue/emitter/tests/cue_latch_keys_on_kind_and_scope_so_distinct_conditions_stay_independent().",
+"file": "crates/triage/src/cue/emitter.rs",
+"line": 1420
+},
+{
+"caller": "rust-analyzer cargo triage 0.1.0 cue/emitter/tests/cue_latch_bounds_the_measured_wedge_shape().",
+"file": "crates/triage/src/cue/emitter.rs",
+"line": 1432
+},
+{
+"caller": "rust-analyzer cargo triage 0.1.0 cue/emitter/tests/cue_latch_bounds_the_measured_wedge_shape().",
+"file": "crates/triage/src/cue/emitter.rs",
+"line": 1432
+},
+{
+"caller": "rust-analyzer cargo triage 0.1.0 cue/emitter/tests/cue_latch_bounds_the_measured_wedge_shape().",
+"file": "crates/triage/src/cue/emitter.rs",
+"line": 1439
+},
+{
+"caller": "rust-analyzer cargo triage 0.1.0 cue/",
+"file": "crates/triage/src/cue/mod.rs",
+"line": 30
+}
+],
+"db_state": "regenerated",
+"plane": "rust"
+}
+]

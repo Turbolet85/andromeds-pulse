@@ -1,0 +1,30 @@
+## m3-summary.txt
+# m3 — the primitive returns the whole-value placeholder
+# mutation: early return MaskedValue { text: placeholder(category), .. } after the verdict  [restored after this run]
+        FAIL [   0.060s] ( 1/45) pulse-app::unit_digest_runtime_scrub pii_scrub_closure_span_masks_only_the_card_in_a_digest
+        FAIL [   0.061s] ( 2/45) pulse-app::unit_digest_runtime_scrub pii_scrub_closure_span_masks_a_card_line_and_a_keyed_line_independently
+        FAIL [   0.062s] ( 3/45) security scrubber::tests::span_mask_masks_one_embedded_canary_per_category::case_7
+        FAIL [   0.064s] ( 4/45) buffer appender::tests::span_mask_value_carrying_two_secrets_counts_one_redaction
+        FAIL [   0.073s] ( 5/45) security scrubber::tests::span_mask_masks_one_embedded_canary_per_category::case_4
+        FAIL [   0.076s] ( 6/45) security scrubber::tests::span_mask_keeps_separate_secrets_as_separate_placeholders
+        FAIL [   0.093s] ( 7/45) pulse-app::unit_span_masking_consumers span_mask_investigate_scrub_keeps_the_sentence_around_a_token
+        FAIL [   0.097s] ( 8/45) pulse-app::unit_span_masking_consumers span_mask_l4_summary_with_a_keyed_secret_stays_parseable
+        FAIL [   0.102s] ( 9/45) security scrubber::tests::span_mask_masks_one_embedded_canary_per_category::case_3
+        FAIL [   0.116s] (10/45) security scrubber::tests::span_mask_masks_one_embedded_canary_per_category::case_8
+        FAIL [   0.116s] (11/45) security scrubber::tests::span_mask_keyed_extent_covers_a_base64_bearer_tail
+        FAIL [   0.120s] (12/45) interpretation markdown::tests::scrub_string_span_masks_a_token_and_keeps_its_sentence
+        FAIL [   0.128s] (13/45) security scrubber::tests::span_mask_masks_one_embedded_canary_per_category::case_5
+        FAIL [   0.128s] (14/45) pulse-app::unit_span_masking_consumers span_mask_persistence_adapters_mask_a_raw_key_like_the_choke_point
+        FAIL [   0.139s] (15/45) buffer appender::tests::span_mask_two_word_service_name_keeps_its_first_word
+        FAIL [   0.142s] (16/45) buffer appender::tests::span_mask_exception_message_keeps_the_text_before_the_key
+        FAIL [   0.152s] (18/45) security scrubber::tests::span_mask_masks_one_embedded_canary_per_category::case_6
+        FAIL [   0.154s] (20/45) security scrubber::tests::span_mask_bare_extent_runs_to_the_whitespace_boundaries
+        FAIL [   0.166s] (30/45) security scrubber::tests::span_mask_merges_a_token_bearer_overlap_under_bearer
+        FAIL [   0.167s] (21/45) buffer appender::tests::span_mask_log_body_keeps_its_other_words
+        FAIL [   0.173s] (23/45) security scrubber::tests::span_mask_masks_one_embedded_canary_per_category::case_1
+        FAIL [   0.178s] (25/45) security scrubber::tests::span_mask_keyed_match_crossing_a_newline_ends_at_the_value_line
+        FAIL [   0.206s] (27/45) security scrubber::tests::span_mask_handles_multibyte_text_around_a_secret
+        FAIL [   0.216s] (28/45) security scrubber::tests::span_mask_masks_one_embedded_canary_per_category::case_2
+        FAIL [   0.221s] (29/45) security scrubber::tests::span_mask_keyed_extent_runs_to_the_end_of_the_line
+        FAIL [   0.558s] (45/45) pulse-app::e2e_pii_span_masking_stored_field span_mask_keeps_context_around_embedded_secrets_in_stored_columns
+     Summary [   0.562s] 45 tests run: 19 passed, 26 failed, 2484 skipped

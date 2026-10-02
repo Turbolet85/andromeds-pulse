@@ -7,7 +7,23 @@
 #![allow(clippy::items_after_test_module)]
 
 mod bundle_format;
+mod discovery;
+mod external_resolve;
+mod gap_resume;
+mod harness_status;
+mod hue_shift;
+mod ingest_progress;
+#[cfg(test)]
+mod license_check;
+mod npm_gate;
+mod perf_budget;
+mod perf_frame;
+mod pre_push;
+mod self_verify;
 mod smoke;
+mod source_lint;
+mod staged_gate;
+mod webview_drive;
 
 use std::collections::{BTreeMap, BTreeSet};
 use std::path::{Path, PathBuf};
@@ -47,15 +63,81 @@ enum Cmd {
         #[arg(trailing_var_arg = true)]
         extra: Vec<String>,
     },
+    #[command(
+        name = "check:ingest-progress",
+        about = "fail a run whose buffer consumer stopped draining (progress, not liveness); NEUTRAL on an absent log stream"
+    )]
+    CheckIngestProgress,
+    #[command(
+        name = "smoke:gap-resume",
+        about = "Drive the ingest wedge's real shape — seed, GAP until every service crosses its bootstrap window and the silence family escalates to tier1, then resume — and read the verdict from the shipped drain-progress detector. A pass with no storm in the log is INCONCLUSIVE, not a pass. --sustained runs the control arm (continuous feed, no gap: the shape the predecessor's leg ran, where no storm can form). --reconnect-only runs the separator arm (seed then reconnect with NO idle gap), which isolates the new gRPC connection from the idle window the default arm varies alongside it"
+    )]
+    SmokeGapResume {
+        #[arg(long, conflicts_with = "reconnect_only")]
+        sustained: bool,
+        #[arg(long)]
+        reconnect_only: bool,
+        #[arg(long, value_name = "SECONDS")]
+        bootstrap_seconds: Option<u64>,
+        #[arg(long, value_name = "SECONDS")]
+        gap_seconds: Option<u64>,
+        #[arg(long, value_name = "MINUTES")]
+        observe_minutes: Option<u64>,
+    },
+    #[command(
+        name = "smoke:external-resolve",
+        about = "Drive an incident to Active, resolve it through a REAL andromeda-pulse-mcp subprocess (the cross-process writer an agent uses), then observe the app's own persist cycles. GREEN: reconciled_count goes positive and item_count drops within two cycles, without a restart. RED (pre-fix): item_count static while declined_count climbs. The verdict rests on field VALUES, never a clean log — a declined write is not an ERROR. Reports INCONCLUSIVE, never PASS, when no incident formed or the sidecar resolve did not apply"
+    )]
+    SmokeExternalResolve {
+        #[arg(long, value_name = "SECONDS")]
+        bootstrap_seconds: Option<u64>,
+        #[arg(long, value_name = "SECONDS")]
+        observe_seconds: Option<u64>,
+    },
+    #[command(
+        name = "smoke:hue-shift",
+        about = "Drive a tier rise (finite storm) and fall (120 s auto-resolve under a healthy feed) through the release app and grade the P-025 hue-shift samples by ANCHOR: each sample's timestamp minus duration_ms must land within 1000 ms of the incident creation record (rise) and the resolving auto-resolve tick (fall). The 2000 ms budget line is context only. Exit 0 PASS, 1 FAIL, 2 INCONCLUSIVE (no incident, or a sample never appeared)"
+    )]
+    SmokeHueShift,
+    #[command(
+        name = "smoke:discovery",
+        about = "Boot the release app on a fresh data dir, wait until the webview polls services.list_with_states, start a healthy feed over real OTLP, and grade the P-027 discovery bound: the first metric.constellation.discovery_ms record must land within 5000 ms of the first duckdb.append {table_name: spans} record (the first sighting), with its own anchor (timestamp minus duration_ms) within 1000 ms of that record, and the log must hold 0 app.panic.fatal and 0 ERROR. Exit 0 PASS, 1 FAIL, 2 INCONCLUSIVE (no spans appended, or the webview was not polling first)"
+    )]
+    SmokeDiscovery,
     #[command(name = "audit", about = "cargo audit (RustSec advisory DB)")]
     Audit,
     #[command(name = "deny-bans", about = "cargo deny check bans licenses sources")]
     DenyBans,
     #[command(
+        name = "check:npm-supply-chain",
+        about = "npm advisory + license + ban gate over pulse-app/ui (policy: pulse-app/ui/npm-policy.json; license/class source: package-lock.json)"
+    )]
+    CheckNpmSupplyChain,
+    #[command(
+        name = "check:english-sources",
+        about = "Scan crates, pulse-app/src, pulse-app/tests, pulse-app/ui/src and xtask/src (.rs/.ts/.tsx) for Cyrillic characters (U+0400..U+04FF). One GitHub ::error annotation per hit naming file:line, rendered ASCII-only, then one JSON verdict; twin at target/english-sources/report.json. Exit 0 clean, 1 findings, 2 cannot-evaluate (a root absent or unreadable)"
+    )]
+    CheckEnglishSources,
+    #[command(
         name = "ci-gates",
-        about = "obs SLO gates: zero-spans + zero-panic + heartbeat-gap (perf-budget deferred)"
+        about = "obs SLO gates: zero-spans + zero-panic + heartbeat-gap + perf-budget (NEUTRAL over a log carrying no perf samples, never PASS)"
     )]
     CiGates,
+    #[command(
+        name = "perf:budget",
+        about = "Grade <DIR>/logs/agent-latest.jsonl* against the obs-plan §10 perf budgets (frame p99 <= 33 ms, metric.buffer.memory_bytes max <= 512000000, snapshot p99 <= 500 ms). A --require arm with no readable sample fails; a non-numeric graded field always fails. Exit 0 PASS, 1 FAIL, 2 cannot-evaluate (no log family, an unknown arm, or nothing to grade)"
+    )]
+    PerfBudget {
+        #[arg(long, value_name = "DIR")]
+        data_dir: PathBuf,
+        #[arg(long, value_name = "ARM,ARM", value_delimiter = ',')]
+        require: Vec<String>,
+    },
+    #[command(
+        name = "perf:frame-sample",
+        about = "Windows only: boot target/release/pulse-app.exe on a fresh data dir with a software WebGPU adapter exposed to WebView2 (child env only), drive target/release/examples/inject_demo.exe --sustained for 30 s, then grade the frame arm as required. Exit 0 PASS, 1 FAIL (0 frame samples once healthy, or p99 over 33 ms), 2 INCONCLUSIVE (not Windows, a binary missing, :4317/:4318 in use, or the app never healthy). Artifact target/perf-frame/"
+    )]
+    PerfFrameSample,
     #[command(
         name = "lint",
         about = "npm run lint (ESLint flat config in pulse-app/ui/)"
@@ -91,6 +173,11 @@ enum Cmd {
     )]
     CapabilityWideningCheck,
     #[command(
+        name = "check:staged-artifacts",
+        about = "diff the STAGED (git index) copies of pulse-app/ui/src/bindings/index.ts + pulse-app/capabilities/*.json against EXPECTED_PROCEDURES + EXPECTED_GRANTS — the committed copy is the subject, never the worktree (exit 0 staged-clean / 1 staged-drift / 2 cannot-evaluate); also runs inside capability-drift"
+    )]
+    CheckStagedArtifacts,
+    #[command(
         name = "smoke",
         about = "install-launch-ingest-query smoke per bundle format (chunk #51)"
     )]
@@ -99,6 +186,21 @@ enum Cmd {
         bundle: PathBuf,
         #[arg(long, value_enum)]
         format: BundleFormat,
+    },
+    #[command(
+        name = "self-verify",
+        about = "Agent-headful self-verify (P-078): boot the real pulse-app binary, assert shell health from agent-latest.jsonl (boot spans + window shown + heartbeat + zero panics) + run the a11y/contrast harness + clean quit with zero orphan; skip-clean on a display-less host"
+    )]
+    SelfVerify,
+    #[command(
+        name = "webview-drive",
+        about = "Headful webview drive: drive the assembled product path (launch → traces → storm → incident → Investigate) in the live Tauri window and assert each stage against the app's own obs record. Closes the gap self-verify cannot (it never clicks). --expect-absent <stage> inverts one stage's assertion for the mutation check; --no-inject suppresses telemetry so the telemetry-dependent stages must go red"
+    )]
+    WebviewDrive {
+        #[arg(long, value_name = "STAGE")]
+        expect_absent: Option<String>,
+        #[arg(long)]
+        no_inject: bool,
     },
     #[command(
         name = "perf:slo-load",
@@ -140,24 +242,75 @@ enum Cmd {
         about = "Chunk #99 — dist-arch v3 four-profile load suite (baseline 1k / high 10k / burst 50k / sustained-extreme 50k spans/s) via nextest --profile load-profiles, then heartbeat-gap + perf-slo gates over harness logs when present"
     )]
     PerfLoadProfiles,
+    #[command(
+        name = "pre-push:linux",
+        about = "Run the Linux-reachable CI gates (script modes, the English-only source lint, npm build, clippy, xtask test, ci-gates) in a WSL Ubuntu clone synced to HEAD + the working tree, before a push. One JSON verdict; exit 0 green / 1 red / 2 cannot-evaluate (not Windows, no distro, or a pinned tool or apt package missing — the remediation command is printed). Never binds a port"
+    )]
+    PrePushLinux,
 }
 
 #[tokio::main]
 async fn main() -> ExitCode {
     let cli = Cli::parse();
     let result: Result<ExitCode> = match cli.command {
-        Cmd::HarnessStatus => harness_status().await,
+        Cmd::HarnessStatus => harness_status::run(),
         Cmd::Test { extra } => run_cargo_nextest(extra).await,
         Cmd::TestCoverage { extra } => run_cargo_llvm_cov(extra).await,
+        Cmd::CheckIngestProgress => run_check_ingest_progress(),
+        Cmd::SmokeGapResume {
+            sustained,
+            reconnect_only,
+            bootstrap_seconds,
+            gap_seconds,
+            observe_minutes,
+        } => {
+            let defaults = gap_resume::GapResumeOptions::default();
+            let arm = match (sustained, reconnect_only) {
+                (true, _) => gap_resume::LegArm::Sustained,
+                (_, true) => gap_resume::LegArm::ReconnectOnly,
+                _ => gap_resume::LegArm::GapResume,
+            };
+            gap_resume::run_gap_resume(gap_resume::GapResumeOptions {
+                arm,
+                bootstrap_seconds: bootstrap_seconds.unwrap_or(defaults.bootstrap_seconds),
+                gap_seconds: gap_seconds.unwrap_or(defaults.gap_seconds),
+                observe_minutes: observe_minutes.unwrap_or(defaults.observe_minutes),
+            })
+            .await
+        }
+        Cmd::SmokeExternalResolve {
+            bootstrap_seconds,
+            observe_seconds,
+        } => {
+            let defaults = external_resolve::ExternalResolveOptions::default();
+            external_resolve::run_external_resolve(external_resolve::ExternalResolveOptions {
+                bootstrap_seconds: bootstrap_seconds.unwrap_or(defaults.bootstrap_seconds),
+                observe_seconds: observe_seconds.unwrap_or(defaults.observe_seconds),
+                incident_wait_seconds: defaults.incident_wait_seconds,
+            })
+            .await
+        }
+        Cmd::SmokeHueShift => hue_shift::run_hue_shift().await,
+        Cmd::SmokeDiscovery => discovery::run_discovery().await,
         Cmd::Audit => run_cargo("audit", &[]).await,
         Cmd::DenyBans => run_cargo("deny", &["check", "bans", "licenses", "sources"]).await,
+        Cmd::CheckNpmSupplyChain => npm_gate::run_npm_gate().await,
+        Cmd::CheckEnglishSources => source_lint::run(),
         Cmd::CiGates => run_ci_gates().await,
+        Cmd::PerfBudget { data_dir, require } => perf_budget::run_perf_budget(&data_dir, &require),
+        Cmd::PerfFrameSample => perf_frame::run_perf_frame_sample().await,
         Cmd::Lint { extra } => run_npm_script("lint", extra).await,
         Cmd::Typecheck { extra } => run_npm_script("typecheck", extra).await,
         Cmd::TestA11y { extra } => run_npm_script("test:a11y", extra).await,
         Cmd::CapabilityDrift => capability_drift().await,
         Cmd::CapabilityWideningCheck => capability_widening_check().await,
+        Cmd::CheckStagedArtifacts => staged_gate::run().await,
         Cmd::Smoke { bundle, format } => smoke::run_smoke(&bundle, format).await,
+        Cmd::SelfVerify => self_verify::run_self_verify().await,
+        Cmd::WebviewDrive {
+            expect_absent,
+            no_inject,
+        } => webview_drive::run_webview_drive(expect_absent, no_inject).await,
         Cmd::PerfSloLoad => run_perf_slo_load().await,
         Cmd::CoverageRegression { current, baseline } => {
             run_coverage_regression(&current, &baseline).await
@@ -168,6 +321,7 @@ async fn main() -> ExitCode {
         }
         Cmd::VerifyCapabilityMatrix => verify_capability_matrix().await,
         Cmd::PerfLoadProfiles => run_perf_load_profiles().await,
+        Cmd::PrePushLinux => pre_push::run(),
     };
     match result {
         Ok(code) => code,
@@ -178,26 +332,89 @@ async fn main() -> ExitCode {
     }
 }
 
-async fn harness_status() -> Result<ExitCode> {
-    // ui-bridge built without taurpc-runtime feature here — xtask is non-IPC
-    // and Tauri runtime DLLs aren't available on Windows without WebView2.
-    // current_health() returns the same envelope that the TauRPC resolver
-    // would emit; full IPC roundtrip lands at the integration-test chunk
-    // when actual subsystems (chunks #15-#18) exist to hit.
-    let envelope = ui_bridge::health::current_health();
+/// Variables `cargo run` sets on the program it launches, describing xtask's own
+/// package. They leak into every child cargo this process spawns.
+fn is_cargo_run_injected(name: &str) -> bool {
+    name.starts_with("CARGO_PKG_")
+        || matches!(
+            name,
+            "CARGO_MANIFEST_DIR"
+                | "CARGO_MANIFEST_PATH"
+                | "CARGO_MANIFEST_LINKS"
+                | "CARGO_CRATE_NAME"
+                | "CARGO_BIN_NAME"
+                | "CARGO_PRIMARY_PACKAGE"
+        )
+}
 
-    let json = serde_json::to_string_pretty(&envelope)?;
-    println!("{json}");
+/// A child `cargo` without the `cargo run`-injected package variables. Build
+/// scripts track some of them (ring's reruns on `CARGO_MANIFEST_DIR` and
+/// `CARGO_PKG_*`), so a child build seeing xtask's values while a shell build
+/// sees none reruns ring on every alternation — and ring's rebuild recompiles
+/// rustls, libduckdb-sys and the whole workspace above it.
+pub(crate) fn cargo_command() -> tokio::process::Command {
+    let mut cmd = tokio::process::Command::new("cargo");
+    for (key, _) in env::vars_os() {
+        if key.to_str().is_some_and(is_cargo_run_injected) {
+            cmd.env_remove(&key);
+        }
+    }
+    cmd
+}
 
-    let exit = match envelope.status {
-        ui_bridge::health::HealthStatus::Ok => ExitCode::SUCCESS,
-        ui_bridge::health::HealthStatus::Degraded => ExitCode::FAILURE,
-    };
-    Ok(exit)
+#[cfg(test)]
+mod cargo_command_tests {
+    use super::*;
+
+    #[test]
+    fn cargo_run_package_variables_are_recognized() {
+        for name in [
+            "CARGO_PKG_NAME",
+            "CARGO_PKG_VERSION_MAJOR",
+            "CARGO_MANIFEST_DIR",
+            "CARGO_MANIFEST_PATH",
+            "CARGO_BIN_NAME",
+        ] {
+            assert!(is_cargo_run_injected(name), "{name}");
+        }
+        for name in [
+            "CARGO",
+            "CARGO_HOME",
+            "CARGO_TARGET_DIR",
+            "CARGO_INCREMENTAL",
+            "CARGO_TERM_COLOR",
+            "CC",
+        ] {
+            assert!(!is_cargo_run_injected(name), "{name}");
+        }
+    }
+
+    // The test runner itself sets CARGO_PKG_NAME and CARGO_MANIFEST_DIR on this
+    // process, exactly as `cargo run` does for xtask.
+    #[test]
+    fn cargo_command_drops_the_inherited_package_variables() {
+        assert!(env::var_os("CARGO_PKG_NAME").is_some(), "precondition");
+        let cmd = cargo_command();
+        let removed: Vec<String> = cmd
+            .as_std()
+            .get_envs()
+            .filter(|(_, value)| value.is_none())
+            .map(|(key, _)| key.to_string_lossy().into_owned())
+            .collect();
+        assert!(
+            removed.contains(&"CARGO_PKG_NAME".to_owned()),
+            "{removed:?}"
+        );
+        assert!(
+            removed.contains(&"CARGO_MANIFEST_DIR".to_owned()),
+            "{removed:?}"
+        );
+        assert!(!removed.iter().any(|k| k == "CARGO_HOME" || k == "PATH"));
+    }
 }
 
 async fn run_cargo(subcommand: &str, args: &[&str]) -> Result<ExitCode> {
-    let mut cmd = tokio::process::Command::new("cargo");
+    let mut cmd = cargo_command();
     cmd.arg(subcommand).args(args);
     let status = cmd
         .status()
@@ -207,7 +424,7 @@ async fn run_cargo(subcommand: &str, args: &[&str]) -> Result<ExitCode> {
 }
 
 async fn run_cargo_nextest(extra: Vec<String>) -> Result<ExitCode> {
-    let mut cmd = tokio::process::Command::new("cargo");
+    let mut cmd = cargo_command();
     // libtest-json is gated behind an experimental flag in cargo-nextest 0.9.x;
     // set the env var unconditionally so the message-format parses agent-side.
     cmd.env("NEXTEST_EXPERIMENTAL_LIBTEST_JSON", "1");
@@ -231,8 +448,14 @@ async fn run_cargo_nextest(extra: Vec<String>) -> Result<ExitCode> {
     Ok(status_to_code(status))
 }
 
+/// TEMPORARY scope of the coverage measure (founder ruling 2026-09-29): the
+/// xtask dev task-runner is excluded, thresholds unchanged. Owned by the next
+/// epoch-boundary code audit, which revisits coverage quality, thresholds
+/// above 85 % and xtask's inclusion (test-plan §10).
+const COVERAGE_IGNORE_FILENAME_REGEX: &str = r"(^|[/\\])xtask[/\\]";
+
 async fn run_cargo_llvm_cov(extra: Vec<String>) -> Result<ExitCode> {
-    let mut cmd = tokio::process::Command::new("cargo");
+    let mut cmd = cargo_command();
     cmd.args([
         "llvm-cov",
         "nextest",
@@ -241,6 +464,8 @@ async fn run_cargo_llvm_cov(extra: Vec<String>) -> Result<ExitCode> {
         "--output-path",
         "lcov.info",
         "--no-tests=pass",
+        "--ignore-filename-regex",
+        COVERAGE_IGNORE_FILENAME_REGEX,
     ]);
     for arg in extra {
         cmd.arg(arg);
@@ -263,7 +488,7 @@ async fn run_ci_gates() -> Result<ExitCode> {
         );
         println!("ci-gates: zero-panic NEUTRAL (no log file to scan)");
         println!("ci-gates: heartbeat-gap NEUTRAL (no log file to scan)");
-        println!("ci-gates: perf-budget DEFERRED (no criterion bench yet)");
+        println!("ci-gates: perf-budget NEUTRAL (no log file to grade)");
         return Ok(ExitCode::SUCCESS);
     }
 
@@ -324,23 +549,57 @@ async fn run_ci_gates() -> Result<ExitCode> {
         }
     }
 
-    // Perf-budget gate: shell out to xtask/ci/perf-slo-check.{sh,ps1} per
-    // chunk #54 activation. The script tails `agent-latest.jsonl` for
-    // `metric.webgpu.frame_duration_ms` events, computes p99 ≤33ms, and
-    // checks `metric.buffer.memory_bytes` max ≤512MB. Missing script or
-    // empty event stream maps к NEUTRAL (pre-perf-instrumentation states).
-    match invoke_perf_slo_check(&log_files).await {
-        Ok(true) => println!("ci-gates: perf-budget PASS"),
-        Ok(false) => {
+    // No arm is required here: the boot-smoke log and pre-push:linux's seeded
+    // record legitimately carry no perf samples. The gates that expect samples
+    // run `perf:budget --require` over their own producer's log.
+    let perf_results = perf_budget::grade(&perf_budget::read_family(&resolve_log_dir())?);
+    for line in perf_budget::arm_lines(&perf_results, &[]) {
+        println!("ci-gates: {line}");
+    }
+    match perf_budget::evaluate(&perf_results, &[]) {
+        perf_budget::Verdict::Fail => {
             eprintln!("::error::ci-gates: perf-budget FAIL");
             return Ok(ExitCode::FAILURE);
         }
-        Err(e) => {
-            eprintln!("ci-gates: perf-budget script unavailable ({e:#}) — treating as NEUTRAL");
-        }
+        verdict => println!("ci-gates: perf-budget {}", verdict.word()),
     }
 
     Ok(ExitCode::SUCCESS)
+}
+
+// Progress gate. The existing obs gates key on tick PRESENCE (obs-plan §3/§10
+// define a stall as tick absence >45s), which the measured 2026-08-26 wedge
+// satisfied throughout — heartbeats ticked while nothing drained. This one
+// keys on the app's own drain-progress record instead.
+fn run_check_ingest_progress() -> Result<ExitCode> {
+    let log_files = collect_log_files();
+    let lines = ingest_progress::parse_lines(&log_files);
+
+    match ingest_progress::evaluate(&lines) {
+        ingest_progress::Verdict::Neutral(reason) => {
+            println!("check:ingest-progress: NEUTRAL — {reason}");
+            Ok(ExitCode::SUCCESS)
+        }
+        ingest_progress::Verdict::Pass {
+            ticks,
+            longest_zero_delta_run,
+        } => {
+            println!(
+                "check:ingest-progress: PASS — {ticks} buffer ticks, longest zero-delta run {longest_zero_delta_run}"
+            );
+            Ok(ExitCode::SUCCESS)
+        }
+        ingest_progress::Verdict::Fail {
+            reason,
+            consequence,
+            stalled_seconds,
+        } => {
+            eprintln!(
+                "::error::check:ingest-progress: FAIL — buffer consumer stalled for {stalled_seconds}s (reason={reason}, consequence={consequence})"
+            );
+            Ok(ExitCode::FAILURE)
+        }
+    }
 }
 
 fn collect_log_files() -> Vec<PathBuf> {
@@ -468,58 +727,20 @@ async fn invoke_heartbeat_check(log_files: &[PathBuf]) -> Result<bool> {
     Ok(status.success())
 }
 
-async fn invoke_perf_slo_check(log_files: &[PathBuf]) -> Result<bool> {
-    let workspace_root = Path::new(env!("CARGO_MANIFEST_DIR"))
-        .parent()
-        .context("xtask manifest has no workspace parent")?
-        .to_path_buf();
-    let script = if cfg!(target_os = "windows") {
-        workspace_root
-            .join("xtask")
-            .join("ci")
-            .join("perf-slo-check.ps1")
-    } else {
-        workspace_root
-            .join("xtask")
-            .join("ci")
-            .join("perf-slo-check.sh")
-    };
-    if !script.exists() {
-        bail!("perf-slo-check script missing at {}", script.display());
-    }
-    let primary_log = log_files
-        .last()
-        .context("no log file to pass to perf-slo-check script")?;
-    let status = if cfg!(target_os = "windows") {
-        tokio::process::Command::new("pwsh")
-            .args(["-NoProfile", "-File"])
-            .arg(&script)
-            .arg(primary_log)
-            .status()
-            .await?
-    } else {
-        tokio::process::Command::new("bash")
-            .arg(&script)
-            .arg(primary_log)
-            .status()
-            .await?
-    };
-    Ok(status.success())
-}
-
 async fn run_perf_slo_load() -> Result<ExitCode> {
     // 10k spans/sec sustained-load test runs the perf_slo_10k_spans
     // integration test via cargo-nextest; post-test p99 / max gates fire
-    // via run_ci_gates() (invoked as а separate xtask step in CI).
-    let mut cmd = tokio::process::Command::new("cargo");
+    // via run_ci_gates() (invoked as a separate xtask step in CI).
+    // Narrowed with -E under --workspace, never -p: a -p selection unifies
+    // features differently and recompiles the graph `cargo xtask test` built.
+    let mut cmd = cargo_command();
     cmd.env("NEXTEST_EXPERIMENTAL_LIBTEST_JSON", "1");
     cmd.args([
         "nextest",
         "run",
-        "-p",
-        "pulse-app",
-        "--test",
-        "perf_slo_10k_spans",
+        "--workspace",
+        "-E",
+        "binary(perf_slo_10k_spans)",
         "--profile",
         "ci",
         "--no-tests=pass",
@@ -529,7 +750,7 @@ async fn run_perf_slo_load() -> Result<ExitCode> {
     let status = cmd
         .status()
         .await
-        .context("failed to spawn `cargo nextest run --test perf_slo_10k_spans`")?;
+        .context("failed to spawn `cargo nextest run -E binary(perf_slo_10k_spans)`")?;
     Ok(status_to_code(status))
 }
 
@@ -538,11 +759,11 @@ async fn run_perf_slo_load() -> Result<ExitCode> {
 // `.config/nextest.toml` default-filter; `--profile load-profiles`
 // re-selects exactly the perf_load_profiles binary. After the suite, the
 // heartbeat-gap + perf-slo gates run over harness logs when present (the
-// booted-app ACTIVE window flow); absent logs map к NEUTRAL — the
+// booted-app ACTIVE window flow); absent logs map to NEUTRAL — the
 // in-process suite does not write agent-latest.jsonl itself.
 async fn run_perf_load_profiles() -> Result<ExitCode> {
     let run_start_utc19 = chrono::Utc::now().format("%Y-%m-%dT%H:%M:%S").to_string();
-    let mut cmd = tokio::process::Command::new("cargo");
+    let mut cmd = cargo_command();
     cmd.env("NEXTEST_EXPERIMENTAL_LIBTEST_JSON", "1");
     cmd.args([
         "nextest",
@@ -590,7 +811,7 @@ async fn run_perf_load_profiles() -> Result<ExitCode> {
         "perf:load-profiles: {in_window} in-window log line(s) — running obs gates over {}",
         window_path.display()
     );
-    let windowed_files = vec![window_path];
+    let windowed_files = vec![window_path.clone()];
     match invoke_heartbeat_check(&windowed_files).await {
         Ok(true) => println!("perf:load-profiles: heartbeat-gap PASS"),
         Ok(false) => {
@@ -601,13 +822,17 @@ async fn run_perf_load_profiles() -> Result<ExitCode> {
             eprintln!("perf:load-profiles: heartbeat-gap script unavailable ({e:#}) — NEUTRAL")
         }
     }
-    match invoke_perf_slo_check(&windowed_files).await {
-        Ok(true) => println!("perf:load-profiles: perf-slo PASS"),
-        Ok(false) => {
-            eprintln!("::error::perf:load-profiles: perf-slo FAIL");
+    let window_lines = perf_budget::parse_lines(&smoke::read_jsonl_lines(&window_path)?);
+    let perf_results = perf_budget::grade(&window_lines);
+    for line in perf_budget::arm_lines(&perf_results, &[]) {
+        println!("perf:load-profiles: {line}");
+    }
+    match perf_budget::evaluate(&perf_results, &[]) {
+        perf_budget::Verdict::Fail => {
+            eprintln!("::error::perf:load-profiles: perf-budget FAIL");
             return Ok(ExitCode::FAILURE);
         }
-        Err(e) => eprintln!("perf:load-profiles: perf-slo script unavailable ({e:#}) — NEUTRAL"),
+        verdict => println!("perf:load-profiles: perf-budget {}", verdict.word()),
     }
     Ok(ExitCode::SUCCESS)
 }
@@ -1017,6 +1242,7 @@ const EXPECTED_PROCEDURES: &[&str] = &[
     "incidents.list_active",
     "incidents.mark_all_read",
     "incidents.mark_resolved",
+    "investigate.run_action",
     "logs.query",
     "metrics.query",
     "services.list_with_states",
@@ -1034,7 +1260,12 @@ const EXPECTED_PROCEDURES: &[&str] = &[
     "mcp.start",
     "mcp.stop",
     "model.current_profile",
+    "telemetry.frontend.record_constellation_discovery_latency",
+    "telemetry.frontend.record_constellation_hue_latency",
+    "telemetry.frontend.record_findings_counter_refresh",
     "telemetry.frontend.record_frame_ms",
+    "telemetry.frontend.record_ipc_rejection",
+    "telemetry.frontend.record_webgpu_adapter",
     "traces.query",
     "workspace.detect",
     // future-deferred (per epoch landing):
@@ -1119,7 +1350,13 @@ async fn capability_drift() -> Result<ExitCode> {
     }
     eprintln!("  report: {}", report_path.display());
 
-    if drift_state == "clean" {
+    // The staged assertion rides capability-drift's cannot-be-skipped slot
+    // (it runs LAST in every gate list and in CI): any non-clean staged
+    // outcome fails this verb too, preserving its 0/1 exit contract.
+    let staged = staged_gate::evaluate_at(&workspace_root).await;
+    staged_gate::emit(&workspace_root, &staged)?;
+
+    if drift_state == "clean" && staged.exit == 0 {
         Ok(ExitCode::SUCCESS)
     } else {
         Ok(ExitCode::FAILURE)
@@ -1132,7 +1369,7 @@ async fn capability_drift() -> Result<ExitCode> {
 //
 // 3 capabilities have NEVER-widen invariants that the existing
 // capability_drift check does NOT enforce (drift only verifies router↔JSON
-// procedure sync, not permission widening within а capability's permissions
+// procedure sync, not permission widening within a capability's permissions
 // array):
 //   - pulse:notification — outbound-emit only (NEVER include
 //     notification:allow-register-action-types OR notification:allow-register-listener
@@ -1141,7 +1378,7 @@ async fn capability_drift() -> Result<ExitCode> {
 //     permissions ending in -register-* / -listen-* / -on-* indicate
 //     input-event handlers banned per pulse-app/capabilities/tray.json:4
 //     description)
-//   - pulse:plugin-fs — backend-only (NEVER expose к webview JavaScript via
+//   - pulse:plugin-fs — backend-only (NEVER expose to webview JavaScript via
 //     `windows: [...]` array population NOR add any fs:* / shell:* / dialog:*
 //     / http:* permissions per pulse-app/capabilities/plugin-fs.json:4
 //     description)

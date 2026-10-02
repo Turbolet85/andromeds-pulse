@@ -6,9 +6,10 @@ db-urls = ["https://github.com/rustsec/advisory-db"]
 yanked = "warn"
 # All ignored advisories below are unmaintained-warnings on transitive deps with
 # "No safe upgrade is available!" — i.e. no actionable fix at the source. Reviewed
-# 2026-05-20; revisit when Tauri 2 migrates к GTK4 (closes 10 GTK3 IDs) OR when
+# 2026-05-20; holders re-derived 2026-08-29-advisory-backlog. Revisit when Tauri 2
+# migrates to GTK4 (closes 10 GTK3 IDs + frees proc-macro-error) OR when
 # tauri-utils swaps urlpattern → icu_properties (closes 5 unic-* IDs) OR when
-# rmcp / specta migrate off proc-macro-error / paste / older transitive chain.
+# tokenizers / specta migrate off paste.
 # The lru 0.12.5 UNSOUND advisory (RUSTSEC-2026-0002) is NOT in this list — it
 # was fixed at the source via `lru = "0.16"` workspace dep bump (2026-05-20).
 ignore = [
@@ -35,15 +36,33 @@ ignore = [
     "RUSTSEC-2025-0081",  # unic-char-property 0.9.0
     "RUSTSEC-2025-0098",  # unic-ucd-version 0.9.0
     "RUSTSEC-2025-0100",  # unic-ucd-ident 0.9.0
-    # proc-macro-error 1.0.4 unmaintained — transitive via glib-macros 0.18.5
-    # (GTK3 stack closes this) + rmcp 0.6 + specta 2.0.0-rc.22. Crate maintainer
-    # unreachable; proc-macro-error2 is the suggested replacement but no upstream
-    # has migrated. Closes when rmcp 0.7+ + specta 2 stable + GTK4 land.
+    # proc-macro-error 1.0.4 unmaintained — transitive via glib-macros 0.18.5 +
+    # gtk3-macros 0.18.2 (GTK3 stack ONLY: the rmcp 3 bump at
+    # 2026-08-29-advisory-backlog re-derived the holders and rmcp / specta no
+    # longer pull it). Crate maintainer unreachable; proc-macro-error2 is the
+    # suggested replacement but the GTK3 stack has not migrated. Closes when
+    # Tauri ships GTK4 backends.
     "RUSTSEC-2024-0370",
-    # paste 1.0.15 unmaintained — transitive via rmcp 0.6 + specta 2.0.0-rc.22.
-    # Crate creator archived репозитарий; pastey is the drop-in replacement.
-    # Closes when rmcp + specta migrate off paste.
+    # paste 1.0.15 unmaintained — transitive via tokenizers 0.21
+    # (macro_rules_attribute) + specta 2.0.0-rc.22 (holders re-derived at
+    # 2026-08-29-advisory-backlog: rmcp 3 no longer pulls it). Crate creator
+    # archived repository; pastey is the drop-in replacement. Closes when
+    # tokenizers + specta migrate off paste.
     "RUSTSEC-2024-0436",
+    # The im-rc cluster ignores (RUSTSEC-2026-0247/0250/0251, bitmaps/im-rc/
+    # sized-chunks) were REMOVED at 2026-08-29-advisory-backlog: their stated
+    # closing condition fired — wasmtime 46 dropped the im-rc chain, all three
+    # crates left the lockfile, and cargo-deny flagged the entries
+    # advisory-not-detected. A stale ignore would hide the advisory's return.
+    #
+    # The owned upgradeable set (8 ids: RUSTSEC-2026-0189/0190/0194/0195/0204/
+    # 0222/0253/0258) was CLOSED at 2026-08-29-advisory-backlog — every finding
+    # upgraded at the source (rmcp 3 · wasmtime 46 · quick-xml 0.41 single-version ·
+    # crossbeam-epoch 0.9.20 · anyhow 1.0.104 · lru 0.18 · h2 0.4.19), none
+    # ignore-listed. The standing posture is unchanged: a finding WITH a stated
+    # safe upgrade is NEVER added to this list — it gets a named owner and stays
+    # RED until upgraded; only no-safe-upgrade findings are ignore-eligible.
+    #
     # bincode 1.3.3 unmaintained — direct dep in buffer + triage + pulse-app
     # for serialized state persistence (Drain templates / baseline / lifecycle /
     # storm snapshots). Bincode team ceased development after doxxing incident;
@@ -134,11 +153,21 @@ skip = [
     { crate = "jni" },
     { crate = "jni-sys" },
     { crate = "redox_syscall" },
-    # taurpc 0.7 + specta 2.0.0-rc.22 transitive deps (route#4, 2026-05-03)
+    # taurpc 0.7 + specta 2.0.0-rc.22 transitive deps (route#4, 2026-05-03).
+    # windows-core / windows-result / windows-strings were skipped here until
+    # 2026-08-29: the duckdb 1.10502 -> 1.10505 bump dropped the second copy of
+    # each, so cargo-deny flags the entries as unnecessary-skip. Removed rather
+    # than kept — a stale skip hides the duplicate's return.
     { crate = "ctor" },
-    { crate = "windows-core" },
-    { crate = "windows-result" },
-    { crate = "windows-strings" },
+    # duckdb 1.10505's libduckdb-sys build script pulls ureq 3.4.0 while
+    # crates/triage's own build.rs (tokenizer fetch) pulls ureq 2.12.1. BOTH are
+    # [build-dependencies] only — neither links into any shipped binary, so the
+    # duplicate costs build time and nothing else. Not source-fixable without
+    # migrating triage/build.rs to the ureq 3 API, which is a breaking rewrite of
+    # a downloader that already carries its own cap-hit hard-error discipline.
+    # Closes when triage/build.rs moves to ureq 3 or stops needing an HTTP client
+    # (chunk 2026-08-28-duplicate-span-replay-fails-loudly, 2026-08-29).
+    { crate = "ureq" },
     # tonic-prost-build 0.14 build-dep stack pulls foldhash 0.1 via hashbrown / petgraph;
     # tauri-utils / dom_query pull foldhash 0.2. Both transitive, both build-time only,
     # benign per route#16 (2026-05-04).
@@ -146,6 +175,18 @@ skip = [
     # tower_governor 0.8 transitive deps via governor 0.10 + axum-test (route#19, 2026-05-05)
     { crate = "rand" },
     { crate = "rand_core" },
+    # keyring 3.6.3 platform-backend features (2026-08-15-corpus-key-persistence).
+    # Owner: the corpus key-custody path (`crates/corpus/src/keychain.rs`).
+    # keyring itself depends on BOTH security-framework 2.11 and 3.7 — the
+    # duplicate is INTERNAL to that one crate, not a conflict between keyring
+    # and the rest of the tree, so no version choice here can resolve it.
+    # core-foundation 0.9/0.10 rides along as security-framework 2.x's own dep.
+    # Both are macOS-only code paths, unreachable on Windows/Linux builds.
+    # Not source-fixable: dropping `apple-native` would drop macOS key
+    # persistence entirely, which is the defect this chunk exists to fix.
+    # Revisit when keyring consolidates on a single security-framework major.
+    { crate = "core-foundation" },
+    { crate = "security-framework" },
     # duckdb 1.10502 / libduckdb-sys 1.10502 bundled C++ build pulls zip 6 via libduckdb-sys
     # build script; tauri-plugin-updater 2.10 keeps zip 4 for archive extraction (route#20, 2026-05-06)
     { crate = "zip" },
@@ -156,26 +197,29 @@ skip = [
     { crate = "linux-raw-sys" },
     { crate = "reqwest" },
     { crate = "rustix" },
-    # tauri-plugin-notification 2 transitive (notify-rust 4 → zbus_names 4) pulls
-    # quick-xml 0.39 alongside tauri's existing 0.37 (chunk #43, 2026-05-11).
-    { crate = "quick-xml" },
-    # wasmtime 43+ + wat 1 transitive build/runtime deps (chunk #45, 2026-05-11):
+    # The quick-xml skip was REMOVED at 2026-08-29-advisory-backlog: the lockfile
+    # converged on a single quick-xml 0.41.0 (tauri-winrt-notification 0.7.3
+    # dropped its copy; plist 1.10 + wayland-scanner 0.31.11 both require ^0.41),
+    # and cargo-deny flagged the entry unnecessary-skip.
+    # wasmtime 46+ + wat 1 transitive build/runtime deps (chunk #45 origin;
+    # re-verified at 2026-08-29-advisory-backlog under wasmtime 46.0.3 — all five
+    # still multi-version):
     # redox_users (tempfile's transitive variant vs. Tauri's tracing/zbus chain);
-    # wasm-encoder (wasmtime 43 internal vs. wat 1.248 lifter);
-    # fixedbitset (cranelift-codegen 0.130 vs. older variants pulled by other crates);
-    # petgraph (cranelift-codegen 0.130 vs. wasm-compose / wit-parser);
-    # target-lexicon (wasmtime 43 internal vs. tauri-utils older variant).
+    # wasm-encoder (wasmtime 46 internal vs. wat 1.258 lifter);
+    # fixedbitset (cranelift-codegen vs. older variants pulled by other crates);
+    # petgraph (cranelift-codegen vs. wasm-compose / wit-parser);
+    # target-lexicon (wasmtime 46 internal vs. tauri-utils older variant).
     { crate = "redox_users" },
     { crate = "wasm-encoder" },
     { crate = "fixedbitset" },
     { crate = "petgraph" },
     { crate = "target-lexicon" },
-    # rmcp 0.6.4 transitive deps under --features mcp-server (chunk #48, 2026-05-12):
-    # rmcp-macros pulls darling 0.21.x; tauri-utils/serde_with pulls darling 0.23.x.
-    # Both ecosystems are stable; bumping rmcp to 0.7+ (when published) may close
-    # the darling gap. schemars 1.x duplicate similarly stems from rmcp 0.6 vs the
-    # tauri-utils transitive chain. Build-time only via proc-macro crates; no
-    # runtime impact.
+    # rmcp 3.1.4 transitive deps under --features mcp-server (chunk #48 origin;
+    # re-derived at 2026-08-29-advisory-backlog): rmcp-macros 3 pulls darling
+    # 0.24.x; serde_with pulls 0.23.x; derive_builder pulls 0.20.x. schemars
+    # splits the same way — rmcp 3 pulls schemars 1.x against the tauri-build
+    # 0.8.x chain. Build-time only via proc-macro crates; no runtime impact.
+    # Closes if the ecosystems converge on one darling / schemars major.
     { crate = "darling" },
     { crate = "darling_core" },
     { crate = "darling_macro" },
@@ -186,7 +230,7 @@ skip = [
     # wasmtime + wry) keeps cpufeatures 0.2.x. Pure ABI bump in the cpufeatures
     # crate (same maintainer); both versions are build/runtime fine. Tightening
     # would require either downgrading blake3 (worse hashing perf) OR waiting for
-    # tauri-codegen to bump к cpufeatures 0.3 (out of our control).
+    # tauri-codegen to bump to cpufeatures 0.3 (out of our control).
     { crate = "cpufeatures" },
     # corpus crate (chunk #68, 2026-05-18) adds rusqlite 0.32 (bundled SQLite for
     # the persistent incident corpus). rusqlite 0.32 transitively pulls hashlink
@@ -207,15 +251,15 @@ skip = [
     # - `nom`: tokenizers 0.21 → spm_precompiled 0.1.4 pulls nom 7.x;
     #   tauri-utils + other transitive crates pull nom 8.x. Build/runtime fine;
     #   tightening would require waiting for tokenizers to bump spm_precompiled
-    #   к the nom 8.x line.
+    #   to the nom 8.x line.
     # - `webpki-roots`: ureq 2.12 (triage build-dep for tokenizer fixture
     #   download per build.rs Phase 2) pulls webpki-roots 0.26; reqwest 0.13
     #   (transitive via tauri / tauri-plugin-updater) pulls webpki-roots 1.x.
     #   Build vs runtime split (ureq is build-only — the tokenizer.json
     #   download happens once at compile time); reqwest is the runtime HTTPS
     #   client for the Tauri updater. Tightening would require either
-    #   downgrading reqwest (loss of tls upgrades) OR waiting для ureq 3.x
-    #   к bump к webpki-roots 1.x.
+    #   downgrading reqwest (loss of tls upgrades) OR waiting for ureq 3.x
+    #   to bump to webpki-roots 1.x.
     { crate = "nom" },
     { crate = "webpki-roots" },
 ]

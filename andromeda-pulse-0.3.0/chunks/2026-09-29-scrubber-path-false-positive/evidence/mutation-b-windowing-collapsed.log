@@ -1,0 +1,105 @@
+    Blocking waiting for file lock on artifact directory
+   Compiling security v0.1.0 (D:\dev\projects\andromeda-pulse\crates\security)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1m 01s
+────────────
+ Nextest run ID 065cf395-a21e-4d1a-b1db-4d271054d19e with nextest profile: default
+    Starting 54 tests across 1 binary
+        PASS [   0.024s] ( 1/54) security scrubber::tests::scrubbed_value_is_redacted_returns_true_for_redacted_variant
+        PASS [   0.041s] ( 2/54) security scrubber::tests::scrubber_preserves_key_and_predicate_column_identities::case_08
+        PASS [   0.047s] ( 3/54) security scrubber::tests::scrubber_allows_non_pii_values::case_9
+        PASS [   0.057s] ( 4/54) security scrubber::tests::scrubber_preserves_key_and_predicate_column_identities::case_09
+        PASS [   0.064s] ( 5/54) security scrubber::tests::scrubber_allows_non_card_digit_runs::case_7
+        PASS [   0.068s] ( 6/54) security scrubber::tests::scrubber_allows_non_card_digit_runs::case_6
+        PASS [   0.072s] ( 7/54) security scrubber::tests::scrubber_preserves_key_and_predicate_column_identities::case_10
+        PASS [   0.076s] ( 8/54) security scrubber::tests::scrubber_preserves_key_and_predicate_column_identities::case_12
+        PASS [   0.082s] ( 9/54) security scrubber::tests::scrubber_allows_non_card_digit_runs::case_1
+        PASS [   0.088s] (10/54) security scrubber::tests::scrubber_allows_non_card_digit_runs::case_5
+        PASS [   0.092s] (11/54) security scrubber::tests::scrubbed_value_is_redacted_returns_false_for_allowed_variant
+        PASS [   0.092s] (12/54) security scrubber::tests::scrubber_preserves_key_and_predicate_column_identities::case_05
+        PASS [   0.096s] (13/54) security scrubber::tests::scrubber_allows_non_pii_values::case_5
+        PASS [   0.100s] (14/54) security scrubber::tests::scrubber_allows_non_pii_values::case_2
+        PASS [   0.103s] (15/54) security scrubber::tests::redacted_variant_never_carries_value_content
+        PASS [   0.106s] (16/54) security scrubber::tests::scrubber_allows_non_card_digit_runs::case_3
+        PASS [   0.111s] (17/54) security scrubber::tests::scrubber_allows_non_pii_values::case_8
+        PASS [   0.115s] (18/54) security scrubber::tests::scrubber_preserves_key_and_predicate_column_identities::case_11
+        PASS [   0.126s] (19/54) security scrubber::tests::scrubber_allows_non_card_digit_runs::case_4
+        PASS [   0.131s] (20/54) security scrubber::tests::scrubber_allows_non_card_digit_runs::case_2
+        PASS [   0.136s] (21/54) security scrubber::tests::scrubber_allows_non_pii_values::case_7
+        PASS [   0.140s] (22/54) security scrubber::tests::scrubber_allows_non_pii_values::case_3
+        PASS [   0.145s] (23/54) security scrubber::tests::scrubber_allows_non_pii_values::case_4
+        PASS [   0.149s] (24/54) security scrubber::tests::scrubber_preserves_key_and_predicate_column_identities::case_02
+        PASS [   0.154s] (25/54) security scrubber::tests::scrubber_preserves_key_and_predicate_column_identities::case_03
+        PASS [   0.158s] (26/54) security scrubber::tests::scrubber_allows_non_pii_values::case_1
+        PASS [   0.163s] (27/54) security scrubber::tests::scrubber_preserves_key_and_predicate_column_identities::case_01
+        PASS [   0.168s] (28/54) security scrubber::tests::scrubber_preserves_key_and_predicate_column_identities::case_07
+        PASS [   0.172s] (29/54) security scrubber::tests::scrubber_preserves_key_and_predicate_column_identities::case_13
+        PASS [   0.178s] (30/54) security scrubber::tests::scrubber_allows_non_pii_values::case_6
+        PASS [   0.183s] (31/54) security scrubber::tests::scrubber_preserves_key_and_predicate_column_identities::case_04
+        PASS [   0.187s] (32/54) security scrubber::tests::scrubber_preserves_key_and_predicate_column_identities::case_06
+        PASS [   0.167s] (33/54) security scrubber::tests::scrubber_preserves_key_and_predicate_column_identities::case_14
+        PASS [   0.155s] (34/54) security scrubber::tests::scrubber_preserves_key_and_predicate_column_identities::case_15
+        PASS [   0.154s] (35/54) security scrubber::tests::scrubber_preserves_key_and_predicate_column_identities::case_16
+        PASS [   0.149s] (36/54) security scrubber::tests::scrubber_redacts_each_p047_category::case_01
+        PASS [   0.244s] (37/54) security scrubber::tests::scrubber_redacts_each_p047_category::case_02
+        PASS [   0.245s] (38/54) security scrubber::tests::scrubber_redacts_each_p047_category::case_03
+        PASS [   0.245s] (39/54) security scrubber::tests::scrubber_redacts_each_p047_category::case_04
+        PASS [   0.246s] (40/54) security scrubber::tests::scrubber_redacts_each_p047_category::case_05
+        PASS [   0.247s] (41/54) security scrubber::tests::scrubber_redacts_each_p047_category::case_06
+        PASS [   0.246s] (42/54) security scrubber::tests::scrubber_redacts_each_p047_category::case_07
+        PASS [   0.246s] (43/54) security scrubber::tests::scrubber_redacts_each_p047_category::case_08
+        PASS [   0.251s] (44/54) security scrubber::tests::scrubber_redacts_each_p047_category::case_09
+        PASS [   0.252s] (45/54) security scrubber::tests::scrubber_redacts_each_p047_category::case_10
+        PASS [   0.253s] (46/54) security scrubber::tests::scrubber_redacts_each_p047_category::case_11
+        PASS [   0.255s] (47/54) security scrubber::tests::scrubber_redacts_luhn_valid_card_forms::case_1
+        PASS [   0.257s] (48/54) security scrubber::tests::scrubber_redacts_luhn_valid_card_forms::case_2
+        PASS [   0.258s] (49/54) security scrubber::tests::scrubber_redacts_luhn_valid_card_forms::case_3
+        PASS [   0.260s] (50/54) security scrubber::tests::scrubber_redacts_luhn_valid_card_forms::case_4
+        PASS [   0.252s] (51/54) security scrubber::tests::scrubber_redacts_luhn_valid_card_forms::case_5
+        PASS [   0.253s] (52/54) security scrubber::tests::scrubber_redacts_luhn_valid_card_forms::case_6
+        FAIL [   0.253s] (53/54) security scrubber::tests::scrubber_redacts_luhn_valid_card_forms::case_7
+  stdout ───
+
+    running 1 test
+    test scrubber::tests::scrubber_redacts_luhn_valid_card_forms::case_7 ... FAILED
+
+    failures:
+
+    failures:
+        scrubber::tests::scrubber_redacts_luhn_valid_card_forms::case_7
+
+    test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 53 filtered out; finished in 0.03s
+
+  stderr ───
+
+    thread 'scrubber::tests::scrubber_redacts_luhn_valid_card_forms::case_7' (63068) panicked at crates\security\src\scrubber.rs:257:9:
+    assertion `left == right` failed: expected a credit_card redaction for "ref 12 4111111111111111", got Allowed("ref 12 4111111111111111")
+      left: None
+     right: Some("credit_card")
+    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+        FAIL [   0.255s] (54/54) security scrubber::tests::scrubber_redacts_luhn_valid_card_forms::case_8
+  stdout ───
+
+    running 1 test
+    test scrubber::tests::scrubber_redacts_luhn_valid_card_forms::case_8 ... FAILED
+
+    failures:
+
+    failures:
+        scrubber::tests::scrubber_redacts_luhn_valid_card_forms::case_8
+
+    test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 53 filtered out; finished in 0.03s
+
+  stderr ───
+
+    thread 'scrubber::tests::scrubber_redacts_luhn_valid_card_forms::case_8' (8472) panicked at crates\security\src\scrubber.rs:257:9:
+    assertion `left == right` failed: expected a credit_card redaction for "4111 1111 1111 1111 22", got Allowed("4111 1111 1111 1111 22")
+      left: None
+     right: Some("credit_card")
+    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+────────────
+     Summary [   0.396s] 54 tests run: 52 passed, 2 failed, 0 skipped
+        FAIL [   0.253s] (53/54) security scrubber::tests::scrubber_redacts_luhn_valid_card_forms::case_7
+        FAIL [   0.255s] (54/54) security scrubber::tests::scrubber_redacts_luhn_valid_card_forms::case_8
+error: test run failed

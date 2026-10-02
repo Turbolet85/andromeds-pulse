@@ -1,0 +1,24 @@
+{
+  "input_frictions": [
+    {
+      "chunk": "2026-07-07-plain-language-connection-status",
+      "step": "andromeda-implement/code",
+      "what": "research assumed chrono usable in buffer non-test code (grep saw it in retention.rs) but it is a dev-dep only; cost one re-edit of record_rows_appended (chrono -> std::time::SystemTime)"
+    },
+    {
+      "chunk": "2026-07-10-incidents-floating-window-disclosure",
+      "step": "andromeda-implement/fix-loop",
+      "what": "plan under-specified where the incident Report opens once the disclosure rows move to a separate window (row-select → plan implied a cross-window widget-hosted report); surfaced at the a11y gate — p9 opened the report via the removed in-widget dropdown row + a cross-window report is not single-page reachable; resolved in-impl by hosting the Report inside the findings window (deviation from the plan's cross-window implication), cleaner UX + testable"
+    }
+  ],
+  "consumed_bad": [
+    {
+      "chunk": "2026-07-06-incidents-panel-dropdown-layout-bug",
+      "consumer": "andromeda-implement/smoke",
+      "artifact": "agent-harness",
+      "quality": "wrong"
+    }
+  ],
+  "chains": [],
+  "cross_chunk": []
+}

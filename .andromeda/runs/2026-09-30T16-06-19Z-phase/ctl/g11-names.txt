@@ -1,0 +1,2 @@
+pulse-app/ui/src/widget/X.tsx
+pulse-app/ui/src/canvas/a.ts

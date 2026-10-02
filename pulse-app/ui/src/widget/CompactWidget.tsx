@@ -13,10 +13,17 @@ import {
 } from "../hooks/use-investigation";
 import { useFindings } from "../hooks/use-findings";
 import { useServiceConstellation } from "../hooks/use-service-constellation";
-import { Report } from "../report/Report";
+import {
+  useToggleDashboard,
+  useDashboardToggleShortcut,
+} from "../hooks/use-toggle-dashboard";
+import {
+  openFindingsWindow,
+  hideFindingsWindow,
+  onFindingsDismissed,
+} from "../hooks/use-findings-window";
 import { ConstellationCanvas } from "./ConstellationCanvas";
 import { FindingsCounter } from "./FindingsCounter";
-import { FindingsDropdown } from "./FindingsDropdown";
 
 export function CompactWidget() {
   return (
@@ -31,35 +38,49 @@ function CompactWidgetContents() {
     useInvestigation();
   const findings = useFindings();
   const services = useServiceConstellation();
-  const [findingsOpen, setFindingsOpen] = useState(false);
-  const [reportIncidentId, setReportIncidentId] = useState<number | null>(null);
+  const onToggleDashboard = useToggleDashboard();
+  useDashboardToggleShortcut();
+  const { refetch: refetchFindings } = findings;
+  const [findingsWindowOpen, setFindingsWindowOpen] = useState(false);
   const findingsTriggerRef = useRef<HTMLButtonElement | null>(null);
   useEffect(() => {
-    if (findings.count === 0 && findingsOpen) {
-      setFindingsOpen(false);
+    if (findings.count === 0 && findingsWindowOpen) {
+      void hideFindingsWindow();
+      setFindingsWindowOpen(false);
     }
-  }, [findings.count, findingsOpen]);
-  const handleMarkAllRead = () => {
-    void findings.markAllRead();
-    setFindingsOpen(false);
-  };
-  const handleRowClick = (incidentId: number) => {
-    setFindingsOpen(false);
-    setReportIncidentId(incidentId);
-  };
-  const handleReportClose = () => {
-    setReportIncidentId(null);
+  }, [findings.count, findingsWindowOpen]);
+  // The findings window signals dismissal (Esc / blur / mark-all-read) → flip
+  // the badge shut, restore focus to it, and refetch the count (a11y-plan §5).
+  useEffect(() => {
+    return onFindingsDismissed(() => {
+      setFindingsWindowOpen(false);
+      findingsTriggerRef.current?.focus();
+      void refetchFindings();
+    });
+  }, [refetchFindings]);
+  const handleFindingsToggle = () => {
+    setFindingsWindowOpen((prev) => {
+      if (prev) {
+        void hideFindingsWindow();
+        return false;
+      }
+      void openFindingsWindow();
+      return true;
+    });
   };
   return (
     <>
-      <Titlebar onInvestigateClick={openInvestigation} />
+      <Titlebar
+        onInvestigateClick={openInvestigation}
+        onToggleDashboardClick={onToggleDashboard}
+      />
       <main
         id="main-content"
         tabIndex={-1}
         style={{
           display: "flex",
           flexDirection: "column",
-          minHeight: "calc(100vh - 32px)",
+          height: "calc(100vh - 32px)",
           background: "var(--color-base)",
           color: "var(--color-text-primary)",
           fontFamily: "var(--font-body)",
@@ -82,18 +103,9 @@ function CompactWidgetContents() {
           <FindingsCounter
             count={findings.count}
             severity={findings.severityMax}
-            isOpen={findingsOpen}
-            onOpen={() => setFindingsOpen((prev) => !prev)}
+            isOpen={findingsWindowOpen}
+            onOpen={handleFindingsToggle}
             triggerRef={findingsTriggerRef}
-          />
-          <FindingsDropdown
-            rows={findings.rows}
-            isOpen={findingsOpen}
-            onClose={() => setFindingsOpen(false)}
-            onMarkAllRead={handleMarkAllRead}
-            onRowClick={handleRowClick}
-            triggerRef={findingsTriggerRef}
-            nowUnixNano={Date.now() * 1_000_000}
           />
         </div>
       </main>
@@ -119,12 +131,6 @@ function CompactWidgetContents() {
         open={open}
         onClose={closeInvestigation}
         triggerRef={triggerRef}
-      />
-      <Report
-        isOpen={reportIncidentId !== null}
-        onClose={handleReportClose}
-        incidentId={reportIncidentId}
-        triggerRef={findingsTriggerRef}
       />
     </>
   );

@@ -15,7 +15,7 @@
 //! `CorpusWriter::save_service_registry_row` method UPSERTs.
 //!
 //! PII discipline (chunk #72): `service_name` is user-content classification.
-//! `save_all` runs each service through `security::scrubber::scrub_attribute`
+//! `save_all` runs each service through `security::scrubber::mask_secret_spans`
 //! BEFORE the `save_service_registry_row` call (`[REDACTED:{category}]`
 //! marker convention per chunk #68/#69/drain.rs:600 precedent); AES
 //! corpus-wide encryption stays as defense-in-depth for the at-rest threat
@@ -28,7 +28,7 @@
 use std::sync::Arc;
 
 use corpus::contract::{CorpusWriter, Error as CorpusError};
-use security::scrubber::{ScrubbedValue, scrub_attribute};
+use security::scrubber::mask_secret_spans;
 use triage::contract::{
     LifecycleError, LifecyclePersistence, SCHEMA_VERSION, ServiceLifecycleState,
     ServiceRegistryEntry, state_label,
@@ -97,13 +97,12 @@ impl LifecyclePersistence for CorpusLifecyclePersistence {
 }
 
 /// Producer-side PII scrub for `service_name` before
-/// `CorpusWriter::save_service_registry_row` (chunk #72). Renders the
-/// `[REDACTED:{category}]` marker per the chunk #68/#69 convention.
-fn scrub_service_name(service: &str) -> String {
-    match scrub_attribute(service) {
-        ScrubbedValue::Allowed(s) => s,
-        ScrubbedValue::Redacted { category } => format!("[REDACTED:{}]", category),
-    }
+/// `CorpusWriter::save_service_registry_row` (chunk #72). Masks each secret
+/// as the `[REDACTED:{category}]` marker per the chunk #68/#69 convention —
+/// the same masking as the `extract_service_name` choke point.
+#[doc(hidden)]
+pub fn scrub_service_name(service: &str) -> String {
+    mask_secret_spans(service, |category| format!("[REDACTED:{category}]")).text
 }
 
 /// Sanitized cross-crate error mapping. Per arch §Established Decisions

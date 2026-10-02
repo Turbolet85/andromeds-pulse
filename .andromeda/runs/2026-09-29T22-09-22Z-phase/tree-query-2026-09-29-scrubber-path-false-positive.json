@@ -1,0 +1,155 @@
+[
+{
+"sql": "SELECT caller, file, line FROM calls WHERE callee_name = 'scrub_attribute' AND callee_kind = 'fn' ORDER BY file, line",
+"rows": 29,
+"result": [
+{
+"caller": "rust-analyzer cargo buffer 0.1.0 appender/",
+"file": "crates/buffer/src/appender.rs",
+"line": 17
+},
+{
+"caller": "rust-analyzer cargo buffer 0.1.0 appender/scrub_otlp_field().",
+"file": "crates/buffer/src/appender.rs",
+"line": 361
+},
+{
+"caller": "rust-analyzer cargo buffer 0.1.0 appender/encode_labels().",
+"file": "crates/buffer/src/appender.rs",
+"line": 437
+},
+{
+"caller": "rust-analyzer cargo buffer 0.1.0 appender/encode_labels().",
+"file": "crates/buffer/src/appender.rs",
+"line": 439
+},
+{
+"caller": "rust-analyzer cargo buffer 0.1.0 drain/",
+"file": "crates/buffer/src/drain.rs",
+"line": 45
+},
+{
+"caller": "rust-analyzer cargo buffer 0.1.0 drain/impl#[DrainMiner]snapshot_state().",
+"file": "crates/buffer/src/drain.rs",
+"line": 374
+},
+{
+"caller": "rust-analyzer cargo buffer 0.1.0 drain/write_template_to_table().",
+"file": "crates/buffer/src/drain.rs",
+"line": 634
+},
+{
+"caller": "rust-analyzer cargo interpretation 0.1.0 markdown/",
+"file": "crates/interpretation/src/markdown.rs",
+"line": 28
+},
+{
+"caller": "rust-analyzer cargo interpretation 0.1.0 markdown/scrub_string().",
+"file": "crates/interpretation/src/markdown.rs",
+"line": 336
+},
+{
+"caller": "rust-analyzer cargo security 0.1.0 scrubber/tests/scrubber_redacts_each_p047_category().",
+"file": "crates/security/src/scrubber.rs",
+"line": 156
+},
+{
+"caller": "rust-analyzer cargo security 0.1.0 scrubber/tests/scrubber_allows_non_pii_values().",
+"file": "crates/security/src/scrubber.rs",
+"line": 177
+},
+{
+"caller": "rust-analyzer cargo security 0.1.0 scrubber/tests/scrubber_preserves_key_and_predicate_column_identities().",
+"file": "crates/security/src/scrubber.rs",
+"line": 210
+},
+{
+"caller": "rust-analyzer cargo security 0.1.0 scrubber/tests/redacted_variant_never_carries_value_content().",
+"file": "crates/security/src/scrubber.rs",
+"line": 242
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 baseline_persistence/",
+"file": "pulse-app/src/baseline_persistence.rs",
+"line": 39
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 baseline_persistence/scrub_service_key().",
+"file": "pulse-app/src/baseline_persistence.rs",
+"line": 108
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 digest_runtime/",
+"file": "pulse-app/src/digest_runtime.rs",
+"line": 33
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 digest_runtime/pii_scrub_closure().",
+"file": "pulse-app/src/digest_runtime.rs",
+"line": 54
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 inference_runtime/",
+"file": "pulse-app/src/inference_runtime.rs",
+"line": 35
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 inference_runtime/scrubbed_l4_json().",
+"file": "pulse-app/src/inference_runtime.rs",
+"line": 666
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 inference_runtime/scrub_text().",
+"file": "pulse-app/src/inference_runtime.rs",
+"line": 676
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 investigate_router/",
+"file": "pulse-app/src/investigate_router.rs",
+"line": 20
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 investigate_router/scrub().",
+"file": "pulse-app/src/investigate_router.rs",
+"line": 113
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 lifecycle_persistence/",
+"file": "pulse-app/src/lifecycle_persistence.rs",
+"line": 30
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 lifecycle_persistence/scrub_service_name().",
+"file": "pulse-app/src/lifecycle_persistence.rs",
+"line": 102
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 storm_persistence/",
+"file": "pulse-app/src/storm_persistence.rs",
+"line": 31
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 storm_persistence/scrub_fingerprint_service().",
+"file": "pulse-app/src/storm_persistence.rs",
+"line": 87
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 training_export/",
+"file": "pulse-app/src/training_export.rs",
+"line": 28
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 training_export/scrub_string().",
+"file": "pulse-app/src/training_export.rs",
+"line": 89
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 canned_evidence_refs_survive_the_scrubber_unredacted().",
+"file": "pulse-app/tests/unit_deterministic_inference.rs",
+"line": 102
+}
+],
+"db_state": "fresh",
+"plane": "rust"
+}
+]

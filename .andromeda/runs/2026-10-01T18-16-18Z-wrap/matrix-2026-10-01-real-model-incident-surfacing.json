@@ -1,0 +1,27 @@
+[
+{
+"tool": "matrix",
+"v": "1.2",
+"sha8": "0753a5e6",
+"ts": "2026-10-01T18:37:59Z",
+"argv": [
+"flip",
+"--dir",
+"andromeda-pulse-0.3.0",
+"--chunk",
+"2026-10-01-real-model-incident-surfacing",
+"--run-dir",
+".andromeda/runs/2026-10-01T18-16-18Z-wrap"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"claimed 0 — gate no-op (no entry carries chunk 2026-10-01-real-model-incident-surfacing)",
+"pool: unclaimed 1 [P-075]"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+}
+]

@@ -1,0 +1,728 @@
+[
+{
+"sql": "SELECT symbol, crate, file, def_line FROM symbol WHERE symbol LIKE '%WindowControls%' OR symbol LIKE '%useWindowControls%' OR symbol LIKE '%Titlebar%' ORDER BY file;",
+"rows": 90,
+"result": [
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/components/`Titlebar.test.tsx`/minimize0:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/components/Titlebar.test.tsx",
+"def_line": 11
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/components/`Titlebar.test.tsx`/name5:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/components/Titlebar.test.tsx",
+"def_line": 115
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/components/`Titlebar.test.tsx`/name4:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/components/Titlebar.test.tsx",
+"def_line": 77
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/components/`Titlebar.test.tsx`/name3:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/components/Titlebar.test.tsx",
+"def_line": 76
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/components/`Titlebar.test.tsx`/name2:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/components/Titlebar.test.tsx",
+"def_line": 75
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/components/`Titlebar.test.tsx`/name1:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/components/Titlebar.test.tsx",
+"def_line": 69
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/components/`Titlebar.test.tsx`/name0:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/components/Titlebar.test.tsx",
+"def_line": 58
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/components/`Titlebar.test.tsx`/reason0:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/components/Titlebar.test.tsx",
+"def_line": 23
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/components/`Titlebar.test.tsx`/message0:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/components/Titlebar.test.tsx",
+"def_line": 22
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/components/`Titlebar.test.tsx`/severity0:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/components/Titlebar.test.tsx",
+"def_line": 21
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/components/`Titlebar.test.tsx`/last_span_ago_ms0:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/components/Titlebar.test.tsx",
+"def_line": 20
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/components/`Titlebar.test.tsx`/state1:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/components/Titlebar.test.tsx",
+"def_line": 19
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/components/`Titlebar.test.tsx`/state0:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/components/Titlebar.test.tsx",
+"def_line": 19
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/components/`Titlebar.test.tsx`/useConnectionState0:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/components/Titlebar.test.tsx",
+"def_line": 18
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/components/`Titlebar.test.tsx`/close0:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/components/Titlebar.test.tsx",
+"def_line": 13
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/components/`Titlebar.test.tsx`/maximize0:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/components/Titlebar.test.tsx",
+"def_line": 12
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/components/`Titlebar.test.tsx`/useWindowControls0:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/components/Titlebar.test.tsx",
+"def_line": 10
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/components/`Titlebar.test.tsx`/usePlatform0:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/components/Titlebar.test.tsx",
+"def_line": 6
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/components/`Titlebar.test.tsx`/",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/components/Titlebar.test.tsx",
+"def_line": 0
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/components/`Titlebar.tsx`/background2:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/components/Titlebar.tsx",
+"def_line": 132
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/components/`Titlebar.tsx`/TitlebarProps#title.",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/components/Titlebar.tsx",
+"def_line": 10
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/components/`Titlebar.tsx`/alignItems0:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/components/Titlebar.tsx",
+"def_line": 71
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/components/`Titlebar.tsx`/gap0:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/components/Titlebar.tsx",
+"def_line": 72
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/components/`Titlebar.tsx`/padding0:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/components/Titlebar.tsx",
+"def_line": 73
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/components/`Titlebar.tsx`/background0:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/components/Titlebar.tsx",
+"def_line": 74
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/components/`Titlebar.tsx`/borderBottom0:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/components/Titlebar.tsx",
+"def_line": 75
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/components/`Titlebar.tsx`/userSelect0:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/components/Titlebar.tsx",
+"def_line": 76
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/components/`Titlebar.tsx`/fontFamily0:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/components/Titlebar.tsx",
+"def_line": 91
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/components/`Titlebar.tsx`/fontSize0:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/components/Titlebar.tsx",
+"def_line": 92
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/components/`Titlebar.tsx`/fontWeight0:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/components/Titlebar.tsx",
+"def_line": 93
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/components/`Titlebar.tsx`/color0:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/components/Titlebar.tsx",
+"def_line": 94
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/components/`Titlebar.tsx`/letterSpacing0:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/components/Titlebar.tsx",
+"def_line": 95
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/components/`Titlebar.tsx`/flex0:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/components/Titlebar.tsx",
+"def_line": 100
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/components/`Titlebar.tsx`/background1:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/components/Titlebar.tsx",
+"def_line": 109
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/components/`Titlebar.tsx`/border0:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/components/Titlebar.tsx",
+"def_line": 110
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/components/`Titlebar.tsx`/color1:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/components/Titlebar.tsx",
+"def_line": 111
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/components/`Titlebar.tsx`/cursor0:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/components/Titlebar.tsx",
+"def_line": 112
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/components/`Titlebar.tsx`/padding1:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/components/Titlebar.tsx",
+"def_line": 113
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/components/`Titlebar.tsx`/minWidth0:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/components/Titlebar.tsx",
+"def_line": 114
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/components/`Titlebar.tsx`/minHeight0:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/components/Titlebar.tsx",
+"def_line": 115
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/components/`Titlebar.tsx`/transitionDuration0:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/components/Titlebar.tsx",
+"def_line": 116
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/components/`Titlebar.tsx`/transitionTimingFunction0:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/components/Titlebar.tsx",
+"def_line": 117
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/components/`Titlebar.tsx`/",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/components/Titlebar.tsx",
+"def_line": 0
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/components/`Titlebar.tsx`/border1:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/components/Titlebar.tsx",
+"def_line": 133
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/components/`Titlebar.tsx`/color2:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/components/Titlebar.tsx",
+"def_line": 134
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/components/`Titlebar.tsx`/cursor1:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/components/Titlebar.tsx",
+"def_line": 135
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/components/`Titlebar.tsx`/padding2:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/components/Titlebar.tsx",
+"def_line": 136
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/components/`Titlebar.tsx`/minWidth1:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/components/Titlebar.tsx",
+"def_line": 137
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/components/`Titlebar.tsx`/minHeight1:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/components/Titlebar.tsx",
+"def_line": 138
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/components/`Titlebar.tsx`/transitionDuration1:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/components/Titlebar.tsx",
+"def_line": 139
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/components/`Titlebar.tsx`/transitionTimingFunction1:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/components/Titlebar.tsx",
+"def_line": 140
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/components/`Titlebar.tsx`/background3:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/components/Titlebar.tsx",
+"def_line": 152
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/components/`Titlebar.tsx`/border2:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/components/Titlebar.tsx",
+"def_line": 153
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/components/`Titlebar.tsx`/color3:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/components/Titlebar.tsx",
+"def_line": 154
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/components/`Titlebar.tsx`/cursor2:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/components/Titlebar.tsx",
+"def_line": 155
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/components/`Titlebar.tsx`/padding3:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/components/Titlebar.tsx",
+"def_line": 156
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/components/`Titlebar.tsx`/minWidth2:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/components/Titlebar.tsx",
+"def_line": 157
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/components/`Titlebar.tsx`/minHeight2:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/components/Titlebar.tsx",
+"def_line": 158
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/components/`Titlebar.tsx`/transitionDuration2:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/components/Titlebar.tsx",
+"def_line": 159
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/components/`Titlebar.tsx`/transitionTimingFunction2:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/components/Titlebar.tsx",
+"def_line": 160
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/components/`Titlebar.tsx`/height0:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/components/Titlebar.tsx",
+"def_line": 69
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/components/`Titlebar.tsx`/Titlebar.",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/components/Titlebar.tsx",
+"def_line": 40
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/components/`Titlebar.tsx`/TitlebarHandle#investigateButton.",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/components/Titlebar.tsx",
+"def_line": 25
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/components/`Titlebar.tsx`/TitlebarProps#",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/components/Titlebar.tsx",
+"def_line": 6
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/components/`Titlebar.tsx`/TitlebarHandle#",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/components/Titlebar.tsx",
+"def_line": 24
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/components/`Titlebar.tsx`/TitlebarProps#onToggleDashboardClick.",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/components/Titlebar.tsx",
+"def_line": 21
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/components/`Titlebar.tsx`/TitlebarProps#onInvestigateClick.",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/components/Titlebar.tsx",
+"def_line": 17
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/components/`Titlebar.tsx`/TitlebarProps#onSettingsClick.",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/components/Titlebar.tsx",
+"def_line": 11
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/components/`Titlebar.tsx`/display0:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/components/Titlebar.tsx",
+"def_line": 70
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/components/`WindowControls.test.tsx`/close0:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/components/WindowControls.test.tsx",
+"def_line": 8
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/components/`WindowControls.test.tsx`/name1:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/components/WindowControls.test.tsx",
+"def_line": 33
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/components/`WindowControls.test.tsx`/name2:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/components/WindowControls.test.tsx",
+"def_line": 34
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/components/`WindowControls.test.tsx`/",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/components/WindowControls.test.tsx",
+"def_line": 0
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/components/`WindowControls.test.tsx`/useWindowControls0:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/components/WindowControls.test.tsx",
+"def_line": 5
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/components/`WindowControls.test.tsx`/minimize0:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/components/WindowControls.test.tsx",
+"def_line": 6
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/components/`WindowControls.test.tsx`/maximize0:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/components/WindowControls.test.tsx",
+"def_line": 7
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/components/`WindowControls.test.tsx`/name0:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/components/WindowControls.test.tsx",
+"def_line": 32
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/components/`WindowControls.tsx`/WindowControls().",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/components/WindowControls.tsx",
+"def_line": 33
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/components/`WindowControls.tsx`/CONTROL_STYLE.",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/components/WindowControls.tsx",
+"def_line": 21
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/components/`WindowControls.tsx`/WindowControlsProps#platform.",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/components/WindowControls.tsx",
+"def_line": 4
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/components/`WindowControls.tsx`/WindowControlsProps#",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/components/WindowControls.tsx",
+"def_line": 3
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/components/`WindowControls.tsx`/",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/components/WindowControls.tsx",
+"def_line": 0
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/dashboard/`Dashboard.test.tsx`/Titlebar0:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/dashboard/Dashboard.test.tsx",
+"def_line": 5
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/dashboard/`router.test.tsx`/Titlebar0:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/dashboard/router.test.tsx",
+"def_line": 12
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-window-controls.ts`/WindowControls#",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/hooks/use-window-controls.ts",
+"def_line": 8
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-window-controls.ts`/WindowControls#maximize.",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/hooks/use-window-controls.ts",
+"def_line": 10
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-window-controls.ts`/useWindowControls().",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/hooks/use-window-controls.ts",
+"def_line": 14
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-window-controls.ts`/WindowControls#close.",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/hooks/use-window-controls.ts",
+"def_line": 11
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-window-controls.ts`/WindowControls#minimize.",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/hooks/use-window-controls.ts",
+"def_line": 9
+},
+{
+"symbol": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/widget/`CompactWidget.test.tsx`/Titlebar0:",
+"crate": "andromeda-pulse-ui",
+"file": "pulse-app/ui/src/widget/CompactWidget.test.tsx",
+"def_line": 31
+}
+],
+"db_state": "fresh",
+"plane": "ts"
+},
+{
+"sql": "SELECT callee, file, line FROM refs WHERE callee LIKE '%WindowControls%' ORDER BY file, line;",
+"rows": 34,
+"result": [
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/components/`WindowControls.tsx`/WindowControls().",
+"file": "pulse-app/ui/src/components/Titlebar.tsx",
+"line": 3
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/components/`WindowControls.tsx`/",
+"file": "pulse-app/ui/src/components/Titlebar.tsx",
+"line": 3
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/components/`WindowControls.tsx`/WindowControls().",
+"file": "pulse-app/ui/src/components/Titlebar.tsx",
+"line": 165
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/components/`WindowControls.tsx`/WindowControlsProps#platform.",
+"file": "pulse-app/ui/src/components/Titlebar.tsx",
+"line": 165
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/components/`WindowControls.tsx`/WindowControls().",
+"file": "pulse-app/ui/src/components/WindowControls.test.tsx",
+"line": 2
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/components/`WindowControls.tsx`/",
+"file": "pulse-app/ui/src/components/WindowControls.test.tsx",
+"line": 2
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/components/`WindowControls.tsx`/WindowControlsProps#platform.",
+"file": "pulse-app/ui/src/components/WindowControls.test.tsx",
+"line": 14
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/components/`WindowControls.tsx`/WindowControls().",
+"file": "pulse-app/ui/src/components/WindowControls.test.tsx",
+"line": 14
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/components/`WindowControls.tsx`/WindowControlsProps#platform.",
+"file": "pulse-app/ui/src/components/WindowControls.test.tsx",
+"line": 19
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/components/`WindowControls.tsx`/WindowControls().",
+"file": "pulse-app/ui/src/components/WindowControls.test.tsx",
+"line": 19
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/components/`WindowControls.tsx`/WindowControlsProps#platform.",
+"file": "pulse-app/ui/src/components/WindowControls.test.tsx",
+"line": 25
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/components/`WindowControls.tsx`/WindowControls().",
+"file": "pulse-app/ui/src/components/WindowControls.test.tsx",
+"line": 25
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/components/`WindowControls.tsx`/WindowControlsProps#platform.",
+"file": "pulse-app/ui/src/components/WindowControls.test.tsx",
+"line": 31
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/components/`WindowControls.tsx`/WindowControls().",
+"file": "pulse-app/ui/src/components/WindowControls.test.tsx",
+"line": 31
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/components/`WindowControls.tsx`/WindowControlsProps#platform.",
+"file": "pulse-app/ui/src/components/WindowControls.test.tsx",
+"line": 38
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/components/`WindowControls.tsx`/WindowControls().",
+"file": "pulse-app/ui/src/components/WindowControls.test.tsx",
+"line": 38
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/components/`WindowControls.tsx`/WindowControlsProps#platform.",
+"file": "pulse-app/ui/src/components/WindowControls.test.tsx",
+"line": 45
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/components/`WindowControls.tsx`/WindowControls().",
+"file": "pulse-app/ui/src/components/WindowControls.test.tsx",
+"line": 45
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/components/`WindowControls.tsx`/WindowControlsProps#platform.",
+"file": "pulse-app/ui/src/components/WindowControls.test.tsx",
+"line": 53
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/components/`WindowControls.tsx`/WindowControls().",
+"file": "pulse-app/ui/src/components/WindowControls.test.tsx",
+"line": 53
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-window-controls.ts`/useWindowControls().",
+"file": "pulse-app/ui/src/components/WindowControls.tsx",
+"line": 1
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/components/`WindowControls.tsx`/WindowControlsProps#",
+"file": "pulse-app/ui/src/components/WindowControls.tsx",
+"line": 33
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/components/`WindowControls.tsx`/WindowControlsProps#platform.",
+"file": "pulse-app/ui/src/components/WindowControls.tsx",
+"line": 33
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-window-controls.ts`/useWindowControls().",
+"file": "pulse-app/ui/src/components/WindowControls.tsx",
+"line": 34
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-window-controls.ts`/WindowControls#close.",
+"file": "pulse-app/ui/src/components/WindowControls.tsx",
+"line": 34
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-window-controls.ts`/WindowControls#maximize.",
+"file": "pulse-app/ui/src/components/WindowControls.tsx",
+"line": 34
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-window-controls.ts`/WindowControls#minimize.",
+"file": "pulse-app/ui/src/components/WindowControls.tsx",
+"line": 34
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/components/`WindowControls.tsx`/CONTROL_STYLE.",
+"file": "pulse-app/ui/src/components/WindowControls.tsx",
+"line": 49
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/components/`WindowControls.tsx`/CONTROL_STYLE.",
+"file": "pulse-app/ui/src/components/WindowControls.tsx",
+"line": 60
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/components/`WindowControls.tsx`/CONTROL_STYLE.",
+"file": "pulse-app/ui/src/components/WindowControls.tsx",
+"line": 71
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-window-controls.ts`/WindowControls#",
+"file": "pulse-app/ui/src/hooks/use-window-controls.ts",
+"line": 14
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-window-controls.ts`/WindowControls#minimize.",
+"file": "pulse-app/ui/src/hooks/use-window-controls.ts",
+"line": 16
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-window-controls.ts`/WindowControls#maximize.",
+"file": "pulse-app/ui/src/hooks/use-window-controls.ts",
+"line": 17
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/hooks/`use-window-controls.ts`/WindowControls#close.",
+"file": "pulse-app/ui/src/hooks/use-window-controls.ts",
+"line": 18
+}
+],
+"db_state": "fresh",
+"plane": "ts"
+}
+]

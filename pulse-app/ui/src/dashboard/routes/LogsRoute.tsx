@@ -1,3 +1,4 @@
+import { EmptyState } from "../../components/EmptyState";
 import { LogFilter } from "./logs/LogFilter";
 import { LogTable } from "./logs/LogTable";
 import { useLogFilter } from "./logs/use-log-filter";
@@ -7,7 +8,7 @@ const QUERY_WINDOW_SECONDS = 60;
 const QUERY_LIMIT = 100;
 
 export function LogsRoute() {
-  const { rows, isLoading } = useLogs({
+  const { rows, isLoading, error } = useLogs({
     timeWindowSeconds: QUERY_WINDOW_SECONDS,
     limit: QUERY_LIMIT,
   });
@@ -36,12 +37,30 @@ export function LogsRoute() {
       >
         Logs
       </h1>
-      <LogFilter
-        state={filter.state}
-        onSearchChange={filter.setSearchQuery}
-        onToggleTier={filter.toggleTier}
-      />
-      <LogTable rows={filter.filteredRows} isLoading={isLoading} />
+      {error !== null ? (
+        <EmptyState message="Couldn't load logs" testId="logs-error-state" />
+      ) : !isLoading && rows.length === 0 ? (
+        <EmptyState
+          message="No logs received yet"
+          hint={
+            <>
+              Point an OTLP logs exporter at{" "}
+              <code style={{ fontFamily: "var(--font-code)" }}>:4318</code> /{" "}
+              <code style={{ fontFamily: "var(--font-code)" }}>:4317</code>
+            </>
+          }
+          testId="logs-empty-state"
+        />
+      ) : (
+        <>
+          <LogFilter
+            state={filter.state}
+            onSearchChange={filter.setSearchQuery}
+            onToggleTier={filter.toggleTier}
+          />
+          <LogTable rows={filter.filteredRows} isLoading={isLoading} />
+        </>
+      )}
     </section>
   );
 }

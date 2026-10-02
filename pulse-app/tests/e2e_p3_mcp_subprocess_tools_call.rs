@@ -1,11 +1,11 @@
 //! P3 E2E coverage — MCP rmcp sidecar subprocess + JSON-RPC 2.0 frames.
 //! Per test-plan §6 P3 canonical structure; extends chunk #49 sidecar
-//! subprocess precedent с the cross-process happy-path + canaries.
+//! subprocess precedent with the cross-process happy-path + canaries.
 //!
 //! Cross-process buffer sharing deferred per plan.md Open Question 1 —
-//! the sidecar boots с its OWN ephemeral DuckDB; query_* tools return
+//! the sidecar boots with its OWN ephemeral DuckDB; query_* tools return
 //! empty `items`. P3 coverage verifies envelope shape + canaries +
-//! double-gate; non-empty data flow is а separate future chunk.
+//! double-gate; non-empty data flow is a separate future chunk.
 
 #![cfg(feature = "mcp-server")]
 
@@ -17,7 +17,7 @@ use tokio::process::Command;
 
 fn sidecar_binary_path() -> std::path::PathBuf {
     // pulse-app/tests can't access CARGO_BIN_EXE_andromeda-pulse-mcp
-    // (cargo exposes that env var only к the crate that declares the
+    // (cargo exposes that env var only to the crate that declares the
     // [[bin]] — that's crates/mcp-server). Derive the path from
     // CARGO_MANIFEST_DIR (pulse-app/) + ../target/{profile}/<binary>.
     let manifest = std::path::Path::new(env!("CARGO_MANIFEST_DIR"));
@@ -177,7 +177,7 @@ async fn p3_mcp_subprocess_double_gate_negative_canary_unset_env_exits_clean() {
     // arch §Cross-cutting Patterns "Feature-gate hygiene": even when
     // binary is built with --features mcp-server, runtime env var must
     // also be set; without it, sidecar exits cleanly without writing to
-    // stdout (preserving JSON-RPC framing discipline для downstream MCP
+    // stdout (preserving JSON-RPC framing discipline for downstream MCP
     // clients).
     let tmp = tempfile::tempdir().expect("tempdir");
     let mut child = Command::new(sidecar_binary_path())

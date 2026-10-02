@@ -1,0 +1,62 @@
+[
+{
+"tool": "gate",
+"v": "1.4",
+"sha8": "c63b37d3",
+"ts": "2026-09-29T05:16:32Z",
+"argv": [
+"scope",
+"--lists-only",
+"--research",
+"andromeda-pulse-0.3.0/chunks/2026-09-29-p-025-hue-shift-observable-made-gradable/research.md",
+"--run-dir",
+".andromeda/runs/2026-09-29T04-59-33Z-phase",
+"--marker",
+"2026-09-29-p-025-hue-shift-observable-made-gradable"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"control: lists · glob · record — each fired on its synthetic known positive",
+"scope lists: parsed 17 items (new 1 · modify 16 · derived 0)"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"items": 17,
+"unparsed": 0
+}
+},
+{
+"tool": "gate",
+"v": "1.4",
+"sha8": "c63b37d3",
+"ts": "2026-09-29T05:22:15Z",
+"argv": [
+"scope",
+"--lists-only",
+"--research",
+"andromeda-pulse-0.3.0/chunks/2026-09-29-p-025-hue-shift-observable-made-gradable/research.md",
+"--run-dir",
+".andromeda/runs/2026-09-29T04-59-33Z-phase",
+"--marker",
+"2026-09-29-p-025-hue-shift-observable-made-gradable"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"control: lists · glob · record — each fired on its synthetic known positive",
+"scope lists: parsed 20 items (new 2 · modify 18 · derived 0)"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"items": 20,
+"unparsed": 0
+}
+}
+]

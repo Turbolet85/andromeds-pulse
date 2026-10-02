@@ -1,0 +1,287 @@
+[
+{
+"sql": "SELECT caller, file, line FROM calls WHERE callee_name = 'dispatch_tool' AND callee_kind = 'fn' ORDER BY file, line",
+"rows": 10,
+"result": [
+{
+"caller": "rust-analyzer cargo mcp-server 0.1.0 crate/",
+"file": "crates/mcp-server/src/bin/andromeda-pulse-mcp.rs",
+"line": 12
+},
+{
+"caller": "rust-analyzer cargo mcp-server 0.1.0 dispatch_tools_call().",
+"file": "crates/mcp-server/src/bin/andromeda-pulse-mcp.rs",
+"line": 273
+},
+{
+"caller": "rust-analyzer cargo mcp-server 0.1.0 tools/tests/dispatch_query_traces_returns_empty_paginated_response_on_empty_buffer().",
+"file": "crates/mcp-server/src/tools.rs",
+"line": 707
+},
+{
+"caller": "rust-analyzer cargo mcp-server 0.1.0 tools/tests/dispatch_query_metrics_returns_empty_paginated_response_on_empty_buffer().",
+"file": "crates/mcp-server/src/tools.rs",
+"line": 720
+},
+{
+"caller": "rust-analyzer cargo mcp-server 0.1.0 tools/tests/dispatch_query_logs_returns_empty_paginated_response_on_empty_buffer().",
+"file": "crates/mcp-server/src/tools.rs",
+"line": 734
+},
+{
+"caller": "rust-analyzer cargo mcp-server 0.1.0 tools/tests/dispatch_generate_snapshot_returns_envelope_on_empty_buffer().",
+"file": "crates/mcp-server/src/tools.rs",
+"line": 746
+},
+{
+"caller": "rust-analyzer cargo mcp-server 0.1.0 tools/tests/dispatch_unknown_tool_returns_tool_dispatch_failed_unknown_tool().",
+"file": "crates/mcp-server/src/tools.rs",
+"line": 759
+},
+{
+"caller": "rust-analyzer cargo mcp-server 0.1.0 tools/tests/dispatch_query_traces_rejects_malformed_arguments().",
+"file": "crates/mcp-server/src/tools.rs",
+"line": 774
+},
+{
+"caller": "rust-analyzer cargo mcp-server 0.1.0 tools/tests/dispatch_query_traces_clamps_limit_above_max().",
+"file": "crates/mcp-server/src/tools.rs",
+"line": 794
+},
+{
+"caller": "rust-analyzer cargo mcp-server 0.1.0 tools/tests/dispatch_tool_routes_incident_tools_through_context().",
+"file": "crates/mcp-server/src/tools.rs",
+"line": 980
+}
+],
+"db_state": "fresh",
+"plane": "rust"
+},
+{
+"sql": "SELECT from_crate, to_crate FROM crate_edges WHERE from_crate = 'mcp-server' OR to_crate = 'mcp-server'",
+"rows": 9,
+"result": [
+{
+"from_crate": "mcp-server",
+"to_crate": "workspace-detector"
+},
+{
+"from_crate": "mcp-server",
+"to_crate": "curation"
+},
+{
+"from_crate": "mcp-server",
+"to_crate": "buffer"
+},
+{
+"from_crate": "mcp-server",
+"to_crate": "corpus"
+},
+{
+"from_crate": "mcp-server",
+"to_crate": "interpretation"
+},
+{
+"from_crate": "mcp-server",
+"to_crate": "snapshot"
+},
+{
+"from_crate": "ui-bridge",
+"to_crate": "mcp-server"
+},
+{
+"from_crate": "mcp-server",
+"to_crate": "viz"
+},
+{
+"from_crate": "mcp-server",
+"to_crate": "triage"
+}
+],
+"db_state": "fresh",
+"plane": "rust"
+},
+{
+"sql": "SELECT callee_name, file, line FROM refs WHERE callee_name IN ('tools_list_with_8_tools','ALL_TOOL_NAMES','IncidentToolContext','result_type_label','result_count_for') ORDER BY file, line",
+"rows": 35,
+"result": [
+{
+"callee_name": "tools_list_with_8_tools",
+"file": "crates/mcp-server/src/bin/andromeda-pulse-mcp.rs",
+"line": 10
+},
+{
+"callee_name": "ALL_TOOL_NAMES",
+"file": "crates/mcp-server/src/bin/andromeda-pulse-mcp.rs",
+"line": 12
+},
+{
+"callee_name": "IncidentToolContext",
+"file": "crates/mcp-server/src/bin/andromeda-pulse-mcp.rs",
+"line": 12
+},
+{
+"callee_name": "IncidentToolContext",
+"file": "crates/mcp-server/src/bin/andromeda-pulse-mcp.rs",
+"line": 24
+},
+{
+"callee_name": "IncidentToolContext",
+"file": "crates/mcp-server/src/bin/andromeda-pulse-mcp.rs",
+"line": 62
+},
+{
+"callee_name": "IncidentToolContext",
+"file": "crates/mcp-server/src/bin/andromeda-pulse-mcp.rs",
+"line": 79
+},
+{
+"callee_name": "tools_list_with_8_tools",
+"file": "crates/mcp-server/src/bin/andromeda-pulse-mcp.rs",
+"line": 213
+},
+{
+"callee_name": "ALL_TOOL_NAMES",
+"file": "crates/mcp-server/src/bin/andromeda-pulse-mcp.rs",
+"line": 217
+},
+{
+"callee_name": "tools_list_with_8_tools",
+"file": "crates/mcp-server/src/jsonrpc.rs",
+"line": 355
+},
+{
+"callee_name": "tools_list_with_8_tools",
+"file": "crates/mcp-server/src/jsonrpc.rs",
+"line": 374
+},
+{
+"callee_name": "tools_list_with_8_tools",
+"file": "crates/mcp-server/src/jsonrpc.rs",
+"line": 384
+},
+{
+"callee_name": "tools_list_with_8_tools",
+"file": "crates/mcp-server/src/jsonrpc.rs",
+"line": 402
+},
+{
+"callee_name": "IncidentToolContext",
+"file": "crates/mcp-server/src/tools.rs",
+"line": 163
+},
+{
+"callee_name": "result_type_label",
+"file": "crates/mcp-server/src/tools.rs",
+"line": 186
+},
+{
+"callee_name": "result_count_for",
+"file": "crates/mcp-server/src/tools.rs",
+"line": 187
+},
+{
+"callee_name": "IncidentToolContext",
+"file": "crates/mcp-server/src/tools.rs",
+"line": 319
+},
+{
+"callee_name": "IncidentToolContext",
+"file": "crates/mcp-server/src/tools.rs",
+"line": 320
+},
+{
+"callee_name": "IncidentToolContext",
+"file": "crates/mcp-server/src/tools.rs",
+"line": 338
+},
+{
+"callee_name": "IncidentToolContext",
+"file": "crates/mcp-server/src/tools.rs",
+"line": 363
+},
+{
+"callee_name": "IncidentToolContext",
+"file": "crates/mcp-server/src/tools.rs",
+"line": 396
+},
+{
+"callee_name": "IncidentToolContext",
+"file": "crates/mcp-server/src/tools.rs",
+"line": 425
+},
+{
+"callee_name": "IncidentToolContext",
+"file": "crates/mcp-server/src/tools.rs",
+"line": 448
+},
+{
+"callee_name": "IncidentToolContext",
+"file": "crates/mcp-server/src/tools.rs",
+"line": 480
+},
+{
+"callee_name": "ALL_TOOL_NAMES",
+"file": "crates/mcp-server/src/tools.rs",
+"line": 820
+},
+{
+"callee_name": "result_type_label",
+"file": "crates/mcp-server/src/tools.rs",
+"line": 825
+},
+{
+"callee_name": "result_type_label",
+"file": "crates/mcp-server/src/tools.rs",
+"line": 826
+},
+{
+"callee_name": "result_type_label",
+"file": "crates/mcp-server/src/tools.rs",
+"line": 827
+},
+{
+"callee_name": "result_type_label",
+"file": "crates/mcp-server/src/tools.rs",
+"line": 829
+},
+{
+"callee_name": "result_type_label",
+"file": "crates/mcp-server/src/tools.rs",
+"line": 832
+},
+{
+"callee_name": "result_type_label",
+"file": "crates/mcp-server/src/tools.rs",
+"line": 833
+},
+{
+"callee_name": "result_type_label",
+"file": "crates/mcp-server/src/tools.rs",
+"line": 835
+},
+{
+"callee_name": "result_type_label",
+"file": "crates/mcp-server/src/tools.rs",
+"line": 839
+},
+{
+"callee_name": "result_type_label",
+"file": "crates/mcp-server/src/tools.rs",
+"line": 842
+},
+{
+"callee_name": "IncidentToolContext",
+"file": "crates/mcp-server/src/tools.rs",
+"line": 852
+},
+{
+"callee_name": "IncidentToolContext",
+"file": "crates/mcp-server/src/tools.rs",
+"line": 893
+}
+],
+"db_state": "fresh",
+"plane": "rust"
+}
+]

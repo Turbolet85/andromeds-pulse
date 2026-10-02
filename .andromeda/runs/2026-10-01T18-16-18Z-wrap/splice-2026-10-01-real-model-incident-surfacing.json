@@ -1,0 +1,119 @@
+[
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "5afc7864",
+"ts": "2026-10-01T18:27:57Z",
+"argv": [
+"append",
+"--file",
+".andromeda/architecture-amendments.md",
+"--payload-file",
+".andromeda/runs/2026-10-01T18-16-18Z-wrap/architecture-entry.md",
+"--lines",
+"13",
+"--run-dir",
+".andromeda/runs/2026-10-01T18-16-18Z-wrap",
+"--marker",
+"2026-10-01-real-model-incident-surfacing"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"append architecture-amendments.md:+13 at line 573 · lines 572→585 · bytes 79281→80833 · term lf",
+"last line now: **Ref:** .andromeda/runs/2026-10-01T18-16-18Z-wrap/"
+],
+"stderr": null,
+"wrote": [
+".andromeda/architecture-amendments.md"
+],
+"before": {
+"lines": 572,
+"bytes": 79281,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 585,
+"bytes": 80833
+}
+},
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "5afc7864",
+"ts": "2026-10-01T18:27:58Z",
+"argv": [
+"append",
+"--file",
+".andromeda/test-plan-amendments.md",
+"--payload-file",
+".andromeda/runs/2026-10-01T18-16-18Z-wrap/test-plan-entry.md",
+"--lines",
+"11",
+"--run-dir",
+".andromeda/runs/2026-10-01T18-16-18Z-wrap",
+"--marker",
+"2026-10-01-real-model-incident-surfacing"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"append test-plan-amendments.md:+11 at line 523 · lines 522→533 · bytes 87019→89375 · term lf",
+"last line now: **Ref:** .andromeda/runs/2026-10-01T18-16-18Z-wrap/"
+],
+"stderr": null,
+"wrote": [
+".andromeda/test-plan-amendments.md"
+],
+"before": {
+"lines": 522,
+"bytes": 87019,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 533,
+"bytes": 89375
+}
+},
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "5afc7864",
+"ts": "2026-10-01T18:27:59Z",
+"argv": [
+"append",
+"--file",
+".andromeda/obs-plan-amendments.md",
+"--payload-file",
+".andromeda/runs/2026-10-01T18-16-18Z-wrap/obs-plan-entry.md",
+"--lines",
+"17",
+"--run-dir",
+".andromeda/runs/2026-10-01T18-16-18Z-wrap",
+"--marker",
+"2026-10-01-real-model-incident-surfacing"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"append obs-plan-amendments.md:+17 at line 320 · lines 319→336 · bytes 57711→59070 · term lf",
+"last line now: **Ref:** .andromeda/runs/2026-10-01T18-16-18Z-wrap/"
+],
+"stderr": null,
+"wrote": [
+".andromeda/obs-plan-amendments.md"
+],
+"before": {
+"lines": 319,
+"bytes": 57711,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 336,
+"bytes": 59070
+}
+}
+]

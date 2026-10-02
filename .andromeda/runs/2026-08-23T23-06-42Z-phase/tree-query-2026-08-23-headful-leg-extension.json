@@ -1,0 +1,145 @@
+[
+{
+"sql": "SELECT caller, file, line FROM calls WHERE callee LIKE '%stage_halves%' OR callee LIKE '%stage_observed%' OR callee LIKE '%STAGES%' ORDER BY file, line;",
+"rows": 27,
+"result": [
+{
+"caller": "rust-analyzer cargo xtask 0.1.0 webview_drive/stage_ids().",
+"file": "xtask/src/webview_drive.rs",
+"line": 85
+},
+{
+"caller": "rust-analyzer cargo xtask 0.1.0 webview_drive/run_webview_drive().",
+"file": "xtask/src/webview_drive.rs",
+"line": 90
+},
+{
+"caller": "rust-analyzer cargo xtask 0.1.0 webview_drive/run_webview_drive().",
+"file": "xtask/src/webview_drive.rs",
+"line": 195
+},
+{
+"caller": "rust-analyzer cargo xtask 0.1.0 webview_drive/run_webview_drive().",
+"file": "xtask/src/webview_drive.rs",
+"line": 196
+},
+{
+"caller": "rust-analyzer cargo xtask 0.1.0 webview_drive/run_webview_drive().",
+"file": "xtask/src/webview_drive.rs",
+"line": 212
+},
+{
+"caller": "rust-analyzer cargo xtask 0.1.0 webview_drive/run_webview_drive().",
+"file": "xtask/src/webview_drive.rs",
+"line": 221
+},
+{
+"caller": "rust-analyzer cargo xtask 0.1.0 webview_drive/run_webview_drive().",
+"file": "xtask/src/webview_drive.rs",
+"line": 223
+},
+{
+"caller": "rust-analyzer cargo xtask 0.1.0 webview_drive/stage_observed().",
+"file": "xtask/src/webview_drive.rs",
+"line": 311
+},
+{
+"caller": "rust-analyzer cargo xtask 0.1.0 webview_drive/tests/empty_states_require_the_hint_on_both_routes().",
+"file": "xtask/src/webview_drive.rs",
+"line": 610
+},
+{
+"caller": "rust-analyzer cargo xtask 0.1.0 webview_drive/tests/traces_populate_needs_both_the_record_and_the_dom().",
+"file": "xtask/src/webview_drive.rs",
+"line": 639
+},
+{
+"caller": "rust-analyzer cargo xtask 0.1.0 webview_drive/tests/traces_populate_needs_both_the_record_and_the_dom().",
+"file": "xtask/src/webview_drive.rs",
+"line": 640
+},
+{
+"caller": "rust-analyzer cargo xtask 0.1.0 webview_drive/tests/traces_populate_needs_both_the_record_and_the_dom().",
+"file": "xtask/src/webview_drive.rs",
+"line": 641
+},
+{
+"caller": "rust-analyzer cargo xtask 0.1.0 webview_drive/tests/investigate_needs_both_the_press_and_the_outcome().",
+"file": "xtask/src/webview_drive.rs",
+"line": 652
+},
+{
+"caller": "rust-analyzer cargo xtask 0.1.0 webview_drive/tests/investigate_needs_both_the_press_and_the_outcome().",
+"file": "xtask/src/webview_drive.rs",
+"line": 653
+},
+{
+"caller": "rust-analyzer cargo xtask 0.1.0 webview_drive/tests/widget_close_needs_both_the_press_and_the_transition().",
+"file": "xtask/src/webview_drive.rs",
+"line": 664
+},
+{
+"caller": "rust-analyzer cargo xtask 0.1.0 webview_drive/tests/widget_close_needs_both_the_press_and_the_transition().",
+"file": "xtask/src/webview_drive.rs",
+"line": 665
+},
+{
+"caller": "rust-analyzer cargo xtask 0.1.0 webview_drive/tests/widget_close_needs_both_the_press_and_the_transition().",
+"file": "xtask/src/webview_drive.rs",
+"line": 668
+},
+{
+"caller": "rust-analyzer cargo xtask 0.1.0 webview_drive/tests/halves_separate_a_missing_record_from_a_missing_render().",
+"file": "xtask/src/webview_drive.rs",
+"line": 680
+},
+{
+"caller": "rust-analyzer cargo xtask 0.1.0 webview_drive/tests/halves_separate_a_missing_record_from_a_missing_render().",
+"file": "xtask/src/webview_drive.rs",
+"line": 688
+},
+{
+"caller": "rust-analyzer cargo xtask 0.1.0 webview_drive/tests/an_inapplicable_half_does_not_veto_a_stage().",
+"file": "xtask/src/webview_drive.rs",
+"line": 701
+},
+{
+"caller": "rust-analyzer cargo xtask 0.1.0 webview_drive/tests/a_missing_stage_report_leaves_dom_stages_absent().",
+"file": "xtask/src/webview_drive.rs",
+"line": 708
+},
+{
+"caller": "rust-analyzer cargo xtask 0.1.0 webview_drive/tests/a_missing_stage_report_leaves_dom_stages_absent().",
+"file": "xtask/src/webview_drive.rs",
+"line": 709
+},
+{
+"caller": "rust-analyzer cargo xtask 0.1.0 webview_drive/tests/unknown_stage_ids_are_never_observed().",
+"file": "xtask/src/webview_drive.rs",
+"line": 715
+},
+{
+"caller": "rust-analyzer cargo xtask 0.1.0 webview_drive/tests/green_arm_fails_when_any_stage_is_absent().",
+"file": "xtask/src/webview_drive.rs",
+"line": 776
+},
+{
+"caller": "rust-analyzer cargo xtask 0.1.0 webview_drive/tests/green_arm_passes_when_every_stage_is_observed().",
+"file": "xtask/src/webview_drive.rs",
+"line": 783
+},
+{
+"caller": "rust-analyzer cargo xtask 0.1.0 webview_drive/tests/red_arm_fails_when_the_named_stage_is_present().",
+"file": "xtask/src/webview_drive.rs",
+"line": 790
+},
+{
+"caller": "rust-analyzer cargo xtask 0.1.0 webview_drive/tests/red_arm_passes_when_only_the_named_stage_is_absent().",
+"file": "xtask/src/webview_drive.rs",
+"line": 797
+}
+],
+"db_state": "fresh",
+"plane": "rust"
+}
+]

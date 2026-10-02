@@ -1,0 +1,352 @@
+{
+ "file": "D:/dev/projects/andromeda-pulse/.andromeda/obs-plan-amendments.md",
+ "file_sha256": "b4ca36626facacd3b0d27492fcb1625c52ffa0634b3bea1667646672646b6ee4",
+ "file_bytes": 53213,
+ "entries": 34,
+ "set": [
+  {
+   "row": 1,
+   "line": 9,
+   "heading": "## 2026-05-02 — Initial obs plan (Phase 3 synthesis)",
+   "sha256": "e2f86b2212a5e9bf6869199fce0efbc11c9b866ad4a44cc80715b32dbaff25c8",
+   "bytes": 652,
+   "ref": "NOT DERIVED",
+   "why": "no **Ref:**",
+   "file": "001.md"
+  },
+  {
+   "row": 2,
+   "line": 18,
+   "heading": "## 2026-05-02 — Pivot to tracing-only self-observation (Phase 3.5 review)",
+   "sha256": "a59cb0b0c5b7c4392bde8e5426a9009f8b39d957a0b19170c282ba0791e29554",
+   "bytes": 600,
+   "ref": "NOT DERIVED",
+   "why": "no **Ref:**",
+   "file": "002.md"
+  },
+  {
+   "row": 3,
+   "line": 26,
+   "heading": "## 2026-05-02 — Manual OTel mental-model residue cleanup (post-Phase 5)",
+   "sha256": "f0b7942cd8206e13c59ba6dbf4977c15584bb70ef1e2eba57a926c07700be742",
+   "bytes": 690,
+   "ref": "NOT DERIVED",
+   "why": "no **Ref:**",
+   "file": "003.md"
+  },
+  {
+   "row": 4,
+   "line": 35,
+   "heading": "## 2026-05-04 — Clarify PII grep heuristic UI-vocabulary exemption  →  folded to §8",
+   "sha256": "4be74440630ead96dd9dcd3eb2cf93e69b1beeb9f9b03015fd7311d15c9a04a9",
+   "bytes": 692,
+   "ref": "NOT DERIVED",
+   "why": "field **Marker:**; no **Ref:**",
+   "file": "004.md"
+  },
+  {
+   "row": 5,
+   "line": 44,
+   "heading": "## 2026-05-08 — Heartbeat ticks vs health command complementarity  →  folded to §3",
+   "sha256": "b004eb5597bd138e7f34ce2048f7ef87973665c800fea7fdc99330f4eac0eb82",
+   "bytes": 622,
+   "ref": "NOT DERIVED",
+   "why": "field **Marker:**; no **Ref:**",
+   "file": "005.md"
+  },
+  {
+   "row": 6,
+   "line": 52,
+   "heading": "## 2026-06-10 — Chunk #99 tag gate: frame-budget posture + L4 budgets + load-suite findings  →  folded to §10",
+   "sha256": "1e4fd44c0c8a303e52afc8c0abbbd7e1f1fbaf7db5be556edb1f8d3ad0d7615d",
+   "bytes": 1740,
+   "ref": "NOT DERIVED",
+   "why": "field **Marker:**; no **Ref:**",
+   "file": "006.md"
+  },
+  {
+   "row": 7,
+   "line": 70,
+   "heading": "## 2026-08-14-fingerprint-feed-capture-repair — Fingerprint-feed counters + degraded-boot warn",
+   "sha256": "a8329b3f3bc3ddd389f9e67b6e4c9b7d64e7e3dab397259f28025a4382eb89ac",
+   "bytes": 1510,
+   "ref": ".andromeda/runs/2026-08-23T11-52-00Z-wrap/",
+   "why": "no **Ref:**",
+   "file": "007.md"
+  },
+  {
+   "row": 8,
+   "line": 75,
+   "heading": "## 2026-08-14-workspace-key-alignment — `app.boot.workspace_key` allowlist leaf + P7 chain",
+   "sha256": "4efb23c4217c661ed50dc1b5fad10907e892cffadf3a92438e5583d189c5701a",
+   "bytes": 1125,
+   "ref": ".andromeda/runs/2026-08-25T16-11-09Z-wrap/",
+   "why": "no **Ref:**",
+   "file": "008.md"
+  },
+  {
+   "row": 9,
+   "line": 80,
+   "heading": "## 2026-08-15-corpus-key-persistence — four corpus allowlist leaves (one a repair), the `*_PASSPHRASE` redaction convention, and the muted-diagnostic backlog",
+   "sha256": "ec9008aefc527233449b07760dfec14803da5ad23daad3f1cb480cfdccdad706",
+   "bytes": 1900,
+   "ref": ".andromeda/runs/2026-08-25T16-11-09Z-wrap/",
+   "why": "no **Ref:**",
+   "file": "009.md"
+  },
+  {
+   "row": 10,
+   "line": 99,
+   "heading": "## 2026-08-15-tier-1-incident-path-investigation — incident-path leaves landed; a five-target backlog replaces the three",
+   "sha256": "f8f2d37f9ae986542bacc4cf94657b66a6f9d856821ef8d5c99d8cc98b3db350",
+   "bytes": 2091,
+   "ref": ".andromeda/runs/2026-08-23T11-52-00Z-wrap/",
+   "why": "no **Ref:**",
+   "file": "010.md"
+  },
+  {
+   "row": 11,
+   "line": 104,
+   "heading": "## 2026-08-16-baseline-family-reachability — register the cold-start-window override WARN",
+   "sha256": "2610ace9ae9a2b75b6390a3122b6b588457d0063a7555dc1005c37b85b8bde02",
+   "bytes": 1593,
+   "ref": ".andromeda/runs/2026-08-23T11-52-00Z-wrap/",
+   "why": "no **Ref:**",
+   "file": "011.md"
+  },
+  {
+   "row": 12,
+   "line": 121,
+   "heading": "## 2026-08-16-fault-identity-semantics-decided — register the interpretation.incident.created leaf (as measured)",
+   "sha256": "9629f5d01a791b2596b591f3f541c26a1e170d747d9126802cd15677d4f79998",
+   "bytes": 1897,
+   "ref": ".andromeda/runs/2026-08-23T11-52-00Z-wrap/",
+   "why": "no **Ref:**",
+   "file": "012.md"
+  },
+  {
+   "row": 13,
+   "line": 126,
+   "heading": "## 2026-08-21-delegated-timing-observables — three delegated-timing metric leaves registered",
+   "sha256": "4ce1920a65713d2507cd40eaf60f3291a2d87e5475d682aa2e08086646151dbd",
+   "bytes": 1075,
+   "ref": ".andromeda/runs/2026-08-23T11-52-00Z-wrap/",
+   "why": "no **Ref:**",
+   "file": "013.md"
+  },
+  {
+   "row": 14,
+   "line": 132,
+   "heading": "## 2026-08-22-pii-scrubber-recall — redaction counter registered on `buffer.tick`",
+   "sha256": "ad119908d13b58ca2174c6fd3544f628c1d50a063c8b6ebfe50705fc4bf209c4",
+   "bytes": 1649,
+   "ref": ".andromeda/runs/2026-08-23T11-52-00Z-wrap/",
+   "why": "no **Ref:**",
+   "file": "014.md"
+  },
+  {
+   "row": 15,
+   "line": 137,
+   "heading": "## 2026-08-23-ingestion-scrub-coverage — `redactions_applied` scope widened to all four appender builders",
+   "sha256": "fbda7d42a70ae69071e6044c3b50d8f3e6ac5565e62df7745194cae2a161991f",
+   "bytes": 1729,
+   "ref": ".andromeda/runs/2026-08-23T11-52-00Z-wrap/",
+   "why": "no **Ref:**",
+   "file": "015.md"
+  },
+  {
+   "row": 16,
+   "line": 145,
+   "heading": "## 2026-08-23-metrics-points-identity — `redactions_applied` fold moved to the post-append site; PERSISTED-cells-only is now structural",
+   "sha256": "d92f2579afd54e2ed922c9c7fc555e4007a3670d8b68bdab16b4e2eea5e39e47",
+   "bytes": 1546,
+   "ref": ".andromeda/runs/2026-08-29T16-50-45Z-wrap/",
+   "why": "no **Ref:**",
+   "file": "016.md"
+  },
+  {
+   "row": 17,
+   "line": 150,
+   "heading": "## 2026-08-23-metrics-points-labels — redactions_applied scope and unit",
+   "sha256": "32e14d8814431793d59f27a1b495d71fee0528ff660043b7337ba7caae9b41ca",
+   "bytes": 1466,
+   "ref": ".andromeda/runs/2026-08-29T16-50-45Z-wrap/",
+   "why": "no **Ref:**",
+   "file": "017.md"
+  },
+  {
+   "row": 18,
+   "line": 155,
+   "heading": "## 2026-08-23-headful-leg-extension — §8 exact leaf: tray.signpost.shown → window_label",
+   "sha256": "0593f2d2973ae6854a9ce40da51c93d19349728ec17f088a7f175252a353ab01",
+   "bytes": 652,
+   "ref": ".andromeda/runs/2026-08-24T22-41-19Z-wrap/",
+   "why": "no **Ref:**",
+   "file": "018.md"
+  },
+  {
+   "row": 19,
+   "line": 160,
+   "heading": "## 2026-08-24-headful-mechanics-probe-race-disposition — boot navigation-check target registered (dual-site)",
+   "sha256": "4be56406a2962e276ad5562cb5e5bee344747a9af23b29244c990877e2c7baab",
+   "bytes": 1271,
+   "ref": ".andromeda/runs/2026-08-24T22-41-19Z-wrap/",
+   "why": "no **Ref:**",
+   "file": "019.md"
+  },
+  {
+   "row": 20,
+   "line": 165,
+   "heading": "## 2026-08-26-ingest-consumer-stall-under-sustained-load — drain progress: tick presence is liveness, not progress",
+   "sha256": "6c11737cdab037f3a86751537a6daa5dd86b67d2946c0e228041bbb8c4953512",
+   "bytes": 2592,
+   "ref": ".andromeda/runs/2026-08-26T09-45-00Z-wrap/",
+   "why": "no **Ref:**",
+   "file": "020.md"
+  },
+  {
+   "row": 21,
+   "line": 170,
+   "heading": "## 2026-08-26-cadence-runaway-blocking-pool — cue-latch bound + cadence cycle rate; muted-backlog mechanism corrected",
+   "sha256": "25dadf1bdecbccc490c06b53b32b5d75649c21c135110234abb209d09ee5d278",
+   "bytes": 2832,
+   "ref": ".andromeda/runs/2026-08-26T12-15-00Z-wrap/",
+   "why": "no **Ref:**",
+   "file": "021.md"
+  },
+  {
+   "row": 22,
+   "line": 201,
+   "heading": "## 2026-08-26-l4-runtime-security-residuals — L4 path-guard observables: one leaf completed, one registered",
+   "sha256": "dc862c2737e326890d326d40409666c1a4322dd26d17e7622c247b25e241414b",
+   "bytes": 2550,
+   "ref": ".andromeda/runs/2026-08-26T18-40-57Z-wrap/",
+   "why": "no **Ref:**",
+   "file": "022.md"
+  },
+  {
+   "row": 23,
+   "line": 206,
+   "heading": "## 2026-08-27-idle-observer-generation-damper — damper observables registered",
+   "sha256": "8e03e6c744e518f821a9db735ef483c97ece24670bf154f59847bf70a970b363",
+   "bytes": 914,
+   "ref": ".andromeda/runs/2026-08-27T20-04-28Z-wrap/",
+   "why": "no **Ref:**",
+   "file": "023.md"
+  },
+  {
+   "row": 24,
+   "line": 211,
+   "heading": "## 2026-08-27-incident-persist-vs-resolve-write-race — persist leaf 3 fields → 4",
+   "sha256": "2007e07cc4c3477bcc1d7d4ca16340ff01ca82428783e156c5e432687f4d641a",
+   "bytes": 1694,
+   "ref": ".andromeda/runs/2026-08-28T15-57-29Z-wrap/",
+   "why": "no **Ref:**",
+   "file": "024.md"
+  },
+  {
+   "row": 25,
+   "line": 216,
+   "heading": "## 2026-08-28-ingest-consumer-initiating-freeze — §10 isolation gains a FOURTH, OPEN defect + the drain detector proven on a live reproduction",
+   "sha256": "73e5a9fbe85ed7810a03152dfb5eac0d62686b723f681158eced94b2753b9233",
+   "bytes": 3127,
+   "ref": ".andromeda/runs/2026-08-28T18-30-00Z-wrap/",
+   "why": "no **Ref:**",
+   "file": "025.md"
+  },
+  {
+   "row": 26,
+   "line": 221,
+   "heading": "## 2026-08-28-ingest-consumer-block-under-gap-resume — defect 4's mechanism CORRECTED to the measured chain; defect stays OPEN with a new owner",
+   "sha256": "bb804e866720da551e9f9314c7985334ff16ef27ec7cb92652512b3e517fc134",
+   "bytes": 3105,
+   "ref": ".andromeda/runs/2026-08-28T20-25-00Z-wrap/",
+   "why": "no **Ref:**",
+   "file": "026.md"
+  },
+  {
+   "row": 27,
+   "line": 226,
+   "heading": "## 2026-08-28-duplicate-span-replay-fails-loudly — §10 defect 4 closed, mechanism corrected a second time",
+   "sha256": "620a339466b6f7874684ac2238032c013e87c3a3b8aa4530152dc41d1f5a747c",
+   "bytes": 1476,
+   "ref": ".andromeda/runs/2026-08-28T23-20-00Z-wrap/",
+   "why": "no **Ref:**",
+   "file": "027.md"
+  },
+  {
+   "row": 28,
+   "line": 231,
+   "heading": "## 2026-08-29-app-registry-reconciliation — incident-persist leaf 4 → 5 fields",
+   "sha256": "8bee0be2d71efd5e7aa35b1d6be1d2be1640cfb117599ca07a0085aa878a0deb",
+   "bytes": 1145,
+   "ref": ".andromeda/runs/2026-08-29T15-48-43Z-wrap/",
+   "why": "no **Ref:**",
+   "file": "028.md"
+  },
+  {
+   "row": 29,
+   "line": 236,
+   "heading": "## 2026-08-29-advisory-backlog — sidecar rmcp labels corrected to rmcp 3.x declared-but-unused / hand-rolled JSON-RPC",
+   "sha256": "f992136846b779e8ea9d5ca3842ab36bad4ecef7a1c0fabc4eaf76de89170270",
+   "bytes": 1287,
+   "ref": ".andromeda/runs/2026-08-29T22-53-32Z-wrap/",
+   "why": "no **Ref:**",
+   "file": "029.md"
+  },
+  {
+   "row": 30,
+   "line": 241,
+   "heading": "## 2026-08-30-npm-advisory-coverage — web-vitals RETIRED (operator ruling)",
+   "sha256": "2c5be3d56e0e5477ee67a6a8654e2896526f55a27b3fd92ccc7c20ddd60f68cc",
+   "bytes": 1411,
+   "ref": ".andromeda/runs/2026-08-30T12-09-07Z-wrap/",
+   "why": "no **Ref:**",
+   "file": "030.md"
+  },
+  {
+   "row": 31,
+   "line": 246,
+   "heading": "## 2026-08-30-diagnostics-un-muting-harness-truth-sweep — muted backlog CLOSED (4+2 → 0) · bare-interpretation key removed · append_rejections on buffer.tick (15) · dead guard migrated",
+   "sha256": "22cedd1c8a0ee79ba50d231cc7c0fecd52e6889f89dc721eaa9dc626748060f1",
+   "bytes": 2360,
+   "ref": ".andromeda/runs/2026-08-30T21-38-42Z-wrap/",
+   "why": "no **Ref:**",
+   "file": "031.md"
+  },
+  {
+   "row": 32,
+   "line": 251,
+   "heading": "## 2026-08-30-acl-rejection-logging — `ui.ipc.rejection` registered at §6 + §8 (dual-site)",
+   "sha256": "2adde97b21d45d24c99e4abe5a2bc8503ef421c099407c67e6b2f3f785008839",
+   "bytes": 1300,
+   "ref": ".andromeda/runs/2026-08-30T21-38-42Z-wrap/",
+   "why": "no **Ref:**",
+   "file": "032.md"
+  },
+  {
+   "row": 33,
+   "line": 256,
+   "heading": "## 2026-08-30-dead-lib-src-test-migration — §8 internal-consistency pair (l1a backlog phrasing · deleted mod-tests tense)",
+   "sha256": "70cd3f85458234a2ec983806829e7d92f678c5480aaf3fb3fedf84ad212c5724",
+   "bytes": 1325,
+   "ref": ".andromeda/runs/2026-08-30T20-00-08Z-wrap/",
+   "why": "no **Ref:**",
+   "file": "033.md"
+  },
+  {
+   "row": 34,
+   "line": 261,
+   "heading": "## 2026-08-30-agent-harness-teardown-truth — §3/§1 per-platform log-dir claims corrected to resolve_data_dir()",
+   "sha256": "6ed29c2409c3f136ea7248477becd0c0b664016315db01d440adf50e7316124a",
+   "bytes": 1182,
+   "ref": ".andromeda/runs/2026-08-30T21-38-42Z-wrap/",
+   "why": "no **Ref:**",
+   "file": "034.md"
+  }
+ ],
+ "batches": [
+  "batch-1.txt",
+  "batch-2.txt"
+ ]
+}

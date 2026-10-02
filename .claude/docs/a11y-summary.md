@@ -8,24 +8,26 @@ Cross-platform desktop app (Windows / macOS / Linux via Tauri 2.x) with 2 primar
 ## A11y testing tool pick (binding)
 | Surface | Primary tool | Secondary / fallback |
 |---|---|---|
-| **desktop-webview (React UI)** | `@axe-core/playwright` 4.11.x for E2E + Lighthouse 12.x CLI for CI gate + pa11y 9.x for parallel rule matrix | Manual SR pass (NVDA / VoiceOver / Orca) supplemental |
+| **desktop-webview (React UI)** | `@axe-core/playwright` 4.11.x for E2E + Lighthouse 13.x CLI for CI gate + pa11y 10.x for parallel rule matrix (majors moved 2026-08-30, advisory-driven) | Manual SR pass (NVDA / VoiceOver / Orca) supplemental |
 | **desktop-native (tray-icon menu)** | No automated tool reach; OS-native a11y APIs (Windows UIA / macOS NSAccessibility / Linux ATK) | Manual SR + keyboard pass required |
 | **OS notification (toast)** | No automated tool reach (OS-level API) | Manual SR pass via NVDA / VoiceOver / Orca |
 
 ## WCAG criteria (Standard tier)
 - **Baseline:** WCAG 2.1 AA full (~50 SCs). axe-core config: `runOnly: { type: 'tag', values: ['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa'] }` (adds SC 2.5.8 target-size from WCAG 2.2 AA).
-- **AAA escalation (motion-sensitive trigger):** **SC 2.3.3 Animation from Interactions** — Lighthouse 12.x prefers-reduced-motion audit + custom Playwright `page.emulateMedia({ reducedMotion: 'reduce' })` assertion.
+- **AAA escalation (motion-sensitive trigger):** **SC 2.3.3 Animation from Interactions** — Lighthouse 13.x prefers-reduced-motion audit + custom Playwright `page.emulateMedia({ reducedMotion: 'reduce' })` assertion.
 - **Explicitly N/A SCs (12 with documented reasons):** SC 1.2.1/1.2.2/1.2.3/1.4.2 (no audio), 1.4.4/1.4.5 (no text-as-image), 1.4.10 (desktop-only viewport), 1.4.13 (re-evaluated chunk #99: the header connection-dot tooltip is a non-interactive `role="img"` summary with an `aria-hidden` decorative tooltip — no hover/focus-triggered ADDITIONAL content in the SC sense; still N/A), 2.2.1/2.2.2 (no time-dependent content), 2.4.4 (verified via 4.1.2), 3.1.1 (single-language), 3.2.1/3.2.2 (covered in P7), 3.3.3/3.3.4 (covered via P2/P7), 4.1.1 (parsing — deprecated WCAG 2.2; React 19 + TS + ESLint enforce).
 
-## Critical paths (P1–P7 must-be-accessible)
+## Critical paths (P1–P14 must-be-accessible)
+
+_Extended from P1–P7 to **P1–P12** at chunk #99: **p8** findings dropdown · **p9** diagnostic report modal · **p10** diagnostics view · **p11** constellation semantics · **p12** export preview — then to **P1–P14**: **p13** empty states (2026-07-08) · **p14** Investigate result/error/progress states (2026-08-23) — each with its own axe spec plus `keyboard-focus/widget-and-modals.spec.ts`. The universal minimums (SC 2.1.1 / 2.4.3 / 4.1.2) and the §10 SLO coverage apply across all fourteen. The P1–P7 rows below are the original set; p8–p14 follow the same role/focus/SC discipline._
 
 | Path | Required ARIA roles | Required focus order | Required WCAG SC |
 |---|---|---|---|
-| **P1** Receive OTLP + visualize | `main` / `region[aria-label="Telemetry traces chart"]` / `button` / `table` | Initial focus first trace table; Tab through cells | 1.3.1 / 2.1.1 / 2.4.3 / 1.4.3 / 4.1.2 |
+| **P1** Receive OTLP + visualize | `main` / `button` / native `table` / `region[aria-label="Telemetry traces chart"]` (stable literal name on the canvas wrapper, `aria-describedby` → hidden aggregate summary) all ship as of 2026-08-23-a11y-verification. The earlier "NOT SHIPPED" claim was measurement-disproved: the `table` role was never absent, and the region was checked against `TraceTable.tsx` when it lives on the sibling `ConstellationCanvas.tsx` | Initial focus main content region; **row-level** roving-tabindex traversal (Up/Down/Home/End, Enter investigates, Esc exits; in-row button `tabIndex={-1}`). 2-D cell traversal is deliberately not the contract | 1.3.1 / 2.1.1 / 2.4.3 / 2.4.7 / 1.4.3 / 4.1.2 |
 | **P2** Generate snapshot | `main` / `dialog[aria-label="Investigation Snapshot"]` / `button[aria-busy]` / `slider` / `radiogroup` / `status[aria-live="polite"]` | Generate → budget slider → preset → Generate; on submit → progress message | 2.1.1 / 2.4.3 / 3.3.1 / 3.3.2 / 4.1.2 / 4.1.3 |
 | **P3** MCP toggle in settings | `dialog[aria-label="Settings"]` / `switch[aria-checked]` + OS notification | Tab to MCP switch → Space toggles → focus stays on switch | 2.1.1 / 2.4.3 / 4.1.2 / 4.1.3 |
 | **P4** Real-time push | `region[aria-live="polite"]` / `status` / `table` (incremental rows) | Live updates do NOT steal focus | 2.1.1 / 2.4.3 / 4.1.2 / 4.1.3 / 1.4.3 |
-| **P5** Widget ↔ dashboard ↔ tray | `main` / `button[aria-label="Expand to dashboard"]` / `button[aria-label="Minimize to tray"]` / tray `menuitem` | Esc minimizes widget; arrow keys nav tray menu; Tab nav dashboard sidebar | 2.1.1 / 2.1.2 / 2.4.3 / 2.4.7 / 4.1.2 |
+| **P5** Widget ↔ dashboard ↔ tray | `main` / `button[aria-label="Toggle dashboard"]` (opens/hides dashboard, widget stays; also Cmd/Ctrl+Shift+P) / `button[aria-label="Minimize"]` / `button[aria-label="Close to tray"]` (titlebar ✕ → hides widget to tray; Esc also triggers) / tray `menuitem` | Esc minimizes widget; arrow keys nav tray menu; Tab nav dashboard sidebar | 2.1.1 / 2.1.2 / 2.4.3 / 2.4.7 / 4.1.2 |
 | **P6** Snapshot completion | `dialog` / `button[aria-busy]` / `status[aria-live="assertive"]` + OS notification | Focus stays in modal during async; completion announced | 2.1.1 / 2.4.3 / 4.1.2 / 4.1.3 |
 | **P7** Settings form | `dialog` / `form` / `label` / `radiogroup` / `switch` / `button` | Tab theme→position→retention→MCP→preset→Save→Cancel; Esc closes | 2.1.1 / 2.1.2 / 2.4.3 / 2.4.7 / 3.3.1 / 3.3.2 / 4.1.2 |
 
@@ -40,7 +42,7 @@ Cross-platform desktop app (Windows / macOS / Linux via Tauri 2.x) with 2 primar
 | **target-size** | Compact widget design implies small form factors | axe-core target-size rule + design token `--target-button-min` / `--target-input-min` ≥24×24 (SC 2.5.8 AA) |
 
 ## Bootstrap phases (a11y-plan §3.5)
-1. **a11y-tooling-install:** `@axe-core/playwright@4.11` + `lighthouse@12` + `pa11y@9` + `pa11y-ci@4`
+1. **a11y-tooling-install:** `@axe-core/playwright@4.11` + `lighthouse@13` + `pa11y@10` + `pa11y-ci@4`
 2. **focus-management-library-install:** `focus-trap-react@12` + `tabbable@6.4`
 3. **aria-component-library-install:** `react-aria-components@1.17` (preferred) OR `@headlessui/react@2.2` — pick ONE; mixing causes conflicts
 4. **contrast-verification-harness-setup:** `colorjs.io@0.6` + Playwright test reading design tokens via `getComputedStyle`
@@ -87,9 +89,9 @@ Emitted to `~/.andromeda-pulse/logs/a11y-{tool}-results.jsonl`; uploaded as CI a
 
 ## v0.2.0 re-audit (chunk #99, per a11y-plan §12 2026-06-10)
 - **Harness repaired** — the Playwright a11y suite was silently dead since session 64 (4 infra bugs: stale root-level `../helpers/` import; IPC mock matched `plugin:taurpc|` while taurpc 0.7 invokes `TauRPC__<router.path>`; window-label global never read — production reads `__TAURI_INTERNALS__.metadata.currentWebview.label`; `/#/route` URLs never resolved — TanStack Router uses browser history). Repairs: `helpers/mock-tauri.ts` rewrite + `helpers/v02-fixtures.ts` + `helpers/static-server.mjs` SPA fallback + `pa11y/run-pa11y.mjs` + real route paths in pa11y/Lighthouse configs.
-- **Spec coverage extended** — axe specs p1–p7 → **p1–p12** (findings dropdown / diagnostic report modal / diagnostics view / constellation semantics / export preview) + `keyboard-focus/widget-and-modals.spec.ts`; p5 + reduced-motion updated to the redesigned widget. New-surface discipline: every new route/modal chunk adds an axe spec + `v02-fixtures.ts` payloads in the same chunk.
+- **Spec coverage extended** — axe specs p1–p7 → **p1–p12** (findings dropdown / diagnostic report modal / diagnostics view / constellation semantics / export preview) → **p1–p14** (p13 empty states 2026-07-08; p14 Investigate result/error/progress 2026-08-23) + `keyboard-focus/widget-and-modals.spec.ts`; p5 + reduced-motion updated to the redesigned widget. New-surface discipline: every new route/modal chunk adds an axe spec + fixture payloads (`v02-fixtures.ts`, or inline when single-surface) in the same chunk; fixtures must be POPULATED, since an empty array makes the sweep audit a blank region and pass by comparing nothing.
 - **~10 violations remediated in-chunk** — SC 2.5.8 target-size (WindowControls 24px), SC 1.4.3/1.4.11 contrast (tertiary→secondary text; severity text→primary + severity borders), svg-img-alt, aria-valid-attr-value (TabNav dangling `aria-controls`), SkipToMain clip pattern.
-- **Baseline re-established 2026-06-09** — `baselines/a11y-violations-summary.json` from a clean full-chain pass (6 informational lighthouse-score tuples, 0 violation tuples); suite health checked cheaply via `npx playwright test --list`.
+- **Baseline re-established 2026-06-09** — `baselines/a11y-violations-summary.json` from a clean full-chain pass (6 informational lighthouse-score tuples, 0 violation tuples); suite health checked cheaply via `npx playwright test --config=playwright-a11y.config.ts --list` (the BARE form reads the inert default config: 0 tests, exit 1).
 
 ## Top anti-patterns (a11y-plan §11)
 - NEVER use ARIA on non-semantic HTML (`role="button"` on `<div>` instead of `<button>`).

@@ -1,0 +1,30 @@
+{
+  "advisory": {
+    "distinct": 2,
+    "excepted": [
+      {
+        "ghsa": "GHSA-ggr8-5vv4-36mx",
+        "package": "deepmerge-ts",
+        "severity": "high"
+      },
+      {
+        "ghsa": "GHSA-jmr9-qjv8-65gv",
+        "package": "extract-zip",
+        "severity": "high"
+      }
+    ],
+    "unexcepted": []
+  },
+  "arm": "green-with-dispositions",
+  "bans": {
+    "hits": []
+  },
+  "gate": "npm-supply-chain",
+  "license": {
+    "checked": 903,
+    "excepted": 2,
+    "runtime_packages": 37,
+    "violations": []
+  },
+  "verdict": "green"
+}

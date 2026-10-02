@@ -1,0 +1,10 @@
+- id: D-arch-resources
+  doc: arch
+  invariant: every new IPC method / endpoint / event / socket / port / env var / workspace crate the chunk lands is registered in arch §Occupied Resources / §Standard Contracts / §Inherited Defaults workspace crates.
+  check: agent-read — for each new symbol / API / crate in the report's Changes, confirm it appears in the arch registry sections; an unregistered resource is drift.
+  severity: warning
+- id: D-arch-decisions
+  doc: arch
+  invariant: the chunk uses only the stack / runtime / patterns arch §Stack + §Established Decisions allow.
+  check: agent-read — compare the report's Dependencies + symbols against §Stack / §Established Decisions; a new library, runtime, or a contradicted locked decision is drift.
+  severity: warning

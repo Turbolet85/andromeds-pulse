@@ -1,0 +1,489 @@
+[
+{
+"sql": "SELECT symbol, crate, file, def_line FROM symbol WHERE symbol LIKE '%evidence_refs%' OR symbol LIKE '%degraded_mode%' OR symbol LIKE '%L4Output%' ORDER BY crate, file",
+"rows": 80,
+"result": [
+{
+"symbol": "rust-analyzer cargo interpretation 0.1.0 degraded_mode/BACKOFF_CAP_SECS.",
+"crate": "interpretation",
+"file": "crates/interpretation/src/degraded_mode.rs",
+"def_line": 35
+},
+{
+"symbol": "rust-analyzer cargo interpretation 0.1.0 degraded_mode/",
+"crate": "interpretation",
+"file": "crates/interpretation/src/degraded_mode.rs",
+"def_line": 0
+},
+{
+"symbol": "rust-analyzer cargo interpretation 0.1.0 degraded_mode/tests/backoff_snapshot_serializes_to_bounded_shape().",
+"crate": "interpretation",
+"file": "crates/interpretation/src/degraded_mode.rs",
+"def_line": 177
+},
+{
+"symbol": "rust-analyzer cargo interpretation 0.1.0 degraded_mode/tests/backoff_progression_constants_are_strictly_increasing().",
+"crate": "interpretation",
+"file": "crates/interpretation/src/degraded_mode.rs",
+"def_line": 156
+},
+{
+"symbol": "rust-analyzer cargo interpretation 0.1.0 degraded_mode/DegradedModeStatus#trigger_manual_retry().",
+"crate": "interpretation",
+"file": "crates/interpretation/src/degraded_mode.rs",
+"def_line": 136
+},
+{
+"symbol": "rust-analyzer cargo interpretation 0.1.0 degraded_mode/DegradedModeStatus#is_in_backoff().",
+"crate": "interpretation",
+"file": "crates/interpretation/src/degraded_mode.rs",
+"def_line": 128
+},
+{
+"symbol": "rust-analyzer cargo interpretation 0.1.0 degraded_mode/DegradedModeStatus#current_snapshot().",
+"crate": "interpretation",
+"file": "crates/interpretation/src/degraded_mode.rs",
+"def_line": 121
+},
+{
+"symbol": "rust-analyzer cargo interpretation 0.1.0 degraded_mode/DegradedModeStatus#record_success().",
+"crate": "interpretation",
+"file": "crates/interpretation/src/degraded_mode.rs",
+"def_line": 113
+},
+{
+"symbol": "rust-analyzer cargo interpretation 0.1.0 degraded_mode/tests/fresh_active_snapshot_has_zero_counter_and_no_retry_window().",
+"crate": "interpretation",
+"file": "crates/interpretation/src/degraded_mode.rs",
+"def_line": 191
+},
+{
+"symbol": "rust-analyzer cargo interpretation 0.1.0 degraded_mode/DegradedModeStatus#",
+"crate": "interpretation",
+"file": "crates/interpretation/src/degraded_mode.rs",
+"def_line": 101
+},
+{
+"symbol": "rust-analyzer cargo interpretation 0.1.0 degraded_mode/impl#[BackoffSnapshot]fresh_active().",
+"crate": "interpretation",
+"file": "crates/interpretation/src/degraded_mode.rs",
+"def_line": 83
+},
+{
+"symbol": "rust-analyzer cargo interpretation 0.1.0 degraded_mode/BackoffSnapshot#backoff_seconds_remaining.",
+"crate": "interpretation",
+"file": "crates/interpretation/src/degraded_mode.rs",
+"def_line": 78
+},
+{
+"symbol": "rust-analyzer cargo interpretation 0.1.0 degraded_mode/BackoffSnapshot#next_retry_at_unix_nano.",
+"crate": "interpretation",
+"file": "crates/interpretation/src/degraded_mode.rs",
+"def_line": 74
+},
+{
+"symbol": "rust-analyzer cargo interpretation 0.1.0 degraded_mode/BackoffSnapshot#consecutive_failures.",
+"crate": "interpretation",
+"file": "crates/interpretation/src/degraded_mode.rs",
+"def_line": 70
+},
+{
+"symbol": "rust-analyzer cargo interpretation 0.1.0 degraded_mode/BackoffSnapshot#state.",
+"crate": "interpretation",
+"file": "crates/interpretation/src/degraded_mode.rs",
+"def_line": 67
+},
+{
+"symbol": "rust-analyzer cargo interpretation 0.1.0 degraded_mode/BackoffSnapshot#",
+"crate": "interpretation",
+"file": "crates/interpretation/src/degraded_mode.rs",
+"def_line": 66
+},
+{
+"symbol": "rust-analyzer cargo interpretation 0.1.0 degraded_mode/degraded_mode_state_label().",
+"crate": "interpretation",
+"file": "crates/interpretation/src/degraded_mode.rs",
+"def_line": 50
+},
+{
+"symbol": "rust-analyzer cargo interpretation 0.1.0 degraded_mode/DegradedModeState#Degraded#",
+"crate": "interpretation",
+"file": "crates/interpretation/src/degraded_mode.rs",
+"def_line": 44
+},
+{
+"symbol": "rust-analyzer cargo interpretation 0.1.0 degraded_mode/tests/degraded_mode_state_label_is_bounded().",
+"crate": "interpretation",
+"file": "crates/interpretation/src/degraded_mode.rs",
+"def_line": 144
+},
+{
+"symbol": "rust-analyzer cargo interpretation 0.1.0 degraded_mode/DegradedModeState#Active#",
+"crate": "interpretation",
+"file": "crates/interpretation/src/degraded_mode.rs",
+"def_line": 43
+},
+{
+"symbol": "rust-analyzer cargo interpretation 0.1.0 degraded_mode/DegradedModeState#",
+"crate": "interpretation",
+"file": "crates/interpretation/src/degraded_mode.rs",
+"def_line": 42
+},
+{
+"symbol": "rust-analyzer cargo interpretation 0.1.0 degraded_mode/tests/",
+"crate": "interpretation",
+"file": "crates/interpretation/src/degraded_mode.rs",
+"def_line": 140
+},
+{
+"symbol": "rust-analyzer cargo interpretation 0.1.0 degraded_mode/BACKOFF_PROGRESSION_SECS.",
+"crate": "interpretation",
+"file": "crates/interpretation/src/degraded_mode.rs",
+"def_line": 31
+},
+{
+"symbol": "rust-analyzer cargo interpretation 0.1.0 degraded_mode/FAILURE_THRESHOLD.",
+"crate": "interpretation",
+"file": "crates/interpretation/src/degraded_mode.rs",
+"def_line": 25
+},
+{
+"symbol": "rust-analyzer cargo interpretation 0.1.0 degraded_mode/FAILURE_WINDOW_SECS.",
+"crate": "interpretation",
+"file": "crates/interpretation/src/degraded_mode.rs",
+"def_line": 21
+},
+{
+"symbol": "rust-analyzer cargo interpretation 0.1.0 degraded_mode/DegradedModeStatus#record_failure().",
+"crate": "interpretation",
+"file": "crates/interpretation/src/degraded_mode.rs",
+"def_line": 107
+},
+{
+"symbol": "rust-analyzer cargo interpretation 0.1.0 markdown/tests/serialize_evidence_refs_use_inline_code_formatting().",
+"crate": "interpretation",
+"file": "crates/interpretation/src/markdown.rs",
+"def_line": 652
+},
+{
+"symbol": "rust-analyzer cargo interpretation 0.1.0 markdown/tests/degraded_mode_still_renders_symptom_and_evidence().",
+"crate": "interpretation",
+"file": "crates/interpretation/src/markdown.rs",
+"def_line": 576
+},
+{
+"symbol": "rust-analyzer cargo interpretation 0.1.0 markdown/tests/degraded_mode_replaces_investigation_steps_with_explicit_notice().",
+"crate": "interpretation",
+"file": "crates/interpretation/src/markdown.rs",
+"def_line": 566
+},
+{
+"symbol": "rust-analyzer cargo interpretation 0.1.0 markdown/tests/degraded_mode_replaces_hypotheses_with_explicit_notice().",
+"crate": "interpretation",
+"file": "crates/interpretation/src/markdown.rs",
+"def_line": 559
+},
+{
+"symbol": "rust-analyzer cargo interpretation 0.1.0 markdown/Report#degraded_mode.",
+"crate": "interpretation",
+"file": "crates/interpretation/src/markdown.rs",
+"def_line": 100
+},
+{
+"symbol": "rust-analyzer cargo interpretation 0.1.0 markdown/Report#evidence_refs.",
+"crate": "interpretation",
+"file": "crates/interpretation/src/markdown.rs",
+"def_line": 98
+},
+{
+"symbol": "rust-analyzer cargo interpretation 0.1.0 schema/L4Output#symptom.",
+"crate": "interpretation",
+"file": "crates/interpretation/src/schema.rs",
+"def_line": 164
+},
+{
+"symbol": "rust-analyzer cargo interpretation 0.1.0 schema/L4Output#decision.",
+"crate": "interpretation",
+"file": "crates/interpretation/src/schema.rs",
+"def_line": 161
+},
+{
+"symbol": "rust-analyzer cargo interpretation 0.1.0 schema/L4Output#severity.",
+"crate": "interpretation",
+"file": "crates/interpretation/src/schema.rs",
+"def_line": 162
+},
+{
+"symbol": "rust-analyzer cargo interpretation 0.1.0 schema/L4Output#title.",
+"crate": "interpretation",
+"file": "crates/interpretation/src/schema.rs",
+"def_line": 163
+},
+{
+"symbol": "rust-analyzer cargo interpretation 0.1.0 schema/L4Output#timeline.",
+"crate": "interpretation",
+"file": "crates/interpretation/src/schema.rs",
+"def_line": 165
+},
+{
+"symbol": "rust-analyzer cargo interpretation 0.1.0 schema/L4Output#hypotheses.",
+"crate": "interpretation",
+"file": "crates/interpretation/src/schema.rs",
+"def_line": 166
+},
+{
+"symbol": "rust-analyzer cargo interpretation 0.1.0 schema/L4Output#investigation_steps.",
+"crate": "interpretation",
+"file": "crates/interpretation/src/schema.rs",
+"def_line": 167
+},
+{
+"symbol": "rust-analyzer cargo interpretation 0.1.0 schema/L4Output#evidence_refs.",
+"crate": "interpretation",
+"file": "crates/interpretation/src/schema.rs",
+"def_line": 168
+},
+{
+"symbol": "rust-analyzer cargo interpretation 0.1.0 schema/L4Output#fingerprint.",
+"crate": "interpretation",
+"file": "crates/interpretation/src/schema.rs",
+"def_line": 169
+},
+{
+"symbol": "rust-analyzer cargo interpretation 0.1.0 schema/L4Output#model_tier.",
+"crate": "interpretation",
+"file": "crates/interpretation/src/schema.rs",
+"def_line": 170
+},
+{
+"symbol": "rust-analyzer cargo interpretation 0.1.0 schema/L4Output#hardware_profile.",
+"crate": "interpretation",
+"file": "crates/interpretation/src/schema.rs",
+"def_line": 171
+},
+{
+"symbol": "rust-analyzer cargo interpretation 0.1.0 schema/L4Output#is_resolution_summary.",
+"crate": "interpretation",
+"file": "crates/interpretation/src/schema.rs",
+"def_line": 172
+},
+{
+"symbol": "rust-analyzer cargo interpretation 0.1.0 schema/L4Output#prompt_version.",
+"crate": "interpretation",
+"file": "crates/interpretation/src/schema.rs",
+"def_line": 160
+},
+{
+"symbol": "rust-analyzer cargo interpretation 0.1.0 schema/L4Output#schema_version.",
+"crate": "interpretation",
+"file": "crates/interpretation/src/schema.rs",
+"def_line": 159
+},
+{
+"symbol": "rust-analyzer cargo interpretation 0.1.0 schema/L4Output#",
+"crate": "interpretation",
+"file": "crates/interpretation/src/schema.rs",
+"def_line": 158
+},
+{
+"symbol": "rust-analyzer cargo mcp-server 0.1.0 tools/tests/retrieve_telemetry_slice_returns_evidence_refs().",
+"crate": "mcp-server",
+"file": "crates/mcp-server/src/tools.rs",
+"def_line": 914
+},
+{
+"symbol": "rust-analyzer cargo pulse-app 0.1.0 degraded_mode_runtime/impl#[LocalDegradedModeStatus][DegradedModeStatus]current_snapshot().",
+"crate": "pulse-app",
+"file": "pulse-app/src/degraded_mode_runtime.rs",
+"def_line": 179
+},
+{
+"symbol": "rust-analyzer cargo pulse-app 0.1.0 degraded_mode_runtime/",
+"crate": "pulse-app",
+"file": "pulse-app/src/degraded_mode_runtime.rs",
+"def_line": 0
+},
+{
+"symbol": "rust-analyzer cargo pulse-app 0.1.0 degraded_mode_runtime/additional_failure_index().",
+"crate": "pulse-app",
+"file": "pulse-app/src/degraded_mode_runtime.rs",
+"def_line": 223
+},
+{
+"symbol": "rust-analyzer cargo pulse-app 0.1.0 degraded_mode_runtime/impl#[LocalDegradedModeStatus][DegradedModeStatus]trigger_manual_retry().",
+"crate": "pulse-app",
+"file": "pulse-app/src/degraded_mode_runtime.rs",
+"def_line": 195
+},
+{
+"symbol": "rust-analyzer cargo pulse-app 0.1.0 degraded_mode_runtime/impl#[LocalDegradedModeStatus][DegradedModeStatus]is_in_backoff().",
+"crate": "pulse-app",
+"file": "pulse-app/src/degraded_mode_runtime.rs",
+"def_line": 184
+},
+{
+"symbol": "rust-analyzer cargo pulse-app 0.1.0 degraded_mode_runtime/LocalDegradedModeStatus#state.",
+"crate": "pulse-app",
+"file": "pulse-app/src/degraded_mode_runtime.rs",
+"def_line": 63
+},
+{
+"symbol": "rust-analyzer cargo pulse-app 0.1.0 degraded_mode_runtime/impl#[LocalDegradedModeStatus][DegradedModeStatus]record_success().",
+"crate": "pulse-app",
+"file": "pulse-app/src/degraded_mode_runtime.rs",
+"def_line": 153
+},
+{
+"symbol": "rust-analyzer cargo pulse-app 0.1.0 degraded_mode_runtime/impl#[LocalDegradedModeStatus][DegradedModeStatus]record_failure().",
+"crate": "pulse-app",
+"file": "pulse-app/src/degraded_mode_runtime.rs",
+"def_line": 97
+},
+{
+"symbol": "rust-analyzer cargo pulse-app 0.1.0 degraded_mode_runtime/impl#[LocalDegradedModeStatus][Default]default().",
+"crate": "pulse-app",
+"file": "pulse-app/src/degraded_mode_runtime.rs",
+"def_line": 91
+},
+{
+"symbol": "rust-analyzer cargo pulse-app 0.1.0 degraded_mode_runtime/impl#[LocalDegradedModeStatus]snapshot_from_state().",
+"crate": "pulse-app",
+"file": "pulse-app/src/degraded_mode_runtime.rs",
+"def_line": 73
+},
+{
+"symbol": "rust-analyzer cargo pulse-app 0.1.0 degraded_mode_runtime/impl#[LocalDegradedModeStatus]new().",
+"crate": "pulse-app",
+"file": "pulse-app/src/degraded_mode_runtime.rs",
+"def_line": 67
+},
+{
+"symbol": "rust-analyzer cargo pulse-app 0.1.0 degraded_mode_runtime/LocalDegradedModeStatus#",
+"crate": "pulse-app",
+"file": "pulse-app/src/degraded_mode_runtime.rs",
+"def_line": 62
+},
+{
+"symbol": "rust-analyzer cargo pulse-app 0.1.0 degraded_mode_runtime/impl#[BackoffState]fresh_active().",
+"crate": "pulse-app",
+"file": "pulse-app/src/degraded_mode_runtime.rs",
+"def_line": 50
+},
+{
+"symbol": "rust-analyzer cargo pulse-app 0.1.0 degraded_mode_runtime/BackoffState#degraded_entered_at_unix_nano.",
+"crate": "pulse-app",
+"file": "pulse-app/src/degraded_mode_runtime.rs",
+"def_line": 46
+},
+{
+"symbol": "rust-analyzer cargo pulse-app 0.1.0 degraded_mode_runtime/BackoffState#next_retry_at_unix_nano.",
+"crate": "pulse-app",
+"file": "pulse-app/src/degraded_mode_runtime.rs",
+"def_line": 42
+},
+{
+"symbol": "rust-analyzer cargo pulse-app 0.1.0 degraded_mode_runtime/BackoffState#last_failure_unix_nano.",
+"crate": "pulse-app",
+"file": "pulse-app/src/degraded_mode_runtime.rs",
+"def_line": 39
+},
+{
+"symbol": "rust-analyzer cargo pulse-app 0.1.0 degraded_mode_runtime/BackoffState#consecutive_failures.",
+"crate": "pulse-app",
+"file": "pulse-app/src/degraded_mode_runtime.rs",
+"def_line": 36
+},
+{
+"symbol": "rust-analyzer cargo pulse-app 0.1.0 degraded_mode_runtime/BackoffState#state.",
+"crate": "pulse-app",
+"file": "pulse-app/src/degraded_mode_runtime.rs",
+"def_line": 34
+},
+{
+"symbol": "rust-analyzer cargo pulse-app 0.1.0 degraded_mode_runtime/BackoffState#",
+"crate": "pulse-app",
+"file": "pulse-app/src/degraded_mode_runtime.rs",
+"def_line": 33
+},
+{
+"symbol": "rust-analyzer cargo pulse-app 0.1.0 degraded_mode_runtime/NANOS_PER_SEC.",
+"crate": "pulse-app",
+"file": "pulse-app/src/degraded_mode_runtime.rs",
+"def_line": 26
+},
+{
+"symbol": "rust-analyzer cargo pulse-app 0.1.0 degraded_mode_runtime/interpretation_retry_error_to_app_error().",
+"crate": "pulse-app",
+"file": "pulse-app/src/degraded_mode_runtime.rs",
+"def_line": 245
+},
+{
+"symbol": "rust-analyzer cargo pulse-app 0.1.0 diagnostics_router/DiagnosticsApiImpl#degraded_mode.",
+"crate": "pulse-app",
+"file": "pulse-app/src/diagnostics_router.rs",
+"def_line": 202
+},
+{
+"symbol": "rust-analyzer cargo pulse-app 0.1.0 incidents_router/ReportPayload#degraded_mode.",
+"crate": "pulse-app",
+"file": "pulse-app/src/incidents_router.rs",
+"def_line": 138
+},
+{
+"symbol": "rust-analyzer cargo pulse-app 0.1.0 incidents_router/ReportPayload#evidence_refs.",
+"crate": "pulse-app",
+"file": "pulse-app/src/incidents_router.rs",
+"def_line": 136
+},
+{
+"symbol": "rust-analyzer cargo pulse-app 0.1.0 observability/tests/allowlist_for_target_resolves_chunk_86_degraded_mode_and_retry_targets().",
+"crate": "pulse-app",
+"file": "pulse-app/src/observability.rs",
+"def_line": 5674
+},
+{
+"symbol": "rust-analyzer cargo pulse-app 0.1.0 local_degraded_mode_emits_degraded_enter_warning_on_threshold().",
+"crate": "pulse-app",
+"file": "pulse-app/tests/unit_degraded_mode_runtime.rs",
+"def_line": 306
+},
+{
+"symbol": "rust-analyzer cargo pulse-app 0.1.0 local_degraded_mode_emits_degraded_exit_on_manual_retry_when_degraded().",
+"crate": "pulse-app",
+"file": "pulse-app/tests/unit_degraded_mode_runtime.rs",
+"def_line": 350
+},
+{
+"symbol": "rust-analyzer cargo pulse-app 0.1.0 local_degraded_mode_emits_no_events_when_active_throughout().",
+"crate": "pulse-app",
+"file": "pulse-app/tests/unit_degraded_mode_runtime.rs",
+"def_line": 370
+},
+{
+"symbol": "rust-analyzer cargo pulse-app 0.1.0 local_degraded_mode_emits_degraded_exit_info_on_recovery().",
+"crate": "pulse-app",
+"file": "pulse-app/tests/unit_degraded_mode_runtime.rs",
+"def_line": 328
+},
+{
+"symbol": "rust-analyzer cargo triage 0.1.0 contract/Incident#evidence_refs.",
+"crate": "triage",
+"file": "crates/triage/src/contract.rs",
+"def_line": 406
+},
+{
+"symbol": "rust-analyzer cargo triage 0.1.0 contract/tests/sample_evidence_refs().",
+"crate": "triage",
+"file": "crates/triage/src/contract.rs",
+"def_line": 630
+},
+{
+"symbol": "rust-analyzer cargo triage 0.1.0 contract/tests/evidence_refs_round_trips_through_serde().",
+"crate": "triage",
+"file": "crates/triage/src/contract.rs",
+"def_line": 910
+}
+],
+"db_state": "fresh"
+}
+]

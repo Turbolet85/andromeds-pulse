@@ -1,0 +1,69 @@
+# Retired claims of this pass: the CI perf gate is vacuous / fed by the perf-slo-check scripts;
+# its owner is the "Perf-budget gate reads real samples" entry; the p99 is a floor index or a max;
+# the frame p99 fails the release build / is CI-asserted / is deferred to headful E2E;
+# app.boot.gpu.check carries gpu_available; agent-run.ps1 writes no spawn/exit record;
+# the release job restores lint-test read-only; the memory row is not CI-enforced.
+
+[[pattern]]
+id = "vacuous"
+fixed = "VACUOUS"
+
+[[pattern]]
+id = "slo-script"
+fixed = "perf-slo-check"
+
+[[pattern]]
+id = "owner-entry"
+fixed = "Perf-budget gate reads real samples"
+
+[[pattern]]
+id = "gpu-avail"
+fixed = "gpu_available"
+
+[[pattern]]
+id = "ps1-mirror"
+fixed = "does not mirror"
+
+[[pattern]]
+id = "ps1-null"
+regex = 'null under `?agent-run|always null|writes no (such )?record'
+
+[[pattern]]
+id = "p99-floor"
+regex = 'length \* 0\.99|0\.99 \| floor|quantile 0\.99'
+
+[[pattern]]
+id = "assert-max"
+fixed = "assert max"
+
+[[pattern]]
+id = "release-fail"
+regex = 'release build fails|fail release build|release build per creator'
+
+[[pattern]]
+id = "check-scripts"
+regex = 'check scripts?'
+
+[[pattern]]
+id = "neutral-tol"
+fixed = "NEUTRAL-tolerant"
+
+[[pattern]]
+id = "frame-headful"
+fixed = "frame-buffer inspection"
+
+[[pattern]]
+id = "boot-smoke-only"
+regex = 'boot-smoke log only|0 frame / memory / snapshot'
+
+[[pattern]]
+id = "save-if"
+fixed = "save-if"
+
+[[pattern]]
+id = "ro-lint-test"
+regex = 'restore(-only|s? one read-only| read-only)'
+
+[[pattern]]
+id = "tail-max"
+fixed = "tail-and-max"

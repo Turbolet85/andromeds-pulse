@@ -3,6 +3,62 @@ use std::time::Duration;
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
+use crate::baseline::{BOOTSTRAP_WINDOW_SECONDS, WINDOW_DURATION_SECONDS};
+
+/// Overrides the per-service cold-start window so a fresh service can reach
+/// the silence family inside a bounded warm-up instead of an hour of
+/// wall-clock. Production default is `BOOTSTRAP_WINDOW_SECONDS`; the app is
+/// byte-identical when unset.
+pub const ENV_BASELINE_BOOTSTRAP_SECONDS: &str = "ANDROMEDA_PULSE_BASELINE_BOOTSTRAP_SECONDS";
+
+/// Tracing target for the once-per-boot notice that a non-default cold-start
+/// window is in force. Needs its own EXACT allowlist leaf — a bare `triage`
+/// prefix key would widen every sibling target to one field set.
+pub const TARGET_BOOTSTRAP_WINDOW_OVERRIDE: &str = "triage.baseline.bootstrap_window.override";
+
+/// Resolve the effective cold-start window from the environment, falling back
+/// to the default on anything unusable. Accepts a non-zero value strictly
+/// below `WINDOW_DURATION_SECONDS`, preserving the invariant the
+/// `activity_floor` const-assert block enforces on the default.
+///
+/// Unset is silent (the default posture). Anything set but unusable falls back
+/// AND warns — a rejected value must never look like a silent success.
+pub fn resolve_bootstrap_window_seconds() -> u64 {
+    let raw = match std::env::var(ENV_BASELINE_BOOTSTRAP_SECONDS) {
+        Ok(raw) => raw,
+        Err(_) => return BOOTSTRAP_WINDOW_SECONDS,
+    };
+    let trimmed = raw.trim();
+    if trimmed.is_empty() {
+        return BOOTSTRAP_WINDOW_SECONDS;
+    }
+    let parsed = match trimmed.parse::<u64>() {
+        Ok(v) if v > 0 && v < WINDOW_DURATION_SECONDS => v,
+        Ok(_) => {
+            warn_bootstrap_window(BOOTSTRAP_WINDOW_SECONDS, "env_rejected_out_of_range");
+            return BOOTSTRAP_WINDOW_SECONDS;
+        }
+        Err(_) => {
+            warn_bootstrap_window(BOOTSTRAP_WINDOW_SECONDS, "env_rejected_unparseable");
+            return BOOTSTRAP_WINDOW_SECONDS;
+        }
+    };
+    if parsed != BOOTSTRAP_WINDOW_SECONDS {
+        warn_bootstrap_window(parsed, "env_override");
+    }
+    parsed
+}
+
+fn warn_bootstrap_window(resolved_seconds: u64, reason: &'static str) {
+    tracing::warn!(
+        target: TARGET_BOOTSTRAP_WINDOW_OVERRIDE,
+        resolved_seconds = resolved_seconds,
+        default_seconds = BOOTSTRAP_WINDOW_SECONDS,
+        reason = reason,
+        "per-service cold-start window is not the default",
+    );
+}
+
 /// Default error rate multiplier — current EWMA value must exceed
 /// `base_error_rate * multiplier` for an `ErrorRateSpike` cue to fire.
 /// 3.0× per route §62 chunk text + capability spec P-021.
@@ -37,7 +93,7 @@ pub const DEFAULT_MIN_PERSISTENCE_SECONDS: u64 = 30;
 pub const DEFAULT_LATENCY_PERCENTILE: f64 = 0.99;
 
 /// Minimum EWMA samples required before a service participates in
-/// ErrorRateSpike detection — warm-up gate к suppress cold-start noise.
+/// ErrorRateSpike detection — warm-up gate to suppress cold-start noise.
 /// Belongs to the P-009 error-rate baseline (its spec floor is 10 spans
 /// per minute); distinct from the latency-path floor below.
 pub const MIN_EWMA_SAMPLES: u64 = 10;
@@ -54,7 +110,7 @@ pub const MIN_LATENCY_SAMPLES: u64 = 50;
 /// spec). When a cue's `magnitude > multiplier × baseline` the bypass
 /// short-circuits — cue survives restart-window suppression. Matches the
 /// chunk #62 `cue::classify::dual_condition_bypass` literal (10.0)
-/// extracted к Thresholds for hot-reload in chunk #86.
+/// extracted to Thresholds for hot-reload in chunk #86.
 pub const DEFAULT_MAGNITUDE_BYPASS_MULTIPLIER: f64 = 10.0;
 
 /// Default dual-condition bypass absolute error-rate threshold (5% per
@@ -79,12 +135,15 @@ pub const DEFAULT_RESTART_GAP_THRESHOLD_SECONDS: u64 = 20;
 /// magnitude bypass fires.
 pub const DEFAULT_RESTART_SUPPRESSION_WINDOW_SECONDS: u64 = 60;
 
-/// Default suppression persistence cutoff (30s per chunk #63 spec).
-/// `ErrorRateSpike` cues with `persistence_seconds < cutoff` are
-/// suppression-eligible; cues with persistence ≥ cutoff survive even
-/// during active restart windows (long-persistence cues are real signals,
-/// not restart-induced noise).
-pub const DEFAULT_SUPPRESSION_PERSISTENCE_CUTOFF_SECONDS: u64 = 30;
+/// Default suppression persistence cutoff — 30 SAMPLES: only
+/// `ErrorRateSpike` cues reach this comparison, and the spike families
+/// carry an EWMA sample count in `persistence` (the chunk #63 spec wrote
+/// "30s" on the then-unexamined premise the field held seconds). Cues with
+/// `persistence < cutoff` are suppression-eligible; cues at or above it
+/// survive even during active restart windows (long-persistence cues are
+/// real signals, not restart-induced noise). Value unchanged at the
+/// 2026-08-30 rename.
+pub const DEFAULT_SUPPRESSION_PERSISTENCE_CUTOFF_SAMPLES: u64 = 30;
 
 /// Default activity-floor bootstrap window (1h per chunk #64 spec).
 /// During the first hour of observations for a service, `ServiceWentSilent`
@@ -106,8 +165,8 @@ pub const DEFAULT_QUIET_DURATION_PERCENTILE: f64 = 0.95;
 /// surface narrow.
 pub const MIN_QUIET_SECONDS: u64 = 30;
 
-/// Validation error for `Thresholds`. Local к the cue module so threshold
-/// validation does not couple к `BaselineError` shape (chunk #61). Future
+/// Validation error for `Thresholds`. Local to the cue module so threshold
+/// validation does not couple to `BaselineError` shape (chunk #61). Future
 /// config-path deserialization MAY convert to a unified error type at the
 /// boundary.
 #[derive(Debug, Error, PartialEq, Eq)]
@@ -137,7 +196,7 @@ pub struct Thresholds {
     pub absolute_bypass_latency_ms: f64,
     pub restart_gap_threshold_seconds: u64,
     pub restart_suppression_window_seconds: u64,
-    pub suppression_persistence_cutoff_seconds: u64,
+    pub suppression_persistence_cutoff_samples: u64,
     pub bootstrap_window_seconds: u64,
     pub quiet_duration_percentile: f64,
 }
@@ -159,7 +218,7 @@ impl Default for Thresholds {
             absolute_bypass_latency_ms: DEFAULT_ABSOLUTE_BYPASS_LATENCY_MS,
             restart_gap_threshold_seconds: DEFAULT_RESTART_GAP_THRESHOLD_SECONDS,
             restart_suppression_window_seconds: DEFAULT_RESTART_SUPPRESSION_WINDOW_SECONDS,
-            suppression_persistence_cutoff_seconds: DEFAULT_SUPPRESSION_PERSISTENCE_CUTOFF_SECONDS,
+            suppression_persistence_cutoff_samples: DEFAULT_SUPPRESSION_PERSISTENCE_CUTOFF_SAMPLES,
             bootstrap_window_seconds: DEFAULT_BOOTSTRAP_WINDOW_SECONDS,
             quiet_duration_percentile: DEFAULT_QUIET_DURATION_PERCENTILE,
         }
@@ -167,6 +226,17 @@ impl Default for Thresholds {
 }
 
 impl Thresholds {
+    /// Defaults with `bootstrap_window_seconds` resolved from the environment.
+    /// The single resolution point: the value this carries is what boot hands
+    /// to `BaselineState`, so the field is the gate's bound rather than a
+    /// second spelling of the default.
+    pub fn from_env() -> Self {
+        Self {
+            bootstrap_window_seconds: resolve_bootstrap_window_seconds(),
+            ..Self::default()
+        }
+    }
+
     pub fn validate(&self) -> Result<(), ThresholdsError> {
         if !self.error_rate_multiplier.is_finite() || self.error_rate_multiplier <= 0.0 {
             return Err(ThresholdsError::InvalidConfig {
@@ -230,9 +300,9 @@ impl Thresholds {
                 field: "restart_suppression_window_seconds",
             });
         }
-        if self.suppression_persistence_cutoff_seconds == 0 {
+        if self.suppression_persistence_cutoff_samples == 0 {
             return Err(ThresholdsError::InvalidConfig {
-                field: "suppression_persistence_cutoff_seconds",
+                field: "suppression_persistence_cutoff_samples",
             });
         }
         if self.min_latency_samples == 0 {
@@ -272,7 +342,7 @@ const _: () = {
     assert!(DEFAULT_ABSOLUTE_BYPASS_LATENCY_MS > 0.0);
     assert!(DEFAULT_RESTART_GAP_THRESHOLD_SECONDS > 0);
     assert!(DEFAULT_RESTART_SUPPRESSION_WINDOW_SECONDS > 0);
-    assert!(DEFAULT_SUPPRESSION_PERSISTENCE_CUTOFF_SECONDS > 0);
+    assert!(DEFAULT_SUPPRESSION_PERSISTENCE_CUTOFF_SAMPLES > 0);
     assert!(DEFAULT_BOOTSTRAP_WINDOW_SECONDS > 0);
     assert!(DEFAULT_QUIET_DURATION_PERCENTILE > 0.0);
     assert!(DEFAULT_QUIET_DURATION_PERCENTILE < 1.0);
@@ -303,7 +373,7 @@ mod tests {
         assert_eq!(t.absolute_bypass_latency_ms, 1000.0);
         assert_eq!(t.restart_gap_threshold_seconds, 20);
         assert_eq!(t.restart_suppression_window_seconds, 60);
-        assert_eq!(t.suppression_persistence_cutoff_seconds, 30);
+        assert_eq!(t.suppression_persistence_cutoff_samples, 30);
         assert_eq!(t.bootstrap_window_seconds, 3_600);
         assert_eq!(t.quiet_duration_percentile, 0.95);
     }
@@ -449,15 +519,15 @@ mod tests {
     }
 
     #[test]
-    fn validate_rejects_zero_suppression_persistence_cutoff_seconds() {
+    fn validate_rejects_zero_suppression_persistence_cutoff_samples() {
         let t = Thresholds {
-            suppression_persistence_cutoff_seconds: 0,
+            suppression_persistence_cutoff_samples: 0,
             ..Thresholds::default()
         };
         assert_eq!(
             t.validate().unwrap_err(),
             ThresholdsError::InvalidConfig {
-                field: "suppression_persistence_cutoff_seconds"
+                field: "suppression_persistence_cutoff_samples"
             }
         );
     }
@@ -577,5 +647,86 @@ mod tests {
         let json = serde_json::to_string(&original).expect("serialize");
         let parsed: Thresholds = serde_json::from_str(&json).expect("deserialize");
         assert_eq!(parsed, original);
+    }
+
+    fn with_bootstrap_env<T>(value: Option<&str>, f: impl FnOnce() -> T) -> T {
+        unsafe {
+            match value {
+                Some(v) => std::env::set_var(ENV_BASELINE_BOOTSTRAP_SECONDS, v),
+                None => std::env::remove_var(ENV_BASELINE_BOOTSTRAP_SECONDS),
+            }
+        }
+        let out = f();
+        unsafe {
+            std::env::remove_var(ENV_BASELINE_BOOTSTRAP_SECONDS);
+        }
+        out
+    }
+
+    #[test]
+    fn resolve_bootstrap_window_unset_yields_default() {
+        let resolved = with_bootstrap_env(None, resolve_bootstrap_window_seconds);
+        assert_eq!(resolved, BOOTSTRAP_WINDOW_SECONDS);
+    }
+
+    #[test]
+    fn resolve_bootstrap_window_accepts_bounded_override() {
+        let resolved = with_bootstrap_env(Some("5"), resolve_bootstrap_window_seconds);
+        assert_eq!(resolved, 5);
+    }
+
+    #[test]
+    fn resolve_bootstrap_window_trims_surrounding_whitespace() {
+        let resolved = with_bootstrap_env(Some("  30\n"), resolve_bootstrap_window_seconds);
+        assert_eq!(resolved, 30);
+    }
+
+    #[test]
+    fn resolve_bootstrap_window_rejects_zero_empty_and_unparseable() {
+        for raw in ["0", "", "   ", "abc", "-1", "12.5"] {
+            let resolved = with_bootstrap_env(Some(raw), resolve_bootstrap_window_seconds);
+            assert_eq!(
+                resolved, BOOTSTRAP_WINDOW_SECONDS,
+                "`{raw}` must fall back to the default, never panic or adopt an unintended bound",
+            );
+        }
+    }
+
+    #[test]
+    fn resolve_bootstrap_window_rejects_at_or_above_window_duration() {
+        for raw in [
+            WINDOW_DURATION_SECONDS.to_string(),
+            (WINDOW_DURATION_SECONDS + 1).to_string(),
+        ] {
+            let resolved = with_bootstrap_env(Some(&raw), resolve_bootstrap_window_seconds);
+            assert_eq!(
+                resolved, BOOTSTRAP_WINDOW_SECONDS,
+                "`{raw}` breaks the activity_floor const-assert relation and must be rejected",
+            );
+        }
+    }
+
+    #[test]
+    fn from_env_carries_the_resolved_bound_into_the_field() {
+        let t = with_bootstrap_env(Some("7"), Thresholds::from_env);
+        assert_eq!(
+            t.bootstrap_window_seconds, 7,
+            "the field must carry the resolved bound — it is what boot hands to BaselineState",
+        );
+        assert_eq!(
+            t.error_rate_multiplier,
+            Thresholds::default().error_rate_multiplier,
+            "from_env must not disturb any other threshold",
+        );
+    }
+
+    #[test]
+    fn from_env_unset_is_byte_identical_to_default() {
+        let t = with_bootstrap_env(None, Thresholds::from_env);
+        assert_eq!(
+            t,
+            Thresholds::default(),
+            "an unset override must leave production behaviour untouched",
+        );
     }
 }

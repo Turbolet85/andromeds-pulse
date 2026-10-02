@@ -1,0 +1,509 @@
+[
+{
+"tool": "gate",
+"v": "1.5",
+"sha8": "018a3122",
+"ts": "2026-09-29T21:44:49Z",
+"argv": [
+"scope",
+"--chunk-dir",
+"andromeda-pulse-0.3.0/chunks/2026-09-29-ci-wall-time-and-round-trips",
+"--run-dir",
+".andromeda/runs/2026-09-29T21-44-34Z-wrap",
+"--marker",
+"2026-09-29-ci-wall-time-and-round-trips"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"root D:\\dev\\projects\\andromeda-pulse · base e98d8384 (the parent of the oldest pre-CI commit 226554ae) · lists new 1 · modify 4 · derived 0 · record 5",
+"control: lists · glob · record — each fired on its synthetic known positive; C1 · C2 held",
+"recorded in-intent xtask/src/gap_resume.rs",
+"recorded in-intent xtask/src/external_resolve.rs",
+"recorded in-intent xtask/src/webview_drive.rs",
+"recorded widening scripts/agent-run.sh",
+"recorded widening xtask/src/harness_status.rs",
+"scope: clean — changed 10 · listed 5 · recorded 5 (companion 0 · mechanical 0 · in-intent 3 · widening 2) · absorbed 0 · excluded 37"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"root": "D:\\dev\\projects\\andromeda-pulse",
+"base": "e98d8384512a300127305925c9e762f69e937ca5",
+"base_why": "the parent of the oldest pre-CI commit 226554ae",
+"counts": {
+"changed": 10,
+"listed": 5,
+"recorded": 5,
+"unrecorded": 0,
+"indet": 0,
+"absorbed": 0
+},
+"by_class": {
+"companion": 0,
+"mechanical": 0,
+"in-intent": 3,
+"widening": 2
+},
+"excluded": 37,
+"unparsed": 0,
+"widening_without_word": 0
+}
+},
+{
+"tool": "gate",
+"v": "1.5",
+"sha8": "018a3122",
+"ts": "2026-09-29T22:04:33Z",
+"argv": [
+"run",
+"--plan",
+"andromeda-pulse-0.3.0/chunks/2026-09-29-ci-wall-time-and-round-trips/plan.md",
+"--run-dir",
+".andromeda/runs/2026-09-29T21-44-34Z-wrap",
+"--marker",
+"2026-09-29-ci-wall-time-and-round-trips",
+"--skip",
+"9:runs LAST after the entry-5 nextest regenerates bindings/index.ts - restored from HEAD, then run beside the tool (playbook: wrap-time gate ordering)"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"shell C:\\Program Files\\Git\\bin\\bash.exe (from $SHELL; -c, non-login)",
+"root D:\\dev\\projects\\andromeda-pulse · marker 2026-09-29-ci-wall-time-and-round-trips · entries 14",
+"logs C:\\Users\\turbo\\AppData\\Local\\Temp\\andromeda-gate\\2026-09-29-ci-wall-time-and-round-trips\\wrap-2026-09-29T21-44-34Z · bound: GNU timeout",
+"delta docs 37",
+"prose L155-156: The standard gate set runs unconditionally, with `capability-drift` LAST among the cargo g… (209 chars)",
+"prose L158-167: **Host constraint (operator directive at take-up, standing until released):** - No release… (833 chars)",
+"prose L169-170: The CI half is operator-driven: the hygiene read, the commit+push, and the CI read of the … (195 chars)",
+"  1 lint        green · exit 0 · 0.81s · 0 B → 1.log · cargo fmt --check",
+"  2 lint        green · exit 0 · 3.22s · 138 B → 2.log · cargo clippy --workspace --all-targets --all-features -- -… (68 chars)",
+"  3 probe       green · exit 0 · 0.14s · 60 B → 3.log · python -X utf8 -c \"import yaml; d = yaml.safe_load(open('.… (139 chars)",
+"  4 probe       recorded · exit 0 · 0.14s · 4849 B → 4.log · python -X utf8 -c \"import yaml; d = yaml.safe_load(open('.… (193 chars)",
+"  5 unit        green · exit 0 · 26.22s · 571427 B → 5.log · cargo nextest run --workspace --profile ci",
+"  6 integration green · exit 0 · 15.73s · 1038 B → 6.log · cargo xtask perf:slo-load",
+"  7 integration green · exit 0 · 89.95s · 692676 B → 7.log · cargo xtask pre-push:linux",
+"  8 probe       green · exit 0 · 6.7s · 75 B → 8.log · cargo xtask check:ingest-progress",
+"  9 probe       not run — skipped: runs LAST after the entry-5 nextest regenerates bindings/index.ts - restored from HEAD · cargo xtask capability-drift",
+" 10 probe       not run — leg operator (the letter drives it) · python -X utf8 C:/Users/turbo/.claude/skills/andromeda-too… (84 chars)",
+" 11 probe       not run — leg operator (the letter drives it) · git diff --quiet && git diff --cached --quiet && git push … (90 chars)",
+" 12 probe       not run — leg operator (the letter drives it) · python -X utf8 C:/Users/turbo/.claude/skills/andromeda-too… (108 chars)",
+" 13 probe       not run — leg operator (the letter drives it) · gh run view <id> --json jobs --jq '.jobs[] | \"\\(.name)|\\(.… (102 chars)",
+" 14 probe       not run — leg operator (the letter drives it) · gh api repos/Turbolet85/andromeds-pulse/actions/cache/usag… (59 chars)",
+"entries 14 · green 7 · red 0 · recorded 1 · timeout 0 · not-run 6"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"marker": "2026-09-29-ci-wall-time-and-round-trips",
+"plan": "D:\\dev\\projects\\andromeda-pulse\\andromeda-pulse-0.3.0\\chunks\\2026-09-29-ci-wall-time-and-round-trips\\plan.md",
+"root": "D:\\dev\\projects\\andromeda-pulse",
+"shell": "C:\\Program Files\\Git\\bin\\bash.exe",
+"out_dir": "C:\\Users\\turbo\\AppData\\Local\\Temp\\andromeda-gate\\2026-09-29-ci-wall-time-and-round-trips\\wrap-2026-09-29T21-44-34Z",
+"delta": {
+"docs": [
+".andromeda/a11y-plan-amendments.md",
+".andromeda/a11y-plan.md",
+".andromeda/architecture-amendments.md",
+".andromeda/architecture.md",
+".andromeda/friction-log.ndjson",
+".andromeda/obs-plan-amendments.md",
+".andromeda/obs-plan.md",
+".andromeda/state.yaml",
+".andromeda/test-plan-amendments.md",
+".andromeda/test-plan.md",
+".claude/docs/commands.md",
+".claude/docs/session-learnings.md",
+".claude/docs/tests-summary.md",
+".claude/rules/verification-harness.md",
+".claude/session-handoff.md",
+"CLAUDE.md",
+"andromeda-pulse-0.3.0/chunks/2026-09-29-ci-wall-time-and-round-trips/evidence/operator-pass.md",
+"andromeda-pulse-0.3.0/chunks/2026-09-29-ci-wall-time-and-round-trips/plan.md",
+"andromeda-pulse-0.3.0/working-route.md",
+".andromeda/runs/2026-09-29T21-44-34Z-wrap/.code-graph-refresh.log",
+".andromeda/runs/2026-09-29T21-44-34Z-wrap/a11y-plan-entry.md",
+".andromeda/runs/2026-09-29T21-44-34Z-wrap/architecture-entry.md",
+".andromeda/runs/2026-09-29T21-44-34Z-wrap/cascade-2026-09-29-ci-wall-time-and-round-trips.json",
+".andromeda/runs/2026-09-29T21-44-34Z-wrap/cascade-dispositions.md",
+".andromeda/runs/2026-09-29T21-44-34Z-wrap/cascade-patterns.toml",
+".andromeda/runs/2026-09-29T21-44-34Z-wrap/curation.md",
+".andromeda/runs/2026-09-29T21-44-34Z-wrap/evolve-2026-09-29-ci-wall-time-and-round-trips.json",
+".andromeda/runs/2026-09-29T21-44-34Z-wrap/fanout-results.md",
+".andromeda/runs/2026-09-29T21-44-34Z-wrap/gate-2026-09-29-ci-wall-time-and-round-trips.json",
+".andromeda/runs/2026-09-29T21-44-34Z-wrap/health-2026-09-29-ci-wall-time-and-round-trips.json",
+".andromeda/runs/2026-09-29T21-44-34Z-wrap/obs-plan-entry.md",
+".andromeda/runs/2026-09-29T21-44-34Z-wrap/registry-2026-09-29-ci-wall-time-and-round-trips.json",
+".andromeda/runs/2026-09-29T21-44-34Z-wrap/route-no-marker.json",
+".andromeda/runs/2026-09-29T21-44-34Z-wrap/splice-2026-09-29-ci-wall-time-and-round-trips.json",
+".andromeda/runs/2026-09-29T21-44-34Z-wrap/sweep.txt",
+".andromeda/runs/2026-09-29T21-44-34Z-wrap/test-plan-entry.md",
+"andromeda-pulse-0.3.0/chunks/2026-09-29-ci-wall-time-and-round-trips/report.md"
+]
+},
+"unmapped": [],
+"prose": [
+{
+"from": 155,
+"to": 156,
+"text": "The standard gate set runs unconditionally, with `capability-drift` LAST among the cargo gates (test-plan §3 Per-chunk gate discipline). `pulse-app/ui/**` is untouched, so the npm webview gates are not listed."
+},
+{
+"from": 158,
+"to": 167,
+"text": "**Host constraint (operator directive at take-up, standing until released):** - No release-profile build, no `pulse-app` start, no bind on 4317/4318. - Every entry below is debug-profile or WSL-side. - The test suite binds only ephemeral loopback ports: every `try_bind` call site in `pulse-app/tests` +   `crates/*/tests` passes port 0 (`grep -rn -E \"TcpListener|try_bind\" …`, e.g. `perf_slo_10k_spans.rs:137`), and the   literal 4317/4318 appear only as parse values (`grep -rn -E \"\\b431[78]\\b\" …`). - The real boot smoke is out of reach this chunk, for three reasons: /implement P3's boot would start `pulse-app`;   CI's `boot` job exercises it on the runner; no product code changes. - `cargo xtask pre-push:linux` needs the one-time operator provisioning it names (apt list + `jq` + Node 24, with   sudo) before its first green."
+},
+{
+"from": 169,
+"to": 170,
+"text": "The CI half is operator-driven: the hygiene read, the commit+push, and the CI read of the pushed head (a first post-change round is cold by construction, Step 2, so the wait covers a cold round)."
+}
+],
+"entries": [
+{
+"n": 1,
+"role": "lint",
+"run": "cargo fmt --check",
+"run_sha8": "194fabc0",
+"expect": null,
+"log": "C:\\Users\\turbo\\AppData\\Local\\Temp\\andromeda-gate\\2026-09-29-ci-wall-time-and-round-trips\\wrap-2026-09-29T21-44-34Z\\1.log",
+"bytes": 0,
+"log_sha8": "e3b0c442",
+"exit": 0,
+"seconds": 0.81,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 2,
+"role": "lint",
+"run": "cargo clippy --workspace --all-targets --all-features -- -D warnings",
+"run_sha8": "f835224c",
+"expect": null,
+"log": "C:\\Users\\turbo\\AppData\\Local\\Temp\\andromeda-gate\\2026-09-29-ci-wall-time-and-round-trips\\wrap-2026-09-29T21-44-34Z\\2.log",
+"bytes": 138,
+"log_sha8": "eb973e10",
+"exit": 0,
+"seconds": 3.22,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 3,
+"role": "probe",
+"run": "python -X utf8 -c \"import yaml; d = yaml.safe_load(open('.github/workflows/ci.yml', encoding='utf-8')); print(' '.join(sorted(d['jobs'])))\"",
+"run_sha8": "45c4bfe9",
+"expect": [
+"exit 0",
+"last line a11y boot coverage lint-test mcp-test release supply-chain"
+],
+"log": "C:\\Users\\turbo\\AppData\\Local\\Temp\\andromeda-gate\\2026-09-29-ci-wall-time-and-round-trips\\wrap-2026-09-29T21-44-34Z\\3.log",
+"bytes": 60,
+"log_sha8": "85017260",
+"exit": 0,
+"seconds": 0.14,
+"readings": [
+"exit 0 ✓",
+"last line 'a11y boot coverage lint-test mcp-test release supply-chain' ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 4,
+"role": "probe",
+"run": "python -X utf8 -c \"import yaml; d = yaml.safe_load(open('.github/workflows/ci.yml', encoding='utf-8')); [print(j + ' | ' + s.get('name', '')) for j, v in d['jobs'].items() for s in v['steps']]\"",
+"run_sha8": "d9c32f13",
+"expect": [],
+"log": "C:\\Users\\turbo\\AppData\\Local\\Temp\\andromeda-gate\\2026-09-29-ci-wall-time-and-round-trips\\wrap-2026-09-29T21-44-34Z\\4.log",
+"bytes": 4849,
+"log_sha8": "9c0d4b07",
+"exit": 0,
+"seconds": 0.14,
+"readings": [
+"report-only (expect = [])"
+],
+"survivors": [],
+"outcome": "recorded"
+},
+{
+"n": 5,
+"role": "unit",
+"run": "cargo nextest run --workspace --profile ci",
+"run_sha8": "bf6e813a",
+"expect": null,
+"log": "C:\\Users\\turbo\\AppData\\Local\\Temp\\andromeda-gate\\2026-09-29-ci-wall-time-and-round-trips\\wrap-2026-09-29T21-44-34Z\\5.log",
+"bytes": 571427,
+"log_sha8": "0fb4a919",
+"exit": 0,
+"seconds": 26.22,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 6,
+"role": "integration",
+"run": "cargo xtask perf:slo-load",
+"run_sha8": "72bae9a6",
+"expect": [
+"exit 0",
+"contains 1 test run: 1 passed"
+],
+"log": "C:\\Users\\turbo\\AppData\\Local\\Temp\\andromeda-gate\\2026-09-29-ci-wall-time-and-round-trips\\wrap-2026-09-29T21-44-34Z\\6.log",
+"bytes": 1038,
+"log_sha8": "2928a763",
+"exit": 0,
+"seconds": 15.73,
+"readings": [
+"exit 0 ✓",
+"contains '1 test run: 1 passed' ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 7,
+"role": "integration",
+"run": "cargo xtask pre-push:linux",
+"run_sha8": "3bdf10d4",
+"expect": [
+"exit 0",
+"contains \"verdict\": \"green\""
+],
+"log": "C:\\Users\\turbo\\AppData\\Local\\Temp\\andromeda-gate\\2026-09-29-ci-wall-time-and-round-trips\\wrap-2026-09-29T21-44-34Z\\7.log",
+"bytes": 692676,
+"log_sha8": "d9ae5f4b",
+"exit": 0,
+"seconds": 89.95,
+"readings": [
+"exit 0 ✓",
+"contains '\"verdict\": \"green\"' ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 8,
+"role": "probe",
+"run": "cargo xtask check:ingest-progress",
+"run_sha8": "123ffa0a",
+"expect": null,
+"log": "C:\\Users\\turbo\\AppData\\Local\\Temp\\andromeda-gate\\2026-09-29-ci-wall-time-and-round-trips\\wrap-2026-09-29T21-44-34Z\\8.log",
+"bytes": 75,
+"log_sha8": "c8b0edd8",
+"exit": 0,
+"seconds": 6.7,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 9,
+"role": "probe",
+"run": "cargo xtask capability-drift",
+"run_sha8": "fb5fd088",
+"expect": null,
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — skipped: runs LAST after the entry-5 nextest regenerates bindings/index.ts - restored from HEAD"
+},
+{
+"n": 10,
+"role": "probe",
+"run": "python -X utf8 C:/Users/turbo/.claude/skills/andromeda-tools/scripts/gate.py hygiene",
+"run_sha8": "f0648308",
+"expect": [
+"exit 0",
+"contains hygiene: clean"
+],
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — leg operator (the letter drives it)"
+},
+{
+"n": 11,
+"role": "probe",
+"run": "git diff --quiet && git diff --cached --quiet && git push origin chore/migrate-pulse-to-v3",
+"run_sha8": "adb66f19",
+"expect": null,
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — leg operator (the letter drives it)"
+},
+{
+"n": 12,
+"role": "probe",
+"run": "python -X utf8 C:/Users/turbo/.claude/skills/andromeda-tools/scripts/ci.py conclusion --sha HEAD --wait 5400",
+"run_sha8": "1dedcd4d",
+"expect": [
+"exit 0",
+"contains verdict: green"
+],
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — leg operator (the letter drives it)"
+},
+{
+"n": 13,
+"role": "probe",
+"run": "gh run view <id> --json jobs --jq '.jobs[] | \"\\(.name)|\\(.conclusion)|\\(.startedAt)|\\(.completedAt)\"' ",
+"run_sha8": "f4fd45cd",
+"expect": [],
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — leg operator (the letter drives it)"
+},
+{
+"n": 14,
+"role": "probe",
+"run": "gh api repos/Turbolet85/andromeds-pulse/actions/cache/usage",
+"run_sha8": "5cd0039b",
+"expect": [],
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — leg operator (the letter drives it)"
+}
+]
+}
+},
+{
+"tool": "gate",
+"v": "1.5",
+"sha8": "018a3122",
+"ts": "2026-09-29T22:05:04Z",
+"argv": [
+"hygiene",
+"--run-dir",
+".andromeda/runs/2026-09-29T21-44-34Z-wrap",
+"--marker",
+"2026-09-29-ci-wall-time-and-round-trips"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"root D:\\dev\\projects\\andromeda-pulse · planes rust, ts",
+"control: P1 drive · P1 device · P1 home · P1 users · P1 root · P1 msys · P1 wsl · P2 · P3 rust · P3 ts — each fired on its synthetic known positive",
+"hygiene: clean — read 20 (runs 19 · evidence 1) · trails 8 not read · binary 0 not read by P1"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"root": "D:\\dev\\projects\\andromeda-pulse",
+"planes": [
+"rust",
+"ts"
+],
+"rows": [],
+"counts": {
+"P1": 0,
+"P2": 0,
+"P3": 0,
+"runs": 19,
+"evidence": 1,
+"trails": 8,
+"binary": 0
+},
+"indeterminate": 0
+}
+},
+{
+"tool": "gate",
+"v": "1.5",
+"sha8": "018a3122",
+"ts": "2026-09-29T22:05:05Z",
+"argv": [
+"scope",
+"--chunk-dir",
+"andromeda-pulse-0.3.0/chunks/2026-09-29-ci-wall-time-and-round-trips",
+"--run-dir",
+".andromeda/runs/2026-09-29T21-44-34Z-wrap",
+"--marker",
+"2026-09-29-ci-wall-time-and-round-trips"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"root D:\\dev\\projects\\andromeda-pulse · base e98d8384 (the parent of the oldest pre-CI commit 226554ae) · lists new 1 · modify 4 · derived 0 · record 5",
+"control: lists · glob · record — each fired on its synthetic known positive; C1 · C2 held",
+"recorded in-intent xtask/src/gap_resume.rs",
+"recorded in-intent xtask/src/external_resolve.rs",
+"recorded in-intent xtask/src/webview_drive.rs",
+"recorded widening scripts/agent-run.sh",
+"recorded widening xtask/src/harness_status.rs",
+"scope: clean — changed 10 · listed 5 · recorded 5 (companion 0 · mechanical 0 · in-intent 3 · widening 2) · absorbed 0 · excluded 70"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"root": "D:\\dev\\projects\\andromeda-pulse",
+"base": "e98d8384512a300127305925c9e762f69e937ca5",
+"base_why": "the parent of the oldest pre-CI commit 226554ae",
+"counts": {
+"changed": 10,
+"listed": 5,
+"recorded": 5,
+"unrecorded": 0,
+"indet": 0,
+"absorbed": 0
+},
+"by_class": {
+"companion": 0,
+"mechanical": 0,
+"in-intent": 3,
+"widening": 2
+},
+"excluded": 70,
+"unparsed": 0,
+"widening_without_word": 0
+}
+}
+]

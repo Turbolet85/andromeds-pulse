@@ -2,11 +2,11 @@
 //! returns matching rows. Per test-plan §6 P1 canonical 7-step structure.
 //!
 //! Drives the production ingest gRPC receiver via tonic 0.14 client on an
-//! ephemeral loopback port; bootstraps а real DuckDB connection + buffer
+//! ephemeral loopback port; bootstraps a real DuckDB connection + buffer
 //! consumer task; queries via `viz::query::query_traces` directly (the
 //! direct-function-call fallback path per plan.md Open Question 3 —
 //! preserves cross-crate data-flow coverage without requiring TauRPC mock
-//! builder which is unverified в codebase).
+//! builder which is unverified in codebase).
 
 use std::net::SocketAddr;
 use std::sync::{Arc, Mutex};
@@ -116,7 +116,7 @@ async fn p1_otlp_grpc_to_traces_query_returns_ingested_rows() {
     let bound = listener.local_addr().expect("listener exposes local_addr");
 
     // Per crates/ingest/tests/grpc_loopback.rs::no_non_loopback_bind_literals
-    // discipline — sanity check that the test fixture is bound к loopback.
+    // discipline — sanity check that the test fixture is bound to loopback.
     assert!(
         bound.ip().is_loopback(),
         "test receiver must bind only to loopback; got {}",
@@ -139,7 +139,7 @@ async fn p1_otlp_grpc_to_traces_query_returns_ingested_rows() {
     let endpoint = format!("http://{}", bound);
     let mut client = TraceServiceClient::connect(endpoint)
         .await
-        .expect("client connects к loopback receiver");
+        .expect("client connects to loopback receiver");
     let request = make_export_request(100, "p1-test-app");
     let response = client.export(request).await;
     assert!(
@@ -184,7 +184,7 @@ async fn p1_otlp_grpc_to_traces_query_returns_ingested_rows() {
         result.total
     );
 
-    // Verify trace_ids match the injected payload — все [1u8; 16] became
+    // Verify trace_ids match the injected payload — all [1u8; 16] became
     // hex-encoded "01" × 16 = 32 chars of literal "01". Sanity check that
     // round-tripped data is the data we sent, not garbage.
     let expected_trace_id = "01".repeat(16);
@@ -203,7 +203,7 @@ async fn p1_otlp_grpc_to_traces_query_returns_ingested_rows() {
             .collect::<Vec<_>>()
     );
 
-    // Verify service.name attribute round-tripped from resource к viz row.
+    // Verify service.name attribute round-tripped from resource to viz row.
     assert!(
         result.items.iter().any(|row| row.service == "p1-test-app"),
         "expected service 'p1-test-app' not found; got services: {:?}",
@@ -214,7 +214,7 @@ async fn p1_otlp_grpc_to_traces_query_returns_ingested_rows() {
             .collect::<Vec<_>>()
     );
 
-    // Cleanup — abort tasks к release the port + drop the consumer.
+    // Cleanup — abort tasks to release the port + drop the consumer.
     serve_handle.abort();
     drop(sender);
     // consumer task exits when the sender drops + channel closes.
@@ -225,7 +225,7 @@ async fn p1_otlp_grpc_to_traces_query_returns_ingested_rows() {
 async fn p1_negative_canary_sql_injection_in_cursor_rejected_safely() {
     // Per security plan §Input Validation row DuckDB + plan.md security
     // canary acceptance criterion — SQL injection via the cursor argument
-    // MUST hit а prepared-statement boundary OR be rejected at parse step
+    // MUST hit a prepared-statement boundary OR be rejected at parse step
     // before any DuckDB query runs. Schema must remain intact either way.
     let conn = {
         let raw = Connection::open_in_memory().expect("in-memory DuckDB opens");
@@ -242,10 +242,10 @@ async fn p1_negative_canary_sql_injection_in_cursor_rejected_safely() {
     let result = query_traces(&conn, &viz_state, &args);
 
     // Either rejected at compute_window parse step (Err) OR safely returns
-    // empty (Ok с items empty). Both proof that the injection didn't execute.
+    // empty (Ok with items empty). Both proof that the injection didn't execute.
     match result {
         Ok(response) => {
-            // Schema sanity — а follow-up query must succeed if the table
+            // Schema sanity — a follow-up query must succeed if the table
             // still exists. If DROP TABLE had executed, this would error.
             assert!(
                 response.items.is_empty(),

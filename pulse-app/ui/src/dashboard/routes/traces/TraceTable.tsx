@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { type KeyboardEvent, useEffect, useMemo, useRef, useState } from "react";
 import type { TraceRow } from "../../../bindings";
 import { InvestigateButton } from "../../../components/InvestigateButton";
 import { useInvestigation } from "../../../hooks/use-investigation";
@@ -27,21 +27,101 @@ const COLUMNS: readonly { id: SortColumn; label: string }[] = [
 
 export function TraceTable({ rows, isLoading }: TraceTableProps) {
   const [sortState, setSortState] = useState<SortState>(SORT_STATE_NONE);
+  const [errorsOnly, setErrorsOnly] = useState(false);
+  const [activeRowIndex, setActiveRowIndex] = useState(0);
   const announce = useStatusAnnouncer();
   const { openInvestigation } = useInvestigation();
+  const prevRowCount = useRef(rows.length);
+  const rowRefs = useRef<(HTMLTableRowElement | null)[]>([]);
+  const errorsOnlyRef = useRef<HTMLButtonElement | null>(null);
 
-  const sorted = useMemo(() => sortRows(rows, sortState), [rows, sortState]);
+  useEffect(() => {
+    if (prevRowCount.current === 0 && rows.length > 0) {
+      announce("Traces loaded");
+    }
+    prevRowCount.current = rows.length;
+  }, [rows.length, announce]);
+
+  const sorted = useMemo(() => {
+    const filtered = errorsOnly ? rows.filter((r) => r.error_count > 0) : rows;
+    return sortRows(filtered, sortState);
+  }, [rows, sortState, errorsOnly]);
 
   const handleSort = (column: SortColumn): void => {
-    setSortState((prev) => {
-      const next = nextSortState(prev, column);
-      if (next.direction === "none") {
-        announce(`Cleared sort on ${COLUMN_LABEL[column]}`);
-      } else {
-        announce(`Sorted by ${COLUMN_LABEL[column]}, ${DIRECTION_LABEL[next.direction]}`);
-      }
-      return next;
+    // announce() is a StatusLiveRegion setState; calling it INSIDE the
+    // setSortState updater runs during render -> "cannot update a component
+    // while rendering" (a11y-plan §7). Compute from current state, announce,
+    // then set — mirroring handleToggleErrorsOnly below.
+    const next = nextSortState(sortState, column);
+    if (next.direction === "none") {
+      announce(`Cleared sort on ${COLUMN_LABEL[column]}`);
+    } else {
+      announce(`Sorted by ${COLUMN_LABEL[column]}, ${DIRECTION_LABEL[next.direction]}`);
+    }
+    setSortState(next);
+  };
+
+  const handleToggleErrorsOnly = (): void => {
+    const next = !errorsOnly;
+    announce(next ? "Showing errors only" : "Showing all traces");
+    setErrorsOnly(next);
+  };
+
+  // The active row is the table body's single tab stop (roving tabindex); a
+  // re-poll that shrinks the result set must not strand it past the end —
+  // P-081 requires focus to survive a refresh.
+  useEffect(() => {
+    setActiveRowIndex((prev) => {
+      if (sorted.length === 0) return 0;
+      return prev > sorted.length - 1 ? sorted.length - 1 : prev;
     });
+  }, [sorted.length]);
+
+  const focusRow = (index: number): void => {
+    if (sorted.length === 0) return;
+    const clamped = Math.max(0, Math.min(index, sorted.length - 1));
+    setActiveRowIndex(clamped);
+    const target = rowRefs.current[clamped];
+    if (target === null || target === undefined) return;
+    target.focus();
+    // jsdom implements no layout, so scrollIntoView is absent under vitest.
+    if (typeof target.scrollIntoView === "function") {
+      target.scrollIntoView({ block: "nearest" });
+    }
+  };
+
+  const handleRowKeyDown = (
+    event: KeyboardEvent<HTMLTableRowElement>,
+    index: number,
+  ): void => {
+    switch (event.key) {
+      case "ArrowDown":
+        event.preventDefault();
+        focusRow(index + 1);
+        break;
+      case "ArrowUp":
+        event.preventDefault();
+        focusRow(index - 1);
+        break;
+      case "Home":
+        event.preventDefault();
+        focusRow(0);
+        break;
+      case "End":
+        event.preventDefault();
+        focusRow(sorted.length - 1);
+        break;
+      case "Enter":
+        event.preventDefault();
+        openInvestigation(event.currentTarget);
+        break;
+      case "Escape":
+        event.preventDefault();
+        errorsOnlyRef.current?.focus();
+        break;
+      default:
+        break;
+    }
   };
 
   return (
@@ -51,19 +131,65 @@ export function TraceTable({ rows, isLoading }: TraceTableProps) {
         border: "1px solid rgba(74, 144, 226, 0.3)",
         borderRadius: "var(--radius-md)",
         padding: "var(--spacing-md)",
+        flex: "1 1 0",
+        minHeight: 0,
+        display: "flex",
+        flexDirection: "column",
       }}
       data-testid="trace-table-card"
     >
-      <table
-        data-testid="trace-table"
+      <div
         style={{
-          width: "100%",
-          borderCollapse: "collapse",
-          fontFamily: "var(--font-body)",
-          fontSize: "12px",
+          display: "flex",
+          justifyContent: "flex-end",
+          marginBottom: "var(--spacing-sm)",
+          flexShrink: 0,
         }}
+        data-testid="trace-table-toolbar"
       >
-        <thead style={{ background: "var(--color-base)" }}>
+        <button
+          type="button"
+          ref={errorsOnlyRef}
+          aria-pressed={errorsOnly}
+          onClick={handleToggleErrorsOnly}
+          data-testid="trace-errors-only-filter"
+          style={{
+            background: errorsOnly ? "var(--color-raised-2)" : "var(--color-inset)",
+            border: errorsOnly ? "1px solid #4A90E2" : "1px solid rgba(74, 144, 226, 0.3)",
+            borderRadius: "var(--radius-sm)",
+            padding: "var(--spacing-xs) var(--spacing-sm)",
+            color: "var(--color-text-primary)",
+            fontFamily: "var(--font-body)",
+            fontSize: "12px",
+            cursor: "pointer",
+            opacity: errorsOnly ? 1 : 0.6,
+          }}
+        >
+          Errors only
+        </button>
+      </div>
+      <div
+        className="traces-scroll"
+        data-testid="trace-table-scroll"
+        style={{ flex: "1 1 0", minHeight: 0, overflowY: "auto" }}
+      >
+        <table
+          data-testid="trace-table"
+          style={{
+            width: "100%",
+            borderCollapse: "collapse",
+            fontFamily: "var(--font-body)",
+            fontSize: "12px",
+          }}
+        >
+          <thead
+            style={{
+              background: "var(--color-base)",
+              position: "sticky",
+              top: 0,
+              zIndex: 1,
+            }}
+          >
           <tr>
             {COLUMNS.map((col) => (
               <th
@@ -134,16 +260,23 @@ export function TraceTable({ rows, isLoading }: TraceTableProps) {
               </td>
             </tr>
           ) : (
-            sorted.map((row) => (
+            sorted.map((row, index) => (
               <TraceRowView
                 key={`${row.trace_id}-${row.span_id}`}
                 row={row}
+                index={index}
+                isActive={index === activeRowIndex}
+                rowRef={(element) => {
+                  rowRefs.current[index] = element;
+                }}
+                onKeyDown={handleRowKeyDown}
                 onInvestigate={openInvestigation}
               />
             ))
           )}
         </tbody>
       </table>
+      </div>
     </div>
   );
 }
@@ -170,16 +303,30 @@ function SortIndicator({ state, column }: { state: SortState; column: SortColumn
 
 function TraceRowView({
   row,
+  index,
+  isActive,
+  rowRef,
+  onKeyDown,
   onInvestigate,
 }: {
   row: TraceRow;
+  index: number;
+  isActive: boolean;
+  rowRef: (element: HTMLTableRowElement | null) => void;
+  onKeyDown: (event: KeyboardEvent<HTMLTableRowElement>, index: number) => void;
   onInvestigate: (trigger: HTMLElement | null) => void;
 }) {
   const isError = row.error_count > 0;
   const traceLabel = truncateHex(row.trace_id);
   return (
     <tr
+      ref={rowRef}
+      className="trace-row"
       data-testid="trace-row"
+      tabIndex={isActive ? 0 : -1}
+      onKeyDown={(event) => {
+        onKeyDown(event, index);
+      }}
       onContextMenu={(event) => {
         event.preventDefault();
         onInvestigate(event.currentTarget);
@@ -246,6 +393,10 @@ function TraceRowView({
         <InvestigateButton
           variant="trace-row-inline"
           aria-label={`Investigate trace ${traceLabel}`}
+          // The row itself is the tab stop (roving tabindex) and Enter on it
+          // investigates, so keeping this button tabbable would nest a
+          // focusable inside a focusable (a11y-plan §11).
+          tabIndex={-1}
           onClick={(event) => {
             event.stopPropagation();
             onInvestigate(event.currentTarget);

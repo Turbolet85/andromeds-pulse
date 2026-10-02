@@ -15,6 +15,11 @@ test = false
 name = "pulse-app"
 path = "src/main.rs"
 
+# Dev-only real-model decision probe (operator-run; never a test or a gate).
+[[example]]
+name = "l4_decision_probe"
+path = "examples/l4_decision_probe.rs"
+
 [dependencies]
 tokio.workspace = true
 tracing.workspace = true
@@ -34,9 +39,9 @@ tauri-plugin-notification.workspace = true
 taurpc.workspace = true
 bytes.workspace = true
 bincode.workspace = true
-strict-path.workspace = true
 duckdb.workspace = true
 wasmtime.workspace = true
+libc = "0.2.186"
 ui-bridge = { path = "../crates/ui-bridge" }
 ingest = { path = "../crates/ingest" }
 buffer = { path = "../crates/buffer" }

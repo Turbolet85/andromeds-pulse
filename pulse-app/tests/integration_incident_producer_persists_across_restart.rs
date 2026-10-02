@@ -40,6 +40,7 @@ fn digest_with_service_cue(service: &str) -> Digest {
             priority_tier: PriorityTier::Autonomous,
             summary: "error_rate_spike".to_string(),
             scope: CueScope::Service,
+            fingerprint: None,
             scope_id: Some(service.to_string()),
         }],
         corpus_matches: vec![],

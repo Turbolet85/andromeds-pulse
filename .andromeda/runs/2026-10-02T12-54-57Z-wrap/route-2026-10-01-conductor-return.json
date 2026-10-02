@@ -1,0 +1,135 @@
+[
+{
+"tool": "route",
+"v": "1.5",
+"sha8": "9fc8708e",
+"ts": "2026-10-02T13:22:24Z",
+"argv": [
+"route.py",
+"flip",
+"--root",
+".",
+"--chunk",
+"2026-10-01-conductor-return",
+"--desc-file",
+".andromeda/runs/2026-10-02T12-54-57Z-wrap/master-desc.txt",
+"--run-dir",
+".andromeda/runs/2026-10-02T12-54-57Z-wrap"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"flip master-route.md:87 - 2026-10-01-conductor-return pending -> complete - desc REWRITTEN from --desc-file"
+],
+"stderr": null,
+"wrote": [
+".\\.andromeda\\master-route.md"
+],
+"before": null,
+"after": null
+},
+{
+"tool": "route",
+"v": "1.5",
+"sha8": "9fc8708e",
+"ts": "2026-10-02T13:22:25Z",
+"argv": [
+"route.py",
+"compact",
+"--root",
+".",
+"--chunk",
+"2026-10-01-conductor-return",
+"--date",
+"2026-10-02",
+"--run-dir",
+".andromeda/runs/2026-10-02T12-54-57Z-wrap",
+"--dry-run"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"pin :148 strip PREREQ: 543ch \"PREREQ: every non-zero exit path of puls\"",
+"pin next markerless :150 holds CARRY:×2",
+"148 · 2026-10-01-conductor-return · strip 1 block(s) · archive APPEND",
+"6 complete line(s) carry text the grammar cannot take -- left in place: L52, L54, L60, L100, L116, L125",
+"dry-run - would archive 1 and compact 1 line(s)"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"targets": [
+{
+"n": 148,
+"marker": "2026-10-01-conductor-return",
+"blocks": 1,
+"archived": false
+}
+],
+"skips": [],
+"kept_notes": [
+52,
+54,
+60,
+100,
+116,
+125
+]
+}
+},
+{
+"tool": "route",
+"v": "1.5",
+"sha8": "9fc8708e",
+"ts": "2026-10-02T13:22:31Z",
+"argv": [
+"route.py",
+"compact",
+"--root",
+".",
+"--chunk",
+"2026-10-01-conductor-return",
+"--date",
+"2026-10-02",
+"--run-dir",
+".andromeda/runs/2026-10-02T12-54-57Z-wrap"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"pin :148 strip PREREQ: 543ch \"PREREQ: every non-zero exit path of puls\"",
+"pin next markerless :150 holds CARRY:×2",
+"148 · 2026-10-01-conductor-return · strip 1 block(s) · archive APPEND",
+"6 complete line(s) carry text the grammar cannot take -- left in place: L52, L54, L60, L100, L116, L125",
+"compacted 1 complete line(s) -> route-archive.md (1 archived, 0 already there)"
+],
+"stderr": null,
+"wrote": [
+".\\andromeda-pulse-0.3.0\\route-archive.md",
+".\\andromeda-pulse-0.3.0\\working-route.md"
+],
+"before": null,
+"after": null,
+"extra": {
+"targets": [
+{
+"n": 148,
+"marker": "2026-10-01-conductor-return",
+"blocks": 1,
+"archived": false
+}
+],
+"skips": [],
+"kept_notes": [
+52,
+54,
+60,
+100,
+116,
+125
+]
+}
+}
+]

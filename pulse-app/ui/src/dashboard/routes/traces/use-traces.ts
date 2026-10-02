@@ -42,6 +42,8 @@ export interface UseTracesOptions {
   limit: number;
 }
 
+const POLL_INTERVAL_MS = 1000;
+
 export function useTraces(options: UseTracesOptions): UseTracesState {
   const [state, setState] = useState<UseTracesState>(INITIAL_STATE);
 
@@ -55,29 +57,42 @@ export function useTraces(options: UseTracesOptions): UseTracesState {
       cursor: null,
     };
 
-    void getClient()
-      .traces.query(args)
-      .then((response: PaginatedResponse<TraceRow>) => {
-        if (cancelled) return;
-        setState({
-          rows: response.items,
-          total: response.total,
-          isLoading: false,
-          error: null,
+    const poll = (): void => {
+      void getClient()
+        .traces.query(args)
+        .then((response: PaginatedResponse<TraceRow>) => {
+          if (cancelled) return;
+          setState({
+            rows: response.items,
+            total: response.total,
+            isLoading: false,
+            error: null,
+          });
+        })
+        .catch((err: unknown) => {
+          if (cancelled) return;
+          // First fetch (still loading) surfaces the error + empty; a later
+          // re-poll hiccup after data has shown keeps last-good rows (silent
+          // background refresh, mirroring use-service-constellation.ts).
+          setState((prev) =>
+            prev.isLoading
+              ? { rows: [], total: 0, isLoading: false, error: toAppError(err) }
+              : prev,
+          );
         });
-      })
-      .catch((err: unknown) => {
-        if (cancelled) return;
-        setState({
-          rows: [],
-          total: 0,
-          isLoading: false,
-          error: toAppError(err),
-        });
-      });
+    };
+
+    poll();
+    const interval = window.setInterval(poll, POLL_INTERVAL_MS);
+    const handleFocus = (): void => {
+      poll();
+    };
+    window.addEventListener("focus", handleFocus);
 
     return () => {
       cancelled = true;
+      window.clearInterval(interval);
+      window.removeEventListener("focus", handleFocus);
     };
   }, [options.timeWindowSeconds, options.limit]);
 

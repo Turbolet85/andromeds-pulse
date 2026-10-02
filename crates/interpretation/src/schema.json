@@ -23,39 +23,29 @@
   ],
   "properties": {
     "schema_version": {
-      "description": "Embedded provenance per dist-arch v3 §L4; fixed at the chunk #83 substrate.",
+      "description": "Embedded provenance per dist-arch v3 section L4; fixed at the chunk #83 substrate.",
       "type": "string",
       "enum": ["2.0"]
     },
     "prompt_version": {
-      "description": "Prompt template version. Primary tier uses v2.1; fallback tier (chunk #84) reserves v2.1-fallback.",
+      "description": "Prompt template version. Primary tier follows the v2.x lineage; fallback tier the v1.x-fallback lineage; reflection tier the v1.x-reflection lineage.",
       "type": "string",
       "minLength": 1,
       "maxLength": 32
     },
-    "decision": {
-      "description": "Surface decision: surface (create incident), dismiss (no action), watch (record but do not surface).",
-      "type": "string",
-      "enum": ["surface", "dismiss", "watch"]
-    },
-    "severity": {
-      "description": "Severity classification per P-019 Three-Tier Severity Model.",
-      "type": "string",
-      "enum": ["autonomous", "suggested", "curious", "none"]
-    },
     "title": {
-      "description": "Short human-readable incident title (≤200 chars).",
+      "description": "Short human-readable incident title (<=200 chars).",
       "type": "string",
       "minLength": 1,
       "maxLength": 200
     },
     "symptom": {
-      "description": "Observable behavior summary (≤1000 chars).",
+      "description": "Observable behavior summary (<=1000 chars).",
       "type": "string",
       "maxLength": 1000
     },
     "timeline": {
-      "description": "Chronological evolution summary (≤1500 chars).",
+      "description": "Chronological evolution summary (<=1500 chars).",
       "type": "string",
       "maxLength": 1500
     },
@@ -85,6 +75,16 @@
         }
       }
     },
+    "decision": {
+      "description": "Surface decision: surface (create incident), dismiss (no action), watch (record but do not surface).",
+      "type": "string",
+      "enum": ["surface", "dismiss", "watch"]
+    },
+    "severity": {
+      "description": "Severity classification per P-019 Three-Tier Severity Model.",
+      "type": "string",
+      "enum": ["autonomous", "suggested", "curious", "none"]
+    },
     "investigation_steps": {
       "description": "Suggested investigation actions per P-034 (primary tier emits up to 5; fallback tier emits up to 2).",
       "type": "array",
@@ -108,7 +108,7 @@
       }
     },
     "evidence_refs": {
-      "description": "Identifiers pointing back to source telemetry (span_id / template_id / fingerprint hex string / etc.).",
+      "description": "Identifiers pointing back to source telemetry, copied VERBATIM from the prompt's Citable Evidence Ids section (full-hex fingerprint strings); empty when that section lists none. Never invented.",
       "type": "array",
       "minItems": 0,
       "maxItems": 32,

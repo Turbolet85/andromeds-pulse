@@ -1,0 +1,8 @@
+curation rc=2 dur=370s
+security rc=0 dur=82s
+snapshot rc=2 dur=420s
+workspace-detector rc=2 dur=143s
+interpretation rc=2 dur=951s
+viz rc=2 dur=427s
+config-watcher rc=2 dur=639s
+DONE

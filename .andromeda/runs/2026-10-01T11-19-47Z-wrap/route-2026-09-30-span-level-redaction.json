@@ -1,0 +1,133 @@
+[
+{
+"tool": "route",
+"v": "1.5",
+"sha8": "9fc8708e",
+"ts": "2026-10-01T11:56:25Z",
+"argv": [
+"route.py",
+"flip",
+"--root",
+".",
+"--chunk",
+"2026-09-30-span-level-redaction",
+"--run-dir",
+".andromeda/runs/2026-10-01T11-19-47Z-wrap"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"flip master-route.md:85 - 2026-09-30-span-level-redaction pending -> complete"
+],
+"stderr": null,
+"wrote": [
+".\\.andromeda\\master-route.md"
+],
+"before": null,
+"after": null
+},
+{
+"tool": "route",
+"v": "1.5",
+"sha8": "9fc8708e",
+"ts": "2026-10-01T11:56:26Z",
+"argv": [
+"route.py",
+"compact",
+"--root",
+".",
+"--chunk",
+"2026-09-30-span-level-redaction",
+"--date",
+"2026-10-01",
+"--run-dir",
+".andromeda/runs/2026-10-01T11-19-47Z-wrap",
+"--dry-run"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"pin :144 strip CONTEXT: 524ch \"CONTEXT: founder 2026-09-30 verbatim «да\"",
+"pin next markerless :146 holds CONTEXT:×1 · PREREQ:×1",
+"144 · 2026-09-30-span-level-redaction · strip 1 block(s) · archive APPEND",
+"6 complete line(s) carry text the grammar cannot take -- left in place: L52, L54, L60, L100, L116, L125",
+"dry-run - would archive 1 and compact 1 line(s)"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"targets": [
+{
+"n": 144,
+"marker": "2026-09-30-span-level-redaction",
+"blocks": 1,
+"archived": false
+}
+],
+"skips": [],
+"kept_notes": [
+52,
+54,
+60,
+100,
+116,
+125
+]
+}
+},
+{
+"tool": "route",
+"v": "1.5",
+"sha8": "9fc8708e",
+"ts": "2026-10-01T11:56:37Z",
+"argv": [
+"route.py",
+"compact",
+"--root",
+".",
+"--chunk",
+"2026-09-30-span-level-redaction",
+"--date",
+"2026-10-01",
+"--run-dir",
+".andromeda/runs/2026-10-01T11-19-47Z-wrap"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"pin :144 strip CONTEXT: 524ch \"CONTEXT: founder 2026-09-30 verbatim «да\"",
+"pin next markerless :146 holds CONTEXT:×1 · PREREQ:×1",
+"144 · 2026-09-30-span-level-redaction · strip 1 block(s) · archive APPEND",
+"6 complete line(s) carry text the grammar cannot take -- left in place: L52, L54, L60, L100, L116, L125",
+"compacted 1 complete line(s) -> route-archive.md (1 archived, 0 already there)"
+],
+"stderr": null,
+"wrote": [
+".\\andromeda-pulse-0.3.0\\route-archive.md",
+".\\andromeda-pulse-0.3.0\\working-route.md"
+],
+"before": null,
+"after": null,
+"extra": {
+"targets": [
+{
+"n": 144,
+"marker": "2026-09-30-span-level-redaction",
+"blocks": 1,
+"archived": false
+}
+],
+"skips": [],
+"kept_notes": [
+52,
+54,
+60,
+100,
+116,
+125
+]
+}
+}
+]

@@ -10,6 +10,15 @@
 $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
 
+# UTF-8 relay: without these, Python helpers invoked from the harness decode
+# their own output under the host's legacy codepage and mangle non-ASCII.
+# The Console pair is the Windows-only half — PowerShell otherwise re-encodes
+# child-process output through the OEM codepage before it reaches a pipe.
+$env:PYTHONUTF8 = '1'
+$env:PYTHONIOENCODING = 'utf-8'
+[Console]::OutputEncoding = [System.Text.Encoding]::UTF8
+[Console]::InputEncoding = [System.Text.Encoding]::UTF8
+
 # Resolve harness paths (override-friendly via env vars per arch §Occupied Resources)
 $DataDir = if ($env:ANDROMEDA_PULSE_DATA_DIR) { $env:ANDROMEDA_PULSE_DATA_DIR } else { Join-Path $env:TEMP "agent-run-$PID" }
 $PidFile = if ($env:ANDROMEDA_PULSE_PIDFILE) { $env:ANDROMEDA_PULSE_PIDFILE } else { Join-Path $DataDir "run\andromeda-pulse.pid" }
@@ -23,36 +32,52 @@ if (-not (Test-Path (Join-Path $DataDir 'run'))) { New-Item -ItemType Directory 
 if (-not (Test-Path (Join-Path $DataDir 'logs'))) { New-Item -ItemType Directory -Path (Join-Path $DataDir 'logs') -Force | Out-Null }
 
 function Invoke-Status {
-    # Invoke TauRPC `health` via xtask (xtask uses tauri::test::mock_builder + get_ipc_response)
-    # Returns JSON with {status, subsystems, uptime_ms, pid}
+    # Real-process verdict about this harness's resolved paths: JSON with
+    # {verdict, pid, log_file_basename, last_write_age_seconds}; exit 0 only
+    # for running-healthy (pid file present + log family written <= 60s ago).
+    $env:ANDROMEDA_PULSE_DATA_DIR = $DataDir
+    $env:ANDROMEDA_PULSE_PIDFILE = $PidFile
+    $env:ANDROMEDA_PULSE_LOGFILE = $LogFile
     & cargo xtask 'harness:status'
     if ($LASTEXITCODE -ne 0) { throw "harness:status returned $LASTEXITCODE" }
 }
 
 function Invoke-Cleanup {
+    # The verdict derives ONLY from independent probes (pid liveness + TCP
+    # handshake on the resolved loopback ports), never from the terminate
+    # call's own status — test-plan §3 cleanup, the measured wrong-reason-pass.
+    $procId = $null
     if (Test-Path $PidFile) {
-        $procId = Get-Content $PidFile -ErrorAction SilentlyContinue
-        if ($procId) {
-            $proc = Get-Process -Id $procId -ErrorAction SilentlyContinue
-            if ($proc) {
-                Stop-Process -Id $procId -ErrorAction SilentlyContinue
-                # Wait up to 5s for graceful shutdown
-                for ($i = 0; $i -lt 5; $i++) {
-                    Start-Sleep -Seconds 1
-                    $stillAlive = Get-Process -Id $procId -ErrorAction SilentlyContinue
-                    if (-not $stillAlive) { break }
-                }
-                # Escalate to forced kill if still alive
+        $raw = Get-Content $PidFile -ErrorAction SilentlyContinue
+        if ($raw) { $procId = "$raw".Trim() }
+    }
+
+    if ($procId) {
+        $proc = Get-Process -Id $procId -ErrorAction SilentlyContinue
+        if ($proc) {
+            Stop-Process -Id $procId -ErrorAction SilentlyContinue
+            # Bounded wait, polling pid liveness each second
+            for ($i = 0; $i -lt 5; $i++) {
+                Start-Sleep -Seconds 1
                 $stillAlive = Get-Process -Id $procId -ErrorAction SilentlyContinue
-                if ($stillAlive) {
-                    Stop-Process -Id $procId -Force -ErrorAction SilentlyContinue
-                }
+                if (-not $stillAlive) { break }
+            }
+            # Escalate to forced kill if still alive
+            $stillAlive = Get-Process -Id $procId -ErrorAction SilentlyContinue
+            if ($stillAlive) {
+                Stop-Process -Id $procId -Force -ErrorAction SilentlyContinue
+                Start-Sleep -Seconds 1
             }
         }
         Remove-Item $PidFile -ErrorAction SilentlyContinue
     }
 
-    # Verify OTLP ports released
+    # Independent verification: pid liveness + OTLP ports on loopback
+    $pidAlive = $false
+    if ($procId) {
+        if (Get-Process -Id $procId -ErrorAction SilentlyContinue) { $pidAlive = $true }
+    }
+    $portsAccepting = $false
     foreach ($port in @($GrpcPort, $HttpPort)) {
         try {
             $tcp = New-Object System.Net.Sockets.TcpClient
@@ -60,11 +85,15 @@ function Invoke-Cleanup {
             $tcp.ReceiveTimeout = 1000
             $async = $tcp.BeginConnect('127.0.0.1', $port, $null, $null)
             $waited = $async.AsyncWaitHandle.WaitOne(1000, $false)
-            if ($waited -and $tcp.Connected) {
-                Write-Warning "cleanup: port $port still accepting connections"
-            }
+            if ($waited -and $tcp.Connected) { $portsAccepting = $true }
             $tcp.Close()
         } catch { }
+    }
+
+    $verdict = 'clean'
+    if ($pidAlive) { $verdict = 'app-survived' }
+    elseif ($portsAccepting) {
+        if ($procId) { $verdict = 'ports-lingering' } else { $verdict = 'no-pid-ports-accepting' }
     }
 
     # Remove tempdir if we created it
@@ -73,7 +102,8 @@ function Invoke-Cleanup {
             Remove-Item $DataDir -Recurse -Force -ErrorAction SilentlyContinue
         }
     }
-    Write-Output 'cleanup: done'
+    Write-Output "cleanup: $verdict"
+    if ($verdict -eq 'clean') { $script:CleanupExit = 0 } else { $script:CleanupExit = 1 }
 }
 
 switch ($args[0]) {
@@ -82,18 +112,83 @@ switch ($args[0]) {
         if (-not $env:ANDROMEDA_PULSE_LOG_LEVEL) { $env:ANDROMEDA_PULSE_LOG_LEVEL = 'debug' }
         if (-not $env:RUST_LOG) { $env:RUST_LOG = 'debug' }
 
+        # Pre-build OUTSIDE the timed readiness window, under the same exported
+        # env the app runs with — the env participates in cargo's fingerprint,
+        # so a warm binary can still cost a full thin-LTO relink (measured
+        # 2026-08-30: a 180s ceiling died mid-rustc; absorbed here instead).
+        $buildLog = Join-Path $DataDir 'logs\build.log'
+        $buildErr = Join-Path $DataDir 'logs\build.err.log'
+        $build = Start-Process -FilePath 'cargo' -ArgumentList 'build','--bin','pulse-app','--release' `
+            -RedirectStandardOutput $buildLog -RedirectStandardError $buildErr `
+            -PassThru -NoNewWindow -Wait
+        if ($build.ExitCode -ne 0) {
+            Write-Warning "boot: cargo build --bin pulse-app --release failed (log: $buildErr)"
+            exit 1
+        }
+        # xtask too — the readiness poll runs `cargo xtask harness:status`, so
+        # a stale xtask would otherwise rebuild INSIDE the timed window.
+        $xtaskLog = Join-Path $DataDir 'logs\build-xtask.log'
+        $xtaskErr = Join-Path $DataDir 'logs\build-xtask.err.log'
+        $buildX = Start-Process -FilePath 'cargo' -ArgumentList 'build','-p','xtask' `
+            -RedirectStandardOutput $xtaskLog -RedirectStandardError $xtaskErr `
+            -PassThru -NoNewWindow -Wait
+        if ($buildX.ExitCode -ne 0) {
+            Write-Warning "boot: cargo build -p xtask failed (log: $xtaskErr)"
+            exit 1
+        }
+
+        # Spawn the release binary BY PATH — no cargo wrapper: the spawn record
+        # holds the app's own pid, and the app itself overwrites the default
+        # pidfile with the same identity at boot (main.rs::write_pid_file).
+        $appBin = Join-Path 'target' (Join-Path 'release' 'pulse-app.exe')
+        if (-not (Test-Path $appBin)) {
+            Write-Warning "boot: built binary not found at $appBin"
+            exit 1
+        }
         $bootLog = Join-Path $DataDir 'logs\boot.log'
-        $proc = Start-Process -FilePath 'cargo' -ArgumentList 'run','--bin','pulse-app','--release' `
-            -RedirectStandardOutput $bootLog -RedirectStandardError $bootLog `
-            -PassThru -NoNewWindow
-        $proc.Id | Out-File -FilePath $PidFile -Encoding ASCII
+        $bootErr = Join-Path $DataDir 'logs\boot.err.log'
+
+        # The app runs under a hidden waiting wrapper that records how it ended:
+        # once boot returns, nothing else holds the app, so a death after `ready`
+        # would otherwise leave no status anywhere (harness:status reads this
+        # record as `ended`). Records are one ASCII line with no BOM, the grammar
+        # xtask's read_ended accepts.
+        $runDir = Split-Path -Parent $PidFile
+        $exitFile = Join-Path $runDir 'andromeda-pulse.exit'
+        $spawnFile = Join-Path $runDir 'andromeda-pulse.spawn'
+        Remove-Item $exitFile, $spawnFile -ErrorAction SilentlyContinue
+        $q = { param($s) "'" + ($s -replace "'", "''") + "'" }
+        $wrapper = @(
+            "`$p = Start-Process -FilePath $(& $q (Resolve-Path $appBin).Path) -RedirectStandardOutput $(& $q $bootLog) -RedirectStandardError $(& $q $bootErr) -PassThru -NoNewWindow",
+            '$null = $p.Handle',
+            "[System.IO.File]::WriteAllText($(& $q $spawnFile), [string]`$p.Id, [System.Text.Encoding]::ASCII)",
+            '$p.WaitForExit()',
+            "[System.IO.File]::WriteAllText($(& $q $exitFile), ('exit ' + `$p.ExitCode), [System.Text.Encoding]::ASCII)"
+        ) -join "`n"
+        $encoded = [Convert]::ToBase64String([System.Text.Encoding]::Unicode.GetBytes($wrapper))
+        Start-Process -FilePath 'powershell' -WindowStyle Hidden `
+            -ArgumentList '-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass', '-EncodedCommand', $encoded | Out-Null
+
+        $appPid = $null
+        for ($i = 0; $i -lt 50; $i++) {
+            if (Test-Path $spawnFile) {
+                $raw = Get-Content $spawnFile -ErrorAction SilentlyContinue
+                if ($raw) { $appPid = "$raw".Trim(); break }
+            }
+            Start-Sleep -Milliseconds 100
+        }
+        if (-not $appPid) {
+            Write-Output 'boot: the app did not start (no spawn record)'
+            exit 1
+        }
+        [System.IO.File]::WriteAllText($PidFile, $appPid, [System.Text.Encoding]::ASCII)
 
         # Poll for ready
         $deadline = (Get-Date).AddSeconds($StatusTimeoutSec)
         while ((Get-Date) -lt $deadline) {
             try {
                 Invoke-Status | Out-Null
-                Write-Output "boot: ready (PID=$($proc.Id), data_dir=$DataDir)"
+                Write-Output "boot: ready (PID=$appPid, data_dir=$DataDir)"
                 Write-Output "  OTLP gRPC:    127.0.0.1:$GrpcPort"
                 Write-Output "  OTLP HTTP:    127.0.0.1:$HttpPort"
                 Write-Output "  Log file:     $LogFile"
@@ -102,8 +197,19 @@ switch ($args[0]) {
                 Start-Sleep -Seconds 1
             }
         }
-        Write-Error "boot: failed to reach ready state within $StatusTimeoutSec`s"
-        Write-Output "  Boot log: $bootLog"
+        Write-Warning "boot: failed to reach ready state within $StatusTimeoutSec`s (boot log: $bootLog)"
+        # Name HOW the app ended when it is already gone: a native crash prints
+        # nothing of its own, and a clean exit is silent too.
+        if (Get-Process -Id $appPid -ErrorAction SilentlyContinue) {
+            Write-Output "  app still running (pid $appPid) but never reported healthy"
+        } else {
+            for ($i = 0; $i -lt 20; $i++) {
+                if (Test-Path $exitFile) { break }
+                Start-Sleep -Milliseconds 100
+            }
+            $ended = if (Test-Path $exitFile) { (Get-Content $exitFile -ErrorAction SilentlyContinue) } else { 'not recorded' }
+            Write-Output "  app ended: $ended"
+        }
         Invoke-Cleanup
         exit 1
     }
@@ -117,6 +223,7 @@ switch ($args[0]) {
     }
     'cleanup' {
         Invoke-Cleanup
+        exit $script:CleanupExit
     }
     'logs' {
         # Tail the structured JSON log file (obs-plan §3 sink path)

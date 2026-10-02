@@ -1,0 +1,93 @@
+{
+  "epoch": "Epoch 3 — State honesty & legibility",
+  "records": 196,
+  "step": 126,
+  "friction": 70,
+  "unparseable": 0,
+  "chunks": [
+    "2026-07-05-anomaly-surfacing",
+    "2026-07-05-constellation-severity-live-wiring",
+    "2026-07-05-legible-labeled-constellation",
+    "2026-07-06-incidents-panel-dropdown-layout-bug",
+    "2026-07-07-plain-language-connection-status",
+    "2026-07-07-traces-table-auto-refresh",
+    "2026-07-08-self-explaining-empty-states",
+    "2026-07-09-traces-table-layout-polish",
+    "2026-07-10-incidents-floating-window-disclosure"
+  ],
+  "chunk_count": 9,
+  "per_chunk_step_coverage": {
+    "2026-07-05-anomaly-surfacing": {
+      "phase": 5,
+      "implement": 3,
+      "wrap": 5,
+      "steps_total": 13
+    },
+    "2026-07-05-constellation-severity-live-wiring": {
+      "phase": 5,
+      "implement": 3,
+      "wrap": 5,
+      "steps_total": 13
+    },
+    "2026-07-05-legible-labeled-constellation": {
+      "phase": 5,
+      "implement": 3,
+      "wrap": 5,
+      "steps_total": 13
+    },
+    "2026-07-06-incidents-panel-dropdown-layout-bug": {
+      "phase": 5,
+      "implement": 3,
+      "wrap": 5,
+      "steps_total": 13
+    },
+    "2026-07-07-plain-language-connection-status": {
+      "phase": 5,
+      "implement": 3,
+      "wrap": 5,
+      "steps_total": 13
+    },
+    "2026-07-07-traces-table-auto-refresh": {
+      "phase": 5,
+      "implement": 3,
+      "wrap": 5,
+      "steps_total": 13
+    },
+    "2026-07-08-self-explaining-empty-states": {
+      "phase": 5,
+      "implement": 3,
+      "wrap": 5,
+      "steps_total": 13
+    },
+    "2026-07-09-traces-table-layout-polish": {
+      "phase": 5,
+      "implement": 3,
+      "wrap": 5,
+      "steps_total": 13
+    },
+    "2026-07-10-incidents-floating-window-disclosure": {
+      "phase": 5,
+      "implement": 3,
+      "wrap": 5,
+      "steps_total": 13
+    }
+  },
+  "expected_per_skill": {
+    "andromeda-phase": 5,
+    "andromeda-implement": 3,
+    "andromeda-wrap-session": 5
+  },
+  "new_session_records": 9,
+  "untyped_total": 6,
+  "untyped_by_step": {
+    "andromeda-phase/research": 1,
+    "andromeda-implement/fix-loop": 2,
+    "andromeda-phase/plan": 1,
+    "andromeda-new-session/orientation": 2
+  },
+  "problem_fact_fill": {
+    "populated": 44,
+    "of_step_records": 126
+  },
+  "calibration_note": "capture began mid-Epoch-3; earliest chunk 2026-07-05; 2026-07-01-live-only-service-truth predates capture (no records) — a boundary, not absence"
+}

@@ -1,0 +1,505 @@
+[
+{
+"tool": "gate",
+"v": "1.5",
+"sha8": "018a3122",
+"ts": "2026-09-30T06:24:08Z",
+"argv": [
+"scope",
+"--chunk-dir",
+"andromeda-pulse-0.3.0/chunks/2026-09-29-scrubber-path-false-positive",
+"--run-dir",
+".andromeda/runs/2026-09-30T06-23-56Z-wrap",
+"--marker",
+"2026-09-29-scrubber-path-false-positive"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"root D:\\dev\\projects\\andromeda-pulse · base a08ae29d (the parent of the oldest pre-CI commit fcc31b21) · lists new 0 · modify 3 · derived 0 · record 1",
+"control: lists · glob · record — each fired on its synthetic known positive; C1 · C2 held",
+"recorded widening pulse-app/ui/package-lock.json",
+"scope: clean — changed 4 · listed 3 · recorded 1 (companion 0 · mechanical 0 · in-intent 0 · widening 1) · absorbed 0 · excluded 39"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"root": "D:\\dev\\projects\\andromeda-pulse",
+"base": "a08ae29dcad7c05cd118be3476eaad37bd697231",
+"base_why": "the parent of the oldest pre-CI commit fcc31b21",
+"counts": {
+"changed": 4,
+"listed": 3,
+"recorded": 1,
+"unrecorded": 0,
+"indet": 0,
+"absorbed": 0
+},
+"by_class": {
+"companion": 0,
+"mechanical": 0,
+"in-intent": 0,
+"widening": 1
+},
+"excluded": 39,
+"unparsed": 0,
+"widening_without_word": 0
+}
+},
+{
+"tool": "gate",
+"v": "1.5",
+"sha8": "018a3122",
+"ts": "2026-09-30T06:40:27Z",
+"argv": [
+"run",
+"--plan",
+"andromeda-pulse-0.3.0/chunks/2026-09-29-scrubber-path-false-positive/plan.md",
+"--run-dir",
+".andromeda/runs/2026-09-30T06-23-56Z-wrap",
+"--marker",
+"2026-09-29-scrubber-path-false-positive",
+"--skip",
+"10:bindings clobber by the block's own default-features nextest (implement P2 measured it; restored from HEAD then run beside the tool as the last cargo op)"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"shell C:\\Program Files\\Git\\bin\\bash.exe (from $SHELL; -c, non-login)",
+"root D:\\dev\\projects\\andromeda-pulse · marker 2026-09-29-scrubber-path-false-positive · entries 14",
+"logs C:\\Users\\turbo\\AppData\\Local\\Temp\\andromeda-gate\\2026-09-29-scrubber-path-false-positive\\wrap-2026-09-30T06-23-56Z · bound: GNU timeout",
+"delta docs 40",
+"prose L120-121: The standard gate set runs unconditionally, with `capability-drift` LAST among the cargo g… (209 chars)",
+"prose L123-140: - **Targeted selector (NEW).** Selects the five tests this chunk writes by name. Its basel… (1536 chars)",
+"prose L142-150:   No log field carries scrubbed text (by design), so the smoke proves boot and data flow u… (892 chars)",
+"  1 lint        green · exit 0 · 0.8s · 0 B → 1.log · cargo fmt --check",
+"  2 lint        green · exit 0 · 3.86s · 347 B → 2.log · cargo clippy --workspace --all-targets --all-features -- -… (68 chars)",
+"  3 unit        green · exit 0 · 32.65s · 304371 B → 3.log · cargo nextest run --workspace --profile ci -E 'test(/scrub… (319 chars)",
+"  4 unit        green · exit 0 · 23.07s · 575429 B → 4.log · cargo nextest run --workspace --profile ci",
+"  5 probe       green · exit 0 · 0.08s · 0 B → 5.log · git diff --name-only a08ae29dcad7c05cd118be3476eaad37bd697… (98 chars)",
+"  6 probe       recorded · exit 0 · 0.17s · 181 B → 6.log · git diff --name-only a08ae29dcad7c05cd118be3476eaad37bd697… (95 chars)",
+"  7 probe       green · exit 0 · 0.66s · 382 B → 7.log · cargo xtask capability-widening-check",
+"  8 probe       green · exit 0 · 6.61s · 75 B → 8.log · cargo xtask check:ingest-progress",
+"  9 probe       green · exit 0 · 0.78s · 342 B → 9.log · cargo xtask check:staged-artifacts",
+" 10 probe       not run — skipped: bindings clobber by the block's own default-features nextest (implement P2 measured it; restored from HEAD then run beside the tool as the last cargo op) · cargo xtask capability-drift",
+" 11 probe       not run — leg operator (the letter drives it) · python -X utf8 C:/Users/turbo/.claude/skills/andromeda-too… (84 chars)",
+" 12 integration not run — leg operator (the letter drives it) · cargo xtask pre-push:linux",
+" 13 probe       not run — leg operator (the letter drives it) · git diff --quiet && git diff --cached --quiet && git push … (90 chars)",
+" 14 probe       not run — leg operator (the letter drives it) · python -X utf8 C:/Users/turbo/.claude/skills/andromeda-too… (108 chars)",
+"entries 14 · green 8 · red 0 · recorded 1 · timeout 0 · not-run 5"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"marker": "2026-09-29-scrubber-path-false-positive",
+"plan": "D:\\dev\\projects\\andromeda-pulse\\andromeda-pulse-0.3.0\\chunks\\2026-09-29-scrubber-path-false-positive\\plan.md",
+"root": "D:\\dev\\projects\\andromeda-pulse",
+"shell": "C:\\Program Files\\Git\\bin\\bash.exe",
+"out_dir": "C:\\Users\\turbo\\AppData\\Local\\Temp\\andromeda-gate\\2026-09-29-scrubber-path-false-positive\\wrap-2026-09-30T06-23-56Z",
+"delta": {
+"docs": [
+".andromeda/friction-log.ndjson",
+".andromeda/security-plan-amendments.md",
+".andromeda/security-plan.md",
+".andromeda/state.yaml",
+".andromeda/test-plan-amendments.md",
+".andromeda/test-plan.md",
+".claude/docs/services/security.md",
+".claude/rules/security.md",
+".claude/rules/testing.md",
+".claude/session-handoff.md",
+"andromeda-pulse-0.3.0/chunks/2026-09-29-scrubber-path-false-positive/evidence/operator-pass.md",
+"andromeda-pulse-0.3.0/working-route.md",
+".andromeda/runs/2026-09-30T06-23-56Z-wrap/.prompt-a11y-plan.md",
+".andromeda/runs/2026-09-30T06-23-56Z-wrap/.prompt-architecture.md",
+".andromeda/runs/2026-09-30T06-23-56Z-wrap/.prompt-design-system.md",
+".andromeda/runs/2026-09-30T06-23-56Z-wrap/.prompt-layout-templates.md",
+".andromeda/runs/2026-09-30T06-23-56Z-wrap/.prompt-obs-plan.md",
+".andromeda/runs/2026-09-30T06-23-56Z-wrap/.prompt-security-plan.md",
+".andromeda/runs/2026-09-30T06-23-56Z-wrap/.prompt-test-plan.md",
+".andromeda/runs/2026-09-30T06-23-56Z-wrap/.reg-a11y-plan.txt",
+".andromeda/runs/2026-09-30T06-23-56Z-wrap/.reg-architecture.txt",
+".andromeda/runs/2026-09-30T06-23-56Z-wrap/.reg-design-system.txt",
+".andromeda/runs/2026-09-30T06-23-56Z-wrap/.reg-layout-templates.txt",
+".andromeda/runs/2026-09-30T06-23-56Z-wrap/.reg-obs-plan.txt",
+".andromeda/runs/2026-09-30T06-23-56Z-wrap/.reg-security-plan.txt",
+".andromeda/runs/2026-09-30T06-23-56Z-wrap/.reg-test-plan.txt",
+".andromeda/runs/2026-09-30T06-23-56Z-wrap/cascade-2026-09-29-scrubber-path-false-positive.json",
+".andromeda/runs/2026-09-30T06-23-56Z-wrap/cascade-dispositions.md",
+".andromeda/runs/2026-09-30T06-23-56Z-wrap/cascade-patterns.toml",
+".andromeda/runs/2026-09-30T06-23-56Z-wrap/curation.md",
+".andromeda/runs/2026-09-30T06-23-56Z-wrap/evolve-2026-09-29-scrubber-path-false-positive.json",
+".andromeda/runs/2026-09-30T06-23-56Z-wrap/fanout-results.md",
+".andromeda/runs/2026-09-30T06-23-56Z-wrap/gate-2026-09-29-scrubber-path-false-positive.json",
+".andromeda/runs/2026-09-30T06-23-56Z-wrap/registry-2026-09-29-scrubber-path-false-positive.json",
+".andromeda/runs/2026-09-30T06-23-56Z-wrap/route-insert.md",
+".andromeda/runs/2026-09-30T06-23-56Z-wrap/route-no-marker.json",
+".andromeda/runs/2026-09-30T06-23-56Z-wrap/security-plan-entry.md",
+".andromeda/runs/2026-09-30T06-23-56Z-wrap/splice-2026-09-29-scrubber-path-false-positive.json",
+".andromeda/runs/2026-09-30T06-23-56Z-wrap/test-plan-entry.md",
+"andromeda-pulse-0.3.0/chunks/2026-09-29-scrubber-path-false-positive/report.md"
+]
+},
+"unmapped": [],
+"prose": [
+{
+"from": 120,
+"to": 121,
+"text": "The standard gate set runs unconditionally, with `capability-drift` LAST among the cargo gates (test-plan §3 Per-chunk gate discipline). `pulse-app/ui/**` is untouched, so the npm webview gates are not listed."
+},
+{
+"from": 123,
+"to": 140,
+"text": "- **Targeted selector (NEW).** Selects the five tests this chunk writes by name. Its baseline on the untouched   tree is red (no such tests), which is its known-positive control. - **Diff probes.** Both name the chunk base `a08ae29dcad7c05cd118be3476eaad37bd697231` (operator directive   W182). One asserts that no manifest or lockfile changed (arch §Inherited Defaults → Validation: no new   dependency). The other records the changed-file roster. - **Boot smoke.** Not a gate here. /implement P3 runs it on the founder's word at P4 (\"Run it\", 2026-09-30).   The prior chunk's host constraint (no `pulse-app` start, no bind on 4317/4318) is RELEASED by the founder.   The smoke uses the   standing warm-boot recipe:   1. Warm `cargo build -p pulse-app` plus `cargo build -p ingest --example inject_demo`.   2. Make ONE exported fresh data dir named `rm-YYYYMMDD-HHMMSS`-shaped. Launch      `target/debug/pulse-app.exe` BY PATH with that dir as BOTH `ANDROMEDA_PULSE_DATA_DIR` and the cwd, so      workspace detection yields the measured shape. Set `ANDROMEDA_PULSE_L4_DETERMINISTIC` in the app's own      spawn env.   3. Poll `:4317`, then seed with `./target/debug/examples/inject_demo.exe`, bounded to about 25 s.   4. Read the `<data_dir>/logs/agent-latest.jsonl*` family. Assert 0 `app.panic.fatal`, 0 ERROR, and at      least one `digest.assemble.request`, `interpretation.prompt.assemble` and `interpretation.incident.created`.   5. Stop by the specific PID with PowerShell `Stop-Process`, and confirm `:4317`/`:4318` are closed."
+},
+{
+"from": 142,
+"to": 150,
+"text": "  No log field carries scrubbed text (by design), so the smoke proves boot and data flow under the measured   naming shape. The text equality is proved by the Step 2–5 pins. The (smoke) criterion's log family is   produced by that P3 run, not by a listed entry (plan-template: the real boot smoke is /implement P3, not a   gate). Its readings land in `chunks/2026-09-29-scrubber-path-false-positive/evidence/`. - **Step 6 mutation check (ONE-SHOT).** It mutates source and reverts, so it is never a gate. /implement runs   it once and records both readings (RED-before plus the two mutations) in `evidence/`. The listed   non-mutating targeted-selector entry guards the property on every re-run. - **The CI half is operator-driven:** the hygiene read, the pre-push check, the commit+push, then the CI read   of the pushed head (warm round ≈ 25.5 min per the last wrap, so the wait is 2400 s)."
+}
+],
+"entries": [
+{
+"n": 1,
+"role": "lint",
+"run": "cargo fmt --check",
+"run_sha8": "194fabc0",
+"expect": null,
+"log": "C:\\Users\\turbo\\AppData\\Local\\Temp\\andromeda-gate\\2026-09-29-scrubber-path-false-positive\\wrap-2026-09-30T06-23-56Z\\1.log",
+"bytes": 0,
+"log_sha8": "e3b0c442",
+"exit": 0,
+"seconds": 0.8,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 2,
+"role": "lint",
+"run": "cargo clippy --workspace --all-targets --all-features -- -D warnings",
+"run_sha8": "f835224c",
+"expect": null,
+"log": "C:\\Users\\turbo\\AppData\\Local\\Temp\\andromeda-gate\\2026-09-29-scrubber-path-false-positive\\wrap-2026-09-30T06-23-56Z\\2.log",
+"bytes": 347,
+"log_sha8": "558b1b09",
+"exit": 0,
+"seconds": 3.86,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 3,
+"role": "unit",
+"run": "cargo nextest run --workspace --profile ci -E 'test(/scrubber_redacts_luhn_valid_card_forms|scrubber_allows_non_card_digit_runs|pii_scrub_closure_keeps_a_digest_whose_project_line_carries_a_date_stamp|pii_scrub_closure_still_collapses_a_digest_carrying_a_card|assemble_report_keeps_a_date_stamped_workspace_verbatim/)' ",
+"run_sha8": "08108196",
+"expect": [
+"exit 0",
+"contains 18 tests run: 18 passed"
+],
+"log": "C:\\Users\\turbo\\AppData\\Local\\Temp\\andromeda-gate\\2026-09-29-scrubber-path-false-positive\\wrap-2026-09-30T06-23-56Z\\3.log",
+"bytes": 304371,
+"log_sha8": "170b3bcc",
+"exit": 0,
+"seconds": 32.65,
+"readings": [
+"exit 0 ✓",
+"contains '18 tests run: 18 passed' ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 4,
+"role": "unit",
+"run": "cargo nextest run --workspace --profile ci",
+"run_sha8": "bf6e813a",
+"expect": null,
+"log": "C:\\Users\\turbo\\AppData\\Local\\Temp\\andromeda-gate\\2026-09-29-scrubber-path-false-positive\\wrap-2026-09-30T06-23-56Z\\4.log",
+"bytes": 575429,
+"log_sha8": "8840a25f",
+"exit": 0,
+"seconds": 23.07,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 5,
+"role": "probe",
+"run": "git diff --name-only a08ae29dcad7c05cd118be3476eaad37bd697231 -- Cargo.lock \":(glob)**/Cargo.toml\"",
+"run_sha8": "3a2d3e1e",
+"expect": [
+"exit 0",
+"no output"
+],
+"log": "C:\\Users\\turbo\\AppData\\Local\\Temp\\andromeda-gate\\2026-09-29-scrubber-path-false-positive\\wrap-2026-09-30T06-23-56Z\\5.log",
+"bytes": 0,
+"log_sha8": "e3b0c442",
+"exit": 0,
+"seconds": 0.08,
+"readings": [
+"exit 0 ✓",
+"no output ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 6,
+"role": "probe",
+"run": "git diff --name-only a08ae29dcad7c05cd118be3476eaad37bd697231 -- crates pulse-app xtask scripts",
+"run_sha8": "a646d603",
+"expect": [],
+"log": "C:\\Users\\turbo\\AppData\\Local\\Temp\\andromeda-gate\\2026-09-29-scrubber-path-false-positive\\wrap-2026-09-30T06-23-56Z\\6.log",
+"bytes": 181,
+"log_sha8": "83de1e8c",
+"exit": 0,
+"seconds": 0.17,
+"readings": [
+"report-only (expect = [])"
+],
+"survivors": [],
+"outcome": "recorded"
+},
+{
+"n": 7,
+"role": "probe",
+"run": "cargo xtask capability-widening-check",
+"run_sha8": "c09451af",
+"expect": null,
+"log": "C:\\Users\\turbo\\AppData\\Local\\Temp\\andromeda-gate\\2026-09-29-scrubber-path-false-positive\\wrap-2026-09-30T06-23-56Z\\7.log",
+"bytes": 382,
+"log_sha8": "a0532ae6",
+"exit": 0,
+"seconds": 0.66,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 8,
+"role": "probe",
+"run": "cargo xtask check:ingest-progress",
+"run_sha8": "123ffa0a",
+"expect": null,
+"log": "C:\\Users\\turbo\\AppData\\Local\\Temp\\andromeda-gate\\2026-09-29-scrubber-path-false-positive\\wrap-2026-09-30T06-23-56Z\\8.log",
+"bytes": 75,
+"log_sha8": "c8b0edd8",
+"exit": 0,
+"seconds": 6.61,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 9,
+"role": "probe",
+"run": "cargo xtask check:staged-artifacts",
+"run_sha8": "052b4e95",
+"expect": null,
+"log": "C:\\Users\\turbo\\AppData\\Local\\Temp\\andromeda-gate\\2026-09-29-scrubber-path-false-positive\\wrap-2026-09-30T06-23-56Z\\9.log",
+"bytes": 342,
+"log_sha8": "c94d39e4",
+"exit": 0,
+"seconds": 0.78,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 10,
+"role": "probe",
+"run": "cargo xtask capability-drift",
+"run_sha8": "fb5fd088",
+"expect": null,
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — skipped: bindings clobber by the block's own default-features nextest (implement P2 measured it; restored from HEAD then run beside the tool as the last cargo op)"
+},
+{
+"n": 11,
+"role": "probe",
+"run": "python -X utf8 C:/Users/turbo/.claude/skills/andromeda-tools/scripts/gate.py hygiene",
+"run_sha8": "f0648308",
+"expect": [
+"exit 0",
+"contains hygiene: clean"
+],
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — leg operator (the letter drives it)"
+},
+{
+"n": 12,
+"role": "integration",
+"run": "cargo xtask pre-push:linux",
+"run_sha8": "3bdf10d4",
+"expect": [
+"exit 0",
+"contains \"verdict\": \"green\""
+],
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — leg operator (the letter drives it)"
+},
+{
+"n": 13,
+"role": "probe",
+"run": "git diff --quiet && git diff --cached --quiet && git push origin chore/migrate-pulse-to-v3",
+"run_sha8": "adb66f19",
+"expect": null,
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — leg operator (the letter drives it)"
+},
+{
+"n": 14,
+"role": "probe",
+"run": "python -X utf8 C:/Users/turbo/.claude/skills/andromeda-tools/scripts/ci.py conclusion --sha HEAD --wait 2400",
+"run_sha8": "8d50257b",
+"expect": [
+"exit 0",
+"contains verdict: green"
+],
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — leg operator (the letter drives it)"
+}
+]
+}
+},
+{
+"tool": "gate",
+"v": "1.5",
+"sha8": "018a3122",
+"ts": "2026-09-30T06:41:03Z",
+"argv": [
+"hygiene",
+"--run-dir",
+".andromeda/runs/2026-09-30T06-23-56Z-wrap",
+"--marker",
+"2026-09-29-scrubber-path-false-positive"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"root D:\\dev\\projects\\andromeda-pulse · planes rust, ts",
+"control: P1 drive · P1 device · P1 home · P1 users · P1 root · P1 msys · P1 wsl · P2 · P3 rust · P3 ts — each fired on its synthetic known positive",
+"hygiene: clean — read 29 (runs 28 · evidence 1) · trails 7 not read · binary 0 not read by P1"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"root": "D:\\dev\\projects\\andromeda-pulse",
+"planes": [
+"rust",
+"ts"
+],
+"rows": [],
+"counts": {
+"P1": 0,
+"P2": 0,
+"P3": 0,
+"runs": 28,
+"evidence": 1,
+"trails": 7,
+"binary": 0
+},
+"indeterminate": 0
+}
+},
+{
+"tool": "gate",
+"v": "1.5",
+"sha8": "018a3122",
+"ts": "2026-09-30T06:41:03Z",
+"argv": [
+"scope",
+"--chunk-dir",
+"andromeda-pulse-0.3.0/chunks/2026-09-29-scrubber-path-false-positive",
+"--run-dir",
+".andromeda/runs/2026-09-30T06-23-56Z-wrap",
+"--marker",
+"2026-09-29-scrubber-path-false-positive"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"root D:\\dev\\projects\\andromeda-pulse · base a08ae29d (the parent of the oldest pre-CI commit fcc31b21) · lists new 0 · modify 3 · derived 0 · record 1",
+"control: lists · glob · record — each fired on its synthetic known positive; C1 · C2 held",
+"recorded widening pulse-app/ui/package-lock.json",
+"scope: clean — changed 4 · listed 3 · recorded 1 (companion 0 · mechanical 0 · in-intent 0 · widening 1) · absorbed 0 · excluded 76"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"root": "D:\\dev\\projects\\andromeda-pulse",
+"base": "a08ae29dcad7c05cd118be3476eaad37bd697231",
+"base_why": "the parent of the oldest pre-CI commit fcc31b21",
+"counts": {
+"changed": 4,
+"listed": 3,
+"recorded": 1,
+"unrecorded": 0,
+"indet": 0,
+"absorbed": 0
+},
+"by_class": {
+"companion": 0,
+"mechanical": 0,
+"in-intent": 0,
+"widening": 1
+},
+"excluded": 76,
+"unparsed": 0,
+"widening_without_word": 0
+}
+}
+]

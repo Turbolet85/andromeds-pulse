@@ -1,0 +1,38 @@
+[
+{
+"sql": "SELECT symbol, crate, file FROM symbol WHERE symbol LIKE '%npm%' OR symbol LIKE '%NpmGate%' OR symbol LIKE '%npm_gate%'",
+"rows": 1,
+"result": [
+{
+"symbol": "rust-analyzer cargo xtask 0.1.0 run_npm_script().",
+"crate": "xtask",
+"file": "xtask/src/main.rs"
+}
+],
+"db_state": "fresh",
+"plane": "rust"
+},
+{
+"sql": "SELECT caller, file, line FROM calls WHERE callee LIKE '%run_npm_script%' ORDER BY line",
+"rows": 3,
+"result": [
+{
+"caller": "rust-analyzer cargo xtask 0.1.0 main().",
+"file": "xtask/src/main.rs",
+"line": 239
+},
+{
+"caller": "rust-analyzer cargo xtask 0.1.0 main().",
+"file": "xtask/src/main.rs",
+"line": 240
+},
+{
+"caller": "rust-analyzer cargo xtask 0.1.0 main().",
+"file": "xtask/src/main.rs",
+"line": 241
+}
+],
+"db_state": "fresh",
+"plane": "rust"
+}
+]

@@ -1,4 +1,4 @@
-use std::time::Instant;
+use std::time::{Duration, Instant};
 
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
@@ -53,7 +53,7 @@ pub enum Error {
 }
 
 // chunk #41 — markdown formatter truncation tracking. None = full input fit
-// budget; Applied = phase B/C truncation occurred с reported drop counts.
+// budget; Applied = phase B/C truncation occurred with reported drop counts.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Default)]
 #[serde(rename_all = "snake_case")]
 pub enum TruncationState {
@@ -152,6 +152,83 @@ pub fn curate(spans: &[SpanRecord]) -> Result<CurationOutput, Error> {
         kept_attribute_count: filter.kept_attribute_count,
         dropped_attribute_count: filter.dropped_attribute_count,
     })
+}
+
+// The `metric.snapshot.token_count_ms` sample spans one whole generation —
+// span load → curate → format — which is what the obs-plan §10 snapshot budget
+// bounds (§4 P2 chain). Each orchestrator starts the timer before its span load
+// and finishes it once formatting returns; `format_markdown` itself emits no
+// sample. A generation that fails before formatting emits nothing.
+#[derive(Debug, Clone, Copy)]
+pub struct GenerationTimer {
+    started: Instant,
+}
+
+impl GenerationTimer {
+    pub fn start() -> Self {
+        Self {
+            started: Instant::now(),
+        }
+    }
+
+    pub fn finish(
+        self,
+        formatted: &Result<MarkdownReport, FormatError>,
+        curated: &CurationOutput,
+        budget: TokenBudget,
+    ) {
+        if let Some(sample) =
+            GenerationSample::new(self.started.elapsed(), formatted, curated, budget)
+        {
+            sample.emit();
+        }
+    }
+}
+
+// One generation's metric fields, split from the clock so a test can build it
+// from a synthetic `Duration`.
+#[derive(Debug, Clone, PartialEq)]
+pub struct GenerationSample {
+    pub duration_ms: f64,
+    pub token_budget: &'static str,
+    pub token_count_actual: usize,
+    pub dedup_count: usize,
+    pub budget_exceeded: bool,
+}
+
+impl GenerationSample {
+    pub fn new(
+        elapsed: Duration,
+        formatted: &Result<MarkdownReport, FormatError>,
+        curated: &CurationOutput,
+        budget: TokenBudget,
+    ) -> Option<Self> {
+        let (token_count_actual, budget_exceeded) = match formatted {
+            Ok(report) => (report.token_count, false),
+            Err(FormatError::BudgetExceeded { actual_tokens, .. }) => (*actual_tokens, true),
+            Err(FormatError::AnchorEncodingFailed { .. }) => return None,
+        };
+        Some(Self {
+            duration_ms: elapsed.as_secs_f64() * 1000.0,
+            token_budget: budget.label(),
+            token_count_actual,
+            dedup_count: curated.dedup_count,
+            budget_exceeded,
+        })
+    }
+
+    pub fn emit(&self) {
+        tracing::info!(
+            target: "metric.snapshot.token_count_ms",
+            value = self.duration_ms,
+            duration_ms = self.duration_ms,
+            token_budget = self.token_budget,
+            time_range_minutes = 0_u64,
+            token_count_actual = self.token_count_actual,
+            dedup_count = self.dedup_count,
+            budget_exceeded = self.budget_exceeded,
+        );
+    }
 }
 
 #[cfg(test)]
@@ -279,5 +356,124 @@ mod tests {
         let s = format!("{e}");
         assert!(s.contains("10000"));
         assert!(s.contains("12345"));
+    }
+
+    fn curated_with_dedup(dedup_count: usize) -> CurationOutput {
+        CurationOutput {
+            dedup_count,
+            ..CurationOutput::default()
+        }
+    }
+
+    #[test]
+    fn generation_timer_sample_carries_fractional_ms_from_the_elapsed_duration() {
+        let formatted = Ok(MarkdownReport::default());
+        let sample = GenerationSample::new(
+            Duration::from_micros(61_250),
+            &formatted,
+            &curated_with_dedup(0),
+            TokenBudget::Balanced,
+        )
+        .expect("a formatted generation yields a sample");
+        assert_eq!(sample.duration_ms, 61.25);
+    }
+
+    #[test]
+    fn generation_timer_ok_arm_reads_the_report_token_count_and_is_not_exceeded() {
+        let formatted = Ok(MarkdownReport {
+            token_count: 812,
+            ..MarkdownReport::default()
+        });
+        let sample = GenerationSample::new(
+            Duration::from_millis(3),
+            &formatted,
+            &curated_with_dedup(7),
+            TokenBudget::Detailed,
+        )
+        .expect("sample");
+        assert_eq!(
+            sample,
+            GenerationSample {
+                duration_ms: 3.0,
+                token_budget: TokenBudget::Detailed.label(),
+                token_count_actual: 812,
+                dedup_count: 7,
+                budget_exceeded: false,
+            }
+        );
+    }
+
+    #[test]
+    fn generation_timer_budget_exceeded_arm_sets_the_flag_and_the_actual_tokens() {
+        let formatted = Err(FormatError::BudgetExceeded {
+            budget_tokens: 10_000,
+            actual_tokens: 12_345,
+        });
+        let sample = GenerationSample::new(
+            Duration::from_millis(40),
+            &formatted,
+            &curated_with_dedup(2),
+            TokenBudget::Conservative,
+        )
+        .expect("a budget-exceeded generation still yields a sample");
+        assert!(sample.budget_exceeded);
+        assert_eq!(sample.token_count_actual, 12_345);
+        assert_eq!(sample.token_budget, TokenBudget::Conservative.label());
+    }
+
+    #[test]
+    fn generation_timer_anchor_encoding_failure_yields_no_sample() {
+        let formatted = Err(FormatError::AnchorEncodingFailed { reason: "test" });
+        assert_eq!(
+            GenerationSample::new(
+                Duration::from_millis(1),
+                &formatted,
+                &curated_with_dedup(0),
+                TokenBudget::Balanced,
+            ),
+            None
+        );
+    }
+
+    struct TargetCounter {
+        target: &'static str,
+        hits: std::sync::Arc<std::sync::atomic::AtomicUsize>,
+    }
+
+    impl tracing::Subscriber for TargetCounter {
+        fn enabled(&self, _: &tracing::Metadata<'_>) -> bool {
+            true
+        }
+        fn new_span(&self, _: &tracing::span::Attributes<'_>) -> tracing::span::Id {
+            tracing::span::Id::from_u64(1)
+        }
+        fn record(&self, _: &tracing::span::Id, _: &tracing::span::Record<'_>) {}
+        fn record_follows_from(&self, _: &tracing::span::Id, _: &tracing::span::Id) {}
+        fn event(&self, event: &tracing::Event<'_>) {
+            if event.metadata().target() == self.target {
+                self.hits.fetch_add(1, std::sync::atomic::Ordering::SeqCst);
+            }
+        }
+        fn enter(&self, _: &tracing::span::Id) {}
+        fn exit(&self, _: &tracing::span::Id) {}
+    }
+
+    // Both halves in one scope: a formatter that still emitted would read 2, and a
+    // capture that saw nothing would read 0 — so the 1 cannot pass vacuously.
+    #[test]
+    fn generation_timer_is_the_only_metric_emitter_across_a_whole_generation() {
+        let hits = std::sync::Arc::new(std::sync::atomic::AtomicUsize::new(0));
+        let subscriber = TargetCounter {
+            target: "metric.snapshot.token_count_ms",
+            hits: std::sync::Arc::clone(&hits),
+        };
+        tracing::subscriber::with_default(subscriber, || {
+            let timer = GenerationTimer::start();
+            let curated = curate(&[span_for_test(0xAA, 1)]).expect("curate ok");
+            let formatted = format_markdown(&curated, TokenBudget::Balanced);
+            assert!(formatted.is_ok());
+            timer.finish(&formatted, &curated, TokenBudget::Balanced);
+        });
+        assert_eq!(hits.load(std::sync::atomic::Ordering::SeqCst), 1);
     }
 }

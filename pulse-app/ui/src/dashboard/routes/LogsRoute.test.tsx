@@ -52,6 +52,12 @@ function setupProxy(rows: LogRow[]) {
   return queryFn;
 }
 
+function setupRejectProxy() {
+  const queryFn = vi.fn().mockRejectedValue({ kind: "internal", message: "boom" });
+  __setProxyForTest({ logs: { query: queryFn } } as never);
+  return queryFn;
+}
+
 describe("LogsRoute", () => {
   it("renders <section> with id='tabpanel-logs' + aria-labelledby heading", async () => {
     setupProxy([]);
@@ -87,5 +93,43 @@ describe("LogsRoute", () => {
     await waitFor(() => {
       expect(screen.getByTestId("log-table-stub").getAttribute("data-row-count")).toBe("2");
     });
+  });
+
+  it("shows the self-explaining empty state on settled no-data, naming the ports", async () => {
+    setupProxy([]);
+    render(<LogsRoute />);
+    const empty = await screen.findByTestId("logs-empty-state");
+    expect(empty.textContent).toContain("No logs received yet");
+    const hint = screen.getByTestId("logs-empty-state-hint");
+    expect(hint.textContent).toContain(":4318");
+    expect(hint.textContent).toContain(":4317");
+    expect(screen.queryByTestId("log-table-stub")).toBeNull();
+    expect(screen.queryByTestId("log-filter-stub")).toBeNull();
+  });
+
+  it("does not flash the empty state while loading (filter+table until settled)", async () => {
+    setupProxy([]);
+    render(<LogsRoute />);
+    expect(screen.queryByTestId("logs-empty-state")).toBeNull();
+    expect(screen.getByTestId("log-table-stub")).toBeDefined();
+    await screen.findByTestId("logs-empty-state");
+  });
+
+  it("keeps filter+table (not the empty state) when data exists", async () => {
+    setupProxy(sampleRows);
+    render(<LogsRoute />);
+    await waitFor(() =>
+      expect(screen.getByTestId("log-table-stub").getAttribute("data-row-count")).toBe("2"),
+    );
+    expect(screen.queryByTestId("logs-empty-state")).toBeNull();
+  });
+
+  it("shows a distinct error state without the exporter hint when the query fails", async () => {
+    setupRejectProxy();
+    render(<LogsRoute />);
+    const err = await screen.findByTestId("logs-error-state");
+    expect(err.textContent).toContain("Couldn't load logs");
+    expect(err.textContent).not.toContain(":4318");
+    expect(screen.queryByTestId("logs-empty-state")).toBeNull();
   });
 });

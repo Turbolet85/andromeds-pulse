@@ -1,6 +1,6 @@
 //! Broadcast topic + payload wrapper for the `pulse://stream/model-status`
 //! channel. Mirrors `crates/triage/src/cadence/broadcast.rs` shape per
-//! chunk #80 precedent — broadcast definition lives с the contract crate;
+//! chunk #80 precedent — broadcast definition lives with the contract crate;
 //! the binary boundary (`pulse-app/`) constructs + injects the
 //! broadcaster into the concrete `MistralRsInference` impl.
 

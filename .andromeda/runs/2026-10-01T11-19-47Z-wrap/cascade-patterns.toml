@@ -1,0 +1,19 @@
+[[pattern]]
+id = "whole-value"
+regex = '(?i)whole[ -]value|replaces? the WHOLE'
+
+[[pattern]]
+id = "scrub-attr"
+fixed = 'scrub_attribute'
+
+[[pattern]]
+id = "collapse-marker"
+regex = '(?i)collaps\w* (to|into) (the|a|one) (bounded )?(category )?(marker|placeholder)'
+
+[[pattern]]
+id = "one-placeholder"
+regex = '(?i)redact\w* (to )?ONE placeholder|redact\w* identically'
+
+[[pattern]]
+id = "pending-notice"
+regex = '(?i)pending notice'

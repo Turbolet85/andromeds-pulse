@@ -6,18 +6,18 @@
 //! `ANDROMEDA_PULSE_*_PATH` / `*_DIR` env vars without canonicalize + assert
 //! under data dir") + obs-plan §5 Section 5 Vector 6:
 //!
-//! Exercise `plugins::loader::canonicalize_plugin_dir` against а path containing
-//! а CWE-22 traversal segment (`../../etc/passwd`-style); assert (1) the
+//! Exercise `plugins::loader::canonicalize_plugin_dir` against a path containing
+//! a CWE-22 traversal segment (`../../etc/passwd`-style); assert (1) the
 //! function rejects via `Error::PathCanonicalizationFailed` OR
-//! `Error::PathTraversalRejected` OR canonicalizes к а path under а bounded
+//! `Error::PathTraversalRejected` OR canonicalizes to a path under a bounded
 //! root, (2) the resulting Error's `reason` field does NOT leak the verbatim
 //! user-supplied traversal path, (3) tracing events emitted during the
-//! operation do NOT contain а distinctive canary marker от the user-supplied
+//! operation do NOT contain a distinctive canary marker from the user-supplied
 //! path.
 //!
 //! Note: this test does NOT mutate process env vars (`std::env::set_var` is
-//! `unsafe` in Rust 2024 + can race с parallel tests). Instead the test
-//! exercises the canonicalization helper directly с path inputs, which is
+//! `unsafe` in Rust 2024 + can race with parallel tests). Instead the test
+//! exercises the canonicalization helper directly with path inputs, which is
 //! the same code path triggered by env-var-sourced inputs.
 
 use std::sync::{Arc, Mutex};
@@ -106,8 +106,8 @@ impl Subscriber for CapturingSubscriber {
 #[test]
 fn canonicalize_plugin_dir_rejects_traversal_path_without_leaking_canary() {
     let tmp = TempDir::new().expect("tempdir");
-    // Construct а user-supplied path containing the canary marker AND а
-    // CWE-22 traversal segment. This mirrors the shape of а malicious
+    // Construct a user-supplied path containing the canary marker AND a
+    // CWE-22 traversal segment. This mirrors the shape of a malicious
     // `ANDROMEDA_PULSE_PLUGIN_DIR=$TMPDIR/SECRET/../../etc` value per security
     // plan §Anti-Patterns §Input row 4 example.
     let leaky_path = tmp
@@ -173,7 +173,7 @@ fn canonicalize_plugin_dir_rejects_traversal_path_without_leaking_canary() {
     // Assertion 3 — No tracing span attribute / record contains the canary
     // marker. canonicalize_plugin_dir uses #[tracing::instrument(skip(_))]
     // discipline (basename-only span fields); this asserts the discipline
-    // holds против path-as-context leakage.
+    // holds against path-as-context leakage.
     for (span_name, fields) in spans.lock().expect("spans lock").iter() {
         assert!(
             !fields.contains(CANARY_MARKER),
@@ -184,7 +184,7 @@ fn canonicalize_plugin_dir_rejects_traversal_path_without_leaking_canary() {
 
 #[test]
 fn canonicalize_plugin_dir_handles_existing_valid_path_without_leaking_into_logs() {
-    // Positive case: а valid plugin dir под the tempdir should canonicalize
+    // Positive case: a valid plugin dir under the tempdir should canonicalize
     // successfully. Tracing fields should contain ONLY the basename per
     // discipline at `crates/plugins/src/loader.rs`.
     let tmp = TempDir::new().expect("tempdir");
@@ -204,18 +204,18 @@ fn canonicalize_plugin_dir_handles_existing_valid_path_without_leaking_into_logs
     drop(guard);
 
     // Canonical path may contain the canary marker because the dir name IS
-    // the marker — that's user-chosen, not а leak per se. The security
-    // invariant being tested is тhat the FUNCTION doesn't emit the canary
-    // в side-channel tracing fields beyond what's necessary for ops
+    // the marker — that's user-chosen, not a leak per se. The security
+    // invariant being tested is that the FUNCTION doesn't emit the canary
+    // in side-channel tracing fields beyond what's necessary for ops
     // visibility (i.e., basename).
     let _ = result;
 
-    // For traffic specifically classifying as а logging-redaction violation:
+    // For traffic specifically classifying as a logging-redaction violation:
     // assert no tracing field embeds an obvious full-path indicator. We can't
     // strictly assert the marker is absent (it IS the basename in this test);
     // the assertion shape mirrors test 1's spirit — full path components
-    // (which only differ от basename by including the tempdir prefix) should
-    // not appear together с the marker.
+    // (which only differ from basename by including the tempdir prefix) should
+    // not appear together with the marker.
     let full_path_str = plugin_dir.to_string_lossy().into_owned();
     for (target, fields) in events.lock().expect("events lock").iter() {
         assert!(

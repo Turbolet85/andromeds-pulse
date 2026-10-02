@@ -1,0 +1,3 @@
+# layouts extract
+## No domain coverage
+Pure backend/data-flow correctness fix — it reconciles the incident workspace key between the resolver filter (`main.rs` `incident_workspace_key`) and the digest producer (`digest.workspace`) so the workspace-filtered `list_active()` returns non-empty data; it creates/modifies no surface, wireframe, component placement, focus order, modal, nav, or empty-state layout (the constellation map and incidents-panel render layouts are explicitly unchanged per scope §Boundaries OUT — "this chunk feeds them data"), and layouts explicitly excludes backend/IPC data-flow.

@@ -149,7 +149,7 @@ pub struct Settings {
     // via Settings precedent (CLAUDE.md 2026-05-09 Settings-extension
     // pattern avoids the security ↔ tests/CI ↔ arch capability-drift
     // triple binding). Coordinator reads once at boot per pulse-v0_2_0-
-    // route §80; hot-reload deferred к chunk #94.
+    // route §80; hot-reload deferred to chunk #94.
     #[serde(default = "default_cadence_baseline_seconds")]
     pub cadence_baseline_seconds: u32,
     #[serde(default = "default_cadence_accelerated_seconds")]
@@ -188,7 +188,7 @@ fn default_lifecycle_archived_after_secs() -> u64 {
 
 // Chunk #69 Phase B Session 5 — Drain knob defaults match the route-spec
 // values used by `buffer::drain::DrainConfig::default_config()` so
-// missing-Settings boot path produces identical DrainMiner state к
+// missing-Settings boot path produces identical DrainMiner state to
 // settings-driven boot path.
 fn default_drain_depth() -> u32 {
     4
@@ -272,8 +272,8 @@ pub const DRAIN_MAX_CLUSTERS_MAX: u32 = 10_000;
 
 // Chunk #80 cadence coordinator bounds. MIN values mirror the safety
 // floors in `triage::cadence::config` (baseline ≥ 5s, accelerated ≥ 1s,
-// reflection ≥ 300s per pulse-v0_2_0-route §80). MAX values bound к
-// 1h / 10min / 24h respectively к prevent silently-disabling tickers via
+// reflection ≥ 300s per pulse-v0_2_0-route §80). MAX values bound to
+// 1h / 10min / 24h respectively to prevent silently-disabling tickers via
 // extreme config.
 pub const CADENCE_BASELINE_SECONDS_MIN: u32 = 5;
 pub const CADENCE_BASELINE_SECONDS_MAX: u32 = 3_600;
@@ -381,6 +381,14 @@ pub struct ReadyChecks {
     pub broadcast_subscribers: u32,
     pub plugins_loaded: u32,
     pub mcp_server_enabled: bool,
+    // Live buffer stats backing the plain-language connection-status line
+    // (P-070). `rows_ingested` is the cumulative appended-span counter (the
+    // webview derives spans/s from its delta); `buffer_used_seconds` is the
+    // honest span of currently-buffered data, capped at `retention_seconds`
+    // (arch §Standard Contracts readiness).
+    pub rows_ingested: u64,
+    pub buffer_used_seconds: u64,
+    pub retention_seconds: u64,
 }
 
 #[cfg_attr(feature = "taurpc-runtime", derive(specta::Type))]
@@ -2365,6 +2373,9 @@ mod tests {
                 broadcast_subscribers: 2,
                 plugins_loaded: 0,
                 mcp_server_enabled: false,
+                rows_ingested: 1234,
+                buffer_used_seconds: 120,
+                retention_seconds: 600,
             },
         };
         let v: serde_json::Value =
@@ -2376,6 +2387,9 @@ mod tests {
             "broadcast_subscribers",
             "plugins_loaded",
             "mcp_server_enabled",
+            "rows_ingested",
+            "buffer_used_seconds",
+            "retention_seconds",
         ] {
             assert!(
                 v["checks"].get(key).is_some(),

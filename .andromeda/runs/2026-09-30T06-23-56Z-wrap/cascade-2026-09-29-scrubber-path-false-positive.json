@@ -1,0 +1,105 @@
+[
+{
+"tool": "cascade",
+"v": "1.1",
+"sha8": "1550f3bc",
+"ts": "2026-09-30T06:31:01Z",
+"argv": [
+"sweep",
+"--patterns-file",
+".andromeda/runs/2026-09-30T06-23-56Z-wrap/cascade-patterns.toml",
+"--run-dir",
+".andromeda/runs/2026-09-30T06-23-56Z-wrap",
+"--marker",
+"2026-09-29-scrubber-path-false-positive"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 3,
+"stdout": [
+"baseline a08ae29d (pre-CI parent — the oldest of 2 pre-CI commit(s), fcc31b21)",
+"digits-13-19 · control UNFIRED over the seven masters at a08ae29d"
+],
+"stderr": "control: digits-13-19 never fired over the seven masters' pre-pass text (a08ae29d) — a sweep runs a positive control or refuses; drop the pattern or control it by hand",
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "cascade",
+"v": "1.1",
+"sha8": "1550f3bc",
+"ts": "2026-09-30T06:31:15Z",
+"argv": [
+"sweep",
+"--patterns-file",
+".andromeda/runs/2026-09-30T06-23-56Z-wrap/cascade-patterns.toml",
+"--run-dir",
+".andromeda/runs/2026-09-30T06-23-56Z-wrap",
+"--marker",
+"2026-09-29-scrubber-path-false-positive"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"baseline a08ae29d (pre-CI parent — the oldest of 2 pre-CI commit(s), fcc31b21)",
+"recall-prec · new 0 · standing 2 · leaf 1 · curation 1 · base 0 · control security-plan.md:428 (prose)",
+"credit-card · new 2 · standing 2 · leaf 2 · curation 1 · base 0 · control security-plan.md:428 (prose)",
+"suite-count · 0 rows (control fired) — a statement about this pattern, not the masters · control test-plan.md:366 (pros…",
+"no-arm-retuned · new 0 · standing 1 · leaf 0 · curation 0 · base 0 · control security-plan.md:444 (prose)",
+".andromeda/security-plan.md:428 recall-prec standing edited @c1041/2410 …ted posture is recall over precision for seven…",
+".andromeda/security-plan.md:436 recall-prec standing edited …key-anchored arms' recall-over-precision posture (only the…",
+".claude/rules/security.md:161 recall-prec curation …per the catalog's own recall-over-precision posture. Verified at `2…",
+".claude/rules/security.md:57 recall-prec leaf @c1112/2796 … per the catalog's recall-over-precision posture. `service_n…",
+".andromeda/security-plan.md:428 credit-card standing edited mixed ×3 @c467,955,1188/2410 … email · credit_card · ssn. T…",
+".andromeda/security-plan.md:436 credit-card new …ion posture (only the `credit_card` arm is precision-gated; see the ca…",
+".andromeda/security-plan.md:444 credit-card new …ered, or retuned. The `credit_card` arm's match predicate was later re…",
+".andromeda/test-plan.md:366 credit-card standing edited mixed ×2 …ies, and before `credit_card` so a digit-heavy key is…",
+".claude/rules/security.md:161 credit-card curation … provider_key, email, credit_card, ssn) keep firing normally. The f…",
+"CLAUDE.md:32 credit-card leaf …/ **provider key** / email / credit card / SSN) via OnceLock-cached compiled regex set; …",
+".claude/rules/security.md:56 credit-card leaf …ovider_key** · email · credit_card · ssn). `provider_key` (2026-08-22) i…",
+".andromeda/security-plan.md:444 no-arm-retuned standing edited …scrub-coverage`): no arm added, reordered, or retuned. …",
+"recall-prec · new 0 · standing 2 · leaf 1 · curation 1 · base 0 · control security-plan.md:428 (prose)",
+"credit-card · new 2 · standing 2 · leaf 2 · curation 1 · base 0 · control security-plan.md:428 (prose)",
+"suite-count · 0 rows (control fired) — a statement about this pattern, not the masters · control test-plan.md:366 (pros…",
+"no-arm-retuned · new 0 · standing 1 · leaf 0 · curation 0 · base 0 · control security-plan.md:444 (prose)"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"baseline": "a08ae29dcad7c05cd118be3476eaad37bd697231",
+"how": "pre-CI parent — the oldest of 2 pre-CI commit(s), fcc31b21",
+"counts": {
+"recall-prec": {
+"new": 0,
+"standing": 2,
+"leaf": 1,
+"curation": 1,
+"base": 0
+},
+"credit-card": {
+"new": 2,
+"standing": 2,
+"leaf": 2,
+"curation": 1,
+"base": 0
+},
+"suite-count": {
+"new": 0,
+"standing": 0,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"no-arm-retuned": {
+"new": 0,
+"standing": 1,
+"leaf": 0,
+"curation": 0,
+"base": 0
+}
+}
+}
+}
+]

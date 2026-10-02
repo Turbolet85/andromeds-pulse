@@ -2,7 +2,7 @@
 //!
 //! Per security extract Acceptance criteria: SQL-injection canaries on
 //! all 3 query routers; AppError sanitization round-trip per variant
-//! (no stack traces / file paths / library names в serialized message);
+//! (no stack traces / file paths / library names in serialized message);
 //! capability-drift exit-0 precondition gate.
 
 use std::sync::{Arc, Mutex};

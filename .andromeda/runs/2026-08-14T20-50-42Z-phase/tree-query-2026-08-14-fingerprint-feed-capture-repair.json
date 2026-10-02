@@ -1,0 +1,436 @@
+[
+{
+"sql": "SELECT callee, file, line FROM refs WHERE callee LIKE '%FingerprintObserver%' OR callee LIKE '%compute_exception_fingerprint%' OR callee LIKE '%StormObserverAdapter%' OR callee LIKE '%on_fingerprint%' ORDER BY file, line",
+"rows": 77,
+"result": [
+{
+"callee": "rust-analyzer cargo buffer 0.1.0 fingerprint/FingerprintObserver#",
+"file": "crates/buffer/src/appender.rs",
+"line": 22
+},
+{
+"callee": "rust-analyzer cargo buffer 0.1.0 fingerprint/compute_exception_fingerprint().",
+"file": "crates/buffer/src/appender.rs",
+"line": 22
+},
+{
+"callee": "rust-analyzer cargo buffer 0.1.0 fingerprint/FingerprintObserver#",
+"file": "crates/buffer/src/appender.rs",
+"line": 322
+},
+{
+"callee": "rust-analyzer cargo buffer 0.1.0 fingerprint/compute_exception_fingerprint().",
+"file": "crates/buffer/src/appender.rs",
+"line": 357
+},
+{
+"callee": "rust-analyzer cargo buffer 0.1.0 fingerprint/FingerprintObserver#on_fingerprint().",
+"file": "crates/buffer/src/appender.rs",
+"line": 396
+},
+{
+"callee": "rust-analyzer cargo buffer 0.1.0 fingerprint/FingerprintObserver#",
+"file": "crates/buffer/src/appender.rs",
+"line": 1707
+},
+{
+"callee": "rust-analyzer cargo buffer 0.1.0 appender/tests/chunk_66/CapturingFingerprintObserver#",
+"file": "crates/buffer/src/appender.rs",
+"line": 1714
+},
+{
+"callee": "rust-analyzer cargo buffer 0.1.0 appender/tests/chunk_66/CapturingFingerprintObserver#captured.",
+"file": "crates/buffer/src/appender.rs",
+"line": 1717
+},
+{
+"callee": "rust-analyzer cargo buffer 0.1.0 appender/tests/chunk_66/CapturingFingerprintObserver#",
+"file": "crates/buffer/src/appender.rs",
+"line": 1722
+},
+{
+"callee": "rust-analyzer cargo buffer 0.1.0 fingerprint/FingerprintObserver#",
+"file": "crates/buffer/src/appender.rs",
+"line": 1722
+},
+{
+"callee": "rust-analyzer cargo buffer 0.1.0 appender/tests/chunk_66/CapturingFingerprintObserver#captured.",
+"file": "crates/buffer/src/appender.rs",
+"line": 1729
+},
+{
+"callee": "rust-analyzer cargo buffer 0.1.0 appender/tests/chunk_66/CapturingFingerprintObserver#",
+"file": "crates/buffer/src/appender.rs",
+"line": 1780
+},
+{
+"callee": "rust-analyzer cargo buffer 0.1.0 appender/tests/chunk_66/impl#[CapturingFingerprintObserver]new().",
+"file": "crates/buffer/src/appender.rs",
+"line": 1780
+},
+{
+"callee": "rust-analyzer cargo buffer 0.1.0 appender/tests/chunk_66/CapturingFingerprintObserver#captured.",
+"file": "crates/buffer/src/appender.rs",
+"line": 1781
+},
+{
+"callee": "rust-analyzer cargo buffer 0.1.0 appender/tests/chunk_66/CapturingFingerprintObserver#",
+"file": "crates/buffer/src/appender.rs",
+"line": 1823
+},
+{
+"callee": "rust-analyzer cargo buffer 0.1.0 appender/tests/chunk_66/impl#[CapturingFingerprintObserver]new().",
+"file": "crates/buffer/src/appender.rs",
+"line": 1823
+},
+{
+"callee": "rust-analyzer cargo buffer 0.1.0 appender/tests/chunk_66/CapturingFingerprintObserver#captured.",
+"file": "crates/buffer/src/appender.rs",
+"line": 1824
+},
+{
+"callee": "rust-analyzer cargo buffer 0.1.0 fingerprint/FingerprintObserver#",
+"file": "crates/buffer/src/consumer.rs",
+"line": 20
+},
+{
+"callee": "rust-analyzer cargo buffer 0.1.0 fingerprint/FingerprintObserver#",
+"file": "crates/buffer/src/consumer.rs",
+"line": 39
+},
+{
+"callee": "rust-analyzer cargo buffer 0.1.0 fingerprint/FingerprintObserver#",
+"file": "crates/buffer/src/consumer.rs",
+"line": 100
+},
+{
+"callee": "rust-analyzer cargo buffer 0.1.0 fingerprint/FingerprintObserver#",
+"file": "crates/buffer/src/consumer.rs",
+"line": 548
+},
+{
+"callee": "rust-analyzer cargo buffer 0.1.0 fingerprint/FingerprintObserver#",
+"file": "crates/buffer/src/consumer.rs",
+"line": 557
+},
+{
+"callee": "rust-analyzer cargo buffer 0.1.0 fingerprint/FingerprintObserver#",
+"file": "crates/buffer/src/consumer.rs",
+"line": 573
+},
+{
+"callee": "rust-analyzer cargo buffer 0.1.0 fingerprint/FingerprintObserver#",
+"file": "crates/buffer/src/fingerprint.rs",
+"line": 60
+},
+{
+"callee": "rust-analyzer cargo buffer 0.1.0 fingerprint/NoopFingerprintObserver#",
+"file": "crates/buffer/src/fingerprint.rs",
+"line": 60
+},
+{
+"callee": "rust-analyzer cargo buffer 0.1.0 fingerprint/compute_exception_fingerprint().",
+"file": "crates/buffer/src/fingerprint.rs",
+"line": 248
+},
+{
+"callee": "rust-analyzer cargo buffer 0.1.0 fingerprint/compute_exception_fingerprint().",
+"file": "crates/buffer/src/fingerprint.rs",
+"line": 253
+},
+{
+"callee": "rust-analyzer cargo buffer 0.1.0 fingerprint/compute_exception_fingerprint().",
+"file": "crates/buffer/src/fingerprint.rs",
+"line": 258
+},
+{
+"callee": "rust-analyzer cargo buffer 0.1.0 fingerprint/compute_exception_fingerprint().",
+"file": "crates/buffer/src/fingerprint.rs",
+"line": 260
+},
+{
+"callee": "rust-analyzer cargo buffer 0.1.0 fingerprint/compute_exception_fingerprint().",
+"file": "crates/buffer/src/fingerprint.rs",
+"line": 267
+},
+{
+"callee": "rust-analyzer cargo buffer 0.1.0 fingerprint/compute_exception_fingerprint().",
+"file": "crates/buffer/src/fingerprint.rs",
+"line": 274
+},
+{
+"callee": "rust-analyzer cargo buffer 0.1.0 fingerprint/compute_exception_fingerprint().",
+"file": "crates/buffer/src/fingerprint.rs",
+"line": 275
+},
+{
+"callee": "rust-analyzer cargo buffer 0.1.0 fingerprint/compute_exception_fingerprint().",
+"file": "crates/buffer/src/fingerprint.rs",
+"line": 289
+},
+{
+"callee": "rust-analyzer cargo buffer 0.1.0 fingerprint/compute_exception_fingerprint().",
+"file": "crates/buffer/src/fingerprint.rs",
+"line": 291
+},
+{
+"callee": "rust-analyzer cargo buffer 0.1.0 fingerprint/compute_exception_fingerprint().",
+"file": "crates/buffer/src/fingerprint.rs",
+"line": 303
+},
+{
+"callee": "rust-analyzer cargo buffer 0.1.0 fingerprint/compute_exception_fingerprint().",
+"file": "crates/buffer/src/fingerprint.rs",
+"line": 304
+},
+{
+"callee": "rust-analyzer cargo buffer 0.1.0 fingerprint/compute_exception_fingerprint().",
+"file": "crates/buffer/src/fingerprint.rs",
+"line": 312
+},
+{
+"callee": "rust-analyzer cargo buffer 0.1.0 fingerprint/compute_exception_fingerprint().",
+"file": "crates/buffer/src/fingerprint.rs",
+"line": 313
+},
+{
+"callee": "rust-analyzer cargo buffer 0.1.0 fingerprint/compute_exception_fingerprint().",
+"file": "crates/buffer/src/fingerprint.rs",
+"line": 322
+},
+{
+"callee": "rust-analyzer cargo buffer 0.1.0 fingerprint/compute_exception_fingerprint().",
+"file": "crates/buffer/src/fingerprint.rs",
+"line": 323
+},
+{
+"callee": "rust-analyzer cargo buffer 0.1.0 fingerprint/compute_exception_fingerprint().",
+"file": "crates/buffer/src/fingerprint.rs",
+"line": 333
+},
+{
+"callee": "rust-analyzer cargo buffer 0.1.0 fingerprint/compute_exception_fingerprint().",
+"file": "crates/buffer/src/fingerprint.rs",
+"line": 335
+},
+{
+"callee": "rust-analyzer cargo buffer 0.1.0 fingerprint/compute_exception_fingerprint().",
+"file": "crates/buffer/src/fingerprint.rs",
+"line": 347
+},
+{
+"callee": "rust-analyzer cargo buffer 0.1.0 fingerprint/compute_exception_fingerprint().",
+"file": "crates/buffer/src/fingerprint.rs",
+"line": 348
+},
+{
+"callee": "rust-analyzer cargo buffer 0.1.0 fingerprint/compute_exception_fingerprint().",
+"file": "crates/buffer/src/fingerprint.rs",
+"line": 358
+},
+{
+"callee": "rust-analyzer cargo buffer 0.1.0 fingerprint/compute_exception_fingerprint().",
+"file": "crates/buffer/src/fingerprint.rs",
+"line": 360
+},
+{
+"callee": "rust-analyzer cargo buffer 0.1.0 fingerprint/NoopFingerprintObserver#",
+"file": "crates/buffer/src/fingerprint.rs",
+"line": 391
+},
+{
+"callee": "rust-analyzer cargo buffer 0.1.0 fingerprint/impl#[NoopFingerprintObserver][FingerprintObserver]on_fingerprint().",
+"file": "crates/buffer/src/fingerprint.rs",
+"line": 392
+},
+{
+"callee": "rust-analyzer cargo buffer 0.1.0 fingerprint/FingerprintObserver#",
+"file": "crates/buffer/src/fingerprint.rs",
+"line": 397
+},
+{
+"callee": "rust-analyzer cargo buffer 0.1.0 fingerprint/NoopFingerprintObserver#",
+"file": "crates/buffer/src/fingerprint.rs",
+"line": 397
+},
+{
+"callee": "rust-analyzer cargo buffer 0.1.0 fingerprint/FingerprintObserver#on_fingerprint().",
+"file": "crates/buffer/src/fingerprint.rs",
+"line": 398
+},
+{
+"callee": "rust-analyzer cargo pulse-app 0.1.0 storm_observer/StormObserverAdapter#",
+"file": "pulse-app/src/main.rs",
+"line": 72
+},
+{
+"callee": "rust-analyzer cargo buffer 0.1.0 fingerprint/FingerprintObserver#",
+"file": "pulse-app/src/main.rs",
+"line": 599
+},
+{
+"callee": "rust-analyzer cargo pulse-app 0.1.0 storm_observer/StormObserverAdapter#",
+"file": "pulse-app/src/main.rs",
+"line": 600
+},
+{
+"callee": "rust-analyzer cargo pulse-app 0.1.0 storm_observer/impl#[StormObserverAdapter]new().",
+"file": "pulse-app/src/main.rs",
+"line": 600
+},
+{
+"callee": "rust-analyzer cargo buffer 0.1.0 fingerprint/FingerprintObserver#",
+"file": "pulse-app/src/storm_observer.rs",
+"line": 12
+},
+{
+"callee": "rust-analyzer cargo pulse-app 0.1.0 storm_observer/StormObserverAdapter#",
+"file": "pulse-app/src/storm_observer.rs",
+"line": 25
+},
+{
+"callee": "rust-analyzer cargo pulse-app 0.1.0 storm_observer/StormObserverAdapter#detector.",
+"file": "pulse-app/src/storm_observer.rs",
+"line": 28
+},
+{
+"callee": "rust-analyzer cargo pulse-app 0.1.0 storm_observer/StormObserverAdapter#broadcast.",
+"file": "pulse-app/src/storm_observer.rs",
+"line": 29
+},
+{
+"callee": "rust-analyzer cargo pulse-app 0.1.0 storm_observer/StormObserverAdapter#",
+"file": "pulse-app/src/storm_observer.rs",
+"line": 34
+},
+{
+"callee": "rust-analyzer cargo buffer 0.1.0 fingerprint/FingerprintObserver#",
+"file": "pulse-app/src/storm_observer.rs",
+"line": 34
+},
+{
+"callee": "rust-analyzer cargo pulse-app 0.1.0 storm_observer/StormObserverAdapter#detector.",
+"file": "pulse-app/src/storm_observer.rs",
+"line": 42
+},
+{
+"callee": "rust-analyzer cargo pulse-app 0.1.0 storm_observer/StormObserverAdapter#broadcast.",
+"file": "pulse-app/src/storm_observer.rs",
+"line": 43
+},
+{
+"callee": "rust-analyzer cargo pulse-app 0.1.0 storm_observer/impl#[StormObserverAdapter]new().",
+"file": "pulse-app/src/storm_observer.rs",
+"line": 68
+},
+{
+"callee": "rust-analyzer cargo pulse-app 0.1.0 storm_observer/StormObserverAdapter#",
+"file": "pulse-app/src/storm_observer.rs",
+"line": 68
+},
+{
+"callee": "rust-analyzer cargo pulse-app 0.1.0 storm_observer/impl#[StormObserverAdapter][FingerprintObserver]on_fingerprint().",
+"file": "pulse-app/src/storm_observer.rs",
+"line": 72
+},
+{
+"callee": "rust-analyzer cargo buffer 0.1.0 fingerprint/FingerprintObserver#",
+"file": "pulse-app/src/storm_observer.rs",
+"line": 85
+},
+{
+"callee": "rust-analyzer cargo pulse-app 0.1.0 storm_observer/impl#[StormObserverAdapter]new().",
+"file": "pulse-app/src/storm_observer.rs",
+"line": 86
+},
+{
+"callee": "rust-analyzer cargo pulse-app 0.1.0 storm_observer/StormObserverAdapter#",
+"file": "pulse-app/src/storm_observer.rs",
+"line": 86
+},
+{
+"callee": "rust-analyzer cargo buffer 0.1.0 fingerprint/FingerprintObserver#on_fingerprint().",
+"file": "pulse-app/src/storm_observer.rs",
+"line": 87
+},
+{
+"callee": "rust-analyzer cargo buffer 0.1.0 fingerprint/FingerprintObserver#",
+"file": "pulse-app/tests/e2e_drain_template_assignment.rs",
+"line": 28
+},
+{
+"callee": "rust-analyzer cargo buffer 0.1.0 fingerprint/FingerprintObserver#",
+"file": "pulse-app/tests/e2e_drain_template_assignment.rs",
+"line": 153
+},
+{
+"callee": "rust-analyzer cargo buffer 0.1.0 fingerprint/FingerprintObserver#",
+"file": "pulse-app/tests/e2e_storm_detection.rs",
+"line": 19
+},
+{
+"callee": "rust-analyzer cargo pulse-app 0.1.0 storm_observer/StormObserverAdapter#",
+"file": "pulse-app/tests/e2e_storm_detection.rs",
+"line": 29
+},
+{
+"callee": "rust-analyzer cargo buffer 0.1.0 fingerprint/FingerprintObserver#",
+"file": "pulse-app/tests/e2e_storm_detection.rs",
+"line": 143
+},
+{
+"callee": "rust-analyzer cargo pulse-app 0.1.0 storm_observer/impl#[StormObserverAdapter]new().",
+"file": "pulse-app/tests/e2e_storm_detection.rs",
+"line": 144
+},
+{
+"callee": "rust-analyzer cargo pulse-app 0.1.0 storm_observer/StormObserverAdapter#",
+"file": "pulse-app/tests/e2e_storm_detection.rs",
+"line": 144
+}
+],
+"db_state": "regenerated"
+},
+{
+"sql": "SELECT caller, file, line FROM calls WHERE callee LIKE '%build_span_events_record_batch%' ORDER BY file, line",
+"rows": 7,
+"result": [
+{
+"caller": "rust-analyzer cargo buffer 0.1.0 appender/append_span_events_batch().",
+"file": "crates/buffer/src/appender.rs",
+"line": 561
+},
+{
+"caller": "rust-analyzer cargo buffer 0.1.0 appender/tests/build_span_events_record_batch_returns_none_when_no_events_in_any_span().",
+"file": "crates/buffer/src/appender.rs",
+"line": 1560
+},
+{
+"caller": "rust-analyzer cargo buffer 0.1.0 appender/tests/build_span_events_record_batch_populates_fingerprint_for_exception_events().",
+"file": "crates/buffer/src/appender.rs",
+"line": 1756
+},
+{
+"caller": "rust-analyzer cargo buffer 0.1.0 appender/tests/build_span_events_record_batch_observer_invoked_per_exception_event().",
+"file": "crates/buffer/src/appender.rs",
+"line": 1803
+},
+{
+"caller": "rust-analyzer cargo buffer 0.1.0 appender/tests/build_span_events_record_batch_observer_not_invoked_when_no_exception_events().",
+"file": "crates/buffer/src/appender.rs",
+"line": 1834
+},
+{
+"caller": "rust-analyzer cargo buffer 0.1.0 consumer/",
+"file": "crates/buffer/src/consumer.rs",
+"line": 12
+},
+{
+"caller": "rust-analyzer cargo buffer 0.1.0 consumer/dispatch_batch().",
+"file": "crates/buffer/src/consumer.rs",
+"line": 118
+}
+],
+"db_state": "fresh"
+}
+]

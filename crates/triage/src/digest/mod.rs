@@ -1,6 +1,6 @@
 //! L3 digest assembler module (chunk #81 — Epoch 9 Foundation v0.2.0).
 //!
-//! Composes а structured digest per dist-arch v3 §Appendix C from L1a
+//! Composes a structured digest per dist-arch v3 §Appendix C from L1a
 //! Q1-Q7 SQL outputs (chunk #79), L2 attention cues (chunk #62), corpus
 //! retrieval top-3 similar past incidents (chunk #68 substrate), and
 //! project context (workspace + git activity via chunk #43 + new
@@ -9,13 +9,13 @@
 //! downloaded at build time per `crates/triage/build.rs` Phase 2).
 //!
 //! Output channels:
-//! - `pulse://stream/digests` broadcast topic (LWW queue для L4)
+//! - `pulse://stream/digests` broadcast topic (LWW queue for L4)
 //! - Corpus `digest_archive` append (all digests; no LWW)
 //!
 //! Queue behavior:
 //! - LWW for cadence-mode digests by default
-//! - Active-incident exception bypasses LWW когда L5 has unresolved
-//!   incident с severity ≥ Suggested (capability P-059)
+//! - Active-incident exception bypasses LWW when L5 has unresolved
+//!   incident with severity ≥ Suggested (capability P-059)
 //! - Tier-1 hard signals never LWW-replaced (capped at 3)
 //! - Active-incident bypass queue capped at 5 per workspace
 //!
@@ -26,11 +26,18 @@
 
 pub(crate) mod assembler;
 pub(crate) mod broadcast;
+pub(crate) mod damper;
 pub(crate) mod queue;
 pub(crate) mod retrieval;
 
 pub use assembler::{Assembler, DigestAssembler, DigestFuture};
+#[doc(hidden)]
+pub use assembler::{cue_summary, render_payload};
 pub use broadcast::{BROADCAST_CAPACITY, DigestBroadcast, STREAM_NAME_DIGESTS};
+pub use damper::{
+    DAMPER_CUE_EVICTION_SECONDS, DAMPER_INTERVAL_EVICTION_SECONDS, DamperVerdict, GenerateReason,
+    GenerationDamper, generate_reason_label,
+};
 pub use queue::{ACTIVE_INCIDENT_QUEUE_CAP, LwwQueue, QueueAction, TIER1_QUEUE_CAP};
 pub use retrieval::{
     CORPUS_RETRIEVAL_WINDOW_SECONDS, CorpusIncidentSource, NoopCorpusIncidentSource,
@@ -80,7 +87,7 @@ pub const TARGET_METRIC_ACTIVE_INCIDENT_QUEUE_DEPTH: &str =
 /// Errors raised during digest assembly. Sanitized at the binary boundary
 /// adapter (`pulse-app/src/digest_runtime.rs`) into `AppError` via
 /// free-fn `map_err` pattern (CLAUDE.md §Session Learnings 2026-05-18) if
-/// а future TauRPC procedure exposes digest operations.
+/// a future TauRPC procedure exposes digest operations.
 #[derive(Debug, Error)]
 pub enum DigestError {
     /// L1a SQL query failed (chunk #79 `SqlAggregationError`).
@@ -96,12 +103,12 @@ pub enum DigestError {
     /// broke schema).
     #[error("tokenizer initialization failed: {0}")]
     Tokenizer(String),
-    /// Workspace-detector failed к provide project context (chunk #43
+    /// Workspace-detector failed to provide project context (chunk #43
     /// `workspace_detector::Error`).
     #[error("workspace-detector failed")]
     WorkspaceDetector,
     /// Token budget exceeded after truncation strategy applied. Surfaced
-    /// для observability but the digest is still emitted with truncation.
+    /// for observability but the digest is still emitted with truncation.
     /// Hard panics on producer side are avoided; consumers handle
     /// over-budget digests gracefully.
     #[error("token budget exceeded after truncation: {actual} > {limit}")]

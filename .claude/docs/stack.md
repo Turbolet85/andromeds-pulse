@@ -14,9 +14,9 @@ _Extracted from `.andromeda/architecture.md` Stack and Technologies section by `
 - **HTTP server (OTLP `:4318`):** `axum` 0.8.x on `hyper` 1.x + `tower` (sharing tokio runtime with tonic).
 - **Tauri IPC bridge:** TauRPC (`taurpc` crate) — derive macros generate fully-typed TypeScript bindings; eliminates manual TS re-declaration drift.
 - **Plugin runtime:** `wasmtime` 25+ with WASM Component Model + WIT — capability-scoped third-party extensions.
-- **MCP server:** `rmcp` (official Rust SDK) over stdio — `query_traces` / `query_metrics` / `query_logs` / `generate_snapshot` `#[tool]` methods (gated by `--features mcp-server`).
-- **Frontend:** React 19.x + Vite + TanStack Router + Tailwind CSS v4.x + shadcn/ui (Radix UI primitives + Tailwind, copy-not-install).
-- **Visualization:** Webview WebGPU (`<canvas>` + `navigator.gpu`, WGSL shaders) for trace timeline / flamegraph / metrics charts / Halo State Pulse.
+- **MCP server:** hand-rolled serde JSON-RPC 2.0 over stdio (`crates/mcp-server/src/jsonrpc.rs`, MCP protocol `2024-11-05`); `rmcp` rides as a feature-gated anchor dep (req `"3"`, resolved 3.1.4) — 8 name-dispatched tools incl. `query_traces` / `query_metrics` / `query_logs` / `generate_snapshot` (gated by `--features mcp-server`).
+- **Frontend:** React 19.x + Vite + TanStack Router + Tailwind CSS v4.x + `react-aria-components` (the SHIPPED a11y-primitive layer — shadcn/Radix never landed; radix is lockfile-absent and npm-policy-denylisted, corrected 2026-08-30).
+- **Visualization:** Webview WebGPU (`<canvas>` + `navigator.gpu`, WGSL shaders) for trace timeline / flamegraph / metrics charts / service constellation. (The Halo State Pulse canvas layer is specified but unbuilt on desktop-webview — measured 2026-08-21.)
 - **Error handling:** `thiserror` 2.x (modules) + `anyhow` 1.x (boundaries) + `serde`-friendly `AppError` enum at the IPC bridge.
 - **Validation:** `serde` + smart enum types + `TryFrom<u16>` (no validation library by default; defer `garde` 0.20+ to plugin manifest cross-field validation if/when needed).
 
@@ -26,18 +26,19 @@ _Extracted from `.andromeda/architecture.md` Stack and Technologies section by `
 - **Quantization formats supported:** GGUF (2-8 bit) is the production runtime format; the b9305+ build line is the upstream-most GGUF runtime + tracks llama.cpp's ongoing kernel optimizations.
 - **Backends:** CUDA + CPU prebuilt binaries from official `ggml-org/llama.cpp` GitHub releases. Tier routing follows chunk #80 `HardwareProfileSource` trait — gpu-primary / gpu-fallback → CUDA binary + `-ngl 99`; cpu-primary / cpu-fallback → CPU binary + `-ngl 0`. CUDA build matched to the host driver's max-supported toolkit (currently CUDA 13.1 against driver 596.36 on the spike host). Metal / Vulkan / SYCL / HIP available in llama.cpp's upstream prebuilt series for future hardware-profile expansion.
 - **JSON-schema constraint mechanism:** llama.cpp's native `--json-schema-file <path>` flag → GBNF grammar enforcement at the sampler layer. The L4 schema at `crates/interpretation/src/schema.json` is passed directly; no custom JSON-Schema → GBNF bridge needed (the spike confirmed full structural + enum + length-bound conformance with all 14 required fields populated on a real model run).
-- **Tokenizer:** llama.cpp's built-in tokenizer per the loaded GGUF (the GGUF format includes tokenizer metadata); no separate `tokenizers` crate dep for the inference path. (The `tokenizers` workspace dep from chunk #81 remains for prompt-side token-budget estimation pre-LLM, unrelated к the runtime swap.)
+- **Tokenizer:** llama.cpp's built-in tokenizer per the loaded GGUF (the GGUF format includes tokenizer metadata); no separate `tokenizers` crate dep for the inference path. (The `tokenizers` workspace dep from chunk #81 remains for prompt-side token-budget estimation pre-LLM, unrelated to the runtime swap.)
 - **Abstraction:** `pub trait LlmInferenceRunner: Send + Sync` in `crates/interpretation/src/contract.rs` with `Pin<Box<dyn Future + Send + 'a>>` return types (async-trait pattern matching the 2026-05-23 `SqlQueryRunner`); unchanged from chunk #82 — only the concrete impl swaps from `MistralRsInference` to a new `LlamaCliInference` sibling at the `pulse-app/` binary boundary. Three documented sibling-impl swap paths through the same trait: `llama-server` HTTP (D2) if invocation rate / UX demands warrant amortizing the ~5 s cold-start tax, in-process `llama-cpp-2` bindings if Windows libclang + cmake + MSVC build-toolchain cost is later justified, `candle` if needed (original chunk #82 escape hatch remains valid).
 - **Pin discipline:** `b9305` exact at v0.2.0 swap-in; bumps as deliberate chunk-scoped events, never via "latest tag" drift. Mirrors the original `mistralrs = "=0.8.0"` pin-exact discipline.
 - **Binary distribution path:** **flagged-pending** — the runtime-swap chunk MUST decide whether the CUDA + CPU `llama-cli.exe` binaries (+ `cudart64_13.dll` / `cublas64_13.dll` for the CUDA build) ship in the Tauri bundle, are downloaded by an `xtask` step at boot, or rely on a user-set `ANDROMEDA_PULSE_LLAMA_CUDA_BIN` / `ANDROMEDA_PULSE_LLAMA_CPU_BIN` env var pair pointing at user-managed install (the current dev pattern from session 144 spike). The distribution decision is parallel to the model-file distribution (`ANDROMEDA_PULSE_MODEL_PATH` env var) and should be co-designed.
-- **Implementation status:** chunk #82 trait surface + stub concrete `MistralRsInference` substrate landed (session 139 commit cf6686b); chunk #83 prompt scaffolding + subscriber substrate landed (session 142 commit 0e37159); runtime-swap chunk (replace `MistralRsInference` → `LlamaCliInference`) is the next implementation work к plan via `/andromeda-phase`, positioned in route §Epoch 9 before chunk #84 fallback-tier work.
+- **Implementation status:** chunk #82 trait surface + stub concrete `MistralRsInference` substrate landed (session 139 commit cf6686b); chunk #83 prompt scaffolding + subscriber substrate landed (session 142 commit 0e37159); runtime-swap chunk (replace `MistralRsInference` → `LlamaCliInference`) is the next implementation work to plan via `/andromeda-phase`, positioned in route §Epoch 9 before chunk #84 fallback-tier work.
 
 ## Data Storage
-- **Storage engine:** DuckDB 1.5.x via `duckdb` crate 1.10500.x — embedded columnar OLAP, in-memory `:memory:` ring buffer (5–10 min retention, configurable via `ANDROMEDA_PULSE_RETENTION_SECONDS`).
+- **Storage engine:** DuckDB 1.5.x via the `duckdb` crate — Cargo.toml requirement `1.10500` (caret), lockfile-resolved 1.10505.0 as of 2026-08-28 — embedded columnar OLAP, in-memory `:memory:` ring buffer (5–10 min retention, configurable via `ANDROMEDA_PULSE_RETENTION_SECONDS`).
 - **Columnar interchange:** Apache Arrow via `Appender::append_record_batch()` / `stream_arrow()` — zero-copy hand-off between OTLP decode → DuckDB → viz/MCP.
 - **ORM / Migrations:** None — direct SQL via `duckdb` crate `Connection` + `Appender`; schema created on startup.
 - **Schema name:** `pulse_buffer` (single in-memory connection, schema `main`).
-- **Reserved tables:** `spans`, `span_events`, `span_links`, `metrics_points`, `log_records`, `resources`, `instrumentation_scopes`.
+- **Reserved tables:** `spans`, `span_events`, `metrics_points`, `log_records`, `log_templates` — FIVE, every one with a producer: the producer-less `span_links`/`resources`/`instrumentation_scopes` CREATEs were deleted at chunk 2026-08-30-diagnostics-un-muting-harness-truth-sweep (retention DELETEs 7 → 4).
+- **Secret / key storage:** `keyring` 3.x declared with the explicit platform feature set (`apple-native` / `windows-native` / `sync-secret-service` / `crypto-rust`) — the OS credential store holding the corpus AES-256-GCM cell key (macOS Keychain / Linux Secret Service / Windows Credential Manager), plus `blake3` as the KDF for the opt-in `ANDROMEDA_PULSE_CORPUS_PASSPHRASE` fallback. **The feature set is load-bearing:** keyring 3.x declares no `default` feature, so a bare `keyring = "3"` links no backend and silently yields a per-process key (the defect fixed at chunk 2026-08-15-corpus-key-persistence).
 
 ## Messaging & Events
 - **In-process channels:** `tokio::sync::mpsc` (ingest → DuckDB appender hand-off, built-in backpressure) + `tokio::sync::broadcast` (buffer → live UI subscribers fan-out).
@@ -49,7 +50,7 @@ _Extracted from `.andromeda/architecture.md` Stack and Technologies section by `
 - **NO OTel SDK linked** into the self-observation runtime (recursion-free by construction; product IS the local observer).
 - **Log file:** `~/.andromeda-pulse/logs/agent-latest.jsonl` (per-platform per arch §Filesystem locations); JSON-per-line; daily rotation.
 - **Optional error reporting:** `sentry-rust` 0.46 + `sentry-tauri` 0.5 — opt-in via `ANDROMEDA_PULSE_SENTRY_DSN`, default OFF, requires `before_send` scrubbing.
-- **Frontend telemetry:** `web-vitals` 5.x + DOM `performance.now()` + `device.queue.onSubmittedWorkDone()` → TauRPC `telemetry.frontend.record_*` → backend `tracing` log. NO browser OTel SDK.
+- **Frontend telemetry:** DOM `performance.now()` + `device.queue.onSubmittedWorkDone()` → the hand-rolled TauRPC `telemetry.frontend.record_*` bridge → backend `tracing` log (`web-vitals` RETIRED 2026-08-30 — never installed; the hand-rolled bridge is the decided mechanism). NO browser OTel SDK.
 
 ## Development & CI
 - **Lint:** `cargo fmt --check` + `cargo clippy --workspace --all-targets --all-features -- -D warnings`.
@@ -58,6 +59,7 @@ _Extracted from `.andromeda/architecture.md` Stack and Technologies section by `
 - **Coverage:** `cargo-llvm-cov` 0.8.5 (LLVM source-based, cross-platform).
 - **Property testing:** `proptest` 1.10.0 (regression files in `proptest-regressions/`).
 - **CI task runner:** `cargo-xtask` (release / sign / notarize / changelog + agent-run harness).
+- **GUI verification harness (dev-only):** `@crabnebula/tauri-driver` 2.x + `webdriverio` 9.x (`pulse-app/ui` devDependencies), driven by `cargo xtask webview-drive [--expect-absent <STAGE>] [--no-inject]` — a headful WebDriver drive of the assembled 17-stage path (launch → boot-geometry → traces-empty → traces-populate → traces-scroll → native-menu-suppressed → connection-status → storm-incident → findings-window → report-window → report-copy → investigate → empty-states → dashboard-toggle → dashboard-close → widget-close → signpost-repeat; 7 → 13 at 2026-08-23-headful-leg-extension, 13 → 15 at 2026-08-24-headful-mechanics-probe-race-disposition, 15 → 16 at 2026-08-27-report-window-copy-affordance, where `widget-close` stopped being terminal, 16 → 17 at 2026-08-30-diagnostics-un-muting-harness-truth-sweep — `boot-geometry`, a DOM-only stage re-deriving the app's own snap formula from recorded widget/monitor geometry + scale) in the live Tauri window, under the deterministic-L4 gate the driver sets into the spawned app's env, asserting each stage against the app's own obs log and/or the driver's DOM report; `--no-inject --expect-absent <STAGE>` is the code-driven RED mutation arm. The win32 native driver arrives via the napi optional dep; the host `msedgedriver` must match the installed WebView2 Runtime and is located via `ANDROMEDA_PULSE_MSEDGEDRIVER_PATH` (never committed). No Rust dependency, no runtime/bundle impact.
 - **CI platform:** GitHub Actions with `tauri-action` + `harden-runner` (SHA-pinned).
 - **Supply chain:** `cargo-audit` 0.22.1 + `cargo-deny` 0.19.4 + `cargo-auditable` 0.7.4 + Dependabot (cargo + github-actions ecosystems).
 
@@ -78,7 +80,7 @@ For architectural rationale behind these choices, see `.andromeda/architecture.m
 
 ## Open reconciliations (deferred)
 - `tonic 0.14.x` vs `opentelemetry-otlp 0.31` (which still pins `tonic 0.13` in some feature combinations) — `cargo deny check bans` enforces; resolve before tagging v0.1.0.
-- `rmcp` "1.5.0" reference vs published `0.3.x` line — verify whether forward-looking, internal spec name, or unrelated `4t145/rmcp` fork.
+- ~~`rmcp` "1.5.0" reference vs published `0.3.x` line~~ — CLOSED by measurement at chunk 2026-08-29-advisory-backlog: the published line reached 3.x; pinned `"3"`, resolved 3.1.4.
 - `rust-toolchain.toml` minimum was `1.84` — bump to `1.85.0` to align with `Cargo.toml edition = "2024"`.
 
 ## Version updates

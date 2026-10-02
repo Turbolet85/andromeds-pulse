@@ -2,7 +2,7 @@
 // Patterns Loading / Empty States. Content lands in chunks #41+ (Investigate
 // trigger + Markdown formatter + token budget).
 
-import { Icon } from "../../components/icons";
+import { EmptyState } from "../../components/EmptyState";
 
 export function SnapshotsRoute() {
   return (
@@ -31,40 +31,5 @@ export function SnapshotsRoute() {
       </h1>
       <EmptyState message="No snapshots yet — Investigate flow lands in chunks #41+" />
     </section>
-  );
-}
-
-interface EmptyStateProps {
-  message: string;
-}
-
-function EmptyState({ message }: EmptyStateProps) {
-  return (
-    <div
-      data-testid="route-empty-state"
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
-        gap: "var(--spacing-sm)",
-        padding: "var(--spacing-xl)",
-        color: "var(--color-text-tertiary)",
-      }}
-    >
-      {/* decorative: omit aria-label entirely — an EMPTY aria-label forces
-          role="img" with no accessible name (svg-img-alt@serious, chunk #99
-          re-audit); BaseIcon defaults to aria-hidden when unlabeled */}
-      <Icon glyph="telescope" size={24} />
-      <p
-        style={{
-          margin: 0,
-          fontFamily: "var(--font-body)",
-          fontSize: "14px",
-        }}
-      >
-        {message}
-      </p>
-    </div>
   );
 }

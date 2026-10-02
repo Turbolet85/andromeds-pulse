@@ -1,0 +1,92 @@
+## Relevant amendment history
+
+- **2026-09-29-p-025-hue-shift-observable-made-gradable — pending coverage triggers: boot failure branch, perf-slo-check arms**. This entry minted the trigger the chunk closes, `perf-slo-check-arm-coverage`.
+  - It records that `xtask/ci/perf-slo-check.sh` used to die under `pipefail` on an empty `grep | sort` and now reads an empty metric stream as NEUTRAL.
+  - None of the arms has a committed test. What is owed: empty ⇒ NEUTRAL, in-budget ⇒ PASS, over-budget ⇒ FAIL. The row points at this route entry as the owner of the CI vacuity.
+  - The same entry widened `harness-cleanup-verdict-and-boot-spawn-shell-coverage` to cover the sh `boot` failure-diagnosis branch and the owed ps1 boot leg. That ps1 leg bears on CARRY 2.
+  - Why both changed: their only evidence was CI exit behaviour. The discharge must be a committed per-arm test, not another live observation.
+- **2026-09-29-ci-wall-time-and-round-trips — CI job rows, the pre-push verb, the boot end-status recorder**. This is the origin of both CARRYs.
+  - §9 re-allocated the caches: `lint-test-{os}` (was `{os}-cargo`); `release` and `mcp-test` restore-only; `a11y` its own job; `boot` owns `boot-Linux` and hosts smoke + `ci-gates`; `supply-chain` restores `boot-Linux`; `coverage` registry-only. `perf:slo-load` selects its test with `--workspace -E` and reuses the test build.
+  - §3 `status` defined `ended` as the `run/andromeda-pulse.exit` record: one line of ≤ 48 printable ASCII, returned only when the verdict is not `running-healthy`, and null under ps1.
+  - §3 `boot` sh runs the app under a waiting subshell that writes `.spawn` (no spawn record in 5 s ⇒ exit 1) and `.exit`. The ps1 twin does not mirror it.
+  - The same entry added `pre-push:linux` with a `ci-gates` stage.
+  - Why it matters: the chunk's cache re-allocation must keep every one of those restores valid and must update the §9 cache column. The ps1 mirror must write exactly the grammar that `read_ended` pins. The measured warm round was 25.5 min.
+- **2026-06-10 — Chunk #99 tag gate: capability verification matrix + four-profile load suite; frame budget reconciled to obs §10**. §10 keeps "≥ 30 fps" as descriptive intent only. The ASSERTED frame budget is obs-plan §10 `metric.webgpu.frame_duration_ms` p99 ≤ 33 ms, and no test may assert an fps number.
+  - It also established that `perf_slo_10k_spans.rs` is the fast per-PR gate and the four-profile `perf_load_profiles.rs` suite is the release/tag gate under nextest `[profile.load-profiles]`.
+  - Standing rule: load-shaped tests join that profile, never `#[ignore]`.
+  - This constrains which perf suite may be recruited as the CI sample producer, and how a new load-shaped test is registered.
+- **2026-08-26-ingest-consumer-stall-under-sustained-load — ingest-progress gate + the router-wiring coverage gap**. It added `check:ingest-progress` to the unconditional gate set on the stated ground that its NEUTRAL arm makes unconditional listing safe, "matching the §10 load-profile check scripts".
+  - It also minted `viz-read-connection-router-wiring-coverage` as the "one-time proof standing in for a gate" class.
+  - Why it matters: the chunk's vacuous-gate guard must not break the NEUTRAL-when-nothing-booted property that other callers of the perf-slo scripts rely on (`perf:load-profiles`, local `pre-push:linux`).
+  - The per-arm pins answer the one-time-proof class.
+- **2026-08-28-ingest-consumer-initiating-freeze — gap-resume registered as a SCENARIO, and the RED-leg rule qualified by defect shape**. It qualified the Direct-binary smoke RED-leg rule: a BLOCK-shaped defect produces no ERROR, and a clean-log assertion passes VACUOUSLY. For that shape the evidence of record is absence-of-progress.
+  - Scenario legs self-prove: an unmet precondition reports INCONCLUSIVE, never PASS.
+  - This is the direct precedent for a RED leg at `fb93fca` whose evidence is 0 frame / memory / snapshot samples, and for the sample-presence floor reading INCONCLUSIVE or FAIL, not PASS.
+- **2026-08-28-ingest-consumer-block-under-gap-resume — gap-resume registered at THREE arms, each with its own precondition**. Preconditions are per-arm and non-borrowable, and a run where the producer never delivered cannot pass vacuously (`StormEvidence::fed()`).
+  - It recorded a known gap: an observe window below the verdict's threshold made the check "structurally incapable of failing".
+  - That is the same vacuity class as a perf gate over a sample-less log, and it argues for a per-target sample floor rather than one aggregate floor.
+- **2026-08-28-duplicate-span-replay-fails-loudly — arm A gate-grade, observe-window closed, two disproofs**. It closed the observe-window vacuity in code with `observe_window_supports_verdict()`, a guard that refuses a configuration unable to fail. That is a precedent for the vacuous-gate guard's form.
+  - It also recorded that an `[[example]]` target runs under nextest ONLY with an explicit `test = true`: 0 of 8 tests were collected until the manifest declared it.
+  - This is relevant to "a committed test collected by name" for the per-arm pins.
+- **2026-08-23-metrics-points-identity — allocator trigger closed; the builder-factory mandate corrected at four sites; RED-leg smoke scoping codified**. It scoped the Direct-binary smoke 0-ERROR clean-log assertion to the GREEN leg only, because a measure-first RED leg must be allowed to show its defect.
+  - It also noted that `agent-run.sh status` then exited 0 against a dead system. A later entry retired that behaviour.
+  - This shapes how the chunk's RED/GREEN measurement is asserted.
+- **2026-08-15-tier-1-incident-path-investigation — run-scope must match build-scope; observability.rs is a boot path**.
+  - It is the origin of narrowing `pulse-app` runs with `-E` under `--workspace`, never `-p`. The measured failure was an rlib link error.
+  - It added `pulse-app/src/observability.rs` to the Boot-smoke trigger list.
+  - It created the Direct-binary smoke variant: a fresh data dir, the run's own log artifacts, and shutdown by a specific pid.
+  - Why it matters: any emitter edit in `observability.rs` makes the boot smoke mandatory, which is an operator slot. A new sample-producing CI step should reuse the `--workspace -E` build selection.
+- **2026-08-26-cadence-runaway-blocking-pool — two coverage triggers minted; smoke profile broadened**. The Direct-binary smoke variant now accepts either the debug or the release binary, because rebuild freshness is what is load-bearing.
+  - It is also a further instance of the one-time-live-proof trigger class.
+  - This matters for the chunk's sample-producing live legs, which are operator slots.
+- **2026-05-09 — Gap: §3 harness needs a per-chunk Tauri-dev runtime smoke gate for boot-path chunks**. It created the conditional Boot-smoke gate for plans touching `main.rs`, `crates/ui-bridge/src/`, `tauri.conf.json` or `capabilities/*.json`.
+  - This chunk inherits that gate if an emitter edit lands in `main.rs` or `ui-bridge`.
+- **2026-05-10 — Gap: chunk plans MUST include the standard gate baseline regardless of scope**. It established that every plan's `## Test Commands` carries the full standard gate set. The webview npm gates are required only when `pulse-app/ui/**` is touched.
+- **2026-08-30-staged-bindings-assertion — gate set + ordering note + trigger discharge + pipeline row**.
+  - `check:staged-artifacts` became an unconditional gate-set member, folded into `capability-drift`.
+  - The §9 row precedent: a new CI check is a plain named `run:` step with no action added and permissions untouched.
+  - Why it matters: this is the gate set the plan lists, and the form any new ci.yml step should take.
+- **2026-09-30-dual-license — §3 gate order: capability-drift before the workspace nextest**. The current ordering rule: `capability-drift` runs BEFORE the default-features workspace nextest. The `--features mcp-server` `emit_taurpc_bindings` regen is the last cargo-adjacent step, closed by `git diff --quiet <chunk-base> -- pulse-app/ui/src/bindings/index.ts`.
+  - That close is measured only for chunks adding no TauRPC procedure, which holds here unless an emitter needs one.
+- **2026-08-30-agent-harness-teardown-truth — §3 harness re-aligned AS-OPEN → as-designed (boot pre-build + direct spawn · cleanup verdict contract · PID location/lifecycle) + §1 caveat retired + NEW shell-coverage trigger + §9 gating boot-smoke stage**.
+  - `boot` pre-builds and spawns the release binary by path. The PID file is `<data_dir>/run/andromeda-pulse.pid`, and the app-written pid is canonical.
+  - The cleanup verdict was mirrored to ps1, but its live leg is owed under `harness-cleanup-verdict-and-boot-spawn-shell-coverage`.
+  - The §9 Linux boot-smoke stage is GATING.
+  - Why it matters: the ps1 `.spawn` / `.exit` mirror sits beside that pidfile, and changing what the `boot` job's log carries must keep the gating stage green.
+- **2026-08-30-diagnostics-un-muting-harness-truth-sweep — 17-stage leg (boot-geometry) · harness status verdict contract · corpus v2 pins · dead-lib-src trigger + ratchet · log-family unit half landed**.
+  - It established the `harness:status` real-process verdict with a pure `classify()` pinned per arm. That is the pure-fn-plus-per-arm-pin form the perf-slo arms follow.
+  - The unit half of `harness-log-family-resolution-coverage` landed (`read_jsonl_lines` resolves the date-suffixed family). The shell half stays open.
+  - The 17-stage headful path is the natural frame-sample source.
+- **2026-09-29-p-025-hue-shift-observable-made-gradable — harness:status liveness; boot names how a failed app ended**. `status` gained a pid liveness probe: `ps` on sh, `tasklist` on Windows. `classify(pid, alive, newest_log)` is pinned per arm, and the sh `boot` failure path names how the app ended.
+  - `scripts/agent-run.sh` must stay git mode 100755; at 100644 the branch died with exit 126.
+  - Why it matters: this is the Windows-side status path the ps1 `ended` mirror feeds.
+- **2026-08-25-demo-injector-formalized-api-surface-retire — logs verb re-synced to the rotated family; one trigger retired, two minted**. §3 `logs` reads the rotated `agent-latest.jsonl*` family ("the `*` is load-bearing"), and it minted `harness-log-family-resolution-coverage`.
+  - Why it matters: `run_ci_gates` handing `perf-slo-check` only `log_files.last()` may miss samples in another family member. That is the extract's open research question.
+- **2026-09-29-p-025-hue-shift-observable-made-gradable — CI rows: per-job DATA_DIR export, xvfb, a11y measured green**.
+  - The `boot` job's cycle runs inside one `xvfb-run`.
+  - Every job exports `ANDROMEDA_PULSE_DATA_DIR` to `$GITHUB_ENV` right after harden-runner, and two workflow self-lint guards pin that export.
+  - The a11y suite is measured green in CI.
+  - Why it matters: this is the environment of any sample-producing extension of the `boot` job, and whether a frame can render under xvfb is research's question. A new or edited job must keep the export and pass the self-lints.
+- **2026-08-23-webview-self-verify — headful agent-driven GUI automation is LIVE; runner recorded; 2 coverage triggers**. §9 E2E names `cargo xtask webview-drive` and states that it is NOT wired into any workflow. msedgedriver resolves via `ANDROMEDA_PULSE_MSEDGEDRIVER_PATH`.
+  - This is the stated-as-measured basis for "the frame sample's natural source is not CI-wired".
+- **2026-08-23-integration-ux-e2e-test — the headful leg is a 7-stage assembled path; a real selector strategy; 1 new trigger, 2 narrowed**.
+  - §9 E2E records the CI prerequisites for the leg (node, a prebuilt injector) and keeps it NOT CI-wired.
+  - A per-stage JSON report carries the verdict, so a CI wiring must assert the leg RAN, not just its exit code.
+  - This bears on the cost and form if webview-drive becomes the frame producer.
+- **2026-08-24-headful-mechanics-probe-race-disposition — leg 13 → 15, two stages DECLINED on measurement, race boundary corrected**. It measured the automation-environment navigation race (the driver recovers by re-navigating) and confined it by the `app.boot.window.navigation` detector.
+  - A CI-wired headful frame producer would inherit that race and the §10 zero-flake budget.
+- **2026-08-23-a11y-verification — Traces-semantics trigger closed (premise retracted) + the browser-driven a11y tier recorded (5 sites)**. It recorded the browser-driven a11y tier (Playwright + axe + pa11y + Lighthouse, real Chromium against the built webview) as a §9 stage that runs in CI.
+  - That stage is a candidate for already-running webview execution in CI. Whether it can yield `frame_duration_ms` samples is research's question.
+- **2026-08-30-npm-advisory-coverage — §9 supply-chain stage row + §1 playwright --list correction**. It states the §9 rule that "a CI stage the table does not list reads as not-wired".
+  - Any sample-producing step or cache change this chunk makes owes its §9 row at wrap.
+- **2026-08-30-dead-lib-src-test-migration — trigger discharged (102, drained) · ratchet flat-zero · §4 zero-exceptions · NEW snapshot-resolver trigger**.
+  - The ratchet is flat zero for pulse-app lib-src tests, so any emitter probe goes in `pulse-app/tests/*.rs`.
+  - It minted `snapshot-resolver-level-coverage`: linking `SnapshotApiImpl::generate` aborts any test binary at load (`STATUS_ENTRYPOINT_NOT_FOUND`).
+  - Why it matters: an in-process test cannot drive the snapshot resolver to produce `metric.snapshot.token_count_ms` samples, which constrains the snapshot-arm sample source.
+- **2026-09-29-p-025-hue-shift-observable-made-gradable — smoke:hue-shift registered as the third scenario leg**. It established the scenario-leg shape: exit 0 PASS / 1 FAIL / 2 INCONCLUSIVE when a precondition is unmet, an artifact under `target/`, RED at the pre-fix HEAD and GREEN after.
+  - It is the template for the chunk's RED/GREEN sample measurement.
+- **2026-09-30-p-027-discovery-bound — smoke:discovery, the fourth scenario leg; discovery-observer wiring trigger**. This is the most recent scenario-leg precedent: INCONCLUSIVE on unmet preconditions and on a data dir already holding a log family, with a too-short window refused. The RED and GREEN legs are each measured on a fresh data dir.
+  - It is also the latest one-time-proof trigger mint.
+  - Why it matters: a fresh-data-dir sample leg must not read a stale log family.
+- **2026-09-29-p-025-hue-shift-observable-made-gradable — coverage measure excludes xtask TEMPORARILY**. `xtask/` is excluded from the coverage measure via `COVERAGE_IGNORE_FILENAME_REGEX`, pending re-inclusion at the next epoch-boundary audit.
+  - The chunk's new xtask per-arm and floor pins will not move the coverage numbers. The thresholds are unchanged.

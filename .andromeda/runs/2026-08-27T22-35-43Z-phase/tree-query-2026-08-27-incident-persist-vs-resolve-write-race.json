@@ -1,0 +1,208 @@
+[
+{
+"sql": "SELECT caller, file, line FROM calls WHERE callee LIKE '%update_incident_status%' ORDER BY file, line;",
+"rows": 11,
+"result": [
+{
+"caller": "rust-analyzer cargo corpus 0.1.0 contract/tests/load_incident_by_id_returns_resolved_row().",
+"file": "crates/corpus/src/contract.rs",
+"line": 1271
+},
+{
+"caller": "rust-analyzer cargo mcp-server 0.1.0 tools/dispatch_mark_incident_resolved().",
+"file": "crates/mcp-server/src/tools.rs",
+"line": 461
+},
+{
+"caller": "rust-analyzer cargo triage 0.1.0 incident/persistence/run_incident_persist_cycle().",
+"file": "crates/triage/src/incident/persistence.rs",
+"line": 170
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 incident_observer/impl#[AutoResolveObserver]run_one_tick().",
+"file": "pulse-app/src/incident_observer.rs",
+"line": 73
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 incident_persistence/impl#[CorpusIncidentPersistence][IncidentPersistence]update_incident_status().",
+"file": "pulse-app/src/incident_persistence.rs",
+"line": 64
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 incidents_router/impl#[IncidentsApiImpl][IncidentsApi]list_active().",
+"file": "pulse-app/src/incidents_router.rs",
+"line": 238
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 incidents_router/impl#[IncidentsApiImpl][IncidentsApi]list_active().",
+"file": "pulse-app/src/incidents_router.rs",
+"line": 309
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 inference_runtime/attach_resolution_summary_to_incident().",
+"file": "pulse-app/src/inference_runtime.rs",
+"line": 638
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 inference_runtime/create_incident_from_l4_output().",
+"file": "pulse-app/src/inference_runtime.rs",
+"line": 825
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 update_incident_status_persists_acknowledge_state().",
+"file": "pulse-app/tests/unit_incident_persistence.rs",
+"line": 276
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 update_incident_status_resolved_excludes_from_active_list().",
+"file": "pulse-app/tests/unit_incident_persistence.rs",
+"line": 298
+}
+],
+"db_state": "fresh",
+"plane": "rust"
+},
+{
+"sql": "SELECT callee, file, line FROM refs WHERE callee LIKE '%update_incident_status%' ORDER BY file, line;",
+"rows": 11,
+"result": [
+{
+"callee": "rust-analyzer cargo corpus 0.1.0 contract/CorpusWriter#update_incident_status().",
+"file": "crates/corpus/src/contract.rs",
+"line": 1271
+},
+{
+"callee": "rust-analyzer cargo corpus 0.1.0 contract/CorpusWriter#update_incident_status().",
+"file": "crates/mcp-server/src/tools.rs",
+"line": 461
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 incident/persistence/IncidentPersistence#update_incident_status().",
+"file": "crates/triage/src/incident/persistence.rs",
+"line": 170
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 incident/persistence/IncidentPersistence#update_incident_status().",
+"file": "pulse-app/src/incident_observer.rs",
+"line": 73
+},
+{
+"callee": "rust-analyzer cargo corpus 0.1.0 contract/CorpusWriter#update_incident_status().",
+"file": "pulse-app/src/incident_persistence.rs",
+"line": 64
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 incident/persistence/IncidentPersistence#update_incident_status().",
+"file": "pulse-app/src/incidents_router.rs",
+"line": 238
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 incident/persistence/IncidentPersistence#update_incident_status().",
+"file": "pulse-app/src/incidents_router.rs",
+"line": 309
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 incident/persistence/IncidentPersistence#update_incident_status().",
+"file": "pulse-app/src/inference_runtime.rs",
+"line": 638
+},
+{
+"callee": "rust-analyzer cargo triage 0.1.0 incident/persistence/IncidentPersistence#update_incident_status().",
+"file": "pulse-app/src/inference_runtime.rs",
+"line": 825
+},
+{
+"callee": "rust-analyzer cargo pulse-app 0.1.0 incident_persistence/impl#[CorpusIncidentPersistence][IncidentPersistence]update_incident_status().",
+"file": "pulse-app/tests/unit_incident_persistence.rs",
+"line": 276
+},
+{
+"callee": "rust-analyzer cargo pulse-app 0.1.0 incident_persistence/impl#[CorpusIncidentPersistence][IncidentPersistence]update_incident_status().",
+"file": "pulse-app/tests/unit_incident_persistence.rs",
+"line": 298
+}
+],
+"db_state": "fresh",
+"plane": "rust"
+},
+{
+"sql": "SELECT caller, file, line FROM calls WHERE callee LIKE '%LifecyclePersistence#save_all%' ORDER BY file, line;",
+"rows": 1,
+"result": [
+{
+"caller": "rust-analyzer cargo triage 0.1.0 lifecycle/persistence/run_lifecycle_persist_cycle().",
+"file": "crates/triage/src/lifecycle/persistence.rs",
+"line": 111
+}
+],
+"db_state": "fresh",
+"plane": "rust"
+},
+{
+"sql": "SELECT caller, file, line FROM calls WHERE callee LIKE '%StormPersistence#save%' ORDER BY file, line;",
+"rows": 3,
+"result": [
+{
+"caller": "rust-analyzer cargo triage 0.1.0 pattern/persistence/run_storm_persist_cycle().",
+"file": "crates/triage/src/pattern/persistence.rs",
+"line": 173
+},
+{
+"caller": "rust-analyzer cargo triage 0.1.0 pattern/persistence/tests/impl#[FakeStormPersistence]saved().",
+"file": "crates/triage/src/pattern/persistence.rs",
+"line": 259
+},
+{
+"caller": "rust-analyzer cargo triage 0.1.0 pattern/persistence/tests/impl#[FakeStormPersistence][StormPersistence]save().",
+"file": "crates/triage/src/pattern/persistence.rs",
+"line": 272
+}
+],
+"db_state": "fresh",
+"plane": "rust"
+},
+{
+"sql": "SELECT caller, file, line FROM calls WHERE callee LIKE '%IncidentPersistence#load_active_incidents%' ORDER BY file, line;",
+"rows": 4,
+"result": [
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 main().",
+"file": "pulse-app/src/main.rs",
+"line": 750
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 auto_resolution_persists_resolved_state_in_corpus().",
+"file": "pulse-app/tests/e2e_incidents_lifecycle.rs",
+"line": 292
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 findings_counter_state_persists_across_app_restart().",
+"file": "pulse-app/tests/integration_findings_counter_persists_across_restart.rs",
+"line": 123
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 produced_incident_persists_across_restart_with_scope_id().",
+"file": "pulse-app/tests/integration_incident_producer_persists_across_restart.rs",
+"line": 118
+}
+],
+"db_state": "fresh",
+"plane": "rust"
+},
+{
+"sql": "SELECT from_crate, to_crate FROM crate_edges WHERE to_crate = 'corpus' OR from_crate = 'corpus' ORDER BY from_crate, to_crate;",
+"rows": 2,
+"result": [
+{
+"from_crate": "mcp-server",
+"to_crate": "corpus"
+},
+{
+"from_crate": "pulse-app",
+"to_crate": "corpus"
+}
+],
+"db_state": "fresh",
+"plane": "rust"
+}
+]

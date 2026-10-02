@@ -1,0 +1,21 @@
+chore(setup-project): delta-rerun for 1 amendment (chunk #96 Configuration hot reload + prospective threshold application — route-append)
+
+Type 7 route-append amendment (--allow-route-append) propagated:
+  - 2026-06-04T06-33-54-append-chunk-96-config-hot-reload:
+    route.md §2 Epoch 9 (chunk #96) + §1 Total chunks 95->96 + §3 Decisions Log
+    -> CLAUDE.md pointer-table (9 epochs / 95 -> 96 chunks) (Branch a — Type 7 cascade)
+
+Registered: chunk #96 "Configuration hot reload + prospective threshold application"
+as terminal chunk of Epoch 9 — Foundation v0.2.0 (capabilities P-055/P-056; source
+docs/v0_2_0/pulse-v0_2_0-route.md §94). Route now 96 chunks.
+
+Files touched: 1 delta-scoped (CLAUDE.md pointer-table) + route.md (chunk registration from /andromeda-evolve).
+Files preserved byte-identical: rest of CLAUDE.md ecosystem (Tier 2/3 + harness + reviewer + hooks + gitignore).
+Cross-skill diff: 6/6 shared contracts byte-identical across triangle skills.
+
+state.yaml.spec_amendments.active[0].propagated_by_run set.
+Marker updated: 1 (lifecycle: Propagated checkbox set).
+
+Next: /andromeda-wrap-session to archive the propagated amendment.
+
+Co-Authored-By: Claude Opus 4.8 (1M context) <noreply@anthropic.com>

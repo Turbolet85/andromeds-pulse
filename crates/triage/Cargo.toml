@@ -24,7 +24,6 @@ tracing.workspace = true
 tdigest.workspace = true
 dashmap.workspace = true
 bincode.workspace = true
-strict-path.workspace = true
 tokio.workspace = true
 # Chunk #79 — L1a SQL aggregation queries (`baseline::sql` module) against
 # the L0 DuckDB ring buffer.

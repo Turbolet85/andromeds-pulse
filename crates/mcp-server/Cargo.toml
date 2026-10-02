@@ -28,6 +28,10 @@ snapshot = { path = "../snapshot" }
 corpus = { path = "../corpus" }
 triage = { path = "../triage" }
 interpretation = { path = "../interpretation" }
+# The incident workspace key is single-sourced here: the app publishes what
+# it stamps, the sidecar reads it. Importing pulse-app instead would be a
+# dependency cycle (pulse-app depends on this crate).
+workspace-detector = { path = "../workspace-detector" }
 rmcp = { workspace = true, optional = true }
 
 [features]

@@ -1,0 +1,65 @@
+[
+{
+"sql": "SELECT caller, file, line FROM calls WHERE callee LIKE '%build_logs_record_batch%' OR callee LIKE '%append_record_batch_to_table%' ORDER BY file, line;",
+"rows": 11,
+"result": [
+{
+"caller": "rust-analyzer cargo buffer 0.1.0 appender/append_spans_batch().",
+"file": "crates/buffer/src/appender.rs",
+"line": 521
+},
+{
+"caller": "rust-analyzer cargo buffer 0.1.0 appender/append_metrics_batch().",
+"file": "crates/buffer/src/appender.rs",
+"line": 544
+},
+{
+"caller": "rust-analyzer cargo buffer 0.1.0 appender/append_logs_batch().",
+"file": "crates/buffer/src/appender.rs",
+"line": 564
+},
+{
+"caller": "rust-analyzer cargo buffer 0.1.0 appender/append_logs_batch().",
+"file": "crates/buffer/src/appender.rs",
+"line": 567
+},
+{
+"caller": "rust-analyzer cargo buffer 0.1.0 appender/append_span_events_batch().",
+"file": "crates/buffer/src/appender.rs",
+"line": 591
+},
+{
+"caller": "rust-analyzer cargo buffer 0.1.0 appender/tests/drain_pii_canary_email_redacted_in_log_templates().",
+"file": "crates/buffer/src/appender.rs",
+"line": 1172
+},
+{
+"caller": "rust-analyzer cargo buffer 0.1.0 appender/tests/drain_pii_canary_email_redacted_in_log_templates().",
+"file": "crates/buffer/src/appender.rs",
+"line": 1175
+},
+{
+"caller": "rust-analyzer cargo buffer 0.1.0 consumer/",
+"file": "crates/buffer/src/consumer.rs",
+"line": 11
+},
+{
+"caller": "rust-analyzer cargo buffer 0.1.0 consumer/",
+"file": "crates/buffer/src/consumer.rs",
+"line": 11
+},
+{
+"caller": "rust-analyzer cargo buffer 0.1.0 consumer/dispatch_batch().",
+"file": "crates/buffer/src/consumer.rs",
+"line": 138
+},
+{
+"caller": "rust-analyzer cargo buffer 0.1.0 consumer/append_table_traced().",
+"file": "crates/buffer/src/consumer.rs",
+"line": 181
+}
+],
+"db_state": "fresh",
+"plane": "rust"
+}
+]

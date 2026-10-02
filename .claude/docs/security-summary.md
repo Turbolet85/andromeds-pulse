@@ -9,17 +9,18 @@ _Distilled from `.andromeda/security-plan.md` by `/setup-project`. Read on deman
 
 ## Data classifications
 - **user-content (telemetry payloads):** OTLP traces / metrics / logs in-memory in DuckDB ring buffer + curated snapshots persisted to `~/.andromeda-pulse/snapshots/`. Telemetry can incidentally contain secrets, IDs, URLs, error messages, SQL fragments from instrumented host applications — OTLP attributes are user-controlled content.
-- **config:** `~/.andromeda-pulse/config.toml` + env vars. Surface is small (enum settings, port ranges, file paths).
+- **config:** `~/.andromeda-pulse/config.toml` + env vars. Surface is small (enum settings, port ranges, file paths) — with ONE secret-bearing exception: `ANDROMEDA_PULSE_CORPUS_PASSPHRASE` (opt-in corpus-key fallback; bounded parse ≤1024 bytes, secret-class, never logged).
+- **secret (corpus encryption key):** 32-byte AES-256-GCM cell key for `~/.andromeda-pulse/corpus/corpus.db`, sourced from the OS credential store via `keyring` 3 declared with its explicit platform feature set (keyring 3.x has no `default` feature — a bare `keyring = "3"` links no backend and silently yields a per-process key). Opt-in `ANDROMEDA_PULSE_CORPUS_PASSPHRASE` BLAKE3 fallback, warning once per boot; nothing written to disk. Never logged, never exported (chunk 2026-08-15-corpus-key-persistence).
 - **config (signing/release):** GitHub Actions encrypted secrets + Azure Key Vault Premium SKU. Apple Developer ID. Updater public key baked into `tauri.conf.json`.
 - **user-content (third-party WASM plugins):** `~/.andromeda-pulse/plugins/` loaded by `wasmtime` Component Model host. Capability-scoped per WIT imports. Signed-plugin verification deferred post-v1.
 - **NONE:** credentials / PII / payment / health.
 
 ## Attack surface (vectors)
 1. **OTLP/gRPC `:4317` + OTLP/HTTP `:4318`** — bound `127.0.0.1` ONLY. `tonic` 0.14 + `axum` 0.8 servers; `prost`/`tonic` decode validates wire format.
-2. **TauRPC IPC bridge** — `pulse:default` capability enumerates exactly the procedures listed in arch §Occupied Resources. Errors collapse to `serde`-friendly `AppError` enum.
+2. **TauRPC IPC bridge** — `pulse:default` admits the webview to the IPC layer as a whole (no per-procedure enumeration; one TauRPC invoke handler, measured 2026-08-21); per-procedure coverage is the validated argument struct + the `EXPECTED_PROCEDURES` drift gate. Errors collapse to `serde`-friendly `AppError` enum.
 3. **Plugin host (WASM Component Model)** — `~/.andromeda-pulse/plugins/` filesystem load by `wasmtime` 25+. Capability-scoped sandboxing; guests receive only host imports declared in WIT.
-4. **MCP stdio surface** — `andromeda-pulse-mcp` rmcp sidecar. JSON-RPC 2.0 over stdin/stdout. Feature double-gated (`--features mcp-server` + `ANDROMEDA_PULSE_MCP_ENABLED=true`).
-5. **Filesystem reads (config + workspace detection)** — env-overridable paths require `strict-path` canonicalization + confinement.
+4. **MCP stdio surface** — `andromeda-pulse-mcp` sidecar: hand-rolled serde JSON-RPC 2.0 over stdin/stdout (`jsonrpc.rs`; `rmcp` is a feature-gated anchor import, not the protocol layer). Feature double-gated (`--features mcp-server` + `ANDROMEDA_PULSE_MCP_ENABLED=true`).
+5. **Filesystem reads (config + workspace detection)** — env-overridable paths require `std` both-sides-canonicalize + confinement (the `publish_workspace_key` precedent; the single path primitive since 2026-08-29 — `strict-path` dropped, never used).
 6. **In-app updater** — `tauri-plugin-updater` 2.x consuming `latest.json` from GitHub Releases. Minisign Ed25519 verification mandatory and cannot be disabled.
 7. **OS notification / tray** — outbound user-facing only (capability-gated).
 8. **CLI / env vars** — `serde` + `TryFrom<u16>` validation.
@@ -27,26 +28,27 @@ _Distilled from `.andromeda/security-plan.md` by `/setup-project`. Read on deman
 
 ## Bootstrap phases (route ordering)
 Per security plan §Bootstrap phases:
-1. `input-validation-library-install` — `serde` + `TryFrom<u16>` + add `strict-path` for path canonicalization. Defer `garde` 0.20+ until plugin manifest cross-field validation needed.
-2. `dep-audit-tooling-install` — `cargo-audit` 0.22.1 + `cargo-deny` 0.19.4 (with `[bans] multiple-versions = "deny"` + explicit `tonic` ban entry until reconciliation lands; `[licenses]` SPDX allowlist; `[sources]` restricted to `crates-io`) + `cargo-auditable` 0.7.4 + Dependabot.
+1. `input-validation-library-install` — `serde` + `TryFrom<u16>`; path canonicalization via `std` both-sides-canonicalize (the former `strict-path` mandate RETIRED, executed as DROP at 2026-08-29-advisory-backlog). Defer `garde` 0.20+ until plugin manifest cross-field validation needed.
+2. `dep-audit-tooling-install` — `cargo-audit` 0.22.1 + `cargo-deny` 0.19.4 (with `[bans] multiple-versions = "deny"` + explicit `tonic` ban entry until reconciliation lands; `[licenses]` SPDX allowlist, which checks the workspace's own crates too (no `private` key; the project's own `MIT OR Apache-2.0` passes it); `[sources]` restricted to `crates-io`) + `cargo-auditable` 0.7.4 + Dependabot.
 3. `secret-management-init` — Azure Key Vault Premium SKU (HSM-RSA Windows EV) + GitHub OIDC federation; Tauri updater Minisign Ed25519 keypair generation; private keys never leave Vault.
 4. `secret-scanning-ci-gate` — pre-commit + per-PR (gitleaks or trufflehog SHA-pinned). `.gitignore` covers `*.p12`, `*.pem`, `*.cer`, `.env*`, `*.key`, `~/.tauri/*.key`.
 5. `error-sanitization-wire` — `AppError` boundary collapse; `tonic::Status` for OTLP; JSON-RPC 2.0 error object for MCP. No stack traces / paths / library versions / Rust struct names leak.
 6. `logging-redaction-wire` — `tracing-subscriber::fmt::Layer::json()` writing to `~/.andromeda-pulse/logs/agent-latest.jsonl` (canonical self-observation surface per obs-plan §3 `2026-05-02 — Phase 3.5 pivot to tracing-only self-observation`; legacy `opentelemetry-stdout` references in security-plan.md §Data Protection / §Bootstrap phases / §Logging & Monitoring bodies are obsolete-but-equivalent — both produce JSON-per-line at the same path; functionally identical; no security-posture change. Body sites annotated with `> **DEPRECATED (2026-05-08)**` blockquotes preserving content verbatim for audit trail). Snapshot/clipboard/MCP-tool-response paths apply attribute-value redaction. Per amendments `2026-05-08T17-28-25Z-reconcile-otel-stdout-references` (Decisions Log only) + `2026-05-08T21-00-00-obs-pivot-security-bodies` (body annotations at security-plan.md lines 154/239/330).
-7. `dep-security-ci-gate` — `cargo audit` + `cargo deny check` + `Cargo.lock` integrity + `xtask capability-drift` + `step-security/harden-runner` (SHA-pinned, egress-policy: audit then promote to block).
+7. `dep-security-ci-gate` — `cargo audit` + `cargo deny check` + `Cargo.lock` integrity + `xtask capability-drift` (extended 2026-08-30 with the staged-index assertion; `xtask check:staged-artifacts` is the direct verb + its own ci.yml step) + `step-security/harden-runner` (SHA-pinned, egress-policy: audit then promote to block).
 
 ## Top anti-patterns (universal — see `.claude/rules/security.md` for full list)
 - NEVER bind OTLP receivers to `0.0.0.0` or any non-loopback interface.
 - NEVER `format!("SELECT … WHERE service_name = '{}'")` against the `duckdb` crate — ALWAYS prepared statements with `?` placeholders.
 - NEVER skip post-`prost`-decode invariant checks (`span_id` is 8 bytes, `trace_id` is 16 bytes).
-- NEVER read path env vars without `strict-path` canonicalize + confinement.
-- NEVER add a TauRPC procedure without `pulse-app/capabilities/` JSON entry — silent runtime rejection.
+- NEVER read a **product-binary** path env var without `std` both-sides-canonicalize + confinement (the single path primitive since 2026-08-29-advisory-backlog — `strict-path` was declined at the 2026-08-26 P4 review and then DROPPED from the graph, never used). Harness/xtask-only tool-locator vars (`ANDROMEDA_PULSE_MSEDGEDRIVER_PATH`, `_PIDFILE`, `_LOGFILE`) are carved out — trim + `is_file()` + clean skip; the `agent-run.{sh,ps1}` boot-recorder state files `run/andromeda-pulse.{spawn,exit}` are a sibling harness-only class (harness-written, read only by `boot` and `harness:status` through a bounded one-line grammar, never by the product). **Narrowed exception (guard landed 2026-08-26):** three PRODUCT-consumed vars — `ANDROMEDA_PULSE_MODEL_PATH` / `_LLAMA_CUDA_BIN_PATH` / `_LLAMA_CPU_BIN_PATH` — reject traversal BEFORE canonicalizing, bound length (4096), canonicalize and assert regular-file, with confinement **opt-in** via `ANDROMEDA_PULSE_L4_ALLOW_ROOT` (fail-closed when set-but-unresolvable; opt-in because the model and `llama-cli.exe` live outside the data dir by design). Residual, scoped: on a host that leaves the root unset an actor who can set these vars can still point the product at an arbitrary file — but that posture is announced once per boot rather than silent. See security-plan §Security Anti-Patterns → Input.
+- NEVER add a TauRPC procedure without its `EXPECTED_PROCEDURES` pin in `xtask/src/main.rs` + a validated argument struct (per-procedure capability JSON entries do NOT exist — one TauRPC invoke handler). NEVER grant a core API (`fs`/`shell`/`dialog`/`http`) or a `core:window:*` permission without an explicit capability addition — THOSE are silently rejected at runtime.
 - NEVER override `tauri-plugin-updater` Minisign verification; NEVER ship the Minisign **private** key in repo.
 - NEVER reference 3rd-party Actions by `@v2` / floating tag — pin by 40-char SHA (tj-actions/changed-files CVE-2025-30066, 23k repos).
 - NEVER widen `pulse:default` with Tauri core APIs (`fs`, `shell`, `dialog`, `http`).
 - NEVER `tokio::process::Command::new(...).arg(user_input)` against OTLP attribute / MCP tool argument / workspace-detector output.
 - NEVER ship release without resolving `tonic 0.14 ↔ tonic 0.13 (via opentelemetry-otlp 0.31)` duplicate.
 - NEVER let rust-toolchain drift below `1.85.0` — Edition 2024 cannot parse without it.
+- NEVER log from a C `atexit` / signal handler on the exiting thread (glibc destroys its thread-locals first; a panic there aborts) — hand off to a thread spawned at install, and re-raise the same signal so the process still ends BY it.
 
 ## Open residual risks (Decisions Log)
 - **WASM plugin signature verification deferred post-v1** — third-party plugins run unverified in v1; capability-scoped WIT + `ResourceLimiter` mitigate impact, not provenance. Document in user-facing plugin install README.

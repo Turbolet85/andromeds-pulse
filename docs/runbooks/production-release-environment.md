@@ -2,9 +2,9 @@
 
 **Status:** scaffolded at chunk #6; secret population DEFERRED per chunk #3 scope split (route Decisions Log 2026-05-03).
 
-**Update 2026-05-13 (session 62 chunk #52):** ACTIVE-scope deliverable `.github/workflows/release.yml` landed; references this Environment on the `publish-bundle` job per §Workflow reference shape below. Secret name alignment verified against release.yml env var consumption: Items 1-4 of DEFERRED scope correctly map to the workflow's secret references (`AZURE_*`, `APPLE_*`, `MINISIGN_*`, distribution channel tokens). The gh api commands в §Create the Environment below remain idempotent and accurate against current GitHub REST API as of session 62. DEFERRED scope (Items 1-4 paid + external-account work) remains operator-driven pre-v0.1.0 release blocker.
+**Update 2026-05-13 (session 62 chunk #52):** ACTIVE-scope deliverable `.github/workflows/release.yml` landed; references this Environment on the `publish-bundle` job per §Workflow reference shape below. Secret name alignment verified against release.yml env var consumption: Items 1-4 of DEFERRED scope correctly map to the workflow's secret references (`AZURE_*`, `APPLE_*`, `MINISIGN_*`, distribution channel tokens). The gh api commands in §Create the Environment below remain idempotent and accurate against current GitHub REST API as of session 62. DEFERRED scope (Items 1-4 paid + external-account work) remains operator-driven pre-v0.1.0 release blocker.
 
-**Update 2026-05-14 (session 63 chunk #53):** ACTIVE-scope deliverable `.github/workflows/update-channels.yml` landed; chains FROM chunk #52's release.yml via `workflow_run` trigger + `conclusion == 'success'` guard. The workflow consumes the `sha256-${runner.os}` artifacts (Linux + macOS + Windows = 3 artifacts) emitted by release.yml + templates Homebrew Formula DSL + Scoop manifest JSON + opens PRs к the two external repos (`turbolet85/homebrew-andromeda-pulse` + `turbolet85/scoop-andromeda-pulse`) via `peter-evans/create-pull-request`. Two new DEFERRED scope items added below (Items 5-6) covering external repo bootstrap + PAT provisioning refinement for the PR creation flow. Existing Item 4 (`HOMEBREW_TAP_PUSH_TOKEN` + `SCOOP_BUCKET_PUSH_TOKEN` token names) remains accurate; Item 6 supersedes Item 4's PAT scope guidance с the chunk #53-specific `pull_request: write` requirement. DEFERRED scope total: Items 1-6 (all pre-v0.1.0 release blockers).
+**Update 2026-05-14 (session 63 chunk #53):** ACTIVE-scope deliverable `.github/workflows/update-channels.yml` landed; chains FROM chunk #52's release.yml via `workflow_run` trigger + `conclusion == 'success'` guard. The workflow consumes the `sha256-${runner.os}` artifacts (Linux + macOS + Windows = 3 artifacts) emitted by release.yml + templates Homebrew Formula DSL + Scoop manifest JSON + opens PRs to the two external repos (`turbolet85/homebrew-andromeda-pulse` + `turbolet85/scoop-andromeda-pulse`) via `peter-evans/create-pull-request`. Two new DEFERRED scope items added below (Items 5-6) covering external repo bootstrap + PAT provisioning refinement for the PR creation flow. Existing Item 4 (`HOMEBREW_TAP_PUSH_TOKEN` + `SCOOP_BUCKET_PUSH_TOKEN` token names) remains accurate; Item 6 supersedes Item 4's PAT scope guidance with the chunk #53-specific `pull_request: write` requirement. DEFERRED scope total: Items 1-6 (all pre-v0.1.0 release blockers).
 
 **Authoritative source:** security-plan.md §Secret Management GitHub Environment scoping + arch §Cross-cutting Patterns "Config management".
 
@@ -145,23 +145,23 @@ Reference: arch §Distribution Channels + route#46 release pipeline. Tracked: pr
 
 ### 5. External tap + bucket repository bootstrap (chunk #53 ACTIVE deliverable consumer)
 
-The `.github/workflows/update-channels.yml` workflow (chunk #53) opens PRs к two external GitHub repositories that must exist before the workflow can publish channel updates:
+The `.github/workflows/update-channels.yml` workflow (chunk #53) opens PRs to two external GitHub repositories that must exist before the workflow can publish channel updates:
 
 - **Homebrew tap repo**: `turbolet85/homebrew-andromeda-pulse` — public; Formula DSL files under `Formula/`. Initial scaffold:
   - Create the public repo via `gh repo create turbolet85/homebrew-andromeda-pulse --public --description "Homebrew tap for andromeda-pulse" --gitignore '' --license MIT`.
-  - Add а `Formula/.gitkeep` placeholder file so the workflow's PR has а directory к target. The workflow renders `Formula/andromeda-pulse.rb` on each release; do NOT commit а stale Formula manually.
-  - Add а minimal `README.md` describing the tap: `brew tap turbolet85/andromeda-pulse && brew install andromeda-pulse`.
+  - Add a `Formula/.gitkeep` placeholder file so the workflow's PR has a directory to target. The workflow renders `Formula/andromeda-pulse.rb` on each release; do NOT commit a stale Formula manually.
+  - Add a minimal `README.md` describing the tap: `brew tap turbolet85/andromeda-pulse && brew install andromeda-pulse`.
 
 - **Scoop bucket repo**: `turbolet85/scoop-andromeda-pulse` — public; manifest JSON files under `bucket/`. Initial scaffold:
   - Create the public repo via `gh repo create turbolet85/scoop-andromeda-pulse --public --description "Scoop bucket for andromeda-pulse" --gitignore '' --license MIT`.
-  - Add а `bucket/.gitkeep` placeholder file. The workflow renders `bucket/andromeda-pulse.json` on each release.
-  - Add а minimal `README.md`: `scoop bucket add andromeda-pulse https://github.com/turbolet85/scoop-andromeda-pulse && scoop install andromeda-pulse`.
+  - Add a `bucket/.gitkeep` placeholder file. The workflow renders `bucket/andromeda-pulse.json` on each release.
+  - Add a minimal `README.md`: `scoop bucket add andromeda-pulse https://github.com/turbolet85/scoop-andromeda-pulse && scoop install andromeda-pulse`.
 
 Reference: arch §Established Decisions [Distribution Channels] + chunk #53 plan. Tracked: pre-v0.1.0 release blocker (downgradeable to v0.2.0 per route Decisions Log if Homebrew/Scoop setup blocks ship).
 
 ### 6. Distribution channel PAT — PR creation scope (chunk #53 refinement of Item 4)
 
-Chunk #53 chose the PR creation flow (vs direct push) for safer maintainer review of Formula + manifest updates. The PATs already named in Item 4 (`HOMEBREW_TAP_PUSH_TOKEN` + `SCOOP_BUCKET_PUSH_TOKEN`) need а **broader scope than Item 4 documents** to support `peter-evans/create-pull-request`:
+Chunk #53 chose the PR creation flow (vs direct push) for safer maintainer review of Formula + manifest updates. The PATs already named in Item 4 (`HOMEBREW_TAP_PUSH_TOKEN` + `SCOOP_BUCKET_PUSH_TOKEN`) need a **broader scope than Item 4 documents** to support `peter-evans/create-pull-request`:
 
 - Each PAT requires `contents: write` AND `pull_request: write` on the corresponding external repo (Item 4 alone listed only `contents: write` — sufficient for direct push, insufficient for PR creation).
 - Fine-grained PAT recommended (single-purpose, per-repo); classic PATs over-broad and rotation-painful.

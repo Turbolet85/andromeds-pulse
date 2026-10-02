@@ -9,17 +9,32 @@
 //! Lives in pulse-app/tests/ per CLAUDE.md testing.md 2026-05-20: source-level
 //! `mod tests` in pulse-app never run (`[lib] test = false`).
 
-use std::sync::{Arc, Mutex};
+use std::pin::Pin;
+use std::sync::{Arc, Mutex, OnceLock};
+use std::thread::ThreadId;
 
+use interpretation::contract::{
+    InferenceFuture, LlmInferenceRunner, ModelIdentity, ModelStatus, ModelTier,
+};
+use interpretation::degraded_mode::{BackoffSnapshot, DegradedModeStatus};
 use interpretation::schema::{Decision, L4Output, Severity as L4Severity};
-use pulse_app::inference_runtime::create_incident_from_l4_output;
+use pulse_app::deterministic_inference::CANNED_L4_OUTPUT_JSON;
+use pulse_app::inference_runtime::{create_incident_from_l4_output, process_digest};
 use triage::contract::{
-    CueKind, CueScope, Digest, DigestCueRef, DigestKind, DigestLwwMode, InMemoryIncidentRegistry,
-    Incident, IncidentError, IncidentPersistence, IncidentRegistry, IncidentStatus, PriorityTier,
-    Severity as IncidentSeverity,
+    CueKind, CueScope, Digest, DigestCueRef, DigestKind, DigestLwwMode, GenerationDamper,
+    InMemoryIncidentRegistry, Incident, IncidentError, IncidentPersistence, IncidentRegistry,
+    IncidentStatus, PriorityTier, Severity as IncidentSeverity,
 };
 
 const WORKSPACE: &str = "/home/dev/example";
+
+/// Full-width (16-byte) lowercase-hex L1 exception fingerprints, the shape
+/// `hex_lower` produces from Q3 `span_events.fingerprint` bytes. Deliberately
+/// NOT all-digit: the PII scrubber's credit-card pattern matches 13-19 digit
+/// runs, so an all-digit fixture would exercise a redaction path real blake3
+/// output effectively never hits.
+const FINGERPRINT_A: &str = "a3f91c0b7e2d4568a3f91c0b7e2d4568";
+const FINGERPRINT_B: &str = "bd07e4a2915c3f6ebd07e4a2915c3f6e";
 
 /// Recording `IncidentPersistence` mock: assigns incrementing rowids and
 /// captures every saved incident + status update + event for assertion.
@@ -59,12 +74,16 @@ impl IncidentPersistence for RecordingPersistence {
         self.saved.lock().expect("lock").push(incident.clone());
         Ok(id)
     }
-    fn update_incident_status(&self, id: i64, payload: &Incident) -> Result<(), IncidentError> {
+    fn update_incident_status(
+        &self,
+        id: i64,
+        payload: &Incident,
+    ) -> Result<triage::contract::IncidentWriteOutcome, IncidentError> {
         self.updates
             .lock()
             .expect("lock")
             .push((id, payload.clone()));
-        Ok(())
+        Ok(triage::contract::IncidentWriteOutcome::Applied)
     }
     fn mark_read(&self, _id: i64, _read_unix_nano: i64) -> Result<(), IncidentError> {
         Ok(())
@@ -97,8 +116,20 @@ impl IncidentPersistence for RecordingPersistence {
 }
 
 /// Build a digest carrying a single triggering cue (the producer derives the
-/// `(kind, scope, scope_id)` incident identity from it).
+/// `(kind, scope, scope_id)` incident identity from it), with no cue-borne
+/// fingerprint — the baseline-family shape.
 fn digest_with_cue(kind: CueKind, scope: CueScope, scope_id: Option<&str>) -> Digest {
+    digest_with_fingerprinted_cue(kind, scope, scope_id, None)
+}
+
+/// As [`digest_with_cue`], but with the cue carrying an L1 exception
+/// fingerprint — the storm-detector shape.
+fn digest_with_fingerprinted_cue(
+    kind: CueKind,
+    scope: CueScope,
+    scope_id: Option<&str>,
+    fingerprint: Option<&str>,
+) -> Digest {
     Digest {
         kind: DigestKind::CadenceTier3,
         token_count: 512,
@@ -114,6 +145,7 @@ fn digest_with_cue(kind: CueKind, scope: CueScope, scope_id: Option<&str>) -> Di
             priority_tier: PriorityTier::Suggested,
             summary: "cue summary".to_string(),
             scope,
+            fingerprint: fingerprint.map(|f| f.to_string()),
             scope_id: scope_id.map(|s| s.to_string()),
         }],
         corpus_matches: vec![],
@@ -158,10 +190,11 @@ fn fresh() -> (Arc<InMemoryIncidentRegistry>, Arc<RecordingPersistence>) {
 #[test]
 fn surface_decision_creates_active_incident() {
     let (registry, persistence) = fresh();
-    let digest = digest_with_cue(
+    let digest = digest_with_fingerprinted_cue(
         CueKind::ErrorRateSpike,
         CueScope::Service,
         Some("auth-service"),
+        Some(FINGERPRINT_A),
     );
     let output = l4_output(
         Decision::Surface,
@@ -200,8 +233,19 @@ fn surface_decision_creates_active_incident() {
         Some("auth-service"),
         "scope_id threaded from the triggering cue",
     );
-    assert_eq!(inc.fingerprint, "incident-fp");
-    assert_eq!(inc.evidence_refs.fingerprint_hashes, vec!["fp-1", "fp-2"]);
+    assert_eq!(
+        inc.fingerprint, FINGERPRINT_A,
+        "fingerprint threaded from the triggering cue, NOT from L4Output",
+    );
+    assert_eq!(
+        inc.evidence_refs.fingerprint_hashes,
+        vec![
+            "fp-1".to_string(),
+            "fp-2".to_string(),
+            FINGERPRINT_A.to_string()
+        ],
+        "grounded union: model refs first, then the cue's real fingerprint",
+    );
     assert!(inc.id > 0, "rowid assigned post-INSERT");
 }
 
@@ -352,6 +396,245 @@ fn reemission_dedup_does_not_create_duplicate() {
     );
 }
 
+/// DECIDED SEMANTIC (coalesce-per-cue-identity): a storm carrying a DIFFERENT
+/// fingerprint on a service that already has an open incident is absorbed into
+/// it. Pinned so the decision cannot silently drift into per-fingerprint
+/// identity — which would additionally be a no-op under the deterministic
+/// runner, whose `fingerprint` is a constant.
+#[test]
+fn distinct_fingerprint_same_service_still_coalesces_to_one_incident() {
+    let (registry, persistence) = fresh();
+    // The distinctness must live on the CUE, which is what now reaches
+    // `Incident.fingerprint`. Varying `L4Output.fingerprint` instead would make
+    // this test vacuous — that field no longer flows into the incident.
+    let digest_a = digest_with_fingerprinted_cue(
+        CueKind::RetryStorm,
+        CueScope::Service,
+        Some("checkout-service"),
+        Some(FINGERPRINT_A),
+    );
+    let digest_b = digest_with_fingerprinted_cue(
+        CueKind::RetryStorm,
+        CueScope::Service,
+        Some("checkout-service"),
+        Some(FINGERPRINT_B),
+    );
+    assert_ne!(
+        FINGERPRINT_A, FINGERPRINT_B,
+        "fixture must carry genuinely distinct fingerprints or the test is vacuous",
+    );
+
+    let first = l4_output(Decision::Surface, L4Severity::Suggested, "storm A");
+    let second = l4_output(Decision::Surface, L4Severity::Suggested, "storm B");
+
+    create_incident_from_l4_output(
+        registry.as_ref(),
+        persistence.as_ref(),
+        &digest_a,
+        &first,
+        5_000,
+    );
+    create_incident_from_l4_output(
+        registry.as_ref(),
+        persistence.as_ref(),
+        &digest_b,
+        &second,
+        9_000,
+    );
+
+    assert_eq!(
+        registry.count(),
+        1,
+        "a distinct-fingerprint storm on the same service coalesces by decision",
+    );
+    assert_eq!(
+        persistence.save_count(),
+        1,
+        "the second storm re-emits rather than INSERTing",
+    );
+    let inc = registry.list_active(WORKSPACE).remove(0);
+    assert_eq!(
+        inc.title, "storm A",
+        "the FIRST incident survives; the second storm is absorbed into it",
+    );
+    assert_eq!(
+        inc.fingerprint, FINGERPRINT_A,
+        "the surviving incident keeps the FIRST fault's fingerprint",
+    );
+    assert_eq!(
+        inc.updated_at_unix_nano, 9_000,
+        "re-emission bumped updated_at"
+    );
+}
+
+/// The producer writes the cue-borne L1 fingerprint — the anonymized grouping
+/// hash `Incident.fingerprint` is contracted as, and the value the corpus-
+/// retrieval `fingerprint_match` arm compares against — not the model-authored
+/// `L4Output.fingerprint`.
+#[test]
+fn producer_writes_cue_fingerprint_not_the_model_authored_one() {
+    let (registry, persistence) = fresh();
+    let digest = digest_with_fingerprinted_cue(
+        CueKind::RetryStorm,
+        CueScope::Service,
+        Some("checkout-service"),
+        Some(FINGERPRINT_A),
+    );
+    let mut output = l4_output(Decision::Surface, L4Severity::Suggested, "storm");
+    output.fingerprint = "model-authored-string".into();
+
+    create_incident_from_l4_output(
+        registry.as_ref(),
+        persistence.as_ref(),
+        &digest,
+        &output,
+        5_000,
+    );
+
+    let inc = registry.list_active(WORKSPACE).remove(0);
+    assert_eq!(inc.fingerprint, FINGERPRINT_A);
+    assert_ne!(
+        inc.fingerprint, output.fingerprint,
+        "the model-authored string must not reach the field",
+    );
+    assert_eq!(
+        inc.fingerprint.len(),
+        32,
+        "must be the full-width hash the assembler's hex_lower produces",
+    );
+    assert_eq!(
+        persistence.saved().remove(0).fingerprint,
+        FINGERPRINT_A,
+        "the persisted row carries it too, not just the in-memory registry",
+    );
+}
+
+/// Evidence grounding (chunk 2026-08-26 interpretation-brief-completeness):
+/// `fingerprint_hashes` is the order-preserving union of the model's refs
+/// and the cue's REAL fingerprint — the incident record carries a real id
+/// regardless of model behavior, with parsed refs FIRST (the deterministic
+/// P-073 contains-pins ride them).
+#[test]
+fn fingerprint_hashes_union_appends_cue_fingerprint_to_model_refs() {
+    let (registry, persistence) = fresh();
+    let digest = digest_with_fingerprinted_cue(
+        CueKind::RetryStorm,
+        CueScope::Service,
+        Some("checkout-service"),
+        Some(FINGERPRINT_A),
+    );
+    let output = l4_output(Decision::Surface, L4Severity::Suggested, "storm");
+
+    create_incident_from_l4_output(
+        registry.as_ref(),
+        persistence.as_ref(),
+        &digest,
+        &output,
+        5_000,
+    );
+
+    let inc = registry.list_active(WORKSPACE).remove(0);
+    assert_eq!(
+        inc.evidence_refs.fingerprint_hashes,
+        vec![
+            "fp-1".to_string(),
+            "fp-2".to_string(),
+            FINGERPRINT_A.to_string()
+        ],
+        "union appends the cue's real fingerprint after the model's refs",
+    );
+}
+
+/// The dedup half of the union: a model that COPIED the cue fingerprint
+/// (the intended post-fix behavior) must not produce a duplicate entry.
+#[test]
+fn fingerprint_hashes_union_does_not_duplicate_a_copied_fingerprint() {
+    let (registry, persistence) = fresh();
+    let digest = digest_with_fingerprinted_cue(
+        CueKind::RetryStorm,
+        CueScope::Service,
+        Some("checkout-service"),
+        Some(FINGERPRINT_A),
+    );
+    let mut output = l4_output(Decision::Surface, L4Severity::Suggested, "storm");
+    output.evidence_refs = vec![FINGERPRINT_A.to_string()];
+
+    create_incident_from_l4_output(
+        registry.as_ref(),
+        persistence.as_ref(),
+        &digest,
+        &output,
+        5_000,
+    );
+
+    let inc = registry.list_active(WORKSPACE).remove(0);
+    assert_eq!(
+        inc.evidence_refs.fingerprint_hashes,
+        vec![FINGERPRINT_A.to_string()],
+        "a copied fingerprint appears exactly once",
+    );
+}
+
+/// The negative half of the pair: with NO cue fingerprint the union adds
+/// nothing — the model's refs land unchanged, no phantom entry.
+#[test]
+fn fingerprint_hashes_carry_only_model_refs_without_a_cue_fingerprint() {
+    let (registry, persistence) = fresh();
+    let digest = digest_with_cue(CueKind::ErrorRateSpike, CueScope::Service, Some("svc-a"));
+    let output = l4_output(Decision::Surface, L4Severity::Suggested, "spike");
+
+    create_incident_from_l4_output(
+        registry.as_ref(),
+        persistence.as_ref(),
+        &digest,
+        &output,
+        5_000,
+    );
+
+    let inc = registry.list_active(WORKSPACE).remove(0);
+    assert_eq!(
+        inc.evidence_refs.fingerprint_hashes,
+        vec!["fp-1".to_string(), "fp-2".to_string()],
+    );
+}
+
+/// Incidents with no cue-borne fingerprint (reflection cadence; baseline
+/// families) carry an EMPTY one, which both retrieval selectors' `is_empty`
+/// guards drop to scope-only matching. Under the deterministic runner this is
+/// what stops every incident matching every other as "previously seen".
+#[test]
+fn incidents_without_a_cue_fingerprint_carry_an_empty_one() {
+    let (registry, persistence) = fresh();
+    let output = l4_output(Decision::Surface, L4Severity::Suggested, "trend");
+
+    let baseline = digest_with_cue(CueKind::ErrorRateSpike, CueScope::Service, Some("svc-a"));
+    create_incident_from_l4_output(
+        registry.as_ref(),
+        persistence.as_ref(),
+        &baseline,
+        &output,
+        5_000,
+    );
+
+    let reflection = reflection_digest();
+    create_incident_from_l4_output(
+        registry.as_ref(),
+        persistence.as_ref(),
+        &reflection,
+        &output,
+        6_000,
+    );
+
+    for inc in registry.list_active(WORKSPACE) {
+        assert!(
+            inc.fingerprint.is_empty(),
+            "{:?} has no cue fingerprint, so the field must be empty rather than \
+             the model-authored constant, or every such incident matches every other",
+            inc.kind,
+        );
+    }
+}
+
 #[test]
 fn distinct_services_create_distinct_incidents() {
     let (registry, persistence) = fresh();
@@ -409,10 +692,9 @@ fn pii_canary_in_l4_text_is_scrubbed_before_persist() {
         "email canary MUST be scrubbed before the corpus write; got title: {}",
         persisted.title,
     );
-    assert!(
-        persisted.title.starts_with("[redacted:"),
-        "a title embedding PII must collapse to a category marker; got: {}",
-        persisted.title,
+    assert_eq!(
+        persisted.title, "error referencing [redacted: email] in title",
+        "a title embedding PII must mask the secret in place and keep its words",
     );
     // The registry copy is the post-scrub incident (insert happens post-scrub).
     let active = registry.list_active(WORKSPACE);
@@ -434,32 +716,35 @@ fn producer_observability_is_aggregate_only() {
         &format!("title with {canary}"),
     );
 
-    let (subscriber, events) = CapturingSubscriber::new();
-    tracing::subscriber::with_default(subscriber, || {
-        create_incident_from_l4_output(
-            registry.as_ref(),
-            persistence.as_ref(),
-            &digest,
-            &output,
-            5_000,
-        );
-    });
+    let events = global_capture();
+    create_incident_from_l4_output(
+        registry.as_ref(),
+        persistence.as_ref(),
+        &digest,
+        &output,
+        5_000,
+    );
 
     let captured = events.lock().expect("lock").clone();
-    let created_evt = captured
-        .iter()
-        .find(|(t, _)| t == "interpretation.incident.created")
-        .expect("producer outcome event present");
-    assert!(created_evt.1.contains("created=true"));
-    assert!(created_evt.1.contains("severity=error"));
-    assert!(created_evt.1.contains("priority_tier=autonomous"));
+    // A process-global subscriber can also capture sibling tests' events
+    // under parallel libtest, so assert THIS test's emission by its full
+    // signature rather than find-first.
+    assert!(
+        captured.iter().any(|(t, fields, _)| {
+            t == "interpretation.incident.created"
+                && fields.contains("created=true")
+                && fields.contains("severity=error")
+                && fields.contains("priority_tier=autonomous")
+        }),
+        "producer outcome event present with the aggregate-only shape",
+    );
     assert!(
         captured
             .iter()
-            .any(|(t, _)| t == "metric.pipeline.l4.incidents_created_total"),
+            .any(|(t, _, _)| t == "metric.pipeline.l4.incidents_created_total"),
         "producer counter metric emitted",
     );
-    for (target, fields) in &captured {
+    for (target, fields, _) in &captured {
         assert!(
             !fields.contains(canary),
             "title canary leaked into self-observation target {target}: {fields}",
@@ -603,8 +888,24 @@ fn reflection_dismiss_creates_no_incident() {
     );
 }
 
-/// One captured event: `(target, concatenated-fields)`.
-type Captured = Arc<Mutex<Vec<(String, String)>>>;
+/// One captured event: `(target, concatenated-fields, emitting thread)`.
+type Captured = Arc<Mutex<Vec<(String, String, ThreadId)>>>;
+
+/// The process-global capture, installed once. Process-global, NOT the
+/// thread-local `with_default`: sibling tests exercise the same tracing
+/// callsites in parallel, and under parallel libtest the thread-local form
+/// races the callsite interest cache — the capture comes back empty on
+/// exactly the event under assertion (testing.md 2026-06-28). Each event
+/// carries its thread so a test can count only its own emissions.
+fn global_capture() -> Captured {
+    static CAPTURE: OnceLock<Captured> = OnceLock::new();
+    Arc::clone(CAPTURE.get_or_init(|| {
+        let (subscriber, events) = CapturingSubscriber::new();
+        tracing::subscriber::set_global_default(subscriber)
+            .expect("the capture is the binary's only global subscriber");
+        events
+    }))
+}
 
 /// Minimal field-capturing `tracing::Subscriber` (sync; driven via
 /// `with_default`). Mirrors the CLAUDE.md testing.md 2026-05-11
@@ -661,11 +962,313 @@ impl tracing::Subscriber for CapturingSubscriber {
         }
         let mut visitor = V(&mut fields);
         event.record(&mut visitor);
-        self.events
-            .lock()
-            .expect("lock")
-            .push((event.metadata().target().to_string(), fields));
+        self.events.lock().expect("lock").push((
+            event.metadata().target().to_string(),
+            fields,
+            std::thread::current().id(),
+        ));
     }
     fn enter(&self, _: &tracing::span::Id) {}
     fn exit(&self, _: &tracing::span::Id) {}
+}
+
+/// Det-L4 blind-spot pin (b): the producer hardcodes the three
+/// non-fingerprint `EvidenceRefs` fields empty in EVERY mode, so the MCP
+/// slice's `span_refs` / `timestamps_unix_nano` are permanently empty in
+/// production and an absence check over them passes for the wrong reason
+/// (arch §Occupied Resources → `ANDROMEDA_PULSE_L4_DETERMINISTIC`). This pin
+/// records that emptiness as BY CONSTRUCTION: the chunk that populates the
+/// producer must flip it and rewrite those vacuous absence checks. The
+/// populated `fingerprint_hashes` union is the in-test selectivity control
+/// proving the pin reads the produced incident.
+#[test]
+fn producer_evidence_trace_span_and_timestamps_are_empty_by_construction() {
+    let (registry, persistence) = fresh();
+    let digest = digest_with_fingerprinted_cue(
+        CueKind::ErrorRateSpike,
+        CueScope::Service,
+        Some("payment-service"),
+        Some(FINGERPRINT_A),
+    );
+    let parsed: L4Output =
+        serde_json::from_str(CANNED_L4_OUTPUT_JSON).expect("canned deterministic output parses");
+
+    create_incident_from_l4_output(
+        registry.as_ref(),
+        persistence.as_ref(),
+        &digest,
+        &parsed,
+        5_000,
+    );
+
+    let inc = registry.list_active(WORKSPACE).remove(0);
+    assert_eq!(
+        inc.evidence_refs.trace_id, None,
+        "no trace-id source exists at this seam in any mode",
+    );
+    assert_eq!(
+        inc.evidence_refs.span_ids,
+        Vec::<[u8; 8]>::new(),
+        "span ids are not threaded by any mode",
+    );
+    assert_eq!(
+        inc.evidence_refs.timestamps_unix_nano,
+        Vec::<i64>::new(),
+        "timestamps are not threaded by any mode",
+    );
+    assert_eq!(
+        inc.evidence_refs.fingerprint_hashes,
+        vec![
+            "det-span-9f2c4a7e1b6d0358".to_string(),
+            "det-template-0007".to_string(),
+            "det-fingerprint-4a7f2b91c6e05d3849b1e7a2c5f08d63".to_string(),
+            FINGERPRINT_A.to_string(),
+        ],
+        "selectivity control: the canned refs land FIRST, then the cue's real \
+         fingerprint — the populated union proves this pin is live",
+    );
+}
+
+// ---- No-incident outcome observability ----
+
+const SKIPPED: &str = "interpretation.incident.skipped";
+
+/// This thread's `interpretation.incident.skipped` records, fields only.
+fn own_skip_records(events: &Captured) -> Vec<String> {
+    let me = std::thread::current().id();
+    events
+        .lock()
+        .expect("lock")
+        .iter()
+        .filter(|(t, _, thread)| t == SKIPPED && *thread == me)
+        .map(|(_, fields, _)| fields.clone())
+        .collect()
+}
+
+fn assert_one_skip(events: &Captured, reason: &str, decision: &str, severity: &str, kind: &str) {
+    let records = own_skip_records(events);
+    assert_eq!(
+        records.len(),
+        1,
+        "exactly one skip record per no-incident generation: {records:?}",
+    );
+    let fields = &records[0];
+    for expected in [
+        format!("skip_reason={reason}"),
+        format!("decision={decision}"),
+        format!("severity={severity}"),
+        format!("digest_kind={kind}"),
+    ] {
+        assert!(
+            fields.contains(&expected),
+            "skip record lacks `{expected}`: {fields}"
+        );
+    }
+}
+
+#[test]
+fn incident_skip_records_a_dismiss_decision() {
+    let events = global_capture();
+    let (registry, persistence) = fresh();
+    let digest = digest_with_cue(CueKind::ErrorRateSpike, CueScope::Service, Some("svc"));
+    let output = l4_output(Decision::Dismiss, L4Severity::Suggested, "noise");
+    create_incident_from_l4_output(
+        registry.as_ref(),
+        persistence.as_ref(),
+        &digest,
+        &output,
+        5_000,
+    );
+    assert_eq!(registry.count(), 0);
+    assert_one_skip(
+        &events,
+        "decision_dismiss",
+        "dismiss",
+        "suggested",
+        "cadence_tier3",
+    );
+}
+
+#[test]
+fn incident_skip_records_a_none_severity() {
+    let events = global_capture();
+    let (registry, persistence) = fresh();
+    let digest = digest_with_cue(CueKind::ErrorRateSpike, CueScope::Service, Some("svc"));
+    let output = l4_output(Decision::Surface, L4Severity::None, "ambiguous");
+    create_incident_from_l4_output(
+        registry.as_ref(),
+        persistence.as_ref(),
+        &digest,
+        &output,
+        5_000,
+    );
+    assert_eq!(registry.count(), 0);
+    assert_one_skip(&events, "severity_none", "surface", "none", "cadence_tier3");
+}
+
+#[test]
+fn incident_skip_records_a_model_resolution_summary_at_the_predicate() {
+    let events = global_capture();
+    let (registry, persistence) = fresh();
+    let digest = digest_with_cue(CueKind::ErrorRateSpike, CueScope::Service, Some("svc"));
+    let mut output = l4_output(Decision::Surface, L4Severity::Autonomous, "resolved");
+    output.is_resolution_summary = true;
+    create_incident_from_l4_output(
+        registry.as_ref(),
+        persistence.as_ref(),
+        &digest,
+        &output,
+        5_000,
+    );
+    assert_eq!(registry.count(), 0);
+    assert_one_skip(
+        &events,
+        "model_resolution_summary",
+        "surface",
+        "autonomous",
+        "cadence_tier3",
+    );
+}
+
+#[test]
+fn incident_skip_records_a_cue_less_digest() {
+    let events = global_capture();
+    let (registry, persistence) = fresh();
+    let output = l4_output(Decision::Surface, L4Severity::Autonomous, "no cue");
+    create_incident_from_l4_output(
+        registry.as_ref(),
+        persistence.as_ref(),
+        &digest_without_cue(),
+        &output,
+        5_000,
+    );
+    assert_eq!(registry.count(), 0);
+    assert_one_skip(&events, "no_cue", "surface", "autonomous", "cadence_tier3");
+}
+
+#[test]
+fn incident_skip_is_absent_when_an_incident_is_created() {
+    let events = global_capture();
+    let (registry, persistence) = fresh();
+    let digest = digest_with_cue(CueKind::ErrorRateSpike, CueScope::Service, Some("svc"));
+    let output = l4_output(Decision::Surface, L4Severity::Autonomous, "real");
+    create_incident_from_l4_output(
+        registry.as_ref(),
+        persistence.as_ref(),
+        &digest,
+        &output,
+        5_000,
+    );
+    assert_eq!(registry.count(), 1);
+    assert!(
+        own_skip_records(&events).is_empty(),
+        "a created incident must leave no skip record",
+    );
+}
+
+/// Constant-output runner for the `process_digest` routing seam.
+struct CannedRunner {
+    json: String,
+}
+
+impl LlmInferenceRunner for CannedRunner {
+    fn current_status(&self) -> ModelStatus {
+        ModelStatus::Loaded
+    }
+    fn identity(&self) -> Option<ModelIdentity> {
+        None
+    }
+    fn tier(&self) -> ModelTier {
+        ModelTier::Primary
+    }
+    fn generate_constrained<'a>(
+        &'a self,
+        _prompt: &'a str,
+        _schema_json: &'a str,
+    ) -> InferenceFuture<'a, String> {
+        let out = self.json.clone();
+        Pin::from(Box::new(async move { Ok(out) }))
+    }
+}
+
+struct NeverBackoff;
+
+impl DegradedModeStatus for NeverBackoff {
+    fn record_failure(&self, _now_unix_nano: i64) -> BackoffSnapshot {
+        BackoffSnapshot::fresh_active()
+    }
+    fn record_success(&self, _now_unix_nano: i64) -> BackoffSnapshot {
+        BackoffSnapshot::fresh_active()
+    }
+    fn current_snapshot(&self, _now_unix_nano: i64) -> BackoffSnapshot {
+        BackoffSnapshot::fresh_active()
+    }
+    fn is_in_backoff(&self, _now_unix_nano: i64) -> bool {
+        false
+    }
+    fn trigger_manual_retry(&self, _now_unix_nano: i64) -> BackoffSnapshot {
+        BackoffSnapshot::fresh_active()
+    }
+}
+
+fn resolution_summary_runner() -> CannedRunner {
+    let mut parsed: L4Output =
+        serde_json::from_str(CANNED_L4_OUTPUT_JSON).expect("canned deterministic output parses");
+    parsed.is_resolution_summary = true;
+    CannedRunner {
+        json: serde_json::to_string(&parsed).expect("serializes"),
+    }
+}
+
+#[tokio::test]
+async fn incident_skip_records_a_model_resolution_summary_on_a_storm_digest() {
+    let events = global_capture();
+    let (registry, persistence) = fresh();
+    let mut digest = digest_with_cue(CueKind::RetryStorm, CueScope::Service, Some("svc"));
+    digest.kind = DigestKind::CadenceTier1;
+    let outcome = process_digest(
+        &resolution_summary_runner(),
+        &NeverBackoff,
+        registry.as_ref(),
+        persistence.as_ref(),
+        &GenerationDamper::new(),
+        &digest,
+        5_000,
+    )
+    .await;
+    assert!(matches!(
+        outcome,
+        Some(pulse_app::inference_runtime::L4DigestOutcome::Success(_))
+    ));
+    assert_eq!(registry.count(), 0);
+    let records = own_skip_records(&events);
+    assert_eq!(records.len(), 1, "one skip record: {records:?}");
+    assert!(
+        records[0].contains("skip_reason=model_resolution_summary")
+            && records[0].contains("digest_kind=cadence_tier1"),
+        "the routing seam names the model-set flag: {}",
+        records[0],
+    );
+}
+
+#[tokio::test]
+async fn incident_skip_is_absent_for_a_resolution_summary_digest() {
+    let events = global_capture();
+    let (registry, persistence) = fresh();
+    let mut digest = digest_with_cue(CueKind::RetryStorm, CueScope::Service, Some("svc"));
+    digest.kind = DigestKind::ResolutionSummary;
+    let _ = process_digest(
+        &resolution_summary_runner(),
+        &NeverBackoff,
+        registry.as_ref(),
+        persistence.as_ref(),
+        &GenerationDamper::new(),
+        &digest,
+        5_000,
+    )
+    .await;
+    assert!(
+        own_skip_records(&events).is_empty(),
+        "a resolution-summary digest attaching its summary is not a skipped incident",
+    );
 }

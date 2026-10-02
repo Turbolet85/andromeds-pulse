@@ -1,0 +1,5 @@
+# layouts extract
+
+## No domain coverage
+
+This chunk is backend infrastructure (digest queue coalescing + elastic drain) with no UI surface modifications, component placements, or layout structure changes.

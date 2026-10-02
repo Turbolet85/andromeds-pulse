@@ -1,0 +1,622 @@
+{
+ "file": "D:/dev/projects/andromeda-pulse/.andromeda/architecture-amendments.md",
+ "file_sha256": "0519532163eb0518d7e15d058e40065a7c864509183cc1a9a511ec304fabf44d",
+ "file_bytes": 68895,
+ "entries": 61,
+ "set": [
+  {
+   "row": 1,
+   "line": 17,
+   "heading": "### 2026-05-09 — Acknowledge `streams.*` namespace",
+   "sha256": "902159f6d3eaf964a83f597c848ea3b42b85d3753128bc584ddbefb299ce2082",
+   "bytes": 418,
+   "ref": "NOT DERIVED",
+   "why": "field **Added:**, **Marker:**; no **Change:**; no **Ref:**",
+   "file": "001.md"
+  },
+  {
+   "row": 2,
+   "line": 23,
+   "heading": "### 2026-05-09 — Acknowledge `telemetry.frontend.*` namespace",
+   "sha256": "4880faff9d259916feb02e1b4af501021481846dff183f083d8a4e9e12270a42",
+   "bytes": 406,
+   "ref": "NOT DERIVED",
+   "why": "field **Added:**, **Marker:**; no **Change:**; no **Ref:**",
+   "file": "002.md"
+  },
+  {
+   "row": 3,
+   "line": 29,
+   "heading": "### 2026-05-11 — Acknowledge `pulse:clipboard` capability",
+   "sha256": "c738456e5d2477d8ece69222185e5abccf6fbe97a932d88c24e57338a6edb045",
+   "bytes": 511,
+   "ref": "NOT DERIVED",
+   "why": "field **Added:**, **Marker:**; no **Change:**; no **Ref:**",
+   "file": "003.md"
+  },
+  {
+   "row": 4,
+   "line": 35,
+   "heading": "### 2026-05-16 — Acknowledge `curation` crate",
+   "sha256": "a3a06fc99dd01298423b9d6ae63143931078a44469268092419b38b8a46beb02",
+   "bytes": 355,
+   "ref": "NOT DERIVED",
+   "why": "field **Added:**, **Marker:**; no **Change:**; no **Why:**; no **Ref:**",
+   "file": "004.md"
+  },
+  {
+   "row": 5,
+   "line": 40,
+   "heading": "### 2026-05-16 — Acknowledge `connection.current_state` + `pulse://stream/connection-state`",
+   "sha256": "b423b88f21735668c50f72a8d694671f2fa2bfa1c7d935ac25d200bf433de02d",
+   "bytes": 458,
+   "ref": "NOT DERIVED",
+   "why": "field **Added:**, **Marker:**; no **Change:**; no **Why:**; no **Ref:**",
+   "file": "005.md"
+  },
+  {
+   "row": 6,
+   "line": 45,
+   "heading": "### 2026-05-16 — Acknowledge `triage` crate + register `pulse-v0_2_0-route` scope",
+   "sha256": "77680874d88896f86d38ce83143c901f408c7480dbccf722e34e27dc4775d39d",
+   "bytes": 443,
+   "ref": "NOT DERIVED",
+   "why": "field **Added:**, **Marker:**; no **Change:**; no **Why:**; no **Ref:**",
+   "file": "006.md"
+  },
+  {
+   "row": 7,
+   "line": 50,
+   "heading": "### 2026-05-17 — Acknowledge `pulse://stream/attention-cues`",
+   "sha256": "44356e5246e38d8dc63c7750069975761e29d3a46dfc8ac8dcbe0aaaaf45acd8",
+   "bytes": 343,
+   "ref": "NOT DERIVED",
+   "why": "field **Added:**, **Marker:**; no **Change:**; no **Why:**; no **Ref:**",
+   "file": "007.md"
+  },
+  {
+   "row": 8,
+   "line": 55,
+   "heading": "### 2026-05-17 — Acknowledge `pulse://stream/restart-events`",
+   "sha256": "dced11ff5a5b5b01e26b854d40490900668afb33614ed11bb68f18b459a4eb80",
+   "bytes": 347,
+   "ref": "NOT DERIVED",
+   "why": "field **Added:**, **Marker:**; no **Change:**; no **Why:**; no **Ref:**",
+   "file": "008.md"
+  },
+  {
+   "row": 9,
+   "line": 60,
+   "heading": "### 2026-05-18 — Acknowledge `services.list_with_states` + `pulse://stream/service-lifecycle`",
+   "sha256": "c7100d357e52aedc6ee1e96ba74fe1a65f1ac7267f3982a1f0eda463887f0b88",
+   "bytes": 485,
+   "ref": "NOT DERIVED",
+   "why": "field **Added:**, **Marker:**; no **Change:**; no **Why:**; no **Ref:**",
+   "file": "009.md"
+  },
+  {
+   "row": 10,
+   "line": 65,
+   "heading": "### 2026-05-18 — Acknowledge `corpus` + `security` crates + `storage.{inspect,path}` + `corpus/corpus.db`",
+   "sha256": "9796fcc2209bc7787dda72310cb524de49112b5245199d88f6890538f7604742",
+   "bytes": 626,
+   "ref": "NOT DERIVED",
+   "why": "field **Added:**, **Marker:**; no **Change:**; no **Ref:**",
+   "file": "010.md"
+  },
+  {
+   "row": 11,
+   "line": 71,
+   "heading": "### 2026-05-19 — Acknowledge `diagnostics.template_distribution`",
+   "sha256": "a21948fd83115036cd8f26b6a54165a3336bb70faaeb0be4dc843633a4985c9d",
+   "bytes": 358,
+   "ref": "NOT DERIVED",
+   "why": "field **Added:**, **Marker:**; no **Change:**; no **Why:**; no **Ref:**",
+   "file": "011.md"
+  },
+  {
+   "row": 12,
+   "line": 76,
+   "heading": "### 2026-05-21 — Acknowledge `log_templates` DuckDB table + Corpus SQLite schema sub-section",
+   "sha256": "2a5ac2e708ca2900b699ff3616d2c2de204e98d069d26ee5762121a3761158c1",
+   "bytes": 698,
+   "ref": "NOT DERIVED",
+   "why": "field **Added:**, **Marker:**; no **Change:**; no **Ref:**",
+   "file": "012.md"
+  },
+  {
+   "row": 13,
+   "line": 82,
+   "heading": "### 2026-05-21 — Tag-defer forward-promise entries",
+   "sha256": "aac20c343eb94389df0ac26da68257cab908750ecca9c0423ad52764ab5e80cf",
+   "bytes": 735,
+   "ref": "NOT DERIVED",
+   "why": "field **Marker:**; no **Ref:**",
+   "file": "013.md"
+  },
+  {
+   "row": 14,
+   "line": 88,
+   "heading": "### 2026-05-21 — Acknowledge harness-only env vars + `run/andromeda-pulse.pid` subpath",
+   "sha256": "3d5eebcd80594708c47f7269e5a34fa0b8ca596b53e0f3e485ec68bd399562d8",
+   "bytes": 745,
+   "ref": "NOT DERIVED",
+   "why": "field **Added:**, **Marker:**; no **Change:**; no **Ref:**",
+   "file": "014.md"
+  },
+  {
+   "row": 15,
+   "line": 94,
+   "heading": "### 2026-05-23 — Acknowledge `incidents.*` namespace + `pulse://stream/incidents`",
+   "sha256": "67571cc3aa94174696337ccb35c8136ea957b45f8596bdc5232ab1d9a93c0e68",
+   "bytes": 486,
+   "ref": "NOT DERIVED",
+   "why": "field **Added:**, **Marker:**; no **Change:**; no **Why:**; no **Ref:**",
+   "file": "015.md"
+  },
+  {
+   "row": 16,
+   "line": 99,
+   "heading": "### 2026-05-23 — Acknowledge `pulse://stream/cadence-events`",
+   "sha256": "ea722d29f27967aaddc41afa99d86f4a6cba08fb5788d9e533974ad1b92be430",
+   "bytes": 370,
+   "ref": "NOT DERIVED",
+   "why": "field **Added:**, **Marker:**; no **Change:**; no **Why:**; no **Ref:**",
+   "file": "016.md"
+  },
+  {
+   "row": 17,
+   "line": 104,
+   "heading": "### 2026-05-23 — Acknowledge `pulse://stream/digests`",
+   "sha256": "ee41a7c16fe72e9290e97dbec13045f3190846428e186d0d6fa2a9c0d6fa77d9",
+   "bytes": 335,
+   "ref": "NOT DERIVED",
+   "why": "field **Added:**, **Marker:**; no **Change:**; no **Why:**; no **Ref:**",
+   "file": "017.md"
+  },
+  {
+   "row": 18,
+   "line": 109,
+   "heading": "### 2026-05-24 — Acknowledge `interpretation` crate + `model.current_profile` + `pulse://stream/model-status`",
+   "sha256": "1a6ba6426bc3cd1f58c8e181f0cc282a42e76b44c7e6ec029310e06ef49a4676",
+   "bytes": 669,
+   "ref": "NOT DERIVED",
+   "why": "field **Added:**, **Marker:**; no **Change:**; no **Ref:**",
+   "file": "018.md"
+  },
+  {
+   "row": 19,
+   "line": 115,
+   "heading": "### 2026-05-25 — Acknowledge `ANDROMEDA_PULSE_LLAMA_CUDA_BIN_PATH` + `ANDROMEDA_PULSE_LLAMA_CPU_BIN_PATH`",
+   "sha256": "bbdb40430346d81dac43c59d7736dd677925a9435b1889ee2f6242695f548e52",
+   "bytes": 561,
+   "ref": "NOT DERIVED",
+   "why": "field **Added:**, **Marker:**; no **Change:**; no **Why:**; no **Ref:**",
+   "file": "019.md"
+  },
+  {
+   "row": 20,
+   "line": 120,
+   "heading": "### 2026-05-25 — Acknowledge `diagnostics.retry_interpretation`",
+   "sha256": "e94312483e060165c0064c1b1f7a92ebffcda790d95d4f9ba1dca6f18ba35d11",
+   "bytes": 459,
+   "ref": "NOT DERIVED",
+   "why": "field **Added:**, **Marker:**; no **Change:**; no **Why:**; no **Ref:**",
+   "file": "020.md"
+  },
+  {
+   "row": 21,
+   "line": 125,
+   "heading": "### 2026-05-26 — Acknowledge `incidents.mark_all_read`",
+   "sha256": "4c9586d9a866b06edf192f43773348735f3449cca70a8401026453f6d4cef6ff",
+   "bytes": 376,
+   "ref": "NOT DERIVED",
+   "why": "field **Added:**, **Marker:**; no **Change:**; no **Why:**; no **Ref:**",
+   "file": "021.md"
+  },
+  {
+   "row": 22,
+   "line": 130,
+   "heading": "### 2026-05-27 — Acknowledge `incidents.get_report`",
+   "sha256": "79d3df2091151165da934ed7c4a32253ec0f403d4a4ac5325a5113c35807e4ba",
+   "bytes": 373,
+   "ref": "NOT DERIVED",
+   "why": "field **Added:**, **Marker:**; no **Change:**; no **Why:**; no **Ref:**",
+   "file": "022.md"
+  },
+  {
+   "row": 23,
+   "line": 135,
+   "heading": "### 2026-06-03 — Acknowledge `storage.export_for_training` + `~/Downloads` egress exception",
+   "sha256": "29e14655e5354d450e65a87d940c035da8987adde18eebb462ca97174a434501",
+   "bytes": 717,
+   "ref": "NOT DERIVED",
+   "why": "field **Added:**, **Marker:**; no **Change:**; no **Why:**; no **Ref:**",
+   "file": "023.md"
+  },
+  {
+   "row": 24,
+   "line": 140,
+   "heading": "### 2026-06-04 — Acknowledge `config-watcher` crate + `config.{reload,status}` + `diagnostics.reevaluate_recent_window` + `pulse://stream/config-events`",
+   "sha256": "acfb05efa6f9f44d183a2217b317664df05a0c9e5f3217329e8960a4ff4dcb8e",
+   "bytes": 1089,
+   "ref": "NOT DERIVED",
+   "why": "field **Added:**, **Marker:**; no **Change:**; no **Ref:**",
+   "file": "024.md"
+  },
+  {
+   "row": 25,
+   "line": 146,
+   "heading": "### 2026-06-05 — Acknowledge `diagnostics.snapshot` + `diagnostics.history`",
+   "sha256": "62f7232025394c138019ad0032f785b306c13954713f8fd38fdfb8f8d28e32f8",
+   "bytes": 464,
+   "ref": "NOT DERIVED",
+   "why": "field **Added:**, **Marker:**; no **Change:**; no **Why:**; no **Ref:**",
+   "file": "025.md"
+  },
+  {
+   "row": 26,
+   "line": 155,
+   "heading": "### 2026-05-25 — LLM inference runtime: mistralrs → llama.cpp subprocess (D1), session 144 validation",
+   "sha256": "53e8ffa0c0182751aea4db72eb12effa481a258c39569b16ae0714422324de56",
+   "bytes": 2115,
+   "ref": "NOT DERIVED",
+   "why": "text before the first field; no **Section:**; no **Change:**; no **Why:**; no **Ref:**",
+   "file": "026.md"
+  },
+  {
+   "row": 27,
+   "line": 177,
+   "heading": "## 2026-06-28-deterministic-env-gated-l4-mode — Register ANDROMEDA_PULSE_L4_DETERMINISTIC env var",
+   "sha256": "ffc10264ee8486b24010172957570ede4b587da18c9ef9c63c4849233feeba22",
+   "bytes": 753,
+   "ref": ".andromeda/runs/2026-08-23T11-52-00Z-wrap/",
+   "why": "no **Ref:**",
+   "file": "027.md"
+  },
+  {
+   "row": 28,
+   "line": 184,
+   "heading": "## 2026-06-28-investigate-actions-functional — Register investigate.run_action TauRPC procedure",
+   "sha256": "0e5cba72f86f0a6bb83c55ffcf2905c807b1a43d9b2fc6a03373da3373a5fcaa",
+   "bytes": 988,
+   "ref": ".andromeda/runs/2026-08-23T11-52-00Z-wrap/",
+   "why": "no **Ref:**",
+   "file": "028.md"
+  },
+  {
+   "row": 29,
+   "line": 191,
+   "heading": "## 2026-06-29-window-geometry-movable-shell — Register window-geometry.json filesystem location",
+   "sha256": "df5fb6e34849293bd2f037d30d144528ce85f525ddcdf91c71a0c6451762dad0",
+   "bytes": 1031,
+   "ref": ".andromeda/runs/2026-08-23T11-52-00Z-wrap/",
+   "why": "no **Ref:**",
+   "file": "029.md"
+  },
+  {
+   "row": 30,
+   "line": 198,
+   "heading": "## 2026-07-07-plain-language-connection-status — ready envelope: ReadyChecks +3 fields",
+   "sha256": "58067e8ab2cfa3e162add59efb5d6d498b452eb0641ff040bd8e864d054d8ebb",
+   "bytes": 788,
+   "ref": ".andromeda/runs/2026-08-23T11-52-00Z-wrap/",
+   "why": "no **Ref:**",
+   "file": "030.md"
+  },
+  {
+   "row": 31,
+   "line": 203,
+   "heading": "## 2026-07-10-incidents-floating-window-disclosure — Cross-window UI-coordination events registered",
+   "sha256": "8f74ba519c38554ae365e44bd1da7eae2bc41a5ebd88e418f4edf55771c65301",
+   "bytes": 984,
+   "ref": ".andromeda/runs/2026-08-23T11-52-00Z-wrap/",
+   "why": "no **Ref:**",
+   "file": "031.md"
+  },
+  {
+   "row": 32,
+   "line": 208,
+   "heading": "## 2026-08-14-fingerprint-feed-capture-repair — Register the harness UTF-8 relay env vars",
+   "sha256": "e3aa3c62118b6b9c28f6268a8517e1dfedd8e9bbb2c18ffc733ccb3206c4f4ac",
+   "bytes": 868,
+   "ref": ".andromeda/runs/2026-08-23T11-52-00Z-wrap/",
+   "why": "no **Ref:**",
+   "file": "032.md"
+  },
+  {
+   "row": 33,
+   "line": 213,
+   "heading": "## 2026-08-14-workspace-key-alignment — published workspace key + measured corpus key-custody reality",
+   "sha256": "a56205ecdc1a5e4bf2140c79d394a4a14d2198f3c65a454619fc4efa03c428bf",
+   "bytes": 1605,
+   "ref": ".andromeda/runs/2026-08-25T16-11-09Z-wrap/",
+   "why": "no **Ref:**",
+   "file": "033.md"
+  },
+  {
+   "row": 34,
+   "line": 218,
+   "heading": "## 2026-08-15-corpus-key-persistence — corpus key custody landed; two resources + a Stack row registered",
+   "sha256": "54ff98ce039a95e1fb5526e89ed617ab7ed43c952cde4eda62604e49b27eb16a",
+   "bytes": 1696,
+   "ref": ".andromeda/runs/2026-08-25T16-11-09Z-wrap/",
+   "why": "no **Ref:**",
+   "file": "034.md"
+  },
+  {
+   "row": 35,
+   "line": 235,
+   "heading": "## 2026-08-16-baseline-family-reachability — register the baseline cold-start window override",
+   "sha256": "11242b8b3b8878239a134eb7851367c6408319c0777057caced8600f6c1dd956",
+   "bytes": 1345,
+   "ref": ".andromeda/runs/2026-08-23T11-52-00Z-wrap/",
+   "why": "no **Ref:**",
+   "file": "035.md"
+  },
+  {
+   "row": 36,
+   "line": 250,
+   "heading": "## 2026-08-16-fault-identity-semantics-decided — Fault identity decided at both layers",
+   "sha256": "d4bd709023d45afe09be1bd47f0bcab73013679909e61a65cc1640151e422e0a",
+   "bytes": 1857,
+   "ref": ".andromeda/runs/2026-08-23T11-52-00Z-wrap/",
+   "why": "no **Ref:**",
+   "file": "036.md"
+  },
+  {
+   "row": 37,
+   "line": 255,
+   "heading": "## 2026-08-17-incident-fingerprint-producer-repaired — [Fault Identity]: deferral SHIPPED, producer repaired, retrieval arm FED",
+   "sha256": "c54a53b69dc50428c1d5b40ab59f91c615bdf24f631dd0d0facc5e4bd3b382bf",
+   "bytes": 2325,
+   "ref": ".andromeda/runs/2026-08-23T11-52-00Z-wrap/",
+   "why": "no **Ref:**",
+   "file": "037.md"
+  },
+  {
+   "row": 38,
+   "line": 266,
+   "heading": "## 2026-08-17-conductor-e2e-verification-closure — deterministic-L4 fixture posture: populated arrays, and the two fields that stay empty",
+   "sha256": "69e5882feb0d8cbe1809fbb7f7f49e60d01009079025ce72d3cc4290f3dd0218",
+   "bytes": 1581,
+   "ref": ".andromeda/runs/2026-08-23T11-52-00Z-wrap/",
+   "why": "no **Ref:**",
+   "file": "038.md"
+  },
+  {
+   "row": 39,
+   "line": 271,
+   "heading": "## 2026-08-21-delegated-timing-observables — three delegated-timing IPC procedures + the capability-granularity correction",
+   "sha256": "17f8cc50b91cd117360615a5a85270a26687b4690a5a12a94371b5f85e6e165e",
+   "bytes": 1370,
+   "ref": ".andromeda/runs/2026-08-23T11-52-00Z-wrap/",
+   "why": "no **Ref:**",
+   "file": "039.md"
+  },
+  {
+   "row": 40,
+   "line": 277,
+   "heading": "## 2026-08-22-log-records-identity — log-record primary key restated; the `name` component it claimed never existed",
+   "sha256": "68e6d2be29fd5bec7753651696d116378dbec85e3e8605ed0c13a38598e7bd47",
+   "bytes": 1639,
+   "ref": ".andromeda/runs/2026-08-23T11-52-00Z-wrap/",
+   "why": "no **Ref:**",
+   "file": "040.md"
+  },
+  {
+   "row": 41,
+   "line": 282,
+   "heading": "## 2026-08-23-ingestion-scrub-coverage — three reserved DuckDB tables recorded as declared-but-never-written",
+   "sha256": "9581e0f8163c500343fcee1ad248894b7737d7848187facdf500fd75dd2f81dd",
+   "bytes": 1968,
+   "ref": ".andromeda/runs/2026-08-23T11-52-00Z-wrap/",
+   "why": "no **Ref:**",
+   "file": "041.md"
+  },
+  {
+   "row": 42,
+   "line": 290,
+   "heading": "## 2026-08-23-metrics-points-identity — metric-point key widened to four columns; the `seq` exception now spans two tables",
+   "sha256": "dfc87fdcc24613d11825eab829081c19224dd938d88aca4f2942bb25eb326843",
+   "bytes": 1685,
+   "ref": ".andromeda/runs/2026-08-29T16-50-45Z-wrap/",
+   "why": "field **Not amended (verified):**; no **Ref:**",
+   "file": "042.md"
+  },
+  {
+   "row": 43,
+   "line": 296,
+   "heading": "## 2026-08-23-metrics-points-labels — metrics_points gains a scrubbed non-key labels column",
+   "sha256": "ea890b841f2b418345ef13f5a859fbe47ac7e0561b84e8bbb3faedc4f02f11c5",
+   "bytes": 1474,
+   "ref": ".andromeda/runs/2026-08-29T16-50-45Z-wrap/",
+   "why": "no **Ref:**",
+   "file": "043.md"
+  },
+  {
+   "row": 44,
+   "line": 301,
+   "heading": "## 2026-08-23-webview-self-verify — GUI verification harness registered (env var + Stack row)",
+   "sha256": "3e74777f8132f68ba6262bc1ba186237b9150ef6bd81944d627fe2b98cff50f1",
+   "bytes": 1492,
+   "ref": ".andromeda/runs/2026-08-23T16-44-40Z-wrap/",
+   "why": "no **Ref:**",
+   "file": "044.md"
+  },
+  {
+   "row": 45,
+   "line": 306,
+   "heading": "## 2026-08-23-integration-ux-e2e-test — harness row re-scoped to the 7-stage path; xtask→node relay set registered",
+   "sha256": "fb02e848c5dcec4f8a44bc22a61778104331ec9709c209e4b11634926833700c",
+   "bytes": 2401,
+   "ref": ".andromeda/runs/2026-08-23T16-44-40Z-wrap/",
+   "why": "no **Ref:**",
+   "file": "045.md"
+  },
+  {
+   "row": 46,
+   "line": 311,
+   "heading": "## 2026-08-23-headful-leg-extension — GUI harness Role cell: assembled path 7 → 13 stages",
+   "sha256": "5be272f5565c4aa722b08f75d563b1b17ab3df94a51675c3a46856437c717434",
+   "bytes": 611,
+   "ref": ".andromeda/runs/2026-08-24T22-41-19Z-wrap/",
+   "why": "no **Ref:**",
+   "file": "046.md"
+  },
+  {
+   "row": 47,
+   "line": 316,
+   "heading": "## 2026-08-24-headful-mechanics-probe-race-disposition — headful leg 13 → 15 stages",
+   "sha256": "2429152b6e8cb69385f0c8eef2e49136d76a3e93da58e2396c855eda17bc92bb",
+   "bytes": 964,
+   "ref": ".andromeda/runs/2026-08-24T22-41-19Z-wrap/",
+   "why": "no **Ref:**",
+   "file": "047.md"
+  },
+  {
+   "row": 48,
+   "line": 321,
+   "heading": "## 2026-08-25-demo-injector-formalized-api-surface-retire — injector CLI contract + two unregistered env vars",
+   "sha256": "c9b1f7d30d49f791dc72b8b3160a1367c05bc0e7516f7f8acfbbeb9600474d3b",
+   "bytes": 2236,
+   "ref": "NOT DERIVED",
+   "why": "no **Ref:**",
+   "file": "048.md"
+  },
+  {
+   "row": 49,
+   "line": 326,
+   "heading": "## 2026-08-26-l4-runtime-security-residuals — L4 path guard, opt-in confinement root, dev-vs-bundled binary names",
+   "sha256": "63bffe6942ee68d997fead6fd28893d9b1f6793acfbee970be592621349d4009",
+   "bytes": 2691,
+   "ref": ".andromeda/runs/2026-08-26T18-40-57Z-wrap/",
+   "why": "no **Ref:**",
+   "file": "049.md"
+  },
+  {
+   "row": 50,
+   "line": 331,
+   "heading": "## 2026-08-26-interpretation-brief-completeness — degraded_mode mechanism replaced (creation + dedupe attach)",
+   "sha256": "93bc2e5d298c1d6abf857b42b676eb76ad04fb291e14434d0d2ad0437f227b90",
+   "bytes": 1737,
+   "ref": ".andromeda/runs/2026-08-29T16-50-45Z-wrap/",
+   "why": "no **Ref:**",
+   "file": "050.md"
+  },
+  {
+   "row": 51,
+   "line": 336,
+   "heading": "## 2026-08-26-interpretation-brief-completeness — [Fault Identity] L1 blast radius extended",
+   "sha256": "738187919c7e13e5f7820ab2453fab653c5e153266adbb4f665b684150f8c980",
+   "bytes": 1089,
+   "ref": ".andromeda/runs/2026-08-29T16-50-45Z-wrap/",
+   "why": "no **Ref:**",
+   "file": "051.md"
+  },
+  {
+   "row": 52,
+   "line": 341,
+   "heading": "## 2026-08-27-report-window-copy-affordance — headful leg 15 → 16 stages",
+   "sha256": "ba1e45bf1d0bbf376054677549d7993255e5c0d93be07478984903726bb31d6e",
+   "bytes": 1041,
+   "ref": ".andromeda/runs/2026-08-27T21-51-58Z-wrap/",
+   "why": "no **Ref:**",
+   "file": "052.md"
+  },
+  {
+   "row": 53,
+   "line": 346,
+   "heading": "## 2026-08-27-incident-persist-vs-resolve-write-race — corpus write arbitration decided",
+   "sha256": "f68ec7e38ac45d3b1488eca5581f32547f1f857ca425ebf4fe9564b3cb9e4da1",
+   "bytes": 1865,
+   "ref": ".andromeda/runs/2026-08-28T15-57-29Z-wrap/",
+   "why": "no **Ref:**",
+   "file": "053.md"
+  },
+  {
+   "row": 54,
+   "line": 351,
+   "heading": "## 2026-08-28-duplicate-span-replay-fails-loudly — injector `--replay`, budget-not-byte identity, duckdb pin",
+   "sha256": "86c519bc335f05f574bfbb959afadeca890426029a7f5322d51305de6d9603cb",
+   "bytes": 1527,
+   "ref": ".andromeda/runs/2026-08-28T23-20-00Z-wrap/",
+   "why": "no **Ref:**",
+   "file": "054.md"
+  },
+  {
+   "row": 55,
+   "line": 356,
+   "heading": "## 2026-08-29-app-registry-reconciliation — [Corpus Write Arbitration] Accepted residual CLOSED",
+   "sha256": "0c092c2f40ba0086618f41541dafcd80dca821afcf031f50e661da1d88926003",
+   "bytes": 1562,
+   "ref": ".andromeda/runs/2026-08-29T15-48-43Z-wrap/",
+   "why": "no **Ref:**",
+   "file": "055.md"
+  },
+  {
+   "row": 56,
+   "line": 361,
+   "heading": "## 2026-08-29-advisory-backlog — rmcp mechanism recorded as measured + wasmtime requirement-plus-resolved restate",
+   "sha256": "5a573f7d30087e876bf467e4d4c9083b49f6953e787d983ce79538fd3cfd3ab9",
+   "bytes": 1866,
+   "ref": ".andromeda/runs/2026-08-29T22-53-32Z-wrap/",
+   "why": "no **Ref:**",
+   "file": "056.md"
+  },
+  {
+   "row": 57,
+   "line": 366,
+   "heading": "## 2026-08-30-npm-advisory-coverage — xtask npm-supply-chain gate registered",
+   "sha256": "dbee6df7fc9ecceeab900157f8dbd2979ea87daaca5549804e5843d22d440dc6",
+   "bytes": 991,
+   "ref": ".andromeda/runs/2026-08-30T12-09-07Z-wrap/",
+   "why": "no **Ref:**",
+   "file": "057.md"
+  },
+  {
+   "row": 58,
+   "line": 371,
+   "heading": "## 2026-08-30-diagnostics-un-muting-harness-truth-sweep — harness:status registered · dead schema dropped (DuckDB 8→5, corpus 6→5/v2) · 17-stage leg · incidents topic producer-only",
+   "sha256": "ee521878d46970c3edfd9891ef8f9899d6d87e7d58bdd79a65738f34367ab2d9",
+   "bytes": 2499,
+   "ref": ".andromeda/runs/2026-08-30T21-38-42Z-wrap/",
+   "why": "no **Ref:**",
+   "file": "058.md"
+  },
+  {
+   "row": 59,
+   "line": 376,
+   "heading": "## 2026-08-30-staged-bindings-assertion — staged-artifacts gate registered; capability-drift's behavior re-pointed",
+   "sha256": "1dd4ab0966c585d3ad15e4cfc696d0b3437fbc887bdda9ca5ddae72be8f4d53d",
+   "bytes": 1904,
+   "ref": ".andromeda/runs/2026-08-30T17-19-47Z-wrap/",
+   "why": "no **Ref:**",
+   "file": "059.md"
+  },
+  {
+   "row": 60,
+   "line": 381,
+   "heading": "## 2026-08-30-acl-rejection-logging — `telemetry.frontend.record_ipc_rejection` + `ui.ipc.rejection` leaf registered",
+   "sha256": "a895ab0579bb7f8bd495e764733adc21314ef52b8fccb514955f3e179d5de4b8",
+   "bytes": 1043,
+   "ref": ".andromeda/runs/2026-08-30T21-38-42Z-wrap/",
+   "why": "no **Ref:**",
+   "file": "060.md"
+  },
+  {
+   "row": 61,
+   "line": 386,
+   "heading": "## 2026-08-30-agent-harness-teardown-truth — agent-run CLI contract registered + pid-file entry clause narrowed",
+   "sha256": "226230e440e1ea6d9bc4006f2e8c8d8016d67f3fe0e9b262a1ec76d9c969ef82",
+   "bytes": 1497,
+   "ref": ".andromeda/runs/2026-08-30T21-38-42Z-wrap/",
+   "why": "no **Ref:**",
+   "file": "061.md"
+  }
+ ],
+ "batches": [
+  "batch-1.txt",
+  "batch-2.txt"
+ ]
+}

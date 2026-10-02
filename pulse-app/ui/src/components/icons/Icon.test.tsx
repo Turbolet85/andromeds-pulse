@@ -5,6 +5,7 @@ import {
   Aperture,
   CircularPulse,
   ConstellationGrid,
+  Expand,
   Icon,
   Star,
   Telescope,
@@ -15,6 +16,7 @@ const glyphs: Array<[GlyphName, FC<IconProps>]> = [
   ["aperture", Aperture],
   ["telescope", Telescope],
   ["constellation-grid", ConstellationGrid],
+  ["expand", Expand],
   ["star", Star],
   ["circular-pulse", CircularPulse],
 ];

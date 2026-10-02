@@ -1,0 +1,47 @@
+Found 127 mutants to test
+ok       Unmutated baseline in 100s build + 1s test
+ INFO Auto-set test timeout to 20s
+MISSED   crates/interpretation/src/hardware.rs:108:26: replace >= with < in detect_real in 5s build + 1s test
+MISSED   crates/interpretation/src/hardware.rs:132:5: replace detect_gpu_present -> bool with true in 5s build + 1s test
+MISSED   crates/interpretation/src/hardware.rs:132:5: replace detect_gpu_present -> bool with false in 5s build + 1s test
+MISSED   crates/interpretation/src/hardware.rs:173:5: replace available_cpu_cores -> usize with 1 in 5s build + 1s test
+MISSED   crates/interpretation/src/hardware.rs:186:9: delete match arm "cpu_fallback" | "cpu-fallback" in parse_profile_override in 5s build + 1s test
+MISSED   crates/interpretation/src/markdown.rs:344:5: replace hex_lower -> String with String::new() in 5s build + 1s test
+MISSED   crates/interpretation/src/markdown.rs:344:5: replace hex_lower -> String with "xyzzy".into() in 5s build + 2s test
+MISSED   crates/interpretation/src/markdown.rs:352:5: replace incident_status_label -> &'static str with "" in 5s build + 1s test
+MISSED   crates/interpretation/src/markdown.rs:352:5: replace incident_status_label -> &'static str with "xyzzy" in 5s build + 1s test
+MISSED   crates/interpretation/src/markdown.rs:360:5: replace severity_label -> &'static str with "" in 5s build + 1s test
+MISSED   crates/interpretation/src/markdown.rs:360:5: replace severity_label -> &'static str with "xyzzy" in 5s build + 1s test
+MISSED   crates/interpretation/src/markdown.rs:369:5: replace l4_confidence_label -> &'static str with "" in 5s build + 1s test
+MISSED   crates/interpretation/src/markdown.rs:369:5: replace l4_confidence_label -> &'static str with "xyzzy" in 5s build + 1s test
+MISSED   crates/interpretation/src/prompt.rs:65:20: replace > with == in push_citable_ids_section in 5s build + 1s test
+MISSED   crates/interpretation/src/prompt.rs:65:20: replace > with < in push_citable_ids_section in 5s build + 1s test
+MISSED   crates/interpretation/src/prompt.rs:65:20: replace > with >= in push_citable_ids_section in 5s build + 1s test
+MISSED   crates/interpretation/src/schema.rs:53:43: replace * with + in 5s build + 1s test
+MISSED   crates/interpretation/src/schema.rs:195:41: replace || with && in validate in 5s build + 1s test
+MISSED   crates/interpretation/src/schema.rs:195:72: replace > with == in validate in 5s build + 1s test
+MISSED   crates/interpretation/src/schema.rs:195:72: replace > with >= in validate in 5s build + 1s test
+MISSED   crates/interpretation/src/schema.rs:200:54: replace > with >= in validate in 5s build + 1s test
+MISSED   crates/interpretation/src/schema.rs:205:29: replace > with == in validate in 5s build + 1s test
+MISSED   crates/interpretation/src/schema.rs:205:29: replace > with >= in validate in 5s build + 1s test
+MISSED   crates/interpretation/src/schema.rs:210:30: replace > with == in validate in 5s build + 1s test
+MISSED   crates/interpretation/src/schema.rs:210:30: replace > with >= in validate in 5s build + 1s test
+MISSED   crates/interpretation/src/schema.rs:224:35: replace || with && in validate in 5s build + 1s test
+MISSED   crates/interpretation/src/schema.rs:224:56: replace > with == in validate in 5s build + 1s test
+MISSED   crates/interpretation/src/schema.rs:224:56: replace > with >= in validate in 5s build + 1s test
+MISSED   crates/interpretation/src/schema.rs:229:34: replace > with == in validate in 5s build + 1s test
+MISSED   crates/interpretation/src/schema.rs:229:34: replace > with >= in validate in 5s build + 1s test
+MISSED   crates/interpretation/src/schema.rs:244:30: replace || with && in validate in 5s build + 1s test
+MISSED   crates/interpretation/src/schema.rs:244:46: replace > with == in validate in 5s build + 1s test
+MISSED   crates/interpretation/src/schema.rs:244:46: replace > with >= in validate in 5s build + 1s test
+MISSED   crates/interpretation/src/schema.rs:249:35: replace > with == in validate in 5s build + 1s test
+MISSED   crates/interpretation/src/schema.rs:249:35: replace > with >= in validate in 5s build + 1s test
+MISSED   crates/interpretation/src/schema.rs:255:35: replace > with == in validate in 5s build + 1s test
+MISSED   crates/interpretation/src/schema.rs:255:35: replace > with >= in validate in 5s build + 1s test
+MISSED   crates/interpretation/src/schema.rs:264:20: replace > with == in validate in 5s build + 1s test
+MISSED   crates/interpretation/src/schema.rs:264:20: replace > with >= in validate in 5s build + 1s test
+MISSED   crates/interpretation/src/schema.rs:270:38: replace || with && in validate in 5s build + 1s test
+MISSED   crates/interpretation/src/schema.rs:270:66: replace > with == in validate in 5s build + 1s test
+MISSED   crates/interpretation/src/schema.rs:270:66: replace > with >= in validate in 5s build + 1s test
+MISSED   crates/interpretation/src/schema.rs:323:20: replace > with >= in parse_bounded in 5s build + 1s test
+127 mutants tested in 16m: 43 missed, 69 caught, 15 unviable

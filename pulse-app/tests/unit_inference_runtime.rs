@@ -29,7 +29,7 @@ type CapturedEvent = (String, tracing::Level, String);
 /// Shared event sink populated by [`CapturingSubscriber`].
 type CapturedEvents = Arc<Mutex<Vec<CapturedEvent>>>;
 
-/// Captures `tracing::Event` callbacks into а shared Vec for post-test
+/// Captures `tracing::Event` callbacks into a shared Vec for post-test
 /// assertion. Pattern per CLAUDE.md testing.md 2026-05-09 set_default
 /// guard convention.
 struct CapturingSubscriber {
@@ -93,7 +93,7 @@ impl tracing::Subscriber for CapturingSubscriber {
     fn exit(&self, _: &tracing::span::Id) {}
 }
 
-/// Hand-rolled stub `LlmInferenceRunner` returning а canned outcome.
+/// Hand-rolled stub `LlmInferenceRunner` returning a canned outcome.
 /// Per CLAUDE.md observability.md 2026-05-17 mocking discipline: small
 /// impl, no `mockall` workspace dep needed.
 struct StubInferenceRunner {
@@ -383,7 +383,7 @@ async fn handle_digest_model_not_configured_increments_runtime_error_counter() {
 
 #[tokio::test]
 async fn handle_digest_schema_violation_increments_schema_violation_counter() {
-    // Construct а JSON payload that parses cleanly but fails post-parse
+    // Construct a JSON payload that parses cleanly but fails post-parse
     // validation (e.g., title > TITLE_MAX_LEN).
     let mut v: serde_json::Value =
         serde_json::from_str(&valid_l4_output_json()).expect("baseline parse ok");
@@ -465,14 +465,14 @@ async fn handle_digest_selects_primary_prompt_when_runner_tier_is_primary() {
 
     let captured = runner
         .captured_prompt()
-        .expect("primary prompt sent к runner");
+        .expect("primary prompt sent to runner");
     assert!(
-        captured.contains("Your job is к decide"),
+        captured.contains("Your job is to decide"),
         "primary role text missing from captured prompt"
     );
     // NB: "fallback tier" also appears in the embedded JSON schema's
     // description text (chunk #83 schema.json prose), so use strings
-    // exclusive к the fallback framing text instead — "ONE hypothesis"
+    // exclusive to the fallback framing text instead — "ONE hypothesis"
     // (capital ONE) and "hardware-constrained" appear only in
     // ROLE_DEFINITION_FALLBACK + OUTPUT_REMINDER_FALLBACK, never in
     // schema.json.
@@ -498,10 +498,10 @@ async fn handle_digest_selects_fallback_prompt_when_runner_tier_is_fallback() {
 
     let captured = runner
         .captured_prompt()
-        .expect("fallback prompt sent к runner");
+        .expect("fallback prompt sent to runner");
     // Use framing-exclusive strings ("hardware-constrained", "ONE hypothesis",
     // "at most 2 investigation steps") — schema.json descriptions contain
-    // "fallback tier" verbatim so it's not а fallback-framing-only marker.
+    // "fallback tier" verbatim so it's not a fallback-framing-only marker.
     assert!(
         captured.contains("hardware-constrained"),
         "fallback role text missing 'hardware-constrained' marker"
@@ -515,13 +515,13 @@ async fn handle_digest_selects_fallback_prompt_when_runner_tier_is_fallback() {
         "fallback output reminder missing 'at most 2 investigation steps' bound"
     );
     assert!(
-        !captured.contains("Your job is к decide"),
+        !captured.contains("Your job is to decide"),
         "primary-specific role text leaked into fallback prompt"
     );
 }
 
 #[tokio::test]
-async fn handle_digest_emits_prompt_version_v2_1_for_primary_tier() {
+async fn handle_digest_emits_prompt_version_v2_3_for_primary_tier() {
     let (subscriber, events) = CapturingSubscriber::new();
     let runner = StubInferenceRunner::new_ok(ModelTier::Primary, valid_l4_output_json());
     let digest = sample_digest();
@@ -536,8 +536,8 @@ async fn handle_digest_emits_prompt_version_v2_1_for_primary_tier() {
         .find(|(t, _, _)| t == "interpretation.prompt.assemble")
         .expect("interpretation.prompt.assemble event present");
     assert!(
-        assemble_evt.2.contains("prompt_version=v2.1"),
-        "primary tier must emit prompt_version=v2.1; got fields: {}",
+        assemble_evt.2.contains("prompt_version=v2.3"),
+        "primary tier must emit prompt_version=v2.3; got fields: {}",
         assemble_evt.2
     );
 }
@@ -558,8 +558,8 @@ async fn handle_digest_emits_prompt_version_v1_fallback_for_fallback_tier() {
         .find(|(t, _, _)| t == "interpretation.prompt.assemble")
         .expect("interpretation.prompt.assemble event present");
     assert!(
-        assemble_evt.2.contains("prompt_version=v1.0-fallback"),
-        "fallback tier must emit prompt_version=v1.0-fallback; got fields: {}",
+        assemble_evt.2.contains("prompt_version=v1.2-fallback"),
+        "fallback tier must emit prompt_version=v1.2-fallback; got fields: {}",
         assemble_evt.2
     );
 }
@@ -610,7 +610,7 @@ async fn handle_digest_selects_reflection_prompt_for_reflection_digest() {
 
     let prompt = runner
         .captured_prompt()
-        .expect("reflection prompt sent к runner");
+        .expect("reflection prompt sent to runner");
     assert!(
         prompt.contains("cumulative"),
         "reflection digest must select the cumulative-trend prompt; got: {prompt}"
@@ -625,8 +625,8 @@ async fn handle_digest_selects_reflection_prompt_for_reflection_digest() {
         .find(|(t, _, _)| t == "interpretation.prompt.assemble")
         .expect("interpretation.prompt.assemble event present");
     assert!(
-        assemble_evt.2.contains("prompt_version=v1.0-reflection"),
-        "reflection digest must emit prompt_version=v1.0-reflection; got fields: {}",
+        assemble_evt.2.contains("prompt_version=v1.2-reflection"),
+        "reflection digest must emit prompt_version=v1.2-reflection; got fields: {}",
         assemble_evt.2
     );
 }
@@ -646,7 +646,7 @@ async fn handle_digest_acute_primary_digest_does_not_select_reflection_prompt() 
 
     let prompt = runner
         .captured_prompt()
-        .expect("primary prompt sent к runner");
+        .expect("primary prompt sent to runner");
     assert!(!prompt.contains("cumulative"));
-    assert!(prompt.contains("Your job is к decide"));
+    assert!(prompt.contains("Your job is to decide"));
 }

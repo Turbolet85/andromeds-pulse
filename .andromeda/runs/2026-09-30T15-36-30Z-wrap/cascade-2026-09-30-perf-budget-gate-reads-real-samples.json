@@ -1,0 +1,423 @@
+[
+{
+"tool": "cascade",
+"v": "1.1",
+"sha8": "1550f3bc",
+"ts": "2026-09-30T15:48:37Z",
+"argv": [
+"sweep",
+"--patterns-file",
+".andromeda/runs/2026-09-30T15-36-30Z-wrap/cascade-patterns.toml",
+"--run-dir",
+".andromeda/runs/2026-09-30T15-36-30Z-wrap",
+"--marker",
+"2026-09-30-perf-budget-gate-reads-real-samples"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"baseline fb93fcac (pre-CI parent — the oldest of 2 pre-CI commit(s), d708ad74)",
+"vacuous · new 0 · standing 2 · leaf 3 · curation 2 · base 0 · case-variants +19 · control test-plan.md:135 (prose)",
+"slo-script · new 2 · standing 1 · leaf 4 · curation 0 · base 0 · control test-plan.md:135 (prose)",
+"owner-entry · new 0 · standing 1 · leaf 2 · curation 0 · base 0 · control test-plan.md:135 (prose)",
+"gpu-avail · new 1 · standing 0 · leaf 0 · curation 0 · base 0 · control obs-plan.md:132 (prose)",
+"ps1-mirror · new 0 · standing 0 · leaf 2 · curation 0 · base 0 · control architecture.md:242 (prose)",
+"ps1-null · 0 rows (control fired) — a statement about this pattern, not the masters · control architecture.md:242 (pros…",
+"p99-floor · 0 rows (control fired) — a statement about this pattern, not the masters · control obs-plan.md:628 (prose)",
+"assert-max · new 0 · standing 1 · leaf 1 · curation 0 · base 0 · control obs-plan.md:640 (prose)",
+"release-fail · 0 rows (control fired) — a statement about this pattern, not the masters · control obs-plan.md:641 (pros…",
+"check-scripts · new 1 · standing 0 · leaf 2 · curation 0 · base 0 · control test-plan.md:313 (prose)",
+"neutral-tol · new 0 · standing 1 · leaf 3 · curation 0 · base 0 · control test-plan.md:725 (prose)",
+"frame-headful · 0 rows (control fired) — a statement about this pattern, not the masters · control test-plan.md:100 (pr…",
+"boot-smoke-only · new 0 · standing 1 · leaf 2 · curation 0 · base 0 · control test-plan.md:135 (prose)",
+"save-if · new 0 · standing 0 · leaf 0 · curation 1 · base 0 · control test-plan.md:640 (prose)",
+"ro-lint-test · new 0 · standing 4 · leaf 0 · curation 0 · base 0 · control architecture.md:320 (prose)",
+"tail-max · new 0 · standing 1 · leaf 0 · curation 0 · base 0 · control obs-plan.md:630 (prose)",
+".andromeda/test-plan.md:135 vacuous standing edited … perf-budget gate is VACUOUS today — it is fed only the boot-smoke…",
+".andromeda/test-plan.md:333 vacuous standing @c1633/3641 …og assertion pass **VACUOUSLY** (the same wrong-reason-pass h…",
+".claude/rules/testing.md:240 vacuous curation @c1637/3084 … `captured` passes VACUOUSLY on an empty capture (the silent…",
+".claude/rules/testing.md:264 vacuous curation @c119/2403 …ists to enable pass VACUOUSLY — audit the stub's payload comp…",
+".claude/rules/observability.md:95 vacuous leaf …build fail. **Status — VACUOUS in CI** (measured at chunk 2026-09-29-p-…",
+".claude/docs/obs-summary.md:78 vacuous leaf …f rows above in CI_ | **VACUOUS** (measured at chunk 2026-09-29-p-025-hue-…",
+".claude/docs/tests-summary.md:92 vacuous leaf …at same assertion pass VACUOUSLY; there the evidence of record is absenc…",
+".andromeda/architecture.md:243 slo-script new @c12709/13753 …)`); the `xtask/ci/perf-slo-check.{sh,ps1}` scripts they o…",
+".andromeda/test-plan.md:135 slo-script standing edited mixed ×3 | `perf-slo-check-arm-coverage` | **DISCHARGED 2026-09-…",
+".andromeda/obs-plan.md:641 slo-script new …*` member (the `xtask/ci/perf-slo-check.{sh,ps1}` scripts were deleted at ch…",
+".claude/rules/observability.md:95 slo-script leaf …I's `ci-gates` feeds `perf-slo-check` only the boot-smoke log (0 fra…",
+".claude/rules/observability.md:98 slo-script leaf …* the check scripts (`perf-slo-check` / `heartbeat-gap-check` / `l4-…",
+".claude/docs/obs-summary.md:78 slo-script leaf …CI's `ci-gates` feeds `perf-slo-check` only the boot-smoke log — 0 fram…",
+".claude/docs/obs-summary.md:83 slo-script leaf …ck scripts (`xtask/ci/{perf-slo-check,heartbeat-gap-check,l4-latency-p9…",
+".andromeda/test-plan.md:135 owner-entry standing edited …orking-route entry \"Perf-budget gate reads real samples\"). Owe…",
+".claude/rules/observability.md:95 owner-entry leaf … working-route entry \"Perf-budget gate reads real samples\" (obs-pla…",
+".claude/docs/obs-summary.md:78 owner-entry leaf … owner: the working-route entry \"Perf-budget gate reads real samples\" |",
+".andromeda/obs-plan.md:132 gpu-avail new …apter probe (its former `gpu_available` field was a hardcoded `false` and was…",
+".claude/rules/verification-harness.md:22 ps1-mirror leaf …nd-round-trips; ps1 does not mirror it); poll the `cargo xtas…",
+".claude/docs/tests-summary.md:12 ps1-mirror leaf …meda-pulse.exit`; ps1 does not mirror this) + `ANDROMEDA_PULSE_DATA_D…",
+".andromeda/obs-plan.md:640 assert-max standing …ive deltas per target, assert max delta ≤ 45000ms or exit 1; concrete s…",
+".claude/docs/obs-summary.md:73 assert-max leaf …stamps per `{module}.tick` target, compute deltas, assert max ≤45000ms |",
+".andromeda/test-plan.md:727 check-scripts new …budget {verdict}`; the check scripts it once called were deleted at chun…",
+".claude/rules/observability.md:98 check-scripts leaf ×2 … (chunk #99):** the check scripts (`perf-slo-check` / `heartbe…",
+".claude/docs/obs-summary.md:83 check-scripts leaf - The check scripts (`xtask/ci/{perf-slo-check,heartbeat-gap-check,l4…",
+".andromeda/obs-plan.md:661 neutral-tol standing edited …test.jsonl` must be NEUTRAL-tolerant for an UNREQUIRED arm (abs…",
+".claude/rules/observability.md:94 neutral-tol leaf …` is not `recovered`. NEUTRAL-tolerant — no `buffer.tick` in the st…",
+".claude/rules/observability.md:98 neutral-tol leaf …`l4-latency-p99`) are NEUTRAL-tolerant — an absent metric stream re…",
+".claude/docs/obs-summary.md:83 neutral-tol leaf …4-latency-p99}`) are **NEUTRAL-tolerant**: absent metric stream → NEUT…",
+".andromeda/test-plan.md:135 boot-smoke-only standing edited …log, which carries 0 frame / memory / snapshot samples (ob…",
+".claude/rules/observability.md:95 boot-smoke-only leaf …the boot-smoke log (0 frame / memory / snapshot samples), so th…",
+".claude/docs/obs-summary.md:78 boot-smoke-only leaf …the boot-smoke log — 0 frame / memory / snapshot samples — so it r…",
+".claude/docs/session-learnings.md:14 save-if curation …pendency graph restore it read-only (`save-if: false`), and a job",
+".andromeda/architecture.md:321 ro-lint-test standing edited …and `supply-chain` restore one read-only; `coverage` cache…",
+".andromeda/test-plan.md:641 ro-lint-test standing edited …`; the key the `mcp-test` and `a11y` jobs restore read-only) |",
+".andromeda/test-plan.md:643 ro-lint-test standing …file ci --no-tests=pass` | own job | restore-only `lint-test-Linux` |",
+".andromeda/test-plan.md:645 ro-lint-test standing …trips) | n/a | cargo, restore-only `boot-Linux` — landed chunk `2026…",
+".andromeda/obs-plan.md:630 tail-max standing edited …minute 10k spans/sec tail-and-max is the release-cadence `perf:loa…",
+"vacuous · new 0 · standing 2 · leaf 3 · curation 2 · base 0 · case-variants +19 · control test-plan.md:135 (prose)",
+"slo-script · new 2 · standing 1 · leaf 4 · curation 0 · base 0 · control test-plan.md:135 (prose)",
+"owner-entry · new 0 · standing 1 · leaf 2 · curation 0 · base 0 · control test-plan.md:135 (prose)",
+"gpu-avail · new 1 · standing 0 · leaf 0 · curation 0 · base 0 · control obs-plan.md:132 (prose)",
+"ps1-mirror · new 0 · standing 0 · leaf 2 · curation 0 · base 0 · control architecture.md:242 (prose)",
+"ps1-null · 0 rows (control fired) — a statement about this pattern, not the masters · control architecture.md:242 (pros…",
+"p99-floor · 0 rows (control fired) — a statement about this pattern, not the masters · control obs-plan.md:628 (prose)",
+"assert-max · new 0 · standing 1 · leaf 1 · curation 0 · base 0 · control obs-plan.md:640 (prose)",
+"release-fail · 0 rows (control fired) — a statement about this pattern, not the masters · control obs-plan.md:641 (pros…",
+"check-scripts · new 1 · standing 0 · leaf 2 · curation 0 · base 0 · control test-plan.md:313 (prose)",
+"neutral-tol · new 0 · standing 1 · leaf 3 · curation 0 · base 0 · control test-plan.md:725 (prose)",
+"frame-headful · 0 rows (control fired) — a statement about this pattern, not the masters · control test-plan.md:100 (pr…",
+"boot-smoke-only · new 0 · standing 1 · leaf 2 · curation 0 · base 0 · control test-plan.md:135 (prose)",
+"save-if · new 0 · standing 0 · leaf 0 · curation 1 · base 0 · control test-plan.md:640 (prose)",
+"ro-lint-test · new 0 · standing 4 · leaf 0 · curation 0 · base 0 · control architecture.md:320 (prose)",
+"tail-max · new 0 · standing 1 · leaf 0 · curation 0 · base 0 · control obs-plan.md:630 (prose)"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"baseline": "fb93fcac9033e9b80477897b690aa0e86cb60557",
+"how": "pre-CI parent — the oldest of 2 pre-CI commit(s), d708ad74",
+"counts": {
+"vacuous": {
+"new": 0,
+"standing": 2,
+"leaf": 3,
+"curation": 2,
+"base": 0
+},
+"slo-script": {
+"new": 2,
+"standing": 1,
+"leaf": 4,
+"curation": 0,
+"base": 0
+},
+"owner-entry": {
+"new": 0,
+"standing": 1,
+"leaf": 2,
+"curation": 0,
+"base": 0
+},
+"gpu-avail": {
+"new": 1,
+"standing": 0,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"ps1-mirror": {
+"new": 0,
+"standing": 0,
+"leaf": 2,
+"curation": 0,
+"base": 0
+},
+"ps1-null": {
+"new": 0,
+"standing": 0,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"p99-floor": {
+"new": 0,
+"standing": 0,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"assert-max": {
+"new": 0,
+"standing": 1,
+"leaf": 1,
+"curation": 0,
+"base": 0
+},
+"release-fail": {
+"new": 0,
+"standing": 0,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"check-scripts": {
+"new": 1,
+"standing": 0,
+"leaf": 2,
+"curation": 0,
+"base": 0
+},
+"neutral-tol": {
+"new": 0,
+"standing": 1,
+"leaf": 3,
+"curation": 0,
+"base": 0
+},
+"frame-headful": {
+"new": 0,
+"standing": 0,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"boot-smoke-only": {
+"new": 0,
+"standing": 1,
+"leaf": 2,
+"curation": 0,
+"base": 0
+},
+"save-if": {
+"new": 0,
+"standing": 0,
+"leaf": 0,
+"curation": 1,
+"base": 0
+},
+"ro-lint-test": {
+"new": 0,
+"standing": 4,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"tail-max": {
+"new": 0,
+"standing": 1,
+"leaf": 0,
+"curation": 0,
+"base": 0
+}
+}
+}
+},
+{
+"tool": "cascade",
+"v": "1.1",
+"sha8": "1550f3bc",
+"ts": "2026-09-30T15:49:39Z",
+"argv": [
+"sweep",
+"--patterns-file",
+".andromeda/runs/2026-09-30T15-36-30Z-wrap/cascade-patterns.toml",
+"--run-dir",
+".andromeda/runs/2026-09-30T15-36-30Z-wrap",
+"--marker",
+"2026-09-30-perf-budget-gate-reads-real-samples"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"baseline fb93fcac (pre-CI parent — the oldest of 2 pre-CI commit(s), d708ad74)",
+"vacuous · new 0 · standing 1 · leaf 3 · curation 2 · base 0 · case-variants +20 · control test-plan.md:135 (prose)",
+"slo-script · new 2 · standing 1 · leaf 4 · curation 0 · base 0 · control test-plan.md:135 (prose)",
+"owner-entry · new 0 · standing 0 · leaf 2 · curation 0 · base 0 · control test-plan.md:135 (prose)",
+"gpu-avail · new 1 · standing 0 · leaf 0 · curation 0 · base 0 · control obs-plan.md:132 (prose)",
+"ps1-mirror · new 0 · standing 0 · leaf 2 · curation 0 · base 0 · control architecture.md:242 (prose)",
+"ps1-null · 0 rows (control fired) — a statement about this pattern, not the masters · control architecture.md:242 (pros…",
+"p99-floor · 0 rows (control fired) — a statement about this pattern, not the masters · control obs-plan.md:628 (prose)",
+"assert-max · new 0 · standing 1 · leaf 1 · curation 0 · base 0 · control obs-plan.md:640 (prose)",
+"release-fail · 0 rows (control fired) — a statement about this pattern, not the masters · control obs-plan.md:641 (pros…",
+"check-scripts · new 1 · standing 0 · leaf 2 · curation 0 · base 0 · control test-plan.md:313 (prose)",
+"neutral-tol · new 0 · standing 1 · leaf 3 · curation 0 · base 0 · control test-plan.md:725 (prose)",
+"frame-headful · 0 rows (control fired) — a statement about this pattern, not the masters · control test-plan.md:100 (pr…",
+"boot-smoke-only · new 0 · standing 0 · leaf 2 · curation 0 · base 0 · control test-plan.md:135 (prose)",
+"save-if · new 0 · standing 0 · leaf 0 · curation 1 · base 0 · control test-plan.md:640 (prose)",
+"ro-lint-test · new 0 · standing 4 · leaf 0 · curation 0 · base 0 · control architecture.md:320 (prose)",
+"tail-max · new 0 · standing 1 · leaf 0 · curation 0 · base 0 · control obs-plan.md:630 (prose)",
+".andromeda/test-plan.md:333 vacuous standing @c1633/3641 …og assertion pass **VACUOUSLY** (the same wrong-reason-pass h…",
+".claude/rules/testing.md:240 vacuous curation @c1637/3084 … `captured` passes VACUOUSLY on an empty capture (the silent…",
+".claude/rules/testing.md:264 vacuous curation @c119/2403 …ists to enable pass VACUOUSLY — audit the stub's payload comp…",
+".claude/rules/observability.md:95 vacuous leaf …build fail. **Status — VACUOUS in CI** (measured at chunk 2026-09-29-p-…",
+".claude/docs/obs-summary.md:78 vacuous leaf …f rows above in CI_ | **VACUOUS** (measured at chunk 2026-09-29-p-025-hue-…",
+".claude/docs/tests-summary.md:92 vacuous leaf …at same assertion pass VACUOUSLY; there the evidence of record is absenc…",
+".andromeda/architecture.md:243 slo-script new @c12709/13753 …)`); the `xtask/ci/perf-slo-check.{sh,ps1}` scripts they o…",
+".andromeda/test-plan.md:135 slo-script standing edited ×2 | `perf-slo-check-arm-coverage` | **DISCHARGED 2026-09-30-per…",
+".andromeda/obs-plan.md:641 slo-script new …*` member (the `xtask/ci/perf-slo-check.{sh,ps1}` scripts were deleted at ch…",
+".claude/rules/observability.md:95 slo-script leaf …I's `ci-gates` feeds `perf-slo-check` only the boot-smoke log (0 fra…",
+".claude/rules/observability.md:98 slo-script leaf …* the check scripts (`perf-slo-check` / `heartbeat-gap-check` / `l4-…",
+".claude/docs/obs-summary.md:78 slo-script leaf …CI's `ci-gates` feeds `perf-slo-check` only the boot-smoke log — 0 fram…",
+".claude/docs/obs-summary.md:83 slo-script leaf …ck scripts (`xtask/ci/{perf-slo-check,heartbeat-gap-check,l4-latency-p9…",
+".claude/rules/observability.md:95 owner-entry leaf … working-route entry \"Perf-budget gate reads real samples\" (obs-pla…",
+".claude/docs/obs-summary.md:78 owner-entry leaf … owner: the working-route entry \"Perf-budget gate reads real samples\" |",
+".andromeda/obs-plan.md:132 gpu-avail new …apter probe (its former `gpu_available` field was a hardcoded `false` and was…",
+".claude/rules/verification-harness.md:22 ps1-mirror leaf …nd-round-trips; ps1 does not mirror it); poll the `cargo xtas…",
+".claude/docs/tests-summary.md:12 ps1-mirror leaf …meda-pulse.exit`; ps1 does not mirror this) + `ANDROMEDA_PULSE_DATA_D…",
+".andromeda/obs-plan.md:640 assert-max standing …ive deltas per target, assert max delta ≤ 45000ms or exit 1; concrete s…",
+".claude/docs/obs-summary.md:73 assert-max leaf …stamps per `{module}.tick` target, compute deltas, assert max ≤45000ms |",
+".andromeda/test-plan.md:727 check-scripts new …budget {verdict}`; the check scripts it once called were deleted at chun…",
+".claude/rules/observability.md:98 check-scripts leaf ×2 … (chunk #99):** the check scripts (`perf-slo-check` / `heartbe…",
+".claude/docs/obs-summary.md:83 check-scripts leaf - The check scripts (`xtask/ci/{perf-slo-check,heartbeat-gap-check,l4…",
+".andromeda/obs-plan.md:661 neutral-tol standing edited …test.jsonl` must be NEUTRAL-tolerant for an UNREQUIRED arm (abs…",
+".claude/rules/observability.md:94 neutral-tol leaf …` is not `recovered`. NEUTRAL-tolerant — no `buffer.tick` in the st…",
+".claude/rules/observability.md:98 neutral-tol leaf …`l4-latency-p99`) are NEUTRAL-tolerant — an absent metric stream re…",
+".claude/docs/obs-summary.md:83 neutral-tol leaf …4-latency-p99}`) are **NEUTRAL-tolerant**: absent metric stream → NEUT…",
+".claude/rules/observability.md:95 boot-smoke-only leaf …the boot-smoke log (0 frame / memory / snapshot samples), so th…",
+".claude/docs/obs-summary.md:78 boot-smoke-only leaf …the boot-smoke log — 0 frame / memory / snapshot samples — so it r…",
+".claude/docs/session-learnings.md:14 save-if curation …pendency graph restore it read-only (`save-if: false`), and a job",
+".andromeda/architecture.md:321 ro-lint-test standing edited …and `supply-chain` restore one read-only; `coverage` cache…",
+".andromeda/test-plan.md:641 ro-lint-test standing edited …`; the key the `mcp-test` and `a11y` jobs restore read-only) |",
+".andromeda/test-plan.md:643 ro-lint-test standing …file ci --no-tests=pass` | own job | restore-only `lint-test-Linux` |",
+".andromeda/test-plan.md:645 ro-lint-test standing …trips) | n/a | cargo, restore-only `boot-Linux` — landed chunk `2026…",
+".andromeda/obs-plan.md:630 tail-max standing edited …minute 10k spans/sec tail-and-max is the release-cadence `perf:loa…",
+"vacuous · new 0 · standing 1 · leaf 3 · curation 2 · base 0 · case-variants +20 · control test-plan.md:135 (prose)",
+"slo-script · new 2 · standing 1 · leaf 4 · curation 0 · base 0 · control test-plan.md:135 (prose)",
+"owner-entry · new 0 · standing 0 · leaf 2 · curation 0 · base 0 · control test-plan.md:135 (prose)",
+"gpu-avail · new 1 · standing 0 · leaf 0 · curation 0 · base 0 · control obs-plan.md:132 (prose)",
+"ps1-mirror · new 0 · standing 0 · leaf 2 · curation 0 · base 0 · control architecture.md:242 (prose)",
+"ps1-null · 0 rows (control fired) — a statement about this pattern, not the masters · control architecture.md:242 (pros…",
+"p99-floor · 0 rows (control fired) — a statement about this pattern, not the masters · control obs-plan.md:628 (prose)",
+"assert-max · new 0 · standing 1 · leaf 1 · curation 0 · base 0 · control obs-plan.md:640 (prose)",
+"release-fail · 0 rows (control fired) — a statement about this pattern, not the masters · control obs-plan.md:641 (pros…",
+"check-scripts · new 1 · standing 0 · leaf 2 · curation 0 · base 0 · control test-plan.md:313 (prose)",
+"neutral-tol · new 0 · standing 1 · leaf 3 · curation 0 · base 0 · control test-plan.md:725 (prose)",
+"frame-headful · 0 rows (control fired) — a statement about this pattern, not the masters · control test-plan.md:100 (pr…",
+"boot-smoke-only · new 0 · standing 0 · leaf 2 · curation 0 · base 0 · control test-plan.md:135 (prose)",
+"save-if · new 0 · standing 0 · leaf 0 · curation 1 · base 0 · control test-plan.md:640 (prose)",
+"ro-lint-test · new 0 · standing 4 · leaf 0 · curation 0 · base 0 · control architecture.md:320 (prose)",
+"tail-max · new 0 · standing 1 · leaf 0 · curation 0 · base 0 · control obs-plan.md:630 (prose)"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"baseline": "fb93fcac9033e9b80477897b690aa0e86cb60557",
+"how": "pre-CI parent — the oldest of 2 pre-CI commit(s), d708ad74",
+"counts": {
+"vacuous": {
+"new": 0,
+"standing": 1,
+"leaf": 3,
+"curation": 2,
+"base": 0
+},
+"slo-script": {
+"new": 2,
+"standing": 1,
+"leaf": 4,
+"curation": 0,
+"base": 0
+},
+"owner-entry": {
+"new": 0,
+"standing": 0,
+"leaf": 2,
+"curation": 0,
+"base": 0
+},
+"gpu-avail": {
+"new": 1,
+"standing": 0,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"ps1-mirror": {
+"new": 0,
+"standing": 0,
+"leaf": 2,
+"curation": 0,
+"base": 0
+},
+"ps1-null": {
+"new": 0,
+"standing": 0,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"p99-floor": {
+"new": 0,
+"standing": 0,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"assert-max": {
+"new": 0,
+"standing": 1,
+"leaf": 1,
+"curation": 0,
+"base": 0
+},
+"release-fail": {
+"new": 0,
+"standing": 0,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"check-scripts": {
+"new": 1,
+"standing": 0,
+"leaf": 2,
+"curation": 0,
+"base": 0
+},
+"neutral-tol": {
+"new": 0,
+"standing": 1,
+"leaf": 3,
+"curation": 0,
+"base": 0
+},
+"frame-headful": {
+"new": 0,
+"standing": 0,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"boot-smoke-only": {
+"new": 0,
+"standing": 0,
+"leaf": 2,
+"curation": 0,
+"base": 0
+},
+"save-if": {
+"new": 0,
+"standing": 0,
+"leaf": 0,
+"curation": 1,
+"base": 0
+},
+"ro-lint-test": {
+"new": 0,
+"standing": 4,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"tail-max": {
+"new": 0,
+"standing": 1,
+"leaf": 0,
+"curation": 0,
+"base": 0
+}
+}
+}
+}
+]

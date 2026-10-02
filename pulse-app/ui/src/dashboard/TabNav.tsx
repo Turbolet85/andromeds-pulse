@@ -1,6 +1,6 @@
 // Top-level tab navigation for the full dashboard surface per layout-templates.md
 // §Component — Primary navigation. WAI-ARIA tablist pattern: `role="tablist"`
-// container with `role="tab"` items wired via `aria-controls` к sibling
+// container with `role="tab"` items wired via `aria-controls` to sibling
 // `role="tabpanel"`, `aria-selected` on active, roving tabindex (active is
 // `tabindex="0"`, others `tabindex="-1"`). Wraps in `<nav aria-label="Dashboard
 // sections">` for landmark + accessible name (per a11y plan §7 Landmark roles).

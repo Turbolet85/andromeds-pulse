@@ -21,7 +21,7 @@ Owns the in-memory DuckDB ring buffer (5–10 min retention, configurable) + Apa
 
 ## Internal conventions
 - **Schema name:** `pulse_buffer` (single in-memory `:memory:` DuckDB connection, schema `main`).
-- **Reserved tables (canonical OTLP entities):** `spans`, `span_events`, `span_links`, `metrics_points`, `log_records`, `resources`, `instrumentation_scopes`.
+- **Reserved tables (canonical OTLP entities):** `spans`, `span_events`, `metrics_points`, `log_records` (+ `log_templates`) — the producer-less `span_links`/`resources`/`instrumentation_scopes` CREATEs were deleted at chunk 2026-08-30-diagnostics-un-muting-harness-truth-sweep; retention DELETEs 7 → 4.
 - **Schema creation:** on startup; no migrations (per arch §Established Decisions ORM/Migrations None).
 - **Primary keys:** OTLP-native — spans use `(trace_id BLOB(16), span_id BLOB(8))` composite; metric points + log records use `(timestamp, resource_hash, name)`.
 - **Timestamps:** `TIMESTAMPTZ` (microsecond precision, UTC-stored) + sibling `BIGINT ts_unix_nano` when nanosecond precision required.
@@ -46,7 +46,7 @@ Owns the in-memory DuckDB ring buffer (5–10 min retention, configurable) + Apa
 
 ## Testing this service
 - **Unit tests:** `cargo nextest run --filter-expr 'package(buffer)'`
-- **Integration:** ephemeral `duckdb::open_in_memory()` per test; `MockArrowBatch::builder()` seeds rows; `tokio::time::pause()` + `advance(Duration)` for retention window tests.
+- **Integration:** ephemeral `duckdb::open_in_memory()` per test; rows seeded by OTLP ingest or direct in-memory inserts (the specified `MockArrowBatch::builder()` is not implemented — 0 workspace hits, measured 2026-08-23); `tokio::time::pause()` + `advance(Duration)` for retention window tests.
 - **Chaos test (test-plan §10):** Inject 10k spans/sec for 15 min (exceeds 10-min window) → assert oldest spans evicted; assert `metric.buffer.memory_bytes` ≤512 MB.
 
 ## Local development

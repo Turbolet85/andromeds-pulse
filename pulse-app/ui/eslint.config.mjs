@@ -45,11 +45,24 @@ export default [
       ...jsxA11y.flatConfigs.recommended.rules,
       "jsx-a11y/alt-text": ["error", { elements: ["img"], img: ["NextImage"] }],
       "jsx-a11y/anchor-is-valid": "off",
+      // a11y-plan §9 pins these five at error explicitly rather than relying on
+      // the spread above, so an upstream severity downgrade cannot silently
+      // weaken the gate. They cannot live on the `--rule` CLI flag: that builds
+      // a top-level config object where the jsx-a11y plugin is not in scope.
+      "jsx-a11y/anchor-has-content": "error",
+      "jsx-a11y/aria-props": "error",
+      "jsx-a11y/aria-role": "error",
+      "jsx-a11y/role-has-required-aria-props": "error",
     },
   },
 
   {
-    files: ["scripts/**/*.{js,mjs}", "tests-a11y/**/*.{js,mjs}", "*.config.{js,mjs,ts}"],
+    files: [
+      "scripts/**/*.{js,mjs}",
+      "tests-a11y/**/*.{js,mjs}",
+      "tests-e2e/**/*.{js,mjs}",
+      "*.config.{js,mjs,ts}",
+    ],
     languageOptions: {
       globals: {
         ...globals.node,

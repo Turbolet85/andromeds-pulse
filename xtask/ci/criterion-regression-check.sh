@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Chunk #56 criterion bench regression detector. Compares current
 # target/criterion/<bench>/new/estimates.json against base-branch
-# criterion-baseline/<bench>/new/estimates.json; uses jq к extract
+# criterion-baseline/<bench>/new/estimates.json; uses jq to extract
 # .mean.point_estimate; fails if mean regresses by more than +10%
 # (default; CRITERION_REGRESSION_THRESHOLD_PCT override). NEUTRAL when
 # baseline missing (first PR / new bench / no criterion runs yet).

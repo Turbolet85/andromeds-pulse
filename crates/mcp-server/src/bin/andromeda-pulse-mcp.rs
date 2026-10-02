@@ -8,7 +8,7 @@ use duckdb::Connection;
 use mcp_server::feature_gate::{GateState, validate_double_gate};
 use mcp_server::jsonrpc::{
     CODE_INTERNAL_ERROR, CODE_INVALID_PARAMS, CODE_METHOD_NOT_FOUND, error, initialize_result,
-    parse_request, success, tools_list_with_8_tools,
+    parse_request, success, tools_list_manifest,
 };
 use mcp_server::tools::{ALL_TOOL_NAMES, IncidentToolContext, dispatch_tool};
 use mcp_server::tracing_setup;
@@ -67,11 +67,16 @@ fn init_incident_context(data_dir: &Path) -> Option<IncidentToolContext> {
     match Corpus::open(corpus_db_path, keychain) {
         Ok(c) => {
             let corpus: Arc<dyn CorpusWriter> = Arc::new(c);
-            // Match the main process's workspace key derivation
-            // (`incident_workspace_key = data_dir.to_string_lossy()` at
-            // pulse-app/src/main.rs) so query_incident_list filters the same
-            // rows the in-app surface shows.
-            let workspace_root = data_dir.to_string_lossy().to_string();
+            // The app STAMPS incidents with its detected project root, which
+            // this process cannot derive: our cwd belongs to whoever spawned
+            // us (an MCP client, or Conductor from its own repo), not to the
+            // workspace under observation. So the app publishes the key it
+            // stamps and we read it. Absent ⇒ `data_dir`, which is both the
+            // app's own detection-failure fallback and the behaviour before
+            // publication existed.
+            let workspace_root =
+                workspace_detector::contract::read_published_workspace_key(data_dir)
+                    .unwrap_or_else(|| data_dir.to_string_lossy().to_string());
             Some(IncidentToolContext {
                 corpus,
                 workspace_root,
@@ -206,7 +211,7 @@ fn dispatch_line(ctx: &SidecarContext, line: &str) -> Option<Vec<u8>> {
             serde_json::to_vec(&resp).ok()
         }
         "tools/list" => {
-            let resp = success(id, tools_list_with_8_tools());
+            let resp = success(id, tools_list_manifest());
             tracing::info!(
                 target: "mcp.tools.list.response",
                 result_type = "tools_array",

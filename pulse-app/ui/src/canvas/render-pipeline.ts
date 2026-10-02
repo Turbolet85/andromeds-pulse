@@ -1,10 +1,10 @@
 // Render-pipeline factories for the three chart families consumed by Epoch 5
 // surfaces — trace timeline (chunk #34), flamegraph (chunk #34 Investigation
-// modal), metrics chart (chunk #35). Names align с the three viz query
+// modal), metrics chart (chunk #35). Names align with the three viz query
 // routers per arch §Occupied Resources (`traces.*` / `metrics.*` / `logs.*`).
 // `logs.*` is reserved for chunk #35 metrics-charts-and-logs-stream.
 //
-// Vite's `?raw` suffix inline-imports the shader source as а string at build
+// Vite's `?raw` suffix inline-imports the shader source as a string at build
 // time per pulse-app/ui/src/canvas/shaders bundling discipline (security plan
 // §API Security CSP row "WGSL shaders MUST be first-party").
 
@@ -23,8 +23,8 @@ function createPipelineFromSource(
     module = device.createShaderModule({ code: shaderSource, label });
   } catch {
     // Per security plan §Anti-Patterns Logging row 4: shader-compile errors
-    // that cross the boundary к Rust telemetry must be sanitized one-liners.
-    // Re-throw с а stable identifier; никогда the raw browser error.
+    // that cross the boundary to Rust telemetry must be sanitized one-liners.
+    // Re-throw with a stable identifier; never the raw browser error.
     throw new Error(`shader compile failed: ${label}`);
   }
 

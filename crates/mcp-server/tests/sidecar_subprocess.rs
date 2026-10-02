@@ -78,7 +78,7 @@ async fn sidecar_env_unset_exits_cleanly_without_stdio() {
 }
 
 #[tokio::test(flavor = "multi_thread")]
-async fn sidecar_tools_list_returns_8_tools_with_names() {
+async fn sidecar_tools_list_returns_every_tool_by_name() {
     let tmp = tempfile::tempdir().expect("tempdir");
     let mut child = Command::new(sidecar_binary_path())
         .env("ANDROMEDA_PULSE_MCP_ENABLED", "true")
@@ -108,8 +108,8 @@ async fn sidecar_tools_list_returns_8_tools_with_names() {
     let tools = parsed["result"]["tools"].as_array().expect("tools array");
     assert_eq!(
         tools.len(),
-        8,
-        "chunk #49 (4 query tools) + chunk #94 (4 incident tools)"
+        9,
+        "4 query tools + 5 corpus-backed incident tools"
     );
     let names: Vec<&str> = tools
         .iter()
@@ -123,6 +123,7 @@ async fn sidecar_tools_list_returns_8_tools_with_names() {
     assert!(names.contains(&"retrieve_report"));
     assert!(names.contains(&"retrieve_telemetry_slice"));
     assert!(names.contains(&"mark_incident_resolved"));
+    assert!(names.contains(&"retrieve_incident_events"));
 
     let _ = child.kill().await;
 }
@@ -267,7 +268,7 @@ async fn send_tools_call_and_read(
     let parsed: serde_json::Value =
         serde_json::from_str(&response_line).expect("response is JSON-RPC envelope");
 
-    // Drain stderr opportunistically up к 500ms for assertion inspection.
+    // Drain stderr opportunistically up to 500ms for assertion inspection.
     let mut stderr_collected = String::new();
     let deadline = tokio::time::Instant::now() + Duration::from_millis(500);
     while tokio::time::Instant::now() < deadline {
@@ -368,8 +369,8 @@ async fn sidecar_response_body_never_in_stderr_for_query_traces() {
         }),
     )
     .await;
-    // The cursor value is а user-supplied string; if logged anywhere it would
-    // surface as а PII leak vector (Vector 4 from security plan). Allowlist
+    // The cursor value is a user-supplied string; if logged anywhere it would
+    // surface as a PII leak vector (Vector 4 from security plan). Allowlist
     // scrubber must redact `cursor` field at the subscriber layer.
     // Note: viz::query::compute_window may reject malformed cursor producing
     // an error response — both Ok and Err shapes are acceptable here; the
@@ -421,6 +422,6 @@ async fn sidecar_unknown_tool_returns_neg_32601() {
     assert_eq!(parsed["id"], 106);
     assert_eq!(
         parsed["error"]["code"], -32601,
-        "unknown tool routes к method-not-found code"
+        "unknown tool routes to method-not-found code"
     );
 }

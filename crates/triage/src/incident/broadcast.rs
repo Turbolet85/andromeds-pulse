@@ -1,7 +1,7 @@
 //! Broadcast topic for `IncidentLifecycleEvent` payloads emitted by the
 //! chunk #78 incident-lifecycle observer task. Mirrors chunk #67
 //! `lifecycle::broadcast::ServiceLifecycleBroadcast` shape exactly per
-//! chunk #62/#63/#67 precedent. Webview subscription wiring lives in а
+//! chunk #62/#63/#67 precedent. Webview subscription wiring lives in a
 //! future v0.2.0 chunk (incident UI consumer; deferred past chunk #83 L4
 //! digest consumers); chunk #78 emit-only.
 
@@ -12,12 +12,12 @@ use crate::contract::{CueKind, CueScope, IncidentStatus};
 
 /// Broadcast topic name per arch §Occupied Resources `pulse://stream/{kebab}`
 /// URI convention. Post-merge, this requires
-/// `/andromeda-evolve --allow-arch-registry` к legitimize в §Occupied
+/// `/andromeda-evolve --allow-arch-registry` to legitimize in §Occupied
 /// Resources Tauri IPC events (chunks #59/#62/#63/#67 precedent).
 pub const STREAM_NAME_INCIDENTS: &str = "pulse://stream/incidents";
 
 /// Broadcast channel capacity mirroring chunk #62 / #63 / #67 sibling
-/// broadcasts (all 32). Sized к absorb subscriber lag under typical
+/// broadcasts (all 32). Sized to absorb subscriber lag under typical
 /// workloads without dropping events.
 pub const BROADCAST_CAPACITY: usize = 32;
 
@@ -28,7 +28,7 @@ pub const BROADCAST_CAPACITY: usize = 32;
 /// corpus rowid as i64; `kind` / `scope` / `from_state` / `to_state` are
 /// bounded enums; `transitioned_at_unix_nano` is integer timestamp).
 /// NEVER carries `title` / `detail` / `evidence_refs` payload content
-/// (those stay в the corpus BLOB) per security plan §Logging "Never
+/// (those stay in the corpus BLOB) per security plan §Logging "Never
 /// log" discipline + arch §Cross-bridge data shape.
 #[cfg_attr(feature = "taurpc-runtime", derive(specta::Type))]
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]

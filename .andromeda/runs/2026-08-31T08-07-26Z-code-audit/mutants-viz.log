@@ -1,0 +1,7 @@
+Found 56 mutants to test
+ok       Unmutated baseline in 85s build + 1s test
+ INFO Auto-set test timeout to 20s
+MISSED   crates/viz/src/query.rs:447:15: replace < with <= in compute_window in 4s build + 1s test
+MISSED   crates/viz/src/query.rs:488:5: replace short_err -> String with String::new() in 5s build + 1s test
+MISSED   crates/viz/src/query.rs:488:5: replace short_err -> String with "xyzzy".into() in 4s build + 1s test
+56 mutants tested in 7m: 3 missed, 40 caught, 13 unviable

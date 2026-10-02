@@ -1,0 +1,334 @@
+[
+{
+"sql": "SELECT callee, file, line FROM refs WHERE callee LIKE '%ConnectionStatePayload%' OR callee LIKE '%ServiceListPayload%' ORDER BY file, line;",
+"rows": 65,
+"result": [
+{
+"callee": "rust-analyzer cargo ingest 0.1.0 connection/ConnectionStatePayload#",
+"file": "crates/ingest/src/connection.rs",
+"line": 113
+},
+{
+"callee": "rust-analyzer cargo ingest 0.1.0 connection/ConnectionStatePayload#state.",
+"file": "crates/ingest/src/connection.rs",
+"line": 122
+},
+{
+"callee": "rust-analyzer cargo ingest 0.1.0 connection/ConnectionStatePayload#last_span_ago_ms.",
+"file": "crates/ingest/src/connection.rs",
+"line": 123
+},
+{
+"callee": "rust-analyzer cargo ingest 0.1.0 connection/ConnectionStatePayload#severity.",
+"file": "crates/ingest/src/connection.rs",
+"line": 124
+},
+{
+"callee": "rust-analyzer cargo ingest 0.1.0 connection/ConnectionStatePayload#message.",
+"file": "crates/ingest/src/connection.rs",
+"line": 125
+},
+{
+"callee": "rust-analyzer cargo ingest 0.1.0 connection/ConnectionStatePayload#reason.",
+"file": "crates/ingest/src/connection.rs",
+"line": 126
+},
+{
+"callee": "rust-analyzer cargo ingest 0.1.0 connection/ConnectionStatePayload#",
+"file": "crates/ingest/src/connection.rs",
+"line": 220
+},
+{
+"callee": "rust-analyzer cargo ingest 0.1.0 connection/ConnectionStatePayload#",
+"file": "crates/ingest/src/connection.rs",
+"line": 229
+},
+{
+"callee": "rust-analyzer cargo ingest 0.1.0 connection/ConnectionStatePayload#",
+"file": "crates/ingest/src/connection.rs",
+"line": 233
+},
+{
+"callee": "rust-analyzer cargo ingest 0.1.0 connection/impl#[ConnectionStatePayload]from_parts().",
+"file": "crates/ingest/src/connection.rs",
+"line": 268
+},
+{
+"callee": "rust-analyzer cargo ingest 0.1.0 connection/ConnectionStatePayload#",
+"file": "crates/ingest/src/connection.rs",
+"line": 268
+},
+{
+"callee": "rust-analyzer cargo ingest 0.1.0 connection/impl#[ConnectionStatePayload]from_parts().",
+"file": "crates/ingest/src/connection.rs",
+"line": 595
+},
+{
+"callee": "rust-analyzer cargo ingest 0.1.0 connection/ConnectionStatePayload#",
+"file": "crates/ingest/src/connection.rs",
+"line": 595
+},
+{
+"callee": "rust-analyzer cargo ingest 0.1.0 connection/impl#[ConnectionStatePayload]from_parts().",
+"file": "crates/ingest/src/connection.rs",
+"line": 609
+},
+{
+"callee": "rust-analyzer cargo ingest 0.1.0 connection/ConnectionStatePayload#",
+"file": "crates/ingest/src/connection.rs",
+"line": 609
+},
+{
+"callee": "rust-analyzer cargo ingest 0.1.0 connection/impl#[ConnectionStatePayload]from_parts().",
+"file": "crates/ingest/src/connection.rs",
+"line": 621
+},
+{
+"callee": "rust-analyzer cargo ingest 0.1.0 connection/ConnectionStatePayload#",
+"file": "crates/ingest/src/connection.rs",
+"line": 621
+},
+{
+"callee": "rust-analyzer cargo ingest 0.1.0 connection/ConnectionStatePayload#state.",
+"file": "crates/ingest/src/connection.rs",
+"line": 693
+},
+{
+"callee": "rust-analyzer cargo ingest 0.1.0 connection/ConnectionStatePayload#severity.",
+"file": "crates/ingest/src/connection.rs",
+"line": 694
+},
+{
+"callee": "rust-analyzer cargo ingest 0.1.0 connection/ConnectionStatePayload#message.",
+"file": "crates/ingest/src/connection.rs",
+"line": 695
+},
+{
+"callee": "rust-analyzer cargo ingest 0.1.0 connection/ConnectionStatePayload#state.",
+"file": "crates/ingest/src/connection.rs",
+"line": 755
+},
+{
+"callee": "rust-analyzer cargo ingest 0.1.0 connection/ConnectionStatePayload#severity.",
+"file": "crates/ingest/src/connection.rs",
+"line": 756
+},
+{
+"callee": "rust-analyzer cargo ingest 0.1.0 connection/ConnectionStatePayload#reason.",
+"file": "crates/ingest/src/connection.rs",
+"line": 757
+},
+{
+"callee": "rust-analyzer cargo ingest 0.1.0 connection/ConnectionStatePayload#message.",
+"file": "crates/ingest/src/connection.rs",
+"line": 758
+},
+{
+"callee": "rust-analyzer cargo ingest 0.1.0 connection/ConnectionStatePayload#",
+"file": "pulse-app/src/connection_router.rs",
+"line": 16
+},
+{
+"callee": "rust-analyzer cargo ingest 0.1.0 connection/ConnectionStatePayload#",
+"file": "pulse-app/src/connection_router.rs",
+"line": 51
+},
+{
+"callee": "rust-analyzer cargo ingest 0.1.0 connection/ConnectionStatePayload#",
+"file": "pulse-app/src/connection_router.rs",
+"line": 76
+},
+{
+"callee": "rust-analyzer cargo ingest 0.1.0 connection/impl#[ConnectionStatePayload]from_parts().",
+"file": "pulse-app/src/connection_router.rs",
+"line": 84
+},
+{
+"callee": "rust-analyzer cargo ingest 0.1.0 connection/ConnectionStatePayload#",
+"file": "pulse-app/src/connection_router.rs",
+"line": 84
+},
+{
+"callee": "rust-analyzer cargo ingest 0.1.0 connection/ConnectionStatePayload#state.",
+"file": "pulse-app/src/connection_router.rs",
+"line": 157
+},
+{
+"callee": "rust-analyzer cargo ingest 0.1.0 connection/ConnectionStatePayload#severity.",
+"file": "pulse-app/src/connection_router.rs",
+"line": 158
+},
+{
+"callee": "rust-analyzer cargo ingest 0.1.0 connection/ConnectionStatePayload#last_span_ago_ms.",
+"file": "pulse-app/src/connection_router.rs",
+"line": 159
+},
+{
+"callee": "rust-analyzer cargo ingest 0.1.0 connection/ConnectionStatePayload#message.",
+"file": "pulse-app/src/connection_router.rs",
+"line": 160
+},
+{
+"callee": "rust-analyzer cargo ingest 0.1.0 connection/ConnectionStatePayload#reason.",
+"file": "pulse-app/src/connection_router.rs",
+"line": 161
+},
+{
+"callee": "rust-analyzer cargo ingest 0.1.0 connection/ConnectionStatePayload#state.",
+"file": "pulse-app/src/connection_router.rs",
+"line": 168
+},
+{
+"callee": "rust-analyzer cargo ingest 0.1.0 connection/ConnectionStatePayload#severity.",
+"file": "pulse-app/src/connection_router.rs",
+"line": 169
+},
+{
+"callee": "rust-analyzer cargo ingest 0.1.0 connection/ConnectionStatePayload#message.",
+"file": "pulse-app/src/connection_router.rs",
+"line": 170
+},
+{
+"callee": "rust-analyzer cargo ingest 0.1.0 connection/ConnectionStatePayload#reason.",
+"file": "pulse-app/src/connection_router.rs",
+"line": 172
+},
+{
+"callee": "rust-analyzer cargo pulse-app 0.1.0 services_router/ServiceListPayload#",
+"file": "pulse-app/src/services_router.rs",
+"line": 49
+},
+{
+"callee": "rust-analyzer cargo pulse-app 0.1.0 services_router/ServiceListPayload#",
+"file": "pulse-app/src/services_router.rs",
+"line": 92
+},
+{
+"callee": "rust-analyzer cargo pulse-app 0.1.0 services_router/ServiceListPayload#",
+"file": "pulse-app/src/services_router.rs",
+"line": 106
+},
+{
+"callee": "rust-analyzer cargo pulse-app 0.1.0 services_router/ServiceListPayload#items.",
+"file": "pulse-app/src/services_router.rs",
+"line": 107
+},
+{
+"callee": "rust-analyzer cargo pulse-app 0.1.0 services_router/ServiceListPayload#total.",
+"file": "pulse-app/src/services_router.rs",
+"line": 108
+},
+{
+"callee": "rust-analyzer cargo pulse-app 0.1.0 services_router/ServiceListPayload#next_cursor.",
+"file": "pulse-app/src/services_router.rs",
+"line": 109
+},
+{
+"callee": "rust-analyzer cargo ingest 0.1.0 connection/ConnectionStatePayload#state.",
+"file": "pulse-app/tests/e2e_p003_panic_hook_propagation.rs",
+"line": 83
+},
+{
+"callee": "rust-analyzer cargo ingest 0.1.0 connection/ConnectionStatePayload#state.",
+"file": "pulse-app/tests/e2e_p003_panic_hook_propagation.rs",
+"line": 86
+},
+{
+"callee": "rust-analyzer cargo ingest 0.1.0 connection/ConnectionStatePayload#reason.",
+"file": "pulse-app/tests/e2e_p003_panic_hook_propagation.rs",
+"line": 89
+},
+{
+"callee": "rust-analyzer cargo ingest 0.1.0 connection/ConnectionStatePayload#reason.",
+"file": "pulse-app/tests/e2e_p003_panic_hook_propagation.rs",
+"line": 92
+},
+{
+"callee": "rust-analyzer cargo pulse-app 0.1.0 services_router/ServiceListPayload#",
+"file": "pulse-app/tests/e2e_service_lifecycle.rs",
+"line": 15
+},
+{
+"callee": "rust-analyzer cargo pulse-app 0.1.0 services_router/ServiceListPayload#",
+"file": "pulse-app/tests/e2e_service_lifecycle.rs",
+"line": 222
+},
+{
+"callee": "rust-analyzer cargo pulse-app 0.1.0 services_router/ServiceListPayload#total.",
+"file": "pulse-app/tests/e2e_service_lifecycle.rs",
+"line": 223
+},
+{
+"callee": "rust-analyzer cargo pulse-app 0.1.0 services_router/ServiceListPayload#next_cursor.",
+"file": "pulse-app/tests/e2e_service_lifecycle.rs",
+"line": 224
+},
+{
+"callee": "rust-analyzer cargo pulse-app 0.1.0 services_router/ServiceListPayload#items.",
+"file": "pulse-app/tests/e2e_service_lifecycle.rs",
+"line": 225
+},
+{
+"callee": "rust-analyzer cargo pulse-app 0.1.0 services_router/ServiceListPayload#items.",
+"file": "pulse-app/tests/e2e_service_lifecycle.rs",
+"line": 226
+},
+{
+"callee": "rust-analyzer cargo pulse-app 0.1.0 services_router/ServiceListPayload#items.",
+"file": "pulse-app/tests/e2e_service_lifecycle.rs",
+"line": 228
+},
+{
+"callee": "rust-analyzer cargo pulse-app 0.1.0 services_router/ServiceListPayload#total.",
+"file": "pulse-app/tests/unit_services_router.rs",
+"line": 72
+},
+{
+"callee": "rust-analyzer cargo pulse-app 0.1.0 services_router/ServiceListPayload#items.",
+"file": "pulse-app/tests/unit_services_router.rs",
+"line": 73
+},
+{
+"callee": "rust-analyzer cargo pulse-app 0.1.0 services_router/ServiceListPayload#next_cursor.",
+"file": "pulse-app/tests/unit_services_router.rs",
+"line": 74
+},
+{
+"callee": "rust-analyzer cargo pulse-app 0.1.0 services_router/ServiceListPayload#total.",
+"file": "pulse-app/tests/unit_services_router.rs",
+"line": 84
+},
+{
+"callee": "rust-analyzer cargo pulse-app 0.1.0 services_router/ServiceListPayload#items.",
+"file": "pulse-app/tests/unit_services_router.rs",
+"line": 85
+},
+{
+"callee": "rust-analyzer cargo pulse-app 0.1.0 services_router/ServiceListPayload#items.",
+"file": "pulse-app/tests/unit_services_router.rs",
+"line": 86
+},
+{
+"callee": "rust-analyzer cargo pulse-app 0.1.0 services_router/ServiceListPayload#items.",
+"file": "pulse-app/tests/unit_services_router.rs",
+"line": 88
+},
+{
+"callee": "rust-analyzer cargo pulse-app 0.1.0 services_router/ServiceListPayload#items.",
+"file": "pulse-app/tests/unit_services_router.rs",
+"line": 91
+},
+{
+"callee": "rust-analyzer cargo pulse-app 0.1.0 services_router/ServiceListPayload#items.",
+"file": "pulse-app/tests/unit_services_router.rs",
+"line": 124
+},
+{
+"callee": "rust-analyzer cargo pulse-app 0.1.0 services_router/ServiceListPayload#items.",
+"file": "pulse-app/tests/unit_services_router.rs",
+"line": 129
+}
+],
+"db_state": "fresh"
+}
+]

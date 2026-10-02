@@ -1,0 +1,372 @@
+[
+{
+"sql": "SELECT callee, file, line FROM refs WHERE callee LIKE '%HaloCanvas%' ORDER BY file, line",
+"rows": 71,
+"result": [
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.tsx`/HaloCanvas().",
+"file": "pulse-app/ui/src/halo/HaloCanvas.test.tsx",
+"line": 30
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.tsx`/",
+"file": "pulse-app/ui/src/halo/HaloCanvas.test.tsx",
+"line": 30
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.test.tsx`/haloPipelineModule.",
+"file": "pulse-app/ui/src/halo/HaloCanvas.test.tsx",
+"line": 78
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.test.tsx`/haloPipelineModule.",
+"file": "pulse-app/ui/src/halo/HaloCanvas.test.tsx",
+"line": 84
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.test.tsx`/frameMetricsModule.",
+"file": "pulse-app/ui/src/halo/HaloCanvas.test.tsx",
+"line": 85
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.test.tsx`/stubGpuAvailable().",
+"file": "pulse-app/ui/src/halo/HaloCanvas.test.tsx",
+"line": 89
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.tsx`/HaloCanvasProps#cumulativeSeverity.",
+"file": "pulse-app/ui/src/halo/HaloCanvas.test.tsx",
+"line": 90
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.tsx`/HaloCanvasProps#activityState.",
+"file": "pulse-app/ui/src/halo/HaloCanvas.test.tsx",
+"line": 90
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.tsx`/HaloCanvasProps#ariaLabel.",
+"file": "pulse-app/ui/src/halo/HaloCanvas.test.tsx",
+"line": 90
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.tsx`/HaloCanvasProps#connectionState.",
+"file": "pulse-app/ui/src/halo/HaloCanvas.test.tsx",
+"line": 90
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.test.tsx`/stubGpuAvailable().",
+"file": "pulse-app/ui/src/halo/HaloCanvas.test.tsx",
+"line": 96
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.tsx`/HaloCanvasProps#activityState.",
+"file": "pulse-app/ui/src/halo/HaloCanvas.test.tsx",
+"line": 97
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.tsx`/HaloCanvasProps#cumulativeSeverity.",
+"file": "pulse-app/ui/src/halo/HaloCanvas.test.tsx",
+"line": 97
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.tsx`/HaloCanvasProps#connectionState.",
+"file": "pulse-app/ui/src/halo/HaloCanvas.test.tsx",
+"line": 97
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.tsx`/HaloCanvasProps#ariaLabel.",
+"file": "pulse-app/ui/src/halo/HaloCanvas.test.tsx",
+"line": 97
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.test.tsx`/stubGpuAvailable().",
+"file": "pulse-app/ui/src/halo/HaloCanvas.test.tsx",
+"line": 105
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.tsx`/HaloCanvasProps#activityState.",
+"file": "pulse-app/ui/src/halo/HaloCanvas.test.tsx",
+"line": 107
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.tsx`/HaloCanvasProps#cumulativeSeverity.",
+"file": "pulse-app/ui/src/halo/HaloCanvas.test.tsx",
+"line": 107
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.tsx`/HaloCanvasProps#connectionState.",
+"file": "pulse-app/ui/src/halo/HaloCanvas.test.tsx",
+"line": 107
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.tsx`/HaloCanvasProps#ariaLabel.",
+"file": "pulse-app/ui/src/halo/HaloCanvas.test.tsx",
+"line": 107
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.test.tsx`/haloPipelineModule.",
+"file": "pulse-app/ui/src/halo/HaloCanvas.test.tsx",
+"line": 110
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.test.tsx`/stubGpuUnavailable().",
+"file": "pulse-app/ui/src/halo/HaloCanvas.test.tsx",
+"line": 117
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.tsx`/HaloCanvasProps#activityState.",
+"file": "pulse-app/ui/src/halo/HaloCanvas.test.tsx",
+"line": 119
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.tsx`/HaloCanvasProps#ariaLabel.",
+"file": "pulse-app/ui/src/halo/HaloCanvas.test.tsx",
+"line": 119
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.tsx`/HaloCanvasProps#connectionState.",
+"file": "pulse-app/ui/src/halo/HaloCanvas.test.tsx",
+"line": 119
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.tsx`/HaloCanvasProps#cumulativeSeverity.",
+"file": "pulse-app/ui/src/halo/HaloCanvas.test.tsx",
+"line": 119
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.test.tsx`/stubGpuAvailable().",
+"file": "pulse-app/ui/src/halo/HaloCanvas.test.tsx",
+"line": 129
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.test.tsx`/haloPipelineModule.",
+"file": "pulse-app/ui/src/halo/HaloCanvas.test.tsx",
+"line": 130
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.tsx`/HaloCanvasProps#ariaLabel.",
+"file": "pulse-app/ui/src/halo/HaloCanvas.test.tsx",
+"line": 135
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.tsx`/HaloCanvasProps#connectionState.",
+"file": "pulse-app/ui/src/halo/HaloCanvas.test.tsx",
+"line": 135
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.tsx`/HaloCanvasProps#cumulativeSeverity.",
+"file": "pulse-app/ui/src/halo/HaloCanvas.test.tsx",
+"line": 135
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.tsx`/HaloCanvasProps#activityState.",
+"file": "pulse-app/ui/src/halo/HaloCanvas.test.tsx",
+"line": 135
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.test.tsx`/stubGpuAvailable().",
+"file": "pulse-app/ui/src/halo/HaloCanvas.test.tsx",
+"line": 145
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.tsx`/HaloCanvasProps#ariaLabel.",
+"file": "pulse-app/ui/src/halo/HaloCanvas.test.tsx",
+"line": 147
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.tsx`/HaloCanvasProps#connectionState.",
+"file": "pulse-app/ui/src/halo/HaloCanvas.test.tsx",
+"line": 147
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.tsx`/HaloCanvasProps#cumulativeSeverity.",
+"file": "pulse-app/ui/src/halo/HaloCanvas.test.tsx",
+"line": 147
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.tsx`/HaloCanvasProps#activityState.",
+"file": "pulse-app/ui/src/halo/HaloCanvas.test.tsx",
+"line": 147
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.test.tsx`/haloPipelineModule.",
+"file": "pulse-app/ui/src/halo/HaloCanvas.test.tsx",
+"line": 149
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.test.tsx`/stubGpuAvailable().",
+"file": "pulse-app/ui/src/halo/HaloCanvas.test.tsx",
+"line": 157
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.tsx`/HaloCanvasProps#activityState.",
+"file": "pulse-app/ui/src/halo/HaloCanvas.test.tsx",
+"line": 158
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.tsx`/HaloCanvasProps#ariaLabel.",
+"file": "pulse-app/ui/src/halo/HaloCanvas.test.tsx",
+"line": 158
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.tsx`/HaloCanvasProps#connectionState.",
+"file": "pulse-app/ui/src/halo/HaloCanvas.test.tsx",
+"line": 158
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.tsx`/HaloCanvasProps#cumulativeSeverity.",
+"file": "pulse-app/ui/src/halo/HaloCanvas.test.tsx",
+"line": 158
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.test.tsx`/frameMetricsModule.",
+"file": "pulse-app/ui/src/halo/HaloCanvas.test.tsx",
+"line": 160
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.test.tsx`/frameMetricsModule.",
+"file": "pulse-app/ui/src/halo/HaloCanvas.test.tsx",
+"line": 162
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.test.tsx`/stubGpuAvailable().",
+"file": "pulse-app/ui/src/halo/HaloCanvas.test.tsx",
+"line": 175
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.tsx`/HaloCanvasProps#ariaLabel.",
+"file": "pulse-app/ui/src/halo/HaloCanvas.test.tsx",
+"line": 178
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.tsx`/HaloCanvasProps#connectionState.",
+"file": "pulse-app/ui/src/halo/HaloCanvas.test.tsx",
+"line": 179
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.tsx`/HaloCanvasProps#cumulativeSeverity.",
+"file": "pulse-app/ui/src/halo/HaloCanvas.test.tsx",
+"line": 180
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.tsx`/HaloCanvasProps#activityState.",
+"file": "pulse-app/ui/src/halo/HaloCanvas.test.tsx",
+"line": 181
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.test.tsx`/frameMetricsModule.",
+"file": "pulse-app/ui/src/halo/HaloCanvas.test.tsx",
+"line": 185
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.test.tsx`/frameMetricsModule.",
+"file": "pulse-app/ui/src/halo/HaloCanvas.test.tsx",
+"line": 187
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.tsx`/HaloCanvasProps#ariaLabel.",
+"file": "pulse-app/ui/src/halo/HaloCanvas.test.tsx",
+"line": 190
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.tsx`/HaloCanvasProps#connectionState.",
+"file": "pulse-app/ui/src/halo/HaloCanvas.test.tsx",
+"line": 191
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.tsx`/HaloCanvasProps#cumulativeSeverity.",
+"file": "pulse-app/ui/src/halo/HaloCanvas.test.tsx",
+"line": 192
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.tsx`/HaloCanvasProps#activityState.",
+"file": "pulse-app/ui/src/halo/HaloCanvas.test.tsx",
+"line": 193
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.test.tsx`/frameMetricsModule.",
+"file": "pulse-app/ui/src/halo/HaloCanvas.test.tsx",
+"line": 197
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.tsx`/readDesignToken().(fallback)",
+"file": "pulse-app/ui/src/halo/HaloCanvas.tsx",
+"line": 64
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.tsx`/readDesignToken().(name)",
+"file": "pulse-app/ui/src/halo/HaloCanvas.tsx",
+"line": 65
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.tsx`/readDesignToken().(fallback)",
+"file": "pulse-app/ui/src/halo/HaloCanvas.tsx",
+"line": 66
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.tsx`/HaloCanvasProps#ariaLabel.",
+"file": "pulse-app/ui/src/halo/HaloCanvas.tsx",
+"line": 70
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.tsx`/HaloCanvasProps#connectionState.",
+"file": "pulse-app/ui/src/halo/HaloCanvas.tsx",
+"line": 71
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.tsx`/HaloCanvasProps#cumulativeSeverity.",
+"file": "pulse-app/ui/src/halo/HaloCanvas.tsx",
+"line": 72
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.tsx`/HaloCanvasProps#activityState.",
+"file": "pulse-app/ui/src/halo/HaloCanvas.tsx",
+"line": 73
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.tsx`/HaloCanvasProps#",
+"file": "pulse-app/ui/src/halo/HaloCanvas.tsx",
+"line": 74
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.tsx`/PREFERRED_FORMAT.",
+"file": "pulse-app/ui/src/halo/HaloCanvas.tsx",
+"line": 116
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.tsx`/PREFERRED_FORMAT.",
+"file": "pulse-app/ui/src/halo/HaloCanvas.tsx",
+"line": 118
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.tsx`/readDesignToken().",
+"file": "pulse-app/ui/src/halo/HaloCanvas.tsx",
+"line": 126
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.tsx`/readDesignToken().",
+"file": "pulse-app/ui/src/halo/HaloCanvas.tsx",
+"line": 127
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.tsx`/UNIFORM_BUFFER_SIZE.",
+"file": "pulse-app/ui/src/halo/HaloCanvas.tsx",
+"line": 130
+},
+{
+"callee": "scip-typescript npm andromeda-pulse-ui 0.1.0 src/halo/`HaloCanvas.tsx`/UNIFORM_BUFFER_USAGE.",
+"file": "pulse-app/ui/src/halo/HaloCanvas.tsx",
+"line": 131
+}
+],
+"db_state": "fresh",
+"plane": "ts"
+},
+{
+"sql": "SELECT callee, file, line FROM refs WHERE callee LIKE '%DETERMINISTIC_L4_OUTPUT%' ORDER BY file, line",
+"rows": 0,
+"result": [],
+"db_state": "fresh",
+"plane": "rust"
+}
+]

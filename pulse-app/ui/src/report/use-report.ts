@@ -1,11 +1,11 @@
 // Diagnostic Report hook (chunk #88). Encapsulates the TauRPC fetch +
 // clipboard write + copy-state lifecycle so Report.tsx + ReportRenderer.tsx
-// stay focused на rendering. The hook fetches when `incidentId` flips
+// stay focused on rendering. The hook fetches when `incidentId` flips
 // non-null (single fetch per open cycle); webview consumers close the
 // Report and reopen it to re-fetch.
 //
 // Copy state machine: idle → copying → copied | error. The `copied`
-// state auto-resets к idle after AUTO_RESET_MS so the live region
+// state auto-resets to idle after AUTO_RESET_MS so the live region
 // announcement clears (per a11y plan §7 Live regions + CLAUDE.md
 // §Critical Warnings clipboard hygiene rule — visible event accompanies
 // every clipboard write).
@@ -13,6 +13,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { writeText } from "@tauri-apps/plugin-clipboard-manager";
 import { createTauRPCProxy } from "../bindings/index";
+import { classifyIpcRejection, reportIpcRejection } from "./ipc-rejection";
 import type { CopyState, ReportPayload } from "./report-types";
 
 export interface UseReportResult {
@@ -90,8 +91,14 @@ export function useReport(incidentId: number | null): UseReportResult {
     try {
       await writeText(report.markdown);
       setCopyState("copied");
-    } catch {
+    } catch (err) {
+      // State first — the UX is unchanged; the wire record rides behind it
+      // fire-and-forget, so a failed report can never affect the copy flow.
       setCopyState("error");
+      void reportIpcRejection(
+        classifyIpcRejection(err),
+        new TextEncoder().encode(report.markdown).length,
+      );
     }
   }, [report]);
 

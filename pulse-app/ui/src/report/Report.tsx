@@ -1,8 +1,8 @@
 // Diagnostic Report container (chunk #88). Composes the existing Modal
 // primitive (`pulse-app/ui/src/components/Modal.tsx`, chunk #41/#44
-// precedent) с the chunk #88 ReportRenderer. Fetches the report via
-// useReport hook when `isOpen` flips к true + `incidentId` is non-null.
-// Modal handles focus trap + Esc dismissal + focus restoration к
+// precedent) with the chunk #88 ReportRenderer. Fetches the report via
+// useReport hook when `isOpen` flips to true + `incidentId` is non-null.
+// Modal handles focus trap + Esc dismissal + focus restoration to
 // `triggerRef` per a11y plan §5 + Modal primitive's built-in shape.
 
 import { useMemo, type RefObject } from "react";
@@ -17,9 +17,10 @@ export interface ReportProps {
   onClose: () => void;
   incidentId: number | null;
   triggerRef: RefObject<HTMLElement | null>;
+  variant?: "overlay" | "fill";
 }
 
-export function Report({ isOpen, onClose, incidentId, triggerRef }: ReportProps) {
+export function Report({ isOpen, onClose, incidentId, triggerRef, variant }: ReportProps) {
   const { report, loading, error, copyState, copyMarkdown } = useReport(
     isOpen ? incidentId : null,
   );
@@ -56,6 +57,7 @@ export function Report({ isOpen, onClose, incidentId, triggerRef }: ReportProps)
       busy={loading}
       liveRegionLevel="polite"
       liveMessage={liveMessage}
+      variant={variant}
     >
       {loading ? <LoadingSkeleton /> : null}
       {error !== null ? <ErrorState message={error} /> : null}
@@ -106,7 +108,9 @@ function ErrorState({ message }: { message: string }) {
         background: "var(--color-raised-1)",
         border: "1px solid var(--color-accent)",
         borderRadius: "var(--radius-md)",
-        color: "var(--color-accent)",
+        // Body-size error text takes the ≥4.5:1 text token; accent stays on
+        // the border only (design-system §Color Palette, accent = non-text).
+        color: "var(--color-text-primary)",
         fontFamily: "var(--font-body)",
         fontSize: "14px",
       }}

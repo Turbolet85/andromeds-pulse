@@ -21,6 +21,14 @@ describe("sanitizeWindowLabel", () => {
     expect(sanitizeWindowLabel("main")).toBe("main");
   });
 
+  it("returns 'findings' verbatim", () => {
+    expect(sanitizeWindowLabel("findings")).toBe("findings");
+  });
+
+  it("returns 'report' verbatim", () => {
+    expect(sanitizeWindowLabel("report")).toBe("report");
+  });
+
   it("collapses arbitrary labels to 'unknown'", () => {
     expect(sanitizeWindowLabel("popup")).toBe("unknown");
     expect(sanitizeWindowLabel("")).toBe("unknown");
@@ -43,6 +51,22 @@ describe("useWindowLabel", () => {
     } as ReturnType<typeof getCurrentWebviewWindow>);
     const { result } = renderHook(() => useWindowLabel());
     expect(result.current).toBe("main");
+  });
+
+  it("returns 'findings' when Tauri reports findings", () => {
+    vi.mocked(getCurrentWebviewWindow).mockReturnValue({
+      label: "findings",
+    } as ReturnType<typeof getCurrentWebviewWindow>);
+    const { result } = renderHook(() => useWindowLabel());
+    expect(result.current).toBe("findings");
+  });
+
+  it("returns 'report' when Tauri reports report", () => {
+    vi.mocked(getCurrentWebviewWindow).mockReturnValue({
+      label: "report",
+    } as ReturnType<typeof getCurrentWebviewWindow>);
+    const { result } = renderHook(() => useWindowLabel());
+    expect(result.current).toBe("report");
   });
 
   it("returns 'unknown' when Tauri reports an unrecognized label", () => {

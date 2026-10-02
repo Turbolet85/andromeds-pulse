@@ -77,6 +77,24 @@ export const connectionReceivingPayload = {
   reason: null,
 };
 
+// ready() envelope populated with live buffer stats so the footer
+// ConnectionStatusLine (P-070) renders the spans/s + buffer segments on the
+// full-dashboard axe sweep.
+export const readyPayload = {
+  ready: true,
+  checked_at: "2026-07-07T19:00:00Z",
+  checks: {
+    duckdb_connection: "ok",
+    ingest_mpsc_capacity_pct: 4,
+    broadcast_subscribers: 2,
+    plugins_loaded: 0,
+    mcp_server_enabled: false,
+    rows_ingested: 12_000,
+    buffer_used_seconds: 120,
+    retention_seconds: 600,
+  },
+};
+
 export const serviceListPayload = {
   items: [
     {
@@ -97,6 +115,38 @@ export const serviceListPayload = {
       service: "inventory-worker",
       state: "quiet",
       last_seen_unix_nano: NOW_NS - 15 * MINUTE_NS,
+      manual_override: null,
+      priority_tier: null,
+    },
+  ],
+  total: 3,
+  next_cursor: null,
+};
+
+// Dashboard constellation fixture with LIVE last_seen (~5s ago, well within the
+// 60s recency window — P-067) so the per-dot labels (P-069) actually render;
+// serviceListPayload above is recency-stale by design (its ages hide the dots).
+const LIVE_AGO_NS = 5 * 1_000_000_000;
+export const liveServiceListPayload = {
+  items: [
+    {
+      service: "payment-service",
+      state: "active",
+      last_seen_unix_nano: NOW_NS - LIVE_AGO_NS,
+      manual_override: null,
+      priority_tier: "autonomous",
+    },
+    {
+      service: "checkout-api",
+      state: "active",
+      last_seen_unix_nano: NOW_NS - LIVE_AGO_NS,
+      manual_override: null,
+      priority_tier: "suggested",
+    },
+    {
+      service: "inventory-svc",
+      state: "quiet",
+      last_seen_unix_nano: NOW_NS - LIVE_AGO_NS,
       manual_override: null,
       priority_tier: null,
     },
@@ -218,6 +268,7 @@ export const configStatusPayload = {
 export const v02WidgetOverrides = {
   "incidents.list_active": incidentsListPayload,
   "connection.current_state": connectionReceivingPayload,
+  ready: readyPayload,
   "services.list_with_states": serviceListPayload,
   "incidents.get_report": reportPayload,
   "incidents.mark_all_read": null,

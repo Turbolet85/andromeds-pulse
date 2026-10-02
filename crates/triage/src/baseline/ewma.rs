@@ -14,7 +14,7 @@ pub struct EwmaTracker {
 
 // Chunk #61 deliverable: callable + testable primitives for chunk #62.
 // Accessor methods (samples / last_update_nanos / alpha) exercised via
-// tests; allow(dead_code) signals future API surface для emitter +
+// tests; allow(dead_code) signals future API surface for emitter +
 // percentile-snapshot consumers.
 #[allow(dead_code)]
 impl EwmaTracker {

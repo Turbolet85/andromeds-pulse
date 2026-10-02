@@ -1,0 +1,183 @@
+   Compiling memchr v2.8.0
+   Compiling slab v0.4.12
+   Compiling futures-core v0.3.32
+   Compiling num-traits v0.2.19
+   Compiling tracing-core v0.1.36
+   Compiling syn v2.0.117
+   Compiling rand_core v0.9.5
+   Compiling ppv-lite86 v0.2.21
+   Compiling rusty-fork v0.3.1
+   Compiling aho-corasick v1.1.4
+   Compiling rand v0.9.4
+   Compiling rand_xorshift v0.4.0
+   Compiling rand_chacha v0.9.0
+   Compiling regex-automata v0.4.14
+   Compiling proptest v1.11.0
+   Compiling serde_derive v1.0.228
+   Compiling futures-macro v0.3.32
+   Compiling thiserror-impl v2.0.18
+   Compiling tracing-attributes v0.1.31
+   Compiling regex v1.12.3
+   Compiling rstest_macros v0.26.1
+   Compiling futures-util v0.3.32
+   Compiling thiserror v2.0.18
+   Compiling tracing v0.1.44
+   Compiling serde v1.0.228
+   Compiling security v0.1.0 (D:\dev\projects\andromeda-pulse\crates\security)
+   Compiling rstest v0.26.1
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 24.91s
+────────────
+ Nextest run ID 43d76534-8ce6-4431-afbf-5024c3ff854e with nextest profile: default
+    Starting 15 tests across 1 binary (39 tests skipped)
+        PASS [   0.044s] ( 1/15) security scrubber::tests::scrubber_redacts_luhn_valid_card_forms::case_4
+        FAIL [   0.048s] ( 2/15) security scrubber::tests::scrubber_allows_non_card_digit_runs::case_4
+  stdout ───
+
+    running 1 test
+    test scrubber::tests::scrubber_allows_non_card_digit_runs::case_4 ... FAILED
+
+    failures:
+
+    failures:
+        scrubber::tests::scrubber_allows_non_card_digit_runs::case_4
+
+    test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 53 filtered out; finished in 0.03s
+
+  stderr ───
+
+    thread 'scrubber::tests::scrubber_allows_non_card_digit_runs::case_4' (40916) panicked at crates\security\src\scrubber.rs:201:17:
+    non-card digit run "workspace=/tmp/rm-20260923-093840" was redacted as credit_card
+    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+  Cancelling due to test failure: 13 tests still running
+        FAIL [   0.052s] ( 3/15) security scrubber::tests::scrubber_allows_non_card_digit_runs::case_6
+  stdout ───
+
+    running 1 test
+    test scrubber::tests::scrubber_allows_non_card_digit_runs::case_6 ... FAILED
+
+    failures:
+
+    failures:
+        scrubber::tests::scrubber_allows_non_card_digit_runs::case_6
+
+    test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 53 filtered out; finished in 0.03s
+
+  stderr ───
+
+    thread 'scrubber::tests::scrubber_allows_non_card_digit_runs::case_6' (1732) panicked at crates\security\src\scrubber.rs:201:17:
+    non-card digit run "1790699962319180900" was redacted as credit_card
+    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+        FAIL [   0.058s] ( 4/15) security scrubber::tests::scrubber_allows_non_card_digit_runs::case_3
+  stdout ───
+
+    running 1 test
+    test scrubber::tests::scrubber_allows_non_card_digit_runs::case_3 ... FAILED
+
+    failures:
+
+    failures:
+        scrubber::tests::scrubber_allows_non_card_digit_runs::case_3
+
+    test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 53 filtered out; finished in 0.04s
+
+  stderr ───
+
+    thread 'scrubber::tests::scrubber_allows_non_card_digit_runs::case_3' (7148) panicked at crates\security\src\scrubber.rs:201:17:
+    non-card digit run "<case_3 synthetic windows-path literal>\\rm-20260923-093840" was redacted as credit_card
+    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+        PASS [   0.064s] ( 5/15) security scrubber::tests::scrubber_redacts_luhn_valid_card_forms::case_6
+        PASS [   0.068s] ( 6/15) security scrubber::tests::scrubber_redacts_luhn_valid_card_forms::case_5
+        PASS [   0.074s] ( 7/15) security scrubber::tests::scrubber_redacts_luhn_valid_card_forms::case_1
+        PASS [   0.080s] ( 8/15) security scrubber::tests::scrubber_redacts_luhn_valid_card_forms::case_8
+        FAIL [   0.086s] ( 9/15) security scrubber::tests::scrubber_allows_non_card_digit_runs::case_5
+  stdout ───
+
+    running 1 test
+    test scrubber::tests::scrubber_allows_non_card_digit_runs::case_5 ... FAILED
+
+    failures:
+
+    failures:
+        scrubber::tests::scrubber_allows_non_card_digit_runs::case_5
+
+    test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 53 filtered out; finished in 0.04s
+
+  stderr ───
+
+    thread 'scrubber::tests::scrubber_allows_non_card_digit_runs::case_5' (22980) panicked at crates\security\src\scrubber.rs:201:17:
+    non-card digit run "PROJECT: rm-20260923-093840 (vcs=git)" was redacted as credit_card
+    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+        FAIL [   0.089s] (10/15) security scrubber::tests::scrubber_allows_non_card_digit_runs::case_7
+  stdout ───
+
+    running 1 test
+    test scrubber::tests::scrubber_allows_non_card_digit_runs::case_7 ... FAILED
+
+    failures:
+
+    failures:
+        scrubber::tests::scrubber_allows_non_card_digit_runs::case_7
+
+    test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 53 filtered out; finished in 0.04s
+
+  stderr ───
+
+    thread 'scrubber::tests::scrubber_allows_non_card_digit_runs::case_7' (1416) panicked at crates\security\src\scrubber.rs:201:17:
+    non-card digit run "4532-1234-5678-9010" was redacted as credit_card
+    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+        FAIL [   0.094s] (11/15) security scrubber::tests::scrubber_allows_non_card_digit_runs::case_1
+  stdout ───
+
+    running 1 test
+    test scrubber::tests::scrubber_allows_non_card_digit_runs::case_1 ... FAILED
+
+    failures:
+
+    failures:
+        scrubber::tests::scrubber_allows_non_card_digit_runs::case_1
+
+    test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 53 filtered out; finished in 0.04s
+
+  stderr ───
+
+    thread 'scrubber::tests::scrubber_allows_non_card_digit_runs::case_1' (53716) panicked at crates\security\src\scrubber.rs:201:17:
+    non-card digit run "rm-20260923-093840" was redacted as credit_card
+    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+        PASS [   0.099s] (12/15) security scrubber::tests::scrubber_redacts_luhn_valid_card_forms::case_3
+        FAIL [   0.104s] (13/15) security scrubber::tests::scrubber_allows_non_card_digit_runs::case_2
+  stdout ───
+
+    running 1 test
+    test scrubber::tests::scrubber_allows_non_card_digit_runs::case_2 ... FAILED
+
+    failures:
+
+    failures:
+        scrubber::tests::scrubber_allows_non_card_digit_runs::case_2
+
+    test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 53 filtered out; finished in 0.03s
+
+  stderr ───
+
+    thread 'scrubber::tests::scrubber_allows_non_card_digit_runs::case_2' (16128) panicked at crates\security\src\scrubber.rs:201:17:
+    non-card digit run "/tmp/rm-20260923-093840" was redacted as credit_card
+    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+        PASS [   0.109s] (14/15) security scrubber::tests::scrubber_redacts_luhn_valid_card_forms::case_2
+        PASS [   0.114s] (15/15) security scrubber::tests::scrubber_redacts_luhn_valid_card_forms::case_7
+────────────
+     Summary [   0.114s] 15 tests run: 8 passed, 7 failed, 39 skipped
+        FAIL [   0.048s] ( 2/15) security scrubber::tests::scrubber_allows_non_card_digit_runs::case_4
+        FAIL [   0.052s] ( 3/15) security scrubber::tests::scrubber_allows_non_card_digit_runs::case_6
+        FAIL [   0.058s] ( 4/15) security scrubber::tests::scrubber_allows_non_card_digit_runs::case_3
+        FAIL [   0.086s] ( 9/15) security scrubber::tests::scrubber_allows_non_card_digit_runs::case_5
+        FAIL [   0.089s] (10/15) security scrubber::tests::scrubber_allows_non_card_digit_runs::case_7
+        FAIL [   0.094s] (11/15) security scrubber::tests::scrubber_allows_non_card_digit_runs::case_1
+        FAIL [   0.104s] (13/15) security scrubber::tests::scrubber_allows_non_card_digit_runs::case_2
+error: test run failed

@@ -1,0 +1,20 @@
+{"fields":{"drift_state":"clean","extra_count":0,"missing_count":0,"top_5_drifted_names":[]},"level":"INFO","message":"capability drift check complete","target":"xtask.capability_drift","timestamp":"2026-09-29T22:04:46.467749700+00:00"}
+capability-drift: clean (0 missing, 0 extra)
+  report: D:\dev\projects\andromeda-pulse\target\capability-drift\report.json
+{
+  "arm": "staged-clean",
+  "bindings": {
+    "extra": [],
+    "issue": null,
+    "missing": [],
+    "subject": "pulse-app/ui/src/bindings/index.ts"
+  },
+  "gate": "staged-artifacts",
+  "grants": {
+    "files_checked": 6,
+    "findings": [],
+    "unpinned_files": []
+  },
+  "verdict": "green"
+}
+check:staged-artifacts: staged-clean (exit 0)

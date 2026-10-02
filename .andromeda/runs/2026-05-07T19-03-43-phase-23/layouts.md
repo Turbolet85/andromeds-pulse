@@ -1,0 +1,11 @@
+# layouts extract — phase-23
+
+## No domain coverage
+
+Chunk #26 "AppError serde enum + From impls — Validation/NotFound/Internal/Plugin/Storage/Ingest with sanitization (no stack traces / paths)" is out-of-domain for layouts.
+
+Reason: this chunk is a pure backend Rust contract — it defines a `serde`-friendly enum in `crates/ui-bridge/src/contract.rs` plus `From` impls converting module-internal `thiserror` errors into IPC-safe variants at the TauRPC bridge. There is no surface placement, no per-screen wireframe, no region in compact widget / full dashboard / tray, no focus order position, no responsive breakpoint behavior, and no modal / dialog / nav structure being created or modified.
+
+Scanned `layout-templates.md` for any error-display / error-toast / error-state surface coverage — none exists. The plan covers compact widget, full dashboard, tray icon, tray menu, OS notifications, settings modal, investigation modal, and file picker; none of these surfaces specify how `AppError` variants render visually (that would be a downstream UI chunk consuming the typed bindings emitted in chunk #25, not the enum-definition chunk itself).
+
+The chunk's only frontend touchpoint is the TypeScript discriminated-union type already emitted by chunk #25's `taurpc` runtime export to `pulse-app/ui/src/bindings/index.ts` — surface consumers (modal error states, toast presentation, form-field validation feedback) are downstream of this chunk and belong to whichever future chunk wires error display into a specific surface region.

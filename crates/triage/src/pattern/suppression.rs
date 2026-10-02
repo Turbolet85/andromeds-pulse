@@ -63,7 +63,7 @@ pub struct SuppressionOutcome {
 /// begins), not during the per-cue filter pass.
 #[derive(Debug, Clone, Copy)]
 pub struct SuppressionParams {
-    pub persistence_cutoff_seconds: u64,
+    pub persistence_cutoff_samples: u64,
     pub magnitude_bypass_multiplier: f64,
     pub absolute_bypass_error_rate: f64,
     pub absolute_bypass_latency_ms: f64,
@@ -111,9 +111,9 @@ impl SuppressionState {
 ///   1. `cue.kind == CueKind::ErrorRateSpike` (only ErrorRateSpike is
 ///      suppression-eligible per chunk #63 spec; other kinds always
 ///      survive regardless of restart-window state)
-///   2. `cue.persistence_seconds < params.persistence_cutoff_seconds`
-///      (default 30s — short-persistence cues are the noisy ones during
-///      restart windows; long-persistence cues are real signals)
+///   2. `cue.persistence < params.persistence_cutoff_samples`
+///      (default 30 SAMPLES — the spike families count EWMA samples; short-
+///      persistence cues are the noisy ones during restart windows, long ones real signals)
 ///   3. `state.is_active(cue.scope_id, now_nanos)` (cue's service has an
 ///      active restart-suppression window)
 ///   4. `!cue.suppression_bypassed` (dual-condition magnitude bypass
@@ -138,7 +138,7 @@ pub fn evaluate_with_suppression(
         let service = cue.scope_id.as_deref().unwrap_or("");
         let in_window = !service.is_empty() && state.is_active(service, now_nanos);
         let suppression_eligible = cue.kind == CueKind::ErrorRateSpike
-            && cue.persistence_seconds < params.persistence_cutoff_seconds;
+            && cue.persistence < params.persistence_cutoff_samples;
 
         if in_window && suppression_eligible {
             if cue.suppression_bypassed {
@@ -196,7 +196,7 @@ mod tests {
 
     fn default_params() -> SuppressionParams {
         SuppressionParams {
-            persistence_cutoff_seconds: 30,
+            persistence_cutoff_samples: 30,
             magnitude_bypass_multiplier: 10.0,
             absolute_bypass_error_rate: 0.05,
             absolute_bypass_latency_ms: 1000.0,
@@ -217,7 +217,7 @@ mod tests {
         service: &str,
         magnitude: f64,
         absolute_value: f64,
-        persistence_seconds: u64,
+        persistence: u64,
         suppression_bypassed: bool,
     ) -> AttentionCue {
         AttentionCue {
@@ -226,10 +226,11 @@ mod tests {
             scope_id: Some(service.to_string()),
             magnitude,
             absolute_value,
-            persistence_seconds,
+            persistence,
             confidence: 0.9,
             priority_tier: PriorityTier::Suggested,
             suppression_bypassed,
+            fingerprint: None,
         }
     }
 
@@ -435,10 +436,11 @@ mod tests {
             scope_id: None,
             magnitude: 3.0,
             absolute_value: 0.04,
-            persistence_seconds: 10,
+            persistence: 10,
             confidence: 0.9,
             priority_tier: PriorityTier::Suggested,
             suppression_bypassed: false,
+            fingerprint: None,
         }];
         let outcome = evaluate_with_suppression(cues, &s, &p, 1_030 * NANOS_PER_SEC);
         assert_eq!(outcome.cues_kept.len(), 1);

@@ -1,0 +1,143 @@
+[
+{
+"tool": "route",
+"v": "1.5",
+"sha8": "9fc8708e",
+"ts": "2026-09-29T22:05:16Z",
+"argv": [
+"route.py",
+"flip",
+"--root",
+".",
+"--chunk",
+"2026-09-29-ci-wall-time-and-round-trips",
+"--run-dir",
+".andromeda/runs/2026-09-29T21-44-34Z-wrap"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"flip master-route.md:79 - 2026-09-29-ci-wall-time-and-round-trips pending -> complete"
+],
+"stderr": null,
+"wrote": [
+".\\.andromeda\\master-route.md"
+],
+"before": null,
+"after": null
+},
+{
+"tool": "route",
+"v": "1.5",
+"sha8": "9fc8708e",
+"ts": "2026-09-29T22:05:16Z",
+"argv": [
+"route.py",
+"compact",
+"--root",
+".",
+"--chunk",
+"2026-09-29-ci-wall-time-and-round-trips",
+"--date",
+"2026-09-29",
+"--run-dir",
+".andromeda/runs/2026-09-29T21-44-34Z-wrap",
+"--dry-run"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"pin :132 strip CONTEXT: 446ch \"CONTEXT: founder 2026-09-29 verbatim «На\"",
+"pin :132 strip CONTEXT: 226ch \"CONTEXT: measured 2026-09-29 — the ubunt\"",
+"pin :132 strip CONTEXT: 385ch \"CONTEXT: of P-025's 8 red CI rounds, a l\"",
+"pin :132 strip CONTEXT: 221ch \"CONTEXT: the pre-push precedent is Viola\"",
+"pin :132 strip CARRY: 308ch \"CARRY: register `smoke:gap-resume` and `\"",
+"pin :132 strip WATCH: 440ch 1/3 since 2026-09-29-p-025-hue-shift-observable-made-gradable \"WATCH: Linux boot silent dea…",
+"pin next markerless :134 holds CONTEXT:×2 · WATCH:×1",
+"132 · 2026-09-29-ci-wall-time-and-round-trips · strip 6 block(s) · archive APPEND",
+"6 complete line(s) carry text the grammar cannot take -- left in place: L52, L54, L60, L100, L116, L125",
+"dry-run - would archive 1 and compact 1 line(s)"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"targets": [
+{
+"n": 132,
+"marker": "2026-09-29-ci-wall-time-and-round-trips",
+"blocks": 6,
+"archived": false
+}
+],
+"skips": [],
+"kept_notes": [
+52,
+54,
+60,
+100,
+116,
+125
+]
+}
+},
+{
+"tool": "route",
+"v": "1.5",
+"sha8": "9fc8708e",
+"ts": "2026-09-29T22:05:23Z",
+"argv": [
+"route.py",
+"compact",
+"--root",
+".",
+"--chunk",
+"2026-09-29-ci-wall-time-and-round-trips",
+"--date",
+"2026-09-29",
+"--run-dir",
+".andromeda/runs/2026-09-29T21-44-34Z-wrap"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"pin :132 strip CONTEXT: 446ch \"CONTEXT: founder 2026-09-29 verbatim «На\"",
+"pin :132 strip CONTEXT: 226ch \"CONTEXT: measured 2026-09-29 — the ubunt\"",
+"pin :132 strip CONTEXT: 385ch \"CONTEXT: of P-025's 8 red CI rounds, a l\"",
+"pin :132 strip CONTEXT: 221ch \"CONTEXT: the pre-push precedent is Viola\"",
+"pin :132 strip CARRY: 308ch \"CARRY: register `smoke:gap-resume` and `\"",
+"pin :132 strip WATCH: 440ch 1/3 since 2026-09-29-p-025-hue-shift-observable-made-gradable \"WATCH: Linux boot silent dea…",
+"pin next markerless :134 holds CONTEXT:×2 · WATCH:×1",
+"132 · 2026-09-29-ci-wall-time-and-round-trips · strip 6 block(s) · archive APPEND",
+"6 complete line(s) carry text the grammar cannot take -- left in place: L52, L54, L60, L100, L116, L125",
+"compacted 1 complete line(s) -> route-archive.md (1 archived, 0 already there)"
+],
+"stderr": null,
+"wrote": [
+".\\andromeda-pulse-0.3.0\\route-archive.md",
+".\\andromeda-pulse-0.3.0\\working-route.md"
+],
+"before": null,
+"after": null,
+"extra": {
+"targets": [
+{
+"n": 132,
+"marker": "2026-09-29-ci-wall-time-and-round-trips",
+"blocks": 6,
+"archived": false
+}
+],
+"skips": [],
+"kept_notes": [
+52,
+54,
+60,
+100,
+116,
+125
+]
+}
+}
+]

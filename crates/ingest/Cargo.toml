@@ -65,3 +65,13 @@ tokio = { workspace = true, features = ["test-util"] }
 tracing-subscriber.workspace = true
 # Chunk #59 — payload serialization tests assert JSON shape via serde_json.
 serde_json.workspace = true
+
+# Cargo defaults an auto-discovered example to `test = false`, so a
+# `#[cfg(test)] mod tests` inside one compiles under `cargo test --example` but
+# is NEVER collected by `cargo nextest run --workspace` — the same dead-test
+# shape as pulse-app's `[lib] test = false`. The injector's arg-parse and
+# identity-salt pins are gate-relevant, so declare the target explicitly.
+[[example]]
+name = "inject_demo"
+path = "examples/inject_demo.rs"
+test = true

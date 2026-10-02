@@ -1,0 +1,382 @@
+{
+ "file": "D:/dev/projects/andromeda-pulse/.andromeda/security-plan-amendments.md",
+ "file_sha256": "45ed74b9990ee12f70081c0f8e16c0e1938f80552938e411e84080d05f39c325",
+ "file_bytes": 81516,
+ "entries": 37,
+ "set": [
+  {
+   "row": 1,
+   "line": 12,
+   "heading": "## 2026-06-28 — v3 normalization: externalize the Security Decisions Log",
+   "sha256": "081c8897cb334d2db9c588faa4c7759e888fbe4f0203560541de3867d05a6d19",
+   "bytes": 3124,
+   "ref": "NOT DERIVED",
+   "why": "field **Marker:**, **Info-loss cross-check (every current-truth item in the 2026-05-02 entry was already in the body, except one — folded first):**, **Note:**; no **Ref:**",
+   "file": "001.md"
+  },
+  {
+   "row": 2,
+   "line": 42,
+   "heading": "## 2026-06-28 — Fold + externalize: `opentelemetry-stdout` → tracing-only self-observation",
+   "sha256": "c2573fde42e9059cf9a9836824f0ab0297c66e435cf1fadb95937c996b6ffe43",
+   "bytes": 3779,
+   "ref": "NOT DERIVED",
+   "why": "field **Marker:**; no **Ref:**",
+   "file": "002.md"
+  },
+  {
+   "row": 3,
+   "line": 80,
+   "heading": "## 2026-06-28 — Fold + externalize: `max_wasm_http_fields_size` correction (was `[AMENDED 2026-05-11]`)",
+   "sha256": "84da39142cdde10d9ed64e5a3d25d8b950540fa92458ddaba3ab1d15966ed0ef",
+   "bytes": 1156,
+   "ref": "NOT DERIVED",
+   "why": "field **Marker:**; no **Ref:**",
+   "file": "003.md"
+  },
+  {
+   "row": 4,
+   "line": 97,
+   "heading": "## 2026-06-28 — Trim: §Authentication & Authorization SKIPPED section → one-line N/A note",
+   "sha256": "fb99418750e4a6849bbef25eab73b321d49b852367273583f1a29aecec8697d2",
+   "bytes": 599,
+   "ref": "NOT DERIVED",
+   "why": "field **Marker:**; no **Ref:**",
+   "file": "004.md"
+  },
+  {
+   "row": 5,
+   "line": 185,
+   "heading": "## 2026-06-28-deterministic-env-gated-l4-mode — Register ANDROMEDA_PULSE_L4_DETERMINISTIC in §Input Validation",
+   "sha256": "a31af9aa6f9d17894ada44ee31e29fd8c7b7605ee05d50c75f812cd8168f955b",
+   "bytes": 786,
+   "ref": ".andromeda/runs/2026-08-23T11-52-00Z-wrap/",
+   "why": "no **Ref:**",
+   "file": "005.md"
+  },
+  {
+   "row": 6,
+   "line": 192,
+   "heading": "## 2026-06-29-window-geometry-movable-shell — Register window-geometry.json input boundary in §Input Validation",
+   "sha256": "623cae6efa478393bb5e44079d3ee745dfccb35379243c1d19f8292186f74c7d",
+   "bytes": 968,
+   "ref": ".andromeda/runs/2026-08-23T11-52-00Z-wrap/",
+   "why": "no **Ref:**",
+   "file": "006.md"
+  },
+  {
+   "row": 7,
+   "line": 198,
+   "heading": "## 2026-08-14-workspace-key-alignment — published-key input boundary + measured corpus key custody",
+   "sha256": "de707d2343c00ca3325161d650437f8d54e2df73f31a6ad6bbc66900c634eac1",
+   "bytes": 1902,
+   "ref": ".andromeda/runs/2026-08-25T16-11-09Z-wrap/",
+   "why": "no **Ref:**",
+   "file": "007.md"
+  },
+  {
+   "row": 8,
+   "line": 203,
+   "heading": "## 2026-08-15-corpus-key-persistence — corpus key custody closed at 6 restating sites; passphrase + deny carve-outs + a ratified external-decay deferral registered",
+   "sha256": "8fdb29127b6bd28c2d345bb32849bda8fd46bf1a79d185adac5b59b35a62cc30",
+   "bytes": 2330,
+   "ref": ".andromeda/runs/2026-08-25T16-11-09Z-wrap/",
+   "why": "no **Ref:**",
+   "file": "008.md"
+  },
+  {
+   "row": 9,
+   "line": 223,
+   "heading": "## 2026-08-16 (0-pending route-adaptation wrap) — cargo-audit standing deferral re-ratified at pin #3 with a re-run interval, and migrated onto the route",
+   "sha256": "72c248a4df3af575bb3376165a1f9ea8932a285ce7e29adf626d3b2e74448ec9",
+   "bytes": 1977,
+   "ref": "NOT DERIVED",
+   "why": "no **Ref:**",
+   "file": "009.md"
+  },
+  {
+   "row": 10,
+   "line": 243,
+   "heading": "## 2026-08-16-baseline-family-reachability — register the baseline-bootstrap env boundary",
+   "sha256": "7de3ce28c310741c605f6c1aafb81aa40bbb9493b9c7d8c01b50d0edb79506cb",
+   "bytes": 1133,
+   "ref": ".andromeda/runs/2026-08-23T11-52-00Z-wrap/",
+   "why": "no **Ref:**",
+   "file": "010.md"
+  },
+  {
+   "row": 11,
+   "line": 257,
+   "heading": "## 2026-08-17-incident-fingerprint-producer-repaired — `cargo audit` standing deferral: interval point DISCHARGED, re-pinned",
+   "sha256": "6288ebc0e7a45dfdf2c6f5541768924eb45376c6ee6d1bbaa9dbd56ca724e3ce",
+   "bytes": 1550,
+   "ref": ".andromeda/runs/2026-08-23T11-52-00Z-wrap/",
+   "why": "no **Ref:**",
+   "file": "011.md"
+  },
+  {
+   "row": 12,
+   "line": 263,
+   "heading": "## 2026-08-21-delegated-timing-observables — `telemetry.*` boundary registered; per-procedure capability claim retired at 6 sites",
+   "sha256": "49203d075ed8a744197a1b3c35e579a5899cd7a0b9ce0b8073780ad0fff07ee4",
+   "bytes": 1293,
+   "ref": ".andromeda/runs/2026-08-23T11-52-00Z-wrap/",
+   "why": "no **Ref:**",
+   "file": "012.md"
+  },
+  {
+   "row": 13,
+   "line": 269,
+   "heading": "## 2026-08-22-pii-scrubber-recall — catalog is eight categories; the `spans` coverage claim corrected as measured",
+   "sha256": "d949d041ba9fd2ca96c16c7173c2923560b1d278046b66b2a9420b70f407f493",
+   "bytes": 2233,
+   "ref": ".andromeda/runs/2026-08-23T11-52-00Z-wrap/",
+   "why": "no **Ref:**",
+   "file": "013.md"
+  },
+  {
+   "row": 14,
+   "line": 274,
+   "heading": "## 2026-08-23-ingestion-scrub-coverage — ring-buffer scrub coverage flipped from open gap to covered",
+   "sha256": "e8c5b8a6a392c872291292c901f279138d62cc95c529c7e4fa62a083c8ae30a5",
+   "bytes": 2354,
+   "ref": ".andromeda/runs/2026-08-23T11-52-00Z-wrap/",
+   "why": "no **Ref:**",
+   "file": "014.md"
+  },
+  {
+   "row": 15,
+   "line": 282,
+   "heading": "## 2026-08-23-metrics-points-identity — the accepted LOUD collision failure is closed, and its residual recorded",
+   "sha256": "d565e8a029adc3e46226f40688cedb4a606738e36664a611677da3c1b6acae85",
+   "bytes": 1531,
+   "ref": ".andromeda/runs/2026-08-29T16-50-45Z-wrap/",
+   "why": "no **Ref:**",
+   "file": "015.md"
+  },
+  {
+   "row": 16,
+   "line": 287,
+   "heading": "## 2026-08-23-metrics-points-labels — five scrubbed cells and a third scrub shape",
+   "sha256": "4f1b4be1b0f37bfe5d302314b5459c0548cc0733d243a7f5552f635be517994e",
+   "bytes": 2184,
+   "ref": ".andromeda/runs/2026-08-29T16-50-45Z-wrap/",
+   "why": "no **Ref:**",
+   "file": "016.md"
+  },
+  {
+   "row": 17,
+   "line": 292,
+   "heading": "## 2026-08-23-webview-self-verify — harness-only path carve-out + measured npm-channel gap",
+   "sha256": "eca6440406f38c2464cee1d1a63e89027a3cce582fa8ad76baa2289fff8377d2",
+   "bytes": 2056,
+   "ref": ".andromeda/runs/2026-08-23T16-44-40Z-wrap/",
+   "why": "no **Ref:**",
+   "file": "017.md"
+  },
+  {
+   "row": 18,
+   "line": 297,
+   "heading": "## 2026-08-23-a11y-verification — owned upgradeable advisory count corrected 7 to 8",
+   "sha256": "432b590e366c08ae14f77a83b67cb70e98ced70749e539e43ad3f984485c3244",
+   "bytes": 1653,
+   "ref": ".andromeda/runs/2026-08-30T17-19-47Z-wrap/",
+   "why": "no **Ref:**",
+   "file": "018.md"
+  },
+  {
+   "row": 19,
+   "line": 303,
+   "heading": "## 2026-08-25 operator-adaptation wrap (0-pending) — interval point 43 discharged + two counting rules",
+   "sha256": "c8948da4ecc9839599c48cc531446a5934f15a18552f8950a483e88a1607277c",
+   "bytes": 2223,
+   "ref": "NOT DERIVED",
+   "why": "no **Ref:**",
+   "file": "019.md"
+  },
+  {
+   "row": 20,
+   "line": 309,
+   "heading": "## 2026-08-25-demo-injector-formalized-api-surface-retire — the categorical path-confinement claim was false; recorded as a measured exception",
+   "sha256": "93e2cb7a9e2234c4b55d257279c63a6b047f97cba274942d5b59f26b2af9dd88",
+   "bytes": 2833,
+   "ref": "NOT DERIVED",
+   "why": "no **Ref:**",
+   "file": "020.md"
+  },
+  {
+   "row": 21,
+   "line": 314,
+   "heading": "## 2026-08-26-cadence-runaway-blocking-pool — cargo audit interval point 46 discharged",
+   "sha256": "108d011284df2c48866cc39b7c0de8f1dcec44237ef1a432a2e70b1d8a2e52a3",
+   "bytes": 1361,
+   "ref": ".andromeda/runs/2026-08-26T12-15-00Z-wrap/",
+   "why": "no **Ref:**",
+   "file": "021.md"
+  },
+  {
+   "row": 22,
+   "line": 329,
+   "heading": "## 2026-08-26-l4-runtime-security-residuals — L4 path guard lands; the exception narrows, the argv residual closes",
+   "sha256": "f671e8f989b0bcb4d5d9075a6a205c1c70a3fe27dbc8f256f3183f49d79b33d1",
+   "bytes": 3483,
+   "ref": ".andromeda/runs/2026-08-26T18-40-57Z-wrap/",
+   "why": "no **Ref:**",
+   "file": "022.md"
+  },
+  {
+   "row": 23,
+   "line": 343,
+   "heading": "## 2026-08-26-interpretation-brief-completeness — L4-argv row re-based; citable section joins the content set",
+   "sha256": "f12174a3a1d8e159032f1b20c5051e7ce87479cd78d076c1395e9905432312b9",
+   "bytes": 1364,
+   "ref": ".andromeda/runs/2026-08-29T16-50-45Z-wrap/",
+   "why": "no **Ref:**",
+   "file": "023.md"
+  },
+  {
+   "row": 24,
+   "line": 348,
+   "heading": "## 2026-08-26-interpretation-brief-completeness — incident-summary write boundary joins the scrub enumeration",
+   "sha256": "042d14e98200de3590a199b835490e8030705b6b8bef4b12203d3488de50fbdc",
+   "bytes": 1326,
+   "ref": ".andromeda/runs/2026-08-29T16-50-45Z-wrap/",
+   "why": "no **Ref:**",
+   "file": "024.md"
+  },
+  {
+   "row": 25,
+   "line": 353,
+   "heading": "## 2026-08-27-idle-observer-generation-damper — L4-argv measurement re-base + inference.error posture extension",
+   "sha256": "afa04939ac54a61cb3db3e975a833bae3aa8b71c58c2e77aafeb41a1fcf326bf",
+   "bytes": 1046,
+   "ref": ".andromeda/runs/2026-08-27T20-04-28Z-wrap/",
+   "why": "no **Ref:**",
+   "file": "025.md"
+  },
+  {
+   "row": 26,
+   "line": 358,
+   "heading": "## 2026-08-27-idle-observer-generation-damper — Code Patterns duplicate re-based in lockstep",
+   "sha256": "15dbbfd98f598433f1dee4316b515f3a04eb1e71cc0682e24d894482406d3844",
+   "bytes": 576,
+   "ref": ".andromeda/runs/2026-08-27T20-04-28Z-wrap/",
+   "why": "no **Ref:**",
+   "file": "026.md"
+  },
+  {
+   "row": 27,
+   "line": 363,
+   "heading": "## 2026-08-27-idle-observer-generation-damper — standing-deferral point 49 discharged",
+   "sha256": "80f7531c78d723f1c7a23659227e5d4cd70e39822b427278982f4f1d368bb3a1",
+   "bytes": 657,
+   "ref": ".andromeda/runs/2026-08-27T20-04-28Z-wrap/",
+   "why": "no **Ref:**",
+   "file": "027.md"
+  },
+  {
+   "row": 28,
+   "line": 368,
+   "heading": "## 2026-08-28-ingest-consumer-block-under-gap-resume — point 52 recorded, next point 55, and the running probe ordinal retired",
+   "sha256": "d62e4dd459b22f69b86ac0c544d5146006fd83ea6e84a6e64c4916a5cc4746d9",
+   "bytes": 1734,
+   "ref": ".andromeda/runs/2026-08-28T20-25-00Z-wrap/",
+   "why": "no **Ref:**",
+   "file": "028.md"
+  },
+  {
+   "row": 29,
+   "line": 373,
+   "heading": "## 2026-08-28-duplicate-span-replay-fails-loudly — ureq carve-out, stale skips pruned, session-54 between-point",
+   "sha256": "bf39489dc543959619a86be38684226a6a7b016183abf3c38600bf34110b297f",
+   "bytes": 1248,
+   "ref": ".andromeda/runs/2026-08-28T23-20-00Z-wrap/",
+   "why": "no **Ref:**",
+   "file": "029.md"
+  },
+  {
+   "row": 30,
+   "line": 378,
+   "heading": "## 2026-08-29-app-registry-reconciliation — cargo-audit deferral, session-55 interval point discharged",
+   "sha256": "07477cadfffc416d618e1843f9195e86ea12381f6e7d8117c1c01494df008911",
+   "bytes": 943,
+   "ref": ".andromeda/runs/2026-08-29T15-48-43Z-wrap/",
+   "why": "no **Ref:**",
+   "file": "030.md"
+  },
+  {
+   "row": 31,
+   "line": 383,
+   "heading": "## 2026-08-29-advisory-backlog — owned set 8 → 0 · strict-path mandate retired (DROP executed) · rmcp pin/mechanism corrected · session-58 probe discharged",
+   "sha256": "35532baf554828df7474df2f0cfe050b6e4f8e72d96218875ca60f06d6951ad7",
+   "bytes": 2122,
+   "ref": ".andromeda/runs/2026-08-29T22-53-32Z-wrap/",
+   "why": "no **Ref:**",
+   "file": "031.md"
+  },
+  {
+   "row": 32,
+   "line": 388,
+   "heading": "## 2026-08-30-npm-advisory-coverage — npm-channel gate shipped; dev-only blast-radius claim corrected",
+   "sha256": "94c8c080edf0675885df537686b7ecbe471fa1b56b6360bec2cf7067cff8e303",
+   "bytes": 1754,
+   "ref": ".andromeda/runs/2026-08-30T12-09-07Z-wrap/",
+   "why": "no **Ref:**",
+   "file": "032.md"
+  },
+  {
+   "row": 33,
+   "line": 393,
+   "heading": "## 2026-08-30-diagnostics-un-muting-harness-truth-sweep — full-path exception retired · dead-schema re-base (ring buffer + corpus) · incident_events no-scrub boundary · MCP tool roster 4→8",
+   "sha256": "6fe90023f656722fbb0876569e9fe9077a1c4104a55a62399b35db5b193a301b",
+   "bytes": 2445,
+   "ref": ".andromeda/runs/2026-08-30T21-38-42Z-wrap/",
+   "why": "no **Ref:**",
+   "file": "033.md"
+  },
+  {
+   "row": 34,
+   "line": 398,
+   "heading": "## 2026-08-30-staged-bindings-assertion — staged-artifacts gate joins the CI roster; capability-drift enforcement re-described",
+   "sha256": "38deb2f133366540cea0fc76d0a76ed4c9c9fed6c17dd065a38db38bba5e6c04",
+   "bytes": 1979,
+   "ref": ".andromeda/runs/2026-08-30T17-19-47Z-wrap/",
+   "why": "no **Ref:**",
+   "file": "034.md"
+  },
+  {
+   "row": 35,
+   "line": 403,
+   "heading": "## 2026-08-30-acl-rejection-logging — deferral pointer advanced · `ui.ipc.rejection` no-scrub boundary · clipboard ban de-scoped",
+   "sha256": "354d28d94739d88e5cfe07738ba0f878ae03080f72109f07cf3999921fe963f4",
+   "bytes": 1649,
+   "ref": ".andromeda/runs/2026-08-30T21-38-42Z-wrap/",
+   "why": "no **Ref:**",
+   "file": "035.md"
+  },
+  {
+   "row": 36,
+   "line": 408,
+   "heading": "## 2026-08-30-dead-lib-src-test-migration — snapshot/clipboard no-log arm marked UNVERIFIED (owned)",
+   "sha256": "3dc3b78d696f9b37dcdfceeea5b30df21d1a1fdfe5c03a37d85d3b93c3803acd",
+   "bytes": 1533,
+   "ref": ".andromeda/runs/2026-08-30T20-00-08Z-wrap/",
+   "why": "no **Ref:**",
+   "file": "036.md"
+  },
+  {
+   "row": 37,
+   "line": 413,
+   "heading": "## 2026-08-30-agent-harness-teardown-truth — pin #22 session-64 FULL-FORM discharge recorded; pointer → session 67",
+   "sha256": "e401a99b1a4f7b1ffce81efe014475c017bf514b5f7297d11574ec8497ee88b9",
+   "bytes": 1046,
+   "ref": ".andromeda/runs/2026-08-30T21-38-42Z-wrap/",
+   "why": "no **Ref:**",
+   "file": "037.md"
+  }
+ ],
+ "batches": [
+  "batch-1.txt",
+  "batch-2.txt"
+ ]
+}

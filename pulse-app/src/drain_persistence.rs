@@ -1,6 +1,6 @@
 //! Corpus-backed Drain persistence adapter — chunk #69 Phase B Session 4.
 //!
-//! Wires `buffer::DrainPersistence` к `corpus::contract::CorpusWriter`
+//! Wires `buffer::DrainPersistence` to `corpus::contract::CorpusWriter`
 //! at the pulse-app binary boundary, preserving the arch §Module
 //! dependency direction DAG (buffer stays corpus-free; corpus stays
 //! buffer-free; pulse-app owns the wire-up). Mirrors chunk #59's
@@ -20,7 +20,7 @@
 //! scrubbed template content (the appender / DuckDB write path calls
 //! `security::scrubber::scrub_attribute` before storing a template;
 //! the buffer-side `DrainMiner` operates on those scrubbed strings).
-//! Encryption is defense-in-depth для the at-rest threat model, not a
+//! Encryption is defense-in-depth for the at-rest threat model, not a
 //! substitute for that producer-side scrubbing.
 
 use std::sync::Arc;
@@ -40,7 +40,7 @@ pub const DRAIN_TEMPLATE_METRIC_NAME: &str = "drain_template_tree";
 pub const DRAIN_PERSISTENCE_LAYER: &str = "l1c";
 
 /// Adapter implementing `buffer::DrainPersistence` over a
-/// `corpus::contract::CorpusWriter`. Cheap к clone (single Arc inside).
+/// `corpus::contract::CorpusWriter`. Cheap to clone (single Arc inside).
 #[derive(Clone)]
 pub struct CorpusDrainPersistence {
     writer: Arc<dyn CorpusWriter>,
@@ -85,7 +85,7 @@ impl DrainPersistence for CorpusDrainPersistence {
 /// Sanitized cross-crate error mapping. Per arch §Established Decisions
 /// [Error Handling Pattern]: no SQLite stack traces / file paths /
 /// library versions appear in the message surfaced upward to the buffer
-/// layer (the buffer Error::Drain.reason field IS visible через
+/// layer (the buffer Error::Drain.reason field IS visible via
 /// `From<BufferError> for AppError` IPC propagation, so noise is risk).
 #[doc(hidden)]
 pub fn corpus_error_to_buffer_error(err: CorpusError) -> BufferError {

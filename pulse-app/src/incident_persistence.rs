@@ -1,6 +1,6 @@
 //! Corpus-backed incident persistence adapter — chunk #78.
 //!
-//! Wires `triage::contract::IncidentPersistence` к
+//! Wires `triage::contract::IncidentPersistence` to
 //! `corpus::contract::CorpusWriter` at the pulse-app binary boundary,
 //! preserving the arch §Module dependency direction DAG (triage stays
 //! corpus-free; corpus stays triage-free; pulse-app owns the wire-up).
@@ -12,11 +12,11 @@
 //! SQLite table (chunk #68 schema, no version bump). Payload BLOB carries
 //! the bincode-encoded `Incident` struct (encrypted via AES-256-GCM at
 //! the corpus cell layer); metadata columns duplicate workspace + status
-//! + timestamps для fast SQL filtering (P-045 counter SQL).
+//! + timestamps for fast SQL filtering (P-045 counter SQL).
 //!
 //! PII discipline (chunk #72 uniform coverage): the producer side (cue
 //! emitter at chunk #62 + future interpretation layer) is responsible
-//! для pre-scrubbing OTLP-derived attribute values в `Incident.title` /
+//! for pre-scrubbing OTLP-derived attribute values in `Incident.title` /
 //! `Incident.detail` / `evidence_refs.fingerprint_hashes` BEFORE invoking
 //! `save_new_incident` / `update_incident_status`. The adapter does NOT
 //! double-scrub the bincode payload (layer-separation per corpus
@@ -25,8 +25,13 @@
 use std::io;
 use std::sync::Arc;
 
-use corpus::contract::{CorpusWriter, Error as CorpusError, IncidentRowRaw};
-use triage::contract::{Incident, IncidentError, IncidentPersistence, incident_status_label};
+use corpus::contract::{
+    CorpusWriter, Error as CorpusError, IncidentRowRaw, IncidentWriteOutcome as CorpusWriteOutcome,
+};
+use triage::contract::{
+    DurableActiveIncidents, Incident, IncidentError, IncidentPersistence, IncidentWriteOutcome,
+    incident_status_label,
+};
 
 /// Adapter implementing `triage::IncidentPersistence` over a
 /// `corpus::contract::CorpusWriter`. Cheap to clone (single Arc inside).
@@ -38,6 +43,19 @@ pub struct CorpusIncidentPersistence {
 impl CorpusIncidentPersistence {
     pub fn new(writer: Arc<dyn CorpusWriter>) -> Self {
         Self { writer }
+    }
+}
+
+/// The reconciliation read view over the SAME underlying writer. Returns row
+/// ids only — the payload BLOB is never decrypted or decoded here, because the
+/// reconciler compares identity, not content.
+impl DurableActiveIncidents for CorpusIncidentPersistence {
+    fn active_incident_ids(&self, workspace: &str) -> Result<Vec<i64>, IncidentError> {
+        let rows = self
+            .writer
+            .load_active_incidents(workspace)
+            .map_err(corpus_error_to_incident_error)?;
+        Ok(rows.iter().map(|row| row.id).collect())
     }
 }
 
@@ -59,7 +77,11 @@ impl IncidentPersistence for CorpusIncidentPersistence {
         Ok(id)
     }
 
-    fn update_incident_status(&self, id: i64, payload: &Incident) -> Result<(), IncidentError> {
+    fn update_incident_status(
+        &self,
+        id: i64,
+        payload: &Incident,
+    ) -> Result<IncidentWriteOutcome, IncidentError> {
         let bytes = bincode::serialize(payload).map_err(|_| IncidentError::Serialize)?;
         self.writer
             .update_incident_status(
@@ -69,6 +91,10 @@ impl IncidentPersistence for CorpusIncidentPersistence {
                 payload.resolved_at_unix_nano,
                 &bytes,
             )
+            .map(|outcome| match outcome {
+                CorpusWriteOutcome::Applied => IncidentWriteOutcome::Applied,
+                CorpusWriteOutcome::DeclinedStale => IncidentWriteOutcome::DeclinedStale,
+            })
             .map_err(|err| match err {
                 CorpusError::QueryFailed => IncidentError::NotFound,
                 other => corpus_error_to_incident_error(other),
@@ -154,13 +180,13 @@ impl IncidentPersistence for CorpusIncidentPersistence {
 
 /// Sanitized cross-crate error mapping. Per arch §Established Decisions
 /// [Error Handling Pattern]: no SQLite stack traces / file paths /
-/// library versions appear в the IncidentError surfaced upward. Mirrors
+/// library versions appear in the IncidentError surfaced upward. Mirrors
 /// chunk #70 `corpus_error_to_baseline_error` + chunk #71
 /// `corpus_error_to_lifecycle_error` precedents.
 ///
 /// Free function (not `From` impl) — orphan rule forbids
 /// `impl From<corpus::Error> for triage::IncidentError` here (both types
-/// foreign к pulse-app). Per session-learnings 2026-05-18.
+/// foreign to pulse-app). Per session-learnings 2026-05-18.
 #[doc(hidden)]
 pub fn corpus_error_to_incident_error(err: CorpusError) -> IncidentError {
     match err {
@@ -188,10 +214,10 @@ pub fn corpus_error_to_incident_error(err: CorpusError) -> IncidentError {
 // Unit tests live at `pulse-app/tests/unit_incident_persistence.rs`
 // (integration test crate) per session-learnings 2026-05-13 — Cargo.toml
 // `[lib] test = false` disables the lib auto-generated test binary on
-// Windows due к а WebView2 DLL load failure, so source-level
+// Windows due to a WebView2 DLL load failure, so source-level
 // `#[cfg(test)] mod tests` would compile but never run.
 //
-// `IncidentRowRaw` import preserved through this comment к keep the
+// `IncidentRowRaw` import preserved through this comment to keep the
 // audit-trail visible even if rustc later prunes the use as unused
 // (currently inlined into `load_active_incidents` via destructuring).
 #[allow(dead_code)]

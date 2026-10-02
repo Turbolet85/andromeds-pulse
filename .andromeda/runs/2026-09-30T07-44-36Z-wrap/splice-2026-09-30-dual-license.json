@@ -1,0 +1,119 @@
+[
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "5afc7864",
+"ts": "2026-09-30T07:56:25Z",
+"argv": [
+"append",
+"--file",
+".andromeda/architecture-amendments.md",
+"--payload-file",
+".andromeda/runs/2026-09-30T07-44-36Z-wrap/architecture-entry.md",
+"--lines",
+"10",
+"--run-dir",
+".andromeda/runs/2026-09-30T07-44-36Z-wrap",
+"--marker",
+"2026-09-30-dual-license"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"append architecture-amendments.md:+10 at line 513 · lines 512→522 · bytes 69440→71244 · term lf",
+"last line now: **Ref:** .andromeda/runs/2026-09-30T07-44-36Z-wrap/"
+],
+"stderr": null,
+"wrote": [
+".andromeda/architecture-amendments.md"
+],
+"before": {
+"lines": 512,
+"bytes": 69440,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 522,
+"bytes": 71244
+}
+},
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "5afc7864",
+"ts": "2026-09-30T07:56:25Z",
+"argv": [
+"append",
+"--file",
+".andromeda/security-plan-amendments.md",
+"--payload-file",
+".andromeda/runs/2026-09-30T07-44-36Z-wrap/security-plan-entry.md",
+"--lines",
+"6",
+"--run-dir",
+".andromeda/runs/2026-09-30T07-44-36Z-wrap",
+"--marker",
+"2026-09-30-dual-license"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"append security-plan-amendments.md:+6 at line 421 · lines 420→426 · bytes 76528→77535 · term lf",
+"last line now: **Ref:** .andromeda/runs/2026-09-30T07-44-36Z-wrap/"
+],
+"stderr": null,
+"wrote": [
+".andromeda/security-plan-amendments.md"
+],
+"before": {
+"lines": 420,
+"bytes": 76528,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 426,
+"bytes": 77535
+}
+},
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "5afc7864",
+"ts": "2026-09-30T07:56:26Z",
+"argv": [
+"append",
+"--file",
+".andromeda/test-plan-amendments.md",
+"--payload-file",
+".andromeda/runs/2026-09-30T07-44-36Z-wrap/test-plan-entry.md",
+"--lines",
+"10",
+"--run-dir",
+".andromeda/runs/2026-09-30T07-44-36Z-wrap",
+"--marker",
+"2026-09-30-dual-license"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"append test-plan-amendments.md:+10 at line 455 · lines 454→464 · bytes 77182→78614 · term lf",
+"last line now: **Ref:** .andromeda/runs/2026-09-30T07-44-36Z-wrap/"
+],
+"stderr": null,
+"wrote": [
+".andromeda/test-plan-amendments.md"
+],
+"before": {
+"lines": 454,
+"bytes": 77182,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 464,
+"bytes": 78614
+}
+}
+]

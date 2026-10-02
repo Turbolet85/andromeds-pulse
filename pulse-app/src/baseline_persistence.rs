@@ -20,7 +20,7 @@
 //! PII discipline (chunk #72): `BaselineState` per-service `DashMap` keys
 //! and per-operation key prefixes carry raw `service.name` strings
 //! (user-content classification). `save` calls
-//! `BaselineState::scrubbed_clone` with `security::scrubber::scrub_attribute`
+//! `BaselineState::scrubbed_clone` with `security::scrubber::mask_secret_spans`
 //! to pre-scrub the keys before bincode, rendering `[REDACTED:{category}]`
 //! markers for matched categories. Aggregation-collapse note: PII-shaped
 //! service names collapse to the same scrubbed bucket per chunk #72 plan
@@ -37,7 +37,7 @@ use std::sync::Arc;
 use std::time::Instant;
 
 use corpus::contract::{CorpusWriter, Error as CorpusError};
-use security::scrubber::{ScrubbedValue, scrub_attribute};
+use security::scrubber::mask_secret_spans;
 use triage::contract::{BaselineError, BaselinePersistence, BaselineState, DEFAULT_MAX_SIZE_BYTES};
 
 /// Stable `metric_name` value in `pipeline_metrics` for BaselineState.
@@ -102,14 +102,14 @@ impl BaselinePersistence for CorpusBaselinePersistence {
 
 /// Producer-side PII scrub for `BaselineState` per-service map keys + the
 /// `service` prefix of per-operation keys before bincode (chunk #72).
-/// Renders the `[REDACTED:{category}]` marker per the chunk #68/#69
-/// convention; dep-injected into `BaselineState::scrubbed_clone` to keep
-/// the triage crate security-crate-free.
-fn scrub_service_key(service: &str) -> String {
-    match scrub_attribute(service) {
-        ScrubbedValue::Allowed(s) => s,
-        ScrubbedValue::Redacted { category } => format!("[REDACTED:{}]", category),
-    }
+/// Masks each secret as the `[REDACTED:{category}]` marker per the chunk
+/// #68/#69 convention — the same masking as the `extract_service_name` choke
+/// point, so a key that already passed it comes back unchanged;
+/// dep-injected into `BaselineState::scrubbed_clone` to keep the triage
+/// crate security-crate-free.
+#[doc(hidden)]
+pub fn scrub_service_key(service: &str) -> String {
+    mask_secret_spans(service, |category| format!("[REDACTED:{category}]")).text
 }
 
 /// Sanitized cross-crate error mapping. Per arch §Established Decisions
@@ -264,15 +264,15 @@ fn migrate_legacy_inner(
         }
     };
 
-    // Pre-flight prefix sanity check на untrusted-input boundary (chunk #72
+    // Pre-flight prefix sanity check on untrusted-input boundary (chunk #72
     // follow-up). bincode 1.3.3 pre-allocates Vec / HashMap capacity from
-    // the u64 length prefix BEFORE attempting to read entries; а
+    // the u64 length prefix BEFORE attempting to read entries; a
     // valid-looking crafted prefix (e.g., `b"\x00\x01\x02 garbage"` decodes
     // its first 8 bytes as ~7e18) would trigger an immediate OOM process
     // abort even though `Options::with_limit` is configured. This validator
     // checks the `services` map length prefix at the known struct offset
     // (4-byte schema_version + 8-byte u64 map len) and rejects implausible
-    // counts before bincode allocates anything. Layout MUST stay in sync с
+    // counts before bincode allocates anything. Layout MUST stay in sync with
     // `crates/triage/src/baseline/mod.rs::BaselineState` field declaration
     // order (schema_version → services → operations → persisted_at).
     if !baseline_bytes_prefix_plausible(&bytes) {
@@ -309,16 +309,16 @@ fn migrate_legacy_inner(
 }
 
 /// Plausibility ceiling on the `services` map size — anything beyond this
-/// is almost certainly а crafted length prefix rather than legitimate
+/// is almost certainly a crafted length prefix rather than legitimate
 /// telemetry state. Conservatively above the `ACTIVITY_FLOOR_SERVICE_CAP`
-/// in-process bound (currently 100k) с headroom for future raises; well
-/// below any value that would trigger OOM allocation на 64-bit hosts.
+/// in-process bound (currently 100k) with headroom for future raises; well
+/// below any value that would trigger OOM allocation on 64-bit hosts.
 const BASELINE_PREFIX_SVC_LEN_PLAUSIBILITY_CEILING: u64 = 10_000_000;
 
 /// Sanity-check the bincode bytes' `services` length-prefix slot before
-/// passing к bincode. Prevents the OOM-via-crafted-prefix vulnerability
+/// passing to bincode. Prevents the OOM-via-crafted-prefix vulnerability
 /// surfaced at chunk #72 follow-up (untrusted legacy file content). True
-/// = pass (continue к bincode); false = reject (treat as `deserialize`
+/// = pass (continue to bincode); false = reject (treat as `deserialize`
 /// failure). Below 12 bytes, bincode will EOF safely on its own — let
 /// it through.
 fn baseline_bytes_prefix_plausible(bytes: &[u8]) -> bool {

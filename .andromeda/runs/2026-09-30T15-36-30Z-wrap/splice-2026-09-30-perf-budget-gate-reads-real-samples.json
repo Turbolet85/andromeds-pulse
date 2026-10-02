@@ -1,0 +1,316 @@
+[
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "5afc7864",
+"ts": "2026-09-30T15:54:18Z",
+"argv": [
+"append",
+"--file",
+".andromeda/obs-plan-amendments.md",
+"--payload-file",
+".andromeda/runs/2026-09-30T15-36-30Z-wrap/obs-plan-entry.md",
+"--lines",
+"12",
+"--run-dir",
+".andromeda/runs/2026-09-30T15-36-30Z-wrap",
+"--marker",
+"2026-09-30-perf-budget-gate-reads-real-samples"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"append obs-plan-amendments.md:+12 at line 277 · lines 276→288 · bytes 49994→52072 · term lf",
+"last line now: **Ref:** .andromeda/runs/2026-09-30T15-36-30Z-wrap/"
+],
+"stderr": null,
+"wrote": [
+".andromeda/obs-plan-amendments.md"
+],
+"before": {
+"lines": 276,
+"bytes": 49994,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 288,
+"bytes": 52072
+}
+},
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "5afc7864",
+"ts": "2026-09-30T15:54:18Z",
+"argv": [
+"append",
+"--file",
+".andromeda/obs-plan-amendments.md",
+"--payload-file",
+".andromeda/runs/2026-09-30T15-36-30Z-wrap/obs-plan-entry2.md",
+"--lines",
+"6",
+"--run-dir",
+".andromeda/runs/2026-09-30T15-36-30Z-wrap",
+"--marker",
+"2026-09-30-perf-budget-gate-reads-real-samples"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"append obs-plan-amendments.md:+6 at line 289 · lines 288→294 · bytes 52072→52860 · term lf",
+"last line now: **Ref:** .andromeda/runs/2026-09-30T15-36-30Z-wrap/"
+],
+"stderr": null,
+"wrote": [
+".andromeda/obs-plan-amendments.md"
+],
+"before": {
+"lines": 288,
+"bytes": 52072,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 294,
+"bytes": 52860
+}
+},
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "5afc7864",
+"ts": "2026-09-30T15:54:19Z",
+"argv": [
+"append",
+"--file",
+".andromeda/test-plan-amendments.md",
+"--payload-file",
+".andromeda/runs/2026-09-30T15-36-30Z-wrap/test-plan-entry.md",
+"--lines",
+"10",
+"--run-dir",
+".andromeda/runs/2026-09-30T15-36-30Z-wrap",
+"--marker",
+"2026-09-30-perf-budget-gate-reads-real-samples"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"append test-plan-amendments.md:+10 at line 473 · lines 472→482 · bytes 80071→81838 · term lf",
+"last line now: **Ref:** .andromeda/runs/2026-09-30T15-36-30Z-wrap/"
+],
+"stderr": null,
+"wrote": [
+".andromeda/test-plan-amendments.md"
+],
+"before": {
+"lines": 472,
+"bytes": 80071,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 482,
+"bytes": 81838
+}
+},
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "5afc7864",
+"ts": "2026-09-30T15:54:20Z",
+"argv": [
+"append",
+"--file",
+".andromeda/test-plan-amendments.md",
+"--payload-file",
+".andromeda/runs/2026-09-30T15-36-30Z-wrap/test-plan-entry2.md",
+"--lines",
+"10",
+"--run-dir",
+".andromeda/runs/2026-09-30T15-36-30Z-wrap",
+"--marker",
+"2026-09-30-perf-budget-gate-reads-real-samples"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"append test-plan-amendments.md:+10 at line 483 · lines 482→492 · bytes 81838→83021 · term lf",
+"last line now: **Ref:** .andromeda/runs/2026-09-30T15-36-30Z-wrap/"
+],
+"stderr": null,
+"wrote": [
+".andromeda/test-plan-amendments.md"
+],
+"before": {
+"lines": 482,
+"bytes": 81838,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 492,
+"bytes": 83021
+}
+},
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "5afc7864",
+"ts": "2026-09-30T15:54:20Z",
+"argv": [
+"append",
+"--file",
+".andromeda/architecture-amendments.md",
+"--payload-file",
+".andromeda/runs/2026-09-30T15-36-30Z-wrap/architecture-entry.md",
+"--lines",
+"10",
+"--run-dir",
+".andromeda/runs/2026-09-30T15-36-30Z-wrap",
+"--marker",
+"2026-09-30-perf-budget-gate-reads-real-samples"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"append architecture-amendments.md:+10 at line 531 · lines 530→540 · bytes 73050→74622 · term lf",
+"last line now: **Ref:** .andromeda/runs/2026-09-30T15-36-30Z-wrap/"
+],
+"stderr": null,
+"wrote": [
+".andromeda/architecture-amendments.md"
+],
+"before": {
+"lines": 530,
+"bytes": 73050,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 540,
+"bytes": 74622
+}
+},
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "5afc7864",
+"ts": "2026-09-30T15:54:21Z",
+"argv": [
+"append",
+"--file",
+".andromeda/architecture-amendments.md",
+"--payload-file",
+".andromeda/runs/2026-09-30T15-36-30Z-wrap/architecture-entry2.md",
+"--lines",
+"7",
+"--run-dir",
+".andromeda/runs/2026-09-30T15-36-30Z-wrap",
+"--marker",
+"2026-09-30-perf-budget-gate-reads-real-samples"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"append architecture-amendments.md:+7 at line 541 · lines 540→547 · bytes 74622→75630 · term lf",
+"last line now: **Ref:** .andromeda/runs/2026-09-30T15-36-30Z-wrap/"
+],
+"stderr": null,
+"wrote": [
+".andromeda/architecture-amendments.md"
+],
+"before": {
+"lines": 540,
+"bytes": 74622,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 547,
+"bytes": 75630
+}
+},
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "5afc7864",
+"ts": "2026-09-30T15:54:22Z",
+"argv": [
+"append",
+"--file",
+".andromeda/security-plan-amendments.md",
+"--payload-file",
+".andromeda/runs/2026-09-30T15-36-30Z-wrap/security-plan-entry.md",
+"--lines",
+"6",
+"--run-dir",
+".andromeda/runs/2026-09-30T15-36-30Z-wrap",
+"--marker",
+"2026-09-30-perf-budget-gate-reads-real-samples"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"append security-plan-amendments.md:+6 at line 434 · lines 433→439 · bytes 78758→79924 · term lf",
+"last line now: **Ref:** .andromeda/runs/2026-09-30T15-36-30Z-wrap/"
+],
+"stderr": null,
+"wrote": [
+".andromeda/security-plan-amendments.md"
+],
+"before": {
+"lines": 433,
+"bytes": 78758,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 439,
+"bytes": 79924
+}
+},
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "5afc7864",
+"ts": "2026-09-30T15:56:34Z",
+"argv": [
+"append",
+"--file",
+"andromeda-pulse-0.3.0/working-route.md",
+"--payload-file",
+".andromeda/runs/2026-09-30T15-36-30Z-wrap/route-insert.txt",
+"--after-line",
+"141",
+"--lines",
+"2",
+"--run-dir",
+".andromeda/runs/2026-09-30T15-36-30Z-wrap",
+"--marker",
+"2026-09-30-perf-budget-gate-reads-real-samples"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"append working-route.md:+2 at line 142 · lines 146→148 · bytes 23093→24852 · term lf",
+"last line now: Conductor return — the external P-075 assert round runs and the version's last"
+],
+"stderr": null,
+"wrote": [
+"andromeda-pulse-0.3.0/working-route.md"
+],
+"before": {
+"lines": 146,
+"bytes": 23093,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 148,
+"bytes": 24852
+}
+}
+]

@@ -93,7 +93,7 @@ describe("createAggregationComputePipeline — substrate for chunks #34/#35", ()
     }
   });
 
-  it("never propagates GPUError details / file paths / compiler internals в the failure reason", () => {
+  it("never propagates GPUError details / file paths / compiler internals in the failure reason", () => {
     const device = {
       createShaderModule: vi.fn().mockImplementation(() => {
         throw new Error(

@@ -4,10 +4,12 @@
 # Maintenance: re-run /andromeda-setup-project after either plan changes.
 #
 # 5-command discipline:
-#   boot     — start pulse-app in background, wait for TauRPC `health` ready (10s timeout)
+#   boot     — pre-build under the boot env, spawn target/release/pulse-app BY PATH,
+#              wait for the harness:status verdict (10s timeout; build absorbed before it)
 #   run      — execute cargo-nextest test suite
-#   status   — poll TauRPC `health` via cargo xtask harness:status
-#   cleanup  — SIGTERM the running pulse-app PID, verify ports released, remove tempdir
+#   status   — real-process verdict via cargo xtask harness:status
+#   cleanup  — terminate the app pid, then verify pid gone + ports released; exit 0
+#              only on verified teardown (bounded verdict token on stdout)
 #   logs     — tail the structured JSON log file
 #
 # Bound contracts:
@@ -15,6 +17,11 @@
 #   - obs-plan §3: structured log path (~/.andromeda-pulse/logs/agent-latest.jsonl), tracing JSON
 
 set -euo pipefail
+
+# UTF-8 relay: without these, Python helpers invoked from the harness decode
+# their own output under the host's legacy codepage and mangle non-ASCII.
+export PYTHONUTF8=1
+export PYTHONIOENCODING=utf-8
 
 # Resolve harness paths (override-friendly via env vars per arch §Occupied Resources)
 TMP_BASE="${TMPDIR:-/tmp}"
@@ -34,14 +41,71 @@ case "${1:-}" in
     export ANDROMEDA_PULSE_LOG_LEVEL="${ANDROMEDA_PULSE_LOG_LEVEL:-debug}"
     export RUST_LOG="${RUST_LOG:-debug}"
 
-    cargo run --bin pulse-app --release > "$DATA_DIR/logs/boot.log" 2>&1 &
-    DAEMON_PID=$!
+    # Pre-build OUTSIDE the timed readiness window, under the same exported
+    # env the app runs with — the env participates in cargo's fingerprint, so
+    # a warm binary can still cost a full thin-LTO relink (measured
+    # 2026-08-30: a 180s ceiling died mid-rustc; absorbed here instead).
+    if ! cargo build --bin pulse-app --release > "$DATA_DIR/logs/build.log" 2>&1; then
+      echo "boot: cargo build --bin pulse-app --release failed" >&2
+      echo "  Build log: $DATA_DIR/logs/build.log" >&2
+      exit 1
+    fi
+    # xtask too — the readiness poll runs `cargo xtask harness:status`, so a
+    # stale xtask would otherwise rebuild INSIDE the timed window.
+    if ! cargo build -p xtask >> "$DATA_DIR/logs/build.log" 2>&1; then
+      echo "boot: cargo build -p xtask failed" >&2
+      echo "  Build log: $DATA_DIR/logs/build.log" >&2
+      exit 1
+    fi
+
+    # Spawn the dev-build binary BY PATH — no cargo wrapper: $! IS the app,
+    # and the app itself overwrites the default pidfile with the same
+    # identity at boot (pulse-app/src/main.rs::write_pid_file).
+    APP_BIN="target/release/pulse-app"
+    if [ -f "$APP_BIN.exe" ]; then
+      APP_BIN="$APP_BIN.exe"
+    elif [ ! -f "$APP_BIN" ]; then
+      echo "boot: built binary not found at target/release/pulse-app[.exe]" >&2
+      exit 1
+    fi
+    # The app runs under a waiting subshell that records how it ended: once
+    # boot returns, the app is an orphan nothing else can reap, so a death
+    # after `ready` would otherwise leave no status anywhere (harness:status
+    # reads this record as `ended`).
+    EXIT_FILE="$(dirname "$PIDFILE")/andromeda-pulse.exit"
+    SPAWN_FILE="$(dirname "$PIDFILE")/andromeda-pulse.spawn"
+    rm -f "$EXIT_FILE" "$SPAWN_FILE"
+    (
+      "$APP_BIN" > "$DATA_DIR/logs/boot.log" 2>&1 &
+      app=$!
+      echo "$app" > "$SPAWN_FILE"
+      rc=0
+      wait "$app" || rc=$?
+      if [ "$rc" -gt 128 ]; then
+        echo "signal $((rc - 128)) ($(kill -l $((rc - 128)) 2>/dev/null || echo unknown))" > "$EXIT_FILE"
+      else
+        echo "exit $rc" > "$EXIT_FILE"
+      fi
+    ) < /dev/null > /dev/null 2>&1 &
+    for _ in $(seq 50); do
+      [ -s "$SPAWN_FILE" ] && break
+      sleep 0.1
+    done
+    DAEMON_PID=$(tr -d '[:space:]' < "$SPAWN_FILE" 2>/dev/null || true)
+    if [ -z "$DAEMON_PID" ]; then
+      echo "boot: the app did not start (no spawn record)" >&2
+      exit 1
+    fi
     echo "$DAEMON_PID" > "$PIDFILE"
 
-    # Poll TauRPC `health` via cargo xtask harness:status (xtask has Tauri test runtime access)
+    # Poll `cargo xtask harness:status` — a REAL-process verdict (PID file +
+    # the app's own log-family freshness), so ready is only reported once the
+    # spawned app is actually writing (2026-08-30; the old form returned an
+    # in-xtask-process envelope and was ready-green unconditionally).
     deadline=$(($(date +%s) + STATUS_TIMEOUT_SEC))
     while [ "$(date +%s)" -lt "$deadline" ]; do
-      if cargo xtask harness:status >/dev/null 2>&1; then
+      if ANDROMEDA_PULSE_PIDFILE="$PIDFILE" ANDROMEDA_PULSE_LOGFILE="$LOGFILE" \
+        cargo xtask harness:status >/dev/null 2>&1; then
         echo "boot: ready (PID=$DAEMON_PID, data_dir=$DATA_DIR)"
         echo "  OTLP gRPC:    127.0.0.1:$GRPC_PORT"
         echo "  OTLP HTTP:    127.0.0.1:$HTTP_PORT"
@@ -52,7 +116,21 @@ case "${1:-}" in
     done
     echo "boot: failed to reach ready state within ${STATUS_TIMEOUT_SEC}s" >&2
     echo "  Boot log: $DATA_DIR/logs/boot.log" >&2
-    "$0" cleanup
+    # Name HOW the app ended when it is already gone: a native crash prints
+    # nothing of its own, and a clean exit (every window closed) is silent too.
+    # The waiting wrapper writes the record the moment it reaps the app.
+    if kill -0 "$DAEMON_PID" 2>/dev/null; then
+      echo "  app still running (pid $DAEMON_PID) but never reported healthy" >&2
+    else
+      for _ in $(seq 20); do
+        [ -s "$EXIT_FILE" ] && break
+        sleep 0.1
+      done
+      echo "  app ended: $(cat "$EXIT_FILE" 2>/dev/null || echo 'not recorded')" >&2
+    fi
+    # Through bash, not as an executable: the checkout's mode bit is not
+    # guaranteed (a Windows commit records 100644).
+    bash "$0" cleanup
     exit 1
     ;;
 
@@ -62,59 +140,124 @@ case "${1:-}" in
     ;;
 
   status)
-    # Invoke TauRPC `health` via xtask (xtask uses tauri::test::mock_builder + get_ipc_response)
-    # Returns JSON with {status, subsystems, uptime_ms, pid}
-    cargo xtask harness:status
+    # Real-process verdict about THIS harness's resolved paths: JSON with
+    # {verdict, pid, log_file_basename, last_write_age_seconds}; exit 0 only
+    # for running-healthy (pid file present + log family written <= 60s ago).
+    ANDROMEDA_PULSE_DATA_DIR="$DATA_DIR" \
+      ANDROMEDA_PULSE_PIDFILE="$PIDFILE" \
+      ANDROMEDA_PULSE_LOGFILE="$LOGFILE" \
+      cargo xtask harness:status
     ;;
 
   cleanup)
-    # SIGTERM the running pulse-app, verify ports released, remove tempdir
+    # Terminate the app by the pidfile identity (the app's own write is
+    # canonical; the boot-time $! covers only the crashed-before-write
+    # window), then derive the verdict ONLY from independent probes — pid
+    # liveness + TCP handshake on the resolved loopback ports — never from
+    # the kill's own exit (test-plan §3 cleanup, the measured
+    # wrong-reason-pass).
+    pid=""
     if [ -f "$PIDFILE" ]; then
-      pid=$(cat "$PIDFILE")
-      if kill -0 "$pid" 2>/dev/null; then
-        kill -TERM "$pid" 2>/dev/null || true
-        # Wait up to 5s for graceful shutdown
-        for i in 1 2 3 4 5; do
-          if ! kill -0 "$pid" 2>/dev/null; then
-            break
-          fi
-          sleep 1
-        done
-        # Escalate to SIGKILL if still alive
-        if kill -0 "$pid" 2>/dev/null; then
-          kill -KILL "$pid" 2>/dev/null || true
-        fi
+      pid=$(tr -d '[:space:]' < "$PIDFILE" 2>/dev/null || true)
+    fi
+
+    # Liveness across both pid spaces: msys kill -0 knows shell children;
+    # PowerShell knows native Windows pids. The PowerShell branch answers
+    # only by genuinely probing — no fallback may manufacture the answer.
+    pid_alive() {
+      if kill -0 "$1" 2>/dev/null; then return 0; fi
+      if command -v powershell.exe >/dev/null 2>&1; then
+        powershell.exe -NoProfile -Command "if (Get-Process -Id $1 -ErrorAction SilentlyContinue) { exit 0 } else { exit 1 }" >/dev/null 2>&1
+        return $?
       fi
+      return 1
+    }
+    terminate_pid() {
+      if kill -TERM "$1" 2>/dev/null; then return 0; fi
+      if command -v powershell.exe >/dev/null 2>&1; then
+        powershell.exe -NoProfile -Command "Stop-Process -Id $1 -ErrorAction SilentlyContinue" >/dev/null 2>&1 || true
+      fi
+    }
+    force_kill_pid() {
+      if kill -KILL "$1" 2>/dev/null; then return 0; fi
+      if command -v powershell.exe >/dev/null 2>&1; then
+        powershell.exe -NoProfile -Command "Stop-Process -Id $1 -Force -ErrorAction SilentlyContinue" >/dev/null 2>&1 || true
+      fi
+    }
+
+    if [ -n "$pid" ] && pid_alive "$pid"; then
+      terminate_pid "$pid"
+      # Bounded wait, polling pid liveness each second
+      for i in 1 2 3 4 5; do
+        if ! pid_alive "$pid"; then
+          break
+        fi
+        sleep 1
+      done
+      if pid_alive "$pid"; then
+        force_kill_pid "$pid"
+        sleep 1
+      fi
+    fi
+    if [ -f "$PIDFILE" ]; then
       rm -f "$PIDFILE"
     fi
 
-    # Verify OTLP ports released (TCP handshake should fail)
+    # Independent verification: pid liveness + OTLP ports on loopback
+    pid_still_alive=0
+    if [ -n "$pid" ] && pid_alive "$pid"; then
+      pid_still_alive=1
+    fi
+    ports_accepting=0
     for port in "$GRPC_PORT" "$HTTP_PORT"; do
       if timeout 1 bash -c "cat < /dev/null > /dev/tcp/127.0.0.1/$port" 2>/dev/null; then
-        echo "cleanup: warning — port $port still accepting connections" >&2
+        ports_accepting=1
       fi
     done
+
+    verdict="clean"
+    if [ "$pid_still_alive" -eq 1 ]; then
+      verdict="app-survived"
+    elif [ "$ports_accepting" -eq 1 ]; then
+      if [ -n "$pid" ]; then
+        verdict="ports-lingering"
+      else
+        verdict="no-pid-ports-accepting"
+      fi
+    fi
 
     # Remove tempdir if we created it (only when ANDROMEDA_PULSE_DATA_DIR was unset)
     if [ -z "${ANDROMEDA_PULSE_DATA_DIR_KEEP:-}" ] && [ -d "$DATA_DIR" ] && [[ "$DATA_DIR" == */agent-run-* ]]; then
       rm -rf "$DATA_DIR"
     fi
-    echo "cleanup: done"
+    echo "cleanup: $verdict"
+    if [ "$verdict" = "clean" ]; then
+      exit 0
+    fi
+    exit 1
     ;;
 
   logs)
-    # Tail the structured JSON log file (obs-plan §3 sink path)
-    if [ -f "$LOGFILE" ]; then
-      tail -F "$LOGFILE"
-    else
-      # Fallback chain
-      for candidate in "$HOME/.andromeda-pulse/logs/agent-latest.jsonl" "$DATA_DIR/logs/agent-latest.jsonl"; do
-        if [ -f "$candidate" ]; then
-          tail -F "$candidate"
-          exit 0
-        fi
+    # Tail the structured JSON log family (obs-plan §3 sink path).
+    # tracing_appender's daily roller date-suffixes the sink
+    # (agent-latest.jsonl.YYYY-MM-DD), so each candidate is a GLOB: a
+    # bare-name read finds nothing on a healthy boot and reports an empty log.
+    resolved=""
+    for base in "$LOGFILE" \
+                "$HOME/.andromeda-pulse/logs/agent-latest.jsonl" \
+                "$DATA_DIR/logs/agent-latest.jsonl"; do
+      # Within one base, the last existing match is the newest: the glob
+      # expands in lexical order and the date suffix sorts ascending.
+      for candidate in "$base"*; do
+        [ -f "$candidate" ] && resolved="$candidate"
       done
-      echo "logs: no log file found at $LOGFILE or fallback locations" >&2
+      # Earlier bases take precedence, so stop at the first that resolved.
+      [ -n "$resolved" ] && break
+    done
+    if [ -n "$resolved" ]; then
+      tail -F "$resolved"
+    else
+      echo "logs: no log file found at $LOGFILE* or fallback locations" >&2
       exit 1
     fi
     ;;

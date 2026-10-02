@@ -1,4 +1,4 @@
-//! LWW queue с active-incident exception per dist-arch v3 §Queue behavior
+//! LWW queue with active-incident exception per dist-arch v3 §Queue behavior
 //! (chunk #81).
 //!
 //! - Default cadence-mode digests LWW-replace prior cadence digest within
@@ -20,14 +20,14 @@ use std::collections::{HashMap, VecDeque};
 use crate::contract::{Digest, DigestLwwMode};
 
 /// Active-incident bypass queue depth cap per workspace per dist-arch v3
-/// §Queue behavior. Beyond cap: oldest queued dropped с L6 warning.
+/// §Queue behavior. Beyond cap: oldest queued dropped with L6 warning.
 pub const ACTIVE_INCIDENT_QUEUE_CAP: usize = 5;
 
 /// Tier-1 hard-signal queue depth cap per dist-arch v3 §Queue behavior.
-/// Beyond cap: oldest queued dropped с L6 warning.
+/// Beyond cap: oldest queued dropped with L6 warning.
 pub const TIER1_QUEUE_CAP: usize = 3;
 
-/// Outcome of а `LwwQueue::push` invocation. Used by the assembler к
+/// Outcome of a `LwwQueue::push` invocation. Used by the assembler to
 /// emit appropriate `digest.lww.{drop, replace}` events.
 #[derive(Debug, Clone)]
 pub enum QueueAction {
@@ -49,7 +49,7 @@ pub enum QueueAction {
 ///   bypass queue per workspace, capped at `ACTIVE_INCIDENT_QUEUE_CAP`.
 /// - `tier1: VecDeque<Digest>` — global Tier-1 queue capped at
 ///   `TIER1_QUEUE_CAP` (hard signals are typically rare; per-workspace
-///   sharding deferred к L4 routing chunk).
+///   sharding deferred to L4 routing chunk).
 /// - `reflection_per_workspace: HashMap<String, Option<Digest>>` — one
 ///   outstanding reflection digest per workspace (same LWW shape as
 ///   default).
@@ -66,9 +66,9 @@ impl LwwQueue {
         Self::default()
     }
 
-    /// Insert а digest. Returns an action describing what the queue did:
+    /// Insert a digest. Returns an action describing what the queue did:
     /// Queued (cap-free insert), Replaced (LWW displaced prior), or
-    /// DroppedOldest (cap-bounded queue evicted oldest к make room).
+    /// DroppedOldest (cap-bounded queue evicted oldest to make room).
     pub fn push(&mut self, digest: Digest) -> QueueAction {
         match digest.lww_mode {
             DigestLwwMode::Default => self.push_default(digest),
@@ -164,41 +164,6 @@ impl LwwQueue {
             .get(workspace)
             .map(|s| s.is_some())
             .unwrap_or(false)
-    }
-
-    /// Drain everything currently queued (for L4 inference invocation).
-    /// Returns digests in priority order: Tier-1 first, then
-    /// active-incident bypass (per workspace), then default (per
-    /// workspace), then reflection (per workspace).
-    pub fn drain_all(&mut self) -> Vec<Digest> {
-        let mut out = Vec::new();
-        // Tier-1 first.
-        while let Some(d) = self.tier1.pop_front() {
-            out.push(d);
-        }
-        // Active-incident bypass next.
-        for (_workspace, queue) in self.active_incident_per_workspace.iter_mut() {
-            while let Some(d) = queue.pop_front() {
-                out.push(d);
-            }
-        }
-        self.active_incident_per_workspace
-            .retain(|_, q| !q.is_empty());
-        // Default cadence digests.
-        for (_workspace, slot) in self.default_per_workspace.iter_mut() {
-            if let Some(d) = slot.take() {
-                out.push(d);
-            }
-        }
-        self.default_per_workspace.retain(|_, s| s.is_some());
-        // Reflection digests last.
-        for (_workspace, slot) in self.reflection_per_workspace.iter_mut() {
-            if let Some(d) = slot.take() {
-                out.push(d);
-            }
-        }
-        self.reflection_per_workspace.retain(|_, s| s.is_some());
-        out
     }
 }
 
@@ -371,44 +336,5 @@ mod tests {
             DigestKind::Reflection,
         ));
         assert!(matches!(r2, QueueAction::Replaced { .. }));
-    }
-
-    #[test]
-    fn drain_all_returns_tier1_first_then_bypass_then_default() {
-        let mut q = LwwQueue::new();
-        let _ = q.push(mk_digest(
-            "/ws/a",
-            DigestLwwMode::Default,
-            DigestKind::CadenceTier3,
-        ));
-        let _ = q.push(mk_digest(
-            "/ws/a",
-            DigestLwwMode::ActiveIncidentBypass,
-            DigestKind::CadenceTier3,
-        ));
-        let _ = q.push(mk_digest(
-            "/ws/a",
-            DigestLwwMode::Tier1NeverLww,
-            DigestKind::CadenceTier1,
-        ));
-        let drained = q.drain_all();
-        assert_eq!(drained.len(), 3);
-        assert_eq!(drained[0].lww_mode, DigestLwwMode::Tier1NeverLww);
-        assert_eq!(drained[1].lww_mode, DigestLwwMode::ActiveIncidentBypass);
-        assert_eq!(drained[2].lww_mode, DigestLwwMode::Default);
-    }
-
-    #[test]
-    fn drain_all_empties_state() {
-        let mut q = LwwQueue::new();
-        let _ = q.push(mk_digest(
-            "/ws/a",
-            DigestLwwMode::Default,
-            DigestKind::CadenceTier3,
-        ));
-        let _ = q.drain_all();
-        assert!(!q.default_slot_occupied("/ws/a"));
-        assert_eq!(q.active_incident_depth(), 0);
-        assert_eq!(q.tier1_depth(), 0);
     }
 }

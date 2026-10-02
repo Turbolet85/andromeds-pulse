@@ -23,13 +23,13 @@ use triage::contract::{
 /// 120s window to keep resolution latency bounded (~30s p99).
 pub const DEFAULT_AUTO_RESOLVE_TICK_INTERVAL: Duration = Duration::from_secs(30);
 
-/// Tracing target для aggregate per-tick observability. Aggregate-only
+/// Tracing target for aggregate per-tick observability. Aggregate-only
 /// fields (evaluated_count + resolved_count + duration_ms) per CLAUDE.md
 /// observability.md Session Addition 2026-05-17 session 84.
 pub const TARGET_INCIDENT_AUTO_RESOLVE_TICK: &str = "triage.incident.auto_resolve.tick";
 
 /// Auto-resolution observer holding the live registry + persistence +
-/// broadcast handle. Cheap к clone (single Arc each).
+/// broadcast handle. Cheap to clone (single Arc each).
 #[derive(Clone)]
 pub struct AutoResolveObserver {
     registry: Arc<dyn IncidentRegistry>,
@@ -94,12 +94,12 @@ impl AutoResolveObserver {
     }
 }
 
-/// Long-running auto-resolution ticker task. Spawned at boot в
+/// Long-running auto-resolution ticker task. Spawned at boot in
 /// `pulse-app/src/main.rs`. Tick cadence per
 /// `DEFAULT_AUTO_RESOLVE_TICK_INTERVAL` (30s default).
 pub async fn run_auto_resolution_loop(observer: AutoResolveObserver) {
     let mut interval = tokio::time::interval(DEFAULT_AUTO_RESOLVE_TICK_INTERVAL);
-    // Skip immediate first tick к mirror chunk #62/#63/#67 convention.
+    // Skip immediate first tick to mirror chunk #62/#63/#67 convention.
     interval.tick().await;
     loop {
         interval.tick().await;
@@ -125,5 +125,5 @@ fn current_unix_nanos() -> i64 {
 }
 
 // Tests live at `pulse-app/tests/e2e_incidents_lifecycle.rs` — integration
-// test crate exercises the full lifecycle including auto-resolution с
+// test crate exercises the full lifecycle including auto-resolution with
 // `tokio::time::pause()` + `tokio::time::advance(Duration::from_secs(125))`.

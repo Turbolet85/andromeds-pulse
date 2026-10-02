@@ -9,12 +9,12 @@
 // + per-frame timing capture invoking the TauRPC
 // `telemetry.frontend.record_frame_ms` resolver. Compute pipeline failure
 // surfaces <Fallback /> just like adapter unavailability — both block the
-// canvas from rendering and direct the user к the substrate-not-supported
+// canvas from rendering and direct the user to the substrate-not-supported
 // branch.
 //
 // Substrate-only: no per-frame data binding (chunks #34/#35), no per-surface
 // dimensions / aspect ratios (chunks #30/#33/#36). The `mirrorTable` slot is
-// reserved for downstream chunks к inject а <table> DOM mirror per a11y plan
+// reserved for downstream chunks to inject a <table> DOM mirror per a11y plan
 // §1 critical path P1 (chart text equivalents for screen-reader users).
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
@@ -76,7 +76,7 @@ export function CanvasContainer({ ariaLabel, mirrorTable }: CanvasContainerProps
 
     // Substrate: instantiate three render pipelines so chunks #34/#35 can
     // bind data without re-architecting init. Per arch §Standard Contracts
-    // alignment с viz query routers (`traces.*` / `metrics.*` / `logs.*`).
+    // alignment with viz query routers (`traces.*` / `metrics.*` / `logs.*`).
     createTraceTimelinePipeline(device, PREFERRED_FORMAT);
     createFlamegraphPipeline(device, PREFERRED_FORMAT);
     createMetricsChartPipeline(device, PREFERRED_FORMAT);

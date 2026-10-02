@@ -1,0 +1,34 @@
+[
+  {
+    "from_crate": "pulse-app",
+    "n": 13
+  },
+  {
+    "from_crate": "mcp-server",
+    "n": 8
+  },
+  {
+    "from_crate": "ui-bridge",
+    "n": 7
+  },
+  {
+    "from_crate": "buffer",
+    "n": 2
+  },
+  {
+    "from_crate": "interpretation",
+    "n": 2
+  },
+  {
+    "from_crate": "config-watcher",
+    "n": 1
+  },
+  {
+    "from_crate": "xtask",
+    "n": 1
+  },
+  {
+    "from_crate": "snapshot",
+    "n": 1
+  }
+]

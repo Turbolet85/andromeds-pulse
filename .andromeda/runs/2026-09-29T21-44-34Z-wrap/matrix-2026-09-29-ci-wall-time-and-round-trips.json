@@ -1,0 +1,27 @@
+[
+{
+"tool": "matrix",
+"v": "1.2",
+"sha8": "0753a5e6",
+"ts": "2026-09-29T22:04:56Z",
+"argv": [
+"flip",
+"--dir",
+"andromeda-pulse-0.3.0",
+"--chunk",
+"2026-09-29-ci-wall-time-and-round-trips",
+"--run-dir",
+".andromeda/runs/2026-09-29T21-44-34Z-wrap"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"claimed 0 — gate no-op (no entry carries chunk 2026-09-29-ci-wall-time-and-round-trips)",
+"pool: unclaimed 1 [P-075]"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+}
+]

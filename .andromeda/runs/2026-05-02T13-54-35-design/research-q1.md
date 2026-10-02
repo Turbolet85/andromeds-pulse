@@ -1,0 +1,33 @@
+## Personality Directions
+
+### Direction 1: "Surgical precision with patient observation"
+
+**Physical-world metaphor:** Darkroom — a space where silence enables focus, where every detail becomes visible under controlled light, where movement is deliberate and calibrated.
+
+**Domain anchor:** This product is a local developer observability tool designed for "staring at telemetry for hours during dev iteration" — a solo practitioner monitoring distributed traces, metrics, and logs from their own machine without enterprise overhead. The darkroom metaphor captures the precise, focused attention required: developers darken distractions (compact always-visible widget primary surface) to isolate signals (OTLP telemetry streams), and motion becomes data (service constellation halo color ∝ error rate, latency river GPU-rendered flow). Like a darkroom technician, developers adjust light (color saturation), exposure (anomaly intensity), and timing (motion respects prefers-reduced-motion) to reveal what's there — not to create theater. This anchors the React + shadcn/ui + Tailwind dark-mode-first choice: surgical tool, not marketing interface.
+
+**Voice:** Quiet, intentional, calibrated — tone is restrained but not cold; every pixel and animation earns its place through signal integrity.
+
+### Direction 2: "Field notebook utility — terse, weathered, data-dense"
+
+**Physical-world metaphor:** Field notebook — a worn pocket journal carried through real work; pencil marks are legible at arm's length; pages dog-ear with frequent reference; every inch serves a purpose.
+
+**Domain anchor:** Audience = developers using AI coding assistants (Claude Code / Cursor) who want zero-setup local observability "without Docker / Jaeger overhead" — pragmatic builders, not enterprise SREs. The field notebook metaphor captures utility-first design: monospace timestamps / IDs (data-row readability), sans-serif display for service names (quick scan from 2 meters), dense info layout matching macOS Activity Monitor compact view reference. Glance legibility is the test — whether info density survives peripheral vision reading. Like a field notebook, the widget wears its use (telemetry streaming 10k spans/sec, 24/7 presence) but remains legible, never ornamental. Reference polish bar includes tldraw (canvas precision), CleanShot X (tray flow), Things 3 (clarity under load).
+
+**Voice:** Direct, unsentimental, economical — tone is matter-of-fact; ornament and motion exist only if they reduce cognitive load or convey state change.
+
+### Direction 3: "Ambient constellation — luminous, patient, emergence-driven"
+
+**Physical-world metaphor:** Astronomy observatory or planetarium — stars and constellations emerge from darkness; motion across the sky encodes physics; glance-readable patterns scale from intimate (tray icon) to expansive (full dashboard canvas).
+
+**Domain anchor:** The brief's "Service constellation" (animated dot field; pulse rate ∝ throughput; halo color ∝ error rate) and "Latency river" signature elements are explicitly astronomy-inspired. This product's core metaphor — architecture as a visible cosmos of services responding in real-time — suggests a personality rooted in emergence and pattern recognition. Developers stare at "quiet ambient telemetry presence" (a glanceable surface, not a noisy dashboard demanding attention) and recognize anomalies the way astronomers read a sky: familiar constellations suddenly shift. GPU-accelerated canvas (WebGPU compute pipelines) enables this scale. The metaphor honors motion-as-data principle: halo pulsing encodes service health, not decoration; color saturation modulates with anomaly intensity (subtle when steady, vivid when alerts fire). Cross-platform desktop (Windows / macOS / Linux) means the same "sky" is always accessible.
+
+**Voice:** Contemplative, pattern-seeking, reverent toward data — tone is patient and observational; motion conveys emergence and interconnection, never haste.
+
+## Recommended
+
+**Recommended direction:** Direction 2 — "Field notebook utility — terse, weathered, data-dense"
+
+**Reasoning:** The audience (developers iterating with AI assistants, zero-setup expectation, dense-UI tolerant) and product type (local single-user observability, not enterprise SaaS) demand a personality rooted in pragmatic utility, not ambience or precision theater. The field notebook metaphor directly aligns with the brief's negative anchors (reject Datadog / Neon / Status Hero marketing sterility) and positive anchors (macOS Activity Monitor density, tldraw canvas polish, CleanShot X tray flow) — all utilities optimized for power users, not novices. Tailwind dark mode + shadcn/ui component ownership (copy-not-install, Radix primitives) support a personality that emphasizes clarity and reuse over visual novelty. The "glance-readable from 2 meters" legibility requirement is native to field-notebook personality (monospace data rows, high-contrast sans-serif labels, motion as state change). React's ecosystem depth aligns with the agent-driven development style, and the personality should reflect that internal tooling precision, not external marketing polish.
+
+**Research basis:** CNCF Observability Trends 2025 emphasize "developer-centric design" with "smart defaults, not weeks of manual instrumentation"; Tubik Blog 2026 UI trends document shift "away from minimalism toward crafted, authentic design" and "sensory elements that feel tangible" — the field notebook metaphor delivers crafted authenticity (worn, legible, purposeful) without maximalist decoration. Current OpenTelemetry UI patterns (SigNoz, HyperDX, Dash0 2026 comparisons) show unified trace/metric/log visualization as load-bearing, not ambient — supporting field-notebook's data-dense, utility-first personality. Index.dev and UX Collective 2026 trends confirm movement away from sterile minimalism toward designs with "personality and expression" grounded in craft, not AI-generated sameness — aligning with brief's rejection of vacant marketing aesthetics and embrace of reference polish (polished utilities like Linear, Things 3, CleanShot X).

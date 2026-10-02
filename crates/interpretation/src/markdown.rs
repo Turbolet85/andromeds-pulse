@@ -4,7 +4,7 @@
 //! (symptom / timeline / hypotheses / investigation steps / evidence /
 //! project context) plus optional resolution-summary + "Previously seen"
 //! cross-incident subsection per P-036. Pure-function serializer
-//! producing markdown identical к the future MCP delivery (#92) per
+//! producing markdown identical to the future MCP delivery (#92) per
 //! P-038 single-source-of-truth discipline.
 //!
 //! Pre-scrub contract: `serialize_report` is a pure transform — it does
@@ -13,26 +13,26 @@
 //! projection lives here as [`assemble_report`] (moved from pulse-app so the
 //! MCP `retrieve_report` tool and the `incidents.get_report` resolver share
 //! one source per P-038); that projection DOES apply defense-in-depth
-//! scrubbing via `security::scrubber::scrub_attribute`, which is why this
+//! scrubbing via `security::scrubber::mask_secret_spans`, which is why this
 //! crate now carries a `security` dep edge (security is a leaf crate — no
 //! cycle introduced).
 //!
 //! Hybrid render contract (chunk #88 Phase 1 user-approved scope):
-//! - Resolved incidents с `resolution_summary_text.is_some()` →
+//! - Resolved incidents with `resolution_summary_text.is_some()` →
 //!   caller parses the JSON-encoded L4Output payload and threads its
 //!   six fields into the Report → full six-section markdown.
-//! - Active / Acknowledged incidents → caller constructs Report с
+//! - Active / Acknowledged incidents → caller constructs Report with
 //!   `degraded_mode = true`, empty hypotheses + investigation_steps;
 //!   serializer surfaces explicit "interpretation pending" notice in
 //!   place of those sections per chunk #86 degraded-mode UX pattern.
 
-use security::scrubber::{ScrubbedValue, scrub_attribute};
+use security::scrubber::mask_secret_spans;
 use serde::{Deserialize, Serialize};
 use triage::contract::{Incident, IncidentStatus, Severity};
 
 use crate::schema::{Confidence as L4Confidence, L4Output};
 
-/// Confidence label for а ranked hypothesis. Mirrors
+/// Confidence label for a ranked hypothesis. Mirrors
 /// [`crate::schema::Confidence`] but stays decoupled at this surface so
 /// the markdown serializer doesn't import from `schema` (keeps `Report`
 /// usable for callers that synthesize hypotheses outside the L4Output
@@ -82,7 +82,7 @@ pub fn previously_seen_from_incidents(matches: &[Incident]) -> Vec<PreviouslySee
 /// Six-section Report content payload. All text fields are pre-scrubbed
 /// at construction; the serializer does NOT re-scrub. `degraded_mode`
 /// signals chunk #86 FSM degraded state OR absence of attached L4 output
-/// for Active/Acknowledged incidents — both render с explicit notice in
+/// for Active/Acknowledged incidents — both render with explicit notice in
 /// place of hypotheses + investigation_steps.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Report {
@@ -104,14 +104,14 @@ pub struct Report {
 }
 
 /// Explicit notice text when degraded_mode is true. Stable string —
-/// integration tests grep for а distinguishing substring к assert the
+/// integration tests grep for a distinguishing substring to assert the
 /// degraded path fired.
 pub const DEGRADED_NOTICE: &str = "_Interpretation pending — hypotheses and investigation steps will populate as soon as the next L4 inference cycle completes for this incident. See diagnostics for retry options._";
 
-/// Serialize а `Report` к markdown. Pure function; deterministic output
-/// for identical input (regression-protected via а test asserting
+/// Serialize a `Report` to markdown. Pure function; deterministic output
+/// for identical input (regression-protected via a test asserting
 /// `assert_eq!(serialize_report(&r), serialize_report(&r))`). Output
-/// format is byte-identical к the future MCP delivery payload per P-038.
+/// format is byte-identical to the future MCP delivery payload per P-038.
 pub fn serialize_report(report: &Report) -> String {
     let mut out = String::with_capacity(2048);
     out.push_str("# Diagnostic Report: ");
@@ -286,9 +286,9 @@ pub fn assemble_report(
             evidence_refs: l4.evidence_refs.iter().map(|r| scrub_string(r)).collect(),
             project_context,
             degraded_mode: false,
-            // When the L4Output renders the Report itself for а Resolved
+            // When the L4Output renders the Report itself for a Resolved
             // incident, the same payload IS the resolution summary —
-            // surfacing it as а duplicate section under "Resolution
+            // surfacing it as a duplicate section under "Resolution
             // Summary" would be redundant. Skip.
             resolution_summary: None,
             previously_seen,
@@ -300,9 +300,9 @@ pub fn assemble_report(
             opened_at_unix_nano: incident.opened_at_unix_nano,
             status_label,
             severity_label,
-            // Symptom falls back к incident.detail when no L4Output
+            // Symptom falls back to incident.detail when no L4Output
             // available (chunk #78 producer-side scrubbed; defense-in-
-            // depth scrub here is а no-op for already-scrubbed input).
+            // depth scrub here is a no-op for already-scrubbed input).
             symptom: scrub_string(&incident.detail),
             timeline: String::new(),
             hypotheses: Vec::new(),
@@ -329,15 +329,12 @@ pub fn assemble_report(
 }
 
 /// Defense-in-depth scrubber application. Routes a text field through
-/// `security::scrubber::scrub_attribute` BEFORE markdown composition per
-/// the chunk #72 uniform-coverage invariant. Already-scrubbed input passes
-/// through verbatim (idempotent at the scrubber boundary); raw OTLP-derived
-/// bytes that somehow bypassed upstream scrubbing get redacted here.
+/// `security::scrubber::mask_secret_spans` BEFORE markdown composition per
+/// the chunk #72 uniform-coverage invariant. Already-masked input passes
+/// through verbatim (masking is idempotent); a secret in raw OTLP-derived
+/// bytes that somehow bypassed upstream scrubbing is masked where it sits.
 pub fn scrub_string(text: &str) -> String {
-    match scrub_attribute(text) {
-        ScrubbedValue::Allowed(s) => s,
-        ScrubbedValue::Redacted { category } => format!("[redacted: {category}]"),
-    }
+    mask_secret_spans(text, |category| format!("[redacted: {category}]")).text
 }
 
 fn hex_lower(bytes: &[u8]) -> String {
@@ -548,6 +545,14 @@ mod tests {
     }
 
     #[test]
+    fn assemble_report_keeps_a_date_stamped_workspace_verbatim() {
+        let mut incident = sample_incident(42, "[redacted] current incident");
+        incident.workspace = "/tmp/rm-20260923-093840".to_string();
+        let report = assemble_report(&incident, None, Vec::new());
+        assert_eq!(report.project_context, "workspace=/tmp/rm-20260923-093840");
+    }
+
+    #[test]
     fn assemble_report_empty_matches_render_no_previously_seen_section() {
         let incident = sample_incident(42, "[redacted] current incident");
         let report = assemble_report(&incident, None, Vec::new());
@@ -674,6 +679,14 @@ mod tests {
         assert!(hypotheses_pos < steps_pos);
         assert!(steps_pos < evidence_pos);
         assert!(evidence_pos < context_pos);
+    }
+
+    #[test]
+    fn scrub_string_span_masks_a_token_and_keeps_its_sentence() {
+        assert_eq!(
+            scrub_string("checkout rejected token=abc123 for the cart\nretry scheduled"),
+            "checkout rejected [redacted: secret_kv]\nretry scheduled"
+        );
     }
 
     #[test]

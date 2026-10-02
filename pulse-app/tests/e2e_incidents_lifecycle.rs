@@ -93,7 +93,7 @@ async fn create_to_resolved_via_resolver_returns_empty_active_list() {
     // acknowledge succeeds
     resolver.clone().acknowledge(id).await.expect("ack");
     let after_ack = resolver.clone().list_active().await.expect("list");
-    assert_eq!(after_ack.total, 1, "acknowledged still в active list");
+    assert_eq!(after_ack.total, 1, "acknowledged still in active list");
     assert_eq!(after_ack.items[0].status, IncidentStatus::Acknowledged);
     // mark_resolved succeeds
     resolver.clone().mark_resolved(id).await.expect("resolve");
@@ -175,9 +175,9 @@ async fn broadcast_emits_bounded_payload_no_pii() {
 fn acknowledge_cooldown_rejects_second_attempt_via_registry() {
     // Cool-down behavior tested through the registry directly (which
     // accepts explicit timestamps) rather than the resolver (which
-    // reads SystemTime::now and requires start_paused от tokio test-util
+    // reads SystemTime::now and requires start_paused from tokio test-util
     // feature per testing.md Session Addition 2026-05-03). The
-    // resolver simply delegates к registry.acknowledge с current
+    // resolver simply delegates to registry.acknowledge with current
     // timestamp + DEFAULT_INCIDENT_ACK_COOLDOWN_SECS; correctness is
     // verified at the registry layer.
     let registry: Arc<dyn IncidentRegistry> = Arc::new(InMemoryIncidentRegistry::new());
@@ -245,7 +245,7 @@ async fn auto_resolution_resolves_active_past_window() {
     let (evaluated, resolved) = observer.run_one_tick(now_nanos);
     assert_eq!(evaluated, 1, "1 incident evaluated");
     assert_eq!(resolved, 1, "1 incident resolved");
-    // Broadcast event received с to_state = Resolved.
+    // Broadcast event received with to_state = Resolved.
     let event = rx.recv().await.expect("event");
     assert_eq!(event.to_state, IncidentStatus::Resolved);
 }
