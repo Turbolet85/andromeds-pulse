@@ -8,7 +8,7 @@ use duckdb::Connection;
 use mcp_server::feature_gate::{GateState, validate_double_gate};
 use mcp_server::jsonrpc::{
     CODE_INTERNAL_ERROR, CODE_INVALID_PARAMS, CODE_METHOD_NOT_FOUND, error, initialize_result,
-    parse_request, success, tools_list_with_8_tools,
+    parse_request, success, tools_list_manifest,
 };
 use mcp_server::tools::{ALL_TOOL_NAMES, IncidentToolContext, dispatch_tool};
 use mcp_server::tracing_setup;
@@ -211,7 +211,7 @@ fn dispatch_line(ctx: &SidecarContext, line: &str) -> Option<Vec<u8>> {
             serde_json::to_vec(&resp).ok()
         }
         "tools/list" => {
-            let resp = success(id, tools_list_with_8_tools());
+            let resp = success(id, tools_list_manifest());
             tracing::info!(
                 target: "mcp.tools.list.response",
                 result_type = "tools_array",

@@ -1,0 +1,36 @@
+[
+{
+"tool": "route",
+"v": "1.5",
+"sha8": "9fc8708e",
+"ts": "2026-10-02T14:40:54Z",
+"argv": [
+"route.py",
+"promote",
+"--root",
+".",
+"--chunk",
+"2026-10-02-incident-events-readable-through-mcp",
+"--expect-prefix",
+"Incident events readable through MCP",
+"--record-file",
+".andromeda/runs/2026-10-02T14-39-48Z-phase/master-record.txt",
+"--run-dir",
+".andromeda/runs/2026-10-02T14-39-48Z-phase"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"stamp working-route.md:150 - [2026-10-02-incident-events-readable-through-mcp]",
+"record master-route.md:88 - appended under `## andromeda-pulse-0.3.0`",
+"promoted 2026-10-02-incident-events-readable-through-mcp - working-route:150 frozen - master record appended"
+],
+"stderr": null,
+"wrote": [
+".\\andromeda-pulse-0.3.0\\working-route.md",
+".\\.andromeda\\master-route.md"
+],
+"before": null,
+"after": null
+}
+]

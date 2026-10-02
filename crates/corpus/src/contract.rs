@@ -89,6 +89,14 @@ pub struct IncidentRowRaw {
     pub payload: Vec<u8>,
 }
 
+/// One `incident_events` lifecycle row as read back. The encrypted `payload`
+/// column is never selected — it is empty by construction.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub struct IncidentEventRow {
+    pub event_kind: String,
+    pub occurred_unix_nano: i64,
+}
+
 /// Outcome of a guarded incident write. A stale write is DECLINED rather
 /// than failing, so callers must handle it as a value: encoding it as an
 /// `Error` would make "log it as a failure" the default at every call site,
@@ -406,6 +414,18 @@ pub trait CorpusWriter: Send + Sync {
     /// in-memory registry. Prepared statement with `?` placeholder per
     /// security plan §Input Validation.
     fn load_incident_by_id(&self, id: i64) -> Result<Option<IncidentRowRaw>, Error>;
+
+    /// SELECT up to `limit` lifecycle events of one incident, oldest first
+    /// (`ORDER BY id`). Consumed cross-process by the MCP
+    /// `retrieve_incident_events(id)` tool. Reads `event_kind` and
+    /// `occurred_unix_nano` only; an incident with no status transition yet
+    /// returns an empty Vec. Prepared statement with `?` placeholders per
+    /// security plan §Input Validation.
+    fn load_incident_events(
+        &self,
+        incident_id: i64,
+        limit: u32,
+    ) -> Result<Vec<IncidentEventRow>, Error>;
 
     /// SELECT ALL incidents (every status, every workspace) ordered by rowid
     /// ascending. Returns decrypted `payload` bytes per row. Consumed by the
@@ -828,6 +848,31 @@ impl CorpusWriter for Corpus {
                 }
             },
         }
+    }
+
+    fn load_incident_events(
+        &self,
+        incident_id: i64,
+        limit: u32,
+    ) -> Result<Vec<IncidentEventRow>, Error> {
+        let conn = self.connection();
+        let guard = conn.lock().map_err(|_| Error::QueryFailed)?;
+        let mut stmt = guard
+            .prepare(
+                "SELECT event_kind, occurred_unix_nano FROM incident_events \
+                 WHERE incident_id = ?1 ORDER BY id ASC LIMIT ?2",
+            )
+            .map_err(|_| Error::QueryFailed)?;
+        let rows = stmt
+            .query_map(rusqlite::params![incident_id, limit], |row| {
+                Ok(IncidentEventRow {
+                    event_kind: row.get(0)?,
+                    occurred_unix_nano: row.get(1)?,
+                })
+            })
+            .map_err(|_| Error::QueryFailed)?;
+        rows.collect::<Result<Vec<_>, _>>()
+            .map_err(|_| Error::QueryFailed)
     }
 
     fn load_all_incidents(&self) -> Result<Vec<IncidentRowRaw>, Error> {
@@ -1482,6 +1527,111 @@ mod tests {
             vec!["resolved"],
             "a declined write rolls back having written nothing",
         );
+    }
+
+    fn event(kind: &str, at: i64) -> IncidentEventRow {
+        IncidentEventRow {
+            event_kind: kind.to_string(),
+            occurred_unix_nano: at,
+        }
+    }
+
+    #[test]
+    fn load_incident_events_reads_empty_for_a_fresh_incident() {
+        let writer: Arc<dyn CorpusWriter> = Arc::new(test_corpus());
+        let id = writer
+            .save_incident("ws-fresh", "active", 1_000, 1_000, None, None, b"a")
+            .expect("save");
+
+        let events = writer.load_incident_events(id, 16).expect("load events");
+
+        assert!(events.is_empty(), "creation records no event: {events:?}");
+    }
+
+    #[test]
+    fn load_incident_events_reads_transitions_oldest_first_with_written_timestamps() {
+        let writer: Arc<dyn CorpusWriter> = Arc::new(test_corpus());
+        let id = writer
+            .save_incident("ws-order", "active", 1_000, 1_000, None, None, b"a")
+            .expect("save");
+        writer
+            .update_incident_status(id, "acknowledged", 2_222, None, b"a")
+            .expect("ack");
+        writer
+            .update_incident_status(id, "resolved", 3_333, Some(3_333), b"a")
+            .expect("resolve");
+
+        let events = writer.load_incident_events(id, 16).expect("load events");
+
+        assert_eq!(
+            events,
+            vec![event("acknowledged", 2_222), event("resolved", 3_333)]
+        );
+    }
+
+    #[test]
+    fn load_incident_events_excludes_another_incidents_events() {
+        let writer: Arc<dyn CorpusWriter> = Arc::new(test_corpus());
+        let mine = writer
+            .save_incident("ws-x", "active", 1_000, 1_000, None, None, b"a")
+            .expect("save mine");
+        let other = writer
+            .save_incident("ws-x", "active", 1_000, 1_000, None, None, b"b")
+            .expect("save other");
+        writer
+            .update_incident_status(other, "resolved", 4_444, Some(4_444), b"b")
+            .expect("resolve other");
+        writer
+            .update_incident_status(mine, "acknowledged", 5_555, None, b"a")
+            .expect("ack mine");
+
+        let events = writer.load_incident_events(mine, 16).expect("load events");
+
+        assert_eq!(events, vec![event("acknowledged", 5_555)]);
+    }
+
+    #[test]
+    fn load_incident_events_honours_the_limit() {
+        let writer: Arc<dyn CorpusWriter> = Arc::new(test_corpus());
+        let id = writer
+            .save_incident("ws-limit", "active", 1_000, 1_000, None, None, b"a")
+            .expect("save");
+        writer
+            .update_incident_status(id, "acknowledged", 2_000, None, b"a")
+            .expect("ack");
+        writer
+            .update_incident_status(id, "active", 3_000, None, b"a")
+            .expect("reactivate");
+        writer
+            .update_incident_status(id, "resolved", 4_000, Some(4_000), b"a")
+            .expect("resolve");
+
+        let events = writer.load_incident_events(id, 2).expect("load events");
+
+        assert_eq!(
+            events,
+            vec![event("acknowledged", 2_000), event("active", 3_000)]
+        );
+    }
+
+    #[test]
+    fn load_incident_events_unchanged_by_a_declined_stale_write() {
+        let writer: Arc<dyn CorpusWriter> = Arc::new(test_corpus());
+        let id = writer
+            .save_incident("ws-stale", "active", 1_000, 1_000, None, None, b"a")
+            .expect("save");
+        writer
+            .update_incident_status(id, "resolved", 3_000, Some(3_000), b"b")
+            .expect("resolve");
+        let before = writer.load_incident_events(id, 16).expect("before");
+
+        let outcome = writer
+            .update_incident_status(id, "acknowledged", 2_000, None, b"stale")
+            .expect("stale write must not error");
+
+        assert_eq!(outcome, IncidentWriteOutcome::DeclinedStale);
+        assert_eq!(writer.load_incident_events(id, 16).expect("after"), before);
+        assert_eq!(before, vec![event("resolved", 3_000)]);
     }
 
     #[test]
