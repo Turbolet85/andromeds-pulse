@@ -28,3 +28,27 @@ passed, including the two Unix-only arms that cannot run on the Windows host:
 
 ## Gate 22 — S
 Printed after the pre-CI commit; recorded in `round-binary.md`.
+
+## Gate 23 — push
+Clean-tree guard held (only the untracked `round-binary.md`); `git push origin chore/migrate-pulse-to-v3` exit 0,
+`a2addb3..03ec944`; origin head = S.
+
+## Gate 24 — CI on S
+`ci.py conclusion --sha HEAD --wait 2400`: exit 0, `03ec94481b0d verdict: green · checks 13/13 · wall 1754 s` —
+`ci#36964436269` completed/success, `secret-scan#36964436289` completed/success. The Linux and macOS lint-test jobs ran
+the Unix-only arms (b) and (d); the Linux boot job is the runner-side observer of the next exit.
+
+## Gate 25 — Conductor evidence for S
+- Relayed by the overseer: Conductor round on S = 6/6 PASS, at Conductor `2a494804f6d91bb61718fc9a520cebc73b29af86`
+  (CI#36970919487 green, overseer-verified). Conductor's checkout HEAD read that sha (one untracked evidence file only).
+- The entry (`<id>` = S) `grep -rlF '03ec944…' …/conductor-0.3.0/chunks --include=*.md`: exit 0, three hits in the
+  round chunk (`evidence/round-ledger.md`, `plan.md`, `scope.md`).
+- Read at the sha (`git show 2a494804:…`, cited never copied): `round-ledger.md` §The six verdicts — all six `[PASS]`,
+  none UNGRADED, no leg re-fired; `p075-leg.txt` carries assertions 1-2's booleans (`fingerprint_in_refs=true`,
+  `degraded_mode=false`, `resolved_left_active_set=true`).
+- Binary identity cross-check: the sha256 of `target/release/pulse-app.exe` and `andromeda-pulse-mcp.exe` here equal the
+  two digests the ledger re-measured before its launch; the six graded test fns exist at the sha in
+  `crates/conductor-run/tests/lifecycle_harvest.rs` (1-2) and `delegated_timing_harvest.rs` (3-6).
+- Plan Step 11, on the overseer's word: P-075 `ref` written through `matrix.py implement` (planned → implemented),
+  citing the six test ids and `conductor-0.3.0/chunks/2026-10-02-p-075-assert-round-against-pulse/evidence/` at
+  `2a494804`.

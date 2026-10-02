@@ -93,6 +93,13 @@ Not every harness command is a gate. There are now FOUR scenario legs, all delib
 
 **RED-leg evidence depends on the defect's SHAPE.** A REJECT-shaped defect (write refused, batch failed) emits the ERROR it is measuring, so the clean-log assertion must not be applied to it. A **BLOCK-shaped** defect emits nothing — nothing returns, so nothing reports — and a RED leg over it carries 0 ERROR and 0 panics, which makes that same assertion pass VACUOUSLY; there the evidence of record is absence-of-progress (frozen `rows_ingested`, consecutive zero-delta `buffer.tick`s, `buffer.consumer.stalled`). Decide the shape before choosing the evidence.
 
+**Process-end witness form (test-plan §3).** A record that must survive the process ending is witnessed by re-exec
+children (`pulse-app/tests/integration_exit_cause_record.rs`): each child inits the sink on its own TempDir, ends
+through ONE class, and the parent reads the `agent-latest.jsonl*` family after the child ended — child-ran proof is the
+child's own `app.boot.tracing.init` record (its stdout is discarded, so `--no-capture` shows nothing). A once-flag whose
+sink's only drain is a guard drop is pinned by the emitter's RETURN value (the first flush closes the sink; a file read
+passes with the flag removed). `cfg(unix)` arms run in `pre-push:linux` and CI lint-test Linux/macOS, not on Windows.
+
 ## Top anti-patterns (test-plan §11)
 - NEVER `sleep(N)` for sync — wait for `health` polling or Channel events.
 - NEVER mock OTLP receiver under test — use live `tonic`/`reqwest` to loopback.

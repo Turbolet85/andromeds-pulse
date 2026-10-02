@@ -1,0 +1,24 @@
+[[pattern]]
+id = "spawn-tauri"
+regex = '[Ss]pawn(s|ing)? (the )?Tauri'
+
+[[pattern]]
+id = "init-order"
+regex = '[Ii]nit(iali[sz]ation)? order'
+
+[[pattern]]
+id = "worker-guard"
+regex = 'WorkerGuard|_guard\b'
+
+[[pattern]]
+id = "panic-only"
+regex = 'Unhandled panics|unlogged panic'
+
+[[pattern]]
+id = "signal"
+regex = 'SIGTERM|SIGINT|signal handler'
+
+[[pattern]]
+id = "exit-1"
+regex = '69f0b93|exit 1\b'
+

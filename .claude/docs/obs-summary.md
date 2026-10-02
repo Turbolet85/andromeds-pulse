@@ -14,6 +14,10 @@ The product's external surfaces (OTLP receivers ingesting third-party clients) c
   2. Build `tracing_subscriber::registry()` composing stderr + non-blocking file appender + `EnvFilter` + `ErrorLayer`
   3. Install `std::panic::set_hook` calling `tracing::error!(target: "app.panic.fatal", ...)` with SpanTrace
   4. Spawn Tauri + bind OTLP receivers
+  - Between 3 and 4, `main` parks the `WorkerGuard` `init` returns (`hold_log_guard`), installs the at-exit hook
+    (`install_exit_hook`) and, on Unix, the SIGTERM/SIGINT listener; the app runs through `run_return`, whose code
+    goes to `exit_after_event_loop` (record `app.exit` → drop the guard → `process::exit` with the same code).
+    `WorkerGuard::drop` is the file sink's only drain (obs-plan §3).
 
 ```rust
 let (file_writer, _guard) = tracing_appender::non_blocking(rolling::daily(log_dir, "agent-latest.jsonl"));
@@ -114,6 +118,15 @@ every field is redacted. Registered at BOTH `§6`'s warn row and `§8` per the d
 `pulse-app/tests/unit_observability_allowlist_window_navigation.rs` (4 tests, mutation-checked — leaf renamed
 → 3/4 RED, the fallback-leak pin correctly green).
 — under `tests/` because `[lib] test = false` makes a src-level guard compile and never run.
+
+**Process-end leaf (chunk 2026-10-01-conductor-return).** One EXACT `§8` leaf — `app.exit` (`exit_class` /
+`exit_code` / `exit_code_known` / `signal`, ALL FOUR the emit site emits; two closed labels, an `i32` 0 when unknown,
+a bool; never a path, panic payload or native message), registered at `§6`'s warn row and `§8`. EXACTLY ONE record per
+process end: INFO zero-code event-loop exit · WARN SIGTERM/SIGINT (Unix, re-raised so the process still ends by the
+signal) · ERROR non-zero event-loop exit and every `outside_event_loop` end (a C `exit()` via the at-exit hook, code
+unknown). Unloggable by construction: SIGKILL, `_exit`, Windows `TerminateProcess`, a Rust `process::exit` on Windows
+(`ExitProcess` — no `atexit`), pre-sink failures (`§7`). Guard: `pulse-app/tests/unit_observability_allowlist_app_exit.rs`
+(4 tests, mutation-checked) + the re-exec arms of `pulse-app/tests/integration_exit_cause_record.rs`.
 
 **Incident-producer skip leaf (chunk 2026-10-01-real-model-incident-surfacing).** EXACT `§8` leaf
 `interpretation.incident.skipped` — `skip_reason` (`model_resolution_summary`|`decision_dismiss`|`severity_none`|`no_cue`,

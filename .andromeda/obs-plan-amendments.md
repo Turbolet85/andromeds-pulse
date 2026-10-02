@@ -334,3 +334,14 @@ Owner moves to the working-route entry "Duplicate-span replay fails loudly" (mod
 - Its own exact leaf under the no-bare-`interpretation` invariant, guarded where the pins run.
 **Why:** a parse-`ok` generation that created nothing left no record, so a dismissal, a `severity: none`, a model-set resolution flag and a cue-less digest read the same, and "the model dismissed" was being inferred from silence. Measured at this chunk, 1 of 30 such generations was a dismissal and the rest were `severity: none`. Registered routine — a new target whose fields are bounded non-PII, with a guard that runs.
 **Ref:** .andromeda/runs/2026-10-01T18-16-18Z-wrap/
+
+## 2026-10-01-conductor-return — the process-end record `app.exit`
+**Section:** §1 Obs Scope Summary → Tracing init · §3 Tracing init → Init order · §6 Log Coverage → `warn` row · §7 Error Capture & Reporting → Error classes captured · §8 PII Scrubbing → leaf list
+**Change:**
+- §1 / §3: the init order continues after the panic hook — `main` parks the `WorkerGuard` `init` returns (`hold_log_guard`; `init`'s signature unchanged), installs the at-exit hook (`install_exit_hook`: a `pulse-exit-reporter` thread + `libc::atexit`) and, on Unix, the SIGTERM/SIGINT listener; the app runs through `run_return`, its code to `exit_after_event_loop` (record → drop the guard → `std::process::exit` with the same code). `WorkerGuard::drop` is the file sink's only drain; a plain `run` ends in tao's `process::exit` with the worker undrained.
+- §6: `app.exit {exit_class, exit_code, exit_code_known, signal}` — exactly once per process end (once-flag; the emitter drops the only guard), INFO zero-code event-loop exit, WARN SIGTERM/SIGINT (Unix, re-raised), ERROR non-zero event-loop exit and every `outside_event_loop` end (code unknown — `libc` binds no `on_exit`).
+- §7: a new captured class, the process-end cause; unloggable by construction: SIGKILL, `_exit`, Windows `TerminateProcess`, a Rust `std::process::exit` on Windows (`ExitProcess` runs no `atexit`, as measured), pre-sink failures; a main-thread panic followed by one `outside_event_loop` record holds by construction only.
+- §8: the `app.exit` EXACT leaf beside `app.panic.fatal` (all four fields; no bare `app` key; guard ×4 in `pulse-app/tests/`, mutation-checked).
+**Why:** a process end left no record at all — the 69f0b93 Linux CI boot smoke ended `exit 1` with no cause; the record makes the next such end name its class. A once-flag whose only drain is a guard drop cannot be pinned by a file read (the first flush closes the sink) — pin it by return value.
+**Kept:** §1 / §3 step (2) "stderr + file" sink clause left as written — a pre-existing drift (HEAD builds the file layer only), routed as a route CARRY, not this chunk's.
+**Ref:** .andromeda/runs/2026-10-02T12-54-57Z-wrap/

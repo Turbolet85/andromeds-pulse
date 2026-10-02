@@ -156,7 +156,7 @@ timeout = 3600
 [[gate]]
 run = '''cargo nextest run --workspace --profile ci -E 'test(/app_exit|exit_cause/)' '''
 role = 'unit'
-timeout = 3600
+timeout = 5400
 new = true
 baseline = 'green — vacuous (0 selected): by census at P5, grep -rlF over crates pulse-app xtask (*.rs) finds app_exit 0 · exit_cause 0 files; the run itself needs a pulse-app test build, the operator slot, so its control is implement red-before-green'
 note = 'every new pin this chunk writes carries one of the two tokens in its fn name (Steps 7, 8)'

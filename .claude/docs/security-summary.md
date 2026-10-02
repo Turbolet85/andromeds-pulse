@@ -48,6 +48,7 @@ Per security plan §Bootstrap phases:
 - NEVER `tokio::process::Command::new(...).arg(user_input)` against OTLP attribute / MCP tool argument / workspace-detector output.
 - NEVER ship release without resolving `tonic 0.14 ↔ tonic 0.13 (via opentelemetry-otlp 0.31)` duplicate.
 - NEVER let rust-toolchain drift below `1.85.0` — Edition 2024 cannot parse without it.
+- NEVER log from a C `atexit` / signal handler on the exiting thread (glibc destroys its thread-locals first; a panic there aborts) — hand off to a thread spawned at install, and re-raise the same signal so the process still ends BY it.
 
 ## Open residual risks (Decisions Log)
 - **WASM plugin signature verification deferred post-v1** — third-party plugins run unverified in v1; capability-scoped WIT + `ResourceLimiter` mitigate impact, not provenance. Document in user-facing plugin install README.

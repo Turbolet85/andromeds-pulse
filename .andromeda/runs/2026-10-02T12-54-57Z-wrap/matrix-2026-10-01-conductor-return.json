@@ -1,0 +1,146 @@
+[
+{
+"tool": "matrix",
+"v": "1.2",
+"sha8": "0753a5e6",
+"ts": "2026-10-02T13:21:54Z",
+"argv": [
+"flip",
+"--dir",
+"andromeda-pulse-0.3.0",
+"--chunk",
+"2026-10-01-conductor-return",
+"--run-dir",
+".andromeda/runs/2026-10-02T12-54-57Z-wrap",
+"--dry-run"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"claimed by 2026-10-01-conductor-return: 1 · to flip 1 · already verified 0 · below 0",
+"flipped P-075 → verified — Conductor drives ONE deterministic round (ANDROMEDA_PULSE_L4_DETERMINISTIC set o… (1397 chars)",
+"dry-run: nothing written",
+"version: verified 22/22"
+],
+"stderr": null,
+"wrote": [],
+"before": [
+{
+"id": "P-075",
+"chunk": "2026-10-01-conductor-return",
+"status": "implemented",
+"method": "dynamic-external",
+"ref": "Conductor 2a494804f6d91bb61718fc9a520cebc73b29af86 (CI#36970919487 green), round on Pulse S 03ec94481b0d6c3ba574626e7acb… (690 chars)",
+"acceptance": "Conductor drives ONE deterministic round (ANDROMEDA_PULSE_L4_DETERMINISTIC set on the app child, a fresh data dir) again… (1397 chars)",
+"notes_chars": 11389
+}
+],
+"after": [
+{
+"id": "P-075",
+"chunk": "2026-10-01-conductor-return",
+"status": "verified",
+"method": "dynamic-external",
+"ref": "Conductor 2a494804f6d91bb61718fc9a520cebc73b29af86 (CI#36970919487 green), round on Pulse S 03ec94481b0d6c3ba574626e7acb… (690 chars)",
+"acceptance": "Conductor drives ONE deterministic round (ANDROMEDA_PULSE_L4_DETERMINISTIC set on the app child, a fresh data dir) again… (1397 chars)",
+"notes_chars": 11389
+}
+]
+},
+{
+"tool": "matrix",
+"v": "1.2",
+"sha8": "0753a5e6",
+"ts": "2026-10-02T13:21:55Z",
+"argv": [
+"flip",
+"--dir",
+"andromeda-pulse-0.3.0",
+"--chunk",
+"2026-10-01-conductor-return",
+"--run-dir",
+".andromeda/runs/2026-10-02T12-54-57Z-wrap"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"claimed by 2026-10-01-conductor-return: 1 · to flip 1 · already verified 0 · below 0",
+"flipped P-075 → verified — Conductor drives ONE deterministic round (ANDROMEDA_PULSE_L4_DETERMINISTIC set o… (1397 chars)",
+"wrote andromeda-pulse-0.3.0\\verification-matrix.json · 1 entry changed",
+"version: verified 22/22"
+],
+"stderr": null,
+"wrote": [
+"andromeda-pulse-0.3.0\\verification-matrix.json"
+],
+"before": [
+{
+"id": "P-075",
+"chunk": "2026-10-01-conductor-return",
+"status": "implemented",
+"method": "dynamic-external",
+"ref": "Conductor 2a494804f6d91bb61718fc9a520cebc73b29af86 (CI#36970919487 green), round on Pulse S 03ec94481b0d6c3ba574626e7acb… (690 chars)",
+"acceptance": "Conductor drives ONE deterministic round (ANDROMEDA_PULSE_L4_DETERMINISTIC set on the app child, a fresh data dir) again… (1397 chars)",
+"notes_chars": 11389
+}
+],
+"after": [
+{
+"id": "P-075",
+"chunk": "2026-10-01-conductor-return",
+"status": "verified",
+"method": "dynamic-external",
+"ref": "Conductor 2a494804f6d91bb61718fc9a520cebc73b29af86 (CI#36970919487 green), round on Pulse S 03ec94481b0d6c3ba574626e7acb… (690 chars)",
+"acceptance": "Conductor drives ONE deterministic round (ANDROMEDA_PULSE_L4_DETERMINISTIC set on the app child, a fresh data dir) again… (1397 chars)",
+"notes_chars": 11389
+}
+]
+},
+{
+"tool": "matrix",
+"v": "1.2",
+"sha8": "0753a5e6",
+"ts": "2026-10-02T13:22:08Z",
+"argv": [
+"note",
+"--dir",
+"andromeda-pulse-0.3.0",
+"--id",
+"P-075",
+"--text-file",
+".andromeda/runs/2026-10-02T12-54-57Z-wrap/note-P-075.md",
+"--run-dir",
+".andromeda/runs/2026-10-02T12-54-57Z-wrap",
+"--marker",
+"2026-10-01-conductor-return"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"note P-075: +654 chars (total 12045) · status verified · ref/acceptance untouched",
+"wrote andromeda-pulse-0.3.0\\verification-matrix.json · 1 entry changed"
+],
+"stderr": null,
+"wrote": [
+"andromeda-pulse-0.3.0\\verification-matrix.json"
+],
+"before": {
+"id": "P-075",
+"chunk": "2026-10-01-conductor-return",
+"status": "verified",
+"method": "dynamic-external",
+"ref": "Conductor 2a494804f6d91bb61718fc9a520cebc73b29af86 (CI#36970919487 green), round on Pulse S 03ec94481b0d6c3ba574626e7acb… (690 chars)",
+"acceptance": "Conductor drives ONE deterministic round (ANDROMEDA_PULSE_L4_DETERMINISTIC set on the app child, a fresh data dir) again… (1397 chars)",
+"notes_chars": 11389
+},
+"after": {
+"id": "P-075",
+"chunk": "2026-10-01-conductor-return",
+"status": "verified",
+"method": "dynamic-external",
+"ref": "Conductor 2a494804f6d91bb61718fc9a520cebc73b29af86 (CI#36970919487 green), round on Pulse S 03ec94481b0d6c3ba574626e7acb… (690 chars)",
+"acceptance": "Conductor drives ONE deterministic round (ANDROMEDA_PULSE_L4_DETERMINISTIC set on the app child, a fresh data dir) again… (1397 chars)",
+"notes_chars": 12045
+}
+}
+]

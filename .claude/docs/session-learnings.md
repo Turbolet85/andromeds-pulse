@@ -1,6 +1,15 @@
 # Session Learnings
 
 
+## 2026-10-02 — A numeric count grep over the specs matches every `Ed25519`
+
+Before claiming "no doc states the test count", a bare grep for the count (`grep -rn '2551'`) over the masters and
+leaves returns hits in nine files, and every one is `Ed25519` (the Minisign key type the security docs cite often). A
+count sweep that reads only the hit COUNT mistakes those for a stale count to amend. Anchor a numeric probe on a word
+boundary or its surrounding words (`'\b2551\b'`, `'2551 →'`, `'2551 tests'`) and read the hits, never the tally.
+
+---
+
 ## 2026-10-01 — Measure a real-model decision defect with a pre-registered, one-factor arm matrix before choosing a fix
 
 When the real L4 model "does the wrong thing" on some inputs, do not iterate prompt or sampling variants until a sample

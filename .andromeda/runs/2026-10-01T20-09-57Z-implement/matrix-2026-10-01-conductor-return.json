@@ -1,0 +1,49 @@
+[
+{
+"tool": "matrix",
+"v": "1.2",
+"sha8": "0753a5e6",
+"ts": "2026-10-02T12:54:07Z",
+"argv": [
+"implement",
+"--dir",
+"andromeda-pulse-0.3.0",
+"--chunk",
+"2026-10-01-conductor-return",
+"--id",
+"P-075",
+"--ref-file",
+"-",
+"--run-dir",
+".andromeda/runs/2026-10-01T20-09-57Z-implement"
+],
+"cwd": "D:\\dev\\projects\\andromeda-pulse",
+"exit": 0,
+"stdout": [
+"implement P-075 · status planned → implemented · ref Conductor 2a494804f6d91bb61718fc9a520cebc73b29af86 (CI#36970919487 green), round… (690 chars)",
+"wrote andromeda-pulse-0.3.0\\verification-matrix.json · 1 entry changed"
+],
+"stderr": null,
+"wrote": [
+"andromeda-pulse-0.3.0\\verification-matrix.json"
+],
+"before": {
+"id": "P-075",
+"chunk": "2026-10-01-conductor-return",
+"status": "planned",
+"method": "dynamic-external",
+"ref": "null",
+"acceptance": "Conductor drives ONE deterministic round (ANDROMEDA_PULSE_L4_DETERMINISTIC set on the app child, a fresh data dir) again… (1397 chars)",
+"notes_chars": 11389
+},
+"after": {
+"id": "P-075",
+"chunk": "2026-10-01-conductor-return",
+"status": "implemented",
+"method": "dynamic-external",
+"ref": "Conductor 2a494804f6d91bb61718fc9a520cebc73b29af86 (CI#36970919487 green), round on Pulse S 03ec94481b0d6c3ba574626e7acb… (690 chars)",
+"acceptance": "Conductor drives ONE deterministic round (ANDROMEDA_PULSE_L4_DETERMINISTIC set on the app child, a fresh data dir) again… (1397 chars)",
+"notes_chars": 11389
+}
+}
+]
