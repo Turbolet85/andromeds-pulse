@@ -260,6 +260,22 @@ pub enum IncidentStatus {
     Resolved,
 }
 
+/// `incident_events.event_kind` the L4 incident producer writes when it opens
+/// an incident; every later row is the status label of a value change.
+pub const INCIDENT_EVENT_CREATED: &str = "created";
+
+/// The closed `incident_events.event_kind` vocabulary: the creation event plus
+/// one label per `IncidentStatus`. The producer writes from it and the MCP read
+/// surface coerces against it, so neither can learn a kind the other lacks.
+pub fn incident_event_kinds() -> [&'static str; 4] {
+    [
+        INCIDENT_EVENT_CREATED,
+        incident_status_label(IncidentStatus::Active),
+        incident_status_label(IncidentStatus::Acknowledged),
+        incident_status_label(IncidentStatus::Resolved),
+    ]
+}
+
 /// Kind of digest emitted at the L3/L4 layer boundary. Bounded enumeration;
 /// future kinds are added explicitly. Variants serialize as snake_case
 /// strings.
@@ -646,6 +662,14 @@ impl Digest {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn incident_events_vocabulary_is_created_plus_each_status_label() {
+        assert_eq!(
+            incident_event_kinds(),
+            ["created", "active", "acknowledged", "resolved"]
+        );
+    }
 
     fn sample_evidence_refs() -> EvidenceRefs {
         EvidenceRefs {

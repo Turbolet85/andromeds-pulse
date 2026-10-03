@@ -222,7 +222,7 @@ pub fn tools_list_manifest() -> Value {
             },
             {
                 "name": "retrieve_incident_events",
-                "description": "Retrieve the lifecycle events of one incident by id: its status transitions, oldest first, each with event_kind (active, acknowledged, resolved) and occurred_unix_nano. Bounded; truncated is true when more exist. Creation records no event, so an incident read before its first status change returns none.",
+                "description": "Retrieve the lifecycle events of one incident by id, oldest first, each with event_kind and occurred_unix_nano. The first event is created, written when the interpretation path opens the incident; each later one is a status change (active, acknowledged, resolved). Bounded; truncated is true when more exist.",
                 "inputSchema": {
                     "type": "object",
                     "properties": {

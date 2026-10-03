@@ -5,6 +5,10 @@
 //! that opens its OWN connection over the same database — so the test reaches
 //! what an agent reaches, not an in-process double.
 //!
+//! The creation event is seeded the way the L4 incident producer writes it
+//! (`save_incident_event` with `INCIDENT_EVENT_CREATED` and an empty payload);
+//! the producer itself lives in pulse-app, whose own cross-process leg drives it.
+//!
 //! Both sides open with `OsKeychainBackend::new("com.andromeda.pulse")`, the
 //! sidecar's own backend and service id. On a host with no credential store the
 //! open fails and each test SKIPS cleanly rather than failing; CI has no store.
@@ -21,12 +25,14 @@ use serde_json::Value;
 use tokio::io::{AsyncBufReadExt, AsyncReadExt, AsyncWriteExt, BufReader};
 use tokio::process::Command;
 use triage::contract::{
-    CueKind, CueScope, EvidenceRefs, Incident, IncidentStatus, PriorityTier, Severity,
+    CueKind, CueScope, EvidenceRefs, INCIDENT_EVENT_CREATED, Incident, IncidentStatus,
+    PriorityTier, Severity,
 };
 
 const WS: &str = "ws-mcp-incident-events";
 const TITLE_CANARY: &str = "evt-canary-{0}-%s-7Q4Z";
 // Digit strings chosen to occur nowhere else in a sidecar log line.
+const T0: i64 = 3_141_592_653_589_793_211;
 const T1: i64 = 3_141_592_653_589_793_238;
 const T2: i64 = 3_141_592_653_589_793_299;
 const SKIP_LINE: &str = "[skip] no OS credential store; cross-process corpus unavailable";
@@ -63,9 +69,9 @@ fn sample_incident() -> Incident {
     }
 }
 
-/// Seed one incident and two status transitions (acknowledged @ T1, resolved @
-/// T2) through the production writer. `None` = no credential store on this
-/// host, so the caller skips cleanly.
+/// Seed one incident, its creation event (@ T0) and two status transitions
+/// (acknowledged @ T1, resolved @ T2) through the production writers. `None` =
+/// no credential store on this host, so the caller skips cleanly.
 fn seed_incident_with_events(data_dir: &Path) -> Option<i64> {
     let corpus_dir = data_dir.join("corpus");
     std::fs::create_dir_all(&corpus_dir).expect("corpus dir");
@@ -77,6 +83,9 @@ fn seed_incident_with_events(data_dir: &Path) -> Option<i64> {
     let id = corpus
         .save_incident(WS, "active", 1_000, 1_000, None, None, &payload)
         .expect("seed incident");
+    corpus
+        .save_incident_event(id, INCIDENT_EVENT_CREATED, T0, &[])
+        .expect("creation event");
 
     incident.status = IncidentStatus::Acknowledged;
     let payload = bincode::serialize(&incident).expect("encode");
@@ -174,7 +183,7 @@ fn has_rendered_response_record(stream: &str) -> bool {
             record["target"] == "mcp.tools.call.response"
                 && record["fields"]["tool_name"] == "retrieve_incident_events"
                 && record["fields"]["result_type"] == "incident_events"
-                && record["fields"]["result_count"] == 2
+                && record["fields"]["result_count"] == 3
         })
 }
 
@@ -197,14 +206,16 @@ async fn incident_events_read_back_cross_process_with_body_and_clean_logs() {
     assert_eq!(
         result["events"],
         serde_json::json!([
+            { "event_kind": "created", "occurred_unix_nano": T0 },
             { "event_kind": "acknowledged", "occurred_unix_nano": T1 },
             { "event_kind": "resolved", "occurred_unix_nano": T2 },
         ]),
         "the response BODY carries the transitions the production writer recorded"
     );
-    assert_eq!(result["total"], 2);
+    assert_eq!(result["total"], 3);
     assert_eq!(result["truncated"], false);
     assert!(!parsed.to_string().contains(TITLE_CANARY));
+    assert!(!parsed.to_string().contains("unknown"));
 
     let file_text = read_log_family(tmp.path());
     for (stream, text) in [("stderr", &stderr_text), ("file sink", &file_text)] {
@@ -212,7 +223,12 @@ async fn incident_events_read_back_cross_process_with_body_and_clean_logs() {
             has_rendered_response_record(text),
             "{stream} must carry the rendered tool_name / result_type record; got: {text}"
         );
-        for canary in [T1.to_string(), T2.to_string(), TITLE_CANARY.to_string()] {
+        for canary in [
+            T0.to_string(),
+            T1.to_string(),
+            T2.to_string(),
+            TITLE_CANARY.to_string(),
+        ] {
             assert_eq!(
                 text.matches(canary.as_str()).count(),
                 0,
