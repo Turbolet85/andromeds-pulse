@@ -66,6 +66,40 @@ The clause stays: it makes the order a contract rather than a property of the cu
 on `incident_id` could change the scan order). Restored to `ORDER BY id ASC`; the source diff vs `a69030a` re-read
 5 files, +379 / -17, identical to the gated state.
 
+## RED at S's reader — the `created` event (2026-10-03, after the premise correction)
+**Form.** The new and updated tests written first — the dispatcher pin
+`retrieve_incident_events_reads_the_producers_created_event_as_created`, the mcp-server subprocess leg reseeded with the
+creation event as the producer writes it, the real-producer leg `pulse-app/tests/e2e_p3_mcp_incident_events_content.rs`,
+and the vocabulary pin — with the reader (`coerce_event_kind`) and the producer (`inference_runtime.rs`) still at S:
+`cargo nextest run --workspace --features mcp-server --profile ci --success-output immediate --no-fail-fast -E 'test(/incident_events/)'`
+
+**Reading.** Exit 100. `16 tests run: 13 passed, 3 failed` — every failure the predicted one:
+
+| test | first diagnostic line |
+|---|---|
+| `tools::tests::retrieve_incident_events_reads_the_producers_created_event_as_created` | `left: [("unknown", 1700000000050), ("resolved", 1700000000555)]` / `right: [("created", …), ("resolved", …)]` |
+| `e2e_p3_mcp_incident_events_content::real_producer_incident_events_read_back_through_the_sidecar` | `left: [("unknown", <opened_at>)]` / `right: [("created", <opened_at>)]` |
+| `incident_events_subprocess::incident_events_read_back_cross_process_with_body_and_clean_logs` | the first event `"event_kind": String("unknown")` where `"created"` was expected |
+
+**What it proves.** The real producer, through the real adapter, onto a real on-disk corpus, read by the real sidecar:
+its own creation event came back `unknown` — the overseer's relayed failure, reproduced on this host before the fix. The
+vocabulary pin (`incident_events_vocabulary_is_created_plus_each_status_label`) was green in the same run (the set is
+new and additive); the 12 other pins stayed green.
+
+## Green after the fix (gate run `implement-2026-10-03T09-17-05Z`)
+`entries 22 · green 15 · red 1 (6) · recorded 0 · timeout 0 · not-run 6`. The targeted entry collected and passed 16
+pins by name (`16 tests run: 16 passed`, no `[skip]` line — both cross-process legs ran); the collection probe listed 16;
+`package(mcp-server)` under the feature 87/87; the default workspace suite 2573/2573 (2571 + the vocabulary pin and the
+`created` dispatcher pin). Bindings byte-identical to `a69030a`; clippy, the ASCII source gate, the capability probes
+and the release build green.
+
+**Entry 6 red — superseded by the founder's word.** The scope guard
+`git diff --name-only a69030a -- Cargo.lock deny.toml pulse-app crates/corpus/src/schema.rs crates/ui-bridge` printed
+exactly one path, `pulse-app/src/inference_runtime.rs` — the producer now writing `INCIDENT_EVENT_CREATED`, one of the
+three paths the founder approved as a scope widening on 2026-10-03 (relayed by the overseer; recorded in
+`scope-record.md`). The new `pulse-app/tests/e2e_p3_mcp_incident_events_content.rs` is untracked, so `git diff` does not
+list it. No dependency, lockfile, schema, capability or ui-bridge path changed.
+
 ## Restoration confirmed
 `cargo nextest run -p corpus -p mcp-server --profile ci -E 'test(/incident_events/)'` on the restored source: exit 0,
 `11 tests run: 11 passed` (the 5 corpus and 6 dispatcher pins; the 2 subprocess pins are feature-gated out of this form

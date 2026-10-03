@@ -38,8 +38,8 @@ use tokio::sync::broadcast::error::RecvError;
 use tokio::task::JoinHandle;
 use triage::contract::{
     CueKind, CueScope, DamperVerdict, Digest, DigestBroadcast, DigestKind, EvidenceRefs,
-    GenerationDamper, Incident, IncidentPersistence, IncidentRegistry, IncidentStatus,
-    PriorityTier, Severity as IncidentSeverity, generate_reason_label,
+    GenerationDamper, INCIDENT_EVENT_CREATED, Incident, IncidentPersistence, IncidentRegistry,
+    IncidentStatus, PriorityTier, Severity as IncidentSeverity, generate_reason_label,
 };
 
 /// Tracing target — top-level L4 inference request span (per L3 digest).
@@ -919,7 +919,7 @@ pub fn create_incident_from_l4_output(
     };
     incident.id = id;
     registry.insert(incident);
-    if let Err(err) = persistence.save_incident_event(id, "created", now_unix_nano) {
+    if let Err(err) = persistence.save_incident_event(id, INCIDENT_EVENT_CREATED, now_unix_nano) {
         tracing::warn!(
             target: TARGET_L4_INCIDENT_PERSIST_ERROR,
             error_category = err.error_category(),

@@ -418,9 +418,12 @@ pub trait CorpusWriter: Send + Sync {
     /// SELECT up to `limit` lifecycle events of one incident, oldest first
     /// (`ORDER BY id`). Consumed cross-process by the MCP
     /// `retrieve_incident_events(id)` tool. Reads `event_kind` and
-    /// `occurred_unix_nano` only; an incident with no status transition yet
-    /// returns an empty Vec. Prepared statement with `?` placeholders per
-    /// security plan §Input Validation.
+    /// `occurred_unix_nano` only. Rows come from two writers: the creation
+    /// event an incident producer records through [`Self::save_incident_event`],
+    /// and one row per status value change from
+    /// [`Self::update_incident_status`]. An incident with neither returns an
+    /// empty Vec. Prepared statement with `?` placeholders per security plan
+    /// §Input Validation.
     fn load_incident_events(
         &self,
         incident_id: i64,
@@ -1545,7 +1548,10 @@ mod tests {
 
         let events = writer.load_incident_events(id, 16).expect("load events");
 
-        assert!(events.is_empty(), "creation records no event: {events:?}");
+        assert!(
+            events.is_empty(),
+            "save_incident alone writes no event row: {events:?}"
+        );
     }
 
     #[test]

@@ -486,18 +486,13 @@ const INCIDENT_EVENTS_READ_LIMIT: u32 = 256;
 
 const UNKNOWN_EVENT_KIND: &str = "unknown";
 
-// Coerce on egress: only the closed status-label set leaves the sidecar.
+// Coerce on egress: only the shared event vocabulary — the one the producer
+// writes from — leaves the sidecar.
 fn coerce_event_kind(kind: &str) -> &'static str {
-    use triage::contract::{IncidentStatus, incident_status_label};
-    [
-        IncidentStatus::Active,
-        IncidentStatus::Acknowledged,
-        IncidentStatus::Resolved,
-    ]
-    .into_iter()
-    .map(incident_status_label)
-    .find(|label| *label == kind)
-    .unwrap_or(UNKNOWN_EVENT_KIND)
+    triage::contract::incident_event_kinds()
+        .into_iter()
+        .find(|known| *known == kind)
+        .unwrap_or(UNKNOWN_EVENT_KIND)
 }
 
 fn dispatch_retrieve_incident_events(
@@ -1145,6 +1140,34 @@ mod tests {
             ]
         );
         assert!(!value.to_string().contains("client text"));
+    }
+
+    #[test]
+    fn retrieve_incident_events_reads_the_producers_created_event_as_created() {
+        let (ctx, id) = incident_ctx_with_one_incident();
+        ctx.corpus
+            .save_incident_event(
+                id,
+                triage::contract::INCIDENT_EVENT_CREATED,
+                1_700_000_000_050,
+                &[],
+            )
+            .expect("creation event, as the producer writes it");
+        ctx.corpus
+            .update_incident_status(id, "resolved", 1_700_000_000_555, Some(1), b"p")
+            .expect("resolve");
+
+        let value = dispatch_retrieve_incident_events(Some(&ctx), &json!({"incident_id": id}))
+            .expect("dispatch ok");
+
+        assert_eq!(
+            event_pairs(&value),
+            vec![
+                ("created".to_string(), 1_700_000_000_050),
+                ("resolved".to_string(), 1_700_000_000_555),
+            ]
+        );
+        assert!(!value.to_string().contains(UNKNOWN_EVENT_KIND));
     }
 
     #[test]
