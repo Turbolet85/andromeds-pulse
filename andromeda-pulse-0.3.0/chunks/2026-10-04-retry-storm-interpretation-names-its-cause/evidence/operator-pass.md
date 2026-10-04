@@ -37,4 +37,25 @@ re-run read `hygiene: clean — read 39`.
 
 ## Entries 26-27 (push, CI read)
 
-Recorded below after the pre-CI commit.
+- **Pre-CI commit:** `2116c3c` — `chore(2026-10-04-retry-storm-interpretation-names-its-cause): operator pre-CI
+  commit, for the run this chunk's verdict reads`. The whole tree was staged (`git add -A`, 51 files), and
+  `cargo xtask check:staged-artifacts` read `staged-clean (exit 0)` before the commit.
+- **26 push:** the clean-tree guard held, and `git push origin chore/migrate-pulse-to-v3` exited 0
+  (`e71dba5..2116c3c`).
+- **27 CI read:** `ci.py conclusion --sha HEAD --wait 2400` exited 0 and printed `2116c3c73c49 verdict: green ·
+  checks 13/13 · wall 1527 s`, after 51 polls over 1548 s. The runs were **ci#37209338065** (completed/success) and
+  secret-scan#37209338386 (completed/success). Atom `contains verdict: green`: yes.
+
+## Boot-smoke WATCH (observation only, no criterion)
+
+Job `boot smoke (ubuntu-22.04)` on ci#37209338065 was success on attempt 1. Every CI run since the one red (ci#37189514735
+attempt 1 on `a073722`) has read the job green on attempt 1:
+
+| push | run | boot smoke |
+|---|---|---|
+| `2099998` | ci#37200709989 | success |
+| `e71dba5` | ci#37203184509 (attempt 1) | success |
+| `2116c3c` | ci#37209338065 (attempt 1) | success |
+
+This is the WATCH's second carrying chunk (it was 1/3 at take-up). Three green runs and no further red since its
+origin. The scope's "1 green so far" predates the settled `e71dba5` verdict, which this read confirms green.

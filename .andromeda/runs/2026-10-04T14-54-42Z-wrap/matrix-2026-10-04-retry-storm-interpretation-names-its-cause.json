@@ -1,0 +1,27 @@
+[
+{
+"tool": "matrix",
+"v": "1.3",
+"sha8": "f75eccb2",
+"ts": "2026-10-04T15:06:03Z",
+"argv": [
+"flip",
+"--dir",
+"andromeda-pulse-0.3.0",
+"--chunk",
+"2026-10-04-retry-storm-interpretation-names-its-cause",
+"--run-dir",
+".andromeda/runs/2026-10-04T14-54-42Z-wrap"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"claimed 0 — gate no-op (no entry carries chunk 2026-10-04-retry-storm-interpretation-names-its-cause)",
+"pool: unclaimed 0"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+}
+]

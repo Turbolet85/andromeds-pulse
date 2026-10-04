@@ -1,0 +1,108 @@
+[
+{
+"tool": "cascade",
+"v": "1.1",
+"sha8": "bd37779c",
+"ts": "2026-10-04T15:00:23Z",
+"argv": [
+"sweep",
+"--patterns-file",
+".andromeda/runs/2026-10-04T14-54-42Z-wrap/cascade-patterns.toml",
+"--run-dir",
+".andromeda/runs/2026-10-04T14-54-42Z-wrap",
+"--marker",
+"2026-10-04-retry-storm-interpretation-names-its-cause"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 2,
+"stdout": [],
+"stderr": "[[pattern]] #3 (incident-title-lc): `id` is 1-16 chars of A-Z a-z 0-9 _ . -",
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "cascade",
+"v": "1.1",
+"sha8": "bd37779c",
+"ts": "2026-10-04T15:00:29Z",
+"argv": [
+"sweep",
+"--patterns-file",
+".andromeda/runs/2026-10-04T14-54-42Z-wrap/cascade-patterns.toml",
+"--run-dir",
+".andromeda/runs/2026-10-04T14-54-42Z-wrap",
+"--marker",
+"2026-10-04-retry-storm-interpretation-names-its-cause"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 3,
+"stdout": [
+"baseline e71dba53 (pre-CI parent — the oldest of 1 pre-CI commit(s), 2116c3c7)",
+"canned-title · control UNFIRED over the seven masters at e71dba53",
+"incident-title · control UNFIRED over the seven masters at e71dba53",
+"inc-title-lc · control UNFIRED over the seven masters at e71dba53",
+"cue-kind-label · control UNFIRED over the seven masters at e71dba53",
+"names-retry · control UNFIRED over the seven masters at e71dba53"
+],
+"stderr": "control: canned-title, incident-title, inc-title-lc, cue-kind-label, names-retry never fired over the seven masters' pre-pass text (e71dba53) — a sweep runs a positive control or refuses; drop the pattern or control it by hand",
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "cascade",
+"v": "1.1",
+"sha8": "bd37779c",
+"ts": "2026-10-04T15:00:39Z",
+"argv": [
+"sweep",
+"--patterns-file",
+".andromeda/runs/2026-10-04T14-54-42Z-wrap/cascade-patterns.toml",
+"--run-dir",
+".andromeda/runs/2026-10-04T14-54-42Z-wrap",
+"--marker",
+"2026-10-04-retry-storm-interpretation-names-its-cause"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"baseline e71dba53 (pre-CI parent — the oldest of 1 pre-CI commit(s), 2116c3c7)",
+"model-authored · new 0 · standing 1 · leaf 1 · curation 2 · base 0 · control architecture.md:72 (prose)",
+"title-from-model · new 0 · standing 1 · leaf 2 · curation 0 · base 0 · control obs-plan.md:543 (prose)",
+".andromeda/architecture.md:72 model-authored standing edited mixed ×2 @c2747,4904/5165 …rprint` — model-authored, and a…",
+".claude/rules/testing.md:270 model-authored curation ×2 …m hash instead of a model-authored string: one test asserted t…",
+".claude/docs/session-learnings.md:2551 model-authored curation …ducer was writing model-authored text into it, so the r…",
+"CLAUDE.md:50 model-authored leaf …per `L4Output.fingerprint` (model-authored, constant under the deterministic runner).…",
+".andromeda/obs-plan.md:543 title-from-model standing …r `scope_id`, title, symptom, `payload_summary`, incident identit…",
+".claude/rules/observability.md:69 title-from-model leaf …n); never scope_id, title, symptom, digest, prompt or model te…",
+".claude/docs/obs-summary.md:141-142 title-from-model leaf wrap … (never scope_id, title, symptom, digest or model text)…",
+"model-authored · new 0 · standing 1 · leaf 1 · curation 2 · base 0 · control architecture.md:72 (prose)",
+"title-from-model · new 0 · standing 1 · leaf 2 · curation 0 · base 0 · control obs-plan.md:543 (prose)"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"baseline": "e71dba539a7d0379d960b49b37b2cf3538de6ec2",
+"how": "pre-CI parent — the oldest of 1 pre-CI commit(s), 2116c3c7",
+"counts": {
+"model-authored": {
+"new": 0,
+"standing": 1,
+"leaf": 1,
+"curation": 2,
+"base": 0
+},
+"title-from-model": {
+"new": 0,
+"standing": 1,
+"leaf": 2,
+"curation": 0,
+"base": 0
+}
+}
+}
+}
+]

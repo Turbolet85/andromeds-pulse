@@ -1,0 +1,9 @@
+[[pattern]]
+id = "model-authored"
+regex = 'model-authored'
+ignore_case = true
+
+[[pattern]]
+id = "title-from-model"
+regex = '(title|symptom)[^.\n]{0,60}(from the model|model text|by the model|the model wrote)'
+ignore_case = true

@@ -29,7 +29,7 @@ L1 streaming distillation layer (chunk #60 scaffold; chunks #61+ fill the implem
   - `interpretation/` — empty skeleton (future chunks)
   - `incident/` — empty skeleton (future chunks)
   - `lifecycle/` — Service registry + 7-state FSM (chunk #67)
-- **`contract` module:** the ONLY `pub` surface; 10+ contract types (`AttentionCue`, `CueKind`, `CueScope`, `PriorityTier`, `Severity`, `Incident`, `IncidentStatus`, `EvidenceRefs`, `Digest`, `DigestKind`, plus chunk-specific exports).
+- **`contract` module:** the ONLY `pub` surface; 10+ contract types (`AttentionCue`, `CueKind`, `CueScope`, `PriorityTier`, `Severity`, `Incident`, `IncidentStatus`, `EvidenceRefs`, `Digest`, `DigestKind`, plus chunk-specific exports). `cue_cause_label(CueKind)` gives the closed ASCII cause label (`Retry storm` …) the L4 producer prefixes onto incident titles — distinct from the snake_case tracing label `cue::classify::cue_kind_label`, which is not re-exported.
 - **Cross-crate state delivery:** `Arc<dyn Trait>` injection at the binary boundary per session-learnings 2026-05-16 trait-in-lower-crate pattern (e.g., `Arc<dyn ServiceRegistry>` threaded through `start_lifecycle_heartbeat`).
 - **Aggregate-only tracing:** per `.claude/rules/observability.md` Session Additions 2026-05-17 chunk #62-#64 precedent — `triage.*` emit aggregate counters, NOT per-service field tags (PII / cardinality discipline).
 

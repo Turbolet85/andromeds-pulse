@@ -623,3 +623,25 @@ The entry also carries both rejected alternatives, the deferred `AttentionCue` t
 **Change:** registered `__NV_DISABLE_EXPLICIT_SYNC` — a SYSTEM variable read only by NVIDIA's driver, not an `ANDROMEDA_PULSE_*` input: on Linux the product presence-reads it and, when absent, sets it to `1` from `render_posture::apply_linux_default()`, the first statement of `main()`, ahead of the tokio multi-thread runtime build (`unsafe set_var` under a single-thread SAFETY precondition); the value is never parsed or logged; a preset value (empty included) is honoured, never overwritten; macOS / Windows untouched; NVIDIA-scoped by construction, no detection probe; WebKitGTK children inherit it; reported once per boot on `app.boot.render.posture {posture, lever}`; residual — a host presetting `0` dies as before. The `WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS` entry keeps its harness-only status and its out-of-product-config ban, now stating that this Linux default is the product's one sanctioned launch-posture env default and licenses no WebView2 or other GPU flag in product code or `tauri.conf.json`.
 **Why:** the default Linux launch died ~2.0 s into boot on NVIDIA + native Wayland (GDK `Error 71` → `_exit(1)`, 3/3) and stayed up 60 s with this default applied, measured on one host; the four surviving levers shared one factor, removing NVIDIA's EGL explicit-sync path. A boundary widening the founder ratified live on 2026-10-04 (remedy option 1; the DMA-BUF-renderer lever and a detection probe rejected), recorded as such at this wrap by the overseer.
 **Ref:** .andromeda/runs/2026-10-04T12-30-22Z-wrap/
+
+## 2026-10-04-retry-storm-interpretation-names-its-cause — the incident title is cue-grounded in every L4 mode
+**Section:** §Occupied Resources → `ANDROMEDA_PULSE_L4_DETERMINISTIC`
+**Change:** The entry now states that the incident title is cue-grounded in EVERY mode, this one included.
+- The producer prefixes the triggering cue kind's closed ASCII cause label (`triage::contract::cue_cause_label` — `Error-rate spike` · `Latency regression` · `Restart event` · `Service went silent` · `Retry storm` · `Reflection trend`) onto the model title BEFORE the scrub.
+- So `Incident.title` and the `title` inside `resolution_summary_text` read `{Cause label}: {model title}` at creation, on the dedupe refresh (the JSON only; a deduped incident's own title is not rewritten) and in the resolution final write.
+- Under this mode a storm incident reads `Retry storm: Deterministic verification incident` on the report header, Findings rows, MCP `query_incident_list` / `retrieve_report` and the digest's CORPUS MATCHES lines.
+- Rows written before the chunk stay unprefixed (no migration).
+- The canned rank-1 hypothesis names a retry storm for every incident, so only the title discriminates the cause in this mode.
+**Why:** The model can drop the triggering cause (Conductor's d3 interpretation named no retry for a retry-storm-born incident), and the product had no deterministic field naming it. The founder ruled on 2026-10-04 (relayed by the overseer): ship the deterministic cause, in the title, at the producer, with existing rows left unprefixed. External harvests (Conductor) now observe the prefixed string; the overseer measured that no live Conductor code compares the title for equality.
+**Ref:** .andromeda/runs/2026-10-04T14-54-42Z-wrap/
+
+## 2026-10-04-retry-storm-interpretation-names-its-cause — Fault Identity: the cue kind reaches the incident text, never its identity
+**Section:** §Established Decisions → [Fault Identity — what makes two faults ONE fault]
+**Change:**
+- Added: the cue KIND, not only its fingerprint, now reaches the incident TEXT. The producer writes `Incident.title`, and the `title` inside the persisted L4 JSON, as `{cue_cause_label(kind)}: {model title}`, a closed ASCII label grounded before the scrub (a reflection incident's synthetic `ReflectionTrend` included).
+- Identity is unchanged: the tuple `(kind, scope, scope_id)`, the coalesce predicate, severity, priority tier and the evidence union all stand.
+- A deduped incident keeps its creation title, which is coherent because `kind` is part of the identity key.
+- The model-authored symptom, timeline and ranked hypotheses are untouched.
+**Why:** An incident must name its trigger on every surface whatever the model wrote (founder ruling 2026-10-04, relayed by the overseer). Text and identity are kept separate so that the title never becomes a dedupe key.
+**Kept:** Fingerprint stays out of the identity key (possible-but-declined). The model layer's remedy (a prompt that names the triggering cue and frames corpus matches as past/other incidents) is its own route entry, not this decision.
+**Ref:** .andromeda/runs/2026-10-04T14-54-42Z-wrap/
