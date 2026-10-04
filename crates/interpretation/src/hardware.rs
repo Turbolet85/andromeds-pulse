@@ -15,6 +15,7 @@
 //! Useful for tests + degraded-environment validation.
 
 use std::num::NonZeroUsize;
+use std::path::Path;
 
 use tracing::{info, warn};
 use triage::contract::{HardwareProfile, HardwareProfileSource};
@@ -140,16 +141,11 @@ fn detect_gpu_present() -> bool {
 
     #[cfg(target_os = "linux")]
     {
-        // Linux: check for libcuda.so existence in standard library paths.
-        // Common locations: /usr/lib/x86_64-linux-gnu/libcuda.so,
-        // /usr/local/cuda/lib64/libcuda.so. Heuristic — false negatives OK
-        // (will reclassify to cpu-primary which is safe default).
-        [
-            "/usr/lib/x86_64-linux-gnu/libcuda.so",
-            "/usr/local/cuda/lib64/libcuda.so",
-        ]
-        .iter()
-        .any(|p| std::path::Path::new(p).exists())
+        // Linux: check for the CUDA driver library (libcuda.so or its soname
+        // libcuda.so.1) under /usr/lib/x86_64-linux-gnu, /usr/local/cuda/lib64,
+        // /usr/lib or /usr/lib64. Heuristic - false negatives OK (will
+        // reclassify to cpu-primary which is safe default).
+        cuda_driver_present_under(Path::new("/"))
     }
 
     #[cfg(target_os = "windows")]
@@ -164,6 +160,32 @@ fn detect_gpu_present() -> bool {
     {
         false
     }
+}
+
+/// Root-relative library directories the Linux CUDA probe checks: Debian /
+/// Ubuntu multiarch, the CUDA toolkit, and the Arch / Fedora flat layouts.
+#[cfg_attr(not(target_os = "linux"), allow(dead_code))]
+const CUDA_PROBE_DIRS: &[&str] = &[
+    "usr/lib/x86_64-linux-gnu",
+    "usr/local/cuda/lib64",
+    "usr/lib",
+    "usr/lib64",
+];
+
+/// Driver library file names the Linux CUDA probe checks in each directory:
+/// the unversioned dev symlink and the driver's runtime soname.
+#[cfg_attr(not(target_os = "linux"), allow(dead_code))]
+const CUDA_PROBE_NAMES: &[&str] = &["libcuda.so", "libcuda.so.1"];
+
+/// Returns `true` when any `root/dir/name` candidate exists (symlinks are
+/// followed, so a dangling link reads absent).
+#[cfg_attr(not(target_os = "linux"), allow(dead_code))]
+fn cuda_driver_present_under(root: &Path) -> bool {
+    CUDA_PROBE_DIRS.iter().any(|dir| {
+        CUDA_PROBE_NAMES
+            .iter()
+            .any(|name| root.join(dir).join(name).exists())
+    })
 }
 
 /// Returns available CPU core count via `std::thread::available_parallelism()`.
@@ -279,5 +301,82 @@ mod tests {
     #[test]
     fn available_cpu_cores_returns_nonzero() {
         assert!(available_cpu_cores() >= 1);
+    }
+
+    fn touch(root: &Path, rel: &str) {
+        let path = root.join(rel);
+        std::fs::create_dir_all(path.parent().expect("parent")).expect("mkdir");
+        std::fs::write(&path, b"").expect("write");
+    }
+
+    #[rstest::rstest]
+    #[case::multiarch_so("usr/lib/x86_64-linux-gnu", "libcuda.so")]
+    #[case::multiarch_soname("usr/lib/x86_64-linux-gnu", "libcuda.so.1")]
+    #[case::toolkit_so("usr/local/cuda/lib64", "libcuda.so")]
+    #[case::toolkit_soname("usr/local/cuda/lib64", "libcuda.so.1")]
+    #[case::usr_lib_so("usr/lib", "libcuda.so")]
+    #[case::usr_lib_soname("usr/lib", "libcuda.so.1")]
+    #[case::usr_lib64_so("usr/lib64", "libcuda.so")]
+    #[case::usr_lib64_soname("usr/lib64", "libcuda.so.1")]
+    fn cuda_probe_reads_present_for_each_candidate(#[case] dir: &str, #[case] name: &str) {
+        let root = tempfile::TempDir::new().expect("tempdir");
+        touch(root.path(), &format!("{dir}/{name}"));
+        assert!(cuda_driver_present_under(root.path()));
+    }
+
+    #[test]
+    fn cuda_probe_reads_absent_on_an_empty_root() {
+        let root = tempfile::TempDir::new().expect("tempdir");
+        assert!(!cuda_driver_present_under(root.path()));
+    }
+
+    #[test]
+    fn cuda_probe_reads_absent_for_unprobed_names_and_dirs() {
+        let root = tempfile::TempDir::new().expect("tempdir");
+        for rel in [
+            "usr/lib/libcudart.so",
+            "usr/lib/libcuda.so.2",
+            "opt/cuda/libcuda.so",
+        ] {
+            touch(root.path(), rel);
+        }
+        assert!(!cuda_driver_present_under(root.path()));
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn cuda_probe_follows_the_arch_symlink_chain() {
+        use std::os::unix::fs::symlink;
+        let root = tempfile::TempDir::new().expect("tempdir");
+        touch(root.path(), "usr/lib/libcuda.so.610.57.04");
+        let lib = root.path().join("usr/lib");
+        symlink("libcuda.so.610.57.04", lib.join("libcuda.so.1")).expect("symlink soname");
+        symlink("libcuda.so.1", lib.join("libcuda.so")).expect("symlink so");
+        assert!(cuda_driver_present_under(root.path()));
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn cuda_probe_reads_absent_for_a_dangling_symlink() {
+        use std::os::unix::fs::symlink;
+        let root = tempfile::TempDir::new().expect("tempdir");
+        let lib = root.path().join("usr/lib");
+        std::fs::create_dir_all(&lib).expect("mkdir");
+        symlink("libcuda.so.1", lib.join("libcuda.so")).expect("symlink");
+        assert!(!cuda_driver_present_under(root.path()));
+    }
+
+    #[test]
+    fn cuda_probe_candidate_set_is_exactly_dirs_by_names() {
+        assert_eq!(
+            CUDA_PROBE_DIRS,
+            &[
+                "usr/lib/x86_64-linux-gnu",
+                "usr/local/cuda/lib64",
+                "usr/lib",
+                "usr/lib64",
+            ]
+        );
+        assert_eq!(CUDA_PROBE_NAMES, &["libcuda.so", "libcuda.so.1"]);
     }
 }

@@ -412,6 +412,7 @@ pub(crate) async fn run() -> Result<ExitCode> {
 
 #[cfg(test)]
 mod tests {
+    // andromeda:walks-tree
     use std::collections::BTreeMap;
 
     use super::*;

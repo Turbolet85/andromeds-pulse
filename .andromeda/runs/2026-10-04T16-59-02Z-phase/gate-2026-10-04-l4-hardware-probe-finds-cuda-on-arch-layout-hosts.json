@@ -1,0 +1,62 @@
+[
+{
+"tool": "gate",
+"v": "1.8",
+"sha8": "af374e71",
+"ts": "2026-10-04T17:08:00Z",
+"argv": [
+"scope",
+"--lists-only",
+"--research",
+"andromeda-pulse-0.3.0/chunks/2026-10-04-l4-hardware-probe-finds-cuda-on-arch-layout-hosts/research.md",
+"--run-dir",
+".andromeda/runs/2026-10-04T16-59-02Z-phase",
+"--marker",
+"2026-10-04-l4-hardware-probe-finds-cuda-on-arch-layout-hosts"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"control: lists · glob · record — each fired on its synthetic known positive",
+"scope lists: parsed 2 items (new 0 · modify 2 · derived 0)"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"items": 2,
+"unparsed": 0
+}
+},
+{
+"tool": "gate",
+"v": "1.8",
+"sha8": "af374e71",
+"ts": "2026-10-04T17:12:52Z",
+"argv": [
+"scope",
+"--lists-only",
+"--research",
+"andromeda-pulse-0.3.0/chunks/2026-10-04-l4-hardware-probe-finds-cuda-on-arch-layout-hosts/research.md",
+"--run-dir",
+".andromeda/runs/2026-10-04T16-59-02Z-phase",
+"--marker",
+"2026-10-04-l4-hardware-probe-finds-cuda-on-arch-layout-hosts"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"control: lists · glob · record — each fired on its synthetic known positive",
+"scope lists: parsed 5 items (new 0 · modify 4 · derived 1)"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"items": 5,
+"unparsed": 0
+}
+}
+]

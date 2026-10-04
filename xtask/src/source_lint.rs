@@ -192,6 +192,7 @@ pub(crate) fn run() -> Result<ExitCode> {
 
 #[cfg(test)]
 mod tests {
+    // andromeda:walks-tree
     use super::*;
 
     fn cyrillic(code: u32) -> char {

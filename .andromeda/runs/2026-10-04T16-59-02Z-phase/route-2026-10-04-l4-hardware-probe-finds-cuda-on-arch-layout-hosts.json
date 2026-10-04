@@ -1,0 +1,36 @@
+[
+{
+"tool": "route",
+"v": "1.6",
+"sha8": "b87a9ed0",
+"ts": "2026-10-04T17:00:00Z",
+"argv": [
+"route.py",
+"promote",
+"--root",
+".",
+"--chunk",
+"2026-10-04-l4-hardware-probe-finds-cuda-on-arch-layout-hosts",
+"--expect-prefix",
+"The L4 hardware probe finds CUDA on Arch-layout hosts",
+"--record-file",
+".andromeda/runs/2026-10-04T16-59-02Z-phase/master-record.txt",
+"--run-dir",
+".andromeda/runs/2026-10-04T16-59-02Z-phase"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"stamp working-route.md:160 - [2026-10-04-l4-hardware-probe-finds-cuda-on-arch-layout-hosts]",
+"record master-route.md:93 - appended under `## andromeda-pulse-0.3.0`",
+"promoted 2026-10-04-l4-hardware-probe-finds-cuda-on-arch-layout-hosts - working-route:160 frozen - master record appended"
+],
+"stderr": null,
+"wrote": [
+"./andromeda-pulse-0.3.0/working-route.md",
+"./.andromeda/master-route.md"
+],
+"before": null,
+"after": null
+}
+]

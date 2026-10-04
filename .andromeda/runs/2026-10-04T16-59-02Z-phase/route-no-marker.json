@@ -1,0 +1,34 @@
+[
+{
+"tool": "route",
+"v": "1.6",
+"sha8": "b87a9ed0",
+"ts": "2026-10-04T16:59:17Z",
+"argv": [
+"route.py",
+"pins",
+"--root",
+".",
+"--run-dir",
+".andromeda/runs/2026-10-04T16-59-02Z-phase"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"working-route.md · markerless 4 of 76 entries · freight blocks 8 · rows are an INDEX, not the text",
+"160 · CONTEXT: · 549 chars · CONTEXT: `detect_gpu_present`'s Linux arm (`crates/interpretation/src/hardware.rs:147-152`…",
+"162 · CONTEXT: · 1139 chars · CONTEXT: hypothesis: on Conductor's d3 run (2026-10-01) the model restated an older, diff…",
+"164 · CONTEXT: · 908 chars · CONTEXT: `Cargo.toml` declares `rust-version = \"1.85\"` while the toolchain is pinned at 1.…",
+"164 · CARRY: · 380 chars · CARRY: `corpus_key_survives_a_real_process_boundary` leaves an empty lock file in the lock d…",
+"166 · CONTEXT: · 546 chars · CONTEXT: the verb needs `wsl.exe` (`xtask/src/pre_push.rs`), and since the 2026-10-03 move…",
+"166 · CARRY: · 560 chars · CARRY: (a) PC22 — a fresh `PUPPETEER_CACHE_DIR` under `target/` reproduces the partial v148 …",
+"166 · CARRY: · 429 chars · CARRY: (b) stage ORDER — run by hand, stage 5 (`cargo xtask test`, default features) re-emit…",
+"166 · CARRY: · 479 chars · CARRY: (c) stage 5's `env -i` isolation also drops `DBUS_SESSION_BUS_ADDRESS`, so every cred…",
+"… +7 abstention(s) OUTSIDE this listing (frozen entries · the master) — `markerless` and `cursor` print them"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+}
+]
