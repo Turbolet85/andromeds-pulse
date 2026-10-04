@@ -1,0 +1,1045 @@
+warning: triage@0.1.0: triage: tokenizer downloaded (sha256=c05a3c2174e9edd5be19dc5a0748c42a9037bec2811ce062728bfd71f8702d78); pin via ANDROMEDA_LLAMA3_TOKENIZER_SHA256 env var for reproducible builds
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.41s
+────────────
+ Nextest run ID b557cb66-8f80-48cb-b2ec-719154865726 with nextest profile: ci
+    Starting 519 tests across 3 binaries (124 binaries skipped)
+        PASS [   0.005s] (  1/519) pulse-app::unit_incident_producer dismiss_decision_creates_no_incident
+        PASS [   0.006s] (  2/519) pulse-app::unit_incident_producer incident_skip_is_absent_for_a_resolution_summary_digest
+        PASS [   0.007s] (  3/519) triage baseline::activity_floor::tests::bootstrap_state_honours_a_non_default_window
+        PASS [   0.014s] (  4/519) pulse-app::unit_incident_producer incident_skip_records_a_model_resolution_summary_at_the_predicate
+        PASS [   0.014s] (  5/519) pulse-app::unit_incident_producer incident_skip_records_a_dismiss_decision
+        PASS [   0.015s] (  6/519) pulse-app::unit_incident_producer no_triggering_cue_creates_no_incident
+        PASS [   0.016s] (  7/519) pulse-app::unit_incident_producer resolution_summary_output_creates_no_incident
+        PASS [   0.016s] (  8/519) pulse-app::unit_incident_producer incident_skip_records_a_cue_less_digest
+        PASS [   0.016s] (  9/519) pulse-app::unit_incident_producer reflection_dismiss_creates_no_incident
+        PASS [   0.017s] ( 10/519) pulse-app::unit_incident_producer incident_skip_records_a_model_resolution_summary_on_a_storm_digest
+        PASS [   0.007s] ( 11/519) triage baseline::activity_floor::tests::bootstrap_state_returns_learning_for_first_hour
+        PASS [   0.008s] ( 12/519) triage baseline::activity_floor::tests::bootstrap_state_returns_learning_when_never_observed
+        PASS [   0.009s] ( 13/519) triage baseline::activity_floor::tests::bootstrap_state_returns_ready_after_first_hour
+        PASS [   0.011s] ( 14/519) triage baseline::activity_floor::tests::bootstrap_state_is_ready_exactly_at_the_window_edge
+        PASS [   0.008s] ( 15/519) triage baseline::activity_floor::tests::bucket_index_for_wraps_modulo_bucket_count
+        PASS [   0.008s] ( 16/519) triage baseline::activity_floor::tests::current_quiet_duration_seconds_increases_with_time_since_last_observe
+        PASS [   0.009s] ( 17/519) triage baseline::activity_floor::tests::current_quiet_duration_seconds_returns_zero_before_first_observation
+        PASS [   0.009s] ( 18/519) triage baseline::activity_floor::tests::bucket_index_for_handles_negative_timestamps_safely
+        PASS [   0.029s] ( 19/519) pulse-app::unit_incident_producer incident_skip_records_a_none_severity
+        PASS [   0.009s] ( 20/519) triage baseline::activity_floor::tests::new_initializes_empty_state
+        PASS [   0.030s] ( 21/519) pulse-app::unit_incident_producer severity_none_creates_no_incident
+        PASS [   0.009s] ( 22/519) triage baseline::activity_floor::tests::observe_advances_last_observed_and_current_bucket
+        PASS [   0.008s] ( 23/519) triage baseline::activity_floor::tests::observe_within_same_24h_cycle_does_not_reset_buckets
+        PASS [   0.009s] ( 24/519) triage baseline::activity_floor::tests::observe_within_same_bucket_does_not_advance_bucket_index
+        PASS [   0.010s] ( 25/519) triage baseline::activity_floor::tests::observe_crossing_24h_boundary_resets_stale_bucket
+        PASS [   0.009s] ( 26/519) triage baseline::activity_floor::tests::p95_historical_quiet_duration_returns_none_before_two_observations
+        PASS [   0.012s] ( 27/519) triage baseline::activity_floor::tests::p95_historical_quiet_duration_returns_some_after_multiple_observations
+        PASS [   0.014s] ( 28/519) triage baseline::activity_floor::tests::observe_crossing_bucket_boundary_advances_bucket_index
+        PASS [   0.009s] ( 29/519) triage baseline::activity_floor::tests::serde_round_trip_preserves_buckets_and_digest
+        PASS [   0.008s] ( 30/519) triage baseline::error::tests::error_category_groups_io_serialize_permission
+        PASS [   0.009s] ( 31/519) triage baseline::error::tests::error_display_does_not_leak_raw_paths_or_chain
+        PASS [   0.011s] ( 32/519) triage baseline::ewma::tests::ewma_alpha_one_replaces_value
+        PASS [   0.011s] ( 33/519) triage baseline::ewma::tests::ewma_alpha_zero_keeps_initial_value
+        PASS [   0.018s] ( 34/519) triage baseline::activity_floor::tests::prop_bucket_index_always_in_range
+        PASS [   0.008s] ( 35/519) triage baseline::ewma::tests::ewma_serde_round_trip_preserves_state
+        PASS [   0.049s] ( 36/519) pulse-app::unit_incident_producer autonomous_severity_maps_to_error_and_autonomous_tier
+        PASS [   0.009s] ( 37/519) triage baseline::ewma::tests::ewma_first_observation_returns_value_directly
+        PASS [   0.009s] ( 38/519) triage baseline::rolling_window::tests::rolling_window_empty_mean_is_zero
+        PASS [   0.013s] ( 39/519) triage baseline::ewma::tests::ewma_converges_toward_constant_input
+        PASS [   0.055s] ( 40/519) pulse-app::integration_interpretation_attach dedupe_refreshes_latest_interpretation
+        PASS [   0.055s] ( 41/519) pulse-app::integration_interpretation_attach report_stays_degraded_when_no_interpretation_attached
+        PASS [   0.055s] ( 42/519) pulse-app::unit_incident_producer distinct_services_create_distinct_incidents
+        PASS [   0.055s] ( 43/519) pulse-app::integration_interpretation_attach creation_attaches_latest_interpretation_to_incident
+        PASS [   0.057s] ( 44/519) pulse-app::unit_incident_producer fingerprint_hashes_union_appends_cue_fingerprint_to_model_refs
+        PASS [   0.057s] ( 45/519) pulse-app::integration_interpretation_attach report_renders_full_brief_for_live_incident_with_attached_interpretation
+        PASS [   0.011s] ( 46/519) triage baseline::rolling_window::tests::rolling_window_respects_capacity
+        PASS [   0.010s] ( 47/519) triage baseline::rolling_window::tests::rolling_window_serde_round_trip
+        PASS [   0.010s] ( 48/519) triage baseline::rolling_window::tests::rolling_window_sum_and_mean
+        PASS [   0.035s] ( 49/519) triage baseline::activity_floor::tests::prop_observe_never_panics_under_arbitrary_timestamps
+        PASS [   0.009s] ( 50/519) triage baseline::sql::tests::q7_default_timeout_matches_spec
+        PASS [   0.066s] ( 51/519) pulse-app::unit_incident_producer reflection_dedups_one_per_workspace
+        PASS [   0.067s] ( 52/519) pulse-app::unit_incident_producer distinct_fingerprint_same_service_still_coalesces_to_one_incident
+        PASS [   0.062s] ( 53/519) pulse-app::unit_incident_producer watch_decision_creates_curious_incident
+        PASS [   0.067s] ( 54/519) pulse-app::unit_incident_producer producer_writes_cue_fingerprint_not_the_model_authored_one
+        PASS [   0.068s] ( 55/519) pulse-app::unit_incident_producer reemission_dedup_does_not_create_duplicate
+        PASS [   0.071s] ( 56/519) pulse-app::unit_incident_producer reflection_high_confidence_surfaces_suggested
+        PASS [   0.009s] ( 57/519) triage baseline::sql::tests::sql_aggregation_error_category_covers_all_variants
+        PASS [   0.009s] ( 58/519) triage baseline::tdigest_pair::tests::percentile_after_inserts_returns_some
+        PASS [   0.033s] ( 59/519) triage baseline::rolling_window::tests::rolling_window_length_never_exceeds_capacity
+        PASS [   0.010s] ( 60/519) triage baseline::tdigest_pair::tests::percentile_monotonic_p50_le_p95_le_p99
+        PASS [   0.078s] ( 61/519) pulse-app::unit_incident_producer producer_observability_is_aggregate_only
+        PASS [   0.012s] ( 62/519) triage baseline::tdigest_pair::tests::percentile_empty_returns_none
+        PASS [   0.072s] ( 63/519) pulse-app::unit_incident_producer surface_decision_creates_active_incident
+        PASS [   0.081s] ( 64/519) pulse-app::unit_incident_producer incident_skip_is_absent_when_an_incident_is_created
+        PASS [   0.081s] ( 65/519) pulse-app::unit_incident_producer reflection_surface_creates_workspace_global_incident
+        PASS [   0.083s] ( 66/519) pulse-app::unit_incident_producer fingerprint_hashes_union_does_not_duplicate_a_copied_fingerprint
+        PASS [   0.076s] ( 67/519) pulse-app::unit_incident_producer incidents_without_a_cue_fingerprint_carry_an_empty_one
+        PASS [   0.076s] ( 68/519) pulse-app::unit_incident_producer pii_canary_in_l4_text_is_scrubbed_before_persist
+        PASS [   0.085s] ( 69/519) pulse-app::unit_incident_producer fingerprint_hashes_carry_only_model_refs_without_a_cue_fingerprint
+        PASS [   0.010s] ( 70/519) triage baseline::tdigest_pair::tests::serde_round_trip_preserves_state
+        PASS [   0.077s] ( 71/519) pulse-app::unit_incident_producer producer_evidence_trace_span_and_timestamps_are_empty_by_construction
+        PASS [   0.009s] ( 72/519) triage baseline::tdigest_pair::tests::swap_no_op_before_window_elapses
+        PASS [   0.010s] ( 73/519) triage baseline::tdigest_pair::tests::swap_rotates_current_to_previous_after_window
+        PASS [   0.010s] ( 74/519) triage baseline::tests::bootstrap_state_emits_cold_start_metric
+        PASS [   0.010s] ( 75/519) triage baseline::tests::bootstrap_state_applies_window_on_the_resume_path_not_just_fresh
+        PASS [   0.052s] ( 76/519) triage baseline::ewma::tests::ewma_bounded_within_observed_min_max
+        PASS [   0.009s] ( 77/519) triage baseline::tests::bootstrap_state_returns_fresh_when_persistence_none
+        PASS [   0.010s] ( 78/519) triage baseline::tests::current_unix_nanos_returns_positive_value
+        PASS [   0.012s] ( 79/519) triage baseline::tests::bootstrap_state_returns_loaded_when_persistence_fresh
+        PASS [   0.014s] ( 80/519) triage baseline::tests::bootstrap_state_returns_fresh_when_persistence_empty
+        PASS [   0.010s] ( 81/519) triage baseline::tests::deserialized_state_defaults_to_the_non_zero_window
+        PASS [   0.016s] ( 82/519) triage baseline::tests::bootstrap_state_resets_when_persistence_stale_beyond_threshold
+        PASS [   0.013s] ( 83/519) triage baseline::tests::observe_span_drops_empty_operation_name_from_tdigest
+        PASS [   0.011s] ( 84/519) triage baseline::tests::observe_span_populates_service_baseline
+        PASS [   0.011s] ( 85/519) triage baseline::tests::observe_span_routes_to_activity_floor_observe
+        PASS [   0.014s] ( 86/519) triage baseline::tests::observe_span_populates_operation_latency_tdigest
+        PASS [   0.011s] ( 87/519) triage baseline::tests::operation_key_is_deterministic_and_includes_service_prefix
+        PASS [   0.012s] ( 88/519) triage baseline::tests::operation_name_distinguishes_two_operations_on_same_service
+        PASS [   0.015s] ( 89/519) triage baseline::tests::observe_span_with_empty_service_increments_drops
+        PASS [   0.012s] ( 90/519) triage baseline::tests::operation_name_round_trips_through_baseline_to_snapshot
+        PASS [   0.014s] ( 91/519) triage baseline::tests::run_persist_cycle_advances_persisted_at_via_trait
+        PASS [   0.012s] ( 92/519) triage baseline::tests::run_persist_cycle_emits_tick_and_persist_metric_events
+        PASS [   0.013s] ( 93/519) triage baseline::tests::run_persist_cycle_emits_error_event_on_persistence_failure
+        PASS [   0.015s] ( 94/519) triage baseline::tests::run_persist_cycle_emits_corpus_basename_field
+        PASS [   0.011s] ( 95/519) triage baseline::tests::silence_snapshot_reaches_ready_under_a_short_boot_resolved_window
+        PASS [   0.018s] ( 96/519) triage baseline::tests::persist_on_shutdown_emits_shutdown_kind_metric
+        PASS [   0.014s] ( 97/519) triage baseline::tests::run_persist_cycle_round_trip_preserves_service_state_via_trait
+        PASS [   0.011s] ( 98/519) triage cadence::broadcast::tests::cadence_event_broadcast_default_matches_new
+        PASS [   0.011s] ( 99/519) triage cadence::broadcast::tests::cadence_event_broadcast_round_trips_payload
+        PASS [   0.013s] (100/519) triage baseline::tests::service_identity_missing_emits_single_aggregate_warn_per_tick
+        PASS [   0.011s] (101/519) triage cadence::broadcast::tests::cadence_event_broadcast_send_with_no_subscribers_is_benign
+        PASS [   0.010s] (102/519) triage cadence::broadcast::tests::cadence_event_broadcast_starts_zero_subscribers
+        PASS [   0.010s] (103/519) triage cadence::broadcast::tests::digest_trigger_broadcast_default_starts_zero_subscribers
+        PASS [   0.013s] (104/519) triage cadence::broadcast::tests::cadence_event_broadcast_subscribe_increments_count
+        PASS [   0.010s] (105/519) triage cadence::broadcast::tests::digest_trigger_broadcast_round_trips_cue_including_scope_id
+        PASS [   0.010s] (106/519) triage cadence::config::tests::baseline_at_floor_passes_and_below_floor_rejects
+        PASS [   0.013s] (107/519) triage cadence::broadcast::tests::cadence_event_payload_has_no_string_fields
+        PASS [   0.011s] (108/519) triage cadence::config::tests::default_passes_validation
+        PASS [   0.036s] (109/519) triage baseline::tests::observe_span_enforces_service_cardinality_cap
+        PASS [   0.013s] (110/519) triage cadence::broadcast::tests::stream_name_matches_pulse_uri_convention
+        PASS [   0.014s] (111/519) triage cadence::config::tests::accelerated_at_floor_passes_and_below_floor_rejects
+        PASS [   0.013s] (112/519) triage cadence::config::tests::reflection_at_floor_passes_and_below_floor_rejects
+        PASS [   0.010s] (113/519) triage cadence::coordinator::tests::run_one_coordinator_cycle_does_not_leak_pii_canary_into_broadcast_payload
+        PASS [   0.013s] (114/519) triage cadence::config::tests::tier2_acceleration_enabled_false_passes_validation
+        PASS [   0.015s] (115/519) triage cadence::coordinator::tests::mode_label_returns_bounded_four_value_enumeration
+        PASS [   0.011s] (116/519) triage cadence::coordinator::tests::run_one_coordinator_cycle_emits_event_to_broadcast
+        PASS [   0.011s] (117/519) triage cadence::coordinator::tests::run_one_coordinator_cycle_handles_partial_query_failures
+        PASS [   0.013s] (118/519) triage cadence::coordinator::tests::run_one_coordinator_cycle_emits_event_with_cue_metadata_for_tier1
+        PASS [   0.010s] (119/519) triage cadence::coordinator::tests::run_one_coordinator_cycle_reflection_emits_reflection_mode
+        PASS [   0.011s] (120/519) triage cadence::coordinator::tests::run_one_coordinator_cycle_invokes_all_seven_queries_for_tier3
+        PASS [   0.010s] (121/519) triage cadence::coordinator::tests::run_one_coordinator_cycle_skips_tier2_when_hardware_profile_is_cpu_primary
+        PASS [   0.011s] (122/519) triage cadence::coordinator::tests::run_one_coordinator_cycle_runs_tier2_on_non_cpu_primary_profile
+        PASS [   0.010s] (123/519) triage cadence::coordinator::tests::unknown_hardware_profile_returns_unknown
+        PASS [   0.008s] (124/519) triage contract::tests::cue_kind_round_trips_through_serde
+        PASS [   0.028s] (125/519) triage cadence::config::tests::safety_floor_invariant
+        PASS [   0.010s] (126/519) triage contract::tests::cue_kind_serializes_snake_case
+        PASS [   0.012s] (127/519) triage contract::tests::attention_cue_round_trips_through_serde
+        PASS [   0.014s] (128/519) triage contract::tests::cue_kind_reflection_trend_serializes_snake_case
+        PASS [   0.012s] (129/519) triage contract::tests::cue_scope_round_trips_through_serde
+        PASS [   0.009s] (130/519) triage contract::tests::digest_cue_ref_deserializes_payload_without_fingerprint_field
+        PASS [   0.013s] (131/519) triage contract::tests::cue_scope_serializes_snake_case
+        PASS [   0.011s] (132/519) triage contract::tests::digest_kind_round_trips_through_serde
+        PASS [   0.011s] (133/519) triage contract::tests::digest_kind_serializes_snake_case
+        PASS [   0.011s] (134/519) triage contract::tests::evidence_refs_round_trips_through_serde
+        PASS [   0.012s] (135/519) triage contract::tests::digest_round_trips_through_serde
+        PASS [   0.010s] (136/519) triage contract::tests::hex_lower_encodes_full_width_lowercase
+        PASS [   0.087s] (137/519) triage baseline::sql::tests::triage_sql_state_clones_share_connection
+        PASS [   0.105s] (138/519) triage baseline::sql::tests::q1_empty_table_returns_empty_vec
+        PASS [   0.032s] (139/519) triage cadence::coordinator::tests::start_cadence_coordinator_spawnable_and_abortable
+        PASS [   0.102s] (140/519) triage baseline::sql::tests::q5_returns_cardinality_per_service
+        PASS [   0.012s] (141/519) triage contract::tests::incident_events_vocabulary_is_created_plus_each_status_label
+        PASS [   0.013s] (142/519) triage contract::tests::incident_round_trips_through_serde
+        PASS [   0.011s] (143/519) triage contract::tests::incident_status_round_trips_through_serde
+        PASS [   0.015s] (144/519) triage contract::tests::incident_deserializes_pre_chunk_86_payload_without_resolution_summary_field
+        PASS [   0.011s] (145/519) triage contract::tests::priority_tier_serializes_snake_case
+        PASS [   0.012s] (146/519) triage contract::tests::priority_tier_round_trips_through_serde
+        PASS [   0.110s] (147/519) triage baseline::sql::tests::q3_returns_fingerprints_with_count_ge_2
+        PASS [   0.014s] (148/519) triage contract::tests::incident_status_serializes_snake_case
+        PASS [   0.010s] (149/519) triage contract::tests::severity_round_trips_through_serde
+        PASS [   0.011s] (150/519) triage contract::tests::scrubbed_clone_passes_cue_fingerprint_through_untouched
+        PASS [   0.110s] (151/519) triage baseline::sql::tests::q4_returns_caller_callee_pairs
+        PASS [   0.010s] (152/519) triage contract::tests::severity_serializes_snake_case
+        PASS [   0.100s] (153/519) triage baseline::sql::tests::window_filter_excludes_old_rows
+        PASS [   0.115s] (154/519) triage baseline::sql::tests::q2_orders_by_error_count_desc
+        PASS [   0.110s] (155/519) triage baseline::sql::tests::q7_fallback_fires_on_zero_timeout
+        PASS [   0.011s] (156/519) triage cue::broadcast::tests::attention_cue_broadcast_round_trips_payload
+        PASS [   0.110s] (157/519) triage baseline::sql::tests::q7_primary_under_normal_timeout_returns_normal_results
+        PASS [   0.011s] (158/519) triage cue::broadcast::tests::attention_cue_broadcast_send_with_no_subscribers_is_benign
+        PASS [   0.115s] (159/519) triage baseline::sql::tests::q6_returns_high_severity_logs
+        PASS [   0.011s] (160/519) triage cue::broadcast::tests::cadence_trigger_channel_round_trips_payload
+        PASS [   0.049s] (161/519) triage cadence::coordinator::tests::start_cadence_coordinator_responds_to_tier1_autonomous_cue
+        PASS [   0.012s] (162/519) triage cue::broadcast::tests::attention_cue_broadcast_subscribe_increments_count
+        PASS [   0.011s] (163/519) triage cue::broadcast::tests::cadence_trigger_channel_starts_zero_subscribers
+        PASS [   0.012s] (164/519) triage cue::broadcast::tests::attention_cue_broadcast_starts_zero_subscribers
+        PASS [   0.050s] (165/519) triage cadence::coordinator::tests::start_cadence_coordinator_responds_to_tier2_suggested_cadence_trigger
+        PASS [   0.010s] (166/519) triage cue::broadcast::tests::channel_name_uses_kebab_case_label
+        PASS [   0.010s] (167/519) triage cue::broadcast::tests::stream_name_matches_pulse_uri_convention
+        PASS [   0.010s] (168/519) triage cue::classify::tests::classify_priority_decision_boundary::case_5
+        PASS [   0.010s] (169/519) triage cue::classify::tests::classify_priority_decision_boundary::case_3
+        PASS [   0.010s] (170/519) triage cue::classify::tests::classify_priority_decision_boundary::case_4
+        PASS [   0.009s] (171/519) triage cue::classify::tests::classify_priority_decision_boundary::case_6
+        PASS [   0.012s] (172/519) triage cue::classify::tests::classify_priority_decision_boundary::case_2
+        PASS [   0.011s] (173/519) triage cue::classify::tests::classify_priority_decision_boundary::case_1
+        PASS [   0.110s] (174/519) triage baseline::sql::tests::sql_injection_via_duration_param_is_blocked
+        PASS [   0.148s] (175/519) triage baseline::activity_floor::tests::prop_24h_rolling_invariant
+        PASS [   0.010s] (176/519) triage cue::classify::tests::classify_priority_decision_boundary::case_7
+        PASS [   0.010s] (177/519) triage cue::classify::tests::classify_priority_decision_boundary::case_9
+        PASS [   0.011s] (178/519) triage cue::classify::tests::cue_kind_label_matches_serde_snake_case
+        PASS [   0.010s] (179/519) triage cue::classify::tests::dual_condition_bypass_matrix::case_1
+        PASS [   0.011s] (180/519) triage cue::classify::tests::classify_priority_nan_inputs_return_curious
+        PASS [   0.012s] (181/519) triage cue::classify::tests::classify_priority_decision_boundary::case_8
+        PASS [   0.010s] (182/519) triage cue::classify::tests::dual_condition_bypass_matrix::case_3
+        PASS [   0.012s] (183/519) triage cue::classify::tests::dual_condition_bypass_matrix::case_2
+        PASS [   0.011s] (184/519) triage cue::classify::tests::dual_condition_bypass_matrix::case_5
+        PASS [   0.011s] (185/519) triage cue::classify::tests::dual_condition_bypass_matrix::case_4
+        PASS [   0.011s] (186/519) triage cue::classify::tests::dual_condition_bypass_matrix::case_6
+        PASS [   0.009s] (187/519) triage cue::classify::tests::dual_condition_bypass_respects_configured_multiplier_override
+        PASS [   0.011s] (188/519) triage cue::classify::tests::dual_condition_bypass_matrix::case_7
+        PASS [   0.010s] (189/519) triage cue::classify::tests::dual_condition_bypass_nan_inputs_return_false
+        PASS [   0.132s] (190/519) triage baseline::sql::tests::q1_returns_red_metrics_per_service
+        PASS [   0.011s] (191/519) triage cue::classify::tests::dual_condition_bypass_respects_configured_absolute_error_rate_override
+        PASS [   0.010s] (192/519) triage cue::classify::tests::priority_tier_label_matches_serde_snake_case
+        PASS [   0.010s] (193/519) triage cue::emitter::tests::cue_latch_admits_a_newly_observed_condition
+        PASS [   0.011s] (194/519) triage cue::emitter::tests::cue_latch_admits_immediately_when_the_tier_escalates
+        PASS [   0.010s] (195/519) triage cue::emitter::tests::cue_latch_evicts_a_cleared_condition_so_recurrence_admits_immediately
+        PASS [   0.012s] (196/519) triage cue::emitter::tests::cue_latch_admits_again_after_the_refractory_window_elapses
+        PASS [   0.012s] (197/519) triage cue::emitter::tests::cue_latch_bounds_the_measured_wedge_shape
+        PASS [   0.011s] (198/519) triage cue::emitter::tests::cue_latch_keys_on_kind_and_scope_so_distinct_conditions_stay_independent
+        PASS [   0.010s] (199/519) triage cue::emitter::tests::cue_latch_refuses_an_unchanged_repeat_inside_the_refractory_window
+        PASS [   0.011s] (200/519) triage cue::emitter::tests::run_one_emit_cycle_autonomous_tier_does_not_fan_to_cadence_triggers
+        PASS [   0.011s] (201/519) triage cue::emitter::tests::cue_latch_refuses_a_de_escalation_inside_the_window
+        PASS [   0.011s] (202/519) triage cue::emitter::tests::run_one_emit_cycle_drops_short_persistence_error_spike_in_active_window
+        PASS [   0.066s] (203/519) triage cadence::coordinator::tests::start_cadence_coordinator_survives_config_hot_reload
+        PASS [   0.012s] (204/519) triage cue::emitter::tests::run_one_emit_cycle_does_not_emit_service_went_silent_during_bootstrap
+        PASS [   0.010s] (205/519) triage cue::emitter::tests::run_one_emit_cycle_emits_evaluation_span_with_threshold_fields
+        PASS [   0.011s] (206/519) triage cue::emitter::tests::run_one_emit_cycle_emits_cue_to_broadcast_topic
+        PASS [   0.015s] (207/519) triage cue::emitter::tests::cue_latch_holds_the_bound_across_the_scenario_s_multi_window_gap
+        PASS [   0.010s] (208/519) triage cue::emitter::tests::run_one_emit_cycle_emits_metric_per_cue
+        PASS [   0.009s] (209/519) triage cue::emitter::tests::run_one_emit_cycle_emits_service_went_silent_evaluate_aggregate_event
+        PASS [   0.011s] (210/519) triage cue::emitter::tests::run_one_emit_cycle_emits_service_went_silent_cue_post_bootstrap
+        PASS [   0.010s] (211/519) triage cue::emitter::tests::run_one_emit_cycle_emits_tick_event_with_zero_cues_on_empty_state
+        PASS [   0.012s] (212/519) triage cue::emitter::tests::run_one_emit_cycle_emits_suppression_check_per_cue
+        PASS [   0.010s] (213/519) triage cue::evaluate::tests::error_rate_floor_stays_at_ten_samples_distinct_from_latency_floor
+        PASS [   0.012s] (214/519) triage cue::emitter::tests::run_one_emit_cycle_keeps_high_magnitude_spike_in_active_window_via_bypass
+        PASS [   0.012s] (215/519) triage cue::emitter::tests::run_one_emit_cycle_surfaces_sustained_spike_inside_active_restart_window
+        PASS [   0.010s] (216/519) triage cue::evaluate::tests::evaluate_service_went_silent_bursty_pattern_keeps_quiet_phases_silent
+        PASS [   0.010s] (217/519) triage cue::evaluate::tests::evaluate_service_went_silent_attribute_poisoning_does_not_bypass_bootstrap
+        PASS [   0.010s] (218/519) triage cue::evaluate::tests::evaluate_service_went_silent_during_bootstrap_returns_no_cues_even_when_quiet_long
+        PASS [   0.012s] (219/519) triage cue::emitter::tests::run_one_emit_cycle_tier_two_fans_to_cadence_triggers
+        PASS [   0.013s] (220/519) triage cue::emitter::tests::run_one_emit_cycle_pii_canary_does_not_leak_into_tracing_fields
+        PASS [   0.010s] (221/519) triage cue::evaluate::tests::evaluate_service_went_silent_empty_state_returns_no_cues
+        PASS [   0.139s] (222/519) triage baseline::sql::tests::q7_returns_critical_path_for_slow_traces
+        PASS [   0.011s] (223/519) triage cue::evaluate::tests::evaluate_service_went_silent_low_frequency_service_preserves_learned_p95
+        PASS [   0.012s] (224/519) triage cue::evaluate::tests::evaluate_service_went_silent_high_frequency_service_clamped_to_min_floor
+        PASS [   0.010s] (225/519) triage cue::evaluate::tests::evaluate_thresholds_below_warmup_returns_no_cues
+        PASS [   0.011s] (226/519) triage cue::evaluate::tests::evaluate_thresholds_empty_service_name_excluded_from_cues
+        PASS [   0.012s] (227/519) triage cue::evaluate::tests::evaluate_service_went_silent_post_bootstrap_above_p95_returns_cue
+        PASS [   0.011s] (228/519) triage cue::evaluate::tests::evaluate_thresholds_error_rate_above_threshold_emits_cue
+        PASS [   0.011s] (229/519) triage cue::evaluate::tests::evaluate_service_went_silent_post_bootstrap_below_p95_returns_no_cues
+        PASS [   0.011s] (230/519) triage cue::evaluate::tests::evaluate_thresholds_fast_latency_does_not_emit_cue
+        PASS [   0.011s] (231/519) triage cue::evaluate::tests::evaluate_thresholds_empty_state_returns_no_cues
+        PASS [   0.012s] (232/519) triage cue::evaluate::tests::evaluate_thresholds_classification_flips_when_multiplier_raised
+        PASS [   0.010s] (233/519) triage cue::evaluate::tests::evaluate_thresholds_low_error_rate_does_not_emit_cue
+        PASS [   0.010s] (234/519) triage cue::evaluate::tests::evaluate_thresholds_priority_tier_classifies_by_magnitude_and_samples
+        PASS [   0.010s] (235/519) triage cue::thresholds::tests::default_thresholds_match_chunk_spec_constants
+        PASS [   0.009s] (236/519) triage cue::thresholds::tests::resolve_bootstrap_window_accepts_bounded_override
+        PASS [   0.010s] (237/519) triage cue::thresholds::tests::from_env_carries_the_resolved_bound_into_the_field
+        PASS [   0.010s] (238/519) triage cue::thresholds::tests::from_env_unset_is_byte_identical_to_default
+        PASS [   0.009s] (239/519) triage cue::thresholds::tests::resolve_bootstrap_window_rejects_at_or_above_window_duration
+        PASS [   0.009s] (240/519) triage cue::thresholds::tests::resolve_bootstrap_window_trims_surrounding_whitespace
+        PASS [   0.010s] (241/519) triage cue::thresholds::tests::resolve_bootstrap_window_rejects_zero_empty_and_unparseable
+        PASS [   0.013s] (242/519) triage cue::evaluate::tests::latency_gate_admits_operations_at_min_latency_samples
+        PASS [   0.014s] (243/519) triage cue::evaluate::tests::evaluate_thresholds_latency_above_threshold_emits_cue
+        PASS [   0.012s] (244/519) triage cue::evaluate::tests::latency_gate_excludes_operations_below_min_latency_samples
+        PASS [   0.010s] (245/519) triage cue::thresholds::tests::validate_default_thresholds_succeeds
+        PASS [   0.012s] (246/519) triage cue::thresholds::tests::resolve_bootstrap_window_unset_yields_default
+        PASS [   0.010s] (247/519) triage cue::thresholds::tests::thresholds_round_trip_through_serde
+        PASS [   0.009s] (248/519) triage cue::thresholds::tests::validate_rejects_absolute_bypass_error_rate_above_one
+        PASS [   0.010s] (249/519) triage cue::thresholds::tests::validate_rejects_base_error_rate_above_one
+        PASS [   0.009s] (250/519) triage cue::thresholds::tests::validate_rejects_nan_latency_multiplier
+        PASS [   0.009s] (251/519) triage cue::thresholds::tests::validate_rejects_nan_magnitude_bypass_multiplier
+        PASS [   0.010s] (252/519) triage cue::thresholds::tests::validate_rejects_magnitude_bypass_multiplier_below_or_equal_one
+        PASS [   0.009s] (253/519) triage cue::thresholds::tests::validate_rejects_nan_quiet_duration_percentile
+        PASS [   0.009s] (254/519) triage cue::thresholds::tests::validate_rejects_quiet_duration_percentile_outside_unit_range
+        PASS [   0.011s] (255/519) triage cue::thresholds::tests::validate_rejects_negative_error_rate_multiplier
+        PASS [   0.010s] (256/519) triage cue::thresholds::tests::validate_rejects_zero_base_latency
+        PASS [   0.009s] (257/519) triage cue::thresholds::tests::validate_rejects_zero_bootstrap_window_seconds
+        PASS [   0.010s] (258/519) triage cue::thresholds::tests::validate_rejects_zero_absolute_bypass_latency_ms
+        PASS [   0.011s] (259/519) triage cue::thresholds::tests::validate_rejects_percentile_outside_unit_range
+        PASS [   0.009s] (260/519) triage cue::thresholds::tests::validate_rejects_zero_restart_gap_threshold_seconds
+        PASS [   0.009s] (261/519) triage cue::thresholds::tests::validate_rejects_zero_quiet_duration_percentile
+        PASS [   0.009s] (262/519) triage cue::thresholds::tests::validate_rejects_zero_suppression_persistence_cutoff_samples
+        PASS [   0.009s] (263/519) triage cue::thresholds::tests::validate_rejects_zero_restart_suppression_window_seconds
+        PASS [   0.010s] (264/519) triage cue::thresholds::tests::validate_rejects_zero_min_latency_samples
+        PASS [   0.009s] (265/519) triage cue::thresholds::tests::validate_rejects_zero_tick_interval
+        PASS [   0.009s] (266/519) triage digest::assembler::tests::hex_lower_encodes_q3_fingerprint_bytes
+        PASS [   0.009s] (267/519) triage digest::assembler::tests::overall_line_reads_anomalous_for_a_cue_bearing_tier1_digest
+        PASS [   0.009s] (268/519) triage digest::broadcast::tests::digest_broadcast_send_with_no_subscribers_is_benign
+        PASS [   0.011s] (269/519) triage digest::assembler::tests::overall_line_reads_degraded_with_an_active_incident
+        PASS [   0.009s] (270/519) triage digest::assembler::tests::render_payload_includes_five_recent_commits_per_p032
+        PASS [   0.009s] (271/519) triage digest::assembler::tests::overall_line_reads_nominal_without_cue_or_incident
+        PASS [   0.010s] (272/519) triage digest::broadcast::tests::digest_broadcast_default_matches_new
+        PASS [   0.010s] (273/519) triage digest::broadcast::tests::digest_broadcast_round_trips_payload
+        PASS [   0.011s] (274/519) triage digest::broadcast::tests::digest_broadcast_starts_zero_subscribers
+        PASS [   0.010s] (275/519) triage digest::broadcast::tests::digest_broadcast_subscribe_increments_count
+        PASS [   0.010s] (276/519) triage digest::damper::tests::bypass_kinds_are_never_suppressed
+        PASS [   0.010s] (277/519) triage digest::broadcast::tests::multiple_subscribers_each_receive_send
+        PASS [   0.009s] (278/519) triage digest::broadcast::tests::stream_name_matches_pulse_uri_convention
+        PASS [   0.010s] (279/519) triage digest::damper::tests::changed_projection_generates_and_reports_the_released_run
+        PASS [   0.009s] (280/519) triage digest::damper::tests::changed_service_rows_generate
+        PASS [   0.009s] (281/519) triage digest::damper::tests::counters_track_runs_and_suppressions
+        PASS [   0.010s] (282/519) triage digest::damper::tests::cleared_cue_condition_evicts_so_a_new_episode_reanalyzes
+        PASS [   0.010s] (283/519) triage digest::damper::tests::distinct_identities_damp_independently
+        PASS [   0.010s] (284/519) triage digest::damper::tests::first_seen_generates_then_unchanged_suppresses
+        PASS [   0.010s] (285/519) triage digest::damper::tests::interval_identity_survives_the_reflection_gap
+        PASS [   0.011s] (286/519) triage digest::damper::tests::retrieval_context_is_outside_the_projection
+        PASS [   0.011s] (287/519) triage digest::damper::tests::state_updates_only_on_recorded_success
+        PASS [   0.009s] (288/519) triage digest::queue::tests::first_default_push_returns_queued
+        PASS [   0.009s] (289/519) triage digest::queue::tests::default_push_different_workspaces_both_queued
+        PASS [   0.009s] (290/519) triage digest::queue::tests::active_incident_bypass_does_not_replace
+        PASS [   0.010s] (291/519) triage digest::queue::tests::active_incident_queue_caps_at_5_drops_oldest
+        PASS [   0.010s] (292/519) triage digest::queue::tests::second_default_push_same_workspace_returns_replaced
+        PASS [   0.010s] (293/519) triage digest::queue::tests::reflection_lww_per_workspace
+        PASS [   0.009s] (294/519) triage digest::queue::tests::tier1_caps_at_3_drops_oldest
+        PASS [   0.009s] (295/519) triage digest::queue::tests::tier1_never_lww_each_push_queued
+        PASS [   0.009s] (296/519) triage digest::retrieval::tests::noop_source_returns_empty_candidates
+        PASS [   0.009s] (297/519) triage digest::retrieval::tests::format_corpus_match_line_carries_fingerprint_title_age_outcome
+        PASS [   0.010s] (298/519) triage digest::retrieval::tests::select_corpus_matches_keeps_fingerprint_matches_only
+        PASS [   0.009s] (299/519) triage digest::retrieval::tests::select_corpus_matches_ranks_by_recency_and_caps_at_limit
+        PASS [   0.010s] (300/519) triage digest::retrieval::tests::select_corpus_matches_empty_fingerprint_never_matches_empty_set_entry
+        PASS [   0.009s] (301/519) triage digest::retrieval::tests::select_previously_seen_matches_scope_when_fingerprints_differ
+        PASS [   0.010s] (302/519) triage digest::retrieval::tests::select_corpus_matches_keeps_scope_matches
+        PASS [   0.009s] (303/519) triage incident::broadcast::tests::broadcast_capacity_matches_sibling_precedent
+        PASS [   0.010s] (304/519) triage digest::retrieval::tests::select_previously_seen_excludes_self_and_matches_fingerprint
+        PASS [   0.010s] (305/519) triage digest::retrieval::tests::select_previously_seen_none_scope_never_matches_none_scope
+        PASS [   0.010s] (306/519) triage incident::broadcast::tests::incident_lifecycle_broadcast_round_trips_payload
+        PASS [   0.010s] (307/519) triage incident::broadcast::tests::incident_lifecycle_broadcast_send_with_no_subscribers_is_benign
+        PASS [   0.010s] (308/519) triage incident::broadcast::tests::incident_lifecycle_event_has_no_pii_fields
+        PASS [   0.191s] (309/519) triage baseline::sql::tests::all_blocking_queries_safe_to_re_run
+        PASS [   0.010s] (310/519) triage incident::broadcast::tests::incident_lifecycle_broadcast_subscribe_increments_count
+        PASS [   0.010s] (311/519) triage incident::broadcast::tests::incident_lifecycle_broadcast_starts_zero_subscribers
+        PASS [   0.009s] (312/519) triage incident::persistence::tests::default_ack_cooldown_matches_spec_p_023
+        PASS [   0.010s] (313/519) triage incident::broadcast::tests::stream_name_matches_pulse_uri_convention
+        PASS [   0.010s] (314/519) triage incident::broadcast::tests::incident_lifecycle_event_serde_round_trips
+        PASS [   0.009s] (315/519) triage incident::persistence::tests::default_auto_resolve_window_matches_spec_p_022
+        PASS [   0.009s] (316/519) triage incident::persistence::tests::default_persist_interval_matches_sibling_precedent
+        PASS [   0.009s] (317/519) triage incident::persistence::tests::reconcile_kind_label_is_stable
+        PASS [   0.010s] (318/519) triage incident::persistence::tests::reconcile_only_touches_the_named_workspace
+        PASS [   0.010s] (319/519) triage incident::persistence::tests::persist_cycle_reconciles_before_writing_so_the_stale_row_is_not_re_offered
+        PASS [   0.010s] (320/519) triage incident::persistence::tests::error_category_labels_stable
+        PASS [   0.010s] (321/519) triage incident::persistence::tests::reconcile_is_a_no_op_when_registry_and_durable_agree
+        PASS [   0.010s] (322/519) triage incident::persistence::tests::reconcile_resolves_registry_rows_absent_from_the_durable_active_set
+        PASS [   0.010s] (323/519) triage incident::registry::tests::acknowledge_active_succeeds
+        PASS [   0.010s] (324/519) triage incident::persistence::tests::run_incident_persist_cycle_persists_each_active_incident
+        PASS [   0.010s] (325/519) triage incident::persistence::tests::reconcile_resolves_nothing_when_the_durable_read_fails
+        PASS [   0.010s] (326/519) triage incident::persistence::tests::tracing_target_names_stable
+        PASS [   0.062s] (327/519) triage cue::emitter::tests::start_emitter_spawnable_and_abortable
+        PASS [   0.010s] (328/519) triage incident::registry::tests::acknowledge_not_found_returns_not_found
+        PASS [   0.009s] (329/519) triage incident::registry::tests::attach_interpretation_summary_rejects_resolved_incident
+        PASS [   0.010s] (330/519) triage incident::registry::tests::acknowledge_already_acknowledged_returns_invalid_transition
+        PASS [   0.010s] (331/519) triage incident::registry::tests::acknowledge_different_workspace_bypasses_cooldown
+        PASS [   0.010s] (332/519) triage incident::registry::tests::acknowledge_after_cooldown_window_succeeds
+        PASS [   0.010s] (333/519) triage incident::registry::tests::acknowledge_within_cooldown_for_same_kind_scope_workspace_rejects
+        PASS [   0.009s] (334/519) triage incident::registry::tests::attach_resolution_summary_returns_not_found_for_unknown_id
+        PASS [   0.010s] (335/519) triage incident::registry::tests::attach_interpretation_summary_returns_not_found_for_unknown_id
+        PASS [   0.009s] (336/519) triage incident::registry::tests::attach_resolution_summary_rejects_active_incident
+        PASS [   0.010s] (337/519) triage incident::registry::tests::attach_interpretation_summary_writes_to_acknowledged_incident
+        PASS [   0.010s] (338/519) triage incident::registry::tests::attach_interpretation_summary_writes_to_active_incident
+        PASS [   0.010s] (339/519) triage incident::registry::tests::attach_resolution_summary_writes_summary_to_resolved_incident
+        PASS [   0.009s] (340/519) triage incident::registry::tests::error_category_labels_stable
+        PASS [   0.010s] (341/519) triage incident::registry::tests::evaluate_auto_resolution_returns_active_past_window
+        PASS [   0.010s] (342/519) triage incident::registry::tests::evaluate_auto_resolution_includes_acknowledged
+        PASS [   0.010s] (343/519) triage incident::registry::tests::evaluate_auto_resolution_skips_resolved
+        PASS [   0.010s] (344/519) triage incident::registry::tests::from_persisted_hydrates_registry
+        PASS [   0.010s] (345/519) triage incident::registry::tests::insert_and_get_round_trips
+        PASS [   0.010s] (346/519) triage incident::registry::tests::list_active_filters_by_workspace_and_resolved
+        PASS [   0.010s] (347/519) triage incident::registry::tests::list_for_workspace_returns_every_status_and_filters_by_workspace
+        PASS [   0.011s] (348/519) triage incident::registry::tests::mark_all_read_filters_by_workspace
+        PASS [   0.010s] (349/519) triage incident::registry::tests::mark_all_read_marks_all_unread_in_workspace_and_returns_ids
+        PASS [   0.009s] (350/519) triage incident::registry::tests::mark_resolved_already_resolved_returns_invalid_transition
+        PASS [   0.010s] (351/519) triage incident::registry::tests::mark_all_read_skips_resolved_incidents
+        PASS [   0.010s] (352/519) triage incident::registry::tests::mark_read_sets_read_at
+        PASS [   0.010s] (353/519) triage incident::registry::tests::mark_resolved_acknowledged_succeeds
+        PASS [   0.010s] (354/519) triage incident::registry::tests::mark_all_read_on_empty_workspace_returns_empty_vec
+        PASS [   0.009s] (355/519) triage incident::registry::tests::observe_reemission_on_resolved_rejects
+        PASS [   0.010s] (356/519) triage incident::registry::tests::mark_resolved_active_succeeds
+        PASS [   0.010s] (357/519) triage incident::registry::tests::mark_resolved_not_found_returns_not_found
+        PASS [   0.009s] (358/519) triage incident::registry::tests::observe_reemission_updates_timestamp
+        PASS [   0.011s] (359/519) triage incident::registry::tests::mark_all_read_skips_already_read_incidents
+        PASS [   0.010s] (360/519) triage incident::registry::tests::registry_starts_empty
+        PASS [   0.010s] (361/519) triage incident::state_machine::tests::is_valid_incident_transition_accepts_spec_edges
+        PASS [   0.010s] (362/519) triage incident::state_machine::tests::cooldown_expiry_saturates_on_overflow
+        PASS [   0.010s] (363/519) triage incident::state_machine::tests::cooldown_expiry_computes_5min_from_now
+        PASS [   0.009s] (364/519) triage incident::state_machine::tests::should_auto_resolve_false_within_window
+        PASS [   0.010s] (365/519) triage incident::state_machine::tests::is_valid_incident_transition_rejects_self_loops
+        PASS [   0.010s] (366/519) triage incident::state_machine::tests::is_valid_incident_transition_rejects_reverse_progression
+        PASS [   0.010s] (367/519) triage incident::state_machine::tests::should_auto_resolve_at_boundary_is_true
+        PASS [   0.010s] (368/519) triage incident::state_machine::tests::should_auto_resolve_true_after_window
+        PASS [   0.010s] (369/519) triage incident::state_machine::tests::status_label_matches_snake_case_serde
+        PASS [   0.009s] (370/519) triage incident::state_machine::tests::status_label_round_trips_through_serde
+        PASS [   0.010s] (371/519) triage incident::tier_effective::tests::a_higher_tier_opening_is_the_rise
+        PASS [   0.009s] (372/519) triage incident::tier_effective::tests::a_resolved_incident_without_a_resolution_instant_is_skipped
+        PASS [   0.009s] (373/519) triage incident::tier_effective::tests::a_same_tier_second_incident_does_not_move_it
+        PASS [   0.010s] (374/519) triage incident::tier_effective::tests::no_incidents_is_none
+        PASS [   0.010s] (375/519) triage incident::tier_effective::tests::concurrent_max_holders_fall_only_when_the_last_resolves
+        PASS [   0.009s] (376/519) triage incident::tier_effective::tests::the_max_holder_resolving_falls_to_the_lower_tier
+        PASS [   0.010s] (377/519) triage incident::tier_effective::tests::acknowledgement_keeps_the_tier
+        PASS [   0.010s] (378/519) triage incident::tier_effective::tests::the_last_holder_resolving_falls_to_none
+        PASS [   0.010s] (379/519) triage incident::tier_effective::tests::other_services_and_non_service_scopes_are_ignored
+        PASS [   0.010s] (380/519) triage incident::tier_effective::tests::rise_fall_rise_returns_the_second_rise
+        PASS [   0.009s] (381/519) triage incident::tier_effective::tests::the_replay_final_maximum_equals_the_max_over_the_active_subset
+        PASS [   0.009s] (382/519) triage lifecycle::broadcast::tests::broadcast_capacity_matches_sibling_precedent
+        PASS [   0.010s] (383/519) triage lifecycle::broadcast::tests::service_lifecycle_broadcast_round_trips_payload
+        PASS [   0.009s] (384/519) triage lifecycle::broadcast::tests::service_lifecycle_broadcast_subscribe_increments_count
+        PASS [   0.009s] (385/519) triage lifecycle::broadcast::tests::service_lifecycle_broadcast_send_with_no_subscribers_is_benign
+        PASS [   0.010s] (386/519) triage lifecycle::broadcast::tests::service_lifecycle_broadcast_starts_zero_subscribers
+        PASS [   0.009s] (387/519) triage lifecycle::broadcast::tests::service_lifecycle_event_serde_round_trips
+        PASS [   0.009s] (388/519) triage lifecycle::broadcast::tests::stream_name_matches_pulse_uri_convention
+        PASS [   0.010s] (389/519) triage lifecycle::broadcast::tests::service_lifecycle_event_has_no_pii_fields
+        PASS [   0.009s] (390/519) triage lifecycle::persistence::tests::fake_persistence_load_returns_seeded_entries
+        PASS [   0.010s] (391/519) triage lifecycle::persistence::tests::fake_persistence_load_returns_none_by_default
+        PASS [   0.009s] (392/519) triage lifecycle::persistence::tests::lifecycle_error_category_groups_io_serialize_permission
+        PASS [   0.009s] (393/519) triage lifecycle::persistence::tests::run_persist_cycle_emits_error_on_failure
+        PASS [   0.009s] (394/519) triage lifecycle::persistence::tests::services_to_entries_preserves_state_and_manual_override
+        PASS [   0.009s] (395/519) triage lifecycle::persistence::tests::run_persist_cycle_round_trips_state_via_fake_persistence
+        PASS [   0.009s] (396/519) triage lifecycle::registry::tests::first_sighting_drops_empty_service
+        PASS [   0.009s] (397/519) triage lifecycle::registry::tests::next_natural_state_bootstrapping_stays_when_learning
+        PASS [   0.009s] (398/519) triage lifecycle::registry::tests::next_natural_state_active_to_quiet_at_threshold
+        PASS [   0.010s] (399/519) triage lifecycle::registry::tests::first_sighting_returns_the_activity_event_once
+        PASS [   0.010s] (400/519) triage lifecycle::registry::tests::first_sighting_registers_bootstrapping_entry_listed_before_any_tick
+        PASS [   0.010s] (401/519) triage lifecycle::registry::tests::list_all_returns_per_service_items_with_effective_state
+        PASS [   0.010s] (402/519) triage lifecycle::registry::tests::first_sighting_then_tick_emits_no_duplicate_event
+        PASS [   0.009s] (403/519) triage lifecycle::registry::tests::next_natural_state_archived_is_absorbing
+        PASS [   0.011s] (404/519) triage lifecycle::registry::tests::count_by_state_orders_variants_consistently
+        PASS [   0.009s] (405/519) triage lifecycle::registry::tests::next_natural_state_quiet_to_silent_at_p95
+        PASS [   0.009s] (406/519) triage lifecycle::registry::tests::next_natural_state_bootstrapping_to_active_when_ready
+        PASS [   0.009s] (407/519) triage lifecycle::registry::tests::next_natural_state_dormant_to_archived_at_archived_threshold
+        PASS [   0.009s] (408/519) triage lifecycle::registry::tests::next_natural_state_quiet_uses_fallback_when_no_p95
+        PASS [   0.009s] (409/519) triage lifecycle::registry::tests::next_natural_state_quiet_to_active_on_zero_quiet
+        PASS [   0.009s] (410/519) triage lifecycle::registry::tests::next_natural_state_silent_to_dormant_at_dormant_threshold
+        PASS [   0.009s] (411/519) triage lifecycle::registry::tests::next_natural_state_unknown_to_bootstrapping
+        PASS [   0.010s] (412/519) triage lifecycle::registry::tests::next_natural_state_silent_to_quiet_when_activity_returns
+        PASS [   0.009s] (413/519) triage lifecycle::registry::tests::set_manual_override_clearing_emits_event_when_natural_differs
+        PASS [   0.010s] (414/519) triage lifecycle::registry::tests::registry_starts_empty
+        PASS [   0.009s] (415/519) triage lifecycle::registry::tests::set_manual_override_forces_state_regardless_of_activity
+        PASS [   0.009s] (416/519) triage lifecycle::registry::tests::set_manual_override_returns_none_when_effective_state_unchanged
+        PASS [   0.010s] (417/519) triage lifecycle::registry::tests::set_state_on_corpus_restore_drops_empty_service
+        PASS [   0.009s] (418/519) triage lifecycle::registry::tests::set_state_on_restart_bypasses_archived
+        PASS [   0.010s] (419/519) triage lifecycle::registry::tests::set_state_on_corpus_restore_stamps_boot_time_when_no_prior_entry
+        PASS [   0.009s] (420/519) triage lifecycle::registry::tests::set_state_on_restart_creates_bootstrapping_entry
+        PASS [   0.009s] (421/519) triage lifecycle::registry::tests::set_state_on_restart_skips_when_already_bootstrapping
+        PASS [   0.009s] (422/519) triage lifecycle::registry::tests::set_state_on_restart_drops_empty_service
+        PASS [   0.010s] (423/519) triage lifecycle::registry::tests::set_state_on_corpus_restore_preserves_persisted_last_seen
+        PASS [   0.009s] (424/519) triage lifecycle::registry::tests::set_state_on_restart_respects_manual_override
+        PASS [   0.010s] (425/519) triage lifecycle::registry::tests::state_index_is_total_and_distinct
+        PASS [   0.010s] (426/519) triage lifecycle::registry::tests::tick_all_advances_bootstrapping_to_active_when_bootstrap_ready
+        PASS [   0.009s] (427/519) triage lifecycle::state_machine::tests::is_valid_transition_accepts_spec_edges
+        PASS [   0.010s] (428/519) triage lifecycle::registry::tests::tick_all_emits_one_event_per_transition
+        PASS [   0.009s] (429/519) triage lifecycle::registry::tests::tick_all_returns_empty_when_baseline_empty
+        PASS [   0.009s] (430/519) triage lifecycle::registry::tests::tick_all_skips_empty_service_name_snapshots
+        PASS [   0.010s] (431/519) triage lifecycle::registry::tests::tick_all_first_observation_creates_bootstrapping_entry
+        PASS [   0.009s] (432/519) triage lifecycle::state_machine::tests::is_valid_transition_rejects_reverse_natural_progression
+        PASS [   0.009s] (433/519) triage lifecycle::state_machine::tests::is_valid_transition_rejects_self_loops
+        PASS [   0.008s] (434/519) triage lifecycle::state_machine::tests::is_valid_transition_rejects_skipping_edges
+        PASS [   0.009s] (435/519) triage lifecycle::state_machine::tests::service_lifecycle_state_round_trips_through_serde
+        PASS [   0.009s] (436/519) triage lifecycle::state_machine::tests::service_lifecycle_state_serializes_snake_case
+        PASS [   0.010s] (437/519) triage lifecycle::state_machine::tests::transition_trigger_serializes_snake_case
+        PASS [   0.009s] (438/519) triage lifecycle::tests::default_lifecycle_heartbeat_interval_matches_obs_rule
+        PASS [   0.010s] (439/519) triage lifecycle::tests::emit_tick_observability_emits_tick_and_metrics_on_empty_registry
+        PASS [   0.010s] (440/519) triage lifecycle::tests::emit_tick_observability_emits_aggregate_transition_events
+        PASS [   0.009s] (441/519) triage lifecycle::tests::emit_tick_observability_field_set_excludes_banned_pii_keys
+        PASS [   0.009s] (442/519) triage lifecycle::tests::state_label_matches_snake_case_serde
+        PASS [   0.010s] (443/519) triage pattern::broadcast::tests::broadcast_capacity_matches_cue_precedent
+        PASS [   0.009s] (444/519) triage pattern::broadcast::tests::restart_event_broadcast_send_with_no_subscribers_is_benign
+        PASS [   0.010s] (445/519) triage pattern::broadcast::tests::restart_event_broadcast_round_trips_payload
+        PASS [   0.010s] (446/519) triage lifecycle::tests::first_sighting_transitions_fold_into_tick_aggregate
+        PASS [   0.011s] (447/519) triage lifecycle::tests::emit_tick_observability_excludes_per_service_pii_fields
+        PASS [   0.009s] (448/519) triage pattern::broadcast::tests::restart_event_broadcast_starts_zero_subscribers
+        PASS [   0.009s] (449/519) triage pattern::broadcast::tests::stream_name_matches_pulse_uri_convention
+        PASS [   0.009s] (450/519) triage pattern::broadcast::tests::restart_event_broadcast_subscribe_increments_count
+        PASS [   0.009s] (451/519) triage pattern::broadcast::tests::restart_event_payload_has_no_pii_fields
+        PASS [   0.010s] (452/519) triage pattern::detector::tests::detect_cycle_stats_match_emitted_count
+        PASS [   0.009s] (453/519) triage pattern::detector::tests::first_observation_never_emits
+        PASS [   0.010s] (454/519) triage pattern::detector::tests::default_heartbeat_interval_matches_obs_rule
+        PASS [   0.010s] (455/519) triage pattern::detector::tests::above_threshold_gap_then_resume_emits_event
+        PASS [   0.010s] (456/519) triage pattern::broadcast::tests::restart_event_payload_serde_round_trips_through_serde
+        PASS [   0.010s] (457/519) triage pattern::detector::tests::multiple_services_tracked_independently
+        PASS [   0.009s] (458/519) triage pattern::detector::tests::observation_with_decreasing_timestamp_no_emit
+        PASS [   0.010s] (459/519) triage pattern::detector::tests::observe_and_dispatch_benign_without_subscribers
+        PASS [   0.009s] (460/519) triage pattern::detector::tests::observe_and_dispatch_increments_emit_count_on_gap
+        PASS [   0.009s] (461/519) triage pattern::detector::tests::run_one_detect_cycle_reports_zero_when_empty
+        PASS [   0.009s] (462/519) triage pattern::detector::tests::observe_span_with_empty_service_dropped
+        PASS [   0.009s] (463/519) triage pattern::persistence::tests::fake_persistence_load_returns_seeded_snapshot
+        PASS [   0.010s] (464/519) triage pattern::detector::tests::pii_negative_canary_in_restart_emit
+        PASS [   0.009s] (465/519) triage pattern::detector::tests::sub_threshold_gap_does_not_emit
+        PASS [   0.009s] (466/519) triage pattern::persistence::tests::fake_persistence_load_returns_none_by_default
+        PASS [   0.009s] (467/519) triage pattern::persistence::tests::storm_error_category_groups_io_serialize_permission
+        PASS [   0.008s] (468/519) triage pattern::persistence::tests::storm_state_snapshot_round_trips_through_bincode
+        PASS [   0.010s] (469/519) triage pattern::persistence::tests::run_persist_cycle_emits_error_on_failure
+        PASS [   0.009s] (470/519) triage pattern::storm::tests::distinct_fingerprints_yield_distinct_cue_fingerprints
+        PASS [   0.011s] (471/519) triage pattern::detector::tests::tracing_emission_uses_identifier_class_fields_only
+        PASS [   0.009s] (472/519) triage pattern::storm::tests::default_thresholds_match_spec
+        PASS [   0.011s] (473/519) triage pattern::persistence::tests::run_persist_cycle_invokes_save_via_fake_persistence
+        PASS [   0.009s] (474/519) triage pattern::storm::tests::fingerprint_to_hex_prefix_yields_8_lowercase_hex_chars
+        PASS [   0.010s] (475/519) triage pattern::storm::tests::observe_and_dispatch_storm_broadcasts_cue_on_threshold_crossing
+        PASS [   0.009s] (476/519) triage pattern::storm::tests::record_occurrence_11th_in_30s_does_not_re_emit_post_autonomous
+        PASS [   0.010s] (477/519) triage pattern::storm::tests::record_occurrence_10_occurrences_emits_autonomous_at_10th_after_suggested_at_5th
+        PASS [   0.010s] (478/519) triage pattern::storm::tests::observe_and_dispatch_storm_benign_without_subscribers
+        PASS [   0.010s] (479/519) triage pattern::storm::tests::pii_negative_canary_storm_emit_does_not_leak_service_canary
+        PASS [   0.010s] (480/519) triage pattern::storm::tests::record_occurrence_4_occurrences_in_30s_returns_none
+        PASS [   0.217s] (481/519) triage baseline::tests::service_cap_exceeded_emits_aggregate_warn_per_tick
+        PASS [   0.010s] (482/519) triage pattern::storm::tests::record_occurrence_60_spreads_with_max_4_in_any_30s_returns_none
+        PASS [   0.011s] (483/519) triage pattern::storm::tests::record_occurrence_5_occurrences_in_30s_returns_suggested
+        PASS [   0.011s] (484/519) triage pattern::storm::tests::record_occurrence_per_fingerprint_isolation
+        PASS [   0.010s] (485/519) triage pattern::storm::tests::record_occurrence_with_empty_service_dropped
+        PASS [   0.011s] (486/519) triage pattern::storm::tests::record_occurrence_first_observation_returns_none
+        PASS [   0.009s] (487/519) triage pattern::storm::tests::run_one_storm_cycle_reports_zero_on_empty_detector
+        PASS [   0.010s] (488/519) triage pattern::storm::tests::run_one_storm_cycle_prunes_expired_fingerprints
+        PASS [   0.009s] (489/519) triage pattern::storm::tests::tracing_emission_uses_identifier_class_fields_only
+        PASS [   0.010s] (490/519) triage pattern::storm::tests::record_occurrence_window_reset_after_full_expiration_re_emits_suggested
+        PASS [   0.009s] (491/519) triage pattern::storm::tests::synthesized_cue_carries_full_width_hex_fingerprint_not_the_tracing_prefix
+        PASS [   0.009s] (492/519) triage pattern::suppression::tests::bypass_reason_labels_match_metric_field_values
+        PASS [   0.009s] (493/519) triage pattern::suppression::tests::bypass_reason_round_trips_through_serde
+        PASS [   0.010s] (494/519) triage pattern::storm::tests::run_one_storm_cycle_keeps_recent_fingerprints
+        PASS [   0.009s] (495/519) triage pattern::suppression::tests::bypass_scenario_6x_7pct_bypasses_via_absolute
+        PASS [   0.010s] (496/519) triage pattern::suppression::tests::bypass_scenario_12x_4pct_bypasses_via_relative
+        PASS [   0.009s] (497/519) triage pattern::suppression::tests::bypass_scenario_8x_3pct_does_not_bypass_suppression
+        PASS [   0.009s] (498/519) triage pattern::suppression::tests::dual_condition_bypass_scenarios_during_active_restart_window::case_2
+        PASS [   0.009s] (499/519) triage pattern::suppression::tests::dual_condition_bypass_scenarios_during_active_restart_window::case_1
+        PASS [   0.009s] (500/519) triage pattern::suppression::tests::dual_condition_bypass_scenarios_during_active_restart_window::case_3
+        PASS [   0.009s] (501/519) triage pattern::suppression::tests::evaluate_after_window_expires_does_not_suppress
+        PASS [   0.010s] (502/519) triage pattern::suppression::tests::evaluate_keeps_long_persistence_error_rate_spike_in_active_window
+        PASS [   0.009s] (503/519) triage pattern::suppression::tests::evaluate_keeps_non_error_rate_spike_kinds_in_active_window
+        PASS [   0.008s] (504/519) triage pattern::suppression::tests::evaluate_relative_bypass_priority_over_absolute
+        PASS [   0.009s] (505/519) triage pattern::suppression::tests::evaluate_suppresses_short_persistence_error_rate_spike_in_active_window
+        PASS [   0.008s] (506/519) triage pattern::suppression::tests::evaluate_with_no_active_windows_keeps_all_cues
+        PASS [   0.007s] (507/519) triage pattern::suppression::tests::record_restart_opens_window
+        PASS [   0.007s] (508/519) triage pattern::suppression::tests::suppression_state_starts_empty
+        PASS [   0.007s] (509/519) triage pattern::suppression::tests::evaluate_with_no_scope_id_does_not_match_any_window
+        PASS [   0.007s] (510/519) triage pattern::suppression::tests::window_per_service_tracked_independently
+        PASS [   0.277s] (511/519) triage baseline::tdigest_pair::tests::percentile_monotonic_property
+        PASS [   0.258s] (512/519) triage cadence::coordinator::tests::start_cadence_coordinator_tier2_skipped_on_cpu_primary_profile
+        PASS [   0.384s] (513/519) triage cadence::coordinator::tests::start_cadence_coordinator_ignores_suggested_cue_on_the_attention_broadcast
+        PASS [   0.573s] (514/519) triage baseline::sql::tests::q7_outer_limit_100_caps_results
+        PASS [   0.888s] (515/519) triage digest::assembler::tests::assemble_populates_corpus_matches_from_fingerprint_match
+        PASS [   0.893s] (516/519) triage digest::assembler::tests::assemble_degrades_to_empty_matches_on_retrieval_error
+        PASS [   0.903s] (517/519) triage digest::assembler::tests::assemble_routes_corpus_match_lines_through_scrub_closure
+        PASS [   0.904s] (518/519) triage digest::assembler::tests::assemble_with_noop_source_yields_empty_matches
+        PASS [   0.911s] (519/519) triage digest::assembler::tests::assemble_matches_on_q1_service_scope_when_fingerprints_differ
+────────────
+     Summary [   1.118s] 519 tests run: 519 passed, 0 skipped
+        PASS [   0.005s] (  1/519) pulse-app::unit_incident_producer dismiss_decision_creates_no_incident
+        PASS [   0.006s] (  2/519) pulse-app::unit_incident_producer incident_skip_is_absent_for_a_resolution_summary_digest
+        PASS [   0.007s] (  3/519) triage baseline::activity_floor::tests::bootstrap_state_honours_a_non_default_window
+        PASS [   0.014s] (  4/519) pulse-app::unit_incident_producer incident_skip_records_a_model_resolution_summary_at_the_predicate
+        PASS [   0.014s] (  5/519) pulse-app::unit_incident_producer incident_skip_records_a_dismiss_decision
+        PASS [   0.015s] (  6/519) pulse-app::unit_incident_producer no_triggering_cue_creates_no_incident
+        PASS [   0.016s] (  7/519) pulse-app::unit_incident_producer resolution_summary_output_creates_no_incident
+        PASS [   0.016s] (  8/519) pulse-app::unit_incident_producer incident_skip_records_a_cue_less_digest
+        PASS [   0.016s] (  9/519) pulse-app::unit_incident_producer reflection_dismiss_creates_no_incident
+        PASS [   0.017s] ( 10/519) pulse-app::unit_incident_producer incident_skip_records_a_model_resolution_summary_on_a_storm_digest
+        PASS [   0.007s] ( 11/519) triage baseline::activity_floor::tests::bootstrap_state_returns_learning_for_first_hour
+        PASS [   0.008s] ( 12/519) triage baseline::activity_floor::tests::bootstrap_state_returns_learning_when_never_observed
+        PASS [   0.009s] ( 13/519) triage baseline::activity_floor::tests::bootstrap_state_returns_ready_after_first_hour
+        PASS [   0.011s] ( 14/519) triage baseline::activity_floor::tests::bootstrap_state_is_ready_exactly_at_the_window_edge
+        PASS [   0.008s] ( 15/519) triage baseline::activity_floor::tests::bucket_index_for_wraps_modulo_bucket_count
+        PASS [   0.008s] ( 16/519) triage baseline::activity_floor::tests::current_quiet_duration_seconds_increases_with_time_since_last_observe
+        PASS [   0.009s] ( 17/519) triage baseline::activity_floor::tests::current_quiet_duration_seconds_returns_zero_before_first_observation
+        PASS [   0.009s] ( 18/519) triage baseline::activity_floor::tests::bucket_index_for_handles_negative_timestamps_safely
+        PASS [   0.029s] ( 19/519) pulse-app::unit_incident_producer incident_skip_records_a_none_severity
+        PASS [   0.009s] ( 20/519) triage baseline::activity_floor::tests::new_initializes_empty_state
+        PASS [   0.030s] ( 21/519) pulse-app::unit_incident_producer severity_none_creates_no_incident
+        PASS [   0.009s] ( 22/519) triage baseline::activity_floor::tests::observe_advances_last_observed_and_current_bucket
+        PASS [   0.008s] ( 23/519) triage baseline::activity_floor::tests::observe_within_same_24h_cycle_does_not_reset_buckets
+        PASS [   0.009s] ( 24/519) triage baseline::activity_floor::tests::observe_within_same_bucket_does_not_advance_bucket_index
+        PASS [   0.010s] ( 25/519) triage baseline::activity_floor::tests::observe_crossing_24h_boundary_resets_stale_bucket
+        PASS [   0.009s] ( 26/519) triage baseline::activity_floor::tests::p95_historical_quiet_duration_returns_none_before_two_observations
+        PASS [   0.012s] ( 27/519) triage baseline::activity_floor::tests::p95_historical_quiet_duration_returns_some_after_multiple_observations
+        PASS [   0.014s] ( 28/519) triage baseline::activity_floor::tests::observe_crossing_bucket_boundary_advances_bucket_index
+        PASS [   0.009s] ( 29/519) triage baseline::activity_floor::tests::serde_round_trip_preserves_buckets_and_digest
+        PASS [   0.008s] ( 30/519) triage baseline::error::tests::error_category_groups_io_serialize_permission
+        PASS [   0.009s] ( 31/519) triage baseline::error::tests::error_display_does_not_leak_raw_paths_or_chain
+        PASS [   0.011s] ( 32/519) triage baseline::ewma::tests::ewma_alpha_one_replaces_value
+        PASS [   0.011s] ( 33/519) triage baseline::ewma::tests::ewma_alpha_zero_keeps_initial_value
+        PASS [   0.018s] ( 34/519) triage baseline::activity_floor::tests::prop_bucket_index_always_in_range
+        PASS [   0.008s] ( 35/519) triage baseline::ewma::tests::ewma_serde_round_trip_preserves_state
+        PASS [   0.049s] ( 36/519) pulse-app::unit_incident_producer autonomous_severity_maps_to_error_and_autonomous_tier
+        PASS [   0.009s] ( 37/519) triage baseline::ewma::tests::ewma_first_observation_returns_value_directly
+        PASS [   0.009s] ( 38/519) triage baseline::rolling_window::tests::rolling_window_empty_mean_is_zero
+        PASS [   0.013s] ( 39/519) triage baseline::ewma::tests::ewma_converges_toward_constant_input
+        PASS [   0.055s] ( 40/519) pulse-app::integration_interpretation_attach dedupe_refreshes_latest_interpretation
+        PASS [   0.055s] ( 41/519) pulse-app::integration_interpretation_attach report_stays_degraded_when_no_interpretation_attached
+        PASS [   0.055s] ( 42/519) pulse-app::unit_incident_producer distinct_services_create_distinct_incidents
+        PASS [   0.055s] ( 43/519) pulse-app::integration_interpretation_attach creation_attaches_latest_interpretation_to_incident
+        PASS [   0.057s] ( 44/519) pulse-app::unit_incident_producer fingerprint_hashes_union_appends_cue_fingerprint_to_model_refs
+        PASS [   0.057s] ( 45/519) pulse-app::integration_interpretation_attach report_renders_full_brief_for_live_incident_with_attached_interpretation
+        PASS [   0.011s] ( 46/519) triage baseline::rolling_window::tests::rolling_window_respects_capacity
+        PASS [   0.010s] ( 47/519) triage baseline::rolling_window::tests::rolling_window_serde_round_trip
+        PASS [   0.010s] ( 48/519) triage baseline::rolling_window::tests::rolling_window_sum_and_mean
+        PASS [   0.035s] ( 49/519) triage baseline::activity_floor::tests::prop_observe_never_panics_under_arbitrary_timestamps
+        PASS [   0.009s] ( 50/519) triage baseline::sql::tests::q7_default_timeout_matches_spec
+        PASS [   0.066s] ( 51/519) pulse-app::unit_incident_producer reflection_dedups_one_per_workspace
+        PASS [   0.067s] ( 52/519) pulse-app::unit_incident_producer distinct_fingerprint_same_service_still_coalesces_to_one_incident
+        PASS [   0.062s] ( 53/519) pulse-app::unit_incident_producer watch_decision_creates_curious_incident
+        PASS [   0.067s] ( 54/519) pulse-app::unit_incident_producer producer_writes_cue_fingerprint_not_the_model_authored_one
+        PASS [   0.068s] ( 55/519) pulse-app::unit_incident_producer reemission_dedup_does_not_create_duplicate
+        PASS [   0.071s] ( 56/519) pulse-app::unit_incident_producer reflection_high_confidence_surfaces_suggested
+        PASS [   0.009s] ( 57/519) triage baseline::sql::tests::sql_aggregation_error_category_covers_all_variants
+        PASS [   0.009s] ( 58/519) triage baseline::tdigest_pair::tests::percentile_after_inserts_returns_some
+        PASS [   0.033s] ( 59/519) triage baseline::rolling_window::tests::rolling_window_length_never_exceeds_capacity
+        PASS [   0.010s] ( 60/519) triage baseline::tdigest_pair::tests::percentile_monotonic_p50_le_p95_le_p99
+        PASS [   0.078s] ( 61/519) pulse-app::unit_incident_producer producer_observability_is_aggregate_only
+        PASS [   0.012s] ( 62/519) triage baseline::tdigest_pair::tests::percentile_empty_returns_none
+        PASS [   0.072s] ( 63/519) pulse-app::unit_incident_producer surface_decision_creates_active_incident
+        PASS [   0.081s] ( 64/519) pulse-app::unit_incident_producer incident_skip_is_absent_when_an_incident_is_created
+        PASS [   0.081s] ( 65/519) pulse-app::unit_incident_producer reflection_surface_creates_workspace_global_incident
+        PASS [   0.083s] ( 66/519) pulse-app::unit_incident_producer fingerprint_hashes_union_does_not_duplicate_a_copied_fingerprint
+        PASS [   0.076s] ( 67/519) pulse-app::unit_incident_producer incidents_without_a_cue_fingerprint_carry_an_empty_one
+        PASS [   0.076s] ( 68/519) pulse-app::unit_incident_producer pii_canary_in_l4_text_is_scrubbed_before_persist
+        PASS [   0.085s] ( 69/519) pulse-app::unit_incident_producer fingerprint_hashes_carry_only_model_refs_without_a_cue_fingerprint
+        PASS [   0.010s] ( 70/519) triage baseline::tdigest_pair::tests::serde_round_trip_preserves_state
+        PASS [   0.077s] ( 71/519) pulse-app::unit_incident_producer producer_evidence_trace_span_and_timestamps_are_empty_by_construction
+        PASS [   0.009s] ( 72/519) triage baseline::tdigest_pair::tests::swap_no_op_before_window_elapses
+        PASS [   0.010s] ( 73/519) triage baseline::tdigest_pair::tests::swap_rotates_current_to_previous_after_window
+        PASS [   0.010s] ( 74/519) triage baseline::tests::bootstrap_state_emits_cold_start_metric
+        PASS [   0.010s] ( 75/519) triage baseline::tests::bootstrap_state_applies_window_on_the_resume_path_not_just_fresh
+        PASS [   0.052s] ( 76/519) triage baseline::ewma::tests::ewma_bounded_within_observed_min_max
+        PASS [   0.009s] ( 77/519) triage baseline::tests::bootstrap_state_returns_fresh_when_persistence_none
+        PASS [   0.010s] ( 78/519) triage baseline::tests::current_unix_nanos_returns_positive_value
+        PASS [   0.012s] ( 79/519) triage baseline::tests::bootstrap_state_returns_loaded_when_persistence_fresh
+        PASS [   0.014s] ( 80/519) triage baseline::tests::bootstrap_state_returns_fresh_when_persistence_empty
+        PASS [   0.010s] ( 81/519) triage baseline::tests::deserialized_state_defaults_to_the_non_zero_window
+        PASS [   0.016s] ( 82/519) triage baseline::tests::bootstrap_state_resets_when_persistence_stale_beyond_threshold
+        PASS [   0.013s] ( 83/519) triage baseline::tests::observe_span_drops_empty_operation_name_from_tdigest
+        PASS [   0.011s] ( 84/519) triage baseline::tests::observe_span_populates_service_baseline
+        PASS [   0.011s] ( 85/519) triage baseline::tests::observe_span_routes_to_activity_floor_observe
+        PASS [   0.014s] ( 86/519) triage baseline::tests::observe_span_populates_operation_latency_tdigest
+        PASS [   0.011s] ( 87/519) triage baseline::tests::operation_key_is_deterministic_and_includes_service_prefix
+        PASS [   0.012s] ( 88/519) triage baseline::tests::operation_name_distinguishes_two_operations_on_same_service
+        PASS [   0.015s] ( 89/519) triage baseline::tests::observe_span_with_empty_service_increments_drops
+        PASS [   0.012s] ( 90/519) triage baseline::tests::operation_name_round_trips_through_baseline_to_snapshot
+        PASS [   0.014s] ( 91/519) triage baseline::tests::run_persist_cycle_advances_persisted_at_via_trait
+        PASS [   0.012s] ( 92/519) triage baseline::tests::run_persist_cycle_emits_tick_and_persist_metric_events
+        PASS [   0.013s] ( 93/519) triage baseline::tests::run_persist_cycle_emits_error_event_on_persistence_failure
+        PASS [   0.015s] ( 94/519) triage baseline::tests::run_persist_cycle_emits_corpus_basename_field
+        PASS [   0.011s] ( 95/519) triage baseline::tests::silence_snapshot_reaches_ready_under_a_short_boot_resolved_window
+        PASS [   0.018s] ( 96/519) triage baseline::tests::persist_on_shutdown_emits_shutdown_kind_metric
+        PASS [   0.014s] ( 97/519) triage baseline::tests::run_persist_cycle_round_trip_preserves_service_state_via_trait
+        PASS [   0.011s] ( 98/519) triage cadence::broadcast::tests::cadence_event_broadcast_default_matches_new
+        PASS [   0.011s] ( 99/519) triage cadence::broadcast::tests::cadence_event_broadcast_round_trips_payload
+        PASS [   0.013s] (100/519) triage baseline::tests::service_identity_missing_emits_single_aggregate_warn_per_tick
+        PASS [   0.011s] (101/519) triage cadence::broadcast::tests::cadence_event_broadcast_send_with_no_subscribers_is_benign
+        PASS [   0.010s] (102/519) triage cadence::broadcast::tests::cadence_event_broadcast_starts_zero_subscribers
+        PASS [   0.010s] (103/519) triage cadence::broadcast::tests::digest_trigger_broadcast_default_starts_zero_subscribers
+        PASS [   0.013s] (104/519) triage cadence::broadcast::tests::cadence_event_broadcast_subscribe_increments_count
+        PASS [   0.010s] (105/519) triage cadence::broadcast::tests::digest_trigger_broadcast_round_trips_cue_including_scope_id
+        PASS [   0.010s] (106/519) triage cadence::config::tests::baseline_at_floor_passes_and_below_floor_rejects
+        PASS [   0.013s] (107/519) triage cadence::broadcast::tests::cadence_event_payload_has_no_string_fields
+        PASS [   0.011s] (108/519) triage cadence::config::tests::default_passes_validation
+        PASS [   0.036s] (109/519) triage baseline::tests::observe_span_enforces_service_cardinality_cap
+        PASS [   0.013s] (110/519) triage cadence::broadcast::tests::stream_name_matches_pulse_uri_convention
+        PASS [   0.014s] (111/519) triage cadence::config::tests::accelerated_at_floor_passes_and_below_floor_rejects
+        PASS [   0.013s] (112/519) triage cadence::config::tests::reflection_at_floor_passes_and_below_floor_rejects
+        PASS [   0.010s] (113/519) triage cadence::coordinator::tests::run_one_coordinator_cycle_does_not_leak_pii_canary_into_broadcast_payload
+        PASS [   0.013s] (114/519) triage cadence::config::tests::tier2_acceleration_enabled_false_passes_validation
+        PASS [   0.015s] (115/519) triage cadence::coordinator::tests::mode_label_returns_bounded_four_value_enumeration
+        PASS [   0.011s] (116/519) triage cadence::coordinator::tests::run_one_coordinator_cycle_emits_event_to_broadcast
+        PASS [   0.011s] (117/519) triage cadence::coordinator::tests::run_one_coordinator_cycle_handles_partial_query_failures
+        PASS [   0.013s] (118/519) triage cadence::coordinator::tests::run_one_coordinator_cycle_emits_event_with_cue_metadata_for_tier1
+        PASS [   0.010s] (119/519) triage cadence::coordinator::tests::run_one_coordinator_cycle_reflection_emits_reflection_mode
+        PASS [   0.011s] (120/519) triage cadence::coordinator::tests::run_one_coordinator_cycle_invokes_all_seven_queries_for_tier3
+        PASS [   0.010s] (121/519) triage cadence::coordinator::tests::run_one_coordinator_cycle_skips_tier2_when_hardware_profile_is_cpu_primary
+        PASS [   0.011s] (122/519) triage cadence::coordinator::tests::run_one_coordinator_cycle_runs_tier2_on_non_cpu_primary_profile
+        PASS [   0.010s] (123/519) triage cadence::coordinator::tests::unknown_hardware_profile_returns_unknown
+        PASS [   0.008s] (124/519) triage contract::tests::cue_kind_round_trips_through_serde
+        PASS [   0.028s] (125/519) triage cadence::config::tests::safety_floor_invariant
+        PASS [   0.010s] (126/519) triage contract::tests::cue_kind_serializes_snake_case
+        PASS [   0.012s] (127/519) triage contract::tests::attention_cue_round_trips_through_serde
+        PASS [   0.014s] (128/519) triage contract::tests::cue_kind_reflection_trend_serializes_snake_case
+        PASS [   0.012s] (129/519) triage contract::tests::cue_scope_round_trips_through_serde
+        PASS [   0.009s] (130/519) triage contract::tests::digest_cue_ref_deserializes_payload_without_fingerprint_field
+        PASS [   0.013s] (131/519) triage contract::tests::cue_scope_serializes_snake_case
+        PASS [   0.011s] (132/519) triage contract::tests::digest_kind_round_trips_through_serde
+        PASS [   0.011s] (133/519) triage contract::tests::digest_kind_serializes_snake_case
+        PASS [   0.011s] (134/519) triage contract::tests::evidence_refs_round_trips_through_serde
+        PASS [   0.012s] (135/519) triage contract::tests::digest_round_trips_through_serde
+        PASS [   0.010s] (136/519) triage contract::tests::hex_lower_encodes_full_width_lowercase
+        PASS [   0.087s] (137/519) triage baseline::sql::tests::triage_sql_state_clones_share_connection
+        PASS [   0.105s] (138/519) triage baseline::sql::tests::q1_empty_table_returns_empty_vec
+        PASS [   0.032s] (139/519) triage cadence::coordinator::tests::start_cadence_coordinator_spawnable_and_abortable
+        PASS [   0.102s] (140/519) triage baseline::sql::tests::q5_returns_cardinality_per_service
+        PASS [   0.012s] (141/519) triage contract::tests::incident_events_vocabulary_is_created_plus_each_status_label
+        PASS [   0.013s] (142/519) triage contract::tests::incident_round_trips_through_serde
+        PASS [   0.011s] (143/519) triage contract::tests::incident_status_round_trips_through_serde
+        PASS [   0.015s] (144/519) triage contract::tests::incident_deserializes_pre_chunk_86_payload_without_resolution_summary_field
+        PASS [   0.011s] (145/519) triage contract::tests::priority_tier_serializes_snake_case
+        PASS [   0.012s] (146/519) triage contract::tests::priority_tier_round_trips_through_serde
+        PASS [   0.110s] (147/519) triage baseline::sql::tests::q3_returns_fingerprints_with_count_ge_2
+        PASS [   0.014s] (148/519) triage contract::tests::incident_status_serializes_snake_case
+        PASS [   0.010s] (149/519) triage contract::tests::severity_round_trips_through_serde
+        PASS [   0.011s] (150/519) triage contract::tests::scrubbed_clone_passes_cue_fingerprint_through_untouched
+        PASS [   0.110s] (151/519) triage baseline::sql::tests::q4_returns_caller_callee_pairs
+        PASS [   0.010s] (152/519) triage contract::tests::severity_serializes_snake_case
+        PASS [   0.100s] (153/519) triage baseline::sql::tests::window_filter_excludes_old_rows
+        PASS [   0.115s] (154/519) triage baseline::sql::tests::q2_orders_by_error_count_desc
+        PASS [   0.110s] (155/519) triage baseline::sql::tests::q7_fallback_fires_on_zero_timeout
+        PASS [   0.011s] (156/519) triage cue::broadcast::tests::attention_cue_broadcast_round_trips_payload
+        PASS [   0.110s] (157/519) triage baseline::sql::tests::q7_primary_under_normal_timeout_returns_normal_results
+        PASS [   0.011s] (158/519) triage cue::broadcast::tests::attention_cue_broadcast_send_with_no_subscribers_is_benign
+        PASS [   0.115s] (159/519) triage baseline::sql::tests::q6_returns_high_severity_logs
+        PASS [   0.011s] (160/519) triage cue::broadcast::tests::cadence_trigger_channel_round_trips_payload
+        PASS [   0.049s] (161/519) triage cadence::coordinator::tests::start_cadence_coordinator_responds_to_tier1_autonomous_cue
+        PASS [   0.012s] (162/519) triage cue::broadcast::tests::attention_cue_broadcast_subscribe_increments_count
+        PASS [   0.011s] (163/519) triage cue::broadcast::tests::cadence_trigger_channel_starts_zero_subscribers
+        PASS [   0.012s] (164/519) triage cue::broadcast::tests::attention_cue_broadcast_starts_zero_subscribers
+        PASS [   0.050s] (165/519) triage cadence::coordinator::tests::start_cadence_coordinator_responds_to_tier2_suggested_cadence_trigger
+        PASS [   0.010s] (166/519) triage cue::broadcast::tests::channel_name_uses_kebab_case_label
+        PASS [   0.010s] (167/519) triage cue::broadcast::tests::stream_name_matches_pulse_uri_convention
+        PASS [   0.010s] (168/519) triage cue::classify::tests::classify_priority_decision_boundary::case_5
+        PASS [   0.010s] (169/519) triage cue::classify::tests::classify_priority_decision_boundary::case_3
+        PASS [   0.010s] (170/519) triage cue::classify::tests::classify_priority_decision_boundary::case_4
+        PASS [   0.009s] (171/519) triage cue::classify::tests::classify_priority_decision_boundary::case_6
+        PASS [   0.012s] (172/519) triage cue::classify::tests::classify_priority_decision_boundary::case_2
+        PASS [   0.011s] (173/519) triage cue::classify::tests::classify_priority_decision_boundary::case_1
+        PASS [   0.110s] (174/519) triage baseline::sql::tests::sql_injection_via_duration_param_is_blocked
+        PASS [   0.148s] (175/519) triage baseline::activity_floor::tests::prop_24h_rolling_invariant
+        PASS [   0.010s] (176/519) triage cue::classify::tests::classify_priority_decision_boundary::case_7
+        PASS [   0.010s] (177/519) triage cue::classify::tests::classify_priority_decision_boundary::case_9
+        PASS [   0.011s] (178/519) triage cue::classify::tests::cue_kind_label_matches_serde_snake_case
+        PASS [   0.010s] (179/519) triage cue::classify::tests::dual_condition_bypass_matrix::case_1
+        PASS [   0.011s] (180/519) triage cue::classify::tests::classify_priority_nan_inputs_return_curious
+        PASS [   0.012s] (181/519) triage cue::classify::tests::classify_priority_decision_boundary::case_8
+        PASS [   0.010s] (182/519) triage cue::classify::tests::dual_condition_bypass_matrix::case_3
+        PASS [   0.012s] (183/519) triage cue::classify::tests::dual_condition_bypass_matrix::case_2
+        PASS [   0.011s] (184/519) triage cue::classify::tests::dual_condition_bypass_matrix::case_5
+        PASS [   0.011s] (185/519) triage cue::classify::tests::dual_condition_bypass_matrix::case_4
+        PASS [   0.011s] (186/519) triage cue::classify::tests::dual_condition_bypass_matrix::case_6
+        PASS [   0.009s] (187/519) triage cue::classify::tests::dual_condition_bypass_respects_configured_multiplier_override
+        PASS [   0.011s] (188/519) triage cue::classify::tests::dual_condition_bypass_matrix::case_7
+        PASS [   0.010s] (189/519) triage cue::classify::tests::dual_condition_bypass_nan_inputs_return_false
+        PASS [   0.132s] (190/519) triage baseline::sql::tests::q1_returns_red_metrics_per_service
+        PASS [   0.011s] (191/519) triage cue::classify::tests::dual_condition_bypass_respects_configured_absolute_error_rate_override
+        PASS [   0.010s] (192/519) triage cue::classify::tests::priority_tier_label_matches_serde_snake_case
+        PASS [   0.010s] (193/519) triage cue::emitter::tests::cue_latch_admits_a_newly_observed_condition
+        PASS [   0.011s] (194/519) triage cue::emitter::tests::cue_latch_admits_immediately_when_the_tier_escalates
+        PASS [   0.010s] (195/519) triage cue::emitter::tests::cue_latch_evicts_a_cleared_condition_so_recurrence_admits_immediately
+        PASS [   0.012s] (196/519) triage cue::emitter::tests::cue_latch_admits_again_after_the_refractory_window_elapses
+        PASS [   0.012s] (197/519) triage cue::emitter::tests::cue_latch_bounds_the_measured_wedge_shape
+        PASS [   0.011s] (198/519) triage cue::emitter::tests::cue_latch_keys_on_kind_and_scope_so_distinct_conditions_stay_independent
+        PASS [   0.010s] (199/519) triage cue::emitter::tests::cue_latch_refuses_an_unchanged_repeat_inside_the_refractory_window
+        PASS [   0.011s] (200/519) triage cue::emitter::tests::run_one_emit_cycle_autonomous_tier_does_not_fan_to_cadence_triggers
+        PASS [   0.011s] (201/519) triage cue::emitter::tests::cue_latch_refuses_a_de_escalation_inside_the_window
+        PASS [   0.011s] (202/519) triage cue::emitter::tests::run_one_emit_cycle_drops_short_persistence_error_spike_in_active_window
+        PASS [   0.066s] (203/519) triage cadence::coordinator::tests::start_cadence_coordinator_survives_config_hot_reload
+        PASS [   0.012s] (204/519) triage cue::emitter::tests::run_one_emit_cycle_does_not_emit_service_went_silent_during_bootstrap
+        PASS [   0.010s] (205/519) triage cue::emitter::tests::run_one_emit_cycle_emits_evaluation_span_with_threshold_fields
+        PASS [   0.011s] (206/519) triage cue::emitter::tests::run_one_emit_cycle_emits_cue_to_broadcast_topic
+        PASS [   0.015s] (207/519) triage cue::emitter::tests::cue_latch_holds_the_bound_across_the_scenario_s_multi_window_gap
+        PASS [   0.010s] (208/519) triage cue::emitter::tests::run_one_emit_cycle_emits_metric_per_cue
+        PASS [   0.009s] (209/519) triage cue::emitter::tests::run_one_emit_cycle_emits_service_went_silent_evaluate_aggregate_event
+        PASS [   0.011s] (210/519) triage cue::emitter::tests::run_one_emit_cycle_emits_service_went_silent_cue_post_bootstrap
+        PASS [   0.010s] (211/519) triage cue::emitter::tests::run_one_emit_cycle_emits_tick_event_with_zero_cues_on_empty_state
+        PASS [   0.012s] (212/519) triage cue::emitter::tests::run_one_emit_cycle_emits_suppression_check_per_cue
+        PASS [   0.010s] (213/519) triage cue::evaluate::tests::error_rate_floor_stays_at_ten_samples_distinct_from_latency_floor
+        PASS [   0.012s] (214/519) triage cue::emitter::tests::run_one_emit_cycle_keeps_high_magnitude_spike_in_active_window_via_bypass
+        PASS [   0.012s] (215/519) triage cue::emitter::tests::run_one_emit_cycle_surfaces_sustained_spike_inside_active_restart_window
+        PASS [   0.010s] (216/519) triage cue::evaluate::tests::evaluate_service_went_silent_bursty_pattern_keeps_quiet_phases_silent
+        PASS [   0.010s] (217/519) triage cue::evaluate::tests::evaluate_service_went_silent_attribute_poisoning_does_not_bypass_bootstrap
+        PASS [   0.010s] (218/519) triage cue::evaluate::tests::evaluate_service_went_silent_during_bootstrap_returns_no_cues_even_when_quiet_long
+        PASS [   0.012s] (219/519) triage cue::emitter::tests::run_one_emit_cycle_tier_two_fans_to_cadence_triggers
+        PASS [   0.013s] (220/519) triage cue::emitter::tests::run_one_emit_cycle_pii_canary_does_not_leak_into_tracing_fields
+        PASS [   0.010s] (221/519) triage cue::evaluate::tests::evaluate_service_went_silent_empty_state_returns_no_cues
+        PASS [   0.139s] (222/519) triage baseline::sql::tests::q7_returns_critical_path_for_slow_traces
+        PASS [   0.011s] (223/519) triage cue::evaluate::tests::evaluate_service_went_silent_low_frequency_service_preserves_learned_p95
+        PASS [   0.012s] (224/519) triage cue::evaluate::tests::evaluate_service_went_silent_high_frequency_service_clamped_to_min_floor
+        PASS [   0.010s] (225/519) triage cue::evaluate::tests::evaluate_thresholds_below_warmup_returns_no_cues
+        PASS [   0.011s] (226/519) triage cue::evaluate::tests::evaluate_thresholds_empty_service_name_excluded_from_cues
+        PASS [   0.012s] (227/519) triage cue::evaluate::tests::evaluate_service_went_silent_post_bootstrap_above_p95_returns_cue
+        PASS [   0.011s] (228/519) triage cue::evaluate::tests::evaluate_thresholds_error_rate_above_threshold_emits_cue
+        PASS [   0.011s] (229/519) triage cue::evaluate::tests::evaluate_service_went_silent_post_bootstrap_below_p95_returns_no_cues
+        PASS [   0.011s] (230/519) triage cue::evaluate::tests::evaluate_thresholds_fast_latency_does_not_emit_cue
+        PASS [   0.011s] (231/519) triage cue::evaluate::tests::evaluate_thresholds_empty_state_returns_no_cues
+        PASS [   0.012s] (232/519) triage cue::evaluate::tests::evaluate_thresholds_classification_flips_when_multiplier_raised
+        PASS [   0.010s] (233/519) triage cue::evaluate::tests::evaluate_thresholds_low_error_rate_does_not_emit_cue
+        PASS [   0.010s] (234/519) triage cue::evaluate::tests::evaluate_thresholds_priority_tier_classifies_by_magnitude_and_samples
+        PASS [   0.010s] (235/519) triage cue::thresholds::tests::default_thresholds_match_chunk_spec_constants
+        PASS [   0.009s] (236/519) triage cue::thresholds::tests::resolve_bootstrap_window_accepts_bounded_override
+        PASS [   0.010s] (237/519) triage cue::thresholds::tests::from_env_carries_the_resolved_bound_into_the_field
+        PASS [   0.010s] (238/519) triage cue::thresholds::tests::from_env_unset_is_byte_identical_to_default
+        PASS [   0.009s] (239/519) triage cue::thresholds::tests::resolve_bootstrap_window_rejects_at_or_above_window_duration
+        PASS [   0.009s] (240/519) triage cue::thresholds::tests::resolve_bootstrap_window_trims_surrounding_whitespace
+        PASS [   0.010s] (241/519) triage cue::thresholds::tests::resolve_bootstrap_window_rejects_zero_empty_and_unparseable
+        PASS [   0.013s] (242/519) triage cue::evaluate::tests::latency_gate_admits_operations_at_min_latency_samples
+        PASS [   0.014s] (243/519) triage cue::evaluate::tests::evaluate_thresholds_latency_above_threshold_emits_cue
+        PASS [   0.012s] (244/519) triage cue::evaluate::tests::latency_gate_excludes_operations_below_min_latency_samples
+        PASS [   0.010s] (245/519) triage cue::thresholds::tests::validate_default_thresholds_succeeds
+        PASS [   0.012s] (246/519) triage cue::thresholds::tests::resolve_bootstrap_window_unset_yields_default
+        PASS [   0.010s] (247/519) triage cue::thresholds::tests::thresholds_round_trip_through_serde
+        PASS [   0.009s] (248/519) triage cue::thresholds::tests::validate_rejects_absolute_bypass_error_rate_above_one
+        PASS [   0.010s] (249/519) triage cue::thresholds::tests::validate_rejects_base_error_rate_above_one
+        PASS [   0.009s] (250/519) triage cue::thresholds::tests::validate_rejects_nan_latency_multiplier
+        PASS [   0.009s] (251/519) triage cue::thresholds::tests::validate_rejects_nan_magnitude_bypass_multiplier
+        PASS [   0.010s] (252/519) triage cue::thresholds::tests::validate_rejects_magnitude_bypass_multiplier_below_or_equal_one
+        PASS [   0.009s] (253/519) triage cue::thresholds::tests::validate_rejects_nan_quiet_duration_percentile
+        PASS [   0.009s] (254/519) triage cue::thresholds::tests::validate_rejects_quiet_duration_percentile_outside_unit_range
+        PASS [   0.011s] (255/519) triage cue::thresholds::tests::validate_rejects_negative_error_rate_multiplier
+        PASS [   0.010s] (256/519) triage cue::thresholds::tests::validate_rejects_zero_base_latency
+        PASS [   0.009s] (257/519) triage cue::thresholds::tests::validate_rejects_zero_bootstrap_window_seconds
+        PASS [   0.010s] (258/519) triage cue::thresholds::tests::validate_rejects_zero_absolute_bypass_latency_ms
+        PASS [   0.011s] (259/519) triage cue::thresholds::tests::validate_rejects_percentile_outside_unit_range
+        PASS [   0.009s] (260/519) triage cue::thresholds::tests::validate_rejects_zero_restart_gap_threshold_seconds
+        PASS [   0.009s] (261/519) triage cue::thresholds::tests::validate_rejects_zero_quiet_duration_percentile
+        PASS [   0.009s] (262/519) triage cue::thresholds::tests::validate_rejects_zero_suppression_persistence_cutoff_samples
+        PASS [   0.009s] (263/519) triage cue::thresholds::tests::validate_rejects_zero_restart_suppression_window_seconds
+        PASS [   0.010s] (264/519) triage cue::thresholds::tests::validate_rejects_zero_min_latency_samples
+        PASS [   0.009s] (265/519) triage cue::thresholds::tests::validate_rejects_zero_tick_interval
+        PASS [   0.009s] (266/519) triage digest::assembler::tests::hex_lower_encodes_q3_fingerprint_bytes
+        PASS [   0.009s] (267/519) triage digest::assembler::tests::overall_line_reads_anomalous_for_a_cue_bearing_tier1_digest
+        PASS [   0.009s] (268/519) triage digest::broadcast::tests::digest_broadcast_send_with_no_subscribers_is_benign
+        PASS [   0.011s] (269/519) triage digest::assembler::tests::overall_line_reads_degraded_with_an_active_incident
+        PASS [   0.009s] (270/519) triage digest::assembler::tests::render_payload_includes_five_recent_commits_per_p032
+        PASS [   0.009s] (271/519) triage digest::assembler::tests::overall_line_reads_nominal_without_cue_or_incident
+        PASS [   0.010s] (272/519) triage digest::broadcast::tests::digest_broadcast_default_matches_new
+        PASS [   0.010s] (273/519) triage digest::broadcast::tests::digest_broadcast_round_trips_payload
+        PASS [   0.011s] (274/519) triage digest::broadcast::tests::digest_broadcast_starts_zero_subscribers
+        PASS [   0.010s] (275/519) triage digest::broadcast::tests::digest_broadcast_subscribe_increments_count
+        PASS [   0.010s] (276/519) triage digest::damper::tests::bypass_kinds_are_never_suppressed
+        PASS [   0.010s] (277/519) triage digest::broadcast::tests::multiple_subscribers_each_receive_send
+        PASS [   0.009s] (278/519) triage digest::broadcast::tests::stream_name_matches_pulse_uri_convention
+        PASS [   0.010s] (279/519) triage digest::damper::tests::changed_projection_generates_and_reports_the_released_run
+        PASS [   0.009s] (280/519) triage digest::damper::tests::changed_service_rows_generate
+        PASS [   0.009s] (281/519) triage digest::damper::tests::counters_track_runs_and_suppressions
+        PASS [   0.010s] (282/519) triage digest::damper::tests::cleared_cue_condition_evicts_so_a_new_episode_reanalyzes
+        PASS [   0.010s] (283/519) triage digest::damper::tests::distinct_identities_damp_independently
+        PASS [   0.010s] (284/519) triage digest::damper::tests::first_seen_generates_then_unchanged_suppresses
+        PASS [   0.010s] (285/519) triage digest::damper::tests::interval_identity_survives_the_reflection_gap
+        PASS [   0.011s] (286/519) triage digest::damper::tests::retrieval_context_is_outside_the_projection
+        PASS [   0.011s] (287/519) triage digest::damper::tests::state_updates_only_on_recorded_success
+        PASS [   0.009s] (288/519) triage digest::queue::tests::first_default_push_returns_queued
+        PASS [   0.009s] (289/519) triage digest::queue::tests::default_push_different_workspaces_both_queued
+        PASS [   0.009s] (290/519) triage digest::queue::tests::active_incident_bypass_does_not_replace
+        PASS [   0.010s] (291/519) triage digest::queue::tests::active_incident_queue_caps_at_5_drops_oldest
+        PASS [   0.010s] (292/519) triage digest::queue::tests::second_default_push_same_workspace_returns_replaced
+        PASS [   0.010s] (293/519) triage digest::queue::tests::reflection_lww_per_workspace
+        PASS [   0.009s] (294/519) triage digest::queue::tests::tier1_caps_at_3_drops_oldest
+        PASS [   0.009s] (295/519) triage digest::queue::tests::tier1_never_lww_each_push_queued
+        PASS [   0.009s] (296/519) triage digest::retrieval::tests::noop_source_returns_empty_candidates
+        PASS [   0.009s] (297/519) triage digest::retrieval::tests::format_corpus_match_line_carries_fingerprint_title_age_outcome
+        PASS [   0.010s] (298/519) triage digest::retrieval::tests::select_corpus_matches_keeps_fingerprint_matches_only
+        PASS [   0.009s] (299/519) triage digest::retrieval::tests::select_corpus_matches_ranks_by_recency_and_caps_at_limit
+        PASS [   0.010s] (300/519) triage digest::retrieval::tests::select_corpus_matches_empty_fingerprint_never_matches_empty_set_entry
+        PASS [   0.009s] (301/519) triage digest::retrieval::tests::select_previously_seen_matches_scope_when_fingerprints_differ
+        PASS [   0.010s] (302/519) triage digest::retrieval::tests::select_corpus_matches_keeps_scope_matches
+        PASS [   0.009s] (303/519) triage incident::broadcast::tests::broadcast_capacity_matches_sibling_precedent
+        PASS [   0.010s] (304/519) triage digest::retrieval::tests::select_previously_seen_excludes_self_and_matches_fingerprint
+        PASS [   0.010s] (305/519) triage digest::retrieval::tests::select_previously_seen_none_scope_never_matches_none_scope
+        PASS [   0.010s] (306/519) triage incident::broadcast::tests::incident_lifecycle_broadcast_round_trips_payload
+        PASS [   0.010s] (307/519) triage incident::broadcast::tests::incident_lifecycle_broadcast_send_with_no_subscribers_is_benign
+        PASS [   0.010s] (308/519) triage incident::broadcast::tests::incident_lifecycle_event_has_no_pii_fields
+        PASS [   0.191s] (309/519) triage baseline::sql::tests::all_blocking_queries_safe_to_re_run
+        PASS [   0.010s] (310/519) triage incident::broadcast::tests::incident_lifecycle_broadcast_subscribe_increments_count
+        PASS [   0.010s] (311/519) triage incident::broadcast::tests::incident_lifecycle_broadcast_starts_zero_subscribers
+        PASS [   0.009s] (312/519) triage incident::persistence::tests::default_ack_cooldown_matches_spec_p_023
+        PASS [   0.010s] (313/519) triage incident::broadcast::tests::stream_name_matches_pulse_uri_convention
+        PASS [   0.010s] (314/519) triage incident::broadcast::tests::incident_lifecycle_event_serde_round_trips
+        PASS [   0.009s] (315/519) triage incident::persistence::tests::default_auto_resolve_window_matches_spec_p_022
+        PASS [   0.009s] (316/519) triage incident::persistence::tests::default_persist_interval_matches_sibling_precedent
+        PASS [   0.009s] (317/519) triage incident::persistence::tests::reconcile_kind_label_is_stable
+        PASS [   0.010s] (318/519) triage incident::persistence::tests::reconcile_only_touches_the_named_workspace
+        PASS [   0.010s] (319/519) triage incident::persistence::tests::persist_cycle_reconciles_before_writing_so_the_stale_row_is_not_re_offered
+        PASS [   0.010s] (320/519) triage incident::persistence::tests::error_category_labels_stable
+        PASS [   0.010s] (321/519) triage incident::persistence::tests::reconcile_is_a_no_op_when_registry_and_durable_agree
+        PASS [   0.010s] (322/519) triage incident::persistence::tests::reconcile_resolves_registry_rows_absent_from_the_durable_active_set
+        PASS [   0.010s] (323/519) triage incident::registry::tests::acknowledge_active_succeeds
+        PASS [   0.010s] (324/519) triage incident::persistence::tests::run_incident_persist_cycle_persists_each_active_incident
+        PASS [   0.010s] (325/519) triage incident::persistence::tests::reconcile_resolves_nothing_when_the_durable_read_fails
+        PASS [   0.010s] (326/519) triage incident::persistence::tests::tracing_target_names_stable
+        PASS [   0.062s] (327/519) triage cue::emitter::tests::start_emitter_spawnable_and_abortable
+        PASS [   0.010s] (328/519) triage incident::registry::tests::acknowledge_not_found_returns_not_found
+        PASS [   0.009s] (329/519) triage incident::registry::tests::attach_interpretation_summary_rejects_resolved_incident
+        PASS [   0.010s] (330/519) triage incident::registry::tests::acknowledge_already_acknowledged_returns_invalid_transition
+        PASS [   0.010s] (331/519) triage incident::registry::tests::acknowledge_different_workspace_bypasses_cooldown
+        PASS [   0.010s] (332/519) triage incident::registry::tests::acknowledge_after_cooldown_window_succeeds
+        PASS [   0.010s] (333/519) triage incident::registry::tests::acknowledge_within_cooldown_for_same_kind_scope_workspace_rejects
+        PASS [   0.009s] (334/519) triage incident::registry::tests::attach_resolution_summary_returns_not_found_for_unknown_id
+        PASS [   0.010s] (335/519) triage incident::registry::tests::attach_interpretation_summary_returns_not_found_for_unknown_id
+        PASS [   0.009s] (336/519) triage incident::registry::tests::attach_resolution_summary_rejects_active_incident
+        PASS [   0.010s] (337/519) triage incident::registry::tests::attach_interpretation_summary_writes_to_acknowledged_incident
+        PASS [   0.010s] (338/519) triage incident::registry::tests::attach_interpretation_summary_writes_to_active_incident
+        PASS [   0.010s] (339/519) triage incident::registry::tests::attach_resolution_summary_writes_summary_to_resolved_incident
+        PASS [   0.009s] (340/519) triage incident::registry::tests::error_category_labels_stable
+        PASS [   0.010s] (341/519) triage incident::registry::tests::evaluate_auto_resolution_returns_active_past_window
+        PASS [   0.010s] (342/519) triage incident::registry::tests::evaluate_auto_resolution_includes_acknowledged
+        PASS [   0.010s] (343/519) triage incident::registry::tests::evaluate_auto_resolution_skips_resolved
+        PASS [   0.010s] (344/519) triage incident::registry::tests::from_persisted_hydrates_registry
+        PASS [   0.010s] (345/519) triage incident::registry::tests::insert_and_get_round_trips
+        PASS [   0.010s] (346/519) triage incident::registry::tests::list_active_filters_by_workspace_and_resolved
+        PASS [   0.010s] (347/519) triage incident::registry::tests::list_for_workspace_returns_every_status_and_filters_by_workspace
+        PASS [   0.011s] (348/519) triage incident::registry::tests::mark_all_read_filters_by_workspace
+        PASS [   0.010s] (349/519) triage incident::registry::tests::mark_all_read_marks_all_unread_in_workspace_and_returns_ids
+        PASS [   0.009s] (350/519) triage incident::registry::tests::mark_resolved_already_resolved_returns_invalid_transition
+        PASS [   0.010s] (351/519) triage incident::registry::tests::mark_all_read_skips_resolved_incidents
+        PASS [   0.010s] (352/519) triage incident::registry::tests::mark_read_sets_read_at
+        PASS [   0.010s] (353/519) triage incident::registry::tests::mark_resolved_acknowledged_succeeds
+        PASS [   0.010s] (354/519) triage incident::registry::tests::mark_all_read_on_empty_workspace_returns_empty_vec
+        PASS [   0.009s] (355/519) triage incident::registry::tests::observe_reemission_on_resolved_rejects
+        PASS [   0.010s] (356/519) triage incident::registry::tests::mark_resolved_active_succeeds
+        PASS [   0.010s] (357/519) triage incident::registry::tests::mark_resolved_not_found_returns_not_found
+        PASS [   0.009s] (358/519) triage incident::registry::tests::observe_reemission_updates_timestamp
+        PASS [   0.011s] (359/519) triage incident::registry::tests::mark_all_read_skips_already_read_incidents
+        PASS [   0.010s] (360/519) triage incident::registry::tests::registry_starts_empty
+        PASS [   0.010s] (361/519) triage incident::state_machine::tests::is_valid_incident_transition_accepts_spec_edges
+        PASS [   0.010s] (362/519) triage incident::state_machine::tests::cooldown_expiry_saturates_on_overflow
+        PASS [   0.010s] (363/519) triage incident::state_machine::tests::cooldown_expiry_computes_5min_from_now
+        PASS [   0.009s] (364/519) triage incident::state_machine::tests::should_auto_resolve_false_within_window
+        PASS [   0.010s] (365/519) triage incident::state_machine::tests::is_valid_incident_transition_rejects_self_loops
+        PASS [   0.010s] (366/519) triage incident::state_machine::tests::is_valid_incident_transition_rejects_reverse_progression
+        PASS [   0.010s] (367/519) triage incident::state_machine::tests::should_auto_resolve_at_boundary_is_true
+        PASS [   0.010s] (368/519) triage incident::state_machine::tests::should_auto_resolve_true_after_window
+        PASS [   0.010s] (369/519) triage incident::state_machine::tests::status_label_matches_snake_case_serde
+        PASS [   0.009s] (370/519) triage incident::state_machine::tests::status_label_round_trips_through_serde
+        PASS [   0.010s] (371/519) triage incident::tier_effective::tests::a_higher_tier_opening_is_the_rise
+        PASS [   0.009s] (372/519) triage incident::tier_effective::tests::a_resolved_incident_without_a_resolution_instant_is_skipped
+        PASS [   0.009s] (373/519) triage incident::tier_effective::tests::a_same_tier_second_incident_does_not_move_it
+        PASS [   0.010s] (374/519) triage incident::tier_effective::tests::no_incidents_is_none
+        PASS [   0.010s] (375/519) triage incident::tier_effective::tests::concurrent_max_holders_fall_only_when_the_last_resolves
+        PASS [   0.009s] (376/519) triage incident::tier_effective::tests::the_max_holder_resolving_falls_to_the_lower_tier
+        PASS [   0.010s] (377/519) triage incident::tier_effective::tests::acknowledgement_keeps_the_tier
+        PASS [   0.010s] (378/519) triage incident::tier_effective::tests::the_last_holder_resolving_falls_to_none
+        PASS [   0.010s] (379/519) triage incident::tier_effective::tests::other_services_and_non_service_scopes_are_ignored
+        PASS [   0.010s] (380/519) triage incident::tier_effective::tests::rise_fall_rise_returns_the_second_rise
+        PASS [   0.009s] (381/519) triage incident::tier_effective::tests::the_replay_final_maximum_equals_the_max_over_the_active_subset
+        PASS [   0.009s] (382/519) triage lifecycle::broadcast::tests::broadcast_capacity_matches_sibling_precedent
+        PASS [   0.010s] (383/519) triage lifecycle::broadcast::tests::service_lifecycle_broadcast_round_trips_payload
+        PASS [   0.009s] (384/519) triage lifecycle::broadcast::tests::service_lifecycle_broadcast_subscribe_increments_count
+        PASS [   0.009s] (385/519) triage lifecycle::broadcast::tests::service_lifecycle_broadcast_send_with_no_subscribers_is_benign
+        PASS [   0.010s] (386/519) triage lifecycle::broadcast::tests::service_lifecycle_broadcast_starts_zero_subscribers
+        PASS [   0.009s] (387/519) triage lifecycle::broadcast::tests::service_lifecycle_event_serde_round_trips
+        PASS [   0.009s] (388/519) triage lifecycle::broadcast::tests::stream_name_matches_pulse_uri_convention
+        PASS [   0.010s] (389/519) triage lifecycle::broadcast::tests::service_lifecycle_event_has_no_pii_fields
+        PASS [   0.009s] (390/519) triage lifecycle::persistence::tests::fake_persistence_load_returns_seeded_entries
+        PASS [   0.010s] (391/519) triage lifecycle::persistence::tests::fake_persistence_load_returns_none_by_default
+        PASS [   0.009s] (392/519) triage lifecycle::persistence::tests::lifecycle_error_category_groups_io_serialize_permission
+        PASS [   0.009s] (393/519) triage lifecycle::persistence::tests::run_persist_cycle_emits_error_on_failure
+        PASS [   0.009s] (394/519) triage lifecycle::persistence::tests::services_to_entries_preserves_state_and_manual_override
+        PASS [   0.009s] (395/519) triage lifecycle::persistence::tests::run_persist_cycle_round_trips_state_via_fake_persistence
+        PASS [   0.009s] (396/519) triage lifecycle::registry::tests::first_sighting_drops_empty_service
+        PASS [   0.009s] (397/519) triage lifecycle::registry::tests::next_natural_state_bootstrapping_stays_when_learning
+        PASS [   0.009s] (398/519) triage lifecycle::registry::tests::next_natural_state_active_to_quiet_at_threshold
+        PASS [   0.010s] (399/519) triage lifecycle::registry::tests::first_sighting_returns_the_activity_event_once
+        PASS [   0.010s] (400/519) triage lifecycle::registry::tests::first_sighting_registers_bootstrapping_entry_listed_before_any_tick
+        PASS [   0.010s] (401/519) triage lifecycle::registry::tests::list_all_returns_per_service_items_with_effective_state
+        PASS [   0.010s] (402/519) triage lifecycle::registry::tests::first_sighting_then_tick_emits_no_duplicate_event
+        PASS [   0.009s] (403/519) triage lifecycle::registry::tests::next_natural_state_archived_is_absorbing
+        PASS [   0.011s] (404/519) triage lifecycle::registry::tests::count_by_state_orders_variants_consistently
+        PASS [   0.009s] (405/519) triage lifecycle::registry::tests::next_natural_state_quiet_to_silent_at_p95
+        PASS [   0.009s] (406/519) triage lifecycle::registry::tests::next_natural_state_bootstrapping_to_active_when_ready
+        PASS [   0.009s] (407/519) triage lifecycle::registry::tests::next_natural_state_dormant_to_archived_at_archived_threshold
+        PASS [   0.009s] (408/519) triage lifecycle::registry::tests::next_natural_state_quiet_uses_fallback_when_no_p95
+        PASS [   0.009s] (409/519) triage lifecycle::registry::tests::next_natural_state_quiet_to_active_on_zero_quiet
+        PASS [   0.009s] (410/519) triage lifecycle::registry::tests::next_natural_state_silent_to_dormant_at_dormant_threshold
+        PASS [   0.009s] (411/519) triage lifecycle::registry::tests::next_natural_state_unknown_to_bootstrapping
+        PASS [   0.010s] (412/519) triage lifecycle::registry::tests::next_natural_state_silent_to_quiet_when_activity_returns
+        PASS [   0.009s] (413/519) triage lifecycle::registry::tests::set_manual_override_clearing_emits_event_when_natural_differs
+        PASS [   0.010s] (414/519) triage lifecycle::registry::tests::registry_starts_empty
+        PASS [   0.009s] (415/519) triage lifecycle::registry::tests::set_manual_override_forces_state_regardless_of_activity
+        PASS [   0.009s] (416/519) triage lifecycle::registry::tests::set_manual_override_returns_none_when_effective_state_unchanged
+        PASS [   0.010s] (417/519) triage lifecycle::registry::tests::set_state_on_corpus_restore_drops_empty_service
+        PASS [   0.009s] (418/519) triage lifecycle::registry::tests::set_state_on_restart_bypasses_archived
+        PASS [   0.010s] (419/519) triage lifecycle::registry::tests::set_state_on_corpus_restore_stamps_boot_time_when_no_prior_entry
+        PASS [   0.009s] (420/519) triage lifecycle::registry::tests::set_state_on_restart_creates_bootstrapping_entry
+        PASS [   0.009s] (421/519) triage lifecycle::registry::tests::set_state_on_restart_skips_when_already_bootstrapping
+        PASS [   0.009s] (422/519) triage lifecycle::registry::tests::set_state_on_restart_drops_empty_service
+        PASS [   0.010s] (423/519) triage lifecycle::registry::tests::set_state_on_corpus_restore_preserves_persisted_last_seen
+        PASS [   0.009s] (424/519) triage lifecycle::registry::tests::set_state_on_restart_respects_manual_override
+        PASS [   0.010s] (425/519) triage lifecycle::registry::tests::state_index_is_total_and_distinct
+        PASS [   0.010s] (426/519) triage lifecycle::registry::tests::tick_all_advances_bootstrapping_to_active_when_bootstrap_ready
+        PASS [   0.009s] (427/519) triage lifecycle::state_machine::tests::is_valid_transition_accepts_spec_edges
+        PASS [   0.010s] (428/519) triage lifecycle::registry::tests::tick_all_emits_one_event_per_transition
+        PASS [   0.009s] (429/519) triage lifecycle::registry::tests::tick_all_returns_empty_when_baseline_empty
+        PASS [   0.009s] (430/519) triage lifecycle::registry::tests::tick_all_skips_empty_service_name_snapshots
+        PASS [   0.010s] (431/519) triage lifecycle::registry::tests::tick_all_first_observation_creates_bootstrapping_entry
+        PASS [   0.009s] (432/519) triage lifecycle::state_machine::tests::is_valid_transition_rejects_reverse_natural_progression
+        PASS [   0.009s] (433/519) triage lifecycle::state_machine::tests::is_valid_transition_rejects_self_loops
+        PASS [   0.008s] (434/519) triage lifecycle::state_machine::tests::is_valid_transition_rejects_skipping_edges
+        PASS [   0.009s] (435/519) triage lifecycle::state_machine::tests::service_lifecycle_state_round_trips_through_serde
+        PASS [   0.009s] (436/519) triage lifecycle::state_machine::tests::service_lifecycle_state_serializes_snake_case
+        PASS [   0.010s] (437/519) triage lifecycle::state_machine::tests::transition_trigger_serializes_snake_case
+        PASS [   0.009s] (438/519) triage lifecycle::tests::default_lifecycle_heartbeat_interval_matches_obs_rule
+        PASS [   0.010s] (439/519) triage lifecycle::tests::emit_tick_observability_emits_tick_and_metrics_on_empty_registry
+        PASS [   0.010s] (440/519) triage lifecycle::tests::emit_tick_observability_emits_aggregate_transition_events
+        PASS [   0.009s] (441/519) triage lifecycle::tests::emit_tick_observability_field_set_excludes_banned_pii_keys
+        PASS [   0.009s] (442/519) triage lifecycle::tests::state_label_matches_snake_case_serde
+        PASS [   0.010s] (443/519) triage pattern::broadcast::tests::broadcast_capacity_matches_cue_precedent
+        PASS [   0.009s] (444/519) triage pattern::broadcast::tests::restart_event_broadcast_send_with_no_subscribers_is_benign
+        PASS [   0.010s] (445/519) triage pattern::broadcast::tests::restart_event_broadcast_round_trips_payload
+        PASS [   0.010s] (446/519) triage lifecycle::tests::first_sighting_transitions_fold_into_tick_aggregate
+        PASS [   0.011s] (447/519) triage lifecycle::tests::emit_tick_observability_excludes_per_service_pii_fields
+        PASS [   0.009s] (448/519) triage pattern::broadcast::tests::restart_event_broadcast_starts_zero_subscribers
+        PASS [   0.009s] (449/519) triage pattern::broadcast::tests::stream_name_matches_pulse_uri_convention
+        PASS [   0.009s] (450/519) triage pattern::broadcast::tests::restart_event_broadcast_subscribe_increments_count
+        PASS [   0.009s] (451/519) triage pattern::broadcast::tests::restart_event_payload_has_no_pii_fields
+        PASS [   0.010s] (452/519) triage pattern::detector::tests::detect_cycle_stats_match_emitted_count
+        PASS [   0.009s] (453/519) triage pattern::detector::tests::first_observation_never_emits
+        PASS [   0.010s] (454/519) triage pattern::detector::tests::default_heartbeat_interval_matches_obs_rule
+        PASS [   0.010s] (455/519) triage pattern::detector::tests::above_threshold_gap_then_resume_emits_event
+        PASS [   0.010s] (456/519) triage pattern::broadcast::tests::restart_event_payload_serde_round_trips_through_serde
+        PASS [   0.010s] (457/519) triage pattern::detector::tests::multiple_services_tracked_independently
+        PASS [   0.009s] (458/519) triage pattern::detector::tests::observation_with_decreasing_timestamp_no_emit
+        PASS [   0.010s] (459/519) triage pattern::detector::tests::observe_and_dispatch_benign_without_subscribers
+        PASS [   0.009s] (460/519) triage pattern::detector::tests::observe_and_dispatch_increments_emit_count_on_gap
+        PASS [   0.009s] (461/519) triage pattern::detector::tests::run_one_detect_cycle_reports_zero_when_empty
+        PASS [   0.009s] (462/519) triage pattern::detector::tests::observe_span_with_empty_service_dropped
+        PASS [   0.009s] (463/519) triage pattern::persistence::tests::fake_persistence_load_returns_seeded_snapshot
+        PASS [   0.010s] (464/519) triage pattern::detector::tests::pii_negative_canary_in_restart_emit
+        PASS [   0.009s] (465/519) triage pattern::detector::tests::sub_threshold_gap_does_not_emit
+        PASS [   0.009s] (466/519) triage pattern::persistence::tests::fake_persistence_load_returns_none_by_default
+        PASS [   0.009s] (467/519) triage pattern::persistence::tests::storm_error_category_groups_io_serialize_permission
+        PASS [   0.008s] (468/519) triage pattern::persistence::tests::storm_state_snapshot_round_trips_through_bincode
+        PASS [   0.010s] (469/519) triage pattern::persistence::tests::run_persist_cycle_emits_error_on_failure
+        PASS [   0.009s] (470/519) triage pattern::storm::tests::distinct_fingerprints_yield_distinct_cue_fingerprints
+        PASS [   0.011s] (471/519) triage pattern::detector::tests::tracing_emission_uses_identifier_class_fields_only
+        PASS [   0.009s] (472/519) triage pattern::storm::tests::default_thresholds_match_spec
+        PASS [   0.011s] (473/519) triage pattern::persistence::tests::run_persist_cycle_invokes_save_via_fake_persistence
+        PASS [   0.009s] (474/519) triage pattern::storm::tests::fingerprint_to_hex_prefix_yields_8_lowercase_hex_chars
+        PASS [   0.010s] (475/519) triage pattern::storm::tests::observe_and_dispatch_storm_broadcasts_cue_on_threshold_crossing
+        PASS [   0.009s] (476/519) triage pattern::storm::tests::record_occurrence_11th_in_30s_does_not_re_emit_post_autonomous
+        PASS [   0.010s] (477/519) triage pattern::storm::tests::record_occurrence_10_occurrences_emits_autonomous_at_10th_after_suggested_at_5th
+        PASS [   0.010s] (478/519) triage pattern::storm::tests::observe_and_dispatch_storm_benign_without_subscribers
+        PASS [   0.010s] (479/519) triage pattern::storm::tests::pii_negative_canary_storm_emit_does_not_leak_service_canary
+        PASS [   0.010s] (480/519) triage pattern::storm::tests::record_occurrence_4_occurrences_in_30s_returns_none
+        PASS [   0.217s] (481/519) triage baseline::tests::service_cap_exceeded_emits_aggregate_warn_per_tick
+        PASS [   0.010s] (482/519) triage pattern::storm::tests::record_occurrence_60_spreads_with_max_4_in_any_30s_returns_none
+        PASS [   0.011s] (483/519) triage pattern::storm::tests::record_occurrence_5_occurrences_in_30s_returns_suggested
+        PASS [   0.011s] (484/519) triage pattern::storm::tests::record_occurrence_per_fingerprint_isolation
+        PASS [   0.010s] (485/519) triage pattern::storm::tests::record_occurrence_with_empty_service_dropped
+        PASS [   0.011s] (486/519) triage pattern::storm::tests::record_occurrence_first_observation_returns_none
+        PASS [   0.009s] (487/519) triage pattern::storm::tests::run_one_storm_cycle_reports_zero_on_empty_detector
+        PASS [   0.010s] (488/519) triage pattern::storm::tests::run_one_storm_cycle_prunes_expired_fingerprints
+        PASS [   0.009s] (489/519) triage pattern::storm::tests::tracing_emission_uses_identifier_class_fields_only
+        PASS [   0.010s] (490/519) triage pattern::storm::tests::record_occurrence_window_reset_after_full_expiration_re_emits_suggested
+        PASS [   0.009s] (491/519) triage pattern::storm::tests::synthesized_cue_carries_full_width_hex_fingerprint_not_the_tracing_prefix
+        PASS [   0.009s] (492/519) triage pattern::suppression::tests::bypass_reason_labels_match_metric_field_values
+        PASS [   0.009s] (493/519) triage pattern::suppression::tests::bypass_reason_round_trips_through_serde
+        PASS [   0.010s] (494/519) triage pattern::storm::tests::run_one_storm_cycle_keeps_recent_fingerprints
+        PASS [   0.009s] (495/519) triage pattern::suppression::tests::bypass_scenario_6x_7pct_bypasses_via_absolute
+        PASS [   0.010s] (496/519) triage pattern::suppression::tests::bypass_scenario_12x_4pct_bypasses_via_relative
+        PASS [   0.009s] (497/519) triage pattern::suppression::tests::bypass_scenario_8x_3pct_does_not_bypass_suppression
+        PASS [   0.009s] (498/519) triage pattern::suppression::tests::dual_condition_bypass_scenarios_during_active_restart_window::case_2
+        PASS [   0.009s] (499/519) triage pattern::suppression::tests::dual_condition_bypass_scenarios_during_active_restart_window::case_1
+        PASS [   0.009s] (500/519) triage pattern::suppression::tests::dual_condition_bypass_scenarios_during_active_restart_window::case_3
+        PASS [   0.009s] (501/519) triage pattern::suppression::tests::evaluate_after_window_expires_does_not_suppress
+        PASS [   0.010s] (502/519) triage pattern::suppression::tests::evaluate_keeps_long_persistence_error_rate_spike_in_active_window
+        PASS [   0.009s] (503/519) triage pattern::suppression::tests::evaluate_keeps_non_error_rate_spike_kinds_in_active_window
+        PASS [   0.008s] (504/519) triage pattern::suppression::tests::evaluate_relative_bypass_priority_over_absolute
+        PASS [   0.009s] (505/519) triage pattern::suppression::tests::evaluate_suppresses_short_persistence_error_rate_spike_in_active_window
+        PASS [   0.008s] (506/519) triage pattern::suppression::tests::evaluate_with_no_active_windows_keeps_all_cues
+        PASS [   0.007s] (507/519) triage pattern::suppression::tests::record_restart_opens_window
+        PASS [   0.007s] (508/519) triage pattern::suppression::tests::suppression_state_starts_empty
+        PASS [   0.007s] (509/519) triage pattern::suppression::tests::evaluate_with_no_scope_id_does_not_match_any_window
+        PASS [   0.007s] (510/519) triage pattern::suppression::tests::window_per_service_tracked_independently
+        PASS [   0.277s] (511/519) triage baseline::tdigest_pair::tests::percentile_monotonic_property
+        PASS [   0.258s] (512/519) triage cadence::coordinator::tests::start_cadence_coordinator_tier2_skipped_on_cpu_primary_profile
+        PASS [   0.384s] (513/519) triage cadence::coordinator::tests::start_cadence_coordinator_ignores_suggested_cue_on_the_attention_broadcast
+        PASS [   0.573s] (514/519) triage baseline::sql::tests::q7_outer_limit_100_caps_results
+        PASS [   0.888s] (515/519) triage digest::assembler::tests::assemble_populates_corpus_matches_from_fingerprint_match
+        PASS [   0.893s] (516/519) triage digest::assembler::tests::assemble_degrades_to_empty_matches_on_retrieval_error
+        PASS [   0.903s] (517/519) triage digest::assembler::tests::assemble_routes_corpus_match_lines_through_scrub_closure
+        PASS [   0.904s] (518/519) triage digest::assembler::tests::assemble_with_noop_source_yields_empty_matches
+        PASS [   0.911s] (519/519) triage digest::assembler::tests::assemble_matches_on_q1_service_scope_when_fingerprints_differ

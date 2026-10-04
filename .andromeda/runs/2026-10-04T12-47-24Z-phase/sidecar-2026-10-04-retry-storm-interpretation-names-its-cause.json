@@ -1,0 +1,487 @@
+[
+{
+"tool": "sidecar",
+"v": "1.3",
+"sha8": "e8ec5c11",
+"ts": "2026-10-04T12:51:56Z",
+"argv": [
+"summary",
+"--file",
+".andromeda/architecture-amendments.md",
+"--run-dir",
+".andromeda/runs/2026-10-04T12-47-24Z-phase",
+"--marker",
+"2026-10-04-retry-storm-interpretation-names-its-cause"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"bytes 90072 · whole-read bound 120000 · within",
+"entries 81 · off-form 0 · over-cap (3000 B, not yet archived) 0 · consolidation set 0",
+"supersedes: prunable 0 · UNRESOLVED 0 · AMBIGUOUS 0",
+"UNPARSED: 2 block(s) — listed below",
+"UNPARSED: :15 ## Registry-closure amendments",
+"UNPARSED: :177 ## Decision-history"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"bytes": 90072,
+"entries": 81,
+"off_form": 0,
+"set": 0,
+"prunable": 0,
+"unparsed": [
+15,
+177
+]
+}
+},
+{
+"tool": "sidecar",
+"v": "1.3",
+"sha8": "e8ec5c11",
+"ts": "2026-10-04T12:51:56Z",
+"argv": [
+"summary",
+"--file",
+".andromeda/security-plan-amendments.md",
+"--run-dir",
+".andromeda/runs/2026-10-04T12-47-24Z-phase",
+"--marker",
+"2026-10-04-retry-storm-interpretation-names-its-cause"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"bytes 93304 · whole-read bound 120000 · within",
+"entries 52 · off-form 0 · over-cap (3000 B, not yet archived) 0 · consolidation set 0",
+"supersedes: prunable 5 · UNRESOLVED 0 · AMBIGUOUS 0",
+"UNPARSED: 2 block(s) — listed below",
+"UNPARSED: :45 ## Externalized superseded guidance — reference",
+"UNPARSED: :52 ## Externalized Security Decisions Log (verbatim, formerly the body's final section)"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"bytes": 93304,
+"entries": 52,
+"off_form": 0,
+"set": 0,
+"prunable": 5,
+"unparsed": [
+45,
+52
+]
+}
+},
+{
+"tool": "sidecar",
+"v": "1.3",
+"sha8": "e8ec5c11",
+"ts": "2026-10-04T12:51:56Z",
+"argv": [
+"summary",
+"--file",
+".andromeda/design-system-amendments.md",
+"--run-dir",
+".andromeda/runs/2026-10-04T12-47-24Z-phase",
+"--marker",
+"2026-10-04-retry-storm-interpretation-names-its-cause"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"bytes 18415 · whole-read bound 120000 · within",
+"entries 10 · off-form 0 · over-cap (3000 B, not yet archived) 0 · consolidation set 0",
+"supersedes: prunable 0 · UNRESOLVED 0 · AMBIGUOUS 0",
+"UNPARSED: 2 block(s) — listed below",
+"UNPARSED: :32 ## Phase 7 Final Validation — Motion table clarified + Snapshot concept anchored",
+"UNPARSED: :56 ## Downstream Readiness (Phase 5+ Specialist Handoff)"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"bytes": 18415,
+"entries": 10,
+"off_form": 0,
+"set": 0,
+"prunable": 0,
+"unparsed": [
+32,
+56
+]
+}
+},
+{
+"tool": "sidecar",
+"v": "1.3",
+"sha8": "e8ec5c11",
+"ts": "2026-10-04T12:51:57Z",
+"argv": [
+"summary",
+"--file",
+".andromeda/layout-templates-amendments.md",
+"--run-dir",
+".andromeda/runs/2026-10-04T12-47-24Z-phase",
+"--marker",
+"2026-10-04-retry-storm-interpretation-names-its-cause"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"bytes 15485 · whole-read bound 120000 · within",
+"entries 11 · off-form 0 · over-cap (3000 B, not yet archived) 0 · consolidation set 0",
+"supersedes: prunable 0 · UNRESOLVED 0 · AMBIGUOUS 0",
+"UNPARSED: 0 block(s)"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"bytes": 15485,
+"entries": 11,
+"off_form": 0,
+"set": 0,
+"prunable": 0,
+"unparsed": []
+}
+},
+{
+"tool": "sidecar",
+"v": "1.3",
+"sha8": "e8ec5c11",
+"ts": "2026-10-04T12:51:57Z",
+"argv": [
+"summary",
+"--file",
+".andromeda/test-plan-amendments.md",
+"--run-dir",
+".andromeda/runs/2026-10-04T12-47-24Z-phase",
+"--marker",
+"2026-10-04-retry-storm-interpretation-names-its-cause"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"bytes 96987 · whole-read bound 120000 · within",
+"entries 68 · off-form 0 · over-cap (3000 B, not yet archived) 0 · consolidation set 0",
+"supersedes: prunable 0 · UNRESOLVED 1 · AMBIGUOUS 0",
+"UNPARSED: 0 block(s)"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"bytes": 96987,
+"entries": 68,
+"off_form": 0,
+"set": 0,
+"prunable": 0,
+"unparsed": []
+}
+},
+{
+"tool": "sidecar",
+"v": "1.3",
+"sha8": "e8ec5c11",
+"ts": "2026-10-04T12:51:57Z",
+"argv": [
+"summary",
+"--file",
+".andromeda/obs-plan-amendments.md",
+"--run-dir",
+".andromeda/runs/2026-10-04T12-47-24Z-phase",
+"--marker",
+"2026-10-04-retry-storm-interpretation-names-its-cause"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"bytes 65272 · whole-read bound 120000 · within",
+"entries 49 · off-form 0 · over-cap (3000 B, not yet archived) 0 · consolidation set 0",
+"supersedes: prunable 0 · UNRESOLVED 0 · AMBIGUOUS 0",
+"UNPARSED: 0 block(s)"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"bytes": 65272,
+"entries": 49,
+"off_form": 0,
+"set": 0,
+"prunable": 0,
+"unparsed": []
+}
+},
+{
+"tool": "sidecar",
+"v": "1.3",
+"sha8": "e8ec5c11",
+"ts": "2026-10-04T12:51:57Z",
+"argv": [
+"summary",
+"--file",
+".andromeda/a11y-plan-amendments.md",
+"--run-dir",
+".andromeda/runs/2026-10-04T12-47-24Z-phase",
+"--marker",
+"2026-10-04-retry-storm-interpretation-names-its-cause"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"bytes 13795 · whole-read bound 120000 · within",
+"entries 10 · off-form 0 · over-cap (3000 B, not yet archived) 0 · consolidation set 0",
+"supersedes: prunable 0 · UNRESOLVED 1 · AMBIGUOUS 0",
+"UNPARSED: 0 block(s)"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"bytes": 13795,
+"entries": 10,
+"off_form": 0,
+"set": 0,
+"prunable": 0,
+"unparsed": []
+}
+},
+{
+"tool": "sidecar",
+"v": "1.3",
+"sha8": "e8ec5c11",
+"ts": "2026-10-04T12:53:59Z",
+"argv": [
+"cites",
+"--file",
+".andromeda/architecture-amendments.md",
+"--history",
+".andromeda/runs/2026-10-04T12-47-24Z-phase/arch-history.md",
+"--run-dir",
+".andromeda/runs/2026-10-04T12-47-24Z-phase",
+"--marker",
+"2026-10-04-retry-storm-interpretation-names-its-cause"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"cites: 23 · resolved 23 · UNRESOLVED 0 · not a marker 0"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"resolved": 23,
+"UNRESOLVED": 0,
+"not a marker": 0,
+"cites": 23
+}
+},
+{
+"tool": "sidecar",
+"v": "1.3",
+"sha8": "e8ec5c11",
+"ts": "2026-10-04T12:53:59Z",
+"argv": [
+"cites",
+"--file",
+".andromeda/security-plan-amendments.md",
+"--history",
+".andromeda/runs/2026-10-04T12-47-24Z-phase/security-history.md",
+"--run-dir",
+".andromeda/runs/2026-10-04T12-47-24Z-phase",
+"--marker",
+"2026-10-04-retry-storm-interpretation-names-its-cause"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"cites: 21 · resolved 21 · UNRESOLVED 0 · not a marker 0"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"resolved": 21,
+"UNRESOLVED": 0,
+"not a marker": 0,
+"cites": 21
+}
+},
+{
+"tool": "sidecar",
+"v": "1.3",
+"sha8": "e8ec5c11",
+"ts": "2026-10-04T12:53:59Z",
+"argv": [
+"cites",
+"--file",
+".andromeda/design-system-amendments.md",
+"--history",
+".andromeda/runs/2026-10-04T12-47-24Z-phase/design-history.md",
+"--run-dir",
+".andromeda/runs/2026-10-04T12-47-24Z-phase",
+"--marker",
+"2026-10-04-retry-storm-interpretation-names-its-cause"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"not a marker: **Downstream Readiness (Phase 5+ Specialist Handoff)** — history:11",
+"cites: 9 · resolved 9 · UNRESOLVED 0 · not a marker 1"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"resolved": 9,
+"UNRESOLVED": 0,
+"not a marker": 1,
+"cites": 9
+}
+},
+{
+"tool": "sidecar",
+"v": "1.3",
+"sha8": "e8ec5c11",
+"ts": "2026-10-04T12:53:59Z",
+"argv": [
+"cites",
+"--file",
+".andromeda/layout-templates-amendments.md",
+"--history",
+".andromeda/runs/2026-10-04T12-47-24Z-phase/layouts-history.md",
+"--run-dir",
+".andromeda/runs/2026-10-04T12-47-24Z-phase",
+"--marker",
+"2026-10-04-retry-storm-interpretation-names-its-cause"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"cites: 3 · resolved 3 · UNRESOLVED 0 · not a marker 0"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"resolved": 3,
+"UNRESOLVED": 0,
+"not a marker": 0,
+"cites": 3
+}
+},
+{
+"tool": "sidecar",
+"v": "1.3",
+"sha8": "e8ec5c11",
+"ts": "2026-10-04T12:53:59Z",
+"argv": [
+"cites",
+"--file",
+".andromeda/test-plan-amendments.md",
+"--history",
+".andromeda/runs/2026-10-04T12-47-24Z-phase/tests-history.md",
+"--run-dir",
+".andromeda/runs/2026-10-04T12-47-24Z-phase",
+"--marker",
+"2026-10-04-retry-storm-interpretation-names-its-cause"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"cites: 31 · resolved 31 · UNRESOLVED 0 · not a marker 0"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"resolved": 31,
+"UNRESOLVED": 0,
+"not a marker": 0,
+"cites": 31
+}
+},
+{
+"tool": "sidecar",
+"v": "1.3",
+"sha8": "e8ec5c11",
+"ts": "2026-10-04T12:53:59Z",
+"argv": [
+"cites",
+"--file",
+".andromeda/obs-plan-amendments.md",
+"--history",
+".andromeda/runs/2026-10-04T12-47-24Z-phase/obs-history.md",
+"--run-dir",
+".andromeda/runs/2026-10-04T12-47-24Z-phase",
+"--marker",
+"2026-10-04-retry-storm-interpretation-names-its-cause"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"cites: 21 · resolved 21 · UNRESOLVED 0 · not a marker 0"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"resolved": 21,
+"UNRESOLVED": 0,
+"not a marker": 0,
+"cites": 21
+}
+},
+{
+"tool": "sidecar",
+"v": "1.3",
+"sha8": "e8ec5c11",
+"ts": "2026-10-04T12:53:59Z",
+"argv": [
+"cites",
+"--file",
+".andromeda/a11y-plan-amendments.md",
+"--history",
+".andromeda/runs/2026-10-04T12-47-24Z-phase/a11y-history.md",
+"--run-dir",
+".andromeda/runs/2026-10-04T12-47-24Z-phase",
+"--marker",
+"2026-10-04-retry-storm-interpretation-names-its-cause"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"cites: 5 · resolved 5 · UNRESOLVED 0 · not a marker 0"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"resolved": 5,
+"UNRESOLVED": 0,
+"not a marker": 0,
+"cites": 5
+}
+}
+]

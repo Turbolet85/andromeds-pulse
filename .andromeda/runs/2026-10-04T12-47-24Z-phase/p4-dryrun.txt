@@ -1,0 +1,38 @@
+gate v1.7 · 1d6015ef
+shell /usr/bin/bash (from $SHELL; -c, non-login)
+root <repo-root> · marker 2026-10-04-retry-storm-interpretation-names-its-cause · entries 27
+logs <gate-log-dir>/2026-10-04-retry-storm-interpretation-names-its-cause/run-20261004T141424Z · bound: GNU timeout
+delta docs 32
+prose L125-131: The standard gate set runs in the test-plan §3 order. capability-drift runs before the def… (528 chars)
+prose L133-143: Absences, each with its reason: - No `pulse-app/ui/**` path is touched, so the webview gat… (916 chars)
+prose L145-150: `cargo xtask pre-push:linux` cannot evaluate on this Linux host, because it drives every s… (683 chars)
+prose L152-154: ONE-SHOT controls at /implement, never listed, because they mutate source and revert: Step… (306 chars)
+prose L156-157: The CI read waits 2400 s, matching the predecessor's measured wall-clocks (≤ 1718 s at `a6… (125 chars)
+  1 lint        not run — dry-run · cargo fmt --check
+  2 lint        not run — dry-run · cargo clippy --workspace --all-targets --all-features -- -… (68 chars)
+  3 probe       not run — dry-run · cargo nextest list --workspace --profile ci -E 'test(/name… (97 chars)
+  4 unit        not run — dry-run · cargo nextest run --workspace --profile ci -E 'test(/names… (96 chars)
+  5 unit        not run — dry-run · cargo nextest run --workspace --profile ci -E 'binary(unit… (141 chars)
+  6 probe       not run — dry-run · git diff --name-only e71dba539a7d0379d960b49b37b2cf3538de6… (324 chars)
+  7 probe       not run — dry-run · git diff e71dba539a7d0379d960b49b37b2cf3538de6ec2 -- crate… (172 chars)
+  8 probe       not run — dry-run · cargo xtask check:english-sources
+  9 probe       not run — dry-run · cargo xtask capability-widening-check
+ 10 probe       not run — dry-run · cargo xtask check:ingest-progress
+ 11 probe       not run — dry-run · cargo xtask check:staged-artifacts
+ 12 probe       not run — dry-run · cargo xtask capability-drift
+ 13 probe       not run — dry-run · cargo xtask verify:capability-matrix
+ 14 unit        not run — dry-run · cargo nextest run --workspace --profile ci
+ 15 build       not run — dry-run · cargo nextest run -p pulse-app --features mcp-server --bin… (101 chars)
+ 16 probe       not run — dry-run · git diff --quiet e71dba539a7d0379d960b49b37b2cf3538de6ec2 … (95 chars)
+ 17 probe       not run — leg operator (the letter drives it) · python -X utf8 <skills-dir>/andromeda-too… (84 chars)
+ 18 integration not run — leg operator (the letter drives it) · git ls-files -s scripts/agent-run.sh
+ 19 integration not run — leg operator (the letter drives it) · env -i HOME="$HOME" PATH="$HOME/.cargo/bin:$(dirname "$(co… (191 chars)
+ 20 integration not run — leg operator (the letter drives it) · P="$PWD/target/pre-push/puppeteer-$(date -u +%Y%m%dT%H%M%S… (497 chars)
+ 21 integration not run — leg operator (the letter drives it) · env -i HOME="$HOME" PATH="$HOME/.cargo/bin:$(dirname "$(co… (226 chars)
+ 22 integration not run — leg operator (the letter drives it) · env -i HOME="$HOME" PATH="$HOME/.cargo/bin:$(dirname "$(co… (174 chars)
+ 23 integration not run — leg operator (the letter drives it) · D="$PWD/target/pre-push/data-$(date -u +%Y%m%dT%H%M%SZ)" &… (619 chars)
+ 24 build       not run — leg operator (the letter drives it) · cargo nextest run -p pulse-app --features mcp-server --bin… (101 chars)
+ 25 probe       not run — leg operator (the letter drives it) · git diff --quiet e71dba539a7d0379d960b49b37b2cf3538de6ec2 … (95 chars)
+ 26 probe       not run — leg operator (the letter drives it) · git diff --quiet && git diff --cached --quiet && git push … (90 chars)
+ 27 probe       not run — leg operator (the letter drives it) · python -X utf8 <skills-dir>/andromeda-too… (108 chars)
+entries 27 · green 0 · red 0 · recorded 0 · timeout 0 · not-run 27

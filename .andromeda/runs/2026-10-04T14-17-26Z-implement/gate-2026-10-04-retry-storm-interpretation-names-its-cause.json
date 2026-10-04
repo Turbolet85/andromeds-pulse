@@ -1,0 +1,676 @@
+[
+{
+"tool": "gate",
+"v": "1.7",
+"sha8": "1d6015ef",
+"ts": "2026-10-04T14:23:22Z",
+"argv": [
+"run",
+"--plan",
+"andromeda-pulse-0.3.0/chunks/2026-10-04-retry-storm-interpretation-names-its-cause/plan.md",
+"--run-dir",
+".andromeda/runs/2026-10-04T14-17-26Z-implement",
+"--marker",
+"2026-10-04-retry-storm-interpretation-names-its-cause"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"shell /usr/bin/bash (from $SHELL; -c, non-login)",
+"root /home/turbolet/dev/projects/andromeda-pulse · marker 2026-10-04-retry-storm-interpretation-names-its-cause · entries 27",
+"logs /tmp/andromeda-gate/2026-10-04-retry-storm-interpretation-names-its-cause/implement-2026-10-04T14-17-26Z · bound: GNU timeout",
+"delta docs 44 · rust 4",
+"prose L125-131: The standard gate set runs in the test-plan §3 order. capability-drift runs before the def… (528 chars)",
+"prose L133-143: Absences, each with its reason: - No `pulse-app/ui/**` path is touched, so the webview gat… (916 chars)",
+"prose L145-150: `cargo xtask pre-push:linux` cannot evaluate on this Linux host, because it drives every s… (683 chars)",
+"prose L152-154: ONE-SHOT controls at /implement, never listed, because they mutate source and revert: Step… (306 chars)",
+"prose L156-157: The CI read waits 2400 s, matching the predecessor's measured wall-clocks (≤ 1718 s at `a6… (125 chars)",
+"  1 lint        green · exit 0 · 0.57s · 0 B → 1.log · cargo fmt --check",
+"  2 lint        green · exit 0 · 8.41s · 717 B → 2.log · cargo clippy --workspace --all-targets --all-features -- -… (68 chars)",
+"  3 probe       green · exit 0 · 30.42s · 1162 B → 3.log · cargo nextest list --workspace --profile ci -E 'test(/name… (97 chars)",
+"  4 unit        green · exit 0 · 1.12s · 310218 B → 4.log · cargo nextest run --workspace --profile ci -E 'test(/names… (96 chars)",
+"  5 unit        green · exit 0 · 2.06s · 123552 B → 5.log · cargo nextest run --workspace --profile ci -E 'binary(unit… (141 chars)",
+"  6 probe       green · exit 0 · 0.01s · 0 B → 6.log · git diff --name-only e71dba539a7d0379d960b49b37b2cf3538de6… (324 chars)",
+"  7 probe       green · exit 1 · 0.01s · 2 B → 7.log · git diff e71dba539a7d0379d960b49b37b2cf3538de6ec2 -- crate… (172 chars)",
+"  8 probe       green · exit 0 · 4.21s · 100 B → 8.log · cargo xtask check:english-sources",
+"  9 probe       green · exit 0 · 0.3s · 394 B → 9.log · cargo xtask capability-widening-check",
+" 10 probe       green · exit 0 · 0.31s · 99 B → 10.log · cargo xtask check:ingest-progress",
+" 11 probe       green · exit 0 · 0.33s · 342 B → 11.log · cargo xtask check:staged-artifacts",
+" 12 probe       green · exit 0 · 0.45s · 714 B → 12.log · cargo xtask capability-drift",
+" 13 probe       green · exit 0 · 0.33s · 396 B → 13.log · cargo xtask verify:capability-matrix",
+" 14 unit        green · exit 0 · 14.78s · 617732 B → 14.log · cargo nextest run --workspace --profile ci",
+" 15 build       green · exit 0 · 8.73s · 1195 B → 15.log · cargo nextest run -p pulse-app --features mcp-server --bin… (101 chars)",
+" 16 probe       green · exit 0 · 0.01s · 0 B → 16.log · git diff --quiet e71dba539a7d0379d960b49b37b2cf3538de6ec2 … (95 chars)",
+" 17 probe       not run — leg operator (the letter drives it) · python -X utf8 /home/turbolet/.claude/skills/andromeda-too… (84 chars)",
+" 18 integration not run — leg operator (the letter drives it) · git ls-files -s scripts/agent-run.sh",
+" 19 integration not run — leg operator (the letter drives it) · env -i HOME=\"$HOME\" PATH=\"$HOME/.cargo/bin:$(dirname \"$(co… (191 chars)",
+" 20 integration not run — leg operator (the letter drives it) · P=\"$PWD/target/pre-push/puppeteer-$(date -u +%Y%m%dT%H%M%S… (497 chars)",
+" 21 integration not run — leg operator (the letter drives it) · env -i HOME=\"$HOME\" PATH=\"$HOME/.cargo/bin:$(dirname \"$(co… (226 chars)",
+" 22 integration not run — leg operator (the letter drives it) · env -i HOME=\"$HOME\" PATH=\"$HOME/.cargo/bin:$(dirname \"$(co… (174 chars)",
+" 23 integration not run — leg operator (the letter drives it) · D=\"$PWD/target/pre-push/data-$(date -u +%Y%m%dT%H%M%SZ)\" &… (619 chars)",
+" 24 build       not run — leg operator (the letter drives it) · cargo nextest run -p pulse-app --features mcp-server --bin… (101 chars)",
+" 25 probe       not run — leg operator (the letter drives it) · git diff --quiet e71dba539a7d0379d960b49b37b2cf3538de6ec2 … (95 chars)",
+" 26 probe       not run — leg operator (the letter drives it) · git diff --quiet && git diff --cached --quiet && git push … (90 chars)",
+" 27 probe       not run — leg operator (the letter drives it) · python -X utf8 /home/turbolet/.claude/skills/andromeda-too… (108 chars)",
+"entries 27 · green 16 · red 0 · recorded 0 · timeout 0 · not-run 11"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"marker": "2026-10-04-retry-storm-interpretation-names-its-cause",
+"plan": "/home/turbolet/dev/projects/andromeda-pulse/andromeda-pulse-0.3.0/chunks/2026-10-04-retry-storm-interpretation-names-its-cause/plan.md",
+"root": "/home/turbolet/dev/projects/andromeda-pulse",
+"shell": "/usr/bin/bash",
+"out_dir": "/tmp/andromeda-gate/2026-10-04-retry-storm-interpretation-names-its-cause/implement-2026-10-04T14-17-26Z",
+"delta": {
+"docs": [
+".andromeda/friction-log.ndjson",
+".andromeda/master-route.md",
+".andromeda/runs/2026-10-04T12-30-22Z-wrap/evolve-2026-10-04-linux-launch-stays-up-on-nvidia-wayland.json",
+".claude/session-handoff.md",
+"andromeda-pulse-0.3.0/working-route.md",
+".andromeda/runs/2026-10-04T12-47-24Z-phase/a11y-history.md",
+".andromeda/runs/2026-10-04T12-47-24Z-phase/a11y.md",
+".andromeda/runs/2026-10-04T12-47-24Z-phase/arch-history.md",
+".andromeda/runs/2026-10-04T12-47-24Z-phase/arch.md",
+".andromeda/runs/2026-10-04T12-47-24Z-phase/ci-no-marker.json",
+".andromeda/runs/2026-10-04T12-47-24Z-phase/design-history.md",
+".andromeda/runs/2026-10-04T12-47-24Z-phase/design.md",
+".andromeda/runs/2026-10-04T12-47-24Z-phase/evolve-2026-10-04-retry-storm-interpretation-names-its-cause.json",
+".andromeda/runs/2026-10-04T12-47-24Z-phase/gate-2026-10-04-retry-storm-interpretation-names-its-cause.json",
+".andromeda/runs/2026-10-04T12-47-24Z-phase/layouts-history.md",
+".andromeda/runs/2026-10-04T12-47-24Z-phase/layouts.md",
+".andromeda/runs/2026-10-04T12-47-24Z-phase/master-record.txt",
+".andromeda/runs/2026-10-04T12-47-24Z-phase/matrix-2026-10-04-retry-storm-interpretation-names-its-cause.json",
+".andromeda/runs/2026-10-04T12-47-24Z-phase/obs-history.md",
+".andromeda/runs/2026-10-04T12-47-24Z-phase/obs.md",
+".andromeda/runs/2026-10-04T12-47-24Z-phase/p4-dryrun.txt",
+".andromeda/runs/2026-10-04T12-47-24Z-phase/p5-base-list.txt",
+".andromeda/runs/2026-10-04T12-47-24Z-phase/p5-base-regress.txt",
+".andromeda/runs/2026-10-04T12-47-24Z-phase/p5-base-targeted.txt",
+".andromeda/runs/2026-10-04T12-47-24Z-phase/p5-dryrun.txt",
+".andromeda/runs/2026-10-04T12-47-24Z-phase/planlint-2026-10-04-retry-storm-interpretation-names-its-cause.json",
+".andromeda/runs/2026-10-04T12-47-24Z-phase/registry-2026-10-04-retry-storm-interpretation-names-its-cause.json",
+".andromeda/runs/2026-10-04T12-47-24Z-phase/route-2026-10-04-retry-storm-interpretation-names-its-cause.json",
+".andromeda/runs/2026-10-04T12-47-24Z-phase/route-no-marker.json",
+".andromeda/runs/2026-10-04T12-47-24Z-phase/security-history.md",
+".andromeda/runs/2026-10-04T12-47-24Z-phase/security.md",
+".andromeda/runs/2026-10-04T12-47-24Z-phase/sidecar-2026-10-04-retry-storm-interpretation-names-its-cause.json",
+".andromeda/runs/2026-10-04T12-47-24Z-phase/tests-history.md",
+".andromeda/runs/2026-10-04T12-47-24Z-phase/tests.md",
+".andromeda/runs/2026-10-04T12-47-24Z-phase/tree-query-2026-10-04-retry-storm-interpretation-names-its-cause.json",
+".andromeda/runs/2026-10-04T14-17-26Z-implement/evolve-2026-10-04-retry-storm-interpretation-names-its-cause.json",
+".andromeda/runs/2026-10-04T14-17-26Z-implement/green-after.log",
+".andromeda/runs/2026-10-04T14-17-26Z-implement/mutation-title-line.log",
+".andromeda/runs/2026-10-04T14-17-26Z-implement/red-before.log",
+"andromeda-pulse-0.3.0/chunks/2026-10-04-retry-storm-interpretation-names-its-cause/evidence/conductor-title-edge.md",
+"andromeda-pulse-0.3.0/chunks/2026-10-04-retry-storm-interpretation-names-its-cause/evidence/mutation-checks.md",
+"andromeda-pulse-0.3.0/chunks/2026-10-04-retry-storm-interpretation-names-its-cause/plan.md",
+"andromeda-pulse-0.3.0/chunks/2026-10-04-retry-storm-interpretation-names-its-cause/research.md",
+"andromeda-pulse-0.3.0/chunks/2026-10-04-retry-storm-interpretation-names-its-cause/scope.md"
+],
+"rust": [
+"crates/triage/src/contract.rs",
+"pulse-app/src/inference_runtime.rs",
+"pulse-app/tests/integration_interpretation_attach.rs",
+"pulse-app/tests/unit_incident_producer.rs"
+]
+},
+"unmapped": [],
+"prose": [
+{
+"from": 125,
+"to": 131,
+"text": "The standard gate set runs in the test-plan §3 order. capability-drift runs before the default-features workspace nextest. Then come the `--features mcp-server` bindings regen and the base-identity bindings close, since no procedure is added. The chunk's own gates come first, all under `--workspace` (the test-plan §11 run-scope rule): - the collection proof for the new pins; - the targeted pin run; - the two touched test binaries plus the `triage` package, as the regression run; - the scope guard and the print-site census."
+},
+{
+"from": 133,
+"to": 143,
+"text": "Absences, each with its reason: - No `pulse-app/ui/**` path is touched, so the webview gates are absent. The Findings title span already ellipsizes   (`FindingsWindow.tsx:77-83`), so a longer title needs no render change. - No boot-path file is touched (`main.rs`, `observability.rs`, `crates/ui-bridge/src/`, `tauri.conf.json`,   `capabilities/*.json`; the scope guard proves it), so the boot smoke does not bind (test-plan §3 Boot-smoke gate). - There is no harness live leg and no self-verify. Every remedy branch is proven in-process, including the   deterministic-runner report pin. - No dependency is added, so `cargo deny` / `cargo audit` are not listed locally. The CI `supply-chain` job runs   them, and the operator CI read asserts it green. - No real-model entry: the model is absent from this host, and a real-model generation is never a gate (test-plan   §1 `l4-decision-probe-arg-parse-unit-coverage`)."
+},
+{
+"from": 145,
+"to": 150,
+"text": "`cargo xtask pre-push:linux` cannot evaluate on this Linux host, because it drives every stage through `wsl.exe` (`xtask/src/pre_push.rs`). Under the founder deviation of 2026-10-04, its six stages run NATIVELY by hand before the push, as in the three predecessor chunks. They are the six `operator` entries after hygiene, each in the stage isolation of `Linux::cmd`. Stage 3 takes a fresh per-invocation `PUPPETEER_CACHE_DIR` under `target/pre-push/`, and stage 6 a per-invocation data dir, with no `rm` (founder rulings 2026-10-04). Stage 5 re-emits the no-mcp bindings, so the regen and the base-identity close are RE-FIRED as `operator` entries after stage 6 and before the push."
+},
+{
+"from": 152,
+"to": 154,
+"text": "ONE-SHOT controls at /implement, never listed, because they mutate source and revert: Step 9's red-before-green run and its mutation check, both written to `evidence/mutation-checks.md`, which the second criterion names. The listed, non-mutating `names_its_cause` entry guards the property on every re-run."
+},
+{
+"from": 156,
+"to": 157,
+"text": "The CI read waits 2400 s, matching the predecessor's measured wall-clocks (≤ 1718 s at `a69030a`); its timeout is 2400 + 180."
+}
+],
+"entries": [
+{
+"n": 1,
+"role": "lint",
+"run": "cargo fmt --check",
+"run_sha8": "194fabc0",
+"expect": null,
+"log": "/tmp/andromeda-gate/2026-10-04-retry-storm-interpretation-names-its-cause/implement-2026-10-04T14-17-26Z/1.log",
+"bytes": 0,
+"log_sha8": "e3b0c442",
+"exit": 0,
+"seconds": 0.57,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 2,
+"role": "lint",
+"run": "cargo clippy --workspace --all-targets --all-features -- -D warnings",
+"run_sha8": "f835224c",
+"expect": null,
+"log": "/tmp/andromeda-gate/2026-10-04-retry-storm-interpretation-names-its-cause/implement-2026-10-04T14-17-26Z/2.log",
+"bytes": 717,
+"log_sha8": "54e45026",
+"exit": 0,
+"seconds": 8.41,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 3,
+"role": "probe",
+"run": "cargo nextest list --workspace --profile ci -E 'test(/names_its_cause|cause_label_names_retry/)' ",
+"run_sha8": "f5b33f40",
+"expect": [
+"exit 0",
+"contains cause_label_names_retry_only_for_retry_storm",
+"contains incident_title_names_its_cause_for_a_retry_storm",
+"contains incident_title_names_its_cause_without_retry_for_an_error_rate_spike",
+"contains report_names_its_cause_under_the_deterministic_runner"
+],
+"log": "/tmp/andromeda-gate/2026-10-04-retry-storm-interpretation-names-its-cause/implement-2026-10-04T14-17-26Z/3.log",
+"bytes": 1162,
+"log_sha8": "39fc8cd7",
+"exit": 0,
+"seconds": 30.42,
+"readings": [
+"exit 0 ✓",
+"contains 'cause_label_names_retry_only_for_retry_storm' ✓",
+"contains 'incident_title_names_its_cause_for_a_retry_storm' ✓",
+"contains 'incident_title_names_its_cause_without_retry_for_an_error_rate_spike' ✓",
+"contains 'report_names_its_cause_under_the_deterministic_runner' ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 4,
+"role": "unit",
+"run": "cargo nextest run --workspace --profile ci -E 'test(/names_its_cause|cause_label_names_retry/)' ",
+"run_sha8": "2ffdc3d3",
+"expect": null,
+"log": "/tmp/andromeda-gate/2026-10-04-retry-storm-interpretation-names-its-cause/implement-2026-10-04T14-17-26Z/4.log",
+"bytes": 310218,
+"log_sha8": "e8ca116f",
+"exit": 0,
+"seconds": 1.12,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 5,
+"role": "unit",
+"run": "cargo nextest run --workspace --profile ci -E 'binary(unit_incident_producer) | binary(integration_interpretation_attach) | package(triage)' ",
+"run_sha8": "0258371c",
+"expect": null,
+"log": "/tmp/andromeda-gate/2026-10-04-retry-storm-interpretation-names-its-cause/implement-2026-10-04T14-17-26Z/5.log",
+"bytes": 123552,
+"log_sha8": "f0b93fbd",
+"exit": 0,
+"seconds": 2.06,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 6,
+"role": "probe",
+"run": "git diff --name-only e71dba539a7d0379d960b49b37b2cf3538de6ec2 -- crates pulse-app xtask Cargo.toml Cargo.lock deny.toml rust-toolchain.toml .github ':!crates/triage/src/contract.rs' ':!pulse-app/src/inference_runtime.rs' ':!pulse-app/tests/unit_incident_producer.rs' ':!pulse-app/tests/integration_interpretation_attach.rs' ",
+"run_sha8": "8e6aac95",
+"expect": [
+"exit 0",
+"no output"
+],
+"log": "/tmp/andromeda-gate/2026-10-04-retry-storm-interpretation-names-its-cause/implement-2026-10-04T14-17-26Z/6.log",
+"bytes": 0,
+"log_sha8": "e3b0c442",
+"exit": 0,
+"seconds": 0.01,
+"readings": [
+"exit 0 ✓",
+"no output ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 7,
+"role": "probe",
+"run": "git diff e71dba539a7d0379d960b49b37b2cf3538de6ec2 -- crates/triage/src/contract.rs pulse-app/src/inference_runtime.rs | grep -cE '^\\+.*(tracing::|println!|eprintln!|dbg!)' ",
+"run_sha8": "f63da6aa",
+"expect": [
+"exit 1",
+"last line 0"
+],
+"log": "/tmp/andromeda-gate/2026-10-04-retry-storm-interpretation-names-its-cause/implement-2026-10-04T14-17-26Z/7.log",
+"bytes": 2,
+"log_sha8": "9a271f2a",
+"exit": 1,
+"seconds": 0.01,
+"readings": [
+"exit 1 ✓",
+"last line '0' ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 8,
+"role": "probe",
+"run": "cargo xtask check:english-sources",
+"run_sha8": "d29f47c5",
+"expect": [
+"exit 0",
+"contains \"verdict\": \"clean\""
+],
+"log": "/tmp/andromeda-gate/2026-10-04-retry-storm-interpretation-names-its-cause/implement-2026-10-04T14-17-26Z/8.log",
+"bytes": 100,
+"log_sha8": "c94aa705",
+"exit": 0,
+"seconds": 4.21,
+"readings": [
+"exit 0 ✓",
+"contains '\"verdict\": \"clean\"' ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 9,
+"role": "probe",
+"run": "cargo xtask capability-widening-check",
+"run_sha8": "c09451af",
+"expect": null,
+"log": "/tmp/andromeda-gate/2026-10-04-retry-storm-interpretation-names-its-cause/implement-2026-10-04T14-17-26Z/9.log",
+"bytes": 394,
+"log_sha8": "6c059b3f",
+"exit": 0,
+"seconds": 0.3,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 10,
+"role": "probe",
+"run": "cargo xtask check:ingest-progress",
+"run_sha8": "123ffa0a",
+"expect": null,
+"log": "/tmp/andromeda-gate/2026-10-04-retry-storm-interpretation-names-its-cause/implement-2026-10-04T14-17-26Z/10.log",
+"bytes": 99,
+"log_sha8": "09869944",
+"exit": 0,
+"seconds": 0.31,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 11,
+"role": "probe",
+"run": "cargo xtask check:staged-artifacts",
+"run_sha8": "052b4e95",
+"expect": null,
+"log": "/tmp/andromeda-gate/2026-10-04-retry-storm-interpretation-names-its-cause/implement-2026-10-04T14-17-26Z/11.log",
+"bytes": 342,
+"log_sha8": "c94d39e4",
+"exit": 0,
+"seconds": 0.33,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 12,
+"role": "probe",
+"run": "cargo xtask capability-drift",
+"run_sha8": "fb5fd088",
+"expect": null,
+"log": "/tmp/andromeda-gate/2026-10-04-retry-storm-interpretation-names-its-cause/implement-2026-10-04T14-17-26Z/12.log",
+"bytes": 714,
+"log_sha8": "9254bcfa",
+"exit": 0,
+"seconds": 0.45,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 13,
+"role": "probe",
+"run": "cargo xtask verify:capability-matrix",
+"run_sha8": "31c12e31",
+"expect": null,
+"log": "/tmp/andromeda-gate/2026-10-04-retry-storm-interpretation-names-its-cause/implement-2026-10-04T14-17-26Z/13.log",
+"bytes": 396,
+"log_sha8": "ff96f187",
+"exit": 0,
+"seconds": 0.33,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 14,
+"role": "unit",
+"run": "cargo nextest run --workspace --profile ci",
+"run_sha8": "bf6e813a",
+"expect": null,
+"log": "/tmp/andromeda-gate/2026-10-04-retry-storm-interpretation-names-its-cause/implement-2026-10-04T14-17-26Z/14.log",
+"bytes": 617732,
+"log_sha8": "2354a46f",
+"exit": 0,
+"seconds": 14.78,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 15,
+"role": "build",
+"run": "cargo nextest run -p pulse-app --features mcp-server --bin pulse-app -E 'test(emit_taurpc_bindings)' ",
+"run_sha8": "3733d1a6",
+"expect": null,
+"log": "/tmp/andromeda-gate/2026-10-04-retry-storm-interpretation-names-its-cause/implement-2026-10-04T14-17-26Z/15.log",
+"bytes": 1195,
+"log_sha8": "9fef0dc6",
+"exit": 0,
+"seconds": 8.73,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 16,
+"role": "probe",
+"run": "git diff --quiet e71dba539a7d0379d960b49b37b2cf3538de6ec2 -- pulse-app/ui/src/bindings/index.ts",
+"run_sha8": "40b84e79",
+"expect": null,
+"log": "/tmp/andromeda-gate/2026-10-04-retry-storm-interpretation-names-its-cause/implement-2026-10-04T14-17-26Z/16.log",
+"bytes": 0,
+"log_sha8": "e3b0c442",
+"exit": 0,
+"seconds": 0.01,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 17,
+"role": "probe",
+"run": "python -X utf8 /home/turbolet/.claude/skills/andromeda-tools/scripts/gate.py hygiene",
+"run_sha8": "c6e5fd28",
+"expect": [
+"exit 0",
+"contains hygiene: clean"
+],
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — leg operator (the letter drives it)"
+},
+{
+"n": 18,
+"role": "integration",
+"run": "git ls-files -s scripts/agent-run.sh",
+"run_sha8": "c3cf2093",
+"expect": [
+"exit 0",
+"contains 100755"
+],
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — leg operator (the letter drives it)"
+},
+{
+"n": 19,
+"role": "integration",
+"run": "env -i HOME=\"$HOME\" PATH=\"$HOME/.cargo/bin:$(dirname \"$(command -v node)\"):/usr/local/bin:/usr/bin:/bin\" ANDROMEDA_PULSE_DATA_DIR=\"$PWD/target/pre-push/data\" cargo xtask check:english-sources",
+"run_sha8": "b6a3fa09",
+"expect": [
+"exit 0",
+"contains \"verdict\": \"clean\""
+],
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — leg operator (the letter drives it)"
+},
+{
+"n": 20,
+"role": "integration",
+"run": "P=\"$PWD/target/pre-push/puppeteer-$(date -u +%Y%m%dT%H%M%SZ)\" && test ! -e \"$P\" && cd pulse-app/ui && env -i HOME=\"$HOME\" PATH=\"$HOME/.cargo/bin:$(dirname \"$(command -v node)\"):/usr/local/bin:/usr/bin:/bin\" PUPPETEER_CACHE_DIR=\"$P\" ANDROMEDA_PULSE_DATA_DIR=\"$OLDPWD/target/pre-push/data\" npm ci && env -i HOME=\"$HOME\" PATH=\"$HOME/.cargo/bin:$(dirname \"$(command -v node)\"):/usr/local/bin:/usr/bin:/bin\" PUPPETEER_CACHE_DIR=\"$P\" ANDROMEDA_PULSE_DATA_DIR=\"$OLDPWD/target/pre-push/data\" npm run build",
+"run_sha8": "ce55d38a",
+"expect": null,
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — leg operator (the letter drives it)"
+},
+{
+"n": 21,
+"role": "integration",
+"run": "env -i HOME=\"$HOME\" PATH=\"$HOME/.cargo/bin:$(dirname \"$(command -v node)\"):/usr/local/bin:/usr/bin:/bin\" ANDROMEDA_PULSE_DATA_DIR=\"$PWD/target/pre-push/data\" cargo clippy --workspace --all-targets --all-features -- -D warnings",
+"run_sha8": "f73db233",
+"expect": null,
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — leg operator (the letter drives it)"
+},
+{
+"n": 22,
+"role": "integration",
+"run": "env -i HOME=\"$HOME\" PATH=\"$HOME/.cargo/bin:$(dirname \"$(command -v node)\"):/usr/local/bin:/usr/bin:/bin\" ANDROMEDA_PULSE_DATA_DIR=\"$PWD/target/pre-push/data\" cargo xtask test",
+"run_sha8": "6146313a",
+"expect": [
+"exit 0",
+"contains passed"
+],
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — leg operator (the letter drives it)"
+},
+{
+"n": 23,
+"role": "integration",
+"run": "D=\"$PWD/target/pre-push/data-$(date -u +%Y%m%dT%H%M%SZ)\" && test ! -e \"$D\" && mkdir -p \"$D/logs\" && printf '%s\\n' '{\"timestamp\":\"2026-01-01T00:00:00.000000Z\",\"level\":\"INFO\",\"target\":\"app.boot.ready\",\"fields\":{\"message\":\"pre-push seed\"}}' '{\"timestamp\":\"2026-01-01T00:00:00.000000Z\",\"level\":\"INFO\",\"target\":\"ingest.tick\",\"fields\":{}}' '{\"timestamp\":\"2026-01-01T00:00:15.000000Z\",\"level\":\"INFO\",\"target\":\"ingest.tick\",\"fields\":{}}' > \"$D/logs/agent-latest.jsonl\" && env -i HOME=\"$HOME\" PATH=\"$HOME/.cargo/bin:$(dirname \"$(command -v node)\"):/usr/local/bin:/usr/bin:/bin\" ANDROMEDA_PULSE_DATA_DIR=\"$D\" cargo xtask ci-gates",
+"run_sha8": "3690d126",
+"expect": null,
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — leg operator (the letter drives it)"
+},
+{
+"n": 24,
+"role": "build",
+"run": "cargo nextest run -p pulse-app --features mcp-server --bin pulse-app -E 'test(emit_taurpc_bindings)' ",
+"run_sha8": "3733d1a6",
+"expect": null,
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — leg operator (the letter drives it)"
+},
+{
+"n": 25,
+"role": "probe",
+"run": "git diff --quiet e71dba539a7d0379d960b49b37b2cf3538de6ec2 -- pulse-app/ui/src/bindings/index.ts",
+"run_sha8": "40b84e79",
+"expect": null,
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — leg operator (the letter drives it)"
+},
+{
+"n": 26,
+"role": "probe",
+"run": "git diff --quiet && git diff --cached --quiet && git push origin chore/migrate-pulse-to-v3",
+"run_sha8": "adb66f19",
+"expect": null,
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — leg operator (the letter drives it)"
+},
+{
+"n": 27,
+"role": "probe",
+"run": "python -X utf8 /home/turbolet/.claude/skills/andromeda-tools/scripts/ci.py conclusion --sha HEAD --wait 2400",
+"run_sha8": "2aa1f573",
+"expect": [
+"exit 0",
+"contains verdict: green"
+],
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — leg operator (the letter drives it)"
+}
+]
+}
+},
+{
+"tool": "gate",
+"v": "1.7",
+"sha8": "1d6015ef",
+"ts": "2026-10-04T14:23:53Z",
+"argv": [
+"scope",
+"--chunk-dir",
+"andromeda-pulse-0.3.0/chunks/2026-10-04-retry-storm-interpretation-names-its-cause",
+"--run-dir",
+".andromeda/runs/2026-10-04T14-17-26Z-implement",
+"--marker",
+"2026-10-04-retry-storm-interpretation-names-its-cause"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"root /home/turbolet/dev/projects/andromeda-pulse · base HEAD (no pre-CI commit) · lists new 0 · modify 8 · derived 0 · record 0",
+"control: lists · glob · record — each fired on its synthetic known positive; C1 · C2 held",
+"scope-record.md: absent — every out-of-list file reads unrecorded",
+"scope: clean — changed 4 · listed 4 · recorded 0 (companion 0 · mechanical 0 · in-intent 0 · widening 0) · absorbed 0 · excluded 46"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"root": "/home/turbolet/dev/projects/andromeda-pulse",
+"base": "HEAD",
+"base_why": "no pre-CI commit",
+"counts": {
+"changed": 4,
+"listed": 4,
+"recorded": 0,
+"unrecorded": 0,
+"indet": 0,
+"absorbed": 0
+},
+"by_class": {
+"companion": 0,
+"mechanical": 0,
+"in-intent": 0,
+"widening": 0
+},
+"excluded": 46,
+"unparsed": 0,
+"widening_without_word": 0
+}
+}
+]

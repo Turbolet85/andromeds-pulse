@@ -14,11 +14,12 @@
 
 use std::sync::{Arc, Mutex};
 
-use interpretation::markdown::assemble_report;
+use interpretation::markdown::{assemble_report, serialize_report};
 use interpretation::schema::{
     Confidence, Decision, Hypothesis, InvestigationStep, L4Output, SCHEMA_VERSION,
     Severity as L4Severity,
 };
+use pulse_app::deterministic_inference::CANNED_L4_OUTPUT_JSON;
 use pulse_app::inference_runtime::create_incident_from_l4_output;
 use triage::contract::{
     CueKind, CueScope, Digest, DigestCueRef, DigestKind, DigestLwwMode, InMemoryIncidentRegistry,
@@ -261,4 +262,65 @@ async fn report_stays_degraded_when_no_interpretation_attached() {
     let report = assemble_report(&incident, None, vec![]);
     assert!(report.degraded_mode);
     assert!(report.hypotheses.is_empty());
+}
+
+fn digest_for(kind: CueKind) -> Digest {
+    let mut digest = storm_digest();
+    digest.attention_cues[0].kind = kind;
+    digest
+}
+
+/// First line of the markdown report the real producer's incident renders,
+/// through the single projection behind TauRPC `get_report` and MCP
+/// `retrieve_report`.
+fn report_first_line(kind: CueKind, model_output: &L4Output) -> String {
+    let registry: Arc<dyn IncidentRegistry> = Arc::new(InMemoryIncidentRegistry::new());
+    let persistence = Arc::new(RecordingPersistence::default());
+    create_incident_from_l4_output(
+        registry.as_ref(),
+        persistence.as_ref() as &dyn IncidentPersistence,
+        &digest_for(kind),
+        model_output,
+        1_700_000_001_000_000_000,
+    );
+    let incident = registry.list_active(WORKSPACE).pop().expect("incident");
+    let parsed: Option<L4Output> = incident
+        .resolution_summary_text
+        .as_deref()
+        .and_then(|t| serde_json::from_str(t).ok());
+    let markdown = serialize_report(&assemble_report(&incident, parsed.as_ref(), vec![]));
+    markdown.lines().next().expect("first line").to_string()
+}
+
+#[tokio::test]
+async fn report_names_its_cause_for_a_retry_storm_incident() {
+    let output = interpretation_output("irrelevant");
+
+    assert_eq!(
+        report_first_line(CueKind::RetryStorm, &output),
+        "# Diagnostic Report: Retry storm: Error rate spike in payment-service",
+    );
+    let spike = report_first_line(CueKind::ErrorRateSpike, &output);
+    assert!(
+        !spike.to_lowercase().contains("retry"),
+        "an error-rate-spike report never names the retry: {spike}",
+    );
+}
+
+/// The canned rank-1 hypothesis names "retry storm" for every incident, so
+/// only the first line can discriminate under the deterministic runner.
+#[tokio::test]
+async fn report_names_its_cause_under_the_deterministic_runner() {
+    let canned: L4Output =
+        serde_json::from_str(CANNED_L4_OUTPUT_JSON).expect("canned output parses");
+
+    assert_eq!(
+        report_first_line(CueKind::RetryStorm, &canned),
+        "# Diagnostic Report: Retry storm: Deterministic verification incident",
+    );
+    let spike = report_first_line(CueKind::ErrorRateSpike, &canned);
+    assert!(
+        !spike.to_lowercase().contains("retry"),
+        "an error-rate-spike report never names the retry: {spike}",
+    );
 }

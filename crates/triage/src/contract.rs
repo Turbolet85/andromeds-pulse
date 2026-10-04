@@ -197,6 +197,20 @@ pub enum CueKind {
     ReflectionTrend,
 }
 
+/// Human-readable cause label for a cue kind, prefixed onto incident titles
+/// so an incident names its trigger whatever the model wrote. ASCII only: it
+/// reaches the L4 prompt through digest corpus-match lines (argv transport).
+pub fn cue_cause_label(kind: CueKind) -> &'static str {
+    match kind {
+        CueKind::ErrorRateSpike => "Error-rate spike",
+        CueKind::LatencyRegression => "Latency regression",
+        CueKind::RestartEvent => "Restart event",
+        CueKind::ServiceWentSilent => "Service went silent",
+        CueKind::RetryStorm => "Retry storm",
+        CueKind::ReflectionTrend => "Reflection trend",
+    }
+}
+
 /// Scope an attention cue applies to: a single service, a single operation
 /// within a service, or the global pipeline. Bounded enumeration; variants
 /// serialize as snake_case strings. Chunk #78 added `Hash` derive +
@@ -669,6 +683,40 @@ mod tests {
             incident_event_kinds(),
             ["created", "active", "acknowledged", "resolved"]
         );
+    }
+
+    fn every_cue_kind() -> [CueKind; 6] {
+        // Exhaustive: a new variant fails to compile here until listed.
+        let _ = |kind: CueKind| match kind {
+            CueKind::ErrorRateSpike
+            | CueKind::LatencyRegression
+            | CueKind::RestartEvent
+            | CueKind::ServiceWentSilent
+            | CueKind::RetryStorm
+            | CueKind::ReflectionTrend => (),
+        };
+        [
+            CueKind::ErrorRateSpike,
+            CueKind::LatencyRegression,
+            CueKind::RestartEvent,
+            CueKind::ServiceWentSilent,
+            CueKind::RetryStorm,
+            CueKind::ReflectionTrend,
+        ]
+    }
+
+    #[test]
+    fn cause_label_names_retry_only_for_retry_storm() {
+        for kind in every_cue_kind() {
+            let label = cue_cause_label(kind);
+            assert!(!label.is_empty(), "{kind:?} has a label");
+            assert!(label.is_ascii(), "{kind:?} label is ASCII: {label}");
+            assert_eq!(
+                label.to_lowercase().contains("retry"),
+                kind == CueKind::RetryStorm,
+                "{kind:?} names the retry iff it is a retry storm: {label}",
+            );
+        }
     }
 
     fn sample_evidence_refs() -> EvidenceRefs {

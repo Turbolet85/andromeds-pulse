@@ -39,7 +39,8 @@ use tokio::task::JoinHandle;
 use triage::contract::{
     CueKind, CueScope, DamperVerdict, Digest, DigestBroadcast, DigestKind, EvidenceRefs,
     GenerationDamper, INCIDENT_EVENT_CREATED, Incident, IncidentPersistence, IncidentRegistry,
-    IncidentStatus, PriorityTier, Severity as IncidentSeverity, generate_reason_label,
+    IncidentStatus, PriorityTier, Severity as IncidentSeverity, cue_cause_label,
+    generate_reason_label,
 };
 
 /// Tracing target — top-level L4 inference request span (per L3 digest).
@@ -634,8 +635,11 @@ pub fn attach_resolution_summary_to_incident(
     let Ok(id) = id_str.parse::<i64>() else {
         return;
     };
+    let Some(incident) = registry.get(id) else {
+        return;
+    };
 
-    let Some(scrubbed_text) = scrubbed_l4_json(parsed) else {
+    let Some(scrubbed_text) = scrubbed_l4_json(&grounded_output(parsed, incident.kind)) else {
         return;
     };
 
@@ -663,6 +667,23 @@ fn grounded_fingerprint_hashes(parsed_refs: &[String], cue_fp: Option<&str>) -> 
         }
     }
     out
+}
+
+/// `{Cause label}: {model title}` — the incident's trigger named in its
+/// title whatever the model wrote. Grounded BEFORE the scrub, which masks
+/// only the model's words (no P-047 arm matches a cause label).
+#[doc(hidden)]
+pub fn grounded_title(kind: CueKind, model_title: &str) -> String {
+    format!("{}: {}", cue_cause_label(kind), model_title)
+}
+
+/// `parsed` with its title grounded on the incident's cue kind; every other
+/// field untouched.
+fn grounded_output(parsed: &L4Output, kind: CueKind) -> L4Output {
+    L4Output {
+        title: grounded_title(kind, &parsed.title),
+        ..parsed.clone()
+    }
 }
 
 /// Serialize + scrub a parsed `L4Output` for attachment as the incident's
@@ -803,6 +824,7 @@ pub fn create_incident_from_l4_output(
         return;
     };
 
+    let grounded = grounded_output(parsed, kind);
     let severity = map_l4_incident_severity(parsed.severity);
     let priority_tier = map_l4_priority_tier(parsed.severity);
 
@@ -841,7 +863,7 @@ pub fn create_incident_from_l4_output(
             // attachment (chunk #86 precedent); a failure skips defensively
             // (Resolved is unreachable here — observe_reemission rejected it)
             // and the single persist below carries whatever state stands.
-            if let Some(json) = scrubbed_l4_json(parsed) {
+            if let Some(json) = scrubbed_l4_json(&grounded) {
                 let _ = registry.attach_interpretation_summary(existing.id, json, now_unix_nano);
             }
             if let Some(updated) = registry.get(existing.id) {
@@ -880,7 +902,7 @@ pub fn create_incident_from_l4_output(
         // constant under the deterministic runner — writing it here is the
         // defect this producer previously had.
         fingerprint: cue_fingerprint.unwrap_or_default(),
-        title: scrub_text(&parsed.title),
+        title: scrub_text(&grounded.title),
         detail: scrub_text(&parsed.symptom),
         kind,
         scope,
@@ -903,7 +925,7 @@ pub fn create_incident_from_l4_output(
         // the report renders the model's content for a live incident instead
         // of a false-degraded notice. The resolution-summary generation, when
         // it fires, is the final write to this field.
-        resolution_summary_text: scrubbed_l4_json(parsed),
+        resolution_summary_text: scrubbed_l4_json(&grounded),
     };
 
     let id = match persistence.save_new_incident(&incident) {

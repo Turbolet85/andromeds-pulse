@@ -19,11 +19,13 @@ use interpretation::contract::{
 use interpretation::degraded_mode::{BackoffSnapshot, DegradedModeStatus};
 use interpretation::schema::{Decision, L4Output, Severity as L4Severity};
 use pulse_app::deterministic_inference::CANNED_L4_OUTPUT_JSON;
-use pulse_app::inference_runtime::{create_incident_from_l4_output, process_digest};
+use pulse_app::inference_runtime::{
+    attach_resolution_summary_to_incident, create_incident_from_l4_output, process_digest,
+};
 use triage::contract::{
     CueKind, CueScope, Digest, DigestCueRef, DigestKind, DigestLwwMode, GenerationDamper,
     InMemoryIncidentRegistry, Incident, IncidentError, IncidentPersistence, IncidentRegistry,
-    IncidentStatus, PriorityTier, Severity as IncidentSeverity,
+    IncidentStatus, PriorityTier, ResolutionTrigger, Severity as IncidentSeverity,
 };
 
 const WORKSPACE: &str = "/home/dev/example";
@@ -454,7 +456,7 @@ fn distinct_fingerprint_same_service_still_coalesces_to_one_incident() {
     );
     let inc = registry.list_active(WORKSPACE).remove(0);
     assert_eq!(
-        inc.title, "storm A",
+        inc.title, "Retry storm: storm A",
         "the FIRST incident survives; the second storm is absorbed into it",
     );
     assert_eq!(
@@ -693,7 +695,7 @@ fn pii_canary_in_l4_text_is_scrubbed_before_persist() {
         persisted.title,
     );
     assert_eq!(
-        persisted.title, "error referencing [redacted: email] in title",
+        persisted.title, "Error-rate spike: error referencing [redacted: email] in title",
         "a title embedding PII must mask the secret in place and keep its words",
     );
     // The registry copy is the post-scrub incident (insert happens post-scrub).
@@ -1271,4 +1273,192 @@ async fn incident_skip_is_absent_for_a_resolution_summary_digest() {
         own_skip_records(&events).is_empty(),
         "a resolution-summary digest attaching its summary is not a skipped incident",
     );
+}
+
+// ---- Cue-grounded incident title (the cause names itself) ----
+
+/// The `title` inside the incident's persisted L4 JSON — what the report
+/// header renders.
+fn json_title(incident: &Incident) -> String {
+    let text = incident
+        .resolution_summary_text
+        .as_deref()
+        .expect("interpretation JSON attached");
+    serde_json::from_str::<L4Output>(text)
+        .expect("attached JSON parses back as L4Output")
+        .title
+}
+
+#[test]
+fn incident_title_names_its_cause_for_a_retry_storm() {
+    let (registry, persistence) = fresh();
+    let digest = digest_with_cue(CueKind::RetryStorm, CueScope::Service, Some("conductor"));
+    let output = l4_output(
+        Decision::Surface,
+        L4Severity::Autonomous,
+        "Error Rate Spike in ws",
+    );
+
+    create_incident_from_l4_output(
+        registry.as_ref(),
+        persistence.as_ref(),
+        &digest,
+        &output,
+        5_000,
+    );
+
+    let expected = "Retry storm: Error Rate Spike in ws";
+    let saved = persistence.saved();
+    assert_eq!(saved.len(), 1);
+    assert_eq!(saved[0].title, expected, "persisted title names the cause");
+    let inc = registry.list_active(WORKSPACE).remove(0);
+    assert_eq!(inc.title, expected, "registry title names the cause");
+    assert_eq!(
+        json_title(&inc),
+        expected,
+        "the report's L4 JSON title names the cause",
+    );
+}
+
+#[test]
+fn incident_title_names_its_cause_without_retry_for_an_error_rate_spike() {
+    let (registry, persistence) = fresh();
+    let digest = digest_with_cue(CueKind::ErrorRateSpike, CueScope::Service, Some("svc"));
+    let output = l4_output(Decision::Surface, L4Severity::Suggested, "Errors climbing");
+
+    create_incident_from_l4_output(
+        registry.as_ref(),
+        persistence.as_ref(),
+        &digest,
+        &output,
+        5_000,
+    );
+
+    let inc = registry.list_active(WORKSPACE).remove(0);
+    for title in [inc.title.clone(), json_title(&inc)] {
+        assert_eq!(title, "Error-rate spike: Errors climbing");
+        assert!(
+            !title.to_lowercase().contains("retry"),
+            "a non-retry cause never names the retry: {title}",
+        );
+    }
+}
+
+#[test]
+fn incident_title_names_its_cause_on_dedupe_refresh() {
+    let (registry, persistence) = fresh();
+    let digest = digest_with_cue(CueKind::RetryStorm, CueScope::Service, Some("conductor"));
+
+    create_incident_from_l4_output(
+        registry.as_ref(),
+        persistence.as_ref(),
+        &digest,
+        &l4_output(Decision::Surface, L4Severity::Suggested, "first take"),
+        5_000,
+    );
+    create_incident_from_l4_output(
+        registry.as_ref(),
+        persistence.as_ref(),
+        &digest,
+        &l4_output(Decision::Surface, L4Severity::Suggested, "second take"),
+        9_000,
+    );
+
+    assert_eq!(registry.count(), 1, "the second generation dedups");
+    let inc = registry.list_active(WORKSPACE).remove(0);
+    assert_eq!(
+        json_title(&inc),
+        "Retry storm: second take",
+        "the refreshed JSON carries the grounded SECOND model title",
+    );
+    assert!(
+        inc.title.ends_with("first take") && !inc.title.contains("second take"),
+        "a deduped incident keeps its creation title: {}",
+        inc.title,
+    );
+}
+
+#[test]
+fn incident_title_names_its_cause_in_the_resolution_summary() {
+    let (registry, persistence) = fresh();
+    let digest = digest_with_cue(CueKind::RetryStorm, CueScope::Service, Some("conductor"));
+    create_incident_from_l4_output(
+        registry.as_ref(),
+        persistence.as_ref(),
+        &digest,
+        &l4_output(Decision::Surface, L4Severity::Suggested, "live take"),
+        5_000,
+    );
+    let id = registry.list_active(WORKSPACE).remove(0).id;
+    registry
+        .mark_resolved(id, 7_000, ResolutionTrigger::AutoResolve)
+        .expect("resolve");
+
+    let mut resolution = l4_output(Decision::Surface, L4Severity::Suggested, "storm subsided");
+    resolution.is_resolution_summary = true;
+    attach_resolution_summary_to_incident(
+        registry.as_ref(),
+        persistence.as_ref(),
+        &[id.to_string()],
+        &resolution,
+        8_000,
+    );
+
+    let inc = registry.get(id).expect("incident");
+    assert_eq!(
+        json_title(&inc),
+        "Retry storm: storm subsided",
+        "the resolution final write keeps the cause in the report header",
+    );
+}
+
+#[test]
+fn incident_title_names_its_cause_for_a_reflection_digest() {
+    let (registry, persistence) = fresh();
+    create_incident_from_l4_output(
+        registry.as_ref(),
+        persistence.as_ref(),
+        &reflection_digest(),
+        &l4_output(Decision::Surface, L4Severity::Curious, "slow drift"),
+        5_000,
+    );
+
+    let inc = registry.list_active(WORKSPACE).remove(0);
+    assert_eq!(inc.title, "Reflection trend: slow drift");
+    assert_eq!(json_title(&inc), "Reflection trend: slow drift");
+}
+
+#[test]
+fn incident_title_names_its_cause_and_still_masks_secrets() {
+    let (registry, persistence) = fresh();
+    let bare = "sk_live_51NotARealKeyOnlyForPulseTests00"; // gitleaks:allow
+    let keyed = "hunter2";
+    let digest = digest_with_cue(CueKind::RetryStorm, CueScope::Service, Some("conductor"));
+    let output = l4_output(
+        Decision::Surface,
+        L4Severity::Suggested,
+        &format!("rotate {bare} after password={keyed}"),
+    );
+
+    create_incident_from_l4_output(
+        registry.as_ref(),
+        persistence.as_ref(),
+        &digest,
+        &output,
+        5_000,
+    );
+
+    let saved = persistence.saved();
+    assert_eq!(saved.len(), 1);
+    let inc = registry.list_active(WORKSPACE).remove(0);
+    for title in [saved[0].title.clone(), inc.title.clone(), json_title(&inc)] {
+        assert!(
+            title.starts_with("Retry storm: "),
+            "the cause label survives the scrub: {title}",
+        );
+        assert!(!title.contains(bare), "bare canary masked: {title}");
+        assert!(!title.contains(keyed), "keyed canary masked: {title}");
+    }
+    let raw_json = inc.resolution_summary_text.as_deref().expect("json");
+    assert!(!raw_json.contains(bare) && !raw_json.contains(keyed));
 }

@@ -1,0 +1,35 @@
+[
+{
+"tool": "route",
+"v": "1.5",
+"sha8": "9fc8708e",
+"ts": "2026-10-04T12:48:11Z",
+"argv": [
+"route.py",
+"pins",
+"--root",
+".",
+"--run-dir",
+".andromeda/runs/2026-10-04T12-47-24Z-phase"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"working-route.md · markerless 4 of 75 entries · freight blocks 9 · rows are an INDEX, not the text",
+"158 · CONTEXT: · 226 chars · CONTEXT: measure first — Conductor's d3 rank-1 interpretation (2026-10-01, relayed by the …",
+"158 · WATCH: · 479 chars · clause UNPARSED · WATCH: CI `boot smoke (ubuntu-22.04)` — the app reached `boot: ready`, the…",
+"160 · CONTEXT: · 549 chars · CONTEXT: `detect_gpu_present`'s Linux arm (`crates/interpretation/src/hardware.rs:147-152`…",
+"162 · CONTEXT: · 908 chars · CONTEXT: `Cargo.toml` declares `rust-version = \"1.85\"` while the toolchain is pinned at 1.…",
+"162 · CARRY: · 380 chars · CARRY: `corpus_key_survives_a_real_process_boundary` leaves an empty lock file in the lock d…",
+"164 · CONTEXT: · 546 chars · CONTEXT: the verb needs `wsl.exe` (`xtask/src/pre_push.rs`), and since the 2026-10-03 move…",
+"164 · CARRY: · 560 chars · CARRY: (a) PC22 — a fresh `PUPPETEER_CACHE_DIR` under `target/` reproduces the partial v148 …",
+"164 · CARRY: · 429 chars · CARRY: (b) stage ORDER — run by hand, stage 5 (`cargo xtask test`, default features) re-emit…",
+"164 · CARRY: · 479 chars · CARRY: (c) stage 5's `env -i` isolation also drops `DBUS_SESSION_BUS_ADDRESS`, so every cred…",
+"… +7 abstention(s) OUTSIDE this listing (frozen entries · the master) — `markerless` and `cursor` print them"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+}
+]
