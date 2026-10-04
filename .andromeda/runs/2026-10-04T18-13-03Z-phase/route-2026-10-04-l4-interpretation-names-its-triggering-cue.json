@@ -1,0 +1,36 @@
+[
+{
+"tool": "route",
+"v": "1.6",
+"sha8": "b87a9ed0",
+"ts": "2026-10-04T18:13:59Z",
+"argv": [
+"route.py",
+"promote",
+"--root",
+".",
+"--chunk",
+"2026-10-04-l4-interpretation-names-its-triggering-cue",
+"--expect-prefix",
+"L4 interpretation names its triggering cue",
+"--record-file",
+".andromeda/runs/2026-10-04T18-13-03Z-phase/master-record.txt",
+"--run-dir",
+".andromeda/runs/2026-10-04T18-13-03Z-phase"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"stamp working-route.md:162 - [2026-10-04-l4-interpretation-names-its-triggering-cue]",
+"record master-route.md:94 - appended under `## andromeda-pulse-0.3.0`",
+"promoted 2026-10-04-l4-interpretation-names-its-triggering-cue - working-route:162 frozen - master record appended"
+],
+"stderr": null,
+"wrote": [
+"./andromeda-pulse-0.3.0/working-route.md",
+"./.andromeda/master-route.md"
+],
+"before": null,
+"after": null
+}
+]

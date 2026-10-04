@@ -80,6 +80,17 @@ Populate evidence_refs ONLY by copying identifiers verbatim from the \
 Citable Evidence Ids section; when it lists none, emit an empty \
 evidence_refs array. Never invent an identifier.";
 
+/// Shared framing instruction appended to every tier's output reminder: the
+/// digest's TRIGGER line names the signal the output describes, and its
+/// CORPUS MATCHES lines are other incidents. Conditional, so a digest without
+/// either section (reflection, investigation focus) still reads correctly.
+pub const TRIGGER_FRAMING_INSTRUCTION: &str = "\
+When the digest carries a TRIGGER line, that line names the signal this \
+output describes: the title, the symptom and the first hypothesis must be \
+about that signal. CORPUS MATCHES lines are OTHER incidents, past or still \
+open on another signal, given for context only; never describe one of them \
+as the current signal.";
+
 /// Role definition section emitted at the top of every primary-tier
 /// prompt. Bounded to role + conventions; no project-specific facts here.
 const ROLE_DEFINITION: &str = "\
@@ -198,6 +209,7 @@ pub fn build_primary_tier_prompt(
                 .sum::<usize>()
             + OUTPUT_REMINDER.len()
             + CITING_INSTRUCTION.len()
+            + TRIGGER_FRAMING_INSTRUCTION.len()
             + 640, // markers + section headers
     );
 
@@ -251,6 +263,8 @@ pub fn build_primary_tier_prompt(
     prompt.push('\n');
     prompt.push_str(CITING_INSTRUCTION);
     prompt.push('\n');
+    prompt.push_str(TRIGGER_FRAMING_INSTRUCTION);
+    prompt.push('\n');
 
     prompt
 }
@@ -288,6 +302,7 @@ pub fn build_fallback_tier_prompt(
                 .sum::<usize>()
             + OUTPUT_REMINDER_FALLBACK.len()
             + CITING_INSTRUCTION.len()
+            + TRIGGER_FRAMING_INSTRUCTION.len()
             + 640,
     );
 
@@ -341,6 +356,8 @@ pub fn build_fallback_tier_prompt(
     prompt.push('\n');
     prompt.push_str(CITING_INSTRUCTION);
     prompt.push('\n');
+    prompt.push_str(TRIGGER_FRAMING_INSTRUCTION);
+    prompt.push('\n');
 
     prompt
 }
@@ -376,6 +393,7 @@ pub fn build_reflection_tier_prompt(
                 .sum::<usize>()
             + OUTPUT_REMINDER_REFLECTION.len()
             + CITING_INSTRUCTION.len()
+            + TRIGGER_FRAMING_INSTRUCTION.len()
             + 640,
     );
 
@@ -428,6 +446,8 @@ pub fn build_reflection_tier_prompt(
     prompt.push_str(OUTPUT_REMINDER_REFLECTION);
     prompt.push('\n');
     prompt.push_str(CITING_INSTRUCTION);
+    prompt.push('\n');
+    prompt.push_str(TRIGGER_FRAMING_INSTRUCTION);
     prompt.push('\n');
 
     prompt
@@ -545,7 +565,36 @@ mod tests {
         }
         assert!(at("decision") < at("severity"));
         assert!(at("severity") < at("investigation_steps"));
-        assert_eq!(PROMPT_VERSION_PRIMARY, "v2.3");
+        assert_eq!(PROMPT_VERSION_PRIMARY, "v2.4");
+        assert_eq!(PROMPT_VERSION_FALLBACK, "v1.3-fallback");
+        assert_eq!(PROMPT_VERSION_REFLECTION, "v1.3-reflection");
+    }
+
+    #[test]
+    fn framing_instruction_present_in_every_tier_output_instructions() {
+        for (label, prompt) in [
+            (
+                "primary",
+                build_primary_tier_prompt("digest", "project", "", &[]),
+            ),
+            (
+                "fallback",
+                build_fallback_tier_prompt("digest", "project", "", &[]),
+            ),
+            (
+                "reflection",
+                build_reflection_tier_prompt("digest", "project", "", &[]),
+            ),
+        ] {
+            let at = prompt
+                .find("# Output Instructions")
+                .unwrap_or_else(|| panic!("{label}: output instructions section"));
+            assert_eq!(
+                prompt[at..].matches(TRIGGER_FRAMING_INSTRUCTION).count(),
+                1,
+                "{label}: the framing instruction appears exactly once in Output Instructions"
+            );
+        }
     }
 
     #[test]

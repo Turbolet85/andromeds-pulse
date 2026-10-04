@@ -35,7 +35,8 @@ use tokenizers::Tokenizer;
 use crate::cadence::CadenceMode;
 use crate::contract::{
     AttentionCue, CueKind, Digest, DigestCueRef, DigestKind, DigestLwwMode, DigestServiceRow,
-    IncidentStatus, PriorityTier, Severity, SqlAggregationError, SqlQueryRunner, hex_lower,
+    IncidentStatus, PriorityTier, Severity, SqlAggregationError, SqlQueryRunner, cue_cause_label,
+    hex_lower,
 };
 use crate::digest::broadcast::DigestBroadcast;
 use crate::digest::queue::{LwwQueue, QueueAction};
@@ -600,6 +601,18 @@ fn compose_services_from_q1(rows: &[crate::contract::Q1RedRow]) -> Vec<DigestSer
         .collect()
 }
 
+/// Prefix of the digest line naming the cue this digest was triggered by
+/// (the first cue, which the producer takes the incident identity from).
+/// ASCII: the line reaches the llama-cli argv inside `payload_summary`.
+#[doc(hidden)]
+pub const TRIGGER_LINE_PREFIX: &str = "TRIGGER: ";
+
+/// Note rendered directly under the `CORPUS MATCHES:` header so the model
+/// reads the matches as other incidents, never as the signal being reported.
+#[doc(hidden)]
+pub const CORPUS_MATCHES_FRAMING_NOTE: &str =
+    "(other or past incidents - context only, not the signal this digest reports)";
+
 /// The cue-summary text a digest's ATTENTION CUES line carries.
 #[doc(hidden)]
 pub fn cue_summary(c: &AttentionCue) -> String {
@@ -661,6 +674,13 @@ pub fn render_payload(
         incident_refs.len(),
         cues.len()
     ));
+    // The first cue is the one the producer takes the incident identity from.
+    if let Some(trigger) = cues.first() {
+        s.push_str(&format!(
+            "{TRIGGER_LINE_PREFIX}{}\n",
+            cue_cause_label(trigger.kind)
+        ));
+    }
     if !services.is_empty() {
         s.push_str("SERVICES (rate, error%, p99 vs baselines):\n");
         for row in services {
@@ -686,6 +706,7 @@ pub fn render_payload(
     }
     if !corpus_matches.is_empty() {
         s.push_str("CORPUS MATCHES:\n");
+        s.push_str(&format!("  {CORPUS_MATCHES_FRAMING_NOTE}\n"));
         for m in corpus_matches.iter().take(DIGEST_CORPUS_RETRIEVAL_LIMIT) {
             s.push_str(&format!("  - {m}\n"));
         }
@@ -1118,6 +1139,117 @@ mod tests {
             overall_line_of(&rendered),
             "OVERALL: degraded (1 active incident(s); 1 cue(s))"
         );
+    }
+
+    fn cue_ref_of(kind: CueKind) -> DigestCueRef {
+        DigestCueRef {
+            kind,
+            priority_tier: PriorityTier::Autonomous,
+            summary: format!("{} scope_id=svc", cue_kind_label(kind)),
+            scope: CueScope::Service,
+            fingerprint: None,
+            scope_id: Some("svc".to_string()),
+        }
+    }
+
+    fn render_with(cues: &[DigestCueRef], corpus_matches: &[String]) -> String {
+        render_payload(
+            Duration::from_secs(60),
+            "tier1",
+            &project_context(),
+            &[],
+            cues,
+            corpus_matches,
+            &[],
+            false,
+        )
+    }
+
+    #[test]
+    fn render_payload_names_the_trigger_from_the_first_cue() {
+        let rendered = render_with(
+            &[
+                cue_ref_of(CueKind::RetryStorm),
+                cue_ref_of(CueKind::ErrorRateSpike),
+            ],
+            &[],
+        );
+        let lines: Vec<&str> = rendered.lines().collect();
+        let trigger_lines: Vec<usize> = lines
+            .iter()
+            .enumerate()
+            .filter(|(_, l)| l.starts_with(TRIGGER_LINE_PREFIX))
+            .map(|(i, _)| i)
+            .collect();
+        assert_eq!(trigger_lines.len(), 1, "exactly one TRIGGER line");
+        let at = trigger_lines[0];
+        assert_eq!(lines[at], "TRIGGER: Retry storm");
+        assert!(
+            at > 0 && lines[at - 1].starts_with("OVERALL: "),
+            "the TRIGGER line directly follows OVERALL"
+        );
+    }
+
+    #[test]
+    fn render_payload_omits_the_trigger_line_without_a_cue() {
+        let rendered = render_with(&[], &[]);
+        assert!(
+            !rendered.lines().any(|l| l.starts_with(TRIGGER_LINE_PREFIX)),
+            "a cue-less digest names no trigger"
+        );
+    }
+
+    #[test]
+    fn render_payload_frames_corpus_matches_as_other_incidents() {
+        let rendered = render_with(
+            &[cue_ref_of(CueKind::RetryStorm)],
+            &["[abcd] Error-rate spike: past incident - 3m ago, active".to_string()],
+        );
+        let lines: Vec<&str> = rendered.lines().collect();
+        let header = lines
+            .iter()
+            .position(|l| *l == "CORPUS MATCHES:")
+            .expect("the corpus header renders");
+        assert_eq!(
+            lines.get(header + 1).copied(),
+            Some(format!("  {CORPUS_MATCHES_FRAMING_NOTE}").as_str()),
+            "the framing note directly follows the header"
+        );
+        assert_eq!(
+            lines.get(header + 2).copied(),
+            Some("  - [abcd] Error-rate spike: past incident - 3m ago, active"),
+            "the match line follows the note"
+        );
+    }
+
+    #[test]
+    fn render_payload_omits_the_corpus_framing_note_without_matches() {
+        let rendered = render_with(&[cue_ref_of(CueKind::RetryStorm)], &[]);
+        assert!(!rendered.contains(CORPUS_MATCHES_FRAMING_NOTE));
+    }
+
+    #[test]
+    fn render_payload_framing_lines_are_ascii() {
+        for kind in [
+            CueKind::ErrorRateSpike,
+            CueKind::LatencyRegression,
+            CueKind::RestartEvent,
+            CueKind::ServiceWentSilent,
+            CueKind::RetryStorm,
+            CueKind::ReflectionTrend,
+        ] {
+            let rendered = render_with(&[cue_ref_of(kind)], &["m".to_string()]);
+            let trigger = rendered
+                .lines()
+                .find(|l| l.starts_with(TRIGGER_LINE_PREFIX))
+                .unwrap_or_else(|| panic!("{kind:?}: the render carries a TRIGGER line"));
+            assert!(trigger.is_ascii(), "{kind:?}: TRIGGER line is ASCII");
+            let note = rendered
+                .lines()
+                .find(|l| l.trim_start() == CORPUS_MATCHES_FRAMING_NOTE)
+                .unwrap_or_else(|| panic!("{kind:?}: the render carries the framing note"));
+            assert!(note.is_ascii(), "{kind:?}: framing note is ASCII");
+        }
     }
 
     #[test]

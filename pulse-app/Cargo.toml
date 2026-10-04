@@ -15,10 +15,12 @@ test = false
 name = "pulse-app"
 path = "src/main.rs"
 
-# Dev-only real-model decision probe (operator-run; never a test or a gate).
+# Dev-only real-model decision probe (operator-run; its generations are never a
+# gate). `test = true`: an auto-discovered example's unit tests are never collected.
 [[example]]
 name = "l4_decision_probe"
 path = "examples/l4_decision_probe.rs"
+test = true
 
 [dependencies]
 tokio.workspace = true

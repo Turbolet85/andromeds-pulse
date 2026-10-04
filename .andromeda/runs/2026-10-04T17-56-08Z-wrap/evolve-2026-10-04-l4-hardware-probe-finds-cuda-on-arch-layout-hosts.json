@@ -158,5 +158,45 @@
 "lines": 1916,
 "bytes": 2002299
 }
+},
+{
+"tool": "evolve",
+"v": "1.0",
+"sha8": "e257956a",
+"ts": "2026-10-04T18:09:38Z",
+"argv": [
+"append",
+"--root",
+".",
+"--count",
+"1",
+"--records-file",
+"-",
+"--run-dir",
+".andromeda/runs/2026-10-04T17-56-08Z-wrap",
+"--marker",
+"2026-10-04-l4-hardware-probe-finds-cuda-on-arch-layout-hosts"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"appended 1 record(s) · friction-log.ndjson lines 1916→1917 · bytes 2002299→2003456 · term lf",
+"ts 2026-10-04T18:09:29Z · clock 2026-10-04T18:09:38Z · bound 2026-10-04T18:07:20Z (line 1916)",
+"ids 2026-10-04T18:09:29Z-a"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/friction-log.ndjson"
+],
+"before": {
+"lines": 1916,
+"bytes": 2002299,
+"terminator": "LF",
+"bound": "2026-10-04T18:07:20Z"
+},
+"after": {
+"lines": 1917,
+"bytes": 2003456
+}
 }
 ]

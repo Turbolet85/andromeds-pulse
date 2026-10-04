@@ -149,7 +149,9 @@ pub use crate::digest::{
     format_corpus_match_line, generate_reason_label, select_corpus_matches, select_previously_seen,
 };
 #[doc(hidden)]
-pub use crate::digest::{cue_summary, render_payload};
+pub use crate::digest::{
+    CORPUS_MATCHES_FRAMING_NOTE, TRIGGER_LINE_PREFIX, cue_summary, render_payload,
+};
 
 /// Lowercase-hex encode raw fingerprint bytes (the `{b:02x}` shape used
 /// across the workspace's fingerprint surfaces).

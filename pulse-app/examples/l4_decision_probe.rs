@@ -4,7 +4,7 @@
 //!
 //! ```text
 //! cargo build -p pulse-app --example l4_decision_probe
-//! ./target/debug/examples/l4_decision_probe[.exe] --arms A0,A1,A2,A3,A4,A5 --n 10 [--min 27] [--out DIR] [--dry-run]
+//! ./target/debug/examples/l4_decision_probe[.exe] --arms A0,A1,A2,A3,A4,A5 --n 10 [--min 27] [--min-rank1 36] [--out DIR] [--dry-run]
 //! ```
 //!
 //! Inputs come from the product's own guarded resolution: the hardware
@@ -27,6 +27,16 @@
 //! `{out}/runs.json`; stdout carries one summary line per arm, and with
 //! `--min K` a final verdict line (exit 0 PASS / 1 FAIL).
 //!
+//! Each row also carries `names_trigger`, a closed label computed in-process:
+//! `rank1` (the first hypothesis names the triggering cue), `elsewhere` (the
+//! title, the symptom or a later hypothesis does), `none`, or `unparsed`.
+//! `--min-rank1 K` adds a names-trigger verdict line over all generations;
+//! with both flags set, the exit is 1 if either verdict fails.
+//!
+//! Shapes S1-S3 are retry storms on one service each; S4 is S1 plus one
+//! corpus match (an older, active error-rate-spike incident on another
+//! service), rendered through the real `format_corpus_match_line`.
+//!
 //! Arms (each differs from A0 in ONE factor):
 //! - `A0` — the rendered digest, prompt and argv as the tree has them
 //! - `A1` — A0 plus `--temp 0`
@@ -38,6 +48,10 @@
 //!   warrants `surface`
 //! - `A5` — A0 with `decision` / `severity` moved after `hypotheses` in the
 //!   schema, both the `--json-schema-file` copy and the prompt's embedded copy
+//!   (the shipped order since prompt v2.3, so A5 now composes as A0)
+//! - `nf` — the shipped composition with the three trigger-framing lines
+//!   removed: the digest's TRIGGER line, its corpus framing note and the
+//!   prompt's framing instruction (the no-framing counterfactual)
 //! - `shipped` — the tree as it is, no transform (the post-fix re-measure)
 
 use std::collections::hash_map::DefaultHasher;
@@ -48,8 +62,8 @@ use std::process::{ExitCode, Stdio};
 use std::time::{Duration, Instant};
 
 use interpretation::hardware::HardwareProfileDetector;
-use interpretation::prompt::build_primary_tier_prompt;
-use interpretation::schema::{Decision, L4_OUTPUT_JSON_SCHEMA, Severity, parse_bounded};
+use interpretation::prompt::{TRIGGER_FRAMING_INSTRUCTION, build_primary_tier_prompt};
+use interpretation::schema::{Decision, L4_OUTPUT_JSON_SCHEMA, L4Output, Severity, parse_bounded};
 use pulse_app::llamacli_inference::{
     DEFAULT_MAX_TOKENS, ENV_MODEL_PATH, LLAMA_CLI_MAX_OUTPUT_BYTES, LLAMA_CLI_TIMEOUT,
     MAX_PROMPT_BYTES, binary_target_for_profile, build_llama_cli_args, extract_json_object_bounded,
@@ -58,17 +72,24 @@ use pulse_app::llamacli_inference::{
 use serde_json::{Value, json};
 use tokio::io::AsyncReadExt;
 use triage::contract::{
-    AttentionCue, CueKind, CueScope, DigestCueRef, DigestProjectContext, DigestServiceRow,
-    HardwareProfileSource, PriorityTier, cue_summary, render_payload,
+    AttentionCue, CORPUS_MATCHES_FRAMING_NOTE, CueKind, CueScope, DigestCueRef,
+    DigestProjectContext, DigestServiceRow, EvidenceRefs, HardwareProfileSource, Incident,
+    IncidentStatus, PriorityTier, Severity as IncidentSeverity, TRIGGER_LINE_PREFIX, cue_summary,
+    format_corpus_match_line, render_payload,
 };
 
-const ARMS: [&str; 7] = ["A0", "A1", "A2", "A3", "A4", "A5", "shipped"];
+const ARMS: [&str; 8] = ["A0", "A1", "A2", "A3", "A4", "A5", "nf", "shipped"];
 // `crate::cadence::mode_label(CadenceMode::Tier1)` — a storm cue always takes
 // the Tier1 cycle, whose window is 60 s.
 const TIER1_MODE_LABEL: &str = "tier1";
 const TIER1_WINDOW: Duration = Duration::from_secs(60);
 const WORKSPACE: &str = "/synthetic/demo-shop";
 const STORM_FINGERPRINT: &str = "5e1f0a9c3b7d42e68a0c1f3e5b7d9a2c";
+const CORPUS_FINGERPRINT: &str = "9c2e7b41d05a3f86e1b4c7d02a59f3e8";
+// A fixed render instant keeps the corpus line's age, and so the prompt bytes,
+// identical across runs.
+const RENDER_NOW_UNIX_NANO: i64 = 1_700_000_000_000_000_000;
+const CORPUS_MATCH_AGE_NANOS: i64 = 180_000_000_000;
 const A4_ANCHOR: &str = "\"watch\" (record but do not surface). ";
 const A4_SENTENCE: &str = "A signal warrants \"surface\" when a service's error rate or \
 latency is far above its baseline or an attention cue reports a storm. ";
@@ -77,12 +98,14 @@ struct Shape {
     id: &'static str,
     services: Vec<DigestServiceRow>,
     cue: AttentionCue,
+    corpus_matches: Vec<String>,
 }
 
 struct Args {
     arms: Vec<String>,
     n: u32,
     min: Option<u32>,
+    min_rank1: Option<u32>,
     out: PathBuf,
     dry_run: bool,
 }
@@ -90,6 +113,7 @@ struct Args {
 struct Prepared {
     arm: String,
     shape: &'static str,
+    trigger: CueKind,
     prompt: String,
     schema: String,
     extra_args: Vec<String>,
@@ -133,6 +157,7 @@ fn shapes() -> Vec<Shape> {
                 row("auth-service", 15.0, 0.0, 40.0),
             ],
             cue: storm_cue("checkout-api", 20.0, 1.0),
+            corpus_matches: Vec::new(),
         },
         Shape {
             id: "S2",
@@ -143,6 +168,7 @@ fn shapes() -> Vec<Shape> {
                 row("auth-service", 15.0, 0.0, 40.0),
             ],
             cue: storm_cue("payment-service", 12.0, 0.35),
+            corpus_matches: Vec::new(),
         },
         Shape {
             id: "S3",
@@ -153,8 +179,54 @@ fn shapes() -> Vec<Shape> {
                 row("auth-service", 15.0, 0.0, 115.0),
             ],
             cue: storm_cue("inventory-service", 6.0, 0.12),
+            corpus_matches: Vec::new(),
+        },
+        Shape {
+            id: "S4",
+            services: vec![
+                row("checkout-api", 12.0, 1.0, 180.0),
+                row("payment-service", 9.0, 0.0, 95.0),
+                row("inventory-service", 7.0, 0.0, 60.0),
+                row("auth-service", 15.0, 0.0, 40.0),
+            ],
+            cue: storm_cue("checkout-api", 20.0, 1.0),
+            corpus_matches: vec![format_corpus_match_line(
+                &corpus_match_incident(),
+                RENDER_NOW_UNIX_NANO,
+            )],
         },
     ]
+}
+
+/// An older, still-active incident of another kind on another service: the
+/// d3 shape, where a corpus line sat in front of a retry storm.
+fn corpus_match_incident() -> Incident {
+    let opened = RENDER_NOW_UNIX_NANO - CORPUS_MATCH_AGE_NANOS;
+    Incident {
+        id: 7,
+        workspace: WORKSPACE.to_string(),
+        fingerprint: CORPUS_FINGERPRINT.to_string(),
+        title: "Error-rate spike: Error Rate Spike in demo-shop".to_string(),
+        detail: String::new(),
+        kind: CueKind::ErrorRateSpike,
+        scope: CueScope::Service,
+        scope_id: Some("payment-service".to_string()),
+        status: IncidentStatus::Active,
+        severity: IncidentSeverity::Warn,
+        priority_tier: PriorityTier::Suggested,
+        evidence_refs: EvidenceRefs {
+            trace_id: None,
+            span_ids: Vec::new(),
+            fingerprint_hashes: Vec::new(),
+            timestamps_unix_nano: Vec::new(),
+        },
+        opened_at_unix_nano: opened,
+        updated_at_unix_nano: opened,
+        acknowledged_at_unix_nano: None,
+        resolved_at_unix_nano: None,
+        read_at_unix_nano: None,
+        resolution_summary_text: None,
+    }
 }
 
 fn project() -> DigestProjectContext {
@@ -207,6 +279,11 @@ fn reordered_schema() -> Result<String, String> {
     let cut_end = s
         .find("\n    \"title\": {")
         .ok_or("schema: title block not found")?;
+    if cut_start > cut_end {
+        // The embedded schema already lists decision / severity after the
+        // analysis (prompt v2.3+), so A5's order is the shipped one.
+        return Ok(s.to_string());
+    }
     let block = &s[cut_start..cut_end];
     let rest = format!("{}{}", &s[..cut_start], &s[cut_end..]);
     let insert_at = rest
@@ -244,16 +321,29 @@ fn prepare(arm: &str, shape: &Shape) -> Result<Prepared, String> {
         &project(),
         &shape.services,
         &cues,
-        &[],
+        &shape.corpus_matches,
         &[],
         false,
     );
     if arm == "A2" {
         payload = truthful_overall(&payload, cues.len(), 0);
     }
+    if arm == "nf" {
+        payload = remove_lines(&payload, is_trigger_line, 1, "TRIGGER line")?;
+        let notes = usize::from(!shape.corpus_matches.is_empty());
+        payload = remove_lines(&payload, is_framing_note_line, notes, "corpus framing note")?;
+    }
     let citable = vec![STORM_FINGERPRINT.to_string()];
     let mut prompt =
         build_primary_tier_prompt(&payload, &format!("workspace={WORKSPACE}"), "", &citable);
+    if arm == "nf" {
+        prompt = remove_lines(
+            &prompt,
+            is_framing_instruction_line,
+            1,
+            "framing instruction",
+        )?;
+    }
     let mut schema = L4_OUTPUT_JSON_SCHEMA.to_string();
     let mut extra_args = Vec::new();
     match arm {
@@ -278,10 +368,87 @@ fn prepare(arm: &str, shape: &Shape) -> Result<Prepared, String> {
     Ok(Prepared {
         arm: arm.to_string(),
         shape: shape.id,
+        trigger: shape.cue.kind,
         prompt,
         schema,
         extra_args,
     })
+}
+
+fn is_trigger_line(line: &str) -> bool {
+    line.starts_with(TRIGGER_LINE_PREFIX)
+}
+
+fn is_framing_note_line(line: &str) -> bool {
+    line.strip_prefix("  ") == Some(CORPUS_MATCHES_FRAMING_NOTE)
+}
+
+fn is_framing_instruction_line(line: &str) -> bool {
+    line == TRIGGER_FRAMING_INSTRUCTION
+}
+
+/// Drops every whole line matching `target`, after checking it occurs exactly
+/// `expected` times (the A4/A5 exactly-once transform discipline).
+fn remove_lines(
+    text: &str,
+    target: fn(&str) -> bool,
+    expected: usize,
+    what: &str,
+) -> Result<String, String> {
+    let hits = text.lines().filter(|l| target(l)).count();
+    if hits != expected {
+        return Err(format!(
+            "nf: {what} found {hits} times, expected {expected}"
+        ));
+    }
+    Ok(text
+        .split_inclusive('\n')
+        .filter(|l| !target(l.trim_end_matches('\n')))
+        .collect())
+}
+
+/// Case-insensitive ASCII terms that name each cue kind in model text.
+fn trigger_terms(kind: CueKind) -> &'static [&'static str] {
+    match kind {
+        CueKind::RetryStorm => &["retry"],
+        CueKind::ErrorRateSpike => &["error rate", "error-rate"],
+        CueKind::LatencyRegression => &["latency"],
+        CueKind::RestartEvent => &["restart"],
+        CueKind::ServiceWentSilent => &["silent", "silence"],
+        CueKind::ReflectionTrend => &["trend"],
+    }
+}
+
+/// Whether a parsed interpretation names its triggering cue: in the rank-1
+/// hypothesis (`rank1`), only in the title, the symptom or a later hypothesis
+/// (`elsewhere`), or nowhere (`none`). Reads model text in-process only.
+fn names_trigger(output: &L4Output, kind: CueKind) -> &'static str {
+    let terms = trigger_terms(kind);
+    let names = |text: &str| {
+        let lower = text.to_ascii_lowercase();
+        terms.iter().any(|t| lower.contains(t))
+    };
+    if output
+        .hypotheses
+        .first()
+        .is_some_and(|h| names(&h.statement))
+    {
+        return "rank1";
+    }
+    let later = output
+        .hypotheses
+        .iter()
+        .skip(1)
+        .any(|h| names(&h.statement));
+    if names(&output.title) || names(&output.symptom) || later {
+        "elsewhere"
+    } else {
+        "none"
+    }
+}
+
+fn names_trigger_label(parsed: Option<&L4Output>, kind: CueKind) -> &'static str {
+    parsed.map_or("unparsed", |out| names_trigger(out, kind))
 }
 
 /// The first three top-level keys of a JSON object, read off its text.
@@ -403,6 +570,7 @@ fn parse_args() -> Result<Args, String> {
     let mut arms = vec!["A0".to_string()];
     let mut n = 10;
     let mut min = None;
+    let mut min_rank1 = None;
     let mut out = None;
     let mut dry_run = false;
     let mut it = std::env::args().skip(1);
@@ -421,6 +589,9 @@ fn parse_args() -> Result<Args, String> {
             }
             "--n" => n = value.parse().map_err(|_| "--n takes a number")?,
             "--min" => min = Some(value.parse().map_err(|_| "--min takes a number")?),
+            "--min-rank1" => {
+                min_rank1 = Some(value.parse().map_err(|_| "--min-rank1 takes a number")?)
+            }
             "--out" => out = Some(PathBuf::from(value)),
             other => return Err(format!("unknown flag {other}")),
         }
@@ -433,6 +604,7 @@ fn parse_args() -> Result<Args, String> {
         arms,
         n,
         min,
+        min_rank1,
         out,
         dry_run,
     })
@@ -520,6 +692,7 @@ async fn main() -> ExitCode {
     let mut rows: Vec<Value> = Vec::new();
     let mut total = 0u32;
     let mut total_create = 0u32;
+    let mut total_rank1 = 0u32;
     for arm in &args.arms {
         let started = Instant::now();
         let mut n_arm = 0u32;
@@ -530,6 +703,8 @@ async fn main() -> ExitCode {
         let mut key_orders: BTreeMap<String, u32> = BTreeMap::new();
         let mut distinct: BTreeMap<&'static str, BTreeSet<u64>> = BTreeMap::new();
         let mut per_shape: BTreeMap<&'static str, u32> = BTreeMap::new();
+        let mut names_counts: BTreeMap<&'static str, u32> = BTreeMap::new();
+        let mut rank1_per_shape: BTreeMap<&'static str, u32> = BTreeMap::new();
         for p in prepared.iter().filter(|p| &p.arm == arm) {
             let schema_path = args.out.join(format!("schema-{}.json", p.arm));
             if std::fs::write(&schema_path, &p.schema).is_err() {
@@ -540,6 +715,7 @@ async fn main() -> ExitCode {
                 if let Spawned::Failed("spawn_failed") = outcome {
                     return inconclusive("llama-cli did not spawn");
                 }
+                let mut names = names_trigger_label(None, p.trigger);
                 let (decision, severity, is_rs, keys, digest) = match &outcome {
                     Spawned::Output(text) => match extract_json_object_bounded(text) {
                         Ok(obj) => {
@@ -547,13 +723,16 @@ async fn main() -> ExitCode {
                             obj.hash(&mut h);
                             let digest = h.finish();
                             match parse_bounded(obj.as_bytes()) {
-                                Ok(out) => (
-                                    decision_label(out.decision),
-                                    severity_label(out.severity),
-                                    out.is_resolution_summary,
-                                    first_keys(obj),
-                                    Some(digest),
-                                ),
+                                Ok(out) => {
+                                    names = names_trigger_label(Some(&out), p.trigger);
+                                    (
+                                        decision_label(out.decision),
+                                        severity_label(out.severity),
+                                        out.is_resolution_summary,
+                                        first_keys(obj),
+                                        Some(digest),
+                                    )
+                                }
                                 Err(_) => {
                                     ("parse_failed", "", false, first_keys(obj), Some(digest))
                                 }
@@ -563,6 +742,10 @@ async fn main() -> ExitCode {
                     },
                     Spawned::Failed(why) => (*why, "", false, Vec::new(), None),
                 };
+                *names_counts.entry(names).or_default() += 1;
+                if names == "rank1" {
+                    *rank1_per_shape.entry(p.shape).or_default() += 1;
+                }
                 let would_create =
                     matches!(decision, "surface" | "watch") && severity != "none" && !is_rs;
                 n_arm += 1;
@@ -582,7 +765,7 @@ async fn main() -> ExitCode {
                     distinct.entry(p.shape).or_default().insert(d);
                 }
                 eprintln!(
-                    "l4-decision-probe: {} {} run {run}: decision {decision} severity {} would_create {would_create}",
+                    "l4-decision-probe: {} {} run {run}: decision {decision} severity {} would_create {would_create} names_trigger {names}",
                     p.arm,
                     p.shape,
                     if severity.is_empty() { "-" } else { severity }
@@ -597,11 +780,14 @@ async fn main() -> ExitCode {
                     "would_create": would_create,
                     "first_keys": keys,
                     "output_hash": digest.map(|d| format!("{d:016x}")),
+                    "names_trigger": names,
                 }));
             }
         }
         total += n_arm;
         total_create += create;
+        let names_count = |k: &str| names_counts.get(k).copied().unwrap_or(0);
+        total_rank1 += names_count("rank1");
         let count = |k: &str| decisions.get(k).copied().unwrap_or(0);
         let other: u32 = decisions
             .iter()
@@ -637,6 +823,22 @@ async fn main() -> ExitCode {
                 .join(" "),
             started.elapsed().as_secs()
         );
+        println!(
+            "  arm {arm}: names_trigger rank1 {}/{n_arm} · elsewhere {} · none {} · unparsed {} · per shape rank1 {}",
+            names_count("rank1"),
+            names_count("elsewhere"),
+            names_count("none"),
+            names_count("unparsed"),
+            shapes()
+                .iter()
+                .map(|s| format!(
+                    "{} {}",
+                    s.id,
+                    rank1_per_shape.get(s.id).copied().unwrap_or(0)
+                ))
+                .collect::<Vec<_>>()
+                .join(" "),
+        );
     }
 
     let runs_path = args.out.join("runs.json");
@@ -645,19 +847,218 @@ async fn main() -> ExitCode {
         _ => return inconclusive("runs.json not writable"),
     }
 
-    match args.min {
-        Some(min) => {
-            let pass = total_create >= min;
-            println!(
-                "l4-decision-probe: verdict: {} · would_create {total_create}/{total}",
-                if pass { "PASS" } else { "FAIL" }
+    let verdict = |pass: bool| if pass { "PASS" } else { "FAIL" };
+    let mut failed = false;
+    if let Some(min) = args.min {
+        let pass = total_create >= min;
+        failed |= !pass;
+        println!(
+            "l4-decision-probe: verdict: {} · would_create {total_create}/{total}",
+            verdict(pass)
+        );
+    }
+    if let Some(min_rank1) = args.min_rank1 {
+        let pass = total_rank1 >= min_rank1;
+        failed |= !pass;
+        println!(
+            "l4-decision-probe: names-trigger verdict: {} · rank1 {total_rank1}/{total}",
+            verdict(pass)
+        );
+    }
+    if failed {
+        ExitCode::from(1)
+    } else {
+        ExitCode::SUCCESS
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use interpretation::schema::{Confidence, Hypothesis};
+
+    type LineTarget = fn(&str) -> bool;
+
+    fn output(title: &str, symptom: &str, statements: &[&str]) -> L4Output {
+        L4Output {
+            schema_version: "2.0".to_string(),
+            prompt_version: "v2.4".to_string(),
+            decision: Decision::Surface,
+            severity: Severity::Suggested,
+            title: title.to_string(),
+            symptom: symptom.to_string(),
+            timeline: "Started 2m ago".to_string(),
+            hypotheses: statements
+                .iter()
+                .map(|s| Hypothesis {
+                    statement: s.to_string(),
+                    confidence: Confidence::High,
+                    justification: "observed".to_string(),
+                })
+                .collect(),
+            investigation_steps: Vec::new(),
+            evidence_refs: Vec::new(),
+            fingerprint: String::new(),
+            model_tier: "primary".to_string(),
+            hardware_profile: "gpu".to_string(),
+            is_resolution_summary: false,
+        }
+    }
+
+    fn shape(id: &str) -> Shape {
+        shapes()
+            .into_iter()
+            .find(|s| s.id == id)
+            .unwrap_or_else(|| panic!("shape {id} exists"))
+    }
+
+    fn count_lines(text: &str, target: LineTarget) -> usize {
+        text.lines().filter(|l| target(l)).count()
+    }
+
+    #[test]
+    fn names_trigger_reads_rank1_when_the_first_hypothesis_names_the_retry() {
+        let out = output(
+            "Retry storm on checkout-api",
+            "Clients retry checkout-api calls",
+            &["Clients retry failed checkout-api calls in a tight loop"],
+        );
+        assert_eq!(names_trigger(&out, CueKind::RetryStorm), "rank1");
+    }
+
+    #[test]
+    fn names_trigger_reads_elsewhere_when_only_the_title_or_symptom_names_it() {
+        let cases = [
+            (
+                "title-only",
+                output("Retry storm", "Errors rose", &["A deploy broke checkout"]),
+            ),
+            (
+                "symptom-only",
+                output(
+                    "Checkout errors",
+                    "Clients retry",
+                    &["A deploy broke checkout"],
+                ),
+            ),
+            (
+                "second-hypothesis-only",
+                output(
+                    "Checkout errors",
+                    "Errors rose",
+                    &[
+                        "A deploy broke checkout",
+                        "A client retry loop amplifies it",
+                    ],
+                ),
+            ),
+        ];
+        for (case, out) in cases {
+            assert_eq!(
+                names_trigger(&out, CueKind::RetryStorm),
+                "elsewhere",
+                "{case}"
             );
-            if pass {
-                ExitCode::SUCCESS
-            } else {
-                ExitCode::from(1)
+        }
+    }
+
+    #[test]
+    fn names_trigger_reads_none_when_nothing_names_it() {
+        let out = output(
+            "Error Rate Spike in demo-shop",
+            "payment-service errors rose",
+            &["A deploy broke payment-service"],
+        );
+        assert_eq!(names_trigger(&out, CueKind::RetryStorm), "none");
+    }
+
+    #[test]
+    fn names_trigger_matches_case_insensitively() {
+        let out = output("x", "y", &["Clients RETRY failed checkout-api calls"]);
+        assert_eq!(names_trigger(&out, CueKind::RetryStorm), "rank1");
+    }
+
+    #[test]
+    fn names_trigger_label_set_is_exactly_the_closed_set() {
+        const CLOSED: [&str; 4] = ["rank1", "elsewhere", "none", "unparsed"];
+        let outputs = [
+            output("x", "y", &["retry"]),
+            output("retry", "y", &["z"]),
+            output("x", "y", &["z"]),
+            output("x", "y", &[]),
+        ];
+        let mut seen = BTreeSet::new();
+        for kind in [
+            CueKind::ErrorRateSpike,
+            CueKind::LatencyRegression,
+            CueKind::RestartEvent,
+            CueKind::ServiceWentSilent,
+            CueKind::RetryStorm,
+            CueKind::ReflectionTrend,
+        ] {
+            seen.insert(names_trigger_label(None, kind));
+            for out in &outputs {
+                seen.insert(names_trigger_label(Some(out), kind));
             }
         }
-        None => ExitCode::SUCCESS,
+        assert_eq!(seen, CLOSED.into_iter().collect::<BTreeSet<_>>());
+    }
+
+    #[test]
+    fn nf_arm_strips_exactly_the_three_framing_lines() {
+        let s4 = shape("S4");
+        let shipped = prepare("shipped", &s4).expect("shipped composes").prompt;
+        let nf = prepare("nf", &s4).expect("nf composes").prompt;
+        let targets: [(&str, LineTarget); 3] = [
+            ("TRIGGER line", is_trigger_line),
+            ("framing note", is_framing_note_line),
+            ("framing instruction", is_framing_instruction_line),
+        ];
+        let mut stripped = shipped.clone();
+        for (what, target) in targets {
+            assert_eq!(
+                count_lines(&shipped, target),
+                1,
+                "shipped carries the {what}"
+            );
+            assert_eq!(count_lines(&nf, target), 0, "nf carries no {what}");
+            stripped = stripped
+                .split_inclusive('\n')
+                .filter(|l| !target(l.trim_end_matches('\n')))
+                .collect();
+        }
+        assert_eq!(
+            stripped, nf,
+            "nf is shipped minus exactly those three lines"
+        );
+    }
+
+    #[test]
+    fn s4_renders_a_framed_corpus_match_beside_the_trigger() {
+        let prompt = prepare("shipped", &shape("S4"))
+            .expect("shipped composes")
+            .prompt;
+        let lines: Vec<&str> = prompt.lines().collect();
+        assert!(lines.contains(&"TRIGGER: Retry storm"));
+        let note = format!("  {CORPUS_MATCHES_FRAMING_NOTE}");
+        let at = lines
+            .iter()
+            .position(|l| *l == note)
+            .expect("the corpus framing note renders");
+        let next = lines.get(at + 1).copied().unwrap_or_default();
+        assert!(
+            next.starts_with("  - [") && next.contains("Error-rate spike:"),
+            "a corpus match line follows the note: {next}"
+        );
+    }
+
+    #[test]
+    fn every_arm_and_shape_composes_within_the_production_bound() {
+        for arm in ARMS {
+            for s in shapes() {
+                let prepared = prepare(arm, &s);
+                assert!(prepared.is_ok(), "{arm} {}: {:?}", s.id, prepared.err());
+            }
+        }
     }
 }
