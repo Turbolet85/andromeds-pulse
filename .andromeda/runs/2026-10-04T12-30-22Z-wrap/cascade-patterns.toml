@@ -1,0 +1,45 @@
+# Cascade step-2 sweep — 2026-10-04-linux-launch-stays-up-on-nvidia-wayland
+# Derived from every amendment of this pass: arch env registry (new __NV_ entry + WEBVIEW2 reconcile),
+# security-plan CLI/env row + CLI-input vector, obs-plan §6 warn row + §8 leaf, test-plan §1 trigger + §4 count.
+
+[[pattern]]
+id = "count92"
+fixed = '92 targets'
+
+[[pattern]]
+id = "webview2"
+fixed = 'WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS'
+
+[[pattern]]
+id = "gpuposture"
+regex = 'GPU posture|stay out of product config'
+ignore_case = true
+
+[[pattern]]
+id = "xdgsys"
+fixed = 'system `XDG_RUNTIME_DIR`'
+
+[[pattern]]
+id = "setvar"
+fixed = 'set_var'
+
+[[pattern]]
+id = "reservedenv"
+fixed = 'Reserved env vars'
+
+[[pattern]]
+id = "trayleaf"
+fixed = 'app.boot.tray.init'
+
+[[pattern]]
+id = "productread"
+fixed = 'product-read'
+
+[[pattern]]
+id = "tokiort"
+regex = 'tokio runtime|multi-thread runtime'
+ignore_case = true
+
+[[pattern]]
+id = "bareapp"
+regex = 'bare `app` key'

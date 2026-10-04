@@ -1,0 +1,6 @@
+
+## 2026-10-04-linux-launch-stays-up-on-nvidia-wayland — a presence-read, product-set system env variable
+**Section:** §Input Validation → "CLI / env var inputs" row · §Threat Model Summary → Attack surface → CLI input (entry point + trust boundary)
+**Change:** the CLI-input boundary now admits the system `__NV_DISABLE_EXPLICIT_SYNC` (Linux): PRESENCE-read only — never parsed, never validated (only presence decides), never logged; when absent the product SETS it to `1` from `render_posture::apply_linux_default`, the first statement of `main()`, before any thread exists (`unsafe set_var` under a single-thread SAFETY precondition); a preset value of any kind (empty included) is honoured, never overwritten; macOS / Windows not acted on; WebKitGTK children inherit it; only the variable NAME reaches the log. Residual stated: a host that presets `0` keeps the NVIDIA + Wayland launch death, by design. Was: the boundary's env inputs were `ANDROMEDA_PULSE_*`, `RUST_LOG` and the system `XDG_RUNTIME_DIR`, all read-only.
+**Why:** a Boundary widening — a read-only env surface gains a product write and a new input — which the founder ratified live on 2026-10-04 (remedy option 1); it stays a never-routine class.
+**Ref:** .andromeda/runs/2026-10-04T12-30-22Z-wrap/

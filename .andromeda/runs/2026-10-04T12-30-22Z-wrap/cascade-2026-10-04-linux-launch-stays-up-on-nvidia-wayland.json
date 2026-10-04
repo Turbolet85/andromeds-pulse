@@ -1,0 +1,164 @@
+[
+{
+"tool": "cascade",
+"v": "1.1",
+"sha8": "1550f3bc",
+"ts": "2026-10-04T12:37:38Z",
+"argv": [
+"sweep",
+"--patterns-file",
+".andromeda/runs/2026-10-04T12-30-22Z-wrap/cascade-patterns.toml",
+"--run-dir",
+".andromeda/runs/2026-10-04T12-30-22Z-wrap",
+"--marker",
+"2026-10-04-linux-launch-stays-up-on-nvidia-wayland"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"baseline ffb62f08 (pre-CI parent — the oldest of 1 pre-CI commit(s), 2099998c)",
+"count92 · new 0 · standing 0 · leaf 1 · curation 0 · base 0 · control test-plan.md:353 (prose)",
+"webview2 · new 0 · standing 3 · leaf 1 · curation 0 · base 0 · control architecture.md:244 (prose)",
+"gpuposture · new 0 · standing 1 · leaf 0 · curation 0 · base 0 · control architecture.md:244 (prose)",
+"xdgsys · new 0 · standing 4 · leaf 2 · curation 0 · base 0 · control architecture.md:219 (prose)",
+"setvar · new 3 · standing 1 · leaf 0 · curation 0 · base 0 · control test-plan.md:800 (prose)",
+"reservedenv · new 0 · standing 1 · leaf 0 · curation 0 · base 0 · control security-plan.md:84 (prose)",
+"trayleaf · new 1 · standing 1 · leaf 0 · curation 0 · base 0 · control obs-plan.md:132 (prose)",
+"productread · new 0 · standing 1 · leaf 1 · curation 0 · base 0 · control security-plan.md:393 (prose)",
+"tokiort · new 2 · standing 4 · leaf 3 · curation 7 · base 0 · control architecture.md:17 (prose)",
+"bareapp · new 0 · standing 3 · leaf 2 · curation 0 · base 0 · control security-plan.md:447 (prose)",
+".claude/rules/testing.md:25 count92 leaf … `pulse-app/tests/*.rs` (92 targets) and reach internals via `pub` + `#[doc(h…",
+".andromeda/architecture.md:245 webview2 standing edited   - `WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS` — harness-only, SET…",
+".andromeda/architecture.md:246 webview2 standing @c14572/15413 …SE_DATA_DIR` and `WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS…",
+".andromeda/test-plan.md:326 webview2 standing … a fresh TempDir with `WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS` (the Swift…",
+".claude/rules/verification-harness.md:90 webview2 leaf …elease binary with `WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS` (a S…",
+".andromeda/architecture.md:245 gpuposture standing edited ×2 …its), and it must stay out of product config: in `tauri.c…",
+".andromeda/architecture.md:219 xdgsys standing @c1506/2413 …ble was added; the system `XDG_RUNTIME_DIR` is read. Residu…",
+".andromeda/security-plan.md:84 xdgsys standing edited …`RUST_LOG`, plus the system `XDG_RUNTIME_DIR` (Linux; the corpus…",
+".andromeda/security-plan.md:138 xdgsys standing edited @c413/6305 … `RUST_LOG`, the system `XDG_RUNTIME_DIR` on Linux —…",
+".andromeda/security-plan.md:393 xdgsys standing @c1989/2910 … binaries read the system `XDG_RUNTIME_DIR` (Linux) throug…",
+"CLAUDE.md:44 xdgsys leaf …d carve-out (2026-10-04): the system `XDG_RUNTIME_DIR` (Linux) is product-read as the corpus-…",
+".claude/rules/security.md:17 xdgsys leaf @c3586/4203 …ed binaries read the system `XDG_RUNTIME_DIR` (Linux) through `Co…",
+".andromeda/architecture.md:237 setvar new …ough `unsafe { std::env::set_var }` under a `// SAFETY:` single-thread preco…",
+".andromeda/security-plan.md:138 setvar new @c2135/6305 …`unsafe { std::env::set_var }` under a single-thread `// SAFETY…",
+".andromeda/test-plan.md:149 setvar new ×2 …e` per arm and the real `set_var` path through re-exec children in `pulse-ap…",
+".andromeda/test-plan.md:801 setvar standing …ntime (e.g., `std::env::set_var` mid-test without cleanup) — use construct…",
+".andromeda/security-plan.md:84 reservedenv standing edited …- **Entry point:** Reserved env vars `ANDROMEDA_PULSE_*`, `…",
+".andromeda/obs-plan.md:132 trayleaf standing …bview issues any IPC); `app.boot.tray.init` with tag `tray_api: \"NotifyIc…",
+".andromeda/obs-plan.md:537 trayleaf new …). An EXACT leaf beside `app.boot.tray.init` under the same no-bare-`app` inva…",
+".andromeda/security-plan.md:393 productread standing @c1802/2910 …G_RUNTIME_DIR`), product-read, deliberately unconfine…",
+"CLAUDE.md:44 productread leaf ×2 …g harness-only class (never product-read). NARROWED EXCEPTION (guard landed 2026-08-2…",
+".andromeda/architecture.md:17 tokiort standing …er on `:4318` (protobuf and JSON) sharing the Tokio runtime with tonic |",
+".andromeda/architecture.md:48 tokiort standing … + `tower`**: a single Tokio runtime serves both `:4317` gRPC and `:431…",
+".andromeda/architecture.md:237 tokiort new …s`), ahead of the tokio multi-thread runtime build, writing through `unsafe…",
+".andromeda/test-plan.md:149 tokiort new …n()`, ahead of the tokio multi-thread runtime build (its `unsafe set_var` SAFE…",
+".andromeda/obs-plan.md:48 tokiort standing | **tokio runtime** | Arch: Stack | instrumentable | Async runtime spans for…",
+".andromeda/obs-plan.md:63 tokiort standing markup …tracing` span field; `tokio` runtime async span propagation via `tra…",
+".claude/rules/security.md:156 tokiort curation @c579/2002 …ure has NO entered tokio runtime, so an internal `tokio::spa…",
+".claude/docs/session-learnings.md:1758 tokiort curation …handler()` requires tokio runtime in scope; sync `fn main()` p…",
+".claude/docs/session-learnings.md:1760 tokiort curation …he spawn requires a tokio runtime to be the **current** runtim…",
+".claude/docs/session-learnings.md:1764 tokiort curation …s the test inside a tokio runtime — that's why the test passes…",
+".claude/docs/session-learnings.md:1766 tokiort curation …uild a multi-thread tokio runtime, enter it via `runtime.enter…",
+".claude/docs/session-learnings.md:1773 tokiort curation         .expect(\"failed to build tokio runtime\");",
+".claude/docs/session-learnings.md:1818 tokiort curation …ion is RUNTIME in dev mode, requires tokio runtime + proper cwd",
+"CLAUDE.md:35 tokiort leaf …pp`** — Tauri 2 binary crate; tokio runtime owner; `pulse-app/capabilities/` JSON files; bun…",
+".claude/docs/services/config-watcher.md:21 tokiort leaf …sure has no entered tokio runtime, so an internal `tokio::spaw…",
+".claude/docs/stack.md:14 tokiort leaf …18`):** `axum` 0.8.x on `hyper` 1.x + `tower` (sharing tokio runtime with tonic).",
+".andromeda/security-plan.md:447 bareapp standing …berately EXCLUDED. No bare `app` key; pinned ×4 in `pulse-app/tests/u…",
+".andromeda/obs-plan.md:535 bareapp standing …ight. An EXACT leaf: NO bare `app` key is registered (measured), so withou…",
+".andromeda/obs-plan.md:536 bareapp standing …e `app.panic.fatal`: NO bare `app` key is registered (pinned `is_none()`),…",
+".claude/rules/observability.md:65 bareapp leaf …Its own EXACT leaf: NO bare `app` key is registered (measured), so with…",
+".claude/docs/obs-summary.md:116 bareapp leaf or coordinates). NO bare `app` key is registered, so without the exact lea…",
+"count92 · new 0 · standing 0 · leaf 1 · curation 0 · base 0 · control test-plan.md:353 (prose)",
+"webview2 · new 0 · standing 3 · leaf 1 · curation 0 · base 0 · control architecture.md:244 (prose)",
+"gpuposture · new 0 · standing 1 · leaf 0 · curation 0 · base 0 · control architecture.md:244 (prose)",
+"xdgsys · new 0 · standing 4 · leaf 2 · curation 0 · base 0 · control architecture.md:219 (prose)",
+"setvar · new 3 · standing 1 · leaf 0 · curation 0 · base 0 · control test-plan.md:800 (prose)",
+"reservedenv · new 0 · standing 1 · leaf 0 · curation 0 · base 0 · control security-plan.md:84 (prose)",
+"trayleaf · new 1 · standing 1 · leaf 0 · curation 0 · base 0 · control obs-plan.md:132 (prose)",
+"productread · new 0 · standing 1 · leaf 1 · curation 0 · base 0 · control security-plan.md:393 (prose)",
+"tokiort · new 2 · standing 4 · leaf 3 · curation 7 · base 0 · control architecture.md:17 (prose)",
+"bareapp · new 0 · standing 3 · leaf 2 · curation 0 · base 0 · control security-plan.md:447 (prose)"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"baseline": "ffb62f0823e6e4fe23f7ebb235e1d803a9fb23a1",
+"how": "pre-CI parent — the oldest of 1 pre-CI commit(s), 2099998c",
+"counts": {
+"count92": {
+"new": 0,
+"standing": 0,
+"leaf": 1,
+"curation": 0,
+"base": 0
+},
+"webview2": {
+"new": 0,
+"standing": 3,
+"leaf": 1,
+"curation": 0,
+"base": 0
+},
+"gpuposture": {
+"new": 0,
+"standing": 1,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"xdgsys": {
+"new": 0,
+"standing": 4,
+"leaf": 2,
+"curation": 0,
+"base": 0
+},
+"setvar": {
+"new": 3,
+"standing": 1,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"reservedenv": {
+"new": 0,
+"standing": 1,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"trayleaf": {
+"new": 1,
+"standing": 1,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"productread": {
+"new": 0,
+"standing": 1,
+"leaf": 1,
+"curation": 0,
+"base": 0
+},
+"tokiort": {
+"new": 2,
+"standing": 4,
+"leaf": 3,
+"curation": 7,
+"base": 0
+},
+"bareapp": {
+"new": 0,
+"standing": 3,
+"leaf": 2,
+"curation": 0,
+"base": 0
+}
+}
+}
+}
+]

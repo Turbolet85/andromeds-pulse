@@ -128,6 +128,13 @@ unknown). Unloggable by construction: SIGKILL, `_exit`, Windows `TerminateProces
 (`ExitProcess` — no `atexit`), pre-sink failures (`§7`). Guard: `pulse-app/tests/unit_observability_allowlist_app_exit.rs`
 (4 tests, mutation-checked) + the re-exec arms of `pulse-app/tests/integration_exit_cause_record.rs`.
 
+**Launch render-posture leaf (chunk 2026-10-04-linux-launch-stays-up-on-nvidia-wayland).** One EXACT `§8` leaf —
+`app.boot.render.posture` (`posture` / `lever`, BOTH the emit site emits; a closed label
+`applied`|`preset_honoured`|`not_applicable` and the env-var NAME `__NV_DISABLE_EXPLICIT_SYNC`, never its value),
+registered at `§6`'s warn row and `§8`. Once per boot, emitted after `observability::init` (decided at the head of
+`main()`, carried as a value): WARN `preset_honoured`, INFO otherwise. No bare `app` key. Guard:
+`pulse-app/tests/unit_observability_allowlist_render_posture.rs` (3 tests incl. an emit-site capture; mutation-checked).
+
 **Incident-producer skip leaf (chunk 2026-10-01-real-model-incident-surfacing).** EXACT `§8` leaf
 `interpretation.incident.skipped` — `skip_reason` (`model_resolution_summary`|`decision_dismiss`|`severity_none`|`no_cue`,
 the first gate in code order) + `decision` + `severity` + `digest_kind`, all four bounded labels the emit site emits;

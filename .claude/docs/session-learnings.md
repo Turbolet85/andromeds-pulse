@@ -7,6 +7,9 @@ On the Omarchy Linux dev host `grep` resolves to ugrep. A context-extracting pat
 `grep -oE '.{0,220}TOKEN.{0,260}'` over UTF-8 text fails with `exceeds complexity limits` (exit 2, no match line), so
 a sweep that reads its hits from such a probe sees nothing and can read that as "no other site". Read the context of
 a hit with a short python extractor (or `grep -n` the line, then an offset-bounded Read) instead.
+Extended 2026-10-04: `grep -c` on a binary file (a built executable) prints NOTHING — no count and no "Binary file
+matches" line — which reads exactly like an absent string; count byte strings in a binary with python
+(`open(f,'rb').read().count(b'…')`).
 
 ---
 

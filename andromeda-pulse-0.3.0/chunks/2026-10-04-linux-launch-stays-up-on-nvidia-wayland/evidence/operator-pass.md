@@ -30,7 +30,17 @@ Per gate-contract §Hygiene (the letter removes or rewrites each listed file), t
 `ctl-posture.rs.txt` — content byte-identical, readable as controls, no longer a plane source file. Re-run: clean.
 
 ## CI
-(entries 30-31; written after the push)
+- Entry 30: pre-CI commit `2099998c85b29332d4d943402c3c1f0c15eff3fa` (`chore(2026-10-04-linux-launch-stays-up-on-nvidia-wayland):
+  operator pre-CI commit, for the run this chunk's verdict reads`; source delta the three modified + three new
+  `pulse-app` files), after `hygiene: clean` (bare re-run over the staged tree: read 34, evidence 3),
+  `check:staged-artifacts` green, `capability-drift` exit 0 and the staged bindings carrying `"mcp":` ×1. Pushed with
+  the plan's clean-tree guard: `ffb62f0..2099998  chore/migrate-pulse-to-v3`, exit 0.
+- Entry 31: `ci.py conclusion --sha HEAD --wait 2400` -> exit 0, `2099998c85b2 verdict: green · checks 13/13 · wall
+  1634 s`; runs `ci#37200709989` (pull_request, completed/success) and `secret-scan#37200709988` (completed/success);
+  polled 54× over 1644 s. Every `expect` atom holds (`exit 0` · `verdict: green`).
+- Watch (`boot smoke (ubuntu-22.04)`, observation only): job 111431642558 success on `2099998` (the job conclusion
+  only; its `logs-boot-Linux` artifact was not read, so the posture record on the runner is unmeasured here). One
+  more green run for the wrap's tally; this file records it and asserts nothing.
 
 ## Deviations
 - Stage 3 ran with a fresh per-invocation `PUPPETEER_CACHE_DIR` under `target/pre-push/` (founder ruling 2026-10-04);
