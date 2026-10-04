@@ -1,7 +1,7 @@
 # `mcp-server` — MCP stdio Sidecar (hand-rolled JSON-RPC 2.0)
 
 ## Responsibility
-Optional MCP server sidecar for AI agents to query telemetry directly. JSON-RPC 2.0 over stdin/stdout per MCP spec. Tool methods (8): `query_traces`, `query_metrics`, `query_logs`, `generate_snapshot` (shares the snapshot crate's curation pipeline) + `query_incident_list`, `retrieve_report`, `retrieve_telemetry_slice`, `mark_incident_resolved` (corpus-backed incident/report, chunk #94). Hosts `mcp.{status,start,stop}` TauRPC routers. **Feature double-gated:** compile-time `--features mcp-server` AND runtime `ANDROMEDA_PULSE_MCP_ENABLED=true`.
+Optional MCP server sidecar for AI agents to query telemetry directly. JSON-RPC 2.0 over stdin/stdout per MCP spec. Tool methods (9): `query_traces`, `query_metrics`, `query_logs`, `generate_snapshot` (shares the snapshot crate's curation pipeline) + `query_incident_list`, `retrieve_report`, `retrieve_telemetry_slice`, `mark_incident_resolved` (corpus-backed incident/report, chunk #94) + `retrieve_incident_events` (input `{incident_id}`; response `{incident_id, events: [{event_kind, occurred_unix_nano}], total, truncated}` oldest first, bounded at 256; `event_kind` coerced to `triage::contract::incident_event_kinds()`, else `unknown`; unknown id → -32603 `incident not found`; chunk 2026-10-02-incident-events-readable-through-mcp). Hosts `mcp.{status,start,stop}` TauRPC routers. **Feature double-gated:** compile-time `--features mcp-server` AND runtime `ANDROMEDA_PULSE_MCP_ENABLED=true`.
 
 ## Key integrations
 
@@ -40,7 +40,7 @@ Optional MCP server sidecar for AI agents to query telemetry directly. JSON-RPC 
 
 ## Entry points for modification
 - **Sidecar entrypoint:** `crates/mcp-server/src/bin/andromeda-pulse-mcp.rs` (the binary; gated by `--features mcp-server`, `required-features` on the `[[bin]]`)
-- **Tool method definitions:** ALL tools — the 4 telemetry tools and the chunk #94 incident/report tools (`query_incident_list` / `retrieve_report` / `retrieve_telemetry_slice` / `mark_incident_resolved`) — are name-dispatch fns in `crates/mcp-server/src/tools.rs` (`ALL_TOOL_NAMES` + `dispatch_tool`; no macro annotations), the incident tools corpus-backed (read/write `corpus/corpus.db` cross-process)
+- **Tool method definitions:** ALL tools — the 4 telemetry tools and the incident/report tools (`query_incident_list` / `retrieve_report` / `retrieve_telemetry_slice` / `mark_incident_resolved` from chunk #94, `retrieve_incident_events` from chunk 2026-10-02-incident-events-readable-through-mcp) — are name-dispatch fns in `crates/mcp-server/src/tools.rs` (`ALL_TOOL_NAMES` + `dispatch_tool`; no macro annotations), the incident tools corpus-backed (read/write `corpus/corpus.db` cross-process)
 - **JSON-RPC framing:** `crates/mcp-server/src/jsonrpc.rs` (hand-rolled serde; MCP protocol `2024-11-05` — measured 2026-08-29, nothing rmcp-provided)
 - **Feature gate check:** `crates/mcp-server/src/feature_gate.rs` (compile-time + runtime double-gate)
 - **TauRPC router:** `crates/mcp-server/src/router.rs` (mcp.status / mcp.start / mcp.stop visible from main app)

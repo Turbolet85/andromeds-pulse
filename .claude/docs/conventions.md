@@ -20,7 +20,7 @@ _Extracted from `.andromeda/architecture.md` Conventions section by `/setup-proj
   - **Top-level bare `snake_case` verbs** (cross-cutting envelope): `app_info`, `health`, `ready`, `get_settings`, `update_settings`
   - **`<router>.<verb>` dotted namespaces** (per-crate routers): `traces.query`, `metrics.query`, `logs.query`, `snapshot.generate`, `snapshot.list_recent`, `snapshot.copy_to_clipboard`, `plugins.list`, `plugins.reload`, `plugins.invoke`, `mcp.status`, `mcp.start`, `mcp.stop`, `workspace.detect`, `workspace.list`, `telemetry.frontend.record_frame_ms`
   - Both segments are `snake_case`. The canonical procedure list is in arch §Occupied Resources Tauri IPC routes.
-- **MCP server:** spec-fixed JSON-RPC 2.0 method names — `initialize`, `tools/list`, `tools/call`, `notifications/*`. Tool methods: `query_traces`, `query_metrics`, `query_logs`, `generate_snapshot`.
+- **MCP server:** spec-fixed JSON-RPC 2.0 method names — `initialize`, `tools/list`, `tools/call`, `notifications/*`. Tool methods (9): `query_traces`, `query_metrics`, `query_logs`, `generate_snapshot`, `query_incident_list`, `retrieve_report`, `retrieve_telemetry_slice`, `mark_incident_resolved` (these 4 chunk #94), `retrieve_incident_events` (chunk 2026-10-02-incident-events-readable-through-mcp).
 
 ## Database entity naming
 - DuckDB tables use plural `snake_case` matching OTLP entity: `spans`, `span_events`, `metrics_points`, `log_records`, `log_templates` — every reserved table has a producer since the producer-less `span_links`/`resources`/`instrumentation_scopes` CREATEs were deleted (chunk 2026-08-30-diagnostics-un-muting-harness-truth-sweep); the periodic cutoff task sweeps only the four live OTLP tables.

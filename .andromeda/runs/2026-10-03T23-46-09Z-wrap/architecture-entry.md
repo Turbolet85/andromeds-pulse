@@ -1,0 +1,6 @@
+
+## 2026-10-02-incident-events-readable-through-mcp — MCP roster grows to nine with retrieve_incident_events
+**Section:** §Stack and Technologies (MCP server row) · §Established Decisions → [MCP Server Surface] · §Conventions → External wire — MCP server · §Standard Contracts → MCP server — spec-conformant
+**Change:** was an 8-tool wire surface; now 9 — `retrieve_incident_events` joins the four telemetry and four chunk #94 incident tools, all dispatched through the single `dispatch_tool` site. Its contract: input `{incident_id: integer}`, `additionalProperties: false`; response `{incident_id, events: [{event_kind, occurred_unix_nano}], total, truncated}`, oldest first, bounded at `INCIDENT_EVENTS_READ_LIMIT` = 256 with `truncated` past it; `event_kind` coerced on egress to `triage::contract::incident_event_kinds()`, any other value reading `unknown`; an unknown id → JSON-RPC -32603 `incident not found`. The hand-rolled JSON-RPC decision itself is unchanged.
+**Why:** the chunk made the `incident_events` lifecycle table readable through MCP so the P-075 round's content fidelity covers it; the new read surface is a boundary widening the founder ratified at P4 (2026-10-02), and the shared event vocabulary the founder's option A (2026-10-03).
+**Ref:** .andromeda/runs/2026-10-03T23-46-09Z-wrap/

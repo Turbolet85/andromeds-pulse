@@ -1,4 +1,4 @@
 schema_version: 3
-last_wrap: 2026-10-02T13:12:00Z               # ISO-8601 UTC
-tree_db_refreshed_at: 2026-10-02T12:56:46Z    # last code-graph refresh (wrap Setup, background): rust 8560n/41609e · ts 4164n/7755e
-session_count: 75                             # v3 wrap counter; +1 per successful v3 wrap
+last_wrap: 2026-10-04T00:42:51Z               # ISO-8601 UTC
+tree_db_refreshed_at: 2026-10-02T12:56:46Z    # last successful code-graph refresh; the 2026-10-04 wrap's refresh was STALE (python duckdb not installed on the Linux host)
+session_count: 76                             # v3 wrap counter; +1 per successful v3 wrap

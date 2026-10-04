@@ -1,0 +1,6 @@
+
+## 2026-10-02-incident-events-readable-through-mcp — the app's log sink is file-only
+**Section:** §1 Telemetry surfaces → CLI row (Sink) · §1 Tracing init step (2) · §1 Logging stack · §3 Init order step (2) · §3 Sink · §4 Instrumentation per surface → CLI / main binary row · §6 Sink configuration → App · §7 Panic hook
+**Change:** was a dual app sink — (1) stderr (JSON when not a TTY, pretty-printed when a TTY), (2) the JSON file — with a `with_writer(std::io::stderr)` layer in the registry and the panic record "logged to both stderr + JSON file sink"; now, as measured, `observability::init` composes `EnvFilter` + ONE JSON `fmt` layer on the non-blocking `tracing-appender` file writer + `ErrorLayer`: the app has a single sink, `agent-latest.jsonl`, no stderr `tracing` layer and no TTY pretty-print; the `app.panic.fatal` record (no panic message by design) is file-only, and stderr carries only what the chained prior hook prints. The mcp-server sidecar's forced-stderr JSON sink (stdout reserved for JSON-RPC framing) is unchanged and true.
+**Why:** the stderr half was never built; the claim had been routed as a route CARRY from the 2026-10-01-conductor-return wrap (that entry's Kept clause), and this chunk discharged it — the sink claim now matches HEAD in every restating site.
+**Ref:** .andromeda/runs/2026-10-03T23-46-09Z-wrap/

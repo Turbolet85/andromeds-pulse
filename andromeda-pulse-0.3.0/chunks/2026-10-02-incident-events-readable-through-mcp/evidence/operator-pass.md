@@ -109,4 +109,27 @@ to the base before the commit.
 Printed after the pre-CI commit; recorded in `round-binary.md`.
 
 ## Gate 20 — push
-Recorded below with the CI read.
+Clean-tree guard held (`git status --short` empty after the commit); `git push origin chore/migrate-pulse-to-v3` exit 0,
+`4a26ad8..cdb6c1e`; origin head = S2 `cdb6c1ed572761ae384597a7ed437222e3a1d1fc`.
+
+## Gate 21 — CI on S2
+`python -X utf8 ~/.claude/skills/andromeda-tools/scripts/ci.py conclusion --sha HEAD --wait 2400` (path remap): exit 0,
+`cdb6c1ed5727 verdict: red · checks 13/13 · first-fail +156 s supply-chain (audit + deny + auditable)`. The entry's
+`contains verdict: green` atom does not hold. Read to completion (`gh run view 37157540938`, 22:10:44Z → 22:29:05Z):
+`ci#37157540938` — 11 of 12 jobs success (lint / test ×3, release build ×2, boot smoke, mcp-server tests, coverage gate,
+a11y ×3), 1 failure (supply-chain); `secret-scan#37157540939` success.
+
+**Recorded per the founder's ruling (2026-10-04, relayed by overseer1):** red — not this chunk's: Cargo.lock identical to
+a69030a, RUSTSEC-2026-0325/0326/0327 on wasmtime 48.0.3 published after it → "Supply-chain advisories on wasmtime
+resolved"; it does not block this chunk.
+
+The measurements behind it: `git diff --quiet a69030a cdb6c1e -- Cargo.lock` exit 0; the job's `cargo audit` (advisory DB
+`ef6173cbc5c5`, 1290 advisories) found exactly three vulnerabilities — distinct ids RUSTSEC-2026-0325 / -0326 / -0327,
+all `wasmtime 48.0.3`, all dated 2026-10-02, each with a stated safe upgrade (`>=48.0.4, <49.0.0` or `>=49.0.2`) — set
+identical to the enumeration on S. The informational set (8 unmaintained, 2 unsound) is the standing one. No advisory is
+ignore-listed; the owner is the route entry "Supply-chain advisories on wasmtime resolved", its own chunk, placed by the P1
+wrap right after this chunk and before the retry-storm entry (founder ruling 2026-10-04).
+
+## Gate 22 — Conductor evidence for S2
+Not run here: it reads Conductor's committed round (`grep -rlF '<S2>' ~/dev/projects/conductor/conductor-0.3.0/chunks
+--include=*.md`, path remapped), which follows the overseer's relay of S2 and `round-request.md`. Pending.

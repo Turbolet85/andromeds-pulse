@@ -1,0 +1,96 @@
+[
+{
+"tool": "route",
+"v": "1.5",
+"sha8": "9fc8708e",
+"ts": "2026-10-04T00:32:32Z",
+"argv": [
+"route.py",
+"markerless",
+"--root",
+".",
+"--run-dir",
+".andromeda/runs/2026-10-03T23-46-09Z-wrap"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"working-route.md · 152 lines · 69 entries · 68 stamped · 1 markerless · 63 separators",
+"152 · Retry-storm interpretation names its cause · freight 1",
+"UNPARSED: working-route.md:52 — separator-boundary token outside the letters' introducer shape: 'PREMISE CORRECTED 2026…",
+"UNPARSED: working-route.md:54 — separator-boundary token outside the letters' introducer shape: 'TWO LAYERS, ONE QUESTI…",
+"UNPARSED: working-route.md:54 — separator-boundary token outside the letters' introducer shape: 'WHY IT PRECEDES P-075/…",
+"UNPARSED: working-route.md:60 — separator-boundary token outside the letters' introducer shape: 'MEASURED, not inferred…",
+"INDETERMINATE: working-route.md:100 — after ONE space — freight or prose, no structural split: 'GPU:'",
+"UNPARSED: working-route.md:116 — entry line carrying `↓` inside it; read as an ENTRY",
+"UNPARSED: working-route.md:125 — entry line carrying `↓` inside it; read as an ENTRY"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "route",
+"v": "1.5",
+"sha8": "9fc8708e",
+"ts": "2026-10-04T00:42:33Z",
+"argv": [
+"route.py",
+"pins",
+"--root",
+".",
+"--run-dir",
+".andromeda/runs/2026-10-03T23-46-09Z-wrap"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"working-route.md · markerless 5 of 73 entries · freight blocks 5 · rows are an INDEX, not the text",
+"152 · CONTEXT: · 508 chars · CONTEXT: RUSTSEC-2026-0325 / -0326 / -0327 on `wasmtime` 48.0.3, published 2026-10-02, red…",
+"154 · CONTEXT: · 657 chars · CONTEXT: `OsKeychainBackend::fetch_from_os_store` (`crates/corpus/src/keychain.rs`) gets, …",
+"156 · CONTEXT: · 597 chars · CONTEXT: S2's default posture died ~1.5 s in on Gdk `Error 71 (Protocol error) dispatching…",
+"158 · CONTEXT: · 226 chars · CONTEXT: measure first — Conductor's d3 rank-1 interpretation (2026-10-01, relayed by the …",
+"160 · CONTEXT: · 546 chars · CONTEXT: the verb needs `wsl.exe` (`xtask/src/pre_push.rs`), and since the 2026-10-03 move…",
+"… +7 abstention(s) OUTSIDE this listing (frozen entries · the master) — `markerless` and `cursor` print them"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "route",
+"v": "1.5",
+"sha8": "9fc8708e",
+"ts": "2026-10-04T00:42:33Z",
+"argv": [
+"route.py",
+"epoch",
+"--root",
+".",
+"--run-dir",
+".andromeda/runs/2026-10-03T23-46-09Z-wrap"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"working-route.md · 4 epoch headers · 73 entries · freeze state joined to 68 master records",
+"8 · Epoch 1 — Foundation: AI-debug spine · entries 3 · markerless 0 · frozen complete 3 · pending 0",
+"15 · Epoch 2 — Window & shell hygiene · entries 5 · markerless 0 · frozen complete 5 · pending 0",
+"26 · Epoch 3 — State honesty & legibility · entries 10 · markerless 0 · frozen complete 10 · pending 0",
+"47 · Epoch 4 — Polish & ship: verification · entries 55 · markerless 5 · frozen complete 49 · pending 1",
+"UNPARSED: working-route.md:52 — separator-boundary token outside the letters' introducer shape: 'PREMISE CORRECTED 2026…",
+"UNPARSED: working-route.md:54 — separator-boundary token outside the letters' introducer shape: 'TWO LAYERS, ONE QUESTI…",
+"UNPARSED: working-route.md:54 — separator-boundary token outside the letters' introducer shape: 'WHY IT PRECEDES P-075/…",
+"UNPARSED: working-route.md:60 — separator-boundary token outside the letters' introducer shape: 'MEASURED, not inferred…",
+"INDETERMINATE: working-route.md:100 — after ONE space — freight or prose, no structural split: 'GPU:'",
+"UNPARSED: working-route.md:116 — entry line carrying `↓` inside it; read as an ENTRY",
+"UNPARSED: working-route.md:125 — entry line carrying `↓` inside it; read as an ENTRY"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+}
+]

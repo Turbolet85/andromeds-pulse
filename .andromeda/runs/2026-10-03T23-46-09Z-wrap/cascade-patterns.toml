@@ -1,0 +1,59 @@
+# Cascade sweep — 2026-10-02-incident-events-readable-through-mcp (resumed wrap)
+# Retired claims: (a) the 8-tool MCP roster; (b) incident_events' single writer / IncidentStatus-only vocabulary /
+# one choke point / "creation records no event"; (c) the app's stderr + file dual sink; (d) the Windows dev host as
+# where pre-push:linux / the Unix-only arms run.
+# Dropped (control never fired over the pre-pass masters): tools_list_with_8_tools; 'creation records no event'
+# -- both hand-controlled by grep over CLAUDE.md, .claude/, .andromeda/*.md (cascade-dispositions.md).
+
+[[pattern]]
+id = 'eight-tools'
+regex = '(\b8\b|eight)[ -](named )?tools?\b|Tools: 8|all 8 tools|8-tool'
+ignore_case = true
+
+[[pattern]]
+id = 'last4-94'
+fixed = 'last 4 added chunk #94'
+
+[[pattern]]
+id = 'roster4-slash'
+regex = 'query_traces ?/ ?(query_)?metrics ?/ ?(query_)?logs ?/ ?generate_snapshot\)'
+
+[[pattern]]
+id = 'ie-first-writer'
+regex = 'first production writer'
+ignore_case = true
+
+[[pattern]]
+id = 'ie-status-set'
+regex = 'closed `?IncidentStatus`? set|status label from the closed'
+ignore_case = true
+
+[[pattern]]
+id = 'ie-chokepoint'
+regex = 'choke ?point'
+ignore_case = true
+
+[[pattern]]
+id = 'ie-lifecycle-row'
+regex = 'one (lifecycle )?row per (incident )?status VALUE.change'
+ignore_case = true
+
+[[pattern]]
+id = 'dual-sink'
+regex = 'dual sink|dual-sink'
+ignore_case = true
+
+[[pattern]]
+id = 'stderr-layer'
+regex = 'stderr layer|with_writer\(std::io::stderr\)|stderr pretty|both stderr|stderr \+ (JSON )?file|stderr and (the )?(JSON )?file'
+ignore_case = true
+
+[[pattern]]
+id = 'tty-pretty'
+regex = 'pretty(-printed)? when (a )?TTY|when TTY|TTY for dev'
+ignore_case = true
+
+[[pattern]]
+id = 'win-devhost'
+regex = 'Windows dev host|dev-host only \(a Windows'
+ignore_case = true

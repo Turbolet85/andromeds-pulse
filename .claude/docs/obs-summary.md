@@ -11,7 +11,7 @@ The product's external surfaces (OTLP receivers ingesting third-party clients) c
 - **Crate set:** `tracing` 0.1 + `tracing-subscriber` 0.3 (JSON formatter + `EnvFilter`) + `tracing-appender` 0.2 (daily-rolling file sink, non-blocking writer) + `tracing-error` 0.2 (SpanTrace).
 - **Init order at boot, before HTTP/gRPC bind:**
   1. Load env (`ANDROMEDA_PULSE_LOG_LEVEL` with fallback `RUST_LOG`)
-  2. Build `tracing_subscriber::registry()` composing stderr + non-blocking file appender + `EnvFilter` + `ErrorLayer`
+  2. Build `tracing_subscriber::registry()` composing the non-blocking file appender + `EnvFilter` + `ErrorLayer` (no stderr layer)
   3. Install `std::panic::set_hook` calling `tracing::error!(target: "app.panic.fatal", ...)` with SpanTrace
   4. Spawn Tauri + bind OTLP receivers
   - Between 3 and 4, `main` parks the `WorkerGuard` `init` returns (`hold_log_guard`), installs the at-exit hook
@@ -53,7 +53,7 @@ Optional fields: `trace_id`, `span_id` (W3C traceparent strings), `duration_ms`,
 ## Log sink
 - **Path:** `~/.andromeda-pulse/logs/agent-latest.jsonl` (per-platform per arch §Filesystem locations).
 - **Rotation:** daily via `tracing_appender::rolling::daily()`.
-- **App dual sink:** stderr (JSON when not TTY, pretty when TTY) + file (always JSON).
+- **App single sink:** the file `agent-latest.jsonl` (always JSON); no stderr `tracing` layer, no TTY pretty-print (measured at chunk 2026-10-02-incident-events-readable-through-mcp). The `app.panic.fatal` record is file-only; stderr carries only the chained prior panic hook's own output.
 - **MCP sidecar (`andromeda-pulse-mcp`; hand-rolled JSON-RPC 2.0):** stderr forced JSON (no TTY check); stdout reserved for JSON-RPC 2.0 framing — ANY accidental `println!` corrupts MCP protocol.
 
 ## Trace context propagation

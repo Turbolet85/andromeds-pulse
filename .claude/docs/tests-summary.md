@@ -85,7 +85,7 @@ GitHub Actions matrix (Linux/macOS/Windows × Rust stable):
 - Build fails on: any test failure, coverage below threshold, flaky test, perf regression, lint/typecheck/`cargo deny check` failure.
 
 ## Scenario legs vs gates (test-plan §3)
-`cargo xtask pre-push:linux` (2026-09-29) is the local Linux pre-push check — dev-host only (Windows + the WSL `Ubuntu` distro), not a CI step: it syncs a distro clone to HEAD + the working tree (tree-id verified) and runs `script-modes` · `source-lint` (`cargo xtask check:english-sources`, since 2026-10-01 — the same English-only gate as ci.yml's lint-test step) · `npm` · `clippy` · `test` · `ci-gates` in order (six stages), first failure stops; exit 0 green · 1 red · 2 cannot-evaluate (a missing pinned tool or apt package — never green), one JSON verdict + `target/pre-push/report.json`. Its Node 24 is the Viola repo's `~/.local/viola-node` install (the distro's apt ships Node 22).
+`cargo xtask pre-push:linux` (2026-09-29) is the local Linux pre-push check — it needs a Windows host with the WSL `Ubuntu` distro (`wsl.exe`), so it cannot run on the Linux dev host (Omarchy, since 2026-10-03; its six stages ran natively there per founder ruling, and the native port is its own route entry); not a CI step: it syncs a distro clone to HEAD + the working tree (tree-id verified) and runs `script-modes` · `source-lint` (`cargo xtask check:english-sources`, since 2026-10-01 — the same English-only gate as ci.yml's lint-test step) · `npm` · `clippy` · `test` · `ci-gates` in order (six stages), first failure stops; exit 0 green · 1 red · 2 cannot-evaluate (a missing pinned tool or apt package — never green), one JSON verdict + `target/pre-push/report.json`. Its Node 24 is the Viola repo's `~/.local/viola-node` install (the distro's apt ships Node 22).
 
 `cargo xtask perf:frame-sample` (2026-09-30) is the dev-host frame-budget gate — not in the standard gate set, not CI-wired (the hosted Windows runner exposed no WebGPU adapter): Windows only, it boots the release binary with a SwiftShader WebGPU flag set on the app child only, feeds `inject_demo --sustained` for 30 s, and grades frame p99 ≤ 33 ms with the frame arm required; exit 0 PASS · 1 FAIL (0 samples once healthy, or over budget) · 2 INCONCLUSIVE; opens a window. `cargo xtask perf:budget --data-dir <DIR> --require <arm,arm>` is its CI sibling — exit 0 PASS · 1 FAIL · 2 cannot-evaluate.
 
@@ -98,7 +98,7 @@ children (`pulse-app/tests/integration_exit_cause_record.rs`): each child inits 
 through ONE class, and the parent reads the `agent-latest.jsonl*` family after the child ended — child-ran proof is the
 child's own `app.boot.tracing.init` record (its stdout is discarded, so `--no-capture` shows nothing). A once-flag whose
 sink's only drain is a guard drop is pinned by the emitter's RETURN value (the first flush closes the sink; a file read
-passes with the flag removed). `cfg(unix)` arms run in `pre-push:linux` and CI lint-test Linux/macOS, not on Windows.
+passes with the flag removed). `cfg(unix)` arms run natively in `cargo nextest run --workspace` on the Linux dev host (2575 = 2573 + the two arms) and in CI lint-test Linux/macOS, not on Windows.
 
 ## Top anti-patterns (test-plan §11)
 - NEVER `sleep(N)` for sync — wait for `health` polling or Channel events.
