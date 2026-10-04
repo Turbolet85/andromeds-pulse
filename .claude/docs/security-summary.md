@@ -47,7 +47,7 @@ Per security plan §Bootstrap phases:
 - NEVER widen `pulse:default` with Tauri core APIs (`fs`, `shell`, `dialog`, `http`).
 - NEVER `tokio::process::Command::new(...).arg(user_input)` against OTLP attribute / MCP tool argument / workspace-detector output.
 - NEVER ship release without resolving `tonic 0.14 ↔ tonic 0.13 (via opentelemetry-otlp 0.31)` duplicate.
-- NEVER let rust-toolchain drift below `1.85.0` — Edition 2024 cannot parse without it.
+- NEVER let rust-toolchain drift below `1.85.0` — Edition 2024 cannot parse without it. (The build floor is higher: the workspace declares `rust-version = "1.95"`, equal to the pin and set by the dependency graph, held equal by `declared_floor_equals_the_pinned_channel`.)
 - NEVER log from a C `atexit` / signal handler on the exiting thread (glibc destroys its thread-locals first; a panic there aborts) — hand off to a thread spawned at install, and re-raise the same signal so the process still ends BY it.
 
 ## Open residual risks (Decisions Log)

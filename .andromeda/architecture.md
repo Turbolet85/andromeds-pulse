@@ -11,7 +11,7 @@
 
 | Layer | Technology | Role |
 |---|---|---|
-| Primary language / runtime | Rust 2024 edition — toolchain pinned to rustc 1.95.0 (`rust-toolchain.toml`); the code needs rustc ≥ 1.89 (`std::fs::File::lock`, corpus keychain; let-chains already needed 1.88), so the workspace's declared `rust-version = "1.85"` is stale — raising it is owned by the route entry "The declared Rust floor matches the code" | Single language across receivers, buffer, viz host, IPC, plugin host, MCP server |
+| Primary language / runtime | Rust 2024 edition — toolchain pinned to rustc 1.95.0 (`rust-toolchain.toml`); the workspace declares `rust-version = "1.95"` once in `[workspace.package]` (all 16 members inherit it), equal to the pin and set by the resolved dependency graph — 28 packages declare `rust-version = "1.95.0"` (wasmtime 48.0.5 and its internal crates, cranelift 0.135.5, pulley 48.0.5; `cargo metadata --offline`, as measured at chunk `2026-10-04-declared-rust-floor-matches-the-code`), so no toolchain below 1.95.0 builds the product; the workspace's own code needs only rustc ≥ 1.89 (`std::fs::File::lock`, corpus keychain; let-chains 1.88); the xtask test `declared_floor_equals_the_pinned_channel` holds the declared floor equal to the pin at major.minor, so every pinned-toolchain build proves it | Single language across receivers, buffer, viz host, IPC, plugin host, MCP server |
 | Desktop shell | Tauri 2.x | Native window + webview, OS bundlers, updater, tray, notifications |
 | gRPC server | `tonic` 0.14.x | OTLP/gRPC receiver on `:4317` (with `prost` 0.14 codegen against `opentelemetry-proto`) |
 | HTTP server | `axum` 0.8.x on `hyper` 1.x + `tower` | OTLP/HTTP receiver on `:4318` (protobuf and JSON) sharing the Tokio runtime with tonic |
@@ -44,7 +44,7 @@
 ## Established Decisions
 
 - **[Platform] Tauri 2 desktop shell**: chosen over Electron because bundle size is 5–10× smaller (~10–20 MB vs 100 MB+), the security model is capability-scoped, and a Rust backend means the receiver, buffer, and UI bridge live in one process with no Node bridge tax.
-- **[Primary Language] Rust 2024 edition (toolchain pinned 1.95.0; code floor rustc ≥ 1.89)**: matches the high-performance OTel-receiver trend (Rotel benchmarks: 75% less memory, 50% less CPU than the Go Collector) and means one language end-to-end through ingest, buffer, viz host, plugin host, and MCP server.
+- **[Primary Language] Rust 2024 edition (toolchain pinned 1.95.0; declared `rust-version = "1.95"`, equal to the pin and set by the dependency graph; the workspace's own code needs rustc ≥ 1.89)**: matches the high-performance OTel-receiver trend (Rotel benchmarks: 75% less memory, 50% less CPU than the Go Collector) and means one language end-to-end through ingest, buffer, viz host, plugin host, and MCP server.
 - **[Backend Framework — OTLP receiver] `tonic` 0.14.x + `axum` 0.8.x on shared `hyper` 1.x + `tower`**: a single Tokio runtime serves both `:4317` gRPC and `:4318` HTTP without two unrelated substrates; axum's middleware/extractor ergonomics outweigh the ~30 transitive deps for a 12-module monolith. Alternatives (raw hyper, poem+tonic, actix+tonic) either lost on ergonomics or fought Tauri's `tokio::main` integration. **Caveat to reconcile before locking versions**: `tonic` 0.14 vs `opentelemetry-otlp` 0.31 (which still pins `tonic` 0.13 in some feature combinations) — read both `Cargo.toml`s before tagging.
 - **[Database] DuckDB embedded via the `duckdb` crate — requirement `1.10500` (caret) in Cargo.toml, lockfile-resolved 1.10505.0 as of 2026-08-28 (DuckDB 1.5.x bundled), in-memory ring buffer**: columnar+SQL+Arrow trifecta is exactly what aggregating spans/metrics by service/time-bucket needs at 10k spans/sec. SQLite was rejected because aggregating 10k spans/sec into per-service p99 series in row-store SQL turns the query into the bottleneck. DataFusion remains a documented swap-out only if DuckDB's C++ FFI complicates Tauri cross-compile.
 - **[ORM / Migrations] None — direct SQL via `duckdb` crate's `Connection` and `Appender`**: ring-buffer schema is small, lifecycle is "create on startup" + periodic `DELETE WHERE ts < cutoff`, and Arrow zero-copy ingest sidesteps any ORM marshalling tax.
@@ -100,7 +100,7 @@
   {
     "name": "andromeda-pulse",
     "version": "0.1.0",
-    "rust_version": "1.84.0",
+    "rust_version": "1.95",
     "tauri_version": "2.x",
     "features": ["mcp-server"],
     "build_profile": "release"
@@ -352,7 +352,7 @@ andromeda-pulse/
 
 ## Inherited Defaults
 
-- Language / runtime: Rust 2024 edition (toolchain pinned 1.95.0; code floor rustc ≥ 1.89 — the declared `rust-version = "1.85"` is stale, owned by the route entry "The declared Rust floor matches the code"), single Tokio multi-threaded runtime.
+- Language / runtime: Rust 2024 edition (toolchain pinned 1.95.0; declared `rust-version = "1.95"`, equal to the pin and set by the resolved dependency graph, held equal by the xtask test `declared_floor_equals_the_pinned_channel`; the workspace's own code needs rustc ≥ 1.89), single Tokio multi-threaded runtime.
 - Desktop shell: Tauri 2.x with TauRPC IPC bridge.
 - Backend framework (in-process receivers): `tonic` 0.14.x (gRPC, `:4317`) + `axum` 0.8.x on `hyper` 1.x + `tower` (HTTP, `:4318`). Open question carried from Established Decisions: if `opentelemetry-otlp` 0.31's transitive pin on `tonic` 0.13 cannot be resolved at lock time, the fallback is to downgrade Stack to `tonic` 0.13.x (matching `opentelemetry-otlp`) rather than fork or wait for upstream; the Stack/Decisions/Defaults rows are then re-pinned in the same iteration.
 - Database: DuckDB 1.5.x via the `duckdb` crate — requirement `1.10500` (caret), lockfile-resolved 1.10505.0 as of 2026-08-28 — in-memory ring buffer (5–10 min retention, configurable).

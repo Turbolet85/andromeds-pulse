@@ -1,0 +1,148 @@
+[
+{
+"tool": "cascade",
+"v": "1.1",
+"sha8": "9b5fafc7",
+"ts": "2026-10-04T22:41:24Z",
+"argv": [
+"sweep",
+"--patterns-file",
+".andromeda/runs/2026-10-04T22-34-15Z-wrap/cascade-patterns.toml",
+"--run-dir",
+".andromeda/runs/2026-10-04T22-34-15Z-wrap",
+"--marker",
+"2026-10-04-declared-rust-floor-matches-the-code"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"baseline 46b600a7 (pre-CI parent — the oldest of 1 pre-CI commit(s), e9ec0905)",
+"decl-185 · new 0 · standing 0 · leaf 3 · curation 0 · base 0 · control architecture.md:14 (prose)",
+"any-185 · new 0 · standing 1 · leaf 7 · curation 5 · base 0 · control architecture.md:14 (prose)",
+"route-owner · new 0 · standing 0 · leaf 3 · curation 0 · base 0 · control architecture.md:14 (prose)",
+"code-floor · new 0 · standing 0 · leaf 1 · curation 0 · base 0 · control architecture.md:47 (prose)",
+"ge-189 · new 1 · standing 3 · leaf 5 · curation 0 · base 0 · control architecture.md:14 (prose)",
+"stale-decl · new 0 · standing 0 · leaf 2 · curation 0 · base 0 · control architecture.md:14 (prose)",
+"appinfo-184 · 0 rows (control fired) — a statement about this pattern, not the masters · control architecture.md:103 (f…",
+"suite-87 · new 0 · standing 1 · leaf 0 · curation 0 · base 0 · control test-plan.md:383 (prose)",
+"msrv · new 1 · standing 1 · leaf 1 · curation 0 · base 0 · control test-plan.md:627 (prose)",
+"CLAUDE.md:9 decl-185 leaf …s::File::lock`; the declared `rust-version = \"1.85\"` is stale, owned by the route entry \"The…",
+".claude/docs/stack.md:6 decl-185 leaf …the workspace's declared `rust-version = \"1.85\"` is stale — owned by the route e…",
+".claude/docs/stack.md:84 decl-185 leaf …en half is the workspace `rust-version = \"1.85\"`, which trails the code's true …",
+".andromeda/security-plan.md:470 any-185 standing edited mixed ×3 …hain drift below 1.85.0 — Edition 2024 cannot parse w…",
+".claude/rules/security.md:122 any-185 curation …t` workspace dep. Rust 1.85's native `async fn` in traits is NOT dyn-co…",
+".claude/docs/session-learnings.md:2402 any-185 curation …ns minimum rustc to 1.85 for Edition 2024 security-positive de…",
+".claude/docs/session-learnings.md:2404 any-185 curation ×2 …e security plan's `1.85+` minimum (the AC's grep regex `^ch…",
+".claude/docs/session-learnings.md:2406 any-185 curation …th the security-plan minimum (≥1.85) and the CI matrix runners.",
+".claude/docs/session-learnings.md:2408 any-185 curation …s Log open question on 1.84 → 1.85 bump; `rust-toolchain.toml`.",
+"CLAUDE.md:9 any-185 leaf …the declared `rust-version = \"1.85\"` is stale, owned by the route entry \"The declared Rust fl…",
+".claude/rules/security.md:87 any-185 leaf ×2 …hain.toml` MUST pin to `1.85.0` minimum — Edition 2024 cannot parse below…",
+".claude/docs/gotchas.md:13 any-185 leaf ### `rust-toolchain.toml` 1.84 → 1.85 bump",
+".claude/docs/gotchas.md:14 any-185 leaf ×2 …024 cannot parse below `1.85.0`. **Bump `rust-toolchain.toml` to `1.85.0` m…",
+".claude/docs/security-summary.md:50 any-185 leaf …toolchain drift below `1.85.0` — Edition 2024 cannot parse without it.",
+".claude/docs/stack.md:6 any-185 leaf ×2 …eclared `rust-version = \"1.85\"` is stale — owned by the route entry \"The decla…",
+".claude/docs/stack.md:84 any-185 leaf ×2 …95.0` (the old `1.84` → `1.85.0` reconciliation is closed); the open half is …",
+"CLAUDE.md:9 route-owner leaf …e, owned by the route entry \"The declared Rust floor matches the code\") + Tauri 2.x (sing…",
+".claude/docs/stack.md:6 route-owner leaf …wned by the route entry \"The declared Rust floor matches the code\" (Edition 2…",
+".claude/docs/stack.md:84 route-owner leaf … 1.89) — owned by the route entry \"The declared Rust floor matches the code\".",
+".claude/rules/testing.md:17 code-floor leaf …inned rustc 1.95.0; the code floor is ≥ 1.89) + `cargo-nextest` 0.9.x for …",
+".andromeda/architecture.md:14 ge-189 standing edited …ode needs only rustc ≥ 1.89 (`std::fs::File::lock`, corpus keycha…",
+".andromeda/architecture.md:47 ge-189 standing edited …own code needs rustc ≥ 1.89)**: matches the high-performance OTel…",
+".andromeda/architecture.md:355 ge-189 new …orkspace's own code needs rustc ≥ 1.89), single Tokio multi-threaded runtime.",
+".andromeda/test-plan.md:344 ge-189 standing edited …s own code needs only ≥ 1.89 (`std::fs::File::lock`); clippy reads …",
+"CLAUDE.md:9 ge-189 leaf …d rustc 1.95.0 (the code needs ≥ 1.89 for `std::fs::File::lock`; the declared `rust-version = …",
+".claude/rules/testing.md:17 ge-189 leaf ….95.0; the code floor is ≥ 1.89) + `cargo-nextest` 0.9.x for per-process isola…",
+".claude/docs/services/corpus.md:29 ge-189 leaf …until the workspace `rust-version` is raised to the true floor (≥ 1.89).",
+".claude/docs/stack.md:6 ge-189 leaf …hain.toml`; the code needs ≥ 1.89 (`std::fs::File::lock`, corpus keychain; let-cha…",
+".claude/docs/stack.md:84 ge-189 leaf …ls the code's true floor (≥ 1.89) — owned by the route entry \"The declared Rust f…",
+"CLAUDE.md:9 stale-decl leaf …::File::lock`; the declared `rust-version = \"1.85\"` is stale, owned by the route entry \"Th…",
+".claude/docs/stack.md:6 stale-decl leaf …he workspace's declared `rust-version = \"1.85\"` is stale — owned by the route …",
+".andromeda/test-plan.md:383 suite-87 standing edited @c2728/4235 …; crate suite 82 → 87, every fn named `race_free`): `…",
+".andromeda/test-plan.md:344 msrv new …:lock`); clippy reads its MSRV from that value, and the xtask test `declared_floo…",
+".andromeda/test-plan.md:627 msrv standing ×2 …on) | `httpmock` 0.7.x (MSRV check needed; fallback `mockito` 1.6.x if MS…",
+".claude/docs/services/corpus.md:29 msrv leaf …scoped `#[allow(clippy::incompatible_msrv)]` until the workspace `rust-ve…",
+"decl-185 · new 0 · standing 0 · leaf 3 · curation 0 · base 0 · control architecture.md:14 (prose)",
+"any-185 · new 0 · standing 1 · leaf 7 · curation 5 · base 0 · control architecture.md:14 (prose)",
+"route-owner · new 0 · standing 0 · leaf 3 · curation 0 · base 0 · control architecture.md:14 (prose)",
+"code-floor · new 0 · standing 0 · leaf 1 · curation 0 · base 0 · control architecture.md:47 (prose)",
+"ge-189 · new 1 · standing 3 · leaf 5 · curation 0 · base 0 · control architecture.md:14 (prose)",
+"stale-decl · new 0 · standing 0 · leaf 2 · curation 0 · base 0 · control architecture.md:14 (prose)",
+"appinfo-184 · 0 rows (control fired) — a statement about this pattern, not the masters · control architecture.md:103 (f…",
+"suite-87 · new 0 · standing 1 · leaf 0 · curation 0 · base 0 · control test-plan.md:383 (prose)",
+"msrv · new 1 · standing 1 · leaf 1 · curation 0 · base 0 · control test-plan.md:627 (prose)"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"baseline": "46b600a7f06fe1abe0d4bb93d0e559f49dbdb380",
+"how": "pre-CI parent — the oldest of 1 pre-CI commit(s), e9ec0905",
+"counts": {
+"decl-185": {
+"new": 0,
+"standing": 0,
+"leaf": 3,
+"curation": 0,
+"base": 0
+},
+"any-185": {
+"new": 0,
+"standing": 1,
+"leaf": 7,
+"curation": 5,
+"base": 0
+},
+"route-owner": {
+"new": 0,
+"standing": 0,
+"leaf": 3,
+"curation": 0,
+"base": 0
+},
+"code-floor": {
+"new": 0,
+"standing": 0,
+"leaf": 1,
+"curation": 0,
+"base": 0
+},
+"ge-189": {
+"new": 1,
+"standing": 3,
+"leaf": 5,
+"curation": 0,
+"base": 0
+},
+"stale-decl": {
+"new": 0,
+"standing": 0,
+"leaf": 2,
+"curation": 0,
+"base": 0
+},
+"appinfo-184": {
+"new": 0,
+"standing": 0,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"suite-87": {
+"new": 0,
+"standing": 1,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"msrv": {
+"new": 1,
+"standing": 1,
+"leaf": 1,
+"curation": 0,
+"base": 0
+}
+}
+}
+}
+]

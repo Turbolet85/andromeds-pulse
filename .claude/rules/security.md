@@ -84,7 +84,7 @@ Universal security requirements. Apply to all files in this project. This rule f
 - `cargo-auditable` wraps the `tauri-action` build — embeds dependency tree as JSON section in the binary for post-release CVE scanning.
 
 ## Rust toolchain
-- `rust-toolchain.toml` MUST pin to `1.85.0` minimum — Edition 2024 cannot parse below 1.85; Edition 2024 also requires the security-positive defaults (`unsafe_op_in_unsafe_fn`, `unsafe extern`, `static mut` reference denial, tightened `if let` temporary scopes).
+- `rust-toolchain.toml` MUST pin to `1.85.0` minimum — Edition 2024 cannot parse below 1.85; Edition 2024 also requires the security-positive defaults (`unsafe_op_in_unsafe_fn`, `unsafe extern`, `static mut` reference denial, tightened `if let` temporary scopes). That is the Edition-2024 minimum, not the build floor: the workspace declares `rust-version = "1.95"`, equal to the pinned 1.95.0 channel and set by the dependency graph (wasmtime / cranelift / pulley declare 1.95.0), held equal by the xtask test `declared_floor_equals_the_pinned_channel`.
 - NEVER ship a release without resolving the `tonic 0.14 ↔ tonic 0.13 (via opentelemetry-otlp 0.31)` duplicate — `cargo deny check bans` is the enforcement.
 
 ## Process commands

@@ -1,0 +1,53 @@
+[
+{
+"tool": "matrix",
+"v": "1.3",
+"sha8": "951eb804",
+"ts": "2026-10-04T22:48:40Z",
+"argv": [
+"flip",
+"--dir",
+"andromeda-pulse-0.3.0",
+"--chunk",
+"2026-10-04-declared-rust-floor-matches-the-code",
+"--run-dir",
+".andromeda/runs/2026-10-04T22-34-15Z-wrap",
+"--dry-run"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"claimed 0 — gate no-op (no entry carries chunk 2026-10-04-declared-rust-floor-matches-the-code)",
+"pool: unclaimed 0"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "matrix",
+"v": "1.3",
+"sha8": "951eb804",
+"ts": "2026-10-04T22:50:48Z",
+"argv": [
+"flip",
+"--dir",
+"andromeda-pulse-0.3.0",
+"--chunk",
+"2026-10-04-declared-rust-floor-matches-the-code",
+"--run-dir",
+".andromeda/runs/2026-10-04T22-34-15Z-wrap"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"claimed 0 — gate no-op (no entry carries chunk 2026-10-04-declared-rust-floor-matches-the-code)",
+"pool: unclaimed 0"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+}
+]

@@ -1,6 +1,20 @@
 # Session Learnings
 
 
+## 2026-10-04 — raising `rust-version` raises clippy's MSRV and switches lints ON
+
+The workspace `rust-version` is clippy's MSRV. Raising it does not only retire `incompatible_msrv` warnings: it
+switches ON every lint gated on a newer MSRV, so `-D warnings` can go red on code nobody touched — at the
+1.85 → 1.95 raise, `collapsible_if` (nested `if`/`if let` → let-chains) and `manual_is_multiple_of` fired at 20
+sites. Measure the set BEFORE the raise, without touching a repo file: point `CLIPPY_CONF_DIR` at a scratch dir whose
+`clippy.toml` sets `msrv = "{new}"` and run `cargo clippy --workspace --all-targets --all-features --keep-going`
+(clippy prints `the MSRV in clippy.toml and Cargo.toml differ`, the probe's control). The probe lints only the host's
+`cfg` arms; a Windows / macOS arm surfaces on CI lint-test. The declared floor itself is the MAX of the code's own
+needs and every resolved dependency's `rust-version` (`cargo metadata --format-version 1 --offline`), not the code
+alone.
+
+---
+
 ## 2026-10-04 — `grep` on the Linux dev host is ugrep, and a bounded-context pattern dies silently
 
 On the Omarchy Linux dev host `grep` resolves to ugrep. A context-extracting pattern such as
