@@ -1,0 +1,106 @@
+[
+{
+"sql": "SELECT caller, file, line FROM calls WHERE callee_name = 'emit_boot_spans' AND callee_kind = 'fn' ORDER BY file, line",
+"rows": 1,
+"result": [
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 main().",
+"file": "pulse-app/src/main.rs",
+"line": 298
+}
+],
+"db_state": "regenerated",
+"plane": "rust"
+},
+{
+"sql": "SELECT caller, file, line FROM calls WHERE callee_name IN ('install_exit_hook','hold_log_guard','detect_webview_backend') AND callee_kind = 'fn' ORDER BY file, line",
+"rows": 11,
+"result": [
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 main().",
+"file": "pulse-app/src/main.rs",
+"line": 292
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 main().",
+"file": "pulse-app/src/main.rs",
+"line": 293
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 window/emit_boot_spans().",
+"file": "pulse-app/src/window.rs",
+"line": 88
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 init_child().",
+"file": "pulse-app/tests/integration_exit_cause_record.rs",
+"line": 56
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 exit_cause_process_exit_is_recorded_outside_event_loop().",
+"file": "pulse-app/tests/integration_exit_cause_record.rs",
+"line": 212
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 exit_cause_native_exit_is_recorded_outside_event_loop().",
+"file": "pulse-app/tests/integration_exit_cause_record.rs",
+"line": 238
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 exit_cause_at_exit_hook_does_not_duplicate_a_record_before_a_native_exit().",
+"file": "pulse-app/tests/integration_exit_cause_record.rs",
+"line": 312
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 exit_cause_at_exit_hook_does_not_duplicate_the_event_loop_record().",
+"file": "pulse-app/tests/integration_exit_cause_record.rs",
+"line": 355
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 crate/",
+"file": "pulse-app/tests/unit_window_shell.rs",
+"line": 6
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 detect_webview_backend_returns_enumerated_value().",
+"file": "pulse-app/tests/unit_window_shell.rs",
+"line": 13
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 detect_webview_backend_matches_target_os().",
+"file": "pulse-app/tests/unit_window_shell.rs",
+"line": 37
+}
+],
+"db_state": "fresh",
+"plane": "rust"
+},
+{
+"sql": "SELECT caller, file, line FROM calls WHERE callee_name = 'init' AND callee_kind = 'fn' AND callee_file LIKE '%observability.rs' ORDER BY file, line",
+"rows": 4,
+"result": [
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 main().",
+"file": "pulse-app/src/main.rs",
+"line": 292
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 p003_panic_propagates_to_receiver_panicked_broadcast_within_2s().",
+"file": "pulse-app/tests/e2e_p003_panic_hook_propagation.rs",
+"line": 50
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 init_child().",
+"file": "pulse-app/tests/integration_exit_cause_record.rs",
+"line": 56
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 perf_budget_samples_are_produced_by_the_real_pipeline().",
+"file": "pulse-app/tests/perf_budget_samples.rs",
+"line": 114
+}
+],
+"db_state": "fresh",
+"plane": "rust"
+}
+]

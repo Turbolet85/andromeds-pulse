@@ -1,0 +1,32 @@
+[
+{
+"tool": "gate",
+"v": "1.6",
+"sha8": "9419d56e",
+"ts": "2026-10-04T09:59:02Z",
+"argv": [
+"scope",
+"--lists-only",
+"--research",
+"andromeda-pulse-0.3.0/chunks/2026-10-04-linux-launch-stays-up-on-nvidia-wayland/research.md",
+"--run-dir",
+".andromeda/runs/2026-10-04T09-36-17Z-phase",
+"--marker",
+"2026-10-04-linux-launch-stays-up-on-nvidia-wayland"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"control: lists · glob · record — each fired on its synthetic known positive",
+"scope lists: parsed 6 items (new 3 · modify 3 · derived 0)"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"items": 6,
+"unparsed": 0
+}
+}
+]

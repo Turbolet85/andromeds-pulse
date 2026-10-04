@@ -26,6 +26,7 @@ pub mod model_router;
 pub mod observability;
 pub mod plugins_router;
 pub mod reevaluation;
+pub mod render_posture;
 pub mod restart_observer;
 pub mod services_router;
 pub mod snapshot_runtime;

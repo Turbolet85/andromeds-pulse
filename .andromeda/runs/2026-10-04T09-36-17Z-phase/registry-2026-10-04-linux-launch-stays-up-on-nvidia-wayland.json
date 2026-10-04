@@ -1,0 +1,98 @@
+[
+{
+"tool": "registry",
+"v": "1.1",
+"sha8": "712d7818",
+"ts": "2026-10-04T09:38:24Z",
+"argv": [
+"contracts",
+"--master",
+".andromeda/architecture.md",
+"--out",
+".andromeda/runs/2026-10-04T09-36-17Z-phase/arch-contracts.md",
+"--run-dir",
+".andromeda/runs/2026-10-04T09-36-17Z-phase",
+"--marker",
+"2026-10-04-linux-launch-stays-up-on-nvidia-wayland"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 3,
+"stdout": [],
+"stderr": "NOT MIGRATED — read §Infrastructure Patterns in the body",
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "registry",
+"v": "1.1",
+"sha8": "712d7818",
+"ts": "2026-10-04T09:38:24Z",
+"argv": [
+"contracts",
+"--master",
+".andromeda/test-plan.md",
+"--out",
+".andromeda/runs/2026-10-04T09-36-17Z-phase/tests-contracts.md",
+"--run-dir",
+".andromeda/runs/2026-10-04T09-36-17Z-phase",
+"--marker",
+"2026-10-04-linux-launch-stays-up-on-nvidia-wayland"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 3,
+"stdout": [],
+"stderr": "NOT MIGRATED — read §3. Test Harness Contract in the body",
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "registry",
+"v": "1.1",
+"sha8": "712d7818",
+"ts": "2026-10-04T09:38:24Z",
+"argv": [
+"contracts",
+"--master",
+".andromeda/obs-plan.md",
+"--out",
+".andromeda/runs/2026-10-04T09-36-17Z-phase/obs-contracts.md",
+"--run-dir",
+".andromeda/runs/2026-10-04T09-36-17Z-phase",
+"--marker",
+"2026-10-04-linux-launch-stays-up-on-nvidia-wayland"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 3,
+"stdout": [],
+"stderr": "NOT MIGRATED — read §3. Observability Harness Contract in the body",
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "registry",
+"v": "1.1",
+"sha8": "712d7818",
+"ts": "2026-10-04T09:38:24Z",
+"argv": [
+"contracts",
+"--master",
+".andromeda/a11y-plan.md",
+"--out",
+".andromeda/runs/2026-10-04T09-36-17Z-phase/a11y-contracts.md",
+"--run-dir",
+".andromeda/runs/2026-10-04T09-36-17Z-phase",
+"--marker",
+"2026-10-04-linux-launch-stays-up-on-nvidia-wayland"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 3,
+"stdout": [],
+"stderr": "NOT MIGRATED — read §3. A11y Assertion Harness Contract in the body",
+"wrote": [],
+"before": null,
+"after": null
+}
+]

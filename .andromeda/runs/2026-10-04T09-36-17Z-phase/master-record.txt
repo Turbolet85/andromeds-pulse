@@ -1,0 +1,1 @@
+2026-10-04-linux-launch-stays-up-on-nvidia-wayland · pending · the default Linux launch survives on an NVIDIA GPU under a Wayland compositor · → andromeda-pulse-0.3.0/chunks/2026-10-04-linux-launch-stays-up-on-nvidia-wayland/

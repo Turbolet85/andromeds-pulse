@@ -45,7 +45,7 @@ use ui_bridge::workspace_ipc::{WorkspaceApi, WorkspaceApiImpl};
 use viz::VizState;
 
 use pulse_app::taurpc_export_config;
-use pulse_app::{heartbeat, observability, tray, window, window_geometry};
+use pulse_app::{heartbeat, observability, render_posture, tray, window, window_geometry};
 
 use pulse_app::baseline_observer::BaselineObserverAdapter;
 use pulse_app::baseline_persistence::{
@@ -276,6 +276,8 @@ fn publish_workspace_key_for_sidecar(data_dir: &Path, key: &str) {
 }
 
 fn main() {
+    let render_posture = render_posture::apply_linux_default();
+
     // taurpc's `Router::into_handler()` spawns a background handler-manager
     // task during binding emission and requires a tokio runtime in scope, but
     // Tauri's Builder doesn't establish one until `.run()` (which happens
@@ -297,6 +299,7 @@ fn main() {
     record_start();
     write_pid_file(&data_dir);
     window::emit_boot_spans();
+    render_posture::emit_posture(render_posture);
 
     let heartbeat_state = Arc::new(HeartbeatState::new());
     register_heartbeat_state(heartbeat_state.clone());

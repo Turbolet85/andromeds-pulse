@@ -1005,6 +1005,12 @@ impl AllowList {
             ["duration_ms"].iter().copied().collect(),
         );
         by_target.insert("app.boot.tray.init", ["tray_api"].iter().copied().collect());
+        // The launch render posture: a closed label and the lever's NAME. The
+        // preset VALUE is never emitted (a raw env value on the wire).
+        by_target.insert(
+            "app.boot.render.posture",
+            ["posture", "lever"].iter().copied().collect(),
+        );
         by_target.insert(
             "app.boot.window.show",
             ["label", "error_kind", "error_msg"]
