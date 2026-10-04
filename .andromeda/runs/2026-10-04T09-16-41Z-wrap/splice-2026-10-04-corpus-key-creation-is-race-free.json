@@ -1,0 +1,197 @@
+[
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "5afc7864",
+"ts": "2026-10-04T09:29:23Z",
+"argv": [
+"append",
+"--file",
+".andromeda/architecture-amendments.md",
+"--payload-file",
+".andromeda/runs/2026-10-04T09-16-41Z-wrap/architecture-entry-1.md",
+"--lines",
+"9",
+"--run-dir",
+".andromeda/runs/2026-10-04T09-16-41Z-wrap",
+"--marker",
+"2026-10-04-corpus-key-creation-is-race-free"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"append architecture-amendments.md:+9 at line 604 · lines 603→612 · bytes 85151→87127 · term lf",
+"last line now: **Ref:** .andromeda/runs/2026-10-04T09-16-41Z-wrap/"
+],
+"stderr": null,
+"wrote": [
+".andromeda/architecture-amendments.md"
+],
+"before": {
+"lines": 603,
+"bytes": 85151,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 612,
+"bytes": 87127
+}
+},
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "5afc7864",
+"ts": "2026-10-04T09:29:23Z",
+"argv": [
+"append",
+"--file",
+".andromeda/architecture-amendments.md",
+"--payload-file",
+".andromeda/runs/2026-10-04T09-16-41Z-wrap/architecture-entry-2.md",
+"--lines",
+"7",
+"--run-dir",
+".andromeda/runs/2026-10-04T09-16-41Z-wrap",
+"--marker",
+"2026-10-04-corpus-key-creation-is-race-free"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"append architecture-amendments.md:+7 at line 613 · lines 612→619 · bytes 87127→88277 · term lf",
+"last line now: **Ref:** .andromeda/runs/2026-10-04T09-16-41Z-wrap/"
+],
+"stderr": null,
+"wrote": [
+".andromeda/architecture-amendments.md"
+],
+"before": {
+"lines": 612,
+"bytes": 87127,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 619,
+"bytes": 88277
+}
+},
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "5afc7864",
+"ts": "2026-10-04T09:29:23Z",
+"argv": [
+"append",
+"--file",
+".andromeda/security-plan-amendments.md",
+"--payload-file",
+".andromeda/runs/2026-10-04T09-16-41Z-wrap/security-plan-entry-1.md",
+"--lines",
+"9",
+"--run-dir",
+".andromeda/runs/2026-10-04T09-16-41Z-wrap",
+"--marker",
+"2026-10-04-corpus-key-creation-is-race-free"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"append security-plan-amendments.md:+9 at line 479 · lines 478→487 · bytes 88380→90177 · term lf",
+"last line now: **Ref:** .andromeda/runs/2026-10-04T09-16-41Z-wrap/"
+],
+"stderr": null,
+"wrote": [
+".andromeda/security-plan-amendments.md"
+],
+"before": {
+"lines": 478,
+"bytes": 88380,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 487,
+"bytes": 90177
+}
+},
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "5afc7864",
+"ts": "2026-10-04T09:29:23Z",
+"argv": [
+"append",
+"--file",
+".andromeda/security-plan-amendments.md",
+"--payload-file",
+".andromeda/runs/2026-10-04T09-16-41Z-wrap/security-plan-entry-2.md",
+"--lines",
+"10",
+"--run-dir",
+".andromeda/runs/2026-10-04T09-16-41Z-wrap",
+"--marker",
+"2026-10-04-corpus-key-creation-is-race-free"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"append security-plan-amendments.md:+10 at line 488 · lines 487→497 · bytes 90177→92018 · term lf",
+"last line now: **Ref:** .andromeda/runs/2026-10-04T09-16-41Z-wrap/"
+],
+"stderr": null,
+"wrote": [
+".andromeda/security-plan-amendments.md"
+],
+"before": {
+"lines": 487,
+"bytes": 90177,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 497,
+"bytes": 92018
+}
+},
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "5afc7864",
+"ts": "2026-10-04T09:29:23Z",
+"argv": [
+"append",
+"--file",
+".andromeda/test-plan-amendments.md",
+"--payload-file",
+".andromeda/runs/2026-10-04T09-16-41Z-wrap/test-plan-entry.md",
+"--lines",
+"8",
+"--run-dir",
+".andromeda/runs/2026-10-04T09-16-41Z-wrap",
+"--marker",
+"2026-10-04-corpus-key-creation-is-race-free"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"append test-plan-amendments.md:+8 at line 562 · lines 561→569 · bytes 94192→95923 · term lf",
+"last line now: **Ref:** .andromeda/runs/2026-10-04T09-16-41Z-wrap/"
+],
+"stderr": null,
+"wrote": [
+".andromeda/test-plan-amendments.md"
+],
+"before": {
+"lines": 561,
+"bytes": 94192,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 569,
+"bytes": 95923
+}
+}
+]

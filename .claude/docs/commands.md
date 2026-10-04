@@ -116,8 +116,8 @@ cargo xtask capability-drift                                   # Diff TauRPC pro
 
 ## Tooling install (Bootstrap phase install commands)
 ```bash
-# Rust nightly toolchain pin
-rustup install 1.85.0 && rustup override set 1.85.0
+# Rust toolchain: rust-toolchain.toml pins 1.95.0 — rustup installs and selects it automatically on first cargo call
+rustup show active-toolchain
 
 # Test runner
 cargo install cargo-nextest

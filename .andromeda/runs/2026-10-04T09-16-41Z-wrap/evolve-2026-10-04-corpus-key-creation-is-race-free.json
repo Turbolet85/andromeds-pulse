@@ -1,0 +1,162 @@
+[
+{
+"tool": "evolve",
+"v": "1.0",
+"sha8": "df8fc62a",
+"ts": "2026-10-04T09:19:02Z",
+"argv": [
+"append",
+"--root",
+".",
+"--count",
+"2",
+"--records-file",
+"-",
+"--run-dir",
+".andromeda/runs/2026-10-04T09-16-41Z-wrap",
+"--marker",
+"2026-10-04-corpus-key-creation-is-race-free"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"appended 2 record(s) · friction-log.ndjson lines 1817→1819 · bytes 1914809→1916489 · term lf",
+"ts 2026-10-04T09:18:52Z · clock 2026-10-04T09:19:02Z · bound 2026-10-04T08:33:03Z (line 1817)",
+"ids 2026-10-04T09:18:52Z-a … 2026-10-04T09:18:52Z-b (2)"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/friction-log.ndjson"
+],
+"before": {
+"lines": 1817,
+"bytes": 1914809,
+"terminator": "LF",
+"bound": "2026-10-04T08:33:03Z"
+},
+"after": {
+"lines": 1819,
+"bytes": 1916489
+}
+},
+{
+"tool": "evolve",
+"v": "1.0",
+"sha8": "df8fc62a",
+"ts": "2026-10-04T09:29:46Z",
+"argv": [
+"append",
+"--root",
+".",
+"--count",
+"4",
+"--records-file",
+"-",
+"--run-dir",
+".andromeda/runs/2026-10-04T09-16-41Z-wrap",
+"--marker",
+"2026-10-04-corpus-key-creation-is-race-free"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"appended 4 record(s) · friction-log.ndjson lines 1819→1823 · bytes 1916489→1920525 · term lf",
+"ts 2026-10-04T09:29:27Z · clock 2026-10-04T09:29:46Z · bound 2026-10-04T09:18:52Z (line 1819)",
+"ids 2026-10-04T09:29:27Z-a … 2026-10-04T09:29:27Z-d (4)"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/friction-log.ndjson"
+],
+"before": {
+"lines": 1819,
+"bytes": 1916489,
+"terminator": "LF",
+"bound": "2026-10-04T09:18:52Z"
+},
+"after": {
+"lines": 1823,
+"bytes": 1920525
+}
+},
+{
+"tool": "evolve",
+"v": "1.0",
+"sha8": "df8fc62a",
+"ts": "2026-10-04T09:30:54Z",
+"argv": [
+"append",
+"--root",
+".",
+"--count",
+"3",
+"--records-file",
+"-",
+"--run-dir",
+".andromeda/runs/2026-10-04T09-16-41Z-wrap",
+"--marker",
+"2026-10-04-corpus-key-creation-is-race-free"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"appended 3 record(s) · friction-log.ndjson lines 1823→1826 · bytes 1920525→1922163 · term lf",
+"ts 2026-10-04T09:30:45Z · clock 2026-10-04T09:30:54Z · bound 2026-10-04T09:29:27Z (line 1823)",
+"ids 2026-10-04T09:30:45Z-a … 2026-10-04T09:30:45Z-c (3)"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/friction-log.ndjson"
+],
+"before": {
+"lines": 1823,
+"bytes": 1920525,
+"terminator": "LF",
+"bound": "2026-10-04T09:29:27Z"
+},
+"after": {
+"lines": 1826,
+"bytes": 1922163
+}
+},
+{
+"tool": "evolve",
+"v": "1.0",
+"sha8": "df8fc62a",
+"ts": "2026-10-04T09:31:46Z",
+"argv": [
+"append",
+"--root",
+".",
+"--count",
+"2",
+"--records-file",
+"-",
+"--run-dir",
+".andromeda/runs/2026-10-04T09-16-41Z-wrap",
+"--marker",
+"2026-10-04-corpus-key-creation-is-race-free"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"appended 2 record(s) · friction-log.ndjson lines 1826→1828 · bytes 1922163→1923880 · term lf",
+"ts 2026-10-04T09:31:38Z · clock 2026-10-04T09:31:46Z · bound 2026-10-04T09:30:45Z (line 1826)",
+"ids 2026-10-04T09:31:38Z-a … 2026-10-04T09:31:38Z-b (2)"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/friction-log.ndjson"
+],
+"before": {
+"lines": 1826,
+"bytes": 1922163,
+"terminator": "LF",
+"bound": "2026-10-04T09:30:45Z"
+},
+"after": {
+"lines": 1828,
+"bytes": 1923880
+}
+}
+]

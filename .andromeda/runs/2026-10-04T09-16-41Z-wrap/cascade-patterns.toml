@@ -1,0 +1,36 @@
+[[pattern]]
+id = "rustc-floor"
+regex = 'rustc 1\.8[0-9]'
+
+[[pattern]]
+id = "toolchain-floor"
+regex = '(rust-toolchain|toolchain)[^\n]{0,40}1\.8[0-9]'
+
+[[pattern]]
+id = "rust-version"
+regex = 'rust[-_]version'
+
+[[pattern]]
+id = "one-exception"
+regex = '(ONE|only|sole|single) (deliberate )?exception'
+ignore_case = true
+
+[[pattern]]
+id = "persists-proc"
+fixed = 'persists across processes'
+
+[[pattern]]
+id = "first-boot-key"
+regex = 'key on first boot|on first boot and reuses'
+
+[[pattern]]
+id = "downloads-sink"
+regex = 'Downloads'
+
+[[pattern]]
+id = "full-path-set"
+regex = 'L4_ALLOW_ROOT. root'
+
+[[pattern]]
+id = "env-entrypoint"
+fixed = 'Reserved env vars'

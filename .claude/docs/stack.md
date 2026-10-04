@@ -3,7 +3,7 @@
 _Extracted from `.andromeda/architecture.md` Stack and Technologies section by `/setup-project`. Primary source: architecture.md — this file is a convenience reference that Claude can read on demand when it needs stack details._
 
 ## Languages & Runtimes
-- **Primary language:** Rust 2024 edition (rustc 1.85+ minimum — Edition 2024 cannot parse below 1.85; security-positive defaults `unsafe_op_in_unsafe_fn`, `unsafe extern`, `static mut` reference denial, tightened `if let` temporary scopes require this).
+- **Primary language:** Rust 2024 edition, toolchain pinned to rustc 1.95.0 in `rust-toolchain.toml`; the code needs ≥ 1.89 (`std::fs::File::lock`, corpus keychain; let-chains need 1.88), so the workspace's declared `rust-version = "1.85"` is stale — owned by the route entry "The declared Rust floor matches the code" (Edition 2024 itself cannot parse below 1.85; security-positive defaults `unsafe_op_in_unsafe_fn`, `unsafe extern`, `static mut` reference denial, tightened `if let` temporary scopes require this).
 - **Async runtime:** `tokio` (current stable) — single multi-threaded runtime serving both OTLP ports + IPC.
 - **Frontend runtime:** WebView2 (Windows) / WKWebView (macOS) / GTK WebKit (Linux) via Tauri 2.x; React 19.x for UI.
 - **Package manager:** Cargo (workspace).
@@ -55,7 +55,7 @@ _Extracted from `.andromeda/architecture.md` Stack and Technologies section by `
 ## Development & CI
 - **Lint:** `cargo fmt --check` + `cargo clippy --workspace --all-targets --all-features -- -D warnings`.
 - **Typecheck:** `cargo check --workspace --all-targets` (implicit) + `tsc --noEmit` for TauRPC-generated `.d.ts` in webview.
-- **Test framework:** `cargo test` (libtest, rustc 1.85+) + `cargo-nextest` 0.9.x for per-process isolation.
+- **Test framework:** `cargo test` (libtest, the pinned rustc 1.95.0) + `cargo-nextest` 0.9.x for per-process isolation.
 - **Coverage:** `cargo-llvm-cov` 0.8.5 (LLVM source-based, cross-platform).
 - **Property testing:** `proptest` 1.10.0 (regression files in `proptest-regressions/`).
 - **CI task runner:** `cargo-xtask` (release / sign / notarize / changelog + agent-run harness).
@@ -81,7 +81,7 @@ For architectural rationale behind these choices, see `.andromeda/architecture.m
 ## Open reconciliations (deferred)
 - `tonic 0.14.x` vs `opentelemetry-otlp 0.31` (which still pins `tonic 0.13` in some feature combinations) — `cargo deny check bans` enforces; resolve before tagging v0.1.0.
 - ~~`rmcp` "1.5.0" reference vs published `0.3.x` line~~ — CLOSED by measurement at chunk 2026-08-29-advisory-backlog: the published line reached 3.x; pinned `"3"`, resolved 3.1.4.
-- `rust-toolchain.toml` minimum was `1.84` — bump to `1.85.0` to align with `Cargo.toml edition = "2024"`.
+- `rust-toolchain.toml` pins `1.95.0` (the old `1.84` → `1.85.0` reconciliation is closed); the open half is the workspace `rust-version = "1.85"`, which trails the code's true floor (≥ 1.89) — owned by the route entry "The declared Rust floor matches the code".
 
 ## Version updates
 

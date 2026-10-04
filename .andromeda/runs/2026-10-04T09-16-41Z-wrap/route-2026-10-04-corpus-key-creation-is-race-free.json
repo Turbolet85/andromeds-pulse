@@ -1,0 +1,133 @@
+[
+{
+"tool": "route",
+"v": "1.5",
+"sha8": "9fc8708e",
+"ts": "2026-10-04T09:33:07Z",
+"argv": [
+"route.py",
+"flip",
+"--root",
+".",
+"--chunk",
+"2026-10-04-corpus-key-creation-is-race-free",
+"--run-dir",
+".andromeda/runs/2026-10-04T09-16-41Z-wrap"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"flip master-route.md:90 - 2026-10-04-corpus-key-creation-is-race-free pending -> complete"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/master-route.md"
+],
+"before": null,
+"after": null
+},
+{
+"tool": "route",
+"v": "1.5",
+"sha8": "9fc8708e",
+"ts": "2026-10-04T09:33:07Z",
+"argv": [
+"route.py",
+"compact",
+"--root",
+".",
+"--chunk",
+"2026-10-04-corpus-key-creation-is-race-free",
+"--date",
+"2026-10-04",
+"--run-dir",
+".andromeda/runs/2026-10-04T09-16-41Z-wrap",
+"--dry-run"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"pin :154 strip CONTEXT: 657ch \"CONTEXT: `OsKeychainBackend::fetch_from_\"",
+"pin next markerless :156 holds CONTEXT:×1 · WATCH:×1",
+"154 · 2026-10-04-corpus-key-creation-is-race-free · strip 1 block(s) · archive APPEND",
+"6 complete line(s) carry text the grammar cannot take -- left in place: L52, L54, L60, L100, L116, L125",
+"dry-run - would archive 1 and compact 1 line(s)"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"targets": [
+{
+"n": 154,
+"marker": "2026-10-04-corpus-key-creation-is-race-free",
+"blocks": 1,
+"archived": false
+}
+],
+"skips": [],
+"kept_notes": [
+52,
+54,
+60,
+100,
+116,
+125
+]
+}
+},
+{
+"tool": "route",
+"v": "1.5",
+"sha8": "9fc8708e",
+"ts": "2026-10-04T09:33:11Z",
+"argv": [
+"route.py",
+"compact",
+"--root",
+".",
+"--chunk",
+"2026-10-04-corpus-key-creation-is-race-free",
+"--date",
+"2026-10-04",
+"--run-dir",
+".andromeda/runs/2026-10-04T09-16-41Z-wrap"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"pin :154 strip CONTEXT: 657ch \"CONTEXT: `OsKeychainBackend::fetch_from_\"",
+"pin next markerless :156 holds CONTEXT:×1 · WATCH:×1",
+"154 · 2026-10-04-corpus-key-creation-is-race-free · strip 1 block(s) · archive APPEND",
+"6 complete line(s) carry text the grammar cannot take -- left in place: L52, L54, L60, L100, L116, L125",
+"compacted 1 complete line(s) -> route-archive.md (1 archived, 0 already there)"
+],
+"stderr": null,
+"wrote": [
+"./andromeda-pulse-0.3.0/route-archive.md",
+"./andromeda-pulse-0.3.0/working-route.md"
+],
+"before": null,
+"after": null,
+"extra": {
+"targets": [
+{
+"n": 154,
+"marker": "2026-10-04-corpus-key-creation-is-race-free",
+"blocks": 1,
+"archived": false
+}
+],
+"skips": [],
+"kept_notes": [
+52,
+54,
+60,
+100,
+116,
+125
+]
+}
+}
+]
