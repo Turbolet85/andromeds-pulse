@@ -651,3 +651,17 @@ The entry also carries both rejected alternatives, the deferred `AttentionCue` t
 **Change:** registers `ANDROMEDA_PULSE_HARDWARE_PROFILE`, product-consumed by `crates/interpretation/src/hardware.rs` (`ENV_HARDWARE_PROFILE_OVERRIDE`), read once per `HardwareProfileDetector::new()`: trim + lowercase, then a closed match over `gpu_primary` · `gpu_fallback` · `cpu_primary` · `cpu_fallback` (snake or kebab); any other value → one WARN on `interpretation.hardware.detect` and real detection; not a path, never logged by value; the only route to `GpuFallback`. The bullet also states real detection's Linux arm: `libcuda.so` or `libcuda.so.1` under `/usr/lib/x86_64-linux-gnu`, `/usr/local/cuda/lib64`, `/usr/lib` or `/usr/lib64` (was the first two dirs and `libcuda.so` only), a fixed-path presence check.
 **Why:** registry completeness — a product-consumed input absent from the list since chunk #82; the var is unchanged. Applied on the plan's recorded expected amendment, the env-var registration rule not governing (its precondition, a var the chunk added, is false).
 **Ref:** .andromeda/runs/2026-10-04T17-56-08Z-wrap/
+
+## 2026-10-04-l4-interpretation-names-its-triggering-cue — Fault Identity: the model layer is framed at prompt composition
+**Section:** §Established Decisions → [Fault Identity — what makes two faults ONE fault]
+**Change:** The clause "the model-authored symptom, timeline and ranked hypotheses are untouched (a prompt-side remedy for the model layer is its own route entry)" was retired, as was that remedy's deferral in the `Kept` of "2026-10-04-retry-storm-interpretation-names-its-cause — Fault Identity: the cue kind reaches the incident text, never its identity". The body now says:
+- The producer still leaves those fields as the model wrote them.
+- The model layer is framed at prompt composition. `triage::digest::render_payload` renders a `TRIGGER: {cue_cause_label(kind)}` line, keyed on `cues.first()` (the cue the identity is taken from), directly after `OVERALL:`, and none without a cue.
+- When corpus matches exist, a static note under the unchanged `CORPUS MATCHES:` header frames them as other or past incidents, context only.
+- `interpretation::prompt::TRIGGER_FRAMING_INSTRUCTION` (ASCII) sits after `CITING_INSTRUCTION` in all three tiers' Output Instructions. It says the title, symptom and first hypothesis describe the TRIGGER signal, never a corpus match.
+- Prompt lineage is v2.4 / v1.3-fallback / v1.3-reflection.
+- This is framing, not identity: the tuple, the coalesce predicate and the title grounding are unchanged.
+- Its effect on the rank-1 hypothesis is UNMEASURED. The pre-registered series (`l4_decision_probe --min-rank1 36`: rank-1 names the retry in ≥ 36/40, `nf` recorded) is gated on a Linux llama.cpp CUDA binary.
+**Why:** This chunk is the route entry the clause deferred to. The framing lives in shared composition, never in a runner impl. Applied on the plan's recorded expected amendment, with the scope ruled by the overseer (founder-delegated, 2026-10-04): the TRIGGER line carries the kind label only, never `scope_id`.
+**Kept:** No `triggering_cue` builder parameter (~50 call sites). The dead `# Corpus Retrieval` prompt sites are untouched, because production passes `""` there.
+**Ref:** .andromeda/runs/2026-10-04T21-03-56Z-wrap/
