@@ -228,16 +228,15 @@ pub fn on_window_event<R: tauri::Runtime>(
                 }
                 if let Some((w, h)) =
                     clamp_to_aspect_bounds((w0, h0), WIDGET_MIN_ASPECT, WIDGET_MAX_ASPECT)
+                    && let Err(e) = window.set_size(PhysicalSize::new(w, h))
                 {
-                    if let Err(e) = window.set_size(PhysicalSize::new(w, h)) {
-                        warn!(
-                            target: "app.boot.window.show",
-                            label = COMPACT_WIDGET_LABEL,
-                            error_kind = "set_size_failed",
-                            error_msg = %e,
-                            "failed to clamp compact-widget aspect ratio",
-                        );
-                    }
+                    warn!(
+                        target: "app.boot.window.show",
+                        label = COMPACT_WIDGET_LABEL,
+                        error_kind = "set_size_failed",
+                        error_msg = %e,
+                        "failed to clamp compact-widget aspect ratio",
+                    );
                 }
             });
         }

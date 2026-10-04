@@ -63,14 +63,14 @@ pub async fn run_smoke(bundle: &Path, format: BundleFormat) -> Result<ExitCode> 
         bail!("bundle artifact not found: {}", bundle.display());
     }
 
-    if let Some(detected) = BundleFormat::from_path(bundle) {
-        if detected != format {
-            bail!(
-                "bundle path extension implies format {:?} but --format {:?} was passed; verify --bundle and --format are consistent",
-                detected,
-                format,
-            );
-        }
+    if let Some(detected) = BundleFormat::from_path(bundle)
+        && detected != format
+    {
+        bail!(
+            "bundle path extension implies format {:?} but --format {:?} was passed; verify --bundle and --format are consistent",
+            detected,
+            format,
+        );
     }
 
     if !format.matches_host() {

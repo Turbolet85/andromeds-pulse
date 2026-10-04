@@ -2449,20 +2449,20 @@ impl AllowList {
         if let Some(set) = self.by_target.get(target) {
             return Some(set);
         }
-        if let Some(stripped) = target.strip_suffix(".tick") {
-            if let Some(set) = self.by_target.get(stripped) {
-                return Some(set);
-            }
+        if let Some(stripped) = target.strip_suffix(".tick")
+            && let Some(set) = self.by_target.get(stripped)
+        {
+            return Some(set);
         }
-        if let Some(prefix) = target.split('.').next() {
-            if let Some(set) = self.by_target.get(prefix) {
-                return Some(set);
-            }
+        if let Some(prefix) = target.split('.').next()
+            && let Some(set) = self.by_target.get(prefix)
+        {
+            return Some(set);
         }
-        if let Some(prefix) = target.split("::").next() {
-            if let Some(set) = self.by_target.get(prefix) {
-                return Some(set);
-            }
+        if let Some(prefix) = target.split("::").next()
+            && let Some(set) = self.by_target.get(prefix)
+        {
+            return Some(set);
         }
         None
     }

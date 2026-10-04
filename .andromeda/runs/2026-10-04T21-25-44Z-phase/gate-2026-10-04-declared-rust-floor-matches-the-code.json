@@ -1,0 +1,66 @@
+[
+{
+"tool": "gate",
+"v": "1.8",
+"sha8": "af374e71",
+"ts": "2026-10-04T21:38:03Z",
+"argv": [
+"scope",
+"--lists-only",
+"--research",
+"andromeda-pulse-0.3.0/chunks/2026-10-04-declared-rust-floor-matches-the-code/research.md",
+"--run-dir",
+".andromeda/runs/2026-10-04T21-25-44Z-phase",
+"--marker",
+"2026-10-04-declared-rust-floor-matches-the-code"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"control: lists · glob · record — each fired on its synthetic known positive",
+"UNPARSED: research.md:61 — not an item (§Scope) · Sweep records (no-change dispositions):",
+"UNPARSED: research.md:62 — not an item (§Scope) · - `1\\.85` over `--include=*.rs --include=*.toml` in crates/ pulse-app…",
+"UNPARSED: research.md:63 — not an item (§Scope) · - `CARGO_PKG_RUST_VERSION`: 1 hit · 0 changed (health.rs:360 picks th…",
+"UNPARSED: research.md:64 — not an item (§Scope) · - `skip\\]` skip arms over crates/ pulse-app/: 5 files · 1 changed (ke…",
+"scope lists: UNPARSED 4 · parsed 16 items (new 1 · modify 15 · derived 0)"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"items": 16,
+"unparsed": 4
+}
+},
+{
+"tool": "gate",
+"v": "1.8",
+"sha8": "af374e71",
+"ts": "2026-10-04T21:38:08Z",
+"argv": [
+"scope",
+"--lists-only",
+"--research",
+"andromeda-pulse-0.3.0/chunks/2026-10-04-declared-rust-floor-matches-the-code/research.md",
+"--run-dir",
+".andromeda/runs/2026-10-04T21-25-44Z-phase",
+"--marker",
+"2026-10-04-declared-rust-floor-matches-the-code"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"control: lists · glob · record — each fired on its synthetic known positive",
+"scope lists: parsed 16 items (new 1 · modify 15 · derived 0)"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"items": 16,
+"unparsed": 0
+}
+}
+]

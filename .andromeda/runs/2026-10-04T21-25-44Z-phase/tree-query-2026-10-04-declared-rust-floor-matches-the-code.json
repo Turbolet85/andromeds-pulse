@@ -1,0 +1,53 @@
+[
+{
+"sql": "SELECT caller, file, line FROM calls WHERE callee_name = 'fetch_with_lock_dir' AND callee_kind = 'fn' ORDER BY file, line",
+"rows": 2,
+"result": [
+{
+"caller": "rust-analyzer cargo corpus 0.1.0 keychain/impl#[OsKeychainBackend]fetch_from_os_store().",
+"file": "crates/corpus/src/keychain.rs",
+"line": 262
+},
+{
+"caller": "rust-analyzer cargo corpus 0.1.0 keychain/tests/corpus_key_race_free_fetch_fails_closed_when_lock_dir_unusable().",
+"file": "crates/corpus/src/keychain.rs",
+"line": 748
+}
+],
+"db_state": "regenerated",
+"plane": "rust"
+},
+{
+"sql": "SELECT caller_name, file, line FROM calls WHERE callee_name = 'rust_channel' AND callee_kind = 'fn' ORDER BY file, line",
+"rows": 5,
+"result": [
+{
+"caller_name": "drive",
+"file": "xtask/src/pre_push.rs",
+"line": 152
+},
+{
+"caller_name": "rust_channel_reads_the_toolchain_table",
+"file": "xtask/src/pre_push.rs",
+"line": 654
+},
+{
+"caller_name": "rust_channel_reads_the_toolchain_table",
+"file": "xtask/src/pre_push.rs",
+"line": 656
+},
+{
+"caller_name": "rust_channel_reads_the_toolchain_table",
+"file": "xtask/src/pre_push.rs",
+"line": 659
+},
+{
+"caller_name": "rust_channel_reads_the_toolchain_table",
+"file": "xtask/src/pre_push.rs",
+"line": 661
+}
+],
+"db_state": "fresh",
+"plane": "rust"
+}
+]

@@ -145,19 +145,19 @@ async fn mcp_query_traces_stderr_does_not_leak_response_body_verbatim() {
     // `text` field (rmcp tool-result frame), assert that specific field's
     // value substring is NOT in stderr. Empty-items result is ~"[]" string;
     // exercise the assertion for whatever shape rmcp emits.
-    if let Some(result) = parsed.get("result") {
-        if let Some(content) = result.get("content") {
-            let content_serialized = serde_json::to_string(content).expect("serialize content");
-            // For empty content this may be "[]" which trivially appears in
-            // most stderr — skip the assertion if content is empty array.
-            if content_serialized != "[]" && content_serialized.len() > 4 {
-                assert!(
-                    !stderr.contains(&content_serialized),
-                    "stderr tracing leaked verbatim MCP result.content per Vector 4. \
+    if let Some(result) = parsed.get("result")
+        && let Some(content) = result.get("content")
+    {
+        let content_serialized = serde_json::to_string(content).expect("serialize content");
+        // For empty content this may be "[]" which trivially appears in
+        // most stderr — skip the assertion if content is empty array.
+        if content_serialized != "[]" && content_serialized.len() > 4 {
+            assert!(
+                !stderr.contains(&content_serialized),
+                "stderr tracing leaked verbatim MCP result.content per Vector 4. \
                      content: {content_serialized}\n stderr (truncated): {}",
-                    stderr.chars().take(2000).collect::<String>()
-                );
-            }
+                stderr.chars().take(2000).collect::<String>()
+            );
         }
     }
 }

@@ -19,6 +19,8 @@ mod npm_gate;
 mod perf_budget;
 mod perf_frame;
 mod pre_push;
+#[cfg(test)]
+mod rust_floor;
 mod self_verify;
 mod smoke;
 mod source_lint;
@@ -1444,18 +1446,17 @@ async fn capability_widening_check() -> Result<ExitCode> {
         }
 
         // Check windows array IF require_empty_windows.
-        if *require_empty_windows {
-            if let Some(windows) = json.get("windows").and_then(|v| v.as_array()) {
-                if !windows.is_empty() {
-                    let window_names: Vec<String> = windows
-                        .iter()
-                        .filter_map(|w| w.as_str().map(|s| s.to_string()))
-                        .collect();
-                    violations.push(format!(
+        if *require_empty_windows
+            && let Some(windows) = json.get("windows").and_then(|v| v.as_array())
+            && !windows.is_empty()
+        {
+            let window_names: Vec<String> = windows
+                .iter()
+                .filter_map(|w| w.as_str().map(|s| s.to_string()))
+                .collect();
+            violations.push(format!(
                         "pulse:{cap_name} `windows` array MUST be empty (backend-only; no webview exposure per {cap_name}.json description); found {window_names:?}"
                     ));
-                }
-            }
         }
     }
 

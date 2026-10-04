@@ -97,3 +97,6 @@
   - Windows `.ico` vs palette PNG;
   - the deferral-destination generalization;
   - `inject_demo --sustained` cannot form an incident.
+
+## Session End Status
+Completed normally at 2026-10-04 23:49:20

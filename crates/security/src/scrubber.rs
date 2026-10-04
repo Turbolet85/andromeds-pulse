@@ -259,7 +259,7 @@ fn luhn_valid(digits: &[u8]) -> bool {
             }
         })
         .sum();
-    sum % 10 == 0
+    sum.is_multiple_of(10)
 }
 
 /// Lazy-init pattern catalog. Compiled regexes cached for process lifetime.

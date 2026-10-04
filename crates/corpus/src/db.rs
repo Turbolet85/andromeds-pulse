@@ -18,10 +18,10 @@ use crate::schema::{TABLE_NAMES, apply_migrations};
 /// migrations. Caller is responsible for path canonicalization via
 /// `strict-path`; this fn assumes `path` is already resolved.
 pub(crate) fn open_at_path(path: &Path) -> Result<Connection, Error> {
-    if let Some(parent) = path.parent() {
-        if !parent.exists() {
-            fs::create_dir_all(parent)?;
-        }
+    if let Some(parent) = path.parent()
+        && !parent.exists()
+    {
+        fs::create_dir_all(parent)?;
     }
     let conn = Connection::open(path).map_err(|_| Error::QueryFailed)?;
     apply_migrations(&conn)?;

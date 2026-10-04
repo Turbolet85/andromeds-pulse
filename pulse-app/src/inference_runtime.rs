@@ -127,10 +127,10 @@ fn build_project_context(digest: &Digest) -> String {
 fn citable_evidence_ids(digest: &Digest) -> Vec<String> {
     let mut ids: Vec<String> = Vec::new();
     for cue in &digest.attention_cues {
-        if let Some(fp) = &cue.fingerprint {
-            if !ids.iter().any(|existing| existing == fp) {
-                ids.push(fp.clone());
-            }
+        if let Some(fp) = &cue.fingerprint
+            && !ids.iter().any(|existing| existing == fp)
+        {
+            ids.push(fp.clone());
         }
     }
     ids
@@ -661,10 +661,10 @@ pub fn attach_resolution_summary_to_incident(
 /// triggering cue's real full-hex fingerprint (when the cue carried one).
 fn grounded_fingerprint_hashes(parsed_refs: &[String], cue_fp: Option<&str>) -> Vec<String> {
     let mut out = parsed_refs.to_vec();
-    if let Some(fp) = cue_fp {
-        if !out.iter().any(|r| r == fp) {
-            out.push(fp.to_string());
-        }
+    if let Some(fp) = cue_fp
+        && !out.iter().any(|r| r == fp)
+    {
+        out.push(fp.to_string());
     }
     out
 }
@@ -866,14 +866,14 @@ pub fn create_incident_from_l4_output(
             if let Some(json) = scrubbed_l4_json(&grounded) {
                 let _ = registry.attach_interpretation_summary(existing.id, json, now_unix_nano);
             }
-            if let Some(updated) = registry.get(existing.id) {
-                if let Err(err) = persistence.update_incident_status(existing.id, &updated) {
-                    tracing::warn!(
-                        target: TARGET_L4_INCIDENT_PERSIST_ERROR,
-                        error_category = err.error_category(),
-                        "incident reemission persist failed",
-                    );
-                }
+            if let Some(updated) = registry.get(existing.id)
+                && let Err(err) = persistence.update_incident_status(existing.id, &updated)
+            {
+                tracing::warn!(
+                    target: TARGET_L4_INCIDENT_PERSIST_ERROR,
+                    error_category = err.error_category(),
+                    "incident reemission persist failed",
+                );
             }
         }
         emit_incident_outcome(false, true, severity, priority_tier);

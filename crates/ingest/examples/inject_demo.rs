@@ -392,7 +392,7 @@ async fn main() {
         {
             Ok(_) => {
                 consecutive_failures = 0;
-                if b % 10 == 0 {
+                if b.is_multiple_of(10) {
                     let phase = if in_spike { "STORM" } else { "warmup" };
                     println!(
                         "  [{phase}] batch {:>3}/{}  ({total} spans, {exc} exceptions)",

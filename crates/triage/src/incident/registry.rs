@@ -248,12 +248,12 @@ impl IncidentRegistry for InMemoryIncidentRegistry {
             return Err(IncidentRegistryError::InvalidTransition);
         }
         let key = (entry.kind, entry.scope, entry.workspace.clone());
-        if let Some(expiry) = self.cooldowns.get(&key) {
-            if *expiry > now_unix_nano {
-                let remaining_nanos = *expiry - now_unix_nano;
-                let remaining_secs = (remaining_nanos / 1_000_000_000) as u64;
-                return Err(IncidentRegistryError::CooldownActive { remaining_secs });
-            }
+        if let Some(expiry) = self.cooldowns.get(&key)
+            && *expiry > now_unix_nano
+        {
+            let remaining_nanos = *expiry - now_unix_nano;
+            let remaining_secs = (remaining_nanos / 1_000_000_000) as u64;
+            return Err(IncidentRegistryError::CooldownActive { remaining_secs });
         }
         entry.status = IncidentStatus::Acknowledged;
         entry.acknowledged_at_unix_nano = Some(now_unix_nano);

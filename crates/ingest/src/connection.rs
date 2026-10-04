@@ -550,13 +550,13 @@ mod tests {
         );
         // Line:col heuristic — no ascii digit immediately after ':'.
         for (idx, ch) in msg.char_indices() {
-            if ch == ':' {
-                if let Some(next) = msg[idx + 1..].chars().next() {
-                    assert!(
-                        !next.is_ascii_digit(),
-                        "stalled message contains line:column pattern at idx={idx}: {msg}"
-                    );
-                }
+            if ch == ':'
+                && let Some(next) = msg[idx + 1..].chars().next()
+            {
+                assert!(
+                    !next.is_ascii_digit(),
+                    "stalled message contains line:column pattern at idx={idx}: {msg}"
+                );
             }
         }
     }

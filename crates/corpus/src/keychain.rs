@@ -263,9 +263,6 @@ impl OsKeychainBackend {
         self.fetch_with_lock_dir(service_id, default_lock_dir())
     }
 
-    // `File::lock` is stable since 1.89. The build is pinned to 1.95.0 by
-    // rust-toolchain.toml; the workspace `rust-version` (1.85) trails the pin.
-    #[allow(clippy::incompatible_msrv)]
     fn fetch_with_lock_dir(
         &self,
         service_id: &str,
@@ -530,6 +527,11 @@ mod tests {
         let backend = OsKeychainBackend::new(&service);
 
         let Ok(parent_key) = backend.fetch_or_create_key("corpus-key") else {
+            // The lock was taken before the store call failed; remove the
+            // test-scoped lock file so a store-less host keeps no residue.
+            if let Ok(dir) = default_lock_dir() {
+                let _ = std::fs::remove_file(dir.join(lock_file_name(&service, "corpus-key")));
+            }
             eprintln!("[skip] no OS credential store on this host; cross-process leg not run");
             return;
         };
@@ -566,6 +568,52 @@ mod tests {
             "a key minted by one process must be readable by a later, separate process"
         );
         cleanup.expect("test-scoped credential entry removed");
+    }
+
+    /// The skip arm above takes the lock before the store call fails, so it
+    /// must remove the lock file itself. The child runs with a cleared
+    /// environment and `XDG_RUNTIME_DIR` set to a fresh dir: no session bus is
+    /// reachable, the skip arm runs, and its lock file would land in that dir.
+    #[cfg(target_os = "linux")]
+    #[test]
+    fn corpus_key_skip_arm_leaves_no_lock_file() {
+        let lock_dir = TempDir::new().expect("tmp");
+        let output =
+            std::process::Command::new(std::env::current_exe().expect("current test binary"))
+                .args([
+                    "--exact",
+                    "keychain::tests::corpus_key_survives_a_real_process_boundary",
+                    "--nocapture",
+                ])
+                .env_clear()
+                .env("XDG_RUNTIME_DIR", lock_dir.path())
+                .output()
+                .expect("child process spawns");
+        let child_output = format!(
+            "{}{}",
+            String::from_utf8_lossy(&output.stdout),
+            String::from_utf8_lossy(&output.stderr)
+        );
+        let lock_files = std::fs::read_dir(lock_dir.path())
+            .expect("lock dir lists")
+            .filter_map(Result::ok)
+            .filter(|entry| {
+                let name = entry.file_name();
+                let name = name.to_string_lossy();
+                name.starts_with(LOCK_FILE_PREFIX) && name.ends_with(LOCK_FILE_SUFFIX)
+            })
+            .count();
+
+        assert_eq!(
+            (
+                child_output.contains(
+                    "[skip] no OS credential store on this host; cross-process leg not run"
+                ),
+                lock_files
+            ),
+            (true, 0),
+            "(the child reached the skip arm, lock files left in its lock dir)"
+        );
     }
 
     const RACE_CHILDREN: usize = 8;
