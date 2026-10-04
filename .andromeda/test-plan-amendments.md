@@ -553,3 +553,9 @@ The load suite found and fixed in-chunk 3 pipeline defects: retention-sweep conn
 - Process-end witness form: was "`cfg(unix)` arms … unrunnable on the Windows dev host, run by `cargo xtask pre-push:linux` and CI lint-test Linux/macOS" (per the 2026-10-01-conductor-return entry, whose other claims stand); now they run natively in `cargo nextest run --workspace` on the Linux dev host (2575 = 2573 + the two arms) and in CI lint-test Linux/macOS, unrunnable only on a Windows host.
 **Why:** the founder moved the dev host to Linux (2026-10-03); the two places that named Windows as the dev host and `pre-push:linux` as its Linux runner no longer described where the gates run.
 **Ref:** .andromeda/runs/2026-10-03T23-46-09Z-wrap/
+
+## 2026-10-04-supply-chain-advisories-on-wasmtime-resolved — §5 plugins row resolves wasmtime 48.0.5
+**Section:** §5 Integration Test Strategy → plugins → runtime row
+**Change:** Was `wasmtime` 48.x lockfile-resolved 48.0.3 as of 2026-09-29 (per the 2026-09-29-p-025-hue-shift-observable-made-gradable — webview runner vitest 4; wasmtime row 48.x entry, whose vitest claim stands); now 48.x lockfile-resolved 48.0.5 as of 2026-10-04. The 48.x family statement and the arch floor 25+ are unchanged.
+**Why:** the chunk moved wasmtime off 48.0.3 to close RUSTSEC-2026-0325 / -0326 / -0327; the plugins tests pass 61/61 on 48.0.5 with no source change.
+**Ref:** .andromeda/runs/2026-10-04T02-20-23Z-wrap/

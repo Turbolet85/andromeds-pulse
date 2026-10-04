@@ -1,0 +1,122 @@
+[
+{
+"tool": "cascade",
+"v": "1.1",
+"sha8": "1550f3bc",
+"ts": "2026-10-04T02:25:28Z",
+"argv": [
+"sweep",
+"--patterns-file",
+".andromeda/runs/2026-10-04T02-20-23Z-wrap/cascade-patterns.toml",
+"--run-dir",
+".andromeda/runs/2026-10-04T02-20-23Z-wrap",
+"--marker",
+"2026-10-04-supply-chain-advisories-on-wasmtime-resolved"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"baseline 5988a5f8 (pre-CI parent — the oldest of 1 pre-CI commit(s), 1e8dae1a)",
+"wt-4803 · new 1 · standing 1 · leaf 2 · curation 0 · base 0 · control architecture.md:22 (prose)",
+"cl-01353 · 0 rows (control fired) — a statement about this pattern, not the masters · control architecture.md:22 (prose)",
+"wt-4901-r196 · 0 rows (control fired) — a statement about this pattern, not the masters · control architecture.md:22 (p…",
+"resolved · new 0 · standing 12 · leaf 4 · curation 0 · base 0 · control architecture.md:20 (prose)",
+"wt-sweep · new 0 · standing 11 · leaf 8 · curation 6 · base 0 · control architecture.md:22 (prose)",
+".andromeda/architecture.md:22 wt-4803 new …ck:1393`); the bump from 48.0.3 closed RUSTSEC-2026-0325 / -0326 / -0327 wit…",
+".andromeda/security-plan.md:219 wt-4803 standing …26-0185) and wasmtime 48.0.3 (RUSTSEC-2026-0316) bumps, as measured a…",
+"CLAUDE.md:9 wt-4803 leaf ×2 …Model plugins (requirement `\"48.0.3\"`, resolved 48.0.3 — chunk 2026-09-29-p-025-hue-shift-…",
+".claude/rules/security.md:79 wt-4803 leaf …proto 0.11.15 / wasmtime 48.0.3 bumps (RUSTSEC-2026-0285 / -0185 / -0316), s…",
+".andromeda/architecture.md:20 resolved standing …0` (caret, untouched), lockfile-resolved **1.10505.0** as of 2026-08-2…",
+".andromeda/architecture.md:22 resolved standing edited …irement `\"48.0.4\"`, lockfile-resolved **48.0.5** as of 2026-10-…",
+".andromeda/architecture.md:25 resolved standing …y — requirement `\"3\"`, lockfile-resolved 3.1.4 as of 2026-08-29 | 9 na…",
+".andromeda/architecture.md:49 resolved standing …(caret) in Cargo.toml, lockfile-resolved 1.10505.0 as of 2026-08-28 (D…",
+".andromeda/architecture.md:52 resolved standing edited …irement `\"48.0.4\"`, lockfile-resolved 48.0.5 as of 2026-10-04) …",
+".andromeda/architecture.md:55 resolved standing …cy (requirement `\"3\"`, lockfile-resolved 3.1.4 as of 2026-08-29)**: th…",
+".andromeda/architecture.md:355 resolved standing …nt `1.10500` (caret), lockfile-resolved 1.10505.0 as of 2026-08-28 — …",
+".andromeda/architecture.md:361 resolved standing …at requirement `\"3\"`, lockfile-resolved 3.1.4 as of 2026-08-29 (the o…",
+".andromeda/architecture.md:362 resolved standing edited …irement `\"48.0.4\"`, lockfile-resolved 48.0.5 as of 2026-10-04)…",
+".andromeda/security-plan.md:140 resolved standing … `rmcp` pinned `\"3\"` (lockfile-resolved 3.1.4) — the former 0.3.x-pe…",
+".andromeda/security-plan.md:210 resolved standing …-backlog` (pinned `\"3\"`, lockfile-resolved 3.1.4, the current major).",
+".andromeda/test-plan.md:413 resolved standing edited …t | `wasmtime` 48.x (lockfile-resolved 48.0.5 as of 2026-10-04; a…",
+"CLAUDE.md:9 resolved leaf …gins (requirement `\"48.0.3\"`, resolved 48.0.3 — chunk 2026-09-29-p-025-hue-shift-observable-…",
+".claude/docs/gotchas.md:11 resolved leaf … pins requirement `\"3\"` (lockfile-resolved 3.1.4, chunk 2026-08-29-advisory-b…",
+".claude/docs/services/mcp-server.md:20 resolved leaf … (requirement `\"3\"`, lockfile-resolved 3.1.4 as of 2026-08-29; so…",
+".claude/docs/stack.md:36 resolved leaf …rement `1.10500` (caret), lockfile-resolved 1.10505.0 as of 2026-08-28 — embedd…",
+".andromeda/architecture.md:22 wt-sweep standing edited | Plugin runtime | `wasmtime` 25+ family with WASM Component Mod…",
+".andromeda/architecture.md:52 wt-sweep standing edited …omponent Model via `wasmtime` 25+ (requirement `\"48.0.4\"`, lock…",
+".andromeda/architecture.md:362 wt-sweep standing edited - Plugin runtime: `wasmtime` 25+ Component Model with WIT inter…",
+".andromeda/security-plan.md:64 wt-sweep standing …` filesystem load by `wasmtime` 25+ via `plugins` crate; `plugins.inv…",
+".andromeda/security-plan.md:133 wt-sweep standing …and at chunk #46+) | `wasmtime` 25+ `Config` builder; `std` both-sid…",
+".andromeda/security-plan.md:197 wt-sweep standing …on x86_64 targets. | `wasmtime` 25+ `Config` builder; `ResourceLimit…",
+".andromeda/security-plan.md:219 wt-sweep standing …USTSEC-2026-0185) and wasmtime 48.0.3 (RUSTSEC-2026-0316) bumps, as …",
+".andromeda/security-plan.md:400 wt-sweep standing … would re-introduce the exposure per security-research §wasmtime 25+.",
+".andromeda/test-plan.md:37 wt-sweep standing … | Architecture Stack → wasmtime 25+ with WASM Component Model, Workspace…",
+".andromeda/test-plan.md:77 wt-sweep standing … | Architecture Stack: \"wasmtime 25+ with WASM Component Model + WIT — pl…",
+".andromeda/test-plan.md:413 wt-sweep standing edited …authorized import | `wasmtime` 48.x (lockfile-resolved 48.0.5 as …",
+".claude/docs/session-learnings.md:1198 wt-sweep curation …itive dep closures (wasmtime 43.0.2 + duckdb 1.10502.0 + taur…",
+".claude/docs/session-learnings.md:1375 wt-sweep curation ## 2026-05-12 — wasmtime 43 ResourceLimiter trait surface + cl…",
+".claude/docs/session-learnings.md:1377 wt-sweep curation …ion pinned down the wasmtime 43 `ResourceLimiter` trait surfa…",
+".claude/docs/session-learnings.md:1479 wt-sweep curation …version N+\" (e.g., `wasmtime 25+` per route#45 spec), interpr…",
+".claude/docs/session-learnings.md:1481 wt-sweep curation …5:** the spec said \"wasmtime 25+\". Initial pin at workspace d…",
+".claude/docs/session-learnings.md:1492 wt-sweep curation …(Component Model in wasmtime 25+, async-component-model in wa…",
+"CLAUDE.md:9 wt-sweep leaf …GPU/WGSL webview via TauRPC, `wasmtime` 25+ Component Model plugins (requirement `\"48.0.3\"`,…",
+"CLAUDE.md:29 wt-sweep leaf - **`plugins`** — `wasmtime` 25+ Component Model host with WIT capability-scoping; loader fr…",
+".claude/rules/security.md:79 wt-sweep leaf …/ quinn-proto 0.11.15 / wasmtime 48.0.3 bumps (RUSTSEC-2026-0285 / -0185 / …",
+".claude/docs/security-summary.md:21 wt-sweep leaf …` filesystem load by `wasmtime` 25+. Capability-scoped sandboxing; g…",
+".claude/docs/services/plugins.md:4 wt-sweep leaf …l plugin runtime via `wasmtime` 25+. Capability-scoped sandboxing per…",
+".claude/docs/services/plugins.md:18 wt-sweep leaf - `wasmtime` 25+ with `component-model` feature (Cranelift backend on…",
+".claude/docs/services/plugins.md:70 wt-sweep leaf …hitecture.md` §Stack (wasmtime 25+ Component Model) + §Conventions (…",
+".claude/docs/stack.md:16 wt-sweep leaf - **Plugin runtime:** `wasmtime` 25+ with WASM Component Model + WIT — capabilit…",
+"wt-4803 · new 1 · standing 1 · leaf 2 · curation 0 · base 0 · control architecture.md:22 (prose)",
+"cl-01353 · 0 rows (control fired) — a statement about this pattern, not the masters · control architecture.md:22 (prose)",
+"wt-4901-r196 · 0 rows (control fired) — a statement about this pattern, not the masters · control architecture.md:22 (p…",
+"resolved · new 0 · standing 12 · leaf 4 · curation 0 · base 0 · control architecture.md:20 (prose)",
+"wt-sweep · new 0 · standing 11 · leaf 8 · curation 6 · base 0 · control architecture.md:22 (prose)"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"baseline": "5988a5f80b7280081fdeb12d9eca16bfa32f4de9",
+"how": "pre-CI parent — the oldest of 1 pre-CI commit(s), 1e8dae1a",
+"counts": {
+"wt-4803": {
+"new": 1,
+"standing": 1,
+"leaf": 2,
+"curation": 0,
+"base": 0
+},
+"cl-01353": {
+"new": 0,
+"standing": 0,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"wt-4901-r196": {
+"new": 0,
+"standing": 0,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"resolved": {
+"new": 0,
+"standing": 12,
+"leaf": 4,
+"curation": 0,
+"base": 0
+},
+"wt-sweep": {
+"new": 0,
+"standing": 11,
+"leaf": 8,
+"curation": 6,
+"base": 0
+}
+}
+}
+}
+]

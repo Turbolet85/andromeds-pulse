@@ -21,6 +21,24 @@ of 2026-10-04 (plan §Test Commands; `pre-push:linux` drives `wsl.exe` and canno
 | 33 | `ci.py conclusion --sha HEAD --wait 2400` | see §CI below |
 | 34 | `gh api …/actions/cache/usage` | see §CI below |
 
+## CI
+- Entry 32: pre-CI commit `1e8dae1ac7869b1bdb014c6fcfcefca95fb95e51`
+  (`chore(2026-10-04-supply-chain-advisories-on-wasmtime-resolved): operator pre-CI commit, for the run this chunk's
+  verdict reads`; source delta `Cargo.toml` + `Cargo.lock` only), after `hygiene: clean`, the bindings regen (below)
+  and `cargo xtask check:staged-artifacts` staged-clean / `capability-drift` clean (0 missing, 0 extra). Pushed with
+  the plan's clean-tree guard: `5988a5f..1e8dae1  chore/migrate-pulse-to-v3`, exit 0.
+- Entry 33: `ci.py conclusion --sha HEAD --wait 2400` -> exit 0, `1e8dae1ac786 verdict: green · checks 13/13 · wall
+  1774 s`; runs `ci#37169166370` (pull_request, completed/success) and `secret-scan#37169166205` (pull_request,
+  completed/success). Polled 59 times over 1796 s.
+- The `supply-chain (audit + deny + auditable)` job (id 111338405723) concluded `success` with every step run and
+  `success`: cargo audit (RustSec advisory DB) · cargo deny check bans licenses sources · the Cranelift-only WASM
+  backend assertion · `cargo xtask check:npm-supply-chain` · npm ci · npm run build · install cargo-auditable ·
+  `cargo auditable build` smoke (workspace release). This is the job that was red at the `rustsec/audit-check` step
+  on `5988a5f` (job 111328669434), where nothing after that step ran.
+- Entry 34 (report-only): `gh api …/actions/cache/usage` -> `active_caches_size_in_bytes` 11 817 727 981,
+  `active_caches_count` 7. Read after the CI run; recorded beside the last recorded headroom (1.23 percent) without a
+  headroom computation of its own (the cap figure behind that percentage is not re-read here).
+
 ## Hygiene rows
 - Rewritten by the letter (uncited; host paths replaced by placeholders, line counts and terminators unchanged,
   replacement counts equal to the hit counts): `p5-dryrun.txt` ×3 and `p5-dryrun-2.txt` ×3 (`~/.claude/` for the home

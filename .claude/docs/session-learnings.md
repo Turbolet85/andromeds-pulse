@@ -1,6 +1,15 @@
 # Session Learnings
 
 
+## 2026-10-04 — `grep` on the Linux dev host is ugrep, and a bounded-context pattern dies silently
+
+On the Omarchy Linux dev host `grep` resolves to ugrep. A context-extracting pattern such as
+`grep -oE '.{0,220}TOKEN.{0,260}'` over UTF-8 text fails with `exceeds complexity limits` (exit 2, no match line), so
+a sweep that reads its hits from such a probe sees nothing and can read that as "no other site". Read the context of
+a hit with a short python extractor (or `grep -n` the line, then an offset-bounded Read) instead.
+
+---
+
 ## 2026-10-02 — A numeric count grep over the specs matches every `Ed25519`
 
 Before claiming "no doc states the test count", a bare grep for the count (`grep -rn '2551'`) over the masters and
