@@ -158,5 +158,45 @@
 "lines": 1790,
 "bytes": 1893500
 }
+},
+{
+"tool": "evolve",
+"v": "1.0",
+"sha8": "df8fc62a",
+"ts": "2026-10-04T02:31:10Z",
+"argv": [
+"append",
+"--root",
+".",
+"--count",
+"2",
+"--records-file",
+"-",
+"--run-dir",
+".andromeda/runs/2026-10-04T02-20-23Z-wrap",
+"--marker",
+"2026-10-04-supply-chain-advisories-on-wasmtime-resolved"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"appended 2 record(s) · friction-log.ndjson lines 1790→1792 · bytes 1893500→1894980 · term lf",
+"ts 2026-10-04T02:31:02Z · clock 2026-10-04T02:31:10Z · bound 2026-10-04T02:29:07Z (line 1790)",
+"ids 2026-10-04T02:31:02Z-a … 2026-10-04T02:31:02Z-b (2)"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/friction-log.ndjson"
+],
+"before": {
+"lines": 1790,
+"bytes": 1893500,
+"terminator": "LF",
+"bound": "2026-10-04T02:29:07Z"
+},
+"after": {
+"lines": 1792,
+"bytes": 1894980
+}
 }
 ]

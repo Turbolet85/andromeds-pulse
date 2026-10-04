@@ -7,7 +7,10 @@
 //! pattern — keychain access is non-interactive in headless runners).
 
 use std::collections::HashMap;
+use std::ffi::OsString;
 use std::fmt::Debug;
+use std::fs::{File, OpenOptions};
+use std::path::{Path, PathBuf};
 use std::sync::Mutex;
 
 use thiserror::Error;
@@ -115,6 +118,96 @@ const PASSPHRASE_KDF_CONTEXT: &str = "andromeda-pulse corpus cell key v1";
 /// input boundary even when its content is a secret.
 const MAX_PASSPHRASE_BYTES: usize = 1024;
 
+const LOCK_FILE_PREFIX: &str = "andromeda-pulse-corpus-key-";
+const LOCK_FILE_SUFFIX: &str = ".lock";
+const LOCK_NAME_HEX_CHARS: usize = 16;
+
+/// The per-user directory that holds the creation lock: `$XDG_RUNTIME_DIR` on
+/// Linux when it is set, the temp dir otherwise. Both inputs come in by
+/// argument so every branch is testable without mutating the environment.
+///
+/// A set-but-unusable `XDG_RUNTIME_DIR` fails closed rather than falling back:
+/// two processes that disagreed on the directory would lock different files.
+fn resolve_lock_dir(
+    xdg_runtime_dir: Option<OsString>,
+    temp_dir: PathBuf,
+) -> Result<PathBuf, KeychainError> {
+    if cfg!(target_os = "linux")
+        && let Some(raw) = xdg_runtime_dir
+    {
+        let candidate = match raw.to_str() {
+            Some(text) if text.trim().is_empty() => None,
+            Some(text) => Some(PathBuf::from(text.trim())),
+            None => Some(PathBuf::from(raw)),
+        };
+        if let Some(candidate) = candidate {
+            if !candidate.is_absolute() {
+                return Err(KeychainError::Unavailable);
+            }
+            return canonical_dir(&candidate);
+        }
+    }
+    canonical_dir(&temp_dir)
+}
+
+fn canonical_dir(path: &Path) -> Result<PathBuf, KeychainError> {
+    let resolved = path
+        .canonicalize()
+        .map_err(|_| KeychainError::Unavailable)?;
+    if resolved.is_dir() {
+        Ok(resolved)
+    } else {
+        Err(KeychainError::Unavailable)
+    }
+}
+
+/// `andromeda-pulse-corpus-key-{h}.lock`, where `{h}` is the first 16 hex
+/// characters of BLAKE3 over service, a zero byte, and account. One name per
+/// credential entry, so every process racing on that entry meets one file.
+fn lock_file_name(service: &str, account: &str) -> String {
+    let mut hasher = blake3::Hasher::new();
+    hasher.update(service.as_bytes());
+    hasher.update(&[0]);
+    hasher.update(account.as_bytes());
+    let hex = hasher.finalize().to_hex();
+    format!(
+        "{LOCK_FILE_PREFIX}{}{LOCK_FILE_SUFFIX}",
+        &hex.as_str()[..LOCK_NAME_HEX_CHARS]
+    )
+}
+
+fn default_lock_dir() -> Result<PathBuf, KeychainError> {
+    resolve_lock_dir(std::env::var_os("XDG_RUNTIME_DIR"), std::env::temp_dir())
+}
+
+/// Get, and only on `NoEntry` generate, set and read back: the caller holds
+/// the lock, and the key returned is always the one the store holds.
+fn create_or_read(service: &str, account: &str) -> Result<[u8; 32], KeychainError> {
+    let entry = keyring::Entry::new(service, account).map_err(|_| KeychainError::Unavailable)?;
+    match entry.get_password() {
+        Ok(serialized) => decode_key(&serialized),
+        Err(keyring::Error::NoEntry) => {
+            entry
+                .set_password(&encode_key(&generate_random_key()))
+                .map_err(|_| KeychainError::Failed)?;
+            let stored = entry.get_password().map_err(|_| KeychainError::Failed)?;
+            decode_key(&stored)
+        }
+        Err(_) => Err(KeychainError::Failed),
+    }
+}
+
+fn open_lock_file(path: &Path) -> Result<File, KeychainError> {
+    let mut options = OpenOptions::new();
+    options.create(true).write(true).truncate(false);
+    #[cfg(unix)]
+    {
+        use std::os::unix::fs::OpenOptionsExt;
+        options.mode(0o600);
+    }
+    options.open(path).map_err(|_| KeychainError::Failed)
+}
+
 /// Production keychain backend: OS credential store primary, passphrase
 /// fallback with a warning, per capability P-049.
 ///
@@ -122,6 +215,16 @@ const MAX_PASSPHRASE_BYTES: usize = 1024;
 /// store failure must not silently switch keys — rows written under a
 /// different key are exactly the defect this backend exists to prevent — so an
 /// unconfigured host surfaces the store's error instead of inventing a key.
+///
+/// Creation is a locked create-or-read: get, and on no entry generate, set and
+/// read back, all under an exclusive lock on a content-free file named for the
+/// credential entry, in a per-user directory (`$XDG_RUNTIME_DIR` on Linux,
+/// the temp dir otherwise). The file is never deleted, so a waiter and a later
+/// opener always lock the same inode. Residuals: two processes that disagree on
+/// `XDG_RUNTIME_DIR` lock different files; the Linux temp-dir fallback is the
+/// shared `/tmp`, where another user could pre-create the name and make first
+/// creation fail closed; the lock has no timeout, so a peer stuck in the store
+/// call stalls other first-run openers until it ends.
 #[derive(Debug)]
 pub struct OsKeychainBackend {
     service: String,
@@ -152,21 +255,28 @@ impl OsKeychainBackend {
         }
     }
 
+    /// The first-ever key is created under an exclusive file lock, so every
+    /// concurrent first-run process ends on the one key the store holds. A
+    /// lock that cannot be resolved, opened or taken is a store-side `Err`,
+    /// never a reason to create unlocked.
     fn fetch_from_os_store(&self, service_id: &str) -> Result<[u8; 32], KeychainError> {
-        let entry = keyring::Entry::new(&self.service, service_id)
-            .map_err(|_| KeychainError::Unavailable)?;
-        match entry.get_password() {
-            Ok(serialized) => decode_key(&serialized),
-            Err(keyring::Error::NoEntry) => {
-                let key = generate_random_key();
-                let encoded = encode_key(&key);
-                entry
-                    .set_password(&encoded)
-                    .map_err(|_| KeychainError::Failed)?;
-                Ok(key)
-            }
-            Err(_) => Err(KeychainError::Failed),
-        }
+        self.fetch_with_lock_dir(service_id, default_lock_dir())
+    }
+
+    // `File::lock` is stable since 1.89. The build is pinned to 1.95.0 by
+    // rust-toolchain.toml; the workspace `rust-version` (1.85) trails the pin.
+    #[allow(clippy::incompatible_msrv)]
+    fn fetch_with_lock_dir(
+        &self,
+        service_id: &str,
+        lock_dir: Result<PathBuf, KeychainError>,
+    ) -> Result<[u8; 32], KeychainError> {
+        let lock_path = lock_dir?.join(lock_file_name(&self.service, service_id));
+        let lock = open_lock_file(&lock_path)?;
+        lock.lock().map_err(|_| KeychainError::Failed)?;
+        let result = create_or_read(&self.service, service_id);
+        let _ = lock.unlock();
+        result
     }
 
     /// The primary-then-fallback decision, taking both inputs by argument so
@@ -442,6 +552,9 @@ mod tests {
         // operator's credential store polluted.
         let cleanup =
             keyring::Entry::new(&service, "corpus-key").and_then(|e| e.delete_credential());
+        if let Ok(dir) = default_lock_dir() {
+            let _ = std::fs::remove_file(dir.join(lock_file_name(&service, "corpus-key")));
+        }
 
         let status = status.expect("child process spawns");
         assert!(status.success(), "child test binary exited non-zero");
@@ -453,6 +566,198 @@ mod tests {
             "a key minted by one process must be readable by a later, separate process"
         );
         cleanup.expect("test-scoped credential entry removed");
+    }
+
+    const RACE_CHILDREN: usize = 8;
+    const RACE_CHILD_TEST_PATH: &str =
+        "keychain::tests::corpus_key_race_free_child_resolves_after_barrier";
+
+    /// The one place this module reports a leg it could not run.
+    fn skip_without_credential_store(leg: &str) {
+        eprintln!("[skip] no OS credential store on this host; {leg} leg not run");
+    }
+
+    /// True when the store answers and the entry is absent (a leftover is
+    /// deleted first), never asserting over a pre-seeded key; false when no
+    /// store answers.
+    fn empty_test_entry(service: &str) -> bool {
+        let Ok(entry) = keyring::Entry::new(service, "corpus-key") else {
+            return false;
+        };
+        match entry.get_password() {
+            Err(keyring::Error::NoEntry) => true,
+            Ok(_) => entry.delete_credential().is_ok(),
+            Err(_) => false,
+        }
+    }
+
+    /// Child half of the concurrent witness. Inert unless the parent sets both
+    /// env vars; otherwise it waits on stdin so every sibling starts together.
+    #[test]
+    fn corpus_key_race_free_child_resolves_after_barrier() {
+        let (Ok(service), Ok(sink)) = (
+            std::env::var(CHILD_SERVICE_ENV),
+            std::env::var(CHILD_SINK_ENV),
+        ) else {
+            return;
+        };
+        let mut barrier = String::new();
+        std::io::stdin()
+            .read_line(&mut barrier)
+            .expect("child reads the barrier line");
+        let key = OsKeychainBackend::new(service)
+            .fetch_or_create_key("corpus-key")
+            .expect("child resolves the key");
+        std::fs::write(sink, encode_key(&key)).expect("child writes the key sink");
+    }
+
+    /// Concurrent first-run processes against one EMPTY entry must all end on
+    /// the key the store holds afterwards. Keys are compared here and never
+    /// printed.
+    #[test]
+    fn corpus_key_race_free_across_concurrent_first_run_processes() {
+        use std::io::Write;
+        use std::process::{Command, Stdio};
+
+        let service = format!("andromeda-pulse-test-{}-race-free", std::process::id());
+        if !empty_test_entry(&service) {
+            skip_without_credential_store("concurrent-creation");
+            return;
+        }
+
+        let tmp = TempDir::new().expect("tmp");
+        let exe = std::env::current_exe().expect("current test binary");
+        let sinks: Vec<PathBuf> = (0..RACE_CHILDREN)
+            .map(|i| tmp.path().join(format!("child-{i}.hex")))
+            .collect();
+        let mut children: Vec<std::process::Child> = sinks
+            .iter()
+            .map(|sink| {
+                Command::new(&exe)
+                    .args(["--exact", RACE_CHILD_TEST_PATH, "--nocapture"])
+                    .env(CHILD_SERVICE_ENV, &service)
+                    .env(CHILD_SINK_ENV, sink)
+                    .stdin(Stdio::piped())
+                    .spawn()
+                    .expect("child process spawns")
+            })
+            .collect();
+        for child in &mut children {
+            let mut stdin = child.stdin.take().expect("child stdin is piped");
+            stdin
+                .write_all(b"go\n")
+                .expect("barrier line reaches the child");
+        }
+        let statuses: Vec<_> = children
+            .into_iter()
+            .map(|mut child| child.wait().expect("child ends"))
+            .collect();
+
+        // Read everything, then remove the entry and the lock file BEFORE
+        // asserting, so a failure cannot pollute the operator's store.
+        let entry = keyring::Entry::new(&service, "corpus-key").expect("entry");
+        let stored = entry
+            .get_password()
+            .ok()
+            .and_then(|hex| decode_key(&hex).ok());
+        let lock_path = default_lock_dir()
+            .map(|dir| dir.join(lock_file_name(&service, "corpus-key")))
+            .expect("lock dir resolves on this host");
+        let lock_len = std::fs::metadata(&lock_path).map(|meta| meta.len()).ok();
+        let cleanup = entry.delete_credential();
+        let _ = std::fs::remove_file(&lock_path);
+
+        assert!(
+            statuses.iter().all(|status| status.success()),
+            "every child exits 0"
+        );
+        let keys: Vec<[u8; 32]> = sinks
+            .iter()
+            .map(|sink| {
+                let hex = std::fs::read_to_string(sink).expect("every child wrote its sink");
+                decode_key(hex.trim()).expect("child key decodes")
+            })
+            .collect();
+        let distinct: std::collections::HashSet<[u8; 32]> = keys.iter().copied().collect();
+        let not_stored = keys.iter().filter(|key| Some(**key) != stored).count();
+        assert_eq!(
+            (distinct.len(), not_stored),
+            (1, 0),
+            "(distinct keys, children returning a key the store does not hold) across {RACE_CHILDREN} children"
+        );
+        assert_eq!(lock_len, Some(0), "the lock file existed and was empty");
+        cleanup.expect("test-scoped credential entry removed");
+    }
+
+    #[test]
+    fn corpus_key_race_free_lock_file_name_is_entry_keyed() {
+        let name = lock_file_name("com.andromeda.pulse", "corpus-key");
+        let hex = name
+            .strip_prefix(LOCK_FILE_PREFIX)
+            .and_then(|rest| rest.strip_suffix(LOCK_FILE_SUFFIX))
+            .expect("prefix and suffix");
+
+        assert!(name.is_ascii());
+        assert_eq!(hex.len(), LOCK_NAME_HEX_CHARS);
+        assert!(hex.chars().all(|c| matches!(c, '0'..='9' | 'a'..='f')));
+        assert_eq!(name, lock_file_name("com.andromeda.pulse", "corpus-key"));
+        assert_ne!(name, lock_file_name("other.service", "corpus-key"));
+        assert_ne!(name, lock_file_name("com.andromeda.pulse", "other-key"));
+        assert_ne!(
+            lock_file_name("ab", "c"),
+            lock_file_name("a", "bc"),
+            "the separator keeps service and account apart"
+        );
+    }
+
+    #[cfg(target_os = "linux")]
+    #[test]
+    fn corpus_key_race_free_lock_dir_follows_the_linux_rule() {
+        let temp = TempDir::new().expect("temp");
+        let xdg = TempDir::new().expect("xdg");
+        let temp_canonical = temp.path().canonicalize().expect("temp canonical");
+        let resolve = |xdg: Option<&str>| {
+            resolve_lock_dir(xdg.map(OsString::from), temp.path().to_path_buf())
+        };
+
+        assert_eq!(resolve(None).ok(), Some(temp_canonical.clone()));
+        assert_eq!(resolve(Some("")).ok(), Some(temp_canonical.clone()));
+        assert_eq!(resolve(Some("   ")).ok(), Some(temp_canonical));
+        assert_eq!(
+            resolve(xdg.path().to_str()).ok(),
+            Some(xdg.path().canonicalize().expect("xdg canonical"))
+        );
+
+        let file = xdg.path().join("not-a-dir");
+        std::fs::write(&file, b"").expect("regular file");
+        let missing = xdg.path().join("missing");
+        for unusable in [file.to_str(), missing.to_str(), Some("relative/dir")] {
+            assert!(matches!(resolve(unusable), Err(KeychainError::Unavailable)));
+        }
+    }
+
+    #[test]
+    fn corpus_key_race_free_fetch_fails_closed_when_lock_dir_unusable() {
+        let service = format!(
+            "andromeda-pulse-test-{}-race-free-fail-closed",
+            std::process::id()
+        );
+        let tmp = TempDir::new().expect("tmp");
+        let unusable = resolve_lock_dir(None, tmp.path().join("missing"));
+        assert!(unusable.is_err(), "a missing lock dir does not resolve");
+
+        let result = OsKeychainBackend::new(&service).fetch_with_lock_dir("corpus-key", unusable);
+        assert!(result.is_err(), "no key without the lock");
+
+        match keyring::Entry::new(&service, "corpus-key").map(|entry| entry.get_password()) {
+            Ok(Err(keyring::Error::NoEntry)) => {}
+            Ok(Ok(_)) => {
+                let _ = keyring::Entry::new(&service, "corpus-key")
+                    .and_then(|entry| entry.delete_credential());
+                panic!("a failed lock must leave the entry absent");
+            }
+            _ => skip_without_credential_store("fail-closed store-untouched"),
+        }
     }
 
     #[test]
