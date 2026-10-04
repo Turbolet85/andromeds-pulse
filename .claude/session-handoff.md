@@ -1,100 +1,78 @@
 # Session Handoff
 
-**Last Updated:** 2026-10-04T22:48:00Z
+**Last Updated:** 2026-10-04T23:26:00Z
 **Branch:** chore/migrate-pulse-to-v3 · 0 ahead of origin/chore/migrate-pulse-to-v3 as read at this wrap's Setup (the chunk commit follows it, then the push)
 **Status:** clean
-**Last Commit:** 2026-10-04-declared-rust-floor-matches-the-code — chunk wrap (the declared Rust floor is 1.95, equal to the pin, witnessed; the skip arm leaves no lock file)
+**Last Commit:** 2026-10-04-l4-framing-measured-on-the-real-model — chunk wrap (the pre-registered L4 framing series measured: FAIL rank1 30/40, nf 18/40)
 
 ## Position
-- **Done:** `2026-10-04-declared-rust-floor-matches-the-code`, flipped `complete`.
-  - `rust-version = "1.95"`, set by the dependency graph (wasmtime / cranelift / pulley declare 1.95.0). The
-    xtask test `declared_floor_equals_the_pinned_channel` holds it equal to the pin.
-  - The 20 MSRV-gated clippy sites were fixed in place, with no suppression.
-  - The corpus skip arm removes its own lock file; witness `corpus_key_skip_arm_leaves_no_lock_file`.
-  - CI ci#37238688476 on `e9ec090` is green (13/13), including lint-test on macOS and Windows.
-- **Next:** "L4 framing measured on the real model" (`working-route.md:164`). Its block is CLEARED: this wrap
-  removed the BLOCKED-ON on the overseer's directive (measured 2026-10-05 ~00:40) and re-verified it read-only.
-  - The binary is `~/dev/tools/llama.cpp-b9305/build/bin/llama-cli` (b9305, 63248fc, CUDA 13.3).
-  - The leg env is one file: `. ~/dev/projects/additional/pc-overseer/l4-env.sh`.
-  - It carries the pre-registered series: `shipped --min-rank1 36`, then `nf` record-only. Never recorded as
-    passed.
-  - Model slot: ports 4317/4318 are shared with conductor-builder.
-  - Then: "pre-push:linux runs natively on Linux" (three CARRY blocks; it closes Epoch 4).
+- **Done:** `2026-10-04-l4-framing-measured-on-the-real-model`, flipped `complete`. The pre-registered series ran once
+  each on the real model, through llama-cli b9305 CUDA `-ngl 99`, routed by detection.
+  - **shipped: `FAIL · rank1 30/40`** against the bar of 36. Per shape: S1 9 · S2 6 · S3 5 · S4 10.
+  - **nf: 18/40.** Per shape: S1 6 · S2 6 · S3 1 · S4 5.
+  - Recorded as measured, never as passed (P4 ruling). The evidence is the chunk's `evidence/series.md` plus the two
+    `runs.json` copies (40 rows each).
+- **Next:** "L4 rank-1 hypothesis names the retry on every storm shape" (`working-route.md:168`). This is the
+  remedy, minted inside 0.3.0 per the 2026-10-02 founder ruling.
+  - The overseer placed it ahead of pre-push:linux so Conductor unblocks soonest; the founder may move it.
+  - Its CONTEXT carries the measured shortfall: S2 6/10 and S3 5/10 carry NO corpus match, while S4 reads 10/10. So
+    the corpus-match restatement hypothesis does not account for the FAIL.
+  - Its CONTEXT also carries Conductor's v3-09 dependency, plus `PREREQ: close rust gate deferral (clippy)`.
+  - The series is spent: a re-measurement is a NEW pre-registration, written before any run.
+  - Then: "pre-push:linux runs natively on Linux" (three CARRY blocks). It closes Epoch 4, which is at 60 entries;
+    the no-split ruling holds.
 
 ## Work done
-- 16 source/manifest files (15 listed + 1 new); workspace tests 2628 → 2630; corpus 87 → 88.
-- RED before green: `(true, 1)`. Mutations (a), (b), (c) each went RED. Readings are in `evidence/`.
-- The Xvfb boot smoke was green (`posture=applied`, recorded, not asserted).
-- The `/tmp` lock residue was removed and recorded. The post-stage-5 census found no lock of any name, so its
-  origin is undetermined.
-- Operator pass: hygiene, the six native stages, the regen and base close, pre-CI commit `e9ec090`, the push,
-  CI green.
+- No source change. The chunk folder carries `evidence/` and `report.md`.
+- Nextest 2630/2630 (voided by walk-class, ran green). Clippy is deferred on zero Rust delta; the PREREQ is pinned.
+- `inputs.py verify`: I1 n/a (message), I2 unchanged. It is quoted verbatim in the report, as the first live D7
+  verify.
 
 ## Drift resolved
-- **Amendments:** 7, all the plan's expected entries, 0 escalations.
-  - arch ×4: §Stack, [Primary Language], §Inherited Defaults, and the `app_info` example `"1.95"`;
-  - security-plan ×1: §Universal, the 1.85.0 Edition minimum kept with the build floor beside it;
-  - test-plan ×2: §4 Framework, and the corpus row's skip-arm witness.
-- **Leaves re-derived:** CLAUDE.md Stack line, `docs/stack.md`, `rules/testing.md`, `rules/security.md` §Rust
-  toolchain, `docs/security-summary.md`, `docs/services/corpus.md`.
+- 1 amendment: arch §Established Decisions [Fault Identity]. The UNMEASURED clause was replaced by the measured FAIL
+  30/40 with the nf distribution, scoped to its measured boundary. Applied on the plan's expected amendment, matched
+  by D-arch-decisions.
+- The other six docs read `proposals: []`. Escalations: 0.
+- Sweep: 7 patterns, all controls fired. The test-plan `:144` and `:385` rows are true claims, so no change; no leaf
+  changed.
 
 ## Notes
-- **Plan gate 8 is a plan defect.** Under the gate tool's pipefail, an empty `grep` exits 1, so the
-  `grep … | wc -l` entry expecting exit 0 reads red exactly when its property holds. The light gate skipped it on
-  the overseer's directive; its predicate (0 `incompatible_msrv`) is measured true.
-- **Plan gate 10 is a plan defect too.** The scope guard's exclusion pathspec omitted the chunk's own new file
-  `xtask/src/rust_floor.rs`, which the pre-CI commit made visible. It was skipped on the overseer's ruling;
-  `gate.py scope` reads 16 changed · 16 listed.
-- **Ports:** 4317/4318 are shared with conductor-builder. Ask the operator for the slot before any run that
-  launches pulse-app, a window or the model.
+- **Conductor:** its fourth v3-09 series now waits on the remedy entry. The Conductor-side BLOCKED-ON lives in the
+  Conductor repo (0 marker hits in its `.md`) and is the overseer's to move.
+- **Ports:** 4317/4318 are shared with conductor-builder. Ask the operator for the slot before any run that launches
+  pulse-app, a window or the model. The slot granted for this chunk was used 23:10–23:14Z and released, with the GPU
+  back to idle.
 - **Host:** Omarchy Linux.
   - `grep` is ugrep: a bounded-context `.{0,N}` pattern fails silently, and `grep -c` on a binary prints nothing
     (use python).
-  - A PreToolUse hook blocks `cat >> file <<EOF`; use the Write/Edit tools.
+  - A PreToolUse hook blocks `cat >> file <<EOF` and a leading `cd`; use the Write/Edit tools and absolute paths.
 - **Flycheck:** stop rust-analyzer's `cargo check` tree before heavy cargo steps. Select it by `comm == cargo` +
-  `--message-format=json`; never `pgrep -f`. None was running at any check this session.
-- **Founder rulings:** record by name and date, relayed by the pc overseer. Sidecars name the ruling and never
-  quote it.
-- **Epoch 4** is at 59 entries; the no-split ruling holds. It closes at the wrap that completes "pre-push:linux
-  runs natively on Linux".
-- **Hand-run pre-push:**
-  - the `--features mcp-server` bindings regen must follow stage 5 (it clobbered again: −22 lines, restored by
-    the regen);
-  - stage 3 needs a fresh `PUPPETEER_CACHE_DIR` under `target/pre-push/` (green first time this chunk);
-  - stage 5 under `env -i` runs no credential-store leg;
-  - re-run hygiene after any evidence edit.
-- **npm audit:** stage 3 still prints `10 high severity vulnerabilities`; CI's `supply-chain` job is green.
+  `--message-format=json`; never `pgrep -f`. None was running this session.
+- **Plan defects recorded in the report (no amendment owed):**
+  - acceptance 1's `--out …/evidence/shipped` versus the entry's `target/` out dir plus a copy;
+  - the shipped entry's `cargo build` runs before the env is sourced, so the triage build fetched a tokenizer.
 - **Pre-existing tool verdicts, not this chunk's:**
-  - `route.py` UNPARSED/INDETERMINATE on frozen lines;
+  - `route.py` UNPARSED/INDETERMINATE on frozen lines 52–125;
   - `registry.py contracts` NOT MIGRATED (arch · tests · obs · a11y);
   - matrix `P-072` UNPARSED (legacy notes placement).
 - **Still open, carried:**
-  - Playbook rule proposed at an earlier wrap, still awaiting approval: registering a PRE-EXISTING
-    product-consumed env var as registry completeness.
+  - The playbook rule proposed at an earlier wrap (registering a PRE-EXISTING product-consumed env var as registry
+    completeness).
   - obs-plan §8 has no row for `interpretation.hardware.detect`.
-  - The `contract.jointly-contradictory-instructions` evolve record, for the pipeline owners.
-  - The `sidecar.py` Ref defect relayed to overseer1 at session 65.
+  - The `contract.jointly-contradictory-instructions` evolve record.
+  - The `sidecar.py` Ref defect relayed to overseer1.
 - **Not this wrap (founder's hand):** the `.gitattributes` re-checkout and the U35 door. PR #39 stays a draft.
 - **Last failed command:** none.
 
 ## Deferred learnings
-- **New this wrap:**
-  - `recurrence-despite-learning` (pipefail pipeline exit): testing.md 2026-06-05 [extended 2026-08-30]. A plan
-    gate again mis-predicted `grep | wc -l` under pipefail. Extended in place; the open plan-authoring CHECK below
-    is its remedy.
-  - `recurrence-despite-learning` (host path in committed evidence): testing.md 2026-09-30. A hand-written
-    temp-path transcript tripped hygiene. Extended in place.
-  - `recurrence-despite-learning` (scope guard omits new files): testing.md 2026-10-04 (diff-shaped probes). The
-    plan's scope-guard pathspec omitted the chunk's new file, so it went red after the pre-CI commit. The remedy is
-    a CHECK in phase's Test Commands authoring.
-  - `recurrence-despite-learning` (clean-skip invisible): testing.md 2026-10-04. The residue record first stated
-    stage 5's skip arm as observed, then was corrected to an inference.
+- **New this wrap:** none.
 - **Still open from prior wraps:**
-  - the `producer | grep -q` under pipefail plan-authoring CHECK (recurred, above);
-  - mutation applied? (implement's mutation-step CHECK; held this chunk);
+  - the `producer | grep -q` under pipefail plan-authoring CHECK;
+  - the scope guard omitting new files (phase Test Commands CHECK);
+  - mutation applied? (implement's mutation-step CHECK);
   - the sweep hazard (phase research's bare-value CHECK);
   - run-dir hygiene trip (operator-pass CHECK);
-  - bindings clobber (operator-pass CHECK; held);
+  - bindings clobber (operator-pass CHECK);
   - a writer census at the wrong layer;
   - targeted nextest `timeout` sizing from a measured cold build;
   - the implement report-step CHECK;

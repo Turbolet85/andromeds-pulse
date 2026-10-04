@@ -158,5 +158,45 @@
 "lines": 1992,
 "bytes": 2066595
 }
+},
+{
+"tool": "evolve",
+"v": "1.0",
+"sha8": "e257956a",
+"ts": "2026-10-04T22:51:53Z",
+"argv": [
+"append",
+"--root",
+".",
+"--count",
+"2",
+"--records-file",
+"-",
+"--run-dir",
+".andromeda/runs/2026-10-04T22-34-15Z-wrap",
+"--marker",
+"2026-10-04-declared-rust-floor-matches-the-code"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"appended 2 record(s) · friction-log.ndjson lines 1992→1994 · bytes 2066595→2069049 · term lf",
+"ts 2026-10-04T22:51:38Z · clock 2026-10-04T22:51:53Z · bound 2026-10-04T22:47:29Z (line 1992)",
+"ids 2026-10-04T22:51:38Z-a … 2026-10-04T22:51:38Z-b (2)"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/friction-log.ndjson"
+],
+"before": {
+"lines": 1992,
+"bytes": 2066595,
+"terminator": "LF",
+"bound": "2026-10-04T22:47:29Z"
+},
+"after": {
+"lines": 1994,
+"bytes": 2069049
+}
 }
 ]

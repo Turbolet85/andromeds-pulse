@@ -1,0 +1,35 @@
+# tests extract
+
+## Relevance
+partial — a measurement-and-record chunk with no product code change planned: the test plan governs the standard gate set it must still carry, how a real-model generation may be read (never as a gate), the zero-retry posture behind "a FAIL is recorded, never re-run", and the owed coverage on the probe it drives.
+
+## Constraints
+- test-plan §3 Per-chunk gate discipline requires the full standard gate set in the plan's `## Test Commands` regardless of scope: fmt, clippy `--all-features -D warnings`, `capability-widening-check`, `check:ingest-progress`, `check:staged-artifacts`, and `capability-drift` BEFORE the workspace nextest. Then the `--features mcp-server` `emit_taurpc_bindings` regen as the LAST cargo-adjacent step. The webview gates are excluded only if zero `pulse-app/ui/**` paths are touched, which the scope implies.
+- test-plan §3 Per-chunk gate discipline requires the bindings close for a chunk adding no TauRPC procedure: `git diff --quiet <chunk-base> -- pulse-app/ui/src/bindings/index.ts` exits 0. The Boundaries say no new procedure, so this close form applies, not the procedure-set-changing form.
+- test-plan §1 Pending coverage triggers, row `l4-decision-probe-arg-parse-unit-coverage`, requires that the probe's real-model generations are NEVER a gate, because a real-model generation cannot give a deterministic verdict. The `shipped --min-rank1 36` verdict is therefore the chunk's pre-registered measurement of record, not a test-suite gate. The `nf` arm is record-only. Neither may enter `## Test Commands` as a pass/fail cargo gate.
+- test-plan §10 Quality Gates (Zero-flakiness budget) and §11 Test Anti-Patterns (CI/Quality: no retry-once policies, never lower a threshold to pass) require that a non-passing outcome is root-caused, never retried or re-thresholded. This is the test-domain basis for scope item 5: the series runs once each, and the `>= 36/40` rule is not tuned after a result.
+- test-plan §1 row `l4-decision-probe-arg-parse-unit-coverage` lists as STILL OWED, exercised only by `--dry-run` and operator slots: the flag parse (`--arms` incl. `nf` / `shipped` with unknown-arm rejection, `--n`, `--min-rank1`, `--out`, `--dry-run`) and the INCONCLUSIVE exit 2 on an unset or guard-rejected L4 path. It is research's question whether the probe at HEAD carries every flag and arm the series names (scope item 4). Whether this chunk discharges any of the owed pins is a P4 question, because the scope plans no code change.
+- test-plan §3 Boot-smoke gate (conditional) applies only when a boot/setup path is touched (`pulse-app/src/main.rs`, `crates/ui-bridge/src/`, `pulse-app/src/observability.rs`, `tauri.conf.json`, `capabilities/*.json`). This scope touches none, so no boot smoke is owed, unless research finds the probe run itself launches pulse-app.
+- test-plan §9 CI Integration (`verify:capability-matrix`) classifies real llama-cli integration as the `env-gated-runtime` verification mode. Any capability-matrix entry this chunk's recording touches would be of that mode, never `automated-nextest`. Whether an entry is touched is research's question.
+
+## Patterns to follow
+- The verdict-with-preconditions form of the §3 SCENARIO legs (`smoke:gap-resume` / `smoke:hue-shift` / `smoke:discovery`): exit 0 PASS · 1 FAIL · 2 INCONCLUSIVE, where an unmet precondition reads INCONCLUSIVE and never PASS (per test-plan §3 Per-chunk gate discipline). The probe's INCONCLUSIVE exit 2 on an unset or guard-rejected L4 path (§1 trigger row) is this shape. A run that exits 2 is not a recorded FAIL, and not a PASS either.
+- The §3 Direct-binary smoke variant's evidence discipline: the readings of record are the run's own artifacts (here the probe stdout verdict line and `runs.json`), written into the chunk's `evidence/`. A RED/FAIL outcome is recorded as evidence, not as a gate failure (per test-plan §3 Direct-binary smoke variant).
+- `--dry-run` as the no-model pre-check of argv and arm composition before spending the operator's model slot (per test-plan §1 row `l4-decision-probe-arg-parse-unit-coverage`, which names `--dry-run` as one of the paths that exercises the flag parse).
+- §3's `check:ingest-progress` NEUTRAL arm: a chunk that boots nothing has no buffer stream, so the gate reads NEUTRAL, never PASS (per test-plan §3 Per-chunk gate discipline). It stays in the gate set, and its NEUTRAL result is the expected reading here.
+
+## Anti-patterns to avoid
+- Re-running the series, or adjusting `--min-rank1`, the shapes or the arms after seeing a result to obtain a PASS (per test-plan §11 Test Anti-Patterns: no retry policies, never lower a threshold to pass; §10 Zero-flakiness budget).
+- Exposing model output or secrets in test output or committed evidence. Evidence carries the probe's bounded labels and verdict lines only (per test-plan §11 Test Anti-Patterns Universal: never expose secrets in test output).
+- Reading a real-model generation count as a deterministic test result, for example adding it to `## Test Commands` as a cargo/nextest gate or folding it into CI (per test-plan §1 row `l4-decision-probe-arg-parse-unit-coverage`: real-model generations are never a gate).
+
+## Contract bindings
+- tests ↔ security: the probe's INCONCLUSIVE exit 2 keys on the L4 path guard (`validate_path_input`, opt-in `ANDROMEDA_PULSE_L4_ALLOW_ROOT`) rejecting or missing a path (per test-plan §1 row `l4-decision-probe-arg-parse-unit-coverage`). That guard is security-owned and unchanged here. The leg env `inputs#I2` must pass it, or the run is INCONCLUSIVE rather than recorded.
+- tests ↔ obs: the bounded-labels-only evidence (closed `names_trigger` set `rank1` · `elsewhere` · `none` · `unparsed`, per test-plan §1 row) is the test-side half of the NEVER-log-model-output discipline.
+- tests ↔ arch/harness: the bindings regen and close (§3) bind to the TauRPC bindings contract even for a chunk adding no procedure. The default-features workspace nextest rewrites the bindings, and the regen must follow it.
+
+## Acceptance criteria contributions
+- The full §3 standard gate set is green in the documented order, and the bindings close `git diff --quiet <chunk-base> -- pulse-app/ui/src/bindings/index.ts` exits 0 (per test-plan §3 Per-chunk gate discipline).
+- `cargo nextest run --workspace --profile ci` passes with the test count unchanged from the base, as expected for a no-code chunk; any count delta is research-or-scope drift to explain (per test-plan §3 Per-chunk gate discipline; §10 Quality Gates).
+- The `shipped` run's recorded outcome is the probe's own verdict line with exit 0 (PASS) or 1 (FAIL), recorded as measured. An exit 2 (INCONCLUSIVE: unset or guard-rejected L4 path) is recorded as "not measured", never as PASS or FAIL. The series is not re-run to change the outcome (per test-plan §1 row `l4-decision-probe-arg-parse-unit-coverage`; §10 Zero-flakiness budget).
+- The committed evidence (`evidence/` stdout and `runs.json` for both arms) carries only bounded labels and verdict lines: 0 generated model text, and 0 full host paths (per test-plan §11 Test Anti-Patterns Universal).

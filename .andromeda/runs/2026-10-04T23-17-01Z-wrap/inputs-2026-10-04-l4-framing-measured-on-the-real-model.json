@@ -1,0 +1,44 @@
+[
+{
+"tool": "inputs",
+"v": "1.0",
+"sha8": "faa48d4e",
+"ts": "2026-10-04T23:17:22Z",
+"argv": [
+"verify",
+"--chunk-dir",
+"andromeda-pulse-0.3.0/chunks/2026-10-04-l4-framing-measured-on-the-real-model",
+"--run-dir",
+".andromeda/runs/2026-10-04T23-17-01Z-wrap",
+"--marker",
+"2026-10-04-l4-framing-measured-on-the-real-model"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"I1 n/a — a message has no live source · copy message · message: overseer (founder-delegated), /andromeda-phase directive, 2026-10-05",
+"I1 cited scope.md:39 · scope.md:45 · research.md:16 · research.md:93 · research.md:98 · plan.md:9 · plan.md:199 (in fence) · plan.md:285",
+"I2 unchanged · copy no-repo · ../additional/pc-overseer/l4-env.sh",
+"I2 cited scope.md:11 · scope.md:39 · scope.md:60 · research.md:17 · research.md:92 · plan.md:50 · plan.md:199 (in fence) · plan.md:242 · plan.md:285",
+"inputs: 2 entries — unchanged 1 · drifted 0 · vanished 0 · broken 0 · altered 0 · unreachable 0 · n/a 1 · uncited 0 · unparsed 0"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"entries": 2,
+"counts": {
+"unchanged": 1,
+"drifted": 0,
+"vanished": 0,
+"broken": 0,
+"altered": 0,
+"unreachable": 0,
+"n/a": 1
+},
+"uncited": 0,
+"unparsed": 0
+}
+}
+]

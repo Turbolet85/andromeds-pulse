@@ -1,0 +1,163 @@
+[
+{
+"tool": "route",
+"v": "1.6",
+"sha8": "b87a9ed0",
+"ts": "2026-10-04T23:26:36Z",
+"argv": [
+"route.py",
+"compact",
+"--root",
+".",
+"--chunk",
+"2026-10-04-l4-framing-measured-on-the-real-model",
+"--date",
+"2026-10-05",
+"--run-dir",
+".andromeda/runs/2026-10-04T23-17-01Z-wrap",
+"--dry-run"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 3,
+"stdout": [],
+"stderr": "2026-10-04-l4-framing-measured-on-the-real-model: its record is 'pending' -- compact runs AFTER the flip",
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "route",
+"v": "1.6",
+"sha8": "b87a9ed0",
+"ts": "2026-10-04T23:26:41Z",
+"argv": [
+"route.py",
+"flip",
+"--root",
+".",
+"--chunk",
+"2026-10-04-l4-framing-measured-on-the-real-model",
+"--run-dir",
+".andromeda/runs/2026-10-04T23-17-01Z-wrap"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"flip master-route.md:96 - 2026-10-04-l4-framing-measured-on-the-real-model pending -> complete"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/master-route.md"
+],
+"before": null,
+"after": null
+},
+{
+"tool": "route",
+"v": "1.6",
+"sha8": "b87a9ed0",
+"ts": "2026-10-04T23:26:41Z",
+"argv": [
+"route.py",
+"compact",
+"--root",
+".",
+"--chunk",
+"2026-10-04-l4-framing-measured-on-the-real-model",
+"--date",
+"2026-10-05",
+"--run-dir",
+".andromeda/runs/2026-10-04T23-17-01Z-wrap",
+"--dry-run"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"pin :164 strip CONTEXT: 663ch \"CONTEXT: the pre-registered series (over\"",
+"pin :164 strip CONTEXT: 306ch \"CONTEXT: Conductor's fourth v3-09 series\"",
+"pin :164 strip CONTEXT: 889ch \"CONTEXT: the block on a Linux llama.cpp \"",
+"pin next markerless :168 holds CONTEXT:×2 · PREREQ:×1",
+"164 · 2026-10-04-l4-framing-measured-on-the-real-model · strip 3 block(s) · archive APPEND",
+"6 complete line(s) carry text the grammar cannot take -- left in place: L52, L54, L60, L100, L116, L125",
+"dry-run - would archive 1 and compact 1 line(s)"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"targets": [
+{
+"n": 164,
+"marker": "2026-10-04-l4-framing-measured-on-the-real-model",
+"blocks": 3,
+"archived": false
+}
+],
+"skips": [],
+"kept_notes": [
+52,
+54,
+60,
+100,
+116,
+125
+]
+}
+},
+{
+"tool": "route",
+"v": "1.6",
+"sha8": "b87a9ed0",
+"ts": "2026-10-04T23:26:46Z",
+"argv": [
+"route.py",
+"compact",
+"--root",
+".",
+"--chunk",
+"2026-10-04-l4-framing-measured-on-the-real-model",
+"--date",
+"2026-10-05",
+"--run-dir",
+".andromeda/runs/2026-10-04T23-17-01Z-wrap"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"pin :164 strip CONTEXT: 663ch \"CONTEXT: the pre-registered series (over\"",
+"pin :164 strip CONTEXT: 306ch \"CONTEXT: Conductor's fourth v3-09 series\"",
+"pin :164 strip CONTEXT: 889ch \"CONTEXT: the block on a Linux llama.cpp \"",
+"pin next markerless :168 holds CONTEXT:×2 · PREREQ:×1",
+"164 · 2026-10-04-l4-framing-measured-on-the-real-model · strip 3 block(s) · archive APPEND",
+"6 complete line(s) carry text the grammar cannot take -- left in place: L52, L54, L60, L100, L116, L125",
+"compacted 1 complete line(s) -> route-archive.md (1 archived, 0 already there)"
+],
+"stderr": null,
+"wrote": [
+"./andromeda-pulse-0.3.0/route-archive.md",
+"./andromeda-pulse-0.3.0/working-route.md"
+],
+"before": null,
+"after": null,
+"extra": {
+"targets": [
+{
+"n": 164,
+"marker": "2026-10-04-l4-framing-measured-on-the-real-model",
+"blocks": 3,
+"archived": false
+}
+],
+"skips": [],
+"kept_notes": [
+52,
+54,
+60,
+100,
+116,
+125
+]
+}
+}
+]

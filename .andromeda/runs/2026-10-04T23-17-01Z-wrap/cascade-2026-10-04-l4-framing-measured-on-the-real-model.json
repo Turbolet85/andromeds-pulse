@@ -1,0 +1,103 @@
+[
+{
+"tool": "cascade",
+"v": "1.1",
+"sha8": "9b5fafc7",
+"ts": "2026-10-04T23:22:01Z",
+"argv": [
+"sweep",
+"--patterns-file",
+".andromeda/runs/2026-10-04T23-17-01Z-wrap/cascade-patterns.toml",
+"--run-dir",
+".andromeda/runs/2026-10-04T23-17-01Z-wrap",
+"--marker",
+"2026-10-04-l4-framing-measured-on-the-real-model"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"baseline 4c9e05e1 (head — no operator pre-CI commit for 2026-10-04-l4-framing-measured-on-the-real-model)",
+"gated-cuda · 0 rows (control fired) — a statement about this pattern, not the masters · control architecture.md:72 (pro…",
+"rank1-unmeasured · 0 rows (control fired) — a statement about this pattern, not the masters · control architecture.md:7…",
+"min-rank1 · new 0 · standing 2 · leaf 0 · curation 0 · base 0 · control architecture.md:72 (prose)",
+"trigger-framing · new 0 · standing 2 · leaf 0 · curation 0 · base 0 · control architecture.md:72 (prose)",
+"names-trigger · new 0 · standing 1 · leaf 0 · curation 0 · base 0 · control test-plan.md:144 (prose)",
+"linux-cuda · new 0 · standing 1 · leaf 0 · curation 0 · base 0 · control architecture.md:72 (prose)",
+"decision-probe · new 0 · standing 2 · leaf 0 · curation 0 · base 0 · control architecture.md:72 (prose)",
+".andromeda/architecture.md:72 min-rank1 standing edited @c6280/6848 …hipped --n 10 --min-rank1 36` read `FAIL · rank1 3…",
+".andromeda/test-plan.md:144 min-rank1 standing …· `--n` · `--min` · `--min-rank1` · `--out` · `--dry-run`), the INCONCL…",
+".andromeda/architecture.md:72 trigger-framing standing edited @c5509/6848 …tion::prompt::TRIGGER_FRAMING_INSTRUCTION` (…",
+".andromeda/test-plan.md:385 trigger-framing standing @c988/3405 …he shared ASCII `TRIGGER_FRAMING_INSTRUCTION` (the dig…",
+".andromeda/test-plan.md:144 names-trigger standing …ed pins — the closed `names_trigger` label set (`rank1` · `elsewher…",
+".andromeda/test-plan.md:385 linux-cuda standing @c1999/3405 …matrix.md`). **The Linux CUDA presence probe's candidate s…",
+".andromeda/architecture.md:72 decision-probe standing edited @c6238/6848 …rpus match): `l4_decision_probe --arms shippe…",
+".andromeda/test-plan.md:144 decision-probe standing … `pulse-app/examples/l4_decision_probe.rs` (`[[example]]`; its rea…",
+"gated-cuda · 0 rows (control fired) — a statement about this pattern, not the masters · control architecture.md:72 (pro…",
+"rank1-unmeasured · 0 rows (control fired) — a statement about this pattern, not the masters · control architecture.md:7…",
+"min-rank1 · new 0 · standing 2 · leaf 0 · curation 0 · base 0 · control architecture.md:72 (prose)",
+"trigger-framing · new 0 · standing 2 · leaf 0 · curation 0 · base 0 · control architecture.md:72 (prose)",
+"names-trigger · new 0 · standing 1 · leaf 0 · curation 0 · base 0 · control test-plan.md:144 (prose)",
+"linux-cuda · new 0 · standing 1 · leaf 0 · curation 0 · base 0 · control architecture.md:72 (prose)",
+"decision-probe · new 0 · standing 2 · leaf 0 · curation 0 · base 0 · control architecture.md:72 (prose)"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"baseline": "4c9e05e14ccbad75bbb555ee220d747a8c2f64d7",
+"how": "head — no operator pre-CI commit for 2026-10-04-l4-framing-measured-on-the-real-model",
+"counts": {
+"gated-cuda": {
+"new": 0,
+"standing": 0,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"rank1-unmeasured": {
+"new": 0,
+"standing": 0,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"min-rank1": {
+"new": 0,
+"standing": 2,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"trigger-framing": {
+"new": 0,
+"standing": 2,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"names-trigger": {
+"new": 0,
+"standing": 1,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"linux-cuda": {
+"new": 0,
+"standing": 1,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"decision-probe": {
+"new": 0,
+"standing": 2,
+"leaf": 0,
+"curation": 0,
+"base": 0
+}
+}
+}
+}
+]

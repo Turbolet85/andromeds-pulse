@@ -1,0 +1,27 @@
+[[pattern]]
+id = "gated-cuda"
+fixed = 'gated on a Linux llama.cpp CUDA binary'
+
+[[pattern]]
+id = "rank1-unmeasured"
+regex = '(?i)rank-1 hypothesis is UNMEASURED|effect on the rank-1 hypothesis is UNMEASURED'
+
+[[pattern]]
+id = "min-rank1"
+fixed = 'min-rank1'
+
+[[pattern]]
+id = "trigger-framing"
+regex = '(?i)trigger[ -]framing|TRIGGER_FRAMING_INSTRUCTION'
+
+[[pattern]]
+id = "names-trigger"
+regex = '(?i)names[_-]trigger'
+
+[[pattern]]
+id = "linux-cuda"
+regex = '(?i)linux (llama\.cpp )?CUDA'
+
+[[pattern]]
+id = "decision-probe"
+fixed = 'l4_decision_probe'
