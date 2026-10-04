@@ -1,0 +1,1506 @@
+[
+{
+"tool": "gate",
+"v": "1.6",
+"sha8": "9419d56e",
+"ts": "2026-10-04T01:24:24Z",
+"argv": [
+"run",
+"--plan",
+"andromeda-pulse-0.3.0/chunks/2026-10-04-supply-chain-advisories-on-wasmtime-resolved/plan.md",
+"--run-dir",
+".andromeda/runs/2026-10-04T01-21-17Z-implement",
+"--marker",
+"2026-10-04-supply-chain-advisories-on-wasmtime-resolved"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"shell /usr/bin/bash (from $SHELL; -c, non-login)",
+"root /home/turbolet/dev/projects/andromeda-pulse · marker 2026-10-04-supply-chain-advisories-on-wasmtime-resolved · entries 34",
+"logs /tmp/andromeda-gate/2026-10-04-supply-chain-advisories-on-wasmtime-resolved/implement-2026-10-04T01-21-17Z · bound: GNU timeout",
+"delta docs 41 · rust 2",
+"prose L50-55: These are the gates for a dependency bump. The bump's own subject comes first: the resolut… (598 chars)",
+"prose L57-61: Absences, each with its reason: - No `pulse-app/ui/**` path is touched, so the webview gat… (601 chars)",
+"prose L63-72: `cargo xtask pre-push:linux` cannot evaluate on the Linux dev host, because it drives ever… (1103 chars)",
+"prose L74-77: `evidence/advisory-record.md` and `evidence/lockfile-delta.md`, which a criterion and Step… (405 chars)",
+"prose L79-80: The CI read waits 2400 s, against the last green run's wall-clock of 1718 s (`a69030a`, re… (148 chars)",
+"  1 lint        green · exit 0 · 0.54s · 0 B → 1.log · cargo fmt --check",
+"  2 lint        green · exit 0 · 27.31s · 3024 B → 2.log · cargo clippy --workspace --all-targets --all-features -- -… (68 chars)",
+"  3 probe       green · exit 0 · 0.0s · 2 B → 3.log · grep -c '^wasmtime = { version = \"48.0.4\", features = \\[\"c… (90 chars)",
+"  4 probe       green · exit 0 · 0.3s · 17 B → 4.log · cargo tree -p wasmtime --depth 0 -e normal",
+"  5 probe       green · exit 0 · 0.0s · 0 B → 5.log · test -f \"$HOME/.cargo/advisory-db/crates/wasmtime/RUSTSEC-… (221 chars)",
+"  6 probe       green · exit 0 · 1.43s · 2585 B → 6.log · cargo audit",
+"  7 probe       green · exit 0 · 1.15s · 9562 B → 7.log · cargo deny check bans licenses sources",
+"  8 probe       green · exit 0 · 1.18s · 2885 B → 8.log · cargo deny check advisories",
+"  9 probe       green · exit 0 · 0.28s · 0 B → 9.log · cargo tree -p wasmtime | grep -q cranelift",
+" 10 probe       green · exit 1 · 0.0s · 2 B → 10.log · grep -cE 'RUSTSEC-2026-032[567]' deny.toml",
+" 11 probe       green · exit 0 · 0.0s · 0 B → 11.log · test ! -e audit.toml && test ! -e .cargo/audit.toml",
+" 12 probe       green · exit 1 · 0.01s · 2 B → 12.log · git diff -U1 5988a5f80b7280081fdeb12d9eca16bfa32f4de9 -- C… (228 chars)",
+" 13 probe       green · exit 1 · 0.01s · 2 B → 13.log · git diff 5988a5f80b7280081fdeb12d9eca16bfa32f4de9 -- Cargo… (90 chars)",
+" 14 probe       green · exit 0 · 0.01s · 0 B → 14.log · git diff --name-only 5988a5f80b7280081fdeb12d9eca16bfa32f4… (125 chars)",
+" 15 unit        green · exit 0 · 60.46s · 14511 B → 15.log · cargo nextest run --workspace --profile ci -E 'package(plu… (65 chars)",
+" 16 probe       green · exit 0 · 24.6s · 100 B → 16.log · cargo xtask check:english-sources",
+" 17 probe       green · exit 0 · 0.29s · 394 B → 17.log · cargo xtask capability-widening-check",
+" 18 probe       green · exit 0 · 0.29s · 99 B → 18.log · cargo xtask check:ingest-progress",
+" 19 probe       green · exit 0 · 0.31s · 342 B → 19.log · cargo xtask check:staged-artifacts",
+" 20 probe       green · exit 0 · 0.31s · 714 B → 20.log · cargo xtask capability-drift",
+" 21 probe       green · exit 0 · 0.29s · 396 B → 21.log · cargo xtask verify:capability-matrix",
+" 22 unit        green · exit 0 · 14.76s · 611536 B → 22.log · cargo nextest run --workspace --profile ci",
+" 23 build       green · exit 0 · 16.01s · 1030 B → 23.log · cargo nextest run -p pulse-app --features mcp-server --bin… (101 chars)",
+" 24 probe       green · exit 0 · 0.01s · 0 B → 24.log · git diff --quiet 5988a5f80b7280081fdeb12d9eca16bfa32f4de9 … (95 chars)",
+" 25 probe       not run — leg operator (the letter drives it) · python -X utf8 /home/turbolet/.claude/skills/andromeda-too… (84 chars)",
+" 26 integration not run — leg operator (the letter drives it) · git ls-files -s scripts/agent-run.sh",
+" 27 integration not run — leg operator (the letter drives it) · env -i HOME=\"$HOME\" PATH=\"$HOME/.cargo/bin:$(dirname \"$(co… (191 chars)",
+" 28 integration not run — leg operator (the letter drives it) · cd pulse-app/ui && env -i HOME=\"$HOME\" PATH=\"$HOME/.cargo/… (364 chars)",
+" 29 integration not run — leg operator (the letter drives it) · env -i HOME=\"$HOME\" PATH=\"$HOME/.cargo/bin:$(dirname \"$(co… (226 chars)",
+" 30 integration not run — leg operator (the letter drives it) · env -i HOME=\"$HOME\" PATH=\"$HOME/.cargo/bin:$(dirname \"$(co… (174 chars)",
+" 31 integration not run — leg operator (the letter drives it) · D=\"$PWD/target/pre-push/data\" && rm -rf \"$D\" && mkdir -p \"… (589 chars)",
+" 32 probe       not run — leg operator (the letter drives it) · git diff --quiet && git diff --cached --quiet && git push … (90 chars)",
+" 33 probe       not run — leg operator (the letter drives it) · python -X utf8 /home/turbolet/.claude/skills/andromeda-too… (108 chars)",
+" 34 probe       not run — leg operator (the letter drives it) · gh api repos/Turbolet85/andromeds-pulse/actions/cache/usag… (59 chars)",
+"entries 34 · green 24 · red 0 · recorded 0 · timeout 0 · not-run 10"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"marker": "2026-10-04-supply-chain-advisories-on-wasmtime-resolved",
+"plan": "/home/turbolet/dev/projects/andromeda-pulse/andromeda-pulse-0.3.0/chunks/2026-10-04-supply-chain-advisories-on-wasmtime-resolved/plan.md",
+"root": "/home/turbolet/dev/projects/andromeda-pulse",
+"shell": "/usr/bin/bash",
+"out_dir": "/tmp/andromeda-gate/2026-10-04-supply-chain-advisories-on-wasmtime-resolved/implement-2026-10-04T01-21-17Z",
+"delta": {
+"docs": [
+".andromeda/friction-log.ndjson",
+".andromeda/master-route.md",
+".andromeda/runs/2026-10-03T23-46-09Z-wrap/evolve-2026-10-02-incident-events-readable-through-mcp.json",
+".claude/session-handoff.md",
+"andromeda-pulse-0.3.0/working-route.md",
+".andromeda/runs/2026-10-03T23-46-09Z-wrap/health-2026-10-02-incident-events-readable-through-mcp.json",
+".andromeda/runs/2026-10-04T00-48-08Z-phase/a11y.md",
+".andromeda/runs/2026-10-04T00-48-08Z-phase/arch-history.md",
+".andromeda/runs/2026-10-04T00-48-08Z-phase/arch.md",
+".andromeda/runs/2026-10-04T00-48-08Z-phase/ci-no-marker.json",
+".andromeda/runs/2026-10-04T00-48-08Z-phase/ci-supply-chain.log",
+".andromeda/runs/2026-10-04T00-48-08Z-phase/control-audit/audit.toml",
+".andromeda/runs/2026-10-04T00-48-08Z-phase/control-deny.toml",
+".andromeda/runs/2026-10-04T00-48-08Z-phase/design.md",
+".andromeda/runs/2026-10-04T00-48-08Z-phase/evolve-2026-10-04-supply-chain-advisories-on-wasmtime-resolved.json",
+".andromeda/runs/2026-10-04T00-48-08Z-phase/gate-2026-10-04-supply-chain-advisories-on-wasmtime-resolved.json",
+".andromeda/runs/2026-10-04T00-48-08Z-phase/layouts.md",
+".andromeda/runs/2026-10-04T00-48-08Z-phase/master-record.txt",
+".andromeda/runs/2026-10-04T00-48-08Z-phase/matrix-2026-10-04-supply-chain-advisories-on-wasmtime-resolved.json",
+".andromeda/runs/2026-10-04T00-48-08Z-phase/obs-history.md",
+".andromeda/runs/2026-10-04T00-48-08Z-phase/obs.md",
+".andromeda/runs/2026-10-04T00-48-08Z-phase/p5-dryrun-2.txt",
+".andromeda/runs/2026-10-04T00-48-08Z-phase/p5-dryrun.txt",
+".andromeda/runs/2026-10-04T00-48-08Z-phase/planlint-2026-10-04-supply-chain-advisories-on-wasmtime-resolved.json",
+".andromeda/runs/2026-10-04T00-48-08Z-phase/registry-2026-10-04-supply-chain-advisories-on-wasmtime-resolved.json",
+".andromeda/runs/2026-10-04T00-48-08Z-phase/research-audit-bumped.json",
+".andromeda/runs/2026-10-04T00-48-08Z-phase/research-bump.diff",
+".andromeda/runs/2026-10-04T00-48-08Z-phase/research-deny-bls-bumped.txt",
+".andromeda/runs/2026-10-04T00-48-08Z-phase/research-plugins-nextest.txt",
+".andromeda/runs/2026-10-04T00-48-08Z-phase/route-2026-10-04-supply-chain-advisories-on-wasmtime-resolved.json",
+".andromeda/runs/2026-10-04T00-48-08Z-phase/route-no-marker.json",
+".andromeda/runs/2026-10-04T00-48-08Z-phase/security-history.md",
+".andromeda/runs/2026-10-04T00-48-08Z-phase/security.md",
+".andromeda/runs/2026-10-04T00-48-08Z-phase/sidecar-2026-10-04-supply-chain-advisories-on-wasmtime-resolved.json",
+".andromeda/runs/2026-10-04T00-48-08Z-phase/tests-history.md",
+".andromeda/runs/2026-10-04T00-48-08Z-phase/tests.md",
+".andromeda/runs/2026-10-04T01-21-17Z-implement/cargo-update.txt",
+".andromeda/runs/2026-10-04T01-21-17Z-implement/evolve-2026-10-04-supply-chain-advisories-on-wasmtime-resolved.json",
+"andromeda-pulse-0.3.0/chunks/2026-10-04-supply-chain-advisories-on-wasmtime-resolved/plan.md",
+"andromeda-pulse-0.3.0/chunks/2026-10-04-supply-chain-advisories-on-wasmtime-resolved/research.md",
+"andromeda-pulse-0.3.0/chunks/2026-10-04-supply-chain-advisories-on-wasmtime-resolved/scope.md"
+],
+"rust": [
+"Cargo.lock",
+"Cargo.toml"
+]
+},
+"unmapped": [],
+"prose": [
+{
+"from": 50,
+"to": 55,
+"text": "These are the gates for a dependency bump. The bump's own subject comes first: the resolution probe, the advisory-DB currency control, `cargo audit`, the two `cargo deny` invocations kept separate (security rule 2026-08-17), the Cranelift assertion and the no-ignore and lockfile-family guards. Then the plugins regression net, the standard test-plan §3 set in its order (capability-drift before the default-features workspace nextest; the `--features mcp-server` bindings regen as the last cargo-adjacent step; the base-identity bindings close, since no procedure is added), and the operator pass."
+},
+{
+"from": 57,
+"to": 61,
+"text": "Absences, each with its reason: - No `pulse-app/ui/**` path is touched, so the webview gates are absent. - No boot-path file is touched (`main.rs`, `observability.rs`, `crates/ui-bridge/src/`, `tauri.conf.json`, `capabilities/*.json`; the scope-guard entry proves it), so the boot smoke does not bind (test-plan §3 Boot-smoke gate). - There is no live leg and no self-verify (no UI change). - `cargo auditable build --workspace --release` is not listed locally because `cargo auditable` is not installed on this host. The CI `supply-chain` job runs it, and the operator CI read asserts that job green."
+},
+{
+"from": 63,
+"to": 72,
+"text": "`cargo xtask pre-push:linux` cannot evaluate on the Linux dev host, because it drives every stage through `wsl.exe` (`xtask/src/pre_push.rs:23`). By founder ruling 2026-10-04 (given live at this plan's review), its six stages run NATIVELY by hand before the push, recorded as the same deviation as 2026-10-02-incident-events-readable-through-mcp (`evidence/operator-pass.md`, Gate 18). They are the six `operator` entries after hygiene, in `Stage::ALL` order: script-modes, source-lint, npm, clippy, test, ci-gates. Each runs in the stage isolation of `Linux::cmd`: `env -i` with only HOME, a Linux PATH and `ANDROMEDA_PULSE_DATA_DIR=target/pre-push/data`, the WSL form's own data path, which is gitignored. The first failing stage stops the run and the push; the operator re-runs them before every fix push. Two differences from the WSL form, as before: the stages run in the working tree rather than a synced clone, and they share this host's `target/` and `~/.cache`. Porting the verb is the route entry \"pre-push:linux runs natively on Linux\". The stage readings go into `evidence/operator-pass.md`."
+},
+{
+"from": 74,
+"to": 77,
+"text": "`evidence/advisory-record.md` and `evidence/lockfile-delta.md`, which a criterion and Step 5 name, have no producing entry by construction. /implement writes them from the recorded outputs of the `cargo audit`, `cargo deny check advisories` and lockfile-guard entries above (and from the chunk base's readings in research.md §Measured). They are records of listed gates, not runtime artifacts a leg emits."
+},
+{
+"from": 79,
+"to": 80,
+"text": "The CI read waits 2400 s, against the last green run's wall-clock of 1718 s (`a69030a`, read at the predecessor's Setup); its timeout is 2400 + 180."
+}
+],
+"entries": [
+{
+"n": 1,
+"role": "lint",
+"run": "cargo fmt --check",
+"run_sha8": "194fabc0",
+"expect": null,
+"log": "/tmp/andromeda-gate/2026-10-04-supply-chain-advisories-on-wasmtime-resolved/implement-2026-10-04T01-21-17Z/1.log",
+"bytes": 0,
+"log_sha8": "e3b0c442",
+"exit": 0,
+"seconds": 0.54,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 2,
+"role": "lint",
+"run": "cargo clippy --workspace --all-targets --all-features -- -D warnings",
+"run_sha8": "f835224c",
+"expect": null,
+"log": "/tmp/andromeda-gate/2026-10-04-supply-chain-advisories-on-wasmtime-resolved/implement-2026-10-04T01-21-17Z/2.log",
+"bytes": 3024,
+"log_sha8": "f5297f24",
+"exit": 0,
+"seconds": 27.31,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 3,
+"role": "probe",
+"run": "grep -c '^wasmtime = { version = \"48.0.4\", features = \\[\"component-model\"\\] }$' Cargo.toml",
+"run_sha8": "165e351f",
+"expect": [
+"exit 0",
+"last line 1"
+],
+"log": "/tmp/andromeda-gate/2026-10-04-supply-chain-advisories-on-wasmtime-resolved/implement-2026-10-04T01-21-17Z/3.log",
+"bytes": 2,
+"log_sha8": "4355a46b",
+"exit": 0,
+"seconds": 0.0,
+"readings": [
+"exit 0 ✓",
+"last line '1' ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 4,
+"role": "probe",
+"run": "cargo tree -p wasmtime --depth 0 -e normal",
+"run_sha8": "6d0d7468",
+"expect": [
+"exit 0",
+"contains wasmtime v48.0.5"
+],
+"log": "/tmp/andromeda-gate/2026-10-04-supply-chain-advisories-on-wasmtime-resolved/implement-2026-10-04T01-21-17Z/4.log",
+"bytes": 17,
+"log_sha8": "25d4abcd",
+"exit": 0,
+"seconds": 0.3,
+"readings": [
+"exit 0 ✓",
+"contains 'wasmtime v48.0.5' ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 5,
+"role": "probe",
+"run": "test -f \"$HOME/.cargo/advisory-db/crates/wasmtime/RUSTSEC-2026-0325.md\" && test -f \"$HOME/.cargo/advisory-db/crates/wasmtime/RUSTSEC-2026-0326.md\" && test -f \"$HOME/.cargo/advisory-db/crates/wasmtime/RUSTSEC-2026-0327.md\"",
+"run_sha8": "f041878d",
+"expect": null,
+"log": "/tmp/andromeda-gate/2026-10-04-supply-chain-advisories-on-wasmtime-resolved/implement-2026-10-04T01-21-17Z/5.log",
+"bytes": 0,
+"log_sha8": "e3b0c442",
+"exit": 0,
+"seconds": 0.0,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 6,
+"role": "probe",
+"run": "cargo audit",
+"run_sha8": "317b8907",
+"expect": [
+"exit 0",
+"lacks RUSTSEC-2026-0325",
+"lacks RUSTSEC-2026-0326",
+"lacks RUSTSEC-2026-0327"
+],
+"log": "/tmp/andromeda-gate/2026-10-04-supply-chain-advisories-on-wasmtime-resolved/implement-2026-10-04T01-21-17Z/6.log",
+"bytes": 2585,
+"log_sha8": "e5bee0a7",
+"exit": 0,
+"seconds": 1.43,
+"readings": [
+"exit 0 ✓",
+"lacks 'RUSTSEC-2026-0325' ✓",
+"lacks 'RUSTSEC-2026-0326' ✓",
+"lacks 'RUSTSEC-2026-0327' ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 7,
+"role": "probe",
+"run": "cargo deny check bans licenses sources",
+"run_sha8": "7593f094",
+"expect": [
+"exit 0",
+"contains bans ok, licenses ok, sources ok"
+],
+"log": "/tmp/andromeda-gate/2026-10-04-supply-chain-advisories-on-wasmtime-resolved/implement-2026-10-04T01-21-17Z/7.log",
+"bytes": 9562,
+"log_sha8": "de955487",
+"exit": 0,
+"seconds": 1.15,
+"readings": [
+"exit 0 ✓",
+"contains 'bans ok, licenses ok, sources ok' ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 8,
+"role": "probe",
+"run": "cargo deny check advisories",
+"run_sha8": "a502d912",
+"expect": [
+"lacks RUSTSEC-2026-0325",
+"lacks RUSTSEC-2026-0326",
+"lacks RUSTSEC-2026-0327"
+],
+"log": "/tmp/andromeda-gate/2026-10-04-supply-chain-advisories-on-wasmtime-resolved/implement-2026-10-04T01-21-17Z/8.log",
+"bytes": 2885,
+"log_sha8": "9a927a6c",
+"exit": 0,
+"seconds": 1.18,
+"readings": [
+"lacks 'RUSTSEC-2026-0325' ✓",
+"lacks 'RUSTSEC-2026-0326' ✓",
+"lacks 'RUSTSEC-2026-0327' ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 9,
+"role": "probe",
+"run": "cargo tree -p wasmtime | grep -q cranelift",
+"run_sha8": "549a70f4",
+"expect": null,
+"log": "/tmp/andromeda-gate/2026-10-04-supply-chain-advisories-on-wasmtime-resolved/implement-2026-10-04T01-21-17Z/9.log",
+"bytes": 0,
+"log_sha8": "e3b0c442",
+"exit": 0,
+"seconds": 0.28,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 10,
+"role": "probe",
+"run": "grep -cE 'RUSTSEC-2026-032[567]' deny.toml",
+"run_sha8": "7e8eaa78",
+"expect": [
+"exit 1",
+"last line 0"
+],
+"log": "/tmp/andromeda-gate/2026-10-04-supply-chain-advisories-on-wasmtime-resolved/implement-2026-10-04T01-21-17Z/10.log",
+"bytes": 2,
+"log_sha8": "9a271f2a",
+"exit": 1,
+"seconds": 0.0,
+"readings": [
+"exit 1 ✓",
+"last line '0' ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 11,
+"role": "probe",
+"run": "test ! -e audit.toml && test ! -e .cargo/audit.toml",
+"run_sha8": "30868729",
+"expect": null,
+"log": "/tmp/andromeda-gate/2026-10-04-supply-chain-advisories-on-wasmtime-resolved/implement-2026-10-04T01-21-17Z/11.log",
+"bytes": 0,
+"log_sha8": "e3b0c442",
+"exit": 0,
+"seconds": 0.0,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 12,
+"role": "probe",
+"run": "git diff -U1 5988a5f80b7280081fdeb12d9eca16bfa32f4de9 -- Cargo.lock | grep -E '^ name = ' | grep -vcE 'name = \"(wasmtime|cranelift|pulley|wasm-compose|wasm-encoder|wasm-metadata|wasmparser|wasmprinter|wit-component|wit-parser)' ",
+"run_sha8": "b157ccfc",
+"expect": [
+"exit 1",
+"last line 0"
+],
+"log": "/tmp/andromeda-gate/2026-10-04-supply-chain-advisories-on-wasmtime-resolved/implement-2026-10-04T01-21-17Z/12.log",
+"bytes": 2,
+"log_sha8": "9a271f2a",
+"exit": 1,
+"seconds": 0.01,
+"readings": [
+"exit 1 ✓",
+"last line '0' ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 13,
+"role": "probe",
+"run": "git diff 5988a5f80b7280081fdeb12d9eca16bfa32f4de9 -- Cargo.lock | grep -cE '^[-+]name = ' ",
+"run_sha8": "3540ea7a",
+"expect": [
+"exit 1",
+"last line 0"
+],
+"log": "/tmp/andromeda-gate/2026-10-04-supply-chain-advisories-on-wasmtime-resolved/implement-2026-10-04T01-21-17Z/13.log",
+"bytes": 2,
+"log_sha8": "9a271f2a",
+"exit": 1,
+"seconds": 0.01,
+"readings": [
+"exit 1 ✓",
+"last line '0' ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 14,
+"role": "probe",
+"run": "git diff --name-only 5988a5f80b7280081fdeb12d9eca16bfa32f4de9 -- crates pulse-app xtask deny.toml rust-toolchain.toml .github",
+"run_sha8": "ecb31594",
+"expect": [
+"exit 0",
+"no output"
+],
+"log": "/tmp/andromeda-gate/2026-10-04-supply-chain-advisories-on-wasmtime-resolved/implement-2026-10-04T01-21-17Z/14.log",
+"bytes": 0,
+"log_sha8": "e3b0c442",
+"exit": 0,
+"seconds": 0.01,
+"readings": [
+"exit 0 ✓",
+"no output ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 15,
+"role": "unit",
+"run": "cargo nextest run --workspace --profile ci -E 'package(plugins)' ",
+"run_sha8": "a0a02682",
+"expect": [
+"exit 0",
+"contains 61 tests run: 61 passed"
+],
+"log": "/tmp/andromeda-gate/2026-10-04-supply-chain-advisories-on-wasmtime-resolved/implement-2026-10-04T01-21-17Z/15.log",
+"bytes": 14511,
+"log_sha8": "ed7cfb9f",
+"exit": 0,
+"seconds": 60.46,
+"readings": [
+"exit 0 ✓",
+"contains '61 tests run: 61 passed' ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 16,
+"role": "probe",
+"run": "cargo xtask check:english-sources",
+"run_sha8": "d29f47c5",
+"expect": [
+"exit 0",
+"contains \"verdict\": \"clean\""
+],
+"log": "/tmp/andromeda-gate/2026-10-04-supply-chain-advisories-on-wasmtime-resolved/implement-2026-10-04T01-21-17Z/16.log",
+"bytes": 100,
+"log_sha8": "3d222085",
+"exit": 0,
+"seconds": 24.6,
+"readings": [
+"exit 0 ✓",
+"contains '\"verdict\": \"clean\"' ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 17,
+"role": "probe",
+"run": "cargo xtask capability-widening-check",
+"run_sha8": "c09451af",
+"expect": null,
+"log": "/tmp/andromeda-gate/2026-10-04-supply-chain-advisories-on-wasmtime-resolved/implement-2026-10-04T01-21-17Z/17.log",
+"bytes": 394,
+"log_sha8": "387053f8",
+"exit": 0,
+"seconds": 0.29,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 18,
+"role": "probe",
+"run": "cargo xtask check:ingest-progress",
+"run_sha8": "123ffa0a",
+"expect": null,
+"log": "/tmp/andromeda-gate/2026-10-04-supply-chain-advisories-on-wasmtime-resolved/implement-2026-10-04T01-21-17Z/18.log",
+"bytes": 99,
+"log_sha8": "09869944",
+"exit": 0,
+"seconds": 0.29,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 19,
+"role": "probe",
+"run": "cargo xtask check:staged-artifacts",
+"run_sha8": "052b4e95",
+"expect": null,
+"log": "/tmp/andromeda-gate/2026-10-04-supply-chain-advisories-on-wasmtime-resolved/implement-2026-10-04T01-21-17Z/19.log",
+"bytes": 342,
+"log_sha8": "c94d39e4",
+"exit": 0,
+"seconds": 0.31,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 20,
+"role": "probe",
+"run": "cargo xtask capability-drift",
+"run_sha8": "fb5fd088",
+"expect": null,
+"log": "/tmp/andromeda-gate/2026-10-04-supply-chain-advisories-on-wasmtime-resolved/implement-2026-10-04T01-21-17Z/20.log",
+"bytes": 714,
+"log_sha8": "eea41105",
+"exit": 0,
+"seconds": 0.31,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 21,
+"role": "probe",
+"run": "cargo xtask verify:capability-matrix",
+"run_sha8": "31c12e31",
+"expect": null,
+"log": "/tmp/andromeda-gate/2026-10-04-supply-chain-advisories-on-wasmtime-resolved/implement-2026-10-04T01-21-17Z/21.log",
+"bytes": 396,
+"log_sha8": "0a454fad",
+"exit": 0,
+"seconds": 0.29,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 22,
+"role": "unit",
+"run": "cargo nextest run --workspace --profile ci",
+"run_sha8": "bf6e813a",
+"expect": [
+"exit 0",
+"contains 2575 tests run: 2575 passed"
+],
+"log": "/tmp/andromeda-gate/2026-10-04-supply-chain-advisories-on-wasmtime-resolved/implement-2026-10-04T01-21-17Z/22.log",
+"bytes": 611536,
+"log_sha8": "b3e214d6",
+"exit": 0,
+"seconds": 14.76,
+"readings": [
+"exit 0 ✓",
+"contains '2575 tests run: 2575 passed' ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 23,
+"role": "build",
+"run": "cargo nextest run -p pulse-app --features mcp-server --bin pulse-app -E 'test(emit_taurpc_bindings)' ",
+"run_sha8": "3733d1a6",
+"expect": null,
+"log": "/tmp/andromeda-gate/2026-10-04-supply-chain-advisories-on-wasmtime-resolved/implement-2026-10-04T01-21-17Z/23.log",
+"bytes": 1030,
+"log_sha8": "6e95579c",
+"exit": 0,
+"seconds": 16.01,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 24,
+"role": "probe",
+"run": "git diff --quiet 5988a5f80b7280081fdeb12d9eca16bfa32f4de9 -- pulse-app/ui/src/bindings/index.ts",
+"run_sha8": "abc14d67",
+"expect": null,
+"log": "/tmp/andromeda-gate/2026-10-04-supply-chain-advisories-on-wasmtime-resolved/implement-2026-10-04T01-21-17Z/24.log",
+"bytes": 0,
+"log_sha8": "e3b0c442",
+"exit": 0,
+"seconds": 0.01,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 25,
+"role": "probe",
+"run": "python -X utf8 /home/turbolet/.claude/skills/andromeda-tools/scripts/gate.py hygiene",
+"run_sha8": "c6e5fd28",
+"expect": [
+"exit 0",
+"contains hygiene: clean"
+],
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — leg operator (the letter drives it)"
+},
+{
+"n": 26,
+"role": "integration",
+"run": "git ls-files -s scripts/agent-run.sh",
+"run_sha8": "c3cf2093",
+"expect": [
+"exit 0",
+"contains 100755"
+],
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — leg operator (the letter drives it)"
+},
+{
+"n": 27,
+"role": "integration",
+"run": "env -i HOME=\"$HOME\" PATH=\"$HOME/.cargo/bin:$(dirname \"$(command -v node)\"):/usr/local/bin:/usr/bin:/bin\" ANDROMEDA_PULSE_DATA_DIR=\"$PWD/target/pre-push/data\" cargo xtask check:english-sources",
+"run_sha8": "b6a3fa09",
+"expect": [
+"exit 0",
+"contains \"verdict\": \"clean\""
+],
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — leg operator (the letter drives it)"
+},
+{
+"n": 28,
+"role": "integration",
+"run": "cd pulse-app/ui && env -i HOME=\"$HOME\" PATH=\"$HOME/.cargo/bin:$(dirname \"$(command -v node)\"):/usr/local/bin:/usr/bin:/bin\" ANDROMEDA_PULSE_DATA_DIR=\"$OLDPWD/target/pre-push/data\" npm ci && env -i HOME=\"$HOME\" PATH=\"$HOME/.cargo/bin:$(dirname \"$(command -v node)\"):/usr/local/bin:/usr/bin:/bin\" ANDROMEDA_PULSE_DATA_DIR=\"$OLDPWD/target/pre-push/data\" npm run build",
+"run_sha8": "14372bcc",
+"expect": null,
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — leg operator (the letter drives it)"
+},
+{
+"n": 29,
+"role": "integration",
+"run": "env -i HOME=\"$HOME\" PATH=\"$HOME/.cargo/bin:$(dirname \"$(command -v node)\"):/usr/local/bin:/usr/bin:/bin\" ANDROMEDA_PULSE_DATA_DIR=\"$PWD/target/pre-push/data\" cargo clippy --workspace --all-targets --all-features -- -D warnings",
+"run_sha8": "f73db233",
+"expect": null,
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — leg operator (the letter drives it)"
+},
+{
+"n": 30,
+"role": "integration",
+"run": "env -i HOME=\"$HOME\" PATH=\"$HOME/.cargo/bin:$(dirname \"$(command -v node)\"):/usr/local/bin:/usr/bin:/bin\" ANDROMEDA_PULSE_DATA_DIR=\"$PWD/target/pre-push/data\" cargo xtask test",
+"run_sha8": "6146313a",
+"expect": [
+"exit 0",
+"contains 2575 tests run: 2575 passed"
+],
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — leg operator (the letter drives it)"
+},
+{
+"n": 31,
+"role": "integration",
+"run": "D=\"$PWD/target/pre-push/data\" && rm -rf \"$D\" && mkdir -p \"$D/logs\" && printf '%s\\n' '{\"timestamp\":\"2026-01-01T00:00:00.000000Z\",\"level\":\"INFO\",\"target\":\"app.boot.ready\",\"fields\":{\"message\":\"pre-push seed\"}}' '{\"timestamp\":\"2026-01-01T00:00:00.000000Z\",\"level\":\"INFO\",\"target\":\"ingest.tick\",\"fields\":{}}' '{\"timestamp\":\"2026-01-01T00:00:15.000000Z\",\"level\":\"INFO\",\"target\":\"ingest.tick\",\"fields\":{}}' > \"$D/logs/agent-latest.jsonl\" && env -i HOME=\"$HOME\" PATH=\"$HOME/.cargo/bin:$(dirname \"$(command -v node)\"):/usr/local/bin:/usr/bin:/bin\" ANDROMEDA_PULSE_DATA_DIR=\"$D\" cargo xtask ci-gates",
+"run_sha8": "b09fa559",
+"expect": null,
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — leg operator (the letter drives it)"
+},
+{
+"n": 32,
+"role": "probe",
+"run": "git diff --quiet && git diff --cached --quiet && git push origin chore/migrate-pulse-to-v3",
+"run_sha8": "adb66f19",
+"expect": null,
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — leg operator (the letter drives it)"
+},
+{
+"n": 33,
+"role": "probe",
+"run": "python -X utf8 /home/turbolet/.claude/skills/andromeda-tools/scripts/ci.py conclusion --sha HEAD --wait 2400",
+"run_sha8": "2aa1f573",
+"expect": [
+"exit 0",
+"contains verdict: green"
+],
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — leg operator (the letter drives it)"
+},
+{
+"n": 34,
+"role": "probe",
+"run": "gh api repos/Turbolet85/andromeds-pulse/actions/cache/usage",
+"run_sha8": "5cd0039b",
+"expect": [],
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — leg operator (the letter drives it)"
+}
+]
+}
+},
+{
+"tool": "gate",
+"v": "1.6",
+"sha8": "9419d56e",
+"ts": "2026-10-04T01:25:24Z",
+"argv": [
+"scope",
+"--chunk-dir",
+"andromeda-pulse-0.3.0/chunks/2026-10-04-supply-chain-advisories-on-wasmtime-resolved",
+"--run-dir",
+".andromeda/runs/2026-10-04T01-21-17Z-implement",
+"--marker",
+"2026-10-04-supply-chain-advisories-on-wasmtime-resolved"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"root /home/turbolet/dev/projects/andromeda-pulse · base HEAD (no pre-CI commit) · lists new 0 · modify 2 · derived 0 · record 0",
+"control: lists · glob · record — each fired on its synthetic known positive; C1 · C2 held",
+"scope-record.md: absent — every out-of-list file reads unrecorded",
+"scope: clean — changed 2 · listed 2 · recorded 0 (companion 0 · mechanical 0 · in-intent 0 · widening 0) · absorbed 0 · excluded 44"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"root": "/home/turbolet/dev/projects/andromeda-pulse",
+"base": "HEAD",
+"base_why": "no pre-CI commit",
+"counts": {
+"changed": 2,
+"listed": 2,
+"recorded": 0,
+"unrecorded": 0,
+"indet": 0,
+"absorbed": 0
+},
+"by_class": {
+"companion": 0,
+"mechanical": 0,
+"in-intent": 0,
+"widening": 0
+},
+"excluded": 44,
+"unparsed": 0,
+"widening_without_word": 0
+}
+},
+{
+"tool": "gate",
+"v": "1.6",
+"sha8": "9419d56e",
+"ts": "2026-10-04T01:48:52Z",
+"argv": [
+"run",
+"--plan",
+"andromeda-pulse-0.3.0/chunks/2026-10-04-supply-chain-advisories-on-wasmtime-resolved/plan.md",
+"--run-dir",
+".andromeda/runs/2026-10-04T01-21-17Z-implement",
+"--marker",
+"2026-10-04-supply-chain-advisories-on-wasmtime-resolved",
+"--only",
+"23,24"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"shell /usr/bin/bash (from $SHELL; -c, non-login)",
+"root /home/turbolet/dev/projects/andromeda-pulse · marker 2026-10-04-supply-chain-advisories-on-wasmtime-resolved · entries 34",
+"logs /tmp/andromeda-gate/2026-10-04-supply-chain-advisories-on-wasmtime-resolved/implement-2026-10-04T01-21-17Z · bound: GNU timeout",
+"delta none",
+"prose L50-55: These are the gates for a dependency bump. The bump's own subject comes first: the resolut… (598 chars)",
+"prose L57-61: Absences, each with its reason: - No `pulse-app/ui/**` path is touched, so the webview gat… (601 chars)",
+"prose L63-72: `cargo xtask pre-push:linux` cannot evaluate on the Linux dev host, because it drives ever… (1103 chars)",
+"prose L74-77: `evidence/advisory-record.md` and `evidence/lockfile-delta.md`, which a criterion and Step… (405 chars)",
+"prose L79-80: The CI read waits 2400 s, against the last green run's wall-clock of 1718 s (`a69030a`, re… (148 chars)",
+"  1 lint        not run — excluded · cargo fmt --check",
+"  2 lint        not run — excluded · cargo clippy --workspace --all-targets --all-features -- -… (68 chars)",
+"  3 probe       not run — excluded · grep -c '^wasmtime = { version = \"48.0.4\", features = \\[\"c… (90 chars)",
+"  4 probe       not run — excluded · cargo tree -p wasmtime --depth 0 -e normal",
+"  5 probe       not run — excluded · test -f \"$HOME/.cargo/advisory-db/crates/wasmtime/RUSTSEC-… (221 chars)",
+"  6 probe       not run — excluded · cargo audit",
+"  7 probe       not run — excluded · cargo deny check bans licenses sources",
+"  8 probe       not run — excluded · cargo deny check advisories",
+"  9 probe       not run — excluded · cargo tree -p wasmtime | grep -q cranelift",
+" 10 probe       not run — excluded · grep -cE 'RUSTSEC-2026-032[567]' deny.toml",
+" 11 probe       not run — excluded · test ! -e audit.toml && test ! -e .cargo/audit.toml",
+" 12 probe       not run — excluded · git diff -U1 5988a5f80b7280081fdeb12d9eca16bfa32f4de9 -- C… (228 chars)",
+" 13 probe       not run — excluded · git diff 5988a5f80b7280081fdeb12d9eca16bfa32f4de9 -- Cargo… (90 chars)",
+" 14 probe       not run — excluded · git diff --name-only 5988a5f80b7280081fdeb12d9eca16bfa32f4… (125 chars)",
+" 15 unit        not run — excluded · cargo nextest run --workspace --profile ci -E 'package(plu… (65 chars)",
+" 16 probe       not run — excluded · cargo xtask check:english-sources",
+" 17 probe       not run — excluded · cargo xtask capability-widening-check",
+" 18 probe       not run — excluded · cargo xtask check:ingest-progress",
+" 19 probe       not run — excluded · cargo xtask check:staged-artifacts",
+" 20 probe       not run — excluded · cargo xtask capability-drift",
+" 21 probe       not run — excluded · cargo xtask verify:capability-matrix",
+" 22 unit        not run — excluded · cargo nextest run --workspace --profile ci",
+" 23 build       green · exit 0 · 2.93s · 714 B → 23.log · cargo nextest run -p pulse-app --features mcp-server --bin… (101 chars)",
+" 24 probe       green · exit 0 · 0.01s · 0 B → 24.log · git diff --quiet 5988a5f80b7280081fdeb12d9eca16bfa32f4de9 … (95 chars)",
+" 25 probe       not run — excluded · python -X utf8 /home/turbolet/.claude/skills/andromeda-too… (84 chars)",
+" 26 integration not run — excluded · git ls-files -s scripts/agent-run.sh",
+" 27 integration not run — excluded · env -i HOME=\"$HOME\" PATH=\"$HOME/.cargo/bin:$(dirname \"$(co… (191 chars)",
+" 28 integration not run — excluded · cd pulse-app/ui && env -i HOME=\"$HOME\" PATH=\"$HOME/.cargo/… (364 chars)",
+" 29 integration not run — excluded · env -i HOME=\"$HOME\" PATH=\"$HOME/.cargo/bin:$(dirname \"$(co… (226 chars)",
+" 30 integration not run — excluded · env -i HOME=\"$HOME\" PATH=\"$HOME/.cargo/bin:$(dirname \"$(co… (174 chars)",
+" 31 integration not run — excluded · D=\"$PWD/target/pre-push/data\" && rm -rf \"$D\" && mkdir -p \"… (589 chars)",
+" 32 probe       not run — excluded · git diff --quiet && git diff --cached --quiet && git push … (90 chars)",
+" 33 probe       not run — excluded · python -X utf8 /home/turbolet/.claude/skills/andromeda-too… (108 chars)",
+" 34 probe       not run — excluded · gh api repos/Turbolet85/andromeds-pulse/actions/cache/usag… (59 chars)",
+"entries 34 · green 2 · red 0 · recorded 0 · timeout 0 · not-run 32"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"marker": "2026-10-04-supply-chain-advisories-on-wasmtime-resolved",
+"plan": "/home/turbolet/dev/projects/andromeda-pulse/andromeda-pulse-0.3.0/chunks/2026-10-04-supply-chain-advisories-on-wasmtime-resolved/plan.md",
+"root": "/home/turbolet/dev/projects/andromeda-pulse",
+"shell": "/usr/bin/bash",
+"out_dir": "/tmp/andromeda-gate/2026-10-04-supply-chain-advisories-on-wasmtime-resolved/implement-2026-10-04T01-21-17Z",
+"delta": {},
+"unmapped": [],
+"prose": [
+{
+"from": 50,
+"to": 55,
+"text": "These are the gates for a dependency bump. The bump's own subject comes first: the resolution probe, the advisory-DB currency control, `cargo audit`, the two `cargo deny` invocations kept separate (security rule 2026-08-17), the Cranelift assertion and the no-ignore and lockfile-family guards. Then the plugins regression net, the standard test-plan §3 set in its order (capability-drift before the default-features workspace nextest; the `--features mcp-server` bindings regen as the last cargo-adjacent step; the base-identity bindings close, since no procedure is added), and the operator pass."
+},
+{
+"from": 57,
+"to": 61,
+"text": "Absences, each with its reason: - No `pulse-app/ui/**` path is touched, so the webview gates are absent. - No boot-path file is touched (`main.rs`, `observability.rs`, `crates/ui-bridge/src/`, `tauri.conf.json`, `capabilities/*.json`; the scope-guard entry proves it), so the boot smoke does not bind (test-plan §3 Boot-smoke gate). - There is no live leg and no self-verify (no UI change). - `cargo auditable build --workspace --release` is not listed locally because `cargo auditable` is not installed on this host. The CI `supply-chain` job runs it, and the operator CI read asserts that job green."
+},
+{
+"from": 63,
+"to": 72,
+"text": "`cargo xtask pre-push:linux` cannot evaluate on the Linux dev host, because it drives every stage through `wsl.exe` (`xtask/src/pre_push.rs:23`). By founder ruling 2026-10-04 (given live at this plan's review), its six stages run NATIVELY by hand before the push, recorded as the same deviation as 2026-10-02-incident-events-readable-through-mcp (`evidence/operator-pass.md`, Gate 18). They are the six `operator` entries after hygiene, in `Stage::ALL` order: script-modes, source-lint, npm, clippy, test, ci-gates. Each runs in the stage isolation of `Linux::cmd`: `env -i` with only HOME, a Linux PATH and `ANDROMEDA_PULSE_DATA_DIR=target/pre-push/data`, the WSL form's own data path, which is gitignored. The first failing stage stops the run and the push; the operator re-runs them before every fix push. Two differences from the WSL form, as before: the stages run in the working tree rather than a synced clone, and they share this host's `target/` and `~/.cache`. Porting the verb is the route entry \"pre-push:linux runs natively on Linux\". The stage readings go into `evidence/operator-pass.md`."
+},
+{
+"from": 74,
+"to": 77,
+"text": "`evidence/advisory-record.md` and `evidence/lockfile-delta.md`, which a criterion and Step 5 name, have no producing entry by construction. /implement writes them from the recorded outputs of the `cargo audit`, `cargo deny check advisories` and lockfile-guard entries above (and from the chunk base's readings in research.md §Measured). They are records of listed gates, not runtime artifacts a leg emits."
+},
+{
+"from": 79,
+"to": 80,
+"text": "The CI read waits 2400 s, against the last green run's wall-clock of 1718 s (`a69030a`, read at the predecessor's Setup); its timeout is 2400 + 180."
+}
+],
+"entries": [
+{
+"n": 1,
+"role": "lint",
+"run": "cargo fmt --check",
+"run_sha8": "194fabc0",
+"expect": null,
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — excluded"
+},
+{
+"n": 2,
+"role": "lint",
+"run": "cargo clippy --workspace --all-targets --all-features -- -D warnings",
+"run_sha8": "f835224c",
+"expect": null,
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — excluded"
+},
+{
+"n": 3,
+"role": "probe",
+"run": "grep -c '^wasmtime = { version = \"48.0.4\", features = \\[\"component-model\"\\] }$' Cargo.toml",
+"run_sha8": "165e351f",
+"expect": [
+"exit 0",
+"last line 1"
+],
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — excluded"
+},
+{
+"n": 4,
+"role": "probe",
+"run": "cargo tree -p wasmtime --depth 0 -e normal",
+"run_sha8": "6d0d7468",
+"expect": [
+"exit 0",
+"contains wasmtime v48.0.5"
+],
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — excluded"
+},
+{
+"n": 5,
+"role": "probe",
+"run": "test -f \"$HOME/.cargo/advisory-db/crates/wasmtime/RUSTSEC-2026-0325.md\" && test -f \"$HOME/.cargo/advisory-db/crates/wasmtime/RUSTSEC-2026-0326.md\" && test -f \"$HOME/.cargo/advisory-db/crates/wasmtime/RUSTSEC-2026-0327.md\"",
+"run_sha8": "f041878d",
+"expect": null,
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — excluded"
+},
+{
+"n": 6,
+"role": "probe",
+"run": "cargo audit",
+"run_sha8": "317b8907",
+"expect": [
+"exit 0",
+"lacks RUSTSEC-2026-0325",
+"lacks RUSTSEC-2026-0326",
+"lacks RUSTSEC-2026-0327"
+],
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — excluded"
+},
+{
+"n": 7,
+"role": "probe",
+"run": "cargo deny check bans licenses sources",
+"run_sha8": "7593f094",
+"expect": [
+"exit 0",
+"contains bans ok, licenses ok, sources ok"
+],
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — excluded"
+},
+{
+"n": 8,
+"role": "probe",
+"run": "cargo deny check advisories",
+"run_sha8": "a502d912",
+"expect": [
+"lacks RUSTSEC-2026-0325",
+"lacks RUSTSEC-2026-0326",
+"lacks RUSTSEC-2026-0327"
+],
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — excluded"
+},
+{
+"n": 9,
+"role": "probe",
+"run": "cargo tree -p wasmtime | grep -q cranelift",
+"run_sha8": "549a70f4",
+"expect": null,
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — excluded"
+},
+{
+"n": 10,
+"role": "probe",
+"run": "grep -cE 'RUSTSEC-2026-032[567]' deny.toml",
+"run_sha8": "7e8eaa78",
+"expect": [
+"exit 1",
+"last line 0"
+],
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — excluded"
+},
+{
+"n": 11,
+"role": "probe",
+"run": "test ! -e audit.toml && test ! -e .cargo/audit.toml",
+"run_sha8": "30868729",
+"expect": null,
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — excluded"
+},
+{
+"n": 12,
+"role": "probe",
+"run": "git diff -U1 5988a5f80b7280081fdeb12d9eca16bfa32f4de9 -- Cargo.lock | grep -E '^ name = ' | grep -vcE 'name = \"(wasmtime|cranelift|pulley|wasm-compose|wasm-encoder|wasm-metadata|wasmparser|wasmprinter|wit-component|wit-parser)' ",
+"run_sha8": "b157ccfc",
+"expect": [
+"exit 1",
+"last line 0"
+],
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — excluded"
+},
+{
+"n": 13,
+"role": "probe",
+"run": "git diff 5988a5f80b7280081fdeb12d9eca16bfa32f4de9 -- Cargo.lock | grep -cE '^[-+]name = ' ",
+"run_sha8": "3540ea7a",
+"expect": [
+"exit 1",
+"last line 0"
+],
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — excluded"
+},
+{
+"n": 14,
+"role": "probe",
+"run": "git diff --name-only 5988a5f80b7280081fdeb12d9eca16bfa32f4de9 -- crates pulse-app xtask deny.toml rust-toolchain.toml .github",
+"run_sha8": "ecb31594",
+"expect": [
+"exit 0",
+"no output"
+],
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — excluded"
+},
+{
+"n": 15,
+"role": "unit",
+"run": "cargo nextest run --workspace --profile ci -E 'package(plugins)' ",
+"run_sha8": "a0a02682",
+"expect": [
+"exit 0",
+"contains 61 tests run: 61 passed"
+],
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — excluded"
+},
+{
+"n": 16,
+"role": "probe",
+"run": "cargo xtask check:english-sources",
+"run_sha8": "d29f47c5",
+"expect": [
+"exit 0",
+"contains \"verdict\": \"clean\""
+],
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — excluded"
+},
+{
+"n": 17,
+"role": "probe",
+"run": "cargo xtask capability-widening-check",
+"run_sha8": "c09451af",
+"expect": null,
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — excluded"
+},
+{
+"n": 18,
+"role": "probe",
+"run": "cargo xtask check:ingest-progress",
+"run_sha8": "123ffa0a",
+"expect": null,
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — excluded"
+},
+{
+"n": 19,
+"role": "probe",
+"run": "cargo xtask check:staged-artifacts",
+"run_sha8": "052b4e95",
+"expect": null,
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — excluded"
+},
+{
+"n": 20,
+"role": "probe",
+"run": "cargo xtask capability-drift",
+"run_sha8": "fb5fd088",
+"expect": null,
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — excluded"
+},
+{
+"n": 21,
+"role": "probe",
+"run": "cargo xtask verify:capability-matrix",
+"run_sha8": "31c12e31",
+"expect": null,
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — excluded"
+},
+{
+"n": 22,
+"role": "unit",
+"run": "cargo nextest run --workspace --profile ci",
+"run_sha8": "bf6e813a",
+"expect": [
+"exit 0",
+"contains 2575 tests run: 2575 passed"
+],
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — excluded"
+},
+{
+"n": 23,
+"role": "build",
+"run": "cargo nextest run -p pulse-app --features mcp-server --bin pulse-app -E 'test(emit_taurpc_bindings)' ",
+"run_sha8": "3733d1a6",
+"expect": null,
+"log": "/tmp/andromeda-gate/2026-10-04-supply-chain-advisories-on-wasmtime-resolved/implement-2026-10-04T01-21-17Z/23.log",
+"bytes": 714,
+"log_sha8": "123c8416",
+"exit": 0,
+"seconds": 2.93,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 24,
+"role": "probe",
+"run": "git diff --quiet 5988a5f80b7280081fdeb12d9eca16bfa32f4de9 -- pulse-app/ui/src/bindings/index.ts",
+"run_sha8": "abc14d67",
+"expect": null,
+"log": "/tmp/andromeda-gate/2026-10-04-supply-chain-advisories-on-wasmtime-resolved/implement-2026-10-04T01-21-17Z/24.log",
+"bytes": 0,
+"log_sha8": "e3b0c442",
+"exit": 0,
+"seconds": 0.01,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 25,
+"role": "probe",
+"run": "python -X utf8 /home/turbolet/.claude/skills/andromeda-tools/scripts/gate.py hygiene",
+"run_sha8": "c6e5fd28",
+"expect": [
+"exit 0",
+"contains hygiene: clean"
+],
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — excluded"
+},
+{
+"n": 26,
+"role": "integration",
+"run": "git ls-files -s scripts/agent-run.sh",
+"run_sha8": "c3cf2093",
+"expect": [
+"exit 0",
+"contains 100755"
+],
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — excluded"
+},
+{
+"n": 27,
+"role": "integration",
+"run": "env -i HOME=\"$HOME\" PATH=\"$HOME/.cargo/bin:$(dirname \"$(command -v node)\"):/usr/local/bin:/usr/bin:/bin\" ANDROMEDA_PULSE_DATA_DIR=\"$PWD/target/pre-push/data\" cargo xtask check:english-sources",
+"run_sha8": "b6a3fa09",
+"expect": [
+"exit 0",
+"contains \"verdict\": \"clean\""
+],
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — excluded"
+},
+{
+"n": 28,
+"role": "integration",
+"run": "cd pulse-app/ui && env -i HOME=\"$HOME\" PATH=\"$HOME/.cargo/bin:$(dirname \"$(command -v node)\"):/usr/local/bin:/usr/bin:/bin\" ANDROMEDA_PULSE_DATA_DIR=\"$OLDPWD/target/pre-push/data\" npm ci && env -i HOME=\"$HOME\" PATH=\"$HOME/.cargo/bin:$(dirname \"$(command -v node)\"):/usr/local/bin:/usr/bin:/bin\" ANDROMEDA_PULSE_DATA_DIR=\"$OLDPWD/target/pre-push/data\" npm run build",
+"run_sha8": "14372bcc",
+"expect": null,
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — excluded"
+},
+{
+"n": 29,
+"role": "integration",
+"run": "env -i HOME=\"$HOME\" PATH=\"$HOME/.cargo/bin:$(dirname \"$(command -v node)\"):/usr/local/bin:/usr/bin:/bin\" ANDROMEDA_PULSE_DATA_DIR=\"$PWD/target/pre-push/data\" cargo clippy --workspace --all-targets --all-features -- -D warnings",
+"run_sha8": "f73db233",
+"expect": null,
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — excluded"
+},
+{
+"n": 30,
+"role": "integration",
+"run": "env -i HOME=\"$HOME\" PATH=\"$HOME/.cargo/bin:$(dirname \"$(command -v node)\"):/usr/local/bin:/usr/bin:/bin\" ANDROMEDA_PULSE_DATA_DIR=\"$PWD/target/pre-push/data\" cargo xtask test",
+"run_sha8": "6146313a",
+"expect": [
+"exit 0",
+"contains 2575 tests run: 2575 passed"
+],
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — excluded"
+},
+{
+"n": 31,
+"role": "integration",
+"run": "D=\"$PWD/target/pre-push/data\" && rm -rf \"$D\" && mkdir -p \"$D/logs\" && printf '%s\\n' '{\"timestamp\":\"2026-01-01T00:00:00.000000Z\",\"level\":\"INFO\",\"target\":\"app.boot.ready\",\"fields\":{\"message\":\"pre-push seed\"}}' '{\"timestamp\":\"2026-01-01T00:00:00.000000Z\",\"level\":\"INFO\",\"target\":\"ingest.tick\",\"fields\":{}}' '{\"timestamp\":\"2026-01-01T00:00:15.000000Z\",\"level\":\"INFO\",\"target\":\"ingest.tick\",\"fields\":{}}' > \"$D/logs/agent-latest.jsonl\" && env -i HOME=\"$HOME\" PATH=\"$HOME/.cargo/bin:$(dirname \"$(command -v node)\"):/usr/local/bin:/usr/bin:/bin\" ANDROMEDA_PULSE_DATA_DIR=\"$D\" cargo xtask ci-gates",
+"run_sha8": "b09fa559",
+"expect": null,
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — excluded"
+},
+{
+"n": 32,
+"role": "probe",
+"run": "git diff --quiet && git diff --cached --quiet && git push origin chore/migrate-pulse-to-v3",
+"run_sha8": "adb66f19",
+"expect": null,
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — excluded"
+},
+{
+"n": 33,
+"role": "probe",
+"run": "python -X utf8 /home/turbolet/.claude/skills/andromeda-tools/scripts/ci.py conclusion --sha HEAD --wait 2400",
+"run_sha8": "2aa1f573",
+"expect": [
+"exit 0",
+"contains verdict: green"
+],
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — excluded"
+},
+{
+"n": 34,
+"role": "probe",
+"run": "gh api repos/Turbolet85/andromeds-pulse/actions/cache/usage",
+"run_sha8": "5cd0039b",
+"expect": [],
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — excluded"
+}
+]
+}
+}
+]

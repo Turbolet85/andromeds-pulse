@@ -1,0 +1,38 @@
+    Updating crates.io index
+     Locking 35 packages to latest compatible versions
+    Updating cranelift-assembler-x64 v0.135.3 -> v0.135.5
+    Updating cranelift-assembler-x64-meta v0.135.3 -> v0.135.5
+    Updating cranelift-bforest v0.135.3 -> v0.135.5
+    Updating cranelift-bitset v0.135.3 -> v0.135.5
+    Updating cranelift-codegen v0.135.3 -> v0.135.5
+    Updating cranelift-codegen-meta v0.135.3 -> v0.135.5
+    Updating cranelift-codegen-shared v0.135.3 -> v0.135.5
+    Updating cranelift-control v0.135.3 -> v0.135.5
+    Updating cranelift-entity v0.135.3 -> v0.135.5
+    Updating cranelift-frontend v0.135.3 -> v0.135.5
+    Updating cranelift-isle v0.135.3 -> v0.135.5
+    Updating cranelift-native v0.135.3 -> v0.135.5
+    Updating cranelift-srcgen v0.135.3 -> v0.135.5
+    Updating pulley-interpreter v48.0.3 -> v48.0.5
+    Updating pulley-macros v48.0.3 -> v48.0.5
+    Updating wasm-compose v0.254.0 -> v0.254.2
+    Updating wasm-encoder v0.254.0 -> v0.254.2
+    Updating wasm-metadata v0.254.0 -> v0.254.2
+    Updating wasmparser v0.254.0 -> v0.254.2
+    Updating wasmprinter v0.254.0 -> v0.254.2
+    Updating wasmtime v48.0.3 -> v48.0.5 (available: v49.0.2, requires Rust 1.96.0)
+    Updating wasmtime-environ v48.0.3 -> v48.0.5
+    Updating wasmtime-internal-cache v48.0.3 -> v48.0.5
+    Updating wasmtime-internal-component-macro v48.0.3 -> v48.0.5
+    Updating wasmtime-internal-component-util v48.0.3 -> v48.0.5
+    Updating wasmtime-internal-core v48.0.3 -> v48.0.5
+    Updating wasmtime-internal-cranelift v48.0.3 -> v48.0.5
+    Updating wasmtime-internal-fiber v48.0.3 -> v48.0.5
+    Updating wasmtime-internal-jit-debug v48.0.3 -> v48.0.5
+    Updating wasmtime-internal-jit-icache-coherence v48.0.3 -> v48.0.5
+    Updating wasmtime-internal-unwinder v48.0.3 -> v48.0.5
+    Updating wasmtime-internal-versioned-export-macros v48.0.3 -> v48.0.5
+    Updating wasmtime-internal-wit-bindgen v48.0.3 -> v48.0.5
+    Updating wit-component v0.254.0 -> v0.254.2
+    Updating wit-parser v0.254.0 -> v0.254.2
+note: pass `--verbose` to see 287 unchanged dependencies behind latest

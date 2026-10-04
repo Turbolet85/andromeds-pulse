@@ -1,0 +1,1109 @@
+﻿2026-10-04T00:45:41.3119131Z Current runner version: '2.337.0'
+2026-10-04T00:45:41.3146683Z ##[group]Runner Image Provisioner
+2026-10-04T00:45:41.3147610Z Hosted Compute Agent
+2026-10-04T00:45:41.3148428Z Version: 20260901.588
+2026-10-04T00:45:41.3149161Z Commit: f88ec8081b781fac6c440065ac7ff9e710ce3d0b
+2026-10-04T00:45:41.3149899Z Build Date: 2026-09-01T19:56:44Z
+2026-10-04T00:45:41.3150729Z Worker ID: {f8000b71-f325-4052-854d-ebf679169ee7}
+2026-10-04T00:45:41.3151486Z Azure Region: centralus
+2026-10-04T00:45:41.3152191Z ##[endgroup]
+2026-10-04T00:45:41.3153662Z ##[group]Operating System
+2026-10-04T00:45:41.3154317Z Ubuntu
+2026-10-04T00:45:41.3154992Z 22.04.5
+2026-10-04T00:45:41.3155557Z LTS
+2026-10-04T00:45:41.3156414Z ##[endgroup]
+2026-10-04T00:45:41.3157039Z ##[group]Runner Image
+2026-10-04T00:45:41.3157705Z Image: ubuntu-22.04
+2026-10-04T00:45:41.3158398Z Version: 20260927.309.1
+2026-10-04T00:45:41.3159762Z Included Software: https://github.com/actions/runner-images/blob/ubuntu22/20260927.309/images/ubuntu/Ubuntu2204-Readme.md
+2026-10-04T00:45:41.3161602Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu22%2F20260927.309
+2026-10-04T00:45:41.3162628Z ##[endgroup]
+2026-10-04T00:45:41.3163899Z ##[group]GITHUB_TOKEN Permissions
+2026-10-04T00:45:41.3166143Z Contents: read
+2026-10-04T00:45:41.3167233Z Metadata: read
+2026-10-04T00:45:41.3167869Z ##[endgroup]
+2026-10-04T00:45:41.3170099Z Secret source: Actions
+2026-10-04T00:45:41.3171214Z Cache mode: write
+2026-10-04T00:45:41.3172054Z Prepare workflow directory
+2026-10-04T00:45:41.3710138Z Prepare all required actions
+2026-10-04T00:45:41.3759900Z Getting action download info
+2026-10-04T00:45:41.6718367Z Download action repository 'step-security/harden-runner@a5ad31d6a139d249332a2605b85202e8c0b78450' (SHA:a5ad31d6a139d249332a2605b85202e8c0b78450)
+2026-10-04T00:45:42.2303260Z Download action repository 'actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5' (SHA:34e114876b0b11c390a56381ad16ebd13914f8d5)
+2026-10-04T00:45:42.3164167Z Download action repository 'dtolnay/rust-toolchain@29eef336d9b2848a0b548edc03f92a220660cdb8' (SHA:29eef336d9b2848a0b548edc03f92a220660cdb8)
+2026-10-04T00:45:42.4604513Z Download action repository 'Swatinem/rust-cache@23869a5bd66c73db3c0ac40331f3206eb23791dc' (SHA:23869a5bd66c73db3c0ac40331f3206eb23791dc)
+2026-10-04T00:45:43.2204626Z Download action repository 'rustsec/audit-check@69366f33c96575abad1ee0dba8212993eecbe998' (SHA:69366f33c96575abad1ee0dba8212993eecbe998)
+2026-10-04T00:45:43.5120442Z Download action repository 'EmbarkStudios/cargo-deny-action@a4d2d701318fdc1c6ae17ba8cea8f329c5110eb2' (SHA:a4d2d701318fdc1c6ae17ba8cea8f329c5110eb2)
+2026-10-04T00:45:43.7099252Z Download action repository 'actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020' (SHA:49933ea5288caeca8642d1e84afbd3f7d6820020)
+2026-10-04T00:45:43.8704226Z Download action repository 'taiki-e/install-action@db5fb34fa772531a3ece57ca434f579eb334e0fb' (SHA:db5fb34fa772531a3ece57ca434f579eb334e0fb)
+2026-10-04T00:45:44.3943228Z Complete job name: supply-chain (audit + deny + auditable)
+2026-10-04T00:45:44.4505867Z ##[group]Build container for action use: '<runner-home>/work/_actions/EmbarkStudios/cargo-deny-action/a4d2d701318fdc1c6ae17ba8cea8f329c5110eb2/Dockerfile'.
+2026-10-04T00:45:44.4927842Z ##[command]/usr/bin/docker build -t cc788a:3fe303e12bf54e6ab677a068a69d6c71 -f "<runner-home>/work/_actions/EmbarkStudios/cargo-deny-action/a4d2d701318fdc1c6ae17ba8cea8f329c5110eb2/Dockerfile" "<runner-home>/work/_actions/EmbarkStudios/cargo-deny-action/a4d2d701318fdc1c6ae17ba8cea8f329c5110eb2"
+2026-10-04T00:45:46.9802593Z #0 building with "default" instance using docker driver
+2026-10-04T00:45:46.9803020Z 
+2026-10-04T00:45:46.9803258Z #1 [internal] load build definition from Dockerfile
+2026-10-04T00:45:46.9803797Z #1 transferring dockerfile: 508B done
+2026-10-04T00:45:46.9804225Z #1 DONE 0.0s
+2026-10-04T00:45:46.9804418Z 
+2026-10-04T00:45:46.9804672Z #2 [auth] library/rust:pull token for registry-1.docker.io
+2026-10-04T00:45:47.1299058Z #2 DONE 0.0s
+2026-10-04T00:45:47.1299346Z 
+2026-10-04T00:45:47.1300430Z #3 [internal] load metadata for docker.io/library/rust:1.85.0-alpine3.20@sha256:f0cef6c65992995b1c7816cb667de95799852e3fbed9d06f95855cbc512a0fd0
+2026-10-04T00:45:47.4482352Z #3 DONE 0.6s
+2026-10-04T00:45:47.5681509Z 
+2026-10-04T00:45:47.5682169Z #4 [internal] load .dockerignore
+2026-10-04T00:45:47.5683217Z #4 transferring context: 2B done
+2026-10-04T00:45:47.5683603Z #4 DONE 0.0s
+2026-10-04T00:45:47.5683971Z 
+2026-10-04T00:45:47.5684164Z #5 [internal] load build context
+2026-10-04T00:45:47.5684628Z #5 transferring context: 1.19kB done
+2026-10-04T00:45:47.5685229Z #5 DONE 0.0s
+2026-10-04T00:45:47.5685542Z 
+2026-10-04T00:45:47.5686140Z #6 [1/3] FROM docker.io/library/rust:1.85.0-alpine3.20@sha256:f0cef6c65992995b1c7816cb667de95799852e3fbed9d06f95855cbc512a0fd0
+2026-10-04T00:45:47.5687790Z #6 resolve docker.io/library/rust:1.85.0-alpine3.20@sha256:f0cef6c65992995b1c7816cb667de95799852e3fbed9d06f95855cbc512a0fd0 done
+2026-10-04T00:45:47.5688942Z #6 sha256:d0430b4a2b30329b0c06034d1df61c2f3533c436834a54b76def8756d804d888 0B / 55.32MB 0.1s
+2026-10-04T00:45:47.5689746Z #6 sha256:8fda7dd06f6e434e3727cd86155430a51568846533e3824548334e20f1078e28 0B / 239.16MB 0.1s
+2026-10-04T00:45:47.5690585Z #6 sha256:f0cef6c65992995b1c7816cb667de95799852e3fbed9d06f95855cbc512a0fd0 2.63kB / 2.63kB done
+2026-10-04T00:45:47.5691357Z #6 sha256:6d824fef86a8532aecead5889d49d432d19e0dd58b958266c994cca9eb7a3357 1.54kB / 1.54kB done
+2026-10-04T00:45:47.5692148Z #6 sha256:7c38e59fb99c1014ea6d250d396bb9bf55981f1d69fe17ed05047b90cd119ca9 2.53kB / 2.53kB done
+2026-10-04T00:45:47.5692791Z #6 sha256:0a9a5dfd008f05ebc27e4790db0709a29e527690c21bcbcd01481eaeb6bb49dc 2.10MB / 3.63MB 0.1s
+2026-10-04T00:45:47.6685011Z #6 sha256:d0430b4a2b30329b0c06034d1df61c2f3533c436834a54b76def8756d804d888 6.29MB / 55.32MB 0.2s
+2026-10-04T00:45:47.6686503Z #6 sha256:8fda7dd06f6e434e3727cd86155430a51568846533e3824548334e20f1078e28 21.34MB / 239.16MB 0.2s
+2026-10-04T00:45:47.6688296Z #6 sha256:0a9a5dfd008f05ebc27e4790db0709a29e527690c21bcbcd01481eaeb6bb49dc 3.63MB / 3.63MB 0.1s done
+2026-10-04T00:45:47.6689992Z #6 extracting sha256:0a9a5dfd008f05ebc27e4790db0709a29e527690c21bcbcd01481eaeb6bb49dc
+2026-10-04T00:45:47.7686507Z #6 sha256:d0430b4a2b30329b0c06034d1df61c2f3533c436834a54b76def8756d804d888 33.55MB / 55.32MB 0.3s
+2026-10-04T00:45:47.7687663Z #6 sha256:8fda7dd06f6e434e3727cd86155430a51568846533e3824548334e20f1078e28 42.85MB / 239.16MB 0.3s
+2026-10-04T00:45:47.7689423Z #6 extracting sha256:0a9a5dfd008f05ebc27e4790db0709a29e527690c21bcbcd01481eaeb6bb49dc 0.1s done
+2026-10-04T00:45:47.9314975Z #6 sha256:d0430b4a2b30329b0c06034d1df61c2f3533c436834a54b76def8756d804d888 55.32MB / 55.32MB 0.4s
+2026-10-04T00:45:47.9317574Z #6 sha256:8fda7dd06f6e434e3727cd86155430a51568846533e3824548334e20f1078e28 74.60MB / 239.16MB 0.4s
+2026-10-04T00:45:47.9318704Z #6 extracting sha256:d0430b4a2b30329b0c06034d1df61c2f3533c436834a54b76def8756d804d888
+2026-10-04T00:45:48.0375719Z #6 sha256:d0430b4a2b30329b0c06034d1df61c2f3533c436834a54b76def8756d804d888 55.32MB / 55.32MB 0.4s done
+2026-10-04T00:45:48.0378334Z #6 sha256:8fda7dd06f6e434e3727cd86155430a51568846533e3824548334e20f1078e28 107.96MB / 239.16MB 0.5s
+2026-10-04T00:45:48.1434150Z #6 sha256:8fda7dd06f6e434e3727cd86155430a51568846533e3824548334e20f1078e28 146.80MB / 239.16MB 0.6s
+2026-10-04T00:45:48.2680006Z #6 sha256:8fda7dd06f6e434e3727cd86155430a51568846533e3824548334e20f1078e28 205.79MB / 239.16MB 0.8s
+2026-10-04T00:45:48.4291793Z #6 sha256:8fda7dd06f6e434e3727cd86155430a51568846533e3824548334e20f1078e28 239.16MB / 239.16MB 0.9s
+2026-10-04T00:45:48.7381260Z #6 sha256:8fda7dd06f6e434e3727cd86155430a51568846533e3824548334e20f1078e28 239.16MB / 239.16MB 1.2s done
+2026-10-04T00:45:49.0341285Z #6 extracting sha256:d0430b4a2b30329b0c06034d1df61c2f3533c436834a54b76def8756d804d888 1.0s done
+2026-10-04T00:45:49.0631648Z #6 extracting sha256:8fda7dd06f6e434e3727cd86155430a51568846533e3824548334e20f1078e28
+2026-10-04T00:45:52.2966788Z #6 extracting sha256:8fda7dd06f6e434e3727cd86155430a51568846533e3824548334e20f1078e28 3.1s done
+2026-10-04T00:45:53.6064452Z #6 DONE 6.1s
+2026-10-04T00:45:53.7592183Z 
+2026-10-04T00:45:53.7593791Z #7 [2/3] RUN set -eux;     apk update;     apk add bash curl git tar openssh;     curl --silent -L https://github.com/EmbarkStudios/cargo-deny/releases/download/0.19.2/cargo-deny-0.19.2-x86_64-unknown-linux-musl.tar.gz | tar -xzv -C /usr/bin --strip-components=1;
+2026-10-04T00:45:53.7846990Z #7 0.177 + apk update
+2026-10-04T00:45:53.9199373Z #7 0.184 fetch https://dl-cdn.alpinelinux.org/alpine/v3.20/main/x86_64/APKINDEX.tar.gz
+2026-10-04T00:45:53.9200057Z #7 0.313 fetch https://dl-cdn.alpinelinux.org/alpine/v3.20/community/x86_64/APKINDEX.tar.gz
+2026-10-04T00:45:54.2182542Z #7 0.611 v3.20.10-114-ga410d2306e5 [https://dl-cdn.alpinelinux.org/alpine/v3.20/main]
+2026-10-04T00:45:54.2183515Z #7 0.611 v3.20.10-106-gcfb1a4769c3 [https://dl-cdn.alpinelinux.org/alpine/v3.20/community]
+2026-10-04T00:45:54.2184197Z #7 0.611 OK: 24182 distinct packages available
+2026-10-04T00:45:54.4369058Z #7 0.679 + apk add bash curl git tar openssh
+2026-10-04T00:45:54.5895998Z #7 0.982 (1/26) Installing ncurses-terminfo-base (6.4_p20240420-r2)
+2026-10-04T00:45:54.7102430Z #7 1.075 (2/26) Installing libncursesw (6.4_p20240420-r2)
+2026-10-04T00:45:54.7103041Z #7 1.103 (3/26) Installing readline (8.2.10-r0)
+2026-10-04T00:45:54.8126421Z #7 1.118 (4/26) Installing bash (5.2.26-r0)
+2026-10-04T00:45:54.8127031Z #7 1.144 Executing bash-5.2.26-r0.post-install
+2026-10-04T00:45:54.8127563Z #7 1.147 (5/26) Installing brotli-libs (1.1.0-r2)
+2026-10-04T00:45:54.8128097Z #7 1.164 (6/26) Installing c-ares (1.33.1-r0)
+2026-10-04T00:45:54.8128542Z #7 1.175 (7/26) Installing libunistring (1.2-r0)
+2026-10-04T00:45:54.8128998Z #7 1.194 (8/26) Installing libidn2 (2.3.7-r0)
+2026-10-04T00:45:54.8129483Z #7 1.205 (9/26) Installing nghttp2-libs (1.62.1-r0)
+2026-10-04T00:45:54.9580819Z #7 1.216 (10/26) Installing libpsl (0.21.5-r1)
+2026-10-04T00:45:54.9581220Z #7 1.227 (11/26) Installing libcurl (8.14.1-r2)
+2026-10-04T00:45:54.9581571Z #7 1.241 (12/26) Installing curl (8.14.1-r2)
+2026-10-04T00:45:55.0675454Z #7 1.253 (13/26) Installing libexpat (2.8.1-r0)
+2026-10-04T00:45:55.0675864Z #7 1.264 (14/26) Installing pcre2 (10.43-r0)
+2026-10-04T00:45:55.0676183Z #7 1.278 (15/26) Installing git (2.45.4-r0)
+2026-10-04T00:45:55.0676733Z #7 1.351 (16/26) Installing git-init-template (2.45.4-r0)
+2026-10-04T00:45:55.0677101Z #7 1.362 (17/26) Installing openssh-keygen (9.7_p1-r5)
+2026-10-04T00:45:55.0677413Z #7 1.374 (18/26) Installing libedit (20240517.3.1-r0)
+2026-10-04T00:45:55.0677753Z #7 1.385 (19/26) Installing openssh-client-common (9.7_p1-r5)
+2026-10-04T00:45:55.0678127Z #7 1.410 (20/26) Installing openssh-client-default (9.7_p1-r5)
+2026-10-04T00:45:55.0678486Z #7 1.425 (21/26) Installing openssh-sftp-server (9.7_p1-r5)
+2026-10-04T00:45:55.0678835Z #7 1.436 (22/26) Installing openssh-server-common (9.7_p1-r5)
+2026-10-04T00:45:55.0679169Z #7 1.445 (23/26) Installing openssh-server (9.7_p1-r5)
+2026-10-04T00:45:55.0679478Z #7 1.460 (24/26) Installing openssh (9.7_p1-r5)
+2026-10-04T00:45:55.1902189Z #7 1.472 (25/26) Installing libacl (2.3.2-r0)
+2026-10-04T00:45:55.1902608Z #7 1.482 (26/26) Installing tar (1.35-r2)
+2026-10-04T00:45:55.1902934Z #7 1.495 Executing busybox-1.36.1-r29.trigger
+2026-10-04T00:45:55.1903249Z #7 1.502 OK: 167 MiB in 53 packages
+2026-10-04T00:45:55.1903906Z #7 1.583 + curl --silent -L https://github.com/EmbarkStudios/cargo-deny/releases/download/0.19.2/cargo-deny-0.19.2-x86_64-unknown-linux-musl.tar.gz
+2026-10-04T00:45:55.1904565Z #7 1.583 + tar -xzv -C /usr/bin '--strip-components=1'
+2026-10-04T00:45:55.4925548Z #7 1.885 cargo-deny-0.19.2-x86_64-unknown-linux-musl/README.md
+2026-10-04T00:45:55.6431634Z #7 1.885 cargo-deny-0.19.2-x86_64-unknown-linux-musl/LICENSE-MIT
+2026-10-04T00:45:55.6432572Z #7 1.885 cargo-deny-0.19.2-x86_64-unknown-linux-musl/LICENSE-APACHE
+2026-10-04T00:45:55.6433522Z #7 1.886 cargo-deny-0.19.2-x86_64-unknown-linux-musl/cargo-deny
+2026-10-04T00:45:55.6537959Z #7 DONE 2.0s
+2026-10-04T00:45:55.8335295Z 
+2026-10-04T00:45:55.8336347Z #8 [3/3] COPY entrypoint.sh /entrypoint.sh
+2026-10-04T00:45:55.8337453Z #8 DONE 0.0s
+2026-10-04T00:45:55.8337598Z 
+2026-10-04T00:45:55.8337690Z #9 exporting to image
+2026-10-04T00:45:55.8337925Z #9 exporting layers
+2026-10-04T00:45:56.0054910Z #9 exporting layers 0.3s done
+2026-10-04T00:45:56.0201509Z #9 writing image sha256:853dea5de7ea2c31dc77d663e43dd522056b80283ecce05ab0cd34a43787f57b done
+2026-10-04T00:45:56.0202603Z #9 naming to docker.io/library/cc788a:3fe303e12bf54e6ab677a068a69d6c71 done
+2026-10-04T00:45:56.0203390Z #9 DONE 0.3s
+2026-10-04T00:45:56.0262885Z ##[endgroup]
+2026-10-04T00:45:56.0529936Z ##[group]Run step-security/harden-runner@a5ad31d6a139d249332a2605b85202e8c0b78450
+2026-10-04T00:45:56.0530585Z with:
+2026-10-04T00:45:56.0530804Z   egress-policy: audit
+2026-10-04T00:45:56.0533706Z   token: ***
+2026-10-04T00:45:56.0533947Z   disable-telemetry: false
+2026-10-04T00:45:56.0534192Z   disable-sudo: false
+2026-10-04T00:45:56.0534430Z   disable-sudo-and-containers: false
+2026-10-04T00:45:56.0534717Z   disable-file-monitoring: false
+2026-10-04T00:45:56.0535011Z   use-policy-store: false
+2026-10-04T00:45:56.0535268Z   deploy-on-self-hosted-vm: false
+2026-10-04T00:45:56.0535808Z env:
+2026-10-04T00:45:56.0536017Z   SERVICE_NAME: com.andromeda.pulse
+2026-10-04T00:45:56.0536468Z   DEPLOYMENT_ENVIRONMENT: production
+2026-10-04T00:45:56.0536738Z   CI_RUN_ID: 37165927619
+2026-10-04T00:45:56.0537025Z   GIT_COMMIT_SHA: 12a299437b9209f7afbec388f17e7efbbb13fe43
+2026-10-04T00:45:56.0537350Z   CARGO_TERM_COLOR: always
+2026-10-04T00:45:56.0537572Z ##[endgroup]
+2026-10-04T00:45:56.1971385Z [harden-runner] pre-step
+2026-10-04T00:45:56.1971779Z [!] Current Configuration: 
+2026-10-04T00:45:56.1973936Z {"repo":"Turbolet85/andromeds-pulse","run_id":"37165927619","correlation_id":"d1555699-e449-4b3a-b67c-ee5e73eb17fd","working_directory":"<runner-home>/work/andromeds-pulse/andromeds-pulse","api_url":"https://agent.api.stepsecurity.io/v1","telemetry_url":"https://prod.app-api.stepsecurity.io/v1","allowed_endpoints":"","egress_policy":"audit","disable_telemetry":false,"disable_sudo":false,"disable_sudo_and_containers":false,"disable_file_monitoring":false,"private":false,"is_github_hosted":true,"is_debug":false,"one_time_key":"","api_key":"","use_policy_store":false,"deploy_on_self_hosted_vm":false}
+2026-10-04T00:45:56.1976051Z 
+2026-10-04T00:45:56.1997521Z View security insights and recommended policy at:
+2026-10-04T00:45:56.2007298Z https://app.stepsecurity.io/github/Turbolet85/andromeds-pulse/actions/runs/37165927619
+2026-10-04T00:45:56.2008062Z RUNNER_NAME: GitHub Actions 1000002703
+2026-10-04T00:45:56.9886745Z Runner IP Address: 52.165.59.2
+2026-10-04T00:45:56.9887427Z Step Security Job Correlation ID: d1555699-e449-4b3a-b67c-ee5e73eb17fd
+2026-10-04T00:45:57.0150119Z [!] Checking TLS_STATUS: Turbolet85
+2026-10-04T00:45:57.2101852Z [!] TLS_NOT_ENABLED: Turbolet85
+2026-10-04T00:45:57.5646147Z ✅ Checksum verification passed. checksum=e38de61e1afd98dd339bb9acce4996183875d482be1638fb198ab02b3e25bbef
+2026-10-04T00:45:57.5756814Z [command]/usr/bin/tar xz --warning=no-unknown-keyword --overwrite -C <runner-home>/work/_temp/c2a28f63-a4fd-4619-a989-dc3101caaabd -f <runner-home>/work/_temp/78405b61-3b0c-4a02-8c0b-f6304f8fa1d5
+2026-10-04T00:46:01.8347291Z Initialized
+2026-10-04T00:46:01.8562790Z ##[group]Run step-security/harden-runner@a5ad31d6a139d249332a2605b85202e8c0b78450
+2026-10-04T00:46:01.8563235Z with:
+2026-10-04T00:46:01.8563445Z   egress-policy: audit
+2026-10-04T00:46:01.8566507Z   token: ***
+2026-10-04T00:46:01.8566729Z   disable-telemetry: false
+2026-10-04T00:46:01.8566974Z   disable-sudo: false
+2026-10-04T00:46:01.8567222Z   disable-sudo-and-containers: false
+2026-10-04T00:46:01.8567510Z   disable-file-monitoring: false
+2026-10-04T00:46:01.8567779Z   use-policy-store: false
+2026-10-04T00:46:01.8568027Z   deploy-on-self-hosted-vm: false
+2026-10-04T00:46:01.8568288Z env:
+2026-10-04T00:46:01.8568499Z   SERVICE_NAME: com.andromeda.pulse
+2026-10-04T00:46:01.8568777Z   DEPLOYMENT_ENVIRONMENT: production
+2026-10-04T00:46:01.8569040Z   CI_RUN_ID: 37165927619
+2026-10-04T00:46:01.8569568Z   GIT_COMMIT_SHA: 12a299437b9209f7afbec388f17e7efbbb13fe43
+2026-10-04T00:46:01.8569890Z   CARGO_TERM_COLOR: always
+2026-10-04T00:46:01.8570121Z   STATE_disableSudo: false
+2026-10-04T00:46:01.8570416Z   STATE_disableSudoAndContainers: false
+2026-10-04T00:46:01.8570707Z   STATE_monitorStatusCode: 200
+2026-10-04T00:46:01.8570959Z   STATE_addSummary: false
+2026-10-04T00:46:01.8571246Z   STATE_correlation_id: d1555699-e449-4b3a-b67c-ee5e73eb17fd
+2026-10-04T00:46:01.8571569Z   STATE_isTLS: false
+2026-10-04T00:46:01.8571779Z ##[endgroup]
+2026-10-04T00:46:01.9404118Z [harden-runner] main-step
+2026-10-04T00:46:01.9409306Z View security insights and recommended policy at:
+2026-10-04T00:46:01.9410088Z https://app.stepsecurity.io/github/Turbolet85/andromeds-pulse/actions/runs/37165927619
+2026-10-04T00:46:01.9593411Z ##[group]Run echo "ANDROMEDA_PULSE_DATA_DIR=$RUNNER_TEMP/andromeda-pulse-ci-data" >> "$GITHUB_ENV"
+2026-10-04T00:46:01.9594619Z echo "ANDROMEDA_PULSE_DATA_DIR=$RUNNER_TEMP/andromeda-pulse-ci-data" >> "$GITHUB_ENV"
+2026-10-04T00:46:01.9689537Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-10-04T00:46:01.9689893Z env:
+2026-10-04T00:46:01.9690114Z   SERVICE_NAME: com.andromeda.pulse
+2026-10-04T00:46:01.9690403Z   DEPLOYMENT_ENVIRONMENT: production
+2026-10-04T00:46:01.9690672Z   CI_RUN_ID: 37165927619
+2026-10-04T00:46:01.9691098Z   GIT_COMMIT_SHA: 12a299437b9209f7afbec388f17e7efbbb13fe43
+2026-10-04T00:46:01.9691451Z   CARGO_TERM_COLOR: always
+2026-10-04T00:46:01.9691689Z ##[endgroup]
+2026-10-04T00:46:01.9912258Z ##[group]Run actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+2026-10-04T00:46:01.9912660Z with:
+2026-10-04T00:46:01.9912896Z   repository: Turbolet85/andromeds-pulse
+2026-10-04T00:46:01.9916133Z   token: ***
+2026-10-04T00:46:01.9916508Z   ssh-strict: true
+2026-10-04T00:46:01.9916720Z   ssh-user: git
+2026-10-04T00:46:01.9916950Z   persist-credentials: true
+2026-10-04T00:46:01.9917189Z   clean: true
+2026-10-04T00:46:01.9917430Z   sparse-checkout-cone-mode: true
+2026-10-04T00:46:01.9917687Z   fetch-depth: 1
+2026-10-04T00:46:01.9917892Z   fetch-tags: false
+2026-10-04T00:46:01.9918105Z   show-progress: true
+2026-10-04T00:46:01.9918327Z   lfs: false
+2026-10-04T00:46:01.9918521Z   submodules: false
+2026-10-04T00:46:01.9918732Z   set-safe-directory: true
+2026-10-04T00:46:01.9918962Z env:
+2026-10-04T00:46:01.9919168Z   SERVICE_NAME: com.andromeda.pulse
+2026-10-04T00:46:01.9919455Z   DEPLOYMENT_ENVIRONMENT: production
+2026-10-04T00:46:01.9919720Z   CI_RUN_ID: 37165927619
+2026-10-04T00:46:01.9920025Z   GIT_COMMIT_SHA: 12a299437b9209f7afbec388f17e7efbbb13fe43
+2026-10-04T00:46:01.9920356Z   CARGO_TERM_COLOR: always
+2026-10-04T00:46:01.9920706Z   ANDROMEDA_PULSE_DATA_DIR: <runner-home>/work/_temp/andromeda-pulse-ci-data
+2026-10-04T00:46:01.9921095Z ##[endgroup]
+2026-10-04T00:46:02.0939116Z Syncing repository: Turbolet85/andromeds-pulse
+2026-10-04T00:46:02.0940887Z ##[group]Getting Git version info
+2026-10-04T00:46:02.0941533Z Working directory is '<runner-home>/work/andromeds-pulse/andromeds-pulse'
+2026-10-04T00:46:02.0942483Z [command]/usr/bin/git version
+2026-10-04T00:46:02.0962963Z git version 2.55.0
+2026-10-04T00:46:02.1018078Z ##[endgroup]
+2026-10-04T00:46:02.1033331Z Temporarily overriding HOME='<runner-home>/work/_temp/a6315784-68af-41ac-9d5c-4a1589f431b0' before making global git config changes
+2026-10-04T00:46:02.1034421Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-04T00:46:02.1039480Z [command]/usr/bin/git config --global --add safe.directory <runner-home>/work/andromeds-pulse/andromeds-pulse
+2026-10-04T00:46:02.1089733Z Deleting the contents of '<runner-home>/work/andromeds-pulse/andromeds-pulse'
+2026-10-04T00:46:02.1095087Z ##[group]Initializing the repository
+2026-10-04T00:46:02.1100363Z [command]/usr/bin/git init <runner-home>/work/andromeds-pulse/andromeds-pulse
+2026-10-04T00:46:02.1267307Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-10-04T00:46:02.1274666Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-10-04T00:46:02.1277524Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-10-04T00:46:02.1278222Z hint: call:
+2026-10-04T00:46:02.1278545Z hint:
+2026-10-04T00:46:02.1279151Z hint: 	git config --global init.defaultBranch <name>
+2026-10-04T00:46:02.1279708Z hint:
+2026-10-04T00:46:02.1280258Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-10-04T00:46:02.1281061Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-10-04T00:46:02.1281603Z hint:
+2026-10-04T00:46:02.1281979Z hint: 	git branch -m <name>
+2026-10-04T00:46:02.1282437Z hint:
+2026-10-04T00:46:02.1283041Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-10-04T00:46:02.1283971Z Initialized empty Git repository in <runner-home>/work/andromeds-pulse/andromeds-pulse/.git/
+2026-10-04T00:46:02.1286435Z [command]/usr/bin/git remote add origin https://github.com/Turbolet85/andromeds-pulse
+2026-10-04T00:46:02.1411065Z ##[endgroup]
+2026-10-04T00:46:02.1411714Z ##[group]Disabling automatic garbage collection
+2026-10-04T00:46:02.1413839Z [command]/usr/bin/git config --local gc.auto 0
+2026-10-04T00:46:02.1477354Z ##[endgroup]
+2026-10-04T00:46:02.1478235Z ##[group]Setting up auth
+2026-10-04T00:46:02.1479361Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-04T00:46:02.1530634Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-04T00:46:02.2021364Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-04T00:46:02.2079573Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-04T00:46:02.2409157Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-04T00:46:02.2455694Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-04T00:46:02.2798847Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-10-04T00:46:02.2855902Z ##[endgroup]
+2026-10-04T00:46:02.2863431Z ##[group]Fetching the repository
+2026-10-04T00:46:02.2867825Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +12a299437b9209f7afbec388f17e7efbbb13fe43:refs/remotes/pull/39/merge
+2026-10-04T00:46:03.5966987Z From https://github.com/Turbolet85/andromeds-pulse
+2026-10-04T00:46:03.5969308Z  * [new ref]         12a299437b9209f7afbec388f17e7efbbb13fe43 -> pull/39/merge
+2026-10-04T00:46:03.5972896Z ##[endgroup]
+2026-10-04T00:46:03.5973454Z ##[group]Determining the checkout info
+2026-10-04T00:46:03.5976393Z ##[endgroup]
+2026-10-04T00:46:03.5982462Z [command]/usr/bin/git sparse-checkout disable
+2026-10-04T00:46:03.6051316Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2026-10-04T00:46:03.6096814Z ##[group]Checking out the ref
+2026-10-04T00:46:03.6101574Z [command]/usr/bin/git checkout --progress --force refs/remotes/pull/39/merge
+2026-10-04T00:46:04.5268357Z Note: switching to 'refs/remotes/pull/39/merge'.
+2026-10-04T00:46:04.5296491Z 
+2026-10-04T00:46:04.5297035Z You are in 'detached HEAD' state. You can look around, make experimental
+2026-10-04T00:46:04.5297849Z changes and commit them, and you can discard any commits you make in this
+2026-10-04T00:46:04.5298631Z state without impacting any branches by switching back to a branch.
+2026-10-04T00:46:04.5299093Z 
+2026-10-04T00:46:04.5299386Z If you want to create a new branch to retain commits you create, you may
+2026-10-04T00:46:04.5300115Z do so (now or later) by using -c with the switch command. Example:
+2026-10-04T00:46:04.5300923Z 
+2026-10-04T00:46:04.5301092Z   git switch -c <new-branch-name>
+2026-10-04T00:46:04.5301376Z 
+2026-10-04T00:46:04.5301543Z Or undo this operation with:
+2026-10-04T00:46:04.5301799Z 
+2026-10-04T00:46:04.5301940Z   git switch -
+2026-10-04T00:46:04.5302256Z 
+2026-10-04T00:46:04.5302609Z Turn off this advice by setting config variable advice.detachedHead to false
+2026-10-04T00:46:04.5303107Z 
+2026-10-04T00:46:04.5303674Z HEAD is now at 12a2994 Merge 5988a5f80b7280081fdeb12d9eca16bfa32f4de9 into 93d9670804995c5972cb2d0e2511db637737d541
+2026-10-04T00:46:04.5305475Z ##[endgroup]
+2026-10-04T00:46:04.5358987Z [command]/usr/bin/git log -1 --format=%H
+2026-10-04T00:46:04.5400574Z 12a299437b9209f7afbec388f17e7efbbb13fe43
+2026-10-04T00:46:04.5664608Z ##[group]Run dtolnay/rust-toolchain@29eef336d9b2848a0b548edc03f92a220660cdb8
+2026-10-04T00:46:04.5665033Z with:
+2026-10-04T00:46:04.5665239Z   toolchain: stable
+2026-10-04T00:46:04.5665451Z env:
+2026-10-04T00:46:04.5665661Z   SERVICE_NAME: com.andromeda.pulse
+2026-10-04T00:46:04.5665962Z   DEPLOYMENT_ENVIRONMENT: production
+2026-10-04T00:46:04.5666473Z   CI_RUN_ID: 37165927619
+2026-10-04T00:46:04.5666799Z   GIT_COMMIT_SHA: 12a299437b9209f7afbec388f17e7efbbb13fe43
+2026-10-04T00:46:04.5667121Z   CARGO_TERM_COLOR: always
+2026-10-04T00:46:04.5667476Z   ANDROMEDA_PULSE_DATA_DIR: <runner-home>/work/_temp/andromeda-pulse-ci-data
+2026-10-04T00:46:04.5667864Z ##[endgroup]
+2026-10-04T00:46:04.5762840Z ##[start-action display=Run : parse toolchain version;id=__dtolnay_rust-toolchain.parse]
+2026-10-04T00:46:04.5791591Z ##[group]Run : parse toolchain version
+2026-10-04T00:46:04.5791961Z : parse toolchain version
+2026-10-04T00:46:04.5792239Z if [[ -z $toolchain ]]; then
+2026-10-04T00:46:04.5792810Z   # GitHub does not enforce `required: true` inputs itself. https://github.com/actions/runner/issues/1070
+2026-10-04T00:46:04.5793382Z   echo "'toolchain' is a required input" >&2
+2026-10-04T00:46:04.5793692Z   exit 1
+2026-10-04T00:46:04.5794049Z elif [[ $toolchain =~ ^stable' '[0-9]+' '(year|month|week|day)s?' 'ago$ ]]; then
+2026-10-04T00:46:04.5794459Z   if [[ Linux == macOS ]]; then
+2026-10-04T00:46:04.5794983Z     echo "toolchain=1.$((($(date -v-$(sed 's/stable \([0-9]*\) \(.\).*/\1\2/' <<< $toolchain) +%s)/60/60/24-16569)/7/6))" >> $GITHUB_OUTPUT
+2026-10-04T00:46:04.5795506Z   else
+2026-10-04T00:46:04.5795928Z     echo "toolchain=1.$((($(date --date "${toolchain#stable }" +%s)/60/60/24-16569)/7/6))" >> $GITHUB_OUTPUT
+2026-10-04T00:46:04.5796615Z   fi
+2026-10-04T00:46:04.5796930Z elif [[ $toolchain =~ ^stable' 'minus' '[0-9]+' 'releases?$ ]]; then
+2026-10-04T00:46:04.5797462Z   echo "toolchain=1.$((($(date +%s)/60/60/24-16569)/7/6-${toolchain//[^0-9]/}))" >> $GITHUB_OUTPUT
+2026-10-04T00:46:04.5797915Z elif [[ $toolchain =~ ^1\.[0-9]+$ ]]; then
+2026-10-04T00:46:04.5798428Z   echo "toolchain=1.$((i=${toolchain#1.}, c=($(date +%s)/60/60/24-16569)/7/6, i+9*i*(10*i<=c)+90*i*(100*i<=c)))" >> $GITHUB_OUTPUT
+2026-10-04T00:46:04.5798924Z else
+2026-10-04T00:46:04.5799183Z   echo "toolchain=$toolchain" >> $GITHUB_OUTPUT
+2026-10-04T00:46:04.5799485Z fi
+2026-10-04T00:46:04.5876601Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-10-04T00:46:04.5876948Z env:
+2026-10-04T00:46:04.5877170Z   SERVICE_NAME: com.andromeda.pulse
+2026-10-04T00:46:04.5877464Z   DEPLOYMENT_ENVIRONMENT: production
+2026-10-04T00:46:04.5877729Z   CI_RUN_ID: 37165927619
+2026-10-04T00:46:04.5878031Z   GIT_COMMIT_SHA: 12a299437b9209f7afbec388f17e7efbbb13fe43
+2026-10-04T00:46:04.5878353Z   CARGO_TERM_COLOR: always
+2026-10-04T00:46:04.5878717Z   ANDROMEDA_PULSE_DATA_DIR: <runner-home>/work/_temp/andromeda-pulse-ci-data
+2026-10-04T00:46:04.5879120Z   toolchain: stable
+2026-10-04T00:46:04.5879344Z ##[endgroup]
+2026-10-04T00:46:04.6012886Z ##[end-action id=__dtolnay_rust-toolchain.parse;outcome=success;conclusion=success;duration_ms=24]
+2026-10-04T00:46:04.6032572Z ##[start-action display=Run : construct rustup command line;id=__dtolnay_rust-toolchain.flags]
+2026-10-04T00:46:04.6073790Z ##[group]Run : construct rustup command line
+2026-10-04T00:46:04.6074136Z : construct rustup command line
+2026-10-04T00:46:04.6074594Z echo "targets=$(for t in ${targets//,/ }; do echo -n ' --target' $t; done)" >> $GITHUB_OUTPUT
+2026-10-04T00:46:04.6075253Z echo "components=$(for c in ${components//,/ }; do echo -n ' --component' $c; done)" >> $GITHUB_OUTPUT
+2026-10-04T00:46:04.6075753Z echo "downgrade=" >> $GITHUB_OUTPUT
+2026-10-04T00:46:04.6147477Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-10-04T00:46:04.6148072Z env:
+2026-10-04T00:46:04.6148299Z   SERVICE_NAME: com.andromeda.pulse
+2026-10-04T00:46:04.6148581Z   DEPLOYMENT_ENVIRONMENT: production
+2026-10-04T00:46:04.6148844Z   CI_RUN_ID: 37165927619
+2026-10-04T00:46:04.6149128Z   GIT_COMMIT_SHA: 12a299437b9209f7afbec388f17e7efbbb13fe43
+2026-10-04T00:46:04.6149457Z   CARGO_TERM_COLOR: always
+2026-10-04T00:46:04.6149807Z   ANDROMEDA_PULSE_DATA_DIR: <runner-home>/work/_temp/andromeda-pulse-ci-data
+2026-10-04T00:46:04.6150184Z   targets: 
+2026-10-04T00:46:04.6150373Z   components: 
+2026-10-04T00:46:04.6150572Z ##[endgroup]
+2026-10-04T00:46:04.6265912Z ##[end-action id=__dtolnay_rust-toolchain.flags;outcome=success;conclusion=success;duration_ms=23]
+2026-10-04T00:46:04.6270902Z ##[start-action display=Run : set $CARGO_HOME;id=__dtolnay_rust-toolchain.__run]
+2026-10-04T00:46:04.6297081Z ##[group]Run : set $CARGO_HOME
+2026-10-04T00:46:04.6297491Z : set $CARGO_HOME
+2026-10-04T00:46:04.6298022Z echo CARGO_HOME=${CARGO_HOME:-"$HOME/.cargo"} >> $GITHUB_ENV
+2026-10-04T00:46:04.6391933Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-10-04T00:46:04.6392456Z env:
+2026-10-04T00:46:04.6392779Z   SERVICE_NAME: com.andromeda.pulse
+2026-10-04T00:46:04.6393225Z   DEPLOYMENT_ENVIRONMENT: production
+2026-10-04T00:46:04.6393657Z   CI_RUN_ID: 37165927619
+2026-10-04T00:46:04.6394100Z   GIT_COMMIT_SHA: 12a299437b9209f7afbec388f17e7efbbb13fe43
+2026-10-04T00:46:04.6394610Z   CARGO_TERM_COLOR: always
+2026-10-04T00:46:04.6395160Z   ANDROMEDA_PULSE_DATA_DIR: <runner-home>/work/_temp/andromeda-pulse-ci-data
+2026-10-04T00:46:04.6395779Z ##[endgroup]
+2026-10-04T00:46:04.6497856Z ##[end-action id=__dtolnay_rust-toolchain.__run;outcome=success;conclusion=success;duration_ms=22]
+2026-10-04T00:46:04.6500089Z ##[start-action display=Run : install rustup if needed;id=__dtolnay_rust-toolchain.__run_2]
+2026-10-04T00:46:04.6526061Z ##[group]Run : install rustup if needed
+2026-10-04T00:46:04.6526662Z : install rustup if needed
+2026-10-04T00:46:04.6526974Z if ! command -v rustup &>/dev/null; then
+2026-10-04T00:46:04.6527727Z   curl --proto '=https' --tlsv1.2 --retry 10 --retry-connrefused --location --silent --show-error --fail https://sh.rustup.rs | sh -s -- --default-toolchain none -y
+2026-10-04T00:46:04.6528497Z   echo "$CARGO_HOME/bin" >> $GITHUB_PATH
+2026-10-04T00:46:04.6528784Z fi
+2026-10-04T00:46:04.6597586Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-10-04T00:46:04.6597929Z env:
+2026-10-04T00:46:04.6598145Z   SERVICE_NAME: com.andromeda.pulse
+2026-10-04T00:46:04.6598429Z   DEPLOYMENT_ENVIRONMENT: production
+2026-10-04T00:46:04.6598690Z   CI_RUN_ID: 37165927619
+2026-10-04T00:46:04.6598975Z   GIT_COMMIT_SHA: 12a299437b9209f7afbec388f17e7efbbb13fe43
+2026-10-04T00:46:04.6599303Z   CARGO_TERM_COLOR: always
+2026-10-04T00:46:04.6599652Z   ANDROMEDA_PULSE_DATA_DIR: <runner-home>/work/_temp/andromeda-pulse-ci-data
+2026-10-04T00:46:04.6600045Z   CARGO_HOME: <runner-home>/.cargo
+2026-10-04T00:46:04.6600304Z ##[endgroup]
+2026-10-04T00:46:04.6700850Z ##[end-action id=__dtolnay_rust-toolchain.__run_2;outcome=success;conclusion=success;duration_ms=20]
+2026-10-04T00:46:04.6704679Z ##[start-action display=Run : install rustup if needed on windows;id=__dtolnay_rust-toolchain.__run_3]
+2026-10-04T00:46:04.6711646Z ##[end-action id=__dtolnay_rust-toolchain.__run_3;outcome=skipped;conclusion=skipped;duration_ms=0]
+2026-10-04T00:46:04.6714678Z ##[start-action display=rustup toolchain install stable;id=__dtolnay_rust-toolchain.__run_4]
+2026-10-04T00:46:04.6734706Z ##[group]Run rustup toolchain install stable --profile minimal --no-self-update
+2026-10-04T00:46:04.6735259Z rustup toolchain install stable --profile minimal --no-self-update
+2026-10-04T00:46:04.6805728Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-10-04T00:46:04.6806071Z env:
+2026-10-04T00:46:04.6806539Z   SERVICE_NAME: com.andromeda.pulse
+2026-10-04T00:46:04.6806837Z   DEPLOYMENT_ENVIRONMENT: production
+2026-10-04T00:46:04.6807439Z   CI_RUN_ID: 37165927619
+2026-10-04T00:46:04.6807742Z   GIT_COMMIT_SHA: 12a299437b9209f7afbec388f17e7efbbb13fe43
+2026-10-04T00:46:04.6808068Z   CARGO_TERM_COLOR: always
+2026-10-04T00:46:04.6808429Z   ANDROMEDA_PULSE_DATA_DIR: <runner-home>/work/_temp/andromeda-pulse-ci-data
+2026-10-04T00:46:04.6808841Z   CARGO_HOME: <runner-home>/.cargo
+2026-10-04T00:46:04.6809146Z   RUSTUP_PERMIT_COPY_RENAME: 1
+2026-10-04T00:46:04.6809395Z ##[endgroup]
+2026-10-04T00:46:06.0020968Z info: syncing channel updates for stable-x86_64-unknown-linux-gnu
+2026-10-04T00:46:06.2287499Z info: latest update on 2026-10-01 for version 1.99.0 (b940084d7 2026-09-28)
+2026-10-04T00:46:06.2485782Z info: removing previous version of component rustfmt
+2026-10-04T00:46:06.2548767Z info: removing previous version of component clippy
+2026-10-04T00:46:06.2561349Z info: removing previous version of component cargo
+2026-10-04T00:46:06.2611273Z info: removing previous version of component rust-std
+2026-10-04T00:46:06.2666691Z info: removing previous version of component rustc
+2026-10-04T00:46:06.2725500Z info: downloading 5 components
+2026-10-04T00:46:15.5404642Z 
+2026-10-04T00:46:15.5516804Z   stable-x86_64-unknown-linux-gnu updated - rustc 1.99.0 (b940084d7 2026-09-28) (from rustc 1.98.1 (48a229cea 2026-09-01))
+2026-10-04T00:46:15.5517852Z 
+2026-10-04T00:46:15.5625151Z ##[end-action id=__dtolnay_rust-toolchain.__run_4;outcome=success;conclusion=success;duration_ms=10890]
+2026-10-04T00:46:15.5630905Z ##[start-action display=Run rustup default stable;id=__dtolnay_rust-toolchain.__run_5]
+2026-10-04T00:46:15.5651748Z ##[group]Run rustup default stable
+2026-10-04T00:46:15.5652061Z rustup default stable
+2026-10-04T00:46:15.5729270Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-10-04T00:46:15.5729613Z env:
+2026-10-04T00:46:15.5729838Z   SERVICE_NAME: com.andromeda.pulse
+2026-10-04T00:46:15.5730128Z   DEPLOYMENT_ENVIRONMENT: production
+2026-10-04T00:46:15.5730406Z   CI_RUN_ID: 37165927619
+2026-10-04T00:46:15.5730725Z   GIT_COMMIT_SHA: 12a299437b9209f7afbec388f17e7efbbb13fe43
+2026-10-04T00:46:15.5731046Z   CARGO_TERM_COLOR: always
+2026-10-04T00:46:15.5731404Z   ANDROMEDA_PULSE_DATA_DIR: <runner-home>/work/_temp/andromeda-pulse-ci-data
+2026-10-04T00:46:15.5731814Z   CARGO_HOME: <runner-home>/.cargo
+2026-10-04T00:46:15.5732078Z ##[endgroup]
+2026-10-04T00:46:15.5888555Z info: using existing install for stable-x86_64-unknown-linux-gnu
+2026-10-04T00:46:15.5894583Z info: default toolchain set to stable-x86_64-unknown-linux-gnu
+2026-10-04T00:46:15.5895029Z 
+2026-10-04T00:46:15.5999981Z   stable-x86_64-unknown-linux-gnu unchanged - rustc 1.99.0 (b940084d7 2026-09-28)
+2026-10-04T00:46:15.6000839Z 
+2026-10-04T00:46:15.6003499Z info: note that the toolchain '1.95.0-x86_64-unknown-linux-gnu' is currently in use (overridden by '<runner-home>/work/andromeds-pulse/andromeds-pulse/rust-toolchain.toml')
+2026-10-04T00:46:15.6022216Z ##[end-action id=__dtolnay_rust-toolchain.__run_5;outcome=success;conclusion=success;duration_ms=39]
+2026-10-04T00:46:15.6027573Z ##[start-action display=Run : create cachekey;id=__dtolnay_rust-toolchain.rustc-version]
+2026-10-04T00:46:15.6048012Z ##[group]Run : create cachekey
+2026-10-04T00:46:15.6048325Z : create cachekey
+2026-10-04T00:46:15.6048846Z DATE=$(rustc +stable --version --verbose | sed -ne 's/^commit-date: \(20[0-9][0-9]\)-\([01][0-9]\)-\([0-3][0-9]\)$/\1\2\3/p')
+2026-10-04T00:46:15.6049842Z HASH=$(rustc +stable --version --verbose | sed -ne 's/^commit-hash: //p')
+2026-10-04T00:46:15.6050360Z echo "cachekey=$(echo $DATE$HASH | head -c12)" >> $GITHUB_OUTPUT
+2026-10-04T00:46:15.6128105Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-10-04T00:46:15.6128465Z env:
+2026-10-04T00:46:15.6128692Z   SERVICE_NAME: com.andromeda.pulse
+2026-10-04T00:46:15.6128984Z   DEPLOYMENT_ENVIRONMENT: production
+2026-10-04T00:46:15.6129259Z   CI_RUN_ID: 37165927619
+2026-10-04T00:46:15.6129548Z   GIT_COMMIT_SHA: 12a299437b9209f7afbec388f17e7efbbb13fe43
+2026-10-04T00:46:15.6130113Z   CARGO_TERM_COLOR: always
+2026-10-04T00:46:15.6130473Z   ANDROMEDA_PULSE_DATA_DIR: <runner-home>/work/_temp/andromeda-pulse-ci-data
+2026-10-04T00:46:15.6130883Z   CARGO_HOME: <runner-home>/.cargo
+2026-10-04T00:46:15.6131143Z ##[endgroup]
+2026-10-04T00:46:15.6615982Z ##[end-action id=__dtolnay_rust-toolchain.rustc-version;outcome=success;conclusion=success;duration_ms=58]
+2026-10-04T00:46:15.6619981Z ##[start-action display=Run : disable incremental compilation;id=__dtolnay_rust-toolchain.__run_6]
+2026-10-04T00:46:15.6639159Z ##[group]Run : disable incremental compilation
+2026-10-04T00:46:15.6639523Z : disable incremental compilation
+2026-10-04T00:46:15.6639868Z if [ -z "${CARGO_INCREMENTAL+set}" ]; then
+2026-10-04T00:46:15.6640219Z   echo CARGO_INCREMENTAL=0 >> $GITHUB_ENV
+2026-10-04T00:46:15.6640508Z fi
+2026-10-04T00:46:15.6718285Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-10-04T00:46:15.6718633Z env:
+2026-10-04T00:46:15.6718876Z   SERVICE_NAME: com.andromeda.pulse
+2026-10-04T00:46:15.6719164Z   DEPLOYMENT_ENVIRONMENT: production
+2026-10-04T00:46:15.6719427Z   CI_RUN_ID: 37165927619
+2026-10-04T00:46:15.6719711Z   GIT_COMMIT_SHA: 12a299437b9209f7afbec388f17e7efbbb13fe43
+2026-10-04T00:46:15.6720028Z   CARGO_TERM_COLOR: always
+2026-10-04T00:46:15.6720401Z   ANDROMEDA_PULSE_DATA_DIR: <runner-home>/work/_temp/andromeda-pulse-ci-data
+2026-10-04T00:46:15.6720795Z   CARGO_HOME: <runner-home>/.cargo
+2026-10-04T00:46:15.6721043Z ##[endgroup]
+2026-10-04T00:46:15.6824508Z ##[end-action id=__dtolnay_rust-toolchain.__run_6;outcome=success;conclusion=success;duration_ms=20]
+2026-10-04T00:46:15.6827065Z ##[start-action display=Run : enable colors in Cargo output;id=__dtolnay_rust-toolchain.__run_7]
+2026-10-04T00:46:15.6846831Z ##[group]Run : enable colors in Cargo output
+2026-10-04T00:46:15.6847405Z : enable colors in Cargo output
+2026-10-04T00:46:15.6847873Z if [ -z "${CARGO_TERM_COLOR+set}" ]; then
+2026-10-04T00:46:15.6848352Z   echo CARGO_TERM_COLOR=always >> $GITHUB_ENV
+2026-10-04T00:46:15.6848898Z fi
+2026-10-04T00:46:15.6918864Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-10-04T00:46:15.6919363Z env:
+2026-10-04T00:46:15.6919709Z   SERVICE_NAME: com.andromeda.pulse
+2026-10-04T00:46:15.6920272Z   DEPLOYMENT_ENVIRONMENT: production
+2026-10-04T00:46:15.6920725Z   CI_RUN_ID: 37165927619
+2026-10-04T00:46:15.6939177Z   GIT_COMMIT_SHA: 12a299437b9209f7afbec388f17e7efbbb13fe43
+2026-10-04T00:46:15.6939541Z   CARGO_TERM_COLOR: always
+2026-10-04T00:46:15.6939922Z   ANDROMEDA_PULSE_DATA_DIR: <runner-home>/work/_temp/andromeda-pulse-ci-data
+2026-10-04T00:46:15.6940341Z   CARGO_HOME: <runner-home>/.cargo
+2026-10-04T00:46:15.6940602Z   CARGO_INCREMENTAL: 0
+2026-10-04T00:46:15.6940820Z ##[endgroup]
+2026-10-04T00:46:15.7045047Z ##[end-action id=__dtolnay_rust-toolchain.__run_7;outcome=success;conclusion=success;duration_ms=21]
+2026-10-04T00:46:15.7049544Z ##[start-action display=Run : enable Cargo sparse registry;id=__dtolnay_rust-toolchain.__run_8]
+2026-10-04T00:46:15.7068527Z ##[group]Run : enable Cargo sparse registry
+2026-10-04T00:46:15.7068872Z : enable Cargo sparse registry
+2026-10-04T00:46:15.7069240Z # implemented in 1.66, stabilized in 1.68, made default in 1.70
+2026-10-04T00:46:15.7070197Z if [ -z "${CARGO_REGISTRIES_CRATES_IO_PROTOCOL+set}" -o -f "<runner-home>/work/_temp"/.implicit_cargo_registries_crates_io_protocol ]; then
+2026-10-04T00:46:15.7070929Z   if rustc +stable --version --verbose | grep -q '^release: 1\.6[89]\.'; then
+2026-10-04T00:46:15.7071502Z     touch "<runner-home>/work/_temp"/.implicit_cargo_registries_crates_io_protocol || true
+2026-10-04T00:46:15.7072040Z     echo CARGO_REGISTRIES_CRATES_IO_PROTOCOL=sparse >> $GITHUB_ENV
+2026-10-04T00:46:15.7072531Z   elif rustc +stable --version --verbose | grep -q '^release: 1\.6[67]\.'; then
+2026-10-04T00:46:15.7073248Z     touch "<runner-home>/work/_temp"/.implicit_cargo_registries_crates_io_protocol || true
+2026-10-04T00:46:15.7073774Z     echo CARGO_REGISTRIES_CRATES_IO_PROTOCOL=git >> $GITHUB_ENV
+2026-10-04T00:46:15.7074136Z   fi
+2026-10-04T00:46:15.7074341Z fi
+2026-10-04T00:46:15.7145573Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-10-04T00:46:15.7145941Z env:
+2026-10-04T00:46:15.7146159Z   SERVICE_NAME: com.andromeda.pulse
+2026-10-04T00:46:15.7146682Z   DEPLOYMENT_ENVIRONMENT: production
+2026-10-04T00:46:15.7146963Z   CI_RUN_ID: 37165927619
+2026-10-04T00:46:15.7147259Z   GIT_COMMIT_SHA: 12a299437b9209f7afbec388f17e7efbbb13fe43
+2026-10-04T00:46:15.7147584Z   CARGO_TERM_COLOR: always
+2026-10-04T00:46:15.7147947Z   ANDROMEDA_PULSE_DATA_DIR: <runner-home>/work/_temp/andromeda-pulse-ci-data
+2026-10-04T00:46:15.7148342Z   CARGO_HOME: <runner-home>/.cargo
+2026-10-04T00:46:15.7148594Z   CARGO_INCREMENTAL: 0
+2026-10-04T00:46:15.7148830Z ##[endgroup]
+2026-10-04T00:46:15.7608490Z ##[end-action id=__dtolnay_rust-toolchain.__run_8;outcome=success;conclusion=success;duration_ms=55]
+2026-10-04T00:46:15.7613900Z ##[start-action display=Run : work around spurious network errors in curl 8.0;id=__dtolnay_rust-toolchain.__run_9]
+2026-10-04T00:46:15.7642166Z ##[group]Run : work around spurious network errors in curl 8.0
+2026-10-04T00:46:15.7642848Z : work around spurious network errors in curl 8.0
+2026-10-04T00:46:15.7643749Z # https://rust-lang.zulipchat.com/#narrow/stream/246057-t-cargo/topic/timeout.20investigation
+2026-10-04T00:46:15.7644777Z if rustc +stable --version --verbose | grep -q '^release: 1\.7[01]\.'; then
+2026-10-04T00:46:15.7645535Z   echo CARGO_HTTP_MULTIPLEXING=false >> $GITHUB_ENV
+2026-10-04T00:46:15.7646047Z fi
+2026-10-04T00:46:15.7736159Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-10-04T00:46:15.7736854Z env:
+2026-10-04T00:46:15.7737187Z   SERVICE_NAME: com.andromeda.pulse
+2026-10-04T00:46:15.7737638Z   DEPLOYMENT_ENVIRONMENT: production
+2026-10-04T00:46:15.7738068Z   CI_RUN_ID: 37165927619
+2026-10-04T00:46:15.7738515Z   GIT_COMMIT_SHA: 12a299437b9209f7afbec388f17e7efbbb13fe43
+2026-10-04T00:46:15.7739019Z   CARGO_TERM_COLOR: always
+2026-10-04T00:46:15.7739572Z   ANDROMEDA_PULSE_DATA_DIR: <runner-home>/work/_temp/andromeda-pulse-ci-data
+2026-10-04T00:46:15.7740213Z   CARGO_HOME: <runner-home>/.cargo
+2026-10-04T00:46:15.7740615Z   CARGO_INCREMENTAL: 0
+2026-10-04T00:46:15.7740955Z ##[endgroup]
+2026-10-04T00:46:15.8024707Z ##[end-action id=__dtolnay_rust-toolchain.__run_9;outcome=success;conclusion=success;duration_ms=40]
+2026-10-04T00:46:15.8030312Z ##[start-action display=Run rustc +stable --version --verbose;id=__dtolnay_rust-toolchain.__run_10]
+2026-10-04T00:46:15.8056512Z ##[group]Run rustc +stable --version --verbose
+2026-10-04T00:46:15.8057065Z rustc +stable --version --verbose
+2026-10-04T00:46:15.8138634Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-10-04T00:46:15.8138990Z env:
+2026-10-04T00:46:15.8139240Z   SERVICE_NAME: com.andromeda.pulse
+2026-10-04T00:46:15.8139546Z   DEPLOYMENT_ENVIRONMENT: production
+2026-10-04T00:46:15.8139811Z   CI_RUN_ID: 37165927619
+2026-10-04T00:46:15.8140099Z   GIT_COMMIT_SHA: 12a299437b9209f7afbec388f17e7efbbb13fe43
+2026-10-04T00:46:15.8140418Z   CARGO_TERM_COLOR: always
+2026-10-04T00:46:15.8141030Z   ANDROMEDA_PULSE_DATA_DIR: <runner-home>/work/_temp/andromeda-pulse-ci-data
+2026-10-04T00:46:15.8141423Z   CARGO_HOME: <runner-home>/.cargo
+2026-10-04T00:46:15.8141676Z   CARGO_INCREMENTAL: 0
+2026-10-04T00:46:15.8141895Z ##[endgroup]
+2026-10-04T00:46:15.8384791Z rustc 1.99.0 (b940084d7 2026-09-28)
+2026-10-04T00:46:15.8385140Z binary: rustc
+2026-10-04T00:46:15.8385423Z commit-hash: b940084d7eb6a299eb4bfeb8e34901bc051e7ac4
+2026-10-04T00:46:15.8385756Z commit-date: 2026-09-28
+2026-10-04T00:46:15.8385997Z host: x86_64-unknown-linux-gnu
+2026-10-04T00:46:15.8386495Z release: 1.99.0
+2026-10-04T00:46:15.8386784Z LLVM version: 23.1.1
+2026-10-04T00:46:15.8412005Z ##[end-action id=__dtolnay_rust-toolchain.__run_10;outcome=success;conclusion=success;duration_ms=38]
+2026-10-04T00:46:15.8502964Z ##[group]Run Swatinem/rust-cache@23869a5bd66c73db3c0ac40331f3206eb23791dc
+2026-10-04T00:46:15.8503401Z with:
+2026-10-04T00:46:15.8503616Z   shared-key: boot-Linux
+2026-10-04T00:46:15.8503868Z   save-if: false
+2026-10-04T00:46:15.8504098Z   prefix-key: v0-rust
+2026-10-04T00:46:15.8504331Z   add-job-id-key: true
+2026-10-04T00:46:15.8504576Z   add-rust-environment-hash-key: true
+2026-10-04T00:46:15.8504849Z   cache-targets: true
+2026-10-04T00:46:15.8505068Z   cache-all-crates: false
+2026-10-04T00:46:15.8505307Z   cache-workspace-crates: false
+2026-10-04T00:46:15.8505562Z   cache-provider: github
+2026-10-04T00:46:15.8505783Z   cache-bin: true
+2026-10-04T00:46:15.8505991Z   lookup-only: false
+2026-10-04T00:46:15.8506439Z   cmd-format: {0}
+2026-10-04T00:46:15.8506682Z env:
+2026-10-04T00:46:15.8506885Z   SERVICE_NAME: com.andromeda.pulse
+2026-10-04T00:46:15.8507154Z   DEPLOYMENT_ENVIRONMENT: production
+2026-10-04T00:46:15.8507440Z   CI_RUN_ID: 37165927619
+2026-10-04T00:46:15.8507762Z   GIT_COMMIT_SHA: 12a299437b9209f7afbec388f17e7efbbb13fe43
+2026-10-04T00:46:15.8508092Z   CARGO_TERM_COLOR: always
+2026-10-04T00:46:15.8508450Z   ANDROMEDA_PULSE_DATA_DIR: <runner-home>/work/_temp/andromeda-pulse-ci-data
+2026-10-04T00:46:15.8508878Z   CARGO_HOME: <runner-home>/.cargo
+2026-10-04T00:46:15.8509134Z   CARGO_INCREMENTAL: 0
+2026-10-04T00:46:15.8509350Z ##[endgroup]
+2026-10-04T00:46:16.1634906Z (node:2814) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-04T00:46:16.1635655Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-04T00:46:31.2811294Z ##[group]Cache Configuration
+2026-10-04T00:46:31.2811616Z Cache Provider:
+2026-10-04T00:46:31.2811841Z     github
+2026-10-04T00:46:31.2812131Z Workspaces:
+2026-10-04T00:46:31.2812487Z     <runner-home>/work/andromeds-pulse/andromeds-pulse
+2026-10-04T00:46:31.2813005Z Cache Paths:
+2026-10-04T00:46:31.2813567Z     <runner-home>/.cargo/bin
+2026-10-04T00:46:31.2814145Z     <runner-home>/.cargo/.crates.toml
+2026-10-04T00:46:31.2814648Z     <runner-home>/.cargo/.crates2.json
+2026-10-04T00:46:31.2815153Z     <runner-home>/.cargo/registry
+2026-10-04T00:46:31.2815627Z     <runner-home>/.cargo/git
+2026-10-04T00:46:31.2816393Z     <runner-home>/work/andromeds-pulse/andromeds-pulse/target
+2026-10-04T00:46:31.2817023Z Restore Key:
+2026-10-04T00:46:31.2817383Z     v0-rust-boot-Linux-Linux-x64-0e159c75
+2026-10-04T00:46:31.2817868Z Cache Key:
+2026-10-04T00:46:31.2818266Z     v0-rust-boot-Linux-Linux-x64-0e159c75-0ce8af60
+2026-10-04T00:46:31.2818762Z .. Prefix:
+2026-10-04T00:46:31.2819111Z   - v0-rust-boot-Linux-Linux-x64
+2026-10-04T00:46:31.2819465Z .. Environment considered:
+2026-10-04T00:46:31.2819713Z   - Rust Versions:
+2026-10-04T00:46:31.2820270Z     - 1.95.0 x86_64-unknown-linux-gnu 59807616e1fa2540724bfbac14d7976d7e4a3860
+2026-10-04T00:46:31.2821009Z     - 1.99.0 x86_64-unknown-linux-gnu b940084d7eb6a299eb4bfeb8e34901bc051e7ac4
+2026-10-04T00:46:31.2821722Z     - 1.95.0 x86_64-unknown-linux-gnu 59807616e1fa2540724bfbac14d7976d7e4a3860
+2026-10-04T00:46:31.2822288Z   - CARGO_HOME
+2026-10-04T00:46:31.2822611Z   - CARGO_INCREMENTAL
+2026-10-04T00:46:31.2822941Z   - CARGO_TERM_COLOR
+2026-10-04T00:46:31.2823717Z .. Lockfiles considered:
+2026-10-04T00:46:31.2824252Z   - <runner-home>/work/andromeds-pulse/andromeds-pulse/.cargo/config.toml
+2026-10-04T00:46:31.2824986Z   - <runner-home>/work/andromeds-pulse/andromeds-pulse/Cargo.lock
+2026-10-04T00:46:31.2825731Z   - <runner-home>/work/andromeds-pulse/andromeds-pulse/crates/buffer/Cargo.toml
+2026-10-04T00:46:31.2826776Z   - <runner-home>/work/andromeds-pulse/andromeds-pulse/crates/config-watcher/Cargo.toml
+2026-10-04T00:46:31.2827518Z   - <runner-home>/work/andromeds-pulse/andromeds-pulse/crates/corpus/Cargo.toml
+2026-10-04T00:46:31.2828036Z   - <runner-home>/work/andromeds-pulse/andromeds-pulse/crates/curation/Cargo.toml
+2026-10-04T00:46:31.2828549Z   - <runner-home>/work/andromeds-pulse/andromeds-pulse/crates/ingest/Cargo.toml
+2026-10-04T00:46:31.2829432Z   - <runner-home>/work/andromeds-pulse/andromeds-pulse/crates/interpretation/Cargo.toml
+2026-10-04T00:46:31.2830343Z   - <runner-home>/work/andromeds-pulse/andromeds-pulse/crates/mcp-server/Cargo.toml
+2026-10-04T00:46:31.2831221Z   - <runner-home>/work/andromeds-pulse/andromeds-pulse/crates/plugins/Cargo.toml
+2026-10-04T00:46:31.2832068Z   - <runner-home>/work/andromeds-pulse/andromeds-pulse/crates/security/Cargo.toml
+2026-10-04T00:46:31.2833158Z   - <runner-home>/work/andromeds-pulse/andromeds-pulse/crates/snapshot/Cargo.toml
+2026-10-04T00:46:31.2833987Z   - <runner-home>/work/andromeds-pulse/andromeds-pulse/crates/triage/Cargo.toml
+2026-10-04T00:46:31.2834751Z   - <runner-home>/work/andromeds-pulse/andromeds-pulse/crates/ui-bridge/Cargo.toml
+2026-10-04T00:46:31.2835421Z   - <runner-home>/work/andromeds-pulse/andromeds-pulse/crates/viz/Cargo.toml
+2026-10-04T00:46:31.2836079Z   - <runner-home>/work/andromeds-pulse/andromeds-pulse/crates/workspace-detector/Cargo.toml
+2026-10-04T00:46:31.2836911Z   - <runner-home>/work/andromeds-pulse/andromeds-pulse/pulse-app/Cargo.toml
+2026-10-04T00:46:31.2837538Z   - <runner-home>/work/andromeds-pulse/andromeds-pulse/rust-toolchain.toml
+2026-10-04T00:46:31.2838131Z   - <runner-home>/work/andromeds-pulse/andromeds-pulse/xtask/Cargo.toml
+2026-10-04T00:46:31.2838837Z ##[endgroup]
+2026-10-04T00:46:31.2838968Z 
+2026-10-04T00:46:31.2839083Z ... Restoring cache ...
+2026-10-04T00:46:31.4415464Z Cache hit for: v0-rust-boot-Linux-Linux-x64-0e159c75-0ce8af60
+2026-10-04T00:46:32.6065902Z Received 83886080 of 1726747067 (4.9%), 80.0 MBs/sec
+2026-10-04T00:46:33.6064641Z Received 243269632 of 1726747067 (14.1%), 116.0 MBs/sec
+2026-10-04T00:46:34.6147573Z Received 398458880 of 1726747067 (23.1%), 126.7 MBs/sec
+2026-10-04T00:46:35.6075808Z Received 536870912 of 1726747067 (31.1%), 128.0 MBs/sec
+2026-10-04T00:46:36.6137601Z Received 738197504 of 1726747067 (42.8%), 140.7 MBs/sec
+2026-10-04T00:46:37.6108066Z Received 922746880 of 1726747067 (53.4%), 146.6 MBs/sec
+2026-10-04T00:46:38.6100819Z Received 1073741824 of 1726747067 (62.2%), 146.2 MBs/sec
+2026-10-04T00:46:39.6228134Z Received 1216348160 of 1726747067 (70.4%), 144.8 MBs/sec
+2026-10-04T00:46:40.6267716Z Received 1400897536 of 1726747067 (81.1%), 148.2 MBs/sec
+2026-10-04T00:46:41.6223097Z Received 1572864000 of 1726747067 (91.1%), 149.8 MBs/sec
+2026-10-04T00:46:42.6037918Z Received 1726747067 of 1726747067 (100.0%), 149.7 MBs/sec
+2026-10-04T00:46:42.6038699Z Cache Size: ~1647 MB (1726747067 B)
+2026-10-04T00:46:42.6072158Z [command]/usr/bin/tar -xf <runner-home>/work/_temp/0e4487e6-8176-4581-a4e2-6afba86d54dd/cache.tzst -P -C <runner-home>/work/andromeds-pulse/andromeds-pulse --use-compress-program unzstd
+2026-10-04T00:46:59.2043465Z Cache restored successfully
+2026-10-04T00:46:59.5454887Z Restored from cache key "v0-rust-boot-Linux-Linux-x64-0e159c75-0ce8af60" full match: true.
+2026-10-04T00:46:59.5818538Z ##[group]Run rustsec/audit-check@69366f33c96575abad1ee0dba8212993eecbe998
+2026-10-04T00:46:59.5834410Z with:
+2026-10-04T00:46:59.5837933Z   token: ***
+2026-10-04T00:46:59.5838175Z   working-directory: .
+2026-10-04T00:46:59.5838409Z env:
+2026-10-04T00:46:59.5838627Z   SERVICE_NAME: com.andromeda.pulse
+2026-10-04T00:46:59.5838926Z   DEPLOYMENT_ENVIRONMENT: production
+2026-10-04T00:46:59.5839496Z   CI_RUN_ID: 37165927619
+2026-10-04T00:46:59.5839788Z   GIT_COMMIT_SHA: 12a299437b9209f7afbec388f17e7efbbb13fe43
+2026-10-04T00:46:59.5840123Z   CARGO_TERM_COLOR: always
+2026-10-04T00:46:59.5840490Z   ANDROMEDA_PULSE_DATA_DIR: <runner-home>/work/_temp/andromeda-pulse-ci-data
+2026-10-04T00:46:59.5840900Z   CARGO_HOME: <runner-home>/.cargo
+2026-10-04T00:46:59.5841163Z   CARGO_INCREMENTAL: 0
+2026-10-04T00:46:59.5841390Z   CACHE_ON_FAILURE: false
+2026-10-04T00:46:59.5841627Z ##[endgroup]
+2026-10-04T00:46:59.7516481Z ##[group]Calling cargo-audit (JSON output)
+2026-10-04T00:46:59.7528085Z [command]<runner-home>/.cargo/bin/cargo audit --json --file ./Cargo.lock
+2026-10-04T00:47:06.0617714Z {"database":{"advisory-count":1290,"last-commit":"ef6173cbc5c50ec8166f9a5b28f07834144373ee","last-updated":"2026-10-03T10:14:03+02:00"},"lockfile":{"dependency-count":916},"settings":{"target_arch":[],"target_os":[],"severity":null,"ignore":[],"informational_warnings":["unmaintained","unsound","notice"]},"vulnerabilities":{"found":true,"count":3,"list":[{"advisory":{"id":"RUSTSEC-2026-0325","package":"wasmtime","title":"Mis-typed WebAssembly tag imports can lead to GC heap corruption","description":"This is an entry in the RustSec database for the Wasmtime security advisory\nlocated at\nhttps://github.com/bytecodealliance/wasmtime/security/advisories/GHSA-cfhf-m2cr-62wj\nFor more information see the GitHub-hosted security advisory.","date":"2026-10-02","aliases":["GHSA-cfhf-m2cr-62wj"],"related":[],"collection":"crates","categories":[],"keywords":[],"cvss":"CVSS:4.0/AV:N/AC:L/AT:P/PR:L/UI:P/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N","informational":null,"references":[],"source":null,"url":"https://github.com/bytecodealliance/wasmtime/pull/14471","withdrawn":null,"license":"CC0-1.0","expect-deleted":false},"versions":{"patched":[">=48.0.4, <49.0.0",">=49.0.2"],"unaffected":["<47.0.0"]},"affected":null,"package":{"name":"wasmtime","version":"48.0.3","source":"registry+https://github.com/rust-lang/crates.io-index","checksum":"8ec755a941ae13c7f54210be272d77c4282a271d853558332827d0c8cd5dfba0","dependencies":[{"name":"addr2line","version":"0.26.1","source":"registry+https://github.com/rust-lang/crates.io-index"},{"name":"async-trait","version":"0.1.89","source":"registry+https://github.com/rust-lang/crates.io-index"},{"name":"bitflags","version":"2.11.1","source":"registry+https://github.com/rust-lang/crates.io-index"},{"name":"bumpalo","version":"3.20.2","source":"registry+https://github.com/rust-lang/crates.io-index"},{"name":"cc","version":"1.2.61","source":"registry+https://github.com/rust-lang/crates.io-index"},{"name":"encoding_rs","version":"0.8.35","source":"registry+https://github.com/rust-lang/crates.io-index"},{"name":"futures","version":"0.3.32","source":"registry+https://github.com/rust-lang/crates.io-index"},{"name":"fxprof-processed-profile","version":"0.8.1","source":"registry+https://github.com/rust-lang/crates.io-index"},{"name":"gimli","version":"0.33.0","source":"registry+https://github.com/rust-lang/crates.io-index"},{"name":"ittapi","version":"0.4.0","source":"registry+https://github.com/rust-lang/crates.io-index"},{"name":"libc","version":"0.2.186","source":"registry+https://github.com/rust-lang/crates.io-index"},{"name":"log","version":"0.4.29","source":"registry+https://github.com/rust-lang/crates.io-index"},{"name":"mach2","version":"0.6.0","source":"registry+https://github.com/rust-lang/crates.io-index"},{"name":"memfd","version":"0.6.5","source":"registry+https://github.com/rust-lang/crates.io-index"},{"name":"object","version":"0.39.1","source":"registry+https://github.com/rust-lang/crates.io-index"},{"name":"once_cell","version":"1.21.4","source":"registry+https://github.com/rust-lang/crates.io-index"},{"name":"postcard","version":"1.1.3","source":"registry+https://github.com/rust-lang/crates.io-index"},{"name":"pulley-interpreter","version":"48.0.3","source":"registry+https://github.com/rust-lang/crates.io-index"},{"name":"rayon","version":"1.12.0","source":"registry+https://github.com/rust-lang/crates.io-index"},{"name":"rustix","version":"1.1.4","source":"registry+https://github.com/rust-lang/crates.io-index"},{"name":"semver","version":"1.0.28","source":"registry+https://github.com/rust-lang/crates.io-index"},{"name":"serde","version":"1.0.228","source":"registry+https://github.com/rust-lang/crates.io-index"},{"name":"serde_derive","version":"1.0.228","source":"registry+https://github.com/rust-lang/crates.io-index"},{"name":"serde_json","version":"1.0.149","source":"registry+https://github.com/rust-lang/crates.io-index"},{"name":"smallvec","version":"1.15.1","source":"registry+https://github.com/rust-lang/crates.io-index"},{"name":"target-lexicon","version":"0.13.5","source":"registry+https://github.com/rust-lang/crates.io-index"},{"name":"tempfile","version":"3.27.0","source":"registry+https://github.com/rust-lang/crates.io-index"},{"name":"wasm-compose","version":"0.254.0","source":"registry+https://github.com/rust-lang/crates.io-index"},{"name":"wasm-encoder","version":"0.254.0","source":"registry+https://github.com/rust-lang/crates.io-index"},{"name":"wasmparser","version":"0.254.0","source":"registry+https://github.com/rust-lang/crates.io-index"},{"name":"wasmtime-environ","version":"48.0.3","source":"registry+https://github.com/rust-lang/crates.io-index"},{"name":"wasmtime-internal-cache","version":"48.0.3","source":"registry+https://github.com/rust-lang/crates.io-index"},{"name":"wasmtime-internal-component-macro","version":"48.0.3","source":"registry+https://github.com/rust-lang/crates.io-index"},{"name":"wasmtime-internal-component-util","version":"48.0.3","source":"registry+https://github.com/rust-lang/crates.io-index"},{"name":"wasmtime-internal-core","version":"48.0.3","source":"registry+https://github.com/rust-lang/crates.io-index"},{"name":"wasmtime-internal-cranelift","version":"48.0.3","source":"registry+https://github.com/rust-lang/crates.io-index"},{"name":"wasmtime-internal-fiber","version":"48.0.3","source":"registry+https://github.com/rust-lang/crates.io-index"},{"name":"wasmtime-internal-jit-debug","version":"48.0.3","source":"registry+https://github.com/rust-lang/crates.io-index"},{"name":"wasmtime-internal-jit-icache-coherence","version":"48.0.3","source":"registry+https://github.com/rust-lang/crates.io-index"},{"name":"wasmtime-internal-unwinder","version":"48.0.3","source":"registry+https://github.com/rust-lang/crates.io-index"},{"name":"wasmtime-internal-versioned-export-macros","version":"48.0.3","source":"registry+https://github.com/rust-lang/crates.io-index"},{"name":"wat","version":"1.258.0","source":"registry+https://github.com/rust-lang/crates.io-index"},{"name":"windows-sys","version":"0.61.2","source":"registry+https://github.com/rust-lang/crates.io-index"},{"name":"wit-parser","version":"0.254.0","source":"registry+https://github.com/rust-lang/crates.io-index"}],"replace":null}},{"advisory":{"id":"RUSTSEC-2026-0327","package":"wasmtime","title":"Wasmtime component async-lifted callback result count is unvalidated, causing a native stack buffer overflow","description":"This is an entry in the RustSec database for the Wasmtime security advisory\nlocated at\nhttps://github.com/bytecodealliance/wasmtime/security/advisories/GHSA-32h6-97mm-8q3c\nFor more information see the GitHub-hosted security advisory.","date":"2026-10-02","aliases":["GHSA-32h6-97mm-8q3c"],"related":[],"collection":"crates","categories":[],"keywords":[],"cvss":"CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:L/VI:H/VA:H/SC:L/SI:H/SA:H","informational":null,"references":[],"source":null,"url":"https://github.com/bytecodealliance/wasmtime/pull/14471","withdrawn":null,"license":"CC0-1.0","expect-deleted":false},"versions":{"patched":[">=48.0.4, <49.0.0",">=49.0.2"],"unaffected":["<39.0.0"]},"affected":null,"package":{"name":"wasmtime","version":"48.0.3","source":"registry+https://github.com/rust-lang/crates.io-index","checksum":"8ec755a941ae13c7f54210be272d77c4282a271d853558332827d0c8cd5dfba0","dependencies":[{"name":"addr2line","version":"0.26.1","source":"registry+https://github.com/rust-lang/crates.io-index"},{"name":"async-trait","version":"0.1.89","source":"registry+https://github.com/rust-lang/crates.io-index"},{"name":"bitflags","version":"2.11.1","source":"registry+https://github.com/rust-lang/crates.io-index"},{"name":"bumpalo","version":"3.20.2","source":"registry+https://github.com/rust-lang/crates.io-index"},{"name":"cc","version":"1.2.61","source":"registry+https://github.com/rust-lang/crates.io-index"},{"name":"encoding_rs","version":"0.8.35","source":"registry+https://github.com/rust-lang/crates.io-index"},{"name":"futures","version":"0.3.32","source":"registry+https://github.com/rust-lang/crates.io-index"},{"name":"fxprof-processed-profile","version":"0.8.1","source":"registry+https://github.com/rust-lang/crates.io-index"},{"name":"gimli","version":"0.33.0","source":"registry+https://github.com/rust-lang/crates.io-index"},{"name":"ittapi","version":"0.4.0","source":"registry+https://github.com/rust-lang/crates.io-index"},{"name":"libc","version":"0.2.186","source":"registry+https://github.com/rust-lang/crates.io-index"},{"name":"log","version":"0.4.29","source":"registry+https://github.com/rust-lang/crates.io-index"},{"name":"mach2","version":"0.6.0","source":"registry+https://github.com/rust-lang/crates.io-index"},{"name":"memfd","version":"0.6.5","source":"registry+https://github.com/rust-lang/crates.io-index"},{"name":"object","version":"0.39.1","source":"registry+https://github.com/rust-lang/crates.io-index"},{"name":"once_cell","version":"1.21.4","source":"registry+https://github.com/rust-lang/crates.io-index"},{"name":"postcard","version":"1.1.3","source":"registry+https://github.com/rust-lang/crates.io-index"},{"name":"pulley-interpreter","version":"48.0.3","source":"registry+https://github.com/rust-lang/crates.io-index"},{"name":"rayon","version":"1.12.0","source":"registry+https://github.com/rust-lang/crates.io-index"},{"name":"rustix","version":"1.1.4","source":"registry+https://github.com/rust-lang/crates.io-index"},{"name":"semver","version":"1.0.28","source":"registry+https://github.com/rust-lang/crates.io-index"},{"name":"serde","version":"1.0.228","source":"registry+https://github.com/rust-lang/crates.io-index"},{"name":"serde_derive","version":"1.0.228","source":"registry+https://github.com/rust-lang/crates.io-index"},{"name":"serde_json","version":"1.0.149","source":"registry+https://github.com/rust-lang/crates.io-index"},{"name":"smallvec","version":"1.15.1","source":"registry+https://github.com/rust-lang/crates.io-index"},{"name":"target-lexicon","version":"0.13.5","source":"registry+https://github.com/rust-lang/crates.io-index"},{"name":"tempfile","version":"3.27.0","source":"registry+https://github.com/rust-lang/crates.io-index"},{"name":"wasm-compose","version":"0.254.0","source":"registry+https://github.com/rust-lang/crates.io-index"},{"name":"wasm-encoder","version":"0.254.0","source":"registry+https://github.com/rust-lang/crates.io-index"},{"name":"wasmparser","version":"0.254.0","source":"registry+https://github.com/rust-lang/crates.io-index"},{"name":"wasmtime-environ","version":"48.0.3","source":"registry+https://github.com/rust-lang/crates.io-index"},{"name":"wasmtime-internal-cache","version":"48.0.3","source":"registry+https://github.com/rust-lang/crates.io-index"},{"name":"wasmtime-internal-component-macro","version":"48.0.3","source":"registry+https://github.com/rust-lang/crates.io-index"},{"name":"wasmtime-internal-component-util","version":"48.0.3","source":"registry+https://github.com/rust-lang/crates.io-index"},{"name":"wasmtime-internal-core","version":"48.0.3","source":"registry+https://github.com/rust-lang/crates.io-index"},{"name":"wasmtime-internal-cranelift","version":"48.0.3","source":"registry+https://github.com/rust-lang/crates.io-index"},{"name":"wasmtime-internal-fiber","version":"48.0.3","source":"registry+https://github.com/rust-lang/crates.io-index"},{"name":"wasmtime-internal-jit-debug","version":"48.0.3","source":"registry+https://github.com/rust-lang/crates.io-index"},{"name":"wasmtime-internal-jit-icache-coherence","version":"48.0.3","source":"registry+https://github.com/rust-lang/crates.io-index"},{"name":"wasmtime-internal-unwinder","version":"48.0.3","source":"registry+https://github.com/rust-lang/crates.io-index"},{"name":"wasmtime-internal-versioned-export-macros","version":"48.0.3","source":"registry+https://github.com/rust-lang/crates.io-index"},{"name":"wat","version":"1.258.0","source":"registry+https://github.com/rust-lang/crates.io-index"},{"name":"windows-sys","version":"0.61.2","source":"registry+https://github.com/rust-lang/crates.io-index"},{"name":"wit-parser","version":"0.254.0","source":"registry+https://github.com/rust-lang/crates.io-index"}],"replace":null}},{"advisory":{"id":"RUSTSEC-2026-0326","package":"wasmtime","title":"Rooting for GC values live across `try_call` may be missing, causing GC heap corruption","description":"This is an entry in the RustSec database for the Wasmtime security advisory\nlocated at\nhttps://github.com/bytecodealliance/wasmtime/security/advisories/GHSA-hw8m-q44c-ggrf\nFor more information see the GitHub-hosted security advisory.","date":"2026-10-02","aliases":["GHSA-hw8m-q44c-ggrf"],"related":[],"collection":"crates","categories":[],"keywords":[],"cvss":"CVSS:3.1/AV:N/AC:L/PR:L/UI:R/S:U/C:N/I:N/A:H","informational":null,"references":[],"source":null,"url":"https://github.com/bytecodealliance/wasmtime/pull/14478","withdrawn":null,"license":"CC0-1.0","expect-deleted":false},"versions":{"patched":[">=48.0.4, <49.0.0",">=49.0.2"],"unaffected":["<47.0.0"]},"affected":null,"package":{"name":"wasmtime","version":"48.0.3","source":"registry+https://github.com/rust-lang/crates.io-index","checksum":"8ec755a941ae13c7f54210be272d77c4282a271d853558332827d0c8cd5dfba0","dependencies":[{"name":"addr2line","version":"0.26.1","source":"registry+https://github.com/rust-lang/crates.io-index"},{"name":"async-trait","version":"0.1.89","source":"registry+https://github.com/rust-lang/crates.io-index"},{"name":"bitflags","version":"2.11.1","source":"registry+https://github.com/rust-lang/crates.io-index"},{"name":"bumpalo","version":"3.20.2","source":"registry+https://github.com/rust-lang/crates.io-index"},{"name":"cc","version":"1.2.61","source":"registry+https://github.com/rust-lang/crates.io-index"},{"name":"encoding_rs","version":"0.8.35","source":"registry+https://github.com/rust-lang/crates.io-index"},{"name":"futures","version":"0.3.32","source":"registry+https://github.com/rust-lang/crates.io-index"},{"name":"fxprof-processed-profile","version":"0.8.1","source":"registry+https://github.com/rust-lang/crates.io-index"},{"name":"gimli","version":"0.33.0","source":"registry+https://github.com/rust-lang/crates.io-index"},{"name":"ittapi","version":"0.4.0","source":"registry+https://github.com/rust-lang/crates.io-index"},{"name":"libc","version":"0.2.186","source":"registry+https://github.com/rust-lang/crates.io-index"},{"name":"log","version":"0.4.29","source":"registry+https://github.com/rust-lang/crates.io-index"},{"name":"mach2","version":"0.6.0","source":"registry+https://github.com/rust-lang/crates.io-index"},{"name":"memfd","version":"0.6.5","source":"registry+https://github.com/rust-lang/crates.io-index"},{"name":"object","version":"0.39.1","source":"registry+https://github.com/rust-lang/crates.io-index"},{"name":"once_cell","version":"1.21.4","source":"registry+https://github.com/rust-lang/crates.io-index"},{"name":"postcard","version":"1.1.3","source":"registry+https://github.com/rust-lang/crates.io-index"},{"name":"pulley-interpreter","version":"48.0.3","source":"registry+https://github.com/rust-lang/crates.io-index"},{"name":"rayon","version":"1.12.0","source":"registry+https://github.com/rust-lang/crates.io-index"},{"name":"rustix","version":"1.1.4","source":"registry+https://github.com/rust-lang/crates.io-index"},{"name":"semver","version":"1.0.28","source":"registry+https://github.com/rust-lang/crates.io-index"},{"name":"serde","version":"1.0.228","source":"registry+https://github.com/rust-lang/crates.io-index"},{"name":"serde_derive","version":"1.0.228","source":"registry+https://github.com/rust-lang/crates.io-index"},{"name":"serde_json","version":"1.0.149","source":"registry+https://github.com/rust-lang/crates.io-index"},{"name":"smallvec","version":"1.15.1","source":"registry+https://github.com/rust-lang/crates.io-index"},{"name":"target-lexicon","version":"0.13.5","source":"registry+https://github.com/rust-lang/crates.io-index"},{"name":"tempfile","version":"3.27.0","source":"registry+https://github.com/rust-lang/crates.io-index"},{"name":"wasm-compose","version":"0.254.0","source":"registry+https://github.com/rust-lang/crates.io-index"},{"name":"wasm-encoder","version":"0.254.0","source":"registry+https://github.com/rust-lang/crates.io-index"},{"name":"wasmparser","version":"0.254.0","source":"registry+https://github.com/rust-lang/crates.io-index"},{"name":"wasmtime-environ","version":"48.0.3","source":"registry+https://github.com/rust-lang/crates.io-index"},{"name":"wasmtime-internal-cache","version":"48.0.3","source":"registry+https://github.com/rust-lang/crates.io-index"},{"name":"wasmtime-internal-component-macro","version":"48.0.3","source":"registry+https://github.com/rust-lang/crates.io-index"},{"name":"wasmtime-internal-component-util","version":"48.0.3","source":"registry+https://github.com/rust-lang/crates.io-index"},{"name":"wasmtime-internal-core","version":"48.0.3","source":"registry+https://github.com/rust-lang/crates.io-index"},{"name":"wasmtime-internal-cranelift","version":"48.0.3","source":"registry+https://github.com/rust-lang/crates.io-index"},{"name":"wasmtime-internal-fiber","version":"48.0.3","source":"registry+https://github.com/rust-lang/crates.io-index"},{"name":"wasmtime-internal-jit-debug","version":"48.0.3","source":"registry+https://github.com/rust-lang/crates.io-index"},{"name":"wasmtime-internal-jit-icache-coherence","version":"48.0.3","source":"registry+https://github.com/rust-lang/crates.io-index"},{"name":"wasmtime-internal-unwinder","version":"48.0.3","source":"registry+https://github.com/rust-lang/crates.io-index"},{"name":"wasmtime-internal-versioned-export-macros","version":"48.0.3","source":"registry+https://github.com/rust-lang/crates.io-index"},{"name":"wat","version":"1.258.0","source":"registry+https://github.com/rust-lang/crates.io-index"},{"name":"windows-sys","version":"0.61.2","source":"registry+https://github.com/rust-lang/crates.io-index"},{"name":"wit-parser","version":"0.254.0","source":"registry+https://github.com/rust-lang/crates.io-index"}],"replace":null}}]},"warnings":{"unmaintained":[{"kind":"unmaintained","package":{"name":"bincode","version":"1.3.3","source":"registry+https://github.com/rust-lang/crates.io-index","checksum":"b1f45e9417d87227c7a56d22e471c6206462cba514c7590c09aff4cf6d1ddcad","dependencies":[{"name":"serde","version":"1.0.228","source":"registry+https://github.com/rust-lang/crates.io-index"}],"replace":null},"advisory":{"id":"RUSTSEC-2025-0141","package":"bincode","title":"Bincode is unmaintained","description":"Due to a doxxing and harassment incident, the bincode team has taken the decision to cease development permanently.\n\nThe team considers version 1.3.3 a complete version of bincode that is not in need of any updates.\n\n## Alternatives to consider\n\n* [wincode](https://crates.io/crates/wincode)\n* [postcard](https://crates.io/crates/postcard)\n* [bitcode](https://crates.io/crates/bitcode)\n* [rkyv](https://crates.io/crates/rkyv)","date":"2025-12-16","aliases":[],"related":[],"collection":"crates","categories":[],"keywords":[],"cvss":null,"informational":"unmaintained","references":[],"source":null,"url":"https://git.sr.ht/~stygianentity/bincode/tree/v3.0/item/README.md","withdrawn":null,"license":"CC0-1.0","expect-deleted":false},"affected":null,"versions":{"patched":[],"unaffected":[]}},{"kind":"unmaintained","package":{"name":"paste","version":"1.0.15","source":"registry+https://github.com/rust-lang/crates.io-index","checksum":"57c0d7b74b563b49d38dae00a0c37d4d6de9b432382b2892f0574ddcae73fd0a","replace":null},"advisory":{"id":"RUSTSEC-2024-0436","package":"paste","title":"paste - no longer maintained","description":"The creator of the crate `paste` has stated in the [`README.md`](https://github.com/dtolnay/paste/blob/master/README.md) \nthat this project is not longer maintained as well as archived the repository\n\n## Possible Alternative(s)\n\n- [`pastey`]: a fork of paste and is aimed to be a drop-in replacement with additional features for paste crate\n- [`with_builtin_macros`]: crate providing a [superset of `paste`'s functionality including general `macro_rules!` eager expansions](https://docs.rs/with_builtin_macros/0.1.0/with_builtin_macros/macro.with_eager_expansions.html)  and `concat!`/`concat_idents!` macros\n\n[`pastey`]: https://crates.io/crates/pastey\n[`with_builtin_macros`]: https://crates.io/crates/with_builtin_macros","date":"2024-10-07","aliases":[],"related":[],"collection":"crates","categories":[],"keywords":[],"cvss":null,"informational":"unmaintained","references":[],"source":null,"url":"https://github.com/dtolnay/paste","withdrawn":null,"license":"CC0-1.0","expect-deleted":false},"affected":null,"versions":{"patched":[],"unaffected":[]}},{"kind":"unmaintained","package":{"name":"proc-macro-error","version":"1.0.4","source":"registry+https://github.com/rust-lang/crates.io-index","checksum":"da25490ff9892aab3fcf7c36f08cfb902dd3e71ca0f9f9517bea02a73a5ce38c","dependencies":[{"name":"proc-macro-error-attr","version":"1.0.4","source":"registry+https://github.com/rust-lang/crates.io-index"},{"name":"proc-macro2","version":"1.0.106","source":"registry+https://github.com/rust-lang/crates.io-index"},{"name":"quote","version":"1.0.45","source":"registry+https://github.com/rust-lang/crates.io-index"},{"name":"syn","version":"1.0.109","source":"registry+https://github.com/rust-lang/crates.io-index"},{"name":"version_check","version":"0.9.5","source":"registry+https://github.com/rust-lang/crates.io-index"}],"replace":null},"advisory":{"id":"RUSTSEC-2024-0370","package":"proc-macro-error","title":"proc-macro-error is unmaintained","description":"proc-macro-error's maintainer seems to be unreachable, with no commits for 2 years, no releases pushed for 4 years, and no activity on the GitLab repo or response to email.\n\nproc-macro-error also depends on `syn 1.x`, which may be bringing duplicate dependencies into dependant build trees.\n\n## Possible Alternative(s)\n\n- [manyhow](https://crates.io/crates/manyhow)\n- [proc-macro2-diagnostics](https://github.com/SergioBenitez/proc-macro2-diagnostics)","date":"2024-09-01","aliases":[],"related":[],"collection":"crates","categories":[],"keywords":[],"cvss":null,"informational":"unmaintained","references":[],"source":null,"url":"https://gitlab.com/CreepySkeleton/proc-macro-error/-/issues/20","withdrawn":null,"license":"CC0-1.0","expect-deleted":false},"affected":null,"versions":{"patched":[],"unaffected":[]}},{"kind":"unmaintained","package":{"name":"unic-char-property","version":"0.9.0","source":"registry+https://github.com/rust-lang/crates.io-index","checksum":"a8c57a407d9b6fa02b4795eb81c5b6652060a15a7903ea981f3d723e6c0be221","dependencies":[{"name":"unic-char-range","version":"0.9.0","source":"registry+https://github.com/rust-lang/crates.io-index"}],"replace":null},"advisory":{"id":"RUSTSEC-2025-0081","package":"unic-char-property","title":"`unic-char-property` is unmaintained","description":"All Unicode crates that are part of https://github.com/open-i18n/rust-unic are unmaintained.\n\n## Recommended alternatives\n\n- [`icu_properties`](https://crates.io/crates/icu_properties)","date":"2025-10-18","aliases":[],"related":[],"collection":"crates","categories":[],"keywords":[],"cvss":null,"informational":"unmaintained","references":[],"source":null,"url":"https://github.com/rustsec/advisory-db/issues/2414","withdrawn":null,"license":"CC0-1.0","expect-deleted":false},"affected":null,"versions":{"patched":[],"unaffected":[]}},{"kind":"unmaintained","package":{"name":"unic-char-range","version":"0.9.0","source":"registry+https://github.com/rust-lang/crates.io-index","checksum":"0398022d5f700414f6b899e10b8348231abf9173fa93144cbc1a43b9793c1fbc","replace":null},"advisory":{"id":"RUSTSEC-2025-0075","package":"unic-char-range","title":"`unic-char-range` is unmaintained","description":"All Unicode crates that are part of https://github.com/open-i18n/rust-unic are unmaintained.\n\n## Recommended alternatives\n\n- Since version [1.45.0](https://releases.rs/docs/1.45.0/#libraries) Rust [supports](https://github.com/rust-lang/rust/pull/72413/) using `char` with `ops::{Range, RangeFrom, RangeFull, RangeInclusive, RangeTo}` to iterate over a range of codepoints.","date":"2025-10-18","aliases":[],"related":[],"collection":"crates","categories":[],"keywords":[],"cvss":null,"informational":"unmaintained","references":[],"source":null,"url":"https://github.com/rustsec/advisory-db/issues/2414","withdrawn":null,"license":"CC0-1.0","expect-deleted":false},"affected":null,"versions":{"patched":[],"unaffected":[]}},{"kind":"unmaintained","package":{"name":"unic-common","version":"0.9.0","source":"registry+https://github.com/rust-lang/crates.io-index","checksum":"80d7ff825a6a654ee85a63e80f92f054f904f21e7d12da4e22f9834a4aaa35bc","replace":null},"advisory":{"id":"RUSTSEC-2025-0080","package":"unic-common","title":"`unic-common` is unmaintained","description":"All Unicode crates that are part of https://github.com/open-i18n/rust-unic are unmaintained.","date":"2025-10-18","aliases":[],"related":[],"collection":"crates","categories":[],"keywords":[],"cvss":null,"informational":"unmaintained","references":[],"source":null,"url":"https://github.com/rustsec/advisory-db/issues/2414","withdrawn":null,"license":"CC0-1.0","expect-deleted":false},"affected":null,"versions":{"patched":[],"unaffected":[]}},{"kind":"unmaintained","package":{"name":"unic-ucd-ident","version":"0.9.0","source":"registry+https://github.com/rust-lang/crates.io-index","checksum":"e230a37c0381caa9219d67cf063aa3a375ffed5bf541a452db16e744bdab6987","dependencies":[{"name":"unic-char-property","version":"0.9.0","source":"registry+https://github.com/rust-lang/crates.io-index"},{"name":"unic-char-range","version":"0.9.0","source":"registry+https://github.com/rust-lang/crates.io-index"},{"name":"unic-ucd-version","version":"0.9.0","source":"registry+https://github.com/rust-lang/crates.io-index"}],"replace":null},"advisory":{"id":"RUSTSEC-2025-0100","package":"unic-ucd-ident","title":"`unic-ucd-ident` is unmaintained","description":"All Unicode crates that are part of https://github.com/open-i18n/rust-unic are unmaintained.\n\n## Recommended alternatives\n\n- [`icu_properties`](https://crates.io/crates/icu_properties)\n- [`unicode-ident`](https://crates.io/crates/unicode-ident)","date":"2025-10-18","aliases":[],"related":[],"collection":"crates","categories":[],"keywords":[],"cvss":null,"informational":"unmaintained","references":[],"source":null,"url":"https://github.com/rustsec/advisory-db/issues/2414","withdrawn":null,"license":"CC0-1.0","expect-deleted":false},"affected":null,"versions":{"patched":[],"unaffected":[]}},{"kind":"unmaintained","package":{"name":"unic-ucd-version","version":"0.9.0","source":"registry+https://github.com/rust-lang/crates.io-index","checksum":"96bd2f2237fe450fcd0a1d2f5f4e91711124f7857ba2e964247776ebeeb7b0c4","dependencies":[{"name":"unic-common","version":"0.9.0","source":"registry+https://github.com/rust-lang/crates.io-index"}],"replace":null},"advisory":{"id":"RUSTSEC-2025-0098","package":"unic-ucd-version","title":"`unic-ucd-version` is unmaintained","description":"All Unicode crates that are part of https://github.com/open-i18n/rust-unic are unmaintained.","date":"2025-10-18","aliases":[],"related":[],"collection":"crates","categories":[],"keywords":[],"cvss":null,"informational":"unmaintained","references":[],"source":null,"url":"https://github.com/rustsec/advisory-db/issues/2414","withdrawn":null,"license":"CC0-1.0","expect-deleted":false},"affected":null,"versions":{"patched":[],"unaffected":[]}}],"unsound":[{"kind":"unsound","package":{"name":"event-listener","version":"5.4.1","source":"registry+https://github.com/rust-lang/crates.io-index","checksum":"e13b66accf52311f30a0db42147dadea9850cb48cd070028831ae5f5d4b856ab","dependencies":[{"name":"concurrent-queue","version":"2.5.0","source":"registry+https://github.com/rust-lang/crates.io-index"},{"name":"parking","version":"2.2.1","source":"registry+https://github.com/rust-lang/crates.io-index"},{"name":"pin-project-lite","version":"0.2.17","source":"registry+https://github.com/rust-lang/crates.io-index"}],"replace":null},"advisory":{"id":"RUSTSEC-2026-0221","package":"event-listener","title":"`event-listener` allows `!Send` tags to cross thread boundaries via `StackSlot`","description":"Affected versions of `event-listener` unconditionally implement `Send` and\n`Sync` for `StackSlot<'_, T>`, the stack-allocated listener type created\nby the `listener!` macro.\n\nThis allows a `!Send` tag type set via `Event::with_tag` to be moved to\nanother thread and accessed via `StackSlot::wait`, causing a data race in safe\ncode.","date":"2026-07-13","aliases":[],"related":[],"collection":"crates","categories":["memory-corruption","thread-safety"],"keywords":["concurrency"],"cvss":null,"informational":"unsound","references":[],"source":null,"url":"https://github.com/smol-rs/event-listener/pull/163","withdrawn":null,"license":"CC0-1.0","expect-deleted":false},"affected":null,"versions":{"patched":[">=5.4.2"],"unaffected":["<5.1.0"]}},{"kind":"unsound","package":{"name":"glib","version":"0.18.5","source":"registry+https://github.com/rust-lang/crates.io-index","checksum":"233daaf6e83ae6a12a52055f568f9d7cf4671dabb78ff9560ab6da230ce00ee5","dependencies":[{"name":"bitflags","version":"2.11.1","source":"registry+https://github.com/rust-lang/crates.io-index"},{"name":"futures-channel","version":"0.3.32","source":"registry+https://github.com/rust-lang/crates.io-index"},{"name":"futures-core","version":"0.3.32","source":"registry+https://github.com/rust-lang/crates.io-index"},{"name":"futures-executor","version":"0.3.32","source":"registry+https://github.com/rust-lang/crates.io-index"},{"name":"futures-task","version":"0.3.32","source":"registry+https://github.com/rust-lang/crates.io-index"},{"name":"futures-util","version":"0.3.32","source":"registry+https://github.com/rust-lang/crates.io-index"},{"name":"gio-sys","version":"0.18.1","source":"registry+https://github.com/rust-lang/crates.io-index"},{"name":"glib-macros","version":"0.18.5","source":"registry+https://github.com/rust-lang/crates.io-index"},{"name":"glib-sys","version":"0.18.1","source":"registry+https://github.com/rust-lang/crates.io-index"},{"name":"gobject-sys","version":"0.18.0","source":"registry+https://github.com/rust-lang/crates.io-index"},{"name":"libc","version":"0.2.186","source":"registry+https://github.com/rust-lang/crates.io-index"},{"name":"memchr","version":"2.8.0","source":"registry+https://github.com/rust-lang/crates.io-index"},{"name":"once_cell","version":"1.21.4","source":"registry+https://github.com/rust-lang/crates.io-index"},{"name":"smallvec","version":"1.15.1","source":"registry+https://github.com/rust-lang/crates.io-index"},{"name":"thiserror","version":"1.0.69","source":"registry+https://github.com/rust-lang/crates.io-index"}],"replace":null},"advisory":{"id":"RUSTSEC-2024-0429","package":"glib","title":"Unsoundness in `Iterator` and `DoubleEndedIterator` impls for `glib::VariantStrIter`","description":"The `VariantStrIter::impl_get` function (called internally by implementations of the `Iterator` and `DoubleEndedIterator` traits for this type) was unsound, resulting in undefined behaviour.\n\nAn immutable reference `&p` to a `*mut libc::c_char` pointer initialized to `NULL` was passed as an argument to a C function that that mutates the pointer behind `&p` in-place (i.e. as an out-argument), which was unsound. After changes in recent versions of the Rust compiler, these unsound writes through `&p` now seem to be completely disregarded when building the `glib` crate with optimizations.\n\nThis subsequently caused all calls of `VariantStrIter::impl_get` to violate the safety requirements of the `std::ffi::CStr::from_ptr` function - which requires its argument to be a valid pointer to a C-style string - resulting in crashes due to `NULL` pointer dereferences.\n\nThis was fixed by passing the out-argument pointer explitly as `&mut p` instead of `&p`.\n\nThis issue has been present since this code was initially added in `glib` v0.15.0. The mismatch in mutability was likely missed (and not raised as an error by the compiler) because the C function wrapped by `VariantStrIter::impl_get` is variadic (`glib_sys::g_variant_get_child`), and the pointer in question is one of the variadic arguments.","date":"2024-03-30","aliases":["GHSA-wrw7-89jp-8q8g"],"related":[],"collection":"crates","categories":[],"keywords":[],"cvss":null,"informational":"unsound","references":[],"source":null,"url":"https://github.com/gtk-rs/gtk-rs-core/pull/1343","withdrawn":null,"license":"CC0-1.0","expect-deleted":false},"affected":{"arch":[],"os":[],"functions":{"glib::VariantStrIter::last":[">=0.15.0, <0.20.0"],"glib::VariantStrIter::next":[">=0.15.0, <0.20.0"],"glib::VariantStrIter::next_back":[">=0.15.0, <0.20.0"],"glib::VariantStrIter::nth":[">=0.15.0, <0.20.0"],"glib::VariantStrIter::nth_back":[">=0.15.0, <0.20.0"]}},"versions":{"patched":[">=0.20.0"],"unaffected":["<0.15.0"]}}]}}
+2026-10-04T00:47:06.0721196Z 
+2026-10-04T00:47:06.0721602Z ##[endgroup]
+2026-10-04T00:47:06.0739039Z ##[warning]3 vulnerabilities found!
+2026-10-04T00:47:06.0745740Z ##[warning]10 warnings found!
+2026-10-04T00:47:06.0746906Z Found 3 advisories, 8 unmaintained, 2 unsound
+2026-10-04T00:47:06.3073196Z ##[error]Unable to publish audit check! Reason: HttpError: Resource not accessible by integration - https://docs.github.com/rest/checks/runs#create-a-check-run
+2026-10-04T00:47:06.3076485Z ##[warning]It seems that this Action is executed from the forked repository.
+2026-10-04T00:47:06.3079591Z ##[warning]GitHub Actions are not allowed to use Check API, when executed for a forked repos. See https://github.com/actions-rs/clippy-check/issues/2 for details.
+2026-10-04T00:47:06.3081323Z Posting audit report here instead.
+2026-10-04T00:47:06.3186644Z 
+2026-10-04T00:47:06.3187328Z ## Vulnerabilities
+2026-10-04T00:47:06.3187619Z 
+2026-10-04T00:47:06.3188022Z ### [RUSTSEC-2026-0325](https://rustsec.org/advisories/RUSTSEC-2026-0325.html)
+2026-10-04T00:47:06.3188586Z 
+2026-10-04T00:47:06.3188882Z > Mis-typed WebAssembly tag imports can lead to GC heap corruption
+2026-10-04T00:47:06.3189314Z 
+2026-10-04T00:47:06.3189504Z | Details             |                                                |
+2026-10-04T00:47:06.3190113Z | ------------------- | ---------------------------------------------- |
+2026-10-04T00:47:06.3190724Z | Package             | `wasmtime`                      |
+2026-10-04T00:47:06.3191255Z | Version             | `48.0.3`                   |
+2026-10-04T00:47:06.3192297Z | URL                 | [https://github.com/bytecodealliance/wasmtime/pull/14471](https://github.com/bytecodealliance/wasmtime/pull/14471) |
+2026-10-04T00:47:06.3193349Z | Date                | 2026-10-02                         |
+2026-10-04T00:47:06.3193956Z | Patched versions    | `>=48.0.4, <49.0.0,>=49.0.2`                  |
+2026-10-04T00:47:06.3194594Z | Unaffected versions | `<47.0.0`               |
+2026-10-04T00:47:06.3194957Z 
+2026-10-04T00:47:06.3195282Z This is an entry in the RustSec database for the Wasmtime security advisory
+2026-10-04T00:47:06.3195908Z located at
+2026-10-04T00:47:06.3196706Z https://github.com/bytecodealliance/wasmtime/security/advisories/GHSA-cfhf-m2cr-62wj
+2026-10-04T00:47:06.3197574Z For more information see the GitHub-hosted security advisory.
+2026-10-04T00:47:06.3198352Z ### [RUSTSEC-2026-0327](https://rustsec.org/advisories/RUSTSEC-2026-0327.html)
+2026-10-04T00:47:06.3198889Z 
+2026-10-04T00:47:06.3199996Z > Wasmtime component async-lifted callback result count is unvalidated, causing a native stack buffer overflow
+2026-10-04T00:47:06.3200706Z 
+2026-10-04T00:47:06.3200937Z | Details             |                                                |
+2026-10-04T00:47:06.3201555Z | ------------------- | ---------------------------------------------- |
+2026-10-04T00:47:06.3202312Z | Package             | `wasmtime`                      |
+2026-10-04T00:47:06.3202831Z | Version             | `48.0.3`                   |
+2026-10-04T00:47:06.3204109Z | URL                 | [https://github.com/bytecodealliance/wasmtime/pull/14471](https://github.com/bytecodealliance/wasmtime/pull/14471) |
+2026-10-04T00:47:06.3205125Z | Date                | 2026-10-02                         |
+2026-10-04T00:47:06.3205737Z | Patched versions    | `>=48.0.4, <49.0.0,>=49.0.2`                  |
+2026-10-04T00:47:06.3206497Z | Unaffected versions | `<39.0.0`               |
+2026-10-04T00:47:06.3206844Z 
+2026-10-04T00:47:06.3207166Z This is an entry in the RustSec database for the Wasmtime security advisory
+2026-10-04T00:47:06.3207757Z located at
+2026-10-04T00:47:06.3208347Z https://github.com/bytecodealliance/wasmtime/security/advisories/GHSA-32h6-97mm-8q3c
+2026-10-04T00:47:06.3209241Z For more information see the GitHub-hosted security advisory.
+2026-10-04T00:47:06.3210002Z ### [RUSTSEC-2026-0326](https://rustsec.org/advisories/RUSTSEC-2026-0326.html)
+2026-10-04T00:47:06.3210496Z 
+2026-10-04T00:47:06.3210902Z > Rooting for GC values live across `try_call` may be missing, causing GC heap corruption
+2026-10-04T00:47:06.3211455Z 
+2026-10-04T00:47:06.3211676Z | Details             |                                                |
+2026-10-04T00:47:06.3212301Z | ------------------- | ---------------------------------------------- |
+2026-10-04T00:47:06.3212893Z | Package             | `wasmtime`                      |
+2026-10-04T00:47:06.3213415Z | Version             | `48.0.3`                   |
+2026-10-04T00:47:06.3214404Z | URL                 | [https://github.com/bytecodealliance/wasmtime/pull/14478](https://github.com/bytecodealliance/wasmtime/pull/14478) |
+2026-10-04T00:47:06.3215391Z | Date                | 2026-10-02                         |
+2026-10-04T00:47:06.3215989Z | Patched versions    | `>=48.0.4, <49.0.0,>=49.0.2`                  |
+2026-10-04T00:47:06.3217823Z | Unaffected versions | `<47.0.0`               |
+2026-10-04T00:47:06.3218194Z 
+2026-10-04T00:47:06.3218532Z This is an entry in the RustSec database for the Wasmtime security advisory
+2026-10-04T00:47:06.3219160Z located at
+2026-10-04T00:47:06.3219739Z https://github.com/bytecodealliance/wasmtime/security/advisories/GHSA-hw8m-q44c-ggrf
+2026-10-04T00:47:06.3220544Z For more information see the GitHub-hosted security advisory.
+2026-10-04T00:47:06.3220959Z 
+2026-10-04T00:47:06.3221095Z ## Warnings
+2026-10-04T00:47:06.3221261Z 
+2026-10-04T00:47:06.3221603Z ### [RUSTSEC-2025-0141](https://rustsec.org/advisories/RUSTSEC-2025-0141.html)
+2026-10-04T00:47:06.3222119Z 
+2026-10-04T00:47:06.3222280Z > Bincode is unmaintained
+2026-10-04T00:47:06.3222528Z 
+2026-10-04T00:47:06.3222785Z | Details             |                                                |
+2026-10-04T00:47:06.3223428Z | ------------------- | ---------------------------------------------- |
+2026-10-04T00:47:06.3223997Z | Status              | unmaintained                |
+2026-10-04T00:47:06.3224550Z | Package             | `bincode`                      |
+2026-10-04T00:47:06.3225089Z | Version             | `1.3.3`                   |
+2026-10-04T00:47:06.3226127Z | URL                 | [https://git.sr.ht/~stygianentity/bincode/tree/v3.0/item/README.md](https://git.sr.ht/~stygianentity/bincode/tree/v3.0/item/README.md) |
+2026-10-04T00:47:06.3227367Z | Date                | 2025-12-16                         |
+2026-10-04T00:47:06.3227696Z 
+2026-10-04T00:47:06.3228240Z Due to a doxxing and harassment incident, the bincode team has taken the decision to cease development permanently.
+2026-10-04T00:47:06.3228978Z 
+2026-10-04T00:47:06.3229673Z The team considers version 1.3.3 a complete version of bincode that is not in need of any updates.
+2026-10-04T00:47:06.3230305Z 
+2026-10-04T00:47:06.3230454Z ## Alternatives to consider
+2026-10-04T00:47:06.3230711Z 
+2026-10-04T00:47:06.3230911Z * [wincode](https://crates.io/crates/wincode)
+2026-10-04T00:47:06.3231452Z * [postcard](https://crates.io/crates/postcard)
+2026-10-04T00:47:06.3231993Z * [bitcode](https://crates.io/crates/bitcode)
+2026-10-04T00:47:06.3232758Z * [rkyv](https://crates.io/crates/rkyv)
+2026-10-04T00:47:06.3233429Z ### [RUSTSEC-2024-0436](https://rustsec.org/advisories/RUSTSEC-2024-0436.html)
+2026-10-04T00:47:06.3233935Z 
+2026-10-04T00:47:06.3234101Z > paste - no longer maintained
+2026-10-04T00:47:06.3234370Z 
+2026-10-04T00:47:06.3234597Z | Details             |                                                |
+2026-10-04T00:47:06.3235226Z | ------------------- | ---------------------------------------------- |
+2026-10-04T00:47:06.3235802Z | Status              | unmaintained                |
+2026-10-04T00:47:06.3236537Z | Package             | `paste`                      |
+2026-10-04T00:47:06.3237048Z | Version             | `1.0.15`                   |
+2026-10-04T00:47:06.3237764Z | URL                 | [https://github.com/dtolnay/paste](https://github.com/dtolnay/paste) |
+2026-10-04T00:47:06.3238500Z | Date                | 2024-10-07                         |
+2026-10-04T00:47:06.3238848Z 
+2026-10-04T00:47:06.3239411Z The creator of the crate `paste` has stated in the [`README.md`](https://github.com/dtolnay/paste/blob/master/README.md) 
+2026-10-04T00:47:06.3240489Z that this project is not longer maintained as well as archived the repository
+2026-10-04T00:47:06.3240993Z 
+2026-10-04T00:47:06.3241147Z ## Possible Alternative(s)
+2026-10-04T00:47:06.3241390Z 
+2026-10-04T00:47:06.3241892Z - [`pastey`]: a fork of paste and is aimed to be a drop-in replacement with additional features for paste crate
+2026-10-04T00:47:06.3243941Z - [`with_builtin_macros`]: crate providing a [superset of `paste`&#39;s functionality including general `macro_rules!` eager expansions](https://docs.rs/with_builtin_macros/0.1.0/with_builtin_macros/macro.with_eager_expansions.html)  and `concat!`/`concat_idents!` macros
+2026-10-04T00:47:06.3245603Z 
+2026-10-04T00:47:06.3245803Z [`pastey`]: https://crates.io/crates/pastey
+2026-10-04T00:47:06.3246561Z [`with_builtin_macros`]: https://crates.io/crates/with_builtin_macros
+2026-10-04T00:47:06.3247358Z ### [RUSTSEC-2024-0370](https://rustsec.org/advisories/RUSTSEC-2024-0370.html)
+2026-10-04T00:47:06.3247867Z 
+2026-10-04T00:47:06.3248034Z > proc-macro-error is unmaintained
+2026-10-04T00:47:06.3248319Z 
+2026-10-04T00:47:06.3248546Z | Details             |                                                |
+2026-10-04T00:47:06.3249156Z | ------------------- | ---------------------------------------------- |
+2026-10-04T00:47:06.3249737Z | Status              | unmaintained                |
+2026-10-04T00:47:06.3250306Z | Package             | `proc-macro-error`                      |
+2026-10-04T00:47:06.3250882Z | Version             | `1.0.4`                   |
+2026-10-04T00:47:06.3251953Z | URL                 | [https://gitlab.com/CreepySkeleton/proc-macro-error/-/issues/20](https://gitlab.com/CreepySkeleton/proc-macro-error/-/issues/20) |
+2026-10-04T00:47:06.3253070Z | Date                | 2024-09-01                         |
+2026-10-04T00:47:06.3253413Z 
+2026-10-04T00:47:06.3254317Z proc-macro-error&#39;s maintainer seems to be unreachable, with no commits for 2 years, no releases pushed for 4 years, and no activity on the GitLab repo or response to email.
+2026-10-04T00:47:06.3255362Z 
+2026-10-04T00:47:06.3255918Z proc-macro-error also depends on `syn 1.x`, which may be bringing duplicate dependencies into dependant build trees.
+2026-10-04T00:47:06.3256813Z 
+2026-10-04T00:47:06.3256980Z ## Possible Alternative(s)
+2026-10-04T00:47:06.3257225Z 
+2026-10-04T00:47:06.3257436Z - [manyhow](https://crates.io/crates/manyhow)
+2026-10-04T00:47:06.3258224Z - [proc-macro2-diagnostics](https://github.com/SergioBenitez/proc-macro2-diagnostics)
+2026-10-04T00:47:06.3259456Z ### [RUSTSEC-2025-0081](https://rustsec.org/advisories/RUSTSEC-2025-0081.html)
+2026-10-04T00:47:06.3260007Z 
+2026-10-04T00:47:06.3260204Z > `unic-char-property` is unmaintained
+2026-10-04T00:47:06.3260527Z 
+2026-10-04T00:47:06.3260766Z | Details             |                                                |
+2026-10-04T00:47:06.3261372Z | ------------------- | ---------------------------------------------- |
+2026-10-04T00:47:06.3262217Z | Status              | unmaintained                |
+2026-10-04T00:47:06.3262807Z | Package             | `unic-char-property`                      |
+2026-10-04T00:47:06.3263444Z | Version             | `0.9.0`                   |
+2026-10-04T00:47:06.3264381Z | URL                 | [https://github.com/rustsec/advisory-db/issues/2414](https://github.com/rustsec/advisory-db/issues/2414) |
+2026-10-04T00:47:06.3265339Z | Date                | 2025-10-18                         |
+2026-10-04T00:47:06.3265681Z 
+2026-10-04T00:47:06.3266126Z All Unicode crates that are part of https://github.com/open-i18n/rust-unic are unmaintained.
+2026-10-04T00:47:06.3266920Z 
+2026-10-04T00:47:06.3267077Z ## Recommended alternatives
+2026-10-04T00:47:06.3267344Z 
+2026-10-04T00:47:06.3267597Z - [`icu_properties`](https://crates.io/crates/icu_properties)
+2026-10-04T00:47:06.3268371Z ### [RUSTSEC-2025-0075](https://rustsec.org/advisories/RUSTSEC-2025-0075.html)
+2026-10-04T00:47:06.3268887Z 
+2026-10-04T00:47:06.3269057Z > `unic-char-range` is unmaintained
+2026-10-04T00:47:06.3269351Z 
+2026-10-04T00:47:06.3269576Z | Details             |                                                |
+2026-10-04T00:47:06.3270196Z | ------------------- | ---------------------------------------------- |
+2026-10-04T00:47:06.3270769Z | Status              | unmaintained                |
+2026-10-04T00:47:06.3271326Z | Package             | `unic-char-range`                      |
+2026-10-04T00:47:06.3271872Z | Version             | `0.9.0`                   |
+2026-10-04T00:47:06.3272799Z | URL                 | [https://github.com/rustsec/advisory-db/issues/2414](https://github.com/rustsec/advisory-db/issues/2414) |
+2026-10-04T00:47:06.3273713Z | Date                | 2025-10-18                         |
+2026-10-04T00:47:06.3274063Z 
+2026-10-04T00:47:06.3274470Z All Unicode crates that are part of https://github.com/open-i18n/rust-unic are unmaintained.
+2026-10-04T00:47:06.3275049Z 
+2026-10-04T00:47:06.3275214Z ## Recommended alternatives
+2026-10-04T00:47:06.3275455Z 
+2026-10-04T00:47:06.3276908Z - Since version [1.45.0](https://releases.rs/docs/1.45.0/#libraries) Rust [supports](https://github.com/rust-lang/rust/pull/72413/) using `char` with `ops::{Range, RangeFrom, RangeFull, RangeInclusive, RangeTo}` to iterate over a range of codepoints.
+2026-10-04T00:47:06.3278691Z ### [RUSTSEC-2025-0080](https://rustsec.org/advisories/RUSTSEC-2025-0080.html)
+2026-10-04T00:47:06.3279208Z 
+2026-10-04T00:47:06.3279369Z > `unic-common` is unmaintained
+2026-10-04T00:47:06.3279644Z 
+2026-10-04T00:47:06.3279891Z | Details             |                                                |
+2026-10-04T00:47:06.3280512Z | ------------------- | ---------------------------------------------- |
+2026-10-04T00:47:06.3281102Z | Status              | unmaintained                |
+2026-10-04T00:47:06.3281680Z | Package             | `unic-common`                      |
+2026-10-04T00:47:06.3282225Z | Version             | `0.9.0`                   |
+2026-10-04T00:47:06.3283155Z | URL                 | [https://github.com/rustsec/advisory-db/issues/2414](https://github.com/rustsec/advisory-db/issues/2414) |
+2026-10-04T00:47:06.3284092Z | Date                | 2025-10-18                         |
+2026-10-04T00:47:06.3284445Z 
+2026-10-04T00:47:06.3284867Z All Unicode crates that are part of https://github.com/open-i18n/rust-unic are unmaintained.
+2026-10-04T00:47:06.3285812Z ### [RUSTSEC-2025-0100](https://rustsec.org/advisories/RUSTSEC-2025-0100.html)
+2026-10-04T00:47:06.3286481Z 
+2026-10-04T00:47:06.3286645Z > `unic-ucd-ident` is unmaintained
+2026-10-04T00:47:06.3287191Z 
+2026-10-04T00:47:06.3287419Z | Details             |                                                |
+2026-10-04T00:47:06.3288055Z | ------------------- | ---------------------------------------------- |
+2026-10-04T00:47:06.3288648Z | Status              | unmaintained                |
+2026-10-04T00:47:06.3289221Z | Package             | `unic-ucd-ident`                      |
+2026-10-04T00:47:06.3289992Z | Version             | `0.9.0`                   |
+2026-10-04T00:47:06.3290918Z | URL                 | [https://github.com/rustsec/advisory-db/issues/2414](https://github.com/rustsec/advisory-db/issues/2414) |
+2026-10-04T00:47:06.3291863Z | Date                | 2025-10-18                         |
+2026-10-04T00:47:06.3292216Z 
+2026-10-04T00:47:06.3292628Z All Unicode crates that are part of https://github.com/open-i18n/rust-unic are unmaintained.
+2026-10-04T00:47:06.3293237Z 
+2026-10-04T00:47:06.3293404Z ## Recommended alternatives
+2026-10-04T00:47:06.3293654Z 
+2026-10-04T00:47:06.3293945Z - [`icu_properties`](https://crates.io/crates/icu_properties)
+2026-10-04T00:47:06.3294603Z - [`unicode-ident`](https://crates.io/crates/unicode-ident)
+2026-10-04T00:47:06.3295371Z ### [RUSTSEC-2025-0098](https://rustsec.org/advisories/RUSTSEC-2025-0098.html)
+2026-10-04T00:47:06.3295887Z 
+2026-10-04T00:47:06.3296063Z > `unic-ucd-version` is unmaintained
+2026-10-04T00:47:06.3296527Z 
+2026-10-04T00:47:06.3296772Z | Details             |                                                |
+2026-10-04T00:47:06.3297394Z | ------------------- | ---------------------------------------------- |
+2026-10-04T00:47:06.3297989Z | Status              | unmaintained                |
+2026-10-04T00:47:06.3298556Z | Package             | `unic-ucd-version`                      |
+2026-10-04T00:47:06.3299121Z | Version             | `0.9.0`                   |
+2026-10-04T00:47:06.3300052Z | URL                 | [https://github.com/rustsec/advisory-db/issues/2414](https://github.com/rustsec/advisory-db/issues/2414) |
+2026-10-04T00:47:06.3301014Z | Date                | 2025-10-18                         |
+2026-10-04T00:47:06.3301363Z 
+2026-10-04T00:47:06.3301789Z All Unicode crates that are part of https://github.com/open-i18n/rust-unic are unmaintained.
+2026-10-04T00:47:06.3302738Z ### [RUSTSEC-2026-0221](https://rustsec.org/advisories/RUSTSEC-2026-0221.html)
+2026-10-04T00:47:06.3303256Z 
+2026-10-04T00:47:06.3303632Z > `event-listener` allows `!Send` tags to cross thread boundaries via `StackSlot`
+2026-10-04T00:47:06.3304162Z 
+2026-10-04T00:47:06.3304393Z | Details             |                                                |
+2026-10-04T00:47:06.3305015Z | ------------------- | ---------------------------------------------- |
+2026-10-04T00:47:06.3305592Z | Status              | unsound                |
+2026-10-04T00:47:06.3306167Z | Package             | `event-listener`                      |
+2026-10-04T00:47:06.3306862Z | Version             | `5.4.1`                   |
+2026-10-04T00:47:06.3307801Z | URL                 | [https://github.com/smol-rs/event-listener/pull/163](https://github.com/smol-rs/event-listener/pull/163) |
+2026-10-04T00:47:06.3308762Z | Date                | 2026-07-13                         |
+2026-10-04T00:47:06.3309125Z 
+2026-10-04T00:47:06.3309495Z Affected versions of `event-listener` unconditionally implement `Send` and
+2026-10-04T00:47:06.3310367Z `Sync` for `StackSlot&lt;&#39;_, T&gt;`, the stack-allocated listener type created
+2026-10-04T00:47:06.3311025Z by the `listener!` macro.
+2026-10-04T00:47:06.3311279Z 
+2026-10-04T00:47:06.3311584Z This allows a `!Send` tag type set via `Event::with_tag` to be moved to
+2026-10-04T00:47:06.3312428Z another thread and accessed via `StackSlot::wait`, causing a data race in safe
+2026-10-04T00:47:06.3313077Z code.
+2026-10-04T00:47:06.3313594Z ### [RUSTSEC-2024-0429](https://rustsec.org/advisories/RUSTSEC-2024-0429.html)
+2026-10-04T00:47:06.3314104Z 
+2026-10-04T00:47:06.3314766Z > Unsoundness in `Iterator` and `DoubleEndedIterator` impls for `glib::VariantStrIter`
+2026-10-04T00:47:06.3315355Z 
+2026-10-04T00:47:06.3315592Z | Details             |                                                |
+2026-10-04T00:47:06.3316374Z | ------------------- | ---------------------------------------------- |
+2026-10-04T00:47:06.3316943Z | Status              | unsound                |
+2026-10-04T00:47:06.3317486Z | Package             | `glib`                      |
+2026-10-04T00:47:06.3318211Z | Version             | `0.18.5`                   |
+2026-10-04T00:47:06.3319109Z | URL                 | [https://github.com/gtk-rs/gtk-rs-core/pull/1343](https://github.com/gtk-rs/gtk-rs-core/pull/1343) |
+2026-10-04T00:47:06.3320028Z | Date                | 2024-03-30                         |
+2026-10-04T00:47:06.3320394Z 
+2026-10-04T00:47:06.3321435Z The `VariantStrIter::impl_get` function (called internally by implementations of the `Iterator` and `DoubleEndedIterator` traits for this type) was unsound, resulting in undefined behaviour.
+2026-10-04T00:47:06.3322603Z 
+2026-10-04T00:47:06.3324860Z An immutable reference `&amp;p` to a `*mut libc::c_char` pointer initialized to `NULL` was passed as an argument to a C function that that mutates the pointer behind `&amp;p` in-place (i.e. as an out-argument), which was unsound. After changes in recent versions of the Rust compiler, these unsound writes through `&amp;p` now seem to be completely disregarded when building the `glib` crate with optimizations.
+2026-10-04T00:47:06.3327339Z 
+2026-10-04T00:47:06.3328791Z This subsequently caused all calls of `VariantStrIter::impl_get` to violate the safety requirements of the `std::ffi::CStr::from_ptr` function - which requires its argument to be a valid pointer to a C-style string - resulting in crashes due to `NULL` pointer dereferences.
+2026-10-04T00:47:06.3330404Z 
+2026-10-04T00:47:06.3330884Z This was fixed by passing the out-argument pointer explitly as `&amp;mut p` instead of `&amp;p`.
+2026-10-04T00:47:06.3331536Z 
+2026-10-04T00:47:06.3333339Z This issue has been present since this code was initially added in `glib` v0.15.0. The mismatch in mutability was likely missed (and not raised as an error by the compiler) because the C function wrapped by `VariantStrIter::impl_get` is variadic (`glib_sys::g_variant_get_child`), and the pointer in question is one of the variadic arguments.
+2026-10-04T00:47:06.3335265Z 
+2026-10-04T00:47:06.3337067Z ##[error]Critical vulnerabilities were found, marking check as failed
+2026-10-04T00:47:06.3891111Z Post job cleanup.
+2026-10-04T00:47:06.4802950Z [command]/usr/bin/git version
+2026-10-04T00:47:06.4850830Z git version 2.55.0
+2026-10-04T00:47:06.4895711Z Temporarily overriding HOME='<runner-home>/work/_temp/2330a0df-66d6-472c-9a6c-19bd4e07d463' before making global git config changes
+2026-10-04T00:47:06.4897373Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-04T00:47:06.4902221Z [command]/usr/bin/git config --global --add safe.directory <runner-home>/work/andromeds-pulse/andromeds-pulse
+2026-10-04T00:47:06.4963142Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-04T00:47:06.5027792Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-04T00:47:06.5391083Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-04T00:47:06.5446396Z http.https://github.com/.extraheader
+2026-10-04T00:47:06.5463210Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-10-04T00:47:06.6396929Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-04T00:47:06.6742467Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-04T00:47:06.6819590Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-04T00:47:06.7362070Z Post job cleanup.
+2026-10-04T00:47:06.8241917Z [harden-runner] post-step
+2026-10-04T00:47:07.8271706Z log:
+2026-10-04T00:47:07.8272824Z Sun, 04 Oct 2026 00:45:59 GMT:[buildInfo] tag=v0.16.0 commit=69230545600e99d9c9b2d74ca0897d7100630d96 branch=HEAD 
+2026-10-04T00:47:07.8273439Z 
+2026-10-04T00:47:07.8274045Z Sun, 04 Oct 2026 00:45:59 GMT:read config 
+2026-10-04T00:47:07.8277078Z  &{Repo:Turbolet85/andromeds-pulse CorrelationId:d1555699-e449-4b3a-b67c-ee5e73eb17fd RunId:37165927619 WorkingDirectory:<runner-home>/work/andromeds-pulse/andromeds-pulse APIURL:https://agent.api.stepsecurity.io/v1 TelemetryURL:https://prod.app-api.stepsecurity.io/v1 OneTimeKey: Endpoints:map[] EgressPolicy:audit DisableTelemetry:false DisableSudo:false DisableSudoAndContainers:false DisableFileMonitoring:false Private:false}
+2026-10-04T00:47:07.8279605Z 
+2026-10-04T00:47:07.8280037Z Sun, 04 Oct 2026 00:45:59 GMT:Step Security Job Correlation ID: d1555699-e449-4b3a-b67c-ee5e73eb17fd
+2026-10-04T00:47:07.8280716Z 
+2026-10-04T00:47:07.8281291Z Sun, 04 Oct 2026 00:45:59 GMT:Global feature flags: {AgentType:agent-oss EnableArmour:true EnableCustomDetectionRules:true}
+2026-10-04T00:47:07.8282251Z Sun, 04 Oct 2026 00:45:59 GMT:initialized global feature flags
+2026-10-04T00:47:07.8282630Z 
+2026-10-04T00:47:07.8294675Z Sun, 04 Oct 2026 00:45:59 GMT:initialized global blocklist: &{ipAddresses:map[139.84.223.178:COMPROMISED_MEMTENSOR_MEMOS_SUPPLYCHAIN_LOCAL_WORM 142.11.206.73:COMPROMISED_AXIOS_C2_IP 216.126.225.129:MEGALODON_EXFIL_IP 23.254.164.123:COMPROMISED_MASTRA_C2_DOMAIN 23.254.164.92:COMPROMISED_MASTRA_C2_DOMAIN 23.254.165.112:COMPROMISED_ARRAYREF_C2_IP 37.27.122.124:COMPROMISED_JSCRAMBLER_C2_IP 57.128.246.79:COMPROMISED_JSCRAMBLER_C2_IP 83.142.209.194:COMPROMISED_MISTRAL_PYPI_C2_IP 85.137.53.71:COMPROMISED_ASYNCAPI_GENERATOR_MIASMA_RAT_C2] domains:map[api.masscan.cloud.:COMPROMISED_TANSTACK_EXFIL archive.torproject.org.:COMPROMISED_JSCRAMBLER_C2_DOMAIN audit.checkmarx.cx.:COMPROMISED_BITWARDEN_CLI_C2_DOMAIN check.git-service.com.:COMPROMISED_DURABLETASK_C2_DOMAIN check.torproject.org.:COMPROMISED_JSCRAMBLER_C2_DOMAIN cjn37-uyaaa-aaaac-qgnva-cai.raw.icp0.io.:COMPROMISED_PGSERVE_EXFIL_CANISTER dht.transmissionbt.com.:COMPROMISED_ASYNCAPI_GENERATOR_MIASMA_RAT_C2 evil.invalid.:GLOBAL_BLOCK_TEST_DOMAIN filev2.getsession.org.:COMPROMISED_TANSTACK_EXFIL flipboxstudio.info.:COMPROMISED_PACKAGIST_C2_DOMAIN git-tanstack.com.:COMPROMISED_TANSTACK_EXFIL igotnofriendsonlineorirl-imgonnakmslmao.skyhanni.cloud.:COMPROMISED_ELEMENTARY_DATA_EXFIL js-mirror.com.:COMPROMISED_CHAINDROP_NPM_EXFIL metrics.femboy.energy.:COMPROMISED_MRMUSTARD_PYPI_C2_DOMAIN npm-cache.com.:COMPROMISED_CHAINDROP_NPM_EXFIL pypi-get.com.:COMPROMISED_CHAINDROP_NPM_EXFIL relay.damus.io.:COMPROMISED_ASYNCAPI_GENERATOR_MIASMA_RAT_C2 relay.nostr.com.:COMPROMISED_ASYNCAPI_GENERATOR_MIASMA_RAT_C2 router.bittorrent.com.:COMPROMISED_ASYNCAPI_GENERATOR_MIASMA_RAT_C2 scan.aquasecurtiy.org.:COMPROMISED_TRIVY_C2_DOMAIN seed1.getsession.org.:COMPROMISED_TANSTACK_EXFIL sfrclak.com.:COMPROMISED_AXIOS_C2_DOMAIN sh.azurestaticprovider.net.:COMPROMISED_NODE_IPC_NPM_C2 skyleen.fr.:COMPROMISED_MEMTENSOR_MEMOS_SUPPLYCHAIN_LOCAL_WORM t.m-kosche.com.:COMPROMISED_ACTIONSCOOL_EXFIL telemetry.api-monitor.com.:COMPROMISED_PGSERVE_EXFIL_DOMAIN whereisitat.lucyatemysuperbox.space.:COMPROMISED_XINFERENCE_C2_DOMAIN zero.masscan.cloud.:COMPROMISED_MINI_SHAI_HULUD_2] wildcardDomains:map[skyleen.fr.:COMPROMISED_MEMTENSOR_MEMOS_SUPPLYCHAIN_LOCAL_WORM]}
+2026-10-04T00:47:07.8305930Z 
+2026-10-04T00:47:07.8306083Z Sun, 04 Oct 2026 00:45:59 GMT:started process monitor
+2026-10-04T00:47:07.8306531Z 
+2026-10-04T00:47:07.8306680Z Sun, 04 Oct 2026 00:45:59 GMT:Monitor Processes called
+2026-10-04T00:47:07.8307032Z Sun, 04 Oct 2026 00:45:59 GMT:NewAuditClient created
+2026-10-04T00:47:07.8307355Z Sun, 04 Oct 2026 00:45:59 GMT:Status is enabled
+2026-10-04T00:47:07.8307668Z Sun, 04 Oct 2026 00:45:59 GMT:Rules deleted
+2026-10-04T00:47:07.8308446Z Sun, 04 Oct 2026 00:45:59 GMT:File monitor added for <runner-home>/work/andromeds-pulse/andromeds-pulse
+2026-10-04T00:47:07.8308949Z Sun, 04 Oct 2026 00:45:59 GMT:Agent file monitor added
+2026-10-04T00:47:07.8309345Z Sun, 04 Oct 2026 00:45:59 GMT:Docker's daemon.json file monitor added
+2026-10-04T00:47:07.8309779Z Sun, 04 Oct 2026 00:45:59 GMT:Systemd's resolved.conf file monitor added
+2026-10-04T00:47:07.8310386Z Sun, 04 Oct 2026 00:45:59 GMT:Net monitor added for TCP (connect)
+2026-10-04T00:47:07.8310806Z Sun, 04 Oct 2026 00:45:59 GMT:Net monitor added for UDP (sendto & sendmsg)
+2026-10-04T00:47:07.8311190Z Sun, 04 Oct 2026 00:45:59 GMT:Process monitor added
+2026-10-04T00:47:07.8311509Z Sun, 04 Oct 2026 00:45:59 GMT:receive called
+2026-10-04T00:47:07.8311706Z 
+2026-10-04T00:47:07.8311709Z 
+2026-10-04T00:47:07.8311831Z Sun, 04 Oct 2026 00:45:59 GMT:updated resolved
+2026-10-04T00:47:07.8312089Z 
+2026-10-04T00:47:07.8312257Z Sun, 04 Oct 2026 00:46:00 GMT:set docker config
+2026-10-04T00:47:07.8312546Z 
+2026-10-04T00:47:07.8312714Z Sun, 04 Oct 2026 00:46:00 GMT:before audit rules
+2026-10-04T00:47:07.8313200Z Sun, 04 Oct 2026 00:46:00 GMT:added audit rules
+2026-10-04T00:47:07.8313634Z Sun, 04 Oct 2026 00:46:01 GMT:Armour is enabled
+2026-10-04T00:47:07.8314106Z Sun, 04 Oct 2026 00:46:01 GMT:[armour] Runner.Worker PID: 1862
+2026-10-04T00:47:07.8314596Z Sun, 04 Oct 2026 00:46:01 GMT:Armour attached
+2026-10-04T00:47:07.8315104Z Sun, 04 Oct 2026 00:46:01 GMT:[armour] Custom detection rules enabled
+2026-10-04T00:47:07.8315563Z Sun, 04 Oct 2026 00:46:01 GMT:done
+2026-10-04T00:47:07.8316565Z Sun, 04 Oct 2026 00:46:02 GMT:domain resolved: results-receiver.actions.githubusercontent.com., ip address: 140.82.113.22, TTL: 30
+2026-10-04T00:47:07.8318592Z Sun, 04 Oct 2026 00:46:02 GMT:[Source code overwritten] file: <runner-home>/work/andromeds-pulse/andromeds-pulse/.git/config.lock syscall: openat by exe: /usr/bin/git [011fb1c28096c72e25688e56793f20b33e68f7f1065489f745763f19b6e9f516] Timestamp: 2026-10-04T00:46:02.137Z
+2026-10-04T00:47:07.8320755Z Sun, 04 Oct 2026 00:46:02 GMT:[Source code overwritten] file: <runner-home>/work/andromeds-pulse/andromeds-pulse/.git/config syscall: rename by exe: /usr/bin/git [011fb1c28096c72e25688e56793f20b33e68f7f1065489f745763f19b6e9f516] Timestamp: 2026-10-04T00:46:02.137Z
+2026-10-04T00:47:07.8323323Z Sun, 04 Oct 2026 00:46:02 GMT:[Source code overwritten] file: <runner-home>/work/andromeds-pulse/andromeds-pulse/.git/config.lock syscall: openat by exe: /usr/bin/git [011fb1c28096c72e25688e56793f20b33e68f7f1065489f745763f19b6e9f516] Timestamp: 2026-10-04T00:46:02.137Z
+2026-10-04T00:47:07.8325282Z Sun, 04 Oct 2026 00:46:02 GMT:domain resolved: prod.app-api.stepsecurity.io., ip address: 100.22.115.227, TTL: 34
+2026-10-04T00:47:07.8326366Z Sun, 04 Oct 2026 00:46:02 GMT:domain resolved: github.com., ip address: 140.82.114.4, TTL: 60
+2026-10-04T00:47:07.8328329Z Sun, 04 Oct 2026 00:46:02 GMT:[Source code overwritten] file: <runner-home>/work/andromeds-pulse/andromeds-pulse/.git/config syscall: openat by exe: <runner-home>/actions-runner/cached/2.337.0/externals/node24/bin/node [bc17c508ffeed0ec622934f9b7fa72f8e78da65350e63c3eceb56fa688aa5e12] Timestamp: 2026-10-04T00:46:02.284Z
+2026-10-04T00:47:07.8330066Z Sun, 04 Oct 2026 00:46:02 GMT:endpoint called ip address:port 140.82.114.4:443, domain: github.com., pid: 2691, process: git-remote-http
+2026-10-04T00:47:07.8330890Z Sun, 04 Oct 2026 00:46:06 GMT:domain resolved: static.rust-lang.org., ip address: 151.101.66.137, TTL: 60
+2026-10-04T00:47:07.8331727Z Sun, 04 Oct 2026 00:46:06 GMT:endpoint called ip address:port 151.101.66.137:443, domain: static.rust-lang.org., pid: 2711, process: rustup
+2026-10-04T00:47:07.8332643Z Sun, 04 Oct 2026 00:46:16 GMT:endpoint called ip address:port 151.101.66.137:443, domain: static.rust-lang.org., pid: 2826, process: rustup
+2026-10-04T00:47:07.8333437Z Sun, 04 Oct 2026 00:46:26 GMT:domain resolved: api.snapcraft.io., ip address: 185.125.188.54, TTL: 30
+2026-10-04T00:47:07.8334594Z Sun, 04 Oct 2026 00:46:31 GMT:domain resolved: productionresultssa15.blob.core.windows.net., ip address: 20.209.178.193, TTL: 59
+2026-10-04T00:47:07.8335648Z Sun, 04 Oct 2026 00:46:31 GMT:endpoint called ip address:port 140.82.113.22:443, domain: results-receiver.actions.githubusercontent.com., pid: 2814, process: node
+2026-10-04T00:47:07.8336938Z Sun, 04 Oct 2026 00:46:31 GMT:endpoint called ip address:port 20.209.178.193:443, domain: productionresultssa15.blob.core.windows.net., pid: 2814, process: node
+2026-10-04T00:47:07.8338139Z Sun, 04 Oct 2026 00:46:33 GMT:endpoint called ip address:port 168.63.129.16:80, domain: , pid: 2868, process: python3.10
+2026-10-04T00:47:07.8339207Z Sun, 04 Oct 2026 00:46:40 GMT:domain resolved: run-actions-3-azure-eastus.actions.githubusercontent.com., ip address: 20.85.130.105, TTL: 3541
+2026-10-04T00:47:07.8340624Z Sun, 04 Oct 2026 00:46:55 GMT:domain resolved: broker.actions.githubusercontent.com., ip address: 20.85.130.105, TTL: 3526
+2026-10-04T00:47:07.8341906Z Sun, 04 Oct 2026 00:47:02 GMT:endpoint called ip address:port 140.82.114.4:443, domain: github.com., pid: 2935, process: cargo-audit
+2026-10-04T00:47:07.8343017Z Sun, 04 Oct 2026 00:47:05 GMT:domain resolved: index.crates.io., ip address: 151.101.130.137, TTL: 60
+2026-10-04T00:47:07.8344181Z Sun, 04 Oct 2026 00:47:05 GMT:endpoint called ip address:port 151.101.130.137:443, domain: index.crates.io., pid: 2935, process: cargo-audit
+2026-10-04T00:47:07.8345023Z Sun, 04 Oct 2026 00:47:06 GMT:domain resolved: api.github.com., ip address: 140.82.114.6, TTL: 60
+2026-10-04T00:47:07.8345775Z Sun, 04 Oct 2026 00:47:06 GMT:endpoint called ip address:port 140.82.114.6:443, domain: api.github.com., pid: 2923, process: node
+2026-10-04T00:47:07.8346519Z 
+2026-10-04T00:47:07.8346645Z Sun, 04 Oct 2026 00:47:06 GMT:post_event called
+2026-10-04T00:47:07.8346858Z 
+2026-10-04T00:47:07.8346947Z status:
+2026-10-04T00:47:07.8347217Z Initialized
+2026-10-04T00:47:07.9443764Z agent.service log:
+2026-10-04T00:47:07.9445226Z Oct 04 00:45:59 runnervma94yk systemd[1]: /etc/systemd/system/agent.service:9: Standard output type syslog is obsolete, automatically updating to journal. Please update your unit file, and consider removing the setting altogether.
+2026-10-04T00:47:07.9447763Z Oct 04 00:45:59 runnervma94yk systemd[1]: /etc/systemd/system/agent.service:10: Standard output type syslog is obsolete, automatically updating to journal. Please update your unit file, and consider removing the setting altogether.
+2026-10-04T00:47:07.9449193Z Oct 04 00:45:59 runnervma94yk systemd[1]: Started Agent.
+2026-10-04T00:47:07.9450580Z Oct 04 00:45:59 runnervma94yk sudo[2217]:     root : *** ; USER=root ; COMMAND=/usr/bin/systemctl stop systemd-resolved
+2026-10-04T00:47:07.9451713Z Oct 04 00:45:59 runnervma94yk sudo[2217]: pam_unix(sudo:session): session opened for user root(uid=0) by (uid=0)
+2026-10-04T00:47:07.9452676Z Oct 04 00:45:59 runnervma94yk sudo[2217]: pam_unix(sudo:session): session closed for user root
+2026-10-04T00:47:07.9453803Z Oct 04 00:45:59 runnervma94yk sudo[2222]:     root : *** ; USER=root ; COMMAND=/usr/bin/systemctl restart systemd-resolved
+2026-10-04T00:47:07.9454855Z Oct 04 00:45:59 runnervma94yk sudo[2222]: pam_unix(sudo:session): session opened for user root(uid=0) by (uid=0)
+2026-10-04T00:47:07.9455844Z Oct 04 00:45:59 runnervma94yk sudo[2222]: pam_unix(sudo:session): session closed for user root
+2026-10-04T00:47:07.9457479Z Oct 04 00:45:59 runnervma94yk sudo[2226]:     root : *** ; USER=root ; COMMAND=/usr/bin/resolvectl flush-caches
+2026-10-04T00:47:07.9458525Z Oct 04 00:45:59 runnervma94yk sudo[2226]: pam_unix(sudo:session): session opened for user root(uid=0) by (uid=0)
+2026-10-04T00:47:07.9459502Z Oct 04 00:45:59 runnervma94yk sudo[2226]: pam_unix(sudo:session): session closed for user root
+2026-10-04T00:47:07.9460543Z Oct 04 00:45:59 runnervma94yk sudo[2229]:     root : *** ; USER=root ; COMMAND=/usr/bin/systemctl reload docker
+2026-10-04T00:47:07.9461562Z Oct 04 00:45:59 runnervma94yk sudo[2229]: pam_unix(sudo:session): session opened for user root(uid=0) by (uid=0)
+2026-10-04T00:47:07.9462792Z Oct 04 00:45:59 runnervma94yk sudo[2229]: pam_unix(sudo:session): session closed for user root
+2026-10-04T00:47:07.9463939Z Oct 04 00:45:59 runnervma94yk sudo[2234]:     root : *** ; USER=root ; COMMAND=/usr/bin/systemctl daemon-reload
+2026-10-04T00:47:07.9464963Z Oct 04 00:45:59 runnervma94yk sudo[2234]: pam_unix(sudo:session): session opened for user root(uid=0) by (uid=0)
+2026-10-04T00:47:07.9467087Z Oct 04 00:46:00 runnervma94yk systemd[1]: /etc/systemd/system/agent.service:9: Standard output type syslog is obsolete, automatically updating to journal. Please update your unit file, and consider removing the setting altogether.
+2026-10-04T00:47:07.9469413Z Oct 04 00:46:00 runnervma94yk systemd[1]: /etc/systemd/system/agent.service:10: Standard output type syslog is obsolete, automatically updating to journal. Please update your unit file, and consider removing the setting altogether.
+2026-10-04T00:47:07.9471056Z Oct 04 00:46:00 runnervma94yk sudo[2234]: pam_unix(sudo:session): session closed for user root
+2026-10-04T00:47:07.9472106Z Oct 04 00:46:00 runnervma94yk sudo[2280]:     root : *** ; USER=root ; COMMAND=/usr/bin/systemctl restart docker
+2026-10-04T00:47:07.9473147Z Oct 04 00:46:00 runnervma94yk sudo[2280]: pam_unix(sudo:session): session opened for user root(uid=0) by (uid=0)
+2026-10-04T00:47:07.9474111Z Oct 04 00:46:00 runnervma94yk sudo[2280]: pam_unix(sudo:session): session closed for user root
+2026-10-04T00:47:07.9475605Z Oct 04 00:46:01 runnervma94yk agentservice[2143]: 2026/10/04 00:46:01 INFO Fetching custom detection rules module=armour api_url=https://agent.api.stepsecurity.io/v1 repo=Turbolet85/andromeds-pulse
+2026-10-04T00:47:07.9477321Z Oct 04 00:46:01 runnervma94yk agentservice[2143]: [armour-cdr] Event Policy:  package hardenrunner.event
+2026-10-04T00:47:07.9478167Z Oct 04 00:46:01 runnervma94yk agentservice[2143]: import rego.v1
+2026-10-04T00:47:07.9479081Z Oct 04 00:46:01 runnervma94yk agentservice[2143]: # Rule: Agent - Event System Rule (707af3d3-11d5-4cce-abab-8e6dfcfc510c)
+2026-10-04T00:47:07.9480097Z Oct 04 00:46:01 runnervma94yk agentservice[2143]: default runner_worker_mem_read := false
+2026-10-04T00:47:07.9480828Z Oct 04 00:46:01 runnervma94yk agentservice[2143]: 
+2026-10-04T00:47:07.9481484Z Oct 04 00:46:01 runnervma94yk agentservice[2143]: runner_worker_mem_read if {
+2026-10-04T00:47:07.9482255Z Oct 04 00:46:01 runnervma94yk agentservice[2143]:     evt := input.armour_event
+2026-10-04T00:47:07.9483017Z Oct 04 00:46:01 runnervma94yk agentservice[2143]:     evt.kind == "FILE_READ"
+2026-10-04T00:47:07.9483788Z Oct 04 00:46:01 runnervma94yk agentservice[2143]:     evt.file_info != null
+2026-10-04T00:47:07.9484645Z Oct 04 00:46:01 runnervma94yk agentservice[2143]:     endswith(evt.file_info.current_exe, "python")
+2026-10-04T00:47:07.9485592Z Oct 04 00:46:01 runnervma94yk agentservice[2143]:     startswith(evt.file_info.target_file, "/proc")
+2026-10-04T00:47:07.9486787Z Oct 04 00:46:01 runnervma94yk agentservice[2143]:     endswith(evt.file_info.target_file, "/mem")
+2026-10-04T00:47:07.9487792Z Oct 04 00:46:01 runnervma94yk agentservice[2143]:     endswith(evt.file_info.target_exe, "Runner.Worker")
+2026-10-04T00:47:07.9488300Z Oct 04 00:46:01 runnervma94yk agentservice[2143]: }
+2026-10-04T00:47:07.9488719Z Oct 04 00:46:01 runnervma94yk agentservice[2143]: 
+2026-10-04T00:47:07.9489372Z Oct 04 00:46:01 runnervma94yk agentservice[2143]: runner_worker_mem_read if {
+2026-10-04T00:47:07.9490149Z Oct 04 00:46:01 runnervma94yk agentservice[2143]:     evt := input.armour_event
+2026-10-04T00:47:07.9490888Z Oct 04 00:46:01 runnervma94yk agentservice[2143]:     evt.kind == "FILE_READ"
+2026-10-04T00:47:07.9491596Z Oct 04 00:46:01 runnervma94yk agentservice[2143]:     evt.file_info != null
+2026-10-04T00:47:07.9492401Z Oct 04 00:46:01 runnervma94yk agentservice[2143]:     endswith(evt.file_info.current_exe, "python3")
+2026-10-04T00:47:07.9493343Z Oct 04 00:46:01 runnervma94yk agentservice[2143]:     startswith(evt.file_info.target_file, "/proc")
+2026-10-04T00:47:07.9494522Z Oct 04 00:46:01 runnervma94yk agentservice[2143]:     endswith(evt.file_info.target_file, "/mem")
+2026-10-04T00:47:07.9495486Z Oct 04 00:46:01 runnervma94yk agentservice[2143]:     endswith(evt.file_info.target_exe, "Runner.Worker")
+2026-10-04T00:47:07.9496472Z Oct 04 00:46:01 runnervma94yk agentservice[2143]: }
+2026-10-04T00:47:07.9496971Z Oct 04 00:46:01 runnervma94yk agentservice[2143]: 
+2026-10-04T00:47:07.9497839Z Oct 04 00:46:01 runnervma94yk agentservice[2143]: default suspicious_file_access := false
+2026-10-04T00:47:07.9498654Z Oct 04 00:46:01 runnervma94yk agentservice[2143]: suspicious_file_access := true if {
+2026-10-04T00:47:07.9499578Z Oct 04 00:46:01 runnervma94yk agentservice[2143]:     contains(input.file_event.file_name, "router_init.js")
+2026-10-04T00:47:07.9500842Z Oct 04 00:46:01 runnervma94yk agentservice[2143]:     input.file_event.checksum == "ab4fcadaec49c03278063dd269ea5eef82d24f2124a8e15d7b90f2fa8601266c"
+2026-10-04T00:47:07.9501842Z Oct 04 00:46:01 runnervma94yk agentservice[2143]: }
+2026-10-04T00:47:07.9502591Z Oct 04 00:46:01 runnervma94yk agentservice[2143]: [armour-cdr] State Policy:  package hardenrunner.state
+2026-10-04T00:47:07.9503425Z Oct 04 00:46:01 runnervma94yk agentservice[2143]: import rego.v1
+2026-10-04T00:47:07.9504300Z Oct 04 00:46:01 runnervma94yk agentservice[2143]: # Rule: Agent - State System Rule (a6dabdfb-ba5b-4932-bf3c-ed621582dbce)
+2026-10-04T00:47:07.9505178Z Oct 04 00:46:01 runnervma94yk agentservice[2143]: default action := ""
+2026-10-04T00:47:07.9505759Z Oct 04 00:46:01 runnervma94yk agentservice[2143]: 
+2026-10-04T00:47:07.9506502Z Oct 04 00:46:01 runnervma94yk agentservice[2143]: lockdown_required if {
+2026-10-04T00:47:07.9507291Z Oct 04 00:46:01 runnervma94yk agentservice[2143]:     input.state.runner_worker_mem_read
+2026-10-04T00:47:07.9508004Z Oct 04 00:46:01 runnervma94yk agentservice[2143]: }
+2026-10-04T00:47:07.9508500Z Oct 04 00:46:01 runnervma94yk agentservice[2143]: 
+2026-10-04T00:47:07.9509095Z Oct 04 00:46:01 runnervma94yk agentservice[2143]: lockdown_required if {
+2026-10-04T00:47:07.9509851Z Oct 04 00:46:01 runnervma94yk agentservice[2143]:     input.state.suspicious_file_access
+2026-10-04T00:47:07.9510563Z Oct 04 00:46:01 runnervma94yk agentservice[2143]: }
+2026-10-04T00:47:07.9511067Z Oct 04 00:46:01 runnervma94yk agentservice[2143]: 
+2026-10-04T00:47:07.9511698Z Oct 04 00:46:01 runnervma94yk agentservice[2143]: action := "lockdown" if {
+2026-10-04T00:47:07.9512344Z Oct 04 00:46:01 runnervma94yk agentservice[2143]:     lockdown_required
+2026-10-04T00:47:07.9512930Z Oct 04 00:46:01 runnervma94yk agentservice[2143]: }
+2026-10-04T00:47:07.9513647Z Oct 04 00:46:01 runnervma94yk agentservice[2143]: [armour-cdr] Checksum Paths:  [router_init.js]
+2026-10-04T00:47:07.9514726Z Oct 04 00:46:01 runnervma94yk agentservice[2143]: 2026/10/04 00:46:01 INFO Custom detection rules evaluator initialized module=armour
+2026-10-04T00:47:07.9516042Z Oct 04 00:46:01 runnervma94yk agentservice[2143]: 2026/10/04 00:46:01 INFO Detection manager started module=detection-manager workers=4 buffer_size=1000
+2026-10-04T00:47:07.9517382Z Oct 04 00:46:01 runnervma94yk agentservice[2143]: 2026/10/04 00:46:01 INFO Config module=armour AGENT_PID=2143
+2026-10-04T00:47:07.9518444Z Oct 04 00:46:01 runnervma94yk agentservice[2143]: 2026/10/04 00:46:01 INFO Config module=armour ENFORCE_READ_BLOCK=false
+2026-10-04T00:47:07.9519610Z Oct 04 00:46:01 runnervma94yk agentservice[2143]: 2026/10/04 00:46:01 INFO Config module=armour ENFORCE_WRITE_BLOCK=false
+2026-10-04T00:47:07.9520747Z Oct 04 00:46:01 runnervma94yk agentservice[2143]: 2026/10/04 00:46:01 INFO Config module=armour ENFORCE_KILL_BLOCK=false
+2026-10-04T00:47:07.9521914Z Oct 04 00:46:01 runnervma94yk agentservice[2143]: 2026/10/04 00:46:01 INFO Map size module=armour protected_proc_fs_inodes=2
+2026-10-04T00:47:07.9523014Z Oct 04 00:46:01 runnervma94yk agentservice[2143]: 2026/10/04 00:46:01 INFO Map size module=armour events=16384
+2026-10-04T00:47:07.9524055Z Oct 04 00:46:01 runnervma94yk agentservice[2143]: 2026/10/04 00:46:01 INFO Map size module=armour protected_pids=1
+2026-10-04T00:47:07.9525360Z Oct 04 00:46:01 runnervma94yk agentservice[2143]: 2026/10/04 00:46:01 INFO Map size module=armour protected_pid_inodes=1
+2026-10-04T00:47:07.9526734Z Oct 04 00:46:01 runnervma94yk agentservice[2143]: 2026/10/04 00:46:01 INFO Map size module=armour protected_bpf_ids=9
+2026-10-04T00:47:07.9527874Z Oct 04 00:46:01 runnervma94yk agentservice[2143]: 2026/10/04 00:46:01 INFO Map size module=armour protected_fs_inodes=6
+2026-10-04T00:47:07.9529278Z Oct 04 00:46:01 runnervma94yk agentservice[2143]: 2026/10/04 00:46:01 INFO ProtectedPids module=armour pids=map[2077:2143]
+2026-10-04T00:47:07.9530486Z Oct 04 00:46:01 runnervma94yk agentservice[2143]: 2026/10/04 00:46:01 INFO ProtectedBPFIDs module=armour ids="[23 17 21 24 22]"
+2026-10-04T00:47:07.9531829Z Oct 04 00:46:01 runnervma94yk agentservice[2143]: 2026/10/04 00:46:01 INFO File Info module=armour inoKey="{Device:23 Inode:12556}" path=/proc/1862/mem
+2026-10-04T00:47:07.9533293Z Oct 04 00:46:01 runnervma94yk agentservice[2143]: 2026/10/04 00:46:01 INFO File Info module=armour inoKey="{Device:23 Inode:15143}" path=/proc/1843/mem
+2026-10-04T00:47:07.9534764Z Oct 04 00:46:01 runnervma94yk agentservice[2143]: 2026/10/04 00:46:01 INFO File Info module=armour inoKey="{Device:2049 Inode:4773}" path=/etc/sudoers.d/runner
+2026-10-04T00:47:07.9536422Z Oct 04 00:46:01 runnervma94yk agentservice[2143]: 2026/10/04 00:46:01 INFO File Info module=armour inoKey="{Device:27 Inode:731}" path=/etc/resolv.conf
+2026-10-04T00:47:07.9537949Z Oct 04 00:46:01 runnervma94yk agentservice[2143]: 2026/10/04 00:46:01 INFO File Info module=armour inoKey="{Device:2049 Inode:506}" path=/etc/systemd/resolved.conf
+2026-10-04T00:47:07.9539430Z Oct 04 00:46:01 runnervma94yk agentservice[2143]: 2026/10/04 00:46:01 INFO File Info module=armour inoKey="{Device:2049 Inode:292719}" path=/etc/docker/daemon.json
+2026-10-04T00:47:07.9540733Z Oct 04 00:46:01 runnervma94yk agentservice[2143]: 2026/10/04 00:46:01 INFO Protection maps populated module=armour
+2026-10-04T00:47:07.9541855Z Oct 04 00:46:01 runnervma94yk agentservice[2143]: 2026/10/04 00:46:01 INFO Protection maps are freezed module=armour
+2026-10-04T00:47:07.9542932Z Oct 04 00:46:01 runnervma94yk agentservice[2143]: 2026/10/04 00:46:01 INFO Linking completed module=armour
+2026-10-04T00:47:07.9543988Z Oct 04 00:46:01 runnervma94yk agentservice[2143]: 2026/10/04 00:46:01 INFO Armour engaged module=armour
+2026-10-04T00:47:07.9545084Z Oct 04 00:46:01 runnervma94yk agentservice[2143]: 2026/10/04 00:46:01 INFO RingBuffer created module=armour size=16384
+2026-10-04T00:47:07.9546379Z Oct 04 00:46:01 runnervma94yk agentservice[2143]: 2026/10/04 00:46:01 INFO Listening for events module=armour
+2026-10-04T00:47:07.9547475Z Oct 04 00:46:01 runnervma94yk agentservice[2143]: 2026/10/04 00:46:01 INFO [LOCKDOWN] Runner.Worker PID set module=armour pid=1862
+2026-10-04T00:47:07.9548157Z 
+2026-10-04T00:47:07.9604686Z Cleaning up orphan processes
+2026-10-04T00:47:07.9995874Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5, rustsec/audit-check@69366f33c96575abad1ee0dba8212993eecbe998. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/

@@ -1,0 +1,122 @@
+[
+{
+"tool": "evolve",
+"v": "1.0",
+"sha8": "df8fc62a",
+"ts": "2026-10-04T01:21:46Z",
+"argv": [
+"append",
+"--root",
+".",
+"--count",
+"1",
+"--records-file",
+"-",
+"--run-dir",
+".andromeda/runs/2026-10-04T01-21-17Z-implement",
+"--marker",
+"2026-10-04-supply-chain-advisories-on-wasmtime-resolved"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"appended 1 record(s) · friction-log.ndjson lines 1774→1775 · bytes 1880318→1881186 · term lf",
+"ts 2026-10-04T01:21:41Z · clock 2026-10-04T01:21:46Z · bound 2026-10-04T01:20:17Z (line 1774)",
+"ids 2026-10-04T01:21:41Z-a"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/friction-log.ndjson"
+],
+"before": {
+"lines": 1774,
+"bytes": 1880318,
+"terminator": "LF",
+"bound": "2026-10-04T01:20:17Z"
+},
+"after": {
+"lines": 1775,
+"bytes": 1881186
+}
+},
+{
+"tool": "evolve",
+"v": "1.0",
+"sha8": "df8fc62a",
+"ts": "2026-10-04T01:25:10Z",
+"argv": [
+"append",
+"--root",
+".",
+"--count",
+"2",
+"--records-file",
+"-",
+"--run-dir",
+".andromeda/runs/2026-10-04T01-21-17Z-implement",
+"--marker",
+"2026-10-04-supply-chain-advisories-on-wasmtime-resolved"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"appended 2 record(s) · friction-log.ndjson lines 1775→1777 · bytes 1881186→1883054 · term lf",
+"ts 2026-10-04T01:24:59Z · clock 2026-10-04T01:25:10Z · bound 2026-10-04T01:21:41Z (line 1775)",
+"ids 2026-10-04T01:24:59Z-a … 2026-10-04T01:24:59Z-b (2)"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/friction-log.ndjson"
+],
+"before": {
+"lines": 1775,
+"bytes": 1881186,
+"terminator": "LF",
+"bound": "2026-10-04T01:21:41Z"
+},
+"after": {
+"lines": 1777,
+"bytes": 1883054
+}
+},
+{
+"tool": "evolve",
+"v": "1.0",
+"sha8": "df8fc62a",
+"ts": "2026-10-04T01:25:19Z",
+"argv": [
+"append",
+"--root",
+".",
+"--count",
+"1",
+"--records-file",
+"-",
+"--run-dir",
+".andromeda/runs/2026-10-04T01-21-17Z-implement",
+"--marker",
+"2026-10-04-supply-chain-advisories-on-wasmtime-resolved"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"appended 1 record(s) · friction-log.ndjson lines 1777→1778 · bytes 1883054→1883811 · term lf",
+"ts 2026-10-04T01:25:14Z · clock 2026-10-04T01:25:19Z · bound 2026-10-04T01:24:59Z (line 1777)",
+"ids 2026-10-04T01:25:14Z-a"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/friction-log.ndjson"
+],
+"before": {
+"lines": 1777,
+"bytes": 1883054,
+"terminator": "LF",
+"bound": "2026-10-04T01:24:59Z"
+},
+"after": {
+"lines": 1778,
+"bytes": 1883811
+}
+}
+]

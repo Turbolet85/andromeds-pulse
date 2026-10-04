@@ -1,0 +1,45 @@
+[
+{
+"tool": "ci",
+"v": "1.0",
+"sha8": "bf89b279",
+"ts": "2026-10-04T00:48:13Z",
+"argv": [
+"conclusion",
+"--sha",
+"5988a5f80b7280081fdeb12d9eca16bfa32f4de9",
+"--run-dir",
+".andromeda/runs/2026-10-04T00-48-08Z-phase"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"repo Turbolet85/andromeds-pulse (the push remote `origin`)",
+"5988a5f80b72 verdict: red · checks 13/13 · first-fail +91 s supply-chain (audit + deny + auditable) · runs secret-scan#…",
+"runs: secret-scan#37165927627 pull_request completed/success · ci#37165927619 pull_request in_progress/-",
+"failed 1: supply-chain (audit + deny + auditable) (failure)",
+"log: gh api repos/Turbolet85/andromeds-pulse/actions/jobs/111328669434/logs",
+"running 11: oldest a11y (ubuntu-22.04) 153 s",
+"run open: ci#37165927619 in_progress"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"repo": "Turbolet85/andromeds-pulse",
+"host": "github.com",
+"repo_source": "the push remote `origin`",
+"names": [],
+"shas": [
+{
+"sha": "5988a5f80b7280081fdeb12d9eca16bfa32f4de9",
+"word": "red",
+"polls": [
+"red"
+]
+}
+]
+}
+}
+]

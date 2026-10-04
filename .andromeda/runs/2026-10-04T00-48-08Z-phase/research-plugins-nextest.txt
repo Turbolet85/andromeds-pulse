@@ -1,0 +1,288 @@
+   Compiling proc-macro2 v1.0.106
+   Compiling quote v1.0.45
+   Compiling unicode-ident v1.0.24
+   Compiling serde_core v1.0.228
+   Compiling foldhash v0.2.0
+   Compiling libc v0.2.186
+   Compiling equivalent v1.0.2
+   Compiling serde v1.0.228
+   Compiling libm v0.2.16
+   Compiling log v0.4.29
+   Compiling find-msvc-tools v0.1.9
+   Compiling anyhow v1.0.104
+   Compiling shlex v1.3.0
+   Compiling cfg-if v1.0.4
+   Compiling memchr v2.8.0
+   Compiling version_check v0.9.5
+   Compiling leb128fmt v0.1.0
+   Compiling bitflags v2.11.1
+   Compiling wasmtime-internal-core v48.0.5
+   Compiling typenum v1.20.0
+   Compiling semver v1.0.28
+   Compiling cranelift-srcgen v0.135.5
+   Compiling thiserror v2.0.18
+   Compiling heck v0.5.0
+   Compiling zmij v1.0.21
+   Compiling target-lexicon v0.13.5
+   Compiling allocator-api2 v0.2.21
+   Compiling fnv v1.0.7
+   Compiling hashbrown v0.16.1
+   Compiling cpufeatures v0.2.17
+   Compiling hashbrown v0.17.0
+   Compiling crc32fast v1.5.0
+   Compiling cranelift-isle v0.135.5
+   Compiling serde_json v1.0.149
+   Compiling itoa v1.0.18
+   Compiling object v0.39.1
+   Compiling cranelift-codegen-shared v0.135.5
+   Compiling cpp_demangle v0.5.1
+   Compiling pkg-config v0.3.33
+   Compiling rustc-hash v2.1.2
+   Compiling cranelift-assembler-x64-meta v0.135.5
+   Compiling rustix v1.1.4
+   Compiling arbitrary v1.4.2
+   Compiling termcolor v1.4.1
+   Compiling linux-raw-sys v0.12.1
+   Compiling wasmtime-internal-component-util v48.0.5
+   Compiling crossbeam-utils v0.8.21
+   Compiling generic-array v0.14.7
+   Compiling crossbeam-epoch v0.9.20
+   Compiling id-arena v2.3.0
+   Compiling rustc-demangle v0.1.27
+   Compiling zstd-safe v7.2.4
+   Compiling futures-sink v0.3.32
+   Compiling pin-project-lite v0.2.17
+   Compiling bumpalo v3.20.2
+   Compiling futures-core v0.3.32
+   Compiling wasm-encoder v0.258.0
+   Compiling slab v0.4.12
+   Compiling winnow v1.0.2
+   Compiling futures-channel v0.3.32
+   Compiling futures-io v0.3.32
+   Compiling either v1.15.0
+   Compiling rayon-core v1.13.0
+   Compiling wasmtime-internal-unwinder v48.0.5
+   Compiling futures-task v0.3.32
+   Compiling getrandom v0.4.2
+   Compiling unicode-width v0.2.2
+   Compiling once_cell v1.21.4
+   Compiling aho-corasick v1.1.4
+   Compiling rustc_version v0.4.1
+   Compiling wasmtime-internal-cranelift v48.0.5
+   Compiling wasmtime-internal-cache v48.0.5
+   Compiling toml_writer v1.1.1+spec-1.1.0
+   Compiling winnow v0.7.15
+   Compiling fixedbitset v0.4.2
+   Compiling uuid v1.23.1
+   Compiling wasmtime-internal-component-macro v48.0.5
+   Compiling toml_datetime v1.1.1+spec-1.1.0
+   Compiling regex-syntax v0.8.10
+   Compiling itertools v0.14.0
+   Compiling fastrand v2.4.1
+   Compiling base64 v0.22.1
+   Compiling tracing-core v0.1.36
+   Compiling encoding_rs v0.8.35
+   Compiling toml_parser v1.1.2+spec-1.1.0
+   Compiling relative-path v1.9.3
+   Compiling glob v0.3.3
+   Compiling futures-timer v3.0.3
+   Compiling syn v2.0.117
+   Compiling rstest_macros v0.26.1
+   Compiling cranelift-control v0.135.5
+   Compiling debugid v0.8.0
+   Compiling crossbeam-deque v0.8.6
+   Compiling jobserver v0.1.34
+   Compiling dirs-sys-next v0.1.2
+   Compiling block-buffer v0.10.4
+   Compiling crypto-common v0.1.7
+   Compiling cranelift-assembler-x64 v0.135.5
+   Compiling directories-next v2.0.0
+   Compiling digest v0.10.7
+   Compiling cc v1.2.61
+   Compiling cranelift-bitset v0.135.5
+   Compiling wast v258.0.0
+   Compiling sha2 v0.10.9
+   Compiling rayon v1.12.0
+   Compiling regex-automata v0.4.14
+   Compiling zstd-sys v2.0.16+zstd.1.5.7
+   Compiling ittapi-sys v0.4.0
+   Compiling indexmap v2.14.0
+   Compiling toml_datetime v0.7.5+spec-1.1.0
+   Compiling serde_spanned v1.1.1
+   Compiling toml v0.9.12+spec-1.1.0
+   Compiling wasmparser v0.254.2
+   Compiling toml_edit v0.25.11+spec-1.1.0
+   Compiling ittapi v0.4.0
+   Compiling gimli v0.33.0
+   Compiling petgraph v0.6.5
+   Compiling proc-macro-crate v3.5.0
+   Compiling tempfile v3.27.0
+   Compiling memfd v0.6.5
+   Compiling regex v1.12.3
+   Compiling serde_derive v1.0.228
+   Compiling thiserror-impl v2.0.18
+   Compiling pulley-macros v48.0.5
+   Compiling wasmtime-internal-versioned-export-macros v48.0.5
+   Compiling futures-macro v0.3.32
+   Compiling async-trait v0.1.89
+   Compiling tracing-attributes v0.1.31
+   Compiling wasmtime-internal-fiber v48.0.5
+   Compiling wasmtime-internal-jit-debug v48.0.5
+   Compiling wasmtime v48.0.5
+   Compiling pulley-interpreter v48.0.5
+   Compiling futures-util v0.3.32
+   Compiling tracing v0.1.44
+   Compiling cobs v0.3.0
+   Compiling zstd v0.13.3
+   Compiling cranelift-codegen-meta v0.135.5
+   Compiling wat v1.258.0
+   Compiling addr2line v0.26.1
+   Compiling smallvec v1.15.1
+   Compiling postcard v1.1.3
+   Compiling fxprof-processed-profile v0.8.1
+   Compiling regalloc2 v0.15.2
+   Compiling wasmtime-internal-jit-icache-coherence v48.0.5
+   Compiling futures v0.3.32
+   Compiling rstest v0.26.1
+   Compiling cranelift-entity v0.135.5
+   Compiling cranelift-bforest v0.135.5
+   Compiling cranelift-codegen v0.135.5
+   Compiling wasm-encoder v0.254.2
+   Compiling wit-parser v0.254.2
+   Compiling wasm-metadata v0.254.2
+   Compiling wit-component v0.254.2
+   Compiling wasmprinter v0.254.2
+   Compiling wasmtime-internal-wit-bindgen v48.0.5
+   Compiling wasmtime-environ v48.0.5
+   Compiling wasm-compose v0.254.2
+   Compiling cranelift-frontend v0.135.5
+   Compiling cranelift-native v0.135.5
+   Compiling plugins v0.1.0 (<scratch-worktree>/crates/plugins)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 27.76s
+────────────
+ Nextest run ID 09823ccb-801c-4b27-8022-8eedc08d1c80 with nextest profile: ci
+    Starting 61 tests across 1 binary
+        PASS [   0.006s] ( 1/61) plugins contract::tests::path_canonicalization_failed_displays_reason
+        PASS [   0.006s] ( 2/61) plugins contract::tests::load_failed_displays_plugin_id_and_reason
+        PASS [   0.006s] ( 3/61) plugins contract::tests::heartbeat_payload_is_callable
+        PASS [   0.006s] ( 4/61) plugins contract::tests::capability_rejected_displays_all_fields
+        PASS [   0.007s] ( 5/61) plugins capability::tests::linker_for_category_returns_typed_linker::case_3
+        PASS [   0.007s] ( 6/61) plugins capability::tests::linker_for_category_returns_typed_linker::case_2
+        PASS [   0.007s] ( 7/61) plugins capability::tests::linker_for_category_returns_typed_linker::case_1
+        PASS [   0.024s] ( 8/61) plugins contract::tests::plugin_category_all_returns_three_categories
+        PASS [   0.025s] ( 9/61) plugins loader::tests::discover_plugins_skips_files_outside_category_subdir
+        PASS [   0.025s] (10/61) plugins engine::tests::build_engine_succeeds_with_default_posture
+        PASS [   0.009s] (11/61) plugins loader::tests::declared_exports_matches_wit_contract::case_1
+        PASS [   0.025s] (12/61) plugins contract::tests::resource_limit_exceeded_displays_all_fields
+        PASS [   0.025s] (13/61) plugins engine::tests::sanitize_wasmtime_error_falls_back_for_empty_input
+        PASS [   0.025s] (14/61) plugins contract::tests::not_found_displays_plugin_id
+        PASS [   0.009s] (15/61) plugins loader::tests::canonicalize_plugin_dir_rejects_traversal
+        PASS [   0.026s] (16/61) plugins engine::tests::sanitize_wasmtime_error_truncates_to_120_chars
+        PASS [   0.026s] (17/61) plugins contract::tests::plugin_category_as_str_matches_wit_filenames
+        PASS [   0.010s] (18/61) plugins loader::tests::declared_exports_matches_wit_contract::case_2
+        PASS [   0.026s] (19/61) plugins loader::tests::canonicalize_plugin_dir_returns_canonical_for_existing_dir
+        PASS [   0.027s] (20/61) plugins loader::tests::discover_plugins_returns_empty_for_missing_dir
+        PASS [   0.027s] (21/61) plugins engine::tests::sanitize_wasmtime_error_keeps_first_line_only
+        PASS [   0.011s] (22/61) plugins loader::tests::discover_plugins_returns_empty_for_empty_dir
+        PASS [   0.011s] (23/61) plugins loader::tests::discover_plugins_rejects_invalid_wasm_bytes_via_load_component
+        PASS [   0.015s] (24/61) plugins loader::tests::discover_plugins_finds_per_category_wasm_files::case_3
+        PASS [   0.016s] (25/61) plugins loader::tests::discover_plugins_finds_per_category_wasm_files::case_1
+        PASS [   0.017s] (26/61) plugins loader::tests::discover_plugins_skips_non_wasm_files_in_category_dir
+        PASS [   0.017s] (27/61) plugins loader::tests::discover_plugins_finds_per_category_wasm_files::case_2
+        PASS [   0.018s] (28/61) plugins loader::tests::discover_plugins_classifies_per_category_subdir
+        PASS [   0.011s] (29/61) plugins sandbox::tests::memories_returns_instances_cap_for_symmetry
+        PASS [   0.011s] (30/61) plugins sandbox::tests::table_growing_allows_grow_at_cap
+        PASS [   0.012s] (31/61) plugins sandbox::tests::instances_returns_configured_cap
+        PASS [   0.013s] (32/61) plugins sandbox::tests::for_category_returns_uniform_defaults::case_3
+        PASS [   0.012s] (33/61) plugins sandbox::tests::memory_growing_allows_grow_at_cap
+        PASS [   0.012s] (34/61) plugins sandbox::tests::table_growing_returns_false_past_cap
+        PASS [   0.013s] (35/61) plugins sandbox::tests::store_for_category_has_documented_caps::case_3
+        PASS [   0.022s] (36/61) plugins loader::tests::replace_plugins_preserves_invocation_counter
+        PASS [   0.022s] (37/61) plugins loader::tests::declared_exports_matches_wit_contract::case_3
+        PASS [   0.014s] (38/61) plugins sandbox::tests::memory_growing_returns_false_past_cap
+        PASS [   0.023s] (39/61) plugins sandbox::tests::default_uses_documented_caps
+        PASS [   0.014s] (40/61) plugins sandbox::tests::store_for_category_has_documented_caps::case_1
+        PASS [   0.014s] (41/61) plugins sandbox::tests::store_for_category_has_documented_caps::case_2
+        PASS [   0.013s] (42/61) plugins wit_loader::tests::linker_for_returns_empty_linker
+        PASS [   0.024s] (43/61) plugins loader::tests::record_invocation_increments_counter
+        PASS [   0.024s] (44/61) plugins loader::tests::empty_registry_reports_zero_loaded
+        PASS [   0.024s] (45/61) plugins sandbox::tests::for_category_returns_uniform_defaults::case_1
+        PASS [   0.014s] (46/61) plugins sandbox::tests::tables_returns_configured_cap
+        PASS [   0.024s] (47/61) plugins loader::tests::resolve_plugin_dir_uses_env_override_when_set
+        PASS [   0.024s] (48/61) plugins loader::tests::canonicalize_plugin_dir_returns_path_for_missing_dir
+        PASS [   0.024s] (49/61) plugins sandbox::tests::for_category_returns_uniform_defaults::case_2
+        PASS [   0.041s] (50/61) plugins engine::tests::build_engine_returns_independent_engines
+        PASS [   0.015s] (51/61) plugins wit_loader::tests::load_component_for_category_routes_to_correct_id::case_2
+        PASS [   0.015s] (52/61) plugins wit_loader::tests::load_component_for_category_routes_to_correct_id::case_3
+        PASS [   0.016s] (53/61) plugins wit_loader::tests::load_component_for_category_routes_to_correct_id::case_1
+        PASS [   0.012s] (54/61) plugins wit_loader::tests::load_component_rejects_invalid_bytes
+        PASS [   0.011s] (55/61) plugins wit_loader::tests::load_component_rejects_oversized_payload
+        PASS [   0.017s] (56/61) plugins wit_loader::tests::component_with_undeclared_import_fails_to_instantiate
+        PASS [   0.028s] (57/61) plugins loader::tests::registry_find_returns_loaded_plugin_by_id
+        PASS [   0.012s] (58/61) plugins wit_loader::tests::sandbox_with_undeclared_import_fails_at_link_time::case_1
+        PASS [   0.014s] (59/61) plugins wit_loader::tests::load_component_succeeds_on_minimal_empty_component
+        PASS [   0.012s] (60/61) plugins wit_loader::tests::sandbox_with_undeclared_import_fails_at_link_time::case_3
+        PASS [   0.013s] (61/61) plugins wit_loader::tests::sandbox_with_undeclared_import_fails_at_link_time::case_2
+────────────
+     Summary [   0.048s] 61 tests run: 61 passed, 0 skipped
+        PASS [   0.006s] ( 1/61) plugins contract::tests::path_canonicalization_failed_displays_reason
+        PASS [   0.006s] ( 2/61) plugins contract::tests::load_failed_displays_plugin_id_and_reason
+        PASS [   0.006s] ( 3/61) plugins contract::tests::heartbeat_payload_is_callable
+        PASS [   0.006s] ( 4/61) plugins contract::tests::capability_rejected_displays_all_fields
+        PASS [   0.007s] ( 5/61) plugins capability::tests::linker_for_category_returns_typed_linker::case_3
+        PASS [   0.007s] ( 6/61) plugins capability::tests::linker_for_category_returns_typed_linker::case_2
+        PASS [   0.007s] ( 7/61) plugins capability::tests::linker_for_category_returns_typed_linker::case_1
+        PASS [   0.024s] ( 8/61) plugins contract::tests::plugin_category_all_returns_three_categories
+        PASS [   0.025s] ( 9/61) plugins loader::tests::discover_plugins_skips_files_outside_category_subdir
+        PASS [   0.025s] (10/61) plugins engine::tests::build_engine_succeeds_with_default_posture
+        PASS [   0.009s] (11/61) plugins loader::tests::declared_exports_matches_wit_contract::case_1
+        PASS [   0.025s] (12/61) plugins contract::tests::resource_limit_exceeded_displays_all_fields
+        PASS [   0.025s] (13/61) plugins engine::tests::sanitize_wasmtime_error_falls_back_for_empty_input
+        PASS [   0.025s] (14/61) plugins contract::tests::not_found_displays_plugin_id
+        PASS [   0.009s] (15/61) plugins loader::tests::canonicalize_plugin_dir_rejects_traversal
+        PASS [   0.026s] (16/61) plugins engine::tests::sanitize_wasmtime_error_truncates_to_120_chars
+        PASS [   0.026s] (17/61) plugins contract::tests::plugin_category_as_str_matches_wit_filenames
+        PASS [   0.010s] (18/61) plugins loader::tests::declared_exports_matches_wit_contract::case_2
+        PASS [   0.026s] (19/61) plugins loader::tests::canonicalize_plugin_dir_returns_canonical_for_existing_dir
+        PASS [   0.027s] (20/61) plugins loader::tests::discover_plugins_returns_empty_for_missing_dir
+        PASS [   0.027s] (21/61) plugins engine::tests::sanitize_wasmtime_error_keeps_first_line_only
+        PASS [   0.011s] (22/61) plugins loader::tests::discover_plugins_returns_empty_for_empty_dir
+        PASS [   0.011s] (23/61) plugins loader::tests::discover_plugins_rejects_invalid_wasm_bytes_via_load_component
+        PASS [   0.015s] (24/61) plugins loader::tests::discover_plugins_finds_per_category_wasm_files::case_3
+        PASS [   0.016s] (25/61) plugins loader::tests::discover_plugins_finds_per_category_wasm_files::case_1
+        PASS [   0.017s] (26/61) plugins loader::tests::discover_plugins_skips_non_wasm_files_in_category_dir
+        PASS [   0.017s] (27/61) plugins loader::tests::discover_plugins_finds_per_category_wasm_files::case_2
+        PASS [   0.018s] (28/61) plugins loader::tests::discover_plugins_classifies_per_category_subdir
+        PASS [   0.011s] (29/61) plugins sandbox::tests::memories_returns_instances_cap_for_symmetry
+        PASS [   0.011s] (30/61) plugins sandbox::tests::table_growing_allows_grow_at_cap
+        PASS [   0.012s] (31/61) plugins sandbox::tests::instances_returns_configured_cap
+        PASS [   0.013s] (32/61) plugins sandbox::tests::for_category_returns_uniform_defaults::case_3
+        PASS [   0.012s] (33/61) plugins sandbox::tests::memory_growing_allows_grow_at_cap
+        PASS [   0.012s] (34/61) plugins sandbox::tests::table_growing_returns_false_past_cap
+        PASS [   0.013s] (35/61) plugins sandbox::tests::store_for_category_has_documented_caps::case_3
+        PASS [   0.022s] (36/61) plugins loader::tests::replace_plugins_preserves_invocation_counter
+        PASS [   0.022s] (37/61) plugins loader::tests::declared_exports_matches_wit_contract::case_3
+        PASS [   0.014s] (38/61) plugins sandbox::tests::memory_growing_returns_false_past_cap
+        PASS [   0.023s] (39/61) plugins sandbox::tests::default_uses_documented_caps
+        PASS [   0.014s] (40/61) plugins sandbox::tests::store_for_category_has_documented_caps::case_1
+        PASS [   0.014s] (41/61) plugins sandbox::tests::store_for_category_has_documented_caps::case_2
+        PASS [   0.013s] (42/61) plugins wit_loader::tests::linker_for_returns_empty_linker
+        PASS [   0.024s] (43/61) plugins loader::tests::record_invocation_increments_counter
+        PASS [   0.024s] (44/61) plugins loader::tests::empty_registry_reports_zero_loaded
+        PASS [   0.024s] (45/61) plugins sandbox::tests::for_category_returns_uniform_defaults::case_1
+        PASS [   0.014s] (46/61) plugins sandbox::tests::tables_returns_configured_cap
+        PASS [   0.024s] (47/61) plugins loader::tests::resolve_plugin_dir_uses_env_override_when_set
+        PASS [   0.024s] (48/61) plugins loader::tests::canonicalize_plugin_dir_returns_path_for_missing_dir
+        PASS [   0.024s] (49/61) plugins sandbox::tests::for_category_returns_uniform_defaults::case_2
+        PASS [   0.041s] (50/61) plugins engine::tests::build_engine_returns_independent_engines
+        PASS [   0.015s] (51/61) plugins wit_loader::tests::load_component_for_category_routes_to_correct_id::case_2
+        PASS [   0.015s] (52/61) plugins wit_loader::tests::load_component_for_category_routes_to_correct_id::case_3
+        PASS [   0.016s] (53/61) plugins wit_loader::tests::load_component_for_category_routes_to_correct_id::case_1
+        PASS [   0.012s] (54/61) plugins wit_loader::tests::load_component_rejects_invalid_bytes
+        PASS [   0.011s] (55/61) plugins wit_loader::tests::load_component_rejects_oversized_payload
+        PASS [   0.017s] (56/61) plugins wit_loader::tests::component_with_undeclared_import_fails_to_instantiate
+        PASS [   0.028s] (57/61) plugins loader::tests::registry_find_returns_loaded_plugin_by_id
+        PASS [   0.012s] (58/61) plugins wit_loader::tests::sandbox_with_undeclared_import_fails_at_link_time::case_1
+        PASS [   0.014s] (59/61) plugins wit_loader::tests::load_component_succeeds_on_minimal_empty_component
+        PASS [   0.012s] (60/61) plugins wit_loader::tests::sandbox_with_undeclared_import_fails_at_link_time::case_3
+        PASS [   0.013s] (61/61) plugins wit_loader::tests::sandbox_with_undeclared_import_fails_at_link_time::case_2
