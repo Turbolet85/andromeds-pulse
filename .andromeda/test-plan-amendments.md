@@ -573,3 +573,9 @@ The load suite found and fixed in-chunk 3 pipeline defects: retention-sweep conn
 **Change:** §1 gains `render-posture-main-placement-coverage`: the lib is pinned (per-arm decision, re-exec `set_var` children, leaf + emit capture) but `main()`'s order — the apply call first, ahead of every runtime/thread creation, and the emit after `observability::init` — is proven only by that chunk's gate-time placement probe and its two dev-host operator legs; owed: a committed assertion over that order. §4: was "92 targets"; now 101 top-level `pulse-app/tests/*.rs` files (99 at the chunk's base).
 **Why:** the same one-time-proof-for-a-gate class as `discovery-observer-wiring-coverage` / `exit-hook-main-composition-coverage`; the count moved with this chunk's two new test files and had gone stale before it.
 **Ref:** .andromeda/runs/2026-10-04T12-30-22Z-wrap/
+
+## 2026-10-04-l4-hardware-probe-finds-cuda-on-arch-layout-hosts — the Linux CUDA probe candidate-set pins
+**Section:** §4 Unit Test Strategy → What unit tests cover → interpretation crate
+**Change:** the bullet gains the probe pins: 6 co-located `cuda_probe_` pins in `hardware.rs` (13 cases) over the private seam `cuda_driver_present_under(root)` — an 8-case rstest over `CUDA_PROBE_DIRS` × `CUDA_PROBE_NAMES` (4 dirs × `libcuda.so` · `libcuda.so.1`) each reading present; an empty root and the unprobed `libcudart.so` · `libcuda.so.2` · `opt/cuda/libcuda.so` reading absent; the Arch symlink chain present and a dangling link absent (`cfg(unix)`); an exact-set pin. `TempDir` fixtures, no host-dependent pin. RED 8/13 pre-chunk; mutation-checked (drop `usr/lib` → 4 RED, drop `libcuda.so.1` → 5 RED, revert the arm → clippy dead-code RED, the arm-wiring guard).
+**Why:** the chunk added the seam and its pins; the bullet named only the prompt surface.
+**Ref:** .andromeda/runs/2026-10-04T17-56-08Z-wrap/

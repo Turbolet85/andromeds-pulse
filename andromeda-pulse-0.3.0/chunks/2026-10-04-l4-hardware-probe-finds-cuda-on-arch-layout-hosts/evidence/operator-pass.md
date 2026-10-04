@@ -22,4 +22,9 @@ Notes:
   `--message-format=json`); nothing was stopped.
 - Stage 5 under `env -i` runs no credential-store leg (no `DBUS_SESSION_BUS_ADDRESS`); none is this chunk's subject.
 
-Entries 31 (pre-CI commit + push) and 32 (CI read) follow below, appended after the push.
+## After the push (appended; rides the wrap commit)
+
+| # | stage | exit | reading |
+|---|---|---|---|
+| 31 | pre-CI commit + clean-tree guarded push | 0 | commit `7fc5fa2` (`chore(2026-10-04-l4-hardware-probe-finds-cuda-on-arch-layout-hosts): operator pre-CI commit, for the run this chunk's verdict reads`), staged bindings carry `"mcp":` ×1; push `03fb097..7fc5fa2` |
+| 32 | `ci.py conclusion --sha HEAD --wait 2400` | 0 | `7fc5fa20f501 verdict: green · checks 13/13 · wall 1645 s` — ci#37220563721 completed/success · secret-scan#37220563681 completed/success (polled 55× over 1671 s) |

@@ -1,0 +1,129 @@
+[
+{
+"tool": "cascade",
+"v": "1.1",
+"sha8": "9b5fafc7",
+"ts": "2026-10-04T18:02:10Z",
+"argv": [
+"sweep",
+"--patterns-file",
+".andromeda/runs/2026-10-04T17-56-08Z-wrap/cascade-patterns.toml",
+"--run-dir",
+".andromeda/runs/2026-10-04T17-56-08Z-wrap",
+"--marker",
+"2026-10-04-l4-hardware-probe-finds-cuda-on-arch-layout-hosts"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 3,
+"stdout": [
+"baseline 03fb097f (pre-CI parent — the oldest of 1 pre-CI commit(s), 7fc5fa20)",
+"hw-profile · control UNFIRED over the seven masters at 03fb097f"
+],
+"stderr": "control: hw-profile never fired over the seven masters' pre-pass text (03fb097f) — a sweep runs a positive control or refuses; drop the pattern or control it by hand",
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "cascade",
+"v": "1.1",
+"sha8": "9b5fafc7",
+"ts": "2026-10-04T18:02:25Z",
+"argv": [
+"sweep",
+"--patterns-file",
+".andromeda/runs/2026-10-04T17-56-08Z-wrap/cascade-patterns.toml",
+"--run-dir",
+".andromeda/runs/2026-10-04T17-56-08Z-wrap",
+"--marker",
+"2026-10-04-l4-hardware-probe-finds-cuda-on-arch-layout-hosts"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"baseline 03fb097f (pre-CI parent — the oldest of 1 pre-CI commit(s), 7fc5fa20)",
+"hw-profile · new 3 · standing 6 · leaf 8 · curation 1 · base 0 · control architecture.md:30 (prose)",
+"gpu-tier · new 0 · standing 3 · leaf 2 · curation 0 · base 0 · control architecture.md:30 (prose)",
+"env-registry · new 0 · standing 1 · leaf 0 · curation 0 · base 0 · control architecture.md:220 (prose)",
+"cli-env-row · new 0 · standing 1 · leaf 0 · curation 0 · base 0 · control security-plan.md:138 (prose)",
+"interp-crate · new 0 · standing 1 · leaf 1 · curation 0 · base 0 · control test-plan.md:385 (prose)",
+".andromeda/architecture.md:30 hw-profile standing …cli.exe` selected per hardware-profile tier (CUDA build + `-ngl 99` …",
+".andromeda/architecture.md:71 hw-profile standing ×2 @c340,374/2339 …e` selected per hardware-profile tier (chunk #80 `…",
+".andromeda/architecture.md:190 hw-profile standing …nceRunner` + `triage::HardwareProfileSource` + `buffer::DrainMiner`…",
+".andromeda/architecture.md:194 hw-profile standing …renceRunner` + `triage::contract::HardwareProfileSource`; chunk #82)",
+".andromeda/architecture.md:229 hw-profile standing … inference per chunk #80 `HardwareProfileSource` routing (chunk #84)",
+".andromeda/architecture.md:231 hw-profile new ×4   - `ANDROMEDA_PULSE_HARDWARE_PROFILE` — hardware-profile override; **…",
+".andromeda/architecture.md:367 hw-profile standing …; CUDA/CPU binary per hardware-profile tier (`-ngl 99` GPU / `-ngl …",
+".andromeda/security-plan.md:138 hw-profile new ×3 @c384,1748,1846/6905 …NDROMEDA_PULSE_HARDWARE_PROFILE`, `ANDROMEDA_PU…",
+".andromeda/test-plan.md:385 hw-profile new @c2420/2822 …ect_gpu_present` / `HardwareProfileDetector::new()`, so none is…",
+".claude/rules/security.md:142 hw-profile curation ×3 …, `triage::contract::HardwareProfile` in chunk #80 was declared w…",
+"CLAUDE.md:33 hw-profile leaf ×4 …nterpretation::contract` + `HardwareProfileDetector` implementing chunk #80 `HardwareP…",
+".claude/docs/andromeda-after-mvp-playbook.md:182 hw-profile leaf …4 (LLM runtime + hardware profile)** — adds chosen LL…",
+".claude/docs/services/interpretation.md:1 hw-profile leaf …4 LLM Interpretation Layer (trait surface + hardware profile)",
+".claude/docs/services/interpretation.md:9 hw-profile leaf ×2 …triage::contract::HardwareProfileSource` — the chunk #80 …",
+".claude/docs/services/interpretation.md:10 hw-profile leaf - `ANDROMEDA_PULSE_HARDWARE_PROFILE` — env override for the …",
+".claude/docs/services/interpretation.md:34 hw-profile leaf …:** `crates/interpretation/src/` (`HardwareProfileDetector`)",
+".claude/docs/services/interpretation.md:40 hw-profile leaf …Tier — detection side) · P-054 (Hardware Profile Awareness).",
+".claude/docs/stack.md:27 hw-profile leaf ×2 …ting follows chunk #80 `HardwareProfileSource` trait — gpu-primary / gpu-f…",
+".andromeda/architecture.md:30 gpu-tier standing ×2 …build + `-ngl 99` for gpu-primary/gpu-fallback, CPU build + `-ngl 0…",
+".andromeda/architecture.md:71 gpu-tier standing @c399/2339 …reProfileSource`): GPU-primary/fallback → CUDA + `-ngl 99`;…",
+".andromeda/architecture.md:229 gpu-tier standing ×2 …li_inference.rs` for GPU-primary / GPU-fallback tier inference per…",
+".claude/docs/services/interpretation.md:27 gpu-tier leaf ×2 …not just a flag:** GPU-primary / GPU-fallback → the CUDA `…",
+".claude/docs/stack.md:27 gpu-tier leaf ×2 …reProfileSource` trait — gpu-primary / gpu-fallback → CUDA binary + `-ngl 99…",
+".andromeda/architecture.md:220 env-registry standing - **Environment variables (reserved at arch level)**:",
+".andromeda/security-plan.md:138 cli-env-row standing edited @c2/6905 | CLI / env var inputs (`ANDROMEDA_PULSE_CONFIG_PA…",
+".andromeda/test-plan.md:385 interp-crate standing edited @c4/2822 - **interpretation crate:** the citable-evidence prom…",
+"CLAUDE.md:9 interp-crate leaf markup …adlock on the same host; `interpretation` crate hosts the trait surface, concrete…",
+"hw-profile · new 3 · standing 6 · leaf 8 · curation 1 · base 0 · control architecture.md:30 (prose)",
+"gpu-tier · new 0 · standing 3 · leaf 2 · curation 0 · base 0 · control architecture.md:30 (prose)",
+"env-registry · new 0 · standing 1 · leaf 0 · curation 0 · base 0 · control architecture.md:220 (prose)",
+"cli-env-row · new 0 · standing 1 · leaf 0 · curation 0 · base 0 · control security-plan.md:138 (prose)",
+"interp-crate · new 0 · standing 1 · leaf 1 · curation 0 · base 0 · control test-plan.md:385 (prose)"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"baseline": "03fb097f49700cd8bbd8e8f328374ad3832eafe2",
+"how": "pre-CI parent — the oldest of 1 pre-CI commit(s), 7fc5fa20",
+"counts": {
+"hw-profile": {
+"new": 3,
+"standing": 6,
+"leaf": 8,
+"curation": 1,
+"base": 0
+},
+"gpu-tier": {
+"new": 0,
+"standing": 3,
+"leaf": 2,
+"curation": 0,
+"base": 0
+},
+"env-registry": {
+"new": 0,
+"standing": 1,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"cli-env-row": {
+"new": 0,
+"standing": 1,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"interp-crate": {
+"new": 0,
+"standing": 1,
+"leaf": 1,
+"curation": 0,
+"base": 0
+}
+}
+}
+}
+]
