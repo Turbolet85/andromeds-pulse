@@ -1,0 +1,143 @@
+[
+{
+"tool": "route",
+"v": "1.6",
+"sha8": "699f7ef0",
+"ts": "2026-10-05T16:21:47Z",
+"argv": [
+"route.py",
+"flip",
+"--root",
+".",
+"--chunk",
+"2026-10-05-l4-runs-the-founder-s-pick-with-its-authors-settings",
+"--run-dir",
+".andromeda/runs/2026-10-05T15-18-57Z-wrap"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"flip master-route.md:100 - 2026-10-05-l4-runs-the-founder-s-pick-with-its-authors-settings pending -> complete"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/master-route.md"
+],
+"before": null,
+"after": null
+},
+{
+"tool": "route",
+"v": "1.6",
+"sha8": "699f7ef0",
+"ts": "2026-10-05T16:21:47Z",
+"argv": [
+"route.py",
+"compact",
+"--root",
+".",
+"--chunk",
+"2026-10-05-l4-runs-the-founder-s-pick-with-its-authors-settings",
+"--date",
+"2026-10-05",
+"--run-dir",
+".andromeda/runs/2026-10-05T15-18-57Z-wrap",
+"--dry-run"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"pin :174 strip CONTEXT: 375ch \"CONTEXT: FOUNDER RULING 2026-10-05 (the \"",
+"pin :174 strip CONTEXT: 120ch \"CONTEXT: Conductor v3-09 waits on this e\"",
+"pin :174 strip CONTEXT: 172ch \"CONTEXT: shipping a GBNF widens the prod\"",
+"pin :174 strip CONTEXT: 358ch \"CONTEXT: the shipped json-schema argv ca\"",
+"pin :174 strip CONTEXT: 778ch \"CONTEXT: FOUNDER PICK 2026-10-05 «Давай \"",
+"pin :174 strip CONTEXT: 383ch \"CONTEXT: FOUNDER QUESTION for this entry\"",
+"pin next markerless :176 holds CONTEXT:×2",
+"174 · 2026-10-05-l4-runs-the-founder-s-pick-with-its-authors-settings · strip 6 block(s) · archive APPEND",
+"6 complete line(s) carry text the grammar cannot take -- left in place: L52, L54, L60, L100, L116, L125",
+"dry-run - would archive 1 and compact 1 line(s)"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"targets": [
+{
+"n": 174,
+"marker": "2026-10-05-l4-runs-the-founder-s-pick-with-its-authors-settings",
+"blocks": 6,
+"archived": false
+}
+],
+"skips": [],
+"kept_notes": [
+52,
+54,
+60,
+100,
+116,
+125
+]
+}
+},
+{
+"tool": "route",
+"v": "1.6",
+"sha8": "699f7ef0",
+"ts": "2026-10-05T16:21:52Z",
+"argv": [
+"route.py",
+"compact",
+"--root",
+".",
+"--chunk",
+"2026-10-05-l4-runs-the-founder-s-pick-with-its-authors-settings",
+"--date",
+"2026-10-05",
+"--run-dir",
+".andromeda/runs/2026-10-05T15-18-57Z-wrap"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"pin :174 strip CONTEXT: 375ch \"CONTEXT: FOUNDER RULING 2026-10-05 (the \"",
+"pin :174 strip CONTEXT: 120ch \"CONTEXT: Conductor v3-09 waits on this e\"",
+"pin :174 strip CONTEXT: 172ch \"CONTEXT: shipping a GBNF widens the prod\"",
+"pin :174 strip CONTEXT: 358ch \"CONTEXT: the shipped json-schema argv ca\"",
+"pin :174 strip CONTEXT: 778ch \"CONTEXT: FOUNDER PICK 2026-10-05 «Давай \"",
+"pin :174 strip CONTEXT: 383ch \"CONTEXT: FOUNDER QUESTION for this entry\"",
+"pin next markerless :176 holds CONTEXT:×2",
+"174 · 2026-10-05-l4-runs-the-founder-s-pick-with-its-authors-settings · strip 6 block(s) · archive APPEND",
+"6 complete line(s) carry text the grammar cannot take -- left in place: L52, L54, L60, L100, L116, L125",
+"compacted 1 complete line(s) -> route-archive.md (1 archived, 0 already there)"
+],
+"stderr": null,
+"wrote": [
+"./andromeda-pulse-0.3.0/route-archive.md",
+"./andromeda-pulse-0.3.0/working-route.md"
+],
+"before": null,
+"after": null,
+"extra": {
+"targets": [
+{
+"n": 174,
+"marker": "2026-10-05-l4-runs-the-founder-s-pick-with-its-authors-settings",
+"blocks": 6,
+"archived": false
+}
+],
+"skips": [],
+"kept_notes": [
+52,
+54,
+60,
+100,
+116,
+125
+]
+}
+}
+]

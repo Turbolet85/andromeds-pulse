@@ -1,0 +1,35 @@
+[[pattern]]
+id = "schema-file"
+fixed = 'json-schema-file'
+
+[[pattern]]
+id = "schema-constr"
+regex = 'JSON-schema-constrained|schema-constrained GBNF|native JSON-schema'
+ignore_case = true
+
+[[pattern]]
+id = "shipped-llama"
+regex = 'shipped (GGUF|model)[^.]{0,30}(Llama|stays)|stays Llama-3\.2'
+ignore_case = true
+
+[[pattern]]
+id = "two-outside"
+regex = '(two|second) product-written|TWO deliberate|SECOND deliberate|one of the two product-written'
+ignore_case = true
+
+[[pattern]]
+id = "gpu-5s"
+regex = '5000 ?ms gpu-primary|gpu-primary budget|< ?5 ?s on .gpu-primary|gpu-primary\)? \| < ?5s'
+ignore_case = true
+
+[[pattern]]
+id = "zero-muted"
+regex = 'ZERO targets remain muted|No owner remains'
+
+[[pattern]]
+id = "tests-101"
+regex = '101 (top-level )?`?pulse-app/tests|101 files'
+
+[[pattern]]
+id = "gbnf-flag"
+fixed = '--gbnf'

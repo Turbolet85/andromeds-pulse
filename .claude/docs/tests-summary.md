@@ -82,6 +82,7 @@ GitHub Actions matrix (Linux/macOS/Windows × Rust stable):
 - Lint → Unit tests → Integration → E2E (matrix per platform) → Coverage → Quality gates.
 - Capability gates: `cargo xtask capability-drift` (worktree + staged-index bindings; runs the staged assertion since 2026-08-30) → `cargo xtask check:staged-artifacts` (the direct staged-artifacts verb) → `cargo xtask capability-widening-check` → `cargo xtask verify:capability-matrix` (chunk #99).
 - JUnit XML output via `cargo nextest --message-format junit`; `dorny/test-reporter` for inline PR annotations.
+- Python 3 is a test-time requirement on all three `lint-test` runners since 2026-10-05: `pulse-app/tests/unit_l4_grammar.rs` runs the vendored converter `pulse-app/vendor/llama-cpp/json_schema_to_grammar.py` and pins the committed L4 GBNF to its output; a missing interpreter FAILS the test, never skips it (green on ubuntu / macos / windows, `ci#37327846820`).
 - Build fails on: any test failure, coverage below threshold, flaky test, perf regression, lint/typecheck/`cargo deny check` failure.
 
 ## Scenario legs vs gates (test-plan §3)

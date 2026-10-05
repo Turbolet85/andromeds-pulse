@@ -617,3 +617,26 @@ The load suite found and fixed in-chunk 3 pipeline defects: retention-sweep conn
 **Change:** The row adds the extension to 61 collected pins (32 new, 27 in the `#[path]`-wired `pulse-app/examples/l4_decision_probe/patterns.rs`): the pattern shapes A1–A7 / B1–B3 / C1–C3 (parse, no mixing with S shapes, every shape × render within `MAX_PROMPT_BYTES`, the cueless TRIGGER / OVERALL rendering, the enriched render's exactly-once transform, argv-only arms), the closed-label `valid` / `detect` / `cause` scorer with its asymmetric pairs and `no_reading` rows, the stored-output re-grade, the seeded audit draw and verdict grade, the target-only out-dir guard and the recommendation rule; mutation-checked (a)–(f) plus (e'). The STILL OWED list now reads `--renders` / `--audit-draw` / `--audit-seed` / `--audit-grade` / `--table` among the parse-pinned flags.
 **Why:** The chunk's pins, measured collected by `cargo nextest run --workspace --profile ci -E 'binary(l4_decision_probe)'` (61 run, 61 passed); the plan's recorded expected amendment.
 **Ref:** .andromeda/runs/2026-10-05T13-31-12Z-wrap/
+
+## 2026-10-05-l4-runs-the-founder-s-pick-with-its-authors-settings — the probe's gb arm and --gbnf retired; replace-or-append pinned
+**Section:** §1 Pending coverage triggers → `l4-decision-probe-arg-parse-unit-coverage`
+**Change:** The row gains a "Changed at chunk 2026-10-05-l4-runs-the-founder-s-pick-with-its-authors-settings" clause: still 61 collected pins (2 retired, 2 added), `ARMS` 16 → 15. The shipped argv is the former `gb` argv (`--grammar-file`, a per-run `{out}/l4-output.gbnf` holding `L4_OUTPUT_GBNF`), so the `gb` arm and the `--gbnf FILE` flag are retired (`unknown arm gb` · `unknown flag --gbnf`). `gb_arm_swaps_exactly_the_schema_file_for_the_grammar_file` and `gbnf_flag_takes_a_path_and_is_unset_by_default` give way to `shipped_argv_carries_the_grammar_file_and_no_schema_file` and `sampling_replaces_the_production_pairs_rather_than_duplicating`; `compose_argv` applies every extra flag/value pair by replace-or-append; `pattern_arms_vary_the_argv_only` is re-pointed from `gb` to `nr`. Both new pins are mutation-checked. R2 and A5 vary only the prompt's embedded schema copy, and `--gbnf` leaves the STILL OWED list.
+**Why:** The product now ships the grammar argv, so a probe arm that varied it measures nothing.
+**Ref:** .andromeda/runs/2026-10-05T15-18-57Z-wrap/
+
+## 2026-10-05-l4-runs-the-founder-s-pick-with-its-authors-settings — the grammar-mismatch emission and the unrun .ps1 grader become owed rows
+**Section:** §1 Pending coverage triggers → `llamacli-inference-error-emission-coverage` (widened) · §1 → `l4-latency-p99-ps1-run-coverage` (new)
+**Change:**
+- `llamacli-inference-error-emission-coverage` is widened. `generate_constrained` also WARNs `error_category = "grammar_schema_mismatch"` (`recovery_action = "skip_digest"`) when `grammar_for_schema` refuses a non-L4 schema. Only the helper's two return arms are pinned, and no live leg can fire the emission, since both production callers pass the L4 schema. The owed per-category assertion now covers `io_error` / `stdout_utf8_invalid` / `grammar_schema_mismatch`.
+- New row `l4-latency-p99-ps1-run-coverage`. The dev-host grader `xtask/ci/l4-latency-p99.{sh,ps1}` was changed in lockstep: budget 10000 ms, nearest rank, and an unlabeled record exits 1. Only the `.sh` has run, against the three `xtask/ci/fixtures/l4-latency-*.jsonl` fixtures and the live GREEN leg. The `.ps1` has never run (no `pwsh` on the dev host). Owed: run it over the same fixtures.
+**Why:** Both are new paths this chunk added with no executed test at their tier. The `.ps1` run is the overseer's named owed item.
+**Ref:** .andromeda/runs/2026-10-05T15-18-57Z-wrap/
+
+## 2026-10-05-l4-runs-the-founder-s-pick-with-its-authors-settings — Python 3 is a test-time runtime; 102 pulse-app test files
+**Section:** §4 Unit Test Strategy → Framework (Rust crates) · §4 → Conventions → Test file location (Rust) · §9 CI Integration → the `lint-test` row
+**Change:**
+- §4 Framework: one unit binary now shells out to a non-Rust runtime. `pulse-app/tests/unit_l4_grammar.rs` runs the vendored stdlib Python 3 converter `pulse-app/vendor/llama-cpp/json_schema_to_grammar.py` (llama.cpp b9305, MIT) through the first `python3` / `python` that prints `Python 3`, and asserts the committed `l4-output.gbnf` equals its output. A missing interpreter FAILS the test; it never skips.
+- §4 Test file location: was "101 top-level `pulse-app/tests/*.rs` files"; now 102, the new one being `unit_l4_grammar.rs`.
+- §9 `lint-test`: the workspace tests need a Python 3 interpreter on all three runners, through the runner's own interpreter with no setup step. Green on ubuntu-22.04, macos-latest and windows-latest (`ci#37327846820`).
+**Why:** The founder ruled that the GBNF test performs the conversion, and the overseer (founder-delegated) named the green CI run on all three runners as the proof that Python is present.
+**Ref:** .andromeda/runs/2026-10-05T15-18-57Z-wrap/

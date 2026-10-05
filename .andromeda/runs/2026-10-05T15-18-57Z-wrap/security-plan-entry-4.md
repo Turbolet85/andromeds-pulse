@@ -1,0 +1,6 @@
+
+## 2026-10-05-l4-runs-the-founder-s-pick-with-its-authors-settings — a vendored test-only channel outside every scanner
+**Section:** §Dependency Security (a new bullet after the npm channel)
+**Change:** A new bullet records `pulse-app/vendor/llama-cpp/`: llama.cpp b9305 (`63248fc3e33e6f3b579dce6a743fd6ce8939af9c`) `examples/json_schema_to_grammar.py`, byte-identical (sha256 `677553718afb2bc2a63182fa812240c8436981f3fe43381e2e48a27b355352a8`), MIT with its `LICENSE` beside it and its provenance in `README.md`, stdlib-only Python 3. It runs only under `pulse-app/tests/unit_l4_grammar.rs` and never reaches a shipped binary. `cargo audit`, `cargo deny`, Dependabot and the npm gate cannot see it, so its vetting is the sha256 pin plus the license file, and it is bumped only together with the pinned llama.cpp tag. A Python 3 interpreter is a test-time requirement on every runner, and a missing interpreter fails the test, never skips it (green on all three `lint-test` runners, `ci#37327846820`).
+**Why:** The plan's recorded direction (the P4 fork answered by the overseer, founder-delegated) vendors the converter so the test performs the conversion the founder's ruling requires. At this wrap the overseer ruled the hash pin and the LICENSE are the vetting, and no CI sha256 step is owed.
+**Ref:** .andromeda/runs/2026-10-05T15-18-57Z-wrap/
