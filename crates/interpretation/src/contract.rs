@@ -176,6 +176,13 @@ pub trait LlmInferenceRunner: Send + Sync {
     /// hardware profile + user config; does not change at runtime.
     fn tier(&self) -> ModelTier;
 
+    /// The hardware profile this runner was configured for. Labels the L4
+    /// latency samples the per-profile budget grader reads; a runner that
+    /// does not know its profile reports `Unknown`.
+    fn hardware_profile(&self) -> HardwareProfile {
+        HardwareProfile::Unknown
+    }
+
     /// Strict-schema-mode JSON-constrained generation. Chunk #82 declares
     /// the method; chunk #83 wires the primary-tier prompt + schema
     /// composition; chunk #84+ adds fallback handling. Stub impl returns
@@ -225,6 +232,35 @@ mod tests {
         assert!(json.contains("profile_label"));
         assert!(json.contains("tier"));
         assert!(json.contains("status"));
+    }
+
+    struct ProfilelessRunner;
+
+    impl LlmInferenceRunner for ProfilelessRunner {
+        fn current_status(&self) -> ModelStatus {
+            ModelStatus::Error
+        }
+        fn identity(&self) -> Option<ModelIdentity> {
+            None
+        }
+        fn tier(&self) -> ModelTier {
+            ModelTier::Primary
+        }
+        fn generate_constrained<'a>(
+            &'a self,
+            _prompt: &'a str,
+            _schema_json: &'a str,
+        ) -> InferenceFuture<'a, String> {
+            Box::pin(async { Err(InferenceError::ModelNotConfigured) })
+        }
+    }
+
+    #[test]
+    fn a_runner_without_a_profile_override_reports_unknown() {
+        assert_eq!(
+            ProfilelessRunner.hardware_profile(),
+            HardwareProfile::Unknown
+        );
     }
 
     #[test]

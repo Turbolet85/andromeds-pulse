@@ -28,13 +28,15 @@ use std::path::PathBuf;
 
 use interpretation::broadcast::ModelStatusBroadcast;
 use interpretation::contract::{InferenceError, LlmInferenceRunner, ModelStatus, ModelTier};
+use interpretation::schema::L4_OUTPUT_JSON_SCHEMA;
 use pulse_app::llamacli_inference::{
     AllowRoot, DEFAULT_MAX_TOKENS, ENV_L4_ALLOW_ROOT, ENV_LLAMA_CPU_BIN_PATH,
-    ENV_LLAMA_CUDA_BIN_PATH, ENV_MODEL_PATH, LLAMA_CLI_CTX_SIZE, LLAMA_CLI_REASONING,
-    LlamaCliInference, MAX_PATH_INPUT_BYTES, MAX_PROMPT_BYTES, PathRejection, PromptRejection,
+    ENV_LLAMA_CUDA_BIN_PATH, ENV_MODEL_PATH, L4_OUTPUT_GBNF, LLAMA_CLI_CTX_SIZE, LLAMA_CLI_MIN_P,
+    LLAMA_CLI_REASONING, LLAMA_CLI_TEMP, LLAMA_CLI_TOP_K, LLAMA_CLI_TOP_P, LlamaCliInference,
+    MAX_PATH_INPUT_BYTES, MAX_PROMPT_BYTES, PathRejection, PromptRejection,
     binary_target_for_profile, build_llama_cli_args, canonicalize_path,
-    classify_subprocess_failure, extract_json_object_bounded, resolve_allow_root,
-    validate_path_input, validate_prompt_bounded,
+    classify_subprocess_failure, extract_json_object_bounded, grammar_for_schema,
+    resolve_allow_root, validate_path_input, validate_prompt_bounded,
 };
 use tempfile::TempDir;
 use triage::contract::HardwareProfile;
@@ -45,26 +47,26 @@ use triage::contract::HardwareProfile;
 
 #[test]
 fn spawn_args_contain_max_tokens_cap_arg() {
-    let schema_path = PathBuf::from("/tmp/schema.json");
+    let grammar_path = PathBuf::from("/tmp/l4.gbnf");
     let model_path = PathBuf::from("/tmp/model.gguf");
-    let args = build_llama_cli_args(&model_path, 99, 256, &schema_path, "test prompt");
+    let args = build_llama_cli_args(&model_path, 99, 256, &grammar_path, "test prompt");
     let n_idx = args.iter().position(|a| a == "-n").expect("-n arg present");
     assert_eq!(args.get(n_idx + 1).map(String::as_str), Some("256"));
 }
 
 #[test]
 fn spawn_args_contain_single_turn_flag() {
-    let schema_path = PathBuf::from("/tmp/schema.json");
+    let grammar_path = PathBuf::from("/tmp/l4.gbnf");
     let model_path = PathBuf::from("/tmp/model.gguf");
-    let args = build_llama_cli_args(&model_path, 99, DEFAULT_MAX_TOKENS, &schema_path, "prompt");
+    let args = build_llama_cli_args(&model_path, 99, DEFAULT_MAX_TOKENS, &grammar_path, "prompt");
     assert!(args.iter().any(|a| a == "-st"), "-st flag MUST be present");
 }
 
 #[test]
 fn spawn_args_contain_fixed_context_size() {
-    let schema_path = PathBuf::from("/tmp/schema.json");
+    let grammar_path = PathBuf::from("/tmp/l4.gbnf");
     let model_path = PathBuf::from("/tmp/model.gguf");
-    let args = build_llama_cli_args(&model_path, 99, DEFAULT_MAX_TOKENS, &schema_path, "prompt");
+    let args = build_llama_cli_args(&model_path, 99, DEFAULT_MAX_TOKENS, &grammar_path, "prompt");
     let c_idx = args.iter().position(|a| a == "-c").expect("-c arg present");
     assert_eq!(args.get(c_idx + 1).map(String::as_str), Some("8192"));
     assert_eq!(LLAMA_CLI_CTX_SIZE, 8192);
@@ -72,9 +74,9 @@ fn spawn_args_contain_fixed_context_size() {
 
 #[test]
 fn spawn_args_contain_reasoning_off() {
-    let schema_path = PathBuf::from("/tmp/schema.json");
+    let grammar_path = PathBuf::from("/tmp/l4.gbnf");
     let model_path = PathBuf::from("/tmp/model.gguf");
-    let args = build_llama_cli_args(&model_path, 0, DEFAULT_MAX_TOKENS, &schema_path, "prompt");
+    let args = build_llama_cli_args(&model_path, 0, DEFAULT_MAX_TOKENS, &grammar_path, "prompt");
     let r_idx = args
         .iter()
         .position(|a| a == "-rea")
@@ -85,9 +87,9 @@ fn spawn_args_contain_reasoning_off() {
 
 #[test]
 fn spawn_args_contain_simple_io_and_no_display_prompt_flags() {
-    let schema_path = PathBuf::from("/tmp/schema.json");
+    let grammar_path = PathBuf::from("/tmp/l4.gbnf");
     let model_path = PathBuf::from("/tmp/model.gguf");
-    let args = build_llama_cli_args(&model_path, 0, DEFAULT_MAX_TOKENS, &schema_path, "prompt");
+    let args = build_llama_cli_args(&model_path, 0, DEFAULT_MAX_TOKENS, &grammar_path, "prompt");
     assert!(
         args.iter().any(|a| a == "--simple-io"),
         "--simple-io flag missing"
@@ -99,38 +101,132 @@ fn spawn_args_contain_simple_io_and_no_display_prompt_flags() {
 }
 
 #[test]
-fn spawn_args_contain_model_path_and_schema_file_args() {
-    let schema_path = PathBuf::from("/tmp/schema.json");
+fn spawn_args_contain_model_path_and_grammar_file_and_no_schema_file() {
+    let grammar_path = PathBuf::from("/tmp/l4.gbnf");
     let model_path = PathBuf::from("/tmp/model.gguf");
-    let args = build_llama_cli_args(&model_path, 99, DEFAULT_MAX_TOKENS, &schema_path, "prompt");
+    let args = build_llama_cli_args(&model_path, 99, DEFAULT_MAX_TOKENS, &grammar_path, "prompt");
     let m_idx = args.iter().position(|a| a == "-m").expect("-m arg present");
     assert_eq!(
         args.get(m_idx + 1).map(String::as_str),
         Some("/tmp/model.gguf")
     );
-    let sf_idx = args
+    let gf_idx = args
         .iter()
-        .position(|a| a == "--json-schema-file")
-        .expect("--json-schema-file arg present");
+        .position(|a| a == "--grammar-file")
+        .expect("--grammar-file arg present");
     assert_eq!(
-        args.get(sf_idx + 1).map(String::as_str),
-        Some("/tmp/schema.json")
+        args.get(gf_idx + 1).map(String::as_str),
+        Some("/tmp/l4.gbnf")
+    );
+    assert!(
+        !args.iter().any(|a| a == "--json-schema-file"),
+        "the json-schema form is prefilled and fails a thinking template at sampler init"
     );
 }
 
 #[test]
+fn spawn_args_carry_the_authors_sampling_after_n_and_the_prompt_last() {
+    let grammar_path = PathBuf::from("/tmp/l4.gbnf");
+    let model_path = PathBuf::from("/tmp/model.gguf");
+    let args = build_llama_cli_args(&model_path, 99, DEFAULT_MAX_TOKENS, &grammar_path, "prompt");
+    let value = |flag: &str| {
+        let at = args
+            .iter()
+            .position(|a| a == flag)
+            .unwrap_or_else(|| panic!("{flag} arg present"));
+        (at, args.get(at + 1).cloned())
+    };
+    let (n_at, _) = value("-n");
+    let mut previous = n_at;
+    for (flag, expected) in [
+        ("--temp", "1.0"),
+        ("--top-p", "0.95"),
+        ("--top-k", "64"),
+        ("--min-p", "0"),
+    ] {
+        let (at, got) = value(flag);
+        assert_eq!(got.as_deref(), Some(expected), "{flag} value");
+        assert!(at > previous, "{flag} follows -n in order");
+        assert_eq!(args.iter().filter(|a| *a == flag).count(), 1, "one {flag}");
+        previous = at;
+    }
+    assert_eq!(
+        (
+            LLAMA_CLI_TEMP,
+            LLAMA_CLI_TOP_P,
+            LLAMA_CLI_TOP_K,
+            LLAMA_CLI_MIN_P
+        ),
+        ("1.0", "0.95", "64", "0")
+    );
+    assert_eq!(
+        args[args.len() - 2..],
+        ["-p".to_string(), "prompt".to_string()]
+    );
+}
+
+#[test]
+fn spawn_args_retain_reasoning_off_and_the_fixed_context_beside_the_grammar() {
+    let grammar_path = PathBuf::from("/tmp/l4.gbnf");
+    let model_path = PathBuf::from("/tmp/model.gguf");
+    let args = build_llama_cli_args(&model_path, 99, DEFAULT_MAX_TOKENS, &grammar_path, "prompt");
+    let pair = |flag: &str, value: &str| args.windows(2).any(|w| w[0] == flag && w[1] == value);
+    assert!(pair("-rea", "off"));
+    assert!(pair("-c", "8192"));
+    assert!(pair("--grammar-file", "/tmp/l4.gbnf"));
+}
+
+#[test]
+fn grammar_for_schema_maps_the_l4_schema_to_the_committed_grammar() {
+    assert_eq!(
+        grammar_for_schema(L4_OUTPUT_JSON_SCHEMA).ok(),
+        Some(L4_OUTPUT_GBNF)
+    );
+}
+
+#[test]
+fn grammar_for_schema_refuses_any_other_schema() {
+    let edited = L4_OUTPUT_JSON_SCHEMA.replacen("\"surface\"", "\"surfaced\"", 1);
+    for schema in ["{}", "", edited.as_str()] {
+        assert!(
+            matches!(
+                grammar_for_schema(schema),
+                Err(InferenceError::InferenceFailed { ref reason }) if reason == "grammar_schema_mismatch"
+            ),
+            "schema of {} bytes must be refused",
+            schema.len()
+        );
+    }
+}
+
+#[test]
+fn runner_reports_the_profile_it_was_constructed_with() {
+    for profile in [
+        HardwareProfile::GpuPrimary,
+        HardwareProfile::GpuFallback,
+        HardwareProfile::CpuPrimary,
+        HardwareProfile::CpuFallback,
+        HardwareProfile::Unknown,
+    ] {
+        let runner =
+            LlamaCliInference::new(ModelTier::Primary, profile, ModelStatusBroadcast::new());
+        assert_eq!(runner.hardware_profile(), profile);
+    }
+}
+
+#[test]
 fn spawn_args_contain_ngl_routing_per_profile() {
-    let schema_path = PathBuf::from("/tmp/schema.json");
+    let grammar_path = PathBuf::from("/tmp/l4.gbnf");
     let model_path = PathBuf::from("/tmp/model.gguf");
 
-    let args_gpu = build_llama_cli_args(&model_path, 99, 100, &schema_path, "prompt");
+    let args_gpu = build_llama_cli_args(&model_path, 99, 100, &grammar_path, "prompt");
     let ngl_idx = args_gpu
         .iter()
         .position(|a| a == "-ngl")
         .expect("-ngl arg present");
     assert_eq!(args_gpu.get(ngl_idx + 1).map(String::as_str), Some("99"));
 
-    let args_cpu = build_llama_cli_args(&model_path, 0, 100, &schema_path, "prompt");
+    let args_cpu = build_llama_cli_args(&model_path, 0, 100, &grammar_path, "prompt");
     let ngl_idx = args_cpu
         .iter()
         .position(|a| a == "-ngl")
@@ -140,10 +236,10 @@ fn spawn_args_contain_ngl_routing_per_profile() {
 
 #[test]
 fn spawn_args_contain_prompt_via_p_arg() {
-    let schema_path = PathBuf::from("/tmp/schema.json");
+    let grammar_path = PathBuf::from("/tmp/l4.gbnf");
     let model_path = PathBuf::from("/tmp/model.gguf");
     let prompt = "What is 2+2? Respond with JSON.";
-    let args = build_llama_cli_args(&model_path, 99, DEFAULT_MAX_TOKENS, &schema_path, prompt);
+    let args = build_llama_cli_args(&model_path, 99, DEFAULT_MAX_TOKENS, &grammar_path, prompt);
     let p_idx = args.iter().position(|a| a == "-p").expect("-p arg present");
     assert_eq!(args.get(p_idx + 1).map(String::as_str), Some(prompt));
 }
@@ -243,7 +339,9 @@ async fn generate_constrained_returns_not_configured_when_env_vars_missing() {
     let broadcast = ModelStatusBroadcast::new();
     let runner =
         LlamaCliInference::new(ModelTier::Fallback, HardwareProfile::CpuFallback, broadcast);
-    let result = runner.generate_constrained("test prompt", "{}").await;
+    let result = runner
+        .generate_constrained("test prompt", L4_OUTPUT_JSON_SCHEMA)
+        .await;
     assert!(matches!(result, Err(InferenceError::ModelNotConfigured)));
 
     unsafe {
@@ -436,9 +534,9 @@ fn mark_transitions_broadcast_to_subscribers() {
 
 #[test]
 fn spawn_args_contain_log_disable_flag() {
-    let schema_path = PathBuf::from("/tmp/schema.json");
+    let grammar_path = PathBuf::from("/tmp/l4.gbnf");
     let model_path = PathBuf::from("/tmp/model.gguf");
-    let args = build_llama_cli_args(&model_path, 99, DEFAULT_MAX_TOKENS, &schema_path, "prompt");
+    let args = build_llama_cli_args(&model_path, 99, DEFAULT_MAX_TOKENS, &grammar_path, "prompt");
     assert!(
         args.iter().any(|a| a == "--log-disable"),
         "--log-disable flag MUST be present (stderr cleanup so real errors surface)"

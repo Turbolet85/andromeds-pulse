@@ -4,8 +4,8 @@
 //!
 //! ```text
 //! cargo build -p pulse-app --example l4_decision_probe
-//! ./target/debug/examples/l4_decision_probe[.exe] --arms A0,A1,A2,A3,A4,A5 [--shapes S1,S2,S3,S4] --n 10 [--min 27] [--min-rank1 36] [--out DIR] [--footprint] [--gbnf FILE] [--dry-run]
-//! ./target/debug/examples/l4_decision_probe[.exe] --arms gb --gbnf FILE --shapes A1,...,C3 [--renders today,enriched] --n 10 --out target/DIR [--footprint] [--dry-run]
+//! ./target/debug/examples/l4_decision_probe[.exe] --arms A0,A1,A2,A3,A4,A5 [--shapes S1,S2,S3,S4] --n 10 [--min 27] [--min-rank1 36] [--out DIR] [--footprint] [--sampling '…'] [--dry-run]
+//! ./target/debug/examples/l4_decision_probe[.exe] --arms shipped --shapes A1,...,C3 [--renders today,enriched] --n 10 --out target/DIR [--footprint] [--sampling '…'] [--dry-run]
 //! ./target/debug/examples/l4_decision_probe[.exe] --audit-draw ROOT --audit-seed N | --audit-grade ROOT | --table ROOT
 //! ```
 //!
@@ -19,7 +19,10 @@
 //! and composed with the real `build_primary_tier_prompt`; every string is
 //! synthetic ASCII, never captured telemetry. Each generation is one
 //! llama-cli spawn with production's argv (`build_llama_cli_args`), output
-//! cap, wall-clock timeout and `kill_on_drop`.
+//! cap, wall-clock timeout and `kill_on_drop`; its `--grammar-file` is a file
+//! holding `L4_OUTPUT_GBNF`, written once per run into the out dir.
+//! `--sampling` REPLACES a sampling pair the production argv already carries
+//! and appends any other, so no flag is ever passed twice.
 //!
 //! Per generation it keeps only bounded labels — the decision, the severity,
 //! the model's `is_resolution_summary`, whether the producer would create an
@@ -78,23 +81,23 @@
 //! - `A4` — A0 plus one sentence in the conventions stating when a signal
 //!   warrants `surface`
 //! - `A5` — A0 with `decision` / `severity` moved after `hypotheses` in the
-//!   schema, both the `--json-schema-file` copy and the prompt's embedded copy
-//!   (the shipped order since prompt v2.3, so A5 now composes as A0)
+//!   prompt's embedded schema copy (the shipped order since prompt v2.3, so A5
+//!   now composes as A0; the argv's grammar fixes that order either way)
 //! - `nf` — the shipped composition with the three trigger-framing lines
 //!   removed: the digest's TRIGGER line, its corpus framing note and the
 //!   prompt's framing instruction (the no-framing counterfactual)
 //! - `shipped` — the tree as it is, no transform (the post-fix re-measure)
 //! - `nr` — `shipped` with the `-rea off` pair removed from the argv (does
 //!   the model think when the product does not pass the switch?)
-//! - `gb` — `shipped` with `--json-schema-file` swapped for
-//!   `--grammar-file {--gbnf}`: b9305 prefills a thinking template's
-//!   generation prompt into a schema grammar (rejected, so sampler init
-//!   fails) but never into a user grammar
 //! - `R1` — the framing instruction reworded to oblige the first hypothesis
 //!   statement to name the TRIGGER line's signal in its own words
 //! - `R3` — one conventions sentence carrying the same obligation
 //! - `R2` — one sentence in the schema's `hypotheses` description carrying
-//!   it, in both schema copies
+//!   it; the grammar carries no description, so R2 varies the prompt's
+//!   embedded copy only
+//!
+//! The former `gb` arm (the schema file swapped for a grammar file) is the
+//! shipped argv now, so it is retired and `--arms gb` is an unknown arm.
 //! - `R1R3` / `R1R2` / `R3R2` — the two named candidates applied together
 //!
 //! Each candidate composes as A0 once its text is already in the tree.
@@ -117,9 +120,9 @@ use interpretation::prompt::{TRIGGER_FRAMING_INSTRUCTION, build_primary_tier_pro
 use interpretation::schema::{Decision, L4_OUTPUT_JSON_SCHEMA, L4Output, Severity, parse_bounded};
 use patterns::{Outcome, PatternShape, Render};
 use pulse_app::llamacli_inference::{
-    DEFAULT_MAX_TOKENS, ENV_MODEL_PATH, LLAMA_CLI_MAX_OUTPUT_BYTES, LLAMA_CLI_TIMEOUT,
-    MAX_PROMPT_BYTES, binary_target_for_profile, build_llama_cli_args, extract_json_object_bounded,
-    resolve_allow_root, validate_path_input, validate_prompt_bounded,
+    DEFAULT_MAX_TOKENS, ENV_MODEL_PATH, L4_OUTPUT_GBNF, LLAMA_CLI_MAX_OUTPUT_BYTES,
+    LLAMA_CLI_TIMEOUT, MAX_PROMPT_BYTES, binary_target_for_profile, build_llama_cli_args,
+    extract_json_object_bounded, resolve_allow_root, validate_path_input, validate_prompt_bounded,
 };
 use serde_json::{Value, json};
 use tokio::io::AsyncReadExt;
@@ -130,10 +133,13 @@ use triage::contract::{
     format_corpus_match_line, render_payload,
 };
 
-const ARMS: [&str; 16] = [
-    "A0", "A1", "A2", "A3", "A4", "A5", "nf", "shipped", "nr", "gb", "R1", "R3", "R2", "R1R3",
-    "R1R2", "R3R2",
+const ARMS: [&str; 15] = [
+    "A0", "A1", "A2", "A3", "A4", "A5", "nf", "shipped", "nr", "R1", "R3", "R2", "R1R3", "R1R2",
+    "R3R2",
 ];
+// The grammar file each run writes into its out dir and passes as
+// `--grammar-file`.
+const GRAMMAR_FILE_NAME: &str = "l4-output.gbnf";
 // b9305 `tools/cli/cli.cpp` prints a reasoning pass to stdout between
 // `[Start thinking]` and `[End thinking]`, ahead of the content.
 const THINKING_MARKER: &str = "[Start thinking]";
@@ -203,8 +209,7 @@ struct Args {
     out: PathBuf,
     dry_run: bool,
     footprint: bool,
-    gbnf: Option<PathBuf>,
-    /// Validated `--sampling` flag/value tokens, appended to every arm's argv.
+    /// Validated `--sampling` flag/value tokens, applied to every arm's argv.
     sampling: Vec<String>,
     /// The C shapes' renders; A and B always run today's.
     renders: Vec<Render>,
@@ -229,8 +234,6 @@ struct Prepared {
     extra_args: Vec<String>,
     /// Flags removed from the production argv together with their value.
     drop_flags: Vec<&'static str>,
-    /// The arm passes the `--gbnf` file as `--grammar-file`.
-    grammar_file: bool,
 }
 
 fn row(service: &str, rate: f64, error_rate: f64, p99: f64) -> DigestServiceRow {
@@ -494,7 +497,6 @@ fn prepare(arm: &str, shape: &Shape) -> Result<Prepared, String> {
     match arm {
         "A1" => extra_args.extend(["--temp".to_string(), "0".to_string()]),
         "nr" => drop_flags.push("-rea"),
-        "gb" => drop_flags.push("--json-schema-file"),
         "A4" => {
             if prompt.matches(A4_ANCHOR).count() != 1 {
                 return Err("A4: conventions anchor not found exactly once".to_string());
@@ -528,7 +530,6 @@ fn prepare(arm: &str, shape: &Shape) -> Result<Prepared, String> {
         schema,
         extra_args,
         drop_flags,
-        grammar_file: arm == "gb",
     })
 }
 
@@ -620,8 +621,9 @@ fn r2_schema(schema: &str) -> Result<String, String> {
     Ok(out)
 }
 
-/// R2: both schema copies carry the sentence — the `--json-schema-file` one
-/// and the one embedded in the prompt (the A5 two-copy discipline).
+/// R2: both schema copies carry the sentence — the arm's own copy and the one
+/// embedded in the prompt. Only the prompt copy reaches the model: the argv's
+/// grammar carries no description.
 fn apply_r2(prompt: &str, schema: &str) -> Result<(String, String), String> {
     let edited = r2_schema(schema)?;
     if edited == schema {
@@ -891,20 +893,15 @@ fn read_peak(peak: &Mutex<Option<u64>>) -> Option<u64> {
 }
 
 /// The production argv for one generation, with the arm's dropped flags
-/// (each with its value) removed and its extra args appended; a
-/// `grammar_file` arm also appends `--grammar-file {gbnf}`.
-fn compose_argv(
-    prepared: &Prepared,
-    model: &Path,
-    ngl: u32,
-    schema_path: &Path,
-    gbnf: Option<&Path>,
-) -> Vec<String> {
+/// (each with its value) removed and its extra flag/value pairs applied: a
+/// pair whose flag the argv already carries replaces that value, any other
+/// is appended, so no flag is passed twice.
+fn compose_argv(prepared: &Prepared, model: &Path, ngl: u32, grammar_path: &Path) -> Vec<String> {
     let mut args = build_llama_cli_args(
         model,
         ngl,
         DEFAULT_MAX_TOKENS,
-        schema_path,
+        grammar_path,
         &prepared.prompt,
     );
     for flag in &prepared.drop_flags {
@@ -913,12 +910,15 @@ fn compose_argv(
             args.drain(at..end);
         }
     }
-    args.extend(prepared.extra_args.iter().cloned());
-    if let (true, Some(gbnf)) = (prepared.grammar_file, gbnf) {
-        args.extend([
-            "--grammar-file".to_string(),
-            gbnf.to_string_lossy().into_owned(),
-        ]);
+    for pair in prepared.extra_args.chunks(2) {
+        let [flag, value] = pair else {
+            args.extend(pair.iter().cloned());
+            continue;
+        };
+        match args.iter().position(|a| a == flag) {
+            Some(at) if at + 1 < args.len() => args[at + 1] = value.clone(),
+            _ => args.extend([flag.clone(), value.clone()]),
+        }
     }
     args
 }
@@ -928,11 +928,10 @@ async fn generate(
     model: &Path,
     ngl: u32,
     prepared: &Prepared,
-    schema_path: &Path,
-    gbnf: Option<&Path>,
+    grammar_path: &Path,
     footprint: bool,
 ) -> Spawned {
-    let args = compose_argv(prepared, model, ngl, schema_path, gbnf);
+    let args = compose_argv(prepared, model, ngl, grammar_path);
     let mut cmd = tokio::process::Command::new(binary);
     cmd.args(&args)
         .kill_on_drop(true)
@@ -1053,7 +1052,6 @@ fn parse_args_from(argv: impl IntoIterator<Item = String>) -> Result<Args, Strin
     let mut out = None;
     let mut dry_run = false;
     let mut footprint = false;
-    let mut gbnf = None;
     let mut sampling = Vec::new();
     let mut renders = vec![Render::Today];
     let (mut audit_draw, mut audit_seed, mut audit_grade, mut table) = (None, None, None, None);
@@ -1108,7 +1106,6 @@ fn parse_args_from(argv: impl IntoIterator<Item = String>) -> Result<Args, Strin
                 min_rank1 = Some(value.parse().map_err(|_| "--min-rank1 takes a number")?)
             }
             "--out" => out = Some(PathBuf::from(value)),
-            "--gbnf" => gbnf = Some(PathBuf::from(value)),
             "--sampling" => sampling = parse_sampling(&value)?,
             other => return Err(format!("unknown flag {other}")),
         }
@@ -1135,7 +1132,6 @@ fn parse_args_from(argv: impl IntoIterator<Item = String>) -> Result<Args, Strin
         out,
         dry_run,
         footprint,
-        gbnf,
         sampling,
         renders,
         mode,
@@ -1182,15 +1178,12 @@ fn resolve_runtime() -> Result<(PathBuf, PathBuf, u32, &'static str), String> {
     Ok((resolved[0].clone(), resolved[1].clone(), ngl, binary_kind))
 }
 
-fn announce_gbnf(gbnf: Option<&Path>) -> Result<(), String> {
-    match gbnf {
-        Some(g) if g.is_file() => {
-            println!("l4-decision-probe: gbnf {}", basename(g));
-            Ok(())
-        }
-        Some(_) => Err("--gbnf is not a file".to_string()),
-        None => Err("arm gb needs --gbnf".to_string()),
-    }
+/// Writes `L4_OUTPUT_GBNF` into `dir` once per run; the path every
+/// generation passes as `--grammar-file`.
+fn write_grammar_file(dir: &Path) -> Result<PathBuf, String> {
+    let path = dir.join(GRAMMAR_FILE_NAME);
+    std::fs::write(&path, L4_OUTPUT_GBNF).map_err(|_| "grammar file not writable".to_string())?;
+    Ok(path)
 }
 
 fn listed(items: Vec<String>) -> String {
@@ -1212,7 +1205,6 @@ fn prepare_pattern(
         "A0" | "shipped" => (Vec::new(), Vec::new()),
         "A1" => (vec!["--temp".to_string(), "0".to_string()], Vec::new()),
         "nr" => (Vec::new(), vec!["-rea"]),
-        "gb" => (Vec::new(), vec!["--json-schema-file"]),
         other => return Err(format!("arm {other} does not apply to pattern shapes")),
     };
     let composed = patterns::compose(shape, render)?;
@@ -1225,7 +1217,6 @@ fn prepare_pattern(
         schema: L4_OUTPUT_JSON_SCHEMA.to_string(),
         extra_args,
         drop_flags,
-        grammar_file: arm == "gb",
     };
     Ok((prepared, composed.payload))
 }
@@ -1341,11 +1332,10 @@ async fn run_patterns(args: &Args) -> ExitCode {
         Ok(runtime) => runtime,
         Err(why) => return inconclusive(&why),
     };
-    if jobs.iter().any(|j| j.prepared.grammar_file)
-        && let Err(why) = announce_gbnf(args.gbnf.as_deref())
-    {
-        return inconclusive(&why);
-    }
+    let grammar_path = match write_grammar_file(&out) {
+        Ok(path) => path,
+        Err(why) => return inconclusive(&why),
+    };
     println!(
         "l4-decision-probe: sampling {}",
         if args.sampling.is_empty() {
@@ -1376,25 +1366,13 @@ async fn run_patterns(args: &Args) -> ExitCode {
         let mut thinking_present = 0u32;
         for job in jobs.iter().filter(|j| &j.prepared.arm == arm) {
             let (p, shape) = (&job.prepared, &shapes[job.shape]);
-            let schema_path = out.join(format!("schema-{}.json", p.arm));
-            if std::fs::write(&schema_path, &p.schema).is_err() {
-                return inconclusive("schema file not writable");
-            }
             for run in 1..=args.n {
                 let text = |kind| patterns::text_path(&out, shape.id, job.render, run, kind);
                 if std::fs::write(text("digest"), &job.payload).is_err() {
                     return inconclusive("texts not writable");
                 }
-                let outcome = generate(
-                    &binary,
-                    &model,
-                    ngl,
-                    p,
-                    &schema_path,
-                    args.gbnf.as_deref(),
-                    args.footprint,
-                )
-                .await;
+                let outcome =
+                    generate(&binary, &model, ngl, p, &grammar_path, args.footprint).await;
                 let (graded, thinking, metrics) = match &outcome {
                     Spawned::Failed("spawn_failed", _) => {
                         return inconclusive("llama-cli did not spawn");
@@ -1532,11 +1510,6 @@ async fn main() -> ExitCode {
         Ok(runtime) => runtime,
         Err(why) => return inconclusive(&why),
     };
-    if prepared.iter().any(|p| p.grammar_file)
-        && let Err(why) = announce_gbnf(args.gbnf.as_deref())
-    {
-        return inconclusive(&why);
-    }
     println!(
         "l4-decision-probe: sampling {}",
         if args.sampling.is_empty() {
@@ -1557,6 +1530,10 @@ async fn main() -> ExitCode {
     if std::fs::create_dir_all(&args.out).is_err() {
         return inconclusive("output directory not creatable");
     }
+    let grammar_path = match write_grammar_file(&args.out) {
+        Ok(path) => path,
+        Err(why) => return inconclusive(&why),
+    };
 
     let mut rows: Vec<Value> = Vec::new();
     let mut total = 0u32;
@@ -1581,21 +1558,9 @@ async fn main() -> ExitCode {
         let mut rss_max: Option<u64> = None;
         let mut vram_max: Option<u64> = None;
         for p in prepared.iter().filter(|p| &p.arm == arm) {
-            let schema_path = args.out.join(format!("schema-{}.json", p.arm));
-            if std::fs::write(&schema_path, &p.schema).is_err() {
-                return inconclusive("schema file not writable");
-            }
             for run in 1..=args.n {
-                let outcome = generate(
-                    &binary,
-                    &model,
-                    ngl,
-                    p,
-                    &schema_path,
-                    args.gbnf.as_deref(),
-                    args.footprint,
-                )
-                .await;
+                let outcome =
+                    generate(&binary, &model, ngl, p, &grammar_path, args.footprint).await;
                 if let Spawned::Failed("spawn_failed", _) = outcome {
                     return inconclusive("llama-cli did not spawn");
                 }
@@ -2207,8 +2172,8 @@ mod tests {
         };
         assert_eq!(nr.prompt, shipped.prompt, "nr varies the argv only");
         assert_eq!(nr.schema, shipped.schema, "nr varies the argv only");
-        let (model, schema) = (Path::new("/m.gguf"), Path::new("/s.json"));
-        let shipped_argv = compose_argv(&shipped, model, 99, schema, None);
+        let (model, grammar) = (Path::new("/m.gguf"), Path::new("/g.gbnf"));
+        let shipped_argv = compose_argv(&shipped, model, 99, grammar);
         let Some(at) = shipped_argv
             .windows(2)
             .position(|w| w[0] == "-rea" && w[1] == "off")
@@ -2217,45 +2182,66 @@ mod tests {
         };
         let mut expected = shipped_argv.clone();
         expected.drain(at..at + 2);
-        assert_eq!(compose_argv(&nr, model, 99, schema, None), expected);
+        assert_eq!(compose_argv(&nr, model, 99, grammar), expected);
     }
 
     #[test]
-    fn gb_arm_swaps_exactly_the_schema_file_for_the_grammar_file() {
-        let s1 = shape("S1");
-        let (Ok(shipped), Ok(gb)) = (prepare("shipped", &s1), prepare("gb", &s1)) else {
-            panic!("shipped and gb compose");
+    fn shipped_argv_carries_the_grammar_file_and_no_schema_file() {
+        let Ok(shipped) = prepare("shipped", &shape("S1")) else {
+            panic!("shipped composes");
         };
-        assert_eq!(gb.prompt, shipped.prompt, "gb varies the argv only");
-        let (model, schema, gbnf) = (
-            Path::new("/m.gguf"),
-            Path::new("/s.json"),
-            Path::new("/g.gbnf"),
+        let composed = compose_argv(&shipped, Path::new("/m.gguf"), 99, Path::new("/g.gbnf"));
+        assert!(
+            composed
+                .windows(2)
+                .any(|w| w[0] == "--grammar-file" && w[1] == "/g.gbnf")
         );
-        let shipped_argv = compose_argv(&shipped, model, 99, schema, Some(gbnf));
-        let Some(at) = shipped_argv
-            .windows(2)
-            .position(|w| w[0] == "--json-schema-file" && w[1] == "/s.json")
-        else {
-            panic!("the shipped argv carries --json-schema-file");
-        };
-        let mut expected = shipped_argv.clone();
-        expected.drain(at..at + 2);
-        expected.extend(["--grammar-file".to_string(), "/g.gbnf".to_string()]);
-        assert_eq!(compose_argv(&gb, model, 99, schema, Some(gbnf)), expected);
+        assert!(!composed.iter().any(|a| a == "--json-schema-file"));
+        let retired = parse_args_from(argv(&["--arms", "gb"])).err();
+        assert_eq!(retired.as_deref(), Some("unknown arm gb"));
+        let retired = parse_args_from(argv(&["--gbnf", "g.gbnf"])).err();
+        assert_eq!(retired.as_deref(), Some("unknown flag --gbnf"));
     }
 
     #[test]
-    fn gbnf_flag_takes_a_path_and_is_unset_by_default() {
-        let Ok(none) = parse_args_from(argv(&[])) else {
-            panic!("no flags parse");
+    fn sampling_replaces_the_production_pairs_rather_than_duplicating() {
+        let Ok(mut shipped) = prepare("shipped", &shape("S1")) else {
+            panic!("shipped composes");
         };
-        assert_eq!(none.gbnf, None);
-        let Ok(set) = parse_args_from(argv(&["--arms", "gb", "--gbnf", "g.gbnf"])) else {
-            panic!("--arms gb --gbnf g.gbnf parses");
+        let (model, grammar) = (Path::new("/m.gguf"), Path::new("/g.gbnf"));
+        let production = compose_argv(&shipped, model, 99, grammar);
+        let Ok(args) = parse_args_from(argv(&[
+            "--sampling",
+            "--temp 0.7 --top-k 20 --presence-penalty 1.5",
+        ])) else {
+            panic!("the sampling parses");
         };
-        assert_eq!(set.gbnf, Some(PathBuf::from("g.gbnf")));
-        assert_eq!(set.arms, ["gb"]);
+        shipped.extra_args.extend(args.sampling);
+        let composed = compose_argv(&shipped, model, 99, grammar);
+        for flag in [
+            "--temp",
+            "--top-p",
+            "--top-k",
+            "--min-p",
+            "--presence-penalty",
+        ] {
+            assert_eq!(
+                composed.iter().filter(|a| *a == flag).count(),
+                1,
+                "{flag} passed once"
+            );
+        }
+        let value = |argv: &[String], flag: &str| {
+            argv.windows(2).find(|w| w[0] == flag).map(|w| w[1].clone())
+        };
+        assert_eq!(value(&composed, "--temp").as_deref(), Some("0.7"));
+        assert_eq!(value(&composed, "--top-k").as_deref(), Some("20"));
+        assert_eq!(value(&composed, "--top-p"), value(&production, "--top-p"));
+        assert_eq!(
+            value(&composed, "--presence-penalty").as_deref(),
+            Some("1.5")
+        );
+        assert_eq!(composed.len(), production.len() + 2);
     }
 
     #[test]
@@ -2388,14 +2374,14 @@ mod tests {
     #[test]
     fn pattern_arms_vary_the_argv_only() {
         let a1 = patterns::select_pattern_shapes(&["A1".to_string()]);
-        let Ok((gb, _)) = prepare_pattern("gb", &a1[0], Render::Today) else {
-            panic!("gb composes A1");
+        let Ok((nr, _)) = prepare_pattern("nr", &a1[0], Render::Today) else {
+            panic!("nr composes A1");
         };
         let Ok((shipped, payload)) = prepare_pattern("shipped", &a1[0], Render::Today) else {
             panic!("shipped composes A1");
         };
-        assert_eq!(gb.prompt, shipped.prompt);
-        assert!(gb.grammar_file && gb.drop_flags == ["--json-schema-file"]);
+        assert_eq!(nr.prompt, shipped.prompt);
+        assert_eq!(nr.drop_flags, ["-rea"]);
         assert!(shipped.prompt.contains(&payload));
         for arm in ["A2", "A3", "A4", "A5", "nf", "R1", "R3", "R2", "R1R3"] {
             assert_eq!(

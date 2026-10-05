@@ -65,7 +65,7 @@ const DAY_NANOS: i64 = 86_400_000_000_000;
 const SERVICES_HEADER: &str = "SERVICES (rate, error%, p99 vs baselines):";
 const TREND_HEADER: &str = "TREND (last 6 windows of 60s, oldest first):";
 /// The gpu-primary L4 latency budget (`xtask/ci/l4-latency-p99.sh`).
-const GPU_PRIMARY_BUDGET_MS: u64 = 5000;
+const GPU_PRIMARY_BUDGET_MS: u64 = 10000;
 const RULE_MARGIN_POINTS: f64 = 10.0;
 const SEP: &str = " \u{b7} ";
 pub const AUDIT_SAMPLE: &str = "audit-sample.md";

@@ -26,6 +26,7 @@ use std::time::{Duration, Instant};
 
 use interpretation::contract::{InferenceError, LlmInferenceRunner, ModelTier};
 use interpretation::degraded_mode::DegradedModeStatus;
+use interpretation::hardware::profile_label;
 use interpretation::prompt::{
     build_fallback_tier_prompt, build_primary_tier_prompt, build_reflection_tier_prompt,
 };
@@ -398,6 +399,7 @@ pub async fn handle_digest_outcome(
     let tier = runner.tier();
     let started = Instant::now();
     let tier_label = interpretation::contract::model_tier_label(tier);
+    let hardware_profile = profile_label(runner.hardware_profile());
     let digest_kind = digest_kind_label(digest);
 
     // Prompt assembly — branch on runner tier per chunk #85. Primary uses
@@ -454,7 +456,13 @@ pub async fn handle_digest_outcome(
                 success = true,
                 "L4 constrained generation returned",
             );
-            handle_parse_outcome(&raw_output, tier_label, digest_kind, total_elapsed_ms)
+            handle_parse_outcome(
+                &raw_output,
+                tier_label,
+                hardware_profile,
+                digest_kind,
+                total_elapsed_ms,
+            )
         }
         Err(err) => {
             let category = inference_error_label(&err);
@@ -477,6 +485,7 @@ pub async fn handle_digest_outcome(
                 value = total_elapsed_ms,
                 duration_ms = total_elapsed_ms,
                 model_tier = tier_label,
+                hardware_profile = hardware_profile,
                 "L4 inference latency sample",
             );
             L4DigestOutcome::RuntimeError
@@ -487,6 +496,7 @@ pub async fn handle_digest_outcome(
 fn handle_parse_outcome(
     raw_output: &str,
     tier_label: &'static str,
+    hardware_profile: &'static str,
     digest_kind: &'static str,
     total_elapsed_ms: u64,
 ) -> L4DigestOutcome {
@@ -524,6 +534,7 @@ fn handle_parse_outcome(
                 value = total_elapsed_ms,
                 duration_ms = total_elapsed_ms,
                 model_tier = tier_label,
+                hardware_profile = hardware_profile,
                 "L4 inference latency sample",
             );
             L4DigestOutcome::Success(Box::new(parsed))

@@ -1,0 +1,84 @@
+[
+{
+"tool": "ci",
+"v": "1.0",
+"sha8": "7198b2c0",
+"ts": "2026-10-05T13:54:38Z",
+"argv": [
+"conclusion",
+"--sha",
+"7663dd91c4492bc78eb50a827ed18bad860b1701",
+"--run-dir",
+".andromeda/runs/2026-10-05T13-54-33Z-phase"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"repo Turbolet85/andromeds-pulse (the push remote `origin`)",
+"7663dd91c449 verdict: in progress · checks 13/13 · runs ci#37319659032 in_progress/- secret-scan#37319659009 completed/…",
+"runs: ci#37319659032 pull_request in_progress/- · secret-scan#37319659009 pull_request completed/success",
+"running 9: oldest boot smoke (ubuntu-22.04) 365 s",
+"run open: ci#37319659032 in_progress"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"repo": "Turbolet85/andromeds-pulse",
+"host": "github.com",
+"repo_source": "the push remote `origin`",
+"names": [],
+"shas": [
+{
+"sha": "7663dd91c4492bc78eb50a827ed18bad860b1701",
+"word": "in progress",
+"polls": [
+"in progress"
+]
+}
+]
+}
+},
+{
+"tool": "ci",
+"v": "1.0",
+"sha8": "7198b2c0",
+"ts": "2026-10-05T13:55:44Z",
+"argv": [
+"conclusion",
+"--sha",
+"7663dd91c4492bc78eb50a827ed18bad860b1701",
+"--run-dir",
+"/home/turbolet/dev/projects/andromeda-pulse/.andromeda/runs/2026-10-05T13-54-33Z-phase"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"repo Turbolet85/andromeds-pulse (the push remote `origin`)",
+"7663dd91c449 verdict: in progress · checks 13/13 · runs ci#37319659032 in_progress/- secret-scan#37319659009 completed/…",
+"runs: ci#37319659032 pull_request in_progress/- · secret-scan#37319659009 pull_request completed/success",
+"running 9: oldest boot smoke (ubuntu-22.04) 431 s",
+"run open: ci#37319659032 in_progress"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"repo": "Turbolet85/andromeds-pulse",
+"host": "github.com",
+"repo_source": "the push remote `origin`",
+"names": [],
+"shas": [
+{
+"sha": "7663dd91c4492bc78eb50a827ed18bad860b1701",
+"word": "in progress",
+"polls": [
+"in progress"
+]
+}
+]
+}
+}
+]

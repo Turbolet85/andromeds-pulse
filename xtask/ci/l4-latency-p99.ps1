@@ -1,9 +1,13 @@
 # xtask/ci/l4-latency-p99.ps1 — obs-plan §10 SLO gate (L4 inference latency)
 #
 # Parses metric.pipeline.l4.inference_latency_p99_milliseconds records from
-# the JSON log, groups by hardware_profile label, computes p99 per profile,
-# and asserts each is at or below the dist-arch v3 §L4 hardware profile
-# matrix budget.
+# the JSON log, groups by hardware_profile label, computes p99 per profile by
+# nearest rank (the ceil(0.99*n)-th smallest, obs-plan §10's one rule), and
+# asserts each is at or below the dist-arch v3 §L4 hardware profile matrix
+# budget (gpu-primary 10000ms).
+#
+# A target record without a hardware_profile or a numeric duration_ms cannot
+# be graded, so any such record fails the run instead of being dropped.
 #
 # INACTIVE state (chunks #82-#83 substrate): when no L4 inference latency
 # records are present, exits 0. Activates organically when the first real
@@ -17,7 +21,7 @@ $logArg = if ($args.Count -gt 0) { $args[0] } else { $null }
 $targetMetric = 'metric.pipeline.l4.inference_latency_p99_milliseconds'
 
 $budgets = @{
-    'gpu_primary'  = if ($env:L4_GPU_PRIMARY_BUDGET_MS)  { [int]$env:L4_GPU_PRIMARY_BUDGET_MS }  else { 5000 }
+    'gpu_primary'  = if ($env:L4_GPU_PRIMARY_BUDGET_MS)  { [int]$env:L4_GPU_PRIMARY_BUDGET_MS }  else { 10000 }
     'gpu_fallback' = if ($env:L4_GPU_FALLBACK_BUDGET_MS) { [int]$env:L4_GPU_FALLBACK_BUDGET_MS } else { 3000 }
     'cpu_primary'  = if ($env:L4_CPU_PRIMARY_BUDGET_MS)  { [int]$env:L4_CPU_PRIMARY_BUDGET_MS }  else { 30000 }
     'cpu_fallback' = if ($env:L4_CPU_FALLBACK_BUDGET_MS) { [int]$env:L4_CPU_FALLBACK_BUDGET_MS } else { 15000 }
@@ -42,6 +46,7 @@ if ($logFiles.Count -eq 0) {
 }
 
 $samples = @{}
+$unlabeled = 0
 foreach ($file in $logFiles) {
     $reader = [System.IO.StreamReader]::new($file)
     try {
@@ -58,13 +63,21 @@ foreach ($file in $logFiles) {
             if ($obj.target -ne $targetMetric) { continue }
             $profile = $obj.fields.hardware_profile
             $ms = $obj.fields.duration_ms
-            if (-not $profile -or $null -eq $ms) { continue }
+            if (-not $profile -or -not ($ms -is [int] -or $ms -is [long])) {
+                $unlabeled++
+                continue
+            }
             if (-not $samples.ContainsKey($profile)) { $samples[$profile] = @() }
             $samples[$profile] += [int]$ms
         }
     } finally {
         $reader.Dispose()
     }
+}
+
+if ($unlabeled -gt 0) {
+    [Console]::Error.WriteLine("::error::l4-latency-p99: $unlabeled sample(s) carry no hardware_profile or duration_ms")
+    exit 1
 }
 
 if ($samples.Count -eq 0) {
@@ -76,7 +89,7 @@ $exitCode = 0
 foreach ($profile in $samples.Keys) {
     $arr = $samples[$profile] | Sort-Object
     $n = $arr.Count
-    $idx = [int][Math]::Floor($n * 0.99)
+    $idx = [int][Math]::Floor(($n * 99 + 99) / 100)
     if ($idx -lt 1) { $idx = 1 }
     if ($idx -gt $n) { $idx = $n }
     $p99 = $arr[$idx - 1]

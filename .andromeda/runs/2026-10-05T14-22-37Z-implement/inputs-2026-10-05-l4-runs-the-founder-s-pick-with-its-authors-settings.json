@@ -1,0 +1,55 @@
+[
+{
+"tool": "inputs",
+"v": "1.0",
+"sha8": "faa48d4e",
+"ts": "2026-10-05T14:26:28Z",
+"argv": [
+"snap",
+"--chunk-dir",
+"andromeda-pulse-0.3.0/chunks/2026-10-05-l4-runs-the-founder-s-pick-with-its-authors-settings",
+"--source",
+"/home/turbolet/dev/tools/llama.cpp-b9305/LICENSE",
+"--kind",
+"sibling",
+"--why",
+"llama.cpp b9305 (63248fc) MIT notice, Copyright (c) 2023-2026 The ggml authors; the vendored json_schema_to_grammar.py ships under it",
+"--step",
+"implement",
+"--run-dir",
+".andromeda/runs/2026-10-05T14-22-37Z-implement",
+"--marker",
+"2026-10-05-l4-runs-the-founder-s-pick-with-its-authors-settings"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"snapped I5 · pointer committed · ~/dev/tools/llama.cpp-b9305:LICENSE",
+"commit 63248fc3 · ref detached · upstream no-upstream",
+"cite: inputs#I5"
+],
+"stderr": null,
+"wrote": [
+"inputs/andromeda-inputs.json"
+],
+"before": null,
+"after": {
+"id": "I5",
+"kind": "sibling",
+"repo": "~/dev/tools/llama.cpp-b9305",
+"path": "LICENSE",
+"form": "pointer",
+"state": "committed",
+"commit": "63248fc3e33e6f3b579dce6a743fd6ce8939af9c",
+"ref": "detached",
+"upstream": "no-upstream",
+"claimed": null,
+"sha256": "94f29bbed6a22c35b992c5c6ebf0e7c92f13b836b90f36f461c9cf2f0f1d010d",
+"copy": null,
+"link": false,
+"read_at": "2026-10-05T14:26:28Z",
+"step": "implement",
+"why": "llama.cpp b9305 (63248fc) MIT notice, Copyright (c) 2023-2026 The ggml authors; the vendored json_schema_to_grammar.py ships under it"
+}
+}
+]

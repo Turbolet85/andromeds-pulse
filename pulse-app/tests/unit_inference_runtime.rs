@@ -21,7 +21,7 @@ use interpretation::contract::{
 };
 use interpretation::schema::{L4_OUTPUT_MAX_BYTES, L4Output};
 use pulse_app::inference_runtime::handle_digest;
-use triage::contract::{Digest, DigestKind, DigestLwwMode};
+use triage::contract::{Digest, DigestKind, DigestLwwMode, HardwareProfile};
 
 /// One captured tracing event: `(target, level, fields-string)`.
 type CapturedEvent = (String, tracing::Level, String);
@@ -649,4 +649,87 @@ async fn handle_digest_acute_primary_digest_does_not_select_reflection_prompt() 
         .expect("primary prompt sent to runner");
     assert!(!prompt.contains("cumulative"));
     assert!(prompt.contains("Your job is to decide"));
+}
+
+/// A stub that overrides the hardware-profile accessor, as the production
+/// `LlamaCliInference` does.
+struct GpuPrimaryRunner(StubInferenceRunner);
+
+impl LlmInferenceRunner for GpuPrimaryRunner {
+    fn current_status(&self) -> ModelStatus {
+        self.0.current_status()
+    }
+
+    fn identity(&self) -> Option<ModelIdentity> {
+        self.0.identity()
+    }
+
+    fn tier(&self) -> ModelTier {
+        self.0.tier()
+    }
+
+    fn hardware_profile(&self) -> HardwareProfile {
+        HardwareProfile::GpuPrimary
+    }
+
+    fn generate_constrained<'a>(
+        &'a self,
+        prompt: &'a str,
+        schema_json: &'a str,
+    ) -> InferenceFuture<'a, String> {
+        self.0.generate_constrained(prompt, schema_json)
+    }
+}
+
+async fn latency_fields(runner: &dyn LlmInferenceRunner) -> String {
+    let (subscriber, events) = CapturingSubscriber::new();
+    let guard = tracing::subscriber::set_default(subscriber);
+    handle_digest(runner, &sample_digest()).await;
+    drop(guard);
+    let captured = events.lock().expect("capture lock").clone();
+    let latency: Vec<_> = captured
+        .iter()
+        .filter(|(t, _, _)| t == "metric.pipeline.l4.inference_latency_p99_milliseconds")
+        .collect();
+    assert_eq!(latency.len(), 1, "exactly one latency sample per digest");
+    latency[0].2.clone()
+}
+
+#[tokio::test]
+async fn latency_sample_carries_the_runner_profile_on_the_parse_success_arm() {
+    let runner = GpuPrimaryRunner(StubInferenceRunner::new_ok(
+        ModelTier::Primary,
+        valid_l4_output_json(),
+    ));
+    let fields = latency_fields(&runner).await;
+    assert!(
+        fields.contains("hardware_profile=gpu_primary"),
+        "got fields: {fields}"
+    );
+}
+
+#[tokio::test]
+async fn latency_sample_carries_the_runner_profile_on_the_runtime_error_arm() {
+    let runner = GpuPrimaryRunner(StubInferenceRunner::new_err(
+        ModelTier::Primary,
+        ModelStatus::Loaded,
+        InferenceError::InferenceFailed {
+            reason: "timeout".into(),
+        },
+    ));
+    let fields = latency_fields(&runner).await;
+    assert!(
+        fields.contains("hardware_profile=gpu_primary"),
+        "got fields: {fields}"
+    );
+}
+
+#[tokio::test]
+async fn latency_sample_reads_unknown_for_a_runner_without_a_profile() {
+    let runner = StubInferenceRunner::new_ok(ModelTier::Primary, valid_l4_output_json());
+    let fields = latency_fields(&runner).await;
+    assert!(
+        fields.contains("hardware_profile=unknown"),
+        "got fields: {fields}"
+    );
 }

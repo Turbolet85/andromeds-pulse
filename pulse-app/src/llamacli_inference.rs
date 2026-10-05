@@ -14,6 +14,15 @@
 //! model's training context) and `-rea off` (no thinking pass printed to
 //! stdout ahead of the JSON).
 //!
+//! Output is constrained by the committed GBNF [`L4_OUTPUT_GBNF`] passed
+//! through `--grammar-file`, never `--json-schema-file`: b9305 prefills an
+//! output-format grammar with the chat template's generation prompt, which a
+//! thinking template's grammar rejects at sampler init, while a user grammar
+//! is never prefilled. The grammar is the b9305 converter's output for
+//! `L4_OUTPUT_JSON_SCHEMA` (pinned by `pulse-app/tests/unit_l4_grammar.rs`).
+//! Sampling is the shipped model's published setting: `--temp 1.0 --top-p
+//! 0.95 --top-k 64 --min-p 0`.
+//!
 //! Tier routing follows chunk #80 `HardwareProfileSource` output:
 //! GPU-primary / GPU-fallback → CUDA binary + `-ngl 99`; CPU-primary
 //! / CPU-fallback → CPU binary + `-ngl 0`. Binary paths source from
@@ -38,6 +47,7 @@ use interpretation::contract::{
     ModelStatus, ModelTier,
 };
 use interpretation::hardware::profile_label;
+use interpretation::schema::L4_OUTPUT_JSON_SCHEMA;
 use tokio::io::AsyncReadExt;
 use tokio::time::timeout;
 use triage::contract::HardwareProfile;
@@ -108,6 +118,20 @@ pub const LLAMA_CLI_CTX_SIZE: u32 = 8192;
 /// so reasoning text is a parse hazard. `off` reaches only chat templates
 /// that support `enable_thinking`; on others the switch is a no-op.
 pub const LLAMA_CLI_REASONING: &str = "off";
+
+/// Sampling temperature, `--temp`. With the three below, the sampling the
+/// shipped model's authors publish (gemma-4 `generation_config.json`).
+pub const LLAMA_CLI_TEMP: &str = "1.0";
+/// Nucleus sampling threshold, `--top-p`.
+pub const LLAMA_CLI_TOP_P: &str = "0.95";
+/// Top-k cutoff, `--top-k`.
+pub const LLAMA_CLI_TOP_K: &str = "64";
+/// Min-p threshold, `--min-p`.
+pub const LLAMA_CLI_MIN_P: &str = "0";
+
+/// The L4 output grammar: the b9305 `json_schema_to_grammar.py` output for
+/// `L4_OUTPUT_JSON_SCHEMA`, byte for byte.
+pub const L4_OUTPUT_GBNF: &str = include_str!("l4-output.gbnf");
 
 /// GPU layer-offload count for CUDA build (all layers offloaded to VRAM).
 const NGL_GPU: u32 = 99;
@@ -421,13 +445,15 @@ fn stdout_snippet(stdout: &str) -> String {
 ///
 /// `-c {LLAMA_CLI_CTX_SIZE}` pins the resident footprint independent of the
 /// model's training context, and `-rea {LLAMA_CLI_REASONING}` keeps a
-/// thinking pass off stdout ahead of the JSON. Both are first-party
-/// constants.
+/// thinking pass off stdout ahead of the JSON. The four sampling pairs
+/// follow `-n`, then `--grammar-file {grammar_path}` (a file holding
+/// [`L4_OUTPUT_GBNF`]); `-p {prompt}` is last. Every operand but the prompt
+/// is a first-party constant or path.
 pub fn build_llama_cli_args(
     model_path: &Path,
     ngl: u32,
     max_tokens: u32,
-    schema_path: &Path,
+    grammar_path: &Path,
     prompt: &str,
 ) -> Vec<String> {
     vec![
@@ -452,8 +478,16 @@ pub fn build_llama_cli_args(
         "--log-disable".to_string(),
         "-n".to_string(),
         max_tokens.to_string(),
-        "--json-schema-file".to_string(),
-        schema_path.to_string_lossy().into_owned(),
+        "--temp".to_string(),
+        LLAMA_CLI_TEMP.to_string(),
+        "--top-p".to_string(),
+        LLAMA_CLI_TOP_P.to_string(),
+        "--top-k".to_string(),
+        LLAMA_CLI_TOP_K.to_string(),
+        "--min-p".to_string(),
+        LLAMA_CLI_MIN_P.to_string(),
+        "--grammar-file".to_string(),
+        grammar_path.to_string_lossy().into_owned(),
         "-p".to_string(),
         prompt.to_string(),
     ]
@@ -697,29 +731,43 @@ fn is_forbidden_control(c: char) -> bool {
     c.is_control() && c != '\n' && c != '\r' && c != '\t'
 }
 
-/// RAII drop guard for the per-call temp file holding the JSON schema.
+/// The committed grammar for `schema_json`. Only `L4_OUTPUT_JSON_SCHEMA` has
+/// one: any other schema is `grammar_schema_mismatch`, since constraining it
+/// with the L4 grammar would produce output the caller's schema never asked
+/// for.
+pub fn grammar_for_schema(schema_json: &str) -> Result<&'static str, InferenceError> {
+    if schema_json == L4_OUTPUT_JSON_SCHEMA {
+        Ok(L4_OUTPUT_GBNF)
+    } else {
+        Err(InferenceError::InferenceFailed {
+            reason: "grammar_schema_mismatch".to_string(),
+        })
+    }
+}
+
+/// RAII drop guard for the per-call temp file holding the grammar.
 /// Constructed before subprocess spawn; dropped after `wait_with_output`
 /// completes. Drop attempts cleanup but never panics (the file persists
 /// in the OS temp dir if cleanup fails; OS reaps eventually).
-struct SchemaTempFile {
+struct GrammarTempFile {
     path: PathBuf,
 }
 
-impl SchemaTempFile {
-    fn create(schema_json: &str) -> Result<Self, InferenceError> {
+impl GrammarTempFile {
+    fn create(grammar: &str) -> Result<Self, InferenceError> {
         let mut path = std::env::temp_dir();
         let nanos = std::time::SystemTime::now()
             .duration_since(std::time::UNIX_EPOCH)
             .map(|d| d.as_nanos())
             .unwrap_or(0);
         let unique = format!(
-            "andromeda-pulse-llama-schema-{}-{}.json",
+            "andromeda-pulse-llama-grammar-{}-{}.gbnf",
             std::process::id(),
             nanos
         );
         path.push(unique);
-        std::fs::write(&path, schema_json).map_err(|_| InferenceError::InferenceFailed {
-            reason: "schema_tempfile_write_failed".to_string(),
+        std::fs::write(&path, grammar).map_err(|_| InferenceError::InferenceFailed {
+            reason: "grammar_tempfile_write_failed".to_string(),
         })?;
         Ok(Self { path })
     }
@@ -729,7 +777,7 @@ impl SchemaTempFile {
     }
 }
 
-impl Drop for SchemaTempFile {
+impl Drop for GrammarTempFile {
     fn drop(&mut self) {
         let _ = std::fs::remove_file(&self.path);
     }
@@ -752,12 +800,30 @@ impl LlmInferenceRunner for LlamaCliInference {
         self.tier
     }
 
+    fn hardware_profile(&self) -> HardwareProfile {
+        self.profile
+    }
+
     fn generate_constrained<'a>(
         &'a self,
         prompt: &'a str,
         schema_json: &'a str,
     ) -> InferenceFuture<'a, String> {
         Box::pin(async move {
+            let grammar = match grammar_for_schema(schema_json) {
+                Ok(grammar) => grammar,
+                Err(err) => {
+                    tracing::warn!(
+                        target: "interpretation.inference.error",
+                        model_tier = interpretation::contract::model_tier_label(self.tier),
+                        hardware_profile = profile_label(self.profile),
+                        error_category = "grammar_schema_mismatch",
+                        recovery_action = "skip_digest",
+                        "no committed grammar for the requested schema",
+                    );
+                    return Err(err);
+                }
+            };
             let (Some(binary), Some(model)) = (self.binary_path.as_ref(), self.model_path.as_ref())
             else {
                 return Err(InferenceError::ModelNotConfigured);
@@ -780,12 +846,12 @@ impl LlmInferenceRunner for LlamaCliInference {
                 });
             }
 
-            let schema_file = SchemaTempFile::create(schema_json)?;
+            let grammar_file = GrammarTempFile::create(grammar)?;
             let args = build_llama_cli_args(
                 model,
                 self.ngl,
                 DEFAULT_MAX_TOKENS,
-                schema_file.path(),
+                grammar_file.path(),
                 prompt,
             );
 
@@ -820,7 +886,7 @@ impl LlmInferenceRunner for LlamaCliInference {
             })
             .await;
 
-            drop(schema_file);
+            drop(grammar_file);
 
             let (status_result, stdout_bytes, stderr_bytes) = match wait_result {
                 Ok(triple) => triple,

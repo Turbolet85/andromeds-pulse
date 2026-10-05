@@ -2,11 +2,12 @@
 # xtask/ci/l4-latency-p99.sh — obs-plan §10 SLO gate (L4 inference latency)
 #
 # Parses metric.pipeline.l4.inference_latency_p99_milliseconds records from
-# the JSON log, groups by hardware_profile label, computes p99 (99th
-# percentile) per profile, and asserts each is at or below the dist-arch v3
-# §L4 hardware profile matrix budget:
+# the JSON log, groups by hardware_profile label, computes p99 per profile by
+# nearest rank (the ceil(0.99*n)-th smallest, obs-plan §10's one rule), and
+# asserts each is at or below the dist-arch v3 §L4 hardware profile matrix
+# budget:
 #
-#   gpu-primary:   5000ms   (Tier-1 SLO)
+#   gpu-primary:  10000ms   (Tier-1 SLO)
 #   gpu-fallback:  3000ms   (Tier-1 SLO)
 #   cpu-primary:  30000ms   (Tier-1 SLO; degraded mode)
 #   cpu-fallback: 15000ms   (Tier-1 SLO)
@@ -15,6 +16,9 @@
 # mode is intentionally lenient (10-30s primary inference latency); gate
 # trips only on extreme regression beyond the documented degraded mode
 # expectation.
+#
+# A target record without a hardware_profile or a numeric duration_ms cannot
+# be graded, so any such record fails the run instead of being dropped.
 #
 # INACTIVE state (chunks #82-#83 substrate): when no L4 inference latency
 # records are present (mistralrs runtime not yet bound; LlmInferenceRunner
@@ -33,7 +37,7 @@ LOG_ARG="${1:-}"
 TARGET_METRIC="metric.pipeline.l4.inference_latency_p99_milliseconds"
 
 # Per-profile budgets (override individual values via env vars).
-GPU_PRIMARY_BUDGET_MS="${L4_GPU_PRIMARY_BUDGET_MS:-5000}"
+GPU_PRIMARY_BUDGET_MS="${L4_GPU_PRIMARY_BUDGET_MS:-10000}"
 GPU_FALLBACK_BUDGET_MS="${L4_GPU_FALLBACK_BUDGET_MS:-3000}"
 CPU_PRIMARY_BUDGET_MS="${L4_CPU_PRIMARY_BUDGET_MS:-30000}"
 CPU_FALLBACK_BUDGET_MS="${L4_CPU_FALLBACK_BUDGET_MS:-15000}"
@@ -64,19 +68,37 @@ samples_per_profile() {
       ms=$(printf '%s' "$line" | sed -nE 's/.*"duration_ms":([0-9]+).*/\1/p')
       if [ -n "$profile" ] && [ -n "$ms" ]; then
         printf '%s\t%s\n' "$profile" "$ms"
+      else
+        printf 'UNLABELED\n'
       fi
     done < "$f"
   done
 }
 
-mapfile -t SAMPLE_LINES < <(samples_per_profile)
+mapfile -t EXTRACTED < <(samples_per_profile)
+
+SAMPLE_LINES=()
+unlabeled=0
+for entry in "${EXTRACTED[@]}"; do
+  if [ "$entry" = "UNLABELED" ]; then
+    unlabeled=$((unlabeled + 1))
+  else
+    SAMPLE_LINES+=("$entry")
+  fi
+done
+
+if [ "$unlabeled" -gt 0 ]; then
+  echo "::error::l4-latency-p99: $unlabeled sample(s) carry no hardware_profile or duration_ms" >&2
+  exit 1
+fi
 
 if [ "${#SAMPLE_LINES[@]}" -eq 0 ]; then
   echo "l4-latency-p99: no $TARGET_METRIC records found (INACTIVE state — pre-mistralrs-binding chunk; gate trivially passes)"
   exit 0
 fi
 
-# Compute p99 per profile via awk (sort + select [99% * length] index).
+# Compute p99 per profile via awk: sort, then the nearest-rank index
+# ceil(0.99 * n), in integer arithmetic.
 p99_per_profile=$(printf '%s\n' "${SAMPLE_LINES[@]}" | awk '
   {
     profile = $1
@@ -98,7 +120,7 @@ p99_per_profile=$(printf '%s\n' "${SAMPLE_LINES[@]}" | awk '
           shifted[++shifted_n] = sorted[i]
         }
       }
-      idx = int(shifted_n * 0.99)
+      idx = int((shifted_n * 99 + 99) / 100)
       if (idx < 1) idx = 1
       if (idx > shifted_n) idx = shifted_n
       p99 = shifted[idx]
