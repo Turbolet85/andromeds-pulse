@@ -1,0 +1,161 @@
+[
+{
+"tool": "inputs",
+"v": "1.0",
+"sha8": "faa48d4e",
+"ts": "2026-10-05T07:20:42Z",
+"argv": [
+"snap",
+"--chunk-dir",
+"andromeda-pulse-0.3.0/chunks/2026-10-05-l4-runs-on-a-small-current-model-chosen-by-measurement",
+"--source",
+"/home/turbolet/dev/projects/additional/pc-overseer/relays/2026-10-05-l4-model-usage-findings.md",
+"--kind",
+"relay",
+"--why",
+"per-model authors sampling (Llama 0.6/0.9; Qwen3.5 0.7/0.8/k20/pp1.5; Gemma4 1.0/0.95/k64), min_p 0, thinking-off per model, only Gemma GGUFs embed sampling, upstream PR #29066 unmerged",
+"--step",
+"implement",
+"--run-dir",
+".andromeda/runs/2026-10-05T06-44-54Z-implement",
+"--marker",
+"2026-10-05-l4-runs-on-a-small-current-model-chosen-by-measurement"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"snapped I5 · copy no-repo · ../additional/pc-overseer/relays/2026-10-05-l4-model-usage-findings.md",
+"cite: inputs#I5"
+],
+"stderr": null,
+"wrote": [
+"inputs/I5-2026-10-05-l4-model-usage-findings.md.txt",
+"inputs/andromeda-inputs.json"
+],
+"before": null,
+"after": {
+"id": "I5",
+"kind": "relay",
+"repo": null,
+"path": "../additional/pc-overseer/relays/2026-10-05-l4-model-usage-findings.md",
+"form": "copy",
+"state": "no-repo",
+"commit": null,
+"ref": null,
+"upstream": null,
+"claimed": null,
+"sha256": "824d7dfa02937c761e4f4eca9e59f40a083d61c2e4a832441527854e5562acc4",
+"copy": "I5-2026-10-05-l4-model-usage-findings.md.txt",
+"link": false,
+"read_at": "2026-10-05T07:20:42Z",
+"step": "implement",
+"why": "per-model authors sampling (Llama 0.6/0.9; Qwen3.5 0.7/0.8/k20/pp1.5; Gemma4 1.0/0.95/k64), min_p 0, thinking-off per model, only Gemma GGUFs embed sampling, upstream PR #29066 unmerged"
+}
+},
+{
+"tool": "inputs",
+"v": "1.0",
+"sha8": "faa48d4e",
+"ts": "2026-10-05T08:34:39Z",
+"argv": [
+"snap",
+"--chunk-dir",
+"andromeda-pulse-0.3.0/chunks/2026-10-05-l4-runs-on-a-small-current-model-chosen-by-measurement",
+"--source",
+"/home/turbolet/dev/projects/additional/pc-overseer/relays/2026-10-05-l4-hardware-ruling.md",
+"--kind",
+"relay",
+"--why",
+"founder ruling: GPU runs the small model, no-GPU L4 is programmatic (CPU inference retired); G3 retired by second addendum, recorded pick none kept; confirm Qwen3.5-2B fresh, PASS iff rank1 >= 36; mint entries A and B ahead of pre-push:linux",
+"--step",
+"implement",
+"--run-dir",
+".andromeda/runs/2026-10-05T06-44-54Z-implement",
+"--marker",
+"2026-10-05-l4-runs-on-a-small-current-model-chosen-by-measurement"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"snapped I6 · copy no-repo · ../additional/pc-overseer/relays/2026-10-05-l4-hardware-ruling.md",
+"cite: inputs#I6"
+],
+"stderr": null,
+"wrote": [
+"inputs/I6-2026-10-05-l4-hardware-ruling.md.txt",
+"inputs/andromeda-inputs.json"
+],
+"before": null,
+"after": {
+"id": "I6",
+"kind": "relay",
+"repo": null,
+"path": "../additional/pc-overseer/relays/2026-10-05-l4-hardware-ruling.md",
+"form": "copy",
+"state": "no-repo",
+"commit": null,
+"ref": null,
+"upstream": null,
+"claimed": null,
+"sha256": "e19f7a0022ceb9edcbc48499fb5338509aefef8c7804cef54eadd2ca1c7c0ee4",
+"copy": "I6-2026-10-05-l4-hardware-ruling.md.txt",
+"link": false,
+"read_at": "2026-10-05T08:34:39Z",
+"step": "implement",
+"why": "founder ruling: GPU runs the small model, no-GPU L4 is programmatic (CPU inference retired); G3 retired by second addendum, recorded pick none kept; confirm Qwen3.5-2B fresh, PASS iff rank1 >= 36; mint entries A and B ahead of pre-push:linux"
+}
+},
+{
+"tool": "inputs",
+"v": "1.0",
+"sha8": "faa48d4e",
+"ts": "2026-10-05T08:38:09Z",
+"argv": [
+"snap",
+"--chunk-dir",
+"andromeda-pulse-0.3.0/chunks/2026-10-05-l4-runs-on-a-small-current-model-chosen-by-measurement",
+"--source",
+"/home/turbolet/dev/projects/additional/pc-overseer/relays/2026-10-05-l4-nemotron-addendum.md",
+"--kind",
+"relay",
+"--why",
+"founder adds NVIDIA Nemotron 3 Nano 4B (unsloth Q4_K_M, nemotron_h, NVIDIA Open Model License); thinking off via enable_thinking kwarg + -rea off; sampling 0.6/0.95 min_p 0; same legs after the in-flight confirmation; rule G3 retired over six rows",
+"--step",
+"implement",
+"--run-dir",
+".andromeda/runs/2026-10-05T06-44-54Z-implement",
+"--marker",
+"2026-10-05-l4-runs-on-a-small-current-model-chosen-by-measurement"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"snapped I7 · copy no-repo · ../additional/pc-overseer/relays/2026-10-05-l4-nemotron-addendum.md",
+"cite: inputs#I7"
+],
+"stderr": null,
+"wrote": [
+"inputs/I7-2026-10-05-l4-nemotron-addendum.md.txt",
+"inputs/andromeda-inputs.json"
+],
+"before": null,
+"after": {
+"id": "I7",
+"kind": "relay",
+"repo": null,
+"path": "../additional/pc-overseer/relays/2026-10-05-l4-nemotron-addendum.md",
+"form": "copy",
+"state": "no-repo",
+"commit": null,
+"ref": null,
+"upstream": null,
+"claimed": null,
+"sha256": "990cd3626bb182358db3294cd3a46046014d95e3644ba584dd1348320dc10b18",
+"copy": "I7-2026-10-05-l4-nemotron-addendum.md.txt",
+"link": false,
+"read_at": "2026-10-05T08:38:09Z",
+"step": "implement",
+"why": "founder adds NVIDIA Nemotron 3 Nano 4B (unsloth Q4_K_M, nemotron_h, NVIDIA Open Model License); thinking off via enable_thinking kwarg + -rea off; sampling 0.6/0.95 min_p 0; same legs after the in-flight confirmation; rule G3 retired over six rows"
+}
+}
+]

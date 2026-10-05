@@ -1,0 +1,138 @@
+[
+{
+"sql": "SELECT caller, file, line FROM calls WHERE callee_name = 'build_llama_cli_args' AND callee_kind = 'fn' ORDER BY file, line;",
+"rows": 12,
+"result": [
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 crate/",
+"file": "pulse-app/examples/l4_decision_probe.rs",
+"line": 82
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 generate().",
+"file": "pulse-app/examples/l4_decision_probe.rs",
+"line": 746
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 llamacli_inference/impl#[LlamaCliInference][LlmInferenceRunner]generate_constrained().",
+"file": "pulse-app/src/llamacli_inference.rs",
+"line": 758
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 crate/",
+"file": "pulse-app/tests/unit_llamacli_inference.rs",
+"line": 34
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 spawn_args_contain_max_tokens_cap_arg().",
+"file": "pulse-app/tests/unit_llamacli_inference.rs",
+"line": 48
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 spawn_args_contain_single_turn_flag().",
+"file": "pulse-app/tests/unit_llamacli_inference.rs",
+"line": 57
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 spawn_args_contain_simple_io_and_no_display_prompt_flags().",
+"file": "pulse-app/tests/unit_llamacli_inference.rs",
+"line": 65
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 spawn_args_contain_model_path_and_schema_file_args().",
+"file": "pulse-app/tests/unit_llamacli_inference.rs",
+"line": 80
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 spawn_args_contain_ngl_routing_per_profile().",
+"file": "pulse-app/tests/unit_llamacli_inference.rs",
+"line": 101
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 spawn_args_contain_ngl_routing_per_profile().",
+"file": "pulse-app/tests/unit_llamacli_inference.rs",
+"line": 108
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 spawn_args_contain_prompt_via_p_arg().",
+"file": "pulse-app/tests/unit_llamacli_inference.rs",
+"line": 121
+},
+{
+"caller": "rust-analyzer cargo pulse-app 0.1.0 spawn_args_contain_log_disable_flag().",
+"file": "pulse-app/tests/unit_llamacli_inference.rs",
+"line": 416
+}
+],
+"db_state": "fresh",
+"plane": "rust"
+},
+{
+"sql": "SELECT callee_name, file, line FROM refs WHERE callee_name IN ('LLAMA_CLI_TIMEOUT','DEFAULT_MAX_TOKENS') ORDER BY file, line;",
+"rows": 12,
+"result": [
+{
+"callee_name": "DEFAULT_MAX_TOKENS",
+"file": "pulse-app/examples/l4_decision_probe.rs",
+"line": 81
+},
+{
+"callee_name": "LLAMA_CLI_TIMEOUT",
+"file": "pulse-app/examples/l4_decision_probe.rs",
+"line": 81
+},
+{
+"callee_name": "DEFAULT_MAX_TOKENS",
+"file": "pulse-app/examples/l4_decision_probe.rs",
+"line": 749
+},
+{
+"callee_name": "LLAMA_CLI_TIMEOUT",
+"file": "pulse-app/examples/l4_decision_probe.rs",
+"line": 764
+},
+{
+"callee_name": "DEFAULT_MAX_TOKENS",
+"file": "pulse-app/src/llamacli_inference.rs",
+"line": 761
+},
+{
+"callee_name": "LLAMA_CLI_TIMEOUT",
+"file": "pulse-app/src/llamacli_inference.rs",
+"line": 783
+},
+{
+"callee_name": "DEFAULT_MAX_TOKENS",
+"file": "pulse-app/tests/unit_llamacli_inference.rs",
+"line": 31
+},
+{
+"callee_name": "DEFAULT_MAX_TOKENS",
+"file": "pulse-app/tests/unit_llamacli_inference.rs",
+"line": 57
+},
+{
+"callee_name": "DEFAULT_MAX_TOKENS",
+"file": "pulse-app/tests/unit_llamacli_inference.rs",
+"line": 65
+},
+{
+"callee_name": "DEFAULT_MAX_TOKENS",
+"file": "pulse-app/tests/unit_llamacli_inference.rs",
+"line": 80
+},
+{
+"callee_name": "DEFAULT_MAX_TOKENS",
+"file": "pulse-app/tests/unit_llamacli_inference.rs",
+"line": 121
+},
+{
+"callee_name": "DEFAULT_MAX_TOKENS",
+"file": "pulse-app/tests/unit_llamacli_inference.rs",
+"line": 416
+}
+],
+"db_state": "fresh",
+"plane": "rust"
+}
+]

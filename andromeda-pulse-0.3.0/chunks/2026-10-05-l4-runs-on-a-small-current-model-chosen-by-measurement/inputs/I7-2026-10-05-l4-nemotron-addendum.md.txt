@@ -1,0 +1,32 @@
+# Founder 2026-10-05: add NVIDIA Nemotron 3 Nano 4B to the L4 series (relay to pulse-builder)
+
+Overseer relay. Snapshot this file as a chunk input (D7) before acting on it.
+
+**Ruling, verbatim:** «Давай все же еще немотрон потестим» (after the earlier «Давай посмотрим на результаты этих и потом подумаем
+надо ли нам это»).
+
+## The candidate (measured 2026-10-05 unless marked DOCUMENT)
+
+- File: `unsloth/NVIDIA-Nemotron-3-Nano-4B-GGUF` → `NVIDIA-Nemotron-3-Nano-4B-Q4_K_M.gguf` (HF API listing, measured). NVIDIA's own
+  repo names its file `NVIDIA-Nemotron3-Nano-4B-Q4_K_M.gguf`, 2.84 GB (DOCUMENT, model card). Use the unsloth file for consistency with
+  the other four; record its sha256 at download.
+- Architecture: hybrid Mamba-Transformer (`nemotron_h`; b9305's `src/llama-arch.cpp` lists `nemotron_h`, measured). Prove the load.
+- License: **NVIDIA Nemotron Open Model License** (not Apache-2.0) — record it in the table; it is a distribution question for the
+  founder only if this model wins.
+- Thinking: ON by default. Off = `enable_thinking=False` in the chat template (DOCUMENT, the model README: "If you'd like to use
+  reasoning off, add enable_thinking=False to apply_chat_template(). By default, enable_thinking is set to be True.") → llama.cpp
+  `--chat-template-kwargs '{"enable_thinking":false}'` plus `-rea off`. Measure that no thinking appears (your `thinking` field).
+- Sampling (DOCUMENT, the model README): "temperature=1.0 and top_p=0.95 are recommended for reasoning tasks, while temperature=0.6
+  and top_p=0.95 are recommended for tool calling." No non-reasoning value is given; use the **tool-calling** pair (0.6 / 0.95) as
+  the closest class to grammar-constrained structured output, min_p 0, and top_k as your addendum already chose for the models whose
+  card states none (say which). Grammar: the same GBNF `--grammar-file` as the others.
+
+## How it enters the series
+
+1. A further addendum, written and timestamped BEFORE any Nemotron run, carrying the above.
+2. Do not disturb the Qwen3.5-2B / Gemma E2B confirmation already in flight; Nemotron runs after it.
+3. Nemotron runs the same legs the others ran: CUDA load, CPU-only (record-only, G3 retired), selection n=40 on S1–S4.
+4. Apply the same rule (G3 retired) over all six rows. If Nemotron becomes the pick (lighter than Qwen3.5-2B and rank1 >= 36), it
+   needs its own fresh confirmation (n=40 + S5/S6) before it can ship; otherwise, if it reaches rank1 >= 36, run it in a fresh
+   confirmation as a RECORD-ONLY comparator like Gemma E2B, so the founder sees three confirmed rows.
+5. One final table: model · selection rank1 · confirmation rank1 · S5/S6 · GPU p50/max · RSS · VRAM · CPU p50/max · license.

@@ -9,7 +9,10 @@
 //! prebuilt `llama-cli.exe` binaries (b9305-pinned series) via
 //! `tokio::process::Command` with FOUR-bound defense discipline:
 //! `kill_on_drop(true)` + explicit `-n {max_tokens}` cap + `-st`
-//! single-turn flag + outer `tokio::time::timeout` wall-clock guard.
+//! single-turn flag + outer `tokio::time::timeout` wall-clock guard. The
+//! argv also pins `-c 8192` (the footprint follows the weights, not the
+//! model's training context) and `-rea off` (no thinking pass printed to
+//! stdout ahead of the JSON).
 //!
 //! Tier routing follows chunk #80 `HardwareProfileSource` output:
 //! GPU-primary / GPU-fallback → CUDA binary + `-ngl 99`; CPU-primary
@@ -92,6 +95,19 @@ pub const LLAMA_CLI_MAX_OUTPUT_BYTES: usize = 64 * 1024;
 /// Default token cap for `-n` arg when caller does not specify. Sized
 /// for L4 envelope (typical ~530 bytes / ~250-tok schema-conformant JSON).
 pub const DEFAULT_MAX_TOKENS: u32 = 1024;
+
+/// Context size passed as `-c`. Without it b9305 runs the model's
+/// TRAINING context, shrunk only to fit free device memory, so the
+/// resident footprint tracks the model's context length rather than its
+/// weights. 8192 covers the largest measured prompt (~2k tokens) plus the
+/// `DEFAULT_MAX_TOKENS` generation with headroom.
+pub const LLAMA_CLI_CTX_SIZE: u32 = 8192;
+
+/// Value passed with `-rea`. b9305 prints a thinking pass to stdout AHEAD
+/// of the content, and `extract_json_object_bounded` takes the first `{`,
+/// so reasoning text is a parse hazard. `off` reaches only chat templates
+/// that support `enable_thinking`; on others the switch is a no-op.
+pub const LLAMA_CLI_REASONING: &str = "off";
 
 /// GPU layer-offload count for CUDA build (all layers offloaded to VRAM).
 const NGL_GPU: u32 = 99;
@@ -402,6 +418,11 @@ fn stdout_snippet(stdout: &str) -> String {
 /// The `kill_on_drop(true)` discipline is applied at the `Command` level
 /// (not encoded in args); the unit test asserts it separately via the
 /// `LlamaCliInference` construction path.
+///
+/// `-c {LLAMA_CLI_CTX_SIZE}` pins the resident footprint independent of the
+/// model's training context, and `-rea {LLAMA_CLI_REASONING}` keeps a
+/// thinking pass off stdout ahead of the JSON. Both are first-party
+/// constants.
 pub fn build_llama_cli_args(
     model_path: &Path,
     ngl: u32,
@@ -414,6 +435,10 @@ pub fn build_llama_cli_args(
         model_path.to_string_lossy().into_owned(),
         "-ngl".to_string(),
         ngl.to_string(),
+        "-c".to_string(),
+        LLAMA_CLI_CTX_SIZE.to_string(),
+        "-rea".to_string(),
+        LLAMA_CLI_REASONING.to_string(),
         "-st".to_string(),
         "--simple-io".to_string(),
         "--no-display-prompt".to_string(),

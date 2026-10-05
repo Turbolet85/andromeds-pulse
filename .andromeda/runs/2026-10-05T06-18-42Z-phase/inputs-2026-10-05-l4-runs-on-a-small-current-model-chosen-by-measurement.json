@@ -1,0 +1,219 @@
+[
+{
+"tool": "inputs",
+"v": "1.0",
+"sha8": "faa48d4e",
+"ts": "2026-10-05T06:19:34Z",
+"argv": [
+"snap",
+"--chunk-dir",
+"andromeda-pulse-0.3.0/chunks/2026-10-05-l4-runs-on-a-small-current-model-chosen-by-measurement",
+"--message-file",
+".andromeda/runs/2026-10-05T06-18-42Z-phase/relay-1.md",
+"--origin",
+"overseer (founder-delegated), /andromeda-phase args, 2026-10-05",
+"--kind",
+"relay",
+"--why",
+"model slot + 4317/4318 granted; b9305 arch-name grep is the overseer measurement, prove each load; criteria footprint, no thinking, then quality; daytime only",
+"--step",
+"phase:P1",
+"--run-dir",
+".andromeda/runs/2026-10-05T06-18-42Z-phase",
+"--marker",
+"2026-10-05-l4-runs-on-a-small-current-model-chosen-by-measurement"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"snapped I1 · copy message · message: overseer (founder-delegated), /andromeda-phase args, 2026-10-05",
+"cite: inputs#I1"
+],
+"stderr": null,
+"wrote": [
+"inputs/.gitattributes",
+"inputs/I1-relay-1.md.txt",
+"inputs/andromeda-inputs.json"
+],
+"before": null,
+"after": {
+"id": "I1",
+"kind": "relay",
+"repo": null,
+"path": "message: overseer (founder-delegated), /andromeda-phase args, 2026-10-05",
+"form": "copy",
+"state": "message",
+"commit": null,
+"ref": null,
+"upstream": null,
+"claimed": null,
+"sha256": "d930ce879c4aa331ca3731528646f797937b8cdc52de143e6b28a7a3cd4eefd6",
+"copy": "I1-relay-1.md.txt",
+"link": false,
+"read_at": "2026-10-05T06:19:34Z",
+"step": "phase:P1",
+"why": "model slot + 4317/4318 granted; b9305 arch-name grep is the overseer measurement, prove each load; criteria footprint, no thinking, then quality; daytime only"
+}
+},
+{
+"tool": "inputs",
+"v": "1.0",
+"sha8": "faa48d4e",
+"ts": "2026-10-05T06:19:34Z",
+"argv": [
+"snap",
+"--chunk-dir",
+"andromeda-pulse-0.3.0/chunks/2026-10-05-l4-runs-on-a-small-current-model-chosen-by-measurement",
+"--source",
+"/home/turbolet/dev/tools/llama.cpp-b9305/src/llama-arch.cpp",
+"--kind",
+"sibling",
+"--why",
+"b9305 llama-arch.cpp names LLM_ARCH_QWEN35 \"qwen35\" (:42) and LLM_ARCH_GEMMA4 \"gemma4\" (:59) - arch names only, no load test",
+"--step",
+"phase:P1",
+"--run-dir",
+".andromeda/runs/2026-10-05T06-18-42Z-phase",
+"--marker",
+"2026-10-05-l4-runs-on-a-small-current-model-chosen-by-measurement"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"snapped I2 · pointer committed · ~/dev/tools/llama.cpp-b9305:src/llama-arch.cpp",
+"commit 63248fc3 · ref detached · upstream no-upstream",
+"cite: inputs#I2"
+],
+"stderr": null,
+"wrote": [
+"inputs/andromeda-inputs.json"
+],
+"before": null,
+"after": {
+"id": "I2",
+"kind": "sibling",
+"repo": "~/dev/tools/llama.cpp-b9305",
+"path": "src/llama-arch.cpp",
+"form": "pointer",
+"state": "committed",
+"commit": "63248fc3e33e6f3b579dce6a743fd6ce8939af9c",
+"ref": "detached",
+"upstream": "no-upstream",
+"claimed": null,
+"sha256": "58bd8e3cdc95c23eec09073b8eb9211599704e9cebf0082e2eba9c9697315acd",
+"copy": null,
+"link": false,
+"read_at": "2026-10-05T06:19:34Z",
+"step": "phase:P1",
+"why": "b9305 llama-arch.cpp names LLM_ARCH_QWEN35 \"qwen35\" (:42) and LLM_ARCH_GEMMA4 \"gemma4\" (:59) - arch names only, no load test"
+}
+},
+{
+"tool": "inputs",
+"v": "1.0",
+"sha8": "faa48d4e",
+"ts": "2026-10-05T06:29:45Z",
+"argv": [
+"snap",
+"--chunk-dir",
+"andromeda-pulse-0.3.0/chunks/2026-10-05-l4-runs-on-a-small-current-model-chosen-by-measurement",
+"--message-file",
+".andromeda/runs/2026-10-05T06-18-42Z-phase/relay-2.md",
+"--origin",
+"huggingface.co model API, fetched by phase P3 2026-10-05",
+"--kind",
+"relay",
+"--why",
+"the four unsloth candidate repos exist; each card reads license apache-2.0; Q4_K_M file names, sizes, lfs sha256 and repo shas",
+"--step",
+"phase:P3",
+"--run-dir",
+".andromeda/runs/2026-10-05T06-18-42Z-phase",
+"--marker",
+"2026-10-05-l4-runs-on-a-small-current-model-chosen-by-measurement"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"snapped I3 · copy message · message: huggingface.co model API, fetched by phase P3 2026-10-05",
+"cite: inputs#I3"
+],
+"stderr": null,
+"wrote": [
+"inputs/I3-relay-2.md.txt",
+"inputs/andromeda-inputs.json"
+],
+"before": null,
+"after": {
+"id": "I3",
+"kind": "relay",
+"repo": null,
+"path": "message: huggingface.co model API, fetched by phase P3 2026-10-05",
+"form": "copy",
+"state": "message",
+"commit": null,
+"ref": null,
+"upstream": null,
+"claimed": null,
+"sha256": "b707299c81523965c88fcbc33d2d91ccfcc7fab79ffc8c7f2b6473f2d36693a6",
+"copy": "I3-relay-2.md.txt",
+"link": false,
+"read_at": "2026-10-05T06:29:44Z",
+"step": "phase:P3",
+"why": "the four unsloth candidate repos exist; each card reads license apache-2.0; Q4_K_M file names, sizes, lfs sha256 and repo shas"
+}
+},
+{
+"tool": "inputs",
+"v": "1.0",
+"sha8": "faa48d4e",
+"ts": "2026-10-05T06:30:05Z",
+"argv": [
+"snap",
+"--chunk-dir",
+"andromeda-pulse-0.3.0/chunks/2026-10-05-l4-runs-on-a-small-current-model-chosen-by-measurement",
+"--source",
+"/home/turbolet/dev/projects/additional/pc-overseer/l4-env.sh",
+"--kind",
+"sibling",
+"--why",
+"the real-L4 env the prior series sourced: MODEL_PATH pinned to the Llama-3.2-3B GGUF; CUDA and CPU bin vars both the b9305 CUDA build (CPU route = -ngl 0)",
+"--step",
+"phase:P3",
+"--run-dir",
+".andromeda/runs/2026-10-05T06-18-42Z-phase",
+"--marker",
+"2026-10-05-l4-runs-on-a-small-current-model-chosen-by-measurement"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"snapped I4 · copy no-repo · ../additional/pc-overseer/l4-env.sh",
+"cite: inputs#I4"
+],
+"stderr": null,
+"wrote": [
+"inputs/I4-l4-env.sh.txt",
+"inputs/andromeda-inputs.json"
+],
+"before": null,
+"after": {
+"id": "I4",
+"kind": "sibling",
+"repo": null,
+"path": "../additional/pc-overseer/l4-env.sh",
+"form": "copy",
+"state": "no-repo",
+"commit": null,
+"ref": null,
+"upstream": null,
+"claimed": null,
+"sha256": "4a28d0fdd0c8fb6dcfb68259fd2dd85610da5e3bdf6ccd25b946c7ade4f77647",
+"copy": "I4-l4-env.sh.txt",
+"link": false,
+"read_at": "2026-10-05T06:30:05Z",
+"step": "phase:P3",
+"why": "the real-L4 env the prior series sourced: MODEL_PATH pinned to the Llama-3.2-3B GGUF; CUDA and CPU bin vars both the b9305 CUDA build (CPU route = -ngl 0)"
+}
+}
+]

@@ -4,7 +4,7 @@
 //!
 //! ```text
 //! cargo build -p pulse-app --example l4_decision_probe
-//! ./target/debug/examples/l4_decision_probe[.exe] --arms A0,A1,A2,A3,A4,A5 [--shapes S1,S2,S3,S4] --n 10 [--min 27] [--min-rank1 36] [--out DIR] [--dry-run]
+//! ./target/debug/examples/l4_decision_probe[.exe] --arms A0,A1,A2,A3,A4,A5 [--shapes S1,S2,S3,S4] --n 10 [--min 27] [--min-rank1 36] [--out DIR] [--footprint] [--gbnf FILE] [--dry-run]
 //! ```
 //!
 //! Inputs come from the product's own guarded resolution: the hardware
@@ -36,6 +36,15 @@
 //! stem forms (`retries`, `retried`); it is recorded only and never feeds a
 //! verdict.
 //!
+//! Footprint readings, per row and as one `footprint` summary line per arm:
+//! `thinking` (`present` when the raw stdout carries b9305's
+//! `[Start thinking]` marker, `absent` when not, `unread` when no stdout was
+//! captured), `elapsed_ms` (spawn to reap, failed rows included),
+//! `peak_rss_kib` (the child's `VmHWM` polled from `/proc/{pid}/status`,
+//! Linux only) and, with `--footprint`, `peak_vram_mib` (the child's largest
+//! `used_memory` polled from `nvidia-smi`). An unread value is `null` in the
+//! rows and `-` in the summary.
+//!
 //! Shapes S1-S3 are retry storms on one service each; S4 is S1 plus one
 //! corpus match (an older, active error-rate-spike incident on another
 //! service), rendered through the real `format_corpus_match_line`. S5 is a
@@ -59,6 +68,12 @@
 //!   removed: the digest's TRIGGER line, its corpus framing note and the
 //!   prompt's framing instruction (the no-framing counterfactual)
 //! - `shipped` — the tree as it is, no transform (the post-fix re-measure)
+//! - `nr` — `shipped` with the `-rea off` pair removed from the argv (does
+//!   the model think when the product does not pass the switch?)
+//! - `gb` — `shipped` with `--json-schema-file` swapped for
+//!   `--grammar-file {--gbnf}`: b9305 prefills a thinking template's
+//!   generation prompt into a schema grammar (rejected, so sampler init
+//!   fails) but never into a user grammar
 //! - `R1` — the framing instruction reworded to oblige the first hypothesis
 //!   statement to name the TRIGGER line's signal in its own words
 //! - `R3` — one conventions sentence carrying the same obligation
@@ -73,6 +88,7 @@ use std::collections::{BTreeMap, BTreeSet};
 use std::hash::{Hash, Hasher};
 use std::path::{Path, PathBuf};
 use std::process::{ExitCode, Stdio};
+use std::sync::{Arc, Mutex};
 use std::time::{Duration, Instant};
 
 use interpretation::hardware::HardwareProfileDetector;
@@ -92,8 +108,28 @@ use triage::contract::{
     format_corpus_match_line, render_payload,
 };
 
-const ARMS: [&str; 14] = [
-    "A0", "A1", "A2", "A3", "A4", "A5", "nf", "shipped", "R1", "R3", "R2", "R1R3", "R1R2", "R3R2",
+const ARMS: [&str; 16] = [
+    "A0", "A1", "A2", "A3", "A4", "A5", "nf", "shipped", "nr", "gb", "R1", "R3", "R2", "R1R3",
+    "R1R2", "R3R2",
+];
+// b9305 `tools/cli/cli.cpp` prints a reasoning pass to stdout between
+// `[Start thinking]` and `[End thinking]`, ahead of the content.
+const THINKING_MARKER: &str = "[Start thinking]";
+// The only llama-cli flags `--sampling` may carry: a model's sampling values
+// and its chat-template kwargs, never a path, a grammar or a model.
+const SAMPLING_FLAGS: [&str; 6] = [
+    "--temp",
+    "--top-p",
+    "--top-k",
+    "--min-p",
+    "--presence-penalty",
+    "--chat-template-kwargs",
+];
+const RSS_POLL_INTERVAL: Duration = Duration::from_millis(100);
+const VRAM_POLL_INTERVAL: Duration = Duration::from_millis(250);
+const NVIDIA_SMI_ARGS: [&str; 2] = [
+    "--query-compute-apps=pid,used_memory",
+    "--format=csv,noheader,nounits",
 ];
 const DEFAULT_SHAPES: [&str; 4] = ["S1", "S2", "S3", "S4"];
 // `crate::cadence::mode_label(CadenceMode::Tier1)` — a storm cue always takes
@@ -144,6 +180,10 @@ struct Args {
     min_rank1: Option<u32>,
     out: PathBuf,
     dry_run: bool,
+    footprint: bool,
+    gbnf: Option<PathBuf>,
+    /// Validated `--sampling` flag/value tokens, appended to every arm's argv.
+    sampling: Vec<String>,
 }
 
 struct Prepared {
@@ -153,6 +193,10 @@ struct Prepared {
     prompt: String,
     schema: String,
     extra_args: Vec<String>,
+    /// Flags removed from the production argv together with their value.
+    drop_flags: Vec<&'static str>,
+    /// The arm passes the `--gbnf` file as `--grammar-file`.
+    grammar_file: bool,
 }
 
 fn row(service: &str, rate: f64, error_rate: f64, p99: f64) -> DigestServiceRow {
@@ -412,8 +456,11 @@ fn prepare(arm: &str, shape: &Shape) -> Result<Prepared, String> {
     }
     let mut schema = L4_OUTPUT_JSON_SCHEMA.to_string();
     let mut extra_args = Vec::new();
+    let mut drop_flags = Vec::new();
     match arm {
         "A1" => extra_args.extend(["--temp".to_string(), "0".to_string()]),
+        "nr" => drop_flags.push("-rea"),
+        "gb" => drop_flags.push("--json-schema-file"),
         "A4" => {
             if prompt.matches(A4_ANCHOR).count() != 1 {
                 return Err("A4: conventions anchor not found exactly once".to_string());
@@ -446,6 +493,8 @@ fn prepare(arm: &str, shape: &Shape) -> Result<Prepared, String> {
         prompt,
         schema,
         extra_args,
+        drop_flags,
+        grammar_file: arm == "gb",
     })
 }
 
@@ -732,9 +781,112 @@ fn severity_label(s: Severity) -> &'static str {
     }
 }
 
+/// Footprint readings of one generation; `None` is an unread value.
+#[derive(Clone, Copy)]
+struct Metrics {
+    elapsed_ms: u64,
+    peak_rss_kib: Option<u64>,
+    peak_vram_mib: Option<u64>,
+}
+
 enum Spawned {
-    Output(String),
-    Failed(&'static str),
+    Output(String, Metrics),
+    Failed(&'static str, Metrics),
+}
+
+/// `present` when the raw stdout carries the b9305 thinking marker, `absent`
+/// when it does not, `unread` when no stdout was captured.
+fn thinking_label(stdout: Option<&str>) -> &'static str {
+    match stdout {
+        Some(text) if text.contains(THINKING_MARKER) => "present",
+        Some(_) => "absent",
+        None => "unread",
+    }
+}
+
+/// The `VmHWM` (peak resident set) value of a `/proc/{pid}/status` text, in KiB.
+fn parse_vm_hwm_kib(status: &str) -> Option<u64> {
+    status
+        .lines()
+        .find_map(|l| l.strip_prefix("VmHWM:"))
+        .and_then(|v| v.trim().strip_suffix("kB"))
+        .and_then(|v| v.trim().parse().ok())
+}
+
+/// The largest `used_memory` (MiB) listed for `pid` in
+/// `nvidia-smi --query-compute-apps=pid,used_memory --format=csv,noheader,nounits`.
+fn parse_vram_mib(csv: &str, pid: u32) -> Option<u64> {
+    csv.lines()
+        .filter_map(|l| l.split_once(','))
+        .filter(|(p, _)| p.trim().parse::<u32>().ok() == Some(pid))
+        .filter_map(|(_, used)| used.trim().parse::<u64>().ok())
+        .max()
+}
+
+fn read_vm_hwm_kib(pid: u32) -> Option<u64> {
+    if cfg!(target_os = "linux") {
+        std::fs::read_to_string(format!("/proc/{pid}/status"))
+            .ok()
+            .as_deref()
+            .and_then(parse_vm_hwm_kib)
+    } else {
+        None
+    }
+}
+
+async fn read_vram_mib(pid: u32) -> Option<u64> {
+    let out = tokio::process::Command::new("nvidia-smi")
+        .args(NVIDIA_SMI_ARGS)
+        .kill_on_drop(true)
+        .stdin(Stdio::null())
+        .stderr(Stdio::null())
+        .output()
+        .await
+        .ok()?;
+    parse_vram_mib(std::str::from_utf8(&out.stdout).ok()?, pid)
+}
+
+fn record_peak(peak: &Mutex<Option<u64>>, value: Option<u64>) {
+    if let (Some(v), Ok(mut p)) = (value, peak.lock()) {
+        *p = Some(p.map_or(v, |old| old.max(v)));
+    }
+}
+
+fn read_peak(peak: &Mutex<Option<u64>>) -> Option<u64> {
+    peak.lock().ok().and_then(|p| *p)
+}
+
+/// The production argv for one generation, with the arm's dropped flags
+/// (each with its value) removed and its extra args appended; a
+/// `grammar_file` arm also appends `--grammar-file {gbnf}`.
+fn compose_argv(
+    prepared: &Prepared,
+    model: &Path,
+    ngl: u32,
+    schema_path: &Path,
+    gbnf: Option<&Path>,
+) -> Vec<String> {
+    let mut args = build_llama_cli_args(
+        model,
+        ngl,
+        DEFAULT_MAX_TOKENS,
+        schema_path,
+        &prepared.prompt,
+    );
+    for flag in &prepared.drop_flags {
+        if let Some(at) = args.iter().position(|a| a == flag) {
+            let end = (at + 2).min(args.len());
+            args.drain(at..end);
+        }
+    }
+    args.extend(prepared.extra_args.iter().cloned());
+    if let (true, Some(gbnf)) = (prepared.grammar_file, gbnf) {
+        args.extend([
+            "--grammar-file".to_string(),
+            gbnf.to_string_lossy().into_owned(),
+        ]);
+    }
+    args
 }
 
 async fn generate(
@@ -743,24 +895,46 @@ async fn generate(
     ngl: u32,
     prepared: &Prepared,
     schema_path: &Path,
+    gbnf: Option<&Path>,
+    footprint: bool,
 ) -> Spawned {
-    let mut args = build_llama_cli_args(
-        model,
-        ngl,
-        DEFAULT_MAX_TOKENS,
-        schema_path,
-        &prepared.prompt,
-    );
-    args.extend(prepared.extra_args.iter().cloned());
+    let args = compose_argv(prepared, model, ngl, schema_path, gbnf);
     let mut cmd = tokio::process::Command::new(binary);
     cmd.args(&args)
         .kill_on_drop(true)
         .stdin(Stdio::null())
         .stdout(Stdio::piped())
         .stderr(Stdio::null());
-    let Ok(mut child) = cmd.spawn() else {
-        return Spawned::Failed("spawn_failed");
+    let started = Instant::now();
+    let unread = |started: Instant| Metrics {
+        elapsed_ms: u64::try_from(started.elapsed().as_millis()).unwrap_or(u64::MAX),
+        peak_rss_kib: None,
+        peak_vram_mib: None,
     };
+    let Ok(mut child) = cmd.spawn() else {
+        return Spawned::Failed("spawn_failed", unread(started));
+    };
+    let rss_peak = Arc::new(Mutex::new(None));
+    let vram_peak = Arc::new(Mutex::new(None));
+    let mut pollers = Vec::new();
+    if let Some(pid) = child.id() {
+        let peak = Arc::clone(&rss_peak);
+        pollers.push(tokio::spawn(async move {
+            loop {
+                record_peak(&peak, read_vm_hwm_kib(pid));
+                tokio::time::sleep(RSS_POLL_INTERVAL).await;
+            }
+        }));
+        if footprint {
+            let peak = Arc::clone(&vram_peak);
+            pollers.push(tokio::spawn(async move {
+                loop {
+                    record_peak(&peak, read_vram_mib(pid).await);
+                    tokio::time::sleep(VRAM_POLL_INTERVAL).await;
+                }
+            }));
+        }
+    }
     let stdout = child.stdout.take();
     let waited = tokio::time::timeout(LLAMA_CLI_TIMEOUT, async move {
         let mut buf = Vec::new();
@@ -770,19 +944,66 @@ async fn generate(
         (child.wait().await, buf)
     })
     .await;
+    for poller in &pollers {
+        poller.abort();
+    }
+    let metrics = Metrics {
+        peak_rss_kib: read_peak(&rss_peak),
+        peak_vram_mib: read_peak(&vram_peak),
+        ..unread(started)
+    };
     let Ok((status, bytes)) = waited else {
-        return Spawned::Failed("timeout");
+        return Spawned::Failed("timeout", metrics);
     };
     if !status.map(|s| s.success()).unwrap_or(false) {
-        return Spawned::Failed("exit_failure");
+        return Spawned::Failed("exit_failure", metrics);
     }
     if bytes.len() > LLAMA_CLI_MAX_OUTPUT_BYTES {
-        return Spawned::Failed("output_too_large");
+        return Spawned::Failed("output_too_large", metrics);
     }
     match String::from_utf8(bytes) {
-        Ok(text) => Spawned::Output(text),
-        Err(_) => Spawned::Failed("stdout_utf8_invalid"),
+        Ok(text) => Spawned::Output(text, metrics),
+        Err(_) => Spawned::Failed("stdout_utf8_invalid", metrics),
     }
+}
+
+/// Nearest-rank median.
+fn p50(values: &[u64]) -> Option<u64> {
+    let mut sorted = values.to_vec();
+    sorted.sort_unstable();
+    let rank = sorted.len().div_ceil(2);
+    rank.checked_sub(1).and_then(|i| sorted.get(i).copied())
+}
+
+fn reading(value: Option<u64>) -> String {
+    value.map_or_else(|| "-".to_string(), |v| v.to_string())
+}
+
+/// `--sampling '--temp 0.7 --top-p 0.8 …'`: whitespace-separated flag/value
+/// pairs, each flag in `SAMPLING_FLAGS`, each value a finite number except
+/// `--chat-template-kwargs`, whose value is a JSON object.
+fn parse_sampling(value: &str) -> Result<Vec<String>, String> {
+    let tokens: Vec<&str> = value.split_whitespace().collect();
+    if !tokens.len().is_multiple_of(2) {
+        return Err("--sampling takes flag value pairs".to_string());
+    }
+    let mut out = Vec::new();
+    for pair in tokens.chunks(2) {
+        let (flag, v) = (pair[0], pair[1]);
+        if !SAMPLING_FLAGS.contains(&flag) {
+            return Err(format!("--sampling: unsupported flag {flag}"));
+        }
+        let ok = if flag == "--chat-template-kwargs" {
+            serde_json::from_str::<Value>(v).is_ok_and(|j| j.is_object())
+        } else {
+            v.parse::<f64>().is_ok_and(f64::is_finite)
+        };
+        if !ok {
+            return Err(format!("--sampling: bad value for {flag}"));
+        }
+        out.extend([flag.to_string(), v.to_string()]);
+    }
+    Ok(out)
 }
 
 fn parse_args() -> Result<Args, String> {
@@ -797,10 +1018,17 @@ fn parse_args_from(argv: impl IntoIterator<Item = String>) -> Result<Args, Strin
     let mut min_rank1 = None;
     let mut out = None;
     let mut dry_run = false;
+    let mut footprint = false;
+    let mut gbnf = None;
+    let mut sampling = Vec::new();
     let mut it = argv.into_iter();
     while let Some(flag) = it.next() {
         if flag == "--dry-run" {
             dry_run = true;
+            continue;
+        }
+        if flag == "--footprint" {
+            footprint = true;
             continue;
         }
         let value = it.next().ok_or_else(|| format!("{flag} needs a value"))?;
@@ -827,6 +1055,8 @@ fn parse_args_from(argv: impl IntoIterator<Item = String>) -> Result<Args, Strin
                 min_rank1 = Some(value.parse().map_err(|_| "--min-rank1 takes a number")?)
             }
             "--out" => out = Some(PathBuf::from(value)),
+            "--gbnf" => gbnf = Some(PathBuf::from(value)),
+            "--sampling" => sampling = parse_sampling(&value)?,
             other => return Err(format!("unknown flag {other}")),
         }
     }
@@ -842,6 +1072,9 @@ fn parse_args_from(argv: impl IntoIterator<Item = String>) -> Result<Args, Strin
         min_rank1,
         out,
         dry_run,
+        footprint,
+        gbnf,
+        sampling,
     })
 }
 
@@ -883,22 +1116,30 @@ async fn main() -> ExitCode {
         }
     }
 
+    for p in &mut prepared {
+        p.extra_args.extend(args.sampling.iter().cloned());
+    }
+
     if args.dry_run {
         // Composes every arm's prompt and spawns nothing: proves the transforms
         // apply and every prompt passes the production bound before a slot.
         for p in &prepared {
+            let listed = |items: Vec<String>| {
+                if items.is_empty() {
+                    "none".to_string()
+                } else {
+                    items.join(" ")
+                }
+            };
             println!(
-                "dry-run: arm {} {}: prompt {} bytes (max {}) · schema {} bytes · extra args {}",
+                "dry-run: arm {} {}: prompt {} bytes (max {}) · schema {} bytes · extra args {} · dropped args {}",
                 p.arm,
                 p.shape,
                 p.prompt.len(),
                 MAX_PROMPT_BYTES,
                 p.schema.len(),
-                if p.extra_args.is_empty() {
-                    "none".to_string()
-                } else {
-                    p.extra_args.join(" ")
-                }
+                listed(p.extra_args.clone()),
+                listed(p.drop_flags.iter().map(|f| f.to_string()).collect()),
             );
         }
         return ExitCode::SUCCESS;
@@ -922,6 +1163,21 @@ async fn main() -> ExitCode {
         }
     }
     let (binary, model) = (resolved[0].clone(), resolved[1].clone());
+    if prepared.iter().any(|p| p.grammar_file) {
+        match args.gbnf.as_deref() {
+            Some(g) if g.is_file() => println!("l4-decision-probe: gbnf {}", basename(g)),
+            Some(_) => return inconclusive("--gbnf is not a file"),
+            None => return inconclusive("arm gb needs --gbnf"),
+        }
+    }
+    println!(
+        "l4-decision-probe: sampling {}",
+        if args.sampling.is_empty() {
+            "default".to_string()
+        } else {
+            args.sampling.join(" ")
+        }
+    );
     println!(
         "l4-decision-probe: binary {} ({binary_kind}, -ngl {ngl}) · model {} · arms {} · shapes {} · n {} per shape",
         basename(&binary),
@@ -953,20 +1209,43 @@ async fn main() -> ExitCode {
         let mut rank1_per_shape: BTreeMap<&'static str, u32> = BTreeMap::new();
         let mut stem_counts: BTreeMap<&'static str, u32> = BTreeMap::new();
         let mut stem_rank1_per_shape: BTreeMap<&'static str, u32> = BTreeMap::new();
+        let mut thinking_present = 0u32;
+        let mut elapsed: Vec<u64> = Vec::new();
+        let mut rss_max: Option<u64> = None;
+        let mut vram_max: Option<u64> = None;
         for p in prepared.iter().filter(|p| &p.arm == arm) {
             let schema_path = args.out.join(format!("schema-{}.json", p.arm));
             if std::fs::write(&schema_path, &p.schema).is_err() {
                 return inconclusive("schema file not writable");
             }
             for run in 1..=args.n {
-                let outcome = generate(&binary, &model, ngl, p, &schema_path).await;
-                if let Spawned::Failed("spawn_failed") = outcome {
+                let outcome = generate(
+                    &binary,
+                    &model,
+                    ngl,
+                    p,
+                    &schema_path,
+                    args.gbnf.as_deref(),
+                    args.footprint,
+                )
+                .await;
+                if let Spawned::Failed("spawn_failed", _) = outcome {
                     return inconclusive("llama-cli did not spawn");
                 }
+                let (thinking, metrics) = match &outcome {
+                    Spawned::Output(text, m) => (thinking_label(Some(text)), *m),
+                    Spawned::Failed(_, m) => (thinking_label(None), *m),
+                };
+                if thinking == "present" {
+                    thinking_present += 1;
+                }
+                elapsed.push(metrics.elapsed_ms);
+                rss_max = rss_max.max(metrics.peak_rss_kib);
+                vram_max = vram_max.max(metrics.peak_vram_mib);
                 let mut names = names_trigger_label(None, p.trigger);
                 let mut stem = names_trigger_stem_label(None, p.trigger);
                 let (decision, severity, is_rs, keys, digest) = match &outcome {
-                    Spawned::Output(text) => match extract_json_object_bounded(text) {
+                    Spawned::Output(text, _) => match extract_json_object_bounded(text) {
                         Ok(obj) => {
                             let mut h = DefaultHasher::new();
                             obj.hash(&mut h);
@@ -990,7 +1269,7 @@ async fn main() -> ExitCode {
                         }
                         Err(_) => ("parse_failed", "", false, Vec::new(), None),
                     },
-                    Spawned::Failed(why) => (*why, "", false, Vec::new(), None),
+                    Spawned::Failed(why, _) => (*why, "", false, Vec::new(), None),
                 };
                 *names_counts.entry(names).or_default() += 1;
                 if names == "rank1" {
@@ -1019,10 +1298,11 @@ async fn main() -> ExitCode {
                     distinct.entry(p.shape).or_default().insert(d);
                 }
                 eprintln!(
-                    "l4-decision-probe: {} {} run {run}: decision {decision} severity {} would_create {would_create} names_trigger {names} names_trigger_stem {stem}",
+                    "l4-decision-probe: {} {} run {run}: decision {decision} severity {} would_create {would_create} names_trigger {names} names_trigger_stem {stem} thinking {thinking} elapsed_ms {}",
                     p.arm,
                     p.shape,
-                    if severity.is_empty() { "-" } else { severity }
+                    if severity.is_empty() { "-" } else { severity },
+                    metrics.elapsed_ms
                 );
                 rows.push(json!({
                     "arm": p.arm,
@@ -1036,6 +1316,10 @@ async fn main() -> ExitCode {
                     "output_hash": digest.map(|d| format!("{d:016x}")),
                     "names_trigger": names,
                     "names_trigger_stem": stem,
+                    "thinking": thinking,
+                    "elapsed_ms": metrics.elapsed_ms,
+                    "peak_rss_kib": metrics.peak_rss_kib,
+                    "peak_vram_mib": metrics.peak_vram_mib,
                 }));
             }
         }
@@ -1092,6 +1376,13 @@ async fn main() -> ExitCode {
                 &selected,
                 |id| stem_rank1_per_shape.get(id).copied().unwrap_or(0) as usize
             ),
+        );
+        println!(
+            "  arm {arm}: footprint thinking present {thinking_present}/{n_arm} · elapsed_ms p50 {} max {} · peak_rss_kib max {} · peak_vram_mib max {}",
+            reading(p50(&elapsed)),
+            reading(elapsed.iter().copied().max()),
+            reading(rss_max),
+            reading(vram_max),
         );
     }
 
@@ -1473,5 +1764,185 @@ mod tests {
             *d = Value::String(R2_ANCHOR.to_string());
         }
         assert_eq!(parsed, original);
+    }
+
+    #[test]
+    fn thinking_label_set_is_exactly_the_closed_set() {
+        const CLOSED: [&str; 3] = ["present", "absent", "unread"];
+        let seen: BTreeSet<&str> = [
+            Some("[Start thinking]\nhmm\n[End thinking]\n{}"),
+            Some("{}"),
+            None,
+        ]
+        .into_iter()
+        .map(thinking_label)
+        .collect();
+        assert_eq!(seen, CLOSED.into_iter().collect::<BTreeSet<_>>());
+    }
+
+    #[test]
+    fn thinking_reads_present_on_the_b9305_marker() {
+        let stdout =
+            "> prompt\n[Start thinking]\nThe user wants {json}\n[End thinking]\n\n{\"a\":1}";
+        assert_eq!(thinking_label(Some(stdout)), "present");
+    }
+
+    #[test]
+    fn thinking_reads_absent_without_the_marker() {
+        let stdout = "> prompt\n{\"decision\":\"surface\",\"thinking\":\"no\"}\n[ Prompt: 1 t/s ]";
+        assert_eq!(thinking_label(Some(stdout)), "absent");
+    }
+
+    #[test]
+    fn vm_hwm_parser_reads_the_peak_resident_set() {
+        let status =
+            "Name:\tllama-cli\nVmPeak:\t 9876543 kB\nVmHWM:\t 2345678 kB\nVmRSS:\t 2000000 kB\n";
+        assert_eq!(parse_vm_hwm_kib(status), Some(2_345_678));
+    }
+
+    #[test]
+    fn vm_hwm_parser_reads_none_without_the_line() {
+        assert_eq!(
+            parse_vm_hwm_kib("Name:\tllama-cli\nState:\tZ (zombie)\n"),
+            None
+        );
+    }
+
+    #[test]
+    fn vram_parser_keeps_the_max_for_the_child_pid_only() {
+        let csv = "4242, 1834\n999, 9000\n4242, 2100\nbad line\n";
+        assert_eq!(parse_vram_mib(csv, 4242), Some(2100));
+        assert_eq!(parse_vram_mib(csv, 7), None);
+    }
+
+    #[test]
+    fn footprint_flag_is_off_by_default() {
+        let Ok(args) = parse_args_from(argv(&["--n", "2"])) else {
+            panic!("--n 2 parses");
+        };
+        assert!(!args.footprint);
+    }
+
+    #[test]
+    fn footprint_flag_sets_it_without_taking_a_value() {
+        let Ok(args) = parse_args_from(argv(&["--footprint", "--n", "2"])) else {
+            panic!("--footprint --n 2 parses");
+        };
+        assert!(args.footprint);
+        assert_eq!(args.n, 2);
+    }
+
+    #[test]
+    fn nr_arm_removes_exactly_the_reasoning_switch() {
+        let s1 = shape("S1");
+        let (Ok(shipped), Ok(nr)) = (prepare("shipped", &s1), prepare("nr", &s1)) else {
+            panic!("shipped and nr compose");
+        };
+        assert_eq!(nr.prompt, shipped.prompt, "nr varies the argv only");
+        assert_eq!(nr.schema, shipped.schema, "nr varies the argv only");
+        let (model, schema) = (Path::new("/m.gguf"), Path::new("/s.json"));
+        let shipped_argv = compose_argv(&shipped, model, 99, schema, None);
+        let Some(at) = shipped_argv
+            .windows(2)
+            .position(|w| w[0] == "-rea" && w[1] == "off")
+        else {
+            panic!("the shipped argv carries -rea off");
+        };
+        let mut expected = shipped_argv.clone();
+        expected.drain(at..at + 2);
+        assert_eq!(compose_argv(&nr, model, 99, schema, None), expected);
+    }
+
+    #[test]
+    fn gb_arm_swaps_exactly_the_schema_file_for_the_grammar_file() {
+        let s1 = shape("S1");
+        let (Ok(shipped), Ok(gb)) = (prepare("shipped", &s1), prepare("gb", &s1)) else {
+            panic!("shipped and gb compose");
+        };
+        assert_eq!(gb.prompt, shipped.prompt, "gb varies the argv only");
+        let (model, schema, gbnf) = (
+            Path::new("/m.gguf"),
+            Path::new("/s.json"),
+            Path::new("/g.gbnf"),
+        );
+        let shipped_argv = compose_argv(&shipped, model, 99, schema, Some(gbnf));
+        let Some(at) = shipped_argv
+            .windows(2)
+            .position(|w| w[0] == "--json-schema-file" && w[1] == "/s.json")
+        else {
+            panic!("the shipped argv carries --json-schema-file");
+        };
+        let mut expected = shipped_argv.clone();
+        expected.drain(at..at + 2);
+        expected.extend(["--grammar-file".to_string(), "/g.gbnf".to_string()]);
+        assert_eq!(compose_argv(&gb, model, 99, schema, Some(gbnf)), expected);
+    }
+
+    #[test]
+    fn gbnf_flag_takes_a_path_and_is_unset_by_default() {
+        let Ok(none) = parse_args_from(argv(&[])) else {
+            panic!("no flags parse");
+        };
+        assert_eq!(none.gbnf, None);
+        let Ok(set) = parse_args_from(argv(&["--arms", "gb", "--gbnf", "g.gbnf"])) else {
+            panic!("--arms gb --gbnf g.gbnf parses");
+        };
+        assert_eq!(set.gbnf, Some(PathBuf::from("g.gbnf")));
+        assert_eq!(set.arms, ["gb"]);
+    }
+
+    #[test]
+    fn sampling_flag_keeps_the_allowlisted_pairs_in_order() {
+        let value = "--temp 0.7 --top-p 0.8 --top-k 20 --min-p 0 --presence-penalty 1.5 \
+                     --chat-template-kwargs {\"enable_thinking\":false}";
+        let Ok(args) = parse_args_from(argv(&["--sampling", value])) else {
+            panic!("the Qwen sampling parses");
+        };
+        assert_eq!(
+            args.sampling,
+            [
+                "--temp",
+                "0.7",
+                "--top-p",
+                "0.8",
+                "--top-k",
+                "20",
+                "--min-p",
+                "0",
+                "--presence-penalty",
+                "1.5",
+                "--chat-template-kwargs",
+                "{\"enable_thinking\":false}",
+            ]
+        );
+        let Ok(none) = parse_args_from(argv(&[])) else {
+            panic!("no flags parse");
+        };
+        assert!(none.sampling.is_empty());
+    }
+
+    #[test]
+    fn sampling_flag_refuses_anything_outside_the_allowlist() {
+        let refused = |v: &str| parse_args_from(argv(&["--sampling", v])).err();
+        assert_eq!(
+            refused("-m /x.gguf").as_deref(),
+            Some("--sampling: unsupported flag -m")
+        );
+        assert_eq!(
+            refused("--grammar-file g").as_deref(),
+            Some("--sampling: unsupported flag --grammar-file")
+        );
+        assert_eq!(
+            refused("--temp hot").as_deref(),
+            Some("--sampling: bad value for --temp")
+        );
+        assert_eq!(
+            refused("--chat-template-kwargs [1]").as_deref(),
+            Some("--sampling: bad value for --chat-template-kwargs")
+        );
+        assert_eq!(
+            refused("--temp").as_deref(),
+            Some("--sampling takes flag value pairs")
+        );
     }
 }

@@ -30,10 +30,11 @@ use interpretation::broadcast::ModelStatusBroadcast;
 use interpretation::contract::{InferenceError, LlmInferenceRunner, ModelStatus, ModelTier};
 use pulse_app::llamacli_inference::{
     AllowRoot, DEFAULT_MAX_TOKENS, ENV_L4_ALLOW_ROOT, ENV_LLAMA_CPU_BIN_PATH,
-    ENV_LLAMA_CUDA_BIN_PATH, ENV_MODEL_PATH, LlamaCliInference, MAX_PATH_INPUT_BYTES,
-    MAX_PROMPT_BYTES, PathRejection, PromptRejection, binary_target_for_profile,
-    build_llama_cli_args, canonicalize_path, classify_subprocess_failure,
-    extract_json_object_bounded, resolve_allow_root, validate_path_input, validate_prompt_bounded,
+    ENV_LLAMA_CUDA_BIN_PATH, ENV_MODEL_PATH, LLAMA_CLI_CTX_SIZE, LLAMA_CLI_REASONING,
+    LlamaCliInference, MAX_PATH_INPUT_BYTES, MAX_PROMPT_BYTES, PathRejection, PromptRejection,
+    binary_target_for_profile, build_llama_cli_args, canonicalize_path,
+    classify_subprocess_failure, extract_json_object_bounded, resolve_allow_root,
+    validate_path_input, validate_prompt_bounded,
 };
 use tempfile::TempDir;
 use triage::contract::HardwareProfile;
@@ -57,6 +58,29 @@ fn spawn_args_contain_single_turn_flag() {
     let model_path = PathBuf::from("/tmp/model.gguf");
     let args = build_llama_cli_args(&model_path, 99, DEFAULT_MAX_TOKENS, &schema_path, "prompt");
     assert!(args.iter().any(|a| a == "-st"), "-st flag MUST be present");
+}
+
+#[test]
+fn spawn_args_contain_fixed_context_size() {
+    let schema_path = PathBuf::from("/tmp/schema.json");
+    let model_path = PathBuf::from("/tmp/model.gguf");
+    let args = build_llama_cli_args(&model_path, 99, DEFAULT_MAX_TOKENS, &schema_path, "prompt");
+    let c_idx = args.iter().position(|a| a == "-c").expect("-c arg present");
+    assert_eq!(args.get(c_idx + 1).map(String::as_str), Some("8192"));
+    assert_eq!(LLAMA_CLI_CTX_SIZE, 8192);
+}
+
+#[test]
+fn spawn_args_contain_reasoning_off() {
+    let schema_path = PathBuf::from("/tmp/schema.json");
+    let model_path = PathBuf::from("/tmp/model.gguf");
+    let args = build_llama_cli_args(&model_path, 0, DEFAULT_MAX_TOKENS, &schema_path, "prompt");
+    let r_idx = args
+        .iter()
+        .position(|a| a == "-rea")
+        .expect("-rea arg present");
+    assert_eq!(args.get(r_idx + 1).map(String::as_str), Some("off"));
+    assert_eq!(LLAMA_CLI_REASONING, "off");
 }
 
 #[test]

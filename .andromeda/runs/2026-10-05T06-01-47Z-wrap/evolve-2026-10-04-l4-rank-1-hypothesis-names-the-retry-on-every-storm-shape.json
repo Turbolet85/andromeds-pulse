@@ -158,5 +158,45 @@
 "lines": 2046,
 "bytes": 2112626
 }
+},
+{
+"tool": "evolve",
+"v": "1.0",
+"sha8": "e257956a",
+"ts": "2026-10-05T06:16:38Z",
+"argv": [
+"append",
+"--root",
+".",
+"--count",
+"1",
+"--records-file",
+"-",
+"--run-dir",
+".andromeda/runs/2026-10-05T06-01-47Z-wrap",
+"--marker",
+"2026-10-04-l4-rank-1-hypothesis-names-the-retry-on-every-storm-shape"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"appended 1 record(s) · friction-log.ndjson lines 2046→2047 · bytes 2112626→2113803 · term lf",
+"ts 2026-10-05T06:16:31Z · clock 2026-10-05T06:16:38Z · bound 2026-10-05T06:13:54Z (line 2046)",
+"ids 2026-10-05T06:16:31Z-a"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/friction-log.ndjson"
+],
+"before": {
+"lines": 2046,
+"bytes": 2112626,
+"terminator": "LF",
+"bound": "2026-10-05T06:13:54Z"
+},
+"after": {
+"lines": 2047,
+"bytes": 2113803
+}
 }
 ]
