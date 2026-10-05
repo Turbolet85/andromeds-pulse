@@ -1,0 +1,86 @@
+[
+{
+"tool": "ci",
+"v": "1.0",
+"sha8": "7198b2c0",
+"ts": "2026-10-05T09:59:42Z",
+"argv": [
+"conclusion",
+"--sha",
+"2dc099a6d6219e4e13b8c5d2c1ffef7eb4fed203",
+"--run-dir",
+"/home/turbolet/dev/projects/andromeda-pulse/.andromeda/runs/2026-10-05T09-59-40Z-phase"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"repo Turbolet85/andromeds-pulse (the push remote `origin`)",
+"2dc099a6d621 verdict: in progress · checks 13/13 · runs ci#37293411947 in_progress/- secret-scan#37293412073 completed/…",
+"runs: ci#37293411947 pull_request in_progress/- · secret-scan#37293412073 pull_request completed/success",
+"running 12: oldest supply-chain (audit + deny + auditable) 139 s",
+"run open: ci#37293411947 in_progress"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"repo": "Turbolet85/andromeds-pulse",
+"host": "github.com",
+"repo_source": "the push remote `origin`",
+"names": [],
+"shas": [
+{
+"sha": "2dc099a6d6219e4e13b8c5d2c1ffef7eb4fed203",
+"word": "in progress",
+"polls": [
+"in progress"
+]
+}
+]
+}
+},
+{
+"tool": "ci",
+"v": "1.0",
+"sha8": "7198b2c0",
+"ts": "2026-10-05T10:09:09Z",
+"argv": [
+"conclusion",
+"--sha",
+"2dc099a6d6219e4e13b8c5d2c1ffef7eb4fed203",
+"--run-dir",
+"/home/turbolet/dev/projects/andromeda-pulse/.andromeda/runs/2026-10-05T09-59-40Z-phase"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"repo Turbolet85/andromeds-pulse (the push remote `origin`)",
+"2dc099a6d621 verdict: red · checks 13/13 · first-fail +553 s boot smoke (ubuntu-22.04) · runs ci#37293411947 in_progres…",
+"runs: ci#37293411947 pull_request in_progress/- · secret-scan#37293412073 pull_request completed/success",
+"failed 1: boot smoke (ubuntu-22.04) (failure)",
+"log: gh api repos/Turbolet85/andromeds-pulse/actions/jobs/111708927759/logs",
+"running 2: oldest release build (windows-latest) 706 s",
+"run open: ci#37293411947 in_progress"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"repo": "Turbolet85/andromeds-pulse",
+"host": "github.com",
+"repo_source": "the push remote `origin`",
+"names": [],
+"shas": [
+{
+"sha": "2dc099a6d6219e4e13b8c5d2c1ffef7eb4fed203",
+"word": "red",
+"polls": [
+"red"
+]
+}
+]
+}
+}
+]

@@ -158,5 +158,45 @@
 "lines": 2076,
 "bytes": 2140787
 }
+},
+{
+"tool": "evolve",
+"v": "1.0",
+"sha8": "e257956a",
+"ts": "2026-10-05T09:57:23Z",
+"argv": [
+"append",
+"--root",
+".",
+"--count",
+"1",
+"--records-file",
+"-",
+"--run-dir",
+".andromeda/runs/2026-10-05T09-41-57Z-wrap",
+"--marker",
+"2026-10-05-l4-runs-on-a-small-current-model-chosen-by-measurement"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"appended 1 record(s) · friction-log.ndjson lines 2076→2077 · bytes 2140787→2142194 · term lf",
+"ts 2026-10-05T09:57:14Z · clock 2026-10-05T09:57:23Z · bound 2026-10-05T09:54:47Z (line 2076)",
+"ids 2026-10-05T09:57:14Z-a"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/friction-log.ndjson"
+],
+"before": {
+"lines": 2076,
+"bytes": 2140787,
+"terminator": "LF",
+"bound": "2026-10-05T09:54:47Z"
+},
+"after": {
+"lines": 2077,
+"bytes": 2142194
+}
 }
 ]

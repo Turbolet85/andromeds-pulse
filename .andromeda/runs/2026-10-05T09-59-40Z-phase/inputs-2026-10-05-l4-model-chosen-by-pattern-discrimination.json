@@ -1,0 +1,166 @@
+[
+{
+"tool": "inputs",
+"v": "1.0",
+"sha8": "faa48d4e",
+"ts": "2026-10-05T10:00:08Z",
+"argv": [
+"snap",
+"--chunk-dir",
+"/home/turbolet/dev/projects/andromeda-pulse/andromeda-pulse-0.3.0/chunks/2026-10-05-l4-model-chosen-by-pattern-discrimination",
+"--message-file",
+"/home/turbolet/dev/projects/andromeda-pulse/.andromeda/runs/2026-10-05T09-41-57Z-wrap/relay-l4-pattern-discrimination-design.md",
+"--origin",
+"pc overseer draft, founder-approved whole 2026-10-05; D7 snapshot at the 2026-10-05T09-41-57Z wrap",
+"--kind",
+"relay",
+"--why",
+"the founder-approved L4 pattern-discrimination test design: shapes A1-A7/B1-B3/C1-C3, scoring detect/cause/valid, 10% blind audit, the recommendation rule, six models",
+"--step",
+"phase:P1",
+"--run-dir",
+"/home/turbolet/dev/projects/andromeda-pulse/.andromeda/runs/2026-10-05T09-59-40Z-phase",
+"--marker",
+"2026-10-05-l4-model-chosen-by-pattern-discrimination"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"snapped I1 · copy message · message: pc overseer draft, founder-approved whole 2026-10-05; D7 snapshot at the 2026-10-05T09-41-57Z wrap",
+"cite: inputs#I1"
+],
+"stderr": null,
+"wrote": [
+"inputs/.gitattributes",
+"inputs/I1-relay-l4-pattern-discrimination-design.md.txt",
+"inputs/andromeda-inputs.json"
+],
+"before": null,
+"after": {
+"id": "I1",
+"kind": "relay",
+"repo": null,
+"path": "message: pc overseer draft, founder-approved whole 2026-10-05; D7 snapshot at the 2026-10-05T09-41-57Z wrap",
+"form": "copy",
+"state": "message",
+"commit": null,
+"ref": null,
+"upstream": null,
+"claimed": null,
+"sha256": "9bd753447c656239885b32e2c4c5c7dbf54f55dc2d765b070a936405084fb879",
+"copy": "I1-relay-l4-pattern-discrimination-design.md.txt",
+"link": false,
+"read_at": "2026-10-05T10:00:08Z",
+"step": "phase:P1",
+"why": "the founder-approved L4 pattern-discrimination test design: shapes A1-A7/B1-B3/C1-C3, scoring detect/cause/valid, 10% blind audit, the recommendation rule, six models"
+}
+},
+{
+"tool": "inputs",
+"v": "1.0",
+"sha8": "faa48d4e",
+"ts": "2026-10-05T10:00:08Z",
+"argv": [
+"snap",
+"--chunk-dir",
+"/home/turbolet/dev/projects/andromeda-pulse/andromeda-pulse-0.3.0/chunks/2026-10-05-l4-model-chosen-by-pattern-discrimination",
+"--message-file",
+"/home/turbolet/dev/projects/andromeda-pulse/.andromeda/runs/2026-10-05T09-59-40Z-phase/relay-1.md",
+"--origin",
+"overseer (founder-delegated), the /andromeda-phase args, 2026-10-05",
+"--kind",
+"relay",
+"--why",
+"phase directive: model slot + ports granted, daytime only, ground truth + keyword sets before any run, synthetic texts in gitignored target/, six models under authors settings with GBNF and thinking off",
+"--step",
+"phase:P1",
+"--run-dir",
+"/home/turbolet/dev/projects/andromeda-pulse/.andromeda/runs/2026-10-05T09-59-40Z-phase",
+"--marker",
+"2026-10-05-l4-model-chosen-by-pattern-discrimination"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"snapped I2 · copy message · message: overseer (founder-delegated), the /andromeda-phase args, 2026-10-05",
+"cite: inputs#I2"
+],
+"stderr": null,
+"wrote": [
+"inputs/I2-relay-1.md.txt",
+"inputs/andromeda-inputs.json"
+],
+"before": null,
+"after": {
+"id": "I2",
+"kind": "relay",
+"repo": null,
+"path": "message: overseer (founder-delegated), the /andromeda-phase args, 2026-10-05",
+"form": "copy",
+"state": "message",
+"commit": null,
+"ref": null,
+"upstream": null,
+"claimed": null,
+"sha256": "4fd7de4e9ea6cb095584a3d2afdf2ed505c0874edabbfb3853492d53f8249b7c",
+"copy": "I2-relay-1.md.txt",
+"link": false,
+"read_at": "2026-10-05T10:00:08Z",
+"step": "phase:P1",
+"why": "phase directive: model slot + ports granted, daytime only, ground truth + keyword sets before any run, synthetic texts in gitignored target/, six models under authors settings with GBNF and thinking off"
+}
+},
+{
+"tool": "inputs",
+"v": "1.0",
+"sha8": "faa48d4e",
+"ts": "2026-10-05T10:09:07Z",
+"argv": [
+"snap",
+"--chunk-dir",
+"/home/turbolet/dev/projects/andromeda-pulse/andromeda-pulse-0.3.0/chunks/2026-10-05-l4-model-chosen-by-pattern-discrimination",
+"--source",
+"/home/turbolet/dev/projects/additional/pc-overseer/l4-env.sh",
+"--kind",
+"sibling",
+"--why",
+"the overseer host env every real-model leg sources: the b9305 CUDA llama-cli path for both routes and the default model path",
+"--step",
+"phase:P3",
+"--run-dir",
+"/home/turbolet/dev/projects/andromeda-pulse/.andromeda/runs/2026-10-05T09-59-40Z-phase",
+"--marker",
+"2026-10-05-l4-model-chosen-by-pattern-discrimination"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"snapped I3 · copy no-repo · ../additional/pc-overseer/l4-env.sh",
+"cite: inputs#I3"
+],
+"stderr": null,
+"wrote": [
+"inputs/I3-l4-env.sh.txt",
+"inputs/andromeda-inputs.json"
+],
+"before": null,
+"after": {
+"id": "I3",
+"kind": "sibling",
+"repo": null,
+"path": "../additional/pc-overseer/l4-env.sh",
+"form": "copy",
+"state": "no-repo",
+"commit": null,
+"ref": null,
+"upstream": null,
+"claimed": null,
+"sha256": "4a28d0fdd0c8fb6dcfb68259fd2dd85610da5e3bdf6ccd25b946c7ade4f77647",
+"copy": "I3-l4-env.sh.txt",
+"link": false,
+"read_at": "2026-10-05T10:09:07Z",
+"step": "phase:P3",
+"why": "the overseer host env every real-model leg sources: the b9305 CUDA llama-cli path for both routes and the default model path"
+}
+}
+]

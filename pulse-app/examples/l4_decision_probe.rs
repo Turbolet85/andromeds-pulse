@@ -5,6 +5,8 @@
 //! ```text
 //! cargo build -p pulse-app --example l4_decision_probe
 //! ./target/debug/examples/l4_decision_probe[.exe] --arms A0,A1,A2,A3,A4,A5 [--shapes S1,S2,S3,S4] --n 10 [--min 27] [--min-rank1 36] [--out DIR] [--footprint] [--gbnf FILE] [--dry-run]
+//! ./target/debug/examples/l4_decision_probe[.exe] --arms gb --gbnf FILE --shapes A1,...,C3 [--renders today,enriched] --n 10 --out target/DIR [--footprint] [--dry-run]
+//! ./target/debug/examples/l4_decision_probe[.exe] --audit-draw ROOT --audit-seed N | --audit-grade ROOT | --table ROOT
 //! ```
 //!
 //! Inputs come from the product's own guarded resolution: the hardware
@@ -22,10 +24,24 @@
 //! Per generation it keeps only bounded labels — the decision, the severity,
 //! the model's `is_resolution_summary`, whether the producer would create an
 //! incident, the first three JSON keys (the grammar's field order) and a
-//! hash of the output (the determinism reading). No title, symptom,
-//! hypothesis, justification or raw output is written anywhere. Rows go to
-//! `{out}/runs.json`; stdout carries one summary line per arm, and with
+//! hash of the output (the determinism reading). The S shapes write no
+//! title, symptom, hypothesis, justification or raw output anywhere. Rows go
+//! to `{out}/runs.json`; stdout carries one summary line per arm, and with
 //! `--min K` a final verdict line (exit 0 PASS / 1 FAIL).
+//!
+//! The pattern shapes (`patterns.rs`: A1-A7, B1-B3, C1-C3) score each
+//! generation with the closed labels `valid`, `detect` and `cause` against a
+//! ground truth fixed in code. For the blind audit only, a pattern run also
+//! writes each generation's synthetic digest and raw stdout to
+//! `{out}/texts/{shape}-{render}-{run}.{digest,stdout}.txt`, and only when
+//! `{out}` resolves under the current directory's gitignored `target/`;
+//! otherwise it is INCONCLUSIVE before any spawn. `--renders` runs the C
+//! shapes in today's render, the probe-only enriched one (baselines and a
+//! short trend), or both. Over a series root holding one dir per model,
+//! `--audit-draw` writes a seeded blind sample and its key, `--audit-grade`
+//! reads the overseer's verdicts against it, and `--table` re-grades the whole
+//! series from its stored outputs and applies the pre-registered rule; none of
+//! them spawns anything.
 //!
 //! Each row also carries `names_trigger`, a closed label computed in-process:
 //! `rank1` (the first hypothesis names the triggering cue), `elsewhere` (the
@@ -83,6 +99,11 @@
 //!
 //! Each candidate composes as A0 once its text is already in the tree.
 
+// The example file is a crate root, so a bare `mod patterns;` would resolve
+// beside it, where Cargo auto-discovers every `examples/*.rs` as an example.
+#[path = "l4_decision_probe/patterns.rs"]
+mod patterns;
+
 use std::collections::hash_map::DefaultHasher;
 use std::collections::{BTreeMap, BTreeSet};
 use std::hash::{Hash, Hasher};
@@ -94,6 +115,7 @@ use std::time::{Duration, Instant};
 use interpretation::hardware::HardwareProfileDetector;
 use interpretation::prompt::{TRIGGER_FRAMING_INSTRUCTION, build_primary_tier_prompt};
 use interpretation::schema::{Decision, L4_OUTPUT_JSON_SCHEMA, L4Output, Severity, parse_bounded};
+use patterns::{Outcome, PatternShape, Render};
 use pulse_app::llamacli_inference::{
     DEFAULT_MAX_TOKENS, ENV_MODEL_PATH, LLAMA_CLI_MAX_OUTPUT_BYTES, LLAMA_CLI_TIMEOUT,
     MAX_PROMPT_BYTES, binary_target_for_profile, build_llama_cli_args, extract_json_object_bounded,
@@ -184,6 +206,18 @@ struct Args {
     gbnf: Option<PathBuf>,
     /// Validated `--sampling` flag/value tokens, appended to every arm's argv.
     sampling: Vec<String>,
+    /// The C shapes' renders; A and B always run today's.
+    renders: Vec<Render>,
+    mode: Mode,
+}
+
+/// What a call does: run generations, or read a series root and spawn nothing.
+#[derive(Debug, PartialEq)]
+enum Mode {
+    Run,
+    AuditDraw(PathBuf, u64),
+    AuditGrade(PathBuf),
+    Table(PathBuf),
 }
 
 struct Prepared {
@@ -1021,6 +1055,8 @@ fn parse_args_from(argv: impl IntoIterator<Item = String>) -> Result<Args, Strin
     let mut footprint = false;
     let mut gbnf = None;
     let mut sampling = Vec::new();
+    let mut renders = vec![Render::Today];
+    let (mut audit_draw, mut audit_seed, mut audit_grade, mut table) = (None, None, None, None);
     let mut it = argv.into_iter();
     while let Some(flag) = it.next() {
         if flag == "--dry-run" {
@@ -1042,13 +1078,30 @@ fn parse_args_from(argv: impl IntoIterator<Item = String>) -> Result<Args, Strin
             "--shapes" => {
                 shape_ids = value.split(',').map(|s| s.trim().to_string()).collect();
                 let known = shapes();
-                if let Some(bad) = shape_ids
-                    .iter()
-                    .find(|id| !known.iter().any(|s| s.id == id.as_str()))
-                {
+                if let Some(bad) = shape_ids.iter().find(|id| {
+                    !known.iter().any(|s| s.id == id.as_str()) && !patterns::is_pattern_id(id)
+                }) {
                     return Err(format!("unknown shape {bad}"));
                 }
+                let pattern = shape_ids
+                    .iter()
+                    .filter(|id| patterns::is_pattern_id(id))
+                    .count();
+                if pattern > 0 && pattern < shape_ids.len() {
+                    return Err("--shapes mixes S and pattern shapes".to_string());
+                }
             }
+            "--renders" => renders = patterns::parse_renders(&value)?,
+            "--audit-draw" => audit_draw = Some(PathBuf::from(value)),
+            "--audit-seed" => {
+                audit_seed = Some(
+                    value
+                        .parse::<u64>()
+                        .map_err(|_| "--audit-seed takes a number")?,
+                )
+            }
+            "--audit-grade" => audit_grade = Some(PathBuf::from(value)),
+            "--table" => table = Some(PathBuf::from(value)),
             "--n" => n = value.parse().map_err(|_| "--n takes a number")?,
             "--min" => min = Some(value.parse().map_err(|_| "--min takes a number")?),
             "--min-rank1" => {
@@ -1064,6 +1117,15 @@ fn parse_args_from(argv: impl IntoIterator<Item = String>) -> Result<Args, Strin
         PathBuf::from("target/l4-decision-probe")
             .join(chrono::Utc::now().format("%Y%m%dT%H%M%SZ").to_string())
     });
+    let mode = match (audit_draw, audit_seed, audit_grade, table) {
+        (None, None, None, None) => Mode::Run,
+        (Some(root), Some(seed), None, None) => Mode::AuditDraw(root, seed),
+        (Some(_), None, None, None) => return Err("--audit-draw needs --audit-seed".to_string()),
+        (None, Some(_), _, _) => return Err("--audit-seed needs --audit-draw".to_string()),
+        (None, None, Some(root), None) => Mode::AuditGrade(root),
+        (None, None, None, Some(root)) => Mode::Table(root),
+        _ => return Err("--audit-draw, --audit-grade and --table are exclusive".to_string()),
+    };
     Ok(Args {
         arms,
         shapes: shape_ids,
@@ -1075,6 +1137,8 @@ fn parse_args_from(argv: impl IntoIterator<Item = String>) -> Result<Args, Strin
         footprint,
         gbnf,
         sampling,
+        renders,
+        mode,
     })
 }
 
@@ -1098,12 +1162,331 @@ fn inconclusive(why: &str) -> ExitCode {
     ExitCode::from(2)
 }
 
+/// The llama-cli binary and the model through the product's own guarded
+/// resolution: `(binary, model, ngl, binary kind)`.
+fn resolve_runtime() -> Result<(PathBuf, PathBuf, u32, &'static str), String> {
+    let profile = HardwareProfileDetector::new().current_profile();
+    let (bin_env, ngl, binary_kind) = binary_target_for_profile(profile);
+    let allow_root = resolve_allow_root();
+    let mut resolved = Vec::new();
+    for env_name in [bin_env, ENV_MODEL_PATH] {
+        let raw = std::env::var(env_name).unwrap_or_default();
+        let raw = raw.trim();
+        if raw.is_empty() {
+            return Err(format!("{env_name} is unset"));
+        }
+        let path = validate_path_input(Path::new(raw), &allow_root)
+            .map_err(|rejection| format!("{env_name} rejected: {}", rejection.label()))?;
+        resolved.push(path);
+    }
+    Ok((resolved[0].clone(), resolved[1].clone(), ngl, binary_kind))
+}
+
+fn announce_gbnf(gbnf: Option<&Path>) -> Result<(), String> {
+    match gbnf {
+        Some(g) if g.is_file() => {
+            println!("l4-decision-probe: gbnf {}", basename(g));
+            Ok(())
+        }
+        Some(_) => Err("--gbnf is not a file".to_string()),
+        None => Err("arm gb needs --gbnf".to_string()),
+    }
+}
+
+fn listed(items: Vec<String>) -> String {
+    if items.is_empty() {
+        "none".to_string()
+    } else {
+        items.join(" ")
+    }
+}
+
+/// A pattern shape-render under an arm that varies the argv only; the
+/// prompt-transform arms are S-shape instruments.
+fn prepare_pattern(
+    arm: &str,
+    shape: &PatternShape,
+    render: Render,
+) -> Result<(Prepared, String), String> {
+    let (extra_args, drop_flags): (Vec<String>, Vec<&'static str>) = match arm {
+        "A0" | "shipped" => (Vec::new(), Vec::new()),
+        "A1" => (vec!["--temp".to_string(), "0".to_string()], Vec::new()),
+        "nr" => (Vec::new(), vec!["-rea"]),
+        "gb" => (Vec::new(), vec!["--json-schema-file"]),
+        other => return Err(format!("arm {other} does not apply to pattern shapes")),
+    };
+    let composed = patterns::compose(shape, render)?;
+    let prepared = Prepared {
+        arm: arm.to_string(),
+        shape: shape.id,
+        // Read only by the S-shape names_trigger grader, never on this path.
+        trigger: CueKind::RetryStorm,
+        prompt: composed.prompt,
+        schema: L4_OUTPUT_JSON_SCHEMA.to_string(),
+        extra_args,
+        drop_flags,
+        grammar_file: arm == "gb",
+    };
+    Ok((prepared, composed.payload))
+}
+
+struct PatternJob {
+    prepared: Prepared,
+    shape: usize,
+    render: Render,
+    payload: String,
+}
+
+fn series_root(root: &Path) -> Result<PathBuf, String> {
+    let cwd = std::env::current_dir().map_err(|_| "current directory unreadable".to_string())?;
+    patterns::series_root(root, &cwd)
+}
+
+fn audit_draw_mode(root: &Path, seed: u64) -> ExitCode {
+    match series_root(root).and_then(|root| patterns::audit_draw(&root, seed)) {
+        Ok((drawn, rows)) => {
+            println!(
+                "audit: drew {drawn} of {rows} rows · seed {seed} · sample {} · key {}",
+                patterns::AUDIT_SAMPLE,
+                patterns::AUDIT_KEY
+            );
+            ExitCode::SUCCESS
+        }
+        Err(why) => inconclusive(&why),
+    }
+}
+
+fn audit_grade_mode(root: &Path) -> ExitCode {
+    match series_root(root).and_then(|root| patterns::audit_grade(&root)) {
+        Ok((disagree, sample)) => {
+            println!(
+                "audit: disagreement {disagree}/{sample} · bar 10% · {}",
+                patterns::audit_disposition(disagree, sample)
+            );
+            ExitCode::SUCCESS
+        }
+        Err(why) => inconclusive(&why),
+    }
+}
+
+fn table_mode(root: &Path) -> ExitCode {
+    match series_root(root).and_then(|root| patterns::table(&root)) {
+        Ok(lines) => {
+            for line in lines {
+                println!("{line}");
+            }
+            ExitCode::SUCCESS
+        }
+        Err(why) => inconclusive(&why),
+    }
+}
+
+/// The pattern series for one model: every arm over every shape-render, `n`
+/// generations each, scored in-process; rows to `runs.json`, texts to
+/// `texts/` under the target-only out dir.
+async fn run_patterns(args: &Args) -> ExitCode {
+    let shapes = patterns::select_pattern_shapes(&args.shapes);
+    let mut jobs = Vec::new();
+    for arm in &args.arms {
+        for (shape, render) in patterns::shape_renders(&shapes, &args.renders) {
+            match prepare_pattern(arm, &shapes[shape], render) {
+                Ok((mut prepared, payload)) => {
+                    prepared.extra_args.extend(args.sampling.iter().cloned());
+                    jobs.push(PatternJob {
+                        prepared,
+                        shape,
+                        render,
+                        payload,
+                    });
+                }
+                Err(why) => return inconclusive(&why),
+            }
+        }
+    }
+
+    if args.dry_run {
+        for job in &jobs {
+            let p = &job.prepared;
+            println!(
+                "dry-run: arm {} {} {}: prompt {} bytes (max {}) · schema {} bytes · extra args {} · dropped args {}",
+                p.arm,
+                p.shape,
+                job.render.label(),
+                p.prompt.len(),
+                MAX_PROMPT_BYTES,
+                p.schema.len(),
+                listed(p.extra_args.clone()),
+                listed(p.drop_flags.iter().map(|f| f.to_string()).collect()),
+            );
+        }
+        if let Some(job) = jobs.iter().max_by_key(|j| j.prepared.prompt.len()) {
+            println!(
+                "dry-run: largest pattern prompt {} bytes ({} {})",
+                job.prepared.prompt.len(),
+                job.prepared.shape,
+                job.render.label()
+            );
+        }
+        return ExitCode::SUCCESS;
+    }
+
+    let out = match std::env::current_dir()
+        .map_err(|_| "current directory unreadable".to_string())
+        .and_then(|cwd| patterns::texts_root(&args.out, &cwd))
+    {
+        Ok(out) => out,
+        Err(why) => return inconclusive(&why),
+    };
+    let (binary, model, ngl, binary_kind) = match resolve_runtime() {
+        Ok(runtime) => runtime,
+        Err(why) => return inconclusive(&why),
+    };
+    if jobs.iter().any(|j| j.prepared.grammar_file)
+        && let Err(why) = announce_gbnf(args.gbnf.as_deref())
+    {
+        return inconclusive(&why);
+    }
+    println!(
+        "l4-decision-probe: sampling {}",
+        if args.sampling.is_empty() {
+            "default".to_string()
+        } else {
+            args.sampling.join(" ")
+        }
+    );
+    println!(
+        "l4-decision-probe: binary {} ({binary_kind}, -ngl {ngl}) · model {} · arms {} · shapes {} · renders {} · n {} per shape-render",
+        basename(&binary),
+        basename(&model),
+        args.arms.join(","),
+        shapes.iter().map(|s| s.id).collect::<Vec<_>>().join(","),
+        args.renders
+            .iter()
+            .map(|r| r.label())
+            .collect::<Vec<_>>()
+            .join(","),
+        args.n
+    );
+
+    let mut rows: Vec<Value> = Vec::new();
+    for arm in &args.arms {
+        let started = Instant::now();
+        let mut scored = Vec::new();
+        let mut decisions: BTreeMap<&'static str, u32> = BTreeMap::new();
+        let mut thinking_present = 0u32;
+        for job in jobs.iter().filter(|j| &j.prepared.arm == arm) {
+            let (p, shape) = (&job.prepared, &shapes[job.shape]);
+            let schema_path = out.join(format!("schema-{}.json", p.arm));
+            if std::fs::write(&schema_path, &p.schema).is_err() {
+                return inconclusive("schema file not writable");
+            }
+            for run in 1..=args.n {
+                let text = |kind| patterns::text_path(&out, shape.id, job.render, run, kind);
+                if std::fs::write(text("digest"), &job.payload).is_err() {
+                    return inconclusive("texts not writable");
+                }
+                let outcome = generate(
+                    &binary,
+                    &model,
+                    ngl,
+                    p,
+                    &schema_path,
+                    args.gbnf.as_deref(),
+                    args.footprint,
+                )
+                .await;
+                let (graded, thinking, metrics) = match &outcome {
+                    Spawned::Failed("spawn_failed", _) => {
+                        return inconclusive("llama-cli did not spawn");
+                    }
+                    Spawned::Output(stdout, m) => {
+                        if std::fs::write(text("stdout"), stdout).is_err() {
+                            return inconclusive("texts not writable");
+                        }
+                        let graded = patterns::grade(shape, Outcome::Stdout(stdout));
+                        (graded, thinking_label(Some(stdout)), *m)
+                    }
+                    Spawned::Failed(why, m) => (
+                        patterns::grade(shape, Outcome::Failed(why)),
+                        thinking_label(None),
+                        *m,
+                    ),
+                };
+                if thinking == "present" {
+                    thinking_present += 1;
+                }
+                *decisions
+                    .entry(graded.decision.unwrap_or("none"))
+                    .or_default() += 1;
+                eprintln!(
+                    "l4-decision-probe: {arm} {} {} run {run}: valid {} detect {} cause {} decision {} thinking {thinking} elapsed_ms {}",
+                    shape.id,
+                    job.render.label(),
+                    graded.valid,
+                    graded.detect,
+                    graded.cause,
+                    graded.decision.unwrap_or("-"),
+                    metrics.elapsed_ms
+                );
+                rows.push(patterns::row_json(
+                    arm, shape, job.render, run, &graded, thinking, metrics,
+                ));
+                scored.push(patterns::StoredRow {
+                    shape: shape.id.to_string(),
+                    family: shape.family,
+                    render: job.render,
+                    run,
+                    stored: graded.clone(),
+                    graded,
+                    elapsed_ms: Some(metrics.elapsed_ms),
+                    peak_rss_kib: metrics.peak_rss_kib,
+                    peak_vram_mib: metrics.peak_vram_mib,
+                });
+            }
+        }
+        let summary = patterns::summarize(arm, &scored);
+        let count = |k: &str| decisions.get(k).copied().unwrap_or(0);
+        println!(
+            "arm {arm}: decision {}/{}/{} · no decision {} · wall {}s",
+            count("surface"),
+            count("dismiss"),
+            count("watch"),
+            count("none"),
+            started.elapsed().as_secs()
+        );
+        println!("  arm {arm}: {}", patterns::patterns_line(&summary));
+        println!(
+            "  arm {arm}: footprint thinking present {thinking_present}/{} · elapsed_ms p50 {} max {} · peak_rss_kib max {} · peak_vram_mib max {}",
+            summary.rows,
+            reading(p50(&summary.elapsed)),
+            reading(summary.elapsed.iter().copied().max()),
+            reading(summary.peak_rss_kib),
+            reading(summary.peak_vram_mib),
+        );
+    }
+
+    match serde_json::to_string_pretty(&rows) {
+        Ok(text) if std::fs::write(out.join("runs.json"), &text).is_ok() => ExitCode::SUCCESS,
+        _ => inconclusive("runs.json not writable"),
+    }
+}
+
 #[tokio::main]
 async fn main() -> ExitCode {
     let args = match parse_args() {
         Ok(args) => args,
         Err(why) => return inconclusive(&why),
     };
+
+    match &args.mode {
+        Mode::AuditDraw(root, seed) => return audit_draw_mode(root, *seed),
+        Mode::AuditGrade(root) => return audit_grade_mode(root),
+        Mode::Table(root) => return table_mode(root),
+        Mode::Run => {}
+    }
+    if args.shapes.iter().any(|id| patterns::is_pattern_id(id)) {
+        return run_patterns(&args).await;
+    }
 
     let selected = select_shapes(&args.shapes);
     let mut prepared = Vec::new();
@@ -1145,30 +1528,14 @@ async fn main() -> ExitCode {
         return ExitCode::SUCCESS;
     }
 
-    let profile = HardwareProfileDetector::new().current_profile();
-    let (bin_env, ngl, binary_kind) = binary_target_for_profile(profile);
-    let allow_root = resolve_allow_root();
-    let mut resolved = Vec::new();
-    for env_name in [bin_env, ENV_MODEL_PATH] {
-        let raw = std::env::var(env_name).unwrap_or_default();
-        let raw = raw.trim();
-        if raw.is_empty() {
-            return inconclusive(&format!("{env_name} is unset"));
-        }
-        match validate_path_input(Path::new(raw), &allow_root) {
-            Ok(path) => resolved.push(path),
-            Err(rejection) => {
-                return inconclusive(&format!("{env_name} rejected: {}", rejection.label()));
-            }
-        }
-    }
-    let (binary, model) = (resolved[0].clone(), resolved[1].clone());
-    if prepared.iter().any(|p| p.grammar_file) {
-        match args.gbnf.as_deref() {
-            Some(g) if g.is_file() => println!("l4-decision-probe: gbnf {}", basename(g)),
-            Some(_) => return inconclusive("--gbnf is not a file"),
-            None => return inconclusive("arm gb needs --gbnf"),
-        }
+    let (binary, model, ngl, binary_kind) = match resolve_runtime() {
+        Ok(runtime) => runtime,
+        Err(why) => return inconclusive(&why),
+    };
+    if prepared.iter().any(|p| p.grammar_file)
+        && let Err(why) = announce_gbnf(args.gbnf.as_deref())
+    {
+        return inconclusive(&why);
     }
     println!(
         "l4-decision-probe: sampling {}",
@@ -1944,5 +2311,97 @@ mod tests {
             refused("--temp").as_deref(),
             Some("--sampling takes flag value pairs")
         );
+    }
+
+    #[test]
+    fn pattern_shape_ids_parse_and_an_unknown_one_is_refused() {
+        let ids = patterns::PATTERN_IDS.join(",");
+        let Ok(args) = parse_args_from(argv(&["--shapes", &ids])) else {
+            panic!("every pattern shape id parses");
+        };
+        assert_eq!(args.shapes, patterns::PATTERN_IDS);
+        let refused = parse_args_from(argv(&["--shapes", "A1,A8"])).err();
+        assert_eq!(refused.as_deref(), Some("unknown shape A8"));
+    }
+
+    #[test]
+    fn pattern_and_s_shapes_never_mix_in_one_run() {
+        let refused = parse_args_from(argv(&["--shapes", "S1,A1"])).err();
+        assert_eq!(
+            refused.as_deref(),
+            Some("--shapes mixes S and pattern shapes")
+        );
+    }
+
+    #[test]
+    fn renders_flag_defaults_to_today_and_takes_both() {
+        let Ok(none) = parse_args_from(argv(&[])) else {
+            panic!("no flags parse");
+        };
+        assert_eq!(none.renders, [Render::Today]);
+        let Ok(both) = parse_args_from(argv(&["--renders", "today,enriched"])) else {
+            panic!("--renders today,enriched parses");
+        };
+        assert_eq!(both.renders, [Render::Today, Render::Enriched]);
+        let refused = parse_args_from(argv(&["--renders", "richer"])).err();
+        assert_eq!(refused.as_deref(), Some("unknown render richer"));
+    }
+
+    #[test]
+    fn audit_draw_grade_and_table_modes_parse_and_exclude_each_other() {
+        let mode = |items: &[&str]| parse_args_from(argv(items)).map(|a| a.mode);
+        assert_eq!(mode(&[]), Ok(Mode::Run));
+        assert_eq!(
+            mode(&["--audit-draw", "target/s", "--audit-seed", "17"]),
+            Ok(Mode::AuditDraw(PathBuf::from("target/s"), 17))
+        );
+        assert_eq!(
+            mode(&["--audit-grade", "target/s"]),
+            Ok(Mode::AuditGrade(PathBuf::from("target/s")))
+        );
+        assert_eq!(
+            mode(&["--table", "target/s"]),
+            Ok(Mode::Table(PathBuf::from("target/s")))
+        );
+        assert_eq!(
+            mode(&["--audit-draw", "target/s"]).err().as_deref(),
+            Some("--audit-draw needs --audit-seed")
+        );
+        assert_eq!(
+            mode(&["--audit-seed", "17"]).err().as_deref(),
+            Some("--audit-seed needs --audit-draw")
+        );
+        assert_eq!(
+            mode(&["--audit-grade", "target/s", "--table", "target/s"])
+                .err()
+                .as_deref(),
+            Some("--audit-draw, --audit-grade and --table are exclusive")
+        );
+        assert_eq!(
+            mode(&["--audit-draw", "target/s", "--audit-seed", "x"])
+                .err()
+                .as_deref(),
+            Some("--audit-seed takes a number")
+        );
+    }
+
+    #[test]
+    fn pattern_arms_vary_the_argv_only() {
+        let a1 = patterns::select_pattern_shapes(&["A1".to_string()]);
+        let Ok((gb, _)) = prepare_pattern("gb", &a1[0], Render::Today) else {
+            panic!("gb composes A1");
+        };
+        let Ok((shipped, payload)) = prepare_pattern("shipped", &a1[0], Render::Today) else {
+            panic!("shipped composes A1");
+        };
+        assert_eq!(gb.prompt, shipped.prompt);
+        assert!(gb.grammar_file && gb.drop_flags == ["--json-schema-file"]);
+        assert!(shipped.prompt.contains(&payload));
+        for arm in ["A2", "A3", "A4", "A5", "nf", "R1", "R3", "R2", "R1R3"] {
+            assert_eq!(
+                prepare_pattern(arm, &a1[0], Render::Today).err(),
+                Some(format!("arm {arm} does not apply to pattern shapes"))
+            );
+        }
     }
 }

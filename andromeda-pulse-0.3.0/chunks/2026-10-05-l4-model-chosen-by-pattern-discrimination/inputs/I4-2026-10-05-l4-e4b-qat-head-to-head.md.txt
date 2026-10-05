@@ -1,0 +1,26 @@
+# Founder 2026-10-05: Gemma 4 E4B — Google's QAT Q4_0 vs the unsloth Q4_K_M, face to face (relay to pulse-builder)
+
+Overseer relay. Snapshot this file as a chunk input (D7) before acting on it.
+
+**Ruling, verbatim:** «Ок давай тогда попробуем протестить еще ту квантованую версию против обычной фейс ту фейс» — after the
+table recommended gemma-4-E4B and the overseer named Google's QAT build as a candidate to cut RAM or raise quality.
+
+## The candidate (measured 2026-10-05 via the HF API)
+
+- `google/gemma-4-E4B-it-qat-q4_0-gguf` → `gemma-4-E4B_q4_0-it.gguf`, 5.15 GB, license apache-2.0, not gated. (The repo also
+  ships `gemma-4-E4B-it-mmproj.gguf`, the vision projector — NOT needed; text only.) Record its sha256 at download.
+- Same architecture (`gemma4`), so the same argv: authors' sampling (temp 1.0 · top_p 0.95 · top_k 64 · min_p 0), `-rea off`,
+  GBNF `--grammar-file`, `-c 8192`.
+
+## The leg (an addendum written and timestamped BEFORE any run)
+
+1. Run BOTH files fresh, in the same slot, back to back: the existing `gemma-4-E4B-it-Q4_K_M.gguf` and the QAT
+   `gemma-4-E4B_q4_0-it.gguf`, over the full pattern set (all 16 shape-renders, n=10, the pre-registered seed), so the comparison
+   does not lean on the earlier run's draw. 320 generations, roughly 30 minutes of GPU.
+2. Same grader, same labels, same table columns: A detect / A cause / B false alarm / C today / C enriched / no_reading / GPU
+   p50-max / over 5000 ms / peak VRAM / peak RSS. Plus the post-hoc surface-or-watch reading, labelled as before.
+3. Record-only: the pre-registered recommendation stands as it read; this leg informs the founder's pick between the two files
+   and decides nothing by itself. No blind audit re-run (the grader was audited on this pattern set; note that A-cause stays a
+   lower bound).
+4. Report both rows side by side, and the earlier Q4_K_M row beside its fresh one (a run-to-run noise reading for free).
+5. Archive: copy the new run dir to `~/dev/data/l4-model-comparison-2026-10/` too (the founder's post data).

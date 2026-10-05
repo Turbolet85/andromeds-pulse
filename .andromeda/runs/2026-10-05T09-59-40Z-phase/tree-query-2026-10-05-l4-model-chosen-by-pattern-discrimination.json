@@ -1,0 +1,345 @@
+[
+{
+"sql": "SELECT caller_name, file, line FROM calls WHERE callee_name IN ('render_payload','build_primary_tier_prompt','build_llama_cli_args','validate_prompt_bounded') AND callee_kind = 'fn' ORDER BY callee_name, file, line",
+"rows": 67,
+"result": [
+{
+"caller_name": "crate",
+"file": "pulse-app/examples/l4_decision_probe.rs",
+"line": 98
+},
+{
+"caller_name": "compose_argv",
+"file": "pulse-app/examples/l4_decision_probe.rs",
+"line": 868
+},
+{
+"caller_name": "generate_constrained",
+"file": "pulse-app/src/llamacli_inference.rs",
+"line": 783
+},
+{
+"caller_name": "crate",
+"file": "pulse-app/tests/unit_llamacli_inference.rs",
+"line": 34
+},
+{
+"caller_name": "spawn_args_contain_max_tokens_cap_arg",
+"file": "pulse-app/tests/unit_llamacli_inference.rs",
+"line": 49
+},
+{
+"caller_name": "spawn_args_contain_single_turn_flag",
+"file": "pulse-app/tests/unit_llamacli_inference.rs",
+"line": 58
+},
+{
+"caller_name": "spawn_args_contain_fixed_context_size",
+"file": "pulse-app/tests/unit_llamacli_inference.rs",
+"line": 66
+},
+{
+"caller_name": "spawn_args_contain_reasoning_off",
+"file": "pulse-app/tests/unit_llamacli_inference.rs",
+"line": 76
+},
+{
+"caller_name": "spawn_args_contain_simple_io_and_no_display_prompt_flags",
+"file": "pulse-app/tests/unit_llamacli_inference.rs",
+"line": 89
+},
+{
+"caller_name": "spawn_args_contain_model_path_and_schema_file_args",
+"file": "pulse-app/tests/unit_llamacli_inference.rs",
+"line": 104
+},
+{
+"caller_name": "spawn_args_contain_ngl_routing_per_profile",
+"file": "pulse-app/tests/unit_llamacli_inference.rs",
+"line": 125
+},
+{
+"caller_name": "spawn_args_contain_ngl_routing_per_profile",
+"file": "pulse-app/tests/unit_llamacli_inference.rs",
+"line": 132
+},
+{
+"caller_name": "spawn_args_contain_prompt_via_p_arg",
+"file": "pulse-app/tests/unit_llamacli_inference.rs",
+"line": 145
+},
+{
+"caller_name": "spawn_args_contain_log_disable_flag",
+"file": "pulse-app/tests/unit_llamacli_inference.rs",
+"line": 440
+},
+{
+"caller_name": "primary_prompt_embeds_schema_string",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 467
+},
+{
+"caller_name": "primary_prompt_embeds_role_definition",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 473
+},
+{
+"caller_name": "primary_prompt_embeds_conventions_snippet",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 480
+},
+{
+"caller_name": "primary_prompt_wraps_digest_in_markers",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 494
+},
+{
+"caller_name": "primary_prompt_wraps_project_context_in_markers",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 510
+},
+{
+"caller_name": "primary_prompt_omits_corpus_section_when_empty",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 518
+},
+{
+"caller_name": "primary_prompt_includes_corpus_section_when_present",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 527
+},
+{
+"caller_name": "primary_prompt_emits_output_format_reminder",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 536
+},
+{
+"caller_name": "primary_prompt_embeds_versioning_metadata",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 544
+},
+{
+"caller_name": "primary_prompt_schema_lists_decision_and_severity_after_the_analysis",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 555
+},
+{
+"caller_name": "framing_instruction_present_in_every_tier_output_instructions",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 583
+},
+{
+"caller_name": "every_tier_obliges_the_first_hypothesis_to_name_the_trigger_signal",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 612
+},
+{
+"caller_name": "primary_prompt_section_ordering_is_stable",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 633
+},
+{
+"caller_name": "primary_prompt_does_not_leak_internal_field_names_outside_schema",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 658
+},
+{
+"caller_name": "reflection_prompt_distinguishes_from_primary",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 861
+},
+{
+"caller_name": "composed_prompt_templates_are_ascii_clean_for_argv_transport",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 891
+},
+{
+"caller_name": "citable_section_renders_ids_verbatim_between_markers_in_all_tiers",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 964
+},
+{
+"caller_name": "citable_section_orders_after_digest_before_output_instructions",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 981
+},
+{
+"caller_name": "citable_section_empty_list_renders_explicit_none_instruction",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 998
+},
+{
+"caller_name": "citing_instruction_present_in_every_tier_output_instructions",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 1010
+},
+{
+"caller_name": "citable_ids_are_deduped_upstream_not_here_but_render_order_stable",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 1033
+},
+{
+"caller_name": "crate",
+"file": "pulse-app/examples/l4_decision_probe.rs",
+"line": 94
+},
+{
+"caller_name": "prepare",
+"file": "pulse-app/examples/l4_decision_probe.rs",
+"line": 447
+},
+{
+"caller_name": "inference_runtime",
+"file": "pulse-app/src/inference_runtime.rs",
+"line": 29
+},
+{
+"caller_name": "handle_digest_outcome",
+"file": "pulse-app/src/inference_runtime.rs",
+"line": 420
+},
+{
+"caller_name": "investigate_router",
+"file": "pulse-app/src/investigate_router.rs",
+"line": 18
+},
+{
+"caller_name": "run_action",
+"file": "pulse-app/src/investigate_router.rs",
+"line": 247
+},
+{
+"caller_name": "crate",
+"file": "pulse-app/tests/integration_real_llama_cli.rs",
+"line": 40
+},
+{
+"caller_name": "real_subprocess_round_trip_returns_schema_conformant_l4_output",
+"file": "pulse-app/tests/integration_real_llama_cli.rs",
+"line": 133
+},
+{
+"caller_name": "contract",
+"file": "crates/triage/src/contract.rs",
+"line": 152
+},
+{
+"caller_name": "assemble",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 337
+},
+{
+"caller_name": "assemble",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 361
+},
+{
+"caller_name": "assemble",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 376
+},
+{
+"caller_name": "assemble",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 392
+},
+{
+"caller_name": "render_payload_includes_five_recent_commits_per_p032",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 1049
+},
+{
+"caller_name": "overall_line_reads_anomalous_for_a_cue_bearing_tier1_digest",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 1091
+},
+{
+"caller_name": "overall_line_reads_nominal_without_cue_or_incident",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 1109
+},
+{
+"caller_name": "overall_line_reads_degraded_with_an_active_incident",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 1127
+},
+{
+"caller_name": "render_with",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 1155
+},
+{
+"caller_name": "digest",
+"file": "crates/triage/src/digest/mod.rs",
+"line": 35
+},
+{
+"caller_name": "crate",
+"file": "pulse-app/examples/l4_decision_probe.rs",
+"line": 107
+},
+{
+"caller_name": "prepare",
+"file": "pulse-app/examples/l4_decision_probe.rs",
+"line": 427
+},
+{
+"caller_name": "pii_scrub_fixture_overall_line_matches_the_render",
+"file": "pulse-app/tests/unit_digest_runtime_scrub.rs",
+"line": 32
+},
+{
+"caller_name": "pii_scrub_fixture_overall_line_matches_the_render",
+"file": "pulse-app/tests/unit_digest_runtime_scrub.rs",
+"line": 50
+},
+{
+"caller_name": "crate",
+"file": "pulse-app/examples/l4_decision_probe.rs",
+"line": 99
+},
+{
+"caller_name": "prepare",
+"file": "pulse-app/examples/l4_decision_probe.rs",
+"line": 486
+},
+{
+"caller_name": "generate_constrained",
+"file": "pulse-app/src/llamacli_inference.rs",
+"line": 768
+},
+{
+"caller_name": "crate",
+"file": "pulse-app/tests/unit_llamacli_inference.rs",
+"line": 36
+},
+{
+"caller_name": "prompt_bound_accepts_a_realistic_multi_line_prompt",
+"file": "pulse-app/tests/unit_llamacli_inference.rs",
+"line": 719
+},
+{
+"caller_name": "prompt_bound_rejects_an_embedded_nul",
+"file": "pulse-app/tests/unit_llamacli_inference.rs",
+"line": 726
+},
+{
+"caller_name": "prompt_bound_rejects_other_c0_control_characters",
+"file": "pulse-app/tests/unit_llamacli_inference.rs",
+"line": 735
+},
+{
+"caller_name": "prompt_bound_rejects_an_over_long_prompt",
+"file": "pulse-app/tests/unit_llamacli_inference.rs",
+"line": 744
+},
+{
+"caller_name": "prompt_bound_accepts_the_measured_real_model_envelope",
+"file": "pulse-app/tests/unit_llamacli_inference.rs",
+"line": 769
+}
+],
+"db_state": "fresh",
+"plane": "rust"
+}
+]

@@ -1,0 +1,55 @@
+[
+{
+"tool": "inputs",
+"v": "1.0",
+"sha8": "faa48d4e",
+"ts": "2026-10-05T12:24:02Z",
+"argv": [
+"snap",
+"--chunk-dir",
+"andromeda-pulse-0.3.0/chunks/2026-10-05-l4-model-chosen-by-pattern-discrimination",
+"--source",
+"/home/turbolet/dev/projects/additional/pc-overseer/relays/2026-10-05-l4-e4b-qat-head-to-head.md",
+"--kind",
+"relay",
+"--why",
+"founder ruling: Gemma 4 E4B QAT q4_0 vs the unsloth Q4_K_M face to face, both run fresh over the full pattern set in one slot, record-only",
+"--step",
+"implement",
+"--run-dir",
+".andromeda/runs/2026-10-05T10-22-12Z-implement",
+"--marker",
+"2026-10-05-l4-model-chosen-by-pattern-discrimination"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"snapped I4 · copy no-repo · ../additional/pc-overseer/relays/2026-10-05-l4-e4b-qat-head-to-head.md",
+"cite: inputs#I4"
+],
+"stderr": null,
+"wrote": [
+"inputs/I4-2026-10-05-l4-e4b-qat-head-to-head.md.txt",
+"inputs/andromeda-inputs.json"
+],
+"before": null,
+"after": {
+"id": "I4",
+"kind": "relay",
+"repo": null,
+"path": "../additional/pc-overseer/relays/2026-10-05-l4-e4b-qat-head-to-head.md",
+"form": "copy",
+"state": "no-repo",
+"commit": null,
+"ref": null,
+"upstream": null,
+"claimed": null,
+"sha256": "d226ac86d587a202c338c3da294f26eec7f61a435d5d2d44509ef08b3cbfaf0f",
+"copy": "I4-2026-10-05-l4-e4b-qat-head-to-head.md.txt",
+"link": false,
+"read_at": "2026-10-05T12:24:02Z",
+"step": "implement",
+"why": "founder ruling: Gemma 4 E4B QAT q4_0 vs the unsloth Q4_K_M face to face, both run fresh over the full pattern set in one slot, record-only"
+}
+}
+]
