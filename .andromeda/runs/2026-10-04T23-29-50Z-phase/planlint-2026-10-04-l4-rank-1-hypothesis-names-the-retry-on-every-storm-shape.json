@@ -1,0 +1,136 @@
+[
+{
+"tool": "planlint",
+"v": "1.6",
+"sha8": "bf918458",
+"ts": "2026-10-04T23:45:06Z",
+"argv": [
+"check",
+"--plan",
+"andromeda-pulse-0.3.0/chunks/2026-10-04-l4-rank-1-hypothesis-names-the-retry-on-every-storm-shape/plan.md",
+"--run-dir",
+".andromeda/runs/2026-10-04T23-29-50Z-phase",
+"--marker",
+"2026-10-04-l4-rank-1-hypothesis-names-the-retry-on-every-storm-shape"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"fence: 21 entries · plan: andromeda-pulse-0.3.0/chunks/2026-10-04-l4-rank-1-hypothesis-names-the-retry-on-every-storm-s…",
+"check 9 · CI-outcome reads: 0 (none matched) · Platform issues consulted: none · `none. There is no runner-only bullet…`",
+"check 9 · runner-only scope bullet: not read — the letter's",
+"check 4 (5) · leg = 'live' entries: 0 · Harness rules consulted: filled · ``.claude/rules/verification-harness.md`. It…`",
+"check 4 (5) · leg entries with a content atom: 7 · note without `atom from`: 0",
+"check 4 (13) · operator CI-outcome reads: 0 · not ci.py conclusion: 0",
+"check 4 (14) · base-less git change reads outside the operator and round legs: 0",
+"check 2 · ledger-note entries (matrix#): 0",
+"check 5 · placeholders outside code: 0",
+"hits: 0 — each resolved by its check's resolution (validation.md 2 · 5 · 9 · 4 (5) · 4 (13) · 4 (14)); 0 is not a pass"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"check9": {
+"slot": "none",
+"ci_reads": 0,
+"operator": 0,
+"hit": false
+},
+"harness": {
+"slot": "filled",
+"live": 0,
+"hit": false
+},
+"atom": {
+"atomed": 7,
+"bare": []
+},
+"tool": {
+"operator": 0,
+"hand": []
+},
+"base": {
+"operator": 7,
+"reads": []
+},
+"check2": {
+"entries": 13,
+"tokens": 0,
+"hits": []
+},
+"check5": {
+"hits": []
+},
+"hits": 0
+}
+},
+{
+"tool": "planlint",
+"v": "1.6",
+"sha8": "bf918458",
+"ts": "2026-10-04T23:46:42Z",
+"argv": [
+"check",
+"--plan",
+"andromeda-pulse-0.3.0/chunks/2026-10-04-l4-rank-1-hypothesis-names-the-retry-on-every-storm-shape/plan.md",
+"--run-dir",
+".andromeda/runs/2026-10-04T23-29-50Z-phase",
+"--marker",
+"2026-10-04-l4-rank-1-hypothesis-names-the-retry-on-every-storm-shape"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"fence: 21 entries · plan: andromeda-pulse-0.3.0/chunks/2026-10-04-l4-rank-1-hypothesis-names-the-retry-on-every-storm-s…",
+"check 9 · CI-outcome reads: 0 (none matched) · Platform issues consulted: none · `none. There is no runner-only bullet…`",
+"check 9 · runner-only scope bullet: not read — the letter's",
+"check 4 (5) · leg = 'live' entries: 0 · Harness rules consulted: filled · ``.claude/rules/verification-harness.md`. It…`",
+"check 4 (5) · leg entries with a content atom: 7 · note without `atom from`: 0",
+"check 4 (13) · operator CI-outcome reads: 0 · not ci.py conclusion: 0",
+"check 4 (14) · base-less git change reads outside the operator and round legs: 0",
+"check 2 · ledger-note entries (matrix#): 0",
+"check 5 · placeholders outside code: 0",
+"hits: 0 — each resolved by its check's resolution (validation.md 2 · 5 · 9 · 4 (5) · 4 (13) · 4 (14)); 0 is not a pass"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"check9": {
+"slot": "none",
+"ci_reads": 0,
+"operator": 0,
+"hit": false
+},
+"harness": {
+"slot": "filled",
+"live": 0,
+"hit": false
+},
+"atom": {
+"atomed": 7,
+"bare": []
+},
+"tool": {
+"operator": 0,
+"hand": []
+},
+"base": {
+"operator": 7,
+"reads": []
+},
+"check2": {
+"entries": 13,
+"tokens": 0,
+"hits": []
+},
+"check5": {
+"hits": []
+},
+"hits": 0
+}
+}
+]

@@ -4,7 +4,7 @@
 //!
 //! ```text
 //! cargo build -p pulse-app --example l4_decision_probe
-//! ./target/debug/examples/l4_decision_probe[.exe] --arms A0,A1,A2,A3,A4,A5 --n 10 [--min 27] [--min-rank1 36] [--out DIR] [--dry-run]
+//! ./target/debug/examples/l4_decision_probe[.exe] --arms A0,A1,A2,A3,A4,A5 [--shapes S1,S2,S3,S4] --n 10 [--min 27] [--min-rank1 36] [--out DIR] [--dry-run]
 //! ```
 //!
 //! Inputs come from the product's own guarded resolution: the hardware
@@ -31,11 +31,17 @@
 //! `rank1` (the first hypothesis names the triggering cue), `elsewhere` (the
 //! title, the symptom or a later hypothesis does), `none`, or `unparsed`.
 //! `--min-rank1 K` adds a names-trigger verdict line over all generations;
-//! with both flags set, the exit is 1 if either verdict fails.
+//! with both flags set, the exit is 1 if either verdict fails. Rows and
+//! summary lines also carry `names_trigger_stem`, the same reading over the
+//! stem forms (`retries`, `retried`); it is recorded only and never feeds a
+//! verdict.
 //!
 //! Shapes S1-S3 are retry storms on one service each; S4 is S1 plus one
 //! corpus match (an older, active error-rate-spike incident on another
-//! service), rendered through the real `format_corpus_match_line`.
+//! service), rendered through the real `format_corpus_match_line`. S5 is a
+//! storm whose only abnormal metric is latency; S6 carries both an elevated
+//! error rate and an elevated latency. `--shapes` selects among them
+//! (default S1-S4).
 //!
 //! Arms (each differs from A0 in ONE factor):
 //! - `A0` — the rendered digest, prompt and argv as the tree has them
@@ -53,6 +59,14 @@
 //!   removed: the digest's TRIGGER line, its corpus framing note and the
 //!   prompt's framing instruction (the no-framing counterfactual)
 //! - `shipped` — the tree as it is, no transform (the post-fix re-measure)
+//! - `R1` — the framing instruction reworded to oblige the first hypothesis
+//!   statement to name the TRIGGER line's signal in its own words
+//! - `R3` — one conventions sentence carrying the same obligation
+//! - `R2` — one sentence in the schema's `hypotheses` description carrying
+//!   it, in both schema copies
+//! - `R1R3` / `R1R2` / `R3R2` — the two named candidates applied together
+//!
+//! Each candidate composes as A0 once its text is already in the tree.
 
 use std::collections::hash_map::DefaultHasher;
 use std::collections::{BTreeMap, BTreeSet};
@@ -78,7 +92,10 @@ use triage::contract::{
     format_corpus_match_line, render_payload,
 };
 
-const ARMS: [&str; 8] = ["A0", "A1", "A2", "A3", "A4", "A5", "nf", "shipped"];
+const ARMS: [&str; 14] = [
+    "A0", "A1", "A2", "A3", "A4", "A5", "nf", "shipped", "R1", "R3", "R2", "R1R3", "R1R2", "R3R2",
+];
+const DEFAULT_SHAPES: [&str; 4] = ["S1", "S2", "S3", "S4"];
 // `crate::cadence::mode_label(CadenceMode::Tier1)` — a storm cue always takes
 // the Tier1 cycle, whose window is 60 s.
 const TIER1_MODE_LABEL: &str = "tier1";
@@ -93,6 +110,24 @@ const CORPUS_MATCH_AGE_NANOS: i64 = 180_000_000_000;
 const A4_ANCHOR: &str = "\"watch\" (record but do not surface). ";
 const A4_SENTENCE: &str = "A signal warrants \"surface\" when a service's error rate or \
 latency is far above its baseline or an attention cue reports a storm. ";
+// The candidate texts are kind-generic and never name a cue kind, so a
+// remedy cannot be a word plant the grader rewards.
+const R1_FRAMING_INSTRUCTION: &str = "\
+When the digest carries a TRIGGER line, that line names the signal this \
+output describes: the title, the symptom and the first hypothesis must be \
+about that signal, and the first hypothesis statement must name that signal \
+in the TRIGGER line's own words. Treat any other abnormal metric on the same \
+service as a cause or an effect of that signal, never as a separate first \
+hypothesis. CORPUS MATCHES lines are OTHER incidents, past or still open on \
+another signal, given for context only; never describe one of them as the \
+current signal.";
+const R3_ANCHOR: &str = "Investigation steps point to concrete checks";
+const R3_CONVENTIONS_SENTENCE: &str = "When the digest carries a TRIGGER \
+line, the first hypothesis names that signal in the TRIGGER line's own words. ";
+const R2_ANCHOR: &str =
+    "Ranked hypothesis list per P-033 (primary tier emits up to 5; fallback tier emits 1).";
+const R2_SCHEMA_SENTENCE: &str = " When the digest carries a TRIGGER line, the \
+first hypothesis statement names that signal in the TRIGGER line's own words.";
 
 struct Shape {
     id: &'static str,
@@ -103,6 +138,7 @@ struct Shape {
 
 struct Args {
     arms: Vec<String>,
+    shapes: Vec<String>,
     n: u32,
     min: Option<u32>,
     min_rank1: Option<u32>,
@@ -195,7 +231,37 @@ fn shapes() -> Vec<Shape> {
                 RENDER_NOW_UNIX_NANO,
             )],
         },
+        Shape {
+            id: "S5",
+            services: vec![
+                row("checkout-api", 12.0, 0.0, 120.0),
+                row("payment-service", 9.0, 0.0, 95.0),
+                row("inventory-service", 7.0, 0.0, 60.0),
+                row("auth-service", 15.0, 0.0, 620.0),
+            ],
+            cue: storm_cue("auth-service", 9.0, 0.0),
+            corpus_matches: Vec::new(),
+        },
+        Shape {
+            id: "S6",
+            services: vec![
+                row("checkout-api", 11.0, 0.20, 390.0),
+                row("payment-service", 9.0, 0.0, 95.0),
+                row("inventory-service", 7.0, 0.0, 60.0),
+                row("auth-service", 15.0, 0.0, 40.0),
+            ],
+            cue: storm_cue("checkout-api", 10.0, 0.20),
+            corpus_matches: Vec::new(),
+        },
     ]
+}
+
+/// The listed shapes, in `shapes()` order whatever the list order.
+fn select_shapes(ids: &[String]) -> Vec<Shape> {
+    shapes()
+        .into_iter()
+        .filter(|s| ids.iter().any(|id| id == s.id))
+        .collect()
 }
 
 /// An older, still-active incident of another kind on another service: the
@@ -363,6 +429,14 @@ fn prepare(arm: &str, shape: &Shape) -> Result<Prepared, String> {
         }
         _ => {}
     }
+    for part in candidate_parts(arm) {
+        match *part {
+            "R1" => prompt = apply_r1(&prompt)?,
+            "R3" => prompt = apply_r3(&prompt)?,
+            "R2" => (prompt, schema) = apply_r2(&prompt, &schema)?,
+            _ => {}
+        }
+    }
     validate_prompt_bounded(&prompt)
         .map_err(|r| format!("{arm}: prompt rejected: {}", r.label()))?;
     Ok(Prepared {
@@ -373,6 +447,111 @@ fn prepare(arm: &str, shape: &Shape) -> Result<Prepared, String> {
         schema,
         extra_args,
     })
+}
+
+fn candidate_parts(arm: &str) -> &'static [&'static str] {
+    match arm {
+        "R1" => &["R1"],
+        "R3" => &["R3"],
+        "R2" => &["R2"],
+        "R1R3" => &["R1", "R3"],
+        "R1R2" => &["R1", "R2"],
+        "R3R2" => &["R3", "R2"],
+        _ => &[],
+    }
+}
+
+/// R1: the framing instruction line replaced by the R1 text.
+fn apply_r1(prompt: &str) -> Result<String, String> {
+    match prompt
+        .lines()
+        .filter(|l| *l == R1_FRAMING_INSTRUCTION)
+        .count()
+    {
+        1 => return Ok(prompt.to_string()),
+        0 => {}
+        hits => return Err(format!("R1: text found {hits} times")),
+    }
+    let hits = count_matching_lines(prompt, is_framing_instruction_line);
+    if hits != 1 {
+        return Err(format!(
+            "R1: framing instruction found {hits} times, expected 1"
+        ));
+    }
+    Ok(prompt
+        .split_inclusive('\n')
+        .map(|l| {
+            let body = l.trim_end_matches('\n');
+            if is_framing_instruction_line(body) {
+                format!("{R1_FRAMING_INSTRUCTION}{}", &l[body.len()..])
+            } else {
+                l.to_string()
+            }
+        })
+        .collect())
+}
+
+/// R3: the conventions sentence inserted before the investigation-steps one.
+fn apply_r3(prompt: &str) -> Result<String, String> {
+    match prompt.matches(R3_CONVENTIONS_SENTENCE).count() {
+        1 => return Ok(prompt.to_string()),
+        0 => {}
+        hits => return Err(format!("R3: text found {hits} times")),
+    }
+    if prompt.matches(R3_ANCHOR).count() != 1 {
+        return Err("R3: conventions anchor not found exactly once".to_string());
+    }
+    Ok(prompt.replacen(
+        R3_ANCHOR,
+        &format!("{R3_CONVENTIONS_SENTENCE}{R3_ANCHOR}"),
+        1,
+    ))
+}
+
+/// The schema with R2's sentence appended to the `hypotheses` description,
+/// checked to differ from `schema` in that one string only.
+fn r2_schema(schema: &str) -> Result<String, String> {
+    let extended = format!("{R2_ANCHOR}{R2_SCHEMA_SENTENCE}");
+    match schema.matches(&extended).count() {
+        1 => return Ok(schema.to_string()),
+        0 => {}
+        hits => return Err(format!("R2: text found {hits} times")),
+    }
+    if schema.matches(R2_ANCHOR).count() != 1 {
+        return Err("R2: hypotheses description not found exactly once".to_string());
+    }
+    let out = schema.replacen(R2_ANCHOR, &extended, 1);
+    let mut parsed: Value =
+        serde_json::from_str(&out).map_err(|_| "R2: edited schema is not JSON")?;
+    let original: Value = serde_json::from_str(schema).map_err(|_| "R2: schema is not JSON")?;
+    let description = parsed
+        .pointer_mut("/properties/hypotheses/description")
+        .ok_or("R2: hypotheses description not at its path")?;
+    if *description != Value::String(extended) {
+        return Err("R2: the sentence landed outside the hypotheses description".to_string());
+    }
+    *description = Value::String(R2_ANCHOR.to_string());
+    if parsed != original {
+        return Err("R2: edit changed more than the hypotheses description".to_string());
+    }
+    Ok(out)
+}
+
+/// R2: both schema copies carry the sentence — the `--json-schema-file` one
+/// and the one embedded in the prompt (the A5 two-copy discipline).
+fn apply_r2(prompt: &str, schema: &str) -> Result<(String, String), String> {
+    let edited = r2_schema(schema)?;
+    if edited == schema {
+        return Ok((prompt.to_string(), edited));
+    }
+    if prompt.matches(schema).count() != 1 {
+        return Err("R2: embedded schema not found exactly once".to_string());
+    }
+    Ok((prompt.replacen(schema, &edited, 1), edited))
+}
+
+fn count_matching_lines(text: &str, target: fn(&str) -> bool) -> usize {
+    text.lines().filter(|l| target(l)).count()
 }
 
 fn is_trigger_line(line: &str) -> bool {
@@ -449,6 +628,46 @@ fn names_trigger(output: &L4Output, kind: CueKind) -> &'static str {
 
 fn names_trigger_label(parsed: Option<&L4Output>, kind: CueKind) -> &'static str {
     parsed.map_or("unparsed", |out| names_trigger(out, kind))
+}
+
+/// `trigger_terms` widened to the stem forms a substring `retry` misses
+/// (`retrying` and `retry_storm` already contain it).
+fn stem_terms(kind: CueKind) -> &'static [&'static str] {
+    match kind {
+        CueKind::RetryStorm => &["retry", "retries", "retried"],
+        other => trigger_terms(other),
+    }
+}
+
+/// `names_trigger` over `stem_terms`: a record-only reading that never
+/// feeds a verdict.
+fn names_trigger_stem(output: &L4Output, kind: CueKind) -> &'static str {
+    let terms = stem_terms(kind);
+    let names = |text: &str| {
+        let lower = text.to_ascii_lowercase();
+        terms.iter().any(|t| lower.contains(t))
+    };
+    if output
+        .hypotheses
+        .first()
+        .is_some_and(|h| names(&h.statement))
+    {
+        return "rank1";
+    }
+    let later = output
+        .hypotheses
+        .iter()
+        .skip(1)
+        .any(|h| names(&h.statement));
+    if names(&output.title) || names(&output.symptom) || later {
+        "elsewhere"
+    } else {
+        "none"
+    }
+}
+
+fn names_trigger_stem_label(parsed: Option<&L4Output>, kind: CueKind) -> &'static str {
+    parsed.map_or("unparsed", |out| names_trigger_stem(out, kind))
 }
 
 /// The first three top-level keys of a JSON object, read off its text.
@@ -567,13 +786,18 @@ async fn generate(
 }
 
 fn parse_args() -> Result<Args, String> {
+    parse_args_from(std::env::args().skip(1))
+}
+
+fn parse_args_from(argv: impl IntoIterator<Item = String>) -> Result<Args, String> {
     let mut arms = vec!["A0".to_string()];
+    let mut shape_ids: Vec<String> = DEFAULT_SHAPES.iter().map(|s| s.to_string()).collect();
     let mut n = 10;
     let mut min = None;
     let mut min_rank1 = None;
     let mut out = None;
     let mut dry_run = false;
-    let mut it = std::env::args().skip(1);
+    let mut it = argv.into_iter();
     while let Some(flag) = it.next() {
         if flag == "--dry-run" {
             dry_run = true;
@@ -585,6 +809,16 @@ fn parse_args() -> Result<Args, String> {
                 arms = value.split(',').map(|a| a.trim().to_string()).collect();
                 if let Some(bad) = arms.iter().find(|a| !ARMS.contains(&a.as_str())) {
                     return Err(format!("unknown arm {bad}"));
+                }
+            }
+            "--shapes" => {
+                shape_ids = value.split(',').map(|s| s.trim().to_string()).collect();
+                let known = shapes();
+                if let Some(bad) = shape_ids
+                    .iter()
+                    .find(|id| !known.iter().any(|s| s.id == id.as_str()))
+                {
+                    return Err(format!("unknown shape {bad}"));
                 }
             }
             "--n" => n = value.parse().map_err(|_| "--n takes a number")?,
@@ -602,12 +836,22 @@ fn parse_args() -> Result<Args, String> {
     });
     Ok(Args {
         arms,
+        shapes: shape_ids,
         n,
         min,
         min_rank1,
         out,
         dry_run,
     })
+}
+
+/// `S1 9 S2 6 …` over the selected shapes, in `shapes()` order.
+fn per_shape_counts(selected: &[Shape], count: impl Fn(&str) -> usize) -> String {
+    selected
+        .iter()
+        .map(|s| format!("{} {}", s.id, count(s.id)))
+        .collect::<Vec<_>>()
+        .join(" ")
 }
 
 fn basename(path: &Path) -> String {
@@ -628,10 +872,11 @@ async fn main() -> ExitCode {
         Err(why) => return inconclusive(&why),
     };
 
+    let selected = select_shapes(&args.shapes);
     let mut prepared = Vec::new();
     for arm in &args.arms {
-        for shape in shapes() {
-            match prepare(arm, &shape) {
+        for shape in &selected {
+            match prepare(arm, shape) {
                 Ok(p) => prepared.push(p),
                 Err(why) => return inconclusive(&why),
             }
@@ -678,10 +923,11 @@ async fn main() -> ExitCode {
     }
     let (binary, model) = (resolved[0].clone(), resolved[1].clone());
     println!(
-        "l4-decision-probe: binary {} ({binary_kind}, -ngl {ngl}) · model {} · arms {} · n {} per shape",
+        "l4-decision-probe: binary {} ({binary_kind}, -ngl {ngl}) · model {} · arms {} · shapes {} · n {} per shape",
         basename(&binary),
         basename(&model),
         args.arms.join(","),
+        selected.iter().map(|s| s.id).collect::<Vec<_>>().join(","),
         args.n
     );
 
@@ -705,6 +951,8 @@ async fn main() -> ExitCode {
         let mut per_shape: BTreeMap<&'static str, u32> = BTreeMap::new();
         let mut names_counts: BTreeMap<&'static str, u32> = BTreeMap::new();
         let mut rank1_per_shape: BTreeMap<&'static str, u32> = BTreeMap::new();
+        let mut stem_counts: BTreeMap<&'static str, u32> = BTreeMap::new();
+        let mut stem_rank1_per_shape: BTreeMap<&'static str, u32> = BTreeMap::new();
         for p in prepared.iter().filter(|p| &p.arm == arm) {
             let schema_path = args.out.join(format!("schema-{}.json", p.arm));
             if std::fs::write(&schema_path, &p.schema).is_err() {
@@ -716,6 +964,7 @@ async fn main() -> ExitCode {
                     return inconclusive("llama-cli did not spawn");
                 }
                 let mut names = names_trigger_label(None, p.trigger);
+                let mut stem = names_trigger_stem_label(None, p.trigger);
                 let (decision, severity, is_rs, keys, digest) = match &outcome {
                     Spawned::Output(text) => match extract_json_object_bounded(text) {
                         Ok(obj) => {
@@ -725,6 +974,7 @@ async fn main() -> ExitCode {
                             match parse_bounded(obj.as_bytes()) {
                                 Ok(out) => {
                                     names = names_trigger_label(Some(&out), p.trigger);
+                                    stem = names_trigger_stem_label(Some(&out), p.trigger);
                                     (
                                         decision_label(out.decision),
                                         severity_label(out.severity),
@@ -746,6 +996,10 @@ async fn main() -> ExitCode {
                 if names == "rank1" {
                     *rank1_per_shape.entry(p.shape).or_default() += 1;
                 }
+                *stem_counts.entry(stem).or_default() += 1;
+                if stem == "rank1" {
+                    *stem_rank1_per_shape.entry(p.shape).or_default() += 1;
+                }
                 let would_create =
                     matches!(decision, "surface" | "watch") && severity != "none" && !is_rs;
                 n_arm += 1;
@@ -765,7 +1019,7 @@ async fn main() -> ExitCode {
                     distinct.entry(p.shape).or_default().insert(d);
                 }
                 eprintln!(
-                    "l4-decision-probe: {} {} run {run}: decision {decision} severity {} would_create {would_create} names_trigger {names}",
+                    "l4-decision-probe: {} {} run {run}: decision {decision} severity {} would_create {would_create} names_trigger {names} names_trigger_stem {stem}",
                     p.arm,
                     p.shape,
                     if severity.is_empty() { "-" } else { severity }
@@ -781,6 +1035,7 @@ async fn main() -> ExitCode {
                     "first_keys": keys,
                     "output_hash": digest.map(|d| format!("{d:016x}")),
                     "names_trigger": names,
+                    "names_trigger_stem": stem,
                 }));
             }
         }
@@ -802,25 +1057,17 @@ async fn main() -> ExitCode {
         );
         println!(
             "  arm {arm}: per shape would_create {} · failed {other} · first_keys {} · distinct outputs {} · wall {}s",
-            shapes()
-                .iter()
-                .map(|s| format!("{} {}", s.id, per_shape.get(s.id).copied().unwrap_or(0)))
-                .collect::<Vec<_>>()
-                .join(" "),
+            per_shape_counts(&selected, |id| per_shape.get(id).copied().unwrap_or(0)
+                as usize),
             key_orders
                 .iter()
                 .map(|(k, v)| format!("{}={v}", if k.is_empty() { "none" } else { k }))
                 .collect::<Vec<_>>()
                 .join(" "),
-            shapes()
-                .iter()
-                .map(|s| format!(
-                    "{} {}",
-                    s.id,
-                    distinct.get(s.id).map(|d| d.len()).unwrap_or(0)
-                ))
-                .collect::<Vec<_>>()
-                .join(" "),
+            per_shape_counts(&selected, |id| distinct
+                .get(id)
+                .map(|d| d.len())
+                .unwrap_or(0)),
             started.elapsed().as_secs()
         );
         println!(
@@ -829,15 +1076,22 @@ async fn main() -> ExitCode {
             names_count("elsewhere"),
             names_count("none"),
             names_count("unparsed"),
-            shapes()
-                .iter()
-                .map(|s| format!(
-                    "{} {}",
-                    s.id,
-                    rank1_per_shape.get(s.id).copied().unwrap_or(0)
-                ))
-                .collect::<Vec<_>>()
-                .join(" "),
+            per_shape_counts(
+                &selected,
+                |id| rank1_per_shape.get(id).copied().unwrap_or(0) as usize
+            ),
+        );
+        let stem_count = |k: &str| stem_counts.get(k).copied().unwrap_or(0);
+        println!(
+            "  arm {arm}: names_trigger_stem rank1 {}/{n_arm} · elsewhere {} · none {} · unparsed {} · per shape rank1 {}",
+            stem_count("rank1"),
+            stem_count("elsewhere"),
+            stem_count("none"),
+            stem_count("unparsed"),
+            per_shape_counts(
+                &selected,
+                |id| stem_rank1_per_shape.get(id).copied().unwrap_or(0) as usize
+            ),
         );
     }
 
@@ -1054,11 +1308,170 @@ mod tests {
 
     #[test]
     fn every_arm_and_shape_composes_within_the_production_bound() {
+        let ids: Vec<&str> = shapes().iter().map(|s| s.id).collect();
+        assert_eq!(ids, ["S1", "S2", "S3", "S4", "S5", "S6"]);
         for arm in ARMS {
             for s in shapes() {
                 let prepared = prepare(arm, &s);
                 assert!(prepared.is_ok(), "{arm} {}: {:?}", s.id, prepared.err());
+                let bytes = prepared.map(|p| p.prompt.len()).unwrap_or_default();
+                assert!(bytes <= MAX_PROMPT_BYTES, "{arm} {}: {bytes} bytes", s.id);
             }
         }
+    }
+
+    fn argv(items: &[&str]) -> Vec<String> {
+        items.iter().map(|s| s.to_string()).collect()
+    }
+
+    fn selected_ids(args: &Args) -> Vec<&'static str> {
+        select_shapes(&args.shapes).iter().map(|s| s.id).collect()
+    }
+
+    #[test]
+    fn shapes_default_is_s1_through_s4() {
+        let Ok(args) = parse_args_from(argv(&[])) else {
+            panic!("no flags parse");
+        };
+        assert_eq!(selected_ids(&args), ["S1", "S2", "S3", "S4"]);
+    }
+
+    #[test]
+    fn shapes_flag_selects_the_listed_shapes_in_shapes_order() {
+        let Ok(args) = parse_args_from(argv(&["--shapes", "S6,S5", "--n", "3"])) else {
+            panic!("--shapes S6,S5 parses");
+        };
+        assert_eq!(selected_ids(&args), ["S5", "S6"]);
+        assert_eq!(args.n, 3);
+    }
+
+    #[test]
+    fn shapes_flag_refuses_an_unknown_shape() {
+        let refused = parse_args_from(argv(&["--shapes", "S1,S9"])).err();
+        assert_eq!(refused.as_deref(), Some("unknown shape S9"));
+    }
+
+    #[test]
+    fn stem_grader_label_set_is_exactly_the_closed_set() {
+        const CLOSED: [&str; 4] = ["rank1", "elsewhere", "none", "unparsed"];
+        let outputs = [
+            output("x", "y", &["retries"]),
+            output("retried", "y", &["z"]),
+            output("x", "y", &["z"]),
+            output("x", "y", &[]),
+        ];
+        let mut seen = BTreeSet::new();
+        for kind in [
+            CueKind::ErrorRateSpike,
+            CueKind::LatencyRegression,
+            CueKind::RestartEvent,
+            CueKind::ServiceWentSilent,
+            CueKind::RetryStorm,
+            CueKind::ReflectionTrend,
+        ] {
+            seen.insert(names_trigger_stem_label(None, kind));
+            for out in &outputs {
+                seen.insert(names_trigger_stem_label(Some(out), kind));
+            }
+        }
+        assert_eq!(seen, CLOSED.into_iter().collect::<BTreeSet<_>>());
+    }
+
+    #[test]
+    fn stem_reads_rank1_for_retries_and_retried_where_the_strict_grader_does_not() {
+        for statement in [
+            "Excessive retries on payment-service",
+            "Failed calls are retried",
+        ] {
+            let out = output("Payment errors", "Errors rose", &[statement]);
+            assert_eq!(
+                names_trigger_stem(&out, CueKind::RetryStorm),
+                "rank1",
+                "{statement}"
+            );
+            assert_eq!(
+                names_trigger(&out, CueKind::RetryStorm),
+                "none",
+                "{statement}"
+            );
+        }
+    }
+
+    fn candidate_text_count(prompt: &str, part: &str) -> usize {
+        match part {
+            "R1" => prompt
+                .lines()
+                .filter(|l| *l == R1_FRAMING_INSTRUCTION)
+                .count(),
+            "R3" => prompt.matches(R3_CONVENTIONS_SENTENCE).count(),
+            _ => prompt.matches(R2_SCHEMA_SENTENCE).count(),
+        }
+    }
+
+    #[test]
+    fn candidate_arms_carry_their_text_exactly_once_within_the_bound() {
+        for arm in ["R1", "R3", "R2", "R1R3", "R1R2", "R3R2"] {
+            for s in shapes() {
+                let Ok(p) = prepare(arm, &s) else {
+                    panic!("{arm} {} composes", s.id);
+                };
+                for part in candidate_parts(arm) {
+                    assert_eq!(
+                        candidate_text_count(&p.prompt, part),
+                        1,
+                        "{arm} {}: {part} text",
+                        s.id
+                    );
+                }
+                if candidate_parts(arm).contains(&"R2") {
+                    assert_eq!(p.schema.matches(R2_SCHEMA_SENTENCE).count(), 1, "{arm}");
+                }
+                assert!(p.prompt.len() <= MAX_PROMPT_BYTES, "{arm} {}", s.id);
+            }
+        }
+    }
+
+    #[test]
+    fn candidate_transforms_are_identity_once_their_text_is_present() {
+        let s2 = shape("S2");
+        let Ok(r1) = prepare("R1", &s2) else {
+            panic!("R1 composes");
+        };
+        assert_eq!(apply_r1(&r1.prompt), Ok(r1.prompt.clone()));
+        let Ok(r3) = prepare("R3", &s2) else {
+            panic!("R3 composes");
+        };
+        assert_eq!(apply_r3(&r3.prompt), Ok(r3.prompt.clone()));
+        let Ok(r2) = prepare("R2", &s2) else {
+            panic!("R2 composes");
+        };
+        assert_eq!(
+            apply_r2(&r2.prompt, &r2.schema),
+            Ok((r2.prompt.clone(), r2.schema.clone()))
+        );
+    }
+
+    #[test]
+    fn r2_schema_parses_and_changes_only_the_hypotheses_description() {
+        let base = L4_OUTPUT_JSON_SCHEMA.replace(R2_SCHEMA_SENTENCE, "");
+        let Ok(edited) = r2_schema(&base) else {
+            panic!("R2 edits the schema");
+        };
+        assert_ne!(edited, base);
+        let Ok(mut parsed) = serde_json::from_str::<Value>(&edited) else {
+            panic!("the edited schema is JSON");
+        };
+        let Ok(original) = serde_json::from_str::<Value>(&base) else {
+            panic!("the base schema is JSON");
+        };
+        let at = "/properties/hypotheses/description";
+        assert_eq!(
+            parsed.pointer(at),
+            Some(&Value::String(format!("{R2_ANCHOR}{R2_SCHEMA_SENTENCE}")))
+        );
+        if let Some(d) = parsed.pointer_mut(at) {
+            *d = Value::String(R2_ANCHOR.to_string());
+        }
+        assert_eq!(parsed, original);
     }
 }

@@ -536,8 +536,8 @@ async fn handle_digest_emits_prompt_version_v2_4_for_primary_tier() {
         .find(|(t, _, _)| t == "interpretation.prompt.assemble")
         .expect("interpretation.prompt.assemble event present");
     assert!(
-        assemble_evt.2.contains("prompt_version=v2.4"),
-        "primary tier must emit prompt_version=v2.4; got fields: {}",
+        assemble_evt.2.contains("prompt_version=v2.5"),
+        "primary tier must emit prompt_version=v2.5; got fields: {}",
         assemble_evt.2
     );
 }
@@ -558,8 +558,8 @@ async fn handle_digest_emits_prompt_version_v1_fallback_for_fallback_tier() {
         .find(|(t, _, _)| t == "interpretation.prompt.assemble")
         .expect("interpretation.prompt.assemble event present");
     assert!(
-        assemble_evt.2.contains("prompt_version=v1.3-fallback"),
-        "fallback tier must emit prompt_version=v1.3-fallback; got fields: {}",
+        assemble_evt.2.contains("prompt_version=v1.4-fallback"),
+        "fallback tier must emit prompt_version=v1.4-fallback; got fields: {}",
         assemble_evt.2
     );
 }
@@ -625,8 +625,8 @@ async fn handle_digest_selects_reflection_prompt_for_reflection_digest() {
         .find(|(t, _, _)| t == "interpretation.prompt.assemble")
         .expect("interpretation.prompt.assemble event present");
     assert!(
-        assemble_evt.2.contains("prompt_version=v1.3-reflection"),
-        "reflection digest must emit prompt_version=v1.3-reflection; got fields: {}",
+        assemble_evt.2.contains("prompt_version=v1.4-reflection"),
+        "reflection digest must emit prompt_version=v1.4-reflection; got fields: {}",
         assemble_evt.2
     );
 }

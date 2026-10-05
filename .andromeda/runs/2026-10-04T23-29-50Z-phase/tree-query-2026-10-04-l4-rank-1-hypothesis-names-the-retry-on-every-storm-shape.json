@@ -1,0 +1,640 @@
+[
+{
+"sql": "SELECT callee_name, file, line FROM refs WHERE callee_name IN ('TRIGGER_FRAMING_INSTRUCTION','build_primary_tier_prompt','build_fallback_tier_prompt','build_reflection_tier_prompt','render_payload','PROMPT_VERSION_PRIMARY','L4_OUTPUT_JSON_SCHEMA','cue_cause_label') ORDER BY callee_name, file, line",
+"rows": 126,
+"result": [
+{
+"callee_name": "L4_OUTPUT_JSON_SCHEMA",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 28
+},
+{
+"callee_name": "L4_OUTPUT_JSON_SCHEMA",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 201
+},
+{
+"callee_name": "L4_OUTPUT_JSON_SCHEMA",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 229
+},
+{
+"callee_name": "L4_OUTPUT_JSON_SCHEMA",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 294
+},
+{
+"callee_name": "L4_OUTPUT_JSON_SCHEMA",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 322
+},
+{
+"callee_name": "L4_OUTPUT_JSON_SCHEMA",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 385
+},
+{
+"callee_name": "L4_OUTPUT_JSON_SCHEMA",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 413
+},
+{
+"callee_name": "L4_OUTPUT_JSON_SCHEMA",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 462
+},
+{
+"callee_name": "L4_OUTPUT_JSON_SCHEMA",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 629
+},
+{
+"callee_name": "L4_OUTPUT_JSON_SCHEMA",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 630
+},
+{
+"callee_name": "L4_OUTPUT_JSON_SCHEMA",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 645
+},
+{
+"callee_name": "L4_OUTPUT_JSON_SCHEMA",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 793
+},
+{
+"callee_name": "L4_OUTPUT_JSON_SCHEMA",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 794
+},
+{
+"callee_name": "L4_OUTPUT_JSON_SCHEMA",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 809
+},
+{
+"callee_name": "L4_OUTPUT_JSON_SCHEMA",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 912
+},
+{
+"callee_name": "L4_OUTPUT_JSON_SCHEMA",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 913
+},
+{
+"callee_name": "L4_OUTPUT_JSON_SCHEMA",
+"file": "crates/interpretation/src/schema.rs",
+"line": 382
+},
+{
+"callee_name": "L4_OUTPUT_JSON_SCHEMA",
+"file": "crates/interpretation/src/schema.rs",
+"line": 404
+},
+{
+"callee_name": "L4_OUTPUT_JSON_SCHEMA",
+"file": "pulse-app/examples/l4_decision_probe.rs",
+"line": 65
+},
+{
+"callee_name": "L4_OUTPUT_JSON_SCHEMA",
+"file": "pulse-app/examples/l4_decision_probe.rs",
+"line": 274
+},
+{
+"callee_name": "L4_OUTPUT_JSON_SCHEMA",
+"file": "pulse-app/examples/l4_decision_probe.rs",
+"line": 346
+},
+{
+"callee_name": "L4_OUTPUT_JSON_SCHEMA",
+"file": "pulse-app/examples/l4_decision_probe.rs",
+"line": 357
+},
+{
+"callee_name": "L4_OUTPUT_JSON_SCHEMA",
+"file": "pulse-app/examples/l4_decision_probe.rs",
+"line": 361
+},
+{
+"callee_name": "L4_OUTPUT_JSON_SCHEMA",
+"file": "pulse-app/src/inference_runtime.rs",
+"line": 32
+},
+{
+"callee_name": "L4_OUTPUT_JSON_SCHEMA",
+"file": "pulse-app/src/inference_runtime.rs",
+"line": 442
+},
+{
+"callee_name": "L4_OUTPUT_JSON_SCHEMA",
+"file": "pulse-app/src/investigate_router.rs",
+"line": 19
+},
+{
+"callee_name": "L4_OUTPUT_JSON_SCHEMA",
+"file": "pulse-app/src/investigate_router.rs",
+"line": 256
+},
+{
+"callee_name": "L4_OUTPUT_JSON_SCHEMA",
+"file": "pulse-app/tests/integration_real_llama_cli.rs",
+"line": 41
+},
+{
+"callee_name": "L4_OUTPUT_JSON_SCHEMA",
+"file": "pulse-app/tests/integration_real_llama_cli.rs",
+"line": 143
+},
+{
+"callee_name": "PROMPT_VERSION_PRIMARY",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 28
+},
+{
+"callee_name": "PROMPT_VERSION_PRIMARY",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 227
+},
+{
+"callee_name": "PROMPT_VERSION_PRIMARY",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 540
+},
+{
+"callee_name": "PROMPT_VERSION_PRIMARY",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 567
+},
+{
+"callee_name": "PROMPT_VERSION_PRIMARY",
+"file": "crates/interpretation/src/schema.rs",
+"line": 357
+},
+{
+"callee_name": "PROMPT_VERSION_PRIMARY",
+"file": "pulse-app/src/inference_runtime.rs",
+"line": 32
+},
+{
+"callee_name": "PROMPT_VERSION_PRIMARY",
+"file": "pulse-app/src/inference_runtime.rs",
+"line": 421
+},
+{
+"callee_name": "TRIGGER_FRAMING_INSTRUCTION",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 211
+},
+{
+"callee_name": "TRIGGER_FRAMING_INSTRUCTION",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 265
+},
+{
+"callee_name": "TRIGGER_FRAMING_INSTRUCTION",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 304
+},
+{
+"callee_name": "TRIGGER_FRAMING_INSTRUCTION",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 358
+},
+{
+"callee_name": "TRIGGER_FRAMING_INSTRUCTION",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 395
+},
+{
+"callee_name": "TRIGGER_FRAMING_INSTRUCTION",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 449
+},
+{
+"callee_name": "TRIGGER_FRAMING_INSTRUCTION",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 592
+},
+{
+"callee_name": "TRIGGER_FRAMING_INSTRUCTION",
+"file": "pulse-app/examples/l4_decision_probe.rs",
+"line": 64
+},
+{
+"callee_name": "TRIGGER_FRAMING_INSTRUCTION",
+"file": "pulse-app/examples/l4_decision_probe.rs",
+"line": 386
+},
+{
+"callee_name": "build_fallback_tier_prompt",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 581
+},
+{
+"callee_name": "build_fallback_tier_prompt",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 644
+},
+{
+"callee_name": "build_fallback_tier_prompt",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 650
+},
+{
+"callee_name": "build_fallback_tier_prompt",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 659
+},
+{
+"callee_name": "build_fallback_tier_prompt",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 672
+},
+{
+"callee_name": "build_fallback_tier_prompt",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 682
+},
+{
+"callee_name": "build_fallback_tier_prompt",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 698
+},
+{
+"callee_name": "build_fallback_tier_prompt",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 706
+},
+{
+"callee_name": "build_fallback_tier_prompt",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 715
+},
+{
+"callee_name": "build_fallback_tier_prompt",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 724
+},
+{
+"callee_name": "build_fallback_tier_prompt",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 740
+},
+{
+"callee_name": "build_fallback_tier_prompt",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 779
+},
+{
+"callee_name": "build_fallback_tier_prompt",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 792
+},
+{
+"callee_name": "build_fallback_tier_prompt",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 863
+},
+{
+"callee_name": "build_fallback_tier_prompt",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 933
+},
+{
+"callee_name": "build_fallback_tier_prompt",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 967
+},
+{
+"callee_name": "build_fallback_tier_prompt",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 979
+},
+{
+"callee_name": "build_fallback_tier_prompt",
+"file": "pulse-app/src/inference_runtime.rs",
+"line": 29
+},
+{
+"callee_name": "build_fallback_tier_prompt",
+"file": "pulse-app/src/inference_runtime.rs",
+"line": 426
+},
+{
+"callee_name": "build_primary_tier_prompt",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 461
+},
+{
+"callee_name": "build_primary_tier_prompt",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 467
+},
+{
+"callee_name": "build_primary_tier_prompt",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 474
+},
+{
+"callee_name": "build_primary_tier_prompt",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 488
+},
+{
+"callee_name": "build_primary_tier_prompt",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 504
+},
+{
+"callee_name": "build_primary_tier_prompt",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 512
+},
+{
+"callee_name": "build_primary_tier_prompt",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 521
+},
+{
+"callee_name": "build_primary_tier_prompt",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 530
+},
+{
+"callee_name": "build_primary_tier_prompt",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 538
+},
+{
+"callee_name": "build_primary_tier_prompt",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 549
+},
+{
+"callee_name": "build_primary_tier_prompt",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 577
+},
+{
+"callee_name": "build_primary_tier_prompt",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 601
+},
+{
+"callee_name": "build_primary_tier_prompt",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 626
+},
+{
+"callee_name": "build_primary_tier_prompt",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 829
+},
+{
+"callee_name": "build_primary_tier_prompt",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 859
+},
+{
+"callee_name": "build_primary_tier_prompt",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 932
+},
+{
+"callee_name": "build_primary_tier_prompt",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 949
+},
+{
+"callee_name": "build_primary_tier_prompt",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 966
+},
+{
+"callee_name": "build_primary_tier_prompt",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 978
+},
+{
+"callee_name": "build_primary_tier_prompt",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 1001
+},
+{
+"callee_name": "build_primary_tier_prompt",
+"file": "pulse-app/examples/l4_decision_probe.rs",
+"line": 64
+},
+{
+"callee_name": "build_primary_tier_prompt",
+"file": "pulse-app/examples/l4_decision_probe.rs",
+"line": 337
+},
+{
+"callee_name": "build_primary_tier_prompt",
+"file": "pulse-app/src/inference_runtime.rs",
+"line": 29
+},
+{
+"callee_name": "build_primary_tier_prompt",
+"file": "pulse-app/src/inference_runtime.rs",
+"line": 420
+},
+{
+"callee_name": "build_primary_tier_prompt",
+"file": "pulse-app/src/investigate_router.rs",
+"line": 18
+},
+{
+"callee_name": "build_primary_tier_prompt",
+"file": "pulse-app/src/investigate_router.rs",
+"line": 247
+},
+{
+"callee_name": "build_primary_tier_prompt",
+"file": "pulse-app/tests/integration_real_llama_cli.rs",
+"line": 40
+},
+{
+"callee_name": "build_primary_tier_prompt",
+"file": "pulse-app/tests/integration_real_llama_cli.rs",
+"line": 133
+},
+{
+"callee_name": "build_reflection_tier_prompt",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 585
+},
+{
+"callee_name": "build_reflection_tier_prompt",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 808
+},
+{
+"callee_name": "build_reflection_tier_prompt",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 814
+},
+{
+"callee_name": "build_reflection_tier_prompt",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 828
+},
+{
+"callee_name": "build_reflection_tier_prompt",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 838
+},
+{
+"callee_name": "build_reflection_tier_prompt",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 867
+},
+{
+"callee_name": "build_reflection_tier_prompt",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 884
+},
+{
+"callee_name": "build_reflection_tier_prompt",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 891
+},
+{
+"callee_name": "build_reflection_tier_prompt",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 911
+},
+{
+"callee_name": "build_reflection_tier_prompt",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 934
+},
+{
+"callee_name": "build_reflection_tier_prompt",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 968
+},
+{
+"callee_name": "build_reflection_tier_prompt",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 980
+},
+{
+"callee_name": "build_reflection_tier_prompt",
+"file": "pulse-app/src/inference_runtime.rs",
+"line": 29
+},
+{
+"callee_name": "build_reflection_tier_prompt",
+"file": "pulse-app/src/inference_runtime.rs",
+"line": 411
+},
+{
+"callee_name": "cue_cause_label",
+"file": "crates/triage/src/contract.rs",
+"line": 712
+},
+{
+"callee_name": "cue_cause_label",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 37
+},
+{
+"callee_name": "cue_cause_label",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 680
+},
+{
+"callee_name": "cue_cause_label",
+"file": "pulse-app/src/inference_runtime.rs",
+"line": 41
+},
+{
+"callee_name": "cue_cause_label",
+"file": "pulse-app/src/inference_runtime.rs",
+"line": 676
+},
+{
+"callee_name": "render_payload",
+"file": "crates/triage/src/contract.rs",
+"line": 152
+},
+{
+"callee_name": "render_payload",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 337
+},
+{
+"callee_name": "render_payload",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 361
+},
+{
+"callee_name": "render_payload",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 376
+},
+{
+"callee_name": "render_payload",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 392
+},
+{
+"callee_name": "render_payload",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 1049
+},
+{
+"callee_name": "render_payload",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 1091
+},
+{
+"callee_name": "render_payload",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 1109
+},
+{
+"callee_name": "render_payload",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 1127
+},
+{
+"callee_name": "render_payload",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 1155
+},
+{
+"callee_name": "render_payload",
+"file": "crates/triage/src/digest/mod.rs",
+"line": 35
+},
+{
+"callee_name": "render_payload",
+"file": "pulse-app/examples/l4_decision_probe.rs",
+"line": 77
+},
+{
+"callee_name": "render_payload",
+"file": "pulse-app/examples/l4_decision_probe.rs",
+"line": 317
+},
+{
+"callee_name": "render_payload",
+"file": "pulse-app/tests/unit_digest_runtime_scrub.rs",
+"line": 32
+},
+{
+"callee_name": "render_payload",
+"file": "pulse-app/tests/unit_digest_runtime_scrub.rs",
+"line": 50
+}
+],
+"db_state": "fresh",
+"plane": "rust"
+}
+]

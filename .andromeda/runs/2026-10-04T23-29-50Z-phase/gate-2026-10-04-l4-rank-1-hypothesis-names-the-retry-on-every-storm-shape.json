@@ -1,0 +1,32 @@
+[
+{
+"tool": "gate",
+"v": "1.9",
+"sha8": "fb1f9172",
+"ts": "2026-10-04T23:40:22Z",
+"argv": [
+"scope",
+"--lists-only",
+"--research",
+"andromeda-pulse-0.3.0/chunks/2026-10-04-l4-rank-1-hypothesis-names-the-retry-on-every-storm-shape/research.md",
+"--run-dir",
+".andromeda/runs/2026-10-04T23-29-50Z-phase",
+"--marker",
+"2026-10-04-l4-rank-1-hypothesis-names-the-retry-on-every-storm-shape"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"control: lists · glob · record — each fired on its synthetic known positive",
+"scope lists: parsed 6 items (new 1 · modify 5 · derived 0)"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"items": 6,
+"unparsed": 0
+}
+}
+]

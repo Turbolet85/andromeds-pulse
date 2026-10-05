@@ -1,0 +1,1 @@
+Phase directive (overseer, founder-delegated): the 4317/4318 slot and the model slot are granted for this chunk; conductor-builder stays idle until its wrap. The leg env is unchanged: . ~/dev/projects/additional/pc-overseer/l4-env.sh (llama.cpp b9305 CUDA, measured 2026-10-05).

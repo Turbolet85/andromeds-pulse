@@ -1,0 +1,122 @@
+[
+{
+"tool": "evolve",
+"v": "1.0",
+"sha8": "e257956a",
+"ts": "2026-10-05T00:03:30Z",
+"argv": [
+"append",
+"--root",
+".",
+"--count",
+"1",
+"--records-file",
+"-",
+"--run-dir",
+".andromeda/runs/2026-10-04T23-47-54Z-implement",
+"--marker",
+"2026-10-04-l4-rank-1-hypothesis-names-the-retry-on-every-storm-shape"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"appended 1 record(s) · friction-log.ndjson lines 2036→2037 · bytes 2102541→2103504 · term lf",
+"ts 2026-10-05T00:03:24Z · clock 2026-10-05T00:03:30Z · bound 2026-10-04T23:47:23Z (line 2036)",
+"ids 2026-10-05T00:03:24Z-a"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/friction-log.ndjson"
+],
+"before": {
+"lines": 2036,
+"bytes": 2102541,
+"terminator": "LF",
+"bound": "2026-10-04T23:47:23Z"
+},
+"after": {
+"lines": 2037,
+"bytes": 2103504
+}
+},
+{
+"tool": "evolve",
+"v": "1.0",
+"sha8": "e257956a",
+"ts": "2026-10-05T05:32:36Z",
+"argv": [
+"append",
+"--root",
+".",
+"--count",
+"1",
+"--records-file",
+"-",
+"--run-dir",
+".andromeda/runs/2026-10-04T23-47-54Z-implement",
+"--marker",
+"2026-10-04-l4-rank-1-hypothesis-names-the-retry-on-every-storm-shape"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"appended 1 record(s) · friction-log.ndjson lines 2037→2038 · bytes 2103504→2104961 · term lf",
+"ts 2026-10-05T05:32:28Z · clock 2026-10-05T05:32:36Z · bound 2026-10-05T00:03:24Z (line 2037)",
+"ids 2026-10-05T05:32:28Z-a"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/friction-log.ndjson"
+],
+"before": {
+"lines": 2037,
+"bytes": 2103504,
+"terminator": "LF",
+"bound": "2026-10-05T00:03:24Z"
+},
+"after": {
+"lines": 2038,
+"bytes": 2104961
+}
+},
+{
+"tool": "evolve",
+"v": "1.0",
+"sha8": "e257956a",
+"ts": "2026-10-05T05:32:47Z",
+"argv": [
+"append",
+"--root",
+".",
+"--count",
+"1",
+"--records-file",
+"-",
+"--run-dir",
+".andromeda/runs/2026-10-04T23-47-54Z-implement",
+"--marker",
+"2026-10-04-l4-rank-1-hypothesis-names-the-retry-on-every-storm-shape"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"appended 1 record(s) · friction-log.ndjson lines 2038→2039 · bytes 2104961→2105693 · term lf",
+"ts 2026-10-05T05:32:42Z · clock 2026-10-05T05:32:47Z · bound 2026-10-05T05:32:28Z (line 2038)",
+"ids 2026-10-05T05:32:42Z-a"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/friction-log.ndjson"
+],
+"before": {
+"lines": 2038,
+"bytes": 2104961,
+"terminator": "LF",
+"bound": "2026-10-05T05:32:28Z"
+},
+"after": {
+"lines": 2039,
+"bytes": 2105693
+}
+}
+]

@@ -81,15 +81,21 @@ Citable Evidence Ids section; when it lists none, emit an empty \
 evidence_refs array. Never invent an identifier.";
 
 /// Shared framing instruction appended to every tier's output reminder: the
-/// digest's TRIGGER line names the signal the output describes, and its
-/// CORPUS MATCHES lines are other incidents. Conditional, so a digest without
+/// digest's TRIGGER line names the signal the output describes, the first
+/// hypothesis statement names that signal in the line's own words, any other
+/// abnormal metric on the service is its cause or effect, and its CORPUS
+/// MATCHES lines are other incidents. Conditional, so a digest without
 /// either section (reflection, investigation focus) still reads correctly.
+/// Kind-generic by design: it never names a cue kind.
 pub const TRIGGER_FRAMING_INSTRUCTION: &str = "\
 When the digest carries a TRIGGER line, that line names the signal this \
 output describes: the title, the symptom and the first hypothesis must be \
-about that signal. CORPUS MATCHES lines are OTHER incidents, past or still \
-open on another signal, given for context only; never describe one of them \
-as the current signal.";
+about that signal, and the first hypothesis statement must name that signal \
+in the TRIGGER line's own words. Treat any other abnormal metric on the same \
+service as a cause or an effect of that signal, never as a separate first \
+hypothesis. CORPUS MATCHES lines are OTHER incidents, past or still open on \
+another signal, given for context only; never describe one of them as the \
+current signal.";
 
 /// Role definition section emitted at the top of every primary-tier
 /// prompt. Bounded to role + conventions; no project-specific facts here.
@@ -565,9 +571,9 @@ mod tests {
         }
         assert!(at("decision") < at("severity"));
         assert!(at("severity") < at("investigation_steps"));
-        assert_eq!(PROMPT_VERSION_PRIMARY, "v2.4");
-        assert_eq!(PROMPT_VERSION_FALLBACK, "v1.3-fallback");
-        assert_eq!(PROMPT_VERSION_REFLECTION, "v1.3-reflection");
+        assert_eq!(PROMPT_VERSION_PRIMARY, "v2.5");
+        assert_eq!(PROMPT_VERSION_FALLBACK, "v1.4-fallback");
+        assert_eq!(PROMPT_VERSION_REFLECTION, "v1.4-reflection");
     }
 
     #[test]
@@ -593,6 +599,32 @@ mod tests {
                 prompt[at..].matches(TRIGGER_FRAMING_INSTRUCTION).count(),
                 1,
                 "{label}: the framing instruction appears exactly once in Output Instructions"
+            );
+        }
+    }
+
+    #[test]
+    fn every_tier_obliges_the_first_hypothesis_to_name_the_trigger_signal() {
+        const OBLIGATION: &str = "the first hypothesis statement must name that signal in \
+the TRIGGER line's own words";
+        for (label, prompt) in [
+            (
+                "primary",
+                build_primary_tier_prompt("digest", "project", "", &[]),
+            ),
+            (
+                "fallback",
+                build_fallback_tier_prompt("digest", "project", "", &[]),
+            ),
+            (
+                "reflection",
+                build_reflection_tier_prompt("digest", "project", "", &[]),
+            ),
+        ] {
+            assert_eq!(
+                prompt.matches(OBLIGATION).count(),
+                1,
+                "{label}: the first-hypothesis obligation appears exactly once"
             );
         }
     }
