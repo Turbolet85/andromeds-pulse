@@ -1,0 +1,54 @@
+[
+{
+"tool": "inputs",
+"v": "1.0",
+"sha8": "faa48d4e",
+"ts": "2026-10-05T09:42:14Z",
+"argv": [
+"verify",
+"--chunk-dir",
+"andromeda-pulse-0.3.0/chunks/2026-10-05-l4-runs-on-a-small-current-model-chosen-by-measurement",
+"--run-dir",
+".andromeda/runs/2026-10-05T09-41-57Z-wrap",
+"--marker",
+"2026-10-05-l4-runs-on-a-small-current-model-chosen-by-measurement"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"I1 n/a — a message has no live source · copy message · message: overseer (founder-delegated), /andromeda-phase args, 2026-10-05",
+"I1 cited scope.md:11 · scope.md:23 · scope.md:71 · scope.md:80 · scope.md:105 · research.md:8 · plan.md:14 · plan.md:150 · plan.md:286 (in fence) · plan.md:296 (in fence) · plan.md:526 · plan.md:581",
+"I2 unchanged · pointer committed@63248fc3 · ~/dev/tools/llama.cpp-b9305:src/llama-arch.cpp",
+"I2 cited scope.md:22 · scope.md:81 · research.md:9 · plan.md:16 · plan.md:526",
+"I3 n/a — a message has no live source · copy message · message: huggingface.co model API, fetched by phase P3 2026-10-05",
+"I3 cited scope.md:16 · research.md:10 · plan.md:13 · plan.md:89 · plan.md:278 (in fence) · plan.md:466 · plan.md:526",
+"I4 unchanged · copy no-repo · ../additional/pc-overseer/l4-env.sh",
+"I4 cited scope.md:30 · scope.md:53 · research.md:11 · research.md:36 · research.md:50 · research.md:57 · plan.md:30 · plan.md:116 · plan.md:154 · plan.md:527 · plan.md:554",
+"I5 unchanged · copy no-repo · ../additional/pc-overseer/relays/2026-10-05-l4-model-usage-findings.md",
+"I5 UNCITED",
+"I6 unchanged · copy no-repo · ../additional/pc-overseer/relays/2026-10-05-l4-hardware-ruling.md",
+"I6 UNCITED",
+"I7 unchanged · copy no-repo · ../additional/pc-overseer/relays/2026-10-05-l4-nemotron-addendum.md",
+"I7 UNCITED",
+"inputs: 7 entries — unchanged 5 · drifted 0 · vanished 0 · broken 0 · altered 0 · unreachable 0 · n/a 2 · uncited 3 · unparsed 0"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"entries": 7,
+"counts": {
+"unchanged": 5,
+"drifted": 0,
+"vanished": 0,
+"broken": 0,
+"altered": 0,
+"unreachable": 0,
+"n/a": 2
+},
+"uncited": 3,
+"unparsed": 0
+}
+}
+]

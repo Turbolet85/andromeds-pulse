@@ -1,0 +1,1 @@
+small current L4 models measured on the real model: the argv gains -c 8192 -rea off, Qwen3.5-2B confirmed PASS rank1 37/40 on the naming series, Llama stays shipped, the CPU route founder-retired

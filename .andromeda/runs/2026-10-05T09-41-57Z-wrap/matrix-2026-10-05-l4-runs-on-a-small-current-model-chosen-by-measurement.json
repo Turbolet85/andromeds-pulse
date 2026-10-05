@@ -1,0 +1,53 @@
+[
+{
+"tool": "matrix",
+"v": "1.3",
+"sha8": "951eb804",
+"ts": "2026-10-05T09:56:23Z",
+"argv": [
+"flip",
+"--dir",
+"andromeda-pulse-0.3.0",
+"--chunk",
+"2026-10-05-l4-runs-on-a-small-current-model-chosen-by-measurement",
+"--run-dir",
+".andromeda/runs/2026-10-05T09-41-57Z-wrap",
+"--dry-run"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"claimed 0 — gate no-op (no entry carries chunk 2026-10-05-l4-runs-on-a-small-current-model-chosen-by-measurement)",
+"pool: unclaimed 0"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "matrix",
+"v": "1.3",
+"sha8": "951eb804",
+"ts": "2026-10-05T09:56:27Z",
+"argv": [
+"flip",
+"--dir",
+"andromeda-pulse-0.3.0",
+"--chunk",
+"2026-10-05-l4-runs-on-a-small-current-model-chosen-by-measurement",
+"--run-dir",
+".andromeda/runs/2026-10-05T09-41-57Z-wrap"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"claimed 0 — gate no-op (no entry carries chunk 2026-10-05-l4-runs-on-a-small-current-model-chosen-by-measurement)",
+"pool: unclaimed 0"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+}
+]

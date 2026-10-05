@@ -1,0 +1,6 @@
+
+## 2026-10-05-l4-runs-on-a-small-current-model-chosen-by-measurement — Fault Identity: the rank-1 remainder rides the model
+**Section:** §Established Decisions → [Fault Identity — what makes two faults ONE fault] (the remainder's owner)
+**Change:** The remainder of the framing's FAIL (34/40 on Llama) was owned by the L4 model-replacement route entry; now it rides the L4 model, not the framing: the replacement chunk re-ran the same S1–S4 shapes and strict grader on candidate models under v2.5 and confirmed Qwen3.5-2B-Q4_K_M at `PASS · rank1 37/40` (bar 36, held-out 19/20) through a `--grammar-file` GBNF with per-model authors' sampling, while the shipped model stays Llama-3.2-3B. The remainder is owned by the pattern-discrimination route entry, which chooses the model, and the entry after it, which ships the founder's pick.
+**Why:** The model-replacement entry ran and its verdict is recorded as measured. The founder ruled on 2026-10-05, at this wrap, that the model is chosen by pattern discrimination before any swap, because the naming series saturates on retry storms Pulse already catches; the identity tuple and the framing are untouched.
+**Ref:** .andromeda/runs/2026-10-05T09-41-57Z-wrap/

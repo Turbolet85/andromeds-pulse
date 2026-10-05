@@ -1,0 +1,39 @@
+[[pattern]]
+id = "model-repl"
+regex = 'model[- ]replacement'
+ignore_case = true
+
+[[pattern]]
+id = "cpu-tier"
+regex = 'cpu[-_ ](primary|fallback)'
+ignore_case = true
+
+[[pattern]]
+id = "ngl0"
+fixed = '-ngl 0'
+
+[[pattern]]
+id = "cpu-build"
+regex = 'CPU (build|binary|route|inference|bin)'
+ignore_case = true
+
+[[pattern]]
+id = "cpu-bin-var"
+fixed = '_LLAMA_CPU_BIN_PATH'
+
+[[pattern]]
+id = "pins16"
+fixed = '16 collected pins'
+
+[[pattern]]
+id = "every-flag"
+fixed = 'every flag but'
+
+[[pattern]]
+id = "schema-file"
+fixed = 'json-schema-file'
+
+[[pattern]]
+id = "llama-3b"
+regex = 'Llama[- ]3\.2[- ]3B'
+ignore_case = true

@@ -1,61 +1,55 @@
 # Session Handoff
 
-**Last Updated:** 2026-10-05T06:14:08Z
+**Last Updated:** 2026-10-05T09:55:30Z
 **Branch:** chore/migrate-pulse-to-v3 · 0 ahead of origin/chore/migrate-pulse-to-v3 as read at this wrap's Setup (the chunk commit follows it, then the push)
 **Status:** clean
-**Last Commit:** 2026-10-04-l4-rank-1-hypothesis-names-the-retry-on-every-storm-shape — chunk wrap (the L4 framing reworded by measurement; confirmation FAIL rank1 34/40)
+**Last Commit:** 2026-10-05-l4-runs-on-a-small-current-model-chosen-by-measurement — chunk wrap (argv `-c 8192 -rea off`; Qwen3.5-2B confirmed PASS 37/40; CPU route founder-retired)
 
 ## Position
-- **Done:** `2026-10-04-l4-rank-1-hypothesis-names-the-retry-on-every-storm-shape`, flipped `complete`. The two-slot
-  pre-registered series ran on Llama 3.2 3B through llama-cli b9305 CUDA `-ngl 99`.
-  - **Selection** (Slot 1, untouched tree), rank1/40: v2.4 baseline 28 · R1 (framing reworded) 37 · R3 (conventions
-    sentence) 36 · R2 (schema-description sentence) 33. Under the fixed rule, **R1 shipped**; no combination ran.
-  - **Confirmation** (Slot 2, fixed tree, v2.5): **`FAIL · rank1 34/40`** (S1 9 · S2 9 · S3 7 · S4 9). The held-out
-    S5/S6 read 20/20; the record-only stem reading is 36/40. Recorded as measured, never as passed.
-  - The evidence is the chunk's `evidence/series.md` and three `*-runs.json` files, recounted by the overseer.
-- **Next:** "L4 runs on a small current model chosen by measurement" (`working-route.md:170`), minted this wrap on the
-  FOUNDER RULING of 2026-10-05, relayed by the overseer.
-  - Candidates: Qwen3.5-4B · Qwen3.5-2B · Gemma 4 E4B · Gemma 4 E2B (unsloth GGUF Q4_K_M, Apache-2.0), against the
-    Llama 3.2 3B baseline. Small footprint, no thinking mode; bigger models are rejected. LoRA on Conductor scenarios
-    comes later.
-  - Its CONTEXT carries the baseline's 34/40, the selection-optimism reading (37 at selection, 34 on confirmation) and
-    the Conductor v3-09 dependency. That "b9305 loads qwen35 + gemma4" is the ruling's statement, unmeasured.
-  - Any series is a new pre-registration, written before its first run.
-  - Then: "pre-push:linux runs natively on Linux" (three CARRY blocks), which closes Epoch 4 (61 entries; the no-split
-    ruling holds).
+- **Done:** `2026-10-05-l4-runs-on-a-small-current-model-chosen-by-measurement`, flipped `complete`.
+  - The product argv gained `-c 8192 -rea off`. The shipped model stays Llama-3.2-3B-Instruct-Q4_K_M.
+  - The naming series confirmed Qwen3.5-2B `PASS · rank1 37/40` (bar 36, held-out 19/20). gemma-4-E2B and Nemotron
+    were record-only at 40/40 + 20/20. The b9305 json-schema grammar-prefill trap blocks qwen35/gemma4 under the
+    shipped argv; `--grammar-file` works.
+  - CI on `5ac259e`: `verdict: green · checks 13/13`.
+- **Next:** three entries minted by the founder's ruling of 2026-10-05, ahead of "pre-push:linux runs natively on
+  Linux", in order:
+  1. **"L4 model chosen by pattern discrimination"** (`working-route.md:172`). The founder-approved design is
+     snapshotted verbatim (D7) at `.andromeda/runs/2026-10-05T09-41-57Z-wrap/relay-l4-pattern-discrimination-design.md`.
+     Phase P1 snaps that copy with `inputs.py snap --message-file`. Real-model runs need the operator's model slot.
+  2. **"L4 runs the founder's pick with its authors' settings"** — the founder's pick from P, not automatically
+     Qwen3.5-2B, with sampling, GBNF and thinking off. Conductor v3-09 waits on it. The GBNF needs the founder's own
+     word at its phase.
+  3. **"Without a GPU, L4 analysis is programmatic"** — implements the CPU-route retirement that arch now records
+     as founder-ruled.
+  - Then pre-push:linux (three CARRY blocks), which closes Epoch 4. Epoch 4 now has 64 entries; the no-split ruling
+    holds.
 
 ## Work done
-- `TRIGGER_FRAMING_INSTRUCTION` reworded and the prompt lineage moved to v2.5 / v1.4-fallback / v1.4-reflection.
-- The probe gained the R1/R3/R2 arms and their combinations, `--shapes`, the held-out S5/S6 and a stem grader.
-- Workspace nextest is 2639 (+9 pins). The clippy deferral PREREQ is closed.
-- The operator pass committed `febe375`; its CI read `verdict: green · checks 13/13`.
+- Resumed at P2 after the prior window ended past P1.
+- Arch and test-plan amended; two leaves re-derived (`docs/stack.md`, `docs/services/interpretation.md`).
+- Three route entries minted.
 
 ## Drift resolved
-- 6 amendments across 3 docs, 0 escalations.
-  - arch §Established Decisions [Fault Identity]: the reworded framing, the lineage, and the two-slot measured effect;
-    the owner is now the model-replacement entry.
-  - security-plan :139 / :461: the observed maximum moved 7,185 → 7,405 B (~2.21×), in lockstep.
-  - test-plan §1 (probe pins 8 → 16) and §4 (lineage plus the obligation pin).
-- The other four docs read `proposals: []`. The sweep ran 11 patterns, every control fired, and no leaf changed.
+- 7 amendments across 2 docs, 0 escalations. The other five docs read `proposals: []`.
+  - arch [LLM Inference Runtime]: the argv constants, the model, and the grammar trap.
+  - arch: the CPU route marked founder-retired at four sites, owned by entry B.
+  - arch [Fault Identity]: the remainder is now owned by the P and A entries.
+  - test-plan §1: the probe pins moved 16 → 29.
+- Expected amendments with no site, so no amendment was owed:
+  - the `CUDA_VISIBLE_DEVICES` registry;
+  - the security-plan argv row;
+  - test-plan §4.
 
 ## Notes
-- **Conductor:** v3-09 now waits on the model-replacement entry; with the FAIL its BLOCKED-ON does not clear here. The
-  Conductor-side marker is the overseer's to move.
-- **Ports:** 4317/4318 are shared with conductor-builder; ask the operator for the model slot before any real-model
-  run. This chunk's slot was used 23:53–00:08Z and released, with the GPU back to idle.
+- **Ports:** 4317/4318 are shared with conductor-builder; ask the operator for the model slot before any
+  real-model run.
 - **Host:** Omarchy Linux.
-  - The Bash tool's cwd persists, and the cwd guard blocks only a LEADING `cd`. A `cd` inside a loop moves the
-    session cwd (curated this wrap, host-win32.md).
-  - grep is ugrep. Use the Write/Edit tools for documents.
-- **Plan defects recorded in the report (no amendment owed):** the plan listed only the hygiene entry as an operator
-  entry. The pre-push stages, the regen and the close were fired in the precedent plan's exact text
-  (`2026-10-04-declared-rust-floor-matches-the-code` entries 25–33).
-- **Not measured, carried as such:** the fallback and reflection prompt sizes after the +220 B rewording (the probe
-  composes primary only).
+  - The cwd guard blocks a leading `cd`; use absolute paths.
+  - grep is ugrep, and it rejects long `-o` context regexes, so use python windows.
 - **Pre-existing tool verdicts, not this chunk's:**
   - `route.py` UNPARSED/INDETERMINATE on frozen lines 52–125;
-  - `registry.py contracts` NOT MIGRATED (arch · tests · obs · a11y);
-  - matrix `P-072` UNPARSED.
+  - `registry.py contracts` NOT MIGRATED (arch · tests · obs · a11y).
 - **Still open, carried:**
   - the env-var registry-completeness playbook rule proposal;
   - obs-plan §8 has no row for `interpretation.hardware.detect`;
@@ -66,14 +60,15 @@
 
 ## Deferred learnings
 - **New this wrap:**
-  - the selection-optimism reading (best of four single-run arms 37 → 34 on confirmation) scored exactly 0.6 at
-    curation. It is carried instead by the new route entry's CONTEXT;
-  - a plan-authoring CHECK: list the operator pass's pre-push stages, regen and close as plan entries.
+  - the evidence path-scan sweep hazard (`AI-Model/` with a trailing slash in prose trips the `/home/`-class scan),
+    which scored 0.4 (task-specific);
+  - the zero-generation vacuous-reading trap, which went to the P entry's CARRY instead.
 - **Still open from prior wraps:**
+  - the selection-optimism reading;
+  - the plan-authoring operator-pass CHECK;
   - the `producer | grep -q` under pipefail CHECK;
   - the scope guard omitting new files;
   - mutation applied?;
-  - the sweep hazard;
   - run-dir hygiene trip;
   - bindings clobber;
   - a writer census at the wrong layer;
@@ -84,6 +79,3 @@
   - Windows `.ico` vs palette PNG;
   - the deferral-destination generalization;
   - `inject_demo --sustained` cannot form an incident.
-
-## Session End Status
-Completed normally at 2026-10-05 08:17:09

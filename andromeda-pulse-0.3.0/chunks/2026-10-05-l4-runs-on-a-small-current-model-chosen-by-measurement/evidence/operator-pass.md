@@ -25,3 +25,8 @@ were read from the bare command.
   the committed `2026-10-04T00-48-08Z-phase` instance, with 0 home paths remaining (overseer relay). This
   implement session did not edit those lines.
 
+| entry | stage | exit | reading |
+|---|---|---|---|
+| — | pre-CI commit `5ac259e` (`git add -A` after hygiene re-read clean; `cargo xtask check:staged-artifacts` exit 0 on the staged tree) | 0 | `chore(2026-10-05-l4-runs-on-a-small-current-model-chosen-by-measurement): operator pre-CI commit, for the run this chunk's verdict reads` (64 files) |
+| 37 | `git diff --quiet && git diff --cached --quiet && git push origin chore/migrate-pulse-to-v3` | 0 | `4e5b595..5ac259e`; the branch level with origin |
+| 38 | `ci.py conclusion --sha HEAD --wait 2400` | 0 | **`5ac259ebab1e verdict: green · checks 13/13 · wall 1679 s`**: `ci#37288545617` completed/success, `secret-scan#37288545599` completed/success (polled 56× over 1708 s) |
