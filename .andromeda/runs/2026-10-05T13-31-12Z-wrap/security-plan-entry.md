@@ -1,0 +1,6 @@
+
+## 2026-10-05-l4-model-chosen-by-pattern-discrimination — L4 argv prompt observed maximum re-based to 7,575 B
+**Section:** §Input Validation (L4 inference argv prompt row) · §Security Anti-Patterns → Code Patterns (the L4 `-p` bullet), in lockstep
+**Change:** The observed maximum was 7,405 B, ~2.21× under the 16384 ceiling with 8,979 B ≈ 8.8 KiB headroom (per "2026-10-04-l4-rank-1-hypothesis-names-the-retry-on-every-storm-shape — L4 argv prompt observed maximum re-based to 7,405 B", kept as the prior note); now 7,575 B — the dev probe's synthetic A6 pattern composition (a cueless digest carrying three resolved corpus matches of one fingerprint, today's render), built by the product's unchanged `render_payload` → `build_primary_tier_prompt` → `validate_prompt_bounded`, `--dry-run`, primary builder only — ~2.16× under the ceiling with 8,809 B ≈ 8.6 KiB headroom. `MAX_PROMPT_BYTES` 16384 and `validate_prompt_bounded` are unchanged.
+**Why:** The pattern-discrimination shapes composed a larger prompt than any prior measurement; the plan's recorded expected amendment directed the lockstep re-base if the figure moved, and it moved. Applied by actual class (D-security-input's escalate severity is the detector's): every new input of the chunk is validated and no new input class crosses argv.
+**Ref:** .andromeda/runs/2026-10-05T13-31-12Z-wrap/

@@ -1,0 +1,143 @@
+[
+{
+"tool": "route",
+"v": "1.6",
+"sha8": "b87a9ed0",
+"ts": "2026-10-05T13:47:48Z",
+"argv": [
+"route.py",
+"flip",
+"--root",
+".",
+"--chunk",
+"2026-10-05-l4-model-chosen-by-pattern-discrimination",
+"--run-dir",
+".andromeda/runs/2026-10-05T13-31-12Z-wrap"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"flip master-route.md:99 - 2026-10-05-l4-model-chosen-by-pattern-discrimination pending -> complete"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/master-route.md"
+],
+"before": null,
+"after": null
+},
+{
+"tool": "route",
+"v": "1.6",
+"sha8": "b87a9ed0",
+"ts": "2026-10-05T13:47:48Z",
+"argv": [
+"route.py",
+"compact",
+"--root",
+".",
+"--chunk",
+"2026-10-05-l4-model-chosen-by-pattern-discrimination",
+"--date",
+"2026-10-05",
+"--run-dir",
+".andromeda/runs/2026-10-05T13-31-12Z-wrap",
+"--dry-run"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"pin :172 strip CONTEXT: 624ch \"CONTEXT: FOUNDER RULING 2026-10-05 (the \"",
+"pin :172 strip CONTEXT: 525ch \"CONTEXT: the design's shapes are A1–A7 (\"",
+"pin :172 strip CONTEXT: 555ch \"CONTEXT: candidates Llama-3.2-3B (baseli\"",
+"pin :172 strip CONTEXT: 240ch \"CONTEXT: slow patterns (a horizon wider \"",
+"pin :172 strip CARRY: 209ch \"CARRY: a zero-generation row reads `thin\"",
+"pin :172 strip CARRY: 436ch \"CARRY: the GPU-idle precondition (ports \"",
+"pin next markerless :174 holds CONTEXT:×6",
+"172 · 2026-10-05-l4-model-chosen-by-pattern-discrimination · strip 6 block(s) · archive APPEND",
+"6 complete line(s) carry text the grammar cannot take -- left in place: L52, L54, L60, L100, L116, L125",
+"dry-run - would archive 1 and compact 1 line(s)"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"targets": [
+{
+"n": 172,
+"marker": "2026-10-05-l4-model-chosen-by-pattern-discrimination",
+"blocks": 6,
+"archived": false
+}
+],
+"skips": [],
+"kept_notes": [
+52,
+54,
+60,
+100,
+116,
+125
+]
+}
+},
+{
+"tool": "route",
+"v": "1.6",
+"sha8": "b87a9ed0",
+"ts": "2026-10-05T13:47:55Z",
+"argv": [
+"route.py",
+"compact",
+"--root",
+".",
+"--chunk",
+"2026-10-05-l4-model-chosen-by-pattern-discrimination",
+"--date",
+"2026-10-05",
+"--run-dir",
+".andromeda/runs/2026-10-05T13-31-12Z-wrap"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"pin :172 strip CONTEXT: 624ch \"CONTEXT: FOUNDER RULING 2026-10-05 (the \"",
+"pin :172 strip CONTEXT: 525ch \"CONTEXT: the design's shapes are A1–A7 (\"",
+"pin :172 strip CONTEXT: 555ch \"CONTEXT: candidates Llama-3.2-3B (baseli\"",
+"pin :172 strip CONTEXT: 240ch \"CONTEXT: slow patterns (a horizon wider \"",
+"pin :172 strip CARRY: 209ch \"CARRY: a zero-generation row reads `thin\"",
+"pin :172 strip CARRY: 436ch \"CARRY: the GPU-idle precondition (ports \"",
+"pin next markerless :174 holds CONTEXT:×6",
+"172 · 2026-10-05-l4-model-chosen-by-pattern-discrimination · strip 6 block(s) · archive APPEND",
+"6 complete line(s) carry text the grammar cannot take -- left in place: L52, L54, L60, L100, L116, L125",
+"compacted 1 complete line(s) -> route-archive.md (1 archived, 0 already there)"
+],
+"stderr": null,
+"wrote": [
+"./andromeda-pulse-0.3.0/route-archive.md",
+"./andromeda-pulse-0.3.0/working-route.md"
+],
+"before": null,
+"after": null,
+"extra": {
+"targets": [
+{
+"n": 172,
+"marker": "2026-10-05-l4-model-chosen-by-pattern-discrimination",
+"blocks": 6,
+"archived": false
+}
+],
+"skips": [],
+"kept_notes": [
+52,
+54,
+60,
+100,
+116,
+125
+]
+}
+}
+]

@@ -1,0 +1,49 @@
+# Cascade sweep patterns — every amendment of this pass (arch Model + Fault Identity tail; security-plan lockstep
+# re-base; test-plan §1 probe row). Each spans the retired claim's wording AND its mechanism phrasing.
+
+# arch — the future-tense "the model is chosen by a later entry" claim
+[[pattern]]
+id = "arch-chosen-by"
+regex = 'chosen by the pattern-discrimination'
+ignore_case = true
+
+[[pattern]]
+id = "arch-chooses"
+regex = 'which chooses the model|chooses the (L4 )?model'
+ignore_case = true
+
+[[pattern]]
+id = "arch-not-auto"
+regex = 'not automatically Qwen3\.5-2B'
+ignore_case = true
+
+[[pattern]]
+id = "arch-pattern"
+regex = 'pattern[- ]discrimination'
+ignore_case = true
+
+[[pattern]]
+id = "arch-llama"
+fixed = 'Llama-3.2-3B-Instruct-Q4_K_M'
+
+# security — the retired observed maximum and its derived ratio/headroom
+[[pattern]]
+id = "sec-7405"
+regex = '7,?405'
+
+[[pattern]]
+id = "sec-ratio"
+regex = '2\.21'
+
+[[pattern]]
+id = "sec-headroom"
+regex = '8,?979|8\.8 KiB'
+
+# tests — the retired pin count and the narrower parse-pinned flag list
+[[pattern]]
+id = "tests-29"
+regex = '29 collected|to 29 |\b29 pins|pins 16 . 29'
+
+[[pattern]]
+id = "tests-flags"
+fixed = 'but `--shapes` / `--sampling` / `--gbnf` / `--footprint`'
