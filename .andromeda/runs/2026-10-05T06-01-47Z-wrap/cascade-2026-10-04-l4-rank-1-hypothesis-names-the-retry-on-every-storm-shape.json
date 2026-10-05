@@ -1,0 +1,144 @@
+[
+{
+"tool": "cascade",
+"v": "1.1",
+"sha8": "9b5fafc7",
+"ts": "2026-10-05T06:09:49Z",
+"argv": [
+"sweep",
+"--patterns-file",
+".andromeda/runs/2026-10-05T06-01-47Z-wrap/cascade-patterns.toml",
+"--run-dir",
+".andromeda/runs/2026-10-05T06-01-47Z-wrap",
+"--marker",
+"2026-10-04-l4-rank-1-hypothesis-names-the-retry-on-every-storm-shape"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"baseline 200312b3 (pre-CI parent — the oldest of 1 pre-CI commit(s), febe375e)",
+"rank1-30of40 · new 1 · standing 0 · leaf 0 · curation 0 · base 0 · control architecture.md:72 (prose)",
+"lineage-v24 · new 3 · standing 1 · leaf 0 · curation 0 · base 0 · control architecture.md:72 (prose)",
+"lineage-v13 · 0 rows (control fired) — a statement about this pattern, not the masters · control architecture.md:72 (pr…",
+"max-7185 · new 1 · standing 1 · leaf 0 · curation 0 · base 0 · control security-plan.md:139 (prose)",
+"headroom-9199 · 0 rows (control fired) — a statement about this pattern, not the masters · control security-plan.md:139…",
+"ratio-228 · new 0 · standing 0 · leaf 0 · curation 1 · base 0 · control security-plan.md:139 (prose)",
+"probe-8-pins · new 0 · standing 1 · leaf 0 · curation 0 · base 0 · control test-plan.md:144 (prose)",
+"owner-0.3.0 · 0 rows (control fired) — a statement about this pattern, not the masters · control architecture.md:72 (pr…",
+"shortfall-s2s3 · 0 rows (control fired) — a statement about this pattern, not the masters · control architecture.md:72 …",
+"instr-desc · new 0 · standing 2 · leaf 0 · curation 0 · base 0 · control architecture.md:72 (prose)",
+"framing-const · new 0 · standing 2 · leaf 0 · curation 0 · base 0 · control architecture.md:72 (prose)",
+".andromeda/architecture.md:72 rank1-30of40 new @c7649/7965 …e-real-model) read 30/40 against the no-framing arm's 18/40…",
+".andromeda/architecture.md:72 lineage-v24 new ×4 @c6893,7433,7485,7575/7965 …) read rank1 v2.4 28/40 · the reworded fra…",
+".andromeda/security-plan.md:139 lineage-v24 standing edited @c1546/2986 …the 2026-10-04 v2.4 composition (the dev probe…",
+".andromeda/security-plan.md:461 lineage-v24 new …,185 B, the 2026-10-04 v2.4 composition of the same shape; before that…",
+".andromeda/test-plan.md:385 lineage-v24 new @c885/3950 …-every-storm-shape; v2.4 / v1.3-* at 2026-10-04-l4-interpretati…",
+".andromeda/security-plan.md:139 max-7185 standing edited @c1771/2986 …-run`) measured 7,185 B, and the 2026-10-05 v2.5 …",
+".andromeda/security-plan.md:461 max-7185 new … unmeasured); before it 7,185 B, the 2026-10-04 v2.4 composition of the s…",
+".claude/docs/session-learnings.md:2121 ratio-228 curation …ecking reqwest v0.12.28` (12.x added directly as dev-dep for…",
+".andromeda/test-plan.md:144 probe-8-pins standing edited @c430/2757 …ue` and carries 8 collected pins — the closed `nam…",
+".andromeda/architecture.md:72 instr-desc standing edited @c5725/7965 …le, symptom and first hypothesis describe the TRI…",
+".andromeda/test-plan.md:385 instr-desc standing edited @c1171/3950 …le, symptom and first hypothesis describe; the firs…",
+".andromeda/architecture.md:72 framing-const standing edited @c5509/7965 …ation::prompt::TRIGGER_FRAMING_INSTRUCTION` (A…",
+".andromeda/test-plan.md:385 framing-const standing edited @c1075/3950 … shared ASCII `TRIGGER_FRAMING_INSTRUCTION` (the…",
+"rank1-30of40 · new 1 · standing 0 · leaf 0 · curation 0 · base 0 · control architecture.md:72 (prose)",
+"lineage-v24 · new 3 · standing 1 · leaf 0 · curation 0 · base 0 · control architecture.md:72 (prose)",
+"lineage-v13 · 0 rows (control fired) — a statement about this pattern, not the masters · control architecture.md:72 (pr…",
+"max-7185 · new 1 · standing 1 · leaf 0 · curation 0 · base 0 · control security-plan.md:139 (prose)",
+"headroom-9199 · 0 rows (control fired) — a statement about this pattern, not the masters · control security-plan.md:139…",
+"ratio-228 · new 0 · standing 0 · leaf 0 · curation 1 · base 0 · control security-plan.md:139 (prose)",
+"probe-8-pins · new 0 · standing 1 · leaf 0 · curation 0 · base 0 · control test-plan.md:144 (prose)",
+"owner-0.3.0 · 0 rows (control fired) — a statement about this pattern, not the masters · control architecture.md:72 (pr…",
+"shortfall-s2s3 · 0 rows (control fired) — a statement about this pattern, not the masters · control architecture.md:72 …",
+"instr-desc · new 0 · standing 2 · leaf 0 · curation 0 · base 0 · control architecture.md:72 (prose)",
+"framing-const · new 0 · standing 2 · leaf 0 · curation 0 · base 0 · control architecture.md:72 (prose)"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"baseline": "200312b332f222b92096071daf6e011d9879c00f",
+"how": "pre-CI parent — the oldest of 1 pre-CI commit(s), febe375e",
+"counts": {
+"rank1-30of40": {
+"new": 1,
+"standing": 0,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"lineage-v24": {
+"new": 3,
+"standing": 1,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"lineage-v13": {
+"new": 0,
+"standing": 0,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"max-7185": {
+"new": 1,
+"standing": 1,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"headroom-9199": {
+"new": 0,
+"standing": 0,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"ratio-228": {
+"new": 0,
+"standing": 0,
+"leaf": 0,
+"curation": 1,
+"base": 0
+},
+"probe-8-pins": {
+"new": 0,
+"standing": 1,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"owner-0.3.0": {
+"new": 0,
+"standing": 0,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"shortfall-s2s3": {
+"new": 0,
+"standing": 0,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"instr-desc": {
+"new": 0,
+"standing": 2,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"framing-const": {
+"new": 0,
+"standing": 2,
+"leaf": 0,
+"curation": 0,
+"base": 0
+}
+}
+}
+}
+]

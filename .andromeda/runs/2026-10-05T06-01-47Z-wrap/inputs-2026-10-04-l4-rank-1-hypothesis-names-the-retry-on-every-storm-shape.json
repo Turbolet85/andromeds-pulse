@@ -1,0 +1,44 @@
+[
+{
+"tool": "inputs",
+"v": "1.0",
+"sha8": "faa48d4e",
+"ts": "2026-10-05T06:02:03Z",
+"argv": [
+"verify",
+"--chunk-dir",
+"andromeda-pulse-0.3.0/chunks/2026-10-04-l4-rank-1-hypothesis-names-the-retry-on-every-storm-shape",
+"--run-dir",
+".andromeda/runs/2026-10-05T06-01-47Z-wrap",
+"--marker",
+"2026-10-04-l4-rank-1-hypothesis-names-the-retry-on-every-storm-shape"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"I1 n/a — a message has no live source · copy message · message: overseer (founder-delegated), /andromeda-phase args, 2026-10-04T23:29Z",
+"I1 cited scope.md:28 · scope.md:65 · research.md:20 · plan.md:97 · plan.md:269 (in fence) · plan.md:382",
+"I2 unchanged · copy no-repo · ../additional/pc-overseer/l4-env.sh",
+"I2 cited scope.md:29 · scope.md:65 · scope.md:66 · research.md:22 · research.md:145 · plan.md:98 · plan.md:269 (in fence) · plan.md:382",
+"inputs: 2 entries — unchanged 1 · drifted 0 · vanished 0 · broken 0 · altered 0 · unreachable 0 · n/a 1 · uncited 0 · unparsed 0"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"entries": 2,
+"counts": {
+"unchanged": 1,
+"drifted": 0,
+"vanished": 0,
+"broken": 0,
+"altered": 0,
+"unreachable": 0,
+"n/a": 1
+},
+"uncited": 0,
+"unparsed": 0
+}
+}
+]

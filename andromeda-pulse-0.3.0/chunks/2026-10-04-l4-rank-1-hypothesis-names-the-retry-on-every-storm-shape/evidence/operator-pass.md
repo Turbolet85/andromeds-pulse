@@ -21,5 +21,10 @@ were read from the bare command, and printed verdicts are quoted.
 | 7 | pre-push 6/6 ci-gates | 05:36:42 | 0 | zero-spans PASS · zero-panic PASS · heartbeat-gap PASS (max 15000 ms) · perf-budget NEUTRAL (frame cannot-evaluate: no adapter record; memory and snapshot NEUTRAL) |
 | 8 | bindings regen (after stages 5–6) | 05:36:47 | 0 | `1 test run: 1 passed, 14 skipped`; `"mcp":` count 1 |
 | 9 | base-identity close | 05:36:53 | 0 | `git diff --quiet 200312b… -- pulse-app/ui/src/bindings/index.ts` ✓ |
+| 10 | pre-CI commit | 05:37 | 0 | `febe375 chore(2026-10-04-l4-rank-1-hypothesis-names-the-retry-on-every-storm-shape): operator pre-CI commit, for the run this chunk's verdict reads` (48 files, `git add -A`); the staged bindings' `"mcp":` count was 1 before the commit |
+| 11 | push (clean-tree guard) | 05:37:18 | 0 | `git diff --quiet && git diff --cached --quiet && git push origin chore/migrate-pulse-to-v3`: `200312b..febe375  chore/migrate-pulse-to-v3 -> chore/migrate-pulse-to-v3`; `HEAD` == `origin/chore/migrate-pulse-to-v3` == `febe375e…` |
+| 12 | CI read (`ci.py conclusion --sha HEAD --wait 2400`) | 05:37:23 → 06:01:09 | 0 | `febe375ef58a verdict: green · checks 13/13 · wall 1388 s` (ci#37268608915 + secret-scan#37268608901, `pull_request`, both completed/success) ✓. Jobs (`gh run view 37268608915`): lint / test on ubuntu-22.04, macos-latest, windows-latest · release build macos + windows · boot smoke · mcp-server tests · coverage gate · supply-chain · a11y ×3 — all `success` |
 
-Hygiene was re-fired after this file was written (an evidence edit), before the pre-CI commit.
+Hygiene was re-fired after rows 0–9 were written (an evidence edit), before the pre-CI commit. Rows 10–12 were written
+into this file at the wrap (2026-10-05T06:0xZ), from the operator-pass transcript of the same session. The commit
+`febe375` they measured predates this edit, which rides the chunk commit.
