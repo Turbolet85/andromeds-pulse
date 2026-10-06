@@ -1,0 +1,37 @@
+# arch extract
+
+## Relevance
+partial — the chunk's disposition rules are the security plan's; arch contributes the gate's registered CLI contract, its CI wiring, the npm-manifest license decision, and workspace placement (no new arch resource is expected).
+
+## Constraints
+- The gate is a registered xtask CLI surface with a fixed contract: arch §Occupied Resources → xtask CLI surfaces (`cargo xtask check:npm-supply-chain`) requires the three-way exit code (0 green · 1 red · 2 cannot-evaluate), six named verdict arms and one pretty-JSON verdict object on stdout. The chunk makes the gate's INPUTS green; it does not change that contract. The plan names the arms but does not enumerate which arm maps to which exit code — that mapping is research's question, read from `xtask/src/npm_gate.rs`.
+- The same entry requires every advisory exception in `pulse-app/ui/npm-policy.json` to carry ghsa / package / reason / owner / closing_condition, with blank provenance rejected by the parser. The scope's exception form also names `added`; the plan does not list `added` as parser-required, so whether the parser demands it is research's question.
+- The same entry fixes what the gate reads: `package-lock.json` alone for license and dependency-class data (no `npm ci`, no `node_modules`), with `npm audit` reading lockfile + registry. The committed lockfile is therefore the gate's subject; the scope's installed-tree measurement is additional evidence, never a substitute for the lockfile reading.
+- Arch §Infrastructure Patterns → CI/CD approach requires the gate to run inside ci.yml's `supply-chain` job, which also carries the Linux release smoke (`cargo auditable build --workspace --release`) and restores a read-only Rust cache; the same key requires shared CI logic to live in `xtask` so the local command is identical to CI's. Where that release-smoke step sits relative to the npm step, and so whether it ran on the red shas, is research's question (the scope records the later steps as unmeasured).
+- Arch §Established Decisions [License] requires `pulse-app/ui/package.json` and the lockfile root entry `packages[""]` to carry the project's SPDX expression, pinned by the test-only xtask module `license_check`. An `overrides` edit plus a lockfile rewrite touches both files, so both must still carry it afterwards.
+- Arch §Stack and Technologies → GUI verification harness (dev-only) pins the npm devDependencies `@crabnebula/tauri-driver` 2.x + `webdriverio` 9.x and records the win32 native driver as a napi OPTIONAL dependency. A lockfile rewrite on this Linux host must leave those majors and that platform-conditional entry in place; whether the regenerated lockfile keeps them is research's question.
+- Workspace placement: per arch §Infrastructure Patterns → Project directory structure the chunk's files live under `pulse-app/ui/` (the webview source root inside the binary crate) and the gate's code under `xtask/`; per arch §Occupied Resources (workspace crate names, ports, env vars, IPC routes, capability identifiers) the chunk lands no new reserved resource, matching the scope's own Boundaries.
+
+## Patterns to follow
+- Drive and read the gate the way arch §Cross-cutting Patterns → Development Style prescribes for agent-driven work: the deterministic `cargo xtask` verb, judged from its machine-parseable verdict object, not from scraped prose.
+- Cannot-evaluate is never a pass: across arch §Occupied Resources → xtask CLI surfaces every gate's exit-2 arm is distinct from green, and for this gate that covers the registry-unreachable and missing-input arms — a run that could not reach the advisory feed proves nothing either way.
+- "Requirement X, lockfile-resolved Y as of {date}, closed {advisory} with no advisory ignore" is how arch §Stack and Technologies records a dependency moved for an advisory (the plugin-runtime row is the precedent). The plan carries no Stack row for the three npm packages in scope, so this is the reporting shape for the chunk's evidence, not a mandated plan edit.
+- Dependency class decides which rule applies: the policy input holds per-class license allowlists (runtime / dev) per arch §Occupied Resources → xtask CLI surfaces, and the Stack GUI-harness row scopes its packages as devDeps with no runtime or bundle impact — so a package whose class flag moves in the rewritten lockfile is re-judged under the other allowlist.
+
+## Anti-patterns to avoid
+- Reaching green by editing the gate — its arms, exit codes, parser strictness or what it reads — instead of its inputs; the contract in arch §Occupied Resources → xtask CLI surfaces is registered and other gate lists depend on it.
+- Moving the check out of `xtask` into an ad-hoc CI script or a third-party action: arch §Established Decisions [CI Task Runner] and §Infrastructure Patterns → CI/CD approach keep shared CI logic in `xtask`, wired as a plain `run:` step.
+- Adding a Cargo dependency, feature flag or cross-crate edge for an npm-channel fix — arch §Cross-cutting Patterns → Module dependency direction and → Feature-gate hygiene; the scope excludes any Rust dependency change.
+
+## Contract bindings
+- arch ↔ security: arch registers the gate's CLI contract and policy-file shape; WHEN an exception is permitted, its provenance rules and the fix-at-source preference belong to security-plan §Dependency Security.
+- arch ↔ tests: the `license_check` xtask module (arch §Established Decisions [License]) and the ci.yml `supply-chain` job (arch §Infrastructure Patterns → CI/CD approach) are test-plan-owned gates that read the files this chunk edits.
+- arch ↔ design: arch §Infrastructure Patterns → Project directory structure assigns the webview's frontend tooling under `pulse-app/ui/` to the design specialist; arch pins no version for the router, CSS or bundler packages that hold the flagged dependencies, so any version floor on those dependents comes from the design domain, not from arch.
+- arch ↔ xtask `pre-push:linux`: arch §Occupied Resources → xtask CLI surfaces records that verb as reading ci.yml's `node-version` major; if research finds a Node-major mismatch and the chunk moves that pin, it moves a value a second registered verb reads.
+- Wrap-time: arch §Occupied Resources and the Stack GUI-harness row are amended only if the chunk lands a new resource or moves a pinned major; neither is expected.
+
+## Acceptance criteria contributions
+- `cargo xtask check:npm-supply-chain` exits 0 with a green verdict arm in its stdout verdict object, on this host and in ci.yml's `supply-chain` job on the chunk's commit; an exit-2 arm is not accepted as green (per arch §Occupied Resources → xtask CLI surfaces; arch §Infrastructure Patterns → CI/CD approach).
+- Every exception present in `pulse-app/ui/npm-policy.json` after the change carries non-blank ghsa / package / reason / owner / closing_condition, and the gate does not read its policy-red arm (per arch §Occupied Resources → xtask CLI surfaces).
+- `pulse-app/ui/package.json` and the lockfile root entry `packages[""]` still carry the project's SPDX license expression, and the xtask `license_check` tests pass (per arch §Established Decisions [License]).
+- The diff adds no workspace crate, Cargo dependency, env var, port, IPC route, capability identifier or xtask verb, and the gate's exit-code / arm / stdout contract is byte-unchanged (per arch §Occupied Resources; arch §Cross-cutting Patterns → Module dependency direction).

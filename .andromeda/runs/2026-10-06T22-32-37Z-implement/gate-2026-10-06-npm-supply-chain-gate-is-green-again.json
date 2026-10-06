@@ -1,0 +1,789 @@
+[
+{
+"tool": "gate",
+"v": "1.11",
+"sha8": "0aca1113",
+"ts": "2026-10-06T22:34:23Z",
+"argv": [
+"run",
+"--plan",
+"andromeda-pulse-0.3.0/chunks/2026-10-06-npm-supply-chain-gate-is-green-again/plan.md",
+"--run-dir",
+".andromeda/runs/2026-10-06T22-32-37Z-implement",
+"--marker",
+"2026-10-06-npm-supply-chain-gate-is-green-again"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"shell /usr/bin/bash (from $SHELL; -c, non-login)",
+"root . · marker 2026-10-06-npm-supply-chain-gate-is-green-again · entries 28",
+"logs $TMPDIR/andromeda-gate/2026-10-06-npm-supply-chain-gate-is-green-again/implement-2026-10-06T22-32-37Z · bound: GNU timeout",
+"delta docs 37 · ts 1 · unmapped 3",
+"walk-class rust 2 (xtask/src/source_lint.rs, xtask/src/staged_gate.rs) · uncommitted 41",
+"prose L48-54: The chunk's own entries come first: the fresh install, the lockfile and installed-tree pro… (744 chars)",
+"prose L56-57: Order inside the webview block: `npm run build` precedes `npm run test`, because `src/cont… (165 chars)",
+"prose L59-67: Absences, each with its reason: - No boot-path file is touched (`main.rs`, `observability.… (2095 chars)",
+"prose L69-71: `evidence/advisory-record.md`, `evidence/lockfile-delta.md` and `evidence/installed-tree.m… (295 chars)",
+"prose L73-74: The CI read waits 2400 s against the last green run's wall-clock of 1801 s (`5f77859`, rea… (129 chars)",
+"  1 build       green · exit 0 · 6.57s · 2167 B → 1.log · PUPPETEER_SKIP_DOWNLOAD=1 npm ci --prefix pulse-app/ui",
+"  2 probe       green · exit 0 · 0.02s · 4 B → 2.log · python -X utf8 -c \"import json; P=json.load(open('pulse-ap… (338 chars)",
+"  3 probe       green · exit 0 · 0.21s · 4 B → 3.log · python -X utf8 -c \"import json,glob; v=lambda s: tuple(int… (333 chars)",
+"  4 probe       green · exit 0 · 0.01s · 3 B → 4.log · git diff -U0 b1fcba57c1c8cfebf562bcb32002dac6351702e7 -- p… (108 chars)",
+"  5 probe       green · exit 1 · 0.01s · 2 B → 5.log · git diff -U0 b1fcba57c1c8cfebf562bcb32002dac6351702e7 -- p… (123 chars)",
+"  6 probe       green · exit 0 · 0.01s · 0 B → 6.log · git diff --name-only b1fcba57c1c8cfebf562bcb32002dac635170… (191 chars)",
+"  7 probe       green · exit 0 · 1.07s · 550 B → 7.log · cargo xtask check:npm-supply-chain",
+"  8 build       green · exit 0 · 2.22s · 1003 B → 8.log · npm run build --prefix pulse-app/ui",
+"  9 probe       green · exit 0 · 0.0s · 2 B → 9.log · grep -c -e '--color-accent:#c7556a' pulse-app/ui/dist/toke… (64 chars)",
+" 10 probe       recorded · exit 0 · 0.0s · 299 B → 10.log · sha256sum pulse-app/ui/dist/assets/*.js pulse-app/ui/dist/… (97 chars)",
+" 11 lint        green · exit 0 · 2.55s · 45 B → 11.log · npm run lint --prefix pulse-app/ui",
+" 12 lint        green · exit 0 · 2.47s · 54 B → 12.log · npm run typecheck --prefix pulse-app/ui",
+" 13 unit        green · exit 0 · 5.93s · 48954 B → 13.log · npm run test --prefix pulse-app/ui",
+" 14 probe       green · exit 0 · 0.69s · 7171 B → 14.log · (cd pulse-app/ui && npx playwright test --config=playwrigh… (82 chars)",
+" 15 lint        green · exit 0 · 0.6s · 0 B → 15.log · cargo fmt --check",
+" 16 lint        green · exit 0 · 1.78s · 158 B → 16.log · cargo clippy --workspace --all-targets --all-features -- -… (68 chars)",
+" 17 probe       green · exit 0 · 0.44s · 100 B → 17.log · cargo xtask check:english-sources",
+" 18 probe       green · exit 0 · 0.3s · 394 B → 18.log · cargo xtask capability-widening-check",
+" 19 probe       green · exit 0 · 0.3s · 99 B → 19.log · cargo xtask check:ingest-progress",
+" 20 probe       green · exit 0 · 0.32s · 342 B → 20.log · cargo xtask check:staged-artifacts",
+" 21 probe       green · exit 0 · 0.32s · 714 B → 21.log · cargo xtask capability-drift",
+" 22 probe       green · exit 0 · 0.3s · 396 B → 22.log · cargo xtask verify:capability-matrix",
+" 23 unit        green · exit 0 · 18.96s · 642985 B → 23.log · cargo nextest run --workspace --profile ci",
+" 24 build       green · exit 0 · 3.06s · 513 B → 24.log · cargo nextest run -p pulse-app --features mcp-server --bin… (101 chars)",
+" 25 probe       green · exit 0 · 0.01s · 0 B → 25.log · git diff --quiet b1fcba57c1c8cfebf562bcb32002dac6351702e7 … (95 chars)",
+" 26 probe       not run — leg operator (the letter drives it) · python -X utf8 ~/.claude/skills/andromeda-tools/scripts/ga… (71 chars)",
+" 27 probe       not run — leg operator (the letter drives it) · git diff --quiet && git diff --cached --quiet && git push … (90 chars)",
+" 28 probe       not run — leg operator (the letter drives it) · python -X utf8 ~/.claude/skills/andromeda-tools/scripts/ci… (95 chars)",
+"entries 28 · green 24 · red 0 · recorded 1 · timeout 0 · not-run 3"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"marker": "2026-10-06-npm-supply-chain-gate-is-green-again",
+"plan": "/home/turbolet/dev/projects/andromeda-pulse/andromeda-pulse-0.3.0/chunks/2026-10-06-npm-supply-chain-gate-is-green-again/plan.md",
+"root": "/home/turbolet/dev/projects/andromeda-pulse",
+"shell": "/usr/bin/bash",
+"out_dir": "/tmp/andromeda-gate/2026-10-06-npm-supply-chain-gate-is-green-again/implement-2026-10-06T22-32-37Z",
+"delta": {
+"docs": [
+".andromeda/friction-log.ndjson",
+".andromeda/master-route.md",
+".claude/session-handoff.md",
+"andromeda-pulse-0.3.0/working-route.md",
+".andromeda/runs/2026-10-06T22-06-57Z-phase/a11y-contracts.md",
+".andromeda/runs/2026-10-06T22-06-57Z-phase/a11y-history.md",
+".andromeda/runs/2026-10-06T22-06-57Z-phase/a11y.md",
+".andromeda/runs/2026-10-06T22-06-57Z-phase/arch-contracts.md",
+".andromeda/runs/2026-10-06T22-06-57Z-phase/arch-history.md",
+".andromeda/runs/2026-10-06T22-06-57Z-phase/arch.md",
+".andromeda/runs/2026-10-06T22-06-57Z-phase/ci-no-marker.json",
+".andromeda/runs/2026-10-06T22-06-57Z-phase/design-history.md",
+".andromeda/runs/2026-10-06T22-06-57Z-phase/design.md",
+".andromeda/runs/2026-10-06T22-06-57Z-phase/evolve-2026-10-06-npm-supply-chain-gate-is-green-again.json",
+".andromeda/runs/2026-10-06T22-06-57Z-phase/gate-2026-10-06-npm-supply-chain-gate-is-green-again.json",
+".andromeda/runs/2026-10-06T22-06-57Z-phase/inputs-2026-10-06-npm-supply-chain-gate-is-green-again.json",
+".andromeda/runs/2026-10-06T22-06-57Z-phase/layouts.md",
+".andromeda/runs/2026-10-06T22-06-57Z-phase/master-record.txt",
+".andromeda/runs/2026-10-06T22-06-57Z-phase/matrix-2026-10-06-npm-supply-chain-gate-is-green-again.json",
+".andromeda/runs/2026-10-06T22-06-57Z-phase/obs-contracts.md",
+".andromeda/runs/2026-10-06T22-06-57Z-phase/obs-history.md",
+".andromeda/runs/2026-10-06T22-06-57Z-phase/obs.md",
+".andromeda/runs/2026-10-06T22-06-57Z-phase/planlint-2026-10-06-npm-supply-chain-gate-is-green-again.json",
+".andromeda/runs/2026-10-06T22-06-57Z-phase/registry-2026-10-06-npm-supply-chain-gate-is-green-again.json",
+".andromeda/runs/2026-10-06T22-06-57Z-phase/relay-1.md",
+".andromeda/runs/2026-10-06T22-06-57Z-phase/research-lock-delta.diff",
+".andromeda/runs/2026-10-06T22-06-57Z-phase/route-2026-10-06-npm-supply-chain-gate-is-green-again.json",
+".andromeda/runs/2026-10-06T22-06-57Z-phase/security-history.md",
+".andromeda/runs/2026-10-06T22-06-57Z-phase/security.md",
+".andromeda/runs/2026-10-06T22-06-57Z-phase/sidecar-2026-10-06-npm-supply-chain-gate-is-green-again.json",
+".andromeda/runs/2026-10-06T22-06-57Z-phase/tests-contracts.md",
+".andromeda/runs/2026-10-06T22-06-57Z-phase/tests-history.md",
+".andromeda/runs/2026-10-06T22-06-57Z-phase/tests.md",
+".andromeda/runs/2026-10-06T22-32-37Z-implement/evolve-2026-10-06-npm-supply-chain-gate-is-green-again.json",
+"andromeda-pulse-0.3.0/chunks/2026-10-06-npm-supply-chain-gate-is-green-again/plan.md",
+"andromeda-pulse-0.3.0/chunks/2026-10-06-npm-supply-chain-gate-is-green-again/research.md",
+"andromeda-pulse-0.3.0/chunks/2026-10-06-npm-supply-chain-gate-is-green-again/scope.md"
+],
+"ts": [
+"pulse-app/ui/package-lock.json"
+]
+},
+"unmapped": [
+"andromeda-pulse-0.3.0/chunks/2026-10-06-npm-supply-chain-gate-is-green-again/inputs/.gitattributes",
+"andromeda-pulse-0.3.0/chunks/2026-10-06-npm-supply-chain-gate-is-green-again/inputs/I1-relay-1.md.txt",
+"andromeda-pulse-0.3.0/chunks/2026-10-06-npm-supply-chain-gate-is-green-again/inputs/andromeda-inputs.json"
+],
+"walk_class": {
+"marked": {
+"rust": [
+"xtask/src/source_lint.rs",
+"xtask/src/staged_gate.rs"
+]
+},
+"uncommitted": 41,
+"problem": null
+},
+"prose": [
+{
+"from": 48,
+"to": 54,
+"text": "The chunk's own entries come first: the fresh install, the lockfile and installed-tree probes, the delta and scope guards, the gate itself, then the webview build, lint, typecheck and unit tests and the a11y suite listing. The standard test-plan §3 set follows in its order (`capability-drift` before the default-features workspace nextest; the `--features mcp-server` bindings regen as the last cargo-adjacent step; the base-identity bindings close, since no procedure is added), then the operator pass. Every Rust gate runs: no entry is deferred, because the xtask test `license_npm_manifest_and_lock_root_agree` (`xtask/src/license_check.rs:97`) reads the lockfile this chunk changes, and the directive allows every step tonight (inputs#I1)."
+},
+{
+"from": 56,
+"to": 57,
+"text": "Order inside the webview block: `npm run build` precedes `npm run test`, because `src/contrast/parse-tokens.test.ts` reads `dist/tokens.css` (research.md §Measured)."
+},
+{
+"from": 59,
+"to": 67,
+"text": "Absences, each with its reason: - No boot-path file is touched (`main.rs`, `observability.rs`, `crates/ui-bridge/src/`, `tauri.conf.json`, `capabilities/*.json`; the scope-guard entry proves it), so the boot smoke does not bind (test-plan §3 Boot-smoke gate). - No live leg: no app boots. - No headful self-verify: `cargo xtask self-verify` is a Windows/WRY harness and does not run on this Linux host, and the chunk changes no UI source, token or component. The built bundle's hashes are recorded instead (the report-only `sha256sum` entry). - The full a11y chain (`cargo xtask test:a11y`) is not listed locally: research did not run it on this host. Its witness is the CI `a11y` job on Linux, macOS and Windows, which installs this lockfile, builds and runs the chain; the CI read asserts it green. The local reading is the config-named suite listing. - `cargo xtask pre-push:linux` cannot run on the Linux dev host (it drives every stage through `wsl.exe`); porting it is its own route entry. Its `npm` stage's two commands, `npm ci` and `npm run build`, are listed here directly. - The PLAIN `npm ci` is not a gate on this host. At P5 it read exit 1: puppeteer 24.43.1's postinstall fails because `~/.cache/puppeteer/chrome/linux-148.0.7778.97` exists without its executable. That is the standing PC22 defect, owned by CARRY (a) on the route entry \"pre-push:linux runs natively on Linux\" (founder ruling 2026-10-04: isolate the cache under `target/`, never delete the shared one). The listed form sets `PUPPETEER_SKIP_DOWNLOAD=1`, which touches no cache and skips a browser download this chunk does not use; the isolated-cache form is not re-runnable (the CARRY records that a second `npm ci` against it fails). CI's runners install the plain form. - `cargo auditable build --workspace --release` is not listed locally (`cargo auditable` is not installed on this host). The CI `supply-chain` job runs it, and the CI read asserts that job green. - `npm ls --all` is not a gate: it exits 1 on `invalid: proxy-agent@6.5.0` at the chunk base and on a fresh install alike (research.md §Measured)."
+},
+{
+"from": 69,
+"to": 71,
+"text": "`evidence/advisory-record.md`, `evidence/lockfile-delta.md` and `evidence/installed-tree.md` have no producing entry by construction: /implement writes them from the recorded outputs of the gate, delta-guard and probe entries. They are records of listed gates, not runtime artifacts a leg emits."
+},
+{
+"from": 73,
+"to": 74,
+"text": "The CI read waits 2400 s against the last green run's wall-clock of 1801 s (`5f77859`, read at Setup); its timeout is 2400 + 180."
+}
+],
+"entries": [
+{
+"n": 1,
+"role": "build",
+"run": "PUPPETEER_SKIP_DOWNLOAD=1 npm ci --prefix pulse-app/ui",
+"run_sha8": "cf7efb28",
+"expect": null,
+"log": "/tmp/andromeda-gate/2026-10-06-npm-supply-chain-gate-is-green-again/implement-2026-10-06T22-32-37Z/1.log",
+"bytes": 2167,
+"log_sha8": "9db36910",
+"exit": 0,
+"seconds": 6.57,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 2,
+"role": "probe",
+"run": "python -X utf8 -c \"import json; P=json.load(open('pulse-app/ui/package-lock.json',encoding='utf-8'))['packages']; v=lambda s: tuple(int(x) for x in s.split('.')); f={'seroval':(1,6,3),'source-map-js':(1,2,2)}; h=[(k,n) for k in P for n in f if k.endswith('node_modules/'+n)]; print(sum(1 for k,n in h if v(P[k]['version'])<f[n]), len(h))\"",
+"run_sha8": "b8ef4aec",
+"expect": [
+"exit 0",
+"last line 0 2"
+],
+"log": "/tmp/andromeda-gate/2026-10-06-npm-supply-chain-gate-is-green-again/implement-2026-10-06T22-32-37Z/2.log",
+"bytes": 4,
+"log_sha8": "665ae877",
+"exit": 0,
+"seconds": 0.02,
+"readings": [
+"exit 0 ✓",
+"last line '0 2' ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 3,
+"role": "probe",
+"run": "python -X utf8 -c \"import json,glob; v=lambda s: tuple(int(x) for x in s.split('.')); f={'seroval':(1,6,3),'source-map-js':(1,2,2)}; h=[(p,n) for n in f for p in glob.glob('pulse-app/ui/node_modules/**/'+n+'/package.json',recursive=True)]; print(sum(1 for p,n in h if v(json.load(open(p,encoding='utf-8'))['version'])<f[n]), len(h))\"",
+"run_sha8": "1838d25f",
+"expect": [
+"exit 0",
+"last line 0 2"
+],
+"log": "/tmp/andromeda-gate/2026-10-06-npm-supply-chain-gate-is-green-again/implement-2026-10-06T22-32-37Z/3.log",
+"bytes": 4,
+"log_sha8": "665ae877",
+"exit": 0,
+"seconds": 0.21,
+"readings": [
+"exit 0 ✓",
+"last line '0 2' ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 4,
+"role": "probe",
+"run": "git diff -U0 b1fcba57c1c8cfebf562bcb32002dac6351702e7 -- pulse-app/ui/package-lock.json | grep -cE '^[-+] ' ",
+"run_sha8": "3ec2c181",
+"expect": [
+"exit 0",
+"last line 18"
+],
+"log": "/tmp/andromeda-gate/2026-10-06-npm-supply-chain-gate-is-green-again/implement-2026-10-06T22-32-37Z/4.log",
+"bytes": 3,
+"log_sha8": "7ee29791",
+"exit": 0,
+"seconds": 0.01,
+"readings": [
+"exit 0 ✓",
+"last line '18' ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 5,
+"role": "probe",
+"run": "git diff -U0 b1fcba57c1c8cfebf562bcb32002dac6351702e7 -- pulse-app/ui/package-lock.json | grep -cE '^[-+] +\"node_modules/' ",
+"run_sha8": "6124976d",
+"expect": [
+"exit 1",
+"last line 0"
+],
+"log": "/tmp/andromeda-gate/2026-10-06-npm-supply-chain-gate-is-green-again/implement-2026-10-06T22-32-37Z/5.log",
+"bytes": 2,
+"log_sha8": "9a271f2a",
+"exit": 1,
+"seconds": 0.01,
+"readings": [
+"exit 1 ✓",
+"last line '0' ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 6,
+"role": "probe",
+"run": "git diff --name-only b1fcba57c1c8cfebf562bcb32002dac6351702e7 -- pulse-app xtask crates scripts .github Cargo.toml Cargo.lock deny.toml rust-toolchain.toml ':!pulse-app/ui/package-lock.json' ",
+"run_sha8": "4a636244",
+"expect": [
+"exit 0",
+"no output"
+],
+"log": "/tmp/andromeda-gate/2026-10-06-npm-supply-chain-gate-is-green-again/implement-2026-10-06T22-32-37Z/6.log",
+"bytes": 0,
+"log_sha8": "e3b0c442",
+"exit": 0,
+"seconds": 0.01,
+"readings": [
+"exit 0 ✓",
+"no output ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 7,
+"role": "probe",
+"run": "cargo xtask check:npm-supply-chain",
+"run_sha8": "ce778a8e",
+"expect": [
+"exit 0",
+"contains \"arm\": \"green-with-dispositions\"",
+"contains \"unexcepted\": []",
+"contains \"violations\": []",
+"contains \"hits\": []",
+"contains GHSA-7pqw-9j4j-h8q3",
+"contains GHSA-jmr9-qjv8-65gv",
+"lacks GHSA-p6vx-979v-rg4c",
+"lacks GHSA-jp82-f5mq-hwhp",
+"lacks GHSA-68fv-2mgg-jv7q"
+],
+"log": "/tmp/andromeda-gate/2026-10-06-npm-supply-chain-gate-is-green-again/implement-2026-10-06T22-32-37Z/7.log",
+"bytes": 550,
+"log_sha8": "78eb028c",
+"exit": 0,
+"seconds": 1.07,
+"readings": [
+"exit 0 ✓",
+"contains '\"arm\": \"green-with-dispositions\"' ✓",
+"contains '\"unexcepted\": []' ✓",
+"contains '\"violations\": []' ✓",
+"contains '\"hits\": []' ✓",
+"contains 'GHSA-7pqw-9j4j-h8q3' ✓",
+"contains 'GHSA-jmr9-qjv8-65gv' ✓",
+"lacks 'GHSA-p6vx-979v-rg4c' ✓",
+"lacks 'GHSA-jp82-f5mq-hwhp' ✓",
+"lacks 'GHSA-68fv-2mgg-jv7q' ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 8,
+"role": "build",
+"run": "npm run build --prefix pulse-app/ui",
+"run_sha8": "26008215",
+"expect": null,
+"log": "/tmp/andromeda-gate/2026-10-06-npm-supply-chain-gate-is-green-again/implement-2026-10-06T22-32-37Z/8.log",
+"bytes": 1003,
+"log_sha8": "69b131d9",
+"exit": 0,
+"seconds": 2.22,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 9,
+"role": "probe",
+"run": "grep -c -e '--color-accent:#c7556a' pulse-app/ui/dist/tokens.css",
+"run_sha8": "36b7c7c1",
+"expect": [
+"exit 0",
+"last line 1"
+],
+"log": "/tmp/andromeda-gate/2026-10-06-npm-supply-chain-gate-is-green-again/implement-2026-10-06T22-32-37Z/9.log",
+"bytes": 2,
+"log_sha8": "4355a46b",
+"exit": 0,
+"seconds": 0.0,
+"readings": [
+"exit 0 ✓",
+"last line '1' ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 10,
+"role": "probe",
+"run": "sha256sum pulse-app/ui/dist/assets/*.js pulse-app/ui/dist/tokens.css pulse-app/ui/dist/index.html",
+"run_sha8": "0632e13f",
+"expect": [],
+"log": "/tmp/andromeda-gate/2026-10-06-npm-supply-chain-gate-is-green-again/implement-2026-10-06T22-32-37Z/10.log",
+"bytes": 299,
+"log_sha8": "c825a15a",
+"exit": 0,
+"seconds": 0.0,
+"readings": [
+"report-only (expect = [])"
+],
+"survivors": [],
+"outcome": "recorded"
+},
+{
+"n": 11,
+"role": "lint",
+"run": "npm run lint --prefix pulse-app/ui",
+"run_sha8": "a2b8c586",
+"expect": null,
+"log": "/tmp/andromeda-gate/2026-10-06-npm-supply-chain-gate-is-green-again/implement-2026-10-06T22-32-37Z/11.log",
+"bytes": 45,
+"log_sha8": "ac02d22d",
+"exit": 0,
+"seconds": 2.55,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 12,
+"role": "lint",
+"run": "npm run typecheck --prefix pulse-app/ui",
+"run_sha8": "dda688fc",
+"expect": null,
+"log": "/tmp/andromeda-gate/2026-10-06-npm-supply-chain-gate-is-green-again/implement-2026-10-06T22-32-37Z/12.log",
+"bytes": 54,
+"log_sha8": "13bb67e5",
+"exit": 0,
+"seconds": 2.47,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 13,
+"role": "unit",
+"run": "npm run test --prefix pulse-app/ui",
+"run_sha8": "9436b307",
+"expect": [
+"exit 0",
+"contains 863 passed (863)"
+],
+"log": "/tmp/andromeda-gate/2026-10-06-npm-supply-chain-gate-is-green-again/implement-2026-10-06T22-32-37Z/13.log",
+"bytes": 48954,
+"log_sha8": "27559833",
+"exit": 0,
+"seconds": 5.93,
+"readings": [
+"exit 0 ✓",
+"contains '863 passed (863)' ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 14,
+"role": "probe",
+"run": "(cd pulse-app/ui && npx playwright test --config=playwright-a11y.config.ts --list)",
+"run_sha8": "d3d38ff8",
+"expect": [
+"exit 0",
+"contains Total: 41 tests in 18 files"
+],
+"log": "/tmp/andromeda-gate/2026-10-06-npm-supply-chain-gate-is-green-again/implement-2026-10-06T22-32-37Z/14.log",
+"bytes": 7171,
+"log_sha8": "437178c4",
+"exit": 0,
+"seconds": 0.69,
+"readings": [
+"exit 0 ✓",
+"contains 'Total: 41 tests in 18 files' ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 15,
+"role": "lint",
+"run": "cargo fmt --check",
+"run_sha8": "194fabc0",
+"expect": null,
+"log": "/tmp/andromeda-gate/2026-10-06-npm-supply-chain-gate-is-green-again/implement-2026-10-06T22-32-37Z/15.log",
+"bytes": 0,
+"log_sha8": "e3b0c442",
+"exit": 0,
+"seconds": 0.6,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 16,
+"role": "lint",
+"run": "cargo clippy --workspace --all-targets --all-features -- -D warnings",
+"run_sha8": "f835224c",
+"expect": null,
+"log": "/tmp/andromeda-gate/2026-10-06-npm-supply-chain-gate-is-green-again/implement-2026-10-06T22-32-37Z/16.log",
+"bytes": 158,
+"log_sha8": "f69b232a",
+"exit": 0,
+"seconds": 1.78,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 17,
+"role": "probe",
+"run": "cargo xtask check:english-sources",
+"run_sha8": "d29f47c5",
+"expect": [
+"exit 0",
+"contains \"verdict\": \"clean\""
+],
+"log": "/tmp/andromeda-gate/2026-10-06-npm-supply-chain-gate-is-green-again/implement-2026-10-06T22-32-37Z/17.log",
+"bytes": 100,
+"log_sha8": "4c25a869",
+"exit": 0,
+"seconds": 0.44,
+"readings": [
+"exit 0 ✓",
+"contains '\"verdict\": \"clean\"' ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 18,
+"role": "probe",
+"run": "cargo xtask capability-widening-check",
+"run_sha8": "c09451af",
+"expect": null,
+"log": "/tmp/andromeda-gate/2026-10-06-npm-supply-chain-gate-is-green-again/implement-2026-10-06T22-32-37Z/18.log",
+"bytes": 394,
+"log_sha8": "34050a73",
+"exit": 0,
+"seconds": 0.3,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 19,
+"role": "probe",
+"run": "cargo xtask check:ingest-progress",
+"run_sha8": "123ffa0a",
+"expect": null,
+"log": "/tmp/andromeda-gate/2026-10-06-npm-supply-chain-gate-is-green-again/implement-2026-10-06T22-32-37Z/19.log",
+"bytes": 99,
+"log_sha8": "09869944",
+"exit": 0,
+"seconds": 0.3,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 20,
+"role": "probe",
+"run": "cargo xtask check:staged-artifacts",
+"run_sha8": "052b4e95",
+"expect": null,
+"log": "/tmp/andromeda-gate/2026-10-06-npm-supply-chain-gate-is-green-again/implement-2026-10-06T22-32-37Z/20.log",
+"bytes": 342,
+"log_sha8": "c94d39e4",
+"exit": 0,
+"seconds": 0.32,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 21,
+"role": "probe",
+"run": "cargo xtask capability-drift",
+"run_sha8": "fb5fd088",
+"expect": null,
+"log": "/tmp/andromeda-gate/2026-10-06-npm-supply-chain-gate-is-green-again/implement-2026-10-06T22-32-37Z/21.log",
+"bytes": 714,
+"log_sha8": "67e1458b",
+"exit": 0,
+"seconds": 0.32,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 22,
+"role": "probe",
+"run": "cargo xtask verify:capability-matrix",
+"run_sha8": "31c12e31",
+"expect": null,
+"log": "/tmp/andromeda-gate/2026-10-06-npm-supply-chain-gate-is-green-again/implement-2026-10-06T22-32-37Z/22.log",
+"bytes": 396,
+"log_sha8": "4c6f38e9",
+"exit": 0,
+"seconds": 0.3,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 23,
+"role": "unit",
+"run": "cargo nextest run --workspace --profile ci",
+"run_sha8": "bf6e813a",
+"expect": null,
+"log": "/tmp/andromeda-gate/2026-10-06-npm-supply-chain-gate-is-green-again/implement-2026-10-06T22-32-37Z/23.log",
+"bytes": 642985,
+"log_sha8": "d089bb9f",
+"exit": 0,
+"seconds": 18.96,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 24,
+"role": "build",
+"run": "cargo nextest run -p pulse-app --features mcp-server --bin pulse-app -E 'test(emit_taurpc_bindings)' ",
+"run_sha8": "3733d1a6",
+"expect": null,
+"log": "/tmp/andromeda-gate/2026-10-06-npm-supply-chain-gate-is-green-again/implement-2026-10-06T22-32-37Z/24.log",
+"bytes": 513,
+"log_sha8": "fbe93467",
+"exit": 0,
+"seconds": 3.06,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 25,
+"role": "probe",
+"run": "git diff --quiet b1fcba57c1c8cfebf562bcb32002dac6351702e7 -- pulse-app/ui/src/bindings/index.ts",
+"run_sha8": "1f81a0da",
+"expect": null,
+"log": "/tmp/andromeda-gate/2026-10-06-npm-supply-chain-gate-is-green-again/implement-2026-10-06T22-32-37Z/25.log",
+"bytes": 0,
+"log_sha8": "e3b0c442",
+"exit": 0,
+"seconds": 0.01,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 26,
+"role": "probe",
+"run": "python -X utf8 /home/turbolet/.claude/skills/andromeda-tools/scripts/gate.py hygiene",
+"run_sha8": "c6e5fd28",
+"expect": [
+"exit 0",
+"contains hygiene: clean"
+],
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — leg operator (the letter drives it)"
+},
+{
+"n": 27,
+"role": "probe",
+"run": "git diff --quiet && git diff --cached --quiet && git push origin chore/migrate-pulse-to-v3",
+"run_sha8": "adb66f19",
+"expect": null,
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — leg operator (the letter drives it)"
+},
+{
+"n": 28,
+"role": "probe",
+"run": "python -X utf8 /home/turbolet/.claude/skills/andromeda-tools/scripts/ci.py conclusion --sha HEAD --wait 2400",
+"run_sha8": "2aa1f573",
+"expect": [
+"exit 0",
+"contains verdict: green"
+],
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — leg operator (the letter drives it)"
+}
+]
+}
+},
+{
+"tool": "gate",
+"v": "1.11",
+"sha8": "0aca1113",
+"ts": "2026-10-06T22:35:47Z",
+"argv": [
+"scope",
+"--chunk-dir",
+"andromeda-pulse-0.3.0/chunks/2026-10-06-npm-supply-chain-gate-is-green-again",
+"--run-dir",
+".andromeda/runs/2026-10-06T22-32-37Z-implement",
+"--marker",
+"2026-10-06-npm-supply-chain-gate-is-green-again"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"root . · base HEAD (no pre-CI commit) · lists new 0 · modify 1 · derived 0 · record 0",
+"control: lists · glob · record — each fired on its synthetic known positive; C1 · C2 held",
+"scope-record.md: absent — every out-of-list file reads unrecorded",
+"scope: clean — changed 1 · listed 1 · recorded 0 (companion 0 · mechanical 0 · in-intent 0 · widening 0) · absorbed 0 · excluded 45"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"root": "/home/turbolet/dev/projects/andromeda-pulse",
+"base": "HEAD",
+"base_why": "no pre-CI commit",
+"counts": {
+"changed": 1,
+"listed": 1,
+"recorded": 0,
+"unrecorded": 0,
+"indet": 0,
+"absorbed": 0
+},
+"by_class": {
+"companion": 0,
+"mechanical": 0,
+"in-intent": 0,
+"widening": 0
+},
+"excluded": 45,
+"unparsed": 0,
+"widening_without_word": 0
+}
+},
+{
+"tool": "gate",
+"v": "1.11",
+"sha8": "0aca1113",
+"ts": "2026-10-06T22:37:04Z",
+"argv": [
+"scope",
+"--chunk-dir",
+"andromeda-pulse-0.3.0/chunks/2026-10-06-npm-supply-chain-gate-is-green-again",
+"--run-dir",
+".andromeda/runs/2026-10-06T22-32-37Z-implement",
+"--marker",
+"2026-10-06-npm-supply-chain-gate-is-green-again"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"root . · base HEAD (no pre-CI commit) · lists new 0 · modify 1 · derived 0 · record 0",
+"control: lists · glob · record — each fired on its synthetic known positive; C1 · C2 held",
+"scope-record.md: absent — every out-of-list file reads unrecorded",
+"scope: clean — changed 1 · listed 1 · recorded 0 (companion 0 · mechanical 0 · in-intent 0 · widening 0) · absorbed 0 · excluded 46"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"root": "/home/turbolet/dev/projects/andromeda-pulse",
+"base": "HEAD",
+"base_why": "no pre-CI commit",
+"counts": {
+"changed": 1,
+"listed": 1,
+"recorded": 0,
+"unrecorded": 0,
+"indet": 0,
+"absorbed": 0
+},
+"by_class": {
+"companion": 0,
+"mechanical": 0,
+"in-intent": 0,
+"widening": 0
+},
+"excluded": 46,
+"unparsed": 0,
+"widening_without_word": 0
+}
+}
+]

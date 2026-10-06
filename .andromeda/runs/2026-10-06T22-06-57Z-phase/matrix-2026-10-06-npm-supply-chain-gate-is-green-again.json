@@ -1,0 +1,57 @@
+[
+{
+"tool": "matrix",
+"v": "1.3",
+"sha8": "cd774c8a",
+"ts": "2026-10-06T22:32:00Z",
+"argv": [
+"coverage",
+"--dir",
+"andromeda-pulse-0.3.0",
+"--run-dir",
+".andromeda/runs/2026-10-06T22-06-57Z-phase",
+"--marker",
+"2026-10-06-npm-supply-chain-gate-is-green-again"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"verified 22/22 · deferred 0 · planned 0 · implemented 0 · unclaimed 0",
+"claimed-unfinished: none",
+"done-test: YES — every entry verified|deferred and unclaimed 0",
+"chunks referenced: 20 distinct",
+"UNPARSED: P-072 — legacy notes placement (verification.notes); top-level notes is the convention"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "matrix",
+"v": "1.3",
+"sha8": "cd774c8a",
+"ts": "2026-10-06T22:32:00Z",
+"argv": [
+"audit",
+"--dir",
+"andromeda-pulse-0.3.0",
+"--chunk",
+"2026-10-06-npm-supply-chain-gate-is-green-again",
+"--plan",
+"andromeda-pulse-0.3.0/chunks/2026-10-06-npm-supply-chain-gate-is-green-again/plan.md",
+"--run-dir",
+".andromeda/runs/2026-10-06T22-06-57Z-phase"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"claimed by 2026-10-06-npm-supply-chain-gate-is-green-again: 0 · ## Acceptance Criteria: line 250, 13 lines",
+"pool: unclaimed 0"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+}
+]
