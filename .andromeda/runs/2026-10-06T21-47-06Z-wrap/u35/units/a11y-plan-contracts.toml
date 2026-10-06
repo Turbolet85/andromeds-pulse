@@ -1,0 +1,54 @@
+# a11y-plan.md ## 3. A11y Assertion Harness Contract — the keyed-contract index (U35). Ask registry.py contracts; never read whole.
+schema = 1
+master = "a11y-plan.md"
+section = "## 3. A11y Assertion Harness Contract"
+
+[[row]]
+key = "A11y testing tool pick"
+file = "contracts/a11y-plan/a11y-testing-tool-pick.md"
+labels = ["Primary tool per surface", "Configuration"]
+
+[[row]]
+key = "WCAG criteria mapping"
+file = "contracts/a11y-plan/wcag-criteria-mapping.md"
+labels = ["Tier coverage", "Compliance trigger override", "Motion-sensitive trigger escalation"]
+
+[[row]]
+key = "Structured violation JSON schema"
+file = "contracts/a11y-plan/structured-violation-json-schema.md"
+labels = ["Extensions (optional)"]
+
+[[row]]
+key = "Focus management test harness"
+file = "contracts/a11y-plan/focus-management-test-harness.md"
+labels = ["Driver", "Pattern"]
+
+[[row]]
+key = "Keyboard test harness"
+file = "contracts/a11y-plan/keyboard-test-harness.md"
+labels = ["Sequences per ARIA pattern", "Button", "Link", "Dialog", "Tabs", "Combobox", "Menu", "Switch", "Slider", "Tooling"]
+
+[[row]]
+key = "Screen reader test pattern"
+file = "contracts/a11y-plan/screen-reader-test-pattern.md"
+labels = ["Per-surface test spec", "Manual pass spec format", "Supplemental to automated"]
+
+[[row]]
+key = "Contrast verification harness"
+file = "contracts/a11y-plan/contrast-verification-harness.md"
+labels = ["Source-of-truth tokens", "Verification tool", "WCAG SC mapping"]
+
+[[row]]
+key = "CI integration"
+file = "contracts/a11y-plan/ci-integration.md"
+labels = ["Pipeline integration", "Command", "Artifact", "Per-PR regression detection", "CI gate"]
+
+[[row]]
+key = "Harness wiring & conventions"
+file = "contracts/a11y-plan/harness-wiring-conventions.md"
+labels = ["Mock layer", "Static serving", "Adding a surface (standing rule)", "Regression baseline"]
+
+[[row]]
+key = "Bootstrap phases (derive for route / setup-project)"
+file = "contracts/a11y-plan/bootstrap-phases-derive-for-route-setup-project.md"
+labels = ["a11y-tooling-install", "focus-management-library-install", "aria-component-library-install", "contrast-verification-harness-setup", "screen-reader-test-spec-setup", "a11y-linting-install", "motion-tokens-respect-install", "a11y-ci-gate-wire", "violation-json-emission-wire"]

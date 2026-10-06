@@ -258,3 +258,102 @@ five-target scope and the invariant-breach recording both operator-approved at t
 **Section:** §3 Observability Harness Contract → Log file location (Path bullet) · §1 harness-spec Log file location bullet (duplicate occurrence)
 **Change:** Both sites' `ANDROMEDA_PULSE_DATA_DIR`-unset per-platform dirs corrected to `resolve_data_dir()`'s measured forms: Windows `%APPDATA%\andromeda-pulse\` (was `%APPDATA%\Andromeda Pulse\logs\` — space + caps), Linux `$XDG_CONFIG_HOME/andromeda-pulse/` else `~/.andromeda-pulse/` (was `~/.local/share/com.andromeda.pulse/logs/`), macOS `~/Library/Application Support/com.andromeda.pulse/` kept verbatim; both now cite arch §Filesystem locations as the aligned source.
 **Why:** Report §Spec claims disproved #2 measured the Windows + Linux halves false against `pulse-app/src/main.rs::resolve_data_dir` and arch §Filesystem locations (disposition: P2 amendment, obs). D-obs-stack primary + dependent, applied atomically; routine per the 2026-08-14 doc-only APPLY rule (impl correct, doc alone wrong — moot for the harness, which always exports DATA_DIR, but a false claim for any bare-default boot).
+
+## Registry migration (U35) — 2026-10-06
+
+<!-- U35 · obs-plan.md · ## 3. Observability Harness Contract · sha256 aa5c9294cc58c22968205e395391bc96332797dc3b703f8482915b47adfaadc3 -->
+
+## 3. Observability Harness Contract
+
+Architecture committed to the harness pattern (verbatim from upstream-context Architecture Excerpt's Observability Hints): "`opentelemetry-stdout` (or file exporter targeting `~/.andromeda-pulse/logs/`) is the only exporter the product itself uses for its own telemetry". This obs plan strengthens that commitment by going one step further: NO OTel SDK is linked into the self-observation runtime at all. The product's own debug telemetry uses ONLY the `tracing` ecosystem with a JSON file sink. The product's external surfaces (OTLP receivers ingesting third-party clients) continue to use `tonic` + `axum` + `prost` + `opentelemetry-proto` for wire format parsing — those crates parse OTLP without requiring an OTel SDK runtime, so the two pipelines remain cleanly separated.
+
+### Tracing init
+
+- **Crate set:** `tracing` 0.1 (macro-driven instrumentation; `#[instrument]` attribute on router/handler methods) + `tracing-subscriber` 0.3 (JSON formatter + Layer composition + `EnvFilter`) + `tracing-appender` 0.2 (daily-rolling file sink, non-blocking writer) + `tracing-error` 0.2 (SpanTrace for sanitized error chains)
+- **Init order:** Before Tauri app spawn; before HTTP/gRPC server bind. Sequence: (1) Load env vars + config → validate log level via `EnvFilter::from_env("ANDROMEDA_PULSE_LOG_LEVEL")` with fallback `RUST_LOG`, (2) Build the `tracing_subscriber::registry()` composing the non-blocking file appender layer (no stderr layer), (3) Install panic hook calling `tracing::error!(target: "app.panic.fatal", ...)` with `tracing-error` SpanTrace, (4) Spawn Tauri app + bind OTLP receivers (tonic + axum). Between (3) and (4) `main` hands the `WorkerGuard` `init` returns to a process-wide slot (`hold_log_guard`), installs the at-exit hook (`install_exit_hook`: a `pulse-exit-reporter` thread + `libc::atexit`) and, on Unix, the SIGTERM/SIGINT listener (`install_signal_listener`). The app runs through `App::run_return`; its exit code goes to `exit_after_event_loop` (record `app.exit` → `flush_log_sink` drops the guard → `std::process::exit` with the SAME code). `WorkerGuard::drop` is the non-blocking file sink's only drain, so every exit path that can log drains it after its one record (§6 `app.exit`).
+- **Init body sketch (≤ 5 lines):**
+```rust
+let (file_writer, _guard) = tracing_appender::non_blocking(rolling::daily(log_dir, "agent-latest.jsonl"));
+tracing_subscriber::registry()
+  .with(fmt::layer().json().with_writer(file_writer))
+  .with(EnvFilter::from_env("ANDROMEDA_PULSE_LOG_LEVEL"))
+  .with(ErrorLayer::default()).init();
+std::panic::set_hook(Box::new(panic_to_tracing_error));
+```
+- **Why this approach:** by NOT linking an OTel SDK into the self-runtime, the "OTel monitoring an OTel monitor" recursion concern disappears by construction — there is no exporter to point anywhere, and the file-sink JSON line IS the agent-readable surface.
+
+### Service identity
+
+- **service.name:** compile-time constant `"com.andromeda.pulse"` (Tauri bundle identifier; fallback `env!("CARGO_PKG_NAME")` = "pulse-app"); for mcp-server sidecar: `"andromeda-pulse-mcp"` (distinct process identity per arch convention)
+- **service.version:** compile-time `env!("CARGO_PKG_VERSION")` (or runtime read from `tauri.conf.json` for the bundled desktop build)
+- **deployment.environment:** hardcoded `"production"` (desktop app, no staging/dev distinction at runtime)
+- **Default subscriber fields:** registered once at subscriber init via `tracing_subscriber::fmt::Layer::with_default_fields([service_name, service_version, deployment_environment])` — every emitted JSON line carries identity in the `fields` map without per-call boilerplate
+
+### Logging stack
+
+- **Library:** `tracing` 0.1 + `tracing-subscriber` 0.3 + `tracing-appender` 0.2 + `tracing-error` 0.2 (versions tracked in obs-research catalog; pinned at workspace level)
+- **Format:** structured JSON-per-line matching binding contract (Section 6 log format JSON schema); agent-readable, machine-parseable; produced by `tracing_subscriber::fmt::Layer::json()`
+- **Sink:** Single sink for app: the file `~/.andromeda-pulse/logs/agent-latest.jsonl`, always JSON-only, via the non-blocking `tracing-appender` daily layer composed with `EnvFilter` + `ErrorLayer` — no stderr layer, no TTY pretty-print (as measured at chunk `2026-10-02-incident-events-readable-through-mcp`). For the mcp-server sidecar (rmcp 3.x resolved 3.1.4, declared-but-unused; hand-rolled JSON-RPC 2.0 over stdio), stderr is forced JSON (no TTY check) — stdout is reserved for JSON-RPC 2.0 framing and ANY accidental stdout write would corrupt the protocol
+- **Frontend bridge:** WebGPU frame timing + skeleton-pulse durations (and the three delegated timing observables) from the React webview flow through the hand-rolled TauRPC `telemetry.frontend.*` commands, which call `tracing::info!(target: "metric.{name}", ...)` on the backend — single JSON file is the unified self-observation surface. This is the DECIDED mechanism: `web-vitals` 5.x was RETIRED 2026-08-30 (operator ruling at the `2026-08-30-npm-advisory-coverage` wrap) — measured never installed (0 hits in package.json / package-lock.json / ui/src), its metrics (LCP/CLS/INP/FCP/TTFB) are page-load-shaped and do not fit a persistent fixed-layout desktop webview, and no producer or consumer of `metric.web_vital.*` ever existed
+
+### Log format JSON schema
+
+Verbatim from upstream-context Section 5 Test Plan Excerpt → Test Harness Contract Summary (binding contract):
+```json
+{
+  "timestamp": "2026-05-02T16:18:34.567Z",
+  "level": "INFO",
+  "target": "ingest::grpc",
+  "message": "TraceService.Export received 10 spans",
+  "fields": {
+    "span_count": 10,
+    "service": "my-app"
+  }
+}
+```
+
+Extensions (optional fields per Section 5 telemetry triggers):
+- `trace_id` / `span_id` — W3C traceparent string fields, attached at receiver entry from external client headers; treated as opaque strings by `tracing` (no OTel SDK trace context binding)
+- `duration_ms`, `span_count`, `service`
+- Per-trigger fields: `plugin_path_basename`, `query_id`, `param_count`, `token_count_actual`, `token_budget_limit`, `body_size_bytes`, `webview_backend`, `tray_api`, `wgpu_backend`, `dedup_count`, `anomaly_markers`, `p50_ms`/`p95_ms`/`p99_ms`/`max_ms`, `error_rate_percent`, `value` (metric event payload)
+- `service.name` / `service.version` / `deployment.environment` — populated as default subscriber fields per Service identity above
+
+### Log file location
+
+- **Path:** `<data_dir>/logs/agent-latest.jsonl` — `<data_dir>` from `resolve_data_dir()`: `ANDROMEDA_PULSE_DATA_DIR` when set, else `%APPDATA%\andromeda-pulse\` (Windows), `~/Library/Application Support/com.andromeda.pulse/` (macOS), `$XDG_CONFIG_HOME/andromeda-pulse/` else `~/.andromeda-pulse/` (Linux) — per arch §Filesystem locations (Windows + Linux halves corrected to `resolve_data_dir()` at chunk 2026-08-30-agent-harness-teardown-truth; macOS unchanged)
+- **Rotation:** Daily rotation via `tracing_appender::rolling::daily(log_dir, "agent-latest.jsonl")`; previous day's file read by agent if current not yet created
+
+### Snapshot / paste-to-AI integration
+
+Two cleanly separated surfaces:
+
+**External-OTLP snapshot** (the product's CORE feature — the thing users invoke):
+- **Path:** `~/.andromeda-pulse/snapshots/{timestamp}.md` (curated markdown, not raw OTLP JSON); timestamp format `YYYY-MM-DDTHH:MM:SSZ`
+- **Schema:** Curated markdown with header (`## Snapshot from {time_range_start} to {time_range_end}`), metadata (`token_count`, `dedup_count`, `service_filter`, `anomaly_markers` like "⚠ latency spike" / "🔴 error cluster"), aggregated metrics (p50/p95/p99/max per service), critical-path top-slow-spans, trace IDs for drill-down. Deduped (identical span trees counted once with emission count). NOT raw OTLP JSON dump (per tests excerpt P2 + creator brief Section 6)
+- **Trigger:** TauRPC `snapshot.generate({time_range, token_budget: 10000 | 25000 | 50000})` from webview; span `session.snapshot` wraps the pipeline; child spans emit token-budget telemetry (Section 5 perf-budget-instruments)
+- **MCP tools (hand-rolled JSON-RPC 2.0 over stdio; rmcp 3.x declared-but-unused):** nine (`ALL_TOOL_NAMES`) — `query_traces`, `query_metrics`, `query_logs`, `generate_snapshot` are the JSON-RPC 2.0 interface to the same external-OTLP query pipeline; `query_incident_list`, `retrieve_report`, `retrieve_telemetry_slice`, `mark_incident_resolved` (chunk #94) and `retrieve_incident_events` (chunk `2026-10-02-incident-events-readable-through-mcp`) read the incident corpus. Every tool emits `mcp.tools.call.request` (parent) → `mcp.tools.call.response` (result metadata only — `result_type` + `result_count`, NOT result_content per security plan vector 4) through the single `dispatch_tool` emission site; the `duckdb.query.{traces|metrics|logs}` child belongs to the telemetry tools only
+
+**Self-observation paste-to-AI** (the product's debug surface — the thing developers/agents read):
+- **Path:** `~/.andromeda-pulse/logs/agent-latest.jsonl` (the same JSON log file from Logging stack above)
+- **Format:** JSON-per-line, immediately greppable / `jq`-able / paste-to-LLM-able
+- **No separate snapshot needed** — the JSON log file IS the self-observation snapshot
+
+The two surfaces NEVER intersect: external client OTLP data lives in DuckDB and is curated into the markdown snapshot; the product's own runtime telemetry lives in the JSON log file. By separating them, no recursion is possible.
+
+### Trace context propagation
+
+- **HTTP boundaries (`:4318` OTLP/HTTP receiver on axum 0.8):** W3C `traceparent` header extracted at request entry via manual `tower::Layer` (or `tower-http::TraceLayer` for plain `tracing` spans, NOT OTel-flavored); attached as a regular field on the inner `#[tracing::instrument]` span (`fields(traceparent = %tp)`) — downstream calls inherit via `tracing::Span::current()`
+- **gRPC boundaries (`:4317` OTLP/gRPC receiver on tonic 0.14):** gRPC metadata (`grpc-trace-bin` header) extracted at gRPC service method handler entry via manual interceptor; attached as a `traceparent` field on the local `#[tracing::instrument]` span; same propagation pattern as HTTP
+- **IPC boundaries (TauRPC):** TauRPC router handlers manually extract optional `traceparent` field from IPC envelope; initialize the local span with `fields(traceparent = %tp)` so downstream `tracing::Span::current()` calls inherit
+- **Internal async boundaries:** `tokio::spawn` calls use `.in_current_span()` extension trait (from `tracing` 0.1) to propagate span context into spawned tasks
+- **Real-time push streams:** `pulse://stream/spans` etc. carry trace context in Arrow metadata column (`_trace_context` schema field) for end-to-end correlation. NOTE: `traceparent` value is treated as an opaque string in `tracing` events, not bound to any OTel SDK trace context
+
+### Heartbeat ticks
+
+- **Tick interval:** 15s for long-running subsystems (ingest, buffer, viz, plugins) via `tokio::time::interval(Duration::from_secs(15))`; 100ms for the realtime throughput counter (separate high-frequency ticker for animation smoothness per creator brief)
+- **Tick event format:** `tracing::info!(target: "{module}.tick", span_count=N, buffer_capacity_pct=M, broadcast_subscribers=X, "heartbeat")` — ride the same JSON file sink as the rest of the app
+- **Stall detection (two signals — liveness AND progress):** (a) LIVENESS — agent reads recent ticks via tail of JSON file or CLI `logs` command; missing tick for >45s = stall signal; `health` IPC command exposes the same fields synchronously for active liveness probing per arch Standard Contracts. (b) PROGRESS — tick presence does not certify that work is moving: a wedged buffer consumer keeps ticking while `rows_ingested` stays frozen, which every liveness check reads as healthy (measured 2026-08-26). The companion signal is `rows_ingested_delta` remaining 0 across consecutive `buffer.tick`s while the ingest channel still holds queued work, announced once per transition on `buffer.consumer.stalled` and asserted by `cargo xtask check:ingest-progress`
+
+**Complementarity with the `health` command:** Heartbeat ticks (asynchronous, 15s emission to the JSON log) and the TauRPC `health` command (synchronous status polling) serve different purposes and must not be conflated. Heartbeat ticks enable retroactive log analysis ("was the subsystem alive during this interval?"); the `health` command enables active liveness probing during boot (the test harness polls synchronously until status ok) and at runtime. Implementations emit tick events independent of `health` invocations, and return synchronous `health` status independent of tick history; both mechanisms remain and operate in parallel.
+
+---

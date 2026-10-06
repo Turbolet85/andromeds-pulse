@@ -363,3 +363,84 @@ rejected at /phase because it trips the boot-smoke trigger and regenerates the T
 **Section:** §Occupied Resources → xtask CLI surfaces (dev/CI gates) · §Occupied Resources → Filesystem locations (`run/andromeda-pulse.pid` entry)
 **Change:** (1) Registered `scripts/agent-run.{sh,ps1}` as a sibling formalized CLI contract: 5 unchanged verbs; `boot` pre-builds under its own exported env (app release + xtask, absorbing the env-fingerprint relink outside the timed window) and spawns the dev binary BY PATH (no `cargo run` wrapper; 10s default honest, measured 1.953s); `cleanup`'s four bounded verdict tokens with 0/1 exits from independent pid+port probes; the ci.yml Linux-only smoke step now GATING (`continue-on-error` dropped). (2) The pid-file entry's absolute "the scripts reach status only THROUGH that xtask verb" narrowed to the status verdict (boot poll + `status` verb) — `cleanup` judges liveness independently, with pidfile CONTENT canonical (the app's `write_pid_file` overwrites the provisional spawn pid; measured 59828 vs `$!` 128125, msys ≠ Windows pid space).
 **Why:** Report §Symbols/APIs (the new verdict/exit contract + wrapper removal) + §Schema/config (CI gating, operator-approved at P4) + §Decisions (the harness:status-precedent verdict shape; the identity insight). D-arch-resources primary + dependent, applied atomically; routine per the 2026-08-25 formalized-CLI-contract rule + the 2026-07-08 accurate-addition rule.
+
+## Registry migration (U35) — 2026-10-06
+
+<!-- U35 · architecture.md · ## Infrastructure Patterns · sha256 5e7eceb1b1f245473d762649ff8911dd572359449e3e8afe66fe3bf3bf96fedd -->
+
+## Infrastructure Patterns
+
+**Build system.**
+- Cargo workspace; package manager is `cargo`.
+- Lint: `cargo fmt --check` + `cargo clippy --workspace --all-targets --all-features -- -D warnings`.
+- Typecheck: implicit in `cargo check --workspace --all-targets`; webview TypeScript bindings emitted by TauRPC are typechecked with `tsc --noEmit`.
+- Build: `cargo tauri build` (invoked by `tauri-action`); release profile is workspace default with `lto = "thin"`, `codegen-units = 1`, `strip = true` for distribution bundles.
+
+**Deployment model.**
+- Public OSS desktop app distributed through GitHub Releases; "deployment" is the release pipeline, not server hosting.
+- No Docker, no Kubernetes, no serverless, no docker-compose.
+- Runtime topology on the user's machine: one Tauri process hosting all fourteen library crates and the embedded webview; one optional `andromeda-pulse-mcp` sidecar process (only when `--features mcp-server` is enabled at build time and `ANDROMEDA_PULSE_MCP_ENABLED=true` at runtime).
+
+**Project directory structure.**
+
+```
+andromeda-pulse/
+├── Cargo.toml                      # workspace manifest
+├── Cargo.lock
+├── rust-toolchain.toml             # pin rustc 1.95.0
+├── .github/
+│   └── workflows/
+│       ├── release.yml             # tauri-action: build + sign + notarize + publish
+│       ├── ci.yml                  # fmt + clippy + cargo-xtask test
+│       └── update-channels.yml     # Homebrew tap + Scoop manifest jobs
+├── crates/
+│   ├── ingest/                     # OTLP receivers (tonic + axum)
+│   │   ├── Cargo.toml
+│   │   └── src/
+│   ├── buffer/                     # DuckDB ring buffer + Arrow appender
+│   │   ├── Cargo.toml
+│   │   └── src/
+│   ├── viz/                        # query layer feeding webview WebGPU charts
+│   │   ├── Cargo.toml
+│   │   └── src/
+│   ├── ui-bridge/                  # TauRPC routers
+│   │   ├── Cargo.toml
+│   │   └── src/
+│   ├── snapshot/                   # curated markdown generator
+│   │   ├── Cargo.toml
+│   │   └── src/
+│   ├── workspace-detector/         # detect host project context
+│   │   ├── Cargo.toml
+│   │   └── src/
+│   ├── plugins/                    # wasmtime Component Model host
+│   │   ├── Cargo.toml
+│   │   ├── wit/                    # WIT interface definitions
+│   │   └── src/
+│   └── mcp-server/                 # MCP stdio sidecar (feature-gated; hand-rolled JSON-RPC 2.0)
+│       ├── Cargo.toml
+│       └── src/
+├── pulse-app/                      # Tauri binary crate that wires the workspace
+│   ├── Cargo.toml
+│   ├── tauri.conf.json
+│   ├── capabilities/               # Tauri 2 capability JSON files
+│   ├── icons/
+│   ├── src/
+│   │   ├── main.rs
+│   │   └── lib.rs
+│   └── ui/                         # webview source root (frontend tooling owned by design specialist)
+│       └── src/
+├── xtask/                          # cargo-xtask: release/sign/notarize/changelog tasks
+│   ├── Cargo.toml
+│   └── src/
+├── plugins-examples/               # built-in plugin templates shipped with v1
+│   └── README.md
+├── docs/
+└── README.md
+```
+
+**CI/CD approach.**
+- Platform: GitHub Actions.
+- `ci.yml` runs on every PR and push to main as seven independent jobs, so a round lasts as long as its longest job: `lint-test` (matrix Linux/macOS/Windows: `cargo fmt --check` → `cargo clippy ... -D warnings` → the xtask gates → `cargo xtask test`, plus on Linux `perf:slo-load`, then `cargo nextest run --workspace --profile perf-samples` (the `pulse-app/tests/perf_budget_samples.rs` producer, excluded from the default nextest filter), `cargo xtask perf:budget --data-dir target/tmp/perf-budget-samples --require memory,snapshot`, and an `if: always()` `logs-perf-samples-{os}` upload) · `release` (macOS/Windows: `cargo build --workspace --release`; no frame boot step — the frame budget is the dev-host `perf:frame-sample`) · `mcp-test` (Linux: nextest with `--features mcp-server`) · `a11y` (matrix: `cargo xtask test:a11y`) · `boot` (Linux: the mcp-feature release build, the agent-harness boot smoke, then `cargo xtask ci-gates`) · `supply-chain` (its `cargo auditable build --workspace --release` is the Linux release smoke) · `coverage`. Rust caches are budgeted against the 10 GB repository cap: `lint-test` and `boot` own target caches keyed `lint-test-{os}` / `boot-Linux` and save on failure too; `release` owns `release-{os}` (macOS, Windows; since chunk 2026-09-30-perf-budget-gate-reads-real-samples — a `lint-test` re-save after a `Cargo.lock` change drops the release dependencies, which left the job cold) and saves on failure too (`cache-on-failure: true`, chunk 2026-09-30-perf-instruments-measure-their-budgets — a red release round had saved nothing, so the next rebuilt cold); `mcp-test`, `a11y` and `supply-chain` restore one read-only; `coverage` caches the registry only (chunk 2026-09-29-ci-wall-time-and-round-trips). Measured after that chunk: 8 entries, 10 605 172 169 of the 10 737 418 240 B cap (≈ 1.2 % headroom — a watch until the next `Cargo.lock`-driven `lint-test` re-save sheds its release dependencies). Re-read after the `release` key gained `cache-on-failure` (`ci#36765040464`, chunk 2026-09-30-perf-instruments-measure-their-budgets): byte-identical, 8 entries, 132 246 071 B (1.23 %) headroom, no key evicted — still a watch.
+- `release.yml` runs on tag push (`v*`): `tauri-action` builds `.msi` / `.dmg` / `.AppImage` / `.deb` per OS in matrix (macOS `.app` bundle is built then wrapped into `.dmg`, not published standalone); signs Windows artifacts via Azure Key Vault EV cert; notarizes macOS artifacts via Apple Developer ID; uploads bundles + `latest.json` to GitHub Releases.
+- `update-channels.yml` runs on completion of `release.yml`: updates Homebrew tap and Scoop manifest with new version + sha256.
+- All shared CI logic that needs Rust lives in the `xtask` crate so contributors can run identical commands locally with `cargo xtask <task>`.

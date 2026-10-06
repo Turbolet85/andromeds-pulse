@@ -1,0 +1,44 @@
+# obs-plan.md ## 3. Observability Harness Contract — the keyed-contract index (U35). Ask registry.py contracts; never read whole.
+schema = 1
+master = "obs-plan.md"
+section = "## 3. Observability Harness Contract"
+
+[[row]]
+key = "Tracing init"
+file = "contracts/obs-plan/tracing-init.md"
+labels = ["Crate set", "Init order", "Init body sketch (≤ 5 lines)", "Why this approach"]
+
+[[row]]
+key = "Service identity"
+file = "contracts/obs-plan/service-identity.md"
+labels = ["service.name", "service.version", "deployment.environment", "Default subscriber fields"]
+
+[[row]]
+key = "Logging stack"
+file = "contracts/obs-plan/logging-stack.md"
+labels = ["Library", "Format", "Sink", "Frontend bridge"]
+
+[[row]]
+key = "Log format JSON schema"
+file = "contracts/obs-plan/log-format-json-schema.md"
+labels = []
+
+[[row]]
+key = "Log file location"
+file = "contracts/obs-plan/log-file-location.md"
+labels = ["Path", "Rotation"]
+
+[[row]]
+key = "Snapshot / paste-to-AI integration"
+file = "contracts/obs-plan/snapshot-paste-to-ai-integration.md"
+labels = ["External-OTLP snapshot", "Path", "Schema", "Trigger", "MCP tools (hand-rolled JSON-RPC 2.0 over stdio; rmcp 3.x declared-but-unused)", "Self-observation paste-to-AI", "Format", "No separate snapshot needed"]
+
+[[row]]
+key = "Trace context propagation"
+file = "contracts/obs-plan/trace-context-propagation.md"
+labels = ["HTTP boundaries (`:4318` OTLP/HTTP receiver on axum 0.8)", "gRPC boundaries (`:4317` OTLP/gRPC receiver on tonic 0.14)", "IPC boundaries (TauRPC)", "Internal async boundaries", "Real-time push streams"]
+
+[[row]]
+key = "Heartbeat ticks"
+file = "contracts/obs-plan/heartbeat-ticks.md"
+labels = ["Tick interval", "Tick event format", "Stall detection (two signals — liveness AND progress)", "Complementarity with the `health` command"]
