@@ -1,0 +1,84 @@
+[
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "e9ac70c7",
+"ts": "2026-10-06T23:15:28Z",
+"argv": [
+"append",
+"--file",
+".andromeda/security-plan-amendments.md",
+"--payload-file",
+".andromeda/runs/2026-10-06T23-06-47Z-wrap/security-plan-entry.md",
+"--lines",
+"7",
+"--expect-last-prefix",
+"**Ref:**",
+"--run-dir",
+".andromeda/runs/2026-10-06T23-06-47Z-wrap",
+"--marker",
+"2026-10-06-npm-supply-chain-gate-is-green-again"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"append security-plan-amendments.md:+7 at line 559 · lines 558→565 · bytes 103933→105977 · term lf",
+"last line now: **Ref:** .andromeda/runs/2026-10-06T23-06-47Z-wrap/"
+],
+"stderr": null,
+"wrote": [
+".andromeda/security-plan-amendments.md"
+],
+"before": {
+"lines": 558,
+"bytes": 103933,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 565,
+"bytes": 105977
+}
+},
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "e9ac70c7",
+"ts": "2026-10-06T23:15:28Z",
+"argv": [
+"append",
+"--file",
+".andromeda/test-plan-amendments.md",
+"--payload-file",
+".andromeda/runs/2026-10-06T23-06-47Z-wrap/test-plan-entry.md",
+"--lines",
+"7",
+"--expect-last-prefix",
+"**Ref:**",
+"--run-dir",
+".andromeda/runs/2026-10-06T23-06-47Z-wrap",
+"--marker",
+"2026-10-06-npm-supply-chain-gate-is-green-again"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"append test-plan-amendments.md:+7 at line 649 · lines 648→655 · bytes 110573→111954 · term lf",
+"last line now: **Ref:** .andromeda/runs/2026-10-06T23-06-47Z-wrap/"
+],
+"stderr": null,
+"wrote": [
+".andromeda/test-plan-amendments.md"
+],
+"before": {
+"lines": 648,
+"bytes": 110573,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 655,
+"bytes": 111954
+}
+}
+]

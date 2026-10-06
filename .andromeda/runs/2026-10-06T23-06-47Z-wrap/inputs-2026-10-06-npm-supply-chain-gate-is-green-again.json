@@ -1,0 +1,42 @@
+[
+{
+"tool": "inputs",
+"v": "1.0",
+"sha8": "d30b83fd",
+"ts": "2026-10-06T23:06:59Z",
+"argv": [
+"verify",
+"--chunk-dir",
+"andromeda-pulse-0.3.0/chunks/2026-10-06-npm-supply-chain-gate-is-green-again",
+"--run-dir",
+".andromeda/runs/2026-10-06T23-06-47Z-wrap",
+"--marker",
+"2026-10-06-npm-supply-chain-gate-is-green-again"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"I1 n/a — a message has no live source · copy message · message: the overseer (founder-delegated), in the /andromeda-phase invocation, 2026-10-06",
+"I1 cited scope.md:12 · scope.md:12 · scope.md:15 · scope.md:37 · research.md:7 · plan.md:21 · plan.md:54 · plan.md:99 (in fence) · plan.md:254 · plan.md:269 · plan.md:272",
+"inputs: 1 entries — unchanged 0 · drifted 0 · vanished 0 · broken 0 · altered 0 · unreachable 0 · n/a 1 · uncited 0 · unparsed 0"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"entries": 1,
+"counts": {
+"unchanged": 0,
+"drifted": 0,
+"vanished": 0,
+"broken": 0,
+"altered": 0,
+"unreachable": 0,
+"n/a": 1
+},
+"uncited": 0,
+"unparsed": 0
+}
+}
+]
