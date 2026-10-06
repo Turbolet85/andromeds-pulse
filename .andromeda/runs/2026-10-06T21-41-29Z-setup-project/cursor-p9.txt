@@ -1,0 +1,14 @@
+route v1.6 · 699f7ef0
+version andromeda-pulse-0.3.0 · dir present · master master-route.md
+version dir andromeda-pulse-0.3.0/ — at --root, beside .andromeda/, never inside it
+records 80 · complete 80 · pending 0 · gated 0
+done 2026-10-05-l4-runs-the-founder-s-pick-with-its-authors-settings
+next working-route.md:176 · L4 generation records render unredacted · markerless 4 of 84 entries
+half-promote 0 of 80 stamped lines vs 80 master records (anchored `{marker} · `, whole file)
+UNPARSED: working-route.md:52 — separator-boundary token outside the letters' introducer shape: 'PREMISE CORRECTED 2026…
+UNPARSED: working-route.md:54 — separator-boundary token outside the letters' introducer shape: 'TWO LAYERS, ONE QUESTI…
+UNPARSED: working-route.md:54 — separator-boundary token outside the letters' introducer shape: 'WHY IT PRECEDES P-075/…
+UNPARSED: working-route.md:60 — separator-boundary token outside the letters' introducer shape: 'MEASURED, not inferred…
+INDETERMINATE: working-route.md:100 — after ONE space — freight or prose, no structural split: 'GPU:'
+UNPARSED: working-route.md:116 — entry line carrying `↓` inside it; read as an ENTRY
+… +1 more abstentions — `route.py markerless` prints them whole
