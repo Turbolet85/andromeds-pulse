@@ -375,3 +375,15 @@ Owner moves to the working-route entry "Duplicate-span replay fails loudly" (mod
 **Change:** Was "ZERO targets remain muted" and "No owner remains"; now the count went to zero at 2026-08-30 and ONE recurrence is OPEN. `interpretation.constrained.generate`, the success arm of `LlamaCliInference::generate_constrained`, emits `raw_output_bytes` and `extracted_bytes`, but its exact leaf carries neither, so both render `"<redacted>"`. This is the incomplete-exact-leaf shape, and the repair is "complete the leaf". Measured: 7 records and 14 redacted fields in the GREEN real-model leg, 0 records in the RED leg. The emit site was unchanged and had never fired with that model before. Its owner is pinned on the working route. The closing paragraph now scopes the sweep guards to the leaves they name, with this recurrence on a leaf outside them.
 **Why:** A pre-existing defect the chunk's first successful generations exposed, not one it introduced. The overseer (founder-delegated) directed it carried honestly and its fix placed at this wrap's route-resolve.
 **Ref:** .andromeda/runs/2026-10-05T15-18-57Z-wrap/
+
+## 2026-10-06T21-47-06Z-wrap — §8: the open recurrence's owner is named by title, not by route position
+**Section:** §8 PII Scrubbing & Compliance → the muted-diagnostic backlog bullet
+**Change:** Was "the head entry "L4 generation records render unredacted""; now "the entry "L4 generation records render unredacted"". The owner, the measurement and the OPEN status of the `interpretation.constrained.generate` recurrence are unchanged.
+**Why:** This 0-pending wrap minted "The L4 first hypothesis names the triggering service" ahead of it, on the founder's ruling of 2026-10-06 relayed by the overseer (founder-delegated), so the owner is no longer the tail's head. A route position moves with every adaptation; the title is the stable name.
+**Ref:** .andromeda/runs/2026-10-06T21-47-06Z-wrap/
+
+## 2026-10-06T21-47-06Z-wrap — §10: pwsh is on the dev host; only the .ps1 grader run is owed
+**Section:** §10 SLO Invariants & Telemetry Budgets → Performance budgets (the L4 constrained inference gpu-primary row)
+**Change:** Was "The `.ps1` half has not run (no `pwsh` on the dev host)"; now the `.ps1` half has not run, `pwsh` 7.6.6 is on the Omarchy Linux dev host (`/usr/bin/pwsh`, as measured at this wrap), and only the run itself is owed. The budgets, the nearest-rank rule and the measured p99 are unchanged. Leaves re-derived: `.claude/rules/observability.md` and `.claude/docs/obs-summary.md`, each of which restated the absence.
+**Why:** `pwsh` was installed on the host on 2026-10-06 and this wrap measured it; the overseer (founder-delegated) directed the correction taken in this wrap. The stated reason for the unrun half stopped being true; the run stays owned by the CARRY on the working-route entry "pre-push:linux runs natively on Linux".
+**Ref:** .andromeda/runs/2026-10-06T21-47-06Z-wrap/

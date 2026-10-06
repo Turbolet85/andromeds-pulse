@@ -1,0 +1,95 @@
+[
+{
+"tool": "cascade",
+"v": "1.1",
+"sha8": "43eb863f",
+"ts": "2026-10-06T21:53:55Z",
+"argv": [
+"sweep",
+"--patterns-file",
+".andromeda/runs/2026-10-06T21-47-06Z-wrap/cascade-patterns.toml",
+"--run-dir",
+".andromeda/runs/2026-10-06T21-47-06Z-wrap",
+"--marker",
+"no-marker"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"baseline 373b5760 (head — no operator pre-CI commit for no-marker)",
+"head-entry · 0 rows (control fired) — a statement about this pattern, not the masters · control obs-plan.md:464 (prose)",
+"redaction-owner · new 0 · standing 1 · leaf 0 · curation 0 · base 0 · control obs-plan.md:464 (prose)",
+"pwsh-absent · new 0 · standing 0 · leaf 2 · curation 0 · base 0 · control test-plan.md:145 (prose)",
+"founder-sudo · 0 rows (control fired) — a statement about this pattern, not the masters · control test-plan.md:145 (pro…",
+"ps1-half · new 0 · standing 2 · leaf 2 · curation 0 · base 0 · control test-plan.md:145 (prose)",
+"ps1-trigger · new 0 · standing 2 · leaf 0 · curation 0 · base 0 · control test-plan.md:145 (prose)",
+".andromeda/obs-plan.md:464 redaction-owner standing edited …esolve: the entry \"L4 generation records render unredacted\"…",
+".claude/rules/observability.md:99 pwsh-absent leaf @c2088/2115 …`.ps1` half has not run yet (no `pwsh` on the dev host).",
+".claude/docs/obs-summary.md:82 pwsh-absent leaf …) on the shipped gemma model; the `.ps1` half has not run (no `pwsh`) |",
+".andromeda/test-plan.md:145 ps1-half standing edited … a 1 ms budget). The `.ps1` half has never run. `pwsh` 7.6.6 is o…",
+".andromeda/obs-plan.md:548 ps1-half standing edited …t a 1 ms budget. The `.ps1` half has not run; `pwsh` 7.6.6 is on t…",
+".claude/rules/observability.md:99 ps1-half leaf @c2059/2115 …d gemma model. The `.ps1` half has not run yet (no `pwsh` …",
+".claude/docs/obs-summary.md:82 ps1-half leaf …= 7) on the shipped gemma model; the `.ps1` half has not run (no `pwsh`) |",
+".andromeda/test-plan.md:145 ps1-trigger standing edited | `l4-latency-p99-ps1-run-coverage` | **NEW 2026-10-05-l4-runs-…",
+".andromeda/obs-plan.md:548 ps1-trigger standing edited …tself is owed (test-plan §1 `l4-latency-p99-ps1-run-coverage`) |",
+"head-entry · 0 rows (control fired) — a statement about this pattern, not the masters · control obs-plan.md:464 (prose)",
+"redaction-owner · new 0 · standing 1 · leaf 0 · curation 0 · base 0 · control obs-plan.md:464 (prose)",
+"pwsh-absent · new 0 · standing 0 · leaf 2 · curation 0 · base 0 · control test-plan.md:145 (prose)",
+"founder-sudo · 0 rows (control fired) — a statement about this pattern, not the masters · control test-plan.md:145 (pro…",
+"ps1-half · new 0 · standing 2 · leaf 2 · curation 0 · base 0 · control test-plan.md:145 (prose)",
+"ps1-trigger · new 0 · standing 2 · leaf 0 · curation 0 · base 0 · control test-plan.md:145 (prose)"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"baseline": "373b57603d9613571725cdbabd5cd71ed29f7c45",
+"how": "head — no operator pre-CI commit for no-marker",
+"counts": {
+"head-entry": {
+"new": 0,
+"standing": 0,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"redaction-owner": {
+"new": 0,
+"standing": 1,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"pwsh-absent": {
+"new": 0,
+"standing": 0,
+"leaf": 2,
+"curation": 0,
+"base": 0
+},
+"founder-sudo": {
+"new": 0,
+"standing": 0,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"ps1-half": {
+"new": 0,
+"standing": 2,
+"leaf": 2,
+"curation": 0,
+"base": 0
+},
+"ps1-trigger": {
+"new": 0,
+"standing": 2,
+"leaf": 0,
+"curation": 0,
+"base": 0
+}
+}
+}
+}
+]

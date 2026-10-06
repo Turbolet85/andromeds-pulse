@@ -1,0 +1,119 @@
+[
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "e9ac70c7",
+"ts": "2026-10-06T21:55:01Z",
+"argv": [
+"append",
+"--file",
+".andromeda/obs-plan-amendments.md",
+"--payload-file",
+".andromeda/runs/2026-10-06T21-47-06Z-wrap/obs-plan-entry-1.md",
+"--lines",
+"6",
+"--run-dir",
+".andromeda/runs/2026-10-06T21-47-06Z-wrap",
+"--marker",
+"no-marker"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"append obs-plan-amendments.md:+6 at line 378 · lines 377→383 · bytes 68247→69050 · term lf",
+"last line now: **Ref:** .andromeda/runs/2026-10-06T21-47-06Z-wrap/"
+],
+"stderr": null,
+"wrote": [
+".andromeda/obs-plan-amendments.md"
+],
+"before": {
+"lines": 377,
+"bytes": 68247,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 383,
+"bytes": 69050
+}
+},
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "e9ac70c7",
+"ts": "2026-10-06T21:55:01Z",
+"argv": [
+"append",
+"--file",
+".andromeda/obs-plan-amendments.md",
+"--payload-file",
+".andromeda/runs/2026-10-06T21-47-06Z-wrap/obs-plan-entry-2.md",
+"--lines",
+"6",
+"--run-dir",
+".andromeda/runs/2026-10-06T21-47-06Z-wrap",
+"--marker",
+"no-marker"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"append obs-plan-amendments.md:+6 at line 384 · lines 383→389 · bytes 69050→70068 · term lf",
+"last line now: **Ref:** .andromeda/runs/2026-10-06T21-47-06Z-wrap/"
+],
+"stderr": null,
+"wrote": [
+".andromeda/obs-plan-amendments.md"
+],
+"before": {
+"lines": 383,
+"bytes": 69050,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 389,
+"bytes": 70068
+}
+},
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "e9ac70c7",
+"ts": "2026-10-06T21:55:01Z",
+"argv": [
+"append",
+"--file",
+".andromeda/test-plan-amendments.md",
+"--payload-file",
+".andromeda/runs/2026-10-06T21-47-06Z-wrap/test-plan-entry.md",
+"--lines",
+"6",
+"--run-dir",
+".andromeda/runs/2026-10-06T21-47-06Z-wrap",
+"--marker",
+"no-marker"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"append test-plan-amendments.md:+6 at line 643 · lines 642→648 · bytes 109623→110573 · term lf",
+"last line now: **Ref:** .andromeda/runs/2026-10-06T21-47-06Z-wrap/"
+],
+"stderr": null,
+"wrote": [
+".andromeda/test-plan-amendments.md"
+],
+"before": {
+"lines": 642,
+"bytes": 109623,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 648,
+"bytes": 110573
+}
+}
+]
