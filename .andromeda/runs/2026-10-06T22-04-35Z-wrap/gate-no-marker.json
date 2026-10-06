@@ -1,0 +1,48 @@
+[
+{
+"tool": "gate",
+"v": "1.11",
+"sha8": "0aca1113",
+"ts": "2026-10-06T22:06:12Z",
+"argv": [
+"hygiene",
+"--run-dir",
+".andromeda/runs/2026-10-06T22-04-35Z-wrap",
+"--marker",
+"no-marker"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"root . · case exact · planes rust, ts · base HEAD (no pre-CI commit)",
+"control: P1 drive · P1 device · P1 home · P1 users · P1 root · P1 msys · P1 wsl · P1 tmp · P2 · P3 rust · P3 ts — each fired on its synthetic known positive",
+"hygiene: clean — read 5 (runs 5 · evidence 0 · inputs 0) · trails 3 not read · copies 0 not read by P1 — 0 host paths kept · binary 0 not read by P1"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"root": "/home/turbolet/dev/projects/andromeda-pulse",
+"case": "exact",
+"planes": [
+"rust",
+"ts"
+],
+"rows": [],
+"counts": {
+"P1": 0,
+"P2": 0,
+"P3": 0,
+"runs": 5,
+"evidence": 0,
+"inputs": 0,
+"trails": 3,
+"copies": 0,
+"kept": 0,
+"binary": 0
+},
+"indeterminate": 0
+}
+}
+]
