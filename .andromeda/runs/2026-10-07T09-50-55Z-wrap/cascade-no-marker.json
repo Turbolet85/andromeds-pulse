@@ -1,0 +1,83 @@
+[
+{
+"tool": "cascade",
+"v": "1.1",
+"sha8": "b56ded6b",
+"ts": "2026-10-07T09:55:47Z",
+"argv": [
+"sweep",
+"--patterns-file",
+".andromeda/runs/2026-10-07T09-50-55Z-wrap/cascade-patterns.toml",
+"--run-dir",
+".andromeda/runs/2026-10-07T09-50-55Z-wrap",
+"--marker",
+"no-marker"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"baseline f70be92c (head — no operator pre-CI commit for no-marker)",
+"sla-name · new 0 · standing 1 · leaf 0 · curation 0 · base 0 · control security-plan.md:226 (prose)",
+"sla-72h · new 0 · standing 1 · leaf 0 · curation 0 · base 0 · control security-plan.md:226 (prose)",
+"sla-patch-rel · new 0 · standing 1 · leaf 0 · curation 0 · base 0 · control security-plan.md:226 (prose)",
+"sla-window · new 0 · standing 1 · leaf 0 · curation 0 · base 0 · control security-plan.md:226 (prose)",
+"sla-ghsa · new 1 · standing 1 · leaf 0 · curation 0 · base 0 · control security-plan.md:222 (prose)",
+".andromeda/security-plan.md:226 sla-name standing edited **Critical CVE response SLA:** 72h from public advisory disclo…",
+".andromeda/security-plan.md:226 sla-72h standing edited mixed ×2 … response SLA:** 72h from public advisory disclosure …",
+".andromeda/security-plan.md:226 sla-patch-rel standing edited …ndabot PR merge + tagged patch release; the Tauri update…",
+".andromeda/security-plan.md:226 sla-window standing edited ×2 …* 72h from public advisory disclosure to Dependabot PR m…",
+".andromeda/security-plan.md:222 sla-ghsa standing @c2642/4218 … change — seroval GHSA-p6vx-979v-rg4c (critical) and GHS…",
+".andromeda/security-plan.md:226 sla-ghsa new …running — including for GHSA-p6vx-979v-rg4c (seroval, critical, published…",
+"sla-name · new 0 · standing 1 · leaf 0 · curation 0 · base 0 · control security-plan.md:226 (prose)",
+"sla-72h · new 0 · standing 1 · leaf 0 · curation 0 · base 0 · control security-plan.md:226 (prose)",
+"sla-patch-rel · new 0 · standing 1 · leaf 0 · curation 0 · base 0 · control security-plan.md:226 (prose)",
+"sla-window · new 0 · standing 1 · leaf 0 · curation 0 · base 0 · control security-plan.md:226 (prose)",
+"sla-ghsa · new 1 · standing 1 · leaf 0 · curation 0 · base 0 · control security-plan.md:222 (prose)"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"baseline": "f70be92c2ca13c951330efeffd725e62a484610c",
+"how": "head — no operator pre-CI commit for no-marker",
+"counts": {
+"sla-name": {
+"new": 0,
+"standing": 1,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"sla-72h": {
+"new": 0,
+"standing": 1,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"sla-patch-rel": {
+"new": 0,
+"standing": 1,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"sla-window": {
+"new": 0,
+"standing": 1,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"sla-ghsa": {
+"new": 1,
+"standing": 1,
+"leaf": 0,
+"curation": 0,
+"base": 0
+}
+}
+}
+}
+]

@@ -158,5 +158,45 @@
 "lines": 2231,
 "bytes": 2277354
 }
+},
+{
+"tool": "evolve",
+"v": "1.0",
+"sha8": "d8c8c8b2",
+"ts": "2026-10-07T07:06:12Z",
+"argv": [
+"append",
+"--root",
+".",
+"--count",
+"1",
+"--records-file",
+"-",
+"--run-dir",
+".andromeda/runs/2026-10-07T06-47-12Z-wrap",
+"--marker",
+"2026-10-06-l4-first-hypothesis-names-the-triggering-service"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"appended 1 record(s) · friction-log.ndjson lines 2231→2232 · bytes 2277354→2278903 · term lf",
+"ts 2026-10-07T07:06:12Z · clock 2026-10-07T07:06:12Z · bound 2026-10-07T07:03:24Z (line 2231)",
+"ids 2026-10-07T07:06:12Z-a"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/friction-log.ndjson"
+],
+"before": {
+"lines": 2231,
+"bytes": 2277354,
+"terminator": "LF",
+"bound": "2026-10-07T07:03:24Z"
+},
+"after": {
+"lines": 2232,
+"bytes": 2278903
+}
 }
 ]
