@@ -1,0 +1,42 @@
+[
+{
+"tool": "route",
+"v": "1.6",
+"sha8": "699f7ef0",
+"ts": "2026-10-06T23:23:44Z",
+"argv": [
+"route.py",
+"pins",
+"--root",
+".",
+"--run-dir",
+".andromeda/runs/2026-10-06T23-23-09Z-phase"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"working-route.md · markerless 5 of 86 entries · freight blocks 16 · rows are an INDEX, not the text",
+"178 · CONTEXT: · 683 chars · CONTEXT: FOUNDER RULING 2026-10-06 ~22:50 «думаю а» (live, his own word; relayed by the ov…",
+"178 · CONTEXT: · 833 chars · CONTEXT: Conductor's fourth pre-registered real-model series read NOT MET, 2 of 3, against…",
+"178 · CONTEXT: · 903 chars · CONTEXT: re-derived at Pulse `1124148` — the digest's trigger line carries the first cue's…",
+"178 · CONTEXT: · 294 chars · CONTEXT: how the service gets named — on the trigger line, in the instruction, or both — i…",
+"180 · CONTEXT: · 404 chars · CONTEXT: OVERSEER DIRECTION 2026-10-05 (founder-delegated, at the 2026-10-05-l4-runs-the-f…",
+"180 · CONTEXT: · 497 chars · CONTEXT: `interpretation.constrained.generate` (the success arm of `LlamaCliInference::gen…",
+"182 · CONTEXT: · 369 chars · CONTEXT: FOUNDER RULING 2026-10-05 «Да б звучит чеснее» (relayed by the overseer at the 20…",
+"182 · CONTEXT: · 606 chars · CONTEXT: today a cueless, non-reflection digest whose generation reads `surface` creates N…",
+"184 · CONTEXT: · 427 chars · CONTEXT: FOUNDER RULING 2026-10-05 (relayed by the overseer during the 2026-10-05-l4-runs-…",
+"184 · CONTEXT: · 389 chars · CONTEXT: arch §Established Decisions [LLM Inference Runtime] records the retirement as fou…",
+"186 · CONTEXT: · 546 chars · CONTEXT: the verb needs `wsl.exe` (`xtask/src/pre_push.rs`), and since the 2026-10-03 move…",
+"186 · CARRY: · 560 chars · CARRY: (a) PC22 — a fresh `PUPPETEER_CACHE_DIR` under `target/` reproduces the partial v148 …",
+"186 · CARRY: · 429 chars · CARRY: (b) stage ORDER — run by hand, stage 5 (`cargo xtask test`, default features) re-emit…",
+"186 · CARRY: · 479 chars · CARRY: (c) stage 5's `env -i` isolation also drops `DBUS_SESSION_BUS_ADDRESS`, so every cred…",
+"186 · CARRY: · 784 chars · CARRY: (d) the `.ps1` half of the L4 latency grader, `xtask/ci/l4-latency-p99.ps1`, has neve…",
+"186 · CARRY: · 699 chars · CARRY: (e) the `npm` stage's install — on this host the plain `npm ci --prefix pulse-app/ui`…",
+"… +7 abstention(s) OUTSIDE this listing (frozen entries · the master) — `markerless` and `cursor` print them"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+}
+]

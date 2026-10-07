@@ -4,7 +4,7 @@
 //!
 //! ```text
 //! cargo build -p pulse-app --example l4_decision_probe
-//! ./target/debug/examples/l4_decision_probe[.exe] --arms A0,A1,A2,A3,A4,A5 [--shapes S1,S2,S3,S4] --n 10 [--min 27] [--min-rank1 36] [--out DIR] [--footprint] [--sampling '…'] [--dry-run]
+//! ./target/debug/examples/l4_decision_probe[.exe] --arms A0,A1,A2,A3,A4,A5 [--shapes S1,S2,S3,S4] --n 10 [--min 27] [--min-rank1 36] [--bar-sibling 19 --bar-ordinary 36] [--out DIR] [--footprint] [--sampling '…'] [--dry-run]
 //! ./target/debug/examples/l4_decision_probe[.exe] --arms shipped --shapes A1,...,C3 [--renders today,enriched] --n 10 --out target/DIR [--footprint] [--sampling '…'] [--dry-run]
 //! ./target/debug/examples/l4_decision_probe[.exe] --audit-draw ROOT --audit-seed N | --audit-grade ROOT | --table ROOT
 //! ```
@@ -55,6 +55,21 @@
 //! stem forms (`retries`, `retried`); it is recorded only and never feeds a
 //! verdict.
 //!
+//! Each row carries `identifies` too, a closed label read over the FIRST
+//! hypothesis statement only, ASCII-lowercased: `both` (it names the cue's
+//! `scope_id` as a whole word, neither neighbour in `[a-z0-9_-]`, and a retry
+//! token, a maximal run of ASCII letters equal to `retry`, `retries` or
+//! `retrying`), `service_only`, `signal_only`, `neither`, or `unparsed` (no
+//! parse, or no first hypothesis). The rule reads no negation, passes a
+//! space-separated sibling, and takes `retried` for no token.
+//! `--bar-sibling K --bar-ordinary K` (both or neither; they need the
+//! `shipped` and `ns` arms and at least one sibling and one ordinary shape,
+//! else INCONCLUSIVE) grade each arm's `both` count over the sibling shapes
+//! (S7, S8) and the ordinary ones (S1-S4), then print the selection (the first
+//! of `shipped`, `L`, `LI` whose bar is met, or `none`), the service verdict
+//! (PASS iff the selection is `shipped`; exit 0 / 1) and the regression guard
+//! (TRIPPED iff `shipped` reads below `ns` on either half; it moves no exit).
+//!
 //! Footprint readings, per row and as one `footprint` summary line per arm:
 //! `thinking` (`present` when the raw stdout carries b9305's
 //! `[Start thinking]` marker, `absent` when not, `unread` when no stdout was
@@ -68,7 +83,10 @@
 //! corpus match (an older, active error-rate-spike incident on another
 //! service), rendered through the real `format_corpus_match_line`. S5 is a
 //! storm whose only abnormal metric is latency; S6 carries both an elevated
-//! error rate and an elevated latency. `--shapes` selects among them
+//! error rate and an elevated latency. S7 and S8 are the sibling shapes: a
+//! retry storm scoped to `conductor` beside a `conductor-canary` services
+//! row, both at a 100 % error rate; S8 adds two corpus matches for earlier
+//! retry-storm incidents scoped to the canary. `--shapes` selects among them
 //! (default S1-S4).
 //!
 //! Arms (each differs from A0 in ONE factor):
@@ -99,8 +117,14 @@
 //! The former `gb` arm (the schema file swapped for a grammar file) is the
 //! shipped argv now, so it is retired and `--arms gb` is an unknown arm.
 //! - `R1R3` / `R1R2` / `R3R2` — the two named candidates applied together
+//! - `ns` — `shipped` with the scope sentence removed from the framing
+//!   instruction (the prompt v2.5 composition, the baseline)
+//! - `L` — `ns` with the digest's one TRIGGER line carrying the cue's
+//!   `scope_id` (`TRIGGER: {cause label} on {scope_id}`); a harness render
+//! - `LI` — `shipped` with the same TRIGGER line rewrite; a harness render
 //!
-//! Each candidate composes as A0 once its text is already in the tree.
+//! Each candidate composes as A0 once its text is already in the tree, and
+//! `ns`, `L` and `LI` compose on a tree with or without the scope sentence.
 
 // The example file is a crate root, so a bare `mod patterns;` would resolve
 // beside it, where Cargo auto-discovers every `examples/*.rs` as an example.
@@ -129,14 +153,19 @@ use tokio::io::AsyncReadExt;
 use triage::contract::{
     AttentionCue, CORPUS_MATCHES_FRAMING_NOTE, CueKind, CueScope, DigestCueRef,
     DigestProjectContext, DigestServiceRow, EvidenceRefs, HardwareProfileSource, Incident,
-    IncidentStatus, PriorityTier, Severity as IncidentSeverity, TRIGGER_LINE_PREFIX, cue_summary,
-    format_corpus_match_line, render_payload,
+    IncidentStatus, PriorityTier, Severity as IncidentSeverity, TRIGGER_LINE_PREFIX,
+    cue_cause_label, cue_summary, format_corpus_match_line, render_payload,
 };
 
-const ARMS: [&str; 15] = [
+const ARMS: [&str; 18] = [
     "A0", "A1", "A2", "A3", "A4", "A5", "nf", "shipped", "nr", "R1", "R3", "R2", "R1R3", "R1R2",
-    "R3R2",
+    "R3R2", "ns", "L", "LI",
 ];
+// The two halves of the service bar. S5 and S6 belong to neither.
+const SIBLING_SHAPES: [&str; 2] = ["S7", "S8"];
+const ORDINARY_SHAPES: [&str; 4] = ["S1", "S2", "S3", "S4"];
+// The selection rule's fixed order; `ns` is the baseline and never a candidate.
+const SELECTION_ORDER: [&str; 3] = ["shipped", "L", "LI"];
 // The grammar file each run writes into its out dir and passes as
 // `--grammar-file`.
 const GRAMMAR_FILE_NAME: &str = "l4-output.gbnf";
@@ -171,6 +200,9 @@ const CORPUS_FINGERPRINT: &str = "9c2e7b41d05a3f86e1b4c7d02a59f3e8";
 // identical across runs.
 const RENDER_NOW_UNIX_NANO: i64 = 1_700_000_000_000_000_000;
 const CORPUS_MATCH_AGE_NANOS: i64 = 180_000_000_000;
+const SIBLING_RESOLVED_AGE_NANOS: i64 = 540_000_000_000;
+const SIBLING_SERVICE: &str = "conductor";
+const SIBLING_CANARY: &str = "conductor-canary";
 const A4_ANCHOR: &str = "\"watch\" (record but do not surface). ";
 const A4_SENTENCE: &str = "A signal warrants \"surface\" when a service's error rate or \
 latency is far above its baseline or an attention cue reports a storm. ";
@@ -185,6 +217,15 @@ service as a cause or an effect of that signal, never as a separate first \
 hypothesis. CORPUS MATCHES lines are OTHER incidents, past or still open on \
 another signal, given for context only; never describe one of them as the \
 current signal.";
+// The framing instruction as prompt v2.5 carried it: the `ns` baseline, held
+// here so it does not drift when the product text is edited again.
+const V25_FRAMING_INSTRUCTION: &str = R1_FRAMING_INSTRUCTION;
+// The scope sentence prompt v2.6 appends to that instruction, one space after
+// its last sentence.
+const SCOPE_SENTENCE: &str = "When the cue line under ATTENTION CUES carries a \
+scope_id, the first hypothesis statement must name that scope_id value exactly \
+as written there, and must not attribute the signal to anything else, including \
+a service whose name merely contains it.";
 const R3_ANCHOR: &str = "Investigation steps point to concrete checks";
 const R3_CONVENTIONS_SENTENCE: &str = "When the digest carries a TRIGGER \
 line, the first hypothesis names that signal in the TRIGGER line's own words. ";
@@ -206,6 +247,8 @@ struct Args {
     n: u32,
     min: Option<u32>,
     min_rank1: Option<u32>,
+    /// `--bar-sibling` / `--bar-ordinary`, set together or not at all.
+    bar: Option<Bar>,
     out: PathBuf,
     dry_run: bool,
     footprint: bool,
@@ -225,10 +268,29 @@ enum Mode {
     Table(PathBuf),
 }
 
+/// The service bar's two minimums: `both` over the sibling shapes and over
+/// the ordinary ones.
+#[derive(Clone, Copy, Debug, PartialEq)]
+struct Bar {
+    sibling_min: u32,
+    ordinary_min: u32,
+}
+
+/// One arm's `both` counts and generation counts over each half of the bar.
+#[derive(Clone, Copy, Debug, Default, PartialEq)]
+struct BarCounts {
+    sibling_both: u32,
+    sibling_n: u32,
+    ordinary_both: u32,
+    ordinary_n: u32,
+}
+
 struct Prepared {
     arm: String,
     shape: &'static str,
     trigger: CueKind,
+    /// The triggering cue's `scope_id`, read by the `identifies` grader.
+    scope_id: Option<String>,
     prompt: String,
     schema: String,
     extra_args: Vec<String>,
@@ -334,6 +396,71 @@ fn shapes() -> Vec<Shape> {
             cue: storm_cue("checkout-api", 10.0, 0.20),
             corpus_matches: Vec::new(),
         },
+        Shape {
+            id: "S7",
+            services: sibling_services(),
+            cue: storm_cue(SIBLING_SERVICE, 20.0, 1.0),
+            corpus_matches: Vec::new(),
+        },
+        Shape {
+            id: "S8",
+            services: sibling_services(),
+            cue: storm_cue(SIBLING_SERVICE, 20.0, 1.0),
+            corpus_matches: sibling_corpus_incidents()
+                .iter()
+                .map(|incident| format_corpus_match_line(incident, RENDER_NOW_UNIX_NANO))
+                .collect(),
+        },
+    ]
+}
+
+/// The sibling shapes' services rows: the triggering service and its
+/// hyphenated sibling, both at a 100 % error rate.
+fn sibling_services() -> Vec<DigestServiceRow> {
+    vec![
+        row(SIBLING_SERVICE, 12.0, 1.0, 180.0),
+        row(SIBLING_CANARY, 4.0, 1.0, 160.0),
+    ]
+}
+
+/// S8's two earlier retry-storm incidents scoped to the sibling, newest
+/// first: one still active, one resolved. Their titles take the producer's
+/// `{cause label}: {model title}` form and name the sibling; a sibling-scoped
+/// incident reaches a digest through the fingerprint arm of retrieval, so
+/// both carry the storm's fingerprint.
+fn sibling_corpus_incidents() -> Vec<Incident> {
+    let cause = cue_cause_label(CueKind::RetryStorm);
+    let incident = |id, title: &str, age, status| {
+        let opened = RENDER_NOW_UNIX_NANO - age;
+        let resolved = (status == IncidentStatus::Resolved).then_some(opened);
+        Incident {
+            id,
+            fingerprint: STORM_FINGERPRINT.to_string(),
+            title: format!("{cause}: {title}"),
+            kind: CueKind::RetryStorm,
+            scope_id: Some(SIBLING_CANARY.to_string()),
+            status,
+            severity: IncidentSeverity::Error,
+            priority_tier: PriorityTier::Autonomous,
+            opened_at_unix_nano: opened,
+            updated_at_unix_nano: opened,
+            resolved_at_unix_nano: resolved,
+            ..corpus_match_incident()
+        }
+    };
+    vec![
+        incident(
+            11,
+            "Conductor-Canary calls fail and loop back",
+            CORPUS_MATCH_AGE_NANOS,
+            IncidentStatus::Active,
+        ),
+        incident(
+            9,
+            "Conductor-Canary saturated by repeated calls",
+            SIBLING_RESOLVED_AGE_NANOS,
+            IncidentStatus::Resolved,
+        ),
     ]
 }
 
@@ -480,6 +607,9 @@ fn prepare(arm: &str, shape: &Shape) -> Result<Prepared, String> {
         let notes = usize::from(!shape.corpus_matches.is_empty());
         payload = remove_lines(&payload, is_framing_note_line, notes, "corpus framing note")?;
     }
+    if matches!(arm, "L" | "LI") {
+        payload = scope_trigger_line(&payload, shape.cue.scope_id.as_deref())?;
+    }
     let citable = vec![STORM_FINGERPRINT.to_string()];
     let mut prompt =
         build_primary_tier_prompt(&payload, &format!("workspace={WORKSPACE}"), "", &citable);
@@ -510,6 +640,8 @@ fn prepare(arm: &str, shape: &Shape) -> Result<Prepared, String> {
             schema = reordered_schema()?;
             prompt = prompt.replacen(L4_OUTPUT_JSON_SCHEMA, &schema, 1);
         }
+        "ns" | "L" => prompt = set_scope_sentence(&prompt, false)?,
+        "LI" => prompt = set_scope_sentence(&prompt, true)?,
         _ => {}
     }
     for part in candidate_parts(arm) {
@@ -526,6 +658,7 @@ fn prepare(arm: &str, shape: &Shape) -> Result<Prepared, String> {
         arm: arm.to_string(),
         shape: shape.id,
         trigger: shape.cue.kind,
+        scope_id: shape.cue.scope_id.clone(),
         prompt,
         schema,
         extra_args,
@@ -545,13 +678,36 @@ fn candidate_parts(arm: &str) -> &'static [&'static str] {
     }
 }
 
-/// R1: the framing instruction line replaced by the R1 text.
+/// Whether a line is the v2.5 framing instruction, alone or followed by the
+/// scope sentence: the two forms that carry R1's text.
+fn is_known_framing_line(line: &str) -> bool {
+    line.strip_prefix(V25_FRAMING_INSTRUCTION)
+        .is_some_and(|rest| rest.is_empty() || rest.strip_prefix(' ') == Some(SCOPE_SENTENCE))
+}
+
+/// Every whole line matching `target` replaced by `replacement(line)`, each
+/// line's own terminator kept.
+fn replace_lines(
+    text: &str,
+    target: fn(&str) -> bool,
+    replacement: impl Fn(&str) -> String,
+) -> String {
+    text.split_inclusive('\n')
+        .map(|l| {
+            let body = l.trim_end_matches('\n');
+            if target(body) {
+                format!("{}{}", replacement(body), &l[body.len()..])
+            } else {
+                l.to_string()
+            }
+        })
+        .collect()
+}
+
+/// R1: the framing instruction line replaced by the R1 text. A line that
+/// already carries it, alone or ahead of the scope sentence, is left as is.
 fn apply_r1(prompt: &str) -> Result<String, String> {
-    match prompt
-        .lines()
-        .filter(|l| *l == R1_FRAMING_INSTRUCTION)
-        .count()
-    {
+    match count_matching_lines(prompt, is_known_framing_line) {
         1 => return Ok(prompt.to_string()),
         0 => {}
         hits => return Err(format!("R1: text found {hits} times")),
@@ -562,17 +718,40 @@ fn apply_r1(prompt: &str) -> Result<String, String> {
             "R1: framing instruction found {hits} times, expected 1"
         ));
     }
-    Ok(prompt
-        .split_inclusive('\n')
-        .map(|l| {
-            let body = l.trim_end_matches('\n');
-            if is_framing_instruction_line(body) {
-                format!("{R1_FRAMING_INSTRUCTION}{}", &l[body.len()..])
-            } else {
-                l.to_string()
-            }
-        })
-        .collect())
+    Ok(replace_lines(prompt, is_framing_instruction_line, |_| {
+        R1_FRAMING_INSTRUCTION.to_string()
+    }))
+}
+
+/// ns / L / LI: the prompt's one framing instruction line set to the v2.5
+/// text with (`carry`) or without the scope sentence, whichever of the two
+/// the tree's instruction is.
+fn set_scope_sentence(prompt: &str, carry: bool) -> Result<String, String> {
+    let hits = count_matching_lines(prompt, is_known_framing_line);
+    if hits != 1 {
+        return Err(format!(
+            "scope sentence: known framing instruction found {hits} times, expected 1"
+        ));
+    }
+    Ok(replace_lines(prompt, is_known_framing_line, |_| {
+        if carry {
+            format!("{V25_FRAMING_INSTRUCTION} {SCOPE_SENTENCE}")
+        } else {
+            V25_FRAMING_INSTRUCTION.to_string()
+        }
+    }))
+}
+
+/// L / LI: the digest's one TRIGGER line gains ` on {scope_id}`.
+fn scope_trigger_line(payload: &str, scope_id: Option<&str>) -> Result<String, String> {
+    let scope_id = scope_id.ok_or("L: the cue carries no scope_id")?;
+    let hits = count_matching_lines(payload, is_trigger_line);
+    if hits != 1 {
+        return Err(format!("L: TRIGGER line found {hits} times, expected 1"));
+    }
+    Ok(replace_lines(payload, is_trigger_line, |line| {
+        format!("{line} on {scope_id}")
+    }))
 }
 
 /// R3: the conventions sentence inserted before the investigation-steps one.
@@ -753,6 +932,248 @@ fn names_trigger_stem(output: &L4Output, kind: CueKind) -> &'static str {
 
 fn names_trigger_stem_label(parsed: Option<&L4Output>, kind: CueKind) -> &'static str {
     parsed.map_or("unparsed", |out| names_trigger_stem(out, kind))
+}
+
+/// `word` in ASCII-lowercased text with neither neighbour in `[a-z0-9_-]`, so
+/// a hyphen-joined or underscore-joined sibling does not name it. Its own
+/// function: `patterns::names_service` is a substring match.
+fn names_whole_word(lower: &str, word: &str) -> bool {
+    if word.is_empty() {
+        return false;
+    }
+    let bytes = lower.as_bytes();
+    let joins = |b: u8| b.is_ascii_lowercase() || b.is_ascii_digit() || b == b'_' || b == b'-';
+    lower.match_indices(word).any(|(at, hit)| {
+        let before = at.checked_sub(1).map(|i| bytes[i]);
+        let after = bytes.get(at + hit.len()).copied();
+        !before.is_some_and(joins) && !after.is_some_and(joins)
+    })
+}
+
+/// A maximal run of ASCII letters equal to `retry`, `retries` or `retrying`:
+/// `retry_storm` splits into `retry` and `storm`; `retried` and
+/// `non-retryable` yield none.
+fn names_retry_token(lower: &str) -> bool {
+    lower
+        .split(|c: char| !c.is_ascii_alphabetic())
+        .any(|run| matches!(run, "retry" | "retries" | "retrying"))
+}
+
+/// The pre-registered label of one generation, read over the FIRST hypothesis
+/// statement only, ASCII-lowercased: whether it names the triggering cue's
+/// `scope_id` as a whole word and a retry token. Stated limits: negation is
+/// not read, a space-separated sibling passes, `retried` is not a token.
+fn identifies(parsed: Option<&L4Output>, scope_id: Option<&str>) -> &'static str {
+    let Some(first) = parsed.and_then(|out| out.hypotheses.first()) else {
+        return "unparsed";
+    };
+    let lower = first.statement.to_ascii_lowercase();
+    let service = scope_id.is_some_and(|id| names_whole_word(&lower, &id.to_ascii_lowercase()));
+    match (service, names_retry_token(&lower)) {
+        (true, true) => "both",
+        (true, false) => "service_only",
+        (false, true) => "signal_only",
+        (false, false) => "neither",
+    }
+}
+
+/// The bounded labels kept for one generation. No field holds model text.
+struct RunLabels {
+    decision: &'static str,
+    severity: &'static str,
+    is_resolution_summary: bool,
+    first_keys: Vec<String>,
+    output_hash: Option<u64>,
+    names_trigger: &'static str,
+    names_trigger_stem: &'static str,
+    identifies: &'static str,
+}
+
+impl RunLabels {
+    fn would_create(&self) -> bool {
+        matches!(self.decision, "surface" | "watch")
+            && self.severity != "none"
+            && !self.is_resolution_summary
+    }
+}
+
+/// Reads one generation's outcome down to its labels, in-process.
+fn read_labels(outcome: &Spawned, p: &Prepared) -> RunLabels {
+    let scope_id = p.scope_id.as_deref();
+    let mut labels = RunLabels {
+        decision: "parse_failed",
+        severity: "",
+        is_resolution_summary: false,
+        first_keys: Vec::new(),
+        output_hash: None,
+        names_trigger: names_trigger_label(None, p.trigger),
+        names_trigger_stem: names_trigger_stem_label(None, p.trigger),
+        identifies: identifies(None, scope_id),
+    };
+    let text = match outcome {
+        Spawned::Output(text, _) => text,
+        Spawned::Failed(why, _) => {
+            labels.decision = *why;
+            return labels;
+        }
+    };
+    let Ok(obj) = extract_json_object_bounded(text) else {
+        return labels;
+    };
+    let mut hasher = DefaultHasher::new();
+    obj.hash(&mut hasher);
+    labels.output_hash = Some(hasher.finish());
+    labels.first_keys = first_keys(obj);
+    if let Ok(out) = parse_bounded(obj.as_bytes()) {
+        labels.decision = decision_label(out.decision);
+        labels.severity = severity_label(out.severity);
+        labels.is_resolution_summary = out.is_resolution_summary;
+        labels.names_trigger = names_trigger_label(Some(&out), p.trigger);
+        labels.names_trigger_stem = names_trigger_stem_label(Some(&out), p.trigger);
+        labels.identifies = identifies(Some(&out), scope_id);
+    }
+    labels
+}
+
+/// One generation's `runs.json` row.
+fn row_json(p: &Prepared, run: u32, labels: &RunLabels, thinking: &str, metrics: Metrics) -> Value {
+    json!({
+        "arm": p.arm,
+        "shape": p.shape,
+        "run": run,
+        "decision": labels.decision,
+        "severity": labels.severity,
+        "is_resolution_summary": labels.is_resolution_summary,
+        "would_create": labels.would_create(),
+        "first_keys": labels.first_keys,
+        "output_hash": labels.output_hash.map(|d| format!("{d:016x}")),
+        "names_trigger": labels.names_trigger,
+        "names_trigger_stem": labels.names_trigger_stem,
+        "identifies": labels.identifies,
+        "thinking": thinking,
+        "elapsed_ms": metrics.elapsed_ms,
+        "peak_rss_kib": metrics.peak_rss_kib,
+        "peak_vram_mib": metrics.peak_vram_mib,
+    })
+}
+
+/// One generation's stderr line.
+fn run_line(p: &Prepared, run: u32, labels: &RunLabels, thinking: &str, elapsed_ms: u64) -> String {
+    format!(
+        "l4-decision-probe: {} {} run {run}: decision {} severity {} would_create {} names_trigger {} names_trigger_stem {} identifies {} thinking {thinking} elapsed_ms {elapsed_ms}",
+        p.arm,
+        p.shape,
+        labels.decision,
+        if labels.severity.is_empty() {
+            "-"
+        } else {
+            labels.severity
+        },
+        labels.would_create(),
+        labels.names_trigger,
+        labels.names_trigger_stem,
+        labels.identifies,
+    )
+}
+
+/// An arm's `both` and generation counts per shape, folded onto the two
+/// halves of the bar. A shape in neither half counts in neither.
+fn bar_counts(both: &BTreeMap<&'static str, u32>, runs: &BTreeMap<&'static str, u32>) -> BarCounts {
+    let sum = |counts: &BTreeMap<&'static str, u32>, shapes: &[&str]| -> u32 {
+        shapes.iter().filter_map(|id| counts.get(id)).sum()
+    };
+    BarCounts {
+        sibling_both: sum(both, &SIBLING_SHAPES),
+        sibling_n: sum(runs, &SIBLING_SHAPES),
+        ordinary_both: sum(both, &ORDINARY_SHAPES),
+        ordinary_n: sum(runs, &ORDINARY_SHAPES),
+    }
+}
+
+/// MET iff `both` reaches the minimum on each half. The denominators are the
+/// generations run, so an `unparsed` generation is not `both`.
+fn bar_met(counts: BarCounts, bar: Bar) -> bool {
+    counts.sibling_both >= bar.sibling_min && counts.ordinary_both >= bar.ordinary_min
+}
+
+/// The first arm in `SELECTION_ORDER` whose bar is met, or `none`.
+fn select_arm(arms: &BTreeMap<String, BarCounts>, bar: Bar) -> &'static str {
+    SELECTION_ORDER
+        .into_iter()
+        .find(|arm| arms.get(*arm).is_some_and(|counts| bar_met(*counts, bar)))
+        .unwrap_or("none")
+}
+
+/// TRIPPED iff the shipped arm's `both` count is lower than the baseline's on
+/// either half of the bar; an equal count holds.
+fn regression_guard(shipped: BarCounts, ns: BarCounts) -> &'static str {
+    if shipped.sibling_both < ns.sibling_both || shipped.ordinary_both < ns.ordinary_both {
+        "TRIPPED"
+    } else {
+        "HOLDS"
+    }
+}
+
+fn identifies_line(
+    arm: &str,
+    counts: &BTreeMap<&'static str, u32>,
+    n_arm: u32,
+    per_shape_both: &str,
+) -> String {
+    let count = |k: &str| counts.get(k).copied().unwrap_or(0);
+    format!(
+        "  arm {arm}: identifies both {}/{n_arm} · service_only {} · signal_only {} · neither {} · unparsed {} · per shape both {per_shape_both}",
+        count("both"),
+        count("service_only"),
+        count("signal_only"),
+        count("neither"),
+        count("unparsed"),
+    )
+}
+
+fn bar_line(arm: &str, counts: BarCounts, bar: Bar) -> String {
+    format!(
+        "  arm {arm}: bar {} · sibling both {}/{} (min {}) · ordinary both {}/{} (min {})",
+        if bar_met(counts, bar) {
+            "MET"
+        } else {
+            "NOT MET"
+        },
+        counts.sibling_both,
+        counts.sibling_n,
+        bar.sibling_min,
+        counts.ordinary_both,
+        counts.ordinary_n,
+        bar.ordinary_min,
+    )
+}
+
+/// The selection, service verdict and regression guard lines, in print
+/// order, and whether the service verdict passed.
+fn service_verdict_lines(arms: &BTreeMap<String, BarCounts>, bar: Bar) -> (Vec<String>, bool) {
+    let selection = select_arm(arms, bar);
+    let pass = selection == "shipped";
+    let of = |arm: &str| arms.get(arm).copied().unwrap_or_default();
+    let (shipped, ns) = (of("shipped"), of("ns"));
+    let lines = vec![
+        format!(
+            "l4-decision-probe: selection: {selection} · order {}",
+            SELECTION_ORDER.join(",")
+        ),
+        format!(
+            "l4-decision-probe: service verdict: {} · arm shipped",
+            if pass { "PASS" } else { "FAIL" }
+        ),
+        format!(
+            "l4-decision-probe: regression guard: {} · sibling shipped {} vs ns {} · ordinary shipped {} vs ns {}",
+            regression_guard(shipped, ns),
+            shipped.sibling_both,
+            ns.sibling_both,
+            shipped.ordinary_both,
+            ns.ordinary_both,
+        ),
+    ];
+    (lines, pass)
 }
 
 /// The first three top-level keys of a JSON object, read off its text.
@@ -1043,12 +1464,45 @@ fn parse_args() -> Result<Args, String> {
     parse_args_from(std::env::args().skip(1))
 }
 
+/// `--bar-sibling K --bar-ordinary K`: both or neither. A bar is graded
+/// against the `shipped` arm and guarded against `ns`, over at least one
+/// sibling and one ordinary shape, so it needs all four.
+fn bar_request(
+    sibling_min: Option<u32>,
+    ordinary_min: Option<u32>,
+    arms: &[String],
+    shape_ids: &[String],
+) -> Result<Option<Bar>, String> {
+    let (sibling_min, ordinary_min) = match (sibling_min, ordinary_min) {
+        (None, None) => return Ok(None),
+        (Some(sibling), Some(ordinary)) => (sibling, ordinary),
+        _ => return Err("--bar-sibling and --bar-ordinary go together".to_string()),
+    };
+    for arm in ["shipped", "ns"] {
+        if !arms.iter().any(|a| a == arm) {
+            return Err(format!("the bar needs arm {arm}"));
+        }
+    }
+    let selects = |half: &[&str]| shape_ids.iter().any(|id| half.contains(&id.as_str()));
+    if !selects(&SIBLING_SHAPES) {
+        return Err("the bar needs a sibling shape (S7, S8)".to_string());
+    }
+    if !selects(&ORDINARY_SHAPES) {
+        return Err("the bar needs an ordinary shape (S1-S4)".to_string());
+    }
+    Ok(Some(Bar {
+        sibling_min,
+        ordinary_min,
+    }))
+}
+
 fn parse_args_from(argv: impl IntoIterator<Item = String>) -> Result<Args, String> {
     let mut arms = vec!["A0".to_string()];
     let mut shape_ids: Vec<String> = DEFAULT_SHAPES.iter().map(|s| s.to_string()).collect();
     let mut n = 10;
     let mut min = None;
     let mut min_rank1 = None;
+    let (mut bar_sibling, mut bar_ordinary) = (None, None);
     let mut out = None;
     let mut dry_run = false;
     let mut footprint = false;
@@ -1105,6 +1559,12 @@ fn parse_args_from(argv: impl IntoIterator<Item = String>) -> Result<Args, Strin
             "--min-rank1" => {
                 min_rank1 = Some(value.parse().map_err(|_| "--min-rank1 takes a number")?)
             }
+            "--bar-sibling" => {
+                bar_sibling = Some(value.parse().map_err(|_| "--bar-sibling takes a number")?)
+            }
+            "--bar-ordinary" => {
+                bar_ordinary = Some(value.parse().map_err(|_| "--bar-ordinary takes a number")?)
+            }
             "--out" => out = Some(PathBuf::from(value)),
             "--sampling" => sampling = parse_sampling(&value)?,
             other => return Err(format!("unknown flag {other}")),
@@ -1123,12 +1583,14 @@ fn parse_args_from(argv: impl IntoIterator<Item = String>) -> Result<Args, Strin
         (None, None, None, Some(root)) => Mode::Table(root),
         _ => return Err("--audit-draw, --audit-grade and --table are exclusive".to_string()),
     };
+    let bar = bar_request(bar_sibling, bar_ordinary, &arms, &shape_ids)?;
     Ok(Args {
         arms,
         shapes: shape_ids,
         n,
         min,
         min_rank1,
+        bar,
         out,
         dry_run,
         footprint,
@@ -1213,6 +1675,7 @@ fn prepare_pattern(
         shape: shape.id,
         // Read only by the S-shape names_trigger grader, never on this path.
         trigger: CueKind::RetryStorm,
+        scope_id: None,
         prompt: composed.prompt,
         schema: L4_OUTPUT_JSON_SCHEMA.to_string(),
         extra_args,
@@ -1539,6 +2002,7 @@ async fn main() -> ExitCode {
     let mut total = 0u32;
     let mut total_create = 0u32;
     let mut total_rank1 = 0u32;
+    let mut arm_bars: BTreeMap<String, BarCounts> = BTreeMap::new();
     for arm in &args.arms {
         let started = Instant::now();
         let mut n_arm = 0u32;
@@ -1553,6 +2017,9 @@ async fn main() -> ExitCode {
         let mut rank1_per_shape: BTreeMap<&'static str, u32> = BTreeMap::new();
         let mut stem_counts: BTreeMap<&'static str, u32> = BTreeMap::new();
         let mut stem_rank1_per_shape: BTreeMap<&'static str, u32> = BTreeMap::new();
+        let mut identifies_counts: BTreeMap<&'static str, u32> = BTreeMap::new();
+        let mut both_per_shape: BTreeMap<&'static str, u32> = BTreeMap::new();
+        let mut runs_per_shape: BTreeMap<&'static str, u32> = BTreeMap::new();
         let mut thinking_present = 0u32;
         let mut elapsed: Vec<u64> = Vec::new();
         let mut rss_max: Option<u64> = None;
@@ -1574,85 +2041,41 @@ async fn main() -> ExitCode {
                 elapsed.push(metrics.elapsed_ms);
                 rss_max = rss_max.max(metrics.peak_rss_kib);
                 vram_max = vram_max.max(metrics.peak_vram_mib);
-                let mut names = names_trigger_label(None, p.trigger);
-                let mut stem = names_trigger_stem_label(None, p.trigger);
-                let (decision, severity, is_rs, keys, digest) = match &outcome {
-                    Spawned::Output(text, _) => match extract_json_object_bounded(text) {
-                        Ok(obj) => {
-                            let mut h = DefaultHasher::new();
-                            obj.hash(&mut h);
-                            let digest = h.finish();
-                            match parse_bounded(obj.as_bytes()) {
-                                Ok(out) => {
-                                    names = names_trigger_label(Some(&out), p.trigger);
-                                    stem = names_trigger_stem_label(Some(&out), p.trigger);
-                                    (
-                                        decision_label(out.decision),
-                                        severity_label(out.severity),
-                                        out.is_resolution_summary,
-                                        first_keys(obj),
-                                        Some(digest),
-                                    )
-                                }
-                                Err(_) => {
-                                    ("parse_failed", "", false, first_keys(obj), Some(digest))
-                                }
-                            }
-                        }
-                        Err(_) => ("parse_failed", "", false, Vec::new(), None),
-                    },
-                    Spawned::Failed(why, _) => (*why, "", false, Vec::new(), None),
-                };
-                *names_counts.entry(names).or_default() += 1;
-                if names == "rank1" {
+                let labels = read_labels(&outcome, p);
+                *names_counts.entry(labels.names_trigger).or_default() += 1;
+                if labels.names_trigger == "rank1" {
                     *rank1_per_shape.entry(p.shape).or_default() += 1;
                 }
-                *stem_counts.entry(stem).or_default() += 1;
-                if stem == "rank1" {
+                *stem_counts.entry(labels.names_trigger_stem).or_default() += 1;
+                if labels.names_trigger_stem == "rank1" {
                     *stem_rank1_per_shape.entry(p.shape).or_default() += 1;
                 }
-                let would_create =
-                    matches!(decision, "surface" | "watch") && severity != "none" && !is_rs;
+                *identifies_counts.entry(labels.identifies).or_default() += 1;
+                *runs_per_shape.entry(p.shape).or_default() += 1;
+                if labels.identifies == "both" {
+                    *both_per_shape.entry(p.shape).or_default() += 1;
+                }
                 n_arm += 1;
-                if would_create {
+                if labels.would_create() {
                     create += 1;
                     *per_shape.entry(p.shape).or_default() += 1;
                 }
-                *decisions.entry(decision).or_default() += 1;
-                if severity == "none" {
+                *decisions.entry(labels.decision).or_default() += 1;
+                if labels.severity == "none" {
                     severity_none += 1;
                 }
-                if is_rs {
+                if labels.is_resolution_summary {
                     resolution_summary += 1;
                 }
-                *key_orders.entry(keys.join(">")).or_default() += 1;
-                if let Some(d) = digest {
+                *key_orders.entry(labels.first_keys.join(">")).or_default() += 1;
+                if let Some(d) = labels.output_hash {
                     distinct.entry(p.shape).or_default().insert(d);
                 }
                 eprintln!(
-                    "l4-decision-probe: {} {} run {run}: decision {decision} severity {} would_create {would_create} names_trigger {names} names_trigger_stem {stem} thinking {thinking} elapsed_ms {}",
-                    p.arm,
-                    p.shape,
-                    if severity.is_empty() { "-" } else { severity },
-                    metrics.elapsed_ms
+                    "{}",
+                    run_line(p, run, &labels, thinking, metrics.elapsed_ms)
                 );
-                rows.push(json!({
-                    "arm": p.arm,
-                    "shape": p.shape,
-                    "run": run,
-                    "decision": decision,
-                    "severity": severity,
-                    "is_resolution_summary": is_rs,
-                    "would_create": would_create,
-                    "first_keys": keys,
-                    "output_hash": digest.map(|d| format!("{d:016x}")),
-                    "names_trigger": names,
-                    "names_trigger_stem": stem,
-                    "thinking": thinking,
-                    "elapsed_ms": metrics.elapsed_ms,
-                    "peak_rss_kib": metrics.peak_rss_kib,
-                    "peak_vram_mib": metrics.peak_vram_mib,
-                }));
+                rows.push(row_json(p, run, &labels, thinking, metrics));
             }
         }
         total += n_arm;
@@ -1710,6 +2133,21 @@ async fn main() -> ExitCode {
             ),
         );
         println!(
+            "{}",
+            identifies_line(
+                arm,
+                &identifies_counts,
+                n_arm,
+                &per_shape_counts(&selected, |id| both_per_shape.get(id).copied().unwrap_or(0)
+                    as usize),
+            )
+        );
+        let counts = bar_counts(&both_per_shape, &runs_per_shape);
+        if let Some(bar) = args.bar {
+            println!("{}", bar_line(arm, counts, bar));
+        }
+        arm_bars.insert(arm.clone(), counts);
+        println!(
             "  arm {arm}: footprint thinking present {thinking_present}/{n_arm} · elapsed_ms p50 {} max {} · peak_rss_kib max {} · peak_vram_mib max {}",
             reading(p50(&elapsed)),
             reading(elapsed.iter().copied().max()),
@@ -1741,6 +2179,13 @@ async fn main() -> ExitCode {
             "l4-decision-probe: names-trigger verdict: {} · rank1 {total_rank1}/{total}",
             verdict(pass)
         );
+    }
+    if let Some(bar) = args.bar {
+        let (lines, pass) = service_verdict_lines(&arm_bars, bar);
+        failed |= !pass;
+        for line in lines {
+            println!("{line}");
+        }
     }
     if failed {
         ExitCode::from(1)
@@ -1932,7 +2377,7 @@ mod tests {
     #[test]
     fn every_arm_and_shape_composes_within_the_production_bound() {
         let ids: Vec<&str> = shapes().iter().map(|s| s.id).collect();
-        assert_eq!(ids, ["S1", "S2", "S3", "S4", "S5", "S6"]);
+        assert_eq!(ids, ["S1", "S2", "S3", "S4", "S5", "S6", "S7", "S8"]);
         for arm in ARMS {
             for s in shapes() {
                 let prepared = prepare(arm, &s);
@@ -2022,10 +2467,7 @@ mod tests {
 
     fn candidate_text_count(prompt: &str, part: &str) -> usize {
         match part {
-            "R1" => prompt
-                .lines()
-                .filter(|l| *l == R1_FRAMING_INSTRUCTION)
-                .count(),
+            "R1" => count_lines(prompt, is_known_framing_line),
             "R3" => prompt.matches(R3_CONVENTIONS_SENTENCE).count(),
             _ => prompt.matches(R2_SCHEMA_SENTENCE).count(),
         }
@@ -2389,5 +2831,609 @@ mod tests {
                 Some(format!("arm {arm} does not apply to pattern shapes"))
             );
         }
+    }
+
+    const SERVICE: Option<&str> = Some("conductor");
+    const BAR: Bar = Bar {
+        sibling_min: 19,
+        ordinary_min: 36,
+    };
+
+    fn first(statement: &str) -> L4Output {
+        output("x", "y", &[statement])
+    }
+
+    fn identified(statement: &str) -> &'static str {
+        identifies(Some(&first(statement)), SERVICE)
+    }
+
+    fn prompt_of(arm: &str, id: &str) -> String {
+        match prepare(arm, &shape(id)) {
+            Ok(p) => p.prompt,
+            Err(why) => panic!("{arm} {id} composes: {why}"),
+        }
+    }
+
+    fn trigger_lines(prompt: &str) -> Vec<&str> {
+        prompt.lines().filter(|l| is_trigger_line(l)).collect()
+    }
+
+    /// The corpus match lines that follow the framing note, in render order.
+    fn corpus_lines(prompt: &str) -> Vec<&str> {
+        let note = format!("  {CORPUS_MATCHES_FRAMING_NOTE}");
+        prompt
+            .lines()
+            .skip_while(|l| *l != note)
+            .skip(1)
+            .take_while(|l| l.starts_with("  - ["))
+            .collect()
+    }
+
+    fn counts(sibling_both: u32, ordinary_both: u32) -> BarCounts {
+        BarCounts {
+            sibling_both,
+            sibling_n: 20,
+            ordinary_both,
+            ordinary_n: 40,
+        }
+    }
+
+    fn arm_counts(arms: &[(&str, BarCounts)]) -> BTreeMap<String, BarCounts> {
+        arms.iter().map(|(arm, c)| (arm.to_string(), *c)).collect()
+    }
+
+    #[test]
+    fn identifies_label_set_is_exactly_the_closed_five() {
+        const CLOSED: [&str; 5] = ["both", "service_only", "signal_only", "neither", "unparsed"];
+        let outputs = [
+            first("A retry storm hit conductor"),
+            first("conductor is failing"),
+            first("A retry storm hit the gateway"),
+            first("The gateway is failing"),
+            output("x", "y", &[]),
+        ];
+        let mut seen = BTreeSet::new();
+        for scope in [SERVICE, Some(""), None] {
+            seen.insert(identifies(None, scope));
+            for out in &outputs {
+                seen.insert(identifies(Some(out), scope));
+            }
+        }
+        assert_eq!(seen, CLOSED.into_iter().collect::<BTreeSet<_>>());
+    }
+
+    #[test]
+    fn identifies_reads_each_label_off_the_first_statement() {
+        assert_eq!(identified("A retry storm hit conductor"), "both");
+        assert_eq!(identified("conductor is failing"), "service_only");
+        assert_eq!(identified("A retry storm hit the gateway"), "signal_only");
+        assert_eq!(identified("The gateway is failing"), "neither");
+        assert_eq!(
+            identifies(
+                Some(&first("A RETRY storm hit CONDUCTOR.")),
+                Some("Conductor")
+            ),
+            "both",
+            "the statement and the scope_id are ASCII-lowercased"
+        );
+        assert_eq!(
+            identifies(Some(&first("A retry storm hit conductor")), None),
+            "signal_only",
+            "a cue without a scope_id names no service"
+        );
+    }
+
+    #[test]
+    fn identifies_reads_the_service_alone_where_a_joined_sibling_fails() {
+        assert_eq!(
+            identified("A retry storm is occurring in conductor"),
+            "both"
+        );
+        for sibling in ["conductor-canary", "conductor_canary"] {
+            assert_eq!(
+                identified(&format!("A retry storm is occurring in {sibling}")),
+                "signal_only",
+                "{sibling}"
+            );
+        }
+    }
+
+    #[test]
+    fn identifies_passes_a_statement_naming_both_the_service_and_its_sibling() {
+        for statement in [
+            "Retry storm on conductor or conductor-canary",
+            "Retry storm on conductor-canary, spreading to conductor",
+        ] {
+            assert_eq!(identified(statement), "both", "{statement}");
+        }
+    }
+
+    #[test]
+    fn identifies_reads_a_retry_token_as_a_whole_run_of_letters() {
+        for (statement, expected) in [
+            ("conductor calls are retried", "service_only"),
+            ("conductor returns non-retryable errors", "service_only"),
+            ("retry_storm on conductor", "both"),
+            ("conductor keeps retrying its calls", "both"),
+            ("Excessive retries on conductor", "both"),
+        ] {
+            assert_eq!(identified(statement), expected, "{statement}");
+        }
+    }
+
+    #[test]
+    fn identifies_does_not_count_a_later_hypothesis_or_the_title() {
+        let out = output(
+            "Retry storm on conductor",
+            "conductor retries its calls",
+            &[
+                "A retry storm hit the gateway",
+                "conductor is retrying its calls",
+            ],
+        );
+        assert_eq!(identifies(Some(&out), SERVICE), "signal_only");
+    }
+
+    #[test]
+    fn identifies_is_unparsed_without_a_parse_or_a_first_hypothesis() {
+        assert_eq!(identifies(None, SERVICE), "unparsed");
+        let empty = output("Retry storm on conductor", "conductor retries", &[]);
+        assert_eq!(identifies(Some(&empty), SERVICE), "unparsed");
+    }
+
+    #[test]
+    fn identifies_limit_negation_is_not_read() {
+        assert_eq!(identified("The retry storm is not on conductor"), "both");
+    }
+
+    #[test]
+    fn identifies_limit_a_space_separated_sibling_passes() {
+        assert_eq!(identified("Retry storm on conductor canary"), "both");
+    }
+
+    #[test]
+    fn identifies_limit_retried_is_not_a_retry_token() {
+        assert_eq!(identified("Calls to conductor are retried"), "service_only");
+    }
+
+    #[test]
+    fn identifies_limit_a_joining_neighbour_rejects_wherever_it_stands() {
+        for statement in [
+            "Retry storm on pre-conductor",
+            "Retry storm on edge_conductor",
+            "Retry storm on conductor2",
+            "Retry storm on semiconductor",
+        ] {
+            assert_eq!(identified(statement), "signal_only", "{statement}");
+        }
+    }
+
+    #[test]
+    fn sibling_shapes_render_the_kind_label_trigger_and_both_services_rows() {
+        for id in SIBLING_SHAPES {
+            let prompt = prompt_of("shipped", id);
+            assert_eq!(trigger_lines(&prompt), ["TRIGGER: Retry storm"], "{id}");
+            for service in [SIBLING_SERVICE, SIBLING_CANARY] {
+                let row = format!("  {service}     ");
+                let rows = prompt
+                    .lines()
+                    .filter(|l| l.starts_with(&row) && l.contains("| 100.0% |"))
+                    .count();
+                assert_eq!(rows, 1, "{id}: one {service} row at a 100 % error rate");
+            }
+            let s = shape(id);
+            assert_eq!(s.cue.scope_id.as_deref(), Some(SIBLING_SERVICE), "{id}");
+            assert_eq!(s.cue.kind, CueKind::RetryStorm, "{id}");
+        }
+    }
+
+    #[test]
+    fn s8_carries_two_sibling_corpus_lines_and_s7_none() {
+        let s7 = prompt_of("shipped", "S7");
+        assert!(corpus_lines(&s7).is_empty());
+        assert!(!s7.lines().any(|l| l == "CORPUS MATCHES:"));
+        assert_eq!(count_lines(&s7, is_framing_note_line), 0);
+
+        let s8 = prompt_of("shipped", "S8");
+        assert_eq!(count_lines(&s8, is_framing_note_line), 1);
+        let lines = corpus_lines(&s8);
+        let opening = format!("  - [{STORM_FINGERPRINT}] Retry storm: ");
+        assert_eq!(lines.len(), 2);
+        for line in &lines {
+            assert!(line.starts_with(&opening), "{line}");
+            assert_eq!(line.matches("Conductor-Canary").count(), 1, "{line}");
+        }
+        assert!(lines[0].ends_with("3m ago, active"), "{}", lines[0]);
+        assert!(lines[1].ends_with("9m ago, resolved"), "{}", lines[1]);
+        assert_eq!(s8.lines().filter(|l| l.starts_with("  - [")).count(), 2);
+    }
+
+    #[test]
+    fn the_shipped_arm_carries_the_scope_sentence_once_and_the_baselines_do_not() {
+        assert_eq!(
+            TRIGGER_FRAMING_INSTRUCTION,
+            format!("{V25_FRAMING_INSTRUCTION} {SCOPE_SENTENCE}")
+        );
+        for id in ["S1", "S4", "S7", "S8"] {
+            for (arm, expected) in [("shipped", 1), ("ns", 0), ("L", 0), ("LI", 1)] {
+                assert_eq!(
+                    prompt_of(arm, id).matches(SCOPE_SENTENCE).count(),
+                    expected,
+                    "{arm} {id}"
+                );
+            }
+        }
+    }
+
+    #[test]
+    fn the_line_arms_render_the_scope_on_the_trigger_line() {
+        for (arm, expected) in [
+            ("shipped", "TRIGGER: Retry storm"),
+            ("ns", "TRIGGER: Retry storm"),
+            ("L", "TRIGGER: Retry storm on conductor"),
+            ("LI", "TRIGGER: Retry storm on conductor"),
+        ] {
+            assert_eq!(trigger_lines(&prompt_of(arm, "S7")), [expected], "{arm}");
+        }
+    }
+
+    #[test]
+    fn ns_is_shipped_minus_exactly_the_sentence() {
+        for id in ["S1", "S7", "S8"] {
+            let (shipped, ns) = (prompt_of("shipped", id), prompt_of("ns", id));
+            assert_ne!(shipped, ns, "{id}");
+            assert_eq!(
+                shipped.replacen(&format!(" {SCOPE_SENTENCE}"), "", 1),
+                ns,
+                "{id}"
+            );
+        }
+    }
+
+    #[test]
+    fn each_line_arm_differs_from_its_base_in_the_trigger_line_alone() {
+        for (arm, base) in [("LI", "shipped"), ("L", "ns")] {
+            for id in ["S2", "S8"] {
+                let (with, without) = (prompt_of(arm, id), prompt_of(base, id));
+                assert_eq!(with.lines().count(), without.lines().count(), "{arm} {id}");
+                let changed: Vec<(&str, &str)> = without
+                    .lines()
+                    .zip(with.lines())
+                    .filter(|(a, b)| a != b)
+                    .collect();
+                let scope = shape(id).cue.scope_id.unwrap_or_default();
+                assert_eq!(
+                    changed,
+                    [(
+                        "TRIGGER: Retry storm",
+                        format!("TRIGGER: Retry storm on {scope}").as_str()
+                    )],
+                    "{arm} {id}"
+                );
+            }
+        }
+    }
+
+    #[test]
+    fn r1_composes_as_the_shipped_tree() {
+        for s in shapes() {
+            assert_eq!(
+                prompt_of("R1", s.id),
+                prompt_of("shipped", s.id),
+                "{}",
+                s.id
+            );
+        }
+    }
+
+    #[test]
+    fn the_scope_arms_compose_on_a_tree_with_or_without_the_sentence() {
+        let tree = prompt_of("shipped", "S7");
+        let (Ok(with), Ok(without)) = (
+            set_scope_sentence(&tree, true),
+            set_scope_sentence(&tree, false),
+        ) else {
+            panic!("the tree's framing instruction is a known form");
+        };
+        assert_eq!(with.matches(SCOPE_SENTENCE).count(), 1);
+        assert_eq!(without.matches(SCOPE_SENTENCE).count(), 0);
+        assert_eq!(count_lines(&without, |l| l == V25_FRAMING_INSTRUCTION), 1);
+        assert_eq!(set_scope_sentence(&without, true), Ok(with.clone()));
+        assert_eq!(set_scope_sentence(&with, false), Ok(without.clone()));
+        assert_eq!(set_scope_sentence(&with, true), Ok(with.clone()));
+        assert_eq!(set_scope_sentence(&without, false), Ok(without.clone()));
+        assert_eq!(apply_r1(&with), Ok(with.clone()));
+        assert_eq!(apply_r1(&without), Ok(without.clone()));
+        let unknown = without.replacen(V25_FRAMING_INSTRUCTION, "Some other instruction.", 1);
+        assert_eq!(
+            set_scope_sentence(&unknown, true).err().as_deref(),
+            Some("scope sentence: known framing instruction found 0 times, expected 1")
+        );
+    }
+
+    #[test]
+    fn the_line_rewrite_refuses_a_cue_without_a_scope_or_a_digest_without_one_trigger() {
+        assert_eq!(
+            scope_trigger_line("TRIGGER: Retry storm\n", None)
+                .err()
+                .as_deref(),
+            Some("L: the cue carries no scope_id")
+        );
+        assert_eq!(
+            scope_trigger_line("OVERALL: nominal\n", SERVICE)
+                .err()
+                .as_deref(),
+            Some("L: TRIGGER line found 0 times, expected 1")
+        );
+        assert_eq!(
+            scope_trigger_line("TRIGGER: Retry storm\nSERVICES:\n", SERVICE),
+            Ok("TRIGGER: Retry storm on conductor\nSERVICES:\n".to_string())
+        );
+    }
+
+    #[test]
+    fn bar_flags_parse_together_and_a_lone_one_is_refused() {
+        let bar = |items: &[&str]| parse_args_from(argv(items)).map(|a| a.bar);
+        let run = ["--arms", "shipped,ns,L,LI", "--shapes", "S1,S7"];
+        assert_eq!(bar(&run), Ok(None));
+        assert_eq!(
+            bar(&[
+                &run[..],
+                &["--bar-sibling", "19", "--bar-ordinary", "36"][..]
+            ]
+            .concat()),
+            Ok(Some(BAR))
+        );
+        for lone in [["--bar-sibling", "19"], ["--bar-ordinary", "36"]] {
+            assert_eq!(
+                bar(&[&run[..], &lone[..]].concat()).err().as_deref(),
+                Some("--bar-sibling and --bar-ordinary go together")
+            );
+        }
+        assert_eq!(
+            bar(&["--bar-sibling", "many"]).err().as_deref(),
+            Some("--bar-sibling takes a number")
+        );
+        assert_eq!(
+            bar(&["--bar-ordinary", "-1"]).err().as_deref(),
+            Some("--bar-ordinary takes a number")
+        );
+    }
+
+    #[test]
+    fn bar_flags_need_the_shipped_and_ns_arms_and_a_shape_of_each_half() {
+        let refused = |arms: &str, shapes: &str| {
+            parse_args_from(argv(&[
+                "--arms",
+                arms,
+                "--shapes",
+                shapes,
+                "--bar-sibling",
+                "19",
+                "--bar-ordinary",
+                "36",
+            ]))
+            .err()
+        };
+        assert_eq!(refused("shipped,ns", "S1,S7"), None);
+        assert_eq!(
+            refused("ns,L,LI", "S1,S7").as_deref(),
+            Some("the bar needs arm shipped")
+        );
+        assert_eq!(
+            refused("shipped,L,LI", "S1,S7").as_deref(),
+            Some("the bar needs arm ns")
+        );
+        assert_eq!(
+            refused("shipped,ns", "S1,S2,S3,S4").as_deref(),
+            Some("the bar needs a sibling shape (S7, S8)")
+        );
+        for shapes in ["S7,S8", "S5,S6,S7"] {
+            assert_eq!(
+                refused("shipped,ns", shapes).as_deref(),
+                Some("the bar needs an ordinary shape (S1-S4)"),
+                "{shapes}"
+            );
+        }
+    }
+
+    #[test]
+    fn bar_counts_fold_each_shape_onto_its_half_and_s5_s6_onto_neither() {
+        let both: BTreeMap<&'static str, u32> = [
+            ("S1", 9),
+            ("S4", 10),
+            ("S5", 10),
+            ("S6", 7),
+            ("S7", 8),
+            ("S8", 10),
+        ]
+        .into();
+        let runs: BTreeMap<&'static str, u32> = [
+            ("S1", 10),
+            ("S2", 10),
+            ("S4", 10),
+            ("S5", 10),
+            ("S6", 10),
+            ("S7", 10),
+            ("S8", 10),
+        ]
+        .into();
+        assert_eq!(
+            bar_counts(&both, &runs),
+            BarCounts {
+                sibling_both: 18,
+                sibling_n: 20,
+                ordinary_both: 19,
+                ordinary_n: 30,
+            }
+        );
+    }
+
+    #[test]
+    fn the_bar_is_met_only_at_both_minimums() {
+        assert!(bar_met(counts(19, 36), BAR));
+        assert!(bar_met(counts(20, 40), BAR));
+        assert!(!bar_met(counts(18, 40), BAR));
+        assert!(!bar_met(counts(20, 35), BAR));
+    }
+
+    #[test]
+    fn selection_takes_the_first_arm_in_order_whose_bar_is_met() {
+        let (met, missed) = (counts(19, 36), counts(18, 36));
+        let select = |shipped, l, li| {
+            select_arm(
+                &arm_counts(&[("LI", li), ("L", l), ("ns", missed), ("shipped", shipped)]),
+                BAR,
+            )
+        };
+        assert_eq!(select(met, met, met), "shipped");
+        assert_eq!(select(missed, met, met), "L");
+        assert_eq!(select(missed, missed, met), "LI");
+        assert_eq!(select(missed, missed, missed), "none");
+    }
+
+    #[test]
+    fn selection_never_takes_the_baseline_arm() {
+        let (met, missed) = (counts(20, 40), counts(0, 0));
+        let arms = arm_counts(&[("ns", met), ("shipped", missed), ("L", missed)]);
+        assert_eq!(select_arm(&arms, BAR), "none");
+        assert_eq!(select_arm(&arm_counts(&[("ns", met)]), BAR), "none");
+    }
+
+    #[test]
+    fn the_regression_guard_trips_only_when_shipped_reads_below_the_baseline() {
+        assert_eq!(regression_guard(counts(17, 38), counts(17, 38)), "HOLDS");
+        assert_eq!(regression_guard(counts(20, 40), counts(17, 38)), "HOLDS");
+        assert_eq!(regression_guard(counts(16, 40), counts(17, 38)), "TRIPPED");
+        assert_eq!(regression_guard(counts(20, 37), counts(17, 38)), "TRIPPED");
+        let (shipped, ns) = (counts(12, 30), counts(12, 29));
+        assert!(!bar_met(shipped, BAR));
+        assert_eq!(regression_guard(shipped, ns), "HOLDS");
+    }
+
+    #[test]
+    fn the_verdict_lines_print_the_selection_then_the_verdict_and_the_guard_last() {
+        let arms = arm_counts(&[
+            ("shipped", counts(20, 38)),
+            ("ns", counts(17, 38)),
+            ("L", counts(20, 40)),
+            ("LI", counts(20, 40)),
+        ]);
+        let (lines, pass) = service_verdict_lines(&arms, BAR);
+        assert!(pass);
+        assert_eq!(
+            lines,
+            [
+                "l4-decision-probe: selection: shipped · order shipped,L,LI",
+                "l4-decision-probe: service verdict: PASS · arm shipped",
+                "l4-decision-probe: regression guard: HOLDS · sibling shipped 20 vs ns 17 · ordinary shipped 38 vs ns 38",
+            ]
+        );
+
+        let arms = arm_counts(&[
+            ("shipped", counts(15, 38)),
+            ("ns", counts(17, 38)),
+            ("L", counts(18, 40)),
+            ("LI", counts(20, 40)),
+        ]);
+        let (lines, pass) = service_verdict_lines(&arms, BAR);
+        assert!(!pass);
+        assert_eq!(
+            lines,
+            [
+                "l4-decision-probe: selection: LI · order shipped,L,LI",
+                "l4-decision-probe: service verdict: FAIL · arm shipped",
+                "l4-decision-probe: regression guard: TRIPPED · sibling shipped 15 vs ns 17 · ordinary shipped 38 vs ns 38",
+            ]
+        );
+    }
+
+    #[test]
+    fn the_per_arm_bar_and_identifies_lines_take_their_printed_form() {
+        assert_eq!(
+            bar_line("shipped", counts(19, 36), BAR),
+            "  arm shipped: bar MET · sibling both 19/20 (min 19) · ordinary both 36/40 (min 36)"
+        );
+        assert_eq!(
+            bar_line("LI", counts(18, 36), BAR),
+            "  arm LI: bar NOT MET · sibling both 18/20 (min 19) · ordinary both 36/40 (min 36)"
+        );
+        let labels: BTreeMap<&'static str, u32> = [
+            ("both", 5),
+            ("service_only", 1),
+            ("signal_only", 2),
+            ("unparsed", 2),
+        ]
+        .into();
+        assert_eq!(
+            identifies_line("ns", &labels, 10, "S1 3 S7 2"),
+            "  arm ns: identifies both 5/10 · service_only 1 · signal_only 2 · neither 0 · unparsed 2 · per shape both S1 3 S7 2"
+        );
+    }
+
+    #[test]
+    fn an_s_shape_row_and_run_line_hold_labels_and_no_model_text() {
+        const ROW_KEYS: [&str; 16] = [
+            "arm",
+            "decision",
+            "elapsed_ms",
+            "first_keys",
+            "identifies",
+            "is_resolution_summary",
+            "names_trigger",
+            "names_trigger_stem",
+            "output_hash",
+            "peak_rss_kib",
+            "peak_vram_mib",
+            "run",
+            "severity",
+            "shape",
+            "thinking",
+            "would_create",
+        ];
+        let mut out = output(
+            "zq-title-41",
+            "zq-symptom-41",
+            &["zq-statement-41: a retry storm on conductor"],
+        );
+        out.timeline = "zq-timeline-41".to_string();
+        out.hypotheses[0].justification = "zq-justification-41".to_string();
+        out.fingerprint = STORM_FINGERPRINT.to_string();
+        out.hardware_profile = "gpu_primary".to_string();
+        let Ok(stdout) = serde_json::to_string(&out) else {
+            panic!("the synthetic output serializes");
+        };
+        let Ok(p) = prepare("shipped", &shape("S7")) else {
+            panic!("shipped composes S7");
+        };
+        let metrics = Metrics {
+            elapsed_ms: 1234,
+            peak_rss_kib: None,
+            peak_vram_mib: None,
+        };
+        let labels = read_labels(&Spawned::Output(stdout, metrics), &p);
+        assert_eq!(labels.decision, "surface", "the synthetic output parsed");
+        assert_eq!(labels.identifies, "both");
+        assert_eq!(labels.names_trigger, "rank1");
+
+        let row = row_json(&p, 3, &labels, "absent", metrics);
+        let line = run_line(&p, 3, &labels, "absent", metrics.elapsed_ms);
+        let keys: BTreeSet<&str> = row
+            .as_object()
+            .map(|o| o.keys().map(String::as_str).collect())
+            .unwrap_or_default();
+        assert_eq!(keys, ROW_KEYS.into_iter().collect::<BTreeSet<_>>());
+        assert_eq!(row["identifies"], "both");
+        assert!(line.contains(" names_trigger_stem rank1 identifies both thinking absent "));
+        let row_text = row.to_string();
+        for text in [&row_text, &line] {
+            assert!(!text.contains("zq-"), "model text reached a record: {text}");
+        }
+
+        let failed = read_labels(&Spawned::Failed("timeout", metrics), &p);
+        assert_eq!(
+            (failed.decision, failed.identifies, failed.would_create()),
+            ("timeout", "unparsed", false)
+        );
     }
 }

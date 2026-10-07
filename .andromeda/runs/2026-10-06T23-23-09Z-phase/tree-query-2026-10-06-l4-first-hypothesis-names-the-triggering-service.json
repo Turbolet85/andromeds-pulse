@@ -1,0 +1,255 @@
+[
+{
+"sql": "SELECT caller_name, file, line FROM calls WHERE callee_name = 'render_payload' AND callee_kind = 'fn' ORDER BY file, line",
+"rows": 17,
+"result": [
+{
+"caller_name": "contract",
+"file": "crates/triage/src/contract.rs",
+"line": 152
+},
+{
+"caller_name": "assemble",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 337
+},
+{
+"caller_name": "assemble",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 361
+},
+{
+"caller_name": "assemble",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 376
+},
+{
+"caller_name": "assemble",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 392
+},
+{
+"caller_name": "render_payload_includes_five_recent_commits_per_p032",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 1049
+},
+{
+"caller_name": "overall_line_reads_anomalous_for_a_cue_bearing_tier1_digest",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 1091
+},
+{
+"caller_name": "overall_line_reads_nominal_without_cue_or_incident",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 1109
+},
+{
+"caller_name": "overall_line_reads_degraded_with_an_active_incident",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 1127
+},
+{
+"caller_name": "render_with",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 1155
+},
+{
+"caller_name": "digest",
+"file": "crates/triage/src/digest/mod.rs",
+"line": 35
+},
+{
+"caller_name": "crate",
+"file": "pulse-app/examples/l4_decision_probe.rs",
+"line": 132
+},
+{
+"caller_name": "prepare",
+"file": "pulse-app/examples/l4_decision_probe.rs",
+"line": 464
+},
+{
+"caller_name": "patterns",
+"file": "pulse-app/examples/l4_decision_probe/patterns.rs",
+"line": 22
+},
+{
+"caller_name": "compose",
+"file": "pulse-app/examples/l4_decision_probe/patterns.rs",
+"line": 711
+},
+{
+"caller_name": "pii_scrub_fixture_overall_line_matches_the_render",
+"file": "pulse-app/tests/unit_digest_runtime_scrub.rs",
+"line": 32
+},
+{
+"caller_name": "pii_scrub_fixture_overall_line_matches_the_render",
+"file": "pulse-app/tests/unit_digest_runtime_scrub.rs",
+"line": 50
+}
+],
+"db_state": "fresh",
+"plane": "rust"
+},
+{
+"sql": "SELECT caller_name, file, line FROM calls WHERE callee_name = 'cue_summary' AND callee_kind = 'fn' ORDER BY file, line",
+"rows": 8,
+"result": [
+{
+"caller_name": "contract",
+"file": "crates/triage/src/contract.rs",
+"line": 152
+},
+{
+"caller_name": "assemble",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 266
+},
+{
+"caller_name": "digest",
+"file": "crates/triage/src/digest/mod.rs",
+"line": 35
+},
+{
+"caller_name": "crate",
+"file": "pulse-app/examples/l4_decision_probe.rs",
+"line": 131
+},
+{
+"caller_name": "quantified_cue_summary",
+"file": "pulse-app/examples/l4_decision_probe.rs",
+"line": 391
+},
+{
+"caller_name": "prepare",
+"file": "pulse-app/examples/l4_decision_probe.rs",
+"line": 453
+},
+{
+"caller_name": "patterns",
+"file": "pulse-app/examples/l4_decision_probe/patterns.rs",
+"line": 22
+},
+{
+"caller_name": "compose",
+"file": "pulse-app/examples/l4_decision_probe/patterns.rs",
+"line": 705
+}
+],
+"db_state": "fresh",
+"plane": "rust"
+},
+{
+"sql": "SELECT file, line FROM refs WHERE callee_name = 'TRIGGER_FRAMING_INSTRUCTION' ORDER BY file, line",
+"rows": 9,
+"result": [
+{
+"file": "crates/interpretation/src/prompt.rs",
+"line": 217
+},
+{
+"file": "crates/interpretation/src/prompt.rs",
+"line": 271
+},
+{
+"file": "crates/interpretation/src/prompt.rs",
+"line": 310
+},
+{
+"file": "crates/interpretation/src/prompt.rs",
+"line": 364
+},
+{
+"file": "crates/interpretation/src/prompt.rs",
+"line": 401
+},
+{
+"file": "crates/interpretation/src/prompt.rs",
+"line": 455
+},
+{
+"file": "crates/interpretation/src/prompt.rs",
+"line": 598
+},
+{
+"file": "pulse-app/examples/l4_decision_probe.rs",
+"line": 118
+},
+{
+"file": "pulse-app/examples/l4_decision_probe.rs",
+"line": 650
+}
+],
+"db_state": "fresh",
+"plane": "rust"
+},
+{
+"sql": "SELECT file, line FROM refs WHERE callee_name = 'TRIGGER_LINE_PREFIX' ORDER BY file, line",
+"rows": 7,
+"result": [
+{
+"file": "crates/triage/src/contract.rs",
+"line": 152
+},
+{
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 1180
+},
+{
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 1196
+},
+{
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 1243
+},
+{
+"file": "crates/triage/src/digest/mod.rs",
+"line": 35
+},
+{
+"file": "pulse-app/examples/l4_decision_probe.rs",
+"line": 131
+},
+{
+"file": "pulse-app/examples/l4_decision_probe.rs",
+"line": 642
+}
+],
+"db_state": "fresh",
+"plane": "rust"
+},
+{
+"sql": "SELECT from_crate, to_crate FROM crate_edges WHERE from_crate IN ('triage','interpretation') OR to_crate IN ('triage','interpretation')",
+"rows": 6,
+"result": [
+{
+"from_crate": "pulse-app",
+"to_crate": "triage"
+},
+{
+"from_crate": "interpretation",
+"to_crate": "security"
+},
+{
+"from_crate": "mcp-server",
+"to_crate": "triage"
+},
+{
+"from_crate": "interpretation",
+"to_crate": "triage"
+},
+{
+"from_crate": "mcp-server",
+"to_crate": "interpretation"
+},
+{
+"from_crate": "pulse-app",
+"to_crate": "interpretation"
+}
+],
+"db_state": "fresh",
+"plane": "rust"
+}
+]

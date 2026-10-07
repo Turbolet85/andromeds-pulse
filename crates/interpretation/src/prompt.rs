@@ -83,10 +83,13 @@ evidence_refs array. Never invent an identifier.";
 /// Shared framing instruction appended to every tier's output reminder: the
 /// digest's TRIGGER line names the signal the output describes, the first
 /// hypothesis statement names that signal in the line's own words, any other
-/// abnormal metric on the service is its cause or effect, and its CORPUS
-/// MATCHES lines are other incidents. Conditional, so a digest without
-/// either section (reflection, investigation focus) still reads correctly.
-/// Kind-generic by design: it never names a cue kind.
+/// abnormal metric on the service is its cause or effect, its CORPUS
+/// MATCHES lines are other incidents, and when the cue line carries a
+/// scope_id the first hypothesis statement names that value and nothing
+/// that merely resembles it. Conditional, so a digest without any of those
+/// sections (reflection, investigation focus) still reads correctly.
+/// Kind-generic by design: it never names a cue kind or a service, and the
+/// scope_id is named by reference, never by value.
 pub const TRIGGER_FRAMING_INSTRUCTION: &str = "\
 When the digest carries a TRIGGER line, that line names the signal this \
 output describes: the title, the symptom and the first hypothesis must be \
@@ -95,7 +98,10 @@ in the TRIGGER line's own words. Treat any other abnormal metric on the same \
 service as a cause or an effect of that signal, never as a separate first \
 hypothesis. CORPUS MATCHES lines are OTHER incidents, past or still open on \
 another signal, given for context only; never describe one of them as the \
-current signal.";
+current signal. When the cue line under ATTENTION CUES carries a scope_id, \
+the first hypothesis statement must name that scope_id value exactly as \
+written there, and must not attribute the signal to anything else, including \
+a service whose name merely contains it.";
 
 /// Role definition section emitted at the top of every primary-tier
 /// prompt. Bounded to role + conventions; no project-specific facts here.
@@ -571,9 +577,9 @@ mod tests {
         }
         assert!(at("decision") < at("severity"));
         assert!(at("severity") < at("investigation_steps"));
-        assert_eq!(PROMPT_VERSION_PRIMARY, "v2.5");
-        assert_eq!(PROMPT_VERSION_FALLBACK, "v1.4-fallback");
-        assert_eq!(PROMPT_VERSION_REFLECTION, "v1.4-reflection");
+        assert_eq!(PROMPT_VERSION_PRIMARY, "v2.6");
+        assert_eq!(PROMPT_VERSION_FALLBACK, "v1.5-fallback");
+        assert_eq!(PROMPT_VERSION_REFLECTION, "v1.5-reflection");
     }
 
     #[test]
@@ -625,6 +631,31 @@ the TRIGGER line's own words";
                 prompt.matches(OBLIGATION).count(),
                 1,
                 "{label}: the first-hypothesis obligation appears exactly once"
+            );
+        }
+    }
+
+    #[test]
+    fn every_tier_obliges_the_first_hypothesis_to_name_the_cue_scope() {
+        const OBLIGATION: &str = "must name that scope_id value exactly as written there";
+        for (label, prompt) in [
+            (
+                "primary",
+                build_primary_tier_prompt("digest", "project", "", &[]),
+            ),
+            (
+                "fallback",
+                build_fallback_tier_prompt("digest", "project", "", &[]),
+            ),
+            (
+                "reflection",
+                build_reflection_tier_prompt("digest", "project", "", &[]),
+            ),
+        ] {
+            assert_eq!(
+                prompt.matches(OBLIGATION).count(),
+                1,
+                "{label}: the scope obligation appears exactly once"
             );
         }
     }
