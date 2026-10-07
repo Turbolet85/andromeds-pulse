@@ -1,0 +1,143 @@
+[
+{
+"tool": "route",
+"v": "1.6",
+"sha8": "1b5a5c62",
+"ts": "2026-10-07T20:57:26Z",
+"argv": [
+"route.py",
+"flip",
+"--root",
+".",
+"--chunk",
+"2026-10-07-l4-probe-reproduces-the-canary-history-miss",
+"--run-dir",
+".andromeda/runs/2026-10-07T20-29-42Z-wrap",
+"--desc-file",
+".andromeda/runs/2026-10-07T20-29-42Z-wrap/master-desc.txt"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"flip master-route.md:103 - 2026-10-07-l4-probe-reproduces-the-canary-history-miss pending -> complete - desc REWRITTEN from --desc-file"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/master-route.md"
+],
+"before": null,
+"after": null
+},
+{
+"tool": "route",
+"v": "1.6",
+"sha8": "1b5a5c62",
+"ts": "2026-10-07T20:57:26Z",
+"argv": [
+"route.py",
+"compact",
+"--root",
+".",
+"--chunk",
+"2026-10-07-l4-probe-reproduces-the-canary-history-miss",
+"--date",
+"2026-10-07",
+"--run-dir",
+".andromeda/runs/2026-10-07T20-29-42Z-wrap",
+"--dry-run"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"pin :180 strip CONTEXT: 1273ch \"CONTEXT: FOUNDER RULING 2026-10-07 11:49\"",
+"pin :180 strip CONTEXT: 1408ch \"CONTEXT: the measured basis — Conductor'\"",
+"pin :180 strip CONTEXT: 707ch \"CONTEXT: the probe today — `S8` (`pulse-\"",
+"pin :180 strip CARRY: 324ch \"CARRY: (a) the service on the `TRIGGER:`\"",
+"pin :180 strip CARRY: 379ch \"CARRY: (b) the d3 replay from the real d\"",
+"pin next markerless :182 holds CONTEXT:×4",
+"180 · 2026-10-07-l4-probe-reproduces-the-canary-history-miss · strip 5 block(s) · archive APPEND",
+"6 complete line(s) carry text the grammar cannot take -- left in place: L52, L54, L60, L100, L116, L125",
+"dry-run - would archive 1 and compact 1 line(s)"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"targets": [
+{
+"n": 180,
+"marker": "2026-10-07-l4-probe-reproduces-the-canary-history-miss",
+"blocks": 5,
+"archived": false
+}
+],
+"skips": [],
+"kept_notes": [
+52,
+54,
+60,
+100,
+116,
+125
+]
+}
+},
+{
+"tool": "route",
+"v": "1.6",
+"sha8": "1b5a5c62",
+"ts": "2026-10-07T20:57:36Z",
+"argv": [
+"route.py",
+"compact",
+"--root",
+".",
+"--chunk",
+"2026-10-07-l4-probe-reproduces-the-canary-history-miss",
+"--date",
+"2026-10-07",
+"--run-dir",
+".andromeda/runs/2026-10-07T20-29-42Z-wrap"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"pin :180 strip CONTEXT: 1273ch \"CONTEXT: FOUNDER RULING 2026-10-07 11:49\"",
+"pin :180 strip CONTEXT: 1408ch \"CONTEXT: the measured basis — Conductor'\"",
+"pin :180 strip CONTEXT: 707ch \"CONTEXT: the probe today — `S8` (`pulse-\"",
+"pin :180 strip CARRY: 324ch \"CARRY: (a) the service on the `TRIGGER:`\"",
+"pin :180 strip CARRY: 379ch \"CARRY: (b) the d3 replay from the real d\"",
+"pin next markerless :182 holds CONTEXT:×4",
+"180 · 2026-10-07-l4-probe-reproduces-the-canary-history-miss · strip 5 block(s) · archive APPEND",
+"6 complete line(s) carry text the grammar cannot take -- left in place: L52, L54, L60, L100, L116, L125",
+"compacted 1 complete line(s) -> route-archive.md (1 archived, 0 already there)"
+],
+"stderr": null,
+"wrote": [
+"./andromeda-pulse-0.3.0/route-archive.md",
+"./andromeda-pulse-0.3.0/working-route.md"
+],
+"before": null,
+"after": null,
+"extra": {
+"targets": [
+{
+"n": 180,
+"marker": "2026-10-07-l4-probe-reproduces-the-canary-history-miss",
+"blocks": 5,
+"archived": false
+}
+],
+"skips": [],
+"kept_notes": [
+52,
+54,
+60,
+100,
+116,
+125
+]
+}
+}
+]

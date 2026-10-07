@@ -1,0 +1,81 @@
+# Cascade step 2 — the sweep's pattern set, derived from every amendment of this pass before the first grep.
+# Amendments: architecture.md [Fault Identity] (three sentences of one bullet) · security-plan.md §Input Validation
+# L4 argv row + its §Security Anti-Patterns -> Code Patterns mirror · test-plan.md §1 probe row + §4 triage bullet.
+
+# --- security-plan: the retired measured maximum and the figures built on it
+[[pattern]]
+id = "max-7824"
+fixed = '7,824'
+
+[[pattern]]
+id = "ratio-2.09"
+fixed = '2.09'
+
+[[pattern]]
+id = "headroom-8560"
+fixed = '8,560'
+
+[[pattern]]
+id = "kib-8.4"
+fixed = '8.4 KiB'
+
+[[pattern]]
+id = "observed-max"
+regex = 'observed (prompt )?maximum|largest (product )?composition|headroom'
+ignore_case = true
+
+# --- security-plan: the claim's mechanism — one argv path, one OTLP-derived operand
+[[pattern]]
+id = "one-argv-path"
+regex = 'ONE (product path|OTLP-derived)|one path this ban|only .{0,20}OTLP-derived operand'
+ignore_case = true
+
+# --- architecture: the retired tail of the scope obligation's reading
+[[pattern]]
+id = "known-positive"
+fixed = 'known-positive'
+ignore_case = true
+
+[[pattern]]
+id = "only-reading"
+regex = 'only end-to-end reading|whether it fixes|fifth series'
+ignore_case = true
+
+# --- architecture: the scope arm's mechanism, however worded
+[[pattern]]
+id = "scope-arm"
+regex = 'match(es)? on scope|scope[- ](arm|match)|scope or fingerprint|active scope'
+ignore_case = true
+
+[[pattern]]
+id = "corpus-block"
+regex = 'CORPUS MATCHES|corpus[_ ]match|corpus block|corpus retrieval|corpus line|select_corpus_matches'
+ignore_case = true
+
+[[pattern]]
+id = "other-incidents"
+# `sibling` was in this alternation at the first run (120 rows, the canary's name in every probe record) and was
+# dropped: it names a fixture, not the claim.
+regex = 'other or past incidents|other (active )?(services?|scopes?).{0,3} (incidents|history|lines|matches)'
+ignore_case = true
+
+# --- test-plan: the probe row's retired counts and sets
+[[pattern]]
+id = "pins-91"
+regex = '91 collected|91 pins'
+
+[[pattern]]
+id = "arms-count"
+regex = 'ARMS.{0,6}(15|18)'
+
+[[pattern]]
+id = "shape-set"
+regex = 'S1[–-]S8'
+
+[[pattern]]
+id = "probe"
+regex = 'l4_decision_probe|decision probe|dev probe|dev-only real-model probe'
+ignore_case = true
+
+# dropped: `synthetic-only` (every string is synthetic | never captured telemetry) — its control never fired on
+# the pre-pass masters; controlled by hand over the leaves and the rule files instead (cascade-dispositions.md).

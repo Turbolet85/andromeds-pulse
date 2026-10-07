@@ -1,0 +1,1 @@
+the canary-history miss did not reproduce on a corpus-block shape (199 of 200) and reproduced on a captured product prompt (11 misses of 20); the pre-registered order selected CO and the founder chose CX, so a cue-bearing digest's corpus block keeps the triggering service's own history; the probe keeps no durable known-positive
