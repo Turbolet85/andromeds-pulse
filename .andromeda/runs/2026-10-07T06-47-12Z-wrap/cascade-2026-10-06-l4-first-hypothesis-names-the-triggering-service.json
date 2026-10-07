@@ -1,0 +1,242 @@
+[
+{
+"tool": "cascade",
+"v": "1.1",
+"sha8": "b56ded6b",
+"ts": "2026-10-07T06:57:23Z",
+"argv": [
+"sweep",
+"--patterns-file",
+".andromeda/runs/2026-10-07T06-47-12Z-wrap/cascade-patterns.toml",
+"--run-dir",
+".andromeda/runs/2026-10-07T06-47-12Z-wrap",
+"--marker",
+"2026-10-06-l4-first-hypothesis-names-the-triggering-service"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"baseline b5138e20 (pre-CI parent — the oldest of 1 pre-CI commit(s), 1a2e509e)",
+"lineage-v25 · new 1 · standing 3 · leaf 0 · curation 0 · base 0 · control architecture.md:73 (prose)",
+"lineage-v14 · new 1 · standing 1 · leaf 0 · curation 0 · base 0 · control architecture.md:73 (prose)",
+"own-words · new 0 · standing 2 · leaf 0 · curation 0 · base 0 · control architecture.md:73 (prose)",
+"sep-first-hyp · new 0 · standing 2 · leaf 0 · curation 0 · base 0 · control architecture.md:73 (prose)",
+"first-hyp · new 0 · standing 3 · leaf 0 · curation 0 · base 0 · control architecture.md:73 (prose)",
+"framing-const · new 0 · standing 2 · leaf 0 · curation 0 · base 0 · control architecture.md:73 (prose)",
+"trigger-label · new 0 · standing 3 · leaf 3 · curation 0 · base 0 · control architecture.md:73 (prose)",
+"max-7575 · new 1 · standing 1 · leaf 0 · curation 0 · base 0 · control security-plan.md:139 (prose)",
+"ratio-216 · 0 rows (control fired) — a statement about this pattern, not the masters · control security-plan.md:139 (pr…",
+"observed-max · new 0 · standing 2 · leaf 0 · curation 0 · base 0 · control security-plan.md:139 (prose)",
+"headroom · 0 rows (control fired) — a statement about this pattern, not the masters · control security-plan.md:139 (pro…",
+"unmeasured · 0 rows (control fired) — a statement about this pattern, not the masters · control security-plan.md:139 (p…",
+"pins-128 · 0 rows (control fired) — a statement about this pattern, not the masters · control test-plan.md:229 (prose)",
+"pins-61 · new 0 · standing 1 · leaf 0 · curation 0 · base 0 · control test-plan.md:144 (prose)",
+"arms · new 0 · standing 1 · leaf 0 · curation 2 · base 0 · case-variants +50 · control test-plan.md:144 (prose)",
+"shapes · new 0 · standing 1 · leaf 0 · curation 0 · base 0 · control test-plan.md:144 (prose)",
+"probe-trigger · new 0 · standing 1 · leaf 0 · curation 0 · base 0 · control test-plan.md:144 (prose)",
+"probe · new 0 · standing 1 · leaf 1 · curation 0 · base 0 · control test-plan.md:144 (prose)",
+"prompt-bytes · new 0 · standing 3 · leaf 0 · curation 0 · base 0 · control security-plan.md:139 (prose)",
+".andromeda/architecture.md:73 lineage-v25 standing edited mixed ×3 @c7016,8919/11240 …at chunk; v2.5 / v1.4-fallback / …",
+".andromeda/architecture.md:73 lineage-v25 @c+10406/11240",
+".andromeda/security-plan.md:139 lineage-v25 standing edited mixed ×2 @c1799,2084/4649 …026-10-05 v2.5 composition of th…",
+".andromeda/security-plan.md:463 lineage-v25 standing edited mixed ×3 @c1321,1363/2712 …ame A6 at v2.5; before that 7,40…",
+".andromeda/security-plan.md:463 lineage-v25 @c+1623/2712",
+".andromeda/test-plan.md:229 lineage-v25 new @c876/4702 …triggering-service; v2.5 / v1.4-* at 2026-10-04-l4-rank-1-hypot…",
+".andromeda/architecture.md:73 lineage-v14 standing edited ×2 @c7023,7039/11240 …unk; v2.5 / v1.4-fallback / v1.4-reflec…",
+".andromeda/test-plan.md:229 lineage-v14 new @c883/4702 …ing-service; v2.5 / v1.4-* at 2026-10-04-l4-rank-1-hypothesis-n…",
+".andromeda/architecture.md:73 own-words standing edited @c6322/11240 … TRIGGER line's own words, that any other abnorma…",
+".andromeda/test-plan.md:229 own-words standing edited @c1347/4702 …e TRIGGER line's own words; another abnormal metric …",
+".andromeda/architecture.md:73 sep-first-hyp standing edited @c6432/11240 …gnal, never a separate first hypothesis, and …",
+".andromeda/test-plan.md:229 sep-first-hyp standing edited @c1434/4702 …ffect, never a separate first hypothesis; CORPUS…",
+".andromeda/architecture.md:73 first-hyp standing edited mixed ×6 @c6175,6255,6441/11240 …ptom and first hypothesis desc…",
+".andromeda/architecture.md:73 first-hyp @c+6608,7783,9936/11240",
+".andromeda/test-plan.md:144 first-hyp standing edited mixed ×2 @c3594,5814/8333 …only`), the first hypothesis only, a z…",
+".andromeda/test-plan.md:229 first-hyp standing edited mixed ×4 @c1249,1280,1443,1643/4702 …ptom and first hypothesis de…",
+".andromeda/architecture.md:73 framing-const standing edited @c5959/11240 …tion::prompt::TRIGGER_FRAMING_INSTRUCTION` (A…",
+".andromeda/test-plan.md:229 framing-const standing edited @c1153/4702 … shared ASCII `TRIGGER_FRAMING_INSTRUCTION` (the…",
+".andromeda/architecture.md:73 trigger-label standing edited ×2 @c4419,5183/11240 …JSON — as `{cue_cause_label(kind)}: {…",
+".andromeda/architecture.md:239 trigger-label standing @c2736/3585 …riage::contract::cue_cause_label` — `Error-rate spik…",
+".andromeda/test-plan.md:228 trigger-label standing @c1847/2645 …ly one `TRIGGER: {cue_cause_label}` line keyed on the F…",
+"CLAUDE.md:50 trigger-label leaf ×2 …le) as `{triage::contract::cue_cause_label(kind)}: {model title}`, grounded before …",
+".claude/docs/services/triage.md:28 trigger-label leaf …VERALL, a `TRIGGER: {cue_cause_label}` line keyed on the first c…",
+".claude/docs/services/triage.md:32 trigger-label leaf …-specific exports). `cue_cause_label(CueKind)` gives the closed …",
+".andromeda/security-plan.md:139 max-7575 standing edited @c2499/4649 … only) measured 7,575 B, and the 2026-10-07 v2.6 …",
+".andromeda/security-plan.md:463 max-7575 new @c1244/2712 …er only); before it 7,575 B, the 2026-10-05 pattern-discrimin…",
+".andromeda/security-plan.md:139 observed-max standing edited @c3283/4649 …e the 7,824 B observed maximum (8,560 B ≈ 8.4…",
+".andromeda/security-plan.md:463 observed-max standing edited @c898/2712 …s`: ~2.09× the observed maximum — 7,824 B, the…",
+".andromeda/test-plan.md:144 pins-61 standing edited ×2 @c2733,4512/8333 …crimination to 61 collected pins** (32 new, 27…",
+".andromeda/test-plan.md:144 arms standing edited mixed ×3 @c2142,4554,5610/8333 …* (13 new; `ARMS` 14 → 16), among them…",
+".claude/rules/security.md:167 arms curation @c32/2081 …3: A REGEX CATALOG'S ARMS CAN REQUIRE THE COMPOSED FORM — scrubb…",
+".claude/rules/testing.md:284 arms curation …FORCEMENT GUARD HAS TWO ARMS AND BOTH NEED LIVE PROOF — the POSITIVE arm is…",
+".andromeda/test-plan.md:144 shapes standing edited @c1748/8333 …rts the shape set S1–S6 (held-out S5 / S6) and the byte…",
+".andromeda/test-plan.md:144 probe-trigger standing edited @c3/8333 | `l4-decision-probe-arg-parse-unit-coverage` | **NE…",
+".andromeda/test-plan.md:144 probe standing edited ×3 @c3,148,2823/8333 | `l4-decision-probe-arg-parse-unit-coverage` | …",
+".claude/docs/services/interpretation.md:38 probe leaf … `pulse-app/examples/l4_decision_probe.rs` reuses the product ar…",
+".andromeda/security-plan.md:139 prompt-bytes standing edited ×2 @c603,622/4649 …te ceiling `MAX_PROMPT_BYTES` (16384) p…",
+".andromeda/security-plan.md:463 prompt-bytes standing edited @c546/2712 …mpt_bounded` — 16384-byte ceiling + NUL/C0/C1 …",
+".andromeda/test-plan.md:144 prompt-bytes standing edited @c3065/8333 …omposes within `MAX_PROMPT_BYTES`, a cueless shap…",
+"lineage-v25 · new 1 · standing 3 · leaf 0 · curation 0 · base 0 · control architecture.md:73 (prose)",
+"lineage-v14 · new 1 · standing 1 · leaf 0 · curation 0 · base 0 · control architecture.md:73 (prose)",
+"own-words · new 0 · standing 2 · leaf 0 · curation 0 · base 0 · control architecture.md:73 (prose)",
+"sep-first-hyp · new 0 · standing 2 · leaf 0 · curation 0 · base 0 · control architecture.md:73 (prose)",
+"first-hyp · new 0 · standing 3 · leaf 0 · curation 0 · base 0 · control architecture.md:73 (prose)",
+"framing-const · new 0 · standing 2 · leaf 0 · curation 0 · base 0 · control architecture.md:73 (prose)",
+"trigger-label · new 0 · standing 3 · leaf 3 · curation 0 · base 0 · control architecture.md:73 (prose)",
+"max-7575 · new 1 · standing 1 · leaf 0 · curation 0 · base 0 · control security-plan.md:139 (prose)",
+"ratio-216 · 0 rows (control fired) — a statement about this pattern, not the masters · control security-plan.md:139 (pr…",
+"observed-max · new 0 · standing 2 · leaf 0 · curation 0 · base 0 · control security-plan.md:139 (prose)",
+"headroom · 0 rows (control fired) — a statement about this pattern, not the masters · control security-plan.md:139 (pro…",
+"unmeasured · 0 rows (control fired) — a statement about this pattern, not the masters · control security-plan.md:139 (p…",
+"pins-128 · 0 rows (control fired) — a statement about this pattern, not the masters · control test-plan.md:229 (prose)",
+"pins-61 · new 0 · standing 1 · leaf 0 · curation 0 · base 0 · control test-plan.md:144 (prose)",
+"arms · new 0 · standing 1 · leaf 0 · curation 2 · base 0 · case-variants +50 · control test-plan.md:144 (prose)",
+"shapes · new 0 · standing 1 · leaf 0 · curation 0 · base 0 · control test-plan.md:144 (prose)",
+"probe-trigger · new 0 · standing 1 · leaf 0 · curation 0 · base 0 · control test-plan.md:144 (prose)",
+"probe · new 0 · standing 1 · leaf 1 · curation 0 · base 0 · control test-plan.md:144 (prose)",
+"prompt-bytes · new 0 · standing 3 · leaf 0 · curation 0 · base 0 · control security-plan.md:139 (prose)"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"baseline": "b5138e208b9eea8742bfde78837279f346f988b1",
+"how": "pre-CI parent — the oldest of 1 pre-CI commit(s), 1a2e509e",
+"counts": {
+"lineage-v25": {
+"new": 1,
+"standing": 3,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"lineage-v14": {
+"new": 1,
+"standing": 1,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"own-words": {
+"new": 0,
+"standing": 2,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"sep-first-hyp": {
+"new": 0,
+"standing": 2,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"first-hyp": {
+"new": 0,
+"standing": 3,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"framing-const": {
+"new": 0,
+"standing": 2,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"trigger-label": {
+"new": 0,
+"standing": 3,
+"leaf": 3,
+"curation": 0,
+"base": 0
+},
+"max-7575": {
+"new": 1,
+"standing": 1,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"ratio-216": {
+"new": 0,
+"standing": 0,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"observed-max": {
+"new": 0,
+"standing": 2,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"headroom": {
+"new": 0,
+"standing": 0,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"unmeasured": {
+"new": 0,
+"standing": 0,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"pins-128": {
+"new": 0,
+"standing": 0,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"pins-61": {
+"new": 0,
+"standing": 1,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"arms": {
+"new": 0,
+"standing": 1,
+"leaf": 0,
+"curation": 2,
+"base": 0
+},
+"shapes": {
+"new": 0,
+"standing": 1,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"probe-trigger": {
+"new": 0,
+"standing": 1,
+"leaf": 0,
+"curation": 0,
+"base": 0
+},
+"probe": {
+"new": 0,
+"standing": 1,
+"leaf": 1,
+"curation": 0,
+"base": 0
+},
+"prompt-bytes": {
+"new": 0,
+"standing": 3,
+"leaf": 0,
+"curation": 0,
+"base": 0
+}
+}
+}
+}
+]

@@ -1,6 +1,23 @@
 # Session Learnings
 
 
+## 2026-10-07 — A digest a live run archived is recoverable only with the corpus key
+
+The corpus archives every assembled digest (`digest_archive`: the bincode of the whole `Digest`, cell-encrypted; its
+plaintext columns are the kind, the assembly time and the token count), but the product has no reader for that table
+and exposes the key through no public API. So "replay the digest that produced this bad interpretation" is not an
+after-the-fact option: the plaintext needs the per-user key from the OS credential store, and an agent session's
+permission layer refuses that read. That refusal is not to be routed around. The row can still be IDENTIFIED from
+plaintext alone: match the incident's opened-at instant to the log's `interpretation.prompt.assemble` and
+`digest.corpus.retrieve` timestamps and to the archive row's assembly time.
+
+Where it applies: a probe that needs a real failing digest as its known-positive control needs a sanctioned capture
+path decided BEFORE the run that produces it, and choosing it is the operator's (a permission rule for the key read, a
+recovery outside the session, or a capture hook). Whatever is recovered is captured telemetry: it never enters the
+tree as a fixture or as evidence.
+
+---
+
 ## 2026-10-04 — raising `rust-version` raises clippy's MSRV and switches lints ON
 
 The workspace `rust-version` is clippy's MSRV. Raising it does not only retire `incompatible_msrv` warnings: it
@@ -54,6 +71,9 @@ qualify, and the pre-registered order, not the best-looking number, decides whic
 (here, a ratification-gated sampling change) falls through to the next qualifier without re-running anything. Record
 the generated key order and a per-run output hash too: they answered "does the grammar keep schema order?" and "does
 the default seed vary per run?" from the same runs.
+Extended 2026-10-07: the baseline arm must be able to MISS the case the fix was minted for — on new shapes take the
+baseline reading before fixing the thresholds, or pre-register "the baseline meets the bar" as its own outcome; a bar
+the baseline cannot fail measures the bar, not the fix.
 
 ---
 

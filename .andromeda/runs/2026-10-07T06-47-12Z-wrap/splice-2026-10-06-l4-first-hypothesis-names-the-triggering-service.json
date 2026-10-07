@@ -1,0 +1,119 @@
+[
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "3b12f994",
+"ts": "2026-10-07T06:59:45Z",
+"argv": [
+"append",
+"--file",
+".andromeda/architecture-amendments.md",
+"--payload-file",
+".andromeda/runs/2026-10-07T06-47-12Z-wrap/architecture-entry.md",
+"--lines",
+"12",
+"--run-dir",
+".andromeda/runs/2026-10-07T06-47-12Z-wrap",
+"--marker",
+"2026-10-06-l4-first-hypothesis-names-the-triggering-service"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"append architecture-amendments.md:+12 at line 749 · lines 748→760 · bytes 114338→116995 · term lf",
+"last line now: **Ref:** .andromeda/runs/2026-10-07T06-47-12Z-wrap/"
+],
+"stderr": null,
+"wrote": [
+".andromeda/architecture-amendments.md"
+],
+"before": {
+"lines": 748,
+"bytes": 114338,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 760,
+"bytes": 116995
+}
+},
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "3b12f994",
+"ts": "2026-10-07T06:59:45Z",
+"argv": [
+"append",
+"--file",
+".andromeda/security-plan-amendments.md",
+"--payload-file",
+".andromeda/runs/2026-10-07T06-47-12Z-wrap/security-plan-entry.md",
+"--lines",
+"12",
+"--run-dir",
+".andromeda/runs/2026-10-07T06-47-12Z-wrap",
+"--marker",
+"2026-10-06-l4-first-hypothesis-names-the-triggering-service"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"append security-plan-amendments.md:+12 at line 566 · lines 565→577 · bytes 105977→107959 · term lf",
+"last line now: **Ref:** .andromeda/runs/2026-10-07T06-47-12Z-wrap/"
+],
+"stderr": null,
+"wrote": [
+".andromeda/security-plan-amendments.md"
+],
+"before": {
+"lines": 565,
+"bytes": 105977,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 577,
+"bytes": 107959
+}
+},
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "3b12f994",
+"ts": "2026-10-07T06:59:45Z",
+"argv": [
+"append",
+"--file",
+".andromeda/test-plan-amendments.md",
+"--payload-file",
+".andromeda/runs/2026-10-07T06-47-12Z-wrap/test-plan-entry.md",
+"--lines",
+"12",
+"--run-dir",
+".andromeda/runs/2026-10-07T06-47-12Z-wrap",
+"--marker",
+"2026-10-06-l4-first-hypothesis-names-the-triggering-service"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"append test-plan-amendments.md:+12 at line 656 · lines 655→667 · bytes 111954→114282 · term lf",
+"last line now: **Ref:** .andromeda/runs/2026-10-07T06-47-12Z-wrap/"
+],
+"stderr": null,
+"wrote": [
+".andromeda/test-plan-amendments.md"
+],
+"before": {
+"lines": 655,
+"bytes": 111954,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 667,
+"bytes": 114282
+}
+}
+]

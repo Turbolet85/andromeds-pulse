@@ -25,7 +25,7 @@ L1 streaming distillation layer (chunk #60 scaffold; chunks #61+ fill the implem
   - `baseline/` — `BaselineState` + `ServiceBaseline` + `OperationBaseline` per-service streaming trackers (chunk #61); `ActivityFloor` 24h rolling histogram (chunk #64)
   - `pattern/` — `RestartDetector` (chunk #63), `RetryStormDetector` + `storm.rs` (chunk #66), `suppression.rs` (P-057 magnitude bypass — chunk #63)
   - `cue/` — `evaluate_thresholds` + `classify_priority` + `dual_condition_bypass` + emitter loop (chunk #62); `evaluate_service_went_silent` gate (chunk #64)
-  - `digest/` — the L3 digest assembler (`assembler.rs`: `render_payload` renders `payload_summary` — WINDOW / PROJECT / OVERALL, a `TRIGGER: {cue_cause_label}` line keyed on the first cue, SERVICES, ATTENTION CUES, and CORPUS MATCHES under a static "other or past incidents" framing note), corpus retrieval (`retrieval.rs`), the LWW queue, the generation damper and the digest broadcast
+  - `digest/` — the L3 digest assembler (`assembler.rs`: `render_payload` renders `payload_summary` — WINDOW / PROJECT / OVERALL, a `TRIGGER: {cue_cause_label}` line keyed on the first cue (the kind label only, never the `scope_id`), SERVICES, ATTENTION CUES, and CORPUS MATCHES under a static "other or past incidents" framing note), corpus retrieval (`retrieval.rs`), the LWW queue, the generation damper and the digest broadcast
   - `interpretation/` — empty skeleton (future chunks)
   - `incident/` — empty skeleton (future chunks)
   - `lifecycle/` — Service registry + 7-state FSM (chunk #67)

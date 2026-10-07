@@ -1,0 +1,76 @@
+[[pattern]]
+id = "lineage-v25"
+regex = 'v2\.5\b'
+
+[[pattern]]
+id = "lineage-v14"
+regex = 'v1\.4-(fallback|reflection|\*)'
+
+[[pattern]]
+id = "own-words"
+fixed = "own words"
+
+[[pattern]]
+id = "sep-first-hyp"
+fixed = "separate first hypothesis"
+
+[[pattern]]
+id = "first-hyp"
+fixed = "first hypothesis"
+ignore_case = true
+
+[[pattern]]
+id = "framing-const"
+fixed = "TRIGGER_FRAMING_INSTRUCTION"
+
+[[pattern]]
+id = "trigger-label"
+fixed = "cue_cause_label"
+
+[[pattern]]
+id = "max-7575"
+regex = '7[,.]?575'
+
+[[pattern]]
+id = "ratio-216"
+fixed = "2.16"
+
+[[pattern]]
+id = "observed-max"
+fixed = "observed maximum"
+
+[[pattern]]
+id = "headroom"
+regex = '8[,.]?809'
+
+[[pattern]]
+id = "unmeasured"
+fixed = "are unmeasured"
+
+[[pattern]]
+id = "pins-128"
+fixed = "128 pins"
+
+[[pattern]]
+id = "pins-61"
+fixed = "61 collected pins"
+
+[[pattern]]
+id = "arms"
+regex = '\bARMS\b'
+
+[[pattern]]
+id = "shapes"
+regex = 'S1[-–]S6'
+
+[[pattern]]
+id = "probe-trigger"
+fixed = "l4-decision-probe-arg-parse-unit-coverage"
+
+[[pattern]]
+id = "probe"
+regex = 'l4[_-]decision[_-]probe'
+
+[[pattern]]
+id = "prompt-bytes"
+regex = 'MAX_PROMPT_BYTES|16[,.]?384'

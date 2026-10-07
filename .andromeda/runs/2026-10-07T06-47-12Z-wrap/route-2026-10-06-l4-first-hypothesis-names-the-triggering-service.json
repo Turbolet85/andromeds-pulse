@@ -1,0 +1,141 @@
+[
+{
+"tool": "route",
+"v": "1.6",
+"sha8": "1f4f95b3",
+"ts": "2026-10-07T07:05:31Z",
+"argv": [
+"route.py",
+"flip",
+"--root",
+".",
+"--chunk",
+"2026-10-06-l4-first-hypothesis-names-the-triggering-service",
+"--run-dir",
+".andromeda/runs/2026-10-07T06-47-12Z-wrap",
+"--desc-file",
+".andromeda/runs/2026-10-07T06-47-12Z-wrap/master-desc.txt"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"flip master-route.md:102 - 2026-10-06-l4-first-hypothesis-names-the-triggering-service pending -> complete - desc REWRITTEN from --desc-file"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/master-route.md"
+],
+"before": null,
+"after": null
+},
+{
+"tool": "route",
+"v": "1.6",
+"sha8": "1f4f95b3",
+"ts": "2026-10-07T07:05:35Z",
+"argv": [
+"route.py",
+"compact",
+"--root",
+".",
+"--chunk",
+"2026-10-06-l4-first-hypothesis-names-the-triggering-service",
+"--date",
+"2026-10-07",
+"--run-dir",
+".andromeda/runs/2026-10-07T06-47-12Z-wrap",
+"--dry-run"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"pin :178 strip CONTEXT: 683ch \"CONTEXT: FOUNDER RULING 2026-10-06 ~22:5\"",
+"pin :178 strip CONTEXT: 833ch \"CONTEXT: Conductor's fourth pre-register\"",
+"pin :178 strip CONTEXT: 903ch \"CONTEXT: re-derived at Pulse `1124148` —\"",
+"pin :178 strip CONTEXT: 294ch \"CONTEXT: how the service gets named — on\"",
+"pin next markerless :180 holds CONTEXT:×2",
+"178 · 2026-10-06-l4-first-hypothesis-names-the-triggering-service · strip 4 block(s) · archive APPEND",
+"6 complete line(s) carry text the grammar cannot take -- left in place: L52, L54, L60, L100, L116, L125",
+"dry-run - would archive 1 and compact 1 line(s)"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"targets": [
+{
+"n": 178,
+"marker": "2026-10-06-l4-first-hypothesis-names-the-triggering-service",
+"blocks": 4,
+"archived": false
+}
+],
+"skips": [],
+"kept_notes": [
+52,
+54,
+60,
+100,
+116,
+125
+]
+}
+},
+{
+"tool": "route",
+"v": "1.6",
+"sha8": "1f4f95b3",
+"ts": "2026-10-07T07:05:40Z",
+"argv": [
+"route.py",
+"compact",
+"--root",
+".",
+"--chunk",
+"2026-10-06-l4-first-hypothesis-names-the-triggering-service",
+"--date",
+"2026-10-07",
+"--run-dir",
+".andromeda/runs/2026-10-07T06-47-12Z-wrap"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"pin :178 strip CONTEXT: 683ch \"CONTEXT: FOUNDER RULING 2026-10-06 ~22:5\"",
+"pin :178 strip CONTEXT: 833ch \"CONTEXT: Conductor's fourth pre-register\"",
+"pin :178 strip CONTEXT: 903ch \"CONTEXT: re-derived at Pulse `1124148` —\"",
+"pin :178 strip CONTEXT: 294ch \"CONTEXT: how the service gets named — on\"",
+"pin next markerless :180 holds CONTEXT:×2",
+"178 · 2026-10-06-l4-first-hypothesis-names-the-triggering-service · strip 4 block(s) · archive APPEND",
+"6 complete line(s) carry text the grammar cannot take -- left in place: L52, L54, L60, L100, L116, L125",
+"compacted 1 complete line(s) -> route-archive.md (1 archived, 0 already there)"
+],
+"stderr": null,
+"wrote": [
+"./andromeda-pulse-0.3.0/route-archive.md",
+"./andromeda-pulse-0.3.0/working-route.md"
+],
+"before": null,
+"after": null,
+"extra": {
+"targets": [
+{
+"n": 178,
+"marker": "2026-10-06-l4-first-hypothesis-names-the-triggering-service",
+"blocks": 4,
+"archived": false
+}
+],
+"skips": [],
+"kept_notes": [
+52,
+54,
+60,
+100,
+116,
+125
+]
+}
+}
+]
