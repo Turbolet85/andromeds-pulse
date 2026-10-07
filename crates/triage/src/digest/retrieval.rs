@@ -85,19 +85,27 @@ impl CorpusIncidentSource for NoopCorpusIncidentSource {
 /// The L4 producer instead writes the model-authored `L4Output.fingerprint`
 /// there, so in the current wiring the arm cannot fire and only `scope_match`
 /// does. The mismatch is the producer's; do not "simplify" this arm away.
+///
+/// `triggering_scope` is the `scope_id` of the digest's triggering cue, when it
+/// has one. It narrows the scope arm to that scope and only ever removes: a
+/// match scoped to another active service is dropped before the cap, and one
+/// the fingerprint arm keeps stays whatever its scope. A digest that listed
+/// another service's incidents led the L4 model to place the signal there
+/// (arch §Established Decisions [Fault Identity]). `None` keeps the matches
+/// of every active scope.
 pub fn select_corpus_matches(
     mut candidates: Vec<Incident>,
     current_fingerprints: &[String],
     current_scopes: &[String],
+    triggering_scope: Option<&str>,
     limit: usize,
 ) -> Vec<Incident> {
     candidates.retain(|c| {
         let fingerprint_match =
             !c.fingerprint.is_empty() && current_fingerprints.iter().any(|f| f == &c.fingerprint);
-        let scope_match = c
-            .scope_id
-            .as_deref()
-            .is_some_and(|s| current_scopes.iter().any(|cs| cs == s));
+        let scope_match = c.scope_id.as_deref().is_some_and(|s| {
+            current_scopes.iter().any(|cs| cs == s) && triggering_scope.is_none_or(|t| t == s)
+        });
         fingerprint_match || scope_match
     });
     candidates.sort_by_key(|c| std::cmp::Reverse(c.opened_at_unix_nano));
@@ -186,7 +194,7 @@ mod tests {
             incident(1, "fp-a", None, 100),
             incident(2, "fp-b", None, 200),
         ];
-        let selected = select_corpus_matches(candidates, &["fp-a".to_string()], &[], 5);
+        let selected = select_corpus_matches(candidates, &["fp-a".to_string()], &[], None, 5);
         assert_eq!(selected.len(), 1);
         assert_eq!(selected[0].id, 1);
     }
@@ -197,7 +205,7 @@ mod tests {
             incident(1, "fp-a", Some("svc-api"), 100),
             incident(2, "fp-b", Some("svc-db"), 200),
         ];
-        let selected = select_corpus_matches(candidates, &[], &["svc-api".to_string()], 5);
+        let selected = select_corpus_matches(candidates, &[], &["svc-api".to_string()], None, 5);
         assert_eq!(selected.len(), 1);
         assert_eq!(selected[0].id, 1);
     }
@@ -209,7 +217,7 @@ mod tests {
             incident(2, "fp-a", None, 300),
             incident(3, "fp-a", None, 200),
         ];
-        let selected = select_corpus_matches(candidates, &["fp-a".to_string()], &[], 2);
+        let selected = select_corpus_matches(candidates, &["fp-a".to_string()], &[], None, 2);
         assert_eq!(selected.len(), 2);
         assert_eq!(selected[0].id, 2, "newest first");
         assert_eq!(selected[1].id, 3);
@@ -218,8 +226,68 @@ mod tests {
     #[test]
     fn select_corpus_matches_empty_fingerprint_never_matches_empty_set_entry() {
         let candidates = vec![incident(1, "", None, 100)];
-        let selected = select_corpus_matches(candidates, &[String::new()], &[], 5);
+        let selected = select_corpus_matches(candidates, &[String::new()], &[], None, 5);
         assert!(selected.is_empty(), "empty fingerprints are not identity");
+    }
+
+    /// A sibling's newest incident, the triggering scope's own, an older
+    /// sibling's, and two the fingerprint arm keeps: one from a scope outside
+    /// the window, one the sibling's.
+    fn mixed_scope_candidates() -> Vec<Incident> {
+        vec![
+            incident(1, "fp-x", Some("svc-canary"), 500),
+            incident(2, "fp-y", Some("svc"), 400),
+            incident(3, "fp-z", Some("svc-canary"), 300),
+            incident(4, "fp-w", Some("svc-elsewhere"), 200),
+            incident(5, "fp-w", Some("svc-canary"), 100),
+        ]
+    }
+
+    fn mixed_selected(scopes: &[&str], triggering_scope: Option<&str>, limit: usize) -> Vec<i64> {
+        let scopes: Vec<String> = scopes.iter().map(|s| s.to_string()).collect();
+        select_corpus_matches(
+            mixed_scope_candidates(),
+            &["fp-w".to_string()],
+            &scopes,
+            triggering_scope,
+            limit,
+        )
+        .iter()
+        .map(|i| i.id)
+        .collect()
+    }
+
+    #[test]
+    fn select_corpus_matches_drops_other_scopes_matches_under_a_triggering_scope() {
+        assert_eq!(
+            mixed_selected(&["svc", "svc-canary"], Some("svc"), 5),
+            [2, 4, 5],
+            "the scope's own and both fingerprint matches, the sibling's among them"
+        );
+    }
+
+    #[test]
+    fn select_corpus_matches_keeps_every_active_scope_without_a_triggering_scope() {
+        assert_eq!(
+            mixed_selected(&["svc", "svc-canary"], None, 5),
+            [1, 2, 3, 4, 5]
+        );
+    }
+
+    #[test]
+    fn select_corpus_matches_narrows_before_the_cap_and_only_removes() {
+        assert_eq!(mixed_selected(&["svc", "svc-canary"], None, 2), [1, 2]);
+        assert_eq!(
+            mixed_selected(&["svc", "svc-canary"], Some("svc"), 2),
+            [2, 4],
+            "a match the cap cut behind the sibling's stands once the sibling's are dropped"
+        );
+        assert_eq!(mixed_selected(&["svc-canary"], None, 5), [1, 3, 4, 5]);
+        assert_eq!(
+            mixed_selected(&["svc-canary"], Some("svc"), 5),
+            [4, 5],
+            "a triggering scope that is no active scope adds no match"
+        );
     }
 
     #[test]

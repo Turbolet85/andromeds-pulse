@@ -274,10 +274,12 @@ impl DigestAssembler for Assembler {
 
             // CORPUS MATCHES (capability P-044): same-workspace, last-30-day
             // candidates matched on the window's Q3 fingerprints + Q1 service
-            // scopes; top-5 newest first. Each line is routed through the
-            // injected scrub closure at this egress boundary (chunk #88
-            // precedent) — `Digest::scrubbed_clone` deliberately skips
-            // `corpus_matches`, so this is the field's only scrub pass.
+            // scopes; top-5 newest first. Under a triggering cue that carries a
+            // scope_id the scope arm keeps that scope's incidents alone. Each
+            // line is routed through the injected scrub closure at this egress
+            // boundary (chunk #88 precedent) — `Digest::scrubbed_clone`
+            // deliberately skips `corpus_matches`, so this is the field's only
+            // scrub pass.
             let current_fingerprints: Vec<String> = q3
                 .as_deref()
                 .unwrap_or(&[])
@@ -300,6 +302,7 @@ impl DigestAssembler for Assembler {
                         candidates,
                         &current_fingerprints,
                         &current_scopes,
+                        triggering_cue.and_then(|c| c.scope_id.as_deref()),
                         DIGEST_CORPUS_RETRIEVAL_LIMIT,
                     );
                     tracing::info!(
@@ -955,6 +958,75 @@ mod tests {
             .expect("assemble succeeds");
         assert_eq!(digest.corpus_matches.len(), 1);
         assert!(digest.corpus_matches[0].contains("scoped incident"));
+    }
+
+    fn service_cue(scope_id: Option<&str>) -> AttentionCue {
+        AttentionCue {
+            kind: CueKind::RetryStorm,
+            scope: CueScope::Service,
+            scope_id: scope_id.map(str::to_string),
+            magnitude: 20.0,
+            absolute_value: 1.0,
+            persistence: 30,
+            confidence: 0.95,
+            priority_tier: PriorityTier::Autonomous,
+            suppression_bypassed: false,
+            fingerprint: None,
+        }
+    }
+
+    /// The titles of a digest's corpus lines over two services' incidents, a
+    /// sibling's newest: under the given triggering cue, Tier1.
+    async fn corpus_titles_under(cue: Option<&AttentionCue>) -> Vec<&'static str> {
+        const TITLES: [&str; 3] = ["sibling newest", "own earlier", "sibling oldest"];
+        let fp = "ffff0000ffff0000ffff0000ffff0000";
+        let assembler = make_assembler(
+            vec![q1_row("svc-api"), q1_row("svc-api-canary")],
+            vec![],
+            Arc::new(|s: &str| s.to_string()),
+            Arc::new(CannedCorpusSource {
+                candidates: vec![
+                    past_incident(1, fp, Some("svc-api-canary"), TITLES[0], NOW - 1_000),
+                    past_incident(2, fp, Some("svc-api"), TITLES[1], NOW - 2_000),
+                    past_incident(3, fp, Some("svc-api-canary"), TITLES[2], NOW - 3_000),
+                ],
+                fail: false,
+            }),
+        );
+        let digest = assembler
+            .assemble(
+                CadenceMode::Tier1,
+                cue,
+                &project_context(),
+                NOW,
+                Duration::from_secs(60),
+            )
+            .await
+            .expect("assemble succeeds");
+        digest
+            .corpus_matches
+            .iter()
+            .map(|line| {
+                TITLES
+                    .into_iter()
+                    .find(|title| line.contains(title))
+                    .expect("each line carries one of the three titles")
+            })
+            .collect()
+    }
+
+    #[tokio::test]
+    async fn assemble_drops_other_scopes_corpus_lines_under_a_cue_scope() {
+        let cue = service_cue(Some("svc-api"));
+        assert_eq!(corpus_titles_under(Some(&cue)).await, ["own earlier"]);
+    }
+
+    #[tokio::test]
+    async fn assemble_keeps_every_scopes_corpus_lines_without_a_cue_scope() {
+        let every_scope = ["sibling newest", "own earlier", "sibling oldest"];
+        assert_eq!(corpus_titles_under(None).await, every_scope);
+        let unscoped = service_cue(None);
+        assert_eq!(corpus_titles_under(Some(&unscoped)).await, every_scope);
     }
 
     #[tokio::test]

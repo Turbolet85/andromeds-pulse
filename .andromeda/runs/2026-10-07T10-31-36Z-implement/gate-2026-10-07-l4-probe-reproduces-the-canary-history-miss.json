@@ -1,0 +1,752 @@
+[
+{
+"tool": "gate",
+"v": "1.11",
+"sha8": "1e911c8f",
+"ts": "2026-10-07T10:43:54Z",
+"argv": [
+"run",
+"--plan",
+"andromeda-pulse-0.3.0/chunks/2026-10-07-l4-probe-reproduces-the-canary-history-miss/plan.md",
+"--run-dir",
+".andromeda/runs/2026-10-07T10-31-36Z-implement",
+"--marker",
+"2026-10-07-l4-probe-reproduces-the-canary-history-miss"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"shell /usr/bin/bash (from $SHELL; -c, non-login)",
+"root . · marker 2026-10-07-l4-probe-reproduces-the-canary-history-miss · entries 25",
+"logs $TMPDIR/andromeda-gate/2026-10-07-l4-probe-reproduces-the-canary-history-miss/implement-2026-10-07T10-31-36Z · bound: GNU timeout",
+"delta docs 39 · rust 1 · unmapped 7",
+"walk-class rust 2 (xtask/src/source_lint.rs, xtask/src/staged_gate.rs) · uncommitted 47",
+"prose L212-214: The chunk's own entries come first, then the standard gate set in test-plan §3 order: `cap… (304 chars)",
+"prose L216-219: The readings fire at two different points of the work (inputs#I10). Before the first readi… (433 chars)",
+"prose L221-229: Absences, each with its reason: - No `pulse-app/ui/**` path is touched, so the webview gat… (775 chars)",
+"prose L231-233: Each reading is two-armed by design. Exit 0 and exit 1 are both a completed, recorded verd… (336 chars)",
+"prose L235-239: The mutation checks of Steps 4, 7 and 9 edit source and revert, so each is a ONE-SHOT run … (535 chars)",
+"prose L241-243: The reproduction dry-run, the predecessor dry-run and the probe unit entry are written to … (328 chars)",
+"  1 lint        green · exit 0 · 0.58s · 0 B → 1.log · cargo fmt --check",
+"  2 lint        green · exit 0 · 1.75s · 158 B → 2.log · cargo clippy --workspace --all-targets --all-features -- -… (68 chars)",
+"  3 probe       green · exit 0 · 0.01s · 0 B → 3.log · git diff --name-only 48714f09c95eaa0a2461d9a5ee26c96591983… (366 chars)",
+"  4 unit        green · exit 0 · 11.37s · 58158 B → 4.log · cargo nextest run -p triage",
+"  5 unit        green · exit 0 · 3.55s · 28771 B → 5.log · cargo nextest run --workspace --profile ci -E 'binary(l4_d… (74 chars)",
+"  6 build       green · exit 0 · 1.72s · 158 B → 6.log · cargo build -p pulse-app --example l4_decision_probe",
+"  7 probe       green · exit 0 · 0.01s · 1167 B → 7.log · env -u ANDROMEDA_PULSE_HARDWARE_PROFILE -u ANDROMEDA_PULSE… (292 chars)",
+"  8 probe       red · exit 0 ✗ (exit 2) · exit 2 · 0.01s · 49 B → 8.log · env -u ANDROMEDA_PULSE_HARDWARE_PROFILE -u ANDROMEDA_PULSE… (316 chars)",
+"  9 probe       green · exit 0 · 0.01s · 2688 B → 9.log · env -u ANDROMEDA_PULSE_HARDWARE_PROFILE -u ANDROMEDA_PULSE… (281 chars)",
+" 10 lint        green · exit 0 · 0.42s · 100 B → 10.log · cargo xtask check:english-sources",
+" 11 probe       green · exit 0 · 0.3s · 394 B → 11.log · cargo xtask capability-widening-check",
+" 12 probe       green · exit 0 · 0.29s · 99 B → 12.log · cargo xtask check:ingest-progress",
+" 13 probe       green · exit 0 · 0.32s · 342 B → 13.log · cargo xtask check:staged-artifacts",
+" 14 probe       green · exit 0 · 0.32s · 714 B → 14.log · cargo xtask capability-drift",
+" 15 probe       green · exit 0 · 0.3s · 396 B → 15.log · cargo xtask verify:capability-matrix",
+" 16 unit        green · exit 0 · 15.39s · 655357 B → 16.log · cargo nextest run --workspace --profile ci",
+" 17 build       green · exit 0 · 1.11s · 531 B → 17.log · cargo nextest run -p pulse-app --features mcp-server --bin… (101 chars)",
+" 18 probe       green · exit 0 · 0.01s · 0 B → 18.log · git diff --quiet 48714f09c95eaa0a2461d9a5ee26c96591983bb0 … (95 chars)",
+" 19 probe       not run — leg operator (the letter drives it) · nvidia-smi --query-compute-apps=pid,process_name,used_memo… (82 chars)",
+" 20 e2e         not run — leg operator (the letter drives it) · O=\"target/l4-decision-probe/repro-$(date -u +%Y%m%dT%H%M%S… (450 chars)",
+" 21 probe       not run — leg operator (the letter drives it) · nvidia-smi --query-compute-apps=pid,process_name,used_memo… (102 chars)",
+" 22 e2e         not run — leg operator (the letter drives it) · O=\"target/l4-decision-probe/remedy-$(date -u +%Y%m%dT%H%M%… (450 chars)",
+" 23 probe       not run — leg operator (the letter drives it) · python -X utf8 ~/.claude/skills/andromeda-tools/scripts/ga… (71 chars)",
+" 24 probe       not run — leg operator (the letter drives it) · git diff --quiet && git diff --cached --quiet && git push … (90 chars)",
+" 25 probe       not run — leg operator (the letter drives it) · python -X utf8 ~/.claude/skills/andromeda-tools/scripts/ci… (95 chars)",
+"entries 25 · green 17 · red 1 (8) · recorded 0 · timeout 0 · not-run 7"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"marker": "2026-10-07-l4-probe-reproduces-the-canary-history-miss",
+"plan": "/home/turbolet/dev/projects/andromeda-pulse/andromeda-pulse-0.3.0/chunks/2026-10-07-l4-probe-reproduces-the-canary-history-miss/plan.md",
+"root": "/home/turbolet/dev/projects/andromeda-pulse",
+"shell": "/usr/bin/bash",
+"out_dir": "/tmp/andromeda-gate/2026-10-07-l4-probe-reproduces-the-canary-history-miss/implement-2026-10-07T10-31-36Z",
+"delta": {
+"docs": [
+".andromeda/friction-log.ndjson",
+".andromeda/master-route.md",
+".claude/session-handoff.md",
+"andromeda-pulse-0.3.0/working-route.md",
+".andromeda/runs/2026-10-07T10-00-52Z-phase/a11y-contracts.md",
+".andromeda/runs/2026-10-07T10-00-52Z-phase/a11y.md",
+".andromeda/runs/2026-10-07T10-00-52Z-phase/arch-contracts.md",
+".andromeda/runs/2026-10-07T10-00-52Z-phase/arch-history.md",
+".andromeda/runs/2026-10-07T10-00-52Z-phase/arch.md",
+".andromeda/runs/2026-10-07T10-00-52Z-phase/ci-no-marker.json",
+".andromeda/runs/2026-10-07T10-00-52Z-phase/design.md",
+".andromeda/runs/2026-10-07T10-00-52Z-phase/evolve-2026-10-07-l4-probe-reproduces-the-canary-history-miss.json",
+".andromeda/runs/2026-10-07T10-00-52Z-phase/gate-2026-10-07-l4-probe-reproduces-the-canary-history-miss.json",
+".andromeda/runs/2026-10-07T10-00-52Z-phase/inputs-2026-10-07-l4-probe-reproduces-the-canary-history-miss.json",
+".andromeda/runs/2026-10-07T10-00-52Z-phase/layouts.md",
+".andromeda/runs/2026-10-07T10-00-52Z-phase/master-record.txt",
+".andromeda/runs/2026-10-07T10-00-52Z-phase/matrix-2026-10-07-l4-probe-reproduces-the-canary-history-miss.json",
+".andromeda/runs/2026-10-07T10-00-52Z-phase/obs-contracts.md",
+".andromeda/runs/2026-10-07T10-00-52Z-phase/obs-history.md",
+".andromeda/runs/2026-10-07T10-00-52Z-phase/obs.md",
+".andromeda/runs/2026-10-07T10-00-52Z-phase/planlint-2026-10-07-l4-probe-reproduces-the-canary-history-miss.json",
+".andromeda/runs/2026-10-07T10-00-52Z-phase/registry-2026-10-07-l4-probe-reproduces-the-canary-history-miss.json",
+".andromeda/runs/2026-10-07T10-00-52Z-phase/relay-1.md",
+".andromeda/runs/2026-10-07T10-00-52Z-phase/relay-2.md",
+".andromeda/runs/2026-10-07T10-00-52Z-phase/relay-3.md",
+".andromeda/runs/2026-10-07T10-00-52Z-phase/route-2026-10-07-l4-probe-reproduces-the-canary-history-miss.json",
+".andromeda/runs/2026-10-07T10-00-52Z-phase/route-no-marker.json",
+".andromeda/runs/2026-10-07T10-00-52Z-phase/security-history.md",
+".andromeda/runs/2026-10-07T10-00-52Z-phase/security.md",
+".andromeda/runs/2026-10-07T10-00-52Z-phase/sidecar-2026-10-07-l4-probe-reproduces-the-canary-history-miss.json",
+".andromeda/runs/2026-10-07T10-00-52Z-phase/tests-contracts.md",
+".andromeda/runs/2026-10-07T10-00-52Z-phase/tests-history.md",
+".andromeda/runs/2026-10-07T10-00-52Z-phase/tests.md",
+".andromeda/runs/2026-10-07T10-00-52Z-phase/tree-query-2026-10-07-l4-probe-reproduces-the-canary-history-miss.json",
+"andromeda-pulse-0.3.0/chunks/2026-10-07-l4-probe-reproduces-the-canary-history-miss/evidence/mutation-checks.md",
+"andromeda-pulse-0.3.0/chunks/2026-10-07-l4-probe-reproduces-the-canary-history-miss/evidence/preregistration-reproduction.md",
+"andromeda-pulse-0.3.0/chunks/2026-10-07-l4-probe-reproduces-the-canary-history-miss/plan.md",
+"andromeda-pulse-0.3.0/chunks/2026-10-07-l4-probe-reproduces-the-canary-history-miss/research.md",
+"andromeda-pulse-0.3.0/chunks/2026-10-07-l4-probe-reproduces-the-canary-history-miss/scope.md"
+],
+"rust": [
+"pulse-app/examples/l4_decision_probe.rs"
+]
+},
+"unmapped": [
+"andromeda-pulse-0.3.0/chunks/2026-10-07-l4-probe-reproduces-the-canary-history-miss/inputs/.gitattributes",
+"andromeda-pulse-0.3.0/chunks/2026-10-07-l4-probe-reproduces-the-canary-history-miss/inputs/I1-pulse-wrap-0pending-2026-10-07.md.txt",
+"andromeda-pulse-0.3.0/chunks/2026-10-07-l4-probe-reproduces-the-canary-history-miss/inputs/I10-relay-2.md.txt",
+"andromeda-pulse-0.3.0/chunks/2026-10-07-l4-probe-reproduces-the-canary-history-miss/inputs/I11-relay-3.md.txt",
+"andromeda-pulse-0.3.0/chunks/2026-10-07-l4-probe-reproduces-the-canary-history-miss/inputs/I8-relay-1.md.txt",
+"andromeda-pulse-0.3.0/chunks/2026-10-07-l4-probe-reproduces-the-canary-history-miss/inputs/I9-l4-env.sh.txt",
+"andromeda-pulse-0.3.0/chunks/2026-10-07-l4-probe-reproduces-the-canary-history-miss/inputs/andromeda-inputs.json"
+],
+"walk_class": {
+"marked": {
+"rust": [
+"xtask/src/source_lint.rs",
+"xtask/src/staged_gate.rs"
+]
+},
+"uncommitted": 47,
+"problem": null
+},
+"prose": [
+{
+"from": 212,
+"to": 214,
+"text": "The chunk's own entries come first, then the standard gate set in test-plan §3 order: `capability-drift` before the default-features workspace nextest, the `--features mcp-server` regen and the base-identity bindings close last, since no procedure is added. The two readings and the operator pass follow."
+},
+{
+"from": 216,
+"to": 219,
+"text": "The readings fire at two different points of the work (inputs#I10). Before the first reading every non-leg entry is green except the candidate dry-run entry, which reads red, its baseline, until Step 7 builds the arms. Before the remedy reading, and again on the final tree, every non-leg entry is green. A stop after the first reading leaves that one entry red and the chunk pending; the plan is then revised on the operator's word."
+},
+{
+"from": 221,
+"to": 229,
+"text": "Absences, each with its reason: - No `pulse-app/ui/**` path is touched, so the webview gates are absent and there is no headful self-verify. - No boot path is touched, so no boot-smoke entry is listed. The readings boot no app: the probe spawns `llama-cli`   itself, binds no port and opens no corpus (research.md; scope.md §Boundaries). - No local pre-push gate: `cargo xtask pre-push:linux` cannot run on this host; CI's `lint-test` job is the gate the   push meets. - No liveness probe keyed `round` precedes a reading: it drives no external process. Each reading's precondition is the   operator's slot entry before it, no `llama-cli` resident on the GPU. - No L4 latency grade: the probe emits no `metric.pipeline.l4.*` record, so that arm reads \"not graded: no sample\"."
+},
+{
+"from": 231,
+"to": 233,
+"text": "Each reading is two-armed by design. Exit 0 and exit 1 are both a completed, recorded verdict; exit 2 measured nothing. A reading's entry therefore asserts that the run completed and printed its verdict line, never an exit, and the verdict word is carried into the report's Outcome. NOT REPRODUCED and NONE are never reported as passed."
+},
+{
+"from": 235,
+"to": 239,
+"text": "The mutation checks of Steps 4, 7 and 9 edit source and revert, so each is a ONE-SHOT run at implement, both readings in `evidence/mutation-checks.md`; the triage and probe unit entries guard the same properties on every re-run. The instruments this chunk builds, the reproduction rule and the remedy rule with its n sizing, meet their known-verdict controls before their one graded use: the Step 4 and Step 7 pins feed synthetic counts for each outcome through them in the probe unit entry, which precedes the reading each one grades."
+},
+{
+"from": 241,
+"to": 243,
+"text": "The reproduction dry-run, the predecessor dry-run and the probe unit entry are written to be green from Step 4 on and after Step 9, and the scope guard names the chunk base. Evidence files are written by /implement from the entries' recorded outputs; each series' own files land under the gitignored `target/l4-decision-probe/`."
+}
+],
+"entries": [
+{
+"n": 1,
+"role": "lint",
+"run": "cargo fmt --check",
+"run_sha8": "194fabc0",
+"expect": null,
+"log": "/tmp/andromeda-gate/2026-10-07-l4-probe-reproduces-the-canary-history-miss/implement-2026-10-07T10-31-36Z/1.log",
+"bytes": 0,
+"log_sha8": "e3b0c442",
+"exit": 0,
+"seconds": 0.58,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 2,
+"role": "lint",
+"run": "cargo clippy --workspace --all-targets --all-features -- -D warnings",
+"run_sha8": "f835224c",
+"expect": null,
+"log": "/tmp/andromeda-gate/2026-10-07-l4-probe-reproduces-the-canary-history-miss/implement-2026-10-07T10-31-36Z/2.log",
+"bytes": 158,
+"log_sha8": "553bd3a5",
+"exit": 0,
+"seconds": 1.75,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 3,
+"role": "probe",
+"run": "git diff --name-only 48714f09c95eaa0a2461d9a5ee26c96591983bb0 -- crates pulse-app xtask scripts docs Cargo.toml Cargo.lock deny.toml rust-toolchain.toml .github .cargo ':!pulse-app/examples/l4_decision_probe.rs' ':!crates/triage/src/digest/retrieval.rs' ':!crates/triage/src/digest/assembler.rs' ':!crates/triage/src/digest/mod.rs' ':!crates/triage/src/contract.rs' ",
+"run_sha8": "e5599d28",
+"expect": [
+"exit 0",
+"no output"
+],
+"log": "/tmp/andromeda-gate/2026-10-07-l4-probe-reproduces-the-canary-history-miss/implement-2026-10-07T10-31-36Z/3.log",
+"bytes": 0,
+"log_sha8": "e3b0c442",
+"exit": 0,
+"seconds": 0.01,
+"readings": [
+"exit 0 ✓",
+"no output ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 4,
+"role": "unit",
+"run": "cargo nextest run -p triage",
+"run_sha8": "a8ed6ebc",
+"expect": null,
+"log": "/tmp/andromeda-gate/2026-10-07-l4-probe-reproduces-the-canary-history-miss/implement-2026-10-07T10-31-36Z/4.log",
+"bytes": 58158,
+"log_sha8": "b903fbd6",
+"exit": 0,
+"seconds": 11.37,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 5,
+"role": "unit",
+"run": "cargo nextest run --workspace --profile ci -E 'binary(l4_decision_probe)' ",
+"run_sha8": "49d5e0e1",
+"expect": null,
+"log": "/tmp/andromeda-gate/2026-10-07-l4-probe-reproduces-the-canary-history-miss/implement-2026-10-07T10-31-36Z/5.log",
+"bytes": 28771,
+"log_sha8": "126d6bd6",
+"exit": 0,
+"seconds": 3.55,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 6,
+"role": "build",
+"run": "cargo build -p pulse-app --example l4_decision_probe",
+"run_sha8": "dea73960",
+"expect": null,
+"log": "/tmp/andromeda-gate/2026-10-07-l4-probe-reproduces-the-canary-history-miss/implement-2026-10-07T10-31-36Z/6.log",
+"bytes": 158,
+"log_sha8": "140555d6",
+"exit": 0,
+"seconds": 1.72,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 7,
+"role": "probe",
+"run": "env -u ANDROMEDA_PULSE_HARDWARE_PROFILE -u ANDROMEDA_PULSE_LLAMA_CUDA_BIN_PATH -u ANDROMEDA_PULSE_LLAMA_CPU_BIN_PATH -u ANDROMEDA_PULSE_MODEL_PATH -u ANDROMEDA_PULSE_L4_ALLOW_ROOT ./target/debug/examples/l4_decision_probe --arms shipped --shapes S7,S8,S9,S10,S11,S12,S13,S14,S15,S16 --dry-run",
+"run_sha8": "a3a42b52",
+"expect": [
+"exit 0",
+"contains dry-run: arm shipped S9",
+"contains dry-run: arm shipped S16",
+"lacks INCONCLUSIVE"
+],
+"log": "/tmp/andromeda-gate/2026-10-07-l4-probe-reproduces-the-canary-history-miss/implement-2026-10-07T10-31-36Z/7.log",
+"bytes": 1167,
+"log_sha8": "23948750",
+"exit": 0,
+"seconds": 0.01,
+"readings": [
+"exit 0 ✓",
+"contains 'dry-run: arm shipped S9' ✓",
+"contains 'dry-run: arm shipped S16' ✓",
+"lacks 'INCONCLUSIVE' ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 8,
+"role": "probe",
+"run": "env -u ANDROMEDA_PULSE_HARDWARE_PROFILE -u ANDROMEDA_PULSE_LLAMA_CUDA_BIN_PATH -u ANDROMEDA_PULSE_LLAMA_CPU_BIN_PATH -u ANDROMEDA_PULSE_MODEL_PATH -u ANDROMEDA_PULSE_L4_ALLOW_ROOT ./target/debug/examples/l4_decision_probe --arms shipped,CR,CO,CC,CX --shapes S1,S2,S3,S4,S7,S8,S9,S10,S11,S12,S13,S14,S15,S16 --dry-run",
+"run_sha8": "e7772b0f",
+"expect": [
+"exit 0",
+"contains dry-run: arm CR S16",
+"contains dry-run: arm CX S1",
+"lacks INCONCLUSIVE"
+],
+"log": "/tmp/andromeda-gate/2026-10-07-l4-probe-reproduces-the-canary-history-miss/implement-2026-10-07T10-31-36Z/8.log",
+"bytes": 49,
+"log_sha8": "34d222f5",
+"exit": 2,
+"seconds": 0.01,
+"readings": [
+"exit 0 ✗ (exit 2)",
+"contains 'dry-run: arm CR S16' ✗",
+"contains 'dry-run: arm CX S1' ✗",
+"lacks 'INCONCLUSIVE' ✗"
+],
+"survivors": [],
+"outcome": "red · exit 0 ✗ (exit 2)"
+},
+{
+"n": 9,
+"role": "probe",
+"run": "env -u ANDROMEDA_PULSE_HARDWARE_PROFILE -u ANDROMEDA_PULSE_LLAMA_CUDA_BIN_PATH -u ANDROMEDA_PULSE_LLAMA_CPU_BIN_PATH -u ANDROMEDA_PULSE_MODEL_PATH -u ANDROMEDA_PULSE_L4_ALLOW_ROOT ./target/debug/examples/l4_decision_probe --arms shipped,ns,L,LI --shapes S1,S2,S3,S4,S7,S8 --dry-run",
+"run_sha8": "68a83b05",
+"expect": [
+"exit 0",
+"contains dry-run: arm shipped S1",
+"contains dry-run: arm LI S8",
+"lacks INCONCLUSIVE"
+],
+"log": "/tmp/andromeda-gate/2026-10-07-l4-probe-reproduces-the-canary-history-miss/implement-2026-10-07T10-31-36Z/9.log",
+"bytes": 2688,
+"log_sha8": "35c79642",
+"exit": 0,
+"seconds": 0.01,
+"readings": [
+"exit 0 ✓",
+"contains 'dry-run: arm shipped S1' ✓",
+"contains 'dry-run: arm LI S8' ✓",
+"lacks 'INCONCLUSIVE' ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 10,
+"role": "lint",
+"run": "cargo xtask check:english-sources",
+"run_sha8": "d29f47c5",
+"expect": [
+"exit 0",
+"contains \"verdict\": \"clean\""
+],
+"log": "/tmp/andromeda-gate/2026-10-07-l4-probe-reproduces-the-canary-history-miss/implement-2026-10-07T10-31-36Z/10.log",
+"bytes": 100,
+"log_sha8": "4c25a869",
+"exit": 0,
+"seconds": 0.42,
+"readings": [
+"exit 0 ✓",
+"contains '\"verdict\": \"clean\"' ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 11,
+"role": "probe",
+"run": "cargo xtask capability-widening-check",
+"run_sha8": "c09451af",
+"expect": null,
+"log": "/tmp/andromeda-gate/2026-10-07-l4-probe-reproduces-the-canary-history-miss/implement-2026-10-07T10-31-36Z/11.log",
+"bytes": 394,
+"log_sha8": "31d4c993",
+"exit": 0,
+"seconds": 0.3,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 12,
+"role": "probe",
+"run": "cargo xtask check:ingest-progress",
+"run_sha8": "123ffa0a",
+"expect": null,
+"log": "/tmp/andromeda-gate/2026-10-07-l4-probe-reproduces-the-canary-history-miss/implement-2026-10-07T10-31-36Z/12.log",
+"bytes": 99,
+"log_sha8": "09869944",
+"exit": 0,
+"seconds": 0.29,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 13,
+"role": "probe",
+"run": "cargo xtask check:staged-artifacts",
+"run_sha8": "052b4e95",
+"expect": null,
+"log": "/tmp/andromeda-gate/2026-10-07-l4-probe-reproduces-the-canary-history-miss/implement-2026-10-07T10-31-36Z/13.log",
+"bytes": 342,
+"log_sha8": "c94d39e4",
+"exit": 0,
+"seconds": 0.32,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 14,
+"role": "probe",
+"run": "cargo xtask capability-drift",
+"run_sha8": "fb5fd088",
+"expect": null,
+"log": "/tmp/andromeda-gate/2026-10-07-l4-probe-reproduces-the-canary-history-miss/implement-2026-10-07T10-31-36Z/14.log",
+"bytes": 714,
+"log_sha8": "cae2b8a7",
+"exit": 0,
+"seconds": 0.32,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 15,
+"role": "probe",
+"run": "cargo xtask verify:capability-matrix",
+"run_sha8": "31c12e31",
+"expect": null,
+"log": "/tmp/andromeda-gate/2026-10-07-l4-probe-reproduces-the-canary-history-miss/implement-2026-10-07T10-31-36Z/15.log",
+"bytes": 396,
+"log_sha8": "04444c1c",
+"exit": 0,
+"seconds": 0.3,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 16,
+"role": "unit",
+"run": "cargo nextest run --workspace --profile ci",
+"run_sha8": "bf6e813a",
+"expect": null,
+"log": "/tmp/andromeda-gate/2026-10-07-l4-probe-reproduces-the-canary-history-miss/implement-2026-10-07T10-31-36Z/16.log",
+"bytes": 655357,
+"log_sha8": "6a5fb2df",
+"exit": 0,
+"seconds": 15.39,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 17,
+"role": "build",
+"run": "cargo nextest run -p pulse-app --features mcp-server --bin pulse-app -E 'test(emit_taurpc_bindings)' ",
+"run_sha8": "3733d1a6",
+"expect": null,
+"log": "/tmp/andromeda-gate/2026-10-07-l4-probe-reproduces-the-canary-history-miss/implement-2026-10-07T10-31-36Z/17.log",
+"bytes": 531,
+"log_sha8": "53af4fea",
+"exit": 0,
+"seconds": 1.11,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 18,
+"role": "probe",
+"run": "git diff --quiet 48714f09c95eaa0a2461d9a5ee26c96591983bb0 -- pulse-app/ui/src/bindings/index.ts",
+"run_sha8": "4e585aca",
+"expect": null,
+"log": "/tmp/andromeda-gate/2026-10-07-l4-probe-reproduces-the-canary-history-miss/implement-2026-10-07T10-31-36Z/18.log",
+"bytes": 0,
+"log_sha8": "e3b0c442",
+"exit": 0,
+"seconds": 0.01,
+"readings": [
+"exit 0 ✓"
+],
+"survivors": [],
+"outcome": "green"
+},
+{
+"n": 19,
+"role": "probe",
+"run": "nvidia-smi --query-compute-apps=pid,process_name,used_memory --format=csv,noheader",
+"run_sha8": "985550cf",
+"expect": [
+"exit 0",
+"lacks llama"
+],
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — leg operator (the letter drives it)"
+},
+{
+"n": 20,
+"role": "e2e",
+"run": "O=\"target/l4-decision-probe/repro-$(date -u +%Y%m%dT%H%M%SZ)\" && echo \"series out $O\" && unset ANDROMEDA_PULSE_HARDWARE_PROFILE ANDROMEDA_PULSE_L4_ALLOW_ROOT ANDROMEDA_PULSE_L4_DETERMINISTIC && . \"$HOME/dev/projects/additional/pc-overseer/l4-env.sh\" && cargo build -p pulse-app --example l4_decision_probe && ./target/debug/examples/l4_decision_probe --arms shipped --shapes S7,S8,S9,S10,S11,S12,S13,S14,S15,S16 --n 20 --reproduce-misses 2 --out \"$O\"",
+"run_sha8": "51cdf552",
+"expect": [
+"contains l4-decision-probe: binary llama-cli (cuda, -ngl 99) · model gemma-4-E4B-it-Q4_K_M.gguf",
+"contains arm shipped: reproduce S16",
+"contains l4-decision-probe: reproduction verdict:",
+"lacks INCONCLUSIVE"
+],
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — leg operator (the letter drives it)"
+},
+{
+"n": 21,
+"role": "probe",
+"run": "nvidia-smi --query-compute-apps=pid,process_name,used_memory --format=csv,noheader && echo second-slot",
+"run_sha8": "9ee54432",
+"expect": [
+"exit 0",
+"contains second-slot",
+"lacks llama"
+],
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — leg operator (the letter drives it)"
+},
+{
+"n": 22,
+"role": "e2e",
+"run": "O=\"target/l4-decision-probe/remedy-$(date -u +%Y%m%dT%H%M%SZ)\" && echo \"series out $O\" && unset ANDROMEDA_PULSE_HARDWARE_PROFILE ANDROMEDA_PULSE_L4_ALLOW_ROOT ANDROMEDA_PULSE_L4_DETERMINISTIC && . \"$HOME/dev/projects/additional/pc-overseer/l4-env.sh\" && cargo build -p pulse-app --example l4_decision_probe && ./target/debug/examples/l4_decision_probe --arms shipped,CR,CO,CC,CX --remedy-from <id> --n 20 --bar-sibling 38 --bar-ordinary 72 --out \"$O\"",
+"run_sha8": "37b26bdc",
+"expect": [
+"contains l4-decision-probe: binary llama-cli (cuda, -ngl 99) · model gemma-4-E4B-it-Q4_K_M.gguf",
+"contains l4-decision-probe: remedy shapes:",
+"contains l4-decision-probe: known-positive:",
+"contains l4-decision-probe: remedy verdict:",
+"lacks INCONCLUSIVE"
+],
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — leg operator (the letter drives it)"
+},
+{
+"n": 23,
+"role": "probe",
+"run": "python -X utf8 /home/turbolet/.claude/skills/andromeda-tools/scripts/gate.py hygiene",
+"run_sha8": "c6e5fd28",
+"expect": [
+"exit 0",
+"contains hygiene: clean"
+],
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — leg operator (the letter drives it)"
+},
+{
+"n": 24,
+"role": "probe",
+"run": "git diff --quiet && git diff --cached --quiet && git push origin chore/migrate-pulse-to-v3",
+"run_sha8": "adb66f19",
+"expect": null,
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — leg operator (the letter drives it)"
+},
+{
+"n": 25,
+"role": "probe",
+"run": "python -X utf8 /home/turbolet/.claude/skills/andromeda-tools/scripts/ci.py conclusion --sha HEAD --wait 2700",
+"run_sha8": "c9e64cce",
+"expect": [
+"exit 0",
+"contains verdict: green"
+],
+"log": null,
+"bytes": null,
+"log_sha8": null,
+"exit": null,
+"seconds": null,
+"readings": [],
+"survivors": null,
+"outcome": "not run — leg operator (the letter drives it)"
+}
+]
+}
+},
+{
+"tool": "gate",
+"v": "1.11",
+"sha8": "1e911c8f",
+"ts": "2026-10-07T10:44:20Z",
+"argv": [
+"show",
+"--run-dir",
+".andromeda/runs/2026-10-07T10-31-36Z-implement",
+"--marker",
+"2026-10-07-l4-probe-reproduces-the-canary-history-miss",
+"--n",
+"5",
+"--tail",
+"4"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"5 unit green",
+"run (49d5e0e1): cargo nextest run --workspace --profile ci -E 'binary(l4_decision_probe)' ",
+"  exit 0 ✓",
+"log $TMPDIR/andromeda-gate/2026-10-07-l4-probe-reproduces-the-canary-history-miss/implement-2026-10-07T10-31-36Z/5.log · 28771 B · 126d6bd6",
+"--- no anchored failure; last 4 non-empty lines ---",
+"        PASS [   0.007s] (102/105) pulse-app::example/l4_decision_probe tests::vm_hwm_parser_reads_none_without_the_line",
+"        PASS [   0.010s] (103/105) pulse-app::example/l4_decision_probe tests::the_shipped_arm_carries_the_scope_sentence_once_and_the_baselines_do_not",
+"        PASS [   0.044s] (104/105) pulse-app::example/l4_decision_probe tests::candidate_arms_carry_their_text_exactly_once_within_the_bound",
+"        PASS [   0.070s] (105/105) pulse-app::example/l4_decision_probe tests::every_arm_and_shape_composes_within_the_production_bound"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "gate",
+"v": "1.11",
+"sha8": "1e911c8f",
+"ts": "2026-10-07T10:44:20Z",
+"argv": [
+"show",
+"--run-dir",
+".andromeda/runs/2026-10-07T10-31-36Z-implement",
+"--marker",
+"2026-10-07-l4-probe-reproduces-the-canary-history-miss",
+"--n",
+"16",
+"--tail",
+"4"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"16 unit green",
+"run (bf6e813a): cargo nextest run --workspace --profile ci",
+"  exit 0 ✓",
+"log $TMPDIR/andromeda-gate/2026-10-07-l4-probe-reproduces-the-canary-history-miss/implement-2026-10-07T10-31-36Z/16.log · 655357 B · 6a5fb2df",
+"--- no anchored failure; last 4 non-empty lines ---",
+"        PASS [   1.045s] (2739/2742) triage digest::assembler::tests::assemble_populates_corpus_matches_from_fingerprint_match",
+"        PASS [   1.053s] (2740/2742) triage digest::assembler::tests::assemble_with_noop_source_yields_empty_matches",
+"        PASS [   1.074s] (2741/2742) triage digest::assembler::tests::assemble_routes_corpus_match_lines_through_scrub_closure",
+"        PASS [  12.769s] (2742/2742) pulse-app::perf_slo_10k_spans perf_slo_sustained_10k_spans_per_sec_ingest_throughput_holds"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "gate",
+"v": "1.11",
+"sha8": "1e911c8f",
+"ts": "2026-10-07T11:08:22Z",
+"argv": [
+"scope",
+"--chunk-dir",
+"andromeda-pulse-0.3.0/chunks/2026-10-07-l4-probe-reproduces-the-canary-history-miss",
+"--run-dir",
+".andromeda/runs/2026-10-07T10-31-36Z-implement",
+"--marker",
+"2026-10-07-l4-probe-reproduces-the-canary-history-miss"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"root . · base HEAD (no pre-CI commit) · lists new 0 · modify 5 · derived 0 · record 0",
+"control: lists · glob · record — each fired on its synthetic known positive; C1 · C2 held",
+"scope-record.md: absent — every out-of-list file reads unrecorded",
+"scope: clean — changed 1 · listed 1 · recorded 0 (companion 0 · mechanical 0 · in-intent 0 · widening 0) · absorbed 0 · excluded 51"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"root": "/home/turbolet/dev/projects/andromeda-pulse",
+"base": "HEAD",
+"base_why": "no pre-CI commit",
+"counts": {
+"changed": 1,
+"listed": 1,
+"recorded": 0,
+"unrecorded": 0,
+"indet": 0,
+"absorbed": 0
+},
+"by_class": {
+"companion": 0,
+"mechanical": 0,
+"in-intent": 0,
+"widening": 0
+},
+"excluded": 51,
+"unparsed": 0,
+"widening_without_word": 0
+}
+}
+]

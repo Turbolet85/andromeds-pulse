@@ -1,0 +1,1 @@
+2026-10-07-l4-probe-reproduces-the-canary-history-miss · pending · the L4 probe gains a known-positive for the canary-history miss (the shipped prompt fails the service bar on a corpus-block shape), then a remedy is measured against it · → andromeda-pulse-0.3.0/chunks/2026-10-07-l4-probe-reproduces-the-canary-history-miss/

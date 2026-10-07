@@ -1,0 +1,568 @@
+[
+{
+"sql": "SELECT callee_name, caller_name, file, line FROM calls WHERE callee_name IN ('select_corpus_matches','render_payload','format_corpus_match_line','build_primary_tier_prompt','build_fallback_tier_prompt','build_reflection_tier_prompt','load_candidates') AND callee_kind = 'fn' AND file NOT LIKE '%l4_decision_probe%' ORDER BY callee_name, file, line",
+"rows": 93,
+"result": [
+{
+"callee_name": "build_fallback_tier_prompt",
+"caller_name": "framing_instruction_present_in_every_tier_output_instructions",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 593
+},
+{
+"callee_name": "build_fallback_tier_prompt",
+"caller_name": "every_tier_obliges_the_first_hypothesis_to_name_the_trigger_signal",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 622
+},
+{
+"callee_name": "build_fallback_tier_prompt",
+"caller_name": "every_tier_obliges_the_first_hypothesis_to_name_the_cue_scope",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 647
+},
+{
+"callee_name": "build_fallback_tier_prompt",
+"caller_name": "fallback_prompt_embeds_schema_string",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 707
+},
+{
+"callee_name": "build_fallback_tier_prompt",
+"caller_name": "fallback_prompt_embeds_reduced_role_definition",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 713
+},
+{
+"callee_name": "build_fallback_tier_prompt",
+"caller_name": "fallback_prompt_embeds_conventions_snippet",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 722
+},
+{
+"callee_name": "build_fallback_tier_prompt",
+"caller_name": "fallback_prompt_emits_reduced_output_reminder",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 735
+},
+{
+"callee_name": "build_fallback_tier_prompt",
+"caller_name": "fallback_prompt_wraps_digest_in_markers",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 745
+},
+{
+"callee_name": "build_fallback_tier_prompt",
+"caller_name": "fallback_prompt_wraps_project_context_in_markers",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 761
+},
+{
+"callee_name": "build_fallback_tier_prompt",
+"caller_name": "fallback_prompt_omits_corpus_section_when_empty",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 769
+},
+{
+"callee_name": "build_fallback_tier_prompt",
+"caller_name": "fallback_prompt_includes_corpus_section_when_present",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 778
+},
+{
+"callee_name": "build_fallback_tier_prompt",
+"caller_name": "fallback_prompt_embeds_versioning_metadata",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 787
+},
+{
+"callee_name": "build_fallback_tier_prompt",
+"caller_name": "fallback_prompt_section_ordering_is_stable",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 803
+},
+{
+"callee_name": "build_fallback_tier_prompt",
+"caller_name": "fallback_prompt_total_bytes_bounded",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 842
+},
+{
+"callee_name": "build_fallback_tier_prompt",
+"caller_name": "fallback_prompt_does_not_leak_internal_field_names_outside_schema",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 855
+},
+{
+"callee_name": "build_fallback_tier_prompt",
+"caller_name": "composed_prompt_templates_are_ascii_clean_for_argv_transport",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 926
+},
+{
+"callee_name": "build_fallback_tier_prompt",
+"caller_name": "citable_section_renders_ids_verbatim_between_markers_in_all_tiers",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 996
+},
+{
+"callee_name": "build_fallback_tier_prompt",
+"caller_name": "citable_section_empty_list_renders_explicit_none_instruction",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 1030
+},
+{
+"callee_name": "build_fallback_tier_prompt",
+"caller_name": "citing_instruction_present_in_every_tier_output_instructions",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 1042
+},
+{
+"callee_name": "build_fallback_tier_prompt",
+"caller_name": "inference_runtime",
+"file": "pulse-app/src/inference_runtime.rs",
+"line": 30
+},
+{
+"callee_name": "build_fallback_tier_prompt",
+"caller_name": "handle_digest_outcome",
+"file": "pulse-app/src/inference_runtime.rs",
+"line": 428
+},
+{
+"callee_name": "build_primary_tier_prompt",
+"caller_name": "primary_prompt_embeds_schema_string",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 473
+},
+{
+"callee_name": "build_primary_tier_prompt",
+"caller_name": "primary_prompt_embeds_role_definition",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 479
+},
+{
+"callee_name": "build_primary_tier_prompt",
+"caller_name": "primary_prompt_embeds_conventions_snippet",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 486
+},
+{
+"callee_name": "build_primary_tier_prompt",
+"caller_name": "primary_prompt_wraps_digest_in_markers",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 500
+},
+{
+"callee_name": "build_primary_tier_prompt",
+"caller_name": "primary_prompt_wraps_project_context_in_markers",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 516
+},
+{
+"callee_name": "build_primary_tier_prompt",
+"caller_name": "primary_prompt_omits_corpus_section_when_empty",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 524
+},
+{
+"callee_name": "build_primary_tier_prompt",
+"caller_name": "primary_prompt_includes_corpus_section_when_present",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 533
+},
+{
+"callee_name": "build_primary_tier_prompt",
+"caller_name": "primary_prompt_emits_output_format_reminder",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 542
+},
+{
+"callee_name": "build_primary_tier_prompt",
+"caller_name": "primary_prompt_embeds_versioning_metadata",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 550
+},
+{
+"callee_name": "build_primary_tier_prompt",
+"caller_name": "primary_prompt_schema_lists_decision_and_severity_after_the_analysis",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 561
+},
+{
+"callee_name": "build_primary_tier_prompt",
+"caller_name": "framing_instruction_present_in_every_tier_output_instructions",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 589
+},
+{
+"callee_name": "build_primary_tier_prompt",
+"caller_name": "every_tier_obliges_the_first_hypothesis_to_name_the_trigger_signal",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 618
+},
+{
+"callee_name": "build_primary_tier_prompt",
+"caller_name": "every_tier_obliges_the_first_hypothesis_to_name_the_cue_scope",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 643
+},
+{
+"callee_name": "build_primary_tier_prompt",
+"caller_name": "primary_prompt_section_ordering_is_stable",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 664
+},
+{
+"callee_name": "build_primary_tier_prompt",
+"caller_name": "primary_prompt_does_not_leak_internal_field_names_outside_schema",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 689
+},
+{
+"callee_name": "build_primary_tier_prompt",
+"caller_name": "reflection_prompt_distinguishes_from_primary",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 892
+},
+{
+"callee_name": "build_primary_tier_prompt",
+"caller_name": "composed_prompt_templates_are_ascii_clean_for_argv_transport",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 922
+},
+{
+"callee_name": "build_primary_tier_prompt",
+"caller_name": "citable_section_renders_ids_verbatim_between_markers_in_all_tiers",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 995
+},
+{
+"callee_name": "build_primary_tier_prompt",
+"caller_name": "citable_section_orders_after_digest_before_output_instructions",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 1012
+},
+{
+"callee_name": "build_primary_tier_prompt",
+"caller_name": "citable_section_empty_list_renders_explicit_none_instruction",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 1029
+},
+{
+"callee_name": "build_primary_tier_prompt",
+"caller_name": "citing_instruction_present_in_every_tier_output_instructions",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 1041
+},
+{
+"callee_name": "build_primary_tier_prompt",
+"caller_name": "citable_ids_are_deduped_upstream_not_here_but_render_order_stable",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 1064
+},
+{
+"callee_name": "build_primary_tier_prompt",
+"caller_name": "inference_runtime",
+"file": "pulse-app/src/inference_runtime.rs",
+"line": 30
+},
+{
+"callee_name": "build_primary_tier_prompt",
+"caller_name": "handle_digest_outcome",
+"file": "pulse-app/src/inference_runtime.rs",
+"line": 422
+},
+{
+"callee_name": "build_primary_tier_prompt",
+"caller_name": "investigate_router",
+"file": "pulse-app/src/investigate_router.rs",
+"line": 18
+},
+{
+"callee_name": "build_primary_tier_prompt",
+"caller_name": "run_action",
+"file": "pulse-app/src/investigate_router.rs",
+"line": 247
+},
+{
+"callee_name": "build_primary_tier_prompt",
+"caller_name": "crate",
+"file": "pulse-app/tests/integration_real_llama_cli.rs",
+"line": 40
+},
+{
+"callee_name": "build_primary_tier_prompt",
+"caller_name": "real_subprocess_round_trip_returns_schema_conformant_l4_output",
+"file": "pulse-app/tests/integration_real_llama_cli.rs",
+"line": 133
+},
+{
+"callee_name": "build_reflection_tier_prompt",
+"caller_name": "framing_instruction_present_in_every_tier_output_instructions",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 597
+},
+{
+"callee_name": "build_reflection_tier_prompt",
+"caller_name": "every_tier_obliges_the_first_hypothesis_to_name_the_trigger_signal",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 626
+},
+{
+"callee_name": "build_reflection_tier_prompt",
+"caller_name": "every_tier_obliges_the_first_hypothesis_to_name_the_cue_scope",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 651
+},
+{
+"callee_name": "build_reflection_tier_prompt",
+"caller_name": "reflection_prompt_embeds_schema_string",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 871
+},
+{
+"callee_name": "build_reflection_tier_prompt",
+"caller_name": "reflection_prompt_embeds_trend_emphasis_role",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 877
+},
+{
+"callee_name": "build_reflection_tier_prompt",
+"caller_name": "reflection_prompt_distinguishes_from_primary",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 891
+},
+{
+"callee_name": "build_reflection_tier_prompt",
+"caller_name": "reflection_prompt_embeds_versioning_metadata",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 901
+},
+{
+"callee_name": "build_reflection_tier_prompt",
+"caller_name": "composed_prompt_templates_are_ascii_clean_for_argv_transport",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 930
+},
+{
+"callee_name": "build_reflection_tier_prompt",
+"caller_name": "reflection_prompt_instructs_default_curious",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 947
+},
+{
+"callee_name": "build_reflection_tier_prompt",
+"caller_name": "reflection_prompt_section_ordering_is_stable",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 954
+},
+{
+"callee_name": "build_reflection_tier_prompt",
+"caller_name": "reflection_prompt_does_not_leak_internal_field_names_outside_schema",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 974
+},
+{
+"callee_name": "build_reflection_tier_prompt",
+"caller_name": "citable_section_renders_ids_verbatim_between_markers_in_all_tiers",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 997
+},
+{
+"callee_name": "build_reflection_tier_prompt",
+"caller_name": "citable_section_empty_list_renders_explicit_none_instruction",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 1031
+},
+{
+"callee_name": "build_reflection_tier_prompt",
+"caller_name": "citing_instruction_present_in_every_tier_output_instructions",
+"file": "crates/interpretation/src/prompt.rs",
+"line": 1043
+},
+{
+"callee_name": "build_reflection_tier_prompt",
+"caller_name": "inference_runtime",
+"file": "pulse-app/src/inference_runtime.rs",
+"line": 30
+},
+{
+"callee_name": "build_reflection_tier_prompt",
+"caller_name": "handle_digest_outcome",
+"file": "pulse-app/src/inference_runtime.rs",
+"line": 413
+},
+{
+"callee_name": "format_corpus_match_line",
+"caller_name": "contract",
+"file": "crates/triage/src/contract.rs",
+"line": 148
+},
+{
+"callee_name": "format_corpus_match_line",
+"caller_name": "assembler",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 43
+},
+{
+"callee_name": "format_corpus_match_line",
+"caller_name": "assemble",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 314
+},
+{
+"callee_name": "format_corpus_match_line",
+"caller_name": "digest",
+"file": "crates/triage/src/digest/mod.rs",
+"line": 45
+},
+{
+"callee_name": "format_corpus_match_line",
+"caller_name": "format_corpus_match_line_carries_fingerprint_title_age_outcome",
+"file": "crates/triage/src/digest/retrieval.rs",
+"line": 261
+},
+{
+"callee_name": "load_candidates",
+"caller_name": "assemble",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 293
+},
+{
+"callee_name": "load_candidates",
+"caller_name": "noop_source_returns_empty_candidates",
+"file": "crates/triage/src/digest/retrieval.rs",
+"line": 268
+},
+{
+"callee_name": "render_payload",
+"caller_name": "contract",
+"file": "crates/triage/src/contract.rs",
+"line": 152
+},
+{
+"callee_name": "render_payload",
+"caller_name": "assemble",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 337
+},
+{
+"callee_name": "render_payload",
+"caller_name": "assemble",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 361
+},
+{
+"callee_name": "render_payload",
+"caller_name": "assemble",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 376
+},
+{
+"callee_name": "render_payload",
+"caller_name": "assemble",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 392
+},
+{
+"callee_name": "render_payload",
+"caller_name": "render_payload_includes_five_recent_commits_per_p032",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 1049
+},
+{
+"callee_name": "render_payload",
+"caller_name": "overall_line_reads_anomalous_for_a_cue_bearing_tier1_digest",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 1091
+},
+{
+"callee_name": "render_payload",
+"caller_name": "overall_line_reads_nominal_without_cue_or_incident",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 1109
+},
+{
+"callee_name": "render_payload",
+"caller_name": "overall_line_reads_degraded_with_an_active_incident",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 1127
+},
+{
+"callee_name": "render_payload",
+"caller_name": "render_with",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 1155
+},
+{
+"callee_name": "render_payload",
+"caller_name": "digest",
+"file": "crates/triage/src/digest/mod.rs",
+"line": 35
+},
+{
+"callee_name": "render_payload",
+"caller_name": "pii_scrub_fixture_overall_line_matches_the_render",
+"file": "pulse-app/tests/unit_digest_runtime_scrub.rs",
+"line": 32
+},
+{
+"callee_name": "render_payload",
+"caller_name": "pii_scrub_fixture_overall_line_matches_the_render",
+"file": "pulse-app/tests/unit_digest_runtime_scrub.rs",
+"line": 50
+},
+{
+"callee_name": "select_corpus_matches",
+"caller_name": "contract",
+"file": "crates/triage/src/contract.rs",
+"line": 148
+},
+{
+"callee_name": "select_corpus_matches",
+"caller_name": "assembler",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 44
+},
+{
+"callee_name": "select_corpus_matches",
+"caller_name": "assemble",
+"file": "crates/triage/src/digest/assembler.rs",
+"line": 298
+},
+{
+"callee_name": "select_corpus_matches",
+"caller_name": "digest",
+"file": "crates/triage/src/digest/mod.rs",
+"line": 45
+},
+{
+"callee_name": "select_corpus_matches",
+"caller_name": "select_corpus_matches_keeps_fingerprint_matches_only",
+"file": "crates/triage/src/digest/retrieval.rs",
+"line": 188
+},
+{
+"callee_name": "select_corpus_matches",
+"caller_name": "select_corpus_matches_keeps_scope_matches",
+"file": "crates/triage/src/digest/retrieval.rs",
+"line": 199
+},
+{
+"callee_name": "select_corpus_matches",
+"caller_name": "select_corpus_matches_ranks_by_recency_and_caps_at_limit",
+"file": "crates/triage/src/digest/retrieval.rs",
+"line": 211
+},
+{
+"callee_name": "select_corpus_matches",
+"caller_name": "select_corpus_matches_empty_fingerprint_never_matches_empty_set_entry",
+"file": "crates/triage/src/digest/retrieval.rs",
+"line": 220
+}
+],
+"db_state": "fresh",
+"plane": "rust"
+}
+]

@@ -1,0 +1,36 @@
+[
+{
+"tool": "route",
+"v": "1.6",
+"sha8": "1f4f95b3",
+"ts": "2026-10-07T10:03:09Z",
+"argv": [
+"route.py",
+"promote",
+"--root",
+".",
+"--chunk",
+"2026-10-07-l4-probe-reproduces-the-canary-history-miss",
+"--expect-prefix",
+"The L4 probe reproduces the canary-history miss",
+"--record-file",
+".andromeda/runs/2026-10-07T10-00-52Z-phase/master-record.txt",
+"--run-dir",
+".andromeda/runs/2026-10-07T10-00-52Z-phase"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"stamp working-route.md:180 - [2026-10-07-l4-probe-reproduces-the-canary-history-miss]",
+"record master-route.md:103 - appended under `## andromeda-pulse-0.3.0`",
+"promoted 2026-10-07-l4-probe-reproduces-the-canary-history-miss - working-route:180 frozen - master record appended"
+],
+"stderr": null,
+"wrote": [
+"./andromeda-pulse-0.3.0/working-route.md",
+"./.andromeda/master-route.md"
+],
+"before": null,
+"after": null
+}
+]

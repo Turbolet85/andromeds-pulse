@@ -1,0 +1,355 @@
+[
+{
+"sql": "SELECT caller_name, file, line FROM calls WHERE callee_name IN ('build_llama_cli_args','validate_prompt_bounded','extract_json_object_bounded','compose_argv','prepare','reproduction_verdict','reproduce_request') AND callee_kind = 'fn' ORDER BY callee_name, file, line",
+"rows": 69,
+"result": [
+{
+"caller_name": "crate",
+"file": "pulse-app/examples/l4_decision_probe.rs",
+"line": 164
+},
+{
+"caller_name": "compose_argv",
+"file": "pulse-app/examples/l4_decision_probe.rs",
+"line": 1652
+},
+{
+"caller_name": "generate_constrained",
+"file": "pulse-app/src/llamacli_inference.rs",
+"line": 849
+},
+{
+"caller_name": "crate",
+"file": "pulse-app/tests/unit_llamacli_inference.rs",
+"line": 36
+},
+{
+"caller_name": "spawn_args_contain_max_tokens_cap_arg",
+"file": "pulse-app/tests/unit_llamacli_inference.rs",
+"line": 51
+},
+{
+"caller_name": "spawn_args_contain_single_turn_flag",
+"file": "pulse-app/tests/unit_llamacli_inference.rs",
+"line": 60
+},
+{
+"caller_name": "spawn_args_contain_fixed_context_size",
+"file": "pulse-app/tests/unit_llamacli_inference.rs",
+"line": 68
+},
+{
+"caller_name": "spawn_args_contain_reasoning_off",
+"file": "pulse-app/tests/unit_llamacli_inference.rs",
+"line": 78
+},
+{
+"caller_name": "spawn_args_contain_simple_io_and_no_display_prompt_flags",
+"file": "pulse-app/tests/unit_llamacli_inference.rs",
+"line": 91
+},
+{
+"caller_name": "spawn_args_contain_model_path_and_grammar_file_and_no_schema_file",
+"file": "pulse-app/tests/unit_llamacli_inference.rs",
+"line": 106
+},
+{
+"caller_name": "spawn_args_carry_the_authors_sampling_after_n_and_the_prompt_last",
+"file": "pulse-app/tests/unit_llamacli_inference.rs",
+"line": 130
+},
+{
+"caller_name": "spawn_args_retain_reasoning_off_and_the_fixed_context_beside_the_grammar",
+"file": "pulse-app/tests/unit_llamacli_inference.rs",
+"line": 171
+},
+{
+"caller_name": "spawn_args_contain_ngl_routing_per_profile",
+"file": "pulse-app/tests/unit_llamacli_inference.rs",
+"line": 221
+},
+{
+"caller_name": "spawn_args_contain_ngl_routing_per_profile",
+"file": "pulse-app/tests/unit_llamacli_inference.rs",
+"line": 228
+},
+{
+"caller_name": "spawn_args_contain_prompt_via_p_arg",
+"file": "pulse-app/tests/unit_llamacli_inference.rs",
+"line": 241
+},
+{
+"caller_name": "spawn_args_contain_log_disable_flag",
+"file": "pulse-app/tests/unit_llamacli_inference.rs",
+"line": 538
+},
+{
+"caller_name": "generate",
+"file": "pulse-app/examples/l4_decision_probe.rs",
+"line": 1686
+},
+{
+"caller_name": "nr_arm_removes_exactly_the_reasoning_switch",
+"file": "pulse-app/examples/l4_decision_probe.rs",
+"line": 3015
+},
+{
+"caller_name": "nr_arm_removes_exactly_the_reasoning_switch",
+"file": "pulse-app/examples/l4_decision_probe.rs",
+"line": 3024
+},
+{
+"caller_name": "shipped_argv_carries_the_grammar_file_and_no_schema_file",
+"file": "pulse-app/examples/l4_decision_probe.rs",
+"line": 3032
+},
+{
+"caller_name": "sampling_replaces_the_production_pairs_rather_than_duplicating",
+"file": "pulse-app/examples/l4_decision_probe.rs",
+"line": 3051
+},
+{
+"caller_name": "sampling_replaces_the_production_pairs_rather_than_duplicating",
+"file": "pulse-app/examples/l4_decision_probe.rs",
+"line": 3059
+},
+{
+"caller_name": "crate",
+"file": "pulse-app/examples/l4_decision_probe.rs",
+"line": 165
+},
+{
+"caller_name": "read_labels",
+"file": "pulse-app/examples/l4_decision_probe.rs",
+"line": 1276
+},
+{
+"caller_name": "patterns",
+"file": "pulse-app/examples/l4_decision_probe/patterns.rs",
+"line": 17
+},
+{
+"caller_name": "grade",
+"file": "pulse-app/examples/l4_decision_probe/patterns.rs",
+"line": 822
+},
+{
+"caller_name": "audit_draw",
+"file": "pulse-app/examples/l4_decision_probe/patterns.rs",
+"line": 1105
+},
+{
+"caller_name": "scorer_cause_reads_the_first_hypothesis_only",
+"file": "pulse-app/examples/l4_decision_probe/patterns.rs",
+"line": 1711
+},
+{
+"caller_name": "generate_constrained",
+"file": "pulse-app/src/llamacli_inference.rs",
+"line": 970
+},
+{
+"caller_name": "crate",
+"file": "pulse-app/tests/unit_llamacli_inference.rs",
+"line": 37
+},
+{
+"caller_name": "extract_json_strips_real_b9305_banner_and_perf_stats_framing",
+"file": "pulse-app/tests/unit_llamacli_inference.rs",
+"line": 562
+},
+{
+"caller_name": "extract_json_handles_pure_json_no_framing",
+"file": "pulse-app/tests/unit_llamacli_inference.rs",
+"line": 572
+},
+{
+"caller_name": "extract_json_handles_nested_objects",
+"file": "pulse-app/tests/unit_llamacli_inference.rs",
+"line": 579
+},
+{
+"caller_name": "extract_json_ignores_braces_inside_strings",
+"file": "pulse-app/tests/unit_llamacli_inference.rs",
+"line": 591
+},
+{
+"caller_name": "extract_json_handles_escaped_quote_inside_string",
+"file": "pulse-app/tests/unit_llamacli_inference.rs",
+"line": 598
+},
+{
+"caller_name": "extract_json_returns_json_parse_failed_when_no_open_brace",
+"file": "pulse-app/tests/unit_llamacli_inference.rs",
+"line": 605
+},
+{
+"caller_name": "extract_json_returns_json_parse_failed_when_braces_unbalanced",
+"file": "pulse-app/tests/unit_llamacli_inference.rs",
+"line": 624
+},
+{
+"caller_name": "extract_json_truncates_long_snippet_in_error",
+"file": "pulse-app/tests/unit_llamacli_inference.rs",
+"line": 645
+},
+{
+"caller_name": "main",
+"file": "pulse-app/examples/l4_decision_probe.rs",
+"line": 2313
+},
+{
+"caller_name": "nf_arm_strips_exactly_the_three_framing_lines",
+"file": "pulse-app/examples/l4_decision_probe.rs",
+"line": 2723
+},
+{
+"caller_name": "nf_arm_strips_exactly_the_three_framing_lines",
+"file": "pulse-app/examples/l4_decision_probe.rs",
+"line": 2724
+},
+{
+"caller_name": "s4_renders_a_framed_corpus_match_beside_the_trigger",
+"file": "pulse-app/examples/l4_decision_probe.rs",
+"line": 2751
+},
+{
+"caller_name": "every_arm_and_shape_composes_within_the_production_bound",
+"file": "pulse-app/examples/l4_decision_probe.rs",
+"line": 2780
+},
+{
+"caller_name": "candidate_arms_carry_their_text_exactly_once_within_the_bound",
+"file": "pulse-app/examples/l4_decision_probe.rs",
+"line": 2877
+},
+{
+"caller_name": "candidate_transforms_are_identity_once_their_text_is_present",
+"file": "pulse-app/examples/l4_decision_probe.rs",
+"line": 2899
+},
+{
+"caller_name": "candidate_transforms_are_identity_once_their_text_is_present",
+"file": "pulse-app/examples/l4_decision_probe.rs",
+"line": 2903
+},
+{
+"caller_name": "candidate_transforms_are_identity_once_their_text_is_present",
+"file": "pulse-app/examples/l4_decision_probe.rs",
+"line": 2907
+},
+{
+"caller_name": "nr_arm_removes_exactly_the_reasoning_switch",
+"file": "pulse-app/examples/l4_decision_probe.rs",
+"line": 3009
+},
+{
+"caller_name": "shipped_argv_carries_the_grammar_file_and_no_schema_file",
+"file": "pulse-app/examples/l4_decision_probe.rs",
+"line": 3029
+},
+{
+"caller_name": "sampling_replaces_the_production_pairs_rather_than_duplicating",
+"file": "pulse-app/examples/l4_decision_probe.rs",
+"line": 3047
+},
+{
+"caller_name": "prompt_of",
+"file": "pulse-app/examples/l4_decision_probe.rs",
+"line": 3248
+},
+{
+"caller_name": "an_s_shape_row_and_run_line_hold_labels_and_no_model_text",
+"file": "pulse-app/examples/l4_decision_probe.rs",
+"line": 3803
+},
+{
+"caller_name": "parse_args_from",
+"file": "pulse-app/examples/l4_decision_probe.rs",
+"line": 1957
+},
+{
+"caller_name": "main",
+"file": "pulse-app/examples/l4_decision_probe.rs",
+"line": 2551
+},
+{
+"caller_name": "the_reproduction_verdict_reads_the_eight_new_shapes",
+"file": "pulse-app/examples/l4_decision_probe.rs",
+"line": 4218
+},
+{
+"caller_name": "a_control_changes_no_reproduction_verdict",
+"file": "pulse-app/examples/l4_decision_probe.rs",
+"line": 4264
+},
+{
+"caller_name": "a_control_changes_no_reproduction_verdict",
+"file": "pulse-app/examples/l4_decision_probe.rs",
+"line": 4269
+},
+{
+"caller_name": "a_control_changes_no_reproduction_verdict",
+"file": "pulse-app/examples/l4_decision_probe.rs",
+"line": 4273
+},
+{
+"caller_name": "crate",
+"file": "pulse-app/examples/l4_decision_probe.rs",
+"line": 165
+},
+{
+"caller_name": "prepare",
+"file": "pulse-app/examples/l4_decision_probe.rs",
+"line": 911
+},
+{
+"caller_name": "patterns",
+"file": "pulse-app/examples/l4_decision_probe/patterns.rs",
+"line": 17
+},
+{
+"caller_name": "compose",
+"file": "pulse-app/examples/l4_decision_probe/patterns.rs",
+"line": 731
+},
+{
+"caller_name": "generate_constrained",
+"file": "pulse-app/src/llamacli_inference.rs",
+"line": 834
+},
+{
+"caller_name": "crate",
+"file": "pulse-app/tests/unit_llamacli_inference.rs",
+"line": 38
+},
+{
+"caller_name": "prompt_bound_accepts_a_realistic_multi_line_prompt",
+"file": "pulse-app/tests/unit_llamacli_inference.rs",
+"line": 817
+},
+{
+"caller_name": "prompt_bound_rejects_an_embedded_nul",
+"file": "pulse-app/tests/unit_llamacli_inference.rs",
+"line": 824
+},
+{
+"caller_name": "prompt_bound_rejects_other_c0_control_characters",
+"file": "pulse-app/tests/unit_llamacli_inference.rs",
+"line": 833
+},
+{
+"caller_name": "prompt_bound_rejects_an_over_long_prompt",
+"file": "pulse-app/tests/unit_llamacli_inference.rs",
+"line": 842
+},
+{
+"caller_name": "prompt_bound_accepts_the_measured_real_model_envelope",
+"file": "pulse-app/tests/unit_llamacli_inference.rs",
+"line": 867
+}
+],
+"db_state": "regenerated",
+"plane": "rust"
+}
+]

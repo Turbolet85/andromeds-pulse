@@ -1,0 +1,71 @@
+# Operator relay: a 0-pending wrap, Pulse (2026-10-07) — route adaptation after Conductor's fifth series
+
+From the pc overseer (founder-delegated). Facts are `measured 2026-10-07` unless marked `hypothesis:`. Re-derive what you
+rely on.
+
+## 1. Context correction (what happened since your last wrap)
+
+- Conductor ran its fifth pre-registered series for its `v3-09` against Pulse `f70be92` (prompt `v2.6`) today, 09:45-10:10
+  local, same design and rule as the fourth. **Verdict: NOT MET, 2 of 3, the same drive.** Rank 1: d1 "Retry storm detected
+  on conductor scope_id=conductor is causing saturation and 100% error rates.", d2 "Retry storm: retry_storm
+  scope_id=conductor is active and requires immediate attention.", d3 "Active Retry Storm Detected on conductor-canary."
+  (Conductor `conductor-0.3.0/chunks/2026-10-07-a-fifth-pre-registered-real-model-series-for-v3-09/evidence/rm-capture-d{1,2,3}.txt`,
+  d3 at `:426`). So the sentence you shipped is followed in d1 and d2 (they quote the scope_id) and not in d3.
+- **A covariate, measured, not a cause.** Each capture logs the creating digest's `digest.corpus.retrieve`
+  `row_count_returned`: d1 = 1, d2 = 3, d3 = 6, in BOTH series (fourth at `5f77859`/v2.5 and fifth at `f70be92`/v2.6). The
+  miss is the 6 drive both times (2 of 2); the 1 and 3 drives pass (4 of 4).
+- What that number is: `candidate_count`, logged BEFORE `select_corpus_matches` (`crates/triage/src/digest/assembler.rs:296-310`;
+  the selection at `crates/triage/src/digest/retrieval.rs:88` keeps scope or fingerprint matches, newest first, capped at
+  `DIGEST_CORPUS_RETRIEVAL_LIMIT` = 5, `crates/triage/src/digest/mod.rs:67`). So d3's digest rendered at most five corpus
+  lines. **How many it rendered, and for which scopes, is NOT measured:** the digest exists only cell-encrypted.
+- In d3's capture the canary had surfaced one `retry_storm` digest and four `error_rate_spike` digests before the scenario
+  (`rm-capture-d3.txt`, the `canary:` lines under the row count).
+- The confound, in Conductor's own words and mine: the row count rises with the drive ordinal, the app's uptime and the
+  canary's history; no drive varied one without the others. Only a probe that varies the corpus block at everything else
+  equal can separate them.
+- Your probe's sibling shape with corpus (`S8`, `pulse-app/examples/l4_decision_probe.rs:406`) carries TWO corpus lines, both
+  retry storms. The baseline arm passed it 20/20, which is why the 2026-10-07 reading had no known-positive.
+
+## 2. Adaptation items, for your disposition
+
+**FOUNDER RULINGS 2026-10-07 11:49 local, by dialog, his own picks:**
+
+1. **`v3-09`: reproduce, then fix, then a sixth series.** Pulse owes one new route entry; working title "the L4 probe
+   reproduces the canary-history miss, then a remedy is measured against it" (wording yours). Its shape, as he chose it:
+   - FIRST a known-positive: a probe shape (or shapes) where the BASELINE arm (`v2.6` as shipped) fails the service bar, built
+     toward what d3's digest plausibly held: up to five corpus lines for the sibling scope, mixed kinds (one retry storm,
+     several error-rate spikes), in recency order. Vary the corpus block alone against a sibling-shape control so the
+     reading says which property carries the miss (count, kind mix, position).
+   - If no shape reproduces it, that is a FINDING, reported as such, not a pass: the chunk then stops for the founder
+     rather than shipping a remedy against nothing.
+   - THEN a remedy measured against the reproducing shape, with the regression guard on the ordinary shapes. Candidates are
+     the phase's: cap or reorder the corpus block, restate the scope obligation after it, exclude other scopes' history.
+   - **The service on the TRIGGER line stays the founder's boundary call** (the 2026-10-04 kind-label-only ruling stands on a
+     security ground). If the phase reaches for it, stop and ask; it is never answered on a delegated word.
+   - The d3 replay from the real digest stays UNMEASURED: the credential read is not routed around.
+2. **Critical-CVE SLA: not in force before a first release.** `.andromeda/security-plan.md` "Critical CVE response SLA: 72h
+   from public advisory disclosure to Dependabot PR merge + tagged patch release". Measured: 0 releases, 0 tags, `main` last
+   moved 2026-06-12, nothing built from it is distributed. His ruling: the 72 h window starts to bind with the first tagged
+   release; until then a fix lands on the build branch and reaches `main` with the version. Record it at that clause as his
+   dated ruling (the vehicle is yours: an expected amendment at this wrap, or the plan's own change door).
+3. **Boot smoke: mint an entry now.** The ubuntu-22.04 boot smoke died after `boot: ready` with exit 1 twice in three days
+   (`2dc099a` 2026-10-05, `f70be92` 2026-10-07), green on a re-run each time. Unmeasured whether the app itself exits 1 on a
+   slow headless boot. The entry: capture the app's own stderr and exit path at that death, find the cause, make the smoke
+   deterministic. CPU-only, so it can run at any hour.
+4. **Windows is not a target host** (asked about `.claude/rules/host-win32.md`). Nothing for you to do at this wrap: the
+   leaf is setup's and the pipeline has no Linux-host door for it yet; that went to the pipeline overseer. Do not hand-edit it.
+
+## 3. Pinning: anchors only
+
+- Head of the markerless tail: the reproduce-then-fix entry (Conductor's sixth series and its version close are BLOCKED-ON
+  the sha that ships it; it needs the GPU, which is open today and closed tonight).
+- Second: the boot-smoke entry (it guards every later chunk's CI read; runs at night).
+- Then the tail as it stands: "L4 generation records render unredacted" → "Model observations without a cue surface
+  quietly" → "Without a GPU, L4 analysis is programmatic" → "pre-push:linux runs natively on Linux".
+- The placement is the overseer's; the founder can move it.
+
+## 4. Also at this wrap
+
+- The CARRY your last wrap left for "the probe's missing known-positive" lands on the new head entry: it is its first half.
+- Your tree carries three modified files from after `f70be92` (friction log, the evolve run json, the handoff); they ride
+  this wrap's commit.

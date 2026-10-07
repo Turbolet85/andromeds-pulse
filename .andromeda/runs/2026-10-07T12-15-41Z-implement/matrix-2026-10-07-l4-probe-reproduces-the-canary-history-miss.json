@@ -1,0 +1,28 @@
+[
+{
+"tool": "matrix",
+"v": "1.4",
+"sha8": "8d842833",
+"ts": "2026-10-07T12:45:18Z",
+"argv": [
+"show",
+"--dir",
+"andromeda-pulse-0.3.0",
+"--chunk",
+"2026-10-07-l4-probe-reproduces-the-canary-history-miss",
+"--run-dir",
+".andromeda/runs/2026-10-07T12-15-41Z-implement"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"claimed by 2026-10-07-l4-probe-reproduces-the-canary-history-miss: 0",
+"pool: unclaimed 0",
+"UNPARSED: P-072 — legacy notes placement (verification.notes); top-level notes is the convention"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+}
+]

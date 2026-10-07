@@ -1,0 +1,42 @@
+[
+{
+"tool": "evolve",
+"v": "1.0",
+"sha8": "d8c8c8b2",
+"ts": "2026-10-07T11:08:48Z",
+"argv": [
+"append",
+"--root",
+".",
+"--count",
+"5",
+"--records-file",
+"-",
+"--run-dir",
+".andromeda/runs/2026-10-07T10-31-36Z-implement",
+"--marker",
+"2026-10-07-l4-probe-reproduces-the-canary-history-miss"
+],
+"cwd": "/home/turbolet/dev/projects/andromeda-pulse",
+"exit": 0,
+"stdout": [
+"appended 5 record(s) · friction-log.ndjson lines 2259→2264 · bytes 2300146→2304556 · term lf",
+"ts 2026-10-07T11:08:22Z · clock 2026-10-07T11:08:48Z · bound 2026-10-07T10:30:53Z (line 2259)",
+"ids 2026-10-07T11:08:22Z-a … 2026-10-07T11:08:22Z-e (5)"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/friction-log.ndjson"
+],
+"before": {
+"lines": 2259,
+"bytes": 2300146,
+"terminator": "LF",
+"bound": "2026-10-07T10:30:53Z"
+},
+"after": {
+"lines": 2264,
+"bytes": 2304556
+}
+}
+]

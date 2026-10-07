@@ -1,0 +1,351 @@
+# Attempt ledger — the 2026-10-07 capture run
+
+One row per drive fired, in firing order, under `contracts/pulse-real-model-leg-posture.md` §The 2026-10-07 capture
+run (fixed before `d1`). The run is a capture: every grade below is an observation, and this ledger states no
+`v3-09` verdict. Authored by the agent from each plan entry's recorded result, each drive's capture copy, Pulse's
+own log and its census; no Pulse file is edited. This ledger records handle NAMES, the data dir's leaf, digests,
+counts and booleans, never a host path and never a handle's value.
+
+## Pulse re-check (plan step 1, entries 1-3, fired by hand 2026-10-07T12:24:31Z, read at Pulse's committed state, no fetch)
+
+- `f70be92` is an ancestor of Pulse's HEAD (`48714f0`): `merge-base --is-ancestor` exit **0**.
+- Files differing between `f70be92` and Pulse's HEAD under `crates`, `pulse-app`, `xtask`, `Cargo.toml` and
+  `Cargo.lock`: **none** (`diff --stat` printed nothing, exit 0; the entry's `no output` atom holds).
+- Both release binaries, hashed inside Pulse's release dir with bare file names (exit 0; both atoms hold):
+
+| Binary | sha256 | The fifth series' ledger |
+|---|---|---|
+| `pulse-app` | `df1676477222776d3e95edae7d219a4d421f2311ea8f17863233630c1ed8ba4a` | equal (its rebuilt `f70be92` binary) |
+| `andromeda-pulse-mcp` | `6175fc36be6577b195470f136a124fe8690e4029745f3651ab46ce19043ad2a9` | equal |
+
+Nothing is built in this chunk: the binaries on disk are the pinned build by digest.
+
+## Pre-registration (plan steps 3-4)
+
+The contract section §The 2026-10-07 capture run was written before any pre-leg check and before the launch. It is
+add-only: the contract's diff against the chunk base `6987764` reads 74 added and 0 deleted lines, and the contract
+names 6 distinct environment handles, as it did at the chunk base.
+
+Its digest is the `contract_section` form — the file LF-normalized, from the section's heading line up to and
+including the newline before the next `## ` heading — computed by a scratchpad script. The recipe was validated
+first: the same script over §The 2026-10-07 series prints `57b5e96e…7376` (9299 bytes), the digest that series'
+ledger records.
+
+Recorded 2026-10-07T12:25:44Z, before `d1` and before the launch (5436 bytes). The section is not edited after
+this line.
+
+pre-registration sha256: 513892694d7d0f16b51bf7d225b8d11986c16281d0647937768889fa763387da
+
+## Pre-leg checks (plan step 5, entries 4-8, fired by hand 12:26:12Z in ONE shell that sourced the operator's capture env file)
+
+Each entry prints a fixed line or a digest and no handle's value.
+
+- Entry 4, the handle check — `ANDROMEDA_PULSE_MODEL_PATH` resolves to a file, `ANDROMEDA_PULSE_LLAMA_CUDA_BIN_PATH`
+  to an executable and the operator's variable `PC_L4_REAL_LLAMA_BIN` to an executable: `model env present`, exit
+  **0**.
+- Entry 5, the posture check — both binary handles name one file, that file is not the real runtime, its `exec`
+  target line equals the real runtime (count 1), and Pulse's allow-root handle is unset:
+  `pass-through posture holds`, exit **0**. This is what tells the capture env from the plain one (at the plan
+  review both entries read exit 1 under the plain env).
+- Entry 6, the pass-through's own digest: `66dc9cc47922021899e7c747db9fb24e1547155348dc7095f75baf1acb40c742`, exit
+  **0** — **equal** to the digest read at the plan review, so the file did not change after it.
+- Entry 7, the model file's sha256: `85a896a047553e842f25297ee5b031d64ff30147d9c4af17b1e4b394cd1fab87`, exit **0** —
+  **equal** to the pinned digest.
+- Entry 8, the NVIDIA kernel-module major against the userspace major: `kernel=610 userspace=610`, exit **0**.
+- The capture env file exports five handles, read back by name: `ANDROMEDA_PULSE_MODEL_PATH`,
+  `ANDROMEDA_PULSE_LLAMA_CUDA_BIN_PATH`, `ANDROMEDA_PULSE_LLAMA_CPU_BIN_PATH`, `ANDROMEDA_LLAMA3_TOKENIZER_PATH`
+  and the operator's own variable `PC_L4_REAL_LLAMA_BIN`. That is one name more than the plain leg env the fifth
+  series launched under; the operator's variable stays in `pulse-app`'s environment and is recorded here.
+- Read unset in that shell: `ANDROMEDA_PULSE_L4_DETERMINISTIC`, `ANDROMEDA_PULSE_BASELINE_BOOTSTRAP_SECONDS` and
+  `ANDROMEDA_PULSE_L4_ALLOW_ROOT`.
+
+### The operator's three files (recorded, never copied)
+
+Named relative to the overseer's own project folder; `sha256sum` and `stat -c %s`, re-read 12:26:15Z. Each equals
+the reading taken at the plan review. None is copied into this repository: the three stay in the overseer's
+folder.
+
+| File | sha256 | Bytes |
+|---|---|---|
+| `l4-shim/llama-cli` (mode `rwxr-xr-x`) | `66dc9cc47922021899e7c747db9fb24e1547155348dc7095f75baf1acb40c742` | 1230 |
+| `l4-env-capture.sh` | `59d167a3385b8f14126edada3176605ff164d08ae9cc4fcf5efae8b5b80cb2c7` | 1016 |
+| `l4-env.sh` | `0bc0706d2e27f3137a402a523e7f1fa7b8c7cad736011143ef7f45ff9cabbe2b` | 1080 |
+
+What the pass-through adds to each spawn, as read from its source at the plan review and not measured here: the
+caller's umask saved, set for the script's own writes and restored; two `date` calls, a `mkdir` and three small
+writes, all before the real binary starts through `exec`.
+
+## The dir (plan step 6, entry 9, fired by hand 12:26:51Z)
+
+The parent `pulse-legs` under the user's cache dir listed two entries, `rm-fifth-series` and `rm-trigger-series`
+(the two earlier series' dirs, not touched), and `rm-recorded-run` was absent: `leaf absent`, exit **0**. Created
+with `mkdir -p` at 12:26:51Z (exit 0, empty). The parent now holds the three leaves. No recursive delete anywhere.
+
+## Conductor's leg binaries (plan step 7, 12:26:57Z)
+
+`cargo build -q -p conductor-cli --bin conductor` exit 0; `cargo test -p conductor-run --features live-pulse --test
+real_model_live --no-run` exit 0. No compile falls inside the round. The sidecar resolves by name through the
+firing form's `PATH` (exit 0). The round's selection for `d1` was walked with the gate tool's `--live-legs --entry
+12 --dry-run` (nothing fired): `round: DRY-RUN · legs 1`, entries 10-12 selected, no pre-flight refusal.
+
+## The model-run slot and the launch (plan steps 8-9)
+
+**The go:** the overseer, founder-delegated, 2026-10-07 14:28 local, asked immediately before the launch (the
+chunk's inputs record it as I9): the launch and `d1`, `d2`, `d3` in this one sitting. The request stated the launch
+instant, an expected end 35 minutes later and that the capture label in the operator's folder was theirs to have
+set; the answer says it is set. The overseer's own reading of the slot at that instant: no model process, the GPU
+at the desktop's own load, no listener on either port.
+
+**One difference from the fifth series, on the overseer's word** (inputs I9): Pulse's builder does CPU work in its
+own tree during this sitting; it runs no model and binds neither port. The host's one-minute load average read
+2.48 at 12:29:25Z, as `d1` started.
+
+- **Pre-series census** (12:28:21Z, the round's census command by hand): the pattern
+  `pulse-app|andromeda-pulse|llama-cli|conductor|WebKit` matched 0 processes; 0 listeners on `:4317` or `:4318`
+  (exit 1, the command's no-app reading).
+- **Launch** (the agent, a scratchpad script that sources the operator's capture env file by path: `setsid nohup`,
+  cwd = the data dir, outside this repo): `pulse-app` by path from Pulse's release dir (sha256 `df167647…`, re-read
+  at the launch), PID 71524, started 2026-10-07T12:28:21Z. ONE env block, echoed back by name:
+  - `ANDROMEDA_PULSE_DATA_DIR` — a directory whose leaf is `rm-recorded-run`;
+  - the capture env file's five handles, as sourced: `ANDROMEDA_PULSE_MODEL_PATH` (a file named
+    `gemma-4-E4B-it-Q4_K_M.gguf`), `ANDROMEDA_PULSE_LLAMA_CUDA_BIN_PATH` and `ANDROMEDA_PULSE_LLAMA_CPU_BIN_PATH`
+    (one file, named `llama-cli`), `ANDROMEDA_LLAMA3_TOKENIZER_PATH`, and the operator's variable
+    `PC_L4_REAL_LLAMA_BIN`;
+  - `ANDROMEDA_PULSE_L4_DETERMINISTIC` and `ANDROMEDA_PULSE_BASELINE_BOOTSTRAP_SECONDS` removed, both read back
+    unset; `ANDROMEDA_PULSE_MCP_ENABLED` and `ANDROMEDA_PULSE_L4_ALLOW_ROOT` unset on the app's side; no other
+    `ANDROMEDA_`, `CONDUCTOR_` or `PC_` name — six names in all;
+  - **no host rendering lever**: `WEBKIT_DISABLE_DMABUF_RENDERER` unset, `__NV_DISABLE_EXPLICIT_SYNC` not preset.
+- **The launch posture note** (the contract section's words). For this run the launching shell's model-binary
+  handle (`ANDROMEDA_PULSE_LLAMA_CUDA_BIN_PATH`) named the operator's recording pass-through: an operator-owned
+  file that records the argv Pulse hands the model binary and then runs the real `llama-cli` with the same argv.
+  The leg neither set that handle nor read what the pass-through recorded. What it recorded sits in the
+  operator's folder, is read by Pulse's builder alone and enters no Conductor artifact. In the launching shell,
+  re-read at the launch: `pass-through posture holds`, and the pass-through's sha256 `66dc9cc4…c742`, unchanged.
+  The handle's value came from the operator's env file, sourced by path; the launch script assigns only the data
+  dir.
+- **Liveness** (12:28:39Z, 18 s after the start): the process alive with five WebKit children (71623, 71633,
+  71634, 71635, 71636); listeners on `127.0.0.1:4317` and `127.0.0.1:4318`; `:4317` accepted a connection. **No
+  relaunch**: the app stayed up at its own posture, so the plan's one-relaunch arm was never used and Pulse's log
+  carries a single boot. Its stderr held one message, a tray-library deprecation warning.
+- **Booted posture, from Pulse's own log** (`agent-latest.jsonl.2026-10-07`, 594 lines, read 12:28:58Z, before
+  `d1`):
+  - `interpretation.model.load` `inference_mode` **`real`**; `load_status` **`loaded`**, `model_identity`
+    **`gemma-4-E4B-it-Q4_K_M`**, tier `primary` (12:28:21.582Z) — the pass-through passed Pulse's regular-file
+    check;
+  - `app.boot.workspace_key` `workspace_root_basename` **`rm-recorded-run`** (the leaf), `key_bytes` 48;
+  - `app.boot.otlp.grpc.bind` and `app.boot.otlp.http.bind` at 12:28:21.888Z;
+  - **0** `triage.baseline.bootstrap_window.override` lines;
+  - the render-posture line Pulse logged: `app.boot.render.posture` `lever` `__NV_DISABLE_EXPLICIT_SYNC`,
+    `posture` `applied` (12:28:21.536Z) — the app set its own lever.
+- The overseer was told the app was up, with the launch instant, before `d1`. Whether a directory appeared in the
+  operator's folder is the overseer's check; `d1` did not wait for it.
+- Conductor's side for every drive: `ANDROMEDA_PULSE_DATA_DIR` the same dir, `ANDROMEDA_PULSE_MCP_ENABLED=true`,
+  the L4 handle absent, no model handle in the firing shell, the sidecar on `PATH` from Pulse's release dir (sha256
+  `6175fc36…`).
+
+## The drives (plan step 10)
+
+Each drive is one firing of the round tool on that drive's `live` entry: the round steps since the previous leg (the
+quiet window, a census, the non-priming probe `conductor preconditions --for real-model-interpretation`), then
+`bash scripts/agent-run.sh run --live real-model`, the copy of `runs/live-suite/rm-capture.txt` and the first and
+the last `timestamp_ms` of the frozen self-obs stream. Each firing's entry lines and summary line are kept verbatim
+in `round-{HHMMSSZ}.txt` beside this ledger, named by the firing's start. Grades are the harvest's, computed by the
+unchanged rule over the pinned files (plan step 12), never judged here, and each is an observation.
+
+The real-model canary emits three storms 90 s apart. Its third lands at the scenario's emission instant, so its
+digest's tick falls after that instant and the capture prints two `canary:` lines per drive; the third storm's
+outcome is read from Pulse's own log in each row, paired by Pulse's serial inference order (its lines carry no
+digest identity).
+
+| Label | Slot · timing · run | Route | Grade (P-033), an observation | P-031 / P-034 / P-044 | `canary:` tokens (with `skip_reason`) | The scenario's digest, from Pulse's own log | Key rendering | Census |
+|---|---|---|---|---|---|---|---|---|
+| **d1** — `rm-capture-d1.txt` | the overseer's go; the agent's `pulse-app` (PID 71524); census and probe green 12:29:12Z (`[PRECONDITION] every live-Pulse precondition is satisfied`, exit 0); fired 12:29:13Z, ended 12:35:14Z (362 s, exit 0, all four atoms, the capture fresh); run `2026-10-07T12-29-13-464`; `[MANUAL] real-model-interpretation`; 275 self-obs lines frozen; envelope: eleven keys, `state` `ManualCheck`, `verdict` null | `ReadBack` — incident 2 attributed on the first poll, `degraded_mode=false`, pickup 5607 ms | **`Identified`** | `Pass` / `Pass` / `Blocked` (no prior same-scope incident to retrieve) | `surfaced` (12:29:58Z, created) · `surfaced` (12:31:28Z, deduped) — `skip_reason=none` both; 0 other cue-bearing digests | emission instant 12:32:58.600Z; storm Suggested 12:33:01.101Z, Autonomous 12:33:03.601Z; tier-1 `retry_storm` digest 12:33:03.606Z, picked up 12:33:04.207Z behind the canary's third storm, parse `ok` 12:33:10.448Z, **created** 12:33:10.505Z (severity `error`, tier `autonomous`) — surfaced. The canary's third storm (Autonomous 12:32:58.605Z, digest 12:32:58.609Z) parsed `ok` 12:33:04.174Z and deduped 12:33:04.207Z. `prompt_version` `v2.6` on all 10 prompt assemblies; parse `ok` 10 of 10; 0 `interpretation.inference.error`, 0 `interpretation.inference.skipped`, no WARN or ERROR line naming a spawn; 147 append lines, 0 rejections. Skip lines in the window: 6, all on cue-less tier-3 digests — 5 `no_cue`, 1 `decision_dismiss` (12:29:27Z, before the first storm). WARN lines inside the bracket: 1 `digest.lww.drop`; 3 `mcp.tools.call.error` from the sidecar at 12:35:14.86Z, after the bracket's end, in the capture's own read-back | `verbatim` | before: the agent's `pulse-app` and its five WebKit children only, 2 listeners; the round tool reported no survivor |
+| **d2** — `rm-capture-d2.txt` | the same go and launch; quiet window: 180 s slept from 12:35:40Z, d1's last created incident 12:33:10.505Z, d2's first canary storm 376 s after it; census and probe green 12:38:40Z (exit 0); fired 12:38:41Z, ended 12:44:43Z (362 s, exit 0, all four atoms, the capture fresh); run `2026-10-07T12-38-41-489`; `[MANUAL] real-model-interpretation`; 279 self-obs lines frozen; envelope: eleven keys, `state` `ManualCheck`, `verdict` null | `ReadBack` — incident 5 attributed on the first poll, `degraded_mode=false`, pickup 13165 ms | **`Identified`** | `Pass` / `Pass` / `Pass` | `surfaced` (12:39:26Z, created) · `surfaced` (12:40:56Z, deduped) — `skip_reason=none` both; 0 other cue-bearing digests before the emission instant | emission instant 12:42:26.616Z; storm Suggested 12:42:29.120Z, Autonomous 12:42:31.621Z; tier-1 `retry_storm` digest 12:42:31.630Z, picked up 12:42:39.781Z behind two queued digests, parse `ok` 12:42:45.391Z, **created** 12:42:45.448Z (severity `error`, tier `autonomous`) — surfaced. Ahead of it in Pulse's serial queue (the pairing rests on that order): the canary's third storm (digest 12:42:26.623Z) deduped 12:42:34.173Z, and a tier-2 `error_rate_spike` digest (12:42:26.899Z) created its own incident 12:42:39.781Z (incident 4), which carries no scenario fingerprint and is not the attributed one. `prompt_version` `v2.6` on all 11 prompt assemblies; parse `ok` 11 of 11; 0 `interpretation.inference.error`, 0 `interpretation.inference.skipped`, no WARN or ERROR line naming a spawn; 147 append lines, 0 rejections. Skip lines in the window: 5, all on cue-less tier-3 digests — 4 `no_cue`, 1 `decision_dismiss` (12:39:30Z, before the first storm). WARN lines inside the bracket: 12 `digest.lww.drop`; 3 `mcp.tools.call.error` at 12:44:42.89Z, after the bracket's end | `verbatim`; the `## Previously Seen` suffix of d1's incident prints `<redacted>` | before: the agent's `pulse-app` tree only, 2 listeners; the round tool reported no survivor |
+| **d3** — `rm-capture-d3.txt` | the same go and launch; quiet window: 180 s slept from 12:45:04Z, d2's last created incident 12:42:45.448Z, d3's first canary storm 365 s after it; census and probe green 12:48:04Z (exit 0); fired 12:48:05Z, ended 12:54:07Z (362 s, exit 0, all four atoms, the capture fresh); run `2026-10-07T12-48-05-592`; `[MANUAL] real-model-interpretation`; 275 self-obs lines frozen; envelope: eleven keys, `state` `ManualCheck`, `verdict` null | `ReadBack` — incident 7 attributed on the first poll, `degraded_mode=false`, pickup 6348 ms | **`Identified`** | `Pass` / `Pass` / `Pass` | `surfaced` (12:48:50Z, created) · `surfaced` (12:50:20Z, deduped) — `skip_reason=none` both; the capture also counts 4 other cue-bearing digests before the emission instant, all `error_rate_spike` (tier 2), each of which Pulse logged `deduped` | emission instant 12:51:50.637Z; storm Suggested 12:51:53.138Z, Autonomous 12:51:55.640Z; tier-1 `retry_storm` digest 12:51:55.647Z, picked up 12:51:56.985Z behind the canary's third storm, parse `ok` 12:52:03.617Z, **created** 12:52:03.675Z (severity `warn`, tier `suggested`) — surfaced. The canary's third storm (Autonomous 12:51:50.640Z, digest 12:51:50.645Z) parsed `ok` 12:51:56.960Z and deduped 12:51:56.985Z. `prompt_version` `v2.6` on all 16 prompt assemblies; parse `ok` 16 of 16; 0 `interpretation.inference.error`, 0 `interpretation.inference.skipped`, no WARN or ERROR line naming a spawn; 147 append lines, 0 rejections. Skip lines in the window: 6, all `no_cue` on cue-less tier-3 digests. WARN lines inside the bracket: 16 `digest.lww.drop`; 3 `mcp.tools.call.error` at 12:54:06.88Z, after the bracket's end | `verbatim`; both `## Previously Seen` suffixes print `<redacted>` | before: the agent's `pulse-app` tree only, 2 listeners; the round tool reported no survivor; then the teardown below |
+
+Three drives fired in one sitting, 12:29:13Z to 12:54:07Z. No canary read `pipeline-fault`, so nothing was re-fired; no
+fourth drive, none replaced. Across the three brackets Pulse logged 37 prompt assemblies, all `v2.6`, and 37 parses,
+all `ok`; no `interpretation.inference.error` line, no `interpretation.inference.skipped` line, no failed spawn and
+no refused append, so the sitting was never stopped. The `model_identity` Pulse logged is the boot line's
+`gemma-4-E4B-it-Q4_K_M`. Its WARN lines inside the brackets were queue replacements (`digest.lww.drop`: 1, 12, 16);
+no ERROR line.
+
+## The tie (plan step 11)
+
+Each drive's start and end are the first and the last `timestamp_ms` of that drive's frozen self-obs stream
+(`runs/live-suite/rm.jsonl`, epoch milliseconds from `std::time`), printed by the drive's own entry before the next
+invocation deletes the file, and converted here to RFC-3339 UTC. The two digest columns are read from that drive's
+committed capture, which prints every `digest.assemble.request` and every `interpretation.prompt.assemble` line of
+its window with a millisecond stamp.
+
+| Drive | Start | End | First and last `timestamp_ms` | `run_id` | The scenario's creating digest: `digest.assemble.request` | Its generation: `interpretation.prompt.assemble` · `token_count` |
+|---|---|---|---|---|---|---|
+| d1 | 2026-10-07T12:29:13.465Z | 2026-10-07T12:35:14.643Z | 1791376153465 · 1791376514643 | `2026-10-07T12-29-13-464` | 2026-10-07T12:33:03.606Z | 2026-10-07T12:33:04.207Z · 7616 |
+| d2 | 2026-10-07T12:38:41.490Z | 2026-10-07T12:44:42.662Z | 1791376721490 · 1791377082662 | `2026-10-07T12-38-41-489` | 2026-10-07T12:42:31.630Z | 2026-10-07T12:42:39.781Z · 7854 |
+| d3 | 2026-10-07T12:48:05.592Z | 2026-10-07T12:54:06.677Z | 1791377285592 · 1791377646677 | `2026-10-07T12-48-05-592` | 2026-10-07T12:51:55.647Z | 2026-10-07T12:51:56.985Z · 8059 |
+
+Checked on each drive: the start precedes the drive's first `canary:` stamp (12:29:58.588Z, 12:39:26.563Z,
+12:48:50.630Z), and the end is not earlier than the envelope's `read_back_observed_at` at that field's one-second
+grain (12:35:14Z, 12:44:42Z, 12:54:06Z). The pairing of a creating digest with its prompt assembly rests on Pulse's
+serial inference order and on the attributed incident's `opened_at`, which equals that assembly's stamp to the
+millisecond on all three drives; Pulse's lines carry no digest identity.
+
+How a reader ties the operator's recordings to a drive:
+
+- Where they are, as relayed by the overseer (the chunk's inputs record it as I1, section 1) and never read by
+  this leg: in the overseer's own project folder, under `l4-capture/capture-20261007/`, one directory per model
+  invocation, named by a UTC stamp to the second, the nanoseconds and the process id.
+- A per-invocation directory belongs to the drive whose bracket holds its stamp, and to the generation whose
+  prompt-assembly stamp it follows: the prompt is an operand of the spawn, so its assembly precedes the
+  pass-through's own stamp. The size of that gap was not measured here. Both sides stamp in UTC on this host's
+  clock.
+- Pulse also generates between drives: it assembles a cadence digest about once a minute from boot, drive or no
+  drive. The app ran from 12:28:21Z to 12:54:21Z, so directories stamped outside every bracket above (before
+  `d1`, in the two quiet windows, after `d3`) belong to no drive.
+- This table gives brackets and stamps. It gives no count of what that folder holds, and nothing in it was read
+  from that folder.
+
+## The hypothesis, as far as this run closes it
+
+`hypothesis:` the pass-through changes nothing the model sees. What this run shows from Conductor's side, per
+drive, and nothing wider:
+
+| Drive | `pulse-app` binary | Boot `load_status` | `prompt_version` · parses |
+|---|---|---|---|
+| d1 | the fifth series' by digest (`df167647…`) | `loaded` | `v2.6` on 10 of 10 · `ok` 10 of 10 |
+| d2 | the same launch | the same boot | `v2.6` on 11 of 11 · `ok` 11 of 11 |
+| d3 | the same launch | the same boot | `v2.6` on 16 of 16 · `ok` 16 of 16 |
+
+So the argv builder, the grammar and the prompt code are the fifth series' bytes, Pulse admitted the pass-through
+as its model binary, and every generation in the three brackets came back in the grammar's form: the real binary
+ran behind the pass-through and answered in form. Not proved here, and not provable from Conductor's side: that
+the real binary received the argv byte for byte. The operator's own self-test and the script's `exec` line carry
+that. One difference in `pulse-app`'s environment from the fifth series stays and is recorded above: one more
+exported name, the operator's variable.
+
+## Teardown (after d3)
+
+The agent stopped what it started. `pulse-app` PID 71524 (started 12:28:20Z by the process table, 12:28:21Z by the
+launch script's stamp), re-read by PID, start time and name before the signal: `kill -TERM` at 12:54:21Z, exit 0;
+the process was gone within 1 s. Post-run census (plan entry 21, by hand, 12:54:24Z): the pattern
+`pulse-app|andromeda-pulse|llama-cli|conductor|WebKit` matched **0** processes and **0** listeners remained on
+`:4317` or `:4318` (exit 1, last line `0` — the entry's atoms hold). That equals the pre-series baseline.
+
+| Process | Started by | Final state |
+|---|---|---|
+| `pulse-app` 71524 | the agent, on the overseer's go | terminated (SIGTERM, gone within 1 s) |
+| its five WebKit children (71623, 71633, 71634, 71635, 71636) | `pulse-app` | terminated with it; absent from the post-census |
+| `conductor` and `andromeda-pulse-mcp`, one pair per leg | the legs | exited with each leg; absent from every pre-leg census and from the post-census; the round tool reported no survivor on any firing |
+| the model binary's processes, one per inference, each started through the pass-through | `pulse-app` | each exited with its inference; no `llama-cli` row in any census or in the post-census |
+
+## Grading (plan step 12) — observations, no verdict
+
+The grades in the drive table are the harvest's (`each_2026_10_07_capture_run_drive_grades_as_the_ledger_records`),
+computed by the unchanged rule over the pinned files. They were read red before green: the `measured` table was
+first written wrong on purpose in every field of every drive, and each value was then taken from the grading arm's
+own failure output, one field per pass — route, grade, the further-grade triple and the canary counts of `d1`, then
+of `d2`, then of `d3` (eleven red passes of the arm after the first). The harvest then ran green: 125 tests (119 at
+the chunk base, plus this run's six; no verdict test and no ref test). Every envelope: `seed` 4317033, `state`
+`ManualCheck`, `verdict` null. Every capture reads `pulse-log inference_mode: real` and
+`pulse-log workspace basename carries conductor: false`.
+
+The pin control, read red before the real pin landed: with `d1`'s pin written one hex digit wrong,
+`each_2026_10_07_capture_run_capture_matches_its_pinned_digest` failed naming `d1` and both digests (125 tests run,
+118 passed, 7 failed — that test and the six that read a pinned capture through it); with the real pin, only the
+placeholder `measured` table stayed red (124 passed, 1 failed).
+`the_2026_10_07_capture_run_record_was_fixed_before_d1` passed on its first run: the section's digest now, the
+`pre-registration sha256: ` line above and the pin agree.
+
+Capture pins (sha256 of each committed file; all three are LF):
+
+| Capture | sha256 |
+|---|---|
+| `rm-capture-d1.txt` | `e9262bc5988dedb6e8b3f83c2df30cd77efe132805a4ca9f6205f085d9d3b16f` |
+| `rm-capture-d2.txt` | `775b1126da7e13e65575c18dbbf768f83854aa805687c2ecf39e88d68d8a415e` |
+| `rm-capture-d3.txt` | `0a83022a2dd68a5d4760a02bc25869989ad75247c8f0df11dd96a487e79d6988` |
+
+`COMMITTED_CAPTURES` moved 20 → 23: exactly the three `rm-capture*.txt` files this chunk commits. No
+`-pipeline-fault` copy exists, because nothing was re-fired.
+
+The three grades as the harvest read them, each beside its creating digest's corpus-row line:
+
+| Drive | Grade (an observation) | `creating digest corpus retrieval rows:` | `## Previously Seen` lines |
+|---|---|---|---|
+| d1 | `Identified` | 1 | 0 |
+| d2 | `Identified` | 3 | 1 |
+| d3 | `Identified` | 6 | 2 |
+
+Three drives fired, none re-fired, none replaced, no fourth. All three attributed an incident on the read-back
+route and all three read `Identified`: **no drive missed.** That is this run's finding, reported as such, and the
+run is delivered as pre-registered. Key rendering: `verbatim` on all three drives, so none is recorded as
+contaminated.
+
+**This run states no `v3-09` verdict.** It is a capture: §The drive series (a) is not applied to it, three
+`Identified` do not make `v3-09` met, and the matrix is not touched.
+
+What the three drives measured, and nothing wider, on the shipped model at prompt `v2.6`:
+- every canary digest the capture classified surfaced (6 of 6 `canary:` tokens, `skip_reason=none`), and the
+  scenario's own storm digest surfaced in every drive (3 of 3), each attributed on the first poll;
+- the corpus-row counts repeat the two earlier series' by position (1, 3, 6), and here the 6-row drive read
+  `Identified`. One drive at one position: it separates nothing, and this ledger draws no cause from it;
+- every no-incident outcome Pulse logged in the three brackets was on a cue-less tier-3 digest (`no_cue` 15,
+  `decision_dismiss` 2).
+
+## Status smoke (plan entry 40), fired by hand after d3
+
+`bash scripts/agent-run.sh status 2026-10-07T12-48-05-592` (d3's run_id, minted this session; its journal was
+written at d3's end, 12:54:06Z), fired 12:58:32Z: exit 0; atom `contains "scenario": "real-model-interpretation"`
+held (1 hit); the envelope read back that `run_id`, `seed` 4317033, `state` `ManualCheck`, `verdict` null.
+
+## Evidence hygiene (plan step 13, entries 38-39, through the gate tool)
+
+- The host-path probe over every file of this evidence dir, with the home-rooted and temp-rooted shapes in its
+  pattern: **0** at exit 1 (the entry's atoms hold). The entry sweeps this ledger too, so it is fired again after
+  the ledger's last edit; that last reading is the implement report's.
+- The workspace-key probe over the three captures: **0** occurrences of the leaf at exit 1 (the entry's atoms
+  hold). The key reaches a capture only as its placeholder; each `## Previously Seen` suffix prints `<redacted>`.
+- Nothing in this evidence dir was read from the operator's folder: the captures are Conductor's own MCP re-read
+  through the standing scrub chain, the round listings are the gate tool's entry lines, and this ledger is
+  authored from the entries' results, the captures and Pulse's own log.
+
+## The standing gates (plan step 14, entries 22-39, through the gate tool)
+
+First pass (ended 12:58:59Z): 18 entries fired, 17 green, **1 red — entry 35**, the local advisory-db
+copy's `status --porcelain`, which printed three untracked files where the entry expects no output.
+
+- What the red was: the advisory database's upstream assigned ids to three advisories that day, and the local
+  copy kept the three pre-assignment files beside their renamed, tracked twins. Read before anything was changed:
+  the copy's `HEAD` equals its `FETCH_HEAD` and the remote's head read live (`ls-remote`, `b0797f54`), and each
+  untracked file differs from its tracked twin in the id line alone.
+- What was done: the three leftovers were removed by name (a non-recursive `rm -f` of three files, in the cargo
+  home's advisory copy, outside this repository). The porcelain then printed nothing.
+- So the first pass's `cargo audit` green was read over an unclean copy and is not the reading kept. Entries
+  35-37 were re-fired (13:00:09Z): all three green.
+
+Second pass, the whole block again (ended 13:00:42Z): **18 entries fired, 18 green, 0 red**: the real-model
+harvest 125 of 125; `cargo test -p conductor-run` 382 passed across 27 result lines (the harvest's 125 among
+them); `capture_paths_guard` 8 of 8; the bundled default exit 0 (workspace nextest 1225 of 1225, the doctests, the
+workspace lint and both feature-gated lint lines); `cargo fmt --all --check` clean; the package count 562; the
+rule diff empty; the contract's deleted-line count 0 and its handle census 6; the model-handle name sweep over
+`crates`, `scripts` and `.github` 0; the frozen-path and frozen-chunk diffs empty; the capture-run module's
+verdict-identifier count 0; the advisory-db porcelain empty, then `cargo audit` exit 0 (1293 advisories loaded,
+562 crate dependencies, 7 allowed warnings: 6 `unmaintained`, 1 `unsound`) and `cargo deny check advisories bans
+licenses sources` exit 0.
+
+## The operator pass (plan entries 41-43), on the overseer's word
+
+The overseer (founder-delegated), 2026-10-07 15:04 local, given in the session after the implement report (the
+chunk's inputs record the directive as I10): "Operator pass: go, on my explicit word. Run entry 41 (hygiene),
+entry 42 (the pre-CI commit, then the guarded push) and entry 43 (the CI read), then stop before the wrap." The
+commit and the push below are the operator's acts, performed by the agent on that word. The same message carried
+one further sentence, the overseer's own reading of the operator's folder; it is not copied into this repository.
+
+- Entry 41, `python -X utf8 "$HOME"/.claude/skills/andromeda-tools/scripts/gate.py hygiene`, fired bare at
+  13:04:28Z before the commit: exit 0; atom `contains hygiene: clean` held (1 hit) — `hygiene: clean`, 52 files read
+  (runs 37, evidence 7, inputs 8), 13 trails and 6 verbatim input copies not read by P1, 0 host paths kept. It was
+  fired once more after this record was written, and the commit was made only on that second `clean`.
+- Entry 42: on the overseer's explicit word, the agent made the operator pre-CI commit `15fab57`
+  (`15fab57095a35b7951bc2b099465426d50a4e73c`, 65 files) and fired the entry as written at 13:05:05Z: the clean-tree
+  guard held, exit 0, and the push printed `PUSHED_SHA=15fab57095a35b7951bc2b099465426d50a4e73c`
+  (`6987764..15fab57` on `build/conductor-0.3.0`); atom `contains PUSHED_SHA=` held. This record and entry 43's
+  were written after the push, so they ride the wrap's commit, not the pre-CI one.
