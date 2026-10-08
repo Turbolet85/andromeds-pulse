@@ -57,24 +57,24 @@ Cross-platform Tauri 2 desktop dashboard for local OpenTelemetry — receives OT
 | Architecture overview + Established Decisions (not imported — read explicitly) | `.andromeda/architecture.md` |
 | Roadmap — cross-version master index (forward / current; not imported — read explicitly) | `.andromeda/master-route.md` |
 | Roadmap — v0.1.0 + v0.2.0 history (100 chunks / 9 epochs; v2 forensic) | `.andromeda/route.md` + `.andromeda/phases/` |
-| Directory tree · workspace crates · Occupied Resources (ports / IPC routes / env vars / tables / capabilities) | `.andromeda/architecture.md` §Infrastructure Patterns / §Inherited Defaults / §Occupied Resources |
+| Directory tree · workspace crates · Occupied Resources (ports / IPC routes / env vars / tables / capabilities) | `.andromeda/architecture.md` §Infrastructure Patterns (keyed: `.andromeda/registries/architecture-contracts.toml`, one file per key) / §Inherited Defaults / §Occupied Resources |
 | Standard Contracts (`app_info` / `health` / `ready` envelopes; OTLP / MCP / IPC error schemas) | `.andromeda/architecture.md` §Standard Contracts |
 | Threat model + tier (Minimal) + data classifications | `.andromeda/security-plan.md` §Threat Model Summary |
 | Bootstrap phases (security) + supply-chain CI gates | `.andromeda/security-plan.md` §Bootstrap phases |
 | Security anti-patterns (Universal / Input / API / Code / Secrets / Logging) | `.andromeda/security-plan.md` §Security Anti-Patterns |
-| Test plan (Standard tier) + 5-command harness | `.andromeda/test-plan.md` §3 |
+| Test plan (Standard tier) + 5-command harness | `.andromeda/test-plan.md` §3 (keyed: `.andromeda/registries/test-plan-contracts.toml`, one file per key) |
 | E2E P1–P7 critical paths | `.andromeda/test-plan.md` §6 |
 | Quality gates (≥75% line / ≥70% branch / ≥85% function) + perf budgets | `.andromeda/test-plan.md` §10 |
-| Observability plan + tracing self-observation harness (NO OTel SDK) | `.andromeda/obs-plan.md` §3 |
+| Observability plan + tracing self-observation harness (NO OTel SDK) | `.andromeda/obs-plan.md` §3 (keyed: `.andromeda/registries/obs-plan-contracts.toml`) |
 | SLO invariants + perf budgets (snapshot p99 ≤500ms / WebGPU frame p99 ≤33ms) | `.andromeda/obs-plan.md` §10 |
-| A11y plan (WCAG 2.1 AA + SC 2.3.3 AAA) + harness (axe / Lighthouse / pa11y / Playwright / colorjs.io) | `.andromeda/a11y-plan.md` §3 |
+| A11y plan (WCAG 2.1 AA + SC 2.3.3 AAA) + harness (axe / Lighthouse / pa11y / Playwright / colorjs.io) | `.andromeda/a11y-plan.md` §3 (keyed: `.andromeda/registries/a11y-plan-contracts.toml`) |
 | Design system (NASA Deep Space palette + Halo State Pulse) | `.andromeda/design-system.md` |
 | Layout templates (compact widget + full dashboard + tray) | `.andromeda/layout-templates.md` |
 | Code map / impact (symbols · callers · crate deps) | `.andromeda/cache/{plane}/tree.db` — planes `rust` · `ts`; query via `scripts/code-graph.py query <run_dir> <marker> "<sql>" [plane]` (cookbook `scripts/code-graph-cookbook.md`; built on first phase/wrap) |
 | Specialist summaries (security / design / tests / obs / a11y) | `.claude/docs/{specialist}-summary.md` |
 | Per-module implementation notes (14 crates) | `.claude/docs/services/{module}.md` |
 | Stack / commands / conventions / gotchas / workflow | `.claude/docs/{topic}.md` |
-| Path-scoped rules (security / testing / observability / a11y / verification-harness / design-tokens / frontend / host-win32) | `.claude/rules/{rule}.md` |
+| Path-scoped rules (security / testing / observability / a11y / verification-harness / design-tokens / frontend / host-linux) | `.claude/rules/{rule}.md` |
 | Session learnings (curated) + handoff (state across sessions) | `.claude/docs/session-learnings.md` + `.claude/session-handoff.md` |
 | Andromeda post-MVP workflow (4 patterns + drift table + decision tree per chunk + skill mechanics refs) | `.claude/docs/andromeda-after-mvp-playbook.md` |
 | Andromeda improvement proposals + dogfood friction log (where to record pipeline gaps as they surface during chunk work) | `docs/andromeda-improvements.md` |
@@ -122,7 +122,7 @@ Path-scoped rules in `.claude/rules/` (auto-load when matching files touched):
 - `verification-harness.md` (xtask + scripts/agent-run.*)
 - `design-tokens.md` (webview UI)
 - `frontend.md` (webview React)
-- `host-win32.md` (Windows/MSYS host recipes — the generating host)
+- `host-linux.md` (host recipes for the Bash tool on this host — always loaded, serves the host, not the stack)
 
 For complete Andromeda documentation: `/andromeda-help`
 <!-- GENERATED:setup:deeper-topics end -->

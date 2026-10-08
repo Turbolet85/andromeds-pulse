@@ -1,0 +1,20 @@
+{
+  "leaf_md5": "4be4626b14363aec1fc1b9dbd80f9005",
+  "date": "2026-10-08",
+  "entries": [
+    {
+      "n": 1,
+      "lines": [91, 91],
+      "to": "learnings",
+      "title": "Moved from the host leaf: stop the rust-analyzer flycheck cargo tree before a cargo clean or a long build",
+      "why": "mixed - a live lesson (the session's rust-analyzer flycheck contends with a cargo clean or a long build for the build lock and the disk) carrying an old-host clause: its 2026-10-01 extension identifies the flycheck by its rust-analyzer.exe parent through Get-CimInstance Win32_Process. Rule 3 sends it to Tier 3 whole, never kept. 873 B, over the ~600 B a line of an every-turn leaf is judged by. Its Linux extension's ban (never pgrep -f / pkill -f on a pattern the invoking shell's own command line contains) is carried by the new leaf's own Processes section; the rest of the lesson leaves the every-turn tier."
+    },
+    {
+      "n": 2,
+      "lines": [92, 92],
+      "to": "keep",
+      "title": "",
+      "why": "rule 4 - host/shell mechanics of THIS host (it opens `On the Linux host`), 295 B, no old-host clause, and live as measured at this run against the stored Bash guard: a `cd` inside a `for ... do ... done`, an `if ... then ... fi` or a piped `while` exits 0 (not judged) and so still moves the session cwd. One clause of it is behind the guard as re-rendered 2026-10-06 (U02): it says the guard blocks only a LEADING `cd`, and the guard now also refuses a `cd` after `&&`, `||`, `;` or a newline (`ls && cd DIR` exits 2). The entry moves byte for byte - setup rewrites no entry; the wording is a wrap's to correct."
+    }
+  ]
+}

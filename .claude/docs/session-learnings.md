@@ -1,6 +1,11 @@
 # Session Learnings
 
 
+## 2026-10-08 — Moved from the host leaf: stop the rust-analyzer flycheck cargo tree before a cargo clean or a long build
+- 2026-10-01: The session's own rust-analyzer LSP runs a `cargo check --workspace --all-targets` flycheck into the shared `target/` and respawns after source edits; before a `cargo clean` or a long build, stop that flycheck cargo tree by PID — never rust-analyzer itself — and re-check for a respawn, or the two contend for the build lock and the disk. Extended 2026-10-01: `cargo clippy` spawns its own `cargo check` child, which looks like the flycheck, so identify the flycheck by its `rust-analyzer.exe` parent (`Get-CimInstance Win32_Process` ParentProcessId) before stopping anything. Extended 2026-10-04: on a Linux host select it by process name and arguments (`ps -eo pid,comm,args` with `comm == cargo` and `--message-format=json`), never `pgrep -f` / `pkill -f` on a pattern your own shell's command line contains — it matches and kills the invoking shell.
+
+---
+
 ## 2026-10-07 — The corpus fingerprint arm is fed by the whole window, and no prompt shows its set
 
 The digest's corpus block keeps a candidate on two arms. The fingerprint arm matches against every exception
