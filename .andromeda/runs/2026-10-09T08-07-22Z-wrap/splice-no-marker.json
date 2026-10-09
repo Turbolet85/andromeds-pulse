@@ -1,0 +1,1087 @@
+[
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "1bc626dd",
+"ts": "2026-10-09T08:14:30Z",
+"argv": [
+"delete",
+"--file",
+"andromeda-pulse-0.3.0/working-route.md",
+"--line",
+"190",
+"--expect-prefix",
+"pre-push:linux runs natively on Linux — ",
+"--run-dir",
+".andromeda/runs/2026-10-09T08-07-22Z-wrap",
+"--marker",
+"no-marker"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"delete working-route.md:-1 at line 190 · lines 190→189 · bytes 36619→31396 · term lf",
+"removed: pre-push:linux runs natively on Linux — the local Linux pre-push check runs on",
+"last line now:    ↓"
+],
+"stderr": null,
+"wrote": [
+"andromeda-pulse-0.3.0/working-route.md"
+],
+"before": {
+"lines": 190,
+"bytes": 36619,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 189,
+"bytes": 31396
+}
+},
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "1bc626dd",
+"ts": "2026-10-09T08:14:30Z",
+"argv": [
+"delete",
+"--file",
+"andromeda-pulse-0.3.0/working-route.md",
+"--line",
+"189",
+"--expect-prefix",
+"   ↓",
+"--run-dir",
+".andromeda/runs/2026-10-09T08-07-22Z-wrap",
+"--marker",
+"no-marker"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"delete working-route.md:-1 at line 189 · lines 189→188 · bytes 31396→31389 · term lf",
+"removed:    ↓",
+"last line now: Without a GPU, L4 analysis is programmatic — a host with no GPU gets an L4 ana"
+],
+"stderr": null,
+"wrote": [
+"andromeda-pulse-0.3.0/working-route.md"
+],
+"before": {
+"lines": 189,
+"bytes": 31396,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 188,
+"bytes": 31389
+}
+},
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "1bc626dd",
+"ts": "2026-10-09T08:14:30Z",
+"argv": [
+"delete",
+"--file",
+"andromeda-pulse-0.3.0/working-route.md",
+"--line",
+"188",
+"--expect-prefix",
+"Without a GPU, L4 analysis is programmatic — ",
+"--run-dir",
+".andromeda/runs/2026-10-09T08-07-22Z-wrap",
+"--marker",
+"no-marker"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"delete working-route.md:-1 at line 188 · lines 188→187 · bytes 31389→30392 · term lf",
+"removed: Without a GPU, L4 analysis is programmatic — a host with no GPU gets an L4 ana",
+"last line now:    ↓"
+],
+"stderr": null,
+"wrote": [
+"andromeda-pulse-0.3.0/working-route.md"
+],
+"before": {
+"lines": 188,
+"bytes": 31389,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 187,
+"bytes": 30392
+}
+},
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "1bc626dd",
+"ts": "2026-10-09T08:14:31Z",
+"argv": [
+"delete",
+"--file",
+"andromeda-pulse-0.3.0/working-route.md",
+"--line",
+"187",
+"--expect-prefix",
+"   ↓",
+"--run-dir",
+".andromeda/runs/2026-10-09T08-07-22Z-wrap",
+"--marker",
+"no-marker"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"delete working-route.md:-1 at line 187 · lines 187→186 · bytes 30392→30385 · term lf",
+"removed:    ↓",
+"last line now: Model observations without a cue surface quietly — a model finding on a digest"
+],
+"stderr": null,
+"wrote": [
+"andromeda-pulse-0.3.0/working-route.md"
+],
+"before": {
+"lines": 187,
+"bytes": 30392,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 186,
+"bytes": 30385
+}
+},
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "1bc626dd",
+"ts": "2026-10-09T08:14:31Z",
+"argv": [
+"delete",
+"--file",
+"andromeda-pulse-0.3.0/working-route.md",
+"--line",
+"186",
+"--expect-prefix",
+"Model observations without a cue surface quietly — ",
+"--run-dir",
+".andromeda/runs/2026-10-09T08-07-22Z-wrap",
+"--marker",
+"no-marker"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"delete working-route.md:-1 at line 186 · lines 186→185 · bytes 30385→29231 · term lf",
+"removed: Model observations without a cue surface quietly — a model finding on a digest",
+"last line now:    ↓"
+],
+"stderr": null,
+"wrote": [
+"andromeda-pulse-0.3.0/working-route.md"
+],
+"before": {
+"lines": 186,
+"bytes": 30385,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 185,
+"bytes": 29231
+}
+},
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "1bc626dd",
+"ts": "2026-10-09T08:14:31Z",
+"argv": [
+"delete",
+"--file",
+"andromeda-pulse-0.3.0/working-route.md",
+"--line",
+"185",
+"--expect-prefix",
+"   ↓",
+"--run-dir",
+".andromeda/runs/2026-10-09T08-07-22Z-wrap",
+"--marker",
+"no-marker"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"delete working-route.md:-1 at line 185 · lines 185→184 · bytes 29231→29224 · term lf",
+"removed:    ↓",
+"last line now: L4 generation records render unredacted — every field the L4 generation record"
+],
+"stderr": null,
+"wrote": [
+"andromeda-pulse-0.3.0/working-route.md"
+],
+"before": {
+"lines": 185,
+"bytes": 29231,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 184,
+"bytes": 29224
+}
+},
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "1bc626dd",
+"ts": "2026-10-09T08:14:31Z",
+"argv": [
+"delete",
+"--file",
+"andromeda-pulse-0.3.0/working-route.md",
+"--line",
+"184",
+"--expect-prefix",
+"L4 generation records render unredacted — ",
+"--run-dir",
+".andromeda/runs/2026-10-09T08-07-22Z-wrap",
+"--marker",
+"no-marker"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"delete working-route.md:-1 at line 184 · lines 184→183 · bytes 29224→27963 · term lf",
+"removed: L4 generation records render unredacted — every field the L4 generation record",
+"last line now:    ↓"
+],
+"stderr": null,
+"wrote": [
+"andromeda-pulse-0.3.0/working-route.md"
+],
+"before": {
+"lines": 184,
+"bytes": 29224,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 183,
+"bytes": 27963
+}
+},
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "1bc626dd",
+"ts": "2026-10-09T08:14:31Z",
+"argv": [
+"delete",
+"--file",
+"andromeda-pulse-0.3.0/working-route.md",
+"--line",
+"183",
+"--expect-prefix",
+"   ↓",
+"--run-dir",
+".andromeda/runs/2026-10-09T08-07-22Z-wrap",
+"--marker",
+"no-marker"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"delete working-route.md:-1 at line 183 · lines 183→182 · bytes 27963→27956 · term lf",
+"removed:    ↓",
+"last line now: The Linux boot smoke is deterministic — the intermittent death after `boot: re"
+],
+"stderr": null,
+"wrote": [
+"andromeda-pulse-0.3.0/working-route.md"
+],
+"before": {
+"lines": 183,
+"bytes": 27963,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 182,
+"bytes": 27956
+}
+},
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "1bc626dd",
+"ts": "2026-10-09T08:14:31Z",
+"argv": [
+"delete",
+"--file",
+"andromeda-pulse-0.3.0/working-route.md",
+"--line",
+"182",
+"--expect-prefix",
+"The Linux boot smoke is deterministic — ",
+"--run-dir",
+".andromeda/runs/2026-10-09T08-07-22Z-wrap",
+"--marker",
+"no-marker"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"delete working-route.md:-1 at line 182 · lines 182→181 · bytes 27956→24363 · term lf",
+"removed: The Linux boot smoke is deterministic — the intermittent death after `boot: re",
+"last line now:    ↓"
+],
+"stderr": null,
+"wrote": [
+"andromeda-pulse-0.3.0/working-route.md"
+],
+"before": {
+"lines": 182,
+"bytes": 27956,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 181,
+"bytes": 24363
+}
+},
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "1bc626dd",
+"ts": "2026-10-09T08:14:31Z",
+"argv": [
+"delete",
+"--file",
+"andromeda-pulse-0.3.0/working-route.md",
+"--line",
+"181",
+"--expect-prefix",
+"   ↓",
+"--run-dir",
+".andromeda/runs/2026-10-09T08-07-22Z-wrap",
+"--marker",
+"no-marker"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"delete working-route.md:-1 at line 181 · lines 181→180 · bytes 24363→24356 · term lf",
+"removed:    ↓",
+"last line now: [2026-10-07-l4-probe-reproduces-the-canary-history-miss] The L4 probe reproduces"
+],
+"stderr": null,
+"wrote": [
+"andromeda-pulse-0.3.0/working-route.md"
+],
+"before": {
+"lines": 181,
+"bytes": 24363,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 180,
+"bytes": 24356
+}
+},
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "1bc626dd",
+"ts": "2026-10-09T08:15:21Z",
+"argv": [
+"append",
+"--file",
+".andromeda/residuals.md",
+"--payload-file",
+".andromeda/runs/2026-10-09T08-07-22Z-wrap/residual-01.txt",
+"--lines",
+"2",
+"--if-absent-prefix",
+"2026-10-05-l4-model-chosen-by-pattern-discrimination · open · Quiet observations",
+"--dry-run",
+"--run-dir",
+".andromeda/runs/2026-10-09T08-07-22Z-wrap",
+"--marker",
+"no-marker"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"dry-run · would write residuals.md · lines 15→17 · bytes 5103→6198"
+],
+"stderr": null,
+"wrote": [],
+"before": {
+"lines": 15,
+"bytes": 5103,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 17,
+"bytes": 6198
+}
+},
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "1bc626dd",
+"ts": "2026-10-09T08:15:28Z",
+"argv": [
+"append",
+"--file",
+".andromeda/residuals.md",
+"--payload-file",
+".andromeda/runs/2026-10-09T08-07-22Z-wrap/residual-01.txt",
+"--lines",
+"2",
+"--if-absent-prefix",
+"2026-10-05-l4-model-chosen-by-pattern-discrimination · open · Quiet observations",
+"--run-dir",
+".andromeda/runs/2026-10-09T08-07-22Z-wrap",
+"--marker",
+"no-marker"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"append residuals.md:+2 at line 16 · lines 15→17 · bytes 5103→6198 · term lf",
+"last line now: 2026-10-05-l4-model-chosen-by-pattern-discrimination · open · Quiet observatio"
+],
+"stderr": null,
+"wrote": [
+".andromeda/residuals.md"
+],
+"before": {
+"lines": 15,
+"bytes": 5103,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 17,
+"bytes": 6198
+}
+},
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "1bc626dd",
+"ts": "2026-10-09T08:15:28Z",
+"argv": [
+"append",
+"--file",
+".andromeda/residuals.md",
+"--payload-file",
+".andromeda/runs/2026-10-09T08-07-22Z-wrap/residual-02.txt",
+"--lines",
+"2",
+"--if-absent-prefix",
+"2026-10-05-l4-runs-on-a-small-current-model-chosen-by-measurement · open · Report without a model",
+"--run-dir",
+".andromeda/runs/2026-10-09T08-07-22Z-wrap",
+"--marker",
+"no-marker"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"append residuals.md:+2 at line 18 · lines 17→19 · bytes 6198→7200 · term lf",
+"last line now: 2026-10-05-l4-runs-on-a-small-current-model-chosen-by-measurement · open · Rep"
+],
+"stderr": null,
+"wrote": [
+".andromeda/residuals.md"
+],
+"before": {
+"lines": 17,
+"bytes": 6198,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 19,
+"bytes": 7200
+}
+},
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "1bc626dd",
+"ts": "2026-10-09T08:15:28Z",
+"argv": [
+"append",
+"--file",
+".andromeda/residuals.md",
+"--payload-file",
+".andromeda/runs/2026-10-09T08-07-22Z-wrap/residual-03.txt",
+"--lines",
+"2",
+"--if-absent-prefix",
+"2026-10-02-incident-events-readable-through-mcp · open · Local pre-push check without WSL",
+"--run-dir",
+".andromeda/runs/2026-10-09T08-07-22Z-wrap",
+"--marker",
+"no-marker"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"append residuals.md:+2 at line 20 · lines 19→21 · bytes 7200→9329 · term lf",
+"last line now: 2026-10-02-incident-events-readable-through-mcp · open · Local pre-push check "
+],
+"stderr": null,
+"wrote": [
+".andromeda/residuals.md"
+],
+"before": {
+"lines": 19,
+"bytes": 7200,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 21,
+"bytes": 9329
+}
+},
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "1bc626dd",
+"ts": "2026-10-09T08:15:28Z",
+"argv": [
+"append",
+"--file",
+".andromeda/residuals.md",
+"--payload-file",
+".andromeda/runs/2026-10-09T08-07-22Z-wrap/residual-04.txt",
+"--lines",
+"2",
+"--if-absent-prefix",
+"2026-10-07-l4-probe-reproduces-the-canary-history-miss · open · Stale doc comment",
+"--run-dir",
+".andromeda/runs/2026-10-09T08-07-22Z-wrap",
+"--marker",
+"no-marker"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"append residuals.md:+2 at line 22 · lines 21→23 · bytes 9329→10166 · term lf",
+"last line now: 2026-10-07-l4-probe-reproduces-the-canary-history-miss · open · Stale doc comm"
+],
+"stderr": null,
+"wrote": [
+".andromeda/residuals.md"
+],
+"before": {
+"lines": 21,
+"bytes": 9329,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 23,
+"bytes": 10166
+}
+},
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "1bc626dd",
+"ts": "2026-10-09T08:15:28Z",
+"argv": [
+"append",
+"--file",
+".andromeda/residuals.md",
+"--payload-file",
+".andromeda/runs/2026-10-09T08-07-22Z-wrap/residual-05.txt",
+"--lines",
+"2",
+"--if-absent-prefix",
+"2026-10-07-l4-probe-reproduces-the-canary-history-miss · open · Known limit of 0.3.0, the boot smoke",
+"--run-dir",
+".andromeda/runs/2026-10-09T08-07-22Z-wrap",
+"--marker",
+"no-marker"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"append residuals.md:+2 at line 24 · lines 23→25 · bytes 10166→11341 · term lf",
+"last line now: 2026-10-07-l4-probe-reproduces-the-canary-history-miss · open · Known limit of"
+],
+"stderr": null,
+"wrote": [
+".andromeda/residuals.md"
+],
+"before": {
+"lines": 23,
+"bytes": 10166,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 25,
+"bytes": 11341
+}
+},
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "1bc626dd",
+"ts": "2026-10-09T08:15:28Z",
+"argv": [
+"append",
+"--file",
+".andromeda/residuals.md",
+"--payload-file",
+".andromeda/runs/2026-10-09T08-07-22Z-wrap/residual-06.txt",
+"--lines",
+"2",
+"--if-absent-prefix",
+"2026-10-09-0-pending-version-close · open · Known limit of 0.3.0, the half-hour digest",
+"--run-dir",
+".andromeda/runs/2026-10-09T08-07-22Z-wrap",
+"--marker",
+"no-marker"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"append residuals.md:+2 at line 26 · lines 25→27 · bytes 11341→12223 · term lf",
+"last line now: 2026-10-09-0-pending-version-close · open · Known limit of 0.3.0, the half-hou"
+],
+"stderr": null,
+"wrote": [
+".andromeda/residuals.md"
+],
+"before": {
+"lines": 25,
+"bytes": 11341,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 27,
+"bytes": 12223
+}
+},
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "1bc626dd",
+"ts": "2026-10-09T08:15:28Z",
+"argv": [
+"append",
+"--file",
+".andromeda/residuals.md",
+"--payload-file",
+".andromeda/runs/2026-10-09T08-07-22Z-wrap/residual-07.txt",
+"--lines",
+"2",
+"--if-absent-prefix",
+"2026-10-09-0-pending-version-close · open · Known limit of 0.3.0, commits in the digest",
+"--run-dir",
+".andromeda/runs/2026-10-09T08-07-22Z-wrap",
+"--marker",
+"no-marker"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"append residuals.md:+2 at line 28 · lines 27→29 · bytes 12223→12836 · term lf",
+"last line now: 2026-10-09-0-pending-version-close · open · Known limit of 0.3.0, commits in t"
+],
+"stderr": null,
+"wrote": [
+".andromeda/residuals.md"
+],
+"before": {
+"lines": 27,
+"bytes": 12223,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 29,
+"bytes": 12836
+}
+},
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "1bc626dd",
+"ts": "2026-10-09T08:15:28Z",
+"argv": [
+"append",
+"--file",
+".andromeda/residuals.md",
+"--payload-file",
+".andromeda/runs/2026-10-09T08-07-22Z-wrap/residual-08.txt",
+"--lines",
+"2",
+"--if-absent-prefix",
+"2026-10-09-0-pending-version-close · open · Known limit of 0.3.0, the MCP telemetry tools",
+"--run-dir",
+".andromeda/runs/2026-10-09T08-07-22Z-wrap",
+"--marker",
+"no-marker"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"append residuals.md:+2 at line 30 · lines 29→31 · bytes 12836→13527 · term lf",
+"last line now: 2026-10-09-0-pending-version-close · open · Known limit of 0.3.0, the MCP tele"
+],
+"stderr": null,
+"wrote": [
+".andromeda/residuals.md"
+],
+"before": {
+"lines": 29,
+"bytes": 12836,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 31,
+"bytes": 13527
+}
+},
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "1bc626dd",
+"ts": "2026-10-09T08:15:29Z",
+"argv": [
+"append",
+"--file",
+".andromeda/residuals.md",
+"--payload-file",
+".andromeda/runs/2026-10-09T08-07-22Z-wrap/residual-09.txt",
+"--lines",
+"2",
+"--if-absent-prefix",
+"2026-10-09-0-pending-version-close · open · Known limit of 0.3.0, what a span keeps",
+"--run-dir",
+".andromeda/runs/2026-10-09T08-07-22Z-wrap",
+"--marker",
+"no-marker"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"append residuals.md:+2 at line 32 · lines 31→33 · bytes 13527→14470 · term lf",
+"last line now: 2026-10-09-0-pending-version-close · open · Known limit of 0.3.0, what a span "
+],
+"stderr": null,
+"wrote": [
+".andromeda/residuals.md"
+],
+"before": {
+"lines": 31,
+"bytes": 13527,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 33,
+"bytes": 14470
+}
+},
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "1bc626dd",
+"ts": "2026-10-09T08:15:29Z",
+"argv": [
+"append",
+"--file",
+".andromeda/residuals.md",
+"--payload-file",
+".andromeda/runs/2026-10-09T08-07-22Z-wrap/residual-10.txt",
+"--lines",
+"2",
+"--if-absent-prefix",
+"2026-10-09-0-pending-version-close · open · Known limit of 0.3.0, metrics and logs",
+"--run-dir",
+".andromeda/runs/2026-10-09T08-07-22Z-wrap",
+"--marker",
+"no-marker"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"append residuals.md:+2 at line 34 · lines 33→35 · bytes 14470→15514 · term lf",
+"last line now: 2026-10-09-0-pending-version-close · open · Known limit of 0.3.0, metrics and "
+],
+"stderr": null,
+"wrote": [
+".andromeda/residuals.md"
+],
+"before": {
+"lines": 33,
+"bytes": 14470,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 35,
+"bytes": 15514
+}
+},
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "1bc626dd",
+"ts": "2026-10-09T08:15:29Z",
+"argv": [
+"append",
+"--file",
+".andromeda/residuals.md",
+"--payload-file",
+".andromeda/runs/2026-10-09T08-07-22Z-wrap/residual-11.txt",
+"--lines",
+"2",
+"--if-absent-prefix",
+"2026-10-09-0-pending-version-close · open · Known limit of 0.3.0, model grading",
+"--run-dir",
+".andromeda/runs/2026-10-09T08-07-22Z-wrap",
+"--marker",
+"no-marker"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"append residuals.md:+2 at line 36 · lines 35→37 · bytes 15514→16141 · term lf",
+"last line now: 2026-10-09-0-pending-version-close · open · Known limit of 0.3.0, model gradin"
+],
+"stderr": null,
+"wrote": [
+".andromeda/residuals.md"
+],
+"before": {
+"lines": 35,
+"bytes": 15514,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 37,
+"bytes": 16141
+}
+},
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "1bc626dd",
+"ts": "2026-10-09T08:19:06Z",
+"argv": [
+"append",
+"--file",
+".andromeda/architecture-amendments.md",
+"--payload-file",
+".andromeda/runs/2026-10-09T08-07-22Z-wrap/architecture-entry.md",
+"--lines",
+"11",
+"--run-dir",
+".andromeda/runs/2026-10-09T08-07-22Z-wrap",
+"--marker",
+"no-marker"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"append architecture-amendments.md:+11 at line 773 · lines 772→783 · bytes 119799→121849 · term lf",
+"last line now: **Ref:** .andromeda/runs/2026-10-09T08-07-22Z-wrap/"
+],
+"stderr": null,
+"wrote": [
+".andromeda/architecture-amendments.md"
+],
+"before": {
+"lines": 772,
+"bytes": 119799,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 783,
+"bytes": 121849
+}
+},
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "1bc626dd",
+"ts": "2026-10-09T08:19:06Z",
+"argv": [
+"append",
+"--file",
+".andromeda/design-system-amendments.md",
+"--payload-file",
+".andromeda/runs/2026-10-09T08-07-22Z-wrap/design-system-entry.md",
+"--lines",
+"10",
+"--run-dir",
+".andromeda/runs/2026-10-09T08-07-22Z-wrap",
+"--marker",
+"no-marker"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"append design-system-amendments.md:+10 at line 140 · lines 139→149 · bytes 18415→19769 · term lf",
+"last line now: **Ref:** .andromeda/runs/2026-10-09T08-07-22Z-wrap/"
+],
+"stderr": null,
+"wrote": [
+".andromeda/design-system-amendments.md"
+],
+"before": {
+"lines": 139,
+"bytes": 18415,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 149,
+"bytes": 19769
+}
+},
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "1bc626dd",
+"ts": "2026-10-09T08:19:06Z",
+"argv": [
+"append",
+"--file",
+".andromeda/layout-templates-amendments.md",
+"--payload-file",
+".andromeda/runs/2026-10-09T08-07-22Z-wrap/layout-templates-entry.md",
+"--lines",
+"9",
+"--run-dir",
+".andromeda/runs/2026-10-09T08-07-22Z-wrap",
+"--marker",
+"no-marker"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"append layout-templates-amendments.md:+9 at line 108 · lines 107→116 · bytes 15485→16603 · term lf",
+"last line now: **Ref:** .andromeda/runs/2026-10-09T08-07-22Z-wrap/"
+],
+"stderr": null,
+"wrote": [
+".andromeda/layout-templates-amendments.md"
+],
+"before": {
+"lines": 107,
+"bytes": 15485,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 116,
+"bytes": 16603
+}
+},
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "1bc626dd",
+"ts": "2026-10-09T08:19:06Z",
+"argv": [
+"append",
+"--file",
+".andromeda/test-plan-amendments.md",
+"--payload-file",
+".andromeda/runs/2026-10-09T08-07-22Z-wrap/test-plan-entry.md",
+"--lines",
+"9",
+"--run-dir",
+".andromeda/runs/2026-10-09T08-07-22Z-wrap",
+"--marker",
+"no-marker"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"append test-plan-amendments.md:+9 at line 678 · lines 677→686 · bytes 116217→118000 · term lf",
+"last line now: **Ref:** .andromeda/runs/2026-10-09T08-07-22Z-wrap/"
+],
+"stderr": null,
+"wrote": [
+".andromeda/test-plan-amendments.md"
+],
+"before": {
+"lines": 677,
+"bytes": 116217,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 686,
+"bytes": 118000
+}
+},
+{
+"tool": "splice",
+"v": "1.0",
+"sha8": "1bc626dd",
+"ts": "2026-10-09T08:19:06Z",
+"argv": [
+"append",
+"--file",
+".andromeda/obs-plan-amendments.md",
+"--payload-file",
+".andromeda/runs/2026-10-09T08-07-22Z-wrap/obs-plan-entry.md",
+"--lines",
+"9",
+"--run-dir",
+".andromeda/runs/2026-10-09T08-07-22Z-wrap",
+"--marker",
+"no-marker"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"append obs-plan-amendments.md:+9 at line 390 · lines 389→398 · bytes 70068→71788 · term lf",
+"last line now: **Ref:** .andromeda/runs/2026-10-09T08-07-22Z-wrap/"
+],
+"stderr": null,
+"wrote": [
+".andromeda/obs-plan-amendments.md"
+],
+"before": {
+"lines": 389,
+"bytes": 70068,
+"terminator": "LF",
+"final_terminator": true
+},
+"after": {
+"lines": 398,
+"bytes": 71788
+}
+}
+]

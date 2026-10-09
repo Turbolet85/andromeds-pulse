@@ -1,0 +1,59 @@
+# Cascade step-2 patterns — the 2026-10-09T08-07-22Z 0-pending wrap.
+# Five amendments: design-system + layout-templates (the sketch folder is gone), architecture (the CPU-route
+# retirement has no route entry any more), test-plan + its key file and obs-plan (the .ps1 run is dropped; two
+# owner entries left the route).
+
+[[pattern]]
+id = "sketch-folder"
+fixed = 'signature-orb'
+
+[[pattern]]
+id = "sketch-gathers"
+regex = 'design direction gather'
+ignore_case = true
+
+[[pattern]]
+id = "progl4-entry"
+fixed = 'programmatic-L4 route entry'
+
+[[pattern]]
+id = "still-until"
+regex = 'still (routed|consumed) until'
+ignore_case = true
+
+[[pattern]]
+id = "progl4-title"
+fixed = 'analysis is programmatic'
+ignore_case = true
+
+[[pattern]]
+id = "ps1-run-owed"
+regex = 'run (itself )?(is )?owed'
+ignore_case = true
+
+[[pattern]]
+id = "owned-by-carry"
+fixed = 'owned by the CARRY'
+
+[[pattern]]
+id = "owner-pinned"
+fixed = 'owner is pinned on the working route'
+
+[[pattern]]
+id = "unredacted-title"
+fixed = 'records render unredacted'
+ignore_case = true
+
+[[pattern]]
+id = "own-route-entry"
+fixed = 'is its own route entry'
+
+[[pattern]]
+id = "prepush-title"
+fixed = 'runs natively on Linux'
+ignore_case = true
+
+[[pattern]]
+id = "ps1-half"
+regex = 'ps1.{0,3} half has (not|never) run'
+ignore_case = true

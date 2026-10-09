@@ -158,5 +158,45 @@
 "lines": 2310,
 "bytes": 2353044
 }
+},
+{
+"tool": "evolve",
+"v": "1.0",
+"sha8": "1d16bdcd",
+"ts": "2026-10-07T20:58:33Z",
+"argv": [
+"append",
+"--root",
+".",
+"--count",
+"2",
+"--records-file",
+"-",
+"--run-dir",
+".andromeda/runs/2026-10-07T20-29-42Z-wrap",
+"--marker",
+"2026-10-07-l4-probe-reproduces-the-canary-history-miss"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"appended 2 record(s) · friction-log.ndjson lines 2310→2312 · bytes 2353044→2355010 · term lf",
+"ts 2026-10-07T20:58:21Z · clock 2026-10-07T20:58:32Z · bound 2026-10-07T20:55:09Z (line 2310)",
+"ids 2026-10-07T20:58:21Z-a … 2026-10-07T20:58:21Z-b (2)"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/friction-log.ndjson"
+],
+"before": {
+"lines": 2310,
+"bytes": 2353044,
+"terminator": "LF",
+"bound": "2026-10-07T20:55:09Z"
+},
+"after": {
+"lines": 2312,
+"bytes": 2355010
+}
 }
 ]
