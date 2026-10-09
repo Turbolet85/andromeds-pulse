@@ -1,0 +1,175 @@
+[
+{
+"tool": "route",
+"v": "1.7",
+"sha8": "470db3a8",
+"ts": "2026-10-09T15:45:20Z",
+"argv": [
+"route.py",
+"compact",
+"--root",
+".",
+"--chunk",
+"2026-10-09-ci-on-linux-alone",
+"--date",
+"2026-10-09",
+"--run-dir",
+".andromeda/runs/2026-10-09T15-11-06Z-wrap",
+"--dry-run"
+],
+"cwd": ".",
+"exit": 3,
+"stdout": [],
+"stderr": "2026-10-09-ci-on-linux-alone: its record is 'pending' -- compact runs AFTER the flip",
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "route",
+"v": "1.7",
+"sha8": "470db3a8",
+"ts": "2026-10-09T15:45:29Z",
+"argv": [
+"route.py",
+"flip",
+"--root",
+".",
+"--chunk",
+"2026-10-09-ci-on-linux-alone",
+"--run-dir",
+".andromeda/runs/2026-10-09T15-11-06Z-wrap",
+"--dry-run"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"dry-run - would flip .andromeda/master-route.md:106",
+"  2026-10-09-ci-on-linux-alone · pending · CI on Linux alone: Windows and macOS le… (222 chars)",
+"-> 2026-10-09-ci-on-linux-alone · complete · CI on Linux alone: Windows and macOS l… (223 chars)"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "route",
+"v": "1.7",
+"sha8": "470db3a8",
+"ts": "2026-10-09T15:46:43Z",
+"argv": [
+"route.py",
+"flip",
+"--root",
+".",
+"--chunk",
+"2026-10-09-ci-on-linux-alone",
+"--run-dir",
+".andromeda/runs/2026-10-09T15-11-06Z-wrap"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"flip master-route.md:106 - 2026-10-09-ci-on-linux-alone pending -> complete"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/master-route.md"
+],
+"before": null,
+"after": null
+},
+{
+"tool": "route",
+"v": "1.7",
+"sha8": "470db3a8",
+"ts": "2026-10-09T15:46:43Z",
+"argv": [
+"route.py",
+"compact",
+"--root",
+".",
+"--chunk",
+"2026-10-09-ci-on-linux-alone",
+"--date",
+"2026-10-09",
+"--run-dir",
+".andromeda/runs/2026-10-09T15-11-06Z-wrap",
+"--header-file",
+".andromeda/runs/2026-10-09T15-11-06Z-wrap/archive-header.md",
+"--dry-run"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"pin :11 strip WATCH: 397ch 0/3 since 2026-10-09-0-pending-adaptation-wrap \"WATCH: boot smoke on ubuntu-22.04 ended \"",
+"pin next markerless :13 holds WATCH:×1 · CARRY:×2",
+"11 · 2026-10-09-ci-on-linux-alone · strip 1 block(s) · archive APPEND",
+"dry-run - would archive 1 and compact 1 line(s); route-archive.md would be CREATED"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"targets": [
+{
+"n": 11,
+"marker": "2026-10-09-ci-on-linux-alone",
+"blocks": 1,
+"archived": false
+}
+],
+"skips": [],
+"kept_notes": []
+}
+},
+{
+"tool": "route",
+"v": "1.7",
+"sha8": "470db3a8",
+"ts": "2026-10-09T15:46:52Z",
+"argv": [
+"route.py",
+"compact",
+"--root",
+".",
+"--chunk",
+"2026-10-09-ci-on-linux-alone",
+"--date",
+"2026-10-09",
+"--run-dir",
+".andromeda/runs/2026-10-09T15-11-06Z-wrap",
+"--header-file",
+".andromeda/runs/2026-10-09T15-11-06Z-wrap/archive-header.md"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"pin :11 strip WATCH: 397ch 0/3 since 2026-10-09-0-pending-adaptation-wrap \"WATCH: boot smoke on ubuntu-22.04 ended \"",
+"pin next markerless :13 holds WATCH:×1 · CARRY:×2",
+"11 · 2026-10-09-ci-on-linux-alone · strip 1 block(s) · archive APPEND",
+"compacted 1 complete line(s) -> route-archive.md (1 archived, 0 already there)"
+],
+"stderr": null,
+"wrote": [
+"./andromeda-pulse-0.4.0/route-archive.md",
+"./andromeda-pulse-0.4.0/working-route.md"
+],
+"before": null,
+"after": null,
+"extra": {
+"targets": [
+{
+"n": 11,
+"marker": "2026-10-09-ci-on-linux-alone",
+"blocks": 1,
+"archived": false
+}
+],
+"skips": [],
+"kept_notes": []
+}
+}
+]

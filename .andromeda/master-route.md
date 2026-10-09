@@ -103,4 +103,4 @@ version-cursor scan reads those exclusively; the forensic note is a blockquote, 
 2026-10-07-l4-probe-reproduces-the-canary-history-miss · complete · the canary-history miss did not reproduce on a corpus-block shape (199 of 200) and reproduced on a captured product prompt (11 misses of 20); the pre-registered order selected CO and the founder chose CX, so a cue-bearing digest's corpus block keeps the triggering service's own history; the probe keeps no durable known-positive · → andromeda-pulse-0.3.0/chunks/2026-10-07-l4-probe-reproduces-the-canary-history-miss/
 
 ## andromeda-pulse-0.4.0
-2026-10-09-ci-on-linux-alone · pending · CI on Linux alone: Windows and macOS legs leave lint-test and a11y, the release job whole; per-job wall-clock recorded · → andromeda-pulse-0.4.0/chunks/2026-10-09-ci-on-linux-alone/
+2026-10-09-ci-on-linux-alone · complete · CI on Linux alone: Windows and macOS legs leave lint-test and a11y, the release job whole; per-job wall-clock recorded · → andromeda-pulse-0.4.0/chunks/2026-10-09-ci-on-linux-alone/

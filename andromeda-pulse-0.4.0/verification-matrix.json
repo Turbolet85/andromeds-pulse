@@ -595,6 +595,20 @@
       },
       "chunk": null,
       "notes": "2026-10-09 — added by the 0-pending adaptation wrap (run `.andromeda/runs/2026-10-09T12-54-54Z-wrap/`, relay item B.4: the route entry `Desktop distribution retired` ends \"release environment, secret names listed for the founder\" while P-114's acceptance names the two channel repositories only). Measured 2026-10-09 at `b3ac58a`: `release.yml` and `update-channels.yml` both run under the environment `production-release`; `release.yml` reads 14 secret names, `update-channels.yml` two push tokens beside the automatic `GITHUB_TOKEN` — a count for the claiming chunk to re-read, not the list. Taken by that route entry (a `CARRY:` naming this id). word: \"write it. […] All six ids, the seven route edits and the watch as on the card.\" — delegate: the pc overseer as operator, founder-delegated, 2026-10-09; not the founder's own word, so PROVISIONAL under gate-contract §Scope (Whose word) until the founder's own word supersedes it."
+    },
+    {
+      "id": "P-128",
+      "title": "No CI step reads nothing",
+      "requirement": "every comparison a CI job makes has a producer for the baseline it compares against, or the comparison is gone; every upload a CI job makes finds its file, or the upload is gone",
+      "observed_gap": "The three pull-request baseline downloads have no producer in any workflow, and the `logs-Linux`, `nextest-Linux` and `criterion-Linux` uploads find no file (the operator's wrap directive of 2026-10-09; read on `ci#37934330231` and `ci#37945548047`).",
+      "verification": {
+        "method": "integration",
+        "acceptance": "On a CI run of the tree, every comparison against a baseline reads a baseline that a workflow produced, or the workflow no longer makes that comparison; every upload uploads a file, or the workflow no longer makes that upload. No gate stands while reading nothing.",
+        "ref": null,
+        "status": "planned"
+      },
+      "chunk": null,
+      "notes": "2026-10-09 — added at the 2026-10-09-ci-on-linux-alone wrap, on the operator's ruling at its route-resolve card: \"MINT one entry in Foundation directly after Pre-push check native on Linux - every CI comparison has a producer for its baseline or is gone, every upload finds its file or is gone - with a new requirement by the letter requirement-add path (operator word, pc overseer, founder-delegated), since no id fits: a gate that reads nothing must not stand while two epochs of removals lean on it\" — the pc overseer as operator, founder-delegated, 2026-10-09. A new requirement is a fork the operator owns, so this entry is PROVISIONAL until the founder's own word. Its route entry is \"No CI step reads nothing\" (Epoch 1, directly after \"Pre-push check native on Linux\"). Two findings of the same kind are carried by other entries on the same ruling: the a11y job's baseline download on \"Window's gates retired\" and the `logs-Linux` upload on \"Engine end-to-end gate reachable\"."
     }
   ]
 }

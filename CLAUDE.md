@@ -12,7 +12,7 @@ Cross-platform Tauri 2 desktop dashboard for local OpenTelemetry — receives OT
 - `crates/` — 14 library crates (`ingest` / `buffer` / `viz` / `ui-bridge` / `snapshot` / `curation` / `triage` / `workspace-detector` / `plugins` / `mcp-server` / `corpus` / `security` / `interpretation` / `config-watcher`)
 - `pulse-app/` — Tauri binary crate; `tauri.conf.json` + `capabilities/` JSON + `src/main.rs` + `ui/` webview source
 - `xtask/` — cargo-xtask: release / sign / notarize / capability-drift / agent-run harness / `check:english-sources` (ASCII-only Cyrillic source lint; CI lint-test + pre-push) / `pre-push:linux` (WSL Linux pre-push check) / `perf:budget` (the perf-budget grader) / `perf:frame-sample` (dev-host frame gate)
-- `.github/workflows/` — `ci.yml` (seven parallel jobs over Linux/macOS/Windows: lint-test · release · mcp-test · a11y · boot · supply-chain · coverage) + `release.yml` (`tauri-action`) + `update-channels.yml` (Homebrew + Scoop)
+- `.github/workflows/` — `ci.yml` (six parallel jobs on Linux alone, `ubuntu-22.04`: lint-test · mcp-test · a11y · boot · supply-chain · coverage) + `release.yml` (`tauri-action`) + `update-channels.yml` (Homebrew + Scoop)
 - `.andromeda/` — planning artifacts (arch / 6 specialist plans / master-route + route history / runs / `cache/` code-graph DBs, gitignored)
 <!-- GENERATED:setup:overview end -->
 

@@ -468,7 +468,7 @@ N/A — no cognitive-accessibility trigger (professional developer users; no int
 
 **Pipeline integration:**
 
-A11y CI runs in same `ci.yml` pipeline as tests E2E per upstream-context Section 5 Test Harness Contract binding, as its own `a11y` matrix job since chunk 2026-09-29-ci-wall-time-and-round-trips (the harness contract it shares with tests is unchanged). Specifically:
+A11y CI runs in same `ci.yml` pipeline as tests E2E per upstream-context Section 5 Test Harness Contract binding, as its own `a11y` job since chunk 2026-09-29-ci-wall-time-and-round-trips, on `ubuntu-22.04` alone since chunk 2026-10-09-ci-on-linux-alone (the harness contract it shares with tests is unchanged). Specifically:
 - Tests' `npm test` (or `cargo nextest run`) invokes Playwright E2E driver which runs axe-core assertions inline via `@axe-core/playwright` AxeBuilder
 - Separate `npm run test:a11y` command invokes Playwright test suite with a11y-specific tests (focus order, keyboard, contrast, screen reader per-surface specs)
 - Reuses tests' `boot` / `run` / `status` / `cleanup` / `logs` harness (5-command discipline per binding contract)

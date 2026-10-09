@@ -89,3 +89,10 @@ _Format per entry: `## {date} — {title}` with **Section** / **Change** / **Why
 **Change:** Verify suite health with `npx playwright test --config=playwright-a11y.config.ts --list`. The bare `npx playwright test --list` reads the deliberately inert default `playwright.config.ts` and prints `Total: 0 tests in 0 files`, exit 1, whatever the suite state (measured: bare → exit 1, 0 tests; config-named → exit 0, 41 tests in 18 files). Was: the bare form.
 **Why:** a probe aimed at the inert config can never pass, so a chunk plan copying it inherits a permanent red; test-plan §2 already states the config-named form.
 **Ref:** .andromeda/runs/2026-09-30T19-50-57Z-wrap/
+
+## 2026-10-09-ci-on-linux-alone — the `a11y` job runs on ubuntu-22.04 alone
+**Section:** §3 → CI integration (the key file `registries/contracts/a11y-plan/ci-integration.md`, Pipeline integration) · §9 CI Integration → Pipeline integration
+**Change:** Was: "their own `a11y` matrix job (Linux/macOS/Windows, blocking, parallel with the test jobs)" with artifacts "under per-OS names", and in §9 "its own `a11y` matrix job". Now: one `a11y` job on `ubuntu-22.04` alone, blocking and parallel with the test jobs; its artifacts are `a11y-violations-Linux` and `playwright-a11y-report-Linux`.
+**Why:** Chunk 2026-10-09-ci-on-linux-alone removed the job's three-system matrix.
+**Kept:** The key file's per-PR regression detection (the `a11y-violations-base` download has no producer in any workflow) and §9's `Lint | eslint-plugin-jsx-a11y` stage (no workflow runs an ESLint step): both found standing, neither amended here, their owner a route matter.
+**Ref:** .andromeda/runs/2026-10-09T15-11-06Z-wrap/

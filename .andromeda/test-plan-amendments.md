@@ -684,3 +684,25 @@ The load suite found and fixed in-chunk 3 pipeline defects: retention-sweep conn
 - A partial retirement of `2026-10-06T21-47-06Z-wrap — §1 l4-latency-p99-ps1-run-coverage: pwsh is on the dev host; only the run is owed`: the run is no longer owed; that `pwsh` is on the dev host still stands.
 **Why:** The founder closed 0.3.0 as it stands on 2026-10-09 (his own pick, relayed verbatim by the pc overseer), and the option he picked carries the pre-push entry to the next version, so the entry both passages named as owner is gone from the route. Dropping the `.ps1` run is the operator's word at this wrap: the grader grades the local model's latency and Windows is not a target host. Standing fact: the `.ps1` half of the L4 latency grader has never run on any host.
 **Ref:** .andromeda/runs/2026-10-09T08-07-22Z-wrap/
+
+## 2026-10-09-ci-on-linux-alone — §9 and its restatements: the CI runs on ubuntu-22.04 alone, no matrix, no `release` job
+**Section:** §9 CI Integration → Pipeline structure (Lint + tests · Release build · A11y suite · Boot smoke · E2E tests rows) · §9 Matrix builds · §4 Coverage tool · §1 Coverage triggers (`multi-platform-compat`) · §6 Scenario P5 · §3 → Per-chunk gate discipline (the key file `registries/contracts/test-plan/per-chunk-gate-discipline.md`)
+**Change:**
+- Lint + tests row. Was: "matrix Linux/macOS/Windows", perf steps "on Linux also", Python 3 "on all three runners", "one job per OS". Now: one job on `ubuntu-22.04` (check name `lint / test (ubuntu-22.04)`), pinned by `ci_workflow_runs_on_linux_only`; the three perf steps unconditional; Python 3 on the runner; `lint-test-${{ runner.os }}` resolves to `lint-test-Linux` alone.
+- Release build row. Was: the macOS/Windows `release` job, its `release-${{ runner.os }}` key and cache figures. Now: no `release` job; the release-profile builds are `supply-chain`'s `cargo auditable build --workspace --release` and `boot`'s `cargo build --workspace --release --features mcp-server`, pinned by `ci_workflow_keeps_the_linux_release_build_witnesses`; the cache readings live in architecture's CI/CD approach.
+- A11y suite row: its own `a11y` job on `ubuntu-22.04` alone (was a matrix job on all three OSes).
+- Boot smoke row: `ci-gates` runs in this job only; no job runs on macOS or Windows.
+- E2E tests row, Parallel cell: n/a (was "matrix per surface (tauri-driver × 3 platforms)"); §6 P5's pointer to a "tauri-driver matrix" trimmed.
+- Matrix builds: none (was a fenced three-system `matrix:` block); six jobs, each `runs-on: ubuntu-22.04`, no `strategy`, no `needs:`.
+- §4 Coverage tool: runs in the `coverage` job on `ubuntu-22.04` (was "cross-platform on all 3 CI matrix runners").
+- §1 `multi-platform-compat`: the "matrix over Windows/macOS/Linux CI runners" does not exist; the Windows and macOS arms have no CI witness and leave with the route entry `Other operating systems retired from the code` (P-113).
+- Key file, Process-end witness form: the `cfg(unix)` arms run in CI `lint-test` on `ubuntu-22.04`, with no macOS CI witness (was "CI lint-test Linux/macOS").
+**Why:** Chunk 2026-10-09-ci-on-linux-alone removed the Windows and macOS runners from the `ci` workflow. The Release build row keeps its name because the two new self-lint tests cite it.
+**Kept:** The dated run measurements in the Lint + tests row. The A11y suite row's `a11y-violations-base` wording: found standing with no producer, not amended, its owner a route matter. The §1 Surfaces row's webview-engine note (the product's systems).
+**Ref:** .andromeda/runs/2026-10-09T15-11-06Z-wrap/
+
+## 2026-10-09-ci-on-linux-alone — §4 buffer crate: the stale-comment citation corrected at the first citation sweep
+**Section:** §4 Unit Test Strategy → buffer crate bullet
+**Change:** Was: the source comment in `crates/buffer/src/schema.rs` "still states the disproved cause and is owned by its own route entry". Now: the comment above `spans_primary_key_is_composite_trace_id_span_id` states the measured behaviour since chunk 2026-08-30-diagnostics-un-muting-harness-truth-sweep, while a sibling comment above the `metrics_points` key test still states the disproved cause (read 2026-10-09). The ownership clause is dropped.
+**Why:** The first citation sweep listed the citation `changed`; the read found the cited comment rewritten and the claim false as stated. No route entry, residual or requirement names the comment that still stands. Trap for later chunks: a comment corrected above one test can leave its sibling's copy standing.
+**Ref:** .andromeda/runs/2026-10-09T15-11-06Z-wrap/

@@ -78,11 +78,12 @@ JSON-per-line; fields: `timestamp` (ISO-8601), `level`, `target`, `message`, `fi
 - Cranelift-only WASM enforcement: build-time check on `wasmtime` Cargo.lock.
 
 ## CI integration
-GitHub Actions matrix (Linux/macOS/Windows × Rust stable):
-- Lint → Unit tests → Integration → E2E (matrix per platform) → Coverage → Quality gates.
+GitHub Actions, six jobs on `ubuntu-22.04` alone — no matrix since chunk 2026-10-09-ci-on-linux-alone, pinned by `ci_workflow_runs_on_linux_only`:
+- Lint → Unit tests → Integration → Coverage → Quality gates. The E2E `webview-drive` leg is wired into no workflow (dev host only).
+- No `release` job: the release-profile builds are `supply-chain`'s `cargo auditable build --workspace --release` and `boot`'s `cargo build --workspace --release --features mcp-server`, pinned by `ci_workflow_keeps_the_linux_release_build_witnesses`. No CI job compiles or tests on macOS or Windows.
 - Capability gates: `cargo xtask capability-drift` (worktree + staged-index bindings; runs the staged assertion since 2026-08-30) → `cargo xtask check:staged-artifacts` (the direct staged-artifacts verb) → `cargo xtask capability-widening-check` → `cargo xtask verify:capability-matrix` (chunk #99).
 - JUnit XML output via `cargo nextest --message-format junit`; `dorny/test-reporter` for inline PR annotations.
-- Python 3 is a test-time requirement on all three `lint-test` runners since 2026-10-05: `pulse-app/tests/unit_l4_grammar.rs` runs the vendored converter `pulse-app/vendor/llama-cpp/json_schema_to_grammar.py` and pins the committed L4 GBNF to its output; a missing interpreter FAILS the test, never skips it (green on ubuntu / macos / windows, `ci#37327846820`).
+- Python 3 is a test-time requirement on the `lint-test` runner since 2026-10-05: `pulse-app/tests/unit_l4_grammar.rs` runs the vendored converter `pulse-app/vendor/llama-cpp/json_schema_to_grammar.py` and pins the committed L4 GBNF to its output; a missing interpreter FAILS the test, never skips it (green on ubuntu / macos / windows, `ci#37327846820`).
 - Build fails on: any test failure, coverage below threshold, flaky test, perf regression, lint/typecheck/`cargo deny check` failure.
 
 ## Scenario legs vs gates (test-plan §3)
@@ -99,7 +100,7 @@ children (`pulse-app/tests/integration_exit_cause_record.rs`): each child inits 
 through ONE class, and the parent reads the `agent-latest.jsonl*` family after the child ended — child-ran proof is the
 child's own `app.boot.tracing.init` record (its stdout is discarded, so `--no-capture` shows nothing). A once-flag whose
 sink's only drain is a guard drop is pinned by the emitter's RETURN value (the first flush closes the sink; a file read
-passes with the flag removed). `cfg(unix)` arms run natively in `cargo nextest run --workspace` on the Linux dev host (2575 = 2573 + the two arms) and in CI lint-test Linux/macOS, not on Windows.
+passes with the flag removed). `cfg(unix)` arms run natively in `cargo nextest run --workspace` on the Linux dev host (2575 = 2573 + the two arms) and in CI `lint-test` on `ubuntu-22.04` (no macOS CI witness since chunk 2026-10-09-ci-on-linux-alone), not on Windows.
 
 ## Top anti-patterns (test-plan §11)
 - NEVER `sleep(N)` for sync — wait for `health` polling or Channel events.

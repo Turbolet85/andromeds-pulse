@@ -1,0 +1,202 @@
+[
+{
+"tool": "inputs",
+"v": "1.1",
+"sha8": "d45f2ad1",
+"ts": "2026-10-09T15:11:31Z",
+"argv": [
+"snap",
+"--chunk-dir",
+"andromeda-pulse-0.4.0/chunks/2026-10-09-ci-on-linux-alone",
+"--source",
+"~/dev/projects/additional/pc-overseer/relays/pulse-wrap-ci-on-linux-alone-2026-10-09.md",
+"--kind",
+"relay",
+"--why",
+"the operator rules the a11y reading a reading, asks an owner for four found-standing things at route-resolve, asks how the promoted entry watch is pinned and tallied, and names three readings for the closing report",
+"--step",
+"wrap",
+"--run-dir",
+".andromeda/runs/2026-10-09T15-11-06Z-wrap",
+"--marker",
+"2026-10-09-ci-on-linux-alone"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"snapped I3 · copy no-repo · ../additional/pc-overseer/relays/pulse-wrap-ci-on-linux-alone-2026-10-09.md",
+"cite: inputs#I3"
+],
+"stderr": null,
+"wrote": [
+"inputs/I3-pulse-wrap-ci-on-linux-alone-2026-10-09.md.txt",
+"inputs/andromeda-inputs.json"
+],
+"before": null,
+"after": {
+"id": "I3",
+"kind": "relay",
+"repo": null,
+"path": "../additional/pc-overseer/relays/pulse-wrap-ci-on-linux-alone-2026-10-09.md",
+"form": "copy",
+"state": "no-repo",
+"commit": null,
+"ref": null,
+"upstream": null,
+"claimed": null,
+"sha256": "894cd264b2225b8e7a16cf44df6e5cdcbb41be7eeb413ee17c7b3e3317655031",
+"copy": "I3-pulse-wrap-ci-on-linux-alone-2026-10-09.md.txt",
+"link": false,
+"read_at": "2026-10-09T15:11:31Z",
+"step": "wrap",
+"why": "the operator rules the a11y reading a reading, asks an owner for four found-standing things at route-resolve, asks how the promoted entry watch is pinned and tallied, and names three readings for the closing report"
+}
+},
+{
+"tool": "inputs",
+"v": "1.1",
+"sha8": "d45f2ad1",
+"ts": "2026-10-09T15:11:31Z",
+"argv": [
+"snap",
+"--chunk-dir",
+"andromeda-pulse-0.4.0/chunks/2026-10-09-ci-on-linux-alone",
+"--message-file",
+".andromeda/runs/2026-10-09T15-11-06Z-wrap/relay-1.md",
+"--origin",
+"the operator (pc overseer), in the /andromeda-wrap-session invocation, 2026-10-09",
+"--kind",
+"relay",
+"--why",
+"the operator says the CI read is green and the operator pass stands, and to stop before the commit",
+"--step",
+"wrap",
+"--run-dir",
+".andromeda/runs/2026-10-09T15-11-06Z-wrap",
+"--marker",
+"2026-10-09-ci-on-linux-alone"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"snapped I4 · copy message · message: the operator (pc overseer), in the /andromeda-wrap-session invocation, 2026-10-09",
+"cite: inputs#I4"
+],
+"stderr": null,
+"wrote": [
+"inputs/I4-relay-1.md.txt",
+"inputs/andromeda-inputs.json"
+],
+"before": null,
+"after": {
+"id": "I4",
+"kind": "relay",
+"repo": null,
+"path": "message: the operator (pc overseer), in the /andromeda-wrap-session invocation, 2026-10-09",
+"form": "copy",
+"state": "message",
+"commit": null,
+"ref": null,
+"upstream": null,
+"claimed": null,
+"sha256": "54b7f86a7b9fe15b090496300bc079969f22ba2f1a40b4c45b3c94f1b89e6aab",
+"copy": "I4-relay-1.md.txt",
+"link": false,
+"read_at": "2026-10-09T15:11:31Z",
+"step": "wrap",
+"why": "the operator says the CI read is green and the operator pass stands, and to stop before the commit"
+}
+},
+{
+"tool": "inputs",
+"v": "1.1",
+"sha8": "d45f2ad1",
+"ts": "2026-10-09T15:11:31Z",
+"argv": [
+"verify",
+"--chunk-dir",
+"andromeda-pulse-0.4.0/chunks/2026-10-09-ci-on-linux-alone",
+"--run-dir",
+".andromeda/runs/2026-10-09T15-11-06Z-wrap",
+"--marker",
+"2026-10-09-ci-on-linux-alone"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"I1 unchanged · copy no-repo · ../additional/pc-overseer/relays/pulse-phase-ci-on-linux-alone-2026-10-09.md",
+"I1 cited scope.md:7 · scope.md:14 · scope.md:55 · scope.md:128 · scope.md:132 · scope.md:138 · scope.md:147 · scope.md:166 · research.md:12 · plan.md:18 · plan.md:302 · plan.md:317 · plan.md:330",
+"I2 n/a — a message has no live source · copy message · message: the operator (pc overseer), in the /andromeda-phase invocation, 2026-10-09",
+"I2 cited scope.md:14 · scope.md:166 · research.md:14 · plan.md:317",
+"I3 unchanged · copy no-repo · ../additional/pc-overseer/relays/pulse-wrap-ci-on-linux-alone-2026-10-09.md",
+"I3 UNCITED",
+"I4 n/a — a message has no live source · copy message · message: the operator (pc overseer), in the /andromeda-wrap-session invocation, 2026-10-09",
+"I4 UNCITED",
+"inputs: 4 entries — unchanged 2 · drifted 0 · vanished 0 · broken 0 · altered 0 · unreachable 0 · n/a 2 · uncited 2 · unparsed 0"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"entries": 4,
+"counts": {
+"unchanged": 2,
+"drifted": 0,
+"vanished": 0,
+"broken": 0,
+"altered": 0,
+"unreachable": 0,
+"n/a": 2
+},
+"uncited": 2,
+"unparsed": 0
+}
+},
+{
+"tool": "inputs",
+"v": "1.1",
+"sha8": "d45f2ad1",
+"ts": "2026-10-09T15:15:49Z",
+"argv": [
+"verify",
+"--chunk-dir",
+"andromeda-pulse-0.4.0/chunks/2026-10-09-ci-on-linux-alone",
+"--run-dir",
+".andromeda/runs/2026-10-09T15-11-06Z-wrap",
+"--marker",
+"2026-10-09-ci-on-linux-alone"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"I1 unchanged · copy no-repo · ../additional/pc-overseer/relays/pulse-phase-ci-on-linux-alone-2026-10-09.md",
+"I1 cited scope.md:7 · scope.md:14 · scope.md:55 · scope.md:128 · scope.md:132 · scope.md:138 · scope.md:147 · scope.md:166 · research.md:12 · plan.md:18 · plan.md:302 · plan.md:317 · plan.md:330",
+"I2 n/a — a message has no live source · copy message · message: the operator (pc overseer), in the /andromeda-phase invocation, 2026-10-09",
+"I2 cited scope.md:14 · scope.md:166 · research.md:14 · plan.md:317",
+"I3 unchanged · copy no-repo · ../additional/pc-overseer/relays/pulse-wrap-ci-on-linux-alone-2026-10-09.md",
+"I3 cited report.md:96 · report.md:116 · report.md:122 · report.md:126 · report.md:129 · report.md:202 · report.md:204 · report.md:206 · report.md:277 · report.md:291 · report.md:297",
+"I4 n/a — a message has no live source · copy message · message: the operator (pc overseer), in the /andromeda-wrap-session invocation, 2026-10-09",
+"I4 cited report.md:100 · report.md:206 · report.md:297",
+"inputs: 4 entries — unchanged 2 · drifted 0 · vanished 0 · broken 0 · altered 0 · unreachable 0 · n/a 2 · uncited 0 · unparsed 0"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"entries": 4,
+"counts": {
+"unchanged": 2,
+"drifted": 0,
+"vanished": 0,
+"broken": 0,
+"altered": 0,
+"unreachable": 0,
+"n/a": 2
+},
+"uncited": 0,
+"unparsed": 0
+}
+}
+]

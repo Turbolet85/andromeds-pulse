@@ -595,3 +595,13 @@ _Records key decisions during plan generation + manual additions between phase l
 **Why:** A composition measured above the recorded maximum, and the probe gained an input class the row did not name. The replay input is a boundary widening, ratified by the founder: the founder, 2026-10-07 13:13 local, by dialog, relayed verbatim by the pc overseer (the builder reads the digest itself); the vehicle, and that the captures never enter a repository, are his pick of 2026-10-07 13:49 local, by dialog, relayed by the pc overseer. Standing rule: a commit that would carry capture text is a further widening and stops for him.
 **Kept:** The credential read of the encrypted digest stays refused. The harness-only carve-out lists (path env vars, boot-recorder state files) were read and left as they are: the replay input is a flag of an example binary and falsifies none of them.
 **Ref:** .andromeda/runs/2026-10-07T20-29-42Z-wrap/
+
+## 2026-10-09-ci-on-linux-alone — three statements of a `ci.yml` matrix retired
+**Section:** §Threat Model Summary → Infrastructure → CI/CD · §Dependency Security → CI integration · §Bootstrap phases `dep-security-ci-gate`
+**Change:**
+- CI/CD: `ci.yml` is six jobs on `ubuntu-22.04` alone (was "matrix Linux/macOS/Windows").
+- CI integration: `cargo audit` runs as a step of `ci.yml`'s `supply-chain` job (was "a step in `ci.yml` matrix").
+- `dep-security-ci-gate`: the gates are wired "into `ci.yml`" (was "into `ci.yml` matrix").
+**Why:** Chunk 2026-10-09-ci-on-linux-alone removed the Windows and macOS runners from the `ci` workflow; no job carries a matrix. Every gate step, every sha pin, the workflow-level `permissions: contents: read` and the audit step's token are unchanged, and the removed `release` job read no secret and named no environment.
+**Kept:** The dated measurement "green on all three `lint-test` runners" in the vendored test-only channel paragraph, true as dated. The `release.yml` and `update-channels.yml` clauses of the CI/CD line.
+**Ref:** .andromeda/runs/2026-10-09T15-11-06Z-wrap/

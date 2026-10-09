@@ -8,11 +8,13 @@ _verbatim line to route-archive.md); markerless lines stay mutable._
 _Chunks separated by `   ↓` within an epoch; only `### Epoch K — {name}` headers are structural._
 
 ### Epoch 1 — Foundation: base CI, the capability record, a console engine with its door, its gates
-[2026-10-09-ci-on-linux-alone] CI on Linux alone — Windows and macOS legs leave three jobs, the release-build job whole; one run's wall-clock recorded (P-113) · WATCH: boot smoke on ubuntu-22.04 ended exit 1 within 0.4 s of its last record, after ready, with no process-end record; no cause in the application log, whose warnings match the green run on 7f99c38 — run 37924991598 on b3ac58a; hypothesis: the window's boot; the job leaves at Window's gates retired (since 2026-10-09-0-pending-adaptation-wrap; retires: a recurrence, or 3 green runs — 0 so far)
+[2026-10-09-ci-on-linux-alone] CI on Linux alone — Windows and macOS legs leave three jobs, the release-build job whole; one run's wall-clock recorded (P-113)
    ↓
-Supply-chain job same on push and pull request — fails on a finding, never on its own reporting; repair witnessed on a push (P-120)
+Supply-chain job same on push and pull request — fails on a finding, never on its own reporting; repair witnessed on a push (P-120) · WATCH: boot smoke on ubuntu-22.04 ended exit 1 within 0.4 s of its last record, after ready, with no process-end record; no cause in the application log, whose warnings match the green run on 7f99c38 — run 37924991598 on b3ac58a; hypothesis: the window's boot; the job leaves at Window's gates retired (since 2026-10-09-0-pending-adaptation-wrap; retires: a recurrence, or 3 green runs — 2 so far) · CARRY: six Actions cache entries sit on keys no job writes since 2026-10-09-ci-on-linux-alone (release-Windows, lint-test-Windows, lint-test-macOS and release-macOS on main; lint-test-Windows and release-Windows on pull/39), 8 531 028 085 B of 12 208 662 121 B, the cache 1 471 243 881 B over its cap as read 2026-10-09T15:13:15Z; nothing in the tree reads or writes them and the wrap deleted none; this entry's wrap re-reads the listing and records the reading in architecture §Infrastructure Patterns, CI/CD approach; hypothesis: GitHub evicts them first, as the least recently used · CARRY: security-plan §Dependency Security, CI integration, names the action actions-rust-lang/audit for the cargo audit step while ci.yml uses rustsec/audit-check (read 2026-10-09 at the 2026-10-09-ci-on-linux-alone wrap, outside its report); the master line is corrected at this entry's wrap
    ↓
 Pre-push check native on Linux — surviving stages run on the dev host; the second-system hop and its distro clone leave (P-103, P-113)
+   ↓
+No CI step reads nothing — every comparison has a producer for its baseline or is gone; every upload finds its file or is gone (P-128) · CARRY: measured 2026-10-09 on ci#37934330231 and ci#37945548047 (record: 2026-10-09-ci-on-linux-alone's report, Spec claims disproved 1 and 2): the criterion and coverage regression comparisons download criterion-Linux-base and coverage-linux-base, which no workflow uploads, and the nextest-Linux and criterion-Linux upload steps find no file. Two more of the kind are carried by their own entries: a11y-violations-base on Window's gates retired, logs-Linux on Engine end-to-end gate reachable. obs-plan §9 states the criterion artifact as uploaded (the Criterion bench JSON row, the xtask bench consumer cell) and test-plan §9's Test report format states a JUnit file; both are corrected as measured at this entry's wrap
    ↓
 Capability record re-based — one current record for all 82 ids, each claimed or retired with its surface; the old gate reads it (P-117)
    ↓
@@ -30,14 +32,14 @@ One place on a node — operator-set, owner-only locations for stores, log, pid;
    ↓
 Corpus encryption at rest retired — credential-store key, cell encryption, passphrase fallback, key lock file, orphan disposition leave; scrubber unchanged; decision dated for review (P-085)
    ↓
-Engine end-to-end gate reachable — memory-capped engine in CI, loopback sender, finding read through door, log graded, kept; second host reaches stub; recorded green (P-086, P-090)
+Engine end-to-end gate reachable — memory-capped engine in CI, loopback sender, finding read through door, log graded, kept; second host reaches stub; recorded green (P-086, P-090) · CARRY: the lint-test job's logs-Linux upload finds no file, and no logs-Linux artifact exists on ci#37934330231 or ci#37945548047 (record: 2026-10-09-ci-on-linux-alone's report, Spec claims disproved 1); when this entry keeps the engine's log in CI the upload finds it or the step is gone (P-128's rule), and obs-plan §9 is corrected as measured where it states that upload: the Log file row, the Pipeline integration consumer cells, and the triage workflow's download by the name logs
    ↓
 Detection baseline through the console engine — five cue families, one incident per storm, auto-resolve read through the door, recorded before window and model leave (P-086)
 
 ### Epoch 2 — What leaves: the window, its bridge, its distribution and the other platforms
-Window's gates retired — a11y and boot CI jobs, webview suite, headful drive, self-verify, staged, bindings, hue, discovery, frame, bundle checks leave (P-083)
+Window's gates retired — a11y and boot CI jobs, webview suite, headful drive, self-verify, staged, bindings, hue, discovery, frame, bundle checks leave (P-083) · CARRY: the a11y job's pull-request download a11y-violations-base has no producer in any workflow, so its regression comparison reads no baseline (measured 2026-10-09; record: 2026-10-09-ci-on-linux-alone's report, Spec claims disproved 2); it leaves with the job, and a11y-plan §3 CI integration (Per-PR regression detection) and test-plan §9's A11y suite row are corrected then
    ↓
-Window retired — Tauri shell, webview interface, IPC routers, tray, updater, notification plugins leave; design, layout, a11y masters state no interface; critical path P5 retired (P-083)
+Window retired — Tauri shell, webview interface, IPC routers, tray, updater, notification plugins leave; design, layout, a11y masters state no interface; critical path P5 retired (P-083) · CARRY: no workflow runs an ESLint step (measured 2026-10-09; record: 2026-10-09-ci-on-linux-alone's report, Spec claims disproved 3), while a11y-plan §9 CI Integration lists a Lint stage as a pull-request check; the stage's subject leaves here, and that row is corrected when the master states no interface
    ↓
 Desktop distribution retired — bundle workflow, channel publishing, runbooks, manifest test, npm tree, its watch, gate leave; release environment, secret names listed for the founder (P-114) · CARRY: the card names the release environment and every secret name the two workflows read (P-127; measured 2026-10-09 at b3ac58a: production-release, 14 names in release.yml, two push tokens in update-channels.yml); nothing outside the tree is deleted
    ↓
@@ -103,7 +105,7 @@ Engine delivered to a node — one auditable Linux binary, checksum verified by 
 Theme 1 checked by the external harness — another host sends and reads findings through the door; reading recorded, path pinned in the engine gate (P-102)
 
 ### Epoch 6 — Memory on disk and the door's full answers
-Telemetry store on disk — replaces the in-memory buffer, tick, stall signal kept; 7-day default term, configurable; oldest first at a size ceiling; survives restart (P-091)
+Telemetry store on disk — replaces the in-memory buffer, tick, stall signal kept; 7-day default term, configurable; oldest first at a size ceiling; survives restart (P-091) · CARRY: a test comment in crates/buffer/src/schema.rs, above the metrics_points key test, still says the duplicate-INSERT probe hangs on this build, which was disproved 2026-08-28 (a violating flush returns an error at duckdb 1.10505); test-plan §4's buffer bullet states both comments as read 2026-10-09; the comment is corrected when this entry reworks the store's schema tests
    ↓
 Disk store opened across builds — a telemetry store written by another build is recognised, carried forward or refused by a stated rule, never misread (P-091) · CARRY: this entry's rule is P-125's — P-091's text has none
    ↓

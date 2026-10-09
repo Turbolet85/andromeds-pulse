@@ -1,6 +1,32 @@
 # Session Learnings
 
 
+## 2026-10-09 — A thing found standing gets an owner at route-resolve; a mention in the report is not one
+
+When research or a wrap finds a defect that predates the chunk and the chunk does not change it (a CI download with
+no producer, an upload step that finds no file, a gate no workflow runs), "carried to the report as found" does not
+own it. At the wrap's route-resolve each such thing is presented to the operator for a disposition, and none is
+placed in advance. The disposition is one of three: an existing route entry owns it (pinned there as a `CARRY:`), it
+leaves with a named entry that retires its subject, or nothing is owed and the reason is stated.
+
+The spec masters follow the same line. A master claim that such a finding measures false is corrected as measured
+only once an owner entry can be named in the amendment; until then the claim is handed to the route and the
+sidecar's `Kept` field says so. Corrected by the operator at the first chunk wrap of 0.4.0.
+
+---
+
+## 2026-10-09 — A verbatim relay kept in a run dir can fail the hygiene read at the pre-CI commit
+
+A skill writes an operator message verbatim to its run dir (`relay-{n}.md`) before it snapshots it as an input. When
+the message names a file by an absolute path under the home directory, that run-dir copy is a hygiene row of the
+`home` form at the operator pass, and the pre-CI commit cannot proceed on it. The manifest-listed copy under the
+chunk's `inputs/` is exempt and keeps the path as given. `gate.py respell` rewrites only a path under the repository
+root, so this row is settled by hand, on the operator's word: the home prefix of that one path becomes `~`, nothing
+else in the line changes, and the operator-pass record says so. A message that already spells the path with `~`
+raises no row.
+
+---
+
 ## 2026-10-08 — Moved from the host leaf: stop the rust-analyzer flycheck cargo tree before a cargo clean or a long build
 - 2026-10-01: The session's own rust-analyzer LSP runs a `cargo check --workspace --all-targets` flycheck into the shared `target/` and respawns after source edits; before a `cargo clean` or a long build, stop that flycheck cargo tree by PID — never rust-analyzer itself — and re-check for a respawn, or the two contend for the build lock and the disk. Extended 2026-10-01: `cargo clippy` spawns its own `cargo check` child, which looks like the flycheck, so identify the flycheck by its `rust-analyzer.exe` parent (`Get-CimInstance Win32_Process` ParentProcessId) before stopping anything. Extended 2026-10-04: on a Linux host select it by process name and arguments (`ps -eo pid,comm,args` with `comm == cargo` and `--message-format=json`), never `pgrep -f` / `pkill -f` on a pattern your own shell's command line contains — it matches and kills the invoking shell.
 

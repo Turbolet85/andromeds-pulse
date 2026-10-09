@@ -396,3 +396,10 @@ Owner moves to the working-route entry "Duplicate-span replay fails loudly" (mod
 - Partial retirements: of `2026-10-06T21-47-06Z-wrap — §8: the open recurrence's owner is named by title, not by route position`, whose owner no longer exists; and of `2026-10-06T21-47-06Z-wrap — §10: pwsh is on the dev host; only the .ps1 grader run is owed`, whose run is no longer owed (that `pwsh` is on the dev host still stands).
 **Why:** The founder closed 0.3.0 as it stands on 2026-10-09 (his own pick, relayed verbatim by the pc overseer), and the option he picked retires the generation-records entry unbuilt. Dropping the `.ps1` run is the operator's word at this wrap: the grader grades the local model's latency and Windows is not a target host. Trap for a later reader: the incomplete exact leaf is a known, unowned defect of 0.3.0, not a closed one.
 **Ref:** .andromeda/runs/2026-10-09T08-07-22Z-wrap/
+
+## 2026-10-09-ci-on-linux-alone — §9 Log file row: the `lint-test` job uploads from one runner system
+**Section:** §9 CI Integration → Telemetry artifact handling → Log file row
+**Change:** Was: "the `lint-test` job per OS (`logs-${{ runner.os }}`)". Now: the `lint-test` job, on one runner system (`ubuntu-22.04`) since chunk 2026-10-09-ci-on-linux-alone. The rest of the row stands as written.
+**Why:** The chunk removed the Windows and macOS runners from the `ci` workflow.
+**Kept:** The row's statement that `lint-test` uploads `logs-${{ runner.os }}`, with the Criterion bench JSON row, the Pipeline integration consumer cells and the triage workflow's `-n logs`: found standing false on the two runs read (no `logs-Linux`, `nextest-Linux` or `criterion-Linux` artifact exists; the upload steps find no file). Not amended here: the family has no named owner yet and goes to route-resolve.
+**Ref:** .andromeda/runs/2026-10-09T15-11-06Z-wrap/

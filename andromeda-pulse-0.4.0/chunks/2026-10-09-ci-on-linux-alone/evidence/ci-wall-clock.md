@@ -66,11 +66,43 @@ red · `0b61bfb` green. The after-run below is the next reading.
 
 ## After — the first run of the pre-CI commit
 
-_Not yet read. The operator pass fills this section from the jobs entry's recorded output (plan Step 7): the run id,
-the sha, the event, the per-job table, the run's wall-clock and its longest job, the sum over the jobs, the number of
-checks the commit registered, and the `boot smoke (ubuntu-22.04)` verdict with its job id. It is the FIRST run of the
-pre-CI commit, never a second attempt._
+`ci#37945548047`, read in the operator pass at 2026-10-09T15:06:46Z from the jobs entry's output
+(`evidence/operator-pass.md`, entry 20).
 
-Forecasts to hold the reading against, each to be recorded as read and not restated: 7 checks where the base
-registered 13; a span inside 1091 to 1855 s with `coverage gate` still the longest job; the sum of job-seconds down by
-about the six legs' share, 3120 s of 7221 s on the before-reading.
+- sha `569604b` (the pre-CI commit) · event `pull_request` · attempt 1, the first run of that commit · conclusion
+  success.
+
+| job | s | the same job on the before-run | job id |
+|---|---|---|---|
+| coverage gate | 1714 | 1463 | `113870729157` |
+| a11y (ubuntu-22.04) | 1088 | 237 | `113870729650` |
+| boot smoke (ubuntu-22.04) | 658 | 1106 | `113870729265` |
+| lint / test (ubuntu-22.04) | 450 | 426 | `113870729376` |
+| supply-chain | 445 | 465 | `113870729512` |
+| mcp-server tests (ubuntu-22.04) | 347 | 404 | `113870729321` |
+
+- Run wall-clock: 1714 s (`ci.py`: `wall 1714 s`). Longest job: `coverage gate`.
+- Sum over the 6 jobs: 4702 s. The before-run's 12 jobs summed 7221 s; its six Linux jobs alone, 4101 s.
+- Checks on the commit: 7 (`checks 7/7`: the six `ci` jobs and `secret-scan#37945547982`).
+- `boot smoke (ubuntu-22.04)`: **success**, 658 s, job `113870729265`.
+- Step counts per job equal the before-run's: 37, 21, 18, 20, 23, 22.
+
+The forecasts, each as read:
+
+- 7 checks where the base registered 13: read 7.
+- A span inside 1091 to 1855 s with `coverage gate` still the longest job: read 1714 s, `coverage gate` the longest.
+  The round is 251 s longer than the before-run's 1463 s, inside the spread of the seven pull-request runs.
+- The sum of job-seconds down by about the six legs' share, 3120 s: read down 2519 s (7221 to 4702). The six legs'
+  3120 s left; the six jobs that stay summed 601 s more than on the before-run.
+
+One job moved far outside its before-reading: `a11y (ubuntu-22.04)`, 237 s to 1088 s. Its per-step instants
+(`gh api …/actions/jobs/113870729650`, read 2026-10-09T15:06Z) place the difference in two steps:
+`Install Linux system libraries (Tauri + dbus)` took 666 s where the before-run's took 28 s, and
+`Install Playwright chromium (a11y harness)` took 266 s where the before-run's took 76 s. Both steps download
+packages; this chunk changed neither step's commands (the first lost its always-true condition). The step logs were
+not read, so no cause is stated. One run is one reading: whether the a11y job stays slow is not measured here.
+
+With the after-run, the `boot smoke (ubuntu-22.04)` verdicts the chunk read are nine: the eight above and `569604b`
+success. On the watch's equal-source series the after-run is not a like-for-like reading in the strict sense: its
+commit differs from `0b61bfb` in `ci.yml` and one test file. The boot job's own block of `ci.yml` is unchanged and
+a release build compiles no test file; how the wrap counts this reading is the wrap's.
