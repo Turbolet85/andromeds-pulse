@@ -431,6 +431,136 @@ fn ci_workflow_uploads_logs_artifact_unchanged() {
     );
 }
 
+// The boot job's smoke step without its comment lines, each line trimmed.
+fn boot_smoke_step_lines(content: &str) -> Vec<String> {
+    let boot = workflow_job_block(content, "boot");
+    let lines: Vec<&str> = boot.lines().collect();
+    let name_line = "      - name: Boot pulse-app smoke";
+    let start = lines
+        .iter()
+        .position(|line| *line == name_line)
+        .unwrap_or_else(|| panic!("the boot job MUST keep the step `{name_line}`"));
+    lines[start + 1..]
+        .iter()
+        .take_while(|line| !line.starts_with("      - name: "))
+        .filter(|line| !line.trim_start().starts_with('#'))
+        .map(|line| line.trim().to_string())
+        .collect()
+}
+
+fn only_line_with(step: &[String], needle: &str) -> usize {
+    let hits: Vec<usize> = step
+        .iter()
+        .enumerate()
+        .filter(|(_, line)| line.contains(needle))
+        .map(|(idx, _)| idx)
+        .collect();
+    assert_eq!(
+        hits.len(),
+        1,
+        "the boot smoke step MUST hold exactly one line with `{needle}` (test-plan §9 \
+         Pipeline structure, Boot smoke row); step:\n{}",
+        step.join("\n")
+    );
+    hits[0]
+}
+
+#[test]
+fn ci_workflow_boot_smoke_reads_the_app_past_its_settle_inside_one_display() {
+    let step = boot_smoke_step_lines(&read_workflow());
+    let display = only_line_with(&step, "xvfb-run ");
+    assert!(
+        step[display].ends_with("bash -c '"),
+        "one `xvfb-run … bash -c '` MUST span the whole sequence, so the display server \
+         outlives boot's backgrounded app; line: {}",
+        step[display]
+    );
+    let order = [
+        display,
+        only_line_with(&step, "scripts/agent-run.sh boot"),
+        only_line_with(&step, "cargo xtask harness:settled"),
+        only_line_with(&step, "scripts/agent-run.sh status"),
+        only_line_with(&step, "scripts/agent-run.sh cleanup"),
+    ];
+    assert!(
+        order.windows(2).all(|pair| pair[0] < pair[1]),
+        "the smoke MUST run boot, harness:settled, status, cleanup in that order inside the \
+         one xvfb-run (test-plan §9 Pipeline structure, Boot smoke row); step:\n{}",
+        step.join("\n")
+    );
+    let close = step
+        .iter()
+        .rposition(|line| line == "'")
+        .expect("the `bash -c '` block MUST close on its own line");
+    assert!(
+        close > order[4],
+        "cleanup MUST sit inside the one xvfb-run; step:\n{}",
+        step.join("\n")
+    );
+}
+
+#[test]
+fn ci_workflow_boot_smoke_runs_cleanup_whatever_settled_and_status_returned() {
+    let step = boot_smoke_step_lines(&read_workflow());
+    let settled = only_line_with(&step, "cargo xtask harness:settled");
+    let status = only_line_with(&step, "scripts/agent-run.sh status");
+    let cleanup = only_line_with(&step, "scripts/agent-run.sh cleanup");
+    for (idx, capture) in [(settled, "; a=$?"), (status, "; b=$?"), (cleanup, "; c=$?")] {
+        assert!(
+            step[idx].ends_with(capture),
+            "the smoke MUST record this verb's exit and go on (`{capture}`), so cleanup runs \
+             whatever the two before it returned; line: {}",
+            step[idx]
+        );
+    }
+    let all_three = only_line_with(&step, r#"test "$a$b$c" = 000"#);
+    assert!(
+        all_three > cleanup,
+        "the step MUST fail unless harness:settled, status and cleanup all returned 0"
+    );
+    assert!(
+        !step.iter().any(|line| line == "set -e"),
+        "`set -e` would end the sequence at a red settle verdict, before cleanup; step:\n{}",
+        step.join("\n")
+    );
+}
+
+#[test]
+fn ci_workflow_boot_smoke_keeps_the_display_server_output_in_the_logs_artifact() {
+    let content = read_workflow();
+    let step = boot_smoke_step_lines(&content);
+    let display = only_line_with(&step, "xvfb-run ");
+    assert!(
+        step[display].contains(r#"-e "$ANDROMEDA_PULSE_DATA_DIR/logs/xvfb.log""#),
+        "xvfb-run MUST write the display server's own error output to `logs/xvfb.log` under \
+         the data dir (obs-plan §9 Telemetry artifact handling); line: {}",
+        step[display]
+    );
+    let logs_dir = only_line_with(&step, r#"mkdir -p "$ANDROMEDA_PULSE_DATA_DIR/logs""#);
+    assert!(
+        logs_dir < display,
+        "the data dir's `logs/` MUST exist before xvfb-run opens its error file there"
+    );
+    assert!(
+        workflow_job_block(&content, "boot")
+            .contains("path: ${{ env.ANDROMEDA_PULSE_DATA_DIR }}/logs/"),
+        "the boot job MUST upload the same `logs/` dir the smoke writes into"
+    );
+}
+
+#[test]
+fn ci_workflow_boot_smoke_carries_no_soft_fail() {
+    let step = boot_smoke_step_lines(&read_workflow());
+    for banned in ["continue-on-error", "retry", "|| true"] {
+        assert!(
+            !step.iter().any(|line| line.contains(banned)),
+            "the boot smoke step MUST hold no `{banned}`: the smoke is a gating step \
+             (test-plan §11 Test Anti-Patterns); step:\n{}",
+            step.join("\n")
+        );
+    }
+}
+
 fn read_named_workflow(name: &str) -> String {
     let full_path = project_root().join(".github/workflows").join(name);
     std::fs::read_to_string(&full_path)

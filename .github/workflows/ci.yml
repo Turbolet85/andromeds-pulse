@@ -374,14 +374,19 @@ jobs:
 
       - name: Boot pulse-app smoke
         # The runner is headless: without a display tao panics initialising
-        # GTK. One xvfb-run spans all three verbs so the X server outlives
-        # boot's backgrounded app.
+        # GTK. One xvfb-run spans the whole sequence so the X server outlives
+        # boot's backgrounded app, and -e keeps the X server's own error
+        # output in the uploaded logs. harness:settled reads the app once it
+        # has settled, or at its end, and says what it saw; cleanup runs
+        # whatever harness:settled and status returned.
         run: |
-          xvfb-run -a --server-args="-screen 0 1280x1024x24" bash -c '
-            set -e
-            bash scripts/agent-run.sh boot
-            bash scripts/agent-run.sh status
-            bash scripts/agent-run.sh cleanup
+          mkdir -p "$ANDROMEDA_PULSE_DATA_DIR/logs"
+          xvfb-run -a -e "$ANDROMEDA_PULSE_DATA_DIR/logs/xvfb.log" --server-args="-screen 0 1280x1024x24" bash -c '
+            bash scripts/agent-run.sh boot || exit 1
+            cargo xtask harness:settled; a=$?
+            bash scripts/agent-run.sh status; b=$?
+            bash scripts/agent-run.sh cleanup; c=$?
+            test "$a$b$c" = 000
           '
 
       # Reads the log the boot smoke above wrote under ANDROMEDA_PULSE_DATA_DIR.

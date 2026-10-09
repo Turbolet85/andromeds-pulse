@@ -1,0 +1,74 @@
+[
+{
+"tool": "route",
+"v": "1.7",
+"sha8": "470db3a8",
+"ts": "2026-10-09T18:19:29Z",
+"argv": [
+"route.py",
+"pins",
+"--root",
+".",
+"--run-dir",
+"./.andromeda/runs/2026-10-09T18-17-49Z-phase",
+"--marker",
+"2026-10-09-boot-smoke-s-early-exit-found-and-closed"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"working-route.md · markerless 78 of 80 entries · freight blocks 13 · rows are an INDEX, not the text",
+"15 · CARRY: · 1092 chars · CARRY: measured 2026-10-09 on the boot job's application logs of seven runs (record: 2026-10…",
+"15 · CARRY: · 564 chars · CARRY: the harness contract's boot readiness signal says boot confirms a TCP handshake on the…",
+"19 · CARRY: · 722 chars · CARRY: measured 2026-10-09 on ci#37934330231 and ci#37945548047 (record: 2026-10-09-ci-on-lin…",
+"29 · CARRY: · 130 chars · CARRY: this entry's owner-only is P-126's — until another host can reach the door, another ac…",
+"37 · CARRY: · 485 chars · CARRY: the lint-test job's logs-Linux upload finds no file, and no logs-Linux artifact exists…",
+"42 · CARRY: · 378 chars · CARRY: the a11y job's pull-request download a11y-violations-base has no producer in any workf…",
+"44 · CARRY: · 306 chars · CARRY: no workflow runs an ESLint step (measured 2026-10-09; record: 2026-10-09-ci-on-linux-a…",
+"46 · CARRY: · 252 chars · CARRY: the card names the release environment and every secret name the two workflows read (P…",
+"84 · CARRY: · 142 chars · CARRY: the renewal this entry states is P-124's — who renews the channel's private key and by…",
+"110 · CARRY: · 378 chars · CARRY: a test comment in crates/buffer/src/schema.rs, above the metrics_points key test, sti…",
+"112 · CARRY: · 59 chars · CARRY: this entry's rule is P-125's — P-091's text has none",
+"128 · CARRY: · 218 chars · CARRY: the restart between the two readings is done on the engine's host by whoever runs the…",
+"161 · CARRY: · 103 chars · CARRY: the record each raise leaves is read through the door (P-123); this entry's check rea…"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null
+},
+{
+"tool": "route",
+"v": "1.7",
+"sha8": "470db3a8",
+"ts": "2026-10-09T18:19:29Z",
+"argv": [
+"route.py",
+"promote",
+"--root",
+".",
+"--chunk",
+"2026-10-09-boot-smoke-s-early-exit-found-and-closed",
+"--expect-prefix",
+"Boot smoke's early exit found and closed",
+"--record-file",
+"./.andromeda/runs/2026-10-09T18-17-49Z-phase/master-record.txt",
+"--run-dir",
+"./.andromeda/runs/2026-10-09T18-17-49Z-phase"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"stamp working-route.md:15 - [2026-10-09-boot-smoke-s-early-exit-found-and-closed]",
+"record master-route.md:108 - appended under `## andromeda-pulse-0.4.0`",
+"promoted 2026-10-09-boot-smoke-s-early-exit-found-and-closed - working-route:15 frozen - master record appended"
+],
+"stderr": null,
+"wrote": [
+"./andromeda-pulse-0.4.0/working-route.md",
+"./.andromeda/master-route.md"
+],
+"before": null,
+"after": null
+}
+]

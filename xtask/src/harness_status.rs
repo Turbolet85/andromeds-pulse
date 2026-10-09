@@ -120,19 +120,24 @@ pub(crate) fn classify(
 /// Harness-only path resolution (trim + fall back; the vars are the
 /// `ANDROMEDA_PULSE_PIDFILE` / `_LOGFILE` / `_DATA_DIR` class — external
 /// tool-locator carve-out, never data-dir-confined).
-fn resolve_paths() -> Option<(PathBuf, PathBuf)> {
-    let env_path = |name: &str| {
-        std::env::var(name).ok().and_then(|v| {
-            let t = v.trim();
-            (!t.is_empty()).then(|| PathBuf::from(t))
-        })
-    };
-    let data_dir = env_path("ANDROMEDA_PULSE_DATA_DIR").or_else(default_data_dir)?;
+pub(crate) fn resolve_paths() -> Option<(PathBuf, PathBuf)> {
+    let data_dir = resolve_data_dir()?;
     let pidfile = env_path("ANDROMEDA_PULSE_PIDFILE")
         .unwrap_or_else(|| data_dir.join("run").join("andromeda-pulse.pid"));
     let log_base = env_path("ANDROMEDA_PULSE_LOGFILE")
         .unwrap_or_else(|| data_dir.join("logs").join("agent-latest.jsonl"));
     Some((pidfile, log_base))
+}
+
+fn env_path(name: &str) -> Option<PathBuf> {
+    std::env::var(name).ok().and_then(|v| {
+        let t = v.trim();
+        (!t.is_empty()).then(|| PathBuf::from(t))
+    })
+}
+
+pub(crate) fn resolve_data_dir() -> Option<PathBuf> {
+    env_path("ANDROMEDA_PULSE_DATA_DIR").or_else(default_data_dir)
 }
 
 fn default_data_dir() -> Option<PathBuf> {
@@ -151,7 +156,7 @@ fn default_data_dir() -> Option<PathBuf> {
 }
 
 /// Whether `pid` names a live process; `None` when the probe cannot run.
-fn pid_alive(pid: u32) -> Option<bool> {
+pub(crate) fn pid_alive(pid: u32) -> Option<bool> {
     #[cfg(windows)]
     {
         let out = std::process::Command::new("tasklist")
@@ -196,20 +201,20 @@ fn tasklist_lists_pid(csv: &str, pid: u32) -> bool {
 /// Where `agent-run.sh boot`'s waiting wrapper records how the app ended,
 /// beside the pidfile. The app is an orphan once boot returns, so no later
 /// verb can reap it and read its status any other way.
-fn end_file(pidfile: &Path) -> PathBuf {
+pub(crate) fn end_file(pidfile: &Path) -> PathBuf {
     pidfile.with_file_name("andromeda-pulse.exit")
 }
 
 /// The recorded end (`exit N` / `signal N (NAME)`), bounded to one short
 /// printable line; anything else reads as no record.
-fn read_ended(path: &Path) -> Option<String> {
+pub(crate) fn read_ended(path: &Path) -> Option<String> {
     let text = std::fs::read_to_string(path).ok()?;
     let line = text.trim();
     (!line.is_empty() && line.len() <= 48 && line.chars().all(|c| c.is_ascii_graphic() || c == ' '))
         .then(|| line.to_owned())
 }
 
-fn read_pid(pidfile: &Path) -> Option<u32> {
+pub(crate) fn read_pid(pidfile: &Path) -> Option<u32> {
     std::fs::read_to_string(pidfile)
         .ok()
         .and_then(|s| s.trim().parse::<u32>().ok())
@@ -218,7 +223,7 @@ fn read_pid(pidfile: &Path) -> Option<u32> {
 /// Newest rotated-family member by mtime — `tracing_appender`'s daily
 /// roller date-suffixes the sink, so a bare-name read misses a healthy
 /// boot (the same family rule as `smoke::read_jsonl_lines`).
-fn newest_family_member(log_base: &Path) -> Option<(String, u64)> {
+pub(crate) fn newest_family_member(log_base: &Path) -> Option<(String, u64)> {
     let dir = log_base.parent()?;
     let stem = log_base.file_name()?.to_string_lossy().into_owned();
     let newest = std::fs::read_dir(dir)

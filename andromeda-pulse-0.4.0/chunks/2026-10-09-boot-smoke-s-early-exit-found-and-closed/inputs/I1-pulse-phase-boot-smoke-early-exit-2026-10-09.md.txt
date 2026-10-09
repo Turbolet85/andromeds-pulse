@@ -1,0 +1,26 @@
+# Phase directive — Pulse 0.4.0, third chunk: `Boot smoke's early exit found and closed` (2026-10-09)
+
+From the pc overseer, the operator. `measured` lines are from the previous chunk's wrap card and report, read by me;
+re-derive what you rely on. Nothing here is this chunk's design.
+
+1. **What is known, and what is not.** measured over seven boot-smoke runs (the entry's `CARRY:` holds the table): in
+   both reds the app ended itself with exit 1 about half a second after the webview's first call, with no `app.exit`
+   record and no panic record; the red logs hold nothing the green logs lack. NOT known: the cause, and whether it
+   belongs to the window or to what the console engine keeps. The webview timing is a hypothesis.
+2. **The requirement asks for a cause named from evidence a run produced** (P-129). A fix aimed at a cause no run has
+   shown is not this chunk's outcome. If the cause cannot be observed with what the job keeps today, the first work
+   is making the job keep what would show it — the exit path that writes no record is itself the finding.
+3. **Reproduce before you theorize.** The smoke runs on this host under a virtual display. hypothesis: the early exit
+   reproduces locally at some rate; measure the rate over a stated number of boots before choosing an approach, and
+   say on the plan card what was tried and how often it failed.
+4. **The readiness gap is this entry's too** (its second `CARRY:`): `boot` reports ready on the status verdict alone,
+   before the OTLP receivers bind, and the smoke gives the app at most 1.4 s of life. The harness contract's clause
+   (a TCP handshake on the bound ports) stays the contract.
+5. **A CI run is a reading, never re-run for a green.** `ci#37971913620` on `277d65d` is this chunk's first reading
+   of the job; record its boot-smoke verdict.
+6. **Scope edge.** The window leaves at `Window's gates retired` and `Window retired` (Epoch 2). This chunk does not
+   remove or rewrite the window; if the cause sits in the window alone, name it, close it at the smallest place that
+   makes equal source read the same, and say what of it leaves with the window anyway.
+7. **Host.** Ports 4317/4318 are shared with conductor-builder, which is idle; other builders run heavy cargo on this
+   host (load above 30 today) — a timing reading taken under it says so.
+8. **Stops.** A boundary widening halts for the founder's own word. At P5 print the plan card and stop for my `yes`.

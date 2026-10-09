@@ -1,0 +1,1 @@
+2026-10-09-boot-smoke-s-early-exit-found-and-closed · pending · Boot smoke's early exit found and closed — the cause of the app ending itself after ready named from run evidence; boot ready waits for the receivers (P-129) · → andromeda-pulse-0.4.0/chunks/2026-10-09-boot-smoke-s-early-exit-found-and-closed/

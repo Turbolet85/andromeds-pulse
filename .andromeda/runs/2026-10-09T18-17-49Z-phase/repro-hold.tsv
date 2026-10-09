@@ -1,0 +1,21 @@
+boot	mode	rc	exit_record	verdict	records	last_target	app_exit	boot_log_lines	load1	seconds
+1	hold	0	signal 15 (TERM)	running-healthy	297	app.exit	signal/0/sigterm	4	28.98	21.49
+2	hold	0	signal 15 (TERM)	running-healthy	297	app.exit	signal/0/sigterm	4	25.65	21.31
+3	hold	0	signal 15 (TERM)	running-healthy	297	app.exit	signal/0/sigterm	4	27.68	21.45
+4	hold	0	signal 15 (TERM)	running-healthy	297	app.exit	signal/0/sigterm	4	25.43	21.51
+5	hold	0	signal 15 (TERM)	running-healthy	297	app.exit	signal/0/sigterm	4	28.65	21.57
+6	hold	0	signal 15 (TERM)	running-healthy	297	app.exit	signal/0/sigterm	4	32.27	20.87
+7	hold	0	signal 15 (TERM)	running-healthy	305	app.exit	signal/0/sigterm	4	25.79	21.34
+8	hold	0	signal 15 (TERM)	running-healthy	297	app.exit	signal/0/sigterm	4	25.37	21.91
+9	hold	0	signal 15 (TERM)	running-healthy	297	app.exit	signal/0/sigterm	4	24.46	21.52
+10	hold	0	signal 15 (TERM)	running-healthy	297	app.exit	signal/0/sigterm	4	28.11	21.43
+11	hold	0	signal 15 (TERM)	running-healthy	297	app.exit	signal/0/sigterm	4	30.15	21.54
+12	hold	0	signal 15 (TERM)	running-healthy	297	app.exit	signal/0/sigterm	4	27.59	21.37
+13	hold	0	signal 15 (TERM)	running-healthy	297	app.exit	signal/0/sigterm	4	28.22	21.02
+14	hold	0	signal 15 (TERM)	running-healthy	297	app.exit	signal/0/sigterm	4	27.45	21.38
+15	hold	0	signal 15 (TERM)	running-healthy	305	app.exit	signal/0/sigterm	4	27.78	21.92
+16	hold	0	signal 15 (TERM)	running-healthy	297	app.exit	signal/0/sigterm	4	31.72	21.62
+17	hold	0	signal 15 (TERM)	running-healthy	297	app.exit	signal/0/sigterm	4	29.76	20.98
+18	hold	0	signal 15 (TERM)	running-healthy	299	app.exit	signal/0/sigterm	4	24.89	21.06
+19	hold	0	signal 15 (TERM)	running-healthy	297	app.exit	signal/0/sigterm	4	26.47	21.44
+20	hold	0	signal 15 (TERM)	running-healthy	301	app.exit	signal/0/sigterm	4	24.73	21.62

@@ -5,7 +5,7 @@
 #
 # 5-command discipline:
 #   boot     — pre-build under the boot env, spawn target/release/pulse-app BY PATH,
-#              wait for the harness:status verdict (10s timeout; build absorbed before it)
+#              wait for the harness:ready verdict (10s timeout; build absorbed before it)
 #   run      — execute cargo-nextest test suite
 #   status   — real-process verdict via cargo xtask harness:status
 #   cleanup  — terminate the app pid, then verify pid gone + ports released; exit 0
@@ -50,7 +50,7 @@ case "${1:-}" in
       echo "  Build log: $DATA_DIR/logs/build.log" >&2
       exit 1
     fi
-    # xtask too — the readiness poll runs `cargo xtask harness:status`, so a
+    # xtask too — the readiness poll runs `cargo xtask harness:ready`, so a
     # stale xtask would otherwise rebuild INSIDE the timed window.
     if ! cargo build -p xtask >> "$DATA_DIR/logs/build.log" 2>&1; then
       echo "boot: cargo build -p xtask failed" >&2
@@ -98,14 +98,16 @@ case "${1:-}" in
     fi
     echo "$DAEMON_PID" > "$PIDFILE"
 
-    # Poll `cargo xtask harness:status` — a REAL-process verdict (PID file +
-    # the app's own log-family freshness), so ready is only reported once the
-    # spawned app is actually writing (2026-08-30; the old form returned an
-    # in-xtask-process envelope and was ready-green unconditionally).
+    # Poll `cargo xtask harness:ready` — the REAL-process status verdict (PID
+    # file + the app's own log-family freshness) AND a TCP handshake on both
+    # resolved OTLP ports, so ready is only reported once the spawned app is
+    # writing and its receivers accept (test-plan §3 boot, Readiness signal;
+    # the status verdict alone read ready before the receivers bound).
+    last_ready=""
     deadline=$(($(date +%s) + STATUS_TIMEOUT_SEC))
     while [ "$(date +%s)" -lt "$deadline" ]; do
-      if ANDROMEDA_PULSE_PIDFILE="$PIDFILE" ANDROMEDA_PULSE_LOGFILE="$LOGFILE" \
-        cargo xtask harness:status >/dev/null 2>&1; then
+      if last_ready=$(ANDROMEDA_PULSE_PIDFILE="$PIDFILE" ANDROMEDA_PULSE_LOGFILE="$LOGFILE" \
+        cargo xtask harness:ready 2>/dev/null); then
         echo "boot: ready (PID=$DAEMON_PID, data_dir=$DATA_DIR)"
         echo "  OTLP gRPC:    127.0.0.1:$GRPC_PORT"
         echo "  OTLP HTTP:    127.0.0.1:$HTTP_PORT"
@@ -121,6 +123,11 @@ case "${1:-}" in
     # The waiting wrapper writes the record the moment it reaps the app.
     if kill -0 "$DAEMON_PID" 2>/dev/null; then
       echo "  app still running (pid $DAEMON_PID) but never reported healthy" >&2
+      case "$last_ready" in
+        *'"refusing"'*)
+          echo "  the receivers never both accepted: OTLP gRPC 127.0.0.1:$GRPC_PORT, OTLP HTTP 127.0.0.1:$HTTP_PORT" >&2
+          ;;
+      esac
     else
       for _ in $(seq 20); do
         [ -s "$EXIT_FILE" ] && break

@@ -10,6 +10,7 @@ mod bundle_format;
 mod discovery;
 mod external_resolve;
 mod gap_resume;
+mod harness_ready;
 mod harness_status;
 mod hue_shift;
 mod ingest_progress;
@@ -49,6 +50,19 @@ struct Cli {
 enum Cmd {
     #[command(name = "harness:status")]
     HarnessStatus,
+    #[command(
+        name = "harness:ready",
+        about = "The boot verb's readiness verdict: the harness:status verdict reads running-healthy AND both OTLP receivers accept a TCP connection on 127.0.0.1 at the ports resolved from ANDROMEDA_PULSE_OTLP_GRPC_PORT / _HTTP_PORT (defaults 4317 / 4318), each attempt bounded at one second. One JSON verdict (ready, not-ready, ended, cannot-evaluate) with the pid, the exit record when the app ended and one label per receiver (accepting, refusing). Exit 0 ready, 1 not-ready or ended, 2 cannot-evaluate"
+    )]
+    HarnessReady,
+    #[command(
+        name = "harness:settled",
+        about = "Wait, bounded, until the app's log family holds an app.boot.window.navigation record for each of its four windows with the app alive (settled), or the app's pid is gone (ended), or the timeout passes (not-settled). One JSON verdict with the pid, the exit record, whether the log holds an app.exit record, the count of settled windows, and whether the display and the session bus are reachable (labels only, never a variable's value); the same object is written to logs/harness-settled.json under the data dir. Exit 0 settled, 1 ended or not-settled, 2 cannot-evaluate (no pid, or a timeout below 8 s, which could never read settled)"
+    )]
+    HarnessSettled {
+        #[arg(long, value_name = "SECONDS", default_value_t = 30)]
+        timeout_seconds: u64,
+    },
     #[command(
         name = "test",
         about = "cargo nextest run --workspace --profile ci --no-tests=pass"
@@ -256,6 +270,8 @@ async fn main() -> ExitCode {
     let cli = Cli::parse();
     let result: Result<ExitCode> = match cli.command {
         Cmd::HarnessStatus => harness_status::run(),
+        Cmd::HarnessReady => harness_ready::run_ready(),
+        Cmd::HarnessSettled { timeout_seconds } => harness_ready::run_settled(timeout_seconds),
         Cmd::Test { extra } => run_cargo_nextest(extra).await,
         Cmd::TestCoverage { extra } => run_cargo_llvm_cov(extra).await,
         Cmd::CheckIngestProgress => run_check_ingest_progress(),

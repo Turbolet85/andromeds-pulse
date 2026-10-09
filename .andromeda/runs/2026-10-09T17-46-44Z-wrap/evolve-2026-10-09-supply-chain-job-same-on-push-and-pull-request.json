@@ -158,5 +158,45 @@
 "lines": 2412,
 "bytes": 2450614
 }
+},
+{
+"tool": "evolve",
+"v": "1.1",
+"sha8": "9d4071c3",
+"ts": "2026-10-09T18:14:50Z",
+"argv": [
+"append",
+"--root",
+".",
+"--count",
+"1",
+"--records-file",
+"-",
+"--run-dir",
+".andromeda/runs/2026-10-09T17-46-44Z-wrap",
+"--marker",
+"2026-10-09-supply-chain-job-same-on-push-and-pull-request"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"appended 1 record(s) · friction-log.ndjson lines 2412→2413 · bytes 2450614→2452222 · term lf",
+"ts 2026-10-09T18:14:38Z · clock 2026-10-09T18:14:50Z · bound 2026-10-09T18:10:56Z (line 2412)",
+"ids 2026-10-09T18:14:38Z-a"
+],
+"stderr": null,
+"wrote": [
+"./.andromeda/friction-log.ndjson"
+],
+"before": {
+"lines": 2412,
+"bytes": 2450614,
+"terminator": "LF",
+"bound": "2026-10-09T18:10:56Z"
+},
+"after": {
+"lines": 2413,
+"bytes": 2452222
+}
 }
 ]

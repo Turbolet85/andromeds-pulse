@@ -1,0 +1,210 @@
+[
+{
+"tool": "inputs",
+"v": "1.1",
+"sha8": "d45f2ad1",
+"ts": "2026-10-09T18:18:40Z",
+"argv": [
+"snap",
+"--chunk-dir",
+"./andromeda-pulse-0.4.0/chunks/2026-10-09-boot-smoke-s-early-exit-found-and-closed",
+"--source",
+"~/dev/projects/additional/pc-overseer/relays/pulse-phase-boot-smoke-early-exit-2026-10-09.md",
+"--kind",
+"relay",
+"--why",
+"the phase directive: cause named from run evidence, reproduce locally at a measured rate first, the readiness gap is in scope, ci#37971913620 is the first reading, the window is not removed",
+"--step",
+"phase:P1",
+"--run-dir",
+"./.andromeda/runs/2026-10-09T18-17-49Z-phase",
+"--marker",
+"2026-10-09-boot-smoke-s-early-exit-found-and-closed"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"snapped I1 · copy no-repo · ../additional/pc-overseer/relays/pulse-phase-boot-smoke-early-exit-2026-10-09.md",
+"cite: inputs#I1"
+],
+"stderr": null,
+"wrote": [
+"inputs/.gitattributes",
+"inputs/I1-pulse-phase-boot-smoke-early-exit-2026-10-09.md.txt",
+"inputs/andromeda-inputs.json"
+],
+"before": null,
+"after": {
+"id": "I1",
+"kind": "relay",
+"repo": null,
+"path": "../additional/pc-overseer/relays/pulse-phase-boot-smoke-early-exit-2026-10-09.md",
+"form": "copy",
+"state": "no-repo",
+"commit": null,
+"ref": null,
+"upstream": null,
+"claimed": null,
+"sha256": "b8666dda0a7d34d7bc9266099cbf05e02222e93922d8453f25a55ed9a524c144",
+"copy": "I1-pulse-phase-boot-smoke-early-exit-2026-10-09.md.txt",
+"link": false,
+"read_at": "2026-10-09T18:18:40Z",
+"step": "phase:P1",
+"why": "the phase directive: cause named from run evidence, reproduce locally at a measured rate first, the readiness gap is in scope, ci#37971913620 is the first reading, the window is not removed"
+}
+},
+{
+"tool": "inputs",
+"v": "1.1",
+"sha8": "d45f2ad1",
+"ts": "2026-10-09T18:18:40Z",
+"argv": [
+"snap",
+"--chunk-dir",
+"./andromeda-pulse-0.4.0/chunks/2026-10-09-boot-smoke-s-early-exit-found-and-closed",
+"--message-file",
+"./.andromeda/runs/2026-10-09T18-17-49Z-phase/relay-1.md",
+"--origin",
+"the operator, in the /andromeda-phase invocation, 2026-10-09",
+"--kind",
+"relay",
+"--why",
+"the invocation directive: read the relay whole before Setup, name the cause from run evidence, reproduce before theorizing, stop at P5 for the yes",
+"--step",
+"phase:P1",
+"--run-dir",
+"./.andromeda/runs/2026-10-09T18-17-49Z-phase",
+"--marker",
+"2026-10-09-boot-smoke-s-early-exit-found-and-closed"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"snapped I2 · copy message · message: the operator, in the /andromeda-phase invocation, 2026-10-09",
+"cite: inputs#I2"
+],
+"stderr": null,
+"wrote": [
+"inputs/I2-relay-1.md.txt",
+"inputs/andromeda-inputs.json"
+],
+"before": null,
+"after": {
+"id": "I2",
+"kind": "relay",
+"repo": null,
+"path": "message: the operator, in the /andromeda-phase invocation, 2026-10-09",
+"form": "copy",
+"state": "message",
+"commit": null,
+"ref": null,
+"upstream": null,
+"claimed": null,
+"sha256": "fb6bb5ffab3c93d3662495137b772d7cf879e580cb188c7ffa059f5904d173f1",
+"copy": "I2-relay-1.md.txt",
+"link": false,
+"read_at": "2026-10-09T18:18:40Z",
+"step": "phase:P1",
+"why": "the invocation directive: read the relay whole before Setup, name the cause from run evidence, reproduce before theorizing, stop at P5 for the yes"
+}
+},
+{
+"tool": "inputs",
+"v": "1.1",
+"sha8": "d45f2ad1",
+"ts": "2026-10-09T18:59:28Z",
+"argv": [
+"snap",
+"--chunk-dir",
+"./andromeda-pulse-0.4.0/chunks/2026-10-09-boot-smoke-s-early-exit-found-and-closed",
+"--message-file",
+"./.andromeda/runs/2026-10-09T18-17-49Z-phase/relay-2.md",
+"--origin",
+"the operator (pc overseer), answering the two P4 questions in the question dialog, 2026-10-09",
+"--kind",
+"relay",
+"--why",
+"three consecutive greens count only once a cause is named from a run and closed; with no named cause P-129 is not claimed and the count runs to eleven; the two kept files are routine harness evidence, with a stop if the display output carries telemetry",
+"--step",
+"phase:P4",
+"--run-dir",
+"./.andromeda/runs/2026-10-09T18-17-49Z-phase",
+"--marker",
+"2026-10-09-boot-smoke-s-early-exit-found-and-closed"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"snapped I3 · copy message · message: the operator (pc overseer), answering the two P4 questions in the question dialog, 2026-10-09",
+"cite: inputs#I3"
+],
+"stderr": null,
+"wrote": [
+"inputs/I3-relay-2.md.txt",
+"inputs/andromeda-inputs.json"
+],
+"before": null,
+"after": {
+"id": "I3",
+"kind": "relay",
+"repo": null,
+"path": "message: the operator (pc overseer), answering the two P4 questions in the question dialog, 2026-10-09",
+"form": "copy",
+"state": "message",
+"commit": null,
+"ref": null,
+"upstream": null,
+"claimed": null,
+"sha256": "d758e1e382c748bdeee83aeeae644429bd4cd5d184fc8158fcf8a3b4562ffaf6",
+"copy": "I3-relay-2.md.txt",
+"link": false,
+"read_at": "2026-10-09T18:59:28Z",
+"step": "phase:P4",
+"why": "three consecutive greens count only once a cause is named from a run and closed; with no named cause P-129 is not claimed and the count runs to eleven; the two kept files are routine harness evidence, with a stop if the display output carries telemetry"
+}
+},
+{
+"tool": "inputs",
+"v": "1.1",
+"sha8": "d45f2ad1",
+"ts": "2026-10-09T19:05:03Z",
+"argv": [
+"verify",
+"--chunk-dir",
+"./andromeda-pulse-0.4.0/chunks/2026-10-09-boot-smoke-s-early-exit-found-and-closed",
+"--run-dir",
+"./.andromeda/runs/2026-10-09T18-17-49Z-phase",
+"--marker",
+"2026-10-09-boot-smoke-s-early-exit-found-and-closed"
+],
+"cwd": ".",
+"exit": 0,
+"stdout": [
+"I1 unchanged · copy no-repo · ../additional/pc-overseer/relays/pulse-phase-boot-smoke-early-exit-2026-10-09.md",
+"I1 cited scope.md:17 · scope.md:23 · scope.md:27 · scope.md:29 · scope.md:31 · scope.md:61 · scope.md:68 · scope.md:102 · scope.md:107 · scope.md:111 · scope.md:116 · research.md:9 · plan.md:354 · plan.md:372 · plan.md:385",
+"I2 n/a — a message has no live source · copy message · message: the operator, in the /andromeda-phase invocation, 2026-10-09",
+"I2 cited scope.md:17 · scope.md:117 · research.md:9",
+"I3 n/a — a message has no live source · copy message · message: the operator (pc overseer), answering the two P4 questions in the question dialog, 2026-10-09",
+"I3 cited scope.md:52 · scope.md:96 · scope.md:108 · research.md:97 · research.md:98 · plan.md:16 · plan.md:34 · plan.md:104 · plan.md:312 (in fence) · plan.md:345 · plan.md:357 · plan.md:414",
+"inputs: 3 entries — unchanged 1 · drifted 0 · vanished 0 · broken 0 · altered 0 · unreachable 0 · n/a 2 · uncited 0 · unparsed 0"
+],
+"stderr": null,
+"wrote": [],
+"before": null,
+"after": null,
+"extra": {
+"entries": 3,
+"counts": {
+"unchanged": 1,
+"drifted": 0,
+"vanished": 0,
+"broken": 0,
+"altered": 0,
+"unreachable": 0,
+"n/a": 2
+},
+"uncited": 0,
+"unparsed": 0
+}
+}
+]
