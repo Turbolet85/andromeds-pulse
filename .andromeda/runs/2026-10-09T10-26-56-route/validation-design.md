@@ -1,0 +1,20 @@
+# Design validation — route draft
+
+## No suggestions
+Draft covers design domain: 0.4.0 retires the whole interface both design masters describe, so no design bootstrap chunk is owed and nothing in the route consumes a token.
+
+- **Bootstrap items present (absent by retirement, not by omission):**
+  - Design tokens bundle (design-system §Color Palette / §Typography / §Spacing / §Border Radius / §Motion / §Iconography) → not owed; chunk "Window retired" (Epoch 2) removes the webview interface and has the design and layout masters state no interface.
+  - Brand wire (design-system §Brand Identity) → not owed; same chunk. The deferred Halo State Pulse signature already stands as `dropped` in `.andromeda/residuals.md` (line 13, "the window it would render in is retired by P-083"), so no build-or-retire chunk is missing.
+  - Per-surface scaffolds (design-system §Surface: desktop-webview, §Surface: desktop-native) → not owed; both surfaces leave in "Window retired" (Tauri shell, webview interface, tray, notification plugins).
+  - Layout primitives (layout-templates, both surfaces' page templates and components) → not owed; same chunk.
+  - Component primitives (design-system §Component Patterns) → not owed; same chunk.
+- **Sequencing deps satisfied:**
+  - "Window's gates retired" precedes "Window retired" (Epoch 2) → confirmed; the hue, frame and webview checks that pin design behaviour leave before the surfaces they check.
+  - "Detection baseline through the console engine" (Epoch 1) is recorded "before window and model leave" → confirmed; no design-dependent reading is taken after the surfaces are gone.
+  - No token-consuming chunk follows the retirement → confirmed across Epochs 3–10.
+- **Coverage:**
+  - desktop-webview and desktop-native → each retired by name in "Window retired"; neither needs a bootstrap chunk or surface epoch.
+  - Every layout template → retired with its surface in the same chunk.
+  - Notification form (design-system §Surface: desktop-native → Notifications; layout-templates §Component — Notifications (OS-native)) → the successor is carried by "System notification on a change of state" (Epoch 9), which already reads "carries the short report in a stated terse form"; this is the rewrite merged from the earlier pass of this run (`second/merge-decisions.md` line 14).
+  - "State in one line for a desktop panel" (Epoch 9) → its form is fixed by its own title; `1a-tree.md` line 208 records it as replacing the architecture's tray policy, so the design masters' "no interface" statement does not conflict with it.

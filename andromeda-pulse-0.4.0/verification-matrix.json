@@ -7,25 +7,24 @@
     {
       "id": "P-083",
       "title": "The window is gone",
-      "requirement": "No crate depends on the window toolkit; the tree holds no webview interface; no gate boots a window or audits one; the masters say in plain words that this version has no interface and which later version brings a minimal one on another toolkit; the 0.3.0 capabilities that were about the window are recorded as retired with the surface, not as regressed.",
-      "observed_gap": "A Tauri shell, a webview interface of about 24 thousand lines, two CI jobs that exist for it (the window's boot smoke and the accessibility audit), and three masters whose subject it is (design-system, layout-templates, a11y-plan). Most of 0.3.0's 22 verified capabilities are about it (the window, the widget, the constellation, the tables, the Investigate buttons).",
+      "requirement": "no crate depends on the window toolkit; the tree holds no webview interface, no IPC router and no gate that boots a window, audits one or samples its frames; the tests that drive them leave with them and the remaining gate is green; the masters say in plain words that this version has no interface and which later version brings a minimal one on another toolkit; the 0.3.0 capabilities that were about the window are recorded as retired with the surface, not as regressed",
+      "observed_gap": "a Tauri shell and a webview interface (`pulse-app/ui`, 243 tracked files), ten IPC router files (`pulse-app/src/*_router.rs`), the tray, the window and its geometry, the updater and the notification plugin; the gates that exist for it (`a11y` and `boot` CI jobs, the webview suite, and in `xtask` the webview drive, staged gate, smoke, npm gate, hue shift, discovery, self-verify, frame sampling and bundle format); three masters whose subject it is (design-system, layout-templates, a11y-plan). Most of 0.3.0's 22 verified capabilities are about it; the route names which, id by id.",
       "verification": {
         "method": "integration",
-        "acceptance": "A build of the whole workspace on Linux succeeds with no window toolkit anywhere in its dependency graph; the tree contains no webview interface; no gate boots a window or audits one, and the full remaining gate is green; the headless engine still detects everything it detected in 0.3.0; the masters state that this version has no interface and name the later version that brings one; the 0.3.0 window capabilities read as retired with the surface, not as regressed.",
+        "acceptance": "No crate's dependency graph holds the window toolkit; the tree holds no webview interface, no IPC router and no gate that boots, audits or frame-samples a window; the engine's own gate is green without them and everything it detected before is still detected; the three interface masters state that this version has no interface and which later version brings one; each 0.3.0 capability that was about the window reads retired with the surface in the capability record.",
         "ref": null,
         "status": "planned"
       },
-      "chunk": null,
-      "notes": "2026-10-09 — one line of the route's classification of the 0.3.0 capabilities this requirement retires (`requirements.md`, \"Notes for the reader\": \"P-079 (the constellation half goes; the single-sourced workspace key stays)\") is superseded by the founder's ruling of 2026-10-09 that workspace detection leaves in 0.4.0: the workspace-key half of 0.3.0's P-079 goes with P-105 and no longer stays. The line in `requirements.md` is not edited (the adaptation path adds capability lines only). word: the founder, 2026-10-09, relayed verbatim by the pc overseer; recorded at the 0-pending adaptation wrap, run dir `.andromeda/runs/2026-10-09T09-59-54Z-wrap/`."
+      "chunk": null
     },
     {
       "id": "P-084",
-      "title": "The local model is gone from the engine",
-      "requirement": "The engine starts, detects and reports with no model present and none configured; no gate needs a GPU; the words of a report come from the engine's own facts (P-099); a large model reads through the door (P-092) and is not part of the engine.",
-      "observed_gap": "An inference runtime that spawns a local model per generation, its grammar, its hardware probe, its deterministic stand-in, and a decision probe that grades it; the incident's interpretation is the model's text.",
+      "title": "The local model is gone from the engine, with everything that served it",
+      "requirement": "the engine starts, detects and reports with no model present and none configured; no gate needs a GPU; no crate, example, script, environment variable, vendored runtime or experiment that exists for a local model remains, and their tests leave with them; the experiments directory is gone from the dev host, shown by a listing because no commit can show it; the words of a report come from the engine's own facts (P-099); a large model reads through the door (P-092) and is not part of the engine",
+      "observed_gap": "`crates/interpretation` (10 tracked files, about 3700 lines: runner trait, prompt builders, the `L4Output` schema, degraded mode); in `pulse-app` the inference runtimes, the model router, the hardware profile, the grammar file; the decision probe (three files under `pulse-app/examples/`, about 10,500 lines) and the latency grader; six `ANDROMEDA_PULSE_*` environment variables for the model, one of which `xtask` still sets; `experiments/` (git-ignored, no tracked file: a directory on the dev host) and a vendored `llama-cpp`.",
       "verification": {
         "method": "integration",
-        "acceptance": "On a host with no model file, no inference program and no GPU, and with nothing about a model configured, the engine starts, a planted fault becomes an incident, and its report is worded from the engine's own facts; the full gate passes on such a host; no engine command or setting refers to a local model.",
+        "acceptance": "On a host with no model and no GPU, and none configured, the engine starts, detects a planted fault and reports it in words drawn from its own facts; no gate needs a GPU; the tree holds no crate, example, script, environment variable, vendored runtime or experiment that exists for a local model, and their tests are gone with them; a listing shows the experiments directory gone from the dev host.",
         "ref": null,
         "status": "planned"
       },
@@ -34,11 +33,11 @@
     {
       "id": "P-085",
       "title": "The corpus is stored unencrypted, for this first stage",
-      "requirement": "The engine keeps its stores readable on its own node with no credential store; the secret scrubber at ingest stays as it is; the security master records the decision, its date and that it is to be looked at again.",
-      "observed_gap": "The incident corpus is encrypted per cell with a key from the desktop's credential store; a server has no such store (a CI runner already read KeyringUnavailable); the buffer is not encrypted.",
+      "requirement": "the engine keeps its stores readable on its own node with no credential store, and no code or dependency for one remains; the secret scrubber at ingest stays as it is; the security master records the decision, its date and that it is to be looked at again",
+      "observed_gap": "the incident corpus is encrypted per cell with a key from the desktop's credential store (`crates/corpus/src/keychain.rs`, `encryption.rs`; the `keyring` and `aes-gcm` dependencies); a server has no such store (a CI runner already read `KeyringUnavailable`); the buffer is not encrypted.",
       "verification": {
         "method": "integration",
-        "acceptance": "On a node with no credential store the engine opens its stores, records an incident and reads it back after a restart; a secret sent in telemetry is absent from every store exactly as before; the security master carries the decision, its date and a note that it is to be looked at again.",
+        "acceptance": "On a node with no credential store the engine opens, writes and reads back its stores across a restart; the dependency graph and the tree hold no code for a credential store or for encrypting the corpus; a secret planted in telemetry is still scrubbed before anything is stored; the security master records the decision, its date and that it is to be looked at again.",
         "ref": null,
         "status": "planned"
       },
@@ -47,11 +46,11 @@
     {
       "id": "P-086",
       "title": "A program without a window",
-      "requirement": "The engine is a console program that runs in the background on a Linux server and is driven by commands; nothing in it needs a display, a GPU or a desktop session; everything 0.3.0 detected is still detected.",
-      "observed_gap": "One application binary that is a Tauri process; no headless mode. The intent adds that tauri is a dependency of the ingest and triage crates as well as of the shell; re-read at HEAD 60ef43c, those two crates declare the bindings-type derive of the window's IPC bridge behind a default-on feature and do not declare tauri, which is declared by the IPC bridge crate (optional) and the application binary.",
+      "requirement": "the engine is a console program that runs in the background on a Linux server and is driven by commands; nothing in it needs a display, a GPU or a desktop session; everything 0.3.0 detected is still detected",
+      "observed_gap": "one application binary that is a Tauri process; no headless mode.",
       "verification": {
         "method": "e2e",
-        "acceptance": "The engine starts from a console on a Linux host with no display, no GPU and no desktop session, keeps running in the background, and is controlled only by its commands; each kind of fault 0.3.0 detected (error-rate spike, latency regression, retry storm, restart, silence) is still detected, and a sustained storm still yields exactly one incident.",
+        "acceptance": "The engine starts as a console program on a Linux server with no display, no GPU and no desktop session, runs in the background and answers its commands; every kind of finding 0.3.0 detected, one incident for a sustained storm and automatic resolution are each still observed on the same telemetry.",
         "ref": null,
         "status": "planned"
       },
@@ -60,39 +59,37 @@
     {
       "id": "P-087",
       "title": "Telemetry arrives over a network",
-      "requirement": "A service on another host sends OTLP to the engine with a token over an encrypted channel; a request without the token is refused; connecting a service takes an address and a token and installs nothing beside it.",
-      "observed_gap": "The receivers bind 127.0.0.1, the HTTP one admits only localhost Host values, and neither asks for a credential.",
+      "requirement": "a service on another host sends OTLP to the engine with a token over an encrypted channel; a request without the token is refused; connecting a service takes an address and a token and installs nothing beside it",
+      "observed_gap": "the receivers bind `127.0.0.1`, the HTTP one admits only localhost `Host` values (`crates/ingest/src/http.rs:113-117`), and neither asks for a credential.",
       "verification": {
-        "method": "integration",
-        "acceptance": "A service on a second host, given only the engine's address and a token, delivers traces, metrics and logs to the engine over an encrypted channel and they are stored; the same request without the token is refused; nothing was installed beside the service.",
+        "method": "e2e",
+        "acceptance": "A service on another host, given only an address and a token and with nothing installed beside it, sends OTLP to the engine over an encrypted channel and its telemetry is received; the same request without the token is refused.",
         "ref": null,
         "status": "planned"
       },
-      "chunk": null,
-      "notes": "2026-10-09 — PROVISIONAL widening, recorded at the 0-pending adaptation wrap (run dir `.andromeda/runs/2026-10-09T09-59-54Z-wrap/`): the requirement also names who terminates the encrypted channel of the network receiver and where the channel's private key lives, never in a store the door reads. It is the route's deferred security Insert \"Channel key custody on the node\" (`.andromeda/runs/2026-10-09T09-17-27-route/merge-decisions.md:17`), a control no finding of the intent states, the operator's own. word: the operator, 2026-10-09 — PROVISIONAL until the founder's own word, which supersedes it. Carried on the entry \"Network OTLP receiver behind a token\"."
+      "chunk": null
     },
     {
       "id": "P-088",
       "title": "What the network receiver refuses",
-      "requirement": "A request with a missing or wrong token is refused before its body is read, and the refusal is recorded without the token's value; the token is made, shown once, replaced and revoked by an engine command and is never written to a log or a report; a sender that exceeds its rate is slowed or refused without starving another; the existing size and count invariants apply to a remote sender as they do today; a plain unencrypted connection from another host is refused. Everything the scrubber removes today is still removed before anything is stored.",
-      "observed_gap": "The receiver's only guards today are its localhost bind, a Host allow-list, size and count invariants and a global rate limit; none of them assumes a sender it does not trust.",
+      "requirement": "a request with a missing or wrong token is refused before its body is read, and the refusal is recorded without the token's value; the token is made, shown once, replaced and revoked by an engine command and is never written to a log or a report; it is stated who terminates the encrypted channel and where its private key lives — never in a store the door reads, never in a log; a sender that exceeds its rate is slowed or refused without starving another; the existing size and count invariants apply to a remote sender; a plain unencrypted connection from another host is refused; everything the scrubber removes today is still removed before anything is stored",
+      "observed_gap": "the receiver's only guards today are its localhost bind, a `Host` allow-list, size and count invariants and a global rate limit; none of them assumes a sender it does not trust.",
       "verification": {
         "method": "integration",
-        "acceptance": "A request with a missing or wrong token is refused before its body is read, and the record of the refusal does not contain the token; an engine command makes a token, shows it once, replaces it and revokes it, after which the old token is refused; the token appears in no log and no report; one sender exceeding its rate is slowed or refused while a second sender's telemetry still arrives; the existing size and count limits refuse an oversized remote request; an unencrypted connection from another host is refused; a secret sent by a remote sender is absent from every store.",
+        "acceptance": "A request with a missing or wrong token is refused before its body is read and the refusal is recorded without the token's value; the token is made, shown once, replaced and revoked by an engine command and appears in no log and no report; who terminates the encrypted channel and where its private key lives are stated, and the key lies in no store the door reads and in no log; a sender over its rate is slowed or refused while another sender is still served; a request beyond the size or count limits is rejected from a remote sender as from a local one; a plain unencrypted connection from another host is refused; a secret in accepted telemetry is scrubbed before storage.",
         "ref": null,
         "status": "planned"
       },
-      "chunk": null,
-      "notes": "2026-10-09 — PROVISIONAL widening, recorded at the 0-pending adaptation wrap (run dir `.andromeda/runs/2026-10-09T09-59-54Z-wrap/`): the private key of the receiver's encrypted channel is held like the token — never written to a log or a report. It follows the channel-key control recorded on P-087 the same day. word: the operator, 2026-10-09 (\"your one note on P-088 is what I meant\") — PROVISIONAL until the founder's own word, which supersedes it."
+      "chunk": null
     },
     {
       "id": "P-089",
       "title": "The watcher counts by event time",
-      "requirement": "Every check reasons by the time stamped inside the record, with a stated allowance for lateness; a batch that arrives late is counted where it belongs, and a recorded stream can be played again and give the same result.",
-      "observed_gap": "Windows, cadences, the restart detector and the retention cutoff read the system clock; the restart cue keys on a gap in ARRIVAL of more than 20 s.",
+      "requirement": "every check reasons by the time stamped inside the record, with a stated allowance for lateness; a batch that arrives late is counted where it belongs, and a recorded stream can be played again and give the same result; a record stamped in the future beyond a stated allowance cannot move what the checks take for the present, and what is done with such a record is stated",
+      "observed_gap": "windows, the restart detector and the retention cutoff read the system clock; the restart cue keys on a gap in ARRIVAL of more than 20 s.",
       "verification": {
         "method": "integration",
-        "acceptance": "Fed the same recorded stream twice, at different wall-clock times and speeds, the engine produces the same findings both times; a batch delivered late, inside the stated allowance, is counted in the period its records are stamped with; the allowance is stated.",
+        "acceptance": "Each check gives the same answer for a stream however its batches arrive within the stated lateness allowance: a late batch is counted in the window its stamps belong to; a recorded stream played twice yields identical findings; a record stamped in the future beyond the stated allowance does not move what the checks take for the present, and what is done with such a record is stated and observed.",
         "ref": null,
         "status": "planned"
       },
@@ -101,11 +98,11 @@
     {
       "id": "P-090",
       "title": "The node is small",
-      "requirement": "The engine fits a 1 GB node under a long run; the figure is measured, and the database file does not grow without bound under constant insert and delete.",
-      "observed_gap": "The engine's memory use with a database on disk has never been measured.",
+      "requirement": "the engine fits a 1 GB node under a long run; the figure is measured, and the database file does not grow without bound under constant insert and delete; the engine's own log is bounded in total size, so neither can fill the node",
+      "observed_gap": "the engine's memory use with a database on disk has never been measured. The engine's log rotates daily (`pulse-app/src/observability.rs:2645`) and nothing removes an old file.",
       "verification": {
         "method": "integration",
-        "acceptance": "Over a long run under steady load on a node with 1 GB of memory the engine stays up and inside that memory; the measured figure is recorded; under constant insert and delete the database file's size levels off instead of growing.",
+        "acceptance": "Under a long run on a node with 1 GB of memory the engine's measured memory stays inside the node and the figure is recorded; under constant insert and delete the database file stops growing; the engine's own log stays under a stated total size however long the engine runs, so neither can fill the node.",
         "ref": null,
         "status": "planned"
       },
@@ -114,25 +111,24 @@
     {
       "id": "P-091",
       "title": "What was received is still there tomorrow",
-      "requirement": "Raw telemetry is kept for days and survives a restart; what the watcher has learned survives a restart; a gap while the engine was down is not read as the service's silence.",
-      "observed_gap": "Raw telemetry lives 600 s in an in-memory database; only incidents persist; the learned baseline is discarded at start when older than an hour.",
+      "requirement": "raw telemetry is kept 7 days by default, the term configurable, with a ceiling on the store's size beside it at which the oldest goes first, and survives a restart; what the watcher has learned survives a restart; a gap while the engine was down is not read as the service's silence; whether a week fits the node's disk under a real stream is measured, and the ceiling's figure is set from that reading",
+      "observed_gap": "raw telemetry lives 600 s in an in-memory database; only incidents persist; the learned baseline is discarded at start when older than an hour.",
       "verification": {
         "method": "integration",
-        "acceptance": "Telemetry received before a restart is readable after it, and is still readable days later; after a restart the watcher judges new telemetry against what it had learned before, without relearning; an interval in which the engine was down produces no finding that the service went quiet.",
+        "acceptance": "Telemetry received is still readable the next day and after a restart; with default settings it is kept 7 days, the term can be changed, and at the store's size ceiling the oldest goes first; what the watcher had learned before a restart is in use after it; time the engine was down is not reported as the service's silence; a week of a real stream on the node's disk is measured and the ceiling's figure is set from that reading.",
         "ref": null,
         "status": "planned"
       },
-      "chunk": null,
-      "notes": "2026-10-09 — \"kept for days\" has its number, by the founder's ruling of 2026-10-09, by dialog (his pick, the 7-day option, verbatim in `.andromeda/runs/2026-10-09T09-59-54Z-wrap/adaptation-record.md`): raw telemetry is kept 7 days by default; the term is configurable; a ceiling on the store's size stands beside it, at which the oldest goes first. The size figure is not ruled: whether a week fits a cheap node's disk under a real stream is measured in the disk epoch (the entry \"Disk store measured under load\"). The acceptance text is not changed here; the claiming chunk's phase concretizes it with this number. word: the founder, 2026-10-09, relayed verbatim by the pc overseer."
+      "chunk": null
     },
     {
       "id": "P-092",
-      "title": "The agent's door opens onto the real data",
-      "requirement": "An agent on the developer's machine reaches the engine's tools and reads the telemetry the engine holds, filtered by service, time range, trace and text, with aggregates; it reaches one incident whole, with its evidence. The door lives inside the engine's process. The same door serves the test harness and the status widget (P-099).",
-      "observed_gap": "The MCP sidecar's four telemetry tools read their own empty in-memory database; they accept only a time window and a limit.",
+      "title": "The agent's door opens onto the real data, from the engine's first step",
+      "requirement": "the door lives inside the engine's process and replaces the stdio sidecar as soon as the console engine exists, ahead of the removals the sidecar is built on (the credential store, the resolver, the incident it parses, the model's renderer, the workspace key), so that those chunks change the door, which stays, and never the sidecar, which goes; every reading from outside the process — the engine's own end-to-end gate, the external harness at each theme — goes through the door; an agent on the developer's machine reaches the engine's tools and reads the telemetry the engine holds, filtered by service, time range, trace and text, with aggregates; it reaches one incident whole, with its evidence, and the incidents like it from the past; it can ask for the curated snapshot — a narrow, budgeted view of recent telemetry made for a large model — which is that code's consumer from now on; the same door serves the test harness and the status widget",
+      "observed_gap": "the MCP sidecar's four telemetry tools read their own empty in-memory database and accept only a time window and a limit; the curated snapshot and the curation crates (about 3200 lines) have the window's toast and that empty database as their only outlets. The sidecar is a second process built on what this version removes: it opens the corpus through the desktop's credential store (`crates/mcp-server/src/bin/andromeda-pulse-mcp.rs:6`), reads the published workspace key (`:78`), and renders an incident by parsing the model's answer with the model's renderer (`crates/mcp-server/src/tools.rs:25-28`, `:380`). Until a door exists it is the only way anything outside the process reads a finding.",
       "verification": {
-        "method": "integration",
-        "acceptance": "An agent on the developer's machine asks the running engine and receives telemetry the engine actually received, narrowed by service, by time range, by trace and by text, and aggregated; it receives one incident complete with the evidence it rests on, the spans and moments included; the answers come from the engine's own process; the test harness and the status line read through the same door.",
+        "method": "e2e",
+        "acceptance": "From the first step in which a console engine exists, every reading from outside its process goes through a door inside that process: the engine's own end-to-end gate and the external harness at each theme read through it, no stdio sidecar exists, and no later removal has a sidecar to change; an agent on the developer's machine reads through it the telemetry the engine holds, filtered by service, time range, trace and text, with aggregates, one incident whole with its evidence and the incidents like it from the past, and the curated snapshot of recent telemetry; the test harness and the status command use the same door.",
         "ref": null,
         "status": "planned"
       },
@@ -141,25 +137,24 @@
     {
       "id": "P-093",
       "title": "What the door may do",
-      "requirement": "The door answers only a party the node's owner has admitted; it reads the engine's stores (telemetry, incidents, reports, the engine's own state) and nothing else on the node: not the token, not configuration secrets, not files outside those stores; every answer is bounded in size and time, so no question can exhaust the node; what it returns was scrubbed at ingest; the one write it keeps (resolving an incident) is named as a write and can be switched off.",
-      "observed_gap": "The sidecar's tools are local, unauthenticated, and one of them writes (it marks an incident resolved).",
+      "requirement": "until the engine accepts connections from another host, the door answers on the engine's own host only; from the moment it can be reached from another host it answers only a party the node's owner has admitted, and admission has a lifecycle: how a party is admitted and how it is revoked, as the token has; it is stated where an admitted party's credential lives on the developer's machine — never in a repository, never in a log; the door is encrypted in transit; it reads the engine's stores (telemetry, incidents, reports, the engine's own state) and nothing else on the node: not the token, not configuration secrets, not files outside those stores; every answer is bounded in size and time, so no question can exhaust the node; what it returns was scrubbed at ingest; the one write it keeps (resolving an incident) is named as a write and can be switched off",
+      "observed_gap": "the sidecar's tools are local, unauthenticated, and one of them writes (it marks an incident resolved).",
       "verification": {
         "method": "integration",
-        "acceptance": "A party the node's owner has not admitted gets no answer; an admitted party can read telemetry, incidents, reports and the engine's own state, and cannot obtain the token, a configuration secret or any file outside those stores; a question that would be too large or too slow is cut off at a stated bound and the engine stays responsive; nothing returned contains a secret the scrubber removes; resolving an incident is listed as a write, and once switched off it is refused.",
+        "acceptance": "Before the engine accepts connections from another host the door answers on the engine's own host only; once it can be reached from another host it answers only an admitted party, a party is admitted and revoked in a stated way and a revoked party is refused; where an admitted party's credential lives on the developer's machine is stated, outside any repository and any log; the door's traffic is encrypted in transit; a request for the token, a configuration secret or a file outside the stores is refused; an answer too large or too slow is cut at a stated bound; what it returns was scrubbed at ingest; resolving an incident is named as a write and can be switched off.",
         "ref": null,
         "status": "planned"
       },
-      "chunk": null,
-      "notes": "2026-10-09 — PROVISIONAL widening, recorded at the 0-pending adaptation wrap (run dir `.andromeda/runs/2026-10-09T09-59-54Z-wrap/`), two controls no finding of the intent states, the operator's own: (1) the door is encrypted in transit (the route's deferred security Rewrite of \"Door admission and bounds\", `.andromeda/runs/2026-10-09T09-17-27-route/merge-decisions.md:23`); (2) the door's admission has a lifecycle — how a party is admitted and how it is revoked — as the token has. With the channel-key control recorded on P-087 the same day, \"nothing else on the node\" covers that key too: it is not readable through the door. word: the operator, 2026-10-09 — PROVISIONAL until the founder's own word, which supersedes it. Carried on the entry \"Door admission and bounds\"."
+      "chunk": null
     },
     {
       "id": "P-094",
       "title": "A span keeps its meaning",
-      "requirement": "The stored span keeps its name, kind and parent, the service's version and environment, and the attributes that say which route, which status code, which database or peer it touched, under both generations of the semantic-convention names. Who calls whom can be answered from what is stored.",
-      "observed_gap": "A span is stored as seven fields; its name, kind, parent, status message, every attribute and every resource attribute but service.name are dropped at ingest; two aggregation queries reference a parent column the table does not have, and their results are discarded.",
+      "requirement": "the stored span keeps its name, kind and parent, the service's version and environment, and the attributes that say which route, which status code, which database or peer it touched, under both generations of the semantic-convention names; who calls whom can be answered from what is stored",
+      "observed_gap": "a span is stored as seven fields; its name, kind, parent, status message, every attribute and every resource attribute but `service.name` are dropped at ingest.",
       "verification": {
         "method": "integration",
-        "acceptance": "For a span sent with a name, a kind, a parent, a service version and environment, and attributes naming its route, status code, database and peer, in either generation of the semantic-convention names, each of those is readable back from the store; the question of which service calls which is answered from stored spans and matches what was sent.",
+        "acceptance": "A stored span, read back, carries its name, kind and parent, the service's version and environment, and the attributes naming the route, the status code, the database or the peer, whichever generation of the semantic-convention names the sender used; for a stream with known callers the question who calls whom is answered correctly from what is stored.",
         "ref": null,
         "status": "planned"
       },
@@ -168,11 +163,11 @@
     {
       "id": "P-095",
       "title": "Metrics and logs keep theirs",
-      "requirement": "A percentile can be computed from stored metrics; a log line and a metric point name their service; exception type, message and stack are readable through the door.",
-      "observed_gap": "Histogram-family points are stored as the value 0; a log row and a metric row carry no service identity; stored exception text has no reader.",
+      "requirement": "a percentile can be computed from stored metrics; a log line and a metric point name their service; exception type, message and stack are readable through the door",
+      "observed_gap": "histogram-family points are stored as the value 0; a log row and a metric row carry no service identity; stored exception text has no reader.",
       "verification": {
         "method": "integration",
-        "acceptance": "A percentile computed from stored histogram metrics matches the distribution that was sent; every stored log line and metric point names the service it came from; an exception's type, message and stack are readable through the door.",
+        "acceptance": "A percentile computed from stored metrics matches the distribution that was sent; every stored log line and metric point names its service; an exception's type, message and stack are read back through the door.",
         "ref": null,
         "status": "planned"
       },
@@ -181,11 +176,11 @@
     {
       "id": "P-096",
       "title": "A new kind of error is news",
-      "requirement": "The first appearance of an error fingerprint for a service is a finding, and so is the return of one that had gone away.",
-      "observed_gap": "The fingerprint feeds the retry-storm detector and the search for similar past incidents; nothing says \"this error was never seen before\".",
+      "requirement": "the first appearance of an error for a service is a finding, in whichever of the three encodings it arrives (a span's error status, an exception on a span, a high-severity log), and so is the return of one that had gone away",
+      "observed_gap": "the fingerprint feeds the retry-storm detector and the search for similar past incidents; nothing says \"this error was never seen before\". An error reaches the engine in three encodings — a span's error status, an exception on a span, a high-severity log — and only the second is fingerprinted.",
       "verification": {
         "method": "integration",
-        "acceptance": "The first time an error fingerprint appears for a service the engine reports a finding naming that error as new; a repeat of the same error produces no second such finding; when an error that had gone away comes back, the engine reports its return.",
+        "acceptance": "The first time an error appears for a service a finding is raised, whether it arrives as a span's error status, an exception on a span or a high-severity log; a repeat of a known error raises none; an error that had gone away and returns raises one.",
         "ref": null,
         "status": "planned"
       },
@@ -194,11 +189,11 @@
     {
       "id": "P-097",
       "title": "A release is compared with the one before",
-      "requirement": "When a new version of a service appears, the engine compares it with the previous one (error rate, new error kinds, latency) and says when the new one is worse, naming the version and the moment it appeared.",
-      "observed_gap": "The service version is dropped at ingest; the digest has never carried a commit; nothing knows a release happened.",
+      "requirement": "when a new version of a service appears, the engine compares it with the previous one (error rate, new error kinds, latency, per operation where the operation is known) and says when the new one is worse, naming the version and the moment it appeared",
+      "observed_gap": "the service version is dropped at ingest; nothing knows a release happened.",
       "verification": {
         "method": "integration",
-        "acceptance": "When a service starts reporting a new version, the engine records the version and the moment it appeared, compares its error rate, its new error kinds and its latency with the previous version's, and, when the new one is worse, says so, naming the version and that moment; a new version that is no worse produces no such finding.",
+        "acceptance": "When a new version of a service appears the engine records the version and the moment it appeared, compares it with the previous one on error rate, new error kinds and latency, per operation where the operation is known, and says so when the new one is worse; a release that is no worse raises nothing.",
         "ref": null,
         "status": "planned"
       },
@@ -207,11 +202,11 @@
     {
       "id": "P-098",
       "title": "Silence is told apart from \"nothing arrived\"",
-      "requirement": "\"The service went quiet\", \"no data reached the engine\" and \"the check could not be evaluated\" are three different states, and a recovery is announced.",
-      "observed_gap": "A vanished stream and an engine that could not receive look alike.",
+      "requirement": "\"the service went quiet\", \"no data reached the engine\" and \"the check could not be evaluated\" are three different states, and a recovery is announced",
+      "observed_gap": "a vanished stream and an engine that could not receive look alike.",
       "verification": {
         "method": "integration",
-        "acceptance": "A service that stops sending while the engine is receiving from others is reported as gone quiet; an interval in which nothing reached the engine at all is reported as no data reaching the engine, not as the service's silence; a check that could not be evaluated is reported as such; when telemetry resumes, a recovery is announced.",
+        "acceptance": "A service that stops sending, an engine that no data reached and a check that could not be evaluated are reported as three different states, and the recovery from each is announced.",
         "ref": null,
         "status": "planned"
       },
@@ -220,11 +215,11 @@
     {
       "id": "P-099",
       "title": "The engine says it, in one line and in a report",
-      "requirement": "A command of the engine prints the current state in one line a desktop panel can show; a change of state raises a system notification; the notification carries a short report (what, where, since when, after which version, which errors are new) written without a model.",
-      "observed_gap": "Findings are visible only inside the window.",
+      "requirement": "a command of the engine prints the current state in one line a desktop panel can show; a change of state raises a system notification; the notification carries a short report (what, where, since when, after which version, which errors are new) written without a model; this is the one report form (P-112)",
+      "observed_gap": "findings are visible only inside the window.",
       "verification": {
-        "method": "integration",
-        "acceptance": "An engine command prints the current state as a single line, and a desktop panel on the founder's machine shows it; when the state changes, a system notification appears carrying a short report that says what happened, where, since when, after which version and which errors are new; the report is produced with no model.",
+        "method": "manual",
+        "acceptance": "A command of the engine prints the current state in one line and a panel on the founder's desktop shows it; a change of state raises a system notification carrying a short report that says what, where, since when, after which version and which errors are new, written with no model in its path; no second report form exists.",
         "ref": null,
         "status": "planned"
       },
@@ -233,11 +228,11 @@
     {
       "id": "P-100",
       "title": "The report is enough for a large model",
-      "requirement": "Given the report and the door, a large model names the cause that was planted. The report is narrow and names its evidence by identifier; \"not enough data\" is an honest answer the engine can give.",
-      "observed_gap": "The incident's interpretation was written by the local model; no measurement exists of whether a large model can work from it.",
+      "requirement": "given the report and the door, a large model names the cause that was planted; the report is narrow and names its evidence by identifier; \"not enough data\" is an honest answer the engine can give",
+      "observed_gap": "no measurement exists of whether a large model can work from a report of the engine's.",
       "verification": {
-        "method": "dynamic-external",
-        "acceptance": "Given only the engine's report for a planted fault and access to the door, a large model names the planted cause; the report is short and refers to each piece of its evidence by an identifier the door resolves; when the engine lacks the data to say, its report says that there is not enough data.",
+        "method": "manual",
+        "acceptance": "Given only the engine's report and the door, a large model names the planted cause, measured over a set of planted faults; the report is narrow and names its evidence by identifier; where the data cannot support a finding the engine answers that there is not enough data.",
         "ref": null,
         "status": "planned"
       },
@@ -246,25 +241,24 @@
     {
       "id": "P-101",
       "title": "A real service is watched too",
-      "requirement": "One real service of the founder's sends its telemetry to the engine for days; what the engine reported and what it stayed silent on is read against what actually happened to that service. Which service is not yet named: the founder is asked before this capability is taken up.",
-      "observed_gap": "Every reading of Pulse so far was taken on telemetry a test tool composed.",
+      "requirement": "one real service of the founder's sends its telemetry to the engine for days; what the engine reported and what it stayed silent on is read against what actually happened to that service; he names the service together with the personal data its telemetry carries, and before its first send each kind he names is either scrubbed before storage or its keeping is decided and recorded; until then the security master's \"Compliance triggers: None\" keeps its present basis",
+      "observed_gap": "every reading of Pulse so far was taken on telemetry a test tool composed.",
       "verification": {
         "method": "manual",
-        "acceptance": "One real service of the founder's, named by him, sends its telemetry to the engine for several days; for that period, what the engine reported and what it stayed silent on has been read against what actually happened to the service, and the reading is recorded.",
+        "acceptance": "The founder names one real service and the personal data its telemetry carries; before its first send each named kind is either scrubbed before storage or its keeping is decided and recorded; the service then sends for days, and what the engine reported and what it stayed silent on is read against what actually happened to it; until the naming, the security master's statement that there are no compliance triggers stands on its present basis.",
         "ref": null,
         "status": "planned"
       },
-      "chunk": null,
-      "notes": "2026-10-09 — PROVISIONAL, recorded at the 0-pending adaptation wrap (run dir `.andromeda/runs/2026-10-09T09-59-54Z-wrap/`): when the founder names the real service he names, with it, the personal data its telemetry carries (the route's deferred security Rewrite of \"Real service watched for days\", `.andromeda/runs/2026-10-09T09-17-27-route/merge-decisions.md:25`). Until then the security master's \"Compliance triggers: None\" (`.andromeda/security-plan.md:105-107`) keeps its present basis and is not re-read by this note. word: the operator, 2026-10-09 — PROVISIONAL until the founder's own word, which supersedes it. Carried on the entry \"Real service watched for days\"."
+      "chunk": null
     },
     {
       "id": "P-102",
-      "title": "The bad-version scenario, end to end",
-      "requirement": "Conductor rolls out a \"bad version\" of one service in its simulated world, over the network, to an engine on another host. Within minutes the panel module and a system notification carry a message naming the service, the version and the new error. A large model, given the report and the door, names the planted cause. The engine did this on a 1 GB node, and stayed silent through the healthy hours before it. After each theme the external harness checks that theme's result from the input to the output.",
+      "title": "The bad-version scenario, end to end (dynamic-external)",
+      "requirement": "Conductor rolls out a \"bad version\" of one service in its simulated world, over the network, to an engine on another host; within minutes the panel module and a system notification carry a message naming the service, the version and the new error; a large model, given the report and the door, names the planted cause; the engine did this on a 1 GB node and stayed silent through the healthy hours before it",
       "observed_gap": null,
       "verification": {
         "method": "dynamic-external",
-        "acceptance": "In a run driven by the external harness, a bad version of one service is rolled out in the simulated world and its telemetry reaches, over the network, an engine on another host with 1 GB of memory; within minutes the panel line and a system notification name the service, the version and the new error; a large model given the report and the door names the planted cause; through the healthy hours before the rollout the engine reported nothing; after each of the five themes the harness has checked that theme's result from input to output.",
+        "acceptance": "Conductor rolls out a bad version of one service in its simulated world, over the network, to an engine on another host with 1 GB of memory; within minutes the panel line and a system notification name the service, the version and the new error; a large model given the report and the door names the planted cause; through the healthy hours before the rollout the engine raised nothing; after each theme the harness's reading of that theme, taken through the door from input to output, is recorded.",
         "ref": null,
         "status": "planned"
       },
@@ -272,12 +266,12 @@
     },
     {
       "id": "P-103",
-      "title": "The local pre-push check runs on Linux",
-      "requirement": "The check a developer runs before a push runs natively on the Linux dev host, over the stages that survive this version's removals, with no second operating system beside it.",
-      "observed_gap": null,
+      "title": "The check before a push runs on Linux",
+      "requirement": "the check a developer runs before a push runs natively on the Linux dev host over the stages that survive this version's removals",
+      "observed_gap": "`cargo xtask pre-push:linux` needs `wsl.exe`; on the Linux dev host its stages are run by hand.",
       "verification": {
-        "method": "manual",
-        "acceptance": "On the Linux dev host, with no second operating system involved, one command runs the pre-push check over every stage that survives this version's removals and gives a verdict that agrees with what CI then reports for the same tree.",
+        "method": "integration",
+        "acceptance": "On the Linux dev host one check runs natively before a push, over every stage that survives this version's removals, with no second operating system involved, and gives a verdict.",
         "ref": null,
         "status": "planned"
       },
@@ -286,58 +280,236 @@
     {
       "id": "P-104",
       "title": "The plugin host is gone",
-      "requirement": "The engine has no plugin host: no crate hosts WebAssembly plugins, the workspace depends on no WebAssembly runtime, and the example plugins are gone from the tree; the critical path that drove the plugin lifecycle is recorded as retired with the surface, not as regressed.",
-      "observed_gap": "A plugin host crate built on a WebAssembly runtime (crates/plugins, the wasmtime dependency), three example plugins under plugins-examples/, and a critical path (P4) that drives the plugin lifecycle.",
+      "requirement": "the workspace depends on no WebAssembly runtime; no plugin host or example is in the tree; the critical path that drove the plugin lifecycle is recorded as retired, not regressed",
+      "observed_gap": "`crates/plugins`, the `wasmtime` dependency, `plugins-examples/`, and the critical path that drives the plugin lifecycle.",
       "verification": {
-        "method": "integration",
-        "acceptance": "A build of the whole workspace on Linux succeeds with no WebAssembly runtime anywhere in its dependency graph; the tree contains no plugin host and no example plugin; the full remaining gate is green; the headless engine still detects everything it detected in 0.3.0; the plugin-lifecycle critical path reads as retired with the surface, not as regressed.",
+        "method": "by-construction",
+        "acceptance": "The workspace's dependency graph holds no WebAssembly runtime; the tree holds no plugin host and no example plugin; the capability record reads the plugin-lifecycle critical path as retired with the surface, not regressed; the engine's gate is green without it.",
         "ref": null,
         "status": "planned"
       },
-      "chunk": null,
-      "notes": "2026-10-09 — added at the 0-pending adaptation wrap (run dir `.andromeda/runs/2026-10-09T09-59-54Z-wrap/`) on the founder's ruling of 2026-10-09, by dialog: asked what else leaves Pulse in 0.4.0, he picked the WASM plugin host (his words verbatim in that run dir's `adaptation-record.md`). word: the founder, 2026-10-09, relayed verbatim by the pc overseer. Route entry: \"WASM plugin host retired\" (Epoch 2). Critical path P4 (test-plan §6, the plugin lifecycle) is named for retirement by the same ruling."
+      "chunk": null
     },
     {
       "id": "P-105",
       "title": "Workspace detection is gone",
-      "requirement": "The engine detects no workspace and reads no project folder; one engine watches one product, its incidents live in its one store and are told apart by cue identity alone, and nothing takes the workspace key's place: in this version a sender's token is not an incident key; incidents are formed, kept, listed and resolved the same from wherever the engine is started; the critical path that drove workspace detection is recorded as retired with the surface, not as regressed.",
-      "observed_gap": "Incidents are stamped with, filtered by and cooled down per the workspace the detector resolves from the process's working directory (a project root, else the data dir), and the agent door's sidecar reads that same key from a file the app publishes; a critical path (P7) drives the detection.",
+      "requirement": "the engine reads no project folder; one engine watches one product: its incidents live in its one store and are told apart by the check and the service alone; nothing takes the workspace key's place, and in this version a sender's token is not an incident key — the same storm sent under two tokens forms one incident; incidents are formed, kept, listed and resolved the same from wherever the engine is started",
+      "observed_gap": "`crates/workspace-detector` reads the directory the application was started in; incidents are keyed by the workspace it detects (the registry's cooldown key, `incidents.workspace` and three `WHERE workspace` queries, a key file published for the sidecar).",
       "verification": {
         "method": "integration",
-        "acceptance": "A build of the whole workspace on Linux succeeds with no workspace detection anywhere in it; an engine started from any directory forms, keeps, lists and resolves the same incidents; a storm on one service still forms exactly one incident and a storm on a second service forms its own; the same storm sent under two different tokens forms one incident, not two; incidents formed before a restart are found after it; the full remaining gate is green; the workspace-detection critical path reads as retired with the surface, not as regressed.",
+        "acceptance": "The engine reads no project folder; started from two different directories against the same stores it forms, keeps, lists and resolves the same incidents; storms that differ by check or by service form separate incidents, and the same storm sent under two tokens forms one; nothing stands where the workspace key stood.",
         "ref": null,
         "status": "planned"
       },
-      "chunk": null,
-      "notes": "2026-10-09 — added at the 0-pending adaptation wrap (run dir `.andromeda/runs/2026-10-09T09-59-54Z-wrap/`) on the founder's ruling of 2026-10-09, by dialog: asked what else leaves Pulse in 0.4.0, he picked workspace detection (his words verbatim in that run dir's `adaptation-record.md`). word: the founder, 2026-10-09, relayed verbatim by the pc overseer. What incidents are keyed by once the workspace is gone is the operator's word at this wrap's card, 2026-10-09: for 0.4.0 one engine watches one product, incidents live in its one store told apart by cue identity, nothing replaces the workspace key, and a sender token is not an incident key in this version. Measured at HEAD `39edd11` before the entry was written: the incident registry's cooldown key is `(kind, scope, workspace)` (`crates/triage/src/incident/registry.rs:206`, `:250`), boot resolves one key from the detector and filters, stamps and persists by it (`pulse-app/src/main.rs:762-821`), and the MCP sidecar reads the same key from a published file (`crates/mcp-server/src/bin/andromeda-pulse-mcp.rs:77-78`). Route entry: \"Workspace detection retired\" (Epoch 2). Critical path P7 (test-plan §6) is named for retirement by the same ruling."
+      "chunk": null
     },
     {
       "id": "P-106",
       "title": "The training export is gone",
-      "requirement": "The engine has no export of its incidents for model training, and nothing it writes lands in the user's Downloads folder.",
-      "observed_gap": "A training export (pulse-app/src/training_export.rs, the storage.export_for_training route) writes the incident corpus as a file under ~/Downloads, one of three places the product writes outside its data dir.",
+      "requirement": "no export exists and nothing the engine writes lands outside its own stores",
+      "observed_gap": "`pulse-app/src/training_export.rs` and its route write incidents to the user's Downloads folder for model training.",
       "verification": {
         "method": "integration",
-        "acceptance": "The tree contains no training export and no command or route of the engine produces one; a run of the full remaining gate leaves nothing written under the user's Downloads folder; the security master lists the places the engine writes outside its data dir without it.",
+        "acceptance": "No export of incidents exists among the engine's commands or the door's answers; after a full run every file the engine wrote lies inside its own stores.",
         "ref": null,
         "status": "planned"
       },
-      "chunk": null,
-      "notes": "2026-10-09 — added at the 0-pending adaptation wrap (run dir `.andromeda/runs/2026-10-09T09-59-54Z-wrap/`) on the founder's ruling of 2026-10-09, by dialog: asked what else leaves Pulse in 0.4.0, he picked the training export (his words verbatim in that run dir's `adaptation-record.md`). word: the founder, 2026-10-09, relayed verbatim by the pc overseer. Route entry: \"Training export retired\" (Epoch 2)."
+      "chunk": null
     },
     {
       "id": "P-107",
       "title": "The engine reaches a node",
-      "requirement": "The engine is delivered as one Linux binary with a documented way to run it as a service on a node; nothing else is needed to put it there, and the desktop bundles, the updater and their signing that went with the window have this in their place.",
-      "observed_gap": "The product is delivered as signed desktop bundles with an updater; the route retires them with the window and adds nothing in their place.",
+      "requirement": "the engine is delivered as one Linux binary with a documented way to run it as a service; on a clean node the documented steps give an engine that runs, comes back after a restart and receives telemetry; the binary comes with a checksum, and the documented steps verify it",
+      "observed_gap": "the only delivery is the desktop bundle R8 removes, and its signing goes with it.",
       "verification": {
-        "method": "manual",
-        "acceptance": "On a clean Linux node, following the documented steps with the one published binary and nothing else, the engine runs as a service, comes back by itself after the node restarts, and receives telemetry; the steps and the binary are what a release of this version publishes.",
+        "method": "e2e",
+        "acceptance": "On a clean Linux node the documented steps verify the binary's checksum, put the one binary in place and run it as a service; the engine runs, comes back after the node restarts and receives telemetry.",
         "ref": null,
         "status": "planned"
       },
-      "chunk": null,
-      "notes": "2026-10-09 — added at the 0-pending adaptation wrap (run dir `.andromeda/runs/2026-10-09T09-59-54Z-wrap/`). PROVISIONAL: a control no finding of the intent states, the operator's own (shown to the founder at the route's Phase 4, who chose to tune after), recorded on the operator's word until the founder's own word, which supersedes it. word: \"P-107 as a capability with its entry, as you wrote it; operator word, PROVISIONAL like the rest of C\" — the operator, 2026-10-09. Route entry: \"Engine delivered to a node\" (Epoch 3)."
+      "chunk": null
+    },
+    {
+      "id": "P-108",
+      "title": "The bridge leaves the engine's crates",
+      "requirement": "no engine crate carries a feature, a derive or a dependency that exists for an IPC bridge; the engine's configuration is the engine's own and holds no key about an interface; the bridge crate is gone",
+      "observed_gap": "`tauri` itself is declared only by `pulse-app` and optionally by `crates/ui-bridge` (5 files, about 4800 lines), but the bridge's types reach into the engine: the ingest and triage crates carry a default-on `taurpc-runtime` feature with `specta` derives, `crates/viz` depends on `specta` unconditionally, and the engine's own configuration schema (`Settings`) lives in the bridge crate, read by `crates/config-watcher`, with keys for a theme, a widget position, always-on-top and a snapshot preset. R1's first clause would be met without touching any of this.",
+      "verification": {
+        "method": "integration",
+        "acceptance": "No engine crate carries a feature, a type derive or a dependency that exists for an IPC bridge, and the bridge crate is absent; the engine reads its configuration from its own definition, which holds no key about an interface, and a configuration change still takes effect while the engine runs.",
+        "ref": null,
+        "status": "planned"
+      },
+      "chunk": null
+    },
+    {
+      "id": "P-109",
+      "title": "What was computed only to be shown is gone",
+      "requirement": "the engine does no work whose only reader was the window: no stream topic, no per-batch encode for a subscriber that does not exist, no display state; the service registry's liveness truth stays engine state",
+      "observed_gap": "the buffer encodes every batch to Arrow IPC and broadcasts it on thirteen `pulse://stream/*` topics whose only production subscriber is the window's channel (`pulse-app/src/streams.rs:36-48`); triage computes state for display alone — the effective tier for the halo (`crates/triage/src/incident/tier_effective.rs`), the constellation metrics, the discovery observer.",
+      "verification": {
+        "method": "integration",
+        "acceptance": "With telemetry flowing, the engine publishes no stream topic, encodes no batch for a subscriber that does not exist and computes no display state; the service registry still tells a live service from one that went quiet, and detection is unchanged.",
+        "ref": null,
+        "status": "planned"
+      },
+      "chunk": null
+    },
+    {
+      "id": "P-110",
+      "title": "The digest is gone",
+      "requirement": "the engine builds with no network access and no tokenizer; it assembles no prompt, counts no tokens and archives no digest; the digest archive table is gone; the search for similar past incidents is kept and lives where incidents live; the half-hour rate defect is closed by the code's removal, not carried",
+      "observed_gap": "`crates/triage/src/digest/` (6 files, about 2800 lines) assembles a token-budgeted text — budgets of 500, 2000 and 3000 tokens, an embedded Llama-3 tokenizer, a last-write-wins queue, a damper against standing GPU load — and broadcasts it. Its subscribers are the model and a persister that writes every digest to the corpus table `digest_archive`, which nothing reads. The triage crate downloads that tokenizer from a third-party host at first build (`crates/triage/build.rs`). The recorded defect \"the half-hour digest's rate is divided by a literal 60\" (`.andromeda/residuals.md:27`) lives in this code.",
+      "verification": {
+        "method": "integration",
+        "acceptance": "The engine builds with no network access and no tokenizer; while running it assembles no prompt, counts no tokens and archives no digest, and its incident store holds no digest archive; an incident still comes with the incidents like it from the past, found where incidents live; the half-hour rate defect cannot occur because the code that computed it is gone.",
+        "ref": null,
+        "status": "planned"
+      },
+      "chunk": null
+    },
+    {
+      "id": "P-111",
+      "title": "The cadence coordinator is gone",
+      "requirement": "nothing in the engine decides when a model should run; no hardware profile, tier or reflection cadence remains, no configuration key for one, and no handle to one in the cue emitter",
+      "observed_gap": "`crates/triage/src/cadence/` (4 files, about 1600 lines) has four modes — three tiers and a 1800 s \"reflection\" — and a gate on a GPU/CPU hardware profile. A cycle runs seven aggregation queries, keeps only whether each succeeded (`coordinator.rs:190`), and sends a trigger for the digest. None of it serves detection, but the cue emitter is handed its trigger channel (`crates/triage/src/cue/emitter.rs:399-402`).",
+      "verification": {
+        "method": "integration",
+        "acceptance": "Nothing in the running engine decides when a model should run: no hardware profile, tier or reflection cadence exists, no configuration key names one and the cue emitter holds no handle to one; every check still fires on its own evidence as before.",
+        "ref": null,
+        "status": "planned"
+      },
+      "chunk": null
+    },
+    {
+      "id": "P-112",
+      "title": "An incident is the engine's own record",
+      "requirement": "an incident stores what the engine knows (which check found it, in which service, since when, after which version, which errors, which evidence by identifier) and nothing shaped as a model's answer; one report form exists, the one P-099 describes, and the old renderer is gone; a store written by 0.3.0 is not read: the engine on a node starts from its own empty stores",
+      "observed_gap": "an incident's content is a field holding the model's `L4Output` as JSON (`crates/triage/src/contract.rs:462`); its title and detail are the model's; the report an agent retrieves renders the model's sections — hypotheses, investigation steps, project context, a resolution summary — and a `degraded_mode` flag that would read true for every incident once no model runs (`crates/interpretation/src/markdown.rs`, `crates/mcp-server/src/tools.rs:366-392`).",
+      "verification": {
+        "method": "integration",
+        "acceptance": "A newly formed incident, read back, states which check found it, in which service, since when, after which version, with which errors and which evidence by identifier, and carries nothing shaped as a model's answer; exactly one report form exists and the old renderer is gone; an engine started beside a store written by 0.3.0 does not read it and starts from its own empty stores.",
+        "ref": null,
+        "status": "planned"
+      },
+      "chunk": null
+    },
+    {
+      "id": "P-113",
+      "title": "The other operating systems are gone from the code",
+      "requirement": "the tree builds, tests and runs on Linux alone and holds no branch, script, link hint or workaround for another operating system; CI has no leg for one",
+      "observed_gap": "seven `.ps1` files (754 lines); the `wsl.exe` hop in `xtask/src/pre_push.rs`; five `pwsh`/`powershell` spawns in `xtask`; Windows path handling (`\\\\?\\`) in `crates/config-watcher`; `rstrtmgr` link hints in three build scripts; an MSVC linker override in `.cargo/config.toml`; `[lib] test = false` in `pulse-app/Cargo.toml`, a WebView2 workaround; data-directory names for Windows and macOS in five source files; Windows and macOS legs in three CI jobs.",
+      "verification": {
+        "method": "by-construction",
+        "acceptance": "The tree builds, tests and runs on Linux alone; it holds no branch, script, link hint or workaround for another operating system; every CI job runs on Linux only and is green.",
+        "ref": null,
+        "status": "planned"
+      },
+      "chunk": null
+    },
+    {
+      "id": "P-114",
+      "title": "The desktop's distribution is gone",
+      "requirement": "no workflow, runbook, test or bot configuration for a desktop bundle, an updater, a package channel or an npm tree remains; the two external channel repositories, `turbolet85/homebrew-andromeda-pulse` and `turbolet85/scoop-andromeda-pulse`, are the founder's to retire by hand and are named on the card",
+      "observed_gap": "`release.yml` builds desktop bundles for three systems; `update-channels.yml` (411 lines) publishes to a Homebrew tap and a Scoop bucket; two runbooks describe the release environment and the updater's key rotation; a test pins the channel manifests; the dependency bot watches an npm tree.",
+      "verification": {
+        "method": "by-construction",
+        "acceptance": "The tree holds no workflow, runbook, test or bot configuration for a desktop bundle, an updater, a package channel or an npm tree; the removing chunk's card names the two external channel repositories for the founder to retire by hand; the engine's own gate is green without them.",
+        "ref": null,
+        "status": "planned"
+      },
+      "chunk": null
+    },
+    {
+      "id": "P-115",
+      "title": "The log allowlist describes this engine",
+      "requirement": "every allowed log target is one the engine can emit; none names a window, a model, a digest, a tray or a plugin",
+      "observed_gap": "`pulse-app/src/observability.rs` allows 215 log targets by name; by their names at least 35 are the window's and 42 the model's or the digest's; eighteen tests pin them.",
+      "verification": {
+        "method": "unit",
+        "acceptance": "Every log target the allowlist admits is one the running engine emits, and none names a window, a model, a digest, a tray or a plugin.",
+        "ref": null,
+        "status": "planned"
+      },
+      "chunk": null
+    },
+    {
+      "id": "P-116",
+      "title": "The records say what the product is",
+      "requirement": "every record a newcomer or an agent reads first describes a console engine on its own node, for one developer with one product; no rule instructs what this version removes or forbids what it adds; what describes 0.2–0.3 is either gone or marked as the history of those versions; the security master's tier, auth model and attack surface are restated for a networked engine with stores on disk, no later than the chunk that opens the network receiver, and what follows is built to the restated tier",
+      "observed_gap": "`.andromeda/input.md`, `andromeda-pulse-product-description.md`, `.andromeda/project.yaml` and architecture §Project Intent call the product a cross-platform desktop dashboard — \"Not a web app, not a CLI\"; `CLAUDE.md` opens \"Cross-platform Tauri 2 desktop dashboard\"; three `.claude/rules` files are scoped to the webview; the security rule an agent always loads says the receivers \"MUST bind to 127.0.0.1 only … no auth model\", which contradicts F2; `docs/v0_2_0/` (seven files, about 5200 lines) describes the local-model product as current. The security master rests its tier, `Minimal (0)`, on \"no persistent user data store\", \"no internet-exposed network surface\" and \"no user authentication surface\" (`.andromeda/security-plan.md:22-24`), and calls that tier the single source of truth for how much rigor later work carries (`:109`); F2, F2b and F5 end all three.",
+      "verification": {
+        "method": "manual",
+        "acceptance": "Each record a newcomer or an agent reads first describes a console engine on its own node, for one developer with one product; no rule instructs what this version removes or forbids what it adds; what describes 0.2 and 0.3 is gone or marked as the history of those versions; the security master states its tier, auth model and attack surface for a networked engine with stores on disk, restated no later than the chunk that opens the network receiver, and the work after it is built to that tier.",
+        "ref": null,
+        "status": "planned"
+      },
+      "chunk": null
+    },
+    {
+      "id": "P-117",
+      "title": "The capability record is re-based",
+      "requirement": "one current record says, id by id for all 82, whether the engine still claims the capability or it was retired with the window, the model or the desktop; the old gate carries no retired id; that record is what the external harness syncs its accepted set to",
+      "observed_gap": "82 capabilities stand as claimed, in two records: P-001…P-060 in `docs/v0_2_0/pulse-capability-spec.md` with a gate over `capability-verification-matrix.json`, P-061…P-082 in `andromeda-pulse-0.3.0/verification-matrix.json`; many of the first sixty are about the window (the halo, the constellation, the report's render surface, the findings counter) or the model (the severity tiers, the hypotheses, the degraded mode, the project context). The external harness pins its accepted set to these 82.",
+      "verification": {
+        "method": "integration",
+        "acceptance": "One current record lists all 82 capabilities, each either still claimed by the engine or retired with the window, the model or the desktop; the old gate passes while carrying no retired id; the external harness's accepted set equals that record.",
+        "ref": null,
+        "status": "planned"
+      },
+      "chunk": null
+    },
+    {
+      "id": "P-118",
+      "title": "The engine has one place on a node",
+      "requirement": "the operator says where the engine keeps its stores, its log and its pid, and there is one documented default for a service; one piece of code resolves it; the stores, the log, the pid and any token material are readable by the engine's owner alone",
+      "observed_gap": "stores, log and pid resolve under the user's home or configuration directory, by a resolver written more than once (five source files carry its directory names; the sidecar has its own, `crates/mcp-server/src/bin/andromeda-pulse-mcp.rs:28`). Nothing states who may read them.",
+      "verification": {
+        "method": "integration",
+        "acceptance": "The engine keeps its stores, its log and its pid where the operator says, and at one documented default when run as a service; every part of the engine finds that place through one piece of code; another account on the node cannot read the stores, the log, the pid or any token material.",
+        "ref": null,
+        "status": "planned"
+      },
+      "chunk": null
+    },
+    {
+      "id": "P-119",
+      "title": "Every aggregation has a consumer",
+      "requirement": "at the end of this version each of the seven aggregation queries either feeds a check, a report or a door answer the intent names (per-operation for P-097, high-severity logs for P-096, caller→callee and critical path for P-094) or is gone; none runs for nothing",
+      "observed_gap": "seven aggregation queries exist (`crates/triage/src/baseline/sql.rs`: per-service rate/errors/latency, per-operation, exception fingerprints, caller→callee, cardinality, high-severity logs, critical path). Their only production callers are the coordinator, which discards the rows, and the digest assembler, which uses two; two of them reference a parent column the table does not have.",
+      "verification": {
+        "method": "integration",
+        "acceptance": "At the version's close each of the seven aggregation queries is traced to a check, a report or a door answer the intent names, or is absent from the tree; none executes without a reader of its result.",
+        "ref": null,
+        "status": "planned"
+      },
+      "chunk": null
+    },
+    {
+      "id": "P-120",
+      "title": "A push to `main` reads green",
+      "requirement": "the supply-chain job ends the same on a push as on a pull request; it fails on a finding and never on its own reporting; the repair is witnessed where the defect shows",
+      "observed_gap": "CI run `37907730264` on `60ef43c`, the push the merge of PR #39 made, ended failure in the `supply-chain` job: `rustsec/audit-check` is denied a check run under `permissions: contents: read` (`ci.yml:8-9`, `:493-496`); on a pull request the same denial prints \"Unable to publish audit check!\" and passes, so a green pull-request run does not witness a repair.",
+      "verification": {
+        "method": "integration",
+        "acceptance": "For the same tree the supply-chain job ends the same on a push as on a pull request; it fails when there is a finding and never because it could not publish its own report; the repair is witnessed on a push, where the defect showed.",
+        "ref": null,
+        "status": "planned"
+      },
+      "chunk": null
+    },
+    {
+      "id": "P-121",
+      "title": "No survivor",
+      "requirement": "at the close, the question the intent was assembled from is asked again of the tree (what stands that exists only for the window, the local model, the desktop, another operating system, the plugins, the workspace or the training export, and what runs with no consumer) and the answer is nothing",
+      "observed_gap": null,
+      "verification": {
+        "method": "manual",
+        "acceptance": "At the close the audit question is asked of the tree again: what stands only for the window, the local model, the desktop, another operating system, the plugins, the workspace or the training export, and what runs with no consumer; the recorded answer is nothing.",
+        "ref": null,
+        "status": "planned"
+      },
+      "chunk": null
     }
   ]
 }

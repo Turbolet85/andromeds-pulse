@@ -1,48 +1,44 @@
 # Session Handoff
 
-**Last Updated:** 2026-10-09T10:10:05Z
-**Branch:** build/andromeda-pulse-0.4.0 · 0 ahead of origin/build/andromeda-pulse-0.4.0 as read at this wrap's Setup (HEAD `39edd11`)
-**Status:** clean
-**Last Commit:** 0-pending wrap — chore(route): operator-requested adaptation, the 0.4.0 route tuned (after `39edd11`)
+**Last Updated:** 2026-10-09T11:37:46Z
+**Branch:** build/andromeda-pulse-0.4.0 · 0 ahead of origin/build/andromeda-pulse-0.4.0 as read before this commit (HEAD `7f99c38`)
+**Status:** clean once this commit lands; no chunk promoted, no phase started
+**Last Commit:** the route commit of this session — chore(route): andromeda-pulse 0.4.0 route, second derivation (after `7f99c38`)
 
 ## Position
-- **Done:** the 0.4.0 route (written 2026-10-09, commit `39edd11`) is tuned by this wrap on the founder's rulings and
-  the operator's word: 52 markerless entries in 8 epochs, 25 requirements P-083…P-107, all unclaimed. Master reads 83
-  of 83 complete, 0 pending, 0 gated.
-- **Next:** `/andromeda-phase` — promote and plan "Corpus encryption at rest retired" (Epoch 1, `working-route.md:11`).
-- **At that phase's P1, once:** its Setup 5a reads the CI verdict of every commit since the last master flip
-  (`f18c631`), the red push run on `60ef43c` among them. That red does not intersect the corpus chunk, so the phase
-  asks its one question. The answer is its owner: the `CARRY:` on "Windows and macOS CI legs retired; pre-push check
-  native on Linux" (Epoch 1), pinned by this wrap on the operator's word.
+- **Done:** the 0.4.0 route is written again from the intent's third assembly (run
+  `.andromeda/runs/2026-10-09T10-26-56-route/`, approved by the operator at its Phase 4): 39 requirements
+  P-083…P-121, 77 markerless entries in 10 epochs, a 39-entry matrix, all `planned` and unclaimed. It supersedes
+  the first derivation (`39edd11`, adapted at `7f99c38`) as a whole. Master reads 83 of 83 complete, 0 pending,
+  0 gated.
+- **Next:** `/andromeda-phase` — promote and plan "CI on Linux alone" (Epoch 1, `working-route.md:11`). No phase
+  is started; the first chunk waits for the founder's word.
+- **The red push run on `main`** (`37907730264` on `60ef43c`) is owned by the route's second entry, "Supply-chain
+  job same on push and pull request" (P-120); its witness is a push-event run.
 
 ## Work done
-- Four capabilities added to the ledger and to `requirements.md`: P-104 the plugin host is gone, P-105 workspace
-  detection is gone, P-106 the training export is gone (the founder's ruling of 2026-10-09), P-107 the engine reaches a
-  node (the operator's, PROVISIONAL).
-- Four entries inserted: three removals in Epoch 2 before "Supply-chain gate re-based on the smaller graph", and
-  "Engine delivered to a node" in Epoch 3 before "Theme 1 checked by the external harness". Ten `CARRY:` blocks pinned
-  on nine entries; ten dated ledger notes.
-- The items, the authority behind each and every re-derived relay claim:
-  `.andromeda/runs/2026-10-09T09-59-54Z-wrap/adaptation-record.md`.
+- Three passes in one run: the second derivation (kept whole under the run dir's `second/`), then a third pass
+  after the operator edited the intent — the agent's door moved into Foundation, six controls joined their
+  findings, the security master's posture joined R10.
+- The review material, the validators' suggestions and every disposition: the run dir's `merge-decisions.md`,
+  `review-feedback-2.md` and `plans-not-opened.md`.
 
 ## Drift resolved
-- None: no report, no fan-out and no amendment on this path. The masters describe the tree as it is; each removal's
-  drift belongs to its chunk's wrap.
+- None: route amends no master. The masters describe the 0.3.0 tree; each removal's drift belongs to its
+  chunk's wrap.
 
 ## Notes
-- **PROVISIONAL, awaiting the founder's own word** (the pc overseer brings them to him in a batch): P-107 and its
-  entry; who terminates the receiver's encrypted channel and where its key lives (P-087, P-088); the door encrypted in
-  transit and its admission lifecycle (P-093); the personal data of the real service, named with the service (P-101).
-  His word supersedes each by rule; nothing waits on it.
+- **PROVISIONAL in the intent, until the founder's own word:** P-088 beyond its token and channel, P-093, P-107,
+  who may read the engine's place (in P-118), what is done with the named personal data before the first send
+  (in P-101). P-101 waits on the founder naming the service.
 - **The operator's word, not provisional:** for 0.4.0 one engine watches one product, incidents live in its one store
   told apart by cue identity, nothing replaces the workspace key, and a sender token is not an incident key (P-105).
 - **`main` is red and stays red until a repaired tree is pushed to it:** run `37907730264` on `60ef43c`, the
   supply-chain job's audit step is denied the check run it publishes. The same step passes on a pull-request event
   while denied the same call, so a green pull-request run does not witness the repair. HEAD's pull-request run
   `37914412856` was still in progress at this wrap (11 jobs settled, none failed).
-- **`requirements.md`'s header is behind:** it still reads "P-083…P-103" and "the three removals of Theme 0", and its
-  reader note says 0.3.0's P-079 workspace key stays. The adaptation path adds capability lines only; the supersession
-  of the note is a dated ledger note on P-083.
+- **`.andromeda/residuals.md` is untouched by this route:** its four `re-carried:0.4.0` lines keep that status
+  (the letters give no flip from it); their dispositions stand in `requirements.md`, carried-residuals section.
 - **Five master citations stand wrong, known and left on the operator's word:** `architecture.md:242` cites
   `agent-run.sh:22` and `agent-run.ps1:15` (the reads are at `:29` and `:24`), `architecture.md:243` cites
   `agent-run.sh:23` and `agent-run.ps1:16` (`:30` and `:25`), `test-plan.md:493` cites `xtask/src/main.rs:174`
@@ -87,3 +83,6 @@
   writer census at the wrong layer; targeted nextest `timeout` sizing; the implement report-step CHECK; the
   bindings-regen PIPELINE half; macOS `SystemTime` µs ticks; Windows `.ico` vs palette PNG; the
   deferral-destination generalization; `inject_demo --sustained` cannot form an incident.
+
+## Session End Status
+Completed normally at 2026-10-09 12:25:12

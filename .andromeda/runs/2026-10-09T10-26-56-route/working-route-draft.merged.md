@@ -24,13 +24,13 @@ Shared telemetry test data — spans, metric points and log records from one set
    ↓
 Door inside the engine's process — tools read the engine's stores, owner only, own host, call records allowlisted; stdio sidecar, its double gate leave (P-092, P-093)
    ↓
-Scenario legs driven against the console engine — gap-and-resume and external-resolve keep their verdicts, the external write going through the door (P-086, P-092)
-   ↓
 One place on a node — operator-set, owner-only locations for stores, log, pid; one documented service default, one resolver; other-system roots, shared-temp fallback leave (P-118, P-113)
    ↓
 Corpus encryption at rest retired — credential-store key, cell encryption, passphrase fallback, key lock file, orphan disposition leave; scrubber unchanged; decision dated for review (P-085)
    ↓
 Engine end-to-end gate reachable — memory-capped engine in CI, loopback sender, finding read through door, log graded, kept; second host reaches stub; recorded green (P-086, P-090)
+   ↓
+Scenario legs driven against the console engine — gap-and-resume and external-resolve keep their verdicts, the external write going through the door (P-086, P-092)
    ↓
 Detection baseline through the console engine — five cue families, one incident per storm, auto-resolve read through the door, recorded before window and model leave (P-086)
 
@@ -39,7 +39,7 @@ Window's gates retired — a11y and boot CI jobs, webview suite, headful drive, 
    ↓
 Window retired — Tauri shell, webview interface, IPC routers, tray, updater, notification plugins leave; design, layout, a11y masters state no interface; critical path P5 retired (P-083)
    ↓
-Desktop distribution retired — bundle workflow, channel publishing, runbooks, manifest test, npm tree, its watch, gate leave; release environment, secret names listed for the founder (P-114)
+Desktop distribution retired — bundle workflow, channel publishing, release and updater-key runbooks, channel-manifest test, npm tree, its bot watch and supply-chain gate leave (P-114)
    ↓
 Bridge leaves the engine's crates — bridge crate, its feature and type derives leave ingest, triage, viz; configuration becomes the engine's own, no interface key (P-108)
    ↓
@@ -77,7 +77,7 @@ Security posture restated for a networked engine — tier, auth model, attack su
    ↓
 Token lifecycle by engine command — made, shown once, replaced, revoked; not recoverable from stores; never in a log or a report; material owner-only (P-088, P-118)
    ↓
-Network OTLP receiver behind the token — another host sends over an encrypted channel; termination, key custody, renewal stated; replaces the loopback-only boundary (P-087, P-088, P-116)
+Network OTLP receiver behind the token — another host sends over an encrypted channel; termination and key custody stated; replaces the loopback-only boundary (P-087, P-088, P-116)
    ↓
 Receiver refusals — wrong or missing token refused before body read; plaintext from another host refused; refusals logged as bounded counts, never the token's value (P-088)
    ↓
@@ -104,8 +104,6 @@ Theme 1 checked by the external harness — another host sends and reads finding
 
 ### Epoch 6 — Memory on disk and the door's full answers
 Telemetry store on disk — replaces the in-memory buffer, tick, stall signal kept; 7-day default term, configurable; oldest first at a size ceiling; survives restart (P-091)
-   ↓
-Disk store opened across builds — a telemetry store written by another build is recognised, carried forward or refused by a stated rule, never misread (P-091)
    ↓
 Learned state survives a restart — the baseline is kept; a gap while the engine was down is not read as the service's silence (P-091)
    ↓

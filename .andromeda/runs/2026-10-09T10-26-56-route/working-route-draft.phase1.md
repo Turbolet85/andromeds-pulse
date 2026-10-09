@@ -18,19 +18,17 @@ Capability record re-based — one current record for all 82 ids, each claimed o
    ↓
 Console engine entry point — one program boots ingest, buffer, detectors, corpus with no display, driven by commands; log, identity, panic, heartbeat, process-end records kept (P-086)
    ↓
+Door inside the engine's process — agent tools read the engine's stores, own host only; stdio sidecar, its empty database, double gate leave (P-092, P-093)
+   ↓
+Corpus encryption at rest retired — credential-store key, cell encryption, passphrase fallback, key lock file, orphan disposition leave; scrubber unchanged; decision dated for review (P-085)
+   ↓
+One place on a node — operator-set, owner-only locations for stores, log and pid, one documented service default, one resolver; other-system roots leave (P-118, P-113)
+   ↓
 Agent harness drives the console engine — five verbs target it, verdict arms pinned by tests; panic, heartbeat-gap, process-end, budget checks grade its log (P-086)
    ↓
 Shared telemetry test data — spans, metric points and log records from one set of factories; event time, service, version and attributes settable (P-089, P-094)
    ↓
-Door inside the engine's process — tools read the engine's stores, owner only, own host, call records allowlisted; stdio sidecar, its double gate leave (P-092, P-093)
-   ↓
-Scenario legs driven against the console engine — gap-and-resume and external-resolve keep their verdicts, the external write going through the door (P-086, P-092)
-   ↓
-One place on a node — operator-set, owner-only locations for stores, log, pid; one documented service default, one resolver; other-system roots, shared-temp fallback leave (P-118, P-113)
-   ↓
-Corpus encryption at rest retired — credential-store key, cell encryption, passphrase fallback, key lock file, orphan disposition leave; scrubber unchanged; decision dated for review (P-085)
-   ↓
-Engine end-to-end gate reachable — memory-capped engine in CI, loopback sender, finding read through door, log graded, kept; second host reaches stub; recorded green (P-086, P-090)
+Engine end-to-end gate reachable — memory-capped engine in CI, loopback sender, finding read through the door, log kept; second host reaches stub; recorded green (P-086, P-090)
    ↓
 Detection baseline through the console engine — five cue families, one incident per storm, auto-resolve read through the door, recorded before window and model leave (P-086)
 
@@ -39,7 +37,7 @@ Window's gates retired — a11y and boot CI jobs, webview suite, headful drive, 
    ↓
 Window retired — Tauri shell, webview interface, IPC routers, tray, updater, notification plugins leave; design, layout, a11y masters state no interface; critical path P5 retired (P-083)
    ↓
-Desktop distribution retired — bundle workflow, channel publishing, runbooks, manifest test, npm tree, its watch, gate leave; release environment, secret names listed for the founder (P-114)
+Desktop distribution retired — bundle workflow, channel publishing, release and updater-key runbooks, channel-manifest test, npm tree, its bot watch and supply-chain gate leave (P-114)
    ↓
 Bridge leaves the engine's crates — bridge crate, its feature and type derives leave ingest, triage, viz; configuration becomes the engine's own, no interface key (P-108)
    ↓
@@ -47,7 +45,7 @@ Display-only computation retired — stream topics, per-batch encode, effective-
    ↓
 Plugin host retired — plugin crate, WebAssembly runtime dependency, example plugins, plugin directory and its CI backend assertion leave; critical path P4 recorded retired (P-104)
    ↓
-Training export retired — export module and its sink outside the stores leave; the model's per-spawn temp file is the one write left outside them (P-106)
+Training export retired — export module and its sink outside the stores leave; nothing the engine writes lands outside its own stores (P-106)
    ↓
 Other operating systems retired from the code — PowerShell scripts and spawns, Windows path handling, link hints, linker override, library-test workaround leave (P-113)
 
@@ -64,7 +62,7 @@ Workspace detection retired — detector crate, workspace incident key, filtered
    ↓
 Supply-chain gate re-based on the smaller graph — advisory ignores and duplicate carve-outs for departed crates pruned; advisory, licence, ban, secret-scan gates stay (P-083, P-084, P-104)
    ↓
-Log allowlist describes this engine — every allowed target emitted, every emitted field allowed; window, model, digest, tray and plugin targets and their pins leave (P-115)
+Log allowlist describes this engine — every allowed target one the engine emits; window, model, digest, tray and plugin targets and their pins leave (P-115)
    ↓
 Records say what the product is — brief, product description, project record, architecture intent, agent instructions, rules describe a console engine; 0.2–0.3 documents marked history (P-116)
    ↓
@@ -73,19 +71,19 @@ Detection parity after the removals — five cue families, one incident per stor
 Theme 0 checked by the external harness — detection after the removals, read through the door; reading recorded (P-102)
 
 ### Epoch 4 — The engine is reached over a network
-Security posture restated for a networked engine — tier, auth model, attack surface for token-gated receiver, admitted-party door, disk stores; later entries built to it (P-116)
+Security posture restated for a networked engine — tier, auth model, attack surface for a token-gated receiver and disk stores; later entries built to it (P-116)
    ↓
 Token lifecycle by engine command — made, shown once, replaced, revoked; not recoverable from stores; never in a log or a report; material owner-only (P-088, P-118)
    ↓
-Network OTLP receiver behind the token — another host sends over an encrypted channel; termination, key custody, renewal stated; replaces the loopback-only boundary (P-087, P-088, P-116)
+Network OTLP receiver behind the token — another host sends over an encrypted channel; termination and key custody stated; replaces the loopback-only boundary (P-087, P-088, P-116)
    ↓
 Receiver refusals — wrong or missing token refused before body read; plaintext from another host refused; refusals logged as bounded counts, never the token's value (P-088)
    ↓
 Per-sender bounds — sender over its rate slowed or refused, starving no other; size and count invariants hold remotely; token never keys an incident (P-088, P-105)
    ↓
-Door admission lifecycle and bounds — party admitted and revoked by command; store-only reads; answers bounded in size and time; resolve write named, switchable (P-093)
-   ↓
 Door reachable from another host — admitted parties only, encrypted in transit; where a party's credential lives on the developer's machine stated (P-093, P-092)
+   ↓
+Door admission lifecycle and bounds — party admitted and revoked by command; store-only reads; answers bounded in size and time; resolve write named, switchable (P-093)
 
 ### Epoch 5 — The engine lives on a small node
 Checks reason by event time — windows, restart detection and retention read the record's own stamp; lateness allowance stated; late batches counted where they belong (P-089)
@@ -94,7 +92,7 @@ Future-stamped records bounded — a stamp beyond a stated allowance cannot move
    ↓
 Recorded stream replays to the same result — a captured synthetic stream played again gives identical findings (P-089)
    ↓
-Engine memory measured — process memory under a long run inside 1 GB, the figure recorded; replaces the buffer's row-count estimate in the budget gate (P-090)
+Engine memory measured — process memory under a long run inside 1 GB, the figure recorded; replaces the buffer's row-count estimate (P-090)
    ↓
 Engine's own log bounded — total size capped, so neither the log nor the database file can fill the node (P-090)
    ↓
@@ -104,8 +102,6 @@ Theme 1 checked by the external harness — another host sends and reads finding
 
 ### Epoch 6 — Memory on disk and the door's full answers
 Telemetry store on disk — replaces the in-memory buffer, tick, stall signal kept; 7-day default term, configurable; oldest first at a size ceiling; survives restart (P-091)
-   ↓
-Disk store opened across builds — a telemetry store written by another build is recognised, carried forward or refused by a stated rule, never misread (P-091)
    ↓
 Learned state survives a restart — the baseline is kept; a gap while the engine was down is not read as the service's silence (P-091)
    ↓
@@ -150,7 +146,7 @@ Theme 4 checked by the external harness — a worse release and a quiet service 
 ### Epoch 9 — The voice
 One report form without a model — what, where, since when, after which version, which errors are new; incident record carries all of it (P-099, P-112)
    ↓
-State in one line for a desktop panel — an engine command prints the state through the door; the founder's desktop panel shows it (P-099, P-092)
+State in one line for a desktop panel — an engine command prints the current state; a panel module on the founder's desktop shows it (P-099)
    ↓
 System notification on a change of state — carries the short report in a stated terse form; each raise leaves a record a check reads (P-099)
    ↓
