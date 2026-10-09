@@ -98,16 +98,50 @@ fn workflow_job_block(content: &str, job: &str) -> String {
 }
 
 #[test]
-fn ci_workflow_release_job_owns_and_saves_its_cache_key() {
-    let block = workflow_job_block(&read_workflow(), "release");
+fn ci_workflow_runs_on_linux_only() {
+    let content = read_workflow();
+    let mut runner_lines = 0;
+    for (idx, line) in content.lines().enumerate() {
+        let number = idx + 1;
+        let trimmed = line.trim();
+        if trimmed.starts_with("runs-on:") {
+            runner_lines += 1;
+            assert_eq!(
+                trimmed, "runs-on: ubuntu-22.04",
+                "ci.yml:{number}: every job MUST run on ubuntu-22.04 (test-plan §9 Pipeline structure)"
+            );
+        }
+        let lowered = line.to_ascii_lowercase();
+        for token in ["macos", "windows", "matrix.os", "runner.os =="] {
+            assert!(
+                !lowered.contains(token),
+                "ci.yml:{number}: the workflow MUST name no other system, matrix value or \
+                 system condition; found `{token}` in: {line}"
+            );
+        }
+    }
     assert!(
-        block.contains("shared-key: release-${{ runner.os }}"),
-        "the release job MUST own `release-${{{{ runner.os }}}}`: restoring lint-test's key \
-         leaves it cold once lint-test re-saves without the release dependencies"
+        runner_lines > 0,
+        "ci.yml MUST carry at least one `runs-on:` line (sanity check on the line pattern)"
     );
+}
+
+// With no other-system release job, these two steps are the only
+// release-profile builds the workflow runs.
+#[test]
+fn ci_workflow_keeps_the_linux_release_build_witnesses() {
+    let content = read_workflow();
+    let supply_chain = workflow_job_block(&content, "supply-chain");
     assert!(
-        !block.contains("save-if: false"),
-        "the release job MUST save its own key (no `save-if: false`); block:\n{block}"
+        supply_chain.contains("cargo auditable build --workspace --release"),
+        "the supply-chain job MUST keep `cargo auditable build --workspace --release` \
+         (test-plan §9 Pipeline structure, Supply chain row); block:\n{supply_chain}"
+    );
+    let boot = workflow_job_block(&content, "boot");
+    assert!(
+        boot.contains("cargo build --workspace --release --features mcp-server"),
+        "the boot job MUST keep `cargo build --workspace --release --features mcp-server` \
+         (test-plan §9 Pipeline structure, Release build row); block:\n{boot}"
     );
 }
 
@@ -410,7 +444,7 @@ fn workflow_env_references_no_step_only_context() {
 #[test]
 fn data_dir_export_precedes_every_consumer() {
     let expected = [
-        ("ci.yml", 7),
+        ("ci.yml", 6),
         ("release.yml", 1),
         ("update-channels.yml", 2),
     ];

@@ -16,17 +16,13 @@ env:
   CARGO_TERM_COLOR: always
 
 # Independent jobs: a round lasts as long as its longest job, not the sum.
-# Cache keys are budgeted against the 10 GB repository cap: one target cache per
-# lint-test OS, one per release OS (macOS, Windows) and one for boot; a11y,
-# mcp-test and supply-chain restore read-only, and coverage keeps only the registry.
+# Cache keys are budgeted against the 10 GB repository cap: one target cache for
+# lint-test and one for boot; a11y, mcp-test and supply-chain restore read-only,
+# and coverage keeps only the registry.
 jobs:
   lint-test:
-    name: lint / test (${{ matrix.os }})
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-22.04, macos-latest, windows-latest]
+    name: lint / test (ubuntu-22.04)
+    runs-on: ubuntu-22.04
     steps:
       - name: Harden runner
         uses: step-security/harden-runner@a5ad31d6a139d249332a2605b85202e8c0b78450 # v2.19.1
@@ -57,7 +53,6 @@ jobs:
       # pulse-app links Tauri's WebKitGTK stack plus dbus (keyring, notify);
       # the build scripts find them through pkg-config.
       - name: Install Linux system libraries (Tauri + dbus)
-        if: runner.os == 'Linux'
         run: |
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends pkg-config libssl-dev \
@@ -84,8 +79,7 @@ jobs:
       # (U+043A for "to", U+0430 for "a", U+0431 for "b") had leaked into comments,
       # error strings and - critically - the L4 system prompts, degrading what the
       # local model receives. The scan is an xtask verb so pre-push:linux runs the
-      # same check, and its output is ASCII-only so the Windows runner's ANSI code
-      # page cannot crash it. Docs, rules and .andromeda/ are OUT of scope - they
+      # same check. Docs, rules and .andromeda/ are OUT of scope - they
       # legitimately quote the operator in Russian.
       - name: No Cyrillic in sources
         run: cargo xtask check:english-sources
@@ -118,18 +112,15 @@ jobs:
         run: cargo xtask test
 
       # Selects its one test under --workspace, so it reuses the test build above.
-      - name: cargo xtask perf:slo-load (10k spans/sec sustained-load) (Linux only)
-        if: runner.os == 'Linux'
+      - name: cargo xtask perf:slo-load (10k spans/sec sustained-load)
         run: cargo xtask perf:slo-load
 
       # The in-process producer of the memory + snapshot perf samples (no
       # window), then the budget gate over its log with both arms required.
-      - name: cargo nextest run --workspace --profile perf-samples (Linux only)
-        if: runner.os == 'Linux'
+      - name: cargo nextest run --workspace --profile perf-samples
         run: cargo nextest run --workspace --profile perf-samples
 
-      - name: cargo xtask perf:budget (memory + snapshot required) (Linux only)
-        if: runner.os == 'Linux'
+      - name: cargo xtask perf:budget (memory + snapshot required)
         run: cargo xtask perf:budget --data-dir target/tmp/perf-budget-samples --require memory,snapshot
 
       - name: Upload perf-samples logs artifact
@@ -187,59 +178,6 @@ jobs:
           path: target/capability-drift/report.json
           if-no-files-found: ignore
           retention-days: 14
-
-  # On Linux the supply-chain job's `cargo auditable build --workspace --release`
-  # builds the same scope, profile and features.
-  release:
-    name: release build (${{ matrix.os }})
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [macos-latest, windows-latest]
-    steps:
-      - name: Harden runner
-        uses: step-security/harden-runner@a5ad31d6a139d249332a2605b85202e8c0b78450 # v2.19.1
-        with:
-          egress-policy: audit
-
-      - name: Export ANDROMEDA_PULSE_DATA_DIR
-        shell: bash
-        run: echo "ANDROMEDA_PULSE_DATA_DIR=$RUNNER_TEMP/andromeda-pulse-ci-data" >> "$GITHUB_ENV"
-
-      - name: Checkout
-        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
-
-      - name: Install Rust toolchain (respects rust-toolchain.toml)
-        uses: dtolnay/rust-toolchain@29eef336d9b2848a0b548edc03f92a220660cdb8 # stable
-
-      # The release job owns its key: a lint-test re-save after a Cargo.lock
-      # change drops the release dependencies, which would leave this job cold.
-      - name: Cache cargo
-        uses: Swatinem/rust-cache@23869a5bd66c73db3c0ac40331f3206eb23791dc # v2.9.1
-        with:
-          shared-key: release-${{ runner.os }}
-          cache-on-failure: true
-
-      - name: Setup Node
-        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
-        with:
-          node-version: '24'
-
-      - name: npm ci (pulse-app/ui)
-        working-directory: pulse-app/ui
-        run: npm ci
-
-      - name: npm run build (ui/dist, embedded by tauri::generate_context!)
-        working-directory: pulse-app/ui
-        run: npm run build
-
-      # No frame boot here: the hosted Windows runner exposed no WebGPU adapter
-      # to WebView2 even under the software-adapter flag set (ci#36723465727,
-      # 0 frame samples, app healthy), so the frame budget is graded by
-      # `cargo xtask perf:frame-sample` on a GPU dev host.
-      - name: cargo build --workspace --release (macOS + Windows)
-        run: cargo build --workspace --release
 
   mcp-test:
     name: mcp-server tests (ubuntu-22.04)
@@ -299,12 +237,8 @@ jobs:
         run: cargo nextest run --workspace --features mcp-server --profile ci --no-tests=pass
 
   a11y:
-    name: a11y (${{ matrix.os }})
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-22.04, macos-latest, windows-latest]
+    name: a11y (ubuntu-22.04)
+    runs-on: ubuntu-22.04
     steps:
       - name: Harden runner
         uses: step-security/harden-runner@a5ad31d6a139d249332a2605b85202e8c0b78450 # v2.19.1
@@ -331,7 +265,6 @@ jobs:
       # pulse-app links Tauri's WebKitGTK stack plus dbus (keyring, notify);
       # the build scripts find them through pkg-config.
       - name: Install Linux system libraries (Tauri + dbus)
-        if: runner.os == 'Linux'
         run: |
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends pkg-config libssl-dev \
@@ -511,7 +444,6 @@ jobs:
       # pulse-app links Tauri's WebKitGTK stack plus dbus (keyring, notify);
       # the build scripts find them through pkg-config.
       - name: Install Linux system libraries (Tauri + dbus)
-        if: runner.os == 'Linux'
         run: |
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends pkg-config libssl-dev \
@@ -576,7 +508,6 @@ jobs:
       # pulse-app links Tauri's WebKitGTK stack plus dbus (keyring, notify);
       # the build scripts find them through pkg-config.
       - name: Install Linux system libraries (Tauri + dbus)
-        if: runner.os == 'Linux'
         run: |
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends pkg-config libssl-dev \

@@ -405,7 +405,8 @@
         "ref": null,
         "status": "planned"
       },
-      "chunk": null
+      "chunk": null,
+      "notes": "2026-10-09 (2026-10-09-ci-on-linux-alone, phase P5): not claimed by this chunk — not provable by it alone. The chunk makes the CI clause true (every job of the `ci` workflow runs on `ubuntu-22.04`; the `release` job, which had no Linux leg, leaves) and leaves the cap pooled. The rest of the acceptance, a tree with no branch, script, link hint or workaround for another operating system, is carried by three later entries: `Pre-push check native on Linux`, `One place on a node` and `Other operating systems retired from the code`. Read at this chunk's P3: 61 conditional-compilation lines in 24 Rust files still name Windows or macOS, and after this chunk no CI job compiles their other-system arms. `release.yml` still runs a three-system matrix; it leaves at `Desktop distribution retired` (P-114)."
     },
     {
       "id": "P-114",

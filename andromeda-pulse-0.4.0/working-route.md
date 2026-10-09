@@ -8,7 +8,7 @@ _verbatim line to route-archive.md); markerless lines stay mutable._
 _Chunks separated by `   ↓` within an epoch; only `### Epoch K — {name}` headers are structural._
 
 ### Epoch 1 — Foundation: base CI, the capability record, a console engine with its door, its gates
-CI on Linux alone — Windows and macOS legs leave three jobs, the release-build job whole; one run's wall-clock recorded (P-113) · WATCH: boot smoke on ubuntu-22.04 ended exit 1 within 0.4 s of its last record, after ready, with no process-end record; no cause in the application log, whose warnings match the green run on 7f99c38 — run 37924991598 on b3ac58a; hypothesis: the window's boot; the job leaves at Window's gates retired (since 2026-10-09-0-pending-adaptation-wrap; retires: a recurrence, or 3 green runs — 0 so far)
+[2026-10-09-ci-on-linux-alone] CI on Linux alone — Windows and macOS legs leave three jobs, the release-build job whole; one run's wall-clock recorded (P-113) · WATCH: boot smoke on ubuntu-22.04 ended exit 1 within 0.4 s of its last record, after ready, with no process-end record; no cause in the application log, whose warnings match the green run on 7f99c38 — run 37924991598 on b3ac58a; hypothesis: the window's boot; the job leaves at Window's gates retired (since 2026-10-09-0-pending-adaptation-wrap; retires: a recurrence, or 3 green runs — 0 so far)
    ↓
 Supply-chain job same on push and pull request — fails on a finding, never on its own reporting; repair witnessed on a push (P-120)
    ↓
