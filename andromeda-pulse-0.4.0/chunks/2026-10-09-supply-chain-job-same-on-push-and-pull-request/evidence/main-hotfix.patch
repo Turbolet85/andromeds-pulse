@@ -1,0 +1,77 @@
+diff --git a/.github/workflows/ci.yml b/.github/workflows/ci.yml
+index 66e590f..029b2ff 100644
+--- a/.github/workflows/ci.yml
++++ b/.github/workflows/ci.yml
+@@ -424,9 +424,7 @@ jobs:
+           save-if: false
+ 
+       - name: cargo audit (RustSec advisory DB)
+-        uses: rustsec/audit-check@69366f33c96575abad1ee0dba8212993eecbe998 # v2.0.0
+-        with:
+-          token: ${{ secrets.GITHUB_TOKEN }}
++        run: cargo audit
+ 
+       - name: cargo deny check bans licenses sources
+         uses: EmbarkStudios/cargo-deny-action@a4d2d701318fdc1c6ae17ba8cea8f329c5110eb2 # v2.0.17
+diff --git a/pulse-app/tests/quality_gate_workflow.rs b/pulse-app/tests/quality_gate_workflow.rs
+index 922be13..f411090 100644
+--- a/pulse-app/tests/quality_gate_workflow.rs
++++ b/pulse-app/tests/quality_gate_workflow.rs
+@@ -238,6 +238,7 @@ fn ci_workflow_test_gates_no_continue_on_error() {
+         "cargo clippy --workspace",
+         "cargo nextest run",
+         "cargo deny check",
++        "cargo audit",
+         "cargo xtask test",
+         "cargo xtask quarantine-tracking",
+         "cargo xtask coverage-regression",
+@@ -274,6 +275,49 @@ fn ci_workflow_test_gates_no_continue_on_error() {
+     }
+ }
+ 
++#[test]
++fn ci_workflow_audit_step_is_a_plain_run_step() {
++    let content = read_workflow();
++    let supply_chain = workflow_job_block(&content, "supply-chain");
++    let job_lines: Vec<&str> = supply_chain.lines().collect();
++    let name_line = "      - name: cargo audit (RustSec advisory DB)";
++    let start = job_lines
++        .iter()
++        .position(|line| *line == name_line)
++        .unwrap_or_else(|| panic!("the supply-chain job MUST keep the step `{name_line}`"));
++    let step = job_lines[start + 1..]
++        .iter()
++        .take_while(|line| !line.starts_with("      - name: "))
++        .copied()
++        .collect::<Vec<&str>>()
++        .join("\n");
++    assert!(
++        step.lines().any(|line| line.trim() == "run: cargo audit"),
++        "the audit step MUST be the plain step `run: cargo audit`, whose exit is the same on a \
++         push and on a pull request (security-plan §Dependency Security, CI integration; \
++         P-120); step:\n{step}"
++    );
++    for banned in ["uses:", "with:", "token", "continue-on-error", "||"] {
++        assert!(
++            !step.contains(banned),
++            "the audit step MUST hold no `{banned}`: no action, no token and no soft-fail \
++             (security-plan §Dependency Security, CI integration; P-120); step:\n{step}"
++        );
++    }
++    assert!(
++        !job_lines
++            .iter()
++            .any(|line| line.trim_start().starts_with("permissions:")),
++        "the supply-chain job MUST carry no `permissions:` key of its own (security-plan \
++         §Dependency Security, CI integration; P-120); block:\n{supply_chain}"
++    );
++    assert!(
++        !content.contains("rustsec/audit-check"),
++        "ci.yml MUST NOT use `rustsec/audit-check`: on a push it fails on its own reporting \
++         (security-plan §Dependency Security, CI integration; P-120)"
++    );
++}
++
+ #[test]
+ fn ci_workflow_env_includes_ci_run_id() {
+     let content = read_workflow();

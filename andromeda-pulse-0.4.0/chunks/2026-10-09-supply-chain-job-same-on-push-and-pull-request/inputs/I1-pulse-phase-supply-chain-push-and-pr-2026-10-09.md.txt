@@ -1,0 +1,24 @@
+# Phase directive — Pulse 0.4.0, second chunk: `Supply-chain job same on push and pull request` (2026-10-09)
+
+From the pc overseer, the operator. Each line is `measured` by me today at `b3e5859` unless it says `hypothesis`;
+re-derive what you rely on. Nothing here is this chunk's design.
+
+1. **The defect, as read in the runs.** Run `37907730264` on `60ef43c` (the push to `main`): `supply-chain` alone
+   failed, its log reading "No vulnerabilities were found", then `Resource not accessible by integration` on the
+   checks API. The same tree as a pull-request run (`37904682919` on `0e45d58`) passed. Today the workflow's top-level
+   `permissions:` is `contents: read` alone (`ci.yml:8-9`) and the step is `rustsec/audit-check` v2.0.0 with the
+   automatic token (`ci.yml:427-429`). `hypothesis:` on a push the step tries to create a check run the token may not
+   write; on a pull request the same denial is swallowed — read both logs before you write it as a fact.
+2. **The witness is a push-event run, and this branch does not get one.** `ci.yml:3-6` runs on `pull_request` and on a
+   push to `main` only; the branch's runs come from draft PR #40. The requirement says "the repair is witnessed where
+   the defect shows" (P-120). How this chunk obtains a push-event reading is yours to plan; a green pull-request run
+   does not witness the repair, and that must be said in the plan.
+3. **Whatever widens a token's permissions is a boundary widening** and halts for the founder's own word
+   (`.andromeda/playbook.md:118`). If the plan needs one, stop at P4 with the question whole — what is widened, for
+   which job, and the alternative that widens nothing.
+4. **This entry carries freight; read it on the line** (`working-route.md:13`): the boot-smoke `WATCH:` at 2 of 3 (the
+   `ci` run `37954318153` on `b3e5859` is its next reading — record its boot-smoke verdict), a `CARRY:` on the action
+   name security-plan gives for this step, and a `CARRY:` to re-read the cache listing.
+5. **Scope edge.** `No CI step reads nothing` (P-128) is two entries later: the baseline downloads and the uploads
+   that find no file are its work, not this chunk's, even with the same file open.
+6. **Diff-shaped probes name the chunk base, never HEAD.** At P5 print the plan card and stop for my `yes`.

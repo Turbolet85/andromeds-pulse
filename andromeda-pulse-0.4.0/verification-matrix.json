@@ -493,11 +493,12 @@
       "observed_gap": "CI run `37907730264` on `60ef43c`, the push the merge of PR #39 made, ended failure in the `supply-chain` job: `rustsec/audit-check` is denied a check run under `permissions: contents: read` (`ci.yml:8-9`, `:493-496`); on a pull request the same denial prints \"Unable to publish audit check!\" and passes, so a green pull-request run does not witness a repair.",
       "verification": {
         "method": "integration",
-        "acceptance": "For the same tree the supply-chain job ends the same on a push as on a pull request; it fails when there is a finding and never because it could not publish its own report; the repair is witnessed on a push, where the defect showed.",
+        "acceptance": "The push run on `main` that the founder's merge of the repair's pull request makes reads green in the `supply-chain` check, its `cargo audit (RustSec advisory DB)` step `success`, and its job log holds cargo audit's own scan line and no `Resource not accessible by integration`; the pull-request run of the build branch is green on the same repair, its audit step `success`; both runs are named by id. The step is `run: cargo audit` with no action, no token input and no soft-fail, and the job carries no `permissions:` key, held by a probe over the parsed workflow and by the test `ci_workflow_audit_step_is_a_plain_run_step`, so nothing the step does depends on the event or on publishing a report. `cargo audit --file` on a control lockfile naming a crate with a published vulnerability ends 1 and names a distinct `RUSTSEC-` id, on the dev host with the cargo-audit version the runner image lists; that is the witness that the step still fails on a finding.",
         "ref": null,
         "status": "planned"
       },
-      "chunk": null
+      "chunk": "2026-10-09-supply-chain-job-same-on-push-and-pull-request",
+      "notes": "2026-10-09 (2026-10-09-supply-chain-job-same-on-push-and-pull-request, phase P5): concretized at the claim. The witness is read on `main` itself, on the founder's ruling of 2026-10-09 (by dialog; relayed verbatim by the pc overseer; the chunk's inputs#I3): a separate pull request carries the repair to `main`, he merges it, and the push run his merge makes is the witness. A plan first read at P5 placed the witness on a side ref through a new trigger; it was withdrawn before approval. The red control is local to the dev host, accepted by the operator at the same review. The coordinate `ci.yml:493-496` in `observed_gap` is the step's place on `main` (`60ef43c`); on the build branch it stood at `ci.yml:426-429` at `b3e5859`. Plan approved by the operator's `yes` in the session, 2026-10-09."
     },
     {
       "id": "P-121",

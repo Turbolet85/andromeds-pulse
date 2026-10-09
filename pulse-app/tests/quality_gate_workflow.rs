@@ -145,6 +145,29 @@ fn ci_workflow_keeps_the_linux_release_build_witnesses() {
     );
 }
 
+// The trigger block is pinned whole, so no other event can be added unseen.
+#[test]
+fn ci_workflow_triggers_are_pull_request_and_push_on_main() {
+    let content = read_workflow();
+    let lines: Vec<&str> = content.lines().collect();
+    let start = lines
+        .iter()
+        .position(|line| *line == "on:")
+        .expect("ci.yml MUST declare a top-level `on:` block");
+    let triggers: Vec<&str> = lines[start + 1..]
+        .iter()
+        .take_while(|line| line.is_empty() || line.starts_with(' ') || line.starts_with('#'))
+        .copied()
+        .filter(|line| !line.trim().is_empty() && !line.trim_start().starts_with('#'))
+        .collect();
+    assert_eq!(
+        triggers,
+        ["  pull_request: {}", "  push:", "    branches: [main]"],
+        "ci.yml MUST run on a pull request and on a push to main, and on nothing else \
+         (architecture §Infrastructure Patterns, CI/CD approach)"
+    );
+}
+
 #[test]
 fn nextest_load_profiles_profile_preserves_zero_flake_posture() {
     let content = read_nextest_config();
@@ -238,6 +261,7 @@ fn ci_workflow_test_gates_no_continue_on_error() {
         "cargo clippy --workspace",
         "cargo nextest run",
         "cargo deny check",
+        "cargo audit",
         "cargo xtask test",
         "cargo xtask quarantine-tracking",
         "cargo xtask coverage-regression",
@@ -272,6 +296,49 @@ fn ci_workflow_test_gates_no_continue_on_error() {
              per test-plan §11 + §10 Build failure conditions); block:\n{block}"
         );
     }
+}
+
+#[test]
+fn ci_workflow_audit_step_is_a_plain_run_step() {
+    let content = read_workflow();
+    let supply_chain = workflow_job_block(&content, "supply-chain");
+    let job_lines: Vec<&str> = supply_chain.lines().collect();
+    let name_line = "      - name: cargo audit (RustSec advisory DB)";
+    let start = job_lines
+        .iter()
+        .position(|line| *line == name_line)
+        .unwrap_or_else(|| panic!("the supply-chain job MUST keep the step `{name_line}`"));
+    let step = job_lines[start + 1..]
+        .iter()
+        .take_while(|line| !line.starts_with("      - name: "))
+        .copied()
+        .collect::<Vec<&str>>()
+        .join("\n");
+    assert!(
+        step.lines().any(|line| line.trim() == "run: cargo audit"),
+        "the audit step MUST be the plain step `run: cargo audit`, whose exit is the same on a \
+         push and on a pull request (security-plan §Dependency Security, CI integration; \
+         P-120); step:\n{step}"
+    );
+    for banned in ["uses:", "with:", "token", "continue-on-error", "||"] {
+        assert!(
+            !step.contains(banned),
+            "the audit step MUST hold no `{banned}`: no action, no token and no soft-fail \
+             (security-plan §Dependency Security, CI integration; P-120); step:\n{step}"
+        );
+    }
+    assert!(
+        !job_lines
+            .iter()
+            .any(|line| line.trim_start().starts_with("permissions:")),
+        "the supply-chain job MUST carry no `permissions:` key of its own (security-plan \
+         §Dependency Security, CI integration; P-120); block:\n{supply_chain}"
+    );
+    assert!(
+        !content.contains("rustsec/audit-check"),
+        "ci.yml MUST NOT use `rustsec/audit-check`: on a push it fails on its own reporting \
+         (security-plan §Dependency Security, CI integration; P-120)"
+    );
 }
 
 #[test]

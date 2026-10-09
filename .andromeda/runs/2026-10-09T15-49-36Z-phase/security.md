@@ -1,0 +1,38 @@
+# security extract
+
+## Relevance
+relevant — the chunk edits the `cargo audit` step of the `supply-chain` job, which is the plan's dependency-security CI gate, and its candidate repairs touch token permissions and third-party action pinning.
+
+## Constraints
+- security-plan §Secret Management (GitHub Environment scoping) requires `permissions: { contents: read }` at the top of every workflow, with per-job elevation named for one case only: `contents: write` on the publish step. The plan names no `checks: write` (or any other write scope) for the `supply-chain` job, so a repair that grants one is outside what the plan covers; it is the token widening the scope sends to the founder at P4, not a plan-sanctioned elevation.
+- security-plan §Security Anti-Patterns (Secrets) bans `contents: write` at the workflow level; a repair that widens permissions, if ratified, is job-scoped, never a change to the workflow-level block.
+- security-plan §Security Anti-Patterns (Secrets) requires every third-party GitHub Action to be referenced by 40-char commit SHA, never a floating tag. This binds any repair that replaces, re-pins or adds an action in the audit step.
+- security-plan §Dependency Security (CI integration) requires the build to fail on any `cargo audit` finding at advisory severity above warning, and states `cargo audit` as a plain pass/fail gate. A repair that stops the step failing on its reporting must leave it failing on a finding; whether the step at `b3e5859` exits non-zero on a finding independently of its publishing path is research's question.
+- security-plan §Dependency Security (CI integration) defines the gate by the build failing on a finding; the plan states no requirement that the step publish a check run, an annotation or an issue. Dropping the publishing path removes nothing the plan mandates; whether another consumer depends on the published check is research's question.
+- security-plan §Dependency Security (CI integration) requires advisory findings to carry visible dispositions: a finding with a stated safe upgrade is never ignore-listed, and only a no-safe-upgrade finding takes an ID-scoped `[advisories] ignore` entry. The red control this chunk needs must not ship as an ignore entry, a lockfile downgrade or any other standing change to the advisory posture.
+- security-plan §Bootstrap phases (`dep-security-ci-gate`) requires `step-security/harden-runner`, SHA-pinned, as the first step of every job in `ci.yml` / `release.yml` / `update-channels.yml`. It binds the `supply-chain` job as edited and any job the plan adds or splits out to obtain a push-event reading.
+
+## Patterns to follow
+- The pin form `<owner>/<repo>@<40-char-SHA> # <version-comment>`, with Dependabot bumping SHA and comment together (security-plan §Bootstrap phases, `dep-security-ci-gate`; §Dependency Security, Update policy).
+- A plain named `run:` step that uses no third-party action does not trigger the SHA-pinning convention: the precedent is the staged-artifacts step (security-plan §Bootstrap phases, `dep-security-ci-gate`) and the npm gate (security-plan §Dependency Security, CI integration, npm channel). A repair that runs `cargo audit` directly follows this shape.
+- An exit contract that keeps "finding" and "cannot evaluate" as separate arms, where an infrastructure failure is never a findings pass (security-plan §Dependency Security, CI integration, npm channel). The chunk's "never on its own reporting" clause is the mirror of it: a reporting failure is not a finding, and a failure to evaluate is not a pass.
+- `cargo audit` stands beside `cargo deny check advisories` as two signals, and advisory records enumerate distinct `RUSTSEC-` ids, never error blocks, with no running ordinal (security-plan §Dependency Security, CI integration). The control's evidence record follows these counting rules.
+- `cargo audit` reads the advisory database under `$CARGO_HOME` (security-plan §Dependency Security, CI integration); a local reproduction of the control names which copy it read.
+
+## Anti-patterns to avoid
+- NEVER reference a third-party action by `@v2` or any floating tag (security-plan §Security Anti-Patterns, Secrets).
+- NEVER grant write permissions at the workflow level (security-plan §Security Anti-Patterns, Secrets); and never widen a token to make a reporting call succeed without the founder's word, since the plan's only named elevation is the publish step (security-plan §Secret Management, GitHub Environment scoping).
+- NEVER make the step unable to fail (a swallowed exit status, an ignore entry for a finding that has a safe upgrade): the plan requires a pass/fail gate with visible dispositions (security-plan §Dependency Security, CI integration).
+
+## Contract bindings
+- security <-> tests: the CI security gate is one job of the one `ci` workflow (tests §CI Integration). The scope names three in-tree readers of `ci.yml` (`pulse-app/tests/quality_gate_workflow.rs`, `pulse-app/tests/a11y_perf_workflow.rs`, `xtask/src/pre_push.rs`); whether any pins the audit step's action, token or permissions block is research's question.
+- security <-> architecture: the workflow's shape is recorded in architecture §Infrastructure Patterns, CI/CD approach; a changed step, job or trigger is an expected wrap amendment there, beside the cache-listing carry.
+- security <-> the wrap's master correction: the plan names `actions-rust-lang/audit` at TWO sites, security-plan §Dependency Security (CI integration) and security-plan §Bootstrap phases (`dep-security-ci-gate`). The scope's carry names the first only. The plan text is target state as written and is not coverage for which action ships; the wrap's correction covers both sites and names what ships.
+- security <-> the founder's boundary: security-plan §Secret Management (GitHub Environment scoping) confines signing and release credentials to the `production-release` Environment. If the push-event reading is obtained by widening `on:` triggers or by a new workflow, whether any job so triggered references a secret beyond `GITHUB_TOKEN` is research's question.
+- security <-> other workflow files: the pinning, permissions and `harden-runner` mandates above apply equally to `release.yml`, `update-channels.yml` and the secret-scan workflow (security-plan §Bootstrap phases, `dep-security-ci-gate`; §Secret Management, Secret scanning in CI); a second site of the same step or token shape found at P3 is held to the same rules.
+
+## Acceptance criteria contributions
+- After the change, the workflow-level `permissions:` block of every workflow file the chunk touches reads `contents: read` alone, and any job-level `permissions:` block the chunk adds is backed by the founder's recorded word naming the scope and the job (per security-plan §Secret Management, GitHub Environment scoping; §Security Anti-Patterns, Secrets).
+- Every `uses:` line the chunk adds or changes references a 40-char commit SHA followed by a version comment; a grep over the changed workflow lines finds no tag-only reference (per security-plan §Security Anti-Patterns, Secrets; §Bootstrap phases, `dep-security-ci-gate`).
+- The audit step turns red on an advisory above warning: a control run ends non-zero with at least one distinct `RUSTSEC-` id in its log, and the tree that ships carries no change to `deny.toml [advisories] ignore`, no audit ignore flag and no lockfile change made for the control (per security-plan §Dependency Security, CI integration).
+- `step-security/harden-runner`, SHA-pinned, remains the first step of the `supply-chain` job and is the first step of any job the chunk adds (per security-plan §Bootstrap phases, `dep-security-ci-gate`).

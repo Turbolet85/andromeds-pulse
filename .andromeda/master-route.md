@@ -104,3 +104,4 @@ version-cursor scan reads those exclusively; the forensic note is a blockquote, 
 
 ## andromeda-pulse-0.4.0
 2026-10-09-ci-on-linux-alone · complete · CI on Linux alone: Windows and macOS legs leave lint-test and a11y, the release job whole; per-job wall-clock recorded · → andromeda-pulse-0.4.0/chunks/2026-10-09-ci-on-linux-alone/
+2026-10-09-supply-chain-job-same-on-push-and-pull-request · pending · Supply-chain job same on push and pull request: the audit step fails on a finding, never on its own reporting; repair witnessed on a push · → andromeda-pulse-0.4.0/chunks/2026-10-09-supply-chain-job-same-on-push-and-pull-request/

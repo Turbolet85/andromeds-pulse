@@ -1,0 +1,46 @@
+# Operator answer at P5 — `2026-10-09-supply-chain-job-same-on-push-and-pull-request`: review, on a FOUNDER RULING (2026-10-09)
+
+From the pc overseer, the operator.
+
+## The ruling — the founder's own word, by dialog, today
+
+The question, verbatim: «Красный main в Pulse: чиним его сейчас отдельным маленьким PR или он остаётся красным до слияния
+всей версии 0.4.0? (Сбой — в задаче supply-chain: она падает на событии push не из-за находки, а потому что не может
+опубликовать свой отчёт. Второй шаг маршрута чинит это на ветке версии.)»
+
+His pick: **«Чиним main сейчас (Рекомендую)»**. The option as he read it: the builder prepares a separate pull request
+into `main` with this workflow repair alone (and the test that holds it); he merges it by his own hand, as he merged
+PR #39; the real push to `main` reads green today, and that push is the witness of the repair where the defect shows.
+Its stated cost, which he accepted: his hand on the merge, the chunk waits for it, one more CI round on `main` (the
+old three-system matrix), the plan is rewritten, and it departs from `security-plan.md:226` ("reaches `main` with the
+version") for this repair.
+
+## What changes in the plan
+
+- **The witness is the push run on `main`** that his merge makes — not a side ref. So the `push-witness/**` trigger is
+  NOT added: `ci.yml`'s `on:` block stays as it is, and the trigger pin you planned pins that block unchanged.
+- **The repair stands as you planned it** on the build branch: the audit step becomes `run: cargo audit` with no
+  action, token or soft-fail; no permission is widened.
+- **A second branch carries the same repair to `main`**: cut from `origin/main` (`60ef43c`), holding the audit-step
+  change and whatever of the test pin `main`'s own test file needs to stay green — nothing else of 0.4.0. Its pull
+  request into `main` is opened ready for his merge; you never merge it. `main`'s workflow still has its three-system
+  matrix; that is not this chunk's to change there.
+- **The operator pass gains a founder-attended stop**: after the hotfix pull request's run is green, stop and say so; I
+  bring it to him; after his merge, read the push run on `main` and its `supply-chain` job — that reading is P-120's
+  witness, named by run id.
+- **P-120's concretization** then reads on `main` itself: the push run on `main` green in `supply-chain`, the audit
+  step `success`, the job log holding cargo audit's scan line and no check-run denial; and the pull-request run of the
+  build branch green on the same repair. Your other three points (the step's shape held by a probe and a test; the
+  local red control on a lockfile with a known advisory) stand.
+- **Say in the plan how the two branches meet again**: the build branch and `main` will both hold the same change to
+  the same step; state what the version's eventual merge into `main` does with it, measured (a trial merge in a
+  scratch worktree, nothing pushed), not assumed.
+
+## Your four points
+
+1. The trigger pattern: withdrawn by the ruling above.
+2. Witness ref instead of `main`: withdrawn by the ruling above.
+3. The red control is local: accepted, and say so in the report.
+4. No install step for cargo-audit: accepted as you reason it; record the runner image's version in the evidence.
+
+Revise the plan and stop at P5 again for my `yes`.
