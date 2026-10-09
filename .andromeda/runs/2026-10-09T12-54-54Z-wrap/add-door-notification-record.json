@@ -1,0 +1,7 @@
+{
+  "title": "Each raised notification's record is read through the door",
+  "requirement": "the record each raised notification leaves is readable through the door, as part of the engine's own state: one record per raise, read-only and bounded like every other answer of the door",
+  "observed_gap": "`System notification on a change of state` says each raise \"leaves a record a check reads\" and does not say through what; no entry says the door offers that record, while the external harness's check of Theme 5 reads the status line, the report and that record through the door (Conductor `v4-12`).",
+  "method": "integration",
+  "acceptance": "After the engine has raised notifications, a reader that has only the door obtains exactly one record for each notification raised; each record tells which change of state it was raised for and when; the answer changes nothing and is bounded in size and time like every other answer of the door."
+}

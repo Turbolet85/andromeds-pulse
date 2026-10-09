@@ -510,6 +510,90 @@
         "status": "planned"
       },
       "chunk": null
+    },
+    {
+      "id": "P-122",
+      "title": "The door answers the engine's memory use and the size of its stores",
+      "requirement": "the door answers, as part of the engine's own state, the engine's current memory use and the current size of its stores; the answer is read-only and bounded like every other answer of the door, so a reader outside the engine's process needs no file and no process of the engine's to learn either figure",
+      "observed_gap": "P-093 lets the door read \"the engine's own state\" and P-092 lists telemetry, one incident whole and the curated snapshot; no route entry says the door offers the engine's memory use or the size of its stores — `Engine memory measured` and `Disk store measured under load` are the engine's own readings — while the external harness's long run reads both figures through the door over hours (Conductor `v4-21`).",
+      "verification": {
+        "method": "integration",
+        "acceptance": "A reader that has only the door asks for the engine's own state and is answered the engine's current memory use and the current size of its stores; the figures agree with what the engine measures of itself; the answer changes nothing and is bounded in size and time like every other answer of the door.",
+        "ref": null,
+        "status": "planned"
+      },
+      "chunk": null,
+      "notes": "2026-10-09 — added by the 0-pending adaptation wrap (run `.andromeda/runs/2026-10-09T12-54-54Z-wrap/`, relay item A.1: the external harness's long run reads the engine's memory use and its database's size through the door, Conductor `v4-21`). Read as inside P-093's own list of what the door reads (\"the engine's own state\"), not a widening. The acceptance clause \"the figures agree with what the engine measures of itself\" is the wrap's wording beyond the relay, kept on the word. Taken by the new Epoch 6 route entry `Engine's own state through the door`. word: \"write it. 1 P-122 as the new entry in Epoch 6, as you recommend. […] Your three added clauses stay.\" — delegate: the pc overseer as operator, founder-delegated, 2026-10-09; not the founder's own word, so PROVISIONAL under gate-contract §Scope (Whose word) until the founder's own word supersedes it."
+    },
+    {
+      "id": "P-123",
+      "title": "Each raised notification's record is read through the door",
+      "requirement": "the record each raised notification leaves is readable through the door, as part of the engine's own state: one record per raise, read-only and bounded like every other answer of the door",
+      "observed_gap": "`System notification on a change of state` says each raise \"leaves a record a check reads\" and does not say through what; no entry says the door offers that record, while the external harness's check of Theme 5 reads the status line, the report and that record through the door (Conductor `v4-12`).",
+      "verification": {
+        "method": "integration",
+        "acceptance": "After the engine has raised notifications, a reader that has only the door obtains exactly one record for each notification raised; each record tells which change of state it was raised for and when; the answer changes nothing and is bounded in size and time like every other answer of the door.",
+        "ref": null,
+        "status": "planned"
+      },
+      "chunk": null,
+      "notes": "2026-10-09 — added by the 0-pending adaptation wrap (run `.andromeda/runs/2026-10-09T12-54-54Z-wrap/`, relay item A.2: the external harness's check of Theme 5 reads the status line, the report and the record of each notification through the door, Conductor `v4-12`). P-093's list of what the door reads (telemetry, incidents, reports, the engine's own state) does not name the notification record; that the record is the engine's own state is recorded PROVISIONAL on the operator's word and was not halted on — a boundary widening, if the founder reads it as one, is ratified only by his own word. The acceptance clause \"which change of state it was raised for and when\" is the wrap's wording beyond the relay, kept on the word. Taken by the route entry `System notification on a change of state` (a `CARRY:` naming this id). word: \"2 P-123 recorded PROVISIONAL on the operator word; do not halt. […] Your three added clauses stay.\" — delegate: the pc overseer as operator, founder-delegated, 2026-10-09; not the founder's own word, so PROVISIONAL under gate-contract §Scope (Whose word) until the founder's own word supersedes it."
+    },
+    {
+      "id": "P-124",
+      "title": "The channel's private key is renewed in a stated way",
+      "requirement": "how the encrypted channel's private key is renewed is stated beside who terminates the channel and where the key lives: who renews it and by what steps; a renewed key lives where P-088 says the key lives — never in a store the door reads, never in a log — and telemetry is received over the encrypted channel after a renewal as before it",
+      "observed_gap": "`Network OTLP receiver behind the token` says \"termination, key custody, renewal stated\"; P-088 states the channel's termination and the key's custody only.",
+      "verification": {
+        "method": "integration",
+        "acceptance": "The way the channel's private key is renewed is stated, with who does it; a renewal carried out by those steps leaves a sender on another host still delivering over the encrypted channel, and the renewed key appears in no store the door reads and in no log.",
+        "ref": null,
+        "status": "planned"
+      },
+      "chunk": null,
+      "notes": "2026-10-09 — added by the 0-pending adaptation wrap (run `.andromeda/runs/2026-10-09T12-54-54Z-wrap/`, relay item B.1: the route entry `Network OTLP receiver behind the token` says \"termination, key custody, renewal stated\" while P-088 states termination and custody only). It rests on P-088, whose text beyond its token and its channel is PROVISIONAL until the founder's own word. The clause \"telemetry is received over the encrypted channel after a renewal as before it\" is the wrap's wording beyond the relay, kept on the word. Taken by that route entry (a `CARRY:` naming this id). word: \"write it. […] Your three added clauses stay. All six ids, the seven route edits and the watch as on the card.\" — delegate: the pc overseer as operator, founder-delegated, 2026-10-09; not the founder's own word, so PROVISIONAL under gate-contract §Scope (Whose word) until the founder's own word supersedes it."
+    },
+    {
+      "id": "P-125",
+      "title": "A telemetry store written by another build is recognised",
+      "requirement": "a telemetry store written by another build of the engine is recognised as such when it is opened, and is then carried forward or refused by a stated rule; it is never read as if the running build had written it",
+      "observed_gap": "the route entry `Disk store opened across builds` cites P-091, whose text has no such rule.",
+      "verification": {
+        "method": "integration",
+        "acceptance": "An engine that opens a telemetry store another build wrote recognises it; by the stated rule it either carries the store forward, and what was received before is still readable, or refuses it and says so; in neither case is the store's content misread.",
+        "ref": null,
+        "status": "planned"
+      },
+      "chunk": null,
+      "notes": "2026-10-09 — added by the 0-pending adaptation wrap (run `.andromeda/runs/2026-10-09T12-54-54Z-wrap/`, relay item B.2: the route entry `Disk store opened across builds` cites P-091, whose text has no rule for a store written by another build). Taken by that route entry (a `CARRY:` naming this id); the entry's own id list still reads `(P-091)`. word: \"write it. […] All six ids, the seven route edits and the watch as on the card.\" — delegate: the pc overseer as operator, founder-delegated, 2026-10-09; not the founder's own word, so PROVISIONAL under gate-contract §Scope (Whose word) until the founder's own word supersedes it."
+    },
+    {
+      "id": "P-126",
+      "title": "Only the engine's owner calls the door's first form",
+      "requirement": "until the door can be reached from another host, only the engine's owner on the engine's host can call it; a call by another account on that host is refused",
+      "observed_gap": "`Door inside the engine's process` carries \"owner only\" on P-118's authority; P-093 says \"on the engine's own host only\".",
+      "verification": {
+        "method": "integration",
+        "acceptance": "Before the door can be reached from another host, a call by the engine's owner on the engine's host is answered and a call by another account on the same host is refused.",
+        "ref": null,
+        "status": "planned"
+      },
+      "chunk": null,
+      "notes": "2026-10-09 — added by the 0-pending adaptation wrap (run `.andromeda/runs/2026-10-09T12-54-54Z-wrap/`, relay item B.3: the route entry `Door inside the engine's process` carries \"owner only\" on P-118's authority while P-093 says \"on the engine's own host only\"). It rests on P-093, PROVISIONAL until the founder's own word, and on P-118, where who may read the engine's place is PROVISIONAL the same way. Taken by that route entry (a `CARRY:` naming this id). word: \"write it. […] All six ids, the seven route edits and the watch as on the card.\" — delegate: the pc overseer as operator, founder-delegated, 2026-10-09; not the founder's own word, so PROVISIONAL under gate-contract §Scope (Whose word) until the founder's own word supersedes it."
+    },
+    {
+      "id": "P-127",
+      "title": "The release environment and its secrets are named for the founder",
+      "requirement": "the card of the chunk that retires the desktop's distribution names the release environment and every secret name the two distribution workflows read, for the founder to retire by hand; the chunk deletes nothing outside the tree",
+      "observed_gap": "`Desktop distribution retired` ends \"release environment, secret names listed for the founder\"; P-114's acceptance names the two channel repositories only. Measured 2026-10-09 at `b3ac58a`: both workflows run under the environment `production-release`; `release.yml` reads 14 secret names and `update-channels.yml` two push tokens beside the automatic `GITHUB_TOKEN`.",
+      "verification": {
+        "method": "manual",
+        "acceptance": "The removing chunk's card names the release environment and every secret name the bundle workflow and the channel workflow read, none missing against the two workflows as they stood before the removal; the founder retires them by hand; the chunk deletes nothing outside the tree.",
+        "ref": null,
+        "status": "planned"
+      },
+      "chunk": null,
+      "notes": "2026-10-09 — added by the 0-pending adaptation wrap (run `.andromeda/runs/2026-10-09T12-54-54Z-wrap/`, relay item B.4: the route entry `Desktop distribution retired` ends \"release environment, secret names listed for the founder\" while P-114's acceptance names the two channel repositories only). Measured 2026-10-09 at `b3ac58a`: `release.yml` and `update-channels.yml` both run under the environment `production-release`; `release.yml` reads 14 secret names, `update-channels.yml` two push tokens beside the automatic `GITHUB_TOKEN` — a count for the claiming chunk to re-read, not the list. Taken by that route entry (a `CARRY:` naming this id). word: \"write it. […] All six ids, the seven route edits and the watch as on the card.\" — delegate: the pc overseer as operator, founder-delegated, 2026-10-09; not the founder's own word, so PROVISIONAL under gate-contract §Scope (Whose word) until the founder's own word supersedes it."
     }
   ]
 }

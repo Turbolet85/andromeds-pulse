@@ -1,0 +1,7 @@
+{
+  "title": "The channel's private key is renewed in a stated way",
+  "requirement": "how the encrypted channel's private key is renewed is stated beside who terminates the channel and where the key lives: who renews it and by what steps; a renewed key lives where P-088 says the key lives — never in a store the door reads, never in a log — and telemetry is received over the encrypted channel after a renewal as before it",
+  "observed_gap": "`Network OTLP receiver behind the token` says \"termination, key custody, renewal stated\"; P-088 states the channel's termination and the key's custody only.",
+  "method": "integration",
+  "acceptance": "The way the channel's private key is renewed is stated, with who does it; a renewal carried out by those steps leaves a sender on another host still delivering over the encrypted channel, and the renewed key appears in no store the door reads and in no log."
+}

@@ -8,7 +8,7 @@ _verbatim line to route-archive.md); markerless lines stay mutable._
 _Chunks separated by `   ↓` within an epoch; only `### Epoch K — {name}` headers are structural._
 
 ### Epoch 1 — Foundation: base CI, the capability record, a console engine with its door, its gates
-CI on Linux alone — Windows and macOS legs leave three jobs, the release-build job whole; one run's wall-clock recorded (P-113)
+CI on Linux alone — Windows and macOS legs leave three jobs, the release-build job whole; one run's wall-clock recorded (P-113) · WATCH: boot smoke on ubuntu-22.04 ended exit 1 within 0.4 s of its last record, after ready, with no process-end record; no cause in the application log, whose warnings match the green run on 7f99c38 — run 37924991598 on b3ac58a; hypothesis: the window's boot; the job leaves at Window's gates retired (since 2026-10-09-0-pending-adaptation-wrap; retires: a recurrence, or 3 green runs — 0 so far)
    ↓
 Supply-chain job same on push and pull request — fails on a finding, never on its own reporting; repair witnessed on a push (P-120)
    ↓
@@ -22,7 +22,7 @@ Agent harness drives the console engine — five verbs target it, verdict arms p
    ↓
 Shared telemetry test data — spans, metric points and log records from one set of factories; event time, service, version and attributes settable (P-089, P-094)
    ↓
-Door inside the engine's process — tools read the engine's stores, owner only, own host, call records allowlisted; stdio sidecar, its double gate leave (P-092, P-093)
+Door inside the engine's process — tools read the engine's stores, owner only, own host, call records allowlisted; stdio sidecar, its double gate leave (P-092, P-093) · CARRY: this entry's owner-only is P-126's — until another host can reach the door, another account on the engine's host is refused
    ↓
 Scenario legs driven against the console engine — gap-and-resume and external-resolve keep their verdicts, the external write going through the door (P-086, P-092)
    ↓
@@ -39,7 +39,7 @@ Window's gates retired — a11y and boot CI jobs, webview suite, headful drive, 
    ↓
 Window retired — Tauri shell, webview interface, IPC routers, tray, updater, notification plugins leave; design, layout, a11y masters state no interface; critical path P5 retired (P-083)
    ↓
-Desktop distribution retired — bundle workflow, channel publishing, runbooks, manifest test, npm tree, its watch, gate leave; release environment, secret names listed for the founder (P-114)
+Desktop distribution retired — bundle workflow, channel publishing, runbooks, manifest test, npm tree, its watch, gate leave; release environment, secret names listed for the founder (P-114) · CARRY: the card names the release environment and every secret name the two workflows read (P-127; measured 2026-10-09 at b3ac58a: production-release, 14 names in release.yml, two push tokens in update-channels.yml); nothing outside the tree is deleted
    ↓
 Bridge leaves the engine's crates — bridge crate, its feature and type derives leave ingest, triage, viz; configuration becomes the engine's own, no interface key (P-108)
    ↓
@@ -77,7 +77,7 @@ Security posture restated for a networked engine — tier, auth model, attack su
    ↓
 Token lifecycle by engine command — made, shown once, replaced, revoked; not recoverable from stores; never in a log or a report; material owner-only (P-088, P-118)
    ↓
-Network OTLP receiver behind the token — another host sends over an encrypted channel; termination, key custody, renewal stated; replaces the loopback-only boundary (P-087, P-088, P-116)
+Network OTLP receiver behind the token — another host sends over an encrypted channel; termination, key custody, renewal stated; replaces the loopback-only boundary (P-087, P-088, P-116) · CARRY: the renewal this entry states is P-124's — who renews the channel's private key and by what steps; receiving continues across a renewal
    ↓
 Receiver refusals — wrong or missing token refused before body read; plaintext from another host refused; refusals logged as bounded counts, never the token's value (P-088)
    ↓
@@ -105,7 +105,7 @@ Theme 1 checked by the external harness — another host sends and reads finding
 ### Epoch 6 — Memory on disk and the door's full answers
 Telemetry store on disk — replaces the in-memory buffer, tick, stall signal kept; 7-day default term, configurable; oldest first at a size ceiling; survives restart (P-091)
    ↓
-Disk store opened across builds — a telemetry store written by another build is recognised, carried forward or refused by a stated rule, never misread (P-091)
+Disk store opened across builds — a telemetry store written by another build is recognised, carried forward or refused by a stated rule, never misread (P-091) · CARRY: this entry's rule is P-125's — P-091's text has none
    ↓
 Learned state survives a restart — the baseline is kept; a gap while the engine was down is not read as the service's silence (P-091)
    ↓
@@ -119,7 +119,9 @@ One incident whole through the door — the incident with its evidence, span and
    ↓
 Curated snapshot through the door — a narrow, budgeted view of recent telemetry made for a large model; the snapshot code's one consumer (P-092)
    ↓
-Theme 2 checked by the external harness — restart survival and the door's answers, input to output; reading recorded, path pinned in the engine gate (P-102)
+Engine's own state through the door — current memory use and the size of each store answered read-only, bounded in size and time (P-122)
+   ↓
+Theme 2 checked by the external harness — restart survival and the door's answers, input to output; reading recorded, path pinned in the engine gate (P-102) · CARRY: the restart between the two readings is done on the engine's host by whoever runs the check; the harness starts and stops no process of the engine's (Conductor's conductor-0.4.0/requirements.md:59 says the same)
 
 ### Epoch 7 — Keep what OpenTelemetry sends
 Span keeps its identity — name, kind and parent stored; the service's version and environment kept; each scrubbed before storage (P-094)
@@ -152,7 +154,7 @@ One report form without a model — what, where, since when, after which version
    ↓
 State in one line for a desktop panel — an engine command prints the state through the door; the founder's desktop panel shows it (P-099, P-092)
    ↓
-System notification on a change of state — carries the short report in a stated terse form; each raise leaves a record a check reads (P-099)
+System notification on a change of state — carries the short report in a stated terse form; each raise leaves a record a check reads (P-099) · CARRY: the record each raise leaves is read through the door (P-123); this entry's check reads it there
    ↓
 Report names its evidence — evidence cited by identifier, the report narrow; "not enough data" an answer the engine gives (P-100)
    ↓
