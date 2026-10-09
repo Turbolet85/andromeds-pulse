@@ -1,7 +1,7 @@
 # Session Handoff
 
 **Last Updated:** 2026-10-09T08:20:29Z
-**Branch:** chore/migrate-pulse-to-v3 · 0 ahead of origin/chore/migrate-pulse-to-v3 as read at this wrap's Setup (this wrap's commit and its push follow it)
+**Branch:** build/andromeda-pulse-0.4.0 · no upstream (created 2026-10-09 from origin/main `60ef43c`, nothing pushed) · the 0.3.0 branch chore/migrate-pulse-to-v3 is kept at `0e45d58`, 0 ahead of its origin
 **Status:** clean
 **Last Commit:** 0-pending wrap — chore(route): operator-requested adaptation, 0.3.0 closed as it stands (after `18a872d`)
 
@@ -11,9 +11,9 @@
   verified, the working route 0 markerless and 0 gated: version-done by the letters, with no chunk of its own.
 - **Next:** `/andromeda-route` for the next version, when the founder says so. Its Phase A intake dispositions the 15
   `open` lines of `.andromeda/residuals.md`.
-- **The founder's own hand, not done here:** PR #39 (`chore/migrate-pulse-to-v3` into `main`) is merged by him at the
-  close (his ruling of 2026-10-07 12:14). This wrap did not merge it, mark it ready or rebase it. No tag, no release,
-  no version bump.
+- **The founder's own hand, done after this wrap:** PR #39 (`chore/migrate-pulse-to-v3` into `main`) reads `MERGED`
+  on GitHub as measured 2026-10-09 (merge commit `60ef43c`, its tree identical to `0e45d58`; his ruling of 2026-10-07
+  12:14). The wrap did not merge it, mark it ready or rebase it, and made no tag, no release, no version bump.
 
 ## Work done
 - The five markerless entries left the route: three retired unbuilt ("The Linux boot smoke is deterministic", "L4
@@ -79,3 +79,6 @@
   nextest `timeout` sizing; the implement report-step CHECK; the bindings-regen PIPELINE half; macOS `SystemTime` µs
   ticks; Windows `.ico` vs palette PNG; the deferral-destination generalization; `inject_demo --sustained` cannot
   form an incident.
+
+## Session End Status
+Completed normally at 2026-10-09 11:12:07

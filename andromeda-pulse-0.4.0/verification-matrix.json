@@ -1,0 +1,281 @@
+{
+  "schema_version": 1,
+  "version": "andromeda-pulse-0.4.0",
+  "source": "intent",
+  "id_scheme": "P-NNN",
+  "capabilities": [
+    {
+      "id": "P-083",
+      "title": "The window is gone",
+      "requirement": "No crate depends on the window toolkit; the tree holds no webview interface; no gate boots a window or audits one; the masters say in plain words that this version has no interface and which later version brings a minimal one on another toolkit; the 0.3.0 capabilities that were about the window are recorded as retired with the surface, not as regressed.",
+      "observed_gap": "A Tauri shell, a webview interface of about 24 thousand lines, two CI jobs that exist for it (the window's boot smoke and the accessibility audit), and three masters whose subject it is (design-system, layout-templates, a11y-plan). Most of 0.3.0's 22 verified capabilities are about it (the window, the widget, the constellation, the tables, the Investigate buttons).",
+      "verification": {
+        "method": "integration",
+        "acceptance": "A build of the whole workspace on Linux succeeds with no window toolkit anywhere in its dependency graph; the tree contains no webview interface; no gate boots a window or audits one, and the full remaining gate is green; the headless engine still detects everything it detected in 0.3.0; the masters state that this version has no interface and name the later version that brings one; the 0.3.0 window capabilities read as retired with the surface, not as regressed.",
+        "ref": null,
+        "status": "planned"
+      },
+      "chunk": null
+    },
+    {
+      "id": "P-084",
+      "title": "The local model is gone from the engine",
+      "requirement": "The engine starts, detects and reports with no model present and none configured; no gate needs a GPU; the words of a report come from the engine's own facts (P-099); a large model reads through the door (P-092) and is not part of the engine.",
+      "observed_gap": "An inference runtime that spawns a local model per generation, its grammar, its hardware probe, its deterministic stand-in, and a decision probe that grades it; the incident's interpretation is the model's text.",
+      "verification": {
+        "method": "integration",
+        "acceptance": "On a host with no model file, no inference program and no GPU, and with nothing about a model configured, the engine starts, a planted fault becomes an incident, and its report is worded from the engine's own facts; the full gate passes on such a host; no engine command or setting refers to a local model.",
+        "ref": null,
+        "status": "planned"
+      },
+      "chunk": null
+    },
+    {
+      "id": "P-085",
+      "title": "The corpus is stored unencrypted, for this first stage",
+      "requirement": "The engine keeps its stores readable on its own node with no credential store; the secret scrubber at ingest stays as it is; the security master records the decision, its date and that it is to be looked at again.",
+      "observed_gap": "The incident corpus is encrypted per cell with a key from the desktop's credential store; a server has no such store (a CI runner already read KeyringUnavailable); the buffer is not encrypted.",
+      "verification": {
+        "method": "integration",
+        "acceptance": "On a node with no credential store the engine opens its stores, records an incident and reads it back after a restart; a secret sent in telemetry is absent from every store exactly as before; the security master carries the decision, its date and a note that it is to be looked at again.",
+        "ref": null,
+        "status": "planned"
+      },
+      "chunk": null
+    },
+    {
+      "id": "P-086",
+      "title": "A program without a window",
+      "requirement": "The engine is a console program that runs in the background on a Linux server and is driven by commands; nothing in it needs a display, a GPU or a desktop session; everything 0.3.0 detected is still detected.",
+      "observed_gap": "One application binary that is a Tauri process; no headless mode. The intent adds that tauri is a dependency of the ingest and triage crates as well as of the shell; re-read at HEAD 60ef43c, those two crates declare the bindings-type derive of the window's IPC bridge behind a default-on feature and do not declare tauri, which is declared by the IPC bridge crate (optional) and the application binary.",
+      "verification": {
+        "method": "e2e",
+        "acceptance": "The engine starts from a console on a Linux host with no display, no GPU and no desktop session, keeps running in the background, and is controlled only by its commands; each kind of fault 0.3.0 detected (error-rate spike, latency regression, retry storm, restart, silence) is still detected, and a sustained storm still yields exactly one incident.",
+        "ref": null,
+        "status": "planned"
+      },
+      "chunk": null
+    },
+    {
+      "id": "P-087",
+      "title": "Telemetry arrives over a network",
+      "requirement": "A service on another host sends OTLP to the engine with a token over an encrypted channel; a request without the token is refused; connecting a service takes an address and a token and installs nothing beside it.",
+      "observed_gap": "The receivers bind 127.0.0.1, the HTTP one admits only localhost Host values, and neither asks for a credential.",
+      "verification": {
+        "method": "integration",
+        "acceptance": "A service on a second host, given only the engine's address and a token, delivers traces, metrics and logs to the engine over an encrypted channel and they are stored; the same request without the token is refused; nothing was installed beside the service.",
+        "ref": null,
+        "status": "planned"
+      },
+      "chunk": null
+    },
+    {
+      "id": "P-088",
+      "title": "What the network receiver refuses",
+      "requirement": "A request with a missing or wrong token is refused before its body is read, and the refusal is recorded without the token's value; the token is made, shown once, replaced and revoked by an engine command and is never written to a log or a report; a sender that exceeds its rate is slowed or refused without starving another; the existing size and count invariants apply to a remote sender as they do today; a plain unencrypted connection from another host is refused. Everything the scrubber removes today is still removed before anything is stored.",
+      "observed_gap": "The receiver's only guards today are its localhost bind, a Host allow-list, size and count invariants and a global rate limit; none of them assumes a sender it does not trust.",
+      "verification": {
+        "method": "integration",
+        "acceptance": "A request with a missing or wrong token is refused before its body is read, and the record of the refusal does not contain the token; an engine command makes a token, shows it once, replaces it and revokes it, after which the old token is refused; the token appears in no log and no report; one sender exceeding its rate is slowed or refused while a second sender's telemetry still arrives; the existing size and count limits refuse an oversized remote request; an unencrypted connection from another host is refused; a secret sent by a remote sender is absent from every store.",
+        "ref": null,
+        "status": "planned"
+      },
+      "chunk": null
+    },
+    {
+      "id": "P-089",
+      "title": "The watcher counts by event time",
+      "requirement": "Every check reasons by the time stamped inside the record, with a stated allowance for lateness; a batch that arrives late is counted where it belongs, and a recorded stream can be played again and give the same result.",
+      "observed_gap": "Windows, cadences, the restart detector and the retention cutoff read the system clock; the restart cue keys on a gap in ARRIVAL of more than 20 s.",
+      "verification": {
+        "method": "integration",
+        "acceptance": "Fed the same recorded stream twice, at different wall-clock times and speeds, the engine produces the same findings both times; a batch delivered late, inside the stated allowance, is counted in the period its records are stamped with; the allowance is stated.",
+        "ref": null,
+        "status": "planned"
+      },
+      "chunk": null
+    },
+    {
+      "id": "P-090",
+      "title": "The node is small",
+      "requirement": "The engine fits a 1 GB node under a long run; the figure is measured, and the database file does not grow without bound under constant insert and delete.",
+      "observed_gap": "The engine's memory use with a database on disk has never been measured.",
+      "verification": {
+        "method": "integration",
+        "acceptance": "Over a long run under steady load on a node with 1 GB of memory the engine stays up and inside that memory; the measured figure is recorded; under constant insert and delete the database file's size levels off instead of growing.",
+        "ref": null,
+        "status": "planned"
+      },
+      "chunk": null
+    },
+    {
+      "id": "P-091",
+      "title": "What was received is still there tomorrow",
+      "requirement": "Raw telemetry is kept for days and survives a restart; what the watcher has learned survives a restart; a gap while the engine was down is not read as the service's silence.",
+      "observed_gap": "Raw telemetry lives 600 s in an in-memory database; only incidents persist; the learned baseline is discarded at start when older than an hour.",
+      "verification": {
+        "method": "integration",
+        "acceptance": "Telemetry received before a restart is readable after it, and is still readable days later; after a restart the watcher judges new telemetry against what it had learned before, without relearning; an interval in which the engine was down produces no finding that the service went quiet.",
+        "ref": null,
+        "status": "planned"
+      },
+      "chunk": null
+    },
+    {
+      "id": "P-092",
+      "title": "The agent's door opens onto the real data",
+      "requirement": "An agent on the developer's machine reaches the engine's tools and reads the telemetry the engine holds, filtered by service, time range, trace and text, with aggregates; it reaches one incident whole, with its evidence. The door lives inside the engine's process. The same door serves the test harness and the status widget (P-099).",
+      "observed_gap": "The MCP sidecar's four telemetry tools read their own empty in-memory database; they accept only a time window and a limit.",
+      "verification": {
+        "method": "integration",
+        "acceptance": "An agent on the developer's machine asks the running engine and receives telemetry the engine actually received, narrowed by service, by time range, by trace and by text, and aggregated; it receives one incident complete with the evidence it rests on, the spans and moments included; the answers come from the engine's own process; the test harness and the status line read through the same door.",
+        "ref": null,
+        "status": "planned"
+      },
+      "chunk": null
+    },
+    {
+      "id": "P-093",
+      "title": "What the door may do",
+      "requirement": "The door answers only a party the node's owner has admitted; it reads the engine's stores (telemetry, incidents, reports, the engine's own state) and nothing else on the node: not the token, not configuration secrets, not files outside those stores; every answer is bounded in size and time, so no question can exhaust the node; what it returns was scrubbed at ingest; the one write it keeps (resolving an incident) is named as a write and can be switched off.",
+      "observed_gap": "The sidecar's tools are local, unauthenticated, and one of them writes (it marks an incident resolved).",
+      "verification": {
+        "method": "integration",
+        "acceptance": "A party the node's owner has not admitted gets no answer; an admitted party can read telemetry, incidents, reports and the engine's own state, and cannot obtain the token, a configuration secret or any file outside those stores; a question that would be too large or too slow is cut off at a stated bound and the engine stays responsive; nothing returned contains a secret the scrubber removes; resolving an incident is listed as a write, and once switched off it is refused.",
+        "ref": null,
+        "status": "planned"
+      },
+      "chunk": null
+    },
+    {
+      "id": "P-094",
+      "title": "A span keeps its meaning",
+      "requirement": "The stored span keeps its name, kind and parent, the service's version and environment, and the attributes that say which route, which status code, which database or peer it touched, under both generations of the semantic-convention names. Who calls whom can be answered from what is stored.",
+      "observed_gap": "A span is stored as seven fields; its name, kind, parent, status message, every attribute and every resource attribute but service.name are dropped at ingest; two aggregation queries reference a parent column the table does not have, and their results are discarded.",
+      "verification": {
+        "method": "integration",
+        "acceptance": "For a span sent with a name, a kind, a parent, a service version and environment, and attributes naming its route, status code, database and peer, in either generation of the semantic-convention names, each of those is readable back from the store; the question of which service calls which is answered from stored spans and matches what was sent.",
+        "ref": null,
+        "status": "planned"
+      },
+      "chunk": null
+    },
+    {
+      "id": "P-095",
+      "title": "Metrics and logs keep theirs",
+      "requirement": "A percentile can be computed from stored metrics; a log line and a metric point name their service; exception type, message and stack are readable through the door.",
+      "observed_gap": "Histogram-family points are stored as the value 0; a log row and a metric row carry no service identity; stored exception text has no reader.",
+      "verification": {
+        "method": "integration",
+        "acceptance": "A percentile computed from stored histogram metrics matches the distribution that was sent; every stored log line and metric point names the service it came from; an exception's type, message and stack are readable through the door.",
+        "ref": null,
+        "status": "planned"
+      },
+      "chunk": null
+    },
+    {
+      "id": "P-096",
+      "title": "A new kind of error is news",
+      "requirement": "The first appearance of an error fingerprint for a service is a finding, and so is the return of one that had gone away.",
+      "observed_gap": "The fingerprint feeds the retry-storm detector and the search for similar past incidents; nothing says \"this error was never seen before\".",
+      "verification": {
+        "method": "integration",
+        "acceptance": "The first time an error fingerprint appears for a service the engine reports a finding naming that error as new; a repeat of the same error produces no second such finding; when an error that had gone away comes back, the engine reports its return.",
+        "ref": null,
+        "status": "planned"
+      },
+      "chunk": null
+    },
+    {
+      "id": "P-097",
+      "title": "A release is compared with the one before",
+      "requirement": "When a new version of a service appears, the engine compares it with the previous one (error rate, new error kinds, latency) and says when the new one is worse, naming the version and the moment it appeared.",
+      "observed_gap": "The service version is dropped at ingest; the digest has never carried a commit; nothing knows a release happened.",
+      "verification": {
+        "method": "integration",
+        "acceptance": "When a service starts reporting a new version, the engine records the version and the moment it appeared, compares its error rate, its new error kinds and its latency with the previous version's, and, when the new one is worse, says so, naming the version and that moment; a new version that is no worse produces no such finding.",
+        "ref": null,
+        "status": "planned"
+      },
+      "chunk": null
+    },
+    {
+      "id": "P-098",
+      "title": "Silence is told apart from \"nothing arrived\"",
+      "requirement": "\"The service went quiet\", \"no data reached the engine\" and \"the check could not be evaluated\" are three different states, and a recovery is announced.",
+      "observed_gap": "A vanished stream and an engine that could not receive look alike.",
+      "verification": {
+        "method": "integration",
+        "acceptance": "A service that stops sending while the engine is receiving from others is reported as gone quiet; an interval in which nothing reached the engine at all is reported as no data reaching the engine, not as the service's silence; a check that could not be evaluated is reported as such; when telemetry resumes, a recovery is announced.",
+        "ref": null,
+        "status": "planned"
+      },
+      "chunk": null
+    },
+    {
+      "id": "P-099",
+      "title": "The engine says it, in one line and in a report",
+      "requirement": "A command of the engine prints the current state in one line a desktop panel can show; a change of state raises a system notification; the notification carries a short report (what, where, since when, after which version, which errors are new) written without a model.",
+      "observed_gap": "Findings are visible only inside the window.",
+      "verification": {
+        "method": "integration",
+        "acceptance": "An engine command prints the current state as a single line, and a desktop panel on the founder's machine shows it; when the state changes, a system notification appears carrying a short report that says what happened, where, since when, after which version and which errors are new; the report is produced with no model.",
+        "ref": null,
+        "status": "planned"
+      },
+      "chunk": null
+    },
+    {
+      "id": "P-100",
+      "title": "The report is enough for a large model",
+      "requirement": "Given the report and the door, a large model names the cause that was planted. The report is narrow and names its evidence by identifier; \"not enough data\" is an honest answer the engine can give.",
+      "observed_gap": "The incident's interpretation was written by the local model; no measurement exists of whether a large model can work from it.",
+      "verification": {
+        "method": "dynamic-external",
+        "acceptance": "Given only the engine's report for a planted fault and access to the door, a large model names the planted cause; the report is short and refers to each piece of its evidence by an identifier the door resolves; when the engine lacks the data to say, its report says that there is not enough data.",
+        "ref": null,
+        "status": "planned"
+      },
+      "chunk": null
+    },
+    {
+      "id": "P-101",
+      "title": "A real service is watched too",
+      "requirement": "One real service of the founder's sends its telemetry to the engine for days; what the engine reported and what it stayed silent on is read against what actually happened to that service. Which service is not yet named: the founder is asked before this capability is taken up.",
+      "observed_gap": "Every reading of Pulse so far was taken on telemetry a test tool composed.",
+      "verification": {
+        "method": "manual",
+        "acceptance": "One real service of the founder's, named by him, sends its telemetry to the engine for several days; for that period, what the engine reported and what it stayed silent on has been read against what actually happened to the service, and the reading is recorded.",
+        "ref": null,
+        "status": "planned"
+      },
+      "chunk": null
+    },
+    {
+      "id": "P-102",
+      "title": "The bad-version scenario, end to end",
+      "requirement": "Conductor rolls out a \"bad version\" of one service in its simulated world, over the network, to an engine on another host. Within minutes the panel module and a system notification carry a message naming the service, the version and the new error. A large model, given the report and the door, names the planted cause. The engine did this on a 1 GB node, and stayed silent through the healthy hours before it. After each theme the external harness checks that theme's result from the input to the output.",
+      "observed_gap": null,
+      "verification": {
+        "method": "dynamic-external",
+        "acceptance": "In a run driven by the external harness, a bad version of one service is rolled out in the simulated world and its telemetry reaches, over the network, an engine on another host with 1 GB of memory; within minutes the panel line and a system notification name the service, the version and the new error; a large model given the report and the door names the planted cause; through the healthy hours before the rollout the engine reported nothing; after each of the five themes the harness has checked that theme's result from input to output.",
+        "ref": null,
+        "status": "planned"
+      },
+      "chunk": null
+    },
+    {
+      "id": "P-103",
+      "title": "The local pre-push check runs on Linux",
+      "requirement": "The check a developer runs before a push runs natively on the Linux dev host, over the stages that survive this version's removals, with no second operating system beside it.",
+      "observed_gap": null,
+      "verification": {
+        "method": "manual",
+        "acceptance": "On the Linux dev host, with no second operating system involved, one command runs the pre-push check over every stage that survives this version's removals and gives a verdict that agrees with what CI then reports for the same tree.",
+        "ref": null,
+        "status": "planned"
+      },
+      "chunk": null
+    }
+  ]
+}
